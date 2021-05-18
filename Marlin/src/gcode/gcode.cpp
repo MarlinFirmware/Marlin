@@ -211,7 +211,7 @@ void GcodeSuite::dwell(millis_t time) {
  * When G29_RETRY_AND_RECOVER is enabled, call G29() in
  * a loop with recovery and retry handling.
  */
-#if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
+#if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
@@ -222,6 +222,10 @@ void GcodeSuite::dwell(millis_t time) {
       process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
     #endif
   }
+
+  #if ENABLED(G29_HALT_ON_FAILURE)
+    #include "../lcd/marlinui.h"
+  #endif
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
@@ -262,7 +266,7 @@ void GcodeSuite::dwell(millis_t time) {
     #endif
   }
 
-#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
+#endif // G29_RETRY_AND_RECOVER
 
 /**
  * Process the parsed command and dispatch it to its handler
@@ -559,6 +563,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if HAS_COOLER
         case 143: M143(); break;                                  // M143: Set cooler temperature
         case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
+      #endif
+
+      #if ENABLED(AUTO_REPORT_POSITION)
+        case 154: M154(); break;                                  // M155: Set position auto-report interval
       #endif
 
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
@@ -985,6 +993,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(DGUS_LCD_UI_MKS)
         case 1002: M1002(); break;                                // M1002: [INTERNAL] Tool-change and Relative E Move
+      #endif
+
+      #if ENABLED(UBL_MESH_WIZARD)
+        case 1004: M1004(); break;                                // M1004: UBL Mesh Wizard
       #endif
 
       #if ENABLED(MAX7219_GCODE)

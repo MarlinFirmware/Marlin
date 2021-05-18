@@ -420,8 +420,6 @@ class Temperature {
 
   private:
 
-    static volatile bool raw_temps_ready;
-
     #if ENABLED(WATCH_HOTENDS)
       static hotend_watch_t watch_hotend[HOTENDS];
     #endif
@@ -459,11 +457,11 @@ class Temperature {
       static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
       #endif
 
-    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+    #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
 
-    #ifdef MILLISECONDS_PREHEAT_TIME
+    #if MILLISECONDS_PREHEAT_TIME > 0
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
@@ -472,7 +470,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
-      static bool paused;
+      static bool paused_for_probing;
     #endif
 
   public:
@@ -607,7 +605,7 @@ class Temperature {
     /**
      * Preheating hotends
      */
-    #ifdef MILLISECONDS_PREHEAT_TIME
+    #if MILLISECONDS_PREHEAT_TIME > 0
       static inline bool is_preheating(const uint8_t E_NAME) {
         return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
       }
@@ -650,17 +648,11 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].target);
     }
 
-    #if WATCH_HOTENDS
-      static void start_watching_hotend(const uint8_t e=0);
-    #else
-      static inline void start_watching_hotend(const uint8_t=0) {}
-    #endif
-
     #if HAS_HOTEND
 
       static void setTargetHotend(const celsius_t celsius, const uint8_t E_NAME) {
         const uint8_t ee = HOTEND_INDEX;
-        #ifdef MILLISECONDS_PREHEAT_TIME
+        #if MILLISECONDS_PREHEAT_TIME > 0
           if (celsius == 0)
             reset_preheat_time(ee);
           else if (temp_hotend[ee].target == 0)
@@ -699,6 +691,14 @@ class Temperature {
         return ABS(wholeDegHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
+      // Start watching a Hotend to make sure it's really heating up
+      static inline void start_watching_hotend(const uint8_t E_NAME) {
+        UNUSED(HOTEND_INDEX);
+        #if WATCH_HOTENDS
+          watch_hotend[HOTEND_INDEX].restart(degHotend(HOTEND_INDEX), degTargetHotend(HOTEND_INDEX));
+        #endif
+      }
+
     #endif // HAS_HOTEND
 
     #if HAS_HEATED_BED
@@ -712,11 +712,8 @@ class Temperature {
       static inline bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
       static inline bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
 
-      #if WATCH_BED
-        static void start_watching_bed();
-      #else
-        static inline void start_watching_bed() {}
-      #endif
+      // Start watching the Bed to make sure it's really heating up
+      static inline void start_watching_bed() { TERN_(WATCH_BED, watch_bed.restart(degBed(), degTargetBed())); }
 
       static void setTargetBed(const celsius_t celsius) {
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
@@ -749,12 +746,6 @@ class Temperature {
       static bool wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling=true);
     #endif
 
-    #if WATCH_PROBE
-      static void start_watching_probe();
-    #else
-      static inline void start_watching_probe() {}
-    #endif
-
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static inline int16_t rawChamberTemp()      { return temp_chamber.raw; }
@@ -769,17 +760,13 @@ class Temperature {
       #endif
     #endif
 
-    #if WATCH_CHAMBER
-      static void start_watching_chamber();
-    #else
-      static inline void start_watching_chamber() {}
-    #endif
-
     #if HAS_HEATED_CHAMBER
       static void setTargetChamber(const celsius_t celsius) {
         temp_chamber.target = _MIN(celsius, CHAMBER_MAX_TARGET);
         start_watching_chamber();
       }
+      // Start watching the Chamber to make sure it's really heating up
+      static inline void start_watching_chamber() { TERN_(WATCH_CHAMBER, watch_chamber.restart(degChamber(), degTargetChamber())); }
     #endif
 
     #if HAS_TEMP_COOLER
@@ -796,17 +783,13 @@ class Temperature {
       #endif
     #endif
 
-    #if WATCH_COOLER
-      static void start_watching_cooler();
-    #else
-      static inline void start_watching_cooler() {}
-    #endif
-
     #if HAS_COOLER
       static inline void setTargetCooler(const celsius_t celsius) {
         temp_cooler.target = constrain(celsius, COOLER_MIN_TARGET, COOLER_MAX_TARGET);
         start_watching_cooler();
       }
+      // Start watching the Cooler to make sure it's really cooling down
+      static inline void start_watching_cooler() { TERN_(WATCH_COOLER, watch_cooler.restart(degCooler(), degTargetCooler())); }
     #endif
 
     /**
@@ -857,7 +840,6 @@ class Temperature {
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static void pause(const bool p);
-      static inline bool is_paused() { return paused; }
     #endif
 
     #if HEATER_IDLE_HANDLER
@@ -897,9 +879,19 @@ class Temperature {
     #endif
 
   private:
+
+    // Reading raw temperatures and converting to Celsius when ready
+    static volatile bool raw_temps_ready;
     static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
+    static inline bool updateTemperaturesIfReady() {
+      if (!raw_temps_ready) return false;
+      updateTemperaturesFromRawValues();
+      raw_temps_ready = false;
+      return true;
+    }
 
+    // MAX Thermocouples
     #if HAS_MAX_TC
       #define MAX_TC_COUNT 1 + BOTH(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC)
       #if MAX_TC_COUNT > 1

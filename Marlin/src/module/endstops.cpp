@@ -395,7 +395,7 @@ void Endstops::event_handler() {
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
-        card.endFilePrint();
+        card.abortFilePrintNow();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
         print_job_timer.stop();
@@ -475,7 +475,7 @@ void _O2 Endstops::report_states() {
       uint8_t state;
       switch (i) {
         default: continue;
-        REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
+        REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
       SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);

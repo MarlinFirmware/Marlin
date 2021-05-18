@@ -114,8 +114,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
     #define _PDEF(N) static PGMSTR(preheat_##N##_label, PREHEAT_##N##_LABEL);
     #define _PLBL(N) preheat_##N##_label,
-    REPEAT_S(1, INCREMENT(PREHEAT_COUNT), _PDEF);
-    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT_S(1, INCREMENT(PREHEAT_COUNT), _PLBL) };
+    REPEAT_1(PREHEAT_COUNT, _PDEF);
+    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT_1(PREHEAT_COUNT, _PLBL) };
     return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
   }
 #endif
@@ -1487,7 +1487,7 @@ void MarlinUI::update() {
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
-      card.flag.abort_sd_printing = true;
+      card.abortFilePrintSoon();
     #endif
     #ifdef ACTION_ON_CANCEL
       host_action_cancel();

@@ -187,13 +187,13 @@
 #endif
 
 /**
- *               _____                                              _____
- *           NC | 1 2 | GND                                     5V | 1 2 | GND
- *        RESET | 3 4 | 1.31 (SD_DETECT)             (LCD_D7) 1.23 | 3 4 | 1.22 (LCD_D6)
- *  (MOSI) 0.18 | 5 6   3.25 (BTN_EN2)               (LCD_D5) 1.21 | 5 6   1.20 (LCD_D4)
- * (SD_SS) 0.16 | 7 8 | 3.26 (BTN_EN1)               (LCD_RS) 1.19 | 7 8 | 1.18 (LCD_EN)
- *   (SCK) 0.15 | 9 10| 0.17 (MISO)                 (BTN_ENC) 0.28 | 9 10| 1.30 (BEEPER)
- *               -----                                              -----
+ *               ______                                             ______
+ *           NC | 1  2 | GND                                    5V | 1  2 | GND
+ *        RESET | 3  4 | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | 3  4 | 1.22 (LCD_D6)
+ *  (MOSI) 0.18 | 5  6   3.25 (BTN_EN2)              (LCD_D5) 1.21 | 5  6   1.20 (LCD_D4)
+ * (SD_SS) 0.16 | 7  8 | 3.26 (BTN_EN1)              (LCD_RS) 1.19 | 7  8 | 1.18 (LCD_EN)
+ *   (SCK) 0.15 | 9 10 | 0.17 (MISO)                (BTN_ENC) 0.28 | 9 10 | 1.30 (BEEPER)
+ *               ------                                             ------
  *               EXP2                                               EXP1
  */
 
@@ -233,13 +233,13 @@
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
     *                  BEFORE                          AFTER
-    *                  _____                           _____
-    *           GND 1 | 1 2 |  2 5V              5V 1 | 1 2 |  2 GND
-    *            CS 3 | 3 4 |  4 BTN_EN2         CS 3 | 3 4 |  4 BTN_EN2
-    *           SID 5 | 5 6    6 BTN_EN1        SID 5 | 5 6    6 BTN_EN1
-    *          open 7 | 7 8 |  8 BTN_ENC        CLK 7 | 7 8 |  8 BTN_ENC
-    *           CLK 9 | 9 10| 10 Beeper        open 9 | 9 10| 10 Beeper
-    *                  -----                           -----
+    *                  ______                          ______
+    *           GND 1 | 1  2 |  2 5V             5V 1 | 1  2 |  2 GND
+    *            CS 3 | 3  4 |  4 BTN_EN2        CS 3 | 3  4 |  4 BTN_EN2
+    *           SID 5 | 5  6    6 BTN_EN1       SID 5 | 5  6    6 BTN_EN1
+    *          open 7 | 7  8 |  8 BTN_ENC       CLK 7 | 7  8 |  8 BTN_ENC
+    *           CLK 9 | 9 10 | 10 Beeper       open 9 | 9 10 | 10 Beeper
+    *                  ------                          ------
     *                   LCD                             LCD
     */
 
@@ -267,8 +267,68 @@
 
     #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
 
-  #elif IS_TFTGLCD_PANEL
+  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
+    #define TFT_A0_PIN               EXP1_03_PIN
+    #define TFT_DC_PIN               EXP1_03_PIN
+    #define TFT_CS_PIN               EXP1_04_PIN
+    #define TFT_RESET_PIN            EXP1_07_PIN
+    #define TFT_BACKLIGHT_PIN        EXP1_08_PIN
+
+    #define TFT_RST_PIN              EXP2_04_PIN
+    #define TFT_MOSI_PIN             EXP2_05_PIN
+    #define TFT_SCK_PIN              EXP2_09_PIN
+    #define TFT_MISO_PIN             EXP2_10_PIN
+
+    #define BTN_EN2                  EXP2_06_PIN
+    #define BTN_EN1                  EXP2_08_PIN
+    #define BTN_ENC                  EXP1_09_PIN
+
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+
+    #define TFT_BUFFER_SIZE                 2400
+
+    #ifndef TFT_WIDTH
+      #define TFT_WIDTH                      480
+    #endif
+    #ifndef TFT_HEIGHT
+      #define TFT_HEIGHT                     320
+    #endif
+
+    #define LCD_READ_ID                     0xD3
+    #define LCD_USE_DMA_SPI
+
+    #if ENABLED(TFT_CLASSIC_UI)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X       -11386
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y         8684
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X               689
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y              -273
+      #endif
+    #elif ENABLED(TFT_COLOR_UI)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X       -16741
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        11258
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X              1024
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y              -367
+      #endif
+      #define TFT_BUFFER_SIZE               2400
+    #endif
+
+  #elif IS_TFTGLCD_PANEL
     #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS             EXP2_08_PIN
     #endif
@@ -366,6 +426,14 @@
   #endif // !CR10_STOCKDISPLAY
 
 #endif // HAS_WIRED_LCD
+
+#if NEED_TOUCH_PINS
+  #define TOUCH_CS_PIN               EXP1_06_PIN
+  #define TOUCH_SCK_PIN              EXP2_09_PIN
+  #define TOUCH_MOSI_PIN             EXP2_05_PIN
+  #define TOUCH_MISO_PIN             EXP2_10_PIN
+  #define TOUCH_INT_PIN              EXP1_05_PIN
+#endif
 
 /**
  * Special pins

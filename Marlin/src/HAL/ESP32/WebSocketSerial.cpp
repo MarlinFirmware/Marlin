@@ -29,7 +29,7 @@
 #include "wifi.h"
 #include <ESPAsyncWebServer.h>
 
-MSerialT webSocketSerial(false);
+MSerialWebSocketT webSocketSerial(false);
 AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 
 // RingBuffer impl
