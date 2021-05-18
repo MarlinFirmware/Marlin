@@ -3998,14 +3998,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     case PreheatHotend:
 
         #define PREHEATHOTEND_BACK 0
-        #define PREHEATHOTEND_1 (PREHEATHOTEND_BACK + (PREHEAT_COUNT >= 1))
+        #define PREHEATHOTEND_CONTINUE (PREHEATHOTEND_BACK + 1)
+        #define PREHEATHOTEND_1 (PREHEATHOTEND_CONTINUE + (PREHEAT_COUNT >= 1))
         #define PREHEATHOTEND_2 (PREHEATHOTEND_1 + (PREHEAT_COUNT >= 2))
         #define PREHEATHOTEND_3 (PREHEATHOTEND_2 + (PREHEAT_COUNT >= 3))
         #define PREHEATHOTEND_4 (PREHEATHOTEND_3 + (PREHEAT_COUNT >= 4))
         #define PREHEATHOTEND_5 (PREHEATHOTEND_4 + (PREHEAT_COUNT >= 5))
         #define PREHEATHOTEND_CUSTOM (PREHEATHOTEND_5 + 1)
-        #define PREHEATHOTEND_CONTINUE (PREHEATHOTEND_CUSTOM + 1)
-        #define PREHEATHOTEND_TOTAL PREHEATHOTEND_CONTINUE
+        #define PREHEATHOTEND_TOTAL PREHEATHOTEND_CUSTOM
 
         switch (item) {
           case PREHEATHOTEND_BACK:
@@ -4016,6 +4016,47 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               thermalManager.setTargetHotend(0, 0);
               thermalManager.set_fan_speed(0, 0);
               Redraw_Menu(false, true, true);
+            }
+            break;
+          case PREHEATHOTEND_CONTINUE:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Continue");
+            }
+            else {
+              Popup_Handler(Heating);
+              thermalManager.wait_for_hotend(0);
+              switch (last_menu) {
+                case Prepare:
+                  Popup_Handler(FilChange);
+                  char buf[20];
+                  sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+                  gcode.process_subcommands_now_P(buf);
+                  break;
+                #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+                  case ChangeFilament:
+                    switch (last_selection) {
+                      case CHANGEFIL_LOAD:
+                        Popup_Handler(FilLoad);
+                        gcode.process_subcommands_now_P("M701");
+                        planner.synchronize();
+                        Redraw_Menu(true, true, true);
+                        break;
+                      case CHANGEFIL_UNLOAD:
+                        Popup_Handler(FilLoad, true);
+                        gcode.process_subcommands_now_P("M702");
+                        planner.synchronize();
+                        Redraw_Menu(true, true, true);
+                        break;
+                      case CHANGEFIL_CHANGE:
+                        Popup_Handler(FilChange);
+                        char buf[20];
+                        sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
+                        gcode.process_subcommands_now_P(buf);
+                        break;
+                    }
+                    break;
+                #endif
+              }
             }
             break;
           #if (PREHEAT_COUNT >= 1)
@@ -4080,47 +4121,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               Modify_Value(thermalManager.temp_hotend[0].target, EXTRUDE_MINTEMP, MAX_E_TEMP, 1);
-            }
-            break;
-          case PREHEATHOTEND_CONTINUE:
-            if (draw) {
-              Draw_Menu_Item(row, ICON_SetEndTemp, (char*)"Continue");
-            }
-            else {
-              Popup_Handler(Heating);
-              thermalManager.wait_for_hotend(0);
-              switch (last_menu) {
-                case Prepare:
-                  Popup_Handler(FilChange);
-                  char buf[20];
-                  sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-                  gcode.process_subcommands_now_P(buf);
-                  break;
-                #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-                  case ChangeFilament:
-                    switch (last_selection) {
-                      case CHANGEFIL_LOAD:
-                        Popup_Handler(FilLoad);
-                        gcode.process_subcommands_now_P("M701");
-                        planner.synchronize();
-                        Redraw_Menu(true, true, true);
-                        break;
-                      case CHANGEFIL_UNLOAD:
-                        Popup_Handler(FilLoad, true);
-                        gcode.process_subcommands_now_P("M702");
-                        planner.synchronize();
-                        Redraw_Menu(true, true, true);
-                        break;
-                      case CHANGEFIL_CHANGE:
-                        Popup_Handler(FilChange);
-                        char buf[20];
-                        sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-                        gcode.process_subcommands_now_P(buf);
-                        break;
-                    }
-                    break;
-                #endif
-              }
             }
             break;
         }
