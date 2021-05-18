@@ -50,6 +50,10 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../lcd/dwin/e3v2/dwin.h"
+#endif
+
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../feature/host_actions.h"
 #endif
@@ -105,6 +109,7 @@ void GcodeSuite::M1001() {
     gcode.process_subcommands_now_P(PSTR(SD_FINISHED_RELEASECOMMAND));
   #endif
 
+  TERN_(DWIN_CREALITY_LCD, DWIN_Stop_Print());
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintFinished());
 
   // Re-select the last printed file in the UI

@@ -122,15 +122,6 @@ bool DWIN_Handshake(void) {
         && databuf[3] == 'K' );
 }
 
-// Set the backlight luminance
-//  luminance: (0x00-0xFF)
-void DWIN_Backlight_SetLuminance(const uint8_t luminance) {
-  size_t i = 0;
-  DWIN_Byte(i, 0x30);
-  DWIN_Byte(i, _MAX(luminance, 0x1F));
-  DWIN_Send(i);
-}
-
 // Set screen display direction
 //  dir: 0=0°, 1=90°, 2=180°, 3=270°
 void DWIN_Frame_SetDir(uint8_t dir) {
@@ -161,12 +152,14 @@ void DWIN_Frame_Clear(const uint16_t color) {
 }
 
 // Draw a point
+//  color: point color
 //  width: point width   0x01-0x0F
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
-void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+void DWIN_Draw_Point(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x02);
+  DWIN_Word(i, color);
   DWIN_Byte(i, width);
   DWIN_Byte(i, height);
   DWIN_Word(i, x);
@@ -255,6 +248,14 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
   DWIN_Send(i);
 }
 
+// Draw a Centered  String using DWIN_WIDTH
+void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string) {
+  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * CHR_W) / 2;  
+  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
+}
+
+
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
@@ -331,6 +332,24 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
   DWIN_Byte(i, fvalue[0]);
   */
   DWIN_Send(i);
+}
+
+// Draw a signed floating point number
+//  size: Font size
+//  bColor: Background color
+//  iNum: Number of whole digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left point
+//  value: Float value
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  if (value < 0) {
+    DWIN_Draw_FloatValue(true, true, 0, size, color, bColor, iNum, fNum, x, y, -value);
+    DWIN_Draw_String(false, true, size, color, bColor, x - 6, y, F("-"));
+  }
+  else {
+    DWIN_Draw_String(false, true, size, color, bColor, x - 6, y, F(" "));
+    DWIN_Draw_FloatValue(true, true, 0, size, color, bColor, iNum, fNum, x, y, value);
+  }
 }
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
@@ -423,6 +442,38 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
   size_t i = 0;
   DWIN_Byte(i, 0x28);
   DWIN_Word(i, state);
+  DWIN_Send(i);
+}
+
+//Draw a circle
+//Color: circle color
+//x: the abscissa of the center of the circle
+//y: ordinate of the center of the circle
+//r: circle radius
+void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r) {
+  int a,b;
+  a=b=0;	  
+  while(a<=b) {
+    b=sqrt(r*r-a*a);
+    while(a==0){ b=b-1;break;}
+    DWIN_Draw_Point(color, 1,1,x+a,y+b);		               //Draw some sector 1
+    DWIN_Draw_Point(color, 1,1,x+b,y+a);		               //Draw some sector 2
+    DWIN_Draw_Point(color, 1,1,x+b,y-a);		               //Draw some sector 3
+    DWIN_Draw_Point(color, 1,1,x+a,y-b);		               //Draw some sector 4
+      
+    DWIN_Draw_Point(color, 1,1,x-a,y-b);		              //Draw some sector 5
+    DWIN_Draw_Point(color, 1,1,x-b,y-a);		              //Draw some sector 6
+    DWIN_Draw_Point(color, 1,1,x-b,y+a);		              //Draw some sector 7
+    DWIN_Draw_Point(color, 1,1,x-a,y+b);		              //Draw some sector 8
+    a++;
+  }
+}
+
+// Set LCD Brightness 0x00-0xFF
+void DWIN_LCD_Brightness(const uint8_t brightness) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x30);
+  DWIN_Byte(i, brightness);
   DWIN_Send(i);
 }
 

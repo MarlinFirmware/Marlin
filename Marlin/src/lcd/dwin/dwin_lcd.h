@@ -68,10 +68,11 @@ void DWIN_UpdateLCD(void);
 void DWIN_Frame_Clear(const uint16_t color);
 
 // Draw a point
+//  color: point color
 //  width: point width   0x01-0x0F
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
-void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y);
+void DWIN_Draw_Point(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y);
 
 // Draw a line
 //  color: Line segment color
@@ -141,6 +142,14 @@ inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
 }
 
+// Draw a centered string using DWIN_WIDTH
+void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string);
+
+inline void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_CenteredString(widthAdjust, bShow, size, color, bColor, CHR_W, y, (char *)title);
+}
+
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
@@ -167,6 +176,15 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  value: Float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+
+// Draw a signed floating point number
+//  size: Font size
+//  bColor: Background color
+//  iNum: Number of whole digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left point
+//  value: Float value
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 
@@ -211,3 +229,12 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 // Animation Control
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state);
+
+//Draw a circle
+void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
+
+// GUI extension
+void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
+
+// Set LCD Brightness 0x00-0x0F
+void DWIN_LCD_Brightness(const uint8_t brightness);

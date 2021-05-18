@@ -72,6 +72,14 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Home X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
+  PROGMEM Language_Str MSG_FILAMENT_MAN                    = _UxGT("Filament Management");
+  PROGMEM Language_Str MSG_MANUAL_LEVELING                 = _UxGT("Manual Leveling");
+  PROGMEM Language_Str MSG_MANUAL_MESH                     = _UxGT("Manual Mesh"); 
+  PROGMEM Language_Str MSG_MANLEV_FL                       = _UxGT("Front Left");
+  PROGMEM Language_Str MSG_MANLEV_FR                       = _UxGT("Front Right"); 
+  PROGMEM Language_Str MSG_MANLEV_C                        = _UxGT("Center");
+  PROGMEM Language_Str MSG_MANLEV_BL                       = _UxGT("Back Left");
+  PROGMEM Language_Str MSG_MANLEV_BR                       = _UxGT("Back Right"); 
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-Align");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Iteration: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Accuracy Decreasing!");
@@ -308,6 +316,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
+  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID Cycle");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("PID tuning done");
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Autotune failed. Bad extruder.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Autotune failed. Temperature too high.");
@@ -695,6 +704,7 @@ namespace Language_en {
   #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
+  PROGMEM Language_Str MSG_REHEATDONE                      = _UxGT("Reheat Done");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
   PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Probing Z Reference");

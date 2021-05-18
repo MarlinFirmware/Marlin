@@ -23,6 +23,7 @@
 
 /**
  * DWIN by Creality3D
+ * Enhanced implementation by Miguel A. Risco-Castillo
  */
 
 #include "../dwin_lcd.h"
@@ -38,19 +39,26 @@
   #endif
 #endif
 
+static constexpr size_t eeprom_data_size = 64;
+
 enum processID : uint8_t {
   // Process ID
   MainMenu,
   SelectFile,
   Prepare,
   Control,
-  Leveling,
   PrintProcess,
+  PrintDone,
+  FilamentMan,
   AxisMove,
+  ManualLev,
+  ManualMesh,
+  MMeshMoveZ,
   TemperatureID,
   Motion,
   Info,
   Tune,
+  TuneFlow,
   #if HAS_PREHEAT
     PLAPreheat,
     ABSPreheat,
@@ -67,19 +75,17 @@ enum processID : uint8_t {
   HomeOffX,
   HomeOffY,
   HomeOffZ,
-
-  // Last Process ID
-  Last_Prepare,
-
   // Advance Settings
   AdvSet,
   ProbeOff,
   ProbeOffX,
   ProbeOffY,
-
-  // Back Process ID
-  Back_Main,
-  Back_Print,
+  Brightness,
+  LoadLength,
+  UnloadLength,
+  SelColor,
+  GetColor,
+  GetColor_value,
 
   // Date variable ID
   Move_X,
@@ -97,10 +103,15 @@ enum processID : uint8_t {
     FanSpeed,
   #endif
   PrintSpeed,
+  PrintFlow,
 
-  // Window ID
-  Print_window,
-  Popup_Window
+  // Popup Windows
+  Homing,
+  Leveling,
+  PauseOrStop,
+  FilamentPurge,
+  WaitResponse,
+  NothingToDo,
 };
 
 // Picture ID
@@ -207,7 +218,16 @@ enum processID : uint8_t {
 #define ICON_Info_0               90
 #define ICON_Info_1               91
 
+#define ICON_Error                ICON_TempTooHigh
+#define ICON_ManualLev            ICON_SetEndTemp
+#define ICON_ManualMesh           ICON_HotendTemp
+#define ICON_MeshNext             ICON_Axis
+#define ICON_MeshSave             ICON_WriteEEPROM
 #define ICON_AdvSet               ICON_Language
+#define ICON_Reboot               ICON_ResumeEEPROM
+#define ICON_FilMan               ICON_ResumeEEPROM
+#define ICON_FilLoad              ICON_WriteEEPROM
+#define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_HomeOff              ICON_AdvSet
 #define ICON_HomeOffX             ICON_StepX
 #define ICON_HomeOffY             ICON_StepY
@@ -217,6 +237,10 @@ enum processID : uint8_t {
 #define ICON_ProbeOffY            ICON_StepY
 #define ICON_PIDNozzle            ICON_SetEndTemp
 #define ICON_PIDbed               ICON_SetBedTemp
+#define ICON_Flow                 ICON_StepE
+#define ICON_Pwrlossr             ICON_Motion
+#define ICON_Park                 ICON_Motion
+#define ICON_Scolor               ICON_MaxSpeed
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
@@ -247,6 +271,27 @@ enum processID : uint8_t {
 #define Percent_Color     0xFE29  // Percentage color
 #define BarFill_Color     0x10E4  // Fill color of progress bar
 #define Select_Color      0x33BB  // Selected color
+
+// Default UI Colors
+#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
+#define Def_Background_Color  Color_Bg_Black
+#define Def_Cursor_color      Rectangle_Color
+#define Def_TitleBg_color     Color_Bg_Blue
+#define Def_TitleTxt_color    Color_White
+#define Def_Text_Color        Color_White
+#define Def_Selected_Color    Select_Color
+#define Def_SplitLine_Color   Line_Color
+#define Def_Highlight_Color   Color_White
+#define Def_StatusBg_Color    RGB(0,20,20)
+#define Def_StatusTxt_Color   Color_Yellow
+#define Def_PopupBg_color     Color_Bg_Window
+#define Def_PopupTxt_Color    Popup_Text_Color
+#define Def_AlertBg_Color     Color_Bg_Red
+#define Def_AlertTxt_Color    Color_Yellow
+#define Def_PercentTxt_Color  Percent_Color
+#define Def_Barfill_Color     BarFill_Color
+#define Def_Indicator_Color   Color_White
+#define Def_Coordinate_Color   Color_White
 
 extern uint8_t checkkey;
 extern float zprobe_zoffset;
@@ -282,7 +327,32 @@ typedef struct {
   float Home_OffZ_scaled  = 0;
   float Probe_OffX_scaled = 0;
   float Probe_OffY_scaled = 0;
+  int16_t print_flow      = 100;
+  int16_t Brightness      = 127;
+  int8_t Color[3];
 } HMI_value_t;
+
+typedef struct {
+  uint8_t Brightness = 127;
+  uint16_t Background_Color = Def_Background_Color;
+  uint16_t Cursor_color = Def_Cursor_color;
+  uint16_t TitleBg_color = Def_TitleBg_color;
+  uint16_t TitleTxt_color = Def_TitleTxt_color;
+  uint16_t Text_Color = Def_Text_Color;
+  uint16_t Selected_Color = Def_Selected_Color;
+  uint16_t SplitLine_Color = Def_SplitLine_Color;
+  uint16_t Highlight_Color = Def_Highlight_Color;
+  uint16_t StatusBg_Color = Def_StatusBg_Color;
+  uint16_t StatusTxt_Color = Def_StatusTxt_Color;
+  uint16_t PopupBg_color = Def_PopupBg_color;
+  uint16_t PopupTxt_Color = Def_PopupTxt_Color;
+  uint16_t AlertBg_Color = Def_AlertBg_Color;
+  uint16_t AlertTxt_Color = Def_AlertTxt_Color;
+  uint16_t PercentTxt_Color = Def_PercentTxt_Color;
+  uint16_t Barfill_Color = Def_Barfill_Color;
+  uint16_t Indicator_Color = Def_Indicator_Color;
+  uint16_t Coordinate_Color = Def_Coordinate_Color;
+} HMI_data_t;
 
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
@@ -307,6 +377,9 @@ typedef struct {
 
 extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
+extern HMI_data_t HMI_data;
+
+enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
 
 // Show ICO
 void ICON_Print(bool show);
@@ -319,6 +392,9 @@ void ICON_Setting(bool show);
 void ICON_Pause(bool show);
 void ICON_Continue(bool show);
 void ICON_Stop(bool show);
+void DWIN_Draw_Popup(uint8_t icon, const char *msg1, const char *msg2, uint8_t button = 0);
+void DWIN_Popup_Continue(uint8_t icon, const char *msg1, const char *msg2);
+void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2);
 
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
@@ -330,11 +406,9 @@ void ICON_Stop(bool show);
 #endif
 
 void Popup_Window_Resume();
-void Popup_Window_Home(const bool parking=false);
-void Popup_Window_Leveling();
 
 void Goto_PrintProcess();
-void Goto_MainMenu();
+void Goto_Main_Menu();
 
 // Variable control
 void HMI_Move_X();
@@ -384,10 +458,18 @@ void HMI_Prepare();     // Prepare page
 void HMI_Control();     // Control page
 void HMI_Leveling();    // Level the page
 void HMI_AxisMove();    // Axis movement menu
+void HMI_ManualLev();   // Manual Leveling menu
+#if ENABLED(MESH_BED_LEVELING)
+  void HMI_ManualMesh();  // Manual Mesh menu
+  void HMI_MMeshMoveZ();  // Manual Mesh move Z
+#endif
 void HMI_Temperature(); // Temperature menu
 void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
 void HMI_Tune();        // Adjust the menu
+void Draw_Main_Area(uint8_t procID); // Redraw main area;
+void DWIN_Redraw_screen();  // Redraw all screen elements
+void HMI_ReturnScreen();// Return to previous screen before popups
 
 #if HAS_PREHEAT
   void HMI_PLAPreheatSetting(); // PLA warm-up setting
@@ -400,13 +482,42 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
+void HMI_Popup();
+void HMI_SaveProcessID(uint8_t id);
+void HMI_AudioFeedback(const bool success/*=true*/);
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
+void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
 void DWIN_StatusChanged(const char *text);
-void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode /* = false*/);
-
-inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
-
+void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
+void DWIN_StartHoming();
 void DWIN_CompletedHoming();
+#if ENABLED(MESH_BED_LEVELING)
+  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
+#endif
+void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
+void DWIN_PidTuning(pidresult_t result);
+void DWIN_Start_Print(bool sd);
+void DWIN_Stop_Print();
+#if HAS_FILAMENT_SENSOR
+  void DWIN_FilamentRunout(const uint8_t extruder);
+#endif
+void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);
+void DWIN_Print_Header(const char *text);
+void DWIN_SetColorDefaults();
+void DWIN_StoreSettings(char *buff);
+void DWIN_LoadSettings(const char *buff);
+void DWIN_Setdatadefaults();
+void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component);
+void DWIN_RebootScreen();
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  void DWIN_PauseShow(const char message);
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void Draw_Popup_FilamentPurge();
+  void DWIN_Popup_FilamentPurge();
+  void HMI_FilamentPurge();
+#endif

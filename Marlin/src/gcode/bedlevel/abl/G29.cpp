@@ -411,6 +411,10 @@ G29_TYPE GcodeSuite::G29() {
       ExtUI::onMeshLevelingStart();
     #endif
 
+    #if BOTH(AUTO_BED_LEVELING_BILINEAR, DWIN_CREALITY_LCD)
+      DWIN_MeshLevelingStart();
+    #endif
+
     if (!faux) {
       remember_feedrate_scaling_off();
 
