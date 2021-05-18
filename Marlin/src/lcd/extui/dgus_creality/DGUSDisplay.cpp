@@ -20,13 +20,9 @@
  *
  */
 
-<<<<<<< HEAD:Marlin/src/lcd/extui/dgus_creality/DGUSDisplay.cpp
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 
-#include "../../../../inc/MarlinConfigPre.h"
-=======
 #include "../../../inc/MarlinConfigPre.h"
->>>>>>> upstream/2.0.x:Marlin/src/lcd/extui/dgus/DGUSDisplay.cpp
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
@@ -36,23 +32,14 @@
 
 #include "../ui_api.h"
 
-<<<<<<< HEAD:Marlin/src/lcd/extui/dgus_creality/DGUSDisplay.cpp
-#include "../../../../MarlinCore.h"
-#include "../../../../module/temperature.h"
-#include "../../../../module/motion.h"
-#include "../../../../gcode/queue.h"
-#include "../../../../module/planner.h"
-#include "../../../../sd/cardreader.h"
-#include "../../../../libs/duration_t.h"
-#include "../../../../module/printcounter.h"
-=======
 #include "../../../MarlinCore.h"
+#include "../../../module/temperature.h"
 #include "../../../module/motion.h"
 #include "../../../gcode/queue.h"
 #include "../../../module/planner.h"
+#include "../../../sd/cardreader.h"
 #include "../../../libs/duration_t.h"
 #include "../../../module/printcounter.h"
->>>>>>> upstream/2.0.x:Marlin/src/lcd/extui/dgus/DGUSDisplay.cpp
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif

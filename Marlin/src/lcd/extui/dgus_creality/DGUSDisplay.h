@@ -21,23 +21,15 @@
  */
 #pragma once
 
-<<<<<<< HEAD:Marlin/src/lcd/extui/dgus_creality/DGUSDisplay.h
 //#define DEBUG_DGUSLCD
 //#define DEBUG_DGUSLCD_OUTGOING_COMM
 
-=======
-/**
- * lcd/extui/dgus/DGUSDisplay.h
- */
-
-#include "../../../inc/MarlinConfigPre.h"
->>>>>>> upstream/2.0.x:Marlin/src/lcd/extui/dgus/DGUSDisplay.h
 
 /* Creality DGUS implementation written by Sebastiaan Dammann in 2020 for Marlin */
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
-#include "../../../../MarlinCore.h"
+#include "../../../MarlinCore.h"
 #if HAS_BED_PROBE
   #include "../../../module/probe.h"
 #endif
@@ -48,13 +40,9 @@ enum DGUSLCD_Screens : uint8_t;
 
 #ifndef DEBUG_OUT
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
-<<<<<<< HEAD:Marlin/src/lcd/extui/dgus_creality/DGUSDisplay.h
 #endif
 
-#include "../../../../core/debug_out.h"
-=======
 #include "../../../core/debug_out.h"
->>>>>>> upstream/2.0.x:Marlin/src/lcd/extui/dgus/DGUSDisplay.h
 
 
 typedef enum : uint8_t {

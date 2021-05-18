@@ -21,14 +21,7 @@
  */
 #pragma once
 
-<<<<<<< HEAD:Marlin/src/lcd/extui/dgus_creality/DGUSDisplayDef.h
 /* DGUS implementation written by Sebastiaan Dammann in 2020 for Marlin */
-=======
-/**
- * lcd/extui/dgus/DGUSDisplayDef.h
- * Defines the interaction between Marlin and the display firmware
- */
->>>>>>> upstream/2.0.x:Marlin/src/lcd/extui/dgus/DGUSDisplayDef.h
 
 #include "DGUSVPVariable.h"
 
@@ -50,14 +43,10 @@ extern const struct VPMapping VPMap[];
 // List of VPs handled by Marlin / The Display.
 extern const struct DGUS_VP_Variable ListOfVP[];
 
-<<<<<<< HEAD:Marlin/src/lcd/extui/dgus_creality/DGUSDisplayDef.h
 #define DWIN_DEFAULT_FILLER_CHAR ' '
 #define DWIN_SCROLLER_FILLER_CHAR 0x0
 
-#include "../../../../inc/MarlinConfig.h"
-=======
 #include "../../../inc/MarlinConfig.h"
->>>>>>> upstream/2.0.x:Marlin/src/lcd/extui/dgus/DGUSDisplayDef.h
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
   #include "creality_touch/DGUSDisplayDef.h"

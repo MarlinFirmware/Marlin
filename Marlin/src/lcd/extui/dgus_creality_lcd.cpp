@@ -32,11 +32,11 @@
 
 #include "ui_api.h"
 #include "../marlinui.h"
-#include "lib/dgus_creality/DGUSDisplay.h"
-#include "lib/dgus_creality/DGUSDisplayDef.h"
-#include "lib/dgus_creality/DGUSScreenHandler.h"
-#include "lib/dgus_creality/creality_touch/PIDHandler.h"
-#include "lib/dgus_creality/creality_touch/MeshValidationHandler.h"
+#include "dgus_creality/DGUSDisplay.h"
+#include "dgus_creality/DGUSDisplayDef.h"
+#include "dgus_creality/DGUSScreenHandler.h"
+#include "dgus_creality/creality_touch/PIDHandler.h"
+#include "dgus_creality/creality_touch/MeshValidationHandler.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/powerloss.h"

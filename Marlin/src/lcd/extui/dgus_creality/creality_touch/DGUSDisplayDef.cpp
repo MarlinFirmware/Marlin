@@ -22,43 +22,43 @@
 
 /* DGUS implementation written by Sebastiaan Dammann in 2020 for Marlin */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #include "../DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
-#include "../creality_touch/AxisSettingsHandler.h"
-#include "../creality_touch/EstepsHandler.h"
-#include "../creality_touch/FilamentLoadUnloadHandler.h"
-#include "../creality_touch/PIDHandler.h"
-#include "../creality_touch/MeshValidationHandler.h"
+#include "AxisSettingsHandler.h"
+#include "EstepsHandler.h"
+#include "FilamentLoadUnloadHandler.h"
+#include "PIDHandler.h"
+#include "MeshValidationHandler.h"
 
-#include "../../../../../module/temperature.h"
-#include "../../../../../module/motion.h"
-#include "../../../../../module/planner.h"
+#include "../../../../module/temperature.h"
+#include "../../../../module/motion.h"
+#include "../../../../module/planner.h"
 
-#include "../../../../../feature/caselight.h"
+#include "../../../../feature/caselight.h"
 
 #if ENABLED(FWRETRACT)
-  #include "../../../../../feature/fwretract.h"
+  #include "../../../../feature/fwretract.h"
 #endif
 
 #if HAS_COLOR_LEDS
-  #include "../../../../../feature/leds/leds.h"
+  #include "../../../../feature/leds/leds.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../../../feature/powerloss.h"
+  #include "../../../../feature/powerloss.h"
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-#include "../../../../../feature/runout.h"
+#include "../../../../feature/runout.h"
 #endif
 
-#include "../../../ui_api.h"
-#include "../../../../marlinui.h"
+#include "../../ui_api.h"
+#include "../../../marlinui.h"
 
 #include "PageHandlers.h"
 

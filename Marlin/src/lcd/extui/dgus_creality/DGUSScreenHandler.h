@@ -24,10 +24,10 @@
 #include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
 
-#include "../../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if HAS_COLOR_LEDS
-  #include "../../../../feature/leds/leds.h"
+  #include "../../../feature/leds/leds.h"
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define HAS_COLOR_LEDS_PREFERENCES 1

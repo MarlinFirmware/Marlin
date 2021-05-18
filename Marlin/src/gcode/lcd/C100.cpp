@@ -3,8 +3,8 @@
 #if HAS_PROBE_SETTINGS && ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #include "../gcode.h"
-#include "../../lcd/extui/lib/dgus_creality/DGUSDisplay.h"
-#include "../../lcd/extui/lib/dgus_creality/DGUSScreenHandler.h"
+#include "../../lcd/extui/dgus_creality/DGUSDisplay.h"
+#include "../../lcd/extui/dgus_creality/DGUSScreenHandler.h"
 
 
 void GcodeSuite::C100() {

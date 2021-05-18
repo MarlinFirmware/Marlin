@@ -1,5 +1,5 @@
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
@@ -9,13 +9,13 @@
 
 #include "MeshValidationHandler.h"
 
-#include "../../../ui_api.h"
-#include "../../../../marlinui.h"
+#include "../../ui_api.h"
+#include "../../../marlinui.h"
 
-#include "../../../../../module/temperature.h"
-#include "../../../../../module/settings.h"
-#include "../../../../../module/planner.h"
-#include "../../../../../gcode/gcode.h"
+#include "../../../../module/temperature.h"
+#include "../../../../module/settings.h"
+#include "../../../../module/planner.h"
+#include "../../../../gcode/gcode.h"
 
 celsius_t MeshValidationHandler::nozzle_temperature;
 celsius_t MeshValidationHandler::bed_temperature;

@@ -1,4 +1,4 @@
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
@@ -8,13 +8,13 @@
 
 #include "FilamentLoadUnloadHandler.h"
 
-#include "../../../ui_api.h"
-#include "../../../../marlinui.h"
+#include "../../ui_api.h"
+#include "../../../marlinui.h"
 
-#include "../../../../../module/temperature.h"
-#include "../../../../../module/settings.h"
-#include "../../../../../module/planner.h"
-#include "../../../../../gcode/gcode.h"
+#include "../../../../module/temperature.h"
+#include "../../../../module/settings.h"
+#include "../../../../module/planner.h"
+#include "../../../../gcode/gcode.h"
 
 celsius_t FilamentLoadUnloadHandler::nozzle_temperature = 0;
 float FilamentLoadUnloadHandler::length = 0;

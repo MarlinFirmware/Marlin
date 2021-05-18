@@ -1,5 +1,5 @@
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
@@ -10,17 +10,17 @@
 #include "EstepsHandler.h"
 #include "AxisSettingsHandler.h"
 
-#include "../../../ui_api.h"
-#include "../../../../marlinui.h"
+#include "../../ui_api.h"
+#include "../../../marlinui.h"
 
-#include "../../../../../module/temperature.h"
-#include "../../../../../module/settings.h"
-#include "../../../../../module/planner.h"
-#include "../../../../../gcode/gcode.h"
+#include "../../../../module/temperature.h"
+#include "../../../../module/settings.h"
+#include "../../../../module/planner.h"
+#include "../../../../gcode/gcode.h"
 
 #if HAS_TRINAMIC_CONFIG
-#include "../../../../../feature/tmc_util.h"
-#include "../../../../../module/stepper/indirection.h"
+#include "../../../../feature/tmc_util.h"
+#include "../../../../module/stepper/indirection.h"
 #endif
 
 AxisEnum AxisSettingsHandler::current_axis;

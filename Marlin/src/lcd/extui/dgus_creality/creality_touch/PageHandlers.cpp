@@ -1,4 +1,4 @@
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
@@ -6,20 +6,20 @@
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
 
-#include "../../../../../module/temperature.h"
-#include "../../../../../module/motion.h"
-#include "../../../../../module/planner.h"
-#include "../../../../../feature/pause.h"
-#include "../../../../../gcode/gcode.h"
+#include "../../../../module/temperature.h"
+#include "../../../../module/motion.h"
+#include "../../../../module/planner.h"
+#include "../../../../feature/pause.h"
+#include "../../../../gcode/gcode.h"
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-#include "../../../../../feature/runout.h"
+#include "../../../../feature/runout.h"
 #endif
 
-#include "../../../../../module/settings.h"
+#include "../../../../module/settings.h"
 
-#include "../../../ui_api.h"
-#include "../../../../marlinui.h"
+#include "../../ui_api.h"
+#include "../../../marlinui.h"
 
 #include "PageHandlers.h"
 
