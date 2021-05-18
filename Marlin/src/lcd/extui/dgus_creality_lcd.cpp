@@ -218,6 +218,9 @@ bool hasPrintTimer = false;
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
+        case PID_STARTED:
+          // It has no use switching to the PID screen. It really isn't that informative.
+          break;
         case PID_BAD_EXTRUDER_NUM:
           PIDHandler::result_message = GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM);
           ScreenHandler.setstatusmessagePGM(PIDHandler::result_message);
