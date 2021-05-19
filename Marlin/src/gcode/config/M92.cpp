@@ -67,7 +67,7 @@ void GcodeSuite::M92() {
   if (!parser.seen("XYZE" TERN_(MAGIC_NUMBERS_GCODE, "HL")))
     return report_M92(true, target_extruder);
 
-  LOOP_XYZE(i) {
+  LOOP_LOGICAL_AXES(i) {
     if (parser.seenval(axis_codes[i])) {
       if (i == E_AXIS) {
         const float value = parser.value_per_axis_units((AxisEnum)(E_AXIS_N(target_extruder)));

@@ -209,7 +209,7 @@
     #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
       const uint8_t index = parser.byteval('I');
     #endif
-    LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
+    LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(axis_codes[i])) {
       report = false;
       switch (i) {
         case X_AXIS:
@@ -338,7 +338,7 @@
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
-    LOOP_XYZ(i) if (parser.seen(XYZ_CHAR(i))) {
+    LOOP_LINEAR_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
       const int16_t value = parser.value_int();
       report = false;
       switch (i) {

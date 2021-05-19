@@ -52,7 +52,7 @@ void GcodeSuite::M906() {
     const uint8_t index = parser.byteval('I');
   #endif
 
-  LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
     report = false;
     switch (i) {
       case X_AXIS:

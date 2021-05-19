@@ -149,8 +149,8 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   // Get new XYZ position, whether absolute or relative
-  LOOP_XYZ(i) {
-    if ( (seen[i] = parser.seenval(XYZ_CHAR(i))) ) {
+  LOOP_LINEAR_AXES(i) {
+    if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         destination[i] = current_position[i];
