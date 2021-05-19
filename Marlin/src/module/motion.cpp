@@ -1181,18 +1181,20 @@ void prepare_line_to_destination() {
 
 #if HAS_ENDSTOPS
 
-  uint8_t axis_homed, axis_trusted; // = 0
+  linear_axis_bits_t axis_homed, axis_trusted; // = 0
 
-  uint8_t axes_should_home(uint8_t axis_bits/*=0x07*/) {
-    #define SHOULD_HOME(A) TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(A)
-    // Clear test bits that are trusted
-    if (TEST(axis_bits, X_AXIS) && SHOULD_HOME(X_AXIS)) CBI(axis_bits, X_AXIS);
-    if (TEST(axis_bits, Y_AXIS) && SHOULD_HOME(Y_AXIS)) CBI(axis_bits, Y_AXIS);
-    if (TEST(axis_bits, Z_AXIS) && SHOULD_HOME(Z_AXIS)) CBI(axis_bits, Z_AXIS);
+  linear_axis_bits_t axes_should_home(linear_axis_bits_t axis_bits/*=linear_bits*/) {
+    auto set_should = [](linear_axis_bits_t &b, AxisEnum a) {
+      if (TEST(b, a) && TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(a))
+        CBI(b, a);
+    };
+    set_should(axis_bits, X_AXIS);  // Clear test bits that are trusted
+    set_should(axis_bits, Y_AXIS);
+    set_should(axis_bits, Z_AXIS);
     return axis_bits;
   }
 
-  bool homing_needed_error(uint8_t axis_bits/*=0x07*/) {
+  bool homing_needed_error(linear_axis_bits_t axis_bits/*=linear_bits*/) {
     if ((axis_bits = axes_should_home(axis_bits))) {
       PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
       char msg[strlen_P(home_first)+1];
