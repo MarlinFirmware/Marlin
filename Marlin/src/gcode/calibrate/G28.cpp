@@ -73,7 +73,7 @@
     current_position.set(0.0, 0.0);
     sync_plan_position();
 
-    const int x_axis_home_dir = x_home_dir(active_extruder);
+    const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
