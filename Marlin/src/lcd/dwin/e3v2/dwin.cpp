@@ -519,7 +519,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define MOTION_CASE_FLOW   (MOTION_CASE_STEPS +1) 
 #define MOTION_CASE_TOTAL  MOTION_CASE_FLOW
 
-#define PREPARE_CASE_FMAN  (ENABLED(ADVANCED_PAUSE_FEATURE))  // Filament management
+#define PREPARE_CASE_FMAN  (BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES))  // Filament management
 #define PREPARE_CASE_MOVE  (PREPARE_CASE_FMAN + 1)
 #define PREPARE_CASE_MLEV  (PREPARE_CASE_MOVE + 1)
 #define PREPARE_CASE_DISA  (PREPARE_CASE_MLEV + 1)
@@ -761,7 +761,7 @@ void Draw_Prepare_Menu() {
   }
 
   if (PVISI(0)) Draw_Back_First(select_prepare.now == 0);                         // < Back
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
     if (PVISI(PREPARE_CASE_FMAN)) Draw_Menu_Line(PSCROL(PREPARE_CASE_FMAN), ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN),true);        // Filament Management >
   #endif
   if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));     // Move >
@@ -2609,7 +2609,7 @@ void Draw_GetColor(uint16_t color) {
   DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
 }
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
 void Draw_FilamentMan_Menu(){
   Clear_Main_Window();
   Draw_Title(GET_TEXT_F(MSG_FILAMENT_MAN));
@@ -2723,7 +2723,7 @@ void HMI_Prepare() {
           case MROWS :
           Draw_Back_First();
             break;
-          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
           case MROWS + PREPARE_CASE_FMAN :    // Filament Management >
             Draw_Menu_Line(0, ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN),true);
             break;
@@ -2760,12 +2760,12 @@ void HMI_Prepare() {
         select_page.set(1);
         Goto_Main_Menu();
         break;
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      case PREPARE_CASE_FMAN: // Filament Management
-        checkkey = FilamentMan;
-        select_item.reset();
-        Draw_FilamentMan_Menu();
-        break;
+      #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+        case PREPARE_CASE_FMAN: // Filament Management
+          checkkey = FilamentMan;
+          select_item.reset();
+          Draw_FilamentMan_Menu();
+          break;
       #endif   
       case PREPARE_CASE_MOVE: // Axis move
         checkkey = AxisMove;
@@ -2785,11 +2785,11 @@ void HMI_Prepare() {
         queue.inject_P(G28_STR); // G28 will set home_flag
         break;
       #if ENABLED(MESH_BED_LEVELING)
-      case PREPARE_CASE_MMESH: // Manual Mesh
-        checkkey = ManualMesh;
-        select_item.reset();
-        Draw_ManualMesh_Menu();
-        break; 
+        case PREPARE_CASE_MMESH: // Manual Mesh
+          checkkey = ManualMesh;
+          select_item.reset();
+          Draw_ManualMesh_Menu();
+          break; 
       #endif      
       #if HAS_ZOFFSET_ITEM
         case PREPARE_CASE_ZOFF: // Z-offset
@@ -3252,7 +3252,7 @@ void HMI_AxisMove() {
   DWIN_UpdateLCD();
 }
 
-#if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+#if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
 /* Filament Management */
 void HMI_FilamentMan(){
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -3726,10 +3726,10 @@ void Draw_Main_Area(uint8_t procID) {
     case PrintProcess : Draw_PrintProcess(); break;
     case PrintDone    : Draw_PrintDone(); break;
     case PauseOrStop  : Popup_window_PauseOrStop(); break;
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
       case FilamentPurge: Draw_Popup_FilamentPurge(); break;
-    #endif
-    case FilamentMan  : Draw_FilamentMan_Menu(); break;
+      case FilamentMan  : Draw_FilamentMan_Menu(); break;
+    #endif  
     case AxisMove     : Draw_Move_Menu(); break;
     case ManualLev    : Draw_ManualLev_Menu(); break;
     #if ENABLED(MESH_BED_LEVELING)
@@ -5037,7 +5037,6 @@ void DWIN_HandleScreen() {
     case PrintProcess:    HMI_Printing(); break;
     case PrintDone:       HMI_PrintDone(); break;
     case PauseOrStop:     HMI_PauseOrStop(); break;
-    case FilamentMan:     HMI_FilamentMan(); break;
     case AxisMove:        HMI_AxisMove(); break;
     case ManualLev:       HMI_ManualLev(); break;
     #if ENABLED(MESH_BED_LEVELING)
@@ -5098,7 +5097,8 @@ void DWIN_HandleScreen() {
     case PrintSpeed:      HMI_PrintSpeed(); break;
     case PrintFlow:       HMI_PrintFlow(); break;
     case WaitResponse:    HMI_Popup(); break;
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+      case FilamentMan:   HMI_FilamentMan(); break;
       case FilamentPurge: HMI_FilamentPurge(); break;
     #endif
     case NothingToDo:     break;
