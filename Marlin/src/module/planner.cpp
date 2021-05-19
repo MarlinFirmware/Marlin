@@ -136,9 +136,9 @@ planner_settings_t Planner::settings;           // Initialized by settings.load(
   laser_state_t Planner::laser_inline;          // Current state for blocks
 #endif
 
-uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
+uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
 
-float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
+float Planner::steps_to_mm[DISTINCT_AXES];      // (mm) Millimeters per step
 
 #if HAS_JUNCTION_DEVIATION
   float Planner::junction_deviation_mm;         // (mm) M205 J
@@ -2201,7 +2201,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   float speed_factor = 1.0f; // factor <1 decreases speed
 
   // Linear axes first with less logic
-  LOOP_XYZ(i) {
+  LOOP_LINEAR_AXES(i) {
     current_speed[i] = steps_dist_mm[i] * inverse_secs;
     const feedRate_t cs = ABS(current_speed[i]),
                  max_fr = settings.max_feedrate_mm_s[i];
@@ -2593,7 +2593,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     const float extra_xyjerk = (de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
 
     uint8_t limited = 0;
-    TERN(HAS_LINEAR_E_JERK, LOOP_XYZ, LOOP_XYZE)(i) {
+    TERN(HAS_LINEAR_E_JERK, LOOP_LINEAR_AXES, LOOP_LOGICAL_AXES)(i) {
       const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
                   maxj = (max_jerk[i] + (i == X_AXIS || i == Y_AXIS ? extra_xyjerk : 0.0f)); // mj : The max jerk setting for this axis
       if (jerk > maxj) {                          // cs > mj : New current speed too fast?
@@ -2631,7 +2631,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         vmax_junction = previous_nominal_speed;
 
       // Now limit the jerk in all axes.
-      TERN(HAS_LINEAR_E_JERK, LOOP_XYZ, LOOP_XYZE)(axis) {
+      TERN(HAS_LINEAR_E_JERK, LOOP_LINEAR_AXES, LOOP_LOGICAL_AXES)(axis) {
         // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
         float v_exit = previous_speed[axis] * smaller_speed_factor,
               v_entry = current_speed[axis];
@@ -3033,7 +3033,7 @@ void Planner::reset_acceleration_rates() {
     #define AXIS_CONDITION true
   #endif
   uint32_t highest_rate = 1;
-  LOOP_XYZE_N(i) {
+  LOOP_DISTINCT_AXES(i) {
     max_acceleration_steps_per_s2[i] = settings.max_acceleration_mm_per_s2[i] * settings.axis_steps_per_mm[i];
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
@@ -3046,7 +3046,7 @@ void Planner::reset_acceleration_rates() {
  * Must be called whenever settings.axis_steps_per_mm changes!
  */
 void Planner::refresh_positioning() {
-  LOOP_XYZE_N(i) steps_to_mm[i] = 1.0f / settings.axis_steps_per_mm[i];
+  LOOP_DISTINCT_AXES(i) steps_to_mm[i] = 1.0f / settings.axis_steps_per_mm[i];
   set_position_mm(current_position);
   reset_acceleration_rates();
 }

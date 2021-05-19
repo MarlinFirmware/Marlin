@@ -651,22 +651,38 @@
 #endif
 
 /**
- * DISTINCT_E_FACTORS affects how some E factors are accessed
+ * Number of Linear Axes (e.g., XYZ)
+ * All the logical axes except for the tool (E) axis
+ */
+#ifndef LINEAR_AXES
+  #define LINEAR_AXES XYZ
+#endif
+
+/**
+ * Number of Logical Axes (e.g., XYZE)
+ * All the logical axes that can be commanded directly by G-code.
+ * Delta maps stepper-specific values to ABC steppers.
+ */
+#if EXTRUDERS
+  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+#else
+  #define LOGICAL_AXES LINEAR_AXES
+#endif
+
+/**
+ * DISTINCT_E_FACTORS affects whether Extruders use different settings
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define DISTINCT_E E_STEPPERS
-  #define XYZE_N (XYZ + E_STEPPERS)
+  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
   #define E_INDEX_N(E) (E)
-  #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
-  #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
   #define DISTINCT_E 1
-  #define XYZE_N XYZE
+  #define DISTINCT_AXES LOGICAL_AXES
   #define E_INDEX_N(E) 0
-  #define E_AXIS_N(E) E_AXIS
-  #define UNUSED_E(E) UNUSED(E)
 #endif
+#define E_AXIS_N(E) AxisEnum(E_AXIS + E_INDEX_N(E))
 
 /**
  * The BLTouch Probe emulates a servo probe

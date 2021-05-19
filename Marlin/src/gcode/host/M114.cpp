@@ -47,8 +47,8 @@
 
   void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
-    LOOP_XYZ(a) {
-      SERIAL_CHAR(' ', XYZ_CHAR(a), ':');
+    LOOP_LINEAR_AXES(a) {
+      SERIAL_CHAR(' ', AXIS_CHAR(a), ':');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
     SERIAL_EOL();
@@ -153,7 +153,7 @@
     #endif // HAS_L64XX
 
     SERIAL_ECHOPGM("Stepper:");
-    LOOP_XYZE(i) {
+    LOOP_LOGICAL_AXES(i) {
       SERIAL_CHAR(' ', axis_codes[i], ':');
       SERIAL_ECHO(stepper.position((AxisEnum)i));
     }

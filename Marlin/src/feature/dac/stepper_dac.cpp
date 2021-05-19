@@ -77,7 +77,7 @@ static float dac_amps(int8_t n) { return mcp4728.getValue(dac_order[n]) * 0.125 
 
 uint8_t StepperDAC::get_current_percent(const AxisEnum axis) { return mcp4728.getDrvPct(dac_order[axis]); }
 void StepperDAC::set_current_percents(xyze_uint8_t &pct) {
-  LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
+  LOOP_LOGICAL_AXES(i) dac_channel_pct[i] = pct[dac_order[i]];
   mcp4728.setDrvPct(dac_channel_pct);
 }
 
