@@ -519,7 +519,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define MOTION_CASE_FLOW   (MOTION_CASE_STEPS +1) 
 #define MOTION_CASE_TOTAL  MOTION_CASE_FLOW
 
-#define PREPARE_CASE_FMAN  (BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES))  // Filament management
+#define PREPARE_CASE_FMAN  (ENABLED(ADVANCED_PAUSE_FEATURE))  // Filament management
 #define PREPARE_CASE_MOVE  (PREPARE_CASE_FMAN + 1)
 #define PREPARE_CASE_MLEV  (PREPARE_CASE_MOVE + 1)
 #define PREPARE_CASE_DISA  (PREPARE_CASE_MLEV + 1)
@@ -547,7 +547,7 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define TUNE_CASE_FAN  (TUNE_CASE_BED + ENABLED(HAS_FAN))
 #define TUNE_CASE_ZOFF (TUNE_CASE_FAN + ENABLED(HAS_ZOFFSET_ITEM))
 #define TUNE_CASE_FLOW (TUNE_CASE_ZOFF + 1)
-#define TUNE_CASE_FCHNG (TUNE_CASE_FLOW + 1)
+#define TUNE_CASE_FCHNG (TUNE_CASE_FLOW + ENABLED(ADVANCED_PAUSE_FEATURE))
 #define TUNE_CASE_TOTAL TUNE_CASE_FCHNG
 
 #define TEMP_CASE_TEMP (0 + ENABLED(HAS_HOTEND))
@@ -570,7 +570,8 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define ADVSET_CASE_PWRLOSSR  (ADVSET_CASE_BEDPID + ENABLED(POWER_LOSS_RECOVERY))
 #define ADVSET_CASE_BRIGHTNESS (ADVSET_CASE_PWRLOSSR + 1)
 #define ADVSET_CASE_SCOLOR    (ADVSET_CASE_BRIGHTNESS + 1)   
-#define ADVSET_CASE_TOTAL     ADVSET_CASE_SCOLOR
+#define ADVSET_CASE_SOUND     (ADVSET_CASE_SCOLOR + ENABLED(SOUND_MENU_ITEM))
+#define ADVSET_CASE_TOTAL     ADVSET_CASE_SOUND
 
 #define SCOLOR_CASE_LOADDEF   1
 #define SCOLOR_CASE_BACKG     (SCOLOR_CASE_LOADDEF + 1)
@@ -761,7 +762,7 @@ void Draw_Prepare_Menu() {
   }
 
   if (PVISI(0)) Draw_Back_First(select_prepare.now == 0);                         // < Back
-  #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     if (PVISI(PREPARE_CASE_FMAN)) Draw_Menu_Line(PSCROL(PREPARE_CASE_FMAN), ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN),true);        // Filament Management >
   #endif
   if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));     // Move >
@@ -791,7 +792,7 @@ void Item_Control_Info(const uint16_t line) {
     DWIN_Frame_AreaCopy(1, 231, 104, 258, 116, LBLX, line);
   else {
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(line, F("Info"));
+    DWIN_Draw_Label(line, GET_TEXT_F(MSG_INFO_SCREEN));
     #else
       DWIN_Frame_AreaCopy(1, 0, 104, 24, 114, LBLX, line);
     #endif
@@ -985,13 +986,13 @@ void Draw_Tune_Menu() {
         DWIN_Draw_Signed_Float(font8x16,HMI_data.Text_Color,  HMI_data.Background_Color, 2, 2, 202, TLINE(TUNE_CASE_ZOFF), BABY_Z_VAR * 100);
       }
     #endif 
-
-    if (TVISI(TUNE_CASE_FCHNG)) Draw_Menu_Line(TSCROL(TUNE_CASE_FCHNG), ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE));
-
     if (TVISI(TUNE_CASE_FLOW)) {
       Draw_Menu_Line(TSCROL(TUNE_CASE_FLOW), ICON_Flow, GET_TEXT(MSG_FLOW),false);  // Flow rate
       Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, TSCROL(TUNE_CASE_FLOW), planner.flow_percentage[0]);
     }
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      if (TVISI(TUNE_CASE_FCHNG)) Draw_Menu_Line(TSCROL(TUNE_CASE_FCHNG), ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE));
+    #endif
   }
 }
 
@@ -1152,39 +1153,6 @@ void Popup_Window_Resume() {
     DWIN_ICON_Show(ICON, ICON_Continue_E, 146, 307);
   }
 }
-
-// void Popup_Window_Home(const bool parking/*=false*/) {
-//   Clear_Main_Window();
-//   Draw_Popup_Bkgd_60();
-//   DWIN_ICON_Show(ICON, ICON_BLTouch, 101, 105);
-//   if (HMI_IsChinese()) {
-//     DWIN_Frame_AreaCopy(1, 0, 371, 33, 386, 85, 240);
-//     DWIN_Frame_AreaCopy(1, 203, 286, 271, 302, 118, 240);
-//     DWIN_Frame_AreaCopy(1, 0, 389, 150, 402, 61, 280);
-//   }
-//   else {
-//     DWIN_Draw_String(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, (272 - 8 * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
-//     DWIN_Draw_String(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
-//   }
-// }
-
-// #if HAS_ONESTEP_LEVELING
-
-//   void Popup_Window_Leveling() {
-//     Clear_Main_Window();
-//     Draw_Popup_Bkgd_60();
-//     DWIN_ICON_Show(ICON, ICON_AutoLeveling, 101, 105);
-//     if (HMI_IsChinese()) {
-//       DWIN_Frame_AreaCopy(1, 0, 371, 100, 386, 84, 240);
-//       DWIN_Frame_AreaCopy(1, 0, 389, 150, 402, 61, 280);
-//     }
-//     else {
-//       DWIN_Draw_String(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, (272 - 8 * 13) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
-//       DWIN_Draw_String(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
-//     }
-//   }
-
-// #endif
 
 void Draw_Select_Highlight(const bool sel) {
   HMI_flag.select_flag = sel;
@@ -2517,6 +2485,10 @@ void Draw_AdvSet_Menu() {
     Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, ASCROL(ADVSET_CASE_BRIGHTNESS), 3, HMI_data.Brightness);
   }
   if (AVISI(ADVSET_CASE_SCOLOR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SCOLOR), ICON_Scolor, "Select Colors", true);  // Select colors
+  #if ENABLED(SOUND_MENU_ITEM)
+    if (AVISI(ADVSET_CASE_SOUND)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SOUND), ICON_Sound, "Enable Sound", false);  // Enable Sound
+    if (AVISI(ADVSET_CASE_SOUND)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_SOUND), ui.buzzer_enabled);
+  #endif
   if (select_advset.now) Draw_Menu_Cursor(ASCROL(select_advset.now));
 }
 
@@ -2609,15 +2581,17 @@ void Draw_GetColor(uint16_t color) {
   DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
 }
 
-#if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
 void Draw_FilamentMan_Menu(){
   Clear_Main_Window();
   Draw_Title(GET_TEXT_F(MSG_FILAMENT_MAN));
   Draw_Back_First(select_item.now == 0);
   Draw_Menu_Line(1, ICON_Park, GET_TEXT(MSG_FILAMENT_PARK_ENABLED));
   Draw_Menu_Line(2, ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE));
-  Draw_Menu_Line(3, ICON_FilUnload, GET_TEXT(MSG_FILAMENTUNLOAD));
-  Draw_Menu_Line(4, ICON_FilLoad, GET_TEXT(MSG_FILAMENTLOAD));
+  #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+    Draw_Menu_Line(3, ICON_FilUnload, GET_TEXT(MSG_FILAMENTUNLOAD));
+    Draw_Menu_Line(4, ICON_FilLoad, GET_TEXT(MSG_FILAMENTLOAD));
+  #endif
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
 }
 #endif
@@ -2723,7 +2697,7 @@ void HMI_Prepare() {
           case MROWS :
           Draw_Back_First();
             break;
-          #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
           case MROWS + PREPARE_CASE_FMAN :    // Filament Management >
             Draw_Menu_Line(0, ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN),true);
             break;
@@ -2760,7 +2734,7 @@ void HMI_Prepare() {
         select_page.set(1);
         Goto_Main_Menu();
         break;
-      #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case PREPARE_CASE_FMAN: // Filament Management
           checkkey = FilamentMan;
           select_item.reset();
@@ -3252,7 +3226,7 @@ void HMI_AxisMove() {
   DWIN_UpdateLCD();
 }
 
-#if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
 /* Filament Management */
 void HMI_FilamentMan(){
   ENCODER_DiffState encoder_diffState = get_encoder_state();
@@ -3260,7 +3234,7 @@ void HMI_FilamentMan(){
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_item.inc(1 + 4)) Move_Highlight(1, select_item.now);
+    if (select_item.inc(1 + 2 + 2 * ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))) Move_Highlight(1, select_item.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_item.dec()) Move_Highlight(-1, select_item.now);
@@ -3281,14 +3255,16 @@ void HMI_FilamentMan(){
       case 2: // Filament Change
         queue.inject_P(PSTR("M600 B2"));
         break;
-      case 3: // Unload Filament
-        DWIN_StatusChanged(GET_TEXT(MSG_FILAMENTUNLOAD));
-        queue.inject_P(PSTR("M702 Z20"));
-        break;
-      case 4: // Load Filament
-        DWIN_StatusChanged(GET_TEXT(MSG_FILAMENTLOAD));
-        queue.inject_P(PSTR("M701 Z20"));
-        break;
+      #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+        case 3: // Unload Filament
+          DWIN_StatusChanged(GET_TEXT(MSG_FILAMENTUNLOAD));
+          queue.inject_P(PSTR("M702 Z20"));
+          break;
+        case 4: // Load Filament
+          DWIN_StatusChanged(GET_TEXT(MSG_FILAMENTLOAD));
+          queue.inject_P(PSTR("M701 Z20"));
+          break;
+      #endif
     }
   }
   DWIN_UpdateLCD();
@@ -3309,6 +3285,12 @@ void HMI_ManualLev() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 
+    char cmd[100];
+    cmd[0] = '\0';
+    #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
+    int16_t xpos = 0;
+    int16_t ypos = 0;
+
     switch (select_item.now) {
       case 0: // Back
         DWIN_StatusChanged((char*)"");
@@ -3319,24 +3301,33 @@ void HMI_ManualLev() {
         break;
       case 1: // move to front left
         DWIN_StatusChanged((char*)"Level front left");
-        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y30 F3000\nG0 Z0 F300"));
+        xpos = 30;
+        ypos = 30;
         break;
       case 2: // move to front right
         DWIN_StatusChanged((char*)"Level front right");
-        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y30 F3000\nG0 Z0 F300"));
+        xpos = X_BED_SIZE - 30;
+        ypos = 30;
         break;
       case 3: // move to back right
         DWIN_StatusChanged((char*)"Level back right");
-        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X200 Y200 F3000\nG0 Z0 F300"));
+        xpos = X_BED_SIZE - 30;
+        ypos = Y_BED_SIZE - 30;
         break;
       case 4: // move to back left
         DWIN_StatusChanged((char*)"Level back left");
-        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X30 Y200 F3000\nG0 Z0 F300"));
+        xpos = 30;
+        ypos = Y_BED_SIZE - 30;
         break;
       case 5: // move to center
         DWIN_StatusChanged((char*)"Level center");
-        queue.inject_P(PSTR("M420 S0\nG28O\nG90\nG0 Z2\nG0 X115 Y115 F3000\nG0 Z0 F300"));
+        xpos = X_BED_SIZE / 2;
+        ypos = Y_BED_SIZE / 2;
         break;
+    }
+    if (select_item.now) {
+      sprintf_P(cmd, PSTR(fmt), xpos, ypos);
+      queue.inject(cmd);
     }
   }
   DWIN_UpdateLCD();
@@ -3726,7 +3717,7 @@ void Draw_Main_Area(uint8_t procID) {
     case PrintProcess : Draw_PrintProcess(); break;
     case PrintDone    : Draw_PrintDone(); break;
     case PauseOrStop  : Popup_window_PauseOrStop(); break;
-    #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case FilamentPurge: Draw_Popup_FilamentPurge(); break;
       case FilamentMan  : Draw_FilamentMan_Menu(); break;
     #endif  
@@ -3919,6 +3910,12 @@ void HMI_AdvSet() {
           case ADVSET_CASE_SCOLOR : // Select colors
             Draw_Menu_Line(MROWS, ICON_Scolor, "Select Colors", true);  // Select colors
             break;
+          #if ENABLED(SOUND_MENU_ITEM)
+            case ADVSET_CASE_SOUND : // Sound enable
+              Draw_Menu_Line(MROWS, ICON_Sound, "Enable Sound", false);  // Sound Enable
+              Draw_Chkb_Line(MROWS, ui.buzzer_enabled);
+              break;
+          #endif
           default: break;
         }
 
@@ -3941,6 +3938,11 @@ void HMI_AdvSet() {
           case MROWS+ADVSET_CASE_HOMEOFF :  // Home Offset >
             Draw_Menu_Line(0, ICON_HomeOff, GET_TEXT(MSG_SET_HOME_OFFSETS),true);
             break;
+          #if HAS_ONESTEP_LEVELING
+            case MROWS+ADVSET_CASE_PROBEOFF : // Probe Offset >
+              Draw_Menu_Line(0, ICON_ProbeOff, GET_TEXT(MSG_ZPROBE_OFFSETS),true);
+              break;
+          #endif
           default: break;
         }
 
@@ -4009,8 +4011,16 @@ void HMI_AdvSet() {
         break;
       case ADVSET_CASE_SCOLOR : // Select Color
         checkkey = SelColor;
+        select_item.reset();
         Draw_SelColor_Menu();
         break;
+
+      #if ENABLED(SOUND_MENU_ITEM)
+        case ADVSET_CASE_SOUND : // Sound enable
+          ui.buzzer_enabled = !ui.buzzer_enabled;
+          Draw_Chkb_Line(ADVSET_CASE_SOUND + MROWS - index_advset, ui.buzzer_enabled);
+          break;
+      #endif
       default: break;
     }
   }
@@ -4355,7 +4365,7 @@ void HMI_SelColor() {
   DWIN_UpdateLCD();
 }
 
-/* Apply changet color */
+/* Apply changed color */
 void HMI_ApplyColor(int8_t element, bool ldef = false) {
   uint16_t color = RGB(HMI_ValueStruct.Color[2], HMI_ValueStruct.Color[1], HMI_ValueStruct.Color[0]);
   switch (element) {
@@ -4506,13 +4516,15 @@ void HMI_Tune() {
         Scroll_Menu(DWIN_SCROLL_UP);
 
         switch (index_tune) {  // Last menu items
-          case TUNE_CASE_FCHNG :    // Filament change
-            Draw_Menu_Line(MROWS, ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE), false);
-            break;
           case TUNE_CASE_FLOW :     // Tune Flow
             Draw_Menu_Line(MROWS, ICON_Flow, GET_TEXT(MSG_FLOW), false);
             Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, MROWS, 3, planner.flow_percentage[0]);
             break;
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            case TUNE_CASE_FCHNG :    // Filament change
+              Draw_Menu_Line(MROWS, ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE), false);
+              break;
+          #endif
           default: break;
         }
 
@@ -4607,15 +4619,17 @@ void HMI_Tune() {
           #endif
         break;
       #endif
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case TUNE_CASE_FCHNG:
         Goto_PrintProcess();
         HMI_SaveProcessID(NothingToDo);
         queue.inject_P(PSTR("M600 B2"));       
         break;
+      #endif
       case TUNE_CASE_FLOW: // Flow rate
         checkkey = TuneFlow;
         HMI_ValueStruct.print_flow = planner.flow_percentage[0];
-        DWIN_Draw_IntValue(true, true, 0, font8x16, HMI_data.Text_Color, HMI_data.Selected_Color, 3, 216, MBASE(TUNE_CASE_FLOW + MROWS - index_tune),planner.flow_percentage[0]);
+        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, TUNE_CASE_FLOW + MROWS - index_tune, 3, planner.flow_percentage[0]);
         EncoderRate.enabled = true;
         break;
       default: break;
@@ -5097,7 +5111,7 @@ void DWIN_HandleScreen() {
     case PrintSpeed:      HMI_PrintSpeed(); break;
     case PrintFlow:       HMI_PrintFlow(); break;
     case WaitResponse:    HMI_Popup(); break;
-    #if BOTH(ADVANCED_PAUSE_FEATURE, FILAMENT_LOAD_UNLOAD_GCODES)
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case FilamentMan:   HMI_FilamentMan(); break;
       case FilamentPurge: HMI_FilamentPurge(); break;
     #endif
@@ -5297,7 +5311,7 @@ void DWIN_LoadSettings(const char *buff) {
   if (HMI_data.Text_Color == 0) DWIN_SetColorDefaults();
 }
 
-void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {
+void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   DWIN_Draw_Popup(ICON_BLTouch,lcd_error, lcd_component);
   DWIN_UpdateLCD();
 }
@@ -5308,7 +5322,7 @@ void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {
     DWIN_StatusChanged(nullptr);
   }
 
-  void DWIN_PauseShow(const char message) {
+  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     switch (message) {
       case PAUSE_MESSAGE_PARKING:  DWIN_Popup_Pause(GET_TEXT(MSG_PAUSE_PRINT_PARKING));    break;
       case PAUSE_MESSAGE_CHANGING: DWIN_Popup_Pause(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));   break;
@@ -5317,6 +5331,7 @@ void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {
       case PAUSE_MESSAGE_INSERT:   DWIN_Popup_Continue(ICON_BLTouch, "Advanced Pause", GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)); break;
       case PAUSE_MESSAGE_LOAD:     DWIN_Popup_Pause(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD));   break;
       case PAUSE_MESSAGE_PURGE:    DWIN_Popup_Pause(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE));  break;
+      case PAUSE_MESSAGE_OPTION:   DWIN_Popup_FilamentPurge(); break;
       case PAUSE_MESSAGE_RESUME:   DWIN_Popup_Pause(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME)); break;
       case PAUSE_MESSAGE_HEAT:     DWIN_Popup_Pause(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT), ICON_Continue_E);   break;
       case PAUSE_MESSAGE_HEATING:  DWIN_StatusChanged(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); break;
@@ -5348,13 +5363,12 @@ void DWIN_Redraw_screen() {
     Draw_Select_Highlight(true);
   }
 
-  //
   // Handle responses such as:
   //  - Purge More, Continue
   //  - General "Continue" response
-  //
   void DWIN_Popup_FilamentPurge() {
     HMI_SaveProcessID(FilamentPurge);
+    pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
     Draw_Popup_FilamentPurge();  
   }
 

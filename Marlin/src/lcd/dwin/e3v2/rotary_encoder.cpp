@@ -53,7 +53,7 @@ ENCODER_Rate EncoderRate;
 // Buzzer
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
-    WRITE(BEEPER_PIN, HIGH);
+    TERN_(SOUND_MENU_ITEM, if (ui.buzzer_enabled)) WRITE(BEEPER_PIN, HIGH);
     delay(10);
     WRITE(BEEPER_PIN, LOW);
   #endif

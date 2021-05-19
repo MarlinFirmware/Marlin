@@ -829,10 +829,8 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNPGM_P(lcd_error); }
 
-  #if HAS_DISPLAY
+  #if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD)
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
-  #elif ENABLED(DWIN_CREALITY_LCD)
-    DWIN_PrinterKilled(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
     UNUSED(lcd_error); UNUSED(lcd_component);
   #endif

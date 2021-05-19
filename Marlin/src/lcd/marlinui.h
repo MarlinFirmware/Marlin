@@ -432,7 +432,10 @@ public:
     static void draw_kill_screen();
 
   #else // No LCD
-
+  
+	#if ENABLED(DWIN_CREALITY_LCD)
+	  static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
+	#endif  
     static inline void init() {}
     static inline void update() {}
     static inline void return_to_status() {}
@@ -542,12 +545,8 @@ public:
 
   #endif
 
-  #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, DWIN_CREALITY_LCD)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
-  #elif BOTH(DWIN_CREALITY_LCD, ADVANCED_PAUSE_FEATURE)
-    static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder) {
-      DWIN_PauseShow(message);
-    }
   #else
     static inline void _pause_show_message() {}
     #define pause_show_message(...) _pause_show_message()

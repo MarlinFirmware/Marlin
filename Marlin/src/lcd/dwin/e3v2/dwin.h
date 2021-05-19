@@ -362,7 +362,6 @@ typedef struct {
   bool pause_flag:1;
   bool pause_action:1;
   bool print_finish:1;
-  bool done_confirm_flag:1;
   bool select_flag:1;
   bool home_flag:1;
   bool heat_flag:1;  // 0: heating done  1: during heating
@@ -382,16 +381,16 @@ extern HMI_data_t HMI_data;
 enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
 
 // Show ICO
-void ICON_Print(bool show);
-void ICON_Prepare(bool show);
-void ICON_Control(bool show);
+void ICON_Print();
+void ICON_Prepare();
+void ICON_Control();
 void ICON_Leveling(bool show);
 void ICON_StartInfo(bool show);
 
-void ICON_Setting(bool show);
-void ICON_Pause(bool show);
-void ICON_Continue(bool show);
-void ICON_Stop(bool show);
+void ICON_Pause();
+void ICON_Continue();
+void ICON_Stop();
+
 void DWIN_Draw_Popup(uint8_t icon, const char *msg1, const char *msg2, uint8_t button = 0);
 void DWIN_Popup_Continue(uint8_t icon, const char *msg1, const char *msg2);
 void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2);
@@ -443,9 +442,8 @@ void HMI_SDCardInit();
 void HMI_SDCardUpdate();
 
 // Main Process
-void Icon_print(bool value);
-void Icon_control(bool value);
-void Icon_temperature(bool value);
+void Icon_print();
+void Icon_control();
 void Icon_leveling(bool value);
 
 // Other
@@ -510,11 +508,7 @@ void DWIN_SetColorDefaults();
 void DWIN_StoreSettings(char *buff);
 void DWIN_LoadSettings(const char *buff);
 void DWIN_Setdatadefaults();
-void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component);
 void DWIN_RebootScreen();
-#if ENABLED(NOZZLE_PARK_FEATURE)
-  void DWIN_PauseShow(const char message);
-#endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void Draw_Popup_FilamentPurge();
