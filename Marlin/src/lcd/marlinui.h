@@ -544,7 +544,7 @@ public:
 
   #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
-  #elif ENABLED(DWIN_CREALITY_LCD)
+  #elif BOTH(DWIN_CREALITY_LCD, ADVANCED_PAUSE_FEATURE)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder) {
       DWIN_PauseShow(message);
     }
