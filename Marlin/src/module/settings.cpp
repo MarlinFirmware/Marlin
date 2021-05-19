@@ -584,7 +584,11 @@ void MarlinSettings::postprocess() {
                 "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data.");
 #endif
 
-#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+//
+// This file simply uses the DEBUG_ECHO macros to implement EEPROM_CHITCHAT.
+// For deeper debugging of EEPROM issues enable DEBUG_EEPROM_READWRITE.
+//
+#define DEBUG_OUT EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -1450,8 +1454,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(final_crc);
 
       // Report storage size
-      DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
+      DEBUG_ECHO_MSG("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
 
       eeprom_error |= size_error(eeprom_size);
     }
@@ -1490,8 +1493,7 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+      DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
     }
@@ -2186,9 +2188,13 @@ void MarlinSettings::postprocess() {
              = DIGIPOT_MOTOR_CURRENT
           #endif
         ;
-        DEBUG_ECHOLNPGM("DIGIPOTS Loading");
+        #if HAS_MOTOR_CURRENT_SPI
+          DEBUG_ECHO_MSG("DIGIPOTS Loading");
+        #endif
         EEPROM_READ(motor_current_setting);
-        DEBUG_ECHOLNPGM("DIGIPOTS Loaded");
+        #if HAS_MOTOR_CURRENT_SPI
+          DEBUG_ECHO_MSG("DIGIPOTS Loaded");
+        #endif
         #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
           if (!validating)
             COPY(stepper.motor_current_setting, motor_current_setting);
@@ -2357,14 +2363,12 @@ void MarlinSettings::postprocess() {
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
-        DEBUG_ECHO_START();
-        DEBUG_ECHOLNPAIR("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
+        DEBUG_ECHO_MSG("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
-        DEBUG_ERROR_START();
-        DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
@@ -2454,13 +2458,8 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     inline void ubl_invalid_slot(const int s) {
-      #if BOTH(EEPROM_CHITCHAT, DEBUG_OUT)
-        DEBUG_ECHOLNPGM("?Invalid slot.");
-        DEBUG_ECHO(s);
-        DEBUG_ECHOLNPGM(" mesh slots available.");
-      #else
-        UNUSED(s);
-      #endif
+      DEBUG_ECHOLNPAIR("?Invalid slot.\n", s, " mesh slots available.");
+      UNUSED(s);
     }
 
     const uint16_t MarlinSettings::meshes_end = persistentStore.capacity() - 129; // 128 (+1 because of the change to capacity rather than last valid address)
