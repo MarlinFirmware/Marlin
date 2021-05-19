@@ -42,7 +42,7 @@ void report_M92(const bool echo=true, const int8_t e=-1) {
     }
   #endif
 
-  UNUSED_E(e);
+  UNUSED(e);
 }
 
 /**
@@ -64,11 +64,8 @@ void GcodeSuite::M92() {
   if (target_extruder < 0) return;
 
   // No arguments? Show M92 report.
-  if (!parser.seen("XYZE"
-    #if ENABLED(MAGIC_NUMBERS_GCODE)
-      "HL"
-    #endif
-  )) return report_M92(true, target_extruder);
+  if (!parser.seen("XYZE" TERN_(MAGIC_NUMBERS_GCODE, "HL")))
+    return report_M92(true, target_extruder);
 
   LOOP_XYZE(i) {
     if (parser.seenval(axis_codes[i])) {
