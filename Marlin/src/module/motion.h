@@ -517,7 +517,7 @@ FORCE_INLINE bool all_axes_trusted()                        { return linear_bits
 
   float x_home_pos(const uint8_t extruder);
 
-  FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
+  #define TOOL_X_HOME_DIR(T) ((T) ? X2_HOME_DIR : X_HOME_DIR)
 
   void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
   void idex_set_mirrored_mode(const bool mirr);
@@ -531,7 +531,7 @@ FORCE_INLINE bool all_axes_trusted()                        { return linear_bits
     FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif
 
-  FORCE_INLINE int x_home_dir(const uint8_t) { return X_HOME_DIR; }
+  #define TOOL_X_HOME_DIR(T) X_HOME_DIR
 
 #endif
 

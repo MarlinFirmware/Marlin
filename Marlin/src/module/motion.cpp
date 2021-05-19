@@ -1378,7 +1378,7 @@ void prepare_line_to_destination() {
 
     // Only do some things when moving towards an endstop
     const int8_t axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
-                  ? x_home_dir(active_extruder) : home_dir(axis);
+                  ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
     const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
     #if ENABLED(SENSORLESS_HOMING)
@@ -1562,8 +1562,8 @@ void prepare_line_to_destination() {
       #define _CAN_HOME(A) (axis == _AXIS(A) && ( \
            ENABLED(A##_SPI_SENSORLESS) \
         || (_AXIS(A) == Z_AXIS && ENABLED(HOMING_Z_WITH_PROBE)) \
-        || (A##_MIN_PIN > -1 && A##_HOME_DIR < 0) \
-        || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0) \
+        || TERN0(A##_HOME_TO_MIN, A##_MIN_PIN > -1) \
+        || TERN0(A##_HOME_TO_MAX, A##_MAX_PIN > -1) \
       ))
       if (!_CAN_HOME(X) && !_CAN_HOME(Y) && !_CAN_HOME(Z)) return;
     #endif
@@ -1571,7 +1571,7 @@ void prepare_line_to_destination() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", AS_CHAR(axis_codes[axis]), ")");
 
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
-                ? x_home_dir(active_extruder) : home_dir(axis);
+                ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
 
     //
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
@@ -1916,7 +1916,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   /**
    * Z Probe Z Homing? Account for the probe's Z offset.
    */
-  #if HAS_BED_PROBE && Z_HOME_DIR < 0
+  #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {
       #if HOMING_Z_WITH_PROBE
 

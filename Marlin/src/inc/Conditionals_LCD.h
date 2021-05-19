@@ -814,6 +814,23 @@
   #endif
 #endif // FILAMENT_RUNOUT_SENSOR
 
+// Homing to Min or Max
+#if X_HOME_DIR > 0
+  #define X_HOME_TO_MAX 1
+#elif X_HOME_DIR < 0
+  #define X_HOME_TO_MIN 1
+#endif
+#if Y_HOME_DIR > 0
+  #define Y_HOME_TO_MAX 1
+#elif Y_HOME_DIR < 0
+  #define Y_HOME_TO_MIN 1
+#endif
+#if Z_HOME_DIR > 0
+  #define Z_HOME_TO_MAX 1
+#elif Z_HOME_DIR < 0
+  #define Z_HOME_TO_MIN 1
+#endif
+
 #if HAS_BED_PROBE
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
@@ -821,7 +838,7 @@
   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && !BOTH(DELTA, SENSORLESS_PROBING)
     #define HAS_CUSTOM_PROBE_PIN 1
   #endif
-  #if Z_HOME_DIR < 0 && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+  #if Z_HOME_TO_MIN && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
     #define HOMING_Z_WITH_PROBE 1
   #endif
   #ifndef Z_PROBE_LOW_POINT
@@ -843,7 +860,7 @@
   #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
-#if Z_HOME_DIR > 0
+#if Z_HOME_TO_MAX
   #define HOME_Z_FIRST // If homing away from BED do Z first
 #endif
 

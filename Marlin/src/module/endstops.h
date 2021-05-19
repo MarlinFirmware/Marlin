@@ -62,9 +62,9 @@ enum EndstopEnum : char {
   NUM_ENDSTOP_STATES
 };
 
-#define X_ENDSTOP (x_home_dir(active_extruder) < 0 ? X_MIN : X_MAX)
-#define Y_ENDSTOP (Y_HOME_DIR < 0 ? Y_MIN : Y_MAX)
-#define Z_ENDSTOP (Z_HOME_DIR < 0 ? TERN(HOMING_Z_WITH_PROBE, Z_MIN, Z_MIN_PROBE) : Z_MAX)
+#define X_ENDSTOP TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
+#define Y_ENDSTOP TERN(Y_HOME_TO_MAX, Y_MAX, Y_MIN)
+#define Z_ENDSTOP TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN, Z_MIN_PROBE))
 
 #undef __ES_ITEM
 #undef _ES_ITEM
