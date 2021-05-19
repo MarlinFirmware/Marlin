@@ -226,7 +226,7 @@ public:
 
   // Seen any axis parameter
   static inline bool seen_axis() {
-    return seen_test('X') || seen_test('Y') || seen_test('Z') || seen_test('E');
+    return seen("XYZE");
   }
 
   #if ENABLED(GCODE_QUOTED_STRINGS)

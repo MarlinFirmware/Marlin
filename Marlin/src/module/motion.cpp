@@ -83,13 +83,13 @@ bool relative_mode; // = false;
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS,
-  #ifdef Z_IDLE_HEIGHT
-    Z_IDLE_HEIGHT
-  #else
-    Z_HOME_POS
-  #endif
-};
+#ifdef Z_IDLE_HEIGHT
+  #define Z_INIT_POS Z_IDLE_HEIGHT
+#else
+  #define Z_INIT_POS Z_HOME_POS
+#endif
+
+xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_INIT_POS };
 
 /**
  * Cartesian Destination
@@ -204,11 +204,7 @@ void report_real_position() {
   get_cartesian_from_steppers();
   xyze_pos_t npos = cartes;
   npos.e = planner.get_axis_position_mm(E_AXIS);
-
-  #if HAS_POSITION_MODIFIERS
-    planner.unapply_modifiers(npos, true);
-  #endif
-
+  TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
   report_logical_position(npos);
   report_more_positions();
 }
