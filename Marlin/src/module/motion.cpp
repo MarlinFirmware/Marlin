@@ -124,7 +124,7 @@ xyze_pos_t destination; // {0}
       "Offsets for the first hotend must be 0.0."
     );
     // Transpose from [XYZ][HOTENDS] to [HOTENDS][XYZ]
-    HOTEND_LOOP() LOOP_XYZ(a) hotend_offset[e][a] = tmp[a][e];
+    HOTEND_LOOP() LOOP_LINEAR_AXES(a) hotend_offset[e][a] = tmp[a][e];
     #if ENABLED(DUAL_X_CARRIAGE)
       hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS);
     #endif
@@ -282,7 +282,7 @@ void report_current_position_projected() {
 void quickstop_stepper() {
   planner.quick_stop();
   planner.synchronize();
-  set_current_from_steppers_for_axis(ALL_AXES);
+  set_current_from_steppers_for_axis(ALL_AXES_MASK);
   sync_plan_position();
 }
 
@@ -360,7 +360,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     planner.unapply_modifiers(pos, true);
   #endif
 
-  if (axis == ALL_AXES)
+  if (axis == ALL_AXES_MASK)
     current_position = pos;
   else
     current_position[axis] = pos[axis];
@@ -681,7 +681,7 @@ void restore_feedrate_and_scaling() {
     #endif
 
     if (DEBUGGING(LEVELING))
-      SERIAL_ECHOLNPAIR("Axis ", AS_CHAR(XYZ_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
+      SERIAL_ECHOLNPAIR("Axis ", AS_CHAR(AXIS_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
   }
 
   /**
@@ -1951,7 +1951,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
     workspace_offset[axis] = home_offset[axis] + position_shift[axis];
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Axis ", AS_CHAR(XYZ_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
   }
 #endif
 

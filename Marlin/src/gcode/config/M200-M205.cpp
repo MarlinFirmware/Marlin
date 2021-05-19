@@ -86,7 +86,7 @@ void GcodeSuite::M201() {
     if (parser.seenval('G')) planner.xy_freq_min_speed_factor = constrain(parser.value_float(), 1, 100) / 100;
   #endif
 
-  LOOP_XYZE(i) {
+  LOOP_LOGICAL_AXES(i) {
     if (parser.seenval(axis_codes[i])) {
       const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
       planner.set_max_acceleration(a, parser.value_axis_units((AxisEnum)a));
@@ -104,7 +104,7 @@ void GcodeSuite::M203() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
-  LOOP_XYZE(i)
+  LOOP_LOGICAL_AXES(i)
     if (parser.seenval(axis_codes[i])) {
       const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
       planner.set_max_feedrate(a, parser.value_axis_units((AxisEnum)a));

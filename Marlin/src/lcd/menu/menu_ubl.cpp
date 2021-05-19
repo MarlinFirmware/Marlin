@@ -430,7 +430,7 @@ void ubl_map_move_to_xy() {
 
   // Use the built-in manual move handler to move to the mesh point.
   ui.manual_move.set_destination(xy);
-  ui.manual_move.soon(ALL_AXES);
+  ui.manual_move.soon(ALL_AXES_MASK);
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
