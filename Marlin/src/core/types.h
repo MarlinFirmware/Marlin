@@ -30,6 +30,16 @@ class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;
 
 //
+// Conditional type assignment magic. For example...
+//
+// typename IF<(MYOPT==12), int, float>::type myvar;
+//
+template <bool, class L, class R>
+struct IF { typedef R type; };
+template <class L, class R>
+struct IF<true, L, R> { typedef L type; };
+
+//
 // Enumerated axis indices
 //
 //  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
@@ -56,16 +66,6 @@ enum AxisEnum : uint8_t {
 #define LOOP_ABC(VAR) LOOP_S_LE_N(VAR, A_AXIS, C_AXIS)
 #define LOOP_ABCE(VAR) LOOP_S_LE_N(VAR, A_AXIS, E_AXIS)
 #define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
-
-//
-// Conditional type assignment magic. For example...
-//
-// typename IF<(MYOPT==12), int, float>::type myvar;
-//
-template <bool, class L, class R>
-struct IF { typedef R type; };
-template <class L, class R>
-struct IF<true, L, R> { typedef L type; };
 
 //
 // feedRate_t is just a humble float
