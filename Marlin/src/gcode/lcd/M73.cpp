@@ -28,34 +28,35 @@
 #include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../lcd/dwin/e3v2/dwin.h"
+#endif
+
 /**
  * M73: Set percentage complete (for display on LCD)
  *
  * Example:
  *   M73 P25 ; Set progress to 25%
  */
-
-#if ENABLED(DWIN_CREALITY_LCD)
-
-  #include "../../lcd/dwin/e3v2/dwin.h"
-
-  void GcodeSuite::M73() {
-    DWIN_Progress_Update(parser.seen('P') ? parser.value_byte() : 0, parser.seen('R') ? parser.value_ulong() : 0);
-  }
-
-#else
-
 void GcodeSuite::M73() {
-  if (parser.seen('P'))
-    ui.set_progress((PROGRESS_SCALE) > 1
-      ? parser.value_float() * (PROGRESS_SCALE)
-      : parser.value_byte()
-    );
-  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
-    if (parser.seen('R')) ui.set_remaining_time(60 * parser.value_ulong());
+
+  #if ENABLED(DWIN_CREALITY_LCD)
+
+    DWIN_Progress_Update(parser.byteval('P'), parser.ulongval('R'));
+
+  #else
+
+    if (parser.seen('P'))
+      ui.set_progress((PROGRESS_SCALE) > 1
+        ? parser.value_float() * (PROGRESS_SCALE)
+        : parser.value_byte()
+      );
+
+    #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+      if (parser.seen('R')) ui.set_remaining_time(60 * parser.value_ulong());
+    #endif
+
   #endif
 }
-
-#endif
 
 #endif // LCD_SET_PROGRESS_MANUALLY
