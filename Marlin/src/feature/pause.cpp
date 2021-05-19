@@ -269,11 +269,9 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           wait_for_user = false;
           #if HAS_LCD_MENU
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
-          #elif ENABLED(DWIN_CREALITY_LCD)
-            pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-            DWIN_Popup_FilamentPurge();
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
+            TERN_(DWIN_CREALITY_LCD, DWIN_Popup_FilamentPurge());
           #endif
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
