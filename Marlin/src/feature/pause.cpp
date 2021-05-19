@@ -525,7 +525,6 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       wait_for_user_response(0, true); // Wait for LCD click or M108
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, GET_TEXT(MSG_REHEATING)));
-
       TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged_P(GET_TEXT(MSG_REHEATING)));
       TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(GET_TEXT(MSG_REHEATING)));
       
