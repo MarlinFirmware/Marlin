@@ -124,10 +124,14 @@
  * 250000 works in most cases, but you might try a lower speed if
  * you commonly experience drop-outs during host printing.
  * You may try up to 1000000 to speed up SD file transfer.
+ * 
+ * If a specific buadrate isn't specified for secondary ports, the primary will be used.
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
 #define BAUDRATE 250000
+//#define BAUDRATE_2 250000
+//#define BAUDRATE_3 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH

@@ -1073,11 +1073,11 @@ void setup() {
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    MYSERIAL2.begin(BAUDRATE);
+    MYSERIAL2.begin(TERN(BAUDRATE_2, BAUDRATE_2, BAUDRATE));
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #ifdef SERIAL_PORT_3
-      MYSERIAL3.begin(BAUDRATE);
+      MYSERIAL3.begin(TERN(BAUDRATE_3, BAUDRATE_3, BAUDRATE));
       serial_connect_timeout = millis() + 1000UL;
       while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #endif
