@@ -105,17 +105,18 @@
 #define SERIAL_PORT 0
 
 /**
- * This setting determines the communication speed of the printer.
+ * Serial Port Baud Rate
+ * This is the default communication speed for all serial ports.
+ * Set the baud rate defaults for additional serial ports below.
  *
  * 250000 works in most cases, but you might try a lower speed if
  * you commonly experience drop-outs during host printing.
  * You may try up to 1000000 to speed up SD file transfer.
  *
- * If a baudrate isn't specified for a port BAUDRATE will be used.
- *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
 #define BAUDRATE 250000
+//#define BAUD_RATE_GCODE     // Enable G-code M575 to set the baud rate
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
