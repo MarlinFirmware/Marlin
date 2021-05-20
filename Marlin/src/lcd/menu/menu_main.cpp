@@ -254,6 +254,34 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
+  #if ENABLED(SDSUPPORT)
+
+    auto sdcard_menu_items = [&]{
+      #if ENABLED(MENU_ADDAUTOSTART)
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+      #endif
+
+      if (card_detected) {
+        if (!card_open) {
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
+          #else                                               // - or -
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));      // M22 Release Media
+          #endif
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
+        }
+      }
+      else {
+        #if PIN_EXISTS(SD_DETECT)
+          ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // "No Media"
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));         // M21 Attach Media
+        #endif
+      }
+    };
+
+  #endif
+
   if (busy) {
     #if MACHINE_CAN_PAUSE
       ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
@@ -283,34 +311,6 @@ void menu_main() {
 
     #if ENABLED(SDSUPPORT) && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
       #define MEDIA_MENU_AT_TOP
-    #endif
-
-    #if ENABLED(SDSUPPORT)
-
-      auto sdcard_menu_items = [&]{
-        #if ENABLED(MENU_ADDAUTOSTART)
-          ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-        #endif
-
-        if (card_detected) {
-          if (!card_open) {
-            #if PIN_EXISTS(SD_DETECT)
-              GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
-            #else                                               // - or -
-              GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));      // M22 Release Media
-            #endif
-            SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
-          }
-        }
-        else {
-          #if PIN_EXISTS(SD_DETECT)
-            ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // "No Media"
-          #else
-            GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));         // M21 Attach Media
-          #endif
-        }
-      };
-
     #endif
 
     #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
