@@ -146,7 +146,7 @@ void GcodeSuite::M48() {
         // Display M48 progress in the status bar
         ui.status_printf_P(0, PSTR(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
         #if ENABLED(Probing_point_message)
-          SERIAL_ECHO_MSG("probing point ", int( n + 1 ) ); //changed added
+          SERIAL_ECHO_MSG("probing point ", n + 1);
         #endif
       #endif
 

@@ -223,7 +223,7 @@ G29_TYPE GcodeSuite::G29() {
 
   reset_stepper_timeout();
 
-  const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen('Q');
+  const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -235,7 +235,7 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
 
-  const bool seenA = TERN0(PROBE_MANUALLY, parser.seen('A')),
+  const bool seenA = TERN0(PROBE_MANUALLY, parser.seen_test('A')),
          no_action = seenA || seenQ,
               faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
 
@@ -245,7 +245,7 @@ G29_TYPE GcodeSuite::G29() {
   }
 
   // Send 'N' to force homing before G29 (internal only)
-  if (parser.seen('N'))
+  if (parser.seen_test('N'))
     process_subcommands_now_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
 
   // Don't allow auto-leveling without homing first
@@ -275,7 +275,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      const bool seen_w = parser.seen('W');
+      const bool seen_w = parser.seen_test('W');
       if (seen_w) {
         if (!leveling_is_valid()) {
           SERIAL_ERROR_MSG("No bilinear grid");
@@ -308,7 +308,7 @@ G29_TYPE GcodeSuite::G29() {
           if (abl.reenable) report_current_position();
         }
         G29_RETURN(false);
-      } // parser.seen('W')
+      } // parser.seen_test('W')
 
     #else
 
@@ -317,7 +317,7 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     // Jettison bed leveling data
-    if (!seen_w && parser.seen('J')) {
+    if (!seen_w && parser.seen_test('J')) {
       reset_bed_level();
       G29_RETURN(false);
     }
@@ -631,7 +631,6 @@ G29_TYPE GcodeSuite::G29() {
 
         // Inner loop is Y with PROBE_Y_FIRST enabled
         // Inner loop is X with PROBE_Y_FIRST disabled
-
         for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; pt_index++, PR_INNER_VAR += inInc) {
 
           abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
@@ -641,12 +640,9 @@ G29_TYPE GcodeSuite::G29() {
           // Avoid probing outside the round or hexagonal area
           if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
 
-          if (abl.verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", pt_index, "/", abl.abl_points, ".");//think this is it here changed
+          if (ENABLED(Probing_Grid_message) || abl.verbose_level)
+            SERIAL_ECHOLNPAIR("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
           TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(abl.abl_points)));
-
-          #if ENABLED (Probing_Grid_message)
-            SERIAL_ECHO_MSG("probing point ", int(pt_index) ," / ", int(abl.abl_points) ); //changed added
-          #endif
 
           abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
 
