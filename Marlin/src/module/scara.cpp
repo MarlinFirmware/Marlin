@@ -221,10 +221,10 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
       TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
     #endif
 
-    // const int x_axis_home_dir = x_home_dir(active_extruder);
+    //const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
-    // const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };
-    // const float mlz = max_length(X_AXIS),
+    //const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };
+    //const float mlz = max_length(X_AXIS),
 
     // Move all carriages together linearly until an endstop is hit.
     //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));
@@ -254,7 +254,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     // Do this here all at once for Delta, because
     // XYZ isn't ABC. Applying this per-tower would
     // give the impression that they are the same.
-    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
+    LOOP_LINEAR_AXES(i) set_axis_is_at_home((AxisEnum)i);
 
     sync_plan_position();
   }

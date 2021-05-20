@@ -391,6 +391,12 @@
   #define POLL_JOG
 #endif
 
+#if X2_HOME_DIR > 0
+  #define X2_HOME_TO_MAX 1
+#elif X2_HOME_DIR < 0
+  #define X2_HOME_TO_MIN 1
+#endif
+
 #ifndef HOMING_BUMP_MM
   #define HOMING_BUMP_MM { 0, 0, 0 }
 #endif
