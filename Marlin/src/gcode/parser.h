@@ -371,7 +371,7 @@ public:
         case TEMPUNIT_K: f -= 273.15f;
         case TEMPUNIT_F: f = (f - 32) * 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
     static inline celsius_t value_celsius_diff() {
@@ -382,7 +382,7 @@ public:
         case TEMPUNIT_K: break;
         case TEMPUNIT_F: f *= 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
   #else // !TEMPERATURE_UNITS_SUPPORT

@@ -486,7 +486,9 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
         CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
       #endif
     }
+  }
 
+  void MarlinUI::bootscreen_completion(const millis_t) {
     lcd.clear();
     safe_delay(100);
     set_custom_characters(CHARSET_INFO);
@@ -525,15 +527,15 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
-    const celsius_t t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
+    const celsius_t t1 = (isBed ? thermalManager.wholeDegBed()  : thermalManager.wholeDegHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(i16tostr3rj(t1));
+  lcd_put_u8str(t1 < 0 ? "err" : i16tostr3rj(t1));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -554,6 +556,43 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
     if (t2 < 10) lcd_put_wchar(' ');
   }
 }
+
+#if HAS_COOLER
+FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
+  const celsius_t t2 = thermalManager.degTargetCooler();
+
+  if (prefix >= 0) lcd_put_wchar(prefix);
+
+  lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
+  lcd_put_wchar('/');
+
+  #if !HEATER_IDLE_HANDLER
+    UNUSED(blink);
+  #else
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+      lcd_put_wchar(' ');
+      if (t2 >= 10) lcd_put_wchar(' ');
+      if (t2 >= 100) lcd_put_wchar(' ');
+    }
+    else
+  #endif
+      lcd_put_u8str(i16tostr3left(t2));
+
+  if (prefix >= 0) {
+    lcd_put_wchar(LCD_STR_DEGREE[0]);
+    lcd_put_wchar(' ');
+    if (t2 < 10) lcd_put_wchar(' ');
+  }
+}
+#endif
+
+#if ENABLED(LASER_COOLANT_FLOW_METER)
+  FORCE_INLINE void _draw_flowmeter_status() {
+    lcd_put_u8str("~ ");
+    lcd_put_u8str(ftostr11ns(cooler.flowrate));
+    lcd_put_wchar('L');
+  }
+#endif
 
 #if HAS_COOLER
 FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {

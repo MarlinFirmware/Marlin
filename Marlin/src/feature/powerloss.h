@@ -70,7 +70,6 @@ typedef struct {
   #endif
 
   #if DISABLED(NO_VOLUMETRICS)
-    bool volumetric_enabled;
     float filament_size[EXTRUDERS];
   #endif
 
@@ -116,7 +115,10 @@ typedef struct {
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
     #if ENABLED(HAS_LEVELING)
-      bool leveling:1;
+      bool leveling:1;            // M420 S
+    #endif
+    #if DISABLED(NO_VOLUMETRICS)
+      bool volumetric_enabled:1;  // M200 S D
     #endif
   } flag;
 
@@ -136,10 +138,6 @@ class PrintJobRecovery {
     static uint8_t queue_index_r;     //!< Queue index of the active command
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
-
-    #if ENABLED(DWIN_CREALITY_LCD)
-      static bool dwin_flag;
-    #endif
 
     static void init();
     static void prepare();

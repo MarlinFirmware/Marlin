@@ -21,6 +21,13 @@ If you are unsure of an issue and would like some community input, you can post 
 
 New feature ideas are always welcome and a great way to improve the firmware. There are three ways you can suggest a feature. If you have a general idea, but would like some community input on the feature, open up a discussion where everyone can chime in. If you have a concrete idea you think would benefit the firmware, you can create a feature request in the issus tab on GitHub. If you have a solid idea and have the ability to implement it yourself, implement it in your own fork and create a [pull request](https://github.com/Jyers/Marlin/pulls) to the main branch.
 
+## Support the Development
+
+This firmware is and will always be free and open source. That being said, I am still a college student and tuition is not cheap, so any and all support is incredibly appreciated. Whether it's a cup of coffee or a textbook, it always makes my day. It is thanks to my generous donors that I have been able to put everything I can into this project and for that, I am beyond grateful.
+
+[PayPal](https://www.paypal.com/paypalme/jyers)
+
+[Patreon](https://www.patreon.com/jyers)
 
 # Marlin 3D Printer Firmware
 
