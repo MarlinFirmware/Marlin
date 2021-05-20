@@ -681,7 +681,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     xyze_pos_t ManualMove::all_axes_destination = { 0 };
     bool ManualMove::processing = false;
   #endif
-  #if ENABLED(MULTI_MANUAL)
+  #if ENABLED(MULTI_E_MANUAL)
     int8_t ManualMove::e_index = 0;
   #endif
   AxisEnum ManualMove::axis = NO_AXIS_MASK;
@@ -758,11 +758,11 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   // Tell ui.update() to start a move to current_position after a short delay.
   //
   void ManualMove::soon(const AxisEnum move_axis
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       , const int8_t eindex/*=-1*/
     #endif
   ) {
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
