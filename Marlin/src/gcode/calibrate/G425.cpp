@@ -194,16 +194,20 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
 inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const float uncertainty) {
   const bool fast = uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN;
 
-  // Save position
-  destination = current_position;
-  const float start_pos = destination[axis];
+  // Save the current position of the specified axis
+  const float start_pos = current_position[axis];
+
+  // Take a measurement. Only the specified axis will be affected.
   const float measured_pos = measuring_movement(axis, dir, stop_state, fast);
+
   // Measure backlash
   if (backlash_ptr && !fast) {
     const float release_pos = measuring_movement(axis, -dir, !stop_state, fast);
     *backlash_ptr = ABS(release_pos - measured_pos);
   }
-  // Return to starting position
+
+  // Move back to the starting position
+  destination = current_position;
   destination[axis] = start_pos;
   do_blocking_move_to(destination, MMM_TO_MMS(CALIBRATION_FEEDRATE_TRAVEL));
   return measured_pos;
@@ -235,12 +239,12 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
       }
     #endif
     #if AXIS_CAN_CALIBRATE(X)
+      case RIGHT: dir = -1;
       case LEFT:  axis = X_AXIS; break;
-      case RIGHT: axis = X_AXIS; dir = -1; break;
     #endif
     #if AXIS_CAN_CALIBRATE(Y)
+      case BACK:  dir = -1;
       case FRONT: axis = Y_AXIS; break;
-      case BACK:  axis = Y_AXIS; dir = -1; break;
     #endif
     default: return;
   }
@@ -303,16 +307,8 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   // The difference between the known and the measured location
   // of the calibration object is the positional error
-  m.pos_error.x = (0
-    #if HAS_X_CENTER
-      + true_center.x - m.obj_center.x
-    #endif
-  );
-  m.pos_error.y = (0
-    #if HAS_Y_CENTER
-      + true_center.y - m.obj_center.y
-    #endif
-  );
+  m.pos_error.x = TERN0(HAS_X_CENTER, true_center.x - m.obj_center.x);
+  m.pos_error.y = TERN0(HAS_Y_CENTER, true_center.y - m.obj_center.y);
   m.pos_error.z = true_center.z - m.obj_center.z;
 }
 
@@ -589,12 +585,12 @@ void GcodeSuite::G425() {
   SET_SOFT_ENDSTOP_LOOSE(true);
 
   measurements_t m;
-  float uncertainty = parser.seenval('U') ? parser.value_float() : CALIBRATION_MEASUREMENT_UNCERTAIN;
+  const float uncertainty = parser.floatval('U', CALIBRATION_MEASUREMENT_UNCERTAIN);
 
-  if (parser.seen('B'))
+  if (parser.seen_test('B'))
     calibrate_backlash(m, uncertainty);
-  else if (parser.seen('T'))
-    calibrate_toolhead(m, uncertainty, parser.has_value() ? parser.value_int() : active_extruder);
+  else if (parser.seen_test('T'))
+    calibrate_toolhead(m, uncertainty, parser.intval('T', active_extruder));
   #if ENABLED(CALIBRATION_REPORTING)
     else if (parser.seen('V')) {
       probe_sides(m, uncertainty);
