@@ -256,6 +256,10 @@ void menu_main() {
 
   #if ENABLED(SDSUPPORT)
 
+    #if !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+      #define MEDIA_MENU_AT_TOP
+    #endif
+
     auto sdcard_menu_items = [&]{
       #if ENABLED(MENU_ADDAUTOSTART)
         ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
@@ -308,10 +312,6 @@ void menu_main() {
     #endif
   }
   else {
-
-    #if ENABLED(SDSUPPORT) && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
-      #define MEDIA_MENU_AT_TOP
-    #endif
 
     #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
       sdcard_menu_items();
