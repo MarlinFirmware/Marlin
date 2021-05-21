@@ -38,7 +38,7 @@ inline void G38_single_probe(const uint8_t move_value) {
   planner.synchronize();
   G38_move = 0;
   endstops.hit_on_purpose();
-  set_current_from_steppers_for_axis(ALL_AXES_MASK);
+  set_current_from_steppers_for_axis(ALL_AXES_ENUM);
   sync_plan_position();
 }
 
