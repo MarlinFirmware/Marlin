@@ -10,8 +10,6 @@
 Additional documentation can be found at the [Marlin Home Page](https://marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
-__Not for production use. Use with caution!__
-
 This fork is based on the bugfix-2.0.x branch of Marlin firmware.
 
 ## Building Marlin 2.0
