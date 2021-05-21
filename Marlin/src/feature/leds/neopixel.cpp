@@ -43,11 +43,13 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
   #endif
 ;
 
-#ifdef NEOPIXEL_BKGD_LED_INDEX
+#ifdef NEOPIXEL_BKGD_LED_INDEX_START
 
   void Marlin_NeoPixel::set_color_background() {
     uint8_t background_color[4] = NEOPIXEL_BKGD_COLOR;
-    set_pixel_color(NEOPIXEL_BKGD_LED_INDEX, adaneo1.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
+    for  (int backgroundled = NEOPIXEL_BKGD_LED_INDEX_START; backgroundled <= NEOPIXEL_BKGD_LED_INDEX_END; backgroundled++) {
+      set_pixel_color(backgroundled, adaneo1.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
+    }
   }
 
 #endif
@@ -59,9 +61,10 @@ void Marlin_NeoPixel::set_color(const uint32_t color) {
   }
   else {
     for (uint16_t i = 0; i < pixels(); ++i) {
-      #ifdef NEOPIXEL_BKGD_LED_INDEX
-        if (i == NEOPIXEL_BKGD_LED_INDEX && TERN(NEOPIXEL_BKGD_ALWAYS_ON, true, color != 0x000000)) {
+      #ifdef NEOPIXEL_BKGD_LED_INDEX_START
+        if (i == NEOPIXEL_BKGD_LED_INDEX_START && TERN(NEOPIXEL_BKGD_ALWAYS_ON, true, color != 0x000000)) {
           set_color_background();
+          i += NEOPIXEL_BKGD_LED_INDEX_END-NEOPIXEL_BKGD_LED_INDEX_START;
           continue;
         }
       #endif
@@ -90,9 +93,14 @@ void Marlin_NeoPixel::init() {
     safe_delay(500);
     set_color_startup(adaneo1.Color(0, 0, 255, 0));  // blue
     safe_delay(500);
+    #if HAS_WHITE_LED
+      set_color_startup(adaneo1.Color(0, 0, 0, 255));  // white
+      safe_delay(500);
+    #endif
+
   #endif
 
-  #ifdef NEOPIXEL_BKGD_LED_INDEX
+  #ifdef NEOPIXEL_BKGD_LED_INDEX_START
     set_color_background();
   #endif
 
@@ -158,6 +166,10 @@ bool Marlin_NeoPixel::set_led_color(const uint8_t r, const uint8_t g, const uint
       safe_delay(500);
       set_color_startup(adaneo.Color(0, 0, 255, 0));  // blue
       safe_delay(500);
+      #if HAS_WHITE_LED2
+        set_color_startup(adaneo.Color(0, 0, 0, 255));  // white
+        safe_delay(500);
+      #endif
     #endif
 
     #if ENABLED(NEO2_USER_PRESET_STARTUP)

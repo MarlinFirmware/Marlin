@@ -34,7 +34,7 @@
 #endif
 
 // A white component can be passed
-#if ANY(RGBW_LED, NEOPIXEL_LED, PCA9632_RGBW)
+#if ANY(RGBW_LED, NEOPIXEL_IS_RGBW, PCA9632_RGBW)
   #define HAS_WHITE_LED 1
 #endif
 
@@ -45,43 +45,43 @@ typedef struct LEDColor {
   uint8_t r, g, b
     #if HAS_WHITE_LED
       , w
-      #if ENABLED(NEOPIXEL_LED)
-        , i
-      #endif
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , i
     #endif
   ;
 
   LEDColor() : r(255), g(255), b(255)
     #if HAS_WHITE_LED
       , w(255)
-      #if ENABLED(NEOPIXEL_LED)
-        , i(NEOPIXEL_BRIGHTNESS)
-      #endif
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , i(NEOPIXEL_BRIGHTNESS)
     #endif
   {}
 
   LEDColor(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
-      #if ENABLED(NEOPIXEL_LED)
-        , uint8_t i=NEOPIXEL_BRIGHTNESS
-      #endif
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , uint8_t i=NEOPIXEL_BRIGHTNESS
     #endif
     ) : r(r), g(g), b(b)
     #if HAS_WHITE_LED
       , w(w)
-      #if ENABLED(NEOPIXEL_LED)
-        , i(i)
-      #endif
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , i(i)
     #endif
   {}
 
   LEDColor(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
     #if HAS_WHITE_LED
       , w(rgbw[3])
-      #if ENABLED(NEOPIXEL_LED)
-        , i(NEOPIXEL_BRIGHTNESS)
-      #endif
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , i(NEOPIXEL_BRIGHTNESS)
     #endif
   {}
 
@@ -109,17 +109,8 @@ typedef struct LEDColor {
 } LEDColor;
 
 /**
- * Color helpers and presets
+ * Color presets
  */
-#if HAS_WHITE_LED
-  #if ENABLED(NEOPIXEL_LED)
-    #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W, I)
-  #else
-    #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W)
-  #endif
-#else
-  #define MakeLEDColor(R,G,B,W,I)   LEDColor(R, G, B)
-#endif
 
 #define LEDColorOff()             LEDColor(  0,   0,   0)
 #define LEDColorRed()             LEDColor(255,   0,   0)
@@ -161,10 +152,16 @@ public:
       , bool isSequence=false
     #endif
   ) {
-    set_color(MakeLEDColor(r, g, b, w, i)
-      #if ENABLED(NEOPIXEL_LED)
-        , isSequence
-      #endif
+    set_color(LEDColor(r, g, b
+    #if HAS_WHITE_LED
+      , w
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , i)
+      , isSequence
+    #else
+      )
+    #endif
     );
   }
 
@@ -223,8 +220,24 @@ extern LEDLights leds;
 
     static void set_color(const LEDColor &color);
 
-    inline void set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t w=0, uint8_t i=NEOPIXEL2_BRIGHTNESS) {
-      set_color(MakeLEDColor(r, g, b, w, i));
+    static inline void set_color(uint8_t r, uint8_t g, uint8_t b
+      #if HAS_WHITE_LED
+        , uint8_t w=0
+      #endif
+      #if ENABLED(NEOPIXEL_LED)
+        , uint8_t i=NEOPIXEL_BRIGHTNESS
+      #endif
+    ) {
+      set_color(LEDColor(r, g, b
+      #if HAS_WHITE_LED
+        , w
+      #endif
+      #if ENABLED(NEOPIXEL_LED)
+        , i)
+      #else
+        )
+      #endif
+      );
     }
 
     static inline void set_off()   { set_color(LEDColorOff()); }

@@ -52,8 +52,24 @@
   #define NEOPIXEL_IS_RGBW 1
 #endif
 
+#if NEOPIXEL2_TYPE == NEO_RGB || NEOPIXEL2_TYPE == NEO_RBG || NEOPIXEL2_TYPE == NEO_GRB || NEOPIXEL2_TYPE == NEO_GBR || NEOPIXEL2_TYPE == NEO_BRG || NEOPIXEL2_TYPE == NEO_BGR
+  #define NEOPIXEL2_IS_RGB 1
+#else
+  #define NEOPIXEL2_IS_RGBW 1
+#endif
+
+// A white component can be passed
+#if ANY(RGBW_LED, NEOPIXEL_IS_RGBW, PCA9632_RGBW)
+  #define HAS_WHITE_LED 1
+#endif
+
+// A white component can be passed on NEOPIXEL2
+#if ENABLED(NEOPIXEL2_IS_RGBW )
+  #define HAS_WHITE_LED2 1
+#endif
+
 #if NEOPIXEL_IS_RGB
-  #define NEO_WHITE 255, 255, 255, 0
+  #define NEO_WHITE 255, 255, 255
 #else
   #define NEO_WHITE 0, 0, 0, 255
 #endif
@@ -78,7 +94,7 @@ public:
 
   static void set_color(const uint32_t c);
 
-  #ifdef NEOPIXEL_BKGD_LED_INDEX
+  #ifdef NEOPIXEL_BKGD_LED_INDEX_START
     static void set_color_background();
   #endif
 
@@ -127,8 +143,16 @@ public:
   // Accessors
   static inline uint16_t pixels() { TERN(NEOPIXEL2_INSERIES, return adaneo1.numPixels() * 2, return adaneo1.numPixels()); }
   static inline uint8_t brightness() { return adaneo1.getBrightness(); }
-  static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
-    return adaneo1.Color(r, g, b, w);
+  static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b
+  #if HAS_WHITE_LED
+    , uint8_t w
+  #endif
+    ) {
+    return adaneo1.Color(r, g, b
+  #if HAS_WHITE_LED
+    , w
+  #endif
+    );
   }
 };
 
@@ -144,7 +168,7 @@ extern Marlin_NeoPixel neo;
   #endif
 
   #if NEOPIXEL2_IS_RGB
-    #define NEO2_WHITE 255, 255, 255, 0
+    #define NEO2_WHITE 255, 255, 255
   #else
     #define NEO2_WHITE 0, 0, 0, 255
   #endif
@@ -172,8 +196,16 @@ extern Marlin_NeoPixel neo;
     // Accessors
     static inline uint16_t pixels() { return adaneo.numPixels();}
     static inline uint8_t brightness() { return adaneo.getBrightness(); }
-    static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
-      return adaneo.Color(r, g, b, w);
+    static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b
+    #if HAS_WHITE_LED2
+      , uint8_t w
+    #endif
+      ) {
+      return adaneo.Color(r, g, b
+    #if HAS_WHITE_LED2
+      , w
+    #endif
+    );
     }
   };
 

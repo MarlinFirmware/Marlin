@@ -66,12 +66,16 @@ void GcodeSuite::M150() {
     #endif
   #endif
 
-  const LEDColor color = MakeLEDColor(
+  const LEDColor color = LEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness
+    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
+    #if HAS_WHITE_LED
+      , parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness
+    #endif
   );
 
   #if ENABLED(NEOPIXEL2_SEPARATE)

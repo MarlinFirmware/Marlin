@@ -2006,6 +2006,15 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * LED Backlight INDEX END
+ */
+#ifdef NEOPIXEL_BKGD_LED_INDEX_START
+  #ifndef NEOPIXEL_BKGD_LED_INDEX_END
+      #define NEOPIXEL_BKGD_LED_INDEX_END NEOPIXEL_BKGD_LED_INDEX_START
+  #endif
+#endif
+
+/**
  * Basic multi hotend duplication mode
  */
 #if ENABLED(MULTI_NOZZLE_DUPLICATION)

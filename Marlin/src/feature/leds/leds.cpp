@@ -47,9 +47,14 @@
 #endif
 
 #if ENABLED(LED_COLOR_PRESETS)
-  const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
-    LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE,
-    LED_USER_PRESET_WHITE, LED_USER_PRESET_BRIGHTNESS
+  const LEDColor LEDLights::defaultLEDColor = LEDColor(
+    LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE
+    #if HAS_WHITE_LED2
+    , LED_USER_PRESET_WHITE
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      , LED_USER_PRESET_BRIGHTNESS
+    #endif
   );
 #endif
 
@@ -84,11 +89,15 @@ void LEDLights::set_color(const LEDColor &incol
 
     const uint32_t neocolor = LEDColorWhite() == incol
                             ? neo.Color(NEO_WHITE)
-                            : neo.Color(incol.r, incol.g, incol.b, incol.w);
+                            : neo.Color(incol.r, incol.g, incol.b
+    #if HAS_WHITE_LED
+      , incol.w
+    #endif
+    );
     static uint16_t nextLed = 0;
 
-    #ifdef NEOPIXEL_BKGD_LED_INDEX
-      if (NEOPIXEL_BKGD_LED_INDEX == nextLed) {
+    #ifdef NEOPIXEL_BKGD_LED_INDEX_START
+      while (nextLed >= NEOPIXEL_BKGD_LED_INDEX_START && nextLed <= NEOPIXEL_BKGD_LED_INDEX_END) {
         neo.set_color_background();
         if (++nextLed >= neo.pixels()) {
           nextLed = 0;
@@ -169,9 +178,14 @@ void LEDLights::set_color(const LEDColor &incol
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
   #if ENABLED(NEO2_COLOR_PRESETS)
-    const LEDColor LEDLights2::defaultLEDColor = MakeLEDColor(
-      NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE,
-      NEO2_USER_PRESET_WHITE, NEO2_USER_PRESET_BRIGHTNESS
+    const LEDColor LEDLights2::defaultLEDColor = LEDColor(
+      LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE
+      #if HAS_WHITE_LED2
+        , LED_USER_PRESET_WHITE
+      #endif
+      #if ENABLED(NEOPIXEL_LED)
+        , LED_USER_PRESET_BRIGHTNESS
+      #endif
     );
   #endif
 
@@ -190,7 +204,11 @@ void LEDLights::set_color(const LEDColor &incol
   void LEDLights2::set_color(const LEDColor &incol) {
     const uint32_t neocolor = LEDColorWhite() == incol
                             ? neo2.Color(NEO2_WHITE)
-                            : neo2.Color(incol.r, incol.g, incol.b, incol.w);
+                            : neo2.Color(incol.r, incol.g, incol.b
+    #if HAS_WHITE_LED2
+      , incol.w
+    #endif
+    );
     neo2.set_brightness(incol.i);
     neo2.set_color(neocolor);
 
