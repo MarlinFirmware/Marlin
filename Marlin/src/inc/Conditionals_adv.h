@@ -105,6 +105,7 @@
   #undef SHOW_TEMP_ADC_VALUES
   #undef LCD_SHOW_E_TOTAL
   #undef MANUAL_E_MOVES_RELATIVE
+  #undef STEALTHCHOP_E
 #endif
 
 #if TEMP_SENSOR_BED == 0
@@ -481,6 +482,23 @@
   #endif
   #ifndef PAGE_MANAGER
     #define PAGE_MANAGER SerialPageManager
+  #endif
+#endif
+
+// Remove unused STEALTHCHOP flags
+#if LINEAR_AXES < 6
+  #undef STEALTHCHOP_K
+  #if LINEAR_AXES < 5
+    #undef STEALTHCHOP_J
+    #if LINEAR_AXES < 4
+      #undef STEALTHCHOP_I
+      #if LINEAR_AXES < 3
+        #undef STEALTHCHOP_Z
+        #if LINEAR_AXES < 2
+          #undef STEALTHCHOP_Y
+        #endif
+      #endif
+    #endif
   #endif
 #endif
 

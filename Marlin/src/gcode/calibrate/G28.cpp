@@ -321,12 +321,23 @@ void GcodeSuite::G28() {
 
   #else
 
+    #define _UNSAFE(A) (homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
+
     const bool homeZ = parser.seen_test('Z'),
-               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
-               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(Y_AXIS))),
-               homeX = needX || parser.seen_test('X'), homeY = needY || parser.seen_test('Y'),
-               home_all = homeX == homeY && homeX == homeZ, // All or None
-               doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
+               LINEAR_AXIS_LIST( // Other axes should be homed before Z safe-homing
+                 needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false // UNUSED
+               ),
+               LINEAR_AXIS_LIST( // Home each axis if needed or flagged
+                 homeX = needX || parser.seen_test('X'),
+                 homeY = needY || parser.seen_test('Y'),
+                 homeZZ = homeZ // UNUSED
+               ),
+               // Home-all if all or none are flagged
+               home_all = true LINEAR_AXIS_GANG(&& homeX == homeX, && homeX == homeY, && homeX == homeZ),
+               LINEAR_AXIS_LIST(doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ);
+
+   UNUSED(needZ);
+   UNUSED(homeZZ);
 
     #if ENABLED(HOME_Z_FIRST)
 
@@ -336,7 +347,7 @@ void GcodeSuite::G28() {
 
     const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
-    if (z_homing_height && (doX || doY || TERN0(Z_SAFE_HOMING, doZ))) {
+    if (z_homing_height && (0 LINEAR_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ)))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);
@@ -469,7 +480,7 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(Y2)
       stepperY2.rms_current(tmc_save_current_Y2);
     #endif
-  #endif
+  #endif // HAS_HOMING_CURRENT
 
   ui.refresh();
 
@@ -490,7 +501,7 @@ void GcodeSuite::G28() {
     static constexpr AxisEnum L64XX_axis_xref[MAX_L64XX] = {
       X_AXIS, Y_AXIS, Z_AXIS,
       X_AXIS, Y_AXIS, Z_AXIS, Z_AXIS,
-      E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS
+      E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS, E_AXIS
     };
     for (uint8_t j = 1; j <= L64XX::chain[0]; j++) {
       const uint8_t cv = L64XX::chain[j];

@@ -168,10 +168,10 @@
   void M554_report();
 #endif
 
-typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
-typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_hybrid_threshold_t;
-typedef struct {  int16_t X, Y, Z, X2, Y2, Z2, Z3, Z4;                                 } tmc_sgt_t;
-typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stealth_enabled_t;
+typedef struct { uint16_t LINEAR_AXIS_LIST(X, Y, Z), X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
+typedef struct { uint32_t LINEAR_AXIS_LIST(X, Y, Z), X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_hybrid_threshold_t;
+typedef struct {  int16_t LINEAR_AXIS_LIST(X, Y, Z), X2, Y2, Z2, Z3, Z4;                                 } tmc_sgt_t;
+typedef struct {     bool LINEAR_AXIS_LIST(X, Y, Z), X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
 #define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
@@ -654,12 +654,7 @@ void MarlinSettings::postprocess() {
           EEPROM_WRITE(dummyf);
         #endif
       #else
-        const xyze_pos_t planner_max_jerk = {
-          LIST_N(LINEAR_AXES, 10, 10, 0.4, 0.4, 0.4, 0.4)
-          #if HAS_EXTRUDERS
-            , float(DEFAULT_EJERK)
-          #endif
-        };
+        const xyze_pos_t planner_max_jerk = LOGICAL_AXIS_ARRAY(float(DEFAULT_EJERK), 10, 10, 0.4);
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
@@ -1193,10 +1188,10 @@ void MarlinSettings::postprocess() {
         #endif
       #else
         const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
-          .X  = 100, .Y  = 100, .Z  =   3,
+          LINEAR_AXIS_LIST(.X = 100, .Y = 100, .Z = 3),
           .X2 = 100, .Y2 = 100, .Z2 =   3, .Z3 =   3, .Z4 = 3,
-          .E0 =  30, .E1 =  30, .E2 =  30,
-          .E3 =  30, .E4 =  30, .E5 =  30
+          .E0 =  30, .E1 =  30, .E2 =  30, .E3 =  30,
+          .E4 =  30, .E5 =  30, .E6 =  30, .E7 =  30
         };
       #endif
       EEPROM_WRITE(tmc_hybrid_threshold);
@@ -2609,7 +2604,7 @@ void MarlinSettings::reset() {
     #ifndef DEFAULT_ZJERK
       #define DEFAULT_ZJERK 0
     #endif
-    planner.max_jerk.set(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK);
+    planner.max_jerk.set(LINEAR_AXIS_LIST(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK));
     TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK;);
   #endif
 
@@ -3147,9 +3142,11 @@ void MarlinSettings::reset() {
     CONFIG_ECHO_HEADING("Maximum feedrates (units/s):");
     CONFIG_ECHO_START();
     SERIAL_ECHOLNPAIR_P(
-      PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]),
-      SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]),
-      SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]),
+      LIST_N(DOUBLE(LINEAR_AXES),
+        PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]),
+        SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]),
+        SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS])
+      )
       #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS])
       #endif
@@ -3167,9 +3164,11 @@ void MarlinSettings::reset() {
     CONFIG_ECHO_HEADING("Maximum Acceleration (units/s2):");
     CONFIG_ECHO_START();
     SERIAL_ECHOLNPAIR_P(
-        PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS])
-      , SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS])
-      , SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
+      LIST_N(DOUBLE(LINEAR_AXES),
+        PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS]),
+        SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS]),
+        SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
+      )
       #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])
       #endif
@@ -3899,9 +3898,11 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
           PSTR("  M425 F"), backlash.get_correction()
-        , SP_X_STR, LINEAR_UNIT(backlash.distance_mm.x)
-        , SP_Y_STR, LINEAR_UNIT(backlash.distance_mm.y)
-        , SP_Z_STR, LINEAR_UNIT(backlash.distance_mm.z)
+        , LIST_N(DOUBLE(LINEAR_AXES),
+            SP_X_STR, LINEAR_UNIT(backlash.distance_mm.x),
+            SP_Y_STR, LINEAR_UNIT(backlash.distance_mm.y),
+            SP_Z_STR, LINEAR_UNIT(backlash.distance_mm.z)
+          )
         #ifdef BACKLASH_SMOOTHING_MM
           , PSTR(" S"), LINEAR_UNIT(backlash.smoothing_mm)
         #endif

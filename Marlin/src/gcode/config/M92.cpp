@@ -25,9 +25,11 @@
 
 void report_M92(const bool echo=true, const int8_t e=-1) {
   if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-  SERIAL_ECHOPAIR_P(PSTR(" M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
-                          SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
-                          SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
+  SERIAL_ECHOPAIR_P(LIST_N(DOUBLE(LINEAR_AXES),
+    PSTR(" M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
+    SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
+    SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS])
+  ));
   #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
     SERIAL_ECHOPAIR_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
   #endif
@@ -64,8 +66,8 @@ void GcodeSuite::M92() {
   if (target_extruder < 0) return;
 
   // No arguments? Show M92 report.
-  if (!parser.seen("XYZ"
-    TERN_(HAS_EXTRUDERS, "E")
+  if (!parser.seen(
+    LOGICAL_AXIS_GANG("E", "X", "Y", "Z")
     TERN_(MAGIC_NUMBERS_GCODE, "HL")
   )) return report_M92(true, target_extruder);
 

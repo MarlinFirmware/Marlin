@@ -165,17 +165,16 @@ void GcodeSuite::M205() {
     }
   #endif
   #if HAS_CLASSIC_JERK
-    if (parser.seenval('X')) planner.set_max_jerk(X_AXIS, parser.value_linear_units());
-    if (parser.seenval('Y')) planner.set_max_jerk(Y_AXIS, parser.value_linear_units());
-    if (parser.seenval('Z')) {
-      planner.set_max_jerk(Z_AXIS, parser.value_linear_units());
-      #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
-        if (planner.max_jerk.z <= 0.1f)
-          SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
-      #endif
-    }
-    #if HAS_EXTRUDERS
-      if (parser.seenval('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units());
+    bool seenZ = false;
+    LOGICAL_AXIS_CODE(
+      if (parser.seenval('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units()),
+      if (parser.seenval('X')) planner.set_max_jerk(X_AXIS, parser.value_linear_units()),
+      if (parser.seenval('Y')) planner.set_max_jerk(Y_AXIS, parser.value_linear_units()),
+      if ((seenZ = parser.seenval('Z'))) planner.set_max_jerk(Z_AXIS, parser.value_linear_units())
+    );
+    #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
+      if (seenZ && planner.max_jerk.z <= 0.1f)
+        SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
     #endif
-  #endif
+  #endif // HAS_CLASSIC_JERK
 }

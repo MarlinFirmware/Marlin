@@ -124,7 +124,7 @@ inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm
 
 #define XYZ_DEFS(T, NAME, OPT) \
   inline T NAME(const AxisEnum axis) { \
-    static const XYZval<T> NAME##_P DEFS_PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    static const XYZval<T> NAME##_P DEFS_PROGMEM = LINEAR_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT); \
     return pgm_read_any(&NAME##_P[axis]); \
   }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
@@ -298,7 +298,10 @@ inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float rx, const float ry, const float rz, const_feedRate_t fr_mm_s=0.0f);
+void do_blocking_move_to(
+  LINEAR_AXIS_LIST(const float rx, const float ry, const float rz),
+  const_feedRate_t fr_mm_s=0.0f
+);
 void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
@@ -325,7 +328,7 @@ void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
 /**
  * Homing and Trusted Axes
  */
-typedef IF<(LINEAR_AXES>8), uint16_t, uint8_t>::type linear_axis_bits_t;
+typedef IF<(LINEAR_AXES > 8), uint16_t, uint8_t>::type linear_axis_bits_t;
 constexpr linear_axis_bits_t linear_bits = _BV(LINEAR_AXES) - 1;
 
 void set_axis_is_at_home(const AxisEnum axis);
