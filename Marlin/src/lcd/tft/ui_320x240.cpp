@@ -710,7 +710,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
     #endif
 
     ui.manual_move.soon(axis
-      #if MULTI_MANUAL
+      #if MULTI_E_MANUAL
         , motionAxisState.e_selection
       #endif
     );

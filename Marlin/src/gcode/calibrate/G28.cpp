@@ -73,7 +73,7 @@
     current_position.set(0.0, 0.0);
     sync_plan_position();
 
-    const int x_axis_home_dir = x_home_dir(active_extruder);
+    const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
@@ -220,7 +220,7 @@ void GcodeSuite::G28() {
 
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen_test('S')) {
-      LOOP_XYZ(a) set_axis_is_at_home((AxisEnum)a);
+      LOOP_LINEAR_AXES(a) set_axis_is_at_home((AxisEnum)a);
       sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
