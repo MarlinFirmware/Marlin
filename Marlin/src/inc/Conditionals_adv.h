@@ -75,7 +75,7 @@
   #define SERVO_DELAY { 50 }
 #endif
 
-#if EXTRUDERS == 0
+#if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
   #undef TEMP_SENSOR_1

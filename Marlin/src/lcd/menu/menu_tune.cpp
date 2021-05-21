@@ -195,7 +195,7 @@ void menu_tune() {
   //
   // Flow:
   //
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
     // Flow En:
     #if HAS_MULTI_EXTRUDER
