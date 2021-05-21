@@ -282,7 +282,7 @@ void report_current_position_projected() {
 void quickstop_stepper() {
   planner.quick_stop();
   planner.synchronize();
-  set_current_from_steppers_for_axis(ALL_AXES_MASK);
+  set_current_from_steppers_for_axis(ALL_AXES_ENUM);
   sync_plan_position();
 }
 
@@ -360,7 +360,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     planner.unapply_modifiers(pos, true);
   #endif
 
-  if (axis == ALL_AXES_MASK)
+  if (axis == ALL_AXES_ENUM)
     current_position = pos;
   else
     current_position[axis] = pos[axis];
