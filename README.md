@@ -1,4 +1,4 @@
-# Marlin Firmware for the Creality Ender 3 v2 3D Printer 
+# Professional Firmware for the Creality Ender 3 v2 3D Printer 
 
 ![GitHub](https://img.shields.io/github/license/mriscoc/Marlin_Ender3v2.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/mriscoc/Marlin_Ender3v2.svg)
