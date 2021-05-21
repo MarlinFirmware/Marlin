@@ -681,7 +681,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     xyze_pos_t ManualMove::all_axes_destination = { 0 };
     bool ManualMove::processing = false;
   #endif
-  #if ENABLED(MULTI_E_MANUAL)
+  #if MULTI_E_MANUAL
     int8_t ManualMove::e_index = 0;
   #endif
   AxisEnum ManualMove::axis = NO_AXIS_ENUM;
