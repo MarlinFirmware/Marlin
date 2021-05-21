@@ -272,7 +272,7 @@ void sync_plan_position_e();
  */
 void line_to_current_position(const_feedRate_t fr_mm_s=feedrate_mm_s);
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s);
 #endif
 

@@ -520,7 +520,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
 
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
@@ -596,8 +596,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
       case 81: M81(); break;                                      // M81: Turn off Power, including Power Supply, if possible
 
-      case 82: M82(); break;                                      // M82: Set E axis normal mode (same as other axes)
-      case 83: M83(); break;                                      // M83: Set E axis relative mode
+      #if HAS_EXTRUDERS
+        case 82: M82(); break;                                    // M82: Set E axis normal mode (same as other axes)
+        case 83: M83(); break;                                    // M83: Set E axis relative mode
+      #endif
       case 18: case 84: M18_M84(); break;                         // M18/M84: Disable Steppers / Set Timeout
       case 85: M85(); break;                                      // M85: Set inactivity stepper shutdown timeout
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
@@ -674,7 +676,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 220: M220(); break;                                    // M220: Set Feedrate Percentage: S<percent> ("FR" on your LCD)
 
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         case 221: M221(); break;                                  // M221: Set Flow Percentage
       #endif
 
