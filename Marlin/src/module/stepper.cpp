@@ -498,7 +498,7 @@ void Stepper::set_directions() {
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
         count_direction.e = 1;
       }
-    #else
+    #elif HAS_EXTRUDERS
       if (motor_direction(E_AXIS)) {
         REV_E_DIR(stepper_extruder);
         count_direction.e = -1;
@@ -1627,7 +1627,7 @@ void Stepper::pulse_phase_isr() {
           PAGE_PULSE_PREP(X);
           PAGE_PULSE_PREP(Y);
           PAGE_PULSE_PREP(Z);
-          PAGE_PULSE_PREP(E);
+          TERN_(HAS_EXTRUDERS, PAGE_PULSE_PREP(E));
 
           page_step_state.segment_steps++;
 
@@ -1660,7 +1660,7 @@ void Stepper::pulse_phase_isr() {
           PAGE_PULSE_PREP(X);
           PAGE_PULSE_PREP(Y);
           PAGE_PULSE_PREP(Z);
-          PAGE_PULSE_PREP(E);
+          TERN_(HAS_EXTRUDERS, PAGE_PULSE_PREP(E));
 
           page_step_state.segment_steps++;
 
@@ -2665,7 +2665,11 @@ int32_t Stepper::position(const AxisEnum axis) {
 }
 
 // Set the current position in steps
-void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c
+  #if HAS_EXTRUDERS
+    , const int32_t &e
+  #endif
+) {
   planner.synchronize();
   const bool was_enabled = suspend();
   _set_position(a, b, c, e);

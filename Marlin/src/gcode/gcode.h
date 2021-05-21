@@ -314,7 +314,12 @@
   #define HAS_FAST_MOVES 1
 #endif
 
-enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
+enum AxisRelative : uint8_t {
+  REL_X, REL_Y, REL_Z
+  #if HAS_EXTRUDERS
+    , REL_E, E_MODE_ABS, E_MODE_REL
+  #endif
+};
 
 extern const char G28_STR[];
 
@@ -324,23 +329,27 @@ public:
   static uint8_t axis_relative;
 
   static inline bool axis_is_relative(const AxisEnum a) {
-    if (a == E_AXIS) {
-      if (TEST(axis_relative, E_MODE_REL)) return true;
-      if (TEST(axis_relative, E_MODE_ABS)) return false;
-    }
+    #if HAS_EXTRUDERS
+      if (a == E_AXIS) {
+        if (TEST(axis_relative, E_MODE_REL)) return true;
+        if (TEST(axis_relative, E_MODE_ABS)) return false;
+      }
+    #endif
     return TEST(axis_relative, a);
   }
   static inline void set_relative_mode(const bool rel) {
-    axis_relative = rel ? _BV(REL_X) | _BV(REL_Y) | _BV(REL_Z) | _BV(REL_E) : 0;
+    axis_relative = rel ? _BV(REL_X) | _BV(REL_Y) | _BV(REL_Z) | TERN0(EXTRUDERS, _BV(REL_E)) : 0;
   }
-  static inline void set_e_relative() {
-    CBI(axis_relative, E_MODE_ABS);
-    SBI(axis_relative, E_MODE_REL);
-  }
-  static inline void set_e_absolute() {
-    CBI(axis_relative, E_MODE_REL);
-    SBI(axis_relative, E_MODE_ABS);
-  }
+  #if HAS_EXTRUDERS
+    static inline void set_e_relative() {
+      CBI(axis_relative, E_MODE_ABS);
+      SBI(axis_relative, E_MODE_REL);
+    }
+    static inline void set_e_absolute() {
+      CBI(axis_relative, E_MODE_REL);
+      SBI(axis_relative, E_MODE_ABS);
+    }
+  #endif
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
     /**

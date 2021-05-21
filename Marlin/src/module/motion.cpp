@@ -195,15 +195,21 @@ inline void report_more_positions() {
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
-  SERIAL_ECHOPAIR_P(X_LBL, lpos.x, SP_Y_LBL, lpos.y, SP_Z_LBL, lpos.z, SP_E_LBL, lpos.e);
+  SERIAL_ECHOPAIR_P(
+    LIST_N(DOUBLE(LOGICAL_AXES),
+         X_LBL, lpos.x,
+      SP_Y_LBL, lpos.y,
+      SP_Z_LBL, lpos.z,
+      SP_E_LBL, lpos.e
+    )
+  );
 }
 
 // Report the real current position according to the steppers.
 // Forward kinematics and un-leveling are applied.
 void report_real_position() {
   get_cartesian_from_steppers();
-  xyze_pos_t npos = cartes;
-  npos.e = planner.get_axis_position_mm(E_AXIS);
+  xyze_pos_t npos = ARRAY_N(LOGICAL_AXES, cartes.x, cartes.y, cartes.z, planner.get_axis_position_mm(E_AXIS));
   TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
   report_logical_position(npos);
   report_more_positions();
@@ -309,7 +315,9 @@ void sync_plan_position() {
   planner.set_position_mm(current_position);
 }
 
-void sync_plan_position_e() { planner.set_e_position_mm(current_position.e); }
+#if HAS_EXTRUDERS
+  void sync_plan_position_e() { planner.set_e_position_mm(current_position.e); }
+#endif
 
 /**
  * Get the stepper positions in the cartes[] array.
@@ -354,7 +362,10 @@ void get_cartesian_from_steppers() {
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
   xyze_pos_t pos = cartes;
-  pos.e = planner.get_axis_position_mm(E_AXIS);
+
+  #if HAS_EXTRUDERS
+    pos.e = planner.get_axis_position_mm(E_AXIS);
+  #endif
 
   #if HAS_POSITION_MODIFIERS
     planner.unapply_modifiers(pos, true);

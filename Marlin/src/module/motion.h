@@ -264,7 +264,10 @@ void quickstop_stepper();
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 void sync_plan_position();
-void sync_plan_position_e();
+
+#if HAS_EXTRUDERS
+  void sync_plan_position_e();
+#endif
 
 /**
  * Move the planner to the current position from wherever it last moved

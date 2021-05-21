@@ -654,7 +654,12 @@ void MarlinSettings::postprocess() {
           EEPROM_WRITE(dummyf);
         #endif
       #else
-        const xyze_pos_t planner_max_jerk = { 10, 10, 0.4, float(DEFAULT_EJERK) };
+        const xyze_pos_t planner_max_jerk = {
+          LIST_N(LINEAR_AXES, 10, 10, 0.4, 0.4, 0.4, 0.4)
+          #if HAS_EXTRUDERS
+            , float(DEFAULT_EJERK)
+          #endif
+        };
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
@@ -3142,10 +3147,10 @@ void MarlinSettings::reset() {
     CONFIG_ECHO_HEADING("Maximum feedrates (units/s):");
     CONFIG_ECHO_START();
     SERIAL_ECHOLNPAIR_P(
-        PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS])
-      , SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS])
-      , SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS])
-      #if DISABLED(DISTINCT_E_FACTORS)
+      PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]),
+      SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]),
+      SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]),
+      #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS])
       #endif
     );
@@ -3165,7 +3170,7 @@ void MarlinSettings::reset() {
         PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS])
       , SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS])
       , SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
-      #if DISABLED(DISTINCT_E_FACTORS)
+      #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])
       #endif
     );

@@ -88,7 +88,7 @@ void GcodeSuite::M201() {
 
   LOOP_LOGICAL_AXES(i) {
     if (parser.seenval(axis_codes[i])) {
-      const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
+      const uint8_t a = TERN(HAS_EXTRUDERS, (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i), i);
       planner.set_max_acceleration(a, parser.value_axis_units((AxisEnum)a));
     }
   }
@@ -106,7 +106,7 @@ void GcodeSuite::M203() {
 
   LOOP_LOGICAL_AXES(i)
     if (parser.seenval(axis_codes[i])) {
-      const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
+      const uint8_t a = TERN(HAS_EXTRUDERS, (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i), i);
       planner.set_max_feedrate(a, parser.value_axis_units((AxisEnum)a));
     }
 }
@@ -174,7 +174,7 @@ void GcodeSuite::M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-    #if HAS_CLASSIC_E_JERK
+    #if HAS_EXTRUDERS
       if (parser.seenval('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units());
     #endif
   #endif

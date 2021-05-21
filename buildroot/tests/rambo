@@ -48,6 +48,7 @@ opt_set MOTHERBOARD BOARD_RAMBO \
         DEFAULT_AXIS_STEPS_PER_UNIT '{ 80, 80, 4000 }' \
         DEFAULT_MAX_FEEDRATE '{ 300, 300, 5 }' \
         DEFAULT_MAX_ACCELERATION '{ 3000, 3000, 100 }' \
+        MANUAL_FEEDRATE '{ 50*60, 50*60, 4*60 }' \
         AXIS_RELATIVE_MODES '{ false, false, false }' \
         LEVEL_CORNERS_LEVELING_ORDER '{ LF, RF }'
 opt_enable USE_XMAX_PLUG USE_YMAX_PLUG USE_ZMAX_PLUG \
@@ -66,6 +67,7 @@ opt_set MOTHERBOARD BOARD_RAMBO EXTRUDERS 0 TEMP_SENSOR_BED 1 \
         DEFAULT_AXIS_STEPS_PER_UNIT '{ 80, 80, 4000 }' \
         DEFAULT_MAX_FEEDRATE '{ 300, 300, 5 }' \
         DEFAULT_MAX_ACCELERATION '{ 3000, 3000, 100 }' \
+        MANUAL_FEEDRATE '{ 50*60, 50*60, 4*60 }' \
         AXIS_RELATIVE_MODES '{ false, false, false }'
 opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 exec_test $1 $2 "Rambo heated bed only" "$3"

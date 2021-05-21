@@ -35,7 +35,15 @@
 #include <HardwareSerial.h>
 #include <SPI.h>
 
-enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
+enum StealthIndex : uint8_t {
+  LIST_N(DECREMENT(LINEAR_AXES),
+    STEALTH_AXIS_XY,
+    STEALTH_AXIS_Z
+  )
+  #if HAS_EXTRUDERS
+    , STEALTH_AXIS_E
+  #endif
+};
 #define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE)
 
 //   IC = TMC model number
@@ -716,7 +724,12 @@ void restore_trinamic_drivers() {
 }
 
 void reset_trinamic_drivers() {
-  static constexpr bool stealthchop_by_axis[] = { ENABLED(STEALTHCHOP_XY), ENABLED(STEALTHCHOP_Z), ENABLED(STEALTHCHOP_E) };
+  static constexpr bool stealthchop_by_axis[] = {
+    ENABLED(STEALTHCHOP_XY), ENABLED(STEALTHCHOP_Z)
+    #if HAS_EXTRUDERS
+      , ENABLED(STEALTHCHOP_E)
+    #endif
+  };
 
   #if AXIS_IS_TMC(X)
     TMC_INIT(X, STEALTH_AXIS_XY);
@@ -792,7 +805,7 @@ void reset_trinamic_drivers() {
         stepperZ4.homing_threshold(CAT(TERN(Z4_SENSORLESS, Z4, Z), _STALL_SENSITIVITY));
       #endif
     #endif
-  #endif
+  #endif // USE SENSORLESS
 
   #ifdef TMC_ADV
     TMC_ADV()
