@@ -73,7 +73,7 @@
     current_position.set(0.0, 0.0);
     sync_plan_position();
 
-    const int x_axis_home_dir = x_home_dir(active_extruder);
+    const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
@@ -219,8 +219,8 @@ void GcodeSuite::G28() {
   #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
-    if (parser.seen('S')) {
-      LOOP_XYZ(a) set_axis_is_at_home((AxisEnum)a);
+    if (parser.seen_test('S')) {
+      LOOP_LINEAR_AXES(a) set_axis_is_at_home((AxisEnum)a);
       sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
@@ -321,10 +321,10 @@ void GcodeSuite::G28() {
 
   #else
 
-    const bool homeZ = parser.seen('Z'),
+    const bool homeZ = parser.seen_test('Z'),
                needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
                needY = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(Y_AXIS))),
-               homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
+               homeX = needX || parser.seen_test('X'), homeY = needY || parser.seen_test('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 

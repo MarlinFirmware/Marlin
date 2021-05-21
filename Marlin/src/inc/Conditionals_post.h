@@ -125,7 +125,7 @@
   #if EITHER(IS_CORE, MARKFORGED_XY)
     #define CAN_CALIBRATE(A,B) (_AXIS(A) == B)
   #else
-    #define CAN_CALIBRATE(A,B) 1
+    #define CAN_CALIBRATE(A,B) true
   #endif
 #endif
 #define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
@@ -155,7 +155,7 @@
 #ifdef MANUAL_X_HOME_POS
   #define X_HOME_POS MANUAL_X_HOME_POS
 #else
-  #define X_END_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+  #define X_END_POS TERN(X_HOME_TO_MIN, X_MIN_POS, X_MAX_POS)
   #if ENABLED(BED_CENTER_AT_0_0)
     #define X_HOME_POS TERN(DELTA, 0, X_END_POS)
   #else
@@ -166,7 +166,7 @@
 #ifdef MANUAL_Y_HOME_POS
   #define Y_HOME_POS MANUAL_Y_HOME_POS
 #else
-  #define Y_END_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+  #define Y_END_POS TERN(Y_HOME_TO_MIN, Y_MIN_POS, Y_MAX_POS)
   #if ENABLED(BED_CENTER_AT_0_0)
     #define Y_HOME_POS TERN(DELTA, 0, Y_END_POS)
   #else
@@ -177,7 +177,7 @@
 #ifdef MANUAL_Z_HOME_POS
   #define Z_HOME_POS MANUAL_Z_HOME_POS
 #else
-  #define Z_HOME_POS (Z_HOME_DIR < 0 ? Z_MIN_POS : Z_MAX_POS)
+  #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
 #endif
 
 /**
@@ -270,7 +270,7 @@
 #elif ENABLED(AZSMZ_12864)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 190
-#elif ENABLED(MKS_LCD12864)
+#elif EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 205
 #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
@@ -330,11 +330,6 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  // Extender cable doesn't support SD_DETECT_PIN
-  #if ENABLED(NO_SD_DETECT)
-    #undef SD_DETECT_PIN
-  #endif
-
   #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
@@ -345,16 +340,18 @@
     #define HAS_SHARED_MEDIA 1
   #endif
 
-  #if PIN_EXISTS(SD_DETECT)
-    #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
-      #undef SD_DETECT_STATE
-      #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-        #define SD_DETECT_STATE HIGH
-      #endif
-    #endif
-    #ifndef SD_DETECT_STATE
+  // Set SD_DETECT_STATE based on hardware if not overridden
+  #if PIN_EXISTS(SD_DETECT) && !defined(SD_DETECT_STATE)
+    #if BOTH(HAS_LCD_MENU, ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+      #define SD_DETECT_STATE HIGH
+    #else
       #define SD_DETECT_STATE LOW
     #endif
+  #endif
+
+  // Extender cable doesn't support SD_DETECT_PIN
+  #if ENABLED(NO_SD_DETECT)
+    #undef SD_DETECT_PIN
   #endif
 
   #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
@@ -801,7 +798,7 @@
  * X_DUAL_ENDSTOPS endstop reassignment
  */
 #if ENABLED(X_DUAL_ENDSTOPS)
-  #if X_HOME_DIR > 0
+  #if X_HOME_TO_MAX
     #ifndef X2_MAX_ENDSTOP_INVERTING
       #if X2_USE_ENDSTOP == _XMIN_
         #define X2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -924,7 +921,7 @@
  * Y_DUAL_ENDSTOPS endstop reassignment
  */
 #if ENABLED(Y_DUAL_ENDSTOPS)
-  #if Y_HOME_DIR > 0
+  #if Y_HOME_TO_MAX
     #ifndef Y2_MAX_ENDSTOP_INVERTING
       #if Y2_USE_ENDSTOP == _XMIN_
         #define Y2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1048,7 +1045,7 @@
  */
 #if ENABLED(Z_MULTI_ENDSTOPS)
 
-  #if Z_HOME_DIR > 0
+  #if Z_HOME_TO_MAX
     #ifndef Z2_MAX_ENDSTOP_INVERTING
       #if Z2_USE_ENDSTOP == _XMIN_
         #define Z2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1167,7 +1164,7 @@
   #endif
 
   #if NUM_Z_STEPPER_DRIVERS >= 3
-    #if Z_HOME_DIR > 0
+    #if Z_HOME_TO_MAX
       #ifndef Z3_MAX_ENDSTOP_INVERTING
         #if Z3_USE_ENDSTOP == _XMIN_
           #define Z3_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1287,7 +1284,7 @@
   #endif
 
   #if NUM_Z_STEPPER_DRIVERS >= 4
-    #if Z_HOME_DIR > 0
+    #if Z_HOME_TO_MAX
       #ifndef Z4_MAX_ENDSTOP_INVERTING
         #if Z4_USE_ENDSTOP == _XMIN_
           #define Z4_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1859,6 +1856,7 @@
 // Flag the indexed hardware serial ports in use
 #define CONF_SERIAL_IS(N) (  (defined(SERIAL_PORT)      && SERIAL_PORT == N) \
                           || (defined(SERIAL_PORT_2)    && SERIAL_PORT_2 == N) \
+                          || (defined(SERIAL_PORT_3)    && SERIAL_PORT_3 == N) \
                           || (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == N) \
                           || (defined(LCD_SERIAL_PORT)  && LCD_SERIAL_PORT == N) )
 
@@ -1949,7 +1947,6 @@
 #undef _SERIAL_ID
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
-#undef CONF_SERIAL_IS
 #undef ANY_SERIAL_IS
 
 //
@@ -1983,15 +1980,6 @@
 #if _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
 #endif
-#if _HAS_STOP(X,STOP)
-  #define HAS_X_STOP 1
-#endif
-#if _HAS_STOP(Y,STOP)
-  #define HAS_Y_STOP 1
-#endif
-#if _HAS_STOP(Z,STOP)
-  #define HAS_Z_STOP 1
-#endif
 #if PIN_EXISTS(X2_MIN)
   #define HAS_X2_MIN 1
 #endif
@@ -2022,9 +2010,16 @@
 #if PIN_EXISTS(Z4_MAX)
   #define HAS_Z4_MAX 1
 #endif
-#if HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE)
+#if BOTH(HAS_BED_PROBE, HAS_CUSTOM_PROBE_PIN) && PIN_EXISTS(Z_MIN_PROBE)
   #define HAS_Z_MIN_PROBE_PIN 1
 #endif
+
+#undef IS_PROBE_PIN
+#undef IS_X2_ENDSTOP
+#undef IS_Y2_ENDSTOP
+#undef IS_Z2_ENDSTOP
+#undef IS_Z3_ENDSTOP
+#undef IS_Z4_ENDSTOP
 
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
@@ -2236,7 +2231,7 @@
 #if !HAS_TEMP_SENSOR
   #undef AUTO_REPORT_TEMPERATURES
 #endif
-#if EITHER(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS)
+#if ANY(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS, AUTO_REPORT_POSITION)
   #define HAS_AUTO_REPORTING 1
 #endif
 
@@ -2323,11 +2318,21 @@
 #endif
 
 // User Interface
+#if ENABLED(FREEZE_FEATURE)
+  #if !PIN_EXISTS(FREEZE) && PIN_EXISTS(KILL)
+    #define FREEZE_PIN KILL_PIN
+  #endif
+  #if PIN_EXISTS(FREEZE)
+    #define HAS_FREEZE_PIN 1
+  #endif
+#else
+  #undef FREEZE_PIN
+#endif
+#if PIN_EXISTS(KILL) && TERN1(FREEZE_FEATURE, KILL_PIN != FREEZE_PIN)
+  #define HAS_KILL 1
+#endif
 #if PIN_EXISTS(HOME)
   #define HAS_HOME 1
-#endif
-#if PIN_EXISTS(KILL)
-  #define HAS_KILL 1
 #endif
 #if PIN_EXISTS(SUICIDE)
   #define HAS_SUICIDE 1
@@ -3041,4 +3046,8 @@
 
 #if BUTTONS_EXIST(EN1, EN2, ENC)
   #define HAS_ROTARY_ENCODER 1
+#endif
+
+#if PIN_EXISTS(SAFE_POWER) && DISABLED(DISABLE_DRIVER_SAFE_POWER_PROTECT)
+  #define HAS_DRIVER_SAFE_POWER_PROTECT 1
 #endif

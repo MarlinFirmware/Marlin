@@ -75,7 +75,7 @@
   #define SERVO_DELAY { 50 }
 #endif
 
-#if EXTRUDERS == 0
+#if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
   #undef TEMP_SENSOR_1
@@ -370,19 +370,14 @@
   #endif
 #endif
 
-// If platform requires early initialization of watchdog to properly boot
-#if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
-  #define EARLY_WATCHDOG 1
-#endif
-
 // Full Touch Screen needs 'tft/xpt2046'
-#if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
+#if EITHER(TFT_TOUCH_DEVICE_XPT2046, HAS_TFT_LVGL_UI)
   #define HAS_TFT_XPT2046 1
 #endif
 
 // Touch Screen or "Touch Buttons" need XPT2046 pins
 // but they use different components
-#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_BUTTONS)
+#if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
   #define NEED_TOUCH_PINS 1
 #endif
 
@@ -394,6 +389,12 @@
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+#if X2_HOME_DIR > 0
+  #define X2_HOME_TO_MAX 1
+#elif X2_HOME_DIR < 0
+  #define X2_HOME_TO_MIN 1
 #endif
 
 #ifndef HOMING_BUMP_MM

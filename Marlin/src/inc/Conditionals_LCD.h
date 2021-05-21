@@ -26,8 +26,8 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
-// MKS_LCD12864 is a variant of MKS_MINI_12864
-#if ENABLED(MKS_LCD12864)
+// MKS_LCD12864A/B is a variant of MKS_MINI_12864
+#if EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define MKS_MINI_12864
 #endif
 
@@ -538,7 +538,12 @@
  *  E_MANUAL     - Number of E steppers for LCD move options
  */
 
-#if EXTRUDERS == 0
+#if EXTRUDERS
+  #define HAS_EXTRUDERS 1
+  #if EXTRUDERS > 1
+    #define HAS_MULTI_EXTRUDER 1
+  #endif
+#else
   #undef EXTRUDERS
   #define EXTRUDERS 0
   #undef SINGLENOZZLE
@@ -546,8 +551,6 @@
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
-#elif EXTRUDERS > 1
-  #define HAS_MULTI_EXTRUDER 1
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
@@ -617,9 +620,9 @@
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
-#define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1, v1, v1, v1, v1)
+#define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
-#define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1, v1, v1)
+#define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
 
 #if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
   #define DO_SWITCH_EXTRUDER 1
@@ -641,22 +644,48 @@
 #endif
 
 /**
- * DISTINCT_E_FACTORS affects how some E factors are accessed
+ * Disable unused SINGLENOZZLE sub-options
+ */
+#if DISABLED(SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_TEMP
+#endif
+#if !BOTH(HAS_FAN, SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_FAN
+#endif
+
+/**
+ * Number of Linear Axes (e.g., XYZ)
+ * All the logical axes except for the tool (E) axis
+ */
+#ifndef LINEAR_AXES
+  #define LINEAR_AXES XYZ
+#endif
+
+/**
+ * Number of Logical Axes (e.g., XYZE)
+ * All the logical axes that can be commanded directly by G-code.
+ * Delta maps stepper-specific values to ABC steppers.
+ */
+#if HAS_EXTRUDERS
+  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+#else
+  #define LOGICAL_AXES LINEAR_AXES
+#endif
+
+/**
+ * DISTINCT_E_FACTORS affects whether Extruders use different settings
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define DISTINCT_E E_STEPPERS
-  #define XYZE_N (XYZ + E_STEPPERS)
+  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
   #define E_INDEX_N(E) (E)
-  #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
-  #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
   #define DISTINCT_E 1
-  #define XYZE_N XYZE
+  #define DISTINCT_AXES LOGICAL_AXES
   #define E_INDEX_N(E) 0
-  #define E_AXIS_N(E) E_AXIS
-  #define UNUSED_E(E) UNUSED(E)
 #endif
+#define E_AXIS_N(E) AxisEnum(E_AXIS + E_INDEX_N(E))
 
 /**
  * The BLTouch Probe emulates a servo probe
@@ -788,14 +817,31 @@
   #endif
 #endif // FILAMENT_RUNOUT_SENSOR
 
+// Homing to Min or Max
+#if X_HOME_DIR > 0
+  #define X_HOME_TO_MAX 1
+#elif X_HOME_DIR < 0
+  #define X_HOME_TO_MIN 1
+#endif
+#if Y_HOME_DIR > 0
+  #define Y_HOME_TO_MAX 1
+#elif Y_HOME_DIR < 0
+  #define Y_HOME_TO_MIN 1
+#endif
+#if Z_HOME_DIR > 0
+  #define Z_HOME_TO_MAX 1
+#elif Z_HOME_DIR < 0
+  #define Z_HOME_TO_MIN 1
+#endif
+
 #if HAS_BED_PROBE
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
   #endif
-  #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && !BOTH(DELTA, SENSORLESS_PROBING)
     #define HAS_CUSTOM_PROBE_PIN 1
   #endif
-  #if Z_HOME_DIR < 0 && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+  #if Z_HOME_TO_MIN && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
     #define HOMING_Z_WITH_PROBE 1
   #endif
   #ifndef Z_PROBE_LOW_POINT
@@ -817,7 +863,7 @@
   #undef USE_PROBE_FOR_Z_HOMING
 #endif
 
-#if Z_HOME_DIR > 0
+#if Z_HOME_TO_MAX
   #define HOME_Z_FIRST // If homing away from BED do Z first
 #endif
 
@@ -860,6 +906,7 @@
 #if !HAS_LEVELING
   #undef RESTORE_LEVELING_AFTER_G28
   #undef ENABLE_LEVELING_AFTER_G28
+  #undef G29_RETRY_AND_RECOVER
 #endif
 #if !HAS_LEVELING || EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #undef PROBE_MANUALLY
@@ -945,15 +992,19 @@
 // Serial Port Info
 //
 #ifdef SERIAL_PORT_2
-  #define NUM_SERIAL 2
   #define HAS_MULTI_SERIAL 1
+  #ifdef SERIAL_PORT_3
+    #define NUM_SERIAL 3
+  #else
+    #define NUM_SERIAL 2
+  #endif
 #elif defined(SERIAL_PORT)
   #define NUM_SERIAL 1
 #else
   #define NUM_SERIAL 0
   #undef BAUD_RATE_GCODE
 #endif
-#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
+#if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1
   #define HAS_USB_SERIAL 1
 #endif
 #if SERIAL_PORT_2 == -2
@@ -1117,6 +1168,9 @@
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
   #define TFT_RES_1024x600
   #define TFT_INTERFACE_LTDC
+  #if ENABLED(TOUCH_SCREEN)
+    #define TFT_TOUCH_DEVICE_GT911
+  #endif
 #elif ENABLED(TFT_GENERIC)
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #if NONE(TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320)
@@ -1205,16 +1259,30 @@
   #define HAS_UI_1024x600 1
 #endif
 #if ANY(HAS_UI_320x240, HAS_UI_480x320, HAS_UI_480x272)
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7) // Fewer lines with touch buttons onscreen
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)   // Fewer lines with touch buttons onscreen
 #elif HAS_UI_1024x600
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13) // Fewer lines with touch buttons onscreen
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
-#if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
-  #undef TOUCH_SCREEN
-  #if ENABLED(TFT_CLASSIC_UI)
-    #define HAS_TOUCH_BUTTONS 1
+#if ENABLED(TOUCH_SCREEN)
+  #if NONE(TFT_TOUCH_DEVICE_GT911, TFT_TOUCH_DEVICE_XPT2046)
+    #define TFT_TOUCH_DEVICE_XPT2046          // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
+  #endif
+  #if ENABLED(TFT_TOUCH_DEVICE_GT911)         // GT911 Capacitive touch screen such as BIQU_BX_TFT70
+    #undef TOUCH_SCREEN_CALIBRATION
+    #undef TOUCH_CALIBRATION_AUTO_SAVE
+  #endif
+  #if !HAS_GRAPHICAL_TFT
+    #undef TOUCH_SCREEN
+    #if ENABLED(TFT_CLASSIC_UI)
+      #define HAS_TOUCH_BUTTONS 1
+      #if ENABLED(TFT_TOUCH_DEVICE_GT911)
+        #define HAS_CAP_TOUCH_BUTTONS 1
+      #else
+        #define HAS_RES_TOUCH_BUTTONS 1
+      #endif
+    #endif
   #endif
 #endif
 

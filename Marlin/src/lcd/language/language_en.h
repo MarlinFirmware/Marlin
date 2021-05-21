@@ -118,6 +118,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Pwr");
   PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Toggle Laser");
   PROGMEM Language_Str MSG_LASER_EVAC_TOGGLE               = _UxGT("Toggle Blower");
+  PROGMEM Language_Str MSG_LASER_ASSIST_TOGGLE             = _UxGT("Air Assist");
   PROGMEM Language_Str MSG_LASER_PULSE_MS                  = _UxGT("Test Pulse ms");
   PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Fire Pulse");
   PROGMEM Language_Str MSG_FLOWMETER_FAULT                 = _UxGT("Coolant Flow Fault");
@@ -165,6 +166,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");
   PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Tilting Point");
   PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Manually Build Mesh");
+  PROGMEM Language_Str MSG_UBL_MESH_WIZARD                 = _UxGT("UBL Mesh Wizard");
   PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Place Shim & Measure");
   PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Measure");
   PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Remove & Measure Bed");
@@ -706,6 +708,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Bottom Right");
   PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibration Completed");
   PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibration Failed");
+
+  PROGMEM Language_Str MSG_DRIVER_BACKWARD                 = _UxGT(" driver backward");
 }
 
 #if FAN_COUNT == 1

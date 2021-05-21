@@ -212,10 +212,10 @@ void FWRetract::retract(const bool retracting
  */
 void FWRetract::M207() {
   if (!parser.seen("FSWZ")) return M207_report();
-  if (parser.seen('S')) settings.retract_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('Z')) settings.retract_zraise = parser.value_linear_units();
-  if (parser.seen('W')) settings.swap_retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('S')) settings.retract_length        = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
+  if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M207_report(const bool forReplay/*=false*/) {
@@ -238,10 +238,10 @@ void FWRetract::M207_report(const bool forReplay/*=false*/) {
  */
 void FWRetract::M208() {
   if (!parser.seen("FSRW")) return M208_report();
-  if (parser.seen('S')) settings.retract_recover_extra = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) settings.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) settings.swap_retract_recover_extra = parser.value_axis_units(E_AXIS);
+  if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M208_report(const bool forReplay/*=false*/) {

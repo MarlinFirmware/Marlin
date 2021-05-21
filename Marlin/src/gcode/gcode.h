@@ -159,6 +159,7 @@
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set Status LED Color as R<red> U<green> B<blue> W<white> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, PCA9533, or PCA9632).
+ * M154 - Auto-report position with interval of S<seconds>. (Requires AUTO_REPORT_POSITION)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
@@ -632,10 +633,13 @@ private:
   #if ENABLED(PSU_CONTROL)
     static void M80();
   #endif
-
   static void M81();
-  static void M82();
-  static void M83();
+
+  #if HAS_EXTRUDERS
+    static void M82();
+    static void M83();
+  #endif
+
   static void M85();
   static void M92();
 
@@ -643,7 +647,7 @@ private:
     static void M100();
   #endif
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     static void M104();
     static void M109();
   #endif
@@ -721,6 +725,10 @@ private:
     static void M150();
   #endif
 
+  #if ENABLED(AUTO_REPORT_POSITION)
+    static void M154();
+  #endif
+
   #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
     static void M155();
   #endif
@@ -771,7 +779,7 @@ private:
 
   static void M220();
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     static void M221();
   #endif
 
@@ -1077,6 +1085,10 @@ private:
 
   #if ENABLED(DGUS_LCD_UI_MKS)
     static void M1002();
+  #endif
+
+  #if ENABLED(UBL_MESH_WIZARD)
+    static void M1004();
   #endif
 
   #if ENABLED(MAX7219_GCODE)

@@ -69,12 +69,12 @@
  */
 void GcodeSuite::M290() {
   #if ENABLED(BABYSTEP_XY)
-    LOOP_XYZ(a)
-      if (parser.seenval(XYZ_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
+    LOOP_LINEAR_AXES(a)
+      if (parser.seenval(AXIS_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
         babystep.add_mm((AxisEnum)a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_probe_offset(offs);
+          if (a == Z_AXIS && parser.boolval('P', true)) mod_probe_offset(offs);
         #endif
       }
   #else
@@ -82,7 +82,7 @@ void GcodeSuite::M290() {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
       babystep.add_mm(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
+        if (parser.boolval('P', true)) mod_probe_offset(offs);
       #endif
     }
   #endif

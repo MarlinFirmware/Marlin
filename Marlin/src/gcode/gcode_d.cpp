@@ -52,7 +52,7 @@
         break;
 
       case 10:
-        kill(PSTR("D10"), PSTR("KILL TEST"), parser.seen('P'));
+        kill(PSTR("D10"), PSTR("KILL TEST"), parser.seen_test('P'));
         break;
 
       case 1: {
@@ -216,7 +216,8 @@
         } break;
 
         case 102: { // D102 Test SD Read
-          card.openFileRead("test.gco");
+          char testfile[] = "test.gco";
+          card.openFileRead(testfile);
           if (!card.isFileOpen()) {
             SERIAL_ECHOLNPAIR("Failed to open test.gco to read.");
             return;

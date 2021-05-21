@@ -140,7 +140,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
  *  - Set the feedrate, if included
  */
 void GcodeSuite::get_destination_from_command() {
-  xyze_bool_t seen = { false, false, false, false };
+  xyze_bool_t seen{false};
 
   #if ENABLED(CANCEL_OBJECTS)
     const bool &skip_move = cancelable.skipping;
@@ -149,8 +149,8 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   // Get new XYZ position, whether absolute or relative
-  LOOP_XYZ(i) {
-    if ( (seen[i] = parser.seenval(XYZ_CHAR(i))) ) {
+  LOOP_LINEAR_AXES(i) {
+    if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         destination[i] = current_position[i];
@@ -211,7 +211,7 @@ void GcodeSuite::dwell(millis_t time) {
  * When G29_RETRY_AND_RECOVER is enabled, call G29() in
  * a loop with recovery and retry handling.
  */
-#if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
+#if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
@@ -222,6 +222,10 @@ void GcodeSuite::dwell(millis_t time) {
       process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
     #endif
   }
+
+  #if ENABLED(G29_HALT_ON_FAILURE)
+    #include "../lcd/marlinui.h"
+  #endif
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
@@ -262,7 +266,7 @@ void GcodeSuite::dwell(millis_t time) {
     #endif
   }
 
-#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
+#endif // G29_RETRY_AND_RECOVER
 
 /**
  * Process the parsed command and dispatch it to its handler
@@ -516,7 +520,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
 
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
@@ -561,6 +565,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
       #endif
 
+      #if ENABLED(AUTO_REPORT_POSITION)
+        case 154: M154(); break;                                  // M155: Set position auto-report interval
+      #endif
+
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
       #endif
@@ -588,8 +596,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
       case 81: M81(); break;                                      // M81: Turn off Power, including Power Supply, if possible
 
-      case 82: M82(); break;                                      // M82: Set E axis normal mode (same as other axes)
-      case 83: M83(); break;                                      // M83: Set E axis relative mode
+      #if HAS_EXTRUDERS
+        case 82: M82(); break;                                    // M82: Set E axis normal mode (same as other axes)
+        case 83: M83(); break;                                    // M83: Set E axis relative mode
+      #endif
       case 18: case 84: M18_M84(); break;                         // M18/M84: Disable Steppers / Set Timeout
       case 85: M85(); break;                                      // M85: Set inactivity stepper shutdown timeout
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
@@ -666,7 +676,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 220: M220(); break;                                    // M220: Set Feedrate Percentage: S<percent> ("FR" on your LCD)
 
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         case 221: M221(); break;                                  // M221: Set Flow Percentage
       #endif
 
@@ -987,6 +997,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 1002: M1002(); break;                                // M1002: [INTERNAL] Tool-change and Relative E Move
       #endif
 
+      #if ENABLED(UBL_MESH_WIZARD)
+        case 1004: M1004(); break;                                // M1004: UBL Mesh Wizard
+      #endif
+
       #if ENABLED(MAX7219_GCODE)
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
@@ -1060,7 +1074,7 @@ void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
     strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
     cmd[len] = '\0';                                  // End with a nul
     parser.parse(cmd);                                // Parse the command
-    process_parsed_command(true);                     // Process it
+    process_parsed_command(true);                     // Process it (no "ok")
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
@@ -1073,7 +1087,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
-    process_parsed_command(true);                     // Process it
+    process_parsed_command(true);                     // Process it (no "ok")
     if (!delim) break;                                // Last command?
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command

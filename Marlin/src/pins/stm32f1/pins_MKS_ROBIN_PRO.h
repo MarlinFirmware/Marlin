@@ -210,15 +210,29 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if HAS_FSMC_GRAPHICAL_TFT
+#if HAS_FSMC_TFT
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_RESET_PIN                     PF6
   #define LCD_BACKLIGHT_PIN                 PD13
+  #define TFT_RESET_PIN            LCD_RESET_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+
+  #define TFT_BUFFER_SIZE                  14400
 
   #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PA7
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
+    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
+    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
+    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
+    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #else
     #define BEEPER_PIN                      PC5
     #define BTN_ENC                         PG2
@@ -270,11 +284,20 @@
 #endif
 
 #ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_1              DELAY_NS(125)
 #endif
 #ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2              DELAY_NS(125)
 #endif
 #ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3              DELAY_NS(125)
+#endif
+
+#define HAS_SPI_FLASH                          1
+#if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
+  #define W25QXX_CS_PIN                     PB12  // Flash chip-select
+  #define W25QXX_MOSI_PIN                   PB15
+  #define W25QXX_MISO_PIN                   PB14
+  #define W25QXX_SCK_PIN                    PB13
 #endif
