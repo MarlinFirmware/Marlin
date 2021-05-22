@@ -44,7 +44,9 @@
 #define Y_MAX_PIN                          -1
 #define Z_MIN_PIN                          P1_27
 #define Z_MAX_PIN                          -1
-#define Z_PROBE                            P1_22
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                  P1_22
+#endif
 
 //
 // Steppers
@@ -95,22 +97,22 @@
 //
 
 #if IS_RRD_FG_SC
-    #define LCD_PINS_RS                    P0_16
-    #define LCD_PINS_ENABLE                P0_18
-    #define LCD_PINS_D4                    P0_15
-    #define LCD_PINS_D5                    P1_00
-    #define LCD_PINS_D6                    P1_01
-    #define LCD_PINS_D7                    P1_04
-    #define BEEPER_PIN                     P1_31
+  #define LCD_PINS_RS                      P0_16
+  #define LCD_PINS_ENABLE                  P0_18
+  #define LCD_PINS_D4                      P0_15
+  #define LCD_PINS_D5                      P1_00
+  #define LCD_PINS_D6                      P1_01
+  #define LCD_PINS_D7                      P1_04
+  #define BEEPER_PIN                       P1_31
 
-    #define BTN_EN1                        P3_25
-    #define BTN_EN2                        P3_26
-    #define BTN_ENC                        P1_30
+  #define BTN_EN1                          P3_25
+  #define BTN_EN2                          P3_26
+  #define BTN_ENC                          P1_30
 
-    #define SD_DETECT_PIN                  -1
+  #define SD_DETECT_PIN                    -1
 
-    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
-    #endif
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
 
 #endif // IS_RRD_FG_SC
