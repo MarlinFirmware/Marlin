@@ -2526,7 +2526,7 @@ void Temperature::disable_all_heaters() {
       if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
         setTargetHotend(singlenozzle_temp[new_tool], 0);
         TERN_(AUTOTEMP, planner.autotemp_update());
-        TERN_(HAS_STATUS_MESSAGE, set_heating_message(0));
+        set_heating_message(0);
         (void)wait_for_hotend(0, false);  // Wait for heating or cooling
       }
     #endif
