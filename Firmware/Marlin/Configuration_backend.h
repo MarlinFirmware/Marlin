@@ -1,118 +1,12 @@
 #pragma once
 
-#define CONFIGURATION_BACKEND_H_VERSION 020007
+#define CONFIGURATION_BACKEND_H_VERSION 02000801
 
 //===========================================================================
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.27"
-
-/**
- * TH3D Sanity Checks
- */
-
-#if ENABLED(ABL_ENABLE) && ENABLED(S_CURVE_ACCELERATION)
-  #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile."
-#endif
-
-#if ENABLED(BLTOUCH) && DISABLED(CUSTOM_PROBE)
-  #error "You must uncomment the CUSTOM_PROBE option in the EZABL probe mount section and then enter your mount offsets into the Custom Probe section."
-#endif
-
-/**
- * Temp Settings
- */
-
-#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 170
-
-#define DUMMY_THERMISTOR_998_VALUE 25
-#define DUMMY_THERMISTOR_999_VALUE 100
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
-
-#define HEATER_0_MINTEMP   0
-#define HEATER_1_MINTEMP   HEATER_0_MINTEMP
-#define HEATER_2_MINTEMP   HEATER_0_MINTEMP
-#define HEATER_3_MINTEMP   HEATER_0_MINTEMP
-#define HEATER_4_MINTEMP   HEATER_0_MINTEMP
-#define HEATER_5_MINTEMP   HEATER_0_MINTEMP
-#define HEATER_6_MINTEMP   HEATER_0_MINTEMP
-#define HEATER_7_MINTEMP   HEATER_0_MINTEMP
-#define BED_MINTEMP        HEATER_0_MINTEMP
-
-#if ENABLED(HIGH_TEMP_THERMISTOR)
-  #define HEATER_0_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-  #define HEATER_1_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-  #define HEATER_2_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-  #define HEATER_3_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-  #define HEATER_4_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-  #define HEATER_5_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-  #define HEATER_6_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-  #define HEATER_7_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
-#else
-  #define HEATER_0_MAXTEMP 275
-  #define HEATER_1_MAXTEMP HEATER_0_MAXTEMP
-  #define HEATER_2_MAXTEMP HEATER_0_MAXTEMP
-  #define HEATER_3_MAXTEMP HEATER_0_MAXTEMP
-  #define HEATER_4_MAXTEMP HEATER_0_MAXTEMP
-  #define HEATER_5_MAXTEMP HEATER_0_MAXTEMP
-  #define HEATER_6_MAXTEMP HEATER_0_MAXTEMP
-  #define HEATER_7_MAXTEMP HEATER_0_MAXTEMP
-#endif
-
-#if ENABLED(BED_HIGHTEMP)
-  #define BED_MAXTEMP 150
-#else
-  #define BED_MAXTEMP 120
-#endif
-
-#define TEMP_RESIDENCY_TIME      3
-#define TEMP_WINDOW              1
-#define TEMP_HYSTERESIS          3
-
-#define TEMP_BED_RESIDENCY_TIME  3
-#define TEMP_BED_WINDOW          1
-#define TEMP_BED_HYSTERESIS      3
-
-// PID Settings
-#define PIDTEMP
-#define BANG_MAX 255
-#define PID_MAX BANG_MAX
-#define PID_K1 0.95
-
-#define PID_AUTOTUNE_MENU
-
-#if DISABLED(SPACE_SAVER) && DISABLED(SKR_E3_MINI_BOARD)
-  #define PID_EDIT_MENU
-#endif
-
-#ifndef DEFAULT_Kp
-  #define DEFAULT_Kp 22.2 // Define Marlin default PID if no machine specific PID is defined.
-  #define DEFAULT_Ki 1.08
-  #define DEFAULT_Kd 114
-#endif
-
-#if ENABLED(ENABLE_PIDBED) // PID Bed is not needed. Bang Bang loop is set to 500ms
-  #define PIDTEMPBED
-  #define MAX_BED_POWER 255
-  #if ENABLED(PIDTEMPBED)
-    #ifndef DEFAULT_bedKp
-      #define  DEFAULT_bedKp 113.36
-      #define  DEFAULT_bedKi 21.62
-      #define  DEFAULT_bedKd 148.59
-    #endif
-  #endif
-#endif
-
-#if EITHER(PIDTEMP, PIDTEMPBED)
-  #define PID_FUNCTIONAL_RANGE 10
-#endif
-// End PID Settings
-
-// Enable Thermal Protection for Bed and Hotends
-#define THERMAL_PROTECTION_HOTENDS
-#define THERMAL_PROTECTION_BED
+#define UNIFIED_VERSION "TH3D UFW 2.28"
 
 /**
  * ABL Probe Settings
@@ -390,6 +284,112 @@
   #endif
 
 #endif
+
+/**
+ * TH3D Sanity Checks
+ */
+
+#if ENABLED(ABL_ENABLE) && ENABLED(S_CURVE_ACCELERATION)
+  #error "S_CURVE_ACCELERATION is not compatible with ABL systems. Disable this and re-compile."
+#endif
+
+#if ENABLED(BLTOUCH) && DISABLED(CUSTOM_PROBE)
+  #error "You must uncomment the CUSTOM_PROBE option in the EZABL probe mount section and then enter your mount offsets into the Custom Probe section."
+#endif
+
+/**
+ * Temp Settings
+ */
+
+#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 170
+
+#define DUMMY_THERMISTOR_998_VALUE 25
+#define DUMMY_THERMISTOR_999_VALUE 100
+#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
+
+#define HEATER_0_MINTEMP   0
+#define HEATER_1_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_2_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_3_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_4_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_5_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_6_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_7_MINTEMP   HEATER_0_MINTEMP
+#define BED_MINTEMP        HEATER_0_MINTEMP
+
+#if ENABLED(HIGH_TEMP_THERMISTOR)
+  #define HEATER_0_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_1_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_2_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_3_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_4_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_5_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_6_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_7_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+#else
+  #define HEATER_0_MAXTEMP 275
+  #define HEATER_1_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_2_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_3_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_4_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_5_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_6_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_7_MAXTEMP HEATER_0_MAXTEMP
+#endif
+
+#if ENABLED(BED_HIGHTEMP)
+  #define BED_MAXTEMP 150
+#else
+  #define BED_MAXTEMP 120
+#endif
+
+#define TEMP_RESIDENCY_TIME      3
+#define TEMP_WINDOW              1
+#define TEMP_HYSTERESIS          3
+
+#define TEMP_BED_RESIDENCY_TIME  3
+#define TEMP_BED_WINDOW          1
+#define TEMP_BED_HYSTERESIS      3
+
+// PID Settings
+#define PIDTEMP
+#define BANG_MAX 255
+#define PID_MAX BANG_MAX
+#define PID_K1 0.95
+
+#define PID_AUTOTUNE_MENU
+
+#if DISABLED(SPACE_SAVER) && DISABLED(SKR_E3_MINI_BOARD)
+  #define PID_EDIT_MENU
+#endif
+
+#ifndef DEFAULT_Kp
+  #define DEFAULT_Kp 22.2 // Define Marlin default PID if no machine specific PID is defined.
+  #define DEFAULT_Ki 1.08
+  #define DEFAULT_Kd 114
+#endif
+
+#if ENABLED(ENABLE_PIDBED) // PID Bed is not needed. Bang Bang loop is set to 500ms
+  #define PIDTEMPBED
+  #define MAX_BED_POWER 255
+  #if ENABLED(PIDTEMPBED)
+    #ifndef DEFAULT_bedKp
+      #define  DEFAULT_bedKp 113.36
+      #define  DEFAULT_bedKi 21.62
+      #define  DEFAULT_bedKd 148.59
+    #endif
+  #endif
+#endif
+
+#if EITHER(PIDTEMP, PIDTEMPBED)
+  #define PID_FUNCTIONAL_RANGE 10
+#endif
+// End PID Settings
+
+// Enable Thermal Protection for Bed and Hotends
+#define THERMAL_PROTECTION_HOTENDS
+#define THERMAL_PROTECTION_BED
 
 /**
  * General Firmware Settings
