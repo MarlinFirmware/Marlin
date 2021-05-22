@@ -51,37 +51,28 @@
 
 /**
  * M104: Set Hotend Temperature target and return immediately
- *
- * Parameters:
- *  I<preset> : Material Preset index (if material presets are defined)
- *  T<index>  : Tool index. If omitted, applies to the active tool
- *  S<target> : The target temperature in current units
- */
-void GcodeSuite::M104() { M104_M109(false); }
-
-/**
  * M109: Set Hotend Temperature target and wait
  *
  * Parameters
  *  I<preset> : Material Preset index (if material presets are defined)
  *  T<index>  : Tool index. If omitted, applies to the active tool
- *  S<target> : The target temperature in current units. Wait for heating only.
- *  R<target> : The target temperature in current units. Wait for heating and cooling.
+ *  S<target> : The target temperature in current units. For M109, only wait when heating up.
  *
  * With AUTOTEMP...
  *  F<factor> : Autotemp Scaling Factor. Set non-zero to enable Auto-temp.
  *  S<min>    : Minimum temperature, in current units.
  *  B<max>    : Maximum temperature, in current units.
  *
+ * M109 Parameters
+ *  R<target> : The target temperature in current units. Wait for heating and cooling.
+ *
  * Examples
- *  M109 S100 : Set target to 100°. Wait until the hotend is at or above 100°.
+ *  M104 S100 : Set target to 100° and return.
  *  M109 R150 : Set target to 150°. Wait until the hotend gets close to 150°.
  *
  * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
  *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.
  */
-void GcodeSuite::M109() { M104_M109(true); }
-
 void GcodeSuite::M104_M109(const bool isM109) {
 
   if (DEBUGGING(DRYRUN)) return;
