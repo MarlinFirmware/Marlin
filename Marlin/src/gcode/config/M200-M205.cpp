@@ -86,8 +86,8 @@ void GcodeSuite::M201() {
     if (parser.seenval('G')) planner.xy_freq_min_speed_factor = constrain(parser.value_float(), 1, 100) / 100;
   #endif
 
-  LOOP_XYZE(i) {
-    if (parser.seen(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) {
+    if (parser.seenval(axis_codes[i])) {
       const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
       planner.set_max_acceleration(a, parser.value_axis_units((AxisEnum)a));
     }
@@ -104,8 +104,8 @@ void GcodeSuite::M203() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
-  LOOP_XYZE(i)
-    if (parser.seen(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i)
+    if (parser.seenval(axis_codes[i])) {
       const uint8_t a = (i == E_AXIS ? uint8_t(E_AXIS_N(target_extruder)) : i);
       planner.set_max_feedrate(a, parser.value_axis_units((AxisEnum)a));
     }
@@ -147,24 +147,14 @@ void GcodeSuite::M204() {
  *    J = Junction Deviation (mm) (If not using CLASSIC_JERK)
  */
 void GcodeSuite::M205() {
-  #if HAS_JUNCTION_DEVIATION
-    #define J_PARAM  "J"
-  #else
-    #define J_PARAM
-  #endif
-  #if HAS_CLASSIC_JERK
-    #define XYZE_PARAM "XYZE"
-  #else
-    #define XYZE_PARAM
-  #endif
-  if (!parser.seen("BST" J_PARAM XYZE_PARAM)) return;
+  if (!parser.seen("BST" TERN_(HAS_JUNCTION_DEVIATION, "J") TERN_(HAS_CLASSIC_JERK, "XYZE"))) return;
 
   //planner.synchronize();
-  if (parser.seen('B')) planner.settings.min_segment_time_us = parser.value_ulong();
-  if (parser.seen('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
+  if (parser.seenval('B')) planner.settings.min_segment_time_us = parser.value_ulong();
+  if (parser.seenval('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
+  if (parser.seenval('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if HAS_JUNCTION_DEVIATION
-    if (parser.seen('J')) {
+    if (parser.seenval('J')) {
       const float junc_dev = parser.value_linear_units();
       if (WITHIN(junc_dev, 0.01f, 0.3f)) {
         planner.junction_deviation_mm = junc_dev;
@@ -175,9 +165,9 @@ void GcodeSuite::M205() {
     }
   #endif
   #if HAS_CLASSIC_JERK
-    if (parser.seen('X')) planner.set_max_jerk(X_AXIS, parser.value_linear_units());
-    if (parser.seen('Y')) planner.set_max_jerk(Y_AXIS, parser.value_linear_units());
-    if (parser.seen('Z')) {
+    if (parser.seenval('X')) planner.set_max_jerk(X_AXIS, parser.value_linear_units());
+    if (parser.seenval('Y')) planner.set_max_jerk(Y_AXIS, parser.value_linear_units());
+    if (parser.seenval('Z')) {
       planner.set_max_jerk(Z_AXIS, parser.value_linear_units());
       #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
         if (planner.max_jerk.z <= 0.1f)
@@ -185,7 +175,7 @@ void GcodeSuite::M205() {
       #endif
     }
     #if HAS_CLASSIC_E_JERK
-      if (parser.seen('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units());
+      if (parser.seenval('E')) planner.set_max_jerk(E_AXIS, parser.value_linear_units());
     #endif
   #endif
 }

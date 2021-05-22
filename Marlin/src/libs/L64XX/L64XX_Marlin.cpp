@@ -395,7 +395,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   }
 
   uint8_t found_displacement = false;
-  LOOP_XYZE(i) if (uint16_t _displacement = parser.intval(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (uint16_t _displacement = parser.intval(axis_codes[i])) {
     found_displacement = true;
     displacement = _displacement;
     uint8_t axis_offset = parser.byteval('J');

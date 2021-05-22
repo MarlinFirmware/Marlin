@@ -1555,7 +1555,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 #if ENABLED(G26_MESH_VALIDATION)
-  #if !EXTRUDERS
+  #if !HAS_EXTRUDERS
     #error "G26_MESH_VALIDATION requires at least one extruder."
   #elif !HAS_MESH
     #error "G26_MESH_VALIDATION requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
@@ -1682,7 +1682,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  * Allen Key
  * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
-#if BOTH(Z_PROBE_ALLEN_KEY, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && Z_HOME_DIR < 0
+#if ALL(Z_HOME_TO_MIN, Z_PROBE_ALLEN_KEY, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #error "You can't home to a Z min endstop with a Z_PROBE_ALLEN_KEY."
 #endif
 
@@ -1700,7 +1700,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #error "DUAL_X_CARRIAGE requires USE_XMAX_PLUG and an X Max Endstop."
   #elif !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS)
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
-  #elif X_HOME_DIR != -1 || X2_HOME_DIR != 1
+  #elif X_HOME_TO_MAX || X2_HOME_TO_MIN
     #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1 and X2_HOME_DIR 1."
   #endif
 #endif
@@ -2089,25 +2089,25 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
   // Delta and Cartesian use 3 homing endstops
   #if NONE(IS_SCARA, SPI_ENDSTOPS)
-    #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
+    #if X_HOME_TO_MIN && DISABLED(USE_XMIN_PLUG)
       #error "Enable USE_XMIN_PLUG when homing X to MIN."
-    #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
+    #elif X_HOME_TO_MAX && DISABLED(USE_XMAX_PLUG)
       #error "Enable USE_XMAX_PLUG when homing X to MAX."
-    #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
+    #elif Y_HOME_TO_MIN && DISABLED(USE_YMIN_PLUG)
       #error "Enable USE_YMIN_PLUG when homing Y to MIN."
-    #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
+    #elif Y_HOME_TO_MAX && DISABLED(USE_YMAX_PLUG)
       #error "Enable USE_YMAX_PLUG when homing Y to MAX."
     #endif
   #endif
 
   // Z homing direction and plug usage flags
-  #if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
+  #if Z_HOME_TO_MIN && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
     #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
-  #elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
+  #elif Z_HOME_TO_MAX && ENABLED(USE_PROBE_FOR_Z_HOMING)
     #error "Z_HOME_DIR must be -1 when homing Z with the probe."
   #elif BOTH(HOMING_Z_WITH_PROBE, Z_MULTI_ENDSTOPS)
     #error "Z_MULTI_ENDSTOPS is incompatible with USE_PROBE_FOR_Z_HOMING."
-  #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
+  #elif Z_HOME_TO_MAX && DISABLED(USE_ZMAX_PLUG)
     #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
   #endif
 #endif
@@ -2304,7 +2304,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35) \
-  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS) \
+  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS) \
   + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY, DWIN_CREALITY_LCD) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
@@ -2630,17 +2630,17 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #define Z_ENDSTOP_INVERTING !AXIS_DRIVER_TYPE(Z,TMC2209)
 
   #if NONE(SPI_ENDSTOPS, ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS)
-    #if   X_SENSORLESS && X_HOME_DIR < 0 && DISABLED(ENDSTOPPULLUP_XMIN)
+    #if   X_SENSORLESS && X_HOME_TO_MIN && DISABLED(ENDSTOPPULLUP_XMIN)
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_XMIN (or ENDSTOPPULLUPS) when homing to X_MIN."
-    #elif X_SENSORLESS && X_HOME_DIR > 0 && DISABLED(ENDSTOPPULLUP_XMAX)
+    #elif X_SENSORLESS && X_HOME_TO_MAX && DISABLED(ENDSTOPPULLUP_XMAX)
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_XMAX (or ENDSTOPPULLUPS) when homing to X_MAX."
-    #elif Y_SENSORLESS && Y_HOME_DIR < 0 && DISABLED(ENDSTOPPULLUP_YMIN)
+    #elif Y_SENSORLESS && Y_HOME_TO_MIN && DISABLED(ENDSTOPPULLUP_YMIN)
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_YMIN (or ENDSTOPPULLUPS) when homing to Y_MIN."
-    #elif Y_SENSORLESS && Y_HOME_DIR > 0 && DISABLED(ENDSTOPPULLUP_YMAX)
+    #elif Y_SENSORLESS && Y_HOME_TO_MAX && DISABLED(ENDSTOPPULLUP_YMAX)
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_YMAX (or ENDSTOPPULLUPS) when homing to Y_MAX."
-    #elif Z_SENSORLESS && Z_HOME_DIR < 0 && DISABLED(ENDSTOPPULLUP_ZMIN)
+    #elif Z_SENSORLESS && Z_HOME_TO_MIN && DISABLED(ENDSTOPPULLUP_ZMIN)
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_ZMIN (or ENDSTOPPULLUPS) when homing to Z_MIN."
-    #elif Z_SENSORLESS && Z_HOME_DIR > 0 && DISABLED(ENDSTOPPULLUP_ZMAX)
+    #elif Z_SENSORLESS && Z_HOME_TO_MAX && DISABLED(ENDSTOPPULLUP_ZMAX)
       #error "SENSORLESS_HOMING requires ENDSTOPPULLUP_ZMAX (or ENDSTOPPULLUPS) when homing to Z_MAX."
     #endif
   #endif
@@ -2650,37 +2650,37 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
       #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust back-offs for better results."
     #endif
   #else
-    #if X_SENSORLESS && X_HOME_DIR < 0 && X_MIN_ENDSTOP_INVERTING != X_ENDSTOP_INVERTING
+    #if X_SENSORLESS && X_HOME_TO_MIN && X_MIN_ENDSTOP_INVERTING != X_ENDSTOP_INVERTING
       #if X_ENDSTOP_INVERTING
         #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING = true when homing to X_MIN."
       #else
         #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING = false when homing TMC2209 to X_MIN."
       #endif
-    #elif X_SENSORLESS && X_HOME_DIR > 0 && X_MAX_ENDSTOP_INVERTING != X_ENDSTOP_INVERTING
+    #elif X_SENSORLESS && X_HOME_TO_MAX && X_MAX_ENDSTOP_INVERTING != X_ENDSTOP_INVERTING
       #if X_ENDSTOP_INVERTING
         #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_INVERTING = true when homing to X_MAX."
       #else
         #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_INVERTING = false when homing TMC2209 to X_MAX."
       #endif
-    #elif Y_SENSORLESS && Y_HOME_DIR < 0 && Y_MIN_ENDSTOP_INVERTING != Y_ENDSTOP_INVERTING
+    #elif Y_SENSORLESS && Y_HOME_TO_MIN && Y_MIN_ENDSTOP_INVERTING != Y_ENDSTOP_INVERTING
       #if Y_ENDSTOP_INVERTING
         #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING = true when homing to Y_MIN."
       #else
         #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING = false when homing TMC2209 to Y_MIN."
       #endif
-    #elif Y_SENSORLESS && Y_HOME_DIR > 0 && Y_MAX_ENDSTOP_INVERTING != Y_ENDSTOP_INVERTING
+    #elif Y_SENSORLESS && Y_HOME_TO_MAX && Y_MAX_ENDSTOP_INVERTING != Y_ENDSTOP_INVERTING
       #if Y_ENDSTOP_INVERTING
         #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING = true when homing to Y_MAX."
       #else
         #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING = false when homing TMC2209 to Y_MAX."
       #endif
-    #elif Z_SENSORLESS && Z_HOME_DIR < 0 && Z_MIN_ENDSTOP_INVERTING != Z_ENDSTOP_INVERTING
+    #elif Z_SENSORLESS && Z_HOME_TO_MIN && Z_MIN_ENDSTOP_INVERTING != Z_ENDSTOP_INVERTING
       #if Z_ENDSTOP_INVERTING
         #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_INVERTING = true when homing to Z_MIN."
       #else
         #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_INVERTING = false when homing TMC2209 to Z_MIN."
       #endif
-    #elif Z_SENSORLESS && Z_HOME_DIR > 0 && Z_MAX_ENDSTOP_INVERTING != Z_ENDSTOP_INVERTING
+    #elif Z_SENSORLESS && Z_HOME_TO_MAX && Z_MAX_ENDSTOP_INVERTING != Z_ENDSTOP_INVERTING
       #if Z_ENDSTOP_INVERTING
         #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_INVERTING = true when homing to Z_MAX."
       #else
@@ -2819,22 +2819,22 @@ constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
   #define _EXTRA_NOTE ""
 #endif
 
-static_assert(COUNT(sanity_arr_1) >= XYZE,   "DEFAULT_AXIS_STEPS_PER_UNIT requires X, Y, Z and E elements.");
-static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements." _EXTRA_NOTE);
+static_assert(COUNT(sanity_arr_1) >= LOGICAL_AXES,  "DEFAULT_AXIS_STEPS_PER_UNIT requires X, Y, Z and E elements.");
+static_assert(COUNT(sanity_arr_1) <= DISTINCT_AXES, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements." _EXTRA_NOTE);
 static_assert(   _ARR_TEST(1,0) && _ARR_TEST(1,1) && _ARR_TEST(1,2)
               && _ARR_TEST(1,3) && _ARR_TEST(1,4) && _ARR_TEST(1,5)
               && _ARR_TEST(1,6) && _ARR_TEST(1,7) && _ARR_TEST(1,8),
               "DEFAULT_AXIS_STEPS_PER_UNIT values must be positive.");
 
-static_assert(COUNT(sanity_arr_2) >= XYZE,   "DEFAULT_MAX_FEEDRATE requires X, Y, Z and E elements.");
-static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements." _EXTRA_NOTE);
+static_assert(COUNT(sanity_arr_2) >= LOGICAL_AXES,  "DEFAULT_MAX_FEEDRATE requires X, Y, Z and E elements.");
+static_assert(COUNT(sanity_arr_2) <= DISTINCT_AXES, "DEFAULT_MAX_FEEDRATE has too many elements." _EXTRA_NOTE);
 static_assert(   _ARR_TEST(2,0) && _ARR_TEST(2,1) && _ARR_TEST(2,2)
               && _ARR_TEST(2,3) && _ARR_TEST(2,4) && _ARR_TEST(2,5)
               && _ARR_TEST(2,6) && _ARR_TEST(2,7) && _ARR_TEST(2,8),
               "DEFAULT_MAX_FEEDRATE values must be positive.");
 
-static_assert(COUNT(sanity_arr_3) >= XYZE,   "DEFAULT_MAX_ACCELERATION requires X, Y, Z and E elements.");
-static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
+static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION requires X, Y, Z and E elements.");
+static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
               && _ARR_TEST(3,3) && _ARR_TEST(3,4) && _ARR_TEST(3,5)
               && _ARR_TEST(3,6) && _ARR_TEST(3,7) && _ARR_TEST(3,8),
@@ -2843,8 +2843,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
   #ifdef MAX_ACCEL_EDIT_VALUES
     constexpr float sanity_arr_4[] = MAX_ACCEL_EDIT_VALUES;
-    static_assert(COUNT(sanity_arr_4) >= XYZE, "MAX_ACCEL_EDIT_VALUES requires X, Y, Z and E elements.");
-    static_assert(COUNT(sanity_arr_4) <= XYZE, "MAX_ACCEL_EDIT_VALUES has too many elements. X, Y, Z and E elements only.");
+    static_assert(COUNT(sanity_arr_4) >= LOGICAL_AXES, "MAX_ACCEL_EDIT_VALUES requires X, Y, Z and E elements.");
+    static_assert(COUNT(sanity_arr_4) <= LOGICAL_AXES, "MAX_ACCEL_EDIT_VALUES has too many elements. X, Y, Z and E elements only.");
     static_assert(   _ARR_TEST(4,0) && _ARR_TEST(4,1) && _ARR_TEST(4,2)
                   && _ARR_TEST(4,3) && _ARR_TEST(4,4) && _ARR_TEST(4,5)
                   && _ARR_TEST(4,6) && _ARR_TEST(4,7) && _ARR_TEST(4,8),
@@ -2855,8 +2855,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if ENABLED(LIMITED_MAX_FR_EDITING)
   #ifdef MAX_FEEDRATE_EDIT_VALUES
     constexpr float sanity_arr_5[] = MAX_FEEDRATE_EDIT_VALUES;
-    static_assert(COUNT(sanity_arr_5) >= XYZE, "MAX_FEEDRATE_EDIT_VALUES requires X, Y, Z and E elements.");
-    static_assert(COUNT(sanity_arr_5) <= XYZE, "MAX_FEEDRATE_EDIT_VALUES has too many elements. X, Y, Z and E elements only.");
+    static_assert(COUNT(sanity_arr_5) >= LOGICAL_AXES, "MAX_FEEDRATE_EDIT_VALUES requires X, Y, Z and E elements.");
+    static_assert(COUNT(sanity_arr_5) <= LOGICAL_AXES, "MAX_FEEDRATE_EDIT_VALUES has too many elements. X, Y, Z and E elements only.");
     static_assert(   _ARR_TEST(5,0) && _ARR_TEST(5,1) && _ARR_TEST(5,2)
                   && _ARR_TEST(5,3) && _ARR_TEST(5,4) && _ARR_TEST(5,5)
                   && _ARR_TEST(5,6) && _ARR_TEST(5,7) && _ARR_TEST(5,8),
@@ -2867,8 +2867,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if ENABLED(LIMITED_JERK_EDITING)
   #ifdef MAX_JERK_EDIT_VALUES
     constexpr float sanity_arr_6[] = MAX_JERK_EDIT_VALUES;
-    static_assert(COUNT(sanity_arr_6) >= XYZE, "MAX_JERK_EDIT_VALUES requires X, Y, Z and E elements.");
-    static_assert(COUNT(sanity_arr_6) <= XYZE, "MAX_JERK_EDIT_VALUES has too many elements. X, Y, Z and E elements only.");
+    static_assert(COUNT(sanity_arr_6) >= LOGICAL_AXES, "MAX_JERK_EDIT_VALUES requires X, Y, Z and E elements.");
+    static_assert(COUNT(sanity_arr_6) <= LOGICAL_AXES, "MAX_JERK_EDIT_VALUES has too many elements. X, Y, Z and E elements only.");
     static_assert(   _ARR_TEST(6,0) && _ARR_TEST(6,1) && _ARR_TEST(6,2)
                   && _ARR_TEST(6,3) && _ARR_TEST(6,4) && _ARR_TEST(6,5)
                   && _ARR_TEST(6,6) && _ARR_TEST(6,7) && _ARR_TEST(6,8),
@@ -2918,9 +2918,9 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "POWER_LOSS_RECOVER_ZHOME cannot be used with Z_SAFE_HOMING."
   #elif BOTH(POWER_LOSS_PULLUP, POWER_LOSS_PULLDOWN)
     #error "You can't enable POWER_LOSS_PULLUP and POWER_LOSS_PULLDOWN at the same time."
-  #elif ENABLED(POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR > 0
+  #elif ENABLED(POWER_LOSS_RECOVER_ZHOME) && Z_HOME_TO_MAX
     #error "POWER_LOSS_RECOVER_ZHOME is not needed on a machine that homes to ZMAX."
-  #elif BOTH(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_DIR < 0 && !defined(POWER_LOSS_ZHOME_POS)
+  #elif BOTH(IS_CARTESIAN, POWER_LOSS_RECOVER_ZHOME) && Z_HOME_TO_MIN && !defined(POWER_LOSS_ZHOME_POS)
     #error "POWER_LOSS_RECOVER_ZHOME requires POWER_LOSS_ZHOME_POS for a Cartesian that homes to ZMIN."
   #endif
 #endif
@@ -3247,7 +3247,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Sanity check for MIXING_EXTRUDER & DISTINCT_E_FACTORS these are not compatible
  */
-#if ENABLED(MIXING_EXTRUDER) && ENABLED(DISTINCT_E_FACTORS)
+#if BOTH(MIXING_EXTRUDER, DISTINCT_E_FACTORS)
   #error "MIXING_EXTRUDER can't be used with DISTINCT_E_FACTORS. But you may use SINGLENOZZLE with DISTINCT_E_FACTORS."
 #endif
 

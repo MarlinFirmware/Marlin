@@ -822,7 +822,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
     SERIAL_CHAR('T'); SERIAL_ECHO(e);
@@ -1181,7 +1181,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       sync_plan_position();
 
       #if ENABLED(DELTA)
-        //LOOP_XYZ(i) update_software_endstops(i); // or modify the constrain function
+        //LOOP_LINEAR_AXES(i) update_software_endstops(i); // or modify the constrain function
         const bool safe_to_move = current_position.z < delta_clip_start_height - 1;
       #else
         constexpr bool safe_to_move = true;

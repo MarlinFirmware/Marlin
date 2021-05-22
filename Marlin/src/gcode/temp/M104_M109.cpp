@@ -28,7 +28,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
 
 #include "../gcode.h"
 #include "../../module/temperature.h"

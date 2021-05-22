@@ -75,7 +75,7 @@
   #define SERVO_DELAY { 50 }
 #endif
 
-#if EXTRUDERS == 0
+#if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
   #undef TEMP_SENSOR_1
@@ -389,6 +389,12 @@
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+#if X2_HOME_DIR > 0
+  #define X2_HOME_TO_MAX 1
+#elif X2_HOME_DIR < 0
+  #define X2_HOME_TO_MIN 1
 #endif
 
 #ifndef HOMING_BUMP_MM
