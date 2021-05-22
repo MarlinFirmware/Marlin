@@ -55,7 +55,7 @@ static void TXBegin() {
     nvic_irq_disable(dev->irq_num);
 
     // Use this if removing libmaple
-    //NVIC_BASE->ICER[1] |= _BV(irq - 32);
+    //SBI(NVIC_BASE->ICER[1], irq - 32);
 
     // We NEED memory barriers to ensure Interrupts are actually disabled!
     // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )

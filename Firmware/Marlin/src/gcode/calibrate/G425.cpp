@@ -30,7 +30,7 @@
   #include "../../feature/backlash.h"
 #endif
 
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/tool_change.h"
@@ -143,14 +143,16 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 
 #endif
 
+#if !PIN_EXISTS(CALIBRATION)
+  #include "../../module/probe.h"
+#endif
+
 inline bool read_calibration_pin() {
   return (
     #if PIN_EXISTS(CALIBRATION)
       READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING
-    #elif HAS_CUSTOM_PROBE_PIN
-      READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING
     #else
-      READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING
+      PROBE_TRIGGERED()
     #endif
   );
 }
@@ -373,7 +375,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   inline void report_measured_positional_error(const measurements_t &m) {
     SERIAL_CHAR('T');
-    SERIAL_ECHO(int(active_extruder));
+    SERIAL_ECHO(active_extruder);
     SERIAL_ECHOLNPGM(" Positional Error:");
     #if HAS_X_CENTER
       SERIAL_ECHOLNPAIR_P(SP_X_STR, m.pos_error.x);
@@ -406,7 +408,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     //
     inline void report_hotend_offsets() {
       LOOP_S_L_N(e, 1, HOTENDS)
-        SERIAL_ECHOLNPAIR_P(PSTR("T"), int(e), PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
+        SERIAL_ECHOLNPAIR_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif
 

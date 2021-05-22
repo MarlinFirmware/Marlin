@@ -270,7 +270,7 @@
 #elif ENABLED(AZSMZ_12864)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 190
-#elif ENABLED(MKS_LCD12864)
+#elif EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 205
 #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
@@ -330,11 +330,6 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  // Extender cable doesn't support SD_DETECT_PIN
-  #if ENABLED(NO_SD_DETECT)
-    #undef SD_DETECT_PIN
-  #endif
-
   #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
@@ -345,16 +340,18 @@
     #define HAS_SHARED_MEDIA 1
   #endif
 
-  #if PIN_EXISTS(SD_DETECT)
-    #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
-      #undef SD_DETECT_STATE
-      #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-        #define SD_DETECT_STATE HIGH
-      #endif
-    #endif
-    #ifndef SD_DETECT_STATE
+  // Set SD_DETECT_STATE based on hardware if not overridden
+  #if PIN_EXISTS(SD_DETECT) && !defined(SD_DETECT_STATE)
+    #if BOTH(HAS_LCD_MENU, ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+      #define SD_DETECT_STATE HIGH
+    #else
       #define SD_DETECT_STATE LOW
     #endif
+  #endif
+
+  // Extender cable doesn't support SD_DETECT_PIN
+  #if ENABLED(NO_SD_DETECT)
+    #undef SD_DETECT_PIN
   #endif
 
   #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
@@ -1859,6 +1856,7 @@
 // Flag the indexed hardware serial ports in use
 #define CONF_SERIAL_IS(N) (  (defined(SERIAL_PORT)      && SERIAL_PORT == N) \
                           || (defined(SERIAL_PORT_2)    && SERIAL_PORT_2 == N) \
+                          || (defined(SERIAL_PORT_3)    && SERIAL_PORT_3 == N) \
                           || (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == N) \
                           || (defined(LCD_SERIAL_PORT)  && LCD_SERIAL_PORT == N) )
 
@@ -1949,7 +1947,6 @@
 #undef _SERIAL_ID
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
-#undef CONF_SERIAL_IS
 #undef ANY_SERIAL_IS
 
 //
@@ -1983,15 +1980,6 @@
 #if _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
 #endif
-#if _HAS_STOP(X,STOP)
-  #define HAS_X_STOP 1
-#endif
-#if _HAS_STOP(Y,STOP)
-  #define HAS_Y_STOP 1
-#endif
-#if _HAS_STOP(Z,STOP)
-  #define HAS_Z_STOP 1
-#endif
 #if PIN_EXISTS(X2_MIN)
   #define HAS_X2_MIN 1
 #endif
@@ -2022,9 +2010,16 @@
 #if PIN_EXISTS(Z4_MAX)
   #define HAS_Z4_MAX 1
 #endif
-#if HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE)
+#if BOTH(HAS_BED_PROBE, HAS_CUSTOM_PROBE_PIN) && PIN_EXISTS(Z_MIN_PROBE)
   #define HAS_Z_MIN_PROBE_PIN 1
 #endif
+
+#undef IS_PROBE_PIN
+#undef IS_X2_ENDSTOP
+#undef IS_Y2_ENDSTOP
+#undef IS_Z2_ENDSTOP
+#undef IS_Z3_ENDSTOP
+#undef IS_Z4_ENDSTOP
 
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
@@ -2236,7 +2231,7 @@
 #if !HAS_TEMP_SENSOR
   #undef AUTO_REPORT_TEMPERATURES
 #endif
-#if EITHER(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS)
+#if ANY(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS, AUTO_REPORT_POSITION)
   #define HAS_AUTO_REPORTING 1
 #endif
 
@@ -2323,11 +2318,21 @@
 #endif
 
 // User Interface
+#if ENABLED(FREEZE_FEATURE)
+  #if !PIN_EXISTS(FREEZE) && PIN_EXISTS(KILL)
+    #define FREEZE_PIN KILL_PIN
+  #endif
+  #if PIN_EXISTS(FREEZE)
+    #define HAS_FREEZE_PIN 1
+  #endif
+#else
+  #undef FREEZE_PIN
+#endif
+#if PIN_EXISTS(KILL) && TERN1(FREEZE_FEATURE, KILL_PIN != FREEZE_PIN)
+  #define HAS_KILL 1
+#endif
 #if PIN_EXISTS(HOME)
   #define HAS_HOME 1
-#endif
-#if PIN_EXISTS(KILL)
-  #define HAS_KILL 1
 #endif
 #if PIN_EXISTS(SUICIDE)
   #define HAS_SUICIDE 1
