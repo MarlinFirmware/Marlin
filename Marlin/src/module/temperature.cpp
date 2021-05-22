@@ -2526,9 +2526,7 @@ void Temperature::disable_all_heaters() {
       if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
         setTargetHotend(singlenozzle_temp[new_tool], 0);
         TERN_(AUTOTEMP, planner.autotemp_update());
-        #if HAS_STATUS_MESSAGE && DISABLED(NO_HEATING_MESSAGES)
-          set_heating_message(0);
-        #endif
+        set_heating_message(0);
         (void)wait_for_hotend(0, false);  // Wait for heating or cooling
       }
     #endif
@@ -3473,7 +3471,7 @@ void Temperature::isr() {
     }
   #endif
 
-  #if HAS_HOTEND && HAS_STATUS_MESSAGE
+  #if HAS_HOTEND && HAS_STATUS_MESSAGE && DISABLED(NO_HEATING_MESSAGES)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf_P(0,
