@@ -681,10 +681,10 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     xyze_pos_t ManualMove::all_axes_destination = { 0 };
     bool ManualMove::processing = false;
   #endif
-  #if ENABLED(MULTI_MANUAL)
+  #if MULTI_E_MANUAL
     int8_t ManualMove::e_index = 0;
   #endif
-  AxisEnum ManualMove::axis = NO_AXIS_MASK;
+  AxisEnum ManualMove::axis = NO_AXIS_ENUM;
 
   /**
    * If a manual move has been posted and its time has arrived, and if the planner
@@ -695,7 +695,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
    *
    * To post a manual move:
    *   - Update current_position to the new place you want to go.
-   *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES_MASK for diagonal moves.
+   *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES_ENUM for diagonal moves.
    *   - Set manual_move.start_time to a point in the future (in ms) when the move should be done.
    *
    * For kinematic machines:
@@ -710,7 +710,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     if (processing) return;   // Prevent re-entry from idle() calls
 
     // Add a manual move to the queue?
-    if (axis != NO_AXIS_MASK && ELAPSED(millis(), start_time) && !planner.is_full()) {
+    if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
       const feedRate_t fr_mm_s = (axis <= E_AXIS) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
@@ -722,7 +722,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
         #endif
 
         // Apply a linear offset to a single axis
-        if (axis == ALL_AXES_MASK)
+        if (axis == ALL_AXES_ENUM)
           destination = all_axes_destination;
         else if (axis <= XYZE) {
           destination = current_position;
@@ -731,7 +731,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
         // Reset for the next move
         offset = 0;
-        axis = NO_AXIS_MASK;
+        axis = NO_AXIS_ENUM;
 
         // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
         // move_to_destination. This will cause idle() to be called, which can then call this function while the
@@ -748,7 +748,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
         //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
 
-        axis = NO_AXIS_MASK;
+        axis = NO_AXIS_ENUM;
 
       #endif
     }
@@ -758,11 +758,11 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   // Tell ui.update() to start a move to current_position after a short delay.
   //
   void ManualMove::soon(const AxisEnum move_axis
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       , const int8_t eindex/*=-1*/
     #endif
   ) {
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves

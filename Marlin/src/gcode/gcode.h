@@ -633,10 +633,13 @@ private:
   #if ENABLED(PSU_CONTROL)
     static void M80();
   #endif
-
   static void M81();
-  static void M82();
-  static void M83();
+
+  #if HAS_EXTRUDERS
+    static void M82();
+    static void M83();
+  #endif
+
   static void M85();
   static void M92();
 
@@ -644,7 +647,8 @@ private:
     static void M100();
   #endif
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
+    static void M104_M109(const bool isM109);
     static void M104();
     static void M109();
   #endif
@@ -776,7 +780,7 @@ private:
 
   static void M220();
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     static void M221();
   #endif
 

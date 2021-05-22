@@ -691,7 +691,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_X_PARK_POS, &mks_park_pos.x, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_Y_PARK_POS, &mks_park_pos.y, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_Z_PARK_POS, &mks_park_pos.z, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_MIN_EX_T, &thermalManager.extrude_min_temp, ScreenHandler.HandleGetExMinTemp_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    VPHELPER(VP_MIN_EX_T, &thermalManager.extrude_min_temp, ScreenHandler.HandleGetExMinTemp_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #endif
 
   #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting
     #if AXIS_HAS_STEALTHCHOP(X)
@@ -743,7 +746,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZOffset_Distance,nullptr ,ScreenHandler.GetZoffsetDistance, nullptr),
   VPHELPER(VP_MESH_LEVEL_ADJUST, nullptr, ScreenHandler.MeshLevelDistanceConfig, nullptr),
   VPHELPER(VP_MESH_LEVEL_POINT,nullptr, ScreenHandler.MeshLevel,nullptr),
-  VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, &ScreenHandler.GetMinExtrudeTemp, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, &ScreenHandler.GetMinExtrudeTemp, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #endif
+
   VPHELPER(VP_AutoTurnOffSw, nullptr, &ScreenHandler.GetTurnOffCtrl, nullptr),
 
   #if HOTENDS >= 1

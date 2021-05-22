@@ -197,7 +197,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       #endif
     #endif
 
-    #if EXTRUDERS
+    #if HAS_EXTRUDERS
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 

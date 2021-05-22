@@ -282,7 +282,7 @@ void report_current_position_projected() {
 void quickstop_stepper() {
   planner.quick_stop();
   planner.synchronize();
-  set_current_from_steppers_for_axis(ALL_AXES_MASK);
+  set_current_from_steppers_for_axis(ALL_AXES_ENUM);
   sync_plan_position();
 }
 
@@ -360,7 +360,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     planner.unapply_modifiers(pos, true);
   #endif
 
-  if (axis == ALL_AXES_MASK)
+  if (axis == ALL_AXES_ENUM)
     current_position = pos;
   else
     current_position[axis] = pos[axis];
@@ -374,7 +374,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
   planner.buffer_line(current_position, fr_mm_s, active_extruder);
 }
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];
@@ -421,7 +421,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   const uint16_t old_pct = feedrate_percentage;
   feedrate_percentage = 100;
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     const float old_fac = planner.e_factor[active_extruder];
     planner.e_factor[active_extruder] = 1.0f;
   #endif
@@ -433,7 +433,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 
   feedrate_mm_s = old_feedrate;
   feedrate_percentage = old_pct;
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     planner.e_factor[active_extruder] = old_fac;
   #endif
 }

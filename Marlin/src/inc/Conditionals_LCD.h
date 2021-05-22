@@ -538,7 +538,12 @@
  *  E_MANUAL     - Number of E steppers for LCD move options
  */
 
-#if EXTRUDERS == 0
+#if EXTRUDERS
+  #define HAS_EXTRUDERS 1
+  #if EXTRUDERS > 1
+    #define HAS_MULTI_EXTRUDER 1
+  #endif
+#else
   #undef EXTRUDERS
   #define EXTRUDERS 0
   #undef SINGLENOZZLE
@@ -546,8 +551,6 @@
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
-#elif EXTRUDERS > 1
-  #define HAS_MULTI_EXTRUDER 1
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
@@ -663,7 +666,7 @@
  * All the logical axes that can be commanded directly by G-code.
  * Delta maps stepper-specific values to ABC steppers.
  */
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
 #else
   #define LOGICAL_AXES LINEAR_AXES

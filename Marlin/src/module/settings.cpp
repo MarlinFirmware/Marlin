@@ -402,7 +402,7 @@ typedef struct SettingsDataStruct {
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L
   #endif
 
@@ -1321,7 +1321,7 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    #if EXTRUDERS
+    #if HAS_EXTRUDERS
     {
       #if DISABLED(ADVANCED_PAUSE_FEATURE)
         const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
@@ -2235,7 +2235,7 @@ void MarlinSettings::postprocess() {
       //
       // Advanced Pause filament load & unload lengths
       //
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
       {
         #if DISABLED(ADVANCED_PAUSE_FEATURE)
           fil_change_settings_t fc_settings[EXTRUDERS];
