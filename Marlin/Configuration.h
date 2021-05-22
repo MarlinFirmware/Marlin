@@ -1695,10 +1695,9 @@
 #define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
-#define Probing_point_message
-#define Probing_Grid_message
-#define Heating_Messages        // hide annoying heating messages
-#define Homing_complete_message
+//#define PROBING_GRID_MESSAGE        // Always report "Probing point #/#" to G29 / M48, ignoring the 'V' parameter.
+//#define NO_HEATING_MESSAGES         // Suppress "Heating" messages at the start of heating.
+//#define HOMING_COMPLETE_MESSAGE     // Reply "Homing completed." (before "ok") after G28.
 
 //
 // G20/G21 Inch mode support

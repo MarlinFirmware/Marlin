@@ -395,9 +395,6 @@ void GcodeSuite::G28() {
 
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
         probe.move_z_after_homing();
-        #if ENABLED(Homing_complete_message)
-          SERIAL_ECHO_MSG("Homing complete.");
-        #endif
       }
     #endif
 
@@ -478,6 +475,10 @@ void GcodeSuite::G28() {
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
+
+  #if ENABLED(HOMING_COMPLETE_MESSAGE)
+    SERIAL_ECHO_MSG("Homing complete.");
+  #endif
 
   report_current_position();
 

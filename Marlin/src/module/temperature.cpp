@@ -2526,7 +2526,7 @@ void Temperature::disable_all_heaters() {
       if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
         setTargetHotend(singlenozzle_temp[new_tool], 0);
         TERN_(AUTOTEMP, planner.autotemp_update());
-        #if BOTH(Heating_Messages, HAS_STATUS_MESSAGE)
+        #if HAS_STATUS_MESSAGE && DISABLED(NO_HEATING_MESSAGES)
           set_heating_message(0);
         #endif
         (void)wait_for_hotend(0, false);  // Wait for heating or cooling
@@ -3620,7 +3620,7 @@ void Temperature::isr() {
     #if ENABLED(WAIT_FOR_HOTEND)
       void Temperature::wait_for_hotend_heating(const uint8_t target_extruder) {
         if (isHeatingHotend(target_extruder)) {
-          #if ENABLED(Heating_Messages)
+          #if DISABLED(NO_HEATING_MESSAGES)
             SERIAL_ECHOLNPGM("Wait for hotend heating...");
             LCD_MESSAGEPGM(MSG_HEATING);
           #endif
@@ -3754,7 +3754,7 @@ void Temperature::isr() {
 
     void Temperature::wait_for_bed_heating() {
       if (isHeatingBed()) {
-        #if ENABLED(Heating_Messages)
+        #if DISABLED(NO_HEATING_MESSAGES)
           SERIAL_ECHOLNPGM("Wait for bed heating...");
           LCD_MESSAGEPGM(MSG_BED_HEATING);
         #endif

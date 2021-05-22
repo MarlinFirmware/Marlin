@@ -735,7 +735,10 @@ void unified_bed_leveling::shift_mesh_height() {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
       const int point_num = (GRID_MAX_POINTS) - count + 1;
-      SERIAL_ECHOLNPAIR("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
+
+      #if ENABLED(PROBING_GRID_MESSAGE)
+        SERIAL_ECHO_MSG("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
+      #endif
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), point_num, int(GRID_MAX_POINTS)));
 
       #if HAS_LCD_MENU
