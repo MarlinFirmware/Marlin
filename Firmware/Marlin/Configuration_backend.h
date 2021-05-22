@@ -221,6 +221,49 @@
 #endif
 
 #if ENABLED(ABL_ENABLE)
+  // **************NEW FEATURES FROM 2.0.8.1 UPDATE - NOT SURE IF USING YET OR NOT*******
+  
+  // Require minimum nozzle and/or bed temperature for probing
+  //#define PREHEAT_BEFORE_PROBING
+  #if ENABLED(PREHEAT_BEFORE_PROBING)
+    #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+    #define PROBING_BED_TEMP     50
+  #endif
+  
+  /**
+   * Normally G28 leaves leveling disabled on completion. Enable one of
+   * these options to restore the prior leveling state or to always enable
+   * leveling immediately after G28.
+   */
+  //#define RESTORE_LEVELING_AFTER_G28
+  //#define ENABLE_LEVELING_AFTER_G28
+
+  /**
+   * Auto-leveling needs preheating
+   */
+  //#define PREHEAT_BEFORE_LEVELING
+  #if ENABLED(PREHEAT_BEFORE_LEVELING)
+    #define LEVELING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+    #define LEVELING_BED_TEMP     50
+  #endif
+  
+  // Gradually reduce leveling correction until a set height is reached,
+  // at which point movement will be level to the machine's XY plane.
+  // The height can be set with M420 Z<height>
+  #define ENABLE_LEVELING_FADE_HEIGHT
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    #define DEFAULT_LEVELING_FADE_HEIGHT 10.0 // (mm) Default fade height.
+  #endif
+  
+  // Require minimum nozzle and/or bed temperature for probing
+  //#define PREHEAT_BEFORE_PROBING
+  #if ENABLED(PREHEAT_BEFORE_PROBING)
+    #define PROBING_NOZZLE_TEMP 120   // (°C) Only applies to E0 at this time
+    #define PROBING_BED_TEMP     50
+  #endif
+  
+  // **************************END NEW FEATURES FROM 2.0.8.1 UPDATE**********************
+  
   #define SEGMENT_LEVELED_MOVES
   #define LEVELED_SEGMENT_LENGTH 5.0
   
@@ -238,12 +281,12 @@
   #endif
   
   #if ENABLED(SLOWER_PROBE_MOVES) || ENABLED(PROBING_STEPPERS_OFF)
-    #define XY_PROBE_SPEED (133*60)
+    #define XY_PROBE_FEEDRATE (133*60)
   #else
     #if ENABLED(EZABL_SUPERFASTPROBE)
-      #define XY_PROBE_SPEED (266*60)
+      #define XY_PROBE_FEEDRATE (266*60)
     #else
-      #define XY_PROBE_SPEED (200*60)
+      #define XY_PROBE_FEEDRATE (200*60)
     #endif
   #endif
   
@@ -255,7 +298,7 @@
   
   #define MULTIPLE_PROBING 2
   #define AUTO_BED_LEVELING_BILINEAR
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  
   #define GRID_MAX_POINTS_X EZABL_POINTS
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
   #define Z_SAFE_HOMING
@@ -344,6 +387,16 @@
   #define BED_MAXTEMP 120
 #endif
 
+/**
+ * Thermal Overshoot
+ * During heatup (and printing) the temperature can often "overshoot" the target by many degrees
+ * (especially before PID tuning). Setting the target temperature too close to MAXTEMP guarantees
+ * a MAXTEMP shutdown! Use these values to forbid temperatures being set too close to MAXTEMP.
+ */
+#define HOTEND_OVERSHOOT 15   // (°C) Forbid temperatures over MAXTEMP - OVERSHOOT
+#define BED_OVERSHOOT    10   // (°C) Forbid temperatures over MAXTEMP - OVERSHOOT
+#define COOLER_OVERSHOOT  2   // (°C) Forbid temperatures closer than OVERSHOOT
+
 #define TEMP_RESIDENCY_TIME      3
 #define TEMP_WINDOW              1
 #define TEMP_HYSTERESIS          3
@@ -417,10 +470,22 @@
 #endif
 
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
+
+// Homing Speed Settings XYZ
 #if ENABLED(SLOWER_HOMING)
-  #define HOMING_FEEDRATE_XY (20*60)
+  #define HOMING_FEEDRATE_MM_M { (20*60), (20*60), (4*60) }
+  #define Z_PROBE_FEEDRATE_FAST (4*60)
 #else
-  #define HOMING_FEEDRATE_XY (50*60)
+  #if ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
+    #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (15*60) }
+    #define Z_PROBE_FEEDRATE_FAST (15*60)
+  #elif ENABLED(EZABL_FASTPROBE) && ENABLED(ABL_ENABLE)
+    #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (8*60) }
+    #define Z_PROBE_FEEDRATE_FAST (8*60)
+  #else
+    #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (5*60) }
+    #define Z_PROBE_FEEDRATE_FAST (5*60)
+  #endif
 #endif
 
 #define Z_MIN_POS 0
@@ -444,33 +509,23 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
-#if ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
-  #define HOMING_FEEDRATE_Z  (15*60)
-#elif ENABLED(EZABL_FASTPROBE) && ENABLED(ABL_ENABLE)
-  #define HOMING_FEEDRATE_Z  (8*60)
-#else
-  #define HOMING_FEEDRATE_Z  (5*60)
-#endif
-
-#define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
-
 #if ENABLED(BLTOUCH)
   #define Z_CLEARANCE_DEPLOY_PROBE   8
   #define Z_CLEARANCE_BETWEEN_PROBES 5
   #define Z_CLEARANCE_MULTI_PROBE    5
-  #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+  #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
   #define ENDSTOPPULLUP_ZMIN
   #define ENDSTOPPULLUP_ZMIN_PROBE
 #elif ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE)
   #define Z_CLEARANCE_DEPLOY_PROBE   2
   #define Z_CLEARANCE_BETWEEN_PROBES 2
   #define Z_CLEARANCE_MULTI_PROBE    2
-  #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 1.5)
+  #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 1.5)
 #else
   #define Z_CLEARANCE_DEPLOY_PROBE   5
   #define Z_CLEARANCE_BETWEEN_PROBES 3
   #define Z_CLEARANCE_MULTI_PROBE    3
-  #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+  #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
 #endif
 
 #define HOST_KEEPALIVE_FEATURE
@@ -557,15 +612,41 @@
   #define INDIVIDUAL_AXIS_HOMING_MENU
 #endif
 
-//#if DISABLED(SPACE_SAVER) //testing if space is available on all configs 10082020 TDH
-  #define LEVEL_BED_CORNERS
-  #if ENABLED(LEVEL_BED_CORNERS)
-    #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 }
-    #define LEVEL_CORNERS_HEIGHT      0.0
-    #define LEVEL_CORNERS_Z_HOP       5.0
-    #define LEVEL_CENTER_TOO
+// NEW OPTIONS WITH 2.0.8.1 UPDATE
+// Add a menu item to move between bed corners for manual bed adjustment
+#define LEVEL_BED_CORNERS
+
+#if ENABLED(LEVEL_BED_CORNERS)
+  #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 } // (mm) Left, Front, Right, Back insets
+  #define LEVEL_CORNERS_HEIGHT      0.0   // (mm) Z height of nozzle at leveling points
+  #define LEVEL_CORNERS_Z_HOP       5.0   // (mm) Z height of nozzle between leveling points
+  #define LEVEL_CENTER_TOO              // Move to the center after the last corner
+  //#define LEVEL_CORNERS_USE_PROBE
+  #if ENABLED(LEVEL_CORNERS_USE_PROBE)
+    #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
+    #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
+    //#define LEVEL_CORNERS_AUDIO_FEEDBACK
   #endif
-//#endif
+
+  /**
+   * Corner Leveling Order
+   *
+   * Set 2 or 4 points. When 2 points are given, the 3rd is the center of the opposite edge.
+   *
+   *  LF  Left-Front    RF  Right-Front
+   *  LB  Left-Back     RB  Right-Back
+   *
+   * Examples:
+   *
+   *      Default        {LF,RB,LB,RF}         {LF,RF}           {LB,LF}
+   *  LB --------- RB   LB --------- RB    LB --------- RB   LB --------- RB
+   *  |  4       3  |   | 3         2 |    |     <3>     |   | 1           |
+   *  |             |   |             |    |             |   |          <3>|
+   *  |  1       2  |   | 1         4 |    | 1         2 |   | 2           |
+   *  LF --------- RF   LF --------- RF    LF --------- RF   LF --------- RF
+   */
+  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, RB, LB }
+#endif
 
 #if ENABLED(MANUAL_MESH_LEVELING) && DISABLED(ABL_ENABLE)
   #define LCD_BED_LEVELING
