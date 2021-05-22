@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(MMU2_MENUS)
-  #include "../../lcd/menu/menu_mmu2.h"
+  #include "menu_mmu2.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
