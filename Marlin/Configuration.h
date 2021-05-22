@@ -2200,7 +2200,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // K.3D Full Graphic Smart Controller
@@ -2713,8 +2713,8 @@
   #endif
 
   // Use a NeoPixels LED for static (background) lighting
-  #define NEOPIXEL_BKGD_LED_INDEX_START 0               // Index of the start LED to use
-//  #define NEOPIXEL_BKGD_LED_INDEX_END 5                 // Index of the end LED to use
+  //#define NEOPIXEL_BKGD_LED_INDEX_START 0               // Index of the start LED to use
+  //#define NEOPIXEL_BKGD_LED_INDEX_END 5                 // Index of the end LED to use
 
   #define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
   #define NEOPIXEL_BKGD_ALWAYS_ON                  // Keep the backlight on when other NeoPixels are off

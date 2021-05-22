@@ -157,8 +157,7 @@ public:
       , w
     #endif
     #if ENABLED(NEOPIXEL_LED)
-      , i)
-      , isSequence
+      , i), isSequence
     #else
       )
     #endif
