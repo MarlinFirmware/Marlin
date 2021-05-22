@@ -75,7 +75,7 @@ bool MarlinUI::get_blink() {
   millis_t ms = millis();
   if (ELAPSED(ms, next_blink_ms)) {
     blink ^= 0xFF;
-    next_blink_ms = ms + 1000;
+    next_blink_ms = ms + 1000 - 250;
   }
   return blink != 0;
 }
