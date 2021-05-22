@@ -880,6 +880,12 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
   static float x = -1;
   static float y = -1;
   static float z = -1;
+  static bool update_x = false;
+  static bool update_y = false;
+  static bool update_z = false;
+  update_x = (current_position.x != x || axis_should_home(X_AXIS) || update_x);
+  update_y = (current_position.y != y || axis_should_home(Y_AXIS) || update_y);
+  update_z = (current_position.z != z || axis_should_home(Z_AXIS) || update_z);
   if (icons) {
     x = -1;
     y = -1;
@@ -889,16 +895,26 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
     DWIN_ICON_Show(ICON, ICON_MaxSpeedY,   95, 456);
     DWIN_ICON_Show(ICON, ICON_MaxSpeedZ,   180, 456);
   }
-  if (current_position.x != x) {
+  if (update_x) {
     x = current_position.x;
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
+    if ((update_x = axis_should_home(X_AXIS) && ui.get_blink()))
+      DWIN_Draw_String(false, true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 35, 459, F("  -?-  "));
+    else
+      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 35, 459, current_position.x * 10);
   }
-  if (current_position.y != y) {
+  if (update_y) {
     y = current_position.y;
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
+    if ((update_y = axis_should_home(Y_AXIS) && ui.get_blink()))
+      DWIN_Draw_String(false, true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 120, 459, F("  -?-  "));
+    else
+      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 1, 120, 459, current_position.y * 10);
   }
-  if (current_position.z != z) {
-    DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 2, 205, 459, (current_position.z>=0) ? current_position.z * 100 : 0);
+  if (update_z) {
+    z = current_position.z;
+    if ((update_z = axis_should_home(Z_AXIS) && ui.get_blink()))
+      DWIN_Draw_String(false, true, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 205, 459, F("  -?-  "));
+        else
+      DWIN_Draw_FloatValue(true, true, 0, DWIN_FONT_MENU, GetColor(eeprom_settings.coordinates_text, Color_White), Color_Bg_Black, 3, 2, 205, 459, (current_position.z>=0) ? current_position.z * 100 : 0);
   }
   DWIN_UpdateLCD();
 }
