@@ -288,6 +288,7 @@ public:
   } eeprom_settings;
 
   const char * const color_names[11] = {"Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black"};
+  const char * const preheat_modes[3] = {"Both", "Hotend", "Bed"};
 
 
   void Clear_Screen(uint8_t e=3);
