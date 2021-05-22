@@ -648,6 +648,7 @@ private:
   #endif
 
   #if HAS_EXTRUDERS
+    static void M104_M109(const bool isM109);
     static void M104();
     static void M109();
   #endif
