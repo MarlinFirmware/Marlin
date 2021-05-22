@@ -5215,12 +5215,17 @@ void CrealityDWINClass::Screen_Update() {
 
 void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
   if (success) {
-    buzzer.tone(100, 659);
-    buzzer.tone(10, 0);
-    buzzer.tone(100, 698);
+    if (eeprom_settings.beeperenable) {
+      buzzer.tone(100, 659);
+      buzzer.tone(10, 0);
+      buzzer.tone(100, 698);
+    }
+    else Update_Status("Success");
   }
   else
-    buzzer.tone(40, 440);
+    if (eeprom_settings.beeperenable)
+      buzzer.tone(40, 440);
+    else Update_Status("Failed");
 }
 
 void CrealityDWINClass::Save_Settings(char *buff) {
