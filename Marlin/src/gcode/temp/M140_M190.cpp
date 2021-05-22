@@ -57,7 +57,6 @@
  */
 void GcodeSuite::M140_M190(const bool isM190) {
 
-void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
 
   bool got_temp = false;
