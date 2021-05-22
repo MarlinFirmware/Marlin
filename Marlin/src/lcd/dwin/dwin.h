@@ -139,12 +139,14 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string);
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * string);
 
 class __FlashStringHelper;
 
 inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
+  // Note that this won't work on AVR. This is for 32-bit systems only!
+  // Are __FlashStringHelper versions worth keeping?
+  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, reinterpret_cast<const char*>(title));
 }
 
 // Draw a positive integer
