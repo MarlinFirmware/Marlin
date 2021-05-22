@@ -173,7 +173,8 @@ int16_t pausetemp, pausebed, pausefan;
 
 bool livemove = false;
 bool liveadjust = false;
-bool bedonly = false;
+bool preheatbed = true;
+bool preheathotend = true;
 float zoffsetvalue = 0;
 uint8_t gridpoint;
 
@@ -1536,8 +1537,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       case Preheat:
 
         #define PREHEAT_BACK 0
-        #define PREHEAT_MODE (PREHEAT_BACK + 1)
-        #define PREHEAT_1 (PREHEAT_MODE + (PREHEAT_COUNT >= 1))
+        #define PREHEAT_HOTEND (PREHEAT_BACK + HAS_HOTEND)
+        #define PREHEAT_BED (PREHEAT_HOTEND + HAS_HEATED_BED)
+        #define PREHEAT_1 (PREHEAT_BED + (PREHEAT_COUNT >= 1))
         #define PREHEAT_2 (PREHEAT_1 + (PREHEAT_COUNT >= 2))
         #define PREHEAT_3 (PREHEAT_2 + (PREHEAT_COUNT >= 3))
         #define PREHEAT_4 (PREHEAT_3 + (PREHEAT_COUNT >= 4))
@@ -1553,14 +1555,24 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu(Prepare, PREPARE_PREHEAT);
             }
             break;
-          case PREHEAT_MODE:
+          case PREHEAT_HOTEND:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Homing, (char*)"Bed Only Mode");
-              Draw_Checkbox(row, bedonly);
+              Draw_Menu_Item(row, ICON_Homing, (char*)"Hotend");
+              Draw_Checkbox(row, preheathotend);
             }
             else {
-              bedonly = !bedonly;
-              Draw_Checkbox(row, bedonly);
+              preheathotend = !preheathotend;
+              Draw_Checkbox(row, preheathotend);
+            }
+            break;
+          case PREHEAT_BED:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Homing, (char*)"Bed");
+              Draw_Checkbox(row, preheatbed);
+            }
+            else {
+              preheatbed = !preheatbed;
+              Draw_Checkbox(row, preheatbed);
             }
             break;
           #if (PREHEAT_COUNT >= 1)
@@ -1569,11 +1581,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_1_LABEL);
               }
               else {
-                if (!bedonly) {
+                if (preheathotend) {
                   thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
                 }
-                thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
               }
               break;
           #endif
@@ -1583,11 +1595,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_2_LABEL);
               }
               else {
-                if (!bedonly) {
+                if (preheathotend) {
                   thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
                 }
-                thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
+                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
               }
               break;
           #endif
@@ -1597,11 +1609,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_3_LABEL);
               }
               else {
-                if (!bedonly) {
+                if (preheathotend) {
                   thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed);
                 }
-                thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
+                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
               }
               break;
           #endif
@@ -1611,11 +1623,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_4_LABEL);
               }
               else {
-                if (!bedonly) {
+                if (preheathotend) {
                   thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed);
                 }
-                thermalManager.setTargetBed(ui.material_preset[3].bed_temp);
+                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[3].bed_temp);
               }
               break;
           #endif
@@ -1625,11 +1637,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, (char*)PREHEAT_5_LABEL);
               }
               else {
-                if (!bedonly) {
+                if (preheathotend) {
                   thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed);
                 }
-                thermalManager.setTargetBed(ui.material_preset[4].bed_temp);
+                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[4].bed_temp);
               }
               break;
           #endif
