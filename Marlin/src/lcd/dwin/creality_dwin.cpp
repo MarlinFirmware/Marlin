@@ -4921,6 +4921,10 @@ void CrealityDWINClass::Confirm_Control() {
         Popup_Handler(FilChange);
         wait_for_user = false;
         break;
+      case HeaterTime:
+        Popup_Handler(Heating);
+        wait_for_user = false;
+        break;
       default:
         Redraw_Menu(true, true, false);
         wait_for_user = false;
