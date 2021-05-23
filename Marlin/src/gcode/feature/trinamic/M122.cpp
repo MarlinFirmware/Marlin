@@ -32,12 +32,12 @@
  * M122: Debug TMC drivers
  */
 void GcodeSuite::M122() {
-  xyze_bool_t print_axis = ARRAY_N_1(XYZE, false);
+  xyze_bool_t print_axis = ARRAY_N_1(LOGICAL_AXES, false);
 
   bool print_all = true;
-  LOOP_XYZE(i) if (parser.seen(axis_codes[i])) { print_axis[i] = true; print_all = false; }
+  LOOP_LOGICAL_AXES(i) if (parser.seen(axis_codes[i])) { print_axis[i] = true; print_all = false; }
 
-  if (print_all) LOOP_XYZE(i) print_axis[i] = true;
+  if (print_all) LOOP_LOGICAL_AXES(i) print_axis[i] = true;
 
   if (parser.boolval('I')) restore_stepper_drivers();
 

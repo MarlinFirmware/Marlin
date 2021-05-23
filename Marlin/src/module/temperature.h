@@ -838,7 +838,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
-      static void pause(const bool p);
+      static void pause_heaters(const bool p);
     #endif
 
     #if HEATER_IDLE_HANDLER
@@ -869,8 +869,10 @@ class Temperature {
       #endif
     #endif
 
-    #if HAS_STATUS_MESSAGE
+    #if HAS_HOTEND && HAS_STATUS_MESSAGE
       static void set_heating_message(const uint8_t e);
+    #else
+      static inline void set_heating_message(const uint8_t) {}
     #endif
 
     #if HAS_LCD_MENU && HAS_TEMPERATURE

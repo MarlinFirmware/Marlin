@@ -82,7 +82,9 @@ public:
   static void GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr);
   static void GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr);
   static void GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
   static void DGUS_LanguageDisplay(uint8_t var);
   static void TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
   static void GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);

@@ -569,7 +569,7 @@ namespace ExtUI {
   }
 
   float getAxisSteps_per_mm(const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
@@ -579,7 +579,7 @@ namespace ExtUI {
   }
 
   void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
     planner.refresh_positioning();
   }
@@ -589,7 +589,7 @@ namespace ExtUI {
   }
 
   feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     return planner.settings.max_feedrate_mm_s[E_AXIS_N(extruder - E0)];
   }
 
@@ -598,7 +598,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     planner.set_max_feedrate(E_AXIS_N(extruder - E0), value);
   }
 
@@ -607,7 +607,7 @@ namespace ExtUI {
   }
 
   float getAxisMaxAcceleration_mm_s2(const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
   }
 
@@ -616,7 +616,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const_float_t value, const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 

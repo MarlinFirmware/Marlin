@@ -954,7 +954,7 @@ void MarlinUI::draw_status_screen() {
             else
           #endif
             {
-              #if EXTRUDERS
+              #if HAS_EXTRUDERS
                 c = 'E';
                 per = planner.flow_percentage[0];
               #endif

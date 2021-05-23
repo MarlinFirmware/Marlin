@@ -268,10 +268,10 @@ typedef struct block_t {
 #endif
 
 typedef struct {
-   uint32_t max_acceleration_mm_per_s2[XYZE_N], // (mm/s^2) M201 XYZE
+   uint32_t max_acceleration_mm_per_s2[DISTINCT_AXES], // (mm/s^2) M201 XYZE
             min_segment_time_us;                // (µs) M205 B
-      float axis_steps_per_mm[XYZE_N];          // (steps) M92 XYZE - Steps per millimeter
- feedRate_t max_feedrate_mm_s[XYZE_N];          // (mm/s) M203 XYZE - Max speeds
+      float axis_steps_per_mm[DISTINCT_AXES];   // (steps) M92 XYZE - Steps per millimeter
+ feedRate_t max_feedrate_mm_s[DISTINCT_AXES];   // (mm/s) M203 XYZE - Max speeds
       float acceleration,                       // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
             retract_acceleration,               // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
             travel_acceleration;                // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
@@ -337,7 +337,7 @@ class Planner {
       static xyze_bool_t last_page_dir;             // Last page direction given
     #endif
 
-    #if EXTRUDERS
+    #if HAS_EXTRUDERS
       static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
       static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
     #endif
@@ -360,13 +360,13 @@ class Planner {
       static laser_state_t laser_inline;
     #endif
 
-    static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
-    static float steps_to_mm[XYZE_N];           // Millimeters per step
+    static uint32_t max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
+    static float steps_to_mm[DISTINCT_AXES];          // Millimeters per step
 
     #if HAS_JUNCTION_DEVIATION
-      static float junction_deviation_mm;       // (mm) M205 J
+      static float junction_deviation_mm;             // (mm) M205 J
       #if HAS_LINEAR_E_JERK
-        static float max_e_jerk[DISTINCT_E];    // Calculated from junction_deviation_mm
+        static float max_e_jerk[DISTINCT_E];          // Calculated from junction_deviation_mm
       #endif
     #endif
 
@@ -491,10 +491,10 @@ class Planner {
     #if HAS_CLASSIC_JERK
       static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
-      static inline void set_max_jerk(const AxisEnum, const_float_t ) {}
+      static inline void set_max_jerk(const AxisEnum, const_float_t) {}
     #endif
 
-    #if EXTRUDERS
+    #if HAS_EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
         e_factor[e] = flow_percentage[e] * 0.01f * TERN(NO_VOLUMETRICS, 1.0f, volumetric_multiplier[e]);
       }
@@ -592,9 +592,9 @@ class Planner {
 
     #else
 
-      FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t ) { return 1; }
+      FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t) { return 1; }
 
-      FORCE_INLINE static bool leveling_active_at_z(const_float_t ) { return true; }
+      FORCE_INLINE static bool leveling_active_at_z(const_float_t) { return true; }
 
     #endif
 
@@ -1014,13 +1014,13 @@ class Planner {
 
       FORCE_INLINE static void normalize_junction_vector(xyze_float_t &vector) {
         float magnitude_sq = 0;
-        LOOP_XYZE(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
+        LOOP_LOGICAL_AXES(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
         vector *= RSQRT(magnitude_sq);
       }
 
       FORCE_INLINE static float limit_value_by_axis_maximum(const_float_t max_value, xyze_float_t &unit_vec) {
         float limit_value = max_value;
-        LOOP_XYZE(idx) {
+        LOOP_LOGICAL_AXES(idx) {
           if (unit_vec[idx]) {
             if (limit_value * ABS(unit_vec[idx]) > settings.max_acceleration_mm_per_s2[idx])
               limit_value = ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]);
