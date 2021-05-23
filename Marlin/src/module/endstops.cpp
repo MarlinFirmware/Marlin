@@ -403,11 +403,20 @@ void Endstops::event_handler() {
   }
 }
 
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
   if (label) SERIAL_ECHOPGM_P(label);
   SERIAL_ECHOPGM(": ");
   SERIAL_ECHOLNPGM_P(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
 }
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 void _O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
