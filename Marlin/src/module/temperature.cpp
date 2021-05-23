@@ -2439,7 +2439,7 @@ void Temperature::disable_all_heaters() {
   TERN_(AUTOTEMP, planner.autotemp_enabled = false);
 
   // Unpause and reset everything
-  TERN_(PROBING_HEATERS_OFF, pause(false));
+  TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
 
   #if HAS_HOTEND
     HOTEND_LOOP() {
@@ -2498,7 +2498,7 @@ void Temperature::disable_all_heaters() {
 
 #if ENABLED(PROBING_HEATERS_OFF)
 
-  void Temperature::pause(const bool p) {
+  void Temperature::pause_heaters(const bool p) {
     if (p != paused_for_probing) {
       paused_for_probing = p;
       if (p) {

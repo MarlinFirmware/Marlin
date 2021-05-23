@@ -243,7 +243,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   #endif
 
   void Probe::set_probing_paused(const bool dopause) {
-    TERN_(PROBING_HEATERS_OFF, thermalManager.pause(dopause));
+    TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     #if ENABLED(PROBING_STEPPERS_OFF)
       IF_DISABLED(DELTA, static uint8_t old_trusted);
