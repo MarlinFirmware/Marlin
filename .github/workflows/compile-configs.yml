@@ -2,7 +2,7 @@ name: Build Configs
 
 on:
   release:
-    types: [published]
+    types: [created]
 
   workflow_dispatch:
 
@@ -12,11 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        board: [V4,V427]
+        board: [V4]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Cache pip
       uses: actions/cache@v2
@@ -39,17 +36,15 @@ jobs:
     - name: Run PlatformIO BL-Touch
       id: build_configs
       run: |
-        if [ "$BOARD" = V4 ]; then BOARDTMP=v4.2.2; else BOARDTMP=v4.2.7; fi;
-        echo "::set-output name=filename::E3V2-Default-${BOARDTMP}-${VERSION}.bin"
-        cp Configuration\ Files/E3V2\ Templates/Default-NoProbe/Configuration.h Marlin/Configuration.h
-        cp Configuration\ Files/E3V2\ Templates/Default-NoProbe/Configuration_adv.h Marlin/Configuration_adv.h
+        echo "::set-output name=filename::Default-NoProbe.bin"
+        cp Configuration\ Files/Aquila\ Templates/Default-NoProbe/Configuration.h Marlin/Configuration.h
+        cp Configuration\ Files/Aquila\ Templates/Default-NoProbe/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
         pio run
         mkdir temp
         mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
-        VERSION: ${{ env.RELEASE_VERSION }}
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.2
@@ -69,13 +64,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        board: [V4,V427]
-        grid: [3,5]
+        board: [V4]
+        grid: [3,4,5]
         highspeed: [true,false]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Cache pip
       uses: actions/cache@v2
@@ -99,10 +91,9 @@ jobs:
       id: build_configs
       run: |
         if ($HS); then HSTMP=-HS; else HSTMP=; fi;
-        if [ "$BOARD" = V4 ]; then BOARDTMP=v4.2.2; else BOARDTMP=v4.2.7; fi;
-        echo "::set-output name=filename::E3V2-BLTouch-${GRID}x${GRID}${HSTMP}-${BOARDTMP}-${VERSION}.bin"
-        cp Configuration\ Files/E3V2\ Templates/BLTouch-3x3/Configuration.h Marlin/Configuration.h
-        cp Configuration\ Files/E3V2\ Templates/BLTouch-3x3/Configuration_adv.h Marlin/Configuration_adv.h
+        echo "::set-output name=filename::BLTouch-${GRID}x${GRID}${HSTMP}.bin"
+        cp Configuration\ Files/Aquila\ Templates/BLTouch-3x3/Configuration.h Marlin/Configuration.h
+        cp Configuration\ Files/Aquila\ Templates/BLTouch-3x3/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         if ($HS); then TEMP=; else TEMP='\/\/'; fi;
@@ -114,7 +105,6 @@ jobs:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
         HS: ${{ matrix.highspeed }}
-        VERSION: ${{ env.RELEASE_VERSION }}
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.2
@@ -134,12 +124,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        board: [V4,V427]
-        grid: [3,5]
+        board: [V4]
+        grid: [3,4,5]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Cache pip
       uses: actions/cache@v2
@@ -162,10 +149,9 @@ jobs:
     - name: Run PlatformIO BL-Touch
       id: build_configs
       run: |
-        if [ "$BOARD" = V4 ]; then BOARDTMP=v4.2.2; else BOARDTMP=v4.2.7; fi;
-        echo "::set-output name=filename::E3V2-ManualMesh-${GRID}x${GRID}-${BOARDTMP}-${VERSION}.bin"
-        cp Configuration\ Files/E3V2\ Templates/ManualMesh-3x3/Configuration.h Marlin/Configuration.h
-        cp Configuration\ Files/E3V2\ Templates/ManualMesh-3x3/Configuration_adv.h Marlin/Configuration_adv.h
+        echo "::set-output name=filename::ManualMesh-${GRID}x${GRID}.bin"
+        cp Configuration\ Files/Aquila\ Templates/ManualMesh-3x3/Configuration.h Marlin/Configuration.h
+        cp Configuration\ Files/Aquila\ Templates/ManualMesh-3x3/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         pio run
@@ -174,7 +160,6 @@ jobs:
       env:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
-        VERSION: ${{ env.RELEASE_VERSION }}
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.2
@@ -194,13 +179,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        board: [V4,V427]
+        board: [V4]
         grid: [10,15]
         highspeed: [true,false]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Cache pip
       uses: actions/cache@v2
@@ -224,10 +206,9 @@ jobs:
       id: build_configs
       run: |
         if ($HS); then HSTMP=-HS; else HSTMP=; fi;
-        if [ "$BOARD" = V4 ]; then BOARDTMP=v4.2.2; else BOARDTMP=v4.2.7; fi;
-        echo "::set-output name=filename::E3V2-UBL-BLTouch-${GRID}x${GRID}${HSTMP}-${BOARDTMP}-${VERSION}.bin"
-        cp Configuration\ Files/E3V2\ Templates/UBL-BLTouch-10x10/Configuration.h Marlin/Configuration.h
-        cp Configuration\ Files/E3V2\ Templates/UBL-BLTouch-10x10/Configuration_adv.h Marlin/Configuration_adv.h
+        echo "::set-output name=filename::UBL-BLTouch-${GRID}x${GRID}${HSTMP}.bin"
+        cp Configuration\ Files/Aquila\ Templates/UBL-BLTouch-10x10/Configuration.h Marlin/Configuration.h
+        cp Configuration\ Files/Aquila\ Templates/UBL-BLTouch-10x10/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         if ($HS); then TEMP=; else TEMP='\/\/'; fi;
@@ -239,7 +220,6 @@ jobs:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
         HS: ${{ matrix.highspeed }}
-        VERSION: ${{ env.RELEASE_VERSION }}
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.2
@@ -259,12 +239,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        board: [V4,V427]
+        board: [V4]
         grid: [3,5]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Cache pip
       uses: actions/cache@v2
@@ -287,10 +264,9 @@ jobs:
     - name: Run PlatformIO BL-Touch
       id: build_configs
       run: |
-        if [ "$BOARD" = V4 ]; then BOARDTMP=v4.2.2; else BOARDTMP=v4.2.7; fi;
-        echo "::set-output name=filename::E3V2-UBL-NoProbe-${GRID}x${GRID}-${BOARDTMP}-${VERSION}.bin"
-        cp Configuration\ Files/E3V2\ Templates/UBL-NoProbe-3x3/Configuration.h Marlin/Configuration.h
-        cp Configuration\ Files/E3V2\ Templates/UBL-NoProbe-3x3/Configuration_adv.h Marlin/Configuration_adv.h
+        echo "::set-output name=filename::UBL-NoProbe-${GRID}x${GRID}.bin"
+        cp Configuration\ Files/Aquila\ Templates/UBL-NoProbe-3x3/Configuration.h Marlin/Configuration.h
+        cp Configuration\ Files/Aquila\ Templates/UBL-NoProbe-3x3/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         pio run
@@ -299,7 +275,6 @@ jobs:
       env:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
-        VERSION: ${{ env.RELEASE_VERSION }}
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.2
