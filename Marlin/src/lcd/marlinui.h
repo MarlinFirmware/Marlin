@@ -184,7 +184,7 @@
     static void task();
     static void soon(const AxisEnum axis
       #if MULTI_E_MANUAL
-        , const int8_t eindex=-1
+        , const int8_t eindex=active_extruder
       #endif
     );
   };

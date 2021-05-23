@@ -759,12 +759,10 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   //
   void ManualMove::soon(const AxisEnum move_axis
     #if MULTI_E_MANUAL
-      , const int8_t eindex/*=-1*/
+      , const int8_t eindex/*=active_extruder*/
     #endif
   ) {
-    #if MULTI_E_MANUAL
-      if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
-    #endif
+    TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
     axis = move_axis;
     //SERIAL_ECHOLNPAIR("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");
