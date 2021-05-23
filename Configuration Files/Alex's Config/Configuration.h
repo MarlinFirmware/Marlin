@@ -561,7 +561,7 @@
   // Ender 3 V2
   #define DEFAULT_bedKp 53.34
   #define DEFAULT_bedKi 8.42
-  #define DEFAULT_bedKd 191.92
+  #define DEFAULT_bedKd 225.19
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
