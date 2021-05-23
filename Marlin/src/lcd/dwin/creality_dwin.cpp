@@ -89,7 +89,7 @@
 
 #define CORP_WEBSITE_E "github.com/Jyers"
 
-#define BUILD_NUMBER "1.3.2"
+#define BUILD_NUMBER "1.3.3"
 
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
@@ -173,8 +173,7 @@ int16_t pausetemp, pausebed, pausefan;
 
 bool livemove = false;
 bool liveadjust = false;
-bool preheatbed = true;
-bool preheathotend = true;
+uint8_t preheatmode = 0;
 float zoffsetvalue = 0;
 uint8_t gridpoint;
 
@@ -1553,9 +1552,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       case Preheat:
 
         #define PREHEAT_BACK 0
-        #define PREHEAT_HOTEND (PREHEAT_BACK + HAS_HOTEND)
-        #define PREHEAT_BED (PREHEAT_HOTEND + HAS_HEATED_BED)
-        #define PREHEAT_1 (PREHEAT_BED + (PREHEAT_COUNT >= 1))
+        #define PREHEAT_MODE (PREHEAT_BACK + 1)
+        #define PREHEAT_1 (PREHEAT_MODE + (PREHEAT_COUNT >= 1))
         #define PREHEAT_2 (PREHEAT_1 + (PREHEAT_COUNT >= 2))
         #define PREHEAT_3 (PREHEAT_2 + (PREHEAT_COUNT >= 3))
         #define PREHEAT_4 (PREHEAT_3 + (PREHEAT_COUNT >= 4))
@@ -1571,37 +1569,26 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu(Prepare, PREPARE_PREHEAT);
             }
             break;
-          case PREHEAT_HOTEND:
-            if (draw) {
-              Draw_Menu_Item(row, ICON_Homing, (char*)"Hotend");
-              Draw_Checkbox(row, preheathotend);
-            }
-            else {
-              preheathotend = !preheathotend;
-              Draw_Checkbox(row, preheathotend);
-            }
-            break;
-          case PREHEAT_BED:
-            if (draw) {
-              Draw_Menu_Item(row, ICON_Homing, (char*)"Bed");
-              Draw_Checkbox(row, preheatbed);
-            }
-            else {
-              preheatbed = !preheatbed;
-              Draw_Checkbox(row, preheatbed);
-            }
-            break;
+          case PREHEAT_MODE:
+           if (draw) {
+            Draw_Menu_Item(row, ICON_Homing, "Preheat Mode");
+            Draw_Option(preheatmode, preheat_modes, row);
+          }
+          else {
+            Modify_Option(preheatmode, preheat_modes, 2);
+          }
+          break;
           #if (PREHEAT_COUNT >= 1)
             case PREHEAT_1:
               if (draw) {
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_1_LABEL);
               }
               else {
-                if (preheathotend) {
+                if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
                 }
-                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+                if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
               }
               break;
           #endif
@@ -1611,11 +1598,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_2_LABEL);
               }
               else {
-                if (preheathotend) {
+                if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
                 }
-                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
+                if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
               }
               break;
           #endif
@@ -1625,11 +1612,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_3_LABEL);
               }
               else {
-                if (preheathotend) {
+                if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed);
                 }
-                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
+                if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
               }
               break;
           #endif
@@ -1639,11 +1626,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_4_LABEL);
               }
               else {
-                if (preheathotend) {
+                if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed);
                 }
-                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[3].bed_temp);
+                if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[3].bed_temp);
               }
               break;
           #endif
@@ -1653,11 +1640,11 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_5_LABEL);
               }
               else {
-                if (preheathotend) {
+                if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed);
                 }
-                if (preheatbed) thermalManager.setTargetBed(ui.material_preset[4].bed_temp);
+                if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[4].bed_temp);
               }
               break;
           #endif
@@ -4635,6 +4622,9 @@ void CrealityDWINClass::Option_Control() {
       }
       Redraw_Screen();
     }
+    else if (valuepointer == &preheat_modes) {
+      preheatmode = tempvalue;
+    }
     Draw_Option(tempvalue, static_cast<const char * const *>(valuepointer), selection-scrollpos, false, (valuepointer == &color_names));
     DWIN_UpdateLCD();
     return;
@@ -4931,6 +4921,10 @@ void CrealityDWINClass::Confirm_Control() {
         Popup_Handler(FilChange);
         wait_for_user = false;
         break;
+      case HeaterTime:
+        Popup_Handler(Heating);
+        wait_for_user = false;
+        break;
       default:
         Redraw_Menu(true, true, false);
         wait_for_user = false;
@@ -5225,12 +5219,17 @@ void CrealityDWINClass::Screen_Update() {
 
 void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
   if (success) {
-    buzzer.tone(100, 659);
-    buzzer.tone(10, 0);
-    buzzer.tone(100, 698);
+    if (eeprom_settings.beeperenable) {
+      buzzer.tone(100, 659);
+      buzzer.tone(10, 0);
+      buzzer.tone(100, 698);
+    }
+    else Update_Status("Success");
   }
   else
-    buzzer.tone(40, 440);
+    if (eeprom_settings.beeperenable)
+      buzzer.tone(40, 440);
+    else Update_Status("Failed");
 }
 
 void CrealityDWINClass::Save_Settings(char *buff) {
