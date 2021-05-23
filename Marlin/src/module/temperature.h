@@ -46,9 +46,9 @@
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
-  INDEX_NONE = -6,
-  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+  H_NONE = -6,
+  H_COOLER = -5, H_PROBE = -4, H_REDUNDANT = -3, H_CHAMBER = -2, H_BED = -1,
+  H_E0 = 0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
 
 // PID storage
@@ -672,9 +672,7 @@ class Temperature {
 
       #if HAS_TEMP_HOTEND
         static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true
-          #if G26_CLICK_CAN_CANCEL
-            , const bool click_to_cancel=false
-          #endif
+          OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
         );
 
         #if ENABLED(WAIT_FOR_HOTEND)
@@ -721,9 +719,7 @@ class Temperature {
       }
 
       static bool wait_for_bed(const bool no_wait_for_cooling=true
-        #if G26_CLICK_CAN_CANCEL
-          , const bool click_to_cancel=false
-        #endif
+        OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
       );
 
       static void wait_for_bed_heating();
@@ -859,9 +855,7 @@ class Temperature {
 
     #if HAS_TEMP_SENSOR
       static void print_heater_states(const uint8_t target_extruder
-        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-          , const bool include_r=false
-        #endif
+        OPTARG(TEMP_SENSOR_1_AS_REDUNDANT, const bool include_r=false)
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         struct AutoReportTemp { static void report(); };
@@ -925,35 +919,24 @@ class Temperature {
     #if HAS_THERMAL_PROTECTION
 
       // Indices and size for the tr_state_machine array. One for each protected heater.
-      #define _ENUM_FOR_E(N) RUNAWAY_IND_E##N,
-      enum RunawayIndex : uint8_t {
+      #define _ENUM_FOR_E(N) ,RUNAWAY_IND_E##N
+      enum RunawayIndex : int8_t {
+        _ = -1
         #if ENABLED(THERMAL_PROTECTION_HOTENDS)
           REPEAT(HOTENDS, _ENUM_FOR_E)
         #endif
-        #if ENABLED(HAS_THERMALLY_PROTECTED_BED)
-          RUNAWAY_IND_BED,
-        #endif
-        #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-          RUNAWAY_IND_CHAMBER,
-        #endif
-        #if ENABLED(THERMAL_PROTECTION_COOLER)
-          RUNAWAY_IND_COOLER,
-        #endif
-        NR_HEATER_RUNAWAY
+        OPTARG(HAS_THERMALLY_PROTECTED_BED, RUNAWAY_IND_BED)
+        OPTARG(THERMAL_PROTECTION_CHAMBER, RUNAWAY_IND_CHAMBER)
+        OPTARG(THERMAL_PROTECTION_COOLER, RUNAWAY_IND_COOLER)
+        , NR_HEATER_RUNAWAY
       };
       #undef _ENUM_FOR_E
 
       // Convert the given heater_id_t to runaway state array index
       static inline RunawayIndex runaway_index_for_id(const int8_t heater_id) {
-        #if HAS_THERMALLY_PROTECTED_CHAMBER
-          if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER;
-        #endif
-        #if HAS_THERMALLY_PROTECTED_CHAMBER
-          if (heater_id == H_COOLER) return RUNAWAY_IND_COOLER;
-        #endif
-        #if HAS_THERMALLY_PROTECTED_BED
-          if (heater_id == H_BED) return RUNAWAY_IND_BED;
-        #endif
+        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
+        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
+        TERN_(HAS_THERMALLY_PROTECTED_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
         return (RunawayIndex)_MAX(heater_id, 0);
       }
 

@@ -758,9 +758,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   // Tell ui.update() to start a move to current_position after a short delay.
   //
   void ManualMove::soon(const AxisEnum move_axis
-    #if MULTI_E_MANUAL
-      , const int8_t eindex/*=active_extruder*/
-    #endif
+    OPTARG(MULTI_E_MANUAL, const int8_t eindex/*=active_extruder*/)
   ) {
     TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
