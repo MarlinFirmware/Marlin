@@ -648,8 +648,9 @@ private:
   #endif
 
   #if HAS_EXTRUDERS
-    static void M104();
-    static void M109();
+    static void M104_M109(const bool isM109);
+    FORCE_INLINE static void M104() { M104_M109(false); }
+    FORCE_INLINE static void M109() { M104_M109(true); }
   #endif
 
   static void M105();
@@ -699,8 +700,9 @@ private:
   #endif
 
   #if HAS_HEATED_BED
-    static void M140();
-    static void M190();
+    static void M140_M190(const bool isM190);
+    FORCE_INLINE static void M140() { M140_M190(false); }
+    FORCE_INLINE static void M190() { M140_M190(true); }
   #endif
 
   #if HAS_HEATED_CHAMBER

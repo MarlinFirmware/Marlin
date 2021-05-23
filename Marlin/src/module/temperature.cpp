@@ -2439,7 +2439,7 @@ void Temperature::disable_all_heaters() {
   TERN_(AUTOTEMP, planner.autotemp_enabled = false);
 
   // Unpause and reset everything
-  TERN_(PROBING_HEATERS_OFF, pause(false));
+  TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
 
   #if HAS_HOTEND
     HOTEND_LOOP() {
@@ -2498,7 +2498,7 @@ void Temperature::disable_all_heaters() {
 
 #if ENABLED(PROBING_HEATERS_OFF)
 
-  void Temperature::pause(const bool p) {
+  void Temperature::pause_heaters(const bool p) {
     if (p != paused_for_probing) {
       paused_for_probing = p;
       if (p) {
@@ -2526,7 +2526,7 @@ void Temperature::disable_all_heaters() {
       if (singlenozzle_temp[new_tool] && singlenozzle_temp[new_tool] != singlenozzle_temp[old_tool]) {
         setTargetHotend(singlenozzle_temp[new_tool], 0);
         TERN_(AUTOTEMP, planner.autotemp_update());
-        TERN_(HAS_STATUS_MESSAGE, set_heating_message(0));
+        set_heating_message(0);
         (void)wait_for_hotend(0, false);  // Wait for heating or cooling
       }
     #endif
