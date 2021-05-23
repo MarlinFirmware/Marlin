@@ -47,8 +47,8 @@
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
   H_NONE = -6,
-  H_COOLER = -5, H_PROBE = -4, H_REDUNDANT = -3, H_CHAMBER = -2, H_BED = -1,
-  H_E0 = 0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
 
 // PID storage
@@ -395,21 +395,21 @@ class Temperature {
       } heater_idle_t;
 
       // Indices and size for the heater_idle array
-      #define _ENUM_FOR_E(N) IDLE_INDEX_E##N,
-      enum IdleIndex : uint8_t {
-        REPEAT(HOTENDS, _ENUM_FOR_E)
-        #if ENABLED(HAS_HEATED_BED)
-          IDLE_INDEX_BED,
-        #endif
-        NR_HEATER_IDLE
+      enum IdleIndex : int8_t {
+        _II = -1
+
+        #define _IDLE_INDEX_E(N) ,IDLE_INDEX_E##N
+        REPEAT(HOTENDS, _IDLE_INDEX_E)
+        #undef _IDLE_INDEX_E
+
+        OPTARG(HAS_HEATED_BED, IDLE_INDEX_BED)
+
+        , NR_HEATER_IDLE
       };
-      #undef _ENUM_FOR_E
 
       // Convert the given heater_id_t to idle array index
       static inline IdleIndex idle_index_for_id(const int8_t heater_id) {
-        #if HAS_HEATED_BED
-          if (heater_id == H_BED) return IDLE_INDEX_BED;
-        #endif
+        TERN_(HAS_HEATED_BED, if (heater_id == H_BED) return IDLE_INDEX_BED);
         return (IdleIndex)_MAX(heater_id, 0);
       }
 
@@ -919,18 +919,18 @@ class Temperature {
     #if HAS_THERMAL_PROTECTION
 
       // Indices and size for the tr_state_machine array. One for each protected heater.
-      #define _ENUM_FOR_E(N) ,RUNAWAY_IND_E##N
       enum RunawayIndex : int8_t {
-        _ = -1
+        _RI = -1
         #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-          REPEAT(HOTENDS, _ENUM_FOR_E)
+          #define _RUNAWAY_IND_E(N) ,RUNAWAY_IND_E##N
+          REPEAT(HOTENDS, _RUNAWAY_IND_E)
+          #undef _RUNAWAY_IND_E
         #endif
         OPTARG(HAS_THERMALLY_PROTECTED_BED, RUNAWAY_IND_BED)
         OPTARG(THERMAL_PROTECTION_CHAMBER, RUNAWAY_IND_CHAMBER)
         OPTARG(THERMAL_PROTECTION_COOLER, RUNAWAY_IND_COOLER)
         , NR_HEATER_RUNAWAY
       };
-      #undef _ENUM_FOR_E
 
       // Convert the given heater_id_t to runaway state array index
       static inline RunawayIndex runaway_index_for_id(const int8_t heater_id) {
