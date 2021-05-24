@@ -143,17 +143,7 @@ public:
   // Accessors
   static inline uint16_t pixels() { TERN(NEOPIXEL2_INSERIES, return adaneo1.numPixels() * 2, return adaneo1.numPixels()); }
   static inline uint8_t brightness() { return adaneo1.getBrightness(); }
-  static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b
-  #if HAS_WHITE_LED
-    , uint8_t w
-  #endif
-    ) {
-    return adaneo1.Color(r, g, b
-  #if HAS_WHITE_LED
-    , w
-  #endif
-    );
-  }
+  static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w)) { return adaneo1.Color(r, g, b OPTARG(HAS_WHITE_LED, w)); }
 };
 
 extern Marlin_NeoPixel neo;
@@ -196,17 +186,7 @@ extern Marlin_NeoPixel neo;
     // Accessors
     static inline uint16_t pixels() { return adaneo.numPixels();}
     static inline uint8_t brightness() { return adaneo.getBrightness(); }
-    static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b
-    #if HAS_WHITE_LED2
-      , uint8_t w
-    #endif
-      ) {
-      return adaneo.Color(r, g, b
-    #if HAS_WHITE_LED2
-      , w
-    #endif
-    );
-    }
+    static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED2, uint8_t w)) { return adaneo.Color(r, g, b OPTARG(HAS_WHITE_LED2, w)); }
   };
 
   extern Marlin_NeoPixel2 neo2;
