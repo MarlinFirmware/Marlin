@@ -44,11 +44,14 @@
 
 #define _NEO_IS_RGB(N) (N == NEO_RGB || N == NEO_RBG || N == NEO_GRB || N == NEO_GBR || N == NEO_BRG || N == NEO_BGR)
 
-#if !HAS_WHITE_LED && _NEO_IS_RGB(NEOPIXEL_TYPE)
-  #define NEO_WHITE 255, 255, 255
-#else
+#if !_NEO_IS_RGB(NEOPIXEL_TYPE)
   #define HAS_WHITE_LED 1
+#endif
+
+#if HAS_WHITE_LED
   #define NEO_WHITE 0, 0, 0, 255
+#else
+  #define NEO_WHITE 255, 255, 255
 #endif
 
 #if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE && DISABLED(NEOPIXEL2_SEPARATE)
@@ -165,7 +168,9 @@ extern Marlin_NeoPixel neo;
     // Accessors
     static inline uint16_t pixels() { return adaneo.numPixels();}
     static inline uint8_t brightness() { return adaneo.getBrightness(); }
-    static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED2, uint8_t w)) { return adaneo.Color(r, g, b OPTARG(HAS_WHITE_LED2, w)); }
+    static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED2, uint8_t w)) {
+      return adaneo.Color(r, g, b OPTARG(HAS_WHITE_LED2, w));
+    }
   };
 
   extern Marlin_NeoPixel2 neo2;
