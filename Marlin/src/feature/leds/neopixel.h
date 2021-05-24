@@ -25,6 +25,10 @@
  * NeoPixel support
  */
 
+#ifndef _NEOPIXEL_INCLUDE_
+  #error "Always include 'leds.h' and not 'neopixel.h' directly."
+#endif
+
 // ------------------------
 // Includes
 // ------------------------
@@ -38,27 +42,21 @@
 // Defines
 // ------------------------
 
+#define _NEO_IS_RGB(N) (N == NEO_RGB || N == NEO_RBG || N == NEO_GRB || N == NEO_GBR || N == NEO_BRG || N == NEO_BGR)
+
+#if !HAS_WHITE_LED && _NEO_IS_RGB(NEOPIXEL_TYPE)
+  #define NEO_WHITE 255, 255, 255
+#else
+  #define HAS_WHITE_LED 1
+  #define NEO_WHITE 0, 0, 0, 255
+#endif
+
 #if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE && DISABLED(NEOPIXEL2_SEPARATE)
   #define MULTIPLE_NEOPIXEL_TYPES 1
 #endif
 
 #if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
   #define CONJOINED_NEOPIXEL 1
-#endif
-
-#define _NEO_IS_RGB(N) (N == NEO_RGB || N == NEO_RBG || N == NEO_GRB || N == NEO_GBR || N == NEO_BRG || N == NEO_BGR)
-
-#if _NEO_IS_RGB(NEOPIXEL_TYPE)
-  #define NEOPIXEL_IS_RGB 1
-  #define NEO_WHITE 255, 255, 255
-#else
-  #define NEOPIXEL_IS_RGBW 1
-  #define NEO_WHITE 0, 0, 0, 255
-#endif
-
-// A white component can be passed
-#if ANY(RGBW_LED, NEOPIXEL_IS_RGBW, PCA9632_RGBW)
-  #define HAS_WHITE_LED 1
 #endif
 
 // ------------------------
@@ -173,3 +171,5 @@ extern Marlin_NeoPixel neo;
   extern Marlin_NeoPixel2 neo2;
 
 #endif // NEOPIXEL2_SEPARATE
+
+#undef _NEO_IS_RGB

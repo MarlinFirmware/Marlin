@@ -29,13 +29,15 @@
 
 #include <string.h>
 
-#if ENABLED(NEOPIXEL_LED)
-  #include "neopixel.h"
-#endif
-
 // A white component can be passed
 #if EITHER(RGBW_LED, PCA9632_RGBW)
   #define HAS_WHITE_LED 1
+#endif
+
+#if ENABLED(NEOPIXEL_LED)
+  #define _NEOPIXEL_INCLUDE_
+  #include "neopixel.h"
+  #undef _NEOPIXEL_INCLUDE_
 #endif
 
 /**

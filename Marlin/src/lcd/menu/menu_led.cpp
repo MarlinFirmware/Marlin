@@ -84,7 +84,7 @@
     EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
-    #if EITHER(RGBW_LED, HAS_WHITE_LED)
+    #if HAS_WHITE_LED
       EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
     #endif
     #if ENABLED(NEOPIXEL_LED)
