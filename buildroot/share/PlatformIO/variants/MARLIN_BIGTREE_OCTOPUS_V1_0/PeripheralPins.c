@@ -145,7 +145,7 @@ const PinMap PinMap_PWM[] = {
   {PD_15, TIM4,   STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM4, 4, 0)}, // TIM4_CH4  FAN5
 
    /**
-   * Unused by specifications on SKR-Pro.
+   * Unused by specifications on Octopus.
    * Uncomment the corresponding line if you want to have HardwarePWM on some pins.
    * WARNING: check timers' usage first to avoid conflicts.
    * If you don't know what you're doing leave things as they are or you WILL break something (including hardware)
