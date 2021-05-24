@@ -46,7 +46,10 @@ PrinterEventLEDs printerEventLEDs;
   }
 
   inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b OPTARG(HAS_WHITE_LED, const uint8_t w=0)) {
-    leds.set_color(LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, neo.brightness())));
+    leds.set_color(
+      LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, neo.brightness()))
+      OPTARG(NEOPIXEL_IS_SEQUENTIAL, true)
+    );
   }
 
 #endif
