@@ -32,12 +32,15 @@
 #define _ES_ITEM(K,N) TERN_(K,DEFER4(__ES_ITEM)(N))
 
 enum EndstopEnum : char {
+  // Common XYZ (ABC) endstops. Defined according to USE_[XYZ](MIN|MAX)_PLUG settings.
   _ES_ITEM(HAS_X_MIN, X_MIN)
   _ES_ITEM(HAS_X_MAX, X_MAX)
   _ES_ITEM(HAS_Y_MIN, Y_MIN)
   _ES_ITEM(HAS_Y_MAX, Y_MAX)
   _ES_ITEM(HAS_Z_MIN, Z_MIN)
   _ES_ITEM(HAS_Z_MAX, Z_MAX)
+
+  // Extra Endstops for XYZ
   #if ENABLED(X_DUAL_ENDSTOPS)
     _ES_ITEM(HAS_X_MIN, X2_MIN)
     _ES_ITEM(HAS_X_MAX, X2_MAX)
@@ -58,12 +61,23 @@ enum EndstopEnum : char {
       _ES_ITEM(HAS_Z_MAX, Z4_MAX)
     #endif
   #endif
-  _ES_ITEM(HAS_Z_MIN_PROBE_PIN, Z_MIN_PROBE)
+
+  // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
+  _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(HAS_CUSTOM_PROBE_PIN, = Z_MIN))
+
+  // The total number of states
   NUM_ENDSTOP_STATES
 
-  , X_ENDSTOP = TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
-  , Y_ENDSTOP = TERN(Y_HOME_TO_MAX, Y_MAX, Y_MIN)
-  , Z_ENDSTOP = TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, Z_MIN))
+  // Endstops can be either MIN or MAX but not both
+  #if HAS_X_MIN || HAS_X_MAX
+    , X_ENDSTOP = TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
+  #endif
+  #if HAS_Y_MIN || HAS_Y_MAX
+    , Y_ENDSTOP = TERN(Y_HOME_TO_MAX, Y_MAX, Y_MIN)
+  #endif
+  #if HAS_Z_MIN || HAS_Z_MAX
+    , Z_ENDSTOP = TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, Z_MIN))
+  #endif
 };
 
 #undef __ES_ITEM

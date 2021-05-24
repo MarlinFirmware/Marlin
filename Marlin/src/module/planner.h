@@ -491,7 +491,7 @@ class Planner {
     #if HAS_CLASSIC_JERK
       static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
-      static inline void set_max_jerk(const AxisEnum, const_float_t ) {}
+      static inline void set_max_jerk(const AxisEnum, const_float_t) {}
     #endif
 
     #if HAS_EXTRUDERS
@@ -592,9 +592,9 @@ class Planner {
 
     #else
 
-      FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t ) { return 1; }
+      FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t) { return 1; }
 
-      FORCE_INLINE static bool leveling_active_at_z(const_float_t ) { return true; }
+      FORCE_INLINE static bool leveling_active_at_z(const_float_t) { return true; }
 
     #endif
 
