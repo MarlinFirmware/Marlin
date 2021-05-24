@@ -94,7 +94,7 @@ public:
 
   static void set_color(const uint32_t c);
 
-  #ifdef NEOPIXEL_BKGD_LED_INDEX_START
+  #ifdef NEOPIXEL_BKGD_INDEX_FIRST
     static void set_color_background();
   #endif
 

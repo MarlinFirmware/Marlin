@@ -86,8 +86,8 @@ void LEDLights::set_color(const LEDColor &incol
                             : neo.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED, incol.w));
     static uint16_t nextLed = 0;
 
-    #ifdef NEOPIXEL_BKGD_LED_INDEX_START
-      while (nextLed >= NEOPIXEL_BKGD_LED_INDEX_START && nextLed <= NEOPIXEL_BKGD_LED_INDEX_END) {
+    #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+      while (WITHIN(nextLed, NEOPIXEL_BKGD_INDEX_FIRST, NEOPIXEL_BKGD_INDEX_LAST)) {
         neo.set_color_background();
         if (++nextLed >= neo.pixels()) {
           nextLed = 0;

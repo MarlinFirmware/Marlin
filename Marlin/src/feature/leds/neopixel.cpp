@@ -43,12 +43,12 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
   #endif
 ;
 
-#ifdef NEOPIXEL_BKGD_LED_INDEX_START
+#ifdef NEOPIXEL_BKGD_INDEX_FIRST
 
   void Marlin_NeoPixel::set_color_background() {
     uint8_t background_color[4] = NEOPIXEL_BKGD_COLOR;
-    for  (int backgroundled = NEOPIXEL_BKGD_LED_INDEX_START; backgroundled <= NEOPIXEL_BKGD_LED_INDEX_END; backgroundled++) {
-      set_pixel_color(backgroundled, adaneo1.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
+    for  (int background_led = NEOPIXEL_BKGD_INDEX_FIRST; background_led <= NEOPIXEL_BKGD_INDEX_LAST; background_led++) {
+      set_pixel_color(background_led, adaneo1.Color(background_color[0], background_color[1], background_color[2], background_color[3]));
     }
   }
 
@@ -61,10 +61,10 @@ void Marlin_NeoPixel::set_color(const uint32_t color) {
   }
   else {
     for (uint16_t i = 0; i < pixels(); ++i) {
-      #ifdef NEOPIXEL_BKGD_LED_INDEX_START
-        if (i == NEOPIXEL_BKGD_LED_INDEX_START && TERN(NEOPIXEL_BKGD_ALWAYS_ON, true, color != 0x000000)) {
+      #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+        if (i == NEOPIXEL_BKGD_INDEX_FIRST && TERN(NEOPIXEL_BKGD_ALWAYS_ON, true, color != 0x000000)) {
           set_color_background();
-          i += NEOPIXEL_BKGD_LED_INDEX_END-NEOPIXEL_BKGD_LED_INDEX_START;
+          i += NEOPIXEL_BKGD_INDEX_LAST-NEOPIXEL_BKGD_INDEX_FIRST;
           continue;
         }
       #endif
@@ -100,7 +100,7 @@ void Marlin_NeoPixel::init() {
 
   #endif
 
-  #ifdef NEOPIXEL_BKGD_LED_INDEX_START
+  #ifdef NEOPIXEL_BKGD_INDEX_FIRST
     set_color_background();
   #endif
 
