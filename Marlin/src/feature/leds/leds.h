@@ -180,23 +180,13 @@ extern LEDLights leds;
     static void set_color(const LEDColor &color);
 
     static inline void set_color(uint8_t r, uint8_t g, uint8_t b
-      #if HAS_WHITE_LED
-        , uint8_t w=0
-      #endif
-      #if ENABLED(NEOPIXEL_LED)
-        , uint8_t i=NEOPIXEL_BRIGHTNESS
-      #endif
+      OPTARG(HAS_WHITE_LED, uint8_t w=0)
+      OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
     ) {
       set_color(LEDColor(r, g, b
-      #if HAS_WHITE_LED
-        , w
-      #endif
-      #if ENABLED(NEOPIXEL_LED)
-        , i)
-      #else
-        )
-      #endif
-      );
+        OPTARG(HAS_WHITE_LED, w)
+        OPTARG(NEOPIXEL_LED, i)
+      ));
     }
 
     static inline void set_off()   { set_color(LEDColorOff()); }
