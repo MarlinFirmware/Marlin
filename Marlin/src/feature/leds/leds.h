@@ -113,15 +113,15 @@ public:
   static void setup(); // init()
 
   static void set_color(const LEDColor &color
-    OPTARG(NEOPIXEL_LED, bool isSequence=false)
+    OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence=false)
   );
 
   static inline void set_color(uint8_t r, uint8_t g, uint8_t b
     OPTARG(HAS_WHITE_LED, uint8_t w=0)
     OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
-    OPTARG(NEOPIXEL_LED, bool isSequence=false)
+    OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence=false)
   ) {
-    set_color(LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_LED, isSequence));
+    set_color(LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_IS_SEQUENTIAL, isSequence));
   }
 
   static inline void set_off()   { set_color(LEDColorOff()); }
