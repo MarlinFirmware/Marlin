@@ -75,9 +75,7 @@ void LEDLights::setup() {
 }
 
 void LEDLights::set_color(const LEDColor &incol
-  #if ENABLED(NEOPIXEL_LED)
-    , bool isSequence/*=false*/
-  #endif
+  OPTARG(NEOPIXEL_LED, bool isSequence/*=false*/)
 ) {
 
   #if ENABLED(NEOPIXEL_LED)

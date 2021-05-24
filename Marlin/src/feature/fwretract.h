@@ -74,11 +74,7 @@ public:
     #endif
   }
 
-  static void retract(const bool retracting
-    #if HAS_MULTI_EXTRUDER
-      , bool swapping = false
-    #endif
-  );
+  static void retract(const bool retracting OPTARG(HAS_MULTI_EXTRUDER, bool swapping = false));
 
   static void M207();
   static void M207_report(const bool forReplay=false);
