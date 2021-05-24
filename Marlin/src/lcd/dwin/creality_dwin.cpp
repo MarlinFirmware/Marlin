@@ -4071,8 +4071,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                     }
                     break;
                 #endif
+                default:
+                  Redraw_Menu(true, true, true);
+                  break;
               }
-              Redraw_Menu(true, true, true);
             }
             break;
           #if (PREHEAT_COUNT >= 1)
