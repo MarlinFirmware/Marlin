@@ -84,6 +84,7 @@ void LEDLights::set_color(const LEDColor &incol
     const uint32_t neocolor = LEDColorWhite() == incol
                             ? neo.Color(NEO_WHITE)
                             : neo.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED, incol.w));
+
     static uint16_t nextLed = 0;
 
     #ifdef NEOPIXEL_BKGD_INDEX_FIRST
@@ -98,12 +99,14 @@ void LEDLights::set_color(const LEDColor &incol
 
     neo.set_brightness(incol.i);
 
-    if (isSequence) {
-      neo.set_pixel_color(nextLed, neocolor);
-      neo.show();
-      if (++nextLed >= neo.pixels()) nextLed = 0;
-      return;
-    }
+    #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+      if (isSequence) {
+        neo.set_pixel_color(nextLed, neocolor);
+        neo.show();
+        if (++nextLed >= neo.pixels()) nextLed = 0;
+        return;
+      }
+    #endif
 
     neo.set_color(neocolor);
 
