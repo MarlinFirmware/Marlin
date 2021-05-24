@@ -195,6 +195,11 @@
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
+#define _OPTARG(A)          , A
+#define OPTARG(O,A)         TERN_(O,DEFER4(_OPTARG)(A))
+#define _OPTCODE(A)         A;
+#define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
+
 // Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
 #define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'

@@ -249,9 +249,7 @@ void plan_arc(
     #endif
 
     if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , inv_duration
-      #endif
+      OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
     )) break;
   }
 
@@ -266,9 +264,7 @@ void plan_arc(
   #endif
 
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      , inv_duration
-    #endif
+    OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
   );
 
   TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);

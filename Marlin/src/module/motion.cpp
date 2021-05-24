@@ -411,9 +411,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
  *  - Extrude the specified length regardless of flow percentage.
  */
 void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
-  #if IS_KINEMATIC
-    , const bool is_fast/*=false*/
-  #endif
+  OPTARG(IS_KINEMATIC, const bool is_fast/*=false*/)
 ) {
   const feedRate_t old_feedrate = feedrate_mm_s;
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
@@ -433,9 +431,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 
   feedrate_mm_s = old_feedrate;
   feedrate_percentage = old_pct;
-  #if HAS_EXTRUDERS
-    planner.e_factor[active_extruder] = old_fac;
-  #endif
+  TERN_(HAS_EXTRUDERS, planner.e_factor[active_extruder] = old_fac);
 }
 
 /**
@@ -607,10 +603,8 @@ void restore_feedrate_and_scaling() {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis
-    #if HAS_HOTEND_OFFSET
-      , const uint8_t old_tool_index/*=0*/
-      , const uint8_t new_tool_index/*=0*/
-    #endif
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/)
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t new_tool_index/*=0*/)
   ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -858,17 +852,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       segment_idle(next_idle_ms);
       raw += segment_distance;
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, cartesian_segment_mm
-        #if ENABLED(SCARA_FEEDRATE_SCALING)
-          , inv_duration
-        #endif
+        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
       )) break;
     }
 
     // Ensure last segment arrives at target location.
     planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, cartesian_segment_mm
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , inv_duration
-      #endif
+      OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
     );
 
     return false; // caller will update current_position
@@ -929,9 +919,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         segment_idle(next_idle_ms);
         raw += segment_distance;
         if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm
-          #if ENABLED(SCARA_FEEDRATE_SCALING)
-            , inv_duration
-          #endif
+          OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
         )) break;
       }
 
