@@ -82,7 +82,8 @@ public:
   static void set_color(const uint32_t c);
 
   #ifdef NEOPIXEL_BKGD_INDEX_FIRST
-    static void set_color_background();
+    static void set_background_color(uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+    static void reset_background_color();
   #endif
 
   static inline void begin() {
