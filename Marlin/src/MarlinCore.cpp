@@ -734,7 +734,12 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   (void)check_tool_sensor_stats(active_extruder, true);
 
   // Handle filament runout sensors
-  TERN_(HAS_FILAMENT_SENSOR, runout.run());
+  #if HAS_FILAMENT_SENSOR
+    #if HAS_PRUSA_MMU2
+    if (!mmu2.enabled())
+    #endif
+      runout.run();
+  #endif
 
   // Run HAL idle tasks
   TERN_(HAL_IDLETASK, HAL_idletask());
