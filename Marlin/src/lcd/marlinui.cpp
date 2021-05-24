@@ -637,9 +637,8 @@ void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.set_color(LEDColorRed());
     #ifdef NEOPIXEL_BKGD_INDEX_FIRST
-        for  (int backgroundled = NEOPIXEL_BKGD_INDEX_FIRST; backgroundled <= NEOPIXEL_BKGD_INDEX_LAST; backgroundled++) {
-          neo.set_pixel_color(backgroundled, 255, 0, 0, 0);
-        }
+      for  (int background_led = NEOPIXEL_BKGD_INDEX_FIRST; background_led <= NEOPIXEL_BKGD_INDEX_LAST; background_led++)
+        neo.set_pixel_color(background_led, 255, 0, 0, 0);
       neo.show();
     #endif
   #endif

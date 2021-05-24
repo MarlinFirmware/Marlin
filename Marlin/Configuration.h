@@ -2708,9 +2708,9 @@
     //#define NEOPIXEL2_INSERIES      // Default behavior is NeoPixel 2 in parallel
   #endif
 
-  // Use a part of NeoPixels LEDfor static (background) lighting
-  //#define NEOPIXEL_BKGD_INDEX_FIRST 0               // Index of the background start LED
-  //#define NEOPIXEL_BKGD_INDEX_LAST 5                // Index of the background end LED
+  // Use some of the NeoPixel LEDs for static (background) lighting
+  //#define NEOPIXEL_BKGD_INDEX_FIRST  0              // Index of the first background LED
+  //#define NEOPIXEL_BKGD_INDEX_LAST   5              // Index of the last background LED
   //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 }  // R, G, B, W
   //#define NEOPIXEL_BKGD_ALWAYS_ON                   // Keep the backlight on when other NeoPixels are off
 #endif

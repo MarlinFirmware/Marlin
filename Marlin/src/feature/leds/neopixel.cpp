@@ -37,11 +37,10 @@
 Marlin_NeoPixel neo;
 int8_t Marlin_NeoPixel::neoindex;
 
-Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800)
-  #if CONJOINED_NEOPIXEL
-    , Marlin_NeoPixel::adaneo2(NEOPIXEL_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE + NEO_KHZ800)
-  #endif
-;
+Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
+#if CONJOINED_NEOPIXEL
+  Adafruit_NeoPixel Marlin_NeoPixel::adaneo2(NEOPIXEL_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE + NEO_KHZ800);
+#endif
 
 #ifdef NEOPIXEL_BKGD_INDEX_FIRST
 
@@ -64,7 +63,7 @@ void Marlin_NeoPixel::set_color(const uint32_t color) {
       #ifdef NEOPIXEL_BKGD_INDEX_FIRST
         if (i == NEOPIXEL_BKGD_INDEX_FIRST && TERN(NEOPIXEL_BKGD_ALWAYS_ON, true, color != 0x000000)) {
           set_color_background();
-          i += NEOPIXEL_BKGD_INDEX_LAST-NEOPIXEL_BKGD_INDEX_FIRST;
+          i += NEOPIXEL_BKGD_INDEX_LAST - (NEOPIXEL_BKGD_INDEX_FIRST);
           continue;
         }
       #endif
@@ -104,29 +103,14 @@ void Marlin_NeoPixel::init() {
     set_color_background();
   #endif
 
-  #if ENABLED(LED_USER_PRESET_STARTUP)
-    set_color(adaneo1.Color(LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE, LED_USER_PRESET_WHITE));
-  #else
-    set_color(adaneo1.Color(0, 0, 0, 0));
-  #endif
+  set_color(adaneo1.Color(
+    #if ENABLED(LED_USER_PRESET_STARTUP)
+      LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE, LED_USER_PRESET_WHITE
+    #else
+      0, 0, 0, 0
+    #endif
+  ));
 }
-
-#if 0
-bool Marlin_NeoPixel::set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p) {
-  const uint32_t color = adaneo1.Color(r, g, b, w);
-  set_brightness(p);
-  #if DISABLED(NEOPIXEL_IS_SEQUENTIAL)
-    set_color(color);
-    return false;
-  #else
-    static uint16_t nextLed = 0;
-    set_pixel_color(nextLed, color);
-    show();
-    if (++nextLed >= pixels()) nextLed = 0;
-    return true;
-  #endif
-}
-#endif
 
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
@@ -172,11 +156,13 @@ bool Marlin_NeoPixel::set_led_color(const uint8_t r, const uint8_t g, const uint
       #endif
     #endif
 
-    #if ENABLED(NEO2_USER_PRESET_STARTUP)
-      set_color(adaneo.Color(NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE, NEO2_USER_PRESET_WHITE));
-    #else
-      set_color(adaneo.Color(0, 0, 0, 0));
-    #endif
+    set_color(adaneo.Color(
+      #if ENABLED(NEO2_USER_PRESET_STARTUP)
+        NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE, NEO2_USER_PRESET_WHITE
+      #else
+        0, 0, 0, 0
+      #endif
+    ));
   }
 
 #endif // NEOPIXEL2_SEPARATE
