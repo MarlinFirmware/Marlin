@@ -4071,6 +4071,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                     }
                     break;
                 #endif
+                default:
+                  Redraw_Menu(true, true, true);
+                  break;
               }
             }
             break;
