@@ -39,4 +39,4 @@ void GcodeSuite::M117() {
 
 }
 
-#endif
+#endif // HAS_STATUS_MESSAGE
