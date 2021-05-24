@@ -109,23 +109,32 @@ void plan_arc(
     #endif
   }
 
-  float linear_travel = cart[l_axis] - start_L,
-        extruder_travel = cart.e - current_position.e;
+  float linear_travel = cart[l_axis] - start_L;
+
+  #if HAS_EXTRUDERS
+    float extruder_travel = cart.e - current_position.e;
+  #endif
 
   // If circling around...
   if (ENABLED(ARC_P_CIRCLES) && circles) {
     const float total_angular = angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
               part_per_circle = RADIANS(360) / total_angular,             // Each circle's part of the total
-                 l_per_circle = linear_travel * part_per_circle,          // L movement per circle
-                 e_per_circle = extruder_travel * part_per_circle;        // E movement per circle
+                 l_per_circle = linear_travel * part_per_circle;          // L movement per circle
+
+    #if HAS_EXTRUDERS
+      const float e_per_circle = extruder_travel * part_per_circle;       // E movement per circle
+    #endif
+
     xyze_pos_t temp_position = current_position;                          // for plan_arc to compare to current_position
     for (uint16_t n = circles; n--;) {
-      temp_position.e += e_per_circle;                                    // Destination E axis
+      TERN_(HAS_EXTRUDERS, temp_position.e += e_per_circle);              // Destination E axis
       temp_position[l_axis] += l_per_circle;                              // Destination L axis
       plan_arc(temp_position, offset, clockwise, 0);                      // Plan a single whole circle
     }
     linear_travel = cart[l_axis] - current_position[l_axis];
-    extruder_travel = cart.e - current_position.e;
+    #if HAS_EXTRUDERS
+      extruder_travel = cart.e - current_position.e;
+    #endif
   }
 
   const float flat_mm = radius * angular_travel,
@@ -179,16 +188,19 @@ void plan_arc(
   xyze_pos_t raw;
   const float theta_per_segment = angular_travel / segments,
               linear_per_segment = linear_travel / segments,
-              extruder_per_segment = extruder_travel / segments,
               sq_theta_per_segment = sq(theta_per_segment),
               sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
               cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
+
+  #if HAS_EXTRUDERS
+    const float extruder_per_segment = extruder_travel / segments;
+  #endif
 
   // Initialize the linear axis
   raw[l_axis] = current_position[l_axis];
 
   // Initialize the extruder axis
-  raw.e = current_position.e;
+  TERN_(HAS_EXTRUDERS, raw.e = current_position.e);
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
     const float inv_duration = scaled_fr_mm_s / seg_length;
@@ -240,7 +252,8 @@ void plan_arc(
     #else
       raw[l_axis] += linear_per_segment;
     #endif
-    raw.e += extruder_per_segment;
+
+    TERN_(HAS_EXTRUDERS, raw.e += extruder_per_segment);
 
     apply_motion_limits(raw);
 

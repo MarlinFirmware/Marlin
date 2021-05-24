@@ -248,7 +248,8 @@ void GCodeParser::parse(char *p) {
         case 'R': if (!WITHIN(motion_mode_codenum, 2, 3)) return;
       #endif
 
-      case 'X' ... 'Z': case 'E' ... 'F':
+      LOGICAL_AXIS_GANG(case 'E':, case 'X':, case 'Y':, case 'Z':)
+      case 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;

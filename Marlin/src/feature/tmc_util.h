@@ -335,14 +335,20 @@ void tmc_print_current(TMC &st) {
 #endif
 
 void monitor_tmc_drivers();
-void test_tmc_connection(const bool test_x=true, const bool test_y=true, const bool test_z=true, const bool test_e=true);
+void test_tmc_connection(
+  LOGICAL_AXIS_LIST(const bool test_e=true, const bool test_x=true, const bool test_y=true, const bool test_z=true)
+);
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_interval(const uint16_t update_interval);
   #endif
-  void tmc_report_all(const bool print_x=true, const bool print_y=true, const bool print_z=true, const bool print_e=true);
-  void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
+  void tmc_report_all(
+    LOGICAL_AXIS_LIST(const bool print_e=true, const bool print_x=true, const bool print_y=true, const bool print_z=true)
+  );
+  void tmc_get_registers(
+    LOGICAL_AXIS_LIST(const bool print_e, const bool print_x, const bool print_y, const bool print_z)
+  );
 #endif
 
 /**
@@ -355,7 +361,7 @@ void test_tmc_connection(const bool test_x=true, const bool test_y=true, const b
 #if USE_SENSORLESS
 
   // Track enabled status of stealthChop and only re-enable where applicable
-  struct sensorless_t { bool x, y, z, x2, y2, z2, z3, z4; };
+  struct sensorless_t { bool LINEAR_AXIS_LIST(x, y, z), x2, y2, z2, z3, z4; };
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     extern millis_t sg_guard_period;
