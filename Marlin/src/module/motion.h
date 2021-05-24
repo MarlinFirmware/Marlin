@@ -272,17 +272,13 @@ void sync_plan_position_e();
  */
 void line_to_current_position(const_feedRate_t fr_mm_s=feedrate_mm_s);
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s);
 #endif
 
 void prepare_line_to_destination();
 
-void _internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f
-  #if IS_KINEMATIC
-    , const bool is_fast=false
-  #endif
-);
+void _internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f OPTARG(IS_KINEMATIC, const bool is_fast=false));
 
 inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) {
   _internal_move_to_destination(fr_mm_s);

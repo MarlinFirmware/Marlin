@@ -94,17 +94,13 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
 
 #if E_MANUAL
 
-  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=-1)) {
+  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=active_extruder)) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
         TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff;
-        ui.manual_move.soon(E_AXIS
-          #if MULTI_E_MANUAL
-            , eindex
-          #endif
-        );
+        ui.manual_move.soon(E_AXIS OPTARG(MULTI_E_MANUAL, eindex));
         ui.refresh(LCDVIEW_REDRAW_NOW);
       }
       ui.encoderPosition = 0;
@@ -139,7 +135,7 @@ void _goto_manual_move(const_float_t scale) {
   ui.goto_screen(_manual_move_func_ptr);
 }
 
-void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=-1) {
+void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=active_extruder) {
   _manual_move_func_ptr = func;
   START_MENU();
   if (LCD_HEIGHT >= 4) {
@@ -188,7 +184,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 #if E_MANUAL
 
   inline void _goto_menu_move_distance_e() {
-    ui.goto_screen([]{ _menu_move_distance(E_AXIS, []{ lcd_move_e(TERN_(MULTI_E_MANUAL, active_extruder)); }, -1); });
+    ui.goto_screen([]{ _menu_move_distance(E_AXIS, []{ lcd_move_e(); }); });
   }
 
   inline void _menu_move_distance_e_maybe() {

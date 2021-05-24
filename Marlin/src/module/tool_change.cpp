@@ -822,7 +822,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   inline void invalid_extruder_error(const uint8_t e) {
     SERIAL_ECHO_START();
     SERIAL_CHAR('T'); SERIAL_ECHO(e);
@@ -1382,7 +1382,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #if HAS_MULTI_HOTEND
       thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
       TERN_(AUTOTEMP, planner.autotemp_update());
-      TERN_(HAS_STATUS_MESSAGE, thermalManager.set_heating_message(0));
+      thermalManager.set_heating_message(0);
       thermalManager.wait_for_hotend(active_extruder);
     #endif
 

@@ -28,11 +28,12 @@
 #include "wifi_upload.h"
 #include "SPI_TFT.h"
 
+#include "../../marlinui.h"
+
 #include "../../../MarlinCore.h"
 #include "../../../module/temperature.h"
 #include "../../../gcode/queue.h"
 #include "../../../gcode/gcode.h"
-#include "../../../lcd/marlinui.h"
 #include "../../../sd/cardreader.h"
 #include "../../../module/planner.h"
 #include "../../../module/servo.h"

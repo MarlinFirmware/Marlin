@@ -43,46 +43,21 @@
  */
 typedef struct LEDColor {
   uint8_t r, g, b
-    #if HAS_WHITE_LED
-      , w
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      , i
-    #endif
+    OPTARG(HAS_WHITE_LED, w)
+    OPTARG(NEOPIXEL_LED, i)
   ;
 
   LEDColor() : r(255), g(255), b(255)
-    #if HAS_WHITE_LED
-      , w(255)
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      , i(NEOPIXEL_BRIGHTNESS)
-    #endif
+    OPTARG(HAS_WHITE_LED, w(255))
+    OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS))
   {}
 
-  LEDColor(uint8_t r, uint8_t g, uint8_t b
-    #if HAS_WHITE_LED
-      , uint8_t w=0
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      , uint8_t i=NEOPIXEL_BRIGHTNESS
-    #endif
-    ) : r(r), g(g), b(b)
-    #if HAS_WHITE_LED
-      , w(w)
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      , i(i)
-    #endif
-  {}
+  LEDColor(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w=0) OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS))
+    : r(r), g(g), b(b) OPTARG(HAS_WHITE_LED, w(w)) OPTARG(NEOPIXEL_LED, i(i)) {}
 
   LEDColor(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
-    #if HAS_WHITE_LED
-      , w(rgbw[3])
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      , i(NEOPIXEL_BRIGHTNESS)
-    #endif
+    OPTARG(HAS_WHITE_LED, w(rgbw[3]))
+    OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS))
   {}
 
   LEDColor& operator=(const uint8_t (&rgbw)[4]) {
@@ -138,30 +113,15 @@ public:
   static void setup(); // init()
 
   static void set_color(const LEDColor &color
-    #if ENABLED(NEOPIXEL_LED)
-      , bool isSequence=false
-    #endif
+    OPTARG(NEOPIXEL_LED, bool isSequence=false)
   );
 
   static inline void set_color(uint8_t r, uint8_t g, uint8_t b
-    #if HAS_WHITE_LED
-      , uint8_t w=0
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      , uint8_t i=NEOPIXEL_BRIGHTNESS
-      , bool isSequence=false
-    #endif
+    OPTARG(HAS_WHITE_LED, uint8_t w=0)
+    OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
+    OPTARG(NEOPIXEL_LED, bool isSequence=false)
   ) {
-    set_color(LEDColor(r, g, b
-    #if HAS_WHITE_LED
-      , w
-    #endif
-    #if ENABLED(NEOPIXEL_LED)
-      , i), isSequence
-    #else
-      )
-    #endif
-    );
+    set_color(MakeLEDColor(r, g, b, OPTARG(NEOPIXEL_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_LED, isSequence));
   }
 
   static inline void set_off()   { set_color(LEDColorOff()); }

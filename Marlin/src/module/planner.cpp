@@ -164,7 +164,7 @@ float Planner::steps_to_mm[DISTINCT_AXES];      // (mm) Millimeters per step
   xyze_bool_t Planner::last_page_dir{0};
 #endif
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
   float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow percentage and volumetric multiplier combine to scale E movement
 #endif
@@ -1757,12 +1757,8 @@ void Planner::synchronize() {
  * Returns true if movement was properly queued, false otherwise (if cleaning)
  */
 bool Planner::_buffer_steps(const xyze_long_t &target
-  #if HAS_POSITION_FLOAT
-    , const xyze_pos_t &target_float
-  #endif
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
+  OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
+  OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters
 ) {
 
@@ -1823,12 +1819,8 @@ bool Planner::_buffer_steps(const xyze_long_t &target
  */
 bool Planner::_populate_block(block_t * const block, bool split_move,
   const abce_long_t &target
-  #if HAS_POSITION_FLOAT
-    , const xyze_pos_t &target_float
-  #endif
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
+  OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
+  OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
 ) {
 
@@ -1836,7 +1828,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                 db = target.b - position.b,
                 dc = target.c - position.c;
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     int32_t de = target.e - position.e;
   #else
     constexpr int32_t de = 0;
@@ -1848,7 +1840,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       " A:", target.a, " (", da, " steps)"
       " B:", target.b, " (", db, " steps)"
       " C:", target.c, " (", dc, " steps)"
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         " E:", target.e, " (", de, " steps)"
       #endif
     );
@@ -1921,7 +1913,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     const float esteps_float = de * e_factor[extruder];
     const uint32_t esteps = ABS(esteps_float) + 0.5f;
   #else
@@ -2003,7 +1995,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     steps_dist_mm.c = dc * steps_to_mm[C_AXIS];
   #endif
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     steps_dist_mm.e = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
   #else
     steps_dist_mm.e = 0.0f;
@@ -2013,7 +2005,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   if (block->steps.a < MIN_STEPS_PER_SEGMENT && block->steps.b < MIN_STEPS_PER_SEGMENT && block->steps.c < MIN_STEPS_PER_SEGMENT) {
     block->millimeters = (0
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         + ABS(steps_dist_mm.e)
       #endif
     );
@@ -2046,7 +2038,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(da, db, dc, dm, block));
   }
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     block->steps.e = esteps;
   #endif
 
@@ -2107,7 +2099,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   // Enable extruder(s)
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     if (esteps) {
       TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
@@ -2209,7 +2201,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   }
 
   // Limit speed on extruders, if any
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     {
       current_speed.e = steps_dist_mm.e * inverse_secs;
       #if HAS_MIXER_SYNC_CHANNEL
@@ -2763,9 +2755,7 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
  * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
 bool Planner::buffer_segment(const_float_t a, const_float_t b, const_float_t c, const_float_t e
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
+  OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
 ) {
 
@@ -2857,9 +2847,7 @@ bool Planner::buffer_segment(const_float_t a, const_float_t b, const_float_t c, 
  *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
  */
 bool Planner::buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters
-  #if ENABLED(SCARA_FEEDRATE_SCALING)
-    , const_float_t inv_duration
-  #endif
+  OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration)
 ) {
   xyze_pos_t machine = { rx, ry, rz, e };
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));

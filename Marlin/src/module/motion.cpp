@@ -282,7 +282,7 @@ void report_current_position_projected() {
 void quickstop_stepper() {
   planner.quick_stop();
   planner.synchronize();
-  set_current_from_steppers_for_axis(ALL_AXES_MASK);
+  set_current_from_steppers_for_axis(ALL_AXES_ENUM);
   sync_plan_position();
 }
 
@@ -360,7 +360,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     planner.unapply_modifiers(pos, true);
   #endif
 
-  if (axis == ALL_AXES_MASK)
+  if (axis == ALL_AXES_ENUM)
     current_position = pos;
   else
     current_position[axis] = pos[axis];
@@ -374,7 +374,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
   planner.buffer_line(current_position, fr_mm_s, active_extruder);
 }
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];
@@ -411,9 +411,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
  *  - Extrude the specified length regardless of flow percentage.
  */
 void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
-  #if IS_KINEMATIC
-    , const bool is_fast/*=false*/
-  #endif
+  OPTARG(IS_KINEMATIC, const bool is_fast/*=false*/)
 ) {
   const feedRate_t old_feedrate = feedrate_mm_s;
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
@@ -421,7 +419,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   const uint16_t old_pct = feedrate_percentage;
   feedrate_percentage = 100;
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     const float old_fac = planner.e_factor[active_extruder];
     planner.e_factor[active_extruder] = 1.0f;
   #endif
@@ -433,9 +431,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 
   feedrate_mm_s = old_feedrate;
   feedrate_percentage = old_pct;
-  #if EXTRUDERS
-    planner.e_factor[active_extruder] = old_fac;
-  #endif
+  TERN_(HAS_EXTRUDERS, planner.e_factor[active_extruder] = old_fac);
 }
 
 /**
@@ -607,10 +603,8 @@ void restore_feedrate_and_scaling() {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis
-    #if HAS_HOTEND_OFFSET
-      , const uint8_t old_tool_index/*=0*/
-      , const uint8_t new_tool_index/*=0*/
-    #endif
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/)
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t new_tool_index/*=0*/)
   ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -858,17 +852,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       segment_idle(next_idle_ms);
       raw += segment_distance;
       if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, cartesian_segment_mm
-        #if ENABLED(SCARA_FEEDRATE_SCALING)
-          , inv_duration
-        #endif
+        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
       )) break;
     }
 
     // Ensure last segment arrives at target location.
     planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, cartesian_segment_mm
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , inv_duration
-      #endif
+      OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
     );
 
     return false; // caller will update current_position
@@ -929,9 +919,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         segment_idle(next_idle_ms);
         raw += segment_distance;
         if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm
-          #if ENABLED(SCARA_FEEDRATE_SCALING)
-            , inv_duration
-          #endif
+          OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
         )) break;
       }
 
