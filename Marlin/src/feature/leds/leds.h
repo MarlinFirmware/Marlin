@@ -121,7 +121,7 @@ public:
     OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
     OPTARG(NEOPIXEL_LED, bool isSequence=false)
   ) {
-    set_color(MakeLEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_LED, isSequence));
+    set_color(LEDColor(r, g, b, OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_LED, isSequence));
   }
 
   static inline void set_off()   { set_color(LEDColorOff()); }
