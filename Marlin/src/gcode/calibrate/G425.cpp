@@ -307,9 +307,11 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   // The difference between the known and the measured location
   // of the calibration object is the positional error
-  m.pos_error.x = TERN0(HAS_X_CENTER, true_center.x - m.obj_center.x);
-  m.pos_error.y = TERN0(HAS_Y_CENTER, true_center.y - m.obj_center.y);
-  m.pos_error.z = true_center.z - m.obj_center.z;
+  LINEAR_AXIS_CODE(
+    m.pos_error.x = TERN0(HAS_X_CENTER, true_center.x - m.obj_center.x),
+    m.pos_error.y = TERN0(HAS_Y_CENTER, true_center.y - m.obj_center.y),
+    m.pos_error.z = true_center.z - m.obj_center.z
+  );
 }
 
 #if ENABLED(CALIBRATION_REPORTING)
@@ -455,7 +457,9 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
       // New scope for TEMPORARY_BACKLASH_CORRECTION
       TEMPORARY_BACKLASH_CORRECTION(all_on);
       TEMPORARY_BACKLASH_SMOOTHING(0.0f);
-      const xyz_float_t move = { AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3 };
+      const xyz_float_t move = LINEAR_AXIS_ARRAY(
+        AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3
+      );
       current_position += move; calibration_move();
       current_position -= move; calibration_move();
     }

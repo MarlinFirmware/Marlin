@@ -537,12 +537,12 @@
  *  E_STEPPERS   - Number of actual E stepper motors
  *  E_MANUAL     - Number of E steppers for LCD move options
  */
-
 #if EXTRUDERS
   #define HAS_EXTRUDERS 1
   #if EXTRUDERS > 1
     #define HAS_MULTI_EXTRUDER 1
   #endif
+  #define E_AXIS_N(E) AxisEnum(E_AXIS + E_INDEX_N(E))
 #else
   #undef EXTRUDERS
   #define EXTRUDERS 0
@@ -551,6 +551,7 @@
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
+  #undef DISABLE_E
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
@@ -604,6 +605,50 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+/**
+ * Number of Linear Axes (e.g., XYZ)
+ * All the logical axes except for the tool (E) axis
+ */
+#ifndef LINEAR_AXES
+  #define LINEAR_AXES XYZ
+#endif
+
+/**
+ * Number of Logical Axes (e.g., XYZE)
+ * All the logical axes that can be commanded directly by G-code.
+ * Delta maps stepper-specific values to ABC steppers.
+ */
+#if HAS_EXTRUDERS
+  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+#else
+  #define LOGICAL_AXES LINEAR_AXES
+#endif
+
+/**
+ * DISTINCT_E_FACTORS is set to give extruders (some) individual settings.
+ *
+ * DISTINCT_AXES is the number of distinct addressable axes (not steppers).
+ *  Includes all linear axes plus all distinguished extruders.
+ *  The default behavior is to treat all extruders as a single E axis
+ *  with shared motion and temperature settings.
+ *
+ * DISTINCT_E is the number of distinguished extruders. By default this
+ *  well be 1 which indicates all extruders share the same settings.
+ *
+ * E_INDEX_N(E) should be used to get the E index of any item that might be
+ *  distinguished.
+ */
+#if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
+  #define DISTINCT_E E_STEPPERS
+  #define E_INDEX_N(E) (E)
+#else
+  #undef DISTINCT_E_FACTORS
+  #define DISTINCT_AXES LOGICAL_AXES
+  #define DISTINCT_E 1
+  #define E_INDEX_N(E) 0
+#endif
+
 #if HOTENDS
   #define HAS_HOTEND 1
   #ifndef HOTEND_OVERSHOOT
@@ -623,10 +668,6 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
-
-#if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
-  #define DO_SWITCH_EXTRUDER 1
-#endif
 
 /**
  * Default hotend offsets, if not defined
@@ -653,39 +694,10 @@
   #undef SINGLENOZZLE_STANDBY_FAN
 #endif
 
-/**
- * Number of Linear Axes (e.g., XYZ)
- * All the logical axes except for the tool (E) axis
- */
-#ifndef LINEAR_AXES
-  #define LINEAR_AXES XYZ
+// Switching extruder has its own servo?
+#if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
+  #define DO_SWITCH_EXTRUDER 1
 #endif
-
-/**
- * Number of Logical Axes (e.g., XYZE)
- * All the logical axes that can be commanded directly by G-code.
- * Delta maps stepper-specific values to ABC steppers.
- */
-#if HAS_EXTRUDERS
-  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
-#else
-  #define LOGICAL_AXES LINEAR_AXES
-#endif
-
-/**
- * DISTINCT_E_FACTORS affects whether Extruders use different settings
- */
-#if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-  #define DISTINCT_E E_STEPPERS
-  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
-  #define E_INDEX_N(E) (E)
-#else
-  #undef DISTINCT_E_FACTORS
-  #define DISTINCT_E 1
-  #define DISTINCT_AXES LOGICAL_AXES
-  #define E_INDEX_N(E) 0
-#endif
-#define E_AXIS_N(E) AxisEnum(E_AXIS + E_INDEX_N(E))
 
 /**
  * The BLTouch Probe emulates a servo probe
@@ -726,6 +738,9 @@
   #define HAS_BED_PROBE 1
 #endif
 
+/**
+ * Fill in undefined Filament Sensor options
+ */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #if NUM_RUNOUT_SENSORS >= 1
     #ifndef FIL_RUNOUT1_STATE
@@ -834,6 +849,9 @@
   #define Z_HOME_TO_MIN 1
 #endif
 
+/**
+ * Conditionals based on the type of Bed Probe
+ */
 #if HAS_BED_PROBE
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
@@ -868,7 +886,7 @@
 #endif
 
 /**
- * Set granular options based on the specific type of leveling
+ * Conditionals based on the type of Bed Leveling
  */
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING

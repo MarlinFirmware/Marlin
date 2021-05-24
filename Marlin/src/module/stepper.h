@@ -433,8 +433,12 @@ class Stepper {
     static int32_t position(const AxisEnum axis);
 
     // Set the current position in steps
-    static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
-    static inline void set_position(const xyze_long_t &abce) { set_position(abce.a, abce.b, abce.c, abce.e); }
+    static void set_position(
+      LOGICAL_AXIS_LIST(const int32_t &e, const int32_t &a, const int32_t &b, const int32_t &c)
+    );
+    static inline void set_position(const xyze_long_t &abce) {
+      set_position(LOGICAL_AXIS_LIST(abce.e, abce.a, abce.b, abce.c));
+    }
     static void set_axis_position(const AxisEnum a, const int32_t &v);
 
     // Report the positions of the steppers, in steps
@@ -530,8 +534,12 @@ class Stepper {
   private:
 
     // Set the current position in steps
-    static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
-    FORCE_INLINE static void _set_position(const abce_long_t &spos) { _set_position(spos.a, spos.b, spos.c, spos.e); }
+    static void _set_position(
+      LOGICAL_AXIS_LIST(const int32_t &e, const int32_t &a, const int32_t &b, const int32_t &c)
+    );
+    FORCE_INLINE static void _set_position(const abce_long_t &spos) {
+      _set_position(LOGICAL_AXIS_LIST(spos.e, spos.a, spos.b, spos.c));
+    }
 
     FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
       uint32_t timer;

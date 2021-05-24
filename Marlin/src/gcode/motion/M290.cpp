@@ -87,7 +87,7 @@ void GcodeSuite::M290() {
     }
   #endif
 
-  if (!parser.seen("XYZ") || parser.seen('R')) {
+  if (!parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z")) || parser.seen('R')) {
     SERIAL_ECHO_START();
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
