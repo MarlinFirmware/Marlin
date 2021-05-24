@@ -143,9 +143,7 @@ uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
   changeMedia(&
-    #if SHARED_VOLUME_IS(SD_ONBOARD)
-      TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
-    #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || (ENABLED(USB_FLASH_DRIVE_SUPPORT) && !SHARED_VOLUME_IS(SD_ONBOARD))
       media_usbFlashDrive
     #else
       TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
