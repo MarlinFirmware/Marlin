@@ -64,7 +64,7 @@
 #endif
 
 // A white component can be passed on NEOPIXEL2
-#if ENABLED(NEOPIXEL2_IS_RGBW )
+#if ENABLED(NEOPIXEL2_IS_RGBW)
   #define HAS_WHITE_LED2 1
 #endif
 
