@@ -45,7 +45,7 @@ PrinterEventLEDs printerEventLEDs;
     return (uint8_t)map(constrain(current, start, target), start, target, 0, 255);
   }
 
-  inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b OPTARG(HAS_WHITE_LED, const uint8_t w)) {
+  inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b OPTARG(HAS_WHITE_LED, const uint8_t w=0)) {
     leds.set_color(LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, neo.brightness())));
   }
 
@@ -57,7 +57,7 @@ PrinterEventLEDs printerEventLEDs;
     const uint8_t blue = pel_intensity(start, current, target);
     if (blue != old_intensity) {
       old_intensity = blue;
-      pel_set_rgb(255, 0, 255 - blue OPTARG(HAS_WHITE_LED, 0));
+      pel_set_rgb(255, 0, 255 - blue);
     }
   }
 
@@ -69,7 +69,7 @@ PrinterEventLEDs printerEventLEDs;
     const uint8_t red = pel_intensity(start, current, target);
     if (red != old_intensity) {
       old_intensity = red;
-      pel_set_rgb(red, 0, 255 OPTARG(HAS_WHITE_LED, 0));
+      pel_set_rgb(red, 0, 255);
     }
   }
 
@@ -81,7 +81,7 @@ PrinterEventLEDs printerEventLEDs;
     const uint8_t green = pel_intensity(start, current, target);
     if (green != old_intensity) {
       old_intensity = green;
-      pel_set_rgb(255, green, 255 OPTARG(HAS_WHITE_LED, 0));
+      pel_set_rgb(255, green, 255);
     }
   }
 
