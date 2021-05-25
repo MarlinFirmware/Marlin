@@ -1303,3 +1303,10 @@
 #else
   #define COORDINATE_OKAY(N,L,H) true
 #endif
+
+/**
+ * LED Backlight INDEX END
+ */
+#if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
+  #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
+#endif
