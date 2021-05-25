@@ -170,7 +170,7 @@
 
     SERIAL_ECHOPGM("FromStp:");
     get_cartesian_from_steppers();  // writes 'cartes' (with forward kinematics)
-    xyze_pos_t from_steppers = { cartes.x, cartes.y, cartes.z, planner.get_axis_position_mm(E_AXIS) };
+    xyze_pos_t from_steppers = LOGICAL_AXIS_ARRAY(planner.get_axis_position_mm(E_AXIS), cartes.x, cartes.y, cartes.z);
     report_all_axis_pos(from_steppers);
 
     const xyze_float_t diff = from_steppers - leveled;
