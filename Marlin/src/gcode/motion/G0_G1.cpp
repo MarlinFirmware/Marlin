@@ -49,9 +49,11 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   if (IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       && !homing_needed_error(
-          (parser.seen_test('X') ? _BV(X_AXIS) : 0)
-        | (parser.seen_test('Y') ? _BV(Y_AXIS) : 0)
-        | (parser.seen_test('Z') ? _BV(Z_AXIS) : 0) )
+        LINEAR_AXIS_GANG(
+            (parser.seen_test('X') ? _BV(X_AXIS) : 0),
+          | (parser.seen_test('Y') ? _BV(Y_AXIS) : 0),
+          | (parser.seen_test('Z') ? _BV(Z_AXIS) : 0))
+      )
     #endif
   ) {
     TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
@@ -83,7 +85,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
 
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
-        if (fwretract.autoretract_enabled && parser.seen('E') && !parser.seen("XYZ")) {
+        if (fwretract.autoretract_enabled && parser.seen_test('E') && !parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z"))) {
           const float echange = destination.e - current_position.e;
           // Is this a retract or recover move?
           if (WITHIN(ABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
