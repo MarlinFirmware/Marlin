@@ -1156,8 +1156,8 @@ void Popup_Window_Resume() {
 
 void Draw_Select_Highlight(const bool sel) {
   HMI_flag.select_flag = sel;
-  const uint16_t c1 = sel ? HMI_data.Selected_Color : HMI_data.PopupBg_color,
-                 c2 = sel ? HMI_data.PopupBg_color : HMI_data.Selected_Color;
+  const uint16_t c1 = sel ? HMI_data.Highlight_Color : HMI_data.PopupBg_color,
+                 c2 = sel ? HMI_data.PopupBg_color : HMI_data.Highlight_Color;
   DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
   DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
   DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);
@@ -4994,10 +4994,10 @@ void EachMomentUpdate() {
 
       auto update_selection = [&](const bool sel) {
         HMI_flag.select_flag = sel;
-        const uint16_t c1 = sel ? HMI_data.PopupBg_color : HMI_data.Selected_Color;
+        const uint16_t c1 = sel ? HMI_data.PopupBg_color : HMI_data.Highlight_Color;
         DWIN_Draw_Rectangle(0, c1, 25, 306, 126, 345);
         DWIN_Draw_Rectangle(0, c1, 24, 305, 127, 346);
-        const uint16_t c2 = sel ? HMI_data.Selected_Color : HMI_data.PopupBg_color;
+        const uint16_t c2 = sel ? HMI_data.Highlight_Color : HMI_data.PopupBg_color;
         DWIN_Draw_Rectangle(0, c2, 145, 306, 246, 345);
         DWIN_Draw_Rectangle(0, c2, 144, 305, 247, 346);
       };
@@ -5383,6 +5383,7 @@ void DWIN_Redraw_screen() {
       if (HMI_flag.select_flag) {
         pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // "Purge More" button
       } else {
+        checkkey = NothingToDo;
         pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // "Continue" button
       }
     }
