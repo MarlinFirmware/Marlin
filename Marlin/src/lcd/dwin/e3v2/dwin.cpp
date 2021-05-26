@@ -391,7 +391,7 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
 }
 
 void Draw_Chkb_Line(const uint8_t line, const bool mode) {
-  DWIN_Draw_Checkbox(HMI_data.Text_Color, HMI_data.Background_Color, 225, MBASE(line) - 1, mode); 
+  DWIN_Draw_Checkbox(HMI_data.Text_Color, HMI_data.Background_Color, 225, MBASE(line) - 1, mode);
 }
 
 void Draw_Menu_IntValue(uint16_t color, uint16_t bcolor, const uint8_t line, uint8_t iNum, const uint16_t value=0) {
@@ -2692,7 +2692,6 @@ void Draw_ABS_Menu(){
   #endif
 }
 #endif
-
 
 void Draw_Temperature_Menu() {
   Clear_Main_Window();
