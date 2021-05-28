@@ -48,10 +48,12 @@ void GcodeSuite::M425() {
 
   auto axis_can_calibrate = [](const uint8_t a) {
     switch (a) {
-      default:
-      case X_AXIS: return AXIS_CAN_CALIBRATE(X);
-      case Y_AXIS: return AXIS_CAN_CALIBRATE(Y);
-      case Z_AXIS: return AXIS_CAN_CALIBRATE(Z);
+      default: return false;
+      LINEAR_AXIS_CODE(
+        case X_AXIS: return AXIS_CAN_CALIBRATE(X),
+        case Y_AXIS: return AXIS_CAN_CALIBRATE(Y),
+        case Z_AXIS: return AXIS_CAN_CALIBRATE(Z)
+      );
     }
   };
 

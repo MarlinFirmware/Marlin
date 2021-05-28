@@ -49,13 +49,21 @@ void GcodeSuite::M122() {
       tmc_set_report_interval(interval);
     #endif
 
-    if (parser.seen_test('V'))
-      tmc_get_registers(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
-    else
-      tmc_report_all(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
+    if (parser.seen_test('V')) {
+      tmc_get_registers(
+        LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z)
+      );
+    }
+    else {
+      tmc_report_all(
+        LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z)
+      );
+    }
   #endif
 
-  test_tmc_connection(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
+  test_tmc_connection(
+    LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z)
+  );
 }
 
 #endif // HAS_TRINAMIC_CONFIG

@@ -74,11 +74,11 @@ millis_t GcodeSuite::previous_move_ms = 0,
 
 // Relative motion mode for each logical axis
 static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
-uint8_t GcodeSuite::axis_relative = (
-    (ar_init.x ? _BV(REL_X) : 0)
-  | (ar_init.y ? _BV(REL_Y) : 0)
-  | (ar_init.z ? _BV(REL_Z) : 0)
-  | (ar_init.e ? _BV(REL_E) : 0)
+uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
+  | (ar_init.e << REL_E),
+  | (ar_init.x << REL_X),
+  | (ar_init.y << REL_Y),
+  | (ar_init.z << REL_Z)
 );
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -161,13 +161,15 @@ void GcodeSuite::get_destination_from_command() {
       destination[i] = current_position[i];
   }
 
-  // Get new E position, whether absolute or relative
-  if ( (seen.e = parser.seenval('E')) ) {
-    const float v = parser.value_axis_units(E_AXIS);
-    destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
-  }
-  else
-    destination.e = current_position.e;
+  #if HAS_EXTRUDERS
+    // Get new E position, whether absolute or relative
+    if ( (seen.e = parser.seenval('E')) ) {
+      const float v = parser.value_axis_units(E_AXIS);
+      destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
+    }
+    else
+      destination.e = current_position.e;
+  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
@@ -605,7 +607,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
       case 114: M114(); break;                                    // M114: Report current position
       case 115: M115(); break;                                    // M115: Report capabilities
-      case 117: M117(); break;                                    // M117: Set LCD message text, if possible
+
+      case 117: TERN_(HAS_STATUS_MESSAGE, M117()); break;         // M117: Set LCD message text, if possible
+
       case 118: M118(); break;                                    // M118: Display a message in the host console
       case 119: M119(); break;                                    // M119: Report endstop states
       case 120: M120(); break;                                    // M120: Enable endstops

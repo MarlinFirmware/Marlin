@@ -856,8 +856,10 @@ void MarlinUI::draw_status_screen() {
       #else
 
         if (show_e_total) {
-          _draw_axis_value(E_AXIS, xstring, true);
-          lcd_put_u8str_P(PSTR("       "));
+          #if ENABLED(LCD_SHOW_E_TOTAL)
+            _draw_axis_value(E_AXIS, xstring, true);
+            lcd_put_u8str_P(PSTR("       "));
+          #endif
         }
         else {
           _draw_axis_value(X_AXIS, xstring, blink);

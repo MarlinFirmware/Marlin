@@ -562,6 +562,8 @@
   #error "CUSTOM_USER_MENUS has been replaced by CUSTOM_MENU_MAIN and CUSTOM_MENU_CONFIG."
 #elif defined(MKS_LCD12864)
   #error "MKS_LCD12864 is now MKS_LCD12864A or MKS_LCD12864B."
+#elif defined(NEOPIXEL_BKGD_LED_INDEX)
+  #error "NEOPIXEL_BKGD_LED_INDEX is now NEOPIXEL_BKGD_INDEX_FIRST."
 #endif
 
 /**
@@ -1582,6 +1584,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "LCD_BED_LEVELING requires a programmable LCD controller."
   #elif !(ENABLED(MESH_BED_LEVELING) || HAS_ABL_NOT_UBL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
+  #elif ENABLED(MESH_EDIT_MENU) && !HAS_MESH
+    #error "MESH_EDIT_MENU requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
   #endif
 #endif
 
@@ -1593,11 +1597,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Homing
  */
 constexpr float hbm[] = HOMING_BUMP_MM;
-static_assert(COUNT(hbm) == XYZ, "HOMING_BUMP_MM requires X, Y, and Z elements.");
-static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0.");
-static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0.");
-static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0.");
-
+static_assert(COUNT(hbm) == LINEAR_AXES, "HOMING_BUMP_MM requires one element per linear axis.");
+LINEAR_AXIS_CODE(
+  static_assert(hbm[X_AXIS] >= 0, "HOMING_BUMP_MM.X must be greater than or equal to 0."),
+  static_assert(hbm[Y_AXIS] >= 0, "HOMING_BUMP_MM.Y must be greater than or equal to 0."),
+  static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal to 0.")
+);
 #if ENABLED(CODEPENDENT_XY_HOMING)
   #if ENABLED(QUICK_HOME)
     #error "QUICK_HOME is incompatible with CODEPENDENT_XY_HOMING."
@@ -1976,12 +1981,16 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "HEATER_0_PIN not defined for this board."
 #elif !ANY_PIN(TEMP_0, MAX6675_SS)
   #error "TEMP_0_PIN or MAX6675_SS not defined for this board."
-#elif ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
-  #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
-#elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
-  #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-#elif EXTRUDERS && TEMP_SENSOR_0 == 0
-  #error "TEMP_SENSOR_0 is required if there are any extruders."
+#endif
+
+#if HAS_EXTRUDERS
+  #if ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
+    #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
+  #elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
+    #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+  #elif EXTRUDERS && TEMP_SENSOR_0 == 0
+    #error "TEMP_SENSOR_0 is required if there are any extruders."
+  #endif
 #endif
 
 /**

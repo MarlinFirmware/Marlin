@@ -76,3 +76,11 @@ public:
 // Converts from an uint8_t in the range of 0-255 to an uint8_t
 // in the range 0-100 while avoiding rounding artifacts
 constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
+
+const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z');
+
+#if LINEAR_AXES <= XYZ
+  #define AXIS_CHAR(A) ((char)('X' + A))
+#else
+  #define AXIS_CHAR(A) axis_codes[A]
+#endif
