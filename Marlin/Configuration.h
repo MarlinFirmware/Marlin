@@ -153,7 +153,7 @@
 
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
-#define EXTRUDERS 1
+#define EXTRUDERS 2
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -422,7 +422,7 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
 #define TEMP_SENSOR_0 -2
-#define TEMP_SENSOR_1 0
+#define TEMP_SENSOR_1 -2
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -477,7 +477,7 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 320
+#define HEATER_0_MAXTEMP 275
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
@@ -811,8 +811,8 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 93, 93, 1600, 92 } // Malyan M180 Extruders
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 93, 93, 1600, 406 } // E3D Hemera Extruder
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 93, 93, 1600, 92 } // Malyan M180 Extruders
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 93, 93, 1600, 406 } // E3D Hemera Extruder
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1203,7 +1203,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false // TODO Timo: Double check! This can't e true as Malya config is inconclusive
+#define INVERT_E0_DIR true // TODO Timo: Double check! This is true in  Malyan config because the two extruders are mirrored versions of each other
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1238,8 +1238,8 @@
 // @section machine
 
 // The size of the printable area
-#define X_BED_SIZE 260
-#define Y_BED_SIZE 155
+#define X_BED_SIZE 230
+#define Y_BED_SIZE 160
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1247,7 +1247,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 165
+#define Z_MAX_POS 180
 
 /**
  * Software Endstops
