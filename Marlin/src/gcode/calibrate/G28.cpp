@@ -492,7 +492,6 @@ void GcodeSuite::G28() {
       stepperZ.rms_current(tmc_save_current_Z);
     #endif
   #endif
-  #endif // HAS_HOMING_CURRENT
 
   ui.refresh();
 
