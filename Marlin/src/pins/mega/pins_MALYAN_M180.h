@@ -4,7 +4,7 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- * 
+ *
  * Malyan M180 configuration created by Timo Birnschein (timo.birnschein@microforge.de)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -87,7 +87,6 @@
 #define MAX6675_SS2_PIN           THERMO_CS2_PIN
 #define MAX6675_SCK_PIN           THERMO_SCK_PIN
 #define MAX6675_DO_PIN             THERMO_DO_PIN
-
 
 //
 // Heaters / Fans
