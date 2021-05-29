@@ -1,11 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
- * Malyan M180 configuration created by Timo Birnschein (timo.birnschein@microforge.de)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +23,7 @@
 
 /**
  * Malyan M180 pin assignments
+ * Contributed by Timo Birnschein (timo.birnschein@microforge.de)
  */
 
 #include "env_validate.h"
@@ -33,12 +32,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             48
-#define X_MAX_PIN                             -1
-#define Y_MIN_PIN                             46
-#define Y_MAX_PIN                             -1
-#define Z_MIN_PIN                             42
-#define Z_MAX_PIN                             -1
+#define X_STOP_PIN                            48
+#define Y_STOP_PIN                            46
+#define Z_STOP_PIN                            42
 
 //
 // Z Probe (when not Z_MIN_PIN)
