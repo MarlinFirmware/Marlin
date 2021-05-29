@@ -4620,11 +4620,11 @@ void HMI_Tune() {
         break;
       #endif
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      case TUNE_CASE_FCHNG:
-        Goto_PrintProcess();
-        HMI_SaveProcessID(NothingToDo);
-        queue.inject_P(PSTR("M600 B2"));       
-        break;
+        case TUNE_CASE_FCHNG:
+          Goto_PrintProcess();
+          HMI_SaveProcessID(NothingToDo);
+          queue.inject_P(PSTR("M600 B2"));       
+          break;
       #endif
       case TUNE_CASE_FLOW: // Flow rate
         checkkey = TuneFlow;
@@ -4957,9 +4957,9 @@ void EachMomentUpdate() {
         last_percentValue = percentDone;
         if (percentDone) {
           _percent_done = percentDone;
-        Draw_Print_ProgressBar();
+          Draw_Print_ProgressBar();
+        }
       }
-    }
       // Estimate remaining time every 20 seconds
       static millis_t next_remain_time_update = 0;
       if (_percent_done > 1 && ELAPSED(ms, next_remain_time_update) && !HMI_flag.heat_flag) {
@@ -5122,9 +5122,13 @@ void DWIN_HandleScreen() {
 
 void HMI_SaveProcessID(uint8_t id) {
   if (checkkey != id) {
-    if ((checkkey != NothingToDo) && (checkkey != WaitResponse)) last_checkkey = checkkey;
+    if ((checkkey != NothingToDo) &&
+        (checkkey != WaitResponse) &&
+        (checkkey != Homing) &&
+        (checkkey != Leveling) &&
+        (checkkey != PauseOrStop) &&
+        (checkkey != FilamentPurge)) last_checkkey = checkkey; // if not is a PopUp
     checkkey = id;
-    TERN_(DEBUG_DWIN,DWIN_Draw_IntValue(false, false, 0, font8x16, Color_White, Color_Bg_Black, 2, 0, 0, checkkey));
   } 
 }
 
@@ -5163,6 +5167,7 @@ void DWIN_CompletedLeveling() {
 #if ENABLED(MESH_BED_LEVELING)
 void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
   char msg[33];
+  msg[0] = '\0';
   sprintf_P(msg, PSTR(S_FMT " %i/%i Z=%.2f"), GET_TEXT(MSG_PROBING_MESH),xpos, ypos, zval);
   DWIN_StatusChanged(msg);
 }
@@ -5316,8 +5321,23 @@ void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   DWIN_UpdateLCD();
 }
 
+void DWIN_RebootScreen() {
+    DWIN_Frame_Clear(Color_Bg_Black);
+    DWIN_ICON_Show(ICON, ICON_LOGO, 71, 150);  // CREALITY logo
+    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Window, 8, 200, F("Please wait until reboot."));
+    DWIN_UpdateLCD();
+    delay(500);
+}
+
+void DWIN_Redraw_screen() {
+  Draw_Main_Area(checkkey);
+  DWIN_StatusChanged(ui.status_message);
+  Draw_Status_Area(false);
+}
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void DWIN_Popup_Pause(const char *msg, uint8_t button = 0) {
+    HMI_SaveProcessID(button ? WaitResponse : NothingToDo);
     DWIN_Draw_Popup(ICON_BLTouch, "Advanced Pause", msg, button);
     DWIN_StatusChanged(nullptr);
   }
@@ -5339,25 +5359,9 @@ void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
       default: break;
     }
   }
-#endif
 
-void DWIN_RebootScreen() {
-    DWIN_Frame_Clear(Color_Bg_Black);
-    DWIN_ICON_Show(ICON, ICON_LOGO, 71, 150);  // CREALITY logo
-    DWIN_Draw_CenteredString(false, false, font8x16, Color_White, Color_Bg_Window, 8, 200, F("Please wait until reboot."));
-    DWIN_UpdateLCD();
-    delay(500);
-}
-
-void DWIN_Redraw_screen() {
-  Draw_Main_Area(checkkey);
-  DWIN_StatusChanged(ui.status_message);
-  Draw_Status_Area(false);
-}
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
   void Draw_Popup_FilamentPurge() {
-    DWIN_Draw_Popup(ICON_BLTouch, "Advanced Pause", "Purge more? or Continue");
+    DWIN_Draw_Popup(ICON_BLTouch, "Advanced Pause", "Purge or Continue?");
     DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
     DWIN_ICON_Show(ICON, ICON_Continue_E, 146, 280);
     Draw_Select_Highlight(true);
@@ -5383,12 +5387,12 @@ void DWIN_Redraw_screen() {
       if (HMI_flag.select_flag) {
         pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // "Purge More" button
       } else {
-        checkkey = NothingToDo;
+        HMI_SaveProcessID(NothingToDo);
         pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // "Continue" button
       }
     }
     DWIN_UpdateLCD();
   }
-#endif
+#endif //ADVANCED_PAUSE_FEATURE
 
 #endif // DWIN_CREALITY_LCD
