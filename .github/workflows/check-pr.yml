@@ -20,10 +20,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: peter-evans/close-pull@v1
+    - uses: superbrothers/close-pull-request@v3
       with:
-        token: ${{ github.token }}
-        delete-branch: false
         comment: >
           Thanks for your contribution! Unfortunately we can't accept PRs directed at release branches. We make patches to the bugfix branches and only later do we push them out as releases.
 
