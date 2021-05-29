@@ -480,7 +480,6 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)       
       stepperZ.rms_current(tmc_save_current_Z);
     #endif
-
   #endif
 
   ui.refresh();
