@@ -77,8 +77,8 @@
     #define X_MIN_PIN                       PE15  // E0
   #endif
 #else
-  #define X_MIN_PIN                         PB10  // X-
-  #define X_MAX_PIN                         PE15  // E0
+  #define X_MIN_PIN                         PE15  // X-
+  #define X_MAX_PIN                         PB10  // E0
 #endif
 
 #ifdef Y_STALL_SENSITIVITY
@@ -89,8 +89,8 @@
     #define Y_MIN_PIN                       PE10  // E1
   #endif
 #else
-  #define Y_MIN_PIN                         PE12  // Y-
-  #define Y_MAX_PIN                         PE10  // E1
+  #define Y_MIN_PIN                         PE10  // Y-
+  #define Y_MAX_PIN                         PE12  // E1
 #endif
 
 #ifdef Z_STALL_SENSITIVITY
@@ -101,8 +101,8 @@
     #define Z_MIN_PIN                       PG5   // E2
   #endif
 #else
-  #define Z_MIN_PIN                         PG8   // Z-
-  #define Z_MAX_PIN                         PG5   // E2
+  #define Z_MIN_PIN                         PG5   // Z-
+  #define Z_MAX_PIN                         PG8   // E2
 #endif
 
 //
@@ -232,21 +232,23 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PF4   // T1 <-> E0
-#define TEMP_1_PIN                          PF5   // T2 <-> E1
-#define TEMP_2_PIN                          PF6   // T3 <-> E2
-#define TEMP_BED_PIN                        PF3   // T0 <-> Bed
+#define TEMP_0_PIN                          PF3   // T1 <-> E0
+#define TEMP_1_PIN                          PF3   // T2 <-> E1
+//#define TEMP_2_PIN                          PF6   // T3 <-> E2
+#define TEMP_BED_PIN                        PF4   // T0 <-> Bed
+#define TEMP_PROBE_PIN                        PF6
+#define TEMP_CHAMBER_PIN                      PF5	
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PB1   // Heater0
-#define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+//#define HEATER_1_PIN                        PD14  // Heater1
+//#define HEATER_2_PIN                        PB0   // Heater1
 #define HEATER_BED_PIN                      PD12  // Hotbed
-#define FAN_PIN                             PC8   // Fan0
-#define FAN1_PIN                            PE5   // Fan1
-#define FAN2_PIN                            PE6   // Fan2
+#define FAN_PIN                             PD14   // Fan0
+//#define FAN1_PIN                            PE5   // Fan1
+//#define FAN2_PIN                            PE6   // Fan2
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
