@@ -353,7 +353,7 @@
 #define _E6_PINS
 #define _E7_PINS
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
   #undef _E0_PINS
   #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, _E0_CS _E0_MS1 _E0_MS2 _E0_MS3
 #endif

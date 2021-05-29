@@ -69,23 +69,25 @@ void GcodeSuite::G61(void) {
     SYNC_E(stored_position[slot].e);
   }
   else {
-    if (parser.seen("XYZ")) {
+    if (parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z"))) {
       DEBUG_ECHOPAIR(STR_RESTORING_POS " S", slot);
-      LOOP_XYZ(i) {
-        destination[i] = parser.seen(XYZ_CHAR(i))
+      LOOP_LINEAR_AXES(i) {
+        destination[i] = parser.seen(AXIS_CHAR(i))
           ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
           : current_position[i];
-        DEBUG_CHAR(' ', XYZ_CHAR(i));
+        DEBUG_CHAR(' ', AXIS_CHAR(i));
         DEBUG_ECHO_F(destination[i]);
       }
       DEBUG_EOL();
       // Move to the saved position
       prepare_line_to_destination();
     }
-    if (parser.seen_test('E')) {
-      DEBUG_ECHOLNPAIR(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", stored_position[slot].e);
-      SYNC_E(stored_position[slot].e);
-    }
+    #if HAS_EXTRUDERS
+      if (parser.seen_test('E')) {
+        DEBUG_ECHOLNPAIR(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", stored_position[slot].e);
+        SYNC_E(stored_position[slot].e);
+      }
+    #endif
   }
 
   feedrate_mm_s = saved_feedrate;

@@ -36,6 +36,9 @@
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
 
+// Avoid conflict with TIMER_TONE
+#define STEP_TIMER                            10
+
 //
 // Servos
 #define SERVO0_PIN                          PB6
@@ -68,7 +71,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                E0_DIAG_PIN  // E0DET
   #else
     #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
@@ -86,7 +89,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                E1_DIAG_PIN  // E1DET
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
@@ -104,7 +107,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                E2_DIAG_PIN  // PWRDET
   #else
     #define Z_MIN_PIN                E2_DIAG_PIN  // PWRDET
@@ -492,13 +495,13 @@
 // Alter timing for graphical display
 #if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+    #define BOARD_ST7920_DELAY_1   DELAY_NS(120)  // DELAY_NS(96)
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+    #define BOARD_ST7920_DELAY_2   DELAY_NS(80)   // DELAY_NS(48)
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(580)  // DELAY_NS(600)
   #endif
 #endif
 

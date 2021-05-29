@@ -49,10 +49,6 @@
   #define HAS_GCODE_M876
 #endif
 
-#if EXTRUDERS
-  #define HAS_EXTRUDERS
-#endif
-
 #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
   #define HAS_SMART_EFF_MOD
 #endif
