@@ -264,6 +264,11 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
+// Serial Pins for the MMU2
+#define ENABLE_HWSERIAL4
+#define PIN_SERIAL4_RX          PC11
+#define PIN_SERIAL4_TX          PC10
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
