@@ -30,151 +30,413 @@
 #define COLOR(color)          RGB(((color >> 16) & 0xFF), ((color >> 8) & 0xFF), (color & 0xFF))
 #define HALF(color)           RGB(RED(color) >> 1, GREEN(color) >> 1, BLUE(color) >> 1)
 
-// 16 bit color generator: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-// RGB565 color picker:  https://trolsoft.ru/en/articles/rgb565-color-picker
+// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
 
-#define COLOR_BLACK           0x0000  // #000000
-#define COLOR_WHITE           0xFFFF  // #FFFFFF
-#define COLOR_SILVER          0xC618  // #C0C0C0
-#define COLOR_GREY            0x7BEF  // #808080
-#define COLOR_DARKGREY        0x4208  // #404040
-#define COLOR_DARKGREY2       0x39E7  // #303030
-#define COLOR_DARK            0x0003  // #000019
+#define COLOR_DARKGREY    0x4208  //#404040 DEFAULT
 
-#define COLOR_RED             0xF800  // #FF0000
-#define COLOR_SCARLET         0xF904  // #FF2020
-#define COLOR_LIME            0x7E00  // #00FF00
-#define COLOR_BLUE            0x001F  // #0000FF
-#define COLOR_LIGHT_BLUE      0x061F  // #00C3FF
-#define COLOR_YELLOW          0xFFE0  // #FFFF00
-#define COLOR_MAGENTA         0xF81F  // #FF00FF
-#define COLOR_FUCHSIA         0xF81F  // #FF00FF
-#define COLOR_CYAN            0x07FF  // #00FFFF
-#define COLOR_AQUA            0x07FF  // #00FFFF
-#define COLOR_DODGER_BLUE     0x041F  // #0080FF
-#define COLOR_VIVID_VIOLET    0x7933  // #772399
+#define C_BLACK           0x0000  //#000000 DEFAULT
+#define C_DARK_PLUS_GREY  0x3186  //#323232
+#define C_DARK_GREY       0x7BEF  //#808080 DEFAULT
+#define C_GREY            0x7C0F  //#828282
+#define C_MEDIUM_GREY     0xBDD7  //#BEBEBE
+#define C_SILVER          0xC618  //#C0C0C0 DEFAULT
+#define C_LIGHT_GREY      0xCE79  //#D0D0D0
+#define C_WHITE           0xFFFF  //#FFFFFF DEFAULT
 
-#define COLOR_DARK_PURPLE     0x9930  // #992380
+#define C_MARRON          0x7800  //#800000 DEFAULT
+#define C_DARK_PLUS_RED   0x9945  //#A02C2D
+#define C_DARK_RED        0xE121  //#FF280A
+#define C_SCARLET         0xF904  //#FF2020 DEFAULT
+#define C_RED             0xF800  //#FF0000 DEFAULT
+#define C_CORAL_RED       0xF9E7  //#FF3F3F DEFAULT
 
-#define COLOR_MAROON          0x7800  // #800000
-#define COLOR_GREEN           0x03E0  // #008000
-#define COLOR_NAVY            0x000F  // #000080
-#define COLOR_OLIVE           0x8400  // #808000
-#define COLOR_PURPLE          0x8010  // #800080
-#define COLOR_TEAL            0x0410  // #008080
+#define C_LIGHT_PINK      0xFC13  //#FF82A0
+#define C_DARK_PURPLE     0x9930  //#A02787 DEFAULT
+#define C_PURPLE          0xE12D  //#323232
 
-#define COLOR_ORANGE          0xFC00  // #FF7F00
-#define COLOR_VIVID_GREEN     0x7FE0  // #7FFF00
-#define COLOR_DARK_ORANGE     0xFC40  // #FF8C00
-#define COLOR_CORAL_RED       0xF9E7  // #FF3F3F
+#define C_DARK_BLUE       0x20AC  //#1E156E DEFAULT
+#define C_BLUE            0x001F  //#0000FF DEFAULT
+#define C_LIGHT_BLUE      0x03B7  //#0078BE DEFAULT
+#define C_LIGHT_BLUE2     0x061F  //#00C3FF DEFAULT
+#define C_PASTEL_BLUE     0x6E1A  //#6EC3DC
+#define C_AQUA            0x07FF  //#00FFFF DEFAULT
 
-#define COLOR_DARK_PURPLE     0x9930  // #992380
+#define C_DARK_GREEN      0x0560  //#00AF00
+#define C_PASTEL_GREEN    0x6706  //#64E632
+#define C_GREEN           0x07E0  //#00FF00
+#define C_LIGHT_GREEN     0x7FE0  //#82FF00 DEFAULT
 
+#define C_GOLD            0xFE40  //#FFCD00
+#define C_YELLOW          0xFFE0  //#FFFF00 DEFAULT
+#define C_LIGHT_YELLOW    0xE7EA  //#EBFF55
+
+#define C_ORANGE          0xFBE0  //#FF8000
+#define C_LIGHT_ORANGE    0xFC40  //#FF8C00 DEFAULT
+
+//Main Color
+#ifndef MAIN_COLOR
+  #define MAIN_COLOR    C_WHITE
+#endif
+
+//Shadow Color
+#ifndef COLOR_SHADOW
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_SHADOW    C_BLACK
+  #elif ENABLED(DARK_UI)
+    #define COLOR_SHADOW    C_BLACK
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_SHADOW    C_WHITE
+  #endif
+#endif
+
+//Marlin BG Color
 #ifndef COLOR_BACKGROUND
-  #define COLOR_BACKGROUND    0x20AC  // #1E156E
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_BACKGROUND    C_DARK_BLUE
+  #elif ENABLED(DARK_UI)
+    #define COLOR_BACKGROUND    C_DARK_PLUS_GREY
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_BACKGROUND    C_WHITE
+  #endif
 #endif
-#ifndef COLOR_SELECTION_BG
-  #define COLOR_SELECTION_BG  0x9930  // #992380
+
+//Hover Color
+#ifndef COLOR_SELECTION_BG 
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_SELECTION_BG    C_DARK_PURPLE
+  #elif ENABLED(DARK_UI)
+    #define COLOR_SELECTION_BG    C_DARK_GREY
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_SELECTION_BG    C_SILVER
+  #endif
 #endif
+
+//Link Color
 #ifndef COLOR_WEBSITE_URL
-  #define COLOR_WEBSITE_URL   0x03B7  // #0075BD
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_WEBSITE_URL    C_LIGHT_BLUE
+  #elif ENABLED(DARK_UI)
+    #define COLOR_WEBSITE_URL    C_PASTEL_GREEN
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_WEBSITE_URL    C_PASTEL_GREEN
+  #endif
 #endif
 
+//Off icons Color
 #ifndef COLOR_INACTIVE
-  #define COLOR_INACTIVE          COLOR_GREY
-#endif
-#ifndef COLOR_COLD
-  #define COLOR_COLD              COLOR_AQUA
-#endif
-#ifndef COLOR_HOTEND
-  #define COLOR_HOTEND            COLOR_SCARLET
-#endif
-#ifndef COLOR_HEATED_BED
-  #define COLOR_HEATED_BED        COLOR_DARK_ORANGE
-#endif
-#ifndef COLOR_CHAMBER
-  #define COLOR_CHAMBER           COLOR_DARK_ORANGE
-#endif
-#ifndef COLOR_COOLER
-  #define COLOR_COOLER            COLOR_DARK_ORANGE
-#endif
-#ifndef COLOR_FAN
-  #define COLOR_FAN               COLOR_AQUA
+  #if ENABLED(White_UI)
+    #define COLOR_INACTIVE          C_DARK_GREY
+  #else
+    #define COLOR_INACTIVE          C_LIGHT_GREY
+  #endif
 #endif
 
+//Cold Icons Color
+#ifndef COLOR_COLD
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_COLD    C_AQUA
+  #elif ENABLED(DARK_UI)
+    #define COLOR_COLD    C_PASTEL_BLUE
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_COLD    C_BLUE
+  #endif
+#endif
+
+//Heated Hotend Color
+#ifndef COLOR_HOTEND
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_HOTEND    C_SCARLET
+  #elif ENABLED(DARK_UI)
+    #define COLOR_HOTEND    C_DARK_RED 
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_HOTEND    C_RED
+  #endif
+#endif
+
+//Heated BED Color
+#ifndef COLOR_HEATED_BED
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_HEATED_BED    C_LIGHT_ORANGE
+  #elif ENABLED(DARK_UI)
+    #define COLOR_HEATED_BED    C_ORANGE
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_HEATED_BED    C_ORANGE
+  #endif
+#endif
+
+//Chamber Color
+#ifndef COLOR_CHAMBER
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_CHAMBER    C_LIGHT_ORANGE
+  #elif ENABLED(DARK_UI)
+    #define COLOR_CHAMBER    C_ORANGE
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_CHAMBER    C_ORANGE
+  #endif
+#endif
+
+//Fan Color
+#ifndef COLOR_FAN
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_FAN    C_AQUA
+  #elif ENABLED(DARK_UI)
+    #define COLOR_FAN    C_PASTEL_BLUE
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_FAN    C_BLUE
+  #endif
+#endif
+
+//Home Position Color
 #ifndef COLOR_AXIS_HOMED
-  #define COLOR_AXIS_HOMED        COLOR_WHITE
+  #if ENABLED(WHITE_UI)
+    #define COLOR_AXIS_HOMED    C_DARK_GREY
+  #else
+    #define COLOR_AXIS_HOMED    C_WHITE
+  #endif
 #endif
 #ifndef COLOR_AXIS_NOT_HOMED
-  #define COLOR_AXIS_NOT_HOMED    COLOR_YELLOW
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_AXIS_NOT_HOMED    C_YELLOW
+  #elif ENABLED(DARK_UI)
+    #define COLOR_AXIS_NOT_HOMED    C_LIGHT_PINK
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_AXIS_NOT_HOMED    C_LIGHT_PINK
+  #endif
 #endif
 
+//Velocity and Flow Color
 #ifndef COLOR_RATE_100
-  #define COLOR_RATE_100          COLOR_VIVID_GREEN
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_RATE_100    C_LIGHT_GREEN
+  #elif ENABLED(DARK_UI)
+    #define COLOR_RATE_100    C_PASTEL_GREEN
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_RATE_100    C_DARK_GREEN
+  #endif
 #endif
 #ifndef COLOR_RATE_ALTERED
-  #define COLOR_RATE_ALTERED      COLOR_YELLOW
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_RATE_ALTERED    C_YELLOW
+  #elif ENABLED(DARK_UI)
+    #define COLOR_RATE_ALTERED    C_LIGHT_YELLOW
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_RATE_ALTERED    C_GOLD
+  #endif
 #endif
 
+//Time Color
 #ifndef COLOR_PRINT_TIME
-  #define COLOR_PRINT_TIME        COLOR_AQUA
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_PRINT_TIME    C_AQUA
+  #elif ENABLED(DARK_UI)
+    #define COLOR_PRINT_TIME    C_PASTEL_BLUE
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_PRINT_TIME    C_BLUE
+  #endif
 #endif
 
+// Bar Time Color
 #ifndef COLOR_PROGRESS_FRAME
-  #define COLOR_PROGRESS_FRAME    COLOR_WHITE
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_PROGRESS_FRAME    C_WHITE
+  #elif ENABLED(DARK_UI)
+    #define COLOR_PROGRESS_FRAME    COLOR_BACKGROUND
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_PROGRESS_FRAME    COLOR_BACKGROUND
+  #endif
 #endif
 #ifndef COLOR_PROGRESS_BAR
-  #define COLOR_PROGRESS_BAR      COLOR_BLUE
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_PROGRESS_BAR    C_BLUE
+  #elif ENABLED(DARK_UI)
+    #define COLOR_PROGRESS_BAR    C_PASTEL_BLUE
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_PROGRESS_BAR    C_BLUE
+  #endif
 #endif
 #ifndef COLOR_PROGRESS_BG
-  #define COLOR_PROGRESS_BG       COLOR_BLACK
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_PROGRESS_BG    C_BLACK
+  #elif ENABLED(DARK_UI)
+    #define COLOR_PROGRESS_BG    C_DARK_GREY
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_PROGRESS_BG    C_LIGHT_GREY
+  #endif
 #endif
 
+//Message Color
 #ifndef COLOR_STATUS_MESSAGE
-  #define COLOR_STATUS_MESSAGE    COLOR_YELLOW
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_STATUS_MESSAGE    C_YELLOW
+  #elif ENABLED(DARK_UI)
+    #define COLOR_STATUS_MESSAGE    C_LIGHT_PINK
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_STATUS_MESSAGE    C_LIGHT_PINK
+  #endif
 #endif
 
+//Controls Color
 #ifndef COLOR_CONTROL_ENABLED
-  #define COLOR_CONTROL_ENABLED   COLOR_WHITE
+  #if ENABLED(WHITE_UI)
+    #define COLOR_CONTROL_ENABLED    C_DARK_GREY
+  #else
+    #define COLOR_CONTROL_ENABLED    C_WHITE
+  #endif
 #endif
 #ifndef COLOR_CONTROL_DISABLED
-  #define COLOR_CONTROL_DISABLED  COLOR_GREY
+  #if ENABLED(WHITE_UI)
+    #define COLOR_CONTROL_DISABLED          C_MEDIUM_GREY
+  #else
+    #define COLOR_CONTROL_DISABLED          C_DARK_GREY
+  #endif
 #endif
 #ifndef COLOR_CONTROL_CANCEL
-  #define COLOR_CONTROL_CANCEL    COLOR_SCARLET
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_CONTROL_CANCEL    C_SCARLET
+  #elif ENABLED(DARK_UI)
+    #define COLOR_CONTROL_CANCEL    C_DARK_RED 
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_CONTROL_CANCEL    C_RED
+  #endif
 #endif
 #ifndef COLOR_CONTROL_CONFIRM
-  #define COLOR_CONTROL_CONFIRM   COLOR_VIVID_GREEN
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_CONTROL_CONFIRM    C_LIGHT_GREEN
+  #elif ENABLED(DARK_UI)
+    #define COLOR_CONTROL_CONFIRM    C_PASTEL_GREEN
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_CONTROL_CONFIRM    C_GREEN
+  #endif
 #endif
 #ifndef COLOR_BUSY
-  #define COLOR_BUSY              COLOR_SILVER
+  #if ENABLED(WHITE_UI)
+    #define COLOR_BUSY              C_SILVER
+  #else
+    #define COLOR_BUSY              C_SILVER
+  #endif
 #endif
 
+//Text Menu Color
 #ifndef COLOR_MENU_TEXT
-  #define COLOR_MENU_TEXT         COLOR_YELLOW
-#endif
+  #if ENABLED(MARLIN_UI) 
+    #define COLOR_MENU_TEXT    C_YELLOW
+  #elif ENABLED(DARK_UI)
+    #define COLOR_MENU_TEXT    C_LIGHT_PINK
+  #elif ENABLED(WHITE_UI)
+    #define COLOR_MENU_TEXT    C_LIGHT_PINK
+  #endif
+ #endif
 #ifndef COLOR_MENU_VALUE
-  #define COLOR_MENU_VALUE        COLOR_WHITE
+  #if ENABLED(WHITE_UI)
+    #define COLOR_MENU_VALUE    C_DARK_GREY
+  #else
+    #define COLOR_MENU_VALUE    C_WHITE
+  #endif
 #endif
 
+//Slider Color
 #ifndef COLOR_SLIDER
-  #define COLOR_SLIDER            COLOR_WHITE
+  #if ENABLED(WHITE_UI)
+    #define COLOR_SLIDER    C_DARK_GREY
+  #else
+    #define COLOR_SLIDER    C_WHITE
+  #endif
 #endif
 #ifndef COLOR_SLIDER_INACTIVE
-  #define COLOR_SLIDER_INACTIVE   COLOR_GREY
+  #if ENABLED(WHITE_UI)
+    #define COLOR_SLIDER_INACTIVE    C_LIGHT_GREY
+  #else
+    #define COLOR_SLIDER_INACTIVE    C_DARK_GREY
+  #endif
 #endif
 
+//Color UBL
 #ifndef COLOR_UBL
-  #define COLOR_UBL               COLOR_WHITE
+  #if ENABLED(WHITE_UI)
+    #define COLOR_UBL    C_DARK_GREY
+  #else
+    #define COLOR_UBL    C_WHITE
+  #endif
 #endif
 
+//Calibration Color
 #ifndef COLOR_TOUCH_CALIBRATION
-  #define COLOR_TOUCH_CALIBRATION COLOR_WHITE
+  #if ENABLED(WHITE_UI)
+    #define COLOR_TOUCH_CALIBRATION    C_DARK_GREY
+  #else
+    #define COLOR_TOUCH_CALIBRATION    C_WHITE
+  #endif
 #endif
 
+//Error Screen Color
 #ifndef COLOR_KILL_SCREEN_BG
-  #define COLOR_KILL_SCREEN_BG    COLOR_MAROON
+  #if ENABLED(MARLIN_UI)
+    #define COLOR_KILL_SCREEN_BG          C_MARRON
+  #else
+    #define COLOR_KILL_SCREEN_BG          C_DARK_PLUS_RED
+  #endif
 #endif
 #ifndef COLOR_KILL_SCREEN_TEXT
-  #define COLOR_KILL_SCREEN_TEXT  COLOR_WHITE
+  #define COLOR_KILL_SCREEN_TEXT  C_WHITE
+#endif
+
+//Submenu axis color
+#ifndef E_BTN_COLOR
+  #if ENABLED(MARLIN_UI)
+    #define E_BTN_COLOR    C_YELLOW
+  #elif ENABLED(DARK_UI)
+    #define E_BTN_COLOR    C_LIGHT_PINK
+  #elif ENABLED(WHITE_UI)
+    #define E_BTN_COLOR    C_LIGHT_PINK
+  #endif
+#endif
+#ifndef X_BTN_COLOR
+  #if ENABLED(MARLIN_UI)
+    #define X_BTN_COLOR    C_CORAL_RED
+  #elif ENABLED(DARK_UI)
+    #define X_BTN_COLOR    C_DARK_RED
+  #elif ENABLED(WHITE_UI)
+    #define X_BTN_COLOR    C_RED
+  #endif
+#endif
+#ifndef Y_BTN_COLOR
+  #if ENABLED(MARLIN_UI)
+    #define Y_BTN_COLOR    C_LIGHT_GREEN
+  #elif ENABLED(DARK_UI)
+    #define Y_BTN_COLOR    C_PASTEL_GREEN
+  #elif ENABLED(WHITE_UI)
+    #define Y_BTN_COLOR    C_DARK_GREEN
+  #endif
+#endif
+#ifndef Z_BTN_COLOR
+  #if ENABLED(MARLIN_UI)
+    #define Z_BTN_COLOR    C_LIGHT_BLUE2
+  #elif ENABLED(DARK_UI)
+    #define Z_BTN_COLOR    C_PASTEL_BLUE
+  #elif ENABLED(WHITE_UI)
+    #define Z_BTN_COLOR    C_BLUE
+  #endif
+#endif
+#ifndef OFF_BTN_COLOR
+  #if ENABLED(WHITE_UI)
+    #define OFF_BTN_COLOR    C_DARK_GREY
+  #else
+    #define OFF_BTN_COLOR    C_WHITE
+  #endif
+#endif
+#ifndef AXIS_MENU_MESSAGE_COLOR
+  #if ENABLED(MARLIN_UI)
+    #define AXIS_MENU_MESSAGE_COLOR    C_YELLOW
+  #elif ENABLED(DARK_UI)
+    #define AXIS_MENU_MESSAGE_COLOR    C_LIGHT_YELLOW
+  #elif ENABLED(WHITE_UI)
+    #define AXIS_MENU_MESSAGE_COLOR    C_GOLD
+  #endif
+#endif
+#ifndef COLOR_SHADOW_AXIS
+  #if ENABLED(WHITE_UI)
+    #define COLOR_SHADOW_AXIS    COLOR_BACKGROUND
+  #else
+    #define COLOR_SHADOW_AXIS    COLOR_DARKGREY
+  #endif
 #endif

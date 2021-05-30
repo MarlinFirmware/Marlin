@@ -173,7 +173,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t Heater) {
   #if HAS_TEMP_COOLER
     else if (Heater == H_COOLER) {
       if (currentTemperature <= 26) Color = COLOR_COLD;
-      if (currentTemperature > 26) Color = COLOR_RED;
+      if (currentTemperature > 26) Color = C_RED;
       image = targetTemperature > 26 ? imgCoolerHot : imgCooler;
     }
   #endif
@@ -475,7 +475,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 
     tft.canvas(GRID_OFFSET_X, GRID_OFFSET_Y, GRID_WIDTH, GRID_HEIGHT);
     tft.set_background(COLOR_BACKGROUND);
-    tft.add_rectangle(0, 0, GRID_WIDTH, GRID_HEIGHT, COLOR_WHITE);
+    tft.add_rectangle(0, 0, GRID_WIDTH, GRID_HEIGHT, COLOR_UBL);
 
     for (uint16_t x = 0; x < (GRID_MAX_POINTS_X); x++)
       for (uint16_t y = 0; y < (GRID_MAX_POINTS_Y); y++)
@@ -559,11 +559,6 @@ struct MotionAxisState {
 
 MotionAxisState motionAxisState;
 
-#define E_BTN_COLOR COLOR_YELLOW
-#define X_BTN_COLOR COLOR_CORAL_RED
-#define Y_BTN_COLOR COLOR_VIVID_GREEN
-#define Z_BTN_COLOR COLOR_LIGHT_BLUE
-
 #define BTN_WIDTH 64
 #define BTN_HEIGHT 52
 #define X_MARGIN 20
@@ -614,7 +609,7 @@ static void drawCurESelection() {
 static void drawMessage(const char *msg) {
   tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - 34, TFT_HEIGHT / 2, 34);
   tft.set_background(COLOR_BACKGROUND);
-  tft.add_text(0, 0, COLOR_YELLOW, msg);
+  tft.add_text(0, 0, AXIS_MENU_MESSAGE_COLOR, msg);
 }
 
 static void drawAxisValue(const AxisEnum axis) {
@@ -780,7 +775,7 @@ static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage 
 
   tft.canvas(x, y, width, height);
   tft.set_background(COLOR_BACKGROUND);
-  tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
+  tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_SHADOW_AXIS);
 
   // TODO: Make an add_text() taking a font arg
   if (label) {
@@ -789,7 +784,7 @@ static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage 
     tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
   }
   else {
-    tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
+    tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_SHADOW_AXIS);
   }
 
   TERN_(HAS_TFT_XPT2046, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
@@ -896,7 +891,7 @@ void MarlinUI::move_axis_screen() {
   }
 
   // aligned with x+
-  drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (intptr_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
+  drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (intptr_t)disable_steppers, imgCancel, OFF_BTN_COLOR, !busy);
 
   TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack));
 }
