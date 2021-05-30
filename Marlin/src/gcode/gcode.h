@@ -295,6 +295,7 @@
  * M994 - Load a Backup from SD to SPI Flash
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
+ * M998 - Intelligent Dwell Timer
  * M999 - Restart after being stopped by error
  * D... - Custom Development G-code. Add hooks to 'gcode_D.cpp' for developers to test features. (Requires MARLIN_DEV_MODE)
  *
@@ -1001,6 +1002,7 @@ private:
 
   #if ENABLED(HAS_BED_PROBE)
     static void M851();
+    static void M998();
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
