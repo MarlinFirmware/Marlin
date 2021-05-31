@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,24 +16,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_BED_PROBE
+#if ENABLED(BED_SWELL_DWELL)
 
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
-#include "../../core/macros.h"
 #include "../../lcd/dogm/marlinui_DOGM.h"
 #include "../../lcd/lcdprint.h"
 #include "../../lcd/marlinui.h"
-#include "../../lcd/menu/menu_item.h"
-
 
 const unsigned char plot_backdrop[] PROGMEM = {
   B00000000,B00000000,B10000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,B00000000,
@@ -102,11 +99,8 @@ const unsigned char plot_backdrop[] PROGMEM = {
   B10101110,B01001010,B11101100,B11001001,B00101000,B00000000,B00000000,B00000010,B00101010,B00001100,B00100011,B10000000,B00000000,B00000000,B00000000,B10001010
 };
 
-
 void plot_loop(float value[], int counter, float regression);
 float calc_regression(float x[], float z[], int length);
-
-
 
 /**
  * M998: Probe point on bed until bed movement is within specified range
@@ -124,65 +118,54 @@ void GcodeSuite::M998() {
 
   if (homing_needed_error()) return;
 
+  ui.capture(); // Disallow interaction with the LCD
+  
   // Disable leveling so the planner won't mess with us
-  #if HAS_LEVELING
-    set_bed_leveling_enabled(false);
-  #endif
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
   remember_feedrate_scaling_off();
 
   const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
-  START_SCREEN(); //from menu.cpp
-  plot_loop(0,-1,-1);
+  plot_loop(0, -1, -1);
 
-  /* definitions */
-  int window = 16;
-  double maxtime = 200*1000; //maximum dwell time [ms]
-  float regression_max = 0.05; //[um/s]
+  constexpr int window = 16;
+  constexpr millis_t maxtime = 200 * 1000; // maximum dwell time [ms]
+  constexpr float regression_max = 0.05; // [µm/s]
 
   int i;
-  float measured_z_positions_window[window] = {}; //[um]
-  float measured_z_positions[(int(maxtime)/1000)*2] = {}; //[um]
-  float measured_times[window] = {}; //[s]
-  float measured_times_pre_regression[window] = {};
-  float mov_mean_z[window-2] = {}; //[um]
-  double starttime = millis();
-  float regression = 1; //[um/s]
+  float measured_z_positions_window[window] = {}, // [µm]
+        measured_z_positions[(int(maxtime) / 1000) * 2] = {}, // [µm]
+        measured_times[window] = {}, // [s]
+        measured_times_pre_regression[window] = {},
+        mov_mean_z[window-2] = {}; // [µm]
+  float regression = 1; // [µm/s]
   int triggercount = 0, counter = 0;
-  ui.defer_status_screen(true);
-  ui.lcd_status_update_delay = 232;
 
-  /* find start z position */
+  const millis_t starttime = millis();
+
+  // Find starting z position
   const float start_z = probe.probe_at_point(pos, raise_after, 0);
-  SERIAL_ECHOLNPAIR("start_z = ", start_z*1000);
+  SERIAL_ECHOLNPAIR("start_z = ", start_z * 1000);
   
-  /* start continuous measurements */
-  for(i = window-2; i >= 0; i--){
-    ui.defer_status_screen(true);
-    ui.lcd_status_update_delay = 232;
+  // Start continuous measurements
+  for (i = window - 2; i >= 0; i--) {
     const float measured_z = probe.probe_at_point(pos, raise_after, 0);
-    measured_z_positions_window[i] = (measured_z-start_z)*1000; //[um]
-    measured_times[i] = (millis()-starttime)/1000; //[s]
-    SERIAL_ECHOLNPAIR("measured_z = ", measured_z*1000);
+    measured_z_positions_window[i] = (measured_z - start_z) * 1000; // [µm]
+    measured_times[i] = (millis() - starttime) / 1000; // [s]
+    SERIAL_ECHOLNPAIR("measured_z = ", measured_z * 1000);
     SERIAL_ECHOLNPAIR("measured_z_positions_window[i] = ", measured_z_positions_window[i]);
 
-    /* calculate moving mean once there are enough values */
-    if(counter < 2){
+    // Calculate moving mean once there are enough values
+    if (counter < 2)
       measured_z_positions[counter] = measured_z_positions_window[i];
-    }
-    else{
-      measured_z_positions[counter] = (measured_z_positions_window[i]+measured_z_positions[counter-1]+measured_z_positions[counter-2])/3;
-    }
+    else
+      measured_z_positions[counter] = (measured_z_positions_window[i] + measured_z_positions[counter - 1] + measured_z_positions[counter - 2]) / 3;
+
     measured_times_pre_regression[counter] = measured_times[i];
     //SERIAL_ECHOLNPAIR("measured_times_pre_regression[", counter, "]: ", measured_times_pre_regression[counter]);
     //SERIAL_ECHOLNPAIR("measured_z_positions[", counter, "]: ", measured_z_positions[counter]);
-    if(counter < 1){
-      regression = -1.0;
-    }
-    else{
-      regression = calc_regression(measured_times_pre_regression, measured_z_positions, counter+1 /*=length*/);
-    }
+    regression = counter < 1 ? -1.0 : calc_regression(measured_times_pre_regression, measured_z_positions, counter + 1 /*=length*/);
 
     plot_loop(measured_z_positions, counter, regression);
     counter++; //counter starting at 0
@@ -190,127 +173,95 @@ void GcodeSuite::M998() {
     safe_delay(1000);
   }
 
-
-
-
-  while (triggercount <= 3 and millis()-starttime < maxtime ){
-    /* shifting array elements to the right */
-    for(i = window - 1; i > 0; i--){
-        measured_z_positions_window[i]=measured_z_positions_window[i-1];
-        measured_times[i]=measured_times[i-1];
-        //SERIAL_ECHOLNPAIR("measured_z_positions_window[",i,"]: ", measured_z_positions_window[i]);
+  while (triggercount <= 3 && millis() - starttime < maxtime ) {
+    // Shifting array elements to the right
+    for (int i = window - 1; i > 0; i--) {
+      measured_z_positions_window[i] = measured_z_positions_window[i - 1];
+      measured_times[i] = measured_times[i - 1];
+      //SERIAL_ECHOLNPAIR("measured_z_positions_window[",i,"]: ", measured_z_positions_window[i]);
     }
 
-    /* take and store measurements */
-    ui.defer_status_screen(true);
-    ui.lcd_status_update_delay = 90;
+    // Take measurements and store
     const float measured_z = probe.probe_at_point(pos, raise_after, 0);
-    measured_z_positions_window[0] = (measured_z-start_z)*1000; //[um]
+    measured_z_positions_window[0] = (measured_z - start_z) * 1000; // [µm]
     measured_z_positions[counter] = measured_z_positions_window[0];
 
-    measured_times[0] = (millis()-starttime)/1000; //(millis()-sectiontime)/1000; //[s]
+    measured_times[0] = (millis() - starttime) / 1000; //(millis() - sectiontime) / 1000; //[s]
     //sectiontime = millis();
 
-    /* clean up data with moving mean of 3*/
-    for(i = 1; i < window-1; i++){
-       mov_mean_z[i-1] = (measured_z_positions_window[i-1] + measured_z_positions_window[i] + measured_z_positions_window[i+1])/3;
-    }
+    // clean up data with moving mean of 3
+    for (i = 1; i < window - 1; i++)
+      mov_mean_z[i - 1] = (measured_z_positions_window[i - 1] + measured_z_positions_window[i] + measured_z_positions_window[i + 1]) / 3;
 
     measured_z_positions[counter] = mov_mean_z[0];
     regression = calc_regression(measured_times, mov_mean_z, window);
-    if(ABS(regression) < regression_max){
-      triggercount++;
-    }
-    else{
-      triggercount = 0;
-    }
+    if (ABS(regression) < regression_max) triggercount++; else triggercount = 0;
 
     plot_loop(measured_z_positions, counter, regression);
     counter++;
 
     safe_delay(1000);
-  } //end while
+  }
 
+  ui.release(); // Re-enable interaction with the LCD
 
   restore_feedrate_and_scaling();
-  PROBE_PT_STOW;
-  #ifdef Z_AFTER_PROBING
-    move_z_after_probing();
-  #endif
+
+  // From M402:
+  probe.stow();
+  probe.move_z_after_probing();
   report_current_position();
-  _lcdLineNr = LCD_HEIGHT;
-  END_SCREEN(); //from menu.cpp
-  SERIAL_ECHOLNPAIR("Bed is now stable!");
-} //end M998
 
+  SERIAL_ECHOLNPAIR("Bed has stabilized!");
+}
 
-
-
-
-
-void plot_loop(float value[] = {0}, int counter = -1, float regression = -1){
-  /* calculate pixels */
+void plot_loop(float value[] = {0}, int counter = -1, float regression = -1) {
+  // calculate pixels
   // TODO: Calculation is very inefficient
-  if(counter >= 0){
-    int datapixel[counter+1];
-    for(int i = 0; i <= counter; i++){
-      datapixel[i] = 43.0+((value[i]/(20.0/7.0))*(-1.0)); // (20/7) um per pixel, zero is at y=43
-      if(datapixel[i] < 0){
-        datapixel[i] = 0;
-      }
-      else if(datapixel[i] > 50){
-        datapixel[i] = 50;
-      }
-    } //end for
+  if (counter >= 0) {
+    int datapixel[counter + 1];
+    for (int i = 0; i <= counter; i++) {
+      datapixel[i] = 43.0f + ((value[i] / 20.0f / 7.0f) * -1.0f); // (20/7) µm per pixel, zero is at y=43
+      LIMIT(datapixel[i], 0, 50);
+    }
     SERIAL_ECHOLNPAIR("Z: ", value[counter], "um, Regression: ", regression);
-
-    /* picture loop */
-    u8g.firstPage();
-    do {
-      u8g.drawBitmapP( 0, 0, 128/8, 64, plot_backdrop );
-      for(int i = 0; i <= counter; i++){
-        u8g.drawPixel(17+i, datapixel[i]); //TODO: datapixel is currently not tied to an exact time value
-        u8g.setFont(u8g_font_micro);
-        u8g.setFontPosTop();
-        u8g.setPrintPos(41, 58);
-        u8g.print(regression);
-        u8g.setPrintPos(93, 58);
-        u8g.print(value[counter]);
-      }
-    } while (u8g.nextPage());
   }
-  else {
-    /* picture loop */
-    u8g.firstPage();
-    do {
-      u8g.drawBitmapP( 0, 0, 128/8, 64, plot_backdrop );
-    } while (u8g.nextPage());
-  } //end if
-} //end plot_loop
 
+  // picture loop
+  u8g.firstPage();
+  do {
+    u8g.drawBitmapP( 0, 0, 128/8, 64, plot_backdrop);
+    for (int i = 0; i <= counter; i++) {
+      u8g.drawPixel(17 + i, datapixel[i]); // TODO: datapixel is currently not tied to an exact time value
+      u8g.setFont(u8g_font_micro);
+      u8g.setFontPosTop();
+      u8g.setPrintPos(41, 58);
+      u8g.print(regression);
+      u8g.setPrintPos(93, 58);
+      u8g.print(value[counter]);
+    }
+  } while (u8g.nextPage());
+}
 
+float calc_regression(float x[], float z[], int length) {
+  const int samples = length - 2;
 
-float calc_regression(float x[], float z[], int length){
-  float sum_x, sum_z, sum_1, sum_2;
-  /* Calculate Regression */
-  for(int i = 0; i < length-2; i++){
-     sum_z += z[i];
-     sum_x += x[i];
-     //SERIAL_ECHOLNPAIR("mov_mean_z[",i,"]: ", mov_mean_z[i]);
+  // Calculate Regression
+  float sum_x = 0, sum_z = 0;
+  for (int i = 0; i < samples; i++) {
+    sum_z += z[i];
+    sum_x += x[i];
+    //SERIAL_ECHOLNPAIR("mov_mean_z[",i,"]: ", mov_mean_z[i]);
   }
-  float mean_z = sum_z/(length-2);
-  float mean_x = sum_x/(length-2);
+  const float mean_z = sum_z / samples,
+              mean_x = sum_x / samples;
 
-  sum_z = 0;
-  sum_x = 0;
-  for(int i = 0; i < length-2; i++){
-     sum_1 += (z[i]-mean_z)*(x[i]-mean_x);
-     sum_2 += (x[i]-mean_x)*(x[i]-mean_x);
+  float sum_1 = 0, sum_2 = 0;
+  for (int i = 0; i < samples; i++) {
+    sum_1 += (z[i] - mean_z) * (x[i] - mean_x);
+    sum_2 += (x[i] - mean_x) * (x[i] - mean_x);
   }
-  float regression = sum_1/sum_2; //Regression
-  sum_1 = 0;
-  sum_2 = 0;
-  return regression;
-} //end calc_regression
+  return sum_1 / sum_2; // Regression
+}
 
-#endif // HAS_BED_PROBE
+#endif // BED_SWELL_DWELL
