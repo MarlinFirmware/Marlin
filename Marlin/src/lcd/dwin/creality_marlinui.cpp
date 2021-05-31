@@ -63,6 +63,9 @@ void MarlinUI::set_brightness(const uint8_t value) {
       case PAUSE_MESSAGE_HEAT:
         CrealityDWIN.Confirm_Handler(HeaterTime);
         break;
+      case PAUSE_MESSAGE_WAITING:
+        CrealityDWIN.Draw_Print_Screen();
+        break;
       default:
         break;
     }
