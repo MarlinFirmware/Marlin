@@ -39,6 +39,10 @@
   #include "../../../../module/stepper/trinamic.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../../../feature/powerloss.h"
+#endif
+
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   uint16_t distanceToMove = 10;
 #endif
@@ -78,8 +82,13 @@ constexpr feedRate_t park_speed_xy = TERN(NOZZLE_PARK_FEATURE, NOZZLE_PARK_XY_FE
 void MKS_pause_print_move() {
   queue.exhaust();
   position_before_pause = current_position;
+
+  // Save the current position, the raise amount, and 'already raised'
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, mks_park_pos.z, true));
+
   destination.z = _MIN(current_position.z + mks_park_pos.z, Z_MAX_POS);
   prepare_internal_move_to_destination(park_speed_z);
+
   destination.set(X_MIN_POS + mks_park_pos.x, Y_MIN_POS + mks_park_pos.y);
   prepare_internal_move_to_destination(park_speed_xy);
 }
@@ -89,6 +98,7 @@ void MKS_resume_print_move() {
   prepare_internal_move_to_destination(park_speed_xy);
   destination.z = position_before_pause.z;
   prepare_internal_move_to_destination(park_speed_z);
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
 }
 
 float z_offset_add = 0;
@@ -656,10 +666,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Z_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Z_AXIS], ScreenHandler.HandleMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
 
   #if HOTENDS >= 1
-    VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E0_AXIS], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+    VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(0)], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
   #endif
   #if HOTENDS >= 2
-    VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E1_AXIS], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
+    VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], ScreenHandler.HandleExtruderMaxSpeedChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
   #endif
 
   VPHELPER(VP_X_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[X_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
@@ -667,10 +677,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Z_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[Z_AXIS], ScreenHandler.HandleMaxAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
 
   #if HOTENDS >= 1
-    VPHELPER(VP_E0_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E0_AXIS], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_E0_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(0)], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   #endif
   #if HOTENDS >= 2
-    VPHELPER(VP_E1_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E1_AXIS], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_E1_ACC_MAX_SPEED, (uint16_t *)&planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)], ScreenHandler.HandleExtruderAccChange_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   #endif
 
   VPHELPER(VP_TRAVEL_SPEED, (uint16_t *)&planner.settings.travel_acceleration, ScreenHandler.HandleTravelAccChange_MKS, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<0>),
@@ -681,7 +691,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_X_PARK_POS, &mks_park_pos.x, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_Y_PARK_POS, &mks_park_pos.y, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   VPHELPER(VP_Z_PARK_POS, &mks_park_pos.z, ScreenHandler.GetParkPos_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-  VPHELPER(VP_MIN_EX_T, &thermalManager.extrude_min_temp, ScreenHandler.HandleGetExMinTemp_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    VPHELPER(VP_MIN_EX_T, &thermalManager.extrude_min_temp, ScreenHandler.HandleGetExMinTemp_MKS, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #endif
 
   #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting
     #if AXIS_HAS_STEALTHCHOP(X)
@@ -733,7 +746,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_ZOffset_Distance,nullptr ,ScreenHandler.GetZoffsetDistance, nullptr),
   VPHELPER(VP_MESH_LEVEL_ADJUST, nullptr, ScreenHandler.MeshLevelDistanceConfig, nullptr),
   VPHELPER(VP_MESH_LEVEL_POINT,nullptr, ScreenHandler.MeshLevel,nullptr),
-  VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, &ScreenHandler.GetMinExtrudeTemp, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, &ScreenHandler.GetMinExtrudeTemp, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  #endif
+
   VPHELPER(VP_AutoTurnOffSw, nullptr, &ScreenHandler.GetTurnOffCtrl, nullptr),
 
   #if HOTENDS >= 1

@@ -211,7 +211,7 @@
       SERIAL_PRINTLN(data.drv_status, HEX);
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
-      TERN_(TMC_DEBUG, tmc_report_all(true, true, true, true));
+      TERN_(TMC_DEBUG, tmc_report_all());
       kill(PSTR("Driver error"));
     }
   #endif
@@ -757,7 +757,10 @@
     }
   }
 
-  static void tmc_debug_loop(const TMC_debug_enum i, const bool print_x, const bool print_y, const bool print_z, const bool print_e) {
+  static void tmc_debug_loop(
+    const TMC_debug_enum i,
+    LOGICAL_AXIS_LIST(const bool print_e, const bool print_x, const bool print_y, const bool print_z)
+  ) {
     if (print_x) {
       #if AXIS_IS_TMC(X)
         tmc_status(stepperX, i);
@@ -821,7 +824,10 @@
     SERIAL_EOL();
   }
 
-  static void drv_status_loop(const TMC_drv_status_enum i, const bool print_x, const bool print_y, const bool print_z, const bool print_e) {
+  static void drv_status_loop(
+    const TMC_drv_status_enum i,
+    LOGICAL_AXIS_LIST(const bool print_e, const bool print_x, const bool print_y, const bool print_z)
+  ) {
     if (print_x) {
       #if AXIS_IS_TMC(X)
         tmc_parse_drv_status(stepperX, i);
@@ -889,9 +895,12 @@
    * M122 report functions
    */
 
-  void tmc_report_all(bool print_x, const bool print_y, const bool print_z, const bool print_e) {
-    #define TMC_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL);  tmc_debug_loop(ITEM, print_x, print_y, print_z, print_e); }while(0)
-    #define DRV_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); drv_status_loop(ITEM, print_x, print_y, print_z, print_e); }while(0)
+  void tmc_report_all(
+    LOGICAL_AXIS_LIST(const bool print_e/*=true*/, const bool print_x/*=true*/, const bool print_y/*=true*/, const bool print_z/*=true*/)
+  ) {
+    #define TMC_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL);  tmc_debug_loop(ITEM, LOGICAL_AXIS_LIST(print_e, print_x, print_y, print_z)); }while(0)
+    #define DRV_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); drv_status_loop(ITEM, LOGICAL_AXIS_LIST(print_e, print_x, print_y, print_z)); }while(0)
+
     TMC_REPORT("\t",                 TMC_CODES);
     #if HAS_DRIVER(TMC2209)
       TMC_REPORT("Address\t",        TMC_UART_ADDR);
@@ -1015,7 +1024,10 @@
     }
   #endif
 
-  static void tmc_get_registers(TMC_get_registers_enum i, const bool print_x, const bool print_y, const bool print_z, const bool print_e) {
+  static void tmc_get_registers(
+    TMC_get_registers_enum i,
+    LOGICAL_AXIS_LIST(const bool print_e, const bool print_x, const bool print_y, const bool print_z)
+  ) {
     if (print_x) {
       #if AXIS_IS_TMC(X)
         tmc_get_registers(stepperX, i);
@@ -1079,8 +1091,10 @@
     SERIAL_EOL();
   }
 
-  void tmc_get_registers(bool print_x, bool print_y, bool print_z, bool print_e) {
-    #define _TMC_GET_REG(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_get_registers(ITEM, print_x, print_y, print_z, print_e); }while(0)
+  void tmc_get_registers(
+    LOGICAL_AXIS_LIST(bool print_e, bool print_x, bool print_y, bool print_z)
+  ) {
+    #define _TMC_GET_REG(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_get_registers(ITEM, LOGICAL_AXIS_LIST(print_e, print_x, print_y, print_z)); }while(0)
     #define TMC_GET_REG(NAME, TABS) _TMC_GET_REG(STRINGIFY(NAME) TABS, TMC_GET_##NAME)
     _TMC_GET_REG("\t", TMC_AXIS_CODES);
     TMC_GET_REG(GCONF, "\t\t");
@@ -1214,7 +1228,9 @@ static bool test_connection(TMC &st) {
   return test_result;
 }
 
-void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z, const bool test_e) {
+void test_tmc_connection(
+  LOGICAL_AXIS_LIST(const bool test_e/*=true*/, const bool test_x/*=true*/, const bool test_y/*=true*/, const bool test_z/*=true*/)
+) {
   uint8_t axis_connection = 0;
 
   if (test_x) {

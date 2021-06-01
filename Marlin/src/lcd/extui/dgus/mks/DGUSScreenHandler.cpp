@@ -289,7 +289,7 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // if robin nano is printing. when it is, dgus will enter the printing
   // page to continue print;
   //
-  //if (print_job_timer.isRunning() || print_job_timer.isPaused()) {
+  //if (printJobOngoing() || printingIsPaused()) {
   //  if (target == MKSLCD_PAUSE_SETTING_MOVE || target == MKSLCD_PAUSE_SETTING_EX
   //    || target == MKSLCD_SCREEN_PRINT || target == MKSLCD_SCREEN_PAUSE
   //  ) {
@@ -324,7 +324,7 @@ void DGUSScreenHandler::ScreenBackChange(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::ZoffsetConfirm(DGUS_VP_Variable &var, void *val_ptr) {
   settings.save();
-  if (print_job_timer.isRunning())
+  if (printJobOngoing())
     GotoScreen(MKSLCD_SCREEN_PRINT);
   else if (print_job_timer.isPaused)
     GotoScreen(MKSLCD_SCREEN_PAUSE);
@@ -342,7 +342,7 @@ void DGUSScreenHandler::GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr) {
 void DGUSScreenHandler::GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("GetMinExtrudeTemp");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
-  thermalManager.extrude_min_temp = value;
+  TERN_(PREVENT_COLD_EXTRUSION, thermalManager.extrude_min_temp = value);
   mks_min_extrusion_temp = value;
   settings.save();
 }
@@ -1083,11 +1083,13 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
-void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t value_ex_min_temp = swap16(*(uint16_t*)val_ptr);
-  thermalManager.extrude_min_temp = value_ex_min_temp;
-  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-}
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+  void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr) {
+    const uint16_t value_ex_min_temp = swap16(*(uint16_t*)val_ptr);
+    thermalManager.extrude_min_temp = value_ex_min_temp;
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+  }
+#endif
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1231,7 +1233,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
       break;
   }
 
-  #if HAS_HOTEND
+  #if BOTH(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
     if (hotend_too_cold) {
       if (thermalManager.targetTooColdToExtrude(hotend_too_cold - 1)) thermalManager.setTargetHotend(thermalManager.extrude_min_temp, hotend_too_cold - 1);
       sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
@@ -1428,8 +1430,10 @@ bool DGUSScreenHandler::loop() {
         #endif
       #endif
 
-      if (mks_min_extrusion_temp != 0)
-        thermalManager.extrude_min_temp = mks_min_extrusion_temp;
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
+        if (mks_min_extrusion_temp != 0)
+          thermalManager.extrude_min_temp = mks_min_extrusion_temp;
+      #endif
 
       DGUS_ExtrudeLoadInit();
 
@@ -1442,8 +1446,7 @@ bool DGUSScreenHandler::loop() {
     }
 
     #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-      if (booted && (IS_SD_PRINTING() || IS_SD_PAUSED()))
-        DGUS_Runout_Idle();
+      if (booted && printingIsActive()) DGUS_Runout_Idle();
     #endif
   #endif // SHOW_BOOTSCREEN
 
@@ -1477,7 +1480,7 @@ void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
 
 void DGUSScreenHandler::DGUS_RunoutInit(void) {
   #if PIN_EXISTS(MT_DET_1)
-    pinMode(MT_DET_1_PIN, INPUT_PULLUP);
+    SET_INPUT_PULLUP(MT_DET_1_PIN);
   #endif
   runout_mks.de_count      = 0;
   runout_mks.de_times      = 10;
@@ -1496,7 +1499,7 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
         GotoScreen(MKSLCD_SCREEN_PAUSE);
 
         sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please change filament!"), nullptr, true, true, true, true);
-        // SetupConfirmAction(nullptr);
+        //SetupConfirmAction(nullptr);
         GotoScreen(DGUSLCD_SCREEN_POPUP);
         break;
 

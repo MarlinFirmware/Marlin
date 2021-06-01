@@ -50,7 +50,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                      P1_26  // E0DET
   #else
     #define X_MIN_PIN                      P1_26  // E0DET
@@ -68,7 +68,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                      P1_25  // E1DET
   #else
     #define Y_MIN_PIN                      P1_25  // E1DET
@@ -86,7 +86,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                      P1_00  // PWRDET
   #else
     #define Z_MIN_PIN                      P1_00  // PWRDET
@@ -279,7 +279,7 @@
     #undef SPEAKER
   #endif
 
-#elif HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+#elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."

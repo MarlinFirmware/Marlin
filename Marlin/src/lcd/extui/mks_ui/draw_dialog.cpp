@@ -91,8 +91,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
         cur_name = strrchr(list_file.file_name[sel_id], '/');
 
         SdFile file, *curDir;
-        card.endFilePrint();
-        const char * const fname = card.diveToFile(true, curDir, cur_name);
+        card.abortFilePrintNow();
+        const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
           gCfgItems.curFilesize = file.fileSize();
@@ -108,7 +108,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
             planner.flow_percentage[1] = 100;
             planner.e_factor[1]        = planner.flow_percentage[1] * 0.01f;
           #endif
-          card.startFileprint();
+          card.startOrResumeFilePrinting();
           #if ENABLED(POWER_LOSS_RECOVERY)
             recovery.prepare();
           #endif
@@ -124,8 +124,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_draw_ready_print();
 
     #if ENABLED(SDSUPPORT)
-      uiCfg.print_state           = IDLE;
-      card.flag.abort_sd_printing = true;
+      uiCfg.print_state = IDLE;
+      card.abortFilePrintSoon();
     #endif
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {

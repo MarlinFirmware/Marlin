@@ -8,7 +8,7 @@ SED=$(which gsed || which sed)
 while [[ $# > 1 ]]; do
   DID=0
   for FN in Configuration Configuration_adv; do
-    "${SED}" -i "/^\(\s*\)\/*\s*\(#define\s\+${1}\b\)\(.*\)$/{s//\1\2 ${2} \/\/ \3/;h};\${x;/./{x;q0};x;q9}" Marlin/$FN.h && DID=1
+    "${SED}" -i "/^\(\s*\)\/*\s*\(#define\s\+${1}\b\) *\(.*\)$/{s//\1\2 ${2} \/\/ \3/;h};\${x;/./{x;q0};x;q9}" Marlin/$FN.h && DID=1
   done
   ((DID)) ||
     eval "echo '#define ${1} ${2}' >>Marlin/Configuration.h" ||

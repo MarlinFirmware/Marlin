@@ -141,7 +141,7 @@
 
         HOTEND_LOOP() {
           DEBUG_ECHOPAIR_P(SP_T_STR, e);
-          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", e, "].", AS_CHAR(XYZ_CHAR(a) | 0x20), "=", hotend_offset[e][a]);
+          LOOP_LINEAR_AXES(a) DEBUG_ECHOPAIR("  hotend_offset[", e, "].", AS_CHAR(AXIS_CHAR(a) | 0x20), "=", hotend_offset[e][a]);
           DEBUG_EOL();
         }
         DEBUG_EOL();
