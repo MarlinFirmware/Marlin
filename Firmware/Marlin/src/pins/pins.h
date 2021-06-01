@@ -270,6 +270,8 @@
   #include "mega/pins_PICAOLD.h"                // ATmega2560                             env:mega2560
 #elif MB(INTAMSYS40)
   #include "mega/pins_INTAMSYS40.h"             // ATmega2560                             env:mega2560
+#elif MB(MALYAN_M180)
+  #include "mega/pins_MALYAN_M180.h"            // ATmega2560                             env:mega2560
 
 //
 // ATmega1281, ATmega2561
@@ -621,7 +623,7 @@
 #elif MB(MKS_ROBIN2)
   #include "stm32f4/pins_MKS_ROBIN2.h"          // STM32F4                                env:MKS_ROBIN2
 #elif MB(MKS_ROBIN_PRO_V2)
-  #include "stm32f4/pins_MKS_ROBIN_PRO_V2.h"      // STM32F4                                env:mks_robin_pro2
+  #include "stm32f4/pins_MKS_ROBIN_PRO_V2.h"    // STM32F4                                env:mks_robin_pro2
 #elif MB(MKS_ROBIN_NANO_V3)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V3.h"   // STM32F4                                env:mks_robin_nano_v3 env:mks_robin_nano_v3_usb_flash_drive env:mks_robin_nano_v3_usb_flash_drive_msc
 #elif MB(ANET_ET4)
@@ -761,7 +763,7 @@
   #elif MB(BTT_SKR_V2_0)
     #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
   #else
-    #error "NO PRINTER SELECTED. Uncomment your printer line and try again."
+    #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
 
   #undef BOARD_MKS_13

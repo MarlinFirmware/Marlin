@@ -70,15 +70,9 @@ class TMCStorage {
     }
 
     struct {
-      #if ENABLED(HAS_STEALTHCHOP)
-        bool stealthChop_enabled = false;
-      #endif
-      #if ENABLED(HYBRID_THRESHOLD)
-        uint8_t hybrid_thrs = 0;
-      #endif
-      #if ENABLED(USE_SENSORLESS)
-        int16_t homing_thrs = 0;
-      #endif
+      OPTCODE(HAS_STEALTHCHOP,  bool stealthChop_enabled = false)
+      OPTCODE(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0)
+      OPTCODE(USE_SENSORLESS,   int16_t homing_thrs = 0)
     } stored;
 };
 
@@ -341,13 +335,13 @@ void tmc_print_current(TMC &st) {
 #endif
 
 void monitor_tmc_drivers();
-void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z, const bool test_e);
+void test_tmc_connection(const bool test_x=true, const bool test_y=true, const bool test_z=true, const bool test_e=true);
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_interval(const uint16_t update_interval);
   #endif
-  void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
+  void tmc_report_all(const bool print_x=true, const bool print_y=true, const bool print_z=true, const bool print_e=true);
   void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
 #endif
 

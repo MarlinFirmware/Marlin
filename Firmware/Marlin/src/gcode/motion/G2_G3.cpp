@@ -249,9 +249,7 @@ void plan_arc(
     #endif
 
     if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , inv_duration
-      #endif
+      OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
     )) break;
   }
 
@@ -266,9 +264,7 @@ void plan_arc(
   #endif
 
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      , inv_duration
-    #endif
+    OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
   );
 
   TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
@@ -291,12 +287,12 @@ void plan_arc(
  *    Mixing IJ/JK/KI with R will throw an error.
  *
  *  - R specifies the radius. X or Y (Y or Z / Z or X) is required.
- *    Omitting both XY/YZ/ZX will throw an error.
- *    XY/YZ/ZX must differ from the current XY/YZ/ZX.
- *    Mixing R with IJ/JK/KI will throw an error.
+ *      Omitting both XY/YZ/ZX will throw an error.
+ *      XY/YZ/ZX must differ from the current XY/YZ/ZX.
+ *      Mixing R with IJ/JK/KI will throw an error.
  *
  *  - P specifies the number of full circles to do
- *    before the specified arc move.
+ *      before the specified arc move.
  *
  *  Examples:
  *

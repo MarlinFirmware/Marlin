@@ -30,34 +30,6 @@ class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;
 
 //
-// Enumerated axis indices
-//
-//  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
-//  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
-//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for Steppers on Core kinematics
-//
-enum AxisEnum : uint8_t {
-  X_AXIS   = 0, A_AXIS = 0,
-  Y_AXIS   = 1, B_AXIS = 1,
-  Z_AXIS   = 2, C_AXIS = 2,
-  E_AXIS   = 3,
-  X_HEAD   = 4, Y_HEAD = 5, Z_HEAD = 6,
-  E0_AXIS  = 3,
-  E1_AXIS, E2_AXIS, E3_AXIS, E4_AXIS, E5_AXIS, E6_AXIS, E7_AXIS,
-  ALL_AXES = 0xFE, NO_AXIS = 0xFF
-};
-
-//
-// Loop over XYZE axes
-//
-#define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
-#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
-#define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
-#define LOOP_ABC(VAR) LOOP_S_LE_N(VAR, A_AXIS, C_AXIS)
-#define LOOP_ABCE(VAR) LOOP_S_LE_N(VAR, A_AXIS, E_AXIS)
-#define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
-
-//
 // Conditional type assignment magic. For example...
 //
 // typename IF<(MYOPT==12), int, float>::type myvar;
@@ -66,6 +38,32 @@ template <bool, class L, class R>
 struct IF { typedef R type; };
 template <class L, class R>
 struct IF<true, L, R> { typedef L type; };
+
+//
+// Enumerated axis indices
+//
+//  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
+//  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
+//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for Steppers on Core kinematics
+//
+enum AxisEnum : uint8_t {
+  X_AXIS = 0, A_AXIS = X_AXIS,
+  Y_AXIS = 1, B_AXIS = Y_AXIS,
+  Z_AXIS = 2, C_AXIS = Z_AXIS,
+  E_AXIS,
+  X_HEAD, Y_HEAD, Z_HEAD,
+  E0_AXIS = E_AXIS,
+  E1_AXIS, E2_AXIS, E3_AXIS, E4_AXIS, E5_AXIS, E6_AXIS, E7_AXIS,
+  ALL_AXES_ENUM = 0xFE, NO_AXIS_ENUM = 0xFF
+};
+
+//
+// Loop over axes
+//
+#define LOOP_ABC(VAR) LOOP_S_LE_N(VAR, A_AXIS, C_AXIS)
+#define LOOP_LINEAR_AXES(VAR) LOOP_S_L_N(VAR, X_AXIS, LINEAR_AXES)
+#define LOOP_LOGICAL_AXES(VAR) LOOP_S_L_N(VAR, X_AXIS, LOGICAL_AXES)
+#define LOOP_DISTINCT_AXES(VAR) LOOP_S_L_N(VAR, X_AXIS, DISTINCT_AXES)
 
 //
 // feedRate_t is just a humble float
@@ -201,8 +199,8 @@ struct XYval {
   FI void set(const T (&arr)[XY])                       { x = arr[0]; y = arr[1]; }
   FI void set(const T (&arr)[XYZ])                      { x = arr[0]; y = arr[1]; }
   FI void set(const T (&arr)[XYZE])                     { x = arr[0]; y = arr[1]; }
-  #if XYZE_N > XYZE
-    FI void set(const T (&arr)[XYZE_N])                 { x = arr[0]; y = arr[1]; }
+  #if DISTINCT_AXES > LOGICAL_AXES
+    FI void set(const T (&arr)[DISTINCT_AXES])          { x = arr[0]; y = arr[1]; }
   #endif
   FI void reset()                                       { x = y = 0; }
   FI T magnitude()                                const { return (T)sqrtf(x*x + y*y); }
@@ -312,8 +310,8 @@ struct XYZval {
   FI void set(const T (&arr)[XY])                      { x = arr[0]; y = arr[1]; }
   FI void set(const T (&arr)[XYZ])                     { x = arr[0]; y = arr[1]; z = arr[2]; }
   FI void set(const T (&arr)[XYZE])                    { x = arr[0]; y = arr[1]; z = arr[2]; }
-  #if XYZE_N > XYZE
-    FI void set(const T (&arr)[XYZE_N])                { x = arr[0]; y = arr[1]; z = arr[2]; }
+  #if DISTINCT_AXES > XYZE
+    FI void set(const T (&arr)[DISTINCT_AXES])         { x = arr[0]; y = arr[1]; z = arr[2]; }
   #endif
   FI void reset()                                      { x = y = z = 0; }
   FI T magnitude()                               const { return (T)sqrtf(x*x + y*y + z*z); }
@@ -427,8 +425,8 @@ struct XYZEval {
   FI void set(const T (&arr)[XY])                             { x = arr[0]; y = arr[1]; }
   FI void set(const T (&arr)[XYZ])                            { x = arr[0]; y = arr[1]; z = arr[2]; }
   FI void set(const T (&arr)[XYZE])                           { x = arr[0]; y = arr[1]; z = arr[2]; e = arr[3]; }
-  #if XYZE_N > XYZE
-    FI void set(const T (&arr)[XYZE_N])                       { x = arr[0]; y = arr[1]; z = arr[2]; e = arr[3]; }
+  #if DISTINCT_AXES > XYZE
+    FI void set(const T (&arr)[DISTINCT_AXES])                { x = arr[0]; y = arr[1]; z = arr[2]; e = arr[3]; }
   #endif
   FI XYZEval<T>          copy()                         const { return *this; }
   FI XYZEval<T>           ABS()                         const { return { T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(e)) }; }
@@ -518,4 +516,4 @@ struct XYZEval {
 #undef FI
 
 const xyze_char_t axis_codes { 'X', 'Y', 'Z', 'E' };
-#define XYZ_CHAR(A) ((char)('X' + A))
+#define AXIS_CHAR(A) ((char)('X' + A))
