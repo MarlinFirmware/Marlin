@@ -131,6 +131,55 @@ enum StealthIndex : uint8_t {
   #define TMC_BAUD_RATE TERN(HAS_TMC_SW_SERIAL, 57600, 115200)
 #endif
 
+#ifndef TMC_X_BAUD_RATE
+  #define TMC_X_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_X2_BAUD_RATE
+  #define TMC_X2_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_Y_BAUD_RATE
+  #define TMC_Y_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_Y2_BAUD_RATE
+  #define TMC_Y2_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_Z_BAUD_RATE
+  #define TMC_Z_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_Z2_BAUD_RATE
+  #define TMC_Z2_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_Z3_BAUD_RATE
+  #define TMC_Z3_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_Z4_BAUD_RATE
+  #define TMC_Z4_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E0_BAUD_RATE
+  #define TMC_E0_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E1_BAUD_RATE
+  #define TMC_E1_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E2_BAUD_RATE
+  #define TMC_E2_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E3_BAUD_RATE
+  #define TMC_E3_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E4_BAUD_RATE
+  #define TMC_E4_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E5_BAUD_RATE
+  #define TMC_E5_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E6_BAUD_RATE
+  #define TMC_E6_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_E7_BAUD_RATE
+  #define TMC_E7_BAUD_RATE TMC_BAUD_RATE
+#endif
+
 #if HAS_DRIVER(TMC2130)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
   void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate) {
@@ -366,7 +415,7 @@ enum StealthIndex : uint8_t {
       } sp_helper;
 
       #define HW_SERIAL_BEGIN(A) do{ if (!sp_helper.began(TMCAxis::A, &A##_HARDWARE_SERIAL)) \
-                                          A##_HARDWARE_SERIAL.begin(TMC_BAUD_RATE); }while(0)
+                                          A##_HARDWARE_SERIAL.begin(TMC_##A##_BAUD_RATE); }while(0)
     #endif
 
     #if AXIS_HAS_UART(X)
