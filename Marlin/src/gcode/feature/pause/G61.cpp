@@ -37,8 +37,7 @@
  *
  *   F<rate>  - Feedrate (optional) for the move back.
  *   S<slot>  - Slot # (0-based) to restore from (default 0).
- *   X Y Z    - Axes to restore. At least one is required.
- *   E - Restore extruder position
+ *   X Y Z E  - Axes to restore. At least one is required.
  *
  *   If XYZE are not given, default restore uses the smart blocking move.
  */
