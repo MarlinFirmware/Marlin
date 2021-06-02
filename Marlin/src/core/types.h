@@ -360,7 +360,7 @@ struct XYZval {
   FI void set(const XYval<T> pxy, const T pz)          { x = pxy.x; y = pxy.y; z = pz; }
   FI void set(const T (&arr)[XY])                      { x = arr[0]; y = arr[1]; }
   FI void set(const T (&arr)[LINEAR_AXES])             { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2]); }
-  #if LINEAR_AXES >= XYZ
+  #if HAS_Z_AXIS
     FI void set(LINEAR_AXIS_LIST(const T px, const T py, const T pz))
                                                        { LINEAR_AXIS_CODE(x = px, y = py, z = pz); }
   #endif
@@ -475,7 +475,7 @@ struct XYZEval {
   FI void set(const T px, const T py)                         { x = px;    y = py;    }
   FI void set(const XYval<T> pxy)                             { x = pxy.x; y = pxy.y; }
   FI void set(const XYZval<T> pxyz)                           { set(LINEAR_AXIS_LIST(pxyz.x, pxyz.y, pxyz.z)); }
-  #if LINEAR_AXES >= XYZ
+  #if HAS_Z_AXIS
     FI void set(LINEAR_AXIS_LIST(const T px, const T py, const T pz)) {
       LINEAR_AXIS_CODE(x = px, y = py, z = pz);
     }

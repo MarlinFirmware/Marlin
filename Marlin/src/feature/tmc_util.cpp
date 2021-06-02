@@ -770,16 +770,18 @@
       #endif
     }
 
-    if (print_y) {
-      #if AXIS_IS_TMC(Y)
-        tmc_status(stepperY, i);
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        tmc_status(stepperY2, i);
-      #endif
-    }
+    #if LINEAR_AXES >= XY
+      if (print_y) {
+        #if AXIS_IS_TMC(Y)
+          tmc_status(stepperY, i);
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          tmc_status(stepperY2, i);
+        #endif
+      }
+    #endif
 
-    if (print_z) {
+    if (TERN0(HAS_Z_AXIS, print_z)) {
       #if AXIS_IS_TMC(Z)
         tmc_status(stepperZ, i);
       #endif
@@ -794,7 +796,7 @@
       #endif
     }
 
-    if (print_e) {
+    if (TERN0(HAS_EXTRUDERS, print_e)) {
       #if AXIS_IS_TMC(E0)
         tmc_status(stepperE0, i);
       #endif
@@ -837,16 +839,18 @@
       #endif
     }
 
-    if (print_y) {
-      #if AXIS_IS_TMC(Y)
-        tmc_parse_drv_status(stepperY, i);
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        tmc_parse_drv_status(stepperY2, i);
-      #endif
-    }
+    #if LINEAR_AXES >= XY
+      if (print_y) {
+        #if AXIS_IS_TMC(Y)
+          tmc_parse_drv_status(stepperY, i);
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          tmc_parse_drv_status(stepperY2, i);
+        #endif
+      }
+    #endif
 
-    if (print_z) {
+    if (TERN0(HAS_Z_AXIS, print_z)) {
       #if AXIS_IS_TMC(Z)
         tmc_parse_drv_status(stepperZ, i);
       #endif
@@ -861,7 +865,7 @@
       #endif
     }
 
-    if (print_e) {
+    if (TERN0(HAS_EXTRUDERS, print_e)) {
       #if AXIS_IS_TMC(E0)
         tmc_parse_drv_status(stepperE0, i);
       #endif
@@ -1037,16 +1041,18 @@
       #endif
     }
 
-    if (print_y) {
-      #if AXIS_IS_TMC(Y)
-        tmc_get_registers(stepperY, i);
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        tmc_get_registers(stepperY2, i);
-      #endif
-    }
+    #if LINEAR_AXES >= XY
+      if (print_y) {
+        #if AXIS_IS_TMC(Y)
+          tmc_get_registers(stepperY, i);
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          tmc_get_registers(stepperY2, i);
+        #endif
+      }
+    #endif
 
-    if (print_z) {
+    if (TERN0(HAS_Z_AXIS, print_z)) {
       #if AXIS_IS_TMC(Z)
         tmc_get_registers(stepperZ, i);
       #endif
@@ -1061,7 +1067,7 @@
       #endif
     }
 
-    if (print_e) {
+    if (TERN0(HAS_EXTRUDERS, print_e)) {
       #if AXIS_IS_TMC(E0)
         tmc_get_registers(stepperE0, i);
       #endif
@@ -1242,16 +1248,18 @@ void test_tmc_connection(
     #endif
   }
 
-  if (test_y) {
-    #if AXIS_IS_TMC(Y)
-      axis_connection += test_connection(stepperY);
-    #endif
-    #if AXIS_IS_TMC(Y2)
-      axis_connection += test_connection(stepperY2);
-    #endif
-  }
+  #if LINEAR_AXES >= XY
+    if (test_y) {
+      #if AXIS_IS_TMC(Y)
+        axis_connection += test_connection(stepperY);
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        axis_connection += test_connection(stepperY2);
+      #endif
+    }
+  #endif
 
-  if (test_z) {
+  if (TERN0(HAS_Z_AXIS, test_z)) {
     #if AXIS_IS_TMC(Z)
       axis_connection += test_connection(stepperZ);
     #endif
@@ -1266,7 +1274,7 @@ void test_tmc_connection(
     #endif
   }
 
-  if (test_e) {
+  if (TERN0(HAS_EXTRUDERS, test_e)) {
     #if AXIS_IS_TMC(E0)
       axis_connection += test_connection(stepperE0);
     #endif

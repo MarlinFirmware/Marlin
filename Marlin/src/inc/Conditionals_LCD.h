@@ -624,6 +624,10 @@
   #define LOGICAL_AXES LINEAR_AXES
 #endif
 
+#if LINEAR_AXES >= XYZ
+  #define HAS_Z_AXIS 1
+#endif
+
 /**
  * DISTINCT_E_FACTORS is set to give extruders (some) individual settings.
  *
