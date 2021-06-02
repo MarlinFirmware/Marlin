@@ -2019,7 +2019,7 @@ uint32_t Stepper::block_phase_isr() {
         cutter.apply_power(current_block->cutter_power);
       #endif
 
-      TERN_(POWER_LOSS_RECOVERY, recovery.info.sdpos = current_block->sdpos);
+      TERN_(POWER_LOSS_RECOVERY, recovery.info.sdpos = Planner::block_buffer[BLOCK_MOD(Planner::block_buffer_tail - 1)].sdpos);
 
       #if ENABLED(DIRECT_STEPPING)
         if (IS_PAGE(current_block)) {
