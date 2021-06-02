@@ -487,7 +487,7 @@
 #elif MB(MORPHEUS)
   #include "stm32f1/pins_MORPHEUS.h"            // STM32F103RE                            env:STM32F103RE env:STM32F103RE_maple
 #elif MB(CHITU3D)
-  #include "stm32f1/pins_CHITU3D.h"             // STM32F103ZE                            env:STM32F103zE env:STM32F103RE_maple
+  #include "stm32f1/pins_CHITU3D.h"             // STM32F103ZE                            env:STM32F103ZE env:STM32F103RE_maple
 #elif MB(MKS_ROBIN)
   #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin env:mks_robin_stm32
 #elif MB(MKS_ROBIN_MINI)
