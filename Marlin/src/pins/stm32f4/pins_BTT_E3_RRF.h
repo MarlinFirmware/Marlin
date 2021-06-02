@@ -29,57 +29,8 @@
   #define BOARD_INFO_NAME "BTT E3 RRF"
 #endif
 
-#define FPC2_PIN                            PB11
-#define FPC3_PIN                            PB10
-#define FPC4_PIN                            PE12
-#define FPC5_PIN                            PE13
-#define FPC6_PIN                            PE14
-#define FPC7_PIN                            PE15
-#define FPC8_PIN                            PA3
-#define FPC9_PIN                            PA2
-#define FPC10_PIN                           PA8
-#define FPC11_PIN                           PC15
-#define FPC12_PIN                           PC14
-#define FPC13_PIN                           PC13
-#define FPC14_PIN                           PE6
-#define FPC15_PIN                           PE5
-#define FPC16_PIN                           PE4
-#define FPC17_PIN                           PE3
-
+// Add-on board for IDEX conversion
 //#define BTT_E3_RRF_IDEX_BOARD
-
-#ifdef BTT_E3_RRF_IDEX_BOARD
-
-  #define X2_ENABLE_PIN                FPC13_PIN  // X2EN
-  #define X2_STEP_PIN                  FPC11_PIN  // X2STP
-  #define X2_DIR_PIN                   FPC10_PIN  // X2DIR
-  #define X2_SERIAL_TX_PIN             FPC12_PIN  // X2UART
-  #define X2_SERIAL_RX_PIN             FPC12_PIN  // X2UART
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                   FPC2_PIN  // X2-STOP
-  #else
-    #define X_MIN_PIN                   FPC2_PIN  // X2-STOP
-  #endif
-
-  #define E1_ENABLE_PIN                 FPC7_PIN  // E1EN
-  #define E1_STEP_PIN                   FPC5_PIN  // E1STP
-  #define E1_DIR_PIN                    FPC4_PIN  // E1DIR
-  #define E1_SERIAL_TX_PIN              FPC6_PIN  // E1UART
-  #define E1_SERIAL_RX_PIN              FPC6_PIN  // E1UART
-
-  #ifndef FIL1_RUNOUT2_PIN
-    #define FIL_RUNOUT2_PIN             FPC3_PIN  // E1-STOP
-  #endif
-
-  #define HEATER_1_PIN                 FPC16_PIN  // "HE1"
-
-  #define PT100_PIN                     FPC8_PIN  // Analog Input "PT100"(INA826)
-  #define TEMP_1_PIN                    FPC9_PIN  // Analog Input "TH1"
-
-  #define FAN1_PIN                     FPC15_PIN  // "FAN0" in IDEX board
-  #define FAN2_PIN                     FPC14_PIN  // "FAN1" in IDEX board
-
-#endif
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
@@ -97,6 +48,14 @@
 #define Y_STOP_PIN                          PC1   // Y-STOP
 #define Z_STOP_PIN                          PC2   // Z-STOP
 
+#if ENABLED(BTT_E3_RRF_IDEX_BOARD)
+  #if X2_USE_ENDSTOP == _XMAX_
+    #define X_MAX_PIN                   FPC2_PIN  // X2-STOP
+  #elif X2_USE_ENDSTOP == _XMIN_
+    #define X_MIN_PIN                   FPC2_PIN  // X2-STOP
+  #endif
+#endif
+
 //
 // Z Probe must be this pin
 //
@@ -107,6 +66,10 @@
 //
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                    PC3   // E0-STOP
+#endif
+
+#if !defined(FIL1_RUNOUT2_PIN) && ENABLED(BTT_E3_RRF_IDEX_BOARD)
+  #define FIL_RUNOUT2_PIN               FPC3_PIN  // E1-STOP
 #endif
 
 //
@@ -135,6 +98,16 @@
 #define E0_STEP_PIN                         PD12
 #define E0_DIR_PIN                          PD13
 
+#if ENABLED(BTT_E3_RRF_IDEX_BOARD)
+  #define E1_ENABLE_PIN                 FPC7_PIN  // E1EN
+  #define E1_STEP_PIN                   FPC5_PIN  // E1STP
+  #define E1_DIR_PIN                    FPC4_PIN  // E1DIR
+
+  #define X2_ENABLE_PIN                FPC13_PIN  // X2EN
+  #define X2_STEP_PIN                  FPC11_PIN  // X2STP
+  #define X2_DIR_PIN                   FPC10_PIN  // X2DIR
+#endif
+
 /**
  * TMC2208/TMC2209 stepper drivers
  */
@@ -154,6 +127,14 @@
   #define E0_SERIAL_TX_PIN                  PD11
   #define E0_SERIAL_RX_PIN                  PD11
 
+  #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
+    #define X2_SERIAL_TX_PIN           FPC12_PIN  // X2UART
+    #define X2_SERIAL_RX_PIN           FPC12_PIN  // X2UART
+
+    #define E1_SERIAL_TX_PIN            FPC6_PIN  // E1UART
+    #define E1_SERIAL_RX_PIN            FPC6_PIN  // E1UART
+  #endif
+
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
 #endif
@@ -164,19 +145,37 @@
 #define TEMP_BED_PIN                        PA1   // Analog Input "TB"
 #define TEMP_0_PIN                          PA0   // Analog Input "TH0"
 
+#if ENABLED(BTT_E3_RRF_IDEX_BOARD)
+  #define TEMP_1_PIN                    FPC9_PIN  // Analog Input "TH1"
+  #define PT100_PIN                     FPC8_PIN  // Analog Input "PT100" (INA826)
+#endif
+
 //
 // Heaters / Fans
 //
 #define HEATER_BED_PIN                      PB4   // "HB"
 #define HEATER_0_PIN                        PB3   // "HE0"
 
+#if ENABLED(BTT_E3_RRF_IDEX_BOARD)
+  #define HEATER_1_PIN                 FPC16_PIN  // "HE1"
+#endif
+
 #define FAN_PIN                             PB5   // "FAN0"
-//#define FAN1_PIN                          PB6   // "FAN1"
 
 #ifndef CONTROLLER_FAN_PIN
   #define CONTROLLER_FAN_PIN                PB6   // "FAN1"
 #endif
 
+#if ENABLED(BTT_E3_RRF_IDEX_BOARD)
+  #define FAN1_PIN                     FPC15_PIN  // "FAN0" in IDEX board
+  #define FAN2_PIN                     FPC14_PIN  // "FAN1" in IDEX board
+#else
+  //#define FAN1_PIN                        PB6   // "FAN1"
+#endif
+
+//
+// Misc. Functions
+//
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                      PB7   // LED driving pin
 #endif
@@ -373,3 +372,22 @@
 #define ESP_WIFI_MODULE_RESET_PIN           PA4
 #define ESP_WIFI_MODULE_ENABLE_PIN          PA5
 #define ESP_WIFI_MODULE_GPIO0_PIN           PA6
+
+#if ENABLED(BTT_E3_RRF_IDEX_BOARD)
+  #define FPC2_PIN                          PB11
+  #define FPC3_PIN                          PB10
+  #define FPC4_PIN                          PE12
+  #define FPC5_PIN                          PE13
+  #define FPC6_PIN                          PE14
+  #define FPC7_PIN                          PE15
+  #define FPC8_PIN                          PA3
+  #define FPC9_PIN                          PA2
+  #define FPC10_PIN                         PA8
+  #define FPC11_PIN                         PC15
+  #define FPC12_PIN                         PC14
+  #define FPC13_PIN                         PC13
+  #define FPC14_PIN                         PE6
+  #define FPC15_PIN                         PE5
+  #define FPC16_PIN                         PE4
+  #define FPC17_PIN                         PE3
+#endif
