@@ -157,11 +157,7 @@ void menu_media_filelist() {
 #endif
 
 void menu_media() {
-  #if ENABLED(MULTI_VOLUME)
-    menu_media_select();
-  #else
-    menu_media_filelist();
-  #endif
+  TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
 }
 
 #endif // HAS_LCD_MENU && SDSUPPORT
