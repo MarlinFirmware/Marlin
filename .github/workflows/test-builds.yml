@@ -56,29 +56,31 @@ jobs:
 
         # STM32F1 (Maple) Environments
 
-        - STM32F103RC_btt
-        - STM32F103RC_btt_USB
-        - STM32F103RE_btt
-        - STM32F103RE_btt_USB
+        #- STM32F103RC_btt_maple
+        - STM32F103RC_btt_USB_maple
         - STM32F103RC_fysetc
         - STM32F103RC_meeb
         - jgaurora_a5s_a1
         - STM32F103VE_longer
-        - mks_robin
+        #- mks_robin_maple
         - mks_robin_lite
         - mks_robin_pro
-        - STM32F103RET6_creality
-        - mks_robin_nano35
+        #- mks_robin_nano35_maple
+        #- STM32F103RET6_creality_maple
 
         # STM32 (ST) Environments
 
-        - STM32F103RC_btt_stm32
+        - STM32F103RC_btt
+        #- STM32F103RC_btt_USB
+        - STM32F103RE_btt
+        - STM32F103RE_btt_USB
+        - STM32F103RET6_creality
         - STM32F407VE_black
         - STM32F401VE_STEVAL
         - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
-        - mks_robin_stm32
+        - mks_robin
         - ARMED
         - FYSETC_S6
         - STM32F070CB_malyan
@@ -88,7 +90,7 @@ jobs:
         - rumba32
         - LERDGEX
         - LERDGEK
-        - mks_robin_nano35_stm32
+        - mks_robin_nano35
         - NUCLEO_F767ZI
         - REMRAM_V1
         - BTT_SKR_SE_BX
