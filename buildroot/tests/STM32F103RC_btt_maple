@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for STM32F103RC BigTreeTech (SKR Mini E3)
+# Build tests for STM32F103RC BigTreeTech (SKR Mini E3) with LibMaple STM32F1 HAL
 #
 
 # exit on first failure
