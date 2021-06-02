@@ -1586,6 +1586,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_1_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
@@ -1600,6 +1602,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_2_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
@@ -1614,6 +1618,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_3_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed);
@@ -1628,6 +1634,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_4_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed);
@@ -1642,6 +1650,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_5_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed);
