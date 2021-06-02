@@ -520,6 +520,8 @@ void CrealityDWINClass::Redraw_Menu(bool lastprocess/*=true*/, bool lastselectio
     case File:
       Draw_SD_List();
       break;
+    default:
+      break;
   }
 }
 
@@ -4835,7 +4837,6 @@ void CrealityDWINClass::Popup_Control() {
           else {
             #if ENABLED(HOST_ACTION_COMMANDS)
               host_action_cancel();
-              Draw_Main_Menu();
             #endif
           }
         }
@@ -4848,6 +4849,7 @@ void CrealityDWINClass::Popup_Control() {
           queue.inject_P(PSTR("M1000"));
         }
         else {
+          queue.inject_P(PSTR("M1000 C"));
           Draw_Main_Menu();
         }
         break;
@@ -5248,7 +5250,11 @@ void CrealityDWINClass::Load_Settings(const char *buff) {
     mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size+1;
   #endif
   Redraw_Screen();
-  queue.inject_P(PSTR("M1000 S"));
+  static bool init = true;
+  if (init) {
+    init = false;
+    queue.inject_P(PSTR("M1000 S"));
+  }
 }
 
 #endif
