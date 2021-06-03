@@ -5032,7 +5032,7 @@ void CrealityDWINClass::Start_Print(bool sd) {
     printing = true;
     statusmsg[0] = '\0';
     if (sd)
-      strcpy_P(filename, card.longest_filename());
+      strcpy_P(filename, (card.longest_filename()) ? card.longest_filename() : recovery.info.sd_filename);
     else
       strcpy_P(filename, "Host Print");
     ui.set_progress(0);
@@ -5085,7 +5085,7 @@ void CrealityDWINClass::Update() {
 
 void CrealityDWINClass::State_Update() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
-    if (!printing) Start_Print(card.isFileOpen());
+    if (!printing) Start_Print((card.isFileOpen() || recovery.valid()));
     else Stop_Print();
   }
   if (print_job_timer.isPaused() != paused) {
