@@ -545,7 +545,7 @@ public:
 
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, DWIN_CREALITY_LCD)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}

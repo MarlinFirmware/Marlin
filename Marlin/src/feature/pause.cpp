@@ -267,7 +267,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
-          #if ANY(HAS_LCD_MENU, DWIN_CREALITY_LCD)
+          #if EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
@@ -540,8 +540,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
 
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), CONTINUE_STR));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Reheat finished.")));
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_REHEATDONE), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_REHEATDONE)));
       TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(GET_TEXT(MSG_REHEATDONE)));
       wait_for_user = true;
       nozzle_timed_out = false;
