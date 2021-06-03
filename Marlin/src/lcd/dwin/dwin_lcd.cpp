@@ -251,7 +251,7 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
 // Draw a Centered  String using DWIN_WIDTH
 void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string) {
-  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * CHR_W) / 2;  
+  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * CHR_W) / 2;
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
 }
 
@@ -452,7 +452,7 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
 //r: circle radius
 void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r) {
   int a,b;
-  a=b=0;	  
+  a=b=0;
   while(a<=b) {
     b=sqrt(r*r-a*a);
     while(a==0){ b=b-1;break;}
@@ -460,7 +460,7 @@ void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r) {
     DWIN_Draw_Point(color, 1,1,x+b,y+a);		               //Draw some sector 2
     DWIN_Draw_Point(color, 1,1,x+b,y-a);		               //Draw some sector 3
     DWIN_Draw_Point(color, 1,1,x+a,y-b);		               //Draw some sector 4
-      
+
     DWIN_Draw_Point(color, 1,1,x-a,y-b);		              //Draw some sector 5
     DWIN_Draw_Point(color, 1,1,x-b,y-a);		              //Draw some sector 6
     DWIN_Draw_Point(color, 1,1,x-b,y+a);		              //Draw some sector 7

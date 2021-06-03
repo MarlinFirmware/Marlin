@@ -436,7 +436,7 @@ typedef struct SettingsDataStruct {
   // CREALITY DWIN
   #if ENABLED(DWIN_CREALITY_LCD)
     uint8_t dwin_data[eeprom_data_size];
-  #endif  
+  #endif
 
   //
   // CASELIGHT_USES_BRIGHTNESS

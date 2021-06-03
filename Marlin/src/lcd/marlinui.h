@@ -432,10 +432,10 @@ public:
     static void draw_kill_screen();
 
   #else // No LCD
-  
+
 	#if ENABLED(DWIN_CREALITY_LCD)
 	  static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
-	#endif  
+	#endif
     static inline void init() {}
     static inline void update() {}
     static inline void return_to_status() {}
