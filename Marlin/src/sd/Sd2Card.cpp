@@ -89,6 +89,11 @@
 
 // Send command and return error code. Return zero for OK
 uint8_t DiskIODriver_SPI_SD::cardCommand(const uint8_t cmd, const uint32_t arg) {
+
+  #if ENABLED(SDCARD_COMMANDS_SPLIT)
+    if (cmd != CMD12) chipDeselect();
+  #endif
+
   // Select card
   chipSelect();
 

@@ -48,7 +48,7 @@
 #endif
 
 #if E_MANUAL > 1
-  #define MULTI_MANUAL 1
+  #define MULTI_E_MANUAL 1
 #endif
 
 #if HAS_DISPLAY
@@ -134,7 +134,7 @@
   class ManualMove {
   private:
     static AxisEnum axis;
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
@@ -187,11 +187,7 @@
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(const AxisEnum axis
-      #if MULTI_MANUAL
-        , const int8_t eindex=-1
-      #endif
-    );
+    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
 
 #endif

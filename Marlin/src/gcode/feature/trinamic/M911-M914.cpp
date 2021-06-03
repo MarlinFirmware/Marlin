@@ -35,10 +35,19 @@
   #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2209) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
-  #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
-  #define M91x_SOME_Y (M91x_USE(Y) || M91x_USE(Y2))
-  #define M91x_SOME_Z (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3) || M91x_USE(Z4))
-  #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5) || M91x_USE_E(6) || M91x_USE_E(7))
+  #if M91x_USE(X) || M91x_USE(X2)
+    #define M91x_SOME_X 1
+  #endif
+  #if M91x_USE(Y) || M91x_USE(Y2)
+    #define M91x_SOME_Y 1
+  #endif
+  #if M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3) || M91x_USE(Z4)
+    #define M91x_SOME_Z 1
+  #endif
+
+  #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5) || M91x_USE_E(6) || M91x_USE_E(7)
+    #define M91x_SOME_E 1
+  #endif
 
   #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
     #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
@@ -112,31 +121,12 @@
    *       M912 E1  ; clear E1 only
    */
   void GcodeSuite::M912() {
-    #if M91x_SOME_X
-      const bool hasX = parser.seen(axis_codes.x);
-    #else
-      constexpr bool hasX = false;
-    #endif
+    const bool hasX = TERN0(M91x_SOME_X, parser.seen(axis_codes.x)),
+               hasY = TERN0(M91x_SOME_Y, parser.seen(axis_codes.y)),
+               hasZ = TERN0(M91x_SOME_Z, parser.seen(axis_codes.z)),
+               hasE = TERN0(M91x_SOME_E, parser.seen(axis_codes.e));
 
-    #if M91x_SOME_Y
-      const bool hasY = parser.seen(axis_codes.y);
-    #else
-      constexpr bool hasY = false;
-    #endif
-
-    #if M91x_SOME_Z
-      const bool hasZ = parser.seen(axis_codes.z);
-    #else
-      constexpr bool hasZ = false;
-    #endif
-
-    #if M91x_SOME_E
-      const bool hasE = parser.seen(axis_codes.e);
-    #else
-      constexpr bool hasE = false;
-    #endif
-
-    const bool hasNone = !hasX && !hasY && !hasZ && !hasE;
+    const bool hasNone = !hasE && !hasX && !hasY && !hasZ;
 
     #if M91x_SOME_X
       const int8_t xval = int8_t(parser.byteval(axis_codes.x, 0xFF));
@@ -219,7 +209,7 @@
     #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
       const uint8_t index = parser.byteval('I');
     #endif
-    LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
+    LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(axis_codes[i])) {
       report = false;
       switch (i) {
         case X_AXIS:
@@ -348,7 +338,7 @@
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
-    LOOP_XYZ(i) if (parser.seen(XYZ_CHAR(i))) {
+    LOOP_LINEAR_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
       const int16_t value = parser.value_int();
       report = false;
       switch (i) {

@@ -66,7 +66,7 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
       w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), mydata.e_rel[3], canMove(E3));
     #endif
   #endif
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !axis_should_home(Z_AXIS));
   #endif
   w.increments();

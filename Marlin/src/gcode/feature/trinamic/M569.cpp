@@ -50,7 +50,7 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
     const uint8_t index = parser.byteval('I');
   #endif
 
-  LOOP_XYZE(i) if (parser.seen(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (parser.seen(axis_codes[i])) {
     switch (i) {
       case X_AXIS:
         #if AXIS_HAS_STEALTHCHOP(X)
@@ -60,57 +60,66 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
           if (index == 1) TMC_SET_STEALTH(X2);
         #endif
         break;
-      case Y_AXIS:
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          if (index == 0) TMC_SET_STEALTH(Y);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y2)
-          if (index == 1) TMC_SET_STEALTH(Y2);
-        #endif
-        break;
-      case Z_AXIS:
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          if (index == 0) TMC_SET_STEALTH(Z);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z2)
-          if (index == 1) TMC_SET_STEALTH(Z2);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z3)
-          if (index == 2) TMC_SET_STEALTH(Z3);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z4)
-          if (index == 3) TMC_SET_STEALTH(Z4);
-        #endif
-        break;
-      case E_AXIS: {
-        if (target_extruder < 0) return;
-        switch (target_extruder) {
-          #if AXIS_HAS_STEALTHCHOP(E0)
-            case 0: TMC_SET_STEALTH(E0); break;
+
+      #if LINEAR_AXES >= XY
+        case Y_AXIS:
+          #if AXIS_HAS_STEALTHCHOP(Y)
+            if (index == 0) TMC_SET_STEALTH(Y);
           #endif
-          #if AXIS_HAS_STEALTHCHOP(E1)
-            case 1: TMC_SET_STEALTH(E1); break;
+          #if AXIS_HAS_STEALTHCHOP(Y2)
+            if (index == 1) TMC_SET_STEALTH(Y2);
           #endif
-          #if AXIS_HAS_STEALTHCHOP(E2)
-            case 2: TMC_SET_STEALTH(E2); break;
+          break;
+      #endif
+
+      #if HAS_Z_AXIS
+        case Z_AXIS:
+          #if AXIS_HAS_STEALTHCHOP(Z)
+            if (index == 0) TMC_SET_STEALTH(Z);
           #endif
-          #if AXIS_HAS_STEALTHCHOP(E3)
-            case 3: TMC_SET_STEALTH(E3); break;
+          #if AXIS_HAS_STEALTHCHOP(Z2)
+            if (index == 1) TMC_SET_STEALTH(Z2);
           #endif
-          #if AXIS_HAS_STEALTHCHOP(E4)
-            case 4: TMC_SET_STEALTH(E4); break;
+          #if AXIS_HAS_STEALTHCHOP(Z3)
+            if (index == 2) TMC_SET_STEALTH(Z3);
           #endif
-          #if AXIS_HAS_STEALTHCHOP(E5)
-            case 5: TMC_SET_STEALTH(E5); break;
+          #if AXIS_HAS_STEALTHCHOP(Z4)
+            if (index == 3) TMC_SET_STEALTH(Z4);
           #endif
-          #if AXIS_HAS_STEALTHCHOP(E6)
-            case 6: TMC_SET_STEALTH(E6); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E7)
-            case 7: TMC_SET_STEALTH(E7); break;
-          #endif
-        }
-      } break;
+          break;
+      #endif
+
+      #if HAS_EXTRUDERS
+        case E_AXIS: {
+          if (target_extruder < 0) return;
+          switch (target_extruder) {
+            #if AXIS_HAS_STEALTHCHOP(E0)
+              case 0: TMC_SET_STEALTH(E0); break;
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E1)
+              case 1: TMC_SET_STEALTH(E1); break;
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E2)
+              case 2: TMC_SET_STEALTH(E2); break;
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E3)
+              case 3: TMC_SET_STEALTH(E3); break;
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E4)
+              case 4: TMC_SET_STEALTH(E4); break;
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E5)
+              case 5: TMC_SET_STEALTH(E5); break;
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E6)
+              case 6: TMC_SET_STEALTH(E6); break;
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E7)
+              case 7: TMC_SET_STEALTH(E7); break;
+            #endif
+          }
+        } break;
+      #endif
     }
   }
 }

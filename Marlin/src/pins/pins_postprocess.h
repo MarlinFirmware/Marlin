@@ -385,7 +385,7 @@
 // Assign endstop pins for boards with only 3 connectors
 //
 #ifdef X_STOP_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MIN_PIN X_STOP_PIN
     #ifndef X_MAX_PIN
       #define X_MAX_PIN -1
@@ -396,14 +396,14 @@
       #define X_MIN_PIN -1
     #endif
   #endif
-#elif X_HOME_DIR < 0
+#elif X_HOME_TO_MIN
   #define X_STOP_PIN X_MIN_PIN
 #else
   #define X_STOP_PIN X_MAX_PIN
 #endif
 
 #ifdef Y_STOP_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MIN_PIN Y_STOP_PIN
     #ifndef Y_MAX_PIN
       #define Y_MAX_PIN -1
@@ -414,14 +414,14 @@
       #define Y_MIN_PIN -1
     #endif
   #endif
-#elif Y_HOME_DIR < 0
+#elif Y_HOME_TO_MIN
   #define Y_STOP_PIN Y_MIN_PIN
 #else
   #define Y_STOP_PIN Y_MAX_PIN
 #endif
 
 #ifdef Z_STOP_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MIN_PIN Z_STOP_PIN
     #ifndef Z_MAX_PIN
       #define Z_MAX_PIN -1
@@ -432,94 +432,13 @@
       #define Z_MIN_PIN -1
     #endif
   #endif
-#elif Z_HOME_DIR < 0
+#elif Z_HOME_TO_MIN
   #define Z_STOP_PIN Z_MIN_PIN
 #else
   #define Z_STOP_PIN Z_MAX_PIN
 #endif
 
-//
-// Disable unused endstop / probe pins
-//
-#define _STOP_IN_USE(N) (X2_USE_ENDSTOP == N || Y2_USE_ENDSTOP == N || Z2_USE_ENDSTOP == N || Z3_USE_ENDSTOP == N || Z4_USE_ENDSTOP == N)
-#if _STOP_IN_USE(_XMAX_)
-  #define USE_XMAX_PLUG
-#endif
-#if _STOP_IN_USE(_YMAX_)
-  #define USE_YMAX_PLUG
-#endif
-#if _STOP_IN_USE(_ZMAX_)
-  #define USE_ZMAX_PLUG
-#endif
-#if _STOP_IN_USE(_XMIN_)
-  #define USE_XMIN_PLUG
-#endif
-#if _STOP_IN_USE(_YMIN_)
-  #define USE_YMIN_PLUG
-#endif
-#if _STOP_IN_USE(_ZMIN_)
-  #define USE_ZMIN_PLUG
-#endif
-#undef _STOP_IN_USE
-#if !HAS_CUSTOM_PROBE_PIN
-  #undef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN    -1
-#endif
-#if DISABLED(USE_XMAX_PLUG)
-  #undef X_MAX_PIN
-  #define X_MAX_PIN          -1
-#endif
-#if DISABLED(USE_YMAX_PLUG)
-  #undef Y_MAX_PIN
-  #define Y_MAX_PIN          -1
-#endif
-#if DISABLED(USE_ZMAX_PLUG)
-  #undef Z_MAX_PIN
-  #define Z_MAX_PIN          -1
-#endif
-#if DISABLED(USE_XMIN_PLUG)
-  #undef X_MIN_PIN
-  #define X_MIN_PIN          -1
-#endif
-#if DISABLED(USE_YMIN_PLUG)
-  #undef Y_MIN_PIN
-  #define Y_MIN_PIN          -1
-#endif
-#if DISABLED(USE_ZMIN_PLUG)
-  #undef Z_MIN_PIN
-  #define Z_MIN_PIN          -1
-#endif
-#if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_DIR > 0
-  #undef X2_MIN_PIN
-#endif
-#if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_DIR < 0
-  #undef X2_MAX_PIN
-#endif
-#if DISABLED(Y_DUAL_ENDSTOPS) || Y_HOME_DIR > 0
-  #undef Y2_MIN_PIN
-#endif
-#if DISABLED(Y_DUAL_ENDSTOPS) || Y_HOME_DIR < 0
-  #undef Y2_MAX_PIN
-#endif
-#if DISABLED(Z_MULTI_ENDSTOPS) || Z_HOME_DIR > 0
-  #undef Z2_MIN_PIN
-#endif
-#if DISABLED(Z_MULTI_ENDSTOPS) || Z_HOME_DIR < 0
-  #undef Z2_MAX_PIN
-#endif
-#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 3 || Z_HOME_DIR > 0
-  #undef Z3_MIN_PIN
-#endif
-#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 3 || Z_HOME_DIR < 0
-  #undef Z3_MAX_PIN
-#endif
-#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 4 || Z_HOME_DIR > 0
-  #undef Z4_MIN_PIN
-#endif
-#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 4 || Z_HOME_DIR < 0
-  #undef Z4_MAX_PIN
-#endif
-
+// Filament Sensor first pin alias
 #if HAS_FILAMENT_SENSOR
   #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
 #else
@@ -593,7 +512,7 @@
   //
   // Auto-assign pins for stallGuard sensorless homing
   //
-  #if defined(X2_STALL_SENSITIVITY) && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
+  #if !defined(X2_USE_ENDSTOP) && defined(X2_STALL_SENSITIVITY) && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
     #define X2_DIAG_PIN _EPIN(X2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(X2, X_MIN)      // If already remapped in the pins file...
       #define X2_USE_ENDSTOP _XMIN_
@@ -662,7 +581,8 @@
       #define Y2_SERIAL_RX_PIN _EPIN(Y2_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if defined(Y2_STALL_SENSITIVITY) && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(Y2_USE_ENDSTOP) && defined(Y2_STALL_SENSITIVITY) && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
     #define Y2_DIAG_PIN _EPIN(Y2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Y2, X_MIN)
       #define Y2_USE_ENDSTOP _XMIN_
@@ -730,7 +650,8 @@
       #define Z2_SERIAL_RX_PIN _EPIN(Z2_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if defined(Z2_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(Z2_USE_ENDSTOP) && defined(Z2_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
     #define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z2, X_MIN)
       #define Z2_USE_ENDSTOP _XMIN_
@@ -799,7 +720,8 @@
       #define Z3_SERIAL_RX_PIN _EPIN(Z3_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if defined(Z3_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(Z3_USE_ENDSTOP) && defined(Z3_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
     #define Z3_DIAG_PIN _EPIN(Z3_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z3, X_MIN)
       #define Z3_USE_ENDSTOP _XMIN_
@@ -866,7 +788,8 @@
       #define Z4_SERIAL_RX_PIN _EPIN(Z4_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if defined(Z4_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(Z4_USE_ENDSTOP) && defined(Z4_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
     #define Z4_DIAG_PIN _EPIN(Z4_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z4, X_MIN)
       #define Z4_USE_ENDSTOP _XMIN_
@@ -901,6 +824,91 @@
   #define Z4_MS3_PIN -1
 #endif
 
+//
+// Disable unused endstop / probe pins
+//
+#define _STOP_IN_USE(N) (X2_USE_ENDSTOP == N || Y2_USE_ENDSTOP == N || Z2_USE_ENDSTOP == N || Z3_USE_ENDSTOP == N || Z4_USE_ENDSTOP == N)
+#if _STOP_IN_USE(_XMAX_)
+  #define USE_XMAX_PLUG
+#endif
+#if _STOP_IN_USE(_YMAX_)
+  #define USE_YMAX_PLUG
+#endif
+#if _STOP_IN_USE(_ZMAX_)
+  #define USE_ZMAX_PLUG
+#endif
+#if _STOP_IN_USE(_XMIN_)
+  #define USE_XMIN_PLUG
+#endif
+#if _STOP_IN_USE(_YMIN_)
+  #define USE_YMIN_PLUG
+#endif
+#if _STOP_IN_USE(_ZMIN_)
+  #define USE_ZMIN_PLUG
+#endif
+#undef _STOP_IN_USE
+#if !HAS_CUSTOM_PROBE_PIN
+  #undef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN    -1
+#endif
+#if DISABLED(USE_XMAX_PLUG)
+  #undef X_MAX_PIN
+  #define X_MAX_PIN          -1
+#endif
+#if DISABLED(USE_YMAX_PLUG)
+  #undef Y_MAX_PIN
+  #define Y_MAX_PIN          -1
+#endif
+#if DISABLED(USE_ZMAX_PLUG)
+  #undef Z_MAX_PIN
+  #define Z_MAX_PIN          -1
+#endif
+#if DISABLED(USE_XMIN_PLUG)
+  #undef X_MIN_PIN
+  #define X_MIN_PIN          -1
+#endif
+#if DISABLED(USE_YMIN_PLUG)
+  #undef Y_MIN_PIN
+  #define Y_MIN_PIN          -1
+#endif
+#if DISABLED(USE_ZMIN_PLUG)
+  #undef Z_MIN_PIN
+  #define Z_MIN_PIN          -1
+#endif
+#if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_TO_MAX
+  #undef X2_MIN_PIN
+#endif
+#if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_TO_MIN
+  #undef X2_MAX_PIN
+#endif
+#if DISABLED(Y_DUAL_ENDSTOPS) || Y_HOME_TO_MAX
+  #undef Y2_MIN_PIN
+#endif
+#if DISABLED(Y_DUAL_ENDSTOPS) || Y_HOME_TO_MIN
+  #undef Y2_MAX_PIN
+#endif
+#if DISABLED(Z_MULTI_ENDSTOPS) || Z_HOME_TO_MAX
+  #undef Z2_MIN_PIN
+#endif
+#if DISABLED(Z_MULTI_ENDSTOPS) || Z_HOME_TO_MIN
+  #undef Z2_MAX_PIN
+#endif
+#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 3 || Z_HOME_TO_MAX
+  #undef Z3_MIN_PIN
+#endif
+#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 3 || Z_HOME_TO_MIN
+  #undef Z3_MAX_PIN
+#endif
+#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 4 || Z_HOME_TO_MAX
+  #undef Z4_MIN_PIN
+#endif
+#if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 4 || Z_HOME_TO_MIN
+  #undef Z4_MAX_PIN
+#endif
+
+//
+// Default DOGLCD SPI delays
+//
 #if HAS_MARLINUI_U8GLIB
   #if !defined(ST7920_DELAY_1) && defined(BOARD_ST7920_DELAY_1)
     #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
