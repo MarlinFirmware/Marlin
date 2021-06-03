@@ -317,7 +317,7 @@ void disable_e_steppers() {
 void disable_e_stepper(const uint8_t e) {
   #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
   switch (e) {
-    REPEAT(EXTRUDERS, _CASE_DIS_E)
+    REPEAT(E_STEPPERS, _CASE_DIS_E)
   }
 }
 
