@@ -5149,11 +5149,10 @@ void DWIN_CompletedHoming() {
 }
 
 void DWIN_MeshLevelingStart() {
-  #ifdef HAS_ONESTEP_LEVELING
+  #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
     DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT(MSG_BED_LEVELING), "Please wait until done.");
-  #endif
-  #ifdef MESH_BED_LEVELING
+  #elif ENABLED(MESH_BED_LEVELING)
     HMI_SaveProcessID(ManualMesh);
     select_item.reset();
     Draw_ManualMesh_Menu();
