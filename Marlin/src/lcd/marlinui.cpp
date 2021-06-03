@@ -628,23 +628,6 @@ void MarlinUI::status_screen() {
   draw_status_screen();
 }
 
-void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
-  init();
-  status_printf_P(1, PSTR(S_FMT ": " S_FMT), lcd_error, lcd_component);
-  TERN_(HAS_LCD_MENU, return_to_status());
-
-  // RED ALERT. RED ALERT.
-  #ifdef LED_BACKLIGHT_TIMEOUT
-    leds.set_color(LEDColorRed());
-    #ifdef NEOPIXEL_BKGD_INDEX_FIRST
-      neo.set_background_color(255, 0, 0, 0);
-      neo.show();
-    #endif
-  #endif
-
-  draw_kill_screen();
-}
-
 void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
   TERN_(HAS_LCD_MENU, refresh());
@@ -1482,6 +1465,25 @@ void MarlinUI::update() {
 
   #if ENABLED(SDSUPPORT)
     extern bool wait_for_user, wait_for_heatup;
+  #endif
+
+  #if HAS_LCD_MENU
+    void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
+      init();
+      status_printf_P(1, PSTR(S_FMT ": " S_FMT), lcd_error, lcd_component);
+      TERN_(HAS_LCD_MENU, return_to_status());
+
+      // RED ALERT. RED ALERT.
+      #ifdef LED_BACKLIGHT_TIMEOUT
+        leds.set_color(LEDColorRed());
+        #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+          neo.set_background_color(255, 0, 0, 0);
+          neo.show();
+        #endif
+      #endif
+
+      draw_kill_screen();
+    }
   #endif
 
   void MarlinUI::abort_print() {

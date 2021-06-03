@@ -109,8 +109,8 @@ void GcodeSuite::M1001() {
     gcode.process_subcommands_now_P(PSTR(SD_FINISHED_RELEASECOMMAND));
   #endif
 
-  TERN_(DWIN_CREALITY_LCD, DWIN_Stop_Print());
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintFinished());
+  TERN_(DWIN_CREALITY_LCD, DWIN_Print_Finished());
 
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());

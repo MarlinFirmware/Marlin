@@ -230,7 +230,7 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state);
 
-//Draw a circle
+// Draw a circle
 void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
 
 // GUI extension

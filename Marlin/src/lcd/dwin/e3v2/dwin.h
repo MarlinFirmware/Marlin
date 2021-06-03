@@ -335,22 +335,22 @@ typedef struct {
 typedef struct {
   uint8_t Brightness = 127;
   uint16_t Background_Color = Def_Background_Color;
-  uint16_t Cursor_color = Def_Cursor_color;
-  uint16_t TitleBg_color = Def_TitleBg_color;
-  uint16_t TitleTxt_color = Def_TitleTxt_color;
-  uint16_t Text_Color = Def_Text_Color;
-  uint16_t Selected_Color = Def_Selected_Color;
-  uint16_t SplitLine_Color = Def_SplitLine_Color;
-  uint16_t Highlight_Color = Def_Highlight_Color;
-  uint16_t StatusBg_Color = Def_StatusBg_Color;
-  uint16_t StatusTxt_Color = Def_StatusTxt_Color;
-  uint16_t PopupBg_color = Def_PopupBg_color;
-  uint16_t PopupTxt_Color = Def_PopupTxt_Color;
-  uint16_t AlertBg_Color = Def_AlertBg_Color;
-  uint16_t AlertTxt_Color = Def_AlertTxt_Color;
+  uint16_t Cursor_color     = Def_Cursor_color;
+  uint16_t TitleBg_color    = Def_TitleBg_color;
+  uint16_t TitleTxt_color   = Def_TitleTxt_color;
+  uint16_t Text_Color       = Def_Text_Color;
+  uint16_t Selected_Color   = Def_Selected_Color;
+  uint16_t SplitLine_Color  = Def_SplitLine_Color;
+  uint16_t Highlight_Color  = Def_Highlight_Color;
+  uint16_t StatusBg_Color   = Def_StatusBg_Color;
+  uint16_t StatusTxt_Color  = Def_StatusTxt_Color;
+  uint16_t PopupBg_color    = Def_PopupBg_color;
+  uint16_t PopupTxt_Color   = Def_PopupTxt_Color;
+  uint16_t AlertBg_Color    = Def_AlertBg_Color;
+  uint16_t AlertTxt_Color   = Def_AlertTxt_Color;
   uint16_t PercentTxt_Color = Def_PercentTxt_Color;
-  uint16_t Barfill_Color = Def_Barfill_Color;
-  uint16_t Indicator_Color = Def_Indicator_Color;
+  uint16_t Barfill_Color    = Def_Barfill_Color;
+  uint16_t Indicator_Color  = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
 } HMI_data_t;
 
@@ -466,7 +466,6 @@ void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
 void HMI_Tune();        // Adjust the menu
 void Draw_Main_Area(uint8_t procID); // Redraw main area;
-void DWIN_Redraw_screen();  // Redraw all screen elements
 void HMI_ReturnScreen();// Return to previous screen before popups
 
 #if HAS_PREHEAT
@@ -481,7 +480,7 @@ void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
 void HMI_Popup();
-void HMI_SaveProcessID(uint8_t id);
+void HMI_SaveProcessID(const uint8_t id);
 void HMI_AudioFeedback(const bool success/*=true*/);
 void DWIN_Update();
 void EachMomentUpdate();
@@ -497,8 +496,8 @@ void DWIN_CompletedHoming();
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);
-void DWIN_Start_Print(bool sd);
-void DWIN_Stop_Print();
+void DWIN_Print_Started(const bool sd);
+void DWIN_Print_Finished();
 #if HAS_FILAMENT_SENSOR
   void DWIN_FilamentRunout(const uint8_t extruder);
 #endif

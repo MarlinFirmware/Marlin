@@ -255,7 +255,6 @@ void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
 }
 
-
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
@@ -445,26 +444,24 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
   DWIN_Send(i);
 }
 
-//Draw a circle
-//Color: circle color
-//x: the abscissa of the center of the circle
-//y: ordinate of the center of the circle
-//r: circle radius
-void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r) {
-  int a,b;
-  a=b=0;
-  while(a<=b) {
-    b=sqrt(r*r-a*a);
-    while(a==0){ b=b-1;break;}
-    DWIN_Draw_Point(color, 1,1,x+a,y+b);		               //Draw some sector 1
-    DWIN_Draw_Point(color, 1,1,x+b,y+a);		               //Draw some sector 2
-    DWIN_Draw_Point(color, 1,1,x+b,y-a);		               //Draw some sector 3
-    DWIN_Draw_Point(color, 1,1,x+a,y-b);		               //Draw some sector 4
-
-    DWIN_Draw_Point(color, 1,1,x-a,y-b);		              //Draw some sector 5
-    DWIN_Draw_Point(color, 1,1,x-b,y-a);		              //Draw some sector 6
-    DWIN_Draw_Point(color, 1,1,x-b,y+a);		              //Draw some sector 7
-    DWIN_Draw_Point(color, 1,1,x-a,y+b);		              //Draw some sector 8
+// Draw a circle
+//  Color: circle color
+//  x: the abscissa of the center of the circle
+//  y: ordinate of the center of the circle
+//  r: circle radius
+void DWIN_Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
+  int a = 0, b = 0;
+  while (a <= b) {
+    b = HYPOT(r, a);
+    if (a == 0) b--;
+    DWIN_Draw_Point(color, 1, 1, x + a, y + b);   // Draw some sector 1
+    DWIN_Draw_Point(color, 1, 1, x + b, y + a);   // Draw some sector 2
+    DWIN_Draw_Point(color, 1, 1, x + b, y - a);   // Draw some sector 3
+    DWIN_Draw_Point(color, 1, 1, x + a, y - b);   // Draw some sector 4
+    DWIN_Draw_Point(color, 1, 1, x - a, y - b);   // Draw some sector 5
+    DWIN_Draw_Point(color, 1, 1, x - b, y - a);   // Draw some sector 6
+    DWIN_Draw_Point(color, 1, 1, x - b, y + a);   // Draw some sector 7
+    DWIN_Draw_Point(color, 1, 1, x - a, y + b);   // Draw some sector 8
     a++;
   }
 }

@@ -428,12 +428,12 @@ typedef struct SettingsDataStruct {
   // EXTENSIBLE_UI
   //
   #if ENABLED(EXTENSIBLE_UI)
-    // This is a significant hardware change; don't reserve space when not present
     uint8_t extui_data[ExtUI::eeprom_data_size];
   #endif
 
   //
-  // CREALITY DWIN
+  // Creality DWIN
+  //
   #if ENABLED(DWIN_CREALITY_LCD)
     uint8_t dwin_data[eeprom_data_size];
   #endif
@@ -1376,24 +1376,24 @@ void MarlinSettings::postprocess() {
     // Extensible UI User Data
     //
     #if ENABLED(EXTENSIBLE_UI)
-      {
-        char extui_data[ExtUI::eeprom_data_size] = { 0 };
-        ExtUI::onStoreSettings(extui_data);
-        _FIELD_TEST(extui_data);
-        EEPROM_WRITE(extui_data);
-      }
+    {
+      char extui_data[ExtUI::eeprom_data_size] = { 0 };
+      ExtUI::onStoreSettings(extui_data);
+      _FIELD_TEST(extui_data);
+      EEPROM_WRITE(extui_data);
+    }
     #endif
 
     //
     // Creality DWIN User Data
     //
     #if ENABLED(DWIN_CREALITY_LCD)
-      {
-        char dwin_data[eeprom_data_size] = { 0 };
-        DWIN_StoreSettings(dwin_data);
-        _FIELD_TEST(dwin_data);
-        EEPROM_WRITE(dwin_data);
-      }
+    {
+      char dwin_data[eeprom_data_size] = { 0 };
+      DWIN_StoreSettings(dwin_data);
+      _FIELD_TEST(dwin_data);
+      EEPROM_WRITE(dwin_data);
+    }
     #endif
 
     //
@@ -2301,26 +2301,24 @@ void MarlinSettings::postprocess() {
       // Extensible UI User Data
       //
       #if ENABLED(EXTENSIBLE_UI)
-        // This is a significant hardware change; don't reserve EEPROM space when not present
-        {
-          const char extui_data[ExtUI::eeprom_data_size] = { 0 };
-          _FIELD_TEST(extui_data);
-          EEPROM_READ(extui_data);
-          if (!validating) ExtUI::onLoadSettings(extui_data);
-        }
+      {
+        const char extui_data[ExtUI::eeprom_data_size] = { 0 };
+        _FIELD_TEST(extui_data);
+        EEPROM_READ(extui_data);
+        if (!validating) ExtUI::onLoadSettings(extui_data);
+      }
       #endif
 
       //
       // Creality DWIN User Data
       //
       #if ENABLED(DWIN_CREALITY_LCD)
-        // This is a significant hardware change; don't reserve EEPROM space when not present
-        {
-          const char dwin_data[eeprom_data_size] = { 0 };
-          _FIELD_TEST(dwin_data);
-          EEPROM_READ(dwin_data);
-          if (!validating) DWIN_LoadSettings(dwin_data);
-        }
+      {
+        const char dwin_data[eeprom_data_size] = { 0 };
+        _FIELD_TEST(dwin_data);
+        EEPROM_READ(dwin_data);
+        if (!validating) DWIN_LoadSettings(dwin_data);
+      }
       #endif
 
       //
@@ -2709,7 +2707,6 @@ void MarlinSettings::reset() {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-
   TERN_(DWIN_CREALITY_LCD, DWIN_Setdatadefaults());
 
   //
@@ -3046,9 +3043,7 @@ void MarlinSettings::reset() {
   DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-
   TERN_(DWIN_CREALITY_LCD, DWIN_Setdatadefaults());
-
 }
 
 #if DISABLED(DISABLE_M503)
