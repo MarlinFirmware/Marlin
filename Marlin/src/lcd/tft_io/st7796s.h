@@ -154,6 +154,9 @@ static const uint16_t st7796s_init[] = {
 
 static const uint16_t lerdge_st7796s_init[] = {
   DATASIZE_8BIT,
+  ESC_REG(ST7796S_SWRESET), ESC_DELAY(100),
+  ESC_REG(ST7796S_SLPOUT), ESC_DELAY(20),
+
   ESC_REG(ST7796S_CSCON), 0x00C3,  // enable command 2 part I
   ESC_REG(ST7796S_CSCON), 0x0096,  // enable command 2 part II
 
@@ -165,7 +168,6 @@ static const uint16_t lerdge_st7796s_init[] = {
 
   ESC_REG(ST7796S_PWR2), 0x0015,
   ESC_REG(ST7796S_PWR3), 0x00AF,
-  ESC_REG(0xC3), 0x0009,       // Register not documented in datasheet
   ESC_REG(ST7796S_VCMPCTL), 0x0022,
   ESC_REG(ST7796S_VCMOST), 0x0000,
   ESC_REG(ST7796S_DOCA), 0x0040, 0x008A, 0x0000, 0x0000, 0x0029, 0x0019, 0x00A5, 0x0033,

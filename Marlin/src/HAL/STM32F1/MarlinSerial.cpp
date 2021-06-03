@@ -60,7 +60,7 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
   }
   else if (srflags & USART_SR_ORE) {
     // overrun and empty data, just do a dummy read to clear ORE
-    // and prevent a raise condition where a continous interrupt stream (due to ORE set) occurs
+    // and prevent a raise condition where a continuous interrupt stream (due to ORE set) occurs
     // (see chapter "Overrun error" ) in STM32 reference manual
     regs->DR;
   }

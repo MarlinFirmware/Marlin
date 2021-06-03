@@ -100,7 +100,7 @@ void menu_info_thermistors() {
 
   START_SCREEN();
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     #define THERMISTOR_ID TEMP_SENSOR_0
     #include "../thermistornames.h"
     STATIC_ITEM_P(PSTR(LCD_STR_E0 ": " THERMISTOR_NAME), SS_INVERT);
@@ -171,7 +171,7 @@ void menu_info_thermistors() {
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(HEATER_7_MAXTEMP), SS_LEFT);
   #endif
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     STATIC_ITEM(TERN(WATCH_HOTENDS, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
   #endif
 
@@ -278,7 +278,7 @@ void menu_info() {
   #else
     SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
     SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
-    #if EXTRUDERS
+    #if HAS_EXTRUDERS
       SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
     #endif
   #endif
