@@ -39,45 +39,30 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
+// Limit Switches
+//
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#define Z_STOP_PIN                          PA14
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PE5
 #define X_DIR_PIN                           PE6
 #define X_ENABLE_PIN                        PC13
-#define X_MIN_PIN                           PG10
-#define X_MAX_PIN                           -1
 
 #define Y_STEP_PIN                          PE2
 #define Y_DIR_PIN                           PE3
 #define Y_ENABLE_PIN                        PE4
-#define Y_MIN_PIN                           PA12
-#define Y_MAX_PIN
 
 #define Z_STEP_PIN                          PB9
 #define Z_DIR_PIN                           PE0
 #define Z_ENABLE_PIN                        PE1
-#define Z_MIN_PIN                           PA14
-#define Z_MAX_PIN                           -1
-
-#define Y2_STEP_PIN                         -1
-#define Y2_DIR_PIN                          -1
-#define Y2_ENABLE_PIN                       -1
-
-#define Z2_STEP_PIN                         -1
-#define Z2_DIR_PIN                          -1
-#define Z2_ENABLE_PIN                       -1
 
 #define E0_STEP_PIN                         PB4
 #define E0_DIR_PIN                          PB5
 #define E0_ENABLE_PIN                       PB8
-
-#define E1_STEP_PIN                         -1
-#define E1_DIR_PIN                          -1
-#define E1_ENABLE_PIN                       -1
-
-#define E2_STEP_PIN                         -1
-#define E2_DIR_PIN                          -1
-#define E2_ENABLE_PIN                       -1
 
 //
 // Misc. Functions
@@ -114,8 +99,6 @@
 //
 #define TEMP_BED_PIN                        PA0   // Analog Input
 #define TEMP_0_PIN                          PA1   // Analog Input
-#define TEMP_1_PIN                          -1    // Analog Input
-#define TEMP_2_PIN                          -1    // Analog Input
 
 //
 // LCD Pins
