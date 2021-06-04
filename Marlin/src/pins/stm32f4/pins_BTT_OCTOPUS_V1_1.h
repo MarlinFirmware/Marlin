@@ -22,7 +22,7 @@
 #pragma once
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BTT OCTOPUS V1.0"
+  #define BOARD_INFO_NAME "BTT OCTOPUS V1.1"
 #endif
 
 #include "pins_BTT_OCTOPUS_V1_common.h"
