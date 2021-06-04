@@ -2125,7 +2125,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         LOOP_L_N(i, E_STEPPERS)
           if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
 
-        #define E_STEPPER_INDEX(E) ((E) / TERN(SWITCHING_EXTRUDER, 2, 1))
+        #define E_STEPPER_INDEX(E) TERN(SWITCHING_EXTRUDER, (E) / 2, E)
 
         #define ENABLE_ONE_E(N) do{ \
           if (extruder == N) { \
