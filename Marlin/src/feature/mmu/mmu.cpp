@@ -26,6 +26,12 @@
 
 #include "../module/stepper.h"
 
+void mmu_init() {
+  SET_OUTPUT(E_MUX0_PIN);
+  SET_OUTPUT(E_MUX1_PIN);
+  SET_OUTPUT(E_MUX2_PIN);
+}
+
 void select_multiplexed_stepper(const uint8_t e) {
   planner.synchronize();
   disable_e_steppers();
