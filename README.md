@@ -28,6 +28,8 @@ Any version number changes indicate a new printer addition and/or core feature c
 
 If you find bugs, report them to the TH3D Studio team here:  [Contact Us](https://contactus.th3dstudio.com).
 
+Issue queue is disabled because some people do not understand what a proper issue is. We have our own internal issue tracking system we use for our repo.
+
 ## Credits
 
 TH3D Unified 2 Firmware is built on top of Marlin 2 Firmware. Please donate to their dev team if you wish to make a donation. This project is done by TH3D Studio LLC to provide the 3D printing community with easy to use firmware and also enable ease of use with our products and other products on the market. Profits from our store allow our technical team to make projects like this available for free to the community.
