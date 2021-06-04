@@ -5031,8 +5031,14 @@ void CrealityDWINClass::Start_Print(bool sd) {
   if (!printing) {
     printing = true;
     statusmsg[0] = '\0';
-    if (sd)
-      strcpy_P(filename, (card.longest_filename()) ? card.longest_filename() : recovery.info.sd_filename);
+    if (sd) {
+      if (recovery.valid()) {
+        SdFile *diveDir = nullptr;
+        const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
+        card.selectFileByName(fname);
+      }
+      strcpy_P(filename, card.longest_filename());
+    }
     else
       strcpy_P(filename, "Host Print");
     ui.set_progress(0);
