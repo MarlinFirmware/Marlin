@@ -520,6 +520,8 @@ void CrealityDWINClass::Redraw_Menu(bool lastprocess/*=true*/, bool lastselectio
     case File:
       Draw_SD_List();
       break;
+    default:
+      break;
   }
 }
 
@@ -1584,6 +1586,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_1_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
@@ -1598,6 +1602,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_2_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
@@ -1612,6 +1618,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_3_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed);
@@ -1626,6 +1634,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_4_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed);
@@ -1640,6 +1650,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_Temperature, PREHEAT_5_LABEL);
               }
               else {
+                thermalManager.disable_all_heaters();
+                thermalManager.zero_fan_speeds();
                 if (preheatmode == 0 || preheatmode == 1) {
                   thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0);
                   thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed);
@@ -4835,7 +4847,6 @@ void CrealityDWINClass::Popup_Control() {
           else {
             #if ENABLED(HOST_ACTION_COMMANDS)
               host_action_cancel();
-              Draw_Main_Menu();
             #endif
           }
         }
@@ -4848,6 +4859,7 @@ void CrealityDWINClass::Popup_Control() {
           queue.inject_P(PSTR("M1000"));
         }
         else {
+          queue.inject_P(PSTR("M1000 C"));
           Draw_Main_Menu();
         }
         break;
@@ -5019,8 +5031,14 @@ void CrealityDWINClass::Start_Print(bool sd) {
   if (!printing) {
     printing = true;
     statusmsg[0] = '\0';
-    if (sd)
+    if (sd) {
+      if (recovery.valid()) {
+        SdFile *diveDir = nullptr;
+        const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
+        card.selectFileByName(fname);
+      }
       strcpy_P(filename, card.longest_filename());
+    }
     else
       strcpy_P(filename, "Host Print");
     ui.set_progress(0);
@@ -5073,7 +5091,7 @@ void CrealityDWINClass::Update() {
 
 void CrealityDWINClass::State_Update() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
-    if (!printing) Start_Print(card.isFileOpen());
+    if (!printing) Start_Print((card.isFileOpen() || recovery.valid()));
     else Stop_Print();
   }
   if (print_job_timer.isPaused() != paused) {
@@ -5248,7 +5266,11 @@ void CrealityDWINClass::Load_Settings(const char *buff) {
     mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size+1;
   #endif
   Redraw_Screen();
-  queue.inject_P(PSTR("M1000 S"));
+  static bool init = true;
+  if (init) {
+    init = false;
+    queue.inject_P(PSTR("M1000 S"));
+  }
 }
 
 #endif
