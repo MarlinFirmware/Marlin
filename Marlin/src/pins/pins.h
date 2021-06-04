@@ -35,11 +35,6 @@
  *    These numbers are the same in any pin mapping.
  */
 
-#if HAS_EXTENDABLE_MMU
-  #define MAX_EXTRUDERS 15
-#else
-  #define MAX_EXTRUDERS 8
-#endif
 #define MAX_E_STEPPERS 8
 
 #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
