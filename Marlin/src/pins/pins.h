@@ -469,33 +469,33 @@
 //
 
 #elif MB(STM32F103RE)
-  #include "stm32f1/pins_STM32F1R.h"            // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_STM32F1R.h"            // STM32F103RE                            env:STM32F103RE env:STM32F103RE_maple
 #elif MB(MALYAN_M200)
-  #include "stm32f1/pins_MALYAN_M200.h"         // STM32F1                                env:STM32F103CB_malyan
+  #include "stm32f1/pins_MALYAN_M200.h"         // STM32F103CB                            env:STM32F103CB_malyan
 #elif MB(STM3R_MINI)
-  #include "stm32f1/pins_STM3R_MINI.h"          // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_STM3R_MINI.h"          // STM32F103RE?                           env:STM32F103RE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VB)
-  #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VD)
-  #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_MINI)
-  #include "stm32f1/pins_GTM32_MINI.h"          // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_GTM32_MINI.h"          // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_MINI_A30)
-  #include "stm32f1/pins_GTM32_MINI_A30.h"      // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_GTM32_MINI_A30.h"      // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_REV_B)
-  #include "stm32f1/pins_GTM32_REV_B.h"         // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_GTM32_REV_B.h"         // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(MORPHEUS)
-  #include "stm32f1/pins_MORPHEUS.h"            // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_MORPHEUS.h"            // STM32F103RE                            env:STM32F103RE env:STM32F103RE_maple
 #elif MB(CHITU3D)
-  #include "stm32f1/pins_CHITU3D.h"             // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_CHITU3D.h"             // STM32F103ZE                            env:STM32F103ZE env:STM32F103RE_maple
 #elif MB(MKS_ROBIN)
-  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin env:mks_robin_stm32
+  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin env:mks_robin_maple
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
-  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_stm32
+  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_maple
 #elif MB(MKS_ROBIN_NANO_V2)
-  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_stm32
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_maple
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite
 #elif MB(MKS_ROBIN_LITE3)
@@ -503,7 +503,7 @@
 #elif MB(MKS_ROBIN_PRO)
   #include "stm32f1/pins_MKS_ROBIN_PRO.h"       // STM32F1                                env:mks_robin_pro
 #elif MB(MKS_ROBIN_E3)
-  #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
+  #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3 env:mks_robin_e3_maple
 #elif MB(MKS_ROBIN_E3_V1_1)
   #include "stm32f1/pins_MKS_ROBIN_E3_V1_1.h"   // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3D)
@@ -513,17 +513,17 @@
 #elif MB(MKS_ROBIN_E3P)
   #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p
 #elif MB(BTT_SKR_MINI_V1_1)
-  #include "stm32f1/pins_BTT_SKR_MINI_V1_1.h"   // STM32F1                                env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+  #include "stm32f1/pins_BTT_SKR_MINI_V1_1.h"   // STM32F1                                env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_maple env:STM32F103RC_btt_512K_maple env:STM32F103RC_btt_USB_maple env:STM32F103RC_btt_512K_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V1_0)
-  #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_maple env:STM32F103RC_btt_512K_maple env:STM32F103RC_btt_USB_maple env:STM32F103RC_btt_512K_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V1_2)
-  #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_maple env:STM32F103RC_btt_512K_maple env:STM32F103RC_btt_USB_maple env:STM32F103RC_btt_512K_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V2_0)
-  #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_maple env:STM32F103RC_btt_512K_maple env:STM32F103RC_btt_USB_maple env:STM32F103RC_btt_512K_USB_maple
 #elif MB(BTT_SKR_MINI_MZ_V1_0)
-  #include "stm32f1/pins_BTT_SKR_MINI_MZ_V1_0.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+  #include "stm32f1/pins_BTT_SKR_MINI_MZ_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_maple env:STM32F103RC_btt_512K_maple env:STM32F103RC_btt_USB_maple env:STM32F103RC_btt_512K_USB_maple
 #elif MB(BTT_SKR_E3_DIP)
-  #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+  #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K
 #elif MB(BTT_SKR_CR6)
   #include "stm32f1/pins_BTT_SKR_CR6.h"         // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB
 #elif MB(JGAURORA_A5S_A1)
@@ -543,17 +543,17 @@
 #elif MB(CHITU3D_V6)
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
 #elif MB(CREALITY_V4)
-  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V4210)
-  #include "stm32f1/pins_CREALITY_V4210.h"      // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V4210.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V427)
-  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V431)
-  #include "stm32f1/pins_CREALITY_V431.h"       // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V431.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V452)
-  #include "stm32f1/pins_CREALITY_V452.h"       // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V452.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V453)
-  #include "stm32f1/pins_CREALITY_V453.h"       // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V453.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
 #elif MB(FLY_MINI)
@@ -561,9 +561,9 @@
 #elif MB(FLSUN_HISPEED)
   #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeedv1
 #elif MB(BEAST)
-  #include "stm32f1/pins_BEAST.h"               // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_BEAST.h"               // STM32F1                                env:STM32F103VE env:STM32F103RE_maple
 #elif MB(MINGDA_MPX_ARM_MINI)
-  #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:STM32F103RE
+  #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
 
 //
 // ARM Cortex-M4F
