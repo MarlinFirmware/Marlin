@@ -2128,9 +2128,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         #define E_STEPPER_INDEX(E) TERN(SWITCHING_EXTRUDER, (E) / 2, E)
 
         #define ENABLE_ONE_E(N) do{ \
-          if (extruder == N) { \
+          if (E_STEPPER_INDEX(extruder) == N) { \
             ENABLE_AXIS_E##N(); \
-            g_uc_extruder_last_move[E_STEPPER_INDEX(N)] = (BLOCK_BUFFER_SIZE) * 2; \
+            g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
               ENABLE_AXIS_E1(); \
           } \
