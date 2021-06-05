@@ -159,6 +159,7 @@
 #define BOARD_PICA_REVB               1324  // PICA Shield (original version)
 #define BOARD_PICA                    1325  // PICA Shield (rev C or later)
 #define BOARD_INTAMSYS40              1326  // Intamsys 4.0 (Funmat HT)
+#define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
 
 //
 // ATmega1281, ATmega2561

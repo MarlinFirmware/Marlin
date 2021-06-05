@@ -29,13 +29,15 @@
 
 #include <string.h>
 
-#if ENABLED(NEOPIXEL_LED)
-  #include "neopixel.h"
+// A white component can be passed
+#if EITHER(RGBW_LED, PCA9632_RGBW)
+  #define HAS_WHITE_LED 1
 #endif
 
-// A white component can be passed
-#if ANY(RGBW_LED, NEOPIXEL_LED, PCA9632_RGBW)
-  #define HAS_WHITE_LED 1
+#if ENABLED(NEOPIXEL_LED)
+  #define _NEOPIXEL_INCLUDE_
+  #include "neopixel.h"
+  #undef _NEOPIXEL_INCLUDE_
 #endif
 
 /**
@@ -84,9 +86,8 @@ typedef struct LEDColor {
 } LEDColor;
 
 /**
- * Color helpers and presets
+ * Color presets
  */
-#define MakeLEDColor(R,G,B,W,I)   LEDColor(R, G, B OPTARG(HAS_WHITE_LED, W) OPTARG(NEOPIXEL_LED, I))
 
 #define LEDColorOff()             LEDColor(  0,   0,   0)
 #define LEDColorRed()             LEDColor(255,   0,   0)
@@ -114,15 +115,15 @@ public:
   static void setup(); // init()
 
   static void set_color(const LEDColor &color
-    OPTARG(NEOPIXEL_LED, bool isSequence=false)
+    OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence=false)
   );
 
   static inline void set_color(uint8_t r, uint8_t g, uint8_t b
     OPTARG(HAS_WHITE_LED, uint8_t w=0)
     OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
-    OPTARG(NEOPIXEL_LED, bool isSequence=false)
+    OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence=false)
   ) {
-    set_color(MakeLEDColor(r, g, b, w, i) OPTARG(NEOPIXEL_LED, isSequence));
+    set_color(LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_IS_SEQUENTIAL, isSequence));
   }
 
   static inline void set_off()   { set_color(LEDColorOff()); }
@@ -180,8 +181,14 @@ extern LEDLights leds;
 
     static void set_color(const LEDColor &color);
 
-    inline void set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t w=0, uint8_t i=NEOPIXEL2_BRIGHTNESS) {
-      set_color(MakeLEDColor(r, g, b, w, i));
+    static inline void set_color(uint8_t r, uint8_t g, uint8_t b
+      OPTARG(HAS_WHITE_LED, uint8_t w=0)
+      OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
+    ) {
+      set_color(LEDColor(r, g, b
+        OPTARG(HAS_WHITE_LED, w)
+        OPTARG(NEOPIXEL_LED, i)
+      ));
     }
 
     static inline void set_off()   { set_color(LEDColorOff()); }

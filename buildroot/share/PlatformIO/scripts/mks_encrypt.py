@@ -2,9 +2,9 @@
 # buildroot/share/PlatformIO/scripts/mks_encrypt.py
 #
 # Apply encryption and save as 'build.firmware' for these environments:
-#  - env:mks_robin_stm32
+#  - env:mks_robin
 #  - env:flsun_hispeedv1
-#  - env:mks_robin_nano35_stm32
+#  - env:mks_robin_nano35
 #
 Import("env")
 
