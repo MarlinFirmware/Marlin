@@ -1824,11 +1824,20 @@
 /**
  * Print Job Timer
  *
- * Automatically start and stop the print job timer on M104/M109/M190.
+ * Automatically start and stop the print job timer on M104/M109/M140/M190/M141/M191.
+ * The print job timer will only be stopped if the bed/chamber target temp is
+ * below BED_MINTEMP/CHAMBER_MINTEMP.
  *
- *   M104 (hotend, no wait) - high temp = none,        low temp = stop timer
- *   M109 (hotend, wait)    - high temp = start timer, low temp = stop timer
- *   M190 (bed, wait)       - high temp = start timer, low temp = none
+ *   M104 (hotend, no wait)  - high temp = none,        low temp = stop timer
+ *   M109 (hotend, wait)     - high temp = start timer, low temp = stop timer
+ *   M140 (bed, no wait)     - high temp = none,        low temp = stop timer
+ *   M190 (bed, wait)        - high temp = start timer, low temp = none
+ *   M141 (chamber, no wait) - high temp = none,        low temp = stop timer
+ *   M191 (chamber, wait)    - high temp = start timer, low temp = none
+ *
+ * For M104/M109, high temp is anything over EXTRUDE_MINTEMP / 2.
+ * For M140/M190, high temp is anything over BED_MINTEMP.
+ * For M141/M191, high temp is anything over CHAMBER_MINTEMP.
  *
  * The timer can also be controlled with the following commands:
  *
