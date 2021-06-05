@@ -66,14 +66,6 @@
 //
 //===========================================================================
 
-//===========================================================================
-//=========================== FOAMCUTTER_XYUV ==============================
-//===========================================================================
-// For a hot wire cutter with parallel horizontal axes X, I where the hights
-// of the two wire ends are controlled by parallel axes Y, J.
-//
-//#define FOAMCUTTER_XYUV
-
 // @section info
 
 // Author info of this build printed to the host during boot and M115
