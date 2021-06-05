@@ -1451,7 +1451,7 @@ void Planner::check_axes_activity() {
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t *block = &block_buffer[b];
-      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, block->steps.i, || block->steps.j, || block->steps.k)) {
+      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k)) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
