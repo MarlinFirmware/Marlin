@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(TARGET_STM32F1)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "BTT SKR E3 DIP V1.x"
 
