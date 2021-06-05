@@ -142,7 +142,7 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
           if (opts & USE_COLORS) {
             const float val_dev = sq(VALUE(x, y) - val_mean);
             float r = 0, b = 0;
-            if(sq_min != sq_max) {
+            if (sq_min != sq_max) {
               if (VALUE(x, y) < 0)
                 r = val_dev / sq_min;
               else
