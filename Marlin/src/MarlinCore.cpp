@@ -317,7 +317,7 @@ void disable_e_steppers() {
 void disable_e_stepper(const uint8_t e) {
   #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
   switch (e) {
-    REPEAT(EXTRUDERS, _CASE_DIS_E)
+    REPEAT(E_STEPPERS, _CASE_DIS_E)
   }
 }
 
@@ -1423,10 +1423,7 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU1
-    SETUP_LOG("Prusa MMU1");
-    SET_OUTPUT(E_MUX0_PIN);
-    SET_OUTPUT(E_MUX1_PIN);
-    SET_OUTPUT(E_MUX2_PIN);
+    SETUP_RUN(mmu_init());
   #endif
 
   #if HAS_FANMUX
