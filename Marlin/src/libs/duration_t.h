@@ -164,11 +164,11 @@ struct duration_t {
     char *p = buffer;
     if (with_days) {
       uint16_t d = this->day();
-      p = sprint_hu   (p, d);
+      p = sprint_hu(p, d);
       p = sprint_str_P(p, PSTR("d "));
-      p = sprint_02hu (p, h % 24);
+      p = sprint_02hu(p, h % 24);
       p = sprint_char(p, ':');
-      p = sprint_02hu (p, m);
+      p = sprint_02hu(p, m);
       return d >= 10 ? 9 : 8;
     }
     else if (h < 100) {
@@ -178,7 +178,7 @@ struct duration_t {
       return 5;
     }
     else {
-      p = sprint_hu  (p, h);
+      p = sprint_hu(p, h);
       p = sprint_char(p, ':');
       p = sprint_02hu(p, m);
       return 6;
