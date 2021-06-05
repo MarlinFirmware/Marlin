@@ -34,7 +34,7 @@ uint32_t CommandProcessor::memcrc(uint32_t ptr, uint32_t num) {
 }
 
 bool CommandProcessor::wait() {
-  while (is_processing() && !has_fault());
+  while (is_processing() && !has_fault()) { /* nada */ }
   return !has_fault();
 }
 
