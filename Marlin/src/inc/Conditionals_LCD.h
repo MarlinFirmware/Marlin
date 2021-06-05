@@ -517,7 +517,7 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL == EXTENDABLE_EMU_MMU2 || MMU_MODEL == EXTENDABLE_EMU_MMU2S
+  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
     #define HAS_EXTENDABLE_MMU 1
   #endif
 #endif
