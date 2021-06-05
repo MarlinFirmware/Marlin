@@ -65,9 +65,7 @@ void CaseLight::update(const bool sflag) {
   #endif
 
   #if CASE_LIGHT_IS_COLOR_LED
-
-    leds.set_color(MakeLEDColor(color.r, color.g, color.b, color.w, n10ct));
-
+    leds.set_color(LEDColor(color.r, color.g, color.b OPTARG(HAS_WHITE_LED, color.w), n10ct));
   #else // !CASE_LIGHT_IS_COLOR_LED
 
     #if CASELIGHT_USES_BRIGHTNESS
