@@ -196,7 +196,8 @@ void BedMeshEditScreen::show() {
     // After the spinner, go to this screen.
     current_screen.forget();
     PUSH_SCREEN(BedMeshEditScreen);
-  } else {
+  }
+  else {
     injectCommands_P(PSTR("G29 S1"));
     GOTO_SCREEN(BedMeshEditScreen);
   }

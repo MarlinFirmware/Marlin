@@ -50,9 +50,9 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
        .colors(normal_btn)
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0);
-  } else {
-    cmd.colors(normal_btn);
   }
+  else
+    cmd.colors(normal_btn);
 
   cmd.font(font_medium);
   _button(cmd, 1,

@@ -207,7 +207,7 @@
   #define _SEP_2(PRE,V)     do{ Serial.print(F(PRE)); Serial.print(V); }while(0)
   #define _SEP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
   #define _SEP_4(a,b,V...)  do{ _SEP_2(a,b); _SEP_2(V); }while(0)
-    
+
   // Print up to 1 pairs of values followed by newline
   #define __SELP_N(N,V...)            _SELP_##N(V)
   #define _SELP_N(N,V...)             __SELP_N(N,V)
