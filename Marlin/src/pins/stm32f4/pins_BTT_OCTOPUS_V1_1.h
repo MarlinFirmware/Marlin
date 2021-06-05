@@ -21,6 +21,6 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BTT OCTOPUS V1.0"
+#define BOARD_INFO_NAME "BTT OCTOPUS V1.1"
 
 #include "pins_BTT_OCTOPUS_V1_common.h"
