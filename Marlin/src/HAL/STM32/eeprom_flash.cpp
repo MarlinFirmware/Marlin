@@ -28,6 +28,8 @@
 
 #include "../shared/eeprom_api.h"
 
+#include <EEPROM.h>
+
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
  * even have multiple "banks" of flash.
