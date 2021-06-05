@@ -1451,7 +1451,7 @@ void Planner::check_axes_activity() {
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t *block = &block_buffer[b];
-      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, block->steps.i, || block->steps.j, || block->steps.k)) {
+      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k)) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
@@ -2852,7 +2852,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       int32_t(LROUND(abce.a * settings.axis_steps_per_mm[A_AXIS])),
       int32_t(LROUND(abce.b * settings.axis_steps_per_mm[B_AXIS])),
       int32_t(LROUND(abce.c * settings.axis_steps_per_mm[C_AXIS])),
-      int32_t(LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS])), // FIXME (DerAndere): Multiplication by 4.0 is a work-around for issue with wrong internal steps per mm
+      int32_t(LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS])),
       int32_t(LROUND(abce.j * settings.axis_steps_per_mm[J_AXIS])),
       int32_t(LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS]))
     )
@@ -2893,7 +2893,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
     #endif
     #if LINEAR_AXES >= 4
       SERIAL_ECHOPAIR_P(SP_I_LBL, abce.i);
-      SERIAL_ECHOPAIR(" (", position.i, "->", target.i); // FIXME (DerAndere): Introduce work-around for issue with wrong internal steps per mm and feedrate for I_AXIS
+      SERIAL_ECHOPAIR(" (", position.i, "->", target.i);
       SERIAL_CHAR(')');
     #endif
     #if LINEAR_AXES >= 5
