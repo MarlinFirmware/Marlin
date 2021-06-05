@@ -315,7 +315,7 @@
 #endif
 
 enum AxisRelative : uint8_t {
-  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z)
+  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K)
   #if HAS_EXTRUDERS
     , E_MODE_ABS, E_MODE_REL
   #endif
@@ -338,7 +338,11 @@ public:
     return TEST(axis_relative, a);
   }
   static inline void set_relative_mode(const bool rel) {
-    axis_relative = rel ? (0 LOGICAL_AXIS_GANG(| _BV(REL_E), | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z))) : 0;
+    axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
+      | _BV(REL_E),
+      | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
+      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K)
+    )) : 0;
   }
   #if HAS_EXTRUDERS
     static inline void set_e_relative() {

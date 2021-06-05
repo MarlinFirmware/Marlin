@@ -356,7 +356,7 @@ void menu_backlash();
       #elif ENABLED(LIMITED_MAX_FR_EDITING)
         DEFAULT_MAX_FEEDRATE
       #else
-        LOGICAL_AXIS_ARRAY(9999, 9999, 9999, 9999)
+        LOGICAL_AXIS_ARRAY(9999, 9999, 9999, 9999, 9999, 9999, 9999)
       #endif
     ;
     #if ENABLED(LIMITED_MAX_FR_EDITING) && !defined(MAX_FEEDRATE_EDIT_VALUES)
@@ -399,7 +399,7 @@ void menu_backlash();
       #elif ENABLED(LIMITED_MAX_ACCEL_EDITING)
         DEFAULT_MAX_ACCELERATION
       #else
-        LOGICAL_AXIS_ARRAY(99000, 99000, 99000, 99000)
+        LOGICAL_AXIS_ARRAY(99000, 99000, 99000, 99000, 99000, 99000, 99000)
       #endif
     ;
     #if ENABLED(LIMITED_MAX_ACCEL_EDITING) && !defined(MAX_ACCEL_EDIT_VALUES)
@@ -477,7 +477,10 @@ void menu_backlash();
       #else
         #define EDIT_JERK_C() EDIT_ITEM_FAST(float52sign, MSG_VC_JERK, &planner.max_jerk.c, 0.1f, max_jerk_edit.c)
       #endif
-      LINEAR_AXIS_CODE(EDIT_JERK(A), EDIT_JERK(B), EDIT_JERK_C());
+      LINEAR_AXIS_CODE(
+        EDIT_JERK(A), EDIT_JERK(B), EDIT_JERK_C(),
+        EDIT_JERK(I), EDIT_JERK(J), EDIT_JERK(K)
+      );
 
       #if HAS_EXTRUDERS
         EDIT_ITEM_FAST(float52sign, MSG_VE_JERK, &planner.max_jerk.e, 0.1f, max_jerk_edit.e);
@@ -515,7 +518,10 @@ void menu_advanced_steps_per_mm() {
   BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
   #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, []{ planner.refresh_positioning(); })
-  LINEAR_AXIS_CODE(EDIT_QSTEPS(A), EDIT_QSTEPS(B), EDIT_QSTEPS(C));
+  LINEAR_AXIS_CODE(
+    EDIT_QSTEPS(A), EDIT_QSTEPS(B), EDIT_QSTEPS(C),
+    EDIT_QSTEPS(I), EDIT_QSTEPS(J), EDIT_QSTEPS(K)
+  );
 
   #if ENABLED(DISTINCT_E_FACTORS)
     LOOP_L_N(n, E_STEPPERS)

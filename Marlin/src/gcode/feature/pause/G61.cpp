@@ -45,7 +45,7 @@ void GcodeSuite::G61(void) {
 
   const uint8_t slot = parser.byteval('S');
 
-  #define SYNC_E(POINT) planner.set_e_position_mm((destination.e = current_position.e = (POINT)))
+  #define SYNC_E(POINT) TERN_(HAS_EXTRUDERS, planner.set_e_position_mm((destination.e = current_position.e = (POINT))))
 
   #if SAVED_POSITIONS < 256
     if (slot >= SAVED_POSITIONS) {
@@ -68,7 +68,7 @@ void GcodeSuite::G61(void) {
     SYNC_E(stored_position[slot].e);
   }
   else {
-    if (parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z"))) {
+    if (parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR))) {
       DEBUG_ECHOPAIR(STR_RESTORING_POS " S", slot);
       LOOP_LINEAR_AXES(i) {
         destination[i] = parser.seen(AXIS_CHAR(i))
