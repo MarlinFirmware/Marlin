@@ -28,7 +28,9 @@
 
 #include "../shared/eeprom_api.h"
 
-#include <EEPROM.h>
+// Better include is "utility/stm32_eeprom.h", but only after updating stm32duino to 2.0.0
+// Right now, we need to include EEPROM.h for compatiblity reasons.
+#include <EEPROM.h> 
 
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
