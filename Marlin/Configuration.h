@@ -4,19 +4,30 @@
    Select Machine
 */
 
-// Standard Atmega2560 machines (No bootloader required)
 
-//#define MachineEnder5Plus
-//#define MachineEnder4
-//#define MachineCR20 //Buzzer doesnt work
-//#define MachineCR20Pro
-//#define MachineCR10S
-//#define MachineCR10SV2
+
+// Touchscreen
 //#define MachineCR10SPro // Graphics LCD Requires soldering R64 and R66
 //#define MachineCR10SProV2 // Second Gen 10S Pro with BLTouch wired to Z Max
 //#define MachineCRX
 //#define MachineCRXPro
 //#define MachineCR10Max
+//#define MachineEnder5Plus
+//#define MachineCR6
+//#define MachineCR6Max
+
+// Touchscreens in development, not tested
+//#define MachineEnder6
+//#define MachineCR5
+//#define MachineEnder3V2Touchscreen
+//#define MachineCR30Touchscreen
+
+// Standard Display Atmega2560 machines (No bootloader required)
+//#define MachineEnder4
+//#define MachineCR20
+//#define MachineCR20Pro
+//#define MachineCR10S
+//#define MachineCR10SV2
 //#define MachineS4
 //#define MachineS5
 //#define MachineCR2020 // Industrial Series 2020
@@ -33,6 +44,7 @@
 
 //STM32F103RE Machines
 //#define MachineEnder3V2
+//#define MachineEnder3Max
 //#define MachineEnder3Pro422
 //#define MachineEnder3Pro427
 
@@ -167,6 +179,7 @@
 //#define SKR14Turbo
 //#define SKRPRO11
 //#define SKRE3Turbo
+//#define SKRCR6 // Specialty SKR board for CR6
 //#define SKR_Switch_Extruder_1 // Switch pins in PINS file for SKRE3Turbo
 
 // This board is NOT recommended and is HIGHLY advised against utilizing the expanded builds for.
@@ -463,7 +476,7 @@
   #endif
 #endif
 
-#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427)
+#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder3Max)
   #define POWER_LOSS_RECOVERY //Screen will not compile without PLR
   #if NONE(BedAC, BedDC)
     #define BedDC
@@ -474,6 +487,16 @@
 #if ANY(MachineEnder3Pro422, MachineEnder3Pro427)
   #define MachineEnder3
   #define RET6_12864_LCD
+#endif
+
+#if ENABLED(MachineEnder3Max) && DISABLED(Creality427)
+  #ifndef Creality422
+    #define Creality422
+  #endif
+#endif
+
+#if ENABLED(MachineEnder3Max)
+  #define lerdgeFilSensor
 #endif
 
 #if ENABLED(MachineEnder3Pro422)
@@ -558,7 +581,7 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427)
+ #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -1646,7 +1669,7 @@
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineEnder5Plus)
+#elif ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder3Max, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineEnder5Plus)
   #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
@@ -2275,6 +2298,13 @@
     #define X_MAX_POS 150
     #define Y_MAX_POS 150
     #define ClipClearance 15
+  #elif ENABLED(MachineEnder3Max)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 340
+    #define X_MAX_POS 300
+    #define Y_MAX_POS 300
+    #define ClipClearance 10
   #elif ANY(MachineEnder3, MachineEnder3V2)
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
@@ -2445,7 +2475,7 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-#if (NONE(MachineCR10Orig, MachineCR20, MachineEnder3, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade) || ANY(AddonFilSensor, lerdgeFilSensor, DualFilSensors  ))
+#if NONE(MachineCR10Orig, MachineCR20, MachineEnder3, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineCRX, Melzi_To_SBoardUpgrade) || ANY(AddonFilSensor, lerdgeFilSensor, DualFilSensors)
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -3397,7 +3427,7 @@
   #define MKS_MINI_12864
 #elif ENABLED(MachineEnder3V2)
   #define DWIN_CREALITY_LCD
-#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD)
   #define CR10_STOCKDISPLAY
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
