@@ -130,7 +130,6 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
 #define LED_PIN                               13
 
 #ifndef FILWIDTH_PIN
@@ -252,6 +251,21 @@
   #endif
 #endif
 
+//
+// SD Support
+//
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#if SD_CONNECTION_IS(ONBOARD)
+  #define SDSS                                83
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN                       95
+#else
+  #define SDSS                                53
+#endif
+
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
@@ -356,6 +370,9 @@
       #else
         #define BTN_EN1                       31
         #define BTN_EN2                       33
+        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+        #endif
       #endif
 
       #define BTN_ENC                         35
@@ -365,8 +382,7 @@
       #define KILL_PIN                        41
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-        // TO TEST
-        //#define LCD_BACKLIGHT_PIN           39
+        //#define LCD_BACKLIGHT_PIN           39  // TO TEST
       #endif
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
@@ -563,22 +579,4 @@
     #endif
   #endif // IS_NEWPANEL
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
-  #endif
-
 #endif // HAS_WIRED_LCD
-
-//
-// SD Support
-//
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
-#if SD_CONNECTION_IS(ONBOARD)
-  #undef SDSS
-  #define SDSS                                83
-  #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN                       95
-#endif
