@@ -466,7 +466,7 @@
 #elif MB(STM32F103RE)
   #include "stm32f1/pins_STM32F1R.h"            // STM32F103RE                            env:STM32F103RE env:STM32F103RE_maple
 #elif MB(MALYAN_M200)
-  #include "stm32f1/pins_MALYAN_M200.h"         // STM32F103CB                            env:STM32F103CB_malyan
+  #include "stm32f1/pins_MALYAN_M200.h"         // STM32F103CB                            env:STM32F103CB_malyan env:STM32F103CB_malyan_maple
 #elif MB(STM3R_MINI)
   #include "stm32f1/pins_STM3R_MINI.h"          // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VB)
