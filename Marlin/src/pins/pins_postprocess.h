@@ -212,6 +212,15 @@
 #if !AXIS_HAS_SPI(Z)
   #undef Z_CS_PIN
 #endif
+#if !AXIS_HAS_SPI(I)
+  #undef I_CS_PIN
+#endif
+#if !AXIS_HAS_SPI(J)
+  #undef J_CS_PIN
+#endif
+#if !AXIS_HAS_SPI(K)
+  #undef K_CS_PIN
+#endif
 #if E_STEPPERS && !AXIS_HAS_SPI(E0)
   #undef E0_CS_PIN
 #endif
@@ -245,6 +254,15 @@
 #endif
 #ifndef Z_CS_PIN
   #define Z_CS_PIN -1
+#endif
+#ifndef I_CS_PIN
+  #define I_CS_PIN -1
+#endif
+#ifndef J_CS_PIN
+  #define J_CS_PIN -1
+#endif
+#ifndef K_CS_PIN
+  #define K_CS_PIN -1
 #endif
 #ifndef E0_CS_PIN
   #define E0_CS_PIN -1
@@ -900,43 +918,55 @@
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
 #endif
+#if DISABLED(USE_XMIN_PLUG)
+  #undef X_MIN_PIN
+  #define X_MIN_PIN          -1
+#endif
 #if DISABLED(USE_XMAX_PLUG)
   #undef X_MAX_PIN
   #define X_MAX_PIN          -1
+#endif
+#if DISABLED(USE_YMIN_PLUG)
+  #undef Y_MIN_PIN
+  #define Y_MIN_PIN          -1
 #endif
 #if DISABLED(USE_YMAX_PLUG)
   #undef Y_MAX_PIN
   #define Y_MAX_PIN          -1
 #endif
+#if DISABLED(USE_ZMIN_PLUG)
+  #undef Z_MIN_PIN
+  #define Z_MIN_PIN          -1
+#endif
 #if DISABLED(USE_ZMAX_PLUG)
   #undef Z_MAX_PIN
   #define Z_MAX_PIN          -1
+#endif
+#if DISABLED(USE_IMIN_PLUG)
+  #undef I_MIN_PIN
+  #define I_MIN_PIN          -1
 #endif
 #if DISABLED(USE_IMAX_PLUG)
   #undef I_MAX_PIN
   #define I_MAX_PIN          -1
 #endif
+#if DISABLED(USE_JMIN_PLUG)
+  #undef J_MIN_PIN
+  #define J_MIN_PIN          -1
+#endif
 #if DISABLED(USE_JMAX_PLUG)
   #undef J_MAX_PIN
   #define J_MAX_PIN          -1
+#endif
+#if DISABLED(USE_KMIN_PLUG)
+  #undef K_MIN_PIN
+  #define K_MIN_PIN          -1
 #endif
 #if DISABLED(USE_KMAX_PLUG)
   #undef K_MAX_PIN
   #define K_MAX_PIN          -1
 #endif
 
-#if DISABLED(USE_XMIN_PLUG)
-  #undef X_MIN_PIN
-  #define X_MIN_PIN          -1
-#endif
-#if DISABLED(USE_YMIN_PLUG)
-  #undef Y_MIN_PIN
-  #define Y_MIN_PIN          -1
-#endif
-#if DISABLED(USE_ZMIN_PLUG)
-  #undef Z_MIN_PIN
-  #define Z_MIN_PIN          -1
-#endif
 #if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_TO_MAX
   #undef X2_MIN_PIN
 #endif
@@ -966,19 +996,6 @@
 #endif
 #if DISABLED(Z_MULTI_ENDSTOPS) || NUM_Z_STEPPER_DRIVERS < 4 || Z_HOME_TO_MIN
   #undef Z4_MAX_PIN
-#endif
-
-#if DISABLED(USE_IMIN_PLUG)
-  #undef I_MIN_PIN
-  #define I_MIN_PIN          -1
-#endif
-#if DISABLED(USE_JMIN_PLUG)
-  #undef J_MIN_PIN
-  #define J_MIN_PIN          -1
-#endif
-#if DISABLED(USE_KMIN_PLUG)
-  #undef K_MIN_PIN
-  #define K_MIN_PIN          -1
 #endif
 
 //
