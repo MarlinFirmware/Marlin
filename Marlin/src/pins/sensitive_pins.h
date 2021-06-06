@@ -167,7 +167,7 @@
   #else
     #define _I_MAX
   #endif
-  #if PIN_EXISTS(I_CS)
+  #if PIN_EXISTS(I_CS) && AXIS_HAS_SPI(I)
     #define _I_CS I_CS_PIN,
   #else
     #define _I_CS
@@ -208,7 +208,7 @@
   #else
     #define _J_MAX
   #endif
-  #if PIN_EXISTS(J_CS)
+  #if PIN_EXISTS(J_CS) && AXIS_HAS_SPI(J)
     #define _J_CS J_CS_PIN,
   #else
     #define _J_CS
@@ -249,7 +249,7 @@
   #else
     #define _K_MAX
   #endif
-  #if PIN_EXISTS(K_CS)
+  #if PIN_EXISTS(K_CS) && AXIS_HAS_SPI(K)
     #define _K_CS K_CS_PIN,
   #else
     #define _K_CS

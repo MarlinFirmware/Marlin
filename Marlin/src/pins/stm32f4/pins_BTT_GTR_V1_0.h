@@ -357,8 +357,6 @@
 
 #elif SD_CONNECTION_IS(ONBOARD)
 
-  // Instruct the STM32 HAL to override the default SPI pins from the variant.h file
-  #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                        PA5

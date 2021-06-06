@@ -570,8 +570,8 @@
   #error "NEOPIXEL_BKGD_LED_INDEX is now NEOPIXEL_BKGD_INDEX_FIRST."
 #endif
 
-constexpr float sbm[] = AXIS_RELATIVE_MODES;
-static_assert(COUNT(sbm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
+constexpr float arm[] = AXIS_RELATIVE_MODES;
+static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
 
 /**
  * Probe temp compensation requirements
@@ -1631,12 +1631,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
-#if ENABLED(G29_RETRY_AND_RECOVER)
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #error "G29_RETRY_AND_RECOVER is not compatible with UBL."
-  #elif ENABLED(MESH_BED_LEVELING)
-    #error "G29_RETRY_AND_RECOVER is not compatible with MESH_BED_LEVELING."
-  #endif
+#if ENABLED(G29_RETRY_AND_RECOVER) && NONE(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
+  #error "G29_RETRY_AND_RECOVER requires AUTO_BED_LEVELING_3POINT, LINEAR, or BILINEAR."
 #endif
 
 /**

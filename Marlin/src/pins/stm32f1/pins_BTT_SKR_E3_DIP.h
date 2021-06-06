@@ -276,6 +276,9 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
 #elif SD_CONNECTION_IS(LCD) && BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
   #define SD_DETECT_PIN                     PA15
   #define SD_SS_PIN                         PA10
