@@ -1697,7 +1697,7 @@
 
 //#define PROBING_GRID_MESSAGE        // Always report "Probing point #/#" to G29 / M48, ignoring the 'V' parameter.
 //#define NO_HEATING_MESSAGES         // Suppress "Heating" messages at the start of heating.
-//#define HOMING_COMPLETE_MESSAGE     // Reply "Homing completed." (before "ok") after G28.
+//#define HOMING_COMPLETE_MESSAGE     // Reply "Homing complete." (before "ok") after G28.
 
 //
 // G20/G21 Inch mode support
