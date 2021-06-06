@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,30 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * stepper/indirection.cpp
- *
- * Stepper motor driver indirection to allow some stepper functions to
- * be done via SPI/I2c instead of direct pin manipulation.
- *
- * Copyright (c) 2015 Dominik Wenger
- */
-
-#include "../../inc/MarlinConfig.h"
-#include "indirection.h"
-
-void restore_stepper_drivers() {
-  TERN_(HAS_TRINAMIC_CONFIG, restore_trinamic_drivers());
-}
-
-void reset_stepper_drivers() {
-  TERN_(HAS_TMC26X, tmc26x_init_to_defaults());
-  TERN_(HAS_L64XX, L64xxManager.init_to_defaults());
-  TERN_(HAS_TRINAMIC_CONFIG, reset_trinamic_drivers());
-}
-
-#if ENABLED(SOFTWARE_DRIVER_ENABLE)
-  // Flags to optimize XYZ Enabled state
-  xyz_bool_t axis_sw_enabled; // = { false, false, false }
-#endif
+#define LTDC_RGB        0xABAB
+#define SSD1963         0x5761
+#define ST7735          0x89F0
+#define ST7789          0x8552
+#define ST7796          0x7796
+#define R61505          0x1505
+#define ILI9328         0x9328
+#define ILI9341         0x9341
+#define ILI9488         0x9488
+#define ILI9488_ID1     0x8066 // Some ILI9488 have 0x8066 in the 0x04
+#define LERDGE_ST7796   0xFFFE
+#define AUTO            0xFFFF

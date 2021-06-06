@@ -466,9 +466,9 @@
 #elif MB(STM32F103RE)
   #include "stm32f1/pins_STM32F1R.h"            // STM32F103RE                            env:STM32F103RE env:STM32F103RE_maple
 #elif MB(MALYAN_M200)
-  #include "stm32f1/pins_MALYAN_M200.h"         // STM32F103CB                            env:STM32F103CB_malyan
+  #include "stm32f1/pins_MALYAN_M200.h"         // STM32F103CB                            env:STM32F103CB_malyan env:STM32F103CB_malyan_maple
 #elif MB(STM3R_MINI)
-  #include "stm32f1/pins_STM3R_MINI.h"          // STM32F103RE?                           env:STM32F103RE env:STM32F103RE_maple
+  #include "stm32f1/pins_STM3R_MINI.h"          // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VB)
   #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VD)
@@ -518,9 +518,9 @@
 #elif MB(BTT_SKR_MINI_MZ_V1_0)
   #include "stm32f1/pins_BTT_SKR_MINI_MZ_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_maple env:STM32F103RC_btt_512K_maple env:STM32F103RC_btt_USB_maple env:STM32F103RC_btt_512K_USB_maple
 #elif MB(BTT_SKR_E3_DIP)
-  #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K
+  #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple env:STM32F103RC_btt env:STM32F103RC_btt_512K
 #elif MB(BTT_SKR_CR6)
-  #include "stm32f1/pins_BTT_SKR_CR6.h"         // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB
+  #include "stm32f1/pins_BTT_SKR_CR6.h"         // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32f1/pins_JGAURORA_A5S_A1.h"     // STM32F1                                env:jgaurora_a5s_a1
 #elif MB(FYSETC_AIO_II)
@@ -556,7 +556,7 @@
 #elif MB(FLSUN_HISPEED)
   #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeedv1
 #elif MB(BEAST)
-  #include "stm32f1/pins_BEAST.h"               // STM32F1                                env:STM32F103VE env:STM32F103RE_maple
+  #include "stm32f1/pins_BEAST.h"               // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
 #elif MB(MINGDA_MPX_ARM_MINI)
   #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
 
@@ -598,7 +598,9 @@
 #elif MB(BTT_SKR_V2_0_REV_B)
   #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2
 #elif MB(BTT_OCTOPUS_V1_0)
-  #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1_0 env:BIGTREE_OCTOPUS_V1_0_USB
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
+#elif MB(BTT_OCTOPUS_V1_1)
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:LERDGEK env:LERDGEK_usb_flash_drive
 #elif MB(LERDGE_S)

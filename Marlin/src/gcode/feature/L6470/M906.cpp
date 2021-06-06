@@ -253,7 +253,7 @@ void GcodeSuite::M906() {
         #endif
         break;
 
-      #if LINEAR_AXES >= XY
+      #if HAS_Y_AXIS
         case Y_AXIS:
           #if AXIS_IS_L64XX(Y)
             if (index == 0) L6470_SET_KVAL_HOLD(Y);
