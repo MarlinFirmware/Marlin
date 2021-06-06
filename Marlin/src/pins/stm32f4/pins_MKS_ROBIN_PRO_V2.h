@@ -31,7 +31,7 @@
 #define BOARD_INFO_NAME "MKS Robin PRO V2"
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
@@ -50,7 +50,7 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE                           2
+//#define SPI_MODULE 2
 
 //
 // Servos
@@ -203,10 +203,10 @@
 //#define LED_PIN                           PB2
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
-//#define USE_NEW_SPI_API                      1
+//#define USE_NEW_SPI_API 1
 
 //
 // Onboard SD card
@@ -244,7 +244,7 @@
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH                          1
+#define HAS_SPI_FLASH 1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
