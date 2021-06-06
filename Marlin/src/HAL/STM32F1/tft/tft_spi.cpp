@@ -90,6 +90,10 @@ void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
   TFT_CS_L;
 }
 
+#ifdef TFT_DEFAULT_DRIVER
+  #include "../../../lcd/tft_io/tft_ids.h"
+#endif
+
 uint32_t TFT_SPI::GetID() {
   uint32_t id;
   id = ReadID(LCD_READ_ID);

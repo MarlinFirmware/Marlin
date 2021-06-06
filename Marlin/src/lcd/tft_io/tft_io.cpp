@@ -20,10 +20,12 @@
  *
  */
 
-#include "tft_io.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
 
+#include "tft_io.h"
+#include "tft_ids.h"
 #include "st7735.h"
 #include "st7789v.h"
 #include "st7796s.h"
@@ -236,4 +238,4 @@ void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
   io.DataTransferEnd();
 }
 
-#endif // HAS_SPI_TFT || HAS_FSMC_TFT
+#endif // HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
