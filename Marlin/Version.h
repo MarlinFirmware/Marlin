@@ -43,6 +43,8 @@
 #define VerChar1 "E3"
 #elif ENABLED(MachineEnder3V2)
   #define VerChar1 "E3V2"
+#elif ENABLED(MachineEnder3Max)
+  #define VerChar1 "E3M"
 #elif(ENABLED(MachineEnder4))
 #define VerChar1 "E4"
 #elif(ENABLED(MachineEnder5))

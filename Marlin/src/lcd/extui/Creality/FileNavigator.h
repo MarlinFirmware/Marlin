@@ -30,7 +30,7 @@
  * Written by Insanity Automation
  * ***************************************/
 
-#include "../../ui_api.h"
+#include "../ui_api.h"
 #include "Creality_DWIN.h"
 
 #define MAX_FOLDER_DEPTH                4    // Limit folder depth TFT has a limit for the file path

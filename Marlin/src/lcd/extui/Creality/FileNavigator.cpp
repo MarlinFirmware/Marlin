@@ -29,7 +29,7 @@
  * Written by Insanity Automation
  * ***************************************/
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 #if ENABLED(EXTENSIBLE_UI)
 
 
