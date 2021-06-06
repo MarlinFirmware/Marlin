@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
   #include HAL_PATH(../../HAL, tft/tft_spi.h)
@@ -33,9 +33,9 @@
   #error "TFT IO only supports SPI, FSMC or LTDC interface"
 #endif
 
-#define TFT_EXCHANGE_XY (1UL << 1)
-#define TFT_INVERT_X    (1UL << 2)
-#define TFT_INVERT_Y    (1UL << 3)
+#define TFT_EXCHANGE_XY _BV32(1)
+#define TFT_INVERT_X    _BV32(2)
+#define TFT_INVERT_Y    _BV32(3)
 
 #define TFT_NO_ROTATION           (0x00)
 #define TFT_ROTATE_90             (TFT_EXCHANGE_XY | TFT_INVERT_X)
@@ -63,8 +63,8 @@
 // TFT_ORIENTATION is the "sum" of TFT_DEFAULT_ORIENTATION plus user TFT_ROTATION
 #define TFT_ORIENTATION ((TFT_DEFAULT_ORIENTATION) ^ (TFT_ROTATION))
 
-#define TFT_COLOR_RGB   (1UL << 3)
-#define TFT_COLOR_BGR   (1UL << 4)
+#define TFT_COLOR_RGB   _BV32(3)
+#define TFT_COLOR_BGR   _BV32(4)
 
 // Each TFT Driver is responsible for its default color mode.
 // #ifndef TFT_COLOR

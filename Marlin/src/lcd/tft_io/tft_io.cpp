@@ -26,14 +26,31 @@
 
 #include "tft_io.h"
 #include "tft_ids.h"
-#include "st7735.h"
-#include "st7789v.h"
-#include "st7796s.h"
-#include "r65105.h"
-#include "ili9328.h"
-#include "ili9341.h"
-#include "ili9488.h"
-#include "ssd1963.h"
+
+#if TFT_DRIVER == ST7735 || TFT_DRIVER == AUTO
+  #include "st7735.h"
+#endif
+#if TFT_DRIVER == ST7789 || TFT_DRIVER == AUTO
+  #include "st7789v.h"
+#endif
+#if TFT_DRIVER == ST7796 || TFT_DRIVER == AUTO
+  #include "st7796s.h"
+#endif
+#if TFT_DRIVER == R61505 || TFT_DRIVER == AUTO
+  #include "r65105.h"
+#endif
+#if TFT_DRIVER == ILI9328 || TFT_DRIVER == AUTO
+  #include "ili9328.h"
+#endif
+#if TFT_DRIVER == ILI9341 || TFT_DRIVER == AUTO
+  #include "ili9341.h"
+#endif
+#if TFT_DRIVER == ILI9488 || TFT_DRIVER == ILI9488_ID1 || TFT_DRIVER == AUTO
+  #include "ili9488.h"
+#endif
+#if TFT_DRIVER == SSD1963 || TFT_DRIVER == AUTO
+  #include "ssd1963.h"
+#endif
 
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
