@@ -107,8 +107,25 @@ jobs:
 
     steps:
 
+    - name: Check out the PR
+      uses: actions/checkout@v2
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache PlatformIO
+      uses: actions/cache@v2
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
     - name: Select Python 3.7
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: '3.7' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
@@ -117,9 +134,6 @@ jobs:
       run: |
         pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
         platformio update
-
-    - name: Check out the PR
-      uses: actions/checkout@v2
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
