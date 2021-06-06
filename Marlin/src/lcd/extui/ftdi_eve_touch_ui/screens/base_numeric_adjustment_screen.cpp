@@ -51,6 +51,8 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
        .cmd(COLOR_RGB(bg_text_enabled))
        .tag(0);
   }
+  else
+    cmd.colors(normal_btn);
 
   cmd.font(font_medium);
   _button(cmd, 1,
@@ -319,7 +321,7 @@ void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, progmem_str lab
   }
 
   if (_what & FOREGROUND) {
-    _button_style(cmd, BTN_TOGGLE);
+    _button_style(cmd, is_enabled ? BTN_TOGGLE : BTN_DISABLED);
     cmd.tag(is_enabled ? tag   : 0)
        .enabled(is_enabled)
        .font(font_small)

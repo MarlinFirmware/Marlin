@@ -697,13 +697,13 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   #if ENABLED(SENSORLESS_HOMING)  // TMC SENSORLESS Setting
-    #if AXIS_HAS_STEALTHCHOP(X)
+    #if X_HAS_STEALTHCHOP
       VPHELPER(VP_TMC_X_STEP, &tmc_step.x, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
-    #if AXIS_HAS_STEALTHCHOP(Y)
+    #if Y_HAS_STEALTHCHOP
       VPHELPER(VP_TMC_Y_STEP, &tmc_step.y, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
-    #if AXIS_HAS_STEALTHCHOP(Z)
+    #if Z_HAS_STEALTHCHOP
       VPHELPER(VP_TMC_Z_STEP, &tmc_step.z, ScreenHandler.TMC_ChangeConfig, ScreenHandler.DGUSLCD_SendTMCStepValue),
     #endif
   #endif

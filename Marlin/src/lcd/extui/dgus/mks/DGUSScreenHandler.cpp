@@ -134,15 +134,15 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variabl
 
 void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #if ENABLED(SENSORLESS_HOMING)
-    #if AXIS_HAS_STEALTHCHOP(X)
+    #if X_HAS_STEALTHCHOP
       tmc_step.x = stepperX.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
-    #if AXIS_HAS_STEALTHCHOP(Y)
+    #if Y_HAS_STEALTHCHOP
       tmc_step.y = stepperY.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
-    #if AXIS_HAS_STEALTHCHOP(Z)
+    #if Z_HAS_STEALTHCHOP
       tmc_step.z = stepperZ.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
@@ -659,7 +659,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
   switch (var.VP) {
     case VP_TMC_X_STEP:
       #if USE_SENSORLESS
-        #if AXIS_HAS_STEALTHCHOP(X)
+        #if X_HAS_STEALTHCHOP
           stepperX.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.x = stepperX.homing_threshold();
@@ -668,7 +668,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
     case VP_TMC_Y_STEP:
       #if USE_SENSORLESS
-        #if AXIS_HAS_STEALTHCHOP(Y)
+        #if Y_HAS_STEALTHCHOP
           stepperY.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.y = stepperY.homing_threshold();
@@ -677,7 +677,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
     case VP_TMC_Z_STEP:
       #if USE_SENSORLESS
-        #if AXIS_HAS_STEALTHCHOP(Z)
+        #if Z_HAS_STEALTHCHOP
           stepperZ.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.z = stepperZ.homing_threshold();
@@ -737,15 +737,9 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
   }
   #if USE_SENSORLESS
-    #if AXIS_HAS_STEALTHCHOP(X)
-      tmc_step.x = stepperX.homing_threshold();
-    #endif
-    #if AXIS_HAS_STEALTHCHOP(Y)
-      tmc_step.y = stepperY.homing_threshold();
-    #endif
-    #if AXIS_HAS_STEALTHCHOP(Z)
-      tmc_step.z = stepperZ.homing_threshold();
-    #endif
+    TERN_(X_HAS_STEALTHCHOP, tmc_step.x = stepperX.homing_threshold());
+    TERN_(Y_HAS_STEALTHCHOP, tmc_step.y = stepperY.homing_threshold());
+    TERN_(Z_HAS_STEALTHCHOP, tmc_step.z = stepperZ.homing_threshold());
   #endif
 }
 
@@ -1419,15 +1413,9 @@ bool DGUSScreenHandler::loop() {
     if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT))) {
       booted = true;
       #if USE_SENSORLESS
-        #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_step.x = stepperX.homing_threshold();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_step.y = stepperY.homing_threshold();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_step.z = stepperZ.homing_threshold();
-        #endif
+        TERN_(X_HAS_STEALTHCHOP, tmc_step.x = stepperX.homing_threshold());
+        TERN_(Y_HAS_STEALTHCHOP, tmc_step.y = stepperY.homing_threshold());
+        TERN_(Z_HAS_STEALTHCHOP, tmc_step.z = stepperZ.homing_threshold());
       #endif
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)

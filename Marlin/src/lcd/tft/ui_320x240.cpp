@@ -638,10 +638,12 @@ static void drawAxisValue(const AxisEnum axis) {
 static void moveAxis(const AxisEnum axis, const int8_t direction) {
   quick_feedback();
 
-  if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
-    drawMessage("Too cold");
-    return;
-  }
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
+      drawMessage("Too cold");
+      return;
+    }
+  #endif
 
   const float diff = motionAxisState.currentStepSize * direction;
 

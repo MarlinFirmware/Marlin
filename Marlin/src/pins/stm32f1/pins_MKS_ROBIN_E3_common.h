@@ -176,8 +176,16 @@
 //
 // SD Card
 //
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                          2
+#define ONBOARD_SPI_DEVICE                  2
+#define SDSS                           SD_SS_PIN
+#define SDCARD_CONNECTION                ONBOARD
 #define SD_DETECT_PIN                       PC10
+#define ONBOARD_SD_CS_PIN              SD_SS_PIN
+#define NO_SD_HOST_DRIVE
+
+// TODO: This is the only way to set SPI for SD on STM32 (for now)
+#define ENABLE_SPI2
 #define SD_SCK_PIN                          PB13
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15

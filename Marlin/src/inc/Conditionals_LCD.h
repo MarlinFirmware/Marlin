@@ -517,7 +517,7 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL == EXTENDABLE_EMU_MMU2 || MMU_MODEL == EXTENDABLE_EMU_MMU2S
+  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
     #define HAS_EXTENDABLE_MMU 1
   #endif
 #endif
@@ -612,6 +612,12 @@
 #ifndef LINEAR_AXES
   #define LINEAR_AXES XYZ
 #endif
+#if LINEAR_AXES >= XY
+  #define HAS_Y_AXIS 1
+  #if LINEAR_AXES >= XYZ
+    #define HAS_Z_AXIS 1
+  #endif
+#endif
 
 /**
  * Number of Logical Axes (e.g., XYZE)
@@ -622,10 +628,6 @@
   #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
 #else
   #define LOGICAL_AXES LINEAR_AXES
-#endif
-
-#if LINEAR_AXES >= XYZ
-  #define HAS_Z_AXIS 1
 #endif
 
 /**
@@ -851,6 +853,21 @@
   #define Z_HOME_TO_MAX 1
 #elif Z_HOME_DIR < 0
   #define Z_HOME_TO_MIN 1
+#endif
+#if I_HOME_DIR > 0
+  #define I_HOME_TO_MAX 1
+#elif I_HOME_DIR < 0
+  #define I_HOME_TO_MIN 1
+#endif
+#if J_HOME_DIR > 0
+  #define J_HOME_TO_MAX 1
+#elif J_HOME_DIR < 0
+  #define J_HOME_TO_MIN 1
+#endif
+#if K_HOME_DIR > 0
+  #define K_HOME_TO_MAX 1
+#elif K_HOME_DIR < 0
+  #define K_HOME_TO_MIN 1
 #endif
 
 /**
@@ -1110,13 +1127,22 @@
 #ifndef INVERT_X_DIR
   #define INVERT_X_DIR false
 #endif
-#ifndef INVERT_Y_DIR
+#if HAS_Y_AXIS && !defined(INVERT_Y_DIR)
   #define INVERT_Y_DIR false
 #endif
-#ifndef INVERT_Z_DIR
+#if HAS_Z_AXIS && !defined(INVERT_Z_DIR)
   #define INVERT_Z_DIR false
 #endif
-#ifndef INVERT_E_DIR
+#if LINEAR_AXES >= 4 && !defined(INVERT_I_DIR)
+  #define INVERT_I_DIR false
+#endif
+#if LINEAR_AXES >= 5 && !defined(INVERT_J_DIR)
+  #define INVERT_J_DIR false
+#endif
+#if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
+  #define INVERT_K_DIR false
+#endif
+#if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
   #define INVERT_E_DIR false
 #endif
 
