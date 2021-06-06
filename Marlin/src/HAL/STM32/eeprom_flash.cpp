@@ -28,8 +28,8 @@
 
 #include "../shared/eeprom_api.h"
 
-// Better include is "utility/stm32_eeprom.h", but only after updating stm32duino to 2.0.0
-// Right now, we need to include EEPROM.h for compatiblity reasons.
+// Better: "utility/stm32_eeprom.h", but only after updating stm32duino to 2.0.0
+// Use EEPROM.h for compatibility, for now.
 #include <EEPROM.h> 
 
 /**
