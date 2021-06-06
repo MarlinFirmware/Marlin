@@ -69,7 +69,15 @@ void BedMeshEditScreen::onEntry() {
   mydata.zAdjustment = 0;
   mydata.savedMeshLevelingState = ExtUI::getLevelingActive();
   mydata.savedEndstopState = ExtUI::getSoftEndstopState();
+  makeMeshValid();
   BaseScreen::onEntry();
+}
+
+void BedMeshEditScreen::makeMeshValid() {
+  bed_mesh_t &mesh = ExtUI::getMeshArray();
+  GRID_LOOP(x, y) {
+    if (isnan(mesh[x][y])) mesh[x][y] = 0;
+  }
 }
 
 void BedMeshEditScreen::onExit() {
@@ -121,8 +129,9 @@ bool BedMeshEditScreen::changeHighlightedValue(uint8_t tag) {
 void BedMeshEditScreen::drawHighlightedPointValue() {
   CommandProcessor cmd;
   cmd.font(Theme::font_medium)
-     .colors(normal_btn)
+     .cmd(COLOR_RGB(bg_text_enabled))
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
+     .colors(normal_btn)
      .font(font_small);
   if (mydata.highlight.x != NONE)
     draw_adjuster(cmd, Z_VALUE_POS, 3, getHighlightedValue(), GET_TEXT_F(MSG_UNITS_MM), 4, 3);
@@ -187,7 +196,8 @@ void BedMeshEditScreen::show() {
     // After the spinner, go to this screen.
     current_screen.forget();
     PUSH_SCREEN(BedMeshEditScreen);
-  } else {
+  }
+  else {
     injectCommands_P(PSTR("G29 S1"));
     GOTO_SCREEN(BedMeshEditScreen);
   }

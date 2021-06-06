@@ -252,58 +252,67 @@ void GcodeSuite::M906() {
           if (index == 1) L6470_SET_KVAL_HOLD(X2);
         #endif
         break;
-      case Y_AXIS:
-        #if AXIS_IS_L64XX(Y)
-          if (index == 0) L6470_SET_KVAL_HOLD(Y);
-        #endif
-        #if AXIS_IS_L64XX(Y2)
-          if (index == 1) L6470_SET_KVAL_HOLD(Y2);
-        #endif
-        break;
-      case Z_AXIS:
-        #if AXIS_IS_L64XX(Z)
-          if (index == 0) L6470_SET_KVAL_HOLD(Z);
-        #endif
-        #if AXIS_IS_L64XX(Z2)
-          if (index == 1) L6470_SET_KVAL_HOLD(Z2);
-        #endif
-        #if AXIS_IS_L64XX(Z3)
-          if (index == 2) L6470_SET_KVAL_HOLD(Z3);
-        #endif
-        #if AXIS_DRIVER_TYPE_Z4(L6470)
-          if (index == 3) L6470_SET_KVAL_HOLD(Z4);
-        #endif
-        break;
-      case E_AXIS: {
-        const int8_t target_extruder = get_target_extruder_from_command();
-        if (target_extruder < 0) return;
-        switch (target_extruder) {
-          #if AXIS_IS_L64XX(E0)
-            case 0: L6470_SET_KVAL_HOLD(E0); break;
+
+      #if HAS_Y_AXIS
+        case Y_AXIS:
+          #if AXIS_IS_L64XX(Y)
+            if (index == 0) L6470_SET_KVAL_HOLD(Y);
           #endif
-          #if AXIS_IS_L64XX(E1)
-            case 1: L6470_SET_KVAL_HOLD(E1); break;
+          #if AXIS_IS_L64XX(Y2)
+            if (index == 1) L6470_SET_KVAL_HOLD(Y2);
           #endif
-          #if AXIS_IS_L64XX(E2)
-            case 2: L6470_SET_KVAL_HOLD(E2); break;
+          break;
+      #endif
+
+      #if HAS_Z_AXIS
+        case Z_AXIS:
+          #if AXIS_IS_L64XX(Z)
+            if (index == 0) L6470_SET_KVAL_HOLD(Z);
           #endif
-          #if AXIS_IS_L64XX(E3)
-            case 3: L6470_SET_KVAL_HOLD(E3); break;
+          #if AXIS_IS_L64XX(Z2)
+            if (index == 1) L6470_SET_KVAL_HOLD(Z2);
           #endif
-          #if AXIS_IS_L64XX(E4)
-            case 4: L6470_SET_KVAL_HOLD(E4); break;
+          #if AXIS_IS_L64XX(Z3)
+            if (index == 2) L6470_SET_KVAL_HOLD(Z3);
           #endif
-          #if AXIS_IS_L64XX(E5)
-            case 5: L6470_SET_KVAL_HOLD(E5); break;
+          #if AXIS_DRIVER_TYPE_Z4(L6470)
+            if (index == 3) L6470_SET_KVAL_HOLD(Z4);
           #endif
-          #if AXIS_IS_L64XX(E6)
-            case 6: L6470_SET_KVAL_HOLD(E6); break;
-          #endif
-          #if AXIS_IS_L64XX(E7)
-            case 7: L6470_SET_KVAL_HOLD(E7); break;
-          #endif
-        }
-      } break;
+          break;
+      #endif
+
+      #if HAS_EXTRUDERS
+        case E_AXIS: {
+          const int8_t target_extruder = get_target_extruder_from_command();
+          if (target_extruder < 0) return;
+          switch (target_extruder) {
+            #if AXIS_IS_L64XX(E0)
+              case 0: L6470_SET_KVAL_HOLD(E0); break;
+            #endif
+            #if AXIS_IS_L64XX(E1)
+              case 1: L6470_SET_KVAL_HOLD(E1); break;
+            #endif
+            #if AXIS_IS_L64XX(E2)
+              case 2: L6470_SET_KVAL_HOLD(E2); break;
+            #endif
+            #if AXIS_IS_L64XX(E3)
+              case 3: L6470_SET_KVAL_HOLD(E3); break;
+            #endif
+            #if AXIS_IS_L64XX(E4)
+              case 4: L6470_SET_KVAL_HOLD(E4); break;
+            #endif
+            #if AXIS_IS_L64XX(E5)
+              case 5: L6470_SET_KVAL_HOLD(E5); break;
+            #endif
+            #if AXIS_IS_L64XX(E6)
+              case 6: L6470_SET_KVAL_HOLD(E6); break;
+            #endif
+            #if AXIS_IS_L64XX(E7)
+              case 7: L6470_SET_KVAL_HOLD(E7); break;
+            #endif
+          }
+        } break;
+      #endif
     }
   }
 
