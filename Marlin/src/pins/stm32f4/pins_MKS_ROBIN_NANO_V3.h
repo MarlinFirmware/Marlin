@@ -217,31 +217,25 @@
 //
 // detect pin dont work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
-  #define CUSTOM_SPI_PINS                         // TODO: needed because is the only way to set SPI3 for SD on STM32 (by now)
-  #if ENABLED(CUSTOM_SPI_PINS)
-    #define ENABLE_SPI3
-    #define SD_SS_PIN                       -1
-    #define SDSS                            PC9
-    #define SD_SCK_PIN                      PC10
-    #define SD_MISO_PIN                     PC11
-    #define SD_MOSI_PIN                     PC12
-    #define SD_DETECT_PIN                   PD12
-  #endif
+  #define ENABLE_SPI3
+  #define SD_SS_PIN                         -1
+  #define SDSS                              PC9
+  #define SD_SCK_PIN                        PC10
+  #define SD_MISO_PIN                       PC11
+  #define SD_MOSI_PIN                       PC12
+  #define SD_DETECT_PIN                     PD12
 #endif
 
 //
 // LCD SD
 //
 #if SD_CONNECTION_IS(LCD)
-  #define CUSTOM_SPI_PINS
-  #if ENABLED(CUSTOM_SPI_PINS)
-    #define ENABLE_SPI1
-    #define SDSS                            PE10
-    #define SD_SCK_PIN                      PA5
-    #define SD_MISO_PIN                     PA6
-    #define SD_MOSI_PIN                     PA7
-    #define SD_DETECT_PIN                   PE12
-  #endif
+  #define ENABLE_SPI1
+  #define SDSS                              PE10
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+  #define SD_DETECT_PIN                     PE12
 #endif
 
 //
@@ -345,7 +339,7 @@
     //#define MKS_LCD12864B
     //#undef SHOW_BOOTSCREEN
 
-  #else // !MKS_MINI_12864
+  #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
     #if ENABLED(ULTIPANEL)
