@@ -186,7 +186,6 @@
 
 // TODO: This is the only way to set SPI for SD on STM32 (for now)
 #define ENABLE_SPI2
-#define CUSTOM_SPI_PINS
 #define SD_SCK_PIN                          PB13
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15
