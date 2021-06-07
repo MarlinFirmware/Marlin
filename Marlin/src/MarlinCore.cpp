@@ -304,6 +304,9 @@ void enable_all_steppers() {
   ENABLE_AXIS_X();
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
+  ENABLE_AXIS_I(); // Marlin 6-axis support by DerAndere (https://github.com/DerAndere1/Marlin/wiki)
+  ENABLE_AXIS_J();
+  ENABLE_AXIS_K();
   enable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
@@ -317,7 +320,7 @@ void disable_e_steppers() {
 void disable_e_stepper(const uint8_t e) {
   #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
   switch (e) {
-    REPEAT(EXTRUDERS, _CASE_DIS_E)
+    REPEAT(E_STEPPERS, _CASE_DIS_E)
   }
 }
 
@@ -325,6 +328,9 @@ void disable_all_steppers() {
   DISABLE_AXIS_X();
   DISABLE_AXIS_Y();
   DISABLE_AXIS_Z();
+  DISABLE_AXIS_I();
+  DISABLE_AXIS_J();
+  DISABLE_AXIS_K();
   disable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
@@ -444,6 +450,9 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
         if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
         if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
+        if (ENABLED(DISABLE_INACTIVE_I)) DISABLE_AXIS_I();
+        if (ENABLED(DISABLE_INACTIVE_J)) DISABLE_AXIS_J();
+        if (ENABLED(DISABLE_INACTIVE_K)) DISABLE_AXIS_K();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
@@ -935,6 +944,15 @@ inline void tmc_standby_setup() {
   #if PIN_EXISTS(Z4_STDBY)
     SET_INPUT_PULLDOWN(Z4_STDBY_PIN);
   #endif
+  #if PIN_EXISTS(I_STDBY)
+    SET_INPUT_PULLDOWN(I_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(J_STDBY)
+    SET_INPUT_PULLDOWN(J_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(K_STDBY)
+    SET_INPUT_PULLDOWN(K_STDBY_PIN);
+  #endif
   #if PIN_EXISTS(E0_STDBY)
     SET_INPUT_PULLDOWN(E0_STDBY_PIN);
   #endif
@@ -1423,10 +1441,7 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU1
-    SETUP_LOG("Prusa MMU1");
-    SET_OUTPUT(E_MUX0_PIN);
-    SET_OUTPUT(E_MUX1_PIN);
-    SET_OUTPUT(E_MUX2_PIN);
+    SETUP_RUN(mmu_init());
   #endif
 
   #if HAS_FANMUX

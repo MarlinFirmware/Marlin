@@ -167,6 +167,15 @@ constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 #if AXIS_HAS_HW_SERIAL(Z4)
   CHECK_AXIS_SERIAL(Z4);
 #endif
+#if AXIS_HAS_HW_SERIAL(I)
+  CHECK_AXIS_SERIAL(I);
+#endif
+#if AXIS_HAS_HW_SERIAL(J)
+  CHECK_AXIS_SERIAL(J);
+#endif
+#if AXIS_HAS_HW_SERIAL(K)
+  CHECK_AXIS_SERIAL(K);
+#endif
 #if AXIS_HAS_HW_SERIAL(E0)
   CHECK_AXIS_SERIAL(E0);
 #endif
