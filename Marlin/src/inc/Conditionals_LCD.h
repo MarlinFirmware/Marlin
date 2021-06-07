@@ -713,14 +713,24 @@
   #ifndef Z_PROBE_SERVO_NR
     #define Z_PROBE_SERVO_NR 0
   #endif
-  #undef DEACTIVATE_SERVOS_AFTER_MOVE
+  #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
+    #warning "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Undefining DEACTIVATE_SERVOS_AFTER_MOVE. Please update your Configuration.h file."
+    #undef DEACTIVATE_SERVOS_AFTER_MOVE
+  #endif
 
   // Always disable probe pin inverting for BLTouch
-  #undef Z_MIN_PROBE_ENDSTOP_INVERTING
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+  #if Z_MIN_PROBE_ENDSTOP_INVERTING
+    #warning "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Resetting Z_MIN_PROBE_ENDSTOP_INVERTING to false. Please update your Configuration.h file."
+    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
+    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+  #endif
+
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #undef Z_MIN_ENDSTOP_INVERTING
-    #define Z_MIN_ENDSTOP_INVERTING false
+    #if Z_MIN_ENDSTOP_INVERTING
+      #warning "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Resetting Z_MIN_ENDSTOP_INVERTING to false. Please update your Configuration.h file."
+      #undef Z_MIN_ENDSTOP_INVERTING
+      #define Z_MIN_ENDSTOP_INVERTING false
+    #endif
   #endif
 #endif
 
