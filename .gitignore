@@ -124,6 +124,7 @@ tags
 
 # Secure Credentials
 Configuration_Secure.h
+Config_XP.h
 
 # Visual Studio
 *.sln
