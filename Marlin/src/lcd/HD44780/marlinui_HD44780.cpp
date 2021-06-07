@@ -50,6 +50,10 @@
   #include "../../feature/cooler.h"
 #endif
 
+#if ENABLED(I2C_AMMETER)
+  #include "../../feature/ammeter.h"
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -588,9 +592,23 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
-    lcd_put_u8str("~ ");
+    lcd_put_u8str("~");
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
     lcd_put_wchar('L');
+  }
+#endif
+
+#if ENABLED(I2C_AMMETER)
+  FORCE_INLINE void _draw_ammeter_status() {
+    lcd_put_u8str(" ");
+    ammeter.read();
+    if (ammeter.current <= .999) {
+      lcd_put_u8str(ftostr3ns(ammeter.current));
+      lcd_put_u8str("mA");
+    } else {
+      lcd_put_u8str(ftostr12ns(ammeter.current));
+      lcd_put_wchar('A');
+    }
   }
 #endif
 
@@ -834,6 +852,9 @@ void MarlinUI::draw_status_screen() {
       #endif
       #if ENABLED(LASER_COOLANT_FLOW_METER)
         _draw_flowmeter_status();
+      #endif
+      #if ENABLED(I2C_AMMETER)
+        _draw_ammeter_status();
       #endif
 
     #endif // LCD_WIDTH >= 20
