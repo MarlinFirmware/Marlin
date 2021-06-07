@@ -462,9 +462,13 @@
   #endif
 #endif
 
-#if ANY(MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max )
+#if ANY(MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6)
   #if NONE(GraphicLCD, OrigLCD)
-    #define Force10SProDisplay
+    #if ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI)
+      #define Force10SProDisplay
+    #else
+      #define ForceCRXDisplay
+    #endif
   #endif
 #endif
 
@@ -476,7 +480,7 @@
   #endif
 #endif
 
-#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder3Max)
+#if ANY(MachineEnder3V2, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder3Max, MachineEnder6)
   #define POWER_LOSS_RECOVERY //Screen will not compile without PLR
   #if NONE(BedAC, BedDC)
     #define BedDC
@@ -495,7 +499,7 @@
   #endif
 #endif
 
-#if ENABLED(MachineEnder3Max)
+#if ANY(MachineEnder3Max, MachineEnder6)
   #define lerdgeFilSensor
 #endif
 
@@ -560,7 +564,7 @@
   #define POWER_LOSS_RECOVERY
 #endif
 
-#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2) || ENABLED(GraphicLCD)
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, Force10SProDisplay, ForceCRXDisplay) || ENABLED(GraphicLCD)
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
@@ -581,7 +585,7 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427)
+ #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -605,11 +609,11 @@
   #define LCD_SERIAL_PORT 0
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, MachineEnder3V2, Creality422, Creality427)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, MachineEnder3V2, Creality422, Creality427, MachineEnder6)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 0
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && DISABLED(GraphicLCD)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && DISABLED(GraphicLCD)
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
@@ -669,6 +673,8 @@
     #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
   #elif ENABLED(SKRE3Turbo)
     #define MOTHERBOARD BOARD_BTT_SKR_E3_TURBO
+  #elif ENABLED(MachineEnder6)
+    #define MOTHERBOARD BOARD_CREALITY_V431
   #elif ANY(MachineEnder3Pro427, Creality427)
     #define MOTHERBOARD BOARD_CREALITY_V427
   #elif ANY(MachineEnder3V2, MachineEnder3Pro422, Creality422)
@@ -1361,7 +1367,7 @@
 
 // Enable one of the options below for CoreXY, CoreXZ, or CoreYZ kinematics,
 // either in the usual order or reversed
-#if ENABLED(MachineEnder4)
+#if ANY(MachineEnder4, MachineEnder6)
   #define COREXY
 #endif
 //#define COREXZ
@@ -1380,7 +1386,7 @@
 // Specify here all the endstop connectors that are connected to any endstop or probe.
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
-#if ANY(MachineEnder5, MachineEnder5Plus)
+#if ANY(MachineEnder5, MachineEnder5Plus, MachineEnder6)
   #define USE_ZMIN_PLUG
   #define USE_XMAX_PLUG
   #define USE_YMAX_PLUG
@@ -1636,7 +1642,7 @@
   #define EStepsmm 409
 #elif ANY(EZRstruder, MachineCR10SV2)
   #define EStepsmm 93
-#elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro)
+#elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6)
   #define EStepsmm 140
 #elif ENABLED(MachineCR2020)
   #define EStepsmm 113
@@ -1699,10 +1705,10 @@
   #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif ENABLED(MachineCR2020)
+#elif ANY(MachineCR2020, MachineEnder6)
   #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
-  #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
-  #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
+  #define DEFAULT_MAX_ACCELERATION      { 7000, 7000, 100, 75 }
+  #define DEFAULT_ACCELERATION          2000    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
 #endif
@@ -2210,17 +2216,17 @@
   #endif
 #else
   #define INVERT_X_DIR false
-  #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020)
+  #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020, MachineEnder6)
     #define INVERT_Y_DIR true
   #else
     #define INVERT_Y_DIR false
   #endif
-  #if ANY(MachineEnder5Plus, MachineCR2020)
+  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6)
     #define INVERT_Z_DIR false
   #else
     #define INVERT_Z_DIR true
   #endif
-  #if ANY(E3DTitan, MachineCR2020)
+  #if ANY(E3DTitan, MachineCR2020, MachineEnder6)
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #else
@@ -2267,7 +2273,7 @@
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
-#if ANY(MachineEnder5, MachineEnder5Plus)
+#if ANY(MachineEnder5, MachineEnder5Plus, MachineEnder6)
   #define X_HOME_DIR 1
   #define Y_HOME_DIR 1
   #define Z_HOME_DIR -1
@@ -2331,6 +2337,13 @@
     #endif
     #define Y_MAX_POS 360
     #define ClipClearance 25
+  #elif ENABLED(MachineEnder6)
+    #define X_BED_SIZE 260
+    #define Y_BED_SIZE 260
+    #define Z_MAX_POS 400
+    #define X_MAX_POS 260
+    #define Y_MAX_POS 260
+    #define ClipClearance 10
   #elif ENABLED(MachineCR20)
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
@@ -2758,7 +2771,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, Force10SProDisplay, ForceCRXDisplay) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3429,7 +3442,7 @@
   #define DWIN_CREALITY_LCD
 #elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD)
   #define CR10_STOCKDISPLAY
-#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, Force10SProDisplay, ForceCRXDisplay) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 //
