@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,11 +24,10 @@
 //
 // lcd/dogm/status/ammeter.h - Status Screen Laser Ammeter bitmaps
 //
-#if ENABLED(I2C_AMMETER)
 
-  #define STATUS_AMMETER_WIDTH 20
+#define STATUS_AMMETER_WIDTH 20
 
-  const unsigned char status_ammeter_bmp_mA[] PROGMEM = {
+const unsigned char status_ammeter_bmp_mA[] PROGMEM = {
   B00000000,B11111100,B00000000,
   B00000011,B00000011,B00000000,
   B00000100,B00000000,B10000000,
@@ -46,7 +45,7 @@
   B00000100,B00000000,B10000000,
   B00000011,B00000011,B00000000,
   B00000000,B11111100,B00000000
-  };
+};
 
 const unsigned char status_ammeter_bmp_A[] PROGMEM = {
   B00000000,B11111100,B00000000,
@@ -67,5 +66,3 @@ const unsigned char status_ammeter_bmp_A[] PROGMEM = {
   B00000011,B00000011,B00000000,
   B00000000,B11111100,B00000000,
 };
-
-#endif

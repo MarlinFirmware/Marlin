@@ -207,7 +207,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
 #if DO_DRAW_AMMETER
   FORCE_INLINE void _draw_centered_current(const float current, const uint8_t tx, const uint8_t ty) {
-    const char *str = ftostr31ns(current);           
+    const char *str = ftostr31ns(current);
     const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
     lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
   }
@@ -697,7 +697,7 @@ void MarlinUI::draw_status_screen() {
       const uint8_t ammetery = STATUS_AMMETER_Y(status_ammeter_bmp_mA),
                     ammeterh = STATUS_AMMETER_HEIGHT(status_ammeter_bmp_mA);
        if (PAGE_CONTAINS(ammetery, ammetery + ammeterh - 1))
-        u8g.drawBitmapP(STATUS_AMMETER_X, ammetery, STATUS_AMMETER_BYTEWIDTH, ammeterh, (ammeter.current < .1) ? status_ammeter_bmp_mA : status_ammeter_bmp_A);
+        u8g.drawBitmapP(STATUS_AMMETER_X, ammetery, STATUS_AMMETER_BYTEWIDTH, ammeterh, (ammeter.current < 0.1f) ? status_ammeter_bmp_mA : status_ammeter_bmp_A);
     #endif
 
     // Heated Bed
