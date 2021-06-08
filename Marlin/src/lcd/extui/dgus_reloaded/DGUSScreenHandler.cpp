@@ -345,17 +345,20 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
 
   void DGUSScreenHandler::PidTuning(const ExtUI::result_t rst) {
     switch (rst) {
-      case ExtUI::PID_DONE:
-        SetStatusMessagePGM(PSTR("PID tuning successful"));
+      case ExtUI::PID_STARTED:
+        SetStatusMessagePGM(GET_TEXT(MSG_PID_AUTOTUNE));
         break;
       case ExtUI::PID_BAD_EXTRUDER_NUM:
-        SetStatusMessagePGM(PSTR("Unknown extruder"));
+        SetStatusMessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
         break;
       case ExtUI::PID_TEMP_TOO_HIGH:
-        SetStatusMessagePGM(PSTR("Temperature too high"));
+        SetStatusMessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
         break;
       case ExtUI::PID_TUNING_TIMEOUT:
-        SetStatusMessagePGM(PSTR("Timed out"));
+        SetStatusMessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
+        break;
+      case ExtUI::PID_DONE:
+        SetStatusMessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
         break;
     }
 
