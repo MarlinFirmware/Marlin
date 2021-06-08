@@ -3477,7 +3477,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   Draw_Float(ubl.storage_slot, row, false, 1);
                 }
                 else {
-                  Modify_Value(ubl.storage_slot, 0, settings.calc_num_meshes(), 1);
+                  Modify_Value(ubl.storage_slot, 0, settings.calc_num_meshes()-1, 1);
                 }
                 break;
             case LEVELING_SETTINGS_TILT:
