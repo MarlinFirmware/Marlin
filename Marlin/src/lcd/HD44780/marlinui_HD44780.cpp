@@ -602,10 +602,11 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
   FORCE_INLINE void _draw_ammeter_status() {
     lcd_put_u8str(" ");
     ammeter.read();
-    if (ammeter.current <= .999) {
-      lcd_put_u8str(ftostr3ns(ammeter.current));
+    if (ammeter.current <= 0.999f) {
+      lcd_put_u8str(ui16tostr3rj(uint16_t(ammeter.current * 1000 + 0.5f)));
       lcd_put_u8str("mA");
-    } else {
+    }
+    else {
       lcd_put_u8str(ftostr12ns(ammeter.current));
       lcd_put_wchar('A');
     }
@@ -847,15 +848,9 @@ void MarlinUI::draw_status_screen() {
         #endif
       #endif
 
-      #if HAS_COOLER
-        _draw_cooler_status('*', blink);
-      #endif
-      #if ENABLED(LASER_COOLANT_FLOW_METER)
-        _draw_flowmeter_status();
-      #endif
-      #if ENABLED(I2C_AMMETER)
-        _draw_ammeter_status();
-      #endif
+      TERN_(HAS_COOLER, _draw_cooler_status('*', blink));
+      TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
+      TERN_(I2C_AMMETER, _draw_ammeter_status());
 
     #endif // LCD_WIDTH >= 20
 

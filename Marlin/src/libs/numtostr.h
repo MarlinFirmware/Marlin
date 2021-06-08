@@ -74,9 +74,6 @@ const char* ftostr31ns(const_float_t x);
 // Convert unsigned float to string with 123.4 format
 const char* ftostr41ns(const_float_t x);
 
-// Convert unsigned float to string with 123 format
-const char* ftostr3ns(const_float_t x);
-
 // Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 or -23.45 / 123.45 format
 const char* ftostr42_52(const_float_t x);
 

@@ -1,4 +1,4 @@
-  /**
+/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -23,27 +23,32 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(I2C_AMMETER)
-  #include "ammeter.h"
 
-  INA226 ina;
+#include "ammeter.h"
 
-  Ammeter ammeter;
+#ifndef I2C_AMMETER_IMAX
+  #define I2C_AMMETER_IMAX     0.500  // Calibration range 500 Milliamps
+#endif
 
-  float Ammeter::scale;
-  float Ammeter::current;
+INA226 ina;
 
-  void Ammeter::init() {
-    ina.begin();
-    ina.configure(INA226_AVERAGES_16, INA226_BUS_CONV_TIME_1100US, INA226_SHUNT_CONV_TIME_1100US, INA226_MODE_SHUNT_BUS_CONT);
-    ina.calibrate(I2C_AMMETER_SHUNT_RESISTOR,I2C_AMMETER_IMAX);
-  }
+Ammeter ammeter;
 
-  float Ammeter::read() {
-      scale = 1;
-      current = ina.readShuntCurrent();
-      if (current <= .0001) current = 0;  // Cleanup lsb bit amplification errors
-      if (current < .1) scale = 1000; 
-      return current * scale;
-  }
+float Ammeter::scale;
+float Ammeter::current;
 
-#endif //I2C_AMMETER
+void Ammeter::init() {
+  ina.begin();
+  ina.configure(INA226_AVERAGES_16, INA226_BUS_CONV_TIME_1100US, INA226_SHUNT_CONV_TIME_1100US, INA226_MODE_SHUNT_BUS_CONT);
+  ina.calibrate(I2C_AMMETER_SHUNT_RESISTOR, I2C_AMMETER_IMAX);
+}
+
+float Ammeter::read() {
+  scale = 1;
+  current = ina.readShuntCurrent();
+  if (current <= 0.0001f) current = 0;  // Clean up least-significant-bit amplification errors
+  if (current < 0.1f) scale = 1000;
+  return current * scale;
+}
+
+#endif // I2C_AMMETER
