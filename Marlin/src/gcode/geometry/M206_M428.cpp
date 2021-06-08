@@ -31,7 +31,16 @@
 #include "../../MarlinCore.h"
 
 void M206_report() {
-  SERIAL_ECHOLNPAIR_P(PSTR("M206 X"), home_offset.x, SP_Y_STR, home_offset.y, SP_Z_STR, home_offset.z);
+  SERIAL_ECHOLNPAIR_P(
+    LIST_N(DOUBLE(LINEAR_AXES),
+      PSTR("M206 X"), home_offset.x,
+      SP_Y_STR, home_offset.y,
+      SP_Z_STR, home_offset.z,
+      SP_I_STR, home_offset.i,
+      SP_J_STR, home_offset.j,
+      SP_K_STR, home_offset.k,
+    )
+  );
 }
 
 /**
@@ -51,7 +60,7 @@ void GcodeSuite::M206() {
     if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
-  if (!parser.seen("XYZ"))
+  if (!parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", "I", "J", "K")))
     M206_report();
   else
     report_current_position();

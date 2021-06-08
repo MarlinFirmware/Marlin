@@ -35,7 +35,7 @@ void GcodeSuite::M122() {
   xyze_bool_t print_axis = ARRAY_N_1(LOGICAL_AXES, false);
 
   bool print_all = true;
-  LOOP_LOGICAL_AXES(i) if (parser.seen(axis_codes[i])) { print_axis[i] = true; print_all = false; }
+  LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) { print_axis[i] = true; print_all = false; }
 
   if (print_all) LOOP_LOGICAL_AXES(i) print_axis[i] = true;
 
@@ -49,21 +49,13 @@ void GcodeSuite::M122() {
       tmc_set_report_interval(interval);
     #endif
 
-    if (parser.seen_test('V')) {
-      tmc_get_registers(
-        LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z)
-      );
-    }
-    else {
-      tmc_report_all(
-        LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z)
-      );
-    }
+    if (parser.seen_test('V'))
+      tmc_get_registers(LOGICAL_AXIS_ELEM(print_axis));
+    else
+      tmc_report_all(LOGICAL_AXIS_ELEM(print_axis));
   #endif
 
-  test_tmc_connection(
-    LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z)
-  );
+  test_tmc_connection(LOGICAL_AXIS_ELEM(print_axis));
 }
 
 #endif // HAS_TRINAMIC_CONFIG
