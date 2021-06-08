@@ -68,11 +68,7 @@
 
 #elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
 
-  LCD_CLASS lcd(LCD_I2C_ADDRESS
-    #ifdef DETECT_DEVICE
-      , 1
-    #endif
-  );
+  LCD_CLASS lcd(LCD_I2C_ADDRESS OPTARG(DETECT_I2C_LCD_DEVICE, 1));
 
 #elif ENABLED(LCD_I2C_TYPE_PCA8574)
 
@@ -380,11 +376,7 @@ void MarlinUI::init_lcd() {
 }
 
 bool MarlinUI::detected() {
-  return (true
-    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
-      && lcd.LcdDetected() == 1
-    #endif
-  );
+  return TERN1(DETECT_I2C_LCD_DEVICE, lcd.LcdDetected() == 1);
 }
 
 #if HAS_SLOW_BUTTONS
