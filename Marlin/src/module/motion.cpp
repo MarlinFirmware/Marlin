@@ -1771,6 +1771,35 @@ void prepare_line_to_destination() {
       }
     #endif
 
+    //
+    // Move out of endstop if  MOVE_AWAY_FIRST is configured...
+    //
+  #if ENABLED(MOVE_AWAY_FIRST) // Fast move out of endstop if required
+      EndstopEnum es;
+      switch (axis) {
+        default:
+        case X_AXIS: es = X_ENDSTOP; break;
+        case Y_AXIS: es = Y_ENDSTOP; break;
+        case Z_AXIS: es = Z_ENDSTOP; break;
+        #if LINEAR_AXES >= 4
+          case I_AXIS: es = I_ENDSTOP; break;
+        #endif
+        #if LINEAR_AXES >= 5
+          case J_AXIS: es = J_ENDSTOP; break;
+        #endif
+        #if LINEAR_AXES >= 6
+          case K_AXIS: es = K_ENDSTOP; break;
+        #endif
+      }
+
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLN("Move out of endstop if required");
+      const float backoff_length = -5 * axis_home_dir;
+      while (TEST(endstops.state(), es)) {
+        do_homing_move(axis, backoff_length, false);
+      }
+
+  #endif
+
     // Determine if a homing bump will be done and the bumps distance
     // When homing Z with probe respect probe clearance
     const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(axis));

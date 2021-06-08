@@ -1917,7 +1917,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
   TERN_(HAS_POWER_MONITOR,     power_monitor.capture_values());
 
-  #if HAS_HOTEND
+  #if HAS_HOTEND && !defined(NO_HEATERS)
 
     static constexpr int8_t temp_dir[] = {
       TERN(TEMP_SENSOR_0_IS_MAX_TC, 0, TEMPDIR(0))
@@ -1950,7 +1950,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       }
     }
 
-  #endif // HAS_HOTEND
+  #endif // HAS_HOTEND && !defined(NO_HEATERS)
 
   #if ENABLED(THERMAL_PROTECTION_BED)
     #define BEDCMP(A,B) (TEMPDIR(BED) < 0 ? ((A)<(B)) : ((A)>(B)))
