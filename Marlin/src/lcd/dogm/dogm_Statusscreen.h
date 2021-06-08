@@ -110,14 +110,13 @@
 //
 // Laser Ammeter
 //
-#if !STATUS_AMMETER_WIDTH && ENABLED(I2C_AMMETER)
-  #include "status/ammeter.h"
-#endif
-#ifndef STATUS_AMMETER_WIDTH
-  #define STATUS_AMMETER_WIDTH 0
-#endif
-#ifndef STATUS_AMMETER_BYTEWIDTH
-  #define STATUS_AMMETER_BYTEWIDTH BW(STATUS_AMMETER_WIDTH)
+#if ENABLED(I2C_AMMETER)
+  #if !STATUS_AMMETER_WIDTH
+    #include "status/ammeter.h"
+  #endif
+  #ifndef STATUS_AMMETER_WIDTH
+    #define STATUS_AMMETER_WIDTH 0
+  #endif
 #endif
 
 //
@@ -614,30 +613,29 @@
   #endif
 #endif
 
-#if ENABLED(I2C_AMMETER)
-  #if STATUS_AMMETER_WIDTH
-
-    #ifndef STATUS_AMMETER_X
-      #define STATUS_AMMETER_X (LCD_PIXEL_WIDTH - (STATUS_AMMETER_BYTEWIDTH + STATUS_FLOWMETER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH + STATUS_COOLER_BYTEWIDTH) * 8)
-    #endif
-
-    #ifndef STATUS_AMMETER_HEIGHT
-      #define STATUS_AMMETER_HEIGHT(S) (sizeof(status_ammeter_bmp1) / (STATUS_AMMETER_BYTEWIDTH))
-    #endif
-
-    #ifndef STATUS_AMMETER_Y
-      #define STATUS_AMMETER_Y(S) (18 - STATUS_AMMETER_HEIGHT(S))
-    #endif
-
-    #ifndef STATUS_AMMETER_TEXT_X
-      #define STATUS_AMMETER_TEXT_X (STATUS_AMMETER_X + 7)
-    #endif
-
-    static_assert(
-      sizeof(status_ammeter_bmp1) == (STATUS_AMMETER_BYTEWIDTH) * STATUS_AMMETER_HEIGHT(0),
-      "Status ammeter bitmap (status_ammeter_bmp1) dimensions don't match data."
-    );
+//
+// I2C Laser Ammeter
+//
+#if ENABLED(I2C_AMMETER) && STATUS_AMMETER_WIDTH
+  #ifndef STATUS_AMMETER_BYTEWIDTH
+    #define STATUS_AMMETER_BYTEWIDTH BW(STATUS_AMMETER_WIDTH)
   #endif
+  #ifndef STATUS_AMMETER_X
+    #define STATUS_AMMETER_X (LCD_PIXEL_WIDTH - (STATUS_AMMETER_BYTEWIDTH + STATUS_FLOWMETER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH + STATUS_COOLER_BYTEWIDTH) * 8)
+  #endif
+  #ifndef STATUS_AMMETER_HEIGHT
+    #define STATUS_AMMETER_HEIGHT(S) (sizeof(status_ammeter_bmp1) / (STATUS_AMMETER_BYTEWIDTH))
+  #endif
+  #ifndef STATUS_AMMETER_Y
+    #define STATUS_AMMETER_Y(S) (18 - STATUS_AMMETER_HEIGHT(S))
+  #endif
+  #ifndef STATUS_AMMETER_TEXT_X
+    #define STATUS_AMMETER_TEXT_X (STATUS_AMMETER_X + 7)
+  #endif
+  static_assert(
+    sizeof(status_ammeter_bmp1) == (STATUS_AMMETER_BYTEWIDTH) * STATUS_AMMETER_HEIGHT(0),
+    "Status ammeter bitmap (status_ammeter_bmp1) dimensions don't match data."
+  );
 #endif
 
 //
