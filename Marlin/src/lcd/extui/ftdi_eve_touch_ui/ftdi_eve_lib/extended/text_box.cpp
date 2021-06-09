@@ -82,8 +82,8 @@ namespace FTDI {
       box_width = w;
       measure_text_box(fm, str, box_width, box_height);
       if (box_width <= (uint16_t)w && box_height <= (uint16_t)h) break;
-      fm.load(--font);
       if (font == 26) break;
+      fm.load(--font);
     }
 
     const uint16_t dx = (options & OPT_RIGHTX) ? w :
