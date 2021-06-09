@@ -207,7 +207,7 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
   #include "thermistor_999.h"
 #endif
 #if ANY_THERMISTOR_IS(1000) // Custom
-  const temp_entry_t temptable_1000[] PROGMEM = { { 0, 0 } };
+  constexpr temp_entry_t temptable_1000[] PROGMEM = { { 0, 0 } };
 #endif
 
 #define _TT_NAME(_N) temptable_ ## _N
@@ -313,15 +313,14 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #endif
 
 // The SCAN_THERMISTOR_TABLE macro needs alteration?
-static_assert(
-     TEMPTABLE_0_LEN < 256 && TEMPTABLE_1_LEN < 256
-  && TEMPTABLE_2_LEN < 256 && TEMPTABLE_3_LEN < 256
-  && TEMPTABLE_4_LEN < 256 && TEMPTABLE_5_LEN < 256
-  && TEMPTABLE_6_LEN < 256 && TEMPTABLE_7_LEN < 256
-  && TEMPTABLE_BED_LEN < 256 && TEMPTABLE_CHAMBER_LEN < 256
-  && TEMPTABLE_COOLER_LEN < 256 && TEMPTABLE_PROBE_LEN < 256
-  && TEMPTABLE_REDUNDANT_LEN < 256,
-  "Temperature conversion tables over 255 entries need special consideration."
+static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_2_LEN || 255 > TEMPTABLE_3_LEN
+           || 255 > TEMPTABLE_4_LEN || 255 > TEMPTABLE_5_LEN || 255 > TEMPTABLE_6_LEN || 255 > TEMPTABLE_7_LEN
+           || 255 > TEMPTABLE_BED_LEN
+           || 255 > TEMPTABLE_CHAMBER_LEN
+           || 255 > TEMPTABLE_COOLER_LEN
+           || 255 > TEMPTABLE_PROBE_LEN
+           || 255 > TEMPTABLE_REDUNDANT_LEN
+  , "Temperature conversion tables over 255 entries need special consideration."
 );
 
 // Set the high and low raw values for the heaters
@@ -331,7 +330,7 @@ static_assert(
 #define __TT_REV(N)   REVERSE_TEMP_SENSOR_RANGE_##N
 #define _TT_REV(N)    __TT_REV(N)
 #define TT_REV(N)     _TT_REV(TEMP_SENSOR_##N)
-#define _TT_REVRAW(N) (TEMP_SENSOR_##N <= 0)
+#define _TT_REVRAW(N) !TEMP_SENSOR_##N##_IS_THERMISTOR
 #define TT_REVRAW(N)  (TT_REV(N) || _TT_REVRAW(N))
 
 #ifdef TEMPTABLE_0
