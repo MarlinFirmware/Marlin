@@ -69,7 +69,7 @@ void BedMeshViewScreen::onEntry() {
 void BedMeshViewScreen::drawHighlightedPointValue() {
   CommandProcessor cmd;
   cmd.font(Theme::font_medium)
-     .colors(normal_btn)
+     .cmd(COLOR_RGB(bg_text_enabled))
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .font(font_small);
 
