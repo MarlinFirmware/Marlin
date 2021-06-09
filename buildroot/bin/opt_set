@@ -3,7 +3,7 @@
 # exit on first failure
 set -e
 
-SED=$(which gsed || which sed)
+SED=$(which gsed 2>/dev/null || which sed)
 
 while [[ $# > 1 ]]; do
   DID=0
