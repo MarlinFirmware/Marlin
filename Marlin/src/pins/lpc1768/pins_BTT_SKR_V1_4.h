@@ -32,6 +32,22 @@
 #endif
 
 //
+// EEPROM SD
+//
+//uncomment to enable EEPROM simulation on the SD card
+//#define SDCARD_EEPROM_EMULATION
+
+//
+//EEPROM I2C 
+//
+// uncomment to enable the EEPROM I2C module
+//#define I2C_EEPROM
+//#ifdef E2END
+// #undef E2END
+//#endif
+//#define E2END 0x7FFF // koncová adresa EEPROM 24C256 (32 kB = 8 kB)
+
+//
 // Servos
 //
 #define SERVO0_PIN                         P2_00
