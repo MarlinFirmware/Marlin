@@ -1127,7 +1127,12 @@ void setup() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
+  #if defined(JTAGSWD_RESET)
+    JTAGSWD_RESET();
+  #endif
+
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
+    delay(10);
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
       JTAGSWD_DISABLE();
