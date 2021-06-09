@@ -2388,17 +2388,19 @@ void Temperature::init() {
   #endif
 
   #if HAS_TEMP_REDUNDANT
-    #if TEMP_SENSOR_REDUNDANT_TARGET == -5 && HAS_TEMP_COOLER
-      temp_redundant.target = &temp_cooler;
-    #elif TEMP_SENSOR_REDUNDANT_TARGET == -4 && HAS_TEMP_PROBE
-      temp_redundant.target = &temp_probe;
-    #elif TEMP_SENSOR_REDUNDANT_TARGET == -2 && HAS_TEMP_CHAMBER
-      temp_redundant.target = &temp_chamber;
-    #elif TEMP_SENSOR_REDUNDANT_TARGET == -1 && HAS_TEMP_BED
-      temp_redundant.target = &temp_bed;
-    #else
-      temp_redundant.target = &temp_hotend[TEMP_SENSOR_REDUNDANT_TARGET];
-    #endif
+    temp_redundant.target = &(
+      #if TEMP_SENSOR_REDUNDANT_TARGET == -5 && HAS_TEMP_COOLER
+        temp_cooler
+      #elif TEMP_SENSOR_REDUNDANT_TARGET == -4 && HAS_TEMP_PROBE
+        temp_probe
+      #elif TEMP_SENSOR_REDUNDANT_TARGET == -2 && HAS_TEMP_CHAMBER
+        temp_chamber
+      #elif TEMP_SENSOR_REDUNDANT_TARGET == -1 && HAS_TEMP_BED
+        temp_bed
+      #else
+        temp_hotend[TEMP_SENSOR_REDUNDANT_TARGET]
+      #endif
+    );
   #endif
 }
 
