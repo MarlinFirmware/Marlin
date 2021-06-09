@@ -1175,7 +1175,7 @@ void MarlinSettings::postprocess() {
         const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
           LINEAR_AXIS_LIST(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3),
           .X2 = 100, .Y2 = 100, .Z2 = 3, .Z3 = 3, .Z4 = 3
-          REPEAT(EXTRUDERS, _EN_ITEM)
+          REPEAT(E_STEPPERS, _EN_ITEM)
         };
         #undef _EN_ITEM
       #endif

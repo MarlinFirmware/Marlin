@@ -180,7 +180,7 @@ inline float home_bump_mm(const AxisEnum axis) {
               TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
               break;
           #endif
-          #if LINEAR_AXES >= 4 // TODO (DerAndere): Test for LINEAR_AXES >= 4
+          #if LINEAR_AXES >= 4
             case I_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_I, amin = min.i);
               TERN_(MIN_SOFTWARE_ENDSTOP_I, amax = max.i);

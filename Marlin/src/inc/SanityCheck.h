@@ -570,8 +570,8 @@
   #error "NEOPIXEL_BKGD_LED_INDEX is now NEOPIXEL_BKGD_INDEX_FIRST."
 #endif
 
-constexpr float sbm[] = AXIS_RELATIVE_MODES;
-static_assert(COUNT(sbm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
+constexpr float arm[] = AXIS_RELATIVE_MODES;
+static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
 
 /**
  * Probe temp compensation requirements

@@ -766,11 +766,7 @@ enum StealthIndex : uint8_t {
     pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
 
-    #if ENABLED(HYBRID_THRESHOLD)
-      st.set_pwm_thrs(hyb_thrs);
-    #else
-      UNUSED(hyb_thrs);
-    #endif
+    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC5160
@@ -971,11 +967,12 @@ void reset_trinamic_drivers() {
   // Using a fixed-length character array for the port name allows this to be constexpr compatible.
   struct SanityHwSerialDetails { const char port[20]; uint32_t address; };
   #define TMC_HW_DETAIL_ARGS(A) TERN(A##_HAS_HW_SERIAL, STRINGIFY(A##_HARDWARE_SERIAL), ""), TERN0(A##_HAS_HW_SERIAL, A##_SLAVE_ADDRESS)
-  #define TMC_HW_DETAIL(A) {TMC_HW_DETAIL_ARGS(A)}
+  #define TMC_HW_DETAIL(A) { TMC_HW_DETAIL_ARGS(A) }
   constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = {
     TMC_HW_DETAIL(X), TMC_HW_DETAIL(X2),
     TMC_HW_DETAIL(Y), TMC_HW_DETAIL(Y2),
     TMC_HW_DETAIL(Z), TMC_HW_DETAIL(Z2), TMC_HW_DETAIL(Z3), TMC_HW_DETAIL(Z4),
+    TMC_HW_DETAIL(I), TMC_HW_DETAIL(J), TMC_HW_DETAIL(K),
     TMC_HW_DETAIL(E0), TMC_HW_DETAIL(E1), TMC_HW_DETAIL(E2), TMC_HW_DETAIL(E3), TMC_HW_DETAIL(E4), TMC_HW_DETAIL(E5), TMC_HW_DETAIL(E6), TMC_HW_DETAIL(E7)
   };
 
@@ -995,10 +992,11 @@ void reset_trinamic_drivers() {
 
   #define TMC_HWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_HARDWARE_SERIAL"
   #define SA_NO_TMC_HW_C(A) static_assert(1 >= count_tmc_hw_serial_matches(TMC_HW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_hw_details)), TMC_HWSERIAL_CONFLICT_MSG(A));
-  SA_NO_TMC_HW_C(X);SA_NO_TMC_HW_C(X2);
-  SA_NO_TMC_HW_C(Y);SA_NO_TMC_HW_C(Y2);
-  SA_NO_TMC_HW_C(Z);SA_NO_TMC_HW_C(Z2);SA_NO_TMC_HW_C(Z3);SA_NO_TMC_HW_C(Z4);
-  SA_NO_TMC_HW_C(E0);SA_NO_TMC_HW_C(E1);SA_NO_TMC_HW_C(E2);SA_NO_TMC_HW_C(E3);SA_NO_TMC_HW_C(E4);SA_NO_TMC_HW_C(E5);SA_NO_TMC_HW_C(E6);SA_NO_TMC_HW_C(E7);
+  SA_NO_TMC_HW_C(X); SA_NO_TMC_HW_C(X2);
+  SA_NO_TMC_HW_C(Y); SA_NO_TMC_HW_C(Y2);
+  SA_NO_TMC_HW_C(Z); SA_NO_TMC_HW_C(Z2); SA_NO_TMC_HW_C(Z3); SA_NO_TMC_HW_C(Z4);
+  SA_NO_TMC_HW_C(I); SA_NO_TMC_HW_C(J); SA_NO_TMC_HW_C(K);
+  SA_NO_TMC_HW_C(E0); SA_NO_TMC_HW_C(E1); SA_NO_TMC_HW_C(E2); SA_NO_TMC_HW_C(E3); SA_NO_TMC_HW_C(E4); SA_NO_TMC_HW_C(E5); SA_NO_TMC_HW_C(E6); SA_NO_TMC_HW_C(E7);
 #endif
 
 #if ANY_AXIS_HAS(SW_SERIAL)
@@ -1009,7 +1007,8 @@ void reset_trinamic_drivers() {
     TMC_SW_DETAIL(X), TMC_SW_DETAIL(X2),
     TMC_SW_DETAIL(Y), TMC_SW_DETAIL(Y2),
     TMC_SW_DETAIL(Z), TMC_SW_DETAIL(Z2), TMC_SW_DETAIL(Z3), TMC_SW_DETAIL(Z4),
-    TMC_SW_DETAIL(E0), TMC_SW_DETAIL(E1), TMC_SW_DETAIL(E2), TMC_SW_DETAIL(E3), TMC_SW_DETAIL(E4), TMC_SW_DETAIL(E5), TMC_SW_DETAIL(E6), TMC_SW_DETAIL(E7)
+    TMC_SW_DETAIL(I), TMC_SW_DETAIL(J), TMC_SW_DETAIL(K),
+  	TMC_SW_DETAIL(E0), TMC_SW_DETAIL(E1), TMC_SW_DETAIL(E2), TMC_SW_DETAIL(E3), TMC_SW_DETAIL(E4), TMC_SW_DETAIL(E5), TMC_SW_DETAIL(E6), TMC_SW_DETAIL(E7)
   };
 
   constexpr bool sc_sw_done(size_t start, size_t end) { return start == end; }
@@ -1023,10 +1022,11 @@ void reset_trinamic_drivers() {
 
   #define TMC_SWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_SERIAL_RX_PIN or " STRINGIFY(A) "_SERIAL_TX_PIN"
   #define SA_NO_TMC_SW_C(A) static_assert(1 >= count_tmc_sw_serial_matches(TMC_SW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_sw_details)), TMC_SWSERIAL_CONFLICT_MSG(A));
-  SA_NO_TMC_SW_C(X);SA_NO_TMC_SW_C(X2);
-  SA_NO_TMC_SW_C(Y);SA_NO_TMC_SW_C(Y2);
-  SA_NO_TMC_SW_C(Z);SA_NO_TMC_SW_C(Z2);SA_NO_TMC_SW_C(Z3);SA_NO_TMC_SW_C(Z4);
-  SA_NO_TMC_SW_C(E0);SA_NO_TMC_SW_C(E1);SA_NO_TMC_SW_C(E2);SA_NO_TMC_SW_C(E3);SA_NO_TMC_SW_C(E4);SA_NO_TMC_SW_C(E5);SA_NO_TMC_SW_C(E6);SA_NO_TMC_SW_C(E7);
+  SA_NO_TMC_SW_C(X); SA_NO_TMC_SW_C(X2);
+  SA_NO_TMC_SW_C(Y); SA_NO_TMC_SW_C(Y2);
+  SA_NO_TMC_SW_C(Z); SA_NO_TMC_SW_C(Z2); SA_NO_TMC_SW_C(Z3); SA_NO_TMC_SW_C(Z4);
+  SA_NO_TMC_SW_C(I); SA_NO_TMC_SW_C(J); SA_NO_TMC_SW_C(K);
+  SA_NO_TMC_SW_C(E0); SA_NO_TMC_SW_C(E1); SA_NO_TMC_SW_C(E2); SA_NO_TMC_SW_C(E3); SA_NO_TMC_SW_C(E4); SA_NO_TMC_SW_C(E5); SA_NO_TMC_SW_C(E6); SA_NO_TMC_SW_C(E7);
 #endif
 
 #endif // HAS_TRINAMIC_CONFIG
