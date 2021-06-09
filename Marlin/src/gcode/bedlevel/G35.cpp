@@ -91,8 +91,8 @@ void GcodeSuite::G35() {
   // Disable duplication mode on homing
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
-  // Home all axis if needed before this procedure
-  if (!all_axes_trusted()) home_all_axes();
+  // Home all axes if needed before this procedure
+  home_if_needed();
 
   bool err_break = false;
 
