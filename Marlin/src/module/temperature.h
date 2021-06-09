@@ -309,7 +309,7 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
-    #if COOLER_USER_THERMISTOR
+    #if TEMP_SENSOR_COOLER_IS_CUSTOM
       CTI_COOLER,
     #endif
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
