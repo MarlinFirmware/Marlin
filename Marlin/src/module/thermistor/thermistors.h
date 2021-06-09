@@ -42,7 +42,15 @@
 #define OV_SCALE(N) (N)
 #define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
-#define ANY_THERMISTOR_IS(n) (TEMP_SENSOR_0_THERMISTOR_ID == n || TEMP_SENSOR_1_THERMISTOR_ID == n || TEMP_SENSOR_2_THERMISTOR_ID == n || TEMP_SENSOR_3_THERMISTOR_ID == n || TEMP_SENSOR_4_THERMISTOR_ID == n || TEMP_SENSOR_5_THERMISTOR_ID == n || TEMP_SENSOR_6_THERMISTOR_ID == n || TEMP_SENSOR_7_THERMISTOR_ID == n || TEMP_SENSOR_BED_THERMISTOR_ID == n || TEMP_SENSOR_CHAMBER_THERMISTOR_ID == n || TEMP_SENSOR_COOLER_THERMISTOR_ID == n || TEMP_SENSOR_PROBE_THERMISTOR_ID == n || TEMP_SENSOR_REDUNDANT_THERMISTOR_ID == n)
+#define ANY_THERMISTOR_IS(n) ( n == TEMP_SENSOR_0_THERMISTOR_ID || n == TEMP_SENSOR_1_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_2_THERMISTOR_ID || n == TEMP_SENSOR_3_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_4_THERMISTOR_ID || n == TEMP_SENSOR_5_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_6_THERMISTOR_ID || n == TEMP_SENSOR_7_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_BED_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_CHAMBER_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_COOLER_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_PROBE_THERMISTOR_ID \
+                            || n == TEMP_SENSOR_REDUNDANT_THERMISTOR_ID )
 
 typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 
