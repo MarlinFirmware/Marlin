@@ -3507,8 +3507,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   Draw_Menu_Item(row, ICON_Mesh, "Zero Current Mesh");
                 }
                 else {
-                  gcode.process_subcommands_now_P(PSTR("G29 P0"));
-                  planner.synchronize();
+                  ZERO(mesh_conf.mesh_z_values);
                 }
                 break;
               case LEVELING_SETTINGS_UNDEF:
