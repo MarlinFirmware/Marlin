@@ -104,7 +104,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
   const float f_corr = float(correction) / 255.0f;
 
-  LOOP_XYZ(axis) {
+  LOOP_LINEAR_AXES(axis) {
     if (distance_mm[axis]) {
       const bool reversing = TEST(dm,axis);
 

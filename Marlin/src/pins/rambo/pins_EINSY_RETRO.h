@@ -61,7 +61,7 @@
 
 #else
 
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MIN_PIN                 X_DIAG_PIN
     #define X_MAX_PIN                         81  // X+
   #else
@@ -69,7 +69,7 @@
     #define X_MAX_PIN                 X_DIAG_PIN
   #endif
 
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MIN_PIN                 Y_DIAG_PIN
     #define Y_MAX_PIN                         57  // Y+
   #else
