@@ -3193,7 +3193,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define LEVELING_MANUAL (LEVELING_GET_MESH + 1)
         #define LEVELING_VIEW (LEVELING_MANUAL + 1)
         #define LEVELING_SETTINGS (LEVELING_VIEW + 1)
-        #define LEVELING_LOAD (LEVELING_SETTINGS + ENABLED(AUTO_BED_LEVELING_UBL))
+        #define LEVELING_SLOT (LEVELING_SETTINGS + ENABLED(AUTO_BED_LEVELING_UBL))
+        #define LEVELING_LOAD (LEVELING_SLOT + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SAVE (LEVELING_LOAD + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_TOTAL LEVELING_SAVE
 
@@ -3361,6 +3362,15 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
           #if ENABLED(AUTO_BED_LEVELING_UBL)
+          case LEVELING_SLOT:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_PrintSize, "Mesh Slot");
+              Draw_Float(ubl.storage_slot, row, false, 1);
+            }
+            else {
+              Modify_Value(ubl.storage_slot, 0, settings.calc_num_meshes()-1, 1);
+            }
+            break;
           case LEVELING_LOAD:
             if (draw) {
               Draw_Menu_Item(row, ICON_ReadEEPROM, "Load Mesh");
@@ -3443,8 +3453,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
 
         #define LEVELING_SETTINGS_BACK 0
         #define LEVELING_SETTINGS_FADE (LEVELING_SETTINGS_BACK + 1)
-        #define LEVELING_SETTINGS_SLOT (LEVELING_SETTINGS_FADE + ENABLED(AUTO_BED_LEVELING_UBL))
-        #define LEVELING_SETTINGS_TILT (LEVELING_SETTINGS_SLOT + ENABLED(AUTO_BED_LEVELING_UBL))
+        #define LEVELING_SETTINGS_TILT (LEVELING_SETTINGS_FADE + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_PLANE (LEVELING_SETTINGS_TILT + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_ZERO (LEVELING_SETTINGS_PLANE + ENABLED(AUTO_BED_LEVELING_UBL))
         #define LEVELING_SETTINGS_UNDEF (LEVELING_SETTINGS_ZERO + ENABLED(AUTO_BED_LEVELING_UBL))
@@ -3471,15 +3480,6 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               }
               break;
           #if ENABLED(AUTO_BED_LEVELING_UBL)
-            case LEVELING_SETTINGS_SLOT:
-                if (draw) {
-                  Draw_Menu_Item(row, ICON_PrintSize, "Mesh Slot");
-                  Draw_Float(ubl.storage_slot, row, false, 1);
-                }
-                else {
-                  Modify_Value(ubl.storage_slot, 0, settings.calc_num_meshes()-1, 1);
-                }
-                break;
             case LEVELING_SETTINGS_TILT:
                 if (draw) {
                   Draw_Menu_Item(row, ICON_Tilt, "Tilting Grid Size");
