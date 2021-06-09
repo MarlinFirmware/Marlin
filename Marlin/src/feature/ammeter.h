@@ -26,19 +26,14 @@
 #include <Wire.h>
 #include <INA226.h>
 
-#ifndef I2C_AMMETER_IMAX    
-  #define I2C_AMMETER_IMAX      .500 // Calibration range 500 Milli Amps
-#endif
-
 class Ammeter {
 private:
-    static float scale;
+  static float scale;
 
 public:
-    static float current;
-    static void init();
-    static float read();
- 
+  static float current;
+  static void init();
+  static float read();
 };
 
 extern Ammeter ammeter;
