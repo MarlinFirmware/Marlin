@@ -115,7 +115,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LASER_ASSIST_TOGGLE             = _UxGT("Levegö segéd");
   PROGMEM Language_Str MSG_LASER_PULSE_MS                  = _UxGT("Impulzus teszt ms");
   PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Tüz impulzus");
-  PROGMEM Language_Str MSG_FLOWMETER_FAULT                 = _UxGT("Hütöfolyadék áramlási hiba");
+  PROGMEM Language_Str MSG_FLOWMETER_FAULT                 = _UxGT("Áramlási hiba");
   PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Orsóváltás");
   PROGMEM Language_Str MSG_SPINDLE_EVAC_TOGGLE             = _UxGT("Vákuum váltás");
   PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Orsó elöre");
