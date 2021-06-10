@@ -767,6 +767,10 @@ namespace ExtUI {
       return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
 
+    float mmFromWholeSteps(int16_t steps, const axis_t axis) {
+      return steps * planner.steps_to_mm[axis];
+    }
+
   #endif // BABYSTEPPING
 
   float getZOffset_mm() {

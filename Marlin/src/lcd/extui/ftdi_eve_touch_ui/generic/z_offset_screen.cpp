@@ -46,16 +46,21 @@ void ZOffsetScreen::onRedraw(draw_mode_t what) {
   w.heading(                  GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
   w.color(z_axis).adjuster(4, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), getZOffset_mm());
   w.increments();
-  w.button(   2, GET_TEXT_F(MSG_PROBE_WIZARD));
+  w.button(2, GET_TEXT_F(MSG_PROBE_WIZARD), !isPrinting());
 }
 
-void ZOffsetScreen::move(float inc) {
+void ZOffsetScreen::move(float mm, int16_t steps) {
   // We can't store state after the call to the AlertBox, so
   // check whether the current position equal mydata.z in order
   // to know whether the user started the wizard.
   if (getAxisPosition_mm(Z) == mydata.z) {
-    mydata.z += inc;
+    // In the wizard
+    mydata.z += mm;
     setAxisPosition_mm(mydata.z, Z);
+  }
+  else {
+    // Otherwise doing a manual adjustment, possibly during a print.
+    babystepAxis_steps(steps, Z);
   }
 }
 
@@ -80,11 +85,12 @@ void ZOffsetScreen::runWizard() {
 }
 
 bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
-  const float increment = getIncrement();
+  const int16_t steps = mmToWholeSteps(getIncrement(), Z);
+  const float increment = mmFromWholeSteps(steps, Z);
   switch (tag) {
     case 2: runWizard(); break;
-    case 4: UI_DECREMENT(ZOffset_mm); move(-increment); break;
-    case 5: UI_INCREMENT(ZOffset_mm); move( increment); break;
+    case 4: UI_DECREMENT(ZOffset_mm); move(-increment, -steps); break;
+    case 5: UI_INCREMENT(ZOffset_mm); move( increment,  steps); break;
     default:
       return false;
   }

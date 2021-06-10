@@ -718,22 +718,17 @@
     #define Z_PROBE_SERVO_NR 0
   #endif
   #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
-    #warning "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Undefining DEACTIVATE_SERVOS_AFTER_MOVE. Please update your Configuration.h file."
-    #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
   #endif
 
   // Always disable probe pin inverting for BLTouch
   #if Z_MIN_PROBE_ENDSTOP_INVERTING
-    #warning "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Resetting Z_MIN_PROBE_ENDSTOP_INVERTING to false. Please update your Configuration.h file."
-    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
-    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+    #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
   #endif
 
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #if Z_MIN_ENDSTOP_INVERTING
-      #warning "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Resetting Z_MIN_ENDSTOP_INVERTING to false. Please update your Configuration.h file."
-      #undef Z_MIN_ENDSTOP_INVERTING
-      #define Z_MIN_ENDSTOP_INVERTING false
+      #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
     #endif
   #endif
 #endif
@@ -1025,6 +1020,10 @@
   #if !IS_CORE
     #define IS_FULL_CARTESIAN 1
   #endif
+#endif
+
+#if DISABLED(DELTA)
+  #undef DELTA_HOME_TO_SAFE_ZONE
 #endif
 
 // This flag indicates some kind of jerk storage is needed

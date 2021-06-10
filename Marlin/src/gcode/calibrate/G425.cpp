@@ -439,7 +439,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPAIR("  Top: ", m.backlash[TOP]);
     #endif
-    #if LINEAR_AXES >= 4 AXIS_CAN_CALIBRATE(I)
+    #if LINEAR_AXES >= 4 && AXIS_CAN_CALIBRATE(I)
       #if ENABLED(CALIBRATION_MEASURE_IMIN)
         SERIAL_ECHOLNPAIR("  " STR_I_MIN ": ", m.backlash[IMINIMUM]);
       #endif
@@ -447,7 +447,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPAIR("  " STR_I_MAX ": ", m.backlash[IMAXIMUM]);
       #endif
     #endif
-    #if LINEAR_AXES >= 5 AXIS_CAN_CALIBRATE(J)
+    #if LINEAR_AXES >= 5 && AXIS_CAN_CALIBRATE(J)
       #if ENABLED(CALIBRATION_MEASURE_JMIN)
         SERIAL_ECHOLNPAIR("  " STR_J_MIN ": ", m.backlash[JMINIMUM]);
       #endif
@@ -455,7 +455,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPAIR("  " STR_J_MAX ": ", m.backlash[JMAXIMUM]);
       #endif
     #endif
-    #if LINEAR_AXES >= 6 AXIS_CAN_CALIBRATE(K)
+    #if LINEAR_AXES >= 6 && AXIS_CAN_CALIBRATE(K)
       #if ENABLED(CALIBRATION_MEASURE_KMIN)
         SERIAL_ECHOLNPAIR("  " STR_K_MIN ": ", m.backlash[KMINIMUM]);
       #endif
