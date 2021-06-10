@@ -26,11 +26,12 @@
 
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
+
 #include <SPI.h>
 #include <pins_arduino.h>
 #include "spi_pins.h"
-#include "../../core/macros.h"
 
 static SPISettings spiConfig;
 
@@ -80,7 +81,7 @@ uint8_t spiRec() {
   //return SPDR;
 }
 
-void spiRead(uint8_t* buf, uint16_t nbyte) {
+void spiRead(uint8_t *buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(buf, nbyte);
   SPI.endTransaction();
@@ -103,7 +104,7 @@ void spiSend(uint8_t b) {
   //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 }
 
-void spiSendBlock(uint8_t token, const uint8_t* buf) {
+void spiSendBlock(uint8_t token, const uint8_t *buf) {
   SPI.beginTransaction(spiConfig);
   SPDR = token;
   for (uint16_t i = 0; i < 512; i += 2) {

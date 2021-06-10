@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.0.7.3 M.A.R.C."       // M.A.R.C.
+#define SHORT_BUILD_VERSION "2.0.8.1 M.A.R.C."       // M.A.R.C.
 
 /**
  * Verbose version identifier which should contain a reference to the location

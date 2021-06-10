@@ -30,54 +30,66 @@
 
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
+  DiskIODriver* diskIODriver() {
+    #if ENABLED(MULTI_VOLUME)
+      #if SHARED_VOLUME_IS(SD_ONBOARD)
+        return &card.media_sd_spi;
+      #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+        return &card.media_usbFlashDrive;
+      #endif
+    #else
+      return card.diskIODriver();
+    #endif
+  }
+
   bool GetCapacity(uint32_t *pBlockNum, uint16_t *pBlockSize) {
-    *pBlockNum = card.getSd2Card().cardSize();
+    *pBlockNum = diskIODriver()->cardSize();
     *pBlockSize = BLOCK_SIZE;
     return true;
   }
 
   bool Write(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
-    auto sd2card = card.getSd2Card();
+    auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
       watchdog_refresh();
-      sd2card.writeBlock(blkAddr, pBuf);
+      sd2card->writeBlock(blkAddr, pBuf);
       return true;
     }
 
     // multi block optmization
-    sd2card.writeStart(blkAddr, blkLen);
+    sd2card->writeStart(blkAddr, blkLen);
     while (blkLen--) {
       watchdog_refresh();
-      sd2card.writeData(pBuf);
+      sd2card->writeData(pBuf);
       pBuf += BLOCK_SIZE;
     }
-    sd2card.writeStop();
+    sd2card->writeStop();
     return true;
   }
 
   bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
-    auto sd2card = card.getSd2Card();
+    auto sd2card = diskIODriver();
     // single block
     if (blkLen == 1) {
       watchdog_refresh();
-      sd2card.readBlock(blkAddr, pBuf);
+      sd2card->readBlock(blkAddr, pBuf);
       return true;
     }
 
     // multi block optmization
-    sd2card.readStart(blkAddr);
+    sd2card->readStart(blkAddr);
     while (blkLen--) {
       watchdog_refresh();
-      sd2card.readData(pBuf);
+      sd2card->readData(pBuf);
       pBuf += BLOCK_SIZE;
     }
-    sd2card.readStop();
+    sd2card->readStop();
     return true;
   }
 
   bool IsReady() {
-    return card.isMounted();
+    return diskIODriver()->isReady();
   }
 };
 
@@ -105,8 +117,8 @@ USBMscHandler *pSingleMscHandler = &usbMscHandler;
 void MSC_SD_init() {
   USBDevice.end();
   delay(200);
-  USBDevice.begin();
   USBDevice.registerMscHandlers(1, &pSingleMscHandler, Marlin_STORAGE_Inquirydata);
+  USBDevice.begin();
 }
 
 #endif // __STM32F1__ && HAS_SD_HOST_DRIVE

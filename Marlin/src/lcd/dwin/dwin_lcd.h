@@ -152,6 +152,7 @@
 
 // Extra Icons
 #define ICON_Error                ICON_TempTooHigh
+#define ICON_ManualLev            ICON_SetEndTemp
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
@@ -163,15 +164,22 @@
 #define ICON_HomeOff              ICON_AdvSet
 #define ICON_HomeOffX             ICON_StepX
 #define ICON_HomeOffY             ICON_StepY
+#define ICON_HomeOffZ             ICON_StepZ
 #define ICON_ProbeOff             ICON_AdvSet
 #define ICON_ProbeOffX            ICON_StepX
 #define ICON_ProbeOffY            ICON_StepY
+#define ICON_ParkPos              ICON_AdvSet
+#define ICON_ParkPosX             ICON_StepX
+#define ICON_ParkPosY             ICON_StepY
+#define ICON_ParkPosZ             ICON_StepZ
 #define ICON_PIDNozzle            ICON_SetEndTemp
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_Binary               ICON_Contact
 #define ICON_Flow                 ICON_StepE
 #define ICON_Runout               ICON_MaxAccE
 #define ICON_Pwrlossr             ICON_Motion
+#define ICON_Park                 ICON_Motion
+#define ICON_Scolor               ICON_MaxSpeed
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
@@ -201,7 +209,6 @@
 #define Color_Blue        0x44FF
 #define Color_Bg_Window   0x31E8  // Popup background color
 #define Color_Bg_Blue     0x1125  // Dark blue background color
-#define Color_Bg_LBlue    0x2288  // Light blue color
 #define Color_Bg_Black    0x0841  // Black background color
 #define Color_Bg_Red      0xF00F  // Red background color
 #define Popup_Text_Color  0xD6BA  // Popup font background color
@@ -211,13 +218,34 @@
 #define BarFill_Color     0x10E4  // Fill color of progress bar
 #define Select_Color      0x33BB  // Selected color
 
+// Default UI Colors
+#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
+#define Def_Background_Color  Color_Bg_Black
+#define Def_Cursor_color      Rectangle_Color
+#define Def_TitleBg_color     Color_Bg_Blue
+#define Def_TitleTxt_color    Color_White
+#define Def_Text_Color        Color_White
+#define Def_Selected_Color    Select_Color
+#define Def_SplitLine_Color   Line_Color
+#define Def_Highlight_Color   Color_White
+#define Def_StatusBg_Color    RGB(0,20,20)
+#define Def_StatusTxt_Color   Color_Yellow
+#define Def_PopupBg_color     Color_Bg_Window
+#define Def_PopupTxt_Color    Popup_Text_Color
+#define Def_AlertBg_Color     Color_Bg_Red
+#define Def_AlertTxt_Color    Color_Yellow
+#define Def_PercentTxt_Color  Percent_Color
+#define Def_Barfill_Color     BarFill_Color
+#define Def_Indicator_Color   Color_White
+#define Def_Coordinate_Color   Color_White
+
 /*-------------------------------------- System variable function --------------------------------------*/
 
 // Handshake (1: Success, 0: Fail)
 bool DWIN_Handshake(void);
 
-// Common DWIN startup
-void DWIN_Startup(void);
+// DWIN LCD Initialization
+void DWIN_Init(void);
 
 // Set the backlight luminance
 //  luminance: (0x00-0xFF)
@@ -353,7 +381,7 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
 //  fNum: Number of decimal digits
 //  x/y: Upper-left point
 //  value: Float value
-void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 
@@ -404,3 +432,6 @@ void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
 
 // GUI extension
 void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
+
+// Set LCD Brightness 0x00-0x0F
+void DWIN_LCD_Brightness(const uint8_t brightness);

@@ -224,6 +224,11 @@
   #endif
 #endif
 
+#ifdef GRID_MAX_POINTS_X
+  #define GRID_MAX_CELLS_X (GRID_MAX_POINTS_X - 1)
+  #define GRID_MAX_CELLS_Y (GRID_MAX_POINTS_Y - 1)
+#endif
+
 /**
  * Host keep alive
  */
@@ -265,7 +270,7 @@
 #elif ENABLED(AZSMZ_12864)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 190
-#elif ENABLED(MKS_LCD12864)
+#elif EITHER(MKS_LCD12864A, MKS_LCD12864B)
   #define _LCD_CONTRAST_MIN  120
   #define _LCD_CONTRAST_INIT 205
 #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
@@ -325,11 +330,6 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  // Extender cable doesn't support SD_DETECT_PIN
-  #if ENABLED(NO_SD_DETECT)
-    #undef SD_DETECT_PIN
-  #endif
-
   #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
@@ -340,17 +340,28 @@
     #define HAS_SHARED_MEDIA 1
   #endif
 
-  #if PIN_EXISTS(SD_DETECT)
-    #if HAS_LCD_MENU && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
-      #undef SD_DETECT_STATE
-      #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-        #define SD_DETECT_STATE HIGH
-      #endif
-    #endif
-    #ifndef SD_DETECT_STATE
+  // Set SD_DETECT_STATE based on hardware if not overridden
+  #if PIN_EXISTS(SD_DETECT) && !defined(SD_DETECT_STATE)
+    #if BOTH(HAS_LCD_MENU, ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+      #define SD_DETECT_STATE HIGH
+    #else
       #define SD_DETECT_STATE LOW
     #endif
   #endif
+
+  // Extender cable doesn't support SD_DETECT_PIN
+  #if ENABLED(NO_SD_DETECT)
+    #undef SD_DETECT_PIN
+  #endif
+
+  #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || BOTH(MULTI_VOLUME, VOLUME_SD_ONBOARD)
+    #if ENABLED(SDIO_SUPPORT)
+      #define NEED_SD2CARD_SDIO 1
+    #else
+      #define NEED_SD2CARD_SPI 1
+    #endif
+  #endif
+
 #endif
 
 #if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
@@ -1839,6 +1850,106 @@
 #endif
 
 //
+// Set USING_HW_SERIALn flags for used Serial Ports
+//
+
+// Flag the indexed hardware serial ports in use
+#define CONF_SERIAL_IS(N) (  (defined(SERIAL_PORT)      && SERIAL_PORT == N) \
+                          || (defined(SERIAL_PORT_2)    && SERIAL_PORT_2 == N) \
+                          || (defined(SERIAL_PORT_3)    && SERIAL_PORT_3 == N) \
+                          || (defined(MMU2_SERIAL_PORT) && MMU2_SERIAL_PORT == N) \
+                          || (defined(LCD_SERIAL_PORT)  && LCD_SERIAL_PORT == N) )
+
+// Flag the named hardware serial ports in use
+#define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
+#define ANY_SERIAL_IS(N) (  CONF_SERIAL_IS(N) \
+                         || TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
+                         || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
+                         || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
+
+#define HW_Serial    501
+#define HW_Serial0   502
+#define HW_Serial1   503
+#define HW_Serial2   504
+#define HW_Serial3   505
+#define HW_Serial4   506
+#define HW_Serial5   507
+#define HW_Serial6   508
+#define HW_MSerial0  509
+#define HW_MSerial1  510
+#define HW_MSerial2  511
+#define HW_MSerial3  512
+#define HW_MSerial4  513
+#define HW_MSerial5  514
+#define HW_MSerial6  515
+#define HW_MSerial7  516
+#define HW_MSerial8  517
+#define HW_MSerial9  518
+#define HW_MSerial10 519
+
+#if CONF_SERIAL_IS(-1)
+  #define USING_HW_SERIALUSB 1
+#endif
+#if ANY_SERIAL_IS(0)
+  #define USING_HW_SERIAL0 1
+#endif
+#if ANY_SERIAL_IS(1)
+  #define USING_HW_SERIAL1 1
+#endif
+#if ANY_SERIAL_IS(2)
+  #define USING_HW_SERIAL2 1
+#endif
+#if ANY_SERIAL_IS(3)
+  #define USING_HW_SERIAL3 1
+#endif
+#if ANY_SERIAL_IS(4)
+  #define USING_HW_SERIAL4 1
+#endif
+#if ANY_SERIAL_IS(5)
+  #define USING_HW_SERIAL5 1
+#endif
+#if ANY_SERIAL_IS(6)
+  #define USING_HW_SERIAL6 1
+#endif
+#if ANY_SERIAL_IS(7)
+  #define USING_HW_SERIAL7 1
+#endif
+#if ANY_SERIAL_IS(8)
+  #define USING_HW_SERIAL8 1
+#endif
+#if ANY_SERIAL_IS(9)
+  #define USING_HW_SERIAL9 1
+#endif
+#if ANY_SERIAL_IS(10)
+  #define USING_HW_SERIAL10 1
+#endif
+
+#undef HW_Serial
+#undef HW_Serial0
+#undef HW_Serial1
+#undef HW_Serial2
+#undef HW_Serial3
+#undef HW_Serial4
+#undef HW_Serial5
+#undef HW_Serial6
+#undef HW_MSerial0
+#undef HW_MSerial1
+#undef HW_MSerial2
+#undef HW_MSerial3
+#undef HW_MSerial4
+#undef HW_MSerial5
+#undef HW_MSerial6
+#undef HW_MSerial7
+#undef HW_MSerial8
+#undef HW_MSerial9
+#undef HW_MSerial10
+
+#undef _SERIAL_ID
+#undef _TMC_UART_IS
+#undef TMC_UART_IS
+#undef ANY_SERIAL_IS
+
+//
 // Endstops and bed probe
 //
 
@@ -1868,15 +1979,6 @@
 #endif
 #if _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
-#endif
-#if _HAS_STOP(X,STOP)
-  #define HAS_X_STOP 1
-#endif
-#if _HAS_STOP(Y,STOP)
-  #define HAS_Y_STOP 1
-#endif
-#if _HAS_STOP(Z,STOP)
-  #define HAS_Z_STOP 1
 #endif
 #if PIN_EXISTS(X2_MIN)
   #define HAS_X2_MIN 1
@@ -1908,9 +2010,16 @@
 #if PIN_EXISTS(Z4_MAX)
   #define HAS_Z4_MAX 1
 #endif
-#if HAS_CUSTOM_PROBE_PIN && PIN_EXISTS(Z_MIN_PROBE)
+#if BOTH(HAS_BED_PROBE, HAS_CUSTOM_PROBE_PIN) && PIN_EXISTS(Z_MIN_PROBE)
   #define HAS_Z_MIN_PROBE_PIN 1
 #endif
+
+#undef IS_PROBE_PIN
+#undef IS_X2_ENDSTOP
+#undef IS_Y2_ENDSTOP
+#undef IS_Z2_ENDSTOP
+#undef IS_Z3_ENDSTOP
+#undef IS_Z4_ENDSTOP
 
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
@@ -2122,7 +2231,7 @@
 #if !HAS_TEMP_SENSOR
   #undef AUTO_REPORT_TEMPERATURES
 #endif
-#if EITHER(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS)
+#if ANY(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS, AUTO_REPORT_POSITION)
   #define HAS_AUTO_REPORTING 1
 #endif
 
@@ -2209,11 +2318,21 @@
 #endif
 
 // User Interface
+#if ENABLED(FREEZE_FEATURE)
+  #if !PIN_EXISTS(FREEZE) && PIN_EXISTS(KILL)
+    #define FREEZE_PIN KILL_PIN
+  #endif
+  #if PIN_EXISTS(FREEZE)
+    #define HAS_FREEZE_PIN 1
+  #endif
+#else
+  #undef FREEZE_PIN
+#endif
+#if PIN_EXISTS(KILL) && TERN1(FREEZE_FEATURE, KILL_PIN != FREEZE_PIN)
+  #define HAS_KILL 1
+#endif
 #if PIN_EXISTS(HOME)
   #define HAS_HOME 1
-#endif
-#if PIN_EXISTS(KILL)
-  #define HAS_KILL 1
 #endif
 #if PIN_EXISTS(SUICIDE)
   #define HAS_SUICIDE 1
@@ -2425,7 +2544,9 @@
 #endif
 
 #if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
-  #ifdef PREHEAT_5_LABEL
+  #ifdef PREHEAT_6_LABEL
+    #define PREHEAT_COUNT 6
+  #elif defined(PREHEAT_5_LABEL)
     #define PREHEAT_COUNT 5
   #elif defined(PREHEAT_4_LABEL)
     #define PREHEAT_COUNT 4
@@ -2600,8 +2721,16 @@
   #define HEATER_IDLE_HANDLER 1
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && !defined(FILAMENT_CHANGE_SLOW_LOAD_LENGTH)
-  #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
+/**
+ * Advanced Pause - Filament Change
+ */
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if HAS_LCD_MENU || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+    #define M600_PURGE_MORE_RESUMABLE 1
+  #endif
+  #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
+    #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
+  #endif
 #endif
 
 #if HAS_MULTI_EXTRUDER && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
@@ -2786,9 +2915,9 @@
     #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
   #endif
   #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
-    #define MANUAL_PROBE_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
   #else
-    #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
+    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_HOMING_HEIGHT
   #endif
   #ifndef Z_CLEARANCE_MULTI_PROBE
     #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
@@ -2798,8 +2927,14 @@
   #endif
 #endif
 
-#if !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
-  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
+// Define a starting height for measuring manual probe points
+#ifndef MANUAL_PROBE_START_Z
+  #if EITHER(MESH_BED_LEVELING, PROBE_MANUALLY)
+    // Leave MANUAL_PROBE_START_Z undefined so the prior Z height will be used.
+    // Note: If Z_CLEARANCE_BETWEEN_MANUAL_PROBES is 0 there will be no raise between points
+  #elif ENABLED(AUTO_BED_LEVELING_UBL) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+    #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
+  #endif
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
@@ -2915,4 +3050,8 @@
 
 #if BUTTONS_EXIST(EN1, EN2, ENC)
   #define HAS_ROTARY_ENCODER 1
+#endif
+
+#if PIN_EXISTS(SAFE_POWER) && DISABLED(DISABLE_DRIVER_SAFE_POWER_PROTECT)
+  #define HAS_DRIVER_SAFE_POWER_PROTECT 1
 #endif

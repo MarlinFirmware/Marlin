@@ -37,6 +37,9 @@
 
 #include <stdint.h>
 
+//
+// Serial Ports
+//
 #ifdef USBCON
   #include <USBSerial.h>
   #include "../../core/serial_hook.h"
@@ -44,9 +47,6 @@
   extern DefaultSerial1 MSerial0;
 #endif
 
-// ------------------------
-// Defines
-// ------------------------
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
@@ -55,7 +55,7 @@
 #elif WITHIN(SERIAL_PORT, 1, 6)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+  #error "SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -64,7 +64,17 @@
   #elif WITHIN(SERIAL_PORT_2, 1, 6)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be -1 or from 1 to 6. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 1 to 6. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 MSerial0
+  #elif WITHIN(SERIAL_PORT_3, 1, 6)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #error "SERIAL_PORT_3 must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
@@ -74,7 +84,7 @@
   #elif WITHIN(MMU2_SERIAL_PORT, 1, 6)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
-    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+    #error "MMU2_SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
@@ -84,7 +94,7 @@
   #elif WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "LCD_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
@@ -144,7 +154,7 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 void _delay_ms(const int delay);
 

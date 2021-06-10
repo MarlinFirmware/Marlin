@@ -24,6 +24,7 @@
 
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
+#include "../../MarlinCore.h"
 #include "../../feature/mmu/mmu2.h"
 #include "menu_mmu2.h"
 #include "menu_item.h"

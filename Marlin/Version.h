@@ -28,13 +28,13 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.0.7.3 M.A.R.C."  // M.A.R.C.
+#define SHORT_BUILD_VERSION "2.0.8.1 M.A.R.C."  // M.A.R.C.
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION ", based on bugfix-2.0.x"       // M.A.R.C.
+#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " BLTouch, based on bugfix-2.0.x"       // M.A.R.C.
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
@@ -47,7 +47,7 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME "Ender 3v2"
+#define MACHINE_NAME "Ender 3 v2"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
