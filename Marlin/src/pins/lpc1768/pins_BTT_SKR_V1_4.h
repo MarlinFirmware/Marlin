@@ -32,20 +32,18 @@
 #endif
 
 //
-// EEPROM SD
+// EEPROM
 //
-//uncomment to enable EEPROM simulation on the SD card
-//#define SDCARD_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  //#define I2C_EEPROM                            // EEPROM on I2C-0
+  //#define SDCARD_EEPROM_EMULATION
+#endif
 
-//
-//EEPROM I2C 
-//
-// uncomment to enable the EEPROM I2C module
-//#define I2C_EEPROM
-//#ifdef E2END
-// #undef E2END
-//#endif
-//#define E2END 0x7FFF // koncová adresa EEPROM 24C256 (32 kB = 8 kB)
+#if ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE              0x8000  // 32Kb
+#elif ENABLED(SDCARD_EEPROM_EMULATION)
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb
+#endif
 
 //
 // Servos
