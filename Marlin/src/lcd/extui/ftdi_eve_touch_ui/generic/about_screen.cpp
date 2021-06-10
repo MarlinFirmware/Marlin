@@ -26,7 +26,7 @@
 #ifdef FTDI_ABOUT_SCREEN
 
 #define GRID_COLS 4
-#define GRID_ROWS 7
+#define GRID_ROWS 8
 
 using namespace FTDI;
 using namespace Theme;
@@ -47,9 +47,9 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #define HEADING_POS BTN_POS(1,2), BTN_SIZE(4,1)
   #define FW_VERS_POS BTN_POS(1,3), BTN_SIZE(4,1)
   #define FW_INFO_POS BTN_POS(1,4), BTN_SIZE(4,1)
-  #define LICENSE_POS BTN_POS(1,5), BTN_SIZE(4,2)
-  #define STATS_POS   BTN_POS(1,7), BTN_SIZE(2,1)
-  #define BACK_POS    BTN_POS(3,7), BTN_SIZE(2,1)
+  #define LICENSE_POS BTN_POS(1,5), BTN_SIZE(4,3)
+  #define STATS_POS   BTN_POS(1,8), BTN_SIZE(2,1)
+  #define BACK_POS    BTN_POS(3,8), BTN_SIZE(2,1)
 
   #define _INSET_POS(x,y,w,h) x + w/10, y, w - w/5, h
   #define INSET_POS(pos) _INSET_POS(pos)
