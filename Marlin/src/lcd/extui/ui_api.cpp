@@ -54,6 +54,7 @@
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
 #include "../../HAL/shared/Delay.h"
+#include "../../MarlinCore.h"
 #include "../../sd/cardreader.h"
 
 #if ENABLED(PRINTCOUNTER)
@@ -105,9 +106,6 @@ namespace ExtUI {
     uint8_t printer_killed : 1;
     #if ENABLED(JOYSTICK)
       uint8_t jogging : 1;
-    #endif
-    #if ENABLED(SDSUPPORT)
-      uint8_t was_sd_printing : 1;
     #endif
   } flags;
 
@@ -263,7 +261,7 @@ namespace ExtUI {
     #define GET_TEMP_ADJUSTMENT(A) A
   #endif
 
-  float getActualTemp_celsius(const heater_t heater) {
+  celsius_float_t getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if ENABLED(HAS_HEATED_BED)
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
@@ -275,11 +273,11 @@ namespace ExtUI {
     }
   }
 
-  float getActualTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getActualTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(extruder - E0));
   }
 
-  float getTargetTemp_celsius(const heater_t heater) {
+  celsius_float_t getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
       #if ENABLED(HAS_HEATED_BED)
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
@@ -291,26 +289,18 @@ namespace ExtUI {
     }
   }
 
-  float getTargetTemp_celsius(const extruder_t extruder) {
+  celsius_float_t getTargetTemp_celsius(const extruder_t extruder) {
     return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 
   float getTargetFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.fanSpeedPercent(fan - FAN0);
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
   }
 
   float getActualFan_percent(const fan_t fan) {
-    #if HAS_FAN
-      return thermalManager.scaledFanSpeedPercent(fan - FAN0);
-    #else
-      UNUSED(fan);
-      return 0;
-    #endif
+    UNUSED(fan);
+    return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
   }
 
   float getAxisPosition_mm(const axis_t axis) {
@@ -579,7 +569,7 @@ namespace ExtUI {
   }
 
   float getAxisSteps_per_mm(const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
@@ -589,7 +579,7 @@ namespace ExtUI {
   }
 
   void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
     planner.refresh_positioning();
   }
@@ -599,7 +589,7 @@ namespace ExtUI {
   }
 
   feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     return planner.settings.max_feedrate_mm_s[E_AXIS_N(extruder - E0)];
   }
 
@@ -608,7 +598,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     planner.set_max_feedrate(E_AXIS_N(extruder - E0), value);
   }
 
@@ -617,7 +607,7 @@ namespace ExtUI {
   }
 
   float getAxisMaxAcceleration_mm_s2(const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
   }
 
@@ -626,7 +616,7 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const_float_t value, const extruder_t extruder) {
-    UNUSED_E(extruder);
+    UNUSED(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 
@@ -699,7 +689,7 @@ namespace ExtUI {
   #endif
 
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
-  int16_t getFlowPercentage(const extruder_t extr)    { return planner.flow_percentage[extr]; }
+  int16_t getFlow_percent(const extruder_t extr)      { return planner.flow_percentage[extr]; }
   feedRate_t getMinFeedrate_mm_s()                    { return planner.settings.min_feedrate_mm_s; }
   feedRate_t getMinTravelFeedrate_mm_s()              { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
@@ -775,6 +765,10 @@ namespace ExtUI {
     int16_t mmToWholeSteps(const_float_t mm, const axis_t axis) {
       const float steps = mm / planner.steps_to_mm[axis];
       return steps > 0 ? CEIL(steps) : FLOOR(steps);
+    }
+
+    float mmFromWholeSteps(int16_t steps, const axis_t axis) {
+      return steps * planner.steps_to_mm[axis];
     }
 
   #endif // BABYSTEPPING
@@ -926,7 +920,7 @@ namespace ExtUI {
       thermalManager.updatePID();
     }
 
-    void startPIDTune(const_float_t temp, extruder_t tool) {
+    void startPIDTune(const celsius_t temp, extruder_t tool) {
       thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
@@ -943,7 +937,7 @@ namespace ExtUI {
       thermalManager.updatePID();
     }
 
-    void startBedPIDTune(const_float_t temp) {
+    void startBedPIDTune(const celsius_t temp) {
       thermalManager.PID_autotune(temp, H_BED, 4, true);
     }
   #endif
@@ -1025,27 +1019,17 @@ namespace ExtUI {
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   void printFile(const char *filename) {
-    UNUSED(filename);
-    TERN_(SDSUPPORT, card.openAndPrintFile(filename));
+    TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
   }
 
   bool isPrintingFromMediaPaused() {
-    return TERN0(SDSUPPORT, isPrintingFromMedia() && !IS_SD_PRINTING());
+    return TERN0(SDSUPPORT, isPrintingFromMedia() && printingIsPaused());
   }
 
-  bool isPrintingFromMedia() {
-    #if ENABLED(SDSUPPORT)
-      // Account for when IS_SD_PRINTING() reports the end of the
-      // print when there is still SD card data in the planner.
-      flags.was_sd_printing = card.isFileOpen() || (flags.was_sd_printing && commandsInQueue());
-      return flags.was_sd_printing;
-    #else
-      return false;
-    #endif
-  }
+  bool isPrintingFromMedia() { return IS_SD_PRINTING(); }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || TERN0(SDSUPPORT, IS_SD_PRINTING())) || print_job_timer.isRunning() || print_job_timer.isPaused();
+    return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
   }
 
   bool isPrintingPaused() {

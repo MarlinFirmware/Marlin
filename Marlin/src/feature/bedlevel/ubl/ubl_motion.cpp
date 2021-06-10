@@ -113,20 +113,22 @@
     const xy_float_t ad = sign * dist;
     const bool use_x_dist = ad.x > ad.y;
 
-    float on_axis_distance = use_x_dist ? dist.x : dist.y,
-          e_position = end.e - start.e,
-          z_position = end.z - start.z;
+    float on_axis_distance = use_x_dist ? dist.x : dist.y;
 
-    const float e_normalized_dist = e_position / on_axis_distance, // Allow divide by zero
-                z_normalized_dist = z_position / on_axis_distance;
+    const float z_normalized_dist = (end.z - start.z) / on_axis_distance; // Allow divide by zero
+    #if HAS_EXTRUDERS
+      const float e_normalized_dist = (end.e - start.e) / on_axis_distance;
+      const bool inf_normalized_flag = isinf(e_normalized_dist);
+    #endif
 
     xy_int8_t icell = istart;
 
     const float ratio = dist.y / dist.x,        // Allow divide by zero
                 c = start.y - ratio * start.x;
 
-    const bool inf_normalized_flag = isinf(e_normalized_dist),
-               inf_ratio_flag = isinf(ratio);
+    const bool inf_ratio_flag = isinf(ratio);
+
+    xyze_pos_t dest; // Stores XYZE for segmented moves
 
     /**
      * Handle vertical lines that stay within one column.
@@ -143,34 +145,36 @@
          * For others the next X is the same so this can continue.
          * Calculate X at the next Y mesh line.
          */
-        const float rx = inf_ratio_flag ? start.x : (next_mesh_line_y - c) / ratio;
+        dest.x = inf_ratio_flag ? start.x : (next_mesh_line_y - c) / ratio;
 
-        float z0 = z_correction_for_x_on_horizontal_mesh_line(rx, icell.x, icell.y)
+        float z0 = z_correction_for_x_on_horizontal_mesh_line(dest.x, icell.x, icell.y)
                    * planner.fade_scaling_factor_for_z(end.z);
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
-        const float ry = mesh_index_to_ypos(icell.y);
+        dest.y = mesh_index_to_ypos(icell.y);
 
         /**
          * Without this check, it's possible to generate a zero length move, as in the case where
          * the line is heading down, starting exactly on a mesh line boundary. Since this is rare
          * it might be fine to remove this check and let planner.buffer_segment() filter it out.
          */
-        if (ry != start.y) {
+        if (dest.y != start.y) {
           if (!inf_normalized_flag) { // fall-through faster than branch
-            on_axis_distance = use_x_dist ? rx - start.x : ry - start.y;
-            e_position = start.e + on_axis_distance * e_normalized_dist;
-            z_position = start.z + on_axis_distance * z_normalized_dist;
+            on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
+            TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
+            dest.z = start.z + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = end.e;
-            z_position = end.z;
+            TERN_(HAS_EXTRUDERS, dest.e = end.e);
+            dest.z = end.z;
           }
 
-          planner.buffer_segment(rx, ry, z_position + z0, e_position, scaled_fr_mm_s, extruder);
+          dest.z += z0;
+          planner.buffer_segment(dest, scaled_fr_mm_s, extruder);
+
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -188,12 +192,13 @@
      */
     if (iadd.y == 0) {      // Horizontal line?
       icell.x += ineg.x;     // Heading left? Just go to the left edge of the cell for the first move.
+
       while (icell.x != iend.x + ineg.x) {
         icell.x += iadd.x;
-        const float rx = mesh_index_to_xpos(icell.x);
-        const float ry = ratio * rx + c;    // Calculate Y at the next X mesh line
+        dest.x = mesh_index_to_xpos(icell.x);
+        dest.y = ratio * dest.x + c;    // Calculate Y at the next X mesh line
 
-        float z0 = z_correction_for_y_on_vertical_mesh_line(ry, icell.x, icell.y)
+        float z0 = z_correction_for_y_on_vertical_mesh_line(dest.y, icell.x, icell.y)
                      * planner.fade_scaling_factor_for_z(end.z);
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
@@ -205,19 +210,20 @@
          * the line is heading left, starting exactly on a mesh line boundary. Since this is rare
          * it might be fine to remove this check and let planner.buffer_segment() filter it out.
          */
-        if (rx != start.x) {
+        if (dest.x != start.x) {
           if (!inf_normalized_flag) {
-            on_axis_distance = use_x_dist ? rx - start.x : ry - start.y;
-            e_position = start.e + on_axis_distance * e_normalized_dist;  // is based on X or Y because this is a horizontal move
-            z_position = start.z + on_axis_distance * z_normalized_dist;
+            on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
+            TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist); // Based on X or Y because the move is horizontal
+            dest.z = start.z + on_axis_distance * z_normalized_dist;
           }
           else {
-            e_position = end.e;
-            z_position = end.z;
+            TERN_(HAS_EXTRUDERS, dest.e = end.e);
+            dest.z = end.z;
           }
 
-          if (!planner.buffer_segment(rx, ry, z_position + z0, e_position, scaled_fr_mm_s, extruder))
-            break;
+          dest.z += z0;
+          if (!planner.buffer_segment(dest, scaled_fr_mm_s, extruder)) break;
+
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -239,57 +245,65 @@
     while (cnt) {
 
       const float next_mesh_line_x = mesh_index_to_xpos(icell.x + iadd.x),
-                  next_mesh_line_y = mesh_index_to_ypos(icell.y + iadd.y),
-                  ry = ratio * next_mesh_line_x + c,    // Calculate Y at the next X mesh line
-                  rx = (next_mesh_line_y - c) / ratio;  // Calculate X at the next Y mesh line
-                                                        // (No need to worry about ratio == 0.
-                                                        //  In that case, it was already detected
-                                                        //  as a vertical line move above.)
+                  next_mesh_line_y = mesh_index_to_ypos(icell.y + iadd.y);
 
-      if (neg.x == (rx > next_mesh_line_x)) { // Check if we hit the Y line first
+      dest.y = ratio * next_mesh_line_x + c;    // Calculate Y at the next X mesh line
+      dest.x = (next_mesh_line_y - c) / ratio;  // Calculate X at the next Y mesh line
+                                                // (No need to worry about ratio == 0.
+                                                //  In that case, it was already detected
+                                                //  as a vertical line move above.)
+
+      if (neg.x == (dest.x > next_mesh_line_x)) { // Check if we hit the Y line first
         // Yes!  Crossing a Y Mesh Line next
-        float z0 = z_correction_for_x_on_horizontal_mesh_line(rx, icell.x - ineg.x, icell.y + iadd.y)
+        float z0 = z_correction_for_x_on_horizontal_mesh_line(dest.x, icell.x - ineg.x, icell.y + iadd.y)
                    * planner.fade_scaling_factor_for_z(end.z);
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
+        dest.y = next_mesh_line_y;
+
         if (!inf_normalized_flag) {
-          on_axis_distance = use_x_dist ? rx - start.x : next_mesh_line_y - start.y;
-          e_position = start.e + on_axis_distance * e_normalized_dist;
-          z_position = start.z + on_axis_distance * z_normalized_dist;
+          on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
+          TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
+          dest.z = start.z + on_axis_distance * z_normalized_dist;
         }
         else {
-          e_position = end.e;
-          z_position = end.z;
+          TERN_(HAS_EXTRUDERS, dest.e = end.e);
+          dest.z = end.z;
         }
-        if (!planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, scaled_fr_mm_s, extruder))
-          break;
+
+        dest.z += z0;
+        if (!planner.buffer_segment(dest, scaled_fr_mm_s, extruder)) break;
+
         icell.y += iadd.y;
         cnt.y--;
       }
       else {
         // Yes!  Crossing a X Mesh Line next
-        float z0 = z_correction_for_y_on_vertical_mesh_line(ry, icell.x + iadd.x, icell.y - ineg.y)
+        float z0 = z_correction_for_y_on_vertical_mesh_line(dest.y, icell.x + iadd.x, icell.y - ineg.y)
                    * planner.fade_scaling_factor_for_z(end.z);
 
         // Undefined parts of the Mesh in z_values[][] are NAN.
         // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
+        dest.x = next_mesh_line_x;
+
         if (!inf_normalized_flag) {
-          on_axis_distance = use_x_dist ? next_mesh_line_x - start.x : ry - start.y;
-          e_position = start.e + on_axis_distance * e_normalized_dist;
-          z_position = start.z + on_axis_distance * z_normalized_dist;
+          on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
+          TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
+          dest.z = start.z + on_axis_distance * z_normalized_dist;
         }
         else {
-          e_position = end.e;
-          z_position = end.z;
+          TERN_(HAS_EXTRUDERS, dest.e = end.e);
+          dest.z = end.z;
         }
 
-        if (!planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, scaled_fr_mm_s, extruder))
-          break;
+        dest.z += z0;
+        if (!planner.buffer_segment(dest, scaled_fr_mm_s, extruder)) break;
+
         icell.x += iadd.x;
         cnt.x--;
       }
@@ -362,15 +376,11 @@
       while (--segments) {
         raw += diff;
         planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-          #if ENABLED(SCARA_FEEDRATE_SCALING)
-            , inv_duration
-          #endif
+          OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
         );
       }
       planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-        #if ENABLED(SCARA_FEEDRATE_SCALING)
-          , inv_duration
-        #endif
+        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
       );
       return false; // Did not set current from destination
     }
@@ -442,11 +452,9 @@
           #endif
         ;
 
-        planner.buffer_line(raw.x, raw.y, raw.z + z_cxcy, raw.e, scaled_fr_mm_s, active_extruder, segment_xyz_mm
-          #if ENABLED(SCARA_FEEDRATE_SCALING)
-            , inv_duration
-          #endif
-        );
+        const float oldz = raw.z; raw.z += z_cxcy;
+        planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, segment_xyz_mm OPTARG(SCARA_FEEDRATE_SCALING, inv_duration) );
+        raw.z = oldz;
 
         if (segments == 0)                        // done with last segment
           return false;                           // didn't set current from destination

@@ -73,4 +73,6 @@ void HAL_pwm_init() {
 
 }
 
+void HAL_reboot() { /* Reset the application state and GPIO */ }
+
 #endif // __PLAT_LINUX__

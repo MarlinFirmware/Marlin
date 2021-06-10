@@ -23,11 +23,11 @@
 
 #include "env_validate.h"
 
-// If you have the Big tree tech driver expansion module, enable HAS_BTT_EXP_MOT
+// If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
-//#define HAS_BTT_EXP_MOT 1
+//#define BTT_MOTOR_EXPANSION
 
-#if BOTH(HAS_WIRED_LCD, HAS_BTT_EXP_MOT)
+#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
   #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY 1
   #else
@@ -105,12 +105,28 @@
 //
 // SD Support
 //
+#ifndef SDCARD_CONNECTION
+  #if HAS_WIRED_LCD
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+#endif
+
+
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
+
+#if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
+  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
+#endif
 
 #if SD_CONNECTION_IS(LCD)
   #define SD_SCK_PIN                       P0_15
   #define SD_MISO_PIN                      P0_17
   #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                  EXP2_07_PIN
+  #define SD_DETECT_PIN              EXP2_04_PIN
+
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                    P0_27
@@ -122,16 +138,15 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-#if HAS_BTT_EXP_MOT
-
-  /**              _____                                      _____
-   *           NC | · · | GND                             NC | · · | GND
-   *           NC | · · | 1.31 (M1EN)            (M2EN) 1.23 | · · | 1.22 (M3EN)
-   * (M1STP) 0.18 | · ·   3.25 (M1DIR)           (M1RX) 1.21 | · ·   1.20 (M1DIAG)
-   * (M2DIR) 0.16 | · · | 3.26 (M2STP)           (M2RX) 1.19 | · · | 1.18 (M2DIAG)
-   * (M3DIR) 0.15 | · · | 0.17 (M3STP)           (M3RX) 0.28 | · · | 1.30 (M3DIAG)
-   *               -----                                      -----
-   *               EXP2                                       EXP1
+#if ENABLED(BTT_MOTOR_EXPANSION)
+  /**       _____                        _____
+   *    NC | . . | GND               NC | . . | GND
+   *    NC | . . | M1EN            M2EN | . . | M3EN
+   * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
+   * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
+   * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
+   *        -----                        -----
+   *        EXP2                         EXP1
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */
@@ -179,4 +194,4 @@
     #define E4_ENABLE_PIN            EXP2_04_PIN
   #endif
 
-#endif // HAS_BTT_EXP_MOT
+#endif // BTT_MOTOR_EXPANSION
