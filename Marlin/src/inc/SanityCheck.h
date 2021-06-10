@@ -577,6 +577,36 @@
 constexpr float arm[] = AXIS_RELATIVE_MODES;
 static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _LOGICAL_AXES_STR "elements.");
 
+#ifdef PTC_SAMPLE_START
+  auto _ptc_sample_start = PTC_SAMPLE_START;
+  constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
+  static_assert( _test_ptc_sample_start != 12.3f , "PTC_SAMPLE_START should not be a float; use whole numbers only.");
+#endif
+
+#ifdef PTC_SAMPLE_RES
+  auto _ptc_sample_res = PTC_SAMPLE_END;
+  constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
+  static_assert( _test_ptc_sample_res != 12.3f , "PTC_SAMPLE_RES should not be a float; use whole numbers only.");
+#endif
+
+#ifdef BTC_SAMPLE_START
+  auto _btc_sample_start = BTC_SAMPLE_START;
+  constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
+  static_assert( _test_btc_sample_start != 12.3f , "BTC_SAMPLE_START should not be a float; use whole numbers only.");
+#endif
+
+#ifdef BTC_SAMPLE_RES
+  auto _btc_sample_res = BTC_SAMPLE_END;
+  constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
+  static_assert( _test_btc_sample_res != 12.3f , "BTC_SAMPLE_RES should not be a float; use whole numbers only.");
+#endif
+
+#ifdef BTC_PROBE_TEMP
+  auto _btc_probe_temp = BTC_PROBE_TEMP;
+  constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
+  static_assert( _test_btc_probe_temp != 12.3f , "BTC_SAMPLE_RES should not be a float; use whole numbers only.");
+#endif
+
 /**
  * Probe temp compensation requirements
  */
