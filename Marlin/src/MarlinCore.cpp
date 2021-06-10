@@ -1119,6 +1119,7 @@ void setup() {
   #endif
 
   #if HAS_FREEZE_PIN
+    SETUP_LOG("FREEZE_PIN");
     SET_INPUT_PULLUP(FREEZE_PIN);
   #endif
 
@@ -1127,7 +1128,8 @@ void setup() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
-  #if defined(JTAGSWD_RESET)
+  #ifdef JTAGSWD_RESET
+    SETUP_LOG("JTAGSWD_RESET");
     JTAGSWD_RESET();
   #endif
 
@@ -1135,8 +1137,10 @@ void setup() {
     delay(10);
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
+      SETUP_LOG("JTAGSWD_DISABLE");
       JTAGSWD_DISABLE();
     #elif defined(JTAG_DISABLE)
+      SETUP_LOG("JTAG_DISABLE");
       JTAG_DISABLE();
     #else
       #error "DISABLE_(DEBUG|JTAG) is not supported for the selected MCU/Board."
