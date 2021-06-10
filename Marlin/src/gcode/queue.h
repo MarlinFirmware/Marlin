@@ -193,7 +193,7 @@ public:
   static void flush_and_request_resend(const serial_index_t serial_ind);
 
   #if ENABLED(BUFFER_MONITORING)
-    /*
+   /**
     * Track buffer underruns
     */
     static uint32_t command_buffer_underruns;
