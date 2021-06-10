@@ -198,7 +198,7 @@ public:
   static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
 
   #if ENABLED(BUFFER_MONITORING)
-    /*
+   /**
     * Track buffer underruns
     */
     static uint32_t command_buffer_underruns;
