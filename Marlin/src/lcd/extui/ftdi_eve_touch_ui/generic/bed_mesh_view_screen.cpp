@@ -69,7 +69,7 @@ void BedMeshViewScreen::onEntry() {
 void BedMeshViewScreen::drawHighlightedPointValue() {
   CommandProcessor cmd;
   cmd.font(Theme::font_medium)
-     .colors(normal_btn)
+     .cmd(COLOR_RGB(bg_text_enabled))
      .text(Z_LABEL_POS, GET_TEXT_F(MSG_MESH_EDIT_Z))
      .font(font_small);
 
@@ -161,7 +161,7 @@ void BedMeshViewScreen::doProbe() {
 void BedMeshViewScreen::doMeshValidation() {
   mydata.count = 0;
   GOTO_SCREEN(StatusScreen);
-  injectCommands_P(PSTR("G28 O\nM117 Heating...\nG26 R X0 Y0"));
+  injectCommands_P(PSTR("M75\nG28 O\nM117 Heating...\nG26 R X0 Y0\nG27\nM77"));
 }
 
 void BedMeshViewScreen::show() {
