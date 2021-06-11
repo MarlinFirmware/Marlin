@@ -348,6 +348,12 @@
   #define E3DTitan
 #endif
 
+#if ANY(MachineCR6, MachineCR6Max)
+  #if NONE(ABL_UBL, ABL_BI)
+    #define ABL_BI
+  #endif
+#endif
+
 #if ENABLED(OriginalCrealitySquareBoard)
   #define SD_DETECT_PIN -1
 #endif
