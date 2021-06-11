@@ -159,6 +159,7 @@
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set Status LED Color as R<red> U<green> B<blue> W<white> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, PCA9533, or PCA9632).
+ * M154 - Auto-report position with interval of S<seconds>. (Requires AUTO_REPORT_POSITION)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
@@ -313,7 +314,12 @@
   #define HAS_FAST_MOVES 1
 #endif
 
-enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
+enum AxisRelative : uint8_t {
+  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K)
+  #if HAS_EXTRUDERS
+    , E_MODE_ABS, E_MODE_REL
+  #endif
+};
 
 extern const char G28_STR[];
 
@@ -323,23 +329,31 @@ public:
   static uint8_t axis_relative;
 
   static inline bool axis_is_relative(const AxisEnum a) {
-    if (a == E_AXIS) {
-      if (TEST(axis_relative, E_MODE_REL)) return true;
-      if (TEST(axis_relative, E_MODE_ABS)) return false;
-    }
+    #if HAS_EXTRUDERS
+      if (a == E_AXIS) {
+        if (TEST(axis_relative, E_MODE_REL)) return true;
+        if (TEST(axis_relative, E_MODE_ABS)) return false;
+      }
+    #endif
     return TEST(axis_relative, a);
   }
   static inline void set_relative_mode(const bool rel) {
-    axis_relative = rel ? _BV(REL_X) | _BV(REL_Y) | _BV(REL_Z) | _BV(REL_E) : 0;
+    axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
+      | _BV(REL_E),
+      | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
+      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K)
+    )) : 0;
   }
-  static inline void set_e_relative() {
-    CBI(axis_relative, E_MODE_ABS);
-    SBI(axis_relative, E_MODE_REL);
-  }
-  static inline void set_e_absolute() {
-    CBI(axis_relative, E_MODE_REL);
-    SBI(axis_relative, E_MODE_ABS);
-  }
+  #if HAS_EXTRUDERS
+    static inline void set_e_relative() {
+      CBI(axis_relative, E_MODE_ABS);
+      SBI(axis_relative, E_MODE_REL);
+    }
+    static inline void set_e_absolute() {
+      CBI(axis_relative, E_MODE_REL);
+      SBI(axis_relative, E_MODE_ABS);
+    }
+  #endif
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
     /**
@@ -378,7 +392,7 @@ public:
   static void process_subcommands_now(char * gcode);
 
   static inline void home_all_axes(const bool keep_leveling=false) {
-    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
+    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -632,10 +646,13 @@ private:
   #if ENABLED(PSU_CONTROL)
     static void M80();
   #endif
-
   static void M81();
-  static void M82();
-  static void M83();
+
+  #if HAS_EXTRUDERS
+    static void M82();
+    static void M83();
+  #endif
+
   static void M85();
   static void M92();
 
@@ -643,9 +660,10 @@ private:
     static void M100();
   #endif
 
-  #if EXTRUDERS
-    static void M104();
-    static void M109();
+  #if HAS_EXTRUDERS
+    static void M104_M109(const bool isM109);
+    FORCE_INLINE static void M104() { M104_M109(false); }
+    FORCE_INLINE static void M109() { M104_M109(true); }
   #endif
 
   static void M105();
@@ -673,7 +691,11 @@ private:
 
   static void M114();
   static void M115();
-  static void M117();
+
+  #if HAS_STATUS_MESSAGE
+    static void M117();
+  #endif
+
   static void M118();
   static void M119();
   static void M120();
@@ -695,8 +717,9 @@ private:
   #endif
 
   #if HAS_HEATED_BED
-    static void M140();
-    static void M190();
+    static void M140_M190(const bool isM190);
+    FORCE_INLINE static void M140() { M140_M190(false); }
+    FORCE_INLINE static void M190() { M140_M190(true); }
   #endif
 
   #if HAS_HEATED_CHAMBER
@@ -719,6 +742,10 @@ private:
 
   #if ENABLED(HAS_COLOR_LEDS)
     static void M150();
+  #endif
+
+  #if ENABLED(AUTO_REPORT_POSITION)
+    static void M154();
   #endif
 
   #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
@@ -771,7 +798,7 @@ private:
 
   static void M220();
 
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     static void M221();
   #endif
 

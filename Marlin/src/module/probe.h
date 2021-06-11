@@ -110,7 +110,7 @@ public:
 
   #else
 
-    static constexpr xyz_pos_t offset = xyz_pos_t({ 0, 0, 0 }); // See #16767
+    static constexpr xyz_pos_t offset = xyz_pos_t(LINEAR_AXIS_ARRAY(0, 0, 0, 0, 0, 0)); // See #16767
 
     static bool set_deployed(const bool) { return false; }
 
@@ -222,20 +222,20 @@ public:
           #define VALIDATE_PROBE_PT(N) static_assert(Probe::build_time::can_reach(xy_pos_t{PROBE_PT_##N##_X, PROBE_PT_##N##_Y}), \
             "PROBE_PT_" STRINGIFY(N) "_(X|Y) is unreachable using default NOZZLE_TO_PROBE_OFFSET and PROBING_MARGIN");
           VALIDATE_PROBE_PT(1); VALIDATE_PROBE_PT(2); VALIDATE_PROBE_PT(3);
-          points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
-          points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
-          points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);
+          points[0] = xy_float_t({ PROBE_PT_1_X, PROBE_PT_1_Y });
+          points[1] = xy_float_t({ PROBE_PT_2_X, PROBE_PT_2_Y });
+          points[2] = xy_float_t({ PROBE_PT_3_X, PROBE_PT_3_Y });
         #else
           #if IS_KINEMATIC
             constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
                             COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
-            points[0].set((X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0);
-            points[1].set((X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120);
-            points[2].set((X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240);
+            points[0] = xy_float_t({ (X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0 });
+            points[1] = xy_float_t({ (X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120 });
+            points[2] = xy_float_t({ (X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240 });
           #else
-            points[0].set(min_x(), min_y());
-            points[1].set(max_x(), min_y());
-            points[2].set((min_x() + max_x()) / 2, max_y());
+            points[0] = xy_float_t({ min_x(), min_y() });
+            points[1] = xy_float_t({ max_x(), min_y() });
+            points[2] = xy_float_t({ (min_x() + max_x()) / 2, max_y() });
           #endif
         #endif
       }
