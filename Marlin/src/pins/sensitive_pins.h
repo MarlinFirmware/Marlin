@@ -187,8 +187,13 @@
   #else
     #define _I_MS3
   #endif
+  #if PIN_EXISTS(I_ENABLE)
+    #define _I_ENABLE_PIN I_ENABLE_PIN,
+  #else
+    #define _I_ENABLE_PIN
+  #endif
 
-  #define _I_PINS I_STEP_PIN, I_DIR_PIN, I_ENABLE_PIN, _I_MIN _I_MAX _I_MS1 _I_MS2 _I_MS3 _I_CS
+  #define _I_PINS I_STEP_PIN, I_DIR_PIN, _I_ENABLE_PIN _I_MIN _I_MAX _I_MS1 _I_MS2 _I_MS3 _I_CS
 
 #else
 
@@ -228,8 +233,13 @@
   #else
     #define _J_MS3
   #endif
+  #if PIN_EXISTS(J_ENABLE)
+    #define _J_ENABLE_PIN J_ENABLE_PIN,
+  #else
+    #define _J_ENABLE_PIN
+  #endif
 
-  #define _J_PINS J_STEP_PIN, J_DIR_PIN, J_ENABLE_PIN, _J_MIN _J_MAX _J_MS1 _J_MS2 _J_MS3 _J_CS
+  #define _J_PINS J_STEP_PIN, J_DIR_PIN, _J_ENABLE_PIN _J_MIN _J_MAX _J_MS1 _J_MS2 _J_MS3 _J_CS
 
 #else
 
@@ -269,8 +279,13 @@
   #else
     #define _K_MS3
   #endif
+  #if PIN_EXISTS(K_ENABLE)
+    #define _K_ENABLE_PIN K_ENABLE_PIN,
+  #else
+    #define _K_ENABLE_PIN
+  #endif
 
-  #define _K_PINS K_STEP_PIN, K_DIR_PIN, K_ENABLE_PIN, _K_MIN _K_MAX _K_MS1 _K_MS2 _K_MS3 _K_CS
+  #define _K_PINS K_STEP_PIN, K_DIR_PIN, _K_ENABLE_PIN _K_MIN _K_MAX _K_MS1 _K_MS2 _K_MS3 _K_CS
 
 #else
 
@@ -577,30 +592,32 @@
 #define _H6_PINS
 #define _H7_PINS
 
+#define DIO_PIN(P) TERN(TARGET_LPC1768, P, analogInputToDigitalPin(P))
+
 #if HAS_HOTEND
   #undef _H0_PINS
-  #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
+  #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, DIO_PIN(TEMP_0_PIN),
   #if HAS_MULTI_HOTEND
     #undef _H1_PINS
-    #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
+    #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, DIO_PIN(TEMP_1_PIN),
     #if HOTENDS > 2
       #undef _H2_PINS
-      #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
+      #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, DIO_PIN(TEMP_2_PIN),
       #if HOTENDS > 3
         #undef _H3_PINS
-        #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
+        #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, DIO_PIN(TEMP_3_PIN),
         #if HOTENDS > 4
           #undef _H4_PINS
-          #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
+          #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, DIO_PIN(TEMP_4_PIN),
           #if HOTENDS > 5
             #undef _H5_PINS
-            #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
+            #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, DIO_PIN(TEMP_5_PIN),
             #if HOTENDS > 6
               #undef _H6_PINS
-              #define _H6_PINS HEATER_6_PIN, E6_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_6_PIN),
+              #define _H6_PINS HEATER_6_PIN, E6_AUTO_FAN_PIN, DIO_PIN(TEMP_6_PIN),
               #if HOTENDS > 7
                 #undef _H7_PINS
-                #define _H7_PINS HEATER_7_PIN, E7_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_7_PIN),
+                #define _H7_PINS HEATER_7_PIN, E7_AUTO_FAN_PIN, DIO_PIN(TEMP_7_PIN),
               #endif // HOTENDS > 7
             #endif // HOTENDS > 6
           #endif // HOTENDS > 5
@@ -809,13 +826,13 @@
 #endif
 
 #if TEMP_SENSOR_BED && PINS_EXIST(TEMP_BED, HEATER_BED)
-  #define _BED_PINS HEATER_BED_PIN, analogInputToDigitalPin(TEMP_BED_PIN),
+  #define _BED_PINS HEATER_BED_PIN, DIO_PIN(TEMP_BED_PIN),
 #else
   #define _BED_PINS
 #endif
 
 #if TEMP_SENSOR_CHAMBER && PIN_EXISTS(TEMP_CHAMBER)
-  #define _CHAMBER_TEMP analogInputToDigitalPin(TEMP_CHAMBER_PIN),
+  #define _CHAMBER_TEMP DIO_PIN(TEMP_CHAMBER_PIN),
 #else
   #define _CHAMBER_TEMP
 #endif
@@ -831,17 +848,15 @@
 #endif
 
 #if TEMP_SENSOR_COOLER && PIN_EXISTS(TEMP_COOLER)
-  #define _COOLER_TEMP analogInputToDigitalPin(TEMP_COOLER_PIN),
+  #define _COOLER_TEMP DIO_PIN(TEMP_COOLER_PIN),
 #else
   #define _COOLER_TEMP
 #endif
-
 #if TEMP_SENSOR_COOLER && PIN_EXISTS(COOLER)
   #define _COOLER COOLER_PIN,
 #else
   #define _COOLER
 #endif
-
 #if TEMP_SENSOR_COOLER && PINS_EXIST(TEMP_COOLER, COOLER_AUTO_FAN)
   #define _COOLER_FAN COOLER_AUTO_FAN_PIN,
 #else
@@ -852,11 +867,30 @@
   #define HAL_SENSITIVE_PINS
 #endif
 
-#define SENSITIVE_PINS { \
+#ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
+  #define _SP_END
+#else
+  #define _SP_END -2
+
+  // Move a regular pin in front to the end
+  template<pin_t F, pin_t ...D>
+  struct OnlyPins : OnlyPins<D..., F> { };
+
+  // Remove a -1 from the front
+  template<pin_t ...D>
+  struct OnlyPins<-1, D...> : OnlyPins<D...> { };
+
+  // Remove -2 from the front, emit the rest, cease propagation
+  template<pin_t ...D>
+  struct OnlyPins<_SP_END, D...> { static constexpr pin_t table[sizeof...(D)] PROGMEM = { D... }; };
+#endif
+
+#define SENSITIVE_PINS \
   _X_PINS _Y_PINS _Z_PINS _I_PINS _J_PINS _K_PINS \
   _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS _Z4_PINS _Z_PROBE \
   _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS _E6_PINS _E7_PINS \
   _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS _H6_PINS _H7_PINS \
   _PS_ON _FAN0 _FAN1 _FAN2 _FAN3 _FAN4 _FAN5 _FAN6 _FAN7 _FANC \
-  _BED_PINS _COOLER _CHAMBER_TEMP _CHAMBER_HEATER _CHAMBER_FAN HAL_SENSITIVE_PINS \
-}
+  _BED_PINS _CHAMBER_TEMP _CHAMBER_HEATER _CHAMBER_FAN \
+  _COOLER_TEMP _COOLER _COOLER_FAN HAL_SENSITIVE_PINS \
+  _SP_END
