@@ -1,4 +1,4 @@
-/**
+sd/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -30,12 +30,24 @@
 #ifndef BOARD_CUSTOM_BUILD_FLAGS
   #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
 #endif
-
-//
 // SD Connection
 //
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION ONBOARD
+#endif
+
+//
+// EEPROM
+//
+#if NO_EEPROM_SELECTED
+  //#define I2C_EEPROM                            // EEPROM on I2C-0
+  //#define SDCARD_EEPROM_EMULATION
+#endif
+
+#if ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE              0x8000  // 32Kb
+#elif ENABLED(SDCARD_EEPROM_EMULATION)
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb
 #endif
 
 //

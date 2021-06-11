@@ -70,7 +70,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_ABOUT_TOUCH_PANEL_2      = WEBSITE_URL;
   PROGMEM Language_Str MSG_LICENSE                  = u8"This program is free software: you can redistribute it and/or modify it under the terms of "
                                                         "the GNU General Public License as published by the Free Software Foundation, either version 3 "
-                                                        "of the License, or (at your option) any later version.\n\nTo view a copy of the GNU General "
+                                                        "of the License, or (at your option) any later version. To view a copy of the GNU General "
                                                         "Public License, go to the following location: https://www.gnu.org/licenses.";
   PROGMEM Language_Str MSG_RUNOUT_1                 = u8"Runout 1";
   PROGMEM Language_Str MSG_RUNOUT_2                 = u8"Runout 2";
@@ -130,7 +130,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_EEPROM_RESTORED          = u8"Settings restored from backup";
   PROGMEM Language_Str MSG_EEPROM_RESET             = u8"Settings restored to default";
   PROGMEM Language_Str MSG_EEPROM_SAVED             = u8"Settings saved!";
-  PROGMEM Language_Str MSG_EEPROM_SAVE_PROMPT       = u8"Do you wish to save these settings as defaults?";
+  PROGMEM Language_Str MSG_EEPROM_SAVE_PROMPT       = u8"Do you wish to save these settings for next power-on?";
   PROGMEM Language_Str MSG_EEPROM_RESET_WARNING     = u8"Are you sure? Customizations will be lost.";
 
   PROGMEM Language_Str MSG_PASSCODE_REJECTED        = u8"Wrong passcode!";
