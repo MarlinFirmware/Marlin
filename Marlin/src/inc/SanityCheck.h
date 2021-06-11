@@ -1735,9 +1735,11 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #endif
 #endif
 
-#if ENABLED(REDUNDANT_COOLING_FAN)
-  #if DUAL_PART_COOLING_FAN >= FAN_COUNT
-    #error "The selected board doesn't support enough user-controlled fans. Reduce DUAL_PART_COOLING_FAN."
+#ifdef REDUNDANT_COOLING_FAN
+  #if FAN_COUNT < 2
+    #error "REDUNDANT_COOLING_FAN requires at least one unused PWM fan."
+  #else
+    static_assert(WITHIN(REDUNDANT_COOLING_FAN, 1, FAN_COUNT - 1), "REDUNDANT_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
   #endif
 #endif
 

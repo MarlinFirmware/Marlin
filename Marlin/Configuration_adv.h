@@ -527,12 +527,9 @@
 #endif
 
 /**
- * Enable a second fan for part cooling
+ * Use one of the PWM fans as a redundant cooling fan
  */
-//#define REDUNDANT_COOLING_FAN
-#if ENABLED(REDUNDANT_COOLING_FAN)
-  #define DUAL_PART_COOLING_FAN 2 // Define the number of the fan to use, eg FAN2 set 2, FAN1 set 1
-#endif
+//#define REDUNDANT_COOLING_FAN 2   // Index of the fan to sync with FAN 0.
 
 // @section extruder
 
