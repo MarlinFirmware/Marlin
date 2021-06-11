@@ -1802,7 +1802,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#if NONE(MachineCR10Orig, SKRMiniE3V2) || ENABLED(MelziHostOnly)
+#if NONE(MachineCR10Orig, SKRMiniE3V2, MachineCR6, MachineCR6Max) || ENABLED(MelziHostOnly)
   #define S_CURVE_ACCELERATION
 #endif
 
@@ -2349,6 +2349,13 @@
     #define Y_MAX_POS Y_BED_SIZE
     #define Z_MAX_POS 250
     #define ClipClearance 5
+  #elif ENABLED(MachineCR6Max)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define X_MAX_POS 410
+    #define Y_MAX_POS 404
+    #define Z_MAX_POS 405
+    #define ClipClearance 5
   #elif ANY(MachineEnder3, MachineEnder3V2)
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
@@ -2459,9 +2466,12 @@
 #elif ENABLED(TOUCH_MI_PROBE)
   #define X_MIN_POS -4
   #define Y_MIN_POS -10
-#elif ANY(MachineCR6, MachineCR6Max)
+#elif ENABLED(MachineCR6)
   #define X_MIN_POS -5
   #define Y_MIN_POS -2
+#elif ENABLED(MachineCR6Max)
+  #define X_MIN_POS -10
+  #define Y_MIN_POS -3
 #else
   #define X_MIN_POS 0
   #define Y_MIN_POS 0
@@ -2731,6 +2741,8 @@
 #elif ENABLED(MeshStd)
   #if ENABLED(MachineCR6)
      #define GRID_MAX_POINTS_X 4
+  #elif ENABLED(MachineCR6Max)
+    #define GRID_MAX_POINTS_X 7
   #elif ENABLED(ABL_UBL)
     #define GRID_MAX_POINTS_X 6
   #else
