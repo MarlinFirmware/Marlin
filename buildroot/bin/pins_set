@@ -6,6 +6,6 @@ NAM=${PINPATH[1]}
 PIN=$2
 VAL=$3
 
-SED=$(which gsed || which sed)
+SED=$(which gsed sed | head -n1)
 eval "${SED} -i '/^[[:blank:]]*\(\/\/\)*[[:blank:]]*\(#define \+${PIN}\b\).*$/{s//\2 ${VAL}/;h};\${x;/./{x;q0};x;q9}' Marlin/src/pins/$DIR/pins_${NAM}.h" ||
 (echo "ERROR: pins_set Can't find ${PIN}" >&2 && exit 9)
