@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(__AVR_ATmega1281__) && !defined(__AVR_ATmega2561__)
+#if NOT_TARGET(__AVR_ATmega1281__, __AVR_ATmega2561__)
   #error "Oops! Select 'Silvergate' in 'Tools > Board.'"
 #endif
 
@@ -72,7 +72,7 @@
 #define HEATER_BED_PIN                         8
 #define TEMP_BED_PIN                           6
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #if ENABLED(U8GLIB_ST7920)                      // SPI GLCD 12864 ST7920
     #define LCD_PINS_RS                       30
     #define LCD_PINS_ENABLE                   20

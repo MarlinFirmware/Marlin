@@ -16,14 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(__STM32F1__) && !defined(__STM32F4__)
-  #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 /**
  * 2017 Victor Perez Marlin for stm32f1 test
@@ -31,6 +29,8 @@
 
 #define BOARD_INFO_NAME      "Chitu3D V5"
 #define DEFAULT_MACHINE_NAME "STM32F103ZET6"
+
+#define BOARD_NO_NATIVE_USB
 
 #define DISABLE_JTAG
 
@@ -44,7 +44,7 @@
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB, but will use 2x more (4KB)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
 #else
-  #define MARLIN_EEPROM_SIZE 0x800U               // On SD, Limit to 2KB, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
 #endif
 
 //
@@ -94,7 +94,7 @@
 //
 #define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
 #define FAN_PIN                             PG13  // FAN
-#define FAN_PIN_2                           PG14
+#define FAN2_PIN                            PG14
 
 //
 // Misc
@@ -104,121 +104,84 @@
 //#define POWER_LOSS_PIN                    -1
 #define FIL_RUNOUT_PIN                      PA15
 
+// SPI Flash
+#define HAS_SPI_FLASH                          1
+#if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE                0x200000  // 2MB
+#endif
+
+// SPI 2
+#define W25QXX_CS_PIN                       PB12
+#define W25QXX_MOSI_PIN                     PB15
+#define W25QXX_MISO_PIN                     PB14
+#define W25QXX_SCK_PIN                      PB13
+
 //
 // TronXY TFT Support
 //
-//#define FSMC_GRAPHICAL_TFT
-//#define TOUCH_BUTTONS
 
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define FSMC_UPSCALE 3
-  #define LCD_FULL_PIXEL_WIDTH 480
-  #define LCD_PIXEL_OFFSET_X 48
-  #define LCD_FULL_PIXEL_HEIGHT 320
-  #define LCD_PIXEL_OFFSET_Y 48
+#if HAS_FSMC_TFT
 
-  #define LCD_RESET_PIN                     PF11
-  #define LCD_BACKLIGHT_PIN                 PD13
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #if ENABLED(TOUCH_BUTTONS)
-    #define TOUCH_CS_PIN                    PB7   // SPI1_NSS
-    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
-    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
-    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
-
-    #define BUTTON_DELAY_EDIT 50                  // (ms) Button repeat delay for edit screens
-    #define BUTTON_DELAY_MENU 250                 // (ms) Button repeat delay for menus
-
-    #define XPT2046_X_CALIBRATION  -12316
-    #define XPT2046_Y_CALIBRATION   8981
-    #define XPT2046_X_OFFSET        340
-    #define XPT2046_Y_OFFSET        -20
-  #endif
-#endif
-
-#define SPI_FLASH_SIZE 0x200000                   // 2MB
-
-#if ENABLED(TFT_LVGL_UI)
-  #define HAS_SPI_FLASH_FONT 0
-  #define HAS_GCODE_PREVIEW 1
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 0
-  #define HAS_LANG_SELECT_SCREEN 0
-  #define HAS_BAK_VIEW_IN_FLASH 0
-
-  //SPI 2
-  #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  // Shared FSMC
 
   #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
-  // #define TOUCH_INT_PIN                   PB6
 
-  #define SPI_TFT_CS_PIN            TOUCH_CS_PIN
-  #define SPI_TFT_SCK_PIN          TOUCH_SCK_PIN
-  #define SPI_TFT_MISO_PIN        TOUCH_MISO_PIN
-  #define SPI_TFT_MOSI_PIN        TOUCH_MOSI_PIN
-  #define SPI_TFT_DC_PIN                    PB6
-  #define SPI_TFT_RST_PIN                   PF11
-
-  #define LCD_RESET_PIN                     PF11
-  #define LCD_BACKLIGHT_PIN                 PD13
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
+  #define TFT_RESET_PIN                     PF11
+  #define TFT_BACKLIGHT_PIN                 PD13
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define LCD_FULL_PIXEL_WIDTH 480
-  #define LCD_PIXEL_OFFSET_X 48
-  #define LCD_FULL_PIXEL_HEIGHT 320
-  #define LCD_PIXEL_OFFSET_Y 48
+#endif
 
-  #define LCD_PIXEL_HEIGHT 320
-  #define LCD_PIXEL_WIDTH 480
+#if ENABLED(TFT_LVGL_UI)
+  // LVGL
+  #define HAS_SPI_FLASH_FONT                   1
+  #define HAS_GCODE_PREVIEW                    1
+  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH      0
+  #define HAS_LANG_SELECT_SCREEN               1
+  #define HAS_BAK_VIEW_IN_FLASH                0
+  #define HAS_LOGO_IN_FLASH                    0
+#elif ENABLED(TFT_COLOR_UI)
+  // Color UI
+  #define TFT_DRIVER                     ILI9488
+  #define TFT_BUFFER_SIZE                  14400
+#endif
 
-  #define XPT2046_X_CALIBRATION  -12316
-  #define XPT2046_Y_CALIBRATION   8981
-  #define XPT2046_X_OFFSET        340
-  #define XPT2046_Y_OFFSET        -20
-
-  #define USE_XPT2046       1
-  #define XPT2046_XY_SWAP   0
-  #define XPT2046_X_INV     1
-  #define XPT2046_Y_INV     0
-
-  #define XPT2046_HOR_RES   480
-  #define XPT2046_VER_RES   320
-  #define XPT2046_X_MIN     140
-  #define XPT2046_Y_MIN     200
-  #define XPT2046_X_MAX     1900
-  #define XPT2046_Y_MAX     1900
-  #define XPT2046_AVG       4
-  #define XPT2046_INV       0
+// XPT2046 Touch Screen calibration
+#if ANY(TFT_LVGL_UI, TFT_COLOR_UI, TFT_CLASSIC_UI)
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X           -17181
+  #endif
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y            11434
+  #endif
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                   501
+  #endif
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                    -9
+  #endif
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
-// We nee to use the SPI2
-#define ENABLE_SPI2
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SS_PIN                              PB12
+// Needs to use SPI2
+#define SPI_DEVICE                             2
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
+#define SD_SS_PIN                           PB12
 
 //
 // SD Card
 //
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       -1    // PF0, but it isn't connected
-#define SDIO_CLOCK 4500000
-#define SDIO_READ_RETRIES 16
+#define SDIO_CLOCK                       4500000
+#define SDIO_READ_RETRIES                     16

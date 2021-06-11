@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, BACKLASH_GCODE)
 
-#include "menu.h"
+#include "menu_item.h"
 
 #include "../../feature/backlash.h"
 
@@ -38,10 +38,28 @@ void menu_backlash() {
 
   EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
 
+  #if DISABLED(CORE_BACKLASH) || ENABLED(MARKFORGED_XY)
+    #define _CAN_CALI AXIS_CAN_CALIBRATE
+  #else
+    #define _CAN_CALI(A) true
+  #endif
   #define EDIT_BACKLASH_DISTANCE(N) EDIT_ITEM_FAST(float43, MSG_BACKLASH_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
-  if (AXIS_CAN_CALIBRATE(A)) EDIT_BACKLASH_DISTANCE(A);
-  if (AXIS_CAN_CALIBRATE(B)) EDIT_BACKLASH_DISTANCE(B);
-  if (AXIS_CAN_CALIBRATE(C)) EDIT_BACKLASH_DISTANCE(C);
+  if (_CAN_CALI(A)) EDIT_BACKLASH_DISTANCE(A);
+  #if HAS_Y_AXIS && _CAN_CALI(B)
+    EDIT_BACKLASH_DISTANCE(B);
+  #endif
+  #if HAS_Z_AXIS && _CAN_CALI(C)
+    EDIT_BACKLASH_DISTANCE(C);
+  #endif
+  #if LINEAR_AXES >= 4 && _CAN_CALI(I)
+    EDIT_BACKLASH_DISTANCE(I);
+  #endif
+  #if LINEAR_AXES >= 5 && _CAN_CALI(J)
+    EDIT_BACKLASH_DISTANCE(J);
+  #endif
+  #if LINEAR_AXES >= 6 && _CAN_CALI(K)
+    EDIT_BACKLASH_DISTANCE(K);
+  #endif
 
   #ifdef BACKLASH_SMOOTHING_MM
     EDIT_ITEM_FAST(float43, MSG_BACKLASH_SMOOTHING, &backlash.smoothing_mm, 0.0f, 9.9f);
@@ -50,4 +68,4 @@ void menu_backlash() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && BACKLASH_COMPENSATION
+#endif // HAS_LCD_MENU && BACKLASH_GCODE

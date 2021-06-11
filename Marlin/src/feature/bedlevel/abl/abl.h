@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,7 +37,7 @@ void refresh_bed_level();
 #endif
 
 #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
-  void bilinear_line_to_destination(const feedRate_t &scaled_fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
+  void bilinear_line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
 #endif
 
 #define _GET_MESH_X(I) float(bilinear_start.x + (I) * bilinear_grid_spacing.x)

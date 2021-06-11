@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef ARDUINO_ARCH_STM32F1
@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
-#if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
+#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
 
 #include "sdio.h"
 
@@ -108,7 +108,7 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
     SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
     dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
     return false;
-	}
+  }
 
   //Wait for DMA transaction to complete
   while ((DMA2_BASE->ISR & (DMA_ISR_TEIF4|DMA_ISR_TCIF4)) == 0 ) { /* wait */ }

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,8 +27,6 @@
 #include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
-
-extern const char SP_Y_STR[], SP_Z_STR[];
 
 /**
  * M851: Set the nozzle-to-probe offsets in current units
@@ -60,7 +58,7 @@ void GcodeSuite::M851() {
       if (WITHIN(x, -(X_BED_SIZE), X_BED_SIZE))
         offs.x = x;
       else {
-        SERIAL_ECHOLNPAIR("?X out of range (-", int(X_BED_SIZE), " to ", int(X_BED_SIZE), ")");
+        SERIAL_ECHOLNPAIR("?X out of range (-", X_BED_SIZE, " to ", X_BED_SIZE, ")");
         ok = false;
       }
     #else
@@ -74,7 +72,7 @@ void GcodeSuite::M851() {
       if (WITHIN(y, -(Y_BED_SIZE), Y_BED_SIZE))
         offs.y = y;
       else {
-        SERIAL_ECHOLNPAIR("?Y out of range (-", int(Y_BED_SIZE), " to ", int(Y_BED_SIZE), ")");
+        SERIAL_ECHOLNPAIR("?Y out of range (-", Y_BED_SIZE, " to ", Y_BED_SIZE, ")");
         ok = false;
       }
     #else
@@ -87,7 +85,7 @@ void GcodeSuite::M851() {
     if (WITHIN(z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
       offs.z = z;
     else {
-      SERIAL_ECHOLNPAIR("?Z out of range (", int(Z_PROBE_OFFSET_RANGE_MIN), " to ", int(Z_PROBE_OFFSET_RANGE_MAX), ")");
+      SERIAL_ECHOLNPAIR("?Z out of range (", Z_PROBE_OFFSET_RANGE_MIN, " to ", Z_PROBE_OFFSET_RANGE_MAX, ")");
       ok = false;
     }
   }

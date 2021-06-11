@@ -16,23 +16,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef __STM32F1__
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define DEFAULT_MACHINE_NAME "3D Printer"
 
 #define BOARD_INFO_NAME   "FYSETC Cheetah"
 #define BOARD_WEBSITE_URL "fysetc.com"
-// https://github.com/FYSETC/Cheetah
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+
+#define BOARD_NO_NATIVE_USB
 
 #define DISABLE_JTAG
 
@@ -79,10 +78,26 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
-#define X_HARDWARE_SERIAL  MSerial2
-#define Y_HARDWARE_SERIAL  MSerial2
-#define Z_HARDWARE_SERIAL  MSerial2
-#define E0_HARDWARE_SERIAL MSerial2
+#if HAS_TMC_UART
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
+
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  1
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  2
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 3
+  #endif
+#endif
 
 //
 // Heaters / Fans
@@ -130,10 +145,10 @@
 * Note: Pin 4 on the Cheetah board is assigned to an I/O, it is assigned to RESET on the Ender-3 board.
 */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC9
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #define DOGLCD_A0                       PB14
     #define DOGLCD_CS                       PB12
     #define DOGLCD_SCK                      PB13
@@ -151,9 +166,9 @@
   #define LCD_PINS_D4                       PB13  // SCLK
   #define LCD_PINS_ENABLE                   PB15  // DATA MOSI
 
-  //#define LCD_CONTRAST_INIT 190
+  //#define LCD_CONTRAST_INIT                190
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11
     #define BTN_ENC                         PC12
@@ -172,6 +187,6 @@
     #define CLCD_SOFT_SPI_MISO              PB14
     #define CLCD_SOFT_SPI_SCLK              PB13
   #else
-    #define CLCD_SPI_BUS 2
+    #define CLCD_SPI_BUS                       2
   #endif
 #endif

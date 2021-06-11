@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -55,5 +55,5 @@
 
 void PCA9533_init();
 void PCA9533_reset();
-void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue);
+void PCA9533_set_rgb(uint8_t red, uint8_t green, uint8_t blue);
 void PCA9533_setOff();

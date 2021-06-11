@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../../inc/MarlinConfig.h"
@@ -34,7 +34,9 @@
  *  U<angle> - Stowed Angle
  */
 void GcodeSuite::M281() {
+
   if (!parser.seenval('P')) return;
+
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
     #if ENABLED(BLTOUCH)
@@ -53,16 +55,14 @@ void GcodeSuite::M281() {
       angle_change = true;
     }
     if (!angle_change) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(" Servo ", servo_index,
-                        " L", servo_angles[servo_index][0],
-                        " U", servo_angles[servo_index][1]);
+      SERIAL_ECHO_MSG(" Servo ", servo_index,
+                      " L", servo_angles[servo_index][0],
+                      " U", servo_angles[servo_index][1]);
     }
   }
-  else {
-    SERIAL_ERROR_START();
-    SERIAL_ECHOLNPAIR("Servo ", servo_index, " out of range");
-  }
+  else
+    SERIAL_ERROR_MSG("Servo ", servo_index, " out of range");
+
 }
 
 #endif // EDITABLE_SERVO_ANGLES

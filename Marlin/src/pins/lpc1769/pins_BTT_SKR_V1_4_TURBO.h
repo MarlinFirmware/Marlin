@@ -16,15 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #define BOARD_INFO_NAME "BTT SKR V1.4 TURBO"
-#define SKR_HAS_LPC1769
 
 //
 // Include SKR 1.4 pins
 //
+#define REQUIRE_LPC1769
 #include "../lpc1768/pins_BTT_SKR_V1_4.h"

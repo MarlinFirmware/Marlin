@@ -16,10 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+/**
+ * HAL Servo for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
+ */
 
 #include <Servo.h>
 

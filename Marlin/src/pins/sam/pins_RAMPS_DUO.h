@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -43,14 +43,9 @@
  *       A15 | A11
  */
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
-
 #define BOARD_INFO_NAME "RAMPS Duo"
 
-#define IS_RAMPS_DUO
-
+#define ALLOW_SAM3X8E
 #include "../ramps/pins_RAMPS.h"
 
 //
@@ -76,9 +71,9 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
-  #if BOTH(NEWPANEL, PANEL_ONE)
+  #if BOTH(IS_NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
     #define LCD_PINS_D4                       68
 
@@ -89,7 +84,7 @@
     #define LCD_PINS_D7                       67
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
@@ -115,7 +110,7 @@
 
     #else
 
-      #if ENABLED(REPRAPWORLD_KEYPAD)
+      #if IS_RRW_KEYPAD
         #undef BTN_EN1
         #define BTN_EN1                       67  // encoder
 
@@ -127,6 +122,10 @@
       #endif
     #endif
 
-  #endif // NEWPANEL
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
 
-#endif // HAS_SPI_LCD
+  #endif // IS_NEWPANEL
+
+#endif // HAS_WIRED_LCD

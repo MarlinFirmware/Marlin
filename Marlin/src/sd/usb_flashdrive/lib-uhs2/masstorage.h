@@ -19,7 +19,7 @@
  * -------------------
  *
  * Circuits At Home, LTD
- * Web      :  http://www.circuitsathome.com
+ * Web      :  https://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
 
@@ -67,7 +67,7 @@
 #define MASS_CMD_DIR_IN                 0x80 //(1 << 7)
 
 /*
- * Reference documents from T10 (http://www.t10.org)
+ * Reference documents from T10 (https://www.t10.org)
  * SCSI Primary Commands - 3 (SPC-3)
  * SCSI Block Commands - 2 (SBC-2)
  * Multi-Media Commands - 5 (MMC-5)
@@ -214,7 +214,7 @@ struct CDB6 {
 public:
 
   CDB6(uint8_t _Opcode, uint8_t _LUN, uint32_t LBA, uint8_t _AllocationLength, uint8_t _Control) :
-  Opcode(_Opcode), LBAMSB(BGRAB2(LBA) & 0x1f), LUN(_LUN), LBAHB(BGRAB1(LBA)), LBALB(BGRAB0(LBA)),
+  Opcode(_Opcode), LBAMSB(BGRAB2(LBA) & 0x1F), LUN(_LUN), LBAHB(BGRAB1(LBA)), LBALB(BGRAB0(LBA)),
   AllocationLength(_AllocationLength), Control(_Control) {
   }
 
@@ -553,10 +553,7 @@ private:
   bool IsValidCSW(CommandStatusWrapper *pcsw, CommandBlockWrapperBase *pcbw);
 
   uint8_t ClearEpHalt(uint8_t index);
-  #if MS_WANT_PARSER
-    uint8_t Transaction(CommandBlockWrapper *cbw, uint16_t bsize, void *buf, uint8_t flags);
-  #endif
-  uint8_t Transaction(CommandBlockWrapper *cbw, uint16_t bsize, void *buf);
+  uint8_t Transaction(CommandBlockWrapper *cbw, uint16_t bsize, void *buf OPTARG(MS_WANT_PARSER, uint8_t flags=0));
   uint8_t HandleUsbError(uint8_t error, uint8_t index);
   uint8_t HandleSCSIError(uint8_t status);
 };

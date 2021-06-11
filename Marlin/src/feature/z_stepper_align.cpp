@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -54,27 +54,11 @@ void ZStepperAlign::reset_to_default() {
       #endif
     );
 
-    constexpr xyz_pos_t dpo = NOZZLE_TO_PROBE_OFFSET;
+    #define VALIDATE_ALIGN_POINT(N) static_assert(N >= NUM_Z_STEPPER_DRIVERS || Probe::build_time::can_reach(xy_init[N]), \
+      "Z_STEPPER_ALIGN_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
+    VALIDATE_ALIGN_POINT(0); VALIDATE_ALIGN_POINT(1); VALIDATE_ALIGN_POINT(2); VALIDATE_ALIGN_POINT(3);
 
-    #define LTEST(N) (xy_init[N].x >= _MAX(X_MIN_BED + PROBING_MARGIN_LEFT,  X_MIN_POS + dpo.x) - 0.00001f)
-    #define RTEST(N) (xy_init[N].x <= _MIN(X_MAX_BED - PROBING_MARGIN_RIGHT, X_MAX_POS + dpo.x) + 0.00001f)
-    #define FTEST(N) (xy_init[N].y >= _MAX(Y_MIN_BED + PROBING_MARGIN_FRONT, Y_MIN_POS + dpo.y) - 0.00001f)
-    #define BTEST(N) (xy_init[N].y <= _MIN(Y_MAX_BED - PROBING_MARGIN_BACK,  Y_MAX_POS + dpo.y) + 0.00001f)
-
-    static_assert(LTEST(0) && RTEST(0), "The 1st Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-    static_assert(FTEST(0) && BTEST(0), "The 1st Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-    static_assert(LTEST(1) && RTEST(1), "The 2nd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-    static_assert(FTEST(1) && BTEST(1), "The 2nd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-    #if NUM_Z_STEPPER_DRIVERS >= 3
-      static_assert(LTEST(2) && RTEST(2), "The 3rd Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-      static_assert(FTEST(2) && BTEST(2), "The 3rd Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-      #if NUM_Z_STEPPER_DRIVERS >= 4
-        static_assert(LTEST(3) && RTEST(3), "The 4th Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
-        static_assert(FTEST(3) && BTEST(3), "The 4th Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");
-      #endif
-    #endif
-
-  #else // !defined(Z_STEPPER_ALIGN_XY)
+  #else // !Z_STEPPER_ALIGN_XY
 
     const xy_pos_t xy_init[] = {
       #if NUM_Z_STEPPER_DRIVERS >= 3  // First probe point...
@@ -115,7 +99,7 @@ void ZStepperAlign::reset_to_default() {
       #endif
     };
 
-  #endif // !defined(Z_STEPPER_ALIGN_XY)
+  #endif // !Z_STEPPER_ALIGN_XY
 
   COPY(xy, xy_init);
 

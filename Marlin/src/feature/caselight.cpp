@@ -16,63 +16,60 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
 
-uint8_t case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
-bool case_light_on = CASE_LIGHT_DEFAULT_ON;
+#include "caselight.h"
 
-#if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+CaseLight caselight;
+
+#if CASELIGHT_USES_BRIGHTNESS && !defined(CASE_LIGHT_DEFAULT_BRIGHTNESS)
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 0 // For use on PWM pin as non-PWM just sets a default
+#endif
+
+#if CASELIGHT_USES_BRIGHTNESS
+  uint8_t CaseLight::brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
+#endif
+
+bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
+
+#if CASE_LIGHT_IS_COLOR_LED
   #include "leds/leds.h"
-  LEDColor case_light_color =
-    #ifdef CASE_LIGHT_NEOPIXEL_COLOR
-      CASE_LIGHT_NEOPIXEL_COLOR
-    #else
-      { 255, 255, 255, 255 }
-    #endif
-  ;
+  constexpr uint8_t init_case_light[] = CASE_LIGHT_DEFAULT_COLOR;
+  LEDColor CaseLight::color = { init_case_light[0], init_case_light[1], init_case_light[2] OPTARG(HAS_WHITE_LED, init_case_light[3]) };
 #endif
 
-/**
- * The following are needed because ARM chips ignore a "WRITE(CASE_LIGHT_PIN,x)" command to the pins that
- * are directly controlled by the PWM module. In order to turn them off the brightness level needs to be
- * set to off.  Since we can't use the pwm register to save the last brightness level we need a variable
- * to save it.
- */
-uint8_t case_light_brightness_sav;   // saves brighness info so can restore when "M355 S1" received
-bool case_light_arg_flag;  // flag to notify if S or P argument type
+void CaseLight::update(const bool sflag) {
+  #if CASELIGHT_USES_BRIGHTNESS
+    /**
+     * The brightness_sav (and sflag) is needed because ARM chips ignore
+     * a "WRITE(CASE_LIGHT_PIN,x)" command to the pins that are directly
+     * controlled by the PWM module. In order to turn them off the brightness
+     * level needs to be set to OFF. Since we can't use the PWM register to
+     * save the last brightness level we need a variable to save it.
+     */
+    static uint8_t brightness_sav;  // Save brightness info for restore on "M355 S1"
 
-#ifndef INVERT_CASE_LIGHT
-  #define INVERT_CASE_LIGHT false
-#endif
+    if (on || !sflag)
+      brightness_sav = brightness;  // Save brightness except for M355 S0
+    if (sflag && on)
+      brightness = brightness_sav;  // Restore last brightness for M355 S1
 
-void update_case_light() {
-
-  if (!(case_light_arg_flag && !case_light_on))
-    case_light_brightness_sav = case_light_brightness;  // save brightness except if this is an S0 argument
-  if (case_light_arg_flag && case_light_on)
-    case_light_brightness = case_light_brightness_sav;  // restore last brightens if this is an S1 argument
-
-  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL) || DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-    const uint8_t i = case_light_on ? case_light_brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
+    const uint8_t i = on ? brightness : 0, n10ct = ENABLED(INVERT_CASE_LIGHT) ? 255 - i : i;
+    UNUSED(n10ct);
   #endif
 
-  #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+  #if CASE_LIGHT_IS_COLOR_LED
+    leds.set_color(LEDColor(color.r, color.g, color.b OPTARG(HAS_WHITE_LED, color.w), n10ct));
+  #else // !CASE_LIGHT_IS_COLOR_LED
 
-    leds.set_color(
-      MakeLEDColor(case_light_color.r, case_light_color.g, case_light_color.b, case_light_color.w, n10ct),
-      false
-    );
-
-  #else // !CASE_LIGHT_USE_NEOPIXEL
-
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (PWM_PIN(CASE_LIGHT_PIN))
+    #if CASELIGHT_USES_BRIGHTNESS
+      if (pin_is_pwm())
         analogWrite(pin_t(CASE_LIGHT_PIN), (
           #if CASE_LIGHT_MAX_PWM == 255
             n10ct
@@ -83,11 +80,15 @@ void update_case_light() {
       else
     #endif
       {
-        const bool s = case_light_on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
+        const bool s = on ? TERN(INVERT_CASE_LIGHT, LOW, HIGH) : TERN(INVERT_CASE_LIGHT, HIGH, LOW);
         WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
       }
 
-  #endif // !CASE_LIGHT_USE_NEOPIXEL
+  #endif // !CASE_LIGHT_IS_COLOR_LED
+
+  #if ENABLED(CASE_LIGHT_USE_RGB_LED)
+    if (leds.lights_on) leds.update(); else leds.set_off();
+  #endif
 }
 
-#endif // HAS_CASE_LIGHT
+#endif // CASE_LIGHT_ENABLE

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -98,7 +98,7 @@ millis_t Stopwatch::duration() {
   void Stopwatch::debug(const char func[]) {
     if (DEBUGGING(INFO)) {
       SERIAL_ECHOPGM("Stopwatch::");
-      serialprintPGM(func);
+      SERIAL_ECHOPGM_P(func);
       SERIAL_ECHOLNPGM("()");
     }
   }

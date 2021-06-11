@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -58,7 +58,7 @@ class ControllerFan {
     #if ENABLED(CONTROLLER_FAN_EDITABLE)
       static controllerFan_settings_t settings;
     #else
-      static const controllerFan_settings_t constexpr &settings = controllerFan_defaults;
+      static const controllerFan_settings_t &settings;
     #endif
     static inline bool state() { return speed > 0; }
     static inline void init() { reset(); }

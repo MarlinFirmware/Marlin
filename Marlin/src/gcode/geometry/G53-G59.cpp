@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,7 +39,7 @@ bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   xyz_float_t new_offset{0};
   if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))
     new_offset = coordinate_system[_new];
-  LOOP_XYZ(i) {
+  LOOP_LINEAR_AXES(i) {
     if (position_shift[i] != new_offset[i]) {
       position_shift[i] = new_offset[i];
       update_workspace_offset((AxisEnum)i);

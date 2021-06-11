@@ -3,7 +3,7 @@ import sys
 
 #dynamic build flags for generic compile options
 if __name__ == "__main__":
-  args = " ".join([ "-std=gnu11",
+  args = " ".join([ "-std=gnu++14",
                     "-Os",
                     "-mcpu=cortex-m3",
                     "-mthumb",
@@ -11,6 +11,7 @@ if __name__ == "__main__":
                     "-fsigned-char",
                     "-fno-move-loop-invariants",
                     "-fno-strict-aliasing",
+                    "-fsingle-precision-constant",
 
                     "--specs=nano.specs",
                     "--specs=nosys.specs",

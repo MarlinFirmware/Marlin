@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -86,14 +86,14 @@ void GcodeSuite::M852() {
 
   // When skew is changed the current position changes
   if (setval) {
-    set_current_from_steppers_for_axis(ALL_AXES);
+    set_current_from_steppers_for_axis(ALL_AXES_ENUM);
     sync_plan_position();
     report_current_position();
   }
 
   if (!ijk) {
     SERIAL_ECHO_START();
-    serialprintPGM(GET_TEXT(MSG_SKEW_FACTOR));
+    SERIAL_ECHOPGM_P(GET_TEXT(MSG_SKEW_FACTOR));
     SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
       SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);

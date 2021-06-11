@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 #######################################
 
@@ -72,13 +72,12 @@
 from __future__ import print_function
 from __future__ import division
 
-import sys
-import os
+import sys,os
 
 pwd = os.getcwd()  # make sure we're executing from the correct directory level
 pwd = pwd.replace('\\', '/')
-if 0 <= pwd.find('buildroot/share/atom'):
-  pwd = pwd[:pwd.find('buildroot/share/atom')]
+if 0 <= pwd.find('buildroot/share/vscode'):
+  pwd = pwd[:pwd.find('buildroot/share/vscode')]
   os.chdir(pwd)
 print('pwd: ', pwd)
 

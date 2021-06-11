@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -57,9 +57,8 @@ void GcodeSuite::G30() {
 
   restore_feedrate_and_scaling();
 
-  #ifdef Z_AFTER_PROBING
-    if (raise_after == PROBE_PT_STOW) probe.move_z_after_probing();
-  #endif
+  if (raise_after == PROBE_PT_STOW)
+    probe.move_z_after_probing();
 
   report_current_position();
 }

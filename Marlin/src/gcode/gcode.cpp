@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -40,7 +40,7 @@ GcodeSuite gcode;
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(HOST_PROMPT_SUPPORT)
+#if ENABLED(HOST_ACTION_COMMANDS)
   #include "../feature/host_actions.h"
 #endif
 
@@ -57,7 +57,15 @@ GcodeSuite gcode;
   #include "../feature/spindle_laser.h"
 #endif
 
-#include "../MarlinCore.h" // for idle()
+#if ENABLED(FLOWMETER_SAFETY)
+  #include "../feature/cooler.h"
+#endif
+
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../feature/password/password.h"
+#endif
+
+#include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
@@ -66,11 +74,14 @@ millis_t GcodeSuite::previous_move_ms = 0,
 
 // Relative motion mode for each logical axis
 static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
-uint8_t GcodeSuite::axis_relative = (
-    (ar_init.x ? _BV(REL_X) : 0)
-  | (ar_init.y ? _BV(REL_Y) : 0)
-  | (ar_init.z ? _BV(REL_Z) : 0)
-  | (ar_init.e ? _BV(REL_E) : 0)
+uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
+  | (ar_init.e << REL_E),
+  | (ar_init.x << REL_X),
+  | (ar_init.y << REL_Y),
+  | (ar_init.z << REL_Z),
+  | (ar_init.i << REL_I),
+  | (ar_init.j << REL_J),
+  | (ar_init.k << REL_K)
 );
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -101,7 +112,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", e);
     return -1;
   }
   return active_extruder;
@@ -120,7 +131,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", int(e));
+    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", e);
   return -1;
 }
 
@@ -132,7 +143,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
  *  - Set the feedrate, if included
  */
 void GcodeSuite::get_destination_from_command() {
-  xyze_bool_t seen = { false, false, false, false };
+  xyze_bool_t seen{false};
 
   #if ENABLED(CANCEL_OBJECTS)
     const bool &skip_move = cancelable.skipping;
@@ -141,8 +152,8 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   // Get new XYZ position, whether absolute or relative
-  LOOP_XYZ(i) {
-    if ( (seen[i] = parser.seenval(XYZ_CHAR(i))) ) {
+  LOOP_LINEAR_AXES(i) {
+    if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         destination[i] = current_position[i];
@@ -153,13 +164,15 @@ void GcodeSuite::get_destination_from_command() {
       destination[i] = current_position[i];
   }
 
-  // Get new E position, whether absolute or relative
-  if ( (seen.e = parser.seenval('E')) ) {
-    const float v = parser.value_axis_units(E_AXIS);
-    destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
-  }
-  else
-    destination.e = current_position.e;
+  #if HAS_EXTRUDERS
+    // Get new E position, whether absolute or relative
+    if ( (seen.e = parser.seenval('E')) ) {
+      const float v = parser.value_axis_units(E_AXIS);
+      destination.e = axis_is_relative(E_AXIS) ? current_position.e + v : v;
+    }
+    else
+      destination.e = current_position.e;
+  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
     // Only update power loss recovery on moves with E
@@ -203,7 +216,36 @@ void GcodeSuite::dwell(millis_t time) {
  * When G29_RETRY_AND_RECOVER is enabled, call G29() in
  * a loop with recovery and retry handling.
  */
-#if BOTH(HAS_LEVELING, G29_RETRY_AND_RECOVER)
+#if ENABLED(G29_RETRY_AND_RECOVER)
+
+  void GcodeSuite::event_probe_recover() {
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
+    #ifdef ACTION_ON_G29_RECOVER
+      host_action(PSTR(ACTION_ON_G29_RECOVER));
+    #endif
+    #ifdef G29_RECOVER_COMMANDS
+      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+    #endif
+  }
+
+  #if ENABLED(G29_HALT_ON_FAILURE)
+    #include "../lcd/marlinui.h"
+  #endif
+
+  void GcodeSuite::event_probe_failure() {
+    #ifdef ACTION_ON_G29_FAILURE
+      host_action(PSTR(ACTION_ON_G29_FAILURE));
+    #endif
+    #ifdef G29_FAILURE_COMMANDS
+      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+    #endif
+    #if ENABLED(G29_HALT_ON_FAILURE)
+      #ifdef ACTION_ON_CANCEL
+        host_action_cancel();
+      #endif
+      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
+    #endif
+  }
 
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
@@ -212,7 +254,10 @@ void GcodeSuite::dwell(millis_t time) {
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
     while (G29()) { // G29 should return true for failed probes ONLY
-      if (retries--) event_probe_recover();
+      if (retries) {
+        event_probe_recover();
+        --retries;
+      }
       else {
         event_probe_failure();
         return;
@@ -226,14 +271,7 @@ void GcodeSuite::dwell(millis_t time) {
     #endif
   }
 
-#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
-
-//
-// Placeholders for non-migrated codes
-//
-#if ENABLED(M100_FREE_MEMORY_WATCHER)
-  extern void M100_dump_routine(PGM_P const title, const char * const start, const char * const end);
-#endif
+#endif // G29_RETRY_AND_RECOVER
 
 /**
  * Process the parsed command and dispatch it to its handler
@@ -241,16 +279,33 @@ void GcodeSuite::dwell(millis_t time) {
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   KEEPALIVE_STATE(IN_HANDLER);
 
-  // Handle a known G, M, or T
+ /**
+  * Block all Gcodes except M511 Unlock Printer, if printer is locked
+  * Will still block Gcodes if M511 is disabled, in which case the printer should be unlocked via LCD Menu
+  */
+  #if ENABLED(PASSWORD_FEATURE)
+    if (password.is_locked && !parser.is_command('M', 511)) {
+      SERIAL_ECHO_MSG(STR_PRINTER_LOCKED);
+      if (!no_ok) queue.ok_to_send();
+      return;
+    }
+  #endif
+
+  #if ENABLED(FLOWMETER_SAFETY)
+    if (cooler.fault) {
+      SERIAL_ECHO_MSG(STR_FLOWMETER_FAULT);
+      return;
+    }
+  #endif
+
+  // Handle a known command or reply "unknown command"
+
   switch (parser.command_letter) {
+
     case 'G': switch (parser.codenum) {
 
-      case 0: case 1: G0_G1(                                      // G0: Fast Move, G1: Linear Move
-                        #if IS_SCARA || defined(G0_FEEDRATE)
-                          parser.codenum == 0
-                        #endif
-                      );
-                      break;
+      case 0: case 1:                                             // G0: Fast Move, G1: Linear Move
+        G0_G1(TERN_(HAS_FAST_MOVES, parser.codenum == 0)); break;
 
       #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
         case 2: case 3: G2_G3(parser.codenum == 2); break;        // G2: CW ARC, G3: CCW ARC
@@ -300,13 +355,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration
-          #if ENABLED(G29_RETRY_AND_RECOVER)
-            G29_with_retry();
-          #else
-            G29();
-          #endif
+          TERN(G29_RETRY_AND_RECOVER, G29_with_retry, G29)();
           break;
-      #endif // HAS_LEVELING
+      #endif
 
       #if HAS_BED_PROBE
         case 30: G30(); break;                                    // G30: Single Z probe
@@ -320,7 +371,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 33: G33(); break;                                    // G33: Delta Auto-Calibration
       #endif
 
-      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
         case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
       #endif
 
@@ -333,6 +384,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           if (WITHIN(parser.subcode, 2, TERN(G38_PROBE_AWAY, 5, 3)))
             G38(parser.subcode);                                  // G38.4, G38.5: Probe away from target
           break;
+      #endif
+
+      #if HAS_MESH
+        case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
       #endif
 
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
@@ -363,10 +418,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 92: G92(); break;                                      // G92: Set current axis position(s)
 
-      #if HAS_MESH
-        case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
-      #endif
-
       #if ENABLED(CALIBRATION_GCODE)
         case 425: G425(); break;                                  // G425: Perform calibration with calibration cube
       #endif
@@ -390,6 +441,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 3: M3_M4(false); break;                              // M3: Turn ON Laser | Spindle (clockwise), set Power | Speed
         case 4: M3_M4(true ); break;                              // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
         case 5: M5(); break;                                      // M5: Turn OFF Laser | Spindle
+        #if ENABLED(AIR_EVACUATION)
+          case 10: M10(); break;                                  // M10: Vacuum or Blower motor ON
+          case 11: M11(); break;                                  // M11: Vacuum or Blower motor OFF
+        #endif
       #endif
 
       #if ENABLED(COOLANT_CONTROL)
@@ -424,7 +479,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 28: M28(); break;                                    // M28: Start SD write
         case 29: M29(); break;                                    // M29: Stop SD write
         case 30: M30(); break;                                    // M30 <filename> Delete File
-        case 32: M32(); break;                                    // M32: Select file and start SD print
+
+        #if HAS_MEDIA_SUBCALLS
+          case 32: M32(); break;                                  // M32: Select file and start SD print
+        #endif
 
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
           case 33: M33(); break;                                  // M33: Get the long full path to a file or folder
@@ -438,7 +496,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif // SDSUPPORT
 
       case 31: M31(); break;                                      // M31: Report time since the start of SD print or last M109
-      case 42: M42(); break;                                      // M42: Change pin state
+
+      #if ENABLED(DIRECT_PIN_CONTROL)
+        case 42: M42(); break;                                    // M42: Change pin state
+      #endif
 
       #if ENABLED(PINS_DEBUGGING)
         case 43: M43(); break;                                    // M43: Read pin state
@@ -464,7 +525,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
 
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         case 104: M104(); break;                                  // M104: Set hot end temperature
         case 109: M109(); break;                                  // M109: Wait for hotend temperature to reach target
       #endif
@@ -504,6 +565,15 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
 
+      #if HAS_COOLER
+        case 143: M143(); break;                                  // M143: Set cooler temperature
+        case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
+      #endif
+
+      #if ENABLED(AUTO_REPORT_POSITION)
+        case 154: M154(); break;                                  // M154: Set position auto-report interval
+      #endif
+
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
       #endif
@@ -531,14 +601,18 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
       case 81: M81(); break;                                      // M81: Turn off Power, including Power Supply, if possible
 
-      case 82: M82(); break;                                      // M82: Set E axis normal mode (same as other axes)
-      case 83: M83(); break;                                      // M83: Set E axis relative mode
+      #if HAS_EXTRUDERS
+        case 82: M82(); break;                                    // M82: Set E axis normal mode (same as other axes)
+        case 83: M83(); break;                                    // M83: Set E axis relative mode
+      #endif
       case 18: case 84: M18_M84(); break;                         // M18/M84: Disable Steppers / Set Timeout
       case 85: M85(); break;                                      // M85: Set inactivity stepper shutdown timeout
       case 92: M92(); break;                                      // M92: Set the steps-per-unit for one or more axes
       case 114: M114(); break;                                    // M114: Report current position
       case 115: M115(); break;                                    // M115: Report capabilities
-      case 117: M117(); break;                                    // M117: Set LCD message text, if possible
+
+      case 117: TERN_(HAS_STATUS_MESSAGE, M117()); break;         // M117: Set LCD message text, if possible
+
       case 118: M118(); break;                                    // M118: Display a message in the host console
       case 119: M119(); break;                                    // M119: Report endstop states
       case 120: M120(); break;                                    // M120: Enable endstops
@@ -599,7 +673,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
       #endif
 
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 
@@ -609,11 +683,13 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       case 220: M220(); break;                                    // M220: Set Feedrate Percentage: S<percent> ("FR" on your LCD)
 
-      #if EXTRUDERS
+      #if HAS_EXTRUDERS
         case 221: M221(); break;                                  // M221: Set Flow Percentage
       #endif
 
-      case 226: M226(); break;                                    // M226: Wait until a pin reaches a state
+      #if ENABLED(DIRECT_PIN_CONTROL)
+        case 226: M226(); break;                                  // M226: Wait until a pin reaches a state
+      #endif
 
       #if HAS_SERVOS
         case 280: M280(); break;                                  // M280: Set servo position absolute
@@ -636,6 +712,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(PIDTEMPBED)
         case 304: M304(); break;                                  // M304: Set bed PID parameters
+      #endif
+
+      #if ENABLED(PIDTEMPCHAMBER)
+        case 309: M309(); break;                                  // M309: Set chamber PID parameters
       #endif
 
       #if ENABLED(PHOTO_GCODE)
@@ -687,7 +767,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
-      #if ENABLED(PRUSA_MMU2)
+      #if HAS_PRUSA_MMU2
         case 403: M403(); break;
       #endif
 
@@ -700,6 +780,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_FILAMENT_SENSOR
         case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
+      #endif
+
+      #if HAS_MULTI_LANGUAGE
+        case 414: M414(); break;                                  // M414: Select multi language menu
       #endif
 
       #if HAS_LEVELING
@@ -736,12 +820,28 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 504: M504(); break;                                  // M504: Validate EEPROM contents
       #endif
 
+      #if ENABLED(PASSWORD_FEATURE)
+        case 510: M510(); break;                                  // M510: Lock Printer
+        #if ENABLED(PASSWORD_UNLOCK_GCODE)
+          case 511: M511(); break;                                // M511: Unlock Printer
+        #endif
+        #if ENABLED(PASSWORD_CHANGE_GCODE)
+          case 512: M512(); break;                                // M512: Set/Change/Remove Password
+        #endif
+      #endif
+
       #if ENABLED(SDSUPPORT)
         case 524: M524(); break;                                  // M524: Abort the current SD print job
       #endif
 
       #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
+      #endif
+
+      #if HAS_ETHERNET
+        case 552: M552(); break;                                  // M552: Set IP address
+        case 553: M553(); break;                                  // M553: Set gateway
+        case 554: M554(); break;                                  // M554: Set netmask
       #endif
 
       #if ENABLED(BAUD_RATE_GCODE)
@@ -765,7 +865,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 666: M666(); break;                                  // M666: Set delta or multiple endstop adjustment
       #endif
 
-      #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+      #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
         case 672: M672(); break;                                  // M672: Set/clear Duet Smart Effector sensitivity
       #endif
 
@@ -793,6 +893,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(PROBE_TEMP_COMPENSATION)
+        case 192: M192(); break;                                  // M192: Wait for probe temp
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
@@ -800,11 +901,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
-      #if ANY(HAS_DIGIPOTSS, HAS_MOTOR_CURRENT_PWM, HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT)
+      #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC)
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
-        #if EITHER(HAS_DIGIPOTSS, DAC_STEPPER_CURRENT)
+        #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.
-          #if ENABLED(DAC_STEPPER_CURRENT)
+          #if ENABLED(HAS_MOTOR_CURRENT_DAC)
             case 909: M909(); break;                              // M909: Print digipot/DAC current value
             case 910: M910(); break;                              // M910: Commit digipot/DAC value to external EEPROM
           #endif
@@ -842,12 +943,16 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 351: M351(); break;                                  // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
       #endif
 
-      #if HAS_CASE_LIGHT
+      #if ENABLED(CASE_LIGHT_ENABLE)
         case 355: M355(); break;                                  // M355: Set case light brightness
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800: parser.debug(); break;                          // M800: GCode Parser Test for M
+      #endif
+
+      #if ENABLED(GCODE_REPEAT_MARKERS)
+        case 808: M808(); break;                                  // M808: Set / Goto repeat markers
       #endif
 
       #if ENABLED(I2C_POSITION_ENCODERS)
@@ -871,6 +976,15 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
+      #if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+        case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
+        case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
+      #endif
+
+      #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+        case 995: M995(); break;                                  // M995: Touch screen calibration for TFT display
+      #endif
+
       #if ENABLED(PLATFORM_M997_SUPPORT)
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif
@@ -886,6 +1000,14 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 1001: M1001(); break;                                // M1001: [INTERNAL] Handle SD completion
       #endif
 
+      #if ENABLED(DGUS_LCD_UI_MKS)
+        case 1002: M1002(); break;                                // M1002: [INTERNAL] Tool-change and Relative E Move
+      #endif
+
+      #if ENABLED(UBL_MESH_WIZARD)
+        case 1004: M1004(); break;                                // M1004: UBL Mesh Wizard
+      #endif
+
       #if ENABLED(MAX7219_GCODE)
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
@@ -896,6 +1018,14 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
     case 'T': T(parser.codenum); break;                           // Tn: Tool Change
 
+    #if ENABLED(MARLIN_DEV_MODE)
+      case 'D': D(parser.codenum); break;                         // Dn: Debug codes
+    #endif
+
+    #if ENABLED(REALTIME_REPORTING_COMMANDS)
+      case 'S': case 'P': case 'R': break;                        // Invalid S, P, R commands already filtered
+    #endif
+
     default:
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
@@ -904,32 +1034,36 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   }
 
   if (!no_ok) queue.ok_to_send();
+
+  SERIAL_OUT(msgDone); // Call the msgDone serial hook to signal command processing done
 }
+
+#if ENABLED(M100_FREE_MEMORY_DUMPER)
+  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
+#endif
 
 /**
  * Process a single command and dispatch it to its handler
  * This is called from the main loop()
  */
 void GcodeSuite::process_next_command() {
-  char * const current_command = queue.command_buffer[queue.index_r];
+  GCodeQueue::CommandLine &command = queue.ring_buffer.peek_next_command();
 
-  PORT_REDIRECT(queue.port[queue.index_r]);
+  PORT_REDIRECT(SERIAL_PORTMASK(command.port));
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    recovery.queue_index_r = queue.index_r;
-  #endif
+  TERN_(POWER_LOSS_RECOVERY, recovery.queue_index_r = queue.ring_buffer.index_r);
 
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
-    SERIAL_ECHOLN(current_command);
+    SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      SERIAL_ECHOPAIR("slot:", queue.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), &queue.command_buffer[0][0], &queue.command_buffer[BUFSIZE - 1][MAX_CMD_SIZE - 1]);
+      SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
+      M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
     #endif
   }
 
   // Parse the next command in the queue
-  parser.parse(current_command);
+  parser.parse(command.buffer);
   process_parsed_command();
 }
 
@@ -947,7 +1081,7 @@ void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
     strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
     cmd[len] = '\0';                                  // End with a nul
     parser.parse(cmd);                                // Parse the command
-    process_parsed_command(true);                     // Process it
+    process_parsed_command(true);                     // Process it (no "ok")
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
@@ -960,9 +1094,9 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     char * const delim = strchr(gcode, '\n');         // Get address of next newline
     if (delim) *delim = '\0';                         // Replace with nul
     parser.parse(gcode);                              // Parse the current command
-    if (delim) *delim = '\n';                         // Put back the newline
-    process_parsed_command(true);                     // Process it
+    process_parsed_command(true);                     // Process it (no "ok")
     if (!delim) break;                                // Last command?
+    *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
   parser.parse(saved_cmd);                            // Restore the parser state
@@ -979,16 +1113,20 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     static millis_t next_busy_signal_ms = 0;
     if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
+      PORT_REDIRECT(SerialMask::All);
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
           SERIAL_ECHO_MSG(STR_BUSY_PROCESSING);
+          TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
           break;
         case PAUSED_FOR_USER:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
+          TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
           break;
         case PAUSED_FOR_INPUT:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_INPUT);
+          TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
           break;
         default:
           break;

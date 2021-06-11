@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # for python3.5 or higher
 #-----------------------------------
@@ -22,8 +22,7 @@
 # 2020-06-05 SRL style tweaks
 #-----------------------------------
 #
-import sys
-import os
+import sys,os
 from pathlib import Path
 from distutils.dir_util import copy_tree  # for copy_tree, because shutil.copytree can't handle existing files, dirs
 

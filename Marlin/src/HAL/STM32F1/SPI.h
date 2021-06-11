@@ -164,6 +164,11 @@ public:
   SPIClass(uint32_t spiPortNumber);
 
   /**
+   * Init using pins
+   */
+  SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel=-1);
+
+  /**
    * @brief Equivalent to begin(SPI_1_125MHZ, MSBFIRST, 0).
    */
   void begin();
@@ -207,6 +212,8 @@ public:
    * Requires an added function spi_data_size on STM32F1 / cores / maple / libmaple / spi.c
    */
   void setDataSize(uint32_t ds);
+
+  uint32_t getDataSize() { return _currentSetting->dataSize; }
 
   /* Victor Perez 2017. Added to set and clear callback functions for callback
    * on DMA transfer completion.

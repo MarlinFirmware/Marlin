@@ -75,7 +75,7 @@ extern "C"
 #define NVIC_NUM_INTERRUPTS ((int)PERIPH_COUNT_IRQn)
 #endif
 #define VECTORTABLE_SIZE (NVIC_NUM_INTERRUPTS+16)
-#define VECTORTABLE_ALIGNMENT (0x100ul)
+#define VECTORTABLE_ALIGNMENT (0x100UL)
 #define NVIC_GET_ACTIVE(n) NVIC_GetActive((IRQn_Type)n)
 #define NVIC_GET_PENDING(n) NVIC_GetPendingIRQ((IRQn_Type)n)
 #define NVIC_SET_PENDING(n) NVIC_SetPendingIRQ((IRQn_Type)n)

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,7 +35,7 @@
 #define MOSFET_D_PIN                           7
 
 #define FIL_RUNOUT_PIN                         2
-#if NUM_RUNOUT_SENSORS > 1
+#if NUM_RUNOUT_SENSORS >= 2
   #define FIL_RUNOUT2_PIN                     15  // Creality CR-X can use dual runout sensors
 #endif
 
@@ -64,5 +64,5 @@
 
 #define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
 #ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING true
+  #define SUICIDE_PIN_INVERTING             true
 #endif

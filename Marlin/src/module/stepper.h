@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -38,7 +38,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Grbl.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "../inc/MarlinConfig.h"
@@ -133,27 +133,6 @@
 
 #endif
 
-// Add time for each stepper
-#if HAS_X_STEP
-  #define ISR_X_STEPPER_CYCLES       ISR_STEPPER_CYCLES
-#else
-  #define ISR_X_STEPPER_CYCLES       0UL
-#endif
-#if HAS_Y_STEP
-  #define ISR_Y_STEPPER_CYCLES       ISR_STEPPER_CYCLES
-#else
-  #define ISR_START_Y_STEPPER_CYCLES 0UL
-  #define ISR_Y_STEPPER_CYCLES       0UL
-#endif
-#if HAS_Z_STEP
-  #define ISR_Z_STEPPER_CYCLES       ISR_STEPPER_CYCLES
-#else
-  #define ISR_Z_STEPPER_CYCLES       0UL
-#endif
-
-// E is always interpolated, even for mixing extruders
-#define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
-
 // If linear advance is disabled, the loop also handles them
 #if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
   #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
@@ -161,8 +140,31 @@
   #define ISR_MIXING_STEPPER_CYCLES  0UL
 #endif
 
+// Add time for each stepper
+#if HAS_X_STEP
+  #define ISR_X_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_Y_STEP
+  #define ISR_Y_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_Z_STEP
+  #define ISR_Z_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_I_STEP
+  #define ISR_I_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_J_STEP
+  #define ISR_J_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_K_STEP
+  #define ISR_K_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_EXTRUDERS
+  #define ISR_E_STEPPER_CYCLES  ISR_STEPPER_CYCLES    // E is always interpolated, even for mixing extruders
+#endif
+
 // And the total minimum loop time, not including the base
-#define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
+#define MIN_ISR_LOOP_CYCLES (ISR_MIXING_STEPPER_CYCLES LOGICAL_AXIS_GANG(+ ISR_E_STEPPER_CYCLES, + ISR_X_STEPPER_CYCLES, + ISR_Y_STEPPER_CYCLES, + ISR_Z_STEPPER_CYCLES, + ISR_I_STEPPER_CYCLES, + ISR_J_STEPPER_CYCLES, + ISR_K_STEPPER_CYCLES))
 
 // Calculate the minimum MPU cycles needed per pulse to enforce, limited to the max stepper rate
 #define _MIN_STEPPER_PULSE_CYCLES(N) _MAX(uint32_t((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
@@ -190,7 +192,6 @@
 #else
   #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
 #endif
-
 
 // But the user could be enforcing a minimum time, so the loop time is
 #define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
@@ -230,8 +231,10 @@
 #define MAX_STEP_ISR_FREQUENCY_2X   ((F_CPU) / ISR_EXECUTION_CYCLES(2))
 #define MAX_STEP_ISR_FREQUENCY_1X   ((F_CPU) / ISR_EXECUTION_CYCLES(1))
 
-// The minimum allowable frequency for step smoothing will be 1/10 of the maximum nominal frequency (in Hz)
-#define MIN_STEP_ISR_FREQUENCY MAX_STEP_ISR_FREQUENCY_1X
+// The minimum step ISR rate used by ADAPTIVE_STEP_SMOOTHING to target 50% CPU usage
+// This does not account for the possibility of multi-stepping.
+// Perhaps DISABLE_MULTI_STEPPING should be required with ADAPTIVE_STEP_SMOOTHING.
+#define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
 //
 // Stepper class definition
@@ -244,12 +247,29 @@ class Stepper {
       static bool separate_multi_axis;
     #endif
 
-    #if HAS_MOTOR_CURRENT_PWM
-      #ifndef PWM_MOTOR_CURRENT
-        #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
+    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+      #if HAS_MOTOR_CURRENT_PWM
+        #ifndef PWM_MOTOR_CURRENT
+          #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
+        #endif
+        #define MOTOR_CURRENT_COUNT LINEAR_AXES
+      #elif HAS_MOTOR_CURRENT_SPI
+        static constexpr uint32_t digipot_count[] = DIGIPOT_MOTOR_CURRENT;
+        #define MOTOR_CURRENT_COUNT COUNT(Stepper::digipot_count)
       #endif
-      static uint32_t motor_current_setting[3];
       static bool initialized;
+      static uint32_t motor_current_setting[MOTOR_CURRENT_COUNT]; // Initialized by settings.load()
+    #endif
+
+    // Last-moved extruder, as set when the last movement was fetched from planner
+    #if HAS_MULTI_EXTRUDER
+      static uint8_t last_moved_extruder;
+    #else
+      static constexpr uint8_t last_moved_extruder = 0;
+    #endif
+
+    #if HAS_FREEZE_PIN
+      static bool frozen;                   // Set this flag to instantly freeze motion
     #endif
 
   private:
@@ -260,13 +280,6 @@ class Stepper {
                    axis_did_move;           // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
     static bool abort_current_block;        // Signals to the stepper that current block should be aborted
-
-    // Last-moved extruder, as set when the last movement was fetched from planner
-    #if EXTRUDERS < 2
-      static constexpr uint8_t last_moved_extruder = 0;
-    #elif DISABLED(MIXING_EXTRUDER)
-      static uint8_t last_moved_extruder;
-    #endif
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_X_motor, locked_X2_motor;
@@ -303,7 +316,7 @@ class Stepper {
                     decelerate_after,       // The point from where we need to start decelerating
                     step_event_count;       // The total event count for the current block
 
-    #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
+    #if EITHER(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
       static uint8_t stepper_extruder;
     #else
       static constexpr uint8_t stepper_extruder = 0;
@@ -416,14 +429,13 @@ class Stepper {
     #endif
 
     // Check if the given block is busy or not - Must not be called from ISR contexts
-    static bool is_block_busy(const block_t* const block);
+    static bool is_block_busy(const block_t * const block);
 
     // Get the position of a stepper, in steps
     static int32_t position(const AxisEnum axis);
 
     // Set the current position in steps
-    static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
-    static inline void set_position(const xyze_long_t &abce) { set_position(abce.a, abce.b, abce.c, abce.e); }
+    static void set_position(const xyze_long_t &spos);
     static void set_axis_position(const AxisEnum a, const int32_t &v);
 
     // Report the positions of the steppers, in steps
@@ -450,20 +462,15 @@ class Stepper {
     // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return TEST(axis_did_move, axis); }
 
-    // The extruder associated to the last movement
-    FORCE_INLINE static uint8_t movement_extruder() {
-      return (EXTRUDERS > 1 && DISABLED(MIXING_EXTRUDER)) ? last_moved_extruder : 0;
-    }
-
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);
 
     // Triggered position of an axis in steps
     static int32_t triggered_position(const AxisEnum axis);
 
-    #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
-      static void digitalPotWrite(const int16_t address, const int16_t value);
-      static void digipot_current(const uint8_t driver, const int16_t current);
+    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+      static void set_digipot_value_spi(const int16_t address, const int16_t value);
+      static void set_digipot_current(const uint8_t driver, const int16_t current);
     #endif
 
     #if HAS_MICROSTEPS
@@ -512,16 +519,21 @@ class Stepper {
       static void refresh_motor_power();
     #endif
 
-    // Set direction bits for all steppers
+    // Update direction states for all steppers
     static void set_directions();
+
+    // Set direction bits and update all stepper DIR states
+    static void set_directions(const uint8_t bits) {
+      last_direction_bits = bits;
+      set_directions();
+    }
 
   private:
 
     // Set the current position in steps
-    static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
-    FORCE_INLINE static void _set_position(const abce_long_t &spos) { _set_position(spos.a, spos.b, spos.c, spos.e); }
+    static void _set_position(const abce_long_t &spos);
 
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t* loops) {
+    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t *loops) {
       uint32_t timer;
 
       // Scale the frequency, as requested by the caller
@@ -558,7 +570,7 @@ class Stepper {
         // In case of high-performance processor, it is able to calculate in real-time
         timer = uint32_t(STEPPER_TIMER_RATE) / step_rate;
       #else
-        constexpr uint32_t min_step_rate = F_CPU / 500000U;
+        constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
         NOLESS(step_rate, min_step_rate);
         step_rate -= min_step_rate; // Correct for minimal speed
         if (step_rate >= (8 * 256)) { // higher step rate
@@ -586,7 +598,7 @@ class Stepper {
       static int32_t _eval_bezier_curve(const uint32_t curr_step);
     #endif
 
-    #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
       static void digipot_init();
     #endif
 

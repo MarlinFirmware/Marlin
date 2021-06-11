@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,16 +26,20 @@
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
+#include "../../../module/stepper/indirection.h"
 
 /**
  * M122: Debug TMC drivers
  */
 void GcodeSuite::M122() {
-  xyze_bool_t print_axis = { false, false, false, false };
-  bool print_all = true;
-  LOOP_XYZE(i) if (parser.seen(axis_codes[i])) { print_axis[i] = true; print_all = false; }
+  xyze_bool_t print_axis = ARRAY_N_1(LOGICAL_AXES, false);
 
-  if (print_all) LOOP_XYZE(i) print_axis[i] = true;
+  bool print_all = true;
+  LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) { print_axis[i] = true; print_all = false; }
+
+  if (print_all) LOOP_LOGICAL_AXES(i) print_axis[i] = true;
+
+  if (parser.boolval('I')) restore_stepper_drivers();
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -45,13 +49,13 @@ void GcodeSuite::M122() {
       tmc_set_report_interval(interval);
     #endif
 
-    if (parser.seen('V'))
-      tmc_get_registers(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
+    if (parser.seen_test('V'))
+      tmc_get_registers(LOGICAL_AXIS_ELEM(print_axis));
     else
-      tmc_report_all(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
+      tmc_report_all(LOGICAL_AXIS_ELEM(print_axis));
   #endif
 
-  test_tmc_connection(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
+  test_tmc_connection(LOGICAL_AXIS_ELEM(print_axis));
 }
 
 #endif // HAS_TRINAMIC_CONFIG

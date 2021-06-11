@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,7 +26,7 @@
 
 #include "../../gcode.h"
 
-#include "../../../MarlinCore.h" // for i2c
+#include "../../../feature/twibus.h"
 
 /**
  * M260: Send data to a I2C slave device
@@ -42,7 +42,6 @@
  *
  *  M260 S1 ; Send the buffered data and reset the buffer
  *  M260 R1 ; Reset the buffer without sending data
- *
  */
 void GcodeSuite::M260() {
   // Set the target address

@@ -16,9 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_EXTRUDERS
 
 #include "../gcode.h"
 
@@ -31,3 +35,5 @@ void GcodeSuite::M82() { set_e_absolute(); }
  * M83: Set E codes relative while in Absolute Coordinates (G90) mode
  */
 void GcodeSuite::M83() { set_e_relative(); }
+
+#endif // HAS_EXTRUDERS

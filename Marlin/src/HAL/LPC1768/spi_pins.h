@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../../core/macros.h"
 
-#if BOTH(SDSUPPORT, HAS_GRAPHICAL_LCD) && (LCD_PINS_D4 == SCK_PIN || LCD_PINS_ENABLE == MOSI_PIN || DOGLCD_SCK == SCK_PIN || DOGLCD_MOSI == MOSI_PIN)
+#if BOTH(SDSUPPORT, HAS_MARLINUI_U8GLIB) && (LCD_PINS_D4 == SD_SCK_PIN || LCD_PINS_ENABLE == SD_MOSI_PIN || DOGLCD_SCK == SD_SCK_PIN || DOGLCD_MOSI == SD_MOSI_PIN)
   #define LPC_SOFTWARE_SPI  // If the SD card and LCD adapter share the same SPI pins, then software SPI is currently
                             // needed due to the speed and mode required for communicating with each device being different.
                             // This requirement can be removed if the SPI access to these devices is updated to use
@@ -31,24 +31,24 @@
 #endif
 
 /** onboard SD card */
-//#define SCK_PIN           P0_07
-//#define MISO_PIN          P0_08
-//#define MOSI_PIN          P0_09
-//#define SS_PIN            P0_06
+//#define SD_SCK_PIN        P0_07
+//#define SD_MISO_PIN       P0_08
+//#define SD_MOSI_PIN       P0_09
+//#define SD_SS_PIN         P0_06
 /** external */
-#ifndef SCK_PIN
-  #define SCK_PIN           P0_15
+#ifndef SD_SCK_PIN
+  #define SD_SCK_PIN        P0_15
 #endif
-#ifndef MISO_PIN
-  #define MISO_PIN          P0_17
+#ifndef SD_MISO_PIN
+  #define SD_MISO_PIN       P0_17
 #endif
-#ifndef MOSI_PIN
-  #define MOSI_PIN          P0_18
+#ifndef SD_MOSI_PIN
+  #define SD_MOSI_PIN       P0_18
 #endif
-#ifndef SS_PIN
-  #define SS_PIN            P1_23
+#ifndef SD_SS_PIN
+  #define SD_SS_PIN         P1_23
 #endif
 #if !defined(SDSS) || SDSS == P_NC // gets defaulted in pins.h
   #undef SDSS
-  #define SDSS              SS_PIN
+  #define SDSS          SD_SS_PIN
 #endif

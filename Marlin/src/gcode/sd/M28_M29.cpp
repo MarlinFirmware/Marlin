@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -49,7 +49,7 @@ void GcodeSuite::M28() {
     // Binary transfer mode
     if ((card.flag.binary_mode = binary_mode)) {
       SERIAL_ECHO_MSG("Switching to Binary Protocol");
-      TERN_(HAS_MULTI_SERIAL, card.transfer_port_index = queue.port[queue.index_r]);
+      TERN_(HAS_MULTI_SERIAL, card.transfer_port_index = queue.ring_buffer.command_port().index);
     }
     else
       card.openFileWrite(p);
