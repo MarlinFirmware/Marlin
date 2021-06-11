@@ -25,6 +25,8 @@
 
 #include "tft_lvgl_configuration.h"
 
+#ifdef __STM32F1__
+
 #if ENABLED(MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
@@ -57,4 +59,5 @@ void __irq_usart1() {
 #endif
 
 #endif // MKS_WIFI_MODULE
+#endif // __STM32F1__
 #endif // HAS_TFT_LVGL_UI

@@ -212,6 +212,13 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
+// MKS WIFI MODULE
+#if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
+#endif
+
 //
 // Onboard SD card
 //

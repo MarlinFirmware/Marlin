@@ -158,7 +158,9 @@ void filament_pin_setup() {
 }
 
 void filament_check() {
-  const int FIL_DELAY = 20;
+  #if (PIN_EXISTS(MT_DET_1) || PIN_EXISTS(MT_DET_2) || PIN_EXISTS(MT_DET_3))
+    const int FIL_DELAY = 20;
+  #endif
   #if PIN_EXISTS(MT_DET_1)
     static int fil_det_count_1 = 0;
     if (!READ(MT_DET_1_PIN) && !MT_DET_PIN_INVERTING)

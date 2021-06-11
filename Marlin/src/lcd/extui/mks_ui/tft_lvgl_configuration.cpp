@@ -45,6 +45,14 @@ XPT2046 touch;
   #include "../../../feature/powerloss.h"
 #endif
 
+#if HAS_SERVOS
+  #include "../../../../module/servo.h"
+#endif
+
+#if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
+  #include "../../../../module/probe.h"
+#endif
+
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../../tft_io/touch_calibration.h"
   #include "draw_touch_calibration.h"
@@ -193,8 +201,12 @@ void tft_lvgl_init() {
   filament_pin_setup();
   lv_encoder_pin_init();
 
-  TERN_(MKS_WIFI_MODULE, mks_wifi_firmware_update());
-
+  #if ENABLED(MKS_WIFI_MODULE)
+    mks_esp_wifi_init();
+    mks_wifi_firmware_update();
+  #endif
+  TERN_(HAS_SERVOS, servo_init());
+  TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
   bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
@@ -207,9 +219,13 @@ void tft_lvgl_init() {
 
       uiCfg.print_state = REPRINTING;
 
-      strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
-      card.printLongPath(public_buf_m);
-      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+        strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+        card.printLongPath(public_buf_m);
+        strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+      #else
+        strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
+      #endif
       lv_draw_printing();
     }
   #endif
