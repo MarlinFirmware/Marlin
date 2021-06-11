@@ -452,7 +452,7 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
 void DWIN_Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
   int a = 0, b = 0;
   while (a <= b) {
-    b = HYPOT(r, a);
+    b = SQRT(sq(r) - sq(a));
     if (a == 0) b--;
     DWIN_Draw_Point(color, 1, 1, x + a, y + b);   // Draw some sector 1
     DWIN_Draw_Point(color, 1, 1, x + b, y + a);   // Draw some sector 2
