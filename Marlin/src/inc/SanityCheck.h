@@ -3623,10 +3623,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 #undef _BAD_DRIVER
 
-#if ENABLED(FREEZE_FEATURE) && !PIN_EXISTS(FREEZE)
-  #error "FREEZE_FEATURE requires a FREEZE_PIN to be defined."
-#endif
-
 /**
  * Require certain features for DGUS_LCD_UI_RELOADED.
  */
@@ -3654,6 +3650,10 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif ENABLED(AUTO_BED_LEVELING_UBL) && DISABLED(UBL_SAVE_ACTIVE_ON_M500)
     #warning "Without UBL_SAVE_ACTIVE_ON_M500, your mesh will not be saved when using the touchscreen."
   #endif
+#endif
+
+#if ENABLED(FREEZE_FEATURE) && !PIN_EXISTS(FREEZE)
+  #error "FREEZE_FEATURE requires a FREEZE_PIN to be defined."
 #endif
 
 // Misc. Cleanup
