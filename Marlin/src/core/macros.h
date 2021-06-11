@@ -186,6 +186,13 @@
 
 #define _ISENA_     ~,1
 #define _ISENA_1    ~,1
+#define _ISENA_2    ~,1
+#define _ISENA_3    ~,1
+#define _ISENA_4    ~,1
+#define _ISENA_5    ~,1
+#define _ISENA_6    ~,1
+#define _ISENA_7    ~,1
+#define _ISENA_8    ~,1
 #define _ISENA_0x1  ~,1
 #define _ISENA_true ~,1
 #define _ISENA(V...)        IS_PROBE(V)
