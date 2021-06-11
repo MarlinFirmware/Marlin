@@ -103,7 +103,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Mover eixe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelando Cama");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivelar Cama");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Nivelar Cantos");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Nivelar Cantos");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Seguinte Canto");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mallado");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Mallado");

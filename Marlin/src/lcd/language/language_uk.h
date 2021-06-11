@@ -132,13 +132,13 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Рух по осям");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Вирівнювання столу");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Вирівняти стіл");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Вирівняти кути");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Вирівняти кути");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Вгору до спрацювання зонду"); // not sure about this one
+    PROGMEM Language_Str MSG_BED_TRAMMING_RAISE            = _UxGT("Вгору до спрацювання зонду"); // not sure about this one
   #else
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Вгору до спрацюв. зонду");
+    PROGMEM Language_Str MSG_BED_TRAMMING_RAISE            = _UxGT("Вгору до спрацюв. зонду");
   #endif
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Кути в межах. Вирівнювання столу"); // Too long?
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Кути в межах. Вирівнювання столу"); // Too long?
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Наступний кут");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_MESH_EDITOR                   = _UxGT("Зміщення по Z");

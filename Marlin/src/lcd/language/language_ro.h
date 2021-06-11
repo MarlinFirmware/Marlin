@@ -102,7 +102,7 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Muta Axa");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelarea Patului");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveleaza Patul");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Niveleaza Colturile");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Niveleaza Colturile");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Urmatorul Colt");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editeaza Mesh");

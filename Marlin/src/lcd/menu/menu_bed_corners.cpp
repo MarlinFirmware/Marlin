@@ -179,7 +179,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
+      lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_GOOD_POINTS));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_wchar('/');
@@ -192,7 +192,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
+      lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_LAST_Z));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
@@ -201,10 +201,10 @@ static void _lcd_level_bed_corners_get_next_position() {
   void _lcd_draw_raise() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::select_screen(
-      GET_TEXT(MSG_BUTTON_DONE), GET_TEXT(MSG_BUTTON_SKIP)
+        GET_TEXT(MSG_BUTTON_DONE), GET_TEXT(MSG_BUTTON_SKIP)
       , []{ corner_probing_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
-      , GET_TEXT(MSG_LEVEL_CORNERS_RAISE)
+      , GET_TEXT(MSG_BED_TRAMMING_RAISE)
       , (const char*)nullptr, NUL_STR
     );
   }
@@ -212,11 +212,9 @@ static void _lcd_level_bed_corners_get_next_position() {
   void _lcd_draw_level_prompt() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::confirm_screen(
-      []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G29N"), G28_STR));
-          ui.return_to_status();
-      }
+        []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G29N"), G28_STR)); ui.return_to_status(); }
       , []{ ui.goto_previous_screen_no_defer(); }
-      , GET_TEXT(MSG_LEVEL_CORNERS_IN_RANGE)
+      , GET_TEXT(MSG_BED_TRAMMING_IN_RANGE)
       , (const char*)nullptr, PSTR("?")
     );
   }

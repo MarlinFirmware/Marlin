@@ -69,7 +69,6 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Régl. décal origine");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Décalages appliqués");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Régler origine");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assistant Molettes");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Assistant Molettes");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Molette du lit"); // Not a selection of the origin
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Ecart origine ");
@@ -102,9 +101,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Niveau des coins");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Relever le coin jusqu'à la sonde");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Coins dans la tolérance. Niveau lit ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Niveau des coins");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Relever le coin jusqu'à la sonde");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Coins dans la tolérance. Niveau lit ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Coin suivant");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Modif. maille"); // 13 car. max
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifier grille");

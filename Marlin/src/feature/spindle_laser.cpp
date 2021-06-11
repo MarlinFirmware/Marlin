@@ -34,6 +34,10 @@
   #include "../module/servo.h"
 #endif
 
+#if ENABLED(I2C_AMMETER)
+  #include "../feature/ammeter.h"
+#endif
+
 SpindleLaser cutter;
 uint8_t SpindleLaser::power;
 #if ENABLED(LASER_FEATURE)
@@ -73,6 +77,9 @@ void SpindleLaser::init() {
   #endif
   #if ENABLED(AIR_ASSIST)
     OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
+  #endif
+  #if ENABLED(I2C_AMMETER)
+    ammeter.init();                                                   // Init I2C Ammeter
   #endif
 }
 

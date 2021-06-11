@@ -125,7 +125,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Движение по осям");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Выравнивание стола");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Выровнять стол");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Выровнять углы");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Выровнять углы");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Следующий угол");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_MESH_EDITOR                   = _UxGT("Смещение по Z");

@@ -763,10 +763,10 @@ void Draw_Prepare_Menu() {
 
   if (PVISI(0)) Draw_Back_First(select_prepare.now == 0);                         // < Back
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    if (PVISI(PREPARE_CASE_FMAN)) Draw_Menu_Line(PSCROL(PREPARE_CASE_FMAN), ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN),true);        // Filament Management >
+    if (PVISI(PREPARE_CASE_FMAN)) Draw_Menu_Line(PSCROL(PREPARE_CASE_FMAN), ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN), true);      // Filament Management >
   #endif
   if (PVISI(PREPARE_CASE_MOVE)) Item_Prepare_Move(PSCROL(PREPARE_CASE_MOVE));     // Move >
-  if (PVISI(PREPARE_CASE_MLEV)) Draw_Menu_Line(PSCROL(PREPARE_CASE_MLEV), ICON_ManualLev, GET_TEXT(MSG_MANUAL_LEVELING),true);  // Manual Leveling >
+  if (PVISI(PREPARE_CASE_MLEV)) Draw_Menu_Line(PSCROL(PREPARE_CASE_MLEV), ICON_ManualLev, GET_TEXT(MSG_MANUAL_LEVELING), true);  // Manual Leveling >
   if (PVISI(PREPARE_CASE_DISA)) Item_Prepare_Disable(PSCROL(PREPARE_CASE_DISA));  // Disable Stepper
   if (PVISI(PREPARE_CASE_HOME)) Item_Prepare_Home(PSCROL(PREPARE_CASE_HOME));     // Auto Home
   #if ENABLED(MESH_BED_LEVELING)
@@ -1324,7 +1324,7 @@ inline ENCODER_DiffState get_encoder_state() {
 void HMI_Plan_Move(const feedRate_t fr_mm_s) {
   if (!planner.is_full()) {
     planner.synchronize();
-    planner.buffer_line(current_position, fr_mm_s, active_extruder);
+    planner.buffer_line(current_position, fr_mm_s);
     DWIN_UpdateLCD();
   }
 }

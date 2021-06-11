@@ -90,7 +90,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Di chuyển trục");                       // Move axis
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("San Lấp Bàn");                          // Bed Leveling
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Làm bằng mặt bàn");                     // Level bed
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Làm bằng góc bàn");                     // Level corners
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Làm bằng góc bàn");                     // Level corners
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Góc tiếp theo");                        // Next corner
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Chỉnh lưới đã dừng");                   // Mesh Editing Stopped
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Mục lục X");                            // Index X
