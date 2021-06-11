@@ -529,8 +529,8 @@
 /**
  * Enable a second fan for part cooling
  */
-//#define DUAL_PART_COOLING_FANS
-#if ENABLED(DUAL_PART_COOLING_FANS)
+//#define REDUNDANT_COOLING_FAN
+#if ENABLED(REDUNDANT_COOLING_FAN)
   #define DUAL_PART_COOLING_FAN 2 // Define the number of the fan to use, eg FAN2 set 2, FAN1 set 1
 #endif
 

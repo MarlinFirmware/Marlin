@@ -85,7 +85,7 @@ void GcodeSuite::M106() {
 
     // Set speed, with constraint
     thermalManager.set_fan_speed(pfan, speed);
-    #if ENABLED(DUAL_PART_COOLING_FANS)
+    #if ENABLED(REDUNDANT_COOLING_FAN)
       thermalManager.set_fan_speed(DUAL_PART_COOLING_FAN, speed);
     #endif
 
@@ -104,7 +104,7 @@ void GcodeSuite::M107() {
   if (pfan >= _CNT_P) return;
 
   thermalManager.set_fan_speed(pfan, 0);
-  #if ENABLED(DUAL_PART_COOLING_FANS)
+  #if ENABLED(REDUNDANT_COOLING_FAN)
       thermalManager.set_fan_speed(DUAL_PART_COOLING_FAN, 0);
   #endif
 
