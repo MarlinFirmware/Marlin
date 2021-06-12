@@ -751,6 +751,11 @@ void RTSSHOW::RTS_HandleData()
     #endif
 
     const uint8_t validateMesh = 12;
+    const uint8_t manualMeshBegin  = 13;
+    const uint8_t manualMeshNext  = 14;
+    const uint8_t manualMeshLower  = 15;
+    const uint8_t manualMeshRaise  = 16;
+
   constexpr float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
 SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
 
@@ -1231,15 +1236,19 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
         }
         case autoMeasure: // AutoLevel "Measuring" Button
         {
-          waitway = 3; //only for prohibiting to receive massage
-          RTS_SndData(3, AutolevelIcon);
-          uint8_t abl_probe_index = 0;
-          while (abl_probe_index < 25) {
-            rtscheck.RTS_SndData(0, AutolevelVal + abl_probe_index * 2);
-            ++abl_probe_index;
-          }
-          RTS_SndData(ExchangePageBase + 85, ExchangepageAddr);
-          injectCommands_P(PSTR(MAIN_MENU_ITEM_1_GCODE));
+          #if ENABLED(MESH_BED_LEVELING)
+            RTS_SndData(ExchangePageBase + 93, ExchangepageAddr);
+          #else
+            waitway = 3; //only for prohibiting to receive massage
+            RTS_SndData(3, AutolevelIcon);
+            uint8_t abl_probe_index = 0;
+            while (abl_probe_index < 25) {
+              rtscheck.RTS_SndData(0, AutolevelVal + abl_probe_index * 2);
+              ++abl_probe_index;
+            }
+            RTS_SndData(ExchangePageBase + 85, ExchangepageAddr);
+            injectCommands_P(PSTR(MAIN_MENU_ITEM_1_GCODE));
+          #endif
           break;
         }
 
@@ -1304,6 +1313,30 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
         {
           injectCommands_P(PSTR("G26R255"));
           onStatusChanged("Beginning G26.. Heating");
+          break;
+        }
+        case manualMeshBegin :
+        {
+          injectCommands_P(PSTR("G29S1"));
+          onStatusChanged("Beginning Manual Mesh");
+          break;
+        }
+        case manualMeshNext :
+        {
+          injectCommands_P(PSTR("G29S2"));
+          onStatusChanged("Moving to Next Mesh Point");
+          break;
+        }
+        case manualMeshLower :
+        {
+          injectCommands_P(PSTR("G91\nG1Z-0.025\nG90"));
+          onStatusChanged("Moved down 0.025");
+          break;
+        }
+        case manualMeshRaise :
+        {
+          injectCommands_P(PSTR("G91\nG1Z0.025\nG90"));
+          onStatusChanged("Moved up 0.025");
           break;
         }
         default:
