@@ -1458,11 +1458,13 @@ void MarlinUI::update() {
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
   }
 
-  bool MarlinUI::use_click() {
+  #if ENABLED(EXTENSIBLE_UI)
+    bool MarlinUI::use_click() {
       const bool click = ExtUI::get_isUICanceled();
       ExtUI::ui_setUICancelOperation(false);
       return click;
     }
+  #endif
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
 
