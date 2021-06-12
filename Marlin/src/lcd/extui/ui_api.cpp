@@ -47,6 +47,7 @@
 
 #include "../marlinui.h"
 #include "../../gcode/queue.h"
+#include "../../gcode/gcode.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/probe.h"
@@ -384,6 +385,8 @@ namespace ExtUI {
   bool canMove(const extruder_t extruder) {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
+
+  GcodeSuite::MarlinBusyState getMachineState() { return TERN0(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state); }
 
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
@@ -889,6 +892,12 @@ namespace ExtUI {
 
   #endif // HAS_LEVELING
 
+  bool ui_cancel_operation;
+  void ui_setUICancelOperation(const bool state) {
+    ui_cancel_operation = state;
+  }
+  bool get_isUICanceled() { return ui_cancel_operation; }
+
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t response) { host_response_handler(response); }
   #endif
@@ -1017,6 +1026,10 @@ namespace ExtUI {
   bool awaitingUserConfirm() { return wait_for_user; }
 
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
+
+  bool isWaitingOnUser() {
+    return TERN(HAS_RESUME_CONTINUE, wait_for_user, false);
+  }
 
   void printFile(const char *filename) {
     TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
