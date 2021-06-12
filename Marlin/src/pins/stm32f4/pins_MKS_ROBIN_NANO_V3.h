@@ -191,7 +191,7 @@
 #endif
 
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PW_DET
+  #define POWER_LOSS_PIN                  PW_DET
 #endif
 #define PS_ON_PIN                         PW_OFF
 
