@@ -177,5 +177,13 @@
 #define LED_CONTROL_PIN                     PA13
 
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA8
+#define NEOPIXEL_PIN                        PA8
+#endif
+
+#define CASE_LIGHT_PIN                      LED_CONTROL_PIN
+
+#define SUICIDE_PIN                         PC13
+
+#ifndef SUICIDE_PIN_INVERTING
+  #define SUICIDE_PIN_INVERTING               false
 #endif

@@ -629,7 +629,7 @@ MSerialT1 customizedSerial1(MSerialT1::HasEmergencyParser);
   template class MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> >;
   MSerialLCD lcdSerial(MSerialLCD::HasEmergencyParser);
 
-  #if HAS_DGUS_LCD
+  #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
     template<typename Cfg>
     typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::get_tx_buffer_free() {
       const ring_buffer_pos_t t = tx_buffer.tail,  // next byte to send.

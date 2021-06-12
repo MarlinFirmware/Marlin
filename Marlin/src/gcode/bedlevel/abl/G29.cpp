@@ -82,6 +82,12 @@
   #endif
 #endif
 
+#if ENABLED(PROBING_HEATERS_OFF)
+  #include "../../../module/temperature.h"
+  #include "../../../module/printcounter.h"
+#endif
+
+
 #define G29_RETURN(b) return TERN_(G29_RETRY_AND_RECOVER, b)
 
 // For manual probing values persist over multiple G29
