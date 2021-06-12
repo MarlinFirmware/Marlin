@@ -81,7 +81,7 @@ namespace ExtUI
 void onStartup()
 {
 	DWIN_SERIAL.begin(115200);
-
+  delay_ms(100);
 	rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
 	rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
 	memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
@@ -724,40 +724,8 @@ void RTSSHOW::RTS_HandleData()
 	SERIAL_ECHOLNPGM_P(PSTR("== Checkkey=="));
 	SERIAL_ECHOLN(Checkkey);
 
-  #if (ENABLED(MachineCRX) && DISABLED(Force10SProDisplay)) || ENABLED(ForceCRXDisplay)
-      const unsigned short topLeftData = 1;
-      const unsigned short topRightData = 2;
-      const unsigned short lowLeftData = 4;
-      const unsigned short lowRightData = 5;
-      const unsigned short centerData = 3;
-      const unsigned short homeZ = 99;
-      const unsigned short babystepUp = 98;
-      const unsigned short babystepDown = 97;
-      const unsigned short autoMeasure = 96;
-      const unsigned short assistEntry = 95;
-      const unsigned short levelOn = 94;
-    #else
-      const uint8_t topLeftData = 7;
-      const uint8_t topRightData = 8;
-      const uint8_t lowLeftData = 10;
-      const uint8_t lowRightData = 9;
-      const uint8_t centerData = 6;
-      const uint8_t homeZ = 1;
-      const uint8_t babystepUp = 2;
-      const uint8_t babystepDown = 3;
-      const uint8_t autoMeasure = 5;
-      const uint8_t assistEntry = 4;
-      const uint8_t levelOn = 11;
-    #endif
-
-    const uint8_t validateMesh = 12;
-    const uint8_t manualMeshBegin  = 13;
-    const uint8_t manualMeshNext  = 14;
-    const uint8_t manualMeshLower  = 15;
-    const uint8_t manualMeshRaise  = 16;
-
   constexpr float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
-SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
+  SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
 
 	switch (Checkkey)
 	{
@@ -1177,9 +1145,10 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
       break;
 
     case Bedlevel:
+      SERIAL_ECHOLNPAIR("Bed Level Option ",  recdat.data[0]);
       switch(recdat.data[0])
       {
-        case homeZ: // Z-axis to home
+        case 1: // Z-axis to home
         {
           // Disallow Z homing if X or Y are unknown
           if (!isAxisPositionKnown((axis_t)X) || !isAxisPositionKnown((axis_t)Y))
@@ -1190,7 +1159,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
           break;
         }
-        case babystepUp: // Z-axis to Up
+        case 2: // Z-axis to Up
         {
           if (WITHIN((getZOffset_mm() + 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
           {
@@ -1205,7 +1174,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           }
           break;
         }
-        case babystepDown: // Z-axis to Down
+        case 3: // Z-axis to Down
         {
           if (WITHIN((getZOffset_mm() - 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
           {
@@ -1221,7 +1190,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           }
           break;
         }
-        case assistEntry: // Assitant Level
+        case 4: // Assitant Level
         {
           #if HAS_MESH
             setLevelingActive(false);
@@ -1234,7 +1203,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           RTS_SndData(ExchangePageBase + 84, ExchangepageAddr);
           break;
         }
-        case autoMeasure: // AutoLevel "Measuring" Button
+        case 5: // AutoLevel "Measuring" Button
         {
           #if ENABLED(MESH_BED_LEVELING)
             RTS_SndData(ExchangePageBase + 93, ExchangepageAddr);
@@ -1252,7 +1221,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           break;
         }
 
-        case centerData: // Assitant Level ,  Centre 1
+        case 6: // Assitant Level ,  Centre 1
         {
           setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm(X_CENTER, (axis_t)X);
@@ -1260,7 +1229,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           waitway = 6;
           break;
         }
-        case topLeftData: // Assitant Level , Front Left 2
+        case 7: // Assitant Level , Front Left 2
         {
           setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MIN_BED + lfrb[0]), (axis_t)X);
@@ -1268,7 +1237,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           waitway = 6;
           break;
         }
-        case topRightData: // Assitant Level , Front Right 3
+        case 8: // Assitant Level , Front Right 3
         {
           setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MAX_BED - lfrb[2]), (axis_t)X);
@@ -1276,7 +1245,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           waitway = 6;
           break;
         }
-        case lowRightData: // Assitant Level , Back Right 4
+        case 9: // Assitant Level , Back Right 4
         {
           setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MAX_BED - lfrb[2]), (axis_t)X);
@@ -1284,7 +1253,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           waitway = 6;
           break;
         }
-        case lowLeftData: // Assitant Level , Back Left 5
+        case 10: // Assitant Level , Back Left 5
         {
           setAxisPosition_mm(LEVEL_CORNERS_Z_HOP, (axis_t)Z);
           setAxisPosition_mm((X_MIN_BED + lfrb[0]), (axis_t)X);
@@ -1292,7 +1261,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           waitway = 6;
           break;
         }
-        case levelOn: // Autolevel switch
+        case 11: // Autolevel switch
         {
           #if HAS_MESH
             if (!getLevelingActive()) //turn on the Autolevel
@@ -1309,34 +1278,34 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
           break;
         }
-        case validateMesh:
+        case 12:
         {
           injectCommands_P(PSTR("G26R255"));
-          onStatusChanged("Beginning G26.. Heating");
+          onStatusChanged_P(PSTR("Beginning G26.. Heating"));
           break;
         }
-        case manualMeshBegin :
+        case 13:
         {
           injectCommands_P(PSTR("G29S1"));
-          onStatusChanged("Beginning Manual Mesh");
+          onStatusChanged_P(PSTR("Begin Manual Mesh"));
           break;
         }
-        case manualMeshNext :
+        case 14:
         {
           injectCommands_P(PSTR("G29S2"));
-          onStatusChanged("Moving to Next Mesh Point");
+          onStatusChanged_P(PSTR("Moving to Next Mesh Point"));
           break;
         }
-        case manualMeshLower :
+        case 15:
         {
-          injectCommands_P(PSTR("G91\nG1Z-0.025\nG90"));
-          onStatusChanged("Moved down 0.025");
+          injectCommands_P(PSTR("M211S0\nG91\nG1Z-0.025\nG90M211S1"));
+          onStatusChanged_P(PSTR("Moved down 0.025"));
           break;
         }
-        case manualMeshRaise :
+        case 16:
         {
-          injectCommands_P(PSTR("G91\nG1Z0.025\nG90"));
-          onStatusChanged("Moved up 0.025");
+          injectCommands_P(PSTR("M211S0G91\nG1Z0.025\nG90M211S1"));
+          onStatusChanged_P(PSTR("Moved up 0.025"));
           break;
         }
         default:
@@ -1505,7 +1474,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           SERIAL_ECHOLNPGM_P(PSTR("English Already Set"));
           break;
         }
-        #if HAS_PID_HEATING
+        #if ENABLED(PIDTEMP)
           case 2: {
             onStatusChanged_P(PSTR("Hotend PID Started"));
             startPIDTune(pid_hotendAutoTemp, getActiveTool());
@@ -1522,7 +1491,7 @@ SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
           injectCommands_P(PSTR("M999\nM280P0S160"));
           break;
         }
-        #if HAS_PID_HEATING
+        #if ENABLED(PIDTEMPBED)
           case 5: {
             #if ENABLED(PIDTEMPBED)
               onStatusChanged_P(PSTR("Bed PID Started"));

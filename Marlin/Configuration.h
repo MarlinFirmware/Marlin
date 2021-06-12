@@ -81,7 +81,8 @@
  */
 
  //#define EZRstruder
- //#define Bondtech
+ //#define BondtechBMG
+ //#define BondtechLGX
  //#define E3DTitan
  //#define E3DHemera
  //#define CrealityTitan
@@ -364,7 +365,7 @@
 #endif
 
 #if ENABLED(DDXExtruderKit)
-  #define Bondtech
+  #define BondtechBMG
 #endif
 
 #if ENABLED(ABL_EZABL12MM)
@@ -1658,7 +1659,9 @@
   #define EStepsmm 382.14
 #elif ENABLED(MicroswissDirectDrive)
   #define EStepsmm 130
-#elif(ENABLED(Bondtech) || ENABLED(E3DTitan))
+#elif ENABLED(BondtechLGX)
+  #define EStepsmm 400
+#elif(ENABLED(BondtechBMG) || ENABLED(E3DTitan))
   #define EStepsmm 415
 #elif ENABLED(E3DHemera)
   #define EStepsmm 409
@@ -3837,7 +3840,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && (NONE(GraphicLCD, SKRMiniE3V2) || ENABLED(Force10SProDisplay))
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && (NONE(GraphicLCD, SKRMiniE3V2) || ENABLED(Force10SProDisplay))
   #ifndef Force10SProDisplay
     #define Force10SProDisplay
   #endif

@@ -38,7 +38,7 @@
 using namespace ExtUI;
 
 #define DEBUG_OUT NEXDEBUGLEVEL
-#include "../../../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 FileList  FileNavigator::filelist;                          // Instance of the Marlin file API
 char      FileNavigator::currentfoldername[MAX_PATH_LEN];   // Current folder path
