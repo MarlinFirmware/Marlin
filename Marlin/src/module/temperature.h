@@ -174,7 +174,7 @@ enum ADCSensorState : char {
   #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
 
-#if BOTH(HAS_LCD_MENU, G26_MESH_VALIDATION)
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI) && ENABLED(G26_MESH_VALIDATION)
   #define G26_CLICK_CAN_CANCEL 1
 #endif
 
@@ -731,7 +731,7 @@ class Temperature {
         OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
       );
 
-      static void wait_for_bed_heating();
+      static void wait_for_bed_heating(const bool no_wait_for_cooling=true);
 
       static inline bool degBedNear(const celsius_t temp) {
         return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);

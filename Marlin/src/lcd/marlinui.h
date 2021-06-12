@@ -531,6 +531,9 @@ public:
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
+  #elif ENABLED(EXTENSIBLE_UI)
+    static bool lcd_clicked;
+    static bool use_click();
   #endif
 
   #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)

@@ -44,6 +44,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
+#include "../../gcode/gcode.h"
 
 namespace ExtUI {
 
@@ -77,6 +78,8 @@ namespace ExtUI {
   void injectCommands_P(PGM_P const);
   void injectCommands(char * const);
   bool commandsInQueue();
+
+  GcodeSuite::MarlinBusyState getMachineState();
 
   bool isHeaterIdle(const heater_t);
   bool isHeaterIdle(const extruder_t);
@@ -125,6 +128,7 @@ namespace ExtUI {
   float getAxisMaxAcceleration_mm_s2(const extruder_t);
   feedRate_t getMinFeedrate_mm_s();
   feedRate_t getMinTravelFeedrate_mm_s();
+  feedRate_t getFeedrate_mm_s();
   float getPrintingAcceleration_mm_s2();
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
@@ -186,6 +190,9 @@ namespace ExtUI {
     void setHostResponse(const uint8_t);
   #endif
 
+  void ui_setUICancelOperation(const bool);
+  bool get_isUICanceled();
+
   #if ENABLED(PRINTCOUNTER)
     char* getFailedPrints_str(char buffer[21]);
     char* getTotalPrints_str(char buffer[21]);
@@ -215,7 +222,7 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const_float_t );
   void setFeedrate_percent(const_float_t );
   void setFlow_percent(const int16_t, const extruder_t);
-  bool awaitingUserConfirm();
+  bool isWaitingOnUser();
   void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)

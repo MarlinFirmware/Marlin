@@ -3621,7 +3621,9 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
-            ui.quick_feedback();
+            #if HAS_LCD_MENU
+              ui.quick_feedback();
+            #endif
           }
         #endif
 
@@ -3755,7 +3757,9 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
-            ui.quick_feedback();
+            #if HAS_LCD_MENU
+              ui.quick_feedback();
+            #endif
           }
         #endif
 
@@ -3774,11 +3778,11 @@ void Temperature::isr() {
       return false;
     }
 
-    void Temperature::wait_for_bed_heating() {
-      if (isHeatingBed()) {
+    void Temperature::wait_for_bed_heating(const bool no_wait_for_cooling/*=true*/) {
+      if (isHeatingBed() || !no_wait_for_cooling ) {
         SERIAL_ECHOLNPGM("Wait for bed heating...");
         LCD_MESSAGEPGM(MSG_BED_HEATING);
-        wait_for_bed();
+        wait_for_bed(no_wait_for_cooling);
         ui.reset_status();
       }
     }
