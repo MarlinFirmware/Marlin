@@ -36,35 +36,39 @@
  */
 
 #if(ENABLED(MachineMini))
-#define VerChar1 "M"
+  #define VerChar1 "M"
 #elif(ENABLED(MachineEnder2))
-#define VerChar1 "E2"
+  #define VerChar1 "E2"
 #elif(ENABLED(MachineEnder3))
-#define VerChar1 "E3"
+  #define VerChar1 "E3"
 #elif ENABLED(MachineEnder3V2)
   #define VerChar1 "E3V2"
 #elif ENABLED(MachineEnder3Max)
   #define VerChar1 "E3M"
 #elif(ENABLED(MachineEnder4))
-#define VerChar1 "E4"
+  #define VerChar1 "E4"
 #elif(ENABLED(MachineEnder5))
-#define VerChar1 "E5"
+  #define VerChar1 "E5"
 #elif(ENABLED(MachineEnder6))
-#define VerChar1 "E6"
+  #define VerChar1 "E6"
 #elif(ENABLED(MachineEnder5Plus))
-#define VerChar1 "E5P"
+  #define VerChar1 "E5P"
 #elif(ENABLED(MachineCR20))
-#define VerChar1 "2"
+  #define VerChar1 "2"
 #elif(ENABLED(MachineCR10Orig))
-#define VerChar1 "O"
+  #define VerChar1 "O"
 #elif(ENABLED(MachineCR10Std))
-#define VerChar1 "S"
+  #define VerChar1 "S"
 #elif(ENABLED(MachineCRX))
-#define VerChar1 "X"
+  #define VerChar1 "X"
+#elif(ENABLED(MachineCR6))
+  #define VerChar1 "CR6"
+#elif(ENABLED(MachineCR6Max))
+  #define VerChar1 "CR6M"
 #elif(ENABLED(MachineS4))
-#define VerChar1 "4"
+  #define VerChar1 "4"
 #elif(ENABLED(MachineS5) || ENABLED(MachineCR10Max))
-#define VerChar1 "5"
+  #define VerChar1 "5"
 #elif ENABLED(MachineCR2020)
   #define VerChar1 "20"
 #endif

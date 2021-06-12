@@ -352,6 +352,7 @@
   #if NONE(ABL_UBL, ABL_BI)
     #define ABL_BI
   #endif
+  #define BedDC
 #endif
 
 #if ENABLED(OriginalCrealitySquareBoard)
@@ -571,11 +572,11 @@
   #define POWER_LOSS_RECOVERY
 #endif
 
-#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, Force10SProDisplay, ForceCRXDisplay, MachineCR6, MachineCR6Max) || ENABLED(GraphicLCD)
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, Force10SProDisplay, ForceCRXDisplay) || ENABLED(GraphicLCD)
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-  #if DISABLED(MachineEnder3V2)
+  #if DISABLED(MachineEnder3V2, MachineCR6, MachineCR6Max)
     #define SHOW_CUSTOM_BOOTSCREEN
     // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
     #define CUSTOM_STATUS_SCREEN_IMAGE
@@ -1860,7 +1861,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-#if DISABLED(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI)
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max)
   #define PROBE_MANUALLY
   #define MANUAL_PROBE_START_Z 0.2
 #endif
@@ -2667,7 +2668,7 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI)
+#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI, NOZZLE_AS_PROBE)
   #if ENABLED(ABL_UBL)
     #define AUTO_BED_LEVELING_UBL
   #elif ENABLED(ABL_BI)
@@ -2910,7 +2911,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#if ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI)
+#if ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, NOZZLE_AS_PROBE)
   #define Z_SAFE_HOMING
 #endif
 
@@ -3836,7 +3837,10 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && (NONE(GraphicLCD, SKRMiniE3V2) || ANY(Force10SProDisplay, ForceCRXDisplay))
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && (NONE(GraphicLCD, SKRMiniE3V2) || ENABLED(Force10SProDisplay))
+  #ifndef Force10SProDisplay
+    #define Force10SProDisplay
+  #endif
   #define EXTENSIBLE_UI
 #endif
 
