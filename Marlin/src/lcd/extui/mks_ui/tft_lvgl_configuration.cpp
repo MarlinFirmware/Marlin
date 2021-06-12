@@ -46,11 +46,11 @@ XPT2046 touch;
 #endif
 
 #if HAS_SERVOS
-  #include "../../../../module/servo.h"
+  #include "../../../module/servo.h"
 #endif
 
 #if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
-  #include "../../../../module/probe.h"
+  #include "../../../module/probe.h"
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
