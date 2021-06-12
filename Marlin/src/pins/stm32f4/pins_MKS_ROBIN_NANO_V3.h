@@ -190,7 +190,9 @@
   #define FIL_RUNOUT2_PIN               MT_DET_2
 #endif
 
-#define POWER_LOSS_PIN                    PW_DET
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                  PW_DET
+#endif
 #define PS_ON_PIN                         PW_OFF
 
 //
