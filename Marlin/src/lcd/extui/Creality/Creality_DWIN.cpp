@@ -81,7 +81,7 @@ namespace ExtUI
 void onStartup()
 {
 	DWIN_SERIAL.begin(115200);
-  delay_ms(100);
+  delay_ms(3000); // Delay to show bootscreen
 	rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
 	rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
 	memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
@@ -1133,6 +1133,7 @@ void RTSSHOW::RTS_HandleData()
       break;
 
     case ReturnBack:
+      SERIAL_ECHOPAIR("Return : ", recdat.data[0]);
       if (recdat.data[0] == 1) // return to the tool page
       {
         InforShowStatus = false;
@@ -1477,7 +1478,7 @@ void RTSSHOW::RTS_HandleData()
         #if ENABLED(PIDTEMP)
           case 2: {
             onStatusChanged_P(PSTR("Hotend PID Started"));
-            startPIDTune(pid_hotendAutoTemp, getActiveTool());
+            startPIDTune((celsius_t)pid_hotendAutoTemp, getActiveTool());
             break;
           }
         #endif
@@ -1491,17 +1492,16 @@ void RTSSHOW::RTS_HandleData()
           injectCommands_P(PSTR("M999\nM280P0S160"));
           break;
         }
-        #if ENABLED(PIDTEMPBED)
-          case 5: {
-            #if ENABLED(PIDTEMPBED)
-              onStatusChanged_P(PSTR("Bed PID Started"));
-              startBedPIDTune(pid_bedAutoTemp);
-            #else
-              SERIAL_ECHOLNPGM_P(PSTR("Bed PID Disabled"));
-            #endif
-            break;
-          }
-        #endif
+
+        case 5: {
+          #if ENABLED(PIDTEMPBED)
+            onStatusChanged_P(PSTR("Bed PID Started"));
+            startBedPIDTune((celsius_t)pid_bedAutoTemp);
+          #else
+            SERIAL_ECHOLNPGM_P(PSTR("Bed PID Disabled"));
+          #endif
+          break;
+        }
         case 6: {
           SERIAL_ECHOLNPGM_P(PSTR("Store Settings"));
           injectCommands_P(PSTR("M500"));
@@ -2030,15 +2030,6 @@ void onPostprocessSettings()
 
 }
 
-void startPIDTune(float const& target, ExtUI::extruder_t e)
-{
-
-}
-
-void startBedPIDTune(float const& target)
-{
-
-}
 
 } // namespace ExtUI
 
