@@ -26,4 +26,16 @@
 CommandProcessor::btn_style_func_t  *CommandProcessor::_btn_style_callback = CommandProcessor::default_button_style_func;
 bool CommandProcessor::is_tracking = false;
 
+uint32_t CommandProcessor::memcrc(uint32_t ptr, uint32_t num) {
+  const uint16_t x = CLCD::mem_read_16(CLCD::REG::CMD_WRITE);
+  memcrc(ptr, num, 0);
+  wait();
+  return CLCD::mem_read_32(CLCD::MAP::RAM_CMD + x + 12);
+}
+
+bool CommandProcessor::wait() {
+  while (is_processing() && !has_fault()) { /* nada */ }
+  return !has_fault();
+}
+
 #endif // FTDI_EXTENDED

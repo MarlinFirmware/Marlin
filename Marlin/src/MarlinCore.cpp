@@ -282,8 +282,15 @@ bool wait_for_heatup = true;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
+#ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
+  static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
+#else
+  template <pin_t ...D>
+  constexpr pin_t OnlyPins<-2, D...>::table[sizeof...(D)];
+  #define sensitive_pins OnlyPins<SENSITIVE_PINS>::table
+#endif
+
 bool pin_is_protected(const pin_t pin) {
-  static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
   LOOP_L_N(i, COUNT(sensitive_pins)) {
     pin_t sensitive_pin;
     memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(pin_t));
@@ -304,6 +311,9 @@ void enable_all_steppers() {
   ENABLE_AXIS_X();
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
+  ENABLE_AXIS_I(); // Marlin 6-axis support by DerAndere (https://github.com/DerAndere1/Marlin/wiki)
+  ENABLE_AXIS_J();
+  ENABLE_AXIS_K();
   enable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
@@ -317,7 +327,7 @@ void disable_e_steppers() {
 void disable_e_stepper(const uint8_t e) {
   #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
   switch (e) {
-    REPEAT(EXTRUDERS, _CASE_DIS_E)
+    REPEAT(E_STEPPERS, _CASE_DIS_E)
   }
 }
 
@@ -325,6 +335,9 @@ void disable_all_steppers() {
   DISABLE_AXIS_X();
   DISABLE_AXIS_Y();
   DISABLE_AXIS_Z();
+  DISABLE_AXIS_I();
+  DISABLE_AXIS_J();
+  DISABLE_AXIS_K();
   disable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
@@ -444,6 +457,9 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
         if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
         if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
+        if (ENABLED(DISABLE_INACTIVE_I)) DISABLE_AXIS_I();
+        if (ENABLED(DISABLE_INACTIVE_J)) DISABLE_AXIS_J();
+        if (ENABLED(DISABLE_INACTIVE_K)) DISABLE_AXIS_K();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
@@ -935,6 +951,15 @@ inline void tmc_standby_setup() {
   #if PIN_EXISTS(Z4_STDBY)
     SET_INPUT_PULLDOWN(Z4_STDBY_PIN);
   #endif
+  #if PIN_EXISTS(I_STDBY)
+    SET_INPUT_PULLDOWN(I_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(J_STDBY)
+    SET_INPUT_PULLDOWN(J_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(K_STDBY)
+    SET_INPUT_PULLDOWN(K_STDBY_PIN);
+  #endif
   #if PIN_EXISTS(E0_STDBY)
     SET_INPUT_PULLDOWN(E0_STDBY_PIN);
   #endif
@@ -1101,6 +1126,7 @@ void setup() {
   #endif
 
   #if HAS_FREEZE_PIN
+    SETUP_LOG("FREEZE_PIN");
     SET_INPUT_PULLUP(FREEZE_PIN);
   #endif
 
@@ -1109,11 +1135,19 @@ void setup() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
+  #ifdef JTAGSWD_RESET
+    SETUP_LOG("JTAGSWD_RESET");
+    JTAGSWD_RESET();
+  #endif
+
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
+    delay(10);
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
+      SETUP_LOG("JTAGSWD_DISABLE");
       JTAGSWD_DISABLE();
     #elif defined(JTAG_DISABLE)
+      SETUP_LOG("JTAG_DISABLE");
       JTAG_DISABLE();
     #else
       #error "DISABLE_(DEBUG|JTAG) is not supported for the selected MCU/Board."
@@ -1132,10 +1166,10 @@ void setup() {
   SETUP_RUN(HAL_init());
 
   // Init and disable SPI thermocouples; this is still needed
-  #if TEMP_SENSOR_0_IS_MAX_TC
+  #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0)
     OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
   #endif
-  #if TEMP_SENSOR_1_IS_MAX_TC
+  #if TEMP_SENSOR_1_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1)
     OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
   #endif
 
@@ -1423,10 +1457,7 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU1
-    SETUP_LOG("Prusa MMU1");
-    SET_OUTPUT(E_MUX0_PIN);
-    SET_OUTPUT(E_MUX1_PIN);
-    SET_OUTPUT(E_MUX2_PIN);
+    SETUP_RUN(mmu_init());
   #endif
 
   #if HAS_FANMUX
