@@ -305,7 +305,7 @@ void unified_bed_leveling::G29() {
   bool probe_deployed = false;
   if (G29_parse_parameters()) return; // Abort on parameter error
 
-  const int8_t p_val = parser.intval('P', -1);
+  const int8_t p_val = parser.byteval('P', 255);
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
   #if ENABLED(HAS_MULTI_HOTEND)
     const uint8_t old_tool_index = active_extruder;
@@ -321,7 +321,7 @@ void unified_bed_leveling::G29() {
 
   // Invalidate one or more nearby mesh points, possibly all.
   if (parser.seen('I')) {
-    int16_t count = parser.has_value() ? parser.value_int() : 1;
+    uint8_t count = parser.has_value() ? parser.value_byte() : 1;
     bool invalidate_all = count >= GRID_MAX_POINTS;
     if (!invalidate_all) {
       while (count--) {
@@ -345,7 +345,7 @@ void unified_bed_leveling::G29() {
   }
 
   if (parser.seen('Q')) {
-    const int test_pattern = parser.has_value() ? parser.value_int() : -99;
+    const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
     if (!WITHIN(test_pattern, -1, 2)) {
       SERIAL_ECHOLNPGM("Invalid test_pattern value. (-1 to 2)\n");
       return;
@@ -1083,7 +1083,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
   param.R_repetition = 0;
 
   if (parser.seen('R')) {
-    param.R_repetition = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS;
+    param.R_repetition = parser.has_value() ? parser.value_byte() : GRID_MAX_POINTS;
     NOMORE(param.R_repetition, GRID_MAX_POINTS);
     if (param.R_repetition < 1) {
       SERIAL_ECHOLNPGM("?(R)epetition count invalid (1+).\n");
@@ -1091,14 +1091,14 @@ bool unified_bed_leveling::G29_parse_parameters() {
     }
   }
 
-  param.V_verbosity = parser.intval('V');
+  param.V_verbosity = parser.byteval('V');
   if (!WITHIN(param.V_verbosity, 0, 4)) {
     SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).\n");
     err_flag = true;
   }
 
   if (parser.seen('P')) {
-    const int pv = parser.value_int();
+    const int pv = parser.value_byte();
     #if !HAS_BED_PROBE
       if (pv == 1) {
         SERIAL_ECHOLNPGM("G29 P1 requires a probe.\n");
@@ -1181,7 +1181,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
     }
   #endif
 
-  param.T_map_type = parser.intval('T');
+  param.T_map_type = parser.byteval('T');
   if (!WITHIN(param.T_map_type, 0, 2)) {
     SERIAL_ECHOLNPGM("Invalid map type.\n");
     return UBL_ERR;
