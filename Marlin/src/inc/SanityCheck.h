@@ -580,6 +580,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Probe temp compensation requirements
  */
+
 #if ENABLED(PROBE_TEMP_COMPENSATION)
   #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
     #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
@@ -589,6 +590,27 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
   #elif !defined(PTC_PROBE_POS)
     #error "PROBE_TEMP_COMPENSATION requires PTC_PROBE_POS."
+  #endif
+
+  #ifdef PTC_SAMPLE_START
+    constexpr int _ptc_sample_start = PTC_SAMPLE_START;
+    static_assert(_test_ptc_sample_start != PTC_SAMPLE_START, "PTC_SAMPLE_START must be a whole number.");
+  #endif
+  #ifdef PTC_SAMPLE_RES
+    constexpr int _ptc_sample_res = PTC_SAMPLE_END;
+    static_assert(_test_ptc_sample_res != PTC_SAMPLE_END, "PTC_SAMPLE_RES must be a whole number.");
+  #endif
+  #ifdef BTC_SAMPLE_START
+    constexpr int _btc_sample_start = BTC_SAMPLE_START;
+    static_assert(_test_btc_sample_start != BTC_SAMPLE_START, "BTC_SAMPLE_START must be a whole number.");
+  #endif
+  #ifdef BTC_SAMPLE_RES
+    constexpr int _btc_sample_res = BTC_SAMPLE_END;
+    static_assert(_test_btc_sample_res != BTC_SAMPLE_END, "BTC_SAMPLE_RES must be a whole number.");
+  #endif
+  #ifdef BTC_PROBE_TEMP
+    constexpr int _btc_probe_temp = BTC_PROBE_TEMP;
+    static_assert(_test_btc_probe_temp != BTC_PROBE_TEMP, "BTC_PROBE_TEMP must be a whole number.");
   #endif
 #endif
 
