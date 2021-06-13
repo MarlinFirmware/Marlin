@@ -97,7 +97,8 @@
   };
   extern WifiSerial WifiSerial1;
   #define WIFISERIAL  WifiSerial1
-#else
+
+#else // !__STM32F1__
 
   #include <inttypes.h>
   #include "Stream.h"
@@ -120,7 +121,7 @@
       int available(void);
       int read(void);
       int write(uint8_t);
-      
+
       // Interrupt handlers
       static int _tx_complete_irq(serial_t *obj);
       static void _rx_complete_irq(serial_t *obj);
@@ -141,5 +142,5 @@
   };
   extern WifiSerial WifiSerial1;
   #define WIFISERIAL  WifiSerial1
-#endif // __STM32F1__
+#endif // !__STM32F1__
 #endif // MKS_WIFI_MODULE
