@@ -164,7 +164,7 @@ static void serial_echo_column_labels(const uint8_t sp) {
  *   2: TODO: Display on Graphical LCD
  *   4: Compact Human-Readable
  */
-void unified_bed_leveling::display_map(const int map_type) {
+void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
   constexpr uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]

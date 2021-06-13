@@ -47,11 +47,11 @@ struct mesh_index_pair;
 
 typedef struct {
   bool      C_seen;
-  int16_t   KLS_storage_slot,
-            T_map_type;
+  int8_t    KLS_storage_slot;
   uint8_t   R_repetition,
             V_verbosity,
-            P_phase;
+            P_phase,
+            T_map_type;
   float     B_shim_thickness,
             C_constant;
   xy_pos_t  XY_pos;

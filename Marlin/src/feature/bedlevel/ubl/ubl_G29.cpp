@@ -592,7 +592,7 @@ void unified_bed_leveling::G29() {
   //
 
   if (parser.seen('L')) {     // Load Current Mesh Data
-    param.KLS_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
+    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
     int16_t a = settings.calc_num_meshes();
 
@@ -617,7 +617,7 @@ void unified_bed_leveling::G29() {
   //
 
   if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
-    param.KLS_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
+    param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
     if (param.KLS_storage_slot == -1)                     // Special case, the user wants to 'Export' the mesh to the
       return report_current_mesh();                 // host program to be saved on the user's computer
@@ -673,7 +673,7 @@ void unified_bed_leveling::G29() {
  */
 void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t offset) {
   float sum = 0;
-  int n = 0;
+  uint8_t n = 0;
   GRID_LOOP(x, y)
     if (!isnan(z_values[x][y])) {
       sum += z_values[x][y];
@@ -734,7 +734,7 @@ void unified_bed_leveling::shift_mesh_height() {
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
-      const int point_num = (GRID_MAX_POINTS) - count + 1;
+      const uint8_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPAIR("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), point_num, int(GRID_MAX_POINTS)));
 
@@ -1098,7 +1098,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   if (parser.seen('P')) {
-    const int pv = parser.value_byte();
+    const int16_t pv = parser.value_byte();
     #if !HAS_BED_PROBE
       if (pv == 1) {
         SERIAL_ECHOLNPGM("G29 P1 requires a probe.\n");
@@ -1833,7 +1833,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       return;
     }
 
-    param.KLS_storage_slot = parser.value_int();
+    param.KLS_storage_slot = (int8_t)parser.value_int();
 
     float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
     settings.load_mesh(param.KLS_storage_slot, &tmp_z_values);
