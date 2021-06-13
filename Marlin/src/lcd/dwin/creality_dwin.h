@@ -36,7 +36,7 @@ enum processID : uint8_t {
 };
 
 enum PopupID : uint8_t {
-  Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore,
+  Pause, Stop, Resume, SaveLevel, ETemp, ConfFilChange, PurgeMore, MeshSlot,
   Level, Home, MoveWait, Heating,  FilLoad, FilChange, TempWarn, Runout, PIDWait, Resuming,
   FilInsert, HeaterTime, UserInput, LevelError, InvalidMesh, UI, Complete
 };
@@ -263,6 +263,8 @@ enum colorID : uint8_t {
 #define BarFill_Color       0x10E4  // Fill color of progress bar
 #define Select_Color        0x33BB  // Selected color
 #define Check_Color         0x4E5C  // Check-box check color
+#define Confirm_Color   	  0x34B9
+#define Cancel_Color        0x3186
 
 class CrealityDWINClass {
 
