@@ -68,7 +68,9 @@ namespace ExtUI
   bool FanStatus = true;
   bool AutohomeKey = false;
   unsigned char AutoHomeIconNum;
-  unsigned long VolumeSet = 0x20;
+
+  creality_dwin_settings_t Settings;
+  uint8_t dwin_settings_version = 1;
 
   bool reEntryPrevent = false;
   uint16_t idleThrottling = 0;
@@ -81,14 +83,15 @@ namespace ExtUI
 void onStartup()
 {
 	DWIN_SERIAL.begin(115200);
-  delay_ms(3000); // Delay to show bootscreen
 	rtscheck.recdat.head[0] = rtscheck.snddat.head[0] = FHONE;
 	rtscheck.recdat.head[1] = rtscheck.snddat.head[1] = FHTWO;
 	memset(rtscheck.databuf, 0, sizeof(rtscheck.databuf));
 
-	//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
-	//if(VolumeSet < 0 || VolumeSet > 0xFF)
+  delay_ms(500); // Delay to allow screen startup
+  SetTouchScreenConfiguration();
 
+  delay_ms(400); // Delay to allow screen to configure
+  onStatusChanged_P(PSTR(CUSTOM_MACHINE_NAME " Ready"));
   //Set Eco Mode
 	if (PrintMode)
 		rtscheck.RTS_SndData(3, FanKeyIcon + 1); // saving mode
@@ -237,19 +240,7 @@ void onIdle()
 	{
         if (startprogress == 0)
         {
-          rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
-          if (VolumeSet == 0)
-          {
-            rtscheck.RTS_SndData(0, VolumeIcon);
-            rtscheck.RTS_SndData(9, SoundIcon);
-          }
-          else
-          {
-            rtscheck.RTS_SndData((VolumeSet + 1) / 32 - 1, VolumeIcon);
-            rtscheck.RTS_SndData(8, SoundIcon);
-          }
-          rtscheck.RTS_SndData(VolumeSet, VolumeIcon - 2);
-          rtscheck.RTS_SndData(VolumeSet << 8, SoundAddr + 1);
+
           #if HAS_MESH
             if (getLevelingActive())
               rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
@@ -260,13 +251,15 @@ void onIdle()
         }
         else if( startprogress < 250)
         {
-            startprogress = 254;
-            SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
-            InforShowStatus = true;
-            TPShowStatus = false;
-            rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
-            reEntryPrevent = false;
-			      return;
+
+          delay_ms(3000); // Delay to show bootscreen
+          startprogress = 254;
+          SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
+          InforShowStatus = true;
+          TPShowStatus = false;
+          rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
+          reEntryPrevent = false;
+		      return;
         }
         if (startprogress <= 100)
           rtscheck.RTS_SndData(startprogress, StartIcon);
@@ -1321,8 +1314,8 @@ void RTSSHOW::RTS_HandleData()
 
     case XYZEaxis:
     {
-      axis_t axis;
-      float min, max;
+      axis_t axis = X;
+      float min, max = 0;
       waitway = 4;
       if (recdat.addr == DisplayXaxis)
       {
@@ -1478,7 +1471,7 @@ void RTSSHOW::RTS_HandleData()
         #if ENABLED(PIDTEMP)
           case 2: {
             onStatusChanged_P(PSTR("Hotend PID Started"));
-            startPIDTune((celsius_t)pid_hotendAutoTemp, getActiveTool());
+            startPIDTune(static_cast<celsius_t>(pid_hotendAutoTemp), getActiveTool());
             break;
           }
         #endif
@@ -1496,7 +1489,7 @@ void RTSSHOW::RTS_HandleData()
         case 5: {
           #if ENABLED(PIDTEMPBED)
             onStatusChanged_P(PSTR("Bed PID Started"));
-            startBedPIDTune((celsius_t)pid_bedAutoTemp);
+            startBedPIDTune(static_cast<celsius_t>(pid_bedAutoTemp));
           #else
             SERIAL_ECHOLNPGM_P(PSTR("Bed PID Disabled"));
           #endif
@@ -1580,24 +1573,23 @@ void RTSSHOW::RTS_HandleData()
   #endif
     case Volume:
       if (recdat.data[0] < 0)
-        VolumeSet = 0;
+        Settings.display_volume = 0;
       else if (recdat.data[0] > 255)
-        VolumeSet = 0xFF;
+        Settings.display_volume = 0xFF;
       else
-        VolumeSet = recdat.data[0];
+        Settings.display_volume = recdat.data[0];
 
-      if (VolumeSet == 0)
+      if (Settings.display_volume == 0)
       {
         RTS_SndData(0, VolumeIcon);
         RTS_SndData(9, SoundIcon);
       }
       else
       {
-        RTS_SndData((VolumeSet + 1) / 32 - 1, VolumeIcon);
+        RTS_SndData((Settings.display_volume + 1) / 32 - 1, VolumeIcon);
         RTS_SndData(8, SoundIcon);
       }
-      //eeprom_write_byte((unsigned char*)FONT_EEPROM+4, VolumeSet);
-      RTS_SndData(VolumeSet << 8, SoundAddr + 1);
+      RTS_SndData(Settings.display_volume << 8, SoundAddr + 1);
       break;
 
     case Filename:
@@ -1707,6 +1699,69 @@ void RTSSHOW::RTS_HandleData()
 	memset(&recdat, 0, sizeof(recdat));
 	recdat.head[0] = FHONE;
 	recdat.head[1] = FHTWO;
+}
+
+ void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false, char fillChar = ' ') {
+  const char* myvalues = static_cast<const char*>(values);
+  bool strend = !myvalues;
+  DWIN_SERIAL.write(FHONE);
+  DWIN_SERIAL.write(FHTWO);
+  DWIN_SERIAL.write(valueslen + 3);
+  DWIN_SERIAL.write(0x82);
+  DWIN_SERIAL.write(adr >> 8);
+  DWIN_SERIAL.write(adr & 0xFF);
+  while (valueslen--) {
+    char x;
+    if (!strend) x = *myvalues++;
+    if ((isstr && !x) || strend) {
+      strend = true;
+      x = fillChar;
+    }
+    DWIN_SERIAL.write(x);
+  }
+}
+
+void SetTouchScreenConfiguration() {
+  // Main configuration (System_Config)
+  LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
+  LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
+
+  unsigned char cfg_bits = 0x0;
+  cfg_bits |= 1UL << 7; // 7: Enable Control
+  cfg_bits |= 1UL << 5; // 5: load 22 touch file
+  cfg_bits |= 1UL << 4; // 4: auto-upload should always be enabled
+  if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
+  if (Settings.display_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
+  if(Settings.screen_rotation==10) cfg_bits |= 1UL << 1; // 1 & 0: Inversion
+  //cfg_bits |= 1UL << 0; // Portrait Mode
+
+
+  const unsigned char config_set[] = { 0x5A, 0x00, 0xFF, cfg_bits };
+  WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
+
+  // Standby brightness (LED_Config)
+  uint16_t dwinStandbyTimeSeconds = 100 * Settings.standby_time_seconds;  /* milliseconds, but divided by 10 (not 5 like the docs say) */
+  const unsigned char brightness_set[] = {
+    Settings.screen_brightness /*% active*/,
+    Settings.standby_screen_brightness /*% standby*/,
+    static_cast<uint8_t>(dwinStandbyTimeSeconds >> 8),
+    static_cast<uint8_t>(dwinStandbyTimeSeconds)
+  };
+  WriteVariable(0x82 /*LED_Config*/, brightness_set, sizeof(brightness_set));
+
+  rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
+  if (!Settings.display_sound)
+  {
+    rtscheck.RTS_SndData(0, VolumeIcon);
+    rtscheck.RTS_SndData(9, SoundIcon);
+  }
+  else
+  {
+    rtscheck.RTS_SndData((Settings.display_volume + 1) / 32 - 1, VolumeIcon);
+    rtscheck.RTS_SndData(8, SoundIcon);
+  }
+  rtscheck.RTS_SndData(Settings.display_volume, VolumeIcon - 2);
+  rtscheck.RTS_SndData(Settings.display_volume << 8, SoundAddr + 1);
 }
 
 void onPrinterKilled(PGM_P killMsg, PGM_P component) {
@@ -1871,10 +1926,24 @@ void onStatusChanged(const char *const statMsg)
 }
 void onFactoryReset()
 {
+  Settings.settings_size = sizeof(creality_dwin_settings_t);
+  Settings.settings_version = dwin_settings_version;
+  Settings.display_standby = true;
+  Settings.display_sound = true;
+  Settings.display_volume = 32;
+  Settings.standby_screen_brightness = 15;
+  Settings.screen_brightness = 100;
+  Settings.standby_time_seconds = 60;
+  #if ENABLED(MachineEnder6)
+    Settings.screen_rotation = 10;
+  #else
+    Settings.screen_rotation = 0;
+  #endif
   onStartup();
   startprogress = 0;
   InforShowStatus = true;
 	SERIAL_ECHOLNPGM_P(PSTR("==onFactoryReset=="));
+
 }
 
 void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {
@@ -1906,26 +1975,55 @@ void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval)
 
 void onStoreSettings(char *buff)
 {
-	SERIAL_ECHOLNPGM_P(PSTR("==onStoreSettings=="));
-	// This is called when saving to EEPROM (i.e. M500). If the ExtUI needs
-	// permanent data to be stored, it can write up to eeprom_data_size bytes
-	// into buff.
+	static_assert(
+    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
+    "Insufficient space in EEPROM for UI parameters"
+  );
 
-	// Example:
-	//  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-	//  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
+  // Write to buffer
+  SERIAL_ECHOLNPGM("Saving DWIN LCD setting from EEPROM");
+  memcpy(buff, &Settings, sizeof(creality_dwin_settings_t));
 }
 
 void onLoadSettings(const char *buff)
 {
-	SERIAL_ECHOLNPGM_P(PSTR("==onLoadSettings=="));
-	// This is called while loading settings from EEPROM. If the ExtUI
-	// needs to retrieve data, it should copy up to eeprom_data_size bytes
-	// from buff
+	static_assert(
+    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
+    "Insufficient space in EEPROM for UI parameters"
+  );
 
-	// Example:
-	//  static_assert(sizeof(myDataStruct) <= ExtUI::eeprom_data_size);
-	//  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
+  creality_dwin_settings_t eepromSettings;
+  memcpy(&eepromSettings, buff, sizeof(creality_dwin_settings_t));
+
+  // If size is not the same, discard settings
+  if (eepromSettings.settings_size != sizeof(creality_dwin_settings_t)) {
+    SERIAL_ECHOLNPGM("Discarding DWIN LCD setting from EEPROM - size incorrect");
+
+    onFactoryReset();
+    return;
+  }
+
+  if (eepromSettings.settings_version != dwin_settings_version) {
+    SERIAL_ECHOLNPGM("Discarding DWIN LCD setting from EEPROM - settings version incorrect");
+
+    onFactoryReset();
+    return;
+  }
+
+  // Copy into final location
+  SERIAL_ECHOLNPGM("Loading DWIN LCD setting from EEPROM");
+  memcpy(&Settings, &eepromSettings, sizeof(creality_dwin_settings_t));
+
+  SERIAL_ECHOLNPAIR("Setting Brightness : ", Settings.screen_brightness);
+  SERIAL_ECHOLNPAIR("Setting Standby : ", Settings.standby_screen_brightness);
+  SERIAL_ECHOLNPAIR("Setting Standby Time : ", Settings.standby_time_seconds);
+  SERIAL_ECHOLNPAIR("Setting Rotation : ", Settings.screen_rotation);
+  SERIAL_ECHOLNPAIR("Setting Volume : ", Settings.display_volume);
+
+  SERIAL_ECHOLNPAIR("Setting Standby On : ", Settings.display_standby);
+  SERIAL_ECHOLNPAIR("Setting Volume On : ", Settings.display_sound);
+
+  SetTouchScreenConfiguration();
 }
 
 void onConfigurationStoreWritten(bool success)
@@ -1967,6 +2065,7 @@ void onConfigurationStoreRead(bool success)
 
 	SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ", getZOffset_mm());
 	rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
+  SetTouchScreenConfiguration();
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)

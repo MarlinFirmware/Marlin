@@ -164,6 +164,21 @@ typedef struct DataBuf
     unsigned char reserv[4];
 } DB;
 
+struct creality_dwin_settings_t {
+  size_t settings_size;
+  uint8_t settings_version;
+
+  bool display_standby;
+  bool display_sound;
+  int8_t screen_rotation;
+  int16_t display_volume;
+  uint8_t standby_screen_brightness;
+  uint8_t screen_brightness;
+  int16_t standby_time_seconds;
+
+};
+
+void SetTouchScreenConfiguration();
 
 class RTSSHOW {
   public:
