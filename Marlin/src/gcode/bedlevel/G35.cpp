@@ -91,8 +91,8 @@ void GcodeSuite::G35() {
   // Disable duplication mode on homing
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
-  // Home all axes if needed before this procedure
-  home_if_needed();
+  // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
+  if (!all_axes_trusted()) queue.inject_P(PSTR("G28Z"));
 
   bool err_break = false;
 
@@ -161,6 +161,9 @@ void GcodeSuite::G35() {
   probe.stow();
 
   move_to_tramming_wait_pos();
+
+  // After this operation the Z position needs correction
+  set_axis_never_homed(Z_AXIS);
 }
 
 #endif // ASSISTED_TRAMMING
