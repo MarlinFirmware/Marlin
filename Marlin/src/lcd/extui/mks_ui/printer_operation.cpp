@@ -158,7 +158,7 @@ void filament_pin_setup() {
 }
 
 void filament_check() {
-  #if (PIN_EXISTS(MT_DET_1) || PIN_EXISTS(MT_DET_2) || PIN_EXISTS(MT_DET_3))
+  #if ANY_PIN(MT_DET_1, MT_DET_2, MT_DET_3)
     const int FIL_DELAY = 20;
   #endif
   #if PIN_EXISTS(MT_DET_1)
