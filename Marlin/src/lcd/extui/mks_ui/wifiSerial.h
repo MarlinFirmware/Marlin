@@ -21,10 +21,6 @@
  */
 #pragma once
 
-#include "tft_lvgl_configuration.h"
-
-#if ENABLED(MKS_WIFI_MODULE)
-
 #ifdef SERIAL_PORT_2
   #error "SERIAL_PORT_2 must be disabled with TFT_LVGL_UI* and MKS_WIFI_MODULE."
 #endif
@@ -36,111 +32,13 @@
 #define WIFI_RX_BUF_SIZE  (1024)
 #define WIFI_TX_BUF_SIZE  (64)
 
+#include "tft_lvgl_configuration.h"
+
 #ifdef __STM32F1__
+  #include "wifiSerial_STM32F1.h"
+#else
+  #include "wifiSerial_STM32.h"
+#endif
 
-  #include <libmaple/libmaple_types.h>
-  #include <libmaple/usart.h>
-  #include <libmaple/libmaple.h>
-  #include <libmaple/gpio.h>
-  #include <libmaple/timer.h>
-  #include <libmaple/ring_buffer.h>
-
-  #define DEFINE_WFSERIAL(name, n)\
-    WifiSerial name(USART##n, \
-    BOARD_USART##n##_TX_PIN,  \
-    BOARD_USART##n##_RX_PIN)
-
-  class WifiSerial {
-    public:
-      uint8 wifiRxBuf[WIFI_RX_BUF_SIZE];
-
-    public:
-      WifiSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin);
-
-      /* Set up/tear down */
-      void begin(uint32 baud);
-      void begin(uint32 baud,uint8_t config);
-      void end();
-      int available();
-      int read();
-      int write(uint8_t);
-      inline void wifi_usart_irq(usart_reg_map *regs) {
-        /* Handling RXNEIE and TXEIE interrupts.
-        * RXNE signifies availability of a byte in DR.
-        *
-        * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
-        * We enable RXNEIE.
-        */
-        if ((regs->CR1 & USART_CR1_RXNEIE) && (regs->SR & USART_SR_RXNE)) {
-          #ifdef USART_SAFE_INSERT
-            /* If the buffer is full and the user defines USART_SAFE_INSERT,
-            * ignore new bytes. */
-            rb_safe_insert(this->usart_device->rb, (uint8)regs->DR);
-          #else
-            /* By default, push bytes around in the ring buffer. */
-            rb_push_insert(this->usart_device->rb, (uint8)regs->DR);
-          #endif
-        }
-        /* TXE signifies readiness to send a byte to DR. */
-        if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
-            if (!rb_is_empty(this->usart_device->wb))
-                regs->DR=rb_remove(this->usart_device->wb);
-            else
-                regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
-        }
-      }
-      int wifi_rb_is_full();
-      struct usart_dev *usart_device;
-      private:
-      uint8 tx_pin;
-      uint8 rx_pin;
-  };
-  extern WifiSerial WifiSerial1;
-  #define WIFISERIAL  WifiSerial1
-
-#else // !__STM32F1__
-
-  #include <inttypes.h>
-  #include "Stream.h"
-  #include "uart.h"
-
-  class WifiSerial {
-    protected:
-      // Has any byte been written to the UART since begin()
-      bool _written;
-      serial_t _serial;
-    public:
-      uint8_t wifiRxBuf[WIFI_RX_BUF_SIZE];
-      uint8_t wifiTxBuf[WIFI_TX_BUF_SIZE];
-      WifiSerial(void *peripheral);
-
-      /* Set up/tear down */
-      void begin(uint32_t baud);
-      void begin(uint32_t baud,uint8_t config);
-      void end();
-      int available(void);
-      int read(void);
-      int write(uint8_t);
-
-      // Interrupt handlers
-      static int _tx_complete_irq(serial_t *obj);
-      static void _rx_complete_irq(serial_t *obj);
-
-      void flush(void);
-      bool isHalfDuplex(void) const;
-      void enableHalfDuplexRx(void);
-
-      private:
-        void setRx(uint32_t _rx);
-        void setTx(uint32_t _tx);
-        void setRx(PinName _rx);
-        void setTx(PinName _tx);
-        void init(PinName _rx, PinName _tx);
-        bool _rx_enabled;
-        uint8_t _config;
-        unsigned long _baud;
-  };
-  extern WifiSerial WifiSerial1;
-  #define WIFISERIAL  WifiSerial1
-#endif // !__STM32F1__
-#endif // MKS_WIFI_MODULE
+extern WifiSerial WifiSerial1;
+#define WIFISERIAL WifiSerial1

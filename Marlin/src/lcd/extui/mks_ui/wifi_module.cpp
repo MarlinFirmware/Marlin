@@ -1237,7 +1237,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                                 : WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
 
             if (left >= strlen((const char *)cmd_line)) {
-              while (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
+              for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
                 espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index] ;
                 espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
               }
