@@ -60,45 +60,45 @@ static float meshGetter(uint8_t x, uint8_t y, void*) {
   xy_uint8_t pos;
   pos.x = x;
   pos.y = y;
-  return ExtUI::getMeshPoint(pos) + (mydata.highlight.x != NONE && mydata.highlight == pos ? mydata.zAdjustment : 0);
+  return getMeshPoint(pos) + (mydata.highlight.x != NONE && mydata.highlight == pos ? mydata.zAdjustment : 0);
 }
 
 void BedMeshEditScreen::onEntry() {
   mydata.needSave = false;
   mydata.highlight.x = NONE;
   mydata.zAdjustment = 0;
-  mydata.savedMeshLevelingState = ExtUI::getLevelingActive();
-  mydata.savedEndstopState = ExtUI::getSoftEndstopState();
+  mydata.savedMeshLevelingState = getLevelingActive();
+  mydata.savedEndstopState = getSoftEndstopState();
   makeMeshValid();
   BaseScreen::onEntry();
 }
 
 void BedMeshEditScreen::makeMeshValid() {
-  bed_mesh_t &mesh = ExtUI::getMeshArray();
+  bed_mesh_t &mesh = getMeshArray();
   GRID_LOOP(x, y) {
     if (isnan(mesh[x][y])) mesh[x][y] = 0;
   }
 }
 
 void BedMeshEditScreen::onExit() {
-  ExtUI::setLevelingActive(mydata.savedMeshLevelingState);
-  ExtUI::setSoftEndstopState(mydata.savedEndstopState);
+  setLevelingActive(mydata.savedMeshLevelingState);
+  setSoftEndstopState(mydata.savedEndstopState);
 }
 
 float BedMeshEditScreen::getHighlightedValue() {
-  const float val = ExtUI::getMeshPoint(mydata.highlight);
+  const float val = getMeshPoint(mydata.highlight);
   return (isnan(val) ? 0 : val) + mydata.zAdjustment;
 }
 
 void BedMeshEditScreen::setHighlightedValue(float value) {
-  ExtUI::setMeshPoint(mydata.highlight, value);
+  setMeshPoint(mydata.highlight, value);
 }
 
 void BedMeshEditScreen::moveToHighlightedValue() {
-  if (ExtUI::getMeshValid()) {
-    ExtUI::setLevelingActive(true);
-    ExtUI::setSoftEndstopState(false);
-    ExtUI::moveToMeshPoint(mydata.highlight, gaugeThickness + mydata.zAdjustment);
+  if (getMeshValid()) {
+    setLevelingActive(true);
+    setSoftEndstopState(false);
+    moveToMeshPoint(mydata.highlight, gaugeThickness + mydata.zAdjustment);
   }
 }
 
@@ -191,7 +191,7 @@ bool BedMeshEditScreen::onTouchEnd(uint8_t tag) {
 
 void BedMeshEditScreen::show() {
   // On entry, home if needed and save current mesh
-  if (!ExtUI::isMachineHomed()) {
+  if (!isMachineHomed()) {
     SpinnerDialogBox::enqueueAndWait_P(F("G28\nG29 S1"));
     // After the spinner, go to this screen.
     current_screen.forget();
