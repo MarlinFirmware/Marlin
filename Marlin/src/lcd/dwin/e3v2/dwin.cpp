@@ -3264,15 +3264,15 @@ void HMI_ManualLev() {
 
     char buf[100];
     buf[0] = '\0';
-    #if ENABLED(MESH_BED_LEVELING)
-      #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
-      int16_t xpos = 0;
-      int16_t ypos = 0;
-    #else
+    #if HAS_ONESTEP_LEVELING
       #define fmt "X:%.2f, Y:%.2f, Z: %.2f"
       float_t xpos = 0;
       float_t ypos = 0;
       float_t zpos = 0;
+    #else
+      #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
+      int16_t xpos = 0;
+      int16_t ypos = 0;
     #endif
 
     switch (select_item.now) {
@@ -3310,15 +3310,15 @@ void HMI_ManualLev() {
         break;
     }
     if (select_item.now) {
-      #if ENABLED(MESH_BED_LEVELING)
-        sprintf_P(buf, PSTR(fmt), xpos, ypos);
-        queue.inject(buf);
-      #else
+      #if HAS_ONESTEP_LEVELING
         gcode.process_subcommands_now_P(PSTR("M420 S0\nG28O"));
         planner.synchronize();
-        zpos = probe.probe_at_point(xpos, ypos, PROBE_PT_RAISE);
+        zpos = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
         sprintf_P(buf, PSTR(fmt), xpos, ypos, zpos);
         DWIN_StatusChanged(buf);
+      #else
+        sprintf_P(buf, PSTR(fmt), xpos, ypos);
+        queue.inject(buf);
       #endif
     }
   }
