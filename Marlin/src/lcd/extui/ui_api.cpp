@@ -1021,8 +1021,7 @@ namespace ExtUI {
     TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
   }
 
-  bool awaitingUserConfirm() { return wait_for_user; }
-  bool isWaitingOnUser() { return TERN0(HAS_RESUME_CONTINUE, wait_for_user); }
+  bool awaitingUserConfirm() { return TERN0(HAS_RESUME_CONTINUE, wait_for_user); }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   void printFile(const char *filename) {
