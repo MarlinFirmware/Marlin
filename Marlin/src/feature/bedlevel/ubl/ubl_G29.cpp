@@ -1025,7 +1025,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
       SET_SOFT_ENDSTOP_LOOSE(true);
 
       do {
-        idle();
+        idle_no_sleep();
         new_z = ui.ubl_mesh_value();
         TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
         SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
