@@ -61,8 +61,8 @@
 void GcodeSuite::M106() {
   const uint8_t pfan = parser.byteval('P', _ALT_P);
   if (pfan >= _CNT_P) return;
-  #if REDUNDANT_COOLING_FAN
-    if (pfan == REDUNDANT_COOLING_FAN) return;
+  #if REDUNDANT_PART_COOLING_FAN
+    if (pfan == REDUNDANT_PART_COOLING_FAN) return;
   #endif
 
   #if ENABLED(EXTRA_FAN_SPEED)
@@ -102,8 +102,8 @@ void GcodeSuite::M106() {
 void GcodeSuite::M107() {
   const uint8_t pfan = parser.byteval('P', _ALT_P);
   if (pfan >= _CNT_P) return;
-  #if REDUNDANT_COOLING_FAN
-    if (pfan == REDUNDANT_COOLING_FAN) return;
+  #if REDUNDANT_PART_COOLING_FAN
+    if (pfan == REDUNDANT_PART_COOLING_FAN) return;
   #endif
 
   thermalManager.set_fan_speed(pfan, 0);

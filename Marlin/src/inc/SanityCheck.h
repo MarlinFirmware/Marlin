@@ -1855,11 +1855,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#ifdef REDUNDANT_COOLING_FAN
+#ifdef REDUNDANT_PART_COOLING_FAN
   #if FAN_COUNT < 2
-    #error "REDUNDANT_COOLING_FAN requires a board with at least two PWM fans."
+    #error "REDUNDANT_PART_COOLING_FAN requires a board with at least two PWM fans."
   #else
-    static_assert(WITHIN(REDUNDANT_COOLING_FAN, 1, FAN_COUNT - 1), "REDUNDANT_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
+    static_assert(WITHIN(REDUNDANT_PART_COOLING_FAN, 1, FAN_COUNT - 1), "REDUNDANT_PART_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
   #endif
 #endif
 
