@@ -3262,10 +3262,10 @@ void HMI_ManualLev() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 
-    char buf[100];
-    buf[0] = '\0';
+    char buf[100] = "";
     #if HAS_ONESTEP_LEVELING
-      #define fmt "X:%.2f, Y:%.2f, Z: %.2f"
+      char str_1[6], str_2[6],str_3[6] = "";
+      #define fmt "X:%s, Y:%s, Z:%s"
       float_t xpos = 0;
       float_t ypos = 0;
       float_t zpos = 0;
@@ -3314,7 +3314,10 @@ void HMI_ManualLev() {
         gcode.process_subcommands_now_P(PSTR("M420 S0\nG28O"));
         planner.synchronize();
         zpos = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
-        sprintf_P(buf, PSTR(fmt), xpos, ypos, zpos);
+        sprintf_P(buf, PSTR(fmt), 
+          dtostrf(xpos, 1, 1, str_1),
+          dtostrf(ypos, 1, 1, str_2),
+          dtostrf(zpos, 1, 2, str_3));
         DWIN_StatusChanged(buf);
       #else
         sprintf_P(buf, PSTR(fmt), xpos, ypos);
@@ -4992,9 +4995,10 @@ void DWIN_CompletedLeveling() { HMI_ReturnScreen(); }
 
 #if ENABLED(MESH_BED_LEVELING)
   void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-    char msg[33];
-    msg[0] = '\0';
-    sprintf_P(msg, PSTR(S_FMT " %i/%i Z=%.2f"), GET_TEXT(MSG_PROBING_MESH),xpos, ypos, zval);
+    char msg[33] = "";
+    char str_1[6] = "";
+    sprintf_P(msg, PSTR(S_FMT " %i/%i Z=%s"), GET_TEXT(MSG_PROBING_MESH), xpos, ypos,
+      dtostrf(zval, 1, 2, str_1));
     DWIN_StatusChanged(msg);
   }
 #endif
