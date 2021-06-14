@@ -893,9 +893,7 @@ namespace ExtUI {
   #endif // HAS_LEVELING
 
   bool ui_cancel_operation;
-  void ui_setUICancelOperation(const bool state) {
-    ui_cancel_operation = state;
-  }
+  void ui_setUICancelOperation(const bool state) { ui_cancel_operation = state; }
   bool get_isUICanceled() { return ui_cancel_operation; }
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -1024,12 +1022,8 @@ namespace ExtUI {
   }
 
   bool awaitingUserConfirm() { return wait_for_user; }
-
+  bool isWaitingOnUser() { return TERN0(HAS_RESUME_CONTINUE, wait_for_user); }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
-
-  bool isWaitingOnUser() {
-    return TERN(HAS_RESUME_CONTINUE, wait_for_user, false);
-  }
 
   void printFile(const char *filename) {
     TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
@@ -1051,9 +1045,9 @@ namespace ExtUI {
 
   bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED() && card.isMounted()); }
 
-  void pausePrint() { ui.pause_print(); }
+  void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
-  void stopPrint() { ui.abort_print(); }
+  void stopPrint()   { ui.abort_print(); }
 
   void onUserConfirmRequired_P(PGM_P const pstr) {
     char msg[strlen_P(pstr) + 1];
