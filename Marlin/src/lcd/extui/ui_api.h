@@ -79,7 +79,7 @@ namespace ExtUI {
   void injectCommands(char * const);
   bool commandsInQueue();
 
-  GcodeSuite::MarlinBusyState getMachineState();
+  GcodeSuite::MarlinBusyState getMachineBusyState();
 
   bool isHeaterIdle(const heater_t);
   bool isHeaterIdle(const extruder_t);

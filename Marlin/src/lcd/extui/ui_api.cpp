@@ -381,7 +381,7 @@ namespace ExtUI {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
-  GcodeSuite::MarlinBusyState getMachineState() { return TERN0(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state); }
+  GcodeSuite::MarlinBusyState getMachineBusyState() { return TERN0(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state); }
 
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
