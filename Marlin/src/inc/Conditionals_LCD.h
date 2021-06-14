@@ -558,7 +558,12 @@
   #undef DISABLE_E
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
+
+  #define E_STEPPERS      2
+
+#elif ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
   #elif EXTRUDERS > 2
@@ -569,17 +574,24 @@
   #if DISABLED(SWITCHING_NOZZLE)
     #define HOTENDS       E_STEPPERS
   #endif
-#elif ENABLED(MIXING_EXTRUDER)
+
+#elif ENABLED(MIXING_EXTRUDER)      // Multiple feeds are mixed proportionally
+
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
   #endif
-#elif ENABLED(SWITCHING_TOOLHEAD)
+
+#elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
+
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif HAS_PRUSA_MMU2
+
+#elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
+
   #define E_STEPPERS 1
+
 #endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
