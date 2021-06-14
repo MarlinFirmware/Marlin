@@ -31,7 +31,7 @@ struct ZOffsetScreenData : public BaseNumericAdjustmentScreenData {
 
 class ZOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ZOFFSET_SCREEN_CACHE> {
   private:
-    static void move(float inc);
+    static void move(float mm, int16_t steps);
     static void runWizard();
   public:
     static void onEntry();

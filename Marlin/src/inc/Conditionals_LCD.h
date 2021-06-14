@@ -558,7 +558,12 @@
   #undef DISABLE_E
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
+
+  #define E_STEPPERS      2
+
+#elif ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
   #elif EXTRUDERS > 2
@@ -569,17 +574,24 @@
   #if DISABLED(SWITCHING_NOZZLE)
     #define HOTENDS       E_STEPPERS
   #endif
-#elif ENABLED(MIXING_EXTRUDER)
+
+#elif ENABLED(MIXING_EXTRUDER)      // Multiple feeds are mixed proportionally
+
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
   #endif
-#elif ENABLED(SWITCHING_TOOLHEAD)
+
+#elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
+
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif HAS_PRUSA_MMU2
+
+#elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
+
   #define E_STEPPERS 1
+
 #endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
@@ -718,22 +730,17 @@
     #define Z_PROBE_SERVO_NR 0
   #endif
   #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
-    #warning "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Undefining DEACTIVATE_SERVOS_AFTER_MOVE. Please update your Configuration.h file."
-    #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
   #endif
 
   // Always disable probe pin inverting for BLTouch
   #if Z_MIN_PROBE_ENDSTOP_INVERTING
-    #warning "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Resetting Z_MIN_PROBE_ENDSTOP_INVERTING to false. Please update your Configuration.h file."
-    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
-    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+    #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
   #endif
 
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #if Z_MIN_ENDSTOP_INVERTING
-      #warning "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Resetting Z_MIN_ENDSTOP_INVERTING to false. Please update your Configuration.h file."
-      #undef Z_MIN_ENDSTOP_INVERTING
-      #define Z_MIN_ENDSTOP_INVERTING false
+      #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
     #endif
   #endif
 #endif
@@ -1025,6 +1032,10 @@
   #if !IS_CORE
     #define IS_FULL_CARTESIAN 1
   #endif
+#endif
+
+#if DISABLED(DELTA)
+  #undef DELTA_HOME_TO_SAFE_ZONE
 #endif
 
 // This flag indicates some kind of jerk storage is needed
