@@ -42,11 +42,35 @@ extern const char M23_STR[], M24_STR[];
 #define MAXPATHNAMELENGTH  (1 + (MAXDIRNAMELENGTH + 1) * (MAX_DIR_DEPTH) + 1 + FILENAME_LENGTH) // "/" + N * ("ADIRNAME/") + "filename.ext"
 
 #include "SdFile.h"
+#include "disk_io_driver.h"
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#endif
+
+#if NEED_SD2CARD_SDIO
+  #include "Sd2Card_sdio.h"
+#elif NEED_SD2CARD_SPI
+  #include "Sd2Card.h"
+#endif
+
+#if ENABLED(MULTI_VOLUME)
+  #define SV_SD_ONBOARD      1
+  #define SV_USB_FLASH_DRIVE 2
+  #define _VOLUME_ID(N) _CAT(SV_, N)
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == _VOLUME_ID(N))
+  #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+    #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+  #endif
+#else
+  #define SHARED_VOLUME_IS(...) 0
+#endif
 
 typedef struct {
   bool saving:1,
        logging:1,
        sdprinting:1,
+       sdprintdone:1,
        mounted:1,
        filenameIsDir:1,
        workDirIsRoot:1,
@@ -80,18 +104,19 @@ public:
 
   CardReader();
 
+  static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
+
   static SdFile getroot() { return root; }
 
   static void mount();
   static void release();
   static inline bool isMounted() { return flag.mounted; }
-  static void ls();
 
   // Handle media insert/remove
   static void manage_media();
 
   // SD Card Logging
-  static void openLogFile(char * const path);
+  static void openLogFile(const char * const path);
   static void write_command(char * const buf);
 
   #if DISABLED(NO_SD_AUTOSTART)     // Auto-Start auto#.g file handling
@@ -102,8 +127,8 @@ public:
   #endif
 
   // Basic file ops
-  static void openFileRead(char * const path, const uint8_t subcall=0);
-  static void openFileWrite(char * const path);
+  static void openFileRead(const char * const path, const uint8_t subcall=0);
+  static void openFileWrite(const char * const path);
   static void closefile(const bool store_location=false);
   static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
@@ -122,38 +147,59 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
-  static void selectFileByName(const char* const match);
+  static void selectFileByName(const char * const match);  // (working directory only)
 
   // Print job
-  static void openAndPrintFile(const char *name);   // (working directory)
-  static void fileHasFinished();
-  static void getAbsFilename(char *dst);
-  static void printFilename();
-  static void startFileprint();
-  static void endFilePrint(TERN_(SD_RESORT, const bool re_sort=false));
   static void report_status();
-  static inline void pauseSDPrint() { flag.sdprinting = false; }
-  static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
-  static inline bool isPrinting() { return flag.sdprinting; }
+  static void getAbsFilenameInCWD(char *dst);
+  static void printSelectedFilename();
+  static void openAndPrintFile(const char *name);   // (working directory or full path)
+  static void startOrResumeFilePrinting();
+  static void endFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
+  static void abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
+  static void fileHasFinished();
+  static inline void abortFilePrintSoon() { flag.abort_sd_printing = true; }
+  static inline void pauseSDPrint()       { flag.sdprinting = false; }
+  static inline bool isPrinting()         { return flag.sdprinting; }
+  static inline bool isPaused()           { return isFileOpen() && !isPrinting(); }
   #if HAS_PRINT_PROGRESS_PERMYRIAD
-    static inline uint16_t permyriadDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 9999) / 10000) : 0; }
+    static inline uint16_t permyriadDone() {
+      if (flag.sdprintdone) return 10000;
+      if (isFileOpen() && filesize) return sdpos / ((filesize + 9999) / 10000);
+      return 0;
+    }
   #endif
-  static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
+  static inline uint8_t percentDone() {
+    if (flag.sdprintdone) return 100;
+    if (isFileOpen() && filesize) return sdpos / ((filesize + 99) / 100);
+    return 0;
+  }
 
-  // Helper for open and remove
-  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
+  /**
+   * Dive down to a relative or absolute path.
+   * Relative paths apply to the workDir.
+   *
+   * update_cwd: Pass 'true' to update the workDir on success.
+   *   inDirPtr: On exit your pointer points to the target SdFile.
+   *             A nullptr indicates failure.
+   *       path: Start with '/' for abs path. End with '/' to get a folder ref.
+   *       echo: Set 'true' to print the path throughout the loop.
+   */
+  static const char* diveToFile(const bool update_cwd, SdFile* &inDirPtr, const char * const path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
     static void getfilename_sorted(const uint16_t nr);
     #if ENABLED(SDSORT_GCODE)
-      FORCE_INLINE static void setSortOn(bool b) { sort_alpha = b; presort(); }
-      FORCE_INLINE static void setSortFolders(int i) { sort_folders = i; presort(); }
+      FORCE_INLINE static void setSortOn(bool b)        { sort_alpha   = b; presort(); }
+      FORCE_INLINE static void setSortFolders(int i)    { sort_folders = i; presort(); }
       //FORCE_INLINE static void setSortReverse(bool b) { sort_reverse = b; }
     #endif
   #else
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
+
+  static void ls();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -161,17 +207,24 @@ public:
     static void removeJobRecoveryFile();
   #endif
 
-  static inline bool isFileOpen() { return isMounted() && file.isOpen(); }
-  static inline uint32_t getIndex() { return sdpos; }
-  static inline uint32_t getFileSize() { return filesize; }
-  static inline bool eof() { return sdpos >= filesize; }
-  static inline void setIndex(const uint32_t index) { file.seekSet((sdpos = index)); }
-  static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
-  static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
-  static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-  static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+  // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
+  static inline char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
+  static inline SdFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
 
-  static Sd2Card& getSd2Card() { return sd2card; }
+  // Print File stats
+  static inline uint32_t getFileSize()  { return filesize; }
+  static inline uint32_t getIndex()     { return sdpos; }
+  static inline bool isFileOpen()       { return isMounted() && file.isOpen(); }
+  static inline bool eof()              { return getIndex() >= getFileSize(); }
+
+  // File data operations
+  static inline int16_t get()                            { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
+  static inline int16_t read(void *buf, uint16_t nbyte)  { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+  static inline void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
+
+  // TODO: rename to diskIODriver()
+  static DiskIODriver* diskIODriver() { return driver; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     //
@@ -179,6 +232,15 @@ public:
     //
     struct AutoReportSD { static void report() { report_status(); } };
     static AutoReporter<AutoReportSD> auto_reporter;
+  #endif
+
+  #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    static DiskIODriver_USBFlash media_usbFlashDrive;
+  #endif
+  #if NEED_SD2CARD_SDIO
+    static DiskIODriver_SDIO media_sdio;
+  #elif NEED_SD2CARD_SPI
+    static DiskIODriver_SPI_SD media_sd_spi;
   #endif
 
 private:
@@ -236,7 +298,7 @@ private:
         #if ENABLED(SDSORT_DYNAMIC_RAM)
           static uint8_t *isDir;
         #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-          static uint8_t isDir[(SDSORT_LIMIT+7)>>3];
+          static uint8_t isDir[(SDSORT_LIMIT + 7) >> 3];
         #endif
       #endif
 
@@ -244,7 +306,7 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  static Sd2Card sd2card;
+  static DiskIODriver *driver;
   static SdVolume volume;
   static SdFile file;
 
@@ -275,7 +337,7 @@ private:
 };
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define IS_SD_INSERTED() Sd2Card::isInserted()
+  #define IS_SD_INSERTED() DiskIODriver_USBFlash::isInserted()
 #elif PIN_EXISTS(SD_DETECT)
   #define IS_SD_INSERTED() (READ(SD_DETECT_PIN) == SD_DETECT_STATE)
 #else
@@ -283,7 +345,8 @@ private:
   #define IS_SD_INSERTED() true
 #endif
 
-#define IS_SD_PRINTING()  card.flag.sdprinting
+#define IS_SD_PRINTING()  (card.flag.sdprinting && !card.flag.abort_sd_printing)
+#define IS_SD_FETCHING()  (!card.flag.sdprintdone && IS_SD_PRINTING())
 #define IS_SD_PAUSED()    card.isPaused()
 #define IS_SD_FILE_OPEN() card.isFileOpen()
 
@@ -292,6 +355,7 @@ extern CardReader card;
 #else // !SDSUPPORT
 
 #define IS_SD_PRINTING()  false
+#define IS_SD_FETCHING()  false
 #define IS_SD_PAUSED()    false
 #define IS_SD_FILE_OPEN() false
 

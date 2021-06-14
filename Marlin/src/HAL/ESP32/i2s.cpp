@@ -139,7 +139,7 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
   I2S0.int_clr.val = I2S0.int_st.val; //clear pending interrupt
 }
 
-void stepperTask(void* parameter) {
+void stepperTask(void *parameter) {
   uint32_t remaining = 0;
 
   while (1) {

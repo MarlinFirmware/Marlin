@@ -163,11 +163,9 @@ static SPISettings spiConfig;
     }
     spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
-    #if ENABLED(CUSTOM_SPI_PINS)
-      SPI.setMISO(SD_MISO_PIN);
-      SPI.setMOSI(SD_MOSI_PIN);
-      SPI.setSCLK(SD_SCK_PIN);
-    #endif
+    SPI.setMISO(SD_MISO_PIN);
+    SPI.setMOSI(SD_MOSI_PIN);
+    SPI.setSCLK(SD_SCK_PIN);
 
     SPI.begin();
   }
@@ -193,7 +191,7 @@ static SPISettings spiConfig;
    *
    * @details Uses DMA
    */
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     if (nbyte == 0) return;
     memset(buf, 0xFF, nbyte);
     SPI.transfer(buf, nbyte);
@@ -218,7 +216,7 @@ static SPISettings spiConfig;
    *
    * @details Use DMA
    */
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     uint8_t rxBuf[512];
     SPI.transfer(token);
     SPI.transfer((uint8_t*)buf, &rxBuf, 512);

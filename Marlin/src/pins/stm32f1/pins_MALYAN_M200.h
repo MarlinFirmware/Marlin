@@ -41,7 +41,7 @@
   #define FLASH_EEPROM_EMULATION
 #endif
 
-#define SDSS                           SD_SS_PIN
+#define SDSS                           SD_SS_PIN  // Also in HAL/STM32F1/spi_pins.h
 
 // Based on PWM timer usage, we have to use these timers and soft PWM for the fans
 // On STM32F103:
@@ -53,9 +53,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PB4
-#define Y_MIN_PIN                           PA15
-#define Z_MIN_PIN                           PB5
+#define X_STOP_PIN                          PB4
+#define Y_STOP_PIN                          PA15
+#define Z_STOP_PIN                          PB5
 
 //
 // Steppers
