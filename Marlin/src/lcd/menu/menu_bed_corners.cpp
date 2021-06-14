@@ -102,7 +102,7 @@ static int8_t bed_corner;
 /**
  * Select next corner coordinates
  */
-static inline void _lcd_level_bed_corners_get_next_position() {
+static void _lcd_level_bed_corners_get_next_position() {
 
   if (level_corners_3_points) {
     if (bed_corner >= available_points) bed_corner = 0; // Above max position -> move back to first corner
@@ -225,7 +225,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     if (verify) do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // do clearance if needed
     TERN_(BLTOUCH_SLOW_MODE, bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
-    if (TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))) { // check if probe triggered
+    if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       sync_plan_position();
@@ -268,8 +268,8 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     ui.goto_screen(_lcd_draw_probing);
     do {
       ui.refresh(LCDVIEW_REDRAW_NOW);
-      _lcd_draw_probing();                                             // update screen with # of good points
-      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP + TERN0(BLTOUCH_HS_MODE, 7)); // clearance
+      _lcd_draw_probing();                                // update screen with # of good points
+      do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, current_position.z + LEVEL_CORNERS_Z_HOP, 7)); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       current_position -= probe.offset_xy;                // Account for probe offsets
@@ -308,7 +308,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
 #else // !LEVEL_CORNERS_USE_PROBE
 
-  static inline void _lcd_goto_next_corner() {
+  static void _lcd_goto_next_corner() {
     line_to_z(LEVEL_CORNERS_Z_HOP);
 
     // Select next corner coordinates
@@ -321,7 +321,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
 #endif // !LEVEL_CORNERS_USE_PROBE
 
-static inline void _lcd_level_bed_corners_homing() {
+static void _lcd_level_bed_corners_homing() {
   _lcd_draw_homing();
   if (!all_axes_homed()) return;
   #if ENABLED(LEVEL_CORNERS_USE_PROBE)

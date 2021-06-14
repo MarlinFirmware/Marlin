@@ -80,15 +80,11 @@ public:
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
     void commit_command(bool skip_ok
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
-    bool enqueue(const char* cmd, bool skip_ok = true
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
+    bool enqueue(const char *cmd, bool skip_ok = true
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
     void ok_to_send();
@@ -143,7 +139,7 @@ public:
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  static void enqueue_one_now(const char* cmd);
+  static void enqueue_one_now(const char *cmd);
 
   /**
    * Attempt to enqueue a single G-code command
@@ -219,7 +215,7 @@ private:
    * Enqueue with Serial Echo
    * Return true on success
    */
-  static bool enqueue_one(const char* cmd);
+  static bool enqueue_one(const char *cmd);
 
   static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
 

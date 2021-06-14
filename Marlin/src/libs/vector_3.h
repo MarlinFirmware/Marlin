@@ -44,13 +44,16 @@
 
 class matrix_3x3;
 
-struct vector_3 : xyz_float_t {
-
-  vector_3(const float &_x, const float &_y, const float &_z) { set(_x, _y, _z); }
-  vector_3(const xy_float_t   &in) { set(in.x, in.y); }
-  vector_3(const xyz_float_t  &in) { set(in.x, in.y, in.z); }
-  vector_3(const xyze_float_t &in) { set(in.x, in.y, in.z); }
-  vector_3() { reset(); }
+struct vector_3 {
+  union {
+    struct { float x, y, z; };
+    float pos[3];
+  };
+  vector_3(const_float_t _x, const_float_t _y, const_float_t _z) : x(_x), y(_y), z(_z) {}
+  vector_3(const xy_float_t   &in) { x = in.x; TERN_(HAS_Y_AXIS, y = in.y); }
+  vector_3(const xyz_float_t  &in) { x = in.x; TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }
+  vector_3(const xyze_float_t &in) { x = in.x; TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }
+  vector_3() { x = y = z = 0; }
 
   // Factory method
   static vector_3 cross(const vector_3 &a, const vector_3 &b);
@@ -60,19 +63,26 @@ struct vector_3 : xyz_float_t {
   void apply_rotation(const matrix_3x3 &matrix);
 
   // Accessors
-  float get_length() const;
+  float magnitude() const;
   vector_3 get_normal() const;
 
   // Operators
-  FORCE_INLINE vector_3 operator+(const vector_3 &v) const { vector_3 o = *this; o += v; return o; }
-  FORCE_INLINE vector_3 operator-(const vector_3 &v) const { vector_3 o = *this; o -= v; return o; }
-  FORCE_INLINE vector_3 operator*(const float    &v) const { vector_3 o = *this; o *= v; return o; }
+        float& operator[](const int n)       { return pos[n]; }
+  const float& operator[](const int n) const { return pos[n]; }
+
+  vector_3& operator*=(const float &v)  { x *= v; y *= v; z *= v; return *this; }
+  vector_3 operator+(const vector_3 &v) { return vector_3(x + v.x, y + v.y, z + v.z); }
+  vector_3 operator-(const vector_3 &v) { return vector_3(x - v.x, y - v.y, z - v.z); }
+  vector_3 operator*(const float &v)    { return vector_3(x * v, y * v, z * v); }
+
+  operator xy_float_t() { return xy_float_t({ x, y }); }
+  operator xyz_float_t() { return xyz_float_t({ x, y, z }); }
 
   void debug(PGM_P const title);
 };
 
 struct matrix_3x3 {
-  abc_float_t vectors[3];
+  vector_3 vectors[3];
 
   // Factory methods
   static matrix_3x3 create_from_rows(const vector_3 &row_0, const vector_3 &row_1, const vector_3 &row_2);
@@ -82,9 +92,6 @@ struct matrix_3x3 {
   void set_to_identity();
 
   void debug(PGM_P const title);
-};
 
-void apply_rotation_xyz(const matrix_3x3 &rotationMatrix, float &x, float &y, float &z);
-FORCE_INLINE void apply_rotation_xyz(const matrix_3x3 &rotationMatrix, xyz_pos_t &pos) {
-  apply_rotation_xyz(rotationMatrix, pos.x, pos.y, pos.z);
-}
+  void apply_rotation_xyz(float &x, float &y, float &z);
+};

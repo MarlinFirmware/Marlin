@@ -20,18 +20,34 @@
  *
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
+
 #include "tft_io.h"
+#include "tft_ids.h"
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
+#if TFT_DRIVER == ST7735 || TFT_DRIVER == AUTO
+  #include "st7735.h"
+#endif
+#if TFT_DRIVER == ST7789 || TFT_DRIVER == AUTO
+  #include "st7789v.h"
+#endif
+#if TFT_DRIVER == ST7796 || TFT_DRIVER == AUTO
+  #include "st7796s.h"
+#endif
+#if TFT_DRIVER == R61505 || TFT_DRIVER == AUTO
+  #include "r65105.h"
+#endif
+#if TFT_DRIVER == ILI9488 || TFT_DRIVER == ILI9488_ID1 || TFT_DRIVER == AUTO
+  #include "ili9488.h"
+#endif
+#if TFT_DRIVER == SSD1963 || TFT_DRIVER == AUTO
+  #include "ssd1963.h"
+#endif
 
-#include "st7735.h"
-#include "st7789v.h"
-#include "st7796s.h"
-#include "r65105.h"
-#include "ili9328.h"
 #include "ili9341.h"
-#include "ili9488.h"
-#include "ssd1963.h"
+#include "ili9328.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
@@ -90,6 +106,8 @@ if (lcd_id != 0xFFFFFFFF) return;
     lcd_id = io.GetID() & 0xFFFF;
 
     switch (lcd_id) {
+      case LTDC_RGB:
+        break;
       case ST7796:    // ST7796S    480x320
         DEBUG_ECHO_MSG(" ST7796S");
         write_esc_sequence(st7796s_init);
@@ -144,6 +162,17 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
   #endif
 
   switch (lcd_id) {
+    case LTDC_RGB:
+      io.WriteReg(0x01);
+      io.WriteData(Xmin);
+      io.WriteReg(0x02);
+      io.WriteData(Xmax);
+      io.WriteReg(0x03);
+      io.WriteData(Ymin);
+      io.WriteReg(0x04);
+      io.WriteData(Ymax);
+      io.WriteReg(0x00);
+      break;
     case ST7735:    // ST7735     160x128
     case ST7789:    // ST7789V    320x240
     case ST7796:    // ST7796     480x320
@@ -223,4 +252,4 @@ void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
   io.DataTransferEnd();
 }
 
-#endif // HAS_SPI_TFT || HAS_FSMC_TFT
+#endif // HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT

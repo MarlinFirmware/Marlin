@@ -63,16 +63,16 @@
   // and allow the command queue to be processed.
   //
   // When G29 finishes the last move:
-  // - Raise Z to the "manual probe height"
+  // - Raise Z to the "Z after probing" height
   // - Don't return until done.
   //
   // ** This blocks the command queue! **
   //
   void _lcd_level_bed_done() {
     if (!ui.wait_for_move) {
-      #if MANUAL_PROBE_HEIGHT > 0 && DISABLED(MESH_BED_LEVELING)
+      #if Z_AFTER_PROBING > 0 && DISABLED(MESH_BED_LEVELING)
         // Display "Done" screen and wait for moves to complete
-        line_to_z(MANUAL_PROBE_HEIGHT);
+        line_to_z(Z_AFTER_PROBING);
         ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
@@ -206,7 +206,7 @@
 #if ENABLED(MESH_EDIT_MENU)
 
   inline void refresh_planner() {
-    set_current_from_steppers_for_axis(ALL_AXES);
+    set_current_from_steppers_for_axis(ALL_AXES_ENUM);
     sync_plan_position();
   }
 
@@ -214,8 +214,8 @@
     static uint8_t xind, yind; // =0
     START_MENU();
     BACK_ITEM(MSG_BED_LEVELING);
-    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, GRID_MAX_POINTS_X - 1);
-    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, GRID_MAX_POINTS_Y - 1);
+    EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, (GRID_MAX_POINTS_X) - 1);
+    EDIT_ITEM(uint8, MSG_MESH_Y, &yind, 0, (GRID_MAX_POINTS_Y) - 1);
     EDIT_ITEM_FAST(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
     END_MENU();
   }
