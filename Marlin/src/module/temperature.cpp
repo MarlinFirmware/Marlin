@@ -333,6 +333,9 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     if (fan >= FAN_COUNT) return;
 
     fan_speed[fan] = speed;
+    #if REDUNDANT_PART_COOLING_FAN
+      if (fan == 0) fan_speed[REDUNDANT_PART_COOLING_FAN] = speed;
+    #endif
 
     TERN_(REPORT_FAN_CHANGE, report_fan_speed(fan));
   }
