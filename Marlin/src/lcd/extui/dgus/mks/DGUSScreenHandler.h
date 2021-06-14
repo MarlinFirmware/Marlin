@@ -189,12 +189,12 @@ public:
     static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
-  // OK Button the Confirm screen.
+  // OK Button on the Confirm screen.
   static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
 
-  // Update data after went to new screen (by display or by GotoScreen)
-  // remember: store the last-displayed screen, so it can get returned to.
-  // (e.g for pop up messages)
+  // Update data after going to a new screen (by display or by GotoScreen)
+  // remember: store the last-displayed screen, so it can be returned to.
+  // (e.g for popup messages)
   static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup=false);
 
   // Recall the remembered screen.
