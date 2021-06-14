@@ -89,7 +89,7 @@ void onStartup()
 
   delay_ms(500); // Delay to allow screen startup
   SetTouchScreenConfiguration();
-
+  rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   delay_ms(400); // Delay to allow screen to configure
   onStatusChanged_P(PSTR(CUSTOM_MACHINE_NAME " Ready"));
   //Set Eco Mode
@@ -167,6 +167,15 @@ void onIdle()
   rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
+
+	rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
+	rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
+	rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
+  if(Settings.display_standby)
+	  rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
+  else
+    rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
+
   reEntryPrevent = true;
   idleThrottling = 0;
   if(waitway && !commandsInQueue())
@@ -236,17 +245,17 @@ void onIdle()
 
   void yield();
 
+  #if HAS_MESH
+    if (getLevelingActive())
+      rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
+    else
+      rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
+  #endif
+
 	if (InforShowStatus)
 	{
         if (startprogress == 0)
         {
-
-          #if HAS_MESH
-            if (getLevelingActive())
-              rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
-            else
-              rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
-          #endif
           startprogress += 25;
         }
         else if( startprogress < 250)
@@ -703,6 +712,13 @@ void RTSSHOW::RTS_HandleData()
       Checkkey = ManualSetTemp;
     break;
   }
+
+  if(recdat.addr == VolumeDisplay)
+    Checkkey = VolumeDisplay;
+  if(recdat.addr == DisplayBrightness)
+    Checkkey = DisplayBrightness;
+  if(recdat.addr == DisplayStandbyBrightness)
+    Checkkey = DisplayStandbyBrightness;
 
 	if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
 		Checkkey = Filename;
@@ -1302,6 +1318,43 @@ void RTSSHOW::RTS_HandleData()
           onStatusChanged_P(PSTR("Moved up 0.025"));
           break;
         }
+        case 17:
+        {
+          Settings.display_volume = 0;
+          Settings.display_sound = false;
+          SetTouchScreenConfiguration();
+          break;
+        }
+        case 18:
+        {
+          Settings.display_volume = 255;
+          Settings.display_sound = true;
+          SetTouchScreenConfiguration();
+          break;
+        }
+        case 19:
+        {
+          Settings.screen_brightness = 10;
+          SetTouchScreenConfiguration();
+          break;
+        }
+        case 20:
+        {
+          Settings.screen_brightness = 100;
+          SetTouchScreenConfiguration();
+          break;
+        }
+        case 21:
+        {
+          if(Settings.display_standby) {
+            Settings.display_standby = false;
+          }
+          else {
+            Settings.display_standby = true;
+          }
+          SetTouchScreenConfiguration();
+          break;
+        }
         default:
         {
           SERIAL_ECHOLNPAIR("Unsupported Option Selected", recdat.data[0]);
@@ -1461,11 +1514,12 @@ void RTSSHOW::RTS_HandleData()
       switch(recdat.data[0])
       {
         case 0: {
-          SERIAL_ECHOLNPGM_P(PSTR("Chinese Not Supported"));
+          SERIAL_ECHOLNPGM_P(PSTR("Store Settings"));
+          injectCommands_P(PSTR("M500"));
           break;
         }
         case 1: {
-          SERIAL_ECHOLNPGM_P(PSTR("English Already Set"));
+          RTS_SndData(ExchangePageBase + 94, ExchangepageAddr);
           break;
         }
         #if ENABLED(PIDTEMP)
@@ -1691,6 +1745,52 @@ void RTSSHOW::RTS_HandleData()
       }
       break;
 
+    case VolumeDisplay:
+    {
+      SERIAL_ECHOLN("VolumeDisplay");
+      if(recdat.data[0]==0) {
+        Settings.display_volume = 0;
+        Settings.display_sound = false;
+      } else if (recdat.data[0] > 100) {
+        Settings.display_volume = 255;
+        Settings.display_sound = true;
+      } else {
+
+        Settings.display_volume = (uint8_t)map(constrain(recdat.data[0], 0, 100), 0, 100, 0, 255);
+        Settings.display_sound = true;
+      }
+      SetTouchScreenConfiguration();
+      break;
+    }
+
+    case DisplayBrightness:
+    {
+      SERIAL_ECHOLN("DisplayBrightness");
+      if(recdat.data[0]<10) {
+        Settings.screen_brightness = 10;
+      } else if (recdat.data[0] > 100) {
+        Settings.screen_brightness = 100;
+      } else {
+        Settings.screen_brightness = (uint8_t)recdat.data[0];
+      }
+      SetTouchScreenConfiguration();
+      break;
+    }
+
+    case DisplayStandbyBrightness:
+    {
+      SERIAL_ECHOLN("DisplayStandbyBrightness");
+      if(recdat.data[0]<10) {
+        Settings.standby_screen_brightness = 10;
+      } else if (recdat.data[0] > 100) {
+        Settings.standby_screen_brightness = 100;
+      } else {
+        Settings.standby_screen_brightness = (uint8_t)recdat.data[0];
+      }
+      SetTouchScreenConfiguration();
+      break;
+    }
+
     default:
       SERIAL_ECHOLNPGM_P(PSTR("No Match :"));
       break;
@@ -1749,7 +1849,6 @@ void SetTouchScreenConfiguration() {
   };
   WriteVariable(0x82 /*LED_Config*/, brightness_set, sizeof(brightness_set));
 
-  rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   if (!Settings.display_sound)
   {
     rtscheck.RTS_SndData(0, VolumeIcon);

@@ -1350,7 +1350,7 @@
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
-  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2, SKR14Turbo, SKR14, , Creality422, Creality427)
+  #if NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2, SKR14Turbo, SKR14, , Creality422, Creality427, MachineEnder6)
     #define SD_DETECT_STATE HIGH
   #endif
 

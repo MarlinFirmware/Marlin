@@ -138,6 +138,11 @@ namespace ExtUI {
 #define	FilenameCount		0x20DE
 #define	FilenameNature		0x6003
 
+#define VolumeDisplay 0x1140
+#define DisplayBrightness 0x1142
+#define DisplayStandbyBrightness 0x1144
+#define DisplayStandbyEnableIndicator 0x1146
+
 //#if ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(Force10SProDisplay)
 //  #define StatusMessageString 0x3000
 //#else

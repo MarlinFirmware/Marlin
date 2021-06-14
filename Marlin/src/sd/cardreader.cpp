@@ -35,6 +35,10 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
+#endif
+
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
@@ -422,6 +426,7 @@ void CardReader::mount() {
   else {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
+    TERN_(EXTENSIBLE_UI, ExtUI::onMediaInserted()); // ExtUI response
   }
 
   if (flag.mounted)
