@@ -23,9 +23,9 @@
 #include "../config.h"
 #include "../screens.h"
 
-#ifdef COCOA_LEVELING_MENU
+#if ENABLED(COCOA_LEVELING_MENU)
 
-#if BOTH(HAS_BED_PROBE,BLTOUCH)
+#if ENABLED(BLTOUCH)
   #include "../../../../feature/bltouch.h"
 #endif
 
@@ -89,4 +89,3 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
 }
 
 #endif // COCOA_LEVELING_MENU
-

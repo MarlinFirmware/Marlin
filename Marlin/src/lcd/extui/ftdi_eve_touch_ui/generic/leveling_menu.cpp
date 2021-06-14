@@ -25,7 +25,7 @@
 
 #ifdef FTDI_LEVELING_MENU
 
-#if BOTH(HAS_BED_PROBE,BLTOUCH)
+#if ENABLED(BLTOUCH)
   #include "../../../../feature/bltouch.h"
 #endif
 
@@ -132,4 +132,3 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
 }
 
 #endif // FTDI_LEVELING_MENU
-
