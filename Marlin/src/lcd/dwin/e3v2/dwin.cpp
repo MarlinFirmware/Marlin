@@ -3262,11 +3262,18 @@ void HMI_ManualLev() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 
-    char cmd[100];
-    cmd[0] = '\0';
-    #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
-    int16_t xpos = 0;
-    int16_t ypos = 0;
+    char buf[100];
+    buf[0] = '\0';
+    #if ENABLED(MESH_BED_LEVELING)
+      #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
+      int16_t xpos = 0;
+      int16_t ypos = 0;
+    #else
+      #define fmt "X:%.2f, Y:%.2f, Z: %.2f"
+      float_t xpos = 0;
+      float_t ypos = 0;
+      float_t zpos = 0;
+    #endif
 
     switch (select_item.now) {
       case 0: // Back
@@ -3303,8 +3310,16 @@ void HMI_ManualLev() {
         break;
     }
     if (select_item.now) {
-      sprintf_P(cmd, PSTR(fmt), xpos, ypos);
-      queue.inject(cmd);
+      #if ENABLED(MESH_BED_LEVELING)
+        sprintf_P(buf, PSTR(fmt), xpos, ypos);
+        queue.inject(buf);
+      #else
+        gcode.process_subcommands_now_P(PSTR("M420 S0\nG28O"));
+        planner.synchronize();
+        zpos = probe.probe_at_point(xpos, ypos, PROBE_PT_RAISE);
+        sprintf_P(buf, PSTR(fmt), xpos, ypos, zpos);
+        DWIN_StatusChanged(buf);
+      #endif
     }
   }
   DWIN_UpdateLCD();
