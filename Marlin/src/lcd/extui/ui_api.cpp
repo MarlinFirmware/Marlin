@@ -892,10 +892,6 @@ namespace ExtUI {
 
   #endif // HAS_LEVELING
 
-  bool ui_cancel_operation;
-  void ui_setUICancelOperation(const bool state) { ui_cancel_operation = state; }
-  bool get_isUICanceled() { return ui_cancel_operation; }
-
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t response) { host_response_handler(response); }
   #endif

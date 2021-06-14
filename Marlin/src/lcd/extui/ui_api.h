@@ -190,8 +190,7 @@ namespace ExtUI {
     void setHostResponse(const uint8_t);
   #endif
 
-  void ui_setUICancelOperation(const bool);
-  bool get_isUICanceled();
+  inline void simulateUserClick() { ui.lcd_clicked = true; }
 
   #if ENABLED(PRINTCOUNTER)
     char* getFailedPrints_str(char buffer[21]);
