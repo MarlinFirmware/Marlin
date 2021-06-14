@@ -58,10 +58,12 @@ void ZOffsetScreen::move(float mm, int16_t steps) {
     mydata.z += mm;
     setAxisPosition_mm(mydata.z, Z);
   }
+  #if ENABLED(BABYSTEPPING)
   else {
     // Otherwise doing a manual adjustment, possibly during a print.
     babystepAxis_steps(steps, Z);
   }
+  #endif
 }
 
 void ZOffsetScreen::runWizard() {
@@ -85,8 +87,8 @@ void ZOffsetScreen::runWizard() {
 }
 
 bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
-  const int16_t steps = mmToWholeSteps(getIncrement(), Z);
-  const float increment = mmFromWholeSteps(steps, Z);
+  const int16_t steps =   TERN(BABYSTEPPING, mmToWholeSteps(getIncrement(), Z), 0);
+  const float increment = TERN(BABYSTEPPING, mmFromWholeSteps(steps, Z), getIncrement());
   switch (tag) {
     case 2: runWizard(); break;
     case 4: UI_DECREMENT(ZOffset_mm); move(-increment, -steps); break;
