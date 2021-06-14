@@ -36,7 +36,12 @@ constexpr static ZOffsetScreenData &mydata = screen_data.ZOffsetScreen;
 
 void ZOffsetScreen::onEntry() {
   mydata.z = SHEET_THICKNESS;
+  mydata.softEndstopState = getSoftEndstopState();
   BaseNumericAdjustmentScreen::onEntry();
+}
+
+void ZOffsetScreen::onExit() {
+  setSoftEndstopState(mydata.softEndstopState);
 }
 
 void ZOffsetScreen::onRedraw(draw_mode_t what) {
@@ -67,6 +72,7 @@ void ZOffsetScreen::move(float mm, int16_t steps) {
 }
 
 void ZOffsetScreen::runWizard() {
+  setSoftEndstopState(false);
   // Restore the default Z offset
   constexpr float offset[] = NOZZLE_TO_PROBE_OFFSET;
   setZOffset_mm(offset[Z_AXIS]);
