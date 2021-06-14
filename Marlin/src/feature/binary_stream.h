@@ -39,7 +39,7 @@ inline int bs_read_serial(const serial_index_t index) {
 
 #if ENABLED(BINARY_STREAM_COMPRESSION)
   static heatshrink_decoder hsd;
-  #if ENABLED(SDIO_SUPPORT) && EITHER(ARDUINO_ARCH_STM32F1, STM32F1)
+  #if ENABLED(SDIO_SUPPORT)
     // STM32 requires a word-aligned buffer for SD card transfers via DMA
     static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
   #else
