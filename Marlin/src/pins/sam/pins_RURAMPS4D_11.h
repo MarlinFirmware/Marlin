@@ -20,6 +20,7 @@
  *
  * Ported sys0724 & Vynt
  */
+#pragma once
 
 /**
  * Arduino Mega? or Due with RuRAMPS4DUE pin assignments
