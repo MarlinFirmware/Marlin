@@ -305,7 +305,7 @@ void unified_bed_leveling::G29() {
   bool probe_deployed = false;
   if (G29_parse_parameters()) return; // Abort on parameter error
 
-  const int8_t p_val = parser.byteval('P', 255);
+  const uint8_t p_val = parser.byteval('P');
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
   #if ENABLED(HAS_MULTI_HOTEND)
     const uint8_t old_tool_index = active_extruder;
@@ -619,8 +619,8 @@ void unified_bed_leveling::G29() {
   if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
     param.KLS_storage_slot = parser.has_value() ? (int8_t)parser.value_int() : storage_slot;
 
-    if (param.KLS_storage_slot == -1)                     // Special case, the user wants to 'Export' the mesh to the
-      return report_current_mesh();                 // host program to be saved on the user's computer
+    if (param.KLS_storage_slot == -1)               // Special case: 'Export' the mesh to the
+      return report_current_mesh();                 // host so it can be saved in a file.
 
     int16_t a = settings.calc_num_meshes();
 
@@ -1098,7 +1098,7 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   if (parser.seen('P')) {
-    const int16_t pv = parser.value_byte();
+    const uint8_t pv = parser.value_byte();
     #if !HAS_BED_PROBE
       if (pv == 1) {
         SERIAL_ECHOLNPGM("G29 P1 requires a probe.\n");
