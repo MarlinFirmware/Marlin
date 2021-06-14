@@ -588,6 +588,10 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
   #endif // MESH_BED_LEVELING
 }
 
+void DGUSScreenHandler::SD_FileBack(DGUS_VP_Variable&, void*) {
+  GotoScreen(MKSLCD_SCREEN_HOME);
+}
+
 void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t lcd_value = swap16(*(uint16_t *)val_ptr);
 
