@@ -543,9 +543,17 @@
 #define _EPIN(p,q) __EPIN(p,q)
 #define DIAG_REMAPPED(p,q) (PIN_EXISTS(q) && _EPIN(p##_E_INDEX, DIAG) == q##_PIN)
 
-// The X2 axis, if any, should be the next open extruder port
-#define X2_E_INDEX E_STEPPERS
+// The E0/E1 steppers are always used for Dual E
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  #ifndef E1_STEP_PIN
+    #error "No E1 stepper available for E_DUAL_STEPPER_DRIVERS!"
+  #endif
+  #define X2_E_INDEX INCREMENT(E_STEPPERS)
+#else
+  #define X2_E_INDEX E_STEPPERS
+#endif
 
+// The X2 axis, if any, should be the next open extruder port
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)

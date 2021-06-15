@@ -532,6 +532,11 @@
   //#define USE_OCR2A_AS_TOP
 #endif
 
+/**
+ * Use one of the PWM fans as a redundant part-cooling fan
+ */
+//#define REDUNDANT_PART_COOLING_FAN 2  // Index of the fan to sync with FAN 0.
+
 // @section extruder
 
 /**
@@ -675,6 +680,12 @@
       #define Z4_ENDSTOP_ADJUSTMENT 0
     #endif
   #endif
+#endif
+
+// Drive the E axis with two synchronized steppers
+//#define E_DUAL_STEPPER_DRIVERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  //#define INVERT_E1_VS_E0_DIR   // Enable if the E motors need opposite DIR states
 #endif
 
 /**

@@ -24,9 +24,11 @@
 #include "../inc/MarlinConfig.h"
 
 #define BINARY_STREAM_COMPRESSION
-
 #if ENABLED(BINARY_STREAM_COMPRESSION)
   #include "../libs/heatshrink/heatshrink_decoder.h"
+  // STM32 (and others?) require a word-aligned buffer for SD card transfers via DMA
+  static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
+  static heatshrink_decoder hsd;
 #endif
 
 inline bool bs_serial_data_available(const serial_index_t index) {
@@ -36,16 +38,6 @@ inline bool bs_serial_data_available(const serial_index_t index) {
 inline int bs_read_serial(const serial_index_t index) {
   return SERIAL_IMPL.read(index);
 }
-
-#if ENABLED(BINARY_STREAM_COMPRESSION)
-  static heatshrink_decoder hsd;
-  #if BOTH(ARDUINO_ARCH_STM32F1, SDIO_SUPPORT)
-    // STM32 requires a word-aligned buffer for SD card transfers via DMA
-    static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
-  #else
-    static uint8_t decode_buffer[512] = {};
-  #endif
-#endif
 
 class SDFileTransferProtocol  {
 private:

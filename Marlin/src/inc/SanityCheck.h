@@ -1162,6 +1162,19 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Dual E Steppers requirements
+ */
+#if ENABLED(E_DUAL_STEPPER_DRIVERS)
+  #if EXTRUDERS > 1
+    #error "E_DUAL_STEPPER_DRIVERS can only be used with EXTRUDERS set to 1."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "E_DUAL_STEPPER_DRIVERS is incompatible with MIXING_EXTRUDER."
+  #elif ENABLED(SWITCHING_EXTRUDER)
+    #error "E_DUAL_STEPPER_DRIVERS is incompatible with SWITCHING_EXTRUDER."
+  #endif
+#endif
+
+/**
  * Linear Advance 1.5 - Check K value range
  */
 #if ENABLED(LIN_ADVANCE)
@@ -1874,6 +1887,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "You cannot set E2_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #elif E3_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
     #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
+  #endif
+#endif
+
+#ifdef REDUNDANT_PART_COOLING_FAN
+  #if FAN_COUNT < 2
+    #error "REDUNDANT_PART_COOLING_FAN requires a board with at least two PWM fans."
+  #else
+    static_assert(WITHIN(REDUNDANT_PART_COOLING_FAN, 1, FAN_COUNT - 1), "REDUNDANT_PART_COOLING_FAN must be between 1 and " STRINGIFY(DECREMENT(FAN_COUNT)) ".");
   #endif
 #endif
 
