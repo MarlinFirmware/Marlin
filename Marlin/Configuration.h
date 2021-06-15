@@ -127,7 +127,7 @@
 
 // Touchscreen options - only 32 bit boards have the open serial ports to use with graphics displays above
 //#define ForceCRXDisplay
-//#define Force10SProDisplay
+//#define FORCE10SPRODISPLAY
 
 //#define AddonFilSensor //Adds a filament runout sensor to the CR20 or Ender 4
 //#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
@@ -474,7 +474,7 @@
 #if ANY(MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6)
   #if NONE(GraphicLCD, OrigLCD)
     #if ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI)
-      #define Force10SProDisplay
+      #define FORCE10SPRODISPLAY
     #else
       #define ForceCRXDisplay
     #endif
@@ -573,7 +573,7 @@
   #define POWER_LOSS_RECOVERY
 #endif
 
-#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, Force10SProDisplay, ForceCRXDisplay) || ENABLED(GraphicLCD)
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, FORCE10SPRODISPLAY, ForceCRXDisplay) || ENABLED(GraphicLCD)
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
@@ -606,7 +606,7 @@
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2) || (ENABLED(GraphicLCD) && NONE(Force10SProDisplay, ForceCRXDisplay)))
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2) || (ENABLED(GraphicLCD) && NONE(FORCE10SPRODISPLAY, ForceCRXDisplay)))
   #define SERIAL_PORT_2 0
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
@@ -1487,7 +1487,7 @@
 #define J_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 
-#if NONE(ABL_EZABL, ABL_BLTOUCH, MachineCR2020)
+#if NONE(ABL_EZABL, MachineCR2020)
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else
@@ -2837,7 +2837,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, Force10SProDisplay, ForceCRXDisplay, MachineCR6, MachineCR6Max) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, ForceCRXDisplay, MachineCR6, MachineCR6Max) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3508,7 +3508,7 @@
   #define DWIN_CREALITY_LCD
 #elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD)
   #define CR10_STOCKDISPLAY
-#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, Force10SProDisplay, ForceCRXDisplay, MachineCR6, MachineCR6Max) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, ForceCRXDisplay, MachineCR6, MachineCR6Max) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 //
@@ -3840,9 +3840,9 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && (NONE(GraphicLCD, SKRMiniE3V2) || ENABLED(Force10SProDisplay))
-  #ifndef Force10SProDisplay
-    #define Force10SProDisplay
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && (NONE(GraphicLCD, SKRMiniE3V2) || ENABLED(FORCE10SPRODISPLAY))
+  #ifndef FORCE10SPRODISPLAY
+    #define FORCE10SPRODISPLAY
   #endif
   #define EXTENSIBLE_UI
 #endif

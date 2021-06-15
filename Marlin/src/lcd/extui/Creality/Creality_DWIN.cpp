@@ -2135,7 +2135,7 @@ void onConfigurationStoreWritten(bool success)
 void onConfigurationStoreRead(bool success)
 {
 	SERIAL_ECHOLNPGM_P(PSTR("==onConfigurationStoreRead=="));
-  #if HAS_MESH && (ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(Force10SProDisplay))
+  #if HAS_MESH && (ANY(MachineCR10SPro, MachineEnder5Plus, MachineCR10Max) || ENABLED(FORCE10SPRODISPLAY))
     if (ExtUI::getMeshValid())
     {
       uint8_t abl_probe_index = 0;
