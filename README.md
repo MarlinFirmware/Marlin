@@ -79,7 +79,7 @@ Regular users can open and close their own issues, but only the administrators c
  - Victor Oliveira [[@rhapsodyv](https://github.com/rhapsodyv)] - Brazil
  - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
  - Jason Smith [[@sjasonsmith](https://github.com/sjasonsmith)] - USA
- - Luu Lac [[@sjasonsmith](https://github.com/sjasonsmith)] - USA
+ - Luu Lac [[@shitcreek](https://github.com/shitcreek)] - USA
  - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
  - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
