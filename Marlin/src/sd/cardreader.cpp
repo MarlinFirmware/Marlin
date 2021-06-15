@@ -121,13 +121,12 @@ uint8_t CardReader::workDirDepth;
 
 #endif // SDCARD_SORT_ALPHA
 
-#if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  DiskIODriver_USBFlash CardReader::media_usbFlashDrive;
+#if HAS_USB_FLASH_DRIVE
+  DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
-#if NEED_SD2CARD_SDIO
-  DiskIODriver_SDIO CardReader::media_sdio;
-#elif NEED_SD2CARD_SPI
-  DiskIODriver_SPI_SD CardReader::media_sd_spi;
+
+#if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
+  CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
 #endif
 
 DiskIODriver* CardReader::driver = nullptr;
@@ -144,12 +143,10 @@ uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
   changeMedia(&
-    #if SHARED_VOLUME_IS(SD_ONBOARD)
-      TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
-    #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-      media_usbFlashDrive
+    #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(SD_ONBOARD)
+      media_driver_usbFlash
     #else
-      TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
+      media_driver_sdcard
     #endif
   );
 
