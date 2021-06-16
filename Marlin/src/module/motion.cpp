@@ -294,6 +294,10 @@ void report_current_position_projected() {
 
 #endif
 
+void home_if_needed(const bool keeplev/*=false*/) {
+  if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
+}
+
 /**
  * Run out the planner buffer and re-sync the current
  * position from the last-updated stepper positions.

@@ -223,6 +223,10 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 #endif
 
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked;
+#endif
+
 #if HAS_LCD_MENU
   #include "menu/menu.h"
 
@@ -246,14 +250,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     uint8_t MarlinUI::touch_buttons;
     uint8_t MarlinUI::repeat_delay;
   #endif
-
-  bool MarlinUI::lcd_clicked;
-
-  bool MarlinUI::use_click() {
-    const bool click = lcd_clicked;
-    lcd_clicked = false;
-    return click;
-  }
 
   #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
