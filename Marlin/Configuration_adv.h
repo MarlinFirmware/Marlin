@@ -532,6 +532,11 @@
   //#define USE_OCR2A_AS_TOP
 #endif
 
+/**
+ * Use one of the PWM fans as a redundant part-cooling fan
+ */
+//#define REDUNDANT_PART_COOLING_FAN 2  // Index of the fan to sync with FAN 0.
+
 // @section extruder
 
 /**
