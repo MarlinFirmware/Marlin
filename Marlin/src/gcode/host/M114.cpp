@@ -180,11 +180,19 @@
     SERIAL_ECHOPGM("FromStp:");
     get_cartesian_from_steppers();  // writes 'cartes' (with forward kinematics)
     xyze_pos_t from_steppers = LOGICAL_AXIS_ARRAY(
-      planner.get_axis_position_mm(E_AXIS),
+      #if HAS_EXTRUDERS
+        planner.get_axis_position_mm(E_AXIS),
+      #endif
       cartes.x, cartes.y, cartes.z,
-      planner.get_axis_position_mm(I_AXIS),
-      planner.get_axis_position_mm(J_AXIS),
-      planner.get_axis_position_mm(K_AXIS)
+      #if LINEAR_AXES >= 4
+        planner.get_axis_position_mm(I_AXIS),
+      #endif
+      #if LINEAR_AXES >= 5
+        planner.get_axis_position_mm(J_AXIS),
+      #endif
+      #if LINEAR_AXES >= 6
+        planner.get_axis_position_mm(K_AXIS)
+      #endif
     );
     report_all_axis_pos(from_steppers);
 
@@ -216,10 +224,12 @@ void GcodeSuite::M114() {
       report_current_position_detail();
       return;
     }
-    if (parser.seen_test('E')) {
-      SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
-      return;
-    }
+    #if HAS_EXTRUDERS
+      if (parser.seen_test('E')) {
+        SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
+        return;
+      }
+    #endif
   #endif
 
   #if ENABLED(M114_REALTIME)

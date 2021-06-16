@@ -102,7 +102,7 @@ void GcodeSuite::M906() {
         case K_AXIS: TMC_SET_CURRENT(K); break;
       #endif
 
-      #if HAS_EXTRUDERS
+      #if E_STEPPERS
         case E_AXIS: {
           const int8_t target_extruder = get_target_extruder_from_command();
           if (target_extruder < 0) return;

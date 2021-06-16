@@ -56,7 +56,12 @@
  */
 void GcodeSuite::M125() {
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.axisunitsval('L', E_AXIS, PAUSE_PARK_RETRACT_LENGTH));
+  const float retract =
+    #if HAS_EXTRUDERS
+      -ABS(parser.axisunitsval('L', E_AXIS, PAUSE_PARK_RETRACT_LENGTH));
+    #else
+      0;
+    #endif
 
   xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
