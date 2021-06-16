@@ -195,8 +195,8 @@
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
+ *  L   Restore leveling state after homing (default: true)
  *  O   Home only if position is unknown
- *
  *  Rn  Raise by n mm/inches before homing
  *
  * Cartesian/SCARA parameters
