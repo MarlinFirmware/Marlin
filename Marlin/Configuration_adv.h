@@ -3313,7 +3313,7 @@
    *  - RPM     (S0 - S50000)  Best for use with a spindle
    *  - SERVO   (S0 - S180)
    */
-  #define CUTTER_POWER_UNIT PERCENT
+  #define CUTTER_POWER_UNIT PWM255
 
   /**
    * Relative Cutter Power
