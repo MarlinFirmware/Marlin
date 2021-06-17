@@ -2,7 +2,8 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2021 X-Ryl669
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +20,11 @@
  *
  */
 #pragma once
+
+/**
+ * core/serial_base.h
+ * Copyright (c) 2021 X-Ryl669
+ */
 
 #include "number_format.h"
 #include "string.h"
@@ -77,10 +83,9 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
   // Used by NumberFormatter after each number formatting
   void writeDone() {}
 
-  // Syntaxic sugar
+  // Syntactic sugar
   FORCE_INLINE Child * SerialChild() { return static_cast<Child*>(this); }
   FORCE_INLINE const Child * SerialChild() const { return static_cast<const Child*>(this); }
-
 
   // Static dispatch methods below:
   // The most important method here is where it all ends to:
@@ -108,7 +113,7 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
   SerialFeature features(serial_index_t index=0) const { return SerialChild()->features(index);  }
 
   // Check if the serial port has a feature
-  bool has_feature(serial_index_t index, SerialFeature flag) const { return (features(index) & flag) != SerialFeature::None; }
+  bool has_feature(serial_index_t index, SerialFeature flag) const { return (features(index) &flag) != SerialFeature::None; }
 
   // Check if the serial port is connected (usually bypassed)
   bool connected() const            { return SerialChild()->connected(); }
@@ -116,19 +121,19 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
   // Redirect flush
   void flush()                      { SerialChild()->flush(); }
 
-  // Not all implementation have a flushTX, so let's call them only if the child has the implementation
+  // Not all implementations have flushTX, so only call a child with the implementation
   void flushTX()                    { CALL_IF_EXISTS(void, SerialChild(), flushTX); }
 
   // Glue code here
   FORCE_INLINE void write(const char *str)                    { while (*str) write(*str++); }
   FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
   FORCE_INLINE void print(const char *str)                    { write(str); }
-  FORCE_INLINE void print(const ROString & str)               { write((const uint8_t*)str.buffer(), str.len()); }
-  FORCE_INLINE void print(const StringBase & str)             { write((const uint8_t*)(const char*)str, str.length()); } // Don't remove the double cast here
+  FORCE_INLINE void print(const ROString &str)               { write((const uint8_t*)str.buffer(), str.len()); }
+  FORCE_INLINE void print(const StringBase &str)             { write((const uint8_t*)(const char*)str, str.length()); } // Don't remove the double cast here
 
   FORCE_INLINE void println(const char s[])                  { print(s); println(); }
-  FORCE_INLINE void println(const ROString & str)            { print(str); println(); }
-  FORCE_INLINE void println(const StringBase & str)          { print(str); println(); }
+  FORCE_INLINE void println(const ROString &str)            { print(str); println(); }
+  FORCE_INLINE void println(const StringBase &str)          { print(str); println(); }
   FORCE_INLINE void println(char c, PrintBase base)          { print(c, base); println(); }
   FORCE_INLINE void println(unsigned char c, PrintBase base) { print(c, base); println(); }
   FORCE_INLINE void println(int c, PrintBase base)           { print(c, base); println(); }
@@ -151,5 +156,5 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
   using NumberFormatter< SerialBase<Child> >::print;
 };
 
-// All serial instances will be built by chaining the features required
+// All serial instances are built by chaining the features required
 // for the function in the form of a template type definition.

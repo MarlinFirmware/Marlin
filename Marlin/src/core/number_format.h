@@ -2,7 +2,8 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2021 X-Ryl669
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +20,11 @@
  *
  */
 #pragma once
+
+/**
+ * core/number_formatter.h
+ * Copyright (c) 2021 X-Ryl669
+ */
 
 #include "../inc/MarlinConfigPre.h"
 
@@ -48,29 +54,28 @@ struct EnsureDouble {
 /** A simple helper class that's formatting numbers into string.
     You must provide a `size_t write(uint8)` method to use it in your class */
 template <typename Child>
-struct NumberFormatter
-{
+struct NumberFormatter {
   // The only methods you must implement in the child class
-  size_t write(uint8_t c)           { return static_cast<Child*>(this)->write(c); }
-  void writeDone()                  { static_cast<Child*>(this)->writeDone(); }
+  void write(uint8_t c) { static_cast<Child*>(this)->write(c); }
+  void writeDone()      { static_cast<Child*>(this)->writeDone(); }
 
   // No default argument to avoid ambiguity
-  NO_INLINE void print(char c, PrintBase base)                { printNumber((signed long)c, (uint8_t)base); }
-  NO_INLINE void print(unsigned char c, PrintBase base)       { printNumber((unsigned long)c, (uint8_t)base); }
-  NO_INLINE void print(int c, PrintBase base)                 { printNumber((signed long)c, (uint8_t)base); }
-  NO_INLINE void print(unsigned int c, PrintBase base)        { printNumber((unsigned long)c, (uint8_t)base); }
-  void print(unsigned long c, PrintBase base)                 { printNumber((unsigned long)c, (uint8_t)base); }
-  void print(long c, PrintBase base)                          { printNumber((signed long)c, (uint8_t)base); }
-  void print(EnsureDouble c, int digits)                      { printFloat(c, digits); }
+  NO_INLINE void print(char c, PrintBase base)          { printNumber((signed long)c, (uint8_t)base); }
+  NO_INLINE void print(unsigned char c, PrintBase base) { printNumber((unsigned long)c, (uint8_t)base); }
+  NO_INLINE void print(int c, PrintBase base)           { printNumber((signed long)c, (uint8_t)base); }
+  NO_INLINE void print(unsigned int c, PrintBase base)  { printNumber((unsigned long)c, (uint8_t)base); }
+  void print(unsigned long c, PrintBase base)           { printNumber((unsigned long)c, (uint8_t)base); }
+  void print(long c, PrintBase base)                    { printNumber((signed long)c, (uint8_t)base); }
+  void print(EnsureDouble c, int digits)                { printFloat(c, digits); }
 
   // Forward the call to the former's method
-  FORCE_INLINE void print(char c)                { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(unsigned char c)       { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(int c)                 { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(unsigned int c)        { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(unsigned long c)       { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(long c)                { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(double c)              { print(c, 2); }
+  FORCE_INLINE void print(char c)          { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(unsigned char c) { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(int c)           { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(unsigned int c)  { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(unsigned long c) { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(long c)          { print(c, PrintBase::Dec); }
+  FORCE_INLINE void print(double c)        { print(c, 2); }
 
 
   // Print a number with the given base

@@ -2,7 +2,8 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2021 X-Ryl669
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +21,11 @@
  */
 #pragma once
 
+/**
+ * core/allocator.h
+ * Copyright (c) 2021 X-Ryl669
+ */
+
 #include "bug_on.h"
 
 #define MAX_ALLOC_SIZE      1024
@@ -31,8 +37,7 @@ struct RAIIBuffer;
     @param N        Must be a power of two
     @param AllocMax Usually set to MAX_ALLOC_SIZE */
 template<size_t N, size_t AllocMax>
-class StackLikeAllocator
-{
+class StackLikeAllocator {
   uint8_t   buffer[AllocMax];
   uint16_t  current;
 

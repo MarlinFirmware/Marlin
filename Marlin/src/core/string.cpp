@@ -2,7 +2,8 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (c) 2021 X-Ryl669
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,16 +21,19 @@
  */
 #include "../inc/MarlinConfig.h"
 
-#include "types.h" // For size_t
+/**
+ * core/string.cpp
+ * Copyright (c) 2021 X-Ryl669
+ */
+
+#include "types.h"  // For size_t
 #include "macros.h" // For min
 #include "string.h"
 
 static char to_lower(char c) {
-	if  ( (c >= 65) && (c <= 90) )
-		return c + 32;
+	if (WITHIN(c, 'A', 'Z')) c += 'a' - 'A';
 	return c;
 }
-
 
 const unsigned int ROString::find(const ROString & needle, unsigned int pos, const bool caseless) const {
   for (unsigned int j = 0; pos + j < (unsigned int)length;) {
@@ -44,6 +48,7 @@ const unsigned int ROString::find(const ROString & needle, unsigned int pos, con
   }
   return (unsigned int)length;
 }
+
 const unsigned int ROString::reverseFind(const ROString & needle, unsigned int pos, const bool caseless) const {
   if (needle.length > length) return length;
   unsigned int i = _MIN(pos, (unsigned int)(length - needle.length)); // If there is no space to find out the needle at the end, simply snap back
@@ -105,17 +110,20 @@ const ROString ROString::upToFirst(const ROString & f, const bool includeFind, c
   const unsigned int pos = find(f, 0, caseless);
   return ROString(pos == (unsigned int)length && includeFind ? "" : data, includeFind ? (pos == (unsigned int)length ? 0 : pos + (unsigned int)f.length) : pos);
 }
+
 // Get the string up to the last occurrence of the given string
 const ROString ROString::upToLast(const ROString & f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = reverseFind(f, (unsigned int)-1, caseless);
   return ROString(pos == (unsigned int)length && includeFind ? "" : data, includeFind ? (pos == (unsigned int)length ? 0 : pos + (unsigned int)f.length) : pos);
 }
+
 // Get the string from the last occurrence of the given string.
 const ROString ROString::fromLast(const ROString & f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = reverseFind(f, (unsigned int)-1, caseless);
   return ROString(pos == (unsigned int)length ? (includeFind ? data : "") : &data[includeFind ? pos : pos + (unsigned int)f.length],
                                   pos == (unsigned int)length ? (includeFind ? (unsigned int)length : 0) : (includeFind ? (unsigned int)length - pos : (unsigned int)length - pos - (unsigned int)f.length));
 }
+
 // Get the string from the first occurrence of the given string
 const ROString ROString::fromFirst(const ROString & f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = find(f, 0, caseless);
@@ -124,6 +132,7 @@ const ROString ROString::fromFirst(const ROString & f, const bool includeFind, c
                                                     : (includeFind ? (unsigned int)length - pos
                                                                 : (unsigned int)length - pos - (unsigned int)f.length));
 }
+
 // Get the string from the first occurrence of the given string
 const ROString ROString::dropUpTo(const ROString & f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = find(f, 0, caseless);
@@ -131,6 +140,7 @@ const ROString ROString::dropUpTo(const ROString & f, const bool includeFind, co
                                   pos == (unsigned int)length ? (unsigned int)length : (includeFind ? (unsigned int)length - pos
                                                                 : (unsigned int)length - pos - (unsigned int)f.length));
 }
+
 // Get the substring up to the given needle if found, or the whole string if not, and split from here.
 const ROString ROString::splitUpTo(const ROString & f, const bool includeFind, const bool caseless) {
   const unsigned int pos = find(f, 0, caseless);
@@ -157,10 +167,10 @@ const ROString ROString::splitWhenNoMore(const ROString & f) {
   return ret;
 }
 
-
 // Compare operator
-const bool ROString::operator == (const StringBase & copy) const {
+const bool ROString::operator==(const StringBase & copy) const {
     return (uint16_t)length == copy.len && memcmp(data, copy.buffer, length) == 0;
 }
+
 // Conversion
 ROString::ROString(const StringBase & other) : data((const char*)other.buffer), length(other.len) {}
