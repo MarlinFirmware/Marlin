@@ -65,7 +65,7 @@ void host_action(PGM_P const pstr, const bool eol=true);
   extern PromptReason host_prompt_reason;
 
   void host_response_handler(const uint8_t response);
-  void host_action_notify(ROString & message);
+  void host_action_notify(ROString &message);
   void host_action_notify_P(PGM_P const message);
   void host_action_prompt_begin(const PromptReason reason, PGM_P const pstr, const char extra_char='\0');
   void host_action_prompt_button(PGM_P const pstr);

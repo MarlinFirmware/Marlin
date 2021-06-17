@@ -50,9 +50,8 @@ struct EnsureDouble {
   FORCE_INLINE EnsureDouble(float a) : a(a) {}
 };
 
-
-/** A simple helper class that's formatting numbers into string.
-    You must provide a `size_t write(uint8)` method to use it in your class */
+/** A simple helper class to format a number as a string.
+    Provide a `size_t write(uint8)` method to use it in your class */
 template <typename Child>
 struct NumberFormatter {
   // The only methods you must implement in the child class
@@ -77,10 +76,9 @@ struct NumberFormatter {
   FORCE_INLINE void print(long c)          { print(c, PrintBase::Dec); }
   FORCE_INLINE void print(double c)        { print(c, 2); }
 
-
   // Print a number with the given base
   NO_INLINE void printNumber(unsigned long n, const uint8_t base) {
-    if (!base) return; // Hopefully, this should raise visible bug immediately
+    if (!base) return; // Hopefully, this catches obvious bugs immediately
 
     if (n) {
       unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
@@ -95,24 +93,16 @@ struct NumberFormatter {
 
     writeDone();
   }
+
   void printNumber(signed long n, const uint8_t base) {
-    if (base == 10 && n < 0) {
-      n = -n; // This works because all platforms Marlin's builds on are using 2-complement encoding for negative number
-              // On such CPU, changing the sign of a number is done by inverting the bits and adding one, so if n = 0x80000000 = -2147483648 then
-              // -n = 0x7FFFFFFF + 1 => 0x80000000 = 2147483648 (if interpreted as unsigned) or -2147483648 if interpreted as signed.
-              // On non 2-complement CPU, there would be no possible representation for 2147483648.
-      write('-');
-    }
+    if (base == 10 && n < 0) { n = -n; write('-'); }
     printNumber((unsigned long)n , base);
   }
 
   // Print a decimal number
   NO_INLINE void printFloat(double number, uint8_t digits) {
     // Handle negative numbers
-    if (number < 0.0) {
-      write('-');
-      number = -number;
-    }
+    if (number < 0.0) { number = -number; write('-'); }
 
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;

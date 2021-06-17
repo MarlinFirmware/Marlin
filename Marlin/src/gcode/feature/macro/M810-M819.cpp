@@ -41,14 +41,15 @@ void GcodeSuite::M810_819() {
   const uint8_t index = parser.codenum - 810;
   if (index >= GCODE_MACROS_SLOTS) return;
 
-  const size_t len = strlen(parser.string_arg);
+  const size_t len = parser.string_arg.len();
 
   if (len) {
     // Set a macro
     if (len > GCODE_MACROS_SLOT_SIZE)
       SERIAL_ERROR_MSG("Macro too long.");
     else {
-      char c, *s = parser.string_arg, *d = gcode_macros[index];
+      const char *s = parser.string_arg.buffer();
+      char c, *d = gcode_macros[index];
       do {
         c = *s++;
         *d++ = c == '|' ? '\n' : c;

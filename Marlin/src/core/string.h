@@ -40,22 +40,21 @@ class StringBase;
 /** Simple R/O string used for parsing task.
     Makes the code easier to grasp because it's using a fluent interface and works on concept, not chars.
     Unlike C string, this string class is not nul terminated, so it can't be used in C style like functions */
-class ROString
-{
-  const char *    data;
-  int             length;
+class ROString {
+  const char *data;
+  int length;
 
   // Interface
 public:
-  /** Get a pointer on the data */
-  inline const char*  buffer() const     { return data; }
-  /** Get the string length */
-  inline const int    len() const   { return length; }
-  /** Limit the string length to the given value */
-  inline bool limitTo(const int newLength) { if (newLength > length) return false; (void)mutate(data, newLength); return true; }
-  /** Revert a position that was globbed previously. Calling this method is unsafe, since there's no check that the pointers are still valid. */
-  inline ROString & revert(const int amount) { length += amount; data -= amount; return *this; }
-  /** Get the substring from this string */
+  // Get a pointer on the data
+  inline const char*  buffer() const { return data; }
+  // Get the string length
+  inline const int len() const { return length; }
+  // Limit the string length to the given value
+  inline bool limitTo(const int newLength)  { if (newLength > length) return false; (void)mutate(data, newLength); return true; }
+  // Revert a position that was globbed previously. Calling this method is unsafe, since there's no check that the pointers are still valid.
+  inline ROString& revert(const int amount) { length += amount; data -= amount; return *this; }
+  // Get the substring from this string
   ROString midString(int left, int len) const { return ROString(left < length ? &data[left] : "", clamp(len, 0, length - left)); }
 
   /** Split at the given position.
@@ -75,27 +74,36 @@ public:
                             This is equivalent to .limitTo(len() - stripFromRet)
       @return The part from the left to the given position. */
   ROString splitAt(int pos, int stripFromRet = 0);
-  /** Trim the string from the given char (and direction) */
+
+  // Trim the string from the given char (and direction)
   ROString trimRight(const char ch) const { int len = length; while(len > 1 && data && data[len - 1] == ch) len--; return ROString(data, len); }
-  /** Trim the string from the given char (and direction) */
+
+  // Trim the string from the given char (and direction)
   ROString trimLeft(const char ch) const { int len = length; while(len > 1 && data && data[length - len] == ch) len--; return ROString(data + (length - len), len); }
-  /** Trim the beginning of string from any char in the given array */
+
+  // Trim the beginning of string from any char in the given array
   ROString trimmedLeft(const char* chars, int nlen = 0) const { int len = length; if (!nlen && chars) nlen = (int)strlen(chars); while(len > 1 && data && memchr(chars, data[length - len], nlen) != NULL) len--; return ROString(data + (length - len), len); }
-  /** Trim the end of string from any char in the given array */
+
+  // Trim the end of string from any char in the given array
   ROString trimmedRight(const char* chars, int nlen = 0) const { int len = length; if (!nlen && chars) nlen = (int)strlen(chars); while(len > 1 && data && memchr(chars, data[len - 1], nlen) != NULL) len--; return ROString(data, len); }
+
   /** Trim the beginning of string from any char in the given array.
       This is using fluent interface and modifies the internal object. */
-  ROString & leftTrim(const char* chars, int nlen = 0) { int len = length; if (!nlen && chars) nlen = (int)strlen(chars); while(len > 1 && data && memchr(chars, data[length - len], nlen) != NULL) len--; return mutate(data + (length - len), len); }
+  ROString& leftTrim(const char* chars, int nlen = 0) { int len = length; if (!nlen && chars) nlen = (int)strlen(chars); while(len > 1 && data && memchr(chars, data[length - len], nlen) != NULL) len--; return mutate(data + (length - len), len); }
+
   /** Trim the beginning of string from any char in the given array.
       This is using fluent interface and modifies the internal object. */
-  template <size_t nlen> ROString & leftTrim(const char (&chars)[nlen]) { int len = length; while(len > 1 && data && memchr(chars, data[length - len], nlen-1) != NULL) len--; return mutate(data + (length - len), len); }
+  template <size_t nlen> ROString& leftTrim(const char (&chars)[nlen]) { int len = length; while(len > 1 && data && memchr(chars, data[length - len], nlen-1) != NULL) len--; return mutate(data + (length - len), len); }
+
   /** Trim the end of string from any char in the given array
       This is using fluent interface and modifies the internal object. */
-  ROString & rightTrim(const char* chars, int nlen = 0) { int len = length; if (!nlen && chars) nlen = (int)strlen(chars); while(len > 1 && data && memchr(chars, data[len - 1], nlen) != NULL) len--; return mutate(data, len); }
+  ROString& rightTrim(const char* chars, int nlen = 0) { int len = length; if (!nlen && chars) nlen = (int)strlen(chars); while(len > 1 && data && memchr(chars, data[len - 1], nlen) != NULL) len--; return mutate(data, len); }
+
   /** Trim the end of string from any char in the given array
       This is using fluent interface and modifies the internal object. */
-  template <size_t nlen> ROString & rightTrim(const char (&chars)[nlen]) { int len = length; while(len > 1 && data && memchr(chars, data[len - 1], nlen - 1) != NULL) len--; return mutate(data, len); }
-  /** Trim the string from any char in the given array */
+  template <size_t nlen> ROString& rightTrim(const char (&chars)[nlen]) { int len = length; while(len > 1 && data && memchr(chars, data[len - 1], nlen - 1) != NULL) len--; return mutate(data, len); }
+
+  // Trim the string from any char in the given array
   ROString Trimmed(const char* chars, int nlen = 0) const {
     int llen = length, rlen = length;
     if (!nlen && chars) nlen = (int)strlen(chars);
@@ -103,25 +111,28 @@ public:
     while(nlen && rlen > 1 && data && memchr(chars, data[rlen - 1], nlen) != NULL) rlen--;
     return ROString(data + (length - llen), rlen - (length  - llen));
   }
-  /** Trim the string from any char in the given array */
-  ROString Trimmed(const ROString & t) const {
+
+  // Trim the string from any char in the given array
+  ROString Trimmed(const ROString &t) const {
     int llen = length, rlen = length;
     while(t.length && llen > 1 && data && memchr(t.data, data[length - llen], t.length) != NULL) llen--;
     while(t.length && rlen > 1 && data && memchr(t.data, data[rlen - 1], t.length) != NULL) rlen--;
     return ROString(data + (length - llen), rlen - (length  - llen));
   }
+
   /** Trim the string from any char in the given array
       This is using fluent interface and modifies the internal object. */
-  ROString & Trim(const char* chars, int nlen = 0) {
+  ROString& Trim(const char* chars, int nlen = 0) {
       int llen = length, rlen = length;
       if (!nlen && chars) nlen = (int)strlen(chars);
       while(nlen && llen > 1 && data && memchr(chars, data[length - llen], nlen) != NULL) llen--;
       while(nlen && rlen > 1 && data && memchr(chars, data[rlen - 1], nlen) != NULL) rlen--;
       return mutate(data + (length - llen), rlen - (length  - llen));
   }
+
   /** Trim the string from any char in the given array
       This is using fluent interface and modifies the internal object. */
-  ROString & Trim(const ROString & t) {
+  ROString& Trim(const ROString &t) {
     int llen = length, rlen = length;
     while(t.length && llen > 1 && data && memchr(t.data, data[length - llen], t.length) != NULL) llen--;
     while(t.length && rlen > 1 && data && memchr(t.data, data[rlen - 1], t.length) != NULL) rlen--;
@@ -131,19 +142,23 @@ public:
   /** Find the specific needle in the string.
       This is a very simple O(n*m) search.
       @return the position of the needle, or len() if not found. */
-  const unsigned int find(const ROString & needle, unsigned int pos = 0, const bool caseless = false) const;
+  const unsigned int find(const ROString &needle, unsigned int pos = 0, const bool caseless = false) const;
+
   /** Find any of the given set of chars
       @return the position of the needle, or len() if not found. */
   const unsigned int findAnyChar(const char * chars, unsigned int pos = 0, int nlen = 0) const { int len = pos; if (!nlen && chars) nlen = (int)strlen(chars); while(len < length && data && memchr(chars, data[len], nlen) == NULL) len++; return len; }
+
   /** Find first char that's not in the given set of chars
       @return the position of the needle, or len() if not found. */
   const unsigned int invFindAnyChar(const char * chars, unsigned int pos = 0, int nlen = 0) const { int len = pos; if (!nlen && chars) nlen = (int)strlen(chars); while(len < length && data && memchr(chars, data[len], nlen) != NULL) len++; return len; }
+
   /** Find the specific needle in the string, starting from the end of the string.
       This is a very simple O(n*m) search.
       @return the position of the needle, or len() if not found. */
-  const unsigned int reverseFind(const ROString & needle, unsigned int pos = (unsigned int)-1, const bool caseless = false) const;
-  /** Count the number of times the given substring appears in the string */
-  const unsigned int count(const ROString & needle) const;
+  const unsigned int reverseFind(const ROString &needle, unsigned int pos = (unsigned int)-1, const bool caseless = false) const;
+
+  // Count the number of times the given substring appears in the string
+  const unsigned int count(const ROString &needle) const;
 
   /** Split a string when the needle is found first, returning the part before the needle, and
       updating the string to start on or after the needle.
@@ -156,7 +171,7 @@ public:
       @endcode
       @param find         The string to look for
       @param includeFind  If true the string is updated to start on the find text. */
-  const ROString splitFrom(const ROString & find, const bool includeFind = false, const bool caseless = false);
+  const ROString splitFrom(const ROString &find, const bool includeFind = false, const bool caseless = false);
 
   /** Get the substring from the given needle up to the given needle.
       For example, this code returns:
@@ -174,7 +189,7 @@ public:
       @param includeFind  If true, the text searched for is included in the result
       @return If "from" needle is not found, it returns an empty string, else if "to" needle is not found,
               it returns an empty string upon includeFind being false, or the string starting from "from" if true. */
-  const ROString fromTo(const ROString & from, const ROString & to, const bool includeFind = false, const bool caseless = false) const;
+  const ROString fromTo(const ROString &from, const ROString &to, const bool includeFind = false, const bool caseless = false) const;
 
   /** Get the string up to the first occurrence of the given string
       If not found, it returns the whole string unless includeFind is true (empty string in that case).
@@ -185,7 +200,8 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString upToFirst(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
+  const ROString upToFirst(const ROString &find, const bool includeFind = false, const bool caseless = false) const;
+
   /** Get the string up to the last occurrence of the given string
       If not found, it returns the whole string unless includeFind is true (empty string in that case).
       For example, this code returns:
@@ -195,7 +211,8 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString upToLast(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
+  const ROString upToLast(const ROString &find, const bool includeFind = false, const bool caseless = false) const;
+
   /** Get the string from the last occurrence of the given string.
       If not found, it returns an empty string if includeFind is false, or the whole string if true
       For example, this code returns:
@@ -206,7 +223,8 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString fromLast(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
+  const ROString fromLast(const ROString &find, const bool includeFind = false, const bool caseless = false) const;
+
   /** Get the string from the first occurrence of the given string
       If not found, it returns an empty string if includeFind is false, or the whole string if true
       For example, this code returns:
@@ -217,7 +235,8 @@ public:
       @endcode
       @param find         The text to look for
       @param includeFind  If set, the needle is included in the result */
-  const ROString fromFirst(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
+  const ROString fromFirst(const ROString &find, const bool includeFind = false, const bool caseless = false) const;
+
   /** Get the substring from the given needle if found, or the whole string if not.
       For example, this code returns:
       @code
@@ -228,7 +247,8 @@ public:
       @endcode
       @param find         The string to look for
       @param includeFind  If true the string is updated to start on the find text. */
-  const ROString dropUpTo(const ROString & find, const bool includeFind = false, const bool caseless = false) const;
+  const ROString dropUpTo(const ROString &find, const bool includeFind = false, const bool caseless = false) const;
+
   /** Get the substring up to the given needle if found, or the whole string if not, and split from here.
       For example, this code returns:
       @code
@@ -240,7 +260,8 @@ public:
       @endcode
       @param find         The string to look for
       @param includeFind  If true the string is updated to start on the find text. */
-  const ROString splitUpTo(const ROString & find, const bool includeFind = false, const bool caseless = false);
+  const ROString splitUpTo(const ROString &find, const bool includeFind = false, const bool caseless = false);
+
   /** Eat the characters until the text is no more in the given set.
       The string is split at this position.
       @return The string made only from characters from the given set.
@@ -250,17 +271,17 @@ public:
         ROString text = "_abs123 defgh";
         ROString ret = text.splitWhenNoMore("abcdefghijklmnopqrstuvwxyz_0123456789"); // text = " defgh", ret = "_abs123"
       @endcode */
-  const ROString splitWhenNoMore(const ROString & set);
+  const ROString splitWhenNoMore(const ROString &set);
 
-  /** So you can check the string directly for emptiness */
+  //  So you can check the string directly for emptiness
   inline bool operator !() const { return length == 0; }
-  /** So you can check the string directly for emptiness */
+  //  So you can check the string directly for emptiness
   inline explicit operator bool() const { return length > 0; }
-  /** Operator [] to access a single char */
+  //  Operator [] to access a single char
   char operator[] (int index) const { return index < length ? data[index] : 0; }
 
-  /** Caseless compare */
-  inline const int caselessCmp(const ROString & copy) const {
+  //  Caseless compare
+  inline const int caselessCmp(const ROString &copy) const {
     int ret = strncasecmp(data, copy.data, length < copy.length ? length : copy.length);
     if (!ret && length == copy.length) return 0;
     if (ret < 0 || (!ret && length < copy.length)) return -1;
@@ -287,67 +308,68 @@ public:
 
   // Construction and operators
 public:
-  /** Default constructor */
+  // Default constructor
   ROString(const char * _data = 0, const int _length = -1) : data(_data), length(_length == -1 ? (_data ? strlen(_data) : 0) : _length) { }
-  /** Convertion constructor, the given object must live after around this lifetime */
-  ROString(const StringBase & other);
-  /** The destructor */
+  // Convertion constructor, the given object must live after around this lifetime
+  ROString(const StringBase &other);
+  // The destructor
   ~ROString() {}
-  /** Copy constructor */
-  ROString(const ROString & copy) = default;
-  /** Move constructor */
+  // Copy constructor
+  ROString(const ROString &copy) = default;
+  // Move constructor
   ROString(ROString && copy) = default;
-  /** Equal operator */
-  inline ROString & operator = (const ROString & copy) { if (&copy != this) return mutate(copy.data, copy.length); return *this; }
-  /** Compare operator */
-  inline const bool operator == (const ROString & copy) const { return length == copy.length && memcmp(data, copy.data, length) == 0; }
-  /** Sort operator */
-  inline const bool operator < (const ROString & copy) const { int ret = memcmp(data, copy.data, length < copy.length ? length : copy.length); return (ret < 0 || (!ret && length < copy.length)); }
-  /** Compare operator */
+  // Equal operator
+  inline ROString& operator = (const ROString &copy) { if (&copy != this) return mutate(copy.data, copy.length); return *this; }
+  // Compare operator
+  inline const bool operator == (const ROString &copy) const { return length == copy.length && memcmp(data, copy.data, length) == 0; }
+  // Sort operator
+  inline const bool operator < (const ROString &copy) const { int ret = memcmp(data, copy.data, length < copy.length ? length : copy.length); return (ret < 0 || (!ret && length < copy.length)); }
+  // Compare operator
   inline const bool operator == (const char * copy) const { return length == (int)strlen(copy) && memcmp(data, copy, length) == 0; }
-  /** Compare operator */
+  // Compare operator
   template <size_t N> inline const bool operator == (const char (&copy)[N]) const { return length == N-1 && memcmp(data, copy, length) == 0; }
-  /** Compare operator */
-  const bool operator == (const StringBase & copy) const;
-  /** Inverted compare operator */
-  inline const bool operator != (const ROString & copy) const { return !operator ==(copy); }
-  /** Inverted compare operator */
+  // Compare operator
+  const bool operator == (const StringBase &copy) const;
+  // Inverted compare operator
+  inline const bool operator != (const ROString &copy) const { return !operator ==(copy); }
+  // Inverted compare operator
   inline const bool operator != (const char * copy) const { return !operator ==(copy); }
-  /** Inverted compare operator */
-  inline const bool operator != (const StringBase & copy) const { return !operator ==(copy); }
+  // Inverted compare operator
+  inline const bool operator != (const StringBase &copy) const { return !operator ==(copy); }
 
 private:
-  /** mutate this string head positions (not the content) */
-//    inline const ROString & mutate(const char * d, const int len) const { const_cast<const char * & >(data) = d; const_cast<int&>(length) = len; return *this; }
-  /** mutate this string head positions (not the content) */
-  inline ROString & mutate(const char * d, const int len) { const_cast<const char * & >(data) = d; const_cast<int&>(length) = len; return *this; }
+  // mutate this string head positions (not the content)
+  //inline const ROString& mutate(const char * d, const int len) const { const_cast<const char * & >(data) = d; const_cast<int&>(length) = len; return *this; }
+
+  // mutate this string head positions (not the content)
+  inline ROString& mutate(const char * d, const int len) { const_cast<const char * & >(data) = d; const_cast<int&>(length) = len; return *this; }
   #if ENABLED(MARLIN_DEV_MODE)
     // Prevent unwanted conversion
     // If compiler stops here, it's because you're trying to compare a string with a type it doesn't understand.
-    template <typename T> bool operator == (const T & t) const {
+    template <typename T> bool operator == (const T &t) const {
       static_assert(sizeof(T) != sizeof(T)); return false;
     }
-    template <typename T> bool operator < (const T & t) const {
+    template <typename T> bool operator < (const T &t) const {
       static_assert(sizeof(T) != sizeof(T)); return false;
     }
-    template <typename T> bool operator > (const T & t) const {
+    template <typename T> bool operator > (const T &t) const {
       static_assert(sizeof(T) != sizeof(T)); return false;
     }
-    template <typename T> bool operator <= (const T & t) const {
+    template <typename T> bool operator <= (const T &t) const {
       static_assert(sizeof(T) != sizeof(T)); return false;
     }
-    template <typename T> bool operator >= (const T & t) const {
+    template <typename T> bool operator >= (const T &t) const {
       static_assert(sizeof(T) != sizeof(T)); return false;
     }
-    template <typename T> bool operator != (const T & t) const {
+    template <typename T> bool operator != (const T &t) const {
       static_assert(sizeof(T) != sizeof(T)); return false;
     }
   #endif
 };
 
-/** Basic R/W string class that's not managing the memory it's using. Use one of the child class to provide the memory management you need */
-class StringBase : public NumberFormatter< StringBase >
-{
+// Basic R/W string class that's not managing the memory it's using.
+// Use one of the child classes to provide the reuired memory management.
+class StringBase : public NumberFormatter< StringBase > {
   typedef struct NumberFormatter< StringBase > BaseClass;
 protected:
   char *    buffer;
@@ -360,7 +382,7 @@ private:
   virtual bool checkItFits(const uint16_t newSize) = 0;
 
   // Append a string here
-  StringBase & append(const char * txt, size_t txtLen = 0) {
+  StringBase& append(const char * txt, size_t txtLen = 0) {
     if (!txtLen) txtLen = strlen(txt);
     if (checkItFits(len + txtLen)) {
       memcpy(&buffer[len], txt, txtLen+1); // Always zero terminate the string
@@ -376,17 +398,17 @@ private:
   friend ROString;
 
   // Prevent copy construction
-  StringBase(const StringBase & other);
+  StringBase(const StringBase &other);
 
   // Operators
 public:
   // Strings
-  StringBase & operator += (const StringBase & other) { return append(other.buffer, other.len); }
-  StringBase & operator += (const char * txt)         { return append(txt); }
-  StringBase & operator += (const uint8_t * txt)      { return append((const char*)txt); }
-  StringBase & operator += (const char ch)            { char txt[2] = { ch, 0}; return append(txt, 1); }
+  StringBase& operator += (const StringBase &other)  { return append(other.buffer, other.len); }
+  StringBase& operator += (const char * txt)         { return append(txt); }
+  StringBase& operator += (const uint8_t * txt)      { return append((const char*)txt); }
+  StringBase& operator += (const char ch)            { char txt[2] = { ch, 0}; return append(txt, 1); }
   // Arduino hack for handling PROGMEM strings
-  StringBase & operator += (const __FlashStringHelper * txt)      { return append((const char*)pgm_read_ptr(txt)); }
+  StringBase& operator += (const __FlashStringHelper * txt)      { return append((const char*)pgm_read_ptr(txt)); }
 
   // Numbers
   FORCE_INLINE StringBase & operator += (const int c)              { print(c, PrintBase::Dec); return *this; }
@@ -400,14 +422,13 @@ public:
 
   // Compare operator
   bool operator == (const char * txt) const           { return strlen(txt) == len && memcmp(txt, buffer, len) == 0; }
-  bool operator == (const StringBase & other) const   { return other.len == len && memcmp(other.buffer, buffer, len) == 0; }
+  bool operator == (const StringBase &other) const   { return other.len == len && memcmp(other.buffer, buffer, len) == 0; }
   // Arduino hack for handling PROGMEM strings
   bool operator == (const __FlashStringHelper * txt)  { return *this == (const char*)pgm_read_ptr(txt); }
   bool operator != (const char * txt) const           { return !(*this == txt); }
-  bool operator != (const StringBase & other) const   { return !(*this == other); }
+  bool operator != (const StringBase &other) const   { return !(*this == other); }
 
-
-  StringBase & operator = (const StringBase & other)  { len = 0; return *this += other; }
+  StringBase& operator = (const StringBase &other)   { len = 0; return *this += other; }
 
   // Reset the string
   void clear()  { len = 0; buffer[0] = 0; }
@@ -425,15 +446,14 @@ public:
 
   // Construct the string
   StringBase(char * buffer, uint16_t allocSize, uint16_t len = 0) : buffer(buffer), len(len), allocSize(allocSize) {}
-  StringBase(StringBase && other) = default;
+  StringBase(StringBase &&other) = default;
 };
 
 
 /** A stack based string. Mainly used to the build a complex string from simple operations.
     The maximum string size is preallocated upon construction on the stack, so you can't pass this object around. */
 template <size_t N>
-struct SString : public StringBase
-{
+struct SString : public StringBase {
   char obj[N];
   // StringBase interface
 public:
@@ -448,7 +468,7 @@ public:
 
   // Construction with allocation
   SString() : StringBase(obj, N) {}
-  SString(const SString & other) : StringBase(obj, N) { memcpy(obj, other.obj, N); }
+  SString(const SString &other) : StringBase(obj, N) { memcpy(obj, other.obj, N); }
   // For PSTR strings (use the F macro here)
   SString(const __FlashStringHelper * str) : StringBase(obj, N, strlen_P(reinterpret_cast<const char*>(str))) { memcpy_P(obj, str, len + 1); }
   // Simple copy construct
@@ -462,14 +482,12 @@ public:
 
 private:
   // This can't be used so prevent to compile code using this
-  SString(const SString && other);
+  SString(const SString &&other);
 };
-
 
 /** A dynamic allocation string class using the StackLikeAllocator.
     It's using RAII (resource acquisition is initialization) principle to manage a buffer that's not allocated on the stack. */
-struct DString : public StringBase
-{
+struct DString : public StringBase {
   // StringBase interface
 public:
   // Ensure the string fits the buffer, or bug on
@@ -504,7 +522,7 @@ public:
   // Construction with allocation
   DString(const uint16_t alloc = 0) : StringBase((char*)SLAlloc::instance().lease(alloc), alloc) {}
 
-  DString(DString && other) : StringBase(other.buffer, other.allocSize, other.len) { other.buffer = nullptr; other.len = other.allocSize = 0; }
+  DString(DString &&other) : StringBase(other.buffer, other.allocSize, other.len) { other.buffer = nullptr; other.len = other.allocSize = 0; }
   DString(const __FlashStringHelper * str) : StringBase(
         (char*)SLAlloc::instance().lease(strlen_P(reinterpret_cast<const char*>(str))+1),
         strlen_P(reinterpret_cast<const char*>(str))+1,
@@ -512,7 +530,7 @@ public:
     memcpy_P(buffer, str, len+1);
   }
   DString(const char * str) : StringBase((char*)SLAlloc::instance().lease(strlen(str)), strlen(str+1), strlen(str)) { memcpy(buffer, str, len+1); }
-  DString(const ROString & s) : StringBase((char*)SLAlloc::instance().lease(s.len()+1), s.len()+1, s.len()) { memcpy(buffer, s.buffer(), len+1); }
+  DString(const ROString &s) : StringBase((char*)SLAlloc::instance().lease(s.len()+1), s.len()+1, s.len()) { memcpy(buffer, s.buffer(), len+1); }
 
   ~DString() {
     SLAlloc::instance().release(allocSize);

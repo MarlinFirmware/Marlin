@@ -184,7 +184,7 @@ CardReader::CardReader() {
 //
 // Get a DOS 8.3 filename in its useful form
 //
-void createFilename(SString<FILENAME_LENGTH> & buffer, const dir_t &p) {
+void createFilename(SString<FILENAME_LENGTH> &buffer, const dir_t &p) {
   buffer.clear();
   LOOP_L_N(i, 11) {
     if (p.name[i] == ' ') continue;
@@ -249,7 +249,7 @@ void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
 //
 // Get file/folder info for an item by name
 //
-void CardReader::selectByName(SdFile dir, const ROString & match) {
+void CardReader::selectByName(SdFile dir, const ROString &match) {
   dir_t p;
   for (uint8_t cnt = 0; dir.readDir(&p, longFilename.buf()) > 0; cnt++) {
     if (is_dir_or_gcode(p)) {
@@ -303,9 +303,9 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       }
     }
     else if (is_dir_or_gcode(p)) {
+      createFilename(filename, p);
       if (prepend) SERIAL_ECHO(prepend);
-      SERIAL_ECHO(createFilename(filename, p));
-      SERIAL_CHAR(' ');
+      SERIAL_ECHOPAIR(filename, AS_CHAR(' '));
       SERIAL_ECHOLN(p.fileSize);
     }
   }
@@ -573,11 +573,11 @@ void CardReader::getAbsFilenameInCWD(char *dst) {
   *dst = '\0';
 }
 
-void openFailed(const ROString & fname) {
+void openFailed(const ROString &fname) {
   SERIAL_ECHOLNPAIR(STR_SD_OPEN_FILE_FAIL, fname, ".");
 }
 
-void announceOpen(const uint8_t doing, ROString & path) {
+void announceOpen(const uint8_t doing, ROString &path) {
   if (doing) {
     PORT_REDIRECT(SerialMask::All);
     SERIAL_ECHO_START();
@@ -657,7 +657,7 @@ void CardReader::openFileRead(ROString path, const uint8_t subcall_type/*=0*/) {
     openFailed(fname);
 }
 
-inline void echo_write_to_file(const ROString & fname) {
+inline void echo_write_to_file(const ROString &fname) {
   SERIAL_ECHOLNPAIR(STR_SD_WRITE_TO_FILE, fname);
 }
 
@@ -838,7 +838,7 @@ void CardReader::selectFileByIndex(const uint16_t nr) {
 //
 // Get info for a file in the working directory by DOS name
 //
-void CardReader::selectFileByName(const ROString & match) {
+void CardReader::selectFileByName(const ROString &match) {
   #if ENABLED(SDSORT_CACHE_NAMES)
     for (uint16_t nr = 0; nr < sort_count; nr++)
       if (match.caselessCmp(sortshort[nr]) == 0) {
@@ -883,13 +883,13 @@ ROString CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, ROStri
   SdFile *sub = &newDir1, *startDirPtr;
 
   // Parsing the path string
-  ROString atom_ptr = path;
+  ROString atom_string = path;
 
   DEBUG_ECHOLNPAIR(" path = '", path, "'");
 
   if (path[0] == '/') {               // Starting at the root directory?
     inDirPtr = &root;
-    atom_ptr.splitAt(1);
+    atom_string.splitAt(1);
     DEBUG_ECHOLNPAIR(" CWD to root: ", hex_address((void*)inDirPtr));
     if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
   }
@@ -900,9 +900,9 @@ ROString CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, ROStri
 
   DEBUG_ECHOLNPAIR(" startDirPtr = ", hex_address((void*)startDirPtr));
 
-  while (atom_ptr) {
+  while (atom_string) {
     // Find next subdirectory delimiter
-    ROString dosSubdirname = atom_ptr.splitFrom("/");
+    ROString dosSubdirname = atom_string.splitFrom("/");
 
     // Last segment ?
     if (!dosSubdirname) break;
@@ -915,7 +915,7 @@ ROString CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, ROStri
     sub->close();
     if (!sub->open(inDirPtr, DString(dosSubdirname), O_READ)) {
       openFailed(dosSubdirname);
-      atom_ptr.limitTo(0);
+      atom_string.limitTo(0);
       break;
     }
 
@@ -941,7 +941,7 @@ ROString CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, ROStri
     DEBUG_ECHOLNPAIR(" swapping sub = ", hex_address((void*)sub));
 
     // Next path atom address
-    atom_ptr = name_end + 1;
+    atom_string = name_end + 1;
   }
 
   if (update_cwd) {
@@ -951,8 +951,8 @@ ROString CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, ROStri
     TERN_(SDCARD_SORT_ALPHA, presort());
   }
 
-  DEBUG_ECHOLNPAIR(" returning string ", atom_ptr ?: "nullptr");
-  return atom_ptr;
+  DEBUG_ECHOLNPAIR(" returning string ", atom_string ?: "nullptr");
+  return atom_string;
 }
 
 void CardReader::cd(const char * relpath) {
@@ -1175,7 +1175,7 @@ void CardReader::cdroot() {
         sort_order[0] = 0;
         #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
-            sortnames = new char*[1]; // WTF??
+            sortnames = new char*[1];
             sortshort = new char*[1];
             isDir = new uint8_t[1];
           #endif

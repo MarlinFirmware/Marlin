@@ -31,11 +31,11 @@
 #include "string.h"
 
 static char to_lower(char c) {
-	if (WITHIN(c, 'A', 'Z')) c += 'a' - 'A';
-	return c;
+  if (WITHIN(c, 'A', 'Z')) c += 'a' - 'A';
+  return c;
 }
 
-const unsigned int ROString::find(const ROString & needle, unsigned int pos, const bool caseless) const {
+const unsigned int ROString::find(const ROString &needle, unsigned int pos, const bool caseless) const {
   for (unsigned int j = 0; pos + j < (unsigned int)length;) {
     if ( (!caseless && needle.data[j] == data[pos + j])
       || ( caseless && to_lower(needle.data[j]) == to_lower(data[pos + j]))) {
@@ -49,7 +49,7 @@ const unsigned int ROString::find(const ROString & needle, unsigned int pos, con
   return (unsigned int)length;
 }
 
-const unsigned int ROString::reverseFind(const ROString & needle, unsigned int pos, const bool caseless) const {
+const unsigned int ROString::reverseFind(const ROString &needle, unsigned int pos, const bool caseless) const {
   if (needle.length > length) return length;
   unsigned int i = _MIN(pos, (unsigned int)(length - needle.length)); // If there is no space to find out the needle at the end, simply snap back
   for (unsigned int j = 0;;) {
@@ -65,13 +65,13 @@ const unsigned int ROString::reverseFind(const ROString & needle, unsigned int p
   return length;
 }
 
-const unsigned int ROString::count(const ROString & needle) const {
+const unsigned int ROString::count(const ROString &needle) const {
   int pos = -1; unsigned int count = 0;
   while ((pos = find(needle, pos+1)) != -1) count++;
   return count;
 }
 
-const ROString ROString::splitFrom(const ROString & f, const bool includeFind, const bool caseless) {
+const ROString ROString::splitFrom(const ROString &f, const bool includeFind, const bool caseless) {
   const unsigned int pos = find(f, 0, caseless);
   if (pos == (unsigned int)length) {
     if (includeFind) {
@@ -96,7 +96,7 @@ ROString ROString::splitAt(int pos, int stripFromRet) {
   return ret;
 }
 
-const ROString ROString::fromTo(const ROString & from, const ROString & to, const bool includeFind, const bool caseless) const {
+const ROString ROString::fromTo(const ROString &from, const ROString &to, const bool includeFind, const bool caseless) const {
   const unsigned int fromPos = find(from, 0, caseless);
   const unsigned int toPos = find(to, fromPos + from.length, caseless);
   return ROString(fromPos >= (unsigned int)length ? "" : &data[includeFind ? fromPos : fromPos + (unsigned int)from.length],
@@ -106,26 +106,26 @@ const ROString ROString::fromTo(const ROString & from, const ROString & to, cons
 }
 
 // Get the string up to the first occurrence of the given string
-const ROString ROString::upToFirst(const ROString & f, const bool includeFind, const bool caseless) const {
+const ROString ROString::upToFirst(const ROString &f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = find(f, 0, caseless);
   return ROString(pos == (unsigned int)length && includeFind ? "" : data, includeFind ? (pos == (unsigned int)length ? 0 : pos + (unsigned int)f.length) : pos);
 }
 
 // Get the string up to the last occurrence of the given string
-const ROString ROString::upToLast(const ROString & f, const bool includeFind, const bool caseless) const {
+const ROString ROString::upToLast(const ROString &f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = reverseFind(f, (unsigned int)-1, caseless);
   return ROString(pos == (unsigned int)length && includeFind ? "" : data, includeFind ? (pos == (unsigned int)length ? 0 : pos + (unsigned int)f.length) : pos);
 }
 
 // Get the string from the last occurrence of the given string.
-const ROString ROString::fromLast(const ROString & f, const bool includeFind, const bool caseless) const {
+const ROString ROString::fromLast(const ROString &f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = reverseFind(f, (unsigned int)-1, caseless);
   return ROString(pos == (unsigned int)length ? (includeFind ? data : "") : &data[includeFind ? pos : pos + (unsigned int)f.length],
                                   pos == (unsigned int)length ? (includeFind ? (unsigned int)length : 0) : (includeFind ? (unsigned int)length - pos : (unsigned int)length - pos - (unsigned int)f.length));
 }
 
 // Get the string from the first occurrence of the given string
-const ROString ROString::fromFirst(const ROString & f, const bool includeFind, const bool caseless) const {
+const ROString ROString::fromFirst(const ROString &f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = find(f, 0, caseless);
   return ROString(pos == (unsigned int)length ? (includeFind ? data : "") : &data[includeFind ? pos : pos + (unsigned int)f.length],
                                   pos == (unsigned int)length ? (includeFind ? (unsigned int)length : 0)
@@ -134,7 +134,7 @@ const ROString ROString::fromFirst(const ROString & f, const bool includeFind, c
 }
 
 // Get the string from the first occurrence of the given string
-const ROString ROString::dropUpTo(const ROString & f, const bool includeFind, const bool caseless) const {
+const ROString ROString::dropUpTo(const ROString &f, const bool includeFind, const bool caseless) const {
   const unsigned int pos = find(f, 0, caseless);
   return ROString(pos == (unsigned int)length ? data : &data[includeFind ? pos : pos + (unsigned int)f.length],
                                   pos == (unsigned int)length ? (unsigned int)length : (includeFind ? (unsigned int)length - pos
@@ -142,7 +142,7 @@ const ROString ROString::dropUpTo(const ROString & f, const bool includeFind, co
 }
 
 // Get the substring up to the given needle if found, or the whole string if not, and split from here.
-const ROString ROString::splitUpTo(const ROString & f, const bool includeFind, const bool caseless) {
+const ROString ROString::splitUpTo(const ROString &f, const bool includeFind, const bool caseless) {
   const unsigned int pos = find(f, 0, caseless);
   if (pos == (unsigned int)length) {
     ROString ret(*this);
@@ -155,7 +155,7 @@ const ROString ROString::splitUpTo(const ROString & f, const bool includeFind, c
   return ret;
 }
 
-const ROString ROString::splitWhenNoMore(const ROString & f) {
+const ROString ROString::splitWhenNoMore(const ROString &f) {
   const unsigned int pos = invFindAnyChar(f.data, 0, f.length);
   if (pos == (unsigned int)length) {
     ROString ret(*this);

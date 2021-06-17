@@ -88,7 +88,7 @@ void GCodeParser::reset() {
 #if ENABLED(GCODE_QUOTED_STRINGS)
 
   // Pass the address after the first quote (if any)
-  ROString GCodeParser::unescape_string(ROString & src) {
+  ROString GCodeParser::unescape_string(ROString &src) {
     src.trimLeft('"'); // Skip the leading quote
     // We'll const_cast the RO string here for each escaped char. It's not clean, but it's faster than
     // copying

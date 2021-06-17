@@ -146,7 +146,7 @@ public:
 
   // Select a file
   static void selectFileByIndex(const uint16_t nr);
-  static void selectFileByName(const ROString & match);  // (working directory only)
+  static void selectFileByName(const ROString &match);  // (working directory only)
 
   // Print job
   static void report_status();
@@ -183,7 +183,7 @@ public:
    *       path: Start with '/' for abs path. End with '/' to get a folder ref.
    *       echo: Set 'true' to print the path throughout the loop.
    */
-  static ROString diveToFile(const bool update_cwd, SdFile*& curDir, ROString & path, const bool echo=false);
+  static ROString diveToFile(const bool update_cwd, SdFile*& curDir, ROString &path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
@@ -326,7 +326,7 @@ private:
   static bool is_dir_or_gcode(const dir_t &p);
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
-  static void selectByName(SdFile dir, const ROString & match);
+  static void selectByName(SdFile dir, const ROString &match);
   static void printListing(SdFile parent, const char * const prepend=nullptr);
 
   #if ENABLED(SDCARD_SORT_ALPHA)

@@ -47,7 +47,6 @@ class StackLikeAllocator {
   friend struct RAIIBuffer;
   friend struct DString;
 
-
 public:
   bool grow(uint16_t amount) {
     if (amount + current >= AllocMax) {
@@ -83,8 +82,7 @@ public:
 
 typedef StackLikeAllocator<ALLOC_DEFAULT_ALIGN, MAX_ALLOC_SIZE> SLAlloc;
 
-struct RAIIBuffer
-{
+struct RAIIBuffer {
   uint8_t * buf;
   uint16_t size;
 

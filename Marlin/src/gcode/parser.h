@@ -107,27 +107,27 @@ public:
 
   #define LETTER_BIT(N) ((N) - 'A')
 
-  FORCE_INLINE static bool valid_signless(const ROString & p) {
+  FORCE_INLINE static bool valid_signless(const ROString &p) {
     return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
   }
 
-  FORCE_INLINE static bool valid_float(const ROString & p) {
+  FORCE_INLINE static bool valid_float(const ROString &p) {
     return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(p.midString(1, 2))); // [-+]?.?[0-9]
   }
 
-  FORCE_INLINE static bool valid_number(const ROString & p) {
+  FORCE_INLINE static bool valid_number(const ROString &p) {
     // TODO: With MARLIN_DEV_MODE allow HEX values starting with "x"
     return valid_float(p);
   }
 
   #if ENABLED(FASTER_GCODE_PARSER)
 
-    FORCE_INLINE static bool valid_int(const ROString & p) {
+    FORCE_INLINE static bool valid_int(const ROString &p) {
       return NUMERIC(p[0]) || ((p[0] == '-' || p[0] == '+') && NUMERIC(p[1])); // [-+]?[0-9]
     }
 
     // Set the flag and pointer for a parameter
-    static inline void set(const char c, ROString & ptr) {
+    static inline void set(const char c, ROString &ptr) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
       SBI32(codebits, ind);                      // parameter exists
@@ -231,9 +231,9 @@ public:
   }
 
   #if ENABLED(GCODE_QUOTED_STRINGS)
-    static ROString unescape_string(ROString & src);
+    static ROString unescape_string(ROString &src);
   #else
-    FORCE_INLINE static ROString unescape_string(ROString & src) { return src; }
+    FORCE_INLINE static ROString unescape_string(ROString &src) { return src; }
   #endif
 
   // Populate all fields by parsing a single line of GCode
