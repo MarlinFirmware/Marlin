@@ -39,7 +39,7 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
+#if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
   #define HAS_ENCODER_ACTION 1
 #endif
 
@@ -48,7 +48,7 @@
 #endif
 
 #if E_MANUAL > 1
-  #define MULTI_MANUAL 1
+  #define MULTI_E_MANUAL 1
 #endif
 
 #if HAS_DISPLAY
@@ -129,7 +129,7 @@
   class ManualMove {
   private:
     static AxisEnum axis;
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
@@ -155,17 +155,34 @@
         current_position.set(dest);
       #endif
     }
+    float axis_value(const AxisEnum axis) {
+      return NATIVE_TO_LOGICAL(processing ? destination[axis] : SUM_TERN(IS_KINEMATIC, current_position[axis], offset), axis);
+    }
+    bool apply_diff(const AxisEnum axis, const_float_t diff, const_float_t min, const_float_t max) {
+      #if IS_KINEMATIC
+        float &valref = offset;
+        const float rmin = min - current_position[axis], rmax = max - current_position[axis];
+      #else
+        float &valref = current_position[axis];
+        const float rmin = min, rmax = max;
+      #endif
+      valref += diff;
+      const float pre = valref;
+      if (min != max) {
+        if (diff < 0)
+          NOLESS(valref, rmin);
+        else
+          NOMORE(valref, rmax);
+      }
+      return pre != valref;
+    }
     #if IS_KINEMATIC
       static bool processing;
     #else
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(AxisEnum axis
-      #if MULTI_MANUAL
-        , const int8_t eindex=-1
-      #endif
-    );
+    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
 
 #endif
@@ -337,6 +354,7 @@ public:
         static void draw_marlin_bootscreen(const bool line2=false);
         static void show_marlin_bootscreen();
         static void show_bootscreen();
+        static void bootscreen_completion(const millis_t sofar);
       #endif
 
       #if HAS_MARLINUI_U8GLIB
@@ -456,9 +474,6 @@ public:
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
 
-    static bool lcd_clicked;
-    static bool use_click();
-
     static void synchronize(PGM_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
@@ -509,10 +524,21 @@ public:
 
   #elif HAS_WIRED_LCD
 
-    static constexpr bool lcd_clicked = false;
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
+  #endif
+
+  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+    static bool lcd_clicked;
+    static inline bool use_click() {
+      const bool click = lcd_clicked;
+      lcd_clicked = false;
+      return click;
+    }
+  #else
+    static constexpr bool lcd_clicked = false;
+    static inline bool use_click() { return false; }
   #endif
 
   #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)

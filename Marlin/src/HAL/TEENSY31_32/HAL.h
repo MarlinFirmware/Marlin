@@ -34,7 +34,6 @@
 #include "fastio.h"
 #include "watchdog.h"
 
-
 #include <stdint.h>
 
 #define ST7920_DELAY_1 DELAY_NS(600)
@@ -69,6 +68,8 @@ extern USBSerialType USBSerial;
 #elif WITHIN(SERIAL_PORT, 0, 3)
   DECLARE_SERIAL(SERIAL_PORT);
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+#else
+  #error "The required SERIAL_PORT must be from 0 to 3, or -1 for Native USB."
 #endif
 
 #define HAL_SERVO_LIB libServo
@@ -93,7 +94,7 @@ void HAL_clear_reset_source();
 // Get the reason for the reset
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 

@@ -48,6 +48,13 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
+#if NUM_Z_STEPPER_DRIVERS >= 3
+  #define TRIPLE_Z 1
+  #if NUM_Z_STEPPER_DRIVERS >= 4
+    #define QUAD_Z 1
+  #endif
+#endif
+
 /**
  * G34: Z-Stepper automatic alignment
  *
@@ -82,9 +89,9 @@ void GcodeSuite::G34() {
     switch (parser.intval('Z')) {
       case 1: stepper.set_z1_lock(state); break;
       case 2: stepper.set_z2_lock(state); break;
-      #if NUM_Z_STEPPER_DRIVERS >= 3
+      #if TRIPLE_Z
         case 3: stepper.set_z3_lock(state); break;
-        #if NUM_Z_STEPPER_DRIVERS >= 4
+        #if QUAD_Z
           case 4: stepper.set_z4_lock(state); break;
         #endif
       #endif
@@ -98,13 +105,6 @@ void GcodeSuite::G34() {
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     do { // break out on error
-
-      #if NUM_Z_STEPPER_DRIVERS == 4
-        SERIAL_ECHOLNPGM("Alignment for 4 steppers is Experimental!");
-      #elif NUM_Z_STEPPER_DRIVERS > 4
-        SERIAL_ECHOLNPGM("Alignment not supported for over 4 steppers");
-        break;
-      #endif
 
       const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
       if (!WITHIN(z_auto_align_iterations, 1, 30)) {
@@ -157,19 +157,17 @@ void GcodeSuite::G34() {
         const xy_pos_t diff = z_stepper_align.xy[i] - z_stepper_align.xy[j];
         return HYPOT2(diff.x, diff.y);
       };
-      float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * SQRT(
-        #if NUM_Z_STEPPER_DRIVERS == 3
-          _MAX(magnitude2(0, 1), magnitude2(1, 2), magnitude2(2, 0))
-        #elif NUM_Z_STEPPER_DRIVERS == 4
-          _MAX(magnitude2(0, 1), magnitude2(1, 2), magnitude2(2, 3),
-                magnitude2(3, 0), magnitude2(0, 2), magnitude2(1, 3))
-        #else
-          magnitude2(0, 1)
+      float z_probe = Z_BASIC_CLEARANCE + (G34_MAX_GRADE) * 0.01f * SQRT(_MAX(0, magnitude2(0, 1)
+        #if TRIPLE_Z
+          , magnitude2(2, 1), magnitude2(2, 0)
+          #if QUAD_Z
+            , magnitude2(3, 2), magnitude2(3, 1), magnitude2(3, 0)
+          #endif
         #endif
-      );
+      ));
 
       // Home before the alignment procedure
-      if (!all_axes_trusted()) home_all_axes();
+      home_if_needed();
 
       // Move the Z coordinate realm towards the positive - dirty trick
       current_position.z += z_probe * 0.5f;
@@ -178,7 +176,7 @@ void GcodeSuite::G34() {
       // This hack is un-done at the end of G34 - either by re-homing, or by using the probed heights of the last iteration.
 
       #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-        float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N(NUM_Z_STEPPER_DRIVERS, 10000.0f, 10000.0f, 10000.0f, 10000.0f);
+        float last_z_align_move[NUM_Z_STEPPER_DRIVERS] = ARRAY_N_1(NUM_Z_STEPPER_DRIVERS, 10000.0f);
       #else
         float last_z_align_level_indicator = 10000.0f;
       #endif
@@ -280,39 +278,52 @@ void GcodeSuite::G34() {
             z_measured_min = _MIN(z_measured_min, z_measured[i]);
           }
 
-          SERIAL_ECHOLNPAIR("CALCULATED STEPPER POSITIONS: Z1=", z_measured[0], " Z2=", z_measured[1], " Z3=", z_measured[2]);
+          SERIAL_ECHOLNPAIR(
+            LIST_N(DOUBLE(NUM_Z_STEPPER_DRIVERS),
+              "Calculated Z1=", z_measured[0],
+                        " Z2=", z_measured[1],
+                        " Z3=", z_measured[2],
+                        " Z4=", z_measured[3]
+            )
+          );
         #endif
 
         SERIAL_ECHOLNPAIR("\n"
-          "DIFFERENCE Z1-Z2=", ABS(z_measured[0] - z_measured[1])
-          #if NUM_Z_STEPPER_DRIVERS == 3
-            , " Z2-Z3=", ABS(z_measured[1] - z_measured[2])
+          "Z2-Z1=", ABS(z_measured[1] - z_measured[0])
+          #if TRIPLE_Z
+            , " Z3-Z2=", ABS(z_measured[2] - z_measured[1])
             , " Z3-Z1=", ABS(z_measured[2] - z_measured[0])
+            #if QUAD_Z
+              , " Z4-Z3=", ABS(z_measured[3] - z_measured[2])
+              , " Z4-Z2=", ABS(z_measured[3] - z_measured[1])
+              , " Z4-Z1=", ABS(z_measured[3] - z_measured[0])
+            #endif
           #endif
         );
+
         #if HAS_STATUS_MESSAGE
           char fstr1[10];
-          #if NUM_Z_STEPPER_DRIVERS == 2
-            char msg[6 + (6 + 5) * 1 + 1];
-          #else
-            char msg[6 + (6 + 5) * 3 + 1], fstr2[10], fstr3[10];
-          #endif
-          sprintf_P(msg,
-            PSTR("Diffs Z1-Z2=%s"
-              #if NUM_Z_STEPPER_DRIVERS == 3
-                " Z2-Z3=%s"
-                " Z3-Z1=%s"
+          char msg[6 + (6 + 5) * NUM_Z_STEPPER_DRIVERS + 1]
+            #if TRIPLE_Z
+              , fstr2[10], fstr3[10]
+              #if QUAD_Z
+                , fstr4[10], fstr5[10], fstr6[10]
               #endif
-            ), dtostrf(ABS(z_measured[0] - z_measured[1]), 1, 3, fstr1)
-            #if NUM_Z_STEPPER_DRIVERS == 3
-              , dtostrf(ABS(z_measured[1] - z_measured[2]), 1, 3, fstr2)
-              , dtostrf(ABS(z_measured[2] - z_measured[0]), 1, 3, fstr3)
             #endif
+          ;
+          sprintf_P(msg,
+            PSTR("1:2=%s" TERN_(TRIPLE_Z, " 3-2=%s 3-1=%s") TERN_(QUAD_Z, " 4-3=%s 4-2=%s 4-1=%s")),
+            dtostrf(ABS(z_measured[1] - z_measured[0]), 1, 3, fstr1)
+            OPTARG(TRIPLE_Z, dtostrf(ABS(z_measured[2] - z_measured[1]), 1, 3, fstr2))
+            OPTARG(TRIPLE_Z, dtostrf(ABS(z_measured[2] - z_measured[0]), 1, 3, fstr3))
+            OPTARG(QUAD_Z,   dtostrf(ABS(z_measured[3] - z_measured[2]), 1, 3, fstr4))
+            OPTARG(QUAD_Z,   dtostrf(ABS(z_measured[3] - z_measured[1]), 1, 3, fstr5))
+            OPTARG(QUAD_Z,   dtostrf(ABS(z_measured[3] - z_measured[0]), 1, 3, fstr6))
           );
           ui.set_status(msg);
         #endif
 
-        auto decreasing_accuracy = [](const_float_t v1, const_float_t v2){
+        auto decreasing_accuracy = [](const_float_t v1, const_float_t v2) {
           if (v1 < v2 * 0.7f) {
             SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
             LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);
@@ -437,7 +448,7 @@ void GcodeSuite::G34() {
       #endif
 
     }while(0);
-  #endif
+  #endif // Z_STEPPER_AUTO_ALIGN
 }
 
 #endif // Z_MULTI_ENDSTOPS || Z_STEPPER_AUTO_ALIGN
