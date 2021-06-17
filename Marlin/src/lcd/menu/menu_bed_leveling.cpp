@@ -206,7 +206,7 @@
 #if ENABLED(MESH_EDIT_MENU)
 
   inline void refresh_planner() {
-    set_current_from_steppers_for_axis(ALL_AXES);
+    set_current_from_steppers_for_axis(ALL_AXES_ENUM);
     sync_plan_position();
   }
 

@@ -271,7 +271,7 @@ void home_delta() {
   // Do this here all at once for Delta, because
   // XYZ isn't ABC. Applying this per-tower would
   // give the impression that they are the same.
-  LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
+  LOOP_ABC(i) set_axis_is_at_home((AxisEnum)i);
 
   sync_plan_position();
 

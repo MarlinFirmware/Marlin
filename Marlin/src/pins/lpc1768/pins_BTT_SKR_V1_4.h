@@ -32,13 +32,6 @@
 #endif
 
 //
-// SD Connection
-//
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION LCD
-#endif
-
-//
 // Servos
 //
 #define SERVO0_PIN                         P2_00
@@ -57,7 +50,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                      P1_26  // E0DET
   #else
     #define X_MIN_PIN                      P1_26  // E0DET
@@ -75,7 +68,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                      P1_25  // E1DET
   #else
     #define Y_MIN_PIN                      P1_25  // E1DET
@@ -93,7 +86,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                      P1_00  // PWRDET
   #else
     #define Z_MIN_PIN                      P1_00  // PWRDET
@@ -263,13 +256,6 @@
 #define EXP2_09_PIN                        P0_15
 #define EXP2_10_PIN                        P0_17
 
-//
-// SD Connection
-//
-#if SD_CONNECTION_IS(LCD)
-  #define SD_SS_PIN                  EXP2_07_PIN
-#endif
-
 /**
  *               _____                                             _____
  *           NC | · · | GND                                    5V | · · | GND
@@ -293,7 +279,7 @@
     #undef SPEAKER
   #endif
 
-#elif HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
+#elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
@@ -341,13 +327,13 @@
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
     *                BEFORE                     AFTER
-    *                _____                      _____
-    *           GND | 1 2 | 5V              5V | 1 2 | GND
-    *            CS | 3 4 | BTN_EN2         CS | 3 4 | BTN_EN2
-    *           SID | 5 6   BTN_EN1        SID | 5 6   BTN_EN1
-    *          open | 7 8 | BTN_ENC        CLK | 7 8 | BTN_ENC
-    *           CLK | 9 10| Beeper        open | 9 10| Beeper
-    *                -----                      -----
+    *                ______                     ______
+    *           GND | 1  2 | 5V             5V | 1  2 | GND
+    *            CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+    *           SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+    *          open | 7  8 | BTN_ENC       CLK | 7  8 | BTN_ENC
+    *           CLK | 9 10 | Beeper       open | 9 10 | Beeper
+    *                ------                     ------
     *                 LCD                        LCD
     */
 
@@ -375,13 +361,13 @@
   #elif ENABLED(ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
-     *                   _____
-     *               5V | 1 2 | GND
-     *      (MOSI) 1.23 | 3 4 | 1.22 (LCD_RS)
-     *    (LCD_A0) 1.21 | 5 6   1.20 (BTN_EN2)
-     *       RESET 1.19 | 7 8 | 1.18 (BTN_EN1)
-     *   (BTN_ENC) 0.28 | 9 10| 1.30  (SCK)
-     *                   -----
+     *                   ______
+     *               5V | 1  2 | GND
+     *      (MOSI) 1.23 | 3  4 | 1.22 (LCD_RS)
+     *    (LCD_A0) 1.21 | 5  6   1.20 (BTN_EN2)
+     *       RESET 1.19 | 7  8 | 1.18 (BTN_EN1)
+     *   (BTN_ENC) 0.28 | 9 10 | 1.30  (SCK)
+     *                   ------
      *                    EXP1
      */
 
@@ -416,10 +402,6 @@
     #define SD_MISO_PIN              EXP2_10_PIN
     #define SD_MOSI_PIN              EXP2_05_PIN
 
-    // Disable any LCD related PINs config
-    #define LCD_PINS_ENABLE                -1
-    #define LCD_PINS_RS                    -1
-
     #define TFT_BUFFER_SIZE                 2400
 
   #elif IS_TFTGLCD_PANEL
@@ -442,10 +424,6 @@
     #define LCD_PINS_D4              EXP1_06_PIN
 
     #define LCD_SDSS                 EXP2_07_PIN  // (16) J3-7 & AUX-4
-
-    #if SD_CONNECTION_IS(LCD)
-      #define SD_DETECT_PIN          EXP2_04_PIN  // (49) (NOT 5V tolerant)
-    #endif
 
     #if ENABLED(FYSETC_MINI_12864)
       #define DOGLCD_CS              EXP1_08_PIN

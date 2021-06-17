@@ -35,18 +35,6 @@ void safe_delay(millis_t ms) {
   thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
-#if ENABLED(MARLIN_DEV_MODE)
-  void early_safe_delay(millis_t ms) {
-    while (ms > 50) {
-      ms -= 50;
-      delay(50);
-      watchdog_refresh();
-    }
-    delay(ms);
-    watchdog_refresh();
-  }
-#endif
-
 // A delay to provide brittle hosts time to receive bytes
 #if ENABLED(SERIAL_OVERRUN_PROTECTION)
 
@@ -135,9 +123,9 @@ void safe_delay(millis_t ms) {
         #endif
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment X");
-          LOOP_XYZ(a) {
+          LOOP_LINEAR_AXES(a) {
             const float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
-            SERIAL_CHAR(' ', XYZ_CHAR(a));
+            SERIAL_CHAR(' ', AXIS_CHAR(a));
             if (v > 0) SERIAL_CHAR('+');
             SERIAL_DECIMAL(v);
           }
