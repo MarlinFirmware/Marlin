@@ -26,6 +26,10 @@
  * Defines that depend on advanced configuration.
  */
 
+#ifndef AXIS_RELATIVE_MODES
+  #define AXIS_RELATIVE_MODES {}
+#endif
+
 #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
 #endif
@@ -488,12 +492,26 @@
 // Remove unused STEALTHCHOP flags
 #if LINEAR_AXES < 6
   #undef STEALTHCHOP_K
+  #undef CALIBRATION_MEASURE_KMIN
+  #undef CALIBRATION_MEASURE_KMAX
   #if LINEAR_AXES < 5
     #undef STEALTHCHOP_J
+    #undef CALIBRATION_MEASURE_JMIN
+    #undef CALIBRATION_MEASURE_JMAX
     #if LINEAR_AXES < 4
       #undef STEALTHCHOP_I
+      #undef CALIBRATION_MEASURE_IMIN
+      #undef CALIBRATION_MEASURE_IMAX
       #if LINEAR_AXES < 3
+        #undef Z_IDLE_HEIGHT
         #undef STEALTHCHOP_Z
+        #undef Z_PROBE_SLED
+        #undef Z_SAFE_HOMING
+        #undef HOME_Z_FIRST
+        #undef HOMING_Z_WITH_PROBE
+        #undef ENABLE_LEVELING_FADE_HEIGHT
+        #undef NUM_Z_STEPPER_DRIVERS
+        #undef CNC_WORKSPACE_PLANES
         #if LINEAR_AXES < 2
           #undef STEALTHCHOP_Y
         #endif

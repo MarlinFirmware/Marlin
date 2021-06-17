@@ -104,7 +104,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
     }
 };
 
-void menu_media() {
+void menu_media_filelist() {
   ui.encoder_direction_menus();
 
   #if HAS_MARLINUI_U8GLIB
@@ -115,7 +115,11 @@ void menu_media() {
   #endif
 
   START_MENU();
-  BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
+  #if ENABLED(MULTI_VOLUME)
+    ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media); });
+  #else
+    BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
+  #endif
   if (card.flag.workDirIsRoot) {
     #if !PIN_EXISTS(SD_DETECT)
       ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });
@@ -136,6 +140,24 @@ void menu_media() {
       SKIP_ITEM();
   }
   END_MENU();
+}
+
+#if ENABLED(MULTI_VOLUME)
+  void menu_media_select() {
+    START_MENU();
+    BACK_ITEM_P(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT(MSG_MAIN) : GET_TEXT(MSG_BACK));
+    #if ENABLED(VOLUME_SD_ONBOARD)
+      ACTION_ITEM(MSG_SD_CARD, []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #endif
+    #if ENABLED(VOLUME_USB_FLASH_DRIVE)
+      ACTION_ITEM(MSG_USB_DISK, []{ card.changeMedia(&card.media_driver_usbFlash); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #endif
+    END_MENU();
+  }
+#endif
+
+void menu_media() {
+  TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
 }
 
 #endif // HAS_LCD_MENU && SDSUPPORT

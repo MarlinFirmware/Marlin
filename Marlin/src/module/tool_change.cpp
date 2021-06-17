@@ -49,7 +49,9 @@
   bool toolchange_extruder_ready[EXTRUDERS];
 #endif
 
-#if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+#if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) \
+  || defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) \
+  || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
   #include "../gcode/gcode.h"
 #endif
 
@@ -1311,10 +1313,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     TERN_(HAS_FANMUX, fanmux_switch(active_extruder));
 
-    #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
-      if (!no_move && TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))
-        gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
-    #endif
+    if (!no_move) {
+      #ifdef EVENT_GCODE_TOOLCHANGE_T0
+        if (new_tool == 0)
+          gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_TOOLCHANGE_T0));
+      #endif
+
+      #ifdef EVENT_GCODE_TOOLCHANGE_T1
+        if (new_tool == 1)
+          gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_TOOLCHANGE_T1));
+      #endif
+
+      #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
+        if (TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))
+          gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
+      #endif
+    }
 
     SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, active_extruder);
 
