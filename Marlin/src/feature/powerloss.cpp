@@ -394,8 +394,7 @@ void PrintJobRecovery::resume() {
     // Does Z need to be raised now? It should be raised before homing XY.
     if (z_raised > z_now) {
       z_now = z_raised;
-      sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
-      gcode.process_subcommands_now(cmd);
+      gcode.process_subcommands_now(DString::format(F("G1Z%sF600"), z_now));
     }
 
     // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
@@ -420,15 +419,14 @@ void PrintJobRecovery::resume() {
 
     #if HOME_XY_ONLY
       // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
-      sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
-      gcode.process_subcommands_now(cmd);
+      gcode.process_subcommands_now(DString::format(F("G92.9Z%1.3f"), z_now));
     #endif
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
     // Z was homed down to the bed, so move up to the raised height.
     z_now = z_raised;
-    gcode.process_subcommands_now(DString::format(F("G1Z%sF600"), z_now));
+    gcode.process_subcommands_now(DString::format(F("G1Z%1.3fF600"), z_now));
   #endif
 
   // Recover volumetric extrusion state
@@ -452,12 +450,8 @@ void PrintJobRecovery::resume() {
     HOTEND_LOOP() {
       const celsius_t et = info.target_temperature[e];
       if (et) {
-        #if HAS_MULTI_HOTEND
-          sprintf_P(cmd, PSTR("T%iS"), e);
-          gcode.process_subcommands_now(cmd);
-        #endif
-        sprintf_P(cmd, PSTR("M109S%i"), et);
-        gcode.process_subcommands_now(cmd);
+        TERN_(HAS_MULTI_HOTEND, gcode.process_subcommands_now(DString::format(F("T%iS"), e)));
+        gcode.process_subcommands_now(DString::format(F("M109S%i"), et))
       }
     }
   #endif

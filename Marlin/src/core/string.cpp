@@ -57,7 +57,8 @@ const unsigned int ROString::reverseFind(const ROString &needle, unsigned int po
       || ( caseless && to_lower(needle.data[j]) == to_lower(data[i + j]))) {
       j ++;
       if (j >= (unsigned int)needle.length) return i;
-    } else {
+    }
+    else {
       if (i-- == 0) break;
       j = 0;
     }
