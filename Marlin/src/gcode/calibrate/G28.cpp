@@ -198,9 +198,9 @@
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
- *  O   Home only if position is unknown
- *
- *  Rn  Raise by n mm/inches before homing
+ *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
+ *  O         Home only if the position is not known and trusted
+ *  R<linear> Raise by n mm/inches before homing
  *
  * Cartesian/SCARA parameters
  *
@@ -232,7 +232,7 @@ void GcodeSuite::G28() {
   #endif
 
   // Home (O)nly if position is unknown
-  if (!axes_should_home() && parser.boolval('O')) {
+  if (!axes_should_home() && parser.seen_test('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
     return;
   }
@@ -245,11 +245,15 @@ void GcodeSuite::G28() {
   SET_SOFT_ENDSTOP_LOOSE(false);  // Reset a leftover 'loose' motion state
 
   // Disable the leveling matrix before homing
-  #if HAS_LEVELING
-    const bool leveling_restore_state = parser.boolval('L', TERN(RESTORE_LEVELING_AFTER_G28, planner.leveling_active, ENABLED(ENABLE_LEVELING_AFTER_G28)));
-    IF_ENABLED(PROBE_MANUALLY, g29_in_progress = false); // Cancel the active G29 session
-    set_bed_leveling_enabled(false);
+  #if CAN_SET_LEVELING_AFTER_G28
+    const bool leveling_restore_state = parser.boolval('L', TERN1(RESTORE_LEVELING_AFTER_G28, planner.leveling_active));
   #endif
+
+  // Cancel any prior G29 session
+  TERN_(PROBE_MANUALLY, g29_in_progress = false);
+
+  // Disable leveling before homing
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
   // Reset to the XY plane
   TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
@@ -361,13 +365,14 @@ void GcodeSuite::G28() {
 
     const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
-    if (z_homing_height && (0 LINEAR_AXIS_GANG(|| doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
+    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);
       TERN_(BLTOUCH, bltouch.init());
     }
 
+    // Diagonal move first if both are homing
     TERN_(QUICK_HOME, if (doX && doY) quick_home_xy());
 
     // Home Y (before X)
@@ -472,12 +477,10 @@ void GcodeSuite::G28() {
   // Clear endstop state for polled stallGuard endstops
   TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
-  #if BOTH(DELTA, DELTA_HOME_TO_SAFE_ZONE)
-    // move to a height where we can use the full xy-area
-    do_blocking_move_to_z(delta_clip_start_height);
-  #endif
+  // Move to a height where we can use the full xy-area
+  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
 
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_restore_state));
+  TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
 
   restore_feedrate_and_scaling();
 
