@@ -535,16 +535,8 @@ void PrintJobRecovery::resume() {
   enable(true);
 
   // Resume the SD file from the last position
-<<<<<<< HEAD
   gcode.process_subcommands_now(DString::format(F("M23 %s"), info.sd_filename));
-  gcode.process_subcommands_now(DString::format(F("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed));
-=======
-  char *fn = info.sd_filename;
-  sprintf_P(cmd, M23_STR, fn);
-  gcode.process_subcommands_now(cmd);
-  sprintf_P(cmd, PSTR("M24S%ldT%ld"), resume_sdpos, info.print_job_elapsed);
-  gcode.process_subcommands_now(cmd);
->>>>>>> upstream/bugfix-2.0.x
+  gcode.process_subcommands_now(DString::format(F("M24S%ldT%ld"), resume_sdpos, info.print_job_elapsed));
 
   TERN_(DEBUG_POWER_LOSS_RECOVERY, marlin_debug_flags = old_flags);
 }
