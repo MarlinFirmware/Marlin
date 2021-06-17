@@ -91,11 +91,7 @@ void FWRetract::reset() {
  * Note: Auto-retract will apply the set Z hop in addition to any Z hop
  *       included in the G-code. Use M207 Z0 to to prevent double hop.
  */
-void FWRetract::retract(const bool retracting
-  #if HAS_MULTI_EXTRUDER
-    , bool swapping/*=false*/
-  #endif
-) {
+void FWRetract::retract(const bool retracting OPTARG(HAS_MULTI_EXTRUDER, bool swapping/*=false*/)) {
   // Prevent two retracts or recovers in a row
   if (retracted[active_extruder] == retracting) return;
 
@@ -111,14 +107,14 @@ void FWRetract::retract(const bool retracting
 
   /* // debugging
     SERIAL_ECHOLNPAIR(
-      "retracting ", retracting,
+      "retracting ", AS_DIGIT(retracting),
       " swapping ", swapping,
       " active extruder ", active_extruder
     );
     LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", AS_DIGIT(retracted[i]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
@@ -185,13 +181,13 @@ void FWRetract::retract(const bool retracting
   #endif
 
   /* // debugging
-    SERIAL_ECHOLNPAIR("retracting ", retracting);
-    SERIAL_ECHOLNPAIR("swapping ", swapping);
+    SERIAL_ECHOLNPAIR("retracting ", AS_DIGIT(retracting));
+    SERIAL_ECHOLNPAIR("swapping ", AS_DIGIT(swapping));
     SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
     LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
+      SERIAL_ECHOLNPAIR("retracted[", i, "] ", AS_DIGIT(retracted[i]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
+        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
@@ -212,10 +208,10 @@ void FWRetract::retract(const bool retracting
  */
 void FWRetract::M207() {
   if (!parser.seen("FSWZ")) return M207_report();
-  if (parser.seen('S')) settings.retract_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('Z')) settings.retract_zraise = parser.value_linear_units();
-  if (parser.seen('W')) settings.swap_retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('S')) settings.retract_length        = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
+  if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M207_report(const bool forReplay/*=false*/) {
@@ -238,10 +234,10 @@ void FWRetract::M207_report(const bool forReplay/*=false*/) {
  */
 void FWRetract::M208() {
   if (!parser.seen("FSRW")) return M208_report();
-  if (parser.seen('S')) settings.retract_recover_extra = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) settings.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) settings.swap_retract_recover_extra = parser.value_axis_units(E_AXIS);
+  if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M208_report(const bool forReplay/*=false*/) {
@@ -268,7 +264,7 @@ void FWRetract::M208_report(const bool forReplay/*=false*/) {
 
   void FWRetract::M209_report(const bool forReplay/*=false*/) {
     if (!forReplay) { SERIAL_ECHO_MSG("; Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover"); SERIAL_ECHO_START(); }
-    SERIAL_ECHOLNPAIR("  M209 S", autoretract_enabled);
+    SERIAL_ECHOLNPAIR("  M209 S", AS_DIGIT(autoretract_enabled));
   }
 
 #endif // FWRETRACT_AUTORETRACT

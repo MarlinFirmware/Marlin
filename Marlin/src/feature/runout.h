@@ -101,7 +101,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       static inline float& runout_distance() { return response.runout_distance_mm; }
-      static inline void set_runout_distance(const float &mm) { response.runout_distance_mm = mm; }
+      static inline void set_runout_distance(const_float_t mm) { response.runout_distance_mm = mm; }
     #endif
 
     // Handle a block completion. RunoutResponseDelayed uses this to
@@ -207,7 +207,7 @@ class FilamentSensorBase {
     // Return a bitmask of runout pin states
     static inline uint8_t poll_runout_pins() {
       #define _OR_RUNOUT(N) | (READ(FIL_RUNOUT##N##_PIN) ? _BV((N) - 1) : 0)
-      return (0 REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _OR_RUNOUT));
+      return (0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));
       #undef _OR_RUNOUT
     }
 

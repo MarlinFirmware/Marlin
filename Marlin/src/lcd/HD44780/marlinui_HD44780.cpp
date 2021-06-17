@@ -46,8 +46,12 @@
   #include "../../gcode/parser.h"
 #endif
 
-#if HAS_COOLER || HAS_FLOWMETER
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../../feature/cooler.h"
+#endif
+
+#if ENABLED(I2C_AMMETER)
+  #include "../../feature/ammeter.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -64,11 +68,7 @@
 
 #elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
 
-  LCD_CLASS lcd(LCD_I2C_ADDRESS
-    #ifdef DETECT_DEVICE
-      , 1
-    #endif
-  );
+  LCD_CLASS lcd(LCD_I2C_ADDRESS OPTARG(DETECT_I2C_LCD_DEVICE, 1));
 
 #elif ENABLED(LCD_I2C_TYPE_PCA8574)
 
@@ -376,11 +376,7 @@ void MarlinUI::init_lcd() {
 }
 
 bool MarlinUI::detected() {
-  return (true
-    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
-      && lcd.LcdDetected() == 1
-    #endif
-  );
+  return TERN1(DETECT_I2C_LCD_DEVICE, lcd.LcdDetected() == 1);
 }
 
 #if HAS_SLOW_BUTTONS
@@ -486,7 +482,9 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
         CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
       #endif
     }
+  }
 
+  void MarlinUI::bootscreen_completion(const millis_t) {
     lcd.clear();
     safe_delay(100);
     set_custom_characters(CHARSET_INFO);
@@ -525,15 +523,15 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
     const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
-    const celsius_t t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
+    const celsius_t t1 = (isBed ? thermalManager.wholeDegBed()  : thermalManager.wholeDegHotend(heater_id)),
                     t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const celsius_t t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(i16tostr3rj(t1));
+  lcd_put_u8str(t1 < 0 ? "err" : i16tostr3rj(t1));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -557,11 +555,11 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 
 #if HAS_COOLER
 FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
-  const float t1 = thermalManager.degCooler(), t2 = thermalManager.degTargetCooler();
+  const celsius_t t2 = thermalManager.degTargetCooler();
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
-  lcd_put_u8str(i16tostr3rj(t1 + 0.5));
+  lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
   lcd_put_wchar('/');
 
   #if !HEATER_IDLE_HANDLER
@@ -574,7 +572,7 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
     }
     else
   #endif
-      lcd_put_u8str(i16tostr3left(t2 + 0.5));
+      lcd_put_u8str(i16tostr3left(t2));
 
   if (prefix >= 0) {
     lcd_put_wchar(LCD_STR_DEGREE[0]);
@@ -584,11 +582,26 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 }
 #endif
 
-#if HAS_FLOWMETER
+#if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
-    lcd_put_u8str("~ ");
+    lcd_put_u8str("~");
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
     lcd_put_wchar('L');
+  }
+#endif
+
+#if ENABLED(I2C_AMMETER)
+  FORCE_INLINE void _draw_ammeter_status() {
+    lcd_put_u8str(" ");
+    ammeter.read();
+    if (ammeter.current <= 0.999f) {
+      lcd_put_u8str(ui16tostr3rj(uint16_t(ammeter.current * 1000 + 0.5f)));
+      lcd_put_u8str("mA");
+    }
+    else {
+      lcd_put_u8str(ftostr12ns(ammeter.current));
+      lcd_put_wchar('A');
+    }
   }
 #endif
 
@@ -684,12 +697,15 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // If the remaining string doesn't completely fill the screen
       if (rlen < LCD_WIDTH) {
-        lcd_put_wchar('.');                   // Always at 1+ spaces left, draw a dot
         uint8_t chars = LCD_WIDTH - rlen;     // Amount of space left in characters
-        if (--chars) {                        // Draw a second dot if there's space
-          lcd_put_wchar('.');
-          if (--chars)
-            lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
+        lcd_put_wchar(' ');                   // Always at 1+ spaces left, draw a space
+        if (--chars) {                        // Draw a second space if there's room
+          lcd_put_wchar(' ');
+          if (--chars) {                      // Draw a third space if there's room
+            lcd_put_wchar(' ');
+            if (--chars)
+              lcd_put_u8str_max(status_message, chars); // Print a second copy of the message
+          }
         }
       }
       if (last_blink != blink) {
@@ -750,7 +766,7 @@ inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink)
   char buffer[14];
 
   #if ENABLED(SHOW_REMAINING_TIME)
-    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
+    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && printingIsActive();
     if (show_remain) {
       #if ENABLED(USE_M73_REMAINING_TIME)
         duration_t remaining = ui.get_remaining_time();
@@ -824,12 +840,9 @@ void MarlinUI::draw_status_screen() {
         #endif
       #endif
 
-      #if HAS_COOLER
-        _draw_cooler_status('*', blink);
-      #endif
-      #if HAS_FLOWMETER
-        _draw_flowmeter_status();
-      #endif
+      TERN_(HAS_COOLER, _draw_cooler_status('*', blink));
+      TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
+      TERN_(I2C_AMMETER, _draw_ammeter_status());
 
     #endif // LCD_WIDTH >= 20
 
@@ -884,7 +897,7 @@ void MarlinUI::draw_status_screen() {
 
           #else // !HAS_DUAL_MIXING
 
-            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive() || marlin_state == MF_SD_COMPLETE);
+            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
 
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -944,12 +957,12 @@ void MarlinUI::draw_status_screen() {
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
                 else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
               #endif
-              per = thermalManager.fanPercent(spd);
+              per = thermalManager.pwmToPercent(spd);
             }
             else
           #endif
             {
-              #if EXTRUDERS
+              #if HAS_EXTRUDERS
                 c = 'E';
                 per = planner.flow_percentage[0];
               #endif
@@ -1279,7 +1292,7 @@ void MarlinUI::draw_status_screen() {
                    pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
                    suppress_x_offset = 0, suppress_y_offset = 0;
 
-        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y - 1) - y_plot;
+        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;
 
         upper_left.column  = 0;
         upper_left.row     = 0;

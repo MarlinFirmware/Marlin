@@ -44,32 +44,50 @@ def check_envs(build_env, board_envs, config):
 					return True
 	return False
 
-# Sanity checks:
-if 'PIOENV' not in env:
-	raise SystemExit("Error: PIOENV is not defined. This script is intended to be used with PlatformIO")
+def sanity_check_target():
+	# Sanity checks:
+	if 'PIOENV' not in env:
+		raise SystemExit("Error: PIOENV is not defined. This script is intended to be used with PlatformIO")
 
-if 'MARLIN_FEATURES' not in env:
-	raise SystemExit("Error: this script should be used after common Marlin scripts")
+	if 'MARLIN_FEATURES' not in env:
+		raise SystemExit("Error: this script should be used after common Marlin scripts")
 
-if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
-	raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
+	if 'MOTHERBOARD' not in env['MARLIN_FEATURES']:
+		raise SystemExit("Error: MOTHERBOARD is not defined in Configuration.h")
 
-build_env = env['PIOENV']
-motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
-board_envs = get_envs_for_board(motherboard)
-config = env.GetProjectConfig()
-result = check_envs("env:"+build_env, board_envs, config)
+	build_env = env['PIOENV']
+	motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
+	board_envs = get_envs_for_board(motherboard)
+	config = env.GetProjectConfig()
+	result = check_envs("env:"+build_env, board_envs, config)
 
-if not result:
-	err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
-		  ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
-	raise SystemExit(err)
+	if not result:
+		err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
+			  ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
+		raise SystemExit(err)
 
-#
-# Check for Config files in two common incorrect places
-#
-for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
-	for f in [ "Configuration.h", "Configuration_adv.h" ]:
-		if os.path.isfile(os.path.join(p, f)):
-			err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
-			raise SystemExit(err)
+	#
+	# Check for Config files in two common incorrect places
+	#
+	for p in [ env['PROJECT_DIR'], os.path.join(env['PROJECT_DIR'], "config") ]:
+		for f in [ "Configuration.h", "Configuration_adv.h" ]:
+			if os.path.isfile(os.path.join(p, f)):
+				err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
+				raise SystemExit(err)
+
+	#
+	# Check for old files indicating an entangled Marlin (mixing old and new code)
+	#
+	mixedin = []
+	for p in [ os.path.join(env['PROJECT_DIR'], "Marlin/src/lcd/dogm") ]:
+		for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
+			if os.path.isfile(os.path.join(p, f)):
+				mixedin += [ f ]
+	if mixedin:
+		err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
+		raise SystemExit(err)
+
+# Detect that 'vscode init' is running
+from SCons.Script import COMMAND_LINE_TARGETS
+if "idedata" not in COMMAND_LINE_TARGETS:
+    sanity_check_target()
