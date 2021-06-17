@@ -223,6 +223,10 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 #endif
 
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked;
+#endif
+
 #if HAS_LCD_MENU
   #include "menu/menu.h"
 
@@ -246,14 +250,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     uint8_t MarlinUI::touch_buttons;
     uint8_t MarlinUI::repeat_delay;
   #endif
-
-  bool MarlinUI::lcd_clicked;
-
-  bool MarlinUI::use_click() {
-    const bool click = lcd_clicked;
-    lcd_clicked = false;
-    return click;
-  }
 
   #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
@@ -636,8 +632,8 @@ void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   // RED ALERT. RED ALERT.
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.set_color(LEDColorRed());
-    #ifdef NEOPIXEL_BKGD_LED_INDEX
-      neo.set_pixel_color(NEOPIXEL_BKGD_LED_INDEX, 255, 0, 0, 0);
+    #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+      neo.set_background_color(255, 0, 0, 0);
       neo.show();
     #endif
   #endif
@@ -712,13 +708,15 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     // Add a manual move to the queue?
     if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
-      const feedRate_t fr_mm_s = (axis <= E_AXIS) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis <= LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
           REMEMBER(ae, active_extruder);
-          if (axis == E_AXIS) active_extruder = e_index;
+          #if MULTI_E_MANUAL
+            if (axis == E_AXIS) active_extruder = e_index;
+          #endif
         #endif
 
         // Apply a linear offset to a single axis
@@ -744,7 +742,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
       #else
 
         // For Cartesian / Core motion simply move to the current_position
-        planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
+        planner.buffer_line(current_position, fr_mm_s,
+          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+        );
 
         //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
 
@@ -758,13 +758,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   // Tell ui.update() to start a move to current_position after a short delay.
   //
   void ManualMove::soon(const AxisEnum move_axis
-    #if MULTI_E_MANUAL
-      , const int8_t eindex/*=-1*/
-    #endif
+    OPTARG(MULTI_E_MANUAL, const int8_t eindex/*=active_extruder*/)
   ) {
-    #if MULTI_E_MANUAL
-      if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
-    #endif
+    TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
     axis = move_axis;
     //SERIAL_ECHOLNPAIR("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");

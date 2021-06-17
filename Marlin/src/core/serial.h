@@ -29,12 +29,16 @@
 #endif
 
 // Commonly-used strings in serial output
-extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
+extern const char NUL_STR[],
+                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[],
+                  SP_A_STR[], SP_B_STR[], SP_C_STR[], SP_E_STR[],
+                  SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[],
+                  SP_I_STR[], SP_J_STR[], SP_K_STR[],
+                  SP_I_LBL[], SP_J_LBL[], SP_K_LBL[],
+                  SP_P_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],
                   X_LBL[], Y_LBL[], Z_LBL[], E_LBL[],
-                  SP_A_STR[], SP_B_STR[], SP_C_STR[],
-                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
-                  SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
+                  I_LBL[], J_LBL[], K_LBL[];
 
 //
 // Debugging flags for use by M111
@@ -310,10 +314,10 @@ void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);
-void print_pos(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
+void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
 
 inline void print_pos(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {
-  print_pos(xyz.x, xyz.y, xyz.z, prefix, suffix);
+  print_pos(LINEAR_AXIS_ELEM(xyz), prefix, suffix);
 }
 
 #define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n")); }while(0)

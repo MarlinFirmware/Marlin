@@ -405,6 +405,10 @@
 
 #endif
 
+#if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && DISABLED(NO_LCD_DETECT)
+  #define DETECT_I2C_LCD_DEVICE 1
+#endif
+
 #ifndef STD_ENCODER_PULSES_PER_STEP
   #if ENABLED(TOUCH_SCREEN)
     #define STD_ENCODER_PULSES_PER_STEP 2
@@ -517,7 +521,7 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL == EXTENDABLE_EMU_MMU2 || MMU_MODEL == EXTENDABLE_EMU_MMU2S
+  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
     #define HAS_EXTENDABLE_MMU 1
   #endif
 #endif
@@ -537,12 +541,12 @@
  *  E_STEPPERS   - Number of actual E stepper motors
  *  E_MANUAL     - Number of E steppers for LCD move options
  */
-
 #if EXTRUDERS
   #define HAS_EXTRUDERS 1
   #if EXTRUDERS > 1
     #define HAS_MULTI_EXTRUDER 1
   #endif
+  #define E_AXIS_N(E) AxisEnum(E_AXIS + E_INDEX_N(E))
 #else
   #undef EXTRUDERS
   #define EXTRUDERS 0
@@ -551,9 +555,15 @@
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
+  #undef DISABLE_E
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
+
+  #define E_STEPPERS      2
+
+#elif ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
   #elif EXTRUDERS > 2
@@ -564,17 +574,24 @@
   #if DISABLED(SWITCHING_NOZZLE)
     #define HOTENDS       E_STEPPERS
   #endif
-#elif ENABLED(MIXING_EXTRUDER)
+
+#elif ENABLED(MIXING_EXTRUDER)      // Multiple feeds are mixed proportionally
+
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
   #endif
-#elif ENABLED(SWITCHING_TOOLHEAD)
+
+#elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
+
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif HAS_PRUSA_MMU2
+
+#elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
+
   #define E_STEPPERS 1
+
 #endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
@@ -604,6 +621,56 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+/**
+ * Number of Linear Axes (e.g., XYZ)
+ * All the logical axes except for the tool (E) axis
+ */
+#ifndef LINEAR_AXES
+  #define LINEAR_AXES XYZ
+#endif
+#if LINEAR_AXES >= XY
+  #define HAS_Y_AXIS 1
+  #if LINEAR_AXES >= XYZ
+    #define HAS_Z_AXIS 1
+  #endif
+#endif
+
+/**
+ * Number of Logical Axes (e.g., XYZE)
+ * All the logical axes that can be commanded directly by G-code.
+ * Delta maps stepper-specific values to ABC steppers.
+ */
+#if HAS_EXTRUDERS
+  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+#else
+  #define LOGICAL_AXES LINEAR_AXES
+#endif
+
+/**
+ * DISTINCT_E_FACTORS is set to give extruders (some) individual settings.
+ *
+ * DISTINCT_AXES is the number of distinct addressable axes (not steppers).
+ *  Includes all linear axes plus all distinguished extruders.
+ *  The default behavior is to treat all extruders as a single E axis
+ *  with shared motion and temperature settings.
+ *
+ * DISTINCT_E is the number of distinguished extruders. By default this
+ *  well be 1 which indicates all extruders share the same settings.
+ *
+ * E_INDEX_N(E) should be used to get the E index of any item that might be
+ *  distinguished.
+ */
+#if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
+  #define DISTINCT_E E_STEPPERS
+  #define E_INDEX_N(E) (E)
+#else
+  #undef DISTINCT_E_FACTORS
+  #define DISTINCT_AXES LOGICAL_AXES
+  #define DISTINCT_E 1
+  #define E_INDEX_N(E) 0
+#endif
+
 #if HOTENDS
   #define HAS_HOTEND 1
   #ifndef HOTEND_OVERSHOOT
@@ -623,10 +690,6 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
-
-#if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
-  #define DO_SWITCH_EXTRUDER 1
-#endif
 
 /**
  * Default hotend offsets, if not defined
@@ -653,39 +716,10 @@
   #undef SINGLENOZZLE_STANDBY_FAN
 #endif
 
-/**
- * Number of Linear Axes (e.g., XYZ)
- * All the logical axes except for the tool (E) axis
- */
-#ifndef LINEAR_AXES
-  #define LINEAR_AXES XYZ
+// Switching extruder has its own servo?
+#if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
+  #define DO_SWITCH_EXTRUDER 1
 #endif
-
-/**
- * Number of Logical Axes (e.g., XYZE)
- * All the logical axes that can be commanded directly by G-code.
- * Delta maps stepper-specific values to ABC steppers.
- */
-#if HAS_EXTRUDERS
-  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
-#else
-  #define LOGICAL_AXES LINEAR_AXES
-#endif
-
-/**
- * DISTINCT_E_FACTORS affects whether Extruders use different settings
- */
-#if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
-  #define DISTINCT_E E_STEPPERS
-  #define DISTINCT_AXES (LINEAR_AXES + E_STEPPERS)
-  #define E_INDEX_N(E) (E)
-#else
-  #undef DISTINCT_E_FACTORS
-  #define DISTINCT_E 1
-  #define DISTINCT_AXES LOGICAL_AXES
-  #define E_INDEX_N(E) 0
-#endif
-#define E_AXIS_N(E) AxisEnum(E_AXIS + E_INDEX_N(E))
 
 /**
  * The BLTouch Probe emulates a servo probe
@@ -695,14 +729,19 @@
   #ifndef Z_PROBE_SERVO_NR
     #define Z_PROBE_SERVO_NR 0
   #endif
-  #undef DEACTIVATE_SERVOS_AFTER_MOVE
+  #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
+    #error "BLTOUCH requires DEACTIVATE_SERVOS_AFTER_MOVE to be to disabled. Please update your Configuration.h file."
+  #endif
 
   // Always disable probe pin inverting for BLTouch
-  #undef Z_MIN_PROBE_ENDSTOP_INVERTING
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+  #if Z_MIN_PROBE_ENDSTOP_INVERTING
+    #error "BLTOUCH requires Z_MIN_PROBE_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
+  #endif
+
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #undef Z_MIN_ENDSTOP_INVERTING
-    #define Z_MIN_ENDSTOP_INVERTING false
+    #if Z_MIN_ENDSTOP_INVERTING
+      #error "BLTOUCH requires Z_MIN_ENDSTOP_INVERTING set to false. Please update your Configuration.h file."
+    #endif
   #endif
 #endif
 
@@ -726,6 +765,9 @@
   #define HAS_BED_PROBE 1
 #endif
 
+/**
+ * Fill in undefined Filament Sensor options
+ */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #if NUM_RUNOUT_SENSORS >= 1
     #ifndef FIL_RUNOUT1_STATE
@@ -833,7 +875,25 @@
 #elif Z_HOME_DIR < 0
   #define Z_HOME_TO_MIN 1
 #endif
+#if I_HOME_DIR > 0
+  #define I_HOME_TO_MAX 1
+#elif I_HOME_DIR < 0
+  #define I_HOME_TO_MIN 1
+#endif
+#if J_HOME_DIR > 0
+  #define J_HOME_TO_MAX 1
+#elif J_HOME_DIR < 0
+  #define J_HOME_TO_MIN 1
+#endif
+#if K_HOME_DIR > 0
+  #define K_HOME_TO_MAX 1
+#elif K_HOME_DIR < 0
+  #define K_HOME_TO_MIN 1
+#endif
 
+/**
+ * Conditionals based on the type of Bed Probe
+ */
 #if HAS_BED_PROBE
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
@@ -868,7 +928,7 @@
 #endif
 
 /**
- * Set granular options based on the specific type of leveling
+ * Conditionals based on the type of Bed Leveling
  */
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING
@@ -972,6 +1032,10 @@
   #if !IS_CORE
     #define IS_FULL_CARTESIAN 1
   #endif
+#endif
+
+#if DISABLED(DELTA)
+  #undef DELTA_HOME_TO_SAFE_ZONE
 #endif
 
 // This flag indicates some kind of jerk storage is needed
@@ -1088,13 +1152,22 @@
 #ifndef INVERT_X_DIR
   #define INVERT_X_DIR false
 #endif
-#ifndef INVERT_Y_DIR
+#if HAS_Y_AXIS && !defined(INVERT_Y_DIR)
   #define INVERT_Y_DIR false
 #endif
-#ifndef INVERT_Z_DIR
+#if HAS_Z_AXIS && !defined(INVERT_Z_DIR)
   #define INVERT_Z_DIR false
 #endif
-#ifndef INVERT_E_DIR
+#if LINEAR_AXES >= 4 && !defined(INVERT_I_DIR)
+  #define INVERT_I_DIR false
+#endif
+#if LINEAR_AXES >= 5 && !defined(INVERT_J_DIR)
+  #define INVERT_J_DIR false
+#endif
+#if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
+  #define INVERT_K_DIR false
+#endif
+#if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
   #define INVERT_E_DIR false
 #endif
 
@@ -1118,29 +1191,38 @@
  *  - TFT_COLOR
  *  - GRAPHICAL_TFT_UPSCALE
  */
-#if ENABLED(MKS_TS35_V2_0)          // Most common: ST7796
+#if ENABLED(MKS_TS35_V2_0)          // ST7796
+  #define TFT_DEFAULT_DRIVER ST7796
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
   #define TFT_RES_480x320
   #define TFT_INTERFACE_SPI
-#elif ENABLED(MKS_ROBIN_TFT24)      // Most common: ST7789
+#elif ENABLED(ANET_ET5_TFT35)       // ST7796
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
+  #define TFT_RES_480x320
+  #define TFT_INTERFACE_FSMC
+#elif ENABLED(ANET_ET4_TFT28)       // ST7789
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(MKS_ROBIN_TFT28)      // Most common: ST7789
+#elif ENABLED(MKS_ROBIN_TFT24)      // ST7789
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(MKS_ROBIN_TFT32)      // Most common: ST7789
+#elif ENABLED(MKS_ROBIN_TFT28)      // ST7789
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
-#elif ENABLED(MKS_ROBIN_TFT35)      // Most common: ILI9488
+#elif ENABLED(MKS_ROBIN_TFT32)      // ST7789
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
+  #define TFT_RES_320x240
+  #define TFT_INTERFACE_FSMC
+#elif ENABLED(MKS_ROBIN_TFT35)      // ILI9488
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_480x320
   #define TFT_INTERFACE_FSMC
 #elif ENABLED(MKS_ROBIN_TFT43)
-  #define TFT_DEFAULT_ORIENTATION 0
   #define TFT_DRIVER SSD1963
+  #define TFT_DEFAULT_ORIENTATION 0
   #define TFT_RES_480x272
   #define TFT_INTERFACE_FSMC
 #elif ENABLED(MKS_ROBIN_TFT_V1_1R)  // ILI9328 or R61505
@@ -1148,21 +1230,13 @@
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
 #elif EITHER(TFT_TRONXY_X5SA, ANYCUBIC_TFT35) // ILI9488
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_DRIVER ILI9488
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_480x320
   #define TFT_INTERFACE_FSMC
 #elif ENABLED(LONGER_LK_TFT28)
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_320x240
-  #define TFT_INTERFACE_FSMC
-#elif ENABLED(ANET_ET4_TFT28)       // ST7789
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
-  #define TFT_RES_320x240
-  #define TFT_INTERFACE_FSMC
-#elif ENABLED(ANET_ET5_TFT35)       // ST7796
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
-  #define TFT_RES_480x320
   #define TFT_INTERFACE_FSMC
 #elif ENABLED(BIQU_BX_TFT70)        // RGB
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
@@ -1302,4 +1376,11 @@
   #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
 #else
   #define COORDINATE_OKAY(N,L,H) true
+#endif
+
+/**
+ * LED Backlight INDEX END
+ */
+#if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
+  #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
 #endif

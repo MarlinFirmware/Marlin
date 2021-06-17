@@ -48,7 +48,7 @@ void GcodeSuite::M906() {
 
   bool report = true;
 
-  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4) || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
     const uint8_t index = parser.byteval('I');
   #endif
 
@@ -63,58 +63,77 @@ void GcodeSuite::M906() {
           if (index == 1) TMC_SET_CURRENT(X2);
         #endif
         break;
-      case Y_AXIS:
-        #if AXIS_IS_TMC(Y)
-          if (index == 0) TMC_SET_CURRENT(Y);
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          if (index == 1) TMC_SET_CURRENT(Y2);
-        #endif
-        break;
-      case Z_AXIS:
-        #if AXIS_IS_TMC(Z)
-          if (index == 0) TMC_SET_CURRENT(Z);
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          if (index == 1) TMC_SET_CURRENT(Z2);
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          if (index == 2) TMC_SET_CURRENT(Z3);
-        #endif
-        #if AXIS_IS_TMC(Z4)
-          if (index == 3) TMC_SET_CURRENT(Z4);
-        #endif
-        break;
-      case E_AXIS: {
-        const int8_t target_extruder = get_target_extruder_from_command();
-        if (target_extruder < 0) return;
-        switch (target_extruder) {
-          #if AXIS_IS_TMC(E0)
-            case 0: TMC_SET_CURRENT(E0); break;
+
+      #if HAS_Y_AXIS
+        case Y_AXIS:
+          #if AXIS_IS_TMC(Y)
+            if (index == 0) TMC_SET_CURRENT(Y);
           #endif
-          #if AXIS_IS_TMC(E1)
-            case 1: TMC_SET_CURRENT(E1); break;
+          #if AXIS_IS_TMC(Y2)
+            if (index == 1) TMC_SET_CURRENT(Y2);
           #endif
-          #if AXIS_IS_TMC(E2)
-            case 2: TMC_SET_CURRENT(E2); break;
+          break;
+      #endif
+
+      #if HAS_Z_AXIS
+        case Z_AXIS:
+          #if AXIS_IS_TMC(Z)
+            if (index == 0) TMC_SET_CURRENT(Z);
           #endif
-          #if AXIS_IS_TMC(E3)
-            case 3: TMC_SET_CURRENT(E3); break;
+          #if AXIS_IS_TMC(Z2)
+            if (index == 1) TMC_SET_CURRENT(Z2);
           #endif
-          #if AXIS_IS_TMC(E4)
-            case 4: TMC_SET_CURRENT(E4); break;
+          #if AXIS_IS_TMC(Z3)
+            if (index == 2) TMC_SET_CURRENT(Z3);
           #endif
-          #if AXIS_IS_TMC(E5)
-            case 5: TMC_SET_CURRENT(E5); break;
+          #if AXIS_IS_TMC(Z4)
+            if (index == 3) TMC_SET_CURRENT(Z4);
           #endif
-          #if AXIS_IS_TMC(E6)
-            case 6: TMC_SET_CURRENT(E6); break;
-          #endif
-          #if AXIS_IS_TMC(E7)
-            case 7: TMC_SET_CURRENT(E7); break;
-          #endif
-        }
-      } break;
+          break;
+      #endif
+
+      #if AXIS_IS_TMC(I)
+        case I_AXIS: TMC_SET_CURRENT(I); break;
+      #endif
+      #if AXIS_IS_TMC(J)
+        case J_AXIS: TMC_SET_CURRENT(J); break;
+      #endif
+      #if AXIS_IS_TMC(K)
+        case K_AXIS: TMC_SET_CURRENT(K); break;
+      #endif
+
+      #if HAS_EXTRUDERS
+        case E_AXIS: {
+          const int8_t target_extruder = get_target_extruder_from_command();
+          if (target_extruder < 0) return;
+          switch (target_extruder) {
+            #if AXIS_IS_TMC(E0)
+              case 0: TMC_SET_CURRENT(E0); break;
+            #endif
+            #if AXIS_IS_TMC(E1)
+              case 1: TMC_SET_CURRENT(E1); break;
+            #endif
+            #if AXIS_IS_TMC(E2)
+              case 2: TMC_SET_CURRENT(E2); break;
+            #endif
+            #if AXIS_IS_TMC(E3)
+              case 3: TMC_SET_CURRENT(E3); break;
+            #endif
+            #if AXIS_IS_TMC(E4)
+              case 4: TMC_SET_CURRENT(E4); break;
+            #endif
+            #if AXIS_IS_TMC(E5)
+              case 5: TMC_SET_CURRENT(E5); break;
+            #endif
+            #if AXIS_IS_TMC(E6)
+              case 6: TMC_SET_CURRENT(E6); break;
+            #endif
+            #if AXIS_IS_TMC(E7)
+              case 7: TMC_SET_CURRENT(E7); break;
+            #endif
+          }
+        } break;
+      #endif
     }
   }
 
@@ -142,6 +161,15 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_TMC(Z4)
       TMC_SAY_CURRENT(Z4);
+    #endif
+    #if AXIS_IS_TMC(I)
+      TMC_SAY_CURRENT(I);
+    #endif
+    #if AXIS_IS_TMC(J)
+      TMC_SAY_CURRENT(J);
+    #endif
+    #if AXIS_IS_TMC(K)
+      TMC_SAY_CURRENT(K);
     #endif
     #if AXIS_IS_TMC(E0)
       TMC_SAY_CURRENT(E0);
