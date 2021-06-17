@@ -411,6 +411,7 @@
   #define TOUCH_MOSI_PIN             EXP1_08_PIN
   #define TOUCH_SCK_PIN              EXP1_06_PIN
   #define TOUCH_CS_PIN               EXP1_07_PIN
+  #define BTN_ENC                    EXP1_09_PIN
   #define BTN_EN1                    EXP2_08_PIN
   #define BTN_EN2                    EXP2_06_PIN
 
