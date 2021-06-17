@@ -245,6 +245,8 @@ void onIdle()
 
   void yield();
 
+  if(awaitingUserConfirm()) onUserConfirmRequired_P(PSTR("Confirm Continue")); // Handle any extraneous waits
+
   #if HAS_MESH
     if (getLevelingActive())
       rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
@@ -2016,7 +2018,9 @@ void onUserConfirmRequired(const char *const msg)
   FilementStatus[0] = 2;
   rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 	SERIAL_ECHOLNPGM_P(PSTR("==onUserConfirmRequired=="));
+  onStatusChanged(msg);
 }
+
 void onStatusChanged(const char *const statMsg)
 {
   for (int j = 0; j < 20; j++) // Clear old message

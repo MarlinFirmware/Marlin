@@ -526,13 +526,9 @@ public:
 
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
-
-  #elif ENABLED(EXTENSIBLE_UI)
-    static bool lcd_clicked;
-    static bool use_click();
   #endif
 
-  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI)
     static bool lcd_clicked;
     static inline bool use_click() {
       const bool click = lcd_clicked;

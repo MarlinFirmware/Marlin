@@ -223,10 +223,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 #endif
 
-#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
-  bool MarlinUI::lcd_clicked;
-#endif
-
 #if HAS_LCD_MENU
   #include "menu/menu.h"
 
@@ -1294,6 +1290,9 @@ void MarlinUI::update() {
 
 #endif // HAS_WIRED_LCD
 
+#if ANY(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked = false;
+#endif
 #if HAS_STATUS_MESSAGE
 
   ////////////////////////////////////////////
@@ -1453,14 +1452,6 @@ void MarlinUI::update() {
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
   }
-
-  #if ENABLED(EXTENSIBLE_UI)
-    bool MarlinUI::use_click() {
-      const bool click = ExtUI::get_isUICanceled();
-      ExtUI::ui_setUICancelOperation(false);
-      return click;
-    }
-  #endif
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
 

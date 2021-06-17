@@ -996,7 +996,7 @@
 // If the Nozzle or Bed falls when the Z stepper is disabled, set its resting position here.
 //#define Z_AFTER_DEACTIVATE Z_HOME_POS
 
-#if ANY(MachineEnder5, MachineEnder5Plus)
+#if ANY(MachineEnder5, MachineEnder5Plus, MachineEnder6)
   #define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
 #endif
 
@@ -2475,11 +2475,11 @@
     #define FILAMENT_CHANGE_UNLOAD_FEEDRATE     40  // (mm/s) Unload filament feedrate. This can be pretty fast.
   #endif
   #define FILAMENT_CHANGE_UNLOAD_ACCEL        25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #if ANY(MachineEnder5Plus, MachineCR10SPro, MachineCR10SProV2)
+  #if ANY(MachineEnder5Plus, MachineCR10SPro, MachineCR10SProV2, MachineEnder6)
     #define FILAMENT_CHANGE_UNLOAD_LENGTH      75
   #elif ENABLED(DirectDrive)
     #define FILAMENT_CHANGE_UNLOAD_LENGTH      125
-  #elif ANY(MachineEnder5Plus, MachineCR10Max, MachineCR10S4, MachineCR10S5)
+  #elif ANY(MachineCR10Max, MachineCR10S4, MachineCR10S5)
     #define FILAMENT_CHANGE_UNLOAD_LENGTH   700
   #else
     #define FILAMENT_CHANGE_UNLOAD_LENGTH      430  // (mm) The length of filament for a complete unload.
@@ -2500,7 +2500,7 @@
   #elif ANY(MachineEnder5Plus, MachineCR10Max, MachineCR10S4, MachineCR10S5)
     #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   600
   #else
-    #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   430  // (mm) Load length of filament, from extruder gear to nozzle.
+    #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   230  // (mm) Load length of filament, from extruder gear to nozzle.
   #endif
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.

@@ -223,7 +223,7 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const_float_t );
   void setFeedrate_percent(const_float_t );
   void setFlow_percent(const int16_t, const extruder_t);
-  bool isWaitingOnUser();
+  bool awaitingUserConfirm();
   void setUserConfirmed();
 
   #if ENABLED(LIN_ADVANCE)
@@ -307,7 +307,7 @@ namespace ExtUI {
     float getPIDValues_Ki(const extruder_t);
     float getPIDValues_Kd(const extruder_t);
     void setPIDValues(const_float_t, const_float_t , const_float_t , extruder_t);
-    void startPIDTune(const_float_t, extruder_t);
+    void startPIDTune(celsius_t, extruder_t);
   #endif
 
   #if ENABLED(PIDTEMPBED)
@@ -315,7 +315,7 @@ namespace ExtUI {
     float getBedPIDValues_Ki();
     float getBedPIDValues_Kd();
     void setBedPIDValues(const_float_t, const_float_t , const_float_t );
-    void startBedPIDTune(const_float_t );
+    void startBedPIDTune(celsius_t );
   #endif
 
   /**

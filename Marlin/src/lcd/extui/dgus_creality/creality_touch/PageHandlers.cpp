@@ -141,7 +141,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 void LevelingHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_BEDLEVELKEY:
-          const bool busy = TERN0(HOST_KEEPALIVE_FEATURE, ((ExtUI::getMachineState() == GcodeSuite::MarlinBusyState::IN_PROCESS) || (ExtUI::getMachineState() == GcodeSuite::MarlinBusyState::IN_HANDLER)));
+          const bool busy = TERN0(HOST_KEEPALIVE_FEATURE, ((ExtUI::getMachineBusyState() == GcodeSuite::MarlinBusyState::IN_PROCESS) || (ExtUI::getMachineBusyState() == GcodeSuite::MarlinBusyState::IN_HANDLER)));
             if (!busy) {
                 ScreenHandler.PopToOldScreen();
             } else {
