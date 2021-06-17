@@ -938,7 +938,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
           }
         #endif
         #if HAS_CURRENT_HOME(Y)
-          stepperY.rms_current(save_current_y);
+          stepperY.rms_current(save_current_Y);
           if (DEBUGGING(LEVELING)) {debug_current(PSTR("Y"), Y_CURRENT_HOME, save_current_Y);
           SERIAL_ECHOLNPGM("CURRENT_Y");
           }
@@ -946,7 +946,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       #endif
 
 		  #if HAS_CURRENT_HOME(Z)      
-        stepperZ.rms_current(save_current_z);
+        stepperZ.rms_current(save_current_Z);
         if (DEBUGGING(LEVELING)) {debug_current(PSTR("Z"), Z_CURRENT_HOME, save_current_Z);
         SERIAL_ECHOLNPGM("CURRENT_Z");
         }
