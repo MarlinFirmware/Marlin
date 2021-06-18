@@ -45,6 +45,9 @@
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
+#if M600_PURGE_MORE_RESUMABLE
+  #include "../../feature/pause.h"
+#endif
 
 namespace ExtUI {
 
@@ -225,6 +228,10 @@ namespace ExtUI {
   void setFlow_percent(const int16_t, const extruder_t);
   bool awaitingUserConfirm();
   void setUserConfirmed();
+
+  #if M600_PURGE_MORE_RESUMABLE
+    void setPauseMenuResponse(PauseMenuResponse);
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);

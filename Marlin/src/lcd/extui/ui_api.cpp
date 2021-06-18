@@ -102,6 +102,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if M600_PURGE_MORE_RESUMABLE
+  #include "../../feature/pause.h"
+#endif
+
 namespace ExtUI {
   static struct {
     uint8_t printer_killed : 1;
@@ -1031,8 +1035,14 @@ namespace ExtUI {
     TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
   }
 
-  bool awaitingUserConfirm() { return TERN0(HAS_RESUME_CONTINUE, wait_for_user); }
+  bool awaitingUserConfirm() { return (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getMachineBusyState() >= 3); }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
+
+  #if M600_PURGE_MORE_RESUMABLE
+    void setPauseMenuResponse(PauseMenuResponse response) {
+      pause_menu_response = response;
+    }
+  #endif
 
   void printFile(const char *filename) {
     TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
