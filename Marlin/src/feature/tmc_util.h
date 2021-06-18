@@ -362,7 +362,7 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
     constexpr uint16_t default_sg_guard_duration = 400;
 
     struct slow_homing_t {
-      xyz_ulong_t acceleration;
+      TERN(DELTA, xyz_ulong_t, xy_ulong_t) acceleration;
       #if HAS_CLASSIC_JERK
         TERN(DELTA, xyz_float_t, xy_float_t) saved_jerk;
       #endif
