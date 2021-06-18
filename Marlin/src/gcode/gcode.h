@@ -424,6 +424,7 @@ public:
     static uint8_t host_keepalive_interval;
 
     static void host_keepalive();
+    static inline bool host_keepalive_is_paused() { return busy_state >= PAUSED_FOR_USER; }
 
     #define KEEPALIVE_STATE(N) REMEMBER(_KA_, gcode.busy_state, gcode.N)
   #else
