@@ -39,8 +39,6 @@
 //
 #define X_STOP_PIN                         P1_24
 #define Y_STOP_PIN                         P1_26
-#define X_MIN_PIN                          DIO3   //10K PULLUP TO 3.3v, 1K SERIES
-#define Y_MIN_PIN                          DIO14  //10K PULLUP TO 3.3v, 1K SERIES
 #define Z_MIN_PIN                          P1_28
 #define Z_MAX_PIN                          P1_29
 

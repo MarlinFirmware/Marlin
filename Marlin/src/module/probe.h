@@ -256,12 +256,12 @@ public:
     static bool tare();
   #endif
 
-  //Basic functions for SENSORLESS_HOMING and SENSORLESS_PROBING.
-  #if ENABLED(SENSORLESS_PROBING)    
+  // Basic functions for Sensorless Homing and Probing
+  #if ENABLED(SENSORLESS_PROBING)
     static void enable_stallguard_diag1();
     static void disable_stallguard_diag1();
-    static void current_homing_on();
-    static void current_homing_off();
+    static void homing_current_on();
+    static void homing_current_off();
   #endif
 
 private:

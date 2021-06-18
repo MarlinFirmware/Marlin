@@ -363,8 +363,8 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
 
     struct slow_homing_t {
       xyz_ulong_t acceleration;
-      #if ENABLED(HAS_CLASSIC_JERK)
-        xyz_float_t jerk_xyz;
+      #if HAS_CLASSIC_JERK
+        TERN(DELTA, xyz_float_t, xy_float_t) saved_jerk;
       #endif
     };
   #endif

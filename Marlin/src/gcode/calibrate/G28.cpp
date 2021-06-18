@@ -167,14 +167,15 @@
   slow_homing_t begin_slow_homing() {
     slow_homing_t slow_homing{0};
     slow_homing.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
-                                 planner.settings.max_acceleration_mm_per_s2[Y_AXIS],
-                                 planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);      
+                                 planner.settings.max_acceleration_mm_per_s2[Y_AXIS]
+                                 OPTARG(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
+                               );
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
-    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);  
+    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);
     #if HAS_CLASSIC_JERK
-      slow_homing.jerk_xyz = planner.max_jerk;
-      TERN(DELTA, planner.max_jerk.set(0, 0, 0), planner.max_jerk.set(0, 0));  
+      slow_homing.saved_jerk = planner.max_jerk;
+      planner.max_jerk.set(0, 0 OPTARG(DELTA, 0));
     #endif
     planner.reset_acceleration_rates();
     return slow_homing;
@@ -183,8 +184,8 @@
   void end_slow_homing(const slow_homing_t &slow_homing) {
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = slow_homing.acceleration.z);  
-    TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_homing.jerk_xyz);
+    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = slow_homing.acceleration.z);
+    TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_homing.saved_jerk);
     planner.reset_acceleration_rates();
   }
 
@@ -262,7 +263,7 @@ void GcodeSuite::G28() {
   reset_stepper_timeout();
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)
+  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2) || (ENABLED(DELTA) && HAS_CURRENT_HOME(Z))
     #define HAS_HOMING_CURRENT 1
   #endif
 
@@ -294,7 +295,7 @@ void GcodeSuite::G28() {
       const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
       stepperZ.rms_current(Z_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
-    #endif 
+    #endif
   #endif
 
   TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing_t slow_homing = begin_slow_homing());
@@ -503,7 +504,7 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(Y2)
       stepperY2.rms_current(tmc_save_current_Y2);
     #endif
-    #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)       
+    #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
       stepperZ.rms_current(tmc_save_current_Z);
     #endif
     #if HAS_CURRENT_HOME(I)
