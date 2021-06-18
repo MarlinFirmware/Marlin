@@ -56,11 +56,8 @@ namespace ExtUI
 
   bool PrintMode = false; //Eco Mode default off
 
-  char PrintStatue[2] = {0};		//PrintStatue[0], 0 represent  to 43 page, 1 represent to 44 page
-
   char PrinterStatusKey[2] = {0}; // PrinterStatusKey[1] value: 0 represents to keep temperature, 1 represents  to heating , 2 stands for cooling , 3 stands for printing
                   // PrinterStatusKey[0] value: 0 reprensents 3D printer ready
-  char FilementStatus[2] = {0};
 
   unsigned char AxisPagenum = 0; //0 for 10mm, 1 for 1mm, 2 for 0.1mm
   bool InforShowStatus = true;
@@ -167,14 +164,7 @@ void onIdle()
   rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
-
-	rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
-	rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
-	rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
-  if(Settings.display_standby)
-	  rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
-  else
-    rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
+  if(awaitingUserConfirm() && PrinterStatusKey[1] != 4) onUserConfirmRequired_P(PSTR("Confirm Continue")); // Handle any extraneous waits
 
   reEntryPrevent = true;
   idleThrottling = 0;
@@ -245,8 +235,6 @@ void onIdle()
 
   void yield();
 
-  if(awaitingUserConfirm()) onUserConfirmRequired_P(PSTR("Confirm Continue")); // Handle any extraneous waits
-
   #if HAS_MESH
     if (getLevelingActive())
       rtscheck.RTS_SndData(3, AutoLevelIcon); /*On*/
@@ -264,6 +252,8 @@ void onIdle()
         {
 
           delay_ms(3000); // Delay to show bootscreen
+
+          if(isMediaInserted()) onMediaInserted();
           startprogress = 254;
           SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
           InforShowStatus = true;
@@ -307,6 +297,14 @@ void onIdle()
 			}
       else
       {
+        rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
+        rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
+        rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
+        if(Settings.display_standby)
+          rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
+        else
+          rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
+
         if(getTargetTemp_celsius(BED)==0 && getTargetTemp_celsius(H0)==0)
         {
           rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
@@ -873,7 +871,6 @@ void RTSSHOW::RTS_HandleData()
         InforShowStatus = true;
 
         RTS_SndData(0 + CEIconGrap, IconPrintstatus);
-        PrintStatue[1] = 0;
         //PrinterStatusKey[1] = 3;
         RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
       }
@@ -1580,38 +1577,22 @@ void RTSSHOW::RTS_HandleData()
         #endif
         ) {
           SERIAL_ECHOLNPGM_P(PSTR("Resume Yes during print"));
-          setHostResponse(1); //Send Resume host prompt command
+          //setHostResponse(1); //Send Resume host prompt command
+          setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+          setUserConfirmed();
           RTS_SndData(1 + CEIconGrap, IconPrintstatus);
-          PrintStatue[1] = 0;
           PrinterStatusKey[1] = 3;
           RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-          FilementStatus[0] = 0; // recover the status waiting to check filements
+          //reEntryPrevent = false;
         }
       }
       else if (recdat.data[0] == 0) // Filamet is out, Cancel Selected
       {
-          SERIAL_ECHOLNPGM_P(PSTR(" Filament Response No"));
-          if (FilementStatus[0] == 1)
-          {
-            SERIAL_ECHOLNPGM_P(PSTR("Filament Stat 0 - 1"));
-            RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
-            PrinterStatusKey[0] = 0;
-            setUserConfirmed();
-          }
-          else if (FilementStatus[0] == 2) // like the pause
-          {
-            SERIAL_ECHOLNPGM_P(PSTR("Filament Stat 0 - 2"));
-            RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-            setUserConfirmed();
-          }
-          else if (FilementStatus[0] == 3)
-          {
-            SERIAL_ECHOLNPGM_P(PSTR("Filament Stat 0 - 3"));
-            RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
-            setUserConfirmed();
-          }
-          FilementStatus[0] = 0; // recover the status waiting to check filements
-          stopPrint();
+        SERIAL_ECHOLNPGM_P(PSTR(" Filament Response No"));
+        //RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+        setPauseMenuResponse(PAUSE_RESPONSE_EXTRUDE_MORE);
+        setUserConfirmed();
+        //reEntryPrevent = false;
       }
       break;
 
@@ -1705,7 +1686,6 @@ void RTSSHOW::RTS_HandleData()
           RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
 
           TPShowStatus = InforShowStatus = true;
-          PrintStatue[1] = 0;
           PrinterStatusKey[0] = 1;
           PrinterStatusKey[1] = 3;
           fileIndex = 0;
@@ -1995,27 +1975,21 @@ void onPrintTimerStopped()
 void onFilamentRunout()
 {
 	SERIAL_ECHOLNPGM_P(PSTR("==onFilamentRunout=="));
-	PrintStatue[1] = 1; // for returning the corresponding page
 	PrinterStatusKey[1] = 4;
 	TPShowStatus = false;
-  FilementStatus[0] = 2;
   rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 }
 void onFilamentRunout(extruder_t extruder)
 {
 	SERIAL_ECHOLNPGM_P(PSTR("==onFilamentRunout=="));
-  PrintStatue[1] = 1; // for returning the corresponding page
   PrinterStatusKey[1] = 4;
   TPShowStatus = false;
-  FilementStatus[0] = 2;
   rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 }
 void onUserConfirmRequired(const char *const msg)
 {
-  PrintStatue[1] = 1; // for returning the corresponding page
   PrinterStatusKey[1] = 4;
   TPShowStatus = false;
-  FilementStatus[0] = 2;
   rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
 	SERIAL_ECHOLNPGM_P(PSTR("==onUserConfirmRequired=="));
   onStatusChanged(msg);
