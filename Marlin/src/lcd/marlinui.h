@@ -55,7 +55,7 @@
   #include "../module/printcounter.h"
 #endif
 
-#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+#if ANY(HAS_LCD_MENU, EXTENSIBLE_UI) && ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
   #include "../module/motion.h" // for active_extruder
 #endif
@@ -541,7 +541,7 @@ public:
     static inline bool use_click() { return false; }
   #endif
 
-  #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+  #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI) && ENABLED(ADVANCED_PAUSE_FEATURE)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}
