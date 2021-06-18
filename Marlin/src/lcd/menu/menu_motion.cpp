@@ -85,7 +85,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
       MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
     }
     else
-      MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr63(pos));
+      MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? TERN(HAS_LARGE_BED, ftostr51sign(pos), ftostr41sign(pos)) : ftostr63(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
@@ -165,11 +165,14 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 
   BACK_ITEM(MSG_MOVE_AXIS);
   if (parser.using_inch_units()) {
+    TERN_(HAS_LARGE_BED, SUBMENU(MSG_MOVE_10IN,   []{ _goto_manual_move(IN_TO_MM(1.000f)); }));
     SUBMENU(MSG_MOVE_01IN,   []{ _goto_manual_move(IN_TO_MM(0.100f)); });
     SUBMENU(MSG_MOVE_001IN,  []{ _goto_manual_move(IN_TO_MM(0.010f)); });
     SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move(IN_TO_MM(0.001f)); });
   }
   else {
+
+    TERN_(HAS_LARGE_BED, SUBMENU(MSG_MOVE_100MM, []{ _goto_manual_move(100);    }));
     SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
     SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
     SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
