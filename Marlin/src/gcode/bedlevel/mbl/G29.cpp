@@ -90,7 +90,6 @@ void GcodeSuite::G29() {
         queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : PSTR("G29S2"));
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
         return;
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
       }
       state = MeshNext;
 

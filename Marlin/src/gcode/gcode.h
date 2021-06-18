@@ -424,6 +424,7 @@ public:
     static uint8_t host_keepalive_interval;
 
     static void host_keepalive();
+    static inline bool host_keepalive_is_paused() { return busy_state >= PAUSED_FOR_USER; }
 
     #define KEEPALIVE_STATE(N) REMEMBER(_KA_, gcode.busy_state, gcode.N)
   #else
@@ -564,20 +565,23 @@ private:
   #if HAS_CUTTER
     static void M3_M4(const bool is_M4);
     static void M5();
-    #if ENABLED(AIR_EVACUATION)
-      static void M10();
-      static void M11();
-    #endif
   #endif
 
-  #if ENABLED(COOLANT_CONTROL)
-    #if ENABLED(COOLANT_MIST)
-      static void M7();
-    #endif
-    #if ENABLED(COOLANT_FLOOD)
-      static void M8();
-    #endif
+  #if ENABLED(COOLANT_MIST)
+    static void M7();
+  #endif
+
+  #if EITHER(AIR_ASSIST, COOLANT_FLOOD)
+    static void M8();
+  #endif
+
+  #if EITHER(AIR_ASSIST, COOLANT_CONTROL)
     static void M9();
+  #endif
+
+  #if ENABLED(AIR_EVACUATION)
+    static void M10();
+    static void M11();
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)

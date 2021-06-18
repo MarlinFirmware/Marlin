@@ -1,4 +1,4 @@
-sd/**
+/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -29,11 +29,6 @@ sd/**
 
 #ifndef BOARD_CUSTOM_BUILD_FLAGS
   #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
-#endif
-// SD Connection
-//
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION ONBOARD
 #endif
 
 //

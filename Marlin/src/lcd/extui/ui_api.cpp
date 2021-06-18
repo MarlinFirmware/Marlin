@@ -385,7 +385,8 @@ namespace ExtUI {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
-  GcodeSuite::MarlinBusyState getMachineBusyState() { return TERN0(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state); }
+  GcodeSuite::MarlinBusyState getHostKeepaliveState() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.busy_state); }
+  bool getHostKeepaliveIsPaused() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive_is_paused()); }
 
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
@@ -904,12 +905,6 @@ namespace ExtUI {
 
   #endif // HAS_LEVELING
 
-  bool ui_cancel_operation;
-  void ui_setUICancelOperation(const bool state) {
-    ui_cancel_operation = state;
-  }
-  bool get_isUICanceled() { return ui_cancel_operation; }
-
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t response) { host_response_handler(response); }
   #endif
@@ -1035,13 +1030,13 @@ namespace ExtUI {
     TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
   }
 
-  bool awaitingUserConfirm() { return (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getMachineBusyState() >= 3); }
+  bool awaitingUserConfirm() {
+    return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getHostKeepaliveIsPaused();
+  }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   #if M600_PURGE_MORE_RESUMABLE
-    void setPauseMenuResponse(PauseMenuResponse response) {
-      pause_menu_response = response;
-    }
+    void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
   #endif
 
   void printFile(const char *filename) {

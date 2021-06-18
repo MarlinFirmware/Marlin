@@ -731,7 +731,7 @@ class Temperature {
         OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
       );
 
-      static void wait_for_bed_heating(const bool no_wait_for_cooling=true);
+      static void wait_for_bed_heating();
 
       static inline bool degBedNear(const celsius_t temp) {
         return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);

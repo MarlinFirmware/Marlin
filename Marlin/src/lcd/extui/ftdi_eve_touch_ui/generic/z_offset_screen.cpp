@@ -36,12 +36,7 @@ constexpr static ZOffsetScreenData &mydata = screen_data.ZOffsetScreen;
 
 void ZOffsetScreen::onEntry() {
   mydata.z = SHEET_THICKNESS;
-  mydata.softEndstopState = getSoftEndstopState();
   BaseNumericAdjustmentScreen::onEntry();
-}
-
-void ZOffsetScreen::onExit() {
-  setSoftEndstopState(mydata.softEndstopState);
 }
 
 void ZOffsetScreen::onRedraw(draw_mode_t what) {
@@ -64,13 +59,12 @@ void ZOffsetScreen::move(float mm, int16_t steps) {
     setAxisPosition_mm(mydata.z, Z);
   }
   else {
-    // Otherwise doing a manual adjustment, possibly during a print
-    TERN_(BABYSTEPPING, babystepAxis_steps(steps, Z));
+    // Otherwise doing a manual adjustment, possibly during a print.
+    babystepAxis_steps(steps, Z);
   }
 }
 
 void ZOffsetScreen::runWizard() {
-  setSoftEndstopState(false);
   // Restore the default Z offset
   constexpr float offset[] = NOZZLE_TO_PROBE_OFFSET;
   setZOffset_mm(offset[Z_AXIS]);
@@ -91,8 +85,8 @@ void ZOffsetScreen::runWizard() {
 }
 
 bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
-  const int16_t steps =   TERN(BABYSTEPPING, mmToWholeSteps(getIncrement(), Z), 0);
-  const float increment = TERN(BABYSTEPPING, mmFromWholeSteps(steps, Z), getIncrement());
+  const int16_t steps = mmToWholeSteps(getIncrement(), Z);
+  const float increment = mmFromWholeSteps(steps, Z);
   switch (tag) {
     case 2: runWizard(); break;
     case 4: UI_DECREMENT(ZOffset_mm); move(-increment, -steps); break;

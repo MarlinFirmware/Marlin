@@ -1290,9 +1290,10 @@ void MarlinUI::update() {
 
 #endif // HAS_WIRED_LCD
 
-#if ANY(HAS_LCD_MENU, EXTENSIBLE_UI)
-  bool MarlinUI::lcd_clicked = false;
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked;
 #endif
+
 #if HAS_STATUS_MESSAGE
 
   ////////////////////////////////////////////

@@ -27,7 +27,6 @@
 
 struct ZOffsetScreenData : public BaseNumericAdjustmentScreenData {
   float z;
-  bool softEndstopState;
 };
 
 class ZOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ZOFFSET_SCREEN_CACHE> {
@@ -36,7 +35,6 @@ class ZOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ZO
     static void runWizard();
   public:
     static void onEntry();
-    static void onExit();
     static void onRedraw(draw_mode_t);
     static bool onTouchHeld(uint8_t tag);
 };

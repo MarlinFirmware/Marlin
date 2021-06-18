@@ -148,13 +148,11 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
               else
                 b = val_dev / sq_max;
             }
-            cmd.cmd(COLOR_RGB(
-              #ifdef BED_MESH_POINTS_GRAY
-                0x7F * (1.0f - b + r), 0x7F * (1.0f - b - r), 0x7F * (1.0f - r + b)
-              #else
-                0xFF * (1.0f - b),     0xFF * (1.0f - b - r), 0xFF * (1.0f - r)
-              #endif
-            ));
+            #ifdef BED_MESH_POINTS_GRAY
+              cmd.cmd(COLOR_RGB((1.0f - b + r) * 0x7F, (1.0f - b - r) * 0x7F, (1.0f - r + b) * 0x7F));
+            #else
+              cmd.cmd(COLOR_RGB((1.0f - b) * 0xFF, (1.0f - b - r) * 0xFF, (1.0f - r) * 0xFF));
+            #endif
           }
           cmd.cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
         }
