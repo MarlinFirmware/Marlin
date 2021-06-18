@@ -1029,7 +1029,10 @@ namespace ExtUI {
     TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
   }
 
-  bool awaitingUserConfirm() { return (TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getMachineBusyState() >= 3); }
+  bool awaitingUserConfirm() {
+    return TERN0(HAS_RESUME_CONTINUE, wait_for_user)
+        || TERN0(HOST_KEEPALIVE_FEATURE, getMachineBusyState() >= PAUSED_FOR_USER);
+  }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   #if M600_PURGE_MORE_RESUMABLE
