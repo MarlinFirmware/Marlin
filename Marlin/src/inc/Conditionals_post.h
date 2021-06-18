@@ -127,13 +127,6 @@
   #define BED_CENTER_AT_0_0
 #endif
 
-// Define large bed
-#if DISABLED(DELTA)
-  #if (X_BED_SIZE) > 999 || (Y_BED_SIZE) > 999
-    #define HAS_LARGE_BED 1
-  #endif
-#endif
-
 // Define center values for future use
 #define _X_HALF_BED ((X_BED_SIZE) / 2)
 #if HAS_Y_AXIS
