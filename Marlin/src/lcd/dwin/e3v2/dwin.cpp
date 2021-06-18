@@ -2584,13 +2584,22 @@ void Draw_Tramming_Menu() {
   Clear_Main_Window();
   Draw_Title(GET_TEXT_F(MSG_MANUAL_LEVELING));
   Draw_Back_First(select_item.now == 0);
-  DWIN_Draw_Label(MBASE(1), GET_TEXT_F(MSG_MANLEV_FL));
-  DWIN_Draw_Label(MBASE(2), GET_TEXT_F(MSG_MANLEV_FR));
-  DWIN_Draw_Label(MBASE(3), GET_TEXT_F(MSG_MANLEV_BR));
-  DWIN_Draw_Label(MBASE(4), GET_TEXT_F(MSG_MANLEV_BL));
-  DWIN_Draw_Label(MBASE(5), GET_TEXT_F(MSG_MANLEV_C));
+  DWIN_Draw_Label(MBASE(1), PSTR(TRAMMING_POINT_NAME_1));
+  DWIN_Draw_Label(MBASE(2), PSTR(TRAMMING_POINT_NAME_2));
+  DWIN_Draw_Label(MBASE(3), PSTR(TRAMMING_POINT_NAME_3));
+  #ifdef TRAMMING_POINT_NAME_4
+    DWIN_Draw_Label(MBASE(4), PSTR(TRAMMING_POINT_NAME_4));
+    #ifdef TRAMMING_POINT_NAME_5
+      #define TRAM_POINTS 5
+      DWIN_Draw_Label(MBASE(5), PSTR(TRAMMING_POINT_NAME_5));
+    #else
+      #define TRAM_POINTS 4
+    #endif
+  #else
+    #define TRAM_POINTS 3
+  #endif
   // Draw separators and icons
-  LOOP_L_N(i, 5) Draw_Menu_Line(i + 1, ICON_Axis);
+  LOOP_L_N(i, TRAM_POINTS) Draw_Menu_Line(i + 1, ICON_Axis);
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
 }
 
@@ -3301,10 +3310,12 @@ void HMI_FilamentMan(){
           DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_3));
           xpos = X_BED_SIZE - 30; ypos = Y_BED_SIZE - 30;
           break;
-        case 4:
-          DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_4));
-          xpos = 30; ypos = Y_BED_SIZE - 30;
-          break;
+        #ifdef TRAMMING_POINT_NAME_4
+          case 4:
+            DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_4));
+            xpos = 30; ypos = Y_BED_SIZE - 30;
+            break;
+        #endif
         #ifdef TRAMMING_POINT_NAME_5
           case 5:
             DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_5));
