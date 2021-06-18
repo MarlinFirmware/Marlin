@@ -29,6 +29,7 @@
   #error "Creality v4.5.2 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
+#undef BOARD_NAME
 #define BOARD_NAME "Creality v4.5.2"
 
 #define HEATER_0_PIN                        PA1   // HEATER1
