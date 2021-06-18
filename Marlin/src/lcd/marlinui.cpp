@@ -223,10 +223,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 #endif
 
-#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
-  bool MarlinUI::lcd_clicked;
-#endif
-
 #if HAS_LCD_MENU
   #include "menu/menu.h"
 
@@ -1293,6 +1289,10 @@ void MarlinUI::update() {
 #endif // HAS_ENCODER_ACTION
 
 #endif // HAS_WIRED_LCD
+
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked;
+#endif
 
 #if HAS_STATUS_MESSAGE
 
