@@ -1031,7 +1031,7 @@ namespace ExtUI {
 
   bool awaitingUserConfirm() {
     return TERN0(HAS_RESUME_CONTINUE, wait_for_user)
-        || TERN0(HOST_KEEPALIVE_FEATURE, getMachineBusyState() >= DEFER4(PAUSED_FOR_USER));
+        || TERN0(HOST_KEEPALIVE_FEATURE, getMachineBusyState() >= gcode.PAUSED_FOR_USER);
   }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
