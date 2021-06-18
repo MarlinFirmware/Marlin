@@ -128,7 +128,7 @@
 #endif
 
 // Define large bed
-#if X_BED_SIZE > 999 || Y_BED_SIZE > 999
+#if (X_BED_SIZE) > 999 || (Y_BED_SIZE) > 999
   #define HAS_LARGE_BED 1
 #endif
 
