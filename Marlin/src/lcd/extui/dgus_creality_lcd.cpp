@@ -101,7 +101,7 @@ bool hasPrintTimer = false;
 
   void onPrintTimerPaused() {
     // Handle M28 Pause SD print - But only if we're not waiting on a user
-    if (ExtUI::isPrintingFromMediaPaused() && ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_PRINT_RUNNING && !ExtUI::isWaitingOnUser()) {
+    if (ExtUI::isPrintingFromMediaPaused() && ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_PRINT_RUNNING && !ExtUI::awaitingUserConfirm()) {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
     }
   }

@@ -1034,10 +1034,6 @@ namespace ExtUI {
   bool awaitingUserConfirm() { return TERN0(HAS_RESUME_CONTINUE, wait_for_user); }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
-  bool isWaitingOnUser() {
-    return TERN(HAS_RESUME_CONTINUE, wait_for_user, false);
-  }
-
   void printFile(const char *filename) {
     TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
   }
