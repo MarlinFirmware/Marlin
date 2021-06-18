@@ -51,7 +51,9 @@ enum processID : uint8_t {
   PrintDone,
   FilamentMan,
   AxisMove,
-  ManualLev,
+  #if ENABLED(ASSISTED_TRAMMING)
+    Tramming,
+  #endif
   ManualMesh,
   MMeshMoveZ,
   TemperatureID,
@@ -219,7 +221,7 @@ enum processID : uint8_t {
 #define ICON_Info_1               91
 
 #define ICON_Error                ICON_TempTooHigh
-#define ICON_ManualLev            ICON_SetEndTemp
+#define ICON_Tramming             ICON_SetEndTemp
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
@@ -456,7 +458,9 @@ void HMI_Prepare();     // Prepare page
 void HMI_Control();     // Control page
 void HMI_Leveling();    // Level the page
 void HMI_AxisMove();    // Axis movement menu
-void HMI_ManualLev();   // Manual Leveling menu
+#if ENABLED(ASSISTED_TRAMMING)
+  void HMI_Tramming();   // Tramming menu
+#endif
 #if ENABLED(MESH_BED_LEVELING)
   void HMI_ManualMesh();  // Manual Mesh menu
   void HMI_MMeshMoveZ();  // Manual Mesh move Z
@@ -486,7 +490,8 @@ void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
-void DWIN_StatusChanged(const char *text);
+void DWIN_StatusChanged_P(PGM_P const text);
+void DWIN_StatusChanged(const char * const text);
 void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();

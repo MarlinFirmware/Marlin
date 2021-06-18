@@ -525,7 +525,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, GET_TEXT(MSG_REHEATING)));
       TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged_P(GET_TEXT(MSG_REHEATING)));
-      TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(GET_TEXT(MSG_REHEATING)));
+      TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged_P(GET_TEXT(MSG_REHEATING)));
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
@@ -542,7 +542,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_REHEATDONE), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_REHEATDONE)));
-      TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(GET_TEXT(MSG_REHEATDONE)));
+      TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged_P(GET_TEXT(MSG_REHEATDONE)));
       wait_for_user = true;
       nozzle_timed_out = false;
 
