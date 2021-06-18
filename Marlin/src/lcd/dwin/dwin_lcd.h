@@ -134,7 +134,7 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string);
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string);
 
 class __FlashStringHelper;
 
@@ -144,7 +144,7 @@ inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_
 
 // Draw a centered string using DWIN_WIDTH
 void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string);
+                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, const char * const string);
 
 inline void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, const __FlashStringHelper *title) {
   DWIN_Draw_CenteredString(widthAdjust, bShow, size, color, bColor, CHR_W, y, (char *)title);

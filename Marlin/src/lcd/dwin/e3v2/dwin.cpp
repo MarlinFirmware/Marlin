@@ -1101,7 +1101,7 @@ void Clear_Popup_Area() {
   DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
 }
 
-void DWIN_Draw_Popup(uint8_t icon, const char *msg1, const char *msg2, uint8_t button) {
+void DWIN_Draw_Popup(uint8_t icon, const char * const msg1, const char * const msg2, uint8_t button) {
   Clear_Main_Window();
   Draw_Popup_Bkgd_60();
   if (icon) DWIN_ICON_Show(ICON, icon, 101, 105);
@@ -1110,12 +1110,12 @@ void DWIN_Draw_Popup(uint8_t icon, const char *msg1, const char *msg2, uint8_t b
   if (button) DWIN_ICON_Show(ICON, button, 86, 280);
 }
 
-void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2) {
+void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2) {
   HMI_SaveProcessID(WaitResponse);
   DWIN_Draw_Popup(icon, msg1, msg2, ICON_Confirm_E);  // Button Confirm
 }
 
-void DWIN_Popup_Continue(uint8_t icon, const char *msg1, const char *msg2) {
+void DWIN_Popup_Continue(uint8_t icon, const char * const msg1, const char * const msg2) {
   HMI_SaveProcessID(WaitResponse);
   DWIN_Draw_Popup(icon, msg1, msg2, ICON_Continue_E);  // Button Continue
 }
@@ -1131,9 +1131,8 @@ void DWIN_Popup_Continue(uint8_t icon, const char *msg1, const char *msg2) {
       DWIN_Frame_AreaCopy(1, 170, 371, 270, 386, 102, 240);
       DWIN_ICON_Show(ICON, ICON_Confirm_C, 86, 280);
     }
-    else {
+    else
       DWIN_Draw_Popup(ICON_TempTooLow, "Nozzle is too cold", "Preheat the hotend", ICON_Confirm_E);
-    }
   }
 
 #endif
@@ -2580,41 +2579,43 @@ void Draw_FilamentMan_Menu(){
 }
 #endif
 
-void Draw_Tramming_Menu() {
-  Clear_Main_Window();
-  Draw_Title(GET_TEXT_F(MSG_MANUAL_LEVELING));
-  Draw_Back_First(select_item.now == 0);
-  DWIN_Draw_Label(MBASE(1), PSTR(TRAMMING_POINT_NAME_1));
-  DWIN_Draw_Label(MBASE(2), PSTR(TRAMMING_POINT_NAME_2));
-  DWIN_Draw_Label(MBASE(3), PSTR(TRAMMING_POINT_NAME_3));
-  #ifdef TRAMMING_POINT_NAME_4
-    DWIN_Draw_Label(MBASE(4), PSTR(TRAMMING_POINT_NAME_4));
-    #ifdef TRAMMING_POINT_NAME_5
-      #define TRAM_POINTS 5
-      DWIN_Draw_Label(MBASE(5), PSTR(TRAMMING_POINT_NAME_5));
+#if ENABLED(ASSISTED_TRAMMING)
+  void Draw_Tramming_Menu() {
+    Clear_Main_Window();
+    Draw_Title(GET_TEXT_F(MSG_MANUAL_LEVELING));
+    Draw_Back_First(select_item.now == 0);
+    DWIN_Draw_Label(MBASE(1), PSTR(TRAMMING_POINT_NAME_1));
+    DWIN_Draw_Label(MBASE(2), PSTR(TRAMMING_POINT_NAME_2));
+    DWIN_Draw_Label(MBASE(3), PSTR(TRAMMING_POINT_NAME_3));
+    #ifdef TRAMMING_POINT_NAME_4
+      DWIN_Draw_Label(MBASE(4), PSTR(TRAMMING_POINT_NAME_4));
+      #ifdef TRAMMING_POINT_NAME_5
+        #define TRAM_POINTS 5
+        DWIN_Draw_Label(MBASE(5), PSTR(TRAMMING_POINT_NAME_5));
+      #else
+        #define TRAM_POINTS 4
+      #endif
     #else
-      #define TRAM_POINTS 4
+      #define TRAM_POINTS 3
     #endif
-  #else
-    #define TRAM_POINTS 3
-  #endif
-  // Draw separators and icons
-  LOOP_L_N(i, TRAM_POINTS) Draw_Menu_Line(i + 1, ICON_Axis);
-  if (select_item.now) Draw_Menu_Cursor(select_item.now);
-}
+    // Draw separators and icons
+    LOOP_L_N(i, TRAM_POINTS) Draw_Menu_Line(i + 1, ICON_Axis);
+    if (select_item.now) Draw_Menu_Cursor(select_item.now);
+  }
+#endif
 
 #if ENABLED(MESH_BED_LEVELING)
-void Draw_ManualMesh_Menu() {
-  Clear_Main_Window();
-  Draw_Title(GET_TEXT_F(MSG_UBL_MANUAL_MESH));
-  Draw_Back_First(select_item.now == 0);
-  Draw_Menu_Line(1, ICON_ManualMesh, GET_TEXT(MSG_UBL_BUILD_MESH_MENU)); //Start -> G29 S1
-  Draw_Menu_Line(2, ICON_Zoffset, GET_TEXT(MSG_MOVE_Z)); //Move Z ->
-  DWIN_Draw_Signed_Float(font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, 216, MBASE(2), current_position.z * 100);
-  Draw_Menu_Line(3, ICON_Axis, GET_TEXT(MSG_UBL_CONTINUE_MESH)); //Next -> G29 S2
-  Draw_Menu_Line(4, ICON_MeshSave,GET_TEXT(MSG_UBL_SAVE_MESH)); //Save -> M500
-  if (select_item.now) Draw_Menu_Cursor(select_item.now);
-}
+  void Draw_ManualMesh_Menu() {
+    Clear_Main_Window();
+    Draw_Title(GET_TEXT_F(MSG_UBL_MANUAL_MESH));
+    Draw_Back_First(select_item.now == 0);
+    Draw_Menu_Line(1, ICON_ManualMesh, GET_TEXT(MSG_UBL_BUILD_MESH_MENU)); //Start -> G29 S1
+    Draw_Menu_Line(2, ICON_Zoffset, GET_TEXT(MSG_MOVE_Z)); //Move Z ->
+    DWIN_Draw_Signed_Float(font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, 216, MBASE(2), current_position.z * 100);
+    Draw_Menu_Line(3, ICON_Axis, GET_TEXT(MSG_UBL_CONTINUE_MESH)); //Next -> G29 S2
+    Draw_Menu_Line(4, ICON_MeshSave,GET_TEXT(MSG_UBL_SAVE_MESH)); //Save -> M500
+    if (select_item.now) Draw_Menu_Cursor(select_item.now);
+  }
 #endif
 
 #include "../../../libs/buzzer.h"

@@ -65,7 +65,7 @@ inline void DWIN_Long(size_t &i, const uint32_t lval) {
   DWIN_SendBuf[++i] = lval & 0xFF;
 }
 
-inline void DWIN_String(size_t &i, char * const string) {
+inline void DWIN_String(size_t &i, const char * const string) {
   const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, strlen(string));
   memcpy(&DWIN_SendBuf[i+1], string, len);
   i += len;
@@ -232,7 +232,7 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
   // Bit 7: widthAdjust
@@ -250,7 +250,7 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
 
 // Draw a Centered  String using DWIN_WIDTH
 void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string) {
+                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, const char * const string) {
   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * CHR_W) / 2;
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
 }

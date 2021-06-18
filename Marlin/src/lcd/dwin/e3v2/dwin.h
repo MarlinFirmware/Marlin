@@ -393,9 +393,9 @@ void ICON_Pause();
 void ICON_Continue();
 void ICON_Stop();
 
-void DWIN_Draw_Popup(uint8_t icon, const char *msg1, const char *msg2, uint8_t button = 0);
-void DWIN_Popup_Continue(uint8_t icon, const char *msg1, const char *msg2);
-void DWIN_Popup_Confirm(uint8_t icon, const char *msg1, const char *msg2);
+void DWIN_Draw_Popup(uint8_t icon, const char * const msg1, const char * const msg2, uint8_t button = 0);
+void DWIN_Popup_Continue(uint8_t icon, const char * const msg1, const char * const msg2);
+void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
 
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
