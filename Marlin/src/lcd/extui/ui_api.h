@@ -44,6 +44,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
+#include "../../gcode/gcode.h"
 
 namespace ExtUI {
 
@@ -53,7 +54,7 @@ namespace ExtUI {
 
   static constexpr size_t eeprom_data_size = 48;
 
-  enum axis_t     : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4 };
+  enum axis_t     : uint8_t { X, Y, Z, I, J, K, X2, Y2, Z2, Z3, Z4 };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
@@ -77,6 +78,8 @@ namespace ExtUI {
   void injectCommands_P(PGM_P const);
   void injectCommands(char * const);
   bool commandsInQueue();
+
+  GcodeSuite::MarlinBusyState getMachineBusyState();
 
   bool isHeaterIdle(const heater_t);
   bool isHeaterIdle(const extruder_t);
@@ -125,6 +128,7 @@ namespace ExtUI {
   float getAxisMaxAcceleration_mm_s2(const extruder_t);
   feedRate_t getMinFeedrate_mm_s();
   feedRate_t getMinTravelFeedrate_mm_s();
+  feedRate_t getFeedrate_mm_s();
   float getPrintingAcceleration_mm_s2();
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
@@ -185,6 +189,8 @@ namespace ExtUI {
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t);
   #endif
+
+  inline void simulateUserClick() { ui.lcd_clicked = true; }
 
   #if ENABLED(PRINTCOUNTER)
     char* getFailedPrints_str(char buffer[21]);

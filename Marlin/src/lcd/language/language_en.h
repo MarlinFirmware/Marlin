@@ -745,14 +745,8 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_DRIVER_BACKWARD                 = _UxGT(" driver backward");
 
-  /**
-   * Not used by MarlinUI
-   */
-  PROGMEM Language_Str MSG_MANLEV_FL                       = _UxGT("Front Left");
-  PROGMEM Language_Str MSG_MANLEV_FR                       = _UxGT("Front Right");
-  PROGMEM Language_Str MSG_MANLEV_C                        = _UxGT("Center");
-  PROGMEM Language_Str MSG_MANLEV_BL                       = _UxGT("Back Left");
-  PROGMEM Language_Str MSG_MANLEV_BR                       = _UxGT("Back Right");
+  PROGMEM Language_Str MSG_SD_CARD                         = _UxGT("SD Card");
+  PROGMEM Language_Str MSG_USB_DISK                        = _UxGT("USB Disk");
 }
 
 #if FAN_COUNT == 1
