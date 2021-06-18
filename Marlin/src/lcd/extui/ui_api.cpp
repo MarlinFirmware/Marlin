@@ -1033,9 +1033,7 @@ namespace ExtUI {
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   #if M600_PURGE_MORE_RESUMABLE
-    void setPauseMenuResponse(PauseMenuResponse response) {
-      pause_menu_response = response;
-    }
+    void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
   #endif
 
   void printFile(const char *filename) {
