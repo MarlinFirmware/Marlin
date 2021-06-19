@@ -526,83 +526,90 @@
 #undef ANY_TEMP_SENSOR_IS
 
 // Usurp a sensor to do redundant readings
-#if TEMP_SENSOR_REDUNDANT && !PIN_EXISTS(TEMP_REDUNDANT)
-  #if TEMP_SENSOR_REDUNDANT_SOURCE == -5
-    #if !PIN_EXISTS(TEMP_COOLER)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to COOLER requires TEMP_COOLER_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_COOLER_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -4
-    #if !PIN_EXISTS(TEMP_PROBE)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to PROBE requires TEMP_PROBE_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_PROBE_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -2
-    #if !PIN_EXISTS(TEMP_CHAMBER)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to CHAMBER requires TEMP_CHAMBER_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_CHAMBER_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -1
-    #if !PIN_EXISTS(TEMP_BED)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to BED requires TEMP_BED_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_BED_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 0
-    #if !PIN_EXISTS(TEMP_0)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 0 requires TEMP_0_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_0_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 1
-    #if !PIN_EXISTS(TEMP_1)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 1 requires TEMP_1_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_1_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 2
-    #if !PIN_EXISTS(TEMP_2)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 2 requires TEMP_2_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_2_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 3
-    #if !PIN_EXISTS(TEMP_3)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 3 requires TEMP_3_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_3_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 4
-    #if !PIN_EXISTS(TEMP_4)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 4 requires TEMP_4_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_4_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 5
-    #if !PIN_EXISTS(TEMP_5)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 5 requires TEMP_5_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_5_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 6
-    #if !PIN_EXISTS(TEMP_6)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 6 requires TEMP_6_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_6_PIN
-    #endif
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == 7
-    #if !PIN_EXISTS(TEMP_7)
-      #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 7 requires TEMP_7_PIN."
-    #else
-      #define TEMP_REDUNDANT_PIN TEMP_7_PIN
-    #endif
+#if TEMP_SENSOR_REDUNDANT
+  #ifndef TEMP_SENSOR_REDUNDANT_SOURCE
+    #define TEMP_SENSOR_REDUNDANT_SOURCE 1
   #endif
-
-  #ifndef TEMP_SENSOR_REDUNDANT_MAX_DIFF
-    #define TEMP_SENSOR_REDUNDANT_MAX_DIFF 10
+  #ifndef TEMP_SENSOR_REDUNDANT_TARGET
+    #define TEMP_SENSOR_REDUNDANT_TARGET 0
+  #endif
+  #if !PIN_EXISTS(TEMP_REDUNDANT)
+    #ifndef TEMP_SENSOR_REDUNDANT_MAX_DIFF
+      #define TEMP_SENSOR_REDUNDANT_MAX_DIFF 10
+    #endif
+    #if TEMP_SENSOR_REDUNDANT_SOURCE == -5
+      #if !PIN_EXISTS(TEMP_COOLER)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to COOLER requires TEMP_COOLER_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_COOLER_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == -4
+      #if !PIN_EXISTS(TEMP_PROBE)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to PROBE requires TEMP_PROBE_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_PROBE_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == -2
+      #if !PIN_EXISTS(TEMP_CHAMBER)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to CHAMBER requires TEMP_CHAMBER_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_CHAMBER_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == -1
+      #if !PIN_EXISTS(TEMP_BED)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to BED requires TEMP_BED_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_BED_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 0
+      #if !PIN_EXISTS(TEMP_0)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 0 requires TEMP_0_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_0_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 1
+      #if !PIN_EXISTS(TEMP_1)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 1 requires TEMP_1_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_1_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 2
+      #if !PIN_EXISTS(TEMP_2)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 2 requires TEMP_2_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_2_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 3
+      #if !PIN_EXISTS(TEMP_3)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 3 requires TEMP_3_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_3_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 4
+      #if !PIN_EXISTS(TEMP_4)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 4 requires TEMP_4_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_4_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 5
+      #if !PIN_EXISTS(TEMP_5)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 5 requires TEMP_5_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_5_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 6
+      #if !PIN_EXISTS(TEMP_6)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 6 requires TEMP_6_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_6_PIN
+      #endif
+    #elif TEMP_SENSOR_REDUNDANT_SOURCE == 7
+      #if !PIN_EXISTS(TEMP_7)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to 7 requires TEMP_7_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_7_PIN
+      #endif
+    #endif
   #endif
 #endif
 
