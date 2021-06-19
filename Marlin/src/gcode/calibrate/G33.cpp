@@ -70,11 +70,10 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
-  TERN_(IMPROVE_HOMING_RELIABILITY, motion_state_t old_motion_state);
   endstops.enable(true);
-  TERN_(SENSORLESS_PROBING, probe.set_homing_current(true  OPTARG(IMPROVE_HOMING_RELIABILITY, old_motion_state)));
+  TERN_(SENSORLESS_PROBING, probe.set_homing_current(true));
   home_delta();
-  TERN_(SENSORLESS_PROBING, probe.set_homing_current(false OPTARG(IMPROVE_HOMING_RELIABILITY, old_motion_state)));
+  TERN_(SENSORLESS_PROBING, probe.set_homing_current(false));
   endstops.not_homing();
 }
 

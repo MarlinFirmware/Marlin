@@ -497,7 +497,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     #endif
     stealth_states.z = tmc_enable_stallguard(stepperZ);
     endstops.enable(true);
-    homing_current_on();
+    set_homing_current(true);
   #endif
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
@@ -524,7 +524,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
       tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
     tmc_disable_stallguard(stepperZ, stealth_states.z);
-    homing_current_off();
+    set_homing_current(false);
   #endif
 
   if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
@@ -873,7 +873,8 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   /**
    * Change the current in the TMC drivers to N##_CURRENT_HOME. And we save the current configuration of each TMC driver.
    */
-  void Probe::set_homing_current(const bool onoff OPTARG(IMPROVE_HOMING_RELIABILITY, motion_state_t &motion_state)) {
+  void Probe::set_homing_current(const bool onoff) {
+    TERN_(IMPROVE_HOMING_RELIABILITY, static motion_state_t saved_motion_state);
     #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
     #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z)
       auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
@@ -899,7 +900,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
           stepperZ.rms_current(Z_CURRENT_HOME);
           debug_current_on(PSTR("Z"), saved_current.z, Z_CURRENT_HOME);
         #endif
-        TERN_(IMPROVE_HOMING_RELIABILITY, begin_slow_probe(motion_state));
+        TERN_(IMPROVE_HOMING_RELIABILITY, begin_slow_probe(saved_motion_state));
       }
       else {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current probe...");
@@ -917,7 +918,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
           stepperZ.rms_current(saved_current.z);
           debug_current(PSTR("Z"), Z_CURRENT_HOME, saved_current.z);
         #endif
-        TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_probe(motion_state));
+        TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_probe(saved_motion_state));
       }
     #endif
   }
