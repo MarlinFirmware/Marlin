@@ -55,57 +55,55 @@
 
 void GcodeSuite::M150() {
   #if ENABLED(NEOPIXEL_LED)
-  const uint8_t index = parser.intval('I', -1);
-#if ENABLED(NEOPIXEL2_SEPARATE)
-  uint8_t unit = -1;
-  uint8_t brightness = -1;
-  if (parser.seen('S'))
-  {
-    unit = parser.intval('S');
+    const uint8_t index = parser.intval('I', -1);
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      uint8_t unit = -1;
+      uint8_t brightness = -1;
+      if (parser.seen('S'))
+      {
+        unit = parser.intval('S');
+        if (unit  == 0){
+          brightness = neo.brightness();
+          neo.neoindex = index;
+        }
+        else if (unit == 1)
+        {
+          brightness = neo2.brightness();
+          neo2.neoindex = index;
+        }
+      }
+      else
+      {
+        brightness = neo.brightness();
+        neo.neoindex = neo2.neoindex = index;
+      }
+    #else
+      const uint8_t brightness = neo.brightness();
+      neo.neoindex = index;
+    #endif
+  #endif
+
+  const LEDColor color = LEDColor(
+      parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
+      parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
+      parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0 
+      OPTARG(HAS_WHITE_LED, parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0) 
+      OPTARG(NEOPIXEL_LED, parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness));
+
+  #if ENABLED(NEOPIXEL2_SEPARATE)
     if (unit == 0)
     {
-      brightness = neo.brightness();
-      neo.neoindex = index;
+      leds.set_color(color);
+      return;
     }
     else if (unit == 1)
     {
-      brightness = neo2.brightness();
-      neo2.neoindex = index;
+      leds2.set_color(color);
+      return;
     }
-  }
-  else
-  {
-    brightness = neo.brightness();
-    neo.neoindex = neo2.neoindex = index;
-  }
-#else
-  const uint8_t brightness = neo.brightness();
-  neo.neoindex = index;
-#endif
-#endif
-  ndif
-#endif
 
-      const LEDColor color = LEDColor(
-          parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-          parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-          parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0 OPTARG(HAS_WHITE_LED, parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0) OPTARG(NEOPIXEL_LED, parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness));
-
-#if ENABLED(NEOPIXEL2_SEPARATE)
-  if (unit == 0)
-  {
-    leds.set_color(color);
-    return;
-  }
-  else if (unit == 1)
-  {
-    leds2.set_color(color);
-    return;
-  }
-
-#endif
+  #endif
   //if S is not specified use both
-
   leds.set_color(color);
   leds2.set_color(color);
 }
