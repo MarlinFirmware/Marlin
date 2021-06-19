@@ -361,10 +361,10 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
     extern millis_t sg_guard_period;
     constexpr uint16_t default_sg_guard_duration = 400;
 
-    struct slow_homing_t {
+    struct motion_state_t {
       TERN(DELTA, xyz_ulong_t, xy_ulong_t) acceleration;
       #if HAS_CLASSIC_JERK
-        TERN(DELTA, xyz_float_t, xy_float_t) saved_jerk;
+        TERN(DELTA, xyz_float_t, xy_float_t) jerk_state;
       #endif
     };
   #endif

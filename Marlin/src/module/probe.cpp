@@ -819,28 +819,25 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 #if ENABLED(SENSORLESS_PROBING)
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    slow_homing_t begin_slow_probe() {
-      slow_homing_t slow_probe{0};
-      slow_probe.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
+    void begin_slow_probe(motion_state_t &motion_state) {
+      motion_state.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
                                   planner.settings.max_acceleration_mm_per_s2[Y_AXIS],
                                   planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
       planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
       planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
       TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);
       #if HAS_CLASSIC_JERK
-        slow_probe.jerk_xyz = planner.max_jerk;
+        motion_state.jerk_state = planner.max_jerk;
         TERN(DELTA, planner.max_jerk.set(0, 0, 0), planner.max_jerk.set(0, 0));
       #endif
       planner.reset_acceleration_rates();
-      return slow_probe;
     }
 
-    slow_homing_t slow_probe;
-    void end_slow_probe(const slow_homing_t &slow_probe) {
-      planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_probe.acceleration.x;
-      planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_probe.acceleration.y;
-      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = slow_probe.acceleration.z);
-      TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_probe.jerk_xyz);
+    void end_slow_probe(const motion_state_t &motion_state) {
+      planner.settings.max_acceleration_mm_per_s2[X_AXIS] = motion_state.acceleration.x;
+      planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = motion_state.acceleration.y;
+      TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = motion_state.acceleration.z);
+      TERN_(HAS_CLASSIC_JERK, planner.max_jerk = motion_state.jerk_state);
       planner.reset_acceleration_rates();
     }
   #endif // IMPROVE_HOMING_RELIABILITY
@@ -870,87 +867,61 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   }
 
   #if ENABLED(DELTA)
-    static xyz_int_t saved_position;
-  #endif
-
-  #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z)
-    #define HAS_HOMING_CURRENT 1
+    static xyz_int_t saved_current;
   #endif
 
   /**
    * Change the current in the TMC drivers to N##_CURRENT_HOME. And we save the current configuration of each TMC driver.
    */
-  void Probe::homing_current_on() {
-    #if HAS_HOMING_CURRENT
-      auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
-        DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current_on probe: ", a, " -> ", b);
-      };
-      #if ENABLED(DELTA)
-        #if HAS_CURRENT_HOME(X)
-          saved_position.x = stepperX.getMilliamps();
-          stepperX.rms_current(X_CURRENT_HOME);
-          if (DEBUGGING(LEVELING)) {
-            debug_current(PSTR("X"), saved_position.x, X_CURRENT_HOME);
-            SERIAL_ECHOLNPGM("CURRENT_HOME_X");
-          }
-        #endif
-        #if HAS_CURRENT_HOME(Y)
-          saved_position.y = stepperY.getMilliamps();
-          stepperY.rms_current(Y_CURRENT_HOME);
-          if (DEBUGGING(LEVELING)) {
-            debug_current(PSTR("Y"), saved_position.y, Y_CURRENT_HOME);
-            SERIAL_ECHOLNPGM("CURRENT_HOME_Y");
-          }
-        #endif
-      #endif
-
-      #if HAS_CURRENT_HOME(Z)
-        saved_position.z = stepperZ.getMilliamps();
-        stepperZ.rms_current(Z_CURRENT_HOME);
+  void Probe::set_homing_current(const bool onoff OPTARG(IMPROVE_HOMING_RELIABILITY, motion_state_t &motion_state)) {
+    #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
+    #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z)
+      auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
         if (DEBUGGING(LEVELING)) {
-          debug_current(PSTR("Z"), saved_position.z, Z_CURRENT_HOME);
-          SERIAL_ECHOLNPGM("CURRENT_HOME_Z");
+          DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
         }
-      #endif
-      TERN_(IMPROVE_HOMING_RELIABILITY, slow_probe = begin_slow_probe());
+      };
+      if (onoff) {
+        #if ENABLED(DELTA)
+          #if HAS_CURRENT_HOME(X)
+            saved_current.x = stepperX.getMilliamps();
+            stepperX.rms_current(X_CURRENT_HOME);
+            debug_current_on(PSTR("X"), saved_current.x, X_CURRENT_HOME);
+          #endif
+          #if HAS_CURRENT_HOME(Y)
+            saved_current.y = stepperY.getMilliamps();
+            stepperY.rms_current(Y_CURRENT_HOME);
+            debug_current_on(PSTR("Y"), saved_current.y, Y_CURRENT_HOME);
+          #endif
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          saved_current.z = stepperZ.getMilliamps();
+          stepperZ.rms_current(Z_CURRENT_HOME);
+          debug_current_on(PSTR("Z"), saved_current.z, Z_CURRENT_HOME);
+        #endif
+        TERN_(IMPROVE_HOMING_RELIABILITY, begin_slow_probe(motion_state));
+      }
+      else {
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current probe...");
+        #if ENABLED(DELTA)
+          #if HAS_CURRENT_HOME(X)
+            stepperX.rms_current(saved_current.x);
+            debug_current(PSTR("X"), X_CURRENT_HOME, saved_current.x);
+          #endif
+          #if HAS_CURRENT_HOME(Y)
+            stepperY.rms_current(saved_current.y);
+            debug_current(PSTR("Y"), Y_CURRENT_HOME, saved_current.y);
+          #endif
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          stepperZ.rms_current(saved_current.z);
+          debug_current(PSTR("Z"), Z_CURRENT_HOME, saved_current.z);
+        #endif
+        TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_probe(motion_state));
+      }
     #endif
   }
-    /**
-   * Return to the current value before HOMING/PROBING.
-   */
-  void Probe::homing_current_off() {
-    #if HAS_HOMING_CURRENT
-      auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
-        DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current_off probe: ", a, " -> ", b);
-      };
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current probe...");
-      #if ENABLED(DELTA)
-        #if HAS_CURRENT_HOME(X)
-          stepperX.rms_current(saved_position.x);
-          if (DEBUGGING(LEVELING)) {
-            debug_current(PSTR("X"), X_CURRENT_HOME, saved_position.x);
-            SERIAL_ECHOLNPGM("CURRENT_X");
-          }
-        #endif
-        #if HAS_CURRENT_HOME(Y)
-          stepperY.rms_current(saved_position.y);
-          if (DEBUGGING(LEVELING)) {
-            debug_current(PSTR("Y"), Y_CURRENT_HOME, saved_position.y);
-            SERIAL_ECHOLNPGM("CURRENT_Y");
-          }
-        #endif
-      #endif
 
-      #if HAS_CURRENT_HOME(Z)
-        stepperZ.rms_current(saved_position.z);
-        if (DEBUGGING(LEVELING)) {
-          debug_current(PSTR("Z"), Z_CURRENT_HOME, saved_position.z);
-          SERIAL_ECHOLNPGM("CURRENT_Z");
-        }
-      #endif
-      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_probe(slow_probe));
-    #endif
-  }
-#endif
+#endif // SENSORLESS_PROBING
+
 #endif // HAS_BED_PROBE

@@ -260,8 +260,7 @@ public:
   #if ENABLED(SENSORLESS_PROBING)
     static void enable_stallguard_diag1();
     static void disable_stallguard_diag1();
-    static void homing_current_on();
-    static void homing_current_off();
+    static void set_homing_current(const bool onoff OPTARG(IMPROVE_HOMING_RELIABILITY, motion_state_t &motion_state));
   #endif
 
 private:
