@@ -84,7 +84,7 @@ void MeshValidationHandler::Cancel() {
     if (is_cancelling) return;
 
     is_cancelling = true;
-    ExtUI::ui_setUICancelOperation(true);
+    ExtUI::simulateUserClick();
 
     SetStatusMessage("Cancelling...");
 }
@@ -135,7 +135,7 @@ void MeshValidationHandler::OnMeshValidationFinish() {
     is_cancelling = false;
 
     ScreenHandler.SetSynchronousOperationFinish();
-    ExtUI::ui_setUICancelOperation(false);
+    ExtUI::simulateUserClick();
 }
 
 void MeshValidationHandler::ValidateTemperatures() {

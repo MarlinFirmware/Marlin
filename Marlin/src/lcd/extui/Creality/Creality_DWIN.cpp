@@ -253,7 +253,10 @@ void onIdle()
 
           delay_ms(3000); // Delay to show bootscreen
 
-          if(isMediaInserted()) onMediaInserted();
+          if(isMediaInserted()) //Re init media as it happens too early on STM32 boards often
+            onMediaInserted();
+          else
+            injectCommands_P(PSTR("M22\nM21"));
           startprogress = 254;
           SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
           InforShowStatus = true;
@@ -300,6 +303,7 @@ void onIdle()
         rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
         rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
         rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
+        rtscheck.RTS_SndData(Settings.standby_time_seconds, DisplayStandbySeconds);
         if(Settings.display_standby)
           rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
         else
@@ -719,6 +723,8 @@ void RTSSHOW::RTS_HandleData()
     Checkkey = DisplayBrightness;
   if(recdat.addr == DisplayStandbyBrightness)
     Checkkey = DisplayStandbyBrightness;
+  if(recdat.addr == DisplayStandbySeconds)
+    Checkkey = DisplayStandbySeconds;
 
 	if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
 		Checkkey = Filename;
@@ -1307,13 +1313,13 @@ void RTSSHOW::RTS_HandleData()
         }
         case 15:
         {
-          injectCommands_P(PSTR("M211S0\nG91\nG1Z-0.025\nG90M211S1"));
+          injectCommands_P(PSTR("M211S0\nG91\nG1Z-0.025\nG90\nM211S1"));
           onStatusChanged_P(PSTR("Moved down 0.025"));
           break;
         }
         case 16:
         {
-          injectCommands_P(PSTR("M211S0G91\nG1Z0.025\nG90M211S1"));
+          injectCommands_P(PSTR("M211S0\nG91\nG1Z0.025\nG90\nM211S1"));
           onStatusChanged_P(PSTR("Moved up 0.025"));
           break;
         }
@@ -1768,6 +1774,20 @@ void RTSSHOW::RTS_HandleData()
         Settings.standby_screen_brightness = 100;
       } else {
         Settings.standby_screen_brightness = (uint8_t)recdat.data[0];
+      }
+      SetTouchScreenConfiguration();
+      break;
+    }
+
+    case DisplayStandbySeconds:
+    {
+      SERIAL_ECHOLN("DisplayStandbySeconds");
+      if(recdat.data[0]<5) {
+        Settings.standby_time_seconds = 5;
+      } else if (recdat.data[0] > 100) {
+        Settings.standby_time_seconds = 100;
+      } else {
+        Settings.standby_time_seconds = (uint8_t)recdat.data[0];
       }
       SetTouchScreenConfiguration();
       break;
