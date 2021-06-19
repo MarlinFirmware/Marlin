@@ -492,12 +492,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
     #if ENABLED(DELTA)
-      stealth_states.x = tmc_enable_stallguard(stepperX);
+      stealth_states.x = tmc_enable_stallguard(stepperX);     // Delta watches all DIAG pins for a stall
       stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
-    stealth_states.z = tmc_enable_stallguard(stepperZ);
+    stealth_states.z = tmc_enable_stallguard(stepperZ);       // All machines will check Z-DIAG for stall
     endstops.enable(true);
-    set_homing_current(true);
+    set_homing_current(true);                                 // The "homing" current also applies to probing
   #endif
 
   TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
