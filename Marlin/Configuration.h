@@ -480,7 +480,7 @@
 #endif
 
 #if ANY(MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6)
-  #if NONE(GraphicLCD, OrigLCD)
+  #if NONE(GraphicLCD, OrigLCD, FORCE10SPRODISPLAY)
     #define FORCE10SPRODISPLAY
   #endif
 #endif
@@ -530,7 +530,7 @@
   #define HotendStock
 #endif
 
-#if ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI) && NONE(ABL_UBL, ABL_BI)
+#if NONE(ABL_UBL, ABL_BI, FORCE10SPRODISPLAY)
   #define ABL_BI
 #endif
 
@@ -2128,10 +2128,10 @@
 #if ENABLED(PROBE_TARE)
   #define PROBE_TARE_TIME  200    // (ms) Time to hold tare pin
   #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
-  #define PROBE_TARE_STATE LOW   // State to write pin for tare
+  #define PROBE_TARE_STATE HIGH   // State to write pin for tare
   //#define PROBE_TARE_PIN PA5    // Override default pin
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
-    #define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
+    //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
   #endif
 #endif
 
@@ -2168,8 +2168,13 @@
 #else
   #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #endif
-#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#if ANY(MachineCR6, MachineCR6Max)
+  #define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
+  #define Z_CLEARANCE_MULTI_PROBE     3 // Z Clearance between multiple probes
+#else
+  #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
+  #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#endif
 #if DISABLED(TOUCH_MI_PROBE)
   #define Z_AFTER_PROBING           5 // Z position after probing is done
 #endif
@@ -2698,15 +2703,13 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI, NOZZLE_AS_PROBE)
   #if ENABLED(ABL_UBL)
     #define AUTO_BED_LEVELING_UBL
-  #elif ENABLED(ABL_BI)
+  #elif BOTH(PROBE_MANUALLY, FORCE10SPRODISPLAY)
+    #define MESH_BED_LEVELING
+  #elif !BOTH(OrigLA, MachineCR10Orig)
     #define AUTO_BED_LEVELING_BILINEAR
   #endif
-#elif !BOTH(OrigLA, MachineCR10Orig)
-  #define MESH_BED_LEVELING
-#endif
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
  * these options to restore the prior leveling state or to always enable

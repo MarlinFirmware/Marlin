@@ -1929,7 +1929,7 @@
     #endif
   #endif
 
-  #if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max)
+  #if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, MachineCR6, MachineCR6Max, PROBE_MANUALLY)
     #define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
   #else
     #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping

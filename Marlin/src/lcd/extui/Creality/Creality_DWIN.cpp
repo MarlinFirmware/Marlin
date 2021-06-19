@@ -725,6 +725,8 @@ void RTSSHOW::RTS_HandleData()
     Checkkey = DisplayStandbyBrightness;
   if(recdat.addr == DisplayStandbySeconds)
     Checkkey = DisplayStandbySeconds;
+  if(recdat.addr >= AutolevelVal && recdat.addr <= (AutolevelVal+(GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y*2)))
+    Checkkey = AutolevelVal;
 
 	if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
 		Checkkey = Filename;
@@ -900,7 +902,6 @@ void RTSSHOW::RTS_HandleData()
       {
         tmp_zprobe_offset = ((float)recdat.data[0]) / 100;
       }
-      tmp_zprobe_offset = tmp_zprobe_offset; //Invert sign here so it follows below
       SERIAL_ECHOLNPAIR("Requested Offset ", tmp_zprobe_offset);
       if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
       {
@@ -1103,6 +1104,23 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(3, AutoLevelIcon);
           else
             RTS_SndData(2, AutoLevelIcon);
+
+          if (ExtUI::getMeshValid())
+          {
+            uint8_t abl_probe_index = 0;
+            for(uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+            {
+              for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++)
+              {
+                uint8_t x_Point = inner;
+                bool zig = (outer & 1);
+                if (zig) x_Point = (GRID_MAX_POINTS_X - 1) - inner;
+                xy_uint8_t point = {x_Point, outer};
+                rtscheck.RTS_SndData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
+                ++abl_probe_index;
+              }
+            }
+          }
         #endif
         RTS_SndData(10, FilenameIcon); //Motor Icon
         if (!isPositionKnown())
@@ -1790,6 +1808,30 @@ void RTSSHOW::RTS_HandleData()
         Settings.standby_time_seconds = (uint8_t)recdat.data[0];
       }
       SetTouchScreenConfiguration();
+      break;
+    }
+
+    case AutolevelVal:
+    {
+      uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2;
+      uint8_t yPnt = floor(meshPoint / GRID_MAX_POINTS_X);
+      uint8_t xPnt = meshPoint - (xPnt*GRID_MAX_POINTS_X);
+      float meshVal;
+      SERIAL_ECHOLNPAIR("meshPoint ", meshPoint);
+      SERIAL_ECHOLNPAIR("xPnt ", xPnt);
+      SERIAL_ECHOLNPAIR("yPnt ", yPnt);
+
+      if (recdat.data[0] >= 32768)
+        meshVal = ((float)recdat.data[0] - 65536) / 1000;
+      else
+        meshVal = ((float)recdat.data[0]) / 1000;
+
+      SERIAL_ECHOLNPAIR("meshVal ", meshVal);
+      meshVal = constrain(meshVal, Z_PROBE_LOW_POINT, Z_CLEARANCE_BETWEEN_PROBES);
+      SERIAL_ECHOLNPAIR("Constrain meshVal ", meshVal);
+      xy_uint8_t point = {xPnt, yPnt};
+      setMeshPoint(point, meshVal);
+      rtscheck.RTS_SndData((meshVal*1000), recdat.addr);
       break;
     }
 
