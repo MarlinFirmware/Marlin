@@ -1815,7 +1815,11 @@ void RTSSHOW::RTS_HandleData()
     {
       uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2;
       uint8_t yPnt = floor(meshPoint / GRID_MAX_POINTS_X);
-      uint8_t xPnt = meshPoint - (xPnt*GRID_MAX_POINTS_X);
+      uint8_t xPnt;
+      if ( yPnt % 2 == 0)
+        xPnt = meshPoint - (yPnt*GRID_MAX_POINTS_X);
+      else
+        xPnt = (GRID_MAX_POINTS_X - 1)- (meshPoint - (yPnt*GRID_MAX_POINTS_X)); //zag row
       float meshVal;
       SERIAL_ECHOLNPAIR("meshPoint ", meshPoint);
       SERIAL_ECHOLNPAIR("xPnt ", xPnt);
