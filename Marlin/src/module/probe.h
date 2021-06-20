@@ -257,7 +257,7 @@ public:
   #endif
 
   // Basic functions for Sensorless Homing and Probing
-  #if ENABLED(SENSORLESS_PROBING) || ENABLED(SENSORLESS_HOMING)
+  #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     static void enable_stallguard_diag1();
     static void disable_stallguard_diag1();
     static void set_homing_current(const bool onoff);
