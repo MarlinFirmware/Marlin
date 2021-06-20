@@ -282,10 +282,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Muovi di 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Muovi di 10mm");
   PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Muovi di 100mm");
-  PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Muovi di 0.001in");
-  PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Muovi di 0.01in");
-  PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Muovi di 0.1in");
-  PROGMEM Language_Str MSG_MOVE_1IN                        = _UxGT("Muovi di 1in");
+  PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Muovi di 0.001\"");
+  PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Muovi di 0.01\"");
+  PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Muovi di 0.1\"");
+  PROGMEM Language_Str MSG_MOVE_1IN                        = _UxGT("Muovi di 1\"");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocità");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Piatto Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Ugello");
