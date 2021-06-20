@@ -790,7 +790,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 #if ENABLED(STATUS_HOTEND_INVERTED) && DISABLED(STATUS_HOTEND_NUMBERLESS) && DISABLED(STATUS_HOTEND_ANIM)
-  #error "STATUS_HOTEND_ANIM needs to be enabled for STATUS_HOTEND_INVERTED with non numbered hotends"
+  #error "STATUS_HOTEND_ANIM needs to be enabled for STATUS_HOTEND_INVERTED with numbered hotends"
 #endif
 
 /**
