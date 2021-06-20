@@ -879,16 +879,16 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         #if ENABLED(DELTA)
           #if HAS_CURRENT_HOME(X)
             stepperX.rms_current(saved_current_X);
-            debug_current(PSTR("X"), X_CURRENT_HOME, saved_current_X);
+            debug_current_on(PSTR("X"), X_CURRENT_HOME, saved_current_X);
           #endif
           #if HAS_CURRENT_HOME(Y)
             stepperY.rms_current(saved_current_Y);
-            debug_current(PSTR("Y"), Y_CURRENT_HOME, saved_current_Y);
+            debug_current_on(PSTR("Y"), Y_CURRENT_HOME, saved_current_Y);
           #endif
         #endif
         #if HAS_CURRENT_HOME(Z)
           stepperZ.rms_current(saved_current_Z);
-          debug_current(PSTR("Z"), Z_CURRENT_HOME, saved_current_Z);
+          debug_current_on(PSTR("Z"), Z_CURRENT_HOME, saved_current_Z);
         #endif
         TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
       }
