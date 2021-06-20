@@ -267,7 +267,13 @@ void report_current_position_projected() {
     get_cartesian_from_steppers();
     const xyz_pos_t lpos = cartes.asLogical();
     SERIAL_ECHOPAIR(
-      "X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z
+      "X:", lpos.x
+      #if HAS_Y_AXIS
+        , " Y:", lpos.y
+      #endif
+      #if HAS_Z_AXIS
+        , " Z:", lpos.z
+      #endif
       #if HAS_EXTRUDERS
         , " E:", current_position.e
       #endif

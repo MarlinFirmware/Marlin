@@ -180,19 +180,11 @@
     SERIAL_ECHOPGM("FromStp:");
     get_cartesian_from_steppers();  // writes 'cartes' (with forward kinematics)
     xyze_pos_t from_steppers = LOGICAL_AXIS_ARRAY(
-      #if HAS_EXTRUDERS
-        planner.get_axis_position_mm(E_AXIS),
-      #endif
+      planner.get_axis_position_mm(E_AXIS),
       cartes.x, cartes.y, cartes.z,
-      #if LINEAR_AXES >= 4
-        planner.get_axis_position_mm(I_AXIS),
-      #endif
-      #if LINEAR_AXES >= 5
-        planner.get_axis_position_mm(J_AXIS),
-      #endif
-      #if LINEAR_AXES >= 6
-        planner.get_axis_position_mm(K_AXIS)
-      #endif
+      planner.get_axis_position_mm(I_AXIS),
+      planner.get_axis_position_mm(J_AXIS),
+      planner.get_axis_position_mm(K_AXIS)
     );
     report_all_axis_pos(from_steppers);
 
