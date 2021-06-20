@@ -113,6 +113,8 @@
 //#define ABL_BLTOUCH
 //#define ABL_TOUCH_MI // Uncomment ABL_TOUCH_MI to use Touch-MI sensor by hotends.fr
 
+//#define Creality42XUseZMin // Use ZMin pin for probe on Creality 422 and 427 boards
+
 //#define CREALITY_ABL_MOUNT //Using creality ABL mount
 //#define E3D_DUALFAN_MOUNT // Using HD Modular mount as above with 2 5015 blowers and sensor on the right
 //#define E3D_PROBEMOUNT_LEFT // Default is probe mounted to the right for E3D. Set this to invert.
@@ -506,20 +508,20 @@
   #define RET6_12864_LCD
 #endif
 
-#if ENABLED(MachineEnder3Max) && DISABLED(Creality427)
+#if ANY(MachineEnder3Max, MachineEnder3V2, MachineEnder3Pro422) && DISABLED(Creality427)
   #ifndef Creality422
     #define Creality422
   #endif
 #endif
 
-#if ANY(MachineEnder3Max, MachineEnder6)
-  #define lerdgeFilSensor
+#if ENABLED(MachineEnder3Pro427)
+  #ifndef Creality427
+    #define Creality427
+  #endif
 #endif
 
-#if ENABLED(MachineEnder3Pro422)
-  #define Creality422
-#elif ENABLED(MachineEnder3Pro427)
-  #define Creality427
+#if ANY(MachineEnder3Max, MachineEnder6)
+  #define lerdgeFilSensor
 #endif
 
 #if EITHER(Creality422, Creality427) && DISABLED(MachineEnder3V2)
@@ -688,9 +690,9 @@
     #define MOTHERBOARD BOARD_BTT_SKR_E3_TURBO
   #elif ENABLED(MachineEnder6)
     #define MOTHERBOARD BOARD_CREALITY_V431
-  #elif ANY(MachineEnder3Pro427, Creality427)
+  #elif ENABLED(Creality427)
     #define MOTHERBOARD BOARD_CREALITY_V427
-  #elif ANY(MachineEnder3V2, MachineEnder3Pro422, Creality422)
+  #elif ENABLED(Creality422)
     #define MOTHERBOARD BOARD_CREALITY_V4
   #elif (ENABLED(MachineCR10Orig) && DISABLED(Melzi_To_SBoardUpgrade))
     #define MOTHERBOARD BOARD_MELZI_CREALITY
@@ -1857,8 +1859,9 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-
+#if NONE(Creality422, Creality427) && DISABLED(Creality42XUseZMin)
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
 // Force the use of the probe for Z-axis homing
 #define USE_PROBE_FOR_Z_HOMING
 
