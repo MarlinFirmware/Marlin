@@ -816,7 +816,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-#if ENABLED(SENSORLESS_PROBING) || ENABLED(SENSORLESS_HOMING)
+#if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
 
   /**
    * Disable stealthChop if used. Enable diag1 pin on driver.
