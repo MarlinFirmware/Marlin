@@ -223,9 +223,9 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("Активувати UBL");
   PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("Деактивувати UBL");
   PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE "C";
-  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE "C";
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE "C";
   PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
-  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE "C";
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH          = _UxGT("Редагувати свою сітку");
     PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH            = _UxGT("Точне редагування сітки");
@@ -238,10 +238,8 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Редагування сітки");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Сітка побудована");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Будувати сітку");
-  #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Будувати сітку ($)");
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Підтвердити ($)");
-  #endif
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M                = _UxGT("Будувати сітку ($)");
+  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M             = _UxGT("Підтвердити ($)");
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Буд. холодну сітку");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Встан.висоту сітки");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Висота");
@@ -906,7 +904,6 @@ namespace Language_uk {
 
   PROGMEM Language_Str MSG_SD_CARD                         = _UxGT("SD Картка");
   PROGMEM Language_Str MSG_USB_DISK                        = _UxGT("USB Диск");
-
 }
 
 #if FAN_COUNT == 1
