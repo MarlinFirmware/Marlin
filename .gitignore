@@ -19,9 +19,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-# Our automatic versioning scheme generates the following file
-# NEVER put it in the repository
+# Generated files
 _Version.h
+bdf2u8g
 
 #
 # OS
@@ -121,29 +121,6 @@ tags
 .clang_complete
 .gcc-flags.json
 /lib/
-
-# Workaround for Deviot+platformio quirks
-Marlin/lib
-Marlin/platformio.ini
-Marlin/*/platformio.ini
-Marlin/*/*/platformio.ini
-Marlin/*/*/*/platformio.ini
-Marlin/*/*/*/*/platformio.ini
-Marlin/.travis.yml
-Marlin/*/.travis.yml
-Marlin/*/*/.travis.yml
-Marlin/*/*/*/.travis.yml
-Marlin/*/*/*/*/.travis.yml
-Marlin/.gitignore
-Marlin/*/.gitignore
-Marlin/*/*/.gitignore
-Marlin/*/*/*/.gitignore
-Marlin/*/*/*/*/.gitignore
-Marlin/readme.txt
-Marlin/*/readme.txt
-Marlin/*/*/readme.txt
-Marlin/*/*/*/readme.txt
-Marlin/*/*/*/*/readme.txt
 
 # Secure Credentials
 Configuration_Secure.h

@@ -41,37 +41,25 @@
 #define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-#line 46
+#line 45
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if ANY(AVR_ATmega2560_FAMILY, AVR_ATmega1284_FAMILY, ARDUINO_ARCH_SAM, TARGET_LPC1768)
-  #if SERIAL_PORT == 0
+  #if CONF_SERIAL_IS(0)
     static const char RXD_NAME_0[] PROGMEM = { "RXD0" };
     static const char TXD_NAME_0[] PROGMEM = { "TXD0" };
-  #elif SERIAL_PORT == 1
+  #endif
+  #if CONF_SERIAL_IS(1)
     static const char RXD_NAME_1[] PROGMEM = { "RXD1" };
     static const char TXD_NAME_1[] PROGMEM = { "TXD1" };
-  #elif SERIAL_PORT == 2
+  #endif
+  #if CONF_SERIAL_IS(2)
     static const char RXD_NAME_2[] PROGMEM = { "RXD2" };
     static const char TXD_NAME_2[] PROGMEM = { "TXD2" };
-  #elif SERIAL_PORT == 3
+  #endif
+  #if CONF_SERIAL_IS(3)
     static const char RXD_NAME_3[] PROGMEM = { "RXD3" };
     static const char TXD_NAME_3[] PROGMEM = { "TXD3" };
-  #endif
-  #ifdef SERIAL_PORT_2
-    #if SERIAL_PORT_2 == 0
-      static const char RXD_NAME_0[] PROGMEM = { "RXD0" };
-      static const char TXD_NAME_0[] PROGMEM = { "TXD0" };
-    #elif SERIAL_PORT_2 == 1
-      static const char RXD_NAME_1[] PROGMEM = { "RXD1" };
-      static const char TXD_NAME_1[] PROGMEM = { "TXD1" };
-    #elif SERIAL_PORT_2 == 2
-      static const char RXD_NAME_2[] PROGMEM = { "RXD2" };
-      static const char TXD_NAME_2[] PROGMEM = { "TXD2" };
-    #elif SERIAL_PORT_2 == 3
-      static const char RXD_NAME_3[] PROGMEM = { "RXD3" };
-      static const char TXD_NAME_3[] PROGMEM = { "TXD3" };
-    #endif
   #endif
 #endif
 
@@ -103,12 +91,11 @@ const PinInfo pin_array[] PROGMEM = {
    *  Each entry takes up 6 bytes in FLASH:
    *     2 byte pointer to location of the name string
    *     2 bytes containing the pin number
-   *         analog pin numbers were convereted to digital when the array was created
+   *         analog pin numbers were converted to digital when the array was created
    *     2 bytes containing the digital/analog bool flag
    */
 
-  // manually add pins ...
-  #if SERIAL_PORT == 0
+  #if CONF_SERIAL_IS(0)
     #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_0, 0, true },
       { TXD_NAME_0, 1, true },
@@ -119,7 +106,9 @@ const PinInfo pin_array[] PROGMEM = {
       { RXD_NAME_0, 3, true },
       { TXD_NAME_0, 2, true },
     #endif
-  #elif SERIAL_PORT == 1
+  #endif
+
+  #if CONF_SERIAL_IS(1)
     #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_1, 19, true },
       { TXD_NAME_1, 18, true },
@@ -135,7 +124,9 @@ const PinInfo pin_array[] PROGMEM = {
         { TXD_NAME_1, 15, true },
       #endif
     #endif
-  #elif SERIAL_PORT == 2
+  #endif
+
+  #if CONF_SERIAL_IS(2)
     #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_2, 17, true },
       { TXD_NAME_2, 16, true },
@@ -148,7 +139,9 @@ const PinInfo pin_array[] PROGMEM = {
         { TXD_NAME_2, 10, true },
       #endif
     #endif
-  #elif SERIAL_PORT == 3
+  #endif
+
+  #if CONF_SERIAL_IS(3)
     #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_3, 15, true },
       { TXD_NAME_3, 14, true },
@@ -166,68 +159,8 @@ const PinInfo pin_array[] PROGMEM = {
     #endif
   #endif
 
-  #ifdef SERIAL_PORT_2
-    #if SERIAL_PORT_2 == 0
-      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
-        { RXD_NAME_0, 0, true },
-        { TXD_NAME_0, 1, true },
-      #elif AVR_ATmega1284_FAMILY
-        { RXD_NAME_0, 8, true },
-        { TXD_NAME_0, 9, true },
-      #elif defined(TARGET_LPC1768)           // TX P0_02  RX P0_03
-        { RXD_NAME_0, 3, true },
-        { TXD_NAME_0, 2, true },
-      #endif
-    #elif SERIAL_PORT_2 == 1
-      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
-        { RXD_NAME_1, 19, true },
-        { TXD_NAME_1, 18, true },
-      #elif AVR_ATmega1284_FAMILY
-        { RXD_NAME_1, 10, true },
-        { TXD_NAME_1, 11, true },
-      #elif defined(TARGET_LPC1768)
-        #ifdef LPC_PINCFG_UART1_P2_00         // TX P2_00  RX P2_01
-          { RXD_NAME_1, 0x41, true },
-          { TXD_NAME_1, 0x40, true },
-        #else                                 // TX P0_15  RX P0_16
-          { RXD_NAME_1, 16, true },
-          { TXD_NAME_1, 15, true },
-        #endif
-      #endif
-    #elif SERIAL_PORT_2 == 2
-      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
-        { RXD_NAME_2, 17, true },
-        { TXD_NAME_2, 16, true },
-      #elif defined(TARGET_LPC1768)
-        #ifdef LPC_PINCFG_UART2_P2_08         // TX P2_08  RX P2_09
-          { RXD_NAME_2, 0x49, true },
-          { TXD_NAME_2, 0x48, true },
-        #else                                 // TX P0_10  RX P0_11
-          { RXD_NAME_2, 11, true },
-          { TXD_NAME_2, 10, true },
-        #endif
-      #endif
-    #elif SERIAL_PORT_2 == 3
-      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
-        { RXD_NAME_3, 15, true },
-        { TXD_NAME_3, 14, true },
-      #elif defined(TARGET_LPC1768)
-        #ifdef LPC_PINCFG_UART3_P0_25         // TX P0_25  RX P0_26
-          { RXD_NAME_3, 0x1A, true },
-          { TXD_NAME_3, 0x19, true },
-        #elif defined(LPC_PINCFG_UART3_P4_28) // TX P4_28  RX P4_29
-          { RXD_NAME_3, 0x9D, true },
-          { TXD_NAME_3, 0x9C, true },
-        #else                                 // TX P0_00  RX P0_01
-          { RXD_NAME_3, 1, true },
-          { TXD_NAME_3, 0, true },
-        #endif
-      #endif
-    #endif
-  #endif
-
   #include "pinsDebug_list.h"
-  #line 172
+  #line 164
 
 };
 
@@ -238,7 +171,7 @@ const PinInfo pin_array[] PROGMEM = {
 #endif
 
 static void print_input_or_output(const bool isout) {
-  serialprintPGM(isout ? PSTR("Output = ") : PSTR("Input  = "));
+  SERIAL_ECHOPGM_P(isout ? PSTR("Output = ") : PSTR("Input  = "));
 }
 
 // pretty report with PWM info
@@ -266,8 +199,8 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
   LOOP_L_N(x, COUNT(pin_array))  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
       if (!found) {    // report digital and analog pin number only on the first time through
-        if (start_string) serialprintPGM(start_string);
-        serialprintPGM(PSTR("PIN: "));
+        if (start_string) SERIAL_ECHOPGM_P(start_string);
+        SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
         PRINT_PORT(pin);
         if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
@@ -317,8 +250,8 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
   } // end of for loop
 
   if (!found) {
-    if (start_string) serialprintPGM(start_string);
-    serialprintPGM(PSTR("PIN: "));
+    if (start_string) SERIAL_ECHOPGM_P(start_string);
+    SERIAL_ECHOPGM("PIN: ");
     PRINT_PIN(pin);
     PRINT_PORT(pin);
     if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {

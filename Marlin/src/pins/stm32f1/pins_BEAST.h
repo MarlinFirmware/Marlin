@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 /**
  * 21017 Victor Perez Marlin for stm32f1 test
@@ -39,33 +37,26 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
+// Limit Switches
+//
+#define X_STOP_PIN                          PD5
+#define Y_STOP_PIN                          PD6
+#define Z_STOP_PIN                          PD7
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PE0
 #define X_DIR_PIN                           PE1
 #define X_ENABLE_PIN                        PC0
-#define X_MIN_PIN                           PD5
-#define X_MAX_PIN                           -1
 
 #define Y_STEP_PIN                          PE2
 #define Y_DIR_PIN                           PE3
 #define Y_ENABLE_PIN                        PC1
-#define Y_MIN_PIN                           PD6
-#define Y_MAX_PIN
 
 #define Z_STEP_PIN                          PE4
 #define Z_DIR_PIN                           PE5
 #define Z_ENABLE_PIN                        PC2
-#define Z_MIN_PIN                           PD7
-#define Z_MAX_PIN                           -1
-
-#define Y2_STEP_PIN                         -1
-#define Y2_DIR_PIN                          -1
-#define Y2_ENABLE_PIN                       -1
-
-#define Z2_STEP_PIN                         -1
-#define Z2_DIR_PIN                          -1
-#define Z2_ENABLE_PIN                       -1
 
 #define E0_STEP_PIN                         PE6
 #define E0_DIR_PIN                          PE7
@@ -89,9 +80,6 @@
 #define SDSS                                PA15
 #define LED_PIN                             PB2
 
-#define PS_ON_PIN                           -1
-#define KILL_PIN                            -1
-
 //
 // Heaters / Fans
 //
@@ -100,8 +88,6 @@
 #define HEATER_2_PIN                        PD14
 
 #define HEATER_BED_PIN                      PB9   // BED
-#define HEATER_BED2_PIN                     -1    // BED2
-#define HEATER_BED3_PIN                     -1    // BED3
 
 #ifndef FAN_PIN
   #define FAN_PIN                           PB10

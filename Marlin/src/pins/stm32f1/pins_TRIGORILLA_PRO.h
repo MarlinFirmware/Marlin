@@ -28,9 +28,9 @@
  * https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "Trigorilla Pro supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -39,6 +39,8 @@
 #define BOARD_NO_NATIVE_USB
 
 #define DISABLE_JTAG
+
+//#define SWAPPED_Z_PLUGS
 
 //
 // EEPROM
@@ -56,10 +58,22 @@
 //
 // Limit Switches
 //
-#define X_MAX_PIN                           PG10
-#define Y_MAX_PIN                           PA12
-#define Z_MAX_PIN                           PA14
-#define Z_MIN_PIN                           PA13
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#ifndef Z_MIN_PIN
+  #ifdef SWAPPED_Z_PLUGS
+    #define Z_MIN_PIN                       PA14
+  #else
+    #define Z_MIN_PIN                       PA13
+  #endif
+#endif
+#ifndef Z_MAX_PIN
+  #ifdef SWAPPED_Z_PLUGS
+    #define Z_MAX_PIN                       PA13
+  #else
+    #define Z_MAX_PIN                       PA14
+  #endif
+#endif
 
 //
 // Steppers
@@ -181,3 +195,5 @@
   #define SDSS                              PD2
   #define SD_DETECT_PIN                     -1
 #endif
+
+#undef SWAPPED_Z_PLUGS

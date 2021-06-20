@@ -25,9 +25,7 @@
  * MKS SGen pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGEN_L V2"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
@@ -62,7 +60,7 @@
 //
 #if X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                      P1_28  // X+
   #else
     #define X_MIN_PIN                      P1_28  // X+
@@ -74,7 +72,7 @@
 
 #if Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                      P1_26  // Y+
   #else
     #define Y_MIN_PIN                      P1_26  // Y+
@@ -86,7 +84,7 @@
 
 #if Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                      P1_24  // Z+
   #else
     #define Z_MIN_PIN                      P1_24  // Z+
@@ -337,7 +335,7 @@
         #define DOGLCD_CS                  P0_18
         #define DOGLCD_A0                  P0_16
         #define DOGLCD_SCK                 P0_07
-        #define DOGLCD_MOSI                P1_20
+        #define DOGLCD_MOSI                P0_09
 
         #define LCD_BACKLIGHT_PIN          -1
 

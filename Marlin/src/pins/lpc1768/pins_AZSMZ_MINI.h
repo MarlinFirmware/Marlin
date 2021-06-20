@@ -25,9 +25,7 @@
  * AZSMZ MINI pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "AZSMZ MINI"
 
@@ -39,8 +37,8 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                          P1_24
-#define Y_MIN_PIN                          P1_26
+#define X_STOP_PIN                         P1_24
+#define Y_STOP_PIN                         P1_26
 #define Z_MIN_PIN                          P1_28
 #define Z_MAX_PIN                          P1_29
 

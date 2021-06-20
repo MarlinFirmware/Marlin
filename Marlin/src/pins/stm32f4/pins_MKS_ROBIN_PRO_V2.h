@@ -21,16 +21,17 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4, STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Nano V3 supports up to 1 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin PRO V2"
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
@@ -49,7 +50,7 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE                           2
+//#define SPI_MODULE 2
 
 //
 // Servos
@@ -202,7 +203,7 @@
 //#define LED_PIN                           PB2
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #define SDCARD_CONNECTION ONBOARD
 #endif
 
 //#define USE_NEW_SPI_API 1
@@ -213,21 +214,17 @@
 //
 // detect pin dont work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
-  #define CUSTOM_SPI_PINS
-  #if ENABLED(CUSTOM_SPI_PINS)
-
-    #if USE_NEW_SPI_API
-      #define SD_SPI MARLIN_SPI(HardwareSPI3, PC9)
-    #else
-      #define ENABLE_SPI3
-      #define SD_SS_PIN                     -1
-      #define SDSS                          PC9
-      #define SD_SCK_PIN                    PC10
-      #define SD_MISO_PIN                   PC11
-      #define SD_MOSI_PIN                   PC12
-    #endif
-    #define SD_DETECT_PIN                   PD12
+  #if USE_NEW_SPI_API
+    #define SD_SPI MARLIN_SPI(HardwareSPI3, PC9)
+  #else
+    #define ENABLE_SPI3
+    #define SD_SS_PIN                       -1
+    #define SDSS                            PC9
+    #define SD_SCK_PIN                      PC10
+    #define SD_MISO_PIN                     PC11
+    #define SD_MOSI_PIN                     PC12
   #endif
+  #define SD_DETECT_PIN                     PD12
 #endif
 
 /*
@@ -235,22 +232,19 @@
 // LCD SD
 //
 #if SDCARD_CONNECTION == LCD
-  #define CUSTOM_SPI_PINS
-  #if ENABLED(CUSTOM_SPI_PINS)
-    #define ENABLE_SPI1
-    #define SDSS                            PE10
-    #define SD_SCK_PIN                      PA5
-    #define SD_MISO_PIN                     PA6
-    #define SD_MOSI_PIN                     PA7
-    #define SD_DETECT_PIN                   PE12
-  #endif
+  #define ENABLE_SPI1
+  #define SDSS                              PE10
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+  #define SD_DETECT_PIN                     PE12
 #endif
 */
 
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH                          1
+#define HAS_SPI_FLASH 1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
@@ -326,7 +320,8 @@
   //#define TFT_DRIVER                    ST7796
   #define TFT_BUFFER_SIZE                  14400
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
   #define LCD_PINS_ENABLE                   PD13
@@ -368,4 +363,5 @@
     #endif
 
   #endif // !MKS_MINI_12864
-#endif // HAS_SPI_LCD
+
+#endif // HAS_WIRED_LCD

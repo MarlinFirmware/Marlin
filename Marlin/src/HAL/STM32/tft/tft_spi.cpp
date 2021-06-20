@@ -125,12 +125,20 @@ void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
   WRITE(TFT_CS_PIN, LOW);
 }
 
+#ifdef TFT_DEFAULT_DRIVER
+  #include "../../../lcd/tft_io/tft_ids.h"
+#endif
+
 uint32_t TFT_SPI::GetID() {
   uint32_t id;
   id = ReadID(LCD_READ_ID);
-
-  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
+  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
     id = ReadID(LCD_READ_ID4);
+    #ifdef TFT_DEFAULT_DRIVER
+      if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
+        id = TFT_DEFAULT_DRIVER;
+    #endif
+   }
   return id;
 }
 
@@ -207,12 +215,12 @@ void TFT_SPI::Transmit(uint16_t Data) {
   while ((SPIx.Instance->SR & SPI_FLAG_BSY) == SPI_FLAG_BSY) {}
 
   if (TFT_MISO_PIN != TFT_MOSI_PIN)
-    __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   /* Clear overrun flag in 2 Lines communication mode because received is not read */
+    __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   // Clear overrun flag in 2 Lines communication mode because received is not read
 }
 
 void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   // Wait last dma finish, to start another
-  while(isBusy()) { }
+  while (isBusy()) { /* nada */ }
 
   DMAtx.Init.MemInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);
@@ -225,7 +233,7 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(SPIx.Instance->DR), Count);
   __HAL_SPI_ENABLE(&SPIx);
 
-  SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   /* Enable Tx DMA Request */
+  SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   // Enable Tx DMA Request
 
   HAL_DMA_PollForTransfer(&DMAtx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
   Abort();

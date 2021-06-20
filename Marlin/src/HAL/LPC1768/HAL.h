@@ -60,35 +60,60 @@ extern "C" volatile uint32_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
+typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
+extern DefaultSerial1 USBSerial;
+
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
-#define MSerial0 MSerial
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 UsbSerial
+  #define MYSERIAL1 USBSerial
 #elif WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #error "SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 UsbSerial
+    #define MYSERIAL2 USBSerial
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 3. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 USBSerial
+  #elif WITHIN(SERIAL_PORT_3, 0, 3)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #error "SERIAL_PORT_3 must be from 0 to 3. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL USBSerial
+  #elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL UsbSerial
+    #define LCD_SERIAL USBSerial
   #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
+  #endif
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() MSerial0.available()
   #endif
 #endif
 
@@ -173,7 +198,7 @@ constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // P0.6 thru P0.9 are for the onboard SD card
-#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09,
 
 #define HAL_IDLETASK 1
 void HAL_idletask();
@@ -203,17 +228,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, 
 void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
-
-// Add strcmp_P if missing
-#ifndef strcmp_P
-  #define strcmp_P(a, b) strcmp((a), (b))
-#endif
-
-#ifndef strcat_P
-  #define strcat_P(a, b) strcat((a), (b))
-#endif
-
-#ifndef strcpy_P
-  #define strcpy_P(a, b) strcpy((a), (b))
-#endif
+void HAL_reboot();

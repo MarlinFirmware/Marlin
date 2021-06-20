@@ -23,6 +23,8 @@
 
 #define SKR_MINI_E3_V2
 
+#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4
+
 // Onboard I2C EEPROM
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
@@ -39,9 +41,13 @@
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
 
-#define NEOPIXEL_PIN                       PA8   // LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                     PA8   // LED driving pin
+#endif
 
-#define PS_ON_PIN                          PC13  // Power Supply Control
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN                        PC13  // Power Supply Control
+#endif
 
 #define FAN1_PIN                           PC7
 

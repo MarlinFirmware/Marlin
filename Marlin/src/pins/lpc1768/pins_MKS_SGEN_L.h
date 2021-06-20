@@ -25,9 +25,7 @@
  * MKS SGEN-L pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGen-L"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
@@ -52,7 +50,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                      P1_28  // X+
   #else
     #define X_MIN_PIN                      P1_28  // X+
@@ -64,7 +62,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                      P1_26  // Y+
   #else
     #define Y_MIN_PIN                      P1_26  // Y+
@@ -76,7 +74,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                      P1_24  // Z+
   #else
     #define Z_MIN_PIN                      P1_24  // Z+

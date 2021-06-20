@@ -1,6 +1,5 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
@@ -106,8 +105,8 @@ int main() {
   std::thread write_serial (write_serial_thread);
   std::thread read_serial (read_serial_thread);
 
-  #ifdef MYSERIAL0
-    MYSERIAL0.begin(BAUDRATE);
+  #ifdef MYSERIAL1
+    MYSERIAL1.begin(BAUDRATE);
     SERIAL_ECHOLNPGM("x86_64 Initialized");
     SERIAL_FLUSHTX();
   #endif

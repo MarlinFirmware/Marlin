@@ -27,7 +27,7 @@
 #include "../gcode.h"
 
 #if ENABLED(TFT_LVGL_UI)
-  #include "../../lcd/extui/lib/mks_ui/draw_touch_calibration.h"
+  #include "../../lcd/extui/mks_ui/draw_touch_calibration.h"
 #else
   #include "../../lcd/menu/menu.h"
 #endif

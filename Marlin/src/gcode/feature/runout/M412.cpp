@@ -44,7 +44,7 @@ void GcodeSuite::M412() {
     #if ENABLED(HOST_ACTION_COMMANDS)
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
     #endif
-    const bool seenR = parser.seen('R'), seenS = parser.seen('S');
+    const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
@@ -54,10 +54,15 @@ void GcodeSuite::M412() {
   else {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Filament runout ");
-    serialprintln_onoff(runout.enabled);
+    serialprint_onoff(runout.enabled);
     #if HAS_FILAMENT_RUNOUT_DISTANCE
-      SERIAL_ECHOLNPAIR("Filament runout distance (mm): ", runout.runout_distance());
+      SERIAL_ECHOPAIR(" ; Distance ", runout.runout_distance(), "mm");
     #endif
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      SERIAL_ECHOPGM(" ; Host handling ");
+      serialprint_onoff(runout.host_handling);
+    #endif
+    SERIAL_EOL();
   }
 }
 

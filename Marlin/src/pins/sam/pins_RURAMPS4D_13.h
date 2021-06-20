@@ -20,6 +20,7 @@
  *
  * Ported sys0724 & Vynt
  */
+#pragma once
 
 /**
  * Arduino Mega? or Due with RuRAMPS4DUE pin assignments
@@ -32,9 +33,7 @@
  *           |
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RuRAMPS4Due v1.3"
 

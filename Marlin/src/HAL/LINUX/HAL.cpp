@@ -24,7 +24,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
-HalSerial usb_serial;
+MSerialT usb_serial(TERN0(EMERGENCY_PARSER, true));
 
 // U8glib required functions
 extern "C" {
@@ -72,5 +72,7 @@ uint16_t HAL_adc_get_result() {
 void HAL_pwm_init() {
 
 }
+
+void HAL_reboot() { /* Reset the application state and GPIO */ }
 
 #endif // __PLAT_LINUX__

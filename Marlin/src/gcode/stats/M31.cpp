@@ -35,6 +35,5 @@ void GcodeSuite::M31() {
 
   ui.set_status(buffer);
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("Print time: ", buffer);
+  SERIAL_ECHO_MSG("Print time: ", buffer);
 }
