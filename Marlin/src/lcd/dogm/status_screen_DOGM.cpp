@@ -236,18 +236,12 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       #define HOTEND_DOT    false
     #endif
 
-    #if BOTH(STATUS_HOTEND_INVERTED, STATUS_HOTEND_NUMBERLESS)
-      #define OFF_BMP(N) status_hotend_b_bmp
-      #define ON_BMP(N)  status_hotend_a_bmp
-    #elif DISABLED(STATUS_HOTEND_INVERTED) && ENABLED(STATUS_HOTEND_NUMBERLESS)
-      #define OFF_BMP(N) status_hotend_a_bmp
-      #define ON_BMP(N)  status_hotend_b_bmp
-    #elif BOTH(ANIM_HOTEND, STATUS_HOTEND_INVERTED)
-      #define OFF_BMP(N) status_hotend##N##_b_bmp
-      #define ON_BMP(N)  status_hotend##N##_a_bmp
+    #if ENABLED(STATUS_HOTEND_NUMBERLESS)
+      #define OFF_BMP(N) TERN(STATUS_HOTEND_INVERTED, status_hotend_b_bmp, status_hotend_a_bmp)
+      #define ON_BMP(N)  TERN(STATUS_HOTEND_INVERTED, status_hotend_a_bmp, status_hotend_b_bmp)
     #else
-      #define OFF_BMP(N) status_hotend##N##_a_bmp
-      #define ON_BMP(N)  status_hotend##N##_b_bmp
+      #define OFF_BMP(N) TERN(STATUS_HOTEND_INVERTED, status_hotend##N##_b_bmp, status_hotend##N##_a_bmp)
+      #define ON_BMP(N)  TERN(STATUS_HOTEND_INVERTED, status_hotend##N##_a_bmp, status_hotend##N##_b_bmp)
     #endif
 
     #if STATUS_HOTEND_BITMAPS > 1

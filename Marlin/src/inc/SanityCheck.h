@@ -789,6 +789,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "SD_REPRINT_LAST_SELECTED_FILE currently requires a Marlin-native LCD menu."
 #endif
 
+#if ENABLED(STATUS_HOTEND_INVERTED) && DISABLED(STATUS_HOTEND_NUMBERLESS) && DISABLED(STATUS_HOTEND_ANIM)
+  #error "STATUS_HOTEND_ANIM needs to be enabled for STATUS_HOTEND_INVERTED with non numbered hotends"
+#endif
+
 /**
  * Custom Boot and Status screens
  */
