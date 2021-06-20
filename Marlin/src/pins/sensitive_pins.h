@@ -882,7 +882,7 @@
 
   // Remove -2 from the front, emit the rest, cease propagation
   template<pin_t ...D>
-  struct OnlyPins<_SP_END, D...> { static constexpr pin_t table[sizeof...(D)] PROGMEM = { D... }; };
+  struct OnlyPins<_SP_END, D...> { static constexpr size_t size = sizeof...(D); static constexpr pin_t table[sizeof...(D)] PROGMEM = { D... }; };
 #endif
 
 #define SENSITIVE_PINS \
