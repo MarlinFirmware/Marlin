@@ -242,153 +242,145 @@ void onIdle()
       rtscheck.RTS_SndData(2, AutoLevelIcon); /*Off*/
   #endif
 
-	if (InforShowStatus)
+  if (startprogress == 0)
+  {
+    startprogress += 25;
+          delay_ms(300); // Delay to show bootscreen
+  }
+  else if( startprogress < 250)
+  {
+    if(isMediaInserted()) //Re init media as it happens too early on STM32 boards often
+      onMediaInserted();
+    else
+      injectCommands_P(PSTR("M22\nM21"));
+    startprogress = 254;
+    SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
+    InforShowStatus = true;
+    TPShowStatus = false;
+    rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
+    reEntryPrevent = false;
+		return;
+  }
+  if (startprogress <= 100)
+    rtscheck.RTS_SndData(startprogress, StartIcon);
+  else
+    rtscheck.RTS_SndData((startprogress - 100), StartIcon + 1);
+
+  //rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
+
+  if (isPrinting())
 	{
-        if (startprogress == 0)
-        {
-          startprogress += 25;
-        }
-        else if( startprogress < 250)
-        {
-
-          delay_ms(3000); // Delay to show bootscreen
-
-          if(isMediaInserted()) //Re init media as it happens too early on STM32 boards often
-            onMediaInserted();
-          else
-            injectCommands_P(PSTR("M22\nM21"));
-          startprogress = 254;
-          SERIAL_ECHOLNPGM_P(PSTR("  startprogress "));
-          InforShowStatus = true;
-          TPShowStatus = false;
-          rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
-          reEntryPrevent = false;
-		      return;
-        }
-        if (startprogress <= 100)
-          rtscheck.RTS_SndData(startprogress, StartIcon);
-        else
-          rtscheck.RTS_SndData((startprogress - 100), StartIcon + 1);
-
-        //rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
-
-			if (isPrinting())
+    rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+		rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
+		rtscheck.RTS_SndData((getProgress_seconds_elapsed() % 3600) / 60, Timemin);
+		if (getProgress_percent() > 0)
+		{
+			Percentrecord = getProgress_percent() + 1;
+			if (Percentrecord <= 50)
 			{
-        rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
-				rtscheck.RTS_SndData(getProgress_seconds_elapsed() / 3600, Timehour);
-				rtscheck.RTS_SndData((getProgress_seconds_elapsed() % 3600) / 60, Timemin);
-				if (getProgress_percent() > 0)
-				{
-					Percentrecord = getProgress_percent() + 1;
-					if (Percentrecord <= 50)
-					{
-						rtscheck.RTS_SndData((unsigned int)Percentrecord * 2, PrintscheduleIcon);
-						rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
-					}
-					else
-	  			{
-						rtscheck.RTS_SndData(100, PrintscheduleIcon);
-						rtscheck.RTS_SndData((unsigned int)Percentrecord * 2 - 100, PrintscheduleIcon + 1);
-					}
-				}
-				else
-				{
-					rtscheck.RTS_SndData(0, PrintscheduleIcon);
-					rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
-				}
-				rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
+				rtscheck.RTS_SndData((unsigned int)Percentrecord * 2, PrintscheduleIcon);
+				rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
 			}
-      else
-      {
-        rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
-        rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
-        rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
-        rtscheck.RTS_SndData(Settings.standby_time_seconds, DisplayStandbySeconds);
-        if(Settings.display_standby)
-          rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
-        else
-          rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
-
-        if(getTargetTemp_celsius(BED)==0 && getTargetTemp_celsius(H0)==0)
-        {
-          rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
-        }
-        else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
-        {
-          rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
-          PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
-        }
-        else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
-        {
-          rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
-          PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
-        }
-        else
-          rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
-      }
-
-
-			rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
-			rtscheck.RTS_SndData((unsigned int)(getFlow_percent(E0)), Flowrate);
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(X) * 10), StepMM_X);
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Y) * 10), StepMM_Y);
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
-      rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
-
-      #if HAS_BED_PROBE
-        rtscheck.RTS_SndData(getProbeOffset_mm(X) * 100, ProbeOffset_X);
-        rtscheck.RTS_SndData(getProbeOffset_mm(Y) * 100, ProbeOffset_Y);
-      #endif
-
-      #if HAS_PID_HEATING
-        rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
-        rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
-        rtscheck.RTS_SndData((unsigned int)(getPIDValues_Kp(E0) * 10), HotendPID_P);
-        rtscheck.RTS_SndData((unsigned int)(getPIDValues_Ki(E0) * 10), HotendPID_I);
-        rtscheck.RTS_SndData((unsigned int)(getPIDValues_Kd(E0) * 10), HotendPID_D);
-        #if ENABLED(PIDTEMPBED)
-          rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Kp() * 10), BedPID_P);
-          rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Ki() * 10), BedPID_I);
-          rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Kd() * 10), BedPID_D);
-        #endif
-      #endif
-
-			if (NozzleTempStatus[0] || NozzleTempStatus[2]) //statuse of loadfilement and unloadfinement when temperature is less than
-			{
-				unsigned int IconTemp;
-
-				IconTemp = getActualTemp_celsius(H0) * 100 / getTargetTemp_celsius(H0);
-				if (IconTemp >= 100)
-					IconTemp = 100;
-				rtscheck.RTS_SndData(IconTemp, HeatPercentIcon);
-				if (getActualTemp_celsius(H0) > EXTRUDE_MINTEMP && NozzleTempStatus[0]!=0)
-				{
-					NozzleTempStatus[0] = 0;
-					rtscheck.RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1);
-					rtscheck.RTS_SndData(10 * ChangeMaterialbuf[1], FilementUnit2);
-          SERIAL_ECHOLNPGM_P(PSTR("==Heating Done Change Filament=="));
-					rtscheck.RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
-				}
-				else if (getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[2])
-				{
-					SERIAL_ECHOLNPAIR("***NozzleTempStatus[2] =", (int)NozzleTempStatus[2]);
-					NozzleTempStatus[2] = 0;
-					TPShowStatus = true;
-					rtscheck.RTS_SndData(4, ExchFlmntIcon);
-					rtscheck.RTS_SndData(ExchangePageBase + 83, ExchangepageAddr);
-				}
-				else if (NozzleTempStatus[2])
-				{
-					//rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
-				}
+			else
+	  	{
+				rtscheck.RTS_SndData(100, PrintscheduleIcon);
+				rtscheck.RTS_SndData((unsigned int)Percentrecord * 2 - 100, PrintscheduleIcon + 1);
 			}
+		}
+		else
+		{
+			rtscheck.RTS_SndData(0, PrintscheduleIcon);
+			rtscheck.RTS_SndData(0, PrintscheduleIcon + 1);
+		}
+		rtscheck.RTS_SndData((unsigned int)getProgress_percent(), Percentage);
+	}
 
-			if (AutohomeKey)
-			{
-				rtscheck.RTS_SndData(AutoHomeIconNum++, AutoZeroIcon);
-				if (AutoHomeIconNum > 9)
-					AutoHomeIconNum = 0;
-			}
+  rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
+  rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
+  rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
+  rtscheck.RTS_SndData(Settings.standby_time_seconds, DisplayStandbySeconds);
+  if(Settings.display_standby)
+    rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
+  else
+    rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
+
+  if(getTargetTemp_celsius(BED)==0 && getTargetTemp_celsius(H0)==0)
+  {
+    rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+  }
+  else if (getActualTemp_celsius(BED) < (getTargetTemp_celsius(BED) - THERMAL_PROTECTION_BED_HYSTERESIS ) || (getActualTemp_celsius(H0) < (getTargetTemp_celsius(H0) - THERMAL_PROTECTION_HYSTERESIS)))
+  {
+    rtscheck.RTS_SndData(1 + CEIconGrap, IconPrintstatus); // Heating Status
+    PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 1 : PrinterStatusKey[1]);
+  }
+  else if (getActualTemp_celsius(BED) > (getTargetTemp_celsius(BED) + THERMAL_PROTECTION_BED_HYSTERESIS) || (getActualTemp_celsius(H0) > (getTargetTemp_celsius(H0) + THERMAL_PROTECTION_HYSTERESIS)))
+  {
+    rtscheck.RTS_SndData(8 + CEIconGrap, IconPrintstatus); // Cooling Status
+    PrinterStatusKey[1] = (PrinterStatusKey[1] == 0 ? 2 : PrinterStatusKey[1]);
+  }
+  else
+    rtscheck.RTS_SndData(0 + CEIconGrap, IconPrintstatus);
+
+	rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
+	rtscheck.RTS_SndData((unsigned int)(getFlow_percent(E0)), Flowrate);
+  rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(X) * 10), StepMM_X);
+  rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Y) * 10), StepMM_Y);
+  rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
+  rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
+
+  #if HAS_BED_PROBE
+    rtscheck.RTS_SndData(getProbeOffset_mm(X) * 100, ProbeOffset_X);
+    rtscheck.RTS_SndData(getProbeOffset_mm(Y) * 100, ProbeOffset_Y);
+  #endif
+
+  #if HAS_PID_HEATING
+    rtscheck.RTS_SndData(pid_hotendAutoTemp, HotendPID_AutoTmp);
+    rtscheck.RTS_SndData(pid_bedAutoTemp, BedPID_AutoTmp);
+    rtscheck.RTS_SndData((unsigned int)(getPIDValues_Kp(E0) * 10), HotendPID_P);
+    rtscheck.RTS_SndData((unsigned int)(getPIDValues_Ki(E0) * 10), HotendPID_I);
+    rtscheck.RTS_SndData((unsigned int)(getPIDValues_Kd(E0) * 10), HotendPID_D);
+    #if ENABLED(PIDTEMPBED)
+      rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Kp() * 10), BedPID_P);
+      rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Ki() * 10), BedPID_I);
+      rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Kd() * 10), BedPID_D);
+    #endif
+  #endif
+
+	if (NozzleTempStatus[0] || NozzleTempStatus[2]) //statuse of loadfilement and unloadfinement when temperature is less than
+	{
+		unsigned int IconTemp;
+
+		IconTemp = getActualTemp_celsius(H0) * 100 / getTargetTemp_celsius(H0);
+		if (IconTemp >= 100)
+			IconTemp = 100;
+		rtscheck.RTS_SndData(IconTemp, HeatPercentIcon);
+		if (getActualTemp_celsius(H0) > EXTRUDE_MINTEMP && NozzleTempStatus[0]!=0)
+		{
+			NozzleTempStatus[0] = 0;
+			rtscheck.RTS_SndData(10 * ChangeMaterialbuf[0], FilementUnit1);
+			rtscheck.RTS_SndData(10 * ChangeMaterialbuf[1], FilementUnit2);
+      SERIAL_ECHOLNPGM_P(PSTR("==Heating Done Change Filament=="));
+			rtscheck.RTS_SndData(ExchangePageBase + 65, ExchangepageAddr);
+		}
+		else if (getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[2])
+		{
+			SERIAL_ECHOLNPAIR("***NozzleTempStatus[2] =", (int)NozzleTempStatus[2]);
+			NozzleTempStatus[2] = 0;
+			TPShowStatus = true;
+			rtscheck.RTS_SndData(4, ExchFlmntIcon);
+			rtscheck.RTS_SndData(ExchangePageBase + 83, ExchangepageAddr);
+		}
+		else if (NozzleTempStatus[2])
+		{
+			//rtscheck.RTS_SndData((startprogress++) % 5, ExchFlmntIcon);
+		}
+	}
+
+	if (AutohomeKey)
+	{
+		rtscheck.RTS_SndData(AutoHomeIconNum++, AutoZeroIcon);
+		if (AutoHomeIconNum > 9)
+			AutoHomeIconNum = 0;
 	}
 
   if(isMediaInserted())
@@ -1909,6 +1901,14 @@ void SetTouchScreenConfiguration() {
   }
   rtscheck.RTS_SndData(Settings.display_volume, VolumeIcon - 2);
   rtscheck.RTS_SndData(Settings.display_volume << 8, SoundAddr + 1);
+  rtscheck.RTS_SndData(map(constrain(Settings.display_volume, 0, 255), 0, 255, 0, 100), VolumeDisplay);
+  rtscheck.RTS_SndData(Settings.screen_brightness, DisplayBrightness);
+  rtscheck.RTS_SndData(Settings.standby_screen_brightness, DisplayStandbyBrightness);
+  rtscheck.RTS_SndData(Settings.standby_time_seconds, DisplayStandbySeconds);
+  if(Settings.display_standby)
+    rtscheck.RTS_SndData(3, DisplayStandbyEnableIndicator);
+  else
+    rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
 }
 
 void onPrinterKilled(PGM_P killMsg, PGM_P component) {
