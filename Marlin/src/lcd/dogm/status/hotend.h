@@ -56,8 +56,7 @@
     B00000011,B00000000
   };
 
-  #ifdef STATUS_HOTEND_ANIM
-
+  #if ANY(STATUS_HOTEND_ANIM,STATUS_HOTEND_INVERTED)
     const unsigned char status_hotend_b_bmp[] PROGMEM = {
       B00011111,B11100000,
       B00100000,B00010000,
