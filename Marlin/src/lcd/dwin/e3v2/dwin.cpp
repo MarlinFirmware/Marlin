@@ -147,8 +147,8 @@ HMI_data_t HMI_data;
 
 millis_t dwin_heat_time = 0;
 
-uint8_t checkkey = 0;
-uint8_t last_checkkey = 0;
+uint8_t checkkey = MainMenu;
+uint8_t last_checkkey = MainMenu;
 
 typedef struct {
   uint8_t now, last;
@@ -428,7 +428,6 @@ void Draw_More_Icon(const uint8_t line) {
 }
 
 void Draw_Menu_Cursor(const uint8_t line) {
-  // DWIN_ICON_Show(ICON,ICON_Rectangle, 0, MBASE(line) - 18);
   DWIN_Draw_Rectangle(1, HMI_data.Cursor_color, 0, MBASE(line) - 18, 14, MBASE(line + 1) - 20);
 }
 
@@ -668,7 +667,7 @@ void Item_Prepare_Home(const uint8_t row) {
         #else
           DWIN_Frame_AreaCopy(1, 93, 179, 141, 189, LBLX, MBASE(row));    // "Z-Offset"
         #endif
-        DWIN_Draw_Signed_Float(font8x16, HMI_data.Background_Color, 2, 2, 202, MBASE(row), probe.offset.z * 100);
+        DWIN_Draw_Signed_Float(font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 2, 2, 202, MBASE(row), probe.offset.z * 100);
       #else
         #ifdef USE_STRING_TITLES
           DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_SET_HOME_OFFSETS));
@@ -1258,7 +1257,7 @@ void Draw_PrintProcess() {
   Draw_Print_Labels();
 
   ICON_Tune();
-  if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+  if (printingIsPaused() || HMI_flag.pause_action) ICON_Continue(); else ICON_Pause();
   ICON_Stop();
 
   DWIN_Print_Header(sdprint ? card.longest_filename() : nullptr);
@@ -1279,7 +1278,17 @@ void Goto_PrintProcess() {
 void Draw_PrintDone() {
   // show percent bar and value
   _percent_done = 100;
+  _remain_time = 0;
+
+  Clear_Main_Window();
+  DWIN_Print_Header(sdprint ? card.longest_filename() : nullptr);
+  Draw_Print_Labels();
+  DWIN_ICON_Show(ICON, ICON_PrintTime, 15, 173);
+  DWIN_ICON_Show(ICON, ICON_RemainTime, 150, 171);
   Draw_Print_ProgressBar();
+  Draw_Print_ProgressElapsed();
+  Draw_Print_ProgressRemain();
+
   // show print done confirm
   DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 240, DWIN_WIDTH - 1, STATUS_Y-1);
   DWIN_ICON_Show(ICON, HMI_IsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
@@ -1953,7 +1962,7 @@ void HMI_SDCardUpdate() {
       if (checkkey == SelectFile) {
         Redraw_SD_List();
       }
-      else if (checkkey == PrintProcess || checkkey == Tune || printingIsActive()) {
+      else if (sdprint && card.isPrinting() && (checkkey == PrintProcess || checkkey == Tune || printingIsActive())) {
         // TODO: Move card removed abort handling
         //       to CardReader::manage_media.
         card.abortFilePrintSoon();
@@ -2467,7 +2476,7 @@ void Draw_AdvSet_Menu() {
     Draw_Menu_Line(ASCROL(ADVSET_CASE_BRIGHTNESS), ICON_Motion, "LCD Brightness", false);  // LCD brightness
     Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, ASCROL(ADVSET_CASE_BRIGHTNESS), 3, HMI_data.Brightness);
   }
-  if (AVISI(ADVSET_CASE_SCOLOR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SCOLOR), ICON_Scolor, "Select Colors", true);  // Select colors
+  if (AVISI(ADVSET_CASE_SCOLOR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SCOLOR), ICON_Scolor, "Select Colors", true);  // Select colors >
   #if ENABLED(SOUND_MENU_ITEM)
     if (AVISI(ADVSET_CASE_SOUND)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SOUND), ICON_Sound, "Enable Sound", false);  // Enable Sound
     if (AVISI(ADVSET_CASE_SOUND)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_SOUND), ui.buzzer_enabled);
@@ -2584,14 +2593,14 @@ void Draw_FilamentMan_Menu(){
     Clear_Main_Window();
     Draw_Title(GET_TEXT_F(MSG_MANUAL_LEVELING));
     Draw_Back_First(select_item.now == 0);
-    DWIN_Draw_Label(MBASE(1), PSTR(TRAMMING_POINT_NAME_1));
-    DWIN_Draw_Label(MBASE(2), PSTR(TRAMMING_POINT_NAME_2));
-    DWIN_Draw_Label(MBASE(3), PSTR(TRAMMING_POINT_NAME_3));
+    DWIN_Draw_Label(MBASE(1), F(TRAMMING_POINT_NAME_1));
+    DWIN_Draw_Label(MBASE(2), F(TRAMMING_POINT_NAME_2));
+    DWIN_Draw_Label(MBASE(3), F(TRAMMING_POINT_NAME_3));
     #ifdef TRAMMING_POINT_NAME_4
-      DWIN_Draw_Label(MBASE(4), PSTR(TRAMMING_POINT_NAME_4));
+      DWIN_Draw_Label(MBASE(4), F(TRAMMING_POINT_NAME_4));
       #ifdef TRAMMING_POINT_NAME_5
         #define TRAM_POINTS 5
-        DWIN_Draw_Label(MBASE(5), PSTR(TRAMMING_POINT_NAME_5));
+        DWIN_Draw_Label(MBASE(5), F(TRAMMING_POINT_NAME_5));
       #else
         #define TRAM_POINTS 4
       #endif
@@ -2643,7 +2652,6 @@ void HMI_Prepare() {
 
         // Scroll up and draw a blank bottom line
         Scroll_Menu(DWIN_SCROLL_UP);
-        Draw_Menu_Icon(MROWS, ICON_Axis + select_prepare.now - 1);
 
         switch (index_prepare) {  // Last menu items
           #if ENABLED(MESH_BED_LEVELING)
@@ -2688,7 +2696,9 @@ void HMI_Prepare() {
         Scroll_Menu(DWIN_SCROLL_DOWN);
 
         switch (index_prepare) {  // First menu items
-          case MROWS: Draw_Back_First(); break;
+          case MROWS:
+            Draw_Back_First();
+            break;
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
             case MROWS + PREPARE_CASE_FMAN:     // Filament Management >
               Draw_Menu_Line(0, ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN), true);
@@ -3078,7 +3088,9 @@ void HMI_Control() {
         index_control--;
         Scroll_Menu(DWIN_SCROLL_DOWN);
         switch (index_control) {  // First menu items
-          case MROWS: Draw_Back_First(); break;
+          case MROWS:
+            Draw_Back_First();
+            break;
           case MROWS + 1: // Temperature >
             Draw_Menu_Line(0, ICON_Temperature, GET_TEXT(MSG_TEMPERATURE), true);
             break;
@@ -3286,9 +3298,11 @@ void HMI_FilamentMan(){
         char str_1[6], str_2[6],str_3[6] = "";
         #define fmt "X:%s, Y:%s, Z:%s"
         float_t xpos = 0, ypos = 0, zpos = 0;
+        float_t margin = PROBING_MARGIN;
       #else
         #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
         int16_t xpos = 0, ypos = 0;
+        int16_t margin = 30;
       #endif
 
       switch (select_item.now) {
@@ -3301,20 +3315,20 @@ void HMI_FilamentMan(){
           break;
         case 1:
           DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_1));
-          xpos = ypos = 30;
+          xpos = ypos = margin;
           break;
         case 2:
           DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_2));
-          xpos = X_BED_SIZE - 30; ypos = 30;
+          xpos = X_BED_SIZE - margin; ypos = margin;
           break;
         case 3:
           DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_3));
-          xpos = X_BED_SIZE - 30; ypos = Y_BED_SIZE - 30;
+          xpos = X_BED_SIZE - margin; ypos = Y_BED_SIZE - margin;
           break;
         #ifdef TRAMMING_POINT_NAME_4
           case 4:
             DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_4));
-            xpos = 30; ypos = Y_BED_SIZE - 30;
+            xpos = margin; ypos = Y_BED_SIZE - margin;
             break;
         #endif
         #ifdef TRAMMING_POINT_NAME_5
@@ -3330,15 +3344,15 @@ void HMI_FilamentMan(){
           gcode.process_subcommands_now_P(PSTR("M420S0\nG28O"));
           planner.synchronize();
           zpos = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
-          sprintf_P(buf, PSTR(fmt),
+          sprintf_P(cmd, PSTR(fmt),
             dtostrf(xpos, 1, 1, str_1),
             dtostrf(ypos, 1, 1, str_2),
             dtostrf(zpos, 1, 2, str_3)
           );
-          DWIN_StatusChanged(buf);
+          DWIN_StatusChanged(cmd);
         #else
-          sprintf_P(buf, PSTR(fmt), xpos, ypos);
-          queue.inject(buf);
+          sprintf_P(cmd, PSTR(fmt), xpos, ypos);
+          queue.inject(cmd);
         #endif
       }
     }
@@ -3371,7 +3385,11 @@ void HMI_FilamentMan(){
           break;
         case 1: // Start manual mesh
           DWIN_StatusChanged_P(GET_TEXT(MSG_UBL_BUILD_MESH_MENU));
-          queue.inject_P(PSTR("G28O\nM211 S0\nG29 S1"));
+          gcode.process_subcommands_now_P(PSTR("G28 XYO\nG28 Z\nM211 S0\nG29 S1"));
+          planner.synchronize();
+          #ifdef MANUAL_PROBE_START_Z
+            DWIN_Draw_Signed_Float(font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, 216, MBASE(2), MANUAL_PROBE_START_Z * 100);
+          #endif
           break;
         case 2: // move Z
           DWIN_StatusChanged_P(GET_TEXT(MSG_MOVE_Z));
@@ -3381,7 +3399,11 @@ void HMI_FilamentMan(){
           EncoderRate.enabled = true;
           break;
         case 3: // Next mesh point
-          queue.inject_P(PSTR("G29 S2"));
+          gcode.process_subcommands_now_P(PSTR("G29 S2"));
+          planner.synchronize();
+          #ifdef MANUAL_PROBE_START_Z
+            DWIN_Draw_Signed_Float(font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, 216, MBASE(2), MANUAL_PROBE_START_Z * 100);
+          #endif
           break;
         case 4: // Save Mesh
           DWIN_StatusChanged_P(GET_TEXT(MSG_UBL_STORAGE_MESH_MENU));
@@ -3812,6 +3834,7 @@ void HMI_ReturnScreen() {
   checkkey = last_checkkey;
   Draw_Main_Area(checkkey);
   DWIN_UpdateLCD();
+  return;
 }
 
 // Motion
@@ -3939,7 +3962,9 @@ void HMI_AdvSet() {
         Scroll_Menu(DWIN_SCROLL_DOWN);
 
         switch (index_advset) {  // Redraw first menu items
-          case MROWS: Draw_Back_First(); break;
+          case MROWS:
+            Draw_Back_First();
+            break;
           case MROWS + ADVSET_CASE_HOMEOFF:   // Home Offset >
             Draw_Menu_Line(0, ICON_HomeOff, GET_TEXT(MSG_SET_HOME_OFFSETS), true);
             break;
@@ -3957,6 +3982,11 @@ void HMI_AdvSet() {
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    char cmd[48] = "";
+    char str_1[5] = "", str_2[5] = "";
+    sprintf_P(cmd, PSTR("G28O XY\nG0 Z5 F300\nG0 X%s Y%s F5000"), 
+      dtostrf(X_CENTER, 1, 1, str_1),
+      dtostrf(Y_CENTER, 1, 1, str_2));
     switch (select_advset.now) {
       case 0: // Back
         checkkey = Control;
@@ -3988,6 +4018,8 @@ void HMI_AdvSet() {
 
       #if HAS_HOTEND
         case ADVSET_CASE_HEPID:   // Nozzle PID Autotune
+          gcode.process_subcommands_now_P(cmd);
+          planner.synchronize();
           thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
           thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
           break;
@@ -3995,6 +4027,8 @@ void HMI_AdvSet() {
 
       #if HAS_HEATED_BED
         case ADVSET_CASE_BEDPID:  // Bed PID Autotune
+          gcode.process_subcommands_now_P(cmd);
+          planner.synchronize();
           thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
           thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
           break;
@@ -4270,7 +4304,7 @@ void HMI_SelectColor() {
   DWIN_UpdateLCD();
 }
 
-void HMI_ApplyColor(const int8_t element, const bool ldef=false) {
+void HMI_ApplyColor(const int8_t element, const bool ldef = false) {
   const uint16_t color = RGB(HMI_ValueStruct.Color[2], HMI_ValueStruct.Color[1], HMI_ValueStruct.Color[0]);
   switch (element) {
     case SCOLOR_CASE_BACKG:      HMI_data.Background_Color = ldef ? Def_Background_Color : color; break;
@@ -4325,7 +4359,8 @@ void HMI_GetColor() {
         checkkey = SelColor;
         Draw_SelColor_Menu();
         break;
-      default: break;
+      default:
+        break;
     }
   }
   DWIN_UpdateLCD();
@@ -4401,19 +4436,21 @@ void HMI_Tune() {
         Scroll_Menu(DWIN_SCROLL_DOWN);
 
         switch (index_tune) {   // First menu items
-          case MROWS: Draw_Back_First(); break;
-          case MROWS+TUNE_CASE_SPEED:
+          case MROWS:
+            Draw_Back_First();
+            break;
+          case MROWS + TUNE_CASE_SPEED:
             Draw_Menu_Line(0, ICON_Speed, GET_TEXT(MSG_SPEED), false);
             Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 0, 3, feedrate_percentage);
             break;
           #if HAS_HOTEND
-            case MROWS+TUNE_CASE_TEMP:
+            case MROWS + TUNE_CASE_TEMP:
               Draw_Menu_Line(0, ICON_HotendTemp, GET_TEXT(MSG_UBL_SET_TEMP_HOTEND), false);
               Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 0, 3, thermalManager.degTargetHotend(0));
               break;
           #endif
           #if HAS_HEATED_BED
-          case MROWS+TUNE_CASE_BED:
+          case MROWS + TUNE_CASE_BED:
             Draw_Menu_Line(0, ICON_BedTemp, GET_TEXT(MSG_UBL_SET_TEMP_BED), false);
             Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 0, 3, thermalManager.degTargetBed());
             break;
@@ -4794,7 +4831,9 @@ void EachMomentUpdate() {
       }
       thermalManager.disable_all_heaters();
     #endif
-    queue.inject_P(PSTR("G1 F1200 X0 Y0"));
+    #if DISABLED(PARK_HEAD_ON_PAUSE)
+      queue.inject_P(PSTR("G1 F1200 X0 Y0"));
+	#endif
   }
 
   if (checkkey == PrintProcess) { // print process
@@ -4860,6 +4899,9 @@ void EachMomentUpdate() {
       // TODO: Get the name of the current file from someplace
       //
       //(void)recovery.interrupted_file_exists();
+      SdFile *dir = nullptr;
+      const char * const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
+      card.selectFileByName(filename);
       DWIN_Draw_CenteredString(false, true, font8x16, HMI_data.PopupTxt_Color, HMI_data.PopupBg_color, MENU_CHR_W, 252, card.longest_filename());
       DWIN_UpdateLCD();
 
@@ -4877,6 +4919,7 @@ void EachMomentUpdate() {
 
           DWIN_UpdateLCD();
         }
+        watchdog_refresh();
       }
 
       select_print.set(0);
@@ -4988,7 +5031,7 @@ void HMI_SaveProcessID(const uint8_t id) {
 void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
-  DWIN_Draw_Popup(ICON_BLTouch, "Homing XYZ", "Please wait until done.");
+  DWIN_Draw_Popup(ICON_BLTouch, "Axis Homing", "Please wait until done.");
 }
 
 void DWIN_CompletedHoming() {
@@ -5006,9 +5049,11 @@ void DWIN_MeshLevelingStart() {
     HMI_SaveProcessID(Leveling);
     DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT(MSG_BED_LEVELING), "Please wait until done.");
   #elif ENABLED(MESH_BED_LEVELING)
-    HMI_SaveProcessID(ManualMesh);
-    select_item.reset();
-    Draw_ManualMesh_Menu();
+    if (checkkey != ManualMesh) {
+      HMI_SaveProcessID(ManualMesh);
+      select_item.reset();
+      Draw_ManualMesh_Menu();
+    }
   #endif
 }
 
@@ -5083,6 +5128,7 @@ void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const cha
 void DWIN_StatusChanged(const char *text) {
   DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, text);
 }
+
 void DWIN_StatusChanged_P(PGM_P const pstr) {
   char str[strlen_P((const char*)pstr) + 1];
   strcpy_P(str, (const char*)pstr);

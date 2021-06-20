@@ -79,9 +79,11 @@ enum processID : uint8_t {
   HomeOffZ,
   // Advance Settings
   AdvSet,
-  ProbeOff,
-  ProbeOffX,
-  ProbeOffY,
+  #if HAS_BED_PROBE
+    ProbeOff,
+    ProbeOffX,
+    ProbeOffY,
+  #endif
   Brightness,
   LoadLength,
   UnloadLength,
@@ -275,7 +277,6 @@ enum processID : uint8_t {
 #define Select_Color      0x33BB  // Selected color
 
 // Default UI Colors
-#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
 #define Def_Background_Color  Color_Bg_Black
 #define Def_Cursor_color      Rectangle_Color
 #define Def_TitleBg_color     Color_Bg_Blue
@@ -302,13 +303,13 @@ extern char print_filename[16];
 extern millis_t dwin_heat_time;
 
 typedef struct {
-  #if ENABLED(HAS_HOTEND)
+  #if HAS_HOTEND
     celsius_t E_Temp = 0;
   #endif
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     celsius_t Bed_Temp = 0;
   #endif
-  #if ENABLED(HAS_FAN)
+  #if HAS_FAN
     int16_t Fan_speed = 0;
   #endif
   int16_t print_speed     = 100;
@@ -419,13 +420,13 @@ void HMI_Move_E();
 
 void HMI_Zoffset();
 
-#if ENABLED(HAS_HOTEND)
+#if HAS_HOTEND
   void HMI_ETemp();
 #endif
-#if ENABLED(HAS_HEATED_BED)
+#if HAS_HEATED_BED
   void HMI_BedTemp();
 #endif
-#if ENABLED(HAS_FAN)
+#if HAS_FAN
   void HMI_FanSpeed();
 #endif
 
@@ -470,6 +471,7 @@ void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
 void HMI_Tune();        // Adjust the menu
 void Draw_Main_Area(uint8_t procID); // Redraw main area;
+void DWIN_Redraw_screen();  // Redraw all screen elements
 void HMI_ReturnScreen();// Return to previous screen before popups
 
 #if HAS_PREHEAT

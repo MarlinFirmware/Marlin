@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ASSISTED_TRAMMING)
+#if ENABLED(ASSISTED_TRAMMING) && HAS_BED_PROBE
 
 #include "../gcode.h"
 #include "../../module/planner.h"
