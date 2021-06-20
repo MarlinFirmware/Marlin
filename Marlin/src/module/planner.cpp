@@ -1545,10 +1545,10 @@ void Planner::check_axes_activity() {
       #endif
     }
     else {
-      settings.max_acceleration_mm_per_s2[X_AXIS] = motion_state.acceleration.x;
-      settings.max_acceleration_mm_per_s2[Y_AXIS] = motion_state.acceleration.y;
-      TERN_(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = motion_state.acceleration.z);
-      TERN_(HAS_CLASSIC_JERK, max_jerk = motion_state.jerk_state);
+      settings.max_acceleration_mm_per_s2[X_AXIS] = saved_motion_state.acceleration.x;
+      settings.max_acceleration_mm_per_s2[Y_AXIS] = saved_motion_state.acceleration.y;
+      TERN_(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = saved_motion_state.acceleration.z);
+      TERN_(HAS_CLASSIC_JERK, max_jerk = saved_motion_state.jerk_state);
     }
     reset_acceleration_rates();
   }
