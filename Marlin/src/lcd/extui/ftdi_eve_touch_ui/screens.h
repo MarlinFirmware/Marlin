@@ -157,6 +157,7 @@ enum {
   #include "cocoa_press/load_chocolate.h"
   #include "cocoa_press/move_xyz_screen.h"
   #include "cocoa_press/move_e_screen.h"
+  #include "cocoa_press/leveling_menu.h"
 
 #else
   #include "generic/status_screen.h"
@@ -206,7 +207,9 @@ enum {
 #endif
 
 #if HAS_LEVELING
-  #include "generic/leveling_menu.h"
+  #if DISABLED(TOUCH_UI_COCOA_PRESS)
+    #include "generic/leveling_menu.h"
+  #endif
   #if HAS_BED_PROBE
     #include "generic/z_offset_screen.h"
   #endif
