@@ -1366,10 +1366,10 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               if (use_probe) {
                 Popup_Handler(Level);
                 corner_avg = 0;
-                corner_avg += probe.probe_at_point(32.5f, 32.5f, PROBE_PT_RAISE);
-                corner_avg += probe.probe_at_point(32.5f, (Y_BED_SIZE + Y_MIN_POS) - 32.5f, PROBE_PT_RAISE);
-                corner_avg += probe.probe_at_point((X_BED_SIZE + X_MIN_POS) - 32.5f, (Y_BED_SIZE + Y_MIN_POS) - 32.5f, PROBE_PT_RAISE);
-                corner_avg += probe.probe_at_point((X_BED_SIZE + X_MIN_POS) - 32.5f, 32.5f, PROBE_PT_STOW);
+                corner_avg += probe.probe_at_point(max(32.5f, X_MIN_POS + probe.offset.x), max(32.5f, Y_MIN_POS + probe.offset.y), PROBE_PT_RAISE);
+                corner_avg += probe.probe_at_point(max(32.5f, X_MIN_POS + probe.offset.x), min((Y_BED_SIZE + Y_MIN_POS) - 32.5f, Y_MAX_POS + probe.offset.y), PROBE_PT_RAISE);
+                corner_avg += probe.probe_at_point(min((X_BED_SIZE + X_MIN_POS) - 32.5f, X_MAX_POS + probe.offset.x), min((Y_BED_SIZE + Y_MIN_POS) - 32.5f, Y_MAX_POS + probe.offset.y), PROBE_PT_RAISE);
+                corner_avg += probe.probe_at_point(min((X_BED_SIZE + X_MIN_POS) - 32.5f, X_MAX_POS + probe.offset.x), max(32.5f, Y_MIN_POS + probe.offset.y), PROBE_PT_STOW);
                 corner_avg /= 4;
                 Redraw_Menu();
               }
