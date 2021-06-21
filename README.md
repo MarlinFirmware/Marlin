@@ -6,17 +6,18 @@ This branch adds support for the Creality touchscreen machines and was split off
 - [CR10S Pro V2](http://bit.ly/2rxZ6lP)
 - [CR10 Max](http://bit.ly/2L6wZRy)
 - [Ender 5 Plus](https://bit.ly/2SriM5I)
-- [CR-X](https://bit.ly/33eZ5Ts)
+- [Ender 6](https://amzn.to/3wMaoj3)
+- [CR-X / Pro](https://bit.ly/33eZ5Ts)
 - [CR10 V2/V3 ](https://bit.ly/3nnhPcM)
 - [Ender 3 / Pro 4.2.2 and 4.2.7](https://bit.ly/3ncWu5I)
 - [Ender 3 V2](https://bit.ly/3xmx4XI)
 - [Ender 3 Max]()
-- Ender 5 / Pro 4.2.2 and 4.2.7
-- [Ender 6](https://amzn.to/3wMaoj3)
+- [Ender 5 / Pro 4.2.2 and 4.2.7](https://amzn.to/3gMb2Yu)
 - [CR20 and Pro](http://bit.ly/2Oxxruk)
 - [CR10S](http://bit.ly/33AAaHv)
 - [CR10S4 400mm](http://bit.ly/2XXCBmq)
 - [CR10S5 500mm](http://bit.ly/35K4ZuR)
+- [CR6 / Max](https://bit.ly/2SdYijE)
 - CR10, CR10Mini, CR2020, Ender 4, Ender 2 - Legacy support
 -- These configurations exist however due to age and product availability are no longer actively tested
 
@@ -56,17 +57,19 @@ Marlin Discord - https://discord.gg/n5NJ59y
 - Added Screen Calibration Options
 -- Standby Brightness
 -- Volume
--- Now saved in EEPROM
--- Automatic rotation for the Ender 6
-- Manual Mesh Controls
+-- Both now saved in EEPROM
+-- Screen configuration code based loosely on the work from the CR6 community modified for this screen model
+-- Automatic Screen rotation for the Ender 6 (Default is upside-down)
+- Manual Mesh Controls for no Probe machines
 -- CRX and Ender 6 with no Probe can now use all mesh controls
--- All machines now use the same screen files except for Ender 3 V2 Rotary Dial machines
+-- All machines now use the same screen files except for Ender 3 V2 Rotary Dial machines and CR6
 - Home button added to 5 point adjustment screen
-- Tap mesh values to manually type in a new value
-- Additional messaging on pause / filament runout
--- No will no longer canel print
+- Tap mesh values to manually type in a new value - allows for manual adjustment of mesh values
+- Additional functions, messaging on pause / filament runout
+-- No will no longer cancel print
 -- Depending on state, if only option is continue (eg Reheat, Load filament) Any response continues
 -- On final Confirm Continue, No will purge more filament and Yes will resume
+- Most places temperatures are shown, can now tap them to type in a value to set the temerature
 - Updated to Marlin 2.0.9 Base
 - CR6 Branches merged in
 -- Support for this machine is primarily based on the fork by the [CR6 Community](https://github.com/CR6Community)
