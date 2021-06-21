@@ -114,10 +114,12 @@ bool hasPrintTimer = false;
   }
 
   void onFilamentRunout(const extruder_t extruder) {
+    #ifdef FILAMENT_RUNOUT_SCRIPT
     // Only navigate to filament runout screen when we don't use M600 for changing the filament - otherwise it gets confusing for the user
     if (strcmp_P(FILAMENT_RUNOUT_SCRIPT, PSTR("M600")) != 0) {
       ScreenHandler.FilamentRunout();
     }
+    #endif
   }
 
   void onUserConfirmed() {
