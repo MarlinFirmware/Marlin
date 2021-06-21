@@ -89,4 +89,3 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
 }
 
 #endif // COCOA_LEVELING_MENU
-
