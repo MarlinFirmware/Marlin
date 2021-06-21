@@ -2070,16 +2070,18 @@ void Temperature::init() {
 
   // Setup objects for library-based polling of MAX TCs
   #if HAS_MAXTC_LIBRARIES
+    #define _MAX31865_WIRES(n) MAX31865_##n##WIRE
+    #define MAX31865_WIRES(n) _MAX31865_WIRES(n)
+
     #if TEMP_SENSOR_IS_MAX(0, 6675) && HAS_MAX6675_LIBRARY
       max6675_0.begin();
     #elif TEMP_SENSOR_IS_MAX(0, 31855) && HAS_MAX31855_LIBRARY
       max31855_0.begin();
-      max31865_0.begin(MAX31865_2WIRE); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
     #elif TEMP_SENSOR_IS_MAX(0, 31865)
       max31865_0.begin(
         MAX31865_SENSOR_OHMS_0,
         MAX31865_CALIBRATION_OHMS_0,
-        MAX31865_2WIRE // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+        MAX31865_WIRES(MAX31865_SENSOR_WIRES_0) // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
       );
     #endif
 
@@ -2091,9 +2093,11 @@ void Temperature::init() {
       max31865_1.begin(
         MAX31865_SENSOR_OHMS_1,
         MAX31865_CALIBRATION_OHMS_1,
-        MAX31865_2WIRE
+        MAX31865_WIRES(MAX31865_SENSOR_WIRES_1)
       );
     #endif
+    #undef MAX31865_WIRES
+    #undef _MAX31865_WIRES
   #endif
 
   #if MB(RUMBA)
