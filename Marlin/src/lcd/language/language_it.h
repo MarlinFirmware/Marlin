@@ -581,9 +581,9 @@ namespace Language_it {
   PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("Driver X %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Driver Y %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Driver Z %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Driver I %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Driver J %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Driver K %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Driver ") AXIS4_STR _UxGT(" %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Driver ") AXIS5_STR _UxGT(" %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Driver ") AXIS6_STR _UxGT(" %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("Driver E %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("ERR.CONNESSIONE TMC");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Scrivi DAC EEPROM");
