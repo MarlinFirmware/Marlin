@@ -257,7 +257,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     #elif ANIM_HOTEND
       #define HOTEND_BITMAP(N,S) ((S) ? ON_BMP() : OFF_BMP())
     #else
-      #define HOTEND_BITMAP(N,S) TERN(STATUS_HOTEND_INVERTED, status_hotend_b_bmp, status_hotend_a_bmp)
+      #define HOTEND_BITMAP(N,S) status_hotend_a_bmp
     #endif
 
     if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
