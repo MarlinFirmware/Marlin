@@ -10,7 +10,9 @@ This branch adds support for the Creality touchscreen machines and was split off
 - [CR10 V2/V3 ](https://bit.ly/3nnhPcM)
 - [Ender 3 / Pro 4.2.2 and 4.2.7](https://bit.ly/3ncWu5I)
 - [Ender 3 V2](https://bit.ly/3xmx4XI)
+- [Ender 3 Max]()
 - Ender 5 / Pro 4.2.2 and 4.2.7
+- [Ender 6](https://amzn.to/3wMaoj3)
 - [CR20 and Pro](http://bit.ly/2Oxxruk)
 - [CR10S](http://bit.ly/33AAaHv)
 - [CR10S4 400mm](http://bit.ly/2XXCBmq)
@@ -39,6 +41,7 @@ There is a limitation with Windows systems and path depth so the file names need
 - Melzi Host option disables local SD card to allow more features and buffer for Octoprint control
 - NF = Noise filtering for machines with cable extensions - reduces homing accuracy!
 - LR = Stock runout replaced with Lerdge
+- ZM = BLTouch connected to ZMin port instead of Probe pin 5 connector harness
 
 ## Support
 
@@ -48,6 +51,23 @@ support@tinymachines3d.com about purchasing support hours. Aside from this, we a
 
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
+
+## Primary Notes for DW7.4
+- Added Screen Calibration Options
+-- Standby Brightness
+-- Volume
+-- Now saved in EEPROM
+-- Automatic rotation for the Ender 6
+- Manual Mesh Controls
+-- CRX and Ender 6 with no Probe can now use all mesh controls
+-- All machines now use the same screen files except for Ender 3 V2 Rotary Dial machines
+- Home button added to 5 point adjustment screen
+- Tap mesh values to manually type in a new value
+- Additional messaging on pause / filament runout
+-- No will no longer canel print
+-- Depending on state, if only option is continue (eg Reheat, Load filament) Any response continues
+-- On final Confirm Continue, No will purge more filament and Yes will resume
+- Updated to Marlin 2.0.9 Base
 
 ## Primary notes for DW7.3
 - File browser rewritten to support paging as well as subdirectories
