@@ -85,7 +85,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mou Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrusor *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mou %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mou %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mou 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mou 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mou 10mm");
@@ -111,7 +111,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Moviment");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diam. Fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diam. Fil. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrast de LCD");

@@ -83,7 +83,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Μετακίνηση Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Εξωθητήρας");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Εξωθητήρας *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Μετακίνηση %s μμ");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Μετακίνηση %s μμ");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Μετακίνηση 0,1 μμ");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Μετακίνηση 1 μμ");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Μετακίνηση 10 μμ");
@@ -132,7 +132,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Θερμοκρασία");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Κίνηση");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Νήμα");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Διάμετρος νήματος");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Διάμετρος νήματος *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Κοντράστ LCD");

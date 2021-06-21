@@ -25,9 +25,7 @@
  * MKS SGEN-L pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "MKS SGen-L"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN_L"
@@ -52,7 +50,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                      P1_28  // X+
   #else
     #define X_MIN_PIN                      P1_28  // X+
@@ -64,7 +62,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                      P1_26  // Y+
   #else
     #define Y_MIN_PIN                      P1_26  // Y+
@@ -76,7 +74,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                      P1_24  // Z+
   #else
     #define Z_MIN_PIN                      P1_24  // Z+
@@ -189,7 +187,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -268,35 +266,11 @@
     #define LCD_PINS_ENABLE                -1
     #define LCD_PINS_RS                    -1
 
-    // XPT2046 Touch Screen calibration
-    #if ENABLED(TFT_CLASSIC_UI)
-      #ifndef XPT2046_X_CALIBRATION
-        #define XPT2046_X_CALIBRATION     -11386
-      #endif
-      #ifndef XPT2046_Y_CALIBRATION
-        #define XPT2046_Y_CALIBRATION       8684
-      #endif
-      #ifndef XPT2046_X_OFFSET
-        #define XPT2046_X_OFFSET             689
-      #endif
-      #ifndef XPT2046_Y_OFFSET
-        #define XPT2046_Y_OFFSET            -273
-      #endif
-    #elif ENABLED(TFT_COLOR_UI)
-      #ifndef XPT2046_X_CALIBRATION
-        #define XPT2046_X_CALIBRATION     -16741
-      #endif
-      #ifndef XPT2046_Y_CALIBRATION
-        #define XPT2046_Y_CALIBRATION      11258
-      #endif
-      #ifndef XPT2046_X_OFFSET
-        #define XPT2046_X_OFFSET            1024
-      #endif
-      #ifndef XPT2046_Y_OFFSET
-        #define XPT2046_Y_OFFSET            -367
-      #endif
-
-      #define TFT_BUFFER_SIZE               2400
+    #ifndef TFT_BUFFER_SIZE
+      #define TFT_BUFFER_SIZE               1200
+    #endif
+    #ifndef TFT_QUEUE_SIZE
+      #define TFT_QUEUE_SIZE                6144
     #endif
 
     #define BTN_EN1                        P3_25
@@ -376,6 +350,11 @@
           #define LCD_PINS_D5              P0_17
           #define LCD_PINS_D6              P1_00
           #define LCD_PINS_D7              P1_22
+
+          #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+            #define BTN_ENC_EN       LCD_PINS_D7  // Detect the presence of the encoder
+          #endif
+
         #endif
 
       #endif // !FYSETC_MINI_12864
@@ -394,13 +373,13 @@
 
 #if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                    P0_27
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
   #if SD_CONNECTION_IS(ONBOARD)
-    #define SS_PIN             ONBOARD_SD_CS_PIN
+    #define SD_SS_PIN          ONBOARD_SD_CS_PIN
   #else
-    #define SS_PIN                         P0_28
+    #define SD_SS_PIN                      P0_28
   #endif
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."

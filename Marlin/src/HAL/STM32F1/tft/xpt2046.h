@@ -28,16 +28,16 @@
 #endif
 
 #ifndef TOUCH_MISO_PIN
-  #define TOUCH_MISO_PIN MISO_PIN
+  #define TOUCH_MISO_PIN SD_MISO_PIN
 #endif
 #ifndef TOUCH_MOSI_PIN
-  #define TOUCH_MOSI_PIN MOSI_PIN
+  #define TOUCH_MOSI_PIN SD_MOSI_PIN
 #endif
 #ifndef TOUCH_SCK_PIN
-  #define TOUCH_SCK_PIN  SCK_PIN
+  #define TOUCH_SCK_PIN  SD_SCK_PIN
 #endif
 #ifndef TOUCH_CS_PIN
-  #define TOUCH_CS_PIN   CS_PIN
+  #define TOUCH_CS_PIN   SD_SS_PIN
 #endif
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
@@ -54,7 +54,7 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40 | XPT2046_CONTROL | XPT2046_DFR_MODE,
 };
 
-#if !defined(XPT2046_Z1_THRESHOLD)
+#ifndef XPT2046_Z1_THRESHOLD
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 

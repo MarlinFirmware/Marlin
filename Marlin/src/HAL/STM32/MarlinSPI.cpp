@@ -19,8 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(STM32H7xx)
 
 #include "MarlinSPI.h"
 
@@ -61,7 +60,6 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
     _dmaHandle.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
   }
   #ifdef STM32F4xx
-    _dmaHandle.Init.Channel = DMA_CHANNEL_3;
     _dmaHandle.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
   #endif
 
@@ -74,7 +72,8 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
         _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA1_Channel3 : DMA1_Channel2;
       #elif defined(STM32F4xx)
         __HAL_RCC_DMA2_CLK_ENABLE();
-        _dmaHandle.Instance = DMA2_Stream3;
+        _dmaHandle.Init.Channel = DMA_CHANNEL_3;
+        _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA2_Stream3 : DMA2_Stream0;
       #endif
     }
   #endif
@@ -84,7 +83,9 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
         __HAL_RCC_DMA1_CLK_ENABLE();
         _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA1_Channel5 : DMA1_Channel4;
       #elif defined(STM32F4xx)
-        //TODO: f4 dma config
+        __HAL_RCC_DMA1_CLK_ENABLE();
+        _dmaHandle.Init.Channel = DMA_CHANNEL_0;
+        _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA1_Stream4 : DMA1_Stream3;
       #endif
     }
   #endif
@@ -94,7 +95,9 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
         __HAL_RCC_DMA2_CLK_ENABLE();
         _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA2_Channel2 : DMA2_Channel1;
       #elif defined(STM32F4xx)
-        //TODO: f4 dma config
+        __HAL_RCC_DMA1_CLK_ENABLE();
+        _dmaHandle.Init.Channel = DMA_CHANNEL_0;
+        _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA1_Stream5 : DMA1_Stream2;
       #endif
     }
   #endif

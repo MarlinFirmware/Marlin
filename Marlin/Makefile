@@ -219,7 +219,7 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1111)
 else ifeq ($(HARDWARE_MOTHERBOARD),1112)
 # MKS GEN L
 else ifeq ($(HARDWARE_MOTHERBOARD),1113)
-# zrib V2.0 control board (Chinese knock off RAMPS replica)
+# zrib V2.0 control board (Chinese RAMPS replica)
 else ifeq ($(HARDWARE_MOTHERBOARD),1114)
 # BigTreeTech or BIQU KFB2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1115)
@@ -323,6 +323,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1203)
 else ifeq ($(HARDWARE_MOTHERBOARD),1204)
 # abee Scoovo X9H
 else ifeq ($(HARDWARE_MOTHERBOARD),1205)
+# Rambo ThinkerV2
+else ifeq ($(HARDWARE_MOTHERBOARD),1206)
 
 #
 # Other ATmega1280, ATmega2560
@@ -991,5 +993,5 @@ clean:
 
 .PHONY: all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter
 
-# Automaticaly include the dependency files created by gcc
+# Automatically include the dependency files created by gcc
 -include ${patsubst %.o, %.d, ${OBJ}}

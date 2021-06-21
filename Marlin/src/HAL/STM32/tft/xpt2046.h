@@ -56,23 +56,15 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40 | XPT2046_CONTROL | XPT2046_DFR_MODE,
 };
 
-#if !defined(XPT2046_Z1_THRESHOLD)
+#ifndef XPT2046_Z1_THRESHOLD
   #define XPT2046_Z1_THRESHOLD 10
 #endif
-
-#ifdef STM32F1xx
-  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
-#elif defined(STM32F4xx)
-  #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
-#endif
-
 
 class XPT2046 {
 private:
   static SPI_HandleTypeDef SPIx;
-  static DMA_HandleTypeDef DMAtx;
 
-  static bool isBusy() { return SPIx.Instance ? __IS_DMA_ENABLED(&DMAtx) : false; }
+  static bool isBusy() { return false; }
 
   static uint16_t getRawData(const XPTCoordinate coordinate);
   static bool isTouched();

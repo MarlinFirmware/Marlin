@@ -34,9 +34,7 @@
  * Other pins_MYBOARD.h files may override these defaults
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 // Custom flags and defines for the build
 //#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
@@ -263,6 +261,11 @@
   #ifndef SD_DETECT_PIN
     #define SD_DETECT_PIN                     38
   #endif
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
 #endif
 
 //

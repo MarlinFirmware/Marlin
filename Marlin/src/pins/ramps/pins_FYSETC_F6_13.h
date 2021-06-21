@@ -226,7 +226,7 @@
   #define DOGLCD_SCK                          17
   #define DOGLCD_A0                  LCD_PINS_DC
 
-  #define KILL_PIN                            -1  // NC
+  #undef KILL_PIN
   #define NEOPIXEL_PIN                        27
 
 #else
@@ -243,7 +243,6 @@
       #define LCD_BACKLIGHT_PIN               27
     #endif
 
-    #define KILL_PIN                          41
     #define LCD_RESET_PIN                     23  // Must be high or open for LCD to operate normally.
                                   // Seems to work best if left open.
 
@@ -273,6 +272,10 @@
     #if ENABLED(MKS_MINI_12864)
       #define DOGLCD_CS                       25
       #define DOGLCD_A0                       27
+    #endif
+
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
     #endif
 
   #endif

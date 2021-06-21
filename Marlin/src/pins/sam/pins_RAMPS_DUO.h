@@ -43,14 +43,9 @@
  *       A15 | A11
  */
 
-#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
-
 #define BOARD_INFO_NAME "RAMPS Duo"
 
-#define IS_RAMPS_DUO
-
+#define ALLOW_SAM3X8E
 #include "../ramps/pins_RAMPS.h"
 
 //
@@ -125,6 +120,10 @@
         #undef BTN_EN2
         #define BTN_EN2                       66  // AUX2 PIN 4
       #endif
+    #endif
+
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
     #endif
 
   #endif // IS_NEWPANEL

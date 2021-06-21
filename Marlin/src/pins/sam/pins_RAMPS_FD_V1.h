@@ -28,9 +28,7 @@
  * Use 4k7 thermistor tables
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "RAMPS-FD v1"
@@ -201,6 +199,10 @@
     #define DOGLCD_SCK                        76  // SCK_PIN   - Required for DUE Hardware SPI
     #define DOGLCD_MOSI                       75  // MOSI_PIN
     #define DOGLCD_MISO                       74  // MISO_PIN
+  #endif
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
   #endif
 
 #endif // HAS_WIRED_LCD

@@ -36,7 +36,7 @@
   // Decrease delays and flash wear by spreading writes across the
   // 128 kB sector allocated for EEPROM emulation.
   // Not yet supported on F7 hardware
-  // #define FLASH_EEPROM_LEVELING
+  //#define FLASH_EEPROM_LEVELING
 #endif
 
 /**
@@ -170,10 +170,10 @@
 #define SERVO1_PIN                          PB5   // PWM Capable, TIM3_CH2
 
 // SPI for external SD Card (Not entirely sure this will work)
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
-#define SS_PIN                              PA4
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
+#define SD_SS_PIN                           PA4
 #define SDSS                                PA4
 
 #define LED_PIN                         LED_BLUE
@@ -188,9 +188,6 @@
   #define LCD_PINS_RS                       PF12  // LCD_RS
   #define LCD_PINS_ENABLE                   PD15  // LCD_EN
   #define LCD_PINS_D4                       PB13  // LCD_D4
-  // #define LCD_PINS_D5
-  // #define LCD_PINS_D6
-  // #define LCD_PINS_D7
   #define BTN_EN1                           PF13  // BTN_EN1
   #define BTN_EN2                           PE9   // BTN_EN2
 

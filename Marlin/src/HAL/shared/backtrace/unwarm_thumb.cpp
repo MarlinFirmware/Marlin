@@ -30,12 +30,11 @@ static int32_t signExtend11(const uint16_t value) {
 }
 
 UnwResult UnwStartThumb(UnwState * const state) {
-  bool found = false;
   uint16_t t = UNW_MAX_INSTR_COUNT;
   uint32_t lastJumpAddr = 0;  // Last JUMP address, to try to detect infinite loops
   bool loopDetected = false;  // If a loop was detected
 
-  do {
+  for (;;) {
     uint16_t instr;
 
     /* Attempt to read the instruction */
@@ -1059,7 +1058,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
     if (--t == 0) return UNWIND_EXHAUSTED;
 
-  } while (!found);
+  }
 
   return UNWIND_SUCCESS;
 }

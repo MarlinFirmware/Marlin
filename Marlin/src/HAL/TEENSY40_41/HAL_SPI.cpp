@@ -26,11 +26,12 @@
 
 #ifdef __IMXRT1062__
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
+
 #include <SPI.h>
 #include <pins_arduino.h>
 #include "spi_pins.h"
-#include "../../core/macros.h"
 
 static SPISettings spiConfig;
 
@@ -50,20 +51,20 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #ifndef SS_PIN
-    #error "SS_PIN is not defined!"
+  #ifndef SD_SS_PIN
+    #error "SD_SS_PIN is not defined!"
   #endif
 
-  OUT_WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SD_SS_PIN, HIGH);
 
-  //SET_OUTPUT(SCK_PIN);
-  //SET_INPUT(MISO_PIN);
-  //SET_OUTPUT(MOSI_PIN);
+  //SET_OUTPUT(SD_SCK_PIN);
+  //SET_INPUT(SD_MISO_PIN);
+  //SET_OUTPUT(SD_MOSI_PIN);
 
   #if 0 && DISABLED(SOFTWARE_SPI)
     // set SS high - may be chip select for another SPI device
     #if SET_SPI_SS_HIGH
-      WRITE(SS_PIN, HIGH);
+      WRITE(SD_SS_PIN, HIGH);
     #endif
     // set a default rate
     spiInit(SPI_HALF_SPEED); // 1
@@ -97,7 +98,7 @@ uint8_t spiRec() {
   //return SPDR;
 }
 
-void spiRead(uint8_t* buf, uint16_t nbyte) {
+void spiRead(uint8_t *buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(buf, nbyte);
   SPI.endTransaction();
@@ -120,7 +121,7 @@ void spiSend(uint8_t b) {
   //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 }
 
-void spiSendBlock(uint8_t token, const uint8_t* buf) {
+void spiSendBlock(uint8_t token, const uint8_t *buf) {
   SPI.beginTransaction(spiConfig);
   SPDR = token;
   for (uint16_t i = 0; i < 512; i += 2) {

@@ -95,7 +95,7 @@ void CANVAS::AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
     if (line >= startLine && line < endLine) {
       uint16_t *pixel = buffer + x + (line - startLine) * width;
       for (int16_t j = 0; j < image_width; j++) {
-        if ((x + j >= 0) && (x + j < width)) *pixel = *data;
+        if ((x + j >= 0) && (x + j < width)) *pixel = ENDIAN_COLOR(*data);
         pixel++;
         data++;
       }

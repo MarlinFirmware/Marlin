@@ -40,7 +40,7 @@ void menu_job_recovery();
 inline void plr_error(PGM_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
-    serialprintPGM(prefix);
+    DEBUG_ECHOPGM_P(prefix);
     DEBUG_ECHOLNPGM(" Job Recovery Data");
   #else
     UNUSED(prefix);
@@ -59,7 +59,7 @@ inline void plr_error(PGM_P const prefix) {
 void GcodeSuite::M1000() {
 
   if (recovery.valid()) {
-    if (parser.seen('S')) {
+    if (parser.seen_test('S')) {
       #if HAS_LCD_MENU
         ui.goto_screen(menu_job_recovery);
       #elif ENABLED(DWIN_CREALITY_LCD)
@@ -70,7 +70,7 @@ void GcodeSuite::M1000() {
         SERIAL_ECHO_MSG("Resume requires LCD.");
       #endif
     }
-    else if (parser.seen('C')) {
+    else if (parser.seen_test('C')) {
       #if HAS_LCD_MENU
         lcd_power_loss_recovery_cancel();
       #else

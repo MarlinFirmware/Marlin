@@ -37,9 +37,8 @@
  *  number (B5) agrees with the schematic but B5 is assigned to logical pin 11.
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Mega 1280' or 'Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME      "Mightyboard"
 #define DEFAULT_MACHINE_NAME "MB Replicator"
@@ -118,6 +117,7 @@
 #ifndef DIGIPOT_I2C_ADDRESS_A
   #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
 #endif
+#define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
 //
 // Temperature Sensors

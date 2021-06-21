@@ -36,17 +36,7 @@
 #include "../../module/temperature.h"
 #include "../../module/probe.h"
 #include "../../feature/probe_temp_comp.h"
-
 #include "../../lcd/marlinui.h"
-#include "../../MarlinCore.h" // for wait_for_heatup and idle()
-
-#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-  #include "../../module/printcounter.h"
-#endif
-
-#if ENABLED(PRINTER_EVENTS_LEDS)
-  #include "../../feature/leds/leds.h"
-#endif
 
 /**
  * G76: calibrate probe and/or bed temperature offsets
@@ -91,6 +81,12 @@
  *  - `B` - Run bed temperature calibration.
  *  - `P` - Run probe temperature calibration.
  */
+
+static void say_waiting_for()               { SERIAL_ECHOPGM("Waiting for "); }
+static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPGM("probe heating."); }
+static void say_successfully_calibrated()   { SERIAL_ECHOPGM("Successfully calibrated"); }
+static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
+
 void GcodeSuite::G76() {
   // Check if heated bed is available and z-homing is done with probe
   #if TEMP_SENSOR_BED == 0 || !(HOMING_Z_WITH_PROBE)
@@ -107,14 +103,14 @@ void GcodeSuite::G76() {
     return (timeout && ELAPSED(ms, timeout));
   };
 
-  auto wait_for_temps = [&](const float tb, const float tp, millis_t &ntr, const millis_t timeout=0) {
-    SERIAL_ECHOLNPGM("Waiting for bed and probe temperature.");
-    while (fabs(thermalManager.degBed() - tb) > 0.1f || thermalManager.degProbe() > tp)
+  auto wait_for_temps = [&](const celsius_t tb, const celsius_t tp, millis_t &ntr, const millis_t timeout=0) {
+    say_waiting_for(); SERIAL_ECHOLNPGM("bed and probe temperature.");
+    while (thermalManager.wholeDegBed() != tb || thermalManager.wholeDegProbe() > tp)
       if (report_temps(ntr, timeout)) return true;
     return false;
   };
 
-  auto g76_probe = [](const TempSensorID sid, uint16_t &targ, const xy_pos_t &nozpos) {
+  auto g76_probe = [](const TempSensorID sid, celsius_t &targ, const xy_pos_t &nozpos) {
     do_z_clearance(5.0); // Raise nozzle before probing
     const float measured_z = probe.probe_at_point(nozpos, PROBE_PT_STOW, 0, false);  // verbose=0, probe_relative=false
     if (isnan(measured_z))
@@ -144,7 +140,7 @@ void GcodeSuite::G76() {
 
   const xyz_pos_t parkpos = temp_comp.park_point,
             probe_pos_xyz = xyz_pos_t(temp_comp.measure_point) + xyz_pos_t({ 0.0f, 0.0f, PTC_PROBE_HEATING_OFFSET }),
-              noz_pos_xyz = probe_pos_xyz - xy_pos_t(probe.offset_xy); // Nozzle position based on probe position
+              noz_pos_xyz = probe_pos_xyz - probe.offset_xy;  // Nozzle position based on probe position
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
@@ -162,11 +158,10 @@ void GcodeSuite::G76() {
       return;
     }
 
-    process_subcommands_now_P(PSTR("G28"));
+    process_subcommands_now_P(G28_STR);
   }
 
   remember_feedrate_scaling_off();
-
 
   /******************************************
    * Calibrate bed temperature offsets
@@ -175,17 +170,17 @@ void GcodeSuite::G76() {
   // Report temperatures every second and handle heating timeouts
   millis_t next_temp_report = millis() + 1000;
 
-  auto report_targets = [&](const uint16_t tb, const uint16_t tp) {
+  auto report_targets = [&](const celsius_t tb, const celsius_t tp) {
     SERIAL_ECHOLNPAIR("Target Bed:", tb, " Probe:", tp);
   };
 
   if (do_bed_cal) {
 
-    uint16_t target_bed = cali_info_init[TSI_BED].start_temp,
-             target_probe = temp_comp.bed_calib_probe_temp;
+    celsius_t target_bed = cali_info_init[TSI_BED].start_temp,
+            target_probe = temp_comp.bed_calib_probe_temp;
 
-    SERIAL_ECHOLNPGM("Waiting for cooling.");
-    while (thermalManager.degBed() > target_bed || thermalManager.degProbe() > target_probe)
+    say_waiting_for(); SERIAL_ECHOLNPGM(" cooling.");
+    while (thermalManager.wholeDegBed() > target_bed || thermalManager.wholeDegProbe() > target_probe)
       report_temps(next_temp_report);
 
     // Disable leveling so it won't mess with us
@@ -207,19 +202,24 @@ void GcodeSuite::G76() {
 
       // Move the nozzle to the probing point and wait for the probe to reach target temp
       do_blocking_move_to(noz_pos_xyz);
-      SERIAL_ECHOLNPGM("Waiting for probe heating.");
-      while (thermalManager.degProbe() < target_probe)
+      say_waiting_for_probe_heating();
+      SERIAL_EOL();
+      while (thermalManager.wholeDegProbe() < target_probe)
         report_temps(next_temp_report);
 
       const float measured_z = g76_probe(TSI_BED, target_bed, noz_pos_xyz);
-      if (isnan(measured_z) || target_bed > BED_MAX_TARGET) break;
+      if (isnan(measured_z) || target_bed > (BED_MAX_TARGET)) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
-    if (temp_comp.finish_calibration(TSI_BED))
-      SERIAL_ECHOLNPGM("Successfully calibrated bed.");
-    else
-      SERIAL_ECHOLNPGM("!Failed to calibrate bed. Values reset.");
+    if (temp_comp.finish_calibration(TSI_BED)) {
+      say_successfully_calibrated();
+      SERIAL_ECHOLNPGM(" bed.");
+    }
+    else {
+      say_failed_to_calibrate();
+      SERIAL_ECHOLNPGM(" bed. Values reset.");
+    }
 
     // Cleanup
     thermalManager.setTargetBed(0);
@@ -236,10 +236,10 @@ void GcodeSuite::G76() {
     do_blocking_move_to(parkpos);
 
     // Initialize temperatures
-    const uint16_t target_bed = temp_comp.probe_calib_bed_temp;
+    const celsius_t target_bed = temp_comp.probe_calib_bed_temp;
     thermalManager.setTargetBed(target_bed);
 
-    uint16_t target_probe = cali_info_init[TSI_PROBE].start_temp;
+    celsius_t target_probe = cali_info_init[TSI_PROBE].start_temp;
 
     report_targets(target_bed, target_probe);
 
@@ -254,8 +254,9 @@ void GcodeSuite::G76() {
       // Move probe to probing point and wait for it to reach target temperature
       do_blocking_move_to(noz_pos_xyz);
 
-      SERIAL_ECHOLNPAIR("Waiting for probe heating. Bed:", target_bed, " Probe:", target_probe);
-      const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
+      say_waiting_for_probe_heating();
+      SERIAL_ECHOLNPAIR(" Bed:", target_bed, " Probe:", target_probe);
+      const millis_t probe_timeout_ms = millis() + SEC_TO_MS(900UL);
       while (thermalManager.degProbe() < target_probe) {
         if (report_temps(next_temp_report, probe_timeout_ms)) {
           SERIAL_ECHOLNPGM("!Probe heating timed out.");
@@ -271,9 +272,9 @@ void GcodeSuite::G76() {
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
     if (temp_comp.finish_calibration(TSI_PROBE))
-      SERIAL_ECHOPGM("Successfully calibrated");
+      say_successfully_calibrated();
     else
-      SERIAL_ECHOPGM("!Failed to calibrate");
+      say_failed_to_calibrate();
     SERIAL_ECHOLNPGM(" probe.");
 
     // Cleanup
@@ -349,7 +350,7 @@ void GcodeSuite::M192() {
     return;
   }
 
-  const float target_temp = parser.value_celsius();
+  const celsius_t target_temp = parser.value_celsius();
   ui.set_status_P(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }

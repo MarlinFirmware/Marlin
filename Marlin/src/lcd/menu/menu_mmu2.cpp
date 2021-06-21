@@ -24,26 +24,20 @@
 
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
-#include "../../feature/mmu2/mmu2.h"
+#include "../../MarlinCore.h"
+#include "../../feature/mmu/mmu2.h"
 #include "menu_mmu2.h"
 #include "menu_item.h"
-
-uint8_t currentTool;
-bool mmuMenuWait;
 
 //
 // Load Filament
 //
 
-void _mmu2_load_filamentToNozzle(uint8_t index) {
+inline void action_mmu2_load_filament_to_nozzle(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
-  ui.status_printf_P(0,  GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
-  if (mmu2.load_filament_to_nozzle(index)) ui.reset_status();
-}
-
-inline void action_mmu2_load_filament_to_nozzle(const uint8_t tool) {
-  _mmu2_load_filamentToNozzle(tool);
+  ui.status_printf_P(0,  GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
+  if (mmu2.load_filament_to_nozzle(tool)) ui.reset_status();
   ui.return_to_status();
 }
 
@@ -62,14 +56,14 @@ void menu_mmu2_load_filament() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
   ACTION_ITEM(MSG_MMU2_ALL, action_mmu2_load_all);
-  LOOP_L_N(i, 5) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ _mmu2_load_filament(MenuItemBase::itemIndex); });
+  LOOP_L_N(i, EXTRUDERS) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ _mmu2_load_filament(MenuItemBase::itemIndex); });
   END_MENU();
 }
 
 void menu_mmu2_load_to_nozzle() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
-  LOOP_L_N(i, 5) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ action_mmu2_load_filament_to_nozzle(MenuItemBase::itemIndex); });
+  LOOP_L_N(i, EXTRUDERS) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ action_mmu2_load_filament_to_nozzle(MenuItemBase::itemIndex); });
   END_MENU();
 }
 
@@ -95,7 +89,7 @@ void action_mmu2_unload_filament() {
 void menu_mmu2_eject_filament() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
-  LOOP_L_N(i, 5) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ _mmu2_eject_filament(MenuItemBase::itemIndex); });
+  LOOP_L_N(i, EXTRUDERS) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ _mmu2_eject_filament(MenuItemBase::itemIndex); });
   END_MENU();
 }
 
@@ -123,9 +117,12 @@ void menu_mmu2() {
 // T* Choose Filament
 //
 
-inline void action_mmu2_choose(const uint8_t tool) {
-  currentTool = tool;
-  mmuMenuWait = false;
+uint8_t feeder_index;
+bool wait_for_mmu_menu;
+
+inline void action_mmu2_chosen(const uint8_t index) {
+  feeder_index = index;
+  wait_for_mmu_menu = false;
 }
 
 void menu_mmu2_choose_filament() {
@@ -133,7 +130,7 @@ void menu_mmu2_choose_filament() {
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_MMU2_CHOOSE_FILAMENT_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
-  LOOP_L_N(i, 5) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ action_mmu2_choose(MenuItemBase::itemIndex); });
+  LOOP_L_N(i, EXTRUDERS) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ action_mmu2_chosen(MenuItemBase::itemIndex); });
   END_MENU();
 }
 
@@ -142,32 +139,32 @@ void menu_mmu2_choose_filament() {
 //
 
 void menu_mmu2_pause() {
-  currentTool = mmu2.get_current_tool();
+  feeder_index = mmu2.get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
-  ACTION_ITEM(MSG_MMU2_RESUME, []{ mmuMenuWait = false; });
+  ACTION_ITEM(MSG_MMU2_RESUME, []{ wait_for_mmu_menu = false; });
   ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
-  ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT, []{ mmu2.load_filament(currentTool); });
-  ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE, []{ mmu2.load_filament_to_nozzle(currentTool); });
+  ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT, []{ mmu2.load_filament(feeder_index); });
+  ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE, []{ mmu2.load_filament_to_nozzle(feeder_index); });
   END_MENU();
 }
 
 void mmu2_M600() {
   ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_pause);
-  mmuMenuWait = true;
-  while (mmuMenuWait) idle();
+  wait_for_mmu_menu = true;
+  while (wait_for_mmu_menu) idle();
 }
 
 uint8_t mmu2_choose_filament() {
   ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_choose_filament);
-  mmuMenuWait = true;
-  while (mmuMenuWait) idle();
+  wait_for_mmu_menu = true;
+  while (wait_for_mmu_menu) idle();
   ui.return_to_status();
-  return currentTool;
+  return feeder_index;
 }
 
 #endif // HAS_LCD_MENU && MMU2_MENUS
