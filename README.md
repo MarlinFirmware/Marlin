@@ -68,6 +68,8 @@ Marlin Discord - https://discord.gg/n5NJ59y
 -- Depending on state, if only option is continue (eg Reheat, Load filament) Any response continues
 -- On final Confirm Continue, No will purge more filament and Yes will resume
 - Updated to Marlin 2.0.9 Base
+- CR6 Branches merged in
+-- Support for this machine is primarily based on the fork by the [CR6 Community](https://github.com/CR6Community)
 
 ## Primary notes for DW7.3
 - File browser rewritten to support paging as well as subdirectories
