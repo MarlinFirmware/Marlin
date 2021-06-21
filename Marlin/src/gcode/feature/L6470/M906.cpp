@@ -283,9 +283,9 @@ void GcodeSuite::M906() {
 
       #if E_STEPPERS
         case E_AXIS: {
-          const int8_t target_extruder = get_target_extruder_from_command();
-          if (target_extruder < 0) return;
-          switch (target_extruder) {
+          const int8_t target_e_stepper = get_target_e_stepper_from_command();
+          if (target_e_stepper < 0) return;
+          switch (target_e_stepper) {
             #if AXIS_IS_L64XX(E0)
               case 0: L6470_SET_KVAL_HOLD(E0); break;
             #endif

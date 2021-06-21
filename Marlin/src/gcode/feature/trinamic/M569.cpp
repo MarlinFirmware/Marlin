@@ -40,7 +40,7 @@ void tmc_set_stealthChop(TMC &st, const bool enable) {
   st.refresh_stepping_mode();
 }
 
-static void set_stealth_status(const bool enable, const int8_t target_extruder) {
+static void set_stealth_status(const bool enable, const int8_t target_e_stepper) {
   #define TMC_SET_STEALTH(Q) tmc_set_stealthChop(stepper##Q, enable)
 
   #if    X_HAS_STEALTHCHOP  || Y_HAS_STEALTHCHOP  || Z_HAS_STEALTHCHOP \
@@ -84,8 +84,8 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
 
       #if E_STEPPERS
         case E_AXIS: {
-          if (target_extruder < 0) return;
-          switch (target_extruder) {
+          if (target_e_stepper < 0) return;
+          switch (target_e_stepper) {
             TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_STEALTH(E0); break;)
             TERN_(E1_HAS_STEALTHCHOP, case 1: TMC_SET_STEALTH(E1); break;)
             TERN_(E2_HAS_STEALTHCHOP, case 2: TMC_SET_STEALTH(E2); break;)
@@ -133,7 +133,7 @@ static void say_stealth_status() {
  */
 void GcodeSuite::M569() {
   if (parser.seen('S'))
-    set_stealth_status(parser.value_bool(), get_target_extruder_from_command());
+    set_stealth_status(parser.value_bool(), get_target_e_stepper_from_command());
   else
     say_stealth_status();
 }

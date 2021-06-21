@@ -267,9 +267,9 @@
           break;
         #if E_STEPPERS
           case E_AXIS: {
-            const int8_t target_extruder = get_target_extruder_from_command();
-            if (target_extruder < 0) return;
-            switch (target_extruder) {
+            const int8_t target_e_stepper = get_target_e_stepper_from_command();
+            if (target_e_stepper < 0) return;
+            switch (target_e_stepper) {
               TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_PWMTHRS_E(0); break;)
               TERN_(E1_HAS_STEALTHCHOP, case 1: TMC_SET_PWMTHRS_E(1); break;)
               TERN_(E2_HAS_STEALTHCHOP, case 2: TMC_SET_PWMTHRS_E(2); break;)
