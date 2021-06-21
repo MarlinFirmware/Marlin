@@ -108,6 +108,7 @@ namespace Theme {
 
     constexpr uint32_t bed_mesh_lines_rgb   = accent_color_6;
     constexpr uint32_t bed_mesh_shadow_rgb  = 0x444444;
+    #define BED_MESH_POINTS_GRAY
   #else
     constexpr uint32_t theme_darkest        = gray_color_1;
     constexpr uint32_t theme_dark           = gray_color_2;
