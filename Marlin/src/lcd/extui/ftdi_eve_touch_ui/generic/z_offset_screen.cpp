@@ -61,14 +61,10 @@ void ZOffsetScreen::move(float mm, int16_t steps) {
     mydata.z += mm;
     setAxisPosition_mm(mydata.z, Z);
   }
-  #if ENABLED(BABYSTEPPING)
   else {
     // Otherwise doing a manual adjustment, possibly during a print.
-    babystepAxis_steps(steps, Z);
+    TERN(BABYSTEPPING, babystepAxis_steps(steps, Z), UNUSED(steps));
   }
-  #else
-    UNUSED(steps);
-  #endif
 }
 
 void ZOffsetScreen::runWizard() {
@@ -93,7 +89,7 @@ void ZOffsetScreen::runWizard() {
 
 bool ZOffsetScreen::wizardRunning() {
   // We can't store state after the call to the AlertBox, so
-  // check whether the current position equal mydata.z in order
+  // check whether the current Z position equals mydata.z in order
   // to know whether the user started the wizard.
   return getAxisPosition_mm(Z) == mydata.z;
 }
