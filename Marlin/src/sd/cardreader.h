@@ -111,7 +111,6 @@ public:
   static void mount();
   static void release();
   static inline bool isMounted() { return flag.mounted; }
-  static void ls();
 
   // Handle media insert/remove
   static void manage_media();
@@ -176,20 +175,31 @@ public:
     return 0;
   }
 
-  // Helper for open and remove
-  static const char* diveToFile(const bool update_cwd, SdFile* &curDir, const char * const path, const bool echo=false);
+  /**
+   * Dive down to a relative or absolute path.
+   * Relative paths apply to the workDir.
+   *
+   * update_cwd: Pass 'true' to update the workDir on success.
+   *   inDirPtr: On exit your pointer points to the target SdFile.
+   *             A nullptr indicates failure.
+   *       path: Start with '/' for abs path. End with '/' to get a folder ref.
+   *       echo: Set 'true' to print the path throughout the loop.
+   */
+  static const char* diveToFile(const bool update_cwd, SdFile* &inDirPtr, const char * const path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
     static void getfilename_sorted(const uint16_t nr);
     #if ENABLED(SDSORT_GCODE)
-      FORCE_INLINE static void setSortOn(bool b) { sort_alpha = b; presort(); }
-      FORCE_INLINE static void setSortFolders(int i) { sort_folders = i; presort(); }
+      FORCE_INLINE static void setSortOn(bool b)        { sort_alpha   = b; presort(); }
+      FORCE_INLINE static void setSortFolders(int i)    { sort_folders = i; presort(); }
       //FORCE_INLINE static void setSortReverse(bool b) { sort_reverse = b; }
     #endif
   #else
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
+
+  static void ls();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -199,6 +209,7 @@ public:
 
   // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
   static inline char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
+  static inline SdFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
 
   // Print File stats
   static inline uint32_t getFileSize()  { return filesize; }
@@ -224,12 +235,13 @@ public:
   #endif
 
   #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    static DiskIODriver_USBFlash media_usbFlashDrive;
+    #define HAS_USB_FLASH_DRIVE 1
+    static DiskIODriver_USBFlash media_driver_usbFlash;
   #endif
-  #if NEED_SD2CARD_SDIO
-    static DiskIODriver_SDIO media_sdio;
-  #elif NEED_SD2CARD_SPI
-    static DiskIODriver_SPI_SD media_sd_spi;
+
+  #if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
+    typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
+    static sdcard_driver_t media_driver_sdcard;
   #endif
 
 private:

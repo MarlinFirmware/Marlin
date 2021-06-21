@@ -36,12 +36,21 @@
 #define _XMIN_   100
 #define _YMIN_   200
 #define _ZMIN_   300
+#define _IMIN_   500
+#define _JMIN_   600
+#define _KMIN_   700
 #define _XMAX_   101
 #define _YMAX_   201
 #define _ZMAX_   301
+#define _IMAX_   501
+#define _JMAX_   601
+#define _KMAX_   701
 #define _XDIAG_  102
 #define _YDIAG_  202
 #define _ZDIAG_  302
+#define _IDIAG_  502
+#define _JDIAG_  602
+#define _KDIAG_  702
 #define _E0DIAG_ 400
 #define _E1DIAG_ 401
 #define _E2DIAG_ 402
@@ -194,6 +203,11 @@
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+#define _OPTARG(A)          , A
+#define OPTARG(O,A)         TERN_(O,DEFER4(_OPTARG)(A))
+#define _OPTCODE(A)         A;
+#define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
 
 // Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.

@@ -82,12 +82,14 @@ namespace FTDI {
       box_width = w;
       measure_text_box(fm, str, box_width, box_height);
       if (box_width <= (uint16_t)w && box_height <= (uint16_t)h) break;
-      fm.load(--font);
       if (font == 26) break;
+      fm.load(--font);
     }
 
-    const uint16_t dx = (options & OPT_RIGHTX) ? w : (options & OPT_CENTERX) ? w/2 : 0;
-    const uint16_t dy = (options & OPT_CENTERY) ? (h - box_height)/2 : 0;
+    const uint16_t dx = (options & OPT_RIGHTX) ? w :
+                        (options & OPT_CENTERX) ? w/2 : 0;
+    const uint16_t dy = (options & OPT_BOTTOMY) ? (h - box_height) :
+                        (options & OPT_CENTERY) ? (h - box_height)/2 : 0;
 
     const char *line_start = str;
     const char *line_end;
@@ -105,11 +107,11 @@ namespace FTDI {
 
         #if ENABLED(TOUCH_UI_USE_UTF8)
           if (has_utf8_chars(line)) {
-            draw_utf8_text(cmd, x + dx, y + dy, line, fm.fs, options & ~OPT_CENTERY);
+            draw_utf8_text(cmd, x + dx, y + dy, line, fm.fs, options & ~(OPT_CENTERY | OPT_BOTTOMY));
           } else
         #endif
           {
-            cmd.CLCD::CommandFifo::text(x + dx, y + dy, font, options & ~OPT_CENTERY);
+            cmd.CLCD::CommandFifo::text(x + dx, y + dy, font, options & ~(OPT_CENTERY | OPT_BOTTOMY));
             cmd.CLCD::CommandFifo::str(line);
           }
       }

@@ -48,7 +48,7 @@
 #endif
 
 #if E_MANUAL > 1
-  #define MULTI_MANUAL 1
+  #define MULTI_E_MANUAL 1
 #endif
 
 #if HAS_DISPLAY
@@ -129,7 +129,7 @@
   class ManualMove {
   private:
     static AxisEnum axis;
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
@@ -182,11 +182,7 @@
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(const AxisEnum axis
-      #if MULTI_MANUAL
-        , const int8_t eindex=-1
-      #endif
-    );
+    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
 
 #endif
@@ -478,9 +474,6 @@ public:
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
 
-    static bool lcd_clicked;
-    static bool use_click();
-
     static void synchronize(PGM_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
@@ -531,10 +524,21 @@ public:
 
   #elif HAS_WIRED_LCD
 
-    static constexpr bool lcd_clicked = false;
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
+  #endif
+
+  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+    static bool lcd_clicked;
+    static inline bool use_click() {
+      const bool click = lcd_clicked;
+      lcd_clicked = false;
+      return click;
+    }
+  #else
+    static constexpr bool lcd_clicked = false;
+    static inline bool use_click() { return false; }
   #endif
 
   #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)

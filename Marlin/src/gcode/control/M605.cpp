@@ -70,26 +70,12 @@
       dual_x_carriage_mode = (DualXMode)parser.value_byte();
       idex_set_mirrored_mode(false);
 
-      if (dual_x_carriage_mode == DXC_MIRRORED_MODE) {
-        if (previous_mode != DXC_DUPLICATION_MODE) {
-          SERIAL_ECHOLNPGM("Printer must be in DXC_DUPLICATION_MODE prior to ");
-          SERIAL_ECHOLNPGM("specifying DXC_MIRRORED_MODE.");
-          dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
-          return;
-        }
-        idex_set_mirrored_mode(true);
-        float x_jog = current_position.x - .1;
-        for (uint8_t i = 2; --i;) {
-          planner.buffer_line(x_jog, current_position.y, current_position.z, current_position.e, feedrate_mm_s, 0);
-          x_jog += .1;
-        }
-        return;
-      }
-
       switch (dual_x_carriage_mode) {
+
         case DXC_FULL_CONTROL_MODE:
         case DXC_AUTO_PARK_MODE:
           break;
+
         case DXC_DUPLICATION_MODE:
           // Set the X offset, but no less than the safety gap
           if (parser.seen('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
@@ -97,10 +83,29 @@
           // Always switch back to tool 0
           if (active_extruder != 0) tool_change(0);
           break;
+
+        case DXC_MIRRORED_MODE: {
+          if (previous_mode != DXC_DUPLICATION_MODE) {
+            SERIAL_ECHOLNPGM("Printer must be in DXC_DUPLICATION_MODE prior to ");
+            SERIAL_ECHOLNPGM("specifying DXC_MIRRORED_MODE.");
+            dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+            return;
+          }
+          idex_set_mirrored_mode(true);
+
+          // Do a small 'jog' motion in the X axis
+          xyze_pos_t dest = current_position; dest.x -= 0.1f;
+          for (uint8_t i = 2; --i;) {
+            planner.buffer_line(dest, feedrate_mm_s, 0);
+            dest.x += 0.1f;
+          }
+        } return;
+
         default:
           dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           break;
       }
+
       idex_set_parked(false);
       set_duplication_enabled(false);
 
@@ -141,7 +146,7 @@
 
         HOTEND_LOOP() {
           DEBUG_ECHOPAIR_P(SP_T_STR, e);
-          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", e, "].", AS_CHAR(XYZ_CHAR(a) | 0x20), "=", hotend_offset[e][a]);
+          LOOP_LINEAR_AXES(a) DEBUG_ECHOPAIR("  hotend_offset[", e, "].", AS_CHAR(AXIS_CHAR(a) | 0x20), "=", hotend_offset[e][a]);
           DEBUG_EOL();
         }
         DEBUG_EOL();
