@@ -33,31 +33,6 @@
 #include "../../../core/debug_out.h"
 
 /**
- * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
- *       PWMs to the steppers
- *
- * On L6474 this sets the TVAL register (same address).
- *
- * I - select which driver(s) to change on multi-driver axis
- *     0 - (default) all drivers on the axis or E0
- *     1 - monitor only X, Y, Z or E1
- *     2 - monitor only X2, Y2, Z2 or E2
- *     3 - monitor only Z3 or E3
- *     4 - monitor only Z4 or E4
- *     5 - monitor only E5
- * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
- *     L6474 - current in mA (4A max)
- *     All others - 0-255
- */
-
-/**
- * Sets KVAL_HOLD wich affects the current being driven through the stepper.
- *
- * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
- * that affects the effective voltage seen by the stepper.
- */
-
-/**
  * MACRO to fetch information on the items associated with current limiting
  * and maximum voltage output.
  *
@@ -220,6 +195,28 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
   }
 }
 
+/**
+ * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
+ *       PWMs to the steppers
+ *
+ * On L6474 this sets the TVAL register (same address).
+ *
+ * I - select which driver(s) to change on multi-driver axis
+ *     0 - (default) all drivers on the axis or E0
+ *     1 - monitor only X, Y, Z or E1
+ *     2 - monitor only X2, Y2, Z2 or E2
+ *     3 - monitor only Z3 or E3
+ *     4 - monitor only Z4 or E4
+ *     5 - monitor only E5
+ * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
+ *     L6474 - current in mA (4A max)
+ *     All others - 0-255
+ *
+ * Sets KVAL_HOLD wich affects the current being driven through the stepper.
+ *
+ * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
+ * that affects the effective voltage seen by the stepper.
+ */
 void GcodeSuite::M906() {
 
   L64xxManager.pause_monitor(true); // Keep monitor_driver() from stealing status
