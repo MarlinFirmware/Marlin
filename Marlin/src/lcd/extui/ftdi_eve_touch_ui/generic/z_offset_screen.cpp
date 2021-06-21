@@ -38,7 +38,7 @@ void ZOffsetScreen::onEntry() {
   mydata.z = SHEET_THICKNESS;
   mydata.softEndstopState = getSoftEndstopState();
   BaseNumericAdjustmentScreen::onEntry();
-  if(wizardRunning())
+  if (wizardRunning())
     setSoftEndstopState(false);
 }
 
