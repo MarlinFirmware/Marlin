@@ -711,9 +711,9 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Привод, %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Привод, %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Привод, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("I Привод, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("J Привод, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("K Привод, %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Привод, %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Привод, %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Привод, %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Привод, %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("СБОЙ СВЯЗИ С TMC");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Запись DAC в EEPROM");
