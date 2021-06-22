@@ -51,7 +51,7 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_KILL                 = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
   DGUSLCD_SCREEN_WAITING              = 251,
   DGUSLCD_SCREEN_POPUP                = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
-  DGUSLDC_SCREEN_UNUSED               = 255
+  DGUSLCD_SCREEN_UNUSED               = 255
 };
 
 // Display Memory layout used (T5UID)
