@@ -905,7 +905,7 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT    { 93, 93, 1097.5, 97 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT    { 46.5, 46.5, 548.75, 48.50 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1515,7 +1515,7 @@
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
+#define MESH_BED_LEVELING
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
