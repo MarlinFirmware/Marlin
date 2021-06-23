@@ -827,8 +827,9 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     #if ENABLED(DELTA)
       stealth_states.x = tmc_enable_stallguard(stepperX);
       stealth_states.y = tmc_enable_stallguard(stepperY);
+      stealth_states.z = tmc_enable_stallguard(stepperZ);
     #endif
-    stealth_states.z = tmc_enable_stallguard(stepperZ);
+    
     endstops.enable(true);
   }
     /**
@@ -839,8 +840,9 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     #if ENABLED(DELTA)
       tmc_disable_stallguard(stepperX, stealth_states.x);
       tmc_disable_stallguard(stepperY, stealth_states.y);
+      tmc_disable_stallguard(stepperZ, stealth_states.z);
     #endif
-    tmc_disable_stallguard(stepperZ, stealth_states.z);
+    
   }
 
   /**
