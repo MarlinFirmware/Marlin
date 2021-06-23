@@ -34,7 +34,8 @@
 #endif
 
 // Prevents hanging from an extra watchdog init
-#define DISABLE_WATCHDOG_INIT
+// Commenting out fixes infinite reboots every 8 sec. -- Zolan
+//#define DISABLE_WATCHDOG_INIT
 
 // Assume Flash EEPROM
 #if NO_EEPROM_SELECTED
