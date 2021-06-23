@@ -721,14 +721,14 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const duration_t elapsed            = print_job_timer.duration();
     duration_t       remaining          = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
     const uint16_t   feedrate_perc      = feedrate_percentage;
-    const celsius_t  extruder_1_temp    = thermalManager.degHotend(0),
+    const celsius_t  extruder_1_temp    = thermalManager.wholeDegHotend(0),
                      extruder_1_target  = thermalManager.degTargetHotend(0);
     #if HAS_MULTI_HOTEND
-      const celsius_t extruder_2_temp   = thermalManager.degHotend(1),
+      const celsius_t extruder_2_temp   = thermalManager.wholeDegHotend(1),
                       extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
     #if HAS_HEATED_BED
-      const celsius_t bed_temp          = thermalManager.degBed(),
+      const celsius_t bed_temp          = thermalManager.wholeDegBed(),
                       bed_target        = thermalManager.degTargetBed();
     #endif
 

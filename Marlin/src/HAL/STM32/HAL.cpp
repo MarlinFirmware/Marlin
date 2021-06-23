@@ -96,6 +96,12 @@ void HAL_init() {
   #if HAS_SD_HOST_DRIVE
     MSC_SD_init();                         // Enable USB SD card access
   #endif
+
+  #if PIN_EXISTS(USB_CONNECT)
+    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
+    delay(1000);                                         // Give OS time to notice
+    WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+  #endif
 }
 
 // HAL idle task
@@ -133,6 +139,8 @@ uint8_t HAL_get_reset_source() {
   ;
 }
 
+void HAL_reboot() { NVIC_SystemReset(); }
+
 void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
 extern "C" {
@@ -147,8 +155,8 @@ extern "C" {
 void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
-// Reset the system (to initiate a firmware flash)
-void flashFirmware(const int16_t) { NVIC_SystemReset(); }
+// Reset the system to initiate a firmware flash
+void flashFirmware(const int16_t) { HAL_reboot(); }
 
 // Maple Compatibility
 volatile uint32_t systick_uptime_millis = 0;

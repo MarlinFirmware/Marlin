@@ -44,7 +44,7 @@
 #endif
 
 #ifndef PS_ON_PIN
-  #define PS_ON_PIN                             40  // Used by CR2020 Industrial series
+  #define PS_ON_PIN                           40  // Used by CR2020 Industrial series
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN)

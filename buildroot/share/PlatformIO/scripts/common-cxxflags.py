@@ -3,12 +3,6 @@
 # Convenience script to apply customizations to CPP flags
 #
 Import("env")
-
-# Detect that 'vscode init' is running
-from SCons.Script import COMMAND_LINE_TARGETS
-if "idedata" in COMMAND_LINE_TARGETS:
-    env.Exit(0)
-
 env.Append(CXXFLAGS=[
   "-Wno-register"
   #"-Wno-incompatible-pointer-types",
@@ -33,7 +27,7 @@ def add_cpu_freq():
 if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink']:
 	env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
 env_name = str(env["PIOENV"])
-env.Replace(PROGNAME="%s_DW7.3.1" % (env_name))
+env.Replace(PROGNAME="%s_DW7.4" % (env_name))
 print("Environment: %s" % (env_name))
 
 # On some platform, F_CPU is a runtime variable. Since it's used to convert from ns

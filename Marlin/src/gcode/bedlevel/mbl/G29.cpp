@@ -70,7 +70,7 @@ void GcodeSuite::G29() {
     return;
   }
 
-  int8_t ix, iy;
+  int8_t ix, iy = 0;
 
   switch (state) {
     case MeshReport:
@@ -87,7 +87,8 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        queue.inject_P(parser.seen('N') ? PSTR("G28" TERN(G28_L0_ENSURES_LEVELING_OFF, "L0", "") "\nG29S2") : PSTR("G29S2"));
+        queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : PSTR("G29S2"));
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
         return;
       }
       state = MeshNext;
@@ -100,11 +101,16 @@ void GcodeSuite::G29() {
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         // Move close to the bed before the first point
-        do_blocking_move_to_z(MANUAL_PROBE_START_Z);
+        do_blocking_move_to_z(0.4f
+          #ifdef MANUAL_PROBE_START_Z
+            + (MANUAL_PROBE_START_Z) - 0.4f
+          #endif
+        );
       }
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
@@ -116,8 +122,14 @@ void GcodeSuite::G29() {
         _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }
       else {
-        // One last "return to the bed" (as originally coded) at completion
-        current_position.z = MANUAL_PROBE_HEIGHT;
+        // Move to the after probing position
+        current_position.z = (
+          #ifdef Z_AFTER_PROBING
+            Z_AFTER_PROBING
+          #else
+            Z_CLEARANCE_BETWEEN_MANUAL_PROBES
+          #endif
+        );
         line_to_current_position();
         planner.synchronize();
 
