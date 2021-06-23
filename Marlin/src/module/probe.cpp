@@ -68,7 +68,7 @@
   #include "servo.h"
 #endif
 
-#if ENABLED(SENSORLESS_PROBING)
+#if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
   #include "stepper.h"
   #include "../feature/tmc_util.h"
 #endif
@@ -816,15 +816,8 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-#if ENABLED(SENSORLESS_PROBING)
-  #define SENSORLESS_ENABLED
-#else
-  #if ENABLED(SENSORLESS_HOMING)
-    #define SENSORLESS_ENABLED
-  #endif    
-#endif
+#if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
 
-#if ENABLED(SENSORLESS_ENABLED)
   sensorless_t stealth_states { false };
   /**
    * Disable stealthChop if used. Enable diag1 pin on driver.
