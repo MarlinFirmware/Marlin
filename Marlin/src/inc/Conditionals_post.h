@@ -3099,6 +3099,7 @@
   #endif
 #else
   #undef NOZZLE_TO_PROBE_OFFSET
+  #undef PROBING_STEPPERS_OFF
 #endif
 
 /**
@@ -3142,9 +3143,16 @@
  * Heater, Fan, and Probe interactions
  */
 #if FAN_COUNT == 0
-  #undef PROBING_FANS_OFF
   #undef ADAPTIVE_FAN_SLOWING
   #undef NO_FAN_SLOWING_IN_PID_TUNING
+#endif
+
+#if !HAS_BED_PROBE || FAN_COUNT == 0
+  #undef PROBING_FANS_OFF
+#endif
+
+#if !BOTH(HAS_BED_PROBE, HAS_EXTRUDERS)
+  #undef PROBING_ESTEPPERS_OFF
 #endif
 
 #if HAS_BED_PROBE && (EITHER(PROBING_HEATERS_OFF, PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0)
