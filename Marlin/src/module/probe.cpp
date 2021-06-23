@@ -825,11 +825,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 #endif
 
 #if ENABLED(SENSORLESS_ENABLED)
-
+  sensorless_t stealth_states { false };
   /**
    * Disable stealthChop if used. Enable diag1 pin on driver.
    */
-  sensorless_t stealth_states { false };
   void Probe::enable_stallguard_diag1() {
     #if ENABLED(DELTA)
       stealth_states.x = tmc_enable_stallguard(stepperX);
