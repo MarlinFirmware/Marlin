@@ -94,7 +94,13 @@
       #endif
       #if ENABLED(Z_MULTI_ENDSTOPS)
         #define _ECHO_ZADJ(N) SERIAL_ECHOPAIR(" Z" STRINGIFY(N) ":", endstops.z##N##_endstop_adj);
-        REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _ECHO_ZADJ)
+        #if NUM_Z_STEPPER_DRIVERS >= 3
+          _ECHO_ZADJ(2)
+          _ECHO_ZADJ(3)
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            _ECHO_ZADJ(4)
+          #endif
+        #endif
       #endif
       SERIAL_EOL();
     }
