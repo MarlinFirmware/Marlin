@@ -63,6 +63,12 @@
  */
 
 //
+// External closed loop controller move complete signal
+//
+#define CLOSED_LOOP_ENABLE_PIN                21  // not used?
+#define CLOSED_LOOP_MOVE_COMPLETE_PIN         20
+
+//
 // Servos
 //
 #define SERVO0_PIN                            22
