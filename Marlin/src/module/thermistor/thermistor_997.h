@@ -21,12 +21,11 @@
  */
 #pragma once
 
-class ClosedLoop {
-public:
-  static void init();
-  static void set(const byte val);
+// MPXV6115V vacuum sensor.
+// 0 to -115 kPa reports as 0 to 115 degrees
+
+const temp_entry_t temptable_997[] PROGMEM = {
+  { OV(   1), 115 },
+  { OV(973), 0 },
+  { OV(1023), 0 }
 };
-
-extern ClosedLoop closedloop;
-
-#define CLOSED_LOOP_WAITING() (READ(CLOSED_LOOP_ENABLE_PIN) && READ(CLOSED_LOOP_MOVE_COMPLETE_PIN))
