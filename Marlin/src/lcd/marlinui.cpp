@@ -1498,6 +1498,13 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
+  #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+    void MarlinUI::poweroff() {
+      queue.inject_P(PSTR("M81"));
+      goto_previous_screen();
+    }
+  #endif
+
   void MarlinUI::flow_fault() {
     LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
     TERN_(HAS_BUZZER, buzz(1000, 440));
