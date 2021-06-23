@@ -71,6 +71,7 @@
 #if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
   #include "stepper.h"
   #include "../feature/tmc_util.h"
+  #include "stepper/trinamic.h"
 #endif
 
 #if HAS_QUIET_PROBING
