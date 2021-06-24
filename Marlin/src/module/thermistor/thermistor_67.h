@@ -22,7 +22,7 @@
 #pragma once
 
 // R25 = 500 KOhm, beta25 = 3800 K, 4.7 kOhm pull-up, SliceEngineering 450 °C Thermistor
-const temp_entry_t temptable_67[] PROGMEM = {
+constexpr temp_entry_t temptable_67[] PROGMEM = {
   { OV(  22 ),  500 },
   { OV(  23 ),  490 },
   { OV(  25 ),  480 },

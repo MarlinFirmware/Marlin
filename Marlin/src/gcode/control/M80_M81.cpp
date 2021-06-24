@@ -101,6 +101,10 @@ void GcodeSuite::M81() {
     #endif
   #endif
 
+  #if ENABLED(PS_OFF_SOUND)
+    BUZZ(1000, 659);
+  #endif
+
   safe_delay(1000); // Wait 1 second before switching off
 
   #if HAS_SUICIDE

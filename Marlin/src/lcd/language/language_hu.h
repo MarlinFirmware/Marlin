@@ -26,11 +26,11 @@
  *
  * LCD Menu Messages. See also https://marlinfw.org/docs/development/lcd_language.html
  * Hungarian translation by AntoszHUN. I am constantly improving and updating the translation.
- * Translation last updated: 21/03/2021 - 21:00
+ * Translation last updated: 23/05/2021 - 20:45
  *
  * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
  * A Magyar fordítást készítette: AntoszHUN. A fordítást folyamatosan javítom és frissítem.
- * A Fordítás utolsó frissítése: 2021.03.21. - 21:00
+ * A Fordítás utolsó frissítése: 2021.05.23. - 20:45
  */
 
 namespace Language_hu {
@@ -76,6 +76,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("Szintezés kész!");
   PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("Szint csökkentés");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Kezdöpont eltolás");
+  PROGMEM Language_Str MSG_HOME_OFFSET_X                   = _UxGT("X Kezdö eltol.");
+  PROGMEM Language_Str MSG_HOME_OFFSET_Y                   = _UxGT("Y Kezdö eltol.");
+  PROGMEM Language_Str MSG_HOME_OFFSET_Z                   = _UxGT("Z Kezdö eltol.");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Eltolás beállítva.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Eredeti Be");
   PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Elektromos segéd");
@@ -108,12 +111,15 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Lézer telj.");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Orsó telj.");
   PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Lézer váltás");
+  PROGMEM Language_Str MSG_LASER_EVAC_TOGGLE               = _UxGT("Hütés váltás");
+  PROGMEM Language_Str MSG_LASER_ASSIST_TOGGLE             = _UxGT("Levegö segéd");
   PROGMEM Language_Str MSG_LASER_PULSE_MS                  = _UxGT("Impulzus teszt ms");
   PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Tüz impulzus");
+  PROGMEM Language_Str MSG_FLOWMETER_FAULT                 = _UxGT("Áramlási hiba");
   PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Orsóváltás");
-  PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Orsó előre");
+  PROGMEM Language_Str MSG_SPINDLE_EVAC_TOGGLE             = _UxGT("Vákuum váltás");
+  PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Orsó elöre");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Orsó hátra");
-
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Bekapcsolás");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Kikapcsolás");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Adagol");
@@ -134,7 +140,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z érték");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Egyéni parancs");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Egyéni parancs");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Szonda teszt");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Pont");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Szonda határon kívül");
@@ -154,6 +160,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Egységes ágy szint");
   PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Döntési pont");
   PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Kézi háló építés");
+  PROGMEM Language_Str MSG_UBL_MESH_WIZARD                 = _UxGT("UBL Háló varázsló");
   PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Tégy alátétet és mérj");
   PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Mérés");
   PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Üres ágyat mérj");
@@ -161,9 +168,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("UBL aktívál");
   PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("UBL deaktívál");
   PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Ágy höfok");
-  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Ágy höfok");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Fej höfok");
-  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Fej höfok");
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Egyéni ágy höfok");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Fejhöfok");
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Egyéni fejhöfok");
   PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Háló szerkesztés");
   PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Egyéni háló szerkesztés");
   PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Finomított háló");
@@ -239,7 +246,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LED_CHANNEL_N                   = _UxGT("Csatorna =");
   PROGMEM Language_Str MSG_LEDS2                           = _UxGT("LED-ek #2");
   PROGMEM Language_Str MSG_NEO2_PRESETS                    = _UxGT("Fény #2 megadott");
-  PROGMEM Language_Str MSG_NEO2_BRIGHTNESS                 = _UxGT("Fényerő");
+  PROGMEM Language_Str MSG_NEO2_BRIGHTNESS                 = _UxGT("Fényerö");
   PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Egyéni szín");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Piros intenzitás");
   PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("Zöld intenzitás");
@@ -272,6 +279,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Burkolat");
   PROGMEM Language_Str MSG_COOLER                          = _UxGT("Lézer hütövíz");
   PROGMEM Language_Str MSG_COOLER_TOGGLE                   = _UxGT("Hütö kapcsoló");
+  PROGMEM Language_Str MSG_FLOWMETER_SAFETY                = _UxGT("Áramlásbiztonság");
   PROGMEM Language_Str MSG_LASER                           = _UxGT("Lézer");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Hütés sebesség");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Hütés sebesség =");
@@ -298,6 +306,16 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Hangolási hiba. Rossz adagoló.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Hangolási hiba. Magas hömérséklet.");
   PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Hangolási hiba! Idötúllépés.");
+  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
+  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
+  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
+  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
+  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
+  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
+  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
+  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
+  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
+  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Kiválaszt");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Kiválaszt *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Gyorsítás");
@@ -505,6 +523,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LINEAR_LEVELING                 = _UxGT("Lineáris szintezés");
   PROGMEM Language_Str MSG_BILINEAR_LEVELING               = _UxGT("Bilineáris szintezés");
   PROGMEM Language_Str MSG_UBL_LEVELING                    = _UxGT("Egységes ágy szintezés");
+  PROGMEM Language_Str MSG_MESH_DONE                       = _UxGT("Mesh probing done");
   PROGMEM Language_Str MSG_MESH_LEVELING                   = _UxGT("Háló szintezés");
   PROGMEM Language_Str MSG_INFO_STATS_MENU                 = _UxGT("Statisztikák");
   PROGMEM Language_Str MSG_INFO_BOARD_MENU                 = _UxGT("Alaplap infó");
@@ -566,17 +585,17 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("Szál betöltése");
   PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("Összes betöltése");
   PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE             = _UxGT("Fej betöltése");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Szál kiadása");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("Szál kiadása ~");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Szál kidobás");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("Szál kidobás ~");
   PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("Kiadja a szálat");
   PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("Szál betölt. %i...");
-  PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("Szál kiadás....");
+  PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("Szál kidobás. ...");
   PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("Szál kiadása....");
   PROGMEM Language_Str MSG_MMU2_ALL                        = _UxGT("Mind");
   PROGMEM Language_Str MSG_MMU2_FILAMENT_N                 = _UxGT("Nyomtatószál ~");
   PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("MMU újraindítás");
   PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("MMU újraindul...");
-  PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Eltávolít, kattint");
+  PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Kidob, kattint");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Kever");
   PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Összetevö =");
@@ -632,7 +651,7 @@ namespace Language_hu {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_2_LINE("Várj a", "szál betöltésére"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_2_LINE("Várj a", "szál tisztításra"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_2_LINE("Kattints a készre", "szál tiszta"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Várj a nyomtatóra", "majd foltyat..."));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Várj a nyomtatóra", "majd folytat..."));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Katt a folytatáshoz"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkolás..."));
@@ -683,6 +702,8 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Jobb alsó");
   PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Kalibrálás befejezve");
   PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Kalibrálási hiba");
+
+  PROGMEM Language_Str MSG_DRIVER_BACKWARD                 = _UxGT(" meghajtók hátra");
 }
 
 #if FAN_COUNT == 1
