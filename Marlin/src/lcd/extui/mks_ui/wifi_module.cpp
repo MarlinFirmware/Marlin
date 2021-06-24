@@ -51,8 +51,8 @@
 
 #define WIFI_SET()        WRITE(WIFI_RESET_PIN, HIGH);
 #define WIFI_RESET()      WRITE(WIFI_RESET_PIN, LOW);
-#define WIFI_IO1_SET()      WRITE(WIFI_IO1_PIN, HIGH);
-#define WIFI_IO1_RESET()    WRITE(WIFI_IO1_PIN, LOW);
+#define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
+#define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
 extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
 
@@ -75,12 +75,12 @@ extern uint8_t pause_resum;
 uint8_t wifi_connect_flg = 0;
 extern volatile uint8_t get_temp_flag;
 
-#define WIFI_MODE 2
+#define WIFI_MODE     2
 #define WIFI_AP_MODE  3
 
 int upload_result = 0;
 
-uint32_t upload_time = 0;
+uint32_t upload_time_sec = 0;
 uint32_t upload_size = 0;
 
 volatile WIFI_STATE wifi_link_state;
@@ -152,7 +152,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
       if (i == 0) return false;
-      strcat(dosName, ".GCO");
+      strcat_P(dosName, PSTR(".GCO"));
       return dosName[0] != '\0';
     }
     else {
@@ -163,7 +163,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
       dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
     }
     if (i >= 5) {
-      strcat(dosName, "~1.GCO");
+      strcat_P(dosName, PSTR("~1.GCO"));
       return dosName[0] != '\0';
     }
   }
@@ -1620,7 +1620,7 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       ZERO(public_buf);
       file_writer.write_index = 0;
       file_writer.tick_end = getWifiTick();
-      upload_time = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
+      upload_time_sec = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
       upload_size = gCfgItems.curFilesize;
       wifi_link_state = WIFI_CONNECTED;
       upload_result = 3;
