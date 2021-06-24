@@ -643,10 +643,7 @@ static const uint32_t FirmwareAddress = 0x00000000, WebFilesAddress = 0x00100000
 
 void ResetWiFiForUpload(int begin_or_end) {
   //#if 0
-  uint32_t start, now;
-
-  start = getWifiTick();
-  now = start;
+  uint32_t start = getWifiTick();
 
   if (begin_or_end == 0) {
     SET_OUTPUT(WIFI_IO0_PIN);
@@ -656,7 +653,7 @@ void ResetWiFiForUpload(int begin_or_end) {
     SET_INPUT_PULLUP(WIFI_IO0_PIN);
 
   WIFI_RESET();
-  while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < 500) { /* nada */ }
   WIFI_SET();
   //#endif
 }

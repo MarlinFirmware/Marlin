@@ -120,19 +120,15 @@ uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick) {
 }
 
 void wifi_delay(int n) {
-  uint32_t begin = getWifiTick(), end = begin;
-  while (getWifiTickDiff(begin, end) < (uint32_t)n) {
+  const uint32_t start = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < (uint32_t)n)
     watchdog_refresh();
-    end = getWifiTick();
-  }
 }
 
 void wifi_reset() {
-  uint32_t start, now;
-  start = getWifiTick();
-  now = start;
+  uint32_t start = getWifiTick();
   WIFI_RESET();
-  while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < 500) { /* nada */ }
   WIFI_SET();
 }
 
