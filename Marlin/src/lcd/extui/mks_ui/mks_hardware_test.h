@@ -24,10 +24,12 @@
 #include <lvgl.h>
 
 void mks_gpio_test();
+void mks_hardware_test();
+void mks_test_get();
+
 void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint16_t bkColor);
 void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor, uint16_t bkColor);
-void mks_hardware_test();
 void disp_assets_update();
 void disp_assets_update_progress(const char *msg);
-void mks_test_get();
+
 extern uint8_t mks_test_flag;

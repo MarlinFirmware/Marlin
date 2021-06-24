@@ -139,9 +139,8 @@ void tft_lvgl_init() {
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
     watchdog_refresh();   // LVGL init takes time
+    mks_test_get();
   #endif
-
-  mks_test_get();
 
   touch.Init();
 
@@ -232,7 +231,9 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  if (mks_test_flag == 0x1E) mks_gpio_test();
+  #if ENABLED(MKS_TEST)
+    if (mks_test_flag == 0x1E) mks_gpio_test();
+  #endif
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {

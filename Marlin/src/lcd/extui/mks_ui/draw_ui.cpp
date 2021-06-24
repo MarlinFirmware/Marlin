@@ -30,7 +30,6 @@
 #include "pic_manager.h"
 
 #include "draw_ui.h"
-#include "mks_hardware_test.h"
 
 #include <SPI.h>
 
@@ -50,6 +49,10 @@
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "draw_touch_calibration.h"
+#endif
+
+#if ENABLED(MKS_TEST)
+  #include "mks_hardware_test.h"
 #endif
 
 CFG_ITMES gCfgItems;
@@ -1362,7 +1365,10 @@ void print_time_count() {
 
 void LV_TASK_HANDLER() {
   lv_task_handler();
-  if (mks_test_flag == 0x1E) mks_hardware_test();
+
+  #if ENABLED(MKS_TEST)
+    if (mks_test_flag == 0x1E) mks_hardware_test();
+  #endif
 
   TERN_(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
 

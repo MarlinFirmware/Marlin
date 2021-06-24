@@ -27,7 +27,6 @@
 #include "draw_tool.h"
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
-#include "mks_hardware_test.h"
 #include "draw_ui.h"
 
 #include <lvgl.h>
@@ -38,6 +37,10 @@
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../../tft_io/touch_calibration.h"
   #include "draw_touch_calibration.h"
+#endif
+
+#if ENABLED(MKS_TEST)
+  #include "mks_hardware_test.h"
 #endif
 
 #include <stdio.h>
