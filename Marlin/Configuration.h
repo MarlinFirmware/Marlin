@@ -611,17 +611,16 @@
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder3V2) || (ENABLED(GraphicLCD) && DISABLED(FORCE10SPRODISPLAY)))
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo) && ENABLED(FORCE10SPRODISPLAY)
+  #define LCD_SERIAL_PORT 0
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL -1
+#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && DISABLED(MachineEnder3V2)
   #define SERIAL_PORT_2 0
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
 #elif BOTH(MachineEnder3V2, SKRE3Turbo)
   #define LCD_SERIAL_PORT 1
-  #define LCD_BAUDRATE 115200
-  #define SERIAL_CATCHALL -1
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRE3Turbo)
-  #define LCD_SERIAL_PORT 0
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
 #elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, MachineEnder3V2, Creality422, Creality427, MachineEnder6)
