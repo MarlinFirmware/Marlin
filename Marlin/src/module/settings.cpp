@@ -3163,7 +3163,7 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         #if IS_CARTESIAN
-          LIST_N(LINEAR_AXES,
+          LIST_N(DOUBLE(LINEAR_AXES),
             PSTR("  M206 X"), LINEAR_UNIT(home_offset.x),
             SP_Y_STR, LINEAR_UNIT(home_offset.y),
             SP_Z_STR, LINEAR_UNIT(home_offset.z),

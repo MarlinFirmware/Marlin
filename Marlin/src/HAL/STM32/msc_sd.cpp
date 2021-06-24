@@ -33,9 +33,9 @@ public:
   DiskIODriver* diskIODriver() {
     #if ENABLED(MULTI_VOLUME)
       #if SHARED_VOLUME_IS(SD_ONBOARD)
-        return &card.media_sd_spi;
+        return &card.media_driver_sdcard;
       #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
-        return &card.media_usbFlashDrive;
+        return &card.media_driver_usbFlash;
       #endif
     #else
       return card.diskIODriver();
