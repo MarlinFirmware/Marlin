@@ -178,16 +178,16 @@
 //
 // Misc. Functions
 //
-#define MT_DET_1                            PA4
-#define MT_DET_2                            PE6
+#define MT_DET_1_PIN                        PA4
+#define MT_DET_2_PIN                        PE6
 #define PW_DET                              PA13
 #define PW_OFF                              PB2
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                MT_DET_1
+  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN               MT_DET_2
+  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
 #ifndef POWER_LOSS_PIN
