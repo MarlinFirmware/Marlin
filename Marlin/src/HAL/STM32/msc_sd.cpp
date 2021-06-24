@@ -13,12 +13,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1) && HAS_SD_HOST_DRIVE
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
+
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_SD_HOST_DRIVE
 
 #include "msc_sd.h"
 #include "usbd_core.h"
 
-#include "../../inc/MarlinConfigPre.h"
 #include "../shared/Marduino.h"
 #include "../../sd/cardreader.h"
 
@@ -121,4 +124,5 @@ void MSC_SD_init() {
   USBDevice.begin();
 }
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1 && HAS_SD_HOST_DRIVE
+#endif // HAS_SD_HOST_DRIVE
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

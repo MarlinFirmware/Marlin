@@ -91,15 +91,13 @@ void HAL_init() {
     USB_Hook_init();
   #endif
 
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
-  #if HAS_SD_HOST_DRIVE
-    MSC_SD_init();                         // Enable USB SD card access
-  #endif
+  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
 
   #if PIN_EXISTS(USB_CONNECT)
-    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
-    delay(1000);                                         // Give OS time to notice
+    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
+    delay(1000);                                        // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }
