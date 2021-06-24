@@ -167,4 +167,4 @@ uint16_t XPT2046::SoftwareIO(uint16_t data) {
 }
 
 #endif // HAS_TFT_XPT2046
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

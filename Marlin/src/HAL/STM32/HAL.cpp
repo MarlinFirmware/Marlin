@@ -167,4 +167,4 @@ void HAL_SYSTICK_Callback() {
   if (systick_user_callback) systick_user_callback();
 }
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

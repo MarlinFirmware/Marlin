@@ -107,4 +107,4 @@ void libServo::setInterruptPriority(uint32_t preemptPriority, uint32_t subPriori
 }
 
 #endif // HAS_SERVOS
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

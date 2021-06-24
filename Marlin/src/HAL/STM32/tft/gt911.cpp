@@ -199,4 +199,4 @@ bool GT911::getPoint(int16_t *x, int16_t *y) {
 }
 
 #endif // TFT_TOUCH_DEVICE_GT911
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

@@ -178,4 +178,4 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
 }
 
 #endif // HAS_FSMC_TFT
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
