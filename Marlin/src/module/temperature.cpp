@@ -63,14 +63,14 @@
 // LIB_MAX6675 can be added to the build_flags in platformio.ini to use a user-defined library
 #if LIB_USR_MAX6675
   #include <max6675.h>
-  #if PIN_EXISTS(MAX6675_MISO) && PIN_EXISTS(MAX6675_SCK)
+  #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK)
     #define MAX6675_USES_SW_SPI 1
   #endif
   #if TEMP_SENSOR_IS_MAX(0, 6675)
     #define HAS_MAX6675_LIBRARY 1
-    MAX6675 max6675_0 = MAX6675(MAX6675_CS_PIN
+    MAX6675 max6675_0 = MAX6675(TEMP_0_CS_PIN
       #if MAX6675_USES_SW_SPI
-        , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
+        , TEMP_0_MISO_PIN, TEMP_0_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
       #if ENABLED(LARGE_PINMAP)
         , HIGH
@@ -78,12 +78,10 @@
     );
   #endif
   #if TEMP_SENSOR_IS_MAX(1, 6675)
-    #ifndef HAS_MAX6675_LIBRARY
-      #define HAS_MAX6675_LIBRARY 1
-    #endif
-    MAX6675 max6675_1 = MAX6675(MAX6675_CS2_PIN
+    #define HAS_MAX6675_LIBRARY 1
+    MAX6675 max6675_1 = MAX6675(TEMP_1_CS_PIN
       #if MAX6675_USES_SW_SPI
-        , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
+        , TEMP_1_MISO_PIN, TEMP_1_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
       #if ENABLED(LARGE_PINMAP)
         , HIGH
@@ -95,14 +93,14 @@
 // LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
 #if LIB_USR_MAX31855
   #include <Adafruit_MAX31855.h>
-  #if PIN_EXISTS(MAX31855_MISO) && PIN_EXISTS(MAX31855_SCK)
+  #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK)
     #define MAX31855_USES_SW_SPI 1
   #endif
   #if TEMP_SENSOR_IS_MAX(0, 31855)
     #define HAS_MAX31855_LIBRARY 1
-    Adafruit_MAX31855 max31855_0 = Adafruit_MAX31855(MAX31855_CS_PIN
+    Adafruit_MAX31855 max31855_0 = Adafruit_MAX31855(TEMP_0_CS_PIN
       #if MAX31855_USES_SW_SPI
-        , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
+        , TEMP_0_MISO_PIN, TEMP_0_SCK_PIN  // For software SPI also set MISO/SCK
       #endif
       #if ENABLED(LARGE_PINMAP)
         , HIGH
@@ -110,12 +108,10 @@
     );
   #endif
   #if TEMP_SENSOR_IS_MAX(1, 31855)
-    #ifndef HAS_MAX31855_LIBRARY
-      #define HAS_MAX31855_LIBRARY 1
-    #endif
-    Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(MAX31855_CS2_PIN
+    #define HAS_MAX31855_LIBRARY 1
+    Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(TEMP_1_CS_PIN
       #if MAX31855_USES_SW_SPI
-        , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
+        , TEMP_1_MISO_PIN, TEMP_1_SCK_PIN  // For software SPI also set MISO/SCK
       #endif
       #if ENABLED(LARGE_PINMAP)
         , HIGH
@@ -128,17 +124,17 @@
 // If LIB_MAX31865 is not on the build_flags then the Adafruit MAX31865 V1.1.0 library is used.
 #if HAS_MAX31865
   #include <Adafruit_MAX31865.h>
-  #ifndef MAX31865_MOSI_PIN
-    #define MAX31865_MOSI_PIN SD_MOSI_PIN
-  #endif
-  #if PIN_EXISTS(MAX31865_MISO) && PIN_EXISTS(MAX31865_SCK)
+  #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK)
     #define MAX31865_USES_SW_SPI 1
   #endif
   #if TEMP_SENSOR_IS_MAX(0, 31865)
     #define HAS_MAX31865_LIBRARY 1
-    Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
-      #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
-        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
+    #ifndef TEMP_0_MOSI_PIN
+      #define TEMP_0_MOSI_PIN SD_MOSI_PIN
+    #endif
+    Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(TEMP_0_CS_PIN
+      #if MAX31865_USES_SW_SPI
+        , TEMP_0_MOSI_PIN, TEMP_0_MISO_PIN, TEMP_0_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
       #endif
       #if ENABLED(LARGE_PINMAP)
         , HIGH
@@ -146,12 +142,13 @@
     );
   #endif
   #if TEMP_SENSOR_IS_MAX(1, 31865)
-    #ifndef HAS_MAX31865_LIBRARY
-      #define HAS_MAX31865_LIBRARY 1
+    #define HAS_MAX31865_LIBRARY 1
+    #ifndef TEMP_1_MOSI_PIN
+      #define TEMP_1_MOSI_PIN SD_MOSI_PIN
     #endif
-    Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
-      #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
-        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
+    Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(TEMP_1_CS_PIN
+      #if MAX31865_USES_SW_SPI
+        , TEMP_1_MOSI_PIN, TEMP_1_MISO_PIN, TEMP_1_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
       #endif
       #if ENABLED(LARGE_PINMAP)
         , HIGH
@@ -166,12 +163,16 @@
 
 // If we have a MAX TC with SCK and MISO pins defined, and we're not using an external library,
 // the MAX TC will be read via Hardware SPI on a different pin.
-#if (TEMP_SENSOR_0_IS_MAX_TC || TEMP_SENSOR_1_IS_MAX_TC || TEMP_SENSOR_REDUNDANT_IS_MAX_TC) && PINS_EXIST(MAX6675_SCK, MAX6675_MOSI) && NO_MAXTC_LIBRARIES
-  #define MAXTC_SEPARATE_SPI 1
+#if (TEMP_SENSOR_IS_ANY_MAX_TC(0) && PINS_EXIST(TEMP_0_SCK, TEMP_0_MOSI)) && NO_MAXTC_LIBRARIES
+  #define TEMP_SENSOR_0_USES_SEPARATE_SPI 1
+#endif
+#if (TEMP_SENSOR_IS_ANY_MAX_TC(1) && PINS_EXIST(TEMP_1_SCK, TEMP_1_MOSI)) && NO_MAXTC_LIBRARIES
+  #define TEMP_SENSOR_1_USES_SEPARATE_SPI 1
 #endif
 
-#if MAXTC_SEPARATE_SPI
+#if TEMP_SENSOR_0_USES_SEPARATE_SPI || TEMP_SENSOR_1_USES_SEPARATE_SPI
   #include "../libs/private_spi.h"
+  #define MAXTC_SEPARATE_SPI 1
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -2024,7 +2025,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 #if MAXTC_SEPARATE_SPI
   //TODO: what about '55, '65?
   template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-  SPIclass<MAX6675_DO_PIN, SD_MOSI_PIN, MAX6675_SCK_PIN> max_tc_spi;
+  SPIclass<TEMP_0_MISO_PIN, SD_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -2082,23 +2083,11 @@ void Temperature::init() {
   #endif
 
   // Init (and disable) SPI thermocouples
-  #if TEMP_SENSOR_IS_MAX(0, MAX6675) && PIN_EXISTS(MAX6675_CS)
-    OUT_WRITE(MAX6675_CS_PIN, HIGH);
+  #if TEMP_SENSOR_IS_ANY_MAX_TC(0) && PIN_EXISTS(TEMP_0_CS)
+    OUT_WRITE(TEMP_0_CS_PIN, HIGH);
   #endif
-  #if TEMP_SENSOR_IS_MAX(1, MAX6675) && PIN_EXISTS(MAX6675_CS2)
-    OUT_WRITE(MAX6675_CS2_PIN, HIGH);
-  #endif
-  #if TEMP_SENSOR_IS_MAX(0, MAX6675) && PIN_EXISTS(MAX31855_CS)
-    OUT_WRITE(MAX31855_CS_PIN, HIGH);
-  #endif
-  #if TEMP_SENSOR_IS_MAX(1, MAX6675) && PIN_EXISTS(MAX31855_CS2)
-    OUT_WRITE(MAX31855_CS2_PIN, HIGH);
-  #endif
-  #if TEMP_SENSOR_IS_MAX(0, MAX6675) && PIN_EXISTS(MAX31865_CS)
-    OUT_WRITE(MAX31865_CS_PIN, HIGH);
-  #endif
-  #if TEMP_SENSOR_IS_MAX(1, MAX6675) && PIN_EXISTS(MAX31865_CS2)
-    OUT_WRITE(MAX31865_CS2_PIN, HIGH);
+  #if TEMP_SENSOR_IS_ANY_MAX_TC(1) && PIN_EXISTS(TEMP_1_CS)
+    OUT_WRITE(TEMP_1_CS_PIN, HIGH);
   #endif
 
   // Setup objects for library-based polling of MAX TCs
@@ -2660,7 +2649,7 @@ void Temperature::disable_all_heaters() {
       static celsius_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
       #define THERMO_TEMP(I) max_tc_temp_previous[I]
       #define THERMO_SEL(A,B) (hindex ? (B) : (A))
-      #define MAXTC_WRITE(V) do{ switch (hindex) { case 1: WRITE(MAX6675_SS2_PIN, V); break; default: WRITE(MAX6675_SS_PIN, V); } }while(0)
+      #define MAXTC_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
     #else
       // When we have only 1 max tc, THERMO_SEL will pick the appropriate sensor
       // variable, and MAXTC_*() macros will be hardcoded to the correct CS pin.
@@ -2668,10 +2657,10 @@ void Temperature::disable_all_heaters() {
       #define THERMO_TEMP(I) max_tc_temp
       #if TEMP_SENSOR_IS_ANY_MAX_TC(0)
         #define THERMO_SEL(A,B) A
-        #define MAXTC_WRITE(V)  WRITE(MAX6675_SS_PIN, V)
+        #define MAXTC_WRITE(V)  WRITE(TEMP_0_CS_PIN, V)
       #else
         #define THERMO_SEL(A,B) B
-        #define MAXTC_WRITE(V)  WRITE(MAX6675_SS2_PIN, V)
+        #define MAXTC_WRITE(V)  WRITE(TEMP_1_CS_PIN, V)
       #endif
     #endif
 
