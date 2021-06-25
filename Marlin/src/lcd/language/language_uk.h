@@ -716,9 +716,9 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("Драйвер X, %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Драйвер Y, %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Драйвер Z, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Драйвер I, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Драйвер J, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Драйвер K, %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Драйвер ") AXIS4_STR _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Драйвер ") AXIS5_STR _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Драйвер ") AXIS6_STR _UxGT(", %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("Драйвер E, %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("ЗБІЙ ЗВ'ЯЗКУ З TMC");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Запис ЦАП у EEPROM");
