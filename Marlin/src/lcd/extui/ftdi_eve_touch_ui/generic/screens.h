@@ -107,118 +107,118 @@ enum {
 
 /************************* MENU SCREEN DECLARATIONS *************************/
 
-#include "generic/base_screen.h"
-#include "generic/base_numeric_adjustment_screen.h"
-#include "generic/dialog_box_base_class.h"
-#include "generic/status_screen.h"
-#include "generic/main_menu.h"
-#include "generic/advanced_settings_menu.h"
-#include "generic/tune_menu.h"
-#include "generic/boot_screen.h"
-#include "generic/about_screen.h"
-#include "generic/kill_screen.h"
-#include "generic/alert_dialog_box.h"
-#include "generic/spinner_dialog_box.h"
-#include "generic/restore_failsafe_dialog_box.h"
-#include "generic/save_settings_dialog_box.h"
-#include "generic/confirm_start_print_dialog_box.h"
-#include "generic/confirm_abort_print_dialog_box.h"
-#include "generic/confirm_user_request_alert_box.h"
-#include "generic/touch_calibration_screen.h"
-#include "generic/touch_registers_screen.h"
-#include "generic/change_filament_screen.h"
-#include "generic/move_axis_screen.h"
-#include "generic/steps_screen.h"
-#include "generic/feedrate_percent_screen.h"
-#include "generic/max_velocity_screen.h"
-#include "generic/max_acceleration_screen.h"
-#include "generic/default_acceleration_screen.h"
-#include "generic/temperature_screen.h"
-#include "generic/interface_sounds_screen.h"
-#include "generic/interface_settings_screen.h"
-#include "generic/lock_screen.h"
-#include "generic/endstop_state_screen.h"
-#include "generic/display_tuning_screen.h"
-#include "generic/media_player_screen.h"
+#include "base_screen.h"
+#include "base_numeric_adjustment_screen.h"
+#include "dialog_box_base_class.h"
+#include "status_screen.h"
+#include "main_menu.h"
+#include "advanced_settings_menu.h"
+#include "tune_menu.h"
+#include "boot_screen.h"
+#include "about_screen.h"
+#include "kill_screen.h"
+#include "alert_dialog_box.h"
+#include "spinner_dialog_box.h"
+#include "restore_failsafe_dialog_box.h"
+#include "save_settings_dialog_box.h"
+#include "confirm_start_print_dialog_box.h"
+#include "confirm_abort_print_dialog_box.h"
+#include "confirm_user_request_alert_box.h"
+#include "touch_calibration_screen.h"
+#include "touch_registers_screen.h"
+#include "change_filament_screen.h"
+#include "move_axis_screen.h"
+#include "steps_screen.h"
+#include "feedrate_percent_screen.h"
+#include "max_velocity_screen.h"
+#include "max_acceleration_screen.h"
+#include "default_acceleration_screen.h"
+#include "temperature_screen.h"
+#include "interface_sounds_screen.h"
+#include "interface_settings_screen.h"
+#include "lock_screen.h"
+#include "endstop_state_screen.h"
+#include "display_tuning_screen.h"
+#include "media_player_screen.h"
 
 #if ENABLED(PRINTCOUNTER)
-  #include "generic/statistics_screen.h"
+  #include "statistics_screen.h"
 #endif
 
 #if HAS_TRINAMIC_CONFIG
-  #include "generic/stepper_current_screen.h"
-  #include "generic/stepper_bump_sensitivity_screen.h"
+  #include "stepper_current_screen.h"
+  #include "stepper_bump_sensitivity_screen.h"
 #endif
 
 #if HAS_MULTI_HOTEND
-  #include "generic/nozzle_offsets_screen.h"
+  #include "nozzle_offsets_screen.h"
 #endif
 
 #if HAS_LEVELING
   #if ENABLED(TOUCH_UI_SYNDAVER_LEVEL)
     #include "syndaver_level/leveling_menu.h"
   #else
-    #include "generic/leveling_menu.h"
+    #include "leveling_menu.h"
   #endif
   #if HAS_BED_PROBE
-    #include "generic/z_offset_screen.h"
+    #include "z_offset_screen.h"
   #endif
   #if HAS_MESH
-    #include "generic/bed_mesh_base.h"
-    #include "generic/bed_mesh_view_screen.h"
-    #include "generic/bed_mesh_edit_screen.h"
+    #include "bed_mesh_base.h"
+    #include "bed_mesh_view_screen.h"
+    #include "bed_mesh_edit_screen.h"
   #endif
 #endif
 
 #if ENABLED(CALIBRATION_GCODE)
-  #include "generic/confirm_auto_calibration_dialog_box.h"
+  #include "confirm_auto_calibration_dialog_box.h"
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  #include "generic/nudge_nozzle_screen.h"
+  #include "nudge_nozzle_screen.h"
 #endif
 
 #if ENABLED(BACKLASH_GCODE)
-  #include "generic/backlash_compensation_screen.h"
+  #include "backlash_compensation_screen.h"
 #endif
 
 #if HAS_JUNCTION_DEVIATION
-  #include "generic/junction_deviation_screen.h"
+  #include "junction_deviation_screen.h"
 #else
-  #include "generic/jerk_screen.h"
+  #include "jerk_screen.h"
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #include "generic/case_light_screen.h"
+  #include "case_light_screen.h"
 #endif
 
 #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
-  #include "generic/filament_menu.h"
+  #include "filament_menu.h"
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #include "generic/filament_runout_screen.h"
+  #include "filament_runout_screen.h"
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  #include "generic/linear_advance_screen.h"
+  #include "linear_advance_screen.h"
 #endif
 
 #if ENABLED(SDSUPPORT)
-  #include "generic/files_screen.h"
+  #include "files_screen.h"
 #endif
 
 #if ENABLED(CUSTOM_MENU_MAIN)
-  #include "generic/custom_user_menus.h"
+  #include "custom_user_menus.h"
 #endif
 
 #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-  #include "generic/developer_menu.h"
-  #include "generic/confirm_erase_flash_dialog_box.h"
-  #include "generic/widget_demo_screen.h"
-  #include "generic/stress_test_screen.h"
+  #include "developer_menu.h"
+  #include "confirm_erase_flash_dialog_box.h"
+  #include "widget_demo_screen.h"
+  #include "stress_test_screen.h"
 #endif
 
 #if NUM_LANGUAGES > 1
-  #include "generic/language_menu.h"
+  #include "language_menu.h"
 #endif
