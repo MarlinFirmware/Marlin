@@ -1,6 +1,6 @@
-/***********************
- * z_offset_screen.h *
- ***********************/
+/*******************************
+ * cocoa_press/leveling_menu.h *
+ ******************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
@@ -22,22 +22,11 @@
 
 #pragma once
 
-#define FTDI_Z_OFFSET_SCREEN
-#define FTDI_Z_OFFSET_SCREEN_CLASS ZOffsetScreen
+#define COCOA_LEVELING_MENU
+#define COCOA_LEVELING_MENU_CLASS LevelingMenu
 
-struct ZOffsetScreenData : public BaseNumericAdjustmentScreenData {
-  float z;
-  bool softEndstopState;
-};
-
-class ZOffsetScreen : public BaseNumericAdjustmentScreen, public CachedScreen<ZOFFSET_SCREEN_CACHE> {
-  private:
-    static void move(float mm, int16_t steps);
-    static void runWizard();
-    static bool wizardRunning();
+class LevelingMenu : public BaseScreen, public CachedScreen<LEVELING_SCREEN_CACHE> {
   public:
-    static void onEntry();
-    static void onExit();
     static void onRedraw(draw_mode_t);
-    static bool onTouchHeld(uint8_t tag);
+    static bool onTouchEnd(uint8_t tag);
 };
