@@ -223,6 +223,10 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 #endif
 
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked;
+#endif
+
 #if HAS_LCD_MENU
   #include "menu/menu.h"
 
@@ -246,14 +250,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     uint8_t MarlinUI::touch_buttons;
     uint8_t MarlinUI::repeat_delay;
   #endif
-
-  bool MarlinUI::lcd_clicked;
-
-  bool MarlinUI::use_click() {
-    const bool click = lcd_clicked;
-    lcd_clicked = false;
-    return click;
-  }
 
   #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
@@ -712,13 +708,15 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     // Add a manual move to the queue?
     if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
-      const feedRate_t fr_mm_s = (axis <= E_AXIS) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis <= LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
           REMEMBER(ae, active_extruder);
-          if (axis == E_AXIS) active_extruder = e_index;
+          #if MULTI_E_MANUAL
+            if (axis == E_AXIS) active_extruder = e_index;
+          #endif
         #endif
 
         // Apply a linear offset to a single axis
@@ -744,7 +742,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
       #else
 
         // For Cartesian / Core motion simply move to the current_position
-        planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
+        planner.buffer_line(current_position, fr_mm_s,
+          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+        );
 
         //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
 

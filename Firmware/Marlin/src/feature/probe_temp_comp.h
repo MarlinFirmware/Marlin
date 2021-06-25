@@ -47,7 +47,7 @@ typedef struct {
 
 // Probe temperature calibration constants
 #ifndef PTC_SAMPLE_COUNT
-  #define PTC_SAMPLE_COUNT 10U
+  #define PTC_SAMPLE_COUNT 10
 #endif
 #ifndef PTC_SAMPLE_RES
   #define PTC_SAMPLE_RES 5
@@ -55,22 +55,22 @@ typedef struct {
 #ifndef PTC_SAMPLE_START
   #define PTC_SAMPLE_START 30
 #endif
-#define PTC_SAMPLE_END ((PTC_SAMPLE_START) + (PTC_SAMPLE_COUNT) * (PTC_SAMPLE_RES))
+#define PTC_SAMPLE_END (PTC_SAMPLE_START + (PTC_SAMPLE_COUNT) * PTC_SAMPLE_RES)
 
 // Bed temperature calibration constants
 #ifndef BTC_PROBE_TEMP
   #define BTC_PROBE_TEMP 30
 #endif
 #ifndef BTC_SAMPLE_COUNT
-  #define BTC_SAMPLE_COUNT 10U
+  #define BTC_SAMPLE_COUNT 10
 #endif
-#ifndef BTC_SAMPLE_STEP
+#ifndef BTC_SAMPLE_RES
   #define BTC_SAMPLE_RES 5
 #endif
 #ifndef BTC_SAMPLE_START
   #define BTC_SAMPLE_START 60
 #endif
-#define BTC_SAMPLE_END ((BTC_SAMPLE_START) + (BTC_SAMPLE_COUNT) * (BTC_SAMPLE_RES))
+#define BTC_SAMPLE_END (BTC_SAMPLE_START + (BTC_SAMPLE_COUNT) * BTC_SAMPLE_RES)
 
 #ifndef PTC_PROBE_HEATING_OFFSET
   #define PTC_PROBE_HEATING_OFFSET 0.5f

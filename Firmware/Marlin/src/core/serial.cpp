@@ -36,6 +36,10 @@ PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMST
 PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
 PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
+PGMSTR(I_STR, AXIS4_STR);     PGMSTR(J_STR, AXIS5_STR);     PGMSTR(K_STR, AXIS6_STR);
+PGMSTR(I_LBL, AXIS4_STR ":"); PGMSTR(J_LBL, AXIS5_STR ":"); PGMSTR(K_LBL, AXIS6_STR ":");
+PGMSTR(SP_I_STR, " " AXIS4_STR);     PGMSTR(SP_J_STR, " " AXIS5_STR);     PGMSTR(SP_K_STR, " " AXIS6_STR);
+PGMSTR(SP_I_LBL, " " AXIS4_STR ":"); PGMSTR(SP_J_LBL, " " AXIS5_STR ":"); PGMSTR(SP_K_LBL, " " AXIS6_STR ":");
 
 // Hook Meatpack if it's enabled on the first leaf
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
@@ -101,8 +105,10 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_pos(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
   if (prefix) serialprintPGM(prefix);
-  SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
+  SERIAL_ECHOPAIR_P(
+    LIST_N(DOUBLE(LINEAR_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k)
+  );
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }
