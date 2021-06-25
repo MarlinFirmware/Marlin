@@ -76,7 +76,7 @@ constexpr static ChangeFilamentScreenData &mydata = screen_data.ChangeFilamentSc
 
 /****************** COLOR SCALE ***********************/
 
-uint32_t getWarmColor(uint16_t temp, uint16_t cool, uint16_t low, uint16_t med, uint16_t high) {
+uint32_t ChangeFilamentScreen::getWarmColor(uint16_t temp, uint16_t cool, uint16_t low, uint16_t med, uint16_t high) {
   rgb_t R0, R1, mix;
 
   float t;
