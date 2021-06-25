@@ -57,8 +57,14 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
     if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
   #endif
   #if HAS_FAN
-    if (indh >= 0)
-      set_fan_speed(active_extruder < (FAN_COUNT) ? active_extruder : 0, ui.material_preset[indh].fan_speed);
+    if (indh >= 0) {
+      const uint8_t fan_index = active_extruder < (FAN_COUNT) ? active_extruder : 0;
+      if (true
+        #if REDUNDANT_PART_COOLING_FAN
+          && fan_index != REDUNDANT_PART_COOLING_FAN
+        #endif
+      ) set_fan_speed(fan_index, ui.material_preset[indh].fan_speed);
+    }
   #endif
   ui.return_to_status();
 }
@@ -215,37 +221,37 @@ void menu_temperature() {
     #if HAS_FAN0
       _FAN_EDIT_ITEMS(0,FIRST_FAN_SPEED);
     #endif
-    #if HAS_FAN1
+    #if HAS_FAN1 && REDUNDANT_PART_COOLING_FAN != 1
       FAN_EDIT_ITEMS(1);
     #elif SNFAN(1)
       singlenozzle_item(1);
     #endif
-    #if HAS_FAN2
+    #if HAS_FAN2 && REDUNDANT_PART_COOLING_FAN != 2
       FAN_EDIT_ITEMS(2);
     #elif SNFAN(2)
       singlenozzle_item(2);
     #endif
-    #if HAS_FAN3
+    #if HAS_FAN3 && REDUNDANT_PART_COOLING_FAN != 3
       FAN_EDIT_ITEMS(3);
     #elif SNFAN(3)
       singlenozzle_item(3);
     #endif
-    #if HAS_FAN4
+    #if HAS_FAN4 && REDUNDANT_PART_COOLING_FAN != 4
       FAN_EDIT_ITEMS(4);
     #elif SNFAN(4)
       singlenozzle_item(4);
     #endif
-    #if HAS_FAN5
+    #if HAS_FAN5 && REDUNDANT_PART_COOLING_FAN != 5
       FAN_EDIT_ITEMS(5);
     #elif SNFAN(5)
       singlenozzle_item(5);
     #endif
-    #if HAS_FAN6
+    #if HAS_FAN6 && REDUNDANT_PART_COOLING_FAN != 6
       FAN_EDIT_ITEMS(6);
     #elif SNFAN(6)
       singlenozzle_item(6);
     #endif
-    #if HAS_FAN7
+    #if HAS_FAN7 && REDUNDANT_PART_COOLING_FAN != 7
       FAN_EDIT_ITEMS(7);
     #elif SNFAN(7)
       singlenozzle_item(7);

@@ -76,7 +76,9 @@
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
-                            manual_feedrate_mm_s { _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f, _mf.e / 60.0f };
+           manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(_mf.e / 60.0f,
+                                                     _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f,
+                                                     _mf.i / 60.0f, _mf.j / 60.0f, _mf.k / 60.0f);
 #endif
 
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
@@ -450,8 +452,8 @@ class Planner {
     #endif
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
-       // Counters to manage disabling inactive extruders
-      static last_move_t g_uc_extruder_last_move[EXTRUDERS];
+      // Counters to manage disabling inactive extruder steppers
+      static last_move_t g_uc_extruder_last_move[E_STEPPERS];
     #endif
 
     #if HAS_WIRED_LCD
@@ -758,19 +760,10 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static bool buffer_segment(const_float_t a, const_float_t b, const_float_t c, const_float_t e
+    static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
+      , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const_float_t millimeters=0.0
     );
-
-    FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
-      OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-      , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-    ) {
-      return buffer_segment(abce.a, abce.b, abce.c, abce.e
-        OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
-        , fr_mm_s, extruder, millimeters);
-    }
 
   public:
 
@@ -779,23 +772,15 @@ class Planner {
      * The target is cartesian. It's translated to
      * delta/scara if needed.
      *
-     *  rx,ry,rz,e   - target position in mm or degrees
+     *  cart         - target position in mm or degrees
      *  fr_mm_s      - (target) speed of the move (mm/s)
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
      *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
      */
-    static bool buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters=0.0
+    static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const float millimeters=0.0
       OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration=0.0)
     );
-
-    FORCE_INLINE static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters=0.0
-      OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration=0.0)
-    ) {
-      return buffer_line(cart.x, cart.y, cart.z, cart.e, fr_mm_s, extruder, millimeters
-        OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
-      );
-    }
 
     #if ENABLED(DIRECT_STEPPING)
       static void buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps);
@@ -814,9 +799,11 @@ class Planner {
      *
      * Clears previous speed values.
      */
-    static void set_position_mm(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e);
-    FORCE_INLINE static void set_position_mm(const xyze_pos_t &cart) { set_position_mm(cart.x, cart.y, cart.z, cart.e); }
-    static void set_e_position_mm(const_float_t e);
+    static void set_position_mm(const xyze_pos_t &xyze);
+
+    #if HAS_EXTRUDERS
+      static void set_e_position_mm(const_float_t e);
+    #endif
 
     /**
      * Set the planner.position and individual stepper positions.
@@ -824,8 +811,7 @@ class Planner {
      * The supplied position is in machine space, and no additional
      * conversions are applied.
      */
-    static void set_machine_position_mm(const_float_t a, const_float_t b, const_float_t c, const_float_t e);
-    FORCE_INLINE static void set_machine_position_mm(const abce_pos_t &abce) { set_machine_position_mm(abce.a, abce.b, abce.c, abce.e); }
+    static void set_machine_position_mm(const abce_pos_t &abce);
 
     /**
      * Get an axis position according to stepper position(s)
@@ -834,12 +820,11 @@ class Planner {
     static float get_axis_position_mm(const AxisEnum axis);
 
     static inline abce_pos_t get_axis_positions_mm() {
-      const abce_pos_t out = {
-        get_axis_position_mm(A_AXIS),
-        get_axis_position_mm(B_AXIS),
-        get_axis_position_mm(C_AXIS),
-        get_axis_position_mm(E_AXIS)
-      };
+      const abce_pos_t out = LOGICAL_AXIS_ARRAY(
+        get_axis_position_mm(E_AXIS),
+        get_axis_position_mm(A_AXIS), get_axis_position_mm(B_AXIS), get_axis_position_mm(C_AXIS),
+        get_axis_position_mm(I_AXIS), get_axis_position_mm(J_AXIS), get_axis_position_mm(K_AXIS)
+      );
       return out;
     }
 

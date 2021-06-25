@@ -105,6 +105,9 @@ enum ADCSensorState : char {
   #if HAS_TEMP_ADC_PROBE
     PrepareTemp_PROBE, MeasureTemp_PROBE,
   #endif
+  #if HAS_TEMP_ADC_REDUNDANT
+    PrepareTemp_REDUNDANT, MeasureTemp_REDUNDANT,
+  #endif
   #if HAS_TEMP_ADC_1
     PrepareTemp_1, MeasureTemp_1,
   #endif
@@ -171,7 +174,7 @@ enum ADCSensorState : char {
   #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
 
-#if BOTH(HAS_LCD_MENU, G26_MESH_VALIDATION)
+#if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
   #define G26_CLICK_CAN_CANCEL 1
 #endif
 
@@ -184,6 +187,13 @@ typedef struct TempInfo {
   inline void sample(const uint16_t s) { acc += s; }
   inline void update() { raw = acc; }
 } temp_info_t;
+
+#if HAS_TEMP_REDUNDANT
+  // A redundant temperature sensor
+  typedef struct RedundantTempInfo : public TempInfo {
+    temp_info_t* target;
+  } redundant_temp_info_t;
+#endif
 
 // A PWM heater with temperature sensor
 typedef struct HeaterInfo : public TempInfo {
@@ -299,8 +309,11 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
-    #if COOLER_USER_THERMISTOR
+    #if TEMP_SENSOR_COOLER_IS_CUSTOM
       CTI_COOLER,
+    #endif
+    #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
+      CTI_REDUNDANT,
     #endif
     USER_THERMISTORS
   };
@@ -323,9 +336,6 @@ class Temperature {
   public:
 
     #if HAS_HOTEND
-      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        static temp_info_t temp_redundant;
-      #endif
       static hotend_info_t temp_hotend[HOTENDS];
       static const celsius_t hotend_maxtemp[HOTENDS];
       static inline celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
@@ -341,6 +351,9 @@ class Temperature {
     #endif
     #if ENABLED(HAS_TEMP_COOLER)
       static cooler_info_t temp_cooler;
+    #endif
+    #if HAS_TEMP_REDUNDANT
+      static redundant_temp_info_t temp_redundant;
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -538,6 +551,9 @@ class Temperature {
     #if HAS_TEMP_COOLER
       static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
     #endif
+    #if HAS_TEMP_REDUNDANT
+      static celsius_float_t analog_to_celsius_redundant(const int16_t raw);
+    #endif
 
     #if HAS_FAN
 
@@ -626,10 +642,6 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
-    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      static inline celsius_float_t degHotendRedundant() { return temp_redundant.celsius; }
-    #endif
-
     static inline celsius_t wholeDegHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
@@ -638,9 +650,6 @@ class Temperature {
       static inline int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
       }
-      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        static inline int16_t rawHotendTempRedundant() { return temp_redundant.raw; }
-      #endif
     #endif
 
     static inline celsius_t degTargetHotend(const uint8_t E_NAME) {
@@ -778,6 +787,17 @@ class Temperature {
       #endif
     #endif
 
+    #if HAS_TEMP_REDUNDANT
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        static inline int16_t rawRedundantTemp()         { return temp_redundant.raw; }
+        static inline int16_t rawRedundanTargetTemp()    { return (*temp_redundant.target).raw; }
+      #endif
+      static inline celsius_float_t degRedundant()       { return temp_redundant.celsius; }
+      static inline celsius_float_t degRedundantTarget() { return (*temp_redundant.target).celsius; }
+      static inline celsius_t wholeDegRedundant()        { return static_cast<celsius_t>(temp_redundant.celsius + 0.5f); }
+      static inline celsius_t wholeDegRedundantTarget()  { return static_cast<celsius_t>((*temp_redundant.target).celsius + 0.5f); }
+    #endif
+
     #if HAS_COOLER
       static inline void setTargetCooler(const celsius_t celsius) {
         temp_cooler.target = constrain(celsius, COOLER_MIN_TARGET, COOLER_MAX_TARGET);
@@ -855,7 +875,7 @@ class Temperature {
 
     #if HAS_TEMP_SENSOR
       static void print_heater_states(const uint8_t target_extruder
-        OPTARG(TEMP_SENSOR_1_AS_REDUNDANT, const bool include_r=false)
+        OPTARG(HAS_TEMP_REDUNDANT, const bool include_r=false)
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         struct AutoReportTemp { static void report(); };
@@ -888,7 +908,7 @@ class Temperature {
 
     // MAX Thermocouples
     #if HAS_MAX_TC
-      #define MAX_TC_COUNT 1 + BOTH(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC)
+      #define MAX_TC_COUNT COUNT_ENABLED(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC, TEMP_SENSOR_REDUNDANT_IS_MAX_TC)
       #if MAX_TC_COUNT > 1
         #define HAS_MULTI_MAX_TC 1
         #define READ_MAX_TC(N) read_max_tc(N)

@@ -348,7 +348,6 @@
 
 #elif SD_CONNECTION_IS(LCD)
 
-  #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                        PA5

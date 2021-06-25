@@ -180,7 +180,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
     float valuesend = 0;
     switch (var.VP) {
       default: return;
-      #if HOTENDS >= 1
+      #if HAS_HOTEND
         case VP_E0_PID_P: valuesend = value; break;
         case VP_E0_PID_I: valuesend = unscalePID_i(value); break;
         case VP_E0_PID_D: valuesend = unscalePID_d(value); break;
@@ -393,7 +393,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
 
   switch (var.VP) {
     default: return;
-    #if HOTENDS >= 1
+    #if HAS_HOTEND
       case VP_T_E0_Set:
         NOMORE(newvalue, HEATER_0_MAXTEMP);
         thermalManager.setTargetHotend(newvalue, 0);
@@ -427,10 +427,8 @@ void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_p
     uint8_t target_extruder;
     switch (var.VP) {
       default: return;
-      #if HOTENDS >= 1
-        case VP_Flowrate_E0: target_extruder = 0; break;
-      #endif
-      #if HOTENDS >= 2
+      case VP_Flowrate_E0: target_extruder = 0; break;
+      #if HAS_MULTI_EXTRUDER
         case VP_Flowrate_E1: target_extruder = 1; break;
       #endif
     }
@@ -450,11 +448,11 @@ void DGUSScreenHandler::HandleManualExtrude(DGUS_VP_Variable &var, void *val_ptr
   ExtUI::extruder_t target_extruder;
 
   switch (var.VP) {
-    #if HOTENDS >= 1
+    #if HAS_HOTEND
       case VP_MOVE_E0: target_extruder = ExtUI::extruder_t::E0; break;
-    #endif
-    #if HOTENDS >= 2
-      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E1; break;
+      #if HAS_MULTI_EXTRUDER
+        case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E1; break;
+      #endif
     #endif
     default: return;
   }
@@ -526,11 +524,11 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
   ExtUI::extruder_t extruder;
   switch (var.VP) {
     default: return;
-      #if HOTENDS >= 1
+      #if HAS_EXTRUDERS
         case VP_E0_STEP_PER_MM: extruder = ExtUI::extruder_t::E0; break;
-      #endif
-      #if HOTENDS >= 2
-        case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
+        #if HAS_MULTI_EXTRUDER
+          case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
+        #endif
       #endif
   }
   DEBUG_ECHOLNPAIR_F("value:", value);
@@ -548,7 +546,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     switch (var.VP) {
       default: break;
         #if ENABLED(PIDTEMP)
-          #if HOTENDS >= 1
+          #if HAS_HOTEND
             case VP_PID_AUTOTUNE_E0: // Autotune Extruder 0
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E0);
               break;
@@ -598,17 +596,17 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 
   uint8_t preheat_temp = 0;
   switch (var.VP) {
-    #if HOTENDS >= 1
+    #if HAS_HOTEND
       case VP_E0_CONTROL:
+      #if HOTENDS >= 2
+        case VP_E1_CONTROL:
+        #if HOTENDS >= 3
+          case VP_E2_CONTROL:
+        #endif
+      #endif
+      preheat_temp = PREHEAT_1_TEMP_HOTEND;
+      break;
     #endif
-    #if HOTENDS >= 2
-      case VP_E1_CONTROL:
-    #endif
-    #if HOTENDS >= 3
-      case VP_E2_CONTROL:
-    #endif
-    preheat_temp = PREHEAT_1_TEMP_HOTEND;
-    break;
 
     case VP_BED_CONTROL:
       preheat_temp = PREHEAT_1_TEMP_BED;
@@ -660,7 +658,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 
     switch (var.VP) {
       default: return;
-        #if HOTENDS >= 1
+        #if HAS_HOTEND
           case VP_E0_BED_PREHEAT:
             thermalManager.setTargetHotend(e_temp, 0);
             TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
