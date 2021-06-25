@@ -15,9 +15,9 @@
 //#define MachineEnder5Plus
 //#define MachineCR6
 //#define MachineCR6Max
+//#define MachineEnder6
 
 // Touchscreens in development, not tested
-//#define MachineEnder6
 //#define MachineCR5
 //#define MachineEnder3V2Touchscreen
 //#define MachineCR30Touchscreen
@@ -2290,13 +2290,18 @@
     #define INVERT_E1_DIR false
   #endif
 #else
-  #define INVERT_X_DIR false
-  #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020, MachineEnder6)
-    #define INVERT_Y_DIR true
-  #else
+  #if ENABLED(MachineEnder6)
+    #define INVERT_X_DIR true
     #define INVERT_Y_DIR false
+  #else
+    #define INVERT_X_DIR false
+    #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020)
+      #define INVERT_Y_DIR true
+    #else
+      #define INVERT_Y_DIR false
+    #endif
   #endif
-  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6)
+  #if ANY(MachineEnder5Plus, MachineCR2020, )
     #define INVERT_Z_DIR false
   #else
     #define INVERT_Z_DIR true
