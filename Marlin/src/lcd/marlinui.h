@@ -334,6 +334,10 @@ public:
     static void resume_print();
     static void flow_fault();
 
+    #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+      static void poweroff();
+    #endif
+
     #if HAS_WIRED_LCD
 
       static millis_t next_button_update_ms;
