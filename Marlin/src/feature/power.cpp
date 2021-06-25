@@ -33,6 +33,10 @@
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
 
+#if ENABLED(PS_OFF_SOUND)
+  #include "../libs/buzzer.h"
+#endif
+
 #if defined(PSU_POWERUP_GCODE) || defined(PSU_POWEROFF_GCODE)
   #include "../gcode/gcode.h"
 #endif
@@ -133,6 +137,11 @@ void Power::power_off() {
     #ifdef PSU_POWEROFF_GCODE
       GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
     #endif
+
+    #if ENABLED(PS_OFF_SOUND)
+      BUZZ(1000, 659);
+    #endif
+
     PSU_PIN_OFF();
   }
 }
