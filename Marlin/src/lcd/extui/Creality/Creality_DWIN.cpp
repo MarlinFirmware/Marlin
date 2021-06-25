@@ -1370,6 +1370,17 @@ void RTSSHOW::RTS_HandleData()
           SetTouchScreenConfiguration();
           break;
         }
+        case 22:
+        {
+          if(Settings.screen_rotation==10) {
+            Settings.screen_rotation = 0;
+          }
+          else {
+            Settings.screen_rotation = 10;
+          }
+          SetTouchScreenConfiguration();
+          break;
+        }
         default:
         {
           SERIAL_ECHOLNPAIR("Unsupported Option Selected", recdat.data[0]);
@@ -2077,11 +2088,7 @@ void onFactoryReset()
   Settings.standby_screen_brightness = 15;
   Settings.screen_brightness = 100;
   Settings.standby_time_seconds = 60;
-  #if ENABLED(MachineEnder6)
-    Settings.screen_rotation = 10;
-  #else
-    Settings.screen_rotation = 0;
-  #endif
+  Settings.screen_rotation = 0;
   onStartup();
   startprogress = 0;
   InforShowStatus = true;
