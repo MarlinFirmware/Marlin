@@ -30,7 +30,7 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 02000801
+#define CONFIGURATION_ADV_H_VERSION 02000900
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -125,6 +125,12 @@
   #define PROBE_BETA                   3950    // Beta value
 #endif
 
+#if TEMP_SENSOR_REDUNDANT == 1000
+  #define REDUNDANT_PULLUP_RESISTOR_OHMS   4700    // Pullup resistor
+  #define REDUNDANT_RESISTANCE_25C_OHMS    100000  // Resistance at 25C
+  #define REDUNDANT_BETA                   3950    // Beta value
+#endif
+
 //
 // Hephestos 2 24V heated bed upgrade kit.
 // https://store.bq.com/en/heated-bed-kit-hephestos2
@@ -196,7 +202,7 @@
   #define COOLER_MAXTEMP          26  // (°C)
   #define COOLER_DEFAULT_TEMP     16  // (°C)
   #define TEMP_COOLER_HYSTERESIS   1  // (°C) Temperature proximity considered "close enough" to the target
-  #define COOLER_PIN               8  // Laser cooler on/off pin used to control power to the cooling element e.g. TEC, External chiller via relay
+  #define COOLER_PIN               8  // Laser cooler on/off pin used to control power to the cooling element (e.g., TEC, External chiller via relay)
   #define COOLER_INVERTING     false
   #define TEMP_COOLER_PIN         15  // Laser/Cooler temperature sensor pin. ADC is required.
   #define COOLER_FAN                  // Enable a fan on the cooler, Fan# 0,1,2,3 etc.
@@ -266,13 +272,13 @@
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
-  #define THERMAL_PROTECTION_BED_PERIOD       120 // Seconds
+  #define THERMAL_PROTECTION_BED_PERIOD       100 // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS     2 // Degrees Celsius
 
   /**
    * As described above, except for the bed (M140/M190/M303).
    */
-  #define WATCH_BED_TEMP_PERIOD               240 // Seconds
+  #define WATCH_BED_TEMP_PERIOD               200 // Seconds
   #define WATCH_BED_TEMP_INCREASE               2 // Degrees Celsius
 #endif
 
@@ -575,6 +581,11 @@
   //#define FAST_PWM_FAN_FREQUENCY 31400
   //#define USE_OCR2A_AS_TOP
 #endif
+
+/**
+ * Use one of the PWM fans as a redundant part-cooling fan
+ */
+//#define REDUNDANT_PART_COOLING_FAN 2  // Index of the fan to sync with FAN 0.
 
 // @section extruder
 

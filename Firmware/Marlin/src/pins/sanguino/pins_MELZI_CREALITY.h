@@ -69,10 +69,10 @@
 
 #if ENABLED(BLTOUCH)
   #if ENABLED(ENDER2)
-    #define SERVO0_PIN                         29
+    #define SERVO0_PIN                       29
   #else
     #ifndef SERVO0_PIN
-      #define SERVO0_PIN                         27
+      #define SERVO0_PIN                     27
     #endif
   #endif
   #if SERVO0_PIN == BEEPER_PIN
@@ -81,9 +81,9 @@
 #elif ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef FIL_RUNOUT_PIN
     #if ENABLED(ENDER2)
-      #define FIL_RUNOUT_PIN                   29
+      #define FIL_RUNOUT_PIN                 29
     #else
-      #define FIL_RUNOUT_PIN                   27
+      #define FIL_RUNOUT_PIN                 27
     #endif
   #endif
   #if FIL_RUNOUT_PIN == BEEPER_PIN

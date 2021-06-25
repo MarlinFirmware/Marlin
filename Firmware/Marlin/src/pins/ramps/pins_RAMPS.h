@@ -245,7 +245,9 @@
 //
 // Misc. Functions
 //
-#define SDSS                         EXP2_07_PIN
+#ifndef SDSS
+  #define SDSS                       EXP2_07_PIN
+#endif
 #define LED_PIN                               13
 
 #ifndef FILWIDTH_PIN
