@@ -467,7 +467,7 @@ void StatusScreen::onMediaInserted() {
 }
 
 void StatusScreen::onMediaRemoved() {
-  if (AT_SCREEN(StatusScreen) || isPrintingFromMedia())
+  if (AT_SCREEN(StatusScreen) || ExtUI::isPrintingFromMedia())
     setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
 }
 #endif // FTDI_STATUS_SCREEN
