@@ -91,20 +91,22 @@ void AboutScreen::onRedraw(draw_mode_t) {
   draw_text_box(cmd, FW_INFO_POS, about_str, OPT_CENTER, font_medium);
   draw_text_box(cmd, INSET_POS(LICENSE_POS), GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
 
-  cmd.font(font_medium)
-     .colors(normal_btn)
-     .tag(2).button(STATS_POS, GET_TEXT_F(MSG_INFO_STATS_MENU))
-     .colors(action_btn)
+  cmd.font(font_medium);
+  #if ENABLED(PRINTCOUNTER) && defined(FTDI_STATISTICS_SCREEN)
+    cmd.colors(normal_btn)
+       .tag(2).button(STATS_POS, GET_TEXT_F(MSG_INFO_STATS_MENU));
+  #endif
+  cmd.colors(action_btn)
      .tag(1).button(BACK_POS,  GET_TEXT_F(MSG_BACK));
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
-    #if ENABLED(PRINTCOUNTER)
+    #if ENABLED(PRINTCOUNTER) && defined(FTDI_STATISTICS_SCREEN)
       case 2: GOTO_SCREEN(StatisticsScreen); break;
     #endif
-    #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
+    #if ENABLED(TOUCH_UI_DEVELOPER_MENU) && defined(FTDI_DEVELOPER_MENU)
       case 3: GOTO_SCREEN(DeveloperMenu); break;
     #endif
     default: return false;
