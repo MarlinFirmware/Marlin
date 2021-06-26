@@ -1609,8 +1609,9 @@ void MarlinUI::update() {
 
     if (status) {
       if (old_status < 2) {
-        TERN_(EXTENSIBLE_UI, ExtUI::onMediaInserted()); // ExtUI response
-        #if ENABLED(BROWSE_MEDIA_ON_INSERT)
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaInserted();
+        #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
           clear_menu_history();
           quick_feedback();
           goto_screen(MEDIA_MENU_GATEWAY);
@@ -1621,8 +1622,9 @@ void MarlinUI::update() {
     }
     else {
       if (old_status < 2) {
-        TERN_(EXTENSIBLE_UI, ExtUI::onMediaRemoved()); // ExtUI response
-        #if PIN_EXISTS(SD_DETECT)
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaRemoved();
+        #elif PIN_EXISTS(SD_DETECT)
           LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
           #if HAS_LCD_MENU
             if (!defer_return_to_status) return_to_status();
