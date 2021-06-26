@@ -52,14 +52,16 @@
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
  *   M150 S1 I1 R    ; Set SEPARATE index 1 to red
  */
-
 void GcodeSuite::M150() {
   #if ENABLED(NEOPIXEL_LED)
-    const uint8_t index = parser.intval('I', -1);
+    const int8_t index = parser.intval('I', -1);
     #if ENABLED(NEOPIXEL2_SEPARATE)
-      const uint8_t unit = parser.intval('S'),
-                    brightness = unit ? neo2.brightness() : neo.brightness();
-      *(unit ? &neo2.neoindex : &neo.neoindex) = index;
+      int8_t brightness, unit = parser.intval('S', -1);
+      switch (unit) {
+        case -1: neo2.neoindex = index; // fall-thru
+        case  0:  neo.neoindex = index; brightness =  neo.brightness(); break;
+        case  1: neo2.neoindex = index; brightness = neo2.brightness(); break;
+      }
     #else
       const uint8_t brightness = neo.brightness();
       neo.neoindex = index;
@@ -75,10 +77,15 @@ void GcodeSuite::M150() {
   );
 
   #if ENABLED(NEOPIXEL2_SEPARATE)
-    if (unit == 1) { leds2.set_color(color); return; }
+    switch (unit) {
+      case 0: leds.set_color(color); return;
+      case 1: leds2.set_color(color); return;
+    }
   #endif
 
+  // If 'S' is not specified use both
   leds.set_color(color);
+  TERN_(NEOPIXEL2_SEPARATE, leds2.set_color(color));
 }
 
 #endif // HAS_COLOR_LEDS

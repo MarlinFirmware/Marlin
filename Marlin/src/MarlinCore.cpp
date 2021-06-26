@@ -282,19 +282,22 @@ bool wait_for_heatup = true;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
-#ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-  static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
-#else
+#ifndef RUNTIME_ONLY_ANALOG_TO_DIGITAL
   template <pin_t ...D>
-  constexpr pin_t OnlyPins<-2, D...>::table[sizeof...(D)];
-  #define sensitive_pins OnlyPins<SENSITIVE_PINS>::table
+  constexpr pin_t OnlyPins<_SP_END, D...>::table[sizeof...(D)];
 #endif
 
 bool pin_is_protected(const pin_t pin) {
-  LOOP_L_N(i, COUNT(sensitive_pins)) {
-    pin_t sensitive_pin;
-    memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(pin_t));
-    if (pin == sensitive_pin) return true;
+  #ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
+    static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
+    const size_t pincount = COUNT(sensitive_pins);
+  #else
+    static constexpr size_t pincount = OnlyPins<SENSITIVE_PINS>::size;
+    static const pin_t (&sensitive_pins)[pincount] PROGMEM = OnlyPins<SENSITIVE_PINS>::table;
+  #endif
+  LOOP_L_N(i, pincount) {
+    const pin_t * const pptr = &sensitive_pins[i];
+    if (pin == (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(pptr) : (pin_t)pgm_read_byte(pptr))) return true;
   }
   return false;
 }
@@ -421,19 +424,18 @@ void startOrResumeJob() {
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  *  - Pulse FET_SAFETY_PIN if it exists
  */
-inline void manage_inactivity(const bool ignore_stepper_queue=false) {
+inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   queue.get_available_commands();
 
   const millis_t ms = millis();
 
-  // Prevent steppers timing-out in the middle of M600
-  // unless PAUSE_PARK_NO_STEPPER_TIMEOUT is disabled
-  const bool parked_or_ignoring = ignore_stepper_queue
+  // Prevent steppers timing-out
+  const bool do_reset_timeout = no_stepper_sleep
                                || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
 
   // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
-  if (parked_or_ignoring) gcode.reset_stepper_timeout(ms);
+  if (do_reset_timeout) gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_MSG(STR_KILL_INACTIVE_TIME, parser.command_ptr);
@@ -449,7 +451,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     // activity timeout and the M85 max 'kill' timeout
     if (planner.has_blocks_queued())
       gcode.reset_stepper_timeout(ms);
-    else if (!parked_or_ignoring && gcode.stepper_inactive_timeout()) {
+    else if (!do_reset_timeout && gcode.stepper_inactive_timeout()) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
 
@@ -732,14 +734,14 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
  *  - Update the Průša MMU2
  *  - Handle Joystick jogging
  */
-void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
+void idle(bool no_stepper_sleep/*=false*/) {
   #if ENABLED(MARLIN_DEV_MODE)
     static uint16_t idle_depth = 0;
     if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
 
   // Core Marlin activities
-  manage_inactivity(TERN_(ADVANCED_PAUSE_FEATURE, no_stepper_sleep));
+  manage_inactivity(no_stepper_sleep);
 
   // Manage Heaters (and Watchdog)
   thermalManager.manage_heater();

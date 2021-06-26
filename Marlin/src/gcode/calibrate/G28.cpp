@@ -164,24 +164,24 @@
 
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
 
-  slow_homing_t begin_slow_homing() {
-    slow_homing_t slow_homing{0};
-    slow_homing.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
+  motion_state_t begin_slow_homing() {
+    motion_state_t motion_state{0};
+    motion_state.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
                                  planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
     #if HAS_CLASSIC_JERK
-      slow_homing.jerk_xy = planner.max_jerk;
+      motion_state.jerk_state = planner.max_jerk;
       planner.max_jerk.set(0, 0);
     #endif
     planner.reset_acceleration_rates();
-    return slow_homing;
+    return motion_state;
   }
 
-  void end_slow_homing(const slow_homing_t &slow_homing) {
-    planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
-    planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_homing.jerk_xy);
+  void end_slow_homing(const motion_state_t &motion_state) {
+    planner.settings.max_acceleration_mm_per_s2[X_AXIS] = motion_state.acceleration.x;
+    planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = motion_state.acceleration.y;
+    TERN_(HAS_CLASSIC_JERK, planner.max_jerk = motion_state.jerk_state);
     planner.reset_acceleration_rates();
   }
 
@@ -195,9 +195,9 @@
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
- *  O   Home only if position is unknown
- *
- *  Rn  Raise by n mm/inches before homing
+ *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
+ *  O         Home only if the position is not known and trusted
+ *  R<linear> Raise by n mm/inches before homing
  *
  * Cartesian/SCARA parameters
  *
@@ -229,7 +229,7 @@ void GcodeSuite::G28() {
   #endif
 
   // Home (O)nly if position is unknown
-  if (!axes_should_home() && parser.boolval('O')) {
+  if (!axes_should_home() && parser.seen_test('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
     return;
   }
@@ -289,7 +289,9 @@ void GcodeSuite::G28() {
     #endif
   #endif
 
-  TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing_t slow_homing = begin_slow_homing());
+  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+    motion_state_t saved_motion_state = begin_slow_homing();
+  #endif
 
   // Always home with tool 0 active
   #if HAS_MULTI_HOTEND
@@ -315,7 +317,7 @@ void GcodeSuite::G28() {
 
     home_delta();
 
-    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
   #elif ENABLED(AXEL_TPARA)
 
@@ -401,7 +403,7 @@ void GcodeSuite::G28() {
     if (DISABLED(HOME_Y_BEFORE_X) && doY)
       homeaxis(Y_AXIS);
 
-    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
     // Home Z last if homing towards the bed
     #if HAS_Z_AXIS && DISABLED(HOME_Z_FIRST)
@@ -440,7 +442,7 @@ void GcodeSuite::G28() {
 
     if (idex_is_duplicating()) {
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing = begin_slow_homing());
+      TERN_(IMPROVE_HOMING_RELIABILITY, saved_motion_state = begin_slow_homing());
 
       // Always home the 2nd (right) extruder first
       active_extruder = 1;
@@ -459,7 +461,7 @@ void GcodeSuite::G28() {
       dual_x_carriage_mode = IDEX_saved_mode;
       set_duplication_enabled(IDEX_saved_duplication_state);
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
+      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
     }
 
   #endif // DUAL_X_CARRIAGE

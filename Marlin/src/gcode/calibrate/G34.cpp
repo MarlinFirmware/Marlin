@@ -39,7 +39,7 @@
 void GcodeSuite::G34() {
 
   // Home before the alignment procedure
-  if (!all_axes_trusted()) home_all_axes();
+  home_if_needed();
 
   TERN_(HAS_LEVELING, TEMPORARY_BED_LEVELING_STATE(false));
 
