@@ -468,7 +468,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     const pixel_len_t bw = len * prop * (MENU_FONT_WIDTH), bx = x * prop * (MENU_FONT_WIDTH);
     if (inv) {
       u8g.setColorIndex(1);
-      u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT) + 1, bw / prop + 2, MENU_FONT_HEIGHT - 1);
+      u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT), bw + 2, MENU_FONT_HEIGHT);
       u8g.setColorIndex(0);
     }
     lcd_put_u8str_P(bx / prop, by, pstr);
