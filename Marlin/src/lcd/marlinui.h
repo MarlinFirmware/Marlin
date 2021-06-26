@@ -528,7 +528,6 @@ public:
 
   #elif HAS_WIRED_LCD
 
-    static bool is_pause();
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
@@ -653,6 +652,16 @@ public:
   #if HAS_GRAPHICAL_TFT
     static void move_axis_screen();
   #endif
+
+  #if HAS_WIRED_LCD && HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+    #define IS_PAUSE defer_return_to_status
+  #else
+    #define IS_PAUSE false
+  #endif
+
+  FORCE_INLINE static bool is_pause() {
+    return IS_PAUSE;
+  }
 
 private:
 

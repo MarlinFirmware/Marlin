@@ -167,10 +167,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
   bool MarlinUI::defer_return_to_status;
-
-  bool MarlinUI::is_pause() { return defer_return_to_status; }
-#else
-  bool MarlinUI::is_pause() { return false; }
 #endif
 
 uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
