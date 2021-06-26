@@ -90,9 +90,10 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
       is_back ? 0 : sh.top_line,
       sh.items
     );
-  }
-  else
+  } else {
     return_to_status();
+  }
+  defer_status_screen(false);
 }
 
 ////////////////////////////////////////////
@@ -377,6 +378,7 @@ void MenuItem_confirm::select_screen(
     if (got_click) {
       selectFunc_t callFunc = ui_selection ? yesFunc : noFunc;
       if (callFunc) callFunc(); else ui.goto_previous_screen();
+      return;
     }
     ui.defer_status_screen();
   }
