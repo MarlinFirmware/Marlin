@@ -263,6 +263,7 @@ void FilesScreen::onIdle() {
 }
 
 void FilesScreen::onMediaRemoved() {
-    if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen);
+  if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen);
 }
+
 #endif // FTDI_FILES_SCREEN
