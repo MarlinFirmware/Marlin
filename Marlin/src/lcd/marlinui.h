@@ -434,8 +434,6 @@ public:
 
   #endif
 
-  static bool is_pause();
-
   #if ENABLED(SDSUPPORT)
     #if BOTH(SCROLL_LONG_FILENAMES, HAS_LCD_MENU)
       #define MARLINUI_SCROLL_NAME 1
@@ -530,6 +528,7 @@ public:
 
   #elif HAS_WIRED_LCD
 
+    static bool is_pause();
     static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
