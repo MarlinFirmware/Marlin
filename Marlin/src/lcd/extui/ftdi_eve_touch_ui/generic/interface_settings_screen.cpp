@@ -127,12 +127,12 @@ bool InterfaceSettingsScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); return true;
     #ifdef FTDI_LOCK_SCREEN
-    case 4:
-      if (!LockScreen::is_enabled())
-        LockScreen::enable();
-      else
-        LockScreen::disable();
-      break;
+      case 4:
+        if (!LockScreen::is_enabled())
+          LockScreen::enable();
+        else
+          LockScreen::disable();
+        break;
     #endif
     case 5: UIData::enable_animations(!UIData::animations_enabled());; break;
     case 6: GOTO_SCREEN(InterfaceSoundsScreen); return true;
@@ -198,7 +198,7 @@ void InterfaceSettingsScreen::failSafeSettings() {
 
 void InterfaceSettingsScreen::defaultSettings() {
   #ifdef FTDI_LOCK_SCREEN
-  LockScreen::passcode = 0;
+    LockScreen::passcode = 0;
   #endif
   SoundPlayer::set_volume(255);
   CLCD::set_brightness(255);
@@ -219,9 +219,9 @@ void InterfaceSettingsScreen::saveSettings(char *buff) {
   persistent_data_t eeprom;
 
   #ifdef FTDI_LOCK_SCREEN
-  eeprom.passcode             = LockScreen::passcode;
+    eeprom.passcode           = LockScreen::passcode;
   #else
-  eeprom.passcode             = 0;
+    eeprom.passcode           = 0;
   #endif
   eeprom.sound_volume         = SoundPlayer::get_volume();
   eeprom.display_brightness   = CLCD::get_brightness();
@@ -252,7 +252,7 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   SERIAL_ECHOLNPGM("Loading setting from EEPROM");
 
   #ifdef FTDI_LOCK_SCREEN
-  LockScreen::passcode = eeprom.passcode;
+    LockScreen::passcode = eeprom.passcode;
   #endif
   SoundPlayer::set_volume(eeprom.sound_volume);
   UIData::set_persistent_data(eeprom.bit_flags);
