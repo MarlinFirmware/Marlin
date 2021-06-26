@@ -314,26 +314,18 @@ xyze_int8_t Stepper::count_direction{0};
     A##3_STEP_WRITE(V);                           \
   }
 
-#define QUAD_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
-  if (separate_multi_axis) {                                                                                                \
-    if (ENABLED(A##_HOME_TO_MIN)) {                                                                                         \
-      if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
-      if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##3_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##4_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
-    }                                                                                                                       \
-    else {                                                                                                                  \
-      if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
-      if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##3_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##4_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
-    }                                                                                                                       \
-  }                                                                                                                         \
-  else {                                                                                                                    \
-    A##_STEP_WRITE(V);                                                                                                      \
-    A##2_STEP_WRITE(V);                                                                                                     \
-    A##3_STEP_WRITE(V);                                                                                                     \
-    A##4_STEP_WRITE(V);                                                                                                     \
+#define QUAD_ENDSTOP_APPLY_STEP(A,V) \
+  if (separate_multi_axis) {         \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##_MIN,  A##_MAX)))  && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor)  A##_STEP_WRITE(V);  \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##2_MIN, A##2_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##3_MIN, A##3_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##4_MIN, A##4_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
+  }       \
+  else {  \
+    A##_STEP_WRITE(V);  \
+    A##2_STEP_WRITE(V); \
+    A##3_STEP_WRITE(V); \
+    A##4_STEP_WRITE(V); \
   }
 
 #define QUAD_SEPARATE_APPLY_STEP(A,V)             \
