@@ -50,6 +50,9 @@ Power powerManager;
 millis_t Power::lastPowerOn;
 
 bool Power::is_power_needed() {
+
+  if (printJobOngoing() || printingIsPaused()) return true;
+
   #if ENABLED(AUTO_POWER_FANS)
     FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
   #endif
@@ -107,17 +110,9 @@ bool Power::is_power_needed() {
   #define POWER_TIMEOUT 0
 #endif
 
-void Power::check(const bool pause) {
-  static bool _pause = false;
+void Power::check() {
   static millis_t nextPowerCheck = 0;
   millis_t now = millis();
-  #if POWER_TIMEOUT > 0
-    if (pause != _pause) {
-      lastPowerOn = now + !now;
-      _pause = pause;
-    }
-    if (pause) return;
-  #endif
   if (ELAPSED(now, nextPowerCheck)) {
     nextPowerCheck = now + 2500UL;
     if (is_power_needed())
