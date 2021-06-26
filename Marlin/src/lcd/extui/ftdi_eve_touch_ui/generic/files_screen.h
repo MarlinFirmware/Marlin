@@ -72,4 +72,5 @@ class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, F
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t tag);
     static void onIdle();
+    static void onMediaRemoved();
 };
