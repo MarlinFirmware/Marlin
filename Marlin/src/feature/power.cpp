@@ -107,9 +107,17 @@ bool Power::is_power_needed() {
   #define POWER_TIMEOUT 0
 #endif
 
-void Power::check() {
+void Power::check(const bool pause) {
+  static bool _pause = false;
   static millis_t nextPowerCheck = 0;
   millis_t ms = millis();
+  #if POWER_TIMEOUT > 0
+    if (pause != _pause) {
+      lastPowerOn = ms;
+      _pause = pause;
+    }
+    if (pause) return;
+  #endif
   if (ELAPSED(ms, nextPowerCheck)) {
     nextPowerCheck = ms + 2500UL;
     if (is_power_needed())
@@ -120,7 +128,7 @@ void Power::check() {
 }
 
 void Power::power_on() {
-  lastPowerOn = millis();
+  lastPowerOn = millis() + 1; // add 1 because sometimes millis() return 0
   if (!powersupply_on) {
     PSU_PIN_ON();
     safe_delay(PSU_POWERUP_DELAY);

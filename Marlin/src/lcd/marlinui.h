@@ -434,6 +434,8 @@ public:
 
   #endif
 
+  static bool is_pause();
+
   #if ENABLED(SDSUPPORT)
     #if BOTH(SCROLL_LONG_FILENAMES, HAS_LCD_MENU)
       #define MARLINUI_SCROLL_NAME 1
