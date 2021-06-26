@@ -2083,6 +2083,9 @@ void Temperature::init() {
         MAX31865_CALIBRATION_OHMS_0,
         MAX31865_WIRES(MAX31865_SENSOR_WIRES_0) // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
       );
+      #ifdef MAX31865_50HZ_FILTER
+        max31865_0.enable50HzFilter(1);
+      #endif
     #endif
 
     #if TEMP_SENSOR_IS_MAX(1, 6675) && HAS_MAX6675_LIBRARY
@@ -2095,6 +2098,9 @@ void Temperature::init() {
         MAX31865_CALIBRATION_OHMS_1,
         MAX31865_WIRES(MAX31865_SENSOR_WIRES_1)
       );
+      #ifdef MAX31865_50HZ_FILTER
+        max31865_1.enable50HzFilter(1);
+      #endif
     #endif
     #undef MAX31865_WIRES
     #undef _MAX31865_WIRES
