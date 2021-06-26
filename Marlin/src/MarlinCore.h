@@ -92,7 +92,7 @@ extern bool wait_for_heatup;
   #else
     #define PSU_ON()     PSU_PIN_ON()
     #if ENABLED(PS_OFF_SOUND)
-      #define PSU_OFF()  do{ BUZZ(1000, 659); PSU_PIN_OFF(); } while(0)
+      #define PSU_OFF()  do{ BUZZ(1000, 659); PSU_PIN_OFF(); }while(0)
     #else
       #define PSU_OFF()  PSU_PIN_OFF()
     #endif
