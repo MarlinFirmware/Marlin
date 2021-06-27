@@ -449,10 +449,13 @@ public:
     static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
+  #if SCREENS_CAN_TIME_OUT
+    static inline void reset_status_timeout(const millis_t ms) { return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS; }
+  #else
+    static inline void reset_status_timeout(const millis_t) {}
+  #endif
+
   #if HAS_LCD_MENU
-    #if LCD_TIMEOUT_TO_STATUS
-      static millis_t return_to_status_ms;
-    #endif
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
@@ -655,16 +658,18 @@ public:
 
 private:
 
+  #if SCREENS_CAN_TIME_OUT
+    static millis_t return_to_status_ms;
+    static bool defer_return_to_status;
+  #else
+    static constexpr bool defer_return_to_status = false;
+  #endif
+
   #if HAS_STATUS_MESSAGE
     static void finish_status(const bool persist);
   #endif
 
   #if HAS_WIRED_LCD
-    #if SCREENS_CAN_TIME_OUT
-      static bool defer_return_to_status;
-    #else
-      static constexpr bool defer_return_to_status = false;
-    #endif
     static void draw_status_screen();
     #if HAS_GRAPHICAL_TFT
       static void tft_idle();
