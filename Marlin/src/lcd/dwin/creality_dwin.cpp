@@ -5248,6 +5248,17 @@ void CrealityDWINClass::State_Update() {
   if (wait_for_user && !(process == Confirm) && !print_job_timer.isPaused()) {
     Confirm_Handler(UserInput);
   }
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    if (process == Popup && popup == PurgeMore) {
+      if (pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE) {
+        Popup_Handler(FilChange);
+      }
+      else if (pause_menu_response == PAUSE_RESPONSE_RESUME_PRINT) {
+        if (printing) Popup_Handler(Resuming);
+        else Redraw_Menu(true, true, (active_menu==PreheatHotend));
+      }
+    }
+  #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     static bool ranout = false;
     if (runout.filament_ran_out != ranout) {
