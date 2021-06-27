@@ -2745,6 +2745,8 @@ void MarlinSettings::reset() {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 
+  TERN_(DWIN_CREALITY_LCD, CrealityDWIN.Reset_Settings());
+
   //
   // Case Light Brightness
   //
