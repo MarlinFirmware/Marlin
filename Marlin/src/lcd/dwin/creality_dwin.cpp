@@ -3079,7 +3079,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #endif
         case ADVANCED_CORNER:
           if (draw) {
-            Draw_Menu_Item(row, ICON_MaxAccelerated, "Bed Screw Position");
+            Draw_Menu_Item(row, ICON_MaxAccelerated, "Bed Screw Inset");
             Draw_Float(corner_pos, row, false, 10);
           }
           else {
