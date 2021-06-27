@@ -1551,7 +1551,9 @@ void Temperature::manage_heater() {
     #if ENABLED(FLOWMETER_SAFETY)
       if (cutter.enabled() && cooler.check_flow_too_low()) {
         cutter.disable();
-        ui.flow_fault();
+        #if HAS_DISPLAY
+          ui.flow_fault();
+        #endif
       }
     #endif
   #endif

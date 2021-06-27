@@ -292,7 +292,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   #endif
 
   #if ENABLED(FLOWMETER_SAFETY)
-    if (cooler.fault) {
+    if (cooler.flowfault) {
       SERIAL_ECHO_MSG(STR_FLOWMETER_FAULT);
       return;
     }
