@@ -305,7 +305,7 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return TERN0(JOYSTICK, flags.jogging) ? destination[axis] : current_position[axis];
+    return current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {

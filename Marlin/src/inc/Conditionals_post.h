@@ -3099,6 +3099,7 @@
   #endif
 #else
   #undef NOZZLE_TO_PROBE_OFFSET
+  #undef PROBING_STEPPERS_OFF
 #endif
 
 /**
@@ -3141,17 +3142,25 @@
 /**
  * Heater, Fan, and Probe interactions
  */
-#if FAN_COUNT == 0
-  #undef PROBING_FANS_OFF
+#if !HAS_FAN
   #undef ADAPTIVE_FAN_SLOWING
   #undef NO_FAN_SLOWING_IN_PID_TUNING
 #endif
-
-#if HAS_BED_PROBE && (EITHER(PROBING_HEATERS_OFF, PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0)
-  #define HAS_QUIET_PROBING 1
+#if !BOTH(HAS_BED_PROBE, HAS_FAN)
+  #undef PROBING_FANS_OFF
+#endif
+#if !BOTH(HAS_BED_PROBE, HAS_EXTRUDERS)
+  #undef PROBING_ESTEPPERS_OFF
+#endif
+#if BOTH(PROBING_STEPPERS_OFF, PROBING_ESTEPPERS_OFF)
+  #undef PROBING_ESTEPPERS_OFF
+  #warning "PROBING_STEPPERS_OFF includes PROBING_ESTEPPERS_OFF. Disabling PROBING_ESTEPPERS_OFF."
 #endif
 #if EITHER(ADVANCED_PAUSE_FEATURE, PROBING_HEATERS_OFF)
   #define HEATER_IDLE_HANDLER 1
+#endif
+#if HAS_BED_PROBE && (ANY(PROBING_HEATERS_OFF, PROBING_STEPPERS_OFF, PROBING_ESTEPPERS_OFF, PROBING_FANS_OFF) || DELAY_BEFORE_PROBING > 0)
+  #define HAS_QUIET_PROBING 1
 #endif
 
 /**
@@ -3388,9 +3397,14 @@
   #endif
 #endif
 
-// LCD timeout to status screen default is 15s
-#ifndef LCD_TIMEOUT_TO_STATUS
-  #define LCD_TIMEOUT_TO_STATUS 15000
+#if HAS_LCD_MENU
+  // LCD timeout to status screen default is 15s
+  #ifndef LCD_TIMEOUT_TO_STATUS
+    #define LCD_TIMEOUT_TO_STATUS 15000
+  #endif
+  #if LCD_TIMEOUT_TO_STATUS
+    #define SCREENS_CAN_TIME_OUT 1
+  #endif
 #endif
 
 // Add commands that need sub-codes to this list
