@@ -172,3 +172,5 @@ inline int lcd_put_wchar(const lcd_uint_t col, const lcd_uint_t row, const wchar
   lcd_moveto(col, row);
   return lcd_put_wchar(c);
 }
+
+int calculateWidth(PGM_P const pstr);

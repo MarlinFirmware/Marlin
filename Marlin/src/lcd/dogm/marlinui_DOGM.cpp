@@ -369,14 +369,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
 
     if (mark_as_selected(row, style & SS_INVERT)) {
-      const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
-
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
-
-      const int8_t plen = pstr ? utf8_strlen_P(pstr) : 0,
-                   vlen = vstr ? utf8_strlen(vstr) : 0;
+ 
+      const int plen = pstr ? calculateWidth(pstr) : 0,
+                vlen = vstr ? utf8_strlen(vstr) : 0;
       if (style & SS_CENTER) {
-        int8_t pad = (LCD_WIDTH - plen * prop - vlen * prop) / 2;
+        int pad = (LCD_PIXEL_WIDTH - plen - vlen * MENU_FONT_WIDTH) / MENU_FONT_WIDTH / 2;
         while (--pad >= 0) n -= lcd_put_wchar(' ');
       }
 
