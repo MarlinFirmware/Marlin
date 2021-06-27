@@ -272,6 +272,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Posunúť o 0,1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunúť o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunúť o 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Posunúť o 100mm");
   PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Posunúť o 0,001in");
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Posunúť o 0,01in");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Posunúť o 0,1in");
