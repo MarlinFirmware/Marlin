@@ -617,7 +617,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
-  TERN_(AUTO_POWER_CONTROL, powerManager.check());
+  TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 

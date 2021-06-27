@@ -493,8 +493,9 @@ public:
     static inline void goto_previous_screen() { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, false)); }
     static inline void go_back()              { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, true)); }
 
+    #define ON_STATUS_SCREEN (currentScreen == status_screen)
+
     static void return_to_status();
-    static inline bool on_status_screen() { return currentScreen == status_screen; }
     FORCE_INLINE static void run_current_screen() { (*currentScreen)(); }
 
     #if ENABLED(LIGHTWEIGHT_UI)
@@ -531,7 +532,6 @@ public:
 
   #elif HAS_WIRED_LCD
 
-    static constexpr bool on_status_screen() { return true; }
     FORCE_INLINE static void run_current_screen() { status_screen(); }
 
   #endif
@@ -655,6 +655,12 @@ public:
   #if HAS_GRAPHICAL_TFT
     static void move_axis_screen();
   #endif
+
+  #ifndef ON_STATUS_SCREEN
+    #define ON_STATUS_SCREEN true
+  #endif
+
+  static inline bool on_status_screen() { return ON_STATUS_SCREEN; }
 
 private:
 
