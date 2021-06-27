@@ -266,6 +266,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mozgás 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mozgás 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mozgás 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mozgás 100mm");
   PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Mozgás 0.001mm");
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Mozgás 0.01mm");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Mozgás 0.1mm");

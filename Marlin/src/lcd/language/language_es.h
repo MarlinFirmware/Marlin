@@ -236,6 +236,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mover 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocidad");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Cama Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Boquilla");
