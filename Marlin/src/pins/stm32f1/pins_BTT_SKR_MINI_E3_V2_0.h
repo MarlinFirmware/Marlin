@@ -49,6 +49,10 @@
   #define PS_ON_PIN                        PC13  // Power Supply Control
 #endif
 
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                  PC14  // Z-Probe pin
+#endif
+
 #define FAN1_PIN                           PC7
 
 #ifndef CONTROLLER_FAN_PIN
