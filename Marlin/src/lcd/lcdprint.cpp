@@ -41,6 +41,7 @@
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  */
 lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
+  const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
   uint8_t *p = (uint8_t*)pstr;
   int8_t n = maxlen;
   while (n > 0) {
@@ -73,7 +74,7 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
     }
     else {
       lcd_put_wchar(ch);
-      n--;
+      n -= prop;
     }
   }
   return n;
