@@ -165,7 +165,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+#if SCREENS_CAN_TIME_OUT
   bool MarlinUI::defer_return_to_status;
 #endif
 
@@ -815,7 +815,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 millis_t next_lcd_update_ms;
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+#if SCREENS_CAN_TIME_OUT
   millis_t MarlinUI::return_to_status_ms = 0;
 #endif
 
@@ -828,7 +828,7 @@ void MarlinUI::update() {
   static uint16_t max_display_update_time = 0;
   millis_t ms = millis();
 
-  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+  #if SCREENS_CAN_TIME_OUT
     #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
   #else
     #define RESET_STATUS_TIMEOUT() NOOP
@@ -1075,7 +1075,7 @@ void MarlinUI::update() {
         NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+    #if SCREENS_CAN_TIME_OUT
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
         RESET_STATUS_TIMEOUT();

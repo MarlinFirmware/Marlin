@@ -93,7 +93,7 @@ void Touch::idle() {
       }
     #endif
 
-    #if LCD_TIMEOUT_TO_STATUS
+    #if SCREENS_CAN_TIME_OUT
       ui.return_to_status_ms = last_touch_ms + LCD_TIMEOUT_TO_STATUS;
     #endif
 

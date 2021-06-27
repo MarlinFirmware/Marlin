@@ -3401,6 +3401,9 @@
 #ifndef LCD_TIMEOUT_TO_STATUS
   #define LCD_TIMEOUT_TO_STATUS 15000
 #endif
+#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+  #define SCREENS_CAN_TIME_OUT 1
+#endif
 
 // Add commands that need sub-codes to this list
 #if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
