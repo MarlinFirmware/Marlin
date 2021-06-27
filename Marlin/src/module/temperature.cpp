@@ -205,10 +205,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
       MAX##M max##M##_##n = MAX##M( \
         TEMP_##n##_CS_PIN \
         OPTARG(_MAX31865_##n##_SW, TEMP_##n##_MOSI_PIN) \
-        OPTARGS(TEMP_SENSOR_##n##_USES_SW_SPI, \
-          TEMP_##n##_MISO_PIN, \
-          TEMP_##n##_SCK_PIN \
-        ) \
+        OPTARG(TEMP_SENSOR_##n##_USES_SW_SPI, TEMP_##n##_MISO_PIN, TEMP_##n##_SCK_PIN) \
         OPTARG(LARGE_PINMAP, HIGH) \
       )
 
