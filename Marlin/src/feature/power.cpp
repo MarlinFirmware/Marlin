@@ -62,11 +62,13 @@ bool Power::is_power_needed() {
     if (controllerFan.state()) return true;
   #endif
 
-  if (TERN0(AUTO_POWER_CHAMBER_FAN, thermalManager.chamberfan_speed))
-    return true;
+  #if ENABLED(AUTO_POWER_CHAMBER_FAN)
+    if (thermalManager.chamberfan_speed) return true;
+  #endif
 
-  if (TERN0(AUTO_POWER_COOLER_FAN, thermalManager.coolerfan_speed))
-    return true;
+  #if ENABLED(AUTO_POWER_COOLER_FAN)
+    if (thermalManager.coolerfan_speed) return true;
+  #endif
 
   // If any of the drivers or the bed are enabled...
   if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
@@ -85,18 +87,23 @@ bool Power::is_power_needed() {
     #endif
   ) return true;
 
-  HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
-  if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
+  #if HAS_HOTEND
+    HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
+  #endif
 
-  #if HAS_HOTEND && AUTO_POWER_E_TEMP
+  #if HAS_HEATED_BED
+  if (thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0) return true;
+  #endif
+
+  #if HAS_HOTEND && ENABLED(AUTO_POWER_E_TEMP)
     HOTEND_LOOP() if (thermalManager.degHotend(e) >= (AUTO_POWER_E_TEMP)) return true;
   #endif
 
-  #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
+  #if HAS_HEATED_CHAMBER && ENABLED(AUTO_POWER_CHAMBER_TEMP)
     if (thermalManager.degChamber() >= (AUTO_POWER_CHAMBER_TEMP)) return true;
   #endif
 
-  #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
+  #if HAS_COOLER && ENABLED(AUTO_POWER_COOLER_TEMP)
     if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
   #endif
 
