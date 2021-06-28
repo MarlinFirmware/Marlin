@@ -202,20 +202,14 @@
 #define EXP1_10_PIN                        P2_08
 
 #if ENABLED(DWIN_CREALITY_LCD)
-//You have to rewire Displaycable, TX = P0_15, RX = P0_16 with LCD_SERIAL_PORT 1
+  #error "DWIN_CREALITY_LCD requires a custom cable with TX = P0_15, RX = P0_16, and LCD_SERIAL_PORT 1. Comment out this line to continue."
 
+  #define BEEPER_PIN                 EXP1_10_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_04_PIN
+  #define BTN_ENC                    EXP1_06_PIN
 
-    #define BEEPER_PIN               EXP1_10_PIN
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_04_PIN
-    #define BTN_ENC                  EXP1_06_PIN
-
-
-
-  #endif
-  
-
-#if HAS_WIRED_LCD
+#elif HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
