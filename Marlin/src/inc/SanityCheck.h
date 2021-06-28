@@ -583,6 +583,10 @@
   #error "TEMP_SENSOR_1_AS_REDUNDANT is now TEMP_SENSOR_REDUNDANT, with associated TEMP_SENSOR_REDUNDANT_* config."
 #elif defined(MAX_REDUNDANT_TEMP_SENSOR_DIFF)
   #error "MAX_REDUNDANT_TEMP_SENSOR_DIFF is now TEMP_SENSOR_REDUNDANT_MAX_DIFF"
+#elif MOTHERBOARD == BOARD_DUE3DOM_MINI && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+  #warning "Onboard temperature sensor for BOARD_DUE3DOM_MINI has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
+#elif MOTHERBOARD == BOARD_BTT_SKR_E3_TURBO && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+  #warning "Onboard temperature sensor for BOARD_BTT_SKR_E3_TURBO has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
 #endif
 
 constexpr float arm[] = AXIS_RELATIVE_MODES;
@@ -1959,6 +1963,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TEMP_SENSOR_CHAMBER 1000 requires CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS and CHAMBER_BETA in Configuration_adv.h."
 #elif TEMP_SENSOR_PROBE_IS_CUSTOM && !(defined(PROBE_PULLUP_RESISTOR_OHMS) && defined(PROBE_RESISTANCE_25C_OHMS) && defined(PROBE_BETA))
   #error "TEMP_SENSOR_PROBE 1000 requires PROBE_PULLUP_RESISTOR_OHMS, PROBE_RESISTANCE_25C_OHMS and PROBE_BETA in Configuration_adv.h."
+#elif TEMP_SENSOR_BOARD_IS_CUSTOM && !(defined(BOARD_PULLUP_RESISTOR_OHMS) && defined(BOARD_RESISTANCE_25C_OHMS) && defined(BOARD_BETA))
+  #error "TEMP_SENSOR_BOARD 1000 requires BOARD_PULLUP_RESISTOR_OHMS, BOARD_RESISTANCE_25C_OHMS and BOARD_BETA in Configuration_adv.h."
 #elif TEMP_SENSOR_REDUNDANT_IS_CUSTOM && !(defined(REDUNDANT_PULLUP_RESISTOR_OHMS) && defined(REDUNDANT_RESISTANCE_25C_OHMS) && defined(REDUNDANT_BETA))
   #error "TEMP_SENSOR_REDUNDANT 1000 requires REDUNDANT_PULLUP_RESISTOR_OHMS, REDUNDANT_RESISTANCE_25C_OHMS and REDUNDANT_BETA in Configuration_adv.h."
 #endif
@@ -1995,10 +2001,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_SENSOR_REDUNDANT_SOURCE must be between -5 and 7."
   #elif TEMP_SENSOR_REDUNDANT_TARGET < -5 || TEMP_SENSOR_REDUNDANT_TARGET > 7
     #error "TEMP_SENSOR_REDUNDANT_TARGET must be between -5 and 7."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -3
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be -3 (not used)."
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == -3
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be -3 (not used)."
   #elif HAS_MULTI_HOTEND && TEMP_SENSOR_REDUNDANT_SOURCE < HOTENDS
     #error "TEMP_SENSOR_REDUNDANT_SOURCE must be after the last TEMP_SENSOR used with a hotend; you can't use a sensor in the middle of two hotends."
   #endif
@@ -2009,6 +2011,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Cooler (-5): TEMP_SENSOR_COOLER has already defined the sensor."
   #elif TEMP_SENSOR_REDUNDANT_SOURCE == -4 && HAS_TEMP_PROBE
     #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Probe (-4): TEMP_SENSOR_PROBE has already defined the sensor."
+  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -3 && HAS_TEMP_BOARD
+    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Board (-3): TEMP_SENSOR_BOARD has already defined the sensor."
   #elif TEMP_SENSOR_REDUNDANT_SOURCE == -2 && HAS_TEMP_CHAMBER
     #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Chamber (-2): TEMP_SENSOR_CHAMBER has already defined the sensor."
   #elif TEMP_SENSOR_REDUNDANT_SOURCE == -1 && HAS_TEMP_BED
@@ -2035,6 +2039,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Bed (-1): requires TEMP_BED_PIN"
   #elif TEMP_SENSOR_REDUNDANT_TARGET == -2 && !PIN_EXISTS(TEMP_CHAMBER)
     #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Chamber (-2): requires TEMP_CHAMBER_PIN"
+  #elif TEMP_SENSOR_REDUNDANT_TARGET == -3 && !PIN_EXISTS(TEMP_BOARD)
+    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Board (-3): requires TEMP_BOARD_PIN"
   #elif TEMP_SENSOR_REDUNDANT_TARGET == -4 && !PIN_EXISTS(TEMP_PROBE)
     #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Probe (-4): requires TEMP_PROBE_PIN"
   #elif TEMP_SENSOR_REDUNDANT_TARGET == -5 && !PIN_EXISTS(TEMP_COOLER)
@@ -2206,6 +2212,24 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_PROBE_PIN must be an ADC pin."
   #elif DISABLED(FIX_MOUNTED_PROBE)
     #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
+  #endif
+#endif
+
+#if TEMP_SENSOR_PROBE
+  #if !PIN_EXISTS(TEMP_PROBE)
+    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
+  #elif !HAS_TEMP_ADC_PROBE
+    #error "TEMP_PROBE_PIN must be an ADC pin."
+  #elif DISABLED(FIX_MOUNTED_PROBE)
+    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
+  #endif
+#endif
+
+#if TEMP_SENSOR_BOARD
+  #if !PIN_EXISTS(TEMP_BOARD)
+    #error "TEMP_SENSOR_BOARD requires TEMP_BOARD_PIN."
+  #elif !HAS_TEMP_ADC_BOARD
+    #error "TEMP_BOARD_PIN must be an ADC pin."
   #endif
 #endif
 

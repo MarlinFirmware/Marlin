@@ -496,6 +496,7 @@
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_COOLER 0
+#define TEMP_SENSOR_BOARD 0
 #define TEMP_SENSOR_REDUNDANT 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
@@ -531,7 +532,7 @@
  * Use the following to select temp sensors:
  *    -5 : Cooler
  *    -4 : Probe
- *    -3 : not used
+ *    -3 : Motherboard
  *    -2 : Chamber
  *    -1 : Bed
  *   0-7 : E0 through E7
