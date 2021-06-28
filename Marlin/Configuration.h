@@ -2290,12 +2290,12 @@
     #define INVERT_E1_DIR false
   #endif
 #else
-  #if ENABLED(MachineEnder6)
+  #if ANY(MachineCR10Orig, SKR13, SKR14, SKR14Turbo, SKRMiniE3V2, SKRE3Turbo) && ENABLED(SKR_ReverseSteppers) && ENABLED(MachineEnder6)
     #define INVERT_X_DIR true
     #define INVERT_Y_DIR false
   #else
     #define INVERT_X_DIR false
-    #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020)
+    #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020, MachineEnder6)
       #define INVERT_Y_DIR true
     #else
       #define INVERT_Y_DIR false
