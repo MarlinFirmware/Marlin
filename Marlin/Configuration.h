@@ -2301,7 +2301,7 @@
       #define INVERT_Y_DIR false
     #endif
   #endif
-  #if ANY(MachineEnder5Plus, MachineCR2020, )
+  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6)
     #define INVERT_Z_DIR false
   #else
     #define INVERT_Z_DIR true
