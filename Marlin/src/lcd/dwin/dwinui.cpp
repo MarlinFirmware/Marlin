@@ -1,0 +1,171 @@
+/**
+ * DWIN UI Enhanced implementation by Miguel A. Risco-Castillo
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DWIN_CREALITY_LCD)
+
+#include "../../inc/MarlinConfig.h"
+#include "dwin_lcd.h"
+#include "dwinui.h"
+
+// Set text/number font
+void DWINUIClass::SetFont(uint8_t cfont) {
+  font = cfont;
+}
+
+// Get font character width
+uint8_t DWINUIClass::Get_font_width(uint8_t cfont) {
+  switch (cfont) {
+    case font6x12 : return 6;
+    case font8x16 : return 8;
+    case font10x20: return 10;
+    case font12x24: return 12;
+    case font14x28: return 14;
+    case font16x32: return 16;
+    case font20x40: return 20;
+    case font24x48: return 24;
+    case font28x56: return 28;
+    case font32x64: return 32;
+    default: return 0;
+  }
+}
+
+// Get font character heigh
+uint8_t DWINUIClass::Get_font_height(uint8_t cfont) {
+  switch (cfont) {
+    case font6x12 : return 12;
+    case font8x16 : return 16;
+    case font10x20: return 20;
+    case font12x24: return 24;
+    case font14x28: return 28;
+    case font16x32: return 32;
+    case font20x40: return 40;
+    case font24x48: return 48;
+    case font28x56: return 56;
+    case font32x64: return 64;
+    default: return 0;
+  }
+}
+
+// Set text/number color
+void DWINUIClass::SetTextColor(uint16_t fgcolor, uint16_t bgcolor) {
+  textcolor = fgcolor;
+  backcolor = bgcolor;
+}
+
+// Moves cursor to point
+//  x: abscissa of the display
+//  y: ordinate of the display
+//  point: xy coordinate
+void DWINUIClass::MoveTo(int16_t x, int16_t y) {
+  cursor.x = x;
+  cursor.y = y;
+}
+void DWINUIClass::MoveTo(xy_int_t point) {
+  cursor = point;
+}
+
+// Moves cursor relative to the actual position
+//  x: abscissa of the display
+//  y: ordinate of the display
+//  point: xy coordinate
+void DWINUIClass::MoveBy(int16_t x, int16_t y) {
+  cursor.x += x;
+  cursor.y += y;
+}
+void DWINUIClass::MoveBy(xy_int_t point) {
+  cursor += point;
+}
+
+// Draw a Centered string using DWIN_WIDTH
+void DWINUIClass::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
+  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * Get_font_width(size)) / 2 - 1;
+  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
+}
+
+// Draw a signed floating point number
+//  bShow: true=display background color; false=don't display background color
+//  zeroFill: true=zero fill; false=no zero fill
+//  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
+//  size: Font size
+//  bColor: Background color
+//  iNum: Number of whole digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left point
+//  value: Float value
+void DWINUIClass::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  if (value < 0) {
+    DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, -value);
+    DWIN_Draw_String(false, bShow, size, color, bColor, x - 6, y, F("-"));
+  }
+  else {
+    DWIN_Draw_String(false, bShow, size, color, bColor, x - 6, y, F(" "));
+    DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, value);
+  }
+}
+
+// Draw a circle
+//  Color: circle color
+//  x: the abscissa of the center of the circle
+//  y: ordinate of the center of the circle
+//  r: circle radius
+void DWINUIClass::Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
+  int a = 0, b = 0;
+  while (a <= b) {
+    b = SQRT(sq(r) - sq(a));
+    if (a == 0) b--;
+    DWIN_Draw_Point(color, 1, 1, x + a, y + b);   // Draw some sector 1
+    DWIN_Draw_Point(color, 1, 1, x + b, y + a);   // Draw some sector 2
+    DWIN_Draw_Point(color, 1, 1, x + b, y - a);   // Draw some sector 3
+    DWIN_Draw_Point(color, 1, 1, x + a, y - b);   // Draw some sector 4
+    DWIN_Draw_Point(color, 1, 1, x - a, y - b);   // Draw some sector 5
+    DWIN_Draw_Point(color, 1, 1, x - b, y - a);   // Draw some sector 6
+    DWIN_Draw_Point(color, 1, 1, x - b, y + a);   // Draw some sector 7
+    DWIN_Draw_Point(color, 1, 1, x - a, y + b);   // Draw some sector 8
+    a++;
+  }
+}
+
+// Color Interpolator
+//  val : Interpolator minv..maxv
+//  minv : Minimum value
+//  maxv : Maximun value
+//  color1 : Start color
+//  color2 : End color
+uint16_t DWINUIClass::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
+  uint8_t B,G,R;
+  float n;
+  n = (float)(val-minv)/(maxv-minv);
+  R = (1-n)*GetRColor(color1) + n*GetRColor(color2);
+  G = (1-n)*GetGColor(color1) + n*GetGColor(color2);
+  B = (1-n)*GetBColor(color1) + n*GetBColor(color2);
+  return RGB(R,G,B);
+}
+
+// Draw a checkbox
+//  Color: frame color
+//  bColor: Background color
+//  x/y: Upper-left point
+//  mode : 0 : unchecked, 1 : checked
+void DWINUIClass::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
+  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, mode ? "x" : " ");
+  DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
+}
+
+#endif

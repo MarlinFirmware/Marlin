@@ -41,12 +41,6 @@
 
 #define DWIN_WIDTH  272
 #define DWIN_HEIGHT 480
-
-#define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
-#define GetRColor(color) ((color >> 11) & 0x1F)
-#define GetGColor(color) ((color >>  5) & 0x3F)
-#define GetBColor(color) ((color >>  0) & 0x1F)
-
 /*-------------------------------------- System variable function --------------------------------------*/
 
 // Handshake (1: Success, 0: Fail)
@@ -147,22 +141,6 @@ inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
 }
 
-// Draw a centered string using DWIN_WIDTH
-//  widthAdjust: true=self-adjust character width; false=no adjustment
-//  bShow: true=display background color; false=don't display background color
-//  size: Font size
-//  color: Character color
-//  bColor: Background color
-//  CHR_W: with of char of the font
-//  y: Upper coordinate of the string
-//  *string: The string
-void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, const char * const string);
-
-inline void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, const __FlashStringHelper *title) {
-  DWIN_Draw_CenteredString(widthAdjust, bShow, size, color, bColor, CHR_W, y, (char *)title);
-}
-
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
@@ -189,27 +167,6 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  value: Float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
-
-// Draw a signed floating point number
-//  bShow: true=display background color; false=don't display background color
-//  zeroFill: true=zero fill; false=no zero fill
-//  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
-//  size: Font size
-//  bColor: Background color
-//  iNum: Number of whole digits
-//  fNum: Number of decimal digits
-//  x/y: Upper-left point
-//  value: Float value
-void DWIN_Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
-
-// Draw a signed floating point number
-//  size: Font size
-//  bColor: Background color
-//  iNum: Number of whole digits
-//  fNum: Number of decimal digits
-//  x/y: Upper-left point
-//  value: Float value
-void DWIN_Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 
@@ -255,23 +212,5 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state);
 
-// Draw a circle
-//  Color: circle color
-//  x: the abscissa of the center of the circle
-//  y: ordinate of the center of the circle
-//  r: circle radius
-void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
-
-// GUI extension
-void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
-
 // Set LCD Brightness 0x00-0x0F
 void DWIN_LCD_Brightness(const uint8_t brightness);
-
-// Color Interpolator
-//  val : Interpolator minv..maxv
-//  minv : Minimum value
-//  maxv : Maximun value
-//  color1 : Start color
-//  color2 : End color
-uint16_t DWIN_ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
