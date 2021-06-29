@@ -116,7 +116,7 @@ void Power::check(const bool pause) {
   const millis_t now = millis();
   #if POWER_TIMEOUT > 0
     if (pause != _pause) {
-      lastPowerOn = now;
+      lastPowerOn = now + !now;
       _pause = pause;
     }
     if (pause) return;
@@ -161,6 +161,7 @@ void Power::power_off() {
 void Power::power_off_soon() {
   #if POWER_OFF_DELAY
     lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
+    //if (!lastPowerOn) ++lastPowerOn;
   #else
     power_off();
   #endif
