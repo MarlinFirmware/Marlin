@@ -493,9 +493,8 @@ public:
     static inline void goto_previous_screen() { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, false)); }
     static inline void go_back()              { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, true)); }
 
-    #define ON_STATUS_SCREEN (currentScreen == status_screen)
-
     static void return_to_status();
+    static inline bool on_status_screen() { return currentScreen == status_screen; }
     FORCE_INLINE static void run_current_screen() { (*currentScreen)(); }
 
     #if ENABLED(LIGHTWEIGHT_UI)
@@ -530,9 +529,13 @@ public:
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
 
-  #elif HAS_WIRED_LCD
+  #else
 
-    FORCE_INLINE static void run_current_screen() { status_screen(); }
+    static constexpr bool on_status_screen() { return true; }
+
+    #if HAS_WIRED_LCD
+      FORCE_INLINE static void run_current_screen() { status_screen(); }
+    #endif
 
   #endif
 
@@ -655,12 +658,6 @@ public:
   #if HAS_GRAPHICAL_TFT
     static void move_axis_screen();
   #endif
-
-  #ifndef ON_STATUS_SCREEN
-    #define ON_STATUS_SCREEN true
-  #endif
-
-  static inline bool on_status_screen() { return ON_STATUS_SCREEN; }
 
 private:
 
