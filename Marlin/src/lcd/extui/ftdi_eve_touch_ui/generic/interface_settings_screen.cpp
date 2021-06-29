@@ -86,10 +86,12 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    #if ENABLED(TOUCH_UI_PORTRAIT)
-      constexpr uint8_t w = 2;
-    #else
-      constexpr uint8_t w = 1;
+    #if defined(FTDI_LOCK_SCREEN) || DISABLED(TOUCH_UI_NO_BOOTSCREEN)
+      #if ENABLED(TOUCH_UI_PORTRAIT)
+        constexpr uint8_t w = 2;
+      #else
+        constexpr uint8_t w = 1;
+      #endif
     #endif
 
     cmd.font(font_medium)
@@ -99,8 +101,10 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), mydata.brightness, 128)
     #endif
        .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), mydata.volume,     0xFF)
+    #ifdef FTDI_LOCK_SCREEN
        .colors(ui_toggle)
        .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), LockScreen::is_enabled())
+    #endif
     #if DISABLED(TOUCH_UI_NO_BOOTSCREEN)
        .tag(5).toggle2(BTN_POS(3,5), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::animations_enabled())
     #endif
@@ -122,12 +126,14 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
 bool InterfaceSettingsScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); return true;
-    case 4:
-      if (!LockScreen::is_enabled())
-        LockScreen::enable();
-      else
-        LockScreen::disable();
-      break;
+    #ifdef FTDI_LOCK_SCREEN
+      case 4:
+        if (!LockScreen::is_enabled())
+          LockScreen::enable();
+        else
+          LockScreen::disable();
+        break;
+    #endif
     case 5: UIData::enable_animations(!UIData::animations_enabled());; break;
     case 6: GOTO_SCREEN(InterfaceSoundsScreen); return true;
     default:
@@ -191,7 +197,9 @@ void InterfaceSettingsScreen::failSafeSettings() {
 }
 
 void InterfaceSettingsScreen::defaultSettings() {
-  LockScreen::passcode = 0;
+  #ifdef FTDI_LOCK_SCREEN
+    LockScreen::passcode = 0;
+  #endif
   SoundPlayer::set_volume(255);
   CLCD::set_brightness(255);
   UIData::reset_persistent_data();
@@ -210,7 +218,11 @@ void InterfaceSettingsScreen::saveSettings(char *buff) {
 
   persistent_data_t eeprom;
 
-  eeprom.passcode             = LockScreen::passcode;
+  #ifdef FTDI_LOCK_SCREEN
+    eeprom.passcode           = LockScreen::passcode;
+  #else
+    eeprom.passcode           = 0;
+  #endif
   eeprom.sound_volume         = SoundPlayer::get_volume();
   eeprom.display_brightness   = CLCD::get_brightness();
   eeprom.bit_flags            = UIData::get_persistent_data();
@@ -239,7 +251,9 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
 
   SERIAL_ECHOLNPGM("Loading setting from EEPROM");
 
-  LockScreen::passcode = eeprom.passcode;
+  #ifdef FTDI_LOCK_SCREEN
+    LockScreen::passcode = eeprom.passcode;
+  #endif
   SoundPlayer::set_volume(eeprom.sound_volume);
   UIData::set_persistent_data(eeprom.bit_flags);
   CLCD::set_brightness(eeprom.display_brightness);

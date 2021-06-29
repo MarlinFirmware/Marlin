@@ -205,6 +205,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Di chuyển 0.1mm");                      // Move 0.1mm
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Di chuyển 1mm");                        // Move 1mm
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Di chuyển 10mm");                       // Move 10mm
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Di chuyển 100mm");                      // Move 100mm
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Tốc độ");                               // Speed
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Bàn");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Đầu phun");                             // Nozzle

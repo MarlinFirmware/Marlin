@@ -33,6 +33,10 @@
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
 
+#if ENABLED(PS_OFF_SOUND)
+  #include "../libs/buzzer.h"
+#endif
+
 #if defined(PSU_POWERUP_GCODE) || defined(PSU_POWEROFF_GCODE)
   #include "../gcode/gcode.h"
 #endif
@@ -81,7 +85,10 @@ bool Power::is_power_needed() {
     #endif
   ) return true;
 
-  HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
+  #if HAS_HOTEND
+    HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
+  #endif
+
   if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
   #if HAS_HOTEND && AUTO_POWER_E_TEMP
@@ -105,12 +112,12 @@ bool Power::is_power_needed() {
 
 void Power::check() {
   static millis_t nextPowerCheck = 0;
-  millis_t ms = millis();
-  if (ELAPSED(ms, nextPowerCheck)) {
-    nextPowerCheck = ms + 2500UL;
+  millis_t now = millis();
+  if (ELAPSED(now, nextPowerCheck)) {
+    nextPowerCheck = now + 2500UL;
     if (is_power_needed())
       power_on();
-    else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT))))
+    else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(now, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT))))
       power_off();
   }
 }
@@ -133,6 +140,11 @@ void Power::power_off() {
     #ifdef PSU_POWEROFF_GCODE
       GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
     #endif
+
+    #if ENABLED(PS_OFF_SOUND)
+      BUZZ(1000, 659);
+    #endif
+
     PSU_PIN_OFF();
   }
 }

@@ -230,6 +230,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("移动 0.1 mm");     //"Move 0.1mm"
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("移动 1 mm");     //"Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移动 10 mm");     //"Move 10mm"
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("移动 100 mm");     //"Move 100mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("速率");     //"Speed"
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("热床Z");     //"Bed Z"
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("喷嘴");     //"Nozzle" 噴嘴
