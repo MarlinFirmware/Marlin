@@ -145,7 +145,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Malyan M200"
+#define CUSTOM_MACHINE_NAME "Z's Baby"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -584,9 +584,14 @@
     #define DEFAULT_Ki_LIST {   2.02,   2.02 }
     #define DEFAULT_Kd_LIST { 100.00, 100.00 }
   #else
-    #define DEFAULT_Kp  20.00
-    #define DEFAULT_Ki   2.02
-    #define DEFAULT_Kd 100.00
+    // #define DEFAULT_Kp  20.00
+    // #define DEFAULT_Ki   2.02
+    // #define DEFAULT_Kd 100.00
+    // Customized for Zolan's Machine.  These seem to be consistent.
+    // Might as well start out already tuned a bit.
+    #define DEFAULT_Kp  41.88
+    #define DEFAULT_Ki   5.29
+    #define DEFAULT_Kd  82.93
   #endif
 #endif // PIDTEMP
 
@@ -630,9 +635,14 @@
   //#define DEFAULT_bedKd 295.34
 
   // Malyan M200
-  #define DEFAULT_bedKp 14.00
-  #define DEFAULT_bedKi 0.9
-  #define DEFAULT_bedKd 120.4
+  //#define DEFAULT_bedKp 14.00
+  //#define DEFAULT_bedKi 0.9
+  //#define DEFAULT_bedKd 120.4
+  // Customized for Zolan's Machine.  These seem to be consistent.
+  // Might as well start out already tuned a bit.
+  #define DEFAULT_bedKp 46.39
+  #define DEFAULT_bedKi 8.66
+  #define DEFAULT_bedKd 165.69
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -905,7 +915,8 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT    { 46.5, 46.5, 548.75, 48.50 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT    { 46.5, 46.5, 200, 48.50 }  // Changed because of Z axis upgrade.
+// #define DEFAULT_AXIS_STEPS_PER_UNIT    { 46.5, 46.5, 548.75, 48.50 }  // Changed because of Z axis upgrade.
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1300,7 +1311,8 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR false
-#define INVERT_Z_DIR false
+#define INVERT_Z_DIR true   // Changed to true because of Z Axis upgrade.
+// #define INVERT_Z_DIR false  // Changed to true because of Z Axis upgrade.
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
 //#define INVERT_K_DIR false
@@ -1632,7 +1644,7 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 10          // Set Mesh bounds as an inset region of the bed
+  #define MESH_INSET 15          // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 3    // Don't use more than 7 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
