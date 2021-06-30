@@ -6,7 +6,8 @@ This does not include machine configs or PlatformIO files.
 
 ----------
 
-
+- **ini**
+	- `stm32f1.ini`
 - **Marlin**
 	- **src**
 		- **core**
@@ -25,6 +26,7 @@ This does not include machine configs or PlatformIO files.
 				- `menu_configuration.cpp`
 				- `menu_motion.cpp`			
 		- **pins**
+			- `pins.h`
 			- **lpc1769**
 				- `pins_MKS_SGEN_L_V2.h`
 				- `pins_TH3D_EZBOARD.h`
