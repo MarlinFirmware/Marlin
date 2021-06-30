@@ -270,6 +270,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Przesuń co .1 mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Przesuń co 1 mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Przesuń co 10 mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Przesuń co 100 mm");
   PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Przesuń co 0.001 cala");
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Przesuń co 0.01 cala");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Przesuń co 0.1 cala");

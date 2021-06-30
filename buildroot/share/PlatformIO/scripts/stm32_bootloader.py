@@ -1,6 +1,13 @@
 #
 # stm32_bootloader.py
 #
+# - If 'build.offset' is provided, either by JSON or by the environment...
+# 	- Set linker flag LD_FLASH_OFFSET and relocate the VTAB based on 'build.offset'.
+# 	- Set linker flag LD_MAX_DATA_SIZE based on 'build.maximum_ram_size'.
+# 	- Define STM32_FLASH_SIZE from 'upload.maximum_size' for use by Flash-based EEPROM emulation.
+#
+# - For 'board_build.rename' add a post-action to rename the firmware file.
+#
 import os,sys,marlin
 Import("env")
 

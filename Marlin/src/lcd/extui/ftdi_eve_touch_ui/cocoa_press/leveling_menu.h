@@ -1,6 +1,6 @@
-/*****************
- * base_screen.h *
- *****************/
+/*******************************
+ * cocoa_press/leveling_menu.h *
+ ******************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
@@ -22,22 +22,11 @@
 
 #pragma once
 
-#define FTDI_BASE_SCREEN
-#define FTDI_BASE_SCREEN_CLASS BaseScreen
+#define COCOA_LEVELING_MENU
+#define COCOA_LEVELING_MENU_CLASS LevelingMenu
 
-class BaseScreen : public UIScreen {
-  protected:
-    #if SCREENS_CAN_TIME_OUT
-      static uint32_t last_interaction;
-    #endif
-
-    static bool buttonIsPressed(uint8_t tag);
-
+class LevelingMenu : public BaseScreen, public CachedScreen<LEVELING_SCREEN_CACHE> {
   public:
-    static bool buttonStyleCallback(CommandProcessor &, uint8_t, uint8_t &, uint16_t &, bool);
-
-    static void reset_menu_timeout();
-
-    static void onEntry();
-    static void onIdle();
+    static void onRedraw(draw_mode_t);
+    static bool onTouchEnd(uint8_t tag);
 };

@@ -305,7 +305,7 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return TERN0(JOYSTICK, flags.jogging) ? destination[axis] : current_position[axis];
+    return current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
@@ -1033,10 +1033,10 @@ namespace ExtUI {
   }
 
   bool isPrintingFromMediaPaused() {
-    return TERN0(SDSUPPORT, isPrintingFromMedia() && printingIsPaused());
+    return TERN0(SDSUPPORT, IS_SD_PAUSED());
   }
 
-  bool isPrintingFromMedia() { return IS_SD_PRINTING(); }
+  bool isPrintingFromMedia() { return TERN0(SDSUPPORT, IS_SD_PRINTING() || IS_SD_PAUSED()); }
 
   bool isPrinting() {
     return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
