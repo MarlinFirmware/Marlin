@@ -269,8 +269,9 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
  * good addition.
  */
 void CardReader::printListing(
-  SdFile parent, const char * const prepend/*=nullptr*/
+  SdFile parent
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+  , const char * const prepend/*=nullptr*/
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
   dir_t p;
@@ -301,7 +302,7 @@ void CardReader::printListing(
               pathLong[lenPrependLong - 1] = '/';
             }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, path, true, pathLong);
+            printListing(child, /*includeLongNames=*/true, path, pathLong);
           }
           else
         #endif
@@ -343,7 +344,7 @@ void CardReader::printListing(
 void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root, nullptr OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
+    printListing(root OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
   }
 }
 
