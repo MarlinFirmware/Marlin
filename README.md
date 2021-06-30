@@ -24,6 +24,8 @@ For best results getting help with configuration and troubleshooting, please use
 
 Any version number changes indicate a new printer addition and/or core feature change. Version numbers with letters appended (ex: 2.24a) are ones with bugfixes or additions that only affect some configurations. Read the [release notes on a release](https://github.com/th3dstudio/UnifiedFirmware/releases) for full details on what has changed between releases.
 
+Test builds will have a capital letter after the number to note that it is a testing build. These builds will only be on the 2.0.x-testing branch, not the 2.0.x branch.
+
 ## Bug Reporting
 
 If you find bugs, report them to the TH3D Studio team here:  [Contact Us](https://contactus.th3dstudio.com).
