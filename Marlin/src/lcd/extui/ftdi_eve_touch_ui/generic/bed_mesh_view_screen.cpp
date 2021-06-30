@@ -161,7 +161,7 @@ void BedMeshViewScreen::doProbe() {
 void BedMeshViewScreen::doMeshValidation() {
   mydata.count = 0;
   GOTO_SCREEN(StatusScreen);
-  injectCommands_P(PSTR("M75\nG28 O\nM117 Heating...\nG26 R X0 Y0\nG27\nM77"));
+  injectCommands_P(PSTR("M75\nG28\nM117 Heating...\nG26 R X0 Y0\nG27\nM77"));
 }
 
 void BedMeshViewScreen::show() {
