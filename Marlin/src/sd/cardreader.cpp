@@ -258,18 +258,21 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
   }
 }
 
-//
-// Recursive method to print all files within a folder in flat
-// DOS 8.3 format. This style of listing is the most compatible
-// with legacy hosts.
-//
-// This method recurses to unlimited depth and lists every
-// G-code file within the given parent. If the hierarchy is
-// very deep this can blow up the stack, so a 'depth' parameter
-// (as with printListingJSON) would be a good addition.
-//
+/**
+ * Recursive method to print all files within a folder in flat
+ * DOS 8.3 format. This style of listing is the most compatible
+ * with legacy hosts.
+ *
+ * This method recurses to unlimited depth and lists all G-code
+ * files within the given parent. If the hierarchy is very deep
+ * this can blow up the stack, so a 'depth' parameter would be a
+ * good addition.
+ */
 void CardReader::printListing(
-  SdFile parent, const bool includeLongNames, const char * const prepend/*=nullptr*/, const char * const prependLong/*=nullptr*/) {
+  SdFile parent, const char * const prepend/*=nullptr*/
+  OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+  OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
+) {
   dir_t p;
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
@@ -298,11 +301,11 @@ void CardReader::printListing(
               pathLong[lenPrependLong - 1] = '/';
             }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, includeLongNames, path, pathLong);
+            printListing(child, path, true, pathLong);
           }
           else
         #endif
-            printListing(child, includeLongNames, path);
+            printListing(child, path);
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
@@ -337,10 +340,10 @@ void CardReader::printListing(
 //
 // List all files on the SD card
 //
-void CardReader::ls(bool includeLongNames) {
+void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root, includeLongNames);
+    printListing(root, nullptr OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
   }
 }
 
