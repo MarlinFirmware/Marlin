@@ -199,7 +199,7 @@ public:
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
 
-  static void ls();
+  static void ls(bool includeLongNames);
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -330,7 +330,7 @@ private:
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
   static void selectByName(SdFile dir, const char * const match);
-  static void printListing(SdFile parent, const char * const prepend=nullptr);
+  static void printListing(SdFile parent, bool includeLongNames, const char * const prepend=nullptr, const char * const prependLong=nullptr);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void flush_presort();
