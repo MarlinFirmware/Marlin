@@ -129,7 +129,7 @@ void calibrate_delay_loop();
         // The following code burns [1 + 4 * (rounds+1)] cycles
         uint16_t dummy;
         __asm__ __volatile__(
-          // "manualy" load counter from constants, otherwise the compiler may optimize this part away
+          // "manually" load counter from constants, otherwise the compiler may optimize this part away
           A("LDI %A[rounds], %[l]") // 1c
           A("LDI %B[rounds], %[h]") // 1c (compensating the non branching BRCC)
           L("1")
