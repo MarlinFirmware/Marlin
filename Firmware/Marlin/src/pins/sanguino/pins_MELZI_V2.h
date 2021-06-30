@@ -29,7 +29,7 @@
     #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
+    #define BOARD_ST7920_DELAY_2 DELAY_NS(400)
   #endif
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3 DELAY_NS(0)

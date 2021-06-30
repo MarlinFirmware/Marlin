@@ -19,10 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT) && !defined(STM32GENERIC)
+#if ENABLED(SDIO_SUPPORT)
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -31,13 +32,14 @@
   #error "ERROR - Only STM32F103xE, STM32F103xG, STM32F4xx or STM32F7xx CPUs supported"
 #endif
 
-#ifdef USBD_USE_CDC_COMPOSITE
+#if HAS_SD_HOST_DRIVE
 
   // use USB drivers
 
-  extern "C" { int8_t SD_MSC_Read(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
-               int8_t SD_MSC_Write(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
-               extern SD_HandleTypeDef hsd;
+  extern "C" {
+    int8_t SD_MSC_Read(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+    int8_t SD_MSC_Write(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len);
+    extern SD_HandleTypeDef hsd;
   }
 
   bool SDIO_Init() {
@@ -74,7 +76,18 @@
     #error "ERROR - Only STM32F103xE, STM32F103xG, STM32F4xx or STM32F7xx CPUs supported"
   #endif
 
+  // Fixed
+  #define SDIO_D0_PIN   PC8
+  #define SDIO_D1_PIN   PC9
+  #define SDIO_D2_PIN   PC10
+  #define SDIO_D3_PIN   PC11
+  #define SDIO_CK_PIN   PC12
+  #define SDIO_CMD_PIN  PD2
+
   SD_HandleTypeDef hsd;  // create SDIO structure
+  // F4 supports one DMA for RX and another for TX, but Marlin will never
+  // do read and write at same time, so we use the same DMA for both.
+  DMA_HandleTypeDef hdma_sdio;
 
   /*
     SDIO_INIT_CLK_DIV is 118
@@ -87,37 +100,53 @@
 
     MKS Robin board seems to have stable SDIO with BusWide 1bit and ClockDiv 8 i.e. 4.8MHz SDIO clock frequency
     Additional testing is required as there are clearly some 4bit initialization problems
-
-    Add -DTRANSFER_CLOCK_DIV=8 to build parameters to improve SDIO stability
   */
-
-  #ifndef TRANSFER_CLOCK_DIV
-    #define TRANSFER_CLOCK_DIV (uint8_t(SDIO_INIT_CLK_DIV) / 40)
-  #endif
 
   #ifndef USBD_OK
     #define USBD_OK 0
   #endif
 
-  void go_to_transfer_speed() {
-    SD_InitTypeDef Init;
+  // Target Clock, configurable. Default is 18MHz, from STM32F1
+  #ifndef SDIO_CLOCK
+    #define SDIO_CLOCK 18000000 // 18 MHz
+  #endif
 
+  // SDIO retries, configurable. Default is 3, from STM32F1
+  #ifndef SDIO_READ_RETRIES
+    #define SDIO_READ_RETRIES 3
+  #endif
+
+  // SDIO Max Clock (naming from STM Manual, don't change)
+  #define SDIOCLK 48000000
+
+  static uint32_t clock_to_divider(uint32_t clk) {
+    // limit the SDIO master clock to 8/3 of PCLK2. See STM32 Manuals
+    // Also limited to no more than 48Mhz (SDIOCLK).
+    const uint32_t pclk2 = HAL_RCC_GetPCLK2Freq();
+    clk = min(clk, (uint32_t)(pclk2 * 8 / 3));
+    clk = min(clk, (uint32_t)SDIOCLK);
+    // Round up divider, so we don't run the card over the speed supported,
+    // and subtract by 2, because STM32 will add 2, as written in the manual:
+    // SDIO_CK frequency = SDIOCLK / [CLKDIV + 2]
+    return pclk2 / clk + (pclk2 % clk != 0) - 2;
+  }
+
+  void go_to_transfer_speed() {
     /* Default SDIO peripheral configuration for SD card initialization */
-    Init.ClockEdge           = hsd.Init.ClockEdge;
-    Init.ClockBypass         = hsd.Init.ClockBypass;
-    Init.ClockPowerSave      = hsd.Init.ClockPowerSave;
-    Init.BusWide             = hsd.Init.BusWide;
-    Init.HardwareFlowControl = hsd.Init.HardwareFlowControl;
-    Init.ClockDiv            = TRANSFER_CLOCK_DIV;
+    hsd.Init.ClockEdge           = hsd.Init.ClockEdge;
+    hsd.Init.ClockBypass         = hsd.Init.ClockBypass;
+    hsd.Init.ClockPowerSave      = hsd.Init.ClockPowerSave;
+    hsd.Init.BusWide             = hsd.Init.BusWide;
+    hsd.Init.HardwareFlowControl = hsd.Init.HardwareFlowControl;
+    hsd.Init.ClockDiv            = clock_to_divider(SDIO_CLOCK);
 
     /* Initialize SDIO peripheral interface with default configuration */
-    SDIO_Init(hsd.Instance, Init);
+    SDIO_Init(hsd.Instance, hsd.Init);
   }
 
   void SD_LowLevel_Init(void) {
     uint32_t tempreg;
 
-    __HAL_RCC_SDIO_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE(); //enable GPIO clocks
     __HAL_RCC_GPIOD_CLK_ENABLE(); //enable GPIO clocks
 
@@ -143,49 +172,70 @@
     GPIO_InitStruct.Pin = GPIO_PIN_2;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+    // Setup DMA
+    #if defined(STM32F1xx)
+      hdma_sdio.Init.Mode = DMA_NORMAL;
+      hdma_sdio.Instance = DMA2_Channel4;
+      HAL_NVIC_EnableIRQ(DMA2_Channel4_5_IRQn);
+    #elif defined(STM32F4xx)
+      hdma_sdio.Init.Mode = DMA_PFCTRL;
+      hdma_sdio.Instance = DMA2_Stream3;
+      hdma_sdio.Init.Channel = DMA_CHANNEL_4;
+      hdma_sdio.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+      hdma_sdio.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+      hdma_sdio.Init.MemBurst = DMA_MBURST_INC4;
+      hdma_sdio.Init.PeriphBurst = DMA_PBURST_INC4;
+      HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+    #endif
+    HAL_NVIC_EnableIRQ(SDIO_IRQn);
+    hdma_sdio.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_sdio.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_sdio.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    hdma_sdio.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    hdma_sdio.Init.Priority = DMA_PRIORITY_LOW;
+    __HAL_LINKDMA(&hsd, hdmarx, hdma_sdio);
+    __HAL_LINKDMA(&hsd, hdmatx, hdma_sdio);
 
-    #if DISABLED(STM32F1xx)
-      // TODO: use __HAL_RCC_SDIO_RELEASE_RESET() and __HAL_RCC_SDIO_CLK_ENABLE();
-      RCC->APB2RSTR &= ~RCC_APB2RSTR_SDIORST_Msk;  // take SDIO out of reset
-      RCC->APB2ENR  |=  RCC_APB2RSTR_SDIORST_Msk;  // enable SDIO clock
-      // Enable the DMA2 Clock
+    #if defined(STM32F1xx)
+      __HAL_RCC_SDIO_CLK_ENABLE();
+      __HAL_RCC_DMA2_CLK_ENABLE();
+    #else
+      __HAL_RCC_SDIO_FORCE_RESET();
+      delay(2);
+      __HAL_RCC_SDIO_RELEASE_RESET();
+      delay(2);
+      __HAL_RCC_SDIO_CLK_ENABLE();
+
+      __HAL_RCC_DMA2_FORCE_RESET();
+      delay(2);
+      __HAL_RCC_DMA2_RELEASE_RESET();
+      delay(2);
+      __HAL_RCC_DMA2_CLK_ENABLE();
     #endif
 
     //Initialize the SDIO (with initial <400Khz Clock)
     tempreg = 0;  //Reset value
     tempreg |= SDIO_CLKCR_CLKEN;  // Clock enabled
-    tempreg |= (uint32_t)0x76;    // Clock Divider. Clock = 48000 / (118 + 2) = 400Khz
+    tempreg |= SDIO_INIT_CLK_DIV; // Clock Divider. Clock = 48000 / (118 + 2) = 400Khz
     // Keep the rest at 0 => HW_Flow Disabled, Rising Clock Edge, Disable CLK ByPass, Bus Width = 0, Power save Disable
     SDIO->CLKCR = tempreg;
 
     // Power up the SDIO
-    SDIO->POWER = 0x03;
+    SDIO_PowerState_ON(SDIO);
+    hsd.Instance = SDIO;
   }
 
   void HAL_SD_MspInit(SD_HandleTypeDef *hsd) { // application specific init
-    UNUSED(hsd);   /* Prevent unused argument(s) compilation warning */
+    UNUSED(hsd);   // Prevent unused argument(s) compilation warning
     __HAL_RCC_SDIO_CLK_ENABLE();  // turn on SDIO clock
   }
 
-  constexpr uint8_t SD_RETRY_COUNT = TERN(SD_CHECK_AND_RETRY, 3, 1);
-
   bool SDIO_Init() {
-    //init SDIO and get SD card info
-
-    uint8_t retryCnt = SD_RETRY_COUNT;
+    uint8_t retryCnt = SDIO_READ_RETRIES;
 
     bool status;
     hsd.Instance = SDIO;
-    hsd.State = (HAL_SD_StateTypeDef) 0;  // HAL_SD_STATE_RESET
-
-    /*
-    hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
-    hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
-    hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
-    hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
-    hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd.Init.ClockDiv = 8;
-    */
+    hsd.State = HAL_SD_STATE_RESET;
 
     SD_LowLevel_Init();
 
@@ -216,106 +266,81 @@
           if (!status) break;
           if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
         }
+        go_to_transfer_speed();
       }
     #endif
 
     return true;
   }
-  /*
-  void init_SDIO_pins(void) {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    // SDIO GPIO Configuration
-    // PC8     ------> SDIO_D0
-    // PC12    ------> SDIO_CK
-    // PD2     ------> SDIO_CMD
+  static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t *src, uint8_t *dst) {
+    if (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) return false;
 
-    GPIO_InitStruct.Pin = GPIO_PIN_8;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
 
-    GPIO_InitStruct.Pin = GPIO_PIN_12;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Pin = GPIO_PIN_2;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-  }
-  */
-  //bool SDIO_init() { return (bool) (SD_SDIO_Init() ? 1 : 0);}
-  //bool SDIO_Init_C() { return (bool) (SD_SDIO_Init() ? 1 : 0);}
-
-  bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
-    hsd.Instance = SDIO;
-    uint8_t retryCnt = SD_RETRY_COUNT;
-
-    bool status;
-    for (;;) {
-      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
-      status = (bool) HAL_SD_ReadBlocks(&hsd, (uint8_t*)dst, block, 1, 1000);  // read one 512 byte block with 500mS timeout
-      status |= (bool) HAL_SD_GetCardState(&hsd);     // make sure all is OK
-      if (!status) break;       // return passing status
-      if (!--retryCnt) break;   // return failing status if retries are exhausted
+    HAL_StatusTypeDef ret;
+    if (src) {
+      hdma_sdio.Init.Direction = DMA_MEMORY_TO_PERIPH;
+      HAL_DMA_Init(&hdma_sdio);
+      ret = HAL_SD_WriteBlocks_DMA(&hsd, (uint8_t *)src, block, 1);
     }
-    return status;
+    else {
+      hdma_sdio.Init.Direction = DMA_PERIPH_TO_MEMORY;
+      HAL_DMA_Init(&hdma_sdio);
+      ret = HAL_SD_ReadBlocks_DMA(&hsd, (uint8_t *)dst, block, 1);
+    }
 
-    /*
-    return (bool) ((status_read | status_card) ? 1 : 0);
-
-    if (SDIO_GetCardState() != SDIO_CARD_TRANSFER) return false;
-    if (blockAddress >= SdCard.LogBlockNbr) return false;
-    if ((0x03 & (uint32_t)data)) return false; // misaligned data
-
-    if (SdCard.CardType != CARD_SDHC_SDXC) { blockAddress *= 512U; }
-
-    if (!SDIO_CmdReadSingleBlock(blockAddress)) {
-      SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS);
-      dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
+    if (ret != HAL_OK) {
+      HAL_DMA_Abort_IT(&hdma_sdio);
+      HAL_DMA_DeInit(&hdma_sdio);
       return false;
     }
 
-    while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) {}
-
-    dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
-
-    if (SDIO->STA & SDIO_STA_RXDAVL) {
-      while (SDIO->STA & SDIO_STA_RXDAVL) (void)SDIO->FIFO;
-      SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
-      return false;
+    millis_t timeout = millis() + 500;
+    // Wait the transfer
+    while (hsd.State != HAL_SD_STATE_READY) {
+      if (ELAPSED(millis(), timeout)) {
+        HAL_DMA_Abort_IT(&hdma_sdio);
+        HAL_DMA_DeInit(&hdma_sdio);
+        return false;
+      }
     }
 
-    if (SDIO_GET_FLAG(SDIO_STA_TRX_ERROR_FLAGS)) {
-      SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
-      return false;
-    }
-    SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
-    */
+    while (__HAL_DMA_GET_FLAG(&hdma_sdio, __HAL_DMA_GET_TC_FLAG_INDEX(&hdma_sdio)) != 0
+        || __HAL_DMA_GET_FLAG(&hdma_sdio, __HAL_DMA_GET_TE_FLAG_INDEX(&hdma_sdio)) != 0) { /* nada */ }
+
+    HAL_DMA_Abort_IT(&hdma_sdio);
+    HAL_DMA_DeInit(&hdma_sdio);
+
+    timeout = millis() + 500;
+    while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) if (ELAPSED(millis(), timeout)) return false;
 
     return true;
   }
 
-  bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
-    hsd.Instance = SDIO;
-    uint8_t retryCnt = SD_RETRY_COUNT;
-    bool status;
-    for (;;) {
-      status = (bool) HAL_SD_WriteBlocks(&hsd, (uint8_t*)src, block, 1, 500);  // write one 512 byte block with 500mS timeout
-      status |= (bool) HAL_SD_GetCardState(&hsd);     // make sure all is OK
-      if (!status) break;       // return passing status
-      if (!--retryCnt) break;   // return failing status if retries are exhausted
-    }
-    return status;
+  bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
+    uint8_t retries = SDIO_READ_RETRIES;
+    while (retries--) if (SDIO_ReadWriteBlock_DMA(block, NULL, dst)) return true;
+    return false;
   }
+
+  bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
+    uint8_t retries = SDIO_READ_RETRIES;
+    while (retries--) if (SDIO_ReadWriteBlock_DMA(block, src, NULL)) return true;
+    return false;
+  }
+
+  #if defined(STM32F1xx)
+    #define DMA_IRQ_HANDLER DMA2_Channel4_5_IRQHandler
+  #elif defined(STM32F4xx)
+    #define DMA_IRQ_HANDLER DMA2_Stream3_IRQHandler
+  #else
+    #error "Unknown STM32 architecture."
+  #endif
+
+  extern "C" void SDIO_IRQHandler(void) { HAL_SD_IRQHandler(&hsd); }
+  extern "C" void DMA_IRQ_HANDLER(void) { HAL_DMA_IRQHandler(&hdma_sdio); }
 
 #endif // !USBD_USE_CDC_COMPOSITE
 #endif // SDIO_SUPPORT
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

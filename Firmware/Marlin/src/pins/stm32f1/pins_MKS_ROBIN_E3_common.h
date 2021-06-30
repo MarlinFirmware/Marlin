@@ -25,9 +25,9 @@
  * MKS Robin E3 & E3D (STM32F103RCT6) common board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
+
+#define BOARD_NO_NATIVE_USB
 
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
@@ -68,15 +68,19 @@
 #define Y_DIR_PIN                           PB9
 #define Y_ENABLE_PIN                        PB12
 
-#define Z_STEP_PIN                          PB7
-#define Z_DIR_PIN                           PB6
+#ifndef Z_STEP_PIN
+  #define Z_STEP_PIN                        PB7
+#endif
+#ifndef Z_DIR_PIN
+  #define Z_DIR_PIN                         PB6
+#endif
 #define Z_ENABLE_PIN                        PB8
 
 #define E0_STEP_PIN                         PB4
 #define E0_DIR_PIN                          PB3
 #define E0_ENABLE_PIN                       PB5
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -154,10 +158,15 @@
   #else
 
     #define LCD_PINS_D4                     PA6
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PA7
       #define LCD_PINS_D6                   PC4
       #define LCD_PINS_D7                   PC5
+
+      #if !defined(BTN_ENC_EN) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif // !MKS_MINI_12864
@@ -167,12 +176,20 @@
 //
 // SD Card
 //
-#define ENABLE_SPI2
+#define SPI_DEVICE                          2
+#define ONBOARD_SPI_DEVICE                  2
+#define SDSS                           SD_SS_PIN
+#define SDCARD_CONNECTION                ONBOARD
 #define SD_DETECT_PIN                       PC10
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SS_PIN                              PA15
+#define ONBOARD_SD_CS_PIN              SD_SS_PIN
+#define NO_SD_HOST_DRIVE
+
+// TODO: This is the only way to set SPI for SD on STM32 (for now)
+#define ENABLE_SPI2
+#define SD_SCK_PIN                          PB13
+#define SD_MISO_PIN                         PB14
+#define SD_MOSI_PIN                         PB15
+#define SD_SS_PIN                           PA15
 
 #ifndef BOARD_ST7920_DELAY_1
   #define BOARD_ST7920_DELAY_1     DELAY_NS(125)

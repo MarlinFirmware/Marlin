@@ -21,12 +21,18 @@
  */
 #pragma once
 
-#ifdef SKR_HAS_LPC1769
-  #if NOT_TARGET(MCU_LPC1769)
-    #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
+#include "env_validate.h"
+
+// If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
+// https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
+//#define BTT_MOTOR_EXPANSION
+
+#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
+  #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
+    #define EXP_MOT_USE_EXP2_ONLY 1
+  #else
+    #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
   #endif
-#elif NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
 // Ignore temp readings during development.
@@ -92,26 +98,100 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD && DISABLED(LCD_USE_I2C_BUZZER)
+#if !defined(BEEPER_PIN) && HAS_WIRED_LCD && DISABLED(LCD_USE_I2C_BUZZER)
   #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
 #endif
 
 //
 // SD Support
 //
+#ifndef SDCARD_CONNECTION
+  #if HAS_WIRED_LCD
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+#endif
+
+
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
+#if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
+  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
+#endif
+
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15
-  #define MISO_PIN                         P0_17
-  #define MOSI_PIN                         P0_18
+  #define SD_SCK_PIN                       P0_15
+  #define SD_MISO_PIN                      P0_17
+  #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                  EXP2_07_PIN
+  #define SD_DETECT_PIN              EXP2_04_PIN
+
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                    P0_27
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
+
+#if ENABLED(BTT_MOTOR_EXPANSION)
+  /**       ______                       ______
+   *    NC | 1  2 | GND              NC | 1  2 | GND
+   *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
+   * M1STP | 5  6   M1DIR          M1RX | 5  6   M1DIAG
+   * M2DIR | 7  8 | M2STP          M2RX | 7  8 | M2DIAG
+   * M3DIR | 9 10 | M3STP          M3RX | 9 10 | M3DIAG
+   *        ------                       ------
+   *         EXP2                         EXP1
+   *
+   * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
+   */
+
+  // M1 on Driver Expansion Module
+  #define E2_STEP_PIN                EXP2_05_PIN
+  #define E2_DIR_PIN                 EXP2_06_PIN
+  #define E2_ENABLE_PIN              EXP2_04_PIN
+  #if !EXP_MOT_USE_EXP2_ONLY
+    #define E2_DIAG_PIN              EXP1_06_PIN
+    #define E2_CS_PIN                EXP1_05_PIN
+    #if HAS_TMC_UART
+      #define E2_SERIAL_TX_PIN       EXP1_05_PIN
+      #define E2_SERIAL_RX_PIN       EXP1_05_PIN
+    #endif
+  #endif
+
+  // M2 on Driver Expansion Module
+  #define E3_STEP_PIN                EXP2_08_PIN
+  #define E3_DIR_PIN                 EXP2_07_PIN
+  #if !EXP_MOT_USE_EXP2_ONLY
+    #define E3_ENABLE_PIN            EXP1_03_PIN
+    #define E3_DIAG_PIN              EXP1_08_PIN
+    #define E3_CS_PIN                EXP1_07_PIN
+    #if HAS_TMC_UART
+      #define E3_SERIAL_TX_PIN       EXP1_07_PIN
+      #define E3_SERIAL_RX_PIN       EXP1_07_PIN
+    #endif
+  #else
+    #define E3_ENABLE_PIN            EXP2_04_PIN
+  #endif
+
+  // M3 on Driver Expansion Module
+  #define E4_STEP_PIN                EXP2_10_PIN
+  #define E4_DIR_PIN                 EXP2_09_PIN
+  #if !EXP_MOT_USE_EXP2_ONLY
+    #define E4_ENABLE_PIN            EXP1_04_PIN
+    #define E4_DIAG_PIN              EXP1_10_PIN
+    #define E4_CS_PIN                EXP1_09_PIN
+    #if HAS_TMC_UART
+      #define E4_SERIAL_TX_PIN       EXP1_09_PIN
+      #define E4_SERIAL_RX_PIN       EXP1_09_PIN
+    #endif
+  #else
+    #define E4_ENABLE_PIN            EXP2_04_PIN
+  #endif
+
+#endif // BTT_MOTOR_EXPANSION

@@ -57,7 +57,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Ana");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Gelişmiş Ayarlar");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Yapılandırma");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Oto. Başlat");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Oto. Başlat");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motorları Durdur");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Hata Ayıklama");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Durum Çubuğu Testi");
@@ -94,12 +94,8 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Özel Ön Isınma");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Soğut/(Durdur)");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Lazer Kontrolü");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Lazeri Kapat");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Lazeri Aç");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Lazer Gücü");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindle Kontrolü");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindle Kapat");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindle Aç");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Gücü");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindle Ters Yön");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Gücü Aç");
@@ -118,7 +114,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("İndeks X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("İndeks Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Değeri");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Özel Komutlar");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Özel Komutlar");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Prob Testi");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Nokta");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Sapma");
@@ -235,7 +231,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Ekstruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Ekstruder *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Nozul Çok Soğuk");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("%smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("%smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("10mm");
@@ -261,16 +257,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Kapalı");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Kalibrasyon");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Kalibrasyon *");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Seç");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Seç *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("İvme");
@@ -306,7 +292,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Sıcaklık");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Hareket");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filaman");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ekstrüzyon/mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ekstrüzyon/mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Filaman Çapı");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Filaman Çapı *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Çıkart mm");

@@ -2,4 +2,4 @@ These files are the original, untouched configuration files from the version of 
 
 They are not used at all for compiling and only provided for a reference in case there are features or commands you want to refer to when adding in your own options.
 
-Current Marlin Base is 2.0.7.2.
+Current Marlin Base is 2.0.9.

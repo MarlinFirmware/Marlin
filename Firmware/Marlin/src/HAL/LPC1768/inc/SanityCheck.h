@@ -24,14 +24,14 @@
 #if PIO_PLATFORM_VERSION < 1001
   #error "nxplpc-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries. You may need to remove the platform and let it reinstall automatically."
 #endif
-#if PIO_FRAMEWORK_VERSION < 2005
+#if PIO_FRAMEWORK_VERSION < 2006
   #error "framework-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries."
 #endif
 
 /**
  * Detect an old pins file by checking for old ADC pins values.
  */
-#define _OLD_TEMP_PIN(P) PIN_EXISTS(P) && _CAT(P,_PIN) <= 7 && _CAT(P,_PIN) != 2 && _CAT(P,_PIN) != 3
+#define _OLD_TEMP_PIN(P) PIN_EXISTS(P) && _CAT(P,_PIN) <= 7 && !WITHIN(_CAT(P,_PIN), TERN(LPC1768_IS_SKRV1_3, 0, 2), 3)  // Include P0_00 and P0_01 for SKR V1.3 board
 #if _OLD_TEMP_PIN(TEMP_BED)
   #error "TEMP_BED_PIN must be defined using the Pn_nn or Pn_nn_An format. (See the included pins files)."
 #elif _OLD_TEMP_PIN(TEMP_0)
@@ -72,7 +72,7 @@ static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are in
 //#endif
 
 #if MB(RAMPS_14_RE_ARM_EFB, RAMPS_14_RE_ARM_EEB, RAMPS_14_RE_ARM_EFF, RAMPS_14_RE_ARM_EEF, RAMPS_14_RE_ARM_SF)
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && HAS_DRIVER(TMC2130) && DISABLED(TMC_USE_SW_SPI)
+  #if IS_RRD_FG_SC && HAS_DRIVER(TMC2130) && DISABLED(TMC_USE_SW_SPI)
     #error "Re-ARM with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER and TMC2130 requires TMC_USE_SW_SPI."
   #endif
 #endif
@@ -92,13 +92,13 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 #define ANY_TX(N,V...) DO(IS_TX##N,||,V)
 #define ANY_RX(N,V...) DO(IS_RX##N,||,V)
 
-#if USING_SERIAL_0
+#if USING_HW_SERIAL0
   #define IS_TX0(P) (P == P0_02)
   #define IS_RX0(P) (P == P0_03)
   #if IS_TX0(TMC_SW_MISO) || IS_RX0(TMC_SW_MOSI)
     #error "Serial port pins (0) conflict with Trinamic SPI pins!"
-  #elif ENABLED(MK2_MULTIPLEXER) && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
-    #error "Serial port pins (0) conflict with MK2 multiplexer pins!"
+  #elif HAS_PRUSA_MMU1 && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
+    #error "Serial port pins (0) conflict with Multi-Material-Unit multiplexer pins!"
   #elif (AXIS_HAS_SPI(X) && IS_TX0(X_CS_PIN)) || (AXIS_HAS_SPI(Y) && IS_RX0(Y_CS_PIN))
     #error "Serial port pins (0) conflict with X/Y axis SPI pins!"
   #endif
@@ -106,7 +106,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #undef IS_RX0
 #endif
 
-#if USING_SERIAL_1
+#if USING_HW_SERIAL1
   #define IS_TX1(P) (P == P0_15)
   #define IS_RX1(P) (P == P0_16)
   #define _IS_TX1_1 IS_TX1
@@ -116,8 +116,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #elif HAS_WIRED_LCD
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
       #error "Serial port pins (1) conflict with Encoder Buttons!"
-    #elif ANY_TX(1, SCK_PIN, LCD_PINS_D4, DOGLCD_SCK, LCD_RESET_PIN, LCD_PINS_RS, SHIFT_CLK) \
-       || ANY_RX(1, LCD_SDSS, LCD_PINS_RS, MISO_PIN, DOGLCD_A0, SS_PIN, LCD_SDSS, DOGLCD_CS, LCD_RESET_PIN, LCD_BACKLIGHT_PIN)
+    #elif ANY_TX(1, SD_SCK_PIN, LCD_PINS_D4, DOGLCD_SCK, LCD_RESET_PIN, LCD_PINS_RS, SHIFT_CLK_PIN) \
+       || ANY_RX(1, LCD_SDSS, LCD_PINS_RS, SD_MISO_PIN, DOGLCD_A0, SD_SS_PIN, LCD_SDSS, DOGLCD_CS, LCD_RESET_PIN, LCD_BACKLIGHT_PIN)
       #error "Serial port pins (1) conflict with LCD pins!"
     #endif
   #endif
@@ -127,7 +127,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #undef _IS_RX1_1
 #endif
 
-#if USING_SERIAL_2
+#if USING_HW_SERIAL2
   #define IS_TX2(P) (P == P0_10)
   #define IS_RX2(P) (P == P0_11)
   #define _IS_TX2_1 IS_TX2
@@ -144,7 +144,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (2) conflict with Z4 pins!"
   #elif ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
     #error "Serial port pins (2) conflict with other pins!"
-  #elif Y_HOME_DIR < 0 && IS_TX2(Y_STOP_PIN)
+  #elif Y_HOME_TO_MIN && IS_TX2(Y_STOP_PIN)
     #error "Serial port pins (2) conflict with Y endstop pin!"
   #elif HAS_CUSTOM_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
     #error "Serial port pins (2) conflict with probe pin!"
@@ -161,7 +161,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #undef _IS_RX2_1
 #endif
 
-#if USING_SERIAL_3
+#if USING_HW_SERIAL3
   #define PIN_IS_TX3(P) (PIN_EXISTS(P) && P##_PIN == P0_00)
   #define PIN_IS_RX3(P) (P##_PIN == P0_01)
   #if PIN_IS_TX3(X_MIN) || PIN_IS_RX3(X_MAX)
@@ -205,8 +205,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
       #error "SDA0 overlaps with BEEPER_PIN!"
     #elif IS_SCL0(BTN_ENC)
       #error "SCL0 overlaps with Encoder Button!"
-    #elif IS_SCL0(SS_PIN)
-      #error "SCL0 overlaps with SS_PIN!"
+    #elif IS_SCL0(SD_SS_PIN)
+      #error "SCL0 overlaps with SD_SS_PIN!"
     #elif IS_SCL0(LCD_SDSS)
       #error "SCL0 overlaps with LCD_SDSS!"
     #endif
@@ -270,7 +270,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 #endif
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
+  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on LPC176x."
 #elif ENABLED(SERIAL_STATS_DROPPED_RX)
-  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
+  #error "SERIAL_STATS_DROPPED_RX is not supported on LPX176x."
 #endif

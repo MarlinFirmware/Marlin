@@ -131,13 +131,13 @@
 #if 0 && HAS_WIRED_LCD
 
   // LCD Display output pins
-  #if BOTH(NEWPANEL, PANEL_ONE)
+  #if BOTH(IS_NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D6
     #define LCD_PINS_D6                       57
   #endif
 
   // LCD Display input pins
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #if ANY(VIKI2, miniVIKI)
       #undef DOGLCD_A0
       #define DOGLCD_A0                       23

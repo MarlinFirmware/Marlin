@@ -1,3 +1,6 @@
+#
+# buildroot/share/PlatformIO/scripts/STM32F103RC_MEEB_3DP.py
+#
 try:
     import configparser
 except ImportError:
@@ -51,9 +54,5 @@ for define in env['CPPDEFINES']:
 print('Use the {0:s} address as the marlin app entry point.'.format(vect_tab_addr))
 print('Use the {0:d}KB flash version of stm32f103rct6 chip.'.format(flash_size))
 
-custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/STM32F103RC_MEEB_3DP.ld")
-for i, flag in enumerate(env["LINKFLAGS"]):
-    if "-Wl,-T" in flag:
-        env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
-    elif flag == "-T":
-        env["LINKFLAGS"][i + 1] = custom_ld_script
+import marlin
+marlin.custom_ld_script("STM32F103RC_MEEB_3DP.ld")

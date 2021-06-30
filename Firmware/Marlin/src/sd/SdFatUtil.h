@@ -22,6 +22,8 @@
 #pragma once
 
 /**
+ * sd/SdFatUtil.h
+ *
  * Arduino SdFat Library
  * Copyright (c) 2008 by William Greiman
  *

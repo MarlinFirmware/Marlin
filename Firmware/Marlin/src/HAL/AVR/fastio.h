@@ -285,7 +285,7 @@ enum ClockSource2 : char {
  */
 
 // Determine which harware PWMs are already in use
-#define _PWM_CHK_FAN_B(P) (P == E0_AUTO_FAN_PIN || P == E1_AUTO_FAN_PIN || P == E2_AUTO_FAN_PIN || P == E3_AUTO_FAN_PIN || P == E4_AUTO_FAN_PIN || P == E5_AUTO_FAN_PIN || P == E6_AUTO_FAN_PIN || P == E7_AUTO_FAN_PIN || P == CHAMBER_AUTO_FAN_PIN)
+#define _PWM_CHK_FAN_B(P) (P == E0_AUTO_FAN_PIN || P == E1_AUTO_FAN_PIN || P == E2_AUTO_FAN_PIN || P == E3_AUTO_FAN_PIN || P == E4_AUTO_FAN_PIN || P == E5_AUTO_FAN_PIN || P == E6_AUTO_FAN_PIN || P == E7_AUTO_FAN_PIN || P == CHAMBER_AUTO_FAN_PIN || P == COOLER_AUTO_FAN_PIN)
 #if PIN_EXISTS(CONTROLLER_FAN)
   #define PWM_CHK_FAN_B(P) (_PWM_CHK_FAN_B(P) || P == CONTROLLER_FAN_PIN)
 #else

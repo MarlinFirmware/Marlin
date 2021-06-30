@@ -26,7 +26,7 @@
 // Verified by linagee. Source: https://www.mouser.com/datasheet/2/362/semitec%20usa%20corporation_gtthermistor-1202937.pdf
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 // Advantage: More resolution and better linearity from 150C to 200C
-const temp_entry_t temptable_52[] PROGMEM = {
+constexpr temp_entry_t temptable_52[] PROGMEM = {
   { OV(   1), 500 },
   { OV( 125), 300 }, // top rating 300C
   { OV( 142), 290 },

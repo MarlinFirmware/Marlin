@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Build tests for rumba32
+#
+
+# exit on first failure
+set -e
+
+# Build examples
+restore_configs
+opt_set MOTHERBOARD BOARD_RUMBA32_V1_0 SERIAL_PORT -1 \
+        TEMP_SENSOR_BED 1 X_DRIVER_TYPE TMC2130
+opt_disable PIDTEMP
+opt_enable PIDTEMPBED
+opt_disable THERMAL_PROTECTION_BED
+exec_test $1 $2 "RUMBA32 V1.0 with TMC2130, PID Bed, and bed thermal protection disabled" "$3"
+
+# Build examples
+restore_configs
+opt_set MOTHERBOARD BOARD_RUMBA32_V1_1 SERIAL_PORT -1 \
+        TEMP_SENSOR_BED 1 X_DRIVER_TYPE TMC2130 Y_DRIVER_TYPE TMC2208
+opt_enable PIDTEMPBED EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+exec_test $1 $2 "RUMBA32 V1.1 with TMC2130, TMC2208, PID Bed, EEPROM settings, and graphic LCD controller" "$3"
+
+# Build examples
+restore_configs
+opt_set MOTHERBOARD BOARD_RUMBA32_MKS SERIAL_PORT -1 X_DRIVER_TYPE TMC2130 Y_DRIVER_TYPE TMC2208
+exec_test $1 $2 "RUMBA32 MKS Default Config with Mixed TMC Drivers" "$3"
+
+# cleanup
+restore_configs

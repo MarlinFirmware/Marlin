@@ -22,7 +22,7 @@
 #pragma once
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Ender-4 supports only 1 hotend / E-stepper. Comment out this line to continue."
+  #error "Ender-4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "Ender-4"
