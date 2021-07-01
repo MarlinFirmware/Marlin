@@ -76,9 +76,16 @@ void ControllerFan::update() {
       )
     );
 
-    // If any of the drivers or the heated bed are enabled...
-    if (motor_on || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0))
+    // If any triggers for the controller fan are true...
+    //   - any of the drivers are enabled
+    //   - the heated bed is enabled
+    //   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_TRIGGER_TEMP
+    if (    motor_on
+         || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
+         || TERN0(HAS_CONTROLLER_FAN_BOARD_TEMP_TRIGGER, thermalManager.wholeDegBoard() >= CONTROLLER_FAN_TRIGGER_TEMP)
+       )
       lastMotorOn = ms; //... set time to NOW so the fan will turn on
+
 
     // Fan Settings. Set fan > 0:
     //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_IDLE_TIME seconds.

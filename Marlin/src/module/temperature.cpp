@@ -438,8 +438,10 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
 #if HAS_TEMP_BOARD
   board_info_t Temperature::temp_board; // = { 0 }
-  int16_t Temperature::mintemp_raw_BOARD = TEMP_SENSOR_BOARD_RAW_LO_TEMP,
-          Temperature::maxtemp_raw_BOARD = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
+  #if ENABLED(THERMAL_PROTECTION_BOARD)
+    int16_t Temperature::mintemp_raw_BOARD = TEMP_SENSOR_BOARD_RAW_LO_TEMP,
+            Temperature::maxtemp_raw_BOARD = TEMP_SENSOR_COOLER_RAW_HI_TEMP;
+  #endif
 #endif
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
