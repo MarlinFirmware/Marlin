@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include "../../../inc/MarlinConfigPre.h"
+#if ENABLED(TOUCH_UI_FTDI_EVE)
+
 /**
  * This following provides compatibility whether compiling
  * as a part of Marlin or outside it
@@ -51,3 +54,5 @@
 class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;
 extern const char G28_STR[];
+
+#endif  // TOUCH_UI_FTDI_EVE
