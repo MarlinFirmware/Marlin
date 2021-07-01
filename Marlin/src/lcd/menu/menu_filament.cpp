@@ -106,10 +106,11 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
  * "Change Filament" submenu
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-
   bool printingIsPaused();
+#endif
 
-  void menu_change_filament() {
+void menu_change_filament() {
+  #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     // Say "filament change" when no print is active
     editable.int8 = printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
 
@@ -204,15 +205,16 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
     #endif
 
     END_MENU();
-  }
-#else
-  void menu_change_filament() {
+
+  #else
+
     if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-      queue.inject_P(PSTR("M600 B0"));
+      queue.inject_P(PSTR("M600B0"));
     else
       _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0);
-  }
-#endif
+
+  #endif
+}
 
 static uint8_t hotend_status_extruder = 0;
 
