@@ -102,7 +102,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 0
+#define SERIAL_PORT -1
 
 /**
  * Serial Port Baud Rate
@@ -2393,6 +2393,14 @@
 //#define MKS_MINI_12864
 
 //
+// MKS MINI12864 V3 use YSETC_MINI_12864_2_1's method, Type A/B. NeoPixel RGB Backlight
+// 
+//#define MKS_MINI_12864_V3
+#if ENABLED(MKS_MINI_12864_V3) 
+  #define FYSETC_MINI_12864_2_1
+#endif
+
+//
 // MKS LCD12864A/B with graphic controller and SD support. Follows MKS_MINI_12864 pinout.
 // https://www.aliexpress.com/item/33018110072.html
 //
@@ -2811,7 +2819,7 @@
 #endif
 
 // Support for Adafruit NeoPixel LED driver
-//#define NEOPIXEL_LED
+#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   //#define NEOPIXEL_PIN     4     // LED driving pin
