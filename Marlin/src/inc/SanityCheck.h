@@ -593,24 +593,29 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 
   #ifdef PTC_SAMPLE_START
-    constexpr int _ptc_sample_start = PTC_SAMPLE_START;
-    static_assert(_test_ptc_sample_start != PTC_SAMPLE_START, "PTC_SAMPLE_START must be a whole number.");
+    constexpr auto _ptc_sample_start = PTC_SAMPLE_START;
+    constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
+    static_assert(_test_ptc_sample_start != 12.3f, "PTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef PTC_SAMPLE_RES
-    constexpr int _ptc_sample_res = PTC_SAMPLE_END;
-    static_assert(_test_ptc_sample_res != PTC_SAMPLE_END, "PTC_SAMPLE_RES must be a whole number.");
+    constexpr auto _ptc_sample_res = PTC_SAMPLE_RES;
+    constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
+    static_assert(_test_ptc_sample_res != 12.3f, "PTC_SAMPLE_RES must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_START
-    constexpr int _btc_sample_start = BTC_SAMPLE_START;
-    static_assert(_test_btc_sample_start != BTC_SAMPLE_START, "BTC_SAMPLE_START must be a whole number.");
+    constexpr auto _btc_sample_start = BTC_SAMPLE_START;
+    constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
+    static_assert(_test_btc_sample_start != 12.3f, "BTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_RES
-    constexpr int _btc_sample_res = BTC_SAMPLE_END;
-    static_assert(_test_btc_sample_res != BTC_SAMPLE_END, "BTC_SAMPLE_RES must be a whole number.");
+    constexpr _btc_sample_res = BTC_SAMPLE_RES;
+    constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
+    static_assert(_test_btc_sample_res != 12.3f, "BTC_SAMPLE_RES must be a whole number.");
   #endif
   #ifdef BTC_PROBE_TEMP
-    constexpr int _btc_probe_temp = BTC_PROBE_TEMP;
-    static_assert(_test_btc_probe_temp != BTC_PROBE_TEMP, "BTC_PROBE_TEMP must be a whole number.");
+    constexpr auto _btc_probe_temp = BTC_PROBE_TEMP;
+    constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
+    static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
   #endif
 #endif
 
@@ -1039,6 +1044,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
+  #if ENABLED(STATUS_HOTEND_INVERTED) && NONE(STATUS_HOTEND_NUMBERLESS, STATUS_HOTEND_ANIM)
+    #error "With multiple hotends STATUS_HOTEND_INVERTED requires STATUS_HOTEND_ANIM or STATUS_HOTEND_NUMBERLESS."
+  #endif
+
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     #ifndef TOOLCHANGE_FS_LENGTH
       #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_LENGTH."
@@ -1245,23 +1254,28 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * (Electro)magnetic Switching Toolhead requirements
+ * Magnetic / Electromagnetic Switching Toolhead requirements
  */
 #if EITHER(MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   #ifndef SWITCHING_TOOLHEAD_Y_POS
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_POS"
+    #error "(ELECTRO)?MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_POS"
   #elif !defined(SWITCHING_TOOLHEAD_X_POS)
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_X_POS"
-  #elif !defined(SWITCHING_TOOLHEAD_Z_HOP)
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Z_HOP."
+    #error "(ELECTRO)?MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_X_POS"
   #elif !defined(SWITCHING_TOOLHEAD_Y_CLEAR)
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_CLEAR."
-  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    #if ENABLED(EXT_SOLENOID)
-      #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
-    #elif !PIN_EXISTS(SOL0)
-      #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
-    #endif
+    #error "(ELECTRO)?MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_CLEAR."
+  #endif
+#endif
+
+/**
+ * Electromagnetic Switching Toolhead requirements
+ */
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #if ENABLED(EXT_SOLENOID)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
+  #elif !PIN_EXISTS(SOL0)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
+  #elif !defined(SWITCHING_TOOLHEAD_Z_HOP)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Z_HOP."
   #endif
 #endif
 
@@ -3572,6 +3586,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  */
 #if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
   #error "Either enable MEATPACK_ON_SERIAL_PORT_* or BINARY_FILE_TRANSFER, not both."
+#endif
+
+/**
+ * Sanity Check for Slim LCD Menus and Probe Offset Wizard
+ */
+#if BOTH(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
+  #error "SLIM_LCD_MENUS disables \"Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.\""
 #endif
 
 /**

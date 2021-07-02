@@ -36,7 +36,14 @@ constexpr static ZOffsetScreenData &mydata = screen_data.ZOffsetScreen;
 
 void ZOffsetScreen::onEntry() {
   mydata.z = SHEET_THICKNESS;
+  mydata.softEndstopState = getSoftEndstopState();
   BaseNumericAdjustmentScreen::onEntry();
+  if (wizardRunning())
+    setSoftEndstopState(false);
+}
+
+void ZOffsetScreen::onExit() {
+  setSoftEndstopState(mydata.softEndstopState);
 }
 
 void ZOffsetScreen::onRedraw(draw_mode_t what) {
@@ -50,17 +57,13 @@ void ZOffsetScreen::onRedraw(draw_mode_t what) {
 }
 
 void ZOffsetScreen::move(float mm, int16_t steps) {
-  // We can't store state after the call to the AlertBox, so
-  // check whether the current position equal mydata.z in order
-  // to know whether the user started the wizard.
-  if (getAxisPosition_mm(Z) == mydata.z) {
-    // In the wizard
+  if (wizardRunning()) {
     mydata.z += mm;
     setAxisPosition_mm(mydata.z, Z);
   }
   else {
     // Otherwise doing a manual adjustment, possibly during a print.
-    babystepAxis_steps(steps, Z);
+    TERN(BABYSTEPPING, babystepAxis_steps(steps, Z), UNUSED(steps));
   }
 }
 
@@ -84,9 +87,16 @@ void ZOffsetScreen::runWizard() {
   AlertDialogBox::show(PSTR("After the printer finishes homing, adjust the Z Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance."));
 }
 
+bool ZOffsetScreen::wizardRunning() {
+  // We can't store state after the call to the AlertBox, so
+  // check whether the current Z position equals mydata.z in order
+  // to know whether the user started the wizard.
+  return getAxisPosition_mm(Z) == mydata.z;
+}
+
 bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
-  const int16_t steps = mmToWholeSteps(getIncrement(), Z);
-  const float increment = mmFromWholeSteps(steps, Z);
+  const int16_t steps =   TERN(BABYSTEPPING, mmToWholeSteps(getIncrement(), Z), 0);
+  const float increment = TERN(BABYSTEPPING, mmFromWholeSteps(steps, Z), getIncrement());
   switch (tag) {
     case 2: runWizard(); break;
     case 4: UI_DECREMENT(ZOffset_mm); move(-increment, -steps); break;
