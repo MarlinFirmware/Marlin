@@ -159,6 +159,7 @@
 #define BOARD_PICA_REVB               1324  // PICA Shield (original version)
 #define BOARD_PICA                    1325  // PICA Shield (rev C or later)
 #define BOARD_INTAMSYS40              1326  // Intamsys 4.0 (Funmat HT)
+#define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
 
 //
 // ATmega1281, ATmega2561
@@ -320,7 +321,7 @@
 #define BOARD_BTT_SKR_MINI_V1_1       4023  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
 #define BOARD_BTT_SKR_MINI_E3_V1_0    4024  // BigTreeTech SKR Mini E3 (STM32F103RC)
 #define BOARD_BTT_SKR_MINI_E3_V1_2    4025  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V2_0    4026  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V2_0    4026  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC / STM32F103RE)
 #define BOARD_BTT_SKR_MINI_MZ_V1_0    4027  // BigTreeTech SKR Mini MZ V1.0 (STM32F103RC)
 #define BOARD_BTT_SKR_E3_DIP          4028  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
 #define BOARD_BTT_SKR_CR6             4029  // BigTreeTech SKR CR6 v1.0 (STM32F103RE)
@@ -367,22 +368,26 @@
 #define BOARD_BTT_SKR_PRO_V1_2        4208  // BigTreeTech SKR Pro v1.2 (STM32F407ZGT6)
 #define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VGT6)
 #define BOARD_BTT_E3_RRF              4210  // BigTreeTech E3 RRF (STM32F407VGT6)
-#define BOARD_BTT_SKR_V2_0            4211  // BigTreeTech SKR v2.0 (STM32F407VGT6)
-#define BOARD_BTT_GTR_V1_0            4212  // BigTreeTech GTR v1.0 (STM32F407IGT)
-#define BOARD_LERDGE_K                4213  // Lerdge K (STM32F407ZG)
-#define BOARD_LERDGE_S                4214  // Lerdge S (STM32F407VE)
-#define BOARD_LERDGE_X                4215  // Lerdge X (STM32F407VE)
-#define BOARD_VAKE403D                4216  // VAkE 403D (STM32F446VET6)
-#define BOARD_FYSETC_S6               4217  // FYSETC S6 (STM32F446VET6)
-#define BOARD_FYSETC_S6_V2_0          4218  // FYSETC S6 v2.0 (STM32F446VET6)
-#define BOARD_FYSETC_SPIDER           4219  // FYSETC Spider (STM32F446VET6)
-#define BOARD_FLYF407ZG               4220  // FLYF407ZG (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              4221  // MKS_ROBIN2 (STM32F407ZE)
-#define BOARD_MKS_ROBIN_PRO_V2        4222  // MKS Robin Pro V2 (STM32F407VE)
-#define BOARD_MKS_ROBIN_NANO_V3       4223  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_ANET_ET4                4224  // ANET ET4 V1.x (STM32F407VGT6)
-#define BOARD_ANET_ET4P               4225 // ANET ET4P V1.x (STM32F407VGT6)
-#define BOARD_FYSETC_CHEETAH_V20      4226  // FYSETC Cheetah V2.0
+#define BOARD_BTT_SKR_V2_0_REV_A      4211  // BigTreeTech SKR v2.0 Rev A (STM32F407VGT6)
+#define BOARD_BTT_SKR_V2_0_REV_B      4212  // BigTreeTech SKR v2.0 Rev B (STM32F407VGT6)
+#define BOARD_BTT_GTR_V1_0            4213  // BigTreeTech GTR v1.0 (STM32F407IGT)
+#define BOARD_BTT_OCTOPUS_V1_0        4214  // BigTreeTech Octopus v1.0 (STM32F446ZET6)
+#define BOARD_BTT_OCTOPUS_V1_1        4215  // BigTreeTech Octopus v1.1 (STM32F446ZET6)
+#define BOARD_LERDGE_K                4216  // Lerdge K (STM32F407ZG)
+#define BOARD_LERDGE_S                4217  // Lerdge S (STM32F407VE)
+#define BOARD_LERDGE_X                4218  // Lerdge X (STM32F407VE)
+#define BOARD_VAKE403D                4219  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4220  // FYSETC S6 (STM32F446VET6)
+#define BOARD_FYSETC_S6_V2_0          4221  // FYSETC S6 v2.0 (STM32F446VET6)
+#define BOARD_FYSETC_SPIDER           4222  // FYSETC Spider (STM32F446VET6)
+#define BOARD_FLYF407ZG               4223  // FLYF407ZG (STM32F407ZG)
+#define BOARD_MKS_ROBIN2              4224  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_MKS_ROBIN_PRO_V2        4225  // MKS Robin Pro V2 (STM32F407VE)
+#define BOARD_MKS_ROBIN_NANO_V3       4226  // MKS Robin Nano V3 (STM32F407VG)
+#define BOARD_ANET_ET4                4227  // ANET ET4 V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4228  // ANET ET4P V1.x (STM32F407VGT6)
+#define BOARD_FYSETC_CHEETAH_V20      4229  // FYSETC Cheetah V2.0
+
 
 //
 // ARM Cortex M7

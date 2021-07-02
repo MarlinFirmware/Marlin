@@ -103,9 +103,7 @@ public:
   }
 
   static float get_z(const xy_pos_t &pos
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      , const_float_t factor=1.0f
-    #endif
+    OPTARG(ENABLE_LEVELING_FADE_HEIGHT, const_float_t factor=1.0f)
   ) {
     #if DISABLED(ENABLE_LEVELING_FADE_HEIGHT)
       constexpr float factor = 1.0f;

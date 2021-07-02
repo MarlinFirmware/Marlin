@@ -26,11 +26,6 @@
 #include "../core/millis_t.h"
 
 void safe_delay(millis_t ms);           // Delay ensuring that temperatures are updated and the watchdog is kept alive.
-#if ENABLED(MARLIN_DEV_MODE)
-  void early_safe_delay(millis_t ms);   // Delay ensuring that the watchdog is kept alive. Can be used before the Temperature ISR starts.
-#else
-  inline void early_safe_delay(millis_t ms) { safe_delay(ms); }
-#endif
 
 #if ENABLED(SERIAL_OVERRUN_PROTECTION)
   void serial_delay(const millis_t ms);
@@ -81,3 +76,11 @@ public:
 // Converts from an uint8_t in the range of 0-255 to an uint8_t
 // in the range 0-100 while avoiding rounding artifacts
 constexpr uint8_t ui8_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
+
+const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME);
+
+#if LINEAR_AXES <= XYZ
+  #define AXIS_CHAR(A) ((char)('X' + A))
+#else
+  #define AXIS_CHAR(A) axis_codes[A]
+#endif

@@ -47,7 +47,7 @@
 void GcodeSuite::M303() {
 
   #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
-    if (parser.seen('D')) {
+    if (parser.seen_test('D')) {
       thermalManager.pid_debug_flag ^= true;
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("PID Debug ");

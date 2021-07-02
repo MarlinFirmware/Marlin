@@ -7,10 +7,12 @@ import os,shutil
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 
+from os.path import join
+
 def copytree(src, dst, symlinks=False, ignore=None):
    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
+        s = join(src, item)
+        d = join(dst, item)
         if os.path.isdir(s):
             shutil.copytree(s, d, symlinks, ignore)
         else:
@@ -64,12 +66,4 @@ def encrypt_mks(source, target, env, new_name):
 		renamed.close()
 
 def add_post_action(action):
-	env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", action);
-
-# Apply customizations for a MKS Robin
-def prepare_robin(address, ldname, fwname):
-	def encrypt(source, target, env):
-		encrypt_mks(source, target, env, fwname)
-	relocate_firmware(address)
-	custom_ld_script(ldname)
-	add_post_action(encrypt);
+	env.AddPostAction(join("$BUILD_DIR", "${PROGNAME}.bin"), action);

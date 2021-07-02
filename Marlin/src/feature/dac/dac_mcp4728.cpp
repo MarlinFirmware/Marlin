@@ -66,14 +66,14 @@ uint8_t MCP4728::analogWrite(const uint8_t channel, const uint16_t value) {
 }
 
 /**
- * Write all input resistor values to EEPROM using SequencialWrite method.
+ * Write all input resistor values to EEPROM using SequentialWrite method.
  * This will update both input register and EEPROM value
  * This will also write current Vref, PowerDown, Gain settings to EEPROM
  */
 uint8_t MCP4728::eepromWrite() {
   Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
   Wire.write(SEQWRITE);
-  LOOP_XYZE(i) {
+  LOOP_LOGICAL_AXES(i) {
     Wire.write(DAC_STEPPER_VREF << 7 | DAC_STEPPER_GAIN << 4 | highByte(dac_values[i]));
     Wire.write(lowByte(dac_values[i]));
   }
@@ -135,7 +135,7 @@ void MCP4728::setDrvPct(xyze_uint_t &pct) {
  */
 uint8_t MCP4728::fastWrite() {
   Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
-  LOOP_XYZE(i) {
+  LOOP_LOGICAL_AXES(i) {
     Wire.write(highByte(dac_values[i]));
     Wire.write(lowByte(dac_values[i]));
   }

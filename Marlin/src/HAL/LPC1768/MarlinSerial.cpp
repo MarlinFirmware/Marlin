@@ -26,9 +26,9 @@
 #include "../../inc/MarlinConfig.h"
 
 #if USING_HW_SERIAL0
-  MarlinSerial _MSerial(LPC_UART0);
-  MSerialT MSerial0(true, _MSerial);
-  extern "C" void UART0_IRQHandler() { _MSerial.IRQHandler(); }
+  MarlinSerial _MSerial0(LPC_UART0);
+  MSerialT MSerial0(true, _MSerial0);
+  extern "C" void UART0_IRQHandler() { _MSerial0.IRQHandler(); }
 #endif
 #if USING_HW_SERIAL1
   MarlinSerial _MSerial1((LPC_UART_TypeDef *) LPC_UART1);
@@ -52,7 +52,7 @@
     // Need to figure out which serial port we are and react in consequence (Marlin does not have CONTAINER_OF macro)
     if (false) {}
     #if USING_HW_SERIAL0
-      else if (this == &_MSerial) emergency_parser.update(MSerial0.emergency_state, c);
+      else if (this == &_MSerial0) emergency_parser.update(MSerial0.emergency_state, c);
     #endif
     #if USING_HW_SERIAL1
       else if (this == &_MSerial1) emergency_parser.update(MSerial1.emergency_state, c);

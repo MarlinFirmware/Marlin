@@ -23,7 +23,7 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 
-#if EXTRUDERS
+#if HAS_EXTRUDERS
 
 /**
  * M221: Set extrusion percentage (M221 T0 S95)

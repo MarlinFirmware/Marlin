@@ -48,7 +48,7 @@
 #endif
 
 #if E_MANUAL > 1
-  #define MULTI_MANUAL 1
+  #define MULTI_E_MANUAL 1
 #endif
 
 #if HAS_DISPLAY
@@ -129,7 +129,7 @@
   class ManualMove {
   private:
     static AxisEnum axis;
-    #if MULTI_MANUAL
+    #if MULTI_E_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
@@ -182,11 +182,7 @@
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(const AxisEnum axis
-      #if MULTI_MANUAL
-        , const int8_t eindex=-1
-      #endif
-    );
+    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
 
 #endif
@@ -338,6 +334,10 @@ public:
     static void resume_print();
     static void flow_fault();
 
+    #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+      static void poweroff();
+    #endif
+
     #if HAS_WIRED_LCD
 
       static millis_t next_button_update_ms;
@@ -449,10 +449,13 @@ public:
     static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
+  #if SCREENS_CAN_TIME_OUT
+    static inline void reset_status_timeout(const millis_t ms) { return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS; }
+  #else
+    static inline void reset_status_timeout(const millis_t) {}
+  #endif
+
   #if HAS_LCD_MENU
-    #if LCD_TIMEOUT_TO_STATUS
-      static millis_t return_to_status_ms;
-    #endif
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
@@ -478,15 +481,12 @@ public:
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
 
-    static bool lcd_clicked;
-    static bool use_click();
-
     static void synchronize(PGM_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
     static bool screen_changed;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
-    static void save_previous_screen();
+    static void push_current_screen();
 
     // goto_previous_screen and go_back may also be used as menu item callbacks
     static void _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back));
@@ -501,12 +501,12 @@ public:
       static void lcd_in_status(const bool inStatus);
     #endif
 
+    FORCE_INLINE static bool screen_is_sticky() {
+      return TERN1(SCREENS_CAN_TIME_OUT, defer_return_to_status);
+    }
+
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      #if LCD_TIMEOUT_TO_STATUS > 0
-        defer_return_to_status = defer;
-      #else
-        UNUSED(defer);
-      #endif
+      TERN(SCREENS_CAN_TIME_OUT, defer_return_to_status = defer, UNUSED(defer));
     }
 
     static inline void goto_previous_screen_no_defer() {
@@ -529,12 +529,26 @@ public:
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
 
-  #elif HAS_WIRED_LCD
+  #else
 
-    static constexpr bool lcd_clicked = false;
     static constexpr bool on_status_screen() { return true; }
-    FORCE_INLINE static void run_current_screen() { status_screen(); }
 
+    #if HAS_WIRED_LCD
+      FORCE_INLINE static void run_current_screen() { status_screen(); }
+    #endif
+
+  #endif
+
+  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+    static bool lcd_clicked;
+    static inline bool use_click() {
+      const bool click = lcd_clicked;
+      lcd_clicked = false;
+      return click;
+    }
+  #else
+    static constexpr bool lcd_clicked = false;
+    static inline bool use_click() { return false; }
   #endif
 
   #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
@@ -647,16 +661,18 @@ public:
 
 private:
 
+  #if SCREENS_CAN_TIME_OUT
+    static millis_t return_to_status_ms;
+    static bool defer_return_to_status;
+  #else
+    static constexpr bool defer_return_to_status = false;
+  #endif
+
   #if HAS_STATUS_MESSAGE
     static void finish_status(const bool persist);
   #endif
 
   #if HAS_WIRED_LCD
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
-      static bool defer_return_to_status;
-    #else
-      static constexpr bool defer_return_to_status = false;
-    #endif
     static void draw_status_screen();
     #if HAS_GRAPHICAL_TFT
       static void tft_idle();

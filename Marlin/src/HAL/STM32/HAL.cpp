@@ -96,6 +96,12 @@ void HAL_init() {
   #if HAS_SD_HOST_DRIVE
     MSC_SD_init();                         // Enable USB SD card access
   #endif
+
+  #if PIN_EXISTS(USB_CONNECT)
+    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
+    delay(1000);                                         // Give OS time to notice
+    WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+  #endif
 }
 
 // HAL idle task

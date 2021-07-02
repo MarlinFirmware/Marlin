@@ -37,6 +37,9 @@
 
 #include <stdint.h>
 
+//
+// Serial Ports
+//
 #ifdef USBCON
   #include <USBSerial.h>
   #include "../../core/serial_hook.h"
@@ -44,9 +47,6 @@
   extern DefaultSerial1 MSerial0;
 #endif
 
-// ------------------------
-// Defines
-// ------------------------
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
@@ -65,6 +65,16 @@
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from 1 to 6. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 MSerial0
+  #elif WITHIN(SERIAL_PORT_3, 1, 6)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #error "SERIAL_PORT_3 must be from 1 to 6. You can also use -1 if the board supports Native USB."
   #endif
 #endif
 
@@ -185,6 +195,7 @@ uint16_t HAL_adc_get_result();
 #ifdef STM32F1xx
   #define JTAG_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_JTAGDISABLE)
   #define JTAGSWD_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_DISABLE)
+  #define JTAGSWD_RESET() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_RESET); // Reset: FULL SWD+JTAG
 #endif
 
 #define PLATFORM_M997_SUPPORT

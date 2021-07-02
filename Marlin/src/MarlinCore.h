@@ -34,8 +34,8 @@
 void stop();
 
 // Pass true to keep steppers from timing out
-void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep=false));
-inline void idle_no_sleep() { idle(TERN_(ADVANCED_PAUSE_FEATURE, true)); }
+void idle(bool no_stepper_sleep=false);
+inline void idle_no_sleep() { idle(true); }
 
 #if ENABLED(G38_PROBE_TARGET)
   extern uint8_t G38_move;          // Flag to tell the ISR that G38 is in progress, and the type
@@ -56,20 +56,21 @@ void minkill(const bool steppers_off=false);
 
 // Global State of the firmware
 enum MarlinState : uint8_t {
-  MF_INITIALIZING =  0,
-  MF_RUNNING      = _BV(0),
-  MF_PAUSED       = _BV(1),
-  MF_WAITING      = _BV(2),
-  MF_STOPPED      = _BV(3),
-  MF_SD_COMPLETE  = _BV(4),
-  MF_KILLED       = _BV(7)
+  MF_INITIALIZING = 0,
+  MF_STOPPED,
+  MF_KILLED,
+  MF_RUNNING,
+  MF_SD_COMPLETE,
+  MF_PAUSED,
+  MF_WAITING,
 };
 
 extern MarlinState marlin_state;
-inline bool IsRunning() { return marlin_state == MF_RUNNING; }
-inline bool IsStopped() { return marlin_state != MF_RUNNING; }
+inline bool IsRunning() { return marlin_state >= MF_RUNNING; }
+inline bool IsStopped() { return marlin_state == MF_STOPPED; }
 
 bool printingIsActive();
+bool printJobOngoing();
 bool printingIsPaused();
 void startOrResumeJob();
 
@@ -90,7 +91,11 @@ extern bool wait_for_heatup;
     #define PSU_OFF_SOON() powerManager.power_off_soon()
   #else
     #define PSU_ON()     PSU_PIN_ON()
-    #define PSU_OFF()    PSU_PIN_OFF()
+    #if ENABLED(PS_OFF_SOUND)
+      #define PSU_OFF()  do{ BUZZ(1000, 659); PSU_PIN_OFF(); }while(0)
+    #else
+      #define PSU_OFF()  PSU_PIN_OFF()
+    #endif
     #define PSU_OFF_SOON PSU_OFF
   #endif
 #endif

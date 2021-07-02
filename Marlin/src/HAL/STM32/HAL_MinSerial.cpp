@@ -71,8 +71,8 @@ static void TXBegin() {
       volatile uint32_t ICER[32];
     };
 
-    NVICMin * nvicBase = (NVICMin*)0xE000E100;
-    nvicBase->ICER[nvicIndex / 32] |= _BV32(nvicIndex % 32);
+    NVICMin *nvicBase = (NVICMin*)0xE000E100;
+    SBI32(nvicBase->ICER[nvicIndex >> 5], nvicIndex & 0x1F);
 
     // We NEED memory barriers to ensure Interrupts are actually disabled!
     // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
