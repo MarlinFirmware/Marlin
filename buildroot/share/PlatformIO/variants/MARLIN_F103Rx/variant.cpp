@@ -22,6 +22,31 @@
 extern "C" {
 #endif
 
+#if defined(GD32F10x)
+  #define RCC_PLL_MUL6_5 (13UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL17  (16UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL18  (17UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL19  (18UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL20  (19UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL21  (20UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL22  (21UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL23  (22UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL24  (23UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL25  (24UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL26  (25UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL27  (26UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL28  (27UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL29  (28UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL30  (29UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL31  (30UL << RCC_CFGR_PLLMULL_Pos)
+  #define RCC_PLL_MUL32  (31UL << RCC_CFGR_PLLMULL_Pos)
+
+  #define RCC_CFGR_USBFSPSC_Pos       (22UL)
+  #define RCC_USBCLKSOURCE_PLL_DIV1   (1UL << RCC_CFGR_USBFSPSC_Pos)
+  #define RCC_USBCLKSOURCE_PLL_DIV2_5 (2UL << RCC_CFGR_USBFSPSC_Pos)
+  #define RCC_USBCLKSOURCE_PLL_DIV2   (3UL << RCC_CFGR_USBFSPSC_Pos)
+#endif
+
 const PinName digitalPin[] = {
   PA_0,
   PA_1,
@@ -120,11 +145,27 @@ WEAK void SystemClock_Config(void)
   /* Initializes the CPU, AHB and APB busses clocks */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+
+  #if BOARD_F_CPU > 72000000L && !defined(GD32F10x)
+    #error "CPU clock frequency higher than 72 MHz is supported only on GD32F10x based boards."
+  #endif
+
+  #if BOARD_F_CPU == 108000000L
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV2;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL27;
+  #elif BOARD_F_CPU == 96000000L
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL12;
+  #elif BOARD_F_CPU == 72000000L
+    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+  #else
+    #error "Unsupported clock speed, please check board_build.f_cpu"
+  #endif
+
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
     Error_Handler();
   }
@@ -139,9 +180,42 @@ WEAK void SystemClock_Config(void)
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
-  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+
+  /** ADC clock
+   *
+   * This clock must not exceed 14 MHz.
+   */
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  #if BOARD_F_CPU == 108000000L
+    // 13.5 MHz
+    PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV8;
+  #elif BOARD_F_CPU == 96000000L
+    // 12 MHz
+    PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV8;
+  #elif BOARD_F_CPU == 72000000L
+    // 12 MHz
+    PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  #else
+    #error "Unsupported clock speed, please check board_build.f_cpu"
+  #endif
+
+  /** USB clock
+   *
+   * This clock must be set to exactly 48 MHz.
+   */
+  #ifdef USBCON
+    PeriphClkInit.PeriphClockSelection |= RCC_PERIPHCLK_USB;
+    #if BOARD_F_CPU == 108000000L
+      #error "USB support is not possible with 108 MHz system clock"
+    #elif BOARD_F_CPU == 96000000L
+      PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV2;
+    #elif BOARD_F_CPU == 72000000L
+      PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+    #else
+      #error "Unsupported clock speed, please check board_build.f_cpu"
+    #endif
+  #endif
+
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
     Error_Handler();
   }
