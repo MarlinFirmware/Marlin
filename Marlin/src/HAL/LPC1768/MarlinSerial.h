@@ -21,6 +21,7 @@
  */
 #pragma once
 
+#include <lpc17xx_clkpwr.h>
 #include <HardwareSerial.h>
 #include <WString.h>
 
@@ -42,7 +43,18 @@
 
 class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
 public:
-  MarlinSerial(LPC_UART_TypeDef *UARTx) : HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx) { }
+  MarlinSerial(LPC_UART_TypeDef *UARTx) : HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx) {
+    // Fix no response if BAUDRATE > 250000 https://github.com/MarlinFirmware/Marlin/issues/22283
+    if (UARTx == LPC_UART0) {
+      CLKPWR_SetPCLKDiv(CLKPWR_PCLKSEL_UART0, CLKPWR_PCLKSEL_CCLK_DIV_1);
+    } else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
+      CLKPWR_SetPCLKDiv(CLKPWR_PCLKSEL_UART1, CLKPWR_PCLKSEL_CCLK_DIV_1);
+    } else if (UARTx == LPC_UART2) {
+      CLKPWR_SetPCLKDiv(CLKPWR_PCLKSEL_UART2, CLKPWR_PCLKSEL_CCLK_DIV_1);
+    } else if (UARTx == LPC_UART3) {
+      CLKPWR_SetPCLKDiv(CLKPWR_PCLKSEL_UART3, CLKPWR_PCLKSEL_CCLK_DIV_1);
+    }
+  }
 
   void end() {}
 
