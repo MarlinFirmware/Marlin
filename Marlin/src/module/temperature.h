@@ -428,6 +428,15 @@ class Temperature {
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
 
+    #endif // HEATER_IDLE_TIMER
+
+    #if HAS_ADC_BUTTONS
+      static uint32_t current_ADCKey_raw;
+      static uint16_t ADCKey_count;
+    #endif
+
+    #if ENABLED(PID_EXTRUSION_SCALING)
+      static int16_t lpq_len;
     #endif
 
   private:
@@ -486,15 +495,6 @@ class Temperature {
     #endif
 
   public:
-    #if HAS_ADC_BUTTONS
-      static uint32_t current_ADCKey_raw;
-      static uint16_t ADCKey_count;
-    #endif
-
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      static int16_t lpq_len;
-    #endif
-
     /**
      * Instance Methods
      */

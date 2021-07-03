@@ -34,6 +34,7 @@
 #include "temperature.h"
 #include "endstops.h"
 #include "planner.h"
+#include "printcounter.h"
 
 #if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
   #include "../feature/cooler.h"
@@ -103,7 +104,6 @@
     #define TEMP_SENSOR_1_USES_SW_SPI 1
 #endif
 
-
 #if TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI
   #include "../libs/private_spi.h"
   #define HAS_MAXTC_SW_SPI 1
@@ -116,8 +116,6 @@
 #if ENABLED(BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
   #include "../feature/babystep.h"
 #endif
-
-#include "printcounter.h"
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #include "../feature/filwidth.h"
@@ -200,7 +198,6 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
     template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
       SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-
     SPIclass<TEMP_0_MISO_PIN, SD_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
   #endif
 
@@ -283,6 +280,25 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   uint8_t Temperature::coolerfan_speed; // = 0
 #endif
 
+// Init fans according to whether they're native PWM or Software PWM
+#ifdef BOARD_OPENDRAIN_MOSFETS
+  #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, FAN_INVERTING ? LOW : HIGH)
+#else
+  #define _INIT_SOFT_FAN(P) OUT_WRITE(P, FAN_INVERTING ? LOW : HIGH)
+#endif
+#if ENABLED(FAN_SOFT_PWM)
+  #define _INIT_FAN_PIN(P) _INIT_SOFT_FAN(P)
+#else
+  #define _INIT_FAN_PIN(P) do{ if (PWM_PIN(P)) SET_PWM(P); else _INIT_SOFT_FAN(P); }while(0)
+#endif
+#if ENABLED(FAST_PWM_FAN)
+  #define SET_FAST_PWM_FREQ(P) set_pwm_frequency(P, FAST_PWM_FAN_FREQUENCY)
+#else
+  #define SET_FAST_PWM_FREQ(P) NOOP
+#endif
+#define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
+
+// HAS_FAN does not include CONTROLLER_FAN
 #if HAS_FAN
 
   uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
@@ -428,7 +444,18 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   celsius_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
-// private:
+#if HAS_ADC_BUTTONS
+  uint32_t Temperature::current_ADCKey_raw = HAL_ADC_RANGE;
+  uint16_t Temperature::ADCKey_count = 0;
+#endif
+
+#if ENABLED(PID_EXTRUSION_SCALING)
+  int16_t Temperature::lpq_len; // Initialized in settings.cpp
+#endif
+
+/**
+ * private:
+ */
 
 volatile bool Temperature::raw_temps_ready = false;
 
@@ -481,16 +508,10 @@ volatile bool Temperature::raw_temps_ready = false;
   bool Temperature::paused_for_probing;
 #endif
 
-// public:
-
-#if HAS_ADC_BUTTONS
-  uint32_t Temperature::current_ADCKey_raw = HAL_ADC_RANGE;
-  uint16_t Temperature::ADCKey_count = 0;
-#endif
-
-#if ENABLED(PID_EXTRUSION_SCALING)
-  int16_t Temperature::lpq_len; // Initialized in settings.cpp
-#endif
+/**
+ * public:
+ * Class and Instance Methods
+ */
 
 #if HAS_PID_HEATING
 
@@ -767,10 +788,6 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #endif // HAS_PID_HEATING
 
-/**
- * Class and Instance Methods
- */
-
 int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   switch (heater_id) {
     #if HAS_HEATED_BED
@@ -790,6 +807,16 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 #define _EFANOVERLAP(A,B) _FANOVERLAP(E##A,B)
 
 #if HAS_AUTO_FAN
+  #if EXTRUDER_AUTO_FAN_SPEED != 255
+    #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
+  #else
+    #define INIT_E_AUTO_FAN_PIN(P) SET_OUTPUT(P)
+  #endif
+  #if CHAMBER_AUTO_FAN_SPEED != 255
+    #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
+  #else
+    #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
+  #endif
 
   #define CHAMBER_FAN_INDEX HOTENDS
 
@@ -1677,11 +1704,6 @@ void Temperature::manage_heater() {
   }
 
   celsius_float_t Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const int16_t raw) {
-    //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
-    //  static uint32_t clocks_total = 0;
-    //  static uint32_t calls = 0;
-    //  uint32_t tcnt5 = TCNT5;
-    //#endif
 
     if (!WITHIN(t_index, 0, COUNT(user_thermistor) - 1)) return 25;
 
@@ -1708,14 +1730,6 @@ void Temperature::manage_heater() {
     if (t.sh_c_coeff != 0)
       value += t.sh_c_coeff * cu(log_resistance);
     value = 1.0f / value;
-
-    //#if (MOTHERBOARD == BOARD_RAMPS_14_EFB)
-    //  int32_t clocks = TCNT5 - tcnt5;
-    //  if (clocks >= 0) {
-    //    clocks_total += clocks;
-    //    calls++;
-    //  }
-    //#endif
 
     // Return degrees C (up to 999, as the LCD only displays 3 digits)
     return _MIN(value + THERMISTOR_ABS_ZERO_C, 999);
@@ -2020,34 +2034,6 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
 } // Temperature::updateTemperaturesFromRawValues
 
-// Init fans according to whether they're native PWM or Software PWM
-#ifdef BOARD_OPENDRAIN_MOSFETS
-  #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, FAN_INVERTING ? LOW : HIGH)
-#else
-  #define _INIT_SOFT_FAN(P) OUT_WRITE(P, FAN_INVERTING ? LOW : HIGH)
-#endif
-#if ENABLED(FAN_SOFT_PWM)
-  #define _INIT_FAN_PIN(P) _INIT_SOFT_FAN(P)
-#else
-  #define _INIT_FAN_PIN(P) do{ if (PWM_PIN(P)) SET_PWM(P); else _INIT_SOFT_FAN(P); }while(0)
-#endif
-#if ENABLED(FAST_PWM_FAN)
-  #define SET_FAST_PWM_FREQ(P) set_pwm_frequency(P, FAST_PWM_FAN_FREQUENCY)
-#else
-  #define SET_FAST_PWM_FREQ(P) NOOP
-#endif
-#define INIT_FAN_PIN(P) do{ _INIT_FAN_PIN(P); SET_FAST_PWM_FREQ(P); }while(0)
-#if EXTRUDER_AUTO_FAN_SPEED != 255
-  #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
-#else
-  #define INIT_E_AUTO_FAN_PIN(P) SET_OUTPUT(P)
-#endif
-#if CHAMBER_AUTO_FAN_SPEED != 255
-  #define INIT_CHAMBER_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
-#else
-  #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
-#endif
-
 /**
  * Initialize the temperature manager
  *
@@ -2146,7 +2132,6 @@ void Temperature::init() {
       OUT_WRITE(HEATER_0_PIN, HEATER_0_INVERTING);
     #endif
   #endif
-
   #if HAS_HEATER_1
     OUT_WRITE(HEATER_1_PIN, HEATER_1_INVERTING);
   #endif
@@ -2314,11 +2299,7 @@ void Temperature::init() {
     INIT_CHAMBER_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
   #endif
 
-  // Wait for temperature measurement to settle
-  //delay(250);
-
   #if HAS_HOTEND
-
     #define _TEMP_MIN_E(NR) do{ \
       const celsius_t tmin = _MAX(HEATER_##NR##_MINTEMP, TERN(TEMP_SENSOR_##NR##_IS_CUSTOM, 0, (int)pgm_read_word(&TEMPTABLE_##NR [TEMP_SENSOR_##NR##_MINTEMP_IND].celsius))); \
       temp_range[NR].mintemp = tmin; \
@@ -2382,7 +2363,6 @@ void Temperature::init() {
     #if _MINMAX_TEST(7, MAX)
       _TEMP_MAX_E(7);
     #endif
-
   #endif // HAS_HOTEND
 
   #if HAS_HEATED_BED
@@ -2516,9 +2496,8 @@ void Temperature::init() {
 
 void Temperature::disable_all_heaters() {
 
+  // Disable autotemp, unpause and reset everything
   TERN_(AUTOTEMP, planner.autotemp_enabled = false);
-
-  // Unpause and reset everything
   TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
 
   #if HAS_HOTEND
@@ -2554,8 +2533,6 @@ void Temperature::disable_all_heaters() {
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
 
-  #include "printcounter.h"
-
   bool Temperature::auto_job_over_threshold() {
     #if HAS_HOTEND
       HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
@@ -2574,7 +2551,7 @@ void Temperature::disable_all_heaters() {
     }
   }
 
-#endif
+#endif // PRINTJOB_TIMER_AUTOSTART
 
 #if ENABLED(PROBING_HEATERS_OFF)
 
@@ -2612,7 +2589,7 @@ void Temperature::disable_all_heaters() {
     #endif
   }
 
-#endif
+#endif // EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
 
 #if HAS_MAX_TC
 
@@ -2739,22 +2716,22 @@ void Temperature::disable_all_heaters() {
           max865ref.clearFault();
           if (fault_31865) {
             SERIAL_EOL();
-            SERIAL_ECHOLNPAIR("\nMAX31865 Fault :(", fault_31865, ")  >>");
+            SERIAL_ECHOLNPAIR("\nMAX31865 Fault: (", fault_31865, ")  >>");
             if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
               SERIAL_ECHOLNPGM("RTD High Threshold");
             if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
               SERIAL_ECHOLNPGM("RTD Low Threshold");
             if (fault_31865 & MAX31865_FAULT_REFINLOW)
-              SERIAL_ECHOLNPGM("REFIN- > 0.85 x Bias");
+              SERIAL_ECHOLNPGM("REFIN- > 0.85 x V bias");
             if (fault_31865 & MAX31865_FAULT_REFINHIGH)
-              SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
+              SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
             if (fault_31865 & MAX31865_FAULT_RTDINLOW)
-              SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
+              SERIAL_ECHOLNPGM("REFIN- < 0.85 x V bias (FORCE- open)");
             if (fault_31865 & MAX31865_FAULT_OVUV)
-              SERIAL_ECHOLNPGM("Under/Over voltage (sensor disconnected?)");
+              SERIAL_ECHOLNPGM("Under/Over voltage");
           }
-        #else
-          SERIAL_ECHOLNPGM("MAX6675 Open Circuit");
+        #else // MAX6675
+          SERIAL_ECHOLNPGM("MAX6675 Fault: Open Circuit");
         #endif
 
         // Set thermocouple above max temperature (TMAX)
@@ -2799,16 +2776,16 @@ void Temperature::update_raw_temperatures() {
     temp_redundant.update();
   #endif
 
-  TERN_(HAS_TEMP_ADC_2, temp_hotend[2].update());
-  TERN_(HAS_TEMP_ADC_3, temp_hotend[3].update());
-  TERN_(HAS_TEMP_ADC_4, temp_hotend[4].update());
-  TERN_(HAS_TEMP_ADC_5, temp_hotend[5].update());
-  TERN_(HAS_TEMP_ADC_6, temp_hotend[6].update());
-  TERN_(HAS_TEMP_ADC_7, temp_hotend[7].update());
-  TERN_(HAS_TEMP_ADC_BED, temp_bed.update());
+  TERN_(HAS_TEMP_ADC_2,       temp_hotend[2].update());
+  TERN_(HAS_TEMP_ADC_3,       temp_hotend[3].update());
+  TERN_(HAS_TEMP_ADC_4,       temp_hotend[4].update());
+  TERN_(HAS_TEMP_ADC_5,       temp_hotend[5].update());
+  TERN_(HAS_TEMP_ADC_6,       temp_hotend[6].update());
+  TERN_(HAS_TEMP_ADC_7,       temp_hotend[7].update());
+  TERN_(HAS_TEMP_ADC_BED,     temp_bed.update());
   TERN_(HAS_TEMP_ADC_CHAMBER, temp_chamber.update());
-  TERN_(HAS_TEMP_ADC_PROBE, temp_probe.update());
-  TERN_(HAS_TEMP_ADC_COOLER, temp_cooler.update());
+  TERN_(HAS_TEMP_ADC_PROBE,   temp_probe.update());
+  TERN_(HAS_TEMP_ADC_COOLER,  temp_cooler.update());
 
   TERN_(HAS_JOY_ADC_X, joystick.x.update());
   TERN_(HAS_JOY_ADC_Y, joystick.y.update());

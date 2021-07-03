@@ -2812,6 +2812,77 @@
   #define BED_OR_CHAMBER_OR_FAN 1
 #endif
 
+/**
+ * Up to 3 PWM fans
+ */
+#ifndef FAN_INVERTING
+  #define FAN_INVERTING false
+#endif
+
+#if HAS_FAN7
+  #define FAN_COUNT 8
+#elif HAS_FAN6
+  #define FAN_COUNT 7
+#elif HAS_FAN5
+  #define FAN_COUNT 6
+#elif HAS_FAN4
+  #define FAN_COUNT 5
+#elif HAS_FAN3
+  #define FAN_COUNT 4
+#elif HAS_FAN2
+  #define FAN_COUNT 3
+#elif HAS_FAN1
+  #define FAN_COUNT 2
+#elif HAS_FAN0
+  #define FAN_COUNT 1
+#else
+  #define FAN_COUNT 0
+#endif
+
+#if FAN_COUNT > 0
+  #define HAS_FAN 1
+#endif
+
+/**
+ * Part Cooling fan multipliexer
+ */
+#if PIN_EXISTS(FANMUX0)
+  #define HAS_FANMUX 1
+#endif
+
+/**
+ * MIN/MAX fan PWM scaling
+ */
+#ifndef FAN_OFF_PWM
+  #define FAN_OFF_PWM 0
+#endif
+#ifndef FAN_MIN_PWM
+  #if FAN_OFF_PWM > 0
+    #define FAN_MIN_PWM (FAN_OFF_PWM + 1)
+  #else
+    #define FAN_MIN_PWM 0
+  #endif
+#endif
+#ifndef FAN_MAX_PWM
+  #define FAN_MAX_PWM 255
+#endif
+#if FAN_MIN_PWM < 0 || FAN_MIN_PWM > 255
+  #error "FAN_MIN_PWM must be a value from 0 to 255."
+#elif FAN_MAX_PWM < 0 || FAN_MAX_PWM > 255
+  #error "FAN_MAX_PWM must be a value from 0 to 255."
+#elif FAN_MIN_PWM > FAN_MAX_PWM
+  #error "FAN_MIN_PWM must be less than or equal to FAN_MAX_PWM."
+#elif FAN_OFF_PWM > FAN_MIN_PWM
+  #error "FAN_OFF_PWM must be less than or equal to FAN_MIN_PWM."
+#endif
+
+/**
+ * FAST PWM FAN Settings
+ */
+#if ENABLED(FAST_PWM_FAN) && !defined(FAST_PWM_FAN_FREQUENCY)
+  #define FAST_PWM_FAN_FREQUENCY ((F_CPU) / (2 * 255 * 1)) // Fan frequency default
+#endif
+
 // Servos
 #if PIN_EXISTS(SERVO0) && NUM_SERVOS > 0
   #define HAS_SERVO_0 1
@@ -3084,77 +3155,6 @@
 
 #if !PREHEAT_COUNT
   #undef PREHEAT_SHORTCUT_MENU_ITEM
-#endif
-
-/**
- * Up to 3 PWM fans
- */
-#ifndef FAN_INVERTING
-  #define FAN_INVERTING false
-#endif
-
-#if HAS_FAN7
-  #define FAN_COUNT 8
-#elif HAS_FAN6
-  #define FAN_COUNT 7
-#elif HAS_FAN5
-  #define FAN_COUNT 6
-#elif HAS_FAN4
-  #define FAN_COUNT 5
-#elif HAS_FAN3
-  #define FAN_COUNT 4
-#elif HAS_FAN2
-  #define FAN_COUNT 3
-#elif HAS_FAN1
-  #define FAN_COUNT 2
-#elif HAS_FAN0
-  #define FAN_COUNT 1
-#else
-  #define FAN_COUNT 0
-#endif
-
-#if FAN_COUNT > 0
-  #define HAS_FAN 1
-#endif
-
-/**
- * Part Cooling fan multipliexer
- */
-#if PIN_EXISTS(FANMUX0)
-  #define HAS_FANMUX 1
-#endif
-
-/**
- * MIN/MAX fan PWM scaling
- */
-#ifndef FAN_OFF_PWM
-  #define FAN_OFF_PWM 0
-#endif
-#ifndef FAN_MIN_PWM
-  #if FAN_OFF_PWM > 0
-    #define FAN_MIN_PWM (FAN_OFF_PWM + 1)
-  #else
-    #define FAN_MIN_PWM 0
-  #endif
-#endif
-#ifndef FAN_MAX_PWM
-  #define FAN_MAX_PWM 255
-#endif
-#if FAN_MIN_PWM < 0 || FAN_MIN_PWM > 255
-  #error "FAN_MIN_PWM must be a value from 0 to 255."
-#elif FAN_MAX_PWM < 0 || FAN_MAX_PWM > 255
-  #error "FAN_MAX_PWM must be a value from 0 to 255."
-#elif FAN_MIN_PWM > FAN_MAX_PWM
-  #error "FAN_MIN_PWM must be less than or equal to FAN_MAX_PWM."
-#elif FAN_OFF_PWM > FAN_MIN_PWM
-  #error "FAN_OFF_PWM must be less than or equal to FAN_MIN_PWM."
-#endif
-
-/**
- * FAST PWM FAN Settings
- */
-#if ENABLED(FAST_PWM_FAN) && !defined(FAST_PWM_FAN_FREQUENCY)
-  #define FAST_PWM_FAN_FREQUENCY ((F_CPU) / (2 * 255 * 1)) // Fan frequency default
 #endif
 
 /**
