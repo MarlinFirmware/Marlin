@@ -401,12 +401,17 @@
  *
  * Temperature sensors available:
  *
- *  SPI RTD/Thermocouple Boards - NOTE: Ensure TEMP_n_CS_PIN is set in your pins file for each TEMP_SENSOR_n, as well as the
- *  -------                       following for Software SPI: TEMP_n_MOSI_PIN (MAX31865 only), TEMP_n_MISO_PIN, TEMP_n_SCK_PIN.
+ *  SPI RTD/Thermocouple Boards - IMPORTANT: Read the NOTE below!
+ *  -------
  *    -5 : MAX31865 with Pt100/Pt1000, 2, 3, or 4-wire  (only for sensors 0-1)
  *                  NOTE: You must uncomment/set the MAX31865_*_OHMS_n defines below.
  *    -3 : MAX31855 with Thermocouple, -200°C to +700°C (only for sensors 0-1)
  *    -2 : MAX6675  with Thermocouple, 0°C to +700°C    (only for sensors 0-1)
+ *
+ *  NOTE: Ensure TEMP_n_CS_PIN is set in your pins file for each TEMP_SENSOR_n using an SPI Thermocouple. By default,
+ *        Hardware SPI on the default serial bus is used. If you have also set TEMP_n_SCK_PIN and TEMP_n_MISO_PIN,
+ *        Software SPI will be used on those ports instead. You can force Hardware SPI on the default bus in the
+ *        Configuration_adv.h file. At this time, separate Hardware SPI buses for sensors are not supported.
  *
  *  Analog Themocouple Boards
  *  -------

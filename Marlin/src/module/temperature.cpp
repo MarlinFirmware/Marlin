@@ -161,18 +161,24 @@
   #define NO_MAXTC_LIBRARIES 1
 #endif
 
-// If we have a MAX TC with SCK and MISO pins defined, and we're not using an external library,
-// the MAX TC will be read via Hardware SPI on a different pin.
-#if (TEMP_SENSOR_IS_ANY_MAX_TC(0) && PINS_EXIST(TEMP_0_SCK, TEMP_0_MOSI)) && NO_MAXTC_LIBRARIES
-  #define TEMP_SENSOR_0_USES_SEPARATE_SPI 1
+// If we have a MAX TC with SCK and MISO pins defined, it's either on a separate/dedicated Hardware
+// SPI bus, or some pins for Software SPI. Alternate Hardware SPI buses are not supported yet, so
+// your SPI options are:
+//
+//  1. Only CS pin(s) defined:                  Hardware SPI on the default bus (usually the SD card SPI).
+//  2. CS, MISO, and SCK pins defined:          Software SPI on a separate bus, as defined by MISO, SCK.
+//  3. CS, MISO, and SCK pins w/ FORCE_HW_SPI:  Hardware SPI on the default bus, ignoring MISO, SCK.
+//
+#if TEMP_SENSOR_IS_ANY_MAX_TC(0) && TEMP_SENSOR_0_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
+    #define TEMP_SENSOR_0_USES_SW_SPI 1
 #endif
-#if (TEMP_SENSOR_IS_ANY_MAX_TC(1) && PINS_EXIST(TEMP_1_SCK, TEMP_1_MOSI)) && NO_MAXTC_LIBRARIES
-  #define TEMP_SENSOR_1_USES_SEPARATE_SPI 1
+#if TEMP_SENSOR_IS_ANY_MAX_TC(1) && TEMP_SENSOR_1_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
+    #define TEMP_SENSOR_1_USES_SW_SPI 1
 #endif
 
-#if TEMP_SENSOR_0_USES_SEPARATE_SPI || TEMP_SENSOR_1_USES_SEPARATE_SPI
+#if TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI
   #include "../libs/private_spi.h"
-  #define MAXTC_SEPARATE_SPI 1
+  #define HAS_MAXTC_SW_SPI 1
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -2022,12 +2028,6 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
 } // Temperature::updateTemperaturesFromRawValues
 
-#if MAXTC_SEPARATE_SPI
-  //TODO: what about '55, '65?
-  template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-  SPIclass<TEMP_0_MISO_PIN, SD_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
-#endif
-
 // Init fans according to whether they're native PWM or Software PWM
 #ifdef BOARD_OPENDRAIN_MOSFETS
   #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, FAN_INVERTING ? LOW : HIGH)
@@ -2212,8 +2212,8 @@ void Temperature::init() {
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
-  #if MAXTC_SEPARATE_SPI
-     max_tc_spi.init();
+  #if !HAS_MAXTC_LIBRARIES && HAS_MAXTC_SW_SPI
+    max_tc_spi.init();
   #endif
 
   HAL_adc_init();
@@ -2619,6 +2619,14 @@ void Temperature::disable_all_heaters() {
     #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
 
+  #if !HAS_MAXTC_LIBRARIES && HAS_MAXTC_SW_SPI
+    // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
+    template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
+      SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
+
+    SPIclass<TEMP_0_MISO_PIN, SD_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
+  #endif
+
   /**
    * Read MAX Thermocouple temperature.
    *
@@ -2627,20 +2635,17 @@ void Temperature::disable_all_heaters() {
   int Temperature::read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex/*=0*/)) {
     #define MAXTC_HEAT_INTERVAL 250UL
 
-    #if HAS_MAX31855_LIBRARY
-      static uint32_t max_tc_temp = 2000;
-      #define MAX_TC_ERROR_MASK    7
-      #define MAX_TC_DISCARD_BITS 18
+    #if HAS_MAX31855
+      #define MAX_TC_ERROR_MASK    7        // D2-0: SCV, SCG, OC
+      #define MAX_TC_DISCARD_BITS 18        // Data D31-18; sign bit D31
       #define MAX_TC_SPEED_BITS    3        // (_BV(SPR1)) // clock ÷ 64
-    #elif HAS_MAX31865_LIBRARY
-      static uint16_t max_tc_temp = 2000;   // From datasheet 16 bits D15-D0
-      #define MAX_TC_ERROR_MASK    1        // D0 Bit not used
+    #elif HAS_MAX31865
+      #define MAX_TC_ERROR_MASK    1        // D0 Bit on fault only
       #define MAX_TC_DISCARD_BITS  1        // Data is in D15-D1
       #define MAX_TC_SPEED_BITS    3        // (_BV(SPR1)) // clock ÷ 64
-    #else // MAX6675 or manual SPI reading
-      static uint16_t max_tc_temp = 2000;
-      #define MAX_TC_ERROR_MASK    4
-      #define MAX_TC_DISCARD_BITS  3
+    #else // MAX6675
+      #define MAX_TC_ERROR_MASK    3        // D2 only; 1 = open circuit
+      #define MAX_TC_DISCARD_BITS  3        // Data D15-D1
       #define MAX_TC_SPEED_BITS    2        // (_BV(SPR0)) // clock ÷ 16
     #endif
 
@@ -2649,7 +2654,7 @@ void Temperature::disable_all_heaters() {
       static celsius_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
       #define THERMO_TEMP(I) max_tc_temp_previous[I]
       #define THERMO_SEL(A,B) (hindex ? (B) : (A))
-      #define MAXTC_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
+      #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
     #else
       // When we have only 1 max tc, THERMO_SEL will pick the appropriate sensor
       // variable, and MAXTC_*() macros will be hardcoded to the correct CS pin.
@@ -2657,12 +2662,17 @@ void Temperature::disable_all_heaters() {
       #define THERMO_TEMP(I) max_tc_temp
       #if TEMP_SENSOR_IS_ANY_MAX_TC(0)
         #define THERMO_SEL(A,B) A
-        #define MAXTC_WRITE(V)  WRITE(TEMP_0_CS_PIN, V)
+        #define MAXTC_CS_WRITE(V)  WRITE(TEMP_0_CS_PIN, V)
       #else
         #define THERMO_SEL(A,B) B
-        #define MAXTC_WRITE(V)  WRITE(TEMP_1_CS_PIN, V)
+        #define MAXTC_CS_WRITE(V)  WRITE(TEMP_1_CS_PIN, V)
       #endif
     #endif
+
+    static TERN(HAS_MAX31855, uint32_t, uint16_t) max_tc_temp = THERMO_SEL(
+      TEMP_SENSOR_0_MAX_TC_TMAX,
+      TEMP_SENSOR_1_MAX_TC_TMAX
+    );
 
     static uint8_t max_tc_errors[MAX_TC_COUNT] = { 0 };
 
@@ -2672,28 +2682,27 @@ void Temperature::disable_all_heaters() {
     if (PENDING(ms, next_max_tc_ms[hindex])) return int(THERMO_TEMP(hindex));
     next_max_tc_ms[hindex] = ms + MAXTC_HEAT_INTERVAL;
 
-    #if !MAXTC_SEPARATE_SPI && NO_MAXTC_LIBRARIES
-      // Initialize SPI using the default SPI bus.
-      // FIXME: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
-      spiBegin();
-      spiInit(MAX_TC_SPEED_BITS);
-    #endif
-
-    max_tc_temp = 0;
-
     #if NO_MAXTC_LIBRARIES
-      // Read a big-endian temperature value without using a library
-      MAXTC_WRITE(LOW);  // enable MAXTC
-      DELAY_NS(100);     // Ensure 100ns delay
+      max_tc_temp = 0;
 
+      #if !MAXTC_SEPARATE_SPI && NO_MAXTC_LIBRARIES
+        // Initialize SPI using the default SPI bus.
+        // FIXME: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
+        spiBegin();
+        spiInit(MAX_TC_SPEED_BITS);
+      #endif
+
+      MAXTC_CS_WRITE(LOW);  // enable MAXTC
+      DELAY_NS(100);       // Ensure 100ns delay
+
+      // Read a big-endian temperature value without using a library
       for (uint8_t i = sizeof(max_tc_temp); i--;) {
-        max_tc_temp |= TERN(MAXTC_SEPARATE_SPI, max_tc_spi.receive(), spiRec());
+        max_tc_temp |= TERN(HAS_MAXTC_SW_SPI, max_tc_spi.receive(), spiRec());
         if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
       }
 
-      MAXTC_WRITE(HIGH);  // disable MAXTC
+      MAXTC_CS_WRITE(HIGH);  // disable MAXTC
     #else
-      // TODO: a lot of this is references to the GadgetAngel ModM versions...
       #if HAS_MAX6675_LIBRARY
         MAX6675 &max6675ref = THERMO_SEL(max6675_0, max6675_1);
         max_tc_temp = max6675ref.readRaw16();
@@ -2726,7 +2735,7 @@ void Temperature::disable_all_heaters() {
         SERIAL_ERROR_START();
         SERIAL_ECHOPGM("Temp measurement error! ");
         #if HAS_MAX31855
-          SERIAL_ECHOPAIR("MAX31855 Fault : (", max_tc_temp & 0x7, ") >> ");
+          SERIAL_ECHOPAIR("MAX31855 Fault: (", max_tc_temp & 0x7, ") >> ");
           if (max_tc_temp & 0x1)
             SERIAL_ECHOLNPGM("Open Circuit");
           else if (max_tc_temp & 0x2)

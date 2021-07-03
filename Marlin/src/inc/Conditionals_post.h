@@ -827,11 +827,11 @@
     #endif
 
     // Software SPI - enable if MISO/SCK are defined.
-    #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK)
+    #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK) && DISABLED(TEMP_SENSOR_0_FORCE_HW_SPI)
       #if TEMP_SENSOR_0_IS_MAX31865 && !PIN_EXISTS(TEMP_0_MOSI)
-        #warning "TEMP_SENSOR_0 MAX31865 also needs TEMP_0_MOSI_PIN defined for Software SPI; defaulting to Hardware SPI."
+        #error "TEMP_SENSOR_0 MAX31865 requires TEMP_0_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_0_FORCE_HW_SPI."
       #else
-        #define TEMP_SENSOR_0_USES_SW_SPI 1
+        #define TEMP_SENSOR_0_HAS_SPI_PINS 1
       #endif
     #endif
 
@@ -896,11 +896,11 @@
     #endif
 
     // Software SPI - enable if MISO/SCK are defined.
-    #if PIN_EXISTS(TEMP_1_MISO) && PIN_EXISTS(TEMP_1_SCK)
+    #if PIN_EXISTS(TEMP_1_MISO) && PIN_EXISTS(TEMP_1_SCK) && DISABLED(TEMP_SENSOR_1_FORCE_HW_SPI)
       #if TEMP_SENSOR_1_IS_MAX31865 && !PIN_EXISTS(TEMP_1_MOSI)
-        #warning "TEMP_SENSOR_1 MAX31865 also needs TEMP_1_MOSI_PIN defined for Software SPI; defaulting to Hardware SPI."
+        #error "TEMP_SENSOR_1 MAX31865 requires TEMP_1_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_1_FORCE_HW_SPI."
       #else
-        #define TEMP_SENSOR_1_USES_SW_SPI 1
+        #define TEMP_SENSOR_1_HAS_SPI_PINS 1
       #endif
     #endif
 
