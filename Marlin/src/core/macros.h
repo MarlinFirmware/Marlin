@@ -205,7 +205,9 @@
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
 #define _OPTARG(A)          , A
+#define _OPTARGS(A...)      , A
 #define OPTARG(O,A)         TERN_(O,DEFER4(_OPTARG)(A))
+#define OPTARGS(O,A...)     TERN_(O,DEFER4(_OPTARGS)(A))
 #define _OPTCODE(A)         A;
 #define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
 

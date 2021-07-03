@@ -61,104 +61,31 @@
 #define TEMP_SENSOR_IS_ANY_MAX_TC(n) (ENABLED(TEMP_SENSOR_##n##_IS_MAX_TC) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX_TC) && TEMP_SENSOR_REDUNDANT_SOURCE == n))
 
 // LIB_MAX6675 can be added to the build_flags in platformio.ini to use a user-defined library
-#if LIB_USR_MAX6675
+// If LIB_MAX6675 is not on the build_flags then raw SPI reads will be used.
+#if HAS_MAX6675 && LIB_USR_MAX6675
   #include <max6675.h>
-  #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK)
-    #define MAX6675_USES_SW_SPI 1
-  #endif
-  #if TEMP_SENSOR_IS_MAX(0, 6675)
-    #define HAS_MAX6675_LIBRARY 1
-    MAX6675 max6675_0 = MAX6675(TEMP_0_CS_PIN
-      #if MAX6675_USES_SW_SPI
-        , TEMP_0_MISO_PIN, TEMP_0_SCK_PIN   // For software SPI also set MISO/SCK
-      #endif
-      #if ENABLED(LARGE_PINMAP)
-        , HIGH
-      #endif
-    );
-  #endif
-  #if TEMP_SENSOR_IS_MAX(1, 6675)
-    #define HAS_MAX6675_LIBRARY 1
-    MAX6675 max6675_1 = MAX6675(TEMP_1_CS_PIN
-      #if MAX6675_USES_SW_SPI
-        , TEMP_1_MISO_PIN, TEMP_1_SCK_PIN   // For software SPI also set MISO/SCK
-      #endif
-      #if ENABLED(LARGE_PINMAP)
-        , HIGH
-      #endif
-    );
-  #endif
+  #define HAS_MAX6675_LIBRARY 1
 #endif
 
-// LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library
-#if LIB_USR_MAX31855
+// LIB_MAX31855 can be added to the build_flags in platformio.ini to use a user-defined library.
+// If LIB_MAX31855 is not on the build_flags then raw SPI reads will be used.
+#if HAS_MAX31855 && LIB_USR_MAX31855
   #include <Adafruit_MAX31855.h>
-  #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK)
-    #define MAX31855_USES_SW_SPI 1
-  #endif
-  #if TEMP_SENSOR_IS_MAX(0, 31855)
-    #define HAS_MAX31855_LIBRARY 1
-    Adafruit_MAX31855 max31855_0 = Adafruit_MAX31855(TEMP_0_CS_PIN
-      #if MAX31855_USES_SW_SPI
-        , TEMP_0_MISO_PIN, TEMP_0_SCK_PIN  // For software SPI also set MISO/SCK
-      #endif
-      #if ENABLED(LARGE_PINMAP)
-        , HIGH
-      #endif
-    );
-  #endif
-  #if TEMP_SENSOR_IS_MAX(1, 31855)
-    #define HAS_MAX31855_LIBRARY 1
-    Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(TEMP_1_CS_PIN
-      #if MAX31855_USES_SW_SPI
-        , TEMP_1_MISO_PIN, TEMP_1_SCK_PIN  // For software SPI also set MISO/SCK
-      #endif
-      #if ENABLED(LARGE_PINMAP)
-        , HIGH
-      #endif
-    );
-  #endif
+  #define HAS_MAX31855_LIBRARY 1
+  typedef Adafruit_MAX31855 MAX31855;
 #endif
 
-// LIB_MAX31865 can be added to the build_flags in platformio.ini to use a user-defined library.
-// If LIB_MAX31865 is not on the build_flags then the Adafruit MAX31865 V1.1.0 library is used.
 #if HAS_MAX31865
-  #include <Adafruit_MAX31865.h>
-  #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK)
-    #define MAX31865_USES_SW_SPI 1
-  #endif
-  #if TEMP_SENSOR_IS_MAX(0, 31865)
-    #define HAS_MAX31865_LIBRARY 1
-    #ifndef TEMP_0_MOSI_PIN
-      #define TEMP_0_MOSI_PIN SD_MOSI_PIN
-    #endif
-    Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(TEMP_0_CS_PIN
-      #if MAX31865_USES_SW_SPI
-        , TEMP_0_MOSI_PIN, TEMP_0_MISO_PIN, TEMP_0_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
-      #endif
-      #if ENABLED(LARGE_PINMAP)
-        , HIGH
-      #endif
-    );
-  #endif
-  #if TEMP_SENSOR_IS_MAX(1, 31865)
-    #define HAS_MAX31865_LIBRARY 1
-    #ifndef TEMP_1_MOSI_PIN
-      #define TEMP_1_MOSI_PIN SD_MOSI_PIN
-    #endif
-    Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(TEMP_1_CS_PIN
-      #if MAX31865_USES_SW_SPI
-        , TEMP_1_MOSI_PIN, TEMP_1_MISO_PIN, TEMP_1_SCK_PIN  // For software SPI also set MOSI/MISO/SCK
-      #endif
-      #if ENABLED(LARGE_PINMAP)
-        , HIGH
-      #endif
-    );
+  #if LIB_USR_MAX31865
+    #include <Adafruit_MAX31865.h>
+    typedef Adafruit_MAX31865 MAX31865
+  #else
+    #include "../libs/MAX31865.h"
   #endif
 #endif
 
-#if !HAS_MAX6675_LIBRARY && !HAS_MAX31855_LIBRARY && !HAS_MAX31865_LIBRARY
-  #define NO_MAXTC_LIBRARIES 1
+#if HAS_MAX6675_LIBRARY || HAS_MAX31855_LIBRARY || HAS_MAX31865
+  #define HAS_MAXTC_LIBRARIES 1
 #endif
 
 // If we have a MAX TC with SCK and MISO pins defined, it's either on a separate/dedicated Hardware
@@ -175,6 +102,7 @@
 #if TEMP_SENSOR_IS_ANY_MAX_TC(1) && TEMP_SENSOR_1_HAS_SPI_PINS && DISABLED(TEMP_SENSOR_FORCE_HW_SPI)
     #define TEMP_SENSOR_1_USES_SW_SPI 1
 #endif
+
 
 #if TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI
   #include "../libs/private_spi.h"
@@ -263,7 +191,71 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #define _E_PSTR(h,N) ((HOTENDS) > N && (h) == N) ? PSTR(LCD_STR_E##N) :
 #define HEATER_PSTR(h) _BED_PSTR(h) _CHAMBER_PSTR(h) _COOLER_PSTR(h) _E_PSTR(h,1) _E_PSTR(h,2) _E_PSTR(h,3) _E_PSTR(h,4) _E_PSTR(h,5) PSTR(LCD_STR_E0)
 
-// public:
+//
+// Initialize MAX TC objects/SPI
+//
+#if HAS_MAX_TC
+
+  #if !HAS_MAXTC_LIBRARIES && HAS_MAXTC_SW_SPI
+    // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
+    template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
+      SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
+
+    SPIclass<TEMP_0_MISO_PIN, SD_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
+  #endif
+
+  #define MAXTC_INIT(n, M) \
+      MAX##M max##M##_##n = MAX##M( \
+        TEMP_##n##_CS_PIN \
+        OPTARG(_MAX31865_##n##_SW, TEMP_##n##_MOSI_PIN) \
+        OPTARGS(TEMP_SENSOR_##n##_USES_SW_SPI, \
+          TEMP_##n##_MISO_PIN, \
+          TEMP_##n##_SCK_PIN \
+        ) \
+        OPTARG(LARGE_PINMAP, HIGH) \
+      )
+
+  #if HAS_MAX6675_LIBRARY
+    #if TEMP_SENSOR_IS_MAX(0, 6675)
+      MAXTC_INIT(0, 6675);
+    #endif
+    #if TEMP_SENSOR_IS_MAX(1, 6675)
+      MAXTC_INIT(1, 6675);
+    #endif
+  #endif
+
+  #if HAS_MAX31855_LIBRARY
+    #if TEMP_SENSOR_IS_MAX(0, 31855)
+      MAXTC_INIT(0, 31855);
+    #endif
+    #if TEMP_SENSOR_IS_MAX(1, 31855)
+      MAXTC_INIT(1, 31855);
+    #endif
+  #endif
+
+  // MAX31865 always uses a library, unlike '55 & 6675
+  #if HAS_MAX31865
+    #define _MAX31865_0_SW TEMP_SENSOR_0_USES_SW_SPI
+    #define _MAX31865_1_SW TEMP_SENSOR_1_USES_SW_SPI
+
+    #if TEMP_SENSOR_IS_MAX(0, 31865)
+      MAXTC_INIT(0, 31865);
+    #endif
+    #if TEMP_SENSOR_IS_MAX(1, 31865)
+      MAXTC_INIT(1, 31865);
+    #endif
+
+    #undef _MAX31865_0_SW
+    #undef _MAX31865_1_SW
+  #endif
+
+  #undef MAXTC_INIT
+
+#endif
+
+/**
+ * public:
+ */
 
 #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
   bool Temperature::adaptive_fan_slowing = true;
@@ -1747,7 +1739,7 @@ void Temperature::manage_heater() {
         #if TEMP_SENSOR_0_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
         #elif TEMP_SENSOR_0_IS_MAX_TC
-          return TERN(TEMP_SENSOR_0_IS_MAX31865, max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0), raw * 0.25);
+          return TERN(TEMP_SENSOR_0_IS_MAX31865, max31865_0.temperature((uint16_t)raw), raw * 0.25);
         #elif TEMP_SENSOR_0_IS_AD595
           return TEMP_AD595(raw);
         #elif TEMP_SENSOR_0_IS_AD8495
@@ -1759,7 +1751,7 @@ void Temperature::manage_heater() {
         #if TEMP_SENSOR_1_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_1, raw);
         #elif TEMP_SENSOR_1_IS_MAX_TC
-          return TERN(TEMP_SENSOR_1_IS_MAX31865, max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1), raw * 0.25);
+          return TERN(TEMP_SENSOR_1_IS_MAX31865, max31865_1.temperature((uint16_t)raw), raw * 0.25);
         #elif TEMP_SENSOR_1_IS_AD595
           return TEMP_AD595(raw);
         #elif TEMP_SENSOR_1_IS_AD8495
@@ -1918,9 +1910,9 @@ void Temperature::manage_heater() {
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       return user_thermistor_to_deg_c(CTI_REDUNDANT, raw);
     #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0), raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_0.temperature((uint16_t)raw), raw * 0.25);
     #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1
-      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1), raw * 0.25);
+      return TERN(TEMP_SENSOR_REDUNDANT_IS_MAX31865, max31865_1.temperature((uint16_t)raw), raw * 0.25);
     #elif TEMP_SENSOR_REDUNDANT_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_REDUNDANT, TEMPTABLE_REDUNDANT_LEN);
     #elif TEMP_SENSOR_REDUNDANT_IS_AD595
@@ -2091,21 +2083,30 @@ void Temperature::init() {
   #endif
 
   // Setup objects for library-based polling of MAX TCs
-  #ifndef NO_MAXTC_LIBRARIES
+  #if HAS_MAXTC_LIBRARIES
     #if TEMP_SENSOR_IS_MAX(0, 6675) && HAS_MAX6675_LIBRARY
       max6675_0.begin();
     #elif TEMP_SENSOR_IS_MAX(0, 31855) && HAS_MAX31855_LIBRARY
       max31855_0.begin();
-    #elif TEMP_SENSOR_IS_MAX(0, 31865) && HAS_MAX31865_LIBRARY
       max31865_0.begin(MAX31865_2WIRE); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+    #elif TEMP_SENSOR_IS_MAX(0, 31865)
+      max31865_0.begin(
+        MAX31865_SENSOR_OHMS_0,
+        MAX31865_CALIBRATION_OHMS_0,
+        MAX31865_2WIRE // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+      );
     #endif
 
     #if TEMP_SENSOR_IS_MAX(1, 6675) && HAS_MAX6675_LIBRARY
       max6675_1.begin();
     #elif TEMP_SENSOR_IS_MAX(1, 31855) && HAS_MAX31855_LIBRARY
       max31855_1.begin();
-    #elif TEMP_SENSOR_IS_MAX(1, 31865) && HAS_MAX31865_LIBRARY
-      max31865_1.begin(MAX31865_2WIRE);
+    #elif TEMP_SENSOR_IS_MAX(1, 31865)
+      max31865_1.begin(
+        MAX31865_SENSOR_OHMS_1,
+        MAX31865_CALIBRATION_OHMS_1,
+        MAX31865_2WIRE
+      );
     #endif
   #endif
 
@@ -2619,20 +2620,16 @@ void Temperature::disable_all_heaters() {
     #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
 
-  #if !HAS_MAXTC_LIBRARIES && HAS_MAXTC_SW_SPI
-    // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
-    template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
-      SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-
-    SPIclass<TEMP_0_MISO_PIN, SD_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
-  #endif
-
   /**
-   * Read MAX Thermocouple temperature.
+   * @brief Read MAX Thermocouple temperature.
    *
-   * Reads the temperature via HW or SW SPI, using a library (LIB_USR_x or LIB_ADAFRUIT_x) or raw SPI reads.
+   * Reads the thermocouple board via HW or SW SPI, using a library (LIB_USR_x) or raw SPI reads.
+   * Doesn't strictly return a temperature; returns an "ADC Value" (i.e. raw register content).
+   *
+   * @param  hindex  the hotend we're referencing (if MULTI_MAX_TC)
+   * @return         integer representing the board's buffer, to be converted later if needed
    */
-  int Temperature::read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex/*=0*/)) {
+  int16_t Temperature::read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex/*=0*/)) {
     #define MAXTC_HEAT_INTERVAL 250UL
 
     #if HAS_MAX31855
@@ -2651,7 +2648,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MULTI_MAX_TC
       // Needed to return the correct temp when this is called between readings
-      static celsius_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
+      static int16_t max_tc_temp_previous[MAX_TC_COUNT] = { 0 };
       #define THERMO_TEMP(I) max_tc_temp_previous[I]
       #define THERMO_SEL(A,B) (hindex ? (B) : (A))
       #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
@@ -2675,25 +2672,27 @@ void Temperature::disable_all_heaters() {
     );
 
     static uint8_t max_tc_errors[MAX_TC_COUNT] = { 0 };
+    static millis_t next_max_tc_ms[MAX_TC_COUNT] = { 0 };
 
     // Return last-read value between readings
-    static millis_t next_max_tc_ms[MAX_TC_COUNT] = { 0 };
     millis_t ms = millis();
-    if (PENDING(ms, next_max_tc_ms[hindex])) return int(THERMO_TEMP(hindex));
+    if (PENDING(ms, next_max_tc_ms[hindex]))
+      return (int16_t)THERMO_TEMP(hindex);
+
     next_max_tc_ms[hindex] = ms + MAXTC_HEAT_INTERVAL;
 
-    #if NO_MAXTC_LIBRARIES
+    #if !HAS_MAXTC_LIBRARIES
       max_tc_temp = 0;
 
-      #if !MAXTC_SEPARATE_SPI && NO_MAXTC_LIBRARIES
-        // Initialize SPI using the default SPI bus.
+      #if !HAS_MAXTC_SW_SPI
+        // Initialize SPI using the default Hardware SPI bus.
         // FIXME: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
         spiBegin();
         spiInit(MAX_TC_SPEED_BITS);
       #endif
 
       MAXTC_CS_WRITE(LOW);  // enable MAXTC
-      DELAY_NS(100);       // Ensure 100ns delay
+      DELAY_NS(100);        // Ensure 100ns delay
 
       // Read a big-endian temperature value without using a library
       for (uint8_t i = sizeof(max_tc_temp); i--;) {
@@ -2709,28 +2708,21 @@ void Temperature::disable_all_heaters() {
       #endif
 
       #if HAS_MAX31855_LIBRARY
-        Adafruit_MAX31855 &max855ref = THERMO_SEL(max31855_0, max31855_1);
+        MAX31855 &max855ref = THERMO_SEL(max31855_0, max31855_1);
         max_tc_temp = max855ref.readRaw32();
       #endif
 
-      #if HAS_MAX31865_LIBRARY
-        Adafruit_MAX31865 &max865ref = THERMO_SEL(max31865_0, max31865_1);
-        #if ENABLED(LIB_USR_MAX31865)
-          max_tc_temp = max865ref.readRTD_with_Fault();
-        #endif
-        #if ENABLED(LIB_ADAFRUIT_MAX31865)
-          // Read just the fault first; temperature will be checked after errors are handled.
-          // At the present time we do not have the ability to set the MAX31865 HIGH threshold
-          // or thr LOW threshold, so no need to check for them, zero these bits out
-          const uint8_t fault_31865 = max865ref.readFault() & 0x3FU;
-        #endif
+      #if HAS_MAX31865
+        MAX31865 &max865ref = THERMO_SEL(max31865_0, max31865_1);
+        max_tc_temp = max865ref.readRaw();
       #endif
     #endif
 
     // Handle an error. If there have been more than THERMOCOUPLE_MAX_ERRORS, send an error over serial.
     // Either way, return the TMAX for the thermocouple to trigger a max_temp_error()
-    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && TERN(LIB_ADAFRUIT_MAX31865, fault_31865, (max_tc_temp & MAX_TC_ERROR_MASK))) {
+    if (max_tc_temp & MAX_TC_ERROR_MASK) {
       max_tc_errors[hindex]++;
+
       if (max_tc_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
         SERIAL_ECHOPGM("Temp measurement error! ");
@@ -2743,11 +2735,7 @@ void Temperature::disable_all_heaters() {
           else if (max_tc_temp & 0x4)
             SERIAL_ECHOLNPGM("Short to VCC");
         #elif HAS_MAX31865
-          #if ENABLED(LIB_USR_MAX31865)
-            // At the present time we do not have the ability to set the MAX31865 HIGH threshold
-            // or thr LOW threshold, so no need to check for them, zero these bits out
-            const uint8_t fault_31865 = max865ref.readFault() & 0x3FU;
-          #endif
+          const uint8_t fault_31865 = max865ref.readFault();
           max865ref.clearFault();
           if (fault_31865) {
             SERIAL_EOL();
@@ -2763,35 +2751,30 @@ void Temperature::disable_all_heaters() {
             if (fault_31865 & MAX31865_FAULT_RTDINLOW)
               SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
             if (fault_31865 & MAX31865_FAULT_OVUV)
-              SERIAL_ECHOLNPGM("Under/Over voltage");
+              SERIAL_ECHOLNPGM("Under/Over voltage (sensor disconnected?)");
           }
         #else
           SERIAL_ECHOLNPGM("MAX6675 Open Circuit");
         #endif
 
-        // Set thermocouple to open temperature (TMAX)
-        max_tc_temp = 4 * THERMO_SEL(TEMP_SENSOR_0_MAX_TC_TMAX, TEMP_SENSOR_1_MAX_TC_TMAX);
-      } // if(consecutive errors > MAX_ERR)
-    } else {
-      max_tc_errors[hindex] = 0;
-    } // if(there was an error)
+        // Set thermocouple above max temperature (TMAX)
+        max_tc_temp = THERMO_SEL(TEMP_SENSOR_0_MAX_TC_TMAX, TEMP_SENSOR_1_MAX_TC_TMAX) << (MAX_TC_DISCARD_BITS + 1);
+      }
+    }
+    else {
+      max_tc_errors[hindex] = 0; // No error bit, reset error count
+    }
 
-    // Discard bits unless we faked the temp due to an error.
-    if(!max_tc_errors[hindex]) max_tc_temp >>= MAX_TC_DISCARD_BITS;
+    max_tc_temp >>= MAX_TC_DISCARD_BITS;
 
     #if HAS_MAX31855
       // Support negative temperature for MAX38155
       if (max_tc_temp & 0x00002000) max_tc_temp |= 0xFFFFC000;
     #endif
 
-    #if HAS_MAX31865_LIBRARY
-      // Return the RTD resistance for MAX31865 for display in SHOW_TEMP_ADC_VALUES
-      max_tc_temp = ( (uint32_t)TERN(LIB_USR_MAX31865, max_tc_temp, max865ref.readRTD()) * THERMO_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1) ) >> 16;
-    #endif
-
     THERMO_TEMP(hindex) = max_tc_temp;
 
-    return int(max_tc_temp);
+    return (int16_t)max_tc_temp;
   }
 
 #endif // HAS_MAX_TC
@@ -3466,7 +3449,7 @@ void Temperature::isr() {
     SERIAL_PRINT(t, SFP);
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       // Temperature MAX SPI boards do not have an OVERSAMPLENR defined
-      SERIAL_ECHOPAIR(" (", TERN(NO_MAXTC_LIBRARIES, false, k == 'T') ? r : r * RECIPROCAL(OVERSAMPLENR));
+      SERIAL_ECHOPAIR(" (", TERN(HAS_MAXTC_LIBRARIES, k == 'T', false) ? r : r * RECIPROCAL(OVERSAMPLENR));
       SERIAL_CHAR(')');
     #endif
     delay(2);

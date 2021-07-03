@@ -915,7 +915,7 @@ class Temperature {
       #else
         #define READ_MAX_TC(N) read_max_tc()
       #endif
-      static int read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
+      static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
     static void checkExtruderAutoFans();
