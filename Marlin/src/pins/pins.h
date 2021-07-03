@@ -380,6 +380,8 @@
   #include "lpc1768/pins_BTT_SKR_V1_3.h"        // LPC1768                                env:LPC1768
 #elif MB(BTT_SKR_V1_4)
   #include "lpc1768/pins_BTT_SKR_V1_4.h"        // LPC1768                                env:LPC1768
+#elif MB(MY_LPC)
+  #include "lpc1768/pins_MY_LPC.h"              // LPC1768                                env:LPC1768
 
 //
 // LPC1769 ARM Cortex M3
@@ -629,6 +631,8 @@
   #include "stm32f4/pins_ANET_ET4P.h"           // STM32F4                                env:Anet_ET4_OpenBLT
 #elif MB(FYSETC_CHEETAH_V20)
   #include "stm32f4/pins_FYSETC_CHEETAH_V20.h"  // STM32F4                                env:FYSETC_CHEETAH_V20
+#elif MB(PILL_F401XX)
+  #include "stm32f4/pins_PILL_F401XX.h"         // STM32F4                                env:PILL_F401XX
 
 //
 // ARM Cortex M7
