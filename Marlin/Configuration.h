@@ -536,6 +536,10 @@
   #define ABL_BI
 #endif
 
+#if ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI) && NONE(ABL_UBL, ABL_BI)
+  #define ABL_BI
+#endif
+
 #if NONE(MeshFast, MeshStd, MeshFine, MeshExtreme)
   #define MeshStd
 #endif
@@ -1858,7 +1862,7 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#if NONE(Creality422, Creality427) && DISABLED(Creality42XUseZMin)
+#if NONE(Creality422, Creality427, MachineEnder6) && DISABLED(Creality42XUseZMin)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 // Force the use of the probe for Z-axis homing
