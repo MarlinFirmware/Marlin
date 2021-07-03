@@ -134,7 +134,27 @@
   #define EXP1_3                            PB7
 #endif
 
-#if HAS_WIRED_LCD
+#if ENABLED(DWIN_CREALITY_LCD)
+  /**
+   *        -----              ------              ------
+   *   VCC | 1 2 | GND    VCC | 1 2 | GND    GND  | 2  1 | VCC
+   *     A | 3 4 | B        A | 3 4 | B        B  | 4  3 | A
+   *       | 5 6   TX    BEEP | 5 6   ENT    ENT |  6  5 | BEEP
+   *       | 7 8 | RX      TX | 7 8 | RX      RX  | 8  7 | TX
+   *  BEEP | 9 10| ENT        | 9 10|             | 10 9 |
+   *        -----              ------              ------
+   *        EXP1               DWIN                DWIN (plug)
+   *
+   * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
+   */
+
+  #error "DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. Comment out this line to continue."
+
+  #define BEEPER_PIN              EXP1_9
+  #define BTN_EN1                 EXP1_3
+  #define BTN_EN2                 PB8
+  #define BTN_ENC                 PB5
+#elif HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
