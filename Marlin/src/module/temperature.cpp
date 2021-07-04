@@ -2090,16 +2090,30 @@ void Temperature::init() {
   #endif
 
   #if HAS_MAX31865_TEMP
-    TERN_(TEMP_SENSOR_IS_MAX(0, MAX31865), max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
-    TERN_(TEMP_SENSOR_IS_MAX(1, MAX31865), max31865_1.begin(MAX31865_2WIRE));
+    #if TEMP_SENSOR_IS_MAX(0, MAX31865)
+      max31865_0.begin(MAX31865_2WIRE); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+    #endif
+    #if TEMP_SENSOR_IS_MAX(1, MAX31865)
+      max31865_1.begin(MAX31865_2WIRE);
+    #endif
   #endif
+
   #if HAS_MAX31855_TEMP
-    TERN_(TEMP_SENSOR_IS_MAX(0, MAX31855), max31855_0.begin());
-    TERN_(TEMP_SENSOR_IS_MAX(1, MAX31855), max31855_1.begin());
+    #if TEMP_SENSOR_IS_MAX(0, MAX31855)
+      max31855_0.begin(MAX31855);
+    #endif
+    #if TEMP_SENSOR_IS_MAX(1, MAX31855)
+      max31855_1.begin(MAX31855);
+    #endif
   #endif
+
   #if HAS_MAX6675_TEMP
-    TERN_(TEMP_SENSOR_IS_MAX(0, MAX6675), max6675_0.begin());
-    TERN_(TEMP_SENSOR_IS_MAX(1, MAX6675), max6675_1.begin());
+    #if TEMP_SENSOR_IS_MAX(0, MAX6675)
+      max6675_0.begin(MAX6675);
+    #endif
+    #if TEMP_SENSOR_IS_MAX(1, MAX6675)
+      max6675_1.begin(MAX6675);
+    #endif
   #endif
 
   #if MB(RUMBA)
