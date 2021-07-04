@@ -21,7 +21,7 @@
  */
 
 /**
- * Based on Based on Adafruit MAX31865 library:
+ * Based on Adafruit MAX31865 library:
  *
  * This is a library for the Adafruit PT100/P1000 RTD Sensor w/MAX31865
  * Designed specifically to work with the Adafruit RTD Sensor
@@ -71,8 +71,6 @@
 #define MAX31865_FAULT_RTDINLOW 0x08    // D3
 #define MAX31865_FAULT_OVUV 0x04        // D2
 
-#define MAX31865_SPI_MODE SPI_MODE1
-
 // http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
 // constants for calulating temperature from the measured RTD resistance.
 #define RTD_Z1 -0.0039083
@@ -86,7 +84,7 @@ typedef enum max31865_numwires {
   MAX31865_4WIRE = 0
 } max31865_numwires_t;
 
-/*! Interface class for the MAX31865 RTD Sensor reader */
+/* Interface class for the MAX31865 RTD Sensor reader */
 class MAX31865 {
 private:
   static SPISettings spiConfig;
@@ -105,16 +103,16 @@ private:
 
 public:
   #ifdef LARGE_PINMAP
-    MAX31865(uint32_t spi_cs, bool pin_mapping);
+    MAX31865(uint32_t spi_cs, uint8_t pin_mapping);
     MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso,
-             uint32_t spi_clk, bool pin_mapping);
+             uint32_t spi_clk, uint8_t pin_mapping);
   #else
     MAX31865(int8_t spi_cs);
     MAX31865(int8_t spi_cs, int8_t spi_mosi, int8_t spi_miso,
              int8_t spi_clk);
   #endif
 
-  void begin(float zero, float ref, max31865_numwires_t x);
+  void begin(max31865_numwires_t wires, float zero, float ref);
 
   uint8_t readFault();
   void clearFault();

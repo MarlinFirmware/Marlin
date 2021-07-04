@@ -79,7 +79,7 @@
 #if HAS_MAX31865
   #if LIB_USR_MAX31865
     #include <Adafruit_MAX31865.h>
-    typedef Adafruit_MAX31865 MAX31865
+    typedef Adafruit_MAX31865 MAX31865;
   #else
     #include "../libs/MAX31865.h"
   #endif
@@ -104,7 +104,7 @@
     #define TEMP_SENSOR_1_USES_SW_SPI 1
 #endif
 
-#if TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI
+#if (TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI) && !HAS_MAXTC_LIBRARIES
   #include "../libs/private_spi.h"
   #define HAS_MAXTC_SW_SPI 1
 #endif
@@ -194,11 +194,11 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 //
 #if HAS_MAX_TC
 
-  #if !HAS_MAXTC_LIBRARIES && HAS_MAXTC_SW_SPI
+  #if HAS_MAXTC_SW_SPI
     // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
     template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
       SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-    SPIclass<TEMP_0_MISO_PIN, SD_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
+    SPIclass<TEMP_0_MISO_PIN, TEMP_0_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
   #endif
 
   #define MAXTC_INIT(n, M) \
@@ -1750,7 +1750,14 @@ void Temperature::manage_heater() {
         #if TEMP_SENSOR_0_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_0, raw);
         #elif TEMP_SENSOR_0_IS_MAX_TC
-          return TERN(TEMP_SENSOR_0_IS_MAX31865, max31865_0.temperature((uint16_t)raw), raw * 0.25);
+          #if TEMP_SENSOR_0_IS_MAX31865
+            return TERN(LIB_INTERNAL_MAX31865,
+              max31865_0.temperature((uint16_t)raw),
+              max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0)
+            );
+          #else
+            return raw * 0.25;
+          #endif
         #elif TEMP_SENSOR_0_IS_AD595
           return TEMP_AD595(raw);
         #elif TEMP_SENSOR_0_IS_AD8495
@@ -1762,7 +1769,14 @@ void Temperature::manage_heater() {
         #if TEMP_SENSOR_1_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_1, raw);
         #elif TEMP_SENSOR_1_IS_MAX_TC
-          return TERN(TEMP_SENSOR_1_IS_MAX31865, max31865_1.temperature((uint16_t)raw), raw * 0.25);
+          #if TEMP_SENSOR_0_IS_MAX31865
+            return TERN(LIB_INTERNAL_MAX31865,
+              max31865_1.temperature((uint16_t)raw),
+              max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1)
+            );
+          #else
+            return raw * 0.25;
+          #endif
         #elif TEMP_SENSOR_1_IS_AD595
           return TEMP_AD595(raw);
         #elif TEMP_SENSOR_1_IS_AD8495
@@ -2076,11 +2090,10 @@ void Temperature::init() {
       max31855_0.begin();
     #elif TEMP_SENSOR_IS_MAX(0, 31865)
       max31865_0.begin(
-        MAX31865_SENSOR_OHMS_0,
-        MAX31865_CALIBRATION_OHMS_0,
         MAX31865_WIRES(MAX31865_SENSOR_WIRES_0) // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+        OPTARG(LIB_INTERNAL_MAX31865, MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0)
       );
-      #ifdef MAX31865_50HZ_FILTER
+      #if defined(LIB_INTERNAL_MAX31865) && ENABLED(MAX31865_50HZ_FILTER)
         max31865_0.enable50HzFilter(1);
       #endif
     #endif
@@ -2091,11 +2104,10 @@ void Temperature::init() {
       max31855_1.begin();
     #elif TEMP_SENSOR_IS_MAX(1, 31865)
       max31865_1.begin(
-        MAX31865_SENSOR_OHMS_1,
-        MAX31865_CALIBRATION_OHMS_1,
-        MAX31865_WIRES(MAX31865_SENSOR_WIRES_1)
+        MAX31865_WIRES(MAX31865_SENSOR_WIRES_1) // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+        OPTARG(LIB_INTERNAL_MAX31865, MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1)
       );
-      #ifdef MAX31865_50HZ_FILTER
+      #if defined(LIB_INTERNAL_MAX31865) && ENABLED(MAX31865_50HZ_FILTER)
         max31865_1.enable50HzFilter(1);
       #endif
     #endif
@@ -2205,7 +2217,7 @@ void Temperature::init() {
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
-  #if !HAS_MAXTC_LIBRARIES && HAS_MAXTC_SW_SPI
+  #if HAS_MAXTC_SW_SPI
     max_tc_spi.init();
   #endif
 
@@ -2619,15 +2631,15 @@ void Temperature::disable_all_heaters() {
     #if HAS_MAX31855
       #define MAX_TC_ERROR_MASK    7        // D2-0: SCV, SCG, OC
       #define MAX_TC_DISCARD_BITS 18        // Data D31-18; sign bit D31
-      #define MAX_TC_SPEED_BITS    3        // (_BV(SPR1)) // clock ÷ 64
+      #define MAX_TC_SPEED_BITS    3        // ~1MHz
     #elif HAS_MAX31865
       #define MAX_TC_ERROR_MASK    1        // D0 Bit on fault only
       #define MAX_TC_DISCARD_BITS  1        // Data is in D15-D1
-      #define MAX_TC_SPEED_BITS    3        // (_BV(SPR1)) // clock ÷ 64
+      #define MAX_TC_SPEED_BITS    3        // ~1MHz
     #else // MAX6675
       #define MAX_TC_ERROR_MASK    3        // D2 only; 1 = open circuit
       #define MAX_TC_DISCARD_BITS  3        // Data D15-D1
-      #define MAX_TC_SPEED_BITS    2        // (_BV(SPR0)) // clock ÷ 16
+      #define MAX_TC_SPEED_BITS    2        // ~2MHz
     #endif
 
     #if HAS_MULTI_MAX_TC
@@ -2698,7 +2710,7 @@ void Temperature::disable_all_heaters() {
 
       #if HAS_MAX31865
         MAX31865 &max865ref = THERMO_SEL(max31865_0, max31865_1);
-        max_tc_temp = max865ref.readRaw();
+        max_tc_temp = TERN(LIB_INTERNAL_MAX31865, max865ref.readRaw(), max865ref.readRTD_with_Fault());
       #endif
     #endif
 

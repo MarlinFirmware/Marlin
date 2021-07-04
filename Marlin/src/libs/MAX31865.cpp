@@ -52,6 +52,7 @@
 
 #include "MAX31865.h"
 
+// The maximum speed the MAX31865 can do is 5 MHz
 SPISettings MAX31865::spiConfig = SPISettings(
   #if defined(TARGET_LPC1768)
     SPI_QUARTER_SPEED
@@ -60,7 +61,8 @@ SPISettings MAX31865::spiConfig = SPISettings(
   #else
     500000
   #endif
-  , MSBFIRST, MAX31865_SPI_MODE
+  , MSBFIRST
+  , SPI_MODE_1 // CPOL0 CPHA1
 );
 
 #ifndef LARGE_PINMAP
@@ -141,8 +143,10 @@ SPISettings MAX31865::spiConfig = SPISettings(
  * Initialize the SPI interface and set the number of RTD wires used
  *
  * @param wires  The number of wires in enum format. Can be MAX31865_2WIRE, MAX31865_3WIRE, or MAX31865_4WIRE.
+ * @param zero   The resistance of the RTD at 0 degC, in ohms.
+ * @param ref    The resistance of the reference resistor, in ohms.
  */
-void MAX31865::begin(float zero, float ref, max31865_numwires_t wires) {
+void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   Rzero = zero;
   Rref = ref;
 
@@ -414,7 +418,7 @@ uint16_t MAX31865::readRegister16(uint8_t addr) {
 }
 
 /**
- * Read +n+ bytes from a specified address into +buffer+.
+ * Read +n+ bytes from a specified address into +buffer+. Set D7 to 0 to specify a read.
  *
  * @param addr    the first register address
  * @param buffer  storage for the read bytes
@@ -445,7 +449,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
 }
 
 /**
- * Write an 8-bit value to a register.
+ * Write an 8-bit value to a register. Set D7 to 1 to specify a write.
  *
  * @param addr  the address to write to
  * @param data  the data to write
@@ -468,7 +472,10 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
 }
 
 /**
- * Transfer SPI data +x+ and read the response.
+ * Transfer SPI data +x+ and read the response. From the datasheet...
+ * Input data (SDI) is latched on the internal strobe edge and output data (SDO) is
+ * shifted out on the shift edge. There is one clock for each bit transferred.
+ * Address and data bits are transferred in groups of eight, MSB first.
  *
  * @param  x  an 8-bit chunk of data to write
  * @return    the 8-bit response

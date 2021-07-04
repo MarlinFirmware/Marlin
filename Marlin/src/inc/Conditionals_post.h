@@ -929,7 +929,7 @@
   #if BOTH(HAS_MAX31865, LIB_MAX31865)
     #define LIB_USR_MAX31865 1
   #elif HAS_MAX31865
-    #define LIB_INTERNAL_MAX31865
+    #define LIB_INTERNAL_MAX31865 1
   #endif
 
 #endif //HAS_MAX_TC
