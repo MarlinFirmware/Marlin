@@ -593,24 +593,29 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 
   #ifdef PTC_SAMPLE_START
-    constexpr int _ptc_sample_start = PTC_SAMPLE_START;
-    static_assert(_test_ptc_sample_start != PTC_SAMPLE_START, "PTC_SAMPLE_START must be a whole number.");
+    constexpr auto _ptc_sample_start = PTC_SAMPLE_START;
+    constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
+    static_assert(_test_ptc_sample_start != 12.3f, "PTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef PTC_SAMPLE_RES
-    constexpr int _ptc_sample_res = PTC_SAMPLE_END;
-    static_assert(_test_ptc_sample_res != PTC_SAMPLE_END, "PTC_SAMPLE_RES must be a whole number.");
+    constexpr auto _ptc_sample_res = PTC_SAMPLE_RES;
+    constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
+    static_assert(_test_ptc_sample_res != 12.3f, "PTC_SAMPLE_RES must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_START
-    constexpr int _btc_sample_start = BTC_SAMPLE_START;
-    static_assert(_test_btc_sample_start != BTC_SAMPLE_START, "BTC_SAMPLE_START must be a whole number.");
+    constexpr auto _btc_sample_start = BTC_SAMPLE_START;
+    constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
+    static_assert(_test_btc_sample_start != 12.3f, "BTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_RES
-    constexpr int _btc_sample_res = BTC_SAMPLE_END;
-    static_assert(_test_btc_sample_res != BTC_SAMPLE_END, "BTC_SAMPLE_RES must be a whole number.");
+    constexpr _btc_sample_res = BTC_SAMPLE_RES;
+    constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
+    static_assert(_test_btc_sample_res != 12.3f, "BTC_SAMPLE_RES must be a whole number.");
   #endif
   #ifdef BTC_PROBE_TEMP
-    constexpr int _btc_probe_temp = BTC_PROBE_TEMP;
-    static_assert(_test_btc_probe_temp != BTC_PROBE_TEMP, "BTC_PROBE_TEMP must be a whole number.");
+    constexpr auto _btc_probe_temp = BTC_PROBE_TEMP;
+    constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
+    static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
   #endif
 #endif
 
@@ -3581,6 +3586,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  */
 #if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
   #error "Either enable MEATPACK_ON_SERIAL_PORT_* or BINARY_FILE_TRANSFER, not both."
+#endif
+
+/**
+ * Sanity Check for Slim LCD Menus and Probe Offset Wizard
+ */
+#if BOTH(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
+  #error "SLIM_LCD_MENUS disables \"Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.\""
 #endif
 
 /**
