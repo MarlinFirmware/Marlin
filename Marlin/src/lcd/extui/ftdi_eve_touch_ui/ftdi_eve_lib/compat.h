@@ -195,11 +195,31 @@
   #define pgm_read_ptr_far pgm_read_ptr
   #endif
 
+  // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
+  #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+  #define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
+  // SERIAL_ECHOPAIR / SERIAL_ECHOPAIR_P is used to output a key value pair. The key must be a string and the value can be anything
+  // Print up to 12 pairs of values. Odd elements auto-wrapped in PSTR().
+  #define __SEP_N(N,V...)   _SEP_##N(V)
+  #define _SEP_N(N,V...)    __SEP_N(N,V)
+  #define _SEP_1(PRE)       SERIAL_ECHOPGM(PRE)
+  #define _SEP_2(PRE,V)     do{ Serial.print(F(PRE)); Serial.print(V); }while(0)
+  #define _SEP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
+  #define _SEP_4(a,b,V...)  do{ _SEP_2(a,b); _SEP_2(V); }while(0)
+
+  // Print up to 1 pairs of values followed by newline
+  #define __SELP_N(N,V...)            _SELP_##N(V)
+  #define _SELP_N(N,V...)             __SELP_N(N,V)
+  #define _SELP_1(PRE)                SERIAL_ECHOLNPGM(PRE)
+  #define _SELP_2(PRE,V)              do{ Serial.print(F(PRE)); Serial.println(V); }while(0)
+  #define _SELP_3(a,b,c)              do{ _SEP_2(a,b); SERIAL_ECHOLNPGM(c); }while(0)
+  #define _SELP_4(a,b,V...)           do{ _SEP_2(a,b); _SELP_2(V); }while(0)
   #define SERIAL_ECHO_START()
   #define SERIAL_ECHOLNPGM(str)       Serial.println(F(str))
   #define SERIAL_ECHOPGM(str)         Serial.print(F(str))
-  #define SERIAL_ECHO_MSG(str)        Serial.println(str)
-  #define SERIAL_ECHOLNPAIR(str, val) do{ Serial.print(F(str)); Serial.println(val); }while(0)
+  #define SERIAL_ECHO_MSG(V...)       SERIAL_ECHOLNPAIR(V)
+  #define SERIAL_ECHOLNPAIR(V...)     _SELP_N(NUM_ARGS(V),V)
   #define SERIAL_ECHOPAIR(str, val)   do{ Serial.print(F(str)); Serial.print(val); }while(0)
 
   #define safe_delay delay

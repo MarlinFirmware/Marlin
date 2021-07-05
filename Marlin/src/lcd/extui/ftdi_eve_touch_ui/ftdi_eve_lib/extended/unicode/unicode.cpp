@@ -138,6 +138,7 @@
    */
 
   void FTDI::load_utf8_bitmaps(CommandProcessor &cmd) {
+    cmd.cmd(SAVE_CONTEXT());
     #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
       CyrillicCharSet::load_bitmaps(cmd);
     #endif
@@ -145,6 +146,7 @@
       WesternCharSet::load_bitmaps(cmd);
     #endif
     StandardCharSet::load_bitmaps(cmd);
+    cmd.cmd(RESTORE_CONTEXT());
   }
 
    /**

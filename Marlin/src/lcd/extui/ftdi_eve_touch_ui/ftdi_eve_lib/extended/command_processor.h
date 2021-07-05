@@ -146,6 +146,9 @@ class CommandProcessor : public CLCD::CommandFifo {
       return *this;
     }
 
+    bool wait();
+    uint32_t memcrc(uint32_t ptr, uint32_t num);
+
     // Wrap all the CommandFifo routines to allow method chaining
 
     inline CommandProcessor& cmd      (uint32_t cmd32)            {CLCD::CommandFifo::cmd(cmd32); return *this;}

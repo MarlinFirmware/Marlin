@@ -140,25 +140,7 @@
 #define STR_RESEND                          "Resend: "
 #define STR_UNKNOWN_COMMAND                 "Unknown command: \""
 #define STR_ACTIVE_EXTRUDER                 "Active Extruder: "
-#define STR_X_MIN                           "x_min"
-#define STR_X_MAX                           "x_max"
-#define STR_X2_MIN                          "x2_min"
-#define STR_X2_MAX                          "x2_max"
-#define STR_Y_MIN                           "y_min"
-#define STR_Y_MAX                           "y_max"
-#define STR_Y2_MIN                          "y2_min"
-#define STR_Y2_MAX                          "y2_max"
-#define STR_Z_MIN                           "z_min"
-#define STR_Z_MAX                           "z_max"
-#define STR_Z2_MIN                          "z2_min"
-#define STR_Z2_MAX                          "z2_max"
-#define STR_Z3_MIN                          "z3_min"
-#define STR_Z3_MAX                          "z3_max"
-#define STR_Z4_MIN                          "z4_min"
-#define STR_Z4_MAX                          "z4_max"
-#define STR_Z_PROBE                         "z_probe"
-#define STR_PROBE_EN                        "probe_en"
-#define STR_FILAMENT_RUNOUT_SENSOR          "filament"
+
 #define STR_PROBE_OFFSET                    "Probe Offset"
 #define STR_SKEW_MIN                        "min_skew_factor: "
 #define STR_SKEW_MAX                        "max_skew_factor: "
@@ -277,17 +259,43 @@
 #define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
 #define STR_PASSWORD_SET                    "Password is "
 
-// LCD Menu Messages
+//
+// Endstop Names used by Endstops::report_states
+//
+#define STR_X_MIN                           "x_min"
+#define STR_X_MAX                           "x_max"
+#define STR_X2_MIN                          "x2_min"
+#define STR_X2_MAX                          "x2_max"
 
-#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
-#define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
+#if HAS_Y_AXIS
+  #define STR_Y_MIN                         "y_min"
+  #define STR_Y_MAX                         "y_max"
+  #define STR_Y2_MIN                        "y2_min"
+  #define STR_Y2_MAX                        "y2_max"
+#endif
 
-#define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
-#define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
+#if HAS_Z_AXIS
+  #define STR_Z_MIN                         "z_min"
+  #define STR_Z_MAX                         "z_max"
+  #define STR_Z2_MIN                        "z2_min"
+  #define STR_Z2_MAX                        "z2_max"
+  #define STR_Z3_MIN                        "z3_min"
+  #define STR_Z3_MAX                        "z3_max"
+  #define STR_Z4_MIN                        "z4_min"
+  #define STR_Z4_MAX                        "z4_max"
+#endif
 
+#define STR_Z_PROBE                         "z_probe"
+#define STR_PROBE_EN                        "probe_en"
+#define STR_FILAMENT_RUNOUT_SENSOR          "filament"
+
+// General axis names
 #define STR_X "X"
 #define STR_Y "Y"
 #define STR_Z "Z"
+#define STR_I AXIS4_STR
+#define STR_J AXIS5_STR
+#define STR_K AXIS6_STR
 #define STR_E "E"
 #if IS_KINEMATIC
   #define STR_A "A"
@@ -307,7 +315,113 @@
 #define LCD_STR_A STR_A
 #define LCD_STR_B STR_B
 #define LCD_STR_C STR_C
+#define LCD_STR_I STR_I
+#define LCD_STR_J STR_J
+#define LCD_STR_K STR_K
 #define LCD_STR_E STR_E
+
+// Extra Axis and Endstop Names
+#if LINEAR_AXES >= 4
+  #if AXIS4_NAME == 'A'
+    #define AXIS4_STR "A"
+    #define STR_I_MIN "a_min"
+    #define STR_I_MAX "a_max"
+  #elif AXIS4_NAME == 'B'
+    #define AXIS4_STR "B"
+    #define STR_I_MIN "b_min"
+    #define STR_I_MAX "b_max"
+  #elif AXIS4_NAME == 'C'
+    #define AXIS4_STR "C"
+    #define STR_I_MIN "c_min"
+    #define STR_I_MAX "c_max"
+  #elif AXIS4_NAME == 'U'
+    #define AXIS4_STR "U"
+    #define STR_I_MIN "u_min"
+    #define STR_I_MAX "u_max"
+  #elif AXIS4_NAME == 'V'
+    #define AXIS4_STR "V"
+    #define STR_I_MIN "v_min"
+    #define STR_I_MAX "v_max"
+  #elif AXIS4_NAME == 'W'
+    #define AXIS4_STR "W"
+    #define STR_I_MIN "w_min"
+    #define STR_I_MAX "w_max"
+  #else
+    #define AXIS4_STR "A"
+    #define STR_I_MIN "a_min"
+    #define STR_I_MAX "a_max"
+  #endif
+#else
+  #define AXIS4_STR   ""
+#endif
+
+#if LINEAR_AXES >= 5
+  #if AXIS5_NAME == 'A'
+    #define AXIS5_STR "A"
+    #define STR_J_MIN "a_min"
+    #define STR_J_MAX "a_max"
+  #elif AXIS5_NAME == 'B'
+    #define AXIS5_STR "B"
+    #define STR_J_MIN "b_min"
+    #define STR_J_MAX "b_max"
+  #elif AXIS5_NAME == 'C'
+    #define AXIS5_STR "C"
+    #define STR_J_MIN "c_min"
+    #define STR_J_MAX "c_max"
+  #elif AXIS5_NAME == 'U'
+    #define AXIS5_STR "U"
+    #define STR_J_MIN "u_min"
+    #define STR_J_MAX "u_max"
+  #elif AXIS5_NAME == 'V'
+    #define AXIS5_STR "V"
+    #define STR_J_MIN "v_min"
+    #define STR_J_MAX "v_max"
+  #elif AXIS5_NAME == 'W'
+    #define AXIS5_STR "W"
+    #define STR_J_MIN "w_min"
+    #define STR_J_MAX "w_max"
+  #else
+    #define AXIS5_STR "B"
+    #define STR_J_MIN "b_min"
+    #define STR_J_MAX "b_max"
+  #endif
+#else
+  #define AXIS5_STR   ""
+#endif
+
+#if LINEAR_AXES >= 6
+  #if AXIS6_NAME == 'A'
+    #define AXIS6_STR "A"
+    #define STR_K_MIN "a_min"
+    #define STR_K_MAX "a_max"
+  #elif AXIS6_NAME == 'B'
+    #define AXIS6_STR "B"
+    #define STR_K_MIN "b_min"
+    #define STR_K_MAX "b_max"
+  #elif AXIS6_NAME == 'C'
+    #define AXIS6_STR "C"
+    #define STR_K_MIN "c_min"
+    #define STR_K_MAX "c_max"
+  #elif AXIS6_NAME == 'U'
+    #define AXIS6_STR "U"
+    #define STR_K_MIN "u_min"
+    #define STR_K_MAX "u_max"
+  #elif AXIS6_NAME == 'V'
+    #define AXIS6_STR "V"
+    #define STR_K_MIN "v_min"
+    #define STR_K_MAX "v_max"
+  #elif AXIS6_NAME == 'W'
+    #define AXIS6_STR "W"
+    #define STR_K_MIN "w_min"
+    #define STR_K_MAX "w_max"
+  #else
+    #define AXIS6_STR "C"
+    #define STR_K_MIN "c_min"
+    #define STR_K_MAX "c_max"
+  #endif
+#else
+  #define AXIS6_STR   ""
+#endif
 
 #if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
@@ -385,6 +499,14 @@
 #define LCD_STR_E5 "E" LCD_STR_N5
 #define LCD_STR_E6 "E" LCD_STR_N6
 #define LCD_STR_E7 "E" LCD_STR_N7
+
+// Include localized LCD Menu Messages
+
+#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
+#define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
+
+#define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
+#define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
 
 // Use superscripts, if possible. Evaluated at point of use.
 #define SUPERSCRIPT_TWO   TERN(NOT_EXTENDED_ISO10646_1_5X7, "^2", "²")

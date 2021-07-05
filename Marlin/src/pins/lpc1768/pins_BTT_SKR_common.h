@@ -23,11 +23,11 @@
 
 #include "env_validate.h"
 
-// If you have the Big tree tech driver expansion module, enable HAS_BTT_EXP_MOT
+// If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
-//#define HAS_BTT_EXP_MOT 1
+//#define BTT_MOTOR_EXPANSION
 
-#if BOTH(HAS_WIRED_LCD, HAS_BTT_EXP_MOT)
+#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
   #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY 1
   #else
@@ -138,16 +138,15 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-#if HAS_BTT_EXP_MOT
-
-  /**              _____                                      _____
-   *           NC | · · | GND                             NC | · · | GND
-   *           NC | · · | 1.31 (M1EN)            (M2EN) 1.23 | · · | 1.22 (M3EN)
-   * (M1STP) 0.18 | · ·   3.25 (M1DIR)           (M1RX) 1.21 | · ·   1.20 (M1DIAG)
-   * (M2DIR) 0.16 | · · | 3.26 (M2STP)           (M2RX) 1.19 | · · | 1.18 (M2DIAG)
-   * (M3DIR) 0.15 | · · | 0.17 (M3STP)           (M3RX) 0.28 | · · | 1.30 (M3DIAG)
-   *               -----                                      -----
-   *               EXP2                                       EXP1
+#if ENABLED(BTT_MOTOR_EXPANSION)
+  /**       ______                       ______
+   *    NC | 1  2 | GND              NC | 1  2 | GND
+   *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
+   * M1STP | 5  6   M1DIR          M1RX | 5  6   M1DIAG
+   * M2DIR | 7  8 | M2STP          M2RX | 7  8 | M2DIAG
+   * M3DIR | 9 10 | M3STP          M3RX | 9 10 | M3DIAG
+   *        ------                       ------
+   *         EXP2                         EXP1
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */
@@ -195,4 +194,4 @@
     #define E4_ENABLE_PIN            EXP2_04_PIN
   #endif
 
-#endif // HAS_BTT_EXP_MOT
+#endif // BTT_MOTOR_EXPANSION

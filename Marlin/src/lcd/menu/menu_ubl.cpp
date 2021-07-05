@@ -176,7 +176,7 @@ void _menu_ubl_height_adjust() {
 void _lcd_ubl_edit_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  GCODES_ITEM(MSG_UBL_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+  GCODES_ITEM(MSG_UBL_FINE_TUNE_ALL, PSTR("G29P4RT"));
   GCODES_ITEM(MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29P4T"));
   SUBMENU(MSG_UBL_MESH_HEIGHT_ADJUST, _menu_ubl_height_adjust);
   ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
@@ -430,7 +430,7 @@ void ubl_map_move_to_xy() {
 
   // Use the built-in manual move handler to move to the mesh point.
   ui.manual_move.set_destination(xy);
-  ui.manual_move.soon(ALL_AXES);
+  ui.manual_move.soon(ALL_AXES_ENUM);
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
@@ -594,9 +594,9 @@ void _menu_ubl_tools() {
     GCODES_ITEM(MSG_UBL_1_BUILD_COLD_MESH, PSTR("G29NP1"));
     GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, PSTR("G29P3T0"));
     SUBMENU(MSG_UBL_3_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-    GCODES_ITEM(MSG_UBL_4_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+    GCODES_ITEM(MSG_UBL_4_FINE_TUNE_ALL, PSTR("G29P4RT"));
     SUBMENU(MSG_UBL_5_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-    GCODES_ITEM(MSG_UBL_6_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+    GCODES_ITEM(MSG_UBL_6_FINE_TUNE_ALL, PSTR("G29P4RT"));
     ACTION_ITEM(MSG_UBL_7_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
     END_MENU();
   }

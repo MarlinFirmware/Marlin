@@ -51,7 +51,7 @@ int StepperDAC::init() {
   mcp4728.setVref_all(DAC_STEPPER_VREF);
   mcp4728.setGain_all(DAC_STEPPER_GAIN);
 
-  if (mcp4728.getDrvPct(0) < 1 || mcp4728.getDrvPct(1) < 1 || mcp4728.getDrvPct(2) < 1 || mcp4728.getDrvPct(3) < 1 ) {
+  if (mcp4728.getDrvPct(0) < 1 || mcp4728.getDrvPct(1) < 1 || mcp4728.getDrvPct(2) < 1 || mcp4728.getDrvPct(3) < 1) {
     mcp4728.setDrvPct(dac_channel_pct);
     mcp4728.eepromWrite();
   }
@@ -77,7 +77,7 @@ static float dac_amps(int8_t n) { return mcp4728.getValue(dac_order[n]) * 0.125 
 
 uint8_t StepperDAC::get_current_percent(const AxisEnum axis) { return mcp4728.getDrvPct(dac_order[axis]); }
 void StepperDAC::set_current_percents(xyze_uint8_t &pct) {
-  LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
+  LOOP_LOGICAL_AXES(i) dac_channel_pct[i] = pct[dac_order[i]];
   mcp4728.setDrvPct(dac_channel_pct);
 }
 
@@ -85,10 +85,16 @@ void StepperDAC::print_values() {
   if (!dac_present) return;
   SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR_P(  SP_X_LBL, dac_perc(X_AXIS), PSTR(" ("), dac_amps(X_AXIS), PSTR(")"));
-  SERIAL_ECHOPAIR_P(  SP_Y_LBL, dac_perc(Y_AXIS), PSTR(" ("), dac_amps(Y_AXIS), PSTR(")"));
-  SERIAL_ECHOPAIR_P(  SP_Z_LBL, dac_perc(Z_AXIS), PSTR(" ("), dac_amps(Z_AXIS), PSTR(")"));
-  SERIAL_ECHOLNPAIR_P(SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")"));
+  SERIAL_ECHOPAIR_P(SP_X_LBL, dac_perc(X_AXIS), PSTR(" ("), dac_amps(X_AXIS), PSTR(")"));
+  #if HAS_Y_AXIS
+    SERIAL_ECHOPAIR_P(SP_Y_LBL, dac_perc(Y_AXIS), PSTR(" ("), dac_amps(Y_AXIS), PSTR(")"));
+  #endif
+  #if HAS_Z_AXIS
+    SERIAL_ECHOPAIR_P(SP_Z_LBL, dac_perc(Z_AXIS), PSTR(" ("), dac_amps(Z_AXIS), PSTR(")"));
+  #endif
+  #if HAS_EXTRUDERS
+    SERIAL_ECHOLNPAIR_P(SP_E_LBL, dac_perc(E_AXIS), PSTR(" ("), dac_amps(E_AXIS), PSTR(")"));
+  #endif
 }
 
 void StepperDAC::commit_eeprom() {
