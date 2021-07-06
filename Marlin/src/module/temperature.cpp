@@ -2596,7 +2596,7 @@ void Temperature::disable_all_heaters() {
     #endif
   }
 
-#endif // EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+#endif // SINGLENOZZLE_STANDBY_TEMP || SINGLENOZZLE_STANDBY_FAN
 
 #if HAS_MAX_TC
 
