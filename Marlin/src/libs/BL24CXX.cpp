@@ -27,12 +27,7 @@
  */
 
 #include "BL24CXX.h"
-#ifdef __STM32F1__
-  #include <libmaple/gpio.h>
-#else
-  #include "../HAL/shared/Delay.h"
-  #define delay_us(n) DELAY_US(n)
-#endif
+#include <libmaple/gpio.h>
 
 #ifndef EEPROM_WRITE_DELAY
   #define EEPROM_WRITE_DELAY    10
@@ -42,13 +37,8 @@
 #endif
 
 // IO direction setting
-#ifdef __STM32F1__
-  #define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
-  #define SDA_OUT() do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 3 << 12; }while(0)
-#elif STM32F1
-  #define SDA_IN()  SET_INPUT(IIC_EEPROM_SDA)
-  #define SDA_OUT() SET_OUTPUT(IIC_EEPROM_SDA)
-#endif
+#define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
+#define SDA_OUT() do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 3 << 12; }while(0)
 
 // IO ops
 #define IIC_SCL_0()   WRITE(IIC_EEPROM_SCL, LOW)

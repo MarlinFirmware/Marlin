@@ -37,7 +37,7 @@
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../extui/ui_api.h"
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 void _man_probe_pt(const xy_pos_t &xy) {

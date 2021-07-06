@@ -282,22 +282,12 @@ bool wait_for_heatup = true;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
-#ifndef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-  template <pin_t ...D>
-  constexpr pin_t OnlyPins<_SP_END, D...>::table[sizeof...(D)];
-#endif
-
 bool pin_is_protected(const pin_t pin) {
-  #ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-    static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
-    const size_t pincount = COUNT(sensitive_pins);
-  #else
-    static constexpr size_t pincount = OnlyPins<SENSITIVE_PINS>::size;
-    static const pin_t (&sensitive_pins)[pincount] PROGMEM = OnlyPins<SENSITIVE_PINS>::table;
-  #endif
-  LOOP_L_N(i, pincount) {
-    const pin_t * const pptr = &sensitive_pins[i];
-    if (pin == (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(pptr) : (pin_t)pgm_read_byte(pptr))) return true;
+  static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
+  LOOP_L_N(i, COUNT(sensitive_pins)) {
+    pin_t sensitive_pin;
+    memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(pin_t));
+    if (pin == sensitive_pin) return true;
   }
   return false;
 }
@@ -314,9 +304,6 @@ void enable_all_steppers() {
   ENABLE_AXIS_X();
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
-  ENABLE_AXIS_I(); // Marlin 6-axis support by DerAndere (https://github.com/DerAndere1/Marlin/wiki)
-  ENABLE_AXIS_J();
-  ENABLE_AXIS_K();
   enable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
@@ -330,7 +317,7 @@ void disable_e_steppers() {
 void disable_e_stepper(const uint8_t e) {
   #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
   switch (e) {
-    REPEAT(E_STEPPERS, _CASE_DIS_E)
+    REPEAT(EXTRUDERS, _CASE_DIS_E)
   }
 }
 
@@ -338,23 +325,24 @@ void disable_all_steppers() {
   DISABLE_AXIS_X();
   DISABLE_AXIS_Y();
   DISABLE_AXIS_Z();
-  DISABLE_AXIS_I();
-  DISABLE_AXIS_J();
-  DISABLE_AXIS_K();
   disable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
 /**
- * A Print Job exists when the timer is running or SD is printing
+ * A Print Job exists when the timer is running or SD printing
  */
-bool printJobOngoing() { return print_job_timer.isRunning() || IS_SD_PRINTING(); }
+bool printJobOngoing() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
 
 /**
- * Printing is active when a job is underway but not paused
+ * Printing is active when the print job timer is running
  */
-bool printingIsActive() { return !did_pause_print && printJobOngoing(); }
+bool printingIsActive() {
+  return !did_pause_print && (print_job_timer.isRunning() || IS_SD_PRINTING());
+}
 
 /**
  * Printing is paused according to SD or host indicators
@@ -379,7 +367,7 @@ void startOrResumeJob() {
 
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
-    card.abortFilePrintNow(TERN_(SD_RESORT, true));
+    card.endFilePrint(TERN_(SD_RESORT, true));
 
     queue.clear();
     quickstop_stepper();
@@ -402,8 +390,8 @@ void startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one_P(PSTR("M1001"))) { // Keep trying until it gets queued
-      marlin_state = MF_RUNNING;              // Signal to stop trying
+    if (queue.enqueue_one_P(PSTR("M1001"))) {
+      marlin_state = MF_RUNNING;
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
       TERN_(DGUS_LCD_UI_MKS, ScreenHandler.SDPrintingFinished());
     }
@@ -424,18 +412,19 @@ void startOrResumeJob() {
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  *  - Pulse FET_SAFETY_PIN if it exists
  */
-inline void manage_inactivity(const bool no_stepper_sleep=false) {
+inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   queue.get_available_commands();
 
   const millis_t ms = millis();
 
-  // Prevent steppers timing-out
-  const bool do_reset_timeout = no_stepper_sleep
+  // Prevent steppers timing-out in the middle of M600
+  // unless PAUSE_PARK_NO_STEPPER_TIMEOUT is disabled
+  const bool parked_or_ignoring = ignore_stepper_queue
                                || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
 
   // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
-  if (do_reset_timeout) gcode.reset_stepper_timeout(ms);
+  if (parked_or_ignoring) gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_MSG(STR_KILL_INACTIVE_TIME, parser.command_ptr);
@@ -451,7 +440,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // activity timeout and the M85 max 'kill' timeout
     if (planner.has_blocks_queued())
       gcode.reset_stepper_timeout(ms);
-    else if (!do_reset_timeout && gcode.stepper_inactive_timeout()) {
+    else if (!parked_or_ignoring && gcode.stepper_inactive_timeout()) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
 
@@ -459,9 +448,6 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
         if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
         if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
-        if (ENABLED(DISABLE_INACTIVE_I)) DISABLE_AXIS_I();
-        if (ENABLED(DISABLE_INACTIVE_J)) DISABLE_AXIS_J();
-        if (ENABLED(DISABLE_INACTIVE_K)) DISABLE_AXIS_K();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
@@ -499,10 +485,6 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       SERIAL_ERROR_MSG(STR_KILL_BUTTON);
       kill();
     }
-  #endif
-
-  #if HAS_FREEZE_PIN
-    Stepper::frozen = !READ(FREEZE_PIN);
   #endif
 
   #if HAS_HOME
@@ -617,7 +599,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
-  TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
+  TERN_(AUTO_POWER_CONTROL, powerManager.check());
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
@@ -734,14 +716,14 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
  *  - Update the Průša MMU2
  *  - Handle Joystick jogging
  */
-void idle(bool no_stepper_sleep/*=false*/) {
+void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #if ENABLED(MARLIN_DEV_MODE)
     static uint16_t idle_depth = 0;
     if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
 
   // Core Marlin activities
-  manage_inactivity(no_stepper_sleep);
+  manage_inactivity(TERN_(ADVANCED_PAUSE_FEATURE, no_stepper_sleep));
 
   // Manage Heaters (and Watchdog)
   thermalManager.manage_heater();
@@ -766,7 +748,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    if (IS_SD_PRINTING()) recovery.outage();
+    if (printJobOngoing()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
@@ -814,7 +796,6 @@ void idle(bool no_stepper_sleep/*=false*/) {
     if (!gcode.autoreport_paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
-      TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
     }
   #endif
 
@@ -920,7 +901,7 @@ void stop() {
     thermalManager.set_fans_paused(false); // Un-pause fans for safety
   #endif
 
-  if (!IsStopped()) {
+  if (IsRunning()) {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
@@ -952,15 +933,6 @@ inline void tmc_standby_setup() {
   #endif
   #if PIN_EXISTS(Z4_STDBY)
     SET_INPUT_PULLDOWN(Z4_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(I_STDBY)
-    SET_INPUT_PULLDOWN(I_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(J_STDBY)
-    SET_INPUT_PULLDOWN(J_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(K_STDBY)
-    SET_INPUT_PULLDOWN(K_STDBY_PIN);
   #endif
   #if PIN_EXISTS(E0_STDBY)
     SET_INPUT_PULLDOWN(E0_STDBY_PIN);
@@ -1100,17 +1072,11 @@ void setup() {
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-    #ifndef BAUDRATE_2
-      #define BAUDRATE_2 BAUDRATE
-    #endif
-    MYSERIAL2.begin(BAUDRATE_2);
+    MYSERIAL2.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #ifdef SERIAL_PORT_3
-      #ifndef BAUDRATE_3
-        #define BAUDRATE_3 BAUDRATE
-      #endif
-      MYSERIAL3.begin(BAUDRATE_3);
+      MYSERIAL3.begin(BAUDRATE);
       serial_connect_timeout = millis() + 1000UL;
       while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #endif
@@ -1127,29 +1093,16 @@ void setup() {
     #endif
   #endif
 
-  #if HAS_FREEZE_PIN
-    SETUP_LOG("FREEZE_PIN");
-    SET_INPUT_PULLUP(FREEZE_PIN);
-  #endif
-
   #if HAS_SUICIDE
     SETUP_LOG("SUICIDE_PIN");
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
-  #ifdef JTAGSWD_RESET
-    SETUP_LOG("JTAGSWD_RESET");
-    JTAGSWD_RESET();
-  #endif
-
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
-    delay(10);
     // Disable any hardware debug to free up pins for IO
     #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
-      SETUP_LOG("JTAGSWD_DISABLE");
       JTAGSWD_DISABLE();
     #elif defined(JTAG_DISABLE)
-      SETUP_LOG("JTAG_DISABLE");
       JTAG_DISABLE();
     #else
       #error "DISABLE_(DEBUG|JTAG) is not supported for the selected MCU/Board."
@@ -1168,10 +1121,10 @@ void setup() {
   SETUP_RUN(HAL_init());
 
   // Init and disable SPI thermocouples; this is still needed
-  #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0)
+  #if TEMP_SENSOR_0_IS_MAX_TC
     OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
   #endif
-  #if TEMP_SENSOR_1_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1)
+  #if TEMP_SENSOR_1_IS_MAX_TC
     OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
   #endif
 
@@ -1451,7 +1404,10 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU1
-    SETUP_RUN(mmu_init());
+    SETUP_LOG("Prusa MMU1");
+    SET_OUTPUT(E_MUX0_PIN);
+    SET_OUTPUT(E_MUX1_PIN);
+    SET_OUTPUT(E_MUX2_PIN);
   #endif
 
   #if HAS_FANMUX
@@ -1519,7 +1475,7 @@ void setup() {
   #endif
 
   #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
-    SETUP_RUN(test_tmc_connection());
+    SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
   #if HAS_DRIVER_SAFE_POWER_PROTECT

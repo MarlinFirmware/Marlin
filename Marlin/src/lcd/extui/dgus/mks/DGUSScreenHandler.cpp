@@ -134,15 +134,15 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variabl
 
 void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #if ENABLED(SENSORLESS_HOMING)
-    #if X_HAS_STEALTHCHOP
+    #if AXIS_HAS_STEALTHCHOP(X)
       tmc_step.x = stepperX.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
-    #if Y_HAS_STEALTHCHOP
+    #if AXIS_HAS_STEALTHCHOP(Y)
       tmc_step.y = stepperY.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
-    #if Z_HAS_STEALTHCHOP
+    #if AXIS_HAS_STEALTHCHOP(Z)
       tmc_step.z = stepperZ.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
@@ -289,7 +289,7 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // if robin nano is printing. when it is, dgus will enter the printing
   // page to continue print;
   //
-  //if (printJobOngoing() || printingIsPaused()) {
+  //if (print_job_timer.isRunning() || print_job_timer.isPaused()) {
   //  if (target == MKSLCD_PAUSE_SETTING_MOVE || target == MKSLCD_PAUSE_SETTING_EX
   //    || target == MKSLCD_SCREEN_PRINT || target == MKSLCD_SCREEN_PAUSE
   //  ) {
@@ -324,7 +324,7 @@ void DGUSScreenHandler::ScreenBackChange(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::ZoffsetConfirm(DGUS_VP_Variable &var, void *val_ptr) {
   settings.save();
-  if (printJobOngoing())
+  if (print_job_timer.isRunning())
     GotoScreen(MKSLCD_SCREEN_PRINT);
   else if (print_job_timer.isPaused)
     GotoScreen(MKSLCD_SCREEN_PAUSE);
@@ -342,7 +342,7 @@ void DGUSScreenHandler::GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr) {
 void DGUSScreenHandler::GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("GetMinExtrudeTemp");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
-  TERN_(PREVENT_COLD_EXTRUSION, thermalManager.extrude_min_temp = value);
+  thermalManager.extrude_min_temp = value;
   mks_min_extrusion_temp = value;
   settings.save();
 }
@@ -575,6 +575,7 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           settings.save();
         }
         else if (mesh_point_count == 0) {
+
           mesh_point_count = GRID_MAX_POINTS;
           soft_endstop._enabled = true;
           settings.save();
@@ -586,10 +587,6 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
     }
   #endif // MESH_BED_LEVELING
-}
-
-void DGUSScreenHandler::SD_FileBack(DGUS_VP_Variable&, void*) {
-  GotoScreen(MKSLCD_SCREEN_HOME);
 }
 
 void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
@@ -662,7 +659,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
   switch (var.VP) {
     case VP_TMC_X_STEP:
       #if USE_SENSORLESS
-        #if X_HAS_STEALTHCHOP
+        #if AXIS_HAS_STEALTHCHOP(X)
           stepperX.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.x = stepperX.homing_threshold();
@@ -671,7 +668,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
     case VP_TMC_Y_STEP:
       #if USE_SENSORLESS
-        #if Y_HAS_STEALTHCHOP
+        #if AXIS_HAS_STEALTHCHOP(Y)
           stepperY.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.y = stepperY.homing_threshold();
@@ -680,7 +677,7 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
     case VP_TMC_Z_STEP:
       #if USE_SENSORLESS
-        #if Z_HAS_STEALTHCHOP
+        #if AXIS_HAS_STEALTHCHOP(Z)
           stepperZ.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.z = stepperZ.homing_threshold();
@@ -740,9 +737,15 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
   }
   #if USE_SENSORLESS
-    TERN_(X_HAS_STEALTHCHOP, tmc_step.x = stepperX.homing_threshold());
-    TERN_(Y_HAS_STEALTHCHOP, tmc_step.y = stepperY.homing_threshold());
-    TERN_(Z_HAS_STEALTHCHOP, tmc_step.z = stepperZ.homing_threshold());
+    #if AXIS_HAS_STEALTHCHOP(X)
+      tmc_step.x = stepperX.homing_threshold();
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Y)
+      tmc_step.y = stepperY.homing_threshold();
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Z)
+      tmc_step.z = stepperZ.homing_threshold();
+    #endif
   #endif
 }
 
@@ -1080,13 +1083,11 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
-#if ENABLED(PREVENT_COLD_EXTRUSION)
-  void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr) {
-    const uint16_t value_ex_min_temp = swap16(*(uint16_t*)val_ptr);
-    thermalManager.extrude_min_temp = value_ex_min_temp;
-    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-  }
-#endif
+void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr) {
+  const uint16_t value_ex_min_temp = swap16(*(uint16_t*)val_ptr);
+  thermalManager.extrude_min_temp = value_ex_min_temp;
+  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+}
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1230,7 +1231,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
       break;
   }
 
-  #if BOTH(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
+  #if HAS_HOTEND
     if (hotend_too_cold) {
       if (thermalManager.targetTooColdToExtrude(hotend_too_cold - 1)) thermalManager.setTargetHotend(thermalManager.extrude_min_temp, hotend_too_cold - 1);
       sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
@@ -1416,15 +1417,19 @@ bool DGUSScreenHandler::loop() {
     if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT))) {
       booted = true;
       #if USE_SENSORLESS
-        TERN_(X_HAS_STEALTHCHOP, tmc_step.x = stepperX.homing_threshold());
-        TERN_(Y_HAS_STEALTHCHOP, tmc_step.y = stepperY.homing_threshold());
-        TERN_(Z_HAS_STEALTHCHOP, tmc_step.z = stepperZ.homing_threshold());
+        #if AXIS_HAS_STEALTHCHOP(X)
+          tmc_step.x = stepperX.homing_threshold();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          tmc_step.y = stepperY.homing_threshold();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          tmc_step.z = stepperZ.homing_threshold();
+        #endif
       #endif
 
-      #if ENABLED(PREVENT_COLD_EXTRUSION)
-        if (mks_min_extrusion_temp != 0)
-          thermalManager.extrude_min_temp = mks_min_extrusion_temp;
-      #endif
+      if (mks_min_extrusion_temp != 0)
+        thermalManager.extrude_min_temp = mks_min_extrusion_temp;
 
       DGUS_ExtrudeLoadInit();
 
@@ -1437,7 +1442,8 @@ bool DGUSScreenHandler::loop() {
     }
 
     #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-      if (booted && printingIsActive()) DGUS_Runout_Idle();
+      if (booted && (IS_SD_PRINTING() || IS_SD_PAUSED()))
+        DGUS_Runout_Idle();
     #endif
   #endif // SHOW_BOOTSCREEN
 
@@ -1471,7 +1477,7 @@ void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
 
 void DGUSScreenHandler::DGUS_RunoutInit(void) {
   #if PIN_EXISTS(MT_DET_1)
-    SET_INPUT_PULLUP(MT_DET_1_PIN);
+    pinMode(MT_DET_1_PIN, INPUT_PULLUP);
   #endif
   runout_mks.de_count      = 0;
   runout_mks.de_times      = 10;
@@ -1490,7 +1496,7 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
         GotoScreen(MKSLCD_SCREEN_PAUSE);
 
         sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please change filament!"), nullptr, true, true, true, true);
-        //SetupConfirmAction(nullptr);
+        // SetupConfirmAction(nullptr);
         GotoScreen(DGUSLCD_SCREEN_POPUP);
         break;
 

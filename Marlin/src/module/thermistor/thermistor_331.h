@@ -24,7 +24,7 @@
 #define OVM(V) OV((V)*(0.327/0.5))
 
 // R25 = 100 kOhm, beta25 = 4092 K, 4.7 kOhm pull-up, bed thermistor
-constexpr temp_entry_t temptable_331[] PROGMEM = {
+const temp_entry_t temptable_331[] PROGMEM = {
   { OVM(  23), 300 },
   { OVM(  25), 295 },
   { OVM(  27), 290 },

@@ -34,7 +34,7 @@
     #include "../../core/debug_out.h"
   #endif
 
-  void report_all_axis_pos(const xyze_pos_t &pos, const uint8_t n=XYZE, const uint8_t precision=3) {
+  void report_xyze(const xyze_pos_t &pos, const uint8_t n=XYZE, const uint8_t precision=3) {
     char str[12];
     LOOP_L_N(a, n) {
       SERIAL_CHAR(' ', axis_codes[a], ':');
@@ -43,12 +43,12 @@
     }
     SERIAL_EOL();
   }
-  inline void report_linear_axis_pos(const xyze_pos_t &pos) { report_all_axis_pos(pos, XYZ); }
+  inline void report_xyz(const xyze_pos_t &pos) { report_xyze(pos, XYZ); }
 
-  void report_linear_axis_pos(const xyz_pos_t &pos, const uint8_t precision=3) {
+  void report_xyz(const xyz_pos_t &pos, const uint8_t precision=3) {
     char str[12];
-    LOOP_LINEAR_AXES(a) {
-      SERIAL_CHAR(' ', AXIS_CHAR(a), ':');
+    LOOP_XYZ(a) {
+      SERIAL_CHAR(' ', XYZ_CHAR(a), ':');
       SERIAL_ECHO(dtostrf(pos[a], 1, precision, str));
     }
     SERIAL_EOL();
@@ -57,11 +57,11 @@
   void report_current_position_detail() {
     // Position as sent by G-code
     SERIAL_ECHOPGM("\nLogical:");
-    report_linear_axis_pos(current_position.asLogical());
+    report_xyz(current_position.asLogical());
 
     // Cartesian position in native machine space
     SERIAL_ECHOPGM("Raw:    ");
-    report_linear_axis_pos(current_position);
+    report_xyz(current_position);
 
     xyze_pos_t leveled = current_position;
 
@@ -69,20 +69,20 @@
       // Current position with leveling applied
       SERIAL_ECHOPGM("Leveled:");
       planner.apply_leveling(leveled);
-      report_linear_axis_pos(leveled);
+      report_xyz(leveled);
 
       // Test planner un-leveling. This should match the Raw result.
       SERIAL_ECHOPGM("UnLevel:");
       xyze_pos_t unleveled = leveled;
       planner.unapply_leveling(unleveled);
-      report_linear_axis_pos(unleveled);
+      report_xyz(unleveled);
     #endif
 
     #if IS_KINEMATIC
       // Kinematics applied to the leveled position
       SERIAL_ECHOPGM(TERN(IS_SCARA, "ScaraK: ", "DeltaK: "));
       inverse_kinematics(leveled);  // writes delta[]
-      report_linear_axis_pos(delta);
+      report_xyz(delta);
     #endif
 
     planner.synchronize();
@@ -125,15 +125,6 @@
       #if AXIS_IS_L64XX(Z4)
         REPORT_ABSOLUTE_POS(Z4);
       #endif
-      #if AXIS_IS_L64XX(I)
-        REPORT_ABSOLUTE_POS(I);
-      #endif
-      #if AXIS_IS_L64XX(J)
-        REPORT_ABSOLUTE_POS(J);
-      #endif
-      #if AXIS_IS_L64XX(K)
-        REPORT_ABSOLUTE_POS(K);
-      #endif
       #if AXIS_IS_L64XX(E0)
         REPORT_ABSOLUTE_POS(E0);
       #endif
@@ -162,7 +153,7 @@
     #endif // HAS_L64XX
 
     SERIAL_ECHOPGM("Stepper:");
-    LOOP_LOGICAL_AXES(i) {
+    LOOP_XYZE(i) {
       SERIAL_CHAR(' ', axis_codes[i], ':');
       SERIAL_ECHO(stepper.position((AxisEnum)i));
     }
@@ -174,23 +165,17 @@
         planner.get_axis_position_degrees(B_AXIS)
       };
       SERIAL_ECHOPGM("Degrees:");
-      report_all_axis_pos(deg, 2);
+      report_xyze(deg, 2);
     #endif
 
     SERIAL_ECHOPGM("FromStp:");
     get_cartesian_from_steppers();  // writes 'cartes' (with forward kinematics)
-    xyze_pos_t from_steppers = LOGICAL_AXIS_ARRAY(
-      planner.get_axis_position_mm(E_AXIS),
-      cartes.x, cartes.y, cartes.z,
-      planner.get_axis_position_mm(I_AXIS),
-      planner.get_axis_position_mm(J_AXIS),
-      planner.get_axis_position_mm(K_AXIS)
-    );
-    report_all_axis_pos(from_steppers);
+    xyze_pos_t from_steppers = { cartes.x, cartes.y, cartes.z, planner.get_axis_position_mm(E_AXIS) };
+    report_xyze(from_steppers);
 
     const xyze_float_t diff = from_steppers - leveled;
     SERIAL_ECHOPGM("Diff:   ");
-    report_all_axis_pos(diff);
+    report_xyze(diff);
 
     TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   }
@@ -208,7 +193,7 @@
 void GcodeSuite::M114() {
 
   #if ENABLED(M114_DETAIL)
-    if (parser.seen_test('D')) {
+    if (parser.seen('D')) {
       #if DISABLED(M114_LEGACY)
         planner.synchronize();
       #endif
@@ -216,16 +201,14 @@ void GcodeSuite::M114() {
       report_current_position_detail();
       return;
     }
-    #if HAS_EXTRUDERS
-      if (parser.seen_test('E')) {
-        SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
-        return;
-      }
-    #endif
+    if (parser.seen('E')) {
+      SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
+      return;
+    }
   #endif
 
   #if ENABLED(M114_REALTIME)
-    if (parser.seen_test('R')) { report_real_position(); return; }
+    if (parser.seen('R')) { report_real_position(); return; }
   #endif
 
   TERN_(M114_LEGACY, planner.synchronize());

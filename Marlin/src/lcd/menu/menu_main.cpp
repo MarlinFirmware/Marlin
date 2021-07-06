@@ -47,7 +47,7 @@
 #endif
 
 #if ENABLED(MMU2_MENUS)
-  #include "menu_mmu2.h"
+  #include "../../lcd/menu/menu_mmu2.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -77,6 +77,7 @@ void menu_configuration();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
 #endif
 
@@ -253,38 +254,6 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-  #if ENABLED(SDSUPPORT)
-
-    #if !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
-      #define MEDIA_MENU_AT_TOP
-    #endif
-
-    auto sdcard_menu_items = [&]{
-      #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-      #endif
-
-      if (card_detected) {
-        if (!card_open) {
-          #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
-          #else                                               // - or -
-            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));      // M22 Release Media
-          #endif
-          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
-        }
-      }
-      else {
-        #if PIN_EXISTS(SD_DETECT)
-          ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // "No Media"
-        #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));         // M21 Attach Media
-        #endif
-      }
-    };
-
-  #endif
-
   if (busy) {
     #if MACHINE_CAN_PAUSE
       ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
@@ -312,9 +281,36 @@ void menu_main() {
   }
   else {
 
-    #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
-      sdcard_menu_items();
-    #endif
+    #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
+
+      // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
+
+      //
+      // Run Auto Files
+      //
+      #if ENABLED(MENU_ADDAUTOSTART)
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
+      #endif
+
+      if (card_detected) {
+        if (!card_open) {
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
+          #else
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+          #endif
+        }
+      }
+      else {
+        #if PIN_EXISTS(SD_DETECT)
+          ACTION_ITEM(MSG_NO_MEDIA, nullptr);
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
+        #endif
+      }
+
+    #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
@@ -364,11 +360,10 @@ void menu_main() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      CONFIRM_ITEM(MSG_FILAMENTCHANGE,
-        MSG_YES, MSG_NO,
-        menu_change_filament, ui.goto_previous_screen,
-        GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
-      );
+      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
+        GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
+      else
+        SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
@@ -387,22 +382,44 @@ void menu_main() {
   //
   #if ENABLED(PSU_CONTROL)
     if (powersupply_on)
-      #if ENABLED(PS_OFF_CONFIRM)
-        CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
-          MSG_YES, MSG_NO,
-          ui.poweroff, ui.goto_previous_screen,
-          GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
-        );
-      #else
-        GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
-      #endif
+      GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
     else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
-    sdcard_menu_items();
-  #endif
+  #if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
+
+    if (!busy) {
+
+      // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
+
+      //
+      // Autostart
+      //
+      #if ENABLED(MENU_ADDAUTOSTART)
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
+      #endif
+
+      if (card_detected) {
+        if (!card_open) {
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
+          #else
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+          #endif
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
+        }
+      }
+      else {
+        #if PIN_EXISTS(SD_DETECT)
+          ACTION_ITEM(MSG_NO_MEDIA, nullptr);
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
+        #endif
+      }
+    }
+
+  #endif // HAS_ENCODER_WHEEL && SDSUPPORT
 
   #if HAS_SERVICE_INTERVALS
     static auto _service_reset = [](const int index) {

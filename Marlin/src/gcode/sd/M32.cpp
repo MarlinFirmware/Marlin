@@ -49,7 +49,7 @@ void GcodeSuite::M32() {
 
     if (parser.seenval('S')) card.setIndex(parser.value_long());
 
-    card.startOrResumeFilePrinting();
+    card.startFileprint();
 
     // Procedure calls count as normal print time.
     if (!call_procedure) startOrResumeJob();

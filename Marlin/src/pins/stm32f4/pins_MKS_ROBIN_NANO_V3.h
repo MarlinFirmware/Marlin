@@ -190,9 +190,7 @@
   #define FIL_RUNOUT2_PIN               MT_DET_2
 #endif
 
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                  PW_DET
-#endif
+#define POWER_LOSS_PIN                    PW_DET
 #define PS_ON_PIN                         PW_OFF
 
 //
@@ -219,31 +217,37 @@
 //
 // detect pin dont work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
-  #define ENABLE_SPI3
-  #define SD_SS_PIN                         -1
-  #define SDSS                              PC9
-  #define SD_SCK_PIN                        PC10
-  #define SD_MISO_PIN                       PC11
-  #define SD_MOSI_PIN                       PC12
-  #define SD_DETECT_PIN                     PD12
+  #define CUSTOM_SPI_PINS                         // TODO: needed because is the only way to set SPI3 for SD on STM32 (by now)
+  #if ENABLED(CUSTOM_SPI_PINS)
+    #define ENABLE_SPI3
+    #define SD_SS_PIN                       -1
+    #define SDSS                            PC9
+    #define SD_SCK_PIN                      PC10
+    #define SD_MISO_PIN                     PC11
+    #define SD_MOSI_PIN                     PC12
+    #define SD_DETECT_PIN                   PD12
+  #endif
 #endif
 
 //
 // LCD SD
 //
 #if SD_CONNECTION_IS(LCD)
-  #define ENABLE_SPI1
-  #define SDSS                              PE10
-  #define SD_SCK_PIN                        PA5
-  #define SD_MISO_PIN                       PA6
-  #define SD_MOSI_PIN                       PA7
-  #define SD_DETECT_PIN                     PE12
+  #define CUSTOM_SPI_PINS
+  #if ENABLED(CUSTOM_SPI_PINS)
+    #define ENABLE_SPI1
+    #define SDSS                            PE10
+    #define SD_SCK_PIN                      PA5
+    #define SD_MISO_PIN                     PA6
+    #define SD_MOSI_PIN                     PA7
+    #define SD_DETECT_PIN                   PE12
+  #endif
 #endif
 
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH 1
+#define HAS_SPI_FLASH                          1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)

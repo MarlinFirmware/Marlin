@@ -66,7 +66,11 @@
 
   #include <SoftwareSPI.h>
 
-  static uint8_t SPI_speed = SPI_FULL_SPEED;
+  #ifndef HAL_SPI_SPEED
+    #define HAL_SPI_SPEED SPI_FULL_SPEED
+  #endif
+
+  static uint8_t SPI_speed = HAL_SPI_SPEED;
 
   static uint8_t spiTransfer(uint8_t b) {
     return swSpiTransfer(b, SPI_speed, SD_SCK_PIN, SD_MISO_PIN, SD_MOSI_PIN);
@@ -102,13 +106,15 @@
 
 #else
 
-  #ifdef SD_SPI_SPEED
-    #define INIT_SPI_SPEED SD_SPI_SPEED
-  #else
-    #define INIT_SPI_SPEED SPI_FULL_SPEED
+  #ifndef HAL_SPI_SPEED
+    #ifdef SD_SPI_SPEED
+      #define HAL_SPI_SPEED SD_SPI_SPEED
+    #else
+      #define HAL_SPI_SPEED SPI_FULL_SPEED
+    #endif
   #endif
 
-  void spiBegin() { spiInit(INIT_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
+  void spiBegin() { spiInit(HAL_SPI_SPEED); } // Set up SCK, MOSI & MISO pins for SSP0
 
   void spiInit(uint8_t spiRate) {
     #if SD_MISO_PIN == BOARD_SPI1_MISO_PIN

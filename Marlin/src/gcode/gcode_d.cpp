@@ -52,7 +52,7 @@
         break;
 
       case 10:
-        kill(PSTR("D10"), PSTR("KILL TEST"), parser.seen_test('P'));
+        kill(PSTR("D10"), PSTR("KILL TEST"), parser.seen('P'));
         break;
 
       case 1: {

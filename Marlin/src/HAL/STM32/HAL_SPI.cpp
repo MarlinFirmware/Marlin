@@ -163,9 +163,11 @@ static SPISettings spiConfig;
     }
     spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
-    SPI.setMISO(SD_MISO_PIN);
-    SPI.setMOSI(SD_MOSI_PIN);
-    SPI.setSCLK(SD_SCK_PIN);
+    #if ENABLED(CUSTOM_SPI_PINS)
+      SPI.setMISO(SD_MISO_PIN);
+      SPI.setMOSI(SD_MOSI_PIN);
+      SPI.setSCLK(SD_SCK_PIN);
+    #endif
 
     SPI.begin();
   }

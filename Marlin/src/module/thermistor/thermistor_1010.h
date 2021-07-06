@@ -24,7 +24,7 @@
 #define REVERSE_TEMP_SENSOR_RANGE_1010 1
 
 // Pt1000 with 1k0 pullup
-constexpr temp_entry_t temptable_1010[] PROGMEM = {
+const temp_entry_t temptable_1010[] PROGMEM = {
   PtLine(  0, 1000, 1000),
   PtLine( 25, 1000, 1000),
   PtLine( 50, 1000, 1000),

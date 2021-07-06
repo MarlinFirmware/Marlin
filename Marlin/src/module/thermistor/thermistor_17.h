@@ -22,7 +22,7 @@
 #pragma once
 
 // Dagoma NTC 100k white thermistor
-constexpr temp_entry_t temptable_17[] PROGMEM = {
+const temp_entry_t temptable_17[] PROGMEM = {
   { OV(  16),  309 },
   { OV(  18),  307 },
   { OV(  20),  300 },

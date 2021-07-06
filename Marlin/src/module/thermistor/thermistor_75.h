@@ -34,7 +34,7 @@
 
 //#define HIGH_TEMP_RANGE_75
 
-constexpr temp_entry_t temptable_75[] PROGMEM = { // Generic Silicon Heat Pad with NTC 100K MGB18-104F39050L32 thermistor
+const temp_entry_t temptable_75[] PROGMEM = { // Generic Silicon Heat Pad with NTC 100K MGB18-104F39050L32 thermistor
   { OV(111.06), 200 }, // v=0.542 r=571.747 res=0.501 degC/count
 
   #ifdef HIGH_TEMP_RANGE_75

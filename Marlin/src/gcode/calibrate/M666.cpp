@@ -39,11 +39,11 @@
    */
   void GcodeSuite::M666() {
     DEBUG_SECTION(log_M666, "M666", DEBUGGING(LEVELING));
-    LOOP_LINEAR_AXES(i) {
-      if (parser.seen(AXIS_CHAR(i))) {
+    LOOP_XYZ(i) {
+      if (parser.seen(XYZ_CHAR(i))) {
         const float v = parser.value_linear_units();
         if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", AS_CHAR(AXIS_CHAR(i)), "] = ", delta_endstop_adj[i]);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", AS_CHAR(XYZ_CHAR(i)), "] = ", delta_endstop_adj[i]);
       }
     }
   }
@@ -71,27 +71,29 @@
     #endif
     #if ENABLED(Z_MULTI_ENDSTOPS)
       if (parser.seenval('Z')) {
-        const float z_adj = parser.value_linear_units();
-        #if NUM_Z_STEPPER_DRIVERS == 2
-          endstops.z2_endstop_adj = z_adj;
-        #else
+        #if NUM_Z_STEPPER_DRIVERS >= 3
+          const float z_adj = parser.value_linear_units();
           const int ind = parser.intval('S');
-          #define _SET_ZADJ(N) if (!ind || ind == N) endstops.z##N##_endstop_adj = z_adj;
-          REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _SET_ZADJ)
+          if (!ind || ind == 2) endstops.z2_endstop_adj = z_adj;
+          if (!ind || ind == 3) endstops.z3_endstop_adj = z_adj;
+          #if NUM_Z_STEPPER_DRIVERS >= 4
+            if (!ind || ind == 4) endstops.z4_endstop_adj = z_adj;
+          #endif
+        #else
+          endstops.z2_endstop_adj = parser.value_linear_units();
         #endif
       }
     #endif
     if (!parser.seen("XYZ")) {
-      auto echo_adj = [](PGM_P const label, const_float_t value) { SERIAL_ECHOPAIR_P(label, value); };
       SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
       #if ENABLED(X_DUAL_ENDSTOPS)
-        echo_adj(PSTR(" X2:"), endstops.x2_endstop_adj);
+        SERIAL_ECHOPAIR(" X2:", endstops.x2_endstop_adj);
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
-        echo_adj(PSTR(" Y2:"), endstops.y2_endstop_adj);
+        SERIAL_ECHOPAIR(" Y2:", endstops.y2_endstop_adj);
       #endif
       #if ENABLED(Z_MULTI_ENDSTOPS)
-        #define _ECHO_ZADJ(N) echo_adj(PSTR(" Z" STRINGIFY(N) ":"), endstops.z##N##_endstop_adj);
+        #define _ECHO_ZADJ(N) SERIAL_ECHOPAIR(" Z" STRINGIFY(N) ":", endstops.z##N##_endstop_adj);
         REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _ECHO_ZADJ)
       #endif
       SERIAL_EOL();

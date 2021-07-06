@@ -21,12 +21,10 @@
  */
 #pragma once
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #if DISABLED(ALLOW_MEGA1280)
-    #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-  #elif NOT_TARGET(__AVR_ATmega1280__)
-    #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560 or 1280' in 'Tools > Board.'"
-  #endif
+#if ENABLED(ALLOW_MEGA1280) && NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560 or 1280' in 'Tools > Board.'"
+#elif NOT_TARGET(__AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #undef ALLOW_MEGA1280

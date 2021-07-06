@@ -22,7 +22,7 @@
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 3974 K, 4.7 kOhm pull-up, Honeywell 135-104LAG-J01
-constexpr temp_entry_t temptable_7[] PROGMEM = {
+const temp_entry_t temptable_7[] PROGMEM = {
   { OV(   1), 941 },
   { OV(  19), 362 },
   { OV(  37), 299 }, // top rating 300C

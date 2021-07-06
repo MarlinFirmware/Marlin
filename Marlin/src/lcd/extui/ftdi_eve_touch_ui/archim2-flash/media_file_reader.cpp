@@ -20,14 +20,16 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#include "../config.h"
+#include "../compat.h"
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
   #include "media_file_reader.h"
 
   #if ENABLED(SDSUPPORT)
     bool MediaFileReader::open(const char *filename) {
-      root = CardReader::getroot();
+      card.init(SD_SPI_SPEED, SDSS);
+      volume.init(&card);
+      root.openRoot(&volume);
       return file.open(&root, filename, O_READ);
     }
 

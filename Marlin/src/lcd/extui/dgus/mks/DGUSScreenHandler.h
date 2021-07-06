@@ -82,9 +82,7 @@ public:
   static void GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr);
   static void GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr);
   static void GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
-  #endif
+  static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
   static void DGUS_LanguageDisplay(uint8_t var);
   static void TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
   static void GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);
@@ -93,7 +91,6 @@ public:
   static void DGUS_RunoutInit(void);
   static void DGUS_ExtrudeLoadInit(void);
   static void LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr);
-  static void SD_FileBack(DGUS_VP_Variable &var, void *val_ptr);
 
   // Hook for manual move.
   static void HandleManualMove(DGUS_VP_Variable &var, void *val_ptr);
@@ -190,12 +187,12 @@ public:
     static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
-  // OK Button on the Confirm screen.
+  // OK Button the Confirm screen.
   static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
 
-  // Update data after going to a new screen (by display or by GotoScreen)
-  // remember: store the last-displayed screen, so it can be returned to.
-  // (e.g for popup messages)
+  // Update data after went to new screen (by display or by GotoScreen)
+  // remember: store the last-displayed screen, so it can get returned to.
+  // (e.g for pop up messages)
   static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup=false);
 
   // Recall the remembered screen.

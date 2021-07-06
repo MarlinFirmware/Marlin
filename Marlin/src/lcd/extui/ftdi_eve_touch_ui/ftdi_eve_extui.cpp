@@ -28,7 +28,7 @@
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
 
-#include "screens.h"
+#include "screens/screens.h"
 
 namespace ExtUI {
   using namespace Theme;
@@ -45,23 +45,24 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    #if ENABLED(SDSUPPORT)
-      sound.play(media_inserted, PLAY_ASYNCHRONOUS);
-      StatusScreen::onMediaInserted();
-    #endif
+    if (AT_SCREEN(StatusScreen))
+      StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
+    sound.play(media_inserted, PLAY_ASYNCHRONOUS);
   }
 
   void onMediaRemoved() {
-    #if ENABLED(SDSUPPORT)
-      if (isPrintingFromMedia()) {
-        stopPrint();
-        InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
-      }
-      else
-        sound.play(media_removed, PLAY_ASYNCHRONOUS);
+    if (isPrintingFromMedia()) {
+      stopPrint();
+      InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
+    }
+    else
+      sound.play(media_removed, PLAY_ASYNCHRONOUS);
 
-      StatusScreen::onMediaRemoved();
-      FilesScreen::onMediaRemoved();
+    if (AT_SCREEN(StatusScreen) || isPrintingFromMedia())
+      StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
+
+    #if ENABLED(SDSUPPORT)
+      if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen);
     #endif
   }
 

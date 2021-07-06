@@ -374,7 +374,7 @@ void tft_style_init() {
   style_sel_text.body.grad_color  = LV_COLOR_BACKGROUND;
   style_sel_text.text.color       = LV_COLOR_YELLOW;
   style_sel_text.text.sel_color   = LV_COLOR_YELLOW;
-  style_sel_text.text.font        = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_sel_text.text.font        = &gb2312_puhui32;
   style_sel_text.line.width       = 0;
   style_sel_text.text.letter_space  = 0;
   style_sel_text.text.line_space    = -5;
@@ -638,18 +638,21 @@ char *creat_title_text() {
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
       #endif
       row++;
-      card.abortFilePrintNow();
       if (row >= 200) {
         size = 809;
         row  = 0;
 
         gcode_preview_over = false;
 
-        char *cur_name = strrchr(list_file.file_name[sel_id], '/');
+        card.closefile();
+        char *cur_name;
+
+        cur_name = strrchr(list_file.file_name[sel_id], '/');
 
         SdFile file;
         SdFile *curDir;
-        const char * const fname = card.diveToFile(false, curDir, cur_name);
+        card.endFilePrint();
+        const char * const fname = card.diveToFile(true, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
           gCfgItems.curFilesize = file.fileSize();
@@ -666,12 +669,13 @@ char *creat_title_text() {
             planner.flow_percentage[1] = 100;
             planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
           #endif
-          card.startOrResumeFilePrinting();
+          card.startFileprint();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
         }
         return;
       }
+      card.closefile();
     #endif // SDSUPPORT
   }
 

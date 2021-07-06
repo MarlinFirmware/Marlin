@@ -3,7 +3,7 @@
 # exit on first failure
 set -e
 
-SED=$(which gsed sed | head -n1)
+SED=$(which gsed || which sed)
 
 for opt in "$@" ; do
   DID=0 ; FOUND=0

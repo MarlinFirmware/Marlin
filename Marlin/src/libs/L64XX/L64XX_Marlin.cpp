@@ -37,27 +37,19 @@ L64XX_Marlin L64xxManager;
 #include "../../module/planner.h"
 #include "../../HAL/shared/Delay.h"
 
-static const char LINEAR_AXIS_LIST(
-                   str_X[] PROGMEM = "X ",          str_Y[] PROGMEM = "Y ",          str_Z[] PROGMEM = "Z ",
-                   str_I[] PROGMEM = AXIS4_STR " ", str_J[] PROGMEM = AXIS5_STR " ", str_K[] PROGMEM = AXIS6_STR " "
-                 ),
+static const char str_X[] PROGMEM = "X ",  str_Y[] PROGMEM = "Y ",  str_Z[] PROGMEM = "Z ",
                  str_X2[] PROGMEM = "X2", str_Y2[] PROGMEM = "Y2",
                  str_Z2[] PROGMEM = "Z2", str_Z3[] PROGMEM = "Z3", str_Z4[] PROGMEM = "Z4",
-                 LIST_N(EXTRUDERS,
-                   str_E0[] PROGMEM = "E0", str_E1[] PROGMEM = "E1",
-                   str_E2[] PROGMEM = "E2", str_E3[] PROGMEM = "E3",
-                   str_E4[] PROGMEM = "E4", str_E5[] PROGMEM = "E5",
-                   str_E6[] PROGMEM = "E6", str_E7[] PROGMEM = "E7"
-                 )
+                 str_E0[] PROGMEM = "E0", str_E1[] PROGMEM = "E1",
+                 str_E2[] PROGMEM = "E2", str_E3[] PROGMEM = "E3",
+                 str_E4[] PROGMEM = "E4", str_E5[] PROGMEM = "E5",
+                 str_E6[] PROGMEM = "E6", str_E7[] PROGMEM = "E7"
                  ;
 
-#define _EN_ITEM(N) , str_E##N
 PGM_P const L64XX_Marlin::index_to_axis[] PROGMEM = {
-  LINEAR_AXIS_LIST(str_X, str_Y, str_Z, str_I, str_J, str_K),
-  str_X2, str_Y2, str_Z2, str_Z3, str_Z4
-  REPEAT(E_STEPPERS, _EN_ITEM)
+  str_X, str_Y, str_Z, str_X2, str_Y2, str_Z2, str_Z3, str_Z4,
+  str_E0, str_E1, str_E2, str_E3, str_E4, str_E5, str_E6, str_E7
 };
-#undef _EN_ITEM
 
 #define DEBUG_OUT ENABLED(L6470_CHITCHAT)
 #include "../../core/debug_out.h"
@@ -66,17 +58,16 @@ void echo_yes_no(const bool yes) { DEBUG_ECHOPGM_P(yes ? PSTR(" YES") : PSTR(" N
 
 uint8_t L64XX_Marlin::dir_commands[MAX_L64XX];  // array to hold direction command for each driver
 
-#define _EN_ITEM(N) , INVERT_E##N##_DIR
 const uint8_t L64XX_Marlin::index_to_dir[MAX_L64XX] = {
-    LINEAR_AXIS_LIST(INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR, INVERT_I_DIR, INVERT_J_DIR, INVERT_K_DIR)
+  INVERT_X_DIR, INVERT_Y_DIR, INVERT_Z_DIR
   , (INVERT_X_DIR) ^ BOTH(X_DUAL_STEPPER_DRIVERS, INVERT_X2_VS_X_DIR) // X2
   , (INVERT_Y_DIR) ^ BOTH(Y_DUAL_STEPPER_DRIVERS, INVERT_Y2_VS_Y_DIR) // Y2
   , (INVERT_Z_DIR) ^ ENABLED(INVERT_Z2_VS_Z_DIR) // Z2
   , (INVERT_Z_DIR) ^ ENABLED(INVERT_Z3_VS_Z_DIR) // Z3
   , (INVERT_Z_DIR) ^ ENABLED(INVERT_Z4_VS_Z_DIR) // Z4
-    REPEAT(E_STEPPERS, _EN_ITEM)
+  , INVERT_E0_DIR, INVERT_E1_DIR, INVERT_E2_DIR, INVERT_E3_DIR
+  , INVERT_E4_DIR, INVERT_E5_DIR, INVERT_E6_DIR, INVERT_E7_DIR
 };
-#undef _EN_ITEM
 
 volatile uint8_t L64XX_Marlin::spi_abort = false;
 uint8_t L64XX_Marlin::spi_active = false;
@@ -335,15 +326,6 @@ void L64XX_Marlin::set_param(const L64XX_axis_t axis, const uint8_t param, const
     #if AXIS_IS_L64XX(Z)
       case Z : SET_L6470_PARAM(Z); break;
     #endif
-    #if AXIS_IS_L64XX(I)
-      case I : SET_L6470_PARAM(I); break;
-    #endif
-    #if AXIS_IS_L64XX(J)
-      case J : SET_L6470_PARAM(J); break;
-    #endif
-    #if AXIS_IS_L64XX(K)
-      case K : SET_L6470_PARAM(K); break;
-    #endif
     #if AXIS_IS_L64XX(X2)
       case X2: SET_L6470_PARAM(X2); break;
     #endif
@@ -388,7 +370,8 @@ void L64XX_Marlin::set_param(const L64XX_axis_t axis, const uint8_t param, const
 
 inline void echo_min_max(const char a, const_float_t min, const_float_t max) {
   DEBUG_CHAR(' '); DEBUG_CHAR(a);
-  DEBUG_ECHOLNPAIR(" min = ", min, "  max = ", max);
+  DEBUG_ECHOPAIR(" min = ", min);
+  DEBUG_ECHOLNPAIR("  max = ", max);
 }
 inline void echo_oct_used(const_float_t oct, const uint8_t stall) {
   DEBUG_ECHOPAIR("over_current_threshold used     : ", oct);
@@ -412,7 +395,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   }
 
   uint8_t found_displacement = false;
-  LOOP_LOGICAL_AXES(i) if (uint16_t _displacement = parser.intval(axis_codes[i])) {
+  LOOP_XYZE(i) if (uint16_t _displacement = parser.intval(axis_codes[i])) {
     found_displacement = true;
     displacement = _displacement;
     uint8_t axis_offset = parser.byteval('J');
@@ -450,15 +433,10 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   // Position calcs & checks
   //
 
-  const float LOGICAL_AXIS_LIST(
-                E_center = current_position.e,
-                X_center = LOGICAL_X_POSITION(current_position.x),
-                Y_center = LOGICAL_Y_POSITION(current_position.y),
-                Z_center = LOGICAL_Z_POSITION(current_position.z),
-                I_center = LOGICAL_I_POSITION(current_position.i),
-                J_center = LOGICAL_J_POSITION(current_position.j),
-                K_center = LOGICAL_K_POSITION(current_position.k)
-              );
+  const float X_center = LOGICAL_X_POSITION(current_position.x),
+              Y_center = LOGICAL_Y_POSITION(current_position.y),
+              Z_center = LOGICAL_Z_POSITION(current_position.z),
+              E_center = current_position.e;
 
   switch (axis_mon[0][0]) {
     default: position_max = position_min = 0; break;
@@ -467,79 +445,52 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_min = X_center - displacement;
       position_max = X_center + displacement;
       echo_min_max('X', position_min, position_max);
-      if (TERN0(HAS_ENDSTOPS, position_min < (X_MIN_POS) || position_max > (X_MAX_POS))) {
+      if (false
+        #if HAS_ENDSTOPS
+          || position_min < (X_MIN_POS)
+          || position_max > (X_MAX_POS)
+        #endif
+      ) {
         err_out_of_bounds();
         return true;
       }
     } break;
 
-    #if HAS_Y_AXIS
-      case 'Y': {
-        position_min = Y_center - displacement;
-        position_max = Y_center + displacement;
-        echo_min_max('Y', position_min, position_max);
-        if (TERN0(HAS_ENDSTOPS, position_min < (Y_MIN_POS) || position_max > (Y_MAX_POS))) {
-          err_out_of_bounds();
-          return true;
-        }
-      } break;
-    #endif
+    case 'Y': {
+      position_min = Y_center - displacement;
+      position_max = Y_center + displacement;
+      echo_min_max('Y', position_min, position_max);
+      if (false
+        #if HAS_ENDSTOPS
+          || position_min < (Y_MIN_POS)
+          || position_max > (Y_MAX_POS)
+        #endif
+      ) {
+        err_out_of_bounds();
+        return true;
+      }
+    } break;
 
-    #if HAS_Z_AXIS
-      case 'Z': {
-        position_min = Z_center - displacement;
-        position_max = Z_center + displacement;
-        echo_min_max('Z', position_min, position_max);
-        if (TERN0(HAS_ENDSTOPS, position_min < (Z_MIN_POS) || position_max > (Z_MAX_POS))) {
-          err_out_of_bounds();
-          return true;
-        }
-      } break;
-    #endif
+    case 'Z': {
+      position_min = Z_center - displacement;
+      position_max = Z_center + displacement;
+      echo_min_max('Z', position_min, position_max);
+      if (false
+        #if HAS_ENDSTOPS
+          || position_min < (Z_MIN_POS)
+          || position_max > (Z_MAX_POS)
+        #endif
+      ) {
+        err_out_of_bounds();
+        return true;
+      }
+    } break;
 
-    #if LINEAR_AXES >= 4
-      case AXIS4_NAME: {
-        position_min = I_center - displacement;
-        position_max = I_center + displacement;
-        echo_min_max(AXIS4_NAME, position_min, position_max);
-        if (TERN0(HAS_ENDSTOPS, position_min < (I_MIN_POS) || position_max > (I_MAX_POS))) {
-          err_out_of_bounds();
-          return true;
-        }
-      } break;
-    #endif
-
-    #if LINEAR_AXES >= 5
-      case AXIS5_NAME: {
-        position_min = J_center - displacement;
-        position_max = J_center + displacement;
-        echo_min_max(AXIS5_NAME, position_min, position_max);
-        if (TERN1(HAS_ENDSTOPS, position_min < (J_MIN_POS) || position_max > (J_MAX_POS))) {
-          err_out_of_bounds();
-          return true;
-        }
-      } break;
-    #endif
-
-    #if LINEAR_AXES >= 6
-      case AXIS6_NAME: {
-        position_min = K_center - displacement;
-        position_max = K_center + displacement;
-        echo_min_max(AXIS6_NAME, position_min, position_max);
-        if (TERN2(HAS_ENDSTOPS, position_min < (K_MIN_POS) || position_max > (K_MAX_POS))) {
-          err_out_of_bounds();
-          return true;
-        }
-      } break;
-    #endif
-
-    #if HAS_EXTRUDERS
-      case 'E': {
-        position_min = E_center - displacement;
-        position_max = E_center + displacement;
-        echo_min_max('E', position_min, position_max);
-      } break;
-    #endif
+    case 'E': {
+      position_min = E_center - displacement;
+      position_max = E_center + displacement;
+      echo_min_max('E', position_min, position_max);
+    } break;
   }
 
   //
@@ -724,7 +675,7 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
   bool L64XX_Marlin::monitor_paused = false; // Flag to skip monitor during M122, M906, M916, M917, M918, etc.
 
   struct L6470_driver_data {
-    L64XX_axis_t driver_index;
+    uint8_t driver_index;
     uint32_t driver_status;
     uint8_t is_otw;
     uint8_t otw_counter;
@@ -735,61 +686,52 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
 
   L6470_driver_data driver_L6470_data[] = {
     #if AXIS_IS_L64XX(X)
-      {  X, 0, 0, 0, 0, 0, 0 },
+      {  0, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Y)
-      {  Y, 0, 0, 0, 0, 0, 0 },
+      {  1, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Z)
-      {  Z, 0, 0, 0, 0, 0, 0 },
-    #endif
-    #if AXIS_IS_L64XX(I)
-      {  I, 0, 0, 0, 0, 0, 0 },
-    #endif
-    #if AXIS_IS_L64XX(J)
-      {  J, 0, 0, 0, 0, 0, 0 },
-    #endif
-    #if AXIS_IS_L64XX(K)
-      {  K, 0, 0, 0, 0, 0, 0 },
+      {  2, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(X2)
-      { X2, 0, 0, 0, 0, 0, 0 },
+      {  3, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Y2)
-      { Y2, 0, 0, 0, 0, 0, 0 },
+      {  4, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Z2)
-      { Z2, 0, 0, 0, 0, 0, 0 },
+      {  5, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Z3)
-      { Z3, 0, 0, 0, 0, 0, 0 },
+      {  6, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(Z4)
-      { Z4, 0, 0, 0, 0, 0, 0 },
+      {  7, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(E0)
-      { E0, 0, 0, 0, 0, 0, 0 },
+      {  8, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(E1)
-      { E1, 0, 0, 0, 0, 0, 0 },
+      {  9, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(E2)
-      { E2, 0, 0, 0, 0, 0, 0 },
+      { 10, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(E3)
-      { E3, 0, 0, 0, 0, 0, 0 },
+      { 11, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(E4)
-      { E4, 0, 0, 0, 0, 0, 0 },
+      { 12, 0, 0, 0, 0, 0, 0 },
     #endif
     #if AXIS_IS_L64XX(E5)
-      { E5, 0, 0, 0, 0, 0, 0 }
+      { 13, 0, 0, 0, 0, 0, 0 }
     #endif
     #if AXIS_IS_L64XX(E6)
-      { E6, 0, 0, 0, 0, 0, 0 }
+      { 14, 0, 0, 0, 0, 0, 0 }
     #endif
     #if AXIS_IS_L64XX(E7)
-      { E7, 0, 0, 0, 0, 0, 0 }
+      { 16, 0, 0, 0, 0, 0, 0 }
     #endif
   };
 
@@ -936,15 +878,6 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
         #if AXIS_IS_L64XX(Z)
           monitor_update(Z);
         #endif
-        #if AXIS_IS_L64XX(I)
-          monitor_update(I);
-        #endif
-        #if AXIS_IS_L64XX(J)
-          monitor_update(J);
-        #endif
-        #if AXIS_IS_L64XX(K)
-          monitor_update(K);
-        #endif
         #if AXIS_IS_L64XX(X2)
           monitor_update(X2);
         #endif
@@ -977,12 +910,6 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
         #endif
         #if AXIS_IS_L64XX(E5)
           monitor_update(E5);
-        #endif
-        #if AXIS_IS_L64XX(E6)
-          monitor_update(E6);
-        #endif
-        #if AXIS_IS_L64XX(E7)
-          monitor_update(E7);
         #endif
 
         if (TERN0(L6470_DEBUG, report_L6470_status)) DEBUG_EOL();

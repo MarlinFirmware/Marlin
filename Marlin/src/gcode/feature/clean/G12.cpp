@@ -42,7 +42,6 @@
  *  P0 S<strokes>    : Stroke cleaning with S strokes
  *  P1 Sn T<objects> : Zigzag cleaning with S repeats and T zigzags
  *  P2 Sn R<radius>  : Circle cleaning with S repeats and R radius
- *  X, Y, Z          : Specify axes to move during cleaning. Default: ALL.
  */
 void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first

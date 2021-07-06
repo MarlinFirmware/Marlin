@@ -32,20 +32,6 @@
 #endif
 
 //
-// EEPROM
-//
-#if NO_EEPROM_SELECTED
-  //#define I2C_EEPROM                            // EEPROM on I2C-0
-  //#define SDCARD_EEPROM_EMULATION
-#endif
-
-#if ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x8000  // 32Kb
-#elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb
-#endif
-
-//
 // Servos
 //
 #define SERVO0_PIN                         P2_00
@@ -64,7 +50,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
+  #if X_HOME_DIR < 0
     #define X_MAX_PIN                      P1_26  // E0DET
   #else
     #define X_MIN_PIN                      P1_26  // E0DET
@@ -82,7 +68,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
+  #if Y_HOME_DIR < 0
     #define Y_MAX_PIN                      P1_25  // E1DET
   #else
     #define Y_MIN_PIN                      P1_25  // E1DET
@@ -100,7 +86,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
+  #if Z_HOME_DIR < 0
     #define Z_MAX_PIN                      P1_00  // PWRDET
   #else
     #define Z_MIN_PIN                      P1_00  // PWRDET
@@ -293,7 +279,7 @@
     #undef SPEAKER
   #endif
 
-#elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
+#elif HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."

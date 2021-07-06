@@ -22,7 +22,7 @@
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 4100 K, 4.7 kOhm pull-up, Hisens thermistor
-constexpr temp_entry_t temptable_13[] PROGMEM = {
+const temp_entry_t temptable_13[] PROGMEM = {
   { OV( 20.04), 300 },
   { OV( 23.19), 290 },
   { OV( 26.71), 280 },

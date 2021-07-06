@@ -22,7 +22,7 @@
 
 // 100k thermistor supplied with RPW-Ultra hotend, 4.7k pullup
 
-constexpr temp_entry_t temptable_512[] PROGMEM = {
+const temp_entry_t temptable_512[] PROGMEM = {
   { OV(26),  300 },
   { OV(28),  295 },
   { OV(30),  290 },

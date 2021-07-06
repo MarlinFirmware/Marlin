@@ -956,6 +956,12 @@ uint8_t BulkOnly::HandleUsbError(uint8_t error, uint8_t index) {
   return ((error && !count) ? MASS_ERR_GENERAL_USB_ERROR : MASS_ERR_SUCCESS);
 }
 
+#if MS_WANT_PARSER
+  uint8_t BulkOnly::Transaction(CommandBlockWrapper *pcbw, uint16_t buf_size, void *buf) {
+    return Transaction(CommandBlockWrapper *pcbw, uint16_t buf_size, void *buf, 0);
+  }
+#endif
+
 /**
  * For driver use only.
  *
@@ -966,7 +972,9 @@ uint8_t BulkOnly::HandleUsbError(uint8_t error, uint8_t index) {
  * @return
  */
 uint8_t BulkOnly::Transaction(CommandBlockWrapper *pcbw, uint16_t buf_size, void *buf
-  OPTARG(MS_WANT_PARSER, uint8_t flags/*=0*/)
+  #if MS_WANT_PARSER
+    , uint8_t flags
+  #endif
 ) {
   #if MS_WANT_PARSER
     uint16_t bytes = (pcbw->dCBWDataTransferLength > buf_size) ? buf_size : pcbw->dCBWDataTransferLength;
