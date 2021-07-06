@@ -77,7 +77,6 @@ void menu_configuration();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
 #endif
 
@@ -365,10 +364,11 @@ void menu_main() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-        GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      else
-        SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
+      CONFIRM_ITEM(MSG_FILAMENTCHANGE,
+        MSG_YES, MSG_NO,
+        menu_change_filament, ui.goto_previous_screen,
+        GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
+      );
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
@@ -387,7 +387,15 @@ void menu_main() {
   //
   #if ENABLED(PSU_CONTROL)
     if (powersupply_on)
-      GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+      #if ENABLED(PS_OFF_CONFIRM)
+        CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
+          MSG_YES, MSG_NO,
+          ui.poweroff, ui.goto_previous_screen,
+          GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
+        );
+      #else
+        GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+      #endif
     else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
