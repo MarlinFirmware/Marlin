@@ -298,19 +298,19 @@
 
 #define TEMP_BED_PIN                        PC0   // T0 <-> Bed
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 // Uses a separate SPI bus
-// If you have a two-way thermocouple, you can customize two THERMO_CSx_PIN pins (x:1~2)
+// If you have a two-way thermocouple, you can customize two TEMP_x_CS_PIN pins (x:0~1)
 
-#define THERMO_SCK_PIN                      PI1   // SCK
-#define THERMO_DO_PIN                       PI2   // MISO
-#define THERMO_CS1_PIN                      PH9   // GTR K-TEMP
-#define THERMO_CS2_PIN                      PH2   // M5 K-TEMP
+#define TEMP_0_CS_PIN                       PH9   // GTR K-TEMP
+#define TEMP_0_SCK_PIN                      PI1   // SCK
+#define TEMP_0_MISO_PIN                     PI2   // MISO
+//#define TEMP_0_MOSI_PIN                   ...   // For MAX31865
 
-#define MAX6675_SS_PIN            THERMO_CS1_PIN
-#define MAX6675_SS2_PIN           THERMO_CS2_PIN
-#define MAX6675_SCK_PIN           THERMO_SCK_PIN
-#define MAX6675_DO_PIN             THERMO_DO_PIN
+#define TEMP_1_CS_PIN                       PH2   // M5 K-TEMP
+#define TEMP_1_SCK_PIN           TEMP_0_SCK_PIN
+#define TEMP_1_MISO_PIN         TEMP_0_MISO_PIN
+//#define TEMP_1_MOSI_PIN       TEMP_0_MOSI_PIN
 
 //
 // Heaters / Fans

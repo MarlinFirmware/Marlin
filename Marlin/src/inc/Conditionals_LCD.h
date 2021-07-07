@@ -1078,7 +1078,11 @@
 #if ENABLED(DWIN_CREALITY_LCD)
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
-    #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+      #define LCD_SERIAL_PORT 1
+    #else
+      #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #endif
   #endif
 #endif
 

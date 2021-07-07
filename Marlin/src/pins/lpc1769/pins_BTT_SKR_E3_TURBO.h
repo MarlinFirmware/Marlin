@@ -202,7 +202,7 @@
 #define EXP1_10_PIN                        P2_08
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #error "DWIN_CREALITY_LCD requires a custom cable with TX = P0_15, RX = P0_16, and LCD_SERIAL_PORT 1. Comment out this line to continue."
+  #error "DWIN_CREALITY_LCD requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
 
   #define BEEPER_PIN                 EXP1_10_PIN
   #define BTN_EN1                    EXP1_03_PIN
