@@ -536,6 +536,10 @@
   #define ABL_BI
 #endif
 
+#if ANY(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI) && NONE(ABL_UBL, ABL_BI)
+  #define ABL_BI
+#endif
+
 #if NONE(MeshFast, MeshStd, MeshFine, MeshExtreme)
   #define MeshStd
 #endif
@@ -1858,7 +1862,7 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#if NONE(Creality422, Creality427) && DISABLED(Creality42XUseZMin)
+#if NONE(Creality422, Creality427, MachineEnder6) && DISABLED(Creality42XUseZMin)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 // Force the use of the probe for Z-axis homing
@@ -2290,18 +2294,18 @@
     #define INVERT_E1_DIR false
   #endif
 #else
-  #if ENABLED(MachineEnder6)
+  #if ANY(MachineCR10Orig, SKR13, SKR14, SKR14Turbo, SKRMiniE3V2, SKRE3Turbo) && ENABLED(SKR_ReverseSteppers) && ENABLED(MachineEnder6)
     #define INVERT_X_DIR true
     #define INVERT_Y_DIR false
   #else
     #define INVERT_X_DIR false
-    #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020)
+    #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020, MachineEnder6)
       #define INVERT_Y_DIR true
     #else
       #define INVERT_Y_DIR false
     #endif
   #endif
-  #if ANY(MachineEnder5Plus, MachineCR2020, )
+  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6)
     #define INVERT_Z_DIR false
   #else
     #define INVERT_Z_DIR true
