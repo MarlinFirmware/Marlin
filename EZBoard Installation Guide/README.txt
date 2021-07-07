@@ -1,0 +1,1 @@
+The EZBoard installation guide can be found at the URL here: https://support.th3dstudio.com/hc/product-information/ezboard/ezboard-installation-guide-firmware-info/
