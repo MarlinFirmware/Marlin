@@ -434,23 +434,23 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 // Indexed items set a global index value
-#define _CONFIRM_ITEM_N_P(N, V...) _CONFIRM_ITEM_N_S_P(N, nullptr, V)
+#define _CONFIRM_ITEM_N_P(N, V...)              _CONFIRM_ITEM_N_S_P(N, nullptr, V)
 
-#define CONFIRM_ITEM_P(PLABEL,A,B,V...) _CONFIRM_ITEM_P(PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM(LABEL, V...)        CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
+#define CONFIRM_ITEM_P(PLABEL,A,B,V...)         _CONFIRM_ITEM_P(PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
+#define CONFIRM_ITEM(LABEL, V...)                CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
 
-#define YESNO_ITEM_P(PLABEL, V...)      _CONFIRM_ITEM_P(PLABEL, ##V)
-#define YESNO_ITEM(LABEL, V...)            YESNO_ITEM_P(GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_P(PLABEL, V...)               CONFIRM_ITEM_P(PLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM(LABEL, V...)                    YESNO_ITEM_P(GET_TEXT(LABEL), ##V)
 
 #define CONFIRM_ITEM_N_S_P(N,S,PLABEL,A,B,V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
 #define CONFIRM_ITEM_N_S(N,S,LABEL,V...)         CONFIRM_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
 #define CONFIRM_ITEM_N_P(N,PLABEL,A,B,V...)       _CONFIRM_ITEM_N_P(N, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
 #define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
 
-#define YESNO_ITEM_N_S_P(N,S,PLABEL, V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, ##V)
-#define YESNO_ITEM_N_S(N,S,LABEL, V...)       YESNO_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
-#define YESNO_ITEM_N_P(N,PLABEL, V...)       _CONFIRM_ITEM_N_P(N, PLABEL, ##V)
-#define YESNO_ITEM_N(N,LABEL, V...)             YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_N_S_P(N,S,PLABEL, V...)      _CONFIRM_ITEM_N_S_P(N, S, PLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N_S(N,S,LABEL, V...)            YESNO_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_N_P(N,PLABEL, V...)             CONFIRM_ITEM_N_P(N, PLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
 
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();
