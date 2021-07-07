@@ -236,6 +236,10 @@
   #include "feature/stepper_driver_safety.h"
 #endif
 
+#if ENABLED(PSU_CONTROL)
+  #include "feature/power.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -883,7 +887,7 @@ void minkill(const bool steppers_off/*=false*/) {
   // Power off all steppers (for M112) or just the E steppers
   steppers_off ? disable_all_steppers() : disable_e_steppers();
 
-  TERN_(PSU_CONTROL, PSU_OFF());
+  TERN_(PSU_CONTROL, powerManager.power_off());
 
   TERN_(HAS_SUICIDE, suicide());
 
@@ -1189,8 +1193,7 @@ void setup() {
 
   #if ENABLED(PSU_CONTROL)
     SETUP_LOG("PSU_CONTROL");
-    powersupply_on = ENABLED(PSU_DEFAULT_OFF);
-    if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
+    powerManager.init();
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
