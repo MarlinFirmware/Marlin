@@ -369,13 +369,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
 
     if (mark_as_selected(row, style & SS_INVERT)) {
-
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
-
-      const int8_t plen = pstr ? utf8_strlen_P(pstr) : 0,
-                   vlen = vstr ? utf8_strlen(vstr) : 0;
+ 
+      const int plen = pstr ? calculateWidth(pstr) : 0,
+                vlen = vstr ? utf8_strlen(vstr) : 0;
       if (style & SS_CENTER) {
-        int8_t pad = (LCD_WIDTH - plen - vlen) / 2;
+        int pad = (LCD_PIXEL_WIDTH - plen - vlen * MENU_FONT_WIDTH) / MENU_FONT_WIDTH / 2;
         while (--pad >= 0) n -= lcd_put_wchar(' ');
       }
 
@@ -400,8 +399,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen((char*)inStr)),
                     pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)inStr));
+      const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
 
-      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
+      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vallen * prop) * (MENU_FONT_WIDTH);
       if (vallen) {
         lcd_put_wchar(':');
         while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
@@ -414,15 +414,16 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char * const value/*=nullptr*/) {
     ui.encoder_direction_normal();
 
+    const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
     const u8g_uint_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
-    bool extra_row = labellen > LCD_WIDTH - 2 - vallen;
+    bool extra_row = labellen * prop > LCD_WIDTH - 2 - vallen * prop;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
       // Use the menu font if the label won't fit on a single line
       constexpr u8g_uint_t lcd_edit_width = (LCD_PIXEL_WIDTH) / (EDIT_FONT_WIDTH);
       u8g_uint_t lcd_chr_fit, one_chr_width;
-      if (labellen <= lcd_edit_width - 1) {
-        if (labellen + vallen + 1 > lcd_edit_width) extra_row = true;
+      if (labellen * prop <= lcd_edit_width - 1) {
+        if (labellen * prop + vallen * prop + 1 > lcd_edit_width) extra_row = true;
         lcd_chr_fit = lcd_edit_width + 1;
         one_chr_width = EDIT_FONT_WIDTH;
         ui.set_font(FONT_EDIT);
@@ -454,7 +455,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {
-        lcd_put_wchar(((lcd_chr_fit - 1) - (vallen + 1)) * one_chr_width, baseline, ' '); // Right-justified, padded, add a leading space
+        lcd_put_wchar(((lcd_chr_fit - 1) - (vallen * prop + 1)) * one_chr_width, baseline, ' '); // Right-justified, padded, add a leading space
         lcd_put_u8str(value);
       }
     }
@@ -468,7 +469,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     const pixel_len_t bw = len * prop * (MENU_FONT_WIDTH), bx = x * prop * (MENU_FONT_WIDTH);
     if (inv) {
       u8g.setColorIndex(1);
-      u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT) + 1, bw / prop + 2, MENU_FONT_HEIGHT - 1);
+      u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT), bw + 2, MENU_FONT_HEIGHT);
       u8g.setColorIndex(0);
     }
     lcd_put_u8str_P(bx / prop, by, pstr);
@@ -478,8 +479,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
     ui.draw_select_screen_prompt(pref, string, suff);
     draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
-    const u8g_uint_t xpos = (LCD_WIDTH) / (USE_WIDE_GLYPH ? 2 : 1);
-    draw_boxed_string(xpos - (utf8_strlen_P(yes) + 1), LCD_HEIGHT - 1, yes, yesno);
+    draw_boxed_string(LCD_WIDTH - (utf8_strlen_P(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
   #if ENABLED(SDSUPPORT)

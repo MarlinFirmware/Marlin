@@ -260,6 +260,7 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Flytta 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Flytta 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Flytta 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Flytta 100mm");
   PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Flytta 0.001tum");
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Flytta 0.01tum");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Flytta 0.1tum");
