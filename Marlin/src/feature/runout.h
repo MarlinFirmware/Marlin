@@ -181,11 +181,7 @@ class FilamentSensorBase {
       #define _INIT_RUNOUT_PIN(P,S,U,D) do{ if (ENABLED(U)) SET_INPUT_PULLUP(P); else if (ENABLED(D)) SET_INPUT_PULLDOWN(P); else SET_INPUT(P); }while(0)
       #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULLUP, FIL_RUNOUT##N##_PULLDOWN)
       #if NUM_RUNOUT_SENSORS >= 1
-        #if ENABLED(DWIN_CREALITY_LCD)
-          DWIN_SetRunoutState();
-        #else
           INIT_RUNOUT_PIN(1);
-        #endif  
       #endif
       #if NUM_RUNOUT_SENSORS >= 2
         INIT_RUNOUT_PIN(2);
@@ -223,11 +219,7 @@ class FilamentSensorBase {
     static inline uint8_t poll_runout_states() {
       return poll_runout_pins() ^ uint8_t(0
         #if NUM_RUNOUT_SENSORS >= 1
-          #if ENABLED(DWIN_CREALITY_LCD)
-          | (HMI_data.Runout_active_state ? 0 : _BV(1 - 1))
-          #else
           | (FIL_RUNOUT1_STATE ? 0 : _BV(1 - 1))
-          #endif      
         #endif
         #if NUM_RUNOUT_SENSORS >= 2
           | (FIL_RUNOUT2_STATE ? 0 : _BV(2 - 1))

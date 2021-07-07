@@ -47,6 +47,7 @@
 //
 // Misc. Functions
 //
+#define SDSS                                  25
 #define CASE_LIGHT_PIN                         7
 
 //
@@ -86,12 +87,6 @@
 // Heaters / Fans
 //
 #undef HEATER_BED_PIN
-
-//
-// Misc. Functions
-//
-#undef SDSS
-#define SDSS                                  25  // 53
 
 //
 // LCD / Controller

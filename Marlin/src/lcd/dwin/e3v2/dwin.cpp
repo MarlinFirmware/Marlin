@@ -1065,7 +1065,7 @@ inline ENCODER_DiffState get_encoder_state() {
 void HMI_Plan_Move(const feedRate_t fr_mm_s) {
   if (!planner.is_full()) {
     planner.synchronize();
-    planner.buffer_line(current_position, fr_mm_s, active_extruder);
+    planner.buffer_line(current_position, fr_mm_s);
     DWIN_UpdateLCD();
   }
 }
@@ -2281,13 +2281,11 @@ void Draw_Runout_Menu() {
   Draw_Back_First(select_item.now == 0);
   Draw_Menu_Line(1, ICON_Runout, GET_TEXT(MSG_RUNOUT_ENABLE), false);        // Enable Runout Sensor
   Draw_Chkb_Line(1, runout.enabled);
-  Draw_Menu_Line(2, ICON_Runout, "Active State", false);                     // Runout Sensor Active State
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 216, MBASE(2), HMI_data.Runout_active_state ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW));
   #if ENABLED(ADVANCED_PAUSE_FEATURE)  
-  Draw_Menu_Line(3, ICON_FilLoad, GET_TEXT(MSG_FILAMENT_LOAD), false);       // Load mm
-  Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 3, 3, fc_settings[0].load_length);
-  Draw_Menu_Line(4, ICON_FilUnload, GET_TEXT(MSG_FILAMENT_UNLOAD), false);   // Unload mm
-  Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 4, 3, fc_settings[0].unload_length);
+  Draw_Menu_Line(2, ICON_FilLoad, GET_TEXT(MSG_FILAMENT_LOAD), false);       // Load mm
+  Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 2, 3, fc_settings[0].load_length);
+  Draw_Menu_Line(3, ICON_FilUnload, GET_TEXT(MSG_FILAMENT_UNLOAD), false);   // Unload mm
+  Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 3, 3, fc_settings[0].unload_length);
   #endif
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
 }
@@ -3899,26 +3897,17 @@ void HMI_AdvSet() {
           runout.enabled = !runout.enabled;
           Draw_Chkb_Line(1,runout.enabled);
           break;
-        case 2: // Runout active State
-          runout.reset();
-          runout.enabled = false;
-          Draw_Chkb_Line(1,runout.enabled);
-          HMI_data.Runout_active_state = !HMI_data.Runout_active_state;
-          DWIN_SetRunoutState();
-          DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 216, MBASE(2), 216 + 4 * MENU_CHR_W, MBASE(2)+20);
-          DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 216, MBASE(2), HMI_data.Runout_active_state ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW));
-          break;
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        case 3: // Filament Load length
+        case 2: // Filament Load length
           checkkey = LoadLength;
           HMI_ValueStruct.LoadLength = fc_settings[0].load_length;
-          Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 3, 3, HMI_ValueStruct.LoadLength);
+          Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 2, 3, HMI_ValueStruct.LoadLength);
           EncoderRate.enabled = true;
           break;
-        case 4: // Filament Unload length
+        case 3: // Filament Unload length
           checkkey = UnloadLength;
           HMI_ValueStruct.UnloadLength = fc_settings[0].unload_length;
-          Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 4, 3, HMI_ValueStruct.UnloadLength);
+          Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 3, 3, HMI_ValueStruct.UnloadLength);
           EncoderRate.enabled = true;
           break;
         #endif
@@ -3936,11 +3925,11 @@ void HMI_AdvSet() {
         checkkey = RunOut;
         fc_settings[0].load_length = HMI_ValueStruct.LoadLength;
         EncoderRate.enabled = false;
-        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 3, 3, HMI_ValueStruct.LoadLength);
+        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 2, 3, HMI_ValueStruct.LoadLength);
         return;
       }
       LIMIT(HMI_ValueStruct.LoadLength, 0, MAX_LOAD_UNLOAD);
-      Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 3, 3, HMI_ValueStruct.LoadLength);
+      Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 2, 3, HMI_ValueStruct.LoadLength);
     }
   }
 
@@ -3951,11 +3940,11 @@ void HMI_AdvSet() {
         checkkey = RunOut;
         fc_settings[0].unload_length = HMI_ValueStruct.UnloadLength;
         EncoderRate.enabled = false;
-        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 4, 3, HMI_ValueStruct.UnloadLength);
+        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 3, 3, HMI_ValueStruct.UnloadLength);
         return;
       }
       LIMIT(HMI_ValueStruct.UnloadLength, 0, MAX_LOAD_UNLOAD);
-      Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 4, 3, HMI_ValueStruct.UnloadLength);
+      Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, 3, 3, HMI_ValueStruct.UnloadLength);
     }
   }
 #endif
@@ -5120,22 +5109,7 @@ void DWIN_SetColorDefaults() {
   HMI_data.Coordinate_Color = Def_Coordinate_Color;
 }
 
-#if HAS_FILAMENT_SENSOR
-  void DWIN_SetRunoutState() {
-    #include "../../HAL/STM32F1/fastio.h"
-    if (HMI_data.Runout_active_state) {
-      SET_INPUT_PULLUP(FIL_RUNOUT1_PIN);
-    } else {
-      SET_INPUT_PULLDOWN(FIL_RUNOUT1_PIN);
-    }
-  }
-#endif
-
 void DWIN_Setdatadefaults() {
-#if HAS_FILAMENT_SENSOR
-  HMI_data.Runout_active_state = FIL_RUNOUT1_STATE;
-  DWIN_SetRunoutState();
-#endif
   HMI_data.Brightness = 127;
   DWIN_LCD_Brightness(HMI_data.Brightness);
 #if ENABLED(NOZZLE_PARK_FEATURE)
@@ -5153,9 +5127,6 @@ void DWIN_LoadSettings(const char *buff) {
   DWIN_LCD_Brightness(_MAX(10,HMI_data.Brightness));
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (HMI_data.Text_Color == 0) DWIN_SetColorDefaults();
-#if HAS_FILAMENT_SENSOR
-  DWIN_SetRunoutState();
-#endif
 }
 
 void DWIN_PrinterKilled(PGM_P lcd_error, PGM_P lcd_component) {

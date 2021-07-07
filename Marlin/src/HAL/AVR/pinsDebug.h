@@ -38,7 +38,7 @@
   // portModeRegister takes a different argument
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
-  #define digitalPinToPort_DEBUG(p) digitalPinToPort_Teensy(p)
+  #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
   #define GET_PINMODE(pin) (*portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin))
 
 #elif AVR_ATmega2560_FAMILY_PLUS_70   // So we can access/display all the pins on boards using more than 70

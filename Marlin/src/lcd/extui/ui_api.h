@@ -239,6 +239,7 @@ namespace ExtUI {
 
   #if ENABLED(BABYSTEPPING)
     int16_t mmToWholeSteps(const_float_t mm, const axis_t axis);
+    float mmFromWholeSteps(int16_t steps, const axis_t axis);
 
     bool babystepAxis_steps(const int16_t steps, const axis_t axis);
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);

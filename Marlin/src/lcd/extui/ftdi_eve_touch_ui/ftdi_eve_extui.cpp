@@ -28,7 +28,7 @@
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
 
-#include "screens/screens.h"
+#include "screens.h"
 
 namespace ExtUI {
   using namespace Theme;

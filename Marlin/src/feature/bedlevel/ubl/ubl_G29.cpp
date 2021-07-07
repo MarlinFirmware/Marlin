@@ -581,7 +581,7 @@ void unified_bed_leveling::G29() {
     // use cases for the users. So we can wait and see what to do with it.
     //
 
-    if (parser.seen_test('K')) // Kompare Current Mesh Data to Specified Stored Mesh
+    if (parser.seen('K')) // Kompare Current Mesh Data to Specified Stored Mesh
       g29_compare_current_mesh_to_stored_mesh();
 
   #endif // UBL_DEVEL_DEBUGGING

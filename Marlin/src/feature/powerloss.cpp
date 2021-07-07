@@ -197,7 +197,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       #endif
     #endif
 
-    #if EXTRUDERS
+    #if HAS_EXTRUDERS
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
@@ -375,7 +375,7 @@ void PrintJobRecovery::resume() {
 
   gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
 
-  #if Z_HOME_DIR > 0
+  #if Z_HOME_TO_MAX
 
     float z_now = z_raised;
 
@@ -549,7 +549,7 @@ void PrintJobRecovery::resume() {
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
   TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
-    LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
+    LOOP_LINEAR_AXES(i) update_workspace_offset((AxisEnum)i);
   #endif
 
   // Relative axis modes
@@ -581,7 +581,7 @@ void PrintJobRecovery::resume() {
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         DEBUG_ECHOPGM("current_position: ");
-        LOOP_XYZE(i) {
+        LOOP_LOGICAL_AXES(i) {
           if (i) DEBUG_CHAR(',');
           DEBUG_DECIMAL(info.current_position[i]);
         }
@@ -599,7 +599,7 @@ void PrintJobRecovery::resume() {
 
         #if HAS_HOME_OFFSET
           DEBUG_ECHOPGM("home_offset: ");
-          LOOP_XYZ(i) {
+          LOOP_LINEAR_AXES(i) {
             if (i) DEBUG_CHAR(',');
             DEBUG_DECIMAL(info.home_offset[i]);
           }
@@ -608,7 +608,7 @@ void PrintJobRecovery::resume() {
 
         #if HAS_POSITION_SHIFT
           DEBUG_ECHOPGM("position_shift: ");
-          LOOP_XYZ(i) {
+          LOOP_LINEAR_AXES(i) {
             if (i) DEBUG_CHAR(',');
             DEBUG_DECIMAL(info.position_shift[i]);
           }

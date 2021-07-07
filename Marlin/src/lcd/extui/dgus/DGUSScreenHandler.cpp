@@ -422,7 +422,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
 }
 
 void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
     uint8_t target_extruder;
     switch (var.VP) {

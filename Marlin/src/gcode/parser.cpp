@@ -222,7 +222,7 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(GCODE_MOTION_MODES)
         if (letter == 'G'
-          && (codenum <= TERN(ARC_SUPPORT, 3, 1) || codenum == 5 || TERN0(G38_PROBE_TARGET, codenum == 38))
+          && (codenum <= TERN(ARC_SUPPORT, 3, 1) || TERN0(BEZIER_CURVE_SUPPORT, codenum == 5) || TERN0(G38_PROBE_TARGET, codenum == 38))
         ) {
           motion_mode_codenum = codenum;
           TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
@@ -248,7 +248,8 @@ void GCodeParser::parse(char *p) {
         case 'R': if (!WITHIN(motion_mode_codenum, 2, 3)) return;
       #endif
 
-      case 'X' ... 'Z': case 'E' ... 'F':
+      LOGICAL_AXIS_GANG(case 'E':, case 'X':, case 'Y':, case 'Z':, case AXIS4_NAME:, case AXIS5_NAME:, case AXIS6_NAME:)
+      case 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;

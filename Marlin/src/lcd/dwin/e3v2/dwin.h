@@ -39,7 +39,7 @@
   #endif
 #endif
 
-static constexpr size_t eeprom_data_size = 48;
+static constexpr size_t eeprom_data_size = 64;
 
 enum processID : uint8_t {
   // Process ID
@@ -166,9 +166,6 @@ typedef struct {
 
 typedef struct {
   uint8_t Brightness = 127;
-#if HAS_FILAMENT_SENSOR
-  boolean Runout_active_state = LOW;
-#endif
 #if ENABLED(NOZZLE_PARK_FEATURE)
   xyz_pos_t Park_point = NOZZLE_PARK_POINT;
 #endif

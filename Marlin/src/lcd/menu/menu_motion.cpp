@@ -89,30 +89,39 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
-void lcd_move_y() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Y), Y_AXIS); }
-void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
+#if HAS_Y_AXIS
+  void lcd_move_y() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Y), Y_AXIS); }
+#endif
+#if HAS_Z_AXIS
+  void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
+#endif
+#if LINEAR_AXES >= 4
+  void lcd_move_i() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_I), I_AXIS); }
+#endif
+#if LINEAR_AXES >= 5
+  void lcd_move_j() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_J), J_AXIS); }
+#endif
+#if LINEAR_AXES >= 6
+  void lcd_move_k() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_K), K_AXIS); }
+#endif
 
 #if E_MANUAL
 
-  static void lcd_move_e(TERN_(MULTI_MANUAL, const int8_t eindex=-1)) {
+  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=active_extruder)) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
         const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
         TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff;
-        ui.manual_move.soon(E_AXIS
-          #if MULTI_MANUAL
-            , eindex
-          #endif
-        );
+        ui.manual_move.soon(E_AXIS OPTARG(MULTI_E_MANUAL, eindex));
         ui.refresh(LCDVIEW_REDRAW_NOW);
       }
       ui.encoderPosition = 0;
     }
     if (ui.should_draw()) {
-      TERN_(MULTI_MANUAL, MenuItemBase::init(eindex));
+      TERN_(MULTI_E_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
-        GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
+        GET_TEXT(TERN(MULTI_E_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(current_position.e
           PLUS_TERN0(IS_KINEMATIC, ui.manual_move.offset)
           MINUS_TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
@@ -139,7 +148,7 @@ void _goto_manual_move(const_float_t scale) {
   ui.goto_screen(_manual_move_func_ptr);
 }
 
-void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=-1) {
+void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=active_extruder) {
   _manual_move_func_ptr = func;
   START_MENU();
   if (LCD_HEIGHT >= 4) {
@@ -188,7 +197,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
 #if E_MANUAL
 
   inline void _goto_menu_move_distance_e() {
-    ui.goto_screen([]{ _menu_move_distance(E_AXIS, []{ lcd_move_e(TERN_(MULTI_MANUAL, active_extruder)); }, -1); });
+    ui.goto_screen([]{ _menu_move_distance(E_AXIS, []{ lcd_move_e(); }); });
   }
 
   inline void _menu_move_distance_e_maybe() {
@@ -221,14 +230,27 @@ void menu_move() {
   if (NONE(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING) || all_axes_homed()) {
     if (TERN1(DELTA, current_position.z <= delta_clip_start_height)) {
       SUBMENU(MSG_MOVE_X, []{ _menu_move_distance(X_AXIS, lcd_move_x); });
-      SUBMENU(MSG_MOVE_Y, []{ _menu_move_distance(Y_AXIS, lcd_move_y); });
+      #if HAS_Y_AXIS
+        SUBMENU(MSG_MOVE_Y, []{ _menu_move_distance(Y_AXIS, lcd_move_y); });
+      #endif
     }
     #if ENABLED(DELTA)
       else
         ACTION_ITEM(MSG_FREE_XY, []{ line_to_z(delta_clip_start_height); ui.synchronize(); });
     #endif
 
-    SUBMENU(MSG_MOVE_Z, []{ _menu_move_distance(Z_AXIS, lcd_move_z); });
+    #if HAS_Z_AXIS
+      SUBMENU(MSG_MOVE_Z, []{ _menu_move_distance(Z_AXIS, lcd_move_z); });
+    #endif
+    #if LINEAR_AXES >= 4
+      SUBMENU(MSG_MOVE_I, []{ _menu_move_distance(I_AXIS, lcd_move_i); });
+    #endif
+    #if LINEAR_AXES >= 5
+      SUBMENU(MSG_MOVE_J, []{ _menu_move_distance(J_AXIS, lcd_move_j); });
+    #endif
+    #if LINEAR_AXES >= 6
+      SUBMENU(MSG_MOVE_K, []{ _menu_move_distance(K_AXIS, lcd_move_k); });
+    #endif
   }
   else
     GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
@@ -283,7 +305,7 @@ void menu_move() {
         SUBMENU_MOVE_E(E_MANUAL - 1);
       #endif
 
-    #elif MULTI_MANUAL
+    #elif MULTI_E_MANUAL
 
       // Independent extruders with one E-stepper per hotend
       LOOP_L_N(n, E_MANUAL) SUBMENU_MOVE_E(n);
@@ -325,8 +347,21 @@ void menu_motion() {
   GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
   #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
     GCODES_ITEM(MSG_AUTO_HOME_X, PSTR("G28X"));
-    GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
-    GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
+    #if HAS_Y_AXIS
+      GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
+    #endif
+    #if HAS_Z_AXIS
+      GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
+    #endif
+    #if LINEAR_AXES >= 4
+      GCODES_ITEM(MSG_AUTO_HOME_I, PSTR("G28" I_STR));
+    #endif
+    #if LINEAR_AXES >= 5
+      GCODES_ITEM(MSG_AUTO_HOME_J, PSTR("G28" J_STR));
+    #endif
+    #if LINEAR_AXES >= 6
+      GCODES_ITEM(MSG_AUTO_HOME_K, PSTR("G28" K_STR));
+    #endif
   #endif
 
   //

@@ -78,16 +78,48 @@
 /**
  * Axis lengths and center
  */
+#ifndef AXIS4_NAME
+  #define AXIS4_NAME 'A'
+#endif
+#ifndef AXIS5_NAME
+  #define AXIS5_NAME 'B'
+#endif
+#ifndef AXIS6_NAME
+  #define AXIS6_NAME 'C'
+#endif
+
 #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
-#define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
-#define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
+#if HAS_Y_AXIS
+  #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
+#endif
+#if HAS_Z_AXIS
+  #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
+#endif
+#if LINEAR_AXES >= 4
+  #define I_MAX_LENGTH (I_MAX_POS - (I_MIN_POS))
+#endif
+#if LINEAR_AXES >= 5
+  #define J_MAX_LENGTH (J_MAX_POS - (J_MIN_POS))
+#endif
+#if LINEAR_AXES >= 6
+  #define K_MAX_LENGTH (K_MAX_POS - (K_MIN_POS))
+#endif
 
 // Defined only if the sanity-check is bypassed
 #ifndef X_BED_SIZE
   #define X_BED_SIZE X_MAX_LENGTH
 #endif
-#ifndef Y_BED_SIZE
+#if HAS_Y_AXIS && !defined(Y_BED_SIZE)
   #define Y_BED_SIZE Y_MAX_LENGTH
+#endif
+#if LINEAR_AXES >= 4 && !defined(I_BED_SIZE)
+  #define I_BED_SIZE I_MAX_LENGTH
+#endif
+#if LINEAR_AXES >= 5 && !defined(J_BED_SIZE)
+  #define J_BED_SIZE J_MAX_LENGTH
+#endif
+#if LINEAR_AXES >= 6 && !defined(K_BED_SIZE)
+  #define K_BED_SIZE K_MAX_LENGTH
 #endif
 
 // Require 0,0 bed center for Delta and SCARA
@@ -97,16 +129,53 @@
 
 // Define center values for future use
 #define _X_HALF_BED ((X_BED_SIZE) / 2)
-#define _Y_HALF_BED ((Y_BED_SIZE) / 2)
+#if HAS_Y_AXIS
+  #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
+#endif
+#if LINEAR_AXES >= 4
+  #define _I_HALF_IMAX ((I_BED_SIZE) / 2)
+#endif
+#if LINEAR_AXES >= 5
+  #define _J_HALF_JMAX ((J_BED_SIZE) / 2)
+#endif
+#if LINEAR_AXES >= 6
+  #define _K_HALF_KMAX ((K_BED_SIZE) / 2)
+#endif
+
 #define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
-#define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
-#define XY_CENTER { X_CENTER, Y_CENTER }
+#if HAS_Y_AXIS
+  #define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
+  #define XY_CENTER { X_CENTER, Y_CENTER }
+#endif
+#if LINEAR_AXES >= 4
+  #define I_CENTER TERN(BED_CENTER_AT_0_0, 0, _I_HALF_BED)
+#endif
+#if LINEAR_AXES >= 5
+  #define J_CENTER TERN(BED_CENTER_AT_0_0, 0, _J_HALF_BED)
+#endif
+#if LINEAR_AXES >= 6
+  #define K_CENTER TERN(BED_CENTER_AT_0_0, 0, _K_HALF_BED)
+#endif
 
 // Get the linear boundaries of the bed
 #define X_MIN_BED (X_CENTER - _X_HALF_BED)
 #define X_MAX_BED (X_MIN_BED + X_BED_SIZE)
-#define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
-#define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
+#if HAS_Y_AXIS
+  #define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
+  #define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
+#endif
+#if LINEAR_AXES >= 4
+  #define I_MINIM (I_CENTER - _I_HALF_BED_SIZE)
+  #define I_MAXIM (I_MINIM + I_BED_SIZE)
+#endif
+#if LINEAR_AXES >= 5
+  #define J_MINIM (J_CENTER - _J_HALF_BED_SIZE)
+  #define J_MAXIM (J_MINIM + J_BED_SIZE)
+#endif
+#if LINEAR_AXES >= 6
+  #define K_MINIM (K_CENTER - _K_HALF_BED_SIZE)
+  #define K_MAXIM (K_MINIM + K_BED_SIZE)
+#endif
 
 /**
  * Dual X Carriage
@@ -125,7 +194,7 @@
   #if EITHER(IS_CORE, MARKFORGED_XY)
     #define CAN_CALIBRATE(A,B) (_AXIS(A) == B)
   #else
-    #define CAN_CALIBRATE(A,B) 1
+    #define CAN_CALIBRATE(A,B) true
   #endif
 #endif
 #define AXIS_CAN_CALIBRATE(A) CAN_CALIBRATE(A,NORMAL_AXIS)
@@ -155,7 +224,7 @@
 #ifdef MANUAL_X_HOME_POS
   #define X_HOME_POS MANUAL_X_HOME_POS
 #else
-  #define X_END_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+  #define X_END_POS TERN(X_HOME_TO_MIN, X_MIN_POS, X_MAX_POS)
   #if ENABLED(BED_CENTER_AT_0_0)
     #define X_HOME_POS TERN(DELTA, 0, X_END_POS)
   #else
@@ -163,21 +232,45 @@
   #endif
 #endif
 
-#ifdef MANUAL_Y_HOME_POS
-  #define Y_HOME_POS MANUAL_Y_HOME_POS
-#else
-  #define Y_END_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
-  #if ENABLED(BED_CENTER_AT_0_0)
-    #define Y_HOME_POS TERN(DELTA, 0, Y_END_POS)
+#if HAS_Y_AXIS
+  #ifdef MANUAL_Y_HOME_POS
+    #define Y_HOME_POS MANUAL_Y_HOME_POS
   #else
-    #define Y_HOME_POS TERN(DELTA, Y_MIN_POS + (Y_BED_SIZE) * 0.5, Y_END_POS)
+    #define Y_END_POS TERN(Y_HOME_TO_MIN, Y_MIN_POS, Y_MAX_POS)
+    #if ENABLED(BED_CENTER_AT_0_0)
+      #define Y_HOME_POS TERN(DELTA, 0, Y_END_POS)
+    #else
+      #define Y_HOME_POS TERN(DELTA, Y_MIN_POS + (Y_BED_SIZE) * 0.5, Y_END_POS)
+    #endif
   #endif
 #endif
 
 #ifdef MANUAL_Z_HOME_POS
   #define Z_HOME_POS MANUAL_Z_HOME_POS
 #else
-  #define Z_HOME_POS (Z_HOME_DIR < 0 ? Z_MIN_POS : Z_MAX_POS)
+  #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
+#endif
+
+#if LINEAR_AXES >= 4
+  #ifdef MANUAL_I_HOME_POS
+    #define I_HOME_POS MANUAL_I_HOME_POS
+  #else
+    #define I_HOME_POS TERN(I_HOME_TO_MIN, I_MIN_POS, I_MAX_POS)
+  #endif
+#endif
+#if LINEAR_AXES >= 5
+  #ifdef MANUAL_J_HOME_POS
+    #define J_HOME_POS MANUAL_J_HOME_POS
+  #else
+    #define J_HOME_POS TERN(J_HOME_TO_MIN, J_MIN_POS, J_MAX_POS)
+  #endif
+#endif
+#if LINEAR_AXES >= 6
+  #ifdef MANUAL_K_HOME_POS
+    #define K_HOME_POS MANUAL_K_HOME_POS
+  #else
+    #define K_HOME_POS TERN(K_HOME_TO_MIN, K_MIN_POS, K_MAX_POS)
+  #endif
 #endif
 
 /**
@@ -374,14 +467,23 @@
 #ifndef DISABLE_INACTIVE_X
   #define DISABLE_INACTIVE_X DISABLE_X
 #endif
-#ifndef DISABLE_INACTIVE_Y
+#if HAS_Y_AXIS && !defined(DISABLE_INACTIVE_Y)
   #define DISABLE_INACTIVE_Y DISABLE_Y
 #endif
-#ifndef DISABLE_INACTIVE_Z
+#if HAS_Z_AXIS && !defined(DISABLE_INACTIVE_Z)
   #define DISABLE_INACTIVE_Z DISABLE_Z
 #endif
 #ifndef DISABLE_INACTIVE_E
   #define DISABLE_INACTIVE_E DISABLE_E
+#endif
+#if LINEAR_AXES >= 4 && !defined(DISABLE_INACTIVE_I)
+  #define DISABLE_INACTIVE_I DISABLE_I
+#endif
+#if LINEAR_AXES >= 5 && !defined(DISABLE_INACTIVE_J)
+  #define DISABLE_INACTIVE_J DISABLE_J
+#endif
+#if LINEAR_AXES >= 6 && !defined(DISABLE_INACTIVE_K)
+  #define DISABLE_INACTIVE_K DISABLE_K
 #endif
 
 /**
@@ -798,7 +900,7 @@
  * X_DUAL_ENDSTOPS endstop reassignment
  */
 #if ENABLED(X_DUAL_ENDSTOPS)
-  #if X_HOME_DIR > 0
+  #if X_HOME_TO_MAX
     #ifndef X2_MAX_ENDSTOP_INVERTING
       #if X2_USE_ENDSTOP == _XMIN_
         #define X2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -921,7 +1023,7 @@
  * Y_DUAL_ENDSTOPS endstop reassignment
  */
 #if ENABLED(Y_DUAL_ENDSTOPS)
-  #if Y_HOME_DIR > 0
+  #if Y_HOME_TO_MAX
     #ifndef Y2_MAX_ENDSTOP_INVERTING
       #if Y2_USE_ENDSTOP == _XMIN_
         #define Y2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1045,7 +1147,7 @@
  */
 #if ENABLED(Z_MULTI_ENDSTOPS)
 
-  #if Z_HOME_DIR > 0
+  #if Z_HOME_TO_MAX
     #ifndef Z2_MAX_ENDSTOP_INVERTING
       #if Z2_USE_ENDSTOP == _XMIN_
         #define Z2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1164,7 +1266,7 @@
   #endif
 
   #if NUM_Z_STEPPER_DRIVERS >= 3
-    #if Z_HOME_DIR > 0
+    #if Z_HOME_TO_MAX
       #ifndef Z3_MAX_ENDSTOP_INVERTING
         #if Z3_USE_ENDSTOP == _XMIN_
           #define Z3_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1284,7 +1386,7 @@
   #endif
 
   #if NUM_Z_STEPPER_DRIVERS >= 4
-    #if Z_HOME_DIR > 0
+    #if Z_HOME_TO_MAX
       #ifndef Z4_MAX_ENDSTOP_INVERTING
         #if Z4_USE_ENDSTOP == _XMIN_
           #define Z4_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -1418,6 +1520,15 @@
   #if ENABLED(USE_ZMAX_PLUG)
     #define ENDSTOPPULLUP_ZMAX
   #endif
+  #if ENABLED(USE_IMAX_PLUG)
+    #define ENDSTOPPULLUP_IMAX
+  #endif
+  #if ENABLED(USE_JMAX_PLUG)
+    #define ENDSTOPPULLUP_JMAX
+  #endif
+  #if ENABLED(USE_KMAX_PLUG)
+    #define ENDSTOPPULLUP_KMAX
+  #endif
   #if ENABLED(USE_XMIN_PLUG)
     #define ENDSTOPPULLUP_XMIN
   #endif
@@ -1426,6 +1537,15 @@
   #endif
   #if ENABLED(USE_ZMIN_PLUG)
     #define ENDSTOPPULLUP_ZMIN
+  #endif
+  #if ENABLED(USE_IMIN_PLUG)
+    #define ENDSTOPPULLUP_IMIN
+  #endif
+  #if ENABLED(USE_JMIN_PLUG)
+    #define ENDSTOPPULLUP_JMIN
+  #endif
+  #if ENABLED(USE_KMIN_PLUG)
+    #define ENDSTOPPULLUP_KMIN
   #endif
 #endif
 
@@ -1484,219 +1604,278 @@
   #define HAS_X2_MS_PINS 1
 #endif
 
-#if PIN_EXISTS(Y_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y))
-  #define HAS_Y_ENABLE 1
-#endif
-#if PIN_EXISTS(Y_DIR)
-  #define HAS_Y_DIR 1
-#endif
-#if PIN_EXISTS(Y_STEP)
-  #define HAS_Y_STEP 1
-#endif
-#if PIN_EXISTS(Y_MS1)
-  #define HAS_Y_MS_PINS 1
+#if HAS_Y_AXIS
+  #if PIN_EXISTS(Y_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y))
+    #define HAS_Y_ENABLE 1
+  #endif
+  #if PIN_EXISTS(Y_DIR)
+    #define HAS_Y_DIR 1
+  #endif
+  #if PIN_EXISTS(Y_STEP)
+    #define HAS_Y_STEP 1
+  #endif
+  #if PIN_EXISTS(Y_MS1)
+    #define HAS_Y_MS_PINS 1
+  #endif
+
+  #if PIN_EXISTS(Y2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2))
+    #define HAS_Y2_ENABLE 1
+  #endif
+  #if PIN_EXISTS(Y2_DIR)
+    #define HAS_Y2_DIR 1
+  #endif
+  #if PIN_EXISTS(Y2_STEP)
+    #define HAS_Y2_STEP 1
+  #endif
+  #if PIN_EXISTS(Y2_MS1)
+    #define HAS_Y2_MS_PINS 1
+  #endif
 #endif
 
-#if PIN_EXISTS(Y2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2))
-  #define HAS_Y2_ENABLE 1
-#endif
-#if PIN_EXISTS(Y2_DIR)
-  #define HAS_Y2_DIR 1
-#endif
-#if PIN_EXISTS(Y2_STEP)
-  #define HAS_Y2_STEP 1
-#endif
-#if PIN_EXISTS(Y2_MS1)
-  #define HAS_Y2_MS_PINS 1
-#endif
-
-#if PIN_EXISTS(Z_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z))
-  #define HAS_Z_ENABLE 1
-#endif
-#if PIN_EXISTS(Z_DIR)
-  #define HAS_Z_DIR 1
-#endif
-#if PIN_EXISTS(Z_STEP)
-  #define HAS_Z_STEP 1
-#endif
-#if PIN_EXISTS(Z_MS1)
-  #define HAS_Z_MS_PINS 1
+#if HAS_Z_AXIS
+  #if PIN_EXISTS(Z_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z))
+    #define HAS_Z_ENABLE 1
+  #endif
+  #if PIN_EXISTS(Z_DIR)
+    #define HAS_Z_DIR 1
+  #endif
+  #if PIN_EXISTS(Z_STEP)
+    #define HAS_Z_STEP 1
+  #endif
+  #if PIN_EXISTS(Z_MS1)
+    #define HAS_Z_MS_PINS 1
+  #endif
 #endif
 
-#if PIN_EXISTS(Z2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2))
-  #define HAS_Z2_ENABLE 1
-#endif
-#if PIN_EXISTS(Z2_DIR)
-  #define HAS_Z2_DIR 1
-#endif
-#if PIN_EXISTS(Z2_STEP)
-  #define HAS_Z2_STEP 1
-#endif
-#if PIN_EXISTS(Z2_MS1)
-  #define HAS_Z2_MS_PINS 1
-#endif
-
-#if PIN_EXISTS(Z3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z3))
-  #define HAS_Z3_ENABLE 1
-#endif
-#if PIN_EXISTS(Z3_DIR)
-  #define HAS_Z3_DIR 1
-#endif
-#if PIN_EXISTS(Z3_STEP)
-  #define HAS_Z3_STEP 1
-#endif
-#if PIN_EXISTS(Z3_MS1)
-  #define HAS_Z3_MS_PINS 1
+#if NUM_Z_STEPPER_DRIVERS >= 2
+  #if PIN_EXISTS(Z2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2))
+    #define HAS_Z2_ENABLE 1
+  #endif
+  #if PIN_EXISTS(Z2_DIR)
+    #define HAS_Z2_DIR 1
+  #endif
+  #if PIN_EXISTS(Z2_STEP)
+    #define HAS_Z2_STEP 1
+  #endif
+  #if PIN_EXISTS(Z2_MS1)
+    #define HAS_Z2_MS_PINS 1
+  #endif
 #endif
 
-#if PIN_EXISTS(Z4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z4))
-  #define HAS_Z4_ENABLE 1
+#if NUM_Z_STEPPER_DRIVERS >= 3
+  #if PIN_EXISTS(Z3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z3))
+    #define HAS_Z3_ENABLE 1
+  #endif
+  #if PIN_EXISTS(Z3_DIR)
+    #define HAS_Z3_DIR 1
+  #endif
+  #if PIN_EXISTS(Z3_STEP)
+    #define HAS_Z3_STEP 1
+  #endif
+  #if PIN_EXISTS(Z3_MS1)
+    #define HAS_Z3_MS_PINS 1
+  #endif
 #endif
-#if PIN_EXISTS(Z4_DIR)
-  #define HAS_Z4_DIR 1
+
+#if NUM_Z_STEPPER_DRIVERS >= 4
+  #if PIN_EXISTS(Z4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z4))
+    #define HAS_Z4_ENABLE 1
+  #endif
+  #if PIN_EXISTS(Z4_DIR)
+    #define HAS_Z4_DIR 1
+  #endif
+  #if PIN_EXISTS(Z4_STEP)
+    #define HAS_Z4_STEP 1
+  #endif
+  #if PIN_EXISTS(Z4_MS1)
+    #define HAS_Z4_MS_PINS 1
+  #endif
 #endif
-#if PIN_EXISTS(Z4_STEP)
-  #define HAS_Z4_STEP 1
+
+#if LINEAR_AXES >= 4
+  #if PIN_EXISTS(I_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(I))
+    #define HAS_I_ENABLE 1
+  #endif
+  #if PIN_EXISTS(I_DIR)
+    #define HAS_I_DIR 1
+  #endif
+  #if PIN_EXISTS(I_STEP)
+    #define HAS_I_STEP 1
+  #endif
+  #if PIN_EXISTS(I_MS1)
+    #define HAS_I_MS_PINS 1
+  #endif
 #endif
-#if PIN_EXISTS(Z4_MS1)
-  #define HAS_Z4_MS_PINS 1
+
+#if LINEAR_AXES >= 5
+  #if PIN_EXISTS(J_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(J))
+    #define HAS_J_ENABLE 1
+  #endif
+  #if PIN_EXISTS(J_DIR)
+    #define HAS_J_DIR 1
+  #endif
+  #if PIN_EXISTS(J_STEP)
+    #define HAS_J_STEP 1
+  #endif
+  #if PIN_EXISTS(J_MS1)
+    #define HAS_J_MS_PINS 1
+  #endif
+#endif
+
+#if LINEAR_AXES >= 6
+  #if PIN_EXISTS(K_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(K))
+    #define HAS_K_ENABLE 1
+  #endif
+  #if PIN_EXISTS(K_DIR)
+    #define HAS_K_DIR 1
+  #endif
+  #if PIN_EXISTS(K_STEP)
+    #define HAS_K_STEP 1
+  #endif
+  #if PIN_EXISTS(K_MS1)
+    #define HAS_K_MS_PINS 1
+  #endif
 #endif
 
 // Extruder steppers and solenoids
-#if PIN_EXISTS(E0_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0))
-  #define HAS_E0_ENABLE 1
-#endif
-#if PIN_EXISTS(E0_DIR)
-  #define HAS_E0_DIR 1
-#endif
-#if PIN_EXISTS(E0_STEP)
-  #define HAS_E0_STEP 1
-#endif
-#if PIN_EXISTS(E0_MS1)
-  #define HAS_E0_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL0)
-  #define HAS_SOLENOID_0 1
-#endif
+#if HAS_EXTRUDERS
 
-#if PIN_EXISTS(E1_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1))
-  #define HAS_E1_ENABLE 1
-#endif
-#if PIN_EXISTS(E1_DIR)
-  #define HAS_E1_DIR 1
-#endif
-#if PIN_EXISTS(E1_STEP)
-  #define HAS_E1_STEP 1
-#endif
-#if PIN_EXISTS(E1_MS1)
-  #define HAS_E1_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL1)
-  #define HAS_SOLENOID_1 1
-#endif
+  #if PIN_EXISTS(E0_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0))
+    #define HAS_E0_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E0_DIR)
+    #define HAS_E0_DIR 1
+  #endif
+  #if PIN_EXISTS(E0_STEP)
+    #define HAS_E0_STEP 1
+  #endif
+  #if PIN_EXISTS(E0_MS1)
+    #define HAS_E0_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL0)
+    #define HAS_SOLENOID_0 1
+  #endif
 
-#if PIN_EXISTS(E2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2))
-  #define HAS_E2_ENABLE 1
-#endif
-#if PIN_EXISTS(E2_DIR)
-  #define HAS_E2_DIR 1
-#endif
-#if PIN_EXISTS(E2_STEP)
-  #define HAS_E2_STEP 1
-#endif
-#if PIN_EXISTS(E2_MS1)
-  #define HAS_E2_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL2)
-  #define HAS_SOLENOID_2 1
-#endif
+  #if PIN_EXISTS(E1_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1))
+    #define HAS_E1_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E1_DIR)
+    #define HAS_E1_DIR 1
+  #endif
+  #if PIN_EXISTS(E1_STEP)
+    #define HAS_E1_STEP 1
+  #endif
+  #if PIN_EXISTS(E1_MS1)
+    #define HAS_E1_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL1)
+    #define HAS_SOLENOID_1 1
+  #endif
 
-#if PIN_EXISTS(E3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3))
-  #define HAS_E3_ENABLE 1
-#endif
-#if PIN_EXISTS(E3_DIR)
-  #define HAS_E3_DIR 1
-#endif
-#if PIN_EXISTS(E3_STEP)
-  #define HAS_E3_STEP 1
-#endif
-#if PIN_EXISTS(E3_MS1)
-  #define HAS_E3_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL3)
-  #define HAS_SOLENOID_3 1
-#endif
+  #if PIN_EXISTS(E2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2))
+    #define HAS_E2_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E2_DIR)
+    #define HAS_E2_DIR 1
+  #endif
+  #if PIN_EXISTS(E2_STEP)
+    #define HAS_E2_STEP 1
+  #endif
+  #if PIN_EXISTS(E2_MS1)
+    #define HAS_E2_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL2)
+    #define HAS_SOLENOID_2 1
+  #endif
 
-#if PIN_EXISTS(E4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4))
-  #define HAS_E4_ENABLE 1
-#endif
-#if PIN_EXISTS(E4_DIR)
-  #define HAS_E4_DIR 1
-#endif
-#if PIN_EXISTS(E4_STEP)
-  #define HAS_E4_STEP 1
-#endif
-#if PIN_EXISTS(E4_MS1)
-  #define HAS_E4_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL4)
-  #define HAS_SOLENOID_4 1
-#endif
+  #if PIN_EXISTS(E3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3))
+    #define HAS_E3_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E3_DIR)
+    #define HAS_E3_DIR 1
+  #endif
+  #if PIN_EXISTS(E3_STEP)
+    #define HAS_E3_STEP 1
+  #endif
+  #if PIN_EXISTS(E3_MS1)
+    #define HAS_E3_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL3)
+    #define HAS_SOLENOID_3 1
+  #endif
 
-#if PIN_EXISTS(E5_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5))
-  #define HAS_E5_ENABLE 1
-#endif
-#if PIN_EXISTS(E5_DIR)
-  #define HAS_E5_DIR 1
-#endif
-#if PIN_EXISTS(E5_STEP)
-  #define HAS_E5_STEP 1
-#endif
-#if PIN_EXISTS(E5_MS1)
-  #define HAS_E5_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL5)
-  #define HAS_SOLENOID_5 1
-#endif
+  #if PIN_EXISTS(E4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4))
+    #define HAS_E4_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E4_DIR)
+    #define HAS_E4_DIR 1
+  #endif
+  #if PIN_EXISTS(E4_STEP)
+    #define HAS_E4_STEP 1
+  #endif
+  #if PIN_EXISTS(E4_MS1)
+    #define HAS_E4_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL4)
+    #define HAS_SOLENOID_4 1
+  #endif
 
-#if PIN_EXISTS(E6_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E6))
-  #define HAS_E6_ENABLE 1
-#endif
-#if PIN_EXISTS(E6_DIR)
-  #define HAS_E6_DIR 1
-#endif
-#if PIN_EXISTS(E6_STEP)
-  #define HAS_E6_STEP 1
-#endif
-#if PIN_EXISTS(E6_MS1)
-  #define HAS_E6_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL6)
-  #define HAS_SOLENOID_6 1
-#endif
+  #if PIN_EXISTS(E5_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5))
+    #define HAS_E5_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E5_DIR)
+    #define HAS_E5_DIR 1
+  #endif
+  #if PIN_EXISTS(E5_STEP)
+    #define HAS_E5_STEP 1
+  #endif
+  #if PIN_EXISTS(E5_MS1)
+    #define HAS_E5_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL5)
+    #define HAS_SOLENOID_5 1
+  #endif
 
-#if PIN_EXISTS(E7_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E7))
-  #define HAS_E7_ENABLE 1
-#endif
-#if PIN_EXISTS(E7_DIR)
-  #define HAS_E7_DIR 1
-#endif
-#if PIN_EXISTS(E7_STEP)
-  #define HAS_E7_STEP 1
-#endif
-#if PIN_EXISTS(E7_MS1)
-  #define HAS_E7_MS_PINS 1
-#endif
-#if PIN_EXISTS(SOL7)
-  #define HAS_SOLENOID_7 1
-#endif
+  #if PIN_EXISTS(E6_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E6))
+    #define HAS_E6_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E6_DIR)
+    #define HAS_E6_DIR 1
+  #endif
+  #if PIN_EXISTS(E6_STEP)
+    #define HAS_E6_STEP 1
+  #endif
+  #if PIN_EXISTS(E6_MS1)
+    #define HAS_E6_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL6)
+    #define HAS_SOLENOID_6 1
+  #endif
+
+  #if PIN_EXISTS(E7_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E7))
+    #define HAS_E7_ENABLE 1
+  #endif
+  #if PIN_EXISTS(E7_DIR)
+    #define HAS_E7_DIR 1
+  #endif
+  #if PIN_EXISTS(E7_STEP)
+    #define HAS_E7_STEP 1
+  #endif
+  #if PIN_EXISTS(E7_MS1)
+    #define HAS_E7_MS_PINS 1
+  #endif
+  #if PIN_EXISTS(SOL7)
+    #define HAS_SOLENOID_7 1
+  #endif
+
+#endif // HAS_EXTRUDERS
 
 //
 // Trinamic Stepper Drivers
 //
 
 #if HAS_TRINAMIC_CONFIG
-  #if ANY(STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_E)
+  #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K)
     #define STEALTHCHOP_ENABLED 1
   #endif
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
@@ -1733,6 +1912,65 @@
   #if defined(Z4_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z4)
     #define Z4_SENSORLESS 1
   #endif
+
+  #if AXIS_HAS_STEALTHCHOP(X)
+    #define X_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(X2)
+    #define X2_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(Y)
+    #define Y_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(Y2)
+    #define Y2_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(Z)
+    #define Z_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(Z2)
+    #define Z2_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(Z3)
+    #define Z3_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(Z4)
+    #define Z4_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(I)
+    #define I_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(J)
+    #define J_HAS_STEALTHCHOP 1
+  #endif
+  #if AXIS_HAS_STEALTHCHOP(K)
+    #define K_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 0 && AXIS_HAS_STEALTHCHOP(E0)
+    #define E0_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
+    #define E1_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
+    #define E2_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
+    #define E3_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
+    #define E4_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+    #define E5_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 6 && AXIS_HAS_STEALTHCHOP(E6)
+    #define E6_HAS_STEALTHCHOP 1
+  #endif
+  #if E_STEPPERS > 7 && AXIS_HAS_STEALTHCHOP(E7)
+    #define E7_HAS_STEALTHCHOP 1
+  #endif
+
   #if ENABLED(SPI_ENDSTOPS)
     #define X_SPI_SENSORLESS X_SENSORLESS
     #define Y_SPI_SENSORLESS Y_SENSORLESS
@@ -1761,6 +1999,21 @@
   #endif
   #ifndef Z4_INTERPOLATE
     #define Z4_INTERPOLATE INTERPOLATE
+  #endif
+  #if LINEAR_AXES >= 4
+    #ifndef I_INTERPOLATE
+      #define I_INTERPOLATE INTERPOLATE
+    #endif
+  #endif
+  #if LINEAR_AXES >= 5
+    #ifndef J_INTERPOLATE
+      #define J_INTERPOLATE INTERPOLATE
+    #endif
+  #endif
+  #if LINEAR_AXES >= 6
+    #ifndef K_INTERPOLATE
+      #define K_INTERPOLATE INTERPOLATE
+    #endif
   #endif
   #ifndef E0_INTERPOLATE
     #define E0_INTERPOLATE INTERPOLATE
@@ -1794,6 +2047,15 @@
   #endif
   #ifndef Z_SLAVE_ADDRESS
     #define Z_SLAVE_ADDRESS  0
+  #endif
+  #ifndef I_SLAVE_ADDRESS
+    #define I_SLAVE_ADDRESS 0
+  #endif
+  #ifndef J_SLAVE_ADDRESS
+    #define J_SLAVE_ADDRESS 0
+  #endif
+  #ifndef K_SLAVE_ADDRESS
+    #define K_SLAVE_ADDRESS 0
   #endif
   #ifndef X2_SLAVE_ADDRESS
     #define X2_SLAVE_ADDRESS 0
@@ -1847,6 +2109,10 @@
 #endif
 #if ANY_AXIS_HAS(SW_SERIAL)
   #define HAS_TMC_SW_SERIAL 1
+#endif
+
+#if !USE_SENSORLESS
+  #undef SENSORLESS_BACKOFF_MM
 #endif
 
 //
@@ -1968,17 +2234,35 @@
 #if _HAS_STOP(X,MAX)
   #define HAS_X_MAX 1
 #endif
-#if _HAS_STOP(Y,MIN)
+#if HAS_Y_AXIS && _HAS_STOP(Y,MIN)
   #define HAS_Y_MIN 1
 #endif
-#if _HAS_STOP(Y,MAX)
+#if HAS_Y_AXIS && _HAS_STOP(Y,MAX)
   #define HAS_Y_MAX 1
 #endif
-#if _HAS_STOP(Z,MIN)
+#if BOTH(HAS_Z_AXIS, USE_ZMIN_PLUG) && _HAS_STOP(Z,MIN)
   #define HAS_Z_MIN 1
 #endif
-#if _HAS_STOP(Z,MAX)
+#if BOTH(HAS_Z_AXIS, USE_ZMAX_PLUG) && _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
+#endif
+#if _HAS_STOP(I,MIN)
+  #define HAS_I_MIN 1
+#endif
+#if _HAS_STOP(I,MAX)
+  #define HAS_I_MAX 1
+#endif
+#if _HAS_STOP(J,MIN)
+  #define HAS_J_MIN 1
+#endif
+#if _HAS_STOP(J,MAX)
+  #define HAS_J_MAX 1
+#endif
+#if _HAS_STOP(K,MIN)
+  #define HAS_K_MIN 1
+#endif
+#if _HAS_STOP(K,MAX)
+  #define HAS_K_MAX 1
 #endif
 #if PIN_EXISTS(X2_MIN)
   #define HAS_X2_MIN 1
@@ -2348,7 +2632,10 @@
 #if PIN_EXISTS(DIGIPOTSS)
   #define HAS_MOTOR_CURRENT_SPI 1
 #endif
-#if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
+#if HAS_EXTRUDERS && PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+  #define HAS_MOTOR_CURRENT_PWM_E 1
+#endif
+#if HAS_MOTOR_CURRENT_PWM_E || ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z)
   #define HAS_MOTOR_CURRENT_PWM 1
 #endif
 
@@ -2358,7 +2645,7 @@
 #if ANY(HAS_E0_MS_PINS, HAS_E1_MS_PINS, HAS_E2_MS_PINS, HAS_E3_MS_PINS, HAS_E4_MS_PINS, HAS_E5_MS_PINS, HAS_E6_MS_PINS, HAS_E7_MS_PINS)
   #define HAS_SOME_E_MS_PINS 1
 #endif
-#if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_SOME_E_MS_PINS)
+#if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_I_MS_PINS, HAS_J_MS_PINS, HAS_K_MS_PINS, HAS_SOME_E_MS_PINS)
   #define HAS_MICROSTEPS 1
 #endif
 

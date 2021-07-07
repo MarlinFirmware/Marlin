@@ -28,26 +28,26 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.0.8.1 M.A.R.C."  // M.A.R.C.
+#define SHORT_BUILD_VERSION "2.0.9.1 MRiscoC"  // MRiscoC
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " BLTouch, based on bugfix-2.0.x"       // M.A.R.C.
+#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " BLTouch, based on bugfix-2.0.x"       // MRiscoC
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE __DATE__       // M.A.R.C. Set Automatic Distribution Date
-#define STRING_DISTRIBUTION_TIME __TIME__       // M.A.R.C. Set Automatic Distribution Time
+#define STRING_DISTRIBUTION_DATE __DATE__       // MRiscoC Set Automatic Distribution Date
+#define STRING_DISTRIBUTION_TIME __TIME__       // MRiscoC Set Automatic Distribution Time
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME "Ender 3 v2"
+#define MACHINE_NAME "Ender 3v2"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
@@ -55,7 +55,7 @@
  * has a distinct Github fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-#define SOURCE_CODE_URL "github.com/mriscoc/Marlin_Ender3v2"      // M.A.R.C.
+#define SOURCE_CODE_URL "github.com/mriscoc/Marlin_Ender3v2"      // MRiscoC
 
 /**
  * Default generic printer UUID.
