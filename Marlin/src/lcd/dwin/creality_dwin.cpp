@@ -393,7 +393,7 @@ CrealityDWINClass CrealityDWIN;
 //  2=Menu area
 //  1=Title bar
 void CrealityDWINClass::Clear_Screen(uint8_t e/*=3*/) {
-  if (e==1||e==3||e==4) DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.menu_top_bg, Color_Bg_Blue, false), 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
+  if (e==1||e==3||e==4) DWIN_Draw_Rectangle(1, GetColor(eeprom_settings.menu_top_bg, Color_Voxelab_Red, false), 0, 0, DWIN_WIDTH, TITLE_HEIGHT); // Clear Title Bar
   if (e==2||e==3) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y); // Clear Menu Area
   if (e==4) DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT); // Clear Popup Area
 }
@@ -537,7 +537,7 @@ void CrealityDWINClass::Redraw_Screen() {
 void CrealityDWINClass::Main_Menu_Icons() {
   if (selection == 0) {
     DWIN_ICON_Show(ICON, ICON_Print_1, 17, 130);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 17, 130, 126, 229);
+    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 17, 130, 126, 229);
     DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 52, 200, F("Print"));
   }
   else {
@@ -546,7 +546,7 @@ void CrealityDWINClass::Main_Menu_Icons() {
   }
   if (selection == 1) {
     DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 130);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 145, 130, 254, 229);
+    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 145, 130, 254, 229);
     DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 170, 200, F("Prepare"));
   }
   else {
@@ -555,7 +555,7 @@ void CrealityDWINClass::Main_Menu_Icons() {
   }
   if (selection == 2) {
     DWIN_ICON_Show(ICON, ICON_Control_1, 17, 246);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 17, 246, 126, 345);
+    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 17, 246, 126, 345);
     DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 43, 317, F("Control"));
   }
   else {
@@ -565,7 +565,7 @@ void CrealityDWINClass::Main_Menu_Icons() {
   #if ANY(HAS_ONESTEP_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY) 
     if (selection == 3) {
       DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 246);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 145, 246, 254, 345);
+      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 145, 246, 254, 345);
       DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 179, 317, F("Level"));
     }
     else {
@@ -575,7 +575,7 @@ void CrealityDWINClass::Main_Menu_Icons() {
   #else
     if (selection == 3) {
       DWIN_ICON_Show(ICON, ICON_Info_1, 145, 246);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 145, 246, 254, 345);
+      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 145, 246, 254, 345);
       DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 181, 317, F("Info"));
     }
     else {
@@ -600,7 +600,7 @@ void CrealityDWINClass::Draw_Main_Menu(uint8_t select/*=0*/) {
 void CrealityDWINClass::Print_Screen_Icons() {
   if (selection == 0) {
     DWIN_ICON_Show(ICON, ICON_Setup_1, 8, 252);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 8, 252, 87, 351);
+    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 8, 252, 87, 351);
     DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 30, 322, F("Tune"));
   }
   else {
@@ -609,7 +609,7 @@ void CrealityDWINClass::Print_Screen_Icons() {
   }
   if (selection == 2) {
     DWIN_ICON_Show(ICON, ICON_Stop_1, 184, 252);
-    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 184, 252, 263, 351);
+    DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 184, 252, 263, 351);
     DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 205, 322, F("Stop"));
   }
   else {
@@ -619,7 +619,7 @@ void CrealityDWINClass::Print_Screen_Icons() {
   if (paused) {
     if (selection == 1) {
       DWIN_ICON_Show(ICON, ICON_Continue_1, 96, 252);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 96, 252, 175, 351);
+      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 96, 252, 175, 351);
       DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Print"));
     }
     else {
@@ -630,7 +630,7 @@ void CrealityDWINClass::Print_Screen_Icons() {
   else {
     if (selection == 1) {
       DWIN_ICON_Show(ICON, ICON_Pause_1, 96, 252);
-      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 96, 252, 175, 351);
+      DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 96, 252, 175, 351);
       DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Blue, 114, 322, F("Pause"));
     }
     else {
@@ -733,8 +733,8 @@ void CrealityDWINClass::Draw_Print_confirm() {
   popup = Complete;
   DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 252, 263, 351);
   DWIN_ICON_Show(ICON, ICON_Confirm_E, 87, 283);
-  DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 86, 282, 187, 321);
-  DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_White), 85, 281, 188, 322);
+  DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 86, 282, 187, 321);
+  DWIN_Draw_Rectangle(0, GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red), 85, 281, 188, 322);
 }
 
 void CrealityDWINClass::Draw_SD_Item(uint8_t item, uint8_t row) {
@@ -892,7 +892,7 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
     x = -1;
     y = -1;
     z = -1;
-    DWIN_Draw_Line(GetColor(eeprom_settings.coordinates_split_line, Line_Color, true), 16, 450, 256, 450);
+    DWIN_Draw_Line(GetColor(eeprom_settings.coordinates_split_line, Color_Voxelab_Red, true), 16, 450, 256, 450);
     DWIN_ICON_Show(ICON, ICON_MaxSpeedX,   10, 456);
     DWIN_ICON_Show(ICON, ICON_MaxSpeedY,   95, 456);
     DWIN_ICON_Show(ICON, ICON_MaxSpeedZ,   180, 456);
@@ -953,8 +953,8 @@ void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const ch
 }
 
 void CrealityDWINClass::Popup_Select() {
-  const uint16_t c1 = (selection==0) ? GetColor(eeprom_settings.highlight_box, Color_White) : Color_Bg_Window,
-                 c2 = (selection==0) ? Color_Bg_Window : GetColor(eeprom_settings.highlight_box, Color_White);
+  const uint16_t c1 = (selection==0) ? GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red) : Color_Bg_Window,
+                 c2 = (selection==0) ? Color_Bg_Window : GetColor(eeprom_settings.highlight_box, Color_Voxelab_Red);
   DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
   DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
   DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);

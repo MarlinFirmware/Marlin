@@ -232,6 +232,7 @@ enum colorID : uint8_t {
 };
 
 #define Custom_Colors       10
+#define Color_Voxelab_Red   0xA804
 #define Color_White         0xFFFF
 #define Color_Light_White   0xBDD7
 #define Color_Green         0x07E0
@@ -242,7 +243,7 @@ enum colorID : uint8_t {
 #define Color_Light_Blue    0x3A6A
 #define Color_Magenta       0xF81F
 #define Color_Light_Magenta 0x9813
-#define Color_Red           0xF800
+#define Color_Red           0xA804
 #define Color_Light_Red     0x8800
 #define Color_Orange        0xFA20
 #define Color_Light_Orange  0xFBC0
@@ -255,15 +256,15 @@ enum colorID : uint8_t {
 #define Color_Bg_Window     0x31E8  // Popup background color
 #define Color_Bg_Blue       0x1125  // Dark blue background color
 #define Color_Bg_Black      0x0841  // Black background color
-#define Color_Bg_Red        0xF00F  // Red background color
+#define Color_Bg_Red        Color_Voxelab_Red  // Red background color
 #define Popup_Text_Color    0xD6BA  // Popup font background color
-#define Line_Color          0x3A6A  // Split line color
-#define Rectangle_Color     0xEE2F  // Blue square cursor color
-#define Percent_Color       0xFE29  // Percentage color
+#define Line_Color          Color_White  // Split line color
+#define Rectangle_Color     Color_Voxelab_Red  // Blue square cursor color
+#define Percent_Color       Color_White  // Percentage color
 #define BarFill_Color       0x10E4  // Fill color of progress bar
-#define Select_Color        0x33BB  // Selected color
-#define Check_Color         0x4E5C  // Check-box check color
-#define Confirm_Color   	  0x34B9
+#define Select_Color        0x8430 // Selected color
+#define Check_Color         Color_Voxelab_Red  // Check-box check color
+#define Confirm_Color   	  Color_Voxelab_Red
 #define Cancel_Color        0x3186
 
 class CrealityDWINClass {
