@@ -149,12 +149,11 @@
 #define SD_MISO_PIN                           74
 #define SD_MOSI_PIN                           75
 
-// SPI for Max6675 or Max31855 Thermocouple
-#define MAX6675_SS_PIN                        65
-#define MAX31855_SS0                          65
-#define MAX31855_SS1                          52
-#define MAX31855_SS2                          50
-#define MAX31855_SS3                          51
+// SPI for MAX Thermocouple
+#define TEMP_0_CS_PIN                         65
+#define TEMP_1_CS_PIN                         52
+#define TEMP_2_CS_PIN                         50
+#define TEMP_3_CS_PIN                         51
 
 #define ENC424_SS                             61
 

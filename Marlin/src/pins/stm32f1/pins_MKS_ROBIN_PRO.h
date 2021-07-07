@@ -175,8 +175,8 @@
 /**
  * Note: MKS Robin Pro board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
  */
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PF11  // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PF11  // TC2 - CS2
 
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PG11  // PW_OFF

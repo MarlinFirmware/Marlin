@@ -100,10 +100,10 @@
 //#define TEMP_0_PIN                        PB3   // E0 K+
 #define TEMP_BED_PIN                        PF7   // THERM_BED
 
-#define MAX6675_SS_PIN                      PB5
-#define MAX6675_SCK_PIN                     PB3
-#define MAX6675_DO_PIN                      PB4
-#define MAX6675_MOSI_PIN                    PA14
+#define TEMP_0_CS_PIN                       PB5
+#define TEMP_0_SCK_PIN                      PB3
+#define TEMP_0_MISO_PIN                     PB4
+#define TEMP_0_MOSI_PIN                     PA14
 
 //
 // Heaters / Fans
