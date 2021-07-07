@@ -258,54 +258,82 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
   }
 }
 
-//
-// Recursive method to print all files within a folder in flat
-// DOS 8.3 format. This style of listing is the most compatible
-// with legacy hosts.
-//
-// This method recurses to unlimited depth and lists every
-// G-code file within the given parent. If the hierarchy is
-// very deep this can blow up the stack, so a 'depth' parameter
-// (as with printListingJSON) would be a good addition.
-//
-void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/) {
+/**
+ * Recursive method to print all files within a folder in flat
+ * DOS 8.3 format. This style of listing is the most compatible
+ * with legacy hosts.
+ *
+ * This method recurses to unlimited depth and lists all G-code
+ * files within the given parent. If the hierarchy is very deep
+ * this can blow up the stack, so a 'depth' parameter would be a
+ * good addition.
+ */
+void CardReader::printListing(
+  SdFile parent
+  OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+  , const char * const prepend/*=nullptr*/
+  OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
+) {
   dir_t p;
   while (parent.readDir(&p, longFilename) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
 
-      // Get the short name for the item, which we know is a folder
-      char dosFilename[FILENAME_LENGTH];
+      size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
+      // Allocate enough stack space for the full path including / separator
+      char path[lenPrepend + FILENAME_LENGTH];
+      if (prepend) {
+        strcpy(path, prepend);
+        path[lenPrepend - 1] = '/';
+      }
+      char* dosFilename = path + lenPrepend;
       createFilename(dosFilename, p);
-
-      // Allocate enough stack space for the full path to a folder, trailing slash, and nul
-      const bool prepend_is_empty = (!prepend || prepend[0] == '\0');
-      const int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(dosFilename) + 1 + 1;
-      char path[len];
-
-      // Append the FOLDERNAME12/ to the passed string.
-      // It contains the full path to the "parent" argument.
-      // We now have the full path to the item in this folder.
-      strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
-      strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
-      strcat(path, "/");                              // 1 character
-
-      // Serial.print(path);
 
       // Get a new directory object using the full path
       // and dive recursively into it.
       SdFile child; // child.close() in destructor
       if (child.open(&parent, dosFilename, O_READ))
-        printListing(child, path);
+        #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+          if (includeLongNames) {
+            size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
+            // Allocate enough stack space for the full long path including / separator
+            char pathLong[lenPrependLong + strlen(longFilename) + 1];
+            if (prependLong) {
+              strcpy(pathLong, prependLong);
+              pathLong[lenPrependLong - 1] = '/';
+            }
+            strcpy(pathLong + lenPrependLong, longFilename);
+            printListing(child, /*includeLongNames=*/true, path, pathLong);
+          }
+          else
+        #endif
+            printListing(child, path);
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
       }
     }
     else if (is_dir_or_gcode(p)) {
-      if (prepend) SERIAL_ECHO(prepend);
+      if (prepend) {
+        SERIAL_ECHO(prepend);
+        SERIAL_CHAR('/');
+      }
       SERIAL_ECHO(createFilename(filename, p));
       SERIAL_CHAR(' ');
-      SERIAL_ECHOLN(p.fileSize);
+      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+        if (!includeLongNames)
+      #endif
+          SERIAL_ECHOLN(p.fileSize);
+      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+        else {
+          SERIAL_ECHO(p.fileSize);
+          SERIAL_CHAR(' ');
+          if (prependLong) {
+            SERIAL_ECHO(prependLong);
+            SERIAL_CHAR('/');
+          }
+          SERIAL_ECHOLN(longFilename[0] ? longFilename : "???");
+        }
+      #endif
     }
   }
 }
@@ -313,10 +341,10 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 //
 // List all files on the SD card
 //
-void CardReader::ls() {
+void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root);
+    printListing(root OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
   }
 }
 
