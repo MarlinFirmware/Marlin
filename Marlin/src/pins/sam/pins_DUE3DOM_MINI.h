@@ -71,11 +71,11 @@
 #define TEMP_2_PIN                             5  // Analog Input (OnBoard thermistor beta 3950)
 #define TEMP_BED_PIN                           1  // Analog Input (BED thermistor)
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      53
+  #define TEMP_0_CS_PIN                       53
 #else
-  #define MAX6675_SS_PIN                      53
+  #define TEMP_0_CS_PIN                       53
 #endif
 
 //
