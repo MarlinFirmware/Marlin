@@ -124,8 +124,8 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
 
 //
 // Misc. Functions
