@@ -364,8 +364,7 @@ void menu_main() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      CONFIRM_ITEM(MSG_FILAMENTCHANGE,
-        MSG_YES, MSG_NO,
+      YESNO_ITEM(MSG_FILAMENTCHANGE,
         menu_change_filament, ui.goto_previous_screen,
         GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
       );
