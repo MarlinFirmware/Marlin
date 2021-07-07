@@ -233,9 +233,9 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
-  #define SDIO_CLOCK                       4500000  // 4.5 MHz
-  #define SD_DETECT_PIN                       PD12
-  #define ONBOARD_SD_CS_PIN                   PC11
+  #define SDIO_CLOCK                     4500000  // 4.5 MHz
+  #define SD_DETECT_PIN                     PD12
+  #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(LCD)
   #define ENABLE_SPI1
   #define SDSS                              PE10
@@ -334,14 +334,14 @@
     #endif
   
   #elif ENABLED(MKS_MINI_12864_V3)
-    #define DOGLCD_CS                     PD13
-    #define DOGLCD_A0                     PC6
-    #define LCD_PINS_DC                   DOGLCD_A0
-    #define LCD_BACKLIGHT_PIN             -1
-    #define LCD_RESET_PIN                 PE14
-    #define NEOPIXEL_PIN                  PE15
-    #define DOGLCD_MOSI                   PA7
-    #define DOGLCD_SCK                    PA5
+    #define DOGLCD_CS                       PD13
+    #define DOGLCD_A0                       PC6
+    #define LCD_PINS_DC                DOGLCD_A0
+    #define LCD_BACKLIGHT_PIN               -1
+    #define LCD_RESET_PIN                   PE14
+    #define NEOPIXEL_PIN                    PE15
+    #define DOGLCD_MOSI                     PA7
+    #define DOGLCD_SCK                      PA5
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif

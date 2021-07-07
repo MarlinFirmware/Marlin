@@ -2393,12 +2393,9 @@
 //#define MKS_MINI_12864
 
 //
-// MKS MINI12864 V3 use YSETC_MINI_12864_2_1's method, Type A/B. NeoPixel RGB Backlight
+// MKS MINI12864 V3 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
 // 
 //#define MKS_MINI_12864_V3
-#if ENABLED(MKS_MINI_12864_V3) 
-  #define FYSETC_MINI_12864_2_1
-#endif
 
 //
 // MKS LCD12864A/B with graphic controller and SD support. Follows MKS_MINI_12864 pinout.
