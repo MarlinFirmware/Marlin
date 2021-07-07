@@ -190,17 +190,11 @@ bool BedMeshEditScreen::onTouchEnd(uint8_t tag) {
 }
 
 void BedMeshEditScreen::show() {
-  // On entry, home if needed and save current mesh
-  if (!ExtUI::isMachineHomed()) {
-    SpinnerDialogBox::enqueueAndWait_P(F("G28\nG29 S1"));
-    // After the spinner, go to this screen.
-    current_screen.forget();
-    PUSH_SCREEN(BedMeshEditScreen);
-  }
-  else {
-    injectCommands_P(PSTR("G29 S1"));
-    GOTO_SCREEN(BedMeshEditScreen);
-  }
+  // On entry, always home (to account for possible Z offset changes) and save current mesh
+  SpinnerDialogBox::enqueueAndWait_P(F("G28\nG29 S1"));
+  // After the spinner, go to this screen.
+  current_screen.forget();
+  PUSH_SCREEN(BedMeshEditScreen);
 }
 
 #endif // FTDI_BED_MESH_EDIT_SCREEN
