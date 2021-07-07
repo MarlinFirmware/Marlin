@@ -104,16 +104,16 @@
 // MAX6675 Cold-Junction-Compensated K-Thermocouple to Digital Converter (0°C to +1024°C)
 // https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
 
-#define MAX6675_SCK_PIN                     PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
-#define MAX6675_DO_PIN                      PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
-#define MAX6675_SS_PIN                      PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+#define TEMP_0_CS_PIN                       PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+#define TEMP_0_SCK_PIN                      PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
+#define TEMP_0_MISO_PIN                     PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
 
 // Expansion board with second max6675
 // Warning: Some boards leave the slot unpopulated.
 
-//#define MAX6675_SCK2_PIN                  PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
-//#define MAX6675_DO2_PIN                   PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
-//#define MAX6675_SS2_PIN                   PF1   // max6675 datasheet: /CS pin, found with multimeter, not tested
+//#define TEMP_1_CS_PIN                     PF1   // max6675 datasheet: /CS pin, found with multimeter, not tested
+//#define TEMP_1_SCK_PIN                    PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
+//#define TEMP_1_MISO_PIN                   PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
 
 //
 // Heaters / Fans

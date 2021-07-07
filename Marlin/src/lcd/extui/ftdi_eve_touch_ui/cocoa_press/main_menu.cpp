@@ -88,7 +88,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case  8: GOTO_SCREEN(AdvancedSettingsMenu);             break;
     case  9: injectCommands_P(PSTR("M84"));                 break;
     #if HAS_LEVELING
-    case 10:  GOTO_SCREEN(LevelingMenu);                     break;
+    case 10:  GOTO_SCREEN(LevelingMenu);                    break;
     #endif
     case 11: GOTO_SCREEN(AboutScreen);                      break;
     default:

@@ -33,7 +33,7 @@
  * B: 0.00031362
  * C: -2.03978e-07
  */
-const temp_entry_t temptable_666[] PROGMEM = {
+constexpr temp_entry_t temptable_666[] PROGMEM = {
   { OV(  1), 794 },
   { OV( 18), 288 },
   { OV( 35), 234 },

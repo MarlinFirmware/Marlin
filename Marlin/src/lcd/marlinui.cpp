@@ -120,41 +120,45 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked;
+#endif
+
 #if HAS_WIRED_LCD
 
-#if HAS_MARLINUI_U8GLIB
+  #if HAS_MARLINUI_U8GLIB
   #include "dogm/marlinui_DOGM.h"
-#endif
+  #endif
 
-#include "lcdprint.h"
+  #include "lcdprint.h"
 
-#include "../sd/cardreader.h"
+  #include "../sd/cardreader.h"
 
-#include "../module/temperature.h"
-#include "../module/planner.h"
-#include "../module/motion.h"
+  #include "../module/temperature.h"
+  #include "../module/planner.h"
+  #include "../module/motion.h"
 
-#if HAS_LCD_MENU
+  #if HAS_LCD_MENU
   #include "../module/settings.h"
-#endif
+  #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
-#endif
+  #endif
 
-#if HAS_TRINAMIC_CONFIG
+  #if HAS_TRINAMIC_CONFIG
   #include "../feature/tmc_util.h"
-#endif
+  #endif
 
-#if HAS_ADC_BUTTONS
+  #if HAS_ADC_BUTTONS
   #include "../module/thermistor/thermistors.h"
-#endif
+  #endif
 
-#if HAS_POWER_MONITOR
+  #if HAS_POWER_MONITOR
   #include "../feature/power_monitor.h"
-#endif
+  #endif
 
-#if HAS_ENCODER_ACTION
+  #if HAS_ENCODER_ACTION
   volatile uint8_t MarlinUI::buttons;
   #if HAS_SLOW_BUTTONS
     volatile uint8_t MarlinUI::slow_buttons;
@@ -163,31 +167,32 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #include "touch/touch_buttons.h"
     bool MarlinUI::on_edit_screen = false;
   #endif
-#endif
+  #endif
 
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+  #if SCREENS_CAN_TIME_OUT
   bool MarlinUI::defer_return_to_status;
-#endif
+    millis_t MarlinUI::return_to_status_ms = 0;
+  #endif
 
-uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
+  uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
-#if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+  #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
   millis_t MarlinUI::next_filament_display; // = 0
-#endif
+  #endif
 
-millis_t MarlinUI::next_button_update_ms; // = 0
+  millis_t MarlinUI::next_button_update_ms; // = 0
 
-#if HAS_MARLINUI_U8GLIB
+  #if HAS_MARLINUI_U8GLIB
   bool MarlinUI::drawing_screen, MarlinUI::first_page; // = false
-#endif
+  #endif
 
-// Encoder Handling
-#if HAS_ENCODER_ACTION
+  // Encoder Handling
+  #if HAS_ENCODER_ACTION
   uint32_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
-#endif
+  #endif
 
-#if ENABLED(SDSUPPORT)
+  #if ENABLED(SDSUPPORT)
 
   #include "../sd/cardreader.h"
 
@@ -221,9 +226,9 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     return outstr;
   }
 
-#endif
+  #endif
 
-#if HAS_LCD_MENU
+  #if HAS_LCD_MENU
   #include "menu/menu.h"
 
   screenFunc_t MarlinUI::currentScreen; // Initialized in CTOR
@@ -246,14 +251,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     uint8_t MarlinUI::touch_buttons;
     uint8_t MarlinUI::repeat_delay;
   #endif
-
-  bool MarlinUI::lcd_clicked;
-
-  bool MarlinUI::use_click() {
-    const bool click = lcd_clicked;
-    lcd_clicked = false;
-    return click;
-  }
 
   #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
@@ -332,9 +329,9 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
   #endif // !HAS_GRAPHICAL_TFT
 
-#endif // HAS_LCD_MENU
+  #endif // HAS_LCD_MENU
 
-void MarlinUI::init() {
+  void MarlinUI::init() {
 
   init_lcd();
 
@@ -395,9 +392,9 @@ void MarlinUI::init() {
   update_buttons();
 
   TERN_(HAS_ENCODER_ACTION, encoderDiff = 0);
-}
+  }
 
-bool MarlinUI::get_blink() {
+  bool MarlinUI::get_blink() {
   static uint8_t blink = 0;
   static millis_t next_blink_ms = 0;
   millis_t ms = millis();
@@ -406,13 +403,13 @@ bool MarlinUI::get_blink() {
     next_blink_ms = ms + 1000 - (LCD_UPDATE_INTERVAL) / 2;
   }
   return blink != 0;
-}
+  }
 
-////////////////////////////////////////////
-///////////// Keypad Handling //////////////
-////////////////////////////////////////////
+  ////////////////////////////////////////////
+  ///////////// Keypad Handling //////////////
+  ////////////////////////////////////////////
 
-#if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
+  #if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
   volatile uint8_t MarlinUI::keypad_buttons;
 
@@ -514,22 +511,22 @@ bool MarlinUI::get_blink() {
     return false;
   }
 
-#endif // IS_RRW_KEYPAD && HAS_ENCODER_ACTION
+  #endif // IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
-/**
+  /**
  * Status Screen
  *
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
-#if BASIC_PROGRESS_BAR
+  #if BASIC_PROGRESS_BAR
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
     millis_t MarlinUI::expire_status_ms; // = 0
   #endif
-#endif
+  #endif
 
-void MarlinUI::status_screen() {
+  void MarlinUI::status_screen() {
 
   TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
@@ -626,9 +623,9 @@ void MarlinUI::status_screen() {
   #endif // ULTIPANEL_FEEDMULTIPLY
 
   draw_status_screen();
-}
+  }
 
-void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
+  void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   init();
   status_printf_P(1, PSTR(S_FMT ": " S_FMT), lcd_error, lcd_component);
   TERN_(HAS_LCD_MENU, return_to_status());
@@ -643,9 +640,9 @@ void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   #endif
 
   draw_kill_screen();
-}
+  }
 
-void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
+  void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
   TERN_(HAS_LCD_MENU, refresh());
 
@@ -664,13 +661,13 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
       delay(10);
     #endif
   #endif
-}
+  }
 
-////////////////////////////////////////////
-/////////////// Manual Move ////////////////
-////////////////////////////////////////////
+  ////////////////////////////////////////////
+  /////////////// Manual Move ////////////////
+  ////////////////////////////////////////////
 
-#if HAS_LCD_MENU
+  #if HAS_LCD_MENU
 
   ManualMove MarlinUI::manual_move{};
 
@@ -782,9 +779,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
   #endif
 
-#endif // HAS_LCD_MENU
+  #endif // HAS_LCD_MENU
 
-/**
+  /**
  * Update the LCD, read encoder buttons, etc.
  *   - Read button states
  *   - Check the SD Card slot state
@@ -817,26 +814,17 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
  * This function is only called from the main thread.
  */
 
-LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-millis_t next_lcd_update_ms;
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-  millis_t MarlinUI::return_to_status_ms = 0;
-#endif
+  LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+  millis_t next_lcd_update_ms;
 
-inline bool can_encode() {
+  inline bool can_encode() {
   return !BUTTON_PRESSED(ENC_EN); // Update encoder only when ENC_EN is not LOW (pressed)
-}
+  }
 
-void MarlinUI::update() {
+  void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
   millis_t ms = millis();
-
-  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
-    #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
-  #else
-    #define RESET_STATUS_TIMEOUT() NOOP
-  #endif
 
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.update_timeout(powersupply_on);
@@ -863,7 +851,7 @@ void MarlinUI::update() {
 
     #if HAS_TOUCH_BUTTONS
       if (touch_buttons) {
-        RESET_STATUS_TIMEOUT();
+          reset_status_timeout(ms);
         if (touch_buttons & (EN_A | EN_B)) {              // Menu arrows, in priority
           if (ELAPSED(ms, next_button_update_ms)) {
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * epps * encoderDirection;
@@ -918,7 +906,7 @@ void MarlinUI::update() {
       TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons()); // Buttons that take too long to read in interrupt context
 
       if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
-        RESET_STATUS_TIMEOUT();
+          reset_status_timeout(ms);
 
       uint8_t abs_diff = ABS(encoderDiff);
 
@@ -984,7 +972,7 @@ void MarlinUI::update() {
           encoderDiff = 0;
         }
 
-        RESET_STATUS_TIMEOUT();
+          reset_status_timeout(ms);
 
         refresh(LCDVIEW_REDRAW_NOW);
 
@@ -1010,7 +998,7 @@ void MarlinUI::update() {
         lcd_status_update_delay = ++filename_scroll_pos >= filename_scroll_max ? 12 : 4; // Long delay at end and start
         if (filename_scroll_pos > filename_scroll_max) filename_scroll_pos = 0;
         refresh(LCDVIEW_REDRAW_NOW);
-        RESET_STATUS_TIMEOUT();
+          reset_status_timeout(ms);
       }
     #endif
 
@@ -1082,10 +1070,10 @@ void MarlinUI::update() {
         NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+      #if SCREENS_CAN_TIME_OUT
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
-        RESET_STATUS_TIMEOUT();
+          reset_status_timeout(ms);
       else if (ELAPSED(ms, return_to_status_ms))
         return_to_status();
     #endif
@@ -1105,9 +1093,9 @@ void MarlinUI::update() {
   } // ELAPSED(ms, next_lcd_update_ms)
 
   TERN_(HAS_GRAPHICAL_TFT, tft_idle());
-}
+  }
 
-#if HAS_ADC_BUTTONS
+  #if HAS_ADC_BUTTONS
 
   typedef struct {
     uint16_t ADCKeyValueMin, ADCKeyValueMax;
@@ -1173,9 +1161,9 @@ void MarlinUI::update() {
     return 0;
   }
 
-#endif // HAS_ADC_BUTTONS
+  #endif // HAS_ADC_BUTTONS
 
-#if HAS_ENCODER_ACTION
+  #if HAS_ENCODER_ACTION
 
   /**
    * Read encoder buttons from the hardware registers
@@ -1297,7 +1285,7 @@ void MarlinUI::update() {
     #endif // HAS_ENCODER_WHEEL
   }
 
-#endif // HAS_ENCODER_ACTION
+  #endif // HAS_ENCODER_ACTION
 
 #endif // HAS_WIRED_LCD
 
@@ -1501,6 +1489,13 @@ void MarlinUI::update() {
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
+  #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+    void MarlinUI::poweroff() {
+      queue.inject_P(PSTR("M81"));
+      goto_previous_screen();
+    }
+  #endif
+
   void MarlinUI::flow_fault() {
     LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
     TERN_(HAS_BUZZER, buzz(1000, 440));
@@ -1616,8 +1611,9 @@ void MarlinUI::update() {
 
     if (status) {
       if (old_status < 2) {
-        TERN_(EXTENSIBLE_UI, ExtUI::onMediaInserted()); // ExtUI response
-        #if ENABLED(BROWSE_MEDIA_ON_INSERT)
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaInserted();
+        #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
           clear_menu_history();
           quick_feedback();
           goto_screen(MEDIA_MENU_GATEWAY);
@@ -1628,8 +1624,9 @@ void MarlinUI::update() {
     }
     else {
       if (old_status < 2) {
-        TERN_(EXTENSIBLE_UI, ExtUI::onMediaRemoved()); // ExtUI response
-        #if PIN_EXISTS(SD_DETECT)
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaRemoved();
+        #elif PIN_EXISTS(SD_DETECT)
           LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
           #if HAS_LCD_MENU
             if (!defer_return_to_status) return_to_status();

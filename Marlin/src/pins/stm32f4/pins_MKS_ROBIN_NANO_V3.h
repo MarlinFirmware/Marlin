@@ -172,8 +172,8 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN            HEATER_0_PIN  // TC1 - CS1
-//#define MAX6675_SS_PIN            HEATER_1_PIN  // TC2 - CS2
+//#define TEMP_0_CS_PIN             HEATER_0_PIN  // TC1 - CS1
+//#define TEMP_0_CS_PIN             HEATER_1_PIN  // TC2 - CS2
 
 //
 // Misc. Functions
@@ -190,7 +190,9 @@
   #define FIL_RUNOUT2_PIN               MT_DET_2
 #endif
 
-#define POWER_LOSS_PIN                    PW_DET
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                  PW_DET
+#endif
 #define PS_ON_PIN                         PW_OFF
 
 //

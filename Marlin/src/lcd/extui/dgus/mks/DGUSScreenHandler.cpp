@@ -575,7 +575,6 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           settings.save();
         }
         else if (mesh_point_count == 0) {
-
           mesh_point_count = GRID_MAX_POINTS;
           soft_endstop._enabled = true;
           settings.save();
@@ -587,6 +586,10 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
     }
   #endif // MESH_BED_LEVELING
+}
+
+void DGUSScreenHandler::SD_FileBack(DGUS_VP_Variable&, void*) {
+  GotoScreen(MKSLCD_SCREEN_HOME);
 }
 
 void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {

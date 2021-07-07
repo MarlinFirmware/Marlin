@@ -41,6 +41,7 @@
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  */
 lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
+  const uint8_t prop = USE_WIDE_GLYPH ? 2 : 1;
   uint8_t *p = (uint8_t*)pstr;
   int8_t n = maxlen;
   while (n > 0) {
@@ -73,10 +74,27 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
     }
     else {
       lcd_put_wchar(ch);
-      n--;
+      n -= ch > 255 ? prop : 1;
     }
   }
   return n;
+}
+
+// Calculate UTF8 width with a simple check
+int calculateWidth(PGM_P const pstr) {
+  if (!USE_WIDE_GLYPH) return utf8_strlen_P(pstr) * MENU_FONT_WIDTH;
+  const uint8_t prop = 2;
+  uint8_t *p = (uint8_t*)pstr;
+  int n = 0;
+ 
+  do {
+    wchar_t ch;
+    p = get_utf8_value_cb(p, read_byte_rom, &ch);
+    if (!ch) break;
+    n += (ch > 255) ? prop : 1;
+  } while (1);
+
+  return n * MENU_FONT_WIDTH;
 }
 
 #endif // HAS_WIRED_LCD

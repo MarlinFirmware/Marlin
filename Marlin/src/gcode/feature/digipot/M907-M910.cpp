@@ -67,8 +67,10 @@ void GcodeSuite::M907() {
     LOOP_LOGICAL_AXES(i) if (parser.seenval(axis_codes[i])) digipot_i2c.set_current(i, parser.value_float());
     // Additional extruders use B,C,D for channels 4,5,6.
     // TODO: Change these parameters because 'E' is used. B<index>?
-    for (uint8_t i = E_AXIS + 1; i < DIGIPOT_I2C_NUM_CHANNELS; i++)
-      if (parser.seenval('B' + i - (E_AXIS + 1))) digipot_i2c.set_current(i, parser.value_float());
+    #if HAS_EXTRUDERS
+      for (uint8_t i = E_AXIS + 1; i < DIGIPOT_I2C_NUM_CHANNELS; i++)
+        if (parser.seenval('B' + i - (E_AXIS + 1))) digipot_i2c.set_current(i, parser.value_float());
+    #endif
   #endif
 
   #if ENABLED(HAS_MOTOR_CURRENT_DAC)

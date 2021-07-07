@@ -645,6 +645,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
   #endif
 
+#elif ENABLED(E_DUAL_STEPPER_DRIVERS)
+  #define E_STEP_WRITE(E,V) do{ E0_STEP_WRITE(V); E1_STEP_WRITE(V); }while(0)
+  #define   NORM_E_DIR(E)   do{ E0_DIR_WRITE(!INVERT_E0_DIR); E1_DIR_WRITE(!INVERT_E0_DIR ^ ENABLED(INVERT_E1_VS_E0_DIR)); }while(0)
+  #define    REV_E_DIR(E)   do{ E0_DIR_WRITE( INVERT_E0_DIR); E1_DIR_WRITE( INVERT_E0_DIR ^ ENABLED(INVERT_E1_VS_E0_DIR)); }while(0)
+
 #elif E_STEPPERS
   #define E_STEP_WRITE(E,V) E0_STEP_WRITE(V)
   #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
@@ -1013,6 +1018,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 //
 
 #if ENABLED(MIXING_EXTRUDER)
+
   /**
    * Mixing steppers keep all their enable (and direction) states synchronized
    */
@@ -1020,6 +1026,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define _CALL_DIS_E(N) DISABLE_STEPPER_E##N () ;
   #define  ENABLE_AXIS_E0() { RREPEAT(MIXING_STEPPERS, _CALL_ENA_E) }
   #define DISABLE_AXIS_E0() { RREPEAT(MIXING_STEPPERS, _CALL_DIS_E) }
+
+#elif ENABLED(E_DUAL_STEPPER_DRIVERS)
+
+  #define  ENABLE_AXIS_E0() do{  ENABLE_STEPPER_E0();  ENABLE_STEPPER_E1(); }while(0)
+  #define DISABLE_AXIS_E0() do{ DISABLE_STEPPER_E0(); DISABLE_STEPPER_E1(); }while(0)
+
 #endif
 
 #ifndef ENABLE_AXIS_E0

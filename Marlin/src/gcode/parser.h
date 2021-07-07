@@ -311,7 +311,13 @@ public:
     }
 
     static inline float axis_unit_factor(const AxisEnum axis) {
-      return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
+      return (
+        #if HAS_EXTRUDERS
+          axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor
+        #else
+          linear_unit_factor
+        #endif
+      );
     }
 
     static inline float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
