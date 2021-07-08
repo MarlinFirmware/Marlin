@@ -162,6 +162,7 @@
 #endif
 
 Temperature thermalManager;
+bool Temperature::managing_heater = false;
 
 const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
            str_t_heating_failed[] PROGMEM = STR_T_HEATING_FAILED;
@@ -1234,7 +1235,12 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
  *  - Update the heated bed PID output value
  */
 void Temperature::manage_heater() {
-  if (marlin_state == MF_INITIALIZING) return watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
+  managing_heater = true;
+
+  if (marlin_state == MF_INITIALIZING) {
+    managing_heater = false;
+    return watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
+  }
 
   #if ENABLED(EMERGENCY_PARSER)
     if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
@@ -1245,7 +1251,10 @@ void Temperature::manage_heater() {
     }
   #endif
 
-  if (!updateTemperaturesIfReady()) return; // Will also reset the watchdog if temperatures are ready
+  if (!updateTemperaturesIfReady()) {
+    managing_heater = false;
+    return; // Will also reset the watchdog if temperatures are ready
+  }
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_0_IS_MAX_TC
@@ -1590,7 +1599,8 @@ void Temperature::manage_heater() {
   #endif
 
   UNUSED(ms);
-}
+  managing_heater = false;
+} // manage_heaters
 
 #define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
 #define TEMP_AD8495(RAW) ((RAW) * 6.6 * 100.0 / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
