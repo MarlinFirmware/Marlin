@@ -2462,7 +2462,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * G35 Assisted Tramming
  */
-#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE
+#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE && !ENABLED(DWIN_CREALITY_LCD)
   #error "ASSISTED_TRAMMING requires a bed probe."
 #endif
 
