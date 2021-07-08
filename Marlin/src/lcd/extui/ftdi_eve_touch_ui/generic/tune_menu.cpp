@@ -77,8 +77,11 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .tag(3).button(FIL_CHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
        .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
        .tag(9).button(FILAMENT_POS, GET_TEXT_F(MSG_FILAMENT))
-       .enabled(BOTH(HAS_LEVELING, HAS_BED_PROBE) || ENABLED(BABYSTEPPING))
-       .tag(4).button(NUDGE_NOZ_POS, GET_TEXT_F(TERN(BABYSTEPPING, MSG_NUDGE_NOZZLE, MSG_ZPROBE_ZOFFSET)))
+       #if ENABLED(BABYSTEPPING) && HAS_MULTI_HOTEND
+         .tag(4).button(NUDGE_NOZ_POS, GET_TEXT_F(MSG_NUDGE_NOZZLE))
+       #elif BOTH(HAS_LEVELING, HAS_BED_PROBE)
+         .tag(4).button(NUDGE_NOZ_POS, GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+       #endif
        .tag(5).button(SPEED_POS, GET_TEXT_F(MSG_PRINT_SPEED))
        .enabled(sdOrHostPrinting)
        .tag(sdOrHostPaused ? 7 : 6)
@@ -99,11 +102,11 @@ bool TuneMenu::onTouchEnd(uint8_t tag) {
   using namespace Theme;
   using namespace ExtUI;
   switch (tag) {
-    case  1: GOTO_PREVIOUS();                    break;
+    case  1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     case  2: GOTO_SCREEN(TemperatureScreen);     break;
     case  3: GOTO_SCREEN(ChangeFilamentScreen);  break;
     case  4:
-      #if ENABLED(BABYSTEPPING)
+      #if ENABLED(BABYSTEPPING) && HAS_MULTI_HOTEND
         GOTO_SCREEN(NudgeNozzleScreen);
       #elif BOTH(HAS_LEVELING, HAS_BED_PROBE)
         GOTO_SCREEN(ZOffsetScreen);

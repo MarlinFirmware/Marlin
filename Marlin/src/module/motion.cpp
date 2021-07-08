@@ -703,8 +703,7 @@ void restore_feedrate_and_scaling() {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis
-    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/)
-    OPTARG(HAS_HOTEND_OFFSET, const uint8_t new_tool_index/*=0*/)
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/)
   ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)

@@ -617,7 +617,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
-  TERN_(AUTO_POWER_CONTROL, powerManager.check());
+  TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
@@ -1169,10 +1169,10 @@ void setup() {
 
   // Init and disable SPI thermocouples; this is still needed
   #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0)
-    OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
+    OUT_WRITE(TEMP_0_CS_PIN, HIGH);  // Disable
   #endif
   #if TEMP_SENSOR_1_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1)
-    OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
+    OUT_WRITE(TEMP_1_CS_PIN, HIGH);
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)

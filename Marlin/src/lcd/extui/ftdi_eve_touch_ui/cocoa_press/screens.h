@@ -118,7 +118,6 @@ enum {
 #include "../generic/files_screen.h"
 #include "../generic/move_axis_screen.h"
 #include "../generic/flow_percent_screen.h"
-#include "../generic/tune_menu.h"
 #if HAS_JUNCTION_DEVIATION
   #include "../generic/junction_deviation_screen.h"
 #else
