@@ -27,10 +27,7 @@
 #if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/eeprom_api.h"
-
-// Better: "utility/stm32_eeprom.h", but only after updating stm32duino to 2.0.0
-// Use EEPROM.h for compatibility, for now.
-#include <EEPROM.h>
+#include "utility/stm32_eeprom.h"
 
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
