@@ -200,7 +200,7 @@ typedef struct TempInfo {
   // A redundant temperature sensor
   typedef struct RedundantTempInfo : public TempInfo {
     temp_info_t* target;
-  } redundant_temp_info_t;
+  } redundant_info_t;
 #endif
 
 // A PWM heater with temperature sensor
@@ -354,23 +354,23 @@ class Temperature {
       static const celsius_t hotend_maxtemp[HOTENDS];
       static inline celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
-    #if ENABLED(HAS_HEATED_BED)
+    #if HAS_HEATED_BED
       static bed_info_t temp_bed;
     #endif
-    #if ENABLED(HAS_TEMP_PROBE)
+    #if HAS_TEMP_PROBE
       static probe_info_t temp_probe;
     #endif
-    #if ENABLED(HAS_TEMP_CHAMBER)
+    #if HAS_TEMP_CHAMBER
       static chamber_info_t temp_chamber;
     #endif
-    #if ENABLED(HAS_TEMP_COOLER)
+    #if HAS_TEMP_COOLER
       static cooler_info_t temp_cooler;
     #endif
-    #if ENABLED(HAS_TEMP_BOARD)
+    #if HAS_TEMP_BOARD
       static board_info_t temp_board;
     #endif
-    #if ENABLED(HAS_TEMP_REDUNDANT)
-      static redundant_temp_info_t temp_redundant;
+    #if HAS_TEMP_REDUNDANT
+      static redundant_info_t temp_redundant;
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -467,7 +467,7 @@ class Temperature {
       static lpq_ptr_t lpq_ptr;
     #endif
 
-    #if ENABLED(HAS_HOTEND)
+    #if HAS_HOTEND
       static temp_range_t temp_range[HOTENDS];
     #endif
 
@@ -507,7 +507,7 @@ class Temperature {
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
-    #if ENABLED(HAS_AUTO_FAN)
+    #if HAS_AUTO_FAN
       static millis_t next_auto_fan_check_ms;
     #endif
 
@@ -952,7 +952,7 @@ class Temperature {
 
     static void checkExtruderAutoFans();
 
-    #if ENABLED(HAS_HOTEND)
+    #if HAS_HOTEND
       static float get_pid_output_hotend(const uint8_t e);
     #endif
     #if ENABLED(PIDTEMPBED)

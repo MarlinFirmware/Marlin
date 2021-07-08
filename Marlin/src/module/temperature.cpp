@@ -262,7 +262,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #endif
 
 #if HAS_TEMP_REDUNDANT
-  redundant_temp_info_t Temperature::temp_redundant;
+  redundant_info_t Temperature::temp_redundant;
 #endif
 
 #if ENABLED(AUTO_POWER_E_FANS)
