@@ -219,7 +219,7 @@
   #define FAN1_PIN                  RAMPS_D8_PIN
 #elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1
+  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
     #define FAN1_PIN                MOSFET_D_PIN
   #else
     #define HEATER_1_PIN            MOSFET_D_PIN
