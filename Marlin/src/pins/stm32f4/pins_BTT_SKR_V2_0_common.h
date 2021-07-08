@@ -366,12 +366,12 @@
 //
 #if SD_CONNECTION_IS(LCD)
 
-  #define SDSS                              PA4
+  #define SDSS                       EXP2_07_PIN
   #define SD_SS_PIN                         SDSS
-  #define SD_SCK_PIN                        PA5
-  #define SD_MISO_PIN                       PA6
-  #define SD_MOSI_PIN                       PA7
-  #define SD_DETECT_PIN                     PC4
+  #define SD_SCK_PIN                 EXP2_09_PIN
+  #define SD_MISO_PIN                EXP2_10_PIN
+  #define SD_MOSI_PIN                EXP2_05_PIN
+  #define SD_DETECT_PIN              EXP2_04_PIN
 
 #elif SD_CONNECTION_IS(ONBOARD)
 
