@@ -69,7 +69,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(Uwe_V1.8)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Uwe_V1.9)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -1349,7 +1349,7 @@
 
 // The size of the printable area
 #define X_BED_SIZE 230
-#define Y_BED_SIZE 230
+#define Y_BED_SIZE 210
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
