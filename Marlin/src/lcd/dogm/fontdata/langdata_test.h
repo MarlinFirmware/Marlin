@@ -3,7 +3,7 @@
  * Contents will be REPLACED by future processing!
  * Use genallfont.sh to generate font data for updated languages.
  */
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 const u8g_fntpgm_uint8_t fontpage_8_128_255[1677] U8G_FONT_SECTION("fontpage_8_128_255") = {
   0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x80,0xFF,0x00,0x0A,0xFE,0x00,
