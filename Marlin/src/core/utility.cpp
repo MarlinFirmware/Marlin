@@ -29,13 +29,10 @@ void safe_delay(millis_t ms) {
   while (ms > 50) {
     ms -= 50;
     delay(50);
-    if (!thermalManager.managing_heater) thermalManager.manage_heater();
+    thermalManager.manage_heater();
   }
   delay(ms);
-
-  // This keeps us safe if too many small safe_delay() calls are made,
-  // but makes sure we don't create an infinite loop.
-  if (!thermalManager.managing_heater) thermalManager.manage_heater();
+  thermalManager.manage_heater(); // This keeps us safe if too many small safe_delay() calls are made
 }
 
 // A delay to provide brittle hosts time to receive bytes
