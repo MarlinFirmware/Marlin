@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ANY(HAS_COOLER,LASER_COOLANT_FLOW_METER)
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
 
 #include "cooler.h"
 Cooler cooler;
@@ -32,7 +32,7 @@ Cooler cooler;
   uint16_t Cooler::capacity;
   uint16_t Cooler::load;
   bool Cooler::enabled = false;
-#endif //HAS_COOLER
+#endif
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   bool Cooler::flowmeter = false;
@@ -43,7 +43,6 @@ Cooler cooler;
     bool Cooler::flowsafety_enabled = true;
     bool Cooler::flowfault = false;
   #endif
-#endif //LASER_COOLANT_FLOW_METER
+#endif
 
-#endif //ANY
-
+#endif // HAS_COOLER || LASER_COOLANT_FLOW_METER
