@@ -25,7 +25,7 @@
   #error "Oops! Select an STM32H7 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_INFO_NAME      "BTT SKR SE BX"
+#define BOARD_INFO_NAME      "BIGTREE SKR SE BX"
 #define DEFAULT_MACHINE_NAME "BIQU-BX"
 
 // Onboard I2C EEPROM

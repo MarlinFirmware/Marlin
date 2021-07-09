@@ -5,7 +5,7 @@
     "extra_flags": "-DSTM32H743xx",
     "f_cpu": "400000000L",
     "mcu": "stm32h743iit6",
-    "variant": "MARLIN_BTT_SKR_SE_BX"
+    "variant": "MARLIN_BIGTREE_SKR_SE_BX"
   },
   "debug": {
     "jlink_device": "STM32H743II",
