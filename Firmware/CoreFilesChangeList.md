@@ -7,6 +7,7 @@ This does not include machine configs or PlatformIO files.
 ----------
 
 - **ini**
+	- `avr.ini`
 	- `stm32f1.ini`
 - **Marlin**
 	- **src**
