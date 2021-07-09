@@ -195,6 +195,7 @@ public:
 
   static inline void set_enabled(const bool enable) {
     set_power(enable ? TERN(SPINDLE_LASER_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
+    TERN_(LASER_POWER_INLINE, set_inline_enabled(enable));
   }
 
   // Wait for spindle to spin up or spin down
@@ -272,20 +273,6 @@ public:
   #endif // HAS_LCD_MENU
 
   #if ENABLED(LASER_POWER_INLINE)
-    /**
-     * Inline power adds extra fields to the planner block
-     * to handle laser power and scale to movement speed.
-     */
-
-    // Force disengage planner power control
-    // static inline void inline_disable() {
-    //   isReady = false;
-    //   unitPower = 0;
-    //   planner.laser_inline.status.isPlanned = false;
-    //   planner.laser_inline.status.isEnabled = false;
-    //   planner.laser_inline.power = 0;
-    // }
-
     // Inline modes of all other functions; all enable planner inline power control
     static inline void set_inline_enabled(const bool enable) {
       if (enable) {
@@ -298,8 +285,6 @@ public:
         TERN(SPINDLE_LASER_PWM, inline_ocr_power, inline_power)(0);
       }
     }
-
-    static inline void inline_direction(const bool) { /* never */ }
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void inline_ocr_power(const uint8_t ocrpwr) {
@@ -330,7 +315,6 @@ public:
   #endif  // LASER_POWER_INLINE
 
   static inline void kill() {
-    TERN_(LASER_POWER_INLINE, set_inline_enabled(false));
     disable();
   }
 };
