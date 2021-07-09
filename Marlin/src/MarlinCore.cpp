@@ -135,7 +135,7 @@
   #include "module/servo.h"
 #endif
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
   #include "feature/dac/stepper_dac.h"
 #endif
 
@@ -1355,7 +1355,7 @@ void setup() {
     SETUP_RUN(digipot_i2c.init());
   #endif
 
-  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+  #if HAS_MOTOR_CURRENT_DAC
     SETUP_RUN(stepper_dac.init());
   #endif
 
