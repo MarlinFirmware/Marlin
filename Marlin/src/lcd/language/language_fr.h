@@ -60,9 +60,9 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Origine X auto");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Origine Y auto");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Origine Z auto");
-  PROGMEM Language_Str MSG_AUTO_HOME_I                     = _UxGT("Origine " LCD_STR_I " auto");
-  PROGMEM Language_Str MSG_AUTO_HOME_J                     = _UxGT("Origine " LCD_STR_J " auto");
-  PROGMEM Language_Str MSG_AUTO_HOME_K                     = _UxGT("Origine " LCD_STR_K " auto");
+  PROGMEM Language_Str MSG_AUTO_HOME_I                     = _UxGT("Origine ") LCD_STR_I _UxGT(" auto");
+  PROGMEM Language_Str MSG_AUTO_HOME_J                     = _UxGT("Origine ") LCD_STR_J _UxGT(" auto");
+  PROGMEM Language_Str MSG_AUTO_HOME_K                     = _UxGT("Origine ") LCD_STR_K _UxGT(" auto");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Align. Z auto");
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Origine XYZ...");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Clic pour commencer");
