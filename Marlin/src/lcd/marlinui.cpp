@@ -1286,10 +1286,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #endif // HAS_WIRED_LCD
 
-#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
-  bool MarlinUI::lcd_clicked;
-#endif
-
 #if HAS_STATUS_MESSAGE
 
   ////////////////////////////////////////////
@@ -1666,6 +1662,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if BOTH(EXTENSIBLE_UI, ADVANCED_PAUSE_FEATURE)
+
   void MarlinUI::pause_show_message(
     const PauseMessage message,
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
@@ -1694,8 +1691,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       case PAUSE_MESSAGE_STATUS:
       default: break;
     }
-
   }
+
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
