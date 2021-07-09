@@ -240,8 +240,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MOVE_I                          = _UxGT("Déplacer ") LCD_STR_I;
   PROGMEM Language_Str MSG_MOVE_J                          = _UxGT("Déplacer ") LCD_STR_J;
   PROGMEM Language_Str MSG_MOVE_K                          = _UxGT("Déplacer ") LCD_STR_K;
-  PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrudeur");
-  PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrudeur *");
+  PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
+  PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Buse trop froide");
   PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Déplacer %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Déplacer 0.1mm");
