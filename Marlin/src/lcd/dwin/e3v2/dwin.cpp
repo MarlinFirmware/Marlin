@@ -98,10 +98,6 @@
 #define USE_STRING_HEADINGS
 //#define USE_STRING_TITLES
 
-#define DWIN_FONT_MENU font8x16
-#define DWIN_FONT_STAT font10x20
-#define DWIN_FONT_HEAD font10x20
-
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y        360
 
@@ -470,8 +466,8 @@ void Draw_Chkb_Line(const uint8_t line, const bool mode) {
   DWIN.Draw_Checkbox(HMI_data.Text_Color, HMI_data.Background_Color, 225, MBASE(line) - 1, mode);
 }
 
-void Draw_Menu_IntValue(uint16_t color, uint16_t bcolor, const uint8_t line, uint8_t iNum, const uint16_t value=0) {
-  DWIN.Draw_IntValue(color, bcolor, iNum , 216, MBASE(line) - 1, value);
+void Draw_Menu_IntValue(uint16_t bcolor, const uint8_t line, uint8_t iNum, const uint16_t value=0) {
+  DWIN.Draw_IntValue(HMI_data.Text_Color, bcolor, iNum , 216, MBASE(line) - 1, value);
 }
 
 // The "Back" label is always on the first line
@@ -979,7 +975,7 @@ void Draw_Tune_Menu() {
     #endif
     if (TVISI(TUNE_CASE_FLOW)) {
       Draw_Menu_Line(TSCROL(TUNE_CASE_FLOW), ICON_Flow, GET_TEXT(MSG_FLOW),false);  // Flow rate
-      Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, TSCROL(TUNE_CASE_FLOW), planner.flow_percentage[0]);
+      Draw_Menu_IntValue(HMI_data.Background_Color, TSCROL(TUNE_CASE_FLOW), 3, planner.flow_percentage[0]);
     }
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (TVISI(TUNE_CASE_FCHNG)) Draw_Menu_Line(TSCROL(TUNE_CASE_FCHNG), ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE));
@@ -2464,7 +2460,7 @@ void Draw_AdvSet_Menu() {
   #endif
   if (AVISI(ADVSET_CASE_BRIGHTNESS)) {
     Draw_Menu_Line(ASCROL(ADVSET_CASE_BRIGHTNESS), ICON_Motion, "LCD Brightness", false);  // LCD brightness
-    Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, ASCROL(ADVSET_CASE_BRIGHTNESS), 3, HMI_data.Brightness);
+    Draw_Menu_IntValue(HMI_data.Background_Color, ASCROL(ADVSET_CASE_BRIGHTNESS), 3, HMI_data.Brightness);
   }
   if (AVISI(ADVSET_CASE_SCOLOR)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SCOLOR), ICON_Scolor, "Select Colors", true);  // Select colors >
   #if ENABLED(SOUND_MENU_ITEM)
@@ -2553,11 +2549,11 @@ void Draw_GetColor(uint16_t color) {
   Draw_Title(F("Get Color"));
   Draw_Back_First(select_item.now == 0);
   Draw_Color_Item(1, "Blue", RGB(0,0,31));
-  Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 1, 2, HMI_ValueStruct.Color[0]);
+  Draw_Menu_IntValue(HMI_data.Background_Color, 1, 2, HMI_ValueStruct.Color[0]);
   Draw_Color_Item(2, "Green", RGB(0,63,0));
-  Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 2, 2, HMI_ValueStruct.Color[1]);
+  Draw_Menu_IntValue(HMI_data.Background_Color, 2, 2, HMI_ValueStruct.Color[1]);
   Draw_Color_Item(3, "Red", RGB(31,0,0));
-  Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, HMI_ValueStruct.Color[2]);
+  Draw_Menu_IntValue(HMI_data.Background_Color, 3, 2, HMI_ValueStruct.Color[2]);
   Draw_Menu_Line(4, ICON_StockConfiguraton, GET_TEXT(MSG_RESTORE_DEFAULTS));
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
   DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
@@ -3326,6 +3322,11 @@ void HMI_FilamentMan(){
             DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_5));
             xpos = X_BED_SIZE / 2; ypos = Y_BED_SIZE / 2;
             break;
+        #else
+          case 5:
+            DWIN_StatusChanged_P(PSTR("Center"));
+            xpos = X_BED_SIZE / 2; ypos = Y_BED_SIZE / 2;
+            break;
         #endif
       }
 
@@ -3926,7 +3927,7 @@ void HMI_AdvSet() {
         switch (index_advset) {  // Redraw last menu items
           case ADVSET_CASE_BRIGHTNESS:  // LCD Brightness
             Draw_Menu_Line(MROWS, ICON_Motion, "LCD Brightness", false);
-            Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, MROWS, 3, HMI_data.Brightness);
+            Draw_Menu_IntValue(HMI_data.Background_Color, MROWS, 3, HMI_data.Brightness);
             break;
           case ADVSET_CASE_SCOLOR:      // Select colors
             Draw_Menu_Line(MROWS, ICON_Scolor, "Select Colors", true);
@@ -4034,7 +4035,7 @@ void HMI_AdvSet() {
       case ADVSET_CASE_BRIGHTNESS: // LCD brightness
         checkkey = Brightness;
         HMI_ValueStruct.Brightness = HMI_data.Brightness;
-        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, ADVSET_CASE_BRIGHTNESS + MROWS - index_advset, 3, HMI_ValueStruct.Brightness);
+        Draw_Menu_IntValue(HMI_data.Selected_Color, ADVSET_CASE_BRIGHTNESS + MROWS - index_advset, 3, HMI_ValueStruct.Brightness);
         EncoderRate.enabled = true;
         break;
       case ADVSET_CASE_SCOLOR:  // Select Color
@@ -4178,11 +4179,11 @@ void HMI_Brightness() {
       checkkey = AdvSet;
       EncoderRate.enabled = false;
       HMI_data.Brightness = HMI_ValueStruct.Brightness;
-      return Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, ADVSET_CASE_BRIGHTNESS + MROWS - index_advset, 3, HMI_ValueStruct.Brightness);
+      return Draw_Menu_IntValue(HMI_data.Background_Color, ADVSET_CASE_BRIGHTNESS + MROWS - index_advset, 3, HMI_ValueStruct.Brightness);
     }
     LIMIT(HMI_ValueStruct.Brightness, 10, 250);
     DWIN_LCD_Brightness(HMI_ValueStruct.Brightness);
-    Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, ADVSET_CASE_BRIGHTNESS + MROWS - index_advset, 3, HMI_ValueStruct.Brightness);
+    Draw_Menu_IntValue(HMI_data.Selected_Color, ADVSET_CASE_BRIGHTNESS + MROWS - index_advset, 3, HMI_ValueStruct.Brightness);
   }
 }
 
@@ -4343,7 +4344,7 @@ void HMI_GetColor() {
         break;
       case 1 ... 3: // C0-C2;
         checkkey = GetColor_value;
-        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, select_item.now, 2, HMI_ValueStruct.Color[select_item.now - 1]);
+        Draw_Menu_IntValue(HMI_data.Selected_Color, select_item.now, 2, HMI_ValueStruct.Color[select_item.now - 1]);
         break;
       case 4:       // Restore default color
         HMI_ApplyColor(select_scolor.now, true);
@@ -4365,11 +4366,11 @@ void HMI_GetColorValue() {
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Color[line])) {
       checkkey = GetColor;
       EncoderRate.enabled = false;
-      return Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, select_item.now, 2, HMI_ValueStruct.Color[line]);
+      return Draw_Menu_IntValue(HMI_data.Background_Color, select_item.now, 2, HMI_ValueStruct.Color[line]);
     }
     LIMIT(HMI_ValueStruct.Color[line], 0, (line == 1) ? 63 : 31);
     uint16_t color = HMI_ValueStruct.Color[2]*0x0800 + HMI_ValueStruct.Color[1]*0x0020 + HMI_ValueStruct.Color[0];
-    Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, select_item.now, 2, HMI_ValueStruct.Color[line]);
+    Draw_Menu_IntValue(HMI_data.Selected_Color, select_item.now, 2, HMI_ValueStruct.Color[line]);
     DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
   }
 }
@@ -4406,7 +4407,7 @@ void HMI_Tune() {
         switch (index_tune) {  // Last menu items
           case TUNE_CASE_FLOW:      // Tune Flow
             Draw_Menu_Line(MROWS, ICON_Flow, GET_TEXT(MSG_FLOW), false);
-            Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, MROWS, 3, planner.flow_percentage[0]);
+            Draw_Menu_IntValue(HMI_data.Background_Color, MROWS, 3, planner.flow_percentage[0]);
             break;
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
             case TUNE_CASE_FCHNG:   // Filament change
@@ -4433,18 +4434,18 @@ void HMI_Tune() {
             break;
           case MROWS + TUNE_CASE_SPEED:
             Draw_Menu_Line(0, ICON_Speed, GET_TEXT(MSG_SPEED), false);
-            Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 0, 3, feedrate_percentage);
+            Draw_Menu_IntValue(HMI_data.Background_Color, 0, 3, feedrate_percentage);
             break;
           #if HAS_HOTEND
             case MROWS + TUNE_CASE_TEMP:
               Draw_Menu_Line(0, ICON_HotendTemp, GET_TEXT(MSG_UBL_SET_TEMP_HOTEND), false);
-              Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 0, 3, thermalManager.degTargetHotend(0));
+              Draw_Menu_IntValue(HMI_data.Background_Color, 0, 3, thermalManager.degTargetHotend(0));
               break;
           #endif
           #if HAS_HEATED_BED
           case MROWS + TUNE_CASE_BED:
             Draw_Menu_Line(0, ICON_BedTemp, GET_TEXT(MSG_UBL_SET_TEMP_BED), false);
-            Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Background_Color, 0, 3, thermalManager.degTargetBed());
+            Draw_Menu_IntValue(HMI_data.Background_Color, 0, 3, thermalManager.degTargetBed());
             break;
           #endif
         }
@@ -4512,7 +4513,7 @@ void HMI_Tune() {
       case TUNE_CASE_FLOW: // Flow rate
         checkkey = TuneFlow;
         HMI_ValueStruct.print_flow = planner.flow_percentage[0];
-        Draw_Menu_IntValue(HMI_data.Text_Color, HMI_data.Selected_Color, TUNE_CASE_FLOW + MROWS - index_tune, 3, planner.flow_percentage[0]);
+        Draw_Menu_IntValue(HMI_data.Selected_Color, TUNE_CASE_FLOW + MROWS - index_tune, 3, planner.flow_percentage[0]);
         EncoderRate.enabled = true;
         break;
       default: break;

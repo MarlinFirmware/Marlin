@@ -160,6 +160,10 @@
 #define font28x56 0x08
 #define font32x64 0x09
 
+#define DWIN_FONT_MENU font8x16
+#define DWIN_FONT_STAT font10x20
+#define DWIN_FONT_HEAD font10x20
+
 // Color
 #define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
 #define GetRColor(color) ((color >> 11) & 0x1F)
@@ -199,12 +203,19 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color   Color_White
 
+typedef struct {
+  uint16_t left;
+  uint16_t top;
+  uint16_t right;
+  uint16_t bottom;
+} rect_t;
+
 class DWINUIClass {
 private:
   xy_int_t cursor = { 0, 0};
   uint16_t pencolor = Color_White;
-  uint16_t textcolor = Color_White;
-  uint16_t backcolor = Color_Bg_Black;
+  uint16_t textcolor = Def_Text_Color;
+  uint16_t backcolor = Def_Background_Color;
   uint8_t  font = font8x16;
 
 public:
@@ -318,8 +329,8 @@ public:
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Signed_Float(uint16_t color, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
-    Draw_Signed_Float(false, true, 0, font, color, backcolor, iNum, fNum, x, y, value);
+  inline void Draw_Signed_Float(uint8_t size, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+    Draw_Signed_Float(false, true, 0, size, textcolor, backcolor, iNum, fNum, x, y, value);
   }
   inline void Draw_Signed_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     Draw_Signed_Float(true, true, 0, font, color, bColor, iNum, fNum, x, y, value);
@@ -417,6 +428,23 @@ public:
   //  color1 : Start color
   //  color2 : End color
   uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
+};
 
-
+class TitleClass {
+private:
+  uint16_t height = 30;
+  uint8_t font = DWIN_FONT_HEAD;
+  char caption[32] = "";
+  int16_t backcolor = Def_TitleBg_color;
+  int16_t textcolor = Def_TitleTxt_color;
+  rect_t frame = {0, 0, 0, 0};
+public:
+  void Clear();
+  void Draw();
+  void SetFont(uint8_t cfont);
+  void SetCaption(const char * const title);
+  void SetCaption(const __FlashStringHelper * title);
+  void SetFrame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  void SetColor(int16_t color);
+  void SetBgColor(int16_t color);
 };
