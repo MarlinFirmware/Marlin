@@ -105,7 +105,7 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                      PC3
 #endif
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #ifndef FAN1_PIN
     #define FAN1_PIN                        PB0
   #endif
@@ -124,8 +124,8 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
 
 //
 // Misc. Functions

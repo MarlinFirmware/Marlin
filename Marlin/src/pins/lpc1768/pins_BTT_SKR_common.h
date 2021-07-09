@@ -65,12 +65,25 @@
   #define TEMP_BED_PIN                  P0_23_A0  // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
 
-#if HOTENDS == 1
+#if HOTENDS == 1 && TEMP_SENSOR_REDUNDANT_SOURCE != 1
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
     #define TEMP_CHAMBER_PIN          TEMP_1_PIN
   #endif
+#endif
+
+// CS, MISO, MOSI, and SCK for MAX Thermocouple SPI
+#if HAS_MAX_TC
+  //#define TEMP_0_CS_PIN   P...
+  //#define TEMP_0_MISO_PIN P...
+  //#define TEMP_0_MOSI_PIN P...
+  //#define TEMP_0_SCK_PIN  P...
+
+  //#define TEMP_1_CS_PIN   P...
+  //#define TEMP_1_MISO_PIN P...
+  //#define TEMP_1_MOSI_PIN P...
+  //#define TEMP_1_SCK_PIN  P...
 #endif
 
 //
@@ -79,7 +92,7 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                     P2_07
 #endif
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #ifndef FAN1_PIN
     #define FAN1_PIN                       P2_04
   #endif

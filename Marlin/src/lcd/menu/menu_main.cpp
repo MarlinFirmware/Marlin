@@ -360,10 +360,10 @@ void menu_main() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-        GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      else
-        SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
+      YESNO_ITEM(MSG_FILAMENTCHANGE,
+        menu_change_filament, ui.goto_previous_screen,
+        GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
+      );
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif

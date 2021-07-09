@@ -180,6 +180,8 @@ public:
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
 
+  static void ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames=false));
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
     static void openJobRecoveryFile(const bool read);
@@ -302,7 +304,12 @@ private:
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
   static void selectByName(SdFile dir, const char * const match);
-  static void printListing(SdFile parent, const char * const prepend=nullptr);
+  static void printListing(
+    SdFile parent
+    OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
+    , const char * const prepend=nullptr
+    OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
+  );
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void flush_presort();
