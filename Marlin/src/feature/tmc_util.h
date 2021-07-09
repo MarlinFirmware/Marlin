@@ -363,7 +363,7 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
 
     struct motion_state_t {
       xy_ulong_t acceleration;
-      #if ENABLED(HAS_CLASSIC_JERK)
+      #if HAS_CLASSIC_JERK
         xy_float_t jerk_state;
       #endif
     };
