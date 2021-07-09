@@ -29,7 +29,7 @@
 
 class Power {
   public:
-    static void check();
+    static void check(const bool pause);
     static void power_on();
     static void power_off();
     static void power_off_soon();

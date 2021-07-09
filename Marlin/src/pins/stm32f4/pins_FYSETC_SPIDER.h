@@ -68,6 +68,12 @@
 //
 #define X_ENABLE_PIN                        PE9
 
+//
+// Servos
+// Z_MAX_PIN only works in input mode
+//
+#define SERVO0_PIN                          PA2
+
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PE7
   #define X_SERIAL_RX_PIN                   PE7

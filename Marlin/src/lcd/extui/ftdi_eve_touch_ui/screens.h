@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "compat.h"
+#include "config.h"
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
 
@@ -40,7 +40,7 @@ extern tiny_timer_t refresh_timer;
 #if ENABLED(TOUCH_UI_LULZBOT_BIO)
   #include "bioprinter/screens.h"
 #elif ENABLED(TOUCH_UI_COCOA_PRESS)
-  #include "cocoapress/screens.h"
+  #include "cocoa_press/screens.h"
 #elif ENABLED(TOUCH_UI_SYNDAVER_LEVEL)
   #include "syndaver_level/screens.h"
 #else
