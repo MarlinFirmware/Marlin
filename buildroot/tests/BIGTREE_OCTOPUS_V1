@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F446ZET6 BigTreeTech BTT Octopus V1.0
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_BTT_OCTOPUS_V1_0 \
+        SERIAL_PORT 1 \
+        X_DRIVER_TYPE TMC2209 \
+        Y_DRIVER_TYPE TMC2130
+exec_test $1 $2 "BigTreeTech Octopus Default Configuration plus TMC steppers" "$3"
+
+# clean up
+restore_configs
