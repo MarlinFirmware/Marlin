@@ -312,6 +312,7 @@ void CardReader::printListing(
 
       printListing(child, path);
       // close() is done automatically by destructor of SdFile
+      }
     }
     else if (is_dir_or_gcode(p)) {
       if (prepend) {
