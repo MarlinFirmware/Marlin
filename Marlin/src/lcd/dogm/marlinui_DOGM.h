@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 #include "HAL_LCD_class_defines.h"
 
 //#define ALTERNATIVE_LCD
