@@ -157,8 +157,10 @@ bool GET_PINMODE(const pin_t Ard_num) {
 }
 
 int8_t digital_pin_to_analog_pin(pin_t Ard_num) {
-  Ard_num -= NUM_ANALOG_FIRST;
-  return (Ard_num >= 0 && Ard_num < NUM_ANALOG_INPUTS) ? Ard_num : -1;
+  for(int8_t i=0; i < NUM_ANALOG_INPUTS; i++) {
+    if (analogInputPin[i] == Ard_num) return i;
+  }
+  return -1;
 }
 
 bool IS_ANALOG(const pin_t Ard_num) {
