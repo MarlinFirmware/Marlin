@@ -135,7 +135,7 @@
   #include "module/servo.h"
 #endif
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
   #include "feature/dac/stepper_dac.h"
 #endif
 
@@ -282,19 +282,22 @@ bool wait_for_heatup = true;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
-#ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-  static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
-#else
+#ifndef RUNTIME_ONLY_ANALOG_TO_DIGITAL
   template <pin_t ...D>
-  constexpr pin_t OnlyPins<-2, D...>::table[sizeof...(D)];
-  #define sensitive_pins OnlyPins<SENSITIVE_PINS>::table
+  constexpr pin_t OnlyPins<_SP_END, D...>::table[sizeof...(D)];
 #endif
 
 bool pin_is_protected(const pin_t pin) {
-  LOOP_L_N(i, COUNT(sensitive_pins)) {
-    pin_t sensitive_pin;
-    memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(pin_t));
-    if (pin == sensitive_pin) return true;
+  #ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
+    static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
+    const size_t pincount = COUNT(sensitive_pins);
+  #else
+    static constexpr size_t pincount = OnlyPins<SENSITIVE_PINS>::size;
+    static const pin_t (&sensitive_pins)[pincount] PROGMEM = OnlyPins<SENSITIVE_PINS>::table;
+  #endif
+  LOOP_L_N(i, pincount) {
+    const pin_t * const pptr = &sensitive_pins[i];
+    if (pin == (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(pptr) : (pin_t)pgm_read_byte(pptr))) return true;
   }
   return false;
 }
@@ -614,7 +617,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
-  TERN_(AUTO_POWER_CONTROL, powerManager.check());
+  TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
@@ -1166,10 +1169,10 @@ void setup() {
 
   // Init and disable SPI thermocouples; this is still needed
   #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0)
-    OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
+    OUT_WRITE(TEMP_0_CS_PIN, HIGH);  // Disable
   #endif
   #if TEMP_SENSOR_1_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1)
-    OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
+    OUT_WRITE(TEMP_1_CS_PIN, HIGH);
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
@@ -1352,7 +1355,7 @@ void setup() {
     SETUP_RUN(digipot_i2c.init());
   #endif
 
-  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+  #if HAS_MOTOR_CURRENT_DAC
     SETUP_RUN(stepper_dac.init());
   #endif
 

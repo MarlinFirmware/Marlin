@@ -231,9 +231,10 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Bewege Extruder *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend zu kalt");
   PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT(" %s mm");
-  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT(" 0,1   mm");
-  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT(" 1,0   mm");
-  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("10,0   mm");
+  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("  0,1  mm");
+  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("  1,0  mm");
+  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT(" 10,0  mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("100,0  mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Geschw.");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bett Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Düse");

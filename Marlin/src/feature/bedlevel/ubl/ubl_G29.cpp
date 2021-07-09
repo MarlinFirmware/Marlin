@@ -307,7 +307,7 @@ void unified_bed_leveling::G29() {
 
   const uint8_t p_val = parser.byteval('P');
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
-  #if ENABLED(HAS_MULTI_HOTEND)
+  #if HAS_MULTI_HOTEND
     const uint8_t old_tool_index = active_extruder;
   #endif
 

@@ -21,7 +21,7 @@
   "name": "3D Printer control board",
   "upload": {
     "maximum_ram_size": 131072,
-    "maximum_size": 524288,
+    "maximum_size": 458752,
     "protocol": "stlink",
     "protocols": [
       "jlink",
