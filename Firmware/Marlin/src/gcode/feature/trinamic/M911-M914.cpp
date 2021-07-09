@@ -265,20 +265,22 @@
           TERN_(Z3_HAS_STEALTCHOP, if (index == 0 || index == 3) TMC_SET_PWMTHRS(Z,Z3));
           TERN_(Z4_HAS_STEALTCHOP, if (index == 0 || index == 4) TMC_SET_PWMTHRS(Z,Z4));
           break;
-        case E_AXIS: {
-          #if E_STEPPERS
-            const int8_t target_extruder = get_target_extruder_from_command();
-            if (target_extruder < 0) return;
-            TERN_(E0_HAS_STEALTHCHOP, else if (target_extruder == 0) TMC_SET_PWMTHRS_E(0));
-            TERN_(E1_HAS_STEALTHCHOP, else if (target_extruder == 1) TMC_SET_PWMTHRS_E(1));
-            TERN_(E2_HAS_STEALTHCHOP, else if (target_extruder == 2) TMC_SET_PWMTHRS_E(2));
-            TERN_(E3_HAS_STEALTHCHOP, else if (target_extruder == 3) TMC_SET_PWMTHRS_E(3));
-            TERN_(E4_HAS_STEALTHCHOP, else if (target_extruder == 4) TMC_SET_PWMTHRS_E(4));
-            TERN_(E5_HAS_STEALTHCHOP, else if (target_extruder == 5) TMC_SET_PWMTHRS_E(5));
-            TERN_(E6_HAS_STEALTHCHOP, else if (target_extruder == 6) TMC_SET_PWMTHRS_E(6));
-            TERN_(E7_HAS_STEALTHCHOP, else if (target_extruder == 7) TMC_SET_PWMTHRS_E(7));
-          #endif // E_STEPPERS
-        } break;
+        #if E_STEPPERS
+          case E_AXIS: {
+            const int8_t target_e_stepper = get_target_e_stepper_from_command();
+            if (target_e_stepper < 0) return;
+            switch (target_e_stepper) {
+              TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_PWMTHRS_E(0); break;)
+              TERN_(E1_HAS_STEALTHCHOP, case 1: TMC_SET_PWMTHRS_E(1); break;)
+              TERN_(E2_HAS_STEALTHCHOP, case 2: TMC_SET_PWMTHRS_E(2); break;)
+              TERN_(E3_HAS_STEALTHCHOP, case 3: TMC_SET_PWMTHRS_E(3); break;)
+              TERN_(E4_HAS_STEALTHCHOP, case 4: TMC_SET_PWMTHRS_E(4); break;)
+              TERN_(E5_HAS_STEALTHCHOP, case 5: TMC_SET_PWMTHRS_E(5); break;)
+              TERN_(E6_HAS_STEALTHCHOP, case 6: TMC_SET_PWMTHRS_E(6); break;)
+              TERN_(E7_HAS_STEALTHCHOP, case 7: TMC_SET_PWMTHRS_E(7); break;)
+            }
+          } break;
+        #endif // E_STEPPERS
       }
     }
 

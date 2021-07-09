@@ -71,29 +71,27 @@
     #endif
     #if ENABLED(Z_MULTI_ENDSTOPS)
       if (parser.seenval('Z')) {
-        #if NUM_Z_STEPPER_DRIVERS >= 3
-          const float z_adj = parser.value_linear_units();
-          const int ind = parser.intval('S');
-          if (!ind || ind == 2) endstops.z2_endstop_adj = z_adj;
-          if (!ind || ind == 3) endstops.z3_endstop_adj = z_adj;
-          #if NUM_Z_STEPPER_DRIVERS >= 4
-            if (!ind || ind == 4) endstops.z4_endstop_adj = z_adj;
-          #endif
+        const float z_adj = parser.value_linear_units();
+        #if NUM_Z_STEPPER_DRIVERS == 2
+          endstops.z2_endstop_adj = z_adj;
         #else
-          endstops.z2_endstop_adj = parser.value_linear_units();
+          const int ind = parser.intval('S');
+          #define _SET_ZADJ(N) if (!ind || ind == N) endstops.z##N##_endstop_adj = z_adj;
+          REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _SET_ZADJ)
         #endif
       }
     #endif
     if (!parser.seen("XYZ")) {
+      auto echo_adj = [](PGM_P const label, const_float_t value) { SERIAL_ECHOPAIR_P(label, value); };
       SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
       #if ENABLED(X_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" X2:", endstops.x2_endstop_adj);
+        echo_adj(PSTR(" X2:"), endstops.x2_endstop_adj);
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Y2:", endstops.y2_endstop_adj);
+        echo_adj(PSTR(" Y2:"), endstops.y2_endstop_adj);
       #endif
       #if ENABLED(Z_MULTI_ENDSTOPS)
-        #define _ECHO_ZADJ(N) SERIAL_ECHOPAIR(" Z" STRINGIFY(N) ":", endstops.z##N##_endstop_adj);
+        #define _ECHO_ZADJ(N) echo_adj(PSTR(" Z" STRINGIFY(N) ":"), endstops.z##N##_endstop_adj);
         REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _ECHO_ZADJ)
       #endif
       SERIAL_EOL();

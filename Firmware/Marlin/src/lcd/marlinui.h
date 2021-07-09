@@ -445,10 +445,13 @@ public:
     static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
+  #if SCREENS_CAN_TIME_OUT
+    static inline void reset_status_timeout(const millis_t ms) { return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS; }
+  #else
+    static inline void reset_status_timeout(const millis_t) {}
+  #endif
+
   #if HAS_LCD_MENU
-    #if LCD_TIMEOUT_TO_STATUS
-      static millis_t return_to_status_ms;
-    #endif
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
@@ -479,7 +482,7 @@ public:
     static screenFunc_t currentScreen;
     static bool screen_changed;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
-    static void save_previous_screen();
+    static void push_current_screen();
 
     // goto_previous_screen and go_back may also be used as menu item callbacks
     static void _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back));
@@ -494,12 +497,12 @@ public:
       static void lcd_in_status(const bool inStatus);
     #endif
 
+    FORCE_INLINE static bool screen_is_sticky() {
+      return TERN1(SCREENS_CAN_TIME_OUT, defer_return_to_status);
+    }
+
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      #if LCD_TIMEOUT_TO_STATUS > 0
-        defer_return_to_status = defer;
-      #else
-        UNUSED(defer);
-      #endif
+      TERN(SCREENS_CAN_TIME_OUT, defer_return_to_status = defer, UNUSED(defer));
     }
 
     static inline void goto_previous_screen_no_defer() {
@@ -651,16 +654,18 @@ public:
 
 private:
 
+  #if SCREENS_CAN_TIME_OUT
+    static millis_t return_to_status_ms;
+    static bool defer_return_to_status;
+  #else
+    static constexpr bool defer_return_to_status = false;
+  #endif
+
   #if HAS_STATUS_MESSAGE
     static void finish_status(const bool persist);
   #endif
 
   #if HAS_WIRED_LCD
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
-      static bool defer_return_to_status;
-    #else
-      static constexpr bool defer_return_to_status = false;
-    #endif
     static void draw_status_screen();
     #if HAS_GRAPHICAL_TFT
       static void tft_idle();
