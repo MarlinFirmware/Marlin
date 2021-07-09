@@ -26,11 +26,11 @@
  *
  * LCD Menu Messages. See also https://marlinfw.org/docs/development/lcd_language.html
  * Hungarian translation by AntoszHUN. I am constantly improving and updating the translation.
- * Translation last updated: 23/05/2021 - 20:45
+ * Translation last updated: 07/07/2021 - 11:20
  *
  * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
  * A Magyar fordítást készítette: AntoszHUN. A fordítást folyamatosan javítom és frissítem.
- * A Fordítás utolsó frissítése: 2021.05.23. - 20:45
+ * A Fordítás utolsó frissítése: 2021.07.07. - 11:20
  */
 
 namespace Language_hu {
@@ -66,6 +66,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("X kezdöpont");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Y kezdöpont");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Z kezdöpont");
+  PROGMEM Language_Str MSG_AUTO_HOME_I                     = _UxGT("Kezdö ") LCD_STR_I;
+  PROGMEM Language_Str MSG_AUTO_HOME_J                     = _UxGT("Kezdö ") LCD_STR_J;
+  PROGMEM Language_Str MSG_AUTO_HOME_K                     = _UxGT("Kezdö ") LCD_STR_K;
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-igazítás");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Ismétlés: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Pontosság csökken!");
@@ -79,6 +82,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_HOME_OFFSET_X                   = _UxGT("X Kezdö eltol.");
   PROGMEM Language_Str MSG_HOME_OFFSET_Y                   = _UxGT("Y Kezdö eltol.");
   PROGMEM Language_Str MSG_HOME_OFFSET_Z                   = _UxGT("Z Kezdö eltol.");
+  PROGMEM Language_Str MSG_HOME_OFFSET_I                   = _UxGT("Kezdö eltol. ") LCD_STR_I;
+  PROGMEM Language_Str MSG_HOME_OFFSET_J                   = _UxGT("Kezdö eltol. ") LCD_STR_J;
+  PROGMEM Language_Str MSG_HOME_OFFSET_K                   = _UxGT("Kezdö eltol. ") LCD_STR_K;
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Eltolás beállítva.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Eredeti Be");
   PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Elektromos segéd");
@@ -259,6 +265,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("X mozgás");
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Y mozgás");
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Z mozgás");
+  PROGMEM Language_Str MSG_MOVE_I                          = _UxGT("Mozgás ") LCD_STR_I;
+  PROGMEM Language_Str MSG_MOVE_J                          = _UxGT("Mozgás ") LCD_STR_J;
+  PROGMEM Language_Str MSG_MOVE_K                          = _UxGT("Mozgás ") LCD_STR_K;
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Adagoló");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Adagoló *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("A fej túl hideg");
@@ -267,9 +276,10 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mozgás 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mozgás 10mm");
   PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mozgás 100mm");
-  PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Mozgás 0.001mm");
-  PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Mozgás 0.01mm");
-  PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Mozgás 0.1mm");
+  PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Mozgás 0.025mm");
+  PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Mozgás 0.254mm");
+  PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Mozgás 2.54mm");
+  PROGMEM Language_Str MSG_MOVE_1IN                        = _UxGT("Mozgáá 25.4mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Sebesség");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z ágy");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Fej");
@@ -321,16 +331,22 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Kiválaszt *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Gyorsítás");
   PROGMEM Language_Str MSG_JERK                            = _UxGT("Rántás");
-  PROGMEM Language_Str MSG_VA_JERK                         = LCD_STR_A _UxGT(" Ránt. seb.");
-  PROGMEM Language_Str MSG_VB_JERK                         = LCD_STR_B _UxGT(" Ránt. seb.");
-  PROGMEM Language_Str MSG_VC_JERK                         = LCD_STR_C _UxGT(" Ránt. seb.");
+  PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("Seb.") LCD_STR_A _UxGT("-Rántás");
+  PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("Seb.") LCD_STR_B _UxGT("-Rántás");
+  PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("Seb.") LCD_STR_C _UxGT("-Rántás");
+  PROGMEM Language_Str MSG_VI_JERK                         = _UxGT("Seb.") LCD_STR_I _UxGT("-Rántás");
+  PROGMEM Language_Str MSG_VJ_JERK                         = _UxGT("Seb.") LCD_STR_J _UxGT("-Rántás");
+  PROGMEM Language_Str MSG_VK_JERK                         = _UxGT("Seb.") LCD_STR_K _UxGT("-Rántás");
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("E ránt. seb.");
   PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("Csomopont eltérés");
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("Sebesség");
-  PROGMEM Language_Str MSG_VMAX_A                          = _UxGT("Max sebesség ") LCD_STR_A;
-  PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("Max sebesség ") LCD_STR_B;
-  PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("Max sebesség ") LCD_STR_C;
-  PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Max sebesség ") LCD_STR_E;
+  PROGMEM Language_Str MSG_VMAX_A                          = _UxGT("Max Seb. ") LCD_STR_A;
+  PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("Max Seb. ") LCD_STR_B;
+  PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("Max Seb. ") LCD_STR_C;
+  PROGMEM Language_Str MSG_VMAX_I                          = _UxGT("Max Seb. ") LCD_STR_I;
+  PROGMEM Language_Str MSG_VMAX_J                          = _UxGT("Max Seb. ") LCD_STR_J;
+  PROGMEM Language_Str MSG_VMAX_K                          = _UxGT("Max Seb. ") LCD_STR_K;
+  PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Max Seb. ") LCD_STR_E;
   PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("Max sebesség *");
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("Min sebesség");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("Min utazó.seb.");
@@ -338,6 +354,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Max gyors. ") LCD_STR_A;
   PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Max gyors. ") LCD_STR_B;
   PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Max gyors. ") LCD_STR_C;
+  PROGMEM Language_Str MSG_AMAX_I                          = _UxGT("Max gyors. ") LCD_STR_I;
+  PROGMEM Language_Str MSG_AMAX_J                          = _UxGT("Max gyors. ") LCD_STR_J;
+  PROGMEM Language_Str MSG_AMAX_K                          = _UxGT("Max gyors. ") LCD_STR_K;
   PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("Max gyors. ") LCD_STR_E;
   PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Max gyorsulás *");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("Visszahúzás");
@@ -345,11 +364,14 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Max frekvencia");
   PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("Min elötolás");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Lépés/mm");
-  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" lépés/mm");
-  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" lépés/mm");
-  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" lépés/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" Lépés/mm");
+  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" Lépés/mm");
+  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" Lépés/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" Lépés/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" Lépés/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" Lépés/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E lépés/mm");
-  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("*lépés/mm");
+  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("*Lépés/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Höfok");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Mozgatások");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Nyomtatószál");
@@ -481,6 +503,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Mikrolépés X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Mikrolépés Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Mikrolépés Z");
+  PROGMEM Language_Str MSG_BABYSTEP_I                      = _UxGT("Mikrolépés ") LCD_STR_I;
+  PROGMEM Language_Str MSG_BABYSTEP_J                      = _UxGT("Mikrolépés ") LCD_STR_J;
+  PROGMEM Language_Str MSG_BABYSTEP_K                      = _UxGT("Mikrolépés ") LCD_STR_K;
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Teljes");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Végállás megszakítva!");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Fütés hiba!");
@@ -524,8 +549,8 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LINEAR_LEVELING                 = _UxGT("Lineáris szintezés");
   PROGMEM Language_Str MSG_BILINEAR_LEVELING               = _UxGT("Bilineáris szintezés");
   PROGMEM Language_Str MSG_UBL_LEVELING                    = _UxGT("Egységes ágy szintezés");
-  PROGMEM Language_Str MSG_MESH_DONE                       = _UxGT("Mesh probing done");
   PROGMEM Language_Str MSG_MESH_LEVELING                   = _UxGT("Háló szintezés");
+  PROGMEM Language_Str MSG_MESH_DONE                       = _UxGT("Háló szintezés kész");
   PROGMEM Language_Str MSG_INFO_STATS_MENU                 = _UxGT("Statisztikák");
   PROGMEM Language_Str MSG_INFO_BOARD_MENU                 = _UxGT("Alaplap infó");
   PROGMEM Language_Str MSG_INFO_THERMISTOR_MENU            = _UxGT("Termisztorok");
@@ -561,6 +586,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X meghajtó %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y meghajtó %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = AXIS4_STR _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = AXIS5_STR _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = AXIS6_STR _UxGT(" Meghajtó %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E meghajtó %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC CSATLAKOZÁSI HIBA");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM írása");
@@ -678,6 +706,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_BACKLASH_A                      = LCD_STR_A;
   PROGMEM Language_Str MSG_BACKLASH_B                      = LCD_STR_B;
   PROGMEM Language_Str MSG_BACKLASH_C                      = LCD_STR_C;
+  PROGMEM Language_Str MSG_BACKLASH_I                      = LCD_STR_I;
+  PROGMEM Language_Str MSG_BACKLASH_J                      = LCD_STR_J;
+  PROGMEM Language_Str MSG_BACKLASH_K                      = LCD_STR_K;
   PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Korrekció");
   PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Simítás");
 
@@ -705,6 +736,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Kalibrálási hiba");
 
   PROGMEM Language_Str MSG_DRIVER_BACKWARD                 = _UxGT(" meghajtók hátra");
+  
+  PROGMEM Language_Str MSG_SD_CARD                         = _UxGT("SD Kártya");
+  PROGMEM Language_Str MSG_USB_DISK                        = _UxGT("USB Lemez");
 }
 
 #if FAN_COUNT == 1
