@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F407VGT6 BigTreeTech E3 RRF
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_BTT_E3_RRF \
+        SERIAL_PORT 1 \
+        X_DRIVER_TYPE TMC2209 \
+        Y_DRIVER_TYPE TMC2209 \
+        Z_DRIVER_TYPE TMC2209 \
+        E_DRIVER_TYPE TMC2209
+exec_test $1 $2 "BigTreeTech E3 RRF Default Configuration plus TMC steppers" "$3"
+
+#
+# A test with Probe Temperature Compensation enabled
+#
+use_example_configs "Creality/Ender-3/BigTreeTech E3 RRF"
+exec_test $1 $2 "BigTreeTech E3 RRF with Creality Ender 3 and related options" "$3"
+
+# clean up
+restore_configs

@@ -79,6 +79,7 @@ jobs:
         - STM32F407VE_black
         - STM32F401VE_STEVAL
         - BIGTREE_BTT002
+        - BIGTREE_E3_RRF
         - BIGTREE_GTR_V1_0
         - BIGTREE_OCTOPUS_V1
         - BIGTREE_SKR_PRO
