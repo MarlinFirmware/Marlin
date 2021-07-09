@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 #include "../fontutils.h"
 
 // the macro to indicate a UTF-8 string
