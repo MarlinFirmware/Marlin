@@ -302,11 +302,13 @@ void CardReader::printListing(
               pathLong[lenPrependLong - 1] = '/';
             }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, /*includeLongNames=*/true, path, pathLong);
+            printListing(child, true, path, pathLong);
           }
           else
+            printListing(child, false, path);
+        #else
+          printListing(child, path);
         #endif
-            printListing(child, path);
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
