@@ -946,27 +946,24 @@ void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_ms
     SERIAL_ECHOPGM_P(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
 
+    heater_id_t real_heater_id = heater_id;
+
     #if HAS_TEMP_REDUNDANT
-      static heater_id_t real_heater_id;
       if (heater_id == H_REDUNDANT) {
-        // print redundant and cascade to print target, too.
-        SERIAL_ECHOPGM(STR_REDUNDANT);
+        SERIAL_ECHOPGM(STR_REDUNDANT); // print redundant and cascade to print target, too.
         real_heater_id = (heater_id_t)TEMP_SENSOR_REDUNDANT_TARGET;
-      }
-      else {
-        real_heater_id = heater_id;
       }
     #endif
 
-    switch (TERN(HAS_TEMP_REDUNDANT, real_heater_id, heater_id)) {
-      OPTCODE(HAS_TEMP_COOLER,  case H_COOLER:  SERIAL_ECHOPGM(STR_COOLER); break);
-      OPTCODE(HAS_TEMP_PROBE,   case H_PROBE:   SERIAL_ECHOPGM(STR_PROBE); break);
-      OPTCODE(HAS_TEMP_BOARD,   case H_BOARD:   SERIAL_ECHOPGM(STR_MOTHERBOARD); break);
-      OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: SERIAL_ECHOPGM(STR_HEATER_CHAMBER); break);
-      OPTCODE(HAS_TEMP_BED,     case H_BED:     SERIAL_ECHOPGM(STR_HEATER_BED); break);
+    switch (real_heater_id) {
+      OPTCODE(HAS_TEMP_COOLER,  case H_COOLER:  SERIAL_ECHOPGM(STR_COOLER);         break)
+      OPTCODE(HAS_TEMP_PROBE,   case H_PROBE:   SERIAL_ECHOPGM(STR_PROBE);          break)
+      OPTCODE(HAS_TEMP_BOARD,   case H_BOARD:   SERIAL_ECHOPGM(STR_MOTHERBOARD);    break)
+      OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: SERIAL_ECHOPGM(STR_HEATER_CHAMBER); break)
+      OPTCODE(HAS_TEMP_BED,     case H_BED:     SERIAL_ECHOPGM(STR_HEATER_BED);     break)
       default:
-        if (TERN(HAS_TEMP_REDUNDANT, real_heater_id, heater_id) >= 0)
-          SERIAL_ECHOLNPAIR("E", heater_id);
+        if (real_heater_id >= 0)
+          SERIAL_ECHOLNPAIR("E", real_heater_id);
     }
     SERIAL_EOL();
   }
