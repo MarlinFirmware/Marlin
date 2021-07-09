@@ -25,9 +25,10 @@
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
-#include <stdint.h>
+#include "../../inc/MarlinConfig.h"
+#include "HAL.h"
+
 #include <libmaple/timer.h>
-#include "../../core/boards.h"
 
 // ------------------------
 // Defines
@@ -37,7 +38,6 @@
  * TODO: Check and confirm what timer we will use for each Temps and stepper driving.
  * We should probable drive temps with PWM.
  */
-#define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
@@ -80,7 +80,7 @@ typedef uint16_t hal_timer_t;
   //#define TEMP_TIMER_NUM      4  // 2->4, Timer 2 for Stepper Current PWM
 #endif
 
-#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE)
+#if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_E3_DIP, BTT_SKR_MINI_E3_V1_2, MKS_ROBIN_LITE, MKS_ROBIN_E3D, MKS_ROBIN_E3)
   // SKR Mini E3 boards use PA8 as FAN_PIN, so TIMER 1 is used for Fan PWM.
   #ifdef STM32_HIGH_DENSITY
     #define SERVO0_TIMER_NUM 8  // tone.cpp uses Timer 4
@@ -129,8 +129,10 @@ timer_dev* get_timer_dev(int number);
   #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
 #endif
 
-extern "C" void tempTC_Handler();
-extern "C" void stepTC_Handler();
+extern "C" {
+  void tempTC_Handler();
+  void stepTC_Handler();
+}
 
 // ------------------------
 // Public Variables

@@ -31,6 +31,10 @@
   #include "../../module/temperature.h"
 #endif
 
+void protected_pin_err() {
+  SERIAL_ERROR_MSG(STR_ERR_PROTECTED_PIN);
+}
+
 /**
  * M42: Change pin status via GCode
  *

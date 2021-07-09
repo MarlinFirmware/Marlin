@@ -7,7 +7,7 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commerically or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liablity for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  **************************************************************************/
 /** \file
  * Interface to the ARM stack unwinding module.
@@ -114,7 +114,7 @@ typedef struct {
  * report function maybe called again in future.  If false is returned,
  * unwinding will stop with UnwindStart() returning UNWIND_TRUNCATED.
  */
-typedef bool (*UnwindReportFunc)(void* data, const UnwReport* bte);
+typedef bool (*UnwindReportFunc)(void *data, const UnwReport *bte);
 
 /** Structure that holds memory callback function pointers.
  */

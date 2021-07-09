@@ -5,7 +5,7 @@
  * MAKE SURE ALL SLICERS AND OTHER PROGRAMS THAT CONNECT TO YOUR PRINTER COM PORT ARE CLOSED BEFORE FLASHING.
  */
 #pragma once
-#define CONFIGURATION_H_VERSION 020007
+#define CONFIGURATION_H_VERSION 02000901
 
 //===========================================================================
 //============================ TH3D Configuration ===========================

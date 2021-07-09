@@ -41,18 +41,18 @@
 #endif
 
 /**
- * Plan an arc in 2 dimensions
+ * Plan an arc in 2 dimensions, with optional linear motion in a 3rd dimension
  *
- * The arc is approximated by generating many small linear segments.
- * The length of each segment is configured in MM_PER_ARC_SEGMENT (Default 1mm)
- * Arcs should only be made relatively large (over 5mm), as larger arcs with
- * larger segments will tend to be more efficient. Your slicer should have
- * options for G2/G3 arc generation. In future these options may be GCode tunable.
+ * The arc is traced by generating many small linear segments, as configured by
+ * MM_PER_ARC_SEGMENT (Default 1mm). In the future we hope more slicers will include
+ * an option to generate G2/G3 arcs for curved surfaces, as this will allow faster
+ * boards to produce much smoother curved surfaces.
  */
 void plan_arc(
   const xyze_pos_t &cart,   // Destination position
   const ab_float_t &offset, // Center of rotation relative to current_position
-  const uint8_t clockwise   // Clockwise?
+  const bool clockwise,     // Clockwise?
+  const uint8_t circles     // Take the scenic route
 ) {
   #if ENABLED(CNC_WORKSPACE_PLANES)
     AxisEnum p_axis, q_axis, l_axis;
@@ -63,7 +63,7 @@ void plan_arc(
       case GcodeSuite::PLANE_ZX: p_axis = Z_AXIS; q_axis = X_AXIS; l_axis = Y_AXIS; break;
     }
   #else
-    constexpr AxisEnum p_axis = X_AXIS, q_axis = Y_AXIS, l_axis = Z_AXIS;
+    constexpr AxisEnum p_axis = X_AXIS, q_axis = Y_AXIS OPTARG(HAS_Z_AXIS, l_axis = Z_AXIS);
   #endif
 
   // Radius vector from center to current location
@@ -73,32 +73,73 @@ void plan_arc(
               center_P = current_position[p_axis] - rvec.a,
               center_Q = current_position[q_axis] - rvec.b,
               rt_X = cart[p_axis] - center_P,
-              rt_Y = cart[q_axis] - center_Q,
-              start_L = current_position[l_axis],
-              linear_travel = cart[l_axis] - start_L,
-              extruder_travel = cart.e - current_position.e;
+              rt_Y = cart[q_axis] - center_Q
+              OPTARG(HAS_Z_AXIS, start_L = current_position[l_axis]);
 
-  // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
-  float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
-  if (angular_travel < 0) angular_travel += RADIANS(360);
   #ifdef MIN_ARC_SEGMENTS
-    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
-    NOLESS(min_segments, 1U);
+    uint16_t min_segments = MIN_ARC_SEGMENTS;
   #else
     constexpr uint16_t min_segments = 1;
   #endif
-  if (clockwise) angular_travel -= RADIANS(360);
 
-  // Make a circle if the angular rotation is 0 and the target is current position
-  if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis]) {
-    angular_travel = RADIANS(360);
+  // Angle of rotation between position and target from the circle center.
+  float angular_travel;
+
+  // Do a full circle if starting and ending positions are "identical"
+  if (NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
+    // Preserve direction for circles
+    angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
+  }
+  else {
+    // Calculate the angle
+    angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
+
+    // Angular travel too small to detect? Just return.
+    if (!angular_travel) return;
+
+    // Make sure angular travel over 180 degrees goes the other way around.
+    switch (((angular_travel < 0) << 1) | clockwise) {
+      case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
+      case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
+    }
+
     #ifdef MIN_ARC_SEGMENTS
-      min_segments = MIN_ARC_SEGMENTS;
+      min_segments = CEIL(min_segments * ABS(angular_travel) / RADIANS(360));
+      NOLESS(min_segments, 1U);
     #endif
   }
 
+  #if HAS_Z_AXIS
+    float linear_travel = cart[l_axis] - start_L;
+  #endif
+  #if HAS_EXTRUDERS
+    float extruder_travel = cart.e - current_position.e;
+  #endif
+
+  // If circling around...
+  if (ENABLED(ARC_P_CIRCLES) && circles) {
+    const float total_angular = angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
+              part_per_circle = RADIANS(360) / total_angular;             // Each circle's part of the total
+
+    #if HAS_Z_AXIS
+      const float l_per_circle = linear_travel * part_per_circle;         // L movement per circle
+    #endif
+    #if HAS_EXTRUDERS
+      const float e_per_circle = extruder_travel * part_per_circle;       // E movement per circle
+    #endif
+
+    xyze_pos_t temp_position = current_position;                          // for plan_arc to compare to current_position
+    for (uint16_t n = circles; n--;) {
+      TERN_(HAS_EXTRUDERS, temp_position.e += e_per_circle);              // Destination E axis
+      TERN_(HAS_Z_AXIS, temp_position[l_axis] += l_per_circle);           // Destination L axis
+      plan_arc(temp_position, offset, clockwise, 0);                      // Plan a single whole circle
+    }
+    TERN_(HAS_Z_AXIS, linear_travel = cart[l_axis] - current_position[l_axis]);
+    TERN_(HAS_EXTRUDERS, extruder_travel = cart.e - current_position.e);
+  }
+
   const float flat_mm = radius * angular_travel,
-              mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
+              mm_of_travel = TERN_(HAS_Z_AXIS, linear_travel ? HYPOT(flat_mm, linear_travel) :) ABS(flat_mm);
   if (mm_of_travel < 0.001f) return;
 
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
@@ -147,17 +188,22 @@ void plan_arc(
   // Vector rotation matrix values
   xyze_pos_t raw;
   const float theta_per_segment = angular_travel / segments,
-              linear_per_segment = linear_travel / segments,
-              extruder_per_segment = extruder_travel / segments,
               sq_theta_per_segment = sq(theta_per_segment),
-              sin_T = theta_per_segment - sq_theta_per_segment*theta_per_segment/6,
+              sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
               cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
+  #if HAS_Z_AXIS && DISABLED(AUTO_BED_LEVELING_UBL)
+    const float linear_per_segment = linear_travel / segments;
+  #endif
+  #if HAS_EXTRUDERS
+    const float extruder_per_segment = extruder_travel / segments;
+  #endif
+
   // Initialize the linear axis
-  raw[l_axis] = current_position[l_axis];
+  TERN_(HAS_Z_AXIS, raw[l_axis] = current_position[l_axis]);
 
   // Initialize the extruder axis
-  raw.e = current_position.e;
+  TERN_(HAS_EXTRUDERS, raw.e = current_position.e);
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
     const float inv_duration = scaled_fr_mm_s / seg_length;
@@ -203,13 +249,11 @@ void plan_arc(
     // Update raw location
     raw[p_axis] = center_P + rvec.a;
     raw[q_axis] = center_Q + rvec.b;
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      raw[l_axis] = start_L;
-      UNUSED(linear_per_segment);
-    #else
-      raw[l_axis] += linear_per_segment;
+    #if HAS_Z_AXIS
+      raw[l_axis] = TERN(AUTO_BED_LEVELING_UBL, start_L, raw[l_axis] + linear_per_segment);
     #endif
-    raw.e += extruder_per_segment;
+
+    TERN_(HAS_EXTRUDERS, raw.e += extruder_per_segment);
 
     apply_motion_limits(raw);
 
@@ -218,15 +262,13 @@ void plan_arc(
     #endif
 
     if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , inv_duration
-      #endif
+      OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
     )) break;
   }
 
   // Ensure last segment arrives at target location.
   raw = cart;
-  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
+  TERN_(AUTO_BED_LEVELING_UBL, TERN_(HAS_Z_AXIS, raw[l_axis] = start_L));
 
   apply_motion_limits(raw);
 
@@ -235,12 +277,10 @@ void plan_arc(
   #endif
 
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      , inv_duration
-    #endif
+    OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)
   );
 
-  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
+  TERN_(AUTO_BED_LEVELING_UBL, TERN_(HAS_Z_AXIS, raw[l_axis] = start_L));
   current_position = raw;
 
 } // plan_arc
@@ -260,12 +300,12 @@ void plan_arc(
  *    Mixing IJ/JK/KI with R will throw an error.
  *
  *  - R specifies the radius. X or Y (Y or Z / Z or X) is required.
- *    Omitting both XY/YZ/ZX will throw an error.
- *    XY/YZ/ZX must differ from the current XY/YZ/ZX.
- *    Mixing R with IJ/JK/KI will throw an error.
+ *      Omitting both XY/YZ/ZX will throw an error.
+ *      XY/YZ/ZX must differ from the current XY/YZ/ZX.
+ *      Mixing R with IJ/JK/KI will throw an error.
  *
  *  - P specifies the number of full circles to do
- *    before the specified arc move.
+ *      before the specified arc move.
  *
  *  Examples:
  *
@@ -274,6 +314,8 @@ void plan_arc(
  */
 void GcodeSuite::G2_G3(const bool clockwise) {
   if (MOTION_CONDITIONS) {
+
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
 
     #if ENABLED(SF_ARC_FIX)
       const bool relative_mode_backup = relative_mode;
@@ -320,20 +362,21 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
       #if ENABLED(ARC_P_CIRCLES)
         // P indicates number of circles to do
-        int8_t circles_to_do = parser.byteval('P');
+        const int8_t circles_to_do = parser.byteval('P');
         if (!WITHIN(circles_to_do, 0, 100))
           SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
-
-        while (circles_to_do--)
-          plan_arc(current_position, arc_offset, clockwise);
+      #else
+        constexpr uint8_t circles_to_do = 0;
       #endif
 
       // Send the arc to the planner
-      plan_arc(destination, arc_offset, clockwise);
+      plan_arc(destination, arc_offset, clockwise, circles_to_do);
       reset_stepper_timeout();
     }
     else
       SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
   }
 }
 

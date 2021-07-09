@@ -16,7 +16,7 @@ This software assumes that all drivers are in one SPI daisy chain.
 
 - SDO of the last device is tied to MISO of the controller
 
-- All devices share the same `SCK` and `SS_PIN` pins. The user must supply a macro to control the `RESET_PIN`(s).
+- All devices share the same `SCK_PIN` and `SS_PIN` pins. The user must supply a macro to control the `RESET_PIN`(s).
 
 - Each L6470 passes the data it saw on its SDI to its neighbor on the **NEXT** SPI cycle (8 bit delay).
 

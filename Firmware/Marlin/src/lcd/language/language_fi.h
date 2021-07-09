@@ -40,7 +40,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Kortti asetettu");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Kortti poistettu");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Palaa");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Automaatti");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Automaatti");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Vapauta moottorit");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Aja referenssiin");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Aseta origo");
@@ -72,10 +72,11 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Liikuta Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Liikuta %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Liikuta %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Liikuta 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Liikuta 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Liikuta 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Liikuta 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Nopeus");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Suutin");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Suutin ~");
@@ -95,7 +96,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Lämpötila");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Liike");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrasti");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Tallenna muistiin");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Lataa muistista");

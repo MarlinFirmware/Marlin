@@ -28,12 +28,15 @@
   *   Pin assignments for 32-bit JGAurora A5S & A1
   */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "JGAurora 32-bit board only supports 1 hotend / E-stepper. Comment out this line to continue."
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
+  #error "JGAurora A5S A1 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
-#define BOARD_INFO_NAME "JGAurora A5S A1 board"
+
+#define BOARD_INFO_NAME "JGAurora A5S A1"
+
+#define BOARD_NO_NATIVE_USB
 
 #ifndef STM32_XL_DENSITY
   #define STM32_XL_DENSITY
@@ -48,9 +51,6 @@
 //#define FLASH_EEPROM_EMULATION
 //#define MARLIN_EEPROM_SIZE            0x1000UL  // 4KB
 //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
-
-//#define EEPROM_CHITCHAT
-//#define DEBUG_EEPROM_READWRITE
 
 //
 // Limit Switches

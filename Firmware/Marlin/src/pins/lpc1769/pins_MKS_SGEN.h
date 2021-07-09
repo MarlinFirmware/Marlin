@@ -28,14 +28,10 @@
  * https://github.com/makerbase-mks/MKS-SGen/blob/master/Hardware/MKS%20SGEN%20V1.0_001/MKS%20SGEN%20V1.0_001%20PIN.pdf
  */
 
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
-
 #define BOARD_INFO_NAME   "MKS SGen"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks/MKS-SGEN"
 
-#define MKS_HAS_LPC1769
+#define REQUIRE_LPC1769
 #include "../lpc1768/pins_MKS_SBASE.h"
 
 #if HAS_TMC_UART

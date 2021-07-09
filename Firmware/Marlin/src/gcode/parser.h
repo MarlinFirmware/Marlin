@@ -84,14 +84,14 @@ public:
   static char *command_ptr,               // The command, so it can be echoed
               *string_arg,                // string of command line
               command_letter;             // G, M, or T
-  static int codenum;                     // 123
-  #if ENABLED(USE_GCODE_SUBCODES)
+  static uint16_t codenum;                // 123
+  #if USE_GCODE_SUBCODES
     static uint8_t subcode;               // .1
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
     static int16_t motion_mode_codenum;
-    #if ENABLED(USE_GCODE_SUBCODES)
+    #if USE_GCODE_SUBCODES
       static uint8_t motion_mode_subcode;
     #endif
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
@@ -133,9 +133,9 @@ public:
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (codenum == 800) {
-          SERIAL_ECHOPAIR("Set bit ", (int)ind, " of codebits (", hex_address((void*)(codebits >> 16)));
+          SERIAL_ECHOPAIR("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
           print_hex_word((uint16_t)(codebits & 0xFFFF));
-          SERIAL_ECHOLNPAIR(") | param = ", (int)param[ind]);
+          SERIAL_ECHOLNPAIR(") | param = ", param[ind]);
         }
       #endif
     }
@@ -226,7 +226,7 @@ public:
 
   // Seen any axis parameter
   static inline bool seen_axis() {
-    return seen_test('X') || seen_test('Y') || seen_test('Z') || seen_test('E');
+    return seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR));
   }
 
   #if ENABLED(GCODE_QUOTED_STRINGS)
@@ -244,8 +244,11 @@ public:
     static bool chain();
   #endif
 
+  // Test whether the parsed command matches the input
+  static inline bool is_command(const char ltr, const uint16_t num) { return command_letter == ltr && codenum == num; }
+
   // The code value pointer was set
-  FORCE_INLINE static bool has_value() { return value_ptr != nullptr; }
+  FORCE_INLINE static bool has_value() { return !!value_ptr; }
 
   // Seen a parameter with a value
   static inline bool seenval(const char c) { return seen(c) && has_value(); }
@@ -279,7 +282,7 @@ public:
 
   // Code value for use as time
   static inline millis_t value_millis() { return value_ulong(); }
-  static inline millis_t value_millis_from_seconds() { return (millis_t)(value_float() * 1000); }
+  static inline millis_t value_millis_from_seconds() { return (millis_t)SEC_TO_MS(value_float()); }
 
   // Reduce to fewer bits
   static inline int16_t value_int() { return (int16_t)value_long(); }
@@ -292,8 +295,8 @@ public:
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
-    static inline float mm_to_linear_unit(const float mm)     { return mm / linear_unit_factor; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm / linear_unit_factor; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }
 
     // Init linear units by constructor
     GCodeParser() { set_input_linear_units(LINEARUNIT_MM); }
@@ -308,24 +311,34 @@ public:
     }
 
     static inline float axis_unit_factor(const AxisEnum axis) {
-      return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
+      return (
+        #if HAS_EXTRUDERS
+          axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor
+        #else
+          linear_unit_factor
+        #endif
+      );
     }
 
-    static inline float linear_value_to_mm(const float v)                    { return v * linear_unit_factor; }
+    static inline float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
     static inline float axis_value_to_mm(const AxisEnum axis, const float v) { return v * axis_unit_factor(axis); }
     static inline float per_axis_value(const AxisEnum axis, const float v)   { return v / axis_unit_factor(axis); }
 
   #else
 
-    static inline float mm_to_linear_unit(const float mm)     { return mm; }
-    static inline float mm_to_volumetric_unit(const float mm) { return mm; }
+    static inline float mm_to_linear_unit(const_float_t mm)     { return mm; }
+    static inline float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static inline float linear_value_to_mm(const float v)               { return v; }
+    static inline float linear_value_to_mm(const_float_t v)             { return v; }
     static inline float axis_value_to_mm(const AxisEnum, const float v) { return v; }
     static inline float per_axis_value(const AxisEnum, const float v)   { return v; }
 
   #endif
 
+  static inline bool using_inch_units() { return mm_to_linear_unit(1.0f) != 1.0f; }
+
+  #define IN_TO_MM(I)        ((I) * 25.4f)
+  #define MM_TO_IN(M)        ((M) / 25.4f)
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
@@ -345,52 +358,45 @@ public:
       static inline PGM_P temp_units_name() {
         return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
       }
-      static inline float to_temp_units(const float &f) {
+      static inline float to_temp_units(celsius_t c) {
         switch (input_temp_units) {
-          case TEMPUNIT_F:
-            return f * 0.5555555556f + 32;
-          case TEMPUNIT_K:
-            return f + 273.15f;
-          case TEMPUNIT_C:
           default:
-            return f;
+          case TEMPUNIT_C: return c;
+          case TEMPUNIT_K: return c + 273.15f;
+          case TEMPUNIT_F: return c * 0.5555555556f + 32;
         }
       }
 
     #endif // HAS_LCD_MENU && !DISABLE_M503
 
-    static inline float value_celsius() {
-      const float f = value_float();
+    static inline celsius_t value_celsius() {
+      float f = value_float();
       switch (input_temp_units) {
-        case TEMPUNIT_F:
-          return (f - 32) * 0.5555555556f;
-        case TEMPUNIT_K:
-          return f - 273.15f;
-        case TEMPUNIT_C:
         default:
-          return f;
+        case TEMPUNIT_C: break;
+        case TEMPUNIT_K: f -= 273.15f;
+        case TEMPUNIT_F: f = (f - 32) * 0.5555555556f;
       }
+      return LROUND(f);
     }
 
-    static inline float value_celsius_diff() {
+    static inline celsius_t value_celsius_diff() {
+      float f = value_float();
       switch (input_temp_units) {
-        case TEMPUNIT_F:
-          return value_float() * 0.5555555556f;
-        case TEMPUNIT_C:
-        case TEMPUNIT_K:
         default:
-          return value_float();
+        case TEMPUNIT_C:
+        case TEMPUNIT_K: break;
+        case TEMPUNIT_F: f *= 0.5555555556f;
       }
+      return LROUND(f);
     }
-
-    #define TEMP_UNIT(N) parser.to_temp_units(N)
 
   #else // !TEMPERATURE_UNITS_SUPPORT
 
-    static inline float value_celsius()      { return value_float(); }
-    static inline float value_celsius_diff() { return value_float(); }
+    static inline float to_temp_units(int16_t c) { return (float)c; }
 
-    #define TEMP_UNIT(N) (N)
+    static inline celsius_t value_celsius()      { return value_int(); }
+    static inline celsius_t value_celsius_diff() { return value_int(); }
 
   #endif // !TEMPERATURE_UNITS_SUPPORT
 
@@ -399,16 +405,18 @@ public:
   void unknown_command_warning();
 
   // Provide simple value accessors with default option
-  static inline char*    stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()   : dval; }
-  static inline float    floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
-  static inline bool     boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
-  static inline uint8_t  byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
-  static inline int16_t  intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
-  static inline uint16_t ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
-  static inline int32_t  longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
-  static inline uint32_t ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
-  static inline float    linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
-  static inline float    celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
+  static inline char*     stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()   : dval; }
+  static inline float     floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
+  static inline bool      boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
+  static inline uint8_t   byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
+  static inline int16_t   intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
+  static inline uint16_t  ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
+  static inline int32_t   longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
+  static inline uint32_t  ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
+  static inline float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
+  static inline float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
+                                                                         { return seenval(c) ? value_axis_units(a)  : dval; }
+  static inline celsius_t celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
 
   #if ENABLED(MARLIN_DEV_MODE)
 

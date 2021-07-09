@@ -53,11 +53,11 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error "SS_PIN not defined!"
+  #if !PIN_EXISTS(SD_SS)
+    #error "SD_SS_PIN not defined!"
   #endif
 
-  OUT_WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SD_SS_PIN, HIGH);
 }
 
 void spiInit(uint8_t spiRate) {
@@ -85,7 +85,7 @@ uint8_t spiRec() {
   return returnByte;
 }
 
-void spiRead(uint8_t* buf, uint16_t nbyte) {
+void spiRead(uint8_t *buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
   SPI.transferBytes(0, buf, nbyte);
   SPI.endTransaction();
@@ -97,7 +97,7 @@ void spiSend(uint8_t b) {
   SPI.endTransaction();
 }
 
-void spiSendBlock(uint8_t token, const uint8_t* buf) {
+void spiSendBlock(uint8_t token, const uint8_t *buf) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
   SPI.writeBytes(const_cast<uint8_t*>(buf), 512);

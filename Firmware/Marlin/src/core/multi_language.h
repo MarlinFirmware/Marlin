@@ -16,9 +16,11 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 #pragma once
+
+#include "../inc/MarlinConfigPre.h"
 
 typedef const char Language_Str[];
 
@@ -57,26 +59,27 @@ typedef const char Language_Str[];
 #define GET_LANG(LANG) _GET_LANG(LANG)
 
 #if NUM_LANGUAGES > 1
-  extern uint8_t lang;
+  #define HAS_MULTI_LANGUAGE 1
   #define GET_TEXT(MSG) ( \
-    lang == 0 ? GET_LANG(LCD_LANGUAGE)::MSG : \
-    lang == 1 ? GET_LANG(LCD_LANGUAGE_2)::MSG : \
-    lang == 2 ? GET_LANG(LCD_LANGUAGE_3)::MSG : \
-    lang == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
-                GET_LANG(LCD_LANGUAGE_5)::MSG \
-    )
-  #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_4)::CHARSIZE, \
-                                GET_LANG(LCD_LANGUAGE_5)::CHARSIZE)
+    ui.language == 0 ? GET_LANG(LCD_LANGUAGE  )::MSG : \
+    ui.language == 1 ? GET_LANG(LCD_LANGUAGE_2)::MSG : \
+    ui.language == 2 ? GET_LANG(LCD_LANGUAGE_3)::MSG : \
+    ui.language == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
+                       GET_LANG(LCD_LANGUAGE_5)::MSG   )
+  #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE  )::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_4)::CHARSIZE, \
+                                 GET_LANG(LCD_LANGUAGE_5)::CHARSIZE  )
 #else
   #define GET_TEXT(MSG) GET_LANG(LCD_LANGUAGE)::MSG
-  #define MAX_LANG_CHARSIZE GET_LANG(LCD_LANGUAGE)::CHARSIZE
+  #define MAX_LANG_CHARSIZE LANG_CHARSIZE
 #endif
 #define GET_TEXT_F(MSG) (const __FlashStringHelper*)GET_TEXT(MSG)
 
 #define GET_LANGUAGE_NAME(INDEX) GET_LANG(LCD_LANGUAGE_##INDEX)::LANGUAGE
+#define LANG_CHARSIZE GET_TEXT(CHARSIZE)
+#define USE_WIDE_GLYPH (LANG_CHARSIZE > 2)
 
 #define MSG_1_LINE(A)     A "\0"   "\0"
 #define MSG_2_LINE(A,B)   A "\0" B "\0"

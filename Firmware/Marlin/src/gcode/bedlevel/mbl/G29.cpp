@@ -34,7 +34,7 @@
 #include "../../queue.h"
 
 #include "../../../libs/buzzer.h"
-#include "../../../lcd/ultralcd.h"
+#include "../../../lcd/marlinui.h"
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
 
@@ -60,6 +60,8 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  */
 void GcodeSuite::G29() {
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+
   static int mbl_probe_index = -1;
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -68,7 +70,7 @@ void GcodeSuite::G29() {
     return;
   }
 
-  int8_t ix, iy;
+  int8_t ix, iy = 0;
 
   switch (state) {
     case MeshReport:
@@ -85,7 +87,8 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        queue.inject_P(PSTR("G28\nG29 S2"));
+        queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : PSTR("G29S2"));
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
         return;
       }
       state = MeshNext;
@@ -98,15 +101,20 @@ void GcodeSuite::G29() {
       // For each G29 S2...
       if (mbl_probe_index == 0) {
         // Move close to the bed before the first point
-        do_blocking_move_to_z(0);
+        do_blocking_move_to_z(0.4f
+          #ifdef MANUAL_PROBE_START_Z
+            + (MANUAL_PROBE_START_Z) - 0.4f
+          #endif
+        );
       }
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < GRID_MAX_POINTS) {
+      if (mbl_probe_index < (GRID_MAX_POINTS)) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);
@@ -114,14 +122,21 @@ void GcodeSuite::G29() {
         _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }
       else {
-        // One last "return to the bed" (as originally coded) at completion
-        current_position.z = MANUAL_PROBE_HEIGHT;
+        // Move to the after probing position
+        current_position.z = (
+          #ifdef Z_AFTER_PROBING
+            Z_AFTER_PROBING
+          #else
+            Z_CLEARANCE_BETWEEN_MANUAL_PROBES
+          #endif
+        );
         line_to_current_position();
         planner.synchronize();
 
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
+        TERN_(HAS_STATUS_MESSAGE, ui.set_status(GET_TEXT(MSG_MESH_DONE)));
         BUZZ(100, 659);
         BUZZ(100, 698);
 
@@ -141,9 +156,8 @@ void GcodeSuite::G29() {
     case MeshSet:
       if (parser.seenval('I')) {
         ix = parser.value_int();
-        if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_ECHOPAIR("I out of range (0-", int(GRID_MAX_POINTS_X - 1));
-          SERIAL_ECHOLNPGM(")");
+        if (!WITHIN(ix, 0, (GRID_MAX_POINTS_X) - 1)) {
+          SERIAL_ECHOLNPAIR("I out of range (0-", (GRID_MAX_POINTS_X) - 1, ")");
           return;
         }
       }
@@ -152,9 +166,8 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('J')) {
         iy = parser.value_int();
-        if (!WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_ECHOPAIR("J out of range (0-", int(GRID_MAX_POINTS_Y - 1));
-          SERIAL_ECHOLNPGM(")");
+        if (!WITHIN(iy, 0, (GRID_MAX_POINTS_Y) - 1)) {
+          SERIAL_ECHOLNPAIR("J out of range (0-", (GRID_MAX_POINTS_Y) - 1, ")");
           return;
         }
       }
@@ -183,11 +196,13 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_ECHOPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS));
-    SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
+    SERIAL_ECHOLNPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
   report_current_position();
+
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // MESH_BED_LEVELING

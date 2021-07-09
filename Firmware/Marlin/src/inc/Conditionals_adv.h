@@ -26,6 +26,10 @@
  * Defines that depend on advanced configuration.
  */
 
+#ifndef AXIS_RELATIVE_MODES
+  #define AXIS_RELATIVE_MODES {}
+#endif
+
 #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
 #endif
@@ -33,7 +37,7 @@
 // Determine NUM_SERVOS if none was supplied
 #ifndef NUM_SERVOS
   #define NUM_SERVOS 0
-  #if ANY(CHAMBER_VENT, HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+  #if ANY(HAS_Z_SERVO_PROBE, CHAMBER_VENT, SWITCHING_TOOLHEAD, SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SPINDLE_SERVO)
     #if NUM_SERVOS <= Z_PROBE_SERVO_NR
       #undef NUM_SERVOS
       #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
@@ -62,6 +66,10 @@
       #undef NUM_SERVOS
       #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
     #endif
+    #if NUM_SERVOS <= SPINDLE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SPINDLE_SERVO_NR + 1)
+    #endif
   #endif
 #endif
 
@@ -71,7 +79,7 @@
   #define SERVO_DELAY { 50 }
 #endif
 
-#if EXTRUDERS == 0
+#if !HAS_EXTRUDERS
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
   #undef TEMP_SENSOR_1
@@ -99,6 +107,9 @@
   #undef THERMAL_PROTECTION_PERIOD
   #undef WATCH_TEMP_PERIOD
   #undef SHOW_TEMP_ADC_VALUES
+  #undef LCD_SHOW_E_TOTAL
+  #undef MANUAL_E_MOVES_RELATIVE
+  #undef STEALTHCHOP_E
 #endif
 
 #if TEMP_SENSOR_BED == 0
@@ -108,6 +119,10 @@
 
 #if TEMP_SENSOR_CHAMBER == 0
   #undef THERMAL_PROTECTION_CHAMBER
+#endif
+
+#if TEMP_SENSOR_COOLER == 0
+  #undef THERMAL_PROTECTION_COOLER
 #endif
 
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
@@ -124,8 +139,14 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #if NUM_RUNOUT_SENSORS > 1
+    #define MULTI_FILAMENT_SENSOR 1
+  #endif
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define WATCH_ALL_RUNOUT_SENSORS
   #endif
 #endif
 
@@ -138,8 +159,16 @@
   #undef SD_FINISHED_RELEASECOMMAND
 #endif
 
+#if ENABLED(NO_SD_AUTOSTART)
+  #undef MENU_ADDAUTOSTART
+#endif
+
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if ENABLED(SDSUPPORT) && SD_PROCEDURE_DEPTH
+  #define HAS_MEDIA_SUBCALLS 1
 #endif
 
 #if HAS_PRINT_PROGRESS && EITHER(PRINT_PROGRESS_SHOW_DECIMALS, SHOW_REMAINING_TIME)
@@ -148,7 +177,7 @@
 
 #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
   #define HAS_GAMES 1
-  #if (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
+  #if MANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
     #define HAS_GAME_MENU 1
   #endif
 #endif
@@ -163,7 +192,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
+#if ANY(EXTENSIBLE_UI, IS_NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -178,16 +207,39 @@
   #define HAS_MOTOR_CURRENT_I2C 1
 #endif
 
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    #undef Z_STEPPER_ALIGN_AMP
+  #endif
+  #ifndef Z_STEPPER_ALIGN_AMP
+    #define Z_STEPPER_ALIGN_AMP 1.0
+  #endif
+#endif
+
 // Multiple Z steppers
 #ifndef NUM_Z_STEPPER_DRIVERS
   #define NUM_Z_STEPPER_DRIVERS 1
 #endif
 
-#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  #undef Z_STEPPER_ALIGN_AMP
+// Fallback Stepper Driver types that depend on Configuration_adv.h
+#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+  #undef X2_DRIVER_TYPE
 #endif
-#ifndef Z_STEPPER_ALIGN_AMP
-  #define Z_STEPPER_ALIGN_AMP 1.0
+#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
+  #undef Y2_DRIVER_TYPE
+#endif
+
+#if NUM_Z_STEPPER_DRIVERS < 4
+  #undef Z4_DRIVER_TYPE
+  #undef INVERT_Z4_VS_Z_DIR
+  #if NUM_Z_STEPPER_DRIVERS < 3
+    #undef Z3_DRIVER_TYPE
+    #undef INVERT_Z3_VS_Z_DIR
+    #if NUM_Z_STEPPER_DRIVERS < 2
+      #undef Z2_DRIVER_TYPE
+      #undef INVERT_Z2_VS_Z_DIR
+    #endif
+  #endif
 #endif
 
 //
@@ -200,7 +252,7 @@
   #define _CUTTER_POWER_PERCENT 2
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
-  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT)    == _CUTTER_POWER(V))
+  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
 #endif
 
 // Add features that need hardware PWM here
@@ -208,10 +260,7 @@
   #define NEEDS_HARDWARE_PWM 1
 #endif
 
-#if defined(__AVR__) && defined(USBCON)
-  #define IS_AT90USB 1
-  #undef SERIAL_XON_XOFF // Not supported on USB-native devices
-#else
+#if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
   // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
@@ -223,6 +272,9 @@
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
+#else
+  // SERIAL_XON_XOFF not supported on USB-native devices
+  #undef SERIAL_XON_XOFF
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -325,19 +377,14 @@
   #endif
 #endif
 
-// If platform requires early initialization of watchdog to properly boot
-#if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
-  #define EARLY_WATCHDOG 1
-#endif
-
 // Full Touch Screen needs 'tft/xpt2046'
-#if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
+#if EITHER(TFT_TOUCH_DEVICE_XPT2046, HAS_TFT_LVGL_UI)
   #define HAS_TFT_XPT2046 1
 #endif
 
 // Touch Screen or "Touch Buttons" need XPT2046 pins
 // but they use different components
-#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_XPT2046)
+#if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
   #define NEED_TOUCH_PINS 1
 #endif
 
@@ -349,6 +396,20 @@
 // Poll-based jogging for joystick and other devices
 #if ENABLED(JOYSTICK)
   #define POLL_JOG
+#endif
+
+#if X2_HOME_DIR > 0
+  #define X2_HOME_TO_MAX 1
+#elif X2_HOME_DIR < 0
+  #define X2_HOME_TO_MIN 1
+#endif
+
+#ifndef HOMING_BUMP_MM
+  #define HOMING_BUMP_MM { 0, 0, 0 }
+#endif
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
+  #define USE_UHS2_USB
 #endif
 
 /**
@@ -428,6 +489,37 @@
   #endif
 #endif
 
+// Remove unused STEALTHCHOP flags
+#if LINEAR_AXES < 6
+  #undef STEALTHCHOP_K
+  #undef CALIBRATION_MEASURE_KMIN
+  #undef CALIBRATION_MEASURE_KMAX
+  #if LINEAR_AXES < 5
+    #undef STEALTHCHOP_J
+    #undef CALIBRATION_MEASURE_JMIN
+    #undef CALIBRATION_MEASURE_JMAX
+    #if LINEAR_AXES < 4
+      #undef STEALTHCHOP_I
+      #undef CALIBRATION_MEASURE_IMIN
+      #undef CALIBRATION_MEASURE_IMAX
+      #if LINEAR_AXES < 3
+        #undef Z_IDLE_HEIGHT
+        #undef STEALTHCHOP_Z
+        #undef Z_PROBE_SLED
+        #undef Z_SAFE_HOMING
+        #undef HOME_Z_FIRST
+        #undef HOMING_Z_WITH_PROBE
+        #undef ENABLE_LEVELING_FADE_HEIGHT
+        #undef NUM_Z_STEPPER_DRIVERS
+        #undef CNC_WORKSPACE_PLANES
+        #if LINEAR_AXES < 2
+          #undef STEALTHCHOP_Y
+        #endif
+      #endif
+    #endif
+  #endif
+#endif
+
 //
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
@@ -445,12 +537,9 @@
 // Power Monitor sensors
 #if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
   #define HAS_POWER_MONITOR 1
-#endif
-#if ENABLED(POWER_MONITOR_CURRENT) && defined(POWER_MONITOR_FIXED_VOLTAGE)
-  #define HAS_POWER_MONITOR_VREF 1
-#endif
-#if BOTH(HAS_POWER_MONITOR_VREF, POWER_MONITOR_CURRENT)
-  #define HAS_POWER_MONITOR_WATTS 1
+  #if ENABLED(POWER_MONITOR_CURRENT) && (ENABLED(POWER_MONITOR_VOLTAGE) || defined(POWER_MONITOR_FIXED_VOLTAGE))
+    #define HAS_POWER_MONITOR_WATTS 1
+  #endif
 #endif
 
 // Flag if an EEPROM type is pre-selected
@@ -463,41 +552,30 @@
   #define NEED_HEX_PRINT 1
 #endif
 
+// Flags for Case Light having a color property or a single pin
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if EITHER(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
+    #define CASE_LIGHT_IS_COLOR_LED 1
+  #else
+    #define NEED_CASE_LIGHT_PIN 1
+  #endif
+#endif
+
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
 #endif
 
-// Flag the indexed serial ports that are in use
-#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
-#if ANY_SERIAL_IS(-1)
-  #define USING_SERIAL_DEFAULT
+#if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
+  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+  #define HAS_USER_ITEM(V...) DO(HAS,||,V)
+#else
+  #define HAS_USER_ITEM(N) 0
 #endif
-#if ANY_SERIAL_IS(0)
-  #define USING_SERIAL_0 1
+
+#if !HAS_MULTI_SERIAL
+  #undef MEATPACK_ON_SERIAL_PORT_2
 #endif
-#if ANY_SERIAL_IS(1)
-  #define USING_SERIAL_1 1
+#if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
+  #define HAS_MEATPACK 1
 #endif
-#if ANY_SERIAL_IS(2)
-  #define USING_SERIAL_2 1
-#endif
-#if ANY_SERIAL_IS(3)
-  #define USING_SERIAL_3 1
-#endif
-#if ANY_SERIAL_IS(4)
-  #define USING_SERIAL_4 1
-#endif
-#if ANY_SERIAL_IS(5)
-  #define USING_SERIAL_5 1
-#endif
-#if ANY_SERIAL_IS(6)
-  #define USING_SERIAL_6 1
-#endif
-#if ANY_SERIAL_IS(7)
-  #define USING_SERIAL_7 1
-#endif
-#if ANY_SERIAL_IS(8)
-  #define USING_SERIAL_8 1
-#endif
-#undef ANY_SERIAL_IS

@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__, __STM32F4__)
-  #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 /**
  * 2017 Victor Perez Marlin for stm32f1 test
@@ -32,6 +30,8 @@
 #define BOARD_INFO_NAME      "Chitu3D"
 #define DEFAULT_MACHINE_NAME "STM32F103RET6"
 
+#define BOARD_NO_NATIVE_USB
+
 // Enable I2C_EEPROM for testing
 //#define I2C_EEPROM
 
@@ -39,45 +39,30 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
+// Limit Switches
+//
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#define Z_STOP_PIN                          PA14
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PE5
 #define X_DIR_PIN                           PE6
 #define X_ENABLE_PIN                        PC13
-#define X_MIN_PIN                           PG10
-#define X_MAX_PIN                           -1
 
 #define Y_STEP_PIN                          PE2
 #define Y_DIR_PIN                           PE3
 #define Y_ENABLE_PIN                        PE4
-#define Y_MIN_PIN                           PA12
-#define Y_MAX_PIN
 
 #define Z_STEP_PIN                          PB9
 #define Z_DIR_PIN                           PE0
 #define Z_ENABLE_PIN                        PE1
-#define Z_MIN_PIN                           PA14
-#define Z_MAX_PIN                           -1
-
-#define Y2_STEP_PIN                         -1
-#define Y2_DIR_PIN                          -1
-#define Y2_ENABLE_PIN                       -1
-
-#define Z2_STEP_PIN                         -1
-#define Z2_DIR_PIN                          -1
-#define Z2_ENABLE_PIN                       -1
 
 #define E0_STEP_PIN                         PB4
 #define E0_DIR_PIN                          PB5
 #define E0_ENABLE_PIN                       PB8
-
-#define E1_STEP_PIN                         -1
-#define E1_DIR_PIN                          -1
-#define E1_ENABLE_PIN                       -1
-
-#define E2_STEP_PIN                         -1
-#define E2_DIR_PIN                          -1
-#define E2_ENABLE_PIN                       -1
 
 //
 // Misc. Functions
@@ -114,8 +99,6 @@
 //
 #define TEMP_BED_PIN                        PA0   // Analog Input
 #define TEMP_0_PIN                          PA1   // Analog Input
-#define TEMP_1_PIN                          -1    // Analog Input
-#define TEMP_2_PIN                          -1    // Analog Input
 
 //
 // LCD Pins
@@ -126,7 +109,7 @@
     #define LCD_PINS_RS                     PD1   // 49  // CS chip select /SS chip slave select
     #define LCD_PINS_ENABLE                 PD3   // 51  // SID (MOSI)
     #define LCD_PINS_D4                     PD4   // 52  // SCK (CLK) clock
-  #elif BOTH(NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
     #define LCD_PINS_RS                     PB8
     #define LCD_PINS_ENABLE                 PD2
     #define LCD_PINS_D4                     PB12
@@ -140,20 +123,20 @@
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14
     #define LCD_PINS_D7                     PB15
-    #if DISABLED(NEWPANEL)
+    #if !IS_NEWPANEL
       #define BEEPER_PIN                    PC1   // 33
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                   PC6   // 38
-      //#define SHIFT_LD                    PC10  // 42
-      //#define SHIFT_OUT                   PC8   // 40
-      //#define SHIFT_EN                    PA1   // 17
+      //#define SHIFT_CLK_PIN               PC6   // 38
+      //#define SHIFT_LD_PIN                PC10  // 42
+      //#define SHIFT_OUT_PIN               PC8   // 40
+      //#define SHIFT_EN_PIN                PA1   // 17
     #endif
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #if IS_RRD_SC
 
       #define BEEPER_PIN                    PC5
 
@@ -254,13 +237,13 @@
       #define BEEPER_PIN                    PC1   // 33
 
       // Buttons directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
+      #if IS_RRW_KEYPAD
         #define BTN_EN1                     PE0   // 64
         #define BTN_EN2                     PD11  // 59
         #define BTN_ENC                     PD15  // 63
-        #define SHIFT_OUT                   PC8   // 40
-        #define SHIFT_CLK                   PC12  // 44
-        #define SHIFT_LD                    PC10  // 42
+        #define SHIFT_OUT_PIN               PC8   // 40
+        #define SHIFT_CLK_PIN               PC12  // 44
+        #define SHIFT_LD_PIN                PC10  // 42
       #elif ENABLED(PANEL_ONE)
         #define BTN_EN1                     PD11  // 59   // AUX2 PIN 3
         #define BTN_EN2                     PD15  // 63   // AUX2 PIN 4
@@ -279,6 +262,10 @@
       #endif
 
     #endif
-  #endif // NEWPANEL
+  #endif // IS_NEWPANEL
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
 
 #endif // HAS_WIRED_LCD

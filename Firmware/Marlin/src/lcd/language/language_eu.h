@@ -42,7 +42,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Txartela sartuta");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Txartela kenduta");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu nagusia");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Auto hasiera");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Auto hasiera");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Itzali motoreak");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Arazketa Menua");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Prog. Barra Proba");
@@ -139,10 +139,11 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mugitu Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Estrusorea");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Estrusorea *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mugitu %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mugitu %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mugitu 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mugitu 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mugitu 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mugitu 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Abiadura");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Ohea");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Pita");

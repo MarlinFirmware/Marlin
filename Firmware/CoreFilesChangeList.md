@@ -6,7 +6,9 @@ This does not include machine configs or PlatformIO files.
 
 ----------
 
-
+- **ini**
+	- `avr.ini`
+	- `stm32f1.ini`
 - **Marlin**
 	- **src**
 		- **core**
@@ -14,18 +16,16 @@ This does not include machine configs or PlatformIO files.
 		- **gcode**
 			- **calibrate**
 				- `M48.cpp`
-			- **temp**
-				- `M303.cpp`
 		- **lcd**
 			- **dwin**
 				- **e3v2**
 					- `dwin.cpp`
+			- **language**
+				- `language_en.h`
 			- **menu**
 				- `menu_advanced.cpp`
 				- `menu_configuration.cpp`
-				- `menu_motion.cpp`
-			- **language**
-				- `language_en.h`
+				- `menu_motion.cpp`			
 		- **pins**
 			- `pins.h`
 			- **lpc1769**

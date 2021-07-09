@@ -3,7 +3,7 @@
  * NO IMPLIED SUPPORT OR WARRANTY IS PROVIDED WITH THIS FIRMWARE AND IS PROVIDED AS-IS
  */
 #pragma once
-#define CONFIGURATION_H_VERSION 020007
+#define CONFIGURATION_H_VERSION 02000901
 
 //===========================================================================
 //============================ TH3D Configuration ===========================
@@ -977,7 +977,7 @@
 // Ender 3 V2 Settings
 #if ENABLED(ENDER3_V2_V422_BOARD) || ENABLED(ENDER3_V2_V427_BOARD)
   #define SERIAL_PORT 1
-  #define SERIAL_PORT_2 3
+  #define LCD_SERIAL_PORT 3
   
   #if ENABLED(MANUAL_MESH_LEVELING)
     #error "Due to closed source LCD firmware, Manual Mesh Leveling is not available on the Ender 3 V2."
