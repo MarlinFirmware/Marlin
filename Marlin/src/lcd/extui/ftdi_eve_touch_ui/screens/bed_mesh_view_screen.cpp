@@ -132,6 +132,7 @@ void BedMeshViewScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI
       mydata.count = GRID_MAX_POINTS;
       break;
     case ExtUI::G26_START:
+      GOTO_SCREEN(BedMeshViewScreen);
       mydata.message = nullptr;
       mydata.count = 0;
       break;
@@ -160,7 +161,7 @@ void BedMeshViewScreen::doProbe() {
 void BedMeshViewScreen::doMeshValidation() {
   mydata.count = 0;
   GOTO_SCREEN(StatusScreen);
-  injectCommands_P(PSTR("G28\nM117 Heating...\nG26 R X0 Y0\nG27"));
+  injectCommands_P(PSTR("G28 O\nM117 Heating...\nG26 R X0 Y0"));
 }
 
 void BedMeshViewScreen::show() {

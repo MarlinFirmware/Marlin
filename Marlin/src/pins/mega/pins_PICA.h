@@ -117,11 +117,11 @@
 
 #define SSR_PIN                                6
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
+  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
 #else
-  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
+  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //

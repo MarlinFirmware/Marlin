@@ -415,15 +415,6 @@ class Temperature {
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
 
-    #endif // HEATER_IDLE_TIMER
-
-    #if HAS_ADC_BUTTONS
-      static uint32_t current_ADCKey_raw;
-      static uint16_t ADCKey_count;
-    #endif
-
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      static int16_t lpq_len;
     #endif
 
   private:
@@ -484,6 +475,15 @@ class Temperature {
     #endif
 
   public:
+    #if HAS_ADC_BUTTONS
+      static uint32_t current_ADCKey_raw;
+      static uint16_t ADCKey_count;
+    #endif
+
+    #if ENABLED(PID_EXTRUSION_SCALING)
+      static int16_t lpq_len;
+    #endif
+
     /**
      * Instance Methods
      */
@@ -891,7 +891,7 @@ class Temperature {
       #else
         #define READ_MAX_TC(N) read_max_tc()
       #endif
-      static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
+      static int read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
     static void checkExtruderAutoFans();

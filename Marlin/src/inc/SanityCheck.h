@@ -412,19 +412,8 @@
   #error "MBL_Z_STEP is now MESH_EDIT_Z_STEP."
 #elif defined(CHDK)
   #error "CHDK is now CHDK_PIN."
-#elif ANY_PIN( \
-        MAX6675_SS, MAX6675_SS2, MAX6675_CS, MAX6675_CS2, \
-        MAX31855_SS, MAX31855_SS2, MAX31855_CS, MAX31855_CS2, \
-        MAX31865_SS, MAX31865_SS2, MAX31865_CS, MAX31865_CS2)
-  #warning "MAX*_SS_PIN, MAX*_SS2_PIN, MAX*_CS_PIN, and MAX*_CS2_PIN are deprecated and will be removed in a future version. Please use TEMP_0_CS_PIN/TEMP_1_CS_PIN instead."
-#elif ANY_PIN(MAX6675_SCK, MAX31855_SCK, MAX31865_SCK)
-  #warning "MAX*_SCK_PIN is deprecated and will be removed in a future version. Please use TEMP_0_SCK_PIN/TEMP_1_SCK_PIN instead."
-#elif ANY_PIN(MAX6675_MISO, MAX6675_DO, MAX31855_MISO, MAX31855_DO, MAX31865_MISO, MAX31865_DO)
-  #warning "MAX*_MISO_PIN and MAX*_DO_PIN are deprecated and will be removed in a future version. Please use TEMP_0_MISO_PIN/TEMP_1_MISO_PIN instead."
-#elif PIN_EXISTS(MAX31865_MOSI)
-  #warning "MAX31865_MOSI_PIN is deprecated and will be removed in a future version. Please use TEMP_0_MOSI_PIN/TEMP_1_MOSI_PIN instead."
-#elif ANY_PIN(THERMO_CS1_PIN, THERMO_CS2_PIN, THERMO_DO_PIN, THERMO_SCK_PIN)
-  #error "THERMO_*_PIN is now TEMP_n_CS_PIN, TEMP_n_SCK_PIN, TEMP_n_MOSI_PIN, TEMP_n_MISO_PIN."
+#elif defined(MAX6675_SS) || defined(MAX6675_SS2)
+  #error "MAX6675_SS / MAX6675_SS2 is now MAX6675_SS_PIN / MAX6675_SS2_PIN."
 #elif defined(MAX31865_SENSOR_OHMS)
   #error "MAX31865_SENSOR_OHMS is now MAX31865_SENSOR_OHMS_0."
 #elif defined(MAX31865_CALIBRATION_OHMS)
@@ -1785,100 +1774,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Required MAX31865 settings
- */
-#if TEMP_SENSOR_0_IS_MAX31865 || (TEMP_SENSOR_REDUNDANT_IS_MAX31865 && TEMP_SENSOR_REDUNDANT_SOURCE == 0)
-  #if !defined(MAX31865_SENSOR_WIRES_0) || !WITHIN(MAX31865_SENSOR_WIRES_0, 2, 4)
-    #error "MAX31865_SENSOR_WIRES_0 must be defined as an integer between 2 and 4."
-  #elif !defined(MAX31865_SENSOR_OHMS_0) || !defined(MAX31865_CALIBRATION_OHMS_0)
-    #error "MAX31865_SENSOR_OHMS_0 and MAX31865_CALIBRATION_OHMS_0 must be set if TEMP_SENSOR_0/TEMP_SENSOR_REDUNDANT is MAX31865."
-  #endif
-#endif
-#if TEMP_SENSOR_1_IS_MAX31865 || (TEMP_SENSOR_REDUNDANT_IS_MAX31865 && TEMP_SENSOR_REDUNDANT_SOURCE == 1)
-  #if !defined(MAX31865_SENSOR_WIRES_1) || !WITHIN(MAX31865_SENSOR_WIRES_1, 2, 4)
-    #error "MAX31865_SENSOR_WIRES_1 must be defined as an integer between 2 and 4."
-  #elif !defined(MAX31865_SENSOR_OHMS_1) || !defined(MAX31865_CALIBRATION_OHMS_1)
-    #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set if TEMP_SENSOR_1/TEMP_SENSOR_REDUNDANT is MAX31865."
-  #endif
-#endif
-
-/**
- * Redundant temperature sensor config
- */
-#if HAS_TEMP_REDUNDANT
-  #if !defined(TEMP_SENSOR_REDUNDANT_SOURCE)
-    #error "TEMP_SENSOR_REDUNDANT requires TEMP_SENSOR_REDUNDANT_SOURCE."
-  #elif !defined(TEMP_SENSOR_REDUNDANT_TARGET)
-    #error "TEMP_SENSOR_REDUNDANT requires TEMP_SENSOR_REDUNDANT_TARGET."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == TEMP_SENSOR_REDUNDANT_TARGET
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be the same as TEMP_SENSOR_REDUNDANT_TARGET."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE < -5 || TEMP_SENSOR_REDUNDANT_SOURCE > 7
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE must be between -5 and 7."
-  #elif TEMP_SENSOR_REDUNDANT_TARGET < -5 || TEMP_SENSOR_REDUNDANT_TARGET > 7
-    #error "TEMP_SENSOR_REDUNDANT_TARGET must be between -5 and 7."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -3
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be -3 (not used)."
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == -3
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be -3 (not used)."
-  #elif HAS_MULTI_HOTEND && TEMP_SENSOR_REDUNDANT_SOURCE < HOTENDS
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE must be after the last TEMP_SENSOR used with a hotend; you can't use a sensor in the middle of two hotends."
-  #endif
-
-  #if TEMP_SENSOR_REDUNDANT_SOURCE == 0 && HAS_HOTEND
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can not be 0 if a hotend is used. E0 always uses TEMP_SENSOR_0."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -5 && HAS_TEMP_COOLER
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Cooler (-5): TEMP_SENSOR_COOLER has already defined the sensor."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -4 && HAS_TEMP_PROBE
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Probe (-4): TEMP_SENSOR_PROBE has already defined the sensor."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -2 && HAS_TEMP_CHAMBER
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Chamber (-2): TEMP_SENSOR_CHAMBER has already defined the sensor."
-  #elif TEMP_SENSOR_REDUNDANT_SOURCE == -1 && HAS_TEMP_BED
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be Bed (-1): TEMP_SENSOR_BED has already defined the sensor."
-  #endif
-
-  #if TEMP_SENSOR_REDUNDANT_TARGET == 0 && !PIN_EXISTS(TEMP_0)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E0 (0): requires TEMP_0_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == 1 && !PIN_EXISTS(TEMP_1)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E1 (1): requires TEMP_1_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == 2 && !PIN_EXISTS(TEMP_2)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E2 (2): requires TEMP_2_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == 3 && !PIN_EXISTS(TEMP_3)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E3 (3): requires TEMP_3_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == 4 && !PIN_EXISTS(TEMP_4)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E4 (4): requires TEMP_4_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == 5 && !PIN_EXISTS(TEMP_5)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E5 (5): requires TEMP_5_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == 6 && !PIN_EXISTS(TEMP_6)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E6 (6): requires TEMP_6_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == 7 && !PIN_EXISTS(TEMP_7)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be E7 (7): requires TEMP_7_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == -1 && !PIN_EXISTS(TEMP_BED)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Bed (-1): requires TEMP_BED_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == -2 && !PIN_EXISTS(TEMP_CHAMBER)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Chamber (-2): requires TEMP_CHAMBER_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == -4 && !PIN_EXISTS(TEMP_PROBE)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Probe (-4): requires TEMP_PROBE_PIN"
-  #elif TEMP_SENSOR_REDUNDANT_TARGET == -5 && !PIN_EXISTS(TEMP_COOLER)
-    #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Cooler (-5): requires TEMP_COOLER_PIN"
-  #endif
-
-  #if TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0 && !PIN_EXISTS(TEMP_0_CS)
-    #error "TEMP_SENSOR_REDUNDANT MAX Thermocouple with TEMP_SENSOR_REDUNDANT_SOURCE 0 requires TEMP_0_CS_PIN."
-  #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1 && !PIN_EXISTS(TEMP_1_CS)
-    #error "TEMP_SENSOR_REDUNDANT MAX Thermocouple with TEMP_SENSOR_REDUNDANT_SOURCE 1 requires TEMP_1_CS_PIN."
-  #endif
-#endif
-
-/**
- * Test Sensor & Heater pin combos.
  * Pins and Sensor IDs must be set for each heater
  */
-#if !ANY_PIN(TEMP_0, TEMP_0_CS)
-  #error "TEMP_0_PIN or TEMP_0_CS_PIN not defined for this board."
-#elif !HAS_HEATER_0 && EXTRUDERS
-  #error "HEATER_0_PIN not defined for this board."
-#elif TEMP_SENSOR_0_IS_MAX_TC && !PIN_EXISTS(TEMP_0_CS)
-  #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
+#if TEMP_SENSOR_0_IS_MAX6675 && !ANY_PIN(MAX6675_SS, MAX31855_CS, MAX31865_CS, MAX6675_CS)
+  #error "TEMP_SENSOR_0 requires a MAX6675_SS_PIN, MAX6675_CS_PIN, MAX31855_CS_PIN, or MAX31865_CS_PIN."
 #elif HAS_HOTEND && !HAS_TEMP_HOTEND && !TEMP_SENSOR_0_IS_DUMMY
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
@@ -1886,12 +1785,14 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 #if HAS_MULTI_HOTEND
-  #if TEMP_SENSOR_1_IS_MAX_TC && !PIN_EXISTS(TEMP_1_CS)
-    #error "TEMP_SENSOR_1 MAX thermocouple requires TEMP_1_CS_PIN."
+  #if TEMP_SENSOR_1_IS_MAX6675 && !ANY_PIN(MAX6675_SS2, MAX31855_CS2, MAX31865_CS2, MAX6675_CS2)
+    #error "TEMP_SENSOR_1 requires a MAX6675_SS2_PIN, MAX6675_CS2_PIN, MAX31855_CS2_PIN, or MAX31865_CS2_PIN."
   #elif TEMP_SENSOR_1 == 0
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
-  #elif !ANY_PIN(TEMP_1, TEMP_1_CS) && !TEMP_SENSOR_1_IS_DUMMY
-    #error "TEMP_1_PIN or TEMP_1_CS_PIN not defined for this board."
+  #elif !ANY_PIN(TEMP_1, MAX6675_SS2) && !TEMP_SENSOR_1_IS_DUMMY
+    #error "TEMP_1_PIN or MAX6675_SS2_PIN not defined for this board."
+  #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+    #error "HOTENDS must be 1 with TEMP_SENSOR_1_AS_REDUNDANT."
   #endif
   #if HOTENDS > 2
     #if TEMP_SENSOR_2 == 0
@@ -2003,31 +1904,14 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_6 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_7 != 0
   #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
-#endif // HAS_MULTI_HOTEND
+#endif
 
-/**
- * Pins must be set for temp sensors, with some other feature requirements.
- */
 #if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
   #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN."
 #endif
 
-#if TEMP_SENSOR_COOLER
-  #if !PIN_EXISTS(TEMP_COOLER)
-    #error "TEMP_SENSOR_COOLER requires TEMP_COOLER_PIN."
-  #elif DISABLED(LASER_FEATURE)
-    #error "TEMP_SENSOR_COOLER requires LASER_FEATURE."
-  #endif
-#endif
-
-#if TEMP_SENSOR_PROBE
-  #if !PIN_EXISTS(TEMP_PROBE)
-    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
-  #elif !HAS_TEMP_ADC_PROBE
-    #error "TEMP_PROBE_PIN must be an ADC pin."
-  #elif DISABLED(FIX_MOUNTED_PROBE)
-    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
-  #endif
+#if TEMP_SENSOR_COOLER && !(PIN_EXISTS(TEMP_COOLER) && ENABLED(LASER_FEATURE))
+  #error "TEMP_SENSOR_COOLER requires LASER_FEATURE and TEMP_COOLER_PIN."
 #endif
 
 #if ENABLED(LASER_COOLANT_FLOW_METER) && !(PIN_EXISTS(FLOWMETER) && ENABLED(LASER_FEATURE))
@@ -2056,6 +1940,41 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #elif CHAMBER_VENT_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
     #error "SERVO3_PIN must be defined for your Heated Chamber vent servo."
   #endif
+#endif
+
+#if TEMP_SENSOR_PROBE
+  #if !PIN_EXISTS(TEMP_PROBE)
+    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
+  #elif !HAS_TEMP_ADC_PROBE
+    #error "TEMP_PROBE_PIN must be an ADC pin."
+  #elif DISABLED(FIX_MOUNTED_PROBE)
+    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
+  #endif
+#endif
+
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
+  #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
+#endif
+
+#if TEMP_SENSOR_0_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS_0) && defined(MAX31865_CALIBRATION_OHMS_0))
+  #error "MAX31865_SENSOR_OHMS_0 and MAX31865_CALIBRATION_OHMS_0 must be set if TEMP_SENSOR_0 is MAX31865."
+#elif TEMP_SENSOR_1_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS_1) && defined(MAX31865_CALIBRATION_OHMS_1))
+  #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set if TEMP_SENSOR_1 is MAX31865."
+#endif
+
+/**
+ * Test Heater, Temp Sensor, and Extruder Pins
+ */
+#if !HAS_HEATER_0 && EXTRUDERS
+  #error "HEATER_0_PIN not defined for this board."
+#elif !ANY_PIN(TEMP_0, MAX6675_SS)
+  #error "TEMP_0_PIN or MAX6675_SS not defined for this board."
+#elif ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
+  #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
+#elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
+  #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+#elif EXTRUDERS && TEMP_SENSOR_0 == 0
+  #error "TEMP_SENSOR_0 is required if there are any extruders."
 #endif
 
 /**
@@ -2099,16 +2018,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Test Extruder Stepper Pins
  */
-#if HAS_EXTRUDERS
-  #if ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
-    #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
-  #elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
-    #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-  #elif EXTRUDERS && TEMP_SENSOR_0 == 0
-    #error "TEMP_SENSOR_0 is required if there are any extruders."
-  #endif
-#endif
-
 #if E_STEPPERS
   #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
     #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."

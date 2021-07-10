@@ -83,10 +83,8 @@ void BootScreen::onIdle() {
       if (UIData::animations_enabled()) {
         // If there is a startup video in the flash SPI, play
         // that, otherwise show a static splash screen.
-        #ifdef FTDI_MEDIA_PLAYER_SCREEN
-          if (!MediaPlayerScreen::playBootMedia())
-        #endif
-            showSplashScreen();
+        if (!MediaPlayerScreen::playBootMedia())
+          showSplashScreen();
       }
     #endif
 

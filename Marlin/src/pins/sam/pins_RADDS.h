@@ -179,11 +179,11 @@
 #define TEMP_4_PIN                             5  // dummy so will compile when PINS_DEBUGGING is enabled
 #define TEMP_BED_PIN                           4  // Analog Input
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       53
+  #define MAX6675_SS_PIN                      53
 #else
-  #define TEMP_0_CS_PIN                       49
+  #define MAX6675_SS_PIN                      49
 #endif
 
 //

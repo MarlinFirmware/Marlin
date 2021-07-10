@@ -133,11 +133,11 @@
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
+  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
 #else
-  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
+  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -192,7 +192,7 @@
 #else                                             // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
   #define FAN_PIN                   RAMPS_D9_PIN
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
+  #if HOTENDS == 1
     #define FAN1_PIN                MOSFET_D_PIN
   #else
     #define HEATER_1_PIN            MOSFET_D_PIN

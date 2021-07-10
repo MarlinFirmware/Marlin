@@ -56,9 +56,7 @@
 //
 // Servos
 //
-#ifndef SERVO0_PIN
-  #define SERVO0_PIN                        PA3
-#endif
+#define SERVO0_PIN                          PA3
 
 //
 // Limit Switches

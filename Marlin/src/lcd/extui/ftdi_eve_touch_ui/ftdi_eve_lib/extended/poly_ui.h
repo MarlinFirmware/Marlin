@@ -239,11 +239,9 @@ class DeduplicatedPolyReader : public POLY_READER {
  */
 template<class POLY_READER=DeduplicatedPolyReader<TransformedPolyReader>>
 class GenericPolyUI {
-  protected:
-    CommandProcessor &cmd;
-    draw_mode_t mode;
-
   private:
+    CommandProcessor &cmd;
+
     // Attributes used to paint buttons
 
     uint32_t btn_fill_color   = 0x000000;
@@ -251,6 +249,8 @@ class GenericPolyUI {
     uint8_t  btn_shadow_depth = 5;
     uint32_t btn_stroke_color = 0x000000;
     uint8_t  btn_stroke_width = 28;
+
+    draw_mode_t mode;
 
   public:
     enum ButtonStyle : uint8_t {
