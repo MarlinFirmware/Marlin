@@ -20,7 +20,7 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#include "../compat.h"
+#include "../config.h"
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
 

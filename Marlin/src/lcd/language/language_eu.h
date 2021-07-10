@@ -143,6 +143,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mugitu 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mugitu 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mugitu 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mugitu 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Abiadura");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Ohea");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Pita");

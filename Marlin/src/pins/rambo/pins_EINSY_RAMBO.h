@@ -135,9 +135,9 @@
 
 #ifndef FAN1_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN_PIN                           -1
+    #define FAN1_PIN                           -1
   #else
-    #define FAN_PIN                            6
+    #define FAN1_PIN                            6
   #endif
 #endif
 
