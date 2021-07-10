@@ -285,7 +285,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Move 0.001in");
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Move 0.01in");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Move 0.1in");
-  PROGMEM Language_Str MSG_MOVE_10IN                       = _UxGT("Move 1.0in");
+  PROGMEM Language_Str MSG_MOVE_1IN                        = _UxGT("Move 1.0in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Speed");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
@@ -592,9 +592,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("I Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("J Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("K Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = AXIS4_STR _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = AXIS5_STR _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = AXIS6_STR _UxGT(" Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC CONNECTION ERROR");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Write");

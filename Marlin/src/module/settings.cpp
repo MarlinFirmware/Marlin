@@ -3818,10 +3818,10 @@ void MarlinSettings::reset() {
         SERIAL_CHAR(' ', 'B');                                 // B (maps to E1 by default)
         SERIAL_ECHOLN(stepper.motor_current_setting[4]);
       #endif
-    #elif ENABLED(HAS_MOTOR_CURRENT_I2C)                       // i2c-based has any number of values
+    #elif HAS_MOTOR_CURRENT_I2C                                // i2c-based has any number of values
       // Values sent over i2c are not stored.
       // Indexes map directly to drivers, not axes.
-    #elif ENABLED(HAS_MOTOR_CURRENT_DAC)                       // DAC-based has 4 values, for X Y Z (I J K) E
+    #elif HAS_MOTOR_CURRENT_DAC                                // DAC-based has 4 values, for X Y Z (I J K) E
       // Values sent over i2c are not stored. Uses indirect mapping.
     #endif
 

@@ -91,7 +91,11 @@ extern bool wait_for_heatup;
     #define PSU_OFF_SOON() powerManager.power_off_soon()
   #else
     #define PSU_ON()     PSU_PIN_ON()
-    #define PSU_OFF()    PSU_PIN_OFF()
+    #if ENABLED(PS_OFF_SOUND)
+      #define PSU_OFF()  do{ BUZZ(1000, 659); PSU_PIN_OFF(); }while(0)
+    #else
+      #define PSU_OFF()  PSU_PIN_OFF()
+    #endif
     #define PSU_OFF_SOON PSU_OFF
   #endif
 #endif

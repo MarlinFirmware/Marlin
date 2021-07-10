@@ -59,7 +59,7 @@
 
 #if ENABLED(U8GLIB_ST7920)
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 #include <SoftwareSPI.h>
 #include "../../shared/Delay.h"
 #include "../../shared/HAL_SPI.h"

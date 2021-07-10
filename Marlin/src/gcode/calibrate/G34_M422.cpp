@@ -314,11 +314,13 @@ void GcodeSuite::G34() {
           sprintf_P(msg,
             PSTR("1:2=%s" TERN_(TRIPLE_Z, " 3-2=%s 3-1=%s") TERN_(QUAD_Z, " 4-3=%s 4-2=%s 4-1=%s")),
             dtostrf(ABS(z_measured[1] - z_measured[0]), 1, 3, fstr1)
-            OPTARG(TRIPLE_Z, dtostrf(ABS(z_measured[2] - z_measured[1]), 1, 3, fstr2))
-            OPTARG(TRIPLE_Z, dtostrf(ABS(z_measured[2] - z_measured[0]), 1, 3, fstr3))
-            OPTARG(QUAD_Z,   dtostrf(ABS(z_measured[3] - z_measured[2]), 1, 3, fstr4))
-            OPTARG(QUAD_Z,   dtostrf(ABS(z_measured[3] - z_measured[1]), 1, 3, fstr5))
-            OPTARG(QUAD_Z,   dtostrf(ABS(z_measured[3] - z_measured[0]), 1, 3, fstr6))
+            OPTARG(TRIPLE_Z,
+              dtostrf(ABS(z_measured[2] - z_measured[1]), 1, 3, fstr2),
+              dtostrf(ABS(z_measured[2] - z_measured[0]), 1, 3, fstr3))
+            OPTARG(QUAD_Z,
+              dtostrf(ABS(z_measured[3] - z_measured[2]), 1, 3, fstr4),
+              dtostrf(ABS(z_measured[3] - z_measured[1]), 1, 3, fstr5),
+              dtostrf(ABS(z_measured[3] - z_measured[0]), 1, 3, fstr6))
           );
           ui.set_status(msg);
         #endif
