@@ -2416,7 +2416,7 @@
 
 //
 // MKS MINI12864 V3 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
-// 
+//
 //#define MKS_MINI_12864_V3
 
 //

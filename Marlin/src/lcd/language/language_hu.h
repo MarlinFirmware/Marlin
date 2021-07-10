@@ -736,7 +736,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Kalibrálási hiba");
 
   PROGMEM Language_Str MSG_DRIVER_BACKWARD                 = _UxGT(" meghajtók hátra");
-  
+
   PROGMEM Language_Str MSG_SD_CARD                         = _UxGT("SD Kártya");
   PROGMEM Language_Str MSG_USB_DISK                        = _UxGT("USB Lemez");
 }

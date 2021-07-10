@@ -340,7 +340,7 @@
     // Required for MKS_MINI_12864 with this board
     //#define MKS_LCD12864B
     //#undef SHOW_BOOTSCREEN
-  
+
   #elif ENABLED(MKS_MINI_12864_V3)
     #define DOGLCD_CS                       PD13
     #define DOGLCD_A0                       PC6
