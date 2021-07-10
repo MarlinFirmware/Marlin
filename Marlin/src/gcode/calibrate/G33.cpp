@@ -423,9 +423,11 @@ void GcodeSuite::G33() {
 
   const bool stow_after_each = parser.seen_test('E');
 
-  probe.test_sensitivity_X = !parser.seen_test('X');
-  probe.test_sensitivity_Y = !parser.seen_test('Y');
-  probe.test_sensitivity_Z = !parser.seen_test('Z');
+  #if ENABLED(HAS_BED_PROBE)
+    probe.test_sensitivity_X = !parser.seen_test('X');
+    probe.test_sensitivity_Y = !parser.seen_test('Y');
+    probe.test_sensitivity_Z = !parser.seen_test('Z');
+  #endif
 
   const bool _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1 || probe_points == -1,
