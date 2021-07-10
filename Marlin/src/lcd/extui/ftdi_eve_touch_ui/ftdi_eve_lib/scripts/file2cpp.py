@@ -31,7 +31,7 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   varname = os.path.splitext(os.path.basename(args.input))[0];
-  
+
   with open(args.input, "rb") as in_file:
     data = in_file.read()
   if args.deflate:

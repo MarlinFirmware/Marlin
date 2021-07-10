@@ -55,7 +55,7 @@
   #include "../module/printcounter.h"
 #endif
 
-#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
   #include "../feature/pause.h"
   #include "../module/motion.h" // for active_extruder
 #endif
@@ -111,13 +111,13 @@
 
 #if PREHEAT_COUNT
   typedef struct {
-    #if ENABLED(HAS_HOTEND)
+    #if HAS_HOTEND
       celsius_t hotend_temp;
     #endif
-    #if ENABLED(HAS_HEATED_BED)
+    #if HAS_HEATED_BED
       celsius_t bed_temp;
     #endif
-    #if ENABLED(HAS_FAN)
+    #if HAS_FAN
       uint16_t fan_speed;
     #endif
   } preheat_t;
@@ -135,12 +135,12 @@
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
-    #if ENABLED(IS_KINEMATIC)
+    #if IS_KINEMATIC
       static xyze_pos_t all_axes_destination;
     #endif
   public:
     static float menu_scale;
-    #if ENABLED(IS_KINEMATIC)
+    #if IS_KINEMATIC
       static float offset;
     #endif
     template <typename T>
@@ -551,7 +551,7 @@ public:
     static inline bool use_click() { return false; }
   #endif
 
-  #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}
