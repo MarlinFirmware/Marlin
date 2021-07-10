@@ -362,9 +362,9 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
     constexpr uint16_t default_sg_guard_duration = 400;
 
     struct motion_state_t {
-      xyz_ulong_t acceleration;
+      xy_ulong_t acceleration;
       #if HAS_CLASSIC_JERK
-        xyz_float_t jerk_state;
+        xy_float_t jerk_state;
       #endif
     };
   #endif
