@@ -46,11 +46,14 @@
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
-  H_NONE = -7,
-  H_REDUNDANT, H_COOLER, H_PROBE, H_BOARD, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+  H_REDUNDANT = HID_REDUNDANT,
+  H_COOLER = HID_COOLER,
+  H_PROBE = HID_PROBE,
+  H_BOARD = HID_BOARD,
+  H_CHAMBER = HID_CHAMBER,
+  H_BED = HID_BED,
+  H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
-static_assert(heater_id_t::H_E0 == 0, "Oops! H_NONE is incorrect, please fix!");
 
 // PID storage
 typedef struct { float Kp, Ki, Kd;     } PID_t;
