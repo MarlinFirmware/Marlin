@@ -370,7 +370,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     if (mark_as_selected(row, style & SS_INVERT)) {
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
- 
+
       const int plen = pstr ? calculateWidth(pstr) : 0,
                 vlen = vstr ? utf8_strlen(vstr) : 0;
       if (style & SS_CENTER) {
