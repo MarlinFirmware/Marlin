@@ -80,9 +80,9 @@ void ControllerFan::update() {
     //   - At least one stepper driver is enabled
     //   - The heated bed is enabled
     //   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_MIN_BOARD_TEMP
-    if (    motor_on
-         || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
-         || TERN0(HAS_CONTROLLER_FAN_MIN_BOARD_TEMP, thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP)
+    if ( motor_on
+      || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
+      || TERN0(HAS_CONTROLLER_FAN_MIN_BOARD_TEMP, thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP)
     ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
 
     // Fan Settings. Set fan > 0:

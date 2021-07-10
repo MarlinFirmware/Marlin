@@ -474,7 +474,7 @@
  *                NOTE: ADC pins are not 5V tolerant. Not recommended because it's possible to damage the CPU by going over 500°C.
  *   201 : Pt100  with circuit in Overlord, similar to Ultimainboard V2.x
  *
- *  Custom/Dummy/Other Thermos
+ *  Custom/Dummy/Other Thermal Sensors
  *  ------
  *     0 : not used
  *  1000 : Custom - Specify parameters in Configuration_adv.h
