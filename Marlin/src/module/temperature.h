@@ -46,7 +46,7 @@
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
-  INDEX_NONE = -6,
+  H_NONE = -6,
   H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
   H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
@@ -104,6 +104,9 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_PROBE
     PrepareTemp_PROBE, MeasureTemp_PROBE,
+  #endif
+  #if HAS_TEMP_ADC_REDUNDANT
+    PrepareTemp_REDUNDANT, MeasureTemp_REDUNDANT,
   #endif
   #if HAS_TEMP_ADC_1
     PrepareTemp_1, MeasureTemp_1,
@@ -171,7 +174,7 @@ enum ADCSensorState : char {
   #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
 
-#if BOTH(HAS_LCD_MENU, G26_MESH_VALIDATION)
+#if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
   #define G26_CLICK_CAN_CANCEL 1
 #endif
 
@@ -184,6 +187,13 @@ typedef struct TempInfo {
   inline void sample(const uint16_t s) { acc += s; }
   inline void update() { raw = acc; }
 } temp_info_t;
+
+#if HAS_TEMP_REDUNDANT
+  // A redundant temperature sensor
+  typedef struct RedundantTempInfo : public TempInfo {
+    temp_info_t* target;
+  } redundant_temp_info_t;
+#endif
 
 // A PWM heater with temperature sensor
 typedef struct HeaterInfo : public TempInfo {
@@ -299,8 +309,11 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
-    #if COOLER_USER_THERMISTOR
+    #if TEMP_SENSOR_COOLER_IS_CUSTOM
       CTI_COOLER,
+    #endif
+    #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
+      CTI_REDUNDANT,
     #endif
     USER_THERMISTORS
   };
@@ -323,9 +336,6 @@ class Temperature {
   public:
 
     #if HAS_HOTEND
-      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        static temp_info_t temp_redundant;
-      #endif
       static hotend_info_t temp_hotend[HOTENDS];
       static const celsius_t hotend_maxtemp[HOTENDS];
       static inline celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
@@ -341,6 +351,9 @@ class Temperature {
     #endif
     #if ENABLED(HAS_TEMP_COOLER)
       static cooler_info_t temp_cooler;
+    #endif
+    #if HAS_TEMP_REDUNDANT
+      static redundant_temp_info_t temp_redundant;
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -395,21 +408,21 @@ class Temperature {
       } heater_idle_t;
 
       // Indices and size for the heater_idle array
-      #define _ENUM_FOR_E(N) IDLE_INDEX_E##N,
-      enum IdleIndex : uint8_t {
-        REPEAT(HOTENDS, _ENUM_FOR_E)
-        #if ENABLED(HAS_HEATED_BED)
-          IDLE_INDEX_BED,
-        #endif
-        NR_HEATER_IDLE
+      enum IdleIndex : int8_t {
+        _II = -1
+
+        #define _IDLE_INDEX_E(N) ,IDLE_INDEX_E##N
+        REPEAT(HOTENDS, _IDLE_INDEX_E)
+        #undef _IDLE_INDEX_E
+
+        OPTARG(HAS_HEATED_BED, IDLE_INDEX_BED)
+
+        , NR_HEATER_IDLE
       };
-      #undef _ENUM_FOR_E
 
       // Convert the given heater_id_t to idle array index
       static inline IdleIndex idle_index_for_id(const int8_t heater_id) {
-        #if HAS_HEATED_BED
-          if (heater_id == H_BED) return IDLE_INDEX_BED;
-        #endif
+        TERN_(HAS_HEATED_BED, if (heater_id == H_BED) return IDLE_INDEX_BED);
         return (IdleIndex)_MAX(heater_id, 0);
       }
 
@@ -418,8 +431,6 @@ class Temperature {
     #endif
 
   private:
-
-    static volatile bool raw_temps_ready;
 
     #if ENABLED(WATCH_HOTENDS)
       static hotend_watch_t watch_hotend[HOTENDS];
@@ -540,6 +551,9 @@ class Temperature {
     #if HAS_TEMP_COOLER
       static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
     #endif
+    #if HAS_TEMP_REDUNDANT
+      static celsius_float_t analog_to_celsius_redundant(const int16_t raw);
+    #endif
 
     #if HAS_FAN
 
@@ -628,10 +642,6 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
-    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      static inline celsius_float_t degHotendRedundant() { return temp_redundant.celsius; }
-    #endif
-
     static inline celsius_t wholeDegHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
@@ -640,9 +650,6 @@ class Temperature {
       static inline int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
       }
-      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        static inline int16_t rawHotendTempRedundant() { return temp_redundant.raw; }
-      #endif
     #endif
 
     static inline celsius_t degTargetHotend(const uint8_t E_NAME) {
@@ -674,9 +681,7 @@ class Temperature {
 
       #if HAS_TEMP_HOTEND
         static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true
-          #if G26_CLICK_CAN_CANCEL
-            , const bool click_to_cancel=false
-          #endif
+          OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
         );
 
         #if ENABLED(WAIT_FOR_HOTEND)
@@ -723,9 +728,7 @@ class Temperature {
       }
 
       static bool wait_for_bed(const bool no_wait_for_cooling=true
-        #if G26_CLICK_CAN_CANCEL
-          , const bool click_to_cancel=false
-        #endif
+        OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel=false)
       );
 
       static void wait_for_bed_heating();
@@ -784,6 +787,17 @@ class Temperature {
       #endif
     #endif
 
+    #if HAS_TEMP_REDUNDANT
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        static inline int16_t rawRedundantTemp()         { return temp_redundant.raw; }
+        static inline int16_t rawRedundanTargetTemp()    { return (*temp_redundant.target).raw; }
+      #endif
+      static inline celsius_float_t degRedundant()       { return temp_redundant.celsius; }
+      static inline celsius_float_t degRedundantTarget() { return (*temp_redundant.target).celsius; }
+      static inline celsius_t wholeDegRedundant()        { return static_cast<celsius_t>(temp_redundant.celsius + 0.5f); }
+      static inline celsius_t wholeDegRedundantTarget()  { return static_cast<celsius_t>((*temp_redundant.target).celsius + 0.5f); }
+    #endif
+
     #if HAS_COOLER
       static inline void setTargetCooler(const celsius_t celsius) {
         temp_cooler.target = constrain(celsius, COOLER_MIN_TARGET, COOLER_MAX_TARGET);
@@ -840,7 +854,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
-      static void pause(const bool p);
+      static void pause_heaters(const bool p);
     #endif
 
     #if HEATER_IDLE_HANDLER
@@ -861,9 +875,7 @@ class Temperature {
 
     #if HAS_TEMP_SENSOR
       static void print_heater_states(const uint8_t target_extruder
-        #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-          , const bool include_r=false
-        #endif
+        OPTARG(HAS_TEMP_REDUNDANT, const bool include_r=false)
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         struct AutoReportTemp { static void report(); };
@@ -871,8 +883,10 @@ class Temperature {
       #endif
     #endif
 
-    #if HAS_STATUS_MESSAGE
+    #if HAS_HOTEND && HAS_STATUS_MESSAGE
       static void set_heating_message(const uint8_t e);
+    #else
+      static inline void set_heating_message(const uint8_t) {}
     #endif
 
     #if HAS_LCD_MENU && HAS_TEMPERATURE
@@ -880,11 +894,21 @@ class Temperature {
     #endif
 
   private:
+
+    // Reading raw temperatures and converting to Celsius when ready
+    static volatile bool raw_temps_ready;
     static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
+    static inline bool updateTemperaturesIfReady() {
+      if (!raw_temps_ready) return false;
+      updateTemperaturesFromRawValues();
+      raw_temps_ready = false;
+      return true;
+    }
 
+    // MAX Thermocouples
     #if HAS_MAX_TC
-      #define MAX_TC_COUNT 1 + BOTH(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC)
+      #define MAX_TC_COUNT COUNT_ENABLED(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC, TEMP_SENSOR_REDUNDANT_IS_MAX_TC)
       #if MAX_TC_COUNT > 1
         #define HAS_MULTI_MAX_TC 1
         #define READ_MAX_TC(N) read_max_tc(N)
@@ -915,35 +939,24 @@ class Temperature {
     #if HAS_THERMAL_PROTECTION
 
       // Indices and size for the tr_state_machine array. One for each protected heater.
-      #define _ENUM_FOR_E(N) RUNAWAY_IND_E##N,
-      enum RunawayIndex : uint8_t {
+      enum RunawayIndex : int8_t {
+        _RI = -1
         #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-          REPEAT(HOTENDS, _ENUM_FOR_E)
+          #define _RUNAWAY_IND_E(N) ,RUNAWAY_IND_E##N
+          REPEAT(HOTENDS, _RUNAWAY_IND_E)
+          #undef _RUNAWAY_IND_E
         #endif
-        #if ENABLED(HAS_THERMALLY_PROTECTED_BED)
-          RUNAWAY_IND_BED,
-        #endif
-        #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-          RUNAWAY_IND_CHAMBER,
-        #endif
-        #if ENABLED(THERMAL_PROTECTION_COOLER)
-          RUNAWAY_IND_COOLER,
-        #endif
-        NR_HEATER_RUNAWAY
+        OPTARG(HAS_THERMALLY_PROTECTED_BED, RUNAWAY_IND_BED)
+        OPTARG(THERMAL_PROTECTION_CHAMBER, RUNAWAY_IND_CHAMBER)
+        OPTARG(THERMAL_PROTECTION_COOLER, RUNAWAY_IND_COOLER)
+        , NR_HEATER_RUNAWAY
       };
-      #undef _ENUM_FOR_E
 
       // Convert the given heater_id_t to runaway state array index
       static inline RunawayIndex runaway_index_for_id(const int8_t heater_id) {
-        #if HAS_THERMALLY_PROTECTED_CHAMBER
-          if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER;
-        #endif
-        #if HAS_THERMALLY_PROTECTED_CHAMBER
-          if (heater_id == H_COOLER) return RUNAWAY_IND_COOLER;
-        #endif
-        #if HAS_THERMALLY_PROTECTED_BED
-          if (heater_id == H_BED) return RUNAWAY_IND_BED;
-        #endif
+        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
+        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
+        TERN_(HAS_THERMALLY_PROTECTED_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
         return (RunawayIndex)_MAX(heater_id, 0);
       }
 

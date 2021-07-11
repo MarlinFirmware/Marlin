@@ -133,7 +133,7 @@ void GcodeSuite::M420() {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  const bool seenV = parser.seen('V');
+  const bool seenV = parser.seen_test('V');
 
   #if HAS_MESH
 

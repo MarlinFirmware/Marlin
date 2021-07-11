@@ -80,15 +80,11 @@ public:
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
     void commit_command(bool skip_ok
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
     bool enqueue(const char *cmd, bool skip_ok = true
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
     void ok_to_send();

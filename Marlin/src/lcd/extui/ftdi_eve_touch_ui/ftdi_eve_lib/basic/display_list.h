@@ -64,14 +64,14 @@ namespace FTDI {
   inline uint32_t CLEAR_COLOR_A(uint8_t alpha)                 {return DL::CLEAR_COLOR_A|(alpha&255UL);}
   inline uint32_t CLEAR_COLOR_RGB(uint8_t red, uint8_t green, uint8_t blue)
                                                                {return DL::CLEAR_COLOR_RGB|((red&255UL)<<16)|((green&255UL)<<8)|(blue&255UL);}
-  inline uint32_t CLEAR_COLOR_RGB(uint32_t rgb)                {return DL::CLEAR_COLOR_RGB|rgb;}
+  inline uint32_t CLEAR_COLOR_RGB(uint32_t rgb)                {return DL::CLEAR_COLOR_RGB|(rgb&0xFFFFFF);}
   inline uint32_t CLEAR_STENCIL(uint8_t s)                     {return DL::CLEAR_STENCIL|(s&255UL);}
   inline uint32_t CLEAR_TAG(uint8_t s)                         {return DL::CLEAR_TAG|(s&255UL);}
   inline uint32_t COLOR_A(uint8_t alpha)                       {return DL::COLOR_A|(alpha&255UL);}
   inline uint32_t COLOR_MASK(bool r, bool g, bool b, bool a)   {return DL::COLOR_MASK|((r?1UL:0UL)<<3)|((g?1UL:0UL)<<2)|((b?1UL:0UL)<<1)|(a?1UL:0UL);}
   inline uint32_t COLOR_RGB(uint8_t red,uint8_t green,uint8_t blue)
                                                                {return DL::COLOR_RGB|((red&255UL)<<16)|((green&255UL)<<8)|(blue&255UL);}
-  inline uint32_t COLOR_RGB(uint32_t rgb)                      {return DL::COLOR_RGB|rgb;}
+  inline uint32_t COLOR_RGB(uint32_t rgb)                      {return DL::COLOR_RGB|(rgb&0xFFFFFF);}
   /* inline uint32_t DISPLAY()                                 {return (0UL<<24)) */
   inline uint32_t END()                                        {return DL::END;}
   inline uint32_t JUMP(uint16_t dest)                          {return DL::JUMP|(dest&65535UL);}

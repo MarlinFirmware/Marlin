@@ -28,7 +28,14 @@
 #define BOARD_INFO_NAME      "Lerdge K"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define I2C_EEPROM
+// EEPROM
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PG14
+  #define I2C_SDA_PIN                       PG13
+  #define MARLIN_EEPROM_SIZE             0x10000
+#endif
 
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
@@ -36,7 +43,7 @@
 //
 // Servos
 //
-//#define SERVO0_PIN                        PB11
+#define SERVO0_PIN                          PB11
 
 //
 // Limit Switches
@@ -94,6 +101,13 @@
 #define E1_ENABLE_PIN                       PF2
 //#ifndef E1_CS_PIN
 //  #define E1_CS_PIN                       PE4
+//#endif
+
+//#define E2_STEP_PIN                       PF4  // best guess
+//#define E2_DIR_PIN                        PF3  // best guess
+//#define E2_ENABLE_PIN                     PF5  // best guess
+//#ifndef E2_CS_PIN
+//  #define E2_CS_PIN                       PB2  // best guess
 //#endif
 
 #if HAS_TMC_UART
@@ -163,12 +177,18 @@
 #ifndef FAN_PIN
   #define FAN_PIN                           PF7
 #endif
+
 #define FAN1_PIN                            PF6
-#define FAN2_PIN                            PF8
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PF6
+  #define E0_AUTO_FAN_PIN                   PB1
 #endif
+
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                   PB0
+#endif
+
+#define CONTROLLER_FAN_PIN                  PF8
 
 //
 // LED / Lighting
@@ -177,10 +197,10 @@
 //#define CASE_LIGHT_PIN_DO                 -1
 //#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN                     PB7
+  #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
 #endif
 #ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN                     PB8
+  #define RGB_LED_G_PIN                     PB7
 #endif
 #ifndef RGB_LED_B_PIN
   #define RGB_LED_B_PIN                     PB9
@@ -197,7 +217,7 @@
 //
 #define SDSS                                PC11
 #define LED_PIN                             PA15  // Alive
-#define PS_ON_PIN                           -1
+#define PS_ON_PIN                           PA4
 #define KILL_PIN                            -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
@@ -213,17 +233,23 @@
 // LCD / Controller
 //
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+#if HAS_FSMC_TFT
+  //#define TFT_DRIVER             LERDGE_ST7796
 
-#define TFT_CS_PIN                          PD7
-#define TFT_RS_PIN                          PD11
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define TOUCH_CS_PIN                        PG15
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+  #define TFT_CS_PIN                        PD7
+  #define TFT_RS_PIN                        PD11
 
-#define BTN_EN1                             PG10
-#define BTN_EN2                             PG11
-#define BTN_ENC                             PG9
+  #define TOUCH_CS_PIN                      PG15
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
+
+#if IS_NEWPANEL
+  #define BTN_EN1                           PG10
+  #define BTN_EN2                           PG11
+  #define BTN_ENC                           PG9
+#endif

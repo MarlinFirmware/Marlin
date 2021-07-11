@@ -243,8 +243,9 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   #endif
 
   void Probe::set_probing_paused(const bool dopause) {
-    TERN_(PROBING_HEATERS_OFF, thermalManager.pause(dopause));
+    TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
+    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) disable_e_steppers());
     #if ENABLED(PROBING_STEPPERS_OFF)
       IF_DISABLED(DELTA, static uint8_t old_trusted);
       if (dopause) {
@@ -253,7 +254,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
           DISABLE_AXIS_X();
           DISABLE_AXIS_Y();
         #endif
-        disable_e_steppers();
+        IF_DISABLED(PROBING_ESTEPPERS_OFF, disable_e_steppers());
       }
       else {
         #if DISABLED(DELTA)
@@ -384,7 +385,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     DEBUG_EOL();
 
     TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
-    TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW))    thermalManager.wait_for_bed_heating());
+    TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
   }
 
 #endif
@@ -507,9 +508,9 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Check to see if the probe was triggered
   const bool probe_triggered =
     #if BOTH(DELTA, SENSORLESS_PROBING)
-      endstops.trigger_state() & (_BV(X_MIN) | _BV(Y_MIN) | _BV(Z_MIN))
+      endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX))
     #else
-      TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))
+      TEST(endstops.trigger_state(), Z_MIN_PROBE)
     #endif
   ;
 

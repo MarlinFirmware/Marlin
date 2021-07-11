@@ -26,12 +26,12 @@
  * Nextion TFT support for Marlin
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(NEXTION_TFT)
 
-#include "ui_api.h"
-#include "lib/nextion/nextion_tft.h"
+#include "../ui_api.h"
+#include "nextion_tft.h"
 
 namespace ExtUI {
 

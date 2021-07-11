@@ -40,12 +40,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             38
-#define X_MAX_PIN                             -1
-#define Y_MIN_PIN                             34
-#define Y_MAX_PIN                             -1
-#define Z_MIN_PIN                             30
-#define Z_MAX_PIN                             -1
+#define X_STOP_PIN                            38
+#define Y_STOP_PIN                            34
+#define Z_STOP_PIN                            30
 
 //
 // Steppers
@@ -120,7 +117,10 @@
     #define BTN_EN2                           52
     #define BTN_ENC                           48
 
-    #define SDSS                               4
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
+
     #define SD_DETECT_PIN                     14
 
   #elif ENABLED(RADDS_DISPLAY)
@@ -133,8 +133,6 @@
 
     #define BTN_BACK                          71
 
-    #undef SDSS
-    #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
   #elif HAS_U8GLIB_I2C_OLED
@@ -143,7 +141,7 @@
     #define BTN_EN2                           52
     #define BTN_ENC                           48
     #define BEEPER_PIN                        41
-    #define LCD_SDSS                           4
+    #define LCD_SDSS                        SDSS
     #define SD_DETECT_PIN                     14
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
@@ -158,20 +156,17 @@
 
     #define BEEPER_PIN                        -1
 
-   #elif ENABLED(MINIPANEL)
+  #elif ENABLED(MINIPANEL)
+
     #define BTN_EN1                           52
     #define BTN_EN2                           50
     #define BTN_ENC                           48
-    #define LCD_SDSS                           4
+    #define LCD_SDSS                        SDSS
     #define SD_DETECT_PIN                     14
     #define BEEPER_PIN                        41
     #define DOGLCD_A0                         46
     #define DOGLCD_CS                         45
 
-  #endif // SPARK_FULL_GRAPHICS
-
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
   #endif
 
 #endif // HAS_WIRED_LCD

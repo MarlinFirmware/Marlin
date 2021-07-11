@@ -625,7 +625,7 @@ void upload_spin() {
 
 // Try to upload the given file at the given address
 void SendUpdateFile(const char *file, uint32_t address) {
-  const char * const fname = card.diveToFile(true, update_curDir, ESP_FIRMWARE_FILE);
+  const char * const fname = card.diveToFile(false, update_curDir, ESP_FIRMWARE_FILE);
   if (!update_file.open(update_curDir, fname, O_READ)) return;
 
   esp_upload.fileSize = update_file.fileSize();
