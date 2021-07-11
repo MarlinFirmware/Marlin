@@ -21,7 +21,6 @@
  */
 #pragma once
 
-
 /**
  * Configuration.h
  *
@@ -116,7 +115,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 250000
+#define BAUDRATE 115200
 //#define BAUD_RATE_GCODE     // Enable G-code M575 to set the baud rate
 
 /**
@@ -133,17 +132,7 @@
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 //#define SERIAL_PORT_3 1
-
-/**
- * This setting determines the communication speed of the printer.
- *
- * 250000 works in most cases, but you might try a lower speed if
- * you commonly experience drop-outs during host printing.
- * You may try up to 1000000 to speed up SD file transfer.
- *
- * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
- */
-#define BAUDRATE 115200
+//#define BAUDRATE_3 250000   // Enable to override BAUDRATE
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -408,70 +397,92 @@
 // @section temperature
 
 /**
- * --NORMAL IS 4.7kohm PULLUP!-- 1kohm pullup can be used on hotend sensor, using correct resistor and table
+ * --NORMAL IS 4.7kΩ PULLUP!-- 1kΩ pullup can be used on hotend sensor, using correct resistor and table
  *
  * Temperature sensors available:
  *
- *    -5 : PT100 / PT1000 with MAX31865 (only for sensors 0-1)
- *    -3 : thermocouple with MAX31855 (only for sensors 0-1)
- *    -2 : thermocouple with MAX6675 (only for sensors 0-1)
- *    -4 : thermocouple with AD8495
- *    -1 : thermocouple with AD595
+ *  SPI RTD/Thermocouple Boards - IMPORTANT: Read the NOTE below!
+ *  -------
+ *    -5 : MAX31865 with Pt100/Pt1000, 2, 3, or 4-wire  (only for sensors 0-1)
+ *                  NOTE: You must uncomment/set the MAX31865_*_OHMS_n defines below.
+ *    -3 : MAX31855 with Thermocouple, -200°C to +700°C (only for sensors 0-1)
+ *    -2 : MAX6675  with Thermocouple, 0°C to +700°C    (only for sensors 0-1)
+ *
+ *  NOTE: Ensure TEMP_n_CS_PIN is set in your pins file for each TEMP_SENSOR_n using an SPI Thermocouple. By default,
+ *        Hardware SPI on the default serial bus is used. If you have also set TEMP_n_SCK_PIN and TEMP_n_MISO_PIN,
+ *        Software SPI will be used on those ports instead. You can force Hardware SPI on the default bus in the
+ *        Configuration_adv.h file. At this time, separate Hardware SPI buses for sensors are not supported.
+ *
+ *  Analog Themocouple Boards
+ *  -------
+ *    -4 : AD8495 with Thermocouple
+ *    -1 : AD595  with Thermocouple
+ *
+ *  Analog Thermistors - 4.7kΩ pullup - Normal
+ *  -------
+ *     1 : 100kΩ  EPCOS - Best choice for EPCOS thermistors
+ *   331 : 100kΩ  Same as #1, but 3.3V scaled for MEGA
+ *   332 : 100kΩ  Same as #1, but 3.3V scaled for DUE
+ *     2 : 200kΩ  ATC Semitec 204GT-2
+ *   202 : 200kΩ  Copymaster 3D
+ *     3 : ???Ω   Mendel-parts thermistor
+ *     4 : 10kΩ   Generic Thermistor !! DO NOT use for a hotend - it gives bad resolution at high temp. !!
+ *     5 : 100kΩ  ATC Semitec 104GT-2/104NT-4-R025H42G - Used in ParCan, J-Head, and E3D, SliceEngineering 300°C
+ *   501 : 100kΩ  Zonestar - Tronxy X3A
+ *   502 : 100kΩ  Zonestar - used by hot bed in Zonestar Průša P802M
+ *   512 : 100kΩ  RPW-Ultra hotend
+ *     6 : 100kΩ  EPCOS - Not as accurate as table #1 (created using a fluke thermocouple)
+ *     7 : 100kΩ  Honeywell 135-104LAG-J01
+ *    71 : 100kΩ  Honeywell 135-104LAF-J01
+ *     8 : 100kΩ  Vishay 0603 SMD NTCS0603E3104FXT
+ *     9 : 100kΩ  GE Sensing AL03006-58.2K-97-G1
+ *    10 : 100kΩ  RS PRO 198-961
+ *    11 : 100kΩ  Keenovo AC silicone mats, most Wanhao i3 machines - beta 3950, 1%
+ *    12 : 100kΩ  Vishay 0603 SMD NTCS0603E3104FXT (#8) - calibrated for Makibox hot bed
+ *    13 : 100kΩ  Hisens up to 300°C - for "Simple ONE" & "All In ONE" hotend - beta 3950, 1%
+ *    15 : 100kΩ  Calibrated for JGAurora A5 hotend
+ *    18 : 200kΩ  ATC Semitec 204GT-2 Dagoma.Fr - MKS_Base_DKU001327
+ *    22 : 100kΩ  GTM32 Pro vB - hotend - 4.7kΩ pullup to 3.3V and 220Ω to analog input
+ *    23 : 100kΩ  GTM32 Pro vB - bed - 4.7kΩ pullup to 3.3v and 220Ω to analog input
+ *    30 : 100kΩ  Kis3d Silicone heating mat 200W/300W with 6mm precision cast plate (EN AW 5083) NTC100K - beta 3950
+ *    60 : 100kΩ  Maker's Tool Works Kapton Bed Thermistor - beta 3950
+ *    61 : 100kΩ  Formbot/Vivedino 350°C Thermistor - beta 3950
+ *    66 : 4.7MΩ  Dyze Design High Temperature Thermistor
+ *    67 : 500kΩ  SliceEngineering 450°C Thermistor
+ *    70 : 100kΩ  bq Hephestos 2
+ *    75 : 100kΩ  Generic Silicon Heat Pad with NTC100K MGB18-104F39050L32
+ *
+ *  Analog Thermistors - 1kΩ pullup - Atypical, and requires changing out the 4.7kΩ pullup for 1kΩ.
+ *  -------                           (but gives greater accuracy and more stable PID)
+ *    51 : 100kΩ  EPCOS (1kΩ pullup)
+ *    52 : 200kΩ  ATC Semitec 204GT-2 (1kΩ pullup)
+ *    55 : 100kΩ  ATC Semitec 104GT-2 - Used in ParCan & J-Head (1kΩ pullup)
+ *
+ *  Analog Thermistors - 10kΩ pullup - Atypical
+ *  -------
+ *    99 : 100kΩ  Found on some Wanhao i3 machines with a 10kΩ pull-up resistor
+ *
+ *  Analog RTDs (Pt100/Pt1000)
+ *  -------
+ *   110 : Pt100  with 1kΩ pullup (atypical)
+ *   147 : Pt100  with 4.7kΩ pullup
+ *  1010 : Pt1000 with 1kΩ pullup (atypical)
+ *  1047 : Pt1000 with 4.7kΩ pullup (E3D)
+ *    20 : Pt100  with circuit in the Ultimainboard V2.x with mainboard ADC reference voltage = INA826 amplifier-board supply voltage.
+ *                NOTE: (1) Must use an ADC input with no pullup. (2) Some INA826 amplifiers are unreliable at 3.3V so consider using sensor 147, 110, or 21.
+ *    21 : Pt100  with circuit in the Ultimainboard V2.x with 3.3v ADC reference voltage (STM32, LPC176x....) and 5V INA826 amplifier board supply.
+ *                NOTE: ADC pins are not 5V tolerant. Not recommended because it's possible to damage the CPU by going over 500°C.
+ *   201 : Pt100  with circuit in Overlord, similar to Ultimainboard V2.x
+ *
+ *  Custom/Dummy/Other Thermal Sensors
+ *  ------
  *     0 : not used
- *     1 : 100k thermistor - best choice for EPCOS 100k (4.7k pullup)
- *   331 : (3.3V scaled thermistor 1 table for MEGA)
- *   332 : (3.3V scaled thermistor 1 table for DUE)
- *     2 : 200k thermistor - ATC Semitec 204GT-2 (4.7k pullup)
- *   202 : 200k thermistor - Copymaster 3D
- *     3 : Mendel-parts thermistor (4.7k pullup)
- *     4 : 10k thermistor !! do not use it for a hotend. It gives bad resolution at high temp. !!
- *     5 : 100K thermistor - ATC Semitec 104GT-2/104NT-4-R025H42G (Used in ParCan, J-Head, and E3D) (4.7k pullup)
- *   501 : 100K Zonestar (Tronxy X3A) Thermistor
- *   502 : 100K Zonestar Thermistor used by hot bed in Zonestar Průša P802M
- *   512 : 100k RPW-Ultra hotend thermistor (4.7k pullup)
- *     6 : 100k EPCOS - Not as accurate as table 1 (created using a fluke thermocouple) (4.7k pullup)
- *     7 : 100k Honeywell thermistor 135-104LAG-J01 (4.7k pullup)
- *    71 : 100k Honeywell thermistor 135-104LAF-J01 (4.7k pullup)
- *     8 : 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
- *     9 : 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
- *    10 : 100k RS thermistor 198-961 (4.7k pullup)
- *    11 : 100k beta 3950 1% thermistor (Used in Keenovo AC silicone mats and most Wanhao i3 machines) (4.7k pullup)
- *    12 : 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
- *    13 : 100k Hisens 3950  1% up to 300°C for hotend "Simple ONE " & "Hotend "All In ONE"
- *    15 : 100k thermistor calibration for JGAurora A5 hotend
- *    18 : ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327
- *    20 : Pt100 with circuit in the Ultimainboard V2.x with mainboard ADC reference voltage = INA826 amplifier-board supply voltage.
- *         NOTES: (1) Must use an ADC input with no pullup. (2) Some INA826 amplifiers are unreliable at 3.3V so consider using sensor 147, 110, or 21.
- *    21 : Pt100 with circuit in the Ultimainboard V2.x with 3.3v ADC reference voltage (STM32, LPC176x....) and 5V INA826 amplifier board supply.
- *         NOTE: ADC pins are not 5V tolerant. Not recommended because it's possible to damage the CPU by going over 500°C.
- *    22 : 100k (hotend) with 4.7k pullup to 3.3V and 220R to analog input (as in GTM32 Pro vB)
- *    23 : 100k (bed) with 4.7k pullup to 3.3v and 220R to analog input (as in GTM32 Pro vB)
- *    30 : Kis3d Silicone heating mat 200W/300W with 6mm precision cast plate (EN AW 5083) NTC100K / B3950 (4.7k pullup)
- *   201 : Pt100 with circuit in Overlord, similar to Ultimainboard V2.x
- *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
- *    61 : 100k Formbot / Vivedino 3950 350C thermistor 4.7k pullup
- *    66 : 4.7M High Temperature thermistor from Dyze Design
- *    67 : 450C thermistor from SliceEngineering
- *    70 : the 100K thermistor found in the bq Hephestos 2
- *    75 : 100k Generic Silicon Heat Pad with NTC 100K MGB18-104F39050L32 thermistor
- *    99 : 100k thermistor with a 10K pull-up resistor (found on some Wanhao i3 machines)
- *
- *       1k ohm pullup tables - This is atypical, and requires changing out the 4.7k pullup for 1k.
- *                              (but gives greater accuracy and more stable PID)
- *    51 : 100k thermistor - EPCOS (1k pullup)
- *    52 : 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
- *    55 : 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
- *
- *  1047 : Pt1000 with 4k7 pullup (E3D)
- *  1010 : Pt1000 with 1k pullup (non standard)
- *   147 : Pt100 with 4k7 pullup
- *   110 : Pt100 with 1k pullup (non standard)
- *
  *  1000 : Custom - Specify parameters in Configuration_adv.h
  *
- *         Use these for Testing or Development purposes. NEVER for production machine.
+ *   !!! Use these for Testing or Development purposes. NEVER for production machine. !!!
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
+ *
  */
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
@@ -485,10 +496,11 @@
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_COOLER 0
+#define TEMP_SENSOR_BOARD 0
 #define TEMP_SENSOR_REDUNDANT 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
-#define DUMMY_THERMISTOR_998_VALUE 25
+#define DUMMY_THERMISTOR_998_VALUE  25
 #define DUMMY_THERMISTOR_999_VALUE 100
 
 // Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1
@@ -517,17 +529,11 @@
  * the print will be aborted. Whichever sensor is selected will have its normal functions disabled; i.e. selecting
  * the Bed sensor (-1) will disable bed heating/monitoring.
  *
- * Use the following to select temp sensors:
- *    -5 : Cooler
- *    -4 : Probe
- *    -3 : not used
- *    -2 : Chamber
- *    -1 : Bed
- *   0-7 : E0 through E7
+ * For selecting source/target use: COOLER, PROBE, BOARD, CHAMBER, BED, E0, E1, E2, E3, E4, E5, E6, E7
  */
 #if TEMP_SENSOR_REDUNDANT
-  #define TEMP_SENSOR_REDUNDANT_SOURCE     1  // The sensor that will provide the redundant reading.
-  #define TEMP_SENSOR_REDUNDANT_TARGET     0  // The sensor that we are providing a redundant reading for.
+  #define TEMP_SENSOR_REDUNDANT_SOURCE    E1  // The sensor that will provide the redundant reading.
+  #define TEMP_SENSOR_REDUNDANT_TARGET    E0  // The sensor that we are providing a redundant reading for.
   #define TEMP_SENSOR_REDUNDANT_MAX_DIFF  10  // (°C) Temperature difference that will trigger a print abort.
 #endif
 
@@ -541,7 +547,7 @@
 #define HEATER_5_MINTEMP   5
 #define HEATER_6_MINTEMP   5
 #define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        5
+#define BED_MINTEMP        0
 #define CHAMBER_MINTEMP    5
 
 // Above this temperature the heater will be switched off.
@@ -731,7 +737,7 @@
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 //#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
-//#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
+#define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -850,6 +856,9 @@
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
+//#define I_DRIVER_TYPE  A4988
+//#define J_DRIVER_TYPE  A4988
+//#define K_DRIVER_TYPE  A4988
 #define E0_DRIVER_TYPE TMC2208_STANDALONE
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
@@ -1008,7 +1017,7 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 // Force the use of the probe for Z-axis homing
 //#define USE_PROBE_FOR_Z_HOMING
@@ -1049,12 +1058,6 @@
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
 //#define FIX_MOUNTED_PROBE
-
-/**
- * Use the nozzle as the probe, with the hotend
- * assembly attached to a sensitive strain gauge.
- */
-//#define STRAIN_GAUGE_PROBE
 
 /**
  * Use the nozzle as the probe, as with a conductive
@@ -1308,6 +1311,9 @@
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
+//#define INVERT_I_DIR false
+//#define INVERT_J_DIR false
+//#define INVERT_K_DIR false
 
 // @section extruder
 
@@ -1350,8 +1356,8 @@
 // @section machine
 
 // The size of the printable area
-#define X_BED_SIZE 200
-#define Y_BED_SIZE 200
+#define X_BED_SIZE 220
+#define Y_BED_SIZE 220
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1360,6 +1366,12 @@
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 250
+//#define I_MIN_POS 0
+//#define I_MAX_POS 50
+//#define J_MIN_POS 0
+//#define J_MAX_POS 50
+//#define K_MIN_POS 0
+//#define K_MAX_POS 50
 
 /**
  * Software Endstops
@@ -1411,7 +1423,7 @@
  */
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_ENABLED_DEFAULT false // Enable the sensor on startup. Override with M412 followed by M500.
+  #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
   #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
@@ -1461,7 +1473,7 @@
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  #define FILAMENT_RUNOUT_DISTANCE_MM 0
+  //#define FILAMENT_RUNOUT_DISTANCE_MM 25
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     // Enable this option to use an encoder disc that toggles the runout pin
@@ -1565,10 +1577,11 @@
   //#define G26_MESH_VALIDATION
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
-    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for the G26 Mesh Validation Tool.
-    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for the G26 Mesh Validation Tool.
-    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for the G26 Mesh Validation Tool.
-    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for XY Moves for the G26 Mesh Validation Tool.
+    #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
+    #define MESH_TEST_HOTEND_TEMP  205    // (°C) Default nozzle temperature for G26.
+    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for G26.
+    #define G26_XY_FEEDRATE         20    // (mm/s) Feedrate for G26 XY moves.
+    #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
     #define G26_RETRACT_MULTIPLIER   1.0  // G26 Q (retraction) used by default between mesh test elements.
   #endif
 
@@ -1663,6 +1676,25 @@
     #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
     //#define LEVEL_CORNERS_AUDIO_FEEDBACK
   #endif
+
+  /**
+   * Corner Leveling Order
+   *
+   * Set 2 or 4 points. When 2 points are given, the 3rd is the center of the opposite edge.
+   *
+   *  LF  Left-Front    RF  Right-Front
+   *  LB  Left-Back     RB  Right-Back
+   *
+   * Examples:
+   *
+   *      Default        {LF,RB,LB,RF}         {LF,RF}           {LB,LF}
+   *  LB --------- RB   LB --------- RB    LB --------- RB   LB --------- RB
+   *  |  4       3  |   | 3         2 |    |     <3>     |   | 1           |
+   *  |             |   |             |    |             |   |          <3>|
+   *  |  1       2  |   | 1         4 |    | 1         2 |   | 2           |
+   *  LF --------- RF   LF --------- RF    LF --------- RF   LF --------- RF
+   */
+  #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, RB, LB }
 #endif
 
 /**
@@ -1966,6 +1998,9 @@
  * View the current statistics with M78.
  */
 //#define PRINTCOUNTER
+#if ENABLED(PRINTCOUNTER)
+  #define PRINTCOUNTER_SAVE_INTERVAL 60 // (minutes) EEPROM save interval during print
+#endif
 
 /**
  * Password
@@ -2010,9 +2045,9 @@
  * Select the language to display on the LCD. These languages are available:
  *
  *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, hu, it,
- *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
+ *   jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, sv, tr, uk, vi, zh_CN, zh_TW
  *
- * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'sv':'Swedish', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)' }
  */
 #define LCD_LANGUAGE en
 
@@ -2381,6 +2416,11 @@
 //#define MKS_MINI_12864
 
 //
+// MKS MINI12864 V3 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+//
+//#define MKS_MINI_12864_V3
+
+//
 // MKS LCD12864A/B with graphic controller and SD support. Follows MKS_MINI_12864 pinout.
 // https://www.aliexpress.com/item/33018110072.html
 //
@@ -2548,13 +2588,19 @@
 #endif
 
 //
+// PanelDue touch controller by Escher3D
+// http://escher3d.com/pages/order/products/product2.php
+//
+//#define PANELDUE
+
+//
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
 //#define EXTENSIBLE_UI
 
 #if ENABLED(EXTENSIBLE_UI)
-  #define EXTUI_LOCAL_BEEPER // Enables use of local Beeper pin with external display
+  //#define EXTUI_LOCAL_BEEPER // Enables use of local Beeper pin with external display
 #endif
 
 //=============================================================================
@@ -2669,6 +2715,10 @@
 //#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
 
+#if ENABLED(TFT_LVGL_UI)
+  //#define MKS_WIFI_MODULE  // MKS WiFi module
+#endif
+
 /**
  * TFT Rotation. Set to one of the following values:
  *
@@ -2710,6 +2760,10 @@
   //#define TOUCH_OFFSET_X        -43
   //#define TOUCH_OFFSET_Y        257
   //#define TOUCH_ORIENTATION TOUCH_LANDSCAPE
+
+  #if BOTH(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
+    #define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
+  #endif
 
   #if ENABLED(TFT_COLOR_UI)
     //#define SINGLE_TOUCH_NAVIGATION
@@ -2805,8 +2859,8 @@
 // Support for Adafruit NeoPixel LED driver
 //#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  //#define NEOPIXEL_PIN     4     // LED driving pin
+  #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_PIN    PB2      // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
   #define NEOPIXEL_PIXELS 4        // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)

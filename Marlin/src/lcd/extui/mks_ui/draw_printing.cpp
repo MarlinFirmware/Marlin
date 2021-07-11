@@ -49,7 +49,7 @@ static lv_obj_t *labelPause, *labelStop, *labelOperat;
 static lv_obj_t *bar1, *bar1ValueText;
 static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonExt1, *buttonExt2, *buttonBedstate, *buttonFanstate, *buttonZpos;
 
-#if ENABLED(HAS_MULTI_EXTRUDER)
+#if HAS_MULTI_EXTRUDER
   static lv_obj_t *labelExt2;
 #endif
 

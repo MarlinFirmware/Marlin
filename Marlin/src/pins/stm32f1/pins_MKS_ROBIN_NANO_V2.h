@@ -231,10 +231,19 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define SDIO_SUPPORT
-#define SDIO_CLOCK                       4500000  // 4.5 MHz
-#define SD_DETECT_PIN                       PD12
-#define ONBOARD_SD_CS_PIN                   PC11
+#if SD_CONNECTION_IS(ONBOARD)
+  #define SDIO_SUPPORT
+  #define SDIO_CLOCK                     4500000  // 4.5 MHz
+  #define SD_DETECT_PIN                     PD12
+  #define ONBOARD_SD_CS_PIN                 PC11
+#elif SD_CONNECTION_IS(LCD)
+  #define ENABLE_SPI1
+  #define SDSS                              PE10
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+  #define SD_DETECT_PIN                     PE12
+#endif
 
 //
 // LCD / Controller
@@ -291,8 +300,13 @@
 #endif
 
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
-
-  // NON TFT Displays
+  #define BEEPER_PIN                        PC5
+  #define BTN_ENC                           PE13
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
+  #define LCD_BACKLIGHT_PIN                 -1
 
   #if ENABLED(MKS_MINI_12864)
 
@@ -317,6 +331,19 @@
 
     #ifndef BEEPER_PIN
       #define BEEPER_PIN                    -1
+    #endif
+
+  #elif ENABLED(MKS_MINI_12864_V3)
+    #define DOGLCD_CS                       PD13
+    #define DOGLCD_A0                       PC6
+    #define LCD_PINS_DC                DOGLCD_A0
+    #define LCD_BACKLIGHT_PIN               -1
+    #define LCD_RESET_PIN                   PE14
+    #define NEOPIXEL_PIN                    PE15
+    #define DOGLCD_MOSI                     PA7
+    #define DOGLCD_SCK                      PA5
+    #if SD_CONNECTION_IS(ONBOARD)
+      #define FORCE_SOFT_SPI
     #endif
 
   #else                                           // !MKS_MINI_12864

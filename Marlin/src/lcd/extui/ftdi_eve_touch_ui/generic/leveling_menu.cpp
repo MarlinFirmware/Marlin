@@ -105,9 +105,17 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     #if EITHER(Z_STEPPER_AUTO_ALIGN,MECHANICAL_GANTRY_CALIBRATION)
     case 2: SpinnerDialogBox::enqueueAndWait_P(F("G34")); break;
     #endif
-    case 3:
-    #ifndef BED_LEVELING_COMMANDS
-      #define BED_LEVELING_COMMANDS "G29"
+    #if HAS_BED_PROBE
+      case 3:
+        #ifndef BED_LEVELING_COMMANDS
+          #define BED_LEVELING_COMMANDS "G29"
+        #endif
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          BedMeshViewScreen::doProbe();
+        #else
+          SpinnerDialogBox::enqueueAndWait_P(F(BED_LEVELING_COMMANDS));
+        #endif
+        break;
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       BedMeshViewScreen::doProbe();
