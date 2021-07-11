@@ -636,10 +636,10 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       #endif
     #endif
     #if HAS_CUSTOM_USER_BUTTON(13)
-      #ifdef BUTTON2_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(2);
+      #ifdef BUTTON13_DESC
+        CHECK_CUSTOM_USER_BUTTON_MSG(13);
       #else
-        CHECK_CUSTOM_USER_BUTTON(2);
+        CHECK_CUSTOM_USER_BUTTON(13);
       #endif
     #endif
     #if HAS_CUSTOM_USER_BUTTON(14)
