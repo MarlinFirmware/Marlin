@@ -190,10 +190,10 @@ static uint16_t _remain_time = 0;
 static bool sdprint = false;
 
 #if ENABLED(PAUSE_HEAT)
-  #if ENABLED(HAS_HOTEND)
+  #if HAS_HOTEND
     uint16_t resume_hotend_temp = 0;
   #endif
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     uint16_t resume_bed_temp = 0;
   #endif
 #endif

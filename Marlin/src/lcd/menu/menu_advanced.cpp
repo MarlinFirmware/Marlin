@@ -58,7 +58,7 @@
 void menu_tmc();
 void menu_backlash();
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
 
   #include "../../feature/dac/stepper_dac.h"
 
@@ -590,7 +590,7 @@ void menu_advanced_settings() {
     SUBMENU(MSG_BACKLASH, menu_backlash);
   #endif
 
-  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+  #if HAS_MOTOR_CURRENT_DAC
     SUBMENU(MSG_DRIVE_STRENGTH, menu_dac);
   #endif
   #if HAS_MOTOR_CURRENT_PWM

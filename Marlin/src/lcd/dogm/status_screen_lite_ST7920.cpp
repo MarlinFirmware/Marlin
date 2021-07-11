@@ -536,7 +536,7 @@ void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool 
 static struct {
   bool E1_show_target  : 1;
   bool E2_show_target  : 1;
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     bool bed_show_target : 1;
   #endif
 } display_state = {

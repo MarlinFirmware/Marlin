@@ -86,7 +86,7 @@ int calculateWidth(PGM_P const pstr) {
   const uint8_t prop = 2;
   uint8_t *p = (uint8_t*)pstr;
   int n = 0;
- 
+
   do {
     wchar_t ch;
     p = get_utf8_value_cb(p, read_byte_rom, &ch);

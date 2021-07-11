@@ -60,7 +60,7 @@
 
 #if HAS_MARLINUI_U8GLIB
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #include "../../../MarlinCore.h"
 
