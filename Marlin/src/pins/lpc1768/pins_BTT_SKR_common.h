@@ -65,7 +65,7 @@
   #define TEMP_BED_PIN                  P0_23_A0  // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
 
-#if HOTENDS == 1 && TEMP_SENSOR_REDUNDANT_SOURCE != 1
+#if HOTENDS == 1 && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
