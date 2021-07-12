@@ -158,6 +158,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #include "../feature/power_monitor.h"
   #endif
 
+  #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+    #include "../feature/power.h"
+  #endif
+
   #if HAS_ENCODER_ACTION
     volatile uint8_t MarlinUI::buttons;
     #if HAS_SLOW_BUTTONS
@@ -826,8 +830,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     static uint16_t max_display_update_time = 0;
     millis_t ms = millis();
 
-    #ifdef LED_BACKLIGHT_TIMEOUT
-      leds.update_timeout(powersupply_on);
+    #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+      leds.update_timeout(powerManager.psu_on);
     #endif
 
     #if HAS_LCD_MENU
@@ -976,8 +980,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
           refresh(LCDVIEW_REDRAW_NOW);
 
-          #ifdef LED_BACKLIGHT_TIMEOUT
-            if (!powersupply_on) leds.reset_timeout(ms);
+          #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+            if (!powerManager.psu_on) leds.reset_timeout(ms);
           #endif
         }
 
