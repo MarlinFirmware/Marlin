@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
 
 #include "stepper_dac.h"
 #include "../../MarlinCore.h" // for SP_X_LBL...
