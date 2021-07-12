@@ -1530,7 +1530,7 @@ void Planner::check_axes_activity() {
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
 
   void Planner::enable_stall_prevention(const bool onoff) {
-    static motion_state_s saved_motion_state;
+    static motion_state_t saved_motion_state;
     if (onoff) {
       saved_motion_state.acceleration.x = settings.max_acceleration_mm_per_s2[X_AXIS];
       saved_motion_state.acceleration.y = settings.max_acceleration_mm_per_s2[Y_AXIS];

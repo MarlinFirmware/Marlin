@@ -282,7 +282,7 @@ typedef struct {
 } planner_settings_t;
 
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-  struct motion_state_s {
+  struct motion_state_t {
     TERN(DELTA, xyz_ulong_t, xy_ulong_t) acceleration;
     #if HAS_CLASSIC_JERK
       TERN(DELTA, xyz_float_t, xy_float_t) jerk_state;
