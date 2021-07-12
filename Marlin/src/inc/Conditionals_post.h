@@ -1135,6 +1135,23 @@
   #endif
 #endif
 
+#if TEMP_SENSOR_BOARD == -4
+  #define TEMP_SENSOR_BOARD_IS_AD8495 1
+#elif TEMP_SENSOR_BOARD == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_BOARD."
+#elif TEMP_SENSOR_BOARD == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BOARD."
+#elif TEMP_SENSOR_BOARD == -1
+  #define TEMP_SENSOR_BOARD_IS_AD595 1
+#elif TEMP_SENSOR_BOARD > 0
+  #define TEMP_SENSOR_BOARD_IS_THERMISTOR 1
+  #if TEMP_SENSOR_BOARD == 1000
+    #define TEMP_SENSOR_BOARD_IS_CUSTOM 1
+  #elif TEMP_SENSOR_BOARD == 998 || TEMP_SENSOR_BOARD == 999
+    #define TEMP_SENSOR_BOARD_IS_DUMMY 1
+  #endif
+#endif
+
 /**
  * X_DUAL_ENDSTOPS endstop reassignment
  */
