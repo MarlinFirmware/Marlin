@@ -212,6 +212,11 @@
 // If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
 //#define EZNEO_220
 
+// EZNeo Manual IO Pin Setting ----------------------------------------------
+// If you have the EZNeo wired to a different IO pin or you are using your own 5V power provided, specify the pin used below.
+// P0_03 is the default and located RX pin (1) on the serial header, this is what the EZNeo power adapter for the EZBoard Lite uses.
+//#define NEOPIXEL_PIN P0_03
+
 // CoreXY Printer Setting ---------------------------------------------------
 // If you are using the board in a CoreXY printer, uncomment the below line and make sure you have your motors connected and mounted to the correct locations
 //#define COREXY
@@ -572,7 +577,9 @@
   #define NEOPIXEL_LED
   #if ENABLED(NEOPIXEL_LED)
     #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-    #define NEOPIXEL_PIN    P0_03    // LED driving pin
+    #ifndef NEOPIXEL_PIN
+      #define NEOPIXEL_PIN    P0_03    // LED driving pin
+    #endif
     //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
     //#define NEOPIXEL2_PIN    5
     #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
