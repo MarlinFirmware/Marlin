@@ -111,6 +111,10 @@ void Power::power_off() {
 
 #if ENABLED(AUTO_POWER_CONTROL)
 
+  #ifndef POWER_TIMEOUT
+    #define POWER_TIMEOUT 0
+  #endif
+
   /**
    * Check all conditions that would signal power needing to be on.
    *
