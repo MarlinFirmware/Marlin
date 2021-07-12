@@ -522,209 +522,149 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #if ENABLED(CUSTOM_USER_BUTTONS)
     // Handle a custom user button if defined
     const bool printer_not_busy = !printingIsActive();
+    const millis_t ms = millis();
     #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE))
-    #define CHECK_CUSTOM_USER_BUTTON(N) do{                            \
+    #define HAS_BETTER_USER_BUTTON(N) HAS_CUSTOM_USER_BUTTON(N) && defined(BUTTON##N##_DESC)
+    #define _CHECK_CUSTOM_USER_BUTTON(N, CODE) do{                     \
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
       static millis_t next_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
         && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
-        const millis_t ms = millis();                                  \
         if (ELAPSED(ms, next_cub_ms_##N)) {                            \
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
+          CODE;                                                        \
           queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
         }                                                              \
       }                                                                \
     }while(0)
 
-    #define CHECK_CUSTOM_USER_BUTTON_MSG(N) do{                        \
-      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
-      static millis_t next_cub_ms_##N;                                 \
-      if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
-        && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
-        const millis_t ms = millis();                                  \
-        if (ELAPSED(ms, next_cub_ms_##N)) {                            \
-          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
-          if (strlen(BUTTON##N##_DESC))                                \
-            LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC));                  \
-          queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
-        }                                                              \
-      }                                                                \
-    }while(0)
+    #define CHECK_CUSTOM_USER_BUTTON(N)     _CHECK_CUSTOM_USER_BUTTON(N, NOOP)
+    #define CHECK_BETTER_USER_BUTTON(N) _CHECK_CUSTOM_USER_BUTTON(N, if (strlen(BUTTON##N##_DESC)) LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC)))
 
-    #if HAS_CUSTOM_USER_BUTTON(1)
-      #ifdef BUTTON1_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(1);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(1);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(1)
+      CHECK_BETTER_USER_BUTTON(1);
+    #elif HAS_CUSTOM_USER_BUTTON(1)
+      CHECK_CUSTOM_USER_BUTTON(1);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(2)
-      #ifdef BUTTON2_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(2);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(2);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(2)
+      CHECK_BETTER_USER_BUTTON(2);
+    #elif HAS_CUSTOM_USER_BUTTON(2)
+      CHECK_CUSTOM_USER_BUTTON(2);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(3)
-      #ifdef BUTTON3_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(3);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(3);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(3)
+      CHECK_BETTER_USER_BUTTON(3);
+    #elif HAS_CUSTOM_USER_BUTTON(3)
+      CHECK_CUSTOM_USER_BUTTON(3);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(4)
-      #ifdef BUTTON4_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(4);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(4);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(4)
+      CHECK_BETTER_USER_BUTTON(4);
+    #elif HAS_CUSTOM_USER_BUTTON(4)
+      CHECK_CUSTOM_USER_BUTTON(4);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(5)
-      #ifdef BUTTON5_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(5);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(5);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(5)
+      CHECK_BETTER_USER_BUTTON(5);
+    #elif HAS_CUSTOM_USER_BUTTON(5)
+      CHECK_CUSTOM_USER_BUTTON(5);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(6)
-      #ifdef BUTTON6_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(6);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(6);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(6)
+      CHECK_BETTER_USER_BUTTON(6);
+    #elif HAS_CUSTOM_USER_BUTTON(6)
+      CHECK_CUSTOM_USER_BUTTON(6);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(7)
-      #ifdef BUTTON7_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(7);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(7);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(7)
+      CHECK_BETTER_USER_BUTTON(7);
+    #elif HAS_CUSTOM_USER_BUTTON(7)
+      CHECK_CUSTOM_USER_BUTTON(7);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(8)
-      #ifdef BUTTON8_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(8);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(8);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(8)
+      CHECK_BETTER_USER_BUTTON(8);
+    #elif HAS_CUSTOM_USER_BUTTON(8)
+      CHECK_CUSTOM_USER_BUTTON(8);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(9)
-      #ifdef BUTTON9_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(9);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(9);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(9)
+      CHECK_BETTER_USER_BUTTON(9);
+    #elif HAS_CUSTOM_USER_BUTTON(9)
+      CHECK_CUSTOM_USER_BUTTON(9);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(10)
-      #ifdef BUTTON10_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(10);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(10);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(10)
+      CHECK_BETTER_USER_BUTTON(10);
+    #elif HAS_CUSTOM_USER_BUTTON(10)
+      CHECK_CUSTOM_USER_BUTTON(10);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(11)
-      #ifdef BUTTON11_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(11);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(11);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(11)
+      CHECK_BETTER_USER_BUTTON(11);
+    #elif HAS_CUSTOM_USER_BUTTON(11)
+      CHECK_CUSTOM_USER_BUTTON(11);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(12)
-      #ifdef BUTTON12_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(12);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(12);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(12)
+      CHECK_BETTER_USER_BUTTON(12);
+    #elif HAS_CUSTOM_USER_BUTTON(12)
+      CHECK_CUSTOM_USER_BUTTON(12);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(13)
-      #ifdef BUTTON13_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(13);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(13);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(13)
+      CHECK_BETTER_USER_BUTTON(13);
+    #elif HAS_CUSTOM_USER_BUTTON(13)
+      CHECK_CUSTOM_USER_BUTTON(13);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(14)
-      #ifdef BUTTON14_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(14);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(14);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(14)
+      CHECK_BETTER_USER_BUTTON(14);
+    #elif HAS_CUSTOM_USER_BUTTON(14)
+      CHECK_CUSTOM_USER_BUTTON(14);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(15)
-      #ifdef BUTTON15_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(15);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(15);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(15)
+      CHECK_BETTER_USER_BUTTON(15);
+    #elif HAS_CUSTOM_USER_BUTTON(15)
+      CHECK_CUSTOM_USER_BUTTON(15);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(16)
-      #ifdef BUTTON16_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(16);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(16);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(16)
+      CHECK_BETTER_USER_BUTTON(16);
+    #elif HAS_CUSTOM_USER_BUTTON(16)
+      CHECK_CUSTOM_USER_BUTTON(16);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(17)
-      #ifdef BUTTON17_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(17);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(17);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(17)
+      CHECK_BETTER_USER_BUTTON(17);
+    #elif HAS_CUSTOM_USER_BUTTON(17)
+      CHECK_CUSTOM_USER_BUTTON(17);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(18)
-      #ifdef BUTTON18_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(18);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(18);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(18)
+      CHECK_BETTER_USER_BUTTON(18);
+    #elif HAS_CUSTOM_USER_BUTTON(18)
+      CHECK_CUSTOM_USER_BUTTON(18);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(19)
-      #ifdef BUTTON19_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(19);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(19);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(19)
+      CHECK_BETTER_USER_BUTTON(19);
+    #elif HAS_CUSTOM_USER_BUTTON(19)
+      CHECK_CUSTOM_USER_BUTTON(19);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(20)
-      #ifdef BUTTON20_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(20);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(20);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(20)
+      CHECK_BETTER_USER_BUTTON(20);
+    #elif HAS_CUSTOM_USER_BUTTON(20)
+      CHECK_CUSTOM_USER_BUTTON(20);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(21)
-      #ifdef BUTTON21_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(21);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(21);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(21)
+      CHECK_BETTER_USER_BUTTON(21);
+    #elif HAS_CUSTOM_USER_BUTTON(21)
+      CHECK_CUSTOM_USER_BUTTON(21);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(22)
-      #ifdef BUTTON22_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(22);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(22);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(22)
+      CHECK_BETTER_USER_BUTTON(22);
+    #elif HAS_CUSTOM_USER_BUTTON(22)
+      CHECK_CUSTOM_USER_BUTTON(22);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(23)
-      #ifdef BUTTON23_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(23);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(23);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(23)
+      CHECK_BETTER_USER_BUTTON(23);
+    #elif HAS_CUSTOM_USER_BUTTON(23)
+      CHECK_CUSTOM_USER_BUTTON(23);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(24)
-      #ifdef BUTTON24_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(24);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(24);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(24)
+      CHECK_BETTER_USER_BUTTON(24);
+    #elif HAS_CUSTOM_USER_BUTTON(24)
+      CHECK_CUSTOM_USER_BUTTON(24);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(25)
-      #ifdef BUTTON25_DESC
-        CHECK_CUSTOM_USER_BUTTON_MSG(25);
-      #else
-        CHECK_CUSTOM_USER_BUTTON(25);
-      #endif
+    #if HAS_BETTER_USER_BUTTON(25)
+      CHECK_BETTER_USER_BUTTON(25);
+    #elif HAS_CUSTOM_USER_BUTTON(25)
+      CHECK_CUSTOM_USER_BUTTON(25);
     #endif
   #endif
 
