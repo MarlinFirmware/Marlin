@@ -857,12 +857,14 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
    * Change the current in the TMC drivers to N##_CURRENT_HOME. And we save the current configuration of each TMC driver.
    */
   void Probe::set_homing_current(const bool onoff) {
-    #if ENABLED(DELTA)
-      static int16_t saved_current_X, saved_current_Y;
-    #endif
-    static int16_t saved_current_Z;
     #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
     #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z)
+      #if ENABLED(DELTA)
+        static int16_t saved_current_X, saved_current_Y;
+      #endif
+      #if HAS_CURRENT_HOME(Z)
+        static int16_t saved_current_Z;
+      #endif
       auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
         if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b); }
       };
