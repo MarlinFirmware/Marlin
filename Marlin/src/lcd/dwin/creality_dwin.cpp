@@ -3249,7 +3249,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu_Item(row, ICON_Back, "Back");
             
             #if ENABLED(PRINTCOUNTER)
-              char row1[32], row2[32], buf[32];
+              char row1[50], row2[50], buf[32];
               printStatistics ps = print_job_timer.getStats();
 
               sprintf(row1, "%i prints, %i finished", ps.totalPrints, ps.finishedPrints);
