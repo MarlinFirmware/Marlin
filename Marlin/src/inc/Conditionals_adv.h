@@ -125,6 +125,29 @@
   #undef THERMAL_PROTECTION_COOLER
 #endif
 
+// Usurp a sensor to do redundant readings
+#if TEMP_SENSOR_REDUNDANT
+  #define REDUNDANT_TEMP_MATCH(M,N) (TEMP_SENSOR_REDUNDANT_##M == HID_##N)
+#else
+  #define REDUNDANT_TEMP_MATCH(...) 0
+#endif
+
+// Temperature sensor IDs
+#define HID_REDUNDANT -6
+#define HID_COOLER    -5
+#define HID_PROBE     -4
+#define HID_BOARD     -3
+#define HID_CHAMBER   -2
+#define HID_BED       -1
+#define HID_E0         0
+#define HID_E1         1
+#define HID_E2         2
+#define HID_E3         3
+#define HID_E4         4
+#define HID_E5         5
+#define HID_E6         6
+#define HID_E7         7
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
