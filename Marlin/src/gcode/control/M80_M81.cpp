@@ -43,18 +43,12 @@
   /**
    * M80   : Turn on the Power Supply
    * M80 S : Report the current state and exit
-   * M80 T : Toggle the power supply state
    */
   void GcodeSuite::M80() {
 
     // S: Report the current power supply state and exit
     if (parser.seen('S')) {
       SERIAL_ECHOPGM_P(powerManager.psu_on ? PSTR("PS:1\n") : PSTR("PS:0\n"));
-      return;
-    }
-
-    if (parser.seen('T') && powerManager.psu_on) {
-      queue.inject_P(PSTR("M81"));
       return;
     }
 
