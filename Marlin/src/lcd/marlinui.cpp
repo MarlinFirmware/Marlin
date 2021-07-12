@@ -158,7 +158,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #include "../feature/power_monitor.h"
   #endif
 
-  #if ENABLED(PSU_CONTROL)
+  #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
     #include "../feature/power.h"
   #endif
 
