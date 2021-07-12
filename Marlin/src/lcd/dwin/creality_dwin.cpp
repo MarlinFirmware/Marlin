@@ -4888,7 +4888,7 @@ void CrealityDWINClass::Print_Screen_Control() {
           if (sdprint) {
             wait_for_user = false;
             #if ENABLED(PARK_HEAD_ON_PAUSE)
-              card.startFileprint();
+              card.startOrResumeFilePrinting();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             #else
               char cmnd[20];
