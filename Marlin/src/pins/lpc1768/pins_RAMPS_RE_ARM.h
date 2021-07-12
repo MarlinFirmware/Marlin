@@ -217,7 +217,7 @@
   #define FAN1_PIN                  RAMPS_D8_PIN
 #elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1
+  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
     #define FAN1_PIN                MOSFET_D_PIN
   #else
     #define HEATER_1_PIN            MOSFET_D_PIN
@@ -248,8 +248,8 @@
 
 #define PS_ON_PIN                          P2_12  // (12)
 
-#if !defined(MAX6675_SS_PIN) && DISABLED(USE_ZMAX_PLUG)
-  #define MAX6675_SS_PIN                   P1_28
+#if !defined(TEMP_0_CS_PIN) && DISABLED(USE_ZMAX_PLUG)
+  #define TEMP_0_CS_PIN                    P1_28
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENA_PIN)

@@ -84,16 +84,6 @@ void PreheatTimerScreen::draw_interaction_buttons(draw_mode_t what) {
 void PreheatTimerScreen::draw_adjuster(draw_mode_t what, uint8_t tag, progmem_str label, float value, int16_t x, int16_t y, int16_t w, int16_t h) {
     #define SUB_COLS          9
     #define SUB_ROWS          2
-    #define SUB_GRID_W(W)     ((W)*w/SUB_COLS)
-    #define SUB_GRID_H(H)     ((H)*h/SUB_ROWS)
-    #define SUB_GRID_X(X)     (SUB_GRID_W((X)-1) + x)
-    #define SUB_GRID_Y(Y)     (SUB_GRID_H((Y)-1) + y)
-    #define SUB_X(X)          (SUB_GRID_X(X) + MARGIN_L)
-    #define SUB_Y(Y)          (SUB_GRID_Y(Y) + MARGIN_T)
-    #define SUB_W(W)          (SUB_GRID_W(W) - MARGIN_L - MARGIN_R)
-    #define SUB_H(H)          (SUB_GRID_H(H) - MARGIN_T - MARGIN_B)
-    #define SUB_POS(X,Y)      SUB_X(X), SUB_Y(Y)
-    #define SUB_SIZE(W,H)     SUB_W(W), SUB_H(H)
 
     CommandProcessor cmd;
     cmd.tag(0)
