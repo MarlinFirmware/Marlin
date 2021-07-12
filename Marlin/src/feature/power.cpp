@@ -205,7 +205,7 @@ void Power::power_off() {
     }
   }
 
-  #if defined(POWER_OFF_DELAY)
+  #if POWER_OFF_DELAY > 0
 
     /**
      * Power off with a delay. Power off is triggered by check() after the delay.
