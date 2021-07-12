@@ -387,9 +387,11 @@ static float auto_tune_a() {
  *
  *   E   Engage the probe for each point
  *
- *   X   It will not activate stallguard for the X axis. Use with SENSORLESS_PROBING, to calibrate the sensitivity individually on each axis. Fe. G33 P1 Y Z  --> To calibrate only X.
- *   Y   It will not activate stallguard for the Y axis. Use with SENSORLESS_PROBING, to calibrate the sensitivity individually on each axis. Fe. G33 P1 X Z  --> To calibrate only Y.
- *   Z   It will not activate stallguard for the Z axis. Use with SENSORLESS_PROBING, to calibrate the sensitivity individually on each axis. Fe. G33 P1 X Y  --> To calibrate only Z.
+ * With SENSORLESS_PROBING:
+ *   Use these flags to calibrate stall sensitivity: (e.g., `G33 P1 Y Z` to calibrate X only.)
+ *   X   Don't activate stallguard on X.
+ *   Y   Don't activate stallguard on Y.
+ *   Z   Don't activate stallguard on Z.
  */
 void GcodeSuite::G33() {
 
@@ -423,10 +425,10 @@ void GcodeSuite::G33() {
 
   const bool stow_after_each = parser.seen_test('E');
 
-  #if ENABLED(HAS_BED_PROBE)
-    probe.test_sensitivity_X = !parser.seen_test('X');
-    probe.test_sensitivity_Y = !parser.seen_test('Y');
-    probe.test_sensitivity_Z = !parser.seen_test('Z');
+  #if ENABLED(SENSORLESS_PROBING)
+    probe.test_sensitivity.x = !parser.seen_test('X');
+    TERN_(HAS_Y_AXIS, probe.test_sensitivity.y = !parser.seen_test('Y'));
+    TERN_(HAS_Z_AXIS, probe.test_sensitivity.z = !parser.seen_test('Z'));
   #endif
 
   const bool _0p_calibration      = probe_points == 0,

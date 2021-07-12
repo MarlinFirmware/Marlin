@@ -56,6 +56,11 @@
 class Probe {
 public:
 
+  #if ENABLED(SENSORLESS_PROBING)
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
+    static sense_bool_t test_sensitivity;
+  #endif
+
   #if HAS_BED_PROBE
 
     static xyz_pos_t offset;
@@ -262,11 +267,6 @@ public:
     static void disable_stallguard_diag1();
     static void set_homing_current(const bool onoff);
   #endif
-
-public:
-  bool test_sensitivity_X;
-  bool test_sensitivity_Y;
-  bool test_sensitivity_Z;
 
 private:
   static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);

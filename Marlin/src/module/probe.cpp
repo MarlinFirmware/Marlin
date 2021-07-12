@@ -92,6 +92,10 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   const xy_pos_t &Probe::offset_xy = Probe::offset;
 #endif
 
+#if ENABLED(SENSORLESS_PROBING)
+  Probe::sense_bool_t Probe::test_sensitivity;
+#endif
+
 #if ENABLED(Z_PROBE_SLED)
 
   #ifndef SLED_DOCKING_OFFSET
@@ -493,10 +497,10 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
     #if ENABLED(DELTA)
-      if (probe.test_sensitivity_X) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
-      if (probe.test_sensitivity_Y) stealth_states.y = tmc_enable_stallguard(stepperY); 
+      if (probe.test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
+      if (probe.test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
-    if (probe.test_sensitivity_Z) stealth_states.z = tmc_enable_stallguard(stepperZ);    // All machines will check Z-DIAG for stall
+    if (probe.test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);    // All machines will check Z-DIAG for stall
     endstops.enable(true);
     set_homing_current(true);                                 // The "homing" current also applies to probing
   #endif
@@ -521,10 +525,10 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ENABLED(SENSORLESS_PROBING)
     endstops.not_homing();
     #if ENABLED(DELTA)
-      if (probe.test_sensitivity_X) tmc_disable_stallguard(stepperX, stealth_states.x);
-      if (probe.test_sensitivity_Y) tmc_disable_stallguard(stepperY, stealth_states.y);
+      if (probe.test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
+      if (probe.test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
-    if (probe.test_sensitivity_Z) tmc_disable_stallguard(stepperZ, stealth_states.z);
+    if (probe.test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
     set_homing_current(false);
   #endif
 
@@ -820,6 +824,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 #if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
 
   sensorless_t stealth_states { false };
+
   /**
    * Disable stealthChop if used. Enable diag1 pin on driver.
    */
@@ -833,7 +838,8 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       endstops.enable(true);
     #endif
   }
-    /**
+
+  /**
    * Re-enable stealthChop if used. Disable diag1 pin on driver.
    */
   void Probe::disable_stallguard_diag1() {
@@ -845,7 +851,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       #endif
       tmc_disable_stallguard(stepperZ, stealth_states.z);
     #endif
-
   }
 
   /**
