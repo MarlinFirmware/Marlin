@@ -3961,7 +3961,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
           case MMESH_OLD:
-            uint8 mesh_x, mesh_y;
+            uint8_t mesh_x, mesh_y;
             // 0,0 -> 1,0 -> 2,0 -> 2,1 -> 1,1 -> 0,1 -> 0,2 -> 1,2 -> 2,2
             mesh_y = (gridpoint - 1) / GRID_MAX_POINTS_Y;
             mesh_x = (gridpoint - 1) % GRID_MAX_POINTS_X;
