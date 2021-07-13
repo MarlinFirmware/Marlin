@@ -822,10 +822,8 @@ void idle(bool no_stepper_sleep/*=false*/) {
 
   // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
-    if (endstops.tmc_spi_homing.any
-      && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period))
-    ) LOOP_L_N(i, 4) // Read SGT 4 times per idle loop
-        if (endstops.tmc_spi_homing_check()) break;
+    if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period)))
+      LOOP_L_N(i, 4) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
   #endif
 
   // Handle SD Card insert / remove
