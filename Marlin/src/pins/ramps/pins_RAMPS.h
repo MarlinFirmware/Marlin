@@ -655,7 +655,9 @@
 
       #define BEEPER_PIN             EXP1_10_PIN
       #define BTN_ENC                EXP1_09_PIN
-      #define SD_DETECT_PIN          EXP2_04_PIN
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_04_PIN
+      #endif
 
       #ifndef KILL_PIN
         #define KILL_PIN             EXP2_03_PIN
