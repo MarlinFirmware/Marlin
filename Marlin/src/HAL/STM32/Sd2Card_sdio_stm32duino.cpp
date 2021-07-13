@@ -330,6 +330,14 @@
     return false;
   }
 
+  bool SDIO_IsReady() {
+    return hsd.State == HAL_SD_STATE_READY;
+  }
+
+  uint32_t SDIO_GetCardSize() {
+    return (uint32_t)(hsd.SdCard.BlockNbr) * (hsd.SdCard.BlockSize);
+  }
+
   #if defined(STM32F1xx)
     #define DMA_IRQ_HANDLER DMA2_Channel4_5_IRQHandler
   #elif defined(STM32F4xx)
