@@ -46,10 +46,8 @@
   bool endstopx1_sta, endstopx2_sta, endstopy1_sta, endstopy2_sta, endstopz1_sta, endstopz2_sta;
 
   void test_gpio_readlevel_L() {
-    volatile uint32_t itest;
     WRITE(WIFI_IO0_PIN, HIGH);
-    itest = 10000;
-    while (itest--); // Counting to 10000 takes some amount of time
+    delay(10);
     pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == LOW);
     pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == LOW);
     mt_det_sta = (READ(MT_DET_1_PIN) == LOW);
@@ -63,10 +61,8 @@
   }
 
   void test_gpio_readlevel_H() {
-    volatile uint32_t itest;
     WRITE(WIFI_IO0_PIN, LOW);
-    itest = 10000;
-    while (itest--);
+    delay(10);
     pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == HIGH);
     pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == HIGH);
     mt_det_sta = (READ(MT_DET_1_PIN) == HIGH);
