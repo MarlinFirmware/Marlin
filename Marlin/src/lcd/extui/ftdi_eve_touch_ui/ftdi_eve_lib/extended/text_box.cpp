@@ -29,25 +29,30 @@ namespace FTDI {
    * be broken so that the display width is less than w. The line will also
    * be broken after a '\n'. Returns the display width of the line.
    */
-  static uint16_t find_line_break(const FontMetrics &fm, uint16_t w, const char *str, const char *&end) {
-    w -= fm.get_char_width(' ');
+  static uint16_t find_line_break(const FontMetrics &utf8_fm, const CLCD::FontMetrics &clcd_fm, const uint16_t w, const char *str, const char *&end, bool use_utf8) {
     const char *p = str;
     end = str;
     uint16_t lw = 0, result = 0;
     for (;;) {
-      utf8_char_t c = get_utf8_char_and_inc(p);
-      if (c == ' ' || c == '\n' || c == '\0') {
-        if (lw < w || end == str) {
-          end   = (c == '\0') ? p-1 : p;
+      const char *next = p;
+      utf8_char_t c = get_utf8_char_and_inc(next);
+      // Decide whether to break the string at this location
+      if (c == '\n' || c == '\0' || c == ' ') {
+        end = p;
+        result = lw;
+      }
+      if (c == '\n' || c == '\0') break;
+      // Now add the length of the current character to the tally.
+      lw += use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c];
+      // Stop processing once string exceeds the display width
+      if (lw >= w) {
+        if (end == str) {
+          end = p;
           result = lw;
         }
-        if (c == '\0' || c == '\n') break;
+        break;
       }
-      lw += fm.get_char_width(c);
-    }
-    if (end == str) {
-      end   = p-1;
-      result = lw;
+      p = next;
     }
     return result;
   }
@@ -55,17 +60,18 @@ namespace FTDI {
   /**
    * This function returns a measurements of the word-wrapped text box.
    */
-  static void measure_text_box(const FontMetrics &fm, const char *str, uint16_t &width, uint16_t &height) {
+  static void measure_text_box(const FontMetrics &utf8_fm, const CLCD::FontMetrics &clcd_fm, const char *str, uint16_t &width, uint16_t &height, bool use_utf8) {
     const char *line_start = (const char*)str;
     const char *line_end;
     const uint16_t wrap_width = width;
     width = height = 0;
     for (;;) {
-      uint16_t line_width = find_line_break(fm, wrap_width, line_start, line_end);
-      if (line_end == line_start) break;
+      uint16_t line_width = find_line_break(utf8_fm, clcd_fm, wrap_width, line_start, line_end, use_utf8);
       width  = max(width, line_width);
-      height += fm.get_height();
+      height += utf8_fm.get_height();
       line_start = line_end;
+      if (line_start[0] == '\n' || line_start[0] == ' ') line_start++;
+      if (line_start[0] == '\0') break;
     }
   }
 
@@ -73,41 +79,45 @@ namespace FTDI {
    * This function draws text inside a bounding box, doing word wrapping and using the largest font that will fit.
    */
   void draw_text_box(CommandProcessor& cmd, int x, int y, int w, int h, const char *str, uint16_t options, uint8_t font) {
+    #if ENABLED(TOUCH_UI_USE_UTF8)
+      const bool use_utf8 = has_utf8_chars(str);
+    #else
+      constexpr bool use_utf8 = false;
+    #endif
     uint16_t box_width, box_height;
 
-    FontMetrics fm(font);
+    FontMetrics utf8_fm(font);
+    CLCD::FontMetrics clcd_fm;
+    clcd_fm.load(font);
 
     // Shrink the font until we find a font that fits
     for (;;) {
       box_width = w;
-      measure_text_box(fm, str, box_width, box_height);
+      measure_text_box(utf8_fm, clcd_fm, str, box_width, box_height, use_utf8);
       if (box_width <= (uint16_t)w && box_height <= (uint16_t)h) break;
       if (font == 26) break;
-      fm.load(--font);
+      utf8_fm.load(--font);
+      clcd_fm.load(font);
     }
 
     const uint16_t dx = (options & OPT_RIGHTX) ? w :
-                        (options & OPT_CENTERX) ? w/2 : 0;
-    const uint16_t dy = (options & OPT_BOTTOMY) ? (h - box_height) :
-                        (options & OPT_CENTERY) ? (h - box_height)/2 : 0;
+                        (options & OPT_CENTERX) ? w / 2 : 0,
+                   dy = (options & OPT_BOTTOMY) ? (h - box_height) :
+                        (options & OPT_CENTERY) ? (h - box_height) / 2 : 0;
 
-    const char *line_start = str;
-    const char *line_end;
+    const char *line_start = str, *line_end;
     for (;;) {
-      find_line_break(fm, w, line_start, line_end);
-      if (line_end == line_start) break;
+      find_line_break(utf8_fm, clcd_fm, w, line_start, line_end, use_utf8);
 
       const size_t line_len = line_end - line_start;
       if (line_len) {
         char line[line_len + 1];
         strncpy(line, line_start, line_len);
         line[line_len] = 0;
-        if (line[line_len - 1] == '\n' || line[line_len - 1] == ' ')
-          line[line_len - 1] = 0;
 
         #if ENABLED(TOUCH_UI_USE_UTF8)
-          if (has_utf8_chars(line)) {
-            draw_utf8_text(cmd, x + dx, y + dy, line, fm.fs, options & ~(OPT_CENTERY | OPT_BOTTOMY));
+          if (use_utf8) {
+            draw_utf8_text(cmd, x + dx, y + dy, line, utf8_fm.fs, options & ~(OPT_CENTERY | OPT_BOTTOMY));
           } else
         #endif
           {
@@ -115,9 +125,11 @@ namespace FTDI {
             cmd.CLCD::CommandFifo::str(line);
           }
       }
-      y += fm.get_height();
+      y += utf8_fm.get_height();
 
       line_start = line_end;
+      if (line_start[0] == '\n' || line_start[0] == ' ') line_start++;
+      if (line_start[0] == '\0') break;
     }
   }
 
