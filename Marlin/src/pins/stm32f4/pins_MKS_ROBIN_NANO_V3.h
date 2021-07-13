@@ -180,6 +180,7 @@
 //
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_2_PIN                        PE6
+#define MT_DET_PIN_INVERTING              false  // LVGL UI filament RUNOUT PIN STATE
 #define PW_DET                              PA13
 #define PW_OFF                              PB2
 
