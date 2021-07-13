@@ -3,6 +3,8 @@
 # Professional firmware for Ender3v2
 # Miguel A. Risco-Castillo
 # 2021-07-01
+# Contains code from:
+# https://github.com/Ultimaker/Cura/blob/master/plugins/PostProcessingPlugin/scripts/CreateThumbnail.py
 #--------------------------------------
 
 import base64
