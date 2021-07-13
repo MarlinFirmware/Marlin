@@ -1,9 +1,12 @@
 /**
- * DWIN UI Enhanced implementation by Miguel A. Risco-Castillo
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 2.3
+ * Date: 2021/07/13
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as 
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -11,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
@@ -120,6 +123,7 @@
 #define ICON_Info_0               90
 #define ICON_Info_1               91
 
+// Extra Icons
 #define ICON_Error                ICON_TempTooHigh
 #define ICON_Tramming             ICON_SetEndTemp
 #define ICON_ManualMesh           ICON_HotendTemp
@@ -134,7 +138,7 @@
 #define ICON_HomeOffX             ICON_StepX
 #define ICON_HomeOffY             ICON_StepY
 #define ICON_HomeOffZ             ICON_StepZ
-#define ICON_ProbeOff             ICON_AdvSet
+#define ICON_ProbeOff             ICON_SetEndTemp
 #define ICON_ProbeOffX            ICON_StepX
 #define ICON_ProbeOffY            ICON_StepY
 #define ICON_PIDNozzle            ICON_SetEndTemp
@@ -163,15 +167,15 @@
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
 #define DWIN_FONT_HEAD font10x20
+#define DWIN_FONT_ALERT font10x20
 
-// Color
+// Extended and default UI Colors
 #define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
 #define GetRColor(color) ((color >> 11) & 0x1F)
 #define GetGColor(color) ((color >>  5) & 0x3F)
 #define GetBColor(color) ((color >>  0) & 0x1F)
 
 #define Color_White       0xFFFF
-#define Color_Yellow      0xFF0F
 #define Color_Bg_Window   0x31E8  // Popup background color
 #define Color_Bg_Blue     0x1125  // Dark blue background color
 #define Color_Bg_Black    0x0841  // Black background color
@@ -182,6 +186,13 @@
 #define Percent_Color     0xFE29  // Percentage color
 #define BarFill_Color     0x10E4  // Fill color of progress bar
 #define Select_Color      0x33BB  // Selected color
+
+#define Color_Black           0
+#define Color_Red             RGB(31,0,0)
+#define Color_Yellow          RGB(31,63,0)
+#define Color_Green           RGB(0,63,0)
+#define Color_Aqua            RGB(0,63,31)
+#define Color_Blue            RGB(0,0,31)
 
 // Default UI Colors
 #define Def_Background_Color  Color_Bg_Black
@@ -203,6 +214,18 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color   Color_White
 
+//UI elements defines and constants
+#define STATUS_Y 354
+
+constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar height
+                   MLINE = 53,                                 // Menu line height
+                   TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
+                   MROWS = TROWS - 1,                          // Other-than-Back
+                   LBLX = 60,                                  // Menu item label X
+                   MENU_CHR_W = 8, STAT_CHR_W = 10;
+
+#define MBASE(L) (49 + MLINE * (L))
+
 typedef struct {
   uint16_t left;
   uint16_t top;
@@ -212,24 +235,35 @@ typedef struct {
 
 class DWINUIClass {
 private:
-  xy_int_t cursor = { 0, 0};
+  xy_int_t cursor = { 0 };
   uint16_t pencolor = Color_White;
   uint16_t textcolor = Def_Text_Color;
   uint16_t backcolor = Def_Background_Color;
   uint8_t  font = font8x16;
 
 public:
+  // DWIN LCD Initialization
+  void Init(void);
+
   // Set text/number font
   void SetFont(uint8_t cfont);
 
   // Get font character width
-  uint8_t Get_font_width(uint8_t cfont);
+  static uint8_t Get_font_width(uint8_t cfont);
 
   // Get font character heigh
-  uint8_t Get_font_height(uint8_t cfont);
+  static uint8_t Get_font_height(uint8_t cfont);
+
+  // Get screen x coodinates from text column
+  uint16_t ColToX(uint8_t col);
+
+  // Get screen y coodinates from text row
+  uint16_t RowToY(uint8_t row);
 
   // Set text/number color
-  void SetTextColor(uint16_t fgcolor, uint16_t bgcolor);
+  void SetColors(uint16_t fgcolor, uint16_t bgcolor);
+  void SetTextColor(uint16_t fgcolor);
+  void SetBackgroundColor(uint16_t bgcolor);
 
   // Moves cursor to point
   //  x: abscissa of the display
@@ -272,19 +306,19 @@ public:
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  inline void Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
+  inline void Draw_Int(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
     DWIN_Draw_IntValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, x, y, value);
   }
-  inline void Draw_IntValue(uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
+  inline void Draw_Int(uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, x, y, value);
   }
-  inline void Draw_IntValue(uint16_t color, uint8_t iNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Int(uint16_t color, uint8_t iNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_IntValue(false, true, 0, font, color, backcolor, iNum, x, y, value);
   }
-  inline void Draw_IntValue(uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Int(uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_IntValue(true, true, 0, font, color, bColor, iNum, x, y, value);
   }
-  inline void Draw_IntValue(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Int(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_IntValue(true, true, 0, size, color, bColor, iNum, x, y, value);
   }
 
@@ -299,19 +333,19 @@ public:
   //  fNum: Number of decimal digits
   //  x/y: Upper-left point
   //  value: Float value
-  inline void Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, value);
   }
-  inline void Draw_FloatValue(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_FloatValue(uint16_t color, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint16_t color, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_FloatValue(false, true, 0, font, color, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_FloatValue(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_FloatValue(true, true, 0, font, color, bColor, iNum, fNum, x, y, value);
   }
-  inline void Draw_FloatValue(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_FloatValue(true, true, 0, size, color, bColor, iNum, fNum, x, y, value);
   }
 
@@ -389,6 +423,15 @@ public:
   inline void Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const __FlashStringHelper *title) {
     Draw_CenteredString(widthAdjust, bShow, size, color, bColor, y, (char *)title);
   }
+  inline void Draw_CenteredString(uint16_t color, uint16_t bcolor, uint16_t y, const char * const string) {
+    Draw_CenteredString(false, true, font, color, bcolor, y, string);
+  }
+  inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, const char * const string) {
+    Draw_CenteredString(false, false, size, color, backcolor, y, string);
+  }
+  inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, const __FlashStringHelper *title) {
+    Draw_CenteredString(false, false, size, color, backcolor, y, (char *)title);
+  }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, const char * const string) {
     Draw_CenteredString(false, false, font, color, backcolor, y, string);
   }
@@ -401,6 +444,7 @@ public:
   inline void Draw_CenteredString(uint16_t y, const __FlashStringHelper *title) {
     Draw_CenteredString(false, false, font, textcolor, backcolor, y, (char *)title);
   }
+  
   // Draw a circle
   //  Color: circle color
   //  x: the abscissa of the center of the circle
@@ -429,22 +473,27 @@ public:
   //  color2 : End color
   uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
 };
+extern DWINUIClass DWIN;
 
 class TitleClass {
 private:
-  uint16_t height = 30;
   uint8_t font = DWIN_FONT_HEAD;
   char caption[32] = "";
   int16_t backcolor = Def_TitleBg_color;
   int16_t textcolor = Def_TitleTxt_color;
-  rect_t frame = {0, 0, 0, 0};
+  rect_t frame = {0, 0, DWIN_WIDTH, TITLE_HEIGHT};
 public:
+  void Init(rect_t cframe, uint8_t cfont, int16_t color, int16_t bcolor, const char * const title);
   void Clear();
   void Draw();
   void SetFont(uint8_t cfont);
   void SetCaption(const char * const title);
-  void SetCaption(const __FlashStringHelper * title);
+  void SetCaption(const __FlashStringHelper * title) { SetCaption((char*)title); }
   void SetFrame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  void SetColor(int16_t color);
-  void SetBgColor(int16_t color);
+  void SetColors(int16_t color, int16_t bcolor);
+  void SetTextColor(int16_t color);
+  void SetBackgroundColor(int16_t color);
+  void FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  uint16_t TitleHeight();
 };
+extern TitleClass Title;

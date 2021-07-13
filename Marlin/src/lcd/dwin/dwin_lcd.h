@@ -41,13 +41,11 @@
 
 #define DWIN_WIDTH  272
 #define DWIN_HEIGHT 480
+#define DWIN_DataLength (DWIN_WIDTH / 6 * 2)
 /*-------------------------------------- System variable function --------------------------------------*/
 
 // Handshake (1: Success, 0: Fail)
 bool DWIN_Handshake(void);
-
-// Common DWIN startup
-void DWIN_Startup(void);
 
 // Set the backlight luminance
 //  luminance: (0x00-0xFF)

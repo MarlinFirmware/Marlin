@@ -42,7 +42,7 @@
 
 // Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
 // Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
-uint8_t DWIN_SendBuf[11 + DWIN_WIDTH / 6 * 2] = { 0xAA };
+uint8_t DWIN_SendBuf[11 + DWIN_DataLength] = { 0xAA };
 uint8_t DWIN_BufTail[4] = { 0xCC, 0x33, 0xC3, 0x3C };
 uint8_t databuf[26] = { 0 };
 uint8_t receivedType;
@@ -306,7 +306,6 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  value: Float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
-  //uint8_t *fvalue = (uint8_t*)&value;
   size_t i = 0;
   DWIN_Byte(i, 0x14);
   DWIN_Byte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);
@@ -317,12 +316,6 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
   DWIN_Word(i, x);
   DWIN_Word(i, y);
   DWIN_Long(i, value);
-  /*
-  DWIN_Byte(i, fvalue[3]);
-  DWIN_Byte(i, fvalue[2]);
-  DWIN_Byte(i, fvalue[1]);
-  DWIN_Byte(i, fvalue[0]);
-  */
   DWIN_Send(i);
 }
 
@@ -334,7 +327,7 @@ void DWIN_JPG_ShowAndCache(const uint8_t id) {
   size_t i = 0;
   DWIN_Word(i, 0x2200);
   DWIN_Byte(i, id);
-  DWIN_Send(i);     // AA 23 00 00 00 00 08 00 01 02 03 CC 33 C3 3C
+  DWIN_Send(i);
 }
 
 // Draw an Icon

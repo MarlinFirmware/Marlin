@@ -42,7 +42,7 @@ void GcodeSuite::M73() {
 
   #if ENABLED(DWIN_CREALITY_LCD)
 
-    DWIN_Progress_Update(parser.byteval('P'), parser.ulongval('R'));
+    DWIN_Progress_Update();
 
   #else
 

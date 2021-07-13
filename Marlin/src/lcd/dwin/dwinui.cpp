@@ -1,9 +1,12 @@
 /**
- * DWIN UI Enhanced implementation by Miguel A. Risco-Castillo
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 2.3
+ * Date: 2021/07/13
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as 
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -11,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
@@ -24,13 +27,34 @@
 #include "dwin_lcd.h"
 #include "dwinui.h"
 
+//#define DEBUG_OUT 1
+#include "../../core/debug_out.h"
+
+DWINUIClass DWIN;
+
+void DWINUIClass::Init(void) {
+  DEBUG_ECHOPGM("\r\nDWIN handshake ");
+  delay(750);   // Delay here or init later in the boot process
+  const bool success = DWIN_Handshake();
+  if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
+  DWIN_Frame_SetDir(DISABLED(DWIN_MARLINUI_LANDSCAPE) ? 1 : 0);
+  TERN(SHOW_BOOTSCREEN,,DWIN_Frame_Clear(Color_Bg_Black));
+  DWIN_UpdateLCD();
+  cursor.x = 0;
+  cursor.y = 0;
+  pencolor = Color_White;
+  textcolor = Def_Text_Color;
+  backcolor = Def_Background_Color;
+  font = font8x16;
+}
+
 // Set text/number font
 void DWINUIClass::SetFont(uint8_t cfont) {
   font = cfont;
 }
 
 // Get font character width
-uint8_t DWINUIClass::Get_font_width(uint8_t cfont) {
+/*static*/ uint8_t DWINUIClass::Get_font_width(uint8_t cfont) {
   switch (cfont) {
     case font6x12 : return 6;
     case font8x16 : return 8;
@@ -47,7 +71,7 @@ uint8_t DWINUIClass::Get_font_width(uint8_t cfont) {
 }
 
 // Get font character heigh
-uint8_t DWINUIClass::Get_font_height(uint8_t cfont) {
+/*static*/ uint8_t DWINUIClass::Get_font_height(uint8_t cfont) {
   switch (cfont) {
     case font6x12 : return 12;
     case font8x16 : return 16;
@@ -63,9 +87,25 @@ uint8_t DWINUIClass::Get_font_height(uint8_t cfont) {
   }
 }
 
+// Get screen x coodinates from text column
+uint16_t DWINUIClass::ColToX(uint8_t col) {
+  return col * Get_font_width(font);
+}
+
+// Get screen y coodinates from text row
+uint16_t DWINUIClass::RowToY(uint8_t row) {
+  return row * Get_font_height(font);
+}
+
 // Set text/number color
-void DWINUIClass::SetTextColor(uint16_t fgcolor, uint16_t bgcolor) {
+void DWINUIClass::SetColors(uint16_t fgcolor, uint16_t bgcolor) {
   textcolor = fgcolor;
+  backcolor = bgcolor;
+}
+void DWINUIClass::SetTextColor(uint16_t fgcolor) {
+  textcolor = fgcolor;
+}
+void DWINUIClass::SetBackgroundColor(uint16_t bgcolor) {
   backcolor = bgcolor;
 }
 
@@ -121,7 +161,7 @@ void DWINUIClass::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMo
 }
 
 // Draw a circle
-//  Color: circle color
+//  color: circle color
 //  x: the abscissa of the center of the circle
 //  y: ordinate of the center of the circle
 //  r: circle radius
@@ -164,8 +204,75 @@ uint16_t DWINUIClass::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
 void DWINUIClass::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, mode ? "x" : " ");
+  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, F(mode ? "x" : " "));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
+
+TitleClass Title;
+
+void TitleClass::Init(rect_t cframe, uint8_t cfont, int16_t color, int16_t bcolor, const char * const title) {
+  font = cfont;
+  backcolor = bcolor;
+  textcolor = color;
+  frame = cframe;
+  SetCaption(title);
+}
+
+void TitleClass::Clear() {
+  DWIN_Draw_Rectangle(1, backcolor, frame.left, frame.top, frame.right, frame.bottom);
+}
+
+void TitleClass::Draw() {
+  Clear();
+  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, textcolor, backcolor, 14, (TitleHeight() - DWIN.Get_font_height(font)) / 2 - 1, caption);
+}
+
+void TitleClass::SetFont(uint8_t cfont) {
+  if ( font == cfont ) return;
+  font = cfont;
+  Draw();
+}
+
+void TitleClass::SetCaption(const char * const title) {
+  if ( caption == title ) return;
+  const uint8_t len = _MIN(sizeof(caption) - 1, strlen(title));
+  memcpy(&caption[0], title, len);
+  caption[len] = '\0';
+  Draw();
+}
+
+void TitleClass::SetFrame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+  frame = {x1, y1, x2, y2};
+  Draw();
+}
+
+void TitleClass::SetColors(int16_t color, int16_t bcolor) {
+  if ( textcolor == color && backcolor == color ) return;
+  textcolor = color;
+  backcolor = bcolor;
+  Draw();
+}
+
+void TitleClass::SetTextColor(int16_t color) {
+  if ( textcolor == color ) return;
+  textcolor = color;
+  Draw();
+}
+
+void TitleClass::SetBackgroundColor(int16_t color) {
+  if ( backcolor == color ) return;
+  backcolor = color;
+  Draw();
+}
+
+void TitleClass::FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+  Clear();
+  caption[0] = '\0';
+  DWIN_Frame_AreaCopy(id, x1, y1, x2, y2, 14, (TitleHeight() - (y2 - y1)) / 2 - 1);
+}
+
+uint16_t TitleClass::TitleHeight() {
+  return frame.bottom - frame.top;
+};
 
 #endif

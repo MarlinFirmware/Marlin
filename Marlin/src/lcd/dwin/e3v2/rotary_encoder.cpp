@@ -48,6 +48,10 @@
   #define ENCODER_PULSES_PER_STEP 4
 #endif
 
+#if ENABLED(SOUND_MENU_ITEM)
+  #include "../../marlinui.h"
+#endif
+
 ENCODER_Rate EncoderRate;
 
 // Buzzer

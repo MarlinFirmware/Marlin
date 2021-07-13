@@ -26,12 +26,12 @@
  * Enhanced implementation by Miguel A. Risco-Castillo
  */
 
+#include "../../../inc/MarlinConfigPre.h"
+
 //#include "../dwin_lcd.h"
 #include "../dwinui.h"
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
-
-#include "../../../inc/MarlinConfigPre.h"
 
 #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
   #define HAS_PREHEAT 1
@@ -190,11 +190,11 @@ typedef struct {
 
 typedef struct {
   uint8_t language;
-  bool pause_flag:1;
-  bool pause_action:1;
-  bool print_finish:1;
-  bool select_flag:1;
-  bool home_flag:1;
+  bool pause_flag:1;    // printing is paused
+  bool pause_action:1;  // flag a pause action
+  bool print_finish:1;  // print was finished
+  bool select_flag:1;   // Popup button selected
+  bool home_flag:1;     // homing in course
   bool heat_flag:1;  // 0: heating done  1: during heating
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     bool ETempTooLow_flag:1;
@@ -222,7 +222,7 @@ void ICON_Pause();
 void ICON_Continue();
 void ICON_Stop();
 
-void DWIN_Draw_Popup(uint8_t icon, const char * const msg1, const char * const msg2, uint8_t button = 0);
+void DWIN_Draw_Popup(uint8_t icon = 0, const char * const msg1 = 0, const char * const msg2 = 0, uint8_t button = 0);
 void DWIN_Popup_Continue(uint8_t icon, const char * const msg1, const char * const msg2);
 void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
 
@@ -277,6 +277,7 @@ void Icon_control();
 void Icon_leveling(bool value);
 
 // Other
+void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void HMI_StartFrame(const bool with_update);   // Prepare the menu view
 void HMI_MainMenu();    // Main process screen
@@ -314,7 +315,7 @@ void HMI_Step();            // Transmission ratio
 void HMI_Init();
 void HMI_Popup();
 void HMI_SaveProcessID(const uint8_t id);
-void HMI_AudioFeedback(const bool success/*=true*/);
+void HMI_AudioFeedback(const bool success=true);
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
@@ -329,12 +330,12 @@ void DWIN_CompletedHoming();
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);
-void DWIN_Print_Started(const bool sd);
+void DWIN_Print_Started(const bool sd = false);
 void DWIN_Print_Finished();
 #if HAS_FILAMENT_SENSOR
   void DWIN_FilamentRunout(const uint8_t extruder);
 #endif
-void DWIN_Progress_Update(uint8_t percent, uint32_t remaining);
+void DWIN_Progress_Update();
 void DWIN_Print_Header(const char *text);
 void DWIN_SetColorDefaults();
 void DWIN_StoreSettings(char *buff);
