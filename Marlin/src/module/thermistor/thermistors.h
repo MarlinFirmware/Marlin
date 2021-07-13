@@ -51,6 +51,7 @@
                             || TEMP_SENSOR_IS(n, CHAMBER) \
                             || TEMP_SENSOR_IS(n, COOLER) \
                             || TEMP_SENSOR_IS(n, PROBE) \
+                            || TEMP_SENSOR_IS(n, BOARD) \
                             || TEMP_SENSOR_IS(n, REDUNDANT) )
 
 typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
@@ -305,6 +306,13 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
   #define TEMPTABLE_PROBE_LEN 0
 #endif
 
+#if TEMP_SENSOR_BOARD > 0
+  #define TEMPTABLE_BOARD TT_NAME(TEMP_SENSOR_BOARD)
+  #define TEMPTABLE_BOARD_LEN COUNT(TEMPTABLE_BOARD)
+#else
+  #define TEMPTABLE_BOARD_LEN 0
+#endif
+
 #if TEMP_SENSOR_REDUNDANT > 0
   #define TEMPTABLE_REDUNDANT TT_NAME(TEMP_SENSOR_REDUNDANT)
   #define TEMPTABLE_REDUNDANT_LEN COUNT(TEMPTABLE_REDUNDANT)
@@ -319,6 +327,7 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
            || 255 > TEMPTABLE_CHAMBER_LEN
            || 255 > TEMPTABLE_COOLER_LEN
            || 255 > TEMPTABLE_PROBE_LEN
+           || 255 > TEMPTABLE_BOARD_LEN
            || 255 > TEMPTABLE_REDUNDANT_LEN
   , "Temperature conversion tables over 255 entries need special consideration."
 );
@@ -511,6 +520,15 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
   #else
     #define TEMP_SENSOR_PROBE_RAW_HI_TEMP 0
     #define TEMP_SENSOR_PROBE_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_BOARD_RAW_HI_TEMP
+  #if TT_REVRAW(BOARD)
+    #define TEMP_SENSOR_BOARD_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_BOARD_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_BOARD_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_BOARD_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
   #endif
 #endif
 #ifndef TEMP_SENSOR_REDUNDANT_RAW_HI_TEMP

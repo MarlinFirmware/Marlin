@@ -102,6 +102,10 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if M600_PURGE_MORE_RESUMABLE
+  #include "../../feature/pause.h"
+#endif
+
 namespace ExtUI {
   static struct {
     uint8_t printer_killed : 1;
@@ -178,10 +182,10 @@ namespace ExtUI {
         #if HAS_HEATED_BED
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
-        #if ENABLED(HAS_HEATED_CHAMBER)
+        #if HAS_HEATED_CHAMBER
           case CHAMBER: return; // Chamber has no idle timer
         #endif
-        #if ENABLED(HAS_COOLER)
+        #if HAS_COOLER
           case COOLER: return;  // Cooler has no idle timer
         #endif
         default:
@@ -241,10 +245,10 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        #if ENABLED(HAS_HEATED_BED)
+        #if HAS_HEATED_BED
           case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out;
         #endif
-        #if ENABLED(HAS_HEATED_CHAMBER)
+        #if HAS_HEATED_CHAMBER
           case CHAMBER: return false; // Chamber has no idle timer
         #endif
         default:
@@ -264,10 +268,10 @@ namespace ExtUI {
 
   celsius_float_t getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
-      #if ENABLED(HAS_HEATED_BED)
+      #if HAS_HEATED_BED
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
       #endif
-      #if ENABLED(HAS_HEATED_CHAMBER)
+      #if HAS_HEATED_CHAMBER
         case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
       #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
@@ -280,10 +284,10 @@ namespace ExtUI {
 
   celsius_float_t getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
-      #if ENABLED(HAS_HEATED_BED)
+      #if HAS_HEATED_BED
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
       #endif
-      #if ENABLED(HAS_HEATED_CHAMBER)
+      #if HAS_HEATED_CHAMBER
         case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
       #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
@@ -381,7 +385,8 @@ namespace ExtUI {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
-  GcodeSuite::MarlinBusyState getMachineBusyState() { return TERN0(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state); }
+  GcodeSuite::MarlinBusyState getHostKeepaliveState() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.busy_state); }
+  bool getHostKeepaliveIsPaused() { return TERN0(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive_is_paused()); }
 
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
@@ -1025,8 +1030,14 @@ namespace ExtUI {
     TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
   }
 
-  bool awaitingUserConfirm() { return TERN0(HAS_RESUME_CONTINUE, wait_for_user); }
+  bool awaitingUserConfirm() {
+    return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getHostKeepaliveIsPaused();
+  }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
+
+  #if M600_PURGE_MORE_RESUMABLE
+    void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
+  #endif
 
   void printFile(const char *filename) {
     TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
@@ -1046,7 +1057,7 @@ namespace ExtUI {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
-  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED() && card.isMounted()); }
+  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED()); }
 
   void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }

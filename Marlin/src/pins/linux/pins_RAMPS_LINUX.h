@@ -192,7 +192,7 @@
 #else                                             // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
   #define FAN_PIN                   RAMPS_D9_PIN
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1
+  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
     #define FAN1_PIN                MOSFET_D_PIN
   #else
     #define HEATER_1_PIN            MOSFET_D_PIN

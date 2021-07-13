@@ -442,7 +442,7 @@
       return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
     }
 
-    // Find the first occurence of a character in a string (or return the last position in the string)
+    // Find the first occurrence of a character in a string (or return the last position in the string)
     constexpr const char* findFirst(const char *str, const char ch) {
       return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
     }

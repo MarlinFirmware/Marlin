@@ -32,7 +32,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
 
 #include "dac_mcp4728.h"
 
