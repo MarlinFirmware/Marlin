@@ -1209,13 +1209,6 @@ void setup() {
     #endif
   #endif
 
-  #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
-    mks_esp_wifi_init();
-    WIFISERIAL.begin(WIFI_BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #endif
-
   TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
 
   SETUP_RUN(HAL_init());
