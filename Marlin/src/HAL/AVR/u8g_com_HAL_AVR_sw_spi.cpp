@@ -62,7 +62,7 @@
 #include "../shared/Marduino.h"
 #include "../shared/Delay.h"
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 uint8_t u8g_bitData, u8g_bitNotData, u8g_bitClock, u8g_bitNotClock;
 volatile uint8_t *u8g_outData, *u8g_outClock;
