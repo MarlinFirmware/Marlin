@@ -112,4 +112,3 @@ bool AboutScreen::onTouchEnd(uint8_t tag) {
 }
 
 #endif // FTDI_ABOUT_SCREEN
-

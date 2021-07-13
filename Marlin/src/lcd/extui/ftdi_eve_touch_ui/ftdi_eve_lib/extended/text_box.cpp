@@ -70,8 +70,7 @@ namespace FTDI {
       width  = max(width, line_width);
       height += utf8_fm.get_height();
       line_start = line_end;
-      if (line_start[0] == '\n' || line_start[0] == ' ')
-          line_start++;
+      if (line_start[0] == '\n' || line_start[0] == ' ') line_start++;
       if (line_start[0] == '\0') break;
     }
   }
@@ -102,12 +101,11 @@ namespace FTDI {
     }
 
     const uint16_t dx = (options & OPT_RIGHTX) ? w :
-                        (options & OPT_CENTERX) ? w/2 : 0;
-    const uint16_t dy = (options & OPT_BOTTOMY) ? (h - box_height) :
-                        (options & OPT_CENTERY) ? (h - box_height)/2 : 0;
+                        (options & OPT_CENTERX) ? w / 2 : 0,
+                   dy = (options & OPT_BOTTOMY) ? (h - box_height) :
+                        (options & OPT_CENTERY) ? (h - box_height) / 2 : 0;
 
-    const char *line_start = str;
-    const char *line_end;
+    const char *line_start = str, *line_end;
     for (;;) {
       find_line_break(utf8_fm, clcd_fm, w, line_start, line_end, use_utf8);
 
@@ -130,8 +128,7 @@ namespace FTDI {
       y += utf8_fm.get_height();
 
       line_start = line_end;
-      if (line_start[0] == '\n' || line_start[0] == ' ')
-          line_start++;
+      if (line_start[0] == '\n' || line_start[0] == ' ') line_start++;
       if (line_start[0] == '\0') break;
     }
   }
