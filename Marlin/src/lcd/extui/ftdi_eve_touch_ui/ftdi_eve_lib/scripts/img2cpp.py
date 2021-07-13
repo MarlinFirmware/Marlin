@@ -29,13 +29,13 @@ class WriteSource:
     self.mode        = mode
     self.offset      = 8
     self.byte        = 0
-    
+
   def finish_byte(self):
     if self.offset != 8:
       self.values.append(self.byte)
       self.offset = 8
       self.byte   = 0
-      
+
   def add_bits_to_byte(self, value, size = 1):
     self.offset -= size
     self.byte = self.byte | value << self.offset

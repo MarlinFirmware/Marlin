@@ -71,7 +71,7 @@
 #include <LPC17xx.h>
 #include <gpio.h>
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 

@@ -908,7 +908,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
         #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.
-          #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+          #if HAS_MOTOR_CURRENT_DAC
             case 909: M909(); break;                              // M909: Print digipot/DAC current value
             case 910: M910(); break;                              // M910: Commit digipot/DAC value to external EEPROM
           #endif

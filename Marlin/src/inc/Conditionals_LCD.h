@@ -31,6 +31,11 @@
   #define MKS_MINI_12864
 #endif
 
+// MKS_MINI_12864_V3 is simply identical to FYSETC_MINI_12864_2_1
+#if ENABLED(MKS_MINI_12864_V3)
+  #define FYSETC_MINI_12864_2_1
+#endif
+
 /**
  * General Flags that may be set below by specific LCDs
  *
