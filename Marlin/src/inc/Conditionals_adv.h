@@ -127,7 +127,9 @@
 
 // Usurp a sensor to do redundant readings
 #if TEMP_SENSOR_REDUNDANT
-  #define REDUNDANT_TEMP_MATCH(M,N) (TEMP_SENSOR_REDUNDANT_##M == HID_##N)
+  #define _HEATER_ID(M) HID_##M
+  #define HEATER_ID(M)  _HEATER_ID(M)
+  #define REDUNDANT_TEMP_MATCH(M,N) (HEATER_ID(TEMP_SENSOR_REDUNDANT_##M) == _HEATER_ID(N))
 #else
   #define REDUNDANT_TEMP_MATCH(...) 0
 #endif
