@@ -815,7 +815,7 @@ class Temperature {
         static inline int16_t rawBoardTemp()    { return temp_board.raw; }
       #endif
       static inline celsius_float_t degBoard()  { return temp_board.celsius; }
-      static inline celsius_t wholeDegBoard()   { return static_cast<celsius_t>(degBoard() + 0.5f); }
+      static inline celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_REDUNDANT
