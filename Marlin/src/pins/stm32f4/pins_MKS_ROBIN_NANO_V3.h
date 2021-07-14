@@ -180,8 +180,7 @@
 //
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_2_PIN                        PE6
-#define PW_DET                              PA13
-#define PW_OFF                              PB2
+#define MT_DET_PIN_INVERTING               false  // LVGL UI filament RUNOUT PIN STATE
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN            MT_DET_1_PIN
@@ -191,9 +190,9 @@
 #endif
 
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                  PW_DET
+  #define POWER_LOSS_PIN                    PA13  // PW_DET
 #endif
-#define PS_ON_PIN                         PW_OFF
+#define PS_ON_PIN                           PB2   // PW_OFF
 
 //
 // Enable MKSPWC support
