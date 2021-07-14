@@ -28,10 +28,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if NONE(STM32F103xE, STM32F103xG, STM32F4xx, STM32F7xx)
-  #error "ERROR - Only STM32F103xE, STM32F103xG, STM32F4xx or STM32F7xx CPUs supported"
-#endif
-
 // use local drivers
 #if defined(STM32F103xE) || defined(STM32F103xG)
   #include <stm32f1xx_hal_rcc_ex.h>
@@ -47,7 +43,7 @@
   #include <stm32f7xx_hal_gpio.h>
   #include <stm32f7xx_hal_sd.h>
 #else
-  #error "ERROR - Only STM32F103xE, STM32F103xG, STM32F4xx or STM32F7xx CPUs supported"
+  #error "SDIO only supported with STM32F103xE, STM32F103xG, STM32F4xx, or STM32F7xx."
 #endif
 
 // Fixed
