@@ -108,11 +108,11 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .colors(normal_btn)
        .tag(6).button (BTN_POS(1,6), BTN_SIZE(4,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
-       .tag(1).button (BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(MSG_BACK));
+       .tag(1).button (BTN_POS(1,7), BTN_SIZE(4,1), GET_TEXT_F(MSG_BUTTON_DONE));
     #else
        .tag(6).button (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUNDS))
        .colors(action_btn)
-       .tag(1).button (BTN_POS(3,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+       .tag(1).button (BTN_POS(3,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_DONE));
     #endif
   }
 }
