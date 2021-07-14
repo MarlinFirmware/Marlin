@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "FLY_MINI"
-#define BOARD_WEBSITE_URL "github.com/FLYmaker"
+#define BOARD_WEBSITE_URL "github.com/FLYmaker/FLY-MINI"
 #define DISABLE_JTAG
 
 //
