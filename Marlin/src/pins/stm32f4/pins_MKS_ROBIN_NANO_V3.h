@@ -59,7 +59,7 @@
 //
 // Limit Switches
 //
-#define X_DIAG_PIN                          PD15
+#define X_DIAG_PIN                          PA15
 #define Y_DIAG_PIN                          PD2
 #define Z_DIAG_PIN                          PC8
 #define E0_DIAG_PIN                         PC4
@@ -180,6 +180,7 @@
 //
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_2_PIN                        PE6
+#define MT_DET_PIN_INVERTING               false  // LVGL UI filament RUNOUT PIN STATE
 #define PW_DET                              PA13
 #define PW_OFF                              PB2
 
