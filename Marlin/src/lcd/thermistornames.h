@@ -128,6 +128,8 @@
   #define THERMISTOR_NAME "Pt100 1K"
 #elif THERMISTOR_ID == 666
   #define THERMISTOR_NAME "Einstart S"
+#elif THERMISTOR_ID == 2000
+  #define THERMISTOR_NAME "TDK NTCG104LH104JT1"
 
 // High Temperature thermistors
 #elif THERMISTOR_ID == 61

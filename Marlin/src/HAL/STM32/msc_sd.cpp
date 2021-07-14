@@ -19,10 +19,10 @@
 
 #if HAS_SD_HOST_DRIVE
 
+#include "../shared/Marduino.h"
 #include "msc_sd.h"
 #include "usbd_core.h"
 
-#include "../shared/Marduino.h"
 #include "../../sd/cardreader.h"
 
 #include <USB.h>
