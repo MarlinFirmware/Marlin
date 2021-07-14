@@ -23,10 +23,10 @@
 
 /********************************************************************************
  * @file     dwin_lcd.h
- * @author   LEO / Creality3D
- * @date     2019/07/18
- * @version  2.0.1
- * @brief    迪文屏控制操作函数
+ * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
+ * @date     2021/06/20
+ * @version  2.0.2
+ * @brief    DWIN screen control functions
  ********************************************************************************/
 
 #include <stdint.h>
@@ -39,9 +39,16 @@
 #define DWIN_SCROLL_UP   2
 #define DWIN_SCROLL_DOWN 3
 
-#define DWIN_WIDTH  272
-#define DWIN_HEIGHT 480
+#if DISABLED(DWIN_MARLINUI_LANDSCAPE)
+  #define DWIN_WIDTH  272
+  #define DWIN_HEIGHT 480
+#else
+  #define DWIN_WIDTH  480
+  #define DWIN_HEIGHT 272
+#endif
+
 #define DWIN_DataLength (DWIN_WIDTH / 6 * 2)
+
 /*-------------------------------------- System variable function --------------------------------------*/
 
 // Handshake (1: Success, 0: Fail)
@@ -168,15 +175,45 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 
+// Display QR code
+//  The size of the QR code is (46*QR_Pixel)*(46*QR_Pixel) dot matrix
+//  QR_Pixel: The pixel size occupied by each point of the QR code: 0x01-0x0F (1-16)
+//  (Nx, Ny): The coordinates of the upper left corner displayed by the QR code
+//  str: multi-bit data
+void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string);
+
+inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_QR(QR_Pixel, x, y, (char *)title);
+}
+
 // Draw JPG and cached in #0 virtual display area
 // id: Picture ID
 void DWIN_JPG_ShowAndCache(const uint8_t id);
 
 // Draw an Icon
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
-void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
+
+// Draw an Icon with transparent background
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
+inline void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
+  DWIN_ICON_Show(0, 0, 1, libID, picID, x, y);
+}
+
+// Draw an Icon from SRAM
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
+//  x/y: Upper-left point
+//  addr: SRAM address
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint16_t x, uint16_t y, uint16_t addr);
 
 // Unzip the JPG picture to a virtual display area
 //  n: Cache index
@@ -187,13 +224,33 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id);
 //  id: Picture ID
 inline void DWIN_JPG_CacheTo1(uint8_t id) { DWIN_JPG_CacheToN(1, id); }
 
+// Copy area from current virtual display area to current screen
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
 // Copy area from virtual display area to current screen
+//  IBD: background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  cacheID: virtual area number
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+void DWIN_Frame_AreaCopy(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
+// Copy area from virtual display area to current screen with transparent background
+//  cacheID: virtual area number
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+inline void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
+  DWIN_Frame_AreaCopy(0, 0, 1, cacheID, xStart, yStart, xEnd, yEnd, x, y);
+}
 
 // Animate a series of icons
 //  animID: Animation ID  up to 16
@@ -212,3 +269,14 @@ void DWIN_ICON_AnimationControl(uint16_t state);
 
 // Set LCD Brightness 0x00-0x0F
 void DWIN_LCD_Brightness(const uint8_t brightness);
+
+// Write buffer data to the SRAM or Flash
+//  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
+//  addr: start address
+//  length: Bytes to write
+//  data: address of the buffer with data
+void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data);
+
+// Write the contents of the 32KB SRAM data memory into the designated image memory space.
+//  picID: Picture memory space location, 0x00-0x0F, each space is 32Kbytes
+void DWIN_SRAMToPic(uint8_t picID);

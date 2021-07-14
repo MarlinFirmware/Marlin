@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 2.3
- * Date: 2021/07/13
+ * Version: 2.4
+ * Date: 2021/07/14
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as 
@@ -472,6 +472,23 @@ public:
   //  color1 : Start color
   //  color2 : End color
   uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
+
+  // Write buffer data to the SRAM
+  //  addr: SRAM start address 0x0000-0x7FFF
+  //  length: Bytes to write
+  //  data: address of the buffer with data
+  inline void WriteToSRAM(uint16_t addr, uint16_t length, uint8_t *data) {
+    DWIN_WriteToMem(0x5A, addr, length, data);
+  }
+
+  // Write buffer data to the Flash
+  //  addr: Flash start address 0x0000-0x3FFF
+  //  length: Bytes to write
+  //  data: address of the buffer with data
+  inline void WriteToFlash(uint16_t addr, uint16_t length, uint8_t *data) {
+    DWIN_WriteToMem(0xA5, addr, length, data);
+  }
+
 };
 extern DWINUIClass DWIN;
 

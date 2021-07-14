@@ -22,15 +22,15 @@
 
 /********************************************************************************
  * @file     dwin_lcd.cpp
- * @author   LEO / Creality3D
- * @date     2019/07/18
- * @version  2.0.1
+ * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
+ * @date     2021/06/20
+ * @version  2.0.2
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -321,6 +321,21 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 
+// Display QR code
+//  The size of the QR code is (46*QR_Pixel)*(46*QR_Pixel) dot matrix
+//  QR_Pixel: The pixel size occupied by each point of the QR code: 0x01-0x0F (1-16)
+//  (Nx, Ny): The coordinates of the upper left corner displayed by the QR code
+//  str: multi-bit data
+void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x21);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_Byte(i, QR_Pixel);
+  DWIN_String(i, string);
+  DWIN_Send(i);
+}
+
 // Draw JPG and cached in #0 virtual display area
 // id: Picture ID
 void DWIN_JPG_ShowAndCache(const uint8_t id) {
@@ -331,18 +346,39 @@ void DWIN_JPG_ShowAndCache(const uint8_t id) {
 }
 
 // Draw an Icon
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
-void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
   NOMORE(x, DWIN_WIDTH - 1);
   NOMORE(y, DWIN_HEIGHT - 1); // -- ozy -- srl
   size_t i = 0;
   DWIN_Byte(i, 0x23);
   DWIN_Word(i, x);
   DWIN_Word(i, y);
-  DWIN_Byte(i, 0x80 | libID);
+  DWIN_Byte(i, IBD%2<<7 | BIR%2<<6 | BFI%2<<5 | libID);
   DWIN_Byte(i, picID);
+  DWIN_Send(i);
+}
+
+// Draw an Icon from SRAM
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
+//  x/y: Upper-left point
+//  addr: SRAM address
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint16_t x, uint16_t y, uint16_t addr) {
+  NOMORE(x, DWIN_WIDTH - 1);
+  NOMORE(y, DWIN_HEIGHT - 1); // -- ozy -- srl
+  size_t i = 0;
+  DWIN_Byte(i, 0x24);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_Byte(i, IBD%2<<7 | BIR%2<<6 | BFI%2<<5 | 0x00);
+  DWIN_Word(i, addr);
   DWIN_Send(i);
 }
 
@@ -357,16 +393,36 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id) {
   DWIN_Send(i);
 }
 
+// Copy area from current virtual display area to current screen
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x26);
+  DWIN_Word(i, xStart);
+  DWIN_Word(i, yStart);
+  DWIN_Word(i, xEnd);
+  DWIN_Word(i, yEnd);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_Send(i);
+}
+
 // Copy area from virtual display area to current screen
+//  IBD: background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  cacheID: virtual area number
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+void DWIN_Frame_AreaCopy(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x27);
-  DWIN_Byte(i, 0x80 | cacheID);
+  DWIN_Byte(i, IBD%2<<7 | BIR%2<<6 | BFI%2<<5 | cacheID);
   DWIN_Word(i, xStart);
   DWIN_Word(i, yStart);
   DWIN_Word(i, xEnd);
@@ -420,6 +476,45 @@ void DWIN_LCD_Brightness(const uint8_t brightness) {
   DWIN_Send(i);
 }
 
+// Write buffer data to the SRAM or Flash
+//  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
+//  addr: start address
+//  length: Bytes to write
+//  data: address of the buffer with data
+void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data) {
+  const uint8_t max_size = 128;
+  uint16_t pending = length;
+  uint16_t to_send;
+  uint16_t indx;
+  uint8_t block = 0;
+  
+  while (pending > 0) {
+    indx = block * max_size;
+    to_send = _MIN(pending, max_size);
+    size_t i = 0;
+    DWIN_Byte(i, 0x31);
+    DWIN_Byte(i, mem);
+    DWIN_Word(i, addr + indx); // start address of the data block
+    ++i;
+    LOOP_L_N(j, i) { LCD_SERIAL.write(DWIN_SendBuf[j]); delayMicroseconds(1); }  // Buf header
+    for (uint16_t j = indx; j <= indx + to_send - 1; j++) LCD_SERIAL.write(*(data + j)); delayMicroseconds(1);  // write block of data
+    LOOP_L_N(j, 4) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
+    block++;
+    pending -= to_send;
+  } 
+}
+
+// Write the contents of the 32KB SRAM data memory into the designated image memory space.
+//  picID: Picture memory space location, 0x00-0x0F, each space is 32Kbytes
+void DWIN_SRAMToPic(uint8_t picID) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x33);
+  DWIN_Byte(i, 0x5A);
+  DWIN_Byte(i, 0xA5);
+  DWIN_Byte(i, picID);
+  DWIN_Send(i);
+}
+
 /*---------------------------------------- Memory functions ----------------------------------------*/
 // The LCD has an additional 32KB SRAM and 16KB Flash
 
@@ -453,4 +548,4 @@ void DWIN_LCD_Brightness(const uint8_t brightness) {
 //
 //  Flash writing returns 0xA5 0x4F 0x4B
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD, IS_DWIN_MARLINUI

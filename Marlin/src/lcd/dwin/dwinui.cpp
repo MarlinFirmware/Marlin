@@ -21,7 +21,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
 
 #include "../../inc/MarlinConfig.h"
 #include "dwin_lcd.h"

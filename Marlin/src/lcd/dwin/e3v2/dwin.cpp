@@ -218,7 +218,7 @@ void HMI_ToggleLanguage() {
 
 void ICON_Print() {
   if (select_page.now == 0) {
-    DWIN.Draw_Icon(ICON_Print_1, 17, 130);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Print_1, 17, 130);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 17, 130, 126, 229);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 1, 447, 28, 460, 58, 201);
@@ -226,7 +226,7 @@ void ICON_Print() {
       DWIN_Frame_AreaCopy(1, 1, 451, 31, 463, 57, 201);
   }
   else {
-    DWIN.Draw_Icon(ICON_Print_0, 17, 130);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Print_0, 17, 130);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 1, 405, 28, 420, 58, 201);
     else
@@ -236,7 +236,7 @@ void ICON_Print() {
 
 void ICON_Prepare() {
   if (select_page.now == 1) {
-    DWIN.Draw_Icon(ICON_Prepare_1, 145, 130);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Prepare_1, 145, 130);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 145, 130, 254, 229);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 31, 447, 58, 460, 186, 201);
@@ -244,7 +244,7 @@ void ICON_Prepare() {
       DWIN_Frame_AreaCopy(1, 33, 451, 82, 466, 175, 201);
   }
   else {
-    DWIN.Draw_Icon(ICON_Prepare_0, 145, 130);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Prepare_0, 145, 130);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 31, 405, 58, 420, 186, 201);
     else
@@ -254,7 +254,7 @@ void ICON_Prepare() {
 
 void ICON_Control() {
   if (select_page.now == 2) {
-    DWIN.Draw_Icon(ICON_Control_1, 17, 246);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Control_1, 17, 246);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 17, 246, 126, 345);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 61, 447, 88, 460, 58, 318);
@@ -262,7 +262,7 @@ void ICON_Control() {
       DWIN_Frame_AreaCopy(1, 85, 451, 132, 463, 48, 318);
   }
   else {
-    DWIN.Draw_Icon(ICON_Control_0, 17, 246);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Control_0, 17, 246);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 61, 405, 88, 420, 58, 318);
     else
@@ -272,7 +272,7 @@ void ICON_Control() {
 
 void ICON_StartInfo(bool show) {
   if (show) {
-    DWIN.Draw_Icon(ICON_Info_1, 145, 246);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Info_1, 145, 246);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 145, 246, 254, 345);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 91, 447, 118, 460, 186, 318);
@@ -280,7 +280,7 @@ void ICON_StartInfo(bool show) {
       DWIN_Frame_AreaCopy(1, 132, 451, 159, 466, 186, 318);
   }
   else {
-    DWIN.Draw_Icon(ICON_Info_0, 145, 246);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Info_0, 145, 246);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 91, 405, 118, 420, 186, 318);
     else
@@ -290,7 +290,7 @@ void ICON_StartInfo(bool show) {
 
 void ICON_Leveling(bool show) {
   if (show) {
-    DWIN.Draw_Icon(ICON_Leveling_1, 145, 246);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Leveling_1, 145, 246);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 145, 246, 254, 345);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 211, 447, 238, 460, 186, 318);
@@ -298,7 +298,7 @@ void ICON_Leveling(bool show) {
       DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 318);
   }
   else {
-    DWIN.Draw_Icon(ICON_Leveling_0, 145, 246);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Leveling_0, 145, 246);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 211, 405, 238, 420, 186, 318);
     else
@@ -308,7 +308,7 @@ void ICON_Leveling(bool show) {
 
 void ICON_Tune() {
   if (select_print.now == 0) {
-    DWIN.Draw_Icon(ICON_Setup_1, 8, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Setup_1, 8, 252);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 8, 252, 87, 351);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 121, 447, 148, 458, 34, 325);
@@ -316,7 +316,7 @@ void ICON_Tune() {
       DWIN_Frame_AreaCopy(1,   0, 466,  34, 476, 31, 325);
   }
   else {
-    DWIN.Draw_Icon(ICON_Setup_0, 8, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Setup_0, 8, 252);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 121, 405, 148, 420, 34, 325);
     else
@@ -326,7 +326,7 @@ void ICON_Tune() {
 
 void ICON_Pause() {
   if (select_print.now == 1) {
-    DWIN.Draw_Icon(ICON_Pause_1, 96, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Pause_1, 96, 252);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 96, 252, 175, 351);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 181, 447, 208, 459, 124, 325);
@@ -334,7 +334,7 @@ void ICON_Pause() {
       DWIN_Frame_AreaCopy(1, 177, 451, 216, 462, 116, 325);
   }
   else {
-    DWIN.Draw_Icon(ICON_Pause_0, 96, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Pause_0, 96, 252);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 181, 405, 208, 420, 124, 325);
     else
@@ -344,7 +344,7 @@ void ICON_Pause() {
 
 void ICON_Continue() {
   if (select_print.now == 1) {
-    DWIN.Draw_Icon(ICON_Continue_1, 96, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Continue_1, 96, 252);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 96, 252, 175, 351);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 1, 447, 28, 460, 124, 325);
@@ -352,7 +352,7 @@ void ICON_Continue() {
       DWIN_Frame_AreaCopy(1, 1, 452, 32, 464, 121, 325);
   }
   else {
-    DWIN.Draw_Icon(ICON_Continue_0, 96, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Continue_0, 96, 252);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 1, 405, 28, 420, 124, 325);
     else
@@ -362,7 +362,7 @@ void ICON_Continue() {
 
 void ICON_Stop() {
   if (select_print.now == 2) {
-    DWIN.Draw_Icon(ICON_Stop_1, 184, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Stop_1, 184, 252);
     DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 184, 252, 263, 351);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 151, 447, 178, 459, 210, 325);
@@ -370,7 +370,7 @@ void ICON_Stop() {
       DWIN_Frame_AreaCopy(1, 218, 452, 249, 466, 209, 325);
   }
   else {
-    DWIN.Draw_Icon(ICON_Stop_0, 184, 252);
+    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Stop_0, 184, 252);
     if (HMI_IsChinese())
       DWIN_Frame_AreaCopy(1, 151, 405, 178, 420, 210, 325);
     else
