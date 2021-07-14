@@ -26,7 +26,7 @@
   *  ║║ ╦╠═╣│ │├┬┘│ │├┬┘├─┤╠╣ │ │├┬┘│ ││││ │  │ ││││
   * ╚╝╚═╝╩ ╩└─┘┴└─└─┘┴└─┴ ┴╚  └─┘┴└─└─┘┴ ┴o└─┘└─┘┴ ┴
   *   Pin assignments for 32-bit JGAurora A5S & A1
-
+  *
   * https://jgaurorawiki.com/_media/jgaurora_a5s_a1_pinout.png
   */
 
