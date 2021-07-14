@@ -231,6 +231,9 @@
 #define STR_HEATER_BED                      "bed"
 #define STR_HEATER_CHAMBER                  "chamber"
 #define STR_COOLER                          "cooler"
+#define STR_MOTHERBOARD                     "motherboard"
+#define STR_PROBE                           "probe"
+#define STR_REDUNDANT                       "redundant "
 #define STR_LASER_TEMP                      "laser temperature"
 
 #define STR_STOPPED_HEATER                  ", system stopped! Heater_ID: "

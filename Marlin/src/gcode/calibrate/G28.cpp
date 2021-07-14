@@ -167,12 +167,15 @@
   motion_state_t begin_slow_homing() {
     motion_state_t motion_state{0};
     motion_state.acceleration.set(planner.settings.max_acceleration_mm_per_s2[X_AXIS],
-                                 planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
+                                 planner.settings.max_acceleration_mm_per_s2[Y_AXIS]
+                                 OPTARG(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
+                               );
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
+    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);
     #if HAS_CLASSIC_JERK
       motion_state.jerk_state = planner.max_jerk;
-      planner.max_jerk.set(0, 0);
+      planner.max_jerk.set(0, 0 OPTARG(DELTA, 0));
     #endif
     planner.reset_acceleration_rates();
     return motion_state;
@@ -181,6 +184,7 @@
   void end_slow_homing(const motion_state_t &motion_state) {
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = motion_state.acceleration.x;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = motion_state.acceleration.y;
+    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = motion_state.acceleration.z);
     TERN_(HAS_CLASSIC_JERK, planner.max_jerk = motion_state.jerk_state);
     planner.reset_acceleration_rates();
   }
@@ -259,7 +263,7 @@ void GcodeSuite::G28() {
   reset_stepper_timeout();
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)
+  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2) || (ENABLED(DELTA) && HAS_CURRENT_HOME(Z))
     #define HAS_HOMING_CURRENT 1
   #endif
 
@@ -286,6 +290,11 @@ void GcodeSuite::G28() {
       const int16_t tmc_save_current_Y2 = stepperY2.getMilliamps();
       stepperY2.rms_current(Y2_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(PSTR("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
+      const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
+      stepperZ.rms_current(Z_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
     #endif
   #endif
 
@@ -496,6 +505,9 @@ void GcodeSuite::G28() {
     #endif
     #if HAS_CURRENT_HOME(Y2)
       stepperY2.rms_current(tmc_save_current_Y2);
+    #endif
+    #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
+      stepperZ.rms_current(tmc_save_current_Z);
     #endif
     #if HAS_CURRENT_HOME(I)
       stepperI.rms_current(tmc_save_current_I);

@@ -27,30 +27,72 @@
 #include "../gcode.h"
 
 #if ENABLED(DELTA)
-
   #include "../../module/delta.h"
   #include "../../module/motion.h"
+#else
+  #include "../../module/endstops.h"
+#endif
 
-  #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
-  #include "../../core/debug_out.h"
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../core/debug_out.h"
+
+void M666_report(const bool forReplay=true) {
+  if (!forReplay) { SERIAL_ECHOLNPGM("; Endstop adjustment:"); SERIAL_ECHO_START(); }
+  #if ENABLED(DELTA)
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
+      , SP_Y_STR, LINEAR_UNIT(delta_endstop_adj.b)
+      , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
+    );
+  #else
+    SERIAL_ECHOPGM("  M666");
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, LINEAR_UNIT(endstops.x2_endstop_adj));
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      SERIAL_ECHOLNPAIR_P(SP_Y_STR, LINEAR_UNIT(endstops.y2_endstop_adj));
+    #endif
+    #if ENABLED(Z_MULTI_ENDSTOPS)
+      #if NUM_Z_STEPPER_DRIVERS >= 3
+        SERIAL_ECHOPAIR(" S2 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
+        if (!forReplay) SERIAL_ECHO_START();
+        SERIAL_ECHOPAIR("  M666 S3 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
+        #if NUM_Z_STEPPER_DRIVERS >= 4
+          if (!forReplay) SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("  M666 S4 Z", LINEAR_UNIT(endstops.z4_endstop_adj));
+        #endif
+      #else
+        SERIAL_ECHOLNPAIR_P(SP_Z_STR, LINEAR_UNIT(endstops.z2_endstop_adj));
+      #endif
+    #endif
+  #endif
+}
+
+#if ENABLED(DELTA)
 
   /**
    * M666: Set delta endstop adjustment
    */
   void GcodeSuite::M666() {
     DEBUG_SECTION(log_M666, "M666", DEBUGGING(LEVELING));
+    bool is_err = false, is_set = false;
     LOOP_LINEAR_AXES(i) {
       if (parser.seen(AXIS_CHAR(i))) {
+        is_set = true;
         const float v = parser.value_linear_units();
-        if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", AS_CHAR(AXIS_CHAR(i)), "] = ", delta_endstop_adj[i]);
+        if (v > 0)
+          is_err = true;
+        else {
+          delta_endstop_adj[i] = v;
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", AS_CHAR(AXIS_CHAR(i)), "] = ", v);
+        }
       }
     }
+    if (is_err) SERIAL_ECHOLNPAIR("?M666 offsets must be <= 0");
+    if (!is_set) M666_report();
   }
 
-#elif HAS_EXTRA_ENDSTOPS
-
-  #include "../../module/endstops.h"
+#else
 
   /**
    * M666: Set Dual Endstops offsets for X, Y, and/or Z.
@@ -81,21 +123,7 @@
         #endif
       }
     #endif
-    if (!parser.seen("XYZ")) {
-      auto echo_adj = [](PGM_P const label, const_float_t value) { SERIAL_ECHOPAIR_P(label, value); };
-      SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
-      #if ENABLED(X_DUAL_ENDSTOPS)
-        echo_adj(PSTR(" X2:"), endstops.x2_endstop_adj);
-      #endif
-      #if ENABLED(Y_DUAL_ENDSTOPS)
-        echo_adj(PSTR(" Y2:"), endstops.y2_endstop_adj);
-      #endif
-      #if ENABLED(Z_MULTI_ENDSTOPS)
-        #define _ECHO_ZADJ(N) echo_adj(PSTR(" Z" STRINGIFY(N) ":"), endstops.z##N##_endstop_adj);
-        REPEAT_S(2, INCREMENT(NUM_Z_STEPPER_DRIVERS), _ECHO_ZADJ)
-      #endif
-      SERIAL_EOL();
-    }
+    if (!parser.seen("XYZ")) M666_report();
   }
 
 #endif // HAS_EXTRA_ENDSTOPS
