@@ -2585,7 +2585,7 @@ void Draw_FilamentMan_Menu(){
 
 #include "../../../libs/buzzer.h"
 
-void HMI_AudioFeedback(const bool success=true) {
+void HMI_AudioFeedback(const bool success/*=true*/) {
   #if HAS_BUZZER
     if (success) {
       buzzer.tone(100, 659);
