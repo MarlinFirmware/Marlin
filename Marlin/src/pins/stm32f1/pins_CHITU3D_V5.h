@@ -117,13 +117,9 @@
 #define W25QXX_SCK_PIN                      PB13
 
 //
-// TronXY TFT Support
+// TFT with FSMC interface
 //
-
 #if HAS_FSMC_TFT
-
-  // Shared FSMC
-
   #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
@@ -139,8 +135,7 @@
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                  FSMC_RS_PIN
-
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 #endif
 
 #if ENABLED(TFT_LVGL_UI)
