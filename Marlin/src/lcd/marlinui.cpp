@@ -985,11 +985,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
           #endif
         }
 
-        #ifdef LED_BACKLIGHT_TIMEOUT
-          if (!powersupply_on) leds.reset_timeout(ms);
-        #endif
-      }
-
     #endif
 
     // This runs every ~100ms when idling often enough.
