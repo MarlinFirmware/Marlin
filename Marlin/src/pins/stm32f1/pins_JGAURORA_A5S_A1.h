@@ -26,6 +26,8 @@
   *  ║║ ╦╠═╣│ │├┬┘│ │├┬┘├─┤╠╣ │ │├┬┘│ ││││ │  │ ││││
   * ╚╝╚═╝╩ ╩└─┘┴└─└─┘┴└─┴ ┴╚  └─┘┴└─└─┘┴ ┴o└─┘└─┘┴ ┴
   *   Pin assignments for 32-bit JGAurora A5S & A1
+
+  * https://jgaurorawiki.com/_media/jgaurora_a5s_a1_pinout.png
   */
 
 #include "env_validate.h"
@@ -112,6 +114,10 @@
 #define FSMC_DMA_DEV                        DMA2
 #define FSMC_DMA_CHANNEL                 DMA_CH5
 
+
+#define TFT_CS_PIN                   FSMC_CS_PIN
+#define TFT_RS_PIN                   FSMC_RS_PIN
+
 //
 // SD Card
 //
@@ -129,4 +135,7 @@
 #if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PA4
   #define TOUCH_INT_PIN                     PC4
+  #define TOUCH_MISO_PIN                    PA6
+  #define TOUCH_MOSI_PIN                    PA7
+  #define TOUCH_SCK_PIN                     PA5
 #endif
