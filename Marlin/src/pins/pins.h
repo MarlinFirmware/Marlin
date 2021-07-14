@@ -534,7 +534,7 @@
 #elif MB(CCROBOT_MEEB_3DP)
   #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb_maple
 #elif MB(CHITU3D_V5)
-  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103_maple env:chitu_v5_gpio_init
+  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103_maple env:chitu_v5_gpio_init_maple
 #elif MB(CHITU3D_V6)
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103_maple
 #elif MB(CREALITY_V4)
