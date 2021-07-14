@@ -828,10 +828,8 @@ void idle(bool no_stepper_sleep/*=false*/) {
 
   // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
-    if (endstops.tmc_spi_homing.any
-      && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period))
-    ) LOOP_L_N(i, 4) // Read SGT 4 times per idle loop
-        if (endstops.tmc_spi_homing_check()) break;
+    if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period)))
+      LOOP_L_N(i, 4) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
   #endif
 
   // Handle SD Card insert / remove
@@ -1211,13 +1209,6 @@ void setup() {
     #else
       #error "DISABLE_(DEBUG|JTAG) is not supported for the selected MCU/Board."
     #endif
-  #endif
-
-  #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
-    mks_esp_wifi_init();
-    WIFISERIAL.begin(WIFI_BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
 
   TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime

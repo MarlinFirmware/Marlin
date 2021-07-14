@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -114,4 +114,4 @@ uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t b
 }
 
 #endif // USE_OTG_USB_HOST && USBHOST
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
