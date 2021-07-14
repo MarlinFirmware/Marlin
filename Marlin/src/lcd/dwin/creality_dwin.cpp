@@ -163,6 +163,7 @@ float valuemax;
 uint8_t valueunit;
 uint8_t valuetype;
 
+char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
 char statusmsg[64];
 char filename[LONG_FILENAME_LENGTH];
 bool printing = false;
@@ -197,9 +198,8 @@ CrealityDWINClass CrealityDWIN;
       uint8_t tilt_grid = 1;
 
       void manual_value_update(bool undefined=false) {
-        char buf[32];
-        sprintf(buf, "M421 I%i J%i Z%.3f %s", mesh_x, mesh_y, current_position.z, undefined ? "N" : "");
-        gcode.process_subcommands_now_P(buf);
+        sprintf_P(cmd, PSTR("M421 I%i J%i Z%s %s"), mesh_x, mesh_y, dtostrf(current_position.z, 1, 3, str_1), undefined ? "N" : "");
+        gcode.process_subcommands_now_P(cmd);
         planner.synchronize();
       }
 
@@ -259,9 +259,8 @@ CrealityDWINClass CrealityDWIN;
       bed_mesh_t &mesh_z_values = z_values;
 
       void manual_value_update() {
-        char buf[32];
-        sprintf(buf, "G29 I%i J%i Z%.3f", mesh_x, mesh_y, current_position.z);
-        gcode.process_subcommands_now_P(buf);
+        sprintf_P(cmd, PSTR("G29 I%i J%i Z%s"), mesh_x, mesh_y, dtostrf(current_position.z, 1, 3, str_1));
+        gcode.process_subcommands_now_P(cmd);
         planner.synchronize();
       }
 
@@ -275,12 +274,11 @@ CrealityDWINClass CrealityDWIN;
         planner.synchronize();
       }
       else {
-        char buf[20];
         CrealityDWIN.Popup_Handler(MoveWait);
-        sprintf(buf, "G0 F300 Z%.3f", (float)Z_CLEARANCE_BETWEEN_PROBES);
-        gcode.process_subcommands_now_P(buf);
-        sprintf(buf, "G42 F4000 I%i J%i", mesh_x, mesh_y);
-        gcode.process_subcommands_now_P(buf);
+        sprintf_P(cmd, PSTR("G0 F300 Z%s"), dtostrf(Z_CLEARANCE_BETWEEN_PROBES, 1, 3, str_1));
+        gcode.process_subcommands_now_P(cmd);
+        sprintf_P(cmd, PSTR("G42 F4000 I%i J%i"), mesh_x, mesh_y);
+        gcode.process_subcommands_now_P(cmd);
         planner.synchronize();
         current_position.z = goto_mesh_value ? mesh_z_values[mesh_x][mesh_y] : Z_CLEARANCE_BETWEEN_PROBES;
         planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
@@ -352,7 +350,7 @@ CrealityDWINClass CrealityDWIN;
           }
           else {                          // has value
             if (GRID_MAX_POINTS_X < 10) {
-              sprintf(buf, "%.2f", abs(mesh_z_values[x][y]));
+              sprintf(buf, "%s", dtostrf(abs(mesh_z_values[x][y]), 1, 2, str_1));
             }
             else {
               sprintf(buf, "%02i", (uint16_t)(abs(mesh_z_values[x][y] - (int16_t)mesh_z_values[x][y]) * 100));
@@ -373,10 +371,10 @@ CrealityDWINClass CrealityDWIN;
       if (range > 3e+10F) range = 0.0000001;
       char msg[32];
       if (viewer_asymmetric_range) {
-        sprintf(msg, "Red %.3f..0..%.3f Green", -v_min, v_max);
+        sprintf(msg, "Red %s..0..%s Green", dtostrf(-v_min, 1, 3, str_1), dtostrf(v_max, 1, 3, str_2));
       }
       else {
-        sprintf(msg, "Red %.3f..0..%.3f Green", -range, range);
+        sprintf(msg, "Red %s..0..%s Green", dtostrf(-range, 1, 3, str_1), dtostrf(range, 1, 3, str_2));
       }
       CrealityDWIN.Update_Status(msg);
       drawing_mesh = false;
@@ -1146,9 +1144,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                     thermalManager.wait_for_hotend(0);
                   }
                   Popup_Handler(FilChange);
-                  char buf[20];
-                  sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-                  gcode.process_subcommands_now_P(buf);
+                  sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
+                  gcode.process_subcommands_now_P(cmd);
                 }
               #endif
             }
@@ -1390,18 +1387,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            char buf[80];
             if (use_probe) {
               #if HAS_BED_PROBE
-                sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f", PROBE_X_MIN, PROBE_Y_MIN);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(PROBE_X_MIN, 1, 3, str_1), dtostrf(PROBE_Y_MIN, 1, 3, str_2));
+                gcode.process_subcommands_now_P(cmd);
                 planner.synchronize();
                 Popup_Handler(ManualProbing);
               #endif
             }
             else {
-              sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", corner_pos, corner_pos, mlev_z_pos);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf(corner_pos, 1, 3, str_1), dtostrf(corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
+              gcode.process_subcommands_now_P(cmd);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -1413,18 +1409,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            char buf[80];
             if (use_probe) {
               #if HAS_BED_PROBE
-                sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f", PROBE_X_MIN, PROBE_Y_MAX);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(PROBE_X_MIN, 1, 3, str_1), dtostrf(PROBE_Y_MAX, 1, 3, str_2));
+                gcode.process_subcommands_now_P(cmd);
                 planner.synchronize();
                 Popup_Handler(ManualProbing);
               #endif
             }
             else {
-              sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", corner_pos, (Y_BED_SIZE + Y_MIN_POS) - corner_pos, mlev_z_pos);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf(corner_pos, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS) - corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
+              gcode.process_subcommands_now_P(cmd);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -1436,18 +1431,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            char buf[80];
             if (use_probe) {
               #if HAS_BED_PROBE
-                sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f", PROBE_X_MAX, PROBE_Y_MAX);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(PROBE_X_MAX, 1, 3, str_1), dtostrf(PROBE_Y_MAX, 1, 3, str_2));
+                gcode.process_subcommands_now_P(cmd);
                 planner.synchronize();
                 Popup_Handler(ManualProbing);
               #endif
             }
             else {
-              sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", (X_BED_SIZE + X_MIN_POS) - corner_pos, (Y_BED_SIZE + Y_MIN_POS) - corner_pos, mlev_z_pos);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf((X_BED_SIZE + X_MIN_POS) - corner_pos, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS) - corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
+              gcode.process_subcommands_now_P(cmd);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -1459,18 +1453,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            char buf[80];
             if (use_probe) {
               #if HAS_BED_PROBE
-                sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f", PROBE_X_MAX, PROBE_Y_MIN);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(PROBE_X_MAX, 1, 3, str_1), dtostrf(PROBE_Y_MIN, 1, 3, str_2));
+                gcode.process_subcommands_now_P(cmd);
                 planner.synchronize();
                 Popup_Handler(ManualProbing);
               #endif
             }
             else {
-              sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", (X_BED_SIZE + X_MIN_POS) - corner_pos, corner_pos, mlev_z_pos);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf((X_BED_SIZE + X_MIN_POS) - corner_pos, 1, 3, str_1), dtostrf(corner_pos, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
+              gcode.process_subcommands_now_P(cmd);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -1482,18 +1475,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Popup_Handler(MoveWait);
-            char buf[80];
             if (use_probe) {
               #if HAS_BED_PROBE
-                sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f", X_MAX_POS/2.0f - probe.offset.x, Y_MAX_POS/2.0f - probe.offset.y);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s"), dtostrf(X_MAX_POS/2.0f - probe.offset.x, 1, 3, str_1), dtostrf(Y_MAX_POS/2.0f - probe.offset.y, 1, 3, str_2));
+                gcode.process_subcommands_now_P(cmd);
                 planner.synchronize();
                 Popup_Handler(ManualProbing);
               #endif
             }
             else {
-              sprintf(buf, "G0 F4000\nG0 Z10\nG0 X%f Y%f\nG0 F300 Z%f", (X_BED_SIZE + X_MIN_POS)/2.0f, (Y_BED_SIZE + Y_MIN_POS)/2.0f, mlev_z_pos);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("G0 F4000\nG0 Z10\nG0 X%s Y%s\nG0 F300 Z%s"), dtostrf((X_BED_SIZE + X_MIN_POS)/2.0f, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS)/2.0f, 1, 3, str_2), dtostrf(mlev_z_pos, 1, 3, str_3));
+              gcode.process_subcommands_now_P(cmd);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -1545,9 +1537,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Popup_Handler(MoveWait);
               #if ENABLED(Z_SAFE_HOMING)
                 planner.synchronize();
-                char buf[50];
-                sprintf(buf, "G0 F4000 X%f Y%f", (float)Z_SAFE_HOMING_X_POINT, (float)Z_SAFE_HOMING_Y_POINT);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("G0 F4000 X%s Y%s"), dtostrf(Z_SAFE_HOMING_X_POINT, 1, 3, str_1), dtostrf(Z_SAFE_HOMING_Y_POINT, 1, 3, str_2));
+                gcode.process_subcommands_now_P(cmd);
               #else
                 gcode.process_subcommands_now_P(PSTR("G0 F4000 X117.5 Y117.5"));
               #endif
@@ -1570,9 +1561,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Popup_Handler(MoveWait);
                 #if ENABLED(Z_SAFE_HOMING)
                   planner.synchronize();
-                  char buf[50];
-                  sprintf(buf, "G0 F4000 X%f Y%f", (float)Z_SAFE_HOMING_X_POINT, (float)Z_SAFE_HOMING_Y_POINT);
-                  gcode.process_subcommands_now_P(buf);
+                  sprintf_P(cmd, PSTR("G0 F4000 X%s Y%s"), dtostrf(Z_SAFE_HOMING_X_POINT, 1, 3, str_1), dtostrf(Z_SAFE_HOMING_Y_POINT, 1, 3, str_2));
+                  gcode.process_subcommands_now_P(cmd);
                 #else
                   gcode.process_subcommands_now_P(PSTR("G0 F4000 X117.5 Y117.5"));
                 #endif
@@ -1821,9 +1811,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   thermalManager.wait_for_hotend(0);
                 }
                 Popup_Handler(FilChange);
-                char buf[20];
-                sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
+                gcode.process_subcommands_now_P(cmd);
               }
             }
             break;
@@ -2119,9 +2108,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               Popup_Handler(PIDWait);
-              char buf[30];
-              sprintf(buf, "M303 E0 C%i S%i U1", PID_cycles, PID_e_temp);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("M303 E0 C%i S%i U1"), PID_cycles, PID_e_temp);
+              gcode.process_subcommands_now_P(cmd);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -2193,9 +2181,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             else {
               Popup_Handler(PIDWait);
-              char buf[30];
-              sprintf(buf, "M303 E-1 C%i S%i U1", PID_cycles, PID_bed_temp);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("M303 E-1 C%i S%i U1"), PID_cycles, PID_bed_temp);
+              gcode.process_subcommands_now_P(cmd);
               planner.synchronize();
               Redraw_Menu();
             }
@@ -3214,9 +3201,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Draw_Menu_Item(row, ICON_StepY, "M48 Probe Test");
               }
               else {
-                char buf[50];
-                sprintf(buf, "G28O\nM48 X%f Y%f P%i", (X_BED_SIZE + X_MIN_POS)/2.0f, (Y_BED_SIZE + Y_MIN_POS)/2.0f, testcount);
-                gcode.process_subcommands_now_P(buf);
+                sprintf_P(cmd, PSTR("G28O\nM48 X%s Y%s P%i"), dtostrf((X_BED_SIZE + X_MIN_POS)/2.0f, 1, 3, str_1), dtostrf((Y_BED_SIZE + Y_MIN_POS)/2.0f, 1, 3, str_2), testcount);
+                gcode.process_subcommands_now_P(cmd);
               }
               break;
             case PROBE_TEST_COUNT:
@@ -3253,7 +3239,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               printStatistics ps = print_job_timer.getStats();
 
               sprintf(row1, "%i prints, %i finished", ps.totalPrints, ps.finishedPrints);
-              sprintf(row2, "%.2f m filament used", ps.filamentUsed / 1000);
+              sprintf(row2, "%s m filament used", dtostrf(ps.filamentUsed / 1000, 1, 2, str_1));
               Draw_Menu_Item(INFO_PRINTCOUNT, ICON_HotendTemp, row1, row2, false, true);
 
               duration_t(print_job_timer.getStats().printTime).toString(buf);
@@ -3332,14 +3318,13 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                 Popup_Handler(Home);
                 gcode.home_all_axes(true);
                 Popup_Handler(Level);
-                char buf[10];
                 if (mesh_conf.tilt_grid > 1) {
-                  sprintf(buf, "G29 J%i", mesh_conf.tilt_grid);
+                  sprintf_P(cmd, PSTR("G29 J%i"), mesh_conf.tilt_grid);
                 }
                 else {
-                  sprintf(buf, "G29 J");
+                  sprintf_P(cmd, PSTR("G29 J"));
                 }
-                gcode.process_subcommands_now_P(PSTR(buf));
+                gcode.process_subcommands_now_P(cmd);
                 planner.synchronize();
                 Redraw_Menu();
               }
@@ -4174,9 +4159,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               switch (last_menu) {
                 case Prepare:
                   Popup_Handler(FilChange);
-                  char buf[20];
-                  sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-                  gcode.process_subcommands_now_P(buf);
+                  sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
+                  gcode.process_subcommands_now_P(cmd);
                   break;
                 #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
                   case ChangeFilament:
@@ -4195,9 +4179,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                         break;
                       case CHANGEFIL_CHANGE:
                         Popup_Handler(FilChange);
-                        char buf[20];
-                        sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-                        gcode.process_subcommands_now_P(buf);
+                        sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
+                        gcode.process_subcommands_now_P(cmd);
                         break;
                     }
                     break;
@@ -4683,9 +4666,8 @@ void CrealityDWINClass::Value_Control() {
       sync_plan_position();
     }
     else if (active_menu == Tune && selection == TUNE_ZOFFSET) {
-      char buf[20];
-      sprintf(buf, "M290 Z%f", (tempvalue/valueunit - zoffsetvalue));
-      gcode.process_subcommands_now_P(buf);
+      sprintf_P(cmd, PSTR("M290 Z%s"), dtostrf((tempvalue/valueunit - zoffsetvalue), 1, 3, str_1));
+      gcode.process_subcommands_now_P(cmd);
     }
     if (valuepointer == &thermalManager.temp_hotend[0].pid.Ki || valuepointer == &thermalManager.temp_bed.pid.Ki) 
       tempvalue = scalePID_i(tempvalue);
@@ -4892,9 +4874,9 @@ void CrealityDWINClass::Print_Screen_Control() {
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             #else
               char cmnd[20];
-              cmnd[sprintf(cmnd, "M140 S%i", pausebed)] = '\0';
+              cmnd[sprintf_P(cmnd, PSTR("M140 S%i"), pausebed)] = '\0';
               gcode.process_subcommands_now_P(PSTR(cmnd));
-              cmnd[sprintf(cmnd, "M109 S%i", pausetemp)] = '\0';
+              cmnd[sprintf_P(cmnd, PSTR("M109 S%i"), pausetemp)] = '\0';
               gcode.process_subcommands_now_P(PSTR(cmnd));
               thermalManager.fan_speed[0] = pausefan;
               planner.synchronize();
@@ -5004,9 +4986,9 @@ void CrealityDWINClass::Popup_Control() {
             char buf[80];
             const float dif = probe.probe_at_point(current_position.x, current_position.y, PROBE_PT_STOW, 0, false) - corner_avg;
             if (dif > 0)
-              sprintf(buf, "Corner is %.3fmm high", ABS(dif));
+              sprintf(buf, "Corner is %smm high", dtostrf(abs(dif), 1, 3, str_1));
             else
-              sprintf(buf, "Corner is %.3fmm low", ABS(dif));
+              sprintf(buf, "Corner is %smm low", dtostrf(abs(dif), 1, 3, str_1));
             Update_Status(buf);
           }
           else {
@@ -5027,9 +5009,8 @@ void CrealityDWINClass::Popup_Control() {
                 thermalManager.wait_for_hotend(0);
               }
               Popup_Handler(FilChange);
-              char buf[20];
-              sprintf(buf, "M600 B1 R%i", thermalManager.temp_hotend[0].target);
-              gcode.process_subcommands_now_P(buf);
+              sprintf_P(cmd, PSTR("M600 B1 R%i"), thermalManager.temp_hotend[0].target);
+              gcode.process_subcommands_now_P(cmd);
             }
           } else {
             Redraw_Menu(true, true, false);
