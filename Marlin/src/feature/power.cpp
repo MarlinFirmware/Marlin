@@ -217,4 +217,4 @@ void Power::power_off() {
 
 #endif // AUTO_POWER_CONTROL
 
-#endif // EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
+#endif // PSU_CONTROL || AUTO_POWER_CONTROL
