@@ -33,7 +33,7 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 
 #elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "Index V1.1 supports up to 3 E-steppers."
+  #error "Index REV03 supports up to 3 E-steppers."
 #endif
 */
 
@@ -54,76 +54,76 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PE13
-#define SERVO1_PIN                          PE14
+#define SERVO0_PIN                          PB6
+#define SERVO1_PIN                          PB7
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PE8
+#define X_MIN_PIN                           PC6
 #define X_MAX_PIN                           -1
-#define Y_MIN_PIN                           PE9
+#define Y_MIN_PIN                           PD15
 #define Y_MAX_PIN                           -1
-#define Z_MIN_PIN                           PE10
+#define Z_MIN_PIN                           PD14
 #define Z_MAX_PIN                           -1
 
 //
 // Steppers
 //
-#define X_STEP_PIN                          PB3
-#define X_DIR_PIN                           PD7
-#define X_ENABLE_PIN                        PB5
+#define X_STEP_PIN                          PB15
+#define X_DIR_PIN                           PB14
+#define X_ENABLE_PIN                        PD9
 #ifndef X_CS_PIN
-  #define X_CS_PIN                          PB4
+  #define X_CS_PIN                          PD8
 #endif
 
-#define Y_STEP_PIN                          PD0
-#define Y_DIR_PIN                           PC12
-#define Y_ENABLE_PIN                        PD2
+#define Y_STEP_PIN                          PE15
+#define Y_DIR_PIN                           PE14
+#define Y_ENABLE_PIN                        PB13
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN                          PD1
+  #define Y_CS_PIN                          PB12
 #endif
 
-#define Z_STEP_PIN                          PE5
-#define Z_DIR_PIN                           PE4
-#define Z_ENABLE_PIN                        PC13
+#define Z_STEP_PIN                          PE7
+#define Z_DIR_PIN                           PB1
+#define Z_ENABLE_PIN                        PE9
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN                          PE6
+  #define Z_CS_PIN                          PE8
 #endif
 
-//E0 is a surrogate for the Rotation stepper, or "R"
+//E0 is a surrogate for the left head stepper, or "L"
 //T0
-#define E0_STEP_PIN                         PE1
-#define E0_DIR_PIN                          PE0
-#define E0_ENABLE_PIN                       PE3
+#define E0_STEP_PIN                         PC4
+#define E0_DIR_PIN                          PA4
+#define E0_ENABLE_PIN                       PB0
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN                         PE2
+  #define E0_CS_PIN                         PC5
 #endif
 
-//E1 is a surrogate for the paste extrusion stepper, or "P"
+//E1 is a surrogate for the right head stepper, or "R"
 //T1
-#define E1_STEP_PIN                         PB7
-#define E1_DIR_PIN                          PB6
-#define E1_ENABLE_PIN                       PB9
+#define E1_STEP_PIN                         PE11
+#define E1_DIR_PIN                          PE10
+#define E1_ENABLE_PIN                       PE13
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN                         PB8
+  #define E1_CS_PIN                         PE12
 #endif
 
-//E2 is a surrogate for the "C" stepper
+//E2 is a surrogate for the auxiliary or conveyour stepper, or "A"
 //T2
-#define E2_STEP_PIN                         PD4
-#define E2_DIR_PIN                          PD3
-#define E2_ENABLE_PIN                       PD6
+#define E2_STEP_PIN                         PC_15
+#define E2_DIR_PIN                          PC_14
+#define E2_ENABLE_PIN                       PA3
 #ifndef E2_CS_PIN
-  #define E2_CS_PIN                         PD5
+  #define E2_CS_PIN                         PA2
 #endif
 
 //
 // Temperature Sensors ( i.e. "ANALOG" input )
 //
-#define TEMP_0_PIN                          PC2   // T0
-#define TEMP_1_PIN                          PC3   // T1
-#define TEMP_2_PIN                          PC3   // T2
+#define TEMP_0_PIN                          PC10   // T0
+#define TEMP_1_PIN                          PC10   // T1
+#define TEMP_2_PIN                          PC10   // T2
 
 #if HAS_TMC_UART
   /**
@@ -131,23 +131,23 @@
    * Software serial
    */
 
-  #define X_SERIAL_TX_PIN                  PB4
-  #define X_SERIAL_RX_PIN                  PB4
+  #define X_SERIAL_TX_PIN                  PD8
+  #define X_SERIAL_RX_PIN                  PD8
 
-  #define Y_SERIAL_TX_PIN                  PD1
-  #define Y_SERIAL_RX_PIN                  PD1
+  #define Y_SERIAL_TX_PIN                  PB12
+  #define Y_SERIAL_RX_PIN                  PB12
 
-  #define Z_SERIAL_TX_PIN                  PE6
-  #define Z_SERIAL_RX_PIN                  PE6
+  #define Z_SERIAL_TX_PIN                  PE8
+  #define Z_SERIAL_RX_PIN                  PE8
 
-  #define E0_SERIAL_TX_PIN                 PE2
-  #define E0_SERIAL_RX_PIN                 PE2
+  #define E0_SERIAL_TX_PIN                 PC5
+  #define E0_SERIAL_RX_PIN                 PC5
 
-  #define E1_SERIAL_TX_PIN                 PB8
-  #define E1_SERIAL_RX_PIN                 PB8
+  #define E1_SERIAL_TX_PIN                 PE12
+  #define E1_SERIAL_RX_PIN                 PE12
 
-  #define E2_SERIAL_TX_PIN                 PD5
-  #define E2_SERIAL_RX_PIN                 PD5
+  #define E2_SERIAL_TX_PIN                 PA2
+  #define E2_SERIAL_RX_PIN                 PA2
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -156,20 +156,20 @@
 //
 // Heaters
 // 
-#define HEATER_0_PIN                        PA1
-#define HEATER_1_PIN                        PA1
-#define HEATER_2_PIN                        PA1
+#define HEATER_0_PIN                        PC11
+#define HEATER_1_PIN                        PC12
+#define HEATER_2_PIN                        PC13
 
 // "FAN" pin ( MOSFETS )
 #ifndef FAN_PIN
-  #define FAN_PIN                           PC6 // Mosfet 1
+  #define FAN_PIN                           PE2 // Mosfet 1
 #endif
-#define FAN1_PIN                            PD15 // Mosfet 2
-#define FAN2_PIN                            PD14 // Mosfet 3
-#define FAN3_PIN                            PD13 // Mosfet 4
-#define FAN4_PIN                            PC1 // VAC_1_SIG
+#define FAN1_PIN                            PE3 // Mosfet 2
+#define FAN2_PIN                            PE4 // Mosfet 3
+#define FAN3_PIN                            PE5 // Mosfet 4
+#define FAN4_PIN                            -1 // VAC_1_SIG
 #define FAN_SOFT_PWM                        // slow software PWM rather than hardware
 
 // Neopixel Rings
-#define NEOPIXEL_PIN                        PE11 
-#define NEOPIXEL2_PIN                       PE12
+#define NEOPIXEL_PIN                        PC7 
+#define NEOPIXEL2_PIN                       PC8
