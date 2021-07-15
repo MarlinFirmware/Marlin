@@ -271,5 +271,5 @@
   #define SD_MOSI_PIN                      P0_09
   #define SD_SS_PIN                        P0_06
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "SD CUSTOM_CABLE is not compatible with SKR E3 Turbo."
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board."
 #endif

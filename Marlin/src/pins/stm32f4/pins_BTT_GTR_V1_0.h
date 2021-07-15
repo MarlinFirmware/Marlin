@@ -365,7 +365,7 @@
   #define SD_DETECT_PIN                     PC4
 
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board."
 #endif
 
 /**

@@ -360,7 +360,7 @@
   //#define SDIO_CLOCK                  48000000
   #define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "SD CUSTOM_CABLE is not compatible with BTT E3 RRF."
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board."
 #endif
 
 //

@@ -283,7 +283,7 @@
   #define SD_DETECT_PIN                     PA15
   #define SD_SS_PIN                         PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "SD CUSTOM_CABLE is not compatible with SKR E3 DIP."
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board."
 #endif
 
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
