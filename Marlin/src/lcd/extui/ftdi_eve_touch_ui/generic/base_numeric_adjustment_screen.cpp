@@ -61,7 +61,7 @@ BaseNumericAdjustmentScreen::widgets_t::widgets_t(draw_mode_t what) : _what(what
     #else
       BTN_POS(15,7), BTN_SIZE(4,1),
     #endif
-    GET_TEXT_F(MSG_BACK), true, true
+    GET_TEXT_F(MSG_BUTTON_DONE), true, true
   );
 
   _line = 1;
