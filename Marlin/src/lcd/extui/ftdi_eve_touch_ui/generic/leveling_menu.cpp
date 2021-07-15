@@ -96,7 +96,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .tag(8).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST))
     #endif
        .colors(action_btn)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
@@ -104,7 +104,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
     #if EITHER(Z_STEPPER_AUTO_ALIGN,MECHANICAL_GANTRY_CALIBRATION)
-      case 2: SpinnerDialogBox::enqueueAndWait_P(F("G34")); break;
+      case 2: SpinnerDialogBox::enqueueAndWait(F("G34")); break;
     #endif
     #if HAS_BED_PROBE
       case 3:
@@ -114,7 +114,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
         #if ENABLED(AUTO_BED_LEVELING_UBL)
           BedMeshViewScreen::doProbe();
         #else
-          SpinnerDialogBox::enqueueAndWait_P(F(BED_LEVELING_COMMANDS));
+          SpinnerDialogBox::enqueueAndWait(F(BED_LEVELING_COMMANDS));
         #endif
         break;
     #endif
@@ -127,7 +127,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     #endif
     #if ENABLED(BLTOUCH)
       case 7: injectCommands_P(PSTR("M280 P0 S60")); break;
-      case 8: SpinnerDialogBox::enqueueAndWait_P(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
+      case 8: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
     #endif
     default: return false;
   }

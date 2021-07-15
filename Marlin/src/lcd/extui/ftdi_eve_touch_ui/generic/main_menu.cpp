@@ -95,7 +95,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
         .tag(11).button(CUSTOM_MENU_POS, GET_TEXT_F(MSG_CUSTOM_COMMANDS))
        #endif
        .colors(action_btn)
-       .tag(1).button(BACK_POS,             GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS,             GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
@@ -104,7 +104,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
 
   switch (tag) {
     case 1:  SaveSettingsDialogBox::promptToSaveSettings();           break;
-    case 2:  SpinnerDialogBox::enqueueAndWait_P(F("G28"));            break;
+    case 2:  SpinnerDialogBox::enqueueAndWait(F("G28"));            break;
     #if ENABLED(NOZZLE_CLEAN_FEATURE)
       case 3: injectCommands_P(PSTR("G12")); GOTO_SCREEN(StatusScreen); break;
     #endif
