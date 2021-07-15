@@ -37,6 +37,17 @@ if 'offset' in board_keys:
 			env["LINKFLAGS"][i] = "-Wl,--defsym=LD_MAX_DATA_SIZE=" + str(maximum_ram_size - 40)
 
 #
+# For build.encrypt rename and encode the firmware file.
+#
+if 'encrypt' in board_keys:
+
+	# Encrypt ${PROGNAME}.bin and save it with the name given in build.encrypt
+	def encrypt(source, target, env):
+		marlin.encrypt_mks(source, target, env, board.get("build.encrypt"))
+
+	marlin.add_post_action(encrypt);
+
+#
 # For build.rename simply rename the firmware file.
 #
 if 'rename' in board_keys:
