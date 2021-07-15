@@ -1,5 +1,5 @@
 #
-# stm32_bootloader.py
+# offset_and_rename.py
 #
 # - If 'build.offset' is provided, either by JSON or by the environment...
 # 	- Set linker flag LD_FLASH_OFFSET and relocate the VTAB based on 'build.offset'.
