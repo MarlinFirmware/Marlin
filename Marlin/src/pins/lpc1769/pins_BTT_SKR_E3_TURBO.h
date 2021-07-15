@@ -264,6 +264,7 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
+  #define NO_SD_HOST_DRIVE
   #define SD_DETECT_PIN                    P2_00
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08
