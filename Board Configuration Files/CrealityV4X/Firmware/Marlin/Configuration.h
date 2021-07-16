@@ -1113,11 +1113,40 @@
 
   #define EXTRUDERS 1
 
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
-  #define Z_MAX_POS 250
-  #define X_MIN_POS 0
-  #define Y_MIN_POS 0
+  #if ENABLED(ENDER_XTENDER_400)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 250
+    #define MACHINE_SIZE "Xtender 400x400x250"
+  #elif ENABLED(ENDER_XTENDER_300)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 250
+    #define MACHINE_SIZE "Xtender 300x300x250"
+  #elif ENABLED(ENDER_XTENDER_400XL)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 500
+    #define MACHINE_SIZE "Xtender 400x400x500"
+  #elif ENABLED(ENDER_XTENDER_XL)
+    #define X_BED_SIZE 235
+    #define Y_BED_SIZE 235
+    #define Z_MAX_POS 500
+    #define MACHINE_SIZE "Xtender 235x235x500"
+  #else
+    #define X_BED_SIZE 235
+    #define Y_BED_SIZE 235
+    #define Z_MAX_POS 250
+    #define MACHINE_SIZE "235x235x250"
+  #endif
+
+  #if ENABLED(HOME_ADJUST)
+    #define X_MIN_POS X_HOME_LOCATION
+    #define Y_MIN_POS Y_HOME_LOCATION
+  #else
+    #define X_MIN_POS 0
+    #define Y_MIN_POS 0
+  #endif
 
   #define USE_XMIN_PLUG
   #define USE_YMIN_PLUG
