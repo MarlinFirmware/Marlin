@@ -1291,7 +1291,9 @@
     #define LED_CONTROL_MENU
   #endif
   #if ENABLED(LED_CONTROL_MENU)
-    #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
+    #if DISABLED(SPACE_SAVER)
+      #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
+    #endif
     //#define NEO2_COLOR_PRESETS              // Enable a second NeoPixel Preset Color menu option
     #if ENABLED(LED_COLOR_PRESETS)
       #define LED_USER_PRESET_RED        130  // User defined RED value
