@@ -92,7 +92,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .tag(10).button(CASE_LIGHT_POS, GET_TEXT_F(MSG_CASE_LIGHT))
        .tag(11).button(ADVANCED_SETTINGS_POS, GET_TEXT_F(MSG_ADVANCED_SETTINGS))
        .tag(1).colors(action_btn)
-             .button(BACK_POS, GET_TEXT_F(MSG_BACK));
+             .button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
   #undef GRID_COLS
   #undef GRID_ROWS
