@@ -101,24 +101,19 @@ extern "C" {
 #endif
 
 // Override default Arduino configuration
+
 // SPI Definitions
-#ifdef DEFAULT_SPI3 || DEFAULT_SPI2
-  //SPI3
-  #ifdef DEFAULT_SPI3
-	#define PIN_SPI_SS          PA15
-	#define PIN_SPI_MOSI        PB3
-	#define PIN_SPI_MISO        PB4
-	#define PIN_SPI_SCK         PB5
-  #endif
-  //SPI2
-  #ifdef DEFAULT_SPI2
-	#define PIN_SPI_SS          PB12
-	#define PIN_SPI_MOSI        PB13
-	#define PIN_SPI_MISO        PB14
-	#define PIN_SPI_SCK         PB15
-  #endif
+#ifdef DEFAULT_SPI3
+  #define PIN_SPI_SS            PA15
+  #define PIN_SPI_MOSI          PB3
+  #define PIN_SPI_MISO          PB4
+  #define PIN_SPI_SCK           PB5
+#elif defined(DEFAULT_SPI2)
+  #define PIN_SPI_SS            PB12
+  #define PIN_SPI_MOSI          PB13
+  #define PIN_SPI_MISO          PB14
+  #define PIN_SPI_SCK           PB15
 #else
-  //SPI1
   #define PIN_SPI_SS            PA4
   #define PIN_SPI_MOSI          PA7
   #define PIN_SPI_MISO          PA6
@@ -136,6 +131,7 @@ extern "C" {
 #ifndef TIMER_SERVO
   #define TIMER_SERVO           TIM2
 #endif
+
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name
 #define SERIAL_UART_INSTANCE    1
@@ -144,7 +140,7 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
-/* Extra HAL modules */
+// Extra HAL modules
 #if defined(STM32F103xE) || defined(STM32F103xG)
 #define HAL_DAC_MODULE_ENABLED
 #endif
