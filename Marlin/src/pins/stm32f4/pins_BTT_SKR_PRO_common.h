@@ -238,14 +238,14 @@
 #define TEMP_BED_PIN                        PF3   // T0 <-> Bed
 
 // define TEMP_CHAMBER_PIN and TEMP_PROBE_PIN if needed and possible 
-#if (HOTENDS == 2)                                                             
+#if HOTENDS == 2
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_2_PIN
   #elif TEMP_SENSOR_CHAMBER
     #define TEMP_CHAMBER_PIN          TEMP_2_PIN  // use T3 for Chamber sensor
   #endif
 #endif
-#if (HOTENDS << 2)                                                             
+#if HOTENDS < 2
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN  // use T2 for Probe
   #endif
@@ -256,55 +256,54 @@
 
 // change Pins to Pins without pullup, if a Sensor that doesnt need pullup is selected
 // select ADC pins without pullup, if Sensor Type needs input without pullup
-#if (TEMP_SENSOR_0 == -4) || (TEMP_SENSOR_0 == 20)
+#if TEMP_SENSOR_0 == -4 || TEMP_SENSOR_0 == 20
   #define TEMP_0_PIN PF8
 #endif
-#if (TEMP_SENSOR_1 == -4) || (TEMP_SENSOR_1 == 20)
+#if TEMP_SENSOR_1 == -4 || TEMP_SENSOR_1 == 20
   #define TEMP_1_PIN PF9
 #endif
-#if (TEMP_SENSOR_2 == -4) || (TEMP_SENSOR_2 == 20)
+#if TEMP_SENSOR_2 == -4 || TEMP_SENSOR_2 == 20
   #define TEMP_0_PIN PF10
 #endif
-#if (TEMP_SENSOR_BED == -4) || (TEMP_SENSOR_BED == 20)
+#if TEMP_SENSOR_BED == -4 || TEMP_SENSOR_BED == 20
   #define TEMP_BED_PIN PF7
 #endif
-#if (((TEMP_SENSOR_PROBE == -4) || (TEMP_SENSOR_PROBE == 20)) && TEMP_PROBE_PIN)
-  #if (HOTENDS == 2)
+#if (TEMP_SENSOR_PROBE == -4 || TEMP_SENSOR_PROBE == 20) && TEMP_PROBE_PIN
+  #if HOTENDS == 2
     #define TEMP_PROBE_PIN PF10
-  #elif (HOTENDS << 2)
+  #elif HOTENDS < 2
     #define TEMP_PROBE_PIN PF9
   #endif
 #endif
-#if (((TEMP_SENSOR_CHAMBER == -4) || (TEMP_SENSOR_CHAMBER == 20)) && TEMP_CHAMBER_PIN)
+#if (TEMP_SENSOR_CHAMBER == -4 || TEMP_SENSOR_CHAMBER == 20) && TEMP_CHAMBER_PIN
   #define TEMP_CHAMBER_PIN PF10
 #endif
-
 
 //
 // Heaters
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
 #define HEATER_BED_PIN                      PD12  // Hotbed
-#if (TEMP_CHAMBER_PIN && HOTENDS << 3)            
-  #define HEATER_CHAMBER_PIN        HEATER_2_PIN  // use HEATER_2_PIN for HEATED_CHAMBER if not three hotends                
-  #undef HEATER_2_PIN                      
+#if TEMP_CHAMBER_PIN && HOTENDS < 3
+  #define HEATER_CHAMBER_PIN                PB0   // Heater2
+#else
+  #define HEATER_2_PIN                      PB0   // Heater2
 #endif
 
 //
 // Fans
 //
 #define FAN_PIN                             PC8   // Fan0
-//#define COOLER_FAN_PIN                      FAN_PIN   // use FAN_PIN as COOLER_FAN_PIN for Laser
+//#define COOLER_FAN_PIN                 FAN_PIN  // use FAN_PIN as COOLER_FAN_PIN for Laser
 #define FAN1_PIN                            PE5   // Fan1 
 #define FAN2_PIN                            PE6   // Fan2 (This suggested to be used as CONTROLLERFAN)
-// use first Fan for Extruder cooler
+// Use first Fan for Extruder cooler
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
 #endif
 
-// use FAN2_PIN as controller FAN if there is only one extruder
+// Use FAN2_PIN as controller FAN if there is only one extruder
 #if ENABLED(USE_CONTROLLER_FAN) && HOTENDS == 1
   #define CONTROLLER_FAN_PIN FAN2_PIN
 #endif
