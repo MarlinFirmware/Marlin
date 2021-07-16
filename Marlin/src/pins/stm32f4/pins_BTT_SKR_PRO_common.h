@@ -163,11 +163,31 @@
   #define E1_CS_PIN                         PG15
 #endif
 
+// use E1 as second Y Driver 
+#ifdef Y_DUAL_STEPPER_DRIVERS
+  #define Y2_STEP_PIN                         PD15
+  #define Y2_DIR_PIN                          PE7
+  #define Y2_ENABLE_PIN                       PA3
+  #ifndef Y2_CS_PIN
+    #define Y2_CS_PIN                         PG15
+  #endif
+#endif
+
 #define E2_STEP_PIN                         PD13
 #define E2_DIR_PIN                          PG9
 #define E2_ENABLE_PIN                       PF0
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PG12
+#endif
+
+// use E2 as second Z driver
+#if NUM_Z_STEPPER_DRIVERS > 1
+  #define Z2_STEP_PIN                         PD13
+  #define Z2_DIR_PIN                          PG9
+  #define Z2_ENABLE_PIN                       PF0
+  #ifndef Z2_CS_PIN
+    #define Z2_CS_PIN                         PG12
+  #endif
 #endif
 
 //
@@ -237,19 +257,76 @@
 #define TEMP_2_PIN                          PF6   // T3 <-> E2
 #define TEMP_BED_PIN                        PF3   // T0 <-> Bed
 
+// define TEMP_CHAMBER_PIN and TEMP_PROBE_PIN if needed and possible 
+#if (HOTENDS == 2)                                                             
+  #if TEMP_SENSOR_PROBE
+    #define TEMP_PROBE_PIN            TEMP_2_PIN
+  #elif TEMP_SENSOR_CHAMBER
+    #define TEMP_CHAMBER_PIN          TEMP_2_PIN  // use T3 for Chamber sensor
+  #endif
+#endif
+#if (HOTENDS << 2)                                                             
+  #if TEMP_SENSOR_PROBE
+    #define TEMP_PROBE_PIN            TEMP_1_PIN  // use T2 for Probe
+  #endif
+  #if TEMP_SENSOR_CHAMBER
+    #define TEMP_CHAMBER_PIN          TEMP_2_PIN  // use T3 for Chamber sensor
+  #endif
+#endif
+
+// change Pins to Pins without pullup, if a Sensor that doesnt need pullup is selected
+// select ADC pins without pullup, if Sensor Type needs input without pullup
+#if (TEMP_SENSOR_0 == -4) || (TEMP_SENSOR_0 == 20)
+  #define TEMP_0_PIN PF8
+#endif
+#if (TEMP_SENSOR_1 == -4) || (TEMP_SENSOR_1 == 20)
+  #define TEMP_1_PIN PF9
+#endif
+#if (TEMP_SENSOR_2 == -4) || (TEMP_SENSOR_2 == 20)
+  #define TEMP_0_PIN PF10
+#endif
+#if (TEMP_SENSOR_BED == -4) || (TEMP_SENSOR_BED == 20)
+  #define TEMP_BED_PIN PF7
+#endif
+#if (((TEMP_SENSOR_PROBE == -4) || (TEMP_SENSOR_PROBE == 20)) && TEMP_PROBE_PIN)
+  #if (HOTENDS == 2)
+    #define TEMP_PROBE_PIN PF10
+  #elif (HOTENDS << 2)
+    #define TEMP_PROBE_PIN PF9
+  #endif
+#endif
+#if (((TEMP_SENSOR_CHAMBER == -4) || (TEMP_SENSOR_CHAMBER == 20)) && TEMP_CHAMBER_PIN)
+  #define TEMP_CHAMBER_PIN PF10
+#endif
+
+
 //
-// Heaters / Fans
+// Heaters
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
 #define HEATER_2_PIN                        PB0   // Heater1
 #define HEATER_BED_PIN                      PD12  // Hotbed
-#define FAN_PIN                             PC8   // Fan0
-#define FAN1_PIN                            PE5   // Fan1
-#define FAN2_PIN                            PE6   // Fan2
+#if (TEMP_CHAMBER_PIN && HOTENDS << 3)            
+  #define HEATER_CHAMBER_PIN        HEATER_2_PIN  // use HEATER_2_PIN for HEATED_CHAMBER if not three hotends                
+  #undef HEATER_2_PIN                      
+#endif
 
+//
+// Fans
+//
+#define FAN_PIN                             PC8   // Fan0
+//#define COOLER_FAN_PIN                      FAN_PIN   // use FAN_PIN as COOLER_FAN_PIN for Laser
+#define FAN1_PIN                            PE5   // Fan1 
+#define FAN2_PIN                            PE6   // Fan2 
+// use first Fan for Extruder cooler
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
+#endif
+
+// use FAN2_PIN as controller FAN if there is only one extruder
+#if ENABELED(USE_CONTROLLER_FAN) && HOTENDS == 1
+  #define CONTROLLER_FAN_PIN FAN2_PIN
 #endif
 
 //
