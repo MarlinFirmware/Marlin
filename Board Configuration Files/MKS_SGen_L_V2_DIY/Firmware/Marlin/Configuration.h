@@ -237,15 +237,6 @@
 // If you are using the board in a CoreXY printer, uncomment the below line and make sure you have your motors connected and mounted to the correct locations
 //#define COREXY
 
-// EZNeo Settings -----------------------------------------------------------
-// If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
-// Specify your IO pin below as well as this board does not have a dedicated NEOPIXEL header on it.
-//#define EZNEO_220
-
-// EZNeo Manual IO Pin Setting ----------------------------------------------
-// If you have the EZNeo wired with your own 5V power provided, specify the pin used below.
-//#define NEOPIXEL_PIN P0_03
-
 // Extra Fan Outputs --------------------------------------------------------
 // If you want to use the 2nd hotend output (HE1) for your controller fan, uncomment the below line
 // This fan will turn on based on if your stepper drivers are enabled or not - not available if using 2 hotends
@@ -267,6 +258,15 @@
 // For the other hotend it is the distance from the extruder 0 hotend.
 //#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle
 //#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
+
+// EZNeo Settings -----------------------------------------------------------
+// If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
+// Specify your IO pin below as well as this board does not have a dedicated NEOPIXEL header on it.
+//#define EZNEO_220
+
+// EZNeo Manual IO Pin Setting ----------------------------------------------
+// If you have the EZNeo wired with your own 5V power provided, specify the pin used below.
+//#define NEOPIXEL_PIN P1_18
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
