@@ -121,9 +121,9 @@
 //
 // Temperature Sensors ( i.e. "ANALOG" input )
 //
-#define TEMP_0_PIN                          PC10   // T0
-#define TEMP_1_PIN                          PC10   // T1
-#define TEMP_2_PIN                          PC10   // T2
+#define TEMP_0_PIN                          PC0   // T0
+#define TEMP_1_PIN                          PC1   // T1
+#define TEMP_2_PIN                          PC2   // T2
 
 #if HAS_TMC_UART
   /**
