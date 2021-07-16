@@ -26,6 +26,8 @@
   *  ║║ ╦╠═╣│ │├┬┘│ │├┬┘├─┤╠╣ │ │├┬┘│ ││││ │  │ ││││
   * ╚╝╚═╝╩ ╩└─┘┴└─└─┘┴└─┴ ┴╚  └─┘┴└─└─┘┴ ┴o└─┘└─┘┴ ┴
   *   Pin assignments for 32-bit JGAurora A5S & A1
+  *
+  * https://jgaurorawiki.com/_media/jgaurora_a5s_a1_pinout.png
   */
 
 #include "env_validate.h"
@@ -102,15 +104,20 @@
 #define FIL_RUNOUT_PIN                      PC7
 
 //
-// LCD
+// TFT with FSMC interface
 //
-#define LCD_BACKLIGHT_PIN                   PF11
-#define FSMC_CS_PIN                         PD7
-#define FSMC_RS_PIN                         PG0
+#if HAS_FSMC_TFT
+  #define LCD_BACKLIGHT_PIN                 PF11
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PG0
 
-#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
-#define FSMC_DMA_DEV                        DMA2
-#define FSMC_DMA_CHANNEL                 DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
+#endif
 
 //
 // SD Card
@@ -129,4 +136,7 @@
 #if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PA4
   #define TOUCH_INT_PIN                     PC4
+  #define TOUCH_MISO_PIN                    PA6
+  #define TOUCH_MOSI_PIN                    PA7
+  #define TOUCH_SCK_PIN                     PA5
 #endif

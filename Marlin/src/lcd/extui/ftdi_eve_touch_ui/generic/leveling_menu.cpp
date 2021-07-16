@@ -96,7 +96,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .tag(8).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST))
     #endif
        .colors(action_btn)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
