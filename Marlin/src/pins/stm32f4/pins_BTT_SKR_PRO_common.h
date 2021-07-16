@@ -163,31 +163,11 @@
   #define E1_CS_PIN                         PG15
 #endif
 
-// use E1 as second Y Driver 
-#ifdef Y_DUAL_STEPPER_DRIVERS
-  #define Y2_STEP_PIN                         PD15
-  #define Y2_DIR_PIN                          PE7
-  #define Y2_ENABLE_PIN                       PA3
-  #ifndef Y2_CS_PIN
-    #define Y2_CS_PIN                         PG15
-  #endif
-#endif
-
 #define E2_STEP_PIN                         PD13
 #define E2_DIR_PIN                          PG9
 #define E2_ENABLE_PIN                       PF0
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PG12
-#endif
-
-// use E2 as second Z driver
-#if NUM_Z_STEPPER_DRIVERS > 1
-  #define Z2_STEP_PIN                         PD13
-  #define Z2_DIR_PIN                          PG9
-  #define Z2_ENABLE_PIN                       PF0
-  #ifndef Z2_CS_PIN
-    #define Z2_CS_PIN                         PG12
-  #endif
 #endif
 
 //
