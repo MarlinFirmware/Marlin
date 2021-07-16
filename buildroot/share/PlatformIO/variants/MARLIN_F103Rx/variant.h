@@ -103,12 +103,12 @@ extern "C" {
 // Override default Arduino configuration
 
 // SPI Definitions
-#ifdef DEFAULT_SPI3
+#if DEFAULT_SPI == 3
   #define PIN_SPI_SS            PA15
   #define PIN_SPI_MOSI          PB3
   #define PIN_SPI_MISO          PB4
   #define PIN_SPI_SCK           PB5
-#elif defined(DEFAULT_SPI2)
+#elif DEFAULT_SPI == 2
   #define PIN_SPI_SS            PB12
   #define PIN_SPI_MOSI          PB13
   #define PIN_SPI_MISO          PB14
