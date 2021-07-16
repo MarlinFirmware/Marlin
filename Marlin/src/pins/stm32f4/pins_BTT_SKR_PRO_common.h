@@ -325,7 +325,7 @@
 #endif
 
 // use FAN2_PIN as controller FAN if there is only one extruder
-#if ENABELED(USE_CONTROLLER_FAN) && HOTENDS == 1
+#if ENABLED(USE_CONTROLLER_FAN) && HOTENDS == 1
   #define CONTROLLER_FAN_PIN FAN2_PIN
 #endif
 
