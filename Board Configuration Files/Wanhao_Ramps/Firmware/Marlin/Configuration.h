@@ -22,7 +22,7 @@
 
 // If you have the V1 and you've added a heated bed, just uncomment the V2 option
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define WANHAO_I3MINI_OEM
 //#define WANHAO_I3MINI_OEM_EZABLMINI
 //#define CUSTOM_PROBE

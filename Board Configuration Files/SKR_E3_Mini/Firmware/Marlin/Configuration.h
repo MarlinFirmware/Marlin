@@ -50,7 +50,7 @@
 // Connect the stock sensor to the "E-Stop" port and uncomment the below line to enable the filament sensor.
 //#define CR10S_STOCKFILAMENTSENSOR
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#degine CR10_OEM
 //#define ENDER3_OEM
 //#define ENDER3_MAX_OEM

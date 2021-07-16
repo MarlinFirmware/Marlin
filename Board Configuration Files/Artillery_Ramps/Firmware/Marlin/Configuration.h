@@ -20,7 +20,7 @@
 //#define ARTILLERY_AL4
 //#define SIDEWINDER_X1
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define SIDEWINDER_X1_OEM
 // The AL4 Printer Carriage is 100% compatible with the Creality printer mounts.
 //#define CR10_OEM

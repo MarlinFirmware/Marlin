@@ -51,7 +51,7 @@
 // Connect the stock sensor to the "J1" port and uncomment the below line to enable the filament sensor.
 //#define CR10S_STOCKFILAMENTSENSOR
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define CR10_OEM
 //#define ENDER3_OEM
 //#define ENDER3_V2_OEM
@@ -60,7 +60,7 @@
 //#define ENDER6_OEM
 //#define CUSTOM_PROBE
 
-// Ender 3 Specific Options
+// Ender 3/3 V2 Specific Options
 
 // Ender Xtender Kit Options
 //#define ENDER_XTENDER_300

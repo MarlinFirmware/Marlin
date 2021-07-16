@@ -22,7 +22,7 @@
 // SH_2560_A4988 Board - If you have the board that says SH_2560_A4988, uncomment the below line
 //#define SUNLU_S8_SH_2560_BOARD
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define SUNLU_S8_OEM
 //#define CUSTOM_PROBE
 

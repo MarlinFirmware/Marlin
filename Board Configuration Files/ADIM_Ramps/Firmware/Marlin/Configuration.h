@@ -19,7 +19,7 @@
 //===========================================================================
 //#define ADIM_GANTRY_I3_PLUS
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define ADIM_I3P_OEM
 //#define CUSTOM_PROBE
 

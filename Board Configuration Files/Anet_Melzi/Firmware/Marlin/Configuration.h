@@ -30,7 +30,7 @@
 // Do NOT ever connect our filament sensor without the supplied adapter board
 //#define EZOUT_ENABLE
 
-// EZABL Probe Mounts - Bootscreen will be disabled when enabling EZABL on the Anet Boards due to space issues
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware. Bootscreen will be disabled when enabling EZABL on the Anet Boards due to space issues
 //#define ANET_A2_OEM_MOUNT
 //#define ANET_A6_OEM_MOUNT
 //#define ANET_A8_OEM_MOUNT

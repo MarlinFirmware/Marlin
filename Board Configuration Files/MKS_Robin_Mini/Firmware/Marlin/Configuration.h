@@ -21,7 +21,7 @@
 //===========================================================================
 //#define KINGROON_KP3
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define KP3_OEM_MOUNT
 //#define CUSTOM_PROBE
 
