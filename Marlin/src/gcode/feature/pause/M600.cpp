@@ -95,11 +95,8 @@ void GcodeSuite::M600() {
     }
   #endif
 
-  #if DISABLED(MMU2_MENUS)
-    constexpr bool standardM600 = true;
-  #else
-    const bool standardM600 = !mmu2.enabled();
-  #endif
+  const bool standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
+
   // Show initial "wait for start" message
   if (standardM600)
     ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
@@ -154,8 +151,8 @@ void GcodeSuite::M600() {
     #if ENABLED(MMU2_MENUS)
       if (!standardM600) {
         mmu2_M600();
-        resume_print(0, 0, 0, beep_count DXC_PASS);
-        }
+        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
+      }
     #endif
     if (standardM600) {
       wait_for_confirmation(true, beep_count DXC_PASS);

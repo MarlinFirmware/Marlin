@@ -812,9 +812,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
 
   // Handle filament runout sensors
   #if HAS_FILAMENT_SENSOR
-    #if HAS_PRUSA_MMU2
-    if (!mmu2.enabled())
-    #endif
+    if (TERN0(HAS_PRUSA_MMU2, !mmu2.enabled()))
       runout.run();
   #endif
 
