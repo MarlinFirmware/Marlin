@@ -105,7 +105,7 @@ void GcodeSuite::M25() {
       if (IS_SD_PRINTING()) card.pauseSDPrint();
     #endif
 
-    #if ENABLED(POWER_LOSS_RECOVERY)
+    #if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(DGUS_LCD_UI_MKS)
       if (recovery.enabled) recovery.save(true);
     #endif
 

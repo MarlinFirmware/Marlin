@@ -271,11 +271,9 @@
   #error "FLSun HiSpeed default BEEPER_PIN is not a SPEAKER."
 #endif
 
-#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
-  #define TFT_CS_PIN                        PD7   // NE4
-  #define TFT_RS_PIN                        PD11  // A0
-#endif
-
+//
+// TFT with FSMC interface
+//
 #if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
@@ -291,12 +289,16 @@
    */
   //#define TFT_RESET_PIN                   PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
-  #define FSMC_CS_PIN                 TFT_CS_PIN  // NE4
-  #define FSMC_RS_PIN                 TFT_RS_PIN  // A0
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define TFT_CS_PIN                  TFT_CS_PIN
+  #define TFT_RS_PIN                  TFT_RS_PIN
+
   #ifdef TFT_CLASSIC_UI
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
     #define TFT_MARLINUI_COLOR            0xC7B6  // Green
@@ -307,6 +309,8 @@
 #elif HAS_GRAPHICAL_TFT
   #define TFT_RESET_PIN                     PC6
   #define TFT_BACKLIGHT_PIN                 PD13
+  #define TFT_CS_PIN                        PD7   // NE4
+  #define TFT_RS_PIN                        PD11  // A0
 #endif
 
 #if NEED_TOUCH_PINS

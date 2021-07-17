@@ -43,7 +43,7 @@ public:
 
   static void init();
   static void reset();
-  static bool enabled() { return _enabled; }
+  static inline bool enabled() { return _enabled; }
   static void mmu_loop();
   static void tool_change(const uint8_t index);
   static void tool_change(const char *special);

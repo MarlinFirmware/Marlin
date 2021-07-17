@@ -64,13 +64,13 @@ typedef struct {
     Repeat stored_repeat;
   #endif
 
-  #if ENABLED(HAS_HOME_OFFSET)
+  #if HAS_HOME_OFFSET
     xyz_pos_t home_offset;
   #endif
-  #if ENABLED(HAS_POSITION_SHIFT)
+  #if HAS_POSITION_SHIFT
     xyz_pos_t position_shift;
   #endif
-  #if ENABLED(HAS_MULTI_EXTRUDER)
+  #if HAS_MULTI_EXTRUDER
     uint8_t active_extruder;
   #endif
 
@@ -78,17 +78,17 @@ typedef struct {
     float filament_size[EXTRUDERS];
   #endif
 
-  #if ENABLED(HAS_HOTEND)
+  #if HAS_HOTEND
     celsius_t target_temperature[HOTENDS];
   #endif
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     celsius_t target_temperature_bed;
   #endif
-  #if ENABLED(HAS_FAN)
+  #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
 
-  #if ENABLED(HAS_LEVELING)
+  #if HAS_LEVELING
     float fade;
   #endif
 
@@ -117,9 +117,10 @@ typedef struct {
 
   // Misc. Marlin flags
   struct {
+    bool raised:1;                // Raised before saved
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
-    #if ENABLED(HAS_LEVELING)
+    #if HAS_LEVELING
       bool leveling:1;            // M420 S
     #endif
     #if DISABLED(NO_VOLUMETRICS)
@@ -182,7 +183,7 @@ class PrintJobRecovery {
     static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
-    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0);
+    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
 
     #if PIN_EXISTS(POWER_LOSS)
       static inline void outage() {

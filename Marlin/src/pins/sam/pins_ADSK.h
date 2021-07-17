@@ -86,9 +86,9 @@ A stepper for E0 extruder
 //
 // Limit Switches
 //
-#define X_MIN_PIN                              9
-#define Y_MIN_PIN                             10
-#define Z_MIN_PIN                             11
+#define X_STOP_PIN                             9
+#define Y_STOP_PIN                            10
+#define Z_STOP_PIN                            11
 
 #define Z_MIN_PROBE_PIN                       62  // Analog pin 8, Digital pin 62
 

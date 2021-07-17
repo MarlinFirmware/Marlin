@@ -54,6 +54,9 @@ void GcodeSuite::M115() {
     "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
     "MACHINE_TYPE:" MACHINE_NAME " "
     "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+    #if LINEAR_AXES != XYZ
+      "AXIS_COUNT:" STRINGIFY(LINEAR_AXES) " "
+    #endif
     #ifdef MACHINE_UUID
       "UUID:" MACHINE_UUID
     #endif
@@ -81,6 +84,9 @@ void GcodeSuite::M115() {
 
     // Volumetric Extrusion (M200)
     cap_line(PSTR("VOLUMETRIC"), DISABLED(NO_VOLUMETRICS));
+
+    // AUTOREPORT_POS (M154)
+    cap_line(PSTR("AUTOREPORT_POS"), ENABLED(AUTO_REPORT_POSITION));
 
     // AUTOREPORT_TEMP (M155)
     cap_line(PSTR("AUTOREPORT_TEMP"), ENABLED(AUTO_REPORT_TEMPERATURES));
@@ -115,6 +121,9 @@ void GcodeSuite::M115() {
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));
+
+    // HOST ACTION COMMANDS (paused, resume, resumed, cancel, etc.)
+    cap_line(PSTR("HOST_ACTION_COMMANDS"), ENABLED(HOST_ACTION_COMMANDS));
 
     // PROMPT SUPPORT (M876)
     cap_line(PSTR("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));

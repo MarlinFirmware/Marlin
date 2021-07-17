@@ -146,6 +146,9 @@ class CommandProcessor : public CLCD::CommandFifo {
       return *this;
     }
 
+    bool wait();
+    uint32_t memcrc(uint32_t ptr, uint32_t num);
+
     // Wrap all the CommandFifo routines to allow method chaining
 
     inline CommandProcessor& cmd      (uint32_t cmd32)            {CLCD::CommandFifo::cmd(cmd32); return *this;}
@@ -206,8 +209,22 @@ class CommandProcessor : public CLCD::CommandFifo {
     inline CommandProcessor& rectangle(int16_t x, int16_t y, int16_t w, int16_t h) {
       using namespace FTDI;
       CLCD::CommandFifo::cmd(BEGIN(RECTS));
-      CLCD::CommandFifo::cmd(VERTEX2F(x * 16, y * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16,  y      * 16));
       CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16, (y + h) * 16));
+      return *this;
+    }
+
+    inline CommandProcessor& border(int16_t x, int16_t y, int16_t w, int16_t h) {
+      using namespace FTDI;
+      CLCD::CommandFifo::cmd(BEGIN(LINES));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16,  y      * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16,  y      * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16,  y      * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16,  y      * 16));
       return *this;
     }
 

@@ -246,7 +246,7 @@ G29_TYPE GcodeSuite::G29() {
 
   // Send 'N' to force homing before G29 (internal only)
   if (parser.seen_test('N'))
-    process_subcommands_now_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
+    process_subcommands_now_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false);
@@ -689,7 +689,7 @@ G29_TYPE GcodeSuite::G29() {
         TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i + 1)));
 
         // Retain the last probe position
-        abl.probePos = points[i];
+        abl.probePos = xy_pos_t(points[i]);
         abl.measured_z = faux ? 0.001 * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
         if (isnan(abl.measured_z)) {
           set_bed_leveling_enabled(abl.reenable);
@@ -795,7 +795,7 @@ G29_TYPE GcodeSuite::G29() {
               const int ind = abl.indexIntoAB[xx][yy];
               xyz_float_t tmp = { abl.eqnAMatrix[ind + 0 * abl.abl_points],
                                   abl.eqnAMatrix[ind + 1 * abl.abl_points], 0 };
-              planner.bed_level_matrix.apply_rotation_xyz(tmp);
+              planner.bed_level_matrix.apply_rotation_xyz(tmp.x, tmp.y, tmp.z);
               if (get_min) NOMORE(min_diff, abl.eqnBVector[ind] - tmp.z);
               const float subval = get_min ? abl.mean : tmp.z + min_diff,
                             diff = abl.eqnBVector[ind] - subval;

@@ -70,7 +70,7 @@ void GcodeSuite::G29() {
     return;
   }
 
-  int8_t ix, iy;
+  int8_t ix, iy = 0;
 
   switch (state) {
     case MeshReport:
@@ -87,7 +87,8 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(G28_L0_ENSURES_LEVELING_OFF, "L0", "") "\nG29S2") : PSTR("G29S2"));
+        queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : PSTR("G29S2"));
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
         return;
       }
       state = MeshNext;
@@ -109,6 +110,7 @@ void GcodeSuite::G29() {
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.

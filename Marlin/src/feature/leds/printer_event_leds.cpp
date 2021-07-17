@@ -45,12 +45,10 @@ PrinterEventLEDs printerEventLEDs;
     return (uint8_t)map(constrain(current, start, target), start, target, 0, 255);
   }
 
-  inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
+  inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b OPTARG(HAS_WHITE_LED, const uint8_t w=0)) {
     leds.set_color(
-      MakeLEDColor(r, g, b, 0, neo.brightness())
-      #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-        , true
-      #endif
+      LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, neo.brightness()))
+      OPTARG(NEOPIXEL_IS_SEQUENTIAL, true)
     );
   }
 
