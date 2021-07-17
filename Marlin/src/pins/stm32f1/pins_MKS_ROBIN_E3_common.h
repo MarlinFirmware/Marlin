@@ -166,7 +166,7 @@
     #define DOGLCD_SCK                      PB13
     #define FORCE_SOFT_SPI
     #define SOFTWARE_SPI
-    
+
   #else
 
     #define LCD_PINS_D4                     PA6
