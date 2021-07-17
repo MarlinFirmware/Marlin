@@ -13,6 +13,7 @@ jobs:
     strategy:
       matrix:
         board: [V4]
+        aquila_version: [aquila,aquila_N32]
     steps:
     - uses: actions/checkout@v2
     - name: Cache pip
@@ -36,15 +37,18 @@ jobs:
     - name: Run PlatformIO BL-Touch
       id: build_configs
       run: |
-        echo "::set-output name=filename::Default-NoProbe.bin"
+        if [ "$AQUILA_VER" = aquila ]; then AVTMP=""; else AVTMP="-AquilaX2"; fi;
+        echo "::set-output name=filename::Default-NoProbe${AVTMP}.bin"
         cp Configuration\ Files/Aquila\ Templates/Default-NoProbe/Configuration.h Marlin/Configuration.h
         cp Configuration\ Files/Aquila\ Templates/Default-NoProbe/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
+        sed -i "s/default_envs =.*/default_envs = STM32F103RET6_voxelab_$AQUILA_VER/g" platformio.ini
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_voxelab_$AQUILA_VER/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
+        AQUILA_VER: ${{ matrix.aquila_version }}
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.2
@@ -65,6 +69,7 @@ jobs:
     strategy:
       matrix:
         board: [V4]
+        aquila_version: [aquila,aquila_N32]
         grid: [3,4,5,9]
         highspeed: [true,false]
     steps:
@@ -91,18 +96,21 @@ jobs:
       id: build_configs
       run: |
         if ($HS); then HSTMP=-HS; else HSTMP=; fi;
-        echo "::set-output name=filename::BLTouch-${GRID}x${GRID}${HSTMP}.bin"
+        if [ "$AQUILA_VER" = aquila ]; then AVTMP=""; else AVTMP="-AquilaX2"; fi;
+        echo "::set-output name=filename::BLTouch-${GRID}x${GRID}${HSTMP}${AVTMP}.bin"
         cp Configuration\ Files/Aquila\ Templates/BLTouch-3x3/Configuration.h Marlin/Configuration.h
         cp Configuration\ Files/Aquila\ Templates/BLTouch-3x3/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
+        sed -i "s/default_envs =.*/default_envs = STM32F103RET6_voxelab_$AQUILA_VER/g" platformio.ini
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         if ($HS); then TEMP=; else TEMP='\/\/'; fi;
         sed -i "s/[^ ]*#define BLTOUCH_HS_MODE/$TEMP#define BLTOUCH_HS_MODE/g" Marlin/Configuration_adv.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_voxelab_$AQUILA_VER/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
+        AQUILA_VER: ${{ matrix.aquila_version }}
         GRID: ${{ matrix.grid }}
         HS: ${{ matrix.highspeed }}
     - name: Get release
@@ -125,6 +133,7 @@ jobs:
     strategy:
       matrix:
         board: [V4]
+        aquila_version: [aquila,aquila_N32]
         grid: [3,4,5]
     steps:
     - uses: actions/checkout@v2
@@ -149,16 +158,19 @@ jobs:
     - name: Run PlatformIO BL-Touch
       id: build_configs
       run: |
-        echo "::set-output name=filename::ManualMesh-${GRID}x${GRID}.bin"
+        if [ "$AQUILA_VER" = aquila ]; then AVTMP=""; else AVTMP="-AquilaX2"; fi;
+        echo "::set-output name=filename::ManualMesh-${GRID}x${GRID}${AVTMP}.bin"
         cp Configuration\ Files/Aquila\ Templates/ManualMesh-3x3/Configuration.h Marlin/Configuration.h
         cp Configuration\ Files/Aquila\ Templates/ManualMesh-3x3/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
+        sed -i "s/default_envs =.*/default_envs = STM32F103RET6_voxelab_$AQUILA_VER/g" platformio.ini
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_voxelab_$AQUILA_VER/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
+        AQUILA_VER: ${{ matrix.aquila_version }}
         GRID: ${{ matrix.grid }}
     - name: Get release
       id: get_release
@@ -180,6 +192,7 @@ jobs:
     strategy:
       matrix:
         board: [V4]
+        aquila_version: [aquila,aquila_N32]
         grid: [10,15]
         highspeed: [true,false]
     steps:
@@ -206,18 +219,21 @@ jobs:
       id: build_configs
       run: |
         if ($HS); then HSTMP=-HS; else HSTMP=; fi;
-        echo "::set-output name=filename::UBL-BLTouch-${GRID}x${GRID}${HSTMP}.bin"
+        if [ "$AQUILA_VER" = aquila ]; then AVTMP=""; else AVTMP="-AquilaX2"; fi;
+        echo "::set-output name=filename::UBL-BLTouch-${GRID}x${GRID}${HSTMP}${AVTMP}.bin"
         cp Configuration\ Files/Aquila\ Templates/UBL-BLTouch-10x10/Configuration.h Marlin/Configuration.h
         cp Configuration\ Files/Aquila\ Templates/UBL-BLTouch-10x10/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
+        sed -i "s/default_envs =.*/default_envs = STM32F103RET6_voxelab_$AQUILA_VER/g" platformio.ini
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         if ($HS); then TEMP=; else TEMP='\/\/'; fi;
         sed -i "s/[^ ]*#define BLTOUCH_HS_MODE/$TEMP#define BLTOUCH_HS_MODE/g" Marlin/Configuration_adv.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_voxelab_$AQUILA_VER/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
+        AQUILA_VER: ${{ matrix.aquila_version }}
         GRID: ${{ matrix.grid }}
         HS: ${{ matrix.highspeed }}
     - name: Get release
@@ -240,6 +256,7 @@ jobs:
     strategy:
       matrix:
         board: [V4]
+        aquila_version: [aquila,aquila_N32]
         grid: [3,5]
     steps:
     - uses: actions/checkout@v2
@@ -264,16 +281,19 @@ jobs:
     - name: Run PlatformIO BL-Touch
       id: build_configs
       run: |
-        echo "::set-output name=filename::UBL-NoProbe-${GRID}x${GRID}.bin"
+        if [ "$AQUILA_VER" = aquila ]; then AVTMP=""; else AVTMP="-AquilaX2"; fi;
+        echo "::set-output name=filename::UBL-NoProbe-${GRID}x${GRID}${AVTMP}.bin"
         cp Configuration\ Files/Aquila\ Templates/UBL-NoProbe-3x3/Configuration.h Marlin/Configuration.h
         cp Configuration\ Files/Aquila\ Templates/UBL-NoProbe-3x3/Configuration_adv.h Marlin/Configuration_adv.h
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
+        sed -i "s/default_envs =.*/default_envs = STM32F103RET6_voxelab_$AQUILA_VER/g" platformio.ini
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_voxelab_$AQUILA_VER/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
+        AQUILA_VER: ${{ matrix.aquila_version }}
         GRID: ${{ matrix.grid }}
     - name: Get release
       id: get_release
