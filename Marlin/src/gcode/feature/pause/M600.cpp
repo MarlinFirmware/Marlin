@@ -136,10 +136,6 @@ void GcodeSuite::M600() {
     // Unload filament
     const float unload_length = -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length));
   #endif
-  // Slow load filament
-  constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
-  // Fast load filament
-  const float fast_load_length = ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length));
 
   const int beep_count = parser.intval('B', -1
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
@@ -148,16 +144,22 @@ void GcodeSuite::M600() {
   );
 
   if (pause_print(retract, park_point, true, unload_length DXC_PASS)) {
-    #if ENABLED(MMU2_MENUS)
-      if (!standardM600) {
-        mmu2_M600();
-        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
-      }
-    #endif
     if (standardM600) {
       wait_for_confirmation(true, beep_count DXC_PASS);
-      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH,
-                   beep_count, (parser.seenval('R') ? parser.value_celsius() : 0) DXC_PASS);
+      resume_print(
+        FILAMENT_CHANGE_SLOW_LOAD_LENGTH,
+        ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length)),
+        ADVANCED_PAUSE_PURGE_LENGTH,
+        beep_count,
+        parser.celsiusval('R'),
+        DXC_PASS
+      );
+    }
+    else {
+      #if ENABLED(MMU2_MENUS)
+        mmu2_M600();
+        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
+      #endif
     }
   }
 
