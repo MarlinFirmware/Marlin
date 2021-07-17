@@ -151,7 +151,7 @@ void GcodeSuite::M600() {
         ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length)),
         ADVANCED_PAUSE_PURGE_LENGTH,
         beep_count,
-        parser.celsiusval('R'),
+        parser.celsiusval('R')
         DXC_PASS
       );
     }
