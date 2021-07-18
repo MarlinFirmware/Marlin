@@ -240,7 +240,7 @@
   }
 
   // all the others
-  static uint16_t spiDelayNS = 4000; // 400ns => 125khz
+  static uint16_t spiDelayNS = 4000; // 4000ns => 125khz
 
   static uint8_t spiTransferX(uint8_t b) { // using Mode 0
     int bits = 8;
