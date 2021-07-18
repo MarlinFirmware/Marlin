@@ -130,7 +130,7 @@
 
 #include "../feature/controllerfan.h"
 #if ENABLED(CONTROLLER_FAN_EDITABLE)
-  void M710_report(const bool forReplay);
+  void M710_report(const bool forReplay=true);
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE)
@@ -166,6 +166,10 @@
   void M552_report();
   void M553_report();
   void M554_report();
+#endif
+
+#if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
+  void M666_report(const bool forReplay=true);
 #endif
 
 #define _EN_ITEM(N) , E##N
@@ -3302,14 +3306,6 @@ void MarlinSettings::reset() {
 
     #elif ENABLED(DELTA)
 
-      CONFIG_ECHO_HEADING("Endstop adjustment:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR_P(
-          PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
-        , SP_Y_STR, LINEAR_UNIT(delta_endstop_adj.b)
-        , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
-      );
-
       CONFIG_ECHO_HEADING("Delta settings: L<diagonal rod> R<radius> H<height> S<segments per sec> XYZ<tower angle trim> ABC<rod trim>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
@@ -3325,32 +3321,11 @@ void MarlinSettings::reset() {
         , PSTR(" C"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
       );
 
-    #elif HAS_EXTRA_ENDSTOPS
+    #endif
 
-      CONFIG_ECHO_HEADING("Endstop adjustment:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOPGM("  M666");
-      #if ENABLED(X_DUAL_ENDSTOPS)
-        SERIAL_ECHOLNPAIR_P(SP_X_STR, LINEAR_UNIT(endstops.x2_endstop_adj));
-      #endif
-      #if ENABLED(Y_DUAL_ENDSTOPS)
-        SERIAL_ECHOLNPAIR_P(SP_Y_STR, LINEAR_UNIT(endstops.y2_endstop_adj));
-      #endif
-      #if ENABLED(Z_MULTI_ENDSTOPS)
-        #if NUM_Z_STEPPER_DRIVERS >= 3
-          SERIAL_ECHOPAIR(" S2 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
-          CONFIG_ECHO_START();
-          SERIAL_ECHOPAIR("  M666 S3 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
-          #if NUM_Z_STEPPER_DRIVERS >= 4
-            CONFIG_ECHO_START();
-            SERIAL_ECHOPAIR("  M666 S4 Z", LINEAR_UNIT(endstops.z4_endstop_adj));
-          #endif
-        #else
-          SERIAL_ECHOLNPAIR_P(SP_Z_STR, LINEAR_UNIT(endstops.z2_endstop_adj));
-        #endif
-      #endif
-
-    #endif // [XYZ]_DUAL_ENDSTOPS
+    #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
+      M666_report(forReplay);
+    #endif
 
     #if PREHEAT_COUNT
 
@@ -3818,10 +3793,10 @@ void MarlinSettings::reset() {
         SERIAL_CHAR(' ', 'B');                                 // B (maps to E1 by default)
         SERIAL_ECHOLN(stepper.motor_current_setting[4]);
       #endif
-    #elif ENABLED(HAS_MOTOR_CURRENT_I2C)                       // i2c-based has any number of values
+    #elif HAS_MOTOR_CURRENT_I2C                                // i2c-based has any number of values
       // Values sent over i2c are not stored.
       // Indexes map directly to drivers, not axes.
-    #elif ENABLED(HAS_MOTOR_CURRENT_DAC)                       // DAC-based has 4 values, for X Y Z (I J K) E
+    #elif HAS_MOTOR_CURRENT_DAC                                // DAC-based has 4 values, for X Y Z (I J K) E
       // Values sent over i2c are not stored. Uses indirect mapping.
     #endif
 

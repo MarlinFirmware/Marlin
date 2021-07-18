@@ -61,7 +61,7 @@ static lv_obj_t *scr, *tempText1, *filament_bar;
 extern uint8_t sel_id;
 extern bool once_flag, gcode_preview_over;
 extern int upload_result;
-extern uint32_t upload_time;
+extern uint32_t upload_time_sec;
 extern uint32_t upload_size;
 extern bool temps_update_flag;
 
@@ -406,28 +406,24 @@ void lv_draw_dialog(uint8_t type) {
         char buf[200];
         int _index = 0;
 
-        strcpy(buf, DIALOG_UPLOAD_FINISH_EN);
+        strcpy_P(buf, PSTR(DIALOG_UPLOAD_FINISH_EN));
         _index = strlen(buf);
-        buf[_index] = '\n';
-        _index++;
-        strcat(buf, DIALOG_UPLOAD_SIZE_EN);
+        buf[_index++] = '\n';
+        strcat_P(buf, PSTR(DIALOG_UPLOAD_SIZE_EN));
 
         _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d KBytes\n", (int)(upload_size / 1024));
+        buf[_index++] = ':';
+        sprintf_P(&buf[_index], PSTR(" %d KBytes\n"), (int)(upload_size / 1024));
 
-        strcat(buf, DIALOG_UPLOAD_TIME_EN);
+        strcat_P(buf, PSTR(DIALOG_UPLOAD_TIME_EN));
         _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d s\n", (int)upload_time);
+        buf[_index++] = ':';
+        sprintf_P(&buf[_index], PSTR(" %d s\n"), (int)upload_time_sec);
 
-        strcat(buf, DIALOG_UPLOAD_SPEED_EN);
+        strcat_P(buf, PSTR(DIALOG_UPLOAD_SPEED_EN));
         _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d KBytes/s\n", (int)(upload_size / upload_time / 1024));
+        buf[_index++] = ':';
+        sprintf_P(&buf[_index], PSTR(" %d KBytes/s\n"), (int)(upload_size / upload_time_sec / 1024));
 
         lv_label_set_text(labelDialog, buf);
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);

@@ -44,7 +44,7 @@
   #include "trinamic.h"
 #endif
 
-void restore_stepper_drivers();  // Called by PSU_ON
+void restore_stepper_drivers();  // Called by powerManager.power_on()
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // X Stepper

@@ -182,10 +182,10 @@ static uint8_t _card_percent = 0;
 static uint16_t _remain_time = 0;
 
 #if ENABLED(PAUSE_HEAT)
-  #if ENABLED(HAS_HOTEND)
+  #if HAS_HOTEND
     uint16_t resume_hotend_temp = 0;
   #endif
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     uint16_t resume_bed_temp = 0;
   #endif
 #endif
@@ -2417,13 +2417,15 @@ void Draw_HomeOff_Menu() {
 #include "../../../libs/buzzer.h"
 
 void HMI_AudioFeedback(const bool success=true) {
-  if (success) {
-    buzzer.tone(100, 659);
-    buzzer.tone(10, 0);
-    buzzer.tone(100, 698);
-  }
-  else
-    buzzer.tone(40, 440);
+  #if HAS_BUZZER
+    if (success) {
+      buzzer.tone(100, 659);
+      buzzer.tone(10, 0);
+      buzzer.tone(100, 698);
+    }
+    else
+      buzzer.tone(40, 440);
+  #endif
 }
 
 /* Prepare */

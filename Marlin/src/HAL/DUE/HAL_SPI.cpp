@@ -240,7 +240,7 @@
   }
 
   // all the others
-  static uint32_t spiDelayCyclesX4 = 4 * (F_CPU) / 1000000; // 4µs => 125khz
+  static uint16_t spiDelayNS = 4000; // 4000ns => 125khz
 
   static uint8_t spiTransferX(uint8_t b) { // using Mode 0
     int bits = 8;
@@ -249,12 +249,12 @@
       b <<= 1; // little setup time
 
       WRITE(SD_SCK_PIN, HIGH);
-      DELAY_CYCLES(spiDelayCyclesX4);
+      DELAY_NS(spiDelayNS);
 
       b |= (READ(SD_MISO_PIN) != 0);
 
       WRITE(SD_SCK_PIN, LOW);
-      DELAY_CYCLES(spiDelayCyclesX4);
+      DELAY_NS(spiDelayNS);
     } while (--bits);
     return b;
   }
@@ -510,7 +510,7 @@
         spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
         break;
       default:
-        spiDelayCyclesX4 = ((F_CPU) / 1000000) >> (6 - spiRate) << 2; // spiRate of 2 gives the maximum error with current CPU
+        spiDelayNS = 4000 >> (6 - spiRate); // spiRate of 2 gives the maximum error with current CPU
         spiTransferTx = (pfnSpiTransfer)spiTransferX;
         spiTransferRx = (pfnSpiTransfer)spiTransferX;
         spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;

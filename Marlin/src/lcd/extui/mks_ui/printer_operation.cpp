@@ -158,19 +158,12 @@ void filament_pin_setup() {
 }
 
 void filament_check() {
-  const int FIL_DELAY = 20;
+  #if ANY_PIN(MT_DET_1, MT_DET_2, MT_DET_3)
+    const int FIL_DELAY = 20;
+  #endif
   #if PIN_EXISTS(MT_DET_1)
     static int fil_det_count_1 = 0;
-    if (!READ(MT_DET_1_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (READ(MT_DET_1_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (fil_det_count_1 > 0)
-      fil_det_count_1--;
-
-    if (!READ(MT_DET_1_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (READ(MT_DET_1_PIN) && MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_1_PIN) == MT_DET_PIN_INVERTING)
       fil_det_count_1++;
     else if (fil_det_count_1 > 0)
       fil_det_count_1--;
@@ -178,16 +171,7 @@ void filament_check() {
 
   #if PIN_EXISTS(MT_DET_2)
     static int fil_det_count_2 = 0;
-    if (!READ(MT_DET_2_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (READ(MT_DET_2_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (fil_det_count_2 > 0)
-      fil_det_count_2--;
-
-    if (!READ(MT_DET_2_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (READ(MT_DET_2_PIN) && MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_2_PIN) == MT_DET_PIN_INVERTING)
       fil_det_count_2++;
     else if (fil_det_count_2 > 0)
       fil_det_count_2--;
@@ -195,16 +179,7 @@ void filament_check() {
 
   #if PIN_EXISTS(MT_DET_3)
     static int fil_det_count_3 = 0;
-    if (!READ(MT_DET_3_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (READ(MT_DET_3_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (fil_det_count_3 > 0)
-      fil_det_count_3--;
-
-    if (!READ(MT_DET_3_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (READ(MT_DET_3_PIN) && MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_3_PIN) == MT_DET_PIN_INVERTING)
       fil_det_count_3++;
     else if (fil_det_count_3 > 0)
       fil_det_count_3--;
