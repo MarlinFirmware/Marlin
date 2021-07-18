@@ -916,11 +916,11 @@ void set_message_with_feedback(PGM_P const msg_P) {
       if (do_ubl_mesh_map) display_map(param.T_map_type);   // Show user where we're probing
 
       if (parser.seen_test('B')) {
-        SERIAL_ECHOPGM_P(GET_TEXT(MSG_UBL_BC_INSERT));
+        SERIAL_ECHOPGM("Place Shim & Measure");
         LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
       }
       else {
-        SERIAL_ECHOPGM_P(GET_TEXT(MSG_UBL_BC_INSERT2));
+        SERIAL_ECHOPGM("Measure");
         LCD_MESSAGEPGM(MSG_UBL_BC_INSERT2);
       }
 
