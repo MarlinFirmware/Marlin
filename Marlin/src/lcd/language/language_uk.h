@@ -34,7 +34,7 @@ namespace Language_uk {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t    CHARSIZE                            = 2;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("Ukranian");
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Ukrainian");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Готовий.");
   PROGMEM Language_Str MSG_YES                             = _UxGT("ТАК");
