@@ -57,6 +57,18 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
+  #include "../../feature/cooler.h"
+#endif
+
+#if ENABLED(I2C_AMMETER)
+  #include "../../feature/ammeter.h"
+#endif
+
+#if HAS_CUTTER
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -433,6 +445,8 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
+#if HAS_HOTEND
+
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
   uint8_t pic_hot_bits;
   #if HAS_HEATED_BED
@@ -496,6 +510,97 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
   if (hotBits)  picBits |= ICON_HOT;
   else          picBits &= ~ICON_HOT;
 }
+
+#endif
+
+#if HAS_COOLER
+
+FORCE_INLINE void _draw_cooler_status(const bool blink) {
+  const celsius_t t2 = thermalManager.degTargetCooler();
+
+  lcd.setCursor(0, 5); lcd_put_u8str_P(PSTR("COOL"));
+  lcd.setCursor(1, 6); lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
+  lcd.setCursor(1, 7);
+
+  #if !HEATER_IDLE_HANDLER
+    UNUSED(blink);
+  #else
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+      lcd_put_wchar(' ');
+      if (t2 >= 10) lcd_put_wchar(' ');
+      if (t2 >= 100) lcd_put_wchar(' ');
+    }
+    else
+  #endif
+      lcd_put_u8str(i16tostr3left(t2));
+
+  lcd_put_wchar(' ');
+  if (t2 < 10) lcd_put_wchar(' ');
+
+  if (t2) picBits |= ICON_TEMP1;
+  else    picBits &= ~ICON_TEMP1;
+}
+
+#endif
+
+#if ENABLED(LASER_COOLANT_FLOW_METER)
+
+  FORCE_INLINE void _draw_flowmeter_status() {
+    lcd.setCursor(5, 5); lcd_put_u8str_P(PSTR("FLOW"));
+    lcd.setCursor(7, 6); lcd_put_wchar('L');
+    lcd.setCursor(6, 7); lcd_put_u8str(ftostr11ns(cooler.flowrate));
+
+    if (cooler.flowrate)  picBits |= ICON_FAN;
+    else                  picBits &= ~ICON_FAN;
+  }
+
+#endif
+
+#if ENABLED(I2C_AMMETER)
+
+  FORCE_INLINE void _draw_ammeter_status() {
+    lcd.setCursor(10, 5); lcd_put_u8str_P(PSTR("ILAZ"));
+//    ammeter.read();
+    ammeter.current = 0.467;  //for test
+    lcd.setCursor(11, 6);
+    if (ammeter.current <= 0.999f)
+    {
+      lcd_put_u8str("mA");
+      lcd.setCursor(10, 7);
+      lcd_put_wchar(' '); lcd_put_u8str(ui16tostr3rj(uint16_t(ammeter.current * 1000 + 0.5f)));
+    }
+    else {
+      lcd_put_u8str(" A");
+      lcd.setCursor(10, 7);
+      lcd_put_u8str(ftostr12ns(ammeter.current));
+    }
+
+    if (ammeter.current)  picBits |= ICON_BED;
+    else                  picBits &= ~ICON_BED;
+  }
+
+#endif
+
+#if HAS_CUTTER
+
+  FORCE_INLINE void _draw_cutter_status() {
+    lcd.setCursor(15, 5);  lcd_put_u8str_P(PSTR("CUTT"));
+    #if CUTTER_UNIT_IS(RPM)
+      lcd.setCursor(16, 6);  lcd_put_u8str_P(PSTR("RPM"));
+      lcd.setCursor(15, 7);  lcd_put_u8str(ftostr31ns(float(cutter.unitPower) / 1000));
+      lcd_put_wchar('K');
+    #elif CUTTER_UNIT_IS(PERCENT)
+      lcd.setCursor(17, 6);  lcd_put_wchar('%');
+      lcd.setCursor(18, 7);  lcd_put_u8str(cutter_power2str(cutter.unitPower));
+    #else
+      lcd.setCursor(17, 7);  lcd_put_u8str(cutter_power2str(cutter.unitPower));
+    #endif
+
+    if (cutter.unitPower) picBits |= ICON_HOT;
+    else                  picBits &= ~ICON_HOT;
+  }
+
+#endif
 
 #if HAS_PRINT_PROGRESS
 
@@ -648,6 +753,19 @@ or
 
 or
 
+|X 000 Y 000 Z 000.00|
+|FR100% SD100% C--:--|
+| Progress bar line  |
+|Status message      |
+|                    |
+|COOL FLOW ILAZ CUTT |
+| ttc   L   mA   RPM |
+| tts  f.f  aaa rr.rK|
+| ICO  ICO  ICO  ICO |
+| ICO  ICO  ICO  ICO |
+
+or
+
 Equal to 24x10 text LCD
 
 |X 000 Y 000 Z 000.00    |
@@ -745,50 +863,61 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   //
-  // Line 6..8 Temperatures, FAN
+  // Line 6..8 Temperatures, FAN for printer or Cooler, Flowmetter, Ampermeter, Cutter for laser/spindle
   //
 
-  #if HOTENDS < 2
-    _draw_heater_status(H_E0, "HE", blink);    // Hotend Temperature
-  #else
-    _draw_heater_status(H_E0, "HE1", blink);   // Hotend 1 Temperature
-    _draw_heater_status(H_E1, "HE2", blink);   // Hotend 2 Temperature
-    #if HOTENDS > 2
-      _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
-    #endif
-  #endif
-
-  #if HAS_HEATED_BED
-    #if HAS_LEVELING
-      _draw_heater_status(H_BED, (planner.leveling_active && blink ? "___" : "BED"), blink);
-    #else
-      _draw_heater_status(H_BED, "BED", blink);
-    #endif
-  #endif
-
-  #if HAS_FAN
-    uint16_t spd = thermalManager.fan_speed[0];
-    #if ENABLED(ADAPTIVE_FAN_SLOWING)
-      if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
-    #endif
-    uint16_t per = thermalManager.pwmToPercent(spd);
+  #if HAS_HOTEND
 
     #if HOTENDS < 2
-      #define FANX 11
+      _draw_heater_status(H_E0, "HE", blink);    // Hotend Temperature
     #else
-      #define FANX 17
+      _draw_heater_status(H_E0, "HE1", blink);   // Hotend 1 Temperature
+      _draw_heater_status(H_E1, "HE2", blink);   // Hotend 2 Temperature
+      #if HOTENDS > 2
+        _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
+      #endif
     #endif
-    lcd.setCursor(FANX, 5); lcd_put_u8str_P(PSTR("FAN"));
-    lcd.setCursor(FANX + 1, 6); lcd.write('%');
-    lcd.setCursor(FANX, 7);
-    lcd.print(i16tostr3rj(per));
 
-    if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
-      picBits |= ICON_FAN;
-    else
-      picBits &= ~ICON_FAN;
+    #if HAS_HEATED_BED
+      #if HAS_LEVELING
+        _draw_heater_status(H_BED, (planner.leveling_active && blink ? "___" : "BED"), blink);
+      #else
+        _draw_heater_status(H_BED, "BED", blink);
+      #endif
+    #endif
 
-  #endif // HAS_FAN
+    #if HAS_FAN
+      uint16_t spd = thermalManager.fan_speed[0];
+      #if ENABLED(ADAPTIVE_FAN_SLOWING)
+        if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
+      #endif
+      uint16_t per = thermalManager.pwmToPercent(spd);
+
+      #if HOTENDS < 2
+        #define FANX 11
+      #else
+        #define FANX 17
+      #endif
+      lcd.setCursor(FANX, 5); lcd_put_u8str_P(PSTR("FAN"));
+      lcd.setCursor(FANX + 1, 6); lcd.write('%');
+      lcd.setCursor(FANX, 7);
+      lcd.print(i16tostr3rj(per));
+
+      if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
+        picBits |= ICON_FAN;
+      else
+        picBits &= ~ICON_FAN;
+
+    #endif // HAS_FAN
+
+  #else
+
+    TERN_(HAS_COOLER, _draw_cooler_status(blink));
+    TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
+    TERN_(I2C_AMMETER, _draw_ammeter_status());
+    TERN_(HAS_CUTTER, _draw_cutter_status());
+
+  #endif
 
   //
   // Line 9, 10 - icons
