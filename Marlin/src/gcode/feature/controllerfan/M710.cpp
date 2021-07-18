@@ -27,7 +27,7 @@
 #include "../../gcode.h"
 #include "../../../feature/controllerfan.h"
 
-void M710_report(const bool forReplay) {
+void M710_report(const bool forReplay=true) {
   if (!forReplay) { SERIAL_ECHOLNPGM("; Controller Fan"); SERIAL_ECHO_START(); }
   SERIAL_ECHOLNPAIR("  M710"
     " S", int(controllerFan.settings.active_speed),
@@ -75,7 +75,7 @@ void GcodeSuite::M710() {
   if (seenD) controllerFan.settings.duration = parser.value_ushort();
 
   if (!(seenR || seenS || seenI || seenA || seenD))
-    M710_report(false);
+    M710_report();
 }
 
 #endif // CONTROLLER_FAN_EDITABLE

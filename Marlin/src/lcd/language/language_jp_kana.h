@@ -98,6 +98,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("0.1mm イドウ");                 // "Move 0.1mm"
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("  1mm イドウ");                 // "Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT(" 10mm イドウ");                 // "Move 10mm"
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT(" 100mm イドウ");                 // "Move 100mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("ソクド");                       // "Speed"
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Zオフセット");                   // "Bed Z"
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("ノズル");                       // "Nozzle"

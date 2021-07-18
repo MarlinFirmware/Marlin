@@ -79,7 +79,7 @@
 
 #if HAS_MARLINUI_U8GLIB
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #define I2C_SLA         (0x3C*2)
 //#define I2C_CMD_MODE  0x080
