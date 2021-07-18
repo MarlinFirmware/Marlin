@@ -26,7 +26,7 @@
 // If you mount the LCD and its upside down, uncomment the below line to rotate it 180 degrees.
 //#define KP3S_LCD_ROTATE_180
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define KP3S_OEM_MOUNT
 //#define CUSTOM_PROBE
 

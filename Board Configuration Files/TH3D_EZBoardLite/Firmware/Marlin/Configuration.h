@@ -53,6 +53,7 @@
 //#define CR10S_STOCKFILAMENTSENSOR
 
 // EZABL Probe Mounts -------------------------------------------------------
+// Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define CR10_OEM                 //OEM Mount for Creality Machines (Ender3/Ender5/CR-10/CR-10S/CR-20)
 //#define ENDER2_OEM               //Ender 2 Specific OEM Mount
 //#define ENDER2_V6                //Ender 2 Specific V6 Mount
@@ -74,6 +75,11 @@
 // EZNeo Settings -----------------------------------------------------------
 // If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
 //#define EZNEO_220
+
+// EZNeo Manual IO Pin Setting ----------------------------------------------
+// If you have the EZNeo wired to a different IO pin or you are using your own 5V power provided, specify the pin used below.
+// P0_03 is the default and located RX pin (1) on the serial header, this is what the EZNeo power adapter for the EZBoard Lite uses.
+//#define NEOPIXEL_PIN P0_03
 
 // Advanced Settings --------------------------------------------------------
 // These settings do not typically need to be adjusted except for machines that do not follow stock configs
@@ -727,9 +733,9 @@
     #define NEOPIXEL_LED
     #if ENABLED(NEOPIXEL_LED)
       #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-      #define NEOPIXEL_PIN    P0_03    // LED driving pin
-      //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
-      //#define NEOPIXEL2_PIN    5
+      #ifndef NEOPIXEL_PIN
+        #define NEOPIXEL_PIN    P0_03    // LED driving pin
+      #endif
       #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
       #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
       #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)

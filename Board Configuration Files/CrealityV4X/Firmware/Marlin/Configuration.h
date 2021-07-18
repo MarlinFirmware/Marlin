@@ -51,7 +51,7 @@
 // Connect the stock sensor to the "J1" port and uncomment the below line to enable the filament sensor.
 //#define CR10S_STOCKFILAMENTSENSOR
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define CR10_OEM
 //#define ENDER3_OEM
 //#define ENDER3_V2_OEM
@@ -60,7 +60,7 @@
 //#define ENDER6_OEM
 //#define CUSTOM_PROBE
 
-// Ender 3 Specific Options
+// Ender 3/3 V2 Specific Options
 
 // Ender Xtender Kit Options
 //#define ENDER_XTENDER_300
@@ -71,6 +71,15 @@
 // Ender 5 - Leadscrew Setting
 // If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
 //#define ENDER5_NEW_LEADSCREW
+
+// EZNeo Settings -----------------------------------------------------------
+// If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
+// Specify your IO pin below as well as this board does not have a dedicated NEOPIXEL header on it.
+//#define EZNEO_220
+
+// EZNeo Manual IO Pin Setting ----------------------------------------------
+// If you have the EZNeo wired with your own 5V power provided, specify the pin used below.
+//#define NEOPIXEL_PIN PA4
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -508,6 +517,34 @@
       //#define FILAMENT_MOTION_SENSOR
     #endif
   #endif
+  
+  #if ENABLED(EZNEO_220)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #if ENABLED(NEOPIXEL_LED)
+      #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+    #endif
+
+    /**
+     * Printer Event LEDs
+     *
+     * During printing, the LEDs will reflect the printer status:
+     *
+     *  - Gradually change from blue to violet as the heated bed gets to target temp
+     *  - Gradually change from violet to red as the hotend gets to temperature
+     *  - Change to white to illuminate work surface
+     *  - Change to green once print has finished
+     *  - Turn off after the print has finished and the user has pushed a button
+     */
+    #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+      #define PRINTER_EVENT_LEDS
+    #endif
+  #endif
+  
 #endif
 // End CR-10 Series V427 Settings
  
@@ -700,6 +737,33 @@
       // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
       // large enough to avoid false positives.)
       //#define FILAMENT_MOTION_SENSOR
+    #endif
+  #endif
+  
+  #if ENABLED(EZNEO_220)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #if ENABLED(NEOPIXEL_LED)
+      #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+    #endif
+
+    /**
+     * Printer Event LEDs
+     *
+     * During printing, the LEDs will reflect the printer status:
+     *
+     *  - Gradually change from blue to violet as the heated bed gets to target temp
+     *  - Gradually change from violet to red as the hotend gets to temperature
+     *  - Change to white to illuminate work surface
+     *  - Change to green once print has finished
+     *  - Turn off after the print has finished and the user has pushed a button
+     */
+    #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+      #define PRINTER_EVENT_LEDS
     #endif
   #endif
 
@@ -971,6 +1035,34 @@
       //#define FILAMENT_MOTION_SENSOR
     #endif
   #endif
+  
+  #if ENABLED(EZNEO_220)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #if ENABLED(NEOPIXEL_LED)
+      #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+    #endif
+
+    /**
+     * Printer Event LEDs
+     *
+     * During printing, the LEDs will reflect the printer status:
+     *
+     *  - Gradually change from blue to violet as the heated bed gets to target temp
+     *  - Gradually change from violet to red as the hotend gets to temperature
+     *  - Change to white to illuminate work surface
+     *  - Change to green once print has finished
+     *  - Turn off after the print has finished and the user has pushed a button
+     */
+    #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+      #define PRINTER_EVENT_LEDS
+    #endif
+  #endif
+  
 #endif
 // End Ender 3/3 MAX/5 V42X Board Settings
  
@@ -1021,11 +1113,40 @@
 
   #define EXTRUDERS 1
 
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
-  #define Z_MAX_POS 250
-  #define X_MIN_POS 0
-  #define Y_MIN_POS 0
+  #if ENABLED(ENDER_XTENDER_400)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 250
+    #define MACHINE_SIZE "Xtender 400x400x250"
+  #elif ENABLED(ENDER_XTENDER_300)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 250
+    #define MACHINE_SIZE "Xtender 300x300x250"
+  #elif ENABLED(ENDER_XTENDER_400XL)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 500
+    #define MACHINE_SIZE "Xtender 400x400x500"
+  #elif ENABLED(ENDER_XTENDER_XL)
+    #define X_BED_SIZE 235
+    #define Y_BED_SIZE 235
+    #define Z_MAX_POS 500
+    #define MACHINE_SIZE "Xtender 235x235x500"
+  #else
+    #define X_BED_SIZE 235
+    #define Y_BED_SIZE 235
+    #define Z_MAX_POS 250
+    #define MACHINE_SIZE "235x235x250"
+  #endif
+
+  #if ENABLED(HOME_ADJUST)
+    #define X_MIN_POS X_HOME_LOCATION
+    #define Y_MIN_POS Y_HOME_LOCATION
+  #else
+    #define X_MIN_POS 0
+    #define Y_MIN_POS 0
+  #endif
 
   #define USE_XMIN_PLUG
   #define USE_YMIN_PLUG
@@ -1165,6 +1286,33 @@
       // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
       // large enough to avoid false positives.)
       //#define FILAMENT_MOTION_SENSOR
+    #endif
+  #endif
+  
+  #if ENABLED(EZNEO_220)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #if ENABLED(NEOPIXEL_LED)
+      #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+    #endif
+
+    /**
+     * Printer Event LEDs
+     *
+     * During printing, the LEDs will reflect the printer status:
+     *
+     *  - Gradually change from blue to violet as the heated bed gets to target temp
+     *  - Gradually change from violet to red as the hotend gets to temperature
+     *  - Change to white to illuminate work surface
+     *  - Change to green once print has finished
+     *  - Turn off after the print has finished and the user has pushed a button
+     */
+    #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+      #define PRINTER_EVENT_LEDS
     #endif
   #endif
   

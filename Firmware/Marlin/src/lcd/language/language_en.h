@@ -244,8 +244,13 @@ namespace Language_en {
   PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7. Save Bed Mesh");
 
   PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("LED Control");
-  PROGMEM Language_Str MSG_LEDS                            = _UxGT("Lights");
-  PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("Light Presets");
+  #if ENABLED(EZNEO_220)
+    PROGMEM Language_Str MSG_LEDS                            = _UxGT("EZNeo");
+    PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("EZNeo Presets");
+  #else
+    PROGMEM Language_Str MSG_LEDS                            = _UxGT("Lights");
+    PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("Light Presets");
+  #endif
   PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("Red");
   PROGMEM Language_Str MSG_SET_LEDS_ORANGE                 = _UxGT("Orange");
   PROGMEM Language_Str MSG_SET_LEDS_YELLOW                 = _UxGT("Yellow");

@@ -23,7 +23,7 @@
 //===========================================================================
 //#define PRINTERNAME
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define PRINTER_OEM
 //#define CUSTOM_PROBE
 

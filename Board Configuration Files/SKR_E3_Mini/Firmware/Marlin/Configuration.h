@@ -50,7 +50,7 @@
 // Connect the stock sensor to the "E-Stop" port and uncomment the below line to enable the filament sensor.
 //#define CR10S_STOCKFILAMENTSENSOR
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#degine CR10_OEM
 //#define ENDER3_OEM
 //#define ENDER3_MAX_OEM
@@ -74,6 +74,15 @@
 // Ender 5 - Leadscrew Setting
 // If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
 //#define ENDER5_NEW_LEADSCREW
+
+// EZNeo Settings -----------------------------------------------------------
+// If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
+// Supported on V1.2 and V2.0 Boards on the NEOPIXEL header, no pin setting needed for V1.2 and V2.0 when using the NEOPIXEL header.
+//#define EZNEO_220
+
+// EZNeo Manual IO Pin Setting ----------------------------------------------
+// If you have the EZNeo wired to a different IO pin or on the V1.0 board with your own 5V power provided, specify the pin used below.
+//#define NEOPIXEL_PIN PC7
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -605,6 +614,33 @@
       // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
       // large enough to avoid false positives.)
       //#define FILAMENT_MOTION_SENSOR
+    #endif
+  #endif
+  
+  #if ENABLED(EZNEO_220)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #if ENABLED(NEOPIXEL_LED)
+      #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+    #endif
+
+    /**
+     * Printer Event LEDs
+     *
+     * During printing, the LEDs will reflect the printer status:
+     *
+     *  - Gradually change from blue to violet as the heated bed gets to target temp
+     *  - Gradually change from violet to red as the hotend gets to temperature
+     *  - Change to white to illuminate work surface
+     *  - Change to green once print has finished
+     *  - Turn off after the print has finished and the user has pushed a button
+     */
+    #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+      #define PRINTER_EVENT_LEDS
     #endif
   #endif
 

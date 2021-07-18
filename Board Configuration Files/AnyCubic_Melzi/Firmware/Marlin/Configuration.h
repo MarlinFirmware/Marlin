@@ -26,7 +26,7 @@
 // Do NOT ever connect our filament sensor without the supplied adapter board.
 //#define EZOUT_ENABLE
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define AC_MEGA_ZERO_OEM
 //#define CUSTOM_PROBE
 

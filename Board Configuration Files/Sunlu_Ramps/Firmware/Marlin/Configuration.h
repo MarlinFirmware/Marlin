@@ -22,9 +22,18 @@
 // SH_2560_A4988 Board - If you have the board that says SH_2560_A4988, uncomment the below line
 //#define SUNLU_S8_SH_2560_BOARD
 
-// EZABL Probe Mounts
+// EZABL Probe Mounts - Uncomment the mount you are using for your EZABL to enable it in the firmware.
 //#define SUNLU_S8_OEM
 //#define CUSTOM_PROBE
+
+// EZNeo Settings -----------------------------------------------------------
+// If you are using an EZNeo strip on your printer, uncomment the line for what strip you are using.
+// Specify your IO pin below as well as this board does not have a dedicated NEOPIXEL header on it.
+//#define EZNEO_220
+
+// EZNeo Manual IO Pin Setting ----------------------------------------------
+// If you have the EZNeo wired with your own 5V power provided, specify the pin used below.
+//#define NEOPIXEL_PIN 12
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -420,6 +429,33 @@
       // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
       // large enough to avoid false positives.)
       //#define FILAMENT_MOTION_SENSOR
+    #endif
+  #endif
+  
+  #if ENABLED(EZNEO_220)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #if ENABLED(NEOPIXEL_LED)
+      #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+      #define NEOPIXEL_PIXELS 15       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+      #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+      #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+      #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+    #endif
+
+    /**
+     * Printer Event LEDs
+     *
+     * During printing, the LEDs will reflect the printer status:
+     *
+     *  - Gradually change from blue to violet as the heated bed gets to target temp
+     *  - Gradually change from violet to red as the hotend gets to temperature
+     *  - Change to white to illuminate work surface
+     *  - Change to green once print has finished
+     *  - Turn off after the print has finished and the user has pushed a button
+     */
+    #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+      #define PRINTER_EVENT_LEDS
     #endif
   #endif
 
