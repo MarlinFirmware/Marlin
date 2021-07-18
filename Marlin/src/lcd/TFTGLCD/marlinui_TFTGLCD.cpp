@@ -560,8 +560,7 @@ FORCE_INLINE void _draw_cooler_status(const bool blink) {
 
   FORCE_INLINE void _draw_ammeter_status() {
     lcd.setCursor(10, 5); lcd_put_u8str_P(PSTR("ILAZ"));
-//    ammeter.read();
-    ammeter.current = 0.467;  //for test
+    ammeter.read();
     lcd.setCursor(11, 6);
     if (ammeter.current <= 0.999f)
     {
