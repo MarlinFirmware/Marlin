@@ -57,6 +57,10 @@
   #include "../../feature/cooler.h"
 #endif
 
+#if ENABLED(I2C_AMMETER)
+  #include "../../feature/ammeter.h"
+#endif
+
 #if HAS_POWER_MONITOR
   #include "../../feature/power_monitor.h"
 #endif
