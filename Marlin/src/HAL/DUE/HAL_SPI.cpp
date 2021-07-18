@@ -240,7 +240,7 @@
   }
 
   // all the others
-  static uint16_t spiDelayNS = 400; // 400ns => 125khz
+  static uint16_t spiDelayNS = 4000; // 400ns => 125khz
 
   static uint8_t spiTransferX(uint8_t b) { // using Mode 0
     int bits = 8;
@@ -510,7 +510,7 @@
         spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
         break;
       default:
-        spiDelayNS = (((F_CPU) / 1000000) >> (6 - spiRate) << 2) * 100; // spiRate of 2 gives the maximum error with current CPU
+        spiDelayNS = 4000 >> (6 - spiRate); // spiRate of 2 gives the maximum error with current CPU
         spiTransferTx = (pfnSpiTransfer)spiTransferX;
         spiTransferRx = (pfnSpiTransfer)spiTransferX;
         spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
