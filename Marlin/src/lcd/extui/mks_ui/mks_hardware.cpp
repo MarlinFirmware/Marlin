@@ -37,7 +37,7 @@
 
 #if ENABLED(MKS_TEST)
 
-  #include "mks_hardware_test.h"
+  #include "mks_hardware.h"
 
   bool pw_det_sta, pw_off_sta, mt_det_sta;
   #if PIN_EXISTS(MT_DET_2)
@@ -613,10 +613,9 @@ void disp_assets_update_progress(const char *msg) {
   disp_string(100, 165, buf, 0xFFFF, 0x0000);
 }
 
-uint8_t mks_test_flag = 0;
-const char *MKSTestPath = "MKS_TEST";
-
 #if ENABLED(SDSUPPORT)
+  uint8_t mks_test_flag = 0;
+  const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {
     SdFile dir, root = card.getroot();
     if (dir.open(&root, MKSTestPath, O_RDONLY))
