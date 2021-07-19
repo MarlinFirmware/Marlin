@@ -88,6 +88,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_MULTI_LANGUAGE
   uint8_t MarlinUI::language; // Initialized by settings.load()
+  void MarlinUI::set_language(const uint8_t lang) {
+    if (lang < NUM_LANGUAGES) {
+      language = lang;
+      TERN_(HAS_MARLINUI_U8GLIB, update_language_font());
+      return_to_status();
+      refresh();
+    }
+  }
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
