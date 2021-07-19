@@ -89,6 +89,9 @@
 #ifndef MACHINE_SIZE
   #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
 #endif
+
+#include "lockscreen.h"
+
 #ifndef CORP_WEBSITE
   #define CORP_WEBSITE WEBSITE_URL
 #endif
@@ -506,7 +509,8 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define TUNE_CASE_ZOFF (TUNE_CASE_FAN + ENABLED(HAS_ZOFFSET_ITEM))
 #define TUNE_CASE_FLOW (TUNE_CASE_ZOFF + 1)
 #define TUNE_CASE_FCHNG (TUNE_CASE_FLOW + ENABLED(ADVANCED_PAUSE_FEATURE))
-#define TUNE_CASE_TOTAL TUNE_CASE_FCHNG
+#define TUNE_CASE_LOCK (TUNE_CASE_FCHNG + 1)
+#define TUNE_CASE_TOTAL TUNE_CASE_LOCK
 
 #define TEMP_CASE_TEMP (0 + ENABLED(HAS_HOTEND))
 #define TEMP_CASE_BED  (TEMP_CASE_TEMP + ENABLED(HAS_HEATED_BED))
@@ -529,7 +533,9 @@ inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valr
 #define ADVSET_CASE_BRIGHTNESS (ADVSET_CASE_PWRLOSSR + 1)
 #define ADVSET_CASE_SCOLOR    (ADVSET_CASE_BRIGHTNESS + 1)
 #define ADVSET_CASE_SOUND     (ADVSET_CASE_SCOLOR + ENABLED(SOUND_MENU_ITEM))
-#define ADVSET_CASE_TOTAL     ADVSET_CASE_SOUND
+#define ADVSET_CASE_LOCK      (ADVSET_CASE_SOUND + 1)
+#define ADVSET_CASE_TOTAL     ADVSET_CASE_LOCK
+
 
 #define SCOLOR_CASE_LOADDEF   1
 #define SCOLOR_CASE_BACKG     (SCOLOR_CASE_LOADDEF + 1)
@@ -950,6 +956,7 @@ void Draw_Tune_Menu() {
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (TVISI(TUNE_CASE_FCHNG)) Draw_Menu_Line(TSCROL(TUNE_CASE_FCHNG), ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE));
     #endif
+    if (TVISI(TUNE_CASE_LOCK)) Draw_Menu_Line(TSCROL(TUNE_CASE_LOCK), ICON_Lock, "Screen Lock", true);
   }
 }
 
@@ -2436,6 +2443,7 @@ void Draw_AdvSet_Menu() {
     if (AVISI(ADVSET_CASE_SOUND)) Draw_Menu_Line(ASCROL(ADVSET_CASE_SOUND), ICON_Sound, "Enable Sound", false);  // Enable Sound
     if (AVISI(ADVSET_CASE_SOUND)) Draw_Chkb_Line(ASCROL(ADVSET_CASE_SOUND), ui.buzzer_enabled);
   #endif
+  if (AVISI(ADVSET_CASE_LOCK)) Draw_Menu_Line(ASCROL(ADVSET_CASE_LOCK), ICON_Lock, "Lock Screen", true);  // Lock Screen >
   if (select_advset.now) Draw_Menu_Cursor(ASCROL(select_advset.now));
 }
 
@@ -3789,6 +3797,7 @@ void Draw_Main_Area(uint8_t procID) {
     #endif
     case PrintSpeed: Draw_Tune_Menu(); break;
     case PrintFlow: Draw_Motion_Menu(); break;
+    case Locked: LockScreen.Draw(); break;
     default: break;
   }
 }
@@ -3910,6 +3919,9 @@ void HMI_AdvSet() {
               Draw_Chkb_Line(MROWS, ui.buzzer_enabled);
               break;
           #endif
+          case ADVSET_CASE_LOCK : // Lock Screen
+            Draw_Menu_Item(MROWS, ICON_Lock, "Lock Screen", true);  // Lock screen >
+            break;
           default: break;
         }
 
@@ -4020,6 +4032,8 @@ void HMI_AdvSet() {
           Draw_Chkb_Line(ADVSET_CASE_SOUND + MROWS - index_advset, ui.buzzer_enabled);
           break;
       #endif
+      case ADVSET_CASE_LOCK : // Lock Screen
+        DWIN_LockScreen(true);
       default: break;
     }
   }
@@ -4384,6 +4398,9 @@ void HMI_Tune() {
               Draw_Menu_Line(MROWS, ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE), false);
               break;
           #endif
+          case TUNE_CASE_LOCK: // Lock Screen
+            Draw_Menu_Line(MROWS, ICON_Lock, "Screen Lock", true);
+            break;
           default: break;
         }
 
@@ -4485,6 +4502,9 @@ void HMI_Tune() {
         HMI_ValueStruct.print_flow = planner.flow_percentage[0];
         Draw_Menu_IntValue(HMI_data.Selected_Color, TUNE_CASE_FLOW + MROWS - index_tune, 3, planner.flow_percentage[0]);
         EncoderRate.enabled = true;
+        break;
+      case TUNE_CASE_LOCK: // Screen Lock
+        DWIN_LockScreen(false);      
         break;
       default: break;
     }
@@ -4975,6 +4995,7 @@ void DWIN_HandleScreen() {
       case FilamentPurge: HMI_FilamentPurge(); break;
     #endif
     case NothingToDo:     break;
+    case Locked:          HMI_LockScreen(); break;
     default: break;
   }
 }
@@ -5261,4 +5282,28 @@ void DWIN_Redraw_screen() {
 
 #endif // ADVANCED_PAUSE_FEATURE
 
+void HMI_LockScreen() {
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  LockScreen.onEncoderState(encoder_diffState);
+  if (LockScreen.isUnlocked()) {
+    if (HMI_flag.lock_flag) {
+      checkkey = AdvSet;
+      select_advset.set(ADVSET_CASE_LOCK);
+      index_advset = ADVSET_CASE_LOCK;
+      Draw_AdvSet_Menu();
+    } else {
+      checkkey = Tune;
+      select_tune.set(TUNE_CASE_LOCK);
+      index_tune = TUNE_CASE_LOCK;
+      Draw_Tune_Menu();
+    }
+  }
+}
+
+void DWIN_LockScreen(const bool flag) {
+  HMI_flag.lock_flag = flag;
+  checkkey = Locked;
+  LockScreen.Init();
+}
 #endif // DWIN_CREALITY_LCD

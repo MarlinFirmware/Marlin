@@ -116,6 +116,7 @@ enum processID : uint8_t {
   PauseOrStop,
   FilamentPurge,
   WaitResponse,
+  Locked,
   NothingToDo,
 };
 
@@ -203,6 +204,7 @@ typedef struct {
     bool leveling_offset_flag:1;
   #endif
   AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
+  bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune
 } HMI_Flag_t;
 
 extern HMI_value_t HMI_ValueStruct;
@@ -277,6 +279,7 @@ void Icon_control();
 void Icon_leveling(bool value);
 
 // Other
+void Clear_Menu_Area();
 void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void HMI_StartFrame(const bool with_update);   // Prepare the menu view
@@ -348,3 +351,6 @@ void DWIN_RebootScreen();
   void DWIN_Popup_FilamentPurge();
   void HMI_FilamentPurge();
 #endif
+
+void HMI_LockScreen();
+void DWIN_LockScreen(const bool flag);

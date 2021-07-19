@@ -147,6 +147,7 @@
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Park                 ICON_Motion
 #define ICON_Scolor               ICON_MaxSpeed
+#define ICON_Lock                 ICON_Cool
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
