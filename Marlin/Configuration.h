@@ -481,6 +481,14 @@
   #endif
 #endif
 
+#if ENABLED(FilSensors)
+  #define AddonFilSensor
+  #define lerdgeFilSensor
+  #if ANY(MachineCRX, MachineCRXPro, Dual_BowdenSplitterY, Dual_CyclopsSingleNozzle, Dual_ChimeraDualNozzle)
+    #define DualFilSensors
+  #endif
+#endif
+
 #if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6)
   #if NONE(GraphicLCD, OrigLCD, FORCE10SPRODISPLAY)
     #define FORCE10SPRODISPLAY
