@@ -70,7 +70,7 @@
 #if HAS_TFT_LVGL_UI
   #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/mks_ui/draw_ui.h"
-  #include "lcd/extui/mks_ui/mks_hardware_test.h"
+  #include "lcd/extui/mks_ui/mks_hardware.h"
   #include <lvgl.h>
 #endif
 

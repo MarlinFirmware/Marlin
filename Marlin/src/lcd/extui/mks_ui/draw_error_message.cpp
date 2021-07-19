@@ -28,7 +28,7 @@
 #include "tft_lvgl_configuration.h"
 #include "SPI_TFT.h"
 #include "../../../inc/MarlinConfig.h"
-#include "mks_hardware_test.h"
+#include "mks_hardware.h"
 
 static lv_obj_t *scr;
 

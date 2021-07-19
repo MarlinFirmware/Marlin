@@ -37,7 +37,7 @@
 
 #if ENABLED(MKS_TEST)
 
-  #include "mks_hardware_test.h"
+  #include "mks_hardware.h"
 
   bool pw_det_sta, pw_off_sta, mt_det_sta;
   #if PIN_EXISTS(MT_DET_2)

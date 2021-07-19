@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(MKS_TEST)
-  #include "mks_hardware_test.h"
+  #include "mks_hardware.h"
 #endif
 
 CFG_ITMES gCfgItems;

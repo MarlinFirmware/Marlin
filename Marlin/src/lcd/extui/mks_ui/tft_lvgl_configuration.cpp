@@ -29,7 +29,7 @@
 #include "draw_ready_print.h"
 
 #include "pic_manager.h"
-#include "mks_hardware_test.h"
+#include "mks_hardware.h"
 #include "draw_ui.h"
 #include "SPIFlashStorage.h"
 #include <lvgl.h>

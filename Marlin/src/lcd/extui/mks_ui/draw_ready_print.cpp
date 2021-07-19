@@ -39,7 +39,7 @@
   #include "draw_touch_calibration.h"
 #endif
 
-#include "mks_hardware_test.h"
+#include "mks_hardware.h"
 #include <stdio.h>
 
 #define ICON_POS_Y          38

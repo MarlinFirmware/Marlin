@@ -27,7 +27,7 @@
 #include "draw_ui.h"
 #include "pic_manager.h"
 #include "draw_ready_print.h"
-#include "mks_hardware_test.h"
+#include "mks_hardware.h"
 #include "SPIFlashStorage.h"
 #include "../../../libs/W25Qxx.h"
 #include "../../../sd/cardreader.h"
