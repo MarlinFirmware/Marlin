@@ -108,20 +108,18 @@
   #include "../libs/private_spi.h"
   #define HAS_MAXTC_SW_SPI 1
 
-  // determine the pins to use
+  // Define pins for SPI-based sensors
   #if TEMP_SENSOR_0_USES_SW_SPI
-    #define SW_SPI_SCK_PIN  TEMP_0_SCK_PIN
-    #define SW_SPI_MISO_PIN TEMP_0_MISO_PIN
-
+    #define SW_SPI_SCK_PIN    TEMP_0_SCK_PIN
+    #define SW_SPI_MISO_PIN   TEMP_0_MISO_PIN
     #if PIN_EXISTS(TEMP_0_MOSI)
       #define SW_SPI_MOSI_PIN TEMP_0_MOSI_PIN
     #else
       #define SW_SPI_MOSI_PIN SD_MOSI_PIN
     #endif
   #else
-    #define SW_SPI_SCK_PIN  TEMP_1_SCK_PIN
-    #define SW_SPI_MISO_PIN TEMP_1_MISO_PIN
-
+    #define SW_SPI_SCK_PIN    TEMP_1_SCK_PIN
+    #define SW_SPI_MISO_PIN   TEMP_1_MISO_PIN
     #if PIN_EXISTS(TEMP_1_MOSI)
       #define SW_SPI_MOSI_PIN TEMP_1_MOSI_PIN
     #else
