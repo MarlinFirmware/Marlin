@@ -613,10 +613,9 @@ void disp_assets_update_progress(const char *msg) {
   disp_string(100, 165, buf, 0xFFFF, 0x0000);
 }
 
-uint8_t mks_test_flag = 0;
-const char *MKSTestPath = "MKS_TEST";
-
 #if ENABLED(SDSUPPORT)
+  uint8_t mks_test_flag = 0;
+  const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {
     SdFile dir, root = card.getroot();
     if (dir.open(&root, MKSTestPath, O_RDONLY))

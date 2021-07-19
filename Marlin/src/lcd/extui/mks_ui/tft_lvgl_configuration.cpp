@@ -231,7 +231,7 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  #if ENABLED(MKS_TEST)
+  #if BOTH(MKS_TEST, SDSUPPORT)
     if (mks_test_flag == 0x1E) mks_gpio_test();
   #endif
 }
