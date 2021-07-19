@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(MKS_TEST)
-  #include "mks_hardware_test.h"
+  #include "mks_hardware.h"
 #endif
 
 CFG_ITMES gCfgItems;
@@ -1366,7 +1366,7 @@ void print_time_count() {
 void LV_TASK_HANDLER() {
   lv_task_handler();
 
-  #if ENABLED(MKS_TEST)
+  #if BOTH(MKS_TEST, SDSUPPORT)
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 

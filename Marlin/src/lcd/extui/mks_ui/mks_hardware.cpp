@@ -37,7 +37,7 @@
 
 #if ENABLED(MKS_TEST)
 
-  #include "mks_hardware_test.h"
+  #include "mks_hardware.h"
 
   bool pw_det_sta, pw_off_sta, mt_det_sta;
   #if PIN_EXISTS(MT_DET_2)
@@ -127,77 +127,81 @@
     delay(100);
   }
 
-  void mks_gpio_test() {
-    init_test_gpio();
+  #if ENABLED(SDSUPPORT)
 
-    test_gpio_readlevel_L();
-    test_gpio_readlevel_H();
-    test_gpio_readlevel_L();
-    if (pw_det_sta && pw_off_sta && mt_det_sta
-      #if PIN_EXISTS(MT_DET_2)
-        && mt_det2_sta
-      #endif
-      #if ENABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        && (READ(PA1) == LOW)
-        && (READ(PA3) == LOW)
-        && (READ(PC2) == LOW)
-        && (READ(PD8) == LOW)
-        && (READ(PE5) == LOW)
-        && (READ(PE6) == LOW)
-        && (READ(PE7) == LOW)
-      #endif
-    )
-      disp_det_ok();
-    else
-      disp_det_error();
+    void mks_gpio_test() {
+      init_test_gpio();
 
-    if (endstopx1_sta && endstopy1_sta && endstopz1_sta && endstopz2_sta)
-      disp_Limit_ok();
-    else
-      disp_Limit_error();
-  }
+      test_gpio_readlevel_L();
+      test_gpio_readlevel_H();
+      test_gpio_readlevel_L();
+      if (pw_det_sta && pw_off_sta && mt_det_sta
+        #if PIN_EXISTS(MT_DET_2)
+          && mt_det2_sta
+        #endif
+        #if ENABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          && (READ(PA1) == LOW)
+          && (READ(PA3) == LOW)
+          && (READ(PC2) == LOW)
+          && (READ(PD8) == LOW)
+          && (READ(PE5) == LOW)
+          && (READ(PE6) == LOW)
+          && (READ(PE7) == LOW)
+        #endif
+      )
+        disp_det_ok();
+      else
+        disp_det_error();
 
-  void mks_hardware_test() {
-    if (millis() % 2000 < 1000) {
-      WRITE(X_DIR_PIN, LOW);
-      WRITE(Y_DIR_PIN, LOW);
-      WRITE(Z_DIR_PIN, LOW);
-      WRITE(E0_DIR_PIN, LOW);
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(E1_DIR_PIN, LOW);
-      #endif
-      thermalManager.fan_speed[0] = 255;
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(HEATER_1_PIN, HIGH); // HE1
-      #endif
-      WRITE(HEATER_0_PIN, HIGH); // HE0
-      WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
-    }
-    else {
-      WRITE(X_DIR_PIN, HIGH);
-      WRITE(Y_DIR_PIN, HIGH);
-      WRITE(Z_DIR_PIN, HIGH);
-      WRITE(E0_DIR_PIN, HIGH);
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(E1_DIR_PIN, HIGH);
-      #endif
-      thermalManager.fan_speed[0] = 0;
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(HEATER_1_PIN, LOW); // HE1
-      #endif
-      WRITE(HEATER_0_PIN, LOW); // HE0
-      WRITE(HEATER_BED_PIN, LOW); // HOT-BED
+      if (endstopx1_sta && endstopy1_sta && endstopz1_sta && endstopz2_sta)
+        disp_Limit_ok();
+      else
+        disp_Limit_error();
     }
 
-    if (endstopx1_sta && endstopx2_sta && endstopy1_sta && endstopy2_sta && endstopz1_sta && endstopz2_sta) {
-      // nothing here
-    }
-    else {
+    void mks_hardware_test() {
+      if (millis() % 2000 < 1000) {
+        WRITE(X_DIR_PIN, LOW);
+        WRITE(Y_DIR_PIN, LOW);
+        WRITE(Z_DIR_PIN, LOW);
+        WRITE(E0_DIR_PIN, LOW);
+        #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(E1_DIR_PIN, LOW);
+        #endif
+        thermalManager.fan_speed[0] = 255;
+        #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(HEATER_1_PIN, HIGH); // HE1
+        #endif
+        WRITE(HEATER_0_PIN, HIGH); // HE0
+        WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
+      }
+      else {
+        WRITE(X_DIR_PIN, HIGH);
+        WRITE(Y_DIR_PIN, HIGH);
+        WRITE(Z_DIR_PIN, HIGH);
+        WRITE(E0_DIR_PIN, HIGH);
+        #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(E1_DIR_PIN, HIGH);
+        #endif
+        thermalManager.fan_speed[0] = 0;
+        #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(HEATER_1_PIN, LOW); // HE1
+        #endif
+        WRITE(HEATER_0_PIN, LOW); // HE0
+        WRITE(HEATER_BED_PIN, LOW); // HOT-BED
+      }
+
+      if (endstopx1_sta && endstopx2_sta && endstopy1_sta && endstopy2_sta && endstopz1_sta && endstopz2_sta) {
+        // nothing here
+      }
+      else {
+      }
+
+      if (disp_state == PRINT_READY_UI)
+        mks_disp_test();
     }
 
-    if (disp_state == PRINT_READY_UI)
-      mks_disp_test();
-  }
+  #endif
 
 #endif // MKS_TEST
 
@@ -613,10 +617,9 @@ void disp_assets_update_progress(const char *msg) {
   disp_string(100, 165, buf, 0xFFFF, 0x0000);
 }
 
-uint8_t mks_test_flag = 0;
-const char *MKSTestPath = "MKS_TEST";
-
-#if ENABLED(SDSUPPORT)
+#if BOTH(MKS_TEST, SDSUPPORT)
+  uint8_t mks_test_flag = 0;
+  const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {
     SdFile dir, root = card.getroot();
     if (dir.open(&root, MKSTestPath, O_RDONLY))
