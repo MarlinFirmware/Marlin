@@ -38,6 +38,8 @@
   #include "../gcode/gcode.h"
 #endif
 
+#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
+
 Power powerManager;
 bool Power::psu_on;
 
@@ -214,3 +216,5 @@ void Power::power_off() {
   #endif
 
 #endif // AUTO_POWER_CONTROL
+
+#endif // PSU_CONTROL || AUTO_POWER_CONTROL

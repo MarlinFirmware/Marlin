@@ -102,7 +102,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
        .tag(5).button    (BTN_POS(3,6), BTN_SIZE(2,1), getSoundSelection(PRINTING_FINISHED))
        .tag(6).button    (BTN_POS(3,7), BTN_SIZE(2,1), getSoundSelection(PRINTING_FAILED))
        .colors(action_btn)
-       .tag(1).button    (BTN_POS(1,9), BTN_SIZE(4,1), GET_TEXT_F(MSG_BACK));
+       .tag(1).button    (BTN_POS(1,9), BTN_SIZE(4,1), GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
