@@ -85,8 +85,8 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PA1   // TH1
-#define TEMP_BED_PIN                        PA0   // TB1
+#define TEMP_0_PIN                          PA1   // TH1 Analog Input
+#define TEMP_BED_PIN                        PA0   // TB1 Analog Input
 
 //
 // Heaters
