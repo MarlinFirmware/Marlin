@@ -257,18 +257,23 @@
 // change Pins to Pins without pullup, if a Sensor that doesnt need pullup is selected
 // select ADC pins without pullup, if Sensor Type needs input without pullup
 #if TEMP_SENSOR_0 == -4 || TEMP_SENSOR_0 == 20
+  #undef  TEMP_0_PIN
   #define TEMP_0_PIN PF8
 #endif
 #if TEMP_SENSOR_1 == -4 || TEMP_SENSOR_1 == 20
+  #undef  TEMP_1_PIN
   #define TEMP_1_PIN PF9
 #endif
 #if TEMP_SENSOR_2 == -4 || TEMP_SENSOR_2 == 20
-  #define TEMP_0_PIN PF10
+  #undef  TEMP_2_PIN
+  #define TEMP_2_PIN PF10
 #endif
 #if TEMP_SENSOR_BED == -4 || TEMP_SENSOR_BED == 20
+  #undef  TEMP_BED_PIN
   #define TEMP_BED_PIN PF7
 #endif
 #if (TEMP_SENSOR_PROBE == -4 || TEMP_SENSOR_PROBE == 20) && TEMP_PROBE_PIN
+  #undef  TEMP_PROBE_PIN
   #if HOTENDS == 2
     #define TEMP_PROBE_PIN PF10
   #elif HOTENDS < 2
@@ -279,16 +284,31 @@
   #define TEMP_CHAMBER_PIN PF10
 #endif
 
+// force manual select of appropriate Pins
+#if HOTENDS > 2 && (TEMP_SENSOR_CHAMBER || TEMP_SENSOR_PROBE)
+  #error "Automatic selection of TEMP_PIN for CHAMBER and/or SENSOR not possible. Manually select appropriate ADC PINs here"
+  //#undef  TEMP_PROBE_PIN
+  //#define TEMP_PROBE_PIN
+  //#undef  TEMP_CHAMBER_PIN
+  //#define TEMP_CHAMBER_PIN
+#elif HOTENDS == 2 && TEMP_SENSOR_CHAMBER && TEMP_SENSOR_PROBE
+  #error "Automatic selection of TEMP_PIN for CHAMBER not possible. Manually slect a appropriate ADC PIN here"
+  //#undef  TEMP_CHAMBER_PIN
+  //#define TEMP_CHAMBER_PIN
+#endif
+
 //
 // Heaters
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
+#define HEATER_2_PIN                        PB0   // Heater2
 #define HEATER_BED_PIN                      PD12  // Hotbed
 #if TEMP_CHAMBER_PIN && HOTENDS < 3
-  #define HEATER_CHAMBER_PIN                PB0   // Heater2
+  #define HEATER_CHAMBER_PIN                HEATER_2_PIN   // Heater2
 #else
-  #define HEATER_2_PIN                      PB0   // Heater2
+  #error "No free heater pin for Heated Chamber found, manually select one here"
+  //define HEATER_CHAMBER_PIN
 #endif
 
 //
@@ -306,6 +326,9 @@
 // Use FAN2_PIN as controller FAN if there is only one extruder
 #if ENABLED(USE_CONTROLLER_FAN) && HOTENDS == 1
   #define CONTROLLER_FAN_PIN FAN2_PIN
+#else
+  #error "No free Fan pin found, select a suitable pin here"
+  //#define CONTROLLER_FAN_PIN
 #endif
 
 //
