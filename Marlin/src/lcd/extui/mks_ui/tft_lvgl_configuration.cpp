@@ -139,7 +139,7 @@ void tft_lvgl_init() {
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
     watchdog_refresh();   // LVGL init takes time
-    mks_test_get();
+    TERN_(MKS_TEST, mks_test_get());
   #endif
 
   touch.Init();
