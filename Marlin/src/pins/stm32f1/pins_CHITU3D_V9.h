@@ -50,11 +50,13 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                          PG10
-#define Y_MIN_PIN                          PA12
-#define Z_MIN_PIN                          PA14
-#define Z2_MIN_PIN                         PA13
-#define Z_MIN_PROBE_PIN                    PG9 
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#define Z_STOP_PIN                          PA14
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PG9
+#endif
 
 //
 // Steppers
