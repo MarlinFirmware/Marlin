@@ -715,6 +715,9 @@
       #if !PIN_EXISTS(TEMP_1_SCK) && PIN_EXISTS(MAX6675_SCK)
         #define TEMP_1_SCK_PIN MAX6675_SCK_PIN
       #endif
+    #endif
+  #endif
+#endif
 
 #if PIN_EXISTS(MAX6675_SS2)
   #if TEMP_SENSOR_IS_MAX(1, MAX31855)
