@@ -244,8 +244,7 @@
   #elif TEMP_SENSOR_CHAMBER
     #define TEMP_CHAMBER_PIN          TEMP_2_PIN  // use T3 for Chamber sensor
   #endif
-#endif
-#if HOTENDS < 2
+#elif HOTENDS < 2
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN  // use T2 for Probe
   #endif
@@ -260,30 +259,38 @@
   #undef  TEMP_0_PIN
   #define TEMP_0_PIN PF8
 #endif
+
 #if TEMP_SENSOR_1 == -4 || TEMP_SENSOR_1 == 20
   #undef  TEMP_1_PIN
   #define TEMP_1_PIN PF9
 #endif
+
 #if TEMP_SENSOR_2 == -4 || TEMP_SENSOR_2 == 20
   #undef  TEMP_2_PIN
   #define TEMP_2_PIN PF10
 #endif
+
 #if TEMP_SENSOR_BED == -4 || TEMP_SENSOR_BED == 20
   #undef  TEMP_BED_PIN
   #define TEMP_BED_PIN PF7
 #endif
+
 #ifdef TEMP_PROBE_PIN
   #if (TEMP_SENSOR_PROBE == -4 || TEMP_SENSOR_PROBE == 20)
     #undef  TEMP_PROBE_PIN
     #if HOTENDS == 2
+      #undef  TEMP_PROBE_PIN
       #define TEMP_PROBE_PIN PF10
     #elif HOTENDS < 2
+      #undef  TEMP_PROBE_PIN
       #define TEMP_PROBE_PIN PF9
     #endif
   #endif
+
 #endif
 #ifdef TEMP_CHAMBER_PIN
   #if (TEMP_SENSOR_CHAMBER == -4 || TEMP_SENSOR_CHAMBER == 20)
+    #undef  TEMP_CHAMBER_PIN
     #define TEMP_CHAMBER_PIN PF10
   #endif
 #endif
