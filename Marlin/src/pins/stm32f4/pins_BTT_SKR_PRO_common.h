@@ -329,11 +329,13 @@
 #endif
 
 // Use FAN2_PIN as controller FAN if there is only one extruder
-#if ENABLED(USE_CONTROLLER_FAN) && HOTENDS == 1
-  #define CONTROLLER_FAN_PIN FAN2_PIN
-#else
-  #error "No free Fan pin found, select a suitable pin here"
-  //#define CONTROLLER_FAN_PIN
+#if ENABLED(USE_CONTROLLER_FAN)
+  #if HOTENDS == 1
+    #define CONTROLLER_FAN_PIN FAN2_PIN
+  #else
+    #error "No free Fan pin found, select a suitable pin here"
+    //#define CONTROLLER_FAN_PIN
+  #endif
 #endif
 
 //
