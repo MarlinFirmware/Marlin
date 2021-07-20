@@ -398,7 +398,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   // find small image size
   card.read(public_buf, 512);
   public_buf[511] = '\0';
-  char* eol = strpbrk((const char*)public_buf, "\n\r");
+  const char* eol = strpbrk((const char*)public_buf, "\n\r");
   small_image_size = (uintptr_t)eol - (uintptr_t)((uint32_t *)(&public_buf[0])) + 1;
   return LV_FS_RES_OK;
 }
