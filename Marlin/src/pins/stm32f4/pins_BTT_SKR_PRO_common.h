@@ -272,16 +272,20 @@
   #undef  TEMP_BED_PIN
   #define TEMP_BED_PIN PF7
 #endif
-#if (TEMP_SENSOR_PROBE == -4 || TEMP_SENSOR_PROBE == 20) && TEMP_PROBE_PIN
-  #undef  TEMP_PROBE_PIN
-  #if HOTENDS == 2
-    #define TEMP_PROBE_PIN PF10
-  #elif HOTENDS < 2
-    #define TEMP_PROBE_PIN PF9
+#ifdef TEMP_PROBE_PIN
+  #if (TEMP_SENSOR_PROBE == -4 || TEMP_SENSOR_PROBE == 20)
+    #undef  TEMP_PROBE_PIN
+    #if HOTENDS == 2
+      #define TEMP_PROBE_PIN PF10
+    #elif HOTENDS < 2
+      #define TEMP_PROBE_PIN PF9
+    #endif
   #endif
 #endif
-#if (TEMP_SENSOR_CHAMBER == -4 || TEMP_SENSOR_CHAMBER == 20) && TEMP_CHAMBER_PIN
-  #define TEMP_CHAMBER_PIN PF10
+#ifdef TEMP_CHAMBER_PIN
+  #if (TEMP_SENSOR_CHAMBER == -4 || TEMP_SENSOR_CHAMBER == 20)
+    #define TEMP_CHAMBER_PIN PF10
+  #endif
 #endif
 
 // force manual select of appropriate Pins
@@ -304,13 +308,14 @@
 #define HEATER_1_PIN                        PD14  // Heater1
 #define HEATER_2_PIN                        PB0   // Heater2
 #define HEATER_BED_PIN                      PD12  // Hotbed
-#if TEMP_CHAMBER_PIN && HOTENDS < 3
-  #define HEATER_CHAMBER_PIN                HEATER_2_PIN   // Heater2
-#else
-  #error "No free heater pin for Heated Chamber found, manually select one here"
-  //define HEATER_CHAMBER_PIN
+#ifdef TEMP_CHAMBER_PIN
+  #if HOTENDS < 3
+    #define HEATER_CHAMBER_PIN                HEATER_2_PIN   // Heater2
+  #else
+    #error "No free heater pin for Heated Chamber found, manually select one here"
+    //define HEATER_CHAMBER_PIN
+  #endif
 #endif
-
 //
 // Fans
 //
