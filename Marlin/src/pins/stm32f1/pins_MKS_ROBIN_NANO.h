@@ -172,13 +172,18 @@
 //
 #define BEEPER_PIN                          PC5
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'TFT_RESET_PIN'
- * to let the bootloader init the screen.
- */
-// Shared FSMC Configs
+//
+// TFT with FSMC interface
+//
 #if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers.
+   * If the screen stays white, disable 'TFT_RESET_PIN'
+   * to let the bootloader init the screen.
+   */
+  #define TFT_RESET_PIN                     PC6   // FSMC_RST
+  #define TFT_BACKLIGHT_PIN                 PD13
+
   #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
   #define DOGLCD_SCK                        -1
 
@@ -186,9 +191,6 @@
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
-
-  #define TFT_RESET_PIN                     PC6   // FSMC_RST
-  #define TFT_BACKLIGHT_PIN                 PD13
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_CS_PIN                       PD7

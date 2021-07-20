@@ -168,7 +168,7 @@ void FilesScreen::drawFooter() {
   cmd.colors(normal_btn)
      .font(font_medium)
      .colors(has_selection ? normal_btn : action_btn)
-     .tag(back_tag).button(BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BACK))
+     .tag(back_tag).button(BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_DONE))
      .enabled(has_selection)
      .colors(has_selection ? action_btn : normal_btn);
 

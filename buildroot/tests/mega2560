@@ -199,6 +199,17 @@ opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS EEPROM_BOO
 exec_test $1 $2 "REPRAP MEGA2560 RAMPS | Laser Feature | Air Evacuation | Air Assist | Cooler | Flowmeter | 44780 LCD " "$3"
 
 #
+# Test redundant temperature sensors + MAX TC
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_RAMPS_14_EFB EXTRUDERS 1 \
+        TEMP_SENSOR_0 -2 TEMP_SENSOR_REDUNDANT -2 \
+        TEMP_SENSOR_REDUNDANT_SOURCE E1 TEMP_SENSOR_REDUNDANT_TARGET E0 \
+        TEMP_0_CS_PIN 11 TEMP_1_CS_PIN 12
+
+exec_test $1 $2 "MEGA2560 RAMPS | Redundant temperature sensor | 2x MAX6675" "$3"
+
+#
 # Language files test with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #
 #restore_configs

@@ -161,6 +161,7 @@
 //
 #define TEMP_0_PIN                          PA2   // T0 <-> E0
 #define TEMP_1_PIN                          PA0   // T1 <-> E1
+#define TEMP_BOARD_PIN                      PC2   // Onboard thermistor, NTC100K
 #define TEMP_BED_PIN                        PA1   // T2 <-> Bed
 #define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
 

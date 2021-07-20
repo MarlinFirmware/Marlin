@@ -65,7 +65,7 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
       }
     #endif
     cmd.colors(action_btn)
-       .tag(1) .button(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+       .tag(1) .button(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
