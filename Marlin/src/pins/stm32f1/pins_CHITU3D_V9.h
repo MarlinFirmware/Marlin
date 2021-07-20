@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,10 +22,6 @@
 #pragma once
 
 #include "env_validate.h"
-
-/**
- * 2017 Victor Perez Marlin for stm32f1 test
- */
 
 #define BOARD_INFO_NAME      "Chitu3D"
 #define DEFAULT_MACHINE_NAME "STM32F103ZET6"

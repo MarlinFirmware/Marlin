@@ -23,10 +23,6 @@
 
 #include "env_validate.h"
 
-/**
- * 2017 Victor Perez Marlin for stm32f1 test
- */
-
 #define BOARD_INFO_NAME      "Chitu3D V5"
 #define DEFAULT_MACHINE_NAME "STM32F103ZET6"
 
