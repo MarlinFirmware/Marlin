@@ -120,7 +120,7 @@ void plan_arc(
   #endif
 
   // If circling around...
-  if (ENABLED(ARC_P_CIRCLES) && circles) {
+  if (TERN0(ARC_P_CIRCLES, circles)) {
     const float total_angular = abs_angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
               part_per_circle = RADIANS(360) / total_angular;             // Each circle's part of the total
 
