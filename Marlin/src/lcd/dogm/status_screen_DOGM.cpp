@@ -265,6 +265,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     #endif
 
     #if DISABLED(STATUS_COMBINE_HEATERS)
+
       if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
         #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
@@ -288,7 +289,8 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
             u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
 
       } // PAGE_CONTAINS
-    #endif
+
+    #endif // !STATUS_COMBINE_HEATERS
 
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER
