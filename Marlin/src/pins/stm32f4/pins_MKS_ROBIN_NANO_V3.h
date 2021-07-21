@@ -220,6 +220,12 @@
   #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
 #endif
 
+// MKS TEST
+#if ENABLED(MKS_TEST)
+  #define MKS_TEST_POWER_LOSS_PIN           PA13   // PW_DET
+  #define MKS_TEST_PS_ON_PIN                PB2    // PW_OFF
+#endif
+
 //
 // Onboard SD card
 //
