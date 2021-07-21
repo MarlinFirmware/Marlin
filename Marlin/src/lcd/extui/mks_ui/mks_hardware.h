@@ -19,26 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
+
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#include <lvgl.h>
 
-#include "draw_ui.h"
-#include <lv_conf.h>
-#include "tft_lvgl_configuration.h"
-#include "SPI_TFT.h"
-#include "../../../inc/MarlinConfig.h"
-#include "mks_hardware.h"
+// Functions for MKS_TEST
+#if BOTH(MKS_TEST, SDSUPPORT)
+  void mks_hardware_test();
+  void mks_test_get();
+  void mks_gpio_test();
+  extern uint8_t mks_test_flag;
+#endif
 
-static lv_obj_t *scr;
-
-void lv_draw_error_message(PGM_P const msg) {
-  SPI_TFT.LCD_clear(0x0000);
-  if (msg) disp_string((TFT_WIDTH - strlen(msg) * 16) / 2, 100, msg, 0xFFFF, 0x0000);
-  disp_string((TFT_WIDTH - strlen("PRINTER HALTED") * 16) / 2, 140, "PRINTER HALTED", 0xFFFF, 0x0000);
-  disp_string((TFT_WIDTH - strlen("Please Reset") * 16) / 2, 180, "Please Reset", 0xFFFF, 0x0000);
-}
-
-void lv_clear_error_message() { lv_obj_del(scr); }
-
-#endif // HAS_TFT_LVGL_UI
+// String display and assets
+void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor, uint16_t bkColor);
+void disp_assets_update();
+void disp_assets_update_progress(const char *msg);

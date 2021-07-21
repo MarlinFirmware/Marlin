@@ -83,12 +83,13 @@ void plan_arc(
   #endif
 
   // Angle of rotation between position and target from the circle center.
-  float angular_travel;
+  float angular_travel, abs_angular_travel;
 
   // Do a full circle if starting and ending positions are "identical"
   if (NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
     // Preserve direction for circles
     angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
+    abs_angular_travel = RADIANS(360);
   }
   else {
     // Calculate the angle
@@ -103,8 +104,10 @@ void plan_arc(
       case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
     }
 
+    abs_angular_travel = ABS(angular_travel);
+
     #ifdef MIN_ARC_SEGMENTS
-      min_segments = CEIL(min_segments * ABS(angular_travel) / RADIANS(360));
+      min_segments = CEIL(min_segments * abs_angular_travel / RADIANS(360));
       NOLESS(min_segments, 1U);
     #endif
   }
@@ -117,8 +120,8 @@ void plan_arc(
   #endif
 
   // If circling around...
-  if (ENABLED(ARC_P_CIRCLES) && circles) {
-    const float total_angular = angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
+  if (TERN0(ARC_P_CIRCLES, circles)) {
+    const float total_angular = abs_angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
               part_per_circle = RADIANS(360) / total_angular;             // Each circle's part of the total
 
     #if HAS_Z_AXIS
@@ -138,8 +141,8 @@ void plan_arc(
     TERN_(HAS_EXTRUDERS, extruder_travel = cart.e - current_position.e);
   }
 
-  const float flat_mm = radius * angular_travel,
-              mm_of_travel = TERN_(HAS_Z_AXIS, linear_travel ? HYPOT(flat_mm, linear_travel) :) ABS(flat_mm);
+  const float flat_mm = radius * abs_angular_travel,
+              mm_of_travel = TERN_(HAS_Z_AXIS, linear_travel ? HYPOT(flat_mm, linear_travel) :) flat_mm;
   if (mm_of_travel < 0.001f) return;
 
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);

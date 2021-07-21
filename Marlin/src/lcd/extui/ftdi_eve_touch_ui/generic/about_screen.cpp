@@ -94,7 +94,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
        .tag(2).button(STATS_POS, GET_TEXT_F(MSG_INFO_STATS_MENU));
   #endif
   cmd.colors(action_btn)
-     .tag(1).button(BACK_POS,  GET_TEXT_F(MSG_BACK));
+     .tag(1).button(BACK_POS,  GET_TEXT_F(MSG_BUTTON_DONE));
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {

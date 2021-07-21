@@ -27,14 +27,9 @@
 #include "draw_ui.h"
 #include "pic_manager.h"
 #include "draw_ready_print.h"
-
-#if ENABLED(MKS_TEST)
-  #include "mks_hardware_test.h"
-#endif
-
+#include "mks_hardware.h"
 #include "SPIFlashStorage.h"
 #include "../../../libs/W25Qxx.h"
-
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h"
 
