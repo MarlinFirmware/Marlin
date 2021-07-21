@@ -216,7 +216,7 @@ def search_compiler():
 	# which will be in a platformio toolchain bin folder
 	path_regex = re.escape(env['PROJECT_PACKAGES_DIR'])
 
-  # See if the environment provides a default compiler
+	# See if the environment provides a default compiler
 	try:
 		gcc = env.GetProjectOption('custom_deps_gcc')
 	except:
