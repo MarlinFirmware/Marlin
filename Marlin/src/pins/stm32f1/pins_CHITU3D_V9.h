@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,21 +21,16 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+#define BOARD_INFO_NAME "Chitu3D V9"
 
-#include <lvgl.h>
+#define Z_STOP_PIN                          PA14
 
-// Functions for MKS_TEST
-#if BOTH(MKS_TEST, SDSUPPORT)
-  void mks_hardware_test();
-  void mks_test_get();
-  void mks_gpio_test();
-  extern uint8_t mks_test_flag;
-#else
-  #define mks_test_flag 0
+#define Z2_ENABLE_PIN                       PF3
+#define Z2_STEP_PIN                         PF5
+#define Z2_DIR_PIN                          PF1
+
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   PF13
 #endif
 
-// String display and assets
-void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor, uint16_t bkColor);
-void disp_assets_update();
-void disp_assets_update_progress(const char *msg);
+#include "pins_CHITU3D_common.h"
