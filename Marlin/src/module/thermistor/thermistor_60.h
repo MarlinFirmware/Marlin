@@ -31,7 +31,7 @@
 // beta: 3950
 // min adc: 1 at 0.0048828125 V
 // max adc: 1023 at 4.9951171875 V
-const temp_entry_t temptable_60[] PROGMEM = {
+constexpr temp_entry_t temptable_60[] PROGMEM = {
   { OV(  51), 272 },
   { OV(  61), 258 },
   { OV(  71), 247 },

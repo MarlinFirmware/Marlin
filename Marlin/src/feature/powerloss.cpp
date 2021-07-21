@@ -66,9 +66,6 @@ PrintJobRecovery recovery;
 #ifndef POWER_LOSS_PURGE_LEN
   #define POWER_LOSS_PURGE_LEN 0
 #endif
-#ifndef POWER_LOSS_ZRAISE
-  #define POWER_LOSS_ZRAISE 2     // Move on loss with backup power, or on resume without it
-#endif
 
 #if DISABLED(BACKUP_POWER_SUPPLY)
   #undef POWER_LOSS_RETRACT_LEN   // No retract at outage without backup power
@@ -140,14 +137,14 @@ void PrintJobRecovery::load() {
  * Set info fields that won't change
  */
 void PrintJobRecovery::prepare() {
-  card.getAbsFilename(info.sd_filename);  // SD filename
+  card.getAbsFilenameInCWD(info.sd_filename);  // SD filename
   cmd_sdpos = 0;
 }
 
 /**
  * Save the current machine state to the power-loss recovery file
  */
-void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/) {
+void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POWER_LOSS_ZRAISE*/, const bool raised/*=false*/) {
 
   // We don't check IS_SD_PRINTING here so a save may occur during a pause
 
@@ -184,14 +181,12 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     info.current_position = current_position;
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
     info.zraise = zraise;
+    info.flag.raised = raised;                      // Was Z raised before power-off?
 
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
-
-    #if HAS_MULTI_EXTRUDER
-      info.active_extruder = active_extruder;
-    #endif
+    TERN_(HAS_MULTI_EXTRUDER, info.active_extruder = active_extruder);
 
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;
@@ -202,7 +197,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       #endif
     #endif
 
-    #if EXTRUDERS
+    #if HAS_EXTRUDERS
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
@@ -256,7 +251,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
           // Raise the Z axis now
           if (zraise) {
             char cmd[20], str_1[16];
-            sprintf_P(cmd, PSTR("G0 Z%s"), dtostrf(zraise, 1, 3, str_1));
+            sprintf_P(cmd, PSTR("G0Z%s"), dtostrf(zraise, 1, 3, str_1));
             gcode.process_subcommands_now(cmd);
           }
         #else
@@ -292,8 +287,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       constexpr float zraise = 0;
     #endif
 
-    // Save, including the limited Z raise
-    if (IS_SD_PRINTING()) save(true, zraise);
+    // Save the current position, distance that Z was (or should be) raised,
+    // and a flag whether the raise was already done here.
+    if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
 
     // Disable all heaters to reduce power loss
     thermalManager.disable_all_heaters();
@@ -348,57 +344,78 @@ void PrintJobRecovery::resume() {
     const celsius_t bt = info.target_temperature_bed;
     if (bt) {
       // Restore the bed temperature
-      sprintf_P(cmd, PSTR("M190 S%i"), bt);
+      sprintf_P(cmd, PSTR("M190S%i"), bt);
       gcode.process_subcommands_now(cmd);
     }
   #endif
 
-  // Restore all hotend temperatures
+  // Heat hotend enough to soften material
   #if HAS_HOTEND
     HOTEND_LOOP() {
-      const celsius_t et = info.target_temperature[e];
+      const celsius_t et = _MAX(info.target_temperature[e], 180);
       if (et) {
         #if HAS_MULTI_HOTEND
-          sprintf_P(cmd, PSTR("T%i S"), e);
+          sprintf_P(cmd, PSTR("T%iS"), e);
           gcode.process_subcommands_now(cmd);
         #endif
-        sprintf_P(cmd, PSTR("M109 S%i"), et);
+        sprintf_P(cmd, PSTR("M109S%i"), et);
         gcode.process_subcommands_now(cmd);
       }
     }
   #endif
 
+  // Interpret the saved Z according to flags
+  const float z_print = info.current_position.z,
+              z_raised = z_print + info.zraise;
+
   //
   // Home the axes that can safely be homed, and
-  // establish the current position as best we can
+  // establish the current position as best we can.
   //
-  #if Z_HOME_DIR > 0
 
-    // If Z homing goes to max...
-    gcode.process_subcommands_now_P(PSTR(
-      "G92.9 E0\n"                          // Reset E to 0
-      "G28R0"                               // Home all axes (no raise)
-    ));
+  gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
 
-  #else // "G92.9 E0 ..."
+  #if Z_HOME_TO_MAX
 
-    // If a Z raise occurred at outage restore Z, otherwise raise Z now
-    sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));
+    float z_now = z_raised;
+
+    // If Z homing goes to max then just move back to the "raised" position
+    sprintf_P(cmd, PSTR(
+            "G28R0\n"     // Home all axes (no raise)
+            "G1Z%sF1200"  // Move Z down to (raised) height
+          ), dtostrf(z_now, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
 
-    // Home safely with no Z raise
-    gcode.process_subcommands_now_P(PSTR(
-      "G28R0"                               // No raise during G28
-      #if IS_CARTESIAN && (DISABLED(POWER_LOSS_RECOVER_ZHOME) || defined(POWER_LOSS_ZHOME_POS))
-        "XY"                                // Don't home Z on Cartesian unless overridden
-      #endif
-    ));
+  #else
+
+    #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
+      #define HOMING_Z_DOWN 1
+    #else
+      #define HOME_XY_ONLY 1
+    #endif
+
+    float z_now = info.flag.raised ? z_raised : z_print;
+
+    // Reset E to 0 and set Z to the real position
+    #if HOME_XY_ONLY
+      sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 3, str_1));
+      gcode.process_subcommands_now(cmd);
+    #endif
+
+    // Does Z need to be raised now? It should be raised before homing XY.
+    if (z_raised > z_now) {
+      z_now = z_raised;
+      sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
+      gcode.process_subcommands_now(cmd);
+    }
+
+    // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
+    gcode.process_subcommands_now_P(PSTR("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
 
   #endif
 
-  #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
-    // Move to a safe XY position where Z can home while avoiding the print.
-    // If Z_SAFE_HOMING is enabled, its position must also be outside the print area!
+  #if HOMING_Z_DOWN
+    // Move to a safe XY position and home Z while avoiding the print.
     constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
     sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
     gcode.process_subcommands_now(cmd);
@@ -407,9 +424,24 @@ void PrintJobRecovery::resume() {
   // Mark all axes as having been homed (no effect on current_position)
   set_all_homed();
 
+  #if HAS_LEVELING
+    // Restore Z fade and possibly re-enable bed leveling compensation.
+    // Leveling may already be enabled due to the ENABLE_LEVELING_AFTER_G28 option.
+    // TODO: Add a G28 parameter to leave leveling disabled.
+    sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
+    gcode.process_subcommands_now(cmd);
+
+    #if HOME_XY_ONLY
+      // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
+      sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
+      gcode.process_subcommands_now(cmd);
+    #endif
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    // Z was homed. Now move Z back up to the saved Z height, plus the POWER_LOSS_ZRAISE.
-    sprintf_P(cmd, PSTR("G1Z%sF500"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
+    // Z was homed down to the bed, so move up to the raised height.
+    z_now = z_raised;
+    sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -432,8 +464,23 @@ void PrintJobRecovery::resume() {
     #endif
   #endif
 
-  // Select the previously active tool (with no_move)
-  #if HAS_MULTI_EXTRUDER
+  // Restore all hotend temperatures
+  #if HAS_HOTEND
+    HOTEND_LOOP() {
+      const celsius_t et = info.target_temperature[e];
+      if (et) {
+        #if HAS_MULTI_HOTEND
+          sprintf_P(cmd, PSTR("T%iS"), e);
+          gcode.process_subcommands_now(cmd);
+        #endif
+        sprintf_P(cmd, PSTR("M109S%i"), et);
+        gcode.process_subcommands_now(cmd);
+      }
+    }
+  #endif
+
+  // Restore the previously active tool (with no_move)
+  #if HAS_MULTI_EXTRUDER || HAS_MULTI_HOTEND
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
   #endif
@@ -460,22 +507,13 @@ void PrintJobRecovery::resume() {
     fwretract.current_hop = info.retract_hop;
   #endif
 
-  #if HAS_LEVELING
-    // Restore leveling state before 'G92 Z' to ensure
-    // the Z stepper count corresponds to the native Z.
-    if (info.fade || info.flag.leveling) {
-      sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
-      gcode.process_subcommands_now(cmd);
-    }
-  #endif
-
   #if ENABLED(GRADIENT_MIX)
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
   // Un-retract if there was a retract at outage
   #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
-    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
+    gcode.process_subcommands_now_P(PSTR("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
   #endif
 
   // Additional purge on resume if configured
@@ -488,36 +526,30 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR("G12"));
   #endif
 
-  // Move back to the saved XY
-  sprintf_P(cmd, PSTR("G1 X%s Y%s F3000"),
+  // Move back over to the saved XY
+  sprintf_P(cmd, PSTR("G1X%sY%sF3000"),
     dtostrf(info.current_position.x, 1, 3, str_1),
     dtostrf(info.current_position.y, 1, 3, str_2)
   );
   gcode.process_subcommands_now(cmd);
 
-  // Move back to the saved Z
-  dtostrf(info.current_position.z, 1, 3, str_1);
-  #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    sprintf_P(cmd, PSTR("G1 Z%s F500"), str_1);
-  #else
-    gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
-    sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
-  #endif
+  // Move back down to the saved Z for printing
+  sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_print, 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
   // Restore the feedrate
-  sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
+  sprintf_P(cmd, PSTR("G1F%d"), info.feedrate);
   gcode.process_subcommands_now(cmd);
 
   // Restore E position with G92.9
-  sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position.e, 1, 3, str_1));
+  sprintf_P(cmd, PSTR("G92.9E%s"), dtostrf(info.current_position.e, 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
   TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
   TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
-    LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
+    LOOP_LINEAR_AXES(i) update_workspace_offset((AxisEnum)i);
   #endif
 
   // Relative axis modes
@@ -535,7 +567,7 @@ void PrintJobRecovery::resume() {
   char *fn = info.sd_filename;
   sprintf_P(cmd, M23_STR, fn);
   gcode.process_subcommands_now(cmd);
-  sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
+  sprintf_P(cmd, PSTR("M24S%ldT%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
 
   TERN_(DEBUG_POWER_LOSS_RECOVERY, marlin_debug_flags = old_flags);
@@ -549,17 +581,25 @@ void PrintJobRecovery::resume() {
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         DEBUG_ECHOPGM("current_position: ");
-        LOOP_XYZE(i) {
+        LOOP_LOGICAL_AXES(i) {
           if (i) DEBUG_CHAR(',');
           DEBUG_DECIMAL(info.current_position[i]);
         }
         DEBUG_EOL();
 
-        DEBUG_ECHOLNPAIR("zraise: ", info.zraise);
+        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
+
+        DEBUG_ECHOLNPAIR("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
+
+        #if ENABLED(GCODE_REPEAT_MARKERS)
+          DEBUG_ECHOLNPAIR("repeat index: ", info.stored_repeat.index);
+          LOOP_L_N(i, info.stored_repeat.index)
+            DEBUG_ECHOLNPAIR("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
+        #endif
 
         #if HAS_HOME_OFFSET
           DEBUG_ECHOPGM("home_offset: ");
-          LOOP_XYZ(i) {
+          LOOP_LINEAR_AXES(i) {
             if (i) DEBUG_CHAR(',');
             DEBUG_DECIMAL(info.home_offset[i]);
           }
@@ -568,17 +608,21 @@ void PrintJobRecovery::resume() {
 
         #if HAS_POSITION_SHIFT
           DEBUG_ECHOPGM("position_shift: ");
-          LOOP_XYZ(i) {
+          LOOP_LINEAR_AXES(i) {
             if (i) DEBUG_CHAR(',');
             DEBUG_DECIMAL(info.position_shift[i]);
           }
           DEBUG_EOL();
         #endif
 
-        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
-
         #if HAS_MULTI_EXTRUDER
           DEBUG_ECHOLNPAIR("active_extruder: ", info.active_extruder);
+        #endif
+
+        #if DISABLED(NO_VOLUMETRICS)
+          DEBUG_ECHOPGM("filament_size:");
+          LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPAIR(" ", info.filament_size[i]);
+          DEBUG_EOL();
         #endif
 
         #if HAS_HOTEND
@@ -604,8 +648,9 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          DEBUG_ECHOLNPAIR("leveling: ", info.flag.leveling, " fade: ", info.fade);
+          DEBUG_ECHOLNPAIR("leveling: ", info.flag.leveling ? "ON" : "OFF", "  fade: ", info.fade);
         #endif
+
         #if ENABLED(FWRETRACT)
           DEBUG_ECHOPGM("retract: ");
           for (int8_t e = 0; e < EXTRUDERS; e++) {
@@ -615,11 +660,28 @@ void PrintJobRecovery::resume() {
           DEBUG_EOL();
           DEBUG_ECHOLNPAIR("retract_hop: ", info.retract_hop);
         #endif
+
+        // Mixing extruder and gradient
+        #if BOTH(MIXING_EXTRUDER, GRADIENT_MIX)
+          DEBUG_ECHOLNPAIR("gradient: ", info.gradient.enabled ? "ON" : "OFF");
+        #endif
+
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
-        DEBUG_ECHOLNPAIR("dryrun: ", AS_DIGIT(info.flag.dryrun));
-        DEBUG_ECHOLNPAIR("allow_cold_extrusion: ", info.flag.allow_cold_extrusion);
+
+        DEBUG_ECHOPGM("axis_relative:");
+        if (TEST(info.axis_relative, REL_X)) DEBUG_ECHOPGM(" REL_X");
+        if (TEST(info.axis_relative, REL_Y)) DEBUG_ECHOPGM(" REL_Y");
+        if (TEST(info.axis_relative, REL_Z)) DEBUG_ECHOPGM(" REL_Z");
+        if (TEST(info.axis_relative, REL_E)) DEBUG_ECHOPGM(" REL_E");
+        if (TEST(info.axis_relative, E_MODE_ABS)) DEBUG_ECHOPGM(" E_MODE_ABS");
+        if (TEST(info.axis_relative, E_MODE_REL)) DEBUG_ECHOPGM(" E_MODE_REL");
+        DEBUG_EOL();
+
+        DEBUG_ECHOLNPAIR("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
+        DEBUG_ECHOLNPAIR("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
+        DEBUG_ECHOLNPAIR("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
       }
       else
         DEBUG_ECHOLNPGM("INVALID DATA");

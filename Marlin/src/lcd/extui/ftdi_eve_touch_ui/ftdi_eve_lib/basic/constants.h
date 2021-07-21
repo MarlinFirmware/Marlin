@@ -95,6 +95,7 @@ namespace FTDI_FT810 {
 namespace FTDI {
   constexpr uint8_t ARGB1555                           = 0;
   constexpr uint8_t L1                                 = 1;
+  constexpr uint8_t L2                                 = 17;
   constexpr uint8_t L4                                 = 2;
   constexpr uint8_t L8                                 = 3;
   constexpr uint8_t RGB332                             = 4;

@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -125,12 +125,20 @@ void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
   WRITE(TFT_CS_PIN, LOW);
 }
 
+#ifdef TFT_DEFAULT_DRIVER
+  #include "../../../lcd/tft_io/tft_ids.h"
+#endif
+
 uint32_t TFT_SPI::GetID() {
   uint32_t id;
   id = ReadID(LCD_READ_ID);
-
-  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
+  if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF) {
     id = ReadID(LCD_READ_ID4);
+    #ifdef TFT_DEFAULT_DRIVER
+      if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
+        id = TFT_DEFAULT_DRIVER;
+    #endif
+   }
   return id;
 }
 
@@ -232,4 +240,4 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
 }
 
 #endif // HAS_SPI_TFT
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

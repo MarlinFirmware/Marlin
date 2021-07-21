@@ -50,6 +50,10 @@
   #include "../../feature/cooler.h"
 #endif
 
+#if ENABLED(I2C_AMMETER)
+  #include "../../feature/ammeter.h"
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -64,11 +68,7 @@
 
 #elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
 
-  LCD_CLASS lcd(LCD_I2C_ADDRESS
-    #ifdef DETECT_DEVICE
-      , 1
-    #endif
-  );
+  LCD_CLASS lcd(LCD_I2C_ADDRESS OPTARG(DETECT_I2C_LCD_DEVICE, 1));
 
 #elif ENABLED(LCD_I2C_TYPE_PCA8574)
 
@@ -376,11 +376,7 @@ void MarlinUI::init_lcd() {
 }
 
 bool MarlinUI::detected() {
-  return (true
-    #if EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008) && defined(DETECT_DEVICE)
-      && lcd.LcdDetected() == 1
-    #endif
-  );
+  return TERN1(DETECT_I2C_LCD_DEVICE, lcd.LcdDetected() == 1);
 }
 
 #if HAS_SLOW_BUTTONS
@@ -588,9 +584,24 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
-    lcd_put_u8str("~ ");
+    lcd_put_u8str("~");
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
     lcd_put_wchar('L');
+  }
+#endif
+
+#if ENABLED(I2C_AMMETER)
+  FORCE_INLINE void _draw_ammeter_status() {
+    lcd_put_u8str(" ");
+    ammeter.read();
+    if (ammeter.current <= 0.999f) {
+      lcd_put_u8str(ui16tostr3rj(uint16_t(ammeter.current * 1000 + 0.5f)));
+      lcd_put_u8str("mA");
+    }
+    else {
+      lcd_put_u8str(ftostr12ns(ammeter.current));
+      lcd_put_wchar('A');
+    }
   }
 #endif
 
@@ -755,7 +766,7 @@ inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink)
   char buffer[14];
 
   #if ENABLED(SHOW_REMAINING_TIME)
-    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
+    const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && printingIsActive();
     if (show_remain) {
       #if ENABLED(USE_M73_REMAINING_TIME)
         duration_t remaining = ui.get_remaining_time();
@@ -829,12 +840,9 @@ void MarlinUI::draw_status_screen() {
         #endif
       #endif
 
-      #if HAS_COOLER
-        _draw_cooler_status('*', blink);
-      #endif
-      #if ENABLED(LASER_COOLANT_FLOW_METER)
-        _draw_flowmeter_status();
-      #endif
+      TERN_(HAS_COOLER, _draw_cooler_status('*', blink));
+      TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
+      TERN_(I2C_AMMETER, _draw_ammeter_status());
 
     #endif // LCD_WIDTH >= 20
 
@@ -889,7 +897,7 @@ void MarlinUI::draw_status_screen() {
 
           #else // !HAS_DUAL_MIXING
 
-            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive() || marlin_state == MF_SD_COMPLETE);
+            const bool show_e_total = TERN0(LCD_SHOW_E_TOTAL, printingIsActive());
 
             if (show_e_total) {
               #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -954,7 +962,7 @@ void MarlinUI::draw_status_screen() {
             else
           #endif
             {
-              #if EXTRUDERS
+              #if HAS_EXTRUDERS
                 c = 'E';
                 per = planner.flow_percentage[0];
               #endif

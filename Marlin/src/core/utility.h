@@ -77,3 +77,11 @@ public:
 // in the range 0-100 while avoiding rounding artifacts
 constexpr uint8_t pwm_to_percent(const uint8_t i) { return (int(i) * 100) / 255; }
 constexpr uint8_t percent_to_pwm(const uint8_t p) { return (int(p) * 255) / 100; }
+
+const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME);
+
+#if LINEAR_AXES <= XYZ
+  #define AXIS_CHAR(A) ((char)('X' + A))
+#else
+  #define AXIS_CHAR(A) axis_codes[A]
+#endif

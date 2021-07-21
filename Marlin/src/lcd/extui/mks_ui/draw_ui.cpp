@@ -30,7 +30,6 @@
 #include "pic_manager.h"
 
 #include "draw_ui.h"
-#include "mks_hardware_test.h"
 
 #include <SPI.h>
 
@@ -50,6 +49,10 @@
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "draw_touch_calibration.h"
+#endif
+
+#if ENABLED(MKS_TEST)
+  #include "mks_hardware.h"
 #endif
 
 CFG_ITMES gCfgItems;
@@ -202,27 +205,27 @@ void ui_cfg_init() {
   #if ENABLED(MKS_WIFI_MODULE)
     memset(&wifiPara, 0, sizeof(wifiPara));
     memset(&ipPara, 0, sizeof(ipPara));
-    strcpy(wifiPara.ap_name, WIFI_AP_NAME);
-    strcpy(wifiPara.keyCode, WIFI_KEY_CODE);
+    strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
+    strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
     //client
-    strcpy(ipPara.ip_addr, IP_ADDR);
-    strcpy(ipPara.mask, IP_MASK);
-    strcpy(ipPara.gate, IP_GATE);
-    strcpy(ipPara.dns, IP_DNS);
+    strcpy_P(ipPara.ip_addr, PSTR(IP_ADDR));
+    strcpy_P(ipPara.mask, PSTR(IP_MASK));
+    strcpy_P(ipPara.gate, PSTR(IP_GATE));
+    strcpy_P(ipPara.dns, PSTR(IP_DNS));
 
     ipPara.dhcp_flag = IP_DHCP_FLAG;
 
     //AP
-    strcpy(ipPara.dhcpd_ip, AP_IP_ADDR);
-    strcpy(ipPara.dhcpd_mask, AP_IP_MASK);
-    strcpy(ipPara.dhcpd_gate, AP_IP_GATE);
-    strcpy(ipPara.dhcpd_dns, AP_IP_DNS);
-    strcpy(ipPara.start_ip_addr, IP_START_IP);
-    strcpy(ipPara.end_ip_addr, IP_END_IP);
+    strcpy_P(ipPara.dhcpd_ip, PSTR(AP_IP_ADDR));
+    strcpy_P(ipPara.dhcpd_mask, PSTR(AP_IP_MASK));
+    strcpy_P(ipPara.dhcpd_gate, PSTR(AP_IP_GATE));
+    strcpy_P(ipPara.dhcpd_dns, PSTR(AP_IP_DNS));
+    strcpy_P(ipPara.start_ip_addr, PSTR(IP_START_IP));
+    strcpy_P(ipPara.end_ip_addr, PSTR(IP_END_IP));
 
     ipPara.dhcpd_flag = AP_IP_DHCP_FLAG;
 
-    strcpy((char*)uiCfg.cloud_hostUrl, "baizhongyun.cn");
+    strcpy_P((char*)uiCfg.cloud_hostUrl, PSTR("baizhongyun.cn"));
     uiCfg.cloud_port = 10086;
   #endif
 
@@ -374,7 +377,7 @@ void tft_style_init() {
   style_sel_text.body.grad_color  = LV_COLOR_BACKGROUND;
   style_sel_text.text.color       = LV_COLOR_YELLOW;
   style_sel_text.text.sel_color   = LV_COLOR_YELLOW;
-  style_sel_text.text.font        = &gb2312_puhui32;
+  style_sel_text.text.font        = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_sel_text.line.width       = 0;
   style_sel_text.text.letter_space  = 0;
   style_sel_text.text.line_space    = -5;
@@ -638,21 +641,18 @@ char *creat_title_text() {
         W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
       #endif
       row++;
+      card.abortFilePrintNow();
       if (row >= 200) {
         size = 809;
         row  = 0;
 
         gcode_preview_over = false;
 
-        card.closefile();
-        char *cur_name;
-
-        cur_name = strrchr(list_file.file_name[sel_id], '/');
+        char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
         SdFile file;
         SdFile *curDir;
-        card.endFilePrint();
-        const char * const fname = card.diveToFile(true, curDir, cur_name);
+        const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
           gCfgItems.curFilesize = file.fileSize();
@@ -669,13 +669,12 @@ char *creat_title_text() {
             planner.flow_percentage[1] = 100;
             planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
           #endif
-          card.startFileprint();
+          card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
         }
         return;
       }
-      card.closefile();
     #endif // SDSUPPORT
   }
 
@@ -1366,7 +1365,10 @@ void print_time_count() {
 
 void LV_TASK_HANDLER() {
   lv_task_handler();
-  if (mks_test_flag == 0x1E) mks_hardware_test();
+
+  #if BOTH(MKS_TEST, SDSUPPORT)
+    if (mks_test_flag == 0x1E) mks_hardware_test();
+  #endif
 
   TERN_(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
 

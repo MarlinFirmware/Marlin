@@ -56,3 +56,21 @@ inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (v
 #endif
 
 extern DGUSScreenHandler ScreenHandler;
+
+// Helper to define a DGUS_VP_Variable for common use-cases.
+#define VPHELPER(VPADR, VPADRVAR, RXFPTR, TXFPTR) { \
+  .VP = VPADR, \
+  .memadr = VPADRVAR, \
+  .size = sizeof(VPADRVAR), \
+  .set_by_display_handler = RXFPTR, \
+  .send_to_display_handler = TXFPTR \
+}
+
+// Helper to define a DGUS_VP_Variable when the size of the var cannot be determined automatically (e.g., a string)
+#define VPHELPER_STR(VPADR, VPADRVAR, STRLEN, RXFPTR, TXFPTR) { \
+  .VP = VPADR, \
+  .memadr = VPADRVAR, \
+  .size = STRLEN, \
+  .set_by_display_handler = RXFPTR, \
+  .send_to_display_handler = TXFPTR \
+}

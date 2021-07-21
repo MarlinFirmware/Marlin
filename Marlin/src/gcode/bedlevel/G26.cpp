@@ -291,7 +291,7 @@ typedef struct {
     if (p2.x < 0 || p2.x >= (GRID_MAX_POINTS_X)) return;
     if (p2.y < 0 || p2.y >= (GRID_MAX_POINTS_Y)) return;
 
-    if(circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
+    if (circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
       xyz_pos_t s, e;
       s.x = _GET_MESH_X(p1.x) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
       e.x = _GET_MESH_X(p2.x) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
@@ -330,12 +330,8 @@ typedef struct {
         thermalManager.setTargetBed(bed_temp);
 
         // Wait for the temperature to stabilize
-        if (!thermalManager.wait_for_bed(true
-            #if G26_CLICK_CAN_CANCEL
-              , true
-            #endif
-          )
-        ) return G26_ERR;
+        if (!thermalManager.wait_for_bed(true OPTARG(G26_CLICK_CAN_CANCEL, true)))
+          return G26_ERR;
       }
 
     #else
@@ -352,11 +348,8 @@ typedef struct {
     thermalManager.setTargetHotend(hotend_temp, active_extruder);
 
     // Wait for the temperature to stabilize
-    if (!thermalManager.wait_for_hotend(active_extruder, true
-      #if G26_CLICK_CAN_CANCEL
-        , true
-      #endif
-    )) return G26_ERR;
+    if (!thermalManager.wait_for_hotend(active_extruder, true OPTARG(G26_CLICK_CAN_CANCEL, true)))
+      return G26_ERR;
 
     #if HAS_WIRED_LCD
       ui.reset_status();
@@ -648,12 +641,12 @@ void GcodeSuite::G26() {
   #if HAS_LCD_MENU
     g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
   #else
-    if (!parser.seen('R')) {
+    if (parser.seen('R'))
+      g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+    else {
       SERIAL_ECHOLNPGM("?(R)epeat must be specified when not using an LCD.");
       return;
     }
-    else
-      g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
   #endif
   if (g26_repeats < 1) {
     SERIAL_ECHOLNPGM("?(R)epeat value not plausible; must be at least 1.");
@@ -671,7 +664,7 @@ void GcodeSuite::G26() {
   /**
    * Wait until all parameters are verified before altering the state!
    */
-  set_bed_leveling_enabled(!parser.seen('D'));
+  set_bed_leveling_enabled(!parser.seen_test('D'));
 
   do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
