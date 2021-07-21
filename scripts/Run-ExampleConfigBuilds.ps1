@@ -101,6 +101,7 @@ foreach ($ConfigName in $Configs) {
         continue
     }
 
+    $IsSelectedSingleBuild = $SingleBuild -and $SingleBuild -eq $ConfigName
 	if ($SingleBuild -and $SingleBuild -ne $ConfigName) {
 		continue
 	}
@@ -121,7 +122,7 @@ foreach ($ConfigName in $Configs) {
     $HasNoAutoBuild = $(Test-Path -Path $(Join-Path -Path $ConfigDirName -ChildPath "no-autobuild.txt")) -eq $true
     $PlatformIOEnvironment = Get-Content -Raw -Path $(Join-Path -Path $ConfigDirName -ChildPath "platformio-environment.txt")
 	
-	if ($HasNoAutoBuild) {
+	if ($HasNoAutoBuild -and $IsSelectedSingleBuild -eq $false) {
 		continue;
 	}
 
