@@ -152,7 +152,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (2) conflict with X/Y stepper pins!"
   #elif HAS_MULTI_EXTRUDER && (IS_TX2(E1_ENABLE_PIN) || (AXIS_HAS_SPI(E1) && IS_TX2(E1_CS_PIN)))
     #error "Serial port pins (2) conflict with E1 stepper pins!"
-  #elif EXTRUDERS && ANY_RX(2, E0_DIR_PIN, E0_STEP_PIN)
+  #elif HAS_EXTRUDERS && ANY_RX(2, E0_DIR_PIN, E0_STEP_PIN)
     #error "Serial port pins (2) conflict with E stepper pins!"
   #endif
   #undef IS_TX2
@@ -257,7 +257,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
       #error "i2c SDA2 overlaps with E1 enable pin! Disable i2c peripherals."
     #elif HAS_MULTI_EXTRUDER && AXIS_HAS_SPI(E1) && PIN_IS_SDA2(E1_CS)
       #error "i2c SDA2 overlaps with E1 CS pin! Disable i2c peripherals."
-    #elif EXTRUDERS && (PIN_IS_SDA2(E0_STEP) || PIN_IS_SDA2(E0_DIR))
+    #elif HAS_EXTRUDERS && (PIN_IS_SDA2(E0_STEP) || PIN_IS_SDA2(E0_DIR))
       #error "i2c SCL2 overlaps with E0 STEP/DIR pin! Disable i2c peripherals."
     #elif PIN_IS_SDA2(X_DIR) || PIN_IS_SDA2(Y_DIR)
       #error "One or more i2c pins overlaps with X/Y DIR pin! Disable i2c peripherals."

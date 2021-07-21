@@ -948,16 +948,12 @@ void MarlinUI::draw_status_screen() {
           uint16_t per;
           #if HAS_FAN0
             if (true
-              #if EXTRUDERS && ENABLED(ADAPTIVE_FAN_SLOWING)
-                && (blink || thermalManager.fan_speed_scaler[0] < 128)
+              #if BOTH(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
+                && (blink || thermalManager.fanSpeedIsScaled(0))
               #endif
             ) {
-              uint16_t spd = thermalManager.fan_speed[0];
-              if (blink) c = 'F';
-              #if ENABLED(ADAPTIVE_FAN_SLOWING)
-                else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
-              #endif
-              per = thermalManager.pwmToPercent(spd);
+              c = TERN0(ADAPTIVE_FAN_SLOWING, !blink) ? '*' : 'F';
+              per = TERN0(ADAPTIVE_FAN_SLOWING, !blink) ? thermalManager.scaledFanSpeedPercent(0) : thermalManager.fanSpeedPercent(0);
             }
             else
           #endif

@@ -3034,7 +3034,7 @@ void MarlinSettings::reset() {
 
     SERIAL_EOL();
 
-    #if EXTRUDERS && DISABLED(NO_VOLUMETRICS)
+    #if HAS_EXTRUDERS && DISABLED(NO_VOLUMETRICS)
 
       /**
        * Volumetric extrusion M200
@@ -3066,7 +3066,7 @@ void MarlinSettings::reset() {
         CONFIG_ECHO_MSG("  M200 S", parser.volumetric_enabled);
       #endif
 
-    #endif // EXTRUDERS && !NO_VOLUMETRICS
+    #endif // HAS_EXTRUDERS && !NO_VOLUMETRICS
 
     CONFIG_ECHO_HEADING("Steps per unit:");
     report_M92(!forReplay);

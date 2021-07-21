@@ -736,12 +736,8 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     TERN_(HAS_MULTI_HOTEND, draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate));
     TERN_(HAS_HEATED_BED, draw_bed_temp(bed_temp, bed_target, forceUpdate));
 
-    uint8_t spd = thermalManager.fan_speed[0];
-    #if ENABLED(ADAPTIVE_FAN_SLOWING)
-      if (!blink && thermalManager.fan_speed_scaler[0] < 128)
-        spd = thermalManager.scaledFanSpeed(0, spd);
-    #endif
-    draw_fan_speed(thermalManager.pwmToPercent(spd));
+    const uint8_t spd = TERN0(ADAPTIVE_FAN_SLOWING, !blink) ? thermalManager.scaledFanSpeedPercent(0) : thermalManager.fanSpeedPercent(0);
+    draw_fan_speed(spd);
 
     // Draw elapsed/remaining time
     const bool show_remaining = ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink);

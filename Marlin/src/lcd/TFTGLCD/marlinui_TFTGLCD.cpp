@@ -886,21 +886,16 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     #if HAS_FAN
-      uint16_t spd = thermalManager.fan_speed[0];
-      #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
-      #endif
-      uint16_t per = pwm_to_percent(spd);
-
       #if HOTENDS < 2
         #define FANX 11
       #else
         #define FANX 17
       #endif
+      const uint8_t per = TERN0(ADAPTIVE_FAN_SLOWING, !blink) ? thermalManager.scaledFanSpeedPercent(0) : thermalManager.fanSpeedPercent(0);
       lcd.setCursor(FANX, 5); lcd_put_u8str_P(PSTR("FAN"));
       lcd.setCursor(FANX + 1, 6); lcd.write('%');
       lcd.setCursor(FANX, 7);
-      lcd.print(i16tostr3rj(per));
+      lcd.print(ui8tostr3rj(per));
 
       if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
         picBits |= ICON_FAN;

@@ -718,17 +718,10 @@ void MarlinUI::draw_status_screen() {
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
       if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y - 1)) {
-        char c = '%';
-        uint16_t spd = thermalManager.fan_speed[0];
+        const uint8_t spd = TERN0(ADAPTIVE_FAN_SLOWING, !blink) ? thermalManager.scaledFanSpeedPercent(0) : thermalManager.fanSpeedPercent(0);
         if (spd) {
-          #if ENABLED(ADAPTIVE_FAN_SLOWING)
-            if (!blink && thermalManager.fan_speed_scaler[0] < 128) {
-              spd = thermalManager.scaledFanSpeed(0, spd);
-              c = '*';
-            }
-          #endif
-          lcd_put_u8str(STATUS_FAN_TEXT_X, STATUS_FAN_TEXT_Y, i16tostr3rj(pwm_to_percent(spd)));
-          lcd_put_wchar(c);
+          lcd_put_u8str(STATUS_FAN_TEXT_X, STATUS_FAN_TEXT_Y, ui8tostr3rj(spd));
+          lcd_put_wchar(TERN0(ADAPTIVE_FAN_SLOWING, !blink && thermalManager.fanSpeedIsScaled(0)) ? '*' : '%');
         }
       }
     #endif
