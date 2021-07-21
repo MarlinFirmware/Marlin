@@ -129,8 +129,6 @@ enum processID : uint8_t {
 #define DWIN_ENGLISH 0
 
 extern uint8_t checkkey;
-extern float zprobe_zoffset;
-extern char print_filename[16];
 
 extern millis_t dwin_heat_time;
 
@@ -199,9 +197,6 @@ typedef struct {
   bool heat_flag:1;  // 0: heating done  1: during heating
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     bool ETempTooLow_flag:1;
-  #endif
-  #if HAS_LEVELING
-    bool leveling_offset_flag:1;
   #endif
   AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
   bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune

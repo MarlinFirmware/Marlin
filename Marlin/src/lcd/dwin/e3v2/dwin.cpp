@@ -3907,15 +3907,15 @@ void HMI_AdvSet() {
 
         switch (index_advset) {  // Redraw last menu items
           case ADVSET_CASE_BRIGHTNESS:  // LCD Brightness
-            Draw_Menu_Line(MROWS, ICON_Motion, "LCD Brightness", false);
+            Draw_Menu_Item(MROWS, ICON_Motion, "LCD Brightness", false);  // LCD brightness
             Draw_Menu_IntValue(HMI_data.Background_Color, MROWS, 3, HMI_data.Brightness);
             break;
           case ADVSET_CASE_SCOLOR:      // Select colors
-            Draw_Menu_Line(MROWS, ICON_Scolor, "Select Colors", true);
+            Draw_Menu_Item(MROWS, ICON_Scolor, "Select Colors", true);  // Select colors >
             break;
           #if ENABLED(SOUND_MENU_ITEM)
             case ADVSET_CASE_SOUND:     // Sound enable
-              Draw_Menu_Line(MROWS, ICON_Sound, "Enable Sound", false);
+              Draw_Menu_Item(MROWS, ICON_Sound, "Enable Sound", false);  // Sound Enable
               Draw_Chkb_Line(MROWS, ui.buzzer_enabled);
               break;
           #endif
@@ -5195,7 +5195,7 @@ void DWIN_LoadSettings(const char *buff) {
   memcpy(&HMI_data, buff, min(sizeof(HMI_data), eeprom_data_size));
   DWIN_LCD_Brightness(_MAX(10,HMI_data.Brightness));
   dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
-  if (HMI_data.Text_Color == 0) DWIN_SetColorDefaults();
+  if (HMI_data.Text_Color == HMI_data.Background_Color) DWIN_SetColorDefaults();
   DWIN.SetColors(HMI_data.Text_Color, HMI_data.Background_Color);
   Title.SetColors(HMI_data.TitleTxt_color, HMI_data.TitleBg_color);
 }

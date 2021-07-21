@@ -35,6 +35,7 @@ void LockScreenClass::Init() {
 }
 
 void LockScreenClass::Draw() {
+  Title.Clear();
   Clear_Menu_Area();
   DWIN.Draw_Icon(ICON_LOGO, 71, 120);  // CREALITY logo
   DWIN.Draw_CenteredString(Color_White, 180, F("Printer is Locked,"));
