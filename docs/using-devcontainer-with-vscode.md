@@ -19,17 +19,16 @@ The dev container official documentation can be found [here](https://code.visual
 
 This quick start covers how to set up a dev container for an existing project to use as your full-time development environment using existing source code on your filesystem. Follow these steps:
 
-1.  Start VS Code, run the **Remote-Containers: Open Folder in Container...** command from the Command Palette (F1) or quick actions Status bar item, and select the Marlin project folder.
-    
-    ![Quick actions Status bar item](https://code.visualstudio.com/assets/docs/remote/common/remote-dev-status-bar.png)
-    
-2.  The VS Code window will reload and start building the dev container. A progress notification provides status updates. You only have to build a dev container the first time you open it; opening the folder after the first successful build will be much quicker.
-    
-    ![Dev Container Progress Notification](https://code.visualstudio.com/assets/docs/remote/containers/dev-container-progress.png)
-    
-3.  After the build completes, VS Code will automatically connect to the container.
-    
+1.  Start VSCode, run the **Remote-Containers: Open Folder in Container...** command from the Command Palette (F1) or quick actions Status bar item, and select the Marlin project folder.
 
-You can now interact with your project in VS Code just as you could when opening the project locally. From now on, when you open the project folder, VS Code will automatically pick up and reuse your dev container configuration.
+    ![Quick actions Status bar item](https://code.visualstudio.com/assets/docs/remote/common/remote-dev-status-bar.png)
+
+2.  The VSCode window will reload and start building the dev container. A progress notification provides status updates. You only have to build a dev container the first time you open it; opening the folder after the first successful build will be much quicker.
+
+    ![Dev Container Progress Notification](https://code.visualstudio.com/assets/docs/remote/containers/dev-container-progress.png)
+
+3.  After the build completes, VSCode will automatically connect to the container.
+
+You can now interact with your project in VSCode just as you could when opening the project locally. From now on, when you open the project folder, VSCode will automatically pick up and reuse your dev container configuration.
 
 While using this approach to [bind mount](https://docs.docker.com/storage/bind-mounts/) the local filesystem into a container is convenient, it does have some performance overhead on Windows and macOS. There are [some techniques](https://code.visualstudio.com/docs/remote/containers-advanced#_improving-container-disk-performance) that you can apply to improve disk performance, or you can [open a repository in a container using a isolated container volume](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-a-git-repository-or-github-pr-in-an-isolated-container-volume) instead.

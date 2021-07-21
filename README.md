@@ -24,6 +24,10 @@ Download earlier versions of Marlin on the [Releases page](https://github.com/Ma
 
 To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](https://docs.platformio.org/en/latest/ide.html#platformio-ide). We've posted detailed instructions on [Building Marlin with Arduino](https://marlinfw.org/docs/basics/install_arduino.html) and [Building Marlin with PlatformIO for ReArm](https://marlinfw.org/docs/basics/install_rearm.html) (which applies well to other 32-bit boards).
 
+- [Installing Marlin (Arduino)](http://marlinfw.org/docs/basics/install_arduino.html)
+- [Installing Marlin (VSCode)](http://marlinfw.org/docs/basics/install_platformio_vscode.html).
+- [Installing Marlin (VSCode devcontainer)](docs/using-devcontainer-with-vscode.md).
+
 ## Hardware Abstraction Layer (HAL)
 
 Marlin 2.0 introduces a layer of abstraction so that all the existing high-level code can be built for 32-bit platforms while still retaining full 8-bit AVR compatibility. Retaining AVR compatibility and a single code-base is important to us, because we want to make sure that features and patches get as much testing and attention as possible, and that all platforms always benefit from the latest improvements.
@@ -83,10 +87,11 @@ Marlin 2.0 introduces a layer of abstraction so that all the existing high-level
   ----|---------|-----|-----|----|-----|---
   [Teensy++ 2.0](https://www.microchip.com/wwwproducts/en/AT90USB1286)|[AT90USB1286](https://www.microchip.com/wwwproducts/en/AT90USB1286)|16MHz|128k|8k|5V|no
 
-  - [Installing Marlin (Arduino)](http://marlinfw.org/docs/basics/install_arduino.html)
-  - [Installing Marlin (VSCode)](http://marlinfw.org/docs/basics/install_platformio_vscode.html).
-  - [Installing Marlin (VSCode devcontainer)](docs/using-devcontainer-with-vscode.md).
-### Supported Platforms
+  #### Teensy 3.1 / 3.2
+
+  boards|processor|speed|flash|sram|logic|fpu
+  ----|---------|-----|-----|----|-----|---
+  [Teensy 3.2](https://www.pjrc.com/store/teensy32.html)|[MK20DX256VLH7](https://www.mouser.com/ProductDetail/NXP-Freescale/MK20DX256VLH7) ARM-Cortex M4|72MHz|256k|32k|3.3V-5V|yes
 
   #### Teensy 3.5 / 3.6
 
