@@ -76,6 +76,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Liikuta 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Liikuta 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Liikuta 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Liikuta 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Nopeus");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Suutin");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Suutin ~");

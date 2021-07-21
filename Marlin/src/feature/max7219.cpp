@@ -256,7 +256,7 @@ void Max7219::set(const uint8_t line, const uint8_t bits) {
   }
 
   // Draw a float with a decimal point and optional digits
-  void Max7219::print(const uint8_t start, const float value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false) {
+  void Max7219::print(const uint8_t start, const_float_t value, const uint8_t pre_size, const uint8_t post_size, const bool leadzero=false) {
     if (pre_size) print(start, value, pre_size, leadzero, !!post_size);
     if (post_size) {
       const int16_t after = ABS(value) * (10 ^ post_size);

@@ -22,14 +22,16 @@
 #pragma once
 
 /**
- * Geeetech GT2560 RevB + GT2560 3.0/3.1 + GT2560 4.0/4.1 pin assignments
+ * Geeetech GT2560 3.0/3.1 pin assignments
+ *
+ * Also GT2560 RevB and GT2560 4.0/4.1
  */
 
 #define ALLOW_MEGA1280
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "GT2560 RevB/3.x/4.x"
+  #define BOARD_INFO_NAME "GT2560 3.x"
 #endif
 
 //
@@ -80,6 +82,9 @@
 #endif
 #ifndef FIL_RUNOUT2_PIN
   #define FIL_RUNOUT2_PIN                     67
+#endif
+#ifndef FIL_RUNOUT3_PIN
+  #define FIL_RUNOUT3_PIN                     54
 #endif
 
 //

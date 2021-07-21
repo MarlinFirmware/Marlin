@@ -22,13 +22,17 @@
 #pragma once
 
 /**
- * Geeetech GTM32 Pro VB/VD board pin assignments
+ * Geeetech GTM32 Pro VB board pin assignments
  * http://www.geeetech.com/wiki/index.php/File:Hardware_GTM32_PRO_VB.pdf
+ *
+ * Also applies to GTM32 Pro VD
  */
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME      "GTM32 Pro VB/VD"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME    "GTM32 Pro VB"
+#endif
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 
 #define BOARD_NO_NATIVE_USB

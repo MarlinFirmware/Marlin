@@ -134,7 +134,7 @@ void menu_tune() {
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
     LOOP_S_L_N(e, 1, EXTRUDERS)
-      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_STANDBY, &thermalManager.singlenozzle_temp[e], 0, thermalManager.hotend_max_target(0));
   #endif
 
   //
@@ -195,7 +195,7 @@ void menu_tune() {
   //
   // Flow:
   //
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
     // Flow En:
     #if HAS_MULTI_EXTRUDER

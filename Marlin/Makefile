@@ -993,5 +993,5 @@ clean:
 
 .PHONY: all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter
 
-# Automaticaly include the dependency files created by gcc
+# Automatically include the dependency files created by gcc
 -include ${patsubst %.o, %.d, ${OBJ}}

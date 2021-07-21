@@ -162,7 +162,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
 
   float Mixer::prev_z; // = 0
 
-  void Mixer::update_gradient_for_z(const float z) {
+  void Mixer::update_gradient_for_z(const_float_t z) {
     if (z == prev_z) return;
     prev_z = z;
 

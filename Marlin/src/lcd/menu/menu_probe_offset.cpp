@@ -42,7 +42,7 @@
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
-#if ENABLED(HAS_LEVELING)
+#if HAS_LEVELING
   bool leveling_was_active;
 #endif
 
@@ -58,14 +58,14 @@ inline void z_clearance_move() {
   );
 }
 
-void set_offset_and_go_back(const float &z) {
+void set_offset_and_go_back(const_float_t z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
   ui.goto_previous_screen_no_defer();
 }
 
-void _goto_manual_move_z(const float scale) {
+void _goto_manual_move_z(const_float_t scale) {
   ui.manual_move.menu_scale = scale;
   ui.goto_screen(lcd_move_z);
 }

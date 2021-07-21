@@ -188,7 +188,7 @@ class I2CPositionEncoder {
     FORCE_INLINE void set_ec_method(const byte method) { ecMethod = method; }
 
     FORCE_INLINE float get_ec_threshold() { return ecThreshold; }
-    FORCE_INLINE void set_ec_threshold(const float newThreshold) { ecThreshold = newThreshold; }
+    FORCE_INLINE void set_ec_threshold(const_float_t newThreshold) { ecThreshold = newThreshold; }
 
     FORCE_INLINE int get_encoder_ticks_mm() {
       switch (type) {

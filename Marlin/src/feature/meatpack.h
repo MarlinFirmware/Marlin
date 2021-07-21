@@ -133,7 +133,7 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   uint8_t charCount;
   uint8_t readIndex;
 
-  NO_INLINE size_t write(uint8_t c)   { return out.write(c); }
+  NO_INLINE void write(uint8_t c)     { out.write(c); }
   void flush()                        { out.flush();  }
   void begin(long br)                 { out.begin(br); readIndex = 0; }
   void end()                          { out.end(); }

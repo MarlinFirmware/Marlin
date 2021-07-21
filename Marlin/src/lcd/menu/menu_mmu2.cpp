@@ -24,6 +24,7 @@
 
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
+#include "../../MarlinCore.h"
 #include "../../feature/mmu/mmu2.h"
 #include "menu_mmu2.h"
 #include "menu_item.h"
@@ -36,8 +37,7 @@ inline void action_mmu2_load_filament_to_nozzle(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf_P(0,  GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  if (mmu2.load_filament_to_nozzle(tool))
-    ui.reset_status();
+  if (mmu2.load_filament_to_nozzle(tool)) ui.reset_status();
   ui.return_to_status();
 }
 

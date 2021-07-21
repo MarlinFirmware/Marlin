@@ -85,9 +85,9 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
 //#define EXTRAPOLATE_FROM_EDGE
 
 #if ENABLED(EXTRAPOLATE_FROM_EDGE)
-  #if GRID_MAX_POINTS_X < GRID_MAX_POINTS_Y
+  #if (GRID_MAX_POINTS_X) < (GRID_MAX_POINTS_Y)
     #define HALF_IN_X
-  #elif GRID_MAX_POINTS_Y < GRID_MAX_POINTS_X
+  #elif (GRID_MAX_POINTS_Y) < (GRID_MAX_POINTS_X)
     #define HALF_IN_Y
   #endif
 #endif
@@ -98,23 +98,23 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
  */
 void extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
-    constexpr uint8_t ctrx2 = 0, xlen = GRID_MAX_POINTS_X - 1;
+    constexpr uint8_t ctrx2 = 0, xend = GRID_MAX_POINTS_X - 1;
   #else
-    constexpr uint8_t ctrx1 = (GRID_MAX_POINTS_X - 1) / 2, // left-of-center
-                      ctrx2 = (GRID_MAX_POINTS_X) / 2,     // right-of-center
-                      xlen = ctrx1;
+    constexpr uint8_t ctrx1 = (GRID_MAX_CELLS_X) / 2, // left-of-center
+                      ctrx2 = (GRID_MAX_POINTS_X) / 2,  // right-of-center
+                      xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
-    constexpr uint8_t ctry2 = 0, ylen = GRID_MAX_POINTS_Y - 1;
+    constexpr uint8_t ctry2 = 0, yend = GRID_MAX_POINTS_Y - 1;
   #else
-    constexpr uint8_t ctry1 = (GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
-                      ctry2 = (GRID_MAX_POINTS_Y) / 2,     // bottom-of-center
-                      ylen = ctry1;
+    constexpr uint8_t ctry1 = (GRID_MAX_CELLS_Y) / 2, // top-of-center
+                      ctry2 = (GRID_MAX_POINTS_Y) / 2,  // bottom-of-center
+                      yend = ctry1;
   #endif
 
-  LOOP_LE_N(xo, xlen)
-    LOOP_LE_N(yo, ylen) {
+  LOOP_LE_N(xo, xend)
+    LOOP_LE_N(yo, yend) {
       uint8_t x2 = ctrx2 + xo, y2 = ctry2 + yo;
       #ifndef HALF_IN_X
         const uint8_t x1 = ctrx1 - xo;
@@ -143,8 +143,8 @@ void print_bilinear_leveling_grid() {
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
 
-  #define ABL_GRID_POINTS_VIRT_X (GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
-  #define ABL_GRID_POINTS_VIRT_Y (GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
+  #define ABL_GRID_POINTS_VIRT_X GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1
+  #define ABL_GRID_POINTS_VIRT_Y GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1
   #define ABL_TEMP_POINTS_X (GRID_MAX_POINTS_X + 2)
   #define ABL_TEMP_POINTS_Y (GRID_MAX_POINTS_Y + 2)
   float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
@@ -161,7 +161,7 @@ void print_bilinear_leveling_grid() {
   #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
   float bed_level_virt_coord(const uint8_t x, const uint8_t y) {
     uint8_t ep = 0, ip = 1;
-    if (x > GRID_MAX_POINTS_X + 1 || y > GRID_MAX_POINTS_Y + 1) {
+    if (x > (GRID_MAX_POINTS_X) + 1 || y > (GRID_MAX_POINTS_Y) + 1) {
       // The requested point requires extrapolating two points beyond the mesh.
       // These values are only requested for the edges of the mesh, which are always an actual mesh point,
       // and do not require interpolation. When interpolation is not needed, this "Mesh + 2" point is
@@ -171,8 +171,8 @@ void print_bilinear_leveling_grid() {
     }
     if (!x || x == ABL_TEMP_POINTS_X - 1) {
       if (x) {
-        ep = GRID_MAX_POINTS_X - 1;
-        ip = GRID_MAX_POINTS_X - 2;
+        ep = (GRID_MAX_POINTS_X) - 1;
+        ip = GRID_MAX_CELLS_X - 1;
       }
       if (WITHIN(y, 1, ABL_TEMP_POINTS_Y - 2))
         return LINEAR_EXTRAPOLATION(
@@ -187,8 +187,8 @@ void print_bilinear_leveling_grid() {
     }
     if (!y || y == ABL_TEMP_POINTS_Y - 1) {
       if (y) {
-        ep = GRID_MAX_POINTS_Y - 1;
-        ip = GRID_MAX_POINTS_Y - 2;
+        ep = (GRID_MAX_POINTS_Y) - 1;
+        ip = GRID_MAX_CELLS_Y - 1;
       }
       if (WITHIN(x, 1, ABL_TEMP_POINTS_X - 2))
         return LINEAR_EXTRAPOLATION(
@@ -213,7 +213,7 @@ void print_bilinear_leveling_grid() {
     ) * 0.5f;
   }
 
-  static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
+  static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const_float_t tx, const_float_t ty) {
     float row[4], column[4];
     LOOP_L_N(i, 4) {
       LOOP_L_N(j, 4) {
@@ -356,7 +356,7 @@ float bilinear_z_offset(const xy_pos_t &raw) {
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
-  void bilinear_line_to_destination(const feedRate_t &scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
+  void bilinear_line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
     // Get current and destination cells for this line
     xy_int_t c1 { CELL_INDEX(x, current_position.x), CELL_INDEX(y, current_position.y) },
              c2 { CELL_INDEX(x, destination.x), CELL_INDEX(y, destination.y) };

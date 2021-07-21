@@ -14,13 +14,13 @@ bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
 
 usage() {
   echo "
-Usage: mftest [-t|--env=<env>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
+Usage: mftest [-t|--env=<env|index>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
        mftest [-a|--autobuild]
        mftest [-r|--rebuild]
        mftest [-u|--autoupload] [-n|--num=<num>]
 
 OPTIONS
-  -t --env         The environment of the test to apply / run. (As named in platformio.ini.)
+  -t --env         The environment to apply / run, or the menu index number.
   -n --num         The index of the test to run. (In file order.)
   -m --make        Use the make / Docker method for the build.
   -y --build       Skip 'Do you want to build this test?' and assume YES.
@@ -37,7 +37,7 @@ env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 tee
 TESTPATH=buildroot/tests
 
 STATE_FILE="./.pio/.mftestrc"
-SED=$(which gsed || which sed)
+SED=$(which gsed sed | head -n1)
 
 shopt -s extglob nocasematch
 

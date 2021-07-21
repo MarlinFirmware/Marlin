@@ -72,6 +72,8 @@ extern USBSerialType USBSerial;
 #elif WITHIN(SERIAL_PORT, 0, 3)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
   DECLARE_SERIAL(SERIAL_PORT);
+#else
+  #error "SERIAL_PORT must be from 0 to 3, or -1 for Native USB."
 #endif
 
 #define HAL_SERVO_LIB libServo
@@ -99,7 +101,7 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
