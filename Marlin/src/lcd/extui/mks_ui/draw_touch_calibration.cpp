@@ -35,7 +35,7 @@ static lv_obj_t *scr;
 static lv_obj_t *status_label;
 
 #if ENABLED(MKS_TEST)
-  extern uint8_t curent_disp_ui;
+  extern uint8_t current_disp_ui;
 #endif
 
 static void event_handler(lv_obj_t *obj, lv_event_t event);
@@ -97,7 +97,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_TC_RETURN:
-      TERN_(MKS_TEST, curent_disp_ui = 1);
+      TERN_(MKS_TEST, current_disp_ui = 1);
       lv_clear_touch_calibration_screen();
       draw_return_ui();
       break;
