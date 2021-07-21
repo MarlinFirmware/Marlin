@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,8 +21,16 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "Chitu3D V5"
+#define BOARD_INFO_NAME "Chitu3D V9"
 
-#define Z_STOP_PIN                          PG9
+#define Z_STOP_PIN                          PA14
+
+#define Z2_ENABLE_PIN                       PF3
+#define Z2_STEP_PIN                         PF5
+#define Z2_DIR_PIN                          PF1
+
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   PF13
+#endif
 
 #include "pins_CHITU3D_common.h"
