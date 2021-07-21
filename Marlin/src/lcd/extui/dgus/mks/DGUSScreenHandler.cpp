@@ -37,7 +37,7 @@
 
 #include "../../../../gcode/gcode.h"
 
-#if ENABLED(HAS_STEALTHCHOP)
+#if HAS_STEALTHCHOP
   #include "../../../../module/stepper/trinamic.h"
   #include "../../../../module/stepper/indirection.h"
 #endif
@@ -396,7 +396,7 @@ void DGUSScreenHandler::Z_offset_select(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
 
-  #if ENABLED(HAS_BED_PROBE)
+  #if HAS_BED_PROBE
     int32_t value = swap32(*(int32_t *)val_ptr);
     float Offset = value / 100.0f;
     DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
@@ -575,7 +575,6 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           settings.save();
         }
         else if (mesh_point_count == 0) {
-
           mesh_point_count = GRID_MAX_POINTS;
           soft_endstop._enabled = true;
           settings.save();
@@ -587,6 +586,10 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
     }
   #endif // MESH_BED_LEVELING
+}
+
+void DGUSScreenHandler::SD_FileBack(DGUS_VP_Variable&, void*) {
+  GotoScreen(MKSLCD_SCREEN_HOME);
 }
 
 void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {

@@ -51,8 +51,8 @@
 
 #define WIFI_SET()        WRITE(WIFI_RESET_PIN, HIGH);
 #define WIFI_RESET()      WRITE(WIFI_RESET_PIN, LOW);
-#define WIFI_IO1_SET()      WRITE(WIFI_IO1_PIN, HIGH);
-#define WIFI_IO1_RESET()    WRITE(WIFI_IO1_PIN, LOW);
+#define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
+#define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
 extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
 
@@ -75,12 +75,12 @@ extern uint8_t pause_resum;
 uint8_t wifi_connect_flg = 0;
 extern volatile uint8_t get_temp_flag;
 
-#define WIFI_MODE 2
+#define WIFI_MODE     2
 #define WIFI_AP_MODE  3
 
 int upload_result = 0;
 
-uint32_t upload_time = 0;
+uint32_t upload_time_sec = 0;
 uint32_t upload_size = 0;
 
 volatile WIFI_STATE wifi_link_state;
@@ -120,19 +120,15 @@ uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick) {
 }
 
 void wifi_delay(int n) {
-  uint32_t begin = getWifiTick(), end = begin;
-  while (getWifiTickDiff(begin, end) < (uint32_t)n) {
+  const uint32_t start = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < (uint32_t)n)
     watchdog_refresh();
-    end = getWifiTick();
-  }
 }
 
 void wifi_reset() {
-  uint32_t start, now;
-  start = getWifiTick();
-  now = start;
+  uint32_t start = getWifiTick();
   WIFI_RESET();
-  while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < 500) { /* nada */ }
   WIFI_SET();
 }
 
@@ -152,7 +148,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
       if (i == 0) return false;
-      strcat(dosName, ".GCO");
+      strcat_P(dosName, PSTR(".GCO"));
       return dosName[0] != '\0';
     }
     else {
@@ -163,7 +159,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
       dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
     }
     if (i >= 5) {
-      strcat(dosName, "~1.GCO");
+      strcat_P(dosName, PSTR("~1.GCO"));
       return dosName[0] != '\0';
     }
   }
@@ -1237,7 +1233,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                                 : WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
 
             if (left >= strlen((const char *)cmd_line)) {
-              while (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
+              for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
                 espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index] ;
                 espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
               }
@@ -1620,7 +1616,7 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       ZERO(public_buf);
       file_writer.write_index = 0;
       file_writer.tick_end = getWifiTick();
-      upload_time = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
+      upload_time_sec = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
       upload_size = gCfgItems.curFilesize;
       wifi_link_state = WIFI_CONNECTED;
       upload_result = 3;

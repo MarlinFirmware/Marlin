@@ -34,8 +34,8 @@
 void stop();
 
 // Pass true to keep steppers from timing out
-void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep=false));
-inline void idle_no_sleep() { idle(TERN_(ADVANCED_PAUSE_FEATURE, true)); }
+void idle(bool no_stepper_sleep=false);
+inline void idle_no_sleep() { idle(true); }
 
 #if ENABLED(G38_PROBE_TARGET)
   extern uint8_t G38_move;          // Flag to tell the ISR that G38 is in progress, and the type
@@ -79,21 +79,6 @@ extern bool wait_for_heatup;
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
   void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
-#endif
-
-#if ENABLED(PSU_CONTROL)
-  extern bool powersupply_on;
-  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
-  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
-  #if ENABLED(AUTO_POWER_CONTROL)
-    #define PSU_ON()       powerManager.power_on()
-    #define PSU_OFF()      powerManager.power_off()
-    #define PSU_OFF_SOON() powerManager.power_off_soon()
-  #else
-    #define PSU_ON()     PSU_PIN_ON()
-    #define PSU_OFF()    PSU_PIN_OFF()
-    #define PSU_OFF_SOON PSU_OFF
-  #endif
 #endif
 
 bool pin_is_protected(const pin_t pin);

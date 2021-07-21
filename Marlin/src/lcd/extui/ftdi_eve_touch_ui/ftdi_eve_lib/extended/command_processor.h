@@ -209,8 +209,22 @@ class CommandProcessor : public CLCD::CommandFifo {
     inline CommandProcessor& rectangle(int16_t x, int16_t y, int16_t w, int16_t h) {
       using namespace FTDI;
       CLCD::CommandFifo::cmd(BEGIN(RECTS));
-      CLCD::CommandFifo::cmd(VERTEX2F(x * 16, y * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16,  y      * 16));
       CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16, (y + h) * 16));
+      return *this;
+    }
+
+    inline CommandProcessor& border(int16_t x, int16_t y, int16_t w, int16_t h) {
+      using namespace FTDI;
+      CLCD::CommandFifo::cmd(BEGIN(LINES));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16,  y      * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16,  y      * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16,  y      * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F((x + w) * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16, (y + h) * 16));
+      CLCD::CommandFifo::cmd(VERTEX2F( x      * 16,  y      * 16));
       return *this;
     }
 

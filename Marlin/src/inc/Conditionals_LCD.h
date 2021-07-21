@@ -31,6 +31,11 @@
   #define MKS_MINI_12864
 #endif
 
+// MKS_MINI_12864_V3 is simply identical to FYSETC_MINI_12864_2_1
+#if ENABLED(MKS_MINI_12864_V3)
+  #define FYSETC_MINI_12864_2_1
+#endif
+
 /**
  * General Flags that may be set below by specific LCDs
  *
@@ -208,7 +213,7 @@
     #define LCD_PROGRESS_BAR
   #endif
   #if ENABLED(TFTGLCD_PANEL_I2C)
-    #define LCD_I2C_ADDRESS           0x27  // Must be equal to panel's I2C slave addres
+    #define LCD_I2C_ADDRESS           0x33  // Must be 0x33 for STM32 main boards and equal to panel's I2C slave addres
   #endif
   #define LCD_USE_I2C_BUZZER                // Enable buzzer on LCD, used for both I2C and SPI buses (LiquidTWI2 not required)
   #define STD_ENCODER_PULSES_PER_STEP 2
@@ -558,7 +563,12 @@
   #undef DISABLE_E
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+#if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
+
+  #define E_STEPPERS      2
+
+#elif ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
+
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
   #elif EXTRUDERS > 2
@@ -569,17 +579,24 @@
   #if DISABLED(SWITCHING_NOZZLE)
     #define HOTENDS       E_STEPPERS
   #endif
-#elif ENABLED(MIXING_EXTRUDER)
+
+#elif ENABLED(MIXING_EXTRUDER)      // Multiple feeds are mixed proportionally
+
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
   #endif
-#elif ENABLED(SWITCHING_TOOLHEAD)
+
+#elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
+
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif HAS_PRUSA_MMU2
+
+#elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
+
   #define E_STEPPERS 1
+
 #endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
@@ -1066,7 +1083,11 @@
 #if ENABLED(DWIN_CREALITY_LCD)
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
-    #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+      #define LCD_SERIAL_PORT 1
+    #else
+      #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #endif
   #endif
 #endif
 

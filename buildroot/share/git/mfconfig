@@ -149,7 +149,7 @@ if [[ $ACTION == "init" ]]; then
   ((COMMIT_STEPS)) && git add . >/dev/null && git commit -m "Reset TPARA..." >/dev/null
 
   # Update the %VERSION% in the README.md file
-  SED=$(which gsed || which sed)
+  SED=$(which gsed sed | head -n1)
   VERS=$( echo $EXPORT | $SED 's/release-//' )
   eval "${SED} -E -i~ -e 's/%VERSION%/$VERS/g' README.md"
   rm -f README.md~

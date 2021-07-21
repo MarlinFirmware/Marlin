@@ -27,7 +27,6 @@
 #include "draw_tool.h"
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
-#include "mks_hardware_test.h"
 #include "draw_ui.h"
 
 #include <lvgl.h>
@@ -40,6 +39,7 @@
   #include "draw_touch_calibration.h"
 #endif
 
+#include "mks_hardware.h"
 #include <stdio.h>
 
 #define ICON_POS_Y          38
@@ -50,7 +50,7 @@ extern lv_group_t*  g;
 static lv_obj_t *scr;
 static lv_obj_t *buttonExt1, *labelExt1, *buttonFanstate, *labelFan;
 
-#if ENABLED(HAS_MULTI_EXTRUDER)
+#if HAS_MULTI_HOTEND
   static lv_obj_t *labelExt2;
   static lv_obj_t *buttonExt2;
 #endif
@@ -126,7 +126,7 @@ void lv_draw_ready_print() {
   ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(PRINT_READY_UI, "");
 
-  if (mks_test_flag == 0x1E) {
+  if (TERN0(SDSUPPORT, mks_test_flag == 0x1E)) {
     // Create image buttons
     buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", event_handler, ID_TOOL);
 
@@ -138,18 +138,18 @@ void lv_draw_ready_print() {
       lv_obj_align(label_tool, buttonTool, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
 
-    e1 = lv_label_create_empty(scr);
-    lv_obj_set_pos(e1, 20, 20);
-    sprintf_P(buf, PSTR("e1:  %d"), thermalManager.wholeDegHotend(0));
-    lv_label_set_text(e1, buf);
-
+    #if HAS_HOTEND
+      e1 = lv_label_create_empty(scr);
+      lv_obj_set_pos(e1, 20, 20);
+      sprintf_P(buf, PSTR("e1:  %d"), thermalManager.wholeDegHotend(0));
+      lv_label_set_text(e1, buf);
+    #endif
     #if HAS_MULTI_HOTEND
       e2 = lv_label_create_empty(scr);
       lv_obj_set_pos(e2, 20, 45);
       sprintf_P(buf, PSTR("e1:  %d"), thermalManager.wholeDegHotend(1));
       lv_label_set_text(e2, buf);
     #endif
-
     #if HAS_HEATED_BED
       bed = lv_label_create_empty(scr);
       lv_obj_set_pos(bed, 20, 95);
@@ -185,28 +185,20 @@ void lv_draw_ready_print() {
     lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 150, event_handler, ID_PRINT);
 
     // Monitoring
-    buttonExt1 = lv_big_button_create(scr, "F:/bmp_ext1_state.bin", " ", 55, ICON_POS_Y, event_handler, ID_INFO_EXT);
-    #if HAS_MULTI_EXTRUDER
-      buttonExt2 = lv_big_button_create(scr, "F:/bmp_ext2_state.bin", " ", 163, ICON_POS_Y, event_handler, ID_INFO_EXT);
-      #if HAS_HEATED_BED
-        buttonBedstate = lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", 271, ICON_POS_Y, event_handler, ID_INFO_BED);
-      #endif
-    #else
-      #if HAS_HEATED_BED
-        buttonBedstate = lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", 210, ICON_POS_Y, event_handler, ID_INFO_BED);
-      #endif
+    #if HAS_HOTEND
+      buttonExt1 = lv_big_button_create(scr, "F:/bmp_ext1_state.bin", " ", 55, ICON_POS_Y, event_handler, ID_INFO_EXT);
     #endif
-
-    buttonFanstate = lv_big_button_create(scr, "F:/bmp_fan_state.bin", " ", 380, ICON_POS_Y, event_handler, ID_INFO_FAN);
-
-    labelExt1 = lv_label_create_empty(scr);
-    #if HAS_MULTI_EXTRUDER
-      labelExt2 = lv_label_create_empty(scr);
+    #if HAS_MULTI_HOTEND
+      buttonExt2 = lv_big_button_create(scr, "F:/bmp_ext2_state.bin", " ", 163, ICON_POS_Y, event_handler, ID_INFO_EXT);
     #endif
     #if HAS_HEATED_BED
-      labelBed = lv_label_create_empty(scr);
+      buttonBedstate = lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", TERN(HAS_MULTI_HOTEND, 271, 210), ICON_POS_Y, event_handler, ID_INFO_BED);
     #endif
-    labelFan = lv_label_create_empty(scr);
+
+    TERN_(HAS_HOTEND, labelExt1 = lv_label_create_empty(scr));
+    TERN_(HAS_MULTI_HOTEND, labelExt2 = lv_label_create_empty(scr));
+    TERN_(HAS_HEATED_BED, labelBed = lv_label_create_empty(scr));
+    TERN_(HAS_FAN, labelFan = lv_label_create_empty(scr));
 
     lv_temp_refr();
   }
@@ -221,10 +213,12 @@ void lv_draw_ready_print() {
 }
 
 void lv_temp_refr() {
-  sprintf(public_buf_l, printing_menu.temp1, thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0));
-  lv_label_set_text(labelExt1, public_buf_l);
-  lv_obj_align(labelExt1, buttonExt1, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
-  #if HAS_MULTI_EXTRUDER
+  #if HAS_HOTEND
+    sprintf(public_buf_l, printing_menu.temp1, thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0));
+    lv_label_set_text(labelExt1, public_buf_l);
+    lv_obj_align(labelExt1, buttonExt1, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+  #endif
+  #if HAS_MULTI_HOTEND
     sprintf(public_buf_l, printing_menu.temp1, thermalManager.wholeDegHotend(1), thermalManager.degTargetHotend(1));
     lv_label_set_text(labelExt2, public_buf_l);
     lv_obj_align(labelExt2, buttonExt2, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
@@ -234,9 +228,11 @@ void lv_temp_refr() {
     lv_label_set_text(labelBed, public_buf_l);
     lv_obj_align(labelBed, buttonBedstate, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
   #endif
-  sprintf_P(public_buf_l, PSTR("%d%%"), (int)thermalManager.fanSpeedPercent(0));
-  lv_label_set_text(labelFan, public_buf_l);
-  lv_obj_align(labelFan, buttonFanstate, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+  #if HAS_FAN
+    sprintf_P(public_buf_l, PSTR("%d%%"), (int)thermalManager.fanSpeedPercent(0));
+    lv_label_set_text(labelFan, public_buf_l);
+    lv_obj_align(labelFan, buttonFanstate, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+  #endif
 }
 
 void lv_clear_ready_print() {

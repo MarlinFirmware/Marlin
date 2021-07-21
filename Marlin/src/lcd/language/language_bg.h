@@ -79,6 +79,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Премести с 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Премести с 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Премести с 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Премести с 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Скорост");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = " " LCD_STR_THERMOMETER _UxGT(" Дюза");
