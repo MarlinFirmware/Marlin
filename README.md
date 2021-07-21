@@ -26,7 +26,7 @@ To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino
 
   - [Installing Marlin (Arduino)](http://marlinfw.org/docs/basics/install_arduino.html)
   - [Installing Marlin (VSCode)](http://marlinfw.org/docs/basics/install_platformio_vscode.html).
-
+  - [Installing Marlin (VSCode devcontainer)](docs/using-devcontainer-with-vscode.md).
 ### Supported Platforms
 
   Platform|MCU|Example Boards
