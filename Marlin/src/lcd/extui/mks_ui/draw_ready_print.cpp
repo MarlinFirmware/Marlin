@@ -149,7 +149,7 @@ void lv_draw_ready_print() {
     #if HAS_MULTI_HOTEND
       e2 = lv_label_create_empty(scr);
       lv_obj_set_pos(e2, 20, 45);
-      sprintf_P(buf, PSTR("e1:  %d"), thermalManager.wholeDegHotend(1));
+      sprintf_P(buf, PSTR("e2:  %d"), thermalManager.wholeDegHotend(1));
       lv_label_set_text(e2, buf);
     #endif
     #if HAS_HEATED_BED
