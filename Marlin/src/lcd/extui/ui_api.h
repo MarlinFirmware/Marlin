@@ -317,7 +317,7 @@ namespace ExtUI {
     float getPIDValues_Ki(const extruder_t);
     float getPIDValues_Kd(const extruder_t);
     void setPIDValues(const_float_t, const_float_t , const_float_t , extruder_t);
-    void startPIDTune(celsius_t, extruder_t);
+    void startPIDTune(const celsius_t, extruder_t);
   #endif
 
   #if ENABLED(PIDTEMPBED)
@@ -325,7 +325,7 @@ namespace ExtUI {
     float getBedPIDValues_Ki();
     float getBedPIDValues_Kd();
     void setBedPIDValues(const_float_t, const_float_t , const_float_t);
-    void startBedPIDTune(celsius_t);
+    void startBedPIDTune(const celsius_t);
   #endif
 
   /**

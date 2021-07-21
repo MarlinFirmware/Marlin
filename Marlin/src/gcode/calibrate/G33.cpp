@@ -63,7 +63,7 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
 #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
 
-#if ENABLED(HAS_MULTI_HOTEND)
+#if HAS_MULTI_HOTEND
   const uint8_t old_tool_index = active_extruder;
 #endif
 
@@ -71,7 +71,9 @@ float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
   endstops.enable(true);
+  TERN_(SENSORLESS_HOMING, probe.set_homing_current(true));
   home_delta();
+  TERN_(SENSORLESS_HOMING, probe.set_homing_current(false));
   endstops.not_homing();
 }
 
@@ -384,6 +386,12 @@ static float auto_tune_a() {
  *      V3  Report settings and probe results
  *
  *   E   Engage the probe for each point
+ *
+ * With SENSORLESS_PROBING:
+ *   Use these flags to calibrate stall sensitivity: (e.g., `G33 P1 Y Z` to calibrate X only.)
+ *   X   Don't activate stallguard on X.
+ *   Y   Don't activate stallguard on Y.
+ *   Z   Don't activate stallguard on Z.
  */
 void GcodeSuite::G33() {
 
@@ -416,6 +424,12 @@ void GcodeSuite::G33() {
   }
 
   const bool stow_after_each = parser.seen_test('E');
+
+  #if ENABLED(SENSORLESS_PROBING)
+    probe.test_sensitivity.x = !parser.seen_test('X');
+    TERN_(HAS_Y_AXIS, probe.test_sensitivity.y = !parser.seen_test('Y'));
+    TERN_(HAS_Z_AXIS, probe.test_sensitivity.z = !parser.seen_test('Z'));
+  #endif
 
   const bool _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1 || probe_points == -1,
@@ -587,7 +601,7 @@ void GcodeSuite::G33() {
 
     // print report
 
-    if (verbose_level == 3)
+    if (verbose_level == 3 || verbose_level == 0)
       print_calibration_results(z_at_pt, _tower_results, _opposite_results);
 
     if (verbose_level != 0) { // !dry run

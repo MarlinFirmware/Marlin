@@ -63,7 +63,7 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
        .enabled(ENABLED(LIN_ADVANCE))
        .tag(3).button(LIN_ADVANCE_POS, GET_TEXT_F(MSG_LINEAR_ADVANCE))
        .colors(action_btn)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

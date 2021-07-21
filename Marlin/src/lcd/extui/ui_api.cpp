@@ -182,10 +182,10 @@ namespace ExtUI {
         #if HAS_HEATED_BED
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
-        #if ENABLED(HAS_HEATED_CHAMBER)
+        #if HAS_HEATED_CHAMBER
           case CHAMBER: return; // Chamber has no idle timer
         #endif
-        #if ENABLED(HAS_COOLER)
+        #if HAS_COOLER
           case COOLER: return;  // Cooler has no idle timer
         #endif
         default:
@@ -245,10 +245,10 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        #if ENABLED(HAS_HEATED_BED)
+        #if HAS_HEATED_BED
           case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out;
         #endif
-        #if ENABLED(HAS_HEATED_CHAMBER)
+        #if HAS_HEATED_CHAMBER
           case CHAMBER: return false; // Chamber has no idle timer
         #endif
         default:
@@ -268,10 +268,10 @@ namespace ExtUI {
 
   celsius_float_t getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
-      #if ENABLED(HAS_HEATED_BED)
+      #if HAS_HEATED_BED
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
       #endif
-      #if ENABLED(HAS_HEATED_CHAMBER)
+      #if HAS_HEATED_CHAMBER
         case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
       #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
@@ -284,10 +284,10 @@ namespace ExtUI {
 
   celsius_float_t getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
-      #if ENABLED(HAS_HEATED_BED)
+      #if HAS_HEATED_BED
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
       #endif
-      #if ENABLED(HAS_HEATED_CHAMBER)
+      #if HAS_HEATED_CHAMBER
         case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
       #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));

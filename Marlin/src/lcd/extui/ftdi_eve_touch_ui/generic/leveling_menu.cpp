@@ -96,7 +96,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .tag(8).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST))
     #endif
        .colors(action_btn)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
@@ -106,7 +106,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     #if EITHER(Z_STEPPER_AUTO_ALIGN,MECHANICAL_GANTRY_CALIBRATION)
       case 2: SpinnerDialogBox::enqueueAndWait_P(F("G34")); break;
     #endif
-    #if ENABLED(HAS_BED_PROBE)
+    #if HAS_BED_PROBE
       case 3:
         #ifndef BED_LEVELING_COMMANDS
           #define BED_LEVELING_COMMANDS "G29"

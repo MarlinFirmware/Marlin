@@ -205,12 +205,18 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
- */
+//
+// TFT with FSMC interface
+//
 #if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers.
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   */
+  #define TFT_RESET_PIN            LCD_RESET_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
   #define FSMC_DMA_DEV                      DMA2
@@ -221,8 +227,6 @@
 
   #define LCD_RESET_PIN                     PF6
   #define LCD_BACKLIGHT_PIN                 PD13
-  #define TFT_RESET_PIN            LCD_RESET_PIN
-  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
   #define TFT_BUFFER_SIZE                  14400
 

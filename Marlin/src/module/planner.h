@@ -281,6 +281,15 @@ typedef struct {
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
 } planner_settings_t;
 
+#if ENABLED(IMPROVE_HOMING_RELIABILITY)
+  struct motion_state_t {
+    TERN(DELTA, xyz_ulong_t, xy_ulong_t) acceleration;
+    #if HAS_CLASSIC_JERK
+      TERN(DELTA, xyz_float_t, xy_float_t) jerk_state;
+    #endif
+  };
+#endif
+
 #if DISABLED(SKEW_CORRECTION)
   #define XY_SKEW_FACTOR 0
   #define XZ_SKEW_FACTOR 0
@@ -530,6 +539,10 @@ class Planner {
             : volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
         );
       }
+    #endif
+
+    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+      void enable_stall_prevention(const bool onoff);
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)

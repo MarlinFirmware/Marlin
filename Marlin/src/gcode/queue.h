@@ -59,7 +59,7 @@ public:
   struct CommandLine {
     char buffer[MAX_CMD_SIZE];      //!< The command buffer
     bool skip_ok;                   //!< Skip sending ok when command is processed?
-    #if ENABLED(HAS_MULTI_SERIAL)
+    #if HAS_MULTI_SERIAL
       serial_index_t port;          //!< Serial port the command was received on
     #endif
   };
