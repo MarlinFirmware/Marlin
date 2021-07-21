@@ -231,81 +231,51 @@
 
 //
 // Temperature Sensors
+// Use ADC pins without pullup for sensors that don't need a pullup.
 //
-#define TEMP_0_PIN                          PF4   // T1 <-> E0
-#define TEMP_1_PIN                          PF5   // T2 <-> E1
-#define TEMP_2_PIN                          PF6   // T3 <-> E2
-#define TEMP_BED_PIN                        PF3   // T0 <-> Bed
-
-// define TEMP_CHAMBER_PIN and TEMP_PROBE_PIN if needed and possible 
-#if HOTENDS == 2
-  #if TEMP_SENSOR_PROBE
-    #define TEMP_PROBE_PIN            TEMP_2_PIN
-  #elif TEMP_SENSOR_CHAMBER
-    #define TEMP_CHAMBER_PIN          TEMP_2_PIN  // use T3 for Chamber sensor
-  #endif
-#elif HOTENDS < 2
-  #if TEMP_SENSOR_PROBE
-    #define TEMP_PROBE_PIN            TEMP_1_PIN  // use T2 for Probe
-  #endif
-  #if TEMP_SENSOR_CHAMBER
-    #define TEMP_CHAMBER_PIN          TEMP_2_PIN  // use T3 for Chamber sensor
-  #endif
-#endif
-
-// change Pins to Pins without pullup, if a Sensor that doesnt need pullup is selected
-// select ADC pins without pullup, if Sensor Type needs input without pullup
-#if TEMP_SENSOR_0 == -4 || TEMP_SENSOR_0 == 20
-  #undef TEMP_0_PIN
+#if TEMP_SENSOR_0_IS_AD8495 || TEMP_SENSOR_0 == 20
   #define TEMP_0_PIN                        PF8
+#else
+  #define TEMP_0_PIN                        PF4   // T1 <-> E0
 #endif
-
-#if TEMP_SENSOR_1 == -4 || TEMP_SENSOR_1 == 20
-  #undef TEMP_1_PIN
+#if TEMP_SENSOR_1_IS_AD8495 || TEMP_SENSOR_1 == 20
   #define TEMP_1_PIN                        PF9
+#else
+  #define TEMP_1_PIN                        PF5   // T2 <-> E1
 #endif
-
-#if TEMP_SENSOR_2 == -4 || TEMP_SENSOR_2 == 20
-  #undef TEMP_2_PIN
+#if TEMP_SENSOR_2_IS_AD8495 || TEMP_SENSOR_2 == 20
   #define TEMP_2_PIN                        PF10
+#else
+  #define TEMP_2_PIN                        PF6   // T3 <-> E2
 #endif
-
-#if TEMP_SENSOR_BED == -4 || TEMP_SENSOR_BED == 20
-  #undef TEMP_BED_PIN
+#if TEMP_SENSOR_BED_IS_AD8495 || TEMP_SENSOR_BED == 20
   #define TEMP_BED_PIN                      PF7
+#else
+  #define TEMP_BED_PIN                      PF3   // T0 <-> Bed
 #endif
 
-#ifdef TEMP_PROBE_PIN
-  #if (TEMP_SENSOR_PROBE == -4 || TEMP_SENSOR_PROBE == 20)
-    #undef TEMP_PROBE_PIN
+#ifdef TEMP_SENSOR_PROBE && !defined(TEMP_PROBE_PIN)
+  #if TEMP_SENSOR_PROBE_IS_AD8495 || TEMP_SENSOR_PROBE == 20
     #if HOTENDS == 2
-      #undef TEMP_PROBE_PIN
       #define TEMP_PROBE_PIN                PF10
     #elif HOTENDS < 2
-      #undef TEMP_PROBE_PIN
       #define TEMP_PROBE_PIN                PF9
     #endif
+  #else
+    #if HOTENDS == 2
+      #define TEMP_PROBE_PIN          TEMP_2_PIN
+    #elif HOTENDS < 2
+      #define TEMP_PROBE_PIN          TEMP_1_PIN
+    #endif
   #endif
-
 #endif
-#ifdef TEMP_CHAMBER_PIN
-  #if (TEMP_SENSOR_CHAMBER == -4 || TEMP_SENSOR_CHAMBER == 20)
-    #undef TEMP_CHAMBER_PIN
+
+#if TEMP_SENSOR_CHAMBER && !defined(TEMP_CHAMBER_PIN)
+  #if TEMP_SENSOR_CHAMBER_IS_AD8495 || TEMP_SENSOR_CHAMBER == 20
     #define TEMP_CHAMBER_PIN                PF10
+  #else
+    #define TEMP_CHAMBER_PIN          TEMP_2_PIN
   #endif
-#endif
-
-// force manual select of appropriate Pins
-#if HOTENDS > 2 && (TEMP_SENSOR_CHAMBER || TEMP_SENSOR_PROBE)
-  #error "Automatic selection of TEMP_PIN for CHAMBER and/or SENSOR not possible. Manually select appropriate ADC PINs here"
-  //#undef TEMP_PROBE_PIN
-  //#define TEMP_PROBE_PIN
-  //#undef TEMP_CHAMBER_PIN
-  //#define TEMP_CHAMBER_PIN
-#elif HOTENDS == 2 && TEMP_SENSOR_CHAMBER && TEMP_SENSOR_PROBE
-  #error "Automatic selection of TEMP_PIN for CHAMBER not possible. Manually slect a appropriate ADC PIN here"
-  //#undef TEMP_CHAMBER_PIN
-  //#define TEMP_CHAMBER_PIN
 #endif
 
 //
@@ -313,36 +283,27 @@
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater2
-#define HEATER_BED_PIN                      PD12  // Hotbed
-#ifdef TEMP_CHAMBER_PIN
-  #if HOTENDS < 3
-    #define HEATER_CHAMBER_PIN      HEATER_2_PIN  // Heater2
-  #else
-    #error "No free heater pin for Heated Chamber found, manually select one here"
-    //define HEATER_CHAMBER_PIN
-  #endif
+#if TEMP_SENSOR_CHAMBER && HOTENDS < 3
+  #define HEATER_CHAMBER_PIN                PB0   // Heater2
+#else
+  #define HEATER_2_PIN                      PB0   // Heater2
 #endif
+#define HEATER_BED_PIN                      PD12  // Hotbed
+
 //
 // Fans
 //
 #define FAN_PIN                             PC8   // Fan0
-//#define COOLER_FAN_PIN                 FAN_PIN  // use FAN_PIN as COOLER_FAN_PIN for Laser
-#define FAN1_PIN                            PE5   // Fan1 
-#define FAN2_PIN                            PE6   // Fan2 (This suggested to be used as CONTROLLERFAN)
-// Use first Fan for Extruder cooler
+#define FAN1_PIN                            PE5   // Fan1
+
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
 #endif
 
-// Use FAN2_PIN as controller FAN if there is only one extruder
-#if ENABLED(USE_CONTROLLER_FAN)
-  #if HOTENDS == 1
-    #define CONTROLLER_FAN_PIN          FAN2_PIN
-  #else
-    #error "No free Fan pin found, select a suitable pin here"
-    //#define CONTROLLER_FAN_PIN
-  #endif
+#if ENABLED(USE_CONTROLLER_FAN) && HOTENDS < 2
+  #define CONTROLLER_FAN_PIN                PE6   // Fan2
+#else
+  #define FAN2_PIN                          PE6   // Fan2
 #endif
 
 //
