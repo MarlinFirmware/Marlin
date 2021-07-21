@@ -333,18 +333,19 @@
 #define BOARD_CCROBOT_MEEB_3DP        4035  // ccrobot-online.com MEEB_3DP (STM32F103RC)
 #define BOARD_CHITU3D_V5              4036  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CHITU3D_V6              4037  // Chitu3D TronXY X5SA V6 Board
-#define BOARD_CREALITY_V4             4038  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V427           4039  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V4210          4040  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
-#define BOARD_CREALITY_V431           4041  // Creality v4.3.1 (STM32F103RE)
-#define BOARD_CREALITY_V452           4042  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_CREALITY_V453           4043  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4044  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4045  // FLYmaker FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4046  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4047  // STM32F103RET6 Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4048  // STM32F103ZET6 Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4049  // STM32F103VET6 controller
+#define BOARD_CHITU3D_V9              4038  // Chitu3D TronXY X5SA V9 Board
+#define BOARD_CREALITY_V4             4039  // Creality v4.x (STM32F103RE)
+#define BOARD_CREALITY_V427           4040  // Creality v4.2.7 (STM32F103RE)
+#define BOARD_CREALITY_V4210          4041  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
+#define BOARD_CREALITY_V431           4042  // Creality v4.3.1 (STM32F103RE)
+#define BOARD_CREALITY_V452           4043  // Creality v4.5.2 (STM32F103RE)
+#define BOARD_CREALITY_V453           4044  // Creality v4.5.3 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4045  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4046  // FLYmaker FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4047  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4048  // STM32F103RET6 Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4049  // STM32F103ZET6 Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4050  // STM32F103VET6 controller
 
 //
 // ARM Cortex-M4F
