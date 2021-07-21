@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Copyright (c) 2021 X-Ryl669
  *
@@ -20,23 +20,20 @@
  */
 
 // Internal engine
-// #include "TestVector.hpp"  Done in the makefile
+//#include "TestVector.hpp"  // Done in the makefile
 
-// Tests starts here
-//#include "Strings.tests.cpp"  Done in the makefile
+// Tests start here
+//#include "Strings.tests.cpp"  // Done in the makefile
 
-
-
-int main(int argc, char ** argv)
-{
-  bool failed = false;
+int main(int argc, char ** argv) {
+  int failed = 0;
   for (auto test : Test::testVectors) {
     if (!test.launchTest()) {
-      failed = true;
+      failed = 1;
       fprintf(stderr, " %-30s [FAIL]\n", test.getTestName().c_str());
     }
     else
       fprintf(stdout, " %-30s [ OK ]\n", test.getTestName().c_str());
   }
-  return failed ? 1 : 0;
+  return failed;
 }
