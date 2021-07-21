@@ -23,7 +23,7 @@
 
 // Use this file to select the com driver for device drivers that are NOT in the U8G library
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #ifndef U8G_HAL_LINKS   // Defined by LPC1768/9 environments in platform.ini
 

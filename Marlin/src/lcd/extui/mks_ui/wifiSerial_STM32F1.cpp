@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,13 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#ifdef __STM32F1__
+
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "tft_lvgl_configuration.h"
-
-#if ENABLED(MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifiSerial.h"
@@ -59,19 +59,19 @@ WifiSerial::WifiSerial(usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) {
     if (with_irq) usart_enable(usart_device);
     else {
       usart_reg_map *regs = usart_device->regs;
-      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE); // don't change the word length etc, and 'or' in the pattern not overwrite |USART_CR1_M_8N1);
+      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);   // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
       regs->CR1 |= USART_CR1_UE;
     }
   }
 
 #elif STM32_MCU_SERIES == STM32_SERIES_F2 || STM32_MCU_SERIES == STM32_SERIES_F4
-  #define disable_timer_if_necessary(dev, ch) ((void)0)
+  #define disable_timer_if_necessary(dev, ch) NOOP
 
   static void usart_enable_no_irq(usart_dev *usart_device, bool with_irq) {
     if (with_irq) usart_enable(usart_device);
     else {
       usart_reg_map *regs = usart_device->regs;
-      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE); // don't change the word length etc, and 'or' in the pattern not overwrite |USART_CR1_M_8N1);
+      regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);   // Preserve word length, etc. Use 'or' to preserve USART_CR1_M_8N1
       regs->CR1 |= USART_CR1_UE;
     }
   }
@@ -137,5 +137,5 @@ int WifiSerial::wifi_rb_is_full() {
   return rb_is_full(this->usart_device->rb);
 }
 
-#endif // MKS_WIFI_MODULE
-#endif // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
+#endif // __STM32F1__

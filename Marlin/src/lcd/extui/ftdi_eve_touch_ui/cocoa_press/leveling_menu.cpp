@@ -23,9 +23,9 @@
 #include "../config.h"
 #include "../screens.h"
 
-#ifdef COCOA_LEVELING_MENU
+#if ENABLED(COCOA_LEVELING_MENU)
 
-#if BOTH(HAS_BED_PROBE,BLTOUCH)
+#if BOTH(HAS_BED_PROBE, BLTOUCH)
   #include "../../../../feature/bltouch.h"
 #endif
 
@@ -71,7 +71,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        #undef  GRID_COLS
        #define GRID_COLS 3
        .colors(action_btn)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

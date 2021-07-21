@@ -36,6 +36,7 @@
 #define BOARD_INFO_NAME "MKS Robin E3P"
 
 #define BOARD_NO_NATIVE_USB
+#define MKS_HARDWARE_TEST_ONLY_E0
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role

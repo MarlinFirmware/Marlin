@@ -51,17 +51,13 @@
 
 #define WIFI_SET()        WRITE(WIFI_RESET_PIN, HIGH);
 #define WIFI_RESET()      WRITE(WIFI_RESET_PIN, LOW);
-#define WIFI_IO1_SET()      WRITE(WIFI_IO1_PIN, HIGH);
-#define WIFI_IO1_RESET()    WRITE(WIFI_IO1_PIN, LOW);
+#define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
+#define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
 extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
-
-int usartFifoAvailable(SZ_USART_FIFO *fifo);
-int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
-int writeUsartFifo(SZ_USART_FIFO * fifo, int8_t * buf, int32_t len);
 extern unsigned int  getTickDiff(unsigned int curTick, unsigned int  lastTick);
 
 volatile SZ_USART_FIFO  WifiRxFifo;
@@ -79,12 +75,12 @@ extern uint8_t pause_resum;
 uint8_t wifi_connect_flg = 0;
 extern volatile uint8_t get_temp_flag;
 
-#define WIFI_MODE 2
+#define WIFI_MODE     2
 #define WIFI_AP_MODE  3
 
 int upload_result = 0;
 
-uint32_t upload_time = 0;
+uint32_t upload_time_sec = 0;
 uint32_t upload_size = 0;
 
 volatile WIFI_STATE wifi_link_state;
@@ -120,29 +116,19 @@ extern bool flash_dma_mode;
 uint32_t getWifiTick() { return millis(); }
 
 uint32_t getWifiTickDiff(int32_t lastTick, int32_t curTick) {
-  if (lastTick <= curTick)
-    return (curTick - lastTick) * TICK_CYCLE;
-  else
-    return (0xFFFFFFFF - lastTick + curTick) * TICK_CYCLE;
+  return (lastTick <= curTick ? curTick - lastTick : 0xFFFFFFFF - lastTick + curTick) * TICK_CYCLE;
 }
 
 void wifi_delay(int n) {
-  uint32_t begin = getWifiTick();
-  uint32_t end = begin;
-  while (getWifiTickDiff(begin, end) < (uint32_t)n) {
+  const uint32_t start = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < (uint32_t)n)
     watchdog_refresh();
-    end = getWifiTick();
-  }
 }
 
 void wifi_reset() {
-  uint32_t start, now;
-  start = getWifiTick();
-  now = start;
+  uint32_t start = getWifiTick();
   WIFI_RESET();
-  while (getWifiTickDiff(start, now) < 500)
-    now = getWifiTick();
-
+  while (getWifiTickDiff(start, getWifiTick()) < 500) { /* nada */ }
   WIFI_SET();
 }
 
@@ -154,82 +140,83 @@ void mount_file_sys(uint8_t disk_type) {
   }
 }
 
-#include <libmaple/timer.h>
-#include <libmaple/util.h>
-#include <libmaple/rcc.h>
-
-#include <boards.h>
-#include <wirish.h>
-
-#include <libmaple/dma.h>
-#include <libmaple/bitband.h>
-
-#include <libmaple/libmaple.h>
-#include <libmaple/gpio.h>
-#include <libmaple/usart.h>
-#include <libmaple/ring_buffer.h>
-
-void changeFlashMode(const bool dmaMode) {
-  if (flash_dma_mode != dmaMode) {
-    flash_dma_mode = dmaMode;
-    if (!flash_dma_mode) {
-      dma_disable(DMA1, DMA_CH5);
-      dma_clear_isr_bits(DMA1, DMA_CH4);
-    }
-  }
-}
-
 static bool longName2DosName(const char *longName, char *dosName) {
-  uint8_t i;
-  for (i = FILENAME_LENGTH; i--;) dosName[i] = '\0';
+  uint8_t i = FILENAME_LENGTH;
+  while (i) dosName[--i] = '\0';
+
   while (*longName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
       if (i == 0) return false;
       strcat_P(dosName, PSTR(".GCO"));
-      break;
+      return dosName[0] != '\0';
     }
     else {
-      if (c < 0x21 || c == 0x7F) return false;                  // Check size, non-printable characters
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (const uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
-      dosName[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0); // Uppercase required for 8.3 name
+      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
+      if (c < 0x21 || c == 0x7F) return false;                        // Check size, non-printable characters
+      dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
     }
     if (i >= 5) {
       strcat_P(dosName, PSTR("~1.GCO"));
-      break;
+      return dosName[0] != '\0';
     }
   }
   return dosName[0] != '\0'; // Return true if any name was set
 }
 
-static int storeRcvData(volatile uint8_t *bufToCpy, int32_t len) {
-  unsigned char tmpW = wifiDmaRcvFifo.write_cur;
+#ifdef __STM32F1__
 
-  if (len > UDISKBUFLEN) return 0;
+  #include <libmaple/timer.h>
+  #include <libmaple/util.h>
+  #include <libmaple/rcc.h>
 
-  if (wifiDmaRcvFifo.state[tmpW] == udisk_buf_empty) {
-    memcpy((unsigned char *) wifiDmaRcvFifo.bufferAddr[tmpW], (uint8_t *)bufToCpy, len);
-    wifiDmaRcvFifo.state[tmpW] = udisk_buf_full;
-    wifiDmaRcvFifo.write_cur = (tmpW + 1) % TRANS_RCV_FIFO_BLOCK_NUM;
-    return 1;
+  #include <boards.h>
+  #include <wirish.h>
+
+  #include <libmaple/dma.h>
+  #include <libmaple/bitband.h>
+
+  #include <libmaple/libmaple.h>
+  #include <libmaple/gpio.h>
+  #include <libmaple/usart.h>
+  #include <libmaple/ring_buffer.h>
+
+  void changeFlashMode(const bool dmaMode) {
+    if (flash_dma_mode != dmaMode) {
+      flash_dma_mode = dmaMode;
+      if (!flash_dma_mode) {
+        dma_disable(DMA1, DMA_CH5);
+        dma_clear_isr_bits(DMA1, DMA_CH4);
+      }
+    }
   }
-  return 0;
-}
 
-static void esp_dma_pre() {
-  dma_channel_reg_map *channel_regs = dma_tube_regs(DMA1, DMA_CH5);
+  static int storeRcvData(volatile uint8_t *bufToCpy, int32_t len) {
+    unsigned char tmpW = wifiDmaRcvFifo.write_cur;
+    if (len > UDISKBUFLEN) return 0;
+    if (wifiDmaRcvFifo.state[tmpW] == udisk_buf_empty) {
+      memcpy((unsigned char *) wifiDmaRcvFifo.bufferAddr[tmpW], (uint8_t *)bufToCpy, len);
+      wifiDmaRcvFifo.state[tmpW] = udisk_buf_full;
+      wifiDmaRcvFifo.write_cur = (tmpW + 1) % TRANS_RCV_FIFO_BLOCK_NUM;
+      return 1;
+    }
+    return 0;
+  }
 
-  CBI32(channel_regs->CCR, 0);
-  channel_regs->CMAR = (uint32_t)WIFISERIAL.usart_device->rb->buf;
-  channel_regs->CNDTR = 0x0000;
-  channel_regs->CNDTR = UART_RX_BUFFER_SIZE;
-  DMA1->regs->IFCR = 0xF0000;
-  SBI32(channel_regs->CCR, 0);
-}
+  static void esp_dma_pre() {
+    dma_channel_reg_map *channel_regs = dma_tube_regs(DMA1, DMA_CH5);
 
-static void dma_ch5_irq_handle() {
+    CBI32(channel_regs->CCR, 0);
+    channel_regs->CMAR = (uint32_t)WIFISERIAL.usart_device->rb->buf;
+    channel_regs->CNDTR = 0x0000;
+    channel_regs->CNDTR = UART_RX_BUFFER_SIZE;
+    DMA1->regs->IFCR = 0xF0000;
+    SBI32(channel_regs->CCR, 0);
+  }
+
+  static void dma_ch5_irq_handle() {
     uint8 status_bits = dma_get_isr_bits(DMA1, DMA_CH5);
     dma_clear_isr_bits(DMA1, DMA_CH5);
     if (status_bits & 0x8) {
@@ -254,74 +241,329 @@ static void dma_ch5_irq_handle() {
       // DMA transmit half
       WIFI_IO1_SET();
     }
-}
-
-static void wifi_usart_dma_init() {
-  dma_init(DMA1);
-  uint32_t flags = ( DMA_MINC_MODE | DMA_TRNS_CMPLT | DMA_HALF_TRNS | DMA_TRNS_ERR);
-  dma_xfer_size dma_bit_size = DMA_SIZE_8BITS;
-  dma_setup_transfer(DMA1, DMA_CH5, &USART1_BASE->DR, dma_bit_size,
-             (volatile void*)WIFISERIAL.usart_device->rb->buf, dma_bit_size, flags);// Transmit buffer DMA
-  dma_set_priority(DMA1, DMA_CH5, DMA_PRIORITY_LOW);
-  dma_attach_interrupt(DMA1, DMA_CH5, &dma_ch5_irq_handle);
-
-  dma_clear_isr_bits(DMA1, DMA_CH5);
-  dma_set_num_transfers(DMA1, DMA_CH5, UART_RX_BUFFER_SIZE);
-
-  bb_peri_set_bit(&USART1_BASE->CR3, USART_CR3_DMAR_BIT, 1);
-  dma_enable(DMA1, DMA_CH5);   // enable transmit
-
-  for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
-    wifiDmaRcvFifo.bufferAddr[i] = &bmp_public_buf[1024 * i];
-    wifiDmaRcvFifo.state[i] = udisk_buf_empty;
   }
 
-  memset(wifiDmaRcvFifo.bufferAddr[0], 0, 1024 * TRANS_RCV_FIFO_BLOCK_NUM);
-  wifiDmaRcvFifo.read_cur = 0;
-  wifiDmaRcvFifo.write_cur = 0;
-}
+  static void wifi_usart_dma_init() {
+    dma_init(DMA1);
+    uint32_t flags = ( DMA_MINC_MODE | DMA_TRNS_CMPLT | DMA_HALF_TRNS | DMA_TRNS_ERR);
+    dma_xfer_size dma_bit_size = DMA_SIZE_8BITS;
+    dma_setup_transfer(DMA1, DMA_CH5, &USART1_BASE->DR, dma_bit_size,
+               (volatile void*)WIFISERIAL.usart_device->rb->buf, dma_bit_size, flags);// Transmit buffer DMA
+    dma_set_priority(DMA1, DMA_CH5, DMA_PRIORITY_LOW);
+    dma_attach_interrupt(DMA1, DMA_CH5, &dma_ch5_irq_handle);
 
-void esp_port_begin(uint8_t interrupt) {
-  WifiRxFifo.uart_read_point = 0;
-  WifiRxFifo.uart_write_point = 0;
+    dma_clear_isr_bits(DMA1, DMA_CH5);
+    dma_set_num_transfers(DMA1, DMA_CH5, UART_RX_BUFFER_SIZE);
 
-  #if 1
+    bb_peri_set_bit(&USART1_BASE->CR3, USART_CR3_DMAR_BIT, 1);
+    dma_enable(DMA1, DMA_CH5);   // enable transmit
 
+    for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
+      wifiDmaRcvFifo.bufferAddr[i] = &bmp_public_buf[1024 * i];
+      wifiDmaRcvFifo.state[i] = udisk_buf_empty;
+    }
+
+    memset(wifiDmaRcvFifo.bufferAddr[0], 0, 1024 * TRANS_RCV_FIFO_BLOCK_NUM);
+    wifiDmaRcvFifo.read_cur = 0;
+    wifiDmaRcvFifo.write_cur = 0;
+  }
+
+  void esp_port_begin(uint8_t interrupt) {
+    WifiRxFifo.uart_read_point = 0;
+    WifiRxFifo.uart_write_point = 0;
     #if ENABLED(MKS_WIFI_MODULE)
-      WIFISERIAL.end();
       if (interrupt) {
+        WIFISERIAL.end();
         for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
         WIFISERIAL.begin(WIFI_BAUDRATE);
         millis_t serial_connect_timeout = millis() + 1000UL;
         while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
       }
       else {
+        WIFISERIAL.end();
         WIFISERIAL.usart_device->regs->CR1 &= ~USART_CR1_RXNEIE;
         WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
         wifi_usart_dma_init();
       }
     #endif
+  }
 
-  #else
+#else // !__STM32F1__
 
-    #if MKS_WIFI_MODULE
-      WIFISERIAL.end();
-      for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
-      WIFISERIAL.begin(interrupt ? WIFI_BAUDRATE : WIFI_UPLOAD_BAUDRATE);
-      millis_t serial_connect_timeout = millis() + 1000UL;
-      while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-    #endif
-    if (!interrupt) wifi_usart_dma_init();
+  DMA_HandleTypeDef wifiUsartDMArx;
 
+  void changeFlashMode(const bool dmaMode) {
+    if (flash_dma_mode != dmaMode) {
+      flash_dma_mode = dmaMode;
+      if (flash_dma_mode == 1) {
+      }
+      else {
+      }
+    }
+  }
+
+  #ifdef STM32F1xx
+
+    HAL_StatusTypeDef HAL_DMA_PollForTransferCustomize(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout) {
+      uint32_t temp;
+      uint32_t tickstart = 0U;
+
+      if (HAL_DMA_STATE_BUSY != hdma->State) {              // No transfer ongoing
+        hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
+        __HAL_UNLOCK(hdma);
+        return HAL_ERROR;
+      }
+
+      // Polling mode not supported in circular mode
+      if (RESET != (hdma->Instance->CCR & DMA_CCR_CIRC)) {
+        hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
+        return HAL_ERROR;
+      }
+
+      // Get the level transfer complete flag
+      temp = (CompleteLevel == HAL_DMA_FULL_TRANSFER
+        ? __HAL_DMA_GET_TC_FLAG_INDEX(hdma)                 // Transfer Complete flag
+        : __HAL_DMA_GET_HT_FLAG_INDEX(hdma)                 // Half Transfer Complete flag
+      );
+
+      // Get tick
+      tickstart = HAL_GetTick();
+
+      while (__HAL_DMA_GET_FLAG(hdma, temp) == RESET) {
+        if ((__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma)) != RESET)) {
+          __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));  // Clear the half transfer complete flag
+          WIFI_IO1_SET();
+        }
+
+        if ((__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma)) != RESET)) {
+          /**
+           * When a DMA transfer error occurs
+           * A hardware clear of its EN bits is performed
+           * Clear all flags
+           */
+          hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
+
+          SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);       // Update error code
+          hdma->State= HAL_DMA_STATE_READY;                 // Change the DMA state
+          __HAL_UNLOCK(hdma);                               // Process Unlocked
+          return HAL_ERROR;
+        }
+
+        // Check for the Timeout
+        if (Timeout != HAL_MAX_DELAY && (!Timeout || (HAL_GetTick() - tickstart) > Timeout)) {
+          SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TIMEOUT);  // Update error code
+          hdma->State = HAL_DMA_STATE_READY;                // Change the DMA state
+          __HAL_UNLOCK(hdma);                               // Process Unlocked
+          return HAL_ERROR;
+        }
+      }
+
+      if (CompleteLevel == HAL_DMA_FULL_TRANSFER) {
+        // Clear the transfer complete flag
+        __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma));
+
+        /* The selected Channelx EN bit is cleared (DMA is disabled and
+           all transfers are complete) */
+        hdma->State = HAL_DMA_STATE_READY;
+      }
+      else
+        __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));  // Clear the half transfer complete flag
+
+      __HAL_UNLOCK(hdma);   // Process unlocked
+
+      return HAL_OK;
+    }
+
+  #else // !STM32F1xx
+
+    typedef struct {
+      __IO uint32_t ISR;   //!< DMA interrupt status register
+      __IO uint32_t Reserved0;
+      __IO uint32_t IFCR;  //!< DMA interrupt flag clear register
+    } MYDMA_Base_Registers;
+
+    HAL_StatusTypeDef HAL_DMA_PollForTransferCustomize(DMA_HandleTypeDef *hdma, HAL_DMA_LevelCompleteTypeDef CompleteLevel, uint32_t Timeout) {
+      HAL_StatusTypeDef status = HAL_OK;
+      uint32_t mask_cpltlevel;
+      uint32_t tickstart = HAL_GetTick();
+      uint32_t tmpisr;
+
+      MYDMA_Base_Registers *regs;                               // Calculate DMA base and stream number
+
+      if (HAL_DMA_STATE_BUSY != hdma->State) {                  // No transfer ongoing
+        hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
+        __HAL_UNLOCK(hdma);
+        return HAL_ERROR;
+      }
+
+      // Polling mode not supported in circular mode and double buffering mode
+      if ((hdma->Instance->CR & DMA_SxCR_CIRC) != RESET) {
+        hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
+        return HAL_ERROR;
+      }
+
+      // Get the level transfer complete flag
+      mask_cpltlevel = (CompleteLevel == HAL_DMA_FULL_TRANSFER
+        ? DMA_FLAG_TCIF0_4 << hdma->StreamIndex                 // Transfer Complete flag
+        : DMA_FLAG_HTIF0_4 << hdma->StreamIndex                 // Half Transfer Complete flag
+      );
+
+      regs = (MYDMA_Base_Registers *)hdma->StreamBaseAddress;
+      tmpisr = regs->ISR;
+
+      while (((tmpisr & mask_cpltlevel) == RESET) && ((hdma->ErrorCode & HAL_DMA_ERROR_TE) == RESET)) {
+        // Check for the Timeout (Not applicable in circular mode)
+        if (Timeout != HAL_MAX_DELAY) {
+          if (!Timeout || (HAL_GetTick() - tickstart) > Timeout) {
+            hdma->ErrorCode = HAL_DMA_ERROR_TIMEOUT;            // Update error code
+            __HAL_UNLOCK(hdma);                                 // Process Unlocked
+            hdma->State = HAL_DMA_STATE_READY;                  // Change the DMA state
+            return HAL_TIMEOUT;
+          }
+        }
+
+        tmpisr = regs->ISR;                                     // Get the ISR register value
+
+        if ((tmpisr & (DMA_FLAG_HTIF0_4 << hdma->StreamIndex)) != RESET) {
+          regs->IFCR = DMA_FLAG_HTIF0_4 << hdma->StreamIndex;   // Clear the Direct Mode error flag
+          WIFI_IO1_SET();
+        }
+
+        if ((tmpisr & (DMA_FLAG_TEIF0_4 << hdma->StreamIndex)) != RESET) {
+          hdma->ErrorCode |= HAL_DMA_ERROR_TE;                  // Update error code
+          regs->IFCR = DMA_FLAG_TEIF0_4 << hdma->StreamIndex;   // Clear the transfer error flag
+        }
+
+        if ((tmpisr & (DMA_FLAG_FEIF0_4 << hdma->StreamIndex)) != RESET) {
+          hdma->ErrorCode |= HAL_DMA_ERROR_FE;                  // Update error code
+          regs->IFCR = DMA_FLAG_FEIF0_4 << hdma->StreamIndex;   // Clear the FIFO error flag
+        }
+
+        if ((tmpisr & (DMA_FLAG_DMEIF0_4 << hdma->StreamIndex)) != RESET) {
+          hdma->ErrorCode |= HAL_DMA_ERROR_DME;                 // Update error code
+          regs->IFCR = DMA_FLAG_DMEIF0_4 << hdma->StreamIndex;  // Clear the Direct Mode error flag
+        }
+      }
+
+      if (hdma->ErrorCode != HAL_DMA_ERROR_NONE && (hdma->ErrorCode & HAL_DMA_ERROR_TE) != RESET) {
+        HAL_DMA_Abort(hdma);
+        regs->IFCR = (DMA_FLAG_HTIF0_4 | DMA_FLAG_TCIF0_4) << hdma->StreamIndex;  // Clear the half transfer and transfer complete flags
+        __HAL_UNLOCK(hdma);                                     // Process Unlocked
+        hdma->State= HAL_DMA_STATE_READY;                       // Change the DMA state
+        return HAL_ERROR;
+      }
+
+      // Get the level transfer complete flag
+      if (CompleteLevel == HAL_DMA_FULL_TRANSFER) {
+        regs->IFCR = (DMA_FLAG_HTIF0_4 | DMA_FLAG_TCIF0_4) << hdma->StreamIndex;  // Clear the half transfer and transfer complete flags
+        __HAL_UNLOCK(hdma);                                     // Process Unlocked
+        hdma->State = HAL_DMA_STATE_READY;
+      }
+      else
+        regs->IFCR = (DMA_FLAG_HTIF0_4) << hdma->StreamIndex;   // Clear the half transfer and transfer complete flags
+
+      return status;
+    }
   #endif
-}
+
+  static void dmaTransmitBegin() {
+    wifiUsartDMArx.Init.MemInc = DMA_MINC_ENABLE;
+    if (HAL_DMA_Init((DMA_HandleTypeDef *)&wifiUsartDMArx) != HAL_OK)
+      Error_Handler();
+
+    if (HAL_DMA_Start(&wifiUsartDMArx, (uint32_t)&(USART1->DR), (uint32_t)WIFISERIAL.wifiRxBuf, UART_RX_BUFFER_SIZE))
+      Error_Handler();
+
+    USART1->CR1 |= USART_CR1_UE;
+
+    SET_BIT(USART1->CR3, USART_CR3_DMAR);
+    WIFI_IO1_RESET();
+  }
+
+  static int storeRcvData(volatile uint8_t *bufToCpy, int32_t len) {
+    unsigned char tmpW = wifiDmaRcvFifo.write_cur;
+
+    if (len > UDISKBUFLEN) return 0;
+
+    if (wifiDmaRcvFifo.state[tmpW] == udisk_buf_empty) {
+      const int timeOut = 2000; //millisecond
+      dmaTransmitBegin();
+      if (HAL_DMA_PollForTransferCustomize(&wifiUsartDMArx, HAL_DMA_FULL_TRANSFER, timeOut) == HAL_OK) {
+        memcpy((unsigned char *) wifiDmaRcvFifo.bufferAddr[tmpW], (uint8_t *)bufToCpy, len);
+        wifiDmaRcvFifo.state[tmpW] = udisk_buf_full;
+        wifiDmaRcvFifo.write_cur = (tmpW + 1) % TRANS_RCV_FIFO_BLOCK_NUM;
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  static void wifi_usart_dma_init() {
+    #ifdef STM32F1xx
+      __HAL_RCC_DMA1_CLK_ENABLE();
+      wifiUsartDMArx.Instance = DMA1_Channel5;
+    #else
+      __HAL_RCC_DMA2_CLK_ENABLE();
+      wifiUsartDMArx.Instance = DMA2_Stream2;
+      wifiUsartDMArx.Init.Channel = DMA_CHANNEL_4;
+    #endif
+    wifiUsartDMArx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    wifiUsartDMArx.Init.PeriphInc = DMA_PINC_DISABLE;
+    wifiUsartDMArx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    wifiUsartDMArx.Init.MemDataAlignment = DMA_PDATAALIGN_BYTE;
+    wifiUsartDMArx.Init.Mode = DMA_NORMAL;
+    #ifdef STM32F4xx
+      wifiUsartDMArx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    #endif
+    wifiUsartDMArx.Init.MemInc = DMA_MINC_ENABLE;
+    if (HAL_DMA_Init((DMA_HandleTypeDef *)&wifiUsartDMArx) != HAL_OK)
+      Error_Handler();
+
+    if (HAL_DMA_Start(&wifiUsartDMArx, (uint32_t)&(USART1->DR), (uint32_t)WIFISERIAL.wifiRxBuf, UART_RX_BUFFER_SIZE))
+      Error_Handler();
+
+    USART1->CR1 |= USART_CR1_UE;
+
+    SET_BIT(USART1->CR3, USART_CR3_DMAR);   // Enable Rx DMA Request
+
+    for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
+      wifiDmaRcvFifo.bufferAddr[i] = &bmp_public_buf[1024 * i];
+      wifiDmaRcvFifo.state[i] = udisk_buf_empty;
+    }
+
+    memset(wifiDmaRcvFifo.bufferAddr[0], 0, 1024 * TRANS_RCV_FIFO_BLOCK_NUM);
+    wifiDmaRcvFifo.read_cur = 0;
+    wifiDmaRcvFifo.write_cur = 0;
+  }
+
+  void esp_port_begin(uint8_t interrupt) {
+    WifiRxFifo.uart_read_point = 0;
+    WifiRxFifo.uart_write_point = 0;
+
+    #if ENABLED(MKS_WIFI_MODULE)
+      if (interrupt) {
+        WIFISERIAL.end();
+        for (uint16_t i = 0; i < 65535; i++) { /*nada*/ }
+        WIFISERIAL.begin(WIFI_BAUDRATE);
+        uint32_t serial_connect_timeout = millis() + 1000UL;
+        while (PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+      }
+      else {
+        WIFISERIAL.end();
+        USART1->CR1 &= ~USART_CR1_RXNEIE;
+        WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
+        wifi_usart_dma_init();
+      }
+    #endif
+  }
+
+#endif // !__STM32F1__
 
 #if ENABLED(MKS_WIFI_MODULE)
 
   int raw_send_to_wifi(uint8_t *buf, int len) {
     if (buf == 0 || len <= 0) return 0;
-    for (int i = 0; i < len; i++)
-      WIFISERIAL.write(*(buf + i));
+    for (int i = 0; i < len; i++) WIFISERIAL.write(*(buf + i));
     return len;
   }
 
@@ -336,9 +578,9 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len) {
   uint8_t wifi_ret_tail = 0xFC;
 
   if (type == WIFI_PARA_SET) {
-    int data_offset = 4;
-    int apLen = strlen((const char *)uiCfg.wifi_name);
-    int keyLen = strlen((const char *)uiCfg.wifi_key);
+    int data_offset = 4,
+        apLen = strlen((const char *)uiCfg.wifi_name),
+        keyLen = strlen((const char *)uiCfg.wifi_key);
 
     ZERO(buf_to_wifi);
     index_to_wifi = 0;
@@ -378,9 +620,9 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len) {
 
        if (buf_to_wifi[index_to_wifi + 3] == '\n') {
         // mask "wait" "busy" "X:"
-        if (((buf_to_wifi[4] == 'w') && (buf_to_wifi[5] == 'a') && (buf_to_wifi[6] == 'i')  && (buf_to_wifi[7] == 't') )
-          || ((buf_to_wifi[4] == 'b') && (buf_to_wifi[5] == 'u') && (buf_to_wifi[6] == 's')  && (buf_to_wifi[7] == 'y') )
-          || ((buf_to_wifi[4] == 'X') && (buf_to_wifi[5] == ':') )
+        if ( ((buf_to_wifi[4] == 'w') && (buf_to_wifi[5] == 'a') && (buf_to_wifi[6] == 'i') && (buf_to_wifi[7] == 't'))
+          || ((buf_to_wifi[4] == 'b') && (buf_to_wifi[5] == 'u') && (buf_to_wifi[6] == 's') && (buf_to_wifi[7] == 'y'))
+          || ((buf_to_wifi[4] == 'X') && (buf_to_wifi[5] == ':'))
         ) {
           ZERO(buf_to_wifi);
           index_to_wifi = 0;
@@ -458,6 +700,7 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len) {
   return 1;
 }
 
+
 #define SEND_OK_TO_WIFI send_to_wifi((uint8_t *)"ok\r\n", strlen("ok\r\n"))
 int send_to_wifi(uint8_t *buf, int len) { return package_to_wifi(WIFI_TRANS_INF, buf, len); }
 
@@ -530,15 +773,15 @@ int write_to_file(char *buf, int len) {
   return 0;
 }
 
-#define ESP_PROTOC_HEAD (uint8_t)0xA5
-#define ESP_PROTOC_TAIL   (uint8_t)0xFC
+#define ESP_PROTOC_HEAD         (uint8_t)0xA5
+#define ESP_PROTOC_TAIL         (uint8_t)0xFC
 
-#define ESP_TYPE_NET        (uint8_t)0x0
-#define ESP_TYPE_GCODE        (uint8_t)0x1
+#define ESP_TYPE_NET            (uint8_t)0x0
+#define ESP_TYPE_GCODE          (uint8_t)0x1
 #define ESP_TYPE_FILE_FIRST     (uint8_t)0x2
-#define ESP_TYPE_FILE_FRAGMENT    (uint8_t)0x3
+#define ESP_TYPE_FILE_FRAGMENT  (uint8_t)0x3
 
-#define ESP_TYPE_WIFI_LIST    (uint8_t)0x4
+#define ESP_TYPE_WIFI_LIST      (uint8_t)0x4
 
 uint8_t esp_msg_buf[UART_RX_BUFFER_SIZE] = { 0 };
 uint16_t esp_msg_index = 0;
@@ -651,13 +894,10 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
           break;
 
-        case 21:
-          /*init sd card*/
-          SEND_OK_TO_WIFI;
-          break;
+        case 21: SEND_OK_TO_WIFI; break;            // Init SD card
 
         case 23:
-          /*select the file*/
+          // Select the file
           if (uiCfg.print_state == IDLE) {
             int index = 0;
             while (tmpStr[index] == ' ') index++;
@@ -747,8 +987,10 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                   if (card.isFileOpen()) {
                     //saved_feedrate_percentage = feedrate_percentage;
                     feedrate_percentage = 100;
-                    planner.flow_percentage[0] = 100;
-                    planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
+                    #if EXTRUDERS
+                      planner.flow_percentage[0] = 100;
+                      planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
+                    #endif
                     #if EXTRUDERS == 2
                       planner.flow_percentage[1] = 100;
                       planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
@@ -786,7 +1028,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           break;
 
         case 25:
-          /*pause print file*/
+          // Pause print file
           if (uiCfg.print_state == WORKING) {
             stop_print_time();
 
@@ -806,7 +1048,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           break;
 
         case 26:
-          /*stop print file*/
+          // Stop print file
           if ((uiCfg.print_state == WORKING) || (uiCfg.print_state == PAUSED) || (uiCfg.print_state == REPRINTING)) {
             stop_print_time();
 
@@ -823,7 +1065,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           break;
 
         case 27:
-          /*report print rate*/
+          // Report print rate
           if ((uiCfg.print_state == WORKING) || (uiCfg.print_state == PAUSED)|| (uiCfg.print_state == REPRINTING)) {
             print_rate = uiCfg.totalSend;
             ZERO(tempBuf);
@@ -833,7 +1075,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           break;
 
         case 28:
-          /*begin to transfer file to filesys*/
+          // Begin to transfer file to filesys
           if (uiCfg.print_state == IDLE) {
 
             int index = 0;
@@ -887,7 +1129,6 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             sprintf_P(tbuf, PSTR("%d /%d"), thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0));
 
             const int tlen = strlen(tbuf);
-
             sprintf_P(outBuf, PSTR("T:%s"), tbuf);
             outBuf += 2 + tlen;
 
@@ -909,7 +1150,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             #if HAS_MULTI_HOTEND
               sprintf_P(outBuf, PSTR("%d /%d"), thermalManager.wholeDegHotend(1), thermalManager.degTargetHotend(1));
             #else
-              strcat_P(outBuf, PSTR("0 /0"));
+              strcpy_P(outBuf, PSTR("0 /0"));
             #endif
             outBuf += 4;
 
@@ -918,17 +1159,11 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
               thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
-              #if HAS_HEATED_BED
-                thermalManager.wholeDegBed(), thermalManager.degTargetBed(),
-              #else
-                0, 0,
-              #endif
+              TERN0(HAS_HEATED_BED, thermalManager.wholeDegBed()),
+              TERN0(HAS_HEATED_BED, thermalManager.degTargetBed()),
               thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
-              #if HAS_MULTI_HOTEND
-                thermalManager.wholeDegHotend(1), thermalManager.degTargetHotend(1)
-              #else
-                0, 0
-              #endif
+              TERN0(HAS_MULTI_HOTEND, thermalManager.wholeDegHotend(1)),
+              TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1))
             );
           }
 
@@ -977,11 +1212,8 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
         case 998:
           if (uiCfg.print_state == IDLE) {
-            int v = atoi((char *)tmpStr);
-            if (v == 0)
-              set_cur_file_sys(0);
-            else if (v == 1)
-              set_cur_file_sys(1);
+            const int v = atoi((char *)tmpStr);
+            if (v == 0 || v == 1) set_cur_file_sys(v);
             wifi_ret_ack();
           }
           break;
@@ -996,18 +1228,14 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           strcat_P((char *)cmd_line, PSTR("\n"));
 
           if (espGcodeFifo.wait_tick > 5) {
-            uint32_t left;
-            if (espGcodeFifo.r > espGcodeFifo.w)
-              left = espGcodeFifo.r - espGcodeFifo.w - 1;
-            else
-              left = WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
+            const uint32_t left = espGcodeFifo.r > espGcodeFifo.w
+                                ? espGcodeFifo.r - espGcodeFifo.w - 1
+                                : WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
 
             if (left >= strlen((const char *)cmd_line)) {
-              uint32_t index = 0;
-              while (index < strlen((const char *)cmd_line)) {
+              for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
                 espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index] ;
                 espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
-                index++;
               }
               if (left - WIFI_GCODE_BUFFER_LEAST_SIZE >= strlen((const char *)cmd_line))
                 SEND_OK_TO_WIFI;
@@ -1022,18 +1250,14 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
       strcat_P((char *)cmd_line, PSTR("\n"));
 
       if (espGcodeFifo.wait_tick > 5) {
-        uint32_t left_g;
-        if (espGcodeFifo.r > espGcodeFifo.w)
-          left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
-        else
-          left_g = WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
+        const uint32_t left_g = espGcodeFifo.r > espGcodeFifo.w
+                              ? espGcodeFifo.r - espGcodeFifo.w - 1
+                              : WIFI_GCODE_BUFFER_SIZE + espGcodeFifo.r - espGcodeFifo.w - 1;
 
         if (left_g >= strlen((const char *)cmd_line)) {
-          uint32_t index = 0;
-          while (index < strlen((const char *)cmd_line)) {
+          for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
             espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index] ;
             espGcodeFifo.w = (espGcodeFifo.w + 1) % WIFI_GCODE_BUFFER_SIZE;
-            index++;
           }
           if (left_g - WIFI_GCODE_BUFFER_LEAST_SIZE >= strlen((const char *)cmd_line))
             SEND_OK_TO_WIFI;
@@ -1061,11 +1285,10 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
   if (msgLen <= 0) return;
 
-  // ip
+  // IP address
   sprintf_P(ipPara.ip_addr, PSTR("%d.%d.%d.%d"), msg[0], msg[1], msg[2], msg[3]);
 
-  // port
-  // connect state
+  // port connect state
   switch (msg[6]) {
     case 0x0A: wifi_link_state = WIFI_CONNECTED; break;
     case 0x0E: wifi_link_state = WIFI_EXCEPTION; break;
@@ -1075,7 +1298,7 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
   // mode
   wifiPara.mode = msg[7];
 
-  // wifi name
+  // WiFi name
   wifiNameLen = msg[8];
   wifiKeyLen = msg[9 + wifiNameLen];
   if (wifiNameLen < 32) {
@@ -1085,7 +1308,7 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
     memset(&wifi_list.wifiConnectedName, 0, sizeof(wifi_list.wifiConnectedName));
     memcpy(&wifi_list.wifiConnectedName, &msg[9], wifiNameLen);
 
-    // wifi key
+    // WiFi key
     if (wifiKeyLen < 64) {
       ZERO(wifiPara.keyCode);
       memcpy(wifiPara.keyCode, &msg[10 + wifiNameLen], wifiKeyLen);
@@ -1102,7 +1325,7 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
     cloud_para.port = msg[12 + wifiNameLen + wifiKeyLen + hostLen] + (msg[13 + wifiNameLen + wifiKeyLen + hostLen] << 8);
   }
 
-  // id
+  // ID
   id_len = msg[14 + wifiNameLen + wifiKeyLen + hostLen];
   if (id_len == 20) {
     ZERO(cloud_para.id);
@@ -1125,10 +1348,10 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
   if (cfg_cloud_flag == 1) {
     if (((cloud_para.state >> 4) != (char)gCfgItems.cloud_enable)
       || (strncmp(cloud_para.hostUrl, (const char *)uiCfg.cloud_hostUrl, 96) != 0)
-      || (cloud_para.port != uiCfg.cloud_port)) {
-      package_to_wifi(WIFI_CLOUD_CFG, (uint8_t *)0, 0);
-    }
-    else cfg_cloud_flag = 0;
+      || (cloud_para.port != uiCfg.cloud_port)
+    ) package_to_wifi(WIFI_CLOUD_CFG, (uint8_t *)0, 0);
+    else
+      cfg_cloud_flag = 0;
   }
 }
 
@@ -1366,6 +1589,7 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
     lastFragment = frag;
 
     if ((frag & (~FRAG_MASK)) != 0) {
+      wifiDmaRcvFifo.receiveEspData = false;
       int res = upload_file.write(public_buf, file_writer.write_index);
       if (res == -1) {
         upload_file.close();
@@ -1392,7 +1616,7 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
       ZERO(public_buf);
       file_writer.write_index = 0;
       file_writer.tick_end = getWifiTick();
-      upload_time = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
+      upload_time_sec = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
       upload_size = gCfgItems.curFilesize;
       wifi_link_state = WIFI_CONNECTED;
       upload_result = 3;
@@ -1540,9 +1764,16 @@ void stopEspTransfer() {
   WIFI_IO1_SET();
 
   // disable dma
-  dma_clear_isr_bits(DMA1, DMA_CH5);
-  bb_peri_set_bit(&USART1_BASE->CR3, USART_CR3_DMAR_BIT, 0);
-  dma_disable(DMA1, DMA_CH5);
+  #ifdef __STM32F1__
+    dma_clear_isr_bits(DMA1, DMA_CH5);
+    bb_peri_set_bit(&USART1_BASE->CR3, USART_CR3_DMAR_BIT, 0);
+    dma_disable(DMA1, DMA_CH5);
+  #else
+    // First, abort any running dma
+    HAL_DMA_Abort(&wifiUsartDMArx);
+    // DeInit objects
+    HAL_DMA_DeInit(&wifiUsartDMArx);
+  #endif
 
   wifi_delay(200);
   changeFlashMode(true); // Set SPI flash to use DMA mode
@@ -1571,6 +1802,9 @@ void wifi_rcv_handle() {
         }
       }
     #else
+      #ifndef __STM32F1__
+        if (wifiDmaRcvFifo.receiveEspData) storeRcvData(WIFISERIAL.wifiRxBuf, UART_RX_BUFFER_SIZE);
+      #endif
       len = readWifiFifo(ucStr, UART_RX_BUFFER_SIZE);
     #endif
     if (len > 0) {
@@ -1582,15 +1816,16 @@ void wifi_rcv_handle() {
       }
       getDataF = 1;
     }
-    if (esp_state == TRANSFER_STORE) {
-      if (storeRcvData(WIFISERIAL.usart_device->rb->buf, UART_RX_BUFFER_SIZE)) {
-        esp_state = TRANSFERING;
-        esp_dma_pre();
-        if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
+    #ifdef __STM32F1__
+      if (esp_state == TRANSFER_STORE) {
+        if (storeRcvData(WIFISERIAL.wifiRxBuf, UART_RX_BUFFER_SIZE)) {
+          esp_state = TRANSFERING;
+          esp_dma_pre();
+          if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
+        }
+        else WIFI_IO1_SET();
       }
-      else
-        WIFI_IO1_SET();
-    }
+    #endif
   }
   else {
     len = readWifiBuf((int8_t *)ucStr, UART_RX_BUFFER_SIZE);
@@ -1602,6 +1837,10 @@ void wifi_rcv_handle() {
         esp_port_begin(0);
         wifi_delay(10);
         tick_net_time1 = 0;
+        #ifndef __STM32F1__
+          wifiDmaRcvFifo.receiveEspData = true;
+          return;
+        #endif
       }
       if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
       getDataF = 1;
@@ -1612,9 +1851,8 @@ void wifi_rcv_handle() {
     }
   }
 
-  if (getDataF == 1) {
+  if (getDataF == 1)
     tick_net_time1 = getWifiTick();
-  }
   else {
     tick_net_time2 = getWifiTick();
 
@@ -1664,74 +1902,68 @@ void mks_esp_wifi_init() {
 
   esp_state = TRANSFER_IDLE;
   esp_port_begin(1);
-
+  watchdog_refresh();
   wifi_reset();
 
   #if 0
   if (update_flag == 0) {
     res = f_open(&esp_upload.uploadFile, ESP_WEB_FIRMWARE_FILE,  FA_OPEN_EXISTING | FA_READ);
+    if (res ==  FR_OK) {
+      f_close(&esp_upload.uploadFile);
 
-      if (res ==  FR_OK) {
-        f_close(&esp_upload.uploadFile);
+      wifi_delay(2000);
 
-        wifi_delay(2000);
+      if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) return;
 
-        if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) {
-          return;
-        }
+      clear_cur_ui();
 
-        clear_cur_ui();
-
-        draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
-        if (wifi_upload(1) >= 0) {
-
-          f_unlink("1:/MKS_WIFI_CUR");
-          f_rename(ESP_WEB_FIRMWARE_FILE,"/MKS_WIFI_CUR");
-        }
-        draw_return_ui();
-        update_flag = 1;
+      draw_dialog(DIALOG_TYPE_UPDATE_ESP_FIRMWARE);
+      if (wifi_upload(1) >= 0) {
+        f_unlink("1:/MKS_WIFI_CUR");
+        f_rename(ESP_WEB_FIRMWARE_FILE,"/MKS_WIFI_CUR");
       }
-
+      draw_return_ui();
+      update_flag = 1;
     }
-    if (update_flag == 0) {
-      res = f_open(&esp_upload.uploadFile, ESP_WEB_FILE,  FA_OPEN_EXISTING | FA_READ);
-      if (res ==  FR_OK) {
-        f_close(&esp_upload.uploadFile);
+  }
 
-        wifi_delay(2000);
+  if (update_flag == 0) {
+    res = f_open(&esp_upload.uploadFile, ESP_WEB_FILE,  FA_OPEN_EXISTING | FA_READ);
+    if (res == FR_OK) {
+      f_close(&esp_upload.uploadFile);
 
-        if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) {
-          return;
-        }
+      wifi_delay(2000);
 
-        clear_cur_ui();
+      if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) return;
 
-        draw_dialog(DIALOG_TYPE_UPDATE_ESP_DATA);
+      clear_cur_ui();
 
-        if (wifi_upload(2) >= 0) {
+      draw_dialog(DIALOG_TYPE_UPDATE_ESP_DATA);
 
-          f_unlink("1:/MKS_WEB_CONTROL_CUR");
-          f_rename(ESP_WEB_FILE,"/MKS_WEB_CONTROL_CUR");
-        }
-        draw_return_ui();
+      if (wifi_upload(2) >= 0) {
+        f_unlink("1:/MKS_WEB_CONTROL_CUR");
+        f_rename(ESP_WEB_FILE,"/MKS_WEB_CONTROL_CUR");
       }
+      draw_return_ui();
     }
+  }
   #endif
+
   wifiPara.decodeType = WIFI_DECODE_TYPE;
   wifiPara.baud = 115200;
   wifi_link_state = WIFI_NOT_CONFIG;
 }
 
 void mks_wifi_firmware_update() {
+  watchdog_refresh();
   card.openFileRead((char *)ESP_FIRMWARE_FILE);
 
   if (card.isFileOpen()) {
     card.closefile();
 
     wifi_delay(2000);
-
-    if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20)
-      return;
+    watchdog_refresh();
+    if (usartFifoAvailable((SZ_USART_FIFO *)&WifiRxFifo) < 20) return;
 
     clear_cur_ui();
 
@@ -1751,12 +1983,6 @@ void mks_wifi_firmware_update() {
     }
     clear_cur_ui();
   }
-}
-
-#define BUF_INC_POINTER(p)  ((p + 1 == UART_FIFO_BUFFER_SIZE) ? 0:(p + 1))
-
-int usartFifoAvailable(SZ_USART_FIFO *fifo) {
-  return WIFISERIAL.available();
 }
 
 void get_wifi_commands() {
@@ -1835,5 +2061,7 @@ int readWifiBuf(int8_t *buf, int32_t len) {
     buf[i++] = WIFISERIAL.read();
   return i;
 }
+
+int usartFifoAvailable(SZ_USART_FIFO *fifo) { return WIFISERIAL.available(); }
 
 #endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
