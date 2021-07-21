@@ -987,13 +987,13 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                   if (card.isFileOpen()) {
                     //saved_feedrate_percentage = feedrate_percentage;
                     feedrate_percentage = 100;
-                    #if EXTRUDERS
+                    #if HAS_EXTRUDERS
                       planner.flow_percentage[0] = 100;
                       planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
-                    #endif
-                    #if EXTRUDERS == 2
-                      planner.flow_percentage[1] = 100;
-                      planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
+                      #if EXTRUDERS == 2
+                        planner.flow_percentage[1] = 100;
+                        planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
+                      #endif
                     #endif
                     card.startOrResumeFilePrinting();
                     TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
