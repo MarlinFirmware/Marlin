@@ -70,7 +70,7 @@
 #if HAS_TFT_LVGL_UI
   #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/mks_ui/draw_ui.h"
-  #include "lcd/extui/mks_ui/mks_hardware_test.h"
+  #include "lcd/extui/mks_ui/mks_hardware.h"
   #include <lvgl.h>
 #endif
 
@@ -1276,9 +1276,7 @@ void setup() {
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-  SERIAL_ECHOPGM_P(GET_TEXT(MSG_MARLIN));
-  SERIAL_CHAR(' ');
-  SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
+  SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
   SERIAL_EOL();
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(

@@ -200,13 +200,11 @@ public:
 
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
-    static inline void set_language(const uint8_t lang) {
-      if (lang < NUM_LANGUAGES) {
-        language = lang;
-        return_to_status();
-        refresh();
-      }
-    }
+    static void set_language(const uint8_t lang);
+  #endif
+
+  #if HAS_MARLINUI_U8GLIB
+    static void update_language_font();
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
