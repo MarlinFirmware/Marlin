@@ -396,50 +396,50 @@
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
-  #define TFT_A0_PIN            43
-  #define TFT_CS_PIN            49
-  #define TFT_DC_PIN            43
-  #define TFT_SCK_PIN           SD_SCK_PIN
-  #define TFT_MOSI_PIN          SD_MOSI_PIN
-  #define TFT_MISO_PIN          SD_MISO_PIN
+  #define TFT_A0_PIN                          43
+  #define TFT_CS_PIN                          49
+  #define TFT_DC_PIN                          43
+  #define TFT_SCK_PIN                 SD_SCK_PIN
+  #define TFT_MOSI_PIN               SD_MOSI_PIN
+  #define TFT_MISO_PIN               SD_MISO_PIN
   #define LCD_USE_DMA_SPI
 
-  #define BTN_EN1                         40
-  #define BTN_EN2                         63
-  #define BTN_ENC                         59
-  #define BEEPER_PIN                      42
+  #define BTN_EN1                             40
+  #define BTN_EN2                             63
+  #define BTN_ENC                             59
+  #define BEEPER_PIN                          42
 
-  #define TOUCH_CS_PIN                    33
-  #define SD_DETECT_PIN                   41
+  #define TOUCH_CS_PIN                        33
+  #define SD_DETECT_PIN                       41
 
-  #define HAS_SPI_FLASH                    1
+  #define HAS_SPI_FLASH                        1
   #if HAS_SPI_FLASH
-    #define SPI_DEVICE                     1
-    #define SPI_FLASH_SIZE         0x1000000  // 16MB
-    #define W25QXX_CS_PIN                 31
-    #define W25QXX_MOSI_PIN         SD_MOSI_PIN
-    #define W25QXX_MISO_PIN         SD_MISO_PIN
-    #define W25QXX_SCK_PIN          SD_SCK_PIN
+    #define SPI_DEVICE                         1
+    #define SPI_FLASH_SIZE             0x1000000  // 16MB
+    #define W25QXX_CS_PIN                     31
+    #define W25QXX_MOSI_PIN          SD_MOSI_PIN
+    #define W25QXX_MISO_PIN          SD_MISO_PIN
+    #define W25QXX_SCK_PIN            SD_SCK_PIN
   #endif
 
-  #define TFT_BUFFER_SIZE             0xFFFF
+  #define TFT_BUFFER_SIZE                 0xFFFF
   #ifndef TFT_DRIVER
-    #define TFT_DRIVER                  ST7796
+    #define TFT_DRIVER                    ST7796
   #endif
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION      63934
+    #define XPT2046_X_CALIBRATION            63934
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION      63598
+    #define XPT2046_Y_CALIBRATION            63598
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET              -1
+    #define XPT2046_X_OFFSET                  -1
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET             -20
+    #define XPT2046_Y_OFFSET                 -20
   #endif
 
-  #define BTN_BACK                        70
+  #define BTN_BACK                            70
 
 #elif HAS_WIRED_LCD
 
@@ -684,7 +684,7 @@
     #endif
 
     // CUSTOM SIMULATOR INPUTS
-    #define BTN_BACK                            70
+    #define BTN_BACK                          70
 
   #endif // IS_NEWPANEL
 
