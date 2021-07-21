@@ -57,7 +57,9 @@
     endstopx1_sta = (READ(X_MIN_PIN) == LOW);
     endstopy1_sta = (READ(Y_MIN_PIN) == LOW);
     endstopz1_sta = (READ(Z_MIN_PIN) == LOW);
-    endstopz2_sta = (READ(Z_MAX_PIN) == LOW);
+    #if PIN_EXISTS(Z_MAX)
+      endstopz2_sta = (READ(Z_MAX_PIN) == LOW);
+    #endif
   }
 
   void test_gpio_readlevel_H() {
@@ -72,14 +74,17 @@
     endstopx1_sta = (READ(X_MIN_PIN) == HIGH);
     endstopy1_sta = (READ(Y_MIN_PIN) == HIGH);
     endstopz1_sta = (READ(Z_MIN_PIN) == HIGH);
-    endstopz2_sta = (READ(Z_MAX_PIN) == HIGH);
-  }
+    #if PIN_EXISTS(Z_MAX)
+      endstopz2_sta = (READ(Z_MAX_PIN) == HIGH);
+    #endif  }
 
   void init_test_gpio() {
     SET_INPUT_PULLUP(X_MIN_PIN);
     SET_INPUT_PULLUP(Y_MIN_PIN);
     SET_INPUT_PULLUP(Z_MIN_PIN);
-    SET_INPUT_PULLUP(Z_MAX_PIN);
+    #if PIN_EXISTS(Z_MAX)
+      SET_INPUT_PULLUP(Z_MAX_PIN);
+    #endif
 
     SET_OUTPUT(WIFI_IO0_PIN);
 

@@ -34,6 +34,10 @@
 static lv_obj_t *scr;
 static lv_obj_t *status_label;
 
+#if ENABLED(MKS_TEST)
+  extern uint8_t curent_disp_ui;
+#endif
+
 static void event_handler(lv_obj_t *obj, lv_event_t event);
 
 enum {

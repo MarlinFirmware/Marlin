@@ -126,7 +126,7 @@ void lv_draw_ready_print() {
   ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(PRINT_READY_UI, "");
 
-  if (TERN0(SDSUPPORT, mks_test_flag == 0x1E)) {
+  if (TERN0(MKS_TEST, mks_test_flag == 0x1E)) {
     // Create image buttons
     buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", event_handler, ID_TOOL);
 
