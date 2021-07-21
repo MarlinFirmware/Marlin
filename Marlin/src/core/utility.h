@@ -73,10 +73,9 @@ public:
 #define REMEMBER(N,X,V...) restorer<__typeof__(X)> restorer_##N(X, ##V)
 #define RESTORE(N) restorer_##N.restore()
 
-// Converts from an uint8_t in the range of 0-255 to an uint8_t
-// in the range 0-100 while avoiding rounding artifacts
-constexpr uint8_t pwm_to_percent(const uint8_t i) { return (int(i) * 100) / 255; }
-constexpr uint8_t percent_to_pwm(const uint8_t p) { return (int(p) * 255) / 100; }
+// Convert between PWM <-> PERCENT with unbiased rounding
+constexpr uint8_t pwm_to_percent(const uint8_t i) { return (int(i) * 100 + 127) / 255; }
+constexpr uint8_t percent_to_pwm(const uint8_t p) { return (int(p) * 255 +  50) / 100; }
 
 const xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME);
 
