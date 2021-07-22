@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,23 +19,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+// adapted from  I2C/master/master.c example
+//   https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
 
-#include <lvgl.h>
+#ifdef __PLAT_NATIVE_SIM__
 
-// Functions for MKS_TEST
-#if BOTH(MKS_TEST, SDSUPPORT)
-  void mks_hardware_test();
-  void mks_test_get();
-  void mks_gpio_test();
-  extern uint8_t mks_test_flag;
-#else
-  #define mks_test_flag 0
+#include <cstdint>
+
+#ifdef __cplusplus
+  extern "C" {
 #endif
 
-// String display and assets
-void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor, uint16_t bkColor);
-void disp_assets_update();
-void disp_assets_update_progress(const char *msg);
+uint8_t u8g_i2c_start(const uint8_t sla) {
+  return 1;
+}
+
+void u8g_i2c_init(const uint8_t clock_option) {
+}
+
+uint8_t u8g_i2c_send_byte(uint8_t data) {
+  return 1;
+}
+
+void u8g_i2c_stop() {
+}
+
+#ifdef __cplusplus
+  }
+#endif
+
+#endif // __PLAT_NATIVE_SIM__

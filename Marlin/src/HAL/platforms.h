@@ -43,6 +43,8 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/ESP32/NAME)
 #elif defined(__PLAT_LINUX__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/LINUX/NAME)
+#elif defined(__PLAT_NATIVE_SIM__)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/NATIVE_SIM/NAME)
 #elif defined(__SAMD51__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/SAMD51/NAME)
 #else
