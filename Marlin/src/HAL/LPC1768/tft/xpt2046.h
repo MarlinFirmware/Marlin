@@ -54,7 +54,7 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40 | XPT2046_CONTROL | XPT2046_DFR_MODE,
 };
 
-#if !defined(XPT2046_Z1_THRESHOLD)
+#ifndef XPT2046_Z1_THRESHOLD
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 

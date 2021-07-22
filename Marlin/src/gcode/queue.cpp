@@ -85,6 +85,24 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
   millis_t GCodeQueue::next_buffer_report_ms;
 #endif
 
+/*
+ * Track buffer underruns
+ */
+#if ENABLED(BUFFER_MONITORING)
+  uint32_t GCodeQueue::command_buffer_underruns = 0;
+  bool GCodeQueue::command_buffer_empty = false;
+  millis_t GCodeQueue::max_command_buffer_empty_duration = 0;
+  millis_t GCodeQueue::command_buffer_empty_at = 0;
+
+  uint32_t GCodeQueue::planner_buffer_underruns = 0;
+  bool GCodeQueue::planner_buffer_empty = false;
+  millis_t GCodeQueue::max_planner_buffer_empty_duration = 0;
+  millis_t GCodeQueue::planner_buffer_empty_at = 0;
+
+  uint8_t GCodeQueue::auto_buffer_report_interval;
+  millis_t GCodeQueue::next_buffer_report_ms;
+#endif
+
 /**
  * Next Injected PROGMEM Command pointer. (nullptr == empty)
  * Internal commands are enqueued ahead of serial / SD commands.
@@ -701,13 +719,13 @@ void GCodeQueue::advance() {
 
 #if ENABLED(BUFFER_MONITORING)
 void GCodeQueue::report_buffer_statistics() {
-  SERIAL_ECHO("M576");
-  SERIAL_ECHOLNPAIR(SP_P_STR, int(planner.moves_free()),
-                    SP_B_STR, int(BUFSIZE - length),
-                    " PU", queue.planner_buffer_underruns,
-                    " PD", queue.max_planner_buffer_empty_duration,
-                    " BU", queue.command_buffer_underruns,
-                    " BD", queue.max_command_buffer_empty_duration,
+  SERIAL_ECHO("D576");
+  SERIAL_ECHOLNPAIR_P(SP_P_STR, int(planner.moves_free()),
+                      SP_B_STR, int(BUFSIZE - ring_buffer.length),
+                      PSTR(" PU"), queue.planner_buffer_underruns,
+                      PSTR(" PD"), queue.max_planner_buffer_empty_duration,
+                      PSTR(" BU"), queue.command_buffer_underruns,
+                      PSTR(" BD"), queue.max_command_buffer_empty_duration,
                     );
 
   command_buffer_underruns = 0;

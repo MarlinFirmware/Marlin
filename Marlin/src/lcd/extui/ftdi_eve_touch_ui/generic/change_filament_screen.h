@@ -38,9 +38,9 @@ class ChangeFilamentScreen : public BaseScreen, public CachedScreen<CHANGE_FILAM
     static uint8_t getSoftenTemp();
     static ExtUI::extruder_t getExtruder();
     static void drawTempGradient(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-    static uint32_t getTempColor(uint32_t temp);
     static void doPurge();
   public:
+    static uint32_t getWarmColor(uint16_t temp, uint16_t cool, uint16_t low, uint16_t med, uint16_t high);
     static void onEntry();
     static void onExit();
     static void onRedraw(draw_mode_t);

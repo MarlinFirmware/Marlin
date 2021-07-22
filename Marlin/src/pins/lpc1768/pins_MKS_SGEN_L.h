@@ -202,7 +202,7 @@
 //
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #ifndef FAN1_PIN
     #define FAN1_PIN                       P2_06
   #endif

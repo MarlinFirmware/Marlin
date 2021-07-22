@@ -54,10 +54,15 @@ void GcodeSuite::M412() {
   else {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Filament runout ");
-    serialprintln_onoff(runout.enabled);
+    serialprint_onoff(runout.enabled);
     #if HAS_FILAMENT_RUNOUT_DISTANCE
-      SERIAL_ECHOLNPAIR("Filament runout distance (mm): ", runout.runout_distance());
+      SERIAL_ECHOPAIR(" ; Distance ", runout.runout_distance(), "mm");
     #endif
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      SERIAL_ECHOPGM(" ; Host handling ");
+      serialprint_onoff(runout.host_handling);
+    #endif
+    SERIAL_EOL();
   }
 }
 

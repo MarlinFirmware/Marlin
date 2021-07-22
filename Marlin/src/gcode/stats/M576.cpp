@@ -1,7 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * 
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,11 +31,11 @@
 /**
  * M576: Return buffer stats, and optionally set auto-report interval.
  * Usage: M576 [S<seconds>]
- * 
+ *
  * When called, printer emits the following output:
  * "M576 P<nn> B<nn> PU<nn> PD<nn> BU<nn> BD<nn>"
  * Where:
- *   P: Planner buffers available 
+ *   P: Planner buffers available
  *   B: Command buffers available
  *   PU: Planner buffer underruns since last report
  *   PD: Maximum time in ms planner buffer was empty since last report
@@ -44,11 +43,10 @@
  *   BD: Maximum time in ms command buffer was empty since last report
  */
 void GcodeSuite::M576() {
-  if (parser.seenval('S')) {
+  if (parser.seenval('S'))
     queue.set_auto_report_interval((uint8_t)parser.value_byte());
-  }
 
   queue.report_buffer_statistics();
 }
 
-#endif // BUFFER_MONITORING 
+#endif // BUFFER_MONITORING

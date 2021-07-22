@@ -392,33 +392,35 @@ void set_axis_is_at_home(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
   linear_axis_bits_t axes_should_home(linear_axis_bits_t axis_bits=linear_bits);
   bool homing_needed_error(linear_axis_bits_t axis_bits=linear_bits);
-  FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
-  FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
-  FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
-  FORCE_INLINE void set_axis_homed(const AxisEnum axis)     { SBI(axis_homed, axis); }
-  FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   { SBI(axis_trusted, axis); }
-  FORCE_INLINE void set_all_homed()                         { axis_homed = axis_trusted = linear_bits; }
+  inline void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
+  inline void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
+  inline void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
+  inline void set_axis_homed(const AxisEnum axis)     { SBI(axis_homed, axis); }
+  inline void set_axis_trusted(const AxisEnum axis)   { SBI(axis_trusted, axis); }
+  inline void set_all_homed()                         { axis_homed = axis_trusted = linear_bits; }
 #else
   constexpr linear_axis_bits_t axis_homed = linear_bits, axis_trusted = linear_bits; // Zero-endstop machines are always homed and trusted
-  FORCE_INLINE void homeaxis(const AxisEnum axis)           {}
-  FORCE_INLINE void set_axis_never_homed(const AxisEnum)    {}
-  FORCE_INLINE linear_axis_bits_t axes_should_home(linear_axis_bits_t=linear_bits) { return false; }
-  FORCE_INLINE bool homing_needed_error(linear_axis_bits_t=linear_bits) { return false; }
-  FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   {}
-  FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) {}
-  FORCE_INLINE void set_all_unhomed()                       {}
-  FORCE_INLINE void set_axis_homed(const AxisEnum axis)     {}
-  FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   {}
-  FORCE_INLINE void set_all_homed()                         {}
+  inline void homeaxis(const AxisEnum axis)           {}
+  inline void set_axis_never_homed(const AxisEnum)    {}
+  inline linear_axis_bits_t axes_should_home(linear_axis_bits_t=linear_bits) { return false; }
+  inline bool homing_needed_error(linear_axis_bits_t=linear_bits) { return false; }
+  inline void set_axis_unhomed(const AxisEnum axis)   {}
+  inline void set_axis_untrusted(const AxisEnum axis) {}
+  inline void set_all_unhomed()                       {}
+  inline void set_axis_homed(const AxisEnum axis)     {}
+  inline void set_axis_trusted(const AxisEnum axis)   {}
+  inline void set_all_homed()                         {}
 #endif
 
-FORCE_INLINE bool axis_was_homed(const AxisEnum axis)       { return TEST(axis_homed, axis); }
-FORCE_INLINE bool axis_is_trusted(const AxisEnum axis)      { return TEST(axis_trusted, axis); }
-FORCE_INLINE bool axis_should_home(const AxisEnum axis)     { return (axes_should_home() & _BV(axis)) != 0; }
-FORCE_INLINE bool no_axes_homed()                           { return !axis_homed; }
-FORCE_INLINE bool all_axes_homed()                          { return linear_bits == (axis_homed & linear_bits); }
-FORCE_INLINE bool homing_needed()                           { return !all_axes_homed(); }
-FORCE_INLINE bool all_axes_trusted()                        { return linear_bits == (axis_trusted & linear_bits); }
+inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axis_homed, axis); }
+inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axis_trusted, axis); }
+inline bool axis_should_home(const AxisEnum axis)     { return (axes_should_home() & _BV(axis)) != 0; }
+inline bool no_axes_homed()                           { return !axis_homed; }
+inline bool all_axes_homed()                          { return linear_bits == (axis_homed & linear_bits); }
+inline bool homing_needed()                           { return !all_axes_homed(); }
+inline bool all_axes_trusted()                        { return linear_bits == (axis_trusted & linear_bits); }
+
+void home_if_needed(const bool keeplev=false);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())

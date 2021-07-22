@@ -23,7 +23,7 @@
 
 // Use this file to select the com driver for device drivers that are NOT in the U8G library
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #ifndef U8G_HAL_LINKS   // Defined by LPC1768/9 environments in platform.ini
 
@@ -97,6 +97,11 @@
   #define U8G_COM_ST7920_HAL_HW_SPI   u8g_com_HAL_LPC1768_ST7920_hw_spi_fn
   #define U8G_COM_SSD_I2C_HAL         u8g_com_HAL_LPC1768_ssd_hw_i2c_fn
 
+#elif defined(__PLAT_NATIVE_SIM__)
+  uint8_t u8g_com_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+  uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+  #define U8G_COM_HAL_SW_SPI_FN       u8g_com_sw_spi_fn
+  #define U8G_COM_ST7920_HAL_SW_SPI   u8g_com_ST7920_sw_spi_fn
 #endif
 
 #ifndef U8G_COM_HAL_SW_SPI_FN

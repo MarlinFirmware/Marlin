@@ -24,6 +24,11 @@
 #if ENABLED(MARLIN_DEV_MODE)
 
   #include "gcode.h"
+
+  #if ENABLED(BUFFER_MONITORING)
+    #include "queue.h"
+  #endif
+
   #include "../module/settings.h"
   #include "../module/temperature.h"
   #include "../libs/hex_print.h"
@@ -264,6 +269,33 @@
         }
 
       #endif
+
+      #if ENABLED(BUFFER_MONITORING)
+
+        /**
+         * D576: Return buffer stats, and optionally set auto-report interval.
+         * Usage: D576 [S<seconds>]
+         *
+         * When called, printer emits the following output:
+         * "D576 P<nn> B<nn> PU<nn> PD<nn> BU<nn> BD<nn>"
+         * Where:
+         *   P: Planner buffers available
+         *   B: Command buffers available
+         *   PU: Planner buffer underruns since last report
+         *   PD: Maximum time in ms planner buffer was empty since last report
+         *   BU: Command buffer underruns since last report
+         *   BD: Maximum time in ms command buffer was empty since last report
+         */
+        case 576: {
+          if (parser.seenval('S')) {
+            queue.set_auto_report_interval((uint8_t)parser.value_byte());
+          }
+
+          queue.report_buffer_statistics();
+          break;
+        }
+
+      #endif // BUFFER_MONITORING
     }
   }
 
