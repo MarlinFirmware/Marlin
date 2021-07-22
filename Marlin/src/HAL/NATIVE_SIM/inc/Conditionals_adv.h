@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,44 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * sd/SdFatUtil.cpp
- *
- * Arduino SdFat Library
- * Copyright (c) 2008 by William Greiman
- *
- * This file is part of the Arduino Sd2Card Library
- */
-
-#include "../inc/MarlinConfig.h"
-
-#if ENABLED(SDSUPPORT)
-
-#include "SdFatUtil.h"
-#include <string.h>
-
-/**
- * Amount of free RAM
- * \return The number of free bytes.
- */
-#ifdef __arm__
-
-  extern "C" char* sbrk(int incr);
-  int SdFatUtil::FreeRam() {
-    char top;
-    return &top - reinterpret_cast<char*>(sbrk(0));
-  }
-
-#elif defined(__AVR__)
-
-  extern char* __brkval;
-  extern char __bss_end;
-  int SdFatUtil::FreeRam() {
-    char top;
-    return __brkval ? &top - __brkval : &top - &__bss_end;
-  }
-
+// Add strcmp_P if missing
+#ifndef strcmp_P
+  #define strcmp_P(a, b) strcmp((a), (b))
 #endif
 
-#endif // SDSUPPORT
+#ifndef strcat_P
+  #define strcat_P(dest, src) strcat((dest), (src))
+#endif
