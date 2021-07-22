@@ -33,6 +33,10 @@
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
 
+#if ENABLED(PS_OFF_SOUND)
+  #include "../libs/buzzer.h"
+#endif
+
 #if defined(PSU_POWERUP_GCODE) || defined(PSU_POWEROFF_GCODE)
   #include "../gcode/gcode.h"
 #endif
@@ -46,6 +50,9 @@ Power powerManager;
 millis_t Power::lastPowerOn;
 
 bool Power::is_power_needed() {
+
+  if (printJobOngoing() || printingIsPaused()) return true;
+
   #if ENABLED(AUTO_POWER_FANS)
     FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
   #endif
@@ -106,9 +113,17 @@ bool Power::is_power_needed() {
   #define POWER_TIMEOUT 0
 #endif
 
-void Power::check() {
+void Power::check(const bool pause) {
+  static bool _pause = false;
   static millis_t nextPowerCheck = 0;
-  millis_t now = millis();
+  const millis_t now = millis();
+  #if POWER_TIMEOUT > 0
+    if (pause != _pause) {
+      lastPowerOn = now + !now;
+      _pause = pause;
+    }
+    if (pause) return;
+  #endif
   if (ELAPSED(now, nextPowerCheck)) {
     nextPowerCheck = now + 2500UL;
     if (is_power_needed())
@@ -119,7 +134,8 @@ void Power::check() {
 }
 
 void Power::power_on() {
-  lastPowerOn = millis();
+  const millis_t now = millis();
+  lastPowerOn = now + !now;
   if (!powersupply_on) {
     PSU_PIN_ON();
     safe_delay(PSU_POWERUP_DELAY);
@@ -136,6 +152,11 @@ void Power::power_off() {
     #ifdef PSU_POWEROFF_GCODE
       GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
     #endif
+
+    #if ENABLED(PS_OFF_SOUND)
+      BUZZ(1000, 659);
+    #endif
+
     PSU_PIN_OFF();
   }
 }
@@ -143,6 +164,7 @@ void Power::power_off() {
 void Power::power_off_soon() {
   #if POWER_OFF_DELAY
     lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
+    //if (!lastPowerOn) ++lastPowerOn;
   #else
     power_off();
   #endif

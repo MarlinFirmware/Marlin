@@ -210,7 +210,7 @@
 #define TEMP_0_PIN                          PA2   // TH0
 #define TEMP_1_PIN                          PA3   // TH1
 
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
