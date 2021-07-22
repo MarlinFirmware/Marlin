@@ -214,7 +214,7 @@ public:
     /**
      * Report buffer statistics to the host to be able to detect buffer underruns
      *
-     * Returns "M576 " followed by:
+     * Returns "D576 " followed by:
      *  P<uint>   Planner space remaining
      *  B<uint>   Command buffer space remaining
      *  PU<uint>  Number of planner buffer underruns since last report

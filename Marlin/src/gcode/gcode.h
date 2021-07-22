@@ -973,8 +973,6 @@ private:
     static void M575();
   #endif
 
-  TERN_(BUFFER_MONITORING, static void M576());
-
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     static void M600();
     static void M603();

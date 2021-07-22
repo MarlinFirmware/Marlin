@@ -705,13 +705,14 @@ void GCodeQueue::advance() {
 
 #if ENABLED(BUFFER_MONITORING)
 void GCodeQueue::report_buffer_statistics() {
-  SERIAL_ECHO("M576");
-  SERIAL_ECHOLNPAIR(SP_P_STR, int(planner.moves_free()),
-                    SP_B_STR, int(BUFSIZE - length),
-                    " PU", queue.planner_buffer_underruns,
+  SERIAL_ECHO("D576");
+  SERIAL_ECHOPAIR_P(SP_P_STR, planner.moves_free(),
+                      SP_B_STR, BUFSIZE - ring_buffer.length
+                      );
+  SERIAL_ECHOLNPAIR(" PU", queue.planner_buffer_underruns,
                     " PD", queue.max_planner_buffer_empty_duration,
                     " BU", queue.command_buffer_underruns,
-                    " BD", queue.max_command_buffer_empty_duration,
+                    " BD", queue.max_command_buffer_empty_duration
                     );
 
   command_buffer_underruns = 0;
