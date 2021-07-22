@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,44 +19,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * sd/SdFatUtil.cpp
+ * Low level pin manipulation routines - used by all the drivers.
  *
- * Arduino SdFat Library
- * Copyright (c) 2008 by William Greiman
+ * These are based on the LPC1768 pinMode, digitalRead & digitalWrite routines.
  *
- * This file is part of the Arduino Sd2Card Library
+ * Couldn't just call exact copies because the overhead killed the LCD update speed
+ * With an intermediate level the softspi was running in the 10-20kHz range which
+ * resulted in using about about 25% of the CPU's time.
  */
 
-#include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
-
-#include "SdFatUtil.h"
-#include <string.h>
-
-/**
- * Amount of free RAM
- * \return The number of free bytes.
- */
-#ifdef __arm__
-
-  extern "C" char* sbrk(int incr);
-  int SdFatUtil::FreeRam() {
-    char top;
-    return &top - reinterpret_cast<char*>(sbrk(0));
-  }
-
-#elif defined(__AVR__)
-
-  extern char* __brkval;
-  extern char __bss_end;
-  int SdFatUtil::FreeRam() {
-    char top;
-    return __brkval ? &top - __brkval : &top - &__bss_end;
-  }
-
+#ifdef __cplusplus
+  extern "C" {
 #endif
 
-#endif // SDSUPPORT
+void u8g_SetPinOutput(uint8_t internal_pin_number);
+void u8g_SetPinInput(uint8_t internal_pin_number);
+void u8g_SetPinLevel(uint8_t  pin, uint8_t  pin_status);
+uint8_t u8g_GetPinLevel(uint8_t pin);
+
+#ifdef __cplusplus
+  }
+#endif

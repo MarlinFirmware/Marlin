@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,44 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * sd/SdFatUtil.cpp
- *
- * Arduino SdFat Library
- * Copyright (c) 2008 by William Greiman
- *
- * This file is part of the Arduino Sd2Card Library
+ * Test X86_64-specific configuration values for errors at compile-time.
  */
 
-#include "../inc/MarlinConfig.h"
-
-#if ENABLED(SDSUPPORT)
-
-#include "SdFatUtil.h"
-#include <string.h>
-
-/**
- * Amount of free RAM
- * \return The number of free bytes.
- */
-#ifdef __arm__
-
-  extern "C" char* sbrk(int incr);
-  int SdFatUtil::FreeRam() {
-    char top;
-    return &top - reinterpret_cast<char*>(sbrk(0));
-  }
-
-#elif defined(__AVR__)
-
-  extern char* __brkval;
-  extern char __bss_end;
-  int SdFatUtil::FreeRam() {
-    char top;
-    return __brkval ? &top - __brkval : &top - &__bss_end;
-  }
-
+// Emulating RAMPS
+#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
+  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 #endif
 
-#endif // SDSUPPORT
+#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on LINUX."
+#endif
+
+#if HAS_TMC_SW_SERIAL
+  #error "TMC220x Software Serial is not supported on LINUX."
+#endif
+
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  #error "POSTMORTEM_DEBUGGING is not yet supported on LINUX."
+#endif
