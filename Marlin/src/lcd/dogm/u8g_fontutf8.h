@@ -35,3 +35,6 @@ int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg);
 int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, PGM_P utf8_msg);
 
 #define uxg_GetFont(puxg) ((puxg)->font)
+
+#define _LANG_FONT_INFO(L) g_fontinfo_##L
+#define LANG_FONT_INFO(L) _LANG_FONT_INFO(L)

@@ -37,13 +37,45 @@
 
 #if ENABLED(MKS_TEST)
 
-  #include "mks_hardware_test.h"
+  #include "mks_hardware.h"
+  #include "../../../module/endstops.h"
 
   bool pw_det_sta, pw_off_sta, mt_det_sta;
   #if PIN_EXISTS(MT_DET_2)
     bool mt_det2_sta;
   #endif
-  bool endstopx1_sta, endstopx2_sta, endstopy1_sta, endstopy2_sta, endstopz1_sta, endstopz2_sta;
+  #if HAS_X_MIN || HAS_X_MAX
+    bool endstopx1_sta;
+  #else
+    constexpr static bool endstopx1_sta = true;
+  #endif
+  #if HAS_X2_MIN || HAS_X2_MAX
+    bool endstopx2_sta;
+  #else
+    constexpr static bool endstopx2_sta = true;
+  #endif
+  #if HAS_Y_MIN || HAS_Y_MAX
+    bool endstopy1_sta;
+  #else
+    constexpr static bool endstopy1_sta = true;
+  #endif
+  #if HAS_Y2_MIN || HAS_Y2_MAX
+    bool endstopy2_sta;
+  #else
+    constexpr static bool endstopy2_sta = true;
+  #endif
+  #if HAS_Z_MIN || HAS_Z_MAX
+    bool endstopz1_sta;
+  #else
+    constexpr static bool endstopz1_sta = true;
+  #endif
+  #if HAS_Z2_MIN || HAS_Z2_MAX
+    bool endstopz2_sta;
+  #else
+    constexpr static bool endstopz2_sta = true;
+  #endif
+
+  #define ESTATE(S) (READ(S##_PIN) != S##_ENDSTOP_INVERTING)
 
   void test_gpio_readlevel_L() {
     WRITE(WIFI_IO0_PIN, HIGH);
@@ -54,10 +86,36 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == LOW);
     #endif
-    endstopx1_sta = (READ(X_MIN_PIN) == LOW);
-    endstopy1_sta = (READ(Y_MIN_PIN) == LOW);
-    endstopz1_sta = (READ(Z_MIN_PIN) == LOW);
-    endstopz2_sta = (READ(Z_MAX_PIN) == LOW);
+    #if HAS_X_MIN
+      endstopx1_sta = ESTATE(X_MIN);
+    #elif HAS_X_MAX
+      endstopx1_sta = ESTATE(X_MAX);
+    #endif
+    #if HAS_X2_MIN
+      endstopx2_sta = ESTATE(X2_MIN);
+    #elif HAS_X2_MAX
+      endstopx2_sta = ESTATE(X2_MAX);
+    #endif
+    #if HAS_Y_MIN
+      endstopy1_sta = ESTATE(Y_MIN);
+    #elif HAS_Y_MAX
+      endstopy1_sta = ESTATE(Y_MAX);
+    #endif
+    #if HAS_Y2_MIN
+      endstopy2_sta = ESTATE(Y2_MIN);
+    #elif HAS_Y2_MAX
+      endstopy2_sta = ESTATE(Y2_MAX);
+    #endif
+    #if HAS_Z_MIN
+      endstopz1_sta = ESTATE(Z_MIN);
+    #elif HAS_Z_MAX
+      endstopz1_sta = ESTATE(Z_MAX);
+    #endif
+    #if HAS_Z2_MIN
+      endstopz2_sta = ESTATE(Z2_MIN);
+    #elif HAS_Z2_MAX
+      endstopz2_sta = ESTATE(Z2_MAX);
+    #endif
   }
 
   void test_gpio_readlevel_H() {
@@ -69,44 +127,66 @@
     #if PIN_EXISTS(MT_DET_2)
       mt_det2_sta = (READ(MT_DET_2_PIN) == HIGH);
     #endif
-    endstopx1_sta = (READ(X_MIN_PIN) == HIGH);
-    endstopy1_sta = (READ(Y_MIN_PIN) == HIGH);
-    endstopz1_sta = (READ(Z_MIN_PIN) == HIGH);
-    endstopz2_sta = (READ(Z_MAX_PIN) == HIGH);
+    #if HAS_X_MIN
+      endstopx1_sta = !ESTATE(X_MIN);
+    #elif HAS_X_MAX
+      endstopx1_sta = !ESTATE(X_MAX);
+    #endif
+    #if HAS_X2_MIN
+      endstopx2_sta = !ESTATE(X2_MIN);
+    #elif HAS_X2_MAX
+      endstopx2_sta = !ESTATE(X2_MAX);
+    #endif
+    #if HAS_Y_MIN
+      endstopy1_sta = !ESTATE(Y_MIN);
+    #elif HAS_Y_MAX
+      endstopy1_sta = !ESTATE(Y_MAX);
+    #endif
+    #if HAS_Y2_MIN
+      endstopy2_sta = !ESTATE(Y2_MIN);
+    #elif HAS_Y2_MAX
+      endstopy2_sta = !ESTATE(Y2_MAX);
+    #endif
+    #if HAS_Z_MIN
+      endstopz1_sta = !ESTATE(Z_MIN);
+    #elif HAS_Z_MAX
+      endstopz1_sta = !ESTATE(Z_MAX);
+    #endif
+    #if HAS_Z2_MIN
+      endstopz2_sta = !ESTATE(Z2_MIN);
+    #elif HAS_Z2_MAX
+      endstopz2_sta = !ESTATE(Z2_MAX);
+    #endif
   }
 
   void init_test_gpio() {
-    SET_INPUT_PULLUP(X_MIN_PIN);
-    SET_INPUT_PULLUP(Y_MIN_PIN);
-    SET_INPUT_PULLUP(Z_MIN_PIN);
-    SET_INPUT_PULLUP(Z_MAX_PIN);
+    endstops.init();
 
     SET_OUTPUT(WIFI_IO0_PIN);
 
-    SET_INPUT_PULLUP(MT_DET_1_PIN);
+    #if PIN_EXISTS(MT_DET_1)
+      SET_INPUT_PULLUP(MT_DET_1_PIN);
+    #endif
     #if PIN_EXISTS(MT_DET_2)
       SET_INPUT_PULLUP(MT_DET_2_PIN);
     #endif
 
     SET_INPUT_PULLUP(MKS_TEST_POWER_LOSS_PIN);
     SET_INPUT_PULLUP(MKS_TEST_PS_ON_PIN);
-
     SET_INPUT_PULLUP(SERVO0_PIN);
 
-    SET_OUTPUT(X_ENABLE_PIN);
-    SET_OUTPUT(Y_ENABLE_PIN);
-    SET_OUTPUT(Z_ENABLE_PIN);
-    SET_OUTPUT(E0_ENABLE_PIN);
-    #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-      SET_OUTPUT(E1_ENABLE_PIN);
+    OUT_WRITE(X_ENABLE_PIN, LOW);
+    #if HAS_Y_AXIS
+      OUT_WRITE(Y_ENABLE_PIN, LOW);
     #endif
-
-    WRITE(X_ENABLE_PIN, LOW);
-    WRITE(Y_ENABLE_PIN, LOW);
-    WRITE(Z_ENABLE_PIN, LOW);
-    WRITE(E0_ENABLE_PIN, LOW);
-    #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-      WRITE(E1_ENABLE_PIN, LOW);
+    #if HAS_Z_AXIS
+      OUT_WRITE(Z_ENABLE_PIN, LOW);
+    #endif
+    #if HAS_EXTRUDERS
+      OUT_WRITE(E0_ENABLE_PIN, LOW);
+    #endif
+    #if HAS_MULTI_EXTRUDER && DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+      OUT_WRITE(E1_ENABLE_PIN, LOW);
     #endif
 
     #if ENABLED(MKS_HARDWARE_TEST_ONLY_E0)
@@ -127,77 +207,101 @@
     delay(100);
   }
 
-  void mks_gpio_test() {
-    init_test_gpio();
+  #if ENABLED(SDSUPPORT)
 
-    test_gpio_readlevel_L();
-    test_gpio_readlevel_H();
-    test_gpio_readlevel_L();
-    if (pw_det_sta && pw_off_sta && mt_det_sta
-      #if PIN_EXISTS(MT_DET_2)
-        && mt_det2_sta
-      #endif
-      #if ENABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        && (READ(PA1) == LOW)
-        && (READ(PA3) == LOW)
-        && (READ(PC2) == LOW)
-        && (READ(PD8) == LOW)
-        && (READ(PE5) == LOW)
-        && (READ(PE6) == LOW)
-        && (READ(PE7) == LOW)
-      #endif
-    )
-      disp_det_ok();
-    else
-      disp_det_error();
+    void mks_gpio_test() {
+      init_test_gpio();
 
-    if (endstopx1_sta && endstopy1_sta && endstopz1_sta && endstopz2_sta)
-      disp_Limit_ok();
-    else
-      disp_Limit_error();
-  }
+      test_gpio_readlevel_L();
+      test_gpio_readlevel_H();
+      test_gpio_readlevel_L();
+      if (pw_det_sta && pw_off_sta && mt_det_sta
+        #if PIN_EXISTS(MT_DET_2)
+          && mt_det2_sta
+        #endif
+        #if ENABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          && (READ(PA1) == LOW)
+          && (READ(PA3) == LOW)
+          && (READ(PC2) == LOW)
+          && (READ(PD8) == LOW)
+          && (READ(PE5) == LOW)
+          && (READ(PE6) == LOW)
+          && (READ(PE7) == LOW)
+        #endif
+      )
+        disp_det_ok();
+      else
+        disp_det_error();
 
-  void mks_hardware_test() {
-    if (millis() % 2000 < 1000) {
-      WRITE(X_DIR_PIN, LOW);
-      WRITE(Y_DIR_PIN, LOW);
-      WRITE(Z_DIR_PIN, LOW);
-      WRITE(E0_DIR_PIN, LOW);
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(E1_DIR_PIN, LOW);
-      #endif
-      thermalManager.fan_speed[0] = 255;
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(HEATER_1_PIN, HIGH); // HE1
-      #endif
-      WRITE(HEATER_0_PIN, HIGH); // HE0
-      WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
-    }
-    else {
-      WRITE(X_DIR_PIN, HIGH);
-      WRITE(Y_DIR_PIN, HIGH);
-      WRITE(Z_DIR_PIN, HIGH);
-      WRITE(E0_DIR_PIN, HIGH);
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(E1_DIR_PIN, HIGH);
-      #endif
-      thermalManager.fan_speed[0] = 0;
-      #if DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
-        WRITE(HEATER_1_PIN, LOW); // HE1
-      #endif
-      WRITE(HEATER_0_PIN, LOW); // HE0
-      WRITE(HEATER_BED_PIN, LOW); // HOT-BED
+      if (endstopx1_sta && endstopy1_sta && endstopz1_sta && endstopz2_sta)
+        disp_Limit_ok();
+      else
+        disp_Limit_error();
     }
 
-    if (endstopx1_sta && endstopx2_sta && endstopy1_sta && endstopy2_sta && endstopz1_sta && endstopz2_sta) {
-      // nothing here
-    }
-    else {
+    void mks_hardware_test() {
+      if (millis() % 2000 < 1000) {
+        thermalManager.fan_speed[0] = 255;
+        WRITE(X_DIR_PIN, LOW);
+        #if HAS_Y_AXIS
+          WRITE(Y_DIR_PIN, LOW);
+        #endif
+        #if HAS_Z_AXIS
+          WRITE(Z_DIR_PIN, LOW);
+        #endif
+        #if HAS_EXTRUDERS
+          WRITE(E0_DIR_PIN, LOW);
+        #endif
+        #if HAS_MULTI_EXTRUDER && DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(E1_DIR_PIN, LOW);
+        #endif
+        #if HAS_MULTI_HOTEND && DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(HEATER_1_PIN, HIGH); // HE1
+        #endif
+        #if HAS_HOTEND
+          WRITE(HEATER_0_PIN, HIGH); // HE0
+        #endif
+        #if HAS_HEATED_BED
+          WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
+        #endif
+      }
+      else {
+        thermalManager.fan_speed[0] = 0;
+        WRITE(X_DIR_PIN, HIGH);
+        #if HAS_Y_AXIS
+          WRITE(Y_DIR_PIN, HIGH);
+        #endif
+        #if HAS_Y_AXIS
+          WRITE(Z_DIR_PIN, HIGH);
+        #endif
+        #if HAS_EXTRUDERS
+          WRITE(E0_DIR_PIN, HIGH);
+        #endif
+        #if HAS_MULTI_EXTRUDER && DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(E1_DIR_PIN, HIGH);
+        #endif
+        #if HAS_MULTI_HOTEND && DISABLED(MKS_HARDWARE_TEST_ONLY_E0)
+          WRITE(HEATER_1_PIN, LOW); // HE1
+        #endif
+        #if HAS_HOTEND
+          WRITE(HEATER_0_PIN, LOW); // HE0
+        #endif
+        #if HAS_HEATED_BED
+          WRITE(HEATER_BED_PIN, LOW); // HOT-BED
+        #endif
+      }
+
+      if (endstopx1_sta && endstopx2_sta && endstopy1_sta && endstopy2_sta && endstopz1_sta && endstopz2_sta) {
+        // nothing here
+      }
+      else {
+      }
+
+      if (disp_state == PRINT_READY_UI)
+        mks_disp_test();
     }
 
-    if (disp_state == PRINT_READY_UI)
-      mks_disp_test();
-  }
+  #endif
 
 #endif // MKS_TEST
 
@@ -613,10 +717,9 @@ void disp_assets_update_progress(const char *msg) {
   disp_string(100, 165, buf, 0xFFFF, 0x0000);
 }
 
-uint8_t mks_test_flag = 0;
-const char *MKSTestPath = "MKS_TEST";
-
-#if ENABLED(SDSUPPORT)
+#if BOTH(MKS_TEST, SDSUPPORT)
+  uint8_t mks_test_flag = 0;
+  const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {
     SdFile dir, root = card.getroot();
     if (dir.open(&root, MKSTestPath, O_RDONLY))
