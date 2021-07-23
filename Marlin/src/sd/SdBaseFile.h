@@ -310,10 +310,10 @@ class SdBaseFile {
   bool rmdir();
   bool rmRfStar();
 
-  /*
-   * Set or reset DIR_ATT_HIDDEN attribute for directory entry
+  /**
+   * Set or clear DIR_ATT_HIDDEN attribute for directory entry
    */
-  bool hide(bool value);
+  bool hide(const bool hidden);
 
   /**
    * Set the files position to current position + \a pos. See seekSet().
