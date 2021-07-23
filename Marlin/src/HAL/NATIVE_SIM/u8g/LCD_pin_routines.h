@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,21 +21,26 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
+/**
+ * Low level pin manipulation routines - used by all the drivers.
+ *
+ * These are based on the LPC1768 pinMode, digitalRead & digitalWrite routines.
+ *
+ * Couldn't just call exact copies because the overhead killed the LCD update speed
+ * With an intermediate level the softspi was running in the 10-20kHz range which
+ * resulted in using about about 25% of the CPU's time.
+ */
 
-#include <lvgl.h>
 
-// Functions for MKS_TEST
-#if BOTH(MKS_TEST, SDSUPPORT)
-  void mks_hardware_test();
-  void mks_test_get();
-  void mks_gpio_test();
-  extern uint8_t mks_test_flag;
-#else
-  #define mks_test_flag 0
+#ifdef __cplusplus
+  extern "C" {
 #endif
 
-// String display and assets
-void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor, uint16_t bkColor);
-void disp_assets_update();
-void disp_assets_update_progress(const char *msg);
+void u8g_SetPinOutput(uint8_t internal_pin_number);
+void u8g_SetPinInput(uint8_t internal_pin_number);
+void u8g_SetPinLevel(uint8_t  pin, uint8_t  pin_status);
+uint8_t u8g_GetPinLevel(uint8_t pin);
+
+#ifdef __cplusplus
+  }
+#endif

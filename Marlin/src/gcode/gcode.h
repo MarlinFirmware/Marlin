@@ -241,6 +241,7 @@
  * M553 - Get or set IP netmask. (Requires enabled Ethernet port)
  * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
+ * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
@@ -297,6 +298,7 @@
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
  * D... - Custom Development G-code. Add hooks to 'gcode_D.cpp' for developers to test features. (Requires MARLIN_DEV_MODE)
+ *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
  *
  * "T" Codes
  *
