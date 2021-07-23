@@ -68,6 +68,23 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 #endif
 
 /**
+ * Track buffer underruns
+ */
+#if ENABLED(BUFFER_MONITORING)
+  uint32_t GCodeQueue::command_buffer_underruns = 0,
+           GCodeQueue::planner_buffer_underruns = 0;
+  bool GCodeQueue::command_buffer_empty = false,
+       GCodeQueue::planner_buffer_empty = false;
+  millis_t GCodeQueue::max_command_buffer_empty_duration = 0,
+           GCodeQueue::max_planner_buffer_empty_duration = 0,
+           GCodeQueue::command_buffer_empty_at = 0,
+           GCodeQueue::planner_buffer_empty_at = 0;
+
+  uint8_t GCodeQueue::auto_buffer_report_interval;
+  millis_t GCodeQueue::next_buffer_report_ms;
+#endif
+
+/**
  * Serial command injection
  */
 
@@ -81,7 +98,6 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  * Injected SRAM Commands
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
-
 
 void GCodeQueue::RingBuffer::commit_command(bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
@@ -621,7 +637,24 @@ void GCodeQueue::advance() {
   if (process_injected_command_P() || process_injected_command()) return;
 
   // Return if the G-code buffer is empty
-  if (ring_buffer.empty()) return;
+  if (ring_buffer.empty()) {
+    #if ENABLED(BUFFER_MONITORING)
+      if (!command_buffer_empty) {
+        command_buffer_empty = true;
+        command_buffer_underruns++;
+        command_buffer_empty_at = millis();
+      }
+    #endif
+    return;
+  }
+
+  #if ENABLED(BUFFER_MONITORING)
+    if (command_buffer_empty) {
+      command_buffer_empty = false;
+      const millis_t command_buffer_empty_duration = millis() - command_buffer_empty_at;
+      NOLESS(max_command_buffer_empty_duration, command_buffer_empty_duration);
+    }
+  #endif
 
   #if ENABLED(SDSUPPORT)
 
@@ -664,3 +697,41 @@ void GCodeQueue::advance() {
   // The queue may be reset by a command handler or by code invoked by idle() within a handler
   ring_buffer.advance_pos(ring_buffer.index_r, -1);
 }
+
+#if ENABLED(BUFFER_MONITORING)
+
+  void GCodeQueue::report_buffer_statistics() {
+    SERIAL_ECHOLNPAIR("D576"
+      " P:", planner.moves_free(),         " ", -queue.planner_buffer_underruns, " (", queue.max_planner_buffer_empty_duration, ")"
+      " B:", BUFSIZE - ring_buffer.length, " ", -queue.command_buffer_underruns, " (", queue.max_command_buffer_empty_duration, ")"
+    );
+    command_buffer_underruns = planner_buffer_underruns = 0;
+    max_command_buffer_empty_duration = max_planner_buffer_empty_duration = 0;
+  }
+
+  void GCodeQueue::auto_report_buffer_statistics() {
+    // Bit of a hack to try to catch planner buffer underruns without having logic
+    // running inside Stepper::block_phase_isr
+    const millis_t ms = millis();
+    if (planner.movesplanned() == 0) {
+      if (!planner_buffer_empty) { // the planner buffer wasn't empty, but now it is
+        planner_buffer_empty = true;
+        planner_buffer_underruns++;
+        planner_buffer_empty_at = ms;
+      }
+    }
+    else if (planner_buffer_empty) { // the planner buffer was empty, but now it's not
+      planner_buffer_empty = false;
+      const millis_t planner_buffer_empty_duration = ms - planner_buffer_empty_at;
+      NOLESS(max_planner_buffer_empty_duration, planner_buffer_empty_duration); // if it's longer than the currently tracked max duration, replace it
+    }
+
+    if (queue.auto_buffer_report_interval && ELAPSED(ms, queue.next_buffer_report_ms)) {
+      queue.next_buffer_report_ms = ms + 1000UL * queue.auto_buffer_report_interval;
+      PORT_REDIRECT(SERIAL_BOTH);
+      report_buffer_statistics();
+      PORT_RESTORE();
+    }
+  }
+
+#endif // BUFFER_MONITORING
