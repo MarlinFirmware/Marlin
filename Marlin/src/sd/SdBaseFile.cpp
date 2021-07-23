@@ -1272,16 +1272,17 @@ bool SdBaseFile::hide(bool value) {
   if (!d) return false;
   uint8_t a = d->attributes;
   if (value)
-      a |= DIR_ATT_HIDDEN;
+    a |= DIR_ATT_HIDDEN;
   else
-      a &= ~DIR_ATT_HIDDEN;
-  if (a!=d->attributes) {
-      d->attributes = a;
-      return vol_->cacheFlush();
-  } else
-      return true;
-}
+    a &= ~DIR_ATT_HIDDEN;
 
+  if (a != d->attributes) {
+    d->attributes = a;
+    return vol_->cacheFlush();
+  }
+
+  return true;
+}
 
 /**
  * Rename a file or subdirectory.
