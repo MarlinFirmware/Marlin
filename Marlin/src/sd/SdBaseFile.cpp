@@ -1262,7 +1262,7 @@ bool SdBaseFile::remove(SdBaseFile *dirFile, const char *path) {
   return file.open(dirFile, path, O_WRITE) ? file.remove() : false;
 }
 
-bool SdBaseFile::hide(bool value) {
+bool SdBaseFile::hide(const bool hidden) {
   if (ENABLED(SDCARD_READONLY)) return false;
   // must be an open file or subdirectory
   if (!(isFile() || isSubDir())) return false;
@@ -1271,7 +1271,7 @@ bool SdBaseFile::hide(bool value) {
   dir_t *d = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
   if (!d) return false;
   uint8_t a = d->attributes;
-  if (value)
+  if (hidden)
     a |= DIR_ATT_HIDDEN;
   else
     a &= ~DIR_ATT_HIDDEN;
