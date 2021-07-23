@@ -76,7 +76,9 @@ void AboutScreen::onRedraw(draw_mode_t) {
     #endif
     , OPT_CENTER, font_xlarge
   );
-  cmd.tag(3);
+  #if ENABLED(TOUCH_UI_DEVELOPER_MENU) && defined(FTDI_DEVELOPER_MENU)
+    cmd.tag(3);
+  #endif
   draw_text_box(cmd, FW_VERS_POS,
   #ifdef TOUCH_UI_VERSION
     F(TOUCH_UI_VERSION)
