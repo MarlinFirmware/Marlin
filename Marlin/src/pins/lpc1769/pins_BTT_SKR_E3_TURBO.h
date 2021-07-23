@@ -203,6 +203,7 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #error "DWIN_CREALITY_LCD requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
+  //Make custom cable: https://github.com/bigtreetech/BIGTREETECH-SKR-E3-Turbo/issues/40#issuecomment-866369883
 
   #define BEEPER_PIN                 EXP1_10_PIN
   #define BTN_EN1                    EXP1_03_PIN
