@@ -215,7 +215,13 @@ def search_compiler():
 	# Find the current platform compiler by searching the $PATH
 	# which will be in a platformio toolchain bin folder
 	path_regex = re.escape(env['PROJECT_PACKAGES_DIR'])
-	gcc = "g++"
+
+	# See if the environment provides a default compiler
+	try:
+		gcc = env.GetProjectOption('custom_deps_gcc')
+	except:
+		gcc = "g++"
+
 	if env['PLATFORM'] == 'win32':
 		path_separator = ';'
 		path_regex += r'.*\\bin'
@@ -241,6 +247,8 @@ def search_compiler():
 			return filepath
 
 	filepath = env.get('CXX')
+	if filepath == 'CC':
+		filepath = gcc
 	blab("Couldn't find a compiler! Fallback to %s" % filepath)
 	return filepath
 
