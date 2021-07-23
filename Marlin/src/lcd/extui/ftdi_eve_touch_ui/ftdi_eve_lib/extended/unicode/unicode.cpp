@@ -95,7 +95,7 @@
    *   fs   - A scaling object used to specify the font size.
    */
 
-  static uint16_t render_utf8_text(CommandProcessor* cmd, int x, int y, const char *str, font_size_t fs, size_t maxlen = SIZE_MAX) {
+  static uint16_t render_utf8_text(CommandProcessor* cmd, int x, int y, const char *str, font_size_t fs, size_t maxlen=SIZE_MAX) {
     const int start_x = x;
     while (*str && maxlen--) {
       const utf8_char_t c = get_utf8_char_and_inc(str);
