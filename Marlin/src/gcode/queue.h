@@ -197,6 +197,46 @@ public:
    */
   static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
 
+  #if ENABLED(BUFFER_MONITORING)
+
+    private:
+
+    /**
+     * Track buffer underruns
+     */
+    static uint32_t command_buffer_underruns, planner_buffer_underruns;
+    static bool command_buffer_empty, planner_buffer_empty;
+    static millis_t max_command_buffer_empty_duration, max_planner_buffer_empty_duration,
+                    command_buffer_empty_at, planner_buffer_empty_at;
+
+    /**
+     * Report buffer statistics to the host to be able to detect buffer underruns
+     *
+     * Returns "D576 " followed by:
+     *  P<uint>   Planner space remaining
+     *  B<uint>   Command buffer space remaining
+     *  PU<uint>  Number of planner buffer underruns since last report
+     *  PD<uint>  Max time in ms the planner buffer was empty since last report
+     *  BU<uint>  Number of command buffer underruns since last report
+     *  BD<uint>  Max time in ms the command buffer was empty since last report
+     */
+    static void report_buffer_statistics();
+
+    static uint8_t auto_buffer_report_interval;
+    static millis_t next_buffer_report_ms;
+
+    public:
+
+    static void auto_report_buffer_statistics();
+
+    static inline void set_auto_report_interval(uint8_t v) {
+      NOMORE(v, 60);
+      auto_buffer_report_interval = v;
+      next_buffer_report_ms = millis() + 1000UL * v;
+    }
+
+  #endif // BUFFER_MONITORING
+
 private:
 
   static void get_serial_commands();
