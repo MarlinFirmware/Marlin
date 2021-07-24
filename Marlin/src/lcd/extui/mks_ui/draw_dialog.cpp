@@ -431,7 +431,7 @@ void lv_draw_dialog(uint8_t type) {
     }
     else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMWARE)) {
       lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
-      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
     }
   #endif // MKS_WIFI_MODULE
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
@@ -469,7 +469,7 @@ void lv_draw_dialog(uint8_t type) {
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {
       lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
-      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
     }
   #endif
   #if HAS_ROTARY_ENCODER
