@@ -2538,21 +2538,24 @@ void Draw_GetColor(uint16_t color) {
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-void Draw_FilamentMan_Menu(){
-  Clear_Menu_Area();
-  Title.SetCaption(GET_TEXT_F(MSG_FILAMENT_MAN));
-  Draw_Back_First(select_item.now == 0);
-  Draw_Menu_Line(1, ICON_Park, GET_TEXT(MSG_FILAMENT_PARK_ENABLED));
-  Draw_Menu_Line(2, ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE));
-  #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-    Draw_Menu_Line(3, ICON_FilUnload, GET_TEXT(MSG_FILAMENTUNLOAD));
-    Draw_Menu_Line(4, ICON_FilLoad, GET_TEXT(MSG_FILAMENTLOAD));
-  #endif
-  if (select_item.now) Draw_Menu_Cursor(select_item.now);
-}
+
+  void Draw_FilamentMan_Menu() {
+    Clear_Menu_Area();
+    Title.SetCaption(GET_TEXT_F(MSG_FILAMENT_MAN));
+    Draw_Back_First(select_item.now == 0);
+    Draw_Menu_Line(1, ICON_Park, GET_TEXT(MSG_FILAMENT_PARK_ENABLED));
+    Draw_Menu_Line(2, ICON_FilMan, GET_TEXT(MSG_FILAMENTCHANGE));
+    #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      Draw_Menu_Line(3, ICON_FilUnload, GET_TEXT(MSG_FILAMENTUNLOAD));
+      Draw_Menu_Line(4, ICON_FilLoad, GET_TEXT(MSG_FILAMENTLOAD));
+    #endif
+    if (select_item.now) Draw_Menu_Cursor(select_item.now);
+  }
+
 #endif
 
 #if ENABLED(ASSISTED_TRAMMING)
+
   void Draw_Tramming_Menu() {
     Clear_Menu_Area();
     Title.SetCaption(GET_TEXT_F(MSG_MANUAL_LEVELING));
@@ -2576,9 +2579,11 @@ void Draw_FilamentMan_Menu(){
     LOOP_L_N(i, TRAM_POINTS) Draw_Menu_Line(i + 1, ICON_Axis);
     if (select_item.now) Draw_Menu_Cursor(select_item.now);
   }
+
 #endif
 
 #if ENABLED(MESH_BED_LEVELING)
+
   void Draw_ManualMesh_Menu() {
     Clear_Menu_Area();
     Title.SetCaption(GET_TEXT_F(MSG_UBL_MANUAL_MESH));
@@ -2590,6 +2595,7 @@ void Draw_FilamentMan_Menu(){
     Draw_Menu_Line(4, ICON_MeshSave,GET_TEXT(MSG_UBL_SAVE_MESH)); //Save -> M500
     if (select_item.now) Draw_Menu_Cursor(select_item.now);
   }
+
 #endif
 
 #include "../../../libs/buzzer.h"
@@ -2597,12 +2603,12 @@ void Draw_FilamentMan_Menu(){
 void HMI_AudioFeedback(const bool success/*=true*/) {
   #if HAS_BUZZER
     if (success) {
-      buzzer.tone(100, 659);
-      buzzer.tone(10, 0);
-      buzzer.tone(100, 698);
+      BUZZ(100, 659);
+      BUZZ(10, 0);
+      BUZZ(100, 698);
     }
     else
-      buzzer.tone(40, 440);
+      BUZZ(40, 440);
   #endif
 }
 
@@ -2622,28 +2628,28 @@ void HMI_Prepare() {
 
         switch (index_prepare) {  // Last menu items
           #if ENABLED(MESH_BED_LEVELING)
-          case PREPARE_CASE_MMESH:
-            Draw_Menu_Line(MROWS, ICON_PrintSize, GET_TEXT(MSG_MANUAL_MESH), true);  // Manual Mesh
-            break;
+            case PREPARE_CASE_MMESH:
+              Draw_Menu_Line(MROWS, ICON_PrintSize, GET_TEXT(MSG_MANUAL_MESH), true);  // Manual Mesh
+              break;
           #endif
           #if HAS_ZOFFSET_ITEM
-          case PREPARE_CASE_ZOFF:
-            Item_Prepare_Offset(MROWS);       // Z-Offset
-            break;
+            case PREPARE_CASE_ZOFF:
+              Item_Prepare_Offset(MROWS);     // Z-Offset
+              break;
           #endif
-        #if HAS_HOTEND
-          case PREPARE_CASE_PLA:
-            Item_Prepare_PLA(MROWS);          // Preheat PLA
-            break;
-          case PREPARE_CASE_ABS:
-            Item_Prepare_ABS(MROWS);          // Preheat ABS
-            break;
-        #endif
-        #if HAS_PREHEAT
-          case PREPARE_CASE_COOL:             // Cooldown
-            Item_Prepare_Cool(MROWS);
-            break;
-        #endif
+          #if HAS_HOTEND
+            case PREPARE_CASE_PLA:
+              Item_Prepare_PLA(MROWS);        // Preheat PLA
+              break;
+            case PREPARE_CASE_ABS:
+              Item_Prepare_ABS(MROWS);        // Preheat ABS
+              break;
+          #endif
+          #if HAS_PREHEAT
+            case PREPARE_CASE_COOL:           // Cooldown
+              Item_Prepare_Cool(MROWS);
+              break;
+          #endif
           case PREPARE_CASE_LANG:
             Item_Prepare_Lang(MROWS);
             break;
@@ -2651,9 +2657,8 @@ void HMI_Prepare() {
         }
 
       }
-      else {
+      else
         Move_Highlight(1, select_prepare.now + MROWS - index_prepare);
-      }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
@@ -2694,9 +2699,8 @@ void HMI_Prepare() {
         }
 
       }
-      else {
+      else
         Move_Highlight(-1, select_prepare.now + MROWS - index_prepare);
-      }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
@@ -2782,152 +2786,154 @@ void HMI_Prepare() {
 }
 
 #if HAS_HOTEND
-void Draw_PLA_Menu() {
-  Clear_Menu_Area();
-  if (HMI_IsChinese()) {
-    Title.FrameCopy(1, 59, 16, 139, 29);                                         // "PLA Settings"
-    DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_TEMP));
-    DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));     // PLA nozzle temp
+
+  void Draw_PLA_Menu() {
+    Clear_Menu_Area();
+    if (HMI_IsChinese()) {
+      Title.FrameCopy(1, 59, 16, 139, 29);                                         // "PLA Settings"
+      DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_TEMP));
+      DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));     // PLA nozzle temp
+      #if HAS_HEATED_BED
+        DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_BED));
+        DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // PLA bed temp
+      #endif
+      #if HAS_FAN
+        DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_FAN));
+        DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // PLA fan speed
+      #endif
+      #if ENABLED(EEPROM_SETTINGS)
+        DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
+      #endif
+    }
+    else {
+      #ifdef USE_STRING_HEADINGS
+        Title.SetCaption("PLA Settings"); // TODO: GET_TEXT_F
+      #else
+        Title.FrameCopy(1, 56, 16, 141, 28);                                       // "PLA Settings"
+      #endif
+      #ifdef USE_STRING_TITLES
+        DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
+        #if HAS_HEATED_BED
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
+        #endif
+        #if HAS_FAN
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+        #endif
+      #else
+        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // PLA nozzle temp
+        #if HAS_HEATED_BED
+          DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // PLA bed temp
+        #endif
+        #if HAS_FAN
+          DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
+          DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));    // PLA fan speed
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
+        #endif
+      #endif
+    }
+
+    Draw_Back_First();
+
+    uint8_t i = 0;
+    Draw_Menu_Line(++i, ICON_SetEndTemp);
+    DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[0].hotend_temp);
     #if HAS_HEATED_BED
-      DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_BED));
-      DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // PLA bed temp
+      Draw_Menu_Line(++i, ICON_SetBedTemp);
+      DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[0].bed_temp);
     #endif
     #if HAS_FAN
-      DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_FAN));
-      DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // PLA fan speed
+      Draw_Menu_Line(++i, ICON_FanSpeed);
+      DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[0].fan_speed);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
-    #endif
-  }
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.SetCaption("PLA Settings"); // TODO: GET_TEXT_F
-    #else
-      Title.FrameCopy(1, 56, 16, 141, 28);                                       // "PLA Settings"
-    #endif
-    #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
-      #if HAS_HEATED_BED
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
-      #endif
-      #if HAS_FAN
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
-      #endif
-      #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
-      #endif
-    #else
-      DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // PLA nozzle temp
-      #if HAS_HEATED_BED
-        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // PLA bed temp
-      #endif
-      #if HAS_FAN
-        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
-        DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));    // PLA fan speed
-      #endif
-      #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
-      #endif
+      Draw_Menu_Line(++i, ICON_WriteEEPROM);
     #endif
   }
 
-  Draw_Back_First();
+  void Draw_ABS_Menu() {
+    Clear_Menu_Area();
+    if (HMI_IsChinese()) {
+      Title.FrameCopy(1, 142, 16, 223, 29);                                        // "ABS Settings"
+      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_TEMP));
+      DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));    // ABS nozzle temp
+      #if HAS_HEATED_BED
+        DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_BED));
+        DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // ABS bed temp
+      #endif
+      #if HAS_FAN
+        DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_FAN));
+        DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // ABS fan speed
+      #endif
+      #if ENABLED(EEPROM_SETTINGS)
+        DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));
+        DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX + 28, MBASE(PREHEAT_CASE_SAVE) + 2);   // Save ABS configuration
+      #endif
+    }
+    else {
+      #ifdef USE_STRING_HEADINGS
+        Title.SetCaption("ABS Settings"); // TODO: GET_TEXT_F
+      #else
+        Title.FrameCopy(1, 56, 16, 141, 28);                                                  // "ABS Settings"
+      #endif
+      #ifdef USE_STRING_TITLES
+        DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
+        #if HAS_HEATED_BED
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
+        #endif
+        #if HAS_FAN
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+        #endif
+      #else
+        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // ABS nozzle temp
+        #if HAS_HEATED_BED
+          DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // ABS bed temp
+        #endif
+        #if HAS_FAN
+          DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
+          DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));             // ABS fan speed
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));
+          DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 33, MBASE(PREHEAT_CASE_SAVE));                     // Save ABS configuration
+        #endif
+      #endif
+    }
 
-  uint8_t i = 0;
-  Draw_Menu_Line(++i, ICON_SetEndTemp);
-  DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[0].hotend_temp);
-  #if HAS_HEATED_BED
-    Draw_Menu_Line(++i, ICON_SetBedTemp);
-    DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[0].bed_temp);
-  #endif
-  #if HAS_FAN
-    Draw_Menu_Line(++i, ICON_FanSpeed);
-    DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[0].fan_speed);
-  #endif
-  #if ENABLED(EEPROM_SETTINGS)
-    Draw_Menu_Line(++i, ICON_WriteEEPROM);
-  #endif
-}
+    Draw_Back_First();
 
-void Draw_ABS_Menu(){
-  Clear_Menu_Area();
-  if (HMI_IsChinese()) {
-    Title.FrameCopy(1, 142, 16, 223, 29);                                        // "ABS Settings"
-    DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_TEMP));
-    DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));    // ABS nozzle temp
+    uint8_t i = 0;
+    Draw_Menu_Line(++i, ICON_SetEndTemp);
+    DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[1].hotend_temp);
     #if HAS_HEATED_BED
-      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_BED));
-      DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // ABS bed temp
+      Draw_Menu_Line(++i, ICON_SetBedTemp);
+      DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[1].bed_temp);
     #endif
     #if HAS_FAN
-      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_FAN));
-      DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // ABS fan speed
+      Draw_Menu_Line(++i, ICON_FanSpeed);
+      DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[1].fan_speed);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));
-      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX + 28, MBASE(PREHEAT_CASE_SAVE) + 2);   // Save ABS configuration
-    #endif
-  }
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.SetCaption("ABS Settings"); // TODO: GET_TEXT_F
-    #else
-      Title.FrameCopy(1, 56, 16, 141, 28);                                                  // "ABS Settings"
-    #endif
-    #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
-      #if HAS_HEATED_BED
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
-      #endif
-      #if HAS_FAN
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
-      #endif
-      #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
-      #endif
-    #else
-      DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // ABS nozzle temp
-      #if HAS_HEATED_BED
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // ABS bed temp
-      #endif
-      #if HAS_FAN
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
-        DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));             // ABS fan speed
-      #endif
-      #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 33, MBASE(PREHEAT_CASE_SAVE));                     // Save ABS configuration
-      #endif
+      Draw_Menu_Line(++i, ICON_WriteEEPROM);
     #endif
   }
 
-  Draw_Back_First();
-
-  uint8_t i = 0;
-  Draw_Menu_Line(++i, ICON_SetEndTemp);
-  DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[1].hotend_temp);
-  #if HAS_HEATED_BED
-    Draw_Menu_Line(++i, ICON_SetBedTemp);
-    DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[1].bed_temp);
-  #endif
-  #if HAS_FAN
-    Draw_Menu_Line(++i, ICON_FanSpeed);
-    DWIN.Draw_Int(3, 216, MBASE(i), ui.material_preset[1].fan_speed);
-  #endif
-  #if ENABLED(EEPROM_SETTINGS)
-    Draw_Menu_Line(++i, ICON_WriteEEPROM);
-  #endif
-}
-#endif
+#endif // HAS_HOTEND
 
 void Draw_Temperature_Menu() {
   Clear_Menu_Area();
@@ -3199,50 +3205,51 @@ void HMI_AxisMove() {
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-// Filament Management
-void HMI_FilamentMan(){
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
 
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_item.inc(1 + 2 + 2 * ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))) Move_Highlight(1, select_item.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_item.dec()) Move_Highlight(-1, select_item.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    switch (select_item.now) {
-      case 0: // Back
-        checkkey = Prepare;
-        select_prepare.set(1);
-        index_prepare = MROWS;
-        DWIN_StatusChanged(nullptr);
-        Draw_Prepare_Menu();
-        break;
-      case 1: // Park Head
-        DWIN_StatusChanged_P(GET_TEXT(MSG_FILAMENT_PARK_ENABLED));
-        queue.inject_P(PSTR("G28O\nG27"));
-        break;
-      case 2: // Filament Change
-        queue.inject_P(PSTR("M600 B2"));
-        break;
-      #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-        case 3: // Unload Filament
-          DWIN_StatusChanged_P(GET_TEXT(MSG_FILAMENTUNLOAD));
-          queue.inject_P(PSTR("M702 Z20"));
-          break;
-        case 4: // Load Filament
-          DWIN_StatusChanged_P(GET_TEXT(MSG_FILAMENTLOAD));
-          queue.inject_P(PSTR("M701 Z20"));
-          break;
-      #endif
+  // Filament Management
+  void HMI_FilamentMan() {
+    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+
+    // Avoid flicker by updating only the previous menu
+    if (encoder_diffState == ENCODER_DIFF_CW) {
+      if (select_item.inc(1 + 2 + 2 * ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))) Move_Highlight(1, select_item.now);
     }
+    else if (encoder_diffState == ENCODER_DIFF_CCW) {
+      if (select_item.dec()) Move_Highlight(-1, select_item.now);
+    }
+    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      switch (select_item.now) {
+        case 0: // Back
+          checkkey = Prepare;
+          select_prepare.set(1);
+          index_prepare = MROWS;
+          DWIN_StatusChanged(nullptr);
+          Draw_Prepare_Menu();
+          break;
+        case 1: // Park Head
+          DWIN_StatusChanged_P(GET_TEXT(MSG_FILAMENT_PARK_ENABLED));
+          queue.inject_P(PSTR("G28O\nG27"));
+          break;
+        case 2: // Filament Change
+          queue.inject_P(PSTR("M600 B2"));
+          break;
+        #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+          case 3: // Unload Filament
+            DWIN_StatusChanged_P(GET_TEXT(MSG_FILAMENTUNLOAD));
+            queue.inject_P(PSTR("M702 Z20"));
+            break;
+          case 4: // Load Filament
+            DWIN_StatusChanged_P(GET_TEXT(MSG_FILAMENTLOAD));
+            queue.inject_P(PSTR("M701 Z20"));
+            break;
+        #endif
+      }
+    }
+    DWIN_UpdateLCD();
   }
-  DWIN_UpdateLCD();
-}
 
-#endif
+#endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(ASSISTED_TRAMMING)
 
@@ -3590,6 +3597,7 @@ void Draw_Max_Accel_Menu() {
 }
 
 #if HAS_CLASSIC_JERK
+
   void Draw_Max_Jerk_Menu() {
     Clear_Menu_Area();
 
@@ -3662,7 +3670,8 @@ void Draw_Max_Accel_Menu() {
       DWIN.Draw_Float(3, UNITFDIGITS, 210, MBASE(4), planner.max_jerk[E_AXIS] * MINUNITMULT);
     #endif
   }
-#endif
+
+#endif // HAS_CLASSIC_JERK
 
 void Draw_Steps_Menu() {
   Clear_Menu_Area();
@@ -3960,7 +3969,7 @@ void HMI_AdvSet() {
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     char cmd[48] = "";
     char str_1[5] = "", str_2[5] = "";
-    sprintf_P(cmd, PSTR("G28O XY\nG0 Z5 F300\nG0 X%s Y%s F5000"), 
+    sprintf_P(cmd, PSTR("G28O XY\nG0 Z5 F300\nG0 X%s Y%s F5000"),
       dtostrf(X_CENTER, 1, 1, str_1),
       dtostrf(Y_CENTER, 1, 1, str_2));
     switch (select_advset.now) {
@@ -4505,7 +4514,7 @@ void HMI_Tune() {
         EncoderRate.enabled = true;
         break;
       case TUNE_CASE_LOCK: // Screen Lock
-        DWIN_LockScreen(false);      
+        DWIN_LockScreen(false);
         break;
       default: break;
     }
@@ -5055,7 +5064,7 @@ void DWIN_CompletedLeveling() { HMI_ReturnScreen(); }
 #endif
 
 // PID process
-void DWIN_PidTuning(pidresult_t result){
+void DWIN_PidTuning(pidresult_t result) {
   switch (result) {
     case PID_BED_START:
       HMI_SaveProcessID(NothingToDo);
@@ -5097,7 +5106,7 @@ void DWIN_Print_Header(const char *text = nullptr) {
     LOOP_L_N(i, size) headertxt[i] = text[i];
     headertxt[size] = '\0';
   }
-  if (checkkey == PrintProcess){
+  if (checkkey == PrintProcess) {
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 60, DWIN_WIDTH, 60+16);
     DWIN.Draw_CenteredString(60, headertxt);
   }
@@ -5270,9 +5279,8 @@ void DWIN_Redraw_screen() {
     else if (encoder_diffState == ENCODER_DIFF_CCW)
       Draw_Select_Highlight(true);
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-      if (HMI_flag.select_flag) {
+      if (HMI_flag.select_flag)
         pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // "Purge More" button
-      }
       else {
         HMI_SaveProcessID(NothingToDo);
         pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // "Continue" button
@@ -5293,7 +5301,8 @@ void HMI_LockScreen() {
       select_advset.set(ADVSET_CASE_LOCK);
       index_advset = ADVSET_CASE_LOCK;
       Draw_AdvSet_Menu();
-    } else {
+    }
+    else {
       checkkey = Tune;
       select_tune.set(TUNE_CASE_LOCK);
       index_tune = TUNE_CASE_LOCK;
@@ -5307,4 +5316,5 @@ void DWIN_LockScreen(const bool flag) {
   checkkey = Locked;
   LockScreen.Init();
 }
+
 #endif // DWIN_CREALITY_LCD

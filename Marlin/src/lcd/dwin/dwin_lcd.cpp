@@ -487,7 +487,7 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
   uint16_t to_send;
   uint16_t indx;
   uint8_t block = 0;
-  
+
   while (pending > 0) {
     indx = block * max_size;
     to_send = _MIN(pending, max_size);
@@ -501,7 +501,7 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
     LOOP_L_N(j, 4) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
     block++;
     pending -= to_send;
-  } 
+  }
 }
 
 // Write the contents of the 32KB SRAM data memory into the designated image memory space.

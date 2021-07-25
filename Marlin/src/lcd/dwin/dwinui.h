@@ -5,7 +5,7 @@
  * Date: 2021/07/14
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -445,7 +445,7 @@ public:
   inline void Draw_CenteredString(uint16_t y, const __FlashStringHelper *title) {
     Draw_CenteredString(false, false, font, textcolor, backcolor, y, (char *)title);
   }
-  
+
   // Draw a circle
   //  Color: circle color
   //  x: the abscissa of the center of the circle
