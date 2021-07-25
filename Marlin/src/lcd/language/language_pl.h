@@ -85,7 +85,6 @@ namespace Language_pl {
   //PROGMEM Language_Str MSG_HOME_OFFSET_Z                 = _UxGT("Home Offset Z");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Poz. zerowa ust.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ustaw punkt zero");
-  //PROGMEM Language_Str MSG_ASSISTED_TRAMMING             = _UxGT("Assisted Tramming");
   //PROGMEM Language_Str MSG_TRAMMING_WIZARD               = _UxGT("Tramming Wizard");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Wybierz punkt zero");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Poprzednia wartość ");
@@ -131,11 +130,11 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Ruch osi");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Poziomowanie stołu");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Wypoziomuj stół");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Narożniki poziomowania");
-  //PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Raise Bed Until Probe Triggered");
-  //PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE        = _UxGT("All Corners Within Tolerance. Level Bed");
-  //PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS     = _UxGT("Good Points: ");
-  //PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z          = _UxGT("Last Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Narożniki poziomowania");
+  //PROGMEM Language_Str MSG_BED_TRAMMING_RAISE            = _UxGT("Raise Bed Until Probe Triggered");
+  //PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE         = _UxGT("All Corners Within Tolerance. Level Bed");
+  //PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS      = _UxGT("Good Points: ");
+  //PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z           = _UxGT("Last Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Nastepny narożnik");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Edytor siatki");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edycja siatki");

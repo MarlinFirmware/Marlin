@@ -82,7 +82,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Ardatzak mugitu");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Ohe berdinketa");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Ohea berdindu");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Ertzak berdindu");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Ertzak berdindu");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Hurrengo ertza");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Sarea editatu");
 

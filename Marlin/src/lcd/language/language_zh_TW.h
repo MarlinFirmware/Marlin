@@ -98,7 +98,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("移動軸");     //"Move axis"
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("調平熱床");     //"Bed leveling"
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("調平熱床");     //"Level bed"
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("調平邊角");     // "Level corners"
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("調平邊角");     // "Bed Tramming"
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("下個邊角");     // "Next corner"
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("網格編輯器");    //"Mesh Editor"
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("編輯網格");     // "Edit Mesh"
