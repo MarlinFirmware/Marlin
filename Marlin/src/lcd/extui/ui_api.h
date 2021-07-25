@@ -44,6 +44,10 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../marlinui.h"
+#include "../../gcode/gcode.h"
+#if M600_PURGE_MORE_RESUMABLE
+  #include "../../feature/pause.h"
+#endif
 
 namespace ExtUI {
 
@@ -53,11 +57,11 @@ namespace ExtUI {
 
   static constexpr size_t eeprom_data_size = 48;
 
-  enum axis_t     : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4 };
+  enum axis_t     : uint8_t { X, Y, Z, I, J, K, X2, Y2, Z2, Z3, Z4 };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  enum result_t   : uint8_t { PID_STARTED, PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -77,6 +81,9 @@ namespace ExtUI {
   void injectCommands_P(PGM_P const);
   void injectCommands(char * const);
   bool commandsInQueue();
+
+  GcodeSuite::MarlinBusyState getHostKeepaliveState();
+  bool getHostKeepaliveIsPaused();
 
   bool isHeaterIdle(const heater_t);
   bool isHeaterIdle(const extruder_t);
@@ -125,6 +132,7 @@ namespace ExtUI {
   float getAxisMaxAcceleration_mm_s2(const extruder_t);
   feedRate_t getMinFeedrate_mm_s();
   feedRate_t getMinTravelFeedrate_mm_s();
+  feedRate_t getFeedrate_mm_s();
   float getPrintingAcceleration_mm_s2();
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
@@ -186,6 +194,12 @@ namespace ExtUI {
     void setHostResponse(const uint8_t);
   #endif
 
+  inline void simulateUserClick() {
+    #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+      ui.lcd_clicked = true;
+    #endif
+  }
+
   #if ENABLED(PRINTCOUNTER)
     char* getFailedPrints_str(char buffer[21]);
     char* getTotalPrints_str(char buffer[21]);
@@ -210,13 +224,17 @@ namespace ExtUI {
   void setFeedrate_mm_s(const feedRate_t);
   void setMinFeedrate_mm_s(const feedRate_t);
   void setMinTravelFeedrate_mm_s(const feedRate_t);
-  void setPrintingAcceleration_mm_s2(const_float_t );
-  void setRetractAcceleration_mm_s2(const_float_t );
-  void setTravelAcceleration_mm_s2(const_float_t );
-  void setFeedrate_percent(const_float_t );
+  void setPrintingAcceleration_mm_s2(const_float_t);
+  void setRetractAcceleration_mm_s2(const_float_t);
+  void setTravelAcceleration_mm_s2(const_float_t);
+  void setFeedrate_percent(const_float_t);
   void setFlow_percent(const int16_t, const extruder_t);
   bool awaitingUserConfirm();
   void setUserConfirmed();
+
+  #if M600_PURGE_MORE_RESUMABLE
+    void setPauseMenuResponse(PauseMenuResponse);
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t);
@@ -225,7 +243,7 @@ namespace ExtUI {
 
   #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
-    void setJunctionDeviation_mm(const_float_t );
+    void setJunctionDeviation_mm(const_float_t);
   #else
     float getAxisMaxJerk_mm_s(const axis_t);
     float getAxisMaxJerk_mm_s(const extruder_t);
@@ -239,6 +257,7 @@ namespace ExtUI {
 
   #if ENABLED(BABYSTEPPING)
     int16_t mmToWholeSteps(const_float_t mm, const axis_t axis);
+    float mmFromWholeSteps(int16_t steps, const axis_t axis);
 
     bool babystepAxis_steps(const int16_t steps, const axis_t axis);
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
@@ -251,7 +270,7 @@ namespace ExtUI {
   #endif
 
   float getZOffset_mm();
-  void setZOffset_mm(const_float_t );
+  void setZOffset_mm(const_float_t);
 
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
@@ -263,11 +282,11 @@ namespace ExtUI {
     void setAxisBacklash_mm(const_float_t, const axis_t);
 
     float getBacklashCorrection_percent();
-    void setBacklashCorrection_percent(const_float_t );
+    void setBacklashCorrection_percent(const_float_t);
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm();
-      void setBacklashSmoothing_mm(const_float_t );
+      void setBacklashSmoothing_mm(const_float_t);
     #endif
   #endif
 
@@ -279,7 +298,7 @@ namespace ExtUI {
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm();
-      void setFilamentRunoutDistance_mm(const_float_t );
+      void setFilamentRunoutDistance_mm(const_float_t);
     #endif
   #endif
 
@@ -289,7 +308,7 @@ namespace ExtUI {
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
       float getCaseLightBrightness_percent();
-      void setCaseLightBrightness_percent(const_float_t );
+      void setCaseLightBrightness_percent(const_float_t);
     #endif
   #endif
 
@@ -298,15 +317,15 @@ namespace ExtUI {
     float getPIDValues_Ki(const extruder_t);
     float getPIDValues_Kd(const extruder_t);
     void setPIDValues(const_float_t, const_float_t , const_float_t , extruder_t);
-    void startPIDTune(const_float_t, extruder_t);
+    void startPIDTune(const celsius_t, extruder_t);
   #endif
 
   #if ENABLED(PIDTEMPBED)
     float getBedPIDValues_Kp();
     float getBedPIDValues_Ki();
     float getBedPIDValues_Kd();
-    void setBedPIDValues(const_float_t, const_float_t , const_float_t );
-    void startBedPIDTune(const_float_t );
+    void setBedPIDValues(const_float_t, const_float_t , const_float_t);
+    void startBedPIDTune(const celsius_t);
   #endif
 
   /**

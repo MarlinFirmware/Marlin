@@ -10,7 +10,7 @@ set -e
 # Build with configs included in the PR
 #
 use_example_configs "Creality/Ender-3 V2"
-opt_enable MARLIN_DEV_MODE
+opt_enable MARLIN_DEV_MODE BUFFER_MONITORING
 exec_test $1 $2 "Ender 3 v2" "$3"
 
 use_example_configs "Creality/Ender-3 V2"

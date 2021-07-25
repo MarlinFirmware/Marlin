@@ -34,6 +34,10 @@
   #include "../module/servo.h"
 #endif
 
+#if ENABLED(I2C_AMMETER)
+  #include "../feature/ammeter.h"
+#endif
+
 SpindleLaser cutter;
 uint8_t SpindleLaser::power;
 #if ENABLED(LASER_FEATURE)
@@ -70,6 +74,12 @@ void SpindleLaser::init() {
   #endif
   #if ENABLED(AIR_EVACUATION)
     OUT_WRITE(AIR_EVACUATION_PIN, !AIR_EVACUATION_ACTIVE);            // Init Vacuum/Blower OFF
+  #endif
+  #if ENABLED(AIR_ASSIST)
+    OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
+  #endif
+  #if ENABLED(I2C_AMMETER)
+    ammeter.init();                                                   // Init I2C Ammeter
   #endif
 }
 
@@ -147,6 +157,17 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
 
   void SpindleLaser::air_evac_toggle()  { TOGGLE(AIR_EVACUATION_PIN); } // Toggle state
 
-#endif
+#endif // AIR_EVACUATION
+
+#if ENABLED(AIR_ASSIST)
+
+  // Enable / disable air assist
+  void SpindleLaser::air_assist_enable()  { WRITE(AIR_ASSIST_PIN,  AIR_ASSIST_PIN); } // Turn ON
+
+  void SpindleLaser::air_assist_disable() { WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_PIN); } // Turn OFF
+
+  void SpindleLaser::air_assist_toggle()  { TOGGLE(AIR_ASSIST_PIN); } // Toggle state
+
+#endif // AIR_ASSIST
 
 #endif // HAS_CUTTER

@@ -44,6 +44,11 @@
 #define RAMPS_D9_PIN                           8
 #define MOSFET_D_PIN                          12
 
+//
+// Misc. Functions
+//
+#define SDSS                                  25
+
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
 #endif
@@ -65,12 +70,6 @@
 // Heaters / Fans
 //
 #define HEATER_2_PIN                           6
-
-//
-// Misc. Functions
-//
-#undef SDSS
-#define SDSS                                  25
 
 #undef SD_DETECT_PIN
 #define SD_DETECT_PIN                         53
@@ -144,7 +143,7 @@
 #undef SPINDLE_DIR_PIN
 
 #if HAS_CUTTER
-  #if !EXTRUDERS
+  #if !HAS_EXTRUDERS
     #undef E0_DIR_PIN
     #undef E0_ENABLE_PIN
     #undef E0_STEP_PIN

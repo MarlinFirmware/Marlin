@@ -36,7 +36,6 @@
 #include "fastio.h"
 #include "watchdog.h"
 
-
 #include <stdint.h>
 #include <util/atomic.h>
 
@@ -63,11 +62,10 @@
 #ifdef SERIAL_USB
   typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
   extern DefaultSerial1 MSerial0;
-
-  #if !HAS_SD_HOST_DRIVE
-    #define UsbSerial MSerial0
-  #else
+  #if HAS_SD_HOST_DRIVE
     #define UsbSerial MarlinCompositeSerial
+  #else
+    #define UsbSerial MSerial0
   #endif
 #endif
 
@@ -86,11 +84,7 @@
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
   #define MYSERIAL1 MSERIAL(1) // dummy port
-  #if NUM_UARTS == 5
-    #error "SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
-  #else
-    #error "SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
-  #endif
+  static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -100,11 +94,18 @@
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
     #define MYSERIAL2 MSERIAL(1) // dummy port
-    #if NUM_UARTS == 5
-      #error "SERIAL_PORT_2 must be from 1 to 5. You can also use -1 if the board supports Native USB."
-    #else
-      #error "SERIAL_PORT_2 must be from 1 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+    static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 UsbSerial
+  #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #define MYSERIAL3 MSERIAL(1) // dummy port
+    static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
 #endif
 
@@ -115,11 +116,7 @@
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
     #define MMU2_SERIAL MSERIAL(1) // dummy port
-    #if NUM_UARTS == 5
-      #error "MMU2_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
-    #else
-      #error "MMU2_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+    static_assert(false, "MMU2_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
 #endif
 
@@ -130,11 +127,7 @@
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
     #define LCD_SERIAL MSERIAL(1) // dummy port
-    #if NUM_UARTS == 5
-      #error "LCD_SERIAL_PORT must be from 1 to 5. You can also use -1 if the board supports Native USB."
-    #else
-      #error "LCD_SERIAL_PORT must be from 1 to 3. You can also use -1 if the board supports Native USB."
-    #endif
+    static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
   #if HAS_DGUS_LCD
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()

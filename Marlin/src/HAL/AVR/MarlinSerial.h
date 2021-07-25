@@ -238,12 +238,17 @@
     static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
   };
 
-  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT;
-  extern MSerialT customizedSerial1;
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT1;
+  extern MSerialT1 customizedSerial1;
 
   #ifdef SERIAL_PORT_2
     typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
     extern MSerialT2 customizedSerial2;
+  #endif
+
+  #ifdef SERIAL_PORT_3
+    typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> > > MSerialT3;
+    extern MSerialT3 customizedSerial3;
   #endif
 
 #endif // !USBCON
@@ -262,8 +267,8 @@
     static constexpr bool RX_OVERRUNS       = false;
   };
 
-  typedef Serial1Class< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialT3;
-  extern MSerialT3 mmuSerial;
+  typedef Serial1Class< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialMMU2;
+  extern MSerialMMU2 mmuSerial;
 #endif
 
 #ifdef LCD_SERIAL_PORT
@@ -281,12 +286,12 @@
     static constexpr bool RX_OVERRUNS       = BOTH(HAS_DGUS_LCD, SERIAL_STATS_RX_BUFFER_OVERRUNS);
   };
 
-  typedef Serial1Class< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialT4;
-  extern MSerialT4 lcdSerial;
+  typedef Serial1Class< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialLCD;
+  extern MSerialLCD lcdSerial;
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations
 #if defined(USBCON) && ENABLED(BLUETOOTH)
-  typedef Serial1Class<HardwareSerial> MSerialT5;
-  extern MSerialT5 bluetoothSerial;
+  typedef Serial1Class<HardwareSerial> MSerialBT;
+  extern MSerialBT bluetoothSerial;
 #endif

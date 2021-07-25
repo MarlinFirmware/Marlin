@@ -165,8 +165,8 @@
 //
 #define TEMP_0_PIN                         P0_24
 #define TEMP_1_PIN                         P0_23
-//#define TEMP_2_PIN                       P1_30  // Onboard thermistor
 #define TEMP_BED_PIN                       P0_25
+#define TEMP_BOARD_PIN                     P1_30  // Onboard thermistor, NTC100K
 
 //
 // Heaters / Fans
@@ -182,13 +182,13 @@
 #endif
 
 /**
- *                  _____
- *              5V | 1 2 | GND
- *  (LCD_EN) P0_18 | 3 4 | P0_17 (LCD_RS)
- *  (LCD_D4) P0_15 | 5 6   P0_20 (BTN_EN2)
- *           RESET | 7 8 | P0_19 (BTN_EN1)
- * (BTN_ENC) P0_16 | 9 10| P2_08 (BEEPER)
- *                  -----
+ *                  ______
+ *              5V | 1  2 | GND
+ *  (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)
+ *  (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
+ *           RESET | 7  8 | P0_19 (BTN_EN1)
+ * (BTN_ENC) P0_16 | 9 10 | P2_08 (BEEPER)
+ *                  ------
  *                   EXP
  */
 
@@ -201,7 +201,26 @@
 #define EXP1_09_PIN                        P0_16
 #define EXP1_10_PIN                        P2_08
 
-#if HAS_WIRED_LCD
+#if ENABLED(DWIN_CREALITY_LCD)
+  #error "DWIN_CREALITY_LCD requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
+
+ /** 
+  *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo 
+  *                ______                                     ______                                  RX  8 -->  5  P0_15
+  *            5V | 1  2 | GND                            5V | 1  2 | GND                             TX  7 -->  9  P0_16
+  *   (BTN_E1)  A | 3  4 | B   (BTN_E2)       (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)              BEEPER  5 --> 10  P2_08
+  *        BEEPER | 5  6   ENT (BTN_ENC)      (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
+  *  (SKR_RX1) TX | 7  8 | RX  (SKR_TX1)               Reset | 7  8 | P0_19 (BTN_EN1)
+  *            NC | 9 10 | NC                (BTN_ENC) P0_16 | 9 10 | P2_08 (BEEPER)
+  *                ------					                            ------
+  */
+
+  #define BEEPER_PIN                 EXP1_10_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_04_PIN
+  #define BTN_ENC                    EXP1_06_PIN
+
+#elif HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -264,5 +283,3 @@
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR E3 Turbo."
 #endif
-
-#define ON_BOARD_SPI_DEVICE                    1  // SPI1

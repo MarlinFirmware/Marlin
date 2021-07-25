@@ -43,8 +43,6 @@
   extern DefaultSerial4 MSerial3;
   extern DefaultSerial5 MSerial4;
 
-  // MYSERIAL1 required before MarlinSerial includes!
-
   #define __MSERIAL(X) MSerial##X
   #define _MSERIAL(X) __MSERIAL(X)
   #define MSERIAL(X) _MSERIAL(INCREMENT(X))

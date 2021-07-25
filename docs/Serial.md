@@ -1,11 +1,11 @@
 # Serial port architecture in Marlin
 
-Marlin is targeting a plethora of different CPU architecture and platforms. Each of these platforms has its own serial interface.
+Marlin is targeting a plethora of different CPU architectures and platforms. Each of these platforms has its own serial interface.
 While many provide a Arduino-like Serial class, it's not all of them, and the differences in the existing API create a very complex brain teaser for writing code that works more or less on each platform.
 
 Moreover, many platform have intrinsic needs about serial port (like forwarding the output on multiple serial port, providing a *serial-like* telnet server, mixing USB-based serial port with SD card emulation) that are difficult to handle cleanly in the other platform serial logic.
 
-Starting with version `2.0.9`, Marlin provides a common interface for its serial needs.
+Starting with version 2.0.8, Marlin provides a common interface for its serial needs.
 
 ## Common interface
 

@@ -32,7 +32,7 @@
 #define UBL_OK false
 #define UBL_ERR true
 
-enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
+enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 // External references
 
@@ -47,10 +47,10 @@ struct mesh_index_pair;
 
 typedef struct {
   bool      C_seen;
-  int8_t    V_verbosity,
+  int8_t    KLS_storage_slot;
+  uint8_t   R_repetition,
+            V_verbosity,
             P_phase,
-            R_repetition,
-            KLS_storage_slot,
             T_map_type;
   float     B_shim_thickness,
             C_constant;
@@ -98,7 +98,7 @@ public:
   static void report_state();
   static void save_ubl_active_state_and_disable();
   static void restore_ubl_active_state_and_leave();
-  static void display_map(const int) _O0;
+  static void display_map(const uint8_t) _O0;
   static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) _O0;
   static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
   static void reset();

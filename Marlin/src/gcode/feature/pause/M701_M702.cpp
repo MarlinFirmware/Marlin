@@ -97,7 +97,7 @@ void GcodeSuite::M701() {
   };
 
   // Raise the Z axis (with max limit)
-  const float park_raise = _MIN(0, park_point.z, (Z_MAX_POS) - current_position.z);
+  const float park_raise = _MIN(park_point.z, (Z_MAX_POS) - current_position.z);
   move_z_by(park_raise);
 
   // Load filament
