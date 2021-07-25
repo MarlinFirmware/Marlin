@@ -435,9 +435,11 @@ public:
     static void draw_kill_screen();
 
   #else // No LCD
+
     static inline void init() {}
     static inline void update() {}
     static inline void return_to_status() {}
+
   #endif
 
   #if ENABLED(SDSUPPORT)
