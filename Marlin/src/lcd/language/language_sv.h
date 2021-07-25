@@ -121,7 +121,7 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Flytta Axel");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bädd Nivellering");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivellera Bädd");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Nivellera Hörn");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bädd Justering");
   PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Höj Bädd tills nästa Sond Triggad");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Alla Hörn inom Tolerans. Nivellering Bädd");
   PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Bra Punkter: ");
