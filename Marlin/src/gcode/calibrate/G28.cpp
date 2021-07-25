@@ -268,7 +268,7 @@ void GcodeSuite::G28() {
   #endif
 
   #if HAS_HOMING_CURRENT
-    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
+    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
       DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
