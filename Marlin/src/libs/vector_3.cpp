@@ -104,9 +104,9 @@ matrix_3x3 matrix_3x3::create_from_rows(const vector_3 &row_0, const vector_3 &r
   //row_1.debug(PSTR("row_1"));
   //row_2.debug(PSTR("row_2"));
   matrix_3x3 new_matrix;
-  new_matrix.vectors[0].x = row_0.x; new_matrix.vectors[1].y = row_0.y; new_matrix.vectors[2].z = row_0.z;
-  new_matrix.vectors[3].x = row_1.x; new_matrix.vectors[4].y = row_1.y; new_matrix.vectors[5].z = row_1.z;
-  new_matrix.vectors[6].x = row_2.x; new_matrix.vectors[7].y = row_2.y; new_matrix.vectors[8].z = row_2.z;
+  new_matrix.vectors[0] = row_0;
+  new_matrix.vectors[1] = row_1;
+  new_matrix.vectors[2] = row_2;
   //new_matrix.debug(PSTR("new_matrix"));
   return new_matrix;
 }

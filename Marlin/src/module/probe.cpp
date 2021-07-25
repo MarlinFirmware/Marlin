@@ -865,9 +865,11 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       #if HAS_CURRENT_HOME(Z)
         static int16_t saved_current_Z;
       #endif
-      auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
-        if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b); }
-      };
+      #if ((ENABLED(DELTA) && (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y))) || HAS_CURRENT_HOME(Z))
+        auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b); }
+        };
+      #endif
       if (onoff) {
         #if ENABLED(DELTA)
           #if HAS_CURRENT_HOME(X)

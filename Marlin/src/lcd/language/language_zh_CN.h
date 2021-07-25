@@ -31,7 +31,7 @@ namespace Language_zh_CN {
   using namespace Language_en;  // Inherit undefined strings from English
 
   constexpr uint8_t    CHARSIZE                            = 3;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("简体中文");
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Simplified Chinese");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT("已就绪.");     //" ready."
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("马林");

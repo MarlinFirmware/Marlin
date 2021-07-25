@@ -248,6 +248,7 @@ class CLCD::CommandFifo {
     void keys      (int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options);
 
     // Sends the string portion of text, button, toggle and keys.
+    void str (const char * data, size_t maxlen);
     void str (const char * data);
     void str (progmem_str data);
 

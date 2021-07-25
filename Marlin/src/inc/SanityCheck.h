@@ -623,7 +623,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     static_assert(_test_btc_sample_start != 12.3f, "BTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_RES
-    constexpr _btc_sample_res = BTC_SAMPLE_RES;
+    constexpr auto _btc_sample_res = BTC_SAMPLE_RES;
     constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
     static_assert(_test_btc_sample_res != 12.3f, "BTC_SAMPLE_RES must be a whole number.");
   #endif

@@ -107,6 +107,24 @@
 #if (TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI) && !HAS_MAXTC_LIBRARIES
   #include "../libs/private_spi.h"
   #define HAS_MAXTC_SW_SPI 1
+
+  // Define pins for SPI-based sensors
+  #if TEMP_SENSOR_0_USES_SW_SPI
+    #define SW_SPI_SCK_PIN    TEMP_0_SCK_PIN
+    #define SW_SPI_MISO_PIN   TEMP_0_MISO_PIN
+    #if PIN_EXISTS(TEMP_0_MOSI)
+      #define SW_SPI_MOSI_PIN TEMP_0_MOSI_PIN
+    #endif
+  #else
+    #define SW_SPI_SCK_PIN    TEMP_1_SCK_PIN
+    #define SW_SPI_MISO_PIN   TEMP_1_MISO_PIN
+    #if PIN_EXISTS(TEMP_1_MOSI)
+      #define SW_SPI_MOSI_PIN TEMP_1_MOSI_PIN
+    #endif
+  #endif
+  #ifndef SW_SPI_MOSI_PIN
+    #define SW_SPI_MOSI_PIN   SD_MOSI_PIN
+  #endif
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -198,7 +216,8 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
     template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
       SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-    SPIclass<TEMP_0_MISO_PIN, TEMP_0_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
+    SPIclass<SW_SPI_MISO_PIN, SW_SPI_MOSI_PIN, SW_SPI_SCK_PIN> max_tc_spi;
+
   #endif
 
   #define MAXTC_INIT(n, M) \

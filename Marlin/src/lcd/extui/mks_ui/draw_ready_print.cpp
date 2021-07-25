@@ -39,10 +39,7 @@
   #include "draw_touch_calibration.h"
 #endif
 
-#if ENABLED(MKS_TEST)
-  #include "mks_hardware_test.h"
-#endif
-
+#include "mks_hardware.h"
 #include <stdio.h>
 
 #define ICON_POS_Y          38
@@ -64,7 +61,7 @@ static lv_obj_t *buttonExt1, *labelExt1, *buttonFanstate, *labelFan;
 #endif
 
 #if ENABLED(MKS_TEST)
-  uint8_t curent_disp_ui = 0;
+  uint8_t current_disp_ui = 0;
 #endif
 
 enum { ID_TOOL = 1, ID_SET, ID_PRINT, ID_INFO_EXT, ID_INFO_BED, ID_INFO_FAN };
@@ -109,8 +106,10 @@ void disp_det_error() {
 lv_obj_t *e1, *e2, *e3, *bed;
 void mks_disp_test() {
   char buf[30] = {0};
-  sprintf_P(buf, PSTR("e1:%d"), thermalManager.wholeDegHotend(0));
-  lv_label_set_text(e1, buf);
+  #if HAS_HOTEND
+    sprintf_P(buf, PSTR("e1:%d"), thermalManager.wholeDegHotend(0));
+    lv_label_set_text(e1, buf);
+  #endif
   #if HAS_MULTI_HOTEND
     sprintf_P(buf, PSTR("e2:%d"), thermalManager.wholeDegHotend(1));
     lv_label_set_text(e2, buf);
@@ -150,7 +149,7 @@ void lv_draw_ready_print() {
     #if HAS_MULTI_HOTEND
       e2 = lv_label_create_empty(scr);
       lv_obj_set_pos(e2, 20, 45);
-      sprintf_P(buf, PSTR("e1:  %d"), thermalManager.wholeDegHotend(1));
+      sprintf_P(buf, PSTR("e2:  %d"), thermalManager.wholeDegHotend(1));
       lv_label_set_text(e2, buf);
     #endif
     #if HAS_HEATED_BED

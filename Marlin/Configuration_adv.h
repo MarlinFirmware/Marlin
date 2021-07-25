@@ -2021,9 +2021,9 @@
     // calibration.
     //#define BTC_PROBE_TEMP    30  // (°C)
 
-    // Height above Z=0.0f to raise the nozzle. Lowering this can help the probe to heat faster.
-    // Note: the Z=0.0f offset is determined by the probe offset which can be set using M851.
-    //#define PTC_PROBE_HEATING_OFFSET 0.5f
+    // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
+    // Note: the Z=0.0 offset is determined by the probe offset which can be set using M851.
+    //#define PTC_PROBE_HEATING_OFFSET 0.5
 
     // Height to raise the Z-probe between heating and taking the next measurement. Some probes
     // may fail to untrigger if they have been triggered for a long time, which can be solved by
@@ -4173,6 +4173,14 @@
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
+
+#if ENABLED(MARLIN_DEV_MODE)
+  /**
+   * D576 - Buffer Monitoring
+   * To help diagnose print quality issues stemming from empty command buffers.
+   */
+  //#define BUFFER_MONITORING
+#endif
 
 /**
  * Postmortem Debugging captures misbehavior and outputs the CPU status and backtrace to serial.

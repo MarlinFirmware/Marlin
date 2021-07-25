@@ -70,7 +70,7 @@
 #if HAS_TFT_LVGL_UI
   #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/mks_ui/draw_ui.h"
-  #include "lcd/extui/mks_ui/mks_hardware_test.h"
+  #include "lcd/extui/mks_ui/mks_hardware.h"
   #include <lvgl.h>
 #endif
 
@@ -868,6 +868,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
       TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
+      TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
     }
   #endif
 

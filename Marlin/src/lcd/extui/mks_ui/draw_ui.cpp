@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(MKS_TEST)
-  #include "mks_hardware_test.h"
+  #include "mks_hardware.h"
 #endif
 
 CFG_ITMES gCfgItems;
@@ -560,11 +560,11 @@ char *creat_title_text() {
 
 #if HAS_GCODE_PREVIEW
 
-  uint32_t gPicturePreviewStart = 0;
+  uintptr_t gPicturePreviewStart = 0;
 
   void preview_gcode_prehandle(char *path) {
     #if ENABLED(SDSUPPORT)
-      uint32_t pre_read_cnt = 0;
+      uintptr_t pre_read_cnt = 0;
       uint32_t *p1;
       char *cur_name;
 
@@ -575,7 +575,7 @@ char *creat_title_text() {
       p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
 
       if (p1) {
-        pre_read_cnt = (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+        pre_read_cnt = (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
 
         To_pre_view              = pre_read_cnt;
         gcode_preview_over       = true;
@@ -606,7 +606,7 @@ char *creat_title_text() {
           uint32_t br  = card.read(public_buf, 400);
           uint32_t *p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
           if (p1) {
-            gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+            gPicturePreviewStart += (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
             break;
           }
           else {
@@ -1366,7 +1366,7 @@ void print_time_count() {
 void LV_TASK_HANDLER() {
   lv_task_handler();
 
-  #if ENABLED(MKS_TEST)
+  #if BOTH(MKS_TEST, SDSUPPORT)
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 

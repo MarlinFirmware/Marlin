@@ -79,6 +79,18 @@
 U8G_CLASS u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
+#ifdef LCD_LANGUAGE_2
+  #include LANGUAGE_DATA_INCL(LCD_LANGUAGE_2)
+#endif
+#ifdef LCD_LANGUAGE_3
+  #include LANGUAGE_DATA_INCL(LCD_LANGUAGE_3)
+#endif
+#ifdef LCD_LANGUAGE_4
+  #include LANGUAGE_DATA_INCL(LCD_LANGUAGE_4)
+#endif
+#ifdef LCD_LANGUAGE_5
+  #include LANGUAGE_DATA_INCL(LCD_LANGUAGE_5)
+#endif
 
 #if HAS_LCD_CONTRAST
 
@@ -293,7 +305,29 @@ void MarlinUI::init_lcd() {
   TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
   TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
 
-  uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
+  update_language_font();
+}
+
+void MarlinUI::update_language_font() {
+  #if HAS_MULTI_LANGUAGE
+    switch (language) {
+      default: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE), COUNT(LANG_FONT_INFO(LCD_LANGUAGE))); break;
+      #ifdef LCD_LANGUAGE_2
+        case 1: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_2), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_2))); break;
+      #endif
+      #ifdef LCD_LANGUAGE_3
+        case 2: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_3), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_3))); break;
+      #endif
+      #ifdef LCD_LANGUAGE_4
+        case 3: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_4), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_4))); break;
+      #endif
+      #ifdef LCD_LANGUAGE_5
+        case 4: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_5), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_5))); break;
+      #endif
+    }
+  #else
+    uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE), COUNT(LANG_FONT_INFO(LCD_LANGUAGE)));
+  #endif
 }
 
 // The kill screen is displayed for unrecoverable conditions
