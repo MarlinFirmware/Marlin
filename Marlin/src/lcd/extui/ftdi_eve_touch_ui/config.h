@@ -21,6 +21,10 @@
 
 #pragma once
 
+// Configure this display with options in Configuration_adv.h
+#include "../../../inc/MarlinConfigPre.h"
+#if ENABLED(TOUCH_UI_FTDI_EVE)
+
 #include "compat.h"
 
-// Configure this display with options in Configuration_adv.h
+#endif

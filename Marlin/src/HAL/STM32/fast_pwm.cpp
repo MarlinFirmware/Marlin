@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -56,4 +56,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 }
 
 #endif // NEEDS_HARDWARE_PWM
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

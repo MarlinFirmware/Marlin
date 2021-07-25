@@ -55,7 +55,7 @@
   #include "../module/printcounter.h"
 #endif
 
-#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
   #include "../feature/pause.h"
   #include "../module/motion.h" // for active_extruder
 #endif
@@ -111,13 +111,13 @@
 
 #if PREHEAT_COUNT
   typedef struct {
-    #if ENABLED(HAS_HOTEND)
+    #if HAS_HOTEND
       celsius_t hotend_temp;
     #endif
-    #if ENABLED(HAS_HEATED_BED)
+    #if HAS_HEATED_BED
       celsius_t bed_temp;
     #endif
-    #if ENABLED(HAS_FAN)
+    #if HAS_FAN
       uint16_t fan_speed;
     #endif
   } preheat_t;
@@ -135,12 +135,12 @@
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
-    #if ENABLED(IS_KINEMATIC)
+    #if IS_KINEMATIC
       static xyze_pos_t all_axes_destination;
     #endif
   public:
     static float menu_scale;
-    #if ENABLED(IS_KINEMATIC)
+    #if IS_KINEMATIC
       static float offset;
     #endif
     template <typename T>
@@ -200,13 +200,11 @@ public:
 
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
-    static inline void set_language(const uint8_t lang) {
-      if (lang < NUM_LANGUAGES) {
-        language = lang;
-        return_to_status();
-        refresh();
-      }
-    }
+    static void set_language(const uint8_t lang);
+  #endif
+
+  #if HAS_MARLINUI_U8GLIB
+    static void update_language_font();
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
@@ -525,10 +523,13 @@ public:
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
 
-  #elif HAS_WIRED_LCD
+  #else
 
     static constexpr bool on_status_screen() { return true; }
-    FORCE_INLINE static void run_current_screen() { status_screen(); }
+
+    #if HAS_WIRED_LCD
+      FORCE_INLINE static void run_current_screen() { status_screen(); }
+    #endif
 
   #endif
 
@@ -544,7 +545,7 @@ public:
     static inline bool use_click() { return false; }
   #endif
 
-  #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}

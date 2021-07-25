@@ -42,15 +42,12 @@ typedef const char Language_Str[];
 #ifndef LCD_LANGUAGE_2
   #define LCD_LANGUAGE_2 LCD_LANGUAGE
 #endif
-
 #ifndef LCD_LANGUAGE_3
   #define LCD_LANGUAGE_3 LCD_LANGUAGE_2
 #endif
-
 #ifndef LCD_LANGUAGE_4
   #define LCD_LANGUAGE_4 LCD_LANGUAGE_3
 #endif
-
 #ifndef LCD_LANGUAGE_5
   #define LCD_LANGUAGE_5 LCD_LANGUAGE_4
 #endif

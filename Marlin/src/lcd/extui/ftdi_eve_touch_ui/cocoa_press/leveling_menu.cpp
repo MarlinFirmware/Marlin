@@ -23,9 +23,9 @@
 #include "../config.h"
 #include "../screens.h"
 
-#ifdef COCOA_LEVELING_MENU
+#if ENABLED(COCOA_LEVELING_MENU)
 
-#if BOTH(HAS_BED_PROBE,BLTOUCH)
+#if BOTH(HAS_BED_PROBE, BLTOUCH)
   #include "../../../../feature/bltouch.h"
 #endif
 

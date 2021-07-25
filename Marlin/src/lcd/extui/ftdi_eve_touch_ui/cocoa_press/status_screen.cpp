@@ -294,4 +294,14 @@ void StatusScreen::onIdle() {
   }
 }
 
+void StatusScreen::onMediaInserted() {
+  if (AT_SCREEN(StatusScreen))
+    setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
+}
+
+void StatusScreen::onMediaRemoved() {
+  if (AT_SCREEN(StatusScreen) || ExtUI::isPrintingFromMedia())
+    setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
+}
+
 #endif // COCOA_STATUS_SCREEN

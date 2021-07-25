@@ -31,6 +31,11 @@
   #define MKS_MINI_12864
 #endif
 
+// MKS_MINI_12864_V3 is simply identical to FYSETC_MINI_12864_2_1
+#if ENABLED(MKS_MINI_12864_V3)
+  #define FYSETC_MINI_12864_2_1
+#endif
+
 /**
  * General Flags that may be set below by specific LCDs
  *
@@ -1078,7 +1083,11 @@
 #if ENABLED(DWIN_CREALITY_LCD)
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
-    #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+      #define LCD_SERIAL_PORT 1
+    #else
+      #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #endif
   #endif
 #endif
 

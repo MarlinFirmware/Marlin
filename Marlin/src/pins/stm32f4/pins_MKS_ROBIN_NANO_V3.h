@@ -59,7 +59,7 @@
 //
 // Limit Switches
 //
-#define X_DIAG_PIN                          PD15
+#define X_DIAG_PIN                          PA15
 #define Y_DIAG_PIN                          PD2
 #define Z_DIAG_PIN                          PC8
 #define E0_DIAG_PIN                         PC4
@@ -172,28 +172,27 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN            HEATER_0_PIN  // TC1 - CS1
-//#define MAX6675_SS_PIN            HEATER_1_PIN  // TC2 - CS2
+//#define TEMP_0_CS_PIN             HEATER_0_PIN  // TC1 - CS1
+//#define TEMP_0_CS_PIN             HEATER_1_PIN  // TC2 - CS2
 
 //
 // Misc. Functions
 //
-#define MT_DET_1                            PA4
-#define MT_DET_2                            PE6
-#define PW_DET                              PA13
-#define PW_OFF                              PB2
+#define MT_DET_1_PIN                        PA4
+#define MT_DET_2_PIN                        PE6
+#define MT_DET_PIN_INVERTING               false  // LVGL UI filament RUNOUT PIN STATE
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                MT_DET_1
+  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN               MT_DET_2
+  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                  PW_DET
+  #define POWER_LOSS_PIN                    PA13  // PW_DET
 #endif
-#define PS_ON_PIN                         PW_OFF
+#define PS_ON_PIN                           PB2   // PW_OFF
 
 //
 // Enable MKSPWC support
@@ -212,6 +211,13 @@
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+// MKS WIFI MODULE
+#if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
 #endif
 
 //
@@ -243,7 +249,7 @@
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH 1
+#define HAS_SPI_FLASH                          1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
@@ -340,6 +346,19 @@
     // Required for MKS_MINI_12864 with this board
     //#define MKS_LCD12864B
     //#undef SHOW_BOOTSCREEN
+
+  #elif ENABLED(MKS_MINI_12864_V3)
+    #define DOGLCD_CS                       PD13
+    #define DOGLCD_A0                       PC6
+    #define LCD_PINS_DC                DOGLCD_A0
+    #define LCD_BACKLIGHT_PIN               -1
+    #define LCD_RESET_PIN                   PE14
+    #define NEOPIXEL_PIN                    PE15
+    #define DOGLCD_MOSI                     PA7
+    #define DOGLCD_SCK                      PA5
+    #if SD_CONNECTION_IS(ONBOARD)
+      #define FORCE_SOFT_SPI
+    #endif
 
   #else // !MKS_MINI_12864
 

@@ -97,43 +97,65 @@ void calibrate_delay_loop();
   #define DELAY_US(x) DelayCycleFnc((x) * ((F_CPU) / 1000000UL))
 
 #elif defined(__AVR__)
-
-  #define nop() __asm__ __volatile__("nop;\n\t":::)
-
-  FORCE_INLINE static void __delay_4cycles(uint8_t cy) {
-    __asm__ __volatile__(
-      L("1")
-      A("dec %[cnt]")
-      A("nop")
-      A("brne 1b")
-      : [cnt] "+r"(cy)  // output: +r means input+output
-      :                 // input:
-      : "cc"            // clobbers:
-    );
+  FORCE_INLINE static void __delay_up_to_3c(uint8_t cycles) {
+    switch (cycles) {
+      case 3:
+        __asm__ __volatile__(A("RJMP .+0") A("NOP"));
+        break;
+      case 2:
+        __asm__ __volatile__(A("RJMP .+0"));
+        break;
+      case 1:
+        __asm__ __volatile__(A("NOP"));
+        break;
+    }
   }
 
   // Delay in cycles
-  FORCE_INLINE static void DELAY_CYCLES(uint16_t x) {
-
-    if (__builtin_constant_p(x)) {
-      #define MAXNOPS 4
-
-      if (x <= (MAXNOPS)) {
-        switch (x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+  FORCE_INLINE static void DELAY_CYCLES(uint16_t cycles) {
+    if (__builtin_constant_p(cycles)) {
+      if (cycles <= 3) {
+        __delay_up_to_3c(cycles);
+      }
+      else if (cycles == 4) {
+        __delay_up_to_3c(2);
+        __delay_up_to_3c(2);
       }
       else {
-        const uint32_t rem = (x) % (MAXNOPS);
-        switch (rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
-        if ((x = (x) / (MAXNOPS)))
-          __delay_4cycles(x); // if need more then 4 nop loop is more optimal
-      }
+        cycles -= 1 + 4; // Compensate for the first LDI (1) and the first round (4)
+        __delay_up_to_3c(cycles % 4);
 
-      #undef MAXNOPS
+        cycles /= 4;
+        // The following code burns [1 + 4 * (rounds+1)] cycles
+        uint16_t dummy;
+        __asm__ __volatile__(
+          // "manually" load counter from constants, otherwise the compiler may optimize this part away
+          A("LDI %A[rounds], %[l]") // 1c
+          A("LDI %B[rounds], %[h]") // 1c (compensating the non branching BRCC)
+          L("1")
+          A("SBIW %[rounds], 1")    // 2c
+          A("BRCC 1b")              // 2c when branching, else 1c (end of loop)
+          : // Outputs ...
+          [rounds] "=w" (dummy) // Restrict to a wo (=) 16 bit register pair (w)
+          : // Inputs ...
+          [l] "M" (cycles%256), // Restrict to 0..255 constant (M)
+          [h] "M" (cycles/256)  // Restrict to 0..255 constant (M)
+          :// Clobbers ...
+          "cc"                  // Indicate we are modifying flags like Carry (cc)
+        );
+      }
     }
-    else if ((x >>= 2))
-      __delay_4cycles(x);
+    else {
+      __asm__ __volatile__(
+        L("1")
+        A("SBIW %[cycles], 4")   // 2c
+        A("BRCC 1b")             // 2c when branching, else 1c (end of loop)
+        : [cycles] "+w" (cycles) // output: Restrict to a rw (+) 16 bit register pair (w)
+        :                        // input: -
+        : "cc"                   // clobbers: We are modifying flags like Carry (cc)
+      );
+    }
   }
-  #undef nop
 
   // Delay in microseconds
   #define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
