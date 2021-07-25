@@ -109,7 +109,7 @@ class Touch {
 
   public:
     static void init();
-    static void reset() { controls_count = 0; touch_time = 0; current_control = NULL; }
+    static void reset() { controls_count = 0; touch_time = 0; current_control = nullptr; }
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() {

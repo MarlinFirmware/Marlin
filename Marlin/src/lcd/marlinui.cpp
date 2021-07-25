@@ -88,6 +88,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_MULTI_LANGUAGE
   uint8_t MarlinUI::language; // Initialized by settings.load()
+  void MarlinUI::set_language(const uint8_t lang) {
+    if (lang < NUM_LANGUAGES) {
+      language = lang;
+      TERN_(HAS_MARLINUI_U8GLIB, update_language_font());
+      return_to_status();
+      refresh();
+    }
+  }
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
@@ -156,6 +164,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   #if HAS_POWER_MONITOR
     #include "../feature/power_monitor.h"
+  #endif
+
+  #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+    #include "../feature/power.h"
   #endif
 
   #if HAS_ENCODER_ACTION
@@ -826,8 +838,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     static uint16_t max_display_update_time = 0;
     millis_t ms = millis();
 
-    #ifdef LED_BACKLIGHT_TIMEOUT
-      leds.update_timeout(powersupply_on);
+    #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+      leds.update_timeout(powerManager.psu_on);
     #endif
 
     #if HAS_LCD_MENU
@@ -976,8 +988,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
           refresh(LCDVIEW_REDRAW_NOW);
 
-          #ifdef LED_BACKLIGHT_TIMEOUT
-            if (!powersupply_on) leds.reset_timeout(ms);
+          #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
+            if (!powerManager.psu_on) leds.reset_timeout(ms);
           #endif
         }
 
@@ -1486,6 +1498,13 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
+  #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+    void MarlinUI::poweroff() {
+      queue.inject_P(PSTR("M81"));
+      goto_previous_screen();
+    }
+  #endif
+
   void MarlinUI::flow_fault() {
     LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
     TERN_(HAS_BUZZER, buzz(1000, 440));
@@ -1652,6 +1671,40 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       if (touch_calibration.need_calibration()) ui.goto_screen(touch_screen_calibration);
     #endif
   }
+#endif
+
+#if BOTH(EXTENSIBLE_UI, ADVANCED_PAUSE_FEATURE)
+
+  void MarlinUI::pause_show_message(
+    const PauseMessage message,
+    const PauseMode mode/*=PAUSE_MODE_SAME*/,
+    const uint8_t extruder/*=active_extruder*/
+  ) {
+    if (mode == PAUSE_MODE_SAME)
+      return;
+    pause_mode = mode;
+    switch (message) {
+      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PAUSE_PRINT_PARKING));
+      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));
+      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD));
+      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING));
+      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT));
+      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD));
+      case PAUSE_MESSAGE_PURGE:
+        #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_CONT_PURGE));
+        #else
+          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE));
+        #endif
+      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME));
+      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT));
+      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING));
+      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_OPTION_HEADER));
+      case PAUSE_MESSAGE_STATUS:
+      default: break;
+    }
+  }
+
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)

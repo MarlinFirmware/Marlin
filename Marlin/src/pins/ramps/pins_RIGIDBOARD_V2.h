@@ -34,7 +34,7 @@
 //
 
 // I2C based DAC like on the Printrboard REVF
-#define HAS_MOTOR_CURRENT_DAC
+#define HAS_MOTOR_CURRENT_DAC 1
 
 // Channels available for DAC, For Rigidboard there are 4
 #define DAC_STEPPER_ORDER { 0, 1, 2, 3 }

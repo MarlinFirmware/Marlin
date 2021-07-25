@@ -57,6 +57,10 @@
   #include "../../feature/cooler.h"
 #endif
 
+#if ENABLED(I2C_AMMETER)
+  #include "../../feature/ammeter.h"
+#endif
+
 #if HAS_POWER_MONITOR
   #include "../../feature/power_monitor.h"
 #endif
@@ -260,29 +264,33 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       #define HOTEND_BITMAP(N,S) status_hotend_a_bmp
     #endif
 
-    if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
+    #if DISABLED(STATUS_COMBINE_HEATERS)
 
-      #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
+      if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
-      const float prop = target - 20,
-                  perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
-      uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
-      NOMORE(tall, BAR_TALL);
+        #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
 
-      // Draw hotend bitmap, either whole or split by the heating percent
-      const uint8_t hx = STATUS_HOTEND_X(heater_id),
-                    bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
-      #if ENABLED(STATUS_HEAT_PERCENT)
-        if (isHeat && tall <= BAR_TALL) {
-          const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
-          u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), false));
-          u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), true) + ph * bw);
-        }
-        else
-      #endif
-          u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
+        const float prop = target - 20,
+                    perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
+        uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
+        NOMORE(tall, BAR_TALL);
 
-    } // PAGE_CONTAINS
+        // Draw hotend bitmap, either whole or split by the heating percent
+        const uint8_t hx = STATUS_HOTEND_X(heater_id),
+                      bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
+        #if ENABLED(STATUS_HEAT_PERCENT)
+          if (isHeat && tall <= BAR_TALL) {
+            const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), false));
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), true) + ph * bw);
+          }
+          else
+        #endif
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
+
+      } // PAGE_CONTAINS
+
+    #endif // !STATUS_COMBINE_HEATERS
 
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER

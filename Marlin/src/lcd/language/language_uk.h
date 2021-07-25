@@ -34,7 +34,7 @@ namespace Language_uk {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t    CHARSIZE                            = 2;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("Ukranian");
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Ukrainian");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" Готовий.");
   PROGMEM Language_Str MSG_YES                             = _UxGT("ТАК");
@@ -133,23 +133,24 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Керування шпінделем");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_LASER_POWER                   = _UxGT("Потужність лазера");
-  #else
-    PROGMEM Language_Str MSG_LASER_POWER                   = _UxGT("Потуж.лазера");
-  #endif
-  PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Перемкнути шпіндель");
-  PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Перемкнути лазер");
-  #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Потуж. шпінделя");
+    PROGMEM Language_Str MSG_SPINDLE_TOGGLE                = _UxGT("Перемкн. шпіндель");
+    PROGMEM Language_Str MSG_SPINDLE_EVAC_TOGGLE           = _UxGT("Перемкнути вакуум");
+    PROGMEM Language_Str MSG_LASER_TOGGLE                  = _UxGT("Перемкнути лазер");
+    PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Потужн. шпінделя");
     PROGMEM Language_Str MSG_LASER_PULSE_MS                = _UxGT("Тестовий імпульс мс");
+    PROGMEM Language_Str MSG_LASER_EVAC_TOGGLE             = _UxGT("Перемкнути обдув");
   #else
-    PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Потуж. шпінд.");
-    PROGMEM Language_Str MSG_LASER_PULSE_MS                = _UxGT("Тест. імп. мс");
+    PROGMEM Language_Str MSG_LASER_POWER                   = _UxGT("Потужн. лазера");
+    PROGMEM Language_Str MSG_SPINDLE_TOGGLE                = _UxGT("Перемк. шпінд.");
+    PROGMEM Language_Str MSG_SPINDLE_EVAC_TOGGLE           = _UxGT("Перемк. вакуум");
+    PROGMEM Language_Str MSG_LASER_TOGGLE                  = _UxGT("Перемкн. лазер");
+    PROGMEM Language_Str MSG_SPINDLE_POWER                 = _UxGT("Потужн. шпінд.");
+    PROGMEM Language_Str MSG_LASER_PULSE_MS                = _UxGT("Тест. імп., мс");
+    PROGMEM Language_Str MSG_LASER_EVAC_TOGGLE             = _UxGT("Перемкн. обдув");
   #endif
-  PROGMEM Language_Str MSG_LASER_EVAC_TOGGLE               = _UxGT("Перемкнути обдув");
   PROGMEM Language_Str MSG_LASER_ASSIST_TOGGLE             = _UxGT("Керування обдувом");
   PROGMEM Language_Str MSG_FLOWMETER_FAULT                 = _UxGT("Помилка обдуву");
   PROGMEM Language_Str MSG_LASER_FIRE_PULSE                = _UxGT("Імпульс лазеру");
-  PROGMEM Language_Str MSG_SPINDLE_EVAC_TOGGLE             = _UxGT("Перемкнути вакуум");
   PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Шпіндель вперед");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Шпіндель назад");
 
@@ -160,16 +161,16 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Рух по осям");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Вирівнювання столу");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Вирівняти стіл");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Вирівняти кути");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Вирівняти кути");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Вгору до спрацюв. зонду");
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE        = _UxGT("Кути в межах. Вирів.столу");
+    PROGMEM Language_Str MSG_BED_TRAMMING_RAISE            = _UxGT("Вгору до спрацюв. зонду");
+    PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE         = _UxGT("Кути в межах. Вирів.столу");
   #else
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Вгору до спрац.зонду");
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE        = _UxGT("Кути в межах. Вирівн");
+    PROGMEM Language_Str MSG_BED_TRAMMING_RAISE            = _UxGT("Вгору до спрац.зонду");
+    PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE         = _UxGT("Кути в межах. Вирівн");
   #endif
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Хороші точки: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Остання Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Хороші точки: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Остання Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Наступний кут");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_MESH_EDITOR                   = _UxGT("Зміщення по Z");
@@ -361,18 +362,19 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Сопло очікує");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Стіл,  ") LCD_STR_DEGREE "C";
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("Камера,") LCD_STR_DEGREE "C";
-  PROGMEM Language_Str MSG_COOLER                          = _UxGT("Охолодження лазеру");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_COOLER_TOGGLE                 = _UxGT("Перемкнути охолодження");
+    PROGMEM Language_Str MSG_COOLER                        = _UxGT("Охолодження лазеру");
+    PROGMEM Language_Str MSG_COOLER_TOGGLE                 = _UxGT("Перемк. охолодж.");
   #else
-    PROGMEM Language_Str MSG_COOLER_TOGGLE                 = _UxGT("Перемкнути охолодж.");
+    PROGMEM Language_Str MSG_COOLER                        = _UxGT("Охолодж. лазеру");
+    PROGMEM Language_Str MSG_COOLER_TOGGLE                 = _UxGT("Перемк.охолод");
   #endif
   PROGMEM Language_Str MSG_FLOWMETER_SAFETY                = _UxGT("Безпека потоку");
   PROGMEM Language_Str MSG_LASER                           = _UxGT("Лазер");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Швидк. вент.");
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Швидк. вент. ~");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_STORED_FAN_N                  = _UxGT("Збереж. швидк. вент. ~");
+    PROGMEM Language_Str MSG_STORED_FAN_N                  = _UxGT("Збереж.швидк.вент. ~");
     PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N             = _UxGT("Дод. швидк. вент. ~");
   #else
     PROGMEM Language_Str MSG_STORED_FAN_N                  = _UxGT("Збереж. вент. ~");
@@ -391,8 +393,8 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MAX                             = " " LCD_STR_THERMOMETER ", " LCD_STR_DEGREE _UxGT("С макс");
   PROGMEM Language_Str MSG_FACTOR                          = " " LCD_STR_THERMOMETER _UxGT(" Фактор");
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Автотемпер.");
-  PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Увімк");
-  PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Вимк.");
+  PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Увім");
+  PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Вимк");
 
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("Автопідбір PID");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("Автопідбір PID *");
@@ -426,8 +428,12 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_VMAX_K                          = _UxGT("Швидк.макс ") LCD_STR_K;
   PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Швидк.макс ") LCD_STR_E;
   PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("Швидк.макс *");
-  PROGMEM Language_Str MSG_VMIN                            = _UxGT("Швидк.мін");
-  PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("Переміщення мін");
+  PROGMEM Language_Str MSG_VMIN                            = _UxGT("Швидк. мін");
+  #if LCD_WIDTH > 21
+    PROGMEM Language_Str MSG_VTRAV_MIN                     = _UxGT("Переміщення мін");
+  #else
+    PROGMEM Language_Str MSG_VTRAV_MIN                     = _UxGT("Переміщ. мін");
+  #endif
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Прискорення, мм/с2");
   PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Приск.макс ") LCD_STR_A;
   PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Приск.макс ") LCD_STR_B;

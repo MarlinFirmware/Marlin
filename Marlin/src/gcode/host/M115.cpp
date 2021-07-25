@@ -54,6 +54,9 @@ void GcodeSuite::M115() {
     "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
     "MACHINE_TYPE:" MACHINE_NAME " "
     "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+    #if LINEAR_AXES != XYZ
+      "AXIS_COUNT:" STRINGIFY(LINEAR_AXES) " "
+    #endif
     #ifdef MACHINE_UUID
       "UUID:" MACHINE_UUID
     #endif

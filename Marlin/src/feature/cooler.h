@@ -94,12 +94,12 @@ public:
     }
 
     #if ENABLED(FLOWMETER_SAFETY)
-      static bool fault;                // Flag that the cooler is in a fault state
-      static bool flowsafety_enabled;   // Flag to disable the cutter if flow rate is too low
+      static bool flowfault;                // Flag that the cooler is in a fault state
+      static bool flowsafety_enabled;       // Flag to disable the cutter if flow rate is too low
       static void flowsafety_toggle()   { flowsafety_enabled = !flowsafety_enabled; }
       static bool check_flow_too_low() {
         const bool too_low = flowsafety_enabled && flowrate < (FLOWMETER_MIN_LITERS_PER_MINUTE);
-        if (too_low) fault = true;
+        flowfault =  too_low;
         return too_low;
       }
     #endif

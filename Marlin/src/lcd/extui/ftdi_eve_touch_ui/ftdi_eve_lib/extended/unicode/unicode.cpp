@@ -95,9 +95,9 @@
    *   fs   - A scaling object used to specify the font size.
    */
 
-  static uint16_t render_utf8_text(CommandProcessor* cmd, int x, int y, const char *str, font_size_t fs) {
+  static uint16_t render_utf8_text(CommandProcessor* cmd, int x, int y, const char *str, font_size_t fs, size_t maxlen=SIZE_MAX) {
     const int start_x = x;
-    while (*str) {
+    while (*str && maxlen--) {
       const utf8_char_t c = get_utf8_char_and_inc(str);
       #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
         CyrillicCharSet::render_glyph(cmd, x, y, fs, c) ||
@@ -185,8 +185,8 @@
     * Returns: A width in pixels
     */
 
-  uint16_t FTDI::get_utf8_text_width(const char *str, font_size_t fs) {
-    return render_utf8_text(nullptr, 0, 0, str, fs);
+  uint16_t FTDI::get_utf8_text_width(const char *str, font_size_t fs, size_t maxlen) {
+    return render_utf8_text(nullptr, 0, 0, str, fs, maxlen);
   }
 
   uint16_t FTDI::get_utf8_text_width(progmem_str pstr, font_size_t fs) {
@@ -210,9 +210,10 @@
     *
     *   options - Text alignment options (i.e. OPT_CENTERX, OPT_CENTERY, OPT_CENTER or OPT_RIGHTX)
     *
+    *   maxlen - Maximum characters to draw
     */
 
-  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, const char *str, font_size_t fs, uint16_t options) {
+  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, const char *str, font_size_t fs, uint16_t options, size_t maxlen) {
     cmd.cmd(SAVE_CONTEXT());
     cmd.cmd(BITMAP_TRANSFORM_A(fs.get_coefficient()));
     cmd.cmd(BITMAP_TRANSFORM_E(fs.get_coefficient()));
@@ -220,14 +221,14 @@
 
     // Apply alignment options
     if (options & OPT_CENTERX)
-      x -= get_utf8_text_width(str, fs) / 2;
+      x -= get_utf8_text_width(str, fs, maxlen) / 2;
     else if (options & OPT_RIGHTX)
-      x -= get_utf8_text_width(str, fs);
+      x -= get_utf8_text_width(str, fs, maxlen);
     if (options & OPT_CENTERY)
       y -= fs.get_height()/2;
 
     // Render the text
-    render_utf8_text(&cmd, x, y, str, fs);
+    render_utf8_text(&cmd, x, y, str, fs, maxlen);
     cmd.cmd(RESTORE_CONTEXT());
   }
 
