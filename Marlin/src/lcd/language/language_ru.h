@@ -159,17 +159,17 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Движение по осям");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Выравнивание стола");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Выровнять стол");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Выровнять углы");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Выровнять углы");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Следующий угол");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Вверх до срабатыв. зонда");
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE        = _UxGT("Углы в норме. Вырав.стола");
+    PROGMEM Language_Str MSG_BED_TRAMMING_RAISE            = _UxGT("Вверх до срабатыв. зонда");
+    PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE         = _UxGT("Углы в норме. Вырав.стола");
   #else
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE           = _UxGT("Вверх до сраб. зонда");
-    PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE        = _UxGT("Углы в норме. Вырав.");
+    PROGMEM Language_Str MSG_BED_TRAMMING_RAISE            = _UxGT("Вверх до сраб. зонда");
+    PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE         = _UxGT("Углы в норме. Вырав.");
   #endif
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Хорошие точки: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Последняя Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Хорошие точки: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Последняя Z: ");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_MESH_EDITOR                   = _UxGT("Смещение по Z");
     PROGMEM Language_Str MSG_EDITING_STOPPED               = _UxGT("Правка сетки окончена");
