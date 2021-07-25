@@ -727,6 +727,7 @@ namespace Language_en {
   #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
+  PROGMEM Language_Str MSG_REHEATDONE                      = _UxGT("Reheat Done");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
   PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Probing Z Reference");

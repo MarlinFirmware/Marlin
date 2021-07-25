@@ -184,7 +184,6 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       PGM_P const label = GET_TEXT(MSG_MOVE_N_MM);
       char tmp[strlen_P(label) + 10 + 1], numstr[10];
       sprintf_P(tmp, label, dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
-
       #if DISABLED(HAS_GRAPHICAL_TFT)
         SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
         MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
