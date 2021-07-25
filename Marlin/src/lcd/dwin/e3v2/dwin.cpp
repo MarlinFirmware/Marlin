@@ -461,7 +461,8 @@ void Draw_Back_First(const bool is_sel=true) {
   if (is_sel) Draw_Menu_Cursor(0);
 }
 
-inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valref) {
+template<typename T>
+inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, T &valref) {
   if (encoder_diffState == ENCODER_DIFF_CW)
     valref += EncoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
