@@ -37,10 +37,10 @@ void LockScreenClass::Init() {
 void LockScreenClass::Draw() {
   Title.Clear();
   Clear_Menu_Area();
-  DWIN.Draw_Icon(ICON_LOGO, 71, 120);  // CREALITY logo
-  DWIN.Draw_CenteredString(Color_White, 180, F("Printer is Locked,"));
-  DWIN.Draw_CenteredString(Color_White, 200, F("Scroll to unlock."));
-  DWIN.Draw_CenteredString(Color_White, 240, F("-> | <-"));
+  DWINUI::Draw_Icon(ICON_LOGO, 71, 120);  // CREALITY logo
+  DWINUI::Draw_CenteredString(Color_White, 180, F("Printer is Locked,"));
+  DWINUI::Draw_CenteredString(Color_White, 200, F("Scroll to unlock."));
+  DWINUI::Draw_CenteredString(Color_White, 240, F("-> | <-"));
   DWIN_Draw_Box(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
   DWIN_Draw_VLine(Color_Yellow, Lock_Pos * DWIN_WIDTH / 255, 260, 20);
   DWIN_UpdateLCD();

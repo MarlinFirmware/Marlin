@@ -234,15 +234,13 @@ typedef struct {
   uint16_t bottom;
 } rect_t;
 
-class DWINUIClass {
-private:
-  xy_int_t cursor = { 0 };
-  uint16_t pencolor = Color_White;
-  uint16_t textcolor = Def_Text_Color;
-  uint16_t backcolor = Def_Background_Color;
-  uint8_t  font = font8x16;
+namespace DWINUI {
+  extern xy_int_t cursor;
+  extern uint16_t pencolor;
+  extern uint16_t textcolor;
+  extern uint16_t backcolor;
+  extern uint8_t  font;
 
-public:
   // DWIN LCD Initialization
   void Init(void);
 
@@ -250,10 +248,10 @@ public:
   void SetFont(uint8_t cfont);
 
   // Get font character width
-  static uint8_t Get_font_width(uint8_t cfont);
+  uint8_t Get_font_width(uint8_t cfont);
 
   // Get font character heigh
-  static uint8_t Get_font_height(uint8_t cfont);
+  uint8_t Get_font_height(uint8_t cfont);
 
   // Get screen x coodinates from text column
   uint16_t ColToX(uint8_t col);
@@ -293,7 +291,7 @@ public:
   // Draw an Icon from the library ICON
   //  icon: Icon ID
   //  x/y: Upper-left point
-  void Draw_Icon(uint8_t icon, uint16_t x, uint16_t y) {
+  inline void Draw_Icon(uint8_t icon, uint16_t x, uint16_t y) {
     DWIN_ICON_Show(ICON, icon, x, y);
   }
 
@@ -491,7 +489,6 @@ public:
   }
 
 };
-extern DWINUIClass DWIN;
 
 class TitleClass {
 private:
@@ -506,7 +503,7 @@ public:
   void Draw();
   void SetFont(uint8_t cfont);
   void SetCaption(const char * const title);
-  void SetCaption(const __FlashStringHelper * title) { SetCaption((char*)title); }
+  inline void SetCaption(const __FlashStringHelper * title) { SetCaption((char*)title); }
   void SetFrame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   void SetColors(int16_t color, int16_t bcolor);
   void SetTextColor(int16_t color);
