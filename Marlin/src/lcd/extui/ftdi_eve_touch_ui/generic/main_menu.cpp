@@ -104,7 +104,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
 
   switch (tag) {
     case 1:  SaveSettingsDialogBox::promptToSaveSettings();           break;
-    case 2:  SpinnerDialogBox::enqueueAndWait_P(F("G28"));            break;
+    case 2:  SpinnerDialogBox::enqueueAndWait_P(PSTR("G28"));            break;
     #if ENABLED(NOZZLE_CLEAN_FEATURE)
       case 3: injectCommands_P(PSTR("G12")); GOTO_SCREEN(StatusScreen); break;
     #endif

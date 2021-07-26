@@ -67,10 +67,10 @@ namespace FTDI {
 
   uint16_t get_utf8_char_width(utf8_char_t, font_size_t);
   uint16_t get_utf8_text_width(progmem_str, font_size_t);
-  uint16_t get_utf8_text_width(const char *, font_size_t);
+  uint16_t get_utf8_text_width(const char *, font_size_t, size_t maxlen=SIZE_MAX);
 
   void draw_utf8_text(CommandProcessor&, int x, int y, progmem_str, font_size_t, uint16_t options = 0);
-  void draw_utf8_text(CommandProcessor&, int x, int y, const char *, font_size_t, uint16_t options = 0);
+  void draw_utf8_text(CommandProcessor&, int x, int y, const char *, font_size_t, uint16_t options = 0, size_t maxlen=SIZE_MAX);
 
   // Similar to CLCD::FontMetrics, but can be used with UTF8 encoded strings.
 
