@@ -5315,6 +5315,5 @@ void DWIN_LockScreen(const bool flag) {
   HMI_flag.lock_flag = flag;
   checkkey = Locked;
   LockScreen.Init();
-}
 
 #endif // DWIN_CREALITY_LCD

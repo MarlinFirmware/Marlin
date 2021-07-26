@@ -318,8 +318,8 @@ void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
-void DWIN_StatusChanged_P(PGM_P const text);
 void DWIN_StatusChanged(const char * const text);
+void DWIN_StatusChanged_P(PGM_P const text);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if ENABLED(MESH_BED_LEVELING)
