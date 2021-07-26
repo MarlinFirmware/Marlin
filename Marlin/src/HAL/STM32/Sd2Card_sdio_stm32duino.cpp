@@ -290,13 +290,13 @@ static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t *src, uint8_t 
 
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
   uint8_t retries = SDIO_READ_RETRIES;
-  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, NULL, dst)) return true;
+  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, nullptr, dst)) return true;
   return false;
 }
 
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
   uint8_t retries = SDIO_READ_RETRIES;
-  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, src, NULL)) return true;
+  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, src, nullptr)) return true;
   return false;
 }
 
