@@ -47,7 +47,7 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "dwin/e3v2/dwin.h"
+  #include "dwin/creality_dwin.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -1455,7 +1455,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
-    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD, CrealityDWIN.Update_Status(status_message));
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)

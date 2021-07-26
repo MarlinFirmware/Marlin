@@ -73,6 +73,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/creality_dwin.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -354,6 +358,11 @@ typedef struct SettingsDataStruct {
   int16_t lcd_contrast;                                 // M250 C
 
   //
+  // HAS_LCD_BRIGHTNESS
+  //
+  uint8_t lcd_brightness;                                 // M251 B
+
+  //
   // Controller fan settings
   //
   controllerFan_settings_t controllerFan_settings;      // M710
@@ -434,6 +443,13 @@ typedef struct SettingsDataStruct {
   #if ENABLED(EXTENSIBLE_UI)
     // This is a significant hardware change; don't reserve space when not present
     uint8_t extui_data[ExtUI::eeprom_data_size];
+  #endif
+
+  //
+  // EXTENSIBLE_UI
+  //
+  #if ENABLED(DWIN_CREALITY_LCD)
+    uint8_t creality_settings[CrealityDWIN.eeprom_data_size];
   #endif
 
   //
@@ -1011,6 +1027,22 @@ void MarlinSettings::postprocess() {
     }
 
     //
+    // LCD Brightness
+    //
+    {
+      _FIELD_TEST(lcd_brightness);
+
+      const uint8_t lcd_brightness =
+        #if HAS_LCD_BRIGHTNESS
+          ui.brightness
+        #else
+          255
+        #endif
+      ;
+      EEPROM_WRITE(lcd_brightness);
+    }
+
+    //
     // Controller Fan
     //
     {
@@ -1338,6 +1370,18 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(extui_data);
       }
     #endif
+
+    //
+    // Creality UI Settings
+    //
+    #if ENABLED(DWIN_CREALITY_LCD)
+        {
+          char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+          CrealityDWIN.Save_Settings(dwin_settings);
+          _FIELD_TEST(dwin_settings);
+          EEPROM_WRITE(dwin_settings);
+        }
+      #endif
 
     //
     // Case Light Brightness
@@ -1847,6 +1891,18 @@ void MarlinSettings::postprocess() {
       }
 
       //
+      // LCD Brightness
+      //
+      {
+        _FIELD_TEST(lcd_brightness);
+        uint8_t lcd_brightness;
+        EEPROM_READ(lcd_brightness);
+        if (!validating) {
+          TERN_(HAS_LCD_BRIGHTNESS, ui.set_brightness(lcd_brightness));
+        }
+      }
+
+      //
       // Controller Fan
       //
       {
@@ -2206,6 +2262,18 @@ void MarlinSettings::postprocess() {
           _FIELD_TEST(extui_data);
           EEPROM_READ(extui_data);
           if (!validating) ExtUI::onLoadSettings(extui_data);
+        }
+      #endif
+
+      //
+      // Creality UI Settings
+      //
+      #if ENABLED(DWIN_CREALITY_LCD)
+        {
+          const char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+          _FIELD_TEST(dwin_settings);
+          EEPROM_READ(dwin_settings);
+          if (!validating) CrealityDWIN.Load_Settings(dwin_settings);
         }
       #endif
 
@@ -2607,6 +2675,8 @@ void MarlinSettings::reset() {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 
+  TERN_(DWIN_CREALITY_LCD, CrealityDWIN.Reset_Settings());
+
   //
   // Case Light Brightness
   //
@@ -2829,6 +2899,11 @@ void MarlinSettings::reset() {
   // LCD Contrast
   //
   TERN_(HAS_LCD_CONTRAST, ui.set_contrast(DEFAULT_LCD_CONTRAST));
+
+  //
+  // LCD Brightness
+  //
+  TERN_(HAS_LCD_BRIGHTNESS, ui.set_brightness(DEFAULT_LCD_BRIGHTNESS));
 
   //
   // Controller Fan
@@ -3405,6 +3480,11 @@ void MarlinSettings::reset() {
     #if HAS_LCD_CONTRAST
       CONFIG_ECHO_HEADING("LCD Contrast:");
       CONFIG_ECHO_MSG("  M250 C", ui.contrast);
+    #endif
+
+    #if HAS_LCD_BRIGHTNESS
+      CONFIG_ECHO_HEADING("LCD Brightness:");
+      CONFIG_ECHO_MSG("  M251 B", ui.brightness);
     #endif
 
     TERN_(CONTROLLER_FAN_EDITABLE, M710_report(forReplay));

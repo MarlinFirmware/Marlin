@@ -46,9 +46,6 @@
 #endif
 
 #include "../../lcd/marlinui.h"
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/dwin/e3v2/dwin.h"
-#endif
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
@@ -238,7 +235,6 @@ void GcodeSuite::G28() {
     return;
   }
 
-  TERN_(DWIN_CREALITY_LCD, DWIN_StartHoming());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
@@ -268,7 +264,7 @@ void GcodeSuite::G28() {
   #endif
 
   #if HAS_HOMING_CURRENT
-    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
+    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
       DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
@@ -522,7 +518,6 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
-  TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
 
   report_current_position();

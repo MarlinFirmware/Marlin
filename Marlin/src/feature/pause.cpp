@@ -262,11 +262,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
-          #if HAS_LCD_MENU
-            ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
-          #else
-            pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-          #endif
+          ui.pause_show_message(PAUSE_MESSAGE_OPTION);
+          pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
       #endif

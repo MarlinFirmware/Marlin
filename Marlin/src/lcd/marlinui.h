@@ -55,7 +55,7 @@
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI) || BOTH(DWIN_CREALITY_LCD, ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
   #include "../module/motion.h" // for active_extruder
 #endif
@@ -239,12 +239,15 @@ public:
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    static void refresh();
-  #else
-    FORCE_INLINE static void refresh() {
-      TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
-    }
+  FORCE_INLINE static void refresh() {
+    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
+  }
+
+  #if HAS_LCD_BRIGHTNESS
+    static uint8_t brightness;
+    static bool backlight;
+    static void set_brightness(const uint8_t value);
+    FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
   #if HAS_WIRED_LCD
@@ -549,7 +552,7 @@ public:
     static inline bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI) || BOTH(DWIN_CREALITY_LCD, ADVANCED_PAUSE_FEATURE)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}

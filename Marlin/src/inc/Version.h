@@ -25,7 +25,7 @@
  * Release version. Leave the Marlin version or apply a custom scheme.
  */
 #ifndef SHORT_BUILD_VERSION
-  #define SHORT_BUILD_VERSION "bugfix-2.0.x"
+  #define SHORT_BUILD_VERSION "Marlin-JyersUI"
 #endif
 
 /**
@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2021-07-26"
+  #define STRING_DISTRIBUTION_DATE "2021-07-20"
 #endif
 
 /**
