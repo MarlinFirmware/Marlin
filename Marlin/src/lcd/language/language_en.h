@@ -93,7 +93,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_HOME_OFFSET_K                   = _UxGT("Home Offset ") LCD_STR_K;
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets Applied");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Set Origin");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisted Tramming");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Tramming Wizard");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Select Origin");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Last value ");
@@ -139,11 +138,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Move Axis");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bed Leveling");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Level Bed");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Level Corners");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Raise Bed Until Probe Triggered");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("All Corners Within Tolerance. Level Bed");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Good Points: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Last Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bed Tramming");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Raise Bed Until Probe Triggered");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("All Corners Within Tolerance. Level Bed");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Good Points: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Last Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Next Corner");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edit Mesh");
@@ -727,6 +726,7 @@ namespace Language_en {
   #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
+  PROGMEM Language_Str MSG_REHEATDONE                      = _UxGT("Reheat Done");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
   PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Probing Z Reference");

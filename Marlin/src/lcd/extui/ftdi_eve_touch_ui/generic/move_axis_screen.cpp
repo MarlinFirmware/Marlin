@@ -98,10 +98,10 @@ bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
     case 14: UI_DECREMENT_AXIS(E3); mydata.e_rel[3] -= increment; break;
     case 15: UI_INCREMENT_AXIS(E3); mydata.e_rel[3] += increment; break;
     #endif
-    case 20: SpinnerDialogBox::enqueueAndWait_P(F("G28X")); break;
-    case 21: SpinnerDialogBox::enqueueAndWait_P(F("G28Y")); break;
-    case 22: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
-    case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28")); break;
+    case 20: SpinnerDialogBox::enqueueAndWait_P(PSTR("G28X")); break;
+    case 21: SpinnerDialogBox::enqueueAndWait_P(PSTR("G28Y")); break;
+    case 22: SpinnerDialogBox::enqueueAndWait_P(PSTR("G28Z")); break;
+    case 23: SpinnerDialogBox::enqueueAndWait_P(PSTR("G28")); break;
     case 24: raiseZtoTop(); break;
     default:
       return false;

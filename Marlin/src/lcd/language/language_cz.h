@@ -109,7 +109,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Posunout osy");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Vyrovnat podložku");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Vyrovnat podložku");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Vyrovnat rohy");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Vyrovnat rohy");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Další roh");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor sítě");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Upravit síť bodů");

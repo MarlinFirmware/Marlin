@@ -4128,6 +4128,12 @@ void DWIN_StatusChanged(const char *text) {
   DWIN_UpdateLCD();
 }
 
+void DWIN_StatusChanged_P(PGM_P const pstr) {
+  char str[strlen_P((const char*)pstr) + 1];
+  strcpy_P(str, (const char*)pstr);
+  DWIN_StatusChanged(str);
+}
+
 // GUI extension
 void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
   DWIN_Draw_String(false,true,font8x16,Select_Color,bcolor,x+4,y,F(mode ? "x" : " "));

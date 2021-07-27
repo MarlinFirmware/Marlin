@@ -419,7 +419,7 @@ void menu_motion() {
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-    SUBMENU(MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

@@ -69,10 +69,10 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: SaveSettingsDialogBox::promptToSaveSettings();                               break;
     case 2: GOTO_SCREEN(BioConfirmHomeXYZ);                                              break;
-    case 3: SpinnerDialogBox::enqueueAndWait_P(e_homed ? F("G0 E0 F120") : F("G112"));   break;
+    case 3: SpinnerDialogBox::enqueueAndWait_P(e_homed ? PSTR("G0 E0 F120") : PSTR("G112")); break;
     case 4: StatusScreen::unlockMotors();                                                break;
     #ifdef AXIS_LEVELING_COMMANDS
-    case 5: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS));               break;
+    case 5: SpinnerDialogBox::enqueueAndWait_P(PSTR(AXIS_LEVELING_COMMANDS));            break;
     #endif
     case 6: GOTO_SCREEN(TemperatureScreen);                                              break;
     case 7: GOTO_SCREEN(InterfaceSettingsScreen);                                        break;
