@@ -39,7 +39,8 @@
     "protocols": [
       "stlink",
       "dfu",
-      "jlink"
+      "jlink",
+      "blackmagic"
     ],
     "require_upload_port": true,
     "use_1200bps_touch": false,
