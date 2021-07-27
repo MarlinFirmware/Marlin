@@ -2539,7 +2539,7 @@
 //
 // Flash display with DGUS Displays for Marlin:
 //  - Format the SD card to FAT32 with a allocation size of 4k.
-//  - Download files as spesified for your type of display
+//  - Download files as specified for your type of display
 //  - Plug the microSD card into the back of the display.
 //  - Boot the display and wait for the update to complete.
 //
