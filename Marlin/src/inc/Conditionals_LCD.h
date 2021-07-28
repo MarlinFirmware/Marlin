@@ -141,6 +141,13 @@
   #define IS_RRD_SC 1
   #define IS_U8GLIB_SSD1306
 
+#elif ENABLED(SAV_3DGLCD)
+
+  #ifdef U8GLIB_SSD1306
+    #define IS_U8GLIB_SSD1306
+  #endif
+  #define IS_NEWPANEL 1
+
 #elif ENABLED(FYSETC_242_OLED_12864)
 
   #define IS_RRD_SC 1
