@@ -771,7 +771,7 @@
 #endif
 
 /**
- * Set flags for enabled probes
+ * Set a flag for any type of bed probe, including the paper-test
  */
 #if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE)
   #define HAS_BED_PROBE 1
