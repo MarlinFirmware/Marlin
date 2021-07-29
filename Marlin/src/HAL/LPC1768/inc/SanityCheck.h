@@ -146,7 +146,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (2) conflict with other pins!"
   #elif Y_HOME_TO_MIN && IS_TX2(Y_STOP_PIN)
     #error "Serial port pins (2) conflict with Y endstop pin!"
-  #elif HAS_CUSTOM_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
+  #elif USES_Z_MIN_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
     #error "Serial port pins (2) conflict with probe pin!"
   #elif ANY_TX(2, X_ENABLE_PIN, Y_ENABLE_PIN) || ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
     #error "Serial port pins (2) conflict with X/Y stepper pins!"
@@ -237,7 +237,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #define PIN_IS_SCL2(P) (P##_PIN == P0_11)
     #if PIN_IS_SDA2(Y_STOP)
       #error "i2c SDA2 overlaps with Y endstop pin!"
-    #elif HAS_CUSTOM_PROBE_PIN && PIN_IS_SDA2(Z_MIN_PROBE)
+    #elif USES_Z_MIN_PROBE_PIN && PIN_IS_SDA2(Z_MIN_PROBE)
       #error "i2c SDA2 overlaps with Z probe pin!"
     #elif PIN_IS_SDA2(X_ENABLE) || PIN_IS_SDA2(Y_ENABLE)
       #error "i2c SDA2 overlaps with X/Y ENABLE pin!"

@@ -329,7 +329,7 @@ void Endstops::init() {
     #endif
   #endif
 
-  #if HAS_CUSTOM_PROBE_PIN
+  #if USES_Z_MIN_PROBE_PIN
     #if ENABLED(ENDSTOPPULLUP_ZMIN_PROBE)
       SET_INPUT_PULLUP(Z_MIN_PROBE_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_ZMIN_PROBE)
@@ -453,7 +453,7 @@ void Endstops::event_handler() {
       _ENDSTOP_HIT_TEST(K,'K')
     );
 
-    #if HAS_CUSTOM_PROBE_PIN
+    #if USES_Z_MIN_PROBE_PIN
       #define P_AXIS Z_AXIS
       if (TEST(hit_state, Z_MIN_PROBE)) _ENDSTOP_HIT_ECHO(P, 'P');
     #endif
@@ -566,7 +566,7 @@ void _O2 Endstops::report_states() {
   #if BOTH(MARLIN_DEV_MODE, PROBE_ACTIVATION_SWITCH)
     print_es_state(probe_switch_activated(), PSTR(STR_PROBE_EN));
   #endif
-  #if HAS_CUSTOM_PROBE_PIN
+  #if USES_Z_MIN_PROBE_PIN
     print_es_state(PROBE_TRIGGERED(), PSTR(STR_Z_PROBE));
   #endif
   #if MULTI_FILAMENT_SENSOR
@@ -721,7 +721,7 @@ void Endstops::update() {
   #if HAS_BED_PROBE
     // When closing the gap check the enabled probe
     if (probe_switch_activated())
-      UPDATE_ENDSTOP_BIT(Z, TERN(HAS_CUSTOM_PROBE_PIN, MIN_PROBE, MIN));
+      UPDATE_ENDSTOP_BIT(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
   #endif
 
   #if HAS_Z_MAX && !Z_SPI_SENSORLESS
@@ -747,7 +747,7 @@ void Endstops::update() {
           COPY_LIVE_STATE(Z_MAX, Z4_MAX);
         #endif
       #endif
-    #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN
+    #elif !USES_Z_MIN_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN
       // If this pin isn't the bed probe it's the Z endstop
       UPDATE_ENDSTOP_BIT(Z, MAX);
     #endif
@@ -1022,7 +1022,7 @@ void Endstops::update() {
 
         #if HAS_Z_MIN || (Z_SPI_SENSORLESS && Z_HOME_TO_MIN)
           if ( TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, z_probe_enabled)
-            && TERN1(HAS_CUSTOM_PROBE_PIN, !z_probe_enabled)
+            && TERN1(USES_Z_MIN_PROBE_PIN, !z_probe_enabled)
           ) PROCESS_ENDSTOP_Z(MIN);
           #if   CORE_DIAG(XZ, X, MIN)
             PROCESS_CORE_ENDSTOP(X,MIN,Z,MIN);
@@ -1036,7 +1036,7 @@ void Endstops::update() {
         #endif
 
         // When closing the gap check the enabled probe
-        #if HAS_CUSTOM_PROBE_PIN
+        #if USES_Z_MIN_PROBE_PIN
           if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
         #endif
       }
@@ -1044,7 +1044,7 @@ void Endstops::update() {
         #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_TO_MAX)
           #if ENABLED(Z_MULTI_ENDSTOPS)
             PROCESS_ENDSTOP_Z(MAX);
-          #elif !HAS_CUSTOM_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN  // No probe or probe is Z_MIN || Probe is not Z_MAX
+          #elif !USES_Z_MIN_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN  // No probe or probe is Z_MIN || Probe is not Z_MAX
             PROCESS_ENDSTOP(Z, MAX);
           #endif
           #if   CORE_DIAG(XZ, X, MIN)
