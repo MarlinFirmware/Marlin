@@ -214,7 +214,7 @@
 // SD Card
 //
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              LCD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
