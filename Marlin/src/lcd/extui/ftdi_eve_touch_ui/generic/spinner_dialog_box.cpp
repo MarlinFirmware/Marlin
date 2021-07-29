@@ -34,7 +34,7 @@ constexpr static SpinnerDialogBoxData &mydata = screen_data.SpinnerDialogBox;
 void SpinnerDialogBox::onRedraw(draw_mode_t) {
 }
 
-void SpinnerDialogBox::show(const progmem_str message) {
+void SpinnerDialogBox::show(progmem_str message) {
   drawMessage(message);
   drawSpinner();
   storeBackground();
@@ -46,14 +46,17 @@ void SpinnerDialogBox::hide() {
   cmd.stop().execute();
 }
 
-void SpinnerDialogBox::enqueueAndWait_P(const progmem_str commands) {
-  enqueueAndWait_P(GET_TEXT_F(MSG_PLEASE_WAIT), commands);
-}
-
-void SpinnerDialogBox::enqueueAndWait_P(const progmem_str message, const progmem_str commands) {
+void SpinnerDialogBox::enqueueAndWait(progmem_str message, progmem_str commands) {
   show(message);
   GOTO_SCREEN(SpinnerDialogBox);
   ExtUI::injectCommands_P((const char*)commands);
+  mydata.auto_hide = true;
+}
+
+void SpinnerDialogBox::enqueueAndWait(progmem_str message, char *commands) {
+  show(message);
+  GOTO_SCREEN(SpinnerDialogBox);
+  ExtUI::injectCommands(commands);
   mydata.auto_hide = true;
 }
 
