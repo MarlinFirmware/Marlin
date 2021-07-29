@@ -345,6 +345,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
+	//#define LCD_SCREEN_ROT_180
 
   #else                                           // !MKS_MINI_12864
 
