@@ -69,7 +69,7 @@ enum EndstopEnum : char {
   #endif
 
   // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
-  _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(HAS_CUSTOM_PROBE_PIN, = Z_MIN))
+  _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(USES_Z_MIN_PROBE_PIN, = Z_MIN))
 
   // The total number of states
   NUM_ENDSTOP_STATES
