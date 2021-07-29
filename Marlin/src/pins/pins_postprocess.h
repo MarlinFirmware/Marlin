@@ -1134,6 +1134,10 @@
   #define USE_ZMIN_PLUG
 #endif
 #undef _STOP_IN_USE
+#if !USES_Z_MIN_PROBE_PIN
+  #undef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN    -1
+#endif
 #if DISABLED(USE_XMIN_PLUG)
   #undef X_MIN_PIN
   #define X_MIN_PIN          -1
