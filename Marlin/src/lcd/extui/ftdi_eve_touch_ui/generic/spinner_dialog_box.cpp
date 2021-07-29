@@ -31,6 +31,10 @@ using namespace ExtUI;
 
 constexpr static SpinnerDialogBoxData &mydata = screen_data.SpinnerDialogBox;
 
+void SpinnerDialogBox::onEntry() {
+  mydata.auto_hide = true;
+}
+
 void SpinnerDialogBox::onRedraw(draw_mode_t) {
 }
 
@@ -38,6 +42,7 @@ void SpinnerDialogBox::show(progmem_str message) {
   drawMessage(message);
   drawSpinner();
   storeBackground();
+  GOTO_SCREEN(SpinnerDialogBox);
   mydata.auto_hide = false;
 }
 
@@ -48,16 +53,12 @@ void SpinnerDialogBox::hide() {
 
 void SpinnerDialogBox::enqueueAndWait(progmem_str message, progmem_str commands) {
   show(message);
-  GOTO_SCREEN(SpinnerDialogBox);
   ExtUI::injectCommands_P((const char*)commands);
-  mydata.auto_hide = true;
 }
 
 void SpinnerDialogBox::enqueueAndWait(progmem_str message, char *commands) {
   show(message);
-  GOTO_SCREEN(SpinnerDialogBox);
   ExtUI::injectCommands(commands);
-  mydata.auto_hide = true;
 }
 
 void SpinnerDialogBox::onIdle() {
