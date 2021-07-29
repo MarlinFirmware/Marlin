@@ -31,6 +31,7 @@ struct SpinnerDialogBoxData {
 
 class SpinnerDialogBox : public DialogBoxBaseClass, public CachedScreen<SPINNER_CACHE,SPINNER_DL_SIZE> {
   public:
+    static void onEntry();
     static void onRedraw(draw_mode_t);
     static void onIdle();
 
