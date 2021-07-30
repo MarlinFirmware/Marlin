@@ -57,7 +57,7 @@ bool Power::psu_on;
  * Initialize pins & state for the power manager.
  *
  */
-void Power::init(){
+void Power::init() {
   psu_on = ENABLED(PSU_DEFAULT_OFF);              // Set opposite state to get full power_off/on
   TERN(PSU_DEFAULT_OFF, power_off(), power_on());
 }

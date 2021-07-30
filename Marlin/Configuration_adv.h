@@ -3819,6 +3819,7 @@
  */
 //#define HOST_ACTION_COMMANDS
 #if ENABLED(HOST_ACTION_COMMANDS)
+  //#define HOST_PAUSE_M76
   //#define HOST_PROMPT_SUPPORT
   //#define HOST_START_MENU_ITEM  // Add a menu item that tells the host to start
 #endif
@@ -4173,6 +4174,14 @@
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
+
+#if ENABLED(MARLIN_DEV_MODE)
+  /**
+   * D576 - Buffer Monitoring
+   * To help diagnose print quality issues stemming from empty command buffers.
+   */
+  //#define BUFFER_MONITORING
+#endif
 
 /**
  * Postmortem Debugging captures misbehavior and outputs the CPU status and backtrace to serial.

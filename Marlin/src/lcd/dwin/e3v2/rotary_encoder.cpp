@@ -121,7 +121,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
     lastEncoderBits = newbutton;
   }
 
-  if (abs(temp_diff) >= ENCODER_PULSES_PER_STEP) {
+  if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
     if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
     else temp_diffState = ENCODER_DIFF_CCW;
 

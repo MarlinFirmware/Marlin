@@ -404,6 +404,7 @@ void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_StatusChanged(const char *text);
+void DWIN_StatusChanged_P(PGM_P const pstr);
 void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode /* = false*/);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
