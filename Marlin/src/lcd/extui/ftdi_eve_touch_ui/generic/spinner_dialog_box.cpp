@@ -49,6 +49,7 @@ void SpinnerDialogBox::show(progmem_str message) {
 void SpinnerDialogBox::hide() {
   CommandProcessor cmd;
   cmd.stop().execute();
+  GOTO_PREVIOUS();
 }
 
 void SpinnerDialogBox::enqueueAndWait(progmem_str message, progmem_str commands) {
@@ -66,7 +67,6 @@ void SpinnerDialogBox::onIdle() {
   if (mydata.auto_hide && !commandsInQueue()) {
     mydata.auto_hide = false;
     hide();
-    GOTO_PREVIOUS();
   }
 }
 
