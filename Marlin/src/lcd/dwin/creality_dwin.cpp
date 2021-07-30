@@ -5295,7 +5295,7 @@ void CrealityDWINClass::Screen_Update() {
   #endif
   #if HAS_ZOFFSET_ITEM
     static float lastzoffset = zoffsetvalue;
-    if (zoffsetvalue != lastzoffset) {
+    if (zoffsetvalue != lastzoffset && !printing) {
       lastzoffset = zoffsetvalue;
       #if HAS_BED_PROBE
         probe.offset.z = zoffsetvalue;
