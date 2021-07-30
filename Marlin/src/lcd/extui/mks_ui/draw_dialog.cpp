@@ -519,7 +519,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_load_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-    if (abs(diff) < 2 || diff > 0) {
+    if (ABS(diff) < 2 || diff > 0) {
       uiCfg.filament_load_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
@@ -535,7 +535,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_unload_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-    if (abs(diff) < 2 || diff > 0) {
+    if (ABS(diff) < 2 || diff > 0) {
       uiCfg.filament_unload_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);

@@ -121,7 +121,7 @@ float BaseMoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
   // being held down, this allows enough margin for the planner to
   // connect segments and even out the motion.
   constexpr xyze_feedrate_t max_manual_feedrate = MANUAL_FEEDRATE;
-  return min(max_manual_feedrate[axis] / 60.0f, abs(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
+  return min(max_manual_feedrate[axis] / 60.0f, ABS(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
 }
 
 void BaseMoveAxisScreen::setManualFeedrate(ExtUI::axis_t axis, float increment_mm) {

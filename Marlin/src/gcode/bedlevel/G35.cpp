@@ -130,7 +130,7 @@ void GcodeSuite::G35() {
     // Calculate adjusts
     LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
       const float diff = z_measured[0] - z_measured[i],
-                  adjust = abs(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
+                  adjust = ABS(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
 
       const int full_turns = trunc(adjust);
       const float decimal_part = adjust - float(full_turns);
@@ -138,8 +138,8 @@ void GcodeSuite::G35() {
 
       SERIAL_ECHOPGM("Turn ");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPAIR(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", abs(full_turns), " turns");
-      if (minutes) SERIAL_ECHOPAIR(" and ", abs(minutes), " minutes");
+      SERIAL_ECHOPAIR(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
+      if (minutes) SERIAL_ECHOPAIR(" and ", ABS(minutes), " minutes");
       if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPAIR(" (", -diff, "mm)");
       SERIAL_EOL();
     }

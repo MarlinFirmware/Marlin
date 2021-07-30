@@ -93,9 +93,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_DIST:
-      if (abs((int)(100 * babystep_dist)) == 1)
+      if (ABS((int)(100 * babystep_dist)) == 1)
         babystep_dist = 0.05;
-      else if (abs((int)(100 * babystep_dist)) == 5)
+      else if (ABS((int)(100 * babystep_dist)) == 5)
         babystep_dist = 0.1;
       else
         babystep_dist = 0.01;
