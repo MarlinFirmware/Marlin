@@ -254,7 +254,7 @@
   #define TEMP_BED_PIN                      PF3   // T0 <-> Bed
 #endif
 
-#ifdef TEMP_SENSOR_PROBE && !defined(TEMP_PROBE_PIN)
+#if TEMP_SENSOR_PROBE && !defined(TEMP_PROBE_PIN)
   #if TEMP_SENSOR_PROBE_IS_AD8495 || TEMP_SENSOR_PROBE == 20
     #if HOTENDS == 2
       #define TEMP_PROBE_PIN                PF10

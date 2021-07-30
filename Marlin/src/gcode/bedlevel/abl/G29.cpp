@@ -568,7 +568,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Probe at 3 arbitrary points
       if (abl.abl_probe_index < abl.abl_points) {
-        abl.probePos = points[abl.abl_probe_index];
+        abl.probePos = xy_pos_t(points[abl.abl_probe_index]);
         _manual_goto_xy(abl.probePos);
         // Disable software endstops to allow manual adjustment
         // If G29 is not completed, they will not be re-enabled

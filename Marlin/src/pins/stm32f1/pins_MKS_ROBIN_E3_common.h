@@ -166,6 +166,7 @@
     #define DOGLCD_SCK                      PB13
     #define FORCE_SOFT_SPI
     #define SOFTWARE_SPI
+	//#define LCD_SCREEN_ROT_180
 
   #else
 
