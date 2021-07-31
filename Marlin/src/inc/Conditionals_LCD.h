@@ -477,10 +477,6 @@
 #endif
 
 // Aliases for LCD features
-#if EITHER(IS_ULTRA_LCD, EXTENSIBLE_UI)
-  #define HAS_DISPLAY 1
-#endif
-
 #if IS_ULTRA_LCD
   #define HAS_WIRED_LCD 1
   #if ENABLED(DOGLCD)
@@ -490,6 +486,10 @@
   #elif DISABLED(HAS_GRAPHICAL_TFT)
     #define HAS_MARLINUI_HD44780 1
   #endif
+#endif
+
+#if EITHER(HAS_WIRED_LCD, EXTENSIBLE_UI)
+  #define HAS_DISPLAY 1
 #endif
 
 #if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD, GLOBAL_STATUS_MESSAGE)

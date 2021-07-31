@@ -21,10 +21,7 @@
  */
 
 /********************************************************************************
- * @file     dwin_lcd.cpp
- * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
- * @date     2021/06/20
- * @version  2.0.2
+ * @file     lcd/e3v2/creality/dwin_lcd.cpp
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
