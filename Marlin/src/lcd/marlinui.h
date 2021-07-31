@@ -312,6 +312,17 @@ public:
   #endif
 
   #if HAS_STATUS_MESSAGE
+
+    #if HAS_WIRED_LCD
+      #if ENABLED(STATUS_MESSAGE_SCROLLING)
+        #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
+      #else
+        #define MAX_MESSAGE_LENGTH (MAX_LANG_CHARSIZE * (LCD_WIDTH))
+      #endif
+    #else
+      #define MAX_MESSAGE_LENGTH 63
+    #endif
+
     static char status_message[];
     static uint8_t alert_level; // Higher levels block lower levels
 

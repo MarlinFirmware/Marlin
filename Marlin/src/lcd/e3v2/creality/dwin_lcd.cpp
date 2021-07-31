@@ -21,24 +21,24 @@
  */
 
 /********************************************************************************
- * @file     dwin_lcd.cpp
+ * @file     lcd/e3v2/creality/dwin_lcd.cpp
  * @author   LEO / Creality3D
  * @date     2019/07/18
  * @version  2.0.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #include "dwin_lcd.h"
 #include <string.h> // for memset
 
 //#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 // Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
 // Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
@@ -122,6 +122,17 @@ bool DWIN_Handshake(void) {
         && databuf[3] == 'K' );
 }
 
+void DWIN_Startup(void) {
+  DEBUG_ECHOPGM("\r\nDWIN handshake ");
+  delay(750);   // Delay here or init later in the boot process
+  if (DWIN_Handshake()) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
+  DWIN_Frame_SetDir(1);
+  #if DISABLED(SHOW_BOOTSCREEN)
+    DWIN_Frame_Clear(Color_Bg_Black); // MarlinUI handles the bootscreen so just clear here
+  #endif
+  DWIN_UpdateLCD();
+}
+
 // Set the backlight luminance
 //  luminance: (0x00-0xFF)
 void DWIN_Backlight_SetLuminance(const uint8_t luminance) {
@@ -164,9 +175,10 @@ void DWIN_Frame_Clear(const uint16_t color) {
 //  width: point width   0x01-0x0F
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
-void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+void DWIN_Draw_Point(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x02);
+  DWIN_Word(i, color);
   DWIN_Byte(i, width);
   DWIN_Byte(i, height);
   DWIN_Word(i, x);
@@ -238,8 +250,8 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  bColor: Background color
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
-void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
+void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
+  uint8_t widthAdjust = 0;
   size_t i = 0;
   DWIN_Byte(i, 0x11);
   // Bit 7: widthAdjust
@@ -356,6 +368,7 @@ void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
   DWIN_Word(i, x);
   DWIN_Word(i, y);
   DWIN_Byte(i, 0x80 | libID);
+  //DWIN_Byte(i, libID);
   DWIN_Byte(i, picID);
   DWIN_Send(i);
 }
@@ -421,7 +434,7 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state) {
   size_t i = 0;
-  DWIN_Byte(i, 0x28);
+  DWIN_Byte(i, 0x29);
   DWIN_Word(i, state);
   DWIN_Send(i);
 }
