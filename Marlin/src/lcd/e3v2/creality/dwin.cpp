@@ -43,10 +43,6 @@
   #define JUST_BABYSTEP 1
 #endif
 
-#include <WString.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "../../fontutils.h"
 #include "../../marlinui.h"
 
@@ -85,6 +81,10 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif
+
+#include <WString.h>
+#include <stdio.h>
+#include <string.h>
 
 #ifndef MACHINE_SIZE
   #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)

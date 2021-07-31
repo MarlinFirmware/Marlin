@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
+#if ENABLED(DWIN_CREALITY_LCD)
 
 #include "../../../inc/MarlinConfig.h"
 #include "dwin_lcd.h"
@@ -41,7 +41,7 @@ void DWINUI::Init(void) {
   delay(750);   // Delay here or init later in the boot process
   const bool success = DWIN_Handshake();
   if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
-  DWIN_Frame_SetDir(DISABLED(DWIN_MARLINUI_LANDSCAPE) ? 1 : 0);
+  DWIN_Frame_SetDir(1);
   TERN(SHOW_BOOTSCREEN,,DWIN_Frame_Clear(Color_Bg_Black));
   DWIN_UpdateLCD();
   cursor.x = 0;
@@ -279,4 +279,4 @@ uint16_t TitleClass::TitleHeight() {
   return frame.bottom - frame.top;
 };
 
-#endif
+#endif // DWIN_CREALITY_LCD

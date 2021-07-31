@@ -314,6 +314,7 @@ void HMI_Init();
 void HMI_Popup();
 void HMI_SaveProcessID(const uint8_t id);
 void HMI_AudioFeedback(const bool success=true);
+void DWIN_Startup();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();

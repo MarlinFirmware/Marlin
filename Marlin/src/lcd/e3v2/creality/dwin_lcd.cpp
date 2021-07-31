@@ -30,7 +30,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
+#if ENABLED(DWIN_CREALITY_LCD)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -548,4 +548,4 @@ void DWIN_SRAMToPic(uint8_t picID) {
 //
 //  Flash writing returns 0xA5 0x4F 0x4B
 
-#endif // DWIN_CREALITY_LCD, IS_DWIN_MARLINUI
+#endif // DWIN_CREALITY_LCD
