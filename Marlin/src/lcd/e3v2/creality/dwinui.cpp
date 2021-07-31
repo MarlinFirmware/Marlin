@@ -19,16 +19,16 @@
  *
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
 
 //#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 xy_int_t DWINUI::cursor = { 0 };
 uint16_t DWINUI::pencolor = Color_White;

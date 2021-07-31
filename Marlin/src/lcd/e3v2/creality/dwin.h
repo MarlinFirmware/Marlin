@@ -28,8 +28,8 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-//#include "../dwin_lcd.h"
-#include "../dwinui.h"
+//#include "dwin_lcd.h"
+#include "dwinui.h"
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
 

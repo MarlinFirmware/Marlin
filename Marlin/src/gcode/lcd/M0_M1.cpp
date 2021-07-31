@@ -36,7 +36,7 @@
 #elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/dwin/e3v2/dwin.h"
+  #include "../../lcd/e3v2/creality/dwin.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
