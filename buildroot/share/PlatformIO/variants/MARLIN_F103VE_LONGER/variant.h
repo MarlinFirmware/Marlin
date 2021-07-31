@@ -6,8 +6,8 @@ extern "C" {
 
 // STM32F103VET6    | DIGITAL     | ANALOG        | USART      | TWI       | SPI                  | SPECIAL    |
 //------------------|-------------|---------------|------------|-----------|----------------------|------------|
-#define PA0  A0  // |             | A0 Nozzle T°c |            |           |                      |            |
-#define PA1  A1  // |             | A1 Bed T°c    |            |           |                      |            |
+#define PA0  0   // |             | A0 Nozzle T°c |            |           |                      |            |
+#define PA1  1   // |             | A1 Bed T°c    |            |           |                      |            |
 #define PA2  2   // |             |               | USART2_TX  |           |                      |            |
 #define PA3  3   // |             | DAC_OUT1**    | USART2_RX  |           |                      |            |
 #define PA4  4   // |             | DAC_OUT2**    |            |           | SPI1_SS*(wired?)     |            |
