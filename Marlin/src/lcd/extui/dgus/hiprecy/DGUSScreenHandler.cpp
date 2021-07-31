@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_HYPRECY)
+#if ENABLED(DGUS_LCD_UI_HIPRECY)
 
 #include "../DGUSScreenHandler.h"
 
@@ -41,6 +41,8 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
+
+  static ExtUI::FileList filelist;
 
   void DGUSScreenHandler::DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t touched_nr = (int16_t)swap16(*(uint16_t*)val_ptr) + top_file;
@@ -415,4 +417,4 @@ bool DGUSScreenHandler::loop() {
   return IsScreenComplete();
 }
 
-#endif // DGUS_LCD_UI_HYPRECY
+#endif // DGUS_LCD_UI_HIPRECY

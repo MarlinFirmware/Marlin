@@ -75,7 +75,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
   switch (obj->mks_obj_id) {
     case ID_M_STEP:
-      if (abs(10 * (int)uiCfg.move_dist) == 100)
+      if (ABS(10 * (int)uiCfg.move_dist) == 100)
         uiCfg.move_dist = 0.1;
       else
         uiCfg.move_dist *= 10.0f;

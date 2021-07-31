@@ -287,7 +287,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
     do {
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
-        if (deploy == PROBE_TRIGGERED()) break;
+        if (deploy != PROBE_TRIGGERED()) break;
       #endif
 
       BUZZ(100, 659);

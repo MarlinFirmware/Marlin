@@ -46,6 +46,9 @@
   #include "../../../lcd/dwin/e3v2/dwin.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
+
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
@@ -63,6 +66,16 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
+  DEBUG_SECTION(log_G29, "G29", true);
+
+  // G29 Q is also available if debugging
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    const bool seenQ = parser.seen_test('Q');
+    if (seenQ || DEBUGGING(LEVELING)) {
+      log_machine_info();
+      if (seenQ) return;
+    }
+  #endif
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
