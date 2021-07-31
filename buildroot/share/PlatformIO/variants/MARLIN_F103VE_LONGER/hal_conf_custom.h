@@ -57,10 +57,6 @@ extern "C" {
   //#define HAL_USART_MODULE_ENABLED // Useless.... UART_MODULE do it
 #endif
 
-#ifdef HAL_EXTI_MODULE_ENABLED
-  #undef HAL_EXTI_MODULE_ENABLED
-#endif
-
 #ifdef HAL_CAN_LEGACY_MODULE_ENABLED
   #undef HAL_CAN_LEGACY_MODULE_ENABLED
 #endif
@@ -71,6 +67,10 @@ extern "C" {
 
 #ifdef HAL_DAC_MODULE_ENABLED
   #undef HAL_DAC_MODULE_ENABLED
+#endif
+
+#ifndef HAL_EXTI_MODULE_ENABLED
+  #define HAL_EXTI_MODULE_ENABLED // for ENDSTOP_INTERRUPTS_FEATURE
 #endif
 
 /**
