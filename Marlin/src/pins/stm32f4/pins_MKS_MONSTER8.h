@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -35,6 +35,8 @@
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
 
+//#define DISABLE_DEBUG
+
 // Avoid conflict with TIMER_TONE
 #define STEP_TIMER                            10
 
@@ -42,13 +44,9 @@
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM                                // Need use jumpers set i2c for EEPROM
-#define MARLIN_EEPROM_SIZE                  0x1000  // 4KB
-#define I2C_SCL_PIN                         PB8     // I2C_SCL and CAN_RX
-#define I2C_SDA_PIN                         PB9     // I2C_SDA and CAN_TX
-
-//
-//#define DISABLE_DEBUG
-//
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define I2C_SCL_PIN                         PB8   // I2C_SCL and CAN_RX
+#define I2C_SDA_PIN                         PB9   // I2C_SDA and CAN_TX
 
 //
 // Servos
@@ -175,13 +173,13 @@
 
   #define E1_SERIAL_TX_PIN                  PD4
   #define E1_SERIAL_RX_PIN                  PD4
-  
+
   #define E2_SERIAL_TX_PIN                  PD0
   #define E2_SERIAL_RX_PIN                  PD0
 
   #define E3_SERIAL_TX_PIN                  PD15
   #define E3_SERIAL_RX_PIN                  PD15
-  
+
   #define E4_SERIAL_TX_PIN                  PD11
   #define E4_SERIAL_RX_PIN                  PD11
 
@@ -203,7 +201,7 @@
 #define HEATER_0_PIN                        PB1   // HE0
 #define HEATER_1_PIN                        PB0   // HE1
 #define HEATER_2_PIN                        PA3   // HE2
-#define HEATER_BED_PIN                      PB10   // H-BED
+#define HEATER_BED_PIN                      PB10  // H-BED
 
 #define FAN_PIN                             PA2   // FAN0
 #define FAN1_PIN                            PA1   // FAN1
@@ -212,26 +210,26 @@
 //
 // Misc. Functions
 //
-#define MT_DET_1                            Y_MAX_PIN
-#define MT_DET_2                            Z_MAX_PIN
-#define PW_DET                              Y_MAX_PIN
-#define PW_OFF                              Z_MAX_PIN
+#define MT_DET_1                       Y_MAX_PIN
+#define MT_DET_2                       Z_MAX_PIN
+#define PW_DET                         Y_MAX_PIN
+#define PW_OFF                         Z_MAX_PIN
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    MT_DET_1
+  #define FIL_RUNOUT_PIN                MT_DET_1
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                   MT_DET_2
+  #define FIL_RUNOUT2_PIN               MT_DET_2
 #endif
 
-#define POWER_LOSS_PIN                      PW_DET
-#define PS_ON_PIN                           PW_OFF
+#define POWER_LOSS_PIN                    PW_DET
+#define PS_ON_PIN                         PW_OFF
 
 // Random Info
-#define USB_SERIAL                          -1  // USB Serial
+#define USB_SERIAL                          -1    // USB Serial
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION                ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 //
@@ -302,10 +300,10 @@
 
   #define LCD_BACKLIGHT_PIN                 PE11
   #ifndef TFT_WIDTH
-    #define TFT_WIDTH                       480
+    #define TFT_WIDTH                        480
   #endif
   #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                      320
+    #define TFT_HEIGHT                       320
   #endif
 
   #define TOUCH_CS_PIN                      PD9   // SPI1_NSS
@@ -341,11 +339,11 @@
     #define DOGLCD_CS                       PE15
     //#define DOGLCD_SCK                    PA5
     //#define DOGLCD_MOSI                   PA7
-  
+
   #elif ENABLED(MKS_MINI_12864_V3)
     #define DOGLCD_CS                       PE11
     #define DOGLCD_A0                       PD10
-    #define LCD_PINS_DC                     DOGLCD_A0
+    #define LCD_PINS_DC                DOGLCD_A0
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   PD9
     #define NEOPIXEL_PIN                    PD8
