@@ -413,13 +413,10 @@ bool DGUSScreenHandler::loop() {
 
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
-
-      if (TERN0(POWER_LOSS_RECOVERY, recovery.valid()))
-        GotoScreen(DGUSLCD_SCREEN_POWER_LOSS);
-      else
-        GotoScreen(DGUSLCD_SCREEN_MAIN);
+      GotoScreen(TERN0(POWER_LOSS_RECOVERY, recovery.valid()) ? DGUSLCD_SCREEN_POWER_LOSS : DGUSLCD_SCREEN_MAIN);
     }
   #endif
+
   return IsScreenComplete();
 }
 
