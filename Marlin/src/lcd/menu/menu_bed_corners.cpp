@@ -187,7 +187,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     }
 
     --cy;
-    y -= MENU_FONT_HEIGHT;
+    y -= MENU_LINE_HEIGHT;
 
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
