@@ -221,14 +221,13 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 /*---------------------------------------- Text related functions ----------------------------------------*/
 
 // Draw a string
-//  widthAdjust: true=self-adjust character width; false=no adjustment
 //  bShow: true=display background color; false=don't display background color
 //  size: Font size
 //  color: Character color
 //  bColor: Background color
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
-void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
+void DWIN_Draw_String(bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
@@ -236,6 +235,7 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
   // Bit 6: bShow
   // Bit 5-4: Unused (0)
   // Bit 3-0: size
+  constexpr int widthAdjust = 0;
   DWIN_Byte(i, (widthAdjust * 0x80) | (bShow * 0x40) | size);
   DWIN_Word(i, color);
   DWIN_Word(i, bColor);

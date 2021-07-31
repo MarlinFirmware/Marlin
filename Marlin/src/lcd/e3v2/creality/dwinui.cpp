@@ -138,9 +138,9 @@ void DWINUI::MoveBy(xy_int_t point) {
 }
 
 // Draw a Centered string using DWIN_WIDTH
-void DWINUI::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
+void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * Get_font_width(size)) / 2 - 1;
-  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
+  DWIN_Draw_String(bShow, size, color, bColor, x, y, string);
 }
 
 // Draw a signed floating point number
@@ -156,10 +156,10 @@ void DWINUI::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uin
 void DWINUI::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   if (value < 0) {
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, -value);
-    DWIN_Draw_String(false, bShow, size, color, bColor, x - 6, y, F("-"));
+    DWIN_Draw_String(bShow, size, color, bColor, x - 6, y, F("-"));
   }
   else {
-    DWIN_Draw_String(false, bShow, size, color, bColor, x - 6, y, F(" "));
+    DWIN_Draw_String(bShow, size, color, bColor, x - 6, y, F(" "));
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, value);
   }
 }
@@ -208,7 +208,7 @@ uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
 void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, F(mode ? "x" : " "));
+  DWIN_Draw_String(true, font8x16, color, bcolor, x + 4, y, F(mode ? "x" : " "));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 
@@ -228,7 +228,7 @@ void TitleClass::Clear() {
 
 void TitleClass::Draw() {
   Clear();
-  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, textcolor, backcolor, 14, (TitleHeight() - DWINUI::Get_font_height(font)) / 2 - 1, caption);
+  DWIN_Draw_String(false, DWIN_FONT_HEAD, textcolor, backcolor, 14, (TitleHeight() - DWINUI::Get_font_height(font)) / 2 - 1, caption);
 }
 
 void TitleClass::SetFont(uint8_t cfont) {

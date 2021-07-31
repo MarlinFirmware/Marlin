@@ -857,7 +857,7 @@ void Draw_Tune_Menu() {
   Clear_Menu_Area();
 
   if (HMI_IsChinese()) {
-    DWIN_Frame_TitleCopy(1, 73, 2, 100, 13);
+    DWIN_Frame_AreaCopy(1, 73, 2, 100, 13, 14, 9);
     DWIN_Frame_AreaCopy(1, 116, 164, 171, 176, LBLX, MBASE(TUNE_CASE_SPEED));
     #if HAS_HOTEND
       DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX, MBASE(TUNE_CASE_TEMP));
@@ -1268,7 +1268,7 @@ void Draw_Main_Menu() {
     #ifdef USE_STRING_HEADINGS
       Title.SetCaption(MACHINE_NAME);
     #else
-      DWIN_Frame_TitleCopy(1, 0, 2, 39, 12);
+      DWIN_Frame_AreaCopy(1, 0, 2, 39, 12, 14, 9);
     #endif
   }
 

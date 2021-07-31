@@ -373,75 +373,73 @@ namespace DWINUI {
   }
 
   // Draw a string
-  //  widthAdjust: true=self-adjust character width; false=no adjustment
   //  size: Font size
   //  color: Character color
   //  bColor: Background color
   //  x/y: Upper-left coordinate of the string
   //  *string: The string
   inline void Draw_String(const char * const string) {
-    DWIN_Draw_String(false, false, font, textcolor, backcolor, cursor.x, cursor.y, string);
+    DWIN_Draw_String(false, font, textcolor, backcolor, cursor.x, cursor.y, string);
   }
   inline void Draw_String(uint16_t color, const char * const string) {
-    DWIN_Draw_String(false, false, font, color, backcolor, cursor.x, cursor.y, string);
+    DWIN_Draw_String(false, font, color, backcolor, cursor.x, cursor.y, string);
   }
   inline void Draw_String(uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, false, font, textcolor, backcolor, x, y, string);
+    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(false, false, font, textcolor, backcolor, x, y, (char *)title);
+    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, (char *)title);
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, false, font, color, backcolor, x, y, string);
+    DWIN_Draw_String(false, font, color, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(false, false, font, color, backcolor, x, y, (char *)title);
+    DWIN_Draw_String(false, font, color, backcolor, x, y, (char *)title);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, true, font, color, bgcolor, x, y, string);
+    DWIN_Draw_String(true, font, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(false, true, font, color, bgcolor, x, y, (char *)title);
+    DWIN_Draw_String(true, font, color, bgcolor, x, y, (char *)title);
   }
   inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
-    DWIN_Draw_String(false, true, size, color, bgcolor, x, y, string);
+    DWIN_Draw_String(true, size, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(false, true, size, color, bgcolor, x, y, (char *)title);
+    DWIN_Draw_String(true, size, color, bgcolor, x, y, (char *)title);
   }
 
   // Draw a centered string using DWIN_WIDTH
-  //  widthAdjust: true=self-adjust character width; false=no adjustment
   //  bShow: true=display background color; false=don't display background color
   //  size: Font size
   //  color: Character color
   //  bColor: Background color
   //  y: Upper coordinate of the string
   //  *string: The string
-  void Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string);
-  inline void Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(widthAdjust, bShow, size, color, bColor, y, (char *)title);
+  void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string);
+  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const __FlashStringHelper *title) {
+    Draw_CenteredString(bShow, size, color, bColor, y, (char *)title);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t bcolor, uint16_t y, const char * const string) {
-    Draw_CenteredString(false, true, font, color, bcolor, y, string);
+    Draw_CenteredString(true, font, color, bcolor, y, string);
   }
   inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, const char * const string) {
-    Draw_CenteredString(false, false, size, color, backcolor, y, string);
+    Draw_CenteredString(false, size, color, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(false, false, size, color, backcolor, y, (char *)title);
+    Draw_CenteredString(false, size, color, backcolor, y, (char *)title);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, const char * const string) {
-    Draw_CenteredString(false, false, font, color, backcolor, y, string);
+    Draw_CenteredString(false, font, color, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(false, false, font, color, backcolor, y, (char *)title);
+    Draw_CenteredString(false, font, color, backcolor, y, (char *)title);
   }
   inline void Draw_CenteredString(uint16_t y, const char * const string) {
-    Draw_CenteredString(false, false, font, textcolor, backcolor, y, string);
+    Draw_CenteredString(false, font, textcolor, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(false, false, font, textcolor, backcolor, y, (char *)title);
+    Draw_CenteredString(false, font, textcolor, backcolor, y, (char *)title);
   }
 
   // Draw a circle
