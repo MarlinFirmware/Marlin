@@ -61,7 +61,7 @@ jobs:
         - STM32F103RC_fysetc
         - STM32F103RC_meeb
         - jgaurora_a5s_a1
-        - STM32F103VE_longer
+        - STM32F103VE_longer_maple
         #- mks_robin_maple
         - mks_robin_lite
         - mks_robin_pro
@@ -75,6 +75,7 @@ jobs:
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RET6_creality
+        #- STM32F103VE_longer
         - STM32F407VE_black
         - STM32F401VE_STEVAL
         - BIGTREE_BTT002
