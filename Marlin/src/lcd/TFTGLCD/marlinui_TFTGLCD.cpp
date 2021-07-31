@@ -791,9 +791,10 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 0);
-  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position.x)), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position.y)), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+  const xyz_pos_t lpos = current_position.asLogical();
+  _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink); lcd.write(' ');
+  _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink); lcd.write(' ');
+  _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');

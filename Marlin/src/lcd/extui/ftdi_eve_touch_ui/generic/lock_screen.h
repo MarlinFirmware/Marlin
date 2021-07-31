@@ -44,8 +44,8 @@ class LockScreen : public BaseScreen, public CachedScreen<LOCK_SCREEN_CACHE> {
     static void enable();
     static void disable();
 
-    static void set_hash(uint16_t pass) {passcode = pass;};
-    static uint16_t get_hash() {return passcode;};
+    static void set_hash(uint16_t pass) { passcode = pass; }
+    static uint16_t get_hash() { return passcode; }
 
     static void onEntry();
     static void onRedraw(draw_mode_t);
