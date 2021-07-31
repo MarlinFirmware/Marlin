@@ -44,10 +44,8 @@ def getBufferSize(side, default):
 		return internal
 
 def tryAddFlag(name, value):
-	if getBuildFlagValue(name) is not None:
-		return
-
-	env.Append(BUILD_FLAGS=[f"-D{name}={value}"])
+	if getBuildFlagValue(name) is None:
+		env.Append(BUILD_FLAGS=[f"-D{name}={value}"])
 
 rxBuf = getBufferSize("RX", 128)
 txBuf = getBufferSize("TX", 64)
