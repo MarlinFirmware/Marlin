@@ -2757,6 +2757,11 @@
 //#define DWIN_CREALITY_LCD
 
 //
+// Ender-3 v2 OEM display with enhancements by Jacob Myers
+//
+//#define DWIN_CREALITY_LCD_JYERSUI
+
+//
 // MarlinUI for Creality's DWIN display (and others)
 //
 //#define DWIN_MARLINUI_PORTRAIT
