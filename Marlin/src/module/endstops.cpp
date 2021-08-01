@@ -596,14 +596,15 @@ void _O2 Endstops::report_states() {
 // endstop ISR or the Stepper ISR.
 
 #if BOTH(DELTA, SENSORLESS_PROBING)
-  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_MAX
-  #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_MAX_PIN
-  #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_MAX_ENDSTOP_INVERTING
+  #define __ENDSTOP(AXIS, ...) AXIS ##_MAX
+  #define _ENDSTOP_PIN(AXIS, ...) AXIS ##_MAX_PIN
+  #define _ENDSTOP_INVERTING(AXIS, ...) AXIS ##_MAX_ENDSTOP_INVERTING
 #else
-  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
+  #define __ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
   #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
   #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
 #endif
+#define _ENDSTOP(AXIS, MINMAX) __ENDSTOP(AXIS, MINMAX)
 
 // Check endstops - Could be called from Temperature ISR!
 void Endstops::update() {
@@ -615,9 +616,10 @@ void Endstops::update() {
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
   #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
-  #if BOTH(G38_PROBE_TARGET, HAS_Z_MIN_PROBE_PIN) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
-    // If G38 command is active check Z_MIN_PROBE for ALL movement
-    if (G38_move) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
+  #if ENABLED(G38_PROBE_TARGET) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
+    #define HAS_G38_PROBE 1
+    // For G38 moves check the probe's pin for ALL movement
+    if (G38_move) UPDATE_ENDSTOP_BIT(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
   #endif
 
   // With Dual X, endstops are only checked in the homing direction for the active extruder
@@ -746,7 +748,7 @@ void Endstops::update() {
           COPY_LIVE_STATE(Z_MAX, Z4_MAX);
         #endif
       #endif
-    #elif !USES_Z_MIN_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN
+    #elif TERN1(USES_Z_MIN_PROBE_PIN, Z_MAX_PIN != Z_MIN_PROBE_PIN)
       // If this pin isn't the bed probe it's the Z endstop
       UPDATE_ENDSTOP_BIT(Z, MAX);
     #endif
@@ -930,15 +932,11 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
-  #if BOTH(G38_PROBE_TARGET, HAS_Z_MIN_PROBE_PIN) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
-    #if ENABLED(G38_PROBE_AWAY)
-      #define _G38_OPEN_STATE (G38_move >= 4)
-    #else
-      #define _G38_OPEN_STATE LOW
-    #endif
-    // If G38 command is active check Z_MIN_PROBE for ALL movement
-    if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE)) != _G38_OPEN_STATE) {
-           if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(X_AXIS); }
+  #if HAS_G38_PROBE
+    #define _G38_OPEN_STATE TERN(G38_PROBE_AWAY, (G38_move >= 4), LOW)
+    // For G38 moves check the probe's pin for ALL movement
+    if (G38_move && TEST_ENDSTOP(_ENDSTOP(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN))) != _G38_OPEN_STATE) {
+             if (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, TERN(X_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(X_AXIS); }
       #if HAS_Y_AXIS
         else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, TERN(Y_HOME_TO_MIN, MIN, MAX)); planner.endstop_triggered(Y_AXIS); }
       #endif
@@ -1043,7 +1041,7 @@ void Endstops::update() {
         #if HAS_Z_MAX || (Z_SPI_SENSORLESS && Z_HOME_TO_MAX)
           #if ENABLED(Z_MULTI_ENDSTOPS)
             PROCESS_ENDSTOP_Z(MAX);
-          #elif !USES_Z_MIN_PROBE_PIN || Z_MAX_PIN != Z_MIN_PROBE_PIN  // No probe or probe is Z_MIN || Probe is not Z_MAX
+          #elif TERN1(USES_Z_MIN_PROBE_PIN, Z_MAX_PIN != Z_MIN_PROBE_PIN)  // No probe or probe is Z_MIN || Probe is not Z_MAX
             PROCESS_ENDSTOP(Z, MAX);
           #endif
           #if   CORE_DIAG(XZ, X, MIN)
