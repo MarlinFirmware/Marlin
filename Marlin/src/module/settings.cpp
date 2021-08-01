@@ -2222,7 +2222,7 @@ void MarlinSettings::postprocess() {
       // Extensible UI User Data
       //
       #if ENABLED(EXTENSIBLE_UI)
-      {
+      { // This is a significant hardware change; don't reserve EEPROM space when not present
         const char extui_data[ExtUI::eeprom_data_size] = { 0 };
         _FIELD_TEST(extui_data);
         EEPROM_READ(extui_data);
@@ -2639,7 +2639,7 @@ void MarlinSettings::reset() {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-  TERN_(DWIN_CREALITY_LCD, DWIN_Setdatadefaults());
+  TERN_(DWIN_CREALITY_LCD, DWIN_SetDataDefaults());
 
   //
   // Case Light Brightness
@@ -2975,7 +2975,7 @@ void MarlinSettings::reset() {
   DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-  TERN_(DWIN_CREALITY_LCD, DWIN_Setdatadefaults());
+  TERN_(DWIN_CREALITY_LCD, DWIN_SetDataDefaults());
 }
 
 #if DISABLED(DISABLE_M503)

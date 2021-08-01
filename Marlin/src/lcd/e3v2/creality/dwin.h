@@ -328,7 +328,7 @@ void DWIN_Print_Header(const char *text);
 void DWIN_SetColorDefaults();
 void DWIN_StoreSettings(char *buff);
 void DWIN_LoadSettings(const char *buff);
-void DWIN_Setdatadefaults();
+void DWIN_SetDataDefaults();
 void DWIN_RebootScreen();
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)

@@ -4579,7 +4579,7 @@ void DWIN_SetColorDefaults() {
   HMI_data.Coordinate_Color = Def_Coordinate_Color;
 }
 
-void DWIN_Setdatadefaults() {
+void DWIN_SetDataDefaults() {
   HMI_data.Brightness = 127;
   DWIN_LCD_Brightness(HMI_data.Brightness);
   DWIN_SetColorDefaults();
