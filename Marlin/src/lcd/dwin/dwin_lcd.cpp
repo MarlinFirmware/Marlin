@@ -30,7 +30,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
+#if ENABLED(DWIN_CREALITY_LCD)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -293,7 +293,7 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
   DWIN_Send(i);
 }
 
-// Draw a floating point number
+// Draw a positive floating point number
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
 //  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
@@ -303,7 +303,7 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  iNum: Number of whole digits
 //  fNum: Number of decimal digits
 //  x/y: Upper-left point
-//  value: Float value
+//  value: Scaled positive float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   size_t i = 0;
@@ -548,4 +548,4 @@ void DWIN_SRAMToPic(uint8_t picID) {
 //
 //  Flash writing returns 0xA5 0x4F 0x4B
 
-#endif // DWIN_CREALITY_LCD, IS_DWIN_MARLINUI
+#endif // DWIN_CREALITY_LCD

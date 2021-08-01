@@ -25,7 +25,7 @@
 #include "dwin_lcd.h"
 
 // ICON ID
-#define ICON                      0x09
+#define ICON                      0x09  // Icon Library
 #define ICON_LOGO                  0
 #define ICON_Print_0               1
 #define ICON_Print_1               2
@@ -165,11 +165,6 @@
 #define font28x56 0x08
 #define font32x64 0x09
 
-#define DWIN_FONT_MENU font8x16
-#define DWIN_FONT_STAT font10x20
-#define DWIN_FONT_HEAD font10x20
-#define DWIN_FONT_ALERT font10x20
-
 // Extended and default UI Colors
 #define RGB(R,G,B)  (R << 11) | (G << 5) | (B) // R,B: 0..31; G: 0..63
 #define GetRColor(color) ((color >> 11) & 0x1F)
@@ -216,16 +211,33 @@
 #define Def_Coordinate_Color   Color_White
 
 //UI elements defines and constants
+#define DWIN_FONT_MENU font8x16
+#define DWIN_FONT_STAT font10x20
+#define DWIN_FONT_HEAD font10x20
+#define DWIN_FONT_ALERT font10x20
 #define STATUS_Y 354
 
 constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar height
                    MLINE = 53,                                 // Menu line height
                    TROWS = (STATUS_Y - TITLE_HEIGHT) / MLINE,  // Total rows
                    MROWS = TROWS - 1,                          // Other-than-Back
-                   LBLX = 60,                                  // Menu item label X
-                   MENU_CHR_W = 8, STAT_CHR_W = 10;
+                   ICOX = 26,                                  // Menu item icon X position
+                   LBLX = 60,                                  // Menu item label X position
+                   VALX = 216,                                 // Menu itel value x position
+                   MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
+                   STAT_CHR_W = 10;
 
-#define MBASE(L) (49 + MLINE * (L))
+// Menuitem Y position
+#define MYPOS(L) (TITLE_HEIGHT + MLINE * (L))
+
+// Menuitem caption Offset
+#define CAPOFF ((MLINE - MENU_CHR_H) / 2)
+
+// Menuitem caption Y position
+#define MBASE(L) ( MYPOS(L) + CAPOFF)
+
+// Create and add a MenuItem object to the menu array
+#define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
 
 typedef struct {
   uint16_t left;
@@ -234,15 +246,60 @@ typedef struct {
   uint16_t bottom;
 } rect_t;
 
-class DWINUIClass {
-private:
-  xy_int_t cursor = { 0 };
-  uint16_t pencolor = Color_White;
-  uint16_t textcolor = Def_Text_Color;
-  uint16_t backcolor = Def_Background_Color;
-  uint8_t  font = font8x16;
-
+class TitleClass {
 public:
+  char caption[32] = "";
+  uint8_t frameid = 0;
+  rect_t frame = {0};
+  void (*onDraw)(TitleClass* title) = nullptr;
+  void Draw();
+  void SetCaption(const char * const title);
+  void SetCaption(const __FlashStringHelper * title) { SetCaption((char*)title); }
+  void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  void FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+};
+extern TitleClass Title;
+
+class MenuClass {
+public:
+  int8_t topline = 0;
+  int8_t selected = 0;
+  MenuClass();
+  inline int8_t line() { return selected - topline; };
+  void Clear();
+  void Draw();
+  void onScroll(bool dir);
+  void onClick();
+  virtual ~MenuClass(){};
+};
+extern MenuClass *CurrentMenu;
+
+class MenuItemClass {
+protected:
+public:
+  uint8_t icon = 0;
+  char caption[32] = "";
+  uint8_t frameid = 0;
+  rect_t frame = {0};
+  void (*onDraw) (MenuItemClass* menuitem, int8_t line) = nullptr;
+  void (*onClick) () = nullptr;
+  MenuItemClass(uint8_t cicon, const char * const text=nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
+  MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) { MenuItemClass(cicon, (char*)text, ondraw, onclick); };
+  MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
+  void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  virtual ~MenuItemClass(){};
+  virtual void Draw(int8_t line);
+};
+
+namespace DWINUI {
+  extern xy_int_t cursor;
+  extern uint16_t pencolor;
+  extern uint16_t textcolor;
+  extern uint16_t backcolor;
+  extern uint8_t  font;
+  extern void (*onCursorErase)(uint8_t line);
+  extern void (*onCursorDraw)(uint8_t line);
+
   // DWIN LCD Initialization
   void Init(void);
 
@@ -250,10 +307,10 @@ public:
   void SetFont(uint8_t cfont);
 
   // Get font character width
-  static uint8_t Get_font_width(uint8_t cfont);
+  uint8_t Get_font_width(uint8_t cfont);
 
   // Get font character heigh
-  static uint8_t Get_font_height(uint8_t cfont);
+  uint8_t Get_font_height(uint8_t cfont);
 
   // Get screen x coodinates from text column
   uint16_t ColToX(uint8_t col);
@@ -293,7 +350,7 @@ public:
   // Draw an Icon from the library ICON
   //  icon: Icon ID
   //  x/y: Upper-left point
-  void Draw_Icon(uint8_t icon, uint16_t x, uint16_t y) {
+  inline void Draw_Icon(uint8_t icon, uint16_t x, uint16_t y) {
     DWIN_ICON_Show(ICON, icon, x, y);
   }
 
@@ -490,28 +547,17 @@ public:
     DWIN_WriteToMem(0xA5, addr, length, data);
   }
 
-};
-extern DWINUIClass DWIN;
+  // Clear Menu by filling the area with background color
+  // Area (0, TITLE_HEIGHT, DWIN_WIDTH, STATUS_Y - 1)
+  void ClearMenu();
 
-class TitleClass {
-private:
-  uint8_t font = DWIN_FONT_HEAD;
-  char caption[32] = "";
-  int16_t backcolor = Def_TitleBg_color;
-  int16_t textcolor = Def_TitleTxt_color;
-  rect_t frame = {0, 0, DWIN_WIDTH, TITLE_HEIGHT};
-public:
-  void Init(rect_t cframe, uint8_t cfont, int16_t color, int16_t bcolor, const char * const title);
-  void Clear();
-  void Draw();
-  void SetFont(uint8_t cfont);
-  void SetCaption(const char * const title);
-  void SetCaption(const __FlashStringHelper * title) { SetCaption((char*)title); }
-  void SetFrame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  void SetColors(int16_t color, int16_t bcolor);
-  void SetTextColor(int16_t color);
-  void SetBackgroundColor(int16_t color);
-  void FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  uint16_t TitleHeight();
+  // Clear MenuItems array and free MenuItems elements
+  void MenuItemsClear();
+
+  // Prepare MenuItems array
+  void MenuItemsPrepare(uint8_t totalitems);
+
+  // Add elements to the MenuItems array
+  void MenuItemsAdd(MenuItemClass* menuitem);
+
 };
-extern TitleClass Title;

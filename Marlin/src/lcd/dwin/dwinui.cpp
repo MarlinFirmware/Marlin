@@ -24,15 +24,28 @@
 #if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
 
 #include "../../inc/MarlinConfig.h"
+#include "../../core/macros.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
 
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
-DWINUIClass DWIN;
+uint8_t MenuItemTotal = 0;
+uint8_t MenuItemCount = 0;
+MenuItemClass** MenuItems = nullptr;
+MenuClass *CurrentMenu = nullptr;
+MenuClass *PreviousMenu = nullptr;
 
-void DWINUIClass::Init(void) {
+xy_int_t DWINUI::cursor = { 0 };
+uint16_t DWINUI::pencolor = Color_White;
+uint16_t DWINUI::textcolor = Def_Text_Color;
+uint16_t DWINUI::backcolor = Def_Background_Color;
+uint8_t  DWINUI::font = font8x16;
+void (*DWINUI::onCursorErase)(uint8_t line)=nullptr;
+void (*DWINUI::onCursorDraw)(uint8_t line)=nullptr;
+
+void DWINUI::Init(void) {
   DEBUG_ECHOPGM("\r\nDWIN handshake ");
   delay(750);   // Delay here or init later in the boot process
   const bool success = DWIN_Handshake();
@@ -49,12 +62,12 @@ void DWINUIClass::Init(void) {
 }
 
 // Set text/number font
-void DWINUIClass::SetFont(uint8_t cfont) {
+void DWINUI::SetFont(uint8_t cfont) {
   font = cfont;
 }
 
 // Get font character width
-/*static*/ uint8_t DWINUIClass::Get_font_width(uint8_t cfont) {
+uint8_t DWINUI::Get_font_width(uint8_t cfont) {
   switch (cfont) {
     case font6x12 : return 6;
     case font8x16 : return 8;
@@ -71,7 +84,7 @@ void DWINUIClass::SetFont(uint8_t cfont) {
 }
 
 // Get font character heigh
-/*static*/ uint8_t DWINUIClass::Get_font_height(uint8_t cfont) {
+uint8_t DWINUI::Get_font_height(uint8_t cfont) {
   switch (cfont) {
     case font6x12 : return 12;
     case font8x16 : return 16;
@@ -88,24 +101,24 @@ void DWINUIClass::SetFont(uint8_t cfont) {
 }
 
 // Get screen x coodinates from text column
-uint16_t DWINUIClass::ColToX(uint8_t col) {
+uint16_t DWINUI::ColToX(uint8_t col) {
   return col * Get_font_width(font);
 }
 
 // Get screen y coodinates from text row
-uint16_t DWINUIClass::RowToY(uint8_t row) {
+uint16_t DWINUI::RowToY(uint8_t row) {
   return row * Get_font_height(font);
 }
 
 // Set text/number color
-void DWINUIClass::SetColors(uint16_t fgcolor, uint16_t bgcolor) {
+void DWINUI::SetColors(uint16_t fgcolor, uint16_t bgcolor) {
   textcolor = fgcolor;
   backcolor = bgcolor;
 }
-void DWINUIClass::SetTextColor(uint16_t fgcolor) {
+void DWINUI::SetTextColor(uint16_t fgcolor) {
   textcolor = fgcolor;
 }
-void DWINUIClass::SetBackgroundColor(uint16_t bgcolor) {
+void DWINUI::SetBackgroundColor(uint16_t bgcolor) {
   backcolor = bgcolor;
 }
 
@@ -113,11 +126,11 @@ void DWINUIClass::SetBackgroundColor(uint16_t bgcolor) {
 //  x: abscissa of the display
 //  y: ordinate of the display
 //  point: xy coordinate
-void DWINUIClass::MoveTo(int16_t x, int16_t y) {
+void DWINUI::MoveTo(int16_t x, int16_t y) {
   cursor.x = x;
   cursor.y = y;
 }
-void DWINUIClass::MoveTo(xy_int_t point) {
+void DWINUI::MoveTo(xy_int_t point) {
   cursor = point;
 }
 
@@ -125,16 +138,16 @@ void DWINUIClass::MoveTo(xy_int_t point) {
 //  x: abscissa of the display
 //  y: ordinate of the display
 //  point: xy coordinate
-void DWINUIClass::MoveBy(int16_t x, int16_t y) {
+void DWINUI::MoveBy(int16_t x, int16_t y) {
   cursor.x += x;
   cursor.y += y;
 }
-void DWINUIClass::MoveBy(xy_int_t point) {
+void DWINUI::MoveBy(xy_int_t point) {
   cursor += point;
 }
 
 // Draw a Centered string using DWIN_WIDTH
-void DWINUIClass::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
+void DWINUI::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * Get_font_width(size)) / 2 - 1;
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
 }
@@ -149,7 +162,7 @@ void DWINUIClass::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size
 //  fNum: Number of decimal digits
 //  x/y: Upper-left point
 //  value: Float value
-void DWINUIClass::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+void DWINUI::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   if (value < 0) {
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, -value);
     DWIN_Draw_String(false, bShow, size, color, bColor, x - 6, y, F("-"));
@@ -165,7 +178,7 @@ void DWINUIClass::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMo
 //  x: the abscissa of the center of the circle
 //  y: ordinate of the center of the circle
 //  r: circle radius
-void DWINUIClass::Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
+void DWINUI::Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
   int a = 0, b = 0;
   while (a <= b) {
     b = SQRT(sq(r) - sq(a));
@@ -188,7 +201,7 @@ void DWINUIClass::Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r)
 //  maxv : Maximun value
 //  color1 : Start color
 //  color2 : End color
-uint16_t DWINUIClass::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
+uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2) {
   uint8_t B,G,R;
   float n;
   n = (float)(val-minv)/(maxv-minv);
@@ -203,76 +216,140 @@ uint16_t DWINUIClass::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t
 //  bColor: Background color
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
-void DWINUIClass::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, F(mode ? "x" : " "));
+void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
+  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, (mode ? F("x") : F(" ")));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 
+// Clear Menu by filling the menu area with background color
+void DWINUI::ClearMenu() {
+  DWIN_Draw_Rectangle(1, backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
+}
+
+void DWINUI::MenuItemsClear() {
+  if (MenuItems == nullptr) return;
+  for (uint8_t i = 0; i < MenuItemCount; i++) delete MenuItems[i];
+  delete[] MenuItems;
+  MenuItems = nullptr;
+  MenuItemCount = 0;
+  MenuItemTotal = 0;
+}
+
+void DWINUI::MenuItemsPrepare(uint8_t totalitems) {
+  MenuItemsClear();
+  MenuItemTotal = totalitems;
+  MenuItems = new MenuItemClass*[totalitems];
+}
+
+void DWINUI::MenuItemsAdd(MenuItemClass* menuitem) {
+  if (MenuItemCount < MenuItemTotal) MenuItems[MenuItemCount++] = menuitem;
+  else delete menuitem;
+}
+
+/* Title Class ==============================================================*/
+
 TitleClass Title;
 
-void TitleClass::Init(rect_t cframe, uint8_t cfont, int16_t color, int16_t bcolor, const char * const title) {
-  font = cfont;
-  backcolor = bcolor;
-  textcolor = color;
-  frame = cframe;
-  SetCaption(title);
-}
-
-void TitleClass::Clear() {
-  DWIN_Draw_Rectangle(1, backcolor, frame.left, frame.top, frame.right, frame.bottom);
-}
-
 void TitleClass::Draw() {
-  Clear();
-  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, textcolor, backcolor, 14, (TitleHeight() - DWIN.Get_font_height(font)) / 2 - 1, caption);
-}
-
-void TitleClass::SetFont(uint8_t cfont) {
-  if ( font == cfont ) return;
-  font = cfont;
-  Draw();
+  if (onDraw != nullptr) (*onDraw)(this);
 }
 
 void TitleClass::SetCaption(const char * const title) {
+  frameid = 0;
   if ( caption == title ) return;
   const uint8_t len = _MIN(sizeof(caption) - 1, strlen(title));
   memcpy(&caption[0], title, len);
   caption[len] = '\0';
-  Draw();
 }
 
-void TitleClass::SetFrame(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-  frame = {x1, y1, x2, y2};
-  Draw();
-}
-
-void TitleClass::SetColors(int16_t color, int16_t bcolor) {
-  if ( textcolor == color && backcolor == color ) return;
-  textcolor = color;
-  backcolor = bcolor;
-  Draw();
-}
-
-void TitleClass::SetTextColor(int16_t color) {
-  if ( textcolor == color ) return;
-  textcolor = color;
-  Draw();
-}
-
-void TitleClass::SetBackgroundColor(int16_t color) {
-  if ( backcolor == color ) return;
-  backcolor = color;
-  Draw();
+void TitleClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+  caption[0] = '\0';
+  frameid = id;
+  frame = { x1, y1, x2, y2 };
 }
 
 void TitleClass::FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
-  Clear();
-  caption[0] = '\0';
-  DWIN_Frame_AreaCopy(id, x1, y1, x2, y2, 14, (TitleHeight() - (y2 - y1)) / 2 - 1);
+  SetFrame(id, x1, y1, x2, y2);
+  Draw();
 }
 
-uint16_t TitleClass::TitleHeight() {
-  return frame.bottom - frame.top;
+/* Menu Class ===============================================================*/
+
+MenuClass::MenuClass() {
+  selected = 0;
+  topline = 0;
+}
+
+// Clear Menu by filling the menu area with background color
+void MenuClass::Clear() {
+  DWIN_Draw_Rectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
+}
+
+void MenuClass::Draw() {
+  Title.Draw();
+  Clear();
+  for (uint8_t i = 0; i < MenuItemCount; i++) {
+    MenuItems[i]->Draw(i - topline);
+  }
+  if (DWINUI::onCursorDraw != nullptr) DWINUI::onCursorDraw(line());
+  DWIN_UpdateLCD();
+}
+
+void MenuClass::onScroll(bool dir) {
+  int8_t sel = selected;
+  if (dir) sel++; else sel--;
+  LIMIT(sel, 0, MenuItemCount - 1);
+  if (sel != selected) {
+    if (DWINUI::onCursorErase != nullptr) DWINUI::onCursorErase(line());
+    if ((sel - topline) == TROWS) {
+      DWIN_Frame_AreaMove(1, DWIN_SCROLL_UP, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
+      topline++;
+      MenuItems[sel]->Draw(TROWS - 1);
+    }
+    if ((sel < topline)) {
+      DWIN_Frame_AreaMove(1, DWIN_SCROLL_DOWN, MLINE, DWINUI::backcolor, 0, TITLE_HEIGHT + 1, DWIN_WIDTH, STATUS_Y - 1);
+      topline--;
+      MenuItems[sel]->Draw(0);
+    }
+    selected = sel;
+    if (DWINUI::onCursorDraw != nullptr) DWINUI::onCursorDraw(line());
+    DWIN_UpdateLCD();
+  }
+}
+
+void MenuClass::onClick() {
+  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)(); 
+}
+
+/* MenuItem Class ===========================================================*/
+
+MenuItemClass::MenuItemClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)()) {
+  icon = cicon;
+  onClick = onclick;
+  onDraw = ondraw;
+  const uint8_t len = _MIN(sizeof(caption) - 1, strlen(text));
+  memcpy(&caption[0], text, len);
+  caption[len] = '\0';
+}
+
+MenuItemClass::MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)()) {
+  icon = cicon;
+  onClick = onclick;
+  onDraw = ondraw;
+  caption[0] = '\0';
+  frameid = id;
+  frame = { x1, y1, x2, y2 };
+}
+
+void MenuItemClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+  caption[0] = '\0';
+  frameid = id;
+  frame = { x1, y1, x2, y2 };
+}
+
+void MenuItemClass::Draw(int8_t line) {
+  if (line < 0 || line >= TROWS) return;
+  if (onDraw != nullptr) (*onDraw)(this, line);
 };
 
 #endif

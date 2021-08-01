@@ -51,7 +51,7 @@ enum processID : uint8_t {
   PrintProcess,
   PrintDone,
   FilamentMan,
-  AxisMove,
+  Menu,
   #if ENABLED(ASSISTED_TRAMMING)
     Tramming,
   #endif
@@ -163,6 +163,7 @@ typedef struct {
   int16_t print_flow      = 100;
   int16_t Brightness      = 127;
   int8_t Color[3];
+  int16_t Value        = 0;
 } HMI_value_t;
 
 typedef struct {
@@ -274,7 +275,6 @@ void Icon_control();
 void Icon_leveling(bool value);
 
 // Other
-void Clear_Menu_Area();
 void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void HMI_StartFrame(const bool with_update);   // Prepare the menu view
@@ -314,6 +314,7 @@ void HMI_Init();
 void HMI_Popup();
 void HMI_SaveProcessID(const uint8_t id);
 void HMI_AudioFeedback(const bool success=true);
+void DWIN_Startup();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
@@ -349,3 +350,9 @@ void DWIN_RebootScreen();
 
 void HMI_LockScreen();
 void DWIN_LockScreen(const bool flag);
+
+void HMI_Menu();
+void HMI_Brightness();
+void Draw_TestMenu();
+void Draw_Move_Menu();
+void Draw_Prepare_Menu();
