@@ -2222,7 +2222,7 @@ void MarlinSettings::postprocess() {
       // Extensible UI User Data
       //
       #if ENABLED(EXTENSIBLE_UI)
-      {
+      { // This is a significant hardware change; don't reserve EEPROM space when not present
         const char extui_data[ExtUI::eeprom_data_size] = { 0 };
         _FIELD_TEST(extui_data);
         EEPROM_READ(extui_data);
