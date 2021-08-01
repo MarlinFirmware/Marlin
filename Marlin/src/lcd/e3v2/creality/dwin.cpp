@@ -5152,7 +5152,9 @@ void Draw_Prepare_Menu() {
   if (CurrentMenu != PrepareMenu) {
     DWINUI::MenuItemsPrepare(13);
     ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Goto_Main_Menu);
-    ADDMENUITEM(ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN), onDrawSubMenu, Goto_FilamentMan);
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      ADDMENUITEM(ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN), onDrawSubMenu, Goto_FilamentMan);
+    #endif
     ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_MOVE_AXIS), onDrawMoveSubMenu, Draw_Move_Menu);
     #if ENABLED(ASSISTED_TRAMMING)
       ADDMENUITEM(ICON_Tramming, GET_TEXT(MSG_MANUAL_LEVELING), onDrawSubMenu, Goto_ManualLev);
