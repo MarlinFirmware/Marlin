@@ -2786,8 +2786,11 @@ void HMI_Control() {
       LIMIT(HMI_ValueStruct.Move_Z_scaled, -100, 100);
       current_position.z = HMI_ValueStruct.Move_Z_scaled / 100;
       DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, 2, 216, MBASE(2), HMI_ValueStruct.Move_Z_scaled);
+      if (!planner.is_full()) {
+        planner.synchronize();
+        planner.buffer_line(current_position, homing_feedrate(Z_AXIS));
+      }
       DWIN_UpdateLCD();
-      HMI_Plan_Move(homing_feedrate(Z_AXIS));
     }
   }
 
@@ -4799,11 +4802,13 @@ void onDrawBack(MenuItemClass* menuitem, int8_t line) {
   }
 #endif
 
+#if ENABLED(ASSISTED_TRAMMING)
 void Goto_ManualLev() {
   checkkey = Tramming;
   select_item.reset();
   Draw_Tramming_Menu();
 }
+#endif
 
 #if ENABLED(MESH_BED_LEVELING)
   void Goto_ManualMesh() {
@@ -4896,13 +4901,15 @@ void Goto_HomeOffsets() {
   Draw_HomeOff_Menu();
 }
 
-void Goto_ProbeSettings() {
-  checkkey = ProbeOff;
-  select_item.reset();
-  HMI_ValueStruct.Probe_OffX_scaled = probe.offset.x * 10;
-  HMI_ValueStruct.Probe_OffY_scaled = probe.offset.y * 10;
-  Draw_ProbeOff_Menu();
-}
+#if HAS_BED_PROBE
+  void Goto_ProbeSettings() {
+    checkkey = ProbeOff;
+    select_item.reset();
+    HMI_ValueStruct.Probe_OffX_scaled = probe.offset.x * 10;
+    HMI_ValueStruct.Probe_OffY_scaled = probe.offset.y * 10;
+    Draw_ProbeOff_Menu();
+  }
+#endif
 
 void SetPID(celsius_t t, heater_id_t h) {
   char cmd[48] = "";
@@ -5147,7 +5154,9 @@ void Draw_Prepare_Menu() {
     ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Goto_Main_Menu);
     ADDMENUITEM(ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN), onDrawSubMenu, Goto_FilamentMan);
     ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_MOVE_AXIS), onDrawMoveSubMenu, Draw_Move_Menu);
-    ADDMENUITEM(ICON_Tramming, GET_TEXT(MSG_MANUAL_LEVELING), onDrawSubMenu, Goto_ManualLev);
+    #if ENABLED(ASSISTED_TRAMMING)
+      ADDMENUITEM(ICON_Tramming, GET_TEXT(MSG_MANUAL_LEVELING), onDrawSubMenu, Goto_ManualLev);
+    #endif
     ADDMENUITEM(ICON_CloseMotor, GET_TEXT(MSG_DISABLE_STEPPERS), onDrawDisableMotors, DisableMotors);
     ADDMENUITEM(ICON_Homing, GET_TEXT(MSG_AUTO_HOME), onDrawAutoHome, AutoHome);
     #if ENABLED(MESH_BED_LEVELING)
