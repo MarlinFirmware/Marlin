@@ -316,7 +316,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case  9: GOTO_SCREEN(FilesScreen); break;
     case 10: GOTO_SCREEN(MainMenu); break;
     case 13: GOTO_SCREEN(BioConfirmHomeE); break;
-    case 14: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
+    case 14: SpinnerDialogBox::enqueueAndWait(F("G28Z")); break;
     case 15: GOTO_SCREEN(TemperatureScreen);  break;
     case 16: fine_motion = !fine_motion; break;
     default: return false;

@@ -36,7 +36,7 @@ void PCA9533_init() {
   PCA9533_reset();
 }
 
-static void PCA9533_writeAllRegisters(uint8_t psc0, uint8_t pwm0, uint8_t psc1, uint8_t pwm1, uint8_t ls0){
+static void PCA9533_writeAllRegisters(uint8_t psc0, uint8_t pwm0, uint8_t psc1, uint8_t pwm1, uint8_t ls0) {
   uint8_t data[6] = { PCA9533_REG_PSC0 | PCA9533_REGM_AI, psc0, pwm0, psc1, pwm1, ls0 };
   Wire.beginTransmission(PCA9533_Addr >> 1);
   Wire.write(data, 6);
@@ -44,7 +44,7 @@ static void PCA9533_writeAllRegisters(uint8_t psc0, uint8_t pwm0, uint8_t psc1, 
   delayMicroseconds(1);
 }
 
-static void PCA9533_writeRegister(uint8_t reg, uint8_t val){
+static void PCA9533_writeRegister(uint8_t reg, uint8_t val) {
   uint8_t data[2] = { reg, val };
   Wire.beginTransmission(PCA9533_Addr >> 1);
   Wire.write(data, 2);

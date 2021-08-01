@@ -24,8 +24,8 @@
 /********************************************************************************
  * @file     dwin_lcd.h
  * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
- * @date     2021/06/20
- * @version  2.0.2
+ * @date     2021/08/01
+ * @version  2.0.3
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
@@ -39,13 +39,8 @@
 #define DWIN_SCROLL_UP   2
 #define DWIN_SCROLL_DOWN 3
 
-#if DISABLED(DWIN_MARLINUI_LANDSCAPE)
-  #define DWIN_WIDTH  272
-  #define DWIN_HEIGHT 480
-#else
-  #define DWIN_WIDTH  480
-  #define DWIN_HEIGHT 272
-#endif
+#define DWIN_WIDTH  272
+#define DWIN_HEIGHT 480
 
 #define DWIN_DataLength (DWIN_WIDTH / 6 * 2)
 
@@ -139,11 +134,18 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string);
+inline void DWIN_Draw_String(bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
+  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, string);
+}
 
 class __FlashStringHelper;
 
 inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
   DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
+}
+inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, (char *)title);
 }
 
 // Draw a positive integer

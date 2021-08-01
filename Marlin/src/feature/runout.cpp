@@ -71,7 +71,7 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
+  #include "../lcd/e3v2/creality/dwin.h"
 #endif
 
 void event_filament_runout(const uint8_t extruder) {

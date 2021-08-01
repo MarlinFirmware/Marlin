@@ -21,24 +21,24 @@
  */
 
 /********************************************************************************
- * @file     dwin_lcd.cpp
+ * @file     lcd/e3v2/creality/dwin_lcd.cpp
  * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
  * @date     2021/06/20
  * @version  2.0.2
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #include "dwin_lcd.h"
 #include <string.h> // for memset
 
 //#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 // Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
 // Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
@@ -487,7 +487,7 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
   uint16_t to_send;
   uint16_t indx;
   uint8_t block = 0;
-  
+
   while (pending > 0) {
     indx = block * max_size;
     to_send = _MIN(pending, max_size);
@@ -501,7 +501,7 @@ void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data)
     LOOP_L_N(j, 4) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
     block++;
     pending -= to_send;
-  } 
+  }
 }
 
 // Write the contents of the 32KB SRAM data memory into the designated image memory space.

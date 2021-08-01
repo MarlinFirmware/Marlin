@@ -149,7 +149,7 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
 static inline uint8_t utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_byte) {
   uint8_t cnt = 0;
   uint8_t *p = (uint8_t *)pstart;
-  for (;;) {
+  if (p) for (;;) {
     const uint8_t b = cb_read_byte(p);
     if (!b) break;
     if (utf8_is_start_byte_of_char(b)) cnt++;

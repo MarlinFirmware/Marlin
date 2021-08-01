@@ -623,7 +623,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     static_assert(_test_btc_sample_start != 12.3f, "BTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_RES
-    constexpr _btc_sample_res = BTC_SAMPLE_RES;
+    constexpr auto _btc_sample_res = BTC_SAMPLE_RES;
     constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
     static_assert(_test_btc_sample_res != 12.3f, "BTC_SAMPLE_RES must be a whole number.");
   #endif
@@ -2486,8 +2486,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * G35 Assisted Tramming
  */
-#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE && !ENABLED(DWIN_CREALITY_LCD)
-  #error "ASSISTED_TRAMMING requires a bed probe."
+#if ENABLED(ASSISTED_TRAMMING) && NONE(HAS_BED_PROBE, DWIN_CREALITY_LCD)
+  #error "ASSISTED_TRAMMING requires a bed probe or DWIN_CREALITY_LCD."
 #endif
 
 /**

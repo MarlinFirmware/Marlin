@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,15 +21,23 @@
  */
 #pragma once
 
-#include <lvgl.h>
+/**
+ * Test X86_64-specific configuration values for errors at compile-time.
+ */
 
-void mks_gpio_test();
-void mks_hardware_test();
-void mks_test_get();
+// Emulating RAMPS
+#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
+  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
+#endif
 
-void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint16_t bkColor);
-void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor, uint16_t bkColor);
-void disp_assets_update();
-void disp_assets_update_progress(const char *msg);
+#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on LINUX."
+#endif
 
-extern uint8_t mks_test_flag;
+#if HAS_TMC_SW_SERIAL
+  #error "TMC220x Software Serial is not supported on LINUX."
+#endif
+
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  #error "POSTMORTEM_DEBUGGING is not yet supported on LINUX."
+#endif

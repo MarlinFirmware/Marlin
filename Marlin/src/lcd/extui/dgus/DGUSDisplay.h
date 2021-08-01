@@ -108,13 +108,13 @@ private:
   static bool Initialized, no_reentrance;
 };
 
-#define GET_VARIABLE(f, t, V...) (&DGUSDisplay::GetVariable<decltype(t), f, t, ##V>)
-#define SET_VARIABLE(f, t, V...) (&DGUSDisplay::SetVariable<decltype(t), f, t, ##V>)
-
 extern DGUSDisplay dgusdisplay;
 
 // compile-time x^y
 constexpr float cpow(const float x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
+
+///
+const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen);
 
 /// Find the flash address of a DGUS_VP_Variable for the VP.
 const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp);

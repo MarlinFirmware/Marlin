@@ -136,7 +136,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Muovi Asse");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Livella piano");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Livella piano");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Calibra piano");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Tramming piano");
   PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Regola la vite finche' la sonda non rileva il piano.");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato!");
   PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Punti buoni: ");

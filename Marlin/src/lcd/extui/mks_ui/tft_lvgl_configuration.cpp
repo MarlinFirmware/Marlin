@@ -29,7 +29,7 @@
 #include "draw_ready_print.h"
 
 #include "pic_manager.h"
-#include "mks_hardware_test.h"
+#include "mks_hardware.h"
 #include "draw_ui.h"
 #include "SPIFlashStorage.h"
 #include <lvgl.h>
@@ -139,7 +139,7 @@ void tft_lvgl_init() {
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
     watchdog_refresh();   // LVGL init takes time
-    mks_test_get();
+    TERN_(MKS_TEST, mks_test_get());
   #endif
 
   touch.Init();
@@ -231,7 +231,7 @@ void tft_lvgl_init() {
 
   if (ready) lv_draw_ready_print();
 
-  #if ENABLED(MKS_TEST)
+  #if BOTH(MKS_TEST, SDSUPPORT)
     if (mks_test_flag == 0x1E) mks_gpio_test();
   #endif
 }
@@ -398,7 +398,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   // find small image size
   card.read(public_buf, 512);
   public_buf[511] = '\0';
-  char* eol = strpbrk((const char*)public_buf, "\n\r");
+  const char* eol = strpbrk((const char*)public_buf, "\n\r");
   small_image_size = (uintptr_t)eol - (uintptr_t)((uint32_t *)(&public_buf[0])) + 1;
   return LV_FS_RES_OK;
 }
@@ -529,5 +529,11 @@ void lv_encoder_pin_init() {
   }
 
 #endif // HAS_ENCODER_ACTION
+
+#if __PLAT_NATIVE_SIM__
+  #include <lv_misc/lv_log.h>
+  typedef void (*lv_log_print_g_cb_t)(lv_log_level_t level, const char *, uint32_t, const char *);
+  extern "C" void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb) {}
+#endif
 
 #endif // HAS_TFT_LVGL_UI

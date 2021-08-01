@@ -43,10 +43,6 @@
   #define JUST_BABYSTEP 1
 #endif
 
-#include <WString.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "../../fontutils.h"
 #include "../../marlinui.h"
 
@@ -85,6 +81,10 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif
+
+#include <WString.h>
+#include <stdio.h>
+#include <string.h>
 
 #ifndef MACHINE_SIZE
   #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
@@ -2426,10 +2426,12 @@ void Draw_FilamentMan_Menu(){
     Draw_Menu_Line(4, ICON_FilLoad, GET_TEXT(MSG_FILAMENTLOAD));
   #endif
   if (select_item.now) Draw_Menu_Cursor(select_item.now);
-}
+  }
+
 #endif
 
 #if ENABLED(ASSISTED_TRAMMING)
+
   void Draw_Tramming_Menu() {
     DWINUI::ClearMenu();
     Title.SetCaption(GET_TEXT_F(MSG_MANUAL_LEVELING));
@@ -2453,9 +2455,11 @@ void Draw_FilamentMan_Menu(){
     LOOP_L_N(i, TRAM_POINTS) Draw_Menu_Line(i + 1, ICON_Axis);
     if (select_item.now) Draw_Menu_Cursor(select_item.now);
   }
+
 #endif
 
 #if ENABLED(MESH_BED_LEVELING)
+
   void Draw_ManualMesh_Menu() {
     DWINUI::ClearMenu();
     Title.SetCaption(GET_TEXT_F(MSG_UBL_MANUAL_MESH));
@@ -2467,6 +2471,7 @@ void Draw_FilamentMan_Menu(){
     Draw_Menu_Line(4, ICON_MeshSave,GET_TEXT(MSG_UBL_SAVE_MESH)); //Save -> M500
     if (select_item.now) Draw_Menu_Cursor(select_item.now);
   }
+
 #endif
 
 #include "../../../libs/buzzer.h"
@@ -2474,12 +2479,12 @@ void Draw_FilamentMan_Menu(){
 void HMI_AudioFeedback(const bool success/*=true*/) {
   #if HAS_BUZZER
     if (success) {
-      buzzer.tone(100, 659);
-      buzzer.tone(10, 0);
-      buzzer.tone(100, 698);
+      BUZZ(100, 659);
+      BUZZ(10, 0);
+      BUZZ(100, 698);
     }
     else
-      buzzer.tone(40, 440);
+      BUZZ(40, 440);
   #endif
 }
 
@@ -2528,11 +2533,10 @@ void HMI_Prepare() {
         }
 
       }
-      else {
+      else
         Move_Highlight(1, select_prepare.now + MROWS - index_prepare);
       }
     }
-  }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_prepare.dec()) {
       if (select_prepare.now < index_prepare - MROWS) {
@@ -2571,11 +2575,10 @@ void HMI_Prepare() {
         }
 
       }
-      else {
+      else
         Move_Highlight(-1, select_prepare.now + MROWS - index_prepare);
       }
     }
-  }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_prepare.now) {
       case 0: // Back
@@ -2590,7 +2593,6 @@ void HMI_Prepare() {
           break;
       #endif
       case PREPARE_CASE_MOVE: // Axis move
-        checkkey = Menu;
         Draw_Move_Menu();
         break;
       #if ENABLED(ASSISTED_TRAMMING)
@@ -2728,7 +2730,7 @@ void Draw_PLA_Menu() {
   #if ENABLED(EEPROM_SETTINGS)
     Draw_Menu_Line(++i, ICON_WriteEEPROM);
   #endif
-}
+  }
 
 void Draw_ABS_Menu(){
   DWINUI::ClearMenu();
@@ -2802,8 +2804,9 @@ void Draw_ABS_Menu(){
   #if ENABLED(EEPROM_SETTINGS)
     Draw_Menu_Line(++i, ICON_WriteEEPROM);
   #endif
-}
-#endif
+  }
+
+#endif // HAS_HOTEND
 
 void Draw_Temperature_Menu() {
   DWINUI::ClearMenu();
@@ -2999,8 +3002,9 @@ void HMI_Control() {
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-// Filament Management
-void HMI_FilamentMan(){
+
+  // Filament Management
+  void HMI_FilamentMan() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
@@ -3040,9 +3044,9 @@ void HMI_FilamentMan(){
     }
   }
   DWIN_UpdateLCD();
-}
+  }
 
-#endif
+#endif // ADVANCED_PAUSE_FEATURE
 
 #if ENABLED(ASSISTED_TRAMMING)
 
@@ -3390,6 +3394,7 @@ void Draw_Max_Accel_Menu() {
 }
 
 #if HAS_CLASSIC_JERK
+
   void Draw_Max_Jerk_Menu() {
     DWINUI::ClearMenu();
 
@@ -3462,7 +3467,8 @@ void Draw_Max_Accel_Menu() {
       DWINUI::Draw_Float(3, UNITFDIGITS, 210, MBASE(4), planner.max_jerk[E_AXIS] * MINUNITMULT);
     #endif
   }
-#endif
+
+#endif // HAS_CLASSIC_JERK
 
 void Draw_Steps_Menu() {
   DWINUI::ClearMenu();
@@ -4712,7 +4718,7 @@ void EachMomentUpdate() {
       Goto_PrintProcess();
       Draw_Status_Area(true);
     }
-  #endif
+  #endif // POWER_LOSS_RECOVERY
 
   DWIN_UpdateLCD();
 }
@@ -4855,7 +4861,7 @@ void DWIN_CompletedLeveling() { HMI_ReturnScreen(); }
 #endif
 
 // PID process
-void DWIN_PidTuning(pidresult_t result){
+void DWIN_PidTuning(pidresult_t result) {
   switch (result) {
     case PID_BED_START:
       HMI_SaveProcessID(NothingToDo);
@@ -4897,7 +4903,7 @@ void DWIN_Print_Header(const char *text = nullptr) {
     LOOP_L_N(i, size) headertxt[i] = text[i];
     headertxt[size] = '\0';
   }
-  if (checkkey == PrintProcess){
+  if (checkkey == PrintProcess) {
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 60, DWIN_WIDTH, 60+16);
     DWINUI::Draw_CenteredString(60, headertxt);
   }
@@ -5080,9 +5086,8 @@ void DWIN_Redraw_screen() {
     else if (encoder_diffState == ENCODER_DIFF_CCW)
       Draw_Select_Highlight(true);
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-      if (HMI_flag.select_flag) {
+      if (HMI_flag.select_flag)
         pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // "Purge More" button
-      }
       else {
         HMI_SaveProcessID(NothingToDo);
         pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // "Continue" button
@@ -5103,7 +5108,8 @@ void HMI_LockScreen() {
       select_advset.set(ADVSET_CASE_LOCK);
       index_advset = ADVSET_CASE_LOCK;
       Draw_AdvSet_Menu();
-    } else {
+    }
+    else {
       checkkey = Tune;
       select_tune.set(TUNE_CASE_LOCK);
       index_tune = TUNE_CASE_LOCK;

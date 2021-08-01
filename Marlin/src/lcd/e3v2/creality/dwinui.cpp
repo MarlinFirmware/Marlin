@@ -19,9 +19,9 @@
  *
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
+#if ENABLED(DWIN_CREALITY_LCD)
 
 #include "../../inc/MarlinConfig.h"
 #include "../../core/macros.h"
@@ -29,7 +29,7 @@
 #include "dwinui.h"
 
 //#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 uint8_t MenuItemTotal = 0;
 uint8_t MenuItemCount = 0;
@@ -50,7 +50,7 @@ void DWINUI::Init(void) {
   delay(750);   // Delay here or init later in the boot process
   const bool success = DWIN_Handshake();
   if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
-  DWIN_Frame_SetDir(DISABLED(DWIN_MARLINUI_LANDSCAPE) ? 1 : 0);
+  DWIN_Frame_SetDir(1);
   TERN(SHOW_BOOTSCREEN,,DWIN_Frame_Clear(Color_Bg_Black));
   DWIN_UpdateLCD();
   cursor.x = 0;
@@ -147,9 +147,9 @@ void DWINUI::MoveBy(xy_int_t point) {
 }
 
 // Draw a Centered string using DWIN_WIDTH
-void DWINUI::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
+void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * Get_font_width(size)) / 2 - 1;
-  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
+  DWIN_Draw_String(bShow, size, color, bColor, x, y, string);
 }
 
 // Draw a signed floating point number
@@ -165,10 +165,10 @@ void DWINUI::Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size, uin
 void DWINUI::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   if (value < 0) {
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, -value);
-    DWIN_Draw_String(false, bShow, size, color, bColor, x - 6, y, F("-"));
+    DWIN_Draw_String(bShow, size, color, bColor, x - 6, y, F("-"));
   }
   else {
-    DWIN_Draw_String(false, bShow, size, color, bColor, x - 6, y, F(" "));
+    DWIN_Draw_String(bShow, size, color, bColor, x - 6, y, F(" "));
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, value);
   }
 }
@@ -262,6 +262,11 @@ void TitleClass::SetCaption(const char * const title) {
   caption[len] = '\0';
 }
 
+void TitleClass::ShowCaption(const char * const title) {
+  SetCaption(title);
+  Draw();
+}
+
 void TitleClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
   caption[0] = '\0';
   frameid = id;
@@ -352,4 +357,4 @@ void MenuItemClass::Draw(int8_t line) {
   if (onDraw != nullptr) (*onDraw)(this, line);
 };
 
-#endif
+#endif // DWIN_CREALITY_LCD

@@ -41,7 +41,10 @@
   uint16_t distanceToMove = 10;
 #endif
 
-const uint16_t VPList_Boot[] PROGMEM = { VP_MARLIN_VERSION, 0x0000 };
+const uint16_t VPList_Boot[] PROGMEM = {
+  VP_MARLIN_VERSION,
+  0x0000
+};
 
 const uint16_t VPList_Main[] PROGMEM = {
   // VP_M117, for completeness, but it cannot be auto-uploaded.
@@ -101,7 +104,7 @@ const uint16_t VPList_Status[] PROGMEM = {
 };
 
 const uint16_t VPList_Status2[] PROGMEM = {
-  /* VP_M117, for completeness, but it cannot be auto-uploaded */
+  // VP_M117, for completeness, but it cannot be auto-uploaded
   #if HAS_HOTEND
     VP_Flowrate_E0,
     #if HAS_MULTI_EXTRUDER
@@ -286,28 +289,28 @@ const uint16_t VPList_Z_Offset[] PROGMEM = {
 };
 
 const struct VPMapping VPMap[] PROGMEM = {
-  { DGUSLCD_SCREEN_BOOT, VPList_Boot },
-  { DGUSLCD_SCREEN_MAIN, VPList_Main },
-  { DGUSLCD_SCREEN_TEMPERATURE, VPList_Temp },
-  { DGUSLCD_SCREEN_STATUS, VPList_Status },
-  { DGUSLCD_SCREEN_STATUS2, VPList_Status2 },
-  { DGUSLCD_SCREEN_PREHEAT, VPList_Preheat },
-  { DGUSLCD_SCREEN_MANUALMOVE, VPList_ManualMove },
-  { DGUSLCD_SCREEN_MANUALEXTRUDE, VPList_ManualExtrude },
-  { DGUSLCD_SCREEN_FILAMENT_HEATING, VPList_Filament_heating },
-  { DGUSLCD_SCREEN_FILAMENT_LOADING, VPList_Filament_load_unload },
-  { DGUSLCD_SCREEN_FILAMENT_UNLOADING, VPList_Filament_load_unload },
+  { DGUSLCD_SCREEN_BOOT,                VPList_Boot                 },
+  { DGUSLCD_SCREEN_MAIN,                VPList_Main                 },
+  { DGUSLCD_SCREEN_TEMPERATURE,         VPList_Temp                 },
+  { DGUSLCD_SCREEN_STATUS,              VPList_Status               },
+  { DGUSLCD_SCREEN_STATUS2,             VPList_Status2              },
+  { DGUSLCD_SCREEN_PREHEAT,             VPList_Preheat              },
+  { DGUSLCD_SCREEN_MANUALMOVE,          VPList_ManualMove           },
+  { DGUSLCD_SCREEN_MANUALEXTRUDE,       VPList_ManualExtrude        },
+  { DGUSLCD_SCREEN_FILAMENT_HEATING,    VPList_Filament_heating     },
+  { DGUSLCD_SCREEN_FILAMENT_LOADING,    VPList_Filament_load_unload },
+  { DGUSLCD_SCREEN_FILAMENT_UNLOADING,  VPList_Filament_load_unload },
   { DGUSLCD_SCREEN_SDPRINTMANIPULATION, VPList_SD_PrintManipulation },
-  { DGUSLCD_SCREEN_SDFILELIST, VPList_SDFileList },
-  { DGUSLCD_SCREEN_SDPRINTTUNE, VPList_SDPrintTune },
-  { DGUSLCD_SCREEN_WAITING, VPList_PIDTuningWaiting },
-  { DGUSLCD_SCREEN_FLC_PREHEAT, VPList_FLCPreheat },
-  { DGUSLCD_SCREEN_FLC_PRINTING, VPList_FLCPrinting },
-  { DGUSLCD_SCREEN_Z_OFFSET, VPList_Z_Offset },
-  { DGUSLCD_SCREEN_STEPPERMM, VPList_StepPerMM },
-  { DGUSLCD_SCREEN_PID_E, VPList_PIDE0 },
-  { DGUSLCD_SCREEN_PID_BED, VPList_PIDBED },
-  { DGUSLCD_SCREEN_INFOS, VPList_Infos },
+  { DGUSLCD_SCREEN_SDFILELIST,          VPList_SDFileList           },
+  { DGUSLCD_SCREEN_SDPRINTTUNE,         VPList_SDPrintTune          },
+  { DGUSLCD_SCREEN_WAITING,             VPList_PIDTuningWaiting     },
+  { DGUSLCD_SCREEN_FLC_PREHEAT,         VPList_FLCPreheat           },
+  { DGUSLCD_SCREEN_FLC_PRINTING,        VPList_FLCPrinting          },
+  { DGUSLCD_SCREEN_Z_OFFSET,            VPList_Z_Offset             },
+  { DGUSLCD_SCREEN_STEPPERMM,           VPList_StepPerMM            },
+  { DGUSLCD_SCREEN_PID_E,               VPList_PIDE0                },
+  { DGUSLCD_SCREEN_PID_BED,             VPList_PIDBED               },
+  { DGUSLCD_SCREEN_INFOS,               VPList_Infos                },
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
 

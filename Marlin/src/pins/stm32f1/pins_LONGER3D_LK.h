@@ -140,6 +140,10 @@
   #define TFT_BUFFER_SIZE                   3200
 #endif
 
+#if ENABLED(SDIO_SUPPORT)
+  #define SD_SS_PIN                         -1    // else SDSS set to PA4 in M43 (spi_pins.h)
+#endif
+
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
  * mixed up MOSI and MISO pins. SPI is managed in SW, and needs pins
@@ -148,7 +152,7 @@
 #if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB12  // pin 51 SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // pin 52
-  #define TOUCH_MOSI_PIN                    PB14  // pin 53
+  #define TOUCH_MOSI_PIN                    PB14  // pin 53 (Inverted MOSI/MISO = No HW SPI2)
   #define TOUCH_MISO_PIN                    PB15  // pin 54
   #define TOUCH_INT_PIN                     PC6   // pin 63 (PenIRQ coming from ADS7843)
 #endif
@@ -159,6 +163,7 @@
 //
 #if NO_EEPROM_SELECTED
   //#define SPI_EEPROM
+  //#define HAS_SPI_FLASH                      1  // need MARLIN_DEV_MODE for M993/M994 eeprom backup tests
   #define FLASH_EEPROM_EMULATION
 #endif
 
@@ -171,6 +176,12 @@
   #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
+#elif HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE                0x40000U  // limit to 256KB (M993 will reboot with 512)
+  #define W25QXX_CS_PIN                     PC5
+  #define W25QXX_MOSI_PIN                   PA7
+  #define W25QXX_MISO_PIN                   PA6
+  #define W25QXX_SCK_PIN                    PA5
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
