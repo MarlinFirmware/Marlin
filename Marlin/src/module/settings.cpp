@@ -1331,12 +1331,12 @@ void MarlinSettings::postprocess() {
     // Extensible UI User Data
     //
     #if ENABLED(EXTENSIBLE_UI)
-      {
-        char extui_data[ExtUI::eeprom_data_size] = { 0 };
-        ExtUI::onStoreSettings(extui_data);
-        _FIELD_TEST(extui_data);
-        EEPROM_WRITE(extui_data);
-      }
+    {
+      char extui_data[ExtUI::eeprom_data_size] = { 0 };
+      ExtUI::onStoreSettings(extui_data);
+      _FIELD_TEST(extui_data);
+      EEPROM_WRITE(extui_data);
+    }
     #endif
 
     //
@@ -2200,13 +2200,12 @@ void MarlinSettings::postprocess() {
       // Extensible UI User Data
       //
       #if ENABLED(EXTENSIBLE_UI)
-        // This is a significant hardware change; don't reserve EEPROM space when not present
-        {
-          const char extui_data[ExtUI::eeprom_data_size] = { 0 };
-          _FIELD_TEST(extui_data);
-          EEPROM_READ(extui_data);
-          if (!validating) ExtUI::onLoadSettings(extui_data);
-        }
+      { // This is a significant hardware change; don't reserve EEPROM space when not present
+        const char extui_data[ExtUI::eeprom_data_size] = { 0 };
+        _FIELD_TEST(extui_data);
+        EEPROM_READ(extui_data);
+        if (!validating) ExtUI::onLoadSettings(extui_data);
+      }
       #endif
 
       //
