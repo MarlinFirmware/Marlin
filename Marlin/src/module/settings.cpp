@@ -2639,7 +2639,7 @@ void MarlinSettings::reset() {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-  TERN_(DWIN_CREALITY_LCD, DWIN_Setdatadefaults());
+  TERN_(DWIN_CREALITY_LCD, DWIN_SetDataDefaults());
 
   //
   // Case Light Brightness
@@ -2975,7 +2975,7 @@ void MarlinSettings::reset() {
   DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
-  TERN_(DWIN_CREALITY_LCD, DWIN_Setdatadefaults());
+  TERN_(DWIN_CREALITY_LCD, DWIN_SetDataDefaults());
 }
 
 #if DISABLED(DISABLE_M503)
