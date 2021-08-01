@@ -504,6 +504,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Deploy Z-Probe");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Stow Z-Probe");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s First");
+  PROGMEM Language_Str MSG_ZPROBE_SETTINGS                 = _UxGT("Probe Settings");
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Probe Offsets");
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Probe X Offset");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Probe Y Offset");

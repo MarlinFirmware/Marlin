@@ -124,6 +124,8 @@
 #define ICON_Info_1               91
 
 // Extra Icons
+#define ICON_Brightness           ICON_Motion
+#define ICON_Sound                ICON_Cool
 #define ICON_Error                ICON_TempTooHigh
 #define ICON_Tramming             ICON_SetEndTemp
 #define ICON_ManualMesh           ICON_HotendTemp

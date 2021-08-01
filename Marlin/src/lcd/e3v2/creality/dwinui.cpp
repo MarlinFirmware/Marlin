@@ -23,8 +23,8 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
-#include "../../inc/MarlinConfig.h"
-#include "../../core/macros.h"
+#include "../../../inc/MarlinConfig.h"
+#include "../../../core/macros.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
 
@@ -291,7 +291,6 @@ void MenuClass::Clear() {
 }
 
 void MenuClass::Draw() {
-  Title.Draw();
   Clear();
   for (uint8_t i = 0; i < MenuItemCount; i++) {
     MenuItems[i]->Draw(i - topline);

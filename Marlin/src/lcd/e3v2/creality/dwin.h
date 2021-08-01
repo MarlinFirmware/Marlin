@@ -46,7 +46,6 @@ enum processID : uint8_t {
   // Process ID
   MainMenu,
   SelectFile,
-  Prepare,
   Control,
   PrintProcess,
   PrintDone,
@@ -100,7 +99,7 @@ enum processID : uint8_t {
     Extruder,
     ETemp,
   #endif
-  Homeoffset,
+  Zoffset,
   #if HAS_HEATED_BED
     BedTemp,
   #endif
@@ -238,14 +237,6 @@ void Popup_Window_Resume();
 void Goto_PrintProcess();
 void Goto_Main_Menu();
 
-// Variable control
-void HMI_Move_X();
-void HMI_Move_Y();
-void HMI_Move_Z();
-void HMI_Move_E();
-
-void HMI_Zoffset();
-
 #if HAS_HOTEND
   void HMI_ETemp();
 #endif
@@ -281,10 +272,8 @@ void HMI_StartFrame(const bool with_update);   // Prepare the menu view
 void HMI_MainMenu();    // Main process screen
 void HMI_SelectFile();  // File page
 void HMI_Printing();    // Print page
-void HMI_Prepare();     // Prepare page
 void HMI_Control();     // Control page
 void HMI_Leveling();    // Level the page
-void HMI_AxisMove();    // Axis movement menu
 #if ENABLED(ASSISTED_TRAMMING)
   void HMI_Tramming();   // Tramming menu
 #endif
@@ -349,10 +338,17 @@ void DWIN_RebootScreen();
 #endif
 
 void HMI_LockScreen();
-void DWIN_LockScreen(const bool flag);
+void DWIN_LockScreen(const bool flag = true);
 
+// HMI Control functions
 void HMI_Menu();
 void HMI_Brightness();
-void Draw_TestMenu();
+void HMI_Move_X();
+void HMI_Move_Y();
+void HMI_Move_Z();
+void HMI_Move_E();
+void HMI_Zoffset();
+
+
 void Draw_Move_Menu();
 void Draw_Prepare_Menu();
