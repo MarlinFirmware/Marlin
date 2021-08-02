@@ -52,10 +52,10 @@ void GcodeSuite::M42() {
   if (pin_index < 0) return;
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
-  bool avoidWrite = false;
 
   if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
+  bool avoidWrite = false;
   if (parser.seenval('M')) {
     switch (parser.value_byte()) {
       case 0: pinMode(pin, INPUT); avoidWrite = true; break;
@@ -107,8 +107,8 @@ void GcodeSuite::M42() {
   #endif
 
   if (avoidWrite) {
-     SERIAL_ECHOLNPGM("No value allowed for an input");
-     return;
+    SERIAL_ECHOLNPGM("?Cannot write to INPUT");
+    return;
   }
 
   // An OUTPUT_OPEN_DRAIN should not be changed to normal OUTPUT (STM32)
