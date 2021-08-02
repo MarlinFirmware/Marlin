@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,44 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if HAS_LCD_BRIGHTNESS
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
-#include "../../sd/cardreader.h"
-
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/e3v2/creality/dwin.h"
-#endif
 
 /**
- * M73: Set percentage complete (for display on LCD)
- *
- * Example:
- *   M73 P25 ; Set progress to 25%
+ * M256: Set the LCD brightness
  */
-void GcodeSuite::M73() {
-
-  #if ENABLED(DWIN_CREALITY_LCD)
-
-    DWIN_Progress_Update();
-
-  #else
-
-    if (parser.seenval('P'))
-      ui.set_progress((PROGRESS_SCALE) > 1
-        ? parser.value_float() * (PROGRESS_SCALE)
-        : parser.value_byte()
-      );
-
-    #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
-      if (parser.seenval('R')) ui.set_remaining_time(60 * parser.value_ulong());
-    #endif
-
-  #endif
+void GcodeSuite::M256() {
+  if (parser.seenval('B')) ui.set_brightness(parser.value_int());
+  SERIAL_ECHOLNPAIR("LCD Brightness: ", ui.brightness);
 }
 
-#endif // LCD_SET_PROGRESS_MANUALLY
+#endif // HAS_LCD_BRIGHTNESS
