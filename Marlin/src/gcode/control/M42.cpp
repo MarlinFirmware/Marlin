@@ -52,16 +52,23 @@ void GcodeSuite::M42() {
   if (pin_index < 0) return;
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
+  bool avoidWrite = false;
 
   if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   if (parser.seenval('M')) {
     switch (parser.value_byte()) {
-      case 0: pinMode(pin, INPUT); break;
+      case 0: pinMode(pin, INPUT); avoidWrite = true; break;
       case 1: pinMode(pin, OUTPUT); break;
-      case 2: pinMode(pin, INPUT_PULLUP); break;
+      case 2: pinMode(pin, INPUT_PULLUP); avoidWrite = true; break;
       #ifdef INPUT_PULLDOWN
         case 3: pinMode(pin, INPUT_PULLDOWN); break;
+      #endif
+      #ifdef INPUT_ANALOG
+        case 4: pinMode(pin, INPUT_ANALOG); avoidWrite = true; break;
+      #endif
+      #ifdef OUTPUT_OPEN_DRAIN
+        case 5: pinMode(pin, OUTPUT_OPEN_DRAIN); break;
       #endif
       default: SERIAL_ECHOLNPGM("Invalid Pin Mode"); return;
     }
@@ -99,8 +106,22 @@ void GcodeSuite::M42() {
     }
   #endif
 
-  pinMode(pin, OUTPUT);
+  if (avoidWrite) {
+     SERIAL_ECHOLNPGM("No value allowed for an input");
+     return;
+  }
+
+  // An OUTPUT_OPEN_DRAIN should not be changed to normal OUTPUT (STM32)
+  // Use M42 Px M1/5 S0/1 to set the output type and then set value
+  #ifndef OUTPUT_OPEN_DRAIN
+    pinMode(pin, OUTPUT);
+  #endif
   extDigitalWrite(pin, pin_status);
+
+  #ifdef ARDUINO_ARCH_STM32
+    // A simple I/O will be set to 0 by analogWrite()
+    if (pin_status <= 1) return;
+  #endif
   analogWrite(pin, pin_status);
 }
 
