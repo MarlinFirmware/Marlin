@@ -2151,6 +2151,15 @@
   #if defined(Z4_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z4)
     #define Z4_SENSORLESS 1
   #endif
+  #if defined(I_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(I)
+    #define I_SENSORLESS 1
+  #endif
+  #if defined(J_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(J)
+    #define J_SENSORLESS 1
+  #endif
+  #if defined(K_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(K)
+    #define K_SENSORLESS 1
+  #endif
 
   #if AXIS_HAS_STEALTHCHOP(X)
     #define X_HAS_STEALTHCHOP 1
@@ -2212,8 +2221,21 @@
 
   #if ENABLED(SPI_ENDSTOPS)
     #define X_SPI_SENSORLESS X_SENSORLESS
-    #define Y_SPI_SENSORLESS Y_SENSORLESS
-    #define Z_SPI_SENSORLESS Z_SENSORLESS
+    #if HAS_Y_AXIS
+      #define Y_SPI_SENSORLESS Y_SENSORLESS
+    #endif
+    #if HAS_Z_AXIS
+      #define Z_SPI_SENSORLESS Z_SENSORLESS
+    #endif
+    #if LINEAR_AXES >= 4
+      #define I_SPI_SENSORLESS I_SENSORLESS
+    #endif
+    #if LINEAR_AXES >= 5
+      #define J_SPI_SENSORLESS J_SENSORLESS
+    #endif
+    #if LINEAR_AXES >= 6
+      #define K_SPI_SENSORLESS K_SENSORLESS
+    #endif
   #endif
   #ifndef X_INTERPOLATE
     #define X_INTERPOLATE INTERPOLATE
