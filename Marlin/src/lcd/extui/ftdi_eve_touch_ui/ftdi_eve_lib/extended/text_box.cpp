@@ -67,12 +67,12 @@ namespace FTDI {
     width = height = 0;
     for (;;) {
       const uint16_t line_width = find_line_break(utf8_fm, clcd_fm, wrap_width, line_start, line_end, use_utf8);
-      if (line_end == line_start) break;
       width  = max(width, line_width);
       height += utf8_fm.get_height();
+      if (*line_end == '\n' || *line_end == ' ') line_end++;
+      if (*line_end == '\0') break;
+      if (line_end == line_start) break;
       line_start = line_end;
-      if (*line_start == '\n' || *line_start == ' ') line_start++;
-      if (*line_start == '\0') break;
     }
   }
 
@@ -109,7 +109,6 @@ namespace FTDI {
     const char *line_start = str, *line_end;
     for (;;) {
       find_line_break(utf8_fm, clcd_fm, w, line_start, line_end, use_utf8);
-      if (line_end == line_start) break;
 
       const size_t line_len = line_end - line_start;
       if (line_len) {
@@ -125,9 +124,10 @@ namespace FTDI {
       }
       y += utf8_fm.get_height();
 
+      if (*line_end == '\n' || *line_end == ' ') line_end++;
+      if (*line_end == '\0') break;
+      if (line_end == line_start) break;
       line_start = line_end;
-      if (*line_start == '\n' || *line_start == ' ') line_start++;
-      if (*line_start == '\0') break;
     }
   }
 
