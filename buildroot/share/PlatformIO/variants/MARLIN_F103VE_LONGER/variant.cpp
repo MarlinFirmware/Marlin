@@ -135,7 +135,7 @@ static bool SetSysClock_PLL_HSE(bool bypass)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {};
   bool ret = false;
 
-  /* Initializes the CPU, AHB and APB busses clocks */
+  // Initializes the CPU, AHB and APB busses clocks
   RCC_OscInitStruct.OscillatorType   = RCC_OSCILLATORTYPE_HSE;
   if (bypass == false) {
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
@@ -146,9 +146,10 @@ static bool SetSysClock_PLL_HSE(bool bypass)
   RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
+  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9; // 8Mhz x 9 = 72MHz
+
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
-    /* Initializes the CPU, AHB and APB busses clocks */
+    // Initializes the CPU, AHB and APB busses clocks
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
@@ -159,7 +160,11 @@ static bool SetSysClock_PLL_HSE(bool bypass)
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK) {
       PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
       PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
-      PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+      PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5; // 72/1.5 = 48MHz
+      #ifndef USBCON
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+        PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+      #endif
       if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK) {
         ret = true;
       }
@@ -169,7 +174,7 @@ static bool SetSysClock_PLL_HSE(bool bypass)
 }
 
 /******************************************************************************/
-/*            PLL (clocked by HSI) used as System clock source                */
+/*     PLL (clocked by HSI) used as System clock source (64MHz max)           */
 /******************************************************************************/
 bool SetSysClock_PLL_HSI(void)
 {
@@ -178,16 +183,21 @@ bool SetSysClock_PLL_HSI(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {};
   bool ret = false;
 
-  /* Initializes the CPU, AHB and APB busses clocks */
+  // Initializes the CPU, AHB and APB busses clocks
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
   RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI_DIV2;
-  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL12;
+  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI_DIV2; // 4 MHz
+  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL12; // 48 MHz
+  #ifndef USBCON
+    // When the HSI is used as a PLL clock input, the maximum
+    // system clock frequency that can be achieved is 64 MHz.
+    RCC_OscInitStruct.PLL.PLLMUL        = RCC_PLL_MUL16; // 64 MHz, stay close to 72 for delay()
+  #endif
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
-    /* Initializes the CPU, AHB and APB busses clocks */
+    // Initializes the CPU, AHB and APB busses clocks
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
@@ -195,10 +205,15 @@ bool SetSysClock_PLL_HSI(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) == HAL_OK) {
+    // FLASH_LATENCY_1 may cause boot loops
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) == HAL_OK) {
       PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
       PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
-      PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
+      PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;  // requires 48 MHz
+      #ifndef USBCON
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;// No USB, RTC nor I2S
+        PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;   // 2 4 6 8
+      #endif
       if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK) {
         ret = true;
       }
@@ -207,7 +222,7 @@ bool SetSysClock_PLL_HSI(void)
   return ret;
 }
 
-WEAK void SystemClock_Config(void)
+void SystemClock_Config(void)
 {
   /*
    * If HSE_VALUE is not 8MHz and you want use it, then:
@@ -215,12 +230,12 @@ WEAK void SystemClock_Config(void)
    * - Redefine SystemClock_Config() with the correct settings
    */
 #if HSE_VALUE == 8000000U
-  /* 1- Try to start with HSE and external 8MHz xtal */
+  // 1- Try to start with HSE and external 8MHz xtal
   if (SetSysClock_PLL_HSE(false) == false) {
-    /* 2- If fail try to start with HSE and external clock */
+    // 2- If fail try to start with HSE and external clock
     if (SetSysClock_PLL_HSE(true) == false) {
 #endif
-      /* 3- If fail start with HSI clock */
+      // 3- If fail start with HSI clock
       if (SetSysClock_PLL_HSI() == false) {
         Error_Handler();
       }
