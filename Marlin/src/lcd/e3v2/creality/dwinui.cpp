@@ -292,6 +292,7 @@ void MenuClass::Clear() {
 
 void MenuClass::Draw() {
   Clear();
+  Title.Draw();
   for (uint8_t i = 0; i < MenuItemCount; i++) {
     MenuItems[i]->Draw(i - topline);
   }

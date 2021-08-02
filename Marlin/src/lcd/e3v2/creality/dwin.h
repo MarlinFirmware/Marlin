@@ -40,6 +40,18 @@
   #endif
 #endif
 
+#if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
+  #define HAS_ONESTEP_LEVELING 1
+#endif
+
+#if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
+  #define JUST_BABYSTEP 1
+#endif
+
+#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
+  #define HAS_ZOFFSET_ITEM 1
+#endif
+
 static constexpr size_t eeprom_data_size = 64;
 
 enum processID : uint8_t {
@@ -73,16 +85,14 @@ enum processID : uint8_t {
   MaxJerk_value,
   Step,
   Step_value,
-  HomeOff,
-  HomeOffX,
-  HomeOffY,
-  HomeOffZ,
-  // Advance Settings
-  AdvSet,
+  #if HAS_HOME_OFFSET
+    HomeOffsetX,
+    HomeOffsetY,
+    HomeOffsetZ,
+  #endif
   #if HAS_BED_PROBE
-    ProbeOff,
-    ProbeOffX,
-    ProbeOffY,
+    ProbeOffsetX,
+    ProbeOffsetY,
   #endif
   Brightness,
   LoadLength,
@@ -340,15 +350,27 @@ void DWIN_RebootScreen();
 void HMI_LockScreen();
 void DWIN_LockScreen(const bool flag = true);
 
-// HMI Control functions
+// HMI user control functions
 void HMI_Menu();
 void HMI_Brightness();
 void HMI_Move_X();
 void HMI_Move_Y();
 void HMI_Move_Z();
 void HMI_Move_E();
-void HMI_Zoffset();
+TERN_(HAS_ZOFFSET_ITEM, void HMI_Zoffset());
+#if HAS_HOME_OFFSET
+  void HMI_HomeOffsetX();
+  void HMI_HomeOffsetY();
+  void HMI_HomeOffsetZ();
+#endif
+#if HAS_BED_PROBE
+  void HMI_ProbeOffsetX();
+  void HMI_ProbeOffsetY();
+#endif
 
-
+// Menu drawing functions
+void Draw_AdvSet_Menu();
 void Draw_Move_Menu();
 void Draw_Prepare_Menu();
+TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
+TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
