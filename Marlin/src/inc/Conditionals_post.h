@@ -2495,16 +2495,16 @@
 #if _HAS_STOP(X,MAX)
   #define HAS_X_MAX 1
 #endif
-#if HAS_Y_AXIS && _HAS_STOP(Y,MIN)
+#if _HAS_STOP(Y,MIN)
   #define HAS_Y_MIN 1
 #endif
-#if HAS_Y_AXIS && _HAS_STOP(Y,MAX)
+#if _HAS_STOP(Y,MAX)
   #define HAS_Y_MAX 1
 #endif
-#if BOTH(HAS_Z_AXIS, USE_ZMIN_PLUG) && _HAS_STOP(Z,MIN)
+#if _HAS_STOP(Z,MIN)
   #define HAS_Z_MIN 1
 #endif
-#if BOTH(HAS_Z_AXIS, USE_ZMAX_PLUG) && _HAS_STOP(Z,MAX)
+#if _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
 #endif
 #if _HAS_STOP(I,MIN)
@@ -2555,10 +2555,12 @@
 #if PIN_EXISTS(Z4_MAX)
   #define HAS_Z4_MAX 1
 #endif
+
 #if HAS_BED_PROBE && PIN_EXISTS(Z_MIN_PROBE)
   #define HAS_Z_MIN_PROBE_PIN 1
 #endif
 
+#undef _HAS_STOP
 #undef IS_PROBE_PIN
 #undef IS_X2_ENDSTOP
 #undef IS_Y2_ENDSTOP
