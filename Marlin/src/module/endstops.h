@@ -84,6 +84,15 @@ enum EndstopEnum : char {
   #if HAS_Z_MIN || HAS_Z_MAX || HOMING_Z_WITH_PROBE
     , Z_ENDSTOP = TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, Z_MIN))
   #endif
+  #if HAS_I_MIN || HAS_I_MAX
+    , I_ENDSTOP = TERN(I_HOME_TO_MAX, I_MAX, I_MIN)
+  #endif
+  #if HAS_J_MIN || HAS_J_MAX
+    , J_ENDSTOP = TERN(J_HOME_TO_MAX, J_MAX, J_MIN)
+  #endif
+  #if HAS_K_MIN || HAS_K_MAX
+    , K_ENDSTOP = TERN(K_HOME_TO_MAX, K_MAX, K_MIN)
+  #endif
 };
 
 #undef __ES_ITEM

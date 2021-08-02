@@ -37,6 +37,7 @@ extern const char NUL_STR[],
                   SP_I_LBL[], SP_J_LBL[], SP_K_LBL[],
                   SP_P_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],
+                  I_STR[], J_STR[], K_STR[],
                   X_LBL[], Y_LBL[], Z_LBL[], E_LBL[],
                   I_LBL[], J_LBL[], K_LBL[];
 
