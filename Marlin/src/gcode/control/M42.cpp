@@ -62,7 +62,7 @@ void GcodeSuite::M42() {
       case 1: pinMode(pin, OUTPUT); break;
       case 2: pinMode(pin, INPUT_PULLUP); avoidWrite = true; break;
       #ifdef INPUT_PULLDOWN
-        case 3: pinMode(pin, INPUT_PULLDOWN); break;
+        case 3: pinMode(pin, INPUT_PULLDOWN); avoidWrite = true; break;
       #endif
       #ifdef INPUT_ANALOG
         case 4: pinMode(pin, INPUT_ANALOG); avoidWrite = true; break;
