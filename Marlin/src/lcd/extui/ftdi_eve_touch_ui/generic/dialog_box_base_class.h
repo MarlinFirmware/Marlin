@@ -31,7 +31,6 @@ class DialogBoxBaseClass : public BaseScreen {
     template<typename T> static void drawButton(T);
     static void drawYesNoButtons(uint8_t default_btn = 0);
     static void drawOkayButton();
-    static void drawSpinner();
 
     static void onRedraw(draw_mode_t) {};
   public:
