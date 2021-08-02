@@ -163,7 +163,6 @@ static bool SetSysClock_PLL_HSE(bool bypass)
       PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5; // 72/1.5 = 48MHz
       #ifndef USBCON
         PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-        PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
       #endif
       if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) == HAL_OK) {
         ret = true;
