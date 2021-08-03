@@ -493,9 +493,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.0 }
     #define DEFAULT_Kd_LIST { 114.00, 112.0 }
   #else
-    #define DEFAULT_Kp 28.86
-    #define DEFAULT_Ki 1.98
-    #define DEFAULT_Kd 105.29
+    #define DEFAULT_Kp 15.18
+    #define DEFAULT_Ki 1.25
+    #define DEFAULT_Kd 46.25
   #endif
 #endif // PIDTEMP
 
@@ -740,7 +740,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 139.9 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 932 }
 
 /**
  * Default Max Feed Rate (mm/s)
