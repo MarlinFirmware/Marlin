@@ -97,8 +97,6 @@ enum processID : uint8_t {
   Brightness,
   LoadLength,
   UnloadLength,
-  SelColor,
-  GetColor,
   GetColor_value,
 
   // Date variable ID
@@ -156,23 +154,13 @@ typedef struct {
   float Max_Acceleration  = 0;
   float Max_Jerk_scaled   = 0;
   float Max_Step_scaled   = 0;
-  float Move_X_scaled     = 0;
-  float Move_Y_scaled     = 0;
-  float Move_Z_scaled     = 0;
-  #if HAS_HOTEND
-    float Move_E_scaled   = 0;
-  #endif
   float offset_value      = 0;
+  float Move_Z_scaled     = 0;
   int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
-  float Home_OffX_scaled  = 0;
-  float Home_OffY_scaled  = 0;
-  float Home_OffZ_scaled  = 0;
-  float Probe_OffX_scaled = 0;
-  float Probe_OffY_scaled = 0;
   int16_t print_flow      = 100;
-  int16_t Brightness      = 127;
-  int8_t Color[3];
-  int16_t Value        = 0;
+  uint16_t Color[3];
+  int16_t Value           = 0;
+  uint16_t *P_Uint        = nullptr;
 } HMI_value_t;
 
 typedef struct {
@@ -210,10 +198,10 @@ typedef struct {
   #endif
   AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
   bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune
-} HMI_Flag_t;
+} HMI_flag_t;
 
-extern HMI_value_t HMI_ValueStruct;
-extern HMI_Flag_t HMI_flag;
+extern HMI_value_t HMI_value;
+extern HMI_flag_t HMI_flag;
 extern HMI_data_t HMI_data;
 
 enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
@@ -367,6 +355,7 @@ TERN_(HAS_ZOFFSET_ITEM, void HMI_Zoffset());
   void HMI_ProbeOffsetX();
   void HMI_ProbeOffsetY();
 #endif
+void HMI_GetColorValue();
 
 // Menu drawing functions
 void Draw_AdvSet_Menu();
@@ -374,3 +363,5 @@ void Draw_Move_Menu();
 void Draw_Prepare_Menu();
 TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
 TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
+void Draw_SelectColors_Menu();
+void Draw_GetColor_Menu();

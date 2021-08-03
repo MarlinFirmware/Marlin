@@ -326,6 +326,10 @@ void MenuClass::onClick() {
   if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)(); 
 }
 
+MenuItemClass *MenuClass::SelectedItem() {
+  return MenuItems[selected];
+}
+
 /* MenuItem Class ===========================================================*/
 
 MenuItemClass::MenuItemClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)()) {
@@ -355,6 +359,10 @@ void MenuItemClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, 
 void MenuItemClass::Draw(int8_t line) {
   if (line < 0 || line >= TROWS) return;
   if (onDraw != nullptr) (*onDraw)(this, line);
+};
+
+MenuItemPtrClass::MenuItemPtrClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) : MenuItemClass(cicon, text, ondraw, onclick) {
+  value = val;
 };
 
 #endif // DWIN_CREALITY_LCD

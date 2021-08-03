@@ -88,7 +88,7 @@
 #define ICON_PrintSize            55
 #define ICON_Version              56
 #define ICON_Contact              57
-#define ICON_StockConfiguraton    58
+#define ICON_StockConfiguration   58
 #define ICON_MaxSpeedX            59
 #define ICON_MaxSpeedY            60
 #define ICON_MaxSpeedZ            61
@@ -124,32 +124,33 @@
 #define ICON_Info_1               91
 
 // Extra Icons
-#define ICON_Brightness           ICON_Motion
-#define ICON_Sound                ICON_Cool
-#define ICON_Error                ICON_TempTooHigh
-#define ICON_Tramming             ICON_SetEndTemp
-#define ICON_ManualMesh           ICON_HotendTemp
-#define ICON_MeshNext             ICON_Axis
-#define ICON_MeshSave             ICON_WriteEEPROM
 #define ICON_AdvSet               ICON_Language
-#define ICON_Reboot               ICON_ResumeEEPROM
-#define ICON_FilMan               ICON_ResumeEEPROM
+#define ICON_Brightness           ICON_Motion
+#define ICON_Cancel               ICON_StockConfiguration
+#define ICON_Error                ICON_TempTooHigh
 #define ICON_FilLoad              ICON_WriteEEPROM
+#define ICON_FilMan               ICON_ResumeEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
+#define ICON_Flow                 ICON_StepE
 #define ICON_HomeOffset           ICON_AdvSet
 #define ICON_HomeOffsetX          ICON_StepX
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
+#define ICON_ManualMesh           ICON_HotendTemp
+#define ICON_Lock                 ICON_Cool
+#define ICON_MeshNext             ICON_Axis
+#define ICON_MeshSave             ICON_WriteEEPROM
+#define ICON_Park                 ICON_Motion
+#define ICON_PIDbed               ICON_SetBedTemp
+#define ICON_PIDNozzle            ICON_SetEndTemp
 #define ICON_ProbeSet             ICON_SetEndTemp
 #define ICON_ProbeOffsetX         ICON_StepX
 #define ICON_ProbeOffsetY         ICON_StepY
-#define ICON_PIDNozzle            ICON_SetEndTemp
-#define ICON_PIDbed               ICON_SetBedTemp
-#define ICON_Flow                 ICON_StepE
 #define ICON_Pwrlossr             ICON_Motion
-#define ICON_Park                 ICON_Motion
+#define ICON_Reboot               ICON_ResumeEEPROM
 #define ICON_Scolor               ICON_MaxSpeed
-#define ICON_Lock                 ICON_Cool
+#define ICON_Sound                ICON_Cool
+#define ICON_Tramming             ICON_SetEndTemp
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
@@ -240,6 +241,7 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
 
 // Create and add a MenuItem object to the menu array
 #define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
+#define ADDMENUITEM_P(V...) DWINUI::MenuItemsAdd(new MenuItemPtrClass(V))
 
 typedef struct {
   uint16_t left;
@@ -264,20 +266,6 @@ public:
 };
 extern TitleClass Title;
 
-class MenuClass {
-public:
-  int8_t topline = 0;
-  int8_t selected = 0;
-  MenuClass();
-  inline int8_t line() { return selected - topline; };
-  void Clear();
-  void Draw();
-  void onScroll(bool dir);
-  void onClick();
-  virtual ~MenuClass(){};
-};
-extern MenuClass *CurrentMenu;
-
 class MenuItemClass {
 protected:
 public:
@@ -287,6 +275,7 @@ public:
   rect_t frame = {0};
   void (*onDraw) (MenuItemClass* menuitem, int8_t line) = nullptr;
   void (*onClick) () = nullptr;
+  MenuItemClass() {};
   MenuItemClass(uint8_t cicon, const char * const text=nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) { MenuItemClass(cicon, (char*)text, ondraw, onclick); };
   MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
@@ -294,6 +283,29 @@ public:
   virtual ~MenuItemClass(){};
   virtual void Draw(int8_t line);
 };
+
+class MenuItemPtrClass: public MenuItemClass {
+public:
+  void *value = nullptr;
+  using MenuItemClass::MenuItemClass;
+  MenuItemPtrClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val);
+  MenuItemPtrClass(uint8_t cicon, const __FlashStringHelper * text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) { MenuItemPtrClass(cicon, (char*)text, ondraw, onclick, val); };
+};
+
+class MenuClass {
+public:
+  int8_t topline = 0;
+  int8_t selected = 0;
+  MenuClass();
+  virtual ~MenuClass(){};
+  inline int8_t line() { return selected - topline; };
+  void Clear();
+  void Draw();
+  void onScroll(bool dir);
+  void onClick();
+  MenuItemClass* SelectedItem();
+};
+extern MenuClass *CurrentMenu;
 
 namespace DWINUI {
   extern xy_int_t cursor;
