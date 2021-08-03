@@ -561,6 +561,12 @@
   #include "stm32f1/pins_BEAST.h"               // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
 #elif MB(MINGDA_MPX_ARM_MINI)
   #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
+#elif MB(ZONESTAR_ZM3E2)
+  #include "stm32f1/pins_ZM3E2_V1_0.h"       	  // STM32F1                            	  env:STM32F103RC_ZM3E2_USB
+#elif MB(ZONESTAR_ZM3E4)
+  #include "stm32f1/pins_ZM3E4_V1_0.h"      	  // STM32F1                           	    env:STM32F103VC_ZM3E4_USB
+#elif MB(ZONESTAR_ZM3E4V2)
+  #include "stm32f1/pins_ZM3E4_V2_0.h"      	  // STM32F1                           	    env:STM32F103VE_ZM3E4V2_USB
 
 //
 // ARM Cortex-M4F

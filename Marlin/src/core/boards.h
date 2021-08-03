@@ -346,6 +346,10 @@
 #define BOARD_BEAST                   4048  // STM32F103RET6 Libmaple-based controller
 #define BOARD_MINGDA_MPX_ARM_MINI     4049  // STM32F103ZET6 Mingda MD-16
 #define BOARD_GTM32_PRO_VD            4050  // STM32F103VET6 controller
+#define	BOARD_ZONESTAR_ZM3E2		      4051  // STM32F103RCT6 controller
+#define	BOARD_ZONESTAR_ZM3E4		      4052  // STM32F103VCT6 controller
+#define	BOARD_ZONESTAR_ZM3E4V2		    4053  // STM32F103VCT6 controller
+
 
 //
 // ARM Cortex-M4F
