@@ -28,9 +28,7 @@
  * Use 4k7 thermistor tables
  */
 
-#ifndef __SAM3X8E__
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "RAMPS-FD v1"
@@ -111,11 +109,11 @@
 #define TEMP_2_PIN                             3  // Analog Input
 #define TEMP_BED_PIN                           0  // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      53
+  #define TEMP_0_CS_PIN                       53
 #else
-  #define MAX6675_SS_PIN                      49
+  #define TEMP_0_CS_PIN                       49
 #endif
 
 //
@@ -139,7 +137,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   // ramps-fd lcd adaptor
 
   #define BEEPER_PIN                          37
@@ -148,7 +146,7 @@
   #define BTN_ENC                             35
   #define SD_DETECT_PIN                       49
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                   17
   #endif
@@ -178,7 +176,7 @@
       #define NEOPIXEL_PIN                    25
     #endif
 
-  #elif ENABLED(NEWPANEL)
+  #elif IS_NEWPANEL
 
     #define LCD_PINS_D4                       23
     #define LCD_PINS_D5                       25
@@ -203,7 +201,11 @@
     #define DOGLCD_MISO                       74  // MISO_PIN
   #endif
 
-#endif // HAS_SPI_LCD
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
+#endif // HAS_WIRED_LCD
 
 #if HAS_TMC_UART
   /**

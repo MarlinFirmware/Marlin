@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_vi {
   using namespace Language_en; // Inherit undefined strings from English
@@ -48,7 +47,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Chính");                                // Main
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Thiết lập cấp cao");                    // Advanced Settings
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Cấu hình");                             // Configuration
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Khởi chạy tự động");                    // Autostart
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Khởi chạy tự động");                    // Autostart
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Tắt động cơ bước");                     // Disable steppers
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu gỡ lỗi");                          // Debug Menu
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Kiểm tra tiến độ");                     // Progress bar test
@@ -91,13 +90,13 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Di chuyển trục");                       // Move axis
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("San Lấp Bàn");                          // Bed Leveling
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Làm bằng mặt bàn");                     // Level bed
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Làm bằng góc bàn");                     // Level corners
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Làm bằng góc bàn");                     // Level corners
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Góc tiếp theo");                        // Next corner
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Chỉnh lưới đã dừng");                   // Mesh Editing Stopped
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Mục lục X");                            // Index X
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Mục lục Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Giá trị Z");                            // Z Value
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Các lệnh tự chọn");                     // Custom Commands
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Các lệnh tự chọn");                     // Custom Commands
   PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Đang chạy G29");                        // Doing G29
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Công cụ UBL");                          // UBL tools
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("San Lấp Bàn Thống Nhất (UBL)");         // Unified Bed Leveling
@@ -206,6 +205,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Di chuyển 0.1mm");                      // Move 0.1mm
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Di chuyển 1mm");                        // Move 1mm
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Di chuyển 10mm");                       // Move 10mm
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Di chuyển 100mm");                      // Move 100mm
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Tốc độ");                               // Speed
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Bàn");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Đầu phun");                             // Nozzle
@@ -258,7 +258,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Nhiệt độ");                             // Temperature
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Chuyển động");                          // Motion
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Vật liệu in");                          // dây nhựa
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E bằng mm³");                           // E in mm
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E bằng mm") SUPERSCRIPT_THREE;                           // E in mm
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Đường kính nhựa");                      // Fil. Dai.
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Đường kính nhựa *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Dỡ mm");                                // unload mm
@@ -294,11 +294,11 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Rút Trao.mm");                          // Swap Re.mm
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Rút V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Nhảy mm");                              // hop
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("BỏRút mm");                             // UnRet mm
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("BỏRút T mm");                           // S UnRet mm
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("BỏRút mm");                             // Unretr. mm
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("BỏRút T mm");                           // S Unretr. mm
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("BỏRút V");                              // UnRet V
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("BỏRút T V");                            // S UnRet V
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("RútTựĐộng");                            // AutoRetr.
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("RútTựĐộng");                            // Auto-Retract
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Khoảng Cách Rút");                      // Retract Distance
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Thay Đổi Công Cụ");                     // Tool Change
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Đưa Lên Z");                            // Z Raise

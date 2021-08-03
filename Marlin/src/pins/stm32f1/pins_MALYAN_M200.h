@@ -25,7 +25,7 @@
  * MALYAN M200 pin assignments
  */
 
-#if NONE(__STM32F1__, STM32F1xx, STM32F0xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
   #error "Oops! Select an STM32 board in your IDE."
 #endif
 
@@ -33,12 +33,15 @@
   #define BOARD_INFO_NAME "Malyan M200"
 #endif
 
+// Prevents hanging from an extra watchdog init
+#define DISABLE_WATCHDOG_INIT
+
 // Assume Flash EEPROM
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
 #endif
 
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN  // Also in HAL/STM32F1/spi_pins.h
 
 // Based on PWM timer usage, we have to use these timers and soft PWM for the fans
 // On STM32F103:
@@ -50,9 +53,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PB4
-#define Y_MIN_PIN                           PA15
-#define Z_MIN_PIN                           PB5
+#define X_STOP_PIN                          PB4
+#define Y_STOP_PIN                          PA15
+#define Z_STOP_PIN                          PB5
 
 //
 // Steppers

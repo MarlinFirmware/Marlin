@@ -43,44 +43,41 @@ void eeprom_init() {}
   #define EEPROM_WRITE_DELAY    7
 #endif
 
-uint8_t eeprom_read_byte(uint8_t* pos) {
-  uint8_t v;
-  uint8_t eeprom_temp[3];
-
-  // set read location
-  // begin transmission from device
-  eeprom_temp[0] = CMD_READ;
-  eeprom_temp[1] = ((unsigned)pos>>8) & 0xFF; // addr High
-  eeprom_temp[2] = (unsigned)pos& 0xFF;       // addr Low
-  WRITE(SPI_EEPROM1_CS, HIGH);
-  WRITE(SPI_EEPROM1_CS, LOW);
+static void _eeprom_begin(uint8_t * const pos, const uint8_t cmd) {
+  const uint8_t eeprom_temp[3] = {
+    cmd,
+    (unsigned(pos) >> 8) & 0xFF,  // Address High
+     unsigned(pos)       & 0xFF   // Address Low
+  };
+  WRITE(SPI_EEPROM1_CS, HIGH);    // Usually free already
+  WRITE(SPI_EEPROM1_CS, LOW);     // Activate the Bus
   spiSend(SPI_CHAN_EEPROM1, eeprom_temp, 3);
+                                  // Leave the Bus in-use
+}
 
-  v = spiRec(SPI_CHAN_EEPROM1);
-  WRITE(SPI_EEPROM1_CS, HIGH);
+uint8_t eeprom_read_byte(uint8_t *pos) {
+  _eeprom_begin(pos, CMD_READ);   // Set read location and begin transmission
+
+  const uint8_t v = spiRec(SPI_CHAN_EEPROM1); // After READ a value sits on the Bus
+
+  WRITE(SPI_EEPROM1_CS, HIGH);    // Done with device
+
   return v;
 }
 
-void eeprom_write_byte(uint8_t* pos, uint8_t value) {
-  uint8_t eeprom_temp[3];
-
-  /*write enable*/
-  eeprom_temp[0] = CMD_WREN;
+void eeprom_write_byte(uint8_t *pos, uint8_t value) {
+  const uint8_t eeprom_temp = CMD_WREN;
   WRITE(SPI_EEPROM1_CS, LOW);
-  spiSend(SPI_CHAN_EEPROM1, eeprom_temp, 1);
-  WRITE(SPI_EEPROM1_CS, HIGH);
-  delay(1);
+  spiSend(SPI_CHAN_EEPROM1, &eeprom_temp, 1); // Write Enable
 
-  /*write addr*/
-  eeprom_temp[0] = CMD_WRITE;
-  eeprom_temp[1] = ((unsigned)pos>>8) & 0xFF;  //addr High
-  eeprom_temp[2] = (unsigned)pos & 0xFF;       //addr Low
-  WRITE(SPI_EEPROM1_CS, LOW);
-  spiSend(SPI_CHAN_EEPROM1, eeprom_temp, 3);
+  WRITE(SPI_EEPROM1_CS, HIGH);      // Done with the Bus
+  delay(1);                         // For a small amount of time
 
-  spiSend(SPI_CHAN_EEPROM1, value);
-  WRITE(SPI_EEPROM1_CS, HIGH);
-  delay(EEPROM_WRITE_DELAY);   // wait for page write to complete
+  _eeprom_begin(pos, CMD_WRITE);    // Set write address and begin transmission
+
+  spiSend(SPI_CHAN_EEPROM1, value); // Send the value to be written
+  WRITE(SPI_EEPROM1_CS, HIGH);      // Done with the Bus
+  delay(EEPROM_WRITE_DELAY);        // Give page write time to complete
 }
 
 #endif // USE_SHARED_EEPROM

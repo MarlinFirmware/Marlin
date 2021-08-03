@@ -21,11 +21,9 @@
  */
 #pragma once
 
-#ifndef TARGET_STM32F1
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME "BTT SKR E3 DIP V1.0"
+#define BOARD_INFO_NAME "BTT SKR E3 DIP V1.x"
 
 // Release PB3/PB4 (TMC_SW Pins) from JTAG pins
 #define DISABLE_JTAG
@@ -48,20 +46,20 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PC1   // "X-STOP"
-#define Y_STOP_PIN                          PC0   // "Y-STOP"
-#define Z_STOP_PIN                          PC15  // "Z-STOP"
+#define X_STOP_PIN                          PC1   // X-STOP
+#define Y_STOP_PIN                          PC0   // Y-STOP
+#define Z_STOP_PIN                          PC15  // Z-STOP
 
 //
 // Z Probe must be this pin
 //
-#define Z_MIN_PROBE_PIN                     PC14  // "PROBE"
+#define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PC2   // "E0-STOP"
+  #define FIL_RUNOUT_PIN                    PC2   // E0-STOP
 #endif
 
 //
@@ -117,10 +115,10 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
+  //#define X_HARDWARE_SERIAL  MSerial1
+  //#define Y_HARDWARE_SERIAL  MSerial1
+  //#define Z_HARDWARE_SERIAL  MSerial1
+  //#define E0_HARDWARE_SERIAL MSerial1
 
   //
   // Software serial
@@ -171,7 +169,7 @@
  *                 EXP1
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -222,10 +220,10 @@
     #define LCD_BACKLIGHT_PIN               -1
 
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and MKS_LCD12864 are currently supported on the BIGTREE_SKR_E3_DIP."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and MKS_LCD12864A/B are currently supported on the BIGTREE_SKR_E3_DIP."
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
@@ -257,7 +255,6 @@
    *   EXP1-8 ----------- EXP1-3
    *   SPI1-1 ----------- EXP1-1
    *  EXP1-10 ----------- EXP1-7
-   *
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
@@ -265,7 +262,7 @@
   #define BEEPER_PIN                        PB6
 
   #define CLCD_MOD_RESET                    PA9
-  #define CLCD_SPI_CS                       PA8
+  #define CLCD_SPI_CS                       PB8
 
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
@@ -279,14 +276,16 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
-#endif
-
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) && SD_CONNECTION_IS(LCD)
+  #define SD_SCK_PIN                        PA5
+  #define SD_MISO_PIN                       PA6
+  #define SD_MOSI_PIN                       PA7
+#elif SD_CONNECTION_IS(LCD) && BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
   #define SD_DETECT_PIN                     PA15
-  #define SS_PIN                            PA10
+  #define SD_SS_PIN                         PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR E3 DIP."
 #endif
 
-#define ON_BOARD_SPI_DEVICE                    1  // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
+#define SDSS                   ONBOARD_SD_CS_PIN

@@ -49,7 +49,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$REPO" in
-  Marlin              ) TARG=bugfix-1.1.x ; [[ $INDEX == 2 ]] && TARG=bugfix-2.0.x ; [[ $INDEX == 3 ]] && TARG=dev-2.1.x ;;
+  Marlin              ) TARG=bugfix-2.0.x ; [[ $INDEX == 1 ]] && TARG=bugfix-1.1.x ; [[ $INDEX == 3 ]] && TARG=dev-2.1.x ;;
+  Configurations      ) TARG=import-2.0.x ;;
   MarlinDocumentation ) TARG=master ;;
 esac
 

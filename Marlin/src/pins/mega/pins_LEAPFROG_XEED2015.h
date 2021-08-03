@@ -29,9 +29,7 @@
  * printer models. As such this file is currently specific to the Xeed.
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Leapfrog Xeed 2015"
 

@@ -45,7 +45,7 @@ uint8_t ServoCount = 0;
  *
  * This uses the smallest prescaler that allows an overflow < 2^16.
  */
-#define MAX_OVERFLOW    UINT16_MAX //((1 << 16) - 1)
+#define MAX_OVERFLOW    UINT16_MAX // _BV(16) - 1
 #define CYC_MSEC        (1000 * CYCLES_PER_MICROSECOND)
 #define TAU_MSEC        20
 #define TAU_USEC        (TAU_MSEC * 1000)

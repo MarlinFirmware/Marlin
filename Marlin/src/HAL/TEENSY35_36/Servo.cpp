@@ -19,6 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * HAL Servo for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
+ */
+
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #include "../../inc/MarlinConfig.h"
@@ -51,5 +56,4 @@ void libServo::move(const int value) {
 }
 
 #endif // HAS_SERVOS
-
 #endif // __MK64FX512__ || __MK66FX1M0__

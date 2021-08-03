@@ -135,11 +135,11 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
     cmax = _MAX(cmax, v);
     csum += v;
   }
-  //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion, ", ", int(t), ") cmax=", cmax, "  csum=", csum, "  color");
+  //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion, ", ", t, ") cmax=", cmax, "  csum=", csum, "  color");
   const float inv_prop = proportion / csum;
   MIXER_STEPPER_LOOP(i) {
     c[i] = color[t][i] * inv_prop;
-    //SERIAL_ECHOPAIR(" [", int(t), "][", int(i), "] = ", int(color[t][i]), " (", c[i], ")  ");
+    //SERIAL_ECHOPAIR(" [", t, "][", i, "] = ", color[t][i], " (", c[i], ")  ");
   }
   //SERIAL_EOL();
 }
@@ -162,7 +162,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
 
   float Mixer::prev_z; // = 0
 
-  void Mixer::update_gradient_for_z(const float z) {
+  void Mixer::update_gradient_for_z(const_float_t z) {
     if (z == prev_z) return;
     prev_z = z;
 

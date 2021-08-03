@@ -21,7 +21,7 @@
  */
 
 // 100k hotbed thermistor with 4.7k pull up to 3.3v and 220R to analog input as in GTM32 Pro vB
-const temp_entry_t temptable_23[] PROGMEM = {
+constexpr temp_entry_t temptable_23[] PROGMEM = {
   { OV(   1), 938 },
   { OV(  11), 423 },
   { OV(  21), 351 },

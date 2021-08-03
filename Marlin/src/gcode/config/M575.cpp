@@ -53,31 +53,18 @@ void GcodeSuite::M575() {
     case 115200: case 250000: case 500000: case 1000000: {
       const int8_t port = parser.intval('P', -99);
       const bool set0 = (port == -99 || port == 0);
-      if (set0) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(" Serial "
-          #if HAS_MULTI_SERIAL
-            , '0',
-          #else
-            "0"
-          #endif
-          " baud rate set to ", baud
-        );
-      }
+      if (set0) SERIAL_ECHO_MSG(" Serial ", '0', " baud rate set to ", baud);
       #if HAS_MULTI_SERIAL
         const bool set1 = (port == -99 || port == 1);
-        if (set1) {
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPAIR(" Serial ", '1', " baud rate set to ", baud);
-        }
+        if (set1) SERIAL_ECHO_MSG(" Serial ", '1', " baud rate set to ", baud);
       #endif
 
       SERIAL_FLUSH();
 
-      if (set0) { MYSERIAL0.end(); MYSERIAL0.begin(baud); }
+      if (set0) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
 
       #if HAS_MULTI_SERIAL
-        if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
+        if (set1) { MYSERIAL2.end(); MYSERIAL2.begin(baud); }
       #endif
 
     } break;
@@ -85,4 +72,4 @@ void GcodeSuite::M575() {
   }
 }
 
-#endif // NUM_SERIAL > 0 && BAUD_RATE_GCODE
+#endif // BAUD_RATE_GCODE

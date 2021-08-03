@@ -22,11 +22,8 @@
 #pragma once
 
 /**
- * \file
- * \brief FAT file structures
- */
-
-/**
+ * sd/SdFatStructs.h
+ *
  * Arduino SdFat Library
  * Copyright (c) 2009 by William Greiman
  *
@@ -128,7 +125,6 @@ typedef struct masterBootRecord mbr_t;
  * \struct fat_boot
  *
  * \brief Boot sector for a FAT12/FAT16 volume.
- *
  */
 struct fat_boot {
   /**
@@ -409,7 +405,6 @@ uint32_t const FSINFO_LEAD_SIG   = 0x41615252,  // 'AaRR' Lead signature for a F
  * \struct fat32_fsinfo
  *
  * \brief FSINFO sector for a FAT32 volume.
- *
  */
 struct fat32_fsinfo {
   uint32_t  leadSignature;    // must be 0x52, 0x52, 0x61, 0x41 'RRaA'
@@ -576,7 +571,7 @@ uint8_t const DIR_NAME_0xE5     = 0x05,       // escape for name[0] = 0xE5
  *
  * \return true if the entry is for part of a long name else false.
  */
-static inline uint8_t DIR_IS_LONG_NAME(const dir_t* dir) {
+static inline uint8_t DIR_IS_LONG_NAME(const dir_t *dir) {
   return (dir->attributes & DIR_ATT_LONG_NAME_MASK) == DIR_ATT_LONG_NAME;
 }
 
@@ -589,7 +584,7 @@ uint8_t const DIR_ATT_FILE_TYPE_MASK = (DIR_ATT_VOLUME_ID | DIR_ATT_DIRECTORY);
  *
  * \return true if the entry is for a normal file else false.
  */
-static inline uint8_t DIR_IS_FILE(const dir_t* dir) {
+static inline uint8_t DIR_IS_FILE(const dir_t *dir) {
   return (dir->attributes & DIR_ATT_FILE_TYPE_MASK) == 0;
 }
 
@@ -599,7 +594,7 @@ static inline uint8_t DIR_IS_FILE(const dir_t* dir) {
  *
  * \return true if the entry is for a subdirectory else false.
  */
-static inline uint8_t DIR_IS_SUBDIR(const dir_t* dir) {
+static inline uint8_t DIR_IS_SUBDIR(const dir_t *dir) {
   return (dir->attributes & DIR_ATT_FILE_TYPE_MASK) == DIR_ATT_DIRECTORY;
 }
 
@@ -609,6 +604,6 @@ static inline uint8_t DIR_IS_SUBDIR(const dir_t* dir) {
  *
  * \return true if the entry is for a normal file or subdirectory else false.
  */
-static inline uint8_t DIR_IS_FILE_OR_SUBDIR(const dir_t* dir) {
+static inline uint8_t DIR_IS_FILE_OR_SUBDIR(const dir_t *dir) {
   return (dir->attributes & DIR_ATT_VOLUME_ID) == 0;
 }

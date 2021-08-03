@@ -18,10 +18,11 @@
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "LERDGE X supports only one hotend / E-steppers"
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
+  #error "LERDGE X only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge X"
@@ -31,6 +32,12 @@
 #define TEMP_TIMER                             2
 
 #define I2C_EEPROM
+#define I2C_SCL_PIN                         PB8
+#define I2C_SDA_PIN                         PB9
+#define MARLIN_EEPROM_SIZE               0x10000  // FM24CL64 F-RAM 64K (8Kx8)
+
+// USB Flash Drive support
+#define HAS_OTG_USB_HOST_SUPPORT
 
 //
 // Servos
@@ -117,16 +124,17 @@
 // Lerdge supports auto-power off and power loss sense through a single pin.
 #define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT
 
-#define SCK_PIN                             PC12
-#define MISO_PIN                            PC8
-#define MOSI_PIN                            PD2
-#define SS_PIN                              PC11
+#define SD_SCK_PIN                          PC12
+#define SD_MISO_PIN                         PC8
+#define SD_MOSI_PIN                         PD2
+#define SD_SS_PIN                           PC11
 
 //
 // SD support
 //
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       PA8
+#define SDIO_CLOCK                       4800000
 
 //
 // LCD / Controller

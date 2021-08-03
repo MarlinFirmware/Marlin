@@ -31,7 +31,6 @@
  * Translated by Petr Zahradnik, Computer Laboratory
  * Blog and video blog Zahradnik se bavi
  * https://www.zahradniksebavi.cz
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_CZ
@@ -58,7 +57,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hlavní nabídka");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Další nastavení");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfigurace");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Uvolnit motory");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Nabídka ladění");
   #if LCD_WIDTH >= 20
@@ -99,12 +98,8 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Zahřát vlastní");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Zchladit");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Ovládání laseru");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Vypnout laser");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Zapnout laser");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Výkon laseru");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Vřeteno ovládání");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Vřeteno vyp");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Vřeteno zap");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Vřeteno výkon");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Vřeteno opačně");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Zapnout napájení");
@@ -114,7 +109,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Posunout osy");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Vyrovnat podložku");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Vyrovnat podložku");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Vyrovnat rohy");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Vyrovnat rohy");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Další roh");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor sítě");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Upravit síť bodů");
@@ -124,7 +119,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Hodnota Z");
 
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Vlastní příkazy");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Vlastní příkazy");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 test sondy");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 bod");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Odchylka");
@@ -242,10 +237,11 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrudér");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrudér *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend je studený");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Posunout o %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Posunout o %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Posunout o 0,1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunout o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunout o 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Posunout o 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Rychlost");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Výška podl.");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Tryska");
@@ -302,7 +298,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Teplota");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Pohyb");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E na mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E na mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Prum.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Prum. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Vysunout mm");
@@ -351,11 +347,11 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Výměna Re.mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Retraktovat  V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Zvednuti Z mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("S UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("S Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Auto-Retract");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Délka retrakce");
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Délka zavedení");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Výměna nástroje");

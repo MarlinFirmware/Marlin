@@ -108,12 +108,12 @@ e-mail   :  support@circuitsathome.com
 #define              USB_DESCRIPTOR_OTHER_SPEED 0x07    // bDescriptorType for a Other Speed Configuration.
 #define          USB_DESCRIPTOR_INTERFACE_POWER 0x08    // bDescriptorType for Interface Power.
 #define                      USB_DESCRIPTOR_OTG 0x09    // bDescriptorType for an OTG Descriptor.
-#define                    USB_DESCRIPTOR_DEBUG 0x0a
-#define    USB_DESCRIPTOR_INTERFACE_ASSOCIATION 0x0b
-#define                 USB_DESCRIPTOR_SECURITY 0x0c
-#define                      USB_DESCRIPTOR_KEY 0x0d
-#define          USB_DESCRIPTOR_ENCRYPTION_TYPE 0x0e
-#define                      USB_DESCRIPTOR_BOS 0x0f
+#define                    USB_DESCRIPTOR_DEBUG 0x0A
+#define    USB_DESCRIPTOR_INTERFACE_ASSOCIATION 0x0B
+#define                 USB_DESCRIPTOR_SECURITY 0x0C
+#define                      USB_DESCRIPTOR_KEY 0x0D
+#define          USB_DESCRIPTOR_ENCRYPTION_TYPE 0x0E
+#define                      USB_DESCRIPTOR_BOS 0x0F
 #define        USB_DESCRIPTOR_DEVICE_CAPABILITY 0x10
 #define   USB_DESCRIPTOR_WIRELESS_ENDPOINT_COMP 0x11
 #define             USB_DESCRIPTOR_WIRE_ADAPTER 0x21

@@ -15,6 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 #pragma once
 
@@ -81,54 +82,51 @@ typedef int8_t pin_t;
 
 // Serial ports
 #ifdef USBCON
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL0 bluetoothSerial
-  #else
-    #define MYSERIAL0 Serial
-  #endif
-  #define NUM_SERIAL 1
-#else
-  #if !WITHIN(SERIAL_PORT, -1, 3)
-    #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #include "../../core/serial_hook.h"
+  typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
+  #ifdef BLUETOOTH
+    typedef ForwardSerial1Class< decltype(bluetoothSerial) > BTSerial;
+    extern BTSerial btSerial;
   #endif
 
-  #define MYSERIAL0 customizedSerial1
+  #define MYSERIAL1 TERN(BLUETOOTH, btSerial, MSerial0)
+#else
+  #if !WITHIN(SERIAL_PORT, -1, 3)
+    #error "SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
+  #endif
+  #define MYSERIAL1 customizedSerial1
 
   #ifdef SERIAL_PORT_2
     #if !WITHIN(SERIAL_PORT_2, -1, 3)
-      #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
-    #elif SERIAL_PORT_2 == SERIAL_PORT
-      #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
+      #error "SERIAL_PORT_2 must be from 0 to 3, or -1 for USB Serial."
     #endif
-    #define MYSERIAL1 customizedSerial2
-    #define NUM_SERIAL 2
-  #else
-    #define NUM_SERIAL 1
+    #define MYSERIAL2 customizedSerial2
+  #endif
+
+  #ifdef SERIAL_PORT_3
+    #if !WITHIN(SERIAL_PORT_3, -1, 3)
+      #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
+    #endif
+    #define MYSERIAL3 customizedSerial3
   #endif
 #endif
 
-#ifdef DGUS_SERIAL_PORT
-  #if !WITHIN(DGUS_SERIAL_PORT, -1, 3)
-    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+#ifdef MMU2_SERIAL_PORT
+  #if !WITHIN(MMU2_SERIAL_PORT, -1, 3)
+    #error "MMU2_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
   #endif
-  #define DGUS_SERIAL internalDgusSerial
-
-  #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.get_tx_buffer_free
+  #define MMU2_SERIAL mmuSerial
 #endif
 
-#ifdef ANYCUBIC_LCD_SERIAL_PORT
-  #if !WITHIN(ANYCUBIC_LCD_SERIAL_PORT, -1, 3)
-    #error "ANYCUBIC_LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
-  #elif ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT
-    #error "ANYCUBIC_LCD_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT_2
-    #error "ANYCUBIC_LCD_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+#ifdef LCD_SERIAL_PORT
+  #if !WITHIN(LCD_SERIAL_PORT, -1, 3)
+    #error "LCD_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
   #endif
-  #define ANYCUBIC_LCD_SERIAL anycubicLcdSerial
+  #define LCD_SERIAL lcdSerial
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
+  #endif
 #endif
 
 // ------------------------
@@ -144,12 +142,18 @@ void HAL_init();
 inline void HAL_clear_reset_source() { MCUSR = 0; }
 inline uint8_t HAL_get_reset_source() { return MCUSR; }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-extern "C" {
-  int freeMemory();
-}
-#pragma GCC diagnostic pop
+void HAL_reboot();
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+extern "C" int freeMemory();
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 // ADC
 #ifdef DIDR2
@@ -182,7 +186,7 @@ inline void HAL_adc_init() {
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define HAL_SENSITIVE_PINS 0, 1
+#define HAL_SENSITIVE_PINS 0, 1,
 
 #ifdef __AVR_AT90USB1286__
   #define JTAG_DISABLE() do{ MCUCR = 0x80; MCUCR = 0x80; }while(0)

@@ -21,14 +21,11 @@
  */
 #pragma once
 
-#include <stdint.h>
 #include "../../inc/MarlinConfig.h"
 
 // ------------------------
 // Defines
 // ------------------------
-
-#define FORCE_INLINE __attribute__((always_inline)) inline
 
 // STM32 timers may be 16 or 32 bit. Limiting HAL_TIMER_TYPE_MAX to 16 bits
 // avoids issues with STM32F0 MCUs, which seem to pause timers if UINT32_MAX
@@ -42,6 +39,8 @@
 // values for each timer.
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX UINT16_MAX
+
+#define NUM_HARDWARE_TIMERS 2
 
 #ifndef STEP_TIMER_NUM
   #define STEP_TIMER_NUM        0  // Timer Index for Stepper
@@ -57,7 +56,8 @@
 
 // TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
 #define STEPPER_TIMER_RATE 2000000 // 2 Mhz
-#define STEPPER_TIMER_PRESCALE ((HAL_TIMER_RATE)/(STEPPER_TIMER_RATE))
+extern uint32_t GetStepperTimerClkFreq();
+#define STEPPER_TIMER_PRESCALE (GetStepperTimerClkFreq() / (STEPPER_TIMER_RATE))
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
 #define PULSE_TIMER_RATE STEPPER_TIMER_RATE
@@ -102,7 +102,7 @@ void SetTimerInterruptPriorities();
 
 // FORCE_INLINE because these are used in performance-critical situations
 FORCE_INLINE bool HAL_timer_initialized(const uint8_t timer_num) {
-  return timer_instance[timer_num] != NULL;
+  return timer_instance[timer_num] != nullptr;
 }
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return HAL_timer_initialized(timer_num) ? timer_instance[timer_num]->getCount() : 0;

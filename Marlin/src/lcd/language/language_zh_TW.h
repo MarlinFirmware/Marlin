@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_zh_TW {
   using namespace Language_en;  // Inherit undefined strings from English
@@ -51,7 +50,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("主選單");     //"Main"
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("進階設置");   //"Advanced Settings"
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("設置");    //Configuration
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("自動開始");     //"Autostart"
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("自動開始");     //"Autostart"
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("關閉步進馬達");     //"Disable steppers"
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("除錯選單");     // "Debug Menu"
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("進度條測試");     // "Progress Bar Test"
@@ -88,12 +87,8 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("自定預熱");   //"Preheat Custom"
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("降溫");     //"Cooldown"
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("激光控制");    //"Laser Control"
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("激光 關");    //"Laser Off"
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("激光 開");   //"Laser On"
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("激光電源");    //"Laser Power"
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("主軸控告制");    //"Spindle Control"
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("主軸 關");    //"Spindle Off"
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("主軸 開");   //"Spindle On"
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("主軸電源");    //"Spindle Power"
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("主軸反轉");  //"Spindle Reverse"
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("電源打開");     //"Switch power on"
@@ -103,7 +98,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("移動軸");     //"Move axis"
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("調平熱床");     //"Bed leveling"
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("調平熱床");     //"Level bed"
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("調平邊角");     // "Level corners"
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("調平邊角");     // "Bed Tramming"
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("下個邊角");     // "Next corner"
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("網格編輯器");    //"Mesh Editor"
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("編輯網格");     // "Edit Mesh"
@@ -112,7 +107,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("索引 X");    //"Index X"
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("索引 Y");    //"Index Y"
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z 值");    //"Z Value"
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("自定命令");     // "Custom Commands"
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("自定命令");     // "Custom Commands"
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 探測測試");   //"M48 Probe Test"
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 探測點");    //"M48 Point"
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("偏差");    //"Deviation"
@@ -228,11 +223,12 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("移動Z");     //"Move Z"
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("擠出機");     //"Extruder"
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("擠出機 *");       //"Extruder *"
-  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("噴嘴溫度不夠");  //"Hotend too cold"
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("移動 %s mm");     //"Move 0.025mm"
-  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("移動 0.1 mm");     //"Move 0.1mm"
-  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("移動 1 mm");     //"Move 1mm"
+  PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("噴嘴溫度不夠");   //"Hotend too cold"
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("移動 %s mm");     //"Move 0.025mm"
+  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("移動 0.1 mm");    //"Move 0.1mm"
+  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("移動 1 mm");      //"Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移動 10 mm");     //"Move 10mm"
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("移動 100 mm");    //"Move 100mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("速率");     //"Speed"
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("熱床Z");     //"Bed Z"
   PROGMEM Language_Str MSG_NOZZLE                          = " " LCD_STR_THERMOMETER _UxGT(" 噴嘴");     //"Nozzle" 噴嘴
@@ -288,7 +284,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("溫度");     //"Temperature"
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("運作");     //"Motion"
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("絲料測容");     //"Filament" menu_control_volumetric
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("測容積mm³");     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("測容積mm") SUPERSCRIPT_THREE;     //"E in mm3" volumetric_enabled
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("絲料直徑");     //"Fil. Dia."
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("絲料直徑 *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("卸載 mm");     // "Unload mm"
@@ -338,13 +334,13 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("已停止");     //"STOPPED. "
   PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("回縮長度mm");     //"Retract mm" retract_length, retract length (positive mm)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("換手回抽長度mm");     //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
-  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回縮速率mm/s");     //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回縮速率mm/s");     //"Retract V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");     //"Hop mm" retract_zraise, retract Z-lift
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("回縮恢復長度mm");     //"UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("換手回縮恢復長度mm");     //"S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回縮恢復後進料速率mm/s");     //"UnRet V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回縮恢復後進料速率mm/s");     //"Unretract V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");     // "S UnRet V"
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自動回縮");     //"AutoRetr." autoretract_enabled,
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自動回縮");     //"Auto-Retract" autoretract_enabled,
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("交換長度");    //"Swap Length"
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("清除長度");   //"Purge Length"
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("交換工具"); //"Tool Change"
@@ -502,8 +498,8 @@ namespace Language_zh_TW {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

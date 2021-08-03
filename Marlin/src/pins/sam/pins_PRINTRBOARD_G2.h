@@ -25,12 +25,10 @@
  * PRINTRBOARD_G2
  */
 
-#ifndef __SAM3X8E__
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "PRINTRBOARD_G2"
+  #define BOARD_INFO_NAME "Printrboard G2"
 #endif
 
 //
@@ -42,9 +40,9 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             22  // PB26
-#define Y_MAX_PIN                             18  // PA11
-#define Z_MIN_PIN                             19  // PA10
+#define X_STOP_PIN                            22  // PB26
+#define Y_STOP_PIN                            18  // PA11
+#define Z_STOP_PIN                            19  // PA10
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -151,9 +149,9 @@
 
 /////////////////////////////////////////////////////////
 
-#define MISO_PIN                              68  // set to unused pins for now
-#define MOSI_PIN                              69  // set to unused pins for now
-#define SCK_PIN                               70  // set to unused pins for now
+#define SD_MISO_PIN                           68  // set to unused pins for now
+#define SD_MOSI_PIN                           69  // set to unused pins for now
+#define SD_SCK_PIN                            70  // set to unused pins for now
 #define SDSS                                  71  // set to unused pins for now
 
 /**
@@ -170,5 +168,4 @@
  * None of these are in the arduino_due_x variant so digitalWrite and digitalRead can't be used on them.
  *
  * They can be accessed via FASTIO functions WRITE, READ, OUT_WRITE, OUTPUT, ...
- *
  */

@@ -34,6 +34,7 @@
 #include <WString.h>
 
 #include "../../inc/MarlinConfigPre.h"
+#include "../../core/serial_hook.h"
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0
@@ -48,11 +49,11 @@
 
   // These are macros to build serial port register names for the selected SERIAL_PORT (C preprocessor
   // requires two levels of indirection to expand macro values properly)
-  #define SERIAL_REGNAME(registerbase,number,suffix) SERIAL_REGNAME_INTERNAL(registerbase,number,suffix)
+  #define SERIAL_REGNAME(registerbase,number,suffix) _SERIAL_REGNAME(registerbase,number,suffix)
   #if SERIAL_PORT == 0 && (!defined(UBRR0H) || !defined(UDR0)) // use un-numbered registers if necessary
-    #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##suffix
+    #define _SERIAL_REGNAME(registerbase,number,suffix) registerbase##suffix
   #else
-    #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##number##suffix
+    #define _SERIAL_REGNAME(registerbase,number,suffix) registerbase##number##suffix
   #endif
 
   // Registers used by MarlinSerial class (expanded depending on selected serial port)
@@ -135,10 +136,6 @@
     UART_DECL(3);
   #endif
 
-  #define DEC 10
-  #define HEX 16
-  #define OCT 8
-  #define BIN 2
   #define BYTE 0
 
   // Templated type selector
@@ -202,58 +199,30 @@
     static FORCE_INLINE void atomic_set_rx_tail(ring_buffer_pos_t value);
     static FORCE_INLINE ring_buffer_pos_t atomic_read_rx_tail();
 
-    public:
-
+  public:
     FORCE_INLINE static void store_rxd_char();
     FORCE_INLINE static void _tx_udr_empty_irq();
 
-    public:
-      MarlinSerial() {};
-      static void begin(const long);
-      static void end();
-      static int peek();
-      static int read();
-      static void flush();
-      static ring_buffer_pos_t available();
-      static void write(const uint8_t c);
-      static void flushTX();
-      #ifdef DGUS_SERIAL_PORT
-        static ring_buffer_pos_t get_tx_buffer_free();
-      #endif
+  public:
+    static void begin(const long);
+    static void end();
+    static int peek();
+    static int read();
+    static void flush();
+    static ring_buffer_pos_t available();
+    static void write(const uint8_t c);
+    static void flushTX();
+    #if HAS_DGUS_LCD
+      static ring_buffer_pos_t get_tx_buffer_free();
+    #endif
 
-      FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
-      FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
-      FORCE_INLINE static uint8_t framing_errors() { return Cfg::RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
-      FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return Cfg::MAX_RX_QUEUED ? rx_max_enqueued : 0; }
+    enum { HasEmergencyParser = Cfg::EMERGENCYPARSER };
+    static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
-      FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
-      FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-      FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-      FORCE_INLINE static void print(const char* str) { write(str); }
-
-      static void print(char, int = BYTE);
-      static void print(unsigned char, int = BYTE);
-      static void print(int, int = DEC);
-      static void print(unsigned int, int = DEC);
-      static void print(long, int = DEC);
-      static void print(unsigned long, int = DEC);
-      static void print(double, int = 2);
-
-      static void println(const String& s);
-      static void println(const char[]);
-      static void println(char, int = BYTE);
-      static void println(unsigned char, int = BYTE);
-      static void println(int, int = DEC);
-      static void println(unsigned int, int = DEC);
-      static void println(long, int = DEC);
-      static void println(unsigned long, int = DEC);
-      static void println(double, int = 2);
-      static void println();
-      operator bool() { return true; }
-
-    private:
-      static void printNumber(unsigned long, const uint8_t);
-      static void printFloat(double, uint8_t);
+    FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
+    FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
+    FORCE_INLINE static uint8_t framing_errors() { return Cfg::RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
+    FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return Cfg::MAX_RX_QUEUED ? rx_max_enqueued : 0; }
   };
 
   template <uint8_t serial>
@@ -268,68 +237,61 @@
     static constexpr bool RX_FRAMING_ERRORS = ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS);
     static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
   };
-  extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
+
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT1;
+  extern MSerialT1 customizedSerial1;
 
   #ifdef SERIAL_PORT_2
+    typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
+    extern MSerialT2 customizedSerial2;
+  #endif
 
-    extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
-
+  #ifdef SERIAL_PORT_3
+    typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> > > MSerialT3;
+    extern MSerialT3 customizedSerial3;
   #endif
 
 #endif // !USBCON
 
-#ifdef INTERNAL_SERIAL_PORT
+#ifdef MMU2_SERIAL_PORT
   template <uint8_t serial>
-  struct MarlinInternalSerialCfg {
+  struct MMU2SerialCfg {
     static constexpr int PORT               = serial;
     static constexpr unsigned int RX_SIZE   = 32;
     static constexpr unsigned int TX_SIZE   = 32;
     static constexpr bool XONOFF            = false;
     static constexpr bool EMERGENCYPARSER   = false;
     static constexpr bool DROPPED_RX        = false;
-    static constexpr bool RX_OVERRUNS       = false;
     static constexpr bool RX_FRAMING_ERRORS = false;
     static constexpr bool MAX_RX_QUEUED     = false;
+    static constexpr bool RX_OVERRUNS       = false;
   };
 
-  extern MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
+  typedef Serial1Class< MarlinSerial< MMU2SerialCfg<MMU2_SERIAL_PORT> > > MSerialMMU2;
+  extern MSerialMMU2 mmuSerial;
 #endif
 
-#ifdef DGUS_SERIAL_PORT
+#ifdef LCD_SERIAL_PORT
+
   template <uint8_t serial>
-  struct MarlinInternalSerialCfg {
+  struct LCDSerialCfg {
     static constexpr int PORT               = serial;
-    static constexpr unsigned int RX_SIZE   = DGUS_RX_BUFFER_SIZE;
-    static constexpr unsigned int TX_SIZE   = DGUS_TX_BUFFER_SIZE;
+    static constexpr unsigned int RX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_RX_BUFFER_SIZE,  64);
+    static constexpr unsigned int TX_SIZE   = TERN(HAS_DGUS_LCD, DGUS_TX_BUFFER_SIZE, 128);
     static constexpr bool XONOFF            = false;
-    static constexpr bool EMERGENCYPARSER   = false;
+    static constexpr bool EMERGENCYPARSER   = ENABLED(EMERGENCY_PARSER);
     static constexpr bool DROPPED_RX        = false;
-    static constexpr bool RX_OVERRUNS       = BOTH(HAS_DGUS_LCD, DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS);
     static constexpr bool RX_FRAMING_ERRORS = false;
     static constexpr bool MAX_RX_QUEUED     = false;
+    static constexpr bool RX_OVERRUNS       = BOTH(HAS_DGUS_LCD, SERIAL_STATS_RX_BUFFER_OVERRUNS);
   };
 
-  extern MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>> internalDgusSerial;
-#endif
-
-#ifdef ANYCUBIC_LCD_SERIAL_PORT
-  template <uint8_t serial>
-  struct AnycubicLcdSerialCfg {
-    static constexpr int PORT               = serial;
-    static constexpr unsigned int RX_SIZE   = 64;
-    static constexpr unsigned int TX_SIZE   = 128;
-    static constexpr bool XONOFF            = false;
-    static constexpr bool EMERGENCYPARSER   = false;
-    static constexpr bool DROPPED_RX        = false;
-    static constexpr bool RX_OVERRUNS       = false;
-    static constexpr bool RX_FRAMING_ERRORS = false;
-    static constexpr bool MAX_RX_QUEUED     = false;
-  };
-
-  extern MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>> anycubicLcdSerial;
+  typedef Serial1Class< MarlinSerial< LCDSerialCfg<LCD_SERIAL_PORT> > > MSerialLCD;
+  extern MSerialLCD lcdSerial;
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations
 #if defined(USBCON) && ENABLED(BLUETOOTH)
-  extern HardwareSerial bluetoothSerial;
+  typedef Serial1Class<HardwareSerial> MSerialBT;
+  extern MSerialBT bluetoothSerial;
 #endif

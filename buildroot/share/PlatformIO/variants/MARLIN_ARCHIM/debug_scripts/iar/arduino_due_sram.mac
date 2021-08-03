@@ -1,0 +1,44 @@
+// ---------------------------------------------------------
+//   ATMEL Microcontroller Software Support  -  ROUSSET  -
+// ---------------------------------------------------------
+// The software is delivered "AS IS" without warranty or
+// condition of any  kind, either express, implied or
+// statutory. This includes without limitation any warranty
+// or condition with respect to merchantability or fitness
+// for any particular purpose, or against the infringements of
+// intellectual property rights of others.
+// ---------------------------------------------------------
+//  File: at91sam3u-ek-sram.mac
+//  User setup file for CSPY debugger.
+// ---------------------------------------------------------
+__var __mac_i;
+__var __mac_pt;
+
+/*********************************************************************
+*
+*       execUserReset()
+*/
+execUserReset()
+{
+    __message "------------------------------ execUserReset ---------------------------------";
+    __message "-------------------------------Set PC Reset ----------------------------------";
+
+     //__hwReset(50);
+
+    // perpheral reset RSTC_CR
+    __writeMemory32(0xA5000004,0x400e1200,"Memory");
+}
+
+/*********************************************************************
+*
+*       execUserPreload()
+*/
+execUserPreload()
+{
+    __message "------------------------------ execUserPreload ---------------------------------";
+
+    __hwReset(0);                          //* Hardware Reset: CPU is automatically halted after the reset
+
+    // perpheral reset RSTC_CR
+    __writeMemory32(0xA5000004,0x400e1200,"Memory");
+}

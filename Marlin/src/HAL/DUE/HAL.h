@@ -22,9 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
+ * HAL for Arduino Due and compatible (SAM3X8E)
  */
 
 #define CPU_32_BIT
@@ -38,59 +36,61 @@
 
 #include <stdint.h>
 
-// Define MYSERIAL0/1 before MarlinSerial includes!
+#include "../../core/serial_hook.h"
+
+typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
+typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
+typedef ForwardSerial1Class< decltype(Serial3) > DefaultSerial4;
+extern DefaultSerial1 MSerial0;
+extern DefaultSerial2 MSerial1;
+extern DefaultSerial3 MSerial2;
+extern DefaultSerial4 MSerial3;
+
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
+
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
-  #define MYSERIAL0 customizedSerial1
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL1 customizedSerial1
+#elif WITHIN(SERIAL_PORT, 0, 3)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "The required SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #error "The required SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
-    #define MYSERIAL1 customizedSerial2
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
+  #if SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
+    #define MYSERIAL2 customizedSerial2
+  #elif WITHIN(SERIAL_PORT_2, 0, 3)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 3, or -1 for USB Serial."
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
-#ifdef DGUS_SERIAL_PORT
-  #if DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different from SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL internalDgusSerial
-  #elif DGUS_SERIAL_PORT == 0
-    #define DGUS_SERIAL Serial
-  #elif DGUS_SERIAL_PORT == 1
-    #define DGUS_SERIAL Serial1
-  #elif DGUS_SERIAL_PORT == 2
-    #define DGUS_SERIAL Serial2
-  #elif DGUS_SERIAL_PORT == 3
-    #define DGUS_SERIAL Serial3
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1 || ENABLED(EMERGENCY_PARSER)
+    #define MYSERIAL3 customizedSerial3
+  #elif WITHIN(SERIAL_PORT_3, 0, 3)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
   #else
-    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
+  #endif
+#endif
+
+#ifdef MMU2_SERIAL_PORT
+  #if WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #error "MMU2_SERIAL_PORT must be from 0 to 3."
+  #endif
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if WITHIN(LCD_SERIAL_PORT, 0, 3)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+  #else
+    #error "LCD_SERIAL_PORT must be from 0 to 3."
   #endif
 #endif
 
@@ -99,16 +99,6 @@
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
-
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 typedef int8_t pin_t;
 
@@ -130,13 +120,15 @@ void sei();                     // Enable interrupts
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
 
+void HAL_reboot();
+
 //
 // ADC
 //
 extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
 #define HAL_ANALOG_SELECT(ch)
@@ -176,10 +168,16 @@ void HAL_init();
 //
 void _delay_ms(const int delay);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
-#pragma GCC diagnostic pop
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 #ifdef __cplusplus
   extern "C" {

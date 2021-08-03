@@ -28,6 +28,7 @@
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../feature/e_parser.h"
 #endif
+#include "../../core/serial_hook.h"
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0
@@ -41,26 +42,26 @@
 
 class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
 public:
-  MarlinSerial(LPC_UART_TypeDef *UARTx) :
-    HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx)
-    #if ENABLED(EMERGENCY_PARSER)
-      , emergency_state(EmergencyParser::State::EP_RESET)
-    #endif
-    { }
+  MarlinSerial(LPC_UART_TypeDef *UARTx) : HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx) { }
 
   void end() {}
 
   #if ENABLED(EMERGENCY_PARSER)
-    bool recv_callback(const char c) override {
-      emergency_parser.update(emergency_state, c);
-      return true; // do not discard character
-    }
-
-    EmergencyParser::State emergency_state;
+    bool recv_callback(const char c) override;
   #endif
 };
 
-extern MarlinSerial MSerial;
-extern MarlinSerial MSerial1;
-extern MarlinSerial MSerial2;
-extern MarlinSerial MSerial3;
+// On LPC176x framework, HardwareSerial does not implement the same interface as Arduino's Serial, so overloads
+// of 'available' and 'read' method are not used in this multiple inheritance scenario.
+// Instead, use a ForwardSerial here that adapts the interface.
+typedef ForwardSerial1Class<MarlinSerial> MSerialT;
+extern MSerialT MSerial0;
+extern MSerialT MSerial1;
+extern MSerialT MSerial2;
+extern MSerialT MSerial3;
+
+// Consequently, we can't use a RuntimeSerial either. The workaround would be to use
+// a RuntimeSerial<ForwardSerial<MarlinSerial>> type here. Ignore for now until it's actually required.
+#if ENABLED(SERIAL_RUNTIME_HOOK)
+  #error "SERIAL_RUNTIME_HOOK is not yet supported for LPC176x."
+#endif

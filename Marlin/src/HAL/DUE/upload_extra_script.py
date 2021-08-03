@@ -14,5 +14,5 @@ if current_OS == 'Windows':
 
 	# Use bossac.exe on Windows
 	env.Replace(
-	    UPLOADCMD="bossac --info --unlock --write --verify --reset --erase -U false --boot"
+	    UPLOADCMD="bossac --info --unlock --write --verify --reset --erase -U false --boot $SOURCE"
 	)

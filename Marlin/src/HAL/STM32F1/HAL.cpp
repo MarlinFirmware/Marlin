@@ -82,8 +82,34 @@
 // Public Variables
 // ------------------------
 
-#if (defined(SERIAL_USB) && !defined(USE_USB_COMPOSITE))
+#if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
   USBSerial SerialUSB;
+  DefaultSerial1 MSerial0(true, SerialUSB);
+
+  #if ENABLED(EMERGENCY_PARSER)
+    #include "../libmaple/usb/stm32f1/usb_reg_map.h"
+    #include "libmaple/usb_cdcacm.h"
+    // The original callback is not called (no way to retrieve address).
+    // That callback detects a special STM32 reset sequence: this functionality is not essential
+    // as M997 achieves the same.
+    void my_rx_callback(unsigned int, void*) {
+      // max length of 16 is enough to contain all emergency commands
+      uint8 buf[16];
+
+      //rx is usbSerialPart.endpoints[2]
+      uint16 len = usb_get_ep_rx_count(USB_CDCACM_RX_ENDP);
+      uint32 total = usb_cdcacm_data_available();
+
+      if (len == 0 || total == 0 || !WITHIN(total, len, COUNT(buf)))
+        return;
+
+      // cannot get character by character due to bug in composite_cdcacm_peek_ex
+      len = usb_cdcacm_peek(buf, total);
+
+      for (uint32 i = 0; i < len; i++)
+        emergency_parser.update(MSerial0.emergency_state, buf[i + total - len]);
+    }
+  #endif
 #endif
 
 uint16_t HAL_adc_result;
@@ -97,11 +123,17 @@ const uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
+  #if HAS_TEMP_ADC_PROBE
+    TEMP_PROBE_PIN,
+  #endif
   #if HAS_HEATED_BED
     TEMP_BED_PIN,
   #endif
   #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER_PIN,
+  #endif
+  #if HAS_TEMP_COOLER
+    TEMP_COOLER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1_PIN,
@@ -127,7 +159,7 @@ const uint8_t adc_pins[] = {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
   #endif
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     ADC_KEYPAD_PIN,
   #endif
   #if HAS_JOY_ADC_X
@@ -151,11 +183,17 @@ enum TempPinIndex : char {
   #if HAS_TEMP_ADC_0
     TEMP_0,
   #endif
+  #if HAS_TEMP_ADC_PROBE
+    TEMP_PROBE,
+  #endif
   #if HAS_HEATED_BED
     TEMP_BED,
   #endif
   #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER,
+  #endif
+  #if HAS_TEMP_COOLER
+    TEMP_COOLER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
     TEMP_1,
@@ -181,7 +219,7 @@ enum TempPinIndex : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     ADC_KEY,
   #endif
   #if HAS_JOY_ADC_X
@@ -240,34 +278,37 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   } }
 #endif
 
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+
 void HAL_init() {
   NVIC_SetPriorityGrouping(0x3);
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
   #endif
-  #ifdef USE_USB_COMPOSITE
+  #if HAS_SD_HOST_DRIVE
     MSC_SD_init();
+  #elif BOTH(SERIAL_USB, EMERGENCY_PARSER)
+    usb_cdcacm_set_hooks(USB_CDCACM_HOOK_RX, my_rx_callback);
   #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
     delay(1000);                                         // Give OS time to notice
-    OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+    WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the minimal serial handler
 }
 
 // HAL idle task
 void HAL_idletask() {
-  #ifdef USE_USB_COMPOSITE
-    #if HAS_SHARED_MEDIA
-      // If Marlin is using the SD card we need to lock it to prevent access from
-      // a PC via USB.
-      // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
-      // this will not reliably detect delete operations. To be safe we will lock
-      // the disk if Marlin has it mounted. Unfortunately there is currently no way
-      // to unmount the disk from the LCD menu.
-      // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
-      /* copy from lpc1768 framework, should be fixed later for process HAS_SHARED_MEDIA*/
-    #endif
+  #if HAS_SHARED_MEDIA
+    // If Marlin is using the SD card we need to lock it to prevent access from
+    // a PC via USB.
+    // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
+    // this will not reliably detect delete operations. To be safe we will lock
+    // the disk if Marlin has it mounted. Unfortunately there is currently no way
+    // to unmount the disk from the LCD menu.
+    // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
+    /* copy from lpc1768 framework, should be fixed later for process HAS_SD_HOST_DRIVE*/
     // process USB mass storage device class loop
     MarlinMSC.loop();
   #endif
@@ -341,11 +382,17 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_ADC_0
       case TEMP_0_PIN: pin_index = TEMP_0; break;
     #endif
+    #if HAS_TEMP_ADC_PROBE
+      case TEMP_PROBE_PIN: pin_index = TEMP_PROBE; break;
+    #endif
     #if HAS_HEATED_BED
       case TEMP_BED_PIN: pin_index = TEMP_BED; break;
     #endif
     #if HAS_TEMP_CHAMBER
       case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
+    #endif
+    #if HAS_TEMP_COOLER
+      case TEMP_COOLER_PIN: pin_index = TEMP_COOLER; break;
     #endif
     #if HAS_TEMP_ADC_1
       case TEMP_1_PIN: pin_index = TEMP_1; break;
@@ -380,7 +427,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
     #endif
-    #if ENABLED(ADC_KEYPAD)
+    #if HAS_ADC_BUTTONS
       case ADC_KEYPAD_PIN: pin_index = ADC_KEY; break;
     #endif
     #if ENABLED(POWER_MONITOR_CURRENT)
@@ -406,6 +453,8 @@ void analogWrite(pin_t pin, int pwm_val8) {
     analogWrite(uint8_t(pin), pwm_val8);
 }
 
-void flashFirmware(const int16_t) { nvic_sys_reset(); }
+void HAL_reboot() { nvic_sys_reset(); }
+
+void flashFirmware(const int16_t) { HAL_reboot(); }
 
 #endif // __STM32F1__

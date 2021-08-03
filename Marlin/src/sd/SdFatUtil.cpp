@@ -21,6 +21,8 @@
  */
 
 /**
+ * sd/SdFatUtil.cpp
+ *
  * Arduino SdFat Library
  * Copyright (c) 2008 by William Greiman
  *
@@ -46,7 +48,7 @@
     return &top - reinterpret_cast<char*>(sbrk(0));
   }
 
-#else
+#elif defined(__AVR__)
 
   extern char* __brkval;
   extern char __bss_end;

@@ -42,6 +42,7 @@
  *  P0 S<strokes>    : Stroke cleaning with S strokes
  *  P1 Sn T<objects> : Zigzag cleaning with S repeats and T zigzags
  *  P2 Sn R<radius>  : Circle cleaning with S repeats and R radius
+ *  X, Y, Z          : Specify axes to move during cleaning. Default: ALL.
  */
 void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
@@ -70,9 +71,11 @@ void GcodeSuite::G12() {
     TEMPORARY_BED_LEVELING_STATE(!TEST(cleans, Z_AXIS) && planner.leveling_active);
   #endif
 
-  TEMPORARY_SOFT_ENDSTOP_STATE(parser.boolval('E'));
+  SET_SOFT_ENDSTOP_LOOSE(!parser.boolval('E'));
 
   nozzle.clean(pattern, strokes, radius, objects, cleans);
+
+  SET_SOFT_ENDSTOP_LOOSE(false);
 }
 
 #endif // NOZZLE_CLEAN_FEATURE

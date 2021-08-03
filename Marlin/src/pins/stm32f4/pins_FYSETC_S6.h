@@ -21,10 +21,10 @@
  */
 #pragma once
 
-#ifndef STM32F4
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA32 supports up to 3 hotends / E-steppers."
+#include "env_validate.h"
+
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "FYSETC S6 supports up to 3 hotends / E-steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -34,15 +34,14 @@
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
-// Change the priority to 3. Priority 2 is for software serial.
-//#define TEMP_TIMER_IRQ_PRIO                  3
+// Avoid conflict with TIMER_TONE defined in variant
+#define STEP_TIMER 10
 
 //
 // EEPROM Emulation
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
-  //#define SRAM_EEPROM_EMULATION
   //#define I2C_EEPROM
 #endif
 
@@ -57,7 +56,9 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PA3
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                        PA3
+#endif
 
 //
 // Limit Switches
@@ -169,10 +170,18 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PB3
-#define HEATER_1_PIN                        PB4
-#define HEATER_2_PIN                        PB15
-#define HEATER_BED_PIN                      PC8
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                      PB3
+#endif
+#ifndef HEATER_1_PIN
+  #define HEATER_1_PIN                      PB4
+#endif
+#ifndef HEATER_2_PIN
+  #define HEATER_2_PIN                      PB15
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                    PC8
+#endif
 
 #define FAN_PIN                             PB0
 #define FAN1_PIN                            PB1
@@ -181,9 +190,9 @@
 //
 // SPI
 //
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
 
 //
 // Misc. Functions
@@ -199,7 +208,27 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if ENABLED(FYSETC_242_OLED_12864)
+
+  #define BTN_EN1                           PC9
+  #define BTN_EN2                           PD1
+  #define BTN_ENC                           PA8
+
+  #define BEEPER_PIN                        PC6
+
+  #define LCD_PINS_DC                       PC12
+  #define LCD_PINS_RS                       PC7   // LCD_RST
+  #define DOGLCD_CS                         PD2
+  #define DOGLCD_MOSI                       PC10
+  #define DOGLCD_SCK                        PC11
+  #define DOGLCD_A0                  LCD_PINS_DC
+  #define FORCE_SOFT_SPI
+
+  #define KILL_PIN                          -1    // NC
+  #define NEOPIXEL_PIN                      PD0
+
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PC9
   #define BTN_ENC                           PA8
 
@@ -211,11 +240,6 @@
 
     #define LCD_PINS_ENABLE                 PD1
     #define LCD_PINS_D4                     PC12
-
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
 
   #else
 
@@ -230,7 +254,7 @@
     #define LCD_PINS_D4                     PC10
 
     #if ENABLED(FYSETC_MINI_12864)
-     // See https://wiki.fysetc.com/Mini12864_Panel
+      // See https://wiki.fysetc.com/Mini12864_Panel
       #define DOGLCD_CS                     PC11
       #define DOGLCD_A0                     PD2
       #if ENABLED(FYSETC_GENERIC_12864_1_1)
@@ -250,30 +274,33 @@
       #elif ENABLED(FYSETC_MINI_12864_2_1)
         #define NEOPIXEL_PIN                PC12
       #endif
-    #endif // !FYSETC_MINI_12864
+    #endif
 
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PC12
       #define LCD_PINS_D6                   PD0
       #define LCD_PINS_D7                   PD1
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
     #endif
 
   #endif
 
-  // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
-  #endif
+#endif // HAS_WIRED_LCD
 
-#endif // HAS_SPI_LCD
+// Alter timing for graphical display
+#if HAS_MARLINUI_U8GLIB
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
+  #endif
+#endif
 
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB6

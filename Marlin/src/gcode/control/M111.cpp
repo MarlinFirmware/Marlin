@@ -49,7 +49,7 @@ void GcodeSuite::M111() {
     LOOP_L_N(i, COUNT(debug_strings)) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
-        serialprintPGM((char*)pgm_read_ptr(&debug_strings[i]));
+        SERIAL_ECHOPGM_P((char*)pgm_read_ptr(&debug_strings[i]));
       }
     }
   }
@@ -57,21 +57,21 @@ void GcodeSuite::M111() {
     SERIAL_ECHOPGM(STR_DEBUG_OFF);
     #if !defined(__AVR__) || !defined(USBCON)
       #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
-        SERIAL_ECHOPAIR("\nBuffer Overruns: ", MYSERIAL0.buffer_overruns());
+        SERIAL_ECHOPAIR("\nBuffer Overruns: ", MYSERIAL1.buffer_overruns());
       #endif
 
       #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
-        SERIAL_ECHOPAIR("\nFraming Errors: ", MYSERIAL0.framing_errors());
+        SERIAL_ECHOPAIR("\nFraming Errors: ", MYSERIAL1.framing_errors());
       #endif
 
       #if ENABLED(SERIAL_STATS_DROPPED_RX)
-        SERIAL_ECHOPAIR("\nDropped bytes: ", MYSERIAL0.dropped());
+        SERIAL_ECHOPAIR("\nDropped bytes: ", MYSERIAL1.dropped());
       #endif
 
       #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-        SERIAL_ECHOPAIR("\nMax RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
+        SERIAL_ECHOPAIR("\nMax RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
       #endif
-    #endif //  !defined(__AVR__) || !defined(USBCON)
+    #endif // !__AVR__ || !USBCON
   }
   SERIAL_EOL();
 }

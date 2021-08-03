@@ -24,6 +24,8 @@
 
 #if ENABLED(DIGIPOT_MCP4451)
 
+#include "digipot.h"
+
 #include <Stream.h>
 #include <Wire.h>
 
@@ -38,6 +40,9 @@
 #elif MB(AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI)
   #define DIGIPOT_I2C_FACTOR      113.5f
   #define DIGIPOT_I2C_MAX_CURRENT   2.0f
+#elif MB(AZTEEG_X5_GT)
+  #define DIGIPOT_I2C_FACTOR       51.0f
+  #define DIGIPOT_I2C_MAX_CURRENT   3.0f
 #else
   #define DIGIPOT_I2C_FACTOR      106.7f
   #define DIGIPOT_I2C_MAX_CURRENT   2.5f
@@ -61,7 +66,7 @@ static void digipot_i2c_send(const byte addr, const byte a, const byte b) {
 }
 
 // This is for the MCP4451 I2C based digipot
-void digipot_i2c_set_current(const uint8_t channel, const float current) {
+void DigipotI2C::set_current(const uint8_t channel, const float current) {
   // These addresses are specific to Azteeg X3 Pro, can be set to others.
   // In this case first digipot is at address A0=0, A1=0, second one is at A0=0, A1=1
   const byte addr = channel < 4 ? DIGIPOT_I2C_ADDRESS_A : DIGIPOT_I2C_ADDRESS_B; // channel 0-3 vs 4-7
@@ -75,7 +80,7 @@ void digipot_i2c_set_current(const uint8_t channel, const float current) {
   digipot_i2c_send(addr, addresses[channel & 0x3], current_to_wiper(_MIN(float(_MAX(current, 0)), DIGIPOT_I2C_MAX_CURRENT)));
 }
 
-void digipot_i2c_init() {
+void DigipotI2C::init() {
   #if MB(MKS_SBASE)
     configure_i2c(16); // Set clock_option to 16 ensure I2C is initialized at 400kHz
   #else
@@ -90,7 +95,9 @@ void digipot_i2c_init() {
     #endif
   ;
   LOOP_L_N(i, COUNT(digipot_motor_current))
-    digipot_i2c_set_current(i, pgm_read_float(&digipot_motor_current[i]));
+    set_current(i, pgm_read_float(&digipot_motor_current[i]));
 }
+
+DigipotI2C digipot_i2c;
 
 #endif // DIGIPOT_MCP4451

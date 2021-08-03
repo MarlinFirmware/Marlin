@@ -74,7 +74,7 @@ void GcodeSuite::M994() {
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BulkErase();
   SERIAL_ECHOPGM("Load SPI Flash");
-  while(addr < SPI_FLASH_SIZE) {
+  while (addr < SPI_FLASH_SIZE) {
     card.read(buf, COUNT(buf));
     W25QXX.SPI_FLASH_BufferWrite(buf, addr, COUNT(buf));
     addr += COUNT(buf);

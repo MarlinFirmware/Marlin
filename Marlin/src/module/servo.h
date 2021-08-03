@@ -112,4 +112,4 @@
 #define MOVE_SERVO(I, P) servo[I].move(P)
 
 extern HAL_SERVO_LIB servo[NUM_SERVOS];
-extern void servo_init();
+void servo_init();

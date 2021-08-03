@@ -27,9 +27,9 @@
 
 #define BOARD_INFO_NAME "ADSK"
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#define ALLOW_MEGA2560
+#include "env_validate.h"
 
 /* CNC shield modifications:
 FROM THE BOTTOM CUT THE 5V PIN THAT GOES TO ARDUINO!!!
@@ -86,9 +86,9 @@ A stepper for E0 extruder
 //
 // Limit Switches
 //
-#define X_MIN_PIN                              9
-#define Y_MIN_PIN                             10
-#define Z_MIN_PIN                             11
+#define X_STOP_PIN                             9
+#define Y_STOP_PIN                            10
+#define Z_STOP_PIN                            11
 
 #define Z_MIN_PROBE_PIN                       62  // Analog pin 8, Digital pin 62
 
@@ -204,5 +204,4 @@ A stepper for E0 extruder
  *
  * Standard ethernet pairs: 1&2, 3&6, 4&5, 7&8
  * Use CAT7 cable to have all pairs shielded
- *
  */

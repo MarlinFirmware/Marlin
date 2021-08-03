@@ -31,14 +31,11 @@
  *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
  *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
- *
  */
 
 // Numbers in parentheses () are the corresponding mega2560 pin numbers
 
-#ifndef MCU_LPC1768
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Re-ARM RAMPS 1.4"
 
@@ -220,7 +217,7 @@
   #define FAN1_PIN                  RAMPS_D8_PIN
 #elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1
+  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
     #define FAN1_PIN                MOSFET_D_PIN
   #else
     #define HEATER_1_PIN            MOSFET_D_PIN
@@ -251,8 +248,8 @@
 
 #define PS_ON_PIN                          P2_12  // (12)
 
-#if !defined(MAX6675_SS_PIN) && DISABLED(USE_ZMAX_PLUG)
-  #define MAX6675_SS_PIN                   P1_28
+#if !defined(TEMP_0_CS_PIN) && DISABLED(USE_ZMAX_PLUG)
+  #define TEMP_0_CS_PIN                    P1_28
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENA_PIN)
@@ -326,12 +323,20 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
-#elif HAS_SPI_LCD
+#elif ENABLED(ZONESTAR_LCD)
 
-  //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
-  //#define MISO_PIN                       P0_17  // (50)  system defined J3-10 & AUX-3
-  //#define MOSI_PIN                       P0_18  // (51)  system defined J3-10 & AUX-3
-  //#define SS_PIN                         P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
+  #error "CAUTION! ZONESTAR_LCD on REARM requires wiring modifications. NB. ADCs are not 5V tolerant. Comment out this line to continue."
+
+#elif IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_26  // (31) J3-2 & AUX-4
+  #endif
+
+  #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+  #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
+
+#elif HAS_WIRED_LCD
 
   #if ENABLED(FYSETC_MINI_12864)
     #define BEEPER_PIN                     P1_01
@@ -349,29 +354,30 @@
   #define LCD_PINS_RS                      P0_16  // (16) J3-7 & AUX-4
   #define LCD_SDSS                         P1_23  // (53) J3-5 & AUX-3
 
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(REPRAPWORLD_KEYPAD)
-      #define SHIFT_OUT                    P0_18  // (51) (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK                    P0_15  // (52) (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD                     P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
+  #if IS_NEWPANEL
+    #if IS_RRW_KEYPAD
+      #define SHIFT_OUT_PIN                P0_18  // (51) (MOSI) J3-10 & AUX-3
+      #define SHIFT_CLK_PIN                P0_15  // (52) (SCK)  J3-9 & AUX-3
+      #define SHIFT_LD_PIN                 P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
     #endif
   #else
-    //#define SHIFT_CLK                    P3_26  // (31)  J3-2 & AUX-4
-    //#define SHIFT_LD                     P3_25  // (33)  J3-4 & AUX-4
-    //#define SHIFT_OUT                    P2_11  // (35)  J3-3 & AUX-4
-    //#define SHIFT_EN                     P1_22  // (41)  J5-4 & AUX-4
+    //#define SHIFT_CLK_PIN                P3_26  // (31)  J3-2 & AUX-4
+    //#define SHIFT_LD_PIN                 P3_25  // (33)  J3-4 & AUX-4
+    //#define SHIFT_OUT_PIN                P2_11  // (35)  J3-3 & AUX-4
+    //#define SHIFT_EN_PIN                 P1_22  // (41)  J5-4 & AUX-4
   #endif
 
   #if ANY(VIKI2, miniVIKI)
-    // #define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
-    #define DOGLCD_SCK                   SCK_PIN
-    #define DOGLCD_MOSI                 MOSI_PIN
+    #define DOGLCD_SCK                SD_SCK_PIN
+    #define DOGLCD_MOSI              SD_MOSI_PIN
 
-    #define STAT_LED_BLUE_PIN              P0_26  //(63)  may change if cable changes
+    #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
+
   #else
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -407,10 +413,15 @@
     #define LCD_BACKLIGHT_PIN              P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
     #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
       #define LCD_PINS_D6                  P1_14  // (73) ENET_RX_ER
       #define LCD_PINS_D7                  P1_10  // (75) ENET_RXD1
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
   #endif
 
@@ -420,14 +431,14 @@
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
-  #endif
+ #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // Ethernet pins
 //
-#if DISABLED(ULTIPANEL)
+#if !IS_ULTIPANEL
   #define ENET_MDIO                        P1_17  // (71)  J12-4
   #define ENET_RX_ER                       P1_14  // (73)  J12-6
   #define ENET_RXD1                        P1_10  // (75)  J12-8
@@ -450,16 +461,16 @@
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15  // (52)  system defined J3-9 & AUX-3
-  #define MISO_PIN                         P0_17  // (50)  system defined J3-10 & AUX-3
-  #define MOSI_PIN                         P0_18  // (51)  system defined J3-10 & AUX-3
-  #define SS_PIN                           P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
+  #define SD_SCK_PIN                       P0_15  // (52)  system defined J3-9 & AUX-3
+  #define SD_MISO_PIN                      P0_17  // (50)  system defined J3-10 & AUX-3
+  #define SD_MOSI_PIN                      P0_18  // (51)  system defined J3-10 & AUX-3
+  #define SD_SS_PIN                        P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
-  #define SCK_PIN                          P0_07
-  #define MISO_PIN                         P0_08
-  #define MOSI_PIN                         P0_09
-  #define SS_PIN               ONBOARD_SD_CS_PIN
+  #define SD_SCK_PIN                       P0_07
+  #define SD_MISO_PIN                      P0_08
+  #define SD_MOSI_PIN                      P0_09
+  #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif

@@ -18,6 +18,10 @@
  */
 #pragma once
 
+/**
+ * HAL Pins Debugging for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+ */
+
 #warning "PINS_DEBUGGING is not fully supported for Teensy 4.0 / 4.1 so 'M43' may cause hangs."
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS

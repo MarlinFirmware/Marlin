@@ -22,14 +22,15 @@
  * Longer3D LK1/LK2 & Alfawise U20/U30 (STM32F103VET6) board pin assignments
  */
 
-#if !defined(__STM32F1__) && !defined(STM32F1xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "Longer3D only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "Longer3D"
-#define ALFAWISE_UX0                              // Common to all Longer3D STM32F1 boards (used for Open drain mosfets)
+
+#define BOARD_NO_NATIVE_USB
 
 //#define DISABLE_DEBUG                           //  We still want to debug with STLINK...
 #define DISABLE_JTAG                              //  We free the jtag pins (PA15) but keep STLINK
@@ -90,9 +91,19 @@
 #define FAN_MAX_PWM                          255
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
-                                 // Can drive a PC Buzzer, if connected between PWM and 5V pins
+                                                  // Can drive a PC Buzzer, if connected between PWM and 5V pins
 
 #define LED_PIN                             PC2   // pin 17
+
+// Longer3D board mosfets are passing by default
+// Avoid nozzle heat and fan start before serial init
+#define BOARD_OPENDRAIN_MOSFETS
+
+#define BOARD_PREINIT() { \
+  OUT_WRITE_OD(HEATER_0_PIN, 0); \
+  OUT_WRITE_OD(HEATER_BED_PIN, 0); \
+  OUT_WRITE_OD(FAN_PIN, 0); \
+}
 
 //
 // PWM for a servo probe
@@ -106,38 +117,32 @@
   //#undef Z_MAX_PIN                              // Uncomment if using ZMAX connector (PE5)
 #endif
 
-/**
- * Note: Alfawise screens use various TFT controllers. Supported screens
- * are based on the ILI9341, ILI9328 and ST7798V. Define init sequences for
- * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader
- * init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
+//
+// TFT with FSMC interface
+//
+#if HAS_FSMC_TFT
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PD7   // pin 88 = FSMC_NE1
+  #define FSMC_RS_PIN                       PD11  // pin 58 A16 Register. Only one address needed
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
 
-#define LCD_RESET_PIN                       PC4   // pin 33
-#define TFT_RESET_PIN                       PC4   // pin 33
-#define TFT_BACKLIGHT_PIN                   PD12  // pin 59
-#define FSMC_CS_PIN                         PD7   // pin 88 = FSMC_NE1
-#define FSMC_RS_PIN                         PD11  // pin 58 A16 Register. Only one address needed
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
-//#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT (broken)
-#define FSMC_DMA_DEV                        DMA2
-#define FSMC_DMA_CHANNEL                 DMA_CH5
+  #define TFT_RESET_PIN                     PC4   // pin 33
+  #define TFT_BACKLIGHT_PIN                 PD12  // pin 59
 
-#define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
-#define DOGLCD_SCK                          -1
+  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
+  #define DOGLCD_SCK                        -1
 
-#define GRAPHICAL_TFT_UPSCALE                  2
-#define TFT_WIDTH                            320
-#define TFT_HEIGHT                           240
-#define TFT_PIXEL_OFFSET_X                    32
-#define TFT_PIXEL_OFFSET_Y                    32
+  // Buffer for Color UI
+  #define TFT_BUFFER_SIZE                   3200
+#endif
 
-//#define TFT_DRIVER                     ILI9341
+#if ENABLED(SDIO_SUPPORT)
+  #define SD_SS_PIN                         -1    // else SDSS set to PA4 in M43 (spi_pins.h)
+#endif
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
@@ -147,7 +152,7 @@
 #if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB12  // pin 51 SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // pin 52
-  #define TOUCH_MOSI_PIN                    PB14  // pin 53
+  #define TOUCH_MOSI_PIN                    PB14  // pin 53 (Inverted MOSI/MISO = No HW SPI2)
   #define TOUCH_MISO_PIN                    PB15  // pin 54
   #define TOUCH_INT_PIN                     PC6   // pin 63 (PenIRQ coming from ADS7843)
 #endif
@@ -158,6 +163,7 @@
 //
 #if NO_EEPROM_SELECTED
   //#define SPI_EEPROM
+  //#define HAS_SPI_FLASH                      1  // need MARLIN_DEV_MODE for M993/M994 eeprom backup tests
   #define FLASH_EEPROM_EMULATION
 #endif
 
@@ -170,6 +176,12 @@
   #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
+#elif HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE                0x40000U  // limit to 256KB (M993 will reboot with 512)
+  #define W25QXX_CS_PIN                     PC5
+  #define W25QXX_MOSI_PIN                   PA7
+  #define W25QXX_MISO_PIN                   PA6
+  #define W25QXX_SCK_PIN                    PA5
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB

@@ -46,7 +46,6 @@
  *           Version 2 Copyright (c) 2009 Michael Margolis.  All right reserved.
  *
  * The only modification was to update/delete macros to match the LPC176x.
- *
  */
 
 #include <Servo.h>

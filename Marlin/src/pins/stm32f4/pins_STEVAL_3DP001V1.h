@@ -40,9 +40,7 @@
 
 #pragma once
 
-#ifndef STM32F4
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #ifndef MACHINE_NAME
   #define MACHINE_NAME "STEVAL-3DP001V1"
@@ -120,13 +118,13 @@
   #define L6470_CHAIN_MOSI_PIN                19  // PA7
   #define L6470_CHAIN_SS_PIN                  16  // PA4
 
-  //#define SCK_PIN          L6470_CHAIN_SCK_PIN
-  //#define MISO_PIN        L6470_CHAIN_MISO_PIN
-  //#define MOSI_PIN        L6470_CHAIN_MOSI_PIN
+  //#define SD_SCK_PIN       L6470_CHAIN_SCK_PIN
+  //#define SD_MISO_PIN     L6470_CHAIN_MISO_PIN
+  //#define SD_MOSI_PIN     L6470_CHAIN_MOSI_PIN
 #else
-  //#define SCK_PIN                           13  // PB13    SPI_S
-  //#define MISO_PIN                          12  // PB14    SPI_M
-  //#define MOSI_PIN                          11  // PB15    SPI_M
+  //#define SD_SCK_PIN                        13  // PB13    SPI_S
+  //#define SD_MISO_PIN                       12  // PB14    SPI_M
+  //#define SD_MOSI_PIN                       11  // PB15    SPI_M
 #endif
 
 /**
@@ -175,7 +173,6 @@
 //
 // Misc functions
 //
-#define SDSS                                  16  // PA4    SPI_CS
 #define LED_PIN                               -1  // 9 // PE1 green LED   Heart beat
 #define PS_ON_PIN                             -1
 #define KILL_PIN                              -1
@@ -247,12 +244,15 @@
 
   #ifndef SDIO_SUPPORT
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
-    #undef SDSS
     #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SD_SCK_PIN               SDIO_CK_PIN
+    #define SD_MISO_PIN              SDIO_D0_PIN
+    #define SD_MOSI_PIN             SDIO_CMD_PIN
   #endif
+#endif
+
+#ifndef SDSS
+  #define SDSS                                16  // PA4    SPI_CS
 #endif
 
 // OTG

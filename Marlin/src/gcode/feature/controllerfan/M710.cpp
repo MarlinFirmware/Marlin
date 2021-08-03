@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "../../gcode.h"
 #include "../../../feature/controllerfan.h"
 
-void M710_report(const bool forReplay) {
+void M710_report(const bool forReplay=true) {
   if (!forReplay) { SERIAL_ECHOLNPGM("; Controller Fan"); SERIAL_ECHO_START(); }
   SERIAL_ECHOLNPAIR("  M710"
     " S", int(controllerFan.settings.active_speed),
@@ -75,7 +75,7 @@ void GcodeSuite::M710() {
   if (seenD) controllerFan.settings.duration = parser.value_ushort();
 
   if (!(seenR || seenS || seenI || seenA || seenD))
-    M710_report(false);
+    M710_report();
 }
 
 #endif // CONTROLLER_FAN_EDITABLE

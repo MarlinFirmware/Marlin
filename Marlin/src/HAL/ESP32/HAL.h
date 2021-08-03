@@ -15,11 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 #pragma once
 
 /**
- * Description: HAL for Espressif ESP32 WiFi
+ * HAL for Espressif ESP32 WiFi
  */
 
 #define CPU_32_BIT
@@ -50,17 +51,16 @@
 
 extern portMUX_TYPE spinlock;
 
-#define MYSERIAL0 flushableSerial
+#define MYSERIAL1 flushableSerial
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #if ENABLED(ESP3D_WIFISUPPORT)
-    #define MYSERIAL1 Serial2Socket
+    typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
+    extern DefaultSerial1 MSerial0;
+    #define MYSERIAL2 MSerial0
   #else
-    #define MYSERIAL1 webSocketSerial
+    #define MYSERIAL2 webSocketSerial
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)
@@ -68,10 +68,6 @@ extern portMUX_TYPE spinlock;
 #define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
 #define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
 #define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
 
 // ------------------------
 // Types
@@ -92,18 +88,33 @@ extern uint16_t HAL_adc_result;
 // Public functions
 // ------------------------
 
+//
+// Tone
+//
+void toneInit();
+void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
+void noTone(const pin_t _pin);
+
 // clear reset reason
 void HAL_clear_reset_source();
 
 // reset reason
 uint8_t HAL_get_reset_source();
 
+void HAL_reboot();
+
 void _delay_ms(int delay);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
-#pragma GCC diagnostic pop
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 void analogWrite(pin_t pin, int value);
 
@@ -128,7 +139,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 #define HAL_IDLETASK 1
 #define BOARD_INIT() HAL_init_board();
 void HAL_idletask();
-void HAL_init();
+inline void HAL_init() {}
 void HAL_init_board();
 
 //
@@ -157,14 +168,14 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 
   if (stop >= start) {
     // no overflow, so only loop while in between start and stop:
-    // 0x00000000 -----------------start****stop-- 0xffffffff
+    // 0x00000000 -----------------start****stop-- 0xFFFFFFFF
     while (ccount >= start && ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }
   }
   else {
     // stop did overflow, so only loop while outside of stop and start:
-    // 0x00000000 **stop-------------------start** 0xffffffff
+    // 0x00000000 **stop-------------------start** 0xFFFFFFFF
     while (ccount >= start || ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }

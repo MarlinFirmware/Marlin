@@ -47,7 +47,7 @@
   #endif
 
   #ifdef PHOTO_RETRACT_MM
-    inline void e_move_m240(const float length, const feedRate_t &fr_mm_s) {
+    inline void e_move_m240(const float length, const_feedRate_t fr_mm_s) {
       if (length && thermalManager.hotEnoughToExtrude(active_extruder))
         unscaled_e_move(length, fr_mm_s);
     }

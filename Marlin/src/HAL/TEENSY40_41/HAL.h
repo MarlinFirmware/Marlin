@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Teensy 4.0 and Teensy 4.1
+ * HAL for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  */
 
 #define CPU_32_BIT
@@ -37,6 +37,10 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
+#if HAS_ETHERNET
+  #include "../../feature/ethernet.h"
+#endif
+
 //#define ST7920_DELAY_1 DELAY_NS(600)
 //#define ST7920_DELAY_2 DELAY_NS(750)
 //#define ST7920_DELAY_3 DELAY_NS(750)
@@ -45,64 +49,44 @@
 // Defines
 // ------------------------
 
-#ifdef __IMXRT1062__
-  #define IS_32BIT_TEENSY 1
+#define IS_32BIT_TEENSY 1
+#define IS_TEENSY_40_41 1
+#ifndef IS_TEENSY40
   #define IS_TEENSY41 1
 #endif
 
+#include "../../core/serial_hook.h"
+#define Serial0 Serial
+#define _DECLARE_SERIAL(X) \
+  typedef ForwardSerial1Class<decltype(Serial##X)> DefaultSerial##X; \
+  extern DefaultSerial##X MSerial##X
+#define DECLARE_SERIAL(X) _DECLARE_SERIAL(X)
+
+typedef ForwardSerial1Class<decltype(SerialUSB)> USBSerialType;
+extern USBSerialType USBSerial;
+
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
+
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
-#elif SERIAL_PORT == 4
-  #define MYSERIAL0 Serial4
-#elif SERIAL_PORT == 5
-  #define MYSERIAL0 Serial5
-#elif SERIAL_PORT == 6
-  #define MYSERIAL0 Serial6
-#elif SERIAL_PORT == 7
-  #define MYSERIAL0 Serial7
-#elif SERIAL_PORT == 8
-  #define MYSERIAL0 Serial8
+  #define MYSERIAL1 SerialUSB
+#elif WITHIN(SERIAL_PORT, 0, 8)
+  DECLARE_SERIAL(SERIAL_PORT);
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "The required SERIAL_PORT must be from -1 to 8. Please update your configuration."
+  #error "The required SERIAL_PORT must be from 0 to 8, or -1 for Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
-    #define MYSERIAL1 usbSerial
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
-  #elif SERIAL_PORT_2 == 4
-    #define MYSERIAL1 Serial4
-  #elif SERIAL_PORT_2 == 5
-    #define MYSERIAL1 Serial5
-  #elif SERIAL_PORT_2 == 6
-    #define MYSERIAL1 Serial6
-  #elif SERIAL_PORT_2 == 7
-    #define MYSERIAL1 Serial7
-  #elif SERIAL_PORT_2 == 8
-    #define MYSERIAL1 Serial8
+  #if SERIAL_PORT_2 == -1
+    #define MYSERIAL2 usbSerial
+  #elif SERIAL_PORT_2 == -2
+    #define MYSERIAL2 ethernet.telnetClient
+  #elif WITHIN(SERIAL_PORT_2, 0, 8)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-      #error "SERIAL_PORT_2 must be from -1 to 8. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 8, or -1 for Native USB, or -2 for Ethernet."
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
 #define HAL_SERVO_LIB libServo
@@ -110,7 +94,7 @@
 typedef int8_t pin_t;
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
 #define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); __disable_irq()
@@ -122,20 +106,9 @@ typedef int8_t pin_t;
 #undef sq
 #define sq(x) ((x)*(x))
 
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
 // Don't place string constants in PROGMEM
 #undef PSTR
 #define PSTR(str) ({static const char *data = (str); &data[0];})
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*((void**)(addr)))
-// Add type-checking to pgm_read_word
-#undef pgm_read_word
-#define pgm_read_word(addr) (*((uint16_t*)(addr)))
 
 // Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
@@ -148,14 +121,20 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
+void HAL_reboot();
+
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-extern "C" {
-  uint32_t freeMemory();
-}
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+extern "C" uint32_t freeMemory();
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 // ADC
 

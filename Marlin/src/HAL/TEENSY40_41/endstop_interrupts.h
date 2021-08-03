@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Endstop Interrupts
+ * HAL Endstop Interrupts for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  *
  * Without endstop interrupts the endstop pins must be polled continually in
  * the temperature-ISR via endstops.update(), most of the time finding no change.
@@ -63,4 +63,10 @@ void setup_endstop_interrupts() {
   TERN_(HAS_Z4_MAX, _ATTACH(Z4_MAX_PIN));
   TERN_(HAS_Z4_MIN, _ATTACH(Z4_MIN_PIN));
   TERN_(HAS_Z_MIN_PROBE_PIN, _ATTACH(Z_MIN_PROBE_PIN));
+  TERN_(HAS_I_MAX, _ATTACH(I_MAX_PIN));
+  TERN_(HAS_I_MIN, _ATTACH(I_MIN_PIN));
+  TERN_(HAS_J_MAX, _ATTACH(J_MAX_PIN));
+  TERN_(HAS_J_MIN, _ATTACH(J_MIN_PIN));
+  TERN_(HAS_K_MAX, _ATTACH(K_MAX_PIN));
+  TERN_(HAS_K_MIN, _ATTACH(K_MIN_PIN));
 }

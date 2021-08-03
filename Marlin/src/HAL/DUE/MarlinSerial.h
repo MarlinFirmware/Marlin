@@ -30,11 +30,7 @@
 #include <WString.h>
 
 #include "../../inc/MarlinConfigPre.h"
-
-#define DEC 10
-#define HEX 16
-#define OCT 8
-#define BIN 2
+#include "../../core/serial_hook.h"
 
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
@@ -119,42 +115,15 @@ public:
   static int read();
   static void flush();
   static ring_buffer_pos_t available();
-  static void write(const uint8_t c);
+  static size_t write(const uint8_t c);
   static void flushTX();
+
+  static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
   FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
   FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
   FORCE_INLINE static uint8_t framing_errors() { return Cfg::RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
   FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return Cfg::MAX_RX_QUEUED ? rx_max_enqueued : 0; }
-
-  FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
-  FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-  FORCE_INLINE static void print(const char* str) { write(str); }
-
-  static void print(char, int = 0);
-  static void print(unsigned char, int = 0);
-  static void print(int, int = DEC);
-  static void print(unsigned int, int = DEC);
-  static void print(long, int = DEC);
-  static void print(unsigned long, int = DEC);
-  static void print(double, int = 2);
-
-  static void println(const String& s);
-  static void println(const char[]);
-  static void println(char, int = 0);
-  static void println(unsigned char, int = 0);
-  static void println(int, int = DEC);
-  static void println(unsigned int, int = DEC);
-  static void println(long, int = DEC);
-  static void println(unsigned long, int = DEC);
-  static void println(double, int = 2);
-  static void println();
-  operator bool() { return true; }
-
-private:
-  static void printNumber(unsigned long, const uint8_t);
-  static void printFloat(double, uint8_t);
 };
 
 // Serial port configuration
@@ -171,10 +140,17 @@ struct MarlinSerialCfg {
   static constexpr bool MAX_RX_QUEUED     = ENABLED(SERIAL_STATS_MAX_RX_QUEUED);
 };
 
-#if SERIAL_PORT >= 0
-  extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
+#if defined(SERIAL_PORT) && SERIAL_PORT >= 0
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT> > > MSerialT1;
+  extern MSerialT1 customizedSerial1;
 #endif
 
 #if defined(SERIAL_PORT_2) && SERIAL_PORT_2 >= 0
-  extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_2> > > MSerialT2;
+  extern MSerialT2 customizedSerial2;
+#endif
+
+#if defined(SERIAL_PORT_3) && SERIAL_PORT_3 >= 0
+  typedef Serial1Class< MarlinSerial< MarlinSerialCfg<SERIAL_PORT_3> > > MSerialT3;
+  extern MSerialT3 customizedSerial3;
 #endif

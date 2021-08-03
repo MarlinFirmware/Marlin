@@ -34,6 +34,8 @@ uint8_t ControllerFan::speed;
 
 #if ENABLED(CONTROLLER_FAN_EDITABLE)
   controllerFan_settings_t ControllerFan::settings; // {0}
+ #else
+   const controllerFan_settings_t &ControllerFan::settings = controllerFan_defaults;
 #endif
 
 void ControllerFan::setup() {
@@ -74,9 +76,14 @@ void ControllerFan::update() {
       )
     );
 
-    // If any of the drivers or the heated bed are enabled...
-    if (motor_on || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0))
-      lastMotorOn = ms; //... set time to NOW so the fan will turn on
+    // If any triggers for the controller fan are true...
+    //   - At least one stepper driver is enabled
+    //   - The heated bed is enabled
+    //   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_MIN_BOARD_TEMP
+    if ( motor_on
+      || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
+      || TERN0(HAS_CONTROLLER_FAN_MIN_BOARD_TEMP, thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP)
+    ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
 
     // Fan Settings. Set fan > 0:
     //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_IDLE_TIME seconds.

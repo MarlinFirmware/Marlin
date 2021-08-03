@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_ca {
   using namespace Language_en; // Inherit undefined strings from English
@@ -39,7 +38,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Targeta extreta.");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menú principal");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Inici automatic");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inici automatic");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Desactiva motors");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu de depuracio");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barra progres");
@@ -86,10 +85,11 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mou Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrusor *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mou %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mou %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mou 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mou 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mou 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mou 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocitat");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Llit Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
@@ -112,7 +112,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Moviment");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diam. Fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diam. Fil. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrast de LCD");
