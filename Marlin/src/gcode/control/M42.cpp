@@ -31,6 +31,13 @@
   #include "../../module/temperature.h"
 #endif
 
+#ifdef MAPLE_STM32F1
+  // these are enums on the F1...
+  #define INPUT_PULLDOWN INPUT_PULLDOWN
+  #define INPUT_ANALOG INPUT_ANALOG
+  #define OUTPUT_OPEN_DRAIN OUTPUT_OPEN_DRAIN
+#endif
+
 void protected_pin_err() {
   SERIAL_ERROR_MSG(STR_ERR_PROTECTED_PIN);
 }
