@@ -21,11 +21,11 @@
  */
 
 // =====================NOTE=====================
-// #define TONE_TIMER		1
+// #define TONE_TIMER		  1
 // #define TONE_CHANNEL		2
 // Please redefine the TONE_TIMER and TONE_CHANNEL in
 // .platformio\packages\framework-arduinoststm32-maple\STM32F1\cores\maple\tone.cpp
-// line 31 and line 34
+// line 31 and line      34
 // =====================NOTE=====================
 
 #pragma once
@@ -117,7 +117,7 @@
 //	3	WIFI_TXD  	PD5		UART2_RX
 //	4	WIFI_RXD  	PD6		UART2_TX
 //	5	WIFI_RST  	PC14
-//	6	WIFI_CS  	PC15
+//	6	WIFI_CS  	  PC15
 //=============================================================================
 
 //
@@ -128,7 +128,7 @@
 #endif
 
 #ifdef USE_YMIN_PLUG
-#define Y_STOP_PIN                          PE3
+  #define Y_STOP_PIN                        PE3
 #endif
 
 #ifdef USE_ZMIN_PLUG

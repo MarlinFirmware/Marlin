@@ -51,7 +51,7 @@
 //	PA13    MS1         //	PB13    E0_EN           //	PC13        Y_STOP
 //	PA14    MS2         //	PB14    E0_STEP         //	PC14        Y_EN
 //	PA15    PWM         //	PB15    E0_DIR          //	PC15        X_STOP
-//	PD0	 	NC
+//	PD0	 	  NC
 //	PD1     NC
 //	PD2	    E1_STEP
 //=============================================================================
@@ -142,7 +142,7 @@
 #define Z_MIN_PROBE_PIN                     PC10
 
 #define LED_PIN                             PB12
-//#define KILL_PIN                          PB1  //@EXP1
+//#define KILL_PIN                          PB1   //@EXP1
 #define SUICIDE_PIN                         PA0
 
 //SD card

@@ -21,11 +21,11 @@
  */
 
 // =====================NOTE=====================
-// #define TONE_TIMER		1
-// #define TONE_CHANNEL		2
+// #define TONE_TIMER		  1
+// #define TONE_CHANNEL	  2
 // Please redefine the TONE_TIMER and TONE_CHANNEL in
 // .platformio\packages\framework-arduinoststm32-maple\STM32F1\cores\maple\tone.cpp
-// line 31 and line 34
+// line 31 and line      34
 // =====================NOTE=====================
 
 #pragma once
@@ -60,22 +60,22 @@
 //	PA13    SWD_SDO     //	PB13    Z1_MAX          //	PC13        X_MIN
 //	PA14    SWD_SCK     //	PB14    Y_MAX           //	PC14        WIFI_RST
 //	PA15    SPI3_CS     //	PB15    PWR_DET         //	PC15        WIFI_CS
-//	PD0	 	  Z2_DIR		 //	PE0		Y_EN
-//	PD1     Z2_MIN		 //	PE1		Y_STEP
-//	PD2	    Z1_EN		   //	PE2		Y_DIR
-//	PD3	    Z1_STEP		 //	PE3		Y_MIN
-//	PD4	    Z1_DIR		 //	PE4		X_DIR
-//	PD5	    WIFI_RXD	 //	PE5		X_STEP
-//	PD6	    WIFI_TXD	 //	PE6		X_EN
-//	PD7	    Z1_MIN		 //	PE7		AXU_SCL
-//	PD8	    X_MAX		   //	PE8		BTN_EN1
-//	PD9	    E3_DIR		 //	PE9		LCD_SCK
-//	PD10    E3_STEP		 //	PE10	LCD_MOSI
-//	PD11    E3_EN		   //	PE11	BEEPER
-//	PD12    E2_DIR		 //	PE12	LCD_EN
-//	PD13    E2_STEP		 //	PE13	KILL
-//	PD14    E2_EN		   //	PE14	BTN_EN2
-//	PD15    E1_DIR		 //	PE15	BTN_ENC
+//	PD0	 	  Z2_DIR		  //	PE0		  Y_EN
+//	PD1     Z2_MIN		  //	PE1		  Y_STEP
+//	PD2	    Z1_EN		    //	PE2		  Y_DIR
+//	PD3	    Z1_STEP		  //	PE3		  Y_MIN
+//	PD4	    Z1_DIR		  //	PE4		  X_DIR
+//	PD5	    WIFI_RXD	  //	PE5		  X_STEP
+//	PD6	    WIFI_TXD	  //	PE6		  X_EN
+//	PD7	    Z1_MIN		  //	PE7		  AXU_SCL
+//	PD8	    X_MAX		    //	PE8		  BTN_EN1
+//	PD9	    E3_DIR		  //	PE9		  LCD_SCK
+//	PD10    E3_STEP		  //	PE10	  LCD_MOSI
+//	PD11    E3_EN		    //	PE11	  BEEPER
+//	PD12    E2_DIR		  //	PE12	  LCD_EN
+//	PD13    E2_STEP		  //	PE13	  KILL
+//	PD14    E2_EN		    //	PE14	  BTN_EN2
+//	PD15    E1_DIR		  //	PE15	  BTN_ENC
 //=============================================================================
 //EXP1 connector
 //	   MARK     I/O     ZONESTAR_LCD12864		REPRAPDISCOUNT_LCD12864
@@ -91,7 +91,7 @@
 //	 1 GND										GND
 
 //EXP2 connector
-//	   MARK     I/O     ZONESTAR_LCD12864       REPRAPDISCOUNT_LCD12864
+//	   MARK     I/O     ZONESTAR_LCD12864    REPRAPDISCOUNT_LCD12864
 //	10 SDA      PC0
 //	 9 SCL    	PE7
 //	 8 RX1  	  PA9		  UART1_RX
@@ -117,7 +117,7 @@
 //	3	WIFI_TXD  	PD5		UART2_RX
 //	4	WIFI_RXD  	PD6		UART2_TX
 //	5	WIFI_RST  	PC14
-//	6	WIFI_CS  	PC15
+//	6	WIFI_CS  	  PC15
 //=============================================================================
 
 //
