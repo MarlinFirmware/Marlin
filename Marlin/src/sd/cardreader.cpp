@@ -32,7 +32,7 @@
 #include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
+  #include "../lcd/e3v2/creality/dwin.h"
 #endif
 
 #include "../module/planner.h"        // for synchronize
@@ -1024,6 +1024,7 @@ int8_t CardReader::cdup() {
 void CardReader::cdroot() {
   workDir = root;
   flag.workDirIsRoot = true;
+  workDirDepth = 0;
   TERN_(SDCARD_SORT_ALPHA, presort());
 }
 

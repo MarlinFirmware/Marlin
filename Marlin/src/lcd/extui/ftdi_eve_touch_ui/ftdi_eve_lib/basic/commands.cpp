@@ -902,6 +902,7 @@ bool CLCD::CommandFifo::has_fault() {
 }
 
 #if FTDI_API_LEVEL == 800
+
 void CLCD::CommandFifo::start() {
   if (command_write_ptr == 0xFFFFFFFFul) {
     command_write_ptr = mem_read_32(REG::CMD_WRITE) & 0x0FFF;
@@ -979,12 +980,13 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
 
 template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   const uint8_t padding = MULTIPLE_OF_4(len) - len;
-
-  uint8_t pad_bytes[] = {0, 0, 0, 0};
+  const uint8_t pad_bytes[] = { 0, 0, 0, 0 };
   return _write_unaligned(data,      len) &&
          _write_unaligned(pad_bytes, padding);
 }
-#else
+
+#else // FTDI_API_LEVEL != 800 ...
+
 void CLCD::CommandFifo::start() {
 }
 
@@ -1042,12 +1044,28 @@ template <class T> bool CLCD::CommandFifo::write(T data, uint16_t len) {
   mem_write_bulk(REG::CMDB_WRITE, data, len, padding);
   return true;
 }
-#endif
+
+#endif // ... FTDI_API_LEVEL != 800
 
 template bool CLCD::CommandFifo::write(const void*, uint16_t);
 template bool CLCD::CommandFifo::write(progmem_str, uint16_t);
 
 // CO_PROCESSOR COMMANDS
+
+void CLCD::CommandFifo::str(const char * data, size_t maxlen) {
+  // Write the string without the terminating '\0'
+  const size_t len = strnlen(data, maxlen);
+  write(data, len);
+
+  // If padding was added by the previous write, then
+  // the string is terminated. Otherwise write four
+  // more zeros.
+  const uint8_t padding = MULTIPLE_OF_4(len) - len;
+  if (padding == 0) {
+    const uint8_t pad_bytes[] = {0, 0, 0, 0};
+    write(pad_bytes, 4);
+  }
+}
 
 void CLCD::CommandFifo::str(const char * data) {
   write(data, strlen(data)+1);

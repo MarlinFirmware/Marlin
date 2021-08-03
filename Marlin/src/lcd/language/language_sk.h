@@ -87,7 +87,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_HOME_OFFSET_Z                   = _UxGT("Z Ofset");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofsety nastavené");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nastaviť začiatok");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Asist. vyrovnanie");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Spriev. vyrovn.");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Vyberte začiatok");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Posl. hodnota ");
@@ -133,11 +132,11 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Posunúť osy");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Vyrovnanie podložky");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Vyrovnať podložku");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Vyrovnať rohy");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Zdvyhnite podl., kým sa nezopne sonda");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Rohy sú vrámci odchyl. Vyrovnajte podl.");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Dobré body: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Posl. Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Asist. vyrovnanie");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Zdvyhnite podl., kým sa nezopne sonda");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Rohy sú vrámci odchyl. Vyrovnajte podl.");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Dobré body: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Posl. Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Ďalší roh");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor sieťe bodov");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Upraviť sieť bodov");

@@ -23,6 +23,9 @@
 #include "../gcode.h"
 #include "../../module/printcounter.h"
 #include "../../lcd/marlinui.h"
+#if ENABLED(HOST_PAUSE_M76)
+  #include "../../feature/host_actions.h"
+#endif
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
@@ -38,6 +41,7 @@ void GcodeSuite::M75() {
  */
 void GcodeSuite::M76() {
   print_job_timer.pause();
+  TERN_(HOST_PAUSE_M76, host_action_pause());
 }
 
 /**

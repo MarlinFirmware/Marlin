@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,21 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_LCD_BRIGHTNESS
+
+#include "../gcode.h"
+#include "../../lcd/marlinui.h"
 
 /**
- * Creality v4.5.2 (STM32F103RET6) board pin assignments
+ * M256: Set the LCD brightness
  */
+void GcodeSuite::M256() {
+  if (parser.seenval('B')) ui.set_brightness(parser.value_int());
+  SERIAL_ECHOLNPAIR("LCD Brightness: ", ui.brightness);
+}
 
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "Creality v4.5.2 only supports one hotend / E-stepper. Comment out this line to continue."
-#endif
-
-#define BOARD_INFO_NAME "Creality v4.5.2"
-
-#define HEATER_0_PIN                        PA1   // HEATER1
-#define HEATER_BED_PIN                      PA2   // HOT BED
-#define FAN_PIN                             PA0   // FAN
-#define PROBE_ACTIVATION_SWITCH_PIN         PC6   // Optoswitch to Enable Z Probe
-
-#include "pins_CREALITY_V45x.h"
+#endif // HAS_LCD_BRIGHTNESS
