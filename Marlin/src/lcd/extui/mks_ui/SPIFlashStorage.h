@@ -55,7 +55,7 @@
  *
  * When reading, it loads a full page from SPI Flash at once and
  * keeps it in a private SRAM buffer. Data is loaded as needed to
- * fullfill requests. Sequential reads are optimal.
+ * fulfill requests. Sequential reads are optimal.
  *
  *    SPIFlashStorage.beginRead(myStartAddress);
  *    while (there is data to read)
