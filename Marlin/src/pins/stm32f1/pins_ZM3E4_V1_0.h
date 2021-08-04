@@ -111,18 +111,18 @@
 // AUX1 connector
 //  1 +5V
 //  2 GND
-//  3 RX3     PB11  UART3_RX
-//  4 TX3     PB10  UART3_TX
-//  5 SCL     PE7
-//  6 SDA     PC0
+//  3 RX3       PB11    UART3_RX
+//  4 TX3       PB10    UART3_TX
+//  5 SCL       PE7
+//  6 SDA       PC0
 
 // WiFi
 //  1 +5V
 //  2 GND
-//  3 WIFI_TXD    PD5   UART2_RX
-//  4 WIFI_RXD    PD6   UART2_TX
-//  5 WIFI_RST    PC14
-//  6 WIFI_CS     PC15
+//  3 WIFI_TXD  PD5     UART2_RX
+//  4 WIFI_RXD  PD6     UART2_TX
+//  5 WIFI_RST  PC14
+//  6 WIFI_CS   PC15
 //=============================================================================
 
 //
