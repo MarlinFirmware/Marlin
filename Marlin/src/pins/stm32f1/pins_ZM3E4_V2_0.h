@@ -28,9 +28,7 @@
 // =====================NOTE=====================
 // #define TONE_TIMER     1
 // #define TONE_CHANNEL   2
-// Please redefine the TONE_TIMER and TONE_CHANNEL in
-// .platformio\packages\framework-arduinoststm32-maple\STM32F1\cores\maple\tone.cpp
-// line 31 and line      34
+#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=2 -DTONE_TIMER=1
 // =====================NOTE=====================
 
 //#define DISABLE_DEBUG
