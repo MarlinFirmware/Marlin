@@ -38,7 +38,7 @@
 #define FLASH_EEPROM_EMULATION
 #define EEPROM_PAGE_SIZE     (0x800) // 2KB
 #define EEPROM_START_ADDRESS uint32(0x8000000 + (STM32_FLASH_SIZE) * 1024 - 2 * EEPROM_PAGE_SIZE)
-#define E2END                (EEPROM_PAGE_SIZE - 1)
+#define MARLIN_EEPROM_SIZE EEPROM_PAGE_SIZE  // 2KB
 
 //=============================================================================
 // ZONESTAR ZM3E4 V1.0 (STM32F130RCT6) board pin assignments
