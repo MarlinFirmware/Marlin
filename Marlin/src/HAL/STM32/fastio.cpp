@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-GPIO_TypeDef* FastIOPortMap[LastPort + 1];
+GPIO_TypeDef* FastIOPortMap[LastPort + 1] = { 0 };
 
 void FastIO_init() {
   LOOP_L_N(i, NUM_DIGITAL_PINS)
