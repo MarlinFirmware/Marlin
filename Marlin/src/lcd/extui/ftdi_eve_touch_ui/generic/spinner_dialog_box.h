@@ -29,10 +29,12 @@ struct SpinnerDialogBoxData {
   bool auto_hide;
 };
 
-class SpinnerDialogBox : public DialogBoxBaseClass, public CachedScreen<SPINNER_CACHE,SPINNER_DL_SIZE> {
+class SpinnerDialogBox : public BaseScreen {
   public:
     static void onEntry();
+    static void onExit();
     static void onRedraw(draw_mode_t);
+    static void onRefresh();
     static void onIdle();
 
     static void show(progmem_str);
