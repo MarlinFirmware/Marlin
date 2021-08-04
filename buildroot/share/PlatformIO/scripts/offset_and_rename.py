@@ -35,6 +35,8 @@ if 'offset' in board_keys:
 			env["LINKFLAGS"][i] = "-Wl,--defsym=LD_FLASH_OFFSET=" + LD_FLASH_OFFSET
 		if "-Wl,--defsym=LD_MAX_DATA_SIZE" in flag:
 			env["LINKFLAGS"][i] = "-Wl,--defsym=LD_MAX_DATA_SIZE=" + str(maximum_ram_size - 40)
+		if "-Wl,--defsym=LD_MAX_SIZE" in flag:
+			env["LINKFLAGS"][i] = "-Wl,--defsym=LD_MAX_SIZE=" + str(maximum_flash_size)
 
 #
 # For build.encrypt rename and encode the firmware file.
