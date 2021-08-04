@@ -1562,28 +1562,6 @@ void setup() {
     queue.inject_P(PSTR(STARTUP_COMMANDS));
   #endif
 
-#if ENABLED(MIXING_EXTRUDER) && ENABLED (MIXING_PRESETS)
-  #if MIXING_STEPPERS == 2 // Vtool presets for 2 steppers (Overriden by slicer)
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P1\nM163 S1 P0\nM164 S0")); //Vtool0
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P0\nM163 S1 P1\nM164 S1")); //Vtool1
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.50\nM163 S1 P0.50\nM164 S2")); //Vtool2
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.75\nM163 S1 P0.25\nM164 S3")); //Vtool3
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.25\nM163 S1 P0.75\nM164 S4")); //Vtool4
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.33\nM163 S1 P0.67\nM164 S5")); //Vtool5
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.67\nM163 S1 P0.33\nM164 S6")); //Vtool6
-     gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.60\nM163 S1 P0.40\nM164 S7")); //Vtool7
-  #elif MIXING_STEPPERS == 3 // Vtool presets for 3 steppers (Overriden by slicer)
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P1\nM163 S1 P0\nM163 S2 P0\nM164 S0")); //Vtool0
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P0\nM163 S1 P1\nM163 S2 P0\nM164 S1")); //Vtool1 
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P0\nM163 S1 P0\nM163 S2 P1\nM164 S2")); //Vtool2
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.33\nM163 S1 P0.33\nM163 S2 P0.34\nM164 S3")); //Vtool3
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.25\nM163 S1 P0.75\nM163 S2 P0\nM164 S4")); //Vtool4
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P0\nM163 S1 P0.75\nM163 S2 P0.25\nM164 S5")); //Vtool5
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P0\nM163 S1 P0.50\nM163 S2 P0.50\nM164 S6")); //Vtool6
-    gcode.process_subcommands_now_P(PSTR ("M163 S0 P0.50\nM163 S1 P0.50\nM163 S2 P0\nM164 S7")); //Vtool7 
-  #endif
-#endif  
-
   #if ENABLED(HOST_PROMPT_SUPPORT)
     SETUP_RUN(host_action_prompt_end());
   #endif
