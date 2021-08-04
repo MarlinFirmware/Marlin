@@ -138,7 +138,7 @@ typedef struct {
 } select_t;
 
 select_t select_page{0}, select_file{0}, select_print{0}
-         , select_control{0}, select_axis{0}, select_temp{0}, select_motion{0}, select_tune{0}
+         , select_axis{0}, select_temp{0}, select_motion{0}, select_tune{0}
          , select_PLA{0}, select_ABS{0}
          , select_speed{0}
          , select_acc{0}
@@ -148,7 +148,6 @@ select_t select_page{0}, select_file{0}, select_print{0}
          ;
 
 uint8_t index_file     = MROWS,
-        index_control  = MROWS,
         index_leveling = MROWS,
         index_tune     = MROWS;
 
@@ -517,95 +516,95 @@ void Item_Control_Info(const uint16_t line) {
   }
 }
 
-void Draw_Control_Menu() {
-  DWINUI::ClearMenu();
-  checkkey = Control;
+// void Draw_Control_Menu_old() {
+//   DWINUI::ClearMenu();
+//   checkkey = Control;
 
-  #if CONTROL_CASE_TOTAL >= 6
-    const int16_t scroll = MROWS - index_control; // Scrolled-up lines
-    #define CSCROL(L) (scroll + (L))
-  #else
-    #define CSCROL(L) (L)
-  #endif
-  #define CLINE(L)  MBASE(CSCROL(L))
-  #define CVISI(L)  WITHIN(CSCROL(L), 0, MROWS)
+//   #if CONTROL_CASE_TOTAL >= 6
+//     const int16_t scroll = MROWS - index_control; // Scrolled-up lines
+//     #define CSCROL(L) (scroll + (L))
+//   #else
+//     #define CSCROL(L) (L)
+//   #endif
+//   #define CLINE(L)  MBASE(CSCROL(L))
+//   #define CVISI(L)  WITHIN(CSCROL(L), 0, MROWS)
 
-  if (CVISI(0)) Draw_Back_First(select_control.now == 0);                         // < Back
+//   if (CVISI(0)) Draw_Back_First(select_control.now == 0);                         // < Back
 
-  if (HMI_IsChinese()) {
-    Title.FrameCopy(1, 103, 1, 130, 14);                                     // "Control"
+//   if (HMI_IsChinese()) {
+//     Title.FrameCopy(1, 103, 1, 130, 14);                                     // "Control"
 
-    DWIN_Frame_AreaCopy(1,  57, 104,  84, 116, LBLX, CLINE(CONTROL_CASE_TEMP));   // Temperature >
-    DWIN_Frame_AreaCopy(1,  87, 104, 114, 116, LBLX, CLINE(CONTROL_CASE_MOVE));   // Motion >
+//     DWIN_Frame_AreaCopy(1,  57, 104,  84, 116, LBLX, CLINE(CONTROL_CASE_TEMP));   // Temperature >
+//     DWIN_Frame_AreaCopy(1,  87, 104, 114, 116, LBLX, CLINE(CONTROL_CASE_MOVE));   // Motion >
 
-    #if ENABLED(EEPROM_SETTINGS)
-      DWIN_Frame_AreaCopy(1, 117, 104, 172, 116, LBLX, CLINE(CONTROL_CASE_SAVE));   // Store Configuration
-      DWIN_Frame_AreaCopy(1, 174, 103, 229, 116, LBLX, CLINE(CONTROL_CASE_LOAD));   // Read Configuration
-      DWIN_Frame_AreaCopy(1,   1, 118,  56, 131, LBLX, CLINE(CONTROL_CASE_RESET));  // Reset Configuration
-    #endif
-  }
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption(GET_TEXT_F(MSG_CONTROL));
-    #else
-      Title.FrameCopy(1, 128, 2, 176, 12);                                         // "Control"
-    #endif
-    #ifdef USE_STRING_TITLES
-      if (CVISI(CONTROL_CASE_TEMP)) DWIN_Draw_Label(CLINE(CONTROL_CASE_TEMP), GET_TEXT_F(MSG_TEMPERATURE));
-      if (CVISI(CONTROL_CASE_MOVE)) DWIN_Draw_Label(CLINE(CONTROL_CASE_MOVE), GET_TEXT_F(MSG_MOTION));
-      #if ENABLED(EEPROM_SETTINGS)
-        if (CVISI(CONTROL_CASE_SAVE)) DWIN_Draw_Label(CLINE(CONTROL_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
-        if (CVISI(CONTROL_CASE_LOAD)) DWIN_Draw_Label(CLINE(CONTROL_CASE_LOAD), GET_TEXT_F(MSG_LOAD_EEPROM));
-        if (CVISI(CONTROL_CASE_RESET)) DWIN_Draw_Label(CLINE(CONTROL_CASE_RESET), GET_TEXT_F(MSG_RESTORE_DEFAULTS));
-      #endif
-    #else
-      if (CVISI(CONTROL_CASE_TEMP)) DWIN_Frame_AreaCopy(1,  1, 89,  83, 101, LBLX, CLINE(CONTROL_CASE_TEMP));           // Temperature >
-      if (CVISI(CONTROL_CASE_MOVE)) DWIN_Frame_AreaCopy(1, 84, 89, 128,  99, LBLX, CLINE(CONTROL_CASE_MOVE));           // Motion >
-      #if ENABLED(EEPROM_SETTINGS)
-        if (CVISI(CONTROL_CASE_SAVE)) DWIN_Frame_AreaCopy(1, 148,  89, 268, 101, LBLX     , CLINE(CONTROL_CASE_SAVE));  // "Store Configuration"
-        if (CVISI(CONTROL_CASE_LOAD)) {
-          DWIN_Frame_AreaCopy(1,  26, 104,  57, 114, LBLX     , CLINE(CONTROL_CASE_LOAD));  // "Read"
-          DWIN_Frame_AreaCopy(1, 182,  89, 268, 101, LBLX + 34, CLINE(CONTROL_CASE_LOAD));  // "Configuration"
-        }
-        if (CVISI(CONTROL_CASE_RESET)) {
-          DWIN_Frame_AreaCopy(1,  59, 104,  93, 114, LBLX     , CLINE(CONTROL_CASE_RESET)); // "Reset"
-          DWIN_Frame_AreaCopy(1, 182,  89, 268, 101, LBLX + 37, CLINE(CONTROL_CASE_RESET)); // "Configuration"
-        }
-      #endif
-    #endif
-  }
+//     #if ENABLED(EEPROM_SETTINGS)
+//       DWIN_Frame_AreaCopy(1, 117, 104, 172, 116, LBLX, CLINE(CONTROL_CASE_SAVE));   // Store Configuration
+//       DWIN_Frame_AreaCopy(1, 174, 103, 229, 116, LBLX, CLINE(CONTROL_CASE_LOAD));   // Read Configuration
+//       DWIN_Frame_AreaCopy(1,   1, 118,  56, 131, LBLX, CLINE(CONTROL_CASE_RESET));  // Reset Configuration
+//     #endif
+//   }
+//   else {
+//     #ifdef USE_STRING_HEADINGS
+//       Title.ShowCaption(GET_TEXT_F(MSG_CONTROL));
+//     #else
+//       Title.FrameCopy(1, 128, 2, 176, 12);                                         // "Control"
+//     #endif
+//     #ifdef USE_STRING_TITLES
+//       if (CVISI(CONTROL_CASE_TEMP)) DWIN_Draw_Label(CLINE(CONTROL_CASE_TEMP), GET_TEXT_F(MSG_TEMPERATURE));
+//       if (CVISI(CONTROL_CASE_MOVE)) DWIN_Draw_Label(CLINE(CONTROL_CASE_MOVE), GET_TEXT_F(MSG_MOTION));
+//       #if ENABLED(EEPROM_SETTINGS)
+//         if (CVISI(CONTROL_CASE_SAVE)) DWIN_Draw_Label(CLINE(CONTROL_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+//         if (CVISI(CONTROL_CASE_LOAD)) DWIN_Draw_Label(CLINE(CONTROL_CASE_LOAD), GET_TEXT_F(MSG_LOAD_EEPROM));
+//         if (CVISI(CONTROL_CASE_RESET)) DWIN_Draw_Label(CLINE(CONTROL_CASE_RESET), GET_TEXT_F(MSG_RESTORE_DEFAULTS));
+//       #endif
+//     #else
+//       if (CVISI(CONTROL_CASE_TEMP)) DWIN_Frame_AreaCopy(1,  1, 89,  83, 101, LBLX, CLINE(CONTROL_CASE_TEMP));           // Temperature >
+//       if (CVISI(CONTROL_CASE_MOVE)) DWIN_Frame_AreaCopy(1, 84, 89, 128,  99, LBLX, CLINE(CONTROL_CASE_MOVE));           // Motion >
+//       #if ENABLED(EEPROM_SETTINGS)
+//         if (CVISI(CONTROL_CASE_SAVE)) DWIN_Frame_AreaCopy(1, 148,  89, 268, 101, LBLX     , CLINE(CONTROL_CASE_SAVE));  // "Store Configuration"
+//         if (CVISI(CONTROL_CASE_LOAD)) {
+//           DWIN_Frame_AreaCopy(1,  26, 104,  57, 114, LBLX     , CLINE(CONTROL_CASE_LOAD));  // "Read"
+//           DWIN_Frame_AreaCopy(1, 182,  89, 268, 101, LBLX + 34, CLINE(CONTROL_CASE_LOAD));  // "Configuration"
+//         }
+//         if (CVISI(CONTROL_CASE_RESET)) {
+//           DWIN_Frame_AreaCopy(1,  59, 104,  93, 114, LBLX     , CLINE(CONTROL_CASE_RESET)); // "Reset"
+//           DWIN_Frame_AreaCopy(1, 182,  89, 268, 101, LBLX + 37, CLINE(CONTROL_CASE_RESET)); // "Configuration"
+//         }
+//       #endif
+//     #endif
+//   }
 
-  if (CVISI(CONTROL_CASE_ADVSET)) {
-    DWIN_Draw_Label(CLINE(CONTROL_CASE_ADVSET), GET_TEXT_F(MSG_ADVANCED_SETTINGS));  // Advanced Settings
-  }
+//   if (CVISI(CONTROL_CASE_ADVSET)) {
+//     DWIN_Draw_Label(CLINE(CONTROL_CASE_ADVSET), GET_TEXT_F(MSG_ADVANCED_SETTINGS));  // Advanced Settings
+//   }
 
-  if (CVISI(CONTROL_CASE_INFO)) Item_Control_Info(CLINE(CONTROL_CASE_INFO));
+//   if (CVISI(CONTROL_CASE_INFO)) Item_Control_Info(CLINE(CONTROL_CASE_INFO));
 
-  if (select_control.now && CVISI(select_control.now))
-    Draw_Menu_Cursor(CSCROL(select_control.now));
+//   if (select_control.now && CVISI(select_control.now))
+//     Draw_Menu_Cursor(CSCROL(select_control.now));
 
-  // Draw icons and lines
-  #define _TEMP_ICON(N, I, M) do { \
-    if (CVISI(N)) { \
-      Draw_Menu_Line(CSCROL(N), I); \
-      if (M) { \
-        Draw_More_Icon(CSCROL(N)); \
-      } \
-    } \
-  } while(0)
+//   // Draw icons and lines
+//   #define _TEMP_ICON(N, I, M) do { \
+//     if (CVISI(N)) { \
+//       Draw_Menu_Line(CSCROL(N), I); \
+//       if (M) { \
+//         Draw_More_Icon(CSCROL(N)); \
+//       } \
+//     } \
+//   } while(0)
 
-  _TEMP_ICON(CONTROL_CASE_TEMP, ICON_Temperature, true);
-  _TEMP_ICON(CONTROL_CASE_MOVE, ICON_Motion, true);
+//   _TEMP_ICON(CONTROL_CASE_TEMP, ICON_Temperature, true);
+//   _TEMP_ICON(CONTROL_CASE_MOVE, ICON_Motion, true);
 
-  #if ENABLED(EEPROM_SETTINGS)
-    _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
-    _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
-    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
-  #endif
+//   #if ENABLED(EEPROM_SETTINGS)
+//     _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
+//     _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
+//     _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
+//   #endif
 
-  _TEMP_ICON(CONTROL_CASE_ADVSET, ICON_AdvSet, true);
-  _TEMP_ICON(CONTROL_CASE_INFO, ICON_Info, true);
-}
+//   _TEMP_ICON(CONTROL_CASE_ADVSET, ICON_AdvSet, true);
+//   _TEMP_ICON(CONTROL_CASE_INFO, ICON_Info, true);
+// }
 
 void Draw_Tune_Menu() {
   DWINUI::ClearMenu();
@@ -1011,7 +1010,7 @@ void Draw_PrintDone() {
   Draw_Print_ProgressRemain();
 
   // show print done confirm
-  DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 240, DWIN_WIDTH - 1, STATUS_Y-1);
+  DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 240, DWIN_WIDTH - 1, STATUS_Y - 1);
   DWINUI::Draw_Icon(HMI_IsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
 }
 
@@ -1592,7 +1591,7 @@ void HMI_SDCardUpdate() {
 //
 void Draw_Status_Area(const bool with_update) {
 
-  DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
+  DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, STATUS_Y + 21, DWIN_WIDTH, DWIN_HEIGHT - 1);
 
   #if HAS_HOTEND
     DWINUI::Draw_Icon(ICON_HotendTemp, 10, 383);
@@ -1736,9 +1735,6 @@ void HMI_MainMenu() {
         break;
 
       case 2: // Control
-        checkkey = Control;
-        select_control.reset();
-        index_control = MROWS;
         Draw_Control_Menu();
         break;
 
@@ -2317,106 +2313,106 @@ void Draw_Temperature_Menu() {
   #endif
 }
 
-// Control
-void HMI_Control() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
+// // Control
+// void HMI_Control_old() {
+//   ENCODER_DiffState encoder_diffState = get_encoder_state();
+//   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_control.inc(1 + CONTROL_CASE_TOTAL)) {
-      if (select_control.now > MROWS && select_control.now > index_control) {
-        index_control = select_control.now;
+//   // Avoid flicker by updating only the previous menu
+//   if (encoder_diffState == ENCODER_DIFF_CW) {
+//     if (select_control.inc(1 + CONTROL_CASE_TOTAL)) {
+//       if (select_control.now > MROWS && select_control.now > index_control) {
+//         index_control = select_control.now;
 
-        // Scroll up and draw a blank bottom line
-        Scroll_Menu(DWIN_SCROLL_UP);
+//         // Scroll up and draw a blank bottom line
+//         Scroll_Menu(DWIN_SCROLL_UP);
 
-        switch (index_control) {  // Last menu items
-          case CONTROL_CASE_ADVSET:  // Advanced Settings >
-            Draw_Menu_Item(MROWS, ICON_AdvSet, GET_TEXT(MSG_ADVANCED_SETTINGS), true);
-            break;
-          case CONTROL_CASE_INFO:    // Info >
-            Item_Control_Info(MBASE(MROWS));
-            Draw_Menu_Icon(MROWS, ICON_Info);
-            break;
-          default: break;
-        }
+//         switch (index_control) {  // Last menu items
+//           case CONTROL_CASE_ADVSET:  // Advanced Settings >
+//             Draw_Menu_Item(MROWS, ICON_AdvSet, GET_TEXT(MSG_ADVANCED_SETTINGS), true);
+//             break;
+//           case CONTROL_CASE_INFO:    // Info >
+//             Item_Control_Info(MBASE(MROWS));
+//             Draw_Menu_Icon(MROWS, ICON_Info);
+//             break;
+//           default: break;
+//         }
 
-      }
-      else {
-        Move_Highlight(1, select_control.now + MROWS - index_control);
-      }
-    }
-  }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_control.dec()) {
-      if (select_control.now < index_control - MROWS) {
-        index_control--;
-        Scroll_Menu(DWIN_SCROLL_DOWN);
-        switch (index_control) {  // First menu items
-          case MROWS:
-            Draw_Back_First();
-            break;
-          case MROWS + 1: // Temperature >
-            Draw_Menu_Line(0, ICON_Temperature, GET_TEXT(MSG_TEMPERATURE), true);
-            break;
-          case MROWS + 2: // Move >
-            Draw_Menu_Line(0, ICON_Motion, GET_TEXT(MSG_MOTION), true);
-          default: break;
-        }
-      }
-      else {
-        Move_Highlight(-1, select_control.now + MROWS - index_control);
-      }
-    }
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    switch (select_control.now) {
-      case 0: // Back
-        select_page.set(2);
-        Goto_Main_Menu();
-        break;
-      case CONTROL_CASE_TEMP: // Temperature
-        checkkey = TemperatureID;
-        HMI_value.show_mode = -1;
-        select_temp.reset();
-        Draw_Temperature_Menu();
-        break;
-      case CONTROL_CASE_MOVE: // Motion
-        checkkey = Motion;
-        select_motion.reset();
-        Draw_Motion_Menu();
-        break;
-      #if ENABLED(EEPROM_SETTINGS)
-        case CONTROL_CASE_SAVE: { // Write EEPROM
-          const bool success = settings.save();
-          HMI_AudioFeedback(success);
-        } break;
-        case CONTROL_CASE_LOAD: { // Read EEPROM
-          const bool success = settings.load();
-          Draw_Control_Menu();
-          Draw_Status_Area(false);
-          HMI_AudioFeedback(success);
-        } break;
-        case CONTROL_CASE_RESET: // Reset EEPROM
-          settings.reset();
-          Draw_Control_Menu();
-          Draw_Status_Area(false);
-          HMI_AudioFeedback();
-          break;
-      #endif
-      case CONTROL_CASE_ADVSET: // Advanced Settings
-        Draw_AdvSet_Menu();
-        break;
-      case CONTROL_CASE_INFO: // Info
-        checkkey = Info;
-        Draw_Info_Menu();
-        break;
-      default: break;
-    }
-  }
-  DWIN_UpdateLCD();
-}
+//       }
+//       else {
+//         Move_Highlight(1, select_control.now + MROWS - index_control);
+//       }
+//     }
+//   }
+//   else if (encoder_diffState == ENCODER_DIFF_CCW) {
+//     if (select_control.dec()) {
+//       if (select_control.now < index_control - MROWS) {
+//         index_control--;
+//         Scroll_Menu(DWIN_SCROLL_DOWN);
+//         switch (index_control) {  // First menu items
+//           case MROWS:
+//             Draw_Back_First();
+//             break;
+//           case MROWS + 1: // Temperature >
+//             Draw_Menu_Line(0, ICON_Temperature, GET_TEXT(MSG_TEMPERATURE), true);
+//             break;
+//           case MROWS + 2: // Move >
+//             Draw_Menu_Line(0, ICON_Motion, GET_TEXT(MSG_MOTION), true);
+//           default: break;
+//         }
+//       }
+//       else {
+//         Move_Highlight(-1, select_control.now + MROWS - index_control);
+//       }
+//     }
+//   }
+//   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+//     switch (select_control.now) {
+//       case 0: // Back
+//         select_page.set(2);
+//         Goto_Main_Menu();
+//         break;
+//       case CONTROL_CASE_TEMP: // Temperature
+//         checkkey = TemperatureID;
+//         HMI_value.show_mode = -1;
+//         select_temp.reset();
+//         Draw_Temperature_Menu();
+//         break;
+//       case CONTROL_CASE_MOVE: // Motion
+//         checkkey = Motion;
+//         select_motion.reset();
+//         Draw_Motion_Menu();
+//         break;
+//       #if ENABLED(EEPROM_SETTINGS)
+//         case CONTROL_CASE_SAVE: { // Write EEPROM
+//           const bool success = settings.save();
+//           HMI_AudioFeedback(success);
+//         } break;
+//         case CONTROL_CASE_LOAD: { // Read EEPROM
+//           const bool success = settings.load();
+//           Draw_Control_Menu();
+//           Draw_Status_Area(false);
+//           HMI_AudioFeedback(success);
+//         } break;
+//         case CONTROL_CASE_RESET: // Reset EEPROM
+//           settings.reset();
+//           Draw_Control_Menu();
+//           Draw_Status_Area(false);
+//           HMI_AudioFeedback();
+//           break;
+//       #endif
+//       case CONTROL_CASE_ADVSET: // Advanced Settings
+//         Draw_AdvSet_Menu();
+//         break;
+//       case CONTROL_CASE_INFO: // Info
+//         checkkey = Info;
+//         Draw_Info_Menu();
+//         break;
+//       default: break;
+//     }
+//   }
+//   DWIN_UpdateLCD();
+// }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -2634,9 +2630,6 @@ void HMI_Temperature() {
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_temp.now) {
       case 0: // Back
-        checkkey = Control;
-        select_control.set(1);
-        index_control = MROWS;
         Draw_Control_Menu();
         break;
       #if HAS_HOTEND
@@ -2929,12 +2922,11 @@ void Draw_Steps_Menu() {
   #endif
 }
 
-void Draw_Main_Area(uint8_t procID) {
-  switch (procID) {
+void Draw_Main_Area() {
+  switch (checkkey) {
     case MainMenu:               Draw_Main_Menu(); break;
     case Menu:                   CurrentMenu->Draw(); break;
     case SelectFile:             Draw_Print_File_Menu(); break;
-    case Control:                Draw_Control_Menu(); break;
     case PrintProcess:           Draw_PrintProcess(); break;
     case PrintDone:              Draw_PrintDone(); break;
     case PauseOrStop:            Popup_window_PauseOrStop(); break;
@@ -3016,7 +3008,7 @@ void Draw_Main_Area(uint8_t procID) {
 
 void HMI_ReturnScreen() {
   checkkey = last_checkkey;
-  Draw_Main_Area(checkkey);
+  Draw_Main_Area();
   DWIN_UpdateLCD();
   return;
 }
@@ -3036,9 +3028,6 @@ void HMI_Motion() {
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_motion.now) {
       case 0: // Back
-        checkkey = Control;
-        select_control.set(CONTROL_CASE_MOVE);
-        index_control = MROWS;
         Draw_Control_Menu();
         break;
       case MOTION_CASE_RATE:   // Max speed
@@ -3108,8 +3097,6 @@ void HMI_Info() {
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
     #if HAS_ONESTEP_LEVELING
-      checkkey = Control;
-      select_control.set(CONTROL_CASE_INFO);
       Draw_Control_Menu();
     #else
       select_page.set(3);
@@ -3667,7 +3654,6 @@ void DWIN_HandleScreen() {
     case Menu:            HMI_Menu(); break;
 
     case SelectFile:      HMI_SelectFile(); break;
-    case Control:         HMI_Control(); break;
     case Homing:          break;
     case Leveling:        break;
     case PrintProcess:    HMI_Printing(); break;
@@ -3963,7 +3949,7 @@ void DWIN_RebootScreen() {
 }
 
 void DWIN_Redraw_screen() {
-  Draw_Main_Area(checkkey);
+  Draw_Main_Area();
   DWIN_StatusChanged(ui.status_message);
   Draw_Status_Area(false);
 }
@@ -4073,6 +4059,43 @@ void SetIntOnClick(uint8_t process, const int16_t val) {
   last_checkkey = checkkey;
   checkkey = process;
   Draw_Menu_IntValue(HMI_data.Selected_Color, CurrentMenu->line(), 3, HMI_value.Value);
+}
+
+void Goto_TemperatureMenu() {
+  checkkey = TemperatureID;
+  HMI_value.show_mode = -1;
+  select_temp.reset();
+  Draw_Temperature_Menu();
+}
+
+void Goto_MotionMenu() {
+  checkkey = Motion;
+  select_motion.reset();
+  Draw_Motion_Menu();
+}
+
+#if ENABLED(EEPROM_SETTINGS)
+  void WriteEeprom() {
+    const bool success = settings.save();
+    HMI_AudioFeedback(success);
+  }
+
+  void ReadEeprom() {
+    const bool success = settings.load();
+    DWIN_Redraw_screen();
+    HMI_AudioFeedback(success);
+  }
+
+  void ResetEeprom() {
+    settings.reset();
+    DWIN_Redraw_screen();
+    HMI_AudioFeedback();
+  }
+#endif
+
+void Goto_InfoMenu(){
+  checkkey = Info;
+  Draw_Info_Menu();
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -4269,6 +4292,38 @@ void onDrawFloatMenu(MenuItemClass* menuitem, int8_t line, uint8_t dp, float &va
 void onDrawBack(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) menuitem->SetFrame(1, 129, 72, 156, 84);
   onDrawMenuItem(menuitem, line);
+}
+
+void onDrawTempSubMenu(MenuItemClass* menuitem, int8_t line) {
+  if (HMI_IsChinese()) menuitem->SetFrame(1,  57, 104,  84, 116);
+  onDrawSubMenu(menuitem, line);
+}
+
+void onDrawMotionSubMenu(MenuItemClass* menuitem, int8_t line) {
+  if (HMI_IsChinese()) menuitem->SetFrame(1,  87, 104, 114, 116);
+  onDrawSubMenu(menuitem, line);
+}
+
+#if ENABLED(EEPROM_SETTINGS)
+  void onDrawWriteEeprom(MenuItemClass* menuitem, int8_t line) {
+    if (HMI_IsChinese()) menuitem->SetFrame(1, 117, 104, 172, 116);
+    onDrawMenuItem(menuitem, line);
+  }
+
+  void onDrawReadEeprom(MenuItemClass* menuitem, int8_t line) {
+    if (HMI_IsChinese()) menuitem->SetFrame(1, 174, 103, 229, 116);
+    onDrawMenuItem(menuitem, line);
+  }
+
+  void onDrawResetEeprom(MenuItemClass* menuitem, int8_t line) {
+    if (HMI_IsChinese()) menuitem->SetFrame(1,   1, 118,  56, 131);
+    onDrawMenuItem(menuitem, line);
+  }
+#endif
+
+void onDrawInfoSubMenu(MenuItemClass* menuitem, int8_t line) {
+  if (HMI_IsChinese()) menuitem->SetFrame(1, 231, 104, 258, 116);
+  onDrawSubMenu(menuitem, line);
 }
 
 void onDrawMoveX(MenuItemClass* menuitem, int8_t line) {
@@ -4575,28 +4630,6 @@ void HMI_GetColorValue() {
 
 // Menu Creation and Drawing functions ======================================================
 
-MenuClass *MoveMenu = nullptr;
-void Draw_Move_Menu() {
-  if (HMI_IsChinese()) Title.SetFrame(1, 192, 1, 233, 14);
-  else Title.SetCaption(GET_TEXT_F(MSG_MOVE_AXIS));
-  checkkey = Menu;
-  if (MoveMenu == nullptr) MoveMenu = new MenuClass();
-  if (CurrentMenu != MoveMenu) {
-    DWINUI::MenuItemsPrepare(5);
-    ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Prepare_Menu);
-    ADDMENUITEM(ICON_MoveX, GET_TEXT(MSG_MOVE_X), onDrawMoveX, SetMoveX);
-    ADDMENUITEM(ICON_MoveY, GET_TEXT(MSG_MOVE_Y), onDrawMoveY, SetMoveY);
-    ADDMENUITEM(ICON_MoveZ, GET_TEXT(MSG_MOVE_Z), onDrawMoveZ, SetMoveZ);
-    #if HAS_HOTEND
-      ADDMENUITEM(ICON_Extruder, GET_TEXT(MSG_MOVE_E), onDrawMoveE, SetMoveE);
-    #endif
-  }
-  CurrentMenu = MoveMenu;
-  MoveMenu->Draw();
-  if (!all_axes_trusted()) DWIN_DrawStatusLine(HMI_data.AlertTxt_Color, HMI_data.AlertBg_Color, "WARNING: position is unknow");
-  else DWIN_StatusChanged(nullptr);
-}
-
 MenuClass *PrepareMenu = nullptr;
 void Draw_Prepare_Menu() {
   if (HMI_IsChinese()) Title.SetFrame(1, 133, 1, 160, 13);
@@ -4640,6 +4673,30 @@ void Draw_Prepare_Menu() {
   DWIN_StatusChanged(nullptr);
 }
 
+MenuClass *ControlMenu = nullptr;
+void Draw_Control_Menu() {
+  if (HMI_IsChinese()) Title.SetFrame(1, 103, 1, 130, 14);
+  else Title.SetCaption(GET_TEXT_F(MSG_CONTROL));
+  checkkey = Menu;
+  if (ControlMenu == nullptr) ControlMenu = new MenuClass();
+  if (CurrentMenu != ControlMenu) {
+    DWINUI::MenuItemsPrepare(8);
+    ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Prepare_Menu);
+    ADDMENUITEM(ICON_Temperature, GET_TEXT(MSG_TEMPERATURE), onDrawTempSubMenu, Goto_TemperatureMenu);
+    ADDMENUITEM(ICON_Motion, GET_TEXT(MSG_MOTION), onDrawMotionSubMenu, Goto_MotionMenu);
+    #if ENABLED(EEPROM_SETTINGS)
+      ADDMENUITEM(ICON_WriteEEPROM, GET_TEXT(MSG_STORE_EEPROM), onDrawWriteEeprom, WriteEeprom);
+      ADDMENUITEM(ICON_ReadEEPROM, GET_TEXT(MSG_LOAD_EEPROM), onDrawReadEeprom, ReadEeprom);
+      ADDMENUITEM(ICON_ResumeEEPROM, GET_TEXT(MSG_RESTORE_DEFAULTS), onDrawResetEeprom, ResetEeprom);
+    #endif
+    ADDMENUITEM(ICON_AdvSet, GET_TEXT(MSG_ADVANCED_SETTINGS), onDrawSubMenu, Draw_AdvSet_Menu);
+    ADDMENUITEM(ICON_Info, GET_TEXT(MSG_INFO_SCREEN), onDrawInfoSubMenu, Goto_InfoMenu);
+  }
+  CurrentMenu = ControlMenu;
+  ControlMenu->Draw();
+  DWIN_StatusChanged(nullptr);
+}
+
 MenuClass *AdvancedSettings = nullptr;
 void Draw_AdvSet_Menu() {
   Title.SetCaption(GET_TEXT_F(MSG_ADVANCED_SETTINGS));
@@ -4673,6 +4730,28 @@ void Draw_AdvSet_Menu() {
   CurrentMenu = AdvancedSettings;
   AdvancedSettings->Draw();
   DWIN_StatusChanged(nullptr);
+}
+
+MenuClass *MoveMenu = nullptr;
+void Draw_Move_Menu() {
+  if (HMI_IsChinese()) Title.SetFrame(1, 192, 1, 233, 14);
+  else Title.SetCaption(GET_TEXT_F(MSG_MOVE_AXIS));
+  checkkey = Menu;
+  if (MoveMenu == nullptr) MoveMenu = new MenuClass();
+  if (CurrentMenu != MoveMenu) {
+    DWINUI::MenuItemsPrepare(5);
+    ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Prepare_Menu);
+    ADDMENUITEM(ICON_MoveX, GET_TEXT(MSG_MOVE_X), onDrawMoveX, SetMoveX);
+    ADDMENUITEM(ICON_MoveY, GET_TEXT(MSG_MOVE_Y), onDrawMoveY, SetMoveY);
+    ADDMENUITEM(ICON_MoveZ, GET_TEXT(MSG_MOVE_Z), onDrawMoveZ, SetMoveZ);
+    #if HAS_HOTEND
+      ADDMENUITEM(ICON_Extruder, GET_TEXT(MSG_MOVE_E), onDrawMoveE, SetMoveE);
+    #endif
+  }
+  CurrentMenu = MoveMenu;
+  MoveMenu->Draw();
+  if (!all_axes_trusted()) DWIN_DrawStatusLine(HMI_data.AlertTxt_Color, HMI_data.AlertBg_Color, "WARNING: position is unknow");
+  else DWIN_StatusChanged(nullptr);
 }
 
 #if HAS_HOME_OFFSET

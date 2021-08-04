@@ -58,7 +58,6 @@ enum processID : uint8_t {
   // Process ID
   MainMenu,
   SelectFile,
-  Control,
   PrintProcess,
   PrintDone,
   FilamentMan,
@@ -279,13 +278,13 @@ void HMI_Leveling();    // Level the page
   void HMI_ManualMesh();  // Manual Mesh menu
   void HMI_MMeshMoveZ();  // Manual Mesh move Z
 #endif
-void HMI_Temperature(); // Temperature menu
-void HMI_Motion();      // Sports menu
-void HMI_Info();        // Information menu
-void HMI_Tune();        // Adjust the menu
-void Draw_Main_Area(uint8_t procID); // Redraw main area;
+void HMI_Temperature();   // Temperature menu
+void HMI_Motion();        // Sports menu
+void HMI_Info();          // Information menu
+void HMI_Tune();          // Adjust the menu
+void Draw_Main_Area();    // Redraw main area;
 void DWIN_Redraw_screen();  // Redraw all screen elements
-void HMI_ReturnScreen();// Return to previous screen before popups
+void HMI_ReturnScreen();  // Return to previous screen before popups
 
 #if HAS_PREHEAT
   void HMI_PLAPreheatSetting(); // PLA warm-up setting
@@ -358,9 +357,10 @@ TERN_(HAS_ZOFFSET_ITEM, void HMI_Zoffset());
 void HMI_GetColorValue();
 
 // Menu drawing functions
+void Draw_Control_Menu();
 void Draw_AdvSet_Menu();
-void Draw_Move_Menu();
 void Draw_Prepare_Menu();
+void Draw_Move_Menu();
 TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
 TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
 void Draw_SelectColors_Menu();
