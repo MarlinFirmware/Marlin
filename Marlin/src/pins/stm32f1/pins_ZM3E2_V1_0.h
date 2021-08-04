@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,7 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #include "env_validate.h"
@@ -134,15 +133,15 @@
 #define FAN_PIN                             PA1
 
 //Filament run out sensor
-#define FIL_RUNOUT_PIN                      PC7   //E0_SW
-//#define FIL_RUNOUT2_PIN                   PC11  //E1_SW
+#define FIL_RUNOUT_PIN                      PC7   // E0_SW
+//#define FIL_RUNOUT2_PIN                   PC11  // E1_SW
 
 //BLTouch(3DTouch)
 #define SERVO0_PIN                          PA15
 #define Z_MIN_PROBE_PIN                     PC10
 
 #define LED_PIN                             PB12
-//#define KILL_PIN                          PB1   //@EXP1
+//#define KILL_PIN                          PB1   // @EXP1
 #define SUICIDE_PIN                         PA0
 
 //SD card
@@ -204,14 +203,14 @@
     #define FORCE_SOFT_SPI
   #endif
 	#define LCDSCREEN_NAME	"ZONESTAR 12864OLED"
-	#define LCD_PINS_RS                       PB2   //=LCD_RESET_PIN
-	#define LCD_PINS_DC                       PA10  //DC
-	#define DOGLCD_CS                         PA9   //CS
-	#define DOGLCD_A0                  LCD_PINS_DC  //A0 = DC
-	#define DOGLCD_MOSI                       PB1   //SDA
-	#define DOGLCD_SCK                        PB0   //SCK
+	#define LCD_PINS_RS                        PB2   // = LCD_RESET_PIN
+	#define LCD_PINS_DC                        PA10  // DC
+	#define DOGLCD_CS                          PA9   // CS
+	#define DOGLCD_A0                   LCD_PINS_DC  // A0 = DC
+	#define DOGLCD_MOSI                        PB1   // SDA
+	#define DOGLCD_SCK                         PB0   // SCK
   	//Knob
-	#define BTN_EN1                           PB11
-	#define BTN_EN2                           PC5
-	#define BTN_ENC                           PB10
+	#define BTN_EN1                            PB11
+	#define BTN_EN2                            PC5
+	#define BTN_ENC                            PB10
 #endif//ENABLED(ZONESTAR_OLED12864)
