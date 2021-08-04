@@ -68,8 +68,8 @@ void FastIO_init(); // Must be called before using fast io READ/WRITE, or define
 
 #ifdef FASTIO_PREINIT
   #define READ(IO)              ((FastIOPortMap[0]) ? _READ(IO) : digitalRead(IO))
-  #define WRITE(IO,V)           if (FastIOPortMap[0]) _WRITE(IO,V); else digitalWrite(IO,V)
-  #define TOGGLE(IO)            if (FastIOPortMap[0]) _TOGGLE(IO);  else digitalWrite(IO,(!digitalRead(IO)))
+  #define WRITE(IO,V)           { if (FastIOPortMap[0]) _WRITE(IO,V); else digitalWrite(IO,V); }
+  #define TOGGLE(IO)            { if (FastIOPortMap[0]) _TOGGLE(IO);  else digitalWrite(IO,(!digitalRead(IO))); }
 #else
   #define READ(IO)              _READ(IO)
   #define WRITE(IO,V)           _WRITE(IO,V)
