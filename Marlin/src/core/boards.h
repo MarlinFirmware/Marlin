@@ -385,10 +385,10 @@
 #define BOARD_MKS_ROBIN2              4224  // MKS_ROBIN2 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        4225  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       4226  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_ANET_ET4                4227  // ANET ET4 V1.x (STM32F407VGT6)
-#define BOARD_ANET_ET4P               4228  // ANET ET4P V1.x (STM32F407VGT6)
-#define BOARD_FYSETC_CHEETAH_V20      4229  // FYSETC Cheetah V2.0
-
+#define BOARD_MKS_MONSTER8            4227  // MKS Monster8 (STM32F407VGT6)
+#define BOARD_ANET_ET4                4228  // ANET ET4 V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4229  // ANET ET4P V1.x (STM32F407VGT6)
+#define BOARD_FYSETC_CHEETAH_V20      4230  // FYSETC Cheetah V2.0
 
 //
 // ARM Cortex M7

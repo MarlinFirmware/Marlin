@@ -140,7 +140,7 @@
   // Using TMC devices in intelligent mode requires extra connections to each device. Unfortunately
   // the SKR does not have many free pins (especially if a display is in use). The SPI-based devices
   // will require 3 connections (clock, mosi, miso), plus a chip select line (CS) for each driver.
-  // The UART-based devices require 2 pis per deriver (one of which must be interrupt capable).
+  // The UART-based devices require 2 pis per driver (one of which must be interrupt capable).
   // The same SPI pins can be shared with the display/SD card reader, meaning SPI-based devices are
   // probably a good choice for this board.
   //

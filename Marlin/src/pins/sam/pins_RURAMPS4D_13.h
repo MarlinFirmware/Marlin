@@ -105,7 +105,7 @@
   #define E2_CS_PIN                           61
 #endif
 
-#if HAS_CUSTOM_PROBE_PIN
+#if USES_Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     49
 #endif
 

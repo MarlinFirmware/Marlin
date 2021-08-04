@@ -85,7 +85,7 @@
 
       case 1: // Pause
 
-        GotoScreen(MKSLCD_SCREEN_PAUSE);
+        GotoScreen(DGUSLCD_SCREEN_SDPRINTMANIPULATION);
         if (!ExtUI::isPrintingFromMediaPaused()) {
           ExtUI::pausePrint();
           //ExtUI::mks_pausePrint();
@@ -161,7 +161,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
   #endif
   char axiscode;
-  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, dont hardcode.
+  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, don't hardcode.
 
   switch (var.VP) {
     default: return;
@@ -411,9 +411,12 @@ bool DGUSScreenHandler::loop() {
     if (!booted && TERN0(POWER_LOSS_RECOVERY, recovery.valid()))
       booted = true;
 
-    if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT)))
+    if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
+      GotoScreen(TERN0(POWER_LOSS_RECOVERY, recovery.valid()) ? DGUSLCD_SCREEN_POWER_LOSS : DGUSLCD_SCREEN_MAIN);
+    }
   #endif
+
   return IsScreenComplete();
 }
 

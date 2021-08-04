@@ -117,7 +117,7 @@
 //#define E3_MS2_PIN         ?
 //#define E3_MS3_PIN         ?
 
-#if HAS_CUSTOM_PROBE_PIN
+#if USES_Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     49
 #endif
 

@@ -25,31 +25,31 @@
  * Rewrite and Extui Port by Jacob Myers
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
 #include "creality_dwin.h"
 
-#include "../marlinui.h"
-#include "../../MarlinCore.h"
+#include "../../marlinui.h"
+#include "../../../MarlinCore.h"
 
-#include "../../module/temperature.h"
-#include "../../module/planner.h"
-#include "../../module/settings.h"
-#include "../../libs/buzzer.h"
-#include "../../inc/Conditionals_post.h"
+#include "../../../module/temperature.h"
+#include "../../../module/planner.h"
+#include "../../../module/settings.h"
+#include "../../../libs/buzzer.h"
+#include "../../../inc/Conditionals_post.h"
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../../feature/pause.h"
+  #include "../../../feature/pause.h"
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #include "../../feature/runout.h"
+  #include "../../../feature/runout.h"
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
-  #include "../../feature/host_actions.h"
+  #include "../../../feature/host_actions.h"
 #endif
 
 #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
@@ -65,16 +65,16 @@
 #endif
 
 #if HAS_LEVELING
-  #include "../../feature/bedlevel/bedlevel.h"
+  #include "../..../feature/bedlevel/bedlevel.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../../libs/least_squares_fit.h"
-  #include "../../libs/vector_3.h"
+  #include "../../../libs/least_squares_fit.h"
+  #include "../../../libs/vector_3.h"
 #endif
 
 #if HAS_BED_PROBE
-  #include "../../module/probe.h"
+  #include "../../../module/probe.h"
 #endif
 
 #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
@@ -82,7 +82,7 @@
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../feature/powerloss.h"
+  #include "../../../feature/powerloss.h"
 #endif
 
 #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)

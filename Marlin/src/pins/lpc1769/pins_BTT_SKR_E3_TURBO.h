@@ -204,8 +204,8 @@
 #if ENABLED(DWIN_CREALITY_LCD)
   #error "DWIN_CREALITY_LCD requires a custom cable with TX = P0_15, RX = P0_16, and LCD_SERIAL_PORT 1. Comment out this line to continue."
 
- /** 
-  *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo 
+ /**
+  *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo
   *                ______                                     ______                                  RX  8 -->  5  P0_15
   *            5V | 1  2 | GND                            5V | 1  2 | GND                             TX  7 -->  9  P0_16
   *   (BTN_E1)  A | 3  4 | B   (BTN_E2)       (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)              BEEPER  5 --> 10  P2_08

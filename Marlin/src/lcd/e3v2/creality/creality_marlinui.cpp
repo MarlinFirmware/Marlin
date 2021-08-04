@@ -25,16 +25,16 @@
  * Rewrite and Extui Port by Jacob Myers
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../../feature/pause.h"
+  #include "../../../feature/pause.h"
 #endif
 
 #include "creality_dwin.h"
-#include "../marlinui.h"
+#include "../../marlinui.h"
 
 uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
 bool MarlinUI::backlight = true;

@@ -1509,7 +1509,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(PIDTEMPCHAMBER)
-      // PIDTEMPCHAMBER doens't support a CHAMBER_VENT yet.
+      // PIDTEMPCHAMBER doesn't support a CHAMBER_VENT yet.
       temp_chamber.soft_pwm_amount = WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
     #else
       if (ELAPSED(ms, next_chamber_check_ms)) {

@@ -1806,6 +1806,15 @@
   #if defined(Z4_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z4)
     #define Z4_SENSORLESS 1
   #endif
+  #if defined(I_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(I)
+    #define I_SENSORLESS 1
+  #endif
+  #if defined(J_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(J)
+    #define J_SENSORLESS 1
+  #endif
+  #if defined(K_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(K)
+    #define K_SENSORLESS 1
+  #endif
 
   #if AXIS_HAS_STEALTHCHOP(X)
     #define X_HAS_STEALTHCHOP 1
@@ -1867,8 +1876,21 @@
 
   #if ENABLED(SPI_ENDSTOPS)
     #define X_SPI_SENSORLESS X_SENSORLESS
-    #define Y_SPI_SENSORLESS Y_SENSORLESS
-    #define Z_SPI_SENSORLESS Z_SENSORLESS
+    #if HAS_Y_AXIS
+      #define Y_SPI_SENSORLESS Y_SENSORLESS
+    #endif
+    #if HAS_Z_AXIS
+      #define Z_SPI_SENSORLESS Z_SENSORLESS
+    #endif
+    #if LINEAR_AXES >= 4
+      #define I_SPI_SENSORLESS I_SENSORLESS
+    #endif
+    #if LINEAR_AXES >= 5
+      #define J_SPI_SENSORLESS J_SENSORLESS
+    #endif
+    #if LINEAR_AXES >= 6
+      #define K_SPI_SENSORLESS K_SENSORLESS
+    #endif
   #endif
   #ifndef X_INTERPOLATE
     #define X_INTERPOLATE INTERPOLATE
@@ -2114,7 +2136,7 @@
 //
 
 // Is an endstop plug used for extra Z endstops or the probe?
-#define IS_PROBE_PIN(A,M) (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == A##_##M##_PIN)
+#define IS_PROBE_PIN(A,M) (USES_Z_MIN_PROBE_PIN && Z_MIN_PROBE_PIN == A##_##M##_PIN)
 #define IS_X2_ENDSTOP(A,M) (ENABLED(X_DUAL_ENDSTOPS) && X2_USE_ENDSTOP == _##A##M##_)
 #define IS_Y2_ENDSTOP(A,M) (ENABLED(Y_DUAL_ENDSTOPS) && Y2_USE_ENDSTOP == _##A##M##_)
 #define IS_Z2_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && Z2_USE_ENDSTOP == _##A##M##_)
@@ -2122,73 +2144,80 @@
 #define IS_Z4_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && Z4_USE_ENDSTOP == _##A##M##_)
 
 #define _HAS_STOP(A,M) (PIN_EXISTS(A##_##M) && !IS_PROBE_PIN(A,M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_ENDSTOP(A,M) && !IS_Z3_ENDSTOP(A,M) && !IS_Z4_ENDSTOP(A,M))
-#if _HAS_STOP(X,MIN)
+#if BOTH(X_HOME_TO_MIN, USE_XMIN_PLUG) && _HAS_STOP(X,MIN)
   #define HAS_X_MIN 1
 #endif
-#if _HAS_STOP(X,MAX)
+#if (BOTH(X_HOME_TO_MAX, USE_XMAX_PLUG) || ENABLED(DUAL_X_CARRIAGE)) && _HAS_STOP(X,MAX)
   #define HAS_X_MAX 1
 #endif
-#if HAS_Y_AXIS && _HAS_STOP(Y,MIN)
+#if ALL(HAS_Y_AXIS, Y_HOME_TO_MIN, USE_YMIN_PLUG) && _HAS_STOP(Y,MIN)
   #define HAS_Y_MIN 1
 #endif
-#if HAS_Y_AXIS && _HAS_STOP(Y,MAX)
+#if ALL(HAS_Y_AXIS, Y_HOME_TO_MAX, USE_YMAX_PLUG) && _HAS_STOP(Y,MAX)
   #define HAS_Y_MAX 1
 #endif
 #if BOTH(HAS_Z_AXIS, USE_ZMIN_PLUG) && _HAS_STOP(Z,MIN)
   #define HAS_Z_MIN 1
 #endif
-#if BOTH(HAS_Z_AXIS, USE_ZMAX_PLUG) && _HAS_STOP(Z,MAX)
+#if ALL(HAS_Z_AXIS, Z_HOME_TO_MAX, USE_ZMAX_PLUG) && _HAS_STOP(Z,MAX)
   #define HAS_Z_MAX 1
 #endif
-#if _HAS_STOP(I,MIN)
+#if LINEAR_AXES >= 4 && BOTH(I_HOME_TO_MIN, USE_IMIN_PLUG) && _HAS_STOP(I,MIN)
   #define HAS_I_MIN 1
 #endif
-#if _HAS_STOP(I,MAX)
+#if LINEAR_AXES >= 4 && BOTH(I_HOME_TO_MAX, USE_IMAX_PLUG) && _HAS_STOP(I,MAX)
   #define HAS_I_MAX 1
 #endif
-#if _HAS_STOP(J,MIN)
+#if LINEAR_AXES >= 5 && BOTH(J_HOME_TO_MIN, USE_JMIN_PLUG) && _HAS_STOP(J,MIN)
   #define HAS_J_MIN 1
 #endif
-#if _HAS_STOP(J,MAX)
+#if LINEAR_AXES >= 5 && BOTH(J_HOME_TO_MAX, USE_JMAX_PLUG) && _HAS_STOP(J,MAX)
   #define HAS_J_MAX 1
 #endif
-#if _HAS_STOP(K,MIN)
+#if LINEAR_AXES >= 6 && BOTH(K_HOME_TO_MIN, USE_KMIN_PLUG) && _HAS_STOP(K,MIN)
   #define HAS_K_MIN 1
 #endif
-#if _HAS_STOP(K,MAX)
+#if LINEAR_AXES >= 6 && BOTH(K_HOME_TO_MAX, USE_KMAX_PLUG) && _HAS_STOP(K,MAX)
   #define HAS_K_MAX 1
 #endif
-#if PIN_EXISTS(X2_MIN)
+#if BOTH(X_HOME_TO_MIN, X_DUAL_ENDSTOPS) && PIN_EXISTS(X2_MIN)
   #define HAS_X2_MIN 1
 #endif
-#if PIN_EXISTS(X2_MAX)
+#if BOTH(X_HOME_TO_MAX, X_DUAL_ENDSTOPS) && PIN_EXISTS(X2_MAX)
   #define HAS_X2_MAX 1
 #endif
-#if PIN_EXISTS(Y2_MIN)
+#if BOTH(Y_HOME_TO_MIN, Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y2_MIN)
   #define HAS_Y2_MIN 1
 #endif
-#if PIN_EXISTS(Y2_MAX)
+#if BOTH(Y_HOME_TO_MAX, Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y2_MAX)
   #define HAS_Y2_MAX 1
 #endif
-#if PIN_EXISTS(Z2_MIN)
-  #define HAS_Z2_MIN 1
+#if ENABLED(Z_MULTI_ENDSTOPS)
+  #if Z_HOME_TO_MIN && PIN_EXISTS(Z2_MIN)
+    #define HAS_Z2_MIN 1
+  #endif
+  #if Z_HOME_TO_MAX && PIN_EXISTS(Z2_MAX)
+    #define HAS_Z2_MAX 1
+  #endif
+  #if NUM_Z_STEPPER_DRIVERS >= 3
+    #if Z_HOME_TO_MIN && PIN_EXISTS(Z3_MIN)
+      #define HAS_Z3_MIN 1
+    #endif
+    #if Z_HOME_TO_MAX && PIN_EXISTS(Z3_MAX)
+      #define HAS_Z3_MAX 1
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      #if Z_HOME_TO_MIN && PIN_EXISTS(Z4_MIN)
+        #define HAS_Z4_MIN 1
+      #endif
+      #if Z_HOME_TO_MAX && PIN_EXISTS(Z4_MAX)
+        #define HAS_Z4_MAX 1
+      #endif
+    #endif
+  #endif
 #endif
-#if PIN_EXISTS(Z2_MAX)
-  #define HAS_Z2_MAX 1
-#endif
-#if PIN_EXISTS(Z3_MIN)
-  #define HAS_Z3_MIN 1
-#endif
-#if PIN_EXISTS(Z3_MAX)
-  #define HAS_Z3_MAX 1
-#endif
-#if PIN_EXISTS(Z4_MIN)
-  #define HAS_Z4_MIN 1
-#endif
-#if PIN_EXISTS(Z4_MAX)
-  #define HAS_Z4_MAX 1
-#endif
-#if BOTH(HAS_BED_PROBE, HAS_CUSTOM_PROBE_PIN) && PIN_EXISTS(Z_MIN_PROBE)
+
+#if HAS_BED_PROBE && PIN_EXISTS(Z_MIN_PROBE)
   #define HAS_Z_MIN_PROBE_PIN 1
 #endif
 

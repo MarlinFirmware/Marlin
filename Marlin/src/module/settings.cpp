@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V83"
+#define EEPROM_VERSION "V84"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -1015,14 +1015,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(lcd_contrast);
-
-      const int16_t lcd_contrast =
-        #if HAS_LCD_CONTRAST
-          ui.contrast
-        #else
-          127
-        #endif
-      ;
+      const int16_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
       EEPROM_WRITE(lcd_contrast);
     }
 
@@ -1363,12 +1356,12 @@ void MarlinSettings::postprocess() {
     // Extensible UI User Data
     //
     #if ENABLED(EXTENSIBLE_UI)
-      {
-        char extui_data[ExtUI::eeprom_data_size] = { 0 };
-        ExtUI::onStoreSettings(extui_data);
-        _FIELD_TEST(extui_data);
-        EEPROM_WRITE(extui_data);
-      }
+    {
+      char extui_data[ExtUI::eeprom_data_size] = { 0 };
+      ExtUI::onStoreSettings(extui_data);
+      _FIELD_TEST(extui_data);
+      EEPROM_WRITE(extui_data);
+    }
     #endif
 
     //
@@ -2256,13 +2249,12 @@ void MarlinSettings::postprocess() {
       // Extensible UI User Data
       //
       #if ENABLED(EXTENSIBLE_UI)
-        // This is a significant hardware change; don't reserve EEPROM space when not present
-        {
-          const char extui_data[ExtUI::eeprom_data_size] = { 0 };
-          _FIELD_TEST(extui_data);
-          EEPROM_READ(extui_data);
-          if (!validating) ExtUI::onLoadSettings(extui_data);
-        }
+      { // This is a significant hardware change; don't reserve EEPROM space when not present
+        const char extui_data[ExtUI::eeprom_data_size] = { 0 };
+        _FIELD_TEST(extui_data);
+        EEPROM_READ(extui_data);
+        if (!validating) ExtUI::onLoadSettings(extui_data);
+      }
       #endif
 
       //

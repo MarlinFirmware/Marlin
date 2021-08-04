@@ -21,26 +21,26 @@
  */
 
 /*****************************************************************************
- * @file     rotary_encoder.cpp
+ * @file     lcd/e3v2/creality/rotary_encoder.cpp
  * @author   LEO / Creality3D
  * @date     2019/07/06
  * @version  2.0.1
  * @brief    Rotary encoder functions
  *****************************************************************************/
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
 #include "rotary_encoder.h"
-#include "../buttons.h"
+#include "../../buttons.h"
 
-#include "../../MarlinCore.h"
-#include "../marlinui.h"
-#include "../../HAL/shared/Delay.h"
+#include "../../../MarlinCore.h"
+#include "../../marlinui.h"
+#include "../../../HAL/shared/Delay.h"
 
 #if HAS_BUZZER
-  #include "../../libs/buzzer.h"
+  #include "../../../libs/buzzer.h"
   #include "creality_dwin.h"
 #endif
 
@@ -128,7 +128,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
     lastEncoderBits = newbutton;
   }
 
-  if (abs(temp_diff) >= ENCODER_PULSES_PER_STEP) {
+  if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
     if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
     else temp_diffState = ENCODER_DIFF_CCW;
 

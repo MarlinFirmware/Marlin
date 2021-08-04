@@ -138,7 +138,7 @@
 #define HEATER_BED_PIN                         8
 
 #define FAN_PIN                                9
-#define FAN1_PIN                               5  // Normall this would be a servo pin
+#define FAN1_PIN                               5  // Normally this would be a servo pin
 
 // XXX Runout support unknown?
 //#define NUM_RUNOUT_SENSORS                   0

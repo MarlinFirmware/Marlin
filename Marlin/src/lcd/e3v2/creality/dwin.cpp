@@ -28,17 +28,17 @@
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #include "dwin.h"
 #include <string.h> // for memset
 
 //#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 // Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
 // Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.

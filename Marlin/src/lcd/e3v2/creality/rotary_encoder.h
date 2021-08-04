@@ -22,14 +22,14 @@
 #pragma once
 
 /*****************************************************************************
-  * @file     rotary_encoder.h
+  * @file     lcd/e3v2/creality/rotary_encoder.h
   * @author   LEO / Creality3D
   * @date     2019/07/06
   * @version  2.0.1
   * @brief    Rotary encoder functions
   ****************************************************************************/
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 /*********************** Encoder Set ***********************/
 
