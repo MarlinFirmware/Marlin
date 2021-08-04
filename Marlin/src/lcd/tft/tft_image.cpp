@@ -52,6 +52,9 @@ const tImage Fan_Fast0_64x64x4      = { (void *)fan_fast0_64x64x4, 64, 64, GREYS
 const tImage Fan_Fast1_64x64x4      = { (void *)fan_fast1_64x64x4, 64, 64, GREYSCALE4 };
 const tImage SD_64x64x4             = { (void *)sd_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Home_64x64x4           = { (void *)home_64x64x4, 64, 64, GREYSCALE4 };
+const tImage BtnRounded_32x26x4     = { (void *)btn_rounded_32x26x4, 32, 26, GREYSCALE4 };
+const tImage BtnRounded_42x34x4     = { (void *)btn_rounded_42x34x4, 42, 34, GREYSCALE4 };
+const tImage BtnRounded_48x39x4     = { (void *)btn_rounded_48x39x4, 48, 39, GREYSCALE4 };
 const tImage BtnRounded_64x52x4     = { (void *)btn_rounded_64x52x4, 64, 52, GREYSCALE4 };
 const tImage BtnRounded_42x39x4     = { (void *)btn_rounded_42x39x4, 42, 39, GREYSCALE4 };
 const tImage Menu_64x64x4           = { (void *)menu_64x64x4, 64, 64, GREYSCALE4 };
@@ -106,6 +109,8 @@ const tImage Images[imgCount] = {
   Leveling_32x32x4,
   Slider8x16x4,
   Home_64x64x4,
+  BtnRounded_32x26x4,
+  BtnRounded_48x39x4,
   BtnRounded_64x52x4,
   BtnRounded_42x39x4,
 };
