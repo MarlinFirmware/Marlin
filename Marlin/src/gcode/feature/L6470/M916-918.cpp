@@ -177,7 +177,7 @@ void GcodeSuite::M916() {
   if ((status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)))
     DEBUG_ECHOLNPGM(".\n.\nTest completed normally - Thermal warning/shutdown has occurred");
   else if (status_composite)
-    DEBUG_ECHOLNPGM(".\n.\nTest completed abnormally - non-thermal error has occured");
+    DEBUG_ECHOLNPGM(".\n.\nTest completed abnormally - non-thermal error has occurred");
   else
     DEBUG_ECHOLNPGM(".\n.\nTest completed normally - Unable to get to thermal warning/shutdown");
 

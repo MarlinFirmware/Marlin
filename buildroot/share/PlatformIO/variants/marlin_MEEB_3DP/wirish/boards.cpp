@@ -156,7 +156,7 @@ static void setup_nvic(void) {
 
 nvic_init((uint32)VECT_TAB_ADDR, 0);
 
-/* Roger Clark. We now control nvic vector table in boards.txt using the build.vect paramater
+/* Roger Clark. We now control nvic vector table in boards.txt using the build.vect parameter
 #ifdef VECT_TAB_FLASH
     nvic_init(USER_ADDR_ROM, 0);
 #elif defined VECT_TAB_RAM
