@@ -248,7 +248,7 @@
 //
 // Onboard SD card
 //
-// detect pin dont work when ONBOARD and NO_SD_HOST_DRIVE disabled
+// detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1

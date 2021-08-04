@@ -125,7 +125,7 @@ static void TX(char c) {
     }
     regs->DR = c;
   #else
-    // Let's hope a mystical guru will fix this, one day by writting interrupt-free USB CDC ACM code (or, at least, by polling the registers since interrupt will be queued but will never trigger)
+    // Let's hope a mystical guru will fix this, one day by writing interrupt-free USB CDC ACM code (or, at least, by polling the registers since interrupt will be queued but will never trigger)
     // For now, it's completely lost to oblivion.
   #endif
 }

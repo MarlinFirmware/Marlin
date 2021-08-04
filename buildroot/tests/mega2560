@@ -128,7 +128,7 @@ exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Greek" "$3"
 #
 # REPRAPWORLD_KEYPAD
 #
-# Cant find configuration details to get it to compile
+# Can't find configuration details to get it to compile
 #restore_configs
 #opt_enable ULTRA_LCD REPRAPWORLD_KEYPAD REPRAPWORLD_KEYPAD_MOVE_STEP
 #exec_test $1 $2 "Stuff" "$3"

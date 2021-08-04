@@ -39,7 +39,7 @@ static_assert(COUNT(servoDelay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM
 // This allows all timer interrupt priorities to be managed from a single location in the HAL.
 static uint32_t servo_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), TIM_IRQ_PRIO, TIM_IRQ_SUBPRIO);
 
-// This must be called after the STM32 Servo class has intialized the timer.
+// This must be called after the STM32 Servo class has initialized the timer.
 // It may only be needed after the first call to attach(), but it is possible
 // that is is necessary after every detach() call. To be safe this is currently
 // called after every call to attach().

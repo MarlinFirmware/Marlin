@@ -90,7 +90,7 @@ typedef struct {
 	//! This buffer must be word align for DATA IN phase (use prefix COMPILER_WORD_ALIGNED for buffer)
 	uint8_t *payload;
 
-	//! Size of buffer to send or fill, and content the number of byte transfered
+	//! Size of buffer to send or fill, and content the number of byte transferred
 	uint16_t payload_size;
 
 	//! Callback called after reception of ZLP from setup request
@@ -132,7 +132,7 @@ typedef void (*udd_callback_halt_cleared_t)(void);
  *
  * \param status     UDD_EP_TRANSFER_OK, if transfer is complete
  * \param status     UDD_EP_TRANSFER_ABORT, if transfer is aborted
- * \param n          number of data transfered
+ * \param n          number of data transferred
  */
 typedef void (*udd_callback_trans_t) (udd_ep_status_t status,
 		iram_size_t nb_transferred, udd_ep_id_t ep);
@@ -303,7 +303,7 @@ bool udd_ep_wait_stall_clear(udd_ep_id_t ep,
  * The driver uses a specific DMA USB to transfer data
  * from internal RAM to endpoint, if this one is available.
  * When the transfer is finished or aborted (stall, reset, ...), the \a callback is called.
- * The \a callback returns the transfer status and eventually the number of byte transfered.
+ * The \a callback returns the transfer status and eventually the number of byte transferred.
  * Note: The control endpoint is not authorized.
  *
  * \param ep            The ID of the endpoint to use

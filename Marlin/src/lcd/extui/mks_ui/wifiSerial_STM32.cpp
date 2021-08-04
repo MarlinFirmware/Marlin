@@ -200,7 +200,7 @@ void WifiSerial::flush() {
     // nop, the interrupt handler will free up space for us
   }
   // If we get here, nothing is queued anymore (DRIE is disabled) and
-  // the hardware finished tranmission (TXC is set).
+  // the hardware finished transmission (TXC is set).
 }
 
 bool WifiSerial::isHalfDuplex() const { return _serial.pin_rx == NC; }

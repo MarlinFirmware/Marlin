@@ -125,7 +125,7 @@ bool PersistentStore::access_start() {
         address += sizeof(uint32_t);
       }
       if (current_slot == -1) {
-        // We didn't find anything, so we'll just intialize to empty
+        // We didn't find anything, so we'll just initialize to empty
         for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = EMPTY_UINT8;
         current_slot = EEPROM_SLOTS;
       }

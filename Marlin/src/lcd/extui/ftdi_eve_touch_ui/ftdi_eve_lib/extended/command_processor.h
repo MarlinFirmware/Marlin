@@ -65,7 +65,7 @@ class CommandProcessor : public CLCD::CommandFifo {
     uint8_t _style = 0;
 
   protected:
-    // Returns the cannonical thickness of a widget (i.e. the height of a toggle element)
+    // Returns the canonical thickness of a widget (i.e. the height of a toggle element)
     uint16_t widget_thickness() {
       CLCD::FontMetrics fm(_font);
       return fm.height * 20.0/16;
@@ -249,7 +249,7 @@ class CommandProcessor : public CLCD::CommandFifo {
       return toggle(x, y, w, h, text, state, options);
     }
 
-    // Contrained drawing routines. These constrain the widget inside a box for easier layout.
+    // Constrained drawing routines. These constrain the widget inside a box for easier layout.
     // The FORCEDINLINE ensures that the code is inlined so that all the math is done at compile time.
 
     FORCEDINLINE CommandProcessor& track_linear(int16_t x, int16_t y, int16_t w, int16_t h, int16_t tag) {

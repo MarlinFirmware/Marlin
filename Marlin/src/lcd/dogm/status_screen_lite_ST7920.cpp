@@ -447,7 +447,7 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
  * data buffer (DDRAM) to be used in conjunction with the graphics
  * bitmap buffer (CGRAM). The contents of the graphics buffer is
  * XORed with the data from the character generator. This allows
- * us to make the progess bar out of graphical data (the bar) and
+ * us to make the progress bar out of graphical data (the bar) and
  * text data (the percentage).
  */
 void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {

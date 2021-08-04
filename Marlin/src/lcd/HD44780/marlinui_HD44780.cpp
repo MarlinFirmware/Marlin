@@ -1321,7 +1321,7 @@ void MarlinUI::draw_status_screen() {
         y_map_pixels = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y);         // Directions fit nicely
 
         right_edge   = pixels_per_x_mesh_pnt * (GRID_MAX_POINTS_X) + 1;     // Find location of right edge within the character cell
-        bottom_line  = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y) + 1;     // Find location of bottome line within the character cell
+        bottom_line  = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y) + 1;     // Find location of bottom line within the character cell
 
         n_rows = bottom_line / (HD44780_CHAR_HEIGHT) + 1;
         n_cols = right_edge / (HD44780_CHAR_WIDTH) + 1;

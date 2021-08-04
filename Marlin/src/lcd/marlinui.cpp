@@ -712,7 +712,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
      *     This is used to achieve more rapid stepping on kinematic machines.
      *
      * Currently used by the _lcd_move_xyz function in menu_motion.cpp
-     * and the ubl_map_move_to_xy funtion in menu_ubl.cpp.
+     * and the ubl_map_move_to_xy function in menu_ubl.cpp.
      */
     void ManualMove::task() {
 
