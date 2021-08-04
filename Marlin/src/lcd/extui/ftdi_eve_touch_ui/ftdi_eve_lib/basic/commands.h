@@ -70,7 +70,7 @@
   *
   * CommandFifo::fgcolor               Set Graphic Item Foreground Color      *
   * CommandFifo::bgcolor               Set Graphic Item Background Color      *
-  * CommandFifo::begin()               Begin Drawing a Primative              *
+  * CommandFifo::begin()               Begin Drawing a Primitive              *
   * CommandFifo::mem_copy()            Copy a Block of Memory                 *
   * CommandFifo::append()              Append Commands to Current DL          *
   * CommandFifo::gradient_color()      Set 3D Button Highlight Color          *

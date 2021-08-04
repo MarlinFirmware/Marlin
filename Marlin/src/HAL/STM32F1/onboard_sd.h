@@ -7,8 +7,8 @@
 #pragma once
 
 #define _DISKIO_WRITE   1   /* 1: Enable disk_write function */
-#define _DISKIO_IOCTL   1   /* 1: Enable disk_ioctl fucntion */
-#define _DISKIO_ISDIO   0   /* 1: Enable iSDIO control fucntion */
+#define _DISKIO_IOCTL   1   /* 1: Enable disk_ioctl function */
+#define _DISKIO_ISDIO   0   /* 1: Enable iSDIO control function */
 
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
@@ -56,7 +56,7 @@ DRESULT disk_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count);
 #define STA_NODISK      0x02    /* No medium in the drive */
 #define STA_PROTECT     0x04    /* Write protected */
 
-/* Command code for disk_ioctrl fucntion */
+/* Command code for disk_ioctrl function */
 
 /* Generic command (Used by FatFs) */
 #define CTRL_SYNC        0  /* Complete pending write process (needed at _FS_READONLY == 0) */

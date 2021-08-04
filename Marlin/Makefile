@@ -110,7 +110,7 @@ LIQUID_TWI2        ?= 0
 WIRE               ?= 0
 
 # This defines if Tone is needed (i.e SPEAKER is defined in Configuration.h)
-# Disabling this (and SPEAKER) saves approximatively 350 bytes of memory.
+# Disabling this (and SPEAKER) saves approximately 350 bytes of memory.
 TONE               ?= 1
 
 # This defines if U8GLIB is needed (may require RELOC_WORKAROUND)
