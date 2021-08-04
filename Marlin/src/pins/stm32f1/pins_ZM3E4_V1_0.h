@@ -21,6 +21,10 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
+#define BOARD_INFO_NAME "ZONESTAR ZM3E4 V1.0"
+
 // =====================NOTE=====================
 // #define TONE_TIMER     1
 // #define TONE_CHANNEL   2
@@ -29,16 +33,19 @@
 // line 31 and line      34
 // =====================NOTE=====================
 
-#include "env_validate.h"
-#define BOARD_INFO_NAME "ZONESTAR ZM3E4 V1.0"
-
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
 
-#define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     (0x800) // 2KB
-#define EEPROM_START_ADDRESS uint32(0x8000000 + (STM32_FLASH_SIZE) * 1024 - 2 * EEPROM_PAGE_SIZE)
-#define MARLIN_EEPROM_SIZE EEPROM_PAGE_SIZE  // 2KB
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE      (0x800) // 2KB
+  #define EEPROM_START_ADDRESS  (0x08000000 + (STM32_FLASH_SIZE) * 1024 - 2 * EEPROM_PAGE_SIZE)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+#endif
+
+//#define OPTION_DUALZ_DRIVE
+//#define OPTION_Z2_ENDSTOP
+//#define SWITCH_EXTRUDER_SEQUENCE
 
 //=============================================================================
 // ZONESTAR ZM3E4 V1.0 (STM32F130RCT6) board pin assignments
@@ -77,7 +84,7 @@
 //  PD15    E1_DIR      //  PE15    BTN_ENC
 //=============================================================================
 
-//EXP1 connector
+// EXP1 connector
 //     MARK     I/O     ZONESTAR_LCD12864   REPRAPDISCOUNT_LCD12864
 //  10 RS       PE13    KILL                BTN_ENC
 //   9 BP       PE11    BEEP                BEEP
@@ -90,7 +97,7 @@
 //   2 +5V                    +5V
 //   1 GND                    GND
 
-//EXP2 connector
+// EXP2 connector
 //     MARK     I/O     ZONESTAR_LCD12864   REPRAPDISCOUNT_LCD12864
 //  10
 //   9
@@ -103,7 +110,7 @@
 //   2 +5V                    +5V
 //   1 GND                    GND
 
-//AUX1 connector
+// AUX1 connector
 //  1 +5V
 //  2 GND
 //  3 RX3     PB11  UART3_RX
@@ -111,7 +118,7 @@
 //  5 SCL     PE7
 //  6 SDA     PC0
 
-//WiFi
+// WiFi
 //  1 +5V
 //  2 GND
 //  3 WIFI_TXD    PD5   UART2_RX
@@ -119,6 +126,13 @@
 //  5 WIFI_RST    PC14
 //  6 WIFI_CS     PC15
 //=============================================================================
+
+//
+// Servos
+//
+#define SERVO0_PIN                          PB9
+#define SERVO2_PIN                          PB7
+#define SERVO3_PIN                          PB6
 
 //
 // Limit Switches
@@ -131,12 +145,20 @@
 #define Z_MAX_PIN                           PB13
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PC8
+#endif
+
+//
 // Steppers
 //
-#ifdef COREXY
+#if ENABLED(COREXY)
   #define X_ENABLE_PIN                      PE0
   #define X_STEP_PIN                        PE1
   #define X_DIR_PIN                         PE2
+
   #define Y_ENABLE_PIN                      PE6
   #define Y_STEP_PIN                        PE5
   #define Y_DIR_PIN                         PE4
@@ -144,6 +166,7 @@
   #define X_ENABLE_PIN                      PE6
   #define X_STEP_PIN                        PE5
   #define X_DIR_PIN                         PE4
+
   #define Y_ENABLE_PIN                      PE0
   #define Y_STEP_PIN                        PE1
   #define Y_DIR_PIN                         PE2
@@ -160,10 +183,9 @@
 #endif
 
 #ifdef OPTION_Z2_ENDSTOP
-  #define Z2_MIN_PIN                        PD1   // Z2_MIN_PIN
+  #define Z2_MIN_PIN                        PD1
+  #define Z2_MAX_PIN                        PB12
 #endif
-
-//#define Z2_MAX_PIN                        PB12
 
 #ifdef SWITCH_EXTRUDER_SEQUENCE
   #define E3_ENABLE_PIN                     PC10
@@ -203,45 +225,44 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PC2   // TH0
-#define TEMP_1_PIN                          PC1   // TH1
 #define TEMP_BED_PIN                        PC3   // TB1
 
 //
-// Heaters
+// Heaters / Fans
 //
 #define HEATER_0_PIN                        PC5   // HEATER0
-#define HEATER_1_PIN                        PB0   // HEATER1
 #define HEATER_BED_PIN                      PA2   // HOT BED
 
 #if ENABLED(OPTION_CHAMBER)
-  #undef TEMP_1_PIN
-  #undef HEATER_1_PIN
   #define TEMP_CHAMBER_PIN                  PC1
   #define HEATER_CHAMBER_PIN                PB0
+#else
+  #define TEMP_1_PIN                        PC1   // TH1
+  #define HEATER_1_PIN                      PB0   // HEATER1
 #endif
 
-//
-// Fans
-//
 #define FAN_PIN                             PB1   // FAN1
 #define FAN1_PIN                            PB8   // FAN2
 
 //
 // Misc. Functions
 //
+
 //#define POWER_LOSS_PIN                    PB15
 #define LED_PIN                             PA0
 #define SUICIDE_PIN                         PA3
-#define FIL_RUNOUT_PIN                      PC8
 
+//
+// SD card
+//
 #define ENABLE_SPI1
 #define SD_DETECT_PIN                       PC4
-#define SCK_PIN                             PA5
-#define MISO_PIN                            PA6
-#define MOSI_PIN                            PA7
-#define SS_PIN                              PA4
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7
+#define SD_SS_PIN                           PA4
 
-//WiFi. Functions
+// WiFi Functions
 #define WIFI_RST                            PC15
 #define WIFI_EN                             PC14
 
@@ -253,39 +274,29 @@
   #define LCD_PINS_RS                       PE12  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_ENABLE                   PE9   // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                       PE10  // 8 SCK make sure for zonestar zm3e4!
-  #define LCD_PINS_D5                       -1    // MOSI
-  #define LCD_PINS_D6                       -1
-  #define LCD_PINS_D7                       -1
-  #define LCD_RESET_PIN                     -1
   #define BEEPER_PIN                        PE11
   #define KILL_PIN                          -1    // PE13
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE14
   #define BTN_ENC                           PE15
-  #define DOGLCD_A0                         -1
-  #define DOGLCD_CS                         -1
-  #define DOGLCD_MOSI                       -1
-  #define DOGLCD_SCK                        -1
-#endif
-
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+#elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define LCDSCREEN_NAME "REPRAPDISCOUNT LCD12864"
   #define LCD_PINS_RS                       PE12  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_ENABLE                   PE10  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                       PE9   // 8 SCK make sure for zonestar zm3e4!
-  #define LCD_PINS_D5                       -1    // MOSI
-  #define LCD_PINS_D6                       -1
-  #define LCD_PINS_D7                       -1
-  #define LCD_RESET_PIN                     -1
   #define BEEPER_PIN                        PE11
   #define KILL_PIN                          PB5
   #define BTN_EN1                           PB4
   #define BTN_EN2                           PA10
   #define BTN_ENC                           PE13
-  #define DOGLCD_A0                         -1
-  #define DOGLCD_CS                         -1
-  #define DOGLCD_MOSI                       -1
-  #define DOGLCD_SCK                        -1
+#elif ENABLED(ZONESTAR_DWIN_LCD)
+  // Connect to EXP2 connector
+  #define LCDSCREEN_NAME "ZONESTAR DWIN LCD"
+  #define BEEPER_PIN                        PA15
+  #define KILL_PIN                          PC0
+  #define BTN_EN1                           PB3
+  #define BTN_EN2                           PB5
+  #define BTN_ENC                           PB4
 #endif
 
 #if ENABLED(ZONESTAR_LCD2004_KNOB)
@@ -301,9 +312,7 @@
   #define BTN_ENC                           PE13
   #define BEEPER_PIN                        PE11
   #define KILL_PIN                          PB5
-#endif
-
-#if ENABLED(ZONESTAR_LCD2004_ADCKEY)
+#elif ENABLED(ZONESTAR_LCD2004_ADCKEY)
   #define LCDSCREEN_NAME "LCD2004 5KEY"
   #define LCD_PINS_RS                       PE12
   #define LCD_PINS_ENABLE                   PE10
@@ -314,41 +323,25 @@
   #define ADC_KEYPAD_PIN                    PC0   // PIN6 of AUX1
 #endif
 
-#if ENABLED(ZONESTAR_DWIN_LCD)
-  // Connect to EXP2 connector
-  #define LCDSCREEN_NAME "ZONESTAR DWIN LCD"
-  #define BEEPER_PIN                        PA15
-  #define KILL_PIN                          PC0
-  #define BTN_EN1                           PB3
-  #define BTN_EN2                           PB5
-  #define BTN_ENC                           PB4
-#endif
-
 #if HAS_MARLINUI_U8GLIB
   #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_2 DELAY_NS(250)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 #endif
 
-//
-// Servos
-//
-
 // Remap SERVO0 PIN for BLTouch
 #if ENABLED(BLTOUCH_ON_EXP1)
-  //BLTouch connect to EXP1
+  // BLTouch connected to EXP1
   #define BLTOUCH_PROBE_PIN                 PE8
   #define BLTOUCH_GND_PIN                   PE15
+  #undef SERVO0_PIN
   #define SERVO0_PIN                        PE14
 #elif ENABLED(BLTOUCH_ON_EXP2)
-  //BLTouch connect to EXP2
+  // BLTouch connected to EXP2
   #define BLTOUCH_PROBE_PIN                 PB3
   #define BLTOUCH_GND_PIN                   PB5
+  #undef SERVO0_PIN
   #define SERVO0_PIN                        PA15
 #else
-  #define SERVO0_PIN                        PB9
   #define BLTOUCH_PROBE_PIN                 PB13
 #endif
-
-#define SERVO2_PIN                          PB7
-#define SERVO3_PIN                          PB6
