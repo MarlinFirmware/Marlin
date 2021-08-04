@@ -32,7 +32,7 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/dwin/creality_dwin.h" // Temporary fix until it can be better implemented
+  #include "../../../lcd/e3v2/creality/creality_dwin.h" // Temporary fix until it can be better implemented
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)

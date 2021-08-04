@@ -47,7 +47,7 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "dwin/creality_dwin.h"
+  #include "e3v2/creality/creality_dwin.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -88,17 +88,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       return_to_status();
       refresh();
     }
-  }
-#endif
-
-#if HAS_LCD_BRIGHTNESS
-  uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
-  bool MarlinUI::backlight = true;
-
-  void MarlinUI::set_brightness(const uint8_t value) {
-    backlight = !!value;
-    if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
-    // Set brightness on enabled LCD here
   }
 #endif
 

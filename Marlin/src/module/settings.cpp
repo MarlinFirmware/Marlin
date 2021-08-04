@@ -74,7 +74,7 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/creality_dwin.h"
+  #include "../lcd/e3v2/creality/creality_dwin.h"
 #endif
 
 #if HAS_SERVOS
