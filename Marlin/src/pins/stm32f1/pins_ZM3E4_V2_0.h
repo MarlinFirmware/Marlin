@@ -49,7 +49,7 @@
 //#define SWITCH_EXTRUDER_SEQUENCE
 
 //=============================================================================
-// ZONESTAR ZM3E4 V1.0 (STM32F130RCT6) board pin assignments
+// ZONESTAR ZM3E4 V1.0 (STM32F103VET6) board pin assignments
 //=============================================================================
 //  PA0                 //  PB0     HEAT_1          //  PC0         AXU_SDA
 //  PA1                 //  PB1     FAN1            //  PC1         TEMP_E1

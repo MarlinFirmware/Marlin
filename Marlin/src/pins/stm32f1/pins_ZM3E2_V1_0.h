@@ -36,7 +36,7 @@
 #endif
 
 //=============================================================================
-// ZONESTAR ZM3E2 V1.0 (STM32F130RCT6) board pin assignments
+// ZONESTAR ZM3E2 V1.0 (STM32F103RCT6) board pin assignments
 //=============================================================================
 //  PA0     PWR_HOLD    //  PB0     BEEP            //  PC0         HEATER_0
 //  PA1     FAN_PIN     //  PB1     KILL            //  PC1         HEATER_BED
