@@ -68,20 +68,12 @@ void GcodeSuite::M42() {
       case 0: pinMode(pin, INPUT); avoidWrite = true; break;
       case 1: pinMode(pin, OUTPUT); break;
       case 2: pinMode(pin, INPUT_PULLUP); avoidWrite = true; break;
-      case 3:
-        #ifdef INPUT_PULLDOWN
-          pinMode(pin, INPUT_PULLDOWN);
-          avoidWrite = true;
-        #endif
-        break;
-      case 4:
-        #ifdef INPUT_ANALOG // STM32
-          pinMode(pin, INPUT_ANALOG);
-        #elif defined(MAPLE_STM32F1)
-          _SET_MODE(pin, GPIO_INPUT_ANALOG);
-        #endif
-        avoidWrite = true;
-        break;
+      #ifdef INPUT_PULLDOWN
+        case 3: pinMode(pin, INPUT_PULLDOWN); avoidWrite = true; break;
+      #endif
+      #ifdef INPUT_ANALOG
+        case 4: pinMode(pin, INPUT_ANALOG); avoidWrite = true; break;
+      #endif
       #ifdef OUTPUT_OPEN_DRAIN
         case 5: pinMode(pin, OUTPUT_OPEN_DRAIN); break;
       #endif
