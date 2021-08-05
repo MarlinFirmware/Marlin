@@ -180,15 +180,15 @@ struct SerialBase {
   FORCE_INLINE void print(float c)    { print(c, 2); }
   FORCE_INLINE void print(double c)    { print(c, 2); }
 
-  FORCE_INLINE void println(char *s)                   { print(s); println(); }
-  FORCE_INLINE void println(const char *s)                   { print(s); println(); }
-  FORCE_INLINE void println(float c, int digits)            { print(c, digits); println(); }
-  FORCE_INLINE void println(double c, int digits)            { print(c, digits); println(); }
-  FORCE_INLINE void println()                                { write('\r'); write('\n'); }
+  FORCE_INLINE void println(char *s)               { print(s); println(); }
+  FORCE_INLINE void println(const char *s)         { print(s); println(); }
+  FORCE_INLINE void println(float c, int digits)   { print(c, digits); println(); }
+  FORCE_INLINE void println(double c, int digits)  { print(c, digits); println(); }
+  FORCE_INLINE void println()                      { write('\r'); write('\n'); }
 
   // Default implementations for types without a specialization. Handles integers.
   template <typename T>
-  FORCE_INLINE void println(T c, PrintBase base)          { print(c, base); println(); }
+  FORCE_INLINE void println(T c, PrintBase base)   { print(c, base); println(); }
 
   template <typename T>
   FORCE_INLINE void println(T c)                   { println(c, PrintBase::Dec); }
