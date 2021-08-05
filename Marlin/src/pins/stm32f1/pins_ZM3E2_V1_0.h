@@ -36,29 +36,29 @@
 #endif
 
 //=============================================================================
-// ZONESTAR ZM3E2 V1.0 (STM32F103RCT6) board pin assignments
+// Zonestar ZM3E2 V1.0 (STM32F103RCT6) board pin assignments
 //=============================================================================
-//  PA0     PWR_HOLD    //  PB0     BEEP            //  PC0         HEATER_0
-//  PA1     FAN_PIN     //  PB1     KILL            //  PC1         HEATER_BED
-//  PA2     TX2         //  PB2     LCD_SDA         //  PC2         TEMP_BED
-//  PA3     RX2         //  PB3     E1_EN           //  PC3         TEMP_E0
-//  PA4     SD_CS       //  PB4     Z_STOP          //  PC4         SD_DETECT
-//  PA5     SD_SCK      //  PB5     Z_DIR           //  PC5         BTN_EN2
-//  PA6     SD_MISO     //  PB6     Z_STEP          //  PC6         FAN1
-//  PA7     SD_MOSI     //  PB7     Z_EN            //  PC7         FIL_RUNOUT
-//  PA8     X_DIR       //  PB8     Y_STEP          //  PC8         X_EN
-//  PA9     LCD_RS      //  PB9     Y_DIR           //  PC9         X_STEP
-//  PA10    LCD_SCK     //  PB10    BTN_ENC         //  PC10        Z_MIN_PROBE_PIN
-//  PA11    USB_D-      //  PB11    BTN_EN1         //  PC11        FIL_RUNOUT2
-//  PA12    USB_D+      //  PB12    LED             //  PC12        E1_DIR
-//  PA13    MS1         //  PB13    E0_EN           //  PC13        Y_STOP
-//  PA14    MS2         //  PB14    E0_STEP         //  PC14        Y_EN
-//  PA15    PWM         //  PB15    E0_DIR          //  PC15        X_STOP
+//  PA0     PWR_HOLD    |  PB0     BEEP            |  PC0     HEATER_0
+//  PA1     FAN_PIN     |  PB1     KILL            |  PC1     HEATER_BED
+//  PA2     TX2         |  PB2     LCD_SDA         |  PC2     TEMP_BED
+//  PA3     RX2         |  PB3     E1_EN           |  PC3     TEMP_E0
+//  PA4     SD_CS       |  PB4     Z_STOP          |  PC4     SD_DETECT
+//  PA5     SD_SCK      |  PB5     Z_DIR           |  PC5     BTN_EN2
+//  PA6     SD_MISO     |  PB6     Z_STEP          |  PC6     FAN1
+//  PA7     SD_MOSI     |  PB7     Z_EN            |  PC7     FIL_RUNOUT
+//  PA8     X_DIR       |  PB8     Y_STEP          |  PC8     X_EN
+//  PA9     LCD_RS      |  PB9     Y_DIR           |  PC9     X_STEP
+//  PA10    LCD_SCK     |  PB10    BTN_ENC         |  PC10    Z_MIN_PROBE_PIN
+//  PA11    USB_D-      |  PB11    BTN_EN1         |  PC11    FIL_RUNOUT2
+//  PA12    USB_D+      |  PB12    LED             |  PC12    E1_DIR
+//  PA13    MS1         |  PB13    E0_EN           |  PC13    Y_STOP
+//  PA14    MS2         |  PB14    E0_STEP         |  PC14    Y_EN
+//  PA15    PWM         |  PB15    E0_DIR          |  PC15    X_STOP
 //  PD0     NC
 //  PD1     NC
 //  PD2     E1_STEP
-//=============================================================================
 
+//=============================================================================
 // EXP1 connector
 //     MARK     I/O     ZONESTAR_12864LCD      ZONESTAR_12864OLED
 //  10 MOSI     PB1     KILL                   SDA
@@ -72,13 +72,22 @@
 //   2 +5V
 //   1 GND
 
+#define EXP1_03_PIN                         PB11
+#define EXP1_04_PIN                         PB10
+#define EXP1_05_PIN                         PB2
+#define EXP1_06_PIN                         PC5
+#define EXP1_07_PIN                         PA10
+#define EXP1_08_PIN                         PA9
+#define EXP1_09_PIN                         PB0
+#define EXP1_10_PIN                         PB1
+
 // AUX1 connector
 //  1 +5V
 //  2 TX2   PA2   UART2_TX
 //  3 RX2   PA3   UART2_RX
 //  4 GND
 
-// AUX2 connector to BLtouch
+// AUX2 connector to BLTouch
 //  1 +5V
 //  2 SEN   PC10
 //  3 PWM   PA15
@@ -184,14 +193,14 @@
   //   1 GND
 
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
-  #define LCD_PINS_RS                       PA9
-  #define LCD_PINS_ENABLE                   PB2
-  #define LCD_PINS_D4                       PA10
-  //#define KILL_PIN                        PB1
-  #define BEEPER_PIN                        PB0
-  #define BTN_EN1                           PB11
-  #define BTN_EN2                           PC5
-  #define BTN_ENC                           PB10
+  #define LCD_PINS_RS                EXP1_08_PIN
+  #define LCD_PINS_ENABLE            EXP1_05_PIN
+  #define LCD_PINS_D4                EXP1_07_PIN
+  //#define KILL_PIN                 EXP1_10_PIN
+  #define BEEPER_PIN                 EXP1_09_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_06_PIN
+  #define BTN_ENC                    EXP1_04_PIN
   #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_2 DELAY_NS(200)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
@@ -212,15 +221,15 @@
 
   #define FORCE_SOFT_SPI
   #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
-  #define LCD_PINS_RS                        PB2   // = LCD_RESET_PIN
-  #define LCD_PINS_DC                        PA10  // DC
-  #define DOGLCD_CS                          PA9   // CS
-  #define DOGLCD_A0                   LCD_PINS_DC  // A0 = DC
-  #define DOGLCD_MOSI                        PB1   // SDA
-  #define DOGLCD_SCK                         PB0   // SCK
+  #define LCD_PINS_RS                EXP1_05_PIN  // = LCD_RESET_PIN
+  #define LCD_PINS_DC                EXP1_07_PIN  // DC
+  #define DOGLCD_CS                  EXP1_08_PIN  // CS
+  #define DOGLCD_A0                  LCD_PINS_DC  // A0 = DC
+  #define DOGLCD_MOSI                EXP1_10_PIN  // SDA
+  #define DOGLCD_SCK                 EXP1_09_PIN  // SCK
   // Encoder
-  #define BTN_EN1                            PB11
-  #define BTN_EN2                            PC5
-  #define BTN_ENC                            PB10
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_06_PIN
+  #define BTN_ENC                    EXP1_04_PIN
 
 #endif

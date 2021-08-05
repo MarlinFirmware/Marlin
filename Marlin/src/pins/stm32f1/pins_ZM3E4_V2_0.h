@@ -25,12 +25,6 @@
 
 #define BOARD_INFO_NAME "ZONESTAR ZM3E4 V2.0"
 
-// =====================NOTE=====================
-// #define TONE_TIMER     1
-// #define TONE_CHANNEL   2
-#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=2 -DTONE_TIMER=1
-// =====================NOTE=====================
-
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
 
@@ -47,40 +41,41 @@
 //#define SWITCH_EXTRUDER_SEQUENCE
 
 //=============================================================================
-// ZONESTAR ZM3E4 V1.0 (STM32F103VET6) board pin assignments
+// Zonestar ZM3E4 V2.0 (STM32F103VET6) board pin assignments
 //=============================================================================
-//  PA0                 //  PB0     HEAT_1          //  PC0         AXU_SDA
-//  PA1                 //  PB1     FAN1            //  PC1         TEMP_E1
-//  PA2     HEAT_BED    //  PB2     BOOT1           //  PC2         TEMP_E0
-//  PA3     PWR_HOLD    //  PB3     SPI3_SCK        //  PC3         TEMP_BED
-//  PA4     SD_CS       //  PB4     SPI3_MISO       //  PC4         SD_DETECT
-//  PA5     SD_SCK      //  PB5     SPI3_MOSI       //  PC5         HEAT_0
-//  PA6     SD_MISO     //  PB6     SERVO3          //  PC6         E1_STEP
-//  PA7     SD_MOSI     //  PB7     SERVO2          //  PC7         E1_EN
-//  PA8     X_DIR       //  PB8     FAN2/SERVO1     //  PC8         FIL_RUNOUT_PIN
-//  PA9     UART1_RX    //  PB9     SERVO0          //  PC9         E0_DIR
-//  PA10    UART1_TX    //  PB10    TX3             //  PC10        E0_EN
-//  PA11    USB_D-      //  PB11    RX3             //  PC11        Z2_EN
-//  PA12    USB_D+      //  PB12    LED             //  PC12        Z2_STEP
-//  PA13    SWD_SDO     //  PB13    Z1_MAX          //  PC13        X_MIN
-//  PA14    SWD_SCK     //  PB14    Y_MAX           //  PC14        WIFI_RST
-//  PA15    SPI3_CS     //  PB15    PWR_DET         //  PC15        WIFI_CS
-//  PD0     Z2_DIR      //  PE0     Y_EN
-//  PD1     Z2_MIN      //  PE1     Y_STEP
-//  PD2     Z1_EN       //  PE2     Y_DIR
-//  PD3     Z1_STEP     //  PE3     Y_MIN
-//  PD4     Z1_DIR      //  PE4     X_DIR
-//  PD5     WIFI_RXD    //  PE5     X_STEP
-//  PD6     WIFI_TXD    //  PE6     X_EN
-//  PD7     Z1_MIN      //  PE7     AXU_SCL
-//  PD8     X_MAX       //  PE8     BTN_EN1
-//  PD9     E3_DIR      //  PE9     LCD_SCK
-//  PD10    E3_STEP     //  PE10    LCD_MOSI
-//  PD11    E3_EN       //  PE11    BEEPER
-//  PD12    E2_DIR      //  PE12    LCD_EN
-//  PD13    E2_STEP     //  PE13    KILL
-//  PD14    E2_EN       //  PE14    BTN_EN2
-//  PD15    E1_DIR      //  PE15    BTN_ENC
+//  PA0                 |  PB0     HEAT_1          |  PC0         AUX_SDA
+//  PA1                 |  PB1     FAN1            |  PC1         TEMP_E1
+//  PA2     HEAT_BED    |  PB2     BOOT1           |  PC2         TEMP_E0
+//  PA3     PWR_HOLD    |  PB3     SPI3_SCK        |  PC3         TEMP_BED
+//  PA4     SD_CS       |  PB4     SPI3_MISO       |  PC4         SD_DETECT
+//  PA5     SD_SCK      |  PB5     SPI3_MOSI       |  PC5         HEAT_0
+//  PA6     SD_MISO     |  PB6     SERVO3          |  PC6         E1_STEP
+//  PA7     SD_MOSI     |  PB7     SERVO2          |  PC7         E1_EN
+//  PA8     X_DIR       |  PB8     FAN2/SERVO1     |  PC8         FIL_RUNOUT_PIN
+//  PA9     UART1_RX    |  PB9     SERVO0          |  PC9         E0_DIR
+//  PA10    UART1_TX    |  PB10    TX3             |  PC10        E0_EN
+//  PA11    USB_D-      |  PB11    RX3             |  PC11        Z2_EN
+//  PA12    USB_D+      |  PB12    LED             |  PC12        Z2_STEP
+//  PA13    SWD_SDO     |  PB13    Z1_MAX          |  PC13        X_MIN
+//  PA14    SWD_SCK     |  PB14    Y_MAX           |  PC14        WIFI_RST
+//  PA15    SPI3_CS     |  PB15    PWR_DET         |  PC15        WIFI_CS
+//  PD0     Z2_DIR      |  PE0     Y_EN
+//  PD1     Z2_MIN      |  PE1     Y_STEP
+//  PD2     Z1_EN       |  PE2     Y_DIR
+//  PD3     Z1_STEP     |  PE3     Y_MIN
+//  PD4     Z1_DIR      |  PE4     X_DIR
+//  PD5     WIFI_RXD    |  PE5     X_STEP
+//  PD6     WIFI_TXD    |  PE6     X_EN
+//  PD7     Z1_MIN      |  PE7     AUX_SCL
+//  PD8     X_MAX       |  PE8     BTN_EN1
+//  PD9     E3_DIR      |  PE9     LCD_SCK
+//  PD10    E3_STEP     |  PE10    LCD_MOSI
+//  PD11    E3_EN       |  PE11    BEEPER
+//  PD12    E2_DIR      |  PE12    LCD_EN
+//  PD13    E2_STEP     |  PE13    KILL
+//  PD14    E2_EN       |  PE14    BTN_EN2
+//  PD15    E1_DIR      |  PE15    BTN_ENC
+
 //=============================================================================
 // EXP1 connector
 //     MARK     I/O     ZONESTAR_LCD12864   REPRAPDISCOUNT_LCD12864
@@ -92,21 +87,39 @@
 //   5 SCK      PE9     DOGLCD_MOSI         LCD4
 //   4 ENC      PE15    BTN_ENC             NC
 //   3 EN2      PE14    BTN_EN2             NC
-//   2 +5V                    +5V
-//   1 GND                    GND
+//   2 +5V
+//   1 GND
+
+#define EXP1_03_PIN                         PE14
+#define EXP1_04_PIN                         PE15
+#define EXP1_05_PIN                         PE9
+#define EXP1_06_PIN                         PE8
+#define EXP1_07_PIN                         PE10
+#define EXP1_08_PIN                         PE12
+#define EXP1_09_PIN                         PE11
+#define EXP1_10_PIN                         PE13
 
 // EXP2 connector
-//     MARK     I/O     ZONESTAR_LCD12864    REPRAPDISCOUNT_LCD12864
+//     MARK     I/O     ZONESTAR_LCD12864   REPRAPDISCOUNT_LCD12864
 //  10 SDA      PC0
 //   9 SCL      PE7
 //   8 RX1      PA9     UART1_RX
-//   7 TX1      PA10    UART1_TX        BTN_EN2
+//   7 TX1      PA10    UART1_TX            BTN_EN2
 //   6 CS3      PA15
-//   5 MISO3    PB4                     BTN_EN1
-//   4 MOSI3    PB5                     KILL
+//   5 MISO3    PB4                         BTN_EN1
+//   4 MOSI3    PB5                         KILL
 //   3 SCK3     PB3
-//   2 +5V                    +5V
-//   1 GND                    GND
+//   2 +5V
+//   1 GND
+
+#define EXP2_03_PIN                         PB3
+#define EXP2_04_PIN                         PB5
+#define EXP2_05_PIN                         PB4
+#define EXP2_06_PIN                         PA15
+#define EXP2_07_PIN                         PA10
+#define EXP2_08_PIN                         PA9
+#define EXP2_09_PIN                         PE7
+#define EXP2_10_PIN                         PC0
 
 // AUX1 connector
 //  1 +5V
@@ -263,32 +276,32 @@
 
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
-  #define LCD_PINS_RS                       PE12  // 7 CS make sure for zonestar zm3e4!
-  #define LCD_PINS_ENABLE                   PE9   // 6 DATA make sure for zonestar zm3e4!
-  #define LCD_PINS_D4                       PE10  // 8 SCK make sure for zonestar zm3e4!
-  #define BEEPER_PIN                        PE11
-  #define KILL_PIN                          -1    // PE13
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE14
-  #define BTN_ENC                           PE15
+  #define LCD_PINS_RS                EXP1_08_PIN  // 7 CS make sure for zonestar zm3e4!
+  #define LCD_PINS_ENABLE            EXP1_05_PIN  // 6 DATA make sure for zonestar zm3e4!
+  #define LCD_PINS_D4                EXP1_07_PIN  // 8 SCK make sure for zonestar zm3e4!
+  #define BEEPER_PIN                 EXP1_09_PIN
+  #define KILL_PIN                          -1    // EXP1_10_PIN
+  #define BTN_EN1                    EXP1_06_PIN
+  #define BTN_EN2                    EXP1_03_PIN
+  #define BTN_ENC                    EXP1_04_PIN
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define LCDSCREEN_NAME "REPRAPDISCOUNT LCD12864"
-  #define LCD_PINS_RS                       PA9   // 7 CS make sure for zonestar zm3e4!
-  #define LCD_PINS_ENABLE                   PB4   // 6 DATA make sure for zonestar zm3e4!
-  #define LCD_PINS_D4                       PA10  // 8 SCK make sure for zonestar zm3e4!
-  #define BEEPER_PIN                        PC0
-  #define KILL_PIN                          PE7
-  #define BTN_EN1                           PB3
-  #define BTN_EN2                           PA15
-  #define BTN_ENC                           PB5
+  #define LCD_PINS_RS                EXP2_08_PIN  // 7 CS make sure for zonestar zm3e4!
+  #define LCD_PINS_ENABLE            EXP2_05_PIN  // 6 DATA make sure for zonestar zm3e4!
+  #define LCD_PINS_D4                EXP2_07_PIN  // 8 SCK make sure for zonestar zm3e4!
+  #define BEEPER_PIN                 EXP2_10_PIN
+  #define KILL_PIN                   EXP2_09_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_06_PIN
+  #define BTN_ENC                    EXP2_04_PIN
 #elif ENABLED(ZONESTAR_DWIN_LCD)
   // Connect to EXP2 connector
   #define LCDSCREEN_NAME "ZONESTAR DWIN LCD"
-  #define BEEPER_PIN                        PA15  // PE11
-  #define KILL_PIN                          -1    // PE13
-  #define BTN_EN2                           PB5   // PE8
-  #define BTN_EN1                           PB3   // PE14
-  #define BTN_ENC                           PB4   // PE15
+  #define BEEPER_PIN                 EXP2_06_PIN  // PE11
+  #define KILL_PIN                          -1    // EXP1_10_PIN
+  #define BTN_EN2                    EXP2_04_PIN  // PE8
+  #define BTN_EN1                    EXP2_03_PIN  // PE14
+  #define BTN_ENC                    EXP2_05_PIN  // PE15
 #endif
 
 #if HAS_MARLINUI_U8GLIB
@@ -300,16 +313,16 @@
 // Remap SERVO0 PIN for BLTouch
 #if ENABLED(BLTOUCH_ON_EXP1)
   // BLTouch connected to EXP1
-  #define BLTOUCH_PROBE_PIN                 PE8
-  #define BLTOUCH_GND_PIN                   PE15
+  #define BLTOUCH_PROBE_PIN          EXP1_06_PIN
+  #define BLTOUCH_GND_PIN            EXP1_04_PIN
   #undef SERVO0_PIN
-  #define SERVO0_PIN                        PE14
+  #define SERVO0_PIN                 EXP1_03_PIN
 #elif ENABLED(BLTOUCH_ON_EXP2)
   // BLTouch connected to EXP2
-  #define BLTOUCH_PROBE_PIN                 PB3
-  #define BLTOUCH_GND_PIN                   PB5
+  #define BLTOUCH_PROBE_PIN          EXP2_03_PIN
+  #define BLTOUCH_GND_PIN            EXP2_04_PIN
   #undef SERVO0_PIN
-  #define SERVO0_PIN                        PA15
+  #define SERVO0_PIN                 EXP2_06_PIN
 #else
-  #define BLTOUCH_PROBE_PIN                 PB13
+  #define BLTOUCH_PROBE_PIN                 PB13  // Z1_MAX
 #endif
