@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
+#include <type_traits>
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
@@ -138,50 +139,57 @@ struct SerialBase {
   // Glue code here
   FORCE_INLINE void write(const char *str)                    { while (*str) write(*str++); }
   FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
+  FORCE_INLINE void print(char *str)                          { write(str); }
   FORCE_INLINE void print(const char *str)                    { write(str); }
   // No default argument to avoid ambiguity
-  NO_INLINE void print(char c, PrintBase base)                { printNumber((signed long)c, (uint8_t)base); }
-  NO_INLINE void print(unsigned char c, PrintBase base)       { printNumber((unsigned long)c, (uint8_t)base); }
-  NO_INLINE void print(int c, PrintBase base)                 { printNumber((signed long)c, (uint8_t)base); }
-  NO_INLINE void print(unsigned int c, PrintBase base)        { printNumber((unsigned long)c, (uint8_t)base); }
-  void print(unsigned long c, PrintBase base)                 { printNumber((unsigned long)c, (uint8_t)base); }
-  void print(long c, PrintBase base)                          { printNumber((signed long)c, (uint8_t)base); }
-  void print(EnsureDouble c, int digits)                      { printFloat(c, digits); }
+  NO_INLINE void print(int8_t c, PrintBase base)   { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(uint8_t c, PrintBase base)  { printNumber_unsigned(c, (uint8_t)base); }
+  NO_INLINE void print(int16_t c, PrintBase base)  { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(uint16_t c, PrintBase base) { printNumber_unsigned(c, (uint8_t)base); }
+  NO_INLINE void print(int32_t c, PrintBase base)  { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(uint32_t c, PrintBase base) { printNumber_unsigned(c, (uint8_t)base); }
+  NO_INLINE void print(int64_t c, PrintBase base)  { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(uint64_t c, PrintBase base) { printNumber_unsigned(c, (uint8_t)base); }
+
+  void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
+  void print(long c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
+  void print(EnsureDouble c, int digits)           { printFloat(c, digits); }
 
   // Forward the call to the former's method
-  FORCE_INLINE void print(char c)                { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(unsigned char c)       { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(int c)                 { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(unsigned int c)        { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(unsigned long c)       { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(long c)                { print(c, PrintBase::Dec); }
-  FORCE_INLINE void print(double c)              { print(c, 2); }
 
-  FORCE_INLINE void println(const char s[])                  { print(s); println(); }
-  FORCE_INLINE void println(char c, PrintBase base)          { print(c, base); println(); }
-  FORCE_INLINE void println(unsigned char c, PrintBase base) { print(c, base); println(); }
-  FORCE_INLINE void println(int c, PrintBase base)           { print(c, base); println(); }
-  FORCE_INLINE void println(unsigned int c, PrintBase base)  { print(c, base); println(); }
-  FORCE_INLINE void println(long c, PrintBase base)          { print(c, base); println(); }
-  FORCE_INLINE void println(unsigned long c, PrintBase base) { print(c, base); println(); }
+  // Default implementation for anything without a specialization
+  // This handles integers since they are the most common
+  template <typename T>
+  FORCE_INLINE void print(T c)    { print(c, PrintBase::Dec); }
+
+  FORCE_INLINE void print(float c)    { print(c, 2); }
+  FORCE_INLINE void print(double c)    { print(c, 2); }
+
+  FORCE_INLINE void println(char *s)                   { print(s); println(); }
+  FORCE_INLINE void println(const char *s)                   { print(s); println(); }
+  FORCE_INLINE void println(float c, int digits)            { print(c, digits); println(); }
   FORCE_INLINE void println(double c, int digits)            { print(c, digits); println(); }
   FORCE_INLINE void println()                                { write('\r'); write('\n'); }
 
+  // Default implementations for types without a specialization. Handles integers.
+  template <typename T>
+  FORCE_INLINE void println(T c, PrintBase base)          { print(c, base); println(); }
+
+  template <typename T>
+  FORCE_INLINE void println(T c)                   { println(c, PrintBase::Dec); }
+
   // Forward the call to the former's method
-  FORCE_INLINE void println(char c)                { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(unsigned char c)       { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(int c)                 { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(unsigned int c)        { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(unsigned long c)       { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(long c)                { println(c, PrintBase::Dec); }
+  FORCE_INLINE void println(float c)               { println(c, 2); }
   FORCE_INLINE void println(double c)              { println(c, 2); }
 
+
   // Print a number with the given base
-  NO_INLINE void printNumber(unsigned long n, const uint8_t base) {
+  template <typename T>
+  NO_INLINE void printNumber_unsigned(T n, const uint8_t base) {
     if (!base) return; // Hopefully, this should raise visible bug immediately
 
     if (n) {
-      unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
+      unsigned char buf[8 * sizeof(T)]; // Enough space for base 2
       int8_t i = 0;
       while (n) {
         buf[i++] = n % base;
@@ -191,7 +199,9 @@ struct SerialBase {
     }
     else write('0');
   }
-  void printNumber(signed long n, const uint8_t base) {
+
+  template <typename T>
+  void printNumber_signed(T n, const uint8_t base) {
     if (base == 10 && n < 0) {
       n = -n; // This works because all platforms Marlin's builds on are using 2-complement encoding for negative number
               // On such CPU, changing the sign of a number is done by inverting the bits and adding one, so if n = 0x80000000 = -2147483648 then
@@ -199,7 +209,7 @@ struct SerialBase {
               // On non 2-complement CPU, there would be no possible representation for 2147483648.
       write('-');
     }
-    printNumber((unsigned long)n , base);
+    printNumber_unsigned((typename std::make_unsigned<T>::type)(n), base);
   }
 
   // Print a decimal number
@@ -218,7 +228,7 @@ struct SerialBase {
     // Extract the integer part of the number and print it
     unsigned long int_part = (unsigned long)number;
     double remainder = number - (double)int_part;
-    printNumber(int_part, 10);
+    printNumber_unsigned(int_part, 10);
 
     // Print the decimal point, but only if there are digits beyond
     if (digits) {
@@ -227,7 +237,7 @@ struct SerialBase {
       while (digits--) {
         remainder *= 10.0;
         unsigned long toPrint = (unsigned long)remainder;
-        printNumber(toPrint, 10);
+        printNumber_unsigned(toPrint, 10);
         remainder -= toPrint;
       }
     }
