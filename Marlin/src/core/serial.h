@@ -177,8 +177,8 @@ void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 template <typename T, typename U>
 void SERIAL_PRINT(T x, U y) { SERIAL_IMPL.print(x, y); }
 
-template <typename T, typename U>
-void SERIAL_PRINTLN(T x, U y) { SERIAL_IMPL.println(x, y); }
+template <typename T>
+void SERIAL_PRINTLN(T x, PrintBase y) { SERIAL_IMPL.println(x, y); }
 
 // Flush the serial port
 inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
