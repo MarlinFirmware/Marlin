@@ -299,7 +299,7 @@ inline void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintP
 inline void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
 inline void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
-// Default implementation for types without a specialization. Handles intgers.
+// Default implementation for types without a specialization. Handles integers.
 template <typename T>
 void serial_echopair_PGM(PGM_P const s_P, T v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 

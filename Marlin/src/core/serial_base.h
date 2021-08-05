@@ -143,7 +143,7 @@ struct SerialBase {
   FORCE_INLINE void print(const char *str)                    { write(str); }
   // No default argument to avoid ambiguity
 
-  // Defint print for every fundamental integer type, to ensure that all redirect properly
+  // Define print for every fundamental integer type, to ensure that all redirect properly
   // to the underlying templated implementations.
   NO_INLINE void print(char c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
   NO_INLINE void print(short c, PrintBase base)              { printNumber_signed(c, (uint8_t)base); }
