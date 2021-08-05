@@ -142,17 +142,20 @@ struct SerialBase {
   FORCE_INLINE void print(char *str)                          { write(str); }
   FORCE_INLINE void print(const char *str)                    { write(str); }
   // No default argument to avoid ambiguity
-  NO_INLINE void print(int8_t c, PrintBase base)   { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(uint8_t c, PrintBase base)  { printNumber_unsigned(c, (uint8_t)base); }
-  NO_INLINE void print(int16_t c, PrintBase base)  { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(uint16_t c, PrintBase base) { printNumber_unsigned(c, (uint8_t)base); }
-  NO_INLINE void print(int32_t c, PrintBase base)  { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(uint32_t c, PrintBase base) { printNumber_unsigned(c, (uint8_t)base); }
-  NO_INLINE void print(int64_t c, PrintBase base)  { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(uint64_t c, PrintBase base) { printNumber_unsigned(c, (uint8_t)base); }
 
-  void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
-  void print(long c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
+  // Defint print for every fundamental integer type, to ensure that all redirect properly
+  // to the underlying templated implementations.
+  NO_INLINE void print(char c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(short c, PrintBase base)              { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(int c, PrintBase base)                { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(long c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(long long c, PrintBase base)          { printNumber_signed(c, (uint8_t)base); }
+  NO_INLINE void print(unsigned char c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
+  NO_INLINE void print(unsigned short c, PrintBase base)     { printNumber_unsigned(c, (uint8_t)base); }
+  NO_INLINE void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, (uint8_t)base); }
+  NO_INLINE void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
+  NO_INLINE void print(unsigned long long c, PrintBase base) { printNumber_unsigned(c, (uint8_t)base); }
+
   void print(EnsureDouble c, int digits)           { printFloat(c, digits); }
 
   // Forward the call to the former's method
