@@ -380,7 +380,7 @@
   //#define PS_OFF_CONFIRM          // Confirm dialog when power off
   //#define PS_OFF_SOUND            // Beep 1s when power off
   #ifndef PSU_ACTIVE_STATE
-	#define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
+	  #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
   #endif
 
   //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
