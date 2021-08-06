@@ -203,8 +203,7 @@
   #else
     #define PS_ON_PIN                       PB2   //PW_OFF, you can change it to other pin
     #define KILL_PIN                        PA13  //PW_DET, you can change it to other pin
-    #define KILL_PIN_INVERTING              true  //true : HIGH level trigger
-    #define KILL_PIN_STATE    KILL_PIN_INVERTING
+    #define KILL_PIN_STATE                  true  //true : HIGH level trigger
   #endif
 #endif
 
