@@ -192,7 +192,21 @@
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PA13  // PW_DET
 #endif
-#define PS_ON_PIN                           PB2   // PW_OFF
+
+#if ENABLED(MKS_PWC)
+  #if ENABLED(TFT_LVGL_UI)
+    #undef PSU_CONTROL
+    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
+    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
+    #define KILL_PIN                        PA13  // Enable MKSPWC DET PIN
+    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
+  #else
+    #define PS_ON_PIN                       PB2   //PW_OFF, you can change it to other pin
+    #define KILL_PIN                        PA13  //PW_DET, you can change it to other pin
+    #define KILL_PIN_INVERTING              true  //true : HIGH level trigger
+    #define KILL_PIN_STATE    KILL_PIN_INVERTING
+  #endif
+#endif
 
 //
 // Enable MKSPWC support

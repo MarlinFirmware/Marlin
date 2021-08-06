@@ -126,6 +126,12 @@
 
 #define FIL_RUNOUT_PIN                      PB10  // MT_DET
 
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                         PA14 //PW_OFF, you can change it to other pin
+  #define KILL_PIN                          PB10 //PW_DET, you can change it to other pin
+  #define KILL_PIN_STATE                    true //true : HIGH level trigger
+#endif
+
 /**
  *                _____                                      _____                                     _____
  *  (BEEPER) PC1 | 1 2 | PC3 (BTN_ENC)          (MISO) PB14 | 1 2 | PB13 (SD_SCK)                  5V | 1 2 | GND

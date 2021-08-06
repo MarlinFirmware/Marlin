@@ -222,8 +222,12 @@
   #define FIL_RUNOUT2_PIN               MT_DET_2
 #endif
 
-#define POWER_LOSS_PIN                    PW_DET
-#define PS_ON_PIN                         PW_OFF
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                     PB12 //Z+ interface, you can change it to other pin
+  #define KILL_PIN                      PC5  //Y+ interface, you can change it to other pin
+  #define KILL_PIN_INVERTING            true //true : HIGH level trigger
+  #define KILL_PIN_STATE  KILL_PIN_INVERTING  
+#endif
 
 // Random Info
 #define USB_SERIAL                          -1    // USB Serial

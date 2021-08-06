@@ -226,6 +226,12 @@
 //
 #define LED_PIN                            P1_18  // Used as a status indicator
 
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                        P2_00  //SERVO interface, you can change it to other pin
+  #define KILL_PIN                         P1_24  //Z+ interface, you can change it to other pin
+  #define KILL_PIN_STATE                   true   //true : HIGH level trigger
+#endif
+
 //
 // RGB LED
 //

@@ -138,7 +138,11 @@
 //
 // Misc. Functions
 //
-#define PS_ON_PIN                          P0_25  // TH3 Connector
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                        P0_25  //SERVO interface, you can change it to other pin
+  #define KILL_PIN                         P1_29  //Z+ interface, you can change it to other pin
+  #define KILL_PIN_STATE                   true   //true : HIGH level trigger
+#endif
 
 //
 // Ethernet pins
