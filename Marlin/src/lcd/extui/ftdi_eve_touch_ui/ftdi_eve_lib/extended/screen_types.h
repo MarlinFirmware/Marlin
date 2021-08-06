@@ -152,7 +152,7 @@ class UIScreen {
 #define AT_SCREEN(screen)     (current_screen.getType() == current_screen.lookupScreen(screen::onRedraw))
 #define IS_PARENT_SCREEN(screen) (current_screen.peek() == current_screen.lookupScreen(screen::onRedraw))
 
-/************************** CACHED VS UNCHACHED SCREENS ***************************/
+/************************** CACHED VS UNCACHED SCREENS ***************************/
 
 class UncachedScreen {
   public:
