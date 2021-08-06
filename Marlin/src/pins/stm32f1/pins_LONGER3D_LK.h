@@ -99,11 +99,10 @@
 // Avoid nozzle heat and fan start before serial init
 #define BOARD_OPENDRAIN_MOSFETS
 
-// STM32 framework cannot use WRITE macros before HAL_init()
 #define BOARD_PREINIT() { \
-  _SET_OUTPUT_OD(HEATER_0_PIN); digitalWrite(HEATER_0_PIN, 0); \
-  _SET_OUTPUT_OD(HEATER_BED_PIN); digitalWrite(HEATER_BED_PIN, 0); \
-  _SET_OUTPUT_OD(FAN_PIN); digitalWrite(FAN_PIN, 0); \
+  OUT_WRITE_OD(HEATER_0_PIN, 0); \
+  OUT_WRITE_OD(HEATER_BED_PIN, 0); \
+  OUT_WRITE_OD(FAN_PIN, 0); \
 }
 
 //

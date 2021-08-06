@@ -1131,6 +1131,10 @@ inline void tmc_standby_setup() {
  *  - Set Marlin to RUNNING State
  */
 void setup() {
+  #ifdef HAL_STM32
+    FastIO_init();
+  #endif
+
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
   #endif
@@ -1188,13 +1192,7 @@ void setup() {
 
   #if HAS_SUICIDE
     SETUP_LOG("SUICIDE_PIN");
-    SET_OUTPUT(SUICIDE_PIN);
-    #ifdef ARDUINO_ARCH_STM32
-      // We are before FastIO_init()!
-      digitalWrite(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
-    #else
-      WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
-    #endif
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
 
   #ifdef JTAGSWD_RESET

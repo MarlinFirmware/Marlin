@@ -37,7 +37,7 @@ extern GPIO_TypeDef * FastIOPortMap[];
 // Public functions
 // ------------------------
 
-void FastIO_init(); // Must be called before using fast io READ/WRITE, or define FASTIO_PREINIT
+void FastIO_init(); // Must be called before using fast io macros
 
 // ------------------------
 // Defines
@@ -66,15 +66,9 @@ void FastIO_init(); // Must be called before using fast io READ/WRITE, or define
 #define _SET_OUTPUT(IO)         pinMode(IO, OUTPUT)                               //!< Output Push Pull Mode & GPIO_NOPULL
 #define _SET_OUTPUT_OD(IO)      pinMode(IO, OUTPUT_OPEN_DRAIN)
 
-#ifdef FASTIO_PREINIT
-  #define READ(IO)              ((FastIOPortMap[0]) ? _READ(IO) : digitalRead(IO))
-  #define WRITE(IO,V)           do { if (FastIOPortMap[0]) _WRITE(IO,V); else digitalWrite(IO,V); } while(0)
-  #define TOGGLE(IO)            do { if (FastIOPortMap[0]) _TOGGLE(IO);  else digitalWrite(IO,(!digitalRead(IO))); } while(0)
-#else
-  #define READ(IO)              _READ(IO)
-  #define WRITE(IO,V)           _WRITE(IO,V)
-  #define TOGGLE(IO)            _TOGGLE(IO)
-#endif
+#define WRITE(IO,V)             _WRITE(IO,V)
+#define READ(IO)                _READ(IO)
+#define TOGGLE(IO)              _TOGGLE(IO)
 
 #define OUT_WRITE(IO,V)         do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 #define OUT_WRITE_OD(IO,V)      do{ _SET_OUTPUT_OD(IO); WRITE(IO,V); }while(0)
