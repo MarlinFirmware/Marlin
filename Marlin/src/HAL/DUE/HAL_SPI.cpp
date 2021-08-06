@@ -437,7 +437,7 @@
     } while (--todo);
   }
 
-  // Pointers to generic functions for block tranfers
+  // Pointers to generic functions for block transfers
   static pfnSpiTxBlock spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
   static pfnSpiRxBlock spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
 

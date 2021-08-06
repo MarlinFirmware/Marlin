@@ -857,7 +857,7 @@ class Planner {
       static void quick_resume();
     #endif
 
-    // Called when an endstop is triggered. Causes the machine to stop inmediately
+    // Called when an endstop is triggered. Causes the machine to stop immediately
     static void endstop_triggered(const AxisEnum axis);
 
     // Triggered position of an axis in mm (not core-savvy)

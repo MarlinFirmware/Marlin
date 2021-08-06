@@ -208,7 +208,7 @@ void ChironTFT::ConfirmationRequest(const char * const msg)  {
     case AC_printer_resuming_from_power_outage:
     case AC_printer_printing:
     case AC_printer_paused: {
-      // Heater timout, send acknowledgement
+      // Heater timeout, send acknowledgement
       if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
         pause_state = AC_paused_heater_timed_out;
         SendtoTFTLN(AC_msg_paused); // enable continue button
@@ -248,7 +248,7 @@ void ChironTFT::StatusChange(const char * const msg)  {
         printer_state = AC_printer_idle;
         msg_matched = true;
       }
-      // If probing fails dont save the mesh raise the probe above the bad point
+      // If probing fails don't save the mesh raise the probe above the bad point
       if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
         PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
         injectCommands_P(PSTR("G1 Z50 F500"));
@@ -622,7 +622,7 @@ void ChironTFT::PanelAction(uint8_t req) {
       break;
 
     case 14: { // A14 Start Printing
-      // Allows printer to restart the job if we dont want to recover
+      // Allows printer to restart the job if we don't want to recover
       if (printer_state == AC_printer_resuming_from_power_outage) {
         injectCommands_P(PSTR("M1000 C")); // Cancel recovery
         printer_state = AC_printer_idle;

@@ -47,7 +47,7 @@ const uint16_t VPList_Boot[] PROGMEM = {
 };
 
 const uint16_t VPList_Main[] PROGMEM = {
-  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  // VP_M117, for completeness, but it cannot be auto-uploaded.
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set, VP_E0_STATUS,
     #if HOTENDS >= 2
@@ -83,7 +83,7 @@ const uint16_t VPList_Temp[] PROGMEM = {
 };
 
 const uint16_t VPList_Status[] PROGMEM = {
-  /* VP_M117, for completeness, but it cannot be auto-uploaded */
+  // VP_M117, for completeness, but it cannot be auto-uploaded
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
     #if HOTENDS >= 2
@@ -104,7 +104,7 @@ const uint16_t VPList_Status[] PROGMEM = {
 };
 
 const uint16_t VPList_Status2[] PROGMEM = {
-  /* VP_M117, for completeness, but it cannot be auto-uploaded */
+  // VP_M117, for completeness, but it cannot be auto-uploaded
   #if HAS_HOTEND
     VP_Flowrate_E0,
     #if HOTENDS >= 2
@@ -292,28 +292,28 @@ const uint16_t VPList_Z_Offset[] PROGMEM = {
 };
 
 const struct VPMapping VPMap[] PROGMEM = {
-  { DGUSLCD_SCREEN_BOOT, VPList_Boot },
-  { DGUSLCD_SCREEN_MAIN, VPList_Main },
-  { DGUSLCD_SCREEN_TEMPERATURE, VPList_Temp },
-  { DGUSLCD_SCREEN_STATUS, VPList_Status },
-  { DGUSLCD_SCREEN_STATUS2, VPList_Status2 },
-  { DGUSLCD_SCREEN_PREHEAT, VPList_Preheat },
-  { DGUSLCD_SCREEN_MANUALMOVE, VPList_ManualMove },
-  { DGUSLCD_SCREEN_Z_OFFSET, VPList_Z_Offset },
-  { DGUSLCD_SCREEN_MANUALEXTRUDE, VPList_ManualExtrude },
-  { DGUSLCD_SCREEN_FILAMENT_HEATING, VPList_Filament_heating },
-  { DGUSLCD_SCREEN_FILAMENT_LOADING, VPList_Filament_load_unload },
-  { DGUSLCD_SCREEN_FILAMENT_UNLOADING, VPList_Filament_load_unload },
+  { DGUSLCD_SCREEN_BOOT,                VPList_Boot                 },
+  { DGUSLCD_SCREEN_MAIN,                VPList_Main                 },
+  { DGUSLCD_SCREEN_TEMPERATURE,         VPList_Temp                 },
+  { DGUSLCD_SCREEN_STATUS,              VPList_Status               },
+  { DGUSLCD_SCREEN_STATUS2,             VPList_Status2              },
+  { DGUSLCD_SCREEN_PREHEAT,             VPList_Preheat              },
+  { DGUSLCD_SCREEN_MANUALMOVE,          VPList_ManualMove           },
+  { DGUSLCD_SCREEN_Z_OFFSET,            VPList_Z_Offset             },
+  { DGUSLCD_SCREEN_MANUALEXTRUDE,       VPList_ManualExtrude        },
+  { DGUSLCD_SCREEN_FILAMENT_HEATING,    VPList_Filament_heating     },
+  { DGUSLCD_SCREEN_FILAMENT_LOADING,    VPList_Filament_load_unload },
+  { DGUSLCD_SCREEN_FILAMENT_UNLOADING,  VPList_Filament_load_unload },
   { DGUSLCD_SCREEN_SDPRINTMANIPULATION, VPList_SD_PrintManipulation },
-  { DGUSLCD_SCREEN_SDFILELIST, VPList_SDFileList },
-  { DGUSLCD_SCREEN_SDPRINTTUNE, VPList_SDPrintTune },
-  { DGUSLCD_SCREEN_WAITING, VPList_PIDTuningWaiting },
-  { DGUSLCD_SCREEN_FLC_PREHEAT, VPList_FLCPreheat },
-  { DGUSLCD_SCREEN_FLC_PRINTING, VPList_FLCPrinting },
-  { DGUSLCD_SCREEN_STEPPERMM, VPList_StepPerMM },
-  { DGUSLCD_SCREEN_PID_E, VPList_PIDE0 },
-  { DGUSLCD_SCREEN_PID_BED, VPList_PIDBED },
-  { DGUSLCD_SCREEN_INFOS, VPList_Infos },
+  { DGUSLCD_SCREEN_SDFILELIST,          VPList_SDFileList           },
+  { DGUSLCD_SCREEN_SDPRINTTUNE,         VPList_SDPrintTune          },
+  { DGUSLCD_SCREEN_WAITING,             VPList_PIDTuningWaiting     },
+  { DGUSLCD_SCREEN_FLC_PREHEAT,         VPList_FLCPreheat           },
+  { DGUSLCD_SCREEN_FLC_PRINTING,        VPList_FLCPrinting          },
+  { DGUSLCD_SCREEN_STEPPERMM,           VPList_StepPerMM            },
+  { DGUSLCD_SCREEN_PID_E,               VPList_PIDE0                },
+  { DGUSLCD_SCREEN_PID_BED,             VPList_PIDBED               },
+  { DGUSLCD_SCREEN_INFOS,               VPList_Infos                },
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
 
@@ -395,7 +395,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_T_Bed_Set, &thermalManager.temp_bed.target, ScreenHandler.HandleTemperatureChanged, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_BED_CONTROL, &thermalManager.temp_bed.target, ScreenHandler.HandleHeaterControl, nullptr),
     VPHELPER(VP_BED_STATUS, &thermalManager.temp_bed.target, nullptr, ScreenHandler.DGUSLCD_SendHeaterStatusToDisplay),
-    #if ENABLED(PIDTEMP)
+    #if ENABLED(PIDTEMPBED)
       VPHELPER(VP_BED_PID_P, &thermalManager.temp_bed.pid.Kp, ScreenHandler.HandleTemperaturePIDChanged, ScreenHandler.DGUSLCD_SendTemperaturePID),
       VPHELPER(VP_BED_PID_I, &thermalManager.temp_bed.pid.Ki, ScreenHandler.HandleTemperaturePIDChanged, ScreenHandler.DGUSLCD_SendTemperaturePID),
       VPHELPER(VP_BED_PID_D, &thermalManager.temp_bed.pid.Kd, ScreenHandler.HandleTemperaturePIDChanged, ScreenHandler.DGUSLCD_SendTemperaturePID),
@@ -445,11 +445,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_SD_ScrollEvent, nullptr, ScreenHandler.DGUSLCD_SD_ScrollFilelist, nullptr),
     VPHELPER(VP_SD_FileSelected, nullptr, ScreenHandler.DGUSLCD_SD_FileSelected, nullptr),
     VPHELPER(VP_SD_FileSelectConfirm, nullptr, ScreenHandler.DGUSLCD_SD_StartPrint, nullptr),
-    VPHELPER_STR(VP_SD_FileName0,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
-    VPHELPER_STR(VP_SD_FileName1,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
-    VPHELPER_STR(VP_SD_FileName2,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
-    VPHELPER_STR(VP_SD_FileName3,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
-    VPHELPER_STR(VP_SD_FileName4,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
+    VPHELPER_STR(VP_SD_FileName0, nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
+    VPHELPER_STR(VP_SD_FileName1, nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
+    VPHELPER_STR(VP_SD_FileName2, nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
+    VPHELPER_STR(VP_SD_FileName3, nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
+    VPHELPER_STR(VP_SD_FileName4, nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename),
     VPHELPER(VP_SD_ResumePauseAbort, nullptr, ScreenHandler.DGUSLCD_SD_ResumePauseAbort, nullptr),
     VPHELPER(VP_SD_AbortPrintConfirmed, nullptr, ScreenHandler.DGUSLCD_SD_ReallyAbort, nullptr),
     VPHELPER(VP_SD_Print_Setting, nullptr, ScreenHandler.DGUSLCD_SD_PrintTune, nullptr),
@@ -465,7 +465,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_WAITING_STATUS, nullptr, nullptr, ScreenHandler.DGUSLCD_SendWaitingStatusToDisplay),
   #endif
 
-  // Messages for the User, shared by the popup and the kill screen. They cant be autouploaded as we do not buffer content.
+  // Messages for the User, shared by the popup and the kill screen. They can't be autouploaded as we do not buffer content.
   { .VP = VP_MSGSTR1, .memadr = nullptr, .size = VP_MSGSTR1_LEN, .set_by_display_handler = nullptr, .send_to_display_handler = ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
   { .VP = VP_MSGSTR2, .memadr = nullptr, .size = VP_MSGSTR2_LEN, .set_by_display_handler = nullptr, .send_to_display_handler = ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
   { .VP = VP_MSGSTR3, .memadr = nullptr, .size = VP_MSGSTR3_LEN, .set_by_display_handler = nullptr, .send_to_display_handler = ScreenHandler.DGUSLCD_SendStringToDisplayPGM },

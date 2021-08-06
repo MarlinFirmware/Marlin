@@ -1079,7 +1079,7 @@ void CLCD::CommandFifo::str(progmem_str data) {
 
 void CLCD::init() {
   spi_init();                                  // Set Up I/O Lines for SPI and FT800/810 Control
-  ftdi_reset();                                // Power down/up the FT8xx with the apropriate delays
+  ftdi_reset();                                // Power down/up the FT8xx with the appropriate delays
 
   host_cmd(Use_Crystal ? CLKEXT : CLKINT, 0);
   host_cmd(FTDI::ACTIVE, 0);                        // Activate the System Clock
