@@ -74,12 +74,12 @@ CALL_IF_EXISTS_IMPL(SerialFeature, features, SerialFeature::None);
 // for any type other than double/float. For double/float, a conversion exists so the call will be invisible.
 struct EnsureDouble {
   double a;
-  FORCE_INLINE operator double() { return a; }
+  operator double() { return a; }
   // If the compiler breaks on ambiguity here, it's likely because print(X, base) is called with X not a double/float, and
   // a base that's not a PrintBase value. This code is made to detect the error. You MUST set a base explicitly like this:
   // SERIAL_PRINT(v, PrintBase::Hex)
-  FORCE_INLINE EnsureDouble(double a) : a(a) {}
-  FORCE_INLINE EnsureDouble(float a) : a(a) {}
+  EnsureDouble(double a) : a(a) {}
+  EnsureDouble(float a) : a(a) {}
 };
 
 // Using Curiously-Recurring Template Pattern here to avoid virtual table cost when compiling.
@@ -136,14 +136,14 @@ struct SerialBase {
   void flushTX()                    { CALL_IF_EXISTS(void, SerialChild, flushTX); }
 
   // Glue code here
-  FORCE_INLINE void write(const char *str)                    { while (*str) write(*str++); }
-  FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
-  FORCE_INLINE void print(char *str)                          { write(str); }
-  FORCE_INLINE void print(const char *str)                    { write(str); }
+  void write(const char *str)                    { while (*str) write(*str++); }
+  void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
+  void print(char *str)                          { write(str); }
+  void print(const char *str)                    { write(str); }
   // No default argument to avoid ambiguity
 
   // Define print for every fundamental integer type, to ensure that all redirect properly
-  // to the underlying templated implementations.
+  // to the correct underlying implementation.
 
   // Prints are performed with a single size, to avoid needing multiple print functions.
   // The fixed integer size used for prints will be the larger of long or a pointer.
@@ -154,18 +154,18 @@ struct SerialBase {
     typedef intptr_t int_fixed_print_t;
     typedef uintptr_t uint_fixed_print_t;
 
-    NO_INLINE void print(intptr_t c, PrintBase base)         { printNumber_signed(c, (uint8_t)base); }
-    NO_INLINE void print(uintptr_t c, PrintBase base)        { printNumber_unsigned(c, (uint8_t)base); }
+    void print(intptr_t c, PrintBase base)         { printNumber_signed(c, (uint8_t)base); }
+    void print(uintptr_t c, PrintBase base)        { printNumber_unsigned(c, (uint8_t)base); }
   #endif
 
-  NO_INLINE void print(char c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(short c, PrintBase base)              { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(int c, PrintBase base)                { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(long c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
-  NO_INLINE void print(unsigned char c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
-  NO_INLINE void print(unsigned short c, PrintBase base)     { printNumber_unsigned(c, (uint8_t)base); }
-  NO_INLINE void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, (uint8_t)base); }
-  NO_INLINE void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
+  void print(char c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
+  void print(short c, PrintBase base)              { printNumber_signed(c, (uint8_t)base); }
+  void print(int c, PrintBase base)                { printNumber_signed(c, (uint8_t)base); }
+  void print(long c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
+  void print(unsigned char c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
+  void print(unsigned short c, PrintBase base)     { printNumber_unsigned(c, (uint8_t)base); }
+  void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, (uint8_t)base); }
+  void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
 
 
   void print(EnsureDouble c, int digits)           { printFloat(c, digits); }
@@ -175,27 +175,27 @@ struct SerialBase {
   // Default implementation for anything without a specialization
   // This handles integers since they are the most common
   template <typename T>
-  FORCE_INLINE void print(T c)    { print(c, PrintBase::Dec); }
+  void print(T c)    { print(c, PrintBase::Dec); }
 
-  FORCE_INLINE void print(float c)    { print(c, 2); }
-  FORCE_INLINE void print(double c)    { print(c, 2); }
+  void print(float c)    { print(c, 2); }
+  void print(double c)    { print(c, 2); }
 
-  FORCE_INLINE void println(char *s)               { print(s); println(); }
-  FORCE_INLINE void println(const char *s)         { print(s); println(); }
-  FORCE_INLINE void println(float c, int digits)   { print(c, digits); println(); }
-  FORCE_INLINE void println(double c, int digits)  { print(c, digits); println(); }
-  FORCE_INLINE void println()                      { write('\r'); write('\n'); }
+  void println(char *s)               { print(s); println(); }
+  void println(const char *s)         { print(s); println(); }
+  void println(float c, int digits)   { print(c, digits); println(); }
+  void println(double c, int digits)  { print(c, digits); println(); }
+  void println()                      { write('\r'); write('\n'); }
 
   // Default implementations for types without a specialization. Handles integers.
   template <typename T>
-  FORCE_INLINE void println(T c, PrintBase base)   { print(c, base); println(); }
+  void println(T c, PrintBase base)   { print(c, base); println(); }
 
   template <typename T>
-  FORCE_INLINE void println(T c)                   { println(c, PrintBase::Dec); }
+  void println(T c)                   { println(c, PrintBase::Dec); }
 
   // Forward the call to the former's method
-  FORCE_INLINE void println(float c)               { println(c, 2); }
-  FORCE_INLINE void println(double c)              { println(c, 2); }
+  void println(float c)               { println(c, 2); }
+  void println(double c)              { println(c, 2); }
 
   // Print a number with the given base
   NO_INLINE void printNumber_unsigned(uint_fixed_print_t n, const uint8_t base) {
