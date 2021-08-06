@@ -1188,7 +1188,13 @@ void setup() {
 
   #if HAS_SUICIDE
     SETUP_LOG("SUICIDE_PIN");
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+    SET_OUTPUT(SUICIDE_PIN);
+    #ifdef ARDUINO_ARCH_STM32
+      // We are before FastIO_init()!
+      digitalWrite(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+    #else
+      WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+    #endif
   #endif
 
   #ifdef JTAGSWD_RESET
