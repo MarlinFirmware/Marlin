@@ -60,7 +60,7 @@ public:
       return true;
     }
 
-    // multi block optmization
+    // multi block optimization
     sd2card->writeStart(blkAddr, blkLen);
     while (blkLen--) {
       watchdog_refresh();
@@ -80,7 +80,7 @@ public:
       return true;
     }
 
-    // multi block optmization
+    // multi block optimization
     sd2card->readStart(blkAddr);
     while (blkLen--) {
       watchdog_refresh();

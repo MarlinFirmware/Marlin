@@ -54,7 +54,7 @@ void printer_state_polling() {
 
         gcode.process_subcommands_now_P(PSTR("M25"));
 
-        //save the positon
+        //save the position
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
         uiCfg.current_z_position_bak = current_position.z;

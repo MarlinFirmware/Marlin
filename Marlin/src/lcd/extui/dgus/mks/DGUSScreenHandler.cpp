@@ -762,7 +762,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     return;
 
   char axiscode;
-  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, dont hardcode.
+  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, don't hardcode.
 
   switch (var.VP) { // switch X Y Z or Home
     default: return;
