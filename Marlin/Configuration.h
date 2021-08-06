@@ -362,11 +362,6 @@
  * If enable MKS PWC, need not enable PSU_CONTROL
  */
 //#define MKS_PWC
-#if ENABLED(MKS_PWC)
-  #define PSU_CONTROL
-  #define PSU_ACTIVE_STATE HIGH
-#endif
-
 /**
  * Power Supply Control
  *
@@ -379,9 +374,7 @@
 #if ENABLED(PSU_CONTROL)
   //#define PS_OFF_CONFIRM          // Confirm dialog when power off
   //#define PS_OFF_SOUND            // Beep 1s when power off
-  #ifndef PSU_ACTIVE_STATE
-	  #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
-  #endif
+  #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
 
   //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
   //#define PSU_POWERUP_DELAY 250   // (ms) Delay for the PSU to warm up to full power
