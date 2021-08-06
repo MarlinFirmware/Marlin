@@ -361,7 +361,7 @@
  * MKS PWC function (Power Supply Control), simple configuration to use it 
  * If enable MKS PWC, need not enable PSU_CONTROL
  */
-#define MKS_PWC
+//#define MKS_PWC
 #if ENABLED(MKS_PWC)
   #define PSU_CONTROL
   #define PSU_ACTIVE_STATE HIGH
