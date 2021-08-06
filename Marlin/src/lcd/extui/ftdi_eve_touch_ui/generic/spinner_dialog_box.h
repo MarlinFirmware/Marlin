@@ -29,7 +29,7 @@ struct SpinnerDialogBoxData {
   bool auto_hide;
 };
 
-class SpinnerDialogBox : public BaseScreen {
+class SpinnerDialogBox : public UIScreen {
   public:
     static void onEntry();
     static void onExit();
