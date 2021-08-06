@@ -3450,17 +3450,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Validate MKS_PWC
- */
-#if ENABLED(MKS_PWC)
-  #ifndef PSU_CONTROL
-    #error "PSU_CONTROL must be enabled with MKS_PWC."
-  #elif PSU_ACTIVE_STATE != HIGH
-    #error "PSU_ACTIVE_STATE must be HIGH with MKS_PWC."
-  #endif
-#endif
-
-/**
  * Ensure this option is set intentionally
  */
 #if ENABLED(PSU_CONTROL)

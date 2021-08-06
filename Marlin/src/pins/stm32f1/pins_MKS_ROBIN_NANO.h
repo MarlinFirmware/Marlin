@@ -127,18 +127,24 @@
 //#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
 //#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
 
-#if ENABLED(MKS_PWC)
+//
+// Power Supply Control
+//
+#if ENABLED(PSU_CONTROL)
   #if ENABLED(TFT_LVGL_UI)
-    #undef PSU_CONTROL
-    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
-    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
-    #define KILL_PIN                        PA2   // Enable MKSPWC DET PIN
-    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
-  #else
-    #define PS_ON_PIN                       PB2   //PW_OFF, you can change it to other pin
-    #define KILL_PIN                        PA2   //PW_DET, you can change it to other pin
-    #define KILL_PIN_STATE                  true  //true : HIGH level trigger
+    #error "PSU_CONTROL cannot be used with TFT_LVGL_UI. Disable PSU_CONTROL to continue."
   #endif
+  #ifndef PS_ON_PIN
+    #define PS_ON_PIN                       PB2   // Suggestion (SUICIDE)
+  #endif
+#else
+  #define SUICIDE_PIN                       PB2
+  #define SUICIDE_PIN_INVERTING            false
+#endif
+
+#ifndef KILL_PIN
+  #define KILL_PIN                          PA2
+  #define KILL_PIN_STATE                    HIGH
 #endif
 
 //

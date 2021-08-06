@@ -136,12 +136,16 @@
 #endif
 
 //
-// Misc. Functions
+// Power Supply Control
 //
-#if ENABLED(MKS_PWC)
-  #define PS_ON_PIN                        P0_25  //SERVO interface, you can change it to other pin
-  #define KILL_PIN                         P1_29  //Z+ interface, you can change it to other pin
-  #define KILL_PIN_STATE                   true   //true : HIGH level trigger
+#if ENABLED(PSU_CONTROL)
+  #ifndef PS_ON_PIN
+    #define PS_ON_PIN                      P0_25  // Suggestion (SERVO)
+  #endif
+  #ifndef KILL_PIN
+    #define KILL_PIN                       P1_29  // Suggestion (Z+)
+    #define KILL_PIN_STATE                  HIGH
+  #endif
 #endif
 
 //

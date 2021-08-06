@@ -358,11 +358,6 @@
 // @section machine
 
 /**
- * MKS PWC function (Power Supply Control), simple configuration to use it 
- * If enable MKS PWC, need not enable PSU_CONTROL
- */
-//#define MKS_PWC
-/**
  * Power Supply Control
  *
  * Enable and connect the power supply to the PS_ON_PIN.

@@ -189,32 +189,36 @@
   #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PA13  // PW_DET
-#endif
-
-#if ENABLED(MKS_PWC)
-  #if ENABLED(TFT_LVGL_UI)
-    #undef PSU_CONTROL
-    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
-    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
-    #define KILL_PIN                        PA13  // Enable MKSPWC DET PIN
-    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
-  #else
-    #define PS_ON_PIN                       PB2   //PW_OFF, you can change it to other pin
-    #define KILL_PIN                        PA13  //PW_DET, you can change it to other pin
-    #define KILL_PIN_STATE                  true  //true : HIGH level trigger
-  #endif
-#endif
-
 //
 // Enable MKSPWC support
 //
 //#define SUICIDE_PIN                       PB2
+//#define LED_PIN                           PB2
 //#define KILL_PIN                          PA2
 //#define KILL_PIN_INVERTING                true
 
-//#define LED_PIN                           PB2
+//
+// Power Supply Control
+//
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
+  #if ENABLED(TFT_LVGL_UI)
+    #error "PSU_CONTROL cannot be used with TFT_LVGL_UI. Disable PSU_CONTROL to continue."
+  #endif
+  #ifndef PS_ON_PIN
+    #define PS_ON_PIN                       PB2   // Suggestion (SUICIDE)
+  #endif
+#else
+  #define SUICIDE_PIN                       PB2
+  #define SUICIDE_PIN_INVERTING            false
+#endif
+
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                    PA13  // PW_DET
+#endif
+#ifndef KILL_PIN
+  #define KILL_PIN                          PA13  // PW_DET
+  #define KILL_PIN_STATE                    HIGH
+#endif
 
 // Random Info
 #define USB_SERIAL              -1  // USB Serial
@@ -235,8 +239,8 @@
 
 // MKS TEST
 #if ENABLED(MKS_TEST)
-  #define MKS_TEST_POWER_LOSS_PIN           PA13   // PW_DET
-  #define MKS_TEST_PS_ON_PIN                PB2    // PW_OFF
+  #define MKS_TEST_POWER_LOSS_PIN           PA13  // PW_DET
+  #define MKS_TEST_PS_ON_PIN                PB2   // PW_OFF
 #endif
 
 //
