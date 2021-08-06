@@ -104,6 +104,8 @@ size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
 
+  EEPROM.begin(); // Avoid STM32 EEPROM.h warning (do nothing)
+
   #if ENABLED(FLASH_EEPROM_LEVELING)
 
     if (current_slot == -1 || eeprom_data_written) {
