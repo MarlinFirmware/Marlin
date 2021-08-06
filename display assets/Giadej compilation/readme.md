@@ -2,8 +2,11 @@
 
 <img align="left" src="Boot_by_Giadej.jpg" height="400" />
 <img  src="preview1.jpg"  height="400" />
-
+  
 ## How to install
+  
+[**Click to Download**](https://downgit.github.io/#/home?url=https://github.com/mriscoc/Marlin_Ender3v2/tree/Ender3v2-Released/display%20assets/Giadej%20compilation/DWIN_SET)  
+  
 1. Get an µSD card of 8GB or less.
 1. Format the µSD card with a 4 KB sector size
 1. Copy the DWIN_SET directory in the Root of SD
@@ -21,7 +24,7 @@
 
 ## Credits
 
-- **AngelV** for "Main Panel" icons  
-- **Lighty1989** for "XYZ Move Axis" icons and "Bed Points" icons  
+- [**AngelV**](https://github.com/AngleV) for "Main Panel" icons  
+- [**Lighty1989**](https://github.com/Lighty1989) for "XYZ Move Axis" icons and "Bed Points" icons  
 - **Gotcha's** for other icons  
-- **Giadej** for custom Boot-Screen  
+- [**Giadej**](https://github.com/Giadej) for custom Boot-Screen  
