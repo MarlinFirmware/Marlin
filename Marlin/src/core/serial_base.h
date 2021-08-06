@@ -154,18 +154,18 @@ struct SerialBase {
     typedef intptr_t int_fixed_print_t;
     typedef uintptr_t uint_fixed_print_t;
 
-    void print(intptr_t c, PrintBase base)         { printNumber_signed(c, (uint8_t)base); }
-    void print(uintptr_t c, PrintBase base)        { printNumber_unsigned(c, (uint8_t)base); }
+    FORCE_INLINE void print(intptr_t c, PrintBase base)         { printNumber_signed(c, base); }
+    FORCE_INLINE void print(uintptr_t c, PrintBase base)        { printNumber_unsigned(c, base); }
   #endif
 
-  void print(char c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
-  void print(short c, PrintBase base)              { printNumber_signed(c, (uint8_t)base); }
-  void print(int c, PrintBase base)                { printNumber_signed(c, (uint8_t)base); }
-  void print(long c, PrintBase base)               { printNumber_signed(c, (uint8_t)base); }
-  void print(unsigned char c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
-  void print(unsigned short c, PrintBase base)     { printNumber_unsigned(c, (uint8_t)base); }
-  void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, (uint8_t)base); }
-  void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, (uint8_t)base); }
+  FORCE_INLINE void print(char c, PrintBase base)               { printNumber_signed(c, base); }
+  FORCE_INLINE void print(short c, PrintBase base)              { printNumber_signed(c, base); }
+  FORCE_INLINE void print(int c, PrintBase base)                { printNumber_signed(c, base); }
+  FORCE_INLINE void print(long c, PrintBase base)               { printNumber_signed(c, base); }
+  FORCE_INLINE void print(unsigned char c, PrintBase base)      { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned short c, PrintBase base)     { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, base); }
 
 
   void print(EnsureDouble c, int digits)           { printFloat(c, digits); }
@@ -198,23 +198,21 @@ struct SerialBase {
   void println(double c)              { println(c, 2); }
 
   // Print a number with the given base
-  NO_INLINE void printNumber_unsigned(uint_fixed_print_t n, const uint8_t base) {
-    if (!base) return; // Hopefully, this should raise visible bug immediately
-
+  NO_INLINE void printNumber_unsigned(uint_fixed_print_t n, PrintBase base) {
     if (n) {
       unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
       int8_t i = 0;
       while (n) {
-        buf[i++] = n % base;
-        n /= base;
+        buf[i++] = n % (uint_fixed_print_t)base;
+        n /= (uint_fixed_print_t)base;
       }
       while (i--) write((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
     }
     else write('0');
   }
 
-  NO_INLINE void printNumber_signed(int_fixed_print_t n, const uint8_t base) {
-    if (base == 10 && n < 0) {
+  NO_INLINE void printNumber_signed(int_fixed_print_t n, PrintBase base) {
+    if (base == PrintBase::Dec && n < 0) {
       n = -n; // This works because all platforms Marlin's builds on are using 2-complement encoding for negative number
               // On such CPU, changing the sign of a number is done by inverting the bits and adding one, so if n = 0x80000000 = -2147483648 then
               // -n = 0x7FFFFFFF + 1 => 0x80000000 = 2147483648 (if interpreted as unsigned) or -2147483648 if interpreted as signed.
@@ -240,7 +238,7 @@ struct SerialBase {
     // Extract the integer part of the number and print it
     unsigned long int_part = (unsigned long)number;
     double remainder = number - (double)int_part;
-    printNumber_unsigned(int_part, 10);
+    printNumber_unsigned(int_part, PrintBase::Dec);
 
     // Print the decimal point, but only if there are digits beyond
     if (digits) {
@@ -249,7 +247,7 @@ struct SerialBase {
       while (digits--) {
         remainder *= 10.0;
         unsigned long toPrint = (unsigned long)remainder;
-        printNumber_unsigned(toPrint, 10);
+        printNumber_unsigned(toPrint, PrintBase::Dec);
         remainder -= toPrint;
       }
     }
