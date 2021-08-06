@@ -225,8 +225,7 @@
 #if ENABLED(MKS_PWC)
   #define PS_ON_PIN                     PB12 //Z+ interface, you can change it to other pin
   #define KILL_PIN                      PC5  //Y+ interface, you can change it to other pin
-  #define KILL_PIN_INVERTING            true //true : HIGH level trigger
-  #define KILL_PIN_STATE  KILL_PIN_INVERTING  
+  #define KILL_PIN_STATE                true //true : HIGH level trigger
 #endif
 
 // Random Info
