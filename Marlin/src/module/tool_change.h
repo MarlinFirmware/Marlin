@@ -109,9 +109,9 @@
 #endif
 
 #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  void est_init();
+  void electromagnetic_toolchange_init();
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
-  void swt_init();
+  void servo_toolchange_init();
 #endif
 
 #if ENABLED(TOOL_SENSOR)

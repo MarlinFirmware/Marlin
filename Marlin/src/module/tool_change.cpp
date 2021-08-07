@@ -385,7 +385,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // PARKING_EXTRUDER
 
-#if ENABLED(SERVO_SWITCHING_TOOLHEAD)
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+
+
+
+#elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
 
   // Return a bitmask of tool sensor states
   inline uint8_t poll_tool_sensor_pins() {
@@ -445,7 +449,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   #endif
 
-  inline void switching_toolhead_lock(const bool locked) {
+  inline void servo_switching_toolhead_lock(const bool locked) {
     #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
       const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
       MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
@@ -459,8 +463,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   #include <bitset>
 
-  void swt_init() {
-    switching_toolhead_lock(true);
+  void servo_toolchange_init() {
+    servo_switching_toolhead_lock(true);
 
     #if ENABLED(TOOL_SENSOR)
       // Init tool sensors
@@ -499,7 +503,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
   }
 
-  inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
+  inline void servo_switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (no_move) return;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
@@ -724,9 +728,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
 
-  inline void est_activate_solenoid()   { OUT_WRITE(SOL0_PIN, HIGH); }
-  inline void est_deactivate_solenoid() { OUT_WRITE(SOL0_PIN, LOW); }
-  void est_init() { est_activate_solenoid(); }
+  inline void est_activate_solenoid()    { OUT_WRITE(SOL0_PIN, HIGH); }
+  inline void est_deactivate_solenoid()  { OUT_WRITE(SOL0_PIN, LOW); }
+  void electromagnetic_toolchange_init() { est_activate_solenoid(); }
 
   inline void em_switching_toolhead_tool_change(const uint8_t new_tool, bool no_move) {
     if (no_move) return;
@@ -1142,7 +1146,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)                          // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(new_tool);
       #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)                           // Servo Switching Toolhead
-        switching_toolhead_tool_change(new_tool, no_move);
+        servo_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)                        // Magnetic Switching Toolhead
         magnetic_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)                 // Magnetic Switching ToolChanger
