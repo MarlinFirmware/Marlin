@@ -28,3 +28,14 @@
 - [**Lighty1989**](https://github.com/Lighty1989) for "XYZ Move Axis" icons and "Bed Points" icons  
 - **Gotcha's** for other icons  
 - [**Giadej**](https://github.com/Giadej) for custom Boot-Screen  
+
+## CRC  
+
+|File                        | SHA-256
+|----------------------------|-----------------------
+|9.ICO                       | 499D485280AA193429C3FD107D3AB624AFFFD2C157B5570A2752BBD62EA0D37D
+|T5UIC1.CFG                  | E1C573639BFA2B3A06C2FA7AD3CAB483653DD3DC383217FF653FAB3145458095
+|T5UIC1_V20_4页面_191022.BIN | F8F9A3075AE5516328044ACB79CA522753133B66F1ECBD108E7B5DB2F3FF2FE5
+
+
+
