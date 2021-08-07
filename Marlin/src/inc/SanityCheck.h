@@ -1178,6 +1178,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
+  #elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
+    #error "MIXING_EXTRUDER is incompatible with DISABLE_INACTIVE_EXTRUDER."
   #endif
 #endif
 
