@@ -646,7 +646,7 @@
     #define HAS_DUAL_MIXING 1
   #endif
 
-#elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
+#elif ANY(MANUAL_SWITCHING_TOOLHEAD, SERVO_SWITCHING_TOOLHEAD)   // Toolchanger
 
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS

@@ -280,12 +280,46 @@
 #endif
 
 /**
- * Switching Toolhead
+ * Switching Toolhead - Manual
+ *
+ * Support for manual swapping of toolheads, such as the
+ * Wham Bam MUTANT. Toolheads are manually docked/locked,
+ * and all use the same heater/sensor pins when switched.
+ *
+ */
+//#define MANUAL_SWITCHING_TOOLHEAD
+
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  /**
+   * Number of tools that are being set up. The type of tool (i.e. hotend, unpowered tool)
+   * is dependent on if a TEMP_SENSOR_n is defined for each tool. Hotends must come first,
+   * so start with TEMP_SENSOR_0. You may also desire to enable DISTINCT_E_FACTORS and the
+   * related settings, as well as PID_PARAMS_PER_HOTEND.
+   *
+   * Do not include laser/spindle in this count. Enabling LASER_FEATURE/SPINDLE_FEATURE
+   *  will add the appropriate tool.
+   */
+  #define SWITCHING_TOOLHEAD_TOOL_QTY   4
+
+  // Define the names of Hotends/Unpowered tools. Optional.
+  #define SWITCHING_TOOLHEAD_TOOL_NAMES { "E3D v6", "Mosquito", "Pen Plotter", "Drag Knife" }
+
+  // Move the tool to the parked position for tool changes.
+  #define SWITCHING_TOOLHEAD_PARKING
+#endif
+
+/**
+ * Switching Toolhead w/ Servo-Actuated Lock
  *
  * Support for swappable and dockable toolheads, such as
  * the E3D Tool Changer. Toolheads are locked with a servo.
  */
-//#define SWITCHING_TOOLHEAD
+//#define SERVO_SWITCHING_TOOLHEAD
+
+#if ENABLED(SERVO_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
+  #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+#endif
 
 /**
  * Magnetic Switching Toolhead
@@ -294,6 +328,17 @@
  * docking mechanism using movement and no servo.
  */
 //#define MAGNETIC_SWITCHING_TOOLHEAD
+#if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_X_SECURITY   { 90, 150 } // (mm) Security distance X axis (T0,T1)
+  //#define PRIME_BEFORE_REMOVE                       // Prime the nozzle before release from the dock
+  #if ENABLED(PRIME_BEFORE_REMOVE)
+    #define SWITCHING_TOOLHEAD_PRIME_MM           20  // (mm)   Extruder prime length
+    #define SWITCHING_TOOLHEAD_RETRACT_MM         10  // (mm)   Retract after priming length
+    #define SWITCHING_TOOLHEAD_PRIME_FEEDRATE    300  // (mm/min) Extruder prime feedrate
+    #define SWITCHING_TOOLHEAD_RETRACT_FEEDRATE 2400  // (mm/min) Extruder retract feedrate
+  #endif
+#endif
 
 /**
  * Electromagnetic Switching Toolhead
@@ -304,27 +349,18 @@
  */
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
-#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
-  #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
-  #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
-  #define SWITCHING_TOOLHEAD_X_POS          { 215, 0 }  // (mm) X positions for parking the extruders
-  #if ENABLED(SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
-    #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
-  #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
-    #define SWITCHING_TOOLHEAD_X_SECURITY   { 90, 150 } // (mm) Security distance X axis (T0,T1)
-    //#define PRIME_BEFORE_REMOVE                       // Prime the nozzle before release from the dock
-    #if ENABLED(PRIME_BEFORE_REMOVE)
-      #define SWITCHING_TOOLHEAD_PRIME_MM           20  // (mm)   Extruder prime length
-      #define SWITCHING_TOOLHEAD_RETRACT_MM         10  // (mm)   Retract after priming length
-      #define SWITCHING_TOOLHEAD_PRIME_FEEDRATE    300  // (mm/min) Extruder prime feedrate
-      #define SWITCHING_TOOLHEAD_RETRACT_FEEDRATE 2400  // (mm/min) Extruder retract feedrate
-    #endif
-  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_Z_HOP          2         // (mm) Z raise for switching
-  #endif
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_Z_HOP          2         // (mm) Z raise for switching
+#endif
+
+/**
+ * Common Switching Toolhead settings
+ */
+#if ANY(MANUAL_SWITCHING_TOOLHEAD, SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_Y_POS          235       // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY      10       // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR         60       // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
 #endif
 
 /**

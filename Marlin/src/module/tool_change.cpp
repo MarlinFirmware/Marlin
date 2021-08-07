@@ -63,7 +63,7 @@
   #include "stepper.h"
 #endif
 
-#if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
+#if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SERVO_SWITCHING_TOOLHEAD)
   #include "servo.h"
 #endif
 
@@ -385,7 +385,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // PARKING_EXTRUDER
 
-#if ENABLED(SWITCHING_TOOLHEAD)
+#if ENABLED(SERVO_SWITCHING_TOOLHEAD)
 
   // Return a bitmask of tool sensor states
   inline uint8_t poll_tool_sensor_pins() {
@@ -1141,7 +1141,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         parking_extruder_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)                          // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(new_tool);
-      #elif ENABLED(SWITCHING_TOOLHEAD)                                 // Switching Toolhead
+      #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)                           // Servo Switching Toolhead
         switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)                        // Magnetic Switching Toolhead
         magnetic_switching_toolhead_tool_change(new_tool, no_move);

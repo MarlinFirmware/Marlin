@@ -1535,7 +1535,7 @@ void setup() {
     SETUP_RUN(pe_solenoid_init());
   #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
     SETUP_RUN(mpe_settings_init());
-  #elif ENABLED(SWITCHING_TOOLHEAD)
+  #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
     SETUP_RUN(swt_init());
   #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     SETUP_RUN(est_init());
