@@ -129,12 +129,12 @@
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
   #ifndef PS_ON_PIN
-    #define PS_ON_PIN                       PA14  // Suggestion (PW_OFF)
+    #define PS_ON_PIN                       PA14  // PW_OFF
   #endif
   #ifndef KILL_PIN
-    #define KILL_PIN                        PB10  // Suggestion (PW_DET)
+    #define KILL_PIN                        PB10  // PW_DET
     #define KILL_PIN_STATE                  HIGH
   #endif
 #endif

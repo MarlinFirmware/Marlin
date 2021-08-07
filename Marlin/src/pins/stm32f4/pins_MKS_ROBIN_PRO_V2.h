@@ -203,7 +203,7 @@
 #if ENABLED(PSU_CONTROL)                          // MKSPWC
   //#define SUICIDE_PIN                     PB2   // LED
   //#define KILL_PIN                        PA2   // PW_DET
-  //#define KILL_PIN_INVERTING              true
+  //#define KILL_PIN_STATE                  HIGH
 #else
   //#define POWER_LOSS_PIN                  PA2   // PW_DET
   //#define LED_PIN                         PB2

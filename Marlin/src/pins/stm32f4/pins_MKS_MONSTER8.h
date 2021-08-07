@@ -223,12 +223,12 @@
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
   #ifndef PS_ON_PIN
-    #define PS_ON_PIN                   MT_DET_2  // Suggestion (Z+)
+    #define PS_ON_PIN                   MT_DET_2  // Z+
   #endif
   #ifndef KILL_PIN
-    #define KILL_PIN                    MT_DET_1  // Suggestion (Y+)
+    #define KILL_PIN                    MT_DET_1  // Y+
     #define KILL_PIN_STATE                  HIGH
   #endif
 #else

@@ -229,7 +229,7 @@
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
   #ifndef PS_ON_PIN
     #define PS_ON_PIN                      P2_00  // Suggestion (SERVO)
   #endif
