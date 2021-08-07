@@ -76,8 +76,9 @@
 //
 // Heaters / Fans
 //
+
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN                     P2_07
+  #define HEATER_0_PIN                     P2_05  //modified
 #endif
 #if HOTENDS == 1
   #ifndef FAN1_PIN
@@ -92,7 +93,7 @@
   #define FAN_PIN                          P2_03
 #endif
 #ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN                   P2_05
+  #define HEATER_BED_PIN                   P2_07  //modified
 #endif
 
 //
