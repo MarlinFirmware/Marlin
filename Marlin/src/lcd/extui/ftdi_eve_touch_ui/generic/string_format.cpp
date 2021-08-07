@@ -34,28 +34,53 @@
  * Formats a temperature string (e.g. "100°C")
  */
 void format_temp(char *str, const_celsius_float_t t1) {
-  sprintf_P(str, PSTR("%3d" S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C));
+  #ifdef TOUCH_UI_LCD_TEMP_PRECISION
+    char num1[7];
+    dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
+    sprintf_P(str, PSTR("%s" S_FMT), num1, GET_TEXT(MSG_UNITS_C));
+  #else
+    sprintf_P(str, PSTR("%3d" S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C));
+  #endif
 }
 
 /**
  * Formats a temperature string for an idle heater (e.g. "100 °C / idle")
  */
 void format_temp_and_idle(char *str, const_celsius_float_t t1) {
-  sprintf_P(str, PSTR("%3d" S_FMT " / " S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C), GET_TEXT(MSG_IDLE));
+  #ifdef TOUCH_UI_LCD_TEMP_PRECISION
+    char num1[7];
+    dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
+    sprintf_P(str, PSTR("%s" S_FMT " / " S_FMT), num1, GET_TEXT(MSG_UNITS_C), GET_TEXT(MSG_IDLE));
+  #else
+    sprintf_P(str, PSTR("%3d" S_FMT " / " S_FMT), ROUND(t1), GET_TEXT(MSG_UNITS_C), GET_TEXT(MSG_IDLE));
+  #endif
 }
 
 /**
  * Formats a temperature string for an active heater (e.g. "100 / 200°C")
  */
 void format_temp_and_temp(char *str, const_celsius_float_t t1, const_celsius_float_t t2) {
-  sprintf_P(str, PSTR("%3d / %3d" S_FMT), ROUND(t1), ROUND(t2), GET_TEXT(MSG_UNITS_C));
+  #ifdef TOUCH_UI_LCD_TEMP_PRECISION
+    char num1[7], num2[7];
+    dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
+    dtostrf(t2, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num2);
+    sprintf_P(str, PSTR("%s / %s" S_FMT), num1, num2, GET_TEXT(MSG_UNITS_C));
+  #else
+    sprintf_P(str, PSTR("%3d / %3d" S_FMT), ROUND(t1), ROUND(t2), GET_TEXT(MSG_UNITS_C));
+  #endif
 }
 
 /**
  * Formats a temperature string for a material (e.g. "100°C (PLA)")
  */
 void format_temp_and_material(char *str, const_celsius_float_t t1, const char *material) {
-  sprintf_P(str, PSTR("%3d" S_FMT " (" S_FMT ")"), ROUND(t1), GET_TEXT(MSG_UNITS_C), material);
+  #ifdef TOUCH_UI_LCD_TEMP_PRECISION
+    char num1[7];
+    dtostrf(t1, 4 + TOUCH_UI_LCD_TEMP_PRECISION, TOUCH_UI_LCD_TEMP_PRECISION, num1);
+    sprintf_P(str, PSTR("%s" S_FMT " (" S_FMT ")"), num1, GET_TEXT(MSG_UNITS_C), material);
+  #else
+    sprintf_P(str, PSTR("%3d" S_FMT " (" S_FMT ")"), ROUND(t1), GET_TEXT(MSG_UNITS_C), material);
+  #endif
 }
 
 /**

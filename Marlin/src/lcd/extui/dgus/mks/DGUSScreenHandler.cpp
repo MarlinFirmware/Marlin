@@ -37,7 +37,7 @@
 
 #include "../../../../gcode/gcode.h"
 
-#if ENABLED(HAS_STEALTHCHOP)
+#if HAS_STEALTHCHOP
   #include "../../../../module/stepper/trinamic.h"
   #include "../../../../module/stepper/indirection.h"
 #endif
@@ -396,7 +396,7 @@ void DGUSScreenHandler::Z_offset_select(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
 
-  #if ENABLED(HAS_BED_PROBE)
+  #if HAS_BED_PROBE
     int32_t value = swap32(*(int32_t *)val_ptr);
     float Offset = value / 100.0f;
     DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);

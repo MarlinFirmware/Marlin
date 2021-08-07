@@ -1527,6 +1527,34 @@ void Planner::check_axes_activity() {
   }
 #endif
 
+#if ENABLED(IMPROVE_HOMING_RELIABILITY)
+
+  void Planner::enable_stall_prevention(const bool onoff) {
+    static motion_state_t saved_motion_state;
+    if (onoff) {
+      saved_motion_state.acceleration.x = settings.max_acceleration_mm_per_s2[X_AXIS];
+      saved_motion_state.acceleration.y = settings.max_acceleration_mm_per_s2[Y_AXIS];
+      settings.max_acceleration_mm_per_s2[X_AXIS] = settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
+      #if ENABLED(DELTA)
+        saved_motion_state.acceleration.z = settings.max_acceleration_mm_per_s2[Z_AXIS];
+        settings.max_acceleration_mm_per_s2[Z_AXIS] = 100;
+      #endif
+      #if HAS_CLASSIC_JERK
+        saved_motion_state.jerk_state = max_jerk;
+        max_jerk.set(0, 0 OPTARG(DELTA, 0));
+      #endif
+    }
+    else {
+      settings.max_acceleration_mm_per_s2[X_AXIS] = saved_motion_state.acceleration.x;
+      settings.max_acceleration_mm_per_s2[Y_AXIS] = saved_motion_state.acceleration.y;
+      TERN_(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = saved_motion_state.acceleration.z);
+      TERN_(HAS_CLASSIC_JERK, max_jerk = saved_motion_state.jerk_state);
+    }
+    reset_acceleration_rates();
+  }
+
+#endif
+
 #if HAS_LEVELING
 
   constexpr xy_pos_t level_fulcrum = {
@@ -2656,7 +2684,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #ifndef TRAVEL_EXTRA_XYJERK
       #define TRAVEL_EXTRA_XYJERK 0
     #endif
-    const float extra_xyjerk = (de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
+    const float extra_xyjerk = TERN0(HAS_EXTRUDERS, de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
 
     uint8_t limited = 0;
     TERN(HAS_LINEAR_E_JERK, LOOP_LINEAR_AXES, LOOP_LOGICAL_AXES)(i) {

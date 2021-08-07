@@ -70,7 +70,8 @@ void GcodeSuite::G29() {
     return;
   }
 
-  int8_t ix, iy = 0;
+  int8_t ix, iy;
+  ix = iy = 0;
 
   switch (state) {
     case MeshReport:

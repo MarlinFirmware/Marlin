@@ -254,6 +254,7 @@ void home_delta() {
   current_position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
+  TERN_(SENSORLESS_PROBING,endstops.report_states());
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)

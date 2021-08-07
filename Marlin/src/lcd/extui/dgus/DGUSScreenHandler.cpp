@@ -622,7 +622,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
     DEBUG_ECHOLNPGM("HandlePreheat");
 
     uint8_t e_temp = 0;
-    #if ENABLED(HAS_HEATED_BED)
+    #if HAS_HEATED_BED
       uint8_t bed_temp = 0;
     #endif
     const uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);

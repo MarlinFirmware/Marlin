@@ -136,14 +136,18 @@
 //
 // LCD / Controller
 //
-#define TFT_RESET_PIN                       PE6
-#define TFT_CS_PIN                          PD7
-#define TFT_RS_PIN                          PD13
-#define TFT_INTERFACE_FSMC_8BIT
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #define TFT_RESET_PIN                     PE6
+  #define TFT_CS_PIN                        PD7
+  #define TFT_RS_PIN                        PD13
 
-#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
-#define FSMC_CS_PIN                   TFT_CS_PIN
-#define FSMC_RS_PIN                   TFT_RS_PIN
+  #if HAS_FSMC_TFT
+    #define LCD_USE_DMA_FSMC                      // Use DMA transfers to send data to the TFT
+    #define FSMC_CS_PIN               TFT_CS_PIN
+    #define FSMC_RS_PIN               TFT_RS_PIN
+    #define TFT_INTERFACE_FSMC_8BIT
+  #endif
+#endif
 
 //
 // Touch Screen

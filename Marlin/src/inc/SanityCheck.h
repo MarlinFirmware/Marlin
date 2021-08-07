@@ -416,8 +416,19 @@
   #error "MBL_Z_STEP is now MESH_EDIT_Z_STEP."
 #elif defined(CHDK)
   #error "CHDK is now CHDK_PIN."
-#elif defined(MAX6675_SS) || defined(MAX6675_SS2)
-  #error "MAX6675_SS / MAX6675_SS2 is now MAX6675_SS_PIN / MAX6675_SS2_PIN."
+#elif ANY_PIN( \
+        MAX6675_SS, MAX6675_SS2, MAX6675_CS, MAX6675_CS2, \
+        MAX31855_SS, MAX31855_SS2, MAX31855_CS, MAX31855_CS2, \
+        MAX31865_SS, MAX31865_SS2, MAX31865_CS, MAX31865_CS2)
+  #warning "MAX*_SS_PIN, MAX*_SS2_PIN, MAX*_CS_PIN, and MAX*_CS2_PIN are deprecated and will be removed in a future version. Please use TEMP_0_CS_PIN/TEMP_1_CS_PIN instead."
+#elif ANY_PIN(MAX6675_SCK, MAX31855_SCK, MAX31865_SCK)
+  #warning "MAX*_SCK_PIN is deprecated and will be removed in a future version. Please use TEMP_0_SCK_PIN/TEMP_1_SCK_PIN instead."
+#elif ANY_PIN(MAX6675_MISO, MAX6675_DO, MAX31855_MISO, MAX31855_DO, MAX31865_MISO, MAX31865_DO)
+  #warning "MAX*_MISO_PIN and MAX*_DO_PIN are deprecated and will be removed in a future version. Please use TEMP_0_MISO_PIN/TEMP_1_MISO_PIN instead."
+#elif PIN_EXISTS(MAX31865_MOSI)
+  #warning "MAX31865_MOSI_PIN is deprecated and will be removed in a future version. Please use TEMP_0_MOSI_PIN/TEMP_1_MOSI_PIN instead."
+#elif ANY_PIN(THERMO_CS1_PIN, THERMO_CS2_PIN, THERMO_DO_PIN, THERMO_SCK_PIN)
+  #error "THERMO_*_PIN is now TEMP_n_CS_PIN, TEMP_n_SCK_PIN, TEMP_n_MOSI_PIN, TEMP_n_MISO_PIN."
 #elif defined(MAX31865_SENSOR_OHMS)
   #error "MAX31865_SENSOR_OHMS is now MAX31865_SENSOR_OHMS_0."
 #elif defined(MAX31865_CALIBRATION_OHMS)
@@ -593,24 +604,29 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 
   #ifdef PTC_SAMPLE_START
-    constexpr int _ptc_sample_start = PTC_SAMPLE_START;
-    static_assert(_test_ptc_sample_start != PTC_SAMPLE_START, "PTC_SAMPLE_START must be a whole number.");
+    constexpr auto _ptc_sample_start = PTC_SAMPLE_START;
+    constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
+    static_assert(_test_ptc_sample_start != 12.3f, "PTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef PTC_SAMPLE_RES
-    constexpr int _ptc_sample_res = PTC_SAMPLE_END;
-    static_assert(_test_ptc_sample_res != PTC_SAMPLE_END, "PTC_SAMPLE_RES must be a whole number.");
+    constexpr auto _ptc_sample_res = PTC_SAMPLE_RES;
+    constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
+    static_assert(_test_ptc_sample_res != 12.3f, "PTC_SAMPLE_RES must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_START
-    constexpr int _btc_sample_start = BTC_SAMPLE_START;
-    static_assert(_test_btc_sample_start != BTC_SAMPLE_START, "BTC_SAMPLE_START must be a whole number.");
+    constexpr auto _btc_sample_start = BTC_SAMPLE_START;
+    constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
+    static_assert(_test_btc_sample_start != 12.3f, "BTC_SAMPLE_START must be a whole number.");
   #endif
   #ifdef BTC_SAMPLE_RES
-    constexpr int _btc_sample_res = BTC_SAMPLE_END;
-    static_assert(_test_btc_sample_res != BTC_SAMPLE_END, "BTC_SAMPLE_RES must be a whole number.");
+    constexpr auto _btc_sample_res = BTC_SAMPLE_RES;
+    constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
+    static_assert(_test_btc_sample_res != 12.3f, "BTC_SAMPLE_RES must be a whole number.");
   #endif
   #ifdef BTC_PROBE_TEMP
-    constexpr int _btc_probe_temp = BTC_PROBE_TEMP;
-    static_assert(_test_btc_probe_temp != BTC_PROBE_TEMP, "BTC_PROBE_TEMP must be a whole number.");
+    constexpr auto _btc_probe_temp = BTC_PROBE_TEMP;
+    constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
+    static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
   #endif
 #endif
 
@@ -1039,6 +1055,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
+  #if ENABLED(STATUS_HOTEND_INVERTED) && NONE(STATUS_HOTEND_NUMBERLESS, STATUS_HOTEND_ANIM)
+    #error "With multiple hotends STATUS_HOTEND_INVERTED requires STATUS_HOTEND_ANIM or STATUS_HOTEND_NUMBERLESS."
+  #endif
+
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     #ifndef TOOLCHANGE_FS_LENGTH
       #error "TOOLCHANGE_FILAMENT_SWAP requires TOOLCHANGE_FS_LENGTH."
@@ -1245,23 +1265,28 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * (Electro)magnetic Switching Toolhead requirements
+ * Magnetic / Electromagnetic Switching Toolhead requirements
  */
 #if EITHER(MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   #ifndef SWITCHING_TOOLHEAD_Y_POS
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_POS"
+    #error "(ELECTRO)?MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_POS"
   #elif !defined(SWITCHING_TOOLHEAD_X_POS)
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_X_POS"
-  #elif !defined(SWITCHING_TOOLHEAD_Z_HOP)
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Z_HOP."
+    #error "(ELECTRO)?MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_X_POS"
   #elif !defined(SWITCHING_TOOLHEAD_Y_CLEAR)
-    #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_CLEAR."
-  #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    #if ENABLED(EXT_SOLENOID)
-      #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
-    #elif !PIN_EXISTS(SOL0)
-      #error "(ELECTRO)MAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
-    #endif
+    #error "(ELECTRO)?MAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Y_CLEAR."
+  #endif
+#endif
+
+/**
+ * Electromagnetic Switching Toolhead requirements
+ */
+#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #if ENABLED(EXT_SOLENOID)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
+  #elif !PIN_EXISTS(SOL0)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
+  #elif !defined(SWITCHING_TOOLHEAD_Z_HOP)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Z_HOP."
   #endif
 #endif
 
@@ -1939,14 +1964,21 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Pins and Sensor IDs must be set for each heater
+ * Required MAX31865 settings
  */
-#if TEMP_SENSOR_0_IS_MAX6675 && !ANY_PIN(MAX6675_SS, MAX31855_CS, MAX31865_CS, MAX6675_CS)
-  #error "TEMP_SENSOR_0 -2 requires a MAX6675_SS_PIN, MAX6675_CS_PIN, MAX31855_CS_PIN, or MAX31865_CS_PIN."
-#elif HAS_HOTEND && !HAS_TEMP_HOTEND && !TEMP_SENSOR_0_IS_DUMMY
-  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
-  #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
+#if TEMP_SENSOR_0_IS_MAX31865 || (TEMP_SENSOR_REDUNDANT_IS_MAX31865 && TEMP_SENSOR_REDUNDANT_SOURCE == 0)
+  #if !defined(MAX31865_SENSOR_WIRES_0) || !WITHIN(MAX31865_SENSOR_WIRES_0, 2, 4)
+    #error "MAX31865_SENSOR_WIRES_0 must be defined as an integer between 2 and 4."
+  #elif !defined(MAX31865_SENSOR_OHMS_0) || !defined(MAX31865_CALIBRATION_OHMS_0)
+    #error "MAX31865_SENSOR_OHMS_0 and MAX31865_CALIBRATION_OHMS_0 must be set if TEMP_SENSOR_0/TEMP_SENSOR_REDUNDANT is MAX31865."
+  #endif
+#endif
+#if TEMP_SENSOR_1_IS_MAX31865 || (TEMP_SENSOR_REDUNDANT_IS_MAX31865 && TEMP_SENSOR_REDUNDANT_SOURCE == 1)
+  #if !defined(MAX31865_SENSOR_WIRES_1) || !WITHIN(MAX31865_SENSOR_WIRES_1, 2, 4)
+    #error "MAX31865_SENSOR_WIRES_1 must be defined as an integer between 2 and 4."
+  #elif !defined(MAX31865_SENSOR_OHMS_1) || !defined(MAX31865_CALIBRATION_OHMS_1)
+    #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set if TEMP_SENSOR_1/TEMP_SENSOR_REDUNDANT is MAX31865."
+  #endif
 #endif
 
 /**
@@ -2009,20 +2041,36 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TEMP_SENSOR_REDUNDANT_TARGET can't be Cooler (-5): requires TEMP_COOLER_PIN"
   #endif
 
-  #if TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0 && !PIN_EXISTS(MAX6675_SS)
-    #error "TEMP_SENSOR_REDUNDANT MAX Thermocouple with TEMP_SENSOR_REDUNDANT_SOURCE 0 requires a MAX6675_SS_PIN, MAX6675_CS_PIN, MAX31855_CS_PIN, or MAX31865_CS_PIN."
-  #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1 && !PIN_EXISTS(MAX6675_SS2)
-    #error "TEMP_SENSOR_REDUNDANT MAX Thermocouple with TEMP_SENSOR_REDUNDANT_SOURCE 1 requires a MAX6675_SS2_PIN, MAX6675_CS_PIN, MAX31855_CS_PIN, or MAX31865_CS_PIN."
+  #if TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0 && !PIN_EXISTS(TEMP_0_CS)
+    #error "TEMP_SENSOR_REDUNDANT MAX Thermocouple with TEMP_SENSOR_REDUNDANT_SOURCE 0 requires TEMP_0_CS_PIN."
+  #elif TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1 && !PIN_EXISTS(TEMP_1_CS)
+    #error "TEMP_SENSOR_REDUNDANT MAX Thermocouple with TEMP_SENSOR_REDUNDANT_SOURCE 1 requires TEMP_1_CS_PIN."
   #endif
 #endif
 
+/**
+ * Test Sensor & Heater pin combos.
+ * Pins and Sensor IDs must be set for each heater
+ */
+#if !ANY_PIN(TEMP_0, TEMP_0_CS)
+  #error "TEMP_0_PIN or TEMP_0_CS_PIN not defined for this board."
+#elif !HAS_HEATER_0 && EXTRUDERS
+  #error "HEATER_0_PIN not defined for this board."
+#elif TEMP_SENSOR_0_IS_MAX_TC && !PIN_EXISTS(TEMP_0_CS)
+  #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
+#elif HAS_HOTEND && !HAS_TEMP_HOTEND && !TEMP_SENSOR_0_IS_DUMMY
+  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
+  #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
+#endif
+
 #if HAS_MULTI_HOTEND
-  #if TEMP_SENSOR_1_IS_MAX6675 && !ANY_PIN(MAX6675_SS2, MAX31855_CS2, MAX31865_CS2, MAX6675_CS2)
-    #error "TEMP_SENSOR_1 requires a MAX6675_SS2_PIN, MAX6675_CS2_PIN, MAX31855_CS2_PIN, or MAX31865_CS2_PIN."
+  #if TEMP_SENSOR_1_IS_MAX_TC && !PIN_EXISTS(TEMP_1_CS)
+    #error "TEMP_SENSOR_1 MAX thermocouple requires TEMP_1_CS_PIN."
   #elif TEMP_SENSOR_1 == 0
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
-  #elif !ANY_PIN(TEMP_1, MAX6675_SS2) && !TEMP_SENSOR_1_IS_DUMMY
-    #error "TEMP_1_PIN or MAX6675_SS2_PIN not defined for this board."
+  #elif !ANY_PIN(TEMP_1, TEMP_1_CS) && !TEMP_SENSOR_1_IS_DUMMY
+    #error "TEMP_1_PIN or TEMP_1_CS_PIN not defined for this board."
   #endif
   #if HOTENDS > 2
     #if TEMP_SENSOR_2 == 0
@@ -2134,14 +2182,31 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TEMP_SENSOR_6 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_7 != 0
   #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
-#endif
+#endif // HAS_MULTI_HOTEND
 
+/**
+ * Pins must be set for temp sensors, with some other feature requirements.
+ */
 #if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
   #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN."
 #endif
 
-#if TEMP_SENSOR_COOLER && !(PIN_EXISTS(TEMP_COOLER) && ENABLED(LASER_FEATURE))
-  #error "TEMP_SENSOR_COOLER requires LASER_FEATURE and TEMP_COOLER_PIN."
+#if TEMP_SENSOR_COOLER
+  #if !PIN_EXISTS(TEMP_COOLER)
+    #error "TEMP_SENSOR_COOLER requires TEMP_COOLER_PIN."
+  #elif DISABLED(LASER_FEATURE)
+    #error "TEMP_SENSOR_COOLER requires LASER_FEATURE."
+  #endif
+#endif
+
+#if TEMP_SENSOR_PROBE
+  #if !PIN_EXISTS(TEMP_PROBE)
+    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
+  #elif !HAS_TEMP_ADC_PROBE
+    #error "TEMP_PROBE_PIN must be an ADC pin."
+  #elif DISABLED(FIX_MOUNTED_PROBE)
+    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
+  #endif
 #endif
 
 #if ENABLED(LASER_COOLANT_FLOW_METER) && !(PIN_EXISTS(FLOWMETER) && ENABLED(LASER_FEATURE))
@@ -2169,41 +2234,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "SERVO2_PIN must be defined for your Heated Chamber vent servo."
   #elif CHAMBER_VENT_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
     #error "SERVO3_PIN must be defined for your Heated Chamber vent servo."
-  #endif
-#endif
-
-#if TEMP_SENSOR_PROBE
-  #if !PIN_EXISTS(TEMP_PROBE)
-    #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN."
-  #elif !HAS_TEMP_ADC_PROBE
-    #error "TEMP_PROBE_PIN must be an ADC pin."
-  #elif DISABLED(FIX_MOUNTED_PROBE)
-    #error "TEMP_SENSOR_PROBE shouldn't be set without FIX_MOUNTED_PROBE."
-  #endif
-#endif
-
-#if TEMP_SENSOR_IS_MAX(0, MAX31865) && !(defined(MAX31865_SENSOR_OHMS_0) && defined(MAX31865_CALIBRATION_OHMS_0))
-  #error "MAX31865_SENSOR_OHMS_0 and MAX31865_CALIBRATION_OHMS_0 must be set if TEMP_SENSOR_0/TEMP_SENSOR_REDUNDANT is MAX31865."
-#elif TEMP_SENSOR_IS_MAX(1, MAX31865) && !(defined(MAX31865_SENSOR_OHMS_1) && defined(MAX31865_CALIBRATION_OHMS_1))
-  #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set if TEMP_SENSOR_1/TEMP_SENSOR_REDUNDANT is MAX31865."
-#endif
-
-/**
- * Test Heater, Temp Sensor, and Extruder Pins
- */
-#if !HAS_HEATER_0 && EXTRUDERS
-  #error "HEATER_0_PIN not defined for this board."
-#elif !ANY_PIN(TEMP_0, MAX6675_SS)
-  #error "TEMP_0_PIN or MAX6675_SS not defined for this board."
-#endif
-
-#if HAS_EXTRUDERS
-  #if ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
-    #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
-  #elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
-    #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-  #elif EXTRUDERS && TEMP_SENSOR_0 == 0
-    #error "TEMP_SENSOR_0 is required if there are any extruders."
   #endif
 #endif
 
@@ -2248,6 +2278,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Test Extruder Stepper Pins
  */
+#if HAS_EXTRUDERS
+  #if ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && !PINS_EXIST(E0_STEP, E0_DIR))
+    #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
+  #elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PINS_EXIST(E0_STEP, E0_DIR) || !HAS_E0_ENABLE))
+    #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+  #elif EXTRUDERS && TEMP_SENSOR_0 == 0
+    #error "TEMP_SENSOR_0 is required if there are any extruders."
+  #endif
+#endif
+
 #if E_STEPPERS
   #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
     #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
@@ -3572,6 +3612,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  */
 #if BOTH(HAS_MEATPACK, BINARY_FILE_TRANSFER)
   #error "Either enable MEATPACK_ON_SERIAL_PORT_* or BINARY_FILE_TRANSFER, not both."
+#endif
+
+/**
+ * Sanity Check for Slim LCD Menus and Probe Offset Wizard
+ */
+#if BOTH(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
+  #error "SLIM_LCD_MENUS disables \"Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.\""
 #endif
 
 /**

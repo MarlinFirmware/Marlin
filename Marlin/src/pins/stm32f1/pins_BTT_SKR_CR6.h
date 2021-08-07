@@ -172,8 +172,13 @@
 //
 // Misc. Functions
 //
-#define LED_CONTROL_PIN                     PA13
+#define CASE_LIGHT_PIN                      PA13
 
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                      PA8
+#endif
+
+#define SUICIDE_PIN                         PC13
+#ifndef SUICIDE_PIN_INVERTING
+  #define SUICIDE_PIN_INVERTING             false
 #endif
