@@ -114,10 +114,11 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             0  // Analog Input
-#define TEMP_1_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           2  // Analog Input
-#define TEMP_PROBE_PIN                         3  // Analog Input
+#define TEMP_0_PIN                             0  // Analog Input, Header J2
+#define TEMP_1_PIN                             1  // Analog Input, Header J3
+#define TEMP_BOARD_PIN                        91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
+#define TEMP_BED_PIN                           2  // Analog Input, Header J6
+#define TEMP_PROBE_PIN                         3  // Analog Input, Header J15
 
 //
 // Heaters / Fans

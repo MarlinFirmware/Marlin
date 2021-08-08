@@ -207,7 +207,7 @@ class FilamentSensorBase {
     // Return a bitmask of runout pin states
     static inline uint8_t poll_runout_pins() {
       #define _OR_RUNOUT(N) | (READ(FIL_RUNOUT##N##_PIN) ? _BV((N) - 1) : 0)
-      return (0 REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _OR_RUNOUT));
+      return (0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));
       #undef _OR_RUNOUT
     }
 

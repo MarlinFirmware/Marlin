@@ -640,10 +640,12 @@ static void drawAxisValue(const AxisEnum axis) {
 static void moveAxis(const AxisEnum axis, const int8_t direction) {
   quick_feedback();
 
-  if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
-    drawMessage("Too cold");
-    return;
-  }
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
+      drawMessage("Too cold");
+      return;
+    }
+  #endif
 
   const float diff = motionAxisState.currentStepSize * direction;
 
@@ -711,11 +713,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
       drawMessage(msg);
     #endif
 
-    ui.manual_move.soon(axis
-      #if MULTI_MANUAL
-        , motionAxisState.e_selection
-      #endif
-    );
+    ui.manual_move.soon(axis OPTARG(MULTI_E_MANUAL, motionAxisState.e_selection));
   }
 
   drawAxisValue(axis);

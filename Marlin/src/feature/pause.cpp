@@ -403,6 +403,15 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   // Save current position
   resume_position = current_position;
 
+  // Will the nozzle be parking?
+  const bool do_park = !axes_should_home();
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Save PLR info in case the power goes out while parked
+    const float park_raise = do_park ? nozzle.park_mode_0_height(park_point.z) - current_position.z : POWER_LOSS_ZRAISE;
+    if (was_sd_printing && recovery.enabled) recovery.save(true, park_raise, do_park);
+  #endif
+
   // Wait for buffered blocks to complete
   planner.synchronize();
 
@@ -416,9 +425,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
     unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
   }
 
-  // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
-  if (!axes_should_home())
-    nozzle.park(0, park_point);
+  // If axes don't need to home then the nozzle can park
+  if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
@@ -426,7 +434,8 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
     set_duplication_enabled(false, DXC_ext);
   #endif
 
-  if (unload_length)   // Unload the filament
+  // Unload the filament, if specified
+  if (unload_length)
     unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
 
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -523,8 +532,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
 
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Reheat Done"), CONTINUE_STR));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Reheat finished.")));
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_REHEATDONE), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_REHEATDONE)));
       wait_for_user = true;
       nozzle_timed_out = false;
 
@@ -646,7 +655,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   #if ENABLED(SDSUPPORT)
     if (did_pause_print) {
       --did_pause_print;
-      card.startFileprint();
+      card.startOrResumeFilePrinting();
       // Write PLR now to update the z axis value
       TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
     }

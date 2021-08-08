@@ -82,7 +82,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Ardatzak mugitu");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Ohe berdinketa");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Ohea berdindu");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Ertzak berdindu");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Ertzak berdindu");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Hurrengo ertza");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Sarea editatu");
 
@@ -143,6 +143,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mugitu 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mugitu 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mugitu 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mugitu 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Abiadura");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Ohea");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Pita");

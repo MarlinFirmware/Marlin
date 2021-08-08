@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(TARGET_STM32F1)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
@@ -279,5 +277,11 @@
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif
 
-#define ONBOARD_SPI_DEVICE                     1  // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1 -> used only by HAL/STM32F1...
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
+
+#define ENABLE_SPI1
+#define SDSS                   ONBOARD_SD_CS_PIN
+#define SD_SCK_PIN                          PA5
+#define SD_MISO_PIN                         PA6
+#define SD_MOSI_PIN                         PA7

@@ -277,6 +277,7 @@ public:
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       uint8_t tilt_grid_size : 3;
     #endif
+    uint16_t corner_pos : 10;
     uint8_t cursor_color : 4;
     uint8_t menu_split_line : 4;
     uint8_t menu_top_bg : 4;
@@ -364,6 +365,7 @@ public:
   void AudioFeedback(const bool success=true);
   void Save_Settings(char *buff);
   void Load_Settings(const char *buff);
+  void Reset_Settings();
 
 };
 

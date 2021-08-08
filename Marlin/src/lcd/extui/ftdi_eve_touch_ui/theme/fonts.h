@@ -55,7 +55,7 @@ namespace Theme {
     constexpr int16_t  font_small    = 27;
     constexpr int16_t  font_medium   = 28;
     constexpr int16_t  font_large    = 30;
-    constexpr int16_t  font_xlarge   = 31;
+    constexpr int16_t  font_xlarge   = 30;
     constexpr float    icon_scale    = 0.6;
     #endif
   #elif defined(TOUCH_UI_320x240)

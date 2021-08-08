@@ -47,14 +47,16 @@ static lv_obj_t *scr;
 static lv_obj_t *labelExt1, *labelFan, *labelZpos, *labelTime;
 static lv_obj_t *labelPause, *labelStop, *labelOperat;
 static lv_obj_t *bar1, *bar1ValueText;
-static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonExt1, *buttonExt2, *buttonBedstate, *buttonFanstate, *buttonZpos;
+static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonExt1, *buttonFanstate, *buttonZpos;
 
-#if ENABLED(HAS_MULTI_EXTRUDER)
+#if HAS_MULTI_EXTRUDER
   static lv_obj_t *labelExt2;
+  static lv_obj_t *buttonExt2;
 #endif
 
 #if HAS_HEATED_BED
   static lv_obj_t* labelBed;
+  static lv_obj_t* buttonBedstate;
 #endif
 
 enum {

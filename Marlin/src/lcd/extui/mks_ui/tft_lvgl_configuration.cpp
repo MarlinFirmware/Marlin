@@ -29,7 +29,7 @@
 #include "draw_ready_print.h"
 
 #include "pic_manager.h"
-#include "mks_hardware_test.h"
+#include "mks_hardware.h"
 #include "draw_ui.h"
 #include "SPIFlashStorage.h"
 #include <lvgl.h>
@@ -43,6 +43,14 @@ XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
+#endif
+
+#if HAS_SERVOS
+  #include "../../../module/servo.h"
+#endif
+
+#if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
+  #include "../../../module/probe.h"
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -131,9 +139,8 @@ void tft_lvgl_init() {
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
     watchdog_refresh();   // LVGL init takes time
+    TERN_(MKS_TEST, mks_test_get());
   #endif
-
-  mks_test_get();
 
   touch.Init();
 
@@ -193,8 +200,12 @@ void tft_lvgl_init() {
   filament_pin_setup();
   lv_encoder_pin_init();
 
-  TERN_(MKS_WIFI_MODULE, mks_wifi_firmware_update());
-
+  #if ENABLED(MKS_WIFI_MODULE)
+    mks_esp_wifi_init();
+    mks_wifi_firmware_update();
+  #endif
+  TERN_(HAS_SERVOS, servo_init());
+  TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
   bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
@@ -207,16 +218,22 @@ void tft_lvgl_init() {
 
       uiCfg.print_state = REPRINTING;
 
-      strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
-      card.printLongPath(public_buf_m);
-      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+        strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+        card.printLongPath(public_buf_m);
+        strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+      #else
+        strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
+      #endif
       lv_draw_printing();
     }
   #endif
 
   if (ready) lv_draw_ready_print();
 
-  if (mks_test_flag == 0x1E) mks_gpio_test();
+  #if BOTH(MKS_TEST, SDSUPPORT)
+    if (mks_test_flag == 0x1E) mks_gpio_test();
+  #endif
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
@@ -381,7 +398,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   // find small image size
   card.read(public_buf, 512);
   public_buf[511] = '\0';
-  char* eol = strpbrk((const char*)public_buf, "\n\r");
+  const char* eol = strpbrk((const char*)public_buf, "\n\r");
   small_image_size = (uintptr_t)eol - (uintptr_t)((uint32_t *)(&public_buf[0])) + 1;
   return LV_FS_RES_OK;
 }
@@ -512,5 +529,11 @@ void lv_encoder_pin_init() {
   }
 
 #endif // HAS_ENCODER_ACTION
+
+#if __PLAT_NATIVE_SIM__
+  #include <lv_misc/lv_log.h>
+  typedef void (*lv_log_print_g_cb_t)(lv_log_level_t level, const char *, uint32_t, const char *);
+  extern "C" void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb) {}
+#endif
 
 #endif // HAS_TFT_LVGL_UI

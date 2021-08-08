@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -312,7 +312,7 @@ void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uin
   uint16_t offline = TFT_WIDTH - (ex - sx);
   uint32_t addr = (uint32_t)&framebuffer[(TFT_WIDTH * sy) + sx];
 
-  CBI(DMA2D->CR, 0)
+  CBI(DMA2D->CR, 0);
   DMA2D->CR = 0 << 16;
   DMA2D->FGPFCCR = 0X02;
   DMA2D->FGOR = 0;
@@ -384,4 +384,4 @@ void TFT_LTDC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
 }
 
 #endif // HAS_LTDC_TFT
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1

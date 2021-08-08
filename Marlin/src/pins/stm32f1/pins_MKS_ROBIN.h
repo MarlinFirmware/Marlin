@@ -155,7 +155,7 @@
 #define WIFI_IO0_PIN                        PG1
 
 //
-// LCD screen
+// TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
   /**
@@ -170,18 +170,17 @@
    * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
-
-  #define FSMC_CS_PIN                 TFT_CS_PIN
-  #define FSMC_RS_PIN                 TFT_RS_PIN
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PG12  // NE4
+  #define FSMC_RS_PIN                       PF0   // A0
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_RESET_PIN                     PF6
-  #define TFT_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2

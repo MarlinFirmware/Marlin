@@ -31,7 +31,7 @@ namespace Language_zh_CN {
   using namespace Language_en;  // Inherit undefined strings from English
 
   constexpr uint8_t    CHARSIZE                            = 3;
-  PROGMEM Language_Str LANGUAGE                            = _UxGT("简体中文");
+  PROGMEM Language_Str LANGUAGE                            = _UxGT("Simplified Chinese");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT("已就绪.");     //" ready."
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("马林");
@@ -100,7 +100,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("移动轴");     //"Move axis"
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("调平热床");     //"Bed leveling"
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("调平热床");     //"Level bed"
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("调平边角");     // "Level corners"
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("调平边角");     // "Bed Tramming"
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("下个边角");     // "Next corner"
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("网格编辑器");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("编辑网格");     // "Edit Mesh"
@@ -230,6 +230,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("移动 0.1 mm");     //"Move 0.1mm"
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("移动 1 mm");     //"Move 1mm"
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移动 10 mm");     //"Move 10mm"
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("移动 100 mm");     //"Move 100mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("速率");     //"Speed"
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("热床Z");     //"Bed Z"
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("喷嘴");     //"Nozzle" 噴嘴
