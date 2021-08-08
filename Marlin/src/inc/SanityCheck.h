@@ -1182,6 +1182,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
+  #elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
+    #error "MIXING_EXTRUDER is incompatible with DISABLE_INACTIVE_EXTRUDER."
   #endif
 #endif
 
@@ -1208,6 +1210,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   );
   #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
     #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
+  #elif ENABLED(DIRECT_STEPPING)
+    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+  #elif !HAS_JUNCTION_DEVIATION && defined(DEFAULT_EJERK)
+    static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE.");
   #endif
 #endif
 
@@ -3596,13 +3602,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 // G60/G61 Position Save
 #if SAVED_POSITIONS > 256
   #error "SAVED_POSITIONS must be an integer from 0 to 256."
-#endif
-
-/**
- * Stepper Chunk support
- */
-#if BOTH(DIRECT_STEPPING, LIN_ADVANCE)
-  #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
 #endif
 
 /**

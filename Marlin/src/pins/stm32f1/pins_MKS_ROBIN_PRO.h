@@ -179,10 +179,28 @@
 //#define TEMP_0_CS_PIN                     PF11  // TC2 - CS2
 
 #define POWER_LOSS_PIN                      PA2   // PW_DET
-#define PS_ON_PIN                           PG11  // PW_OFF
 #define FIL_RUNOUT_PIN                      PA4   // MT_DET1
-//#define FIL_RUNOUT_PIN                    PE6   // MT_DET2
-//#define FIL_RUNOUT_PIN                    PG14  // MT_DET3
+#define FIL_RUNOUT2_PIN                     PE6   // MT_DET2
+#define FIL_RUNOUT3_PIN                     PG14  // MT_DET3
+
+//
+// Power Supply Control
+//
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
+  #if HAS_TFT_LVGL_UI
+    #error "PSU_CONTROL cannot be used with TFT_LVGL_UI. Disable PSU_CONTROL to continue."
+  #endif
+  #ifndef PS_ON_PIN
+    #define PS_ON_PIN                       PG11  // SUICIDE
+  #endif
+  #ifndef KILL_PIN
+    #define KILL_PIN                        PA2
+    #define KILL_PIN_STATE                  HIGH
+  #endif
+#else
+  #define SUICIDE_PIN                       PG11
+  #define SUICIDE_PIN_INVERTING            false
+#endif
 
 //
 // SD Card
