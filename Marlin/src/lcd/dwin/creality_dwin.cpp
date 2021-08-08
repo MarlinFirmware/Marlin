@@ -3322,7 +3322,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
                   sprintf_P(cmd, PSTR("G29 J%i"), mesh_conf.tilt_grid);
                 }
                 else {
-                  sprintf_P(cmd, PSTR("G29 J"));
+                  strcpy_P(cmd, PSTR("G29 J"));
                 }
                 gcode.process_subcommands_now_P(cmd);
                 planner.synchronize();
