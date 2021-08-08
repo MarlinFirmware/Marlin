@@ -36,6 +36,7 @@ using namespace Theme;
 constexpr static SpinnerDialogBoxData &mydata = screen_data.SpinnerDialogBox;
 
 void SpinnerDialogBox::onEntry() {
+  UIScreen::onEntry();
   mydata.auto_hide = true;
 }
 
@@ -98,7 +99,7 @@ void SpinnerDialogBox::enqueueAndWait(progmem_str message, char *commands) {
 }
 
 void SpinnerDialogBox::onIdle() {
-  if (mydata.auto_hide && !commandsInQueue()) {
+  if (mydata.auto_hide && !commandsInQueue() && TERN1(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state == GcodeSuite::NOT_BUSY)) {
     mydata.auto_hide = false;
     hide();
   }
