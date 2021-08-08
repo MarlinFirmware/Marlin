@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
+#ifdef HAL_STM32
 
 #include "../../../inc/MarlinConfigPre.h"
 
@@ -349,4 +349,4 @@ int WifiSerial::write(uint8_t c) {
 }
 
 #endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE
-#endif // !__STM32F1__
+#endif // HAL_STM32
