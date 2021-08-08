@@ -70,6 +70,7 @@ exec_test $1 $2 "Ethernet, EEPROM, Magnetic Parking Extruder, No LCD" "$3"
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41 MIXING_STEPPERS 2
 opt_enable MIXING_EXTRUDER DIRECT_MIXING_IN_G1 GRADIENT_MIX GRADIENT_VTOOL
+opt_disable DISABLE_INACTIVE_EXTRUDER
 exec_test $1 $2 "Mixing Extruder" "$3"
 
 #

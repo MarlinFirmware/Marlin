@@ -225,7 +225,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     else if (status_bits & 0x2) {
       // DMA transmit complete
       if (esp_state == TRANSFER_IDLE)
-        esp_state = TRANSFERING;
+        esp_state = TRANSFERRING;
 
       if (storeRcvData(WIFISERIAL.usart_device->rb->buf, UART_RX_BUFFER_SIZE)) {
         esp_dma_pre();
@@ -1819,7 +1819,7 @@ void wifi_rcv_handle() {
     #ifdef __STM32F1__
       if (esp_state == TRANSFER_STORE) {
         if (storeRcvData(WIFISERIAL.wifiRxBuf, UART_RX_BUFFER_SIZE)) {
-          esp_state = TRANSFERING;
+          esp_state = TRANSFERRING;
           esp_dma_pre();
           if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
         }

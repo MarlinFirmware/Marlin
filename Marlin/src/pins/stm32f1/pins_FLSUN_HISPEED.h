@@ -195,9 +195,10 @@
 //
 // Misc. Functions
 //
-//#define POWER_LOSS_PIN                    PA1   // PW_SO
 #if ENABLED(BACKUP_POWER_SUPPLY)
   #define POWER_LOSS_PIN                    PA2   // PW_DET (UPS) MKSPWC
+#else
+  //#define POWER_LOSS_PIN                  PA1   // PW_SO
 #endif
 
 /**
@@ -217,7 +218,7 @@
 //
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN                          PA2   // PW_DET
-  #define KILL_PIN_INVERTING                true
+  #define KILL_PIN_STATE                   HIGH
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
