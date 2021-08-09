@@ -99,18 +99,11 @@
 // Avoid nozzle heat and fan start before serial init
 #define BOARD_OPENDRAIN_MOSFETS
 
-#define BOARD_INIT_OD_PINS() { \
+#define BOARD_PREINIT() { \
   OUT_WRITE_OD(HEATER_0_PIN, 0); \
   OUT_WRITE_OD(HEATER_BED_PIN, 0); \
   OUT_WRITE_OD(FAN_PIN, 0); \
 }
-
-#ifdef MAPLE_STM32F1
-  // Only Maple Framework allow that early
-  #define BOARD_PREINIT BOARD_INIT_OD_PINS
-#else
-  #define BOARD_INIT BOARD_INIT_OD_PINS
-#endif
 
 //
 // PWM for a servo probe
