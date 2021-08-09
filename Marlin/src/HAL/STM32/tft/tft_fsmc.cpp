@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_FSMC_TFT
+#if defined(HAL_STM32) && HAS_FSMC_TFT
 
 #include "tft_fsmc.h"
 #include "pinconfig.h"
@@ -179,5 +175,4 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   Abort();
 }
 
-#endif // HAS_FSMC_TFT
-#endif // HAL_STM32
+#endif // HAL_STM32 && HAS_FSMC_TFT

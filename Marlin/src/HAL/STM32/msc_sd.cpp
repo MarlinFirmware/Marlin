@@ -13,13 +13,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_SD_HOST_DRIVE
+#if defined(HAL_STM32) && HAS_SD_HOST_DRIVE
 
 #include "../shared/Marduino.h"
 #include "msc_sd.h"
@@ -126,5 +122,4 @@ void MSC_SD_init() {
   USBDevice.begin();
 }
 
-#endif // HAS_SD_HOST_DRIVE
-#endif // HAL_STM32
+#endif // HAL_STM32 && HAS_SD_HOST_DRIVE

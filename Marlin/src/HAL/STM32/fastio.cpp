@@ -20,11 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
+#include "../../inc/MarlinConfig.h"
 
 #ifdef HAL_STM32
-
-#include "../../inc/MarlinConfig.h"
 
 GPIO_TypeDef* FastIOPortMap[LastPort + 1] = { 0 };
 

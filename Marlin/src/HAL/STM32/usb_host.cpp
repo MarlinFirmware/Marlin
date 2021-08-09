@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(USE_OTG_USB_HOST, USBHOST)
+#if defined(HAL_STM32) && BOTH(USE_OTG_USB_HOST, USBHOST)
 
 #include "usb_host.h"
 #include "../shared/Marduino.h"
@@ -114,5 +110,4 @@ uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t b
   return USBH_MSC_Write(&hUsbHost, lun, addr, const_cast<uint8_t*>(buf), blocks) != USBH_OK;
 }
 
-#endif // USE_OTG_USB_HOST && USBHOST
-#endif // HAL_STM32
+#endif // HAL_STM32 && USE_OTG_USB_HOST && USBHOST

@@ -20,13 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SRAM_EEPROM_EMULATION)
+#if defined(HAL_STM32) && ENABLED(SRAM_EEPROM_EMULATION)
 
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
@@ -66,5 +62,4 @@ bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t 
   return false;
 }
 
-#endif // SRAM_EEPROM_EMULATION
-#endif // HAL_STM32
+#endif // HAL_STM32 && SRAM_EEPROM_EMULATION

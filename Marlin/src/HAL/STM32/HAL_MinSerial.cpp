@@ -20,13 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(POSTMORTEM_DEBUGGING)
+#if defined(HAL_STM32) && ENABLED(POSTMORTEM_DEBUGGING)
 
 #include "../shared/HAL_MinSerial.h"
 #include "watchdog.h"
@@ -150,5 +146,4 @@ extern "C" {
 }
 #endif
 
-#endif // POSTMORTEM_DEBUGGING
-#endif // HAL_STM32
+#endif // HAL_STM32 && POSTMORTEM_DEBUGGING

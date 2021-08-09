@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_SPI_TFT
+#if defined(HAL_STM32) && HAS_SPI_TFT
 
 #include "tft_spi.h"
 #include "pinconfig.h"
@@ -241,5 +237,4 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   Abort();
 }
 
-#endif // HAS_SPI_TFT
-#endif // HAL_STM32
+#endif // HAL_STM32 && HAS_SPI_TFT

@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT)
+#if defined(HAL_STM32) && ENABLED(SDIO_SUPPORT)
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -321,5 +317,4 @@ uint32_t SDIO_GetCardSize() {
 extern "C" void SDIO_IRQHandler(void) { HAL_SD_IRQHandler(&hsd); }
 extern "C" void DMA_IRQ_HANDLER(void) { HAL_DMA_IRQHandler(&hdma_sdio); }
 
-#endif // SDIO_SUPPORT
-#endif // HAL_STM32
+#endif // HAL_STM32 && SDIO_SUPPORT

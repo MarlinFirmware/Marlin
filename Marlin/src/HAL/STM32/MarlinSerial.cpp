@@ -16,11 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
+#include "../../inc/MarlinConfig.h"
 #ifdef HAL_STM32
 
-#include "../../inc/MarlinConfig.h"
 #include "MarlinSerial.h"
 
 #if ENABLED(EMERGENCY_PARSER)

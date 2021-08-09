@@ -20,13 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS
+#if defined(HAL_STM32) && HAS_SERVOS
 
 #include "Servo.h"
 
@@ -108,5 +104,4 @@ void libServo::setInterruptPriority(uint32_t preemptPriority, uint32_t subPriori
   servo_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), preemptPriority, subPriority);
 }
 
-#endif // HAS_SERVOS
-#endif // HAL_STM32
+#endif // HAL_STM32 && HAS_SERVOS

@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfigPre.h"
 
-#if NEEDS_HARDWARE_PWM
+#if defined(HAL_STM32) && NEEDS_HARDWARE_PWM
 
 #include "HAL.h"
 #include "timers.h"
@@ -57,5 +53,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-#endif // NEEDS_HARDWARE_PWM
-#endif // HAL_STM32
+#endif // HAL_STM32 && NEEDS_HARDWARE_PWM

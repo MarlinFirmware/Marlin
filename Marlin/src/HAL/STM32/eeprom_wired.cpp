@@ -20,13 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfig.h"
 
-#if USE_WIRED_EEPROM
+#if defined(HAL_STM32) && USE_WIRED_EEPROM
 
 /**
  * PersistentStore for Arduino-style EEPROM interface
@@ -76,5 +72,4 @@ bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t 
   return false;
 }
 
-#endif // USE_WIRED_EEPROM
-#endif // HAL_STM32
+#endif // HAL_STM32 && USE_WIRED_EEPROM

@@ -16,13 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
+#if defined(HAL_STM32) && ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
 
 #include "usb_serial.h"
 #include "../../feature/e_parser.h"
@@ -52,5 +48,4 @@ void USB_Hook_init() {
   USBD_CDC_fops.Receive = USBD_CDC_Receive_hook;
 }
 
-#endif // EMERGENCY_PARSER && USBD_USE_CDC
-#endif // HAL_STM32
+#endif // HAL_STM32 && EMERGENCY_PARSER && USBD_USE_CDC

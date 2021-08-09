@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_LTDC_TFT
+#if defined(HAL_STM32) && HAS_LTDC_TFT
 
 #include "tft_ltdc.h"
 #include "pinconfig.h"
@@ -385,5 +381,4 @@ void TFT_LTDC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
   }
 }
 
-#endif // HAS_LTDC_TFT
-#endif // HAL_STM32
+#endif // HAL_STM32 && HAS_LTDC_TFT

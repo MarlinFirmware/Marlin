@@ -19,17 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
+#include "../../inc/MarlinConfig.h"
 
-#ifdef HAL_STM32
+#if defined(HAL_STM32) && ENABLED(SDCARD_EEPROM_EMULATION)
 
 /**
  * Implementation of EEPROM settings in SD Card
  */
-
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(SDCARD_EEPROM_EMULATION)
 
 #include "../shared/eeprom_api.h"
 #include "../../sd/cardreader.h"
@@ -89,5 +85,4 @@ bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uin
   return false;
 }
 
-#endif // SDCARD_EEPROM_EMULATION
-#endif // HAL_STM32
+#endif // HAL_STM32 && SDCARD_EEPROM_EMULATION

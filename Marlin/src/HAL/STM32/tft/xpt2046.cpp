@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS
+#if defined(HAL_STM32) && (HAS_TFT_XPT2046 || HAS_RES_TOUCH_BUTTONS)
 
 #include "xpt2046.h"
 #include "pinconfig.h"
@@ -168,5 +164,4 @@ uint16_t XPT2046::SoftwareIO(uint16_t data) {
   return result;
 }
 
-#endif // HAS_TFT_XPT2046
-#endif // HAL_STM32
+#endif // HAL_STM32 && HAS_TFT_XPT2046 | HAS_RES_TOUCH_BUTTONS

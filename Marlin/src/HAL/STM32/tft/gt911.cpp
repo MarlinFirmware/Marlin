@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(TFT_TOUCH_DEVICE_GT911)
+#if defined(HAL_STM32) && ENABLED(TFT_TOUCH_DEVICE_GT911)
 
 #include "gt911.h"
 #include "pinconfig.h"
@@ -200,5 +196,4 @@ bool GT911::getPoint(int16_t *x, int16_t *y) {
   return touched;
 }
 
-#endif // TFT_TOUCH_DEVICE_GT911
-#endif // HAL_STM32
+#endif // HAL_STM32 && TFT_TOUCH_DEVICE_GT911

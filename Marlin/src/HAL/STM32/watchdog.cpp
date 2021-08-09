@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
-
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(USE_WATCHDOG)
+#if defined(HAL_STM32) && ENABLED(USE_WATCHDOG)
 
 #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
 
@@ -47,5 +43,4 @@ void HAL_watchdog_refresh() {
   #endif
 }
 
-#endif // USE_WATCHDOG
-#endif // HAL_STM32
+#endif // HAL_STM32 && USE_WATCHDOG
