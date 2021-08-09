@@ -147,7 +147,7 @@
   #define TFT_RS_PIN                 FSMC_RS_PIN
 #endif
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
   // LVGL
   #define HAS_SPI_FLASH_FONT                   1
   #define HAS_GCODE_PREVIEW                    1

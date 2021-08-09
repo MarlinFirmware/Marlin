@@ -44,7 +44,7 @@ bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 
 void LCD_Clear(uint16_t Color);
 void tft_set_point(uint16_t x, uint16_t y, uint16_t point);
-void LCD_setWindowArea(uint16_t StartX, uint16_t StartY, uint16_t width, uint16_t heigh);
+void LCD_setWindowArea(uint16_t StartX, uint16_t StartY, uint16_t width, uint16_t height);
 void LCD_WriteRAM_Prepare();
 void lcd_draw_logo();
 void lv_encoder_pin_init();
