@@ -20,7 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "HAL.h"
 #include "usb_serial.h"
@@ -165,4 +167,4 @@ void HAL_SYSTICK_Callback() {
   if (systick_user_callback) systick_user_callback();
 }
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
+#endif // HAL_STM32
