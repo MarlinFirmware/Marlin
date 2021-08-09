@@ -135,7 +135,7 @@ typedef void (*udd_callback_halt_cleared_t)(void);
  * \param n          number of data transferred
  */
 typedef void (*udd_callback_trans_t) (udd_ep_status_t status,
-		iram_size_t nb_transfered, udd_ep_id_t ep);
+		iram_size_t nb_transferred, udd_ep_id_t ep);
 
 /**
  * \brief Authorizes the VBUS event
