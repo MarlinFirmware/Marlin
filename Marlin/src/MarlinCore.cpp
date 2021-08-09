@@ -1131,8 +1131,8 @@ inline void tmc_standby_setup() {
  *  - Set Marlin to RUNNING State
  */
 void setup() {
-  #ifdef HAL_STM32
-    FastIO_init();
+  #ifdef FASTIO_INIT
+    FASTIO_INIT();
   #endif
 
   #ifdef BOARD_PREINIT
