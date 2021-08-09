@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin nano (STM32F130VET6) board pin assignments
+ * MKS Robin nano (STM32F103VET6) board pin assignments
  */
 
 #if NOT_TARGET(__STM32F1__, STM32F1)

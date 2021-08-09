@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * ANYCUBIC Trigorilla Pro (STM32F130ZET6) board pin assignments.
+ * ANYCUBIC Trigorilla Pro (STM32F103ZET6) board pin assignments.
  * It is the same used by the Tronxy X5SA thanks to ftoz1 for sharing it
  * https://github.com/MarlinFirmware/Marlin/issues/14655
  * https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf

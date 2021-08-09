@@ -148,9 +148,9 @@ public:
       case FileTransfer::QUERY:
         SERIAL_ECHOPAIR("PFT:version:", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_PATCH);
         #if ENABLED(BINARY_STREAM_COMPRESSION)
-          SERIAL_ECHOLNPAIR(":compresion:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
+          SERIAL_ECHOLNPAIR(":compression:heatshrink,", HEATSHRINK_STATIC_WINDOW_BITS, ",", HEATSHRINK_STATIC_LOOKAHEAD_BITS);
         #else
-          SERIAL_ECHOLNPGM(":compresion:none");
+          SERIAL_ECHOLNPGM(":compression:none");
         #endif
         break;
       case FileTransfer::OPEN:
