@@ -107,7 +107,17 @@
   #define STATUS_FLOWMETER_BYTEWIDTH BW(STATUS_FLOWMETER_WIDTH)
 #endif
 
-
+//
+// Laser Ammeter
+//
+#if ENABLED(I2C_AMMETER)
+  #if !STATUS_AMMETER_WIDTH
+    #include "status/ammeter.h"
+  #endif
+  #ifndef STATUS_AMMETER_WIDTH
+    #define STATUS_AMMETER_WIDTH 0
+  #endif
+#endif
 
 //
 // Bed
@@ -281,7 +291,9 @@
     #define STATUS_HOTEND8_WIDTH STATUS_HOTEND7_WIDTH
   #endif
 
-  constexpr uint8_t status_hotend_width[HOTENDS] = ARRAY_N(HOTENDS, STATUS_HOTEND1_WIDTH, STATUS_HOTEND2_WIDTH, STATUS_HOTEND3_WIDTH, STATUS_HOTEND4_WIDTH, STATUS_HOTEND5_WIDTH, STATUS_HOTEND6_WIDTH, STATUS_HOTEND7_WIDTH, STATUS_HOTEND8_WIDTH);
+  #define _SHNAME(N,T) STATUS_HOTEND##N##_##T,
+
+  constexpr uint8_t status_hotend_width[HOTENDS] = { REPEAT2_S(1, INCREMENT(HOTENDS), _SHNAME, WIDTH) };
   #define STATUS_HOTEND_WIDTH(N) status_hotend_width[N]
 
   #ifndef STATUS_HOTEND1_BYTEWIDTH
@@ -309,7 +321,7 @@
     #define STATUS_HOTEND8_BYTEWIDTH BW(STATUS_HOTEND8_WIDTH)
   #endif
 
-  constexpr uint8_t status_hotend_bytewidth[HOTENDS] = ARRAY_N(HOTENDS, STATUS_HOTEND1_BYTEWIDTH, STATUS_HOTEND2_BYTEWIDTH, STATUS_HOTEND3_BYTEWIDTH, STATUS_HOTEND4_BYTEWIDTH, STATUS_HOTEND5_BYTEWIDTH, STATUS_HOTEND6_BYTEWIDTH, STATUS_HOTEND7_BYTEWIDTH, STATUS_HOTEND8_BYTEWIDTH);
+  constexpr uint8_t status_hotend_bytewidth[HOTENDS] = { REPEAT2_S(1, INCREMENT(HOTENDS), _SHNAME, BYTEWIDTH) };
   #define STATUS_HOTEND_BYTEWIDTH(N) status_hotend_bytewidth[N]
 
   #ifndef STATUS_HOTEND1_X
@@ -339,7 +351,7 @@
       #define STATUS_HOTEND8_X STATUS_HOTEND7_X + STATUS_HEATERS_XSPACE
     #endif
 
-    constexpr uint8_t status_hotend_x[HOTENDS] = ARRAY_N(HOTENDS, STATUS_HOTEND1_X, STATUS_HOTEND2_X, STATUS_HOTEND3_X, STATUS_HOTEND4_X, STATUS_HOTEND5_X, STATUS_HOTEND6_X, STATUS_HOTEND7_X, STATUS_HOTEND8_X);
+    constexpr uint8_t status_hotend_x[HOTENDS] = { REPEAT2_S(1, INCREMENT(HOTENDS), _SHNAME, X) };
     #define STATUS_HOTEND_X(N) status_hotend_x[N]
   #elif HAS_MULTI_HOTEND
     #define STATUS_HOTEND_X(N) ((N) ? STATUS_HOTEND2_X : STATUS_HOTEND1_X)
@@ -370,12 +382,14 @@
       #ifndef STATUS_HOTEND8_TEXT_X
         #define STATUS_HOTEND8_TEXT_X STATUS_HOTEND7_TEXT_X + STATUS_HEATERS_XSPACE
       #endif
-      constexpr uint8_t status_hotend_text_x[] = ARRAY_N(HOTENDS, STATUS_HOTEND1_TEXT_X, STATUS_HOTEND2_TEXT_X, STATUS_HOTEND3_TEXT_X, STATUS_HOTEND4_TEXT_X, STATUS_HOTEND5_TEXT_X, STATUS_HOTEND6_TEXT_X, STATUS_HOTEND7_TEXT_X, STATUS_HOTEND8_TEXT_X);
+      constexpr uint8_t status_hotend_text_x[HOTENDS] = { REPEAT2_S(1, INCREMENT(HOTENDS), _SHNAME, TEXT_X) };
       #define STATUS_HOTEND_TEXT_X(N) status_hotend_text_x[N]
     #else
       #define STATUS_HOTEND_TEXT_X(N) (STATUS_HOTEND1_X + 6 + (N) * (STATUS_HEATERS_XSPACE))
     #endif
   #endif
+
+  #undef _SHNAME
 
   #if STATUS_HOTEND_BITMAPS > 1 && DISABLED(STATUS_HOTEND_NUMBERLESS)
     #define TEST_BITMAP_OFF status_hotend1_a_bmp
@@ -547,7 +561,7 @@
     #endif
 
     #ifndef STATUS_COOLER_TEXT_X
-      #define STATUS_COOLER_TEXT_X (STATUS_COOLER_X + 8)
+      #define STATUS_COOLER_TEXT_X (STATUS_COOLER_X + 12)
     #endif
 
     static_assert(
@@ -583,7 +597,7 @@
     #endif
 
     #ifndef STATUS_FLOWMETER_TEXT_X
-      #define STATUS_FLOWMETER_TEXT_X (STATUS_FLOWMETER_X + 8)
+      #define STATUS_FLOWMETER_TEXT_X (STATUS_FLOWMETER_X + 12)
     #endif
 
     static_assert(
@@ -597,6 +611,31 @@
       );
     #endif
   #endif
+#endif
+
+//
+// I2C Laser Ammeter
+//
+#if ENABLED(I2C_AMMETER) && STATUS_AMMETER_WIDTH
+  #ifndef STATUS_AMMETER_BYTEWIDTH
+    #define STATUS_AMMETER_BYTEWIDTH BW(STATUS_AMMETER_WIDTH)
+  #endif
+  #ifndef STATUS_AMMETER_X
+    #define STATUS_AMMETER_X (LCD_PIXEL_WIDTH - (STATUS_AMMETER_BYTEWIDTH + STATUS_FLOWMETER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_CUTTER_BYTEWIDTH + STATUS_COOLER_BYTEWIDTH) * 8)
+  #endif
+  #ifndef STATUS_AMMETER_HEIGHT
+    #define STATUS_AMMETER_HEIGHT(S) (sizeof(status_ammeter_bmp_mA) / (STATUS_AMMETER_BYTEWIDTH))
+  #endif
+  #ifndef STATUS_AMMETER_Y
+    #define STATUS_AMMETER_Y(S) (18 - STATUS_AMMETER_HEIGHT(S))
+  #endif
+  #ifndef STATUS_AMMETER_TEXT_X
+    #define STATUS_AMMETER_TEXT_X (STATUS_AMMETER_X + 7)
+  #endif
+  static_assert(
+    sizeof(status_ammeter_bmp_mA) == (STATUS_AMMETER_BYTEWIDTH) * STATUS_AMMETER_HEIGHT(0),
+    "Status ammeter bitmap (status_ammeter_bmp_mA) dimensions don't match data."
+  );
 #endif
 
 //
@@ -691,6 +730,9 @@
 #endif
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   #define DO_DRAW_FLOWMETER 1
+#endif
+#if ENABLED(I2C_AMMETER)
+  #define DO_DRAW_AMMETER 1
 #endif
 
 #if HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4

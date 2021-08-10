@@ -28,146 +28,6 @@
 
 #include "../MarlinCore.h"
 
-#ifdef __AVR__
-
-  static FORCE_INLINE uint32_t mult10(uint32_t val) {
-    uint32_t tmp = val;
-    __asm__ __volatile__ (
-       "add %A[tmp], %A[tmp]\n"
-       "adc %B[tmp], %B[tmp]\n"
-       "adc %C[tmp], %C[tmp]\n"
-       "adc %D[tmp], %D[tmp]\n"
-       "add %A[tmp], %A[tmp]\n"
-       "adc %B[tmp], %B[tmp]\n"
-       "adc %C[tmp], %C[tmp]\n"
-       "adc %D[tmp], %D[tmp]\n"
-       "add %A[val], %A[tmp]\n"
-       "adc %B[val], %B[tmp]\n"
-       "adc %C[val], %C[tmp]\n"
-       "adc %D[val], %D[tmp]\n"
-       "add %A[val], %A[val]\n"
-       "adc %B[val], %B[val]\n"
-       "adc %C[val], %C[val]\n"
-       "adc %D[val], %D[val]\n"
-        : [val] "+&r" (val),
-          [tmp] "+&r" (tmp)
-    );
-    return val;
-  }
-
-#else
-
-  static FORCE_INLINE uint32_t mult10(uint32_t val) { return val * 10; }
-
-#endif
-
-// cheap base-10 strto(u)l.
-// does not check for errors.
-int32_t parse_int32(const char *buf) {
-  char c;
-
-  // Get a char, skipping leading spaces
-  do { c = *buf++; } while (c == ' ');
-
-  // check for sign
-  bool is_negative = (c == '-');
-  if (is_negative || c == '+')
-    c = *buf++;
-
-  // optimization for first digit (no multiplication)
-  uint8_t uc = c - '0';
-  if (uc > 9) return 0;
-
-  // read unsigned value
-  uint32_t uval = uc;
-  while (true) {
-    c = *buf++;
-    uc = c - '0';
-    if (uc > 9) break;
-    uval = mult10(uval) + uc;
-  }
-
-  return is_negative ? -uval : uval;
-}
-
-// cheap strtof.
-// does not support nan/infinity or exponent notation.
-// does not check for errors.
-float parse_float(const char *buf) {
-  char c;
-
-  // Get a char, skipping leading spaces
-  do { c = *buf++; } while (c == ' ');
-
-  // check for sign
-  bool is_negative = (c == '-');
-  if (is_negative || c == '+')
-    c = *buf++;
-
-  // read unsigned value and decimal point
-  uint32_t uval;
-  uint8_t exp_dec;
-  uint8_t uc = c - '0';
-  if (uc <= 9) {
-    uval = uc;
-    exp_dec = 0;
-  }
-  else {
-    if (c != '.') return 0;
-    uval = 0;
-    exp_dec = 1;
-  }
-
-  int8_t exp = 0;
-  while (true) {
-    c = *buf++;
-    uc = c - '0';
-    if (uc <= 9) {
-      exp -= exp_dec;
-      uval = mult10(uval) + uc;
-      if (uval >= (UINT32_MAX - 9) / 10) {
-        // overflow. keep reading digits until decimal point.
-        while (exp_dec == 0) {
-          c = *buf++;
-          uc = c - '0';
-          if (uc > 9) break;
-          exp++;
-        }
-        goto overflow;
-      }
-    }
-    else {
-      if (c != '.' || exp_dec != 0) break;
-      exp_dec = 1;
-    }
-  }
-
-  // early return for 0
-  if (uval == 0) return 0;
-
-  overflow:
-
-  // convert to float and apply sign
-  float fval = uval;
-  if (is_negative) fval *= -1;
-
-  // apply exponent (up to 1e-15 / 1e+15)
-  if (exp < 0) {
-    if (exp <= -8) { fval *= 1e-8; exp += 8; }
-    if (exp <= -4) { fval *= 1e-4; exp += 4; }
-    if (exp <= -2) { fval *= 1e-2; exp += 2; }
-    if (exp <= -1) { fval *= 1e-1; exp += 1; }
-  }
-  else if (exp > 0) {
-    if (exp >= 8) { fval *= 1e+8; exp -= 8; }
-    if (exp >= 4) { fval *= 1e+4; exp -= 4; }
-    if (exp >= 2) { fval *= 1e+2; exp -= 2; }
-    if (exp >= 1) { fval *= 1e+1; exp -= 1; }
-  }
-
-  return fval;
-}
-
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.
 
@@ -246,8 +106,10 @@ void GCodeParser::reset() {
 
 #endif
 
-// Populate all fields by parsing a single line of GCode
-// 58 bytes of SRAM are used to speed up seen/value
+/**
+ * Populate the command line state (command_letter, codenum, subcode, and string_arg)
+ * by parsing a single line of GCode. 58 bytes of SRAM are used to speed up seen/value.
+ */
 void GCodeParser::parse(char *p) {
 
   reset(); // No codes to report
@@ -287,11 +149,31 @@ void GCodeParser::parse(char *p) {
     #define SIGNED_CODENUM 1
   #endif
 
-  // Bail if the letter is not G, M, or T
-  // (or a valid parameter for the current motion mode)
-  switch (letter) {
+  /**
+   * Screen for good command letters.
+   * With Realtime Reporting, commands S000, P000, and R000 are allowed.
+   */
+  #if ENABLED(REALTIME_REPORTING_COMMANDS)
+    switch (letter) {
+      case 'P': case 'R' ... 'S': {
+        uint8_t digits = 0;
+        char *a = p;
+        while (*a++ == '0') digits++; // Count up '0' characters
+        if (digits == 3) {            // Three '0' digits is a good command
+          codenum = 0;
+          command_letter = letter;
+          return;
+        }
+      }
+    }
+  #endif
 
-    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
+  /**
+   * Screen for good command letters. G, M, and T are always accepted.
+   * With Motion Modes enabled any axis letter can come first.
+   */
+  switch (letter) {
+    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -313,20 +195,18 @@ void GCodeParser::parse(char *p) {
       // A '?' signifies an unknown command
       command_letter = letter;
 
-      {
-        #if ENABLED(SIGNED_CODENUM)
-          int sign = 1; // Allow for a negative code like D-1 or T-1
-          if (*p == '-') { sign = -1; ++p; }
-        #endif
+      #if ENABLED(SIGNED_CODENUM)
+        int sign = 1; // Allow for a negative code like D-1 or T-1
+        if (*p == '-') { sign = -1; ++p; }
+      #endif
 
-        // Get the code number - integer digits only
-        codenum = 0;
+      // Get the code number - integer digits only
+      codenum = 0;
 
-        do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
+      do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
 
-        // Apply the sign, if any
-        TERN_(SIGNED_CODENUM, codenum *= sign);
-      }
+      // Apply the sign, if any
+      TERN_(SIGNED_CODENUM, codenum *= sign);
 
       // Allow for decimal point in command
       #if USE_GCODE_SUBCODES
@@ -342,48 +222,54 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(GCODE_MOTION_MODES)
         if (letter == 'G'
-          && (codenum <= TERN(ARC_SUPPORT, 3, 1) || codenum == 5 || TERN0(G38_PROBE_TARGET, codenum == 38))
+          && (codenum <= TERN(ARC_SUPPORT, 3, 1) || TERN0(BEZIER_CURVE_SUPPORT, codenum == 5) || TERN0(G38_PROBE_TARGET, codenum == 38))
         ) {
           motion_mode_codenum = codenum;
           TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
         }
       #endif
 
-      break;
+      } break;
 
     #if ENABLED(GCODE_MOTION_MODES)
-      #if ENABLED(ARC_SUPPORT)
-        case 'I' ... 'J': case 'R':
-          if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
+
+      #if EITHER(BEZIER_CURVE_SUPPORT, ARC_SUPPORT)
+        case 'I' ... 'J': case 'P':
+          if (TERN1(BEZIER_CURVE_SUPPORT, motion_mode_codenum != 5)
+            && TERN1(ARC_P_CIRCLES, !WITHIN(motion_mode_codenum, 2, 3))
+          ) return;
       #endif
-      case 'P' ... 'Q':
-        if (motion_mode_codenum != 5) return;
-      case 'X' ... 'Z': case 'E' ... 'F':
+
+      #if ENABLED(BEZIER_CURVE_SUPPORT)
+        case 'Q': if (motion_mode_codenum != 5) return;
+      #endif
+
+      #if ENABLED(ARC_SUPPORT)
+        case 'R': if (!WITHIN(motion_mode_codenum, 2, 3)) return;
+      #endif
+
+      LOGICAL_AXIS_GANG(case 'E':, case 'X':, case 'Y':, case 'Z':, case AXIS4_NAME:, case AXIS5_NAME:, case AXIS6_NAME:)
+      case 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
-      break;
-    #endif // GCODE_MOTION_MODES
+        break;
+
+    #endif
 
     default: return;
   }
 
   // The command parameters (if any) start here, for sure!
 
-  #if DISABLED(FASTER_GCODE_PARSER)
-    command_args = p; // Scan for parameters in seen()
-  #endif
+  IF_DISABLED(FASTER_GCODE_PARSER, command_args = p); // Scan for parameters in seen()
 
   // Only use string_arg for these M codes
   if (letter == 'M') switch (codenum) {
-    #if ENABLED(GCODE_MACROS)
-      case 810 ... 819:
-    #endif
-    #if ENABLED(EXPECTED_PRINTER_CHECK)
-      case 16:
-    #endif
+    TERN_(GCODE_MACROS, case 810 ... 819:)
+    TERN_(EXPECTED_PRINTER_CHECK, case 16:)
     case 23: case 28: case 30: case 117 ... 118: case 928:
       string_arg = unescape_string(p);
       return;
@@ -447,7 +333,7 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-          SERIAL_ECHOPAIR("Got param ", param, " at index ", p - command_ptr - 1);
+          SERIAL_ECHOPAIR("Got param ", AS_CHAR(param), " at index ", p - command_ptr - 1);
           if (has_val) SERIAL_ECHOPGM(" (has_val)");
         }
       #endif

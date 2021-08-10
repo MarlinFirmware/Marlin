@@ -32,7 +32,7 @@
 #define UBL_OK false
 #define UBL_ERR true
 
-enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
+enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 // External references
 
@@ -47,10 +47,10 @@ struct mesh_index_pair;
 
 typedef struct {
   bool      C_seen;
-  int8_t    V_verbosity,
+  int8_t    KLS_storage_slot;
+  uint8_t   R_repetition,
+            V_verbosity,
             P_phase,
-            R_repetition,
-            KLS_storage_slot,
             T_map_type;
   float     B_shim_thickness,
             C_constant;
@@ -98,7 +98,7 @@ public:
   static void report_state();
   static void save_ubl_active_state_and_disable();
   static void restore_ubl_active_state_and_leave();
-  static void display_map(const int) _O0;
+  static void display_map(const uint8_t) _O0;
   static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) _O0;
   static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
   static void reset();
@@ -264,24 +264,10 @@ public:
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    const float z1 = calc_z0(rx0,
-                             mesh_index_to_xpos(cx), z_values[cx][cy],
-                             mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1][cy]);
-
-    const float z2 = calc_z0(rx0,
-                             mesh_index_to_xpos(cx), z_values[cx][_MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1],
-                             mesh_index_to_xpos(cx + 1), z_values[_MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1][_MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1]);
-
-    float z0 = calc_z0(ry0,
-                       mesh_index_to_ypos(cy), z1,
-                       mesh_index_to_ypos(cy + 1), z2);
-
-    if (DEBUGGING(MESH_ADJUST)) {
-      DEBUG_ECHOPAIR(" raw get_z_correction(", rx0);
-      DEBUG_CHAR(','); DEBUG_ECHO(ry0);
-      DEBUG_ECHOPAIR_F(") = ", z0, 6);
-      DEBUG_ECHOLNPAIR_F(" >>>---> ", z0, 6);
-    }
+    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1;
+    const float z1 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][cy], mesh_index_to_xpos(cx + 1), z_values[mx][cy]);
+    const float z2 = calc_z0(rx0, mesh_index_to_xpos(cx), z_values[cx][my], mesh_index_to_xpos(cx + 1), z_values[mx][my]);
+    float z0 = calc_z0(ry0, mesh_index_to_ypos(cy), z1, mesh_index_to_ypos(cy + 1), z2);
 
     if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN
       z0 = 0.0;      // in ubl.z_values[][] and propagate through the
@@ -289,14 +275,14 @@ public:
                      // because part of the Mesh is undefined and we don't have the
                      // information we need to complete the height correction.
 
-      if (DEBUGGING(MESH_ADJUST)) {
-        DEBUG_ECHOPAIR("??? Yikes!  NAN in get_z_correction(", rx0);
-        DEBUG_CHAR(',');
-        DEBUG_ECHO(ry0);
-        DEBUG_CHAR(')');
-        DEBUG_EOL();
-      }
+      if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPAIR("??? Yikes! NAN in ");
     }
+
+    if (DEBUGGING(MESH_ADJUST)) {
+      DEBUG_ECHOPAIR("get_z_correction(", rx0, ", ", ry0);
+      DEBUG_ECHOLNPAIR_F(") => ", z0, 6);
+    }
+
     return z0;
   }
   static inline float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }

@@ -90,7 +90,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Di chuyển trục");                       // Move axis
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("San Lấp Bàn");                          // Bed Leveling
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Làm bằng mặt bàn");                     // Level bed
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Làm bằng góc bàn");                     // Level corners
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Làm bằng góc bàn");                     // Level corners
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Góc tiếp theo");                        // Next corner
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Chỉnh lưới đã dừng");                   // Mesh Editing Stopped
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Mục lục X");                            // Index X
@@ -205,6 +205,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Di chuyển 0.1mm");                      // Move 0.1mm
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Di chuyển 1mm");                        // Move 1mm
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Di chuyển 10mm");                       // Move 10mm
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Di chuyển 100mm");                      // Move 100mm
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Tốc độ");                               // Speed
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Bàn");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Đầu phun");                             // Nozzle

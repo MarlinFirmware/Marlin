@@ -135,7 +135,7 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
 #define DEBUG_OUT ENABLED(EE_EMU_DEBUG)
 #include "../../core/debug_out.h"
 
-static void ee_Dump(const int page, const void* data) {
+static void ee_Dump(const int page, const void *data) {
 
   #ifdef EE_EMU_DEBUG
 
@@ -181,7 +181,7 @@ static void ee_Dump(const int page, const void* data) {
  * @param data    (pointer to the data buffer)
  */
 __attribute__ ((long_call, section (".ramfunc")))
-static bool ee_PageWrite(uint16_t page, const void* data) {
+static bool ee_PageWrite(uint16_t page, const void *data) {
 
   uint16_t i;
   uint32_t addrflash = uint32_t(getFlashStorage(page));

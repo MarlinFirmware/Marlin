@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Creality v4.5.2 (STM32F103RET6) board pin assignments
@@ -28,7 +29,7 @@
   #error "Creality v4.5.2 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "Creality v4.5.2"
+#define BOARD_INFO_NAME "Creality v4.5.2"
 
 #define HEATER_0_PIN                        PA1   // HEATER1
 #define HEATER_BED_PIN                      PA2   // HOT BED

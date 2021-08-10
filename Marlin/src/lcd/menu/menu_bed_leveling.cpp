@@ -63,16 +63,16 @@
   // and allow the command queue to be processed.
   //
   // When G29 finishes the last move:
-  // - Raise Z to the "manual probe height"
+  // - Raise Z to the "Z after probing" height
   // - Don't return until done.
   //
   // ** This blocks the command queue! **
   //
   void _lcd_level_bed_done() {
     if (!ui.wait_for_move) {
-      #if MANUAL_PROBE_HEIGHT > 0 && DISABLED(MESH_BED_LEVELING)
+      #if Z_AFTER_PROBING > 0 && DISABLED(MESH_BED_LEVELING)
         // Display "Done" screen and wait for moves to complete
-        line_to_z(MANUAL_PROBE_HEIGHT);
+        line_to_z(Z_AFTER_PROBING);
         ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
@@ -206,7 +206,7 @@
 #if ENABLED(MESH_EDIT_MENU)
 
   inline void refresh_planner() {
-    set_current_from_steppers_for_axis(ALL_AXES);
+    set_current_from_steppers_for_axis(ALL_AXES_ENUM);
     sync_plan_position();
   }
 
@@ -278,7 +278,12 @@ void menu_bed_leveling() {
   // Mesh Bed Leveling Z-Offset
   //
   #if ENABLED(MESH_BED_LEVELING)
-    EDIT_ITEM(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+    #if WITHIN(Z_PROBE_OFFSET_RANGE_MIN, -9, 9)
+      #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
+    #else
+      #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
+    #endif
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_BED_Z, &mbl.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -288,7 +293,7 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)
-    SUBMENU(MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

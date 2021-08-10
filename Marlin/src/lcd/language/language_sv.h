@@ -75,7 +75,6 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Sätt Hem Offset");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset Tillämpad");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sätt Origo");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisterad justering");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Justerings Wizard");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Välj Origo");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Senaste värde ");
@@ -122,11 +121,11 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Flytta Axel");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bädd Nivellering");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivellera Bädd");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Nivellera Hörn");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Höj Bädd tills nästa Sond Triggad");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Alla Hörn inom Tolerans. Nivellering Bädd");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Bra Punkter: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Senaste Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bädd Justering");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Höj Bädd tills nästa Sond Triggad");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Alla Hörn inom Tolerans. Nivellering Bädd");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Bra Punkter: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Senaste Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Nästa Hörn");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Nät Redigerare");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Redigera Nät");
@@ -260,6 +259,7 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Flytta 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Flytta 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Flytta 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Flytta 100mm");
   PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Flytta 0.001tum");
   PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Flytta 0.01tum");
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Flytta 0.1tum");

@@ -253,7 +253,7 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   reg_value &= ~(SCB_AIRCR_VECTKEY_Msk | SCB_AIRCR_PRIGROUP_Msk);             /* clear bits to change               */
   reg_value  =  (reg_value                                 |
                 ((uint32_t)0x5FA << SCB_AIRCR_VECTKEY_Pos) |
-                (PriorityGroupTmp << 8));                                     /* Insert write key and priorty group */
+                (PriorityGroupTmp << 8));                                     /* Insert write key & priority group  */
   SCB->AIRCR =  reg_value;
 }
 
@@ -293,7 +293,7 @@ void HAL_init() {
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
     delay(1000);                                         // Give OS time to notice
-    OUT_WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
+    WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the minimal serial handler
 }
@@ -453,6 +453,8 @@ void analogWrite(pin_t pin, int pwm_val8) {
     analogWrite(uint8_t(pin), pwm_val8);
 }
 
-void flashFirmware(const int16_t) { nvic_sys_reset(); }
+void HAL_reboot() { nvic_sys_reset(); }
+
+void flashFirmware(const int16_t) { HAL_reboot(); }
 
 #endif // __STM32F1__

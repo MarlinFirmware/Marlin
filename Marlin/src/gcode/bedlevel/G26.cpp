@@ -113,6 +113,10 @@
 #include "../../module/temperature.h"
 #include "../../lcd/marlinui.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+
 #if ENABLED(UBL_HILBERT_CURVE)
   #include "../../feature/bedlevel/hilbert_curve.h"
 #endif
@@ -201,8 +205,8 @@ typedef struct {
         layer_height          = MESH_TEST_LAYER_HEIGHT,
         prime_length          = PRIME_LENGTH;
 
-  int16_t bed_temp            = MESH_TEST_BED_TEMP,
-          hotend_temp         = MESH_TEST_HOTEND_TEMP;
+  celsius_t bed_temp          = MESH_TEST_BED_TEMP,
+            hotend_temp       = MESH_TEST_HOTEND_TEMP;
 
   float nozzle                = MESH_TEST_NOZZLE_SIZE,
         filament_diameter     = DEFAULT_NOMINAL_FILAMENT_DIA,
@@ -287,7 +291,7 @@ typedef struct {
     if (p2.x < 0 || p2.x >= (GRID_MAX_POINTS_X)) return;
     if (p2.y < 0 || p2.y >= (GRID_MAX_POINTS_Y)) return;
 
-    if(circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
+    if (circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
       xyz_pos_t s, e;
       s.x = _GET_MESH_X(p1.x) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
       e.x = _GET_MESH_X(p2.x) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
@@ -326,12 +330,8 @@ typedef struct {
         thermalManager.setTargetBed(bed_temp);
 
         // Wait for the temperature to stabilize
-        if (!thermalManager.wait_for_bed(true
-            #if G26_CLICK_CAN_CANCEL
-              , true
-            #endif
-          )
-        ) return G26_ERR;
+        if (!thermalManager.wait_for_bed(true OPTARG(G26_CLICK_CAN_CANCEL, true)))
+          return G26_ERR;
       }
 
     #else
@@ -348,11 +348,8 @@ typedef struct {
     thermalManager.setTargetHotend(hotend_temp, active_extruder);
 
     // Wait for the temperature to stabilize
-    if (!thermalManager.wait_for_hotend(active_extruder, true
-      #if G26_CLICK_CAN_CANCEL
-        , true
-      #endif
-    )) return G26_ERR;
+    if (!thermalManager.wait_for_hotend(active_extruder, true OPTARG(G26_CLICK_CAN_CANCEL, true)))
+      return G26_ERR;
 
     #if HAS_WIRED_LCD
       ui.reset_status();
@@ -644,12 +641,12 @@ void GcodeSuite::G26() {
   #if HAS_LCD_MENU
     g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
   #else
-    if (!parser.seen('R')) {
+    if (parser.seen('R'))
+      g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
+    else {
       SERIAL_ECHOLNPGM("?(R)epeat must be specified when not using an LCD.");
       return;
     }
-    else
-      g26_repeats = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS + 1;
   #endif
   if (g26_repeats < 1) {
     SERIAL_ECHOLNPGM("?(R)epeat value not plausible; must be at least 1.");
@@ -667,7 +664,7 @@ void GcodeSuite::G26() {
   /**
    * Wait until all parameters are verified before altering the state!
    */
-  set_bed_leveling_enabled(!parser.seen('D'));
+  set_bed_leveling_enabled(!parser.seen_test('D'));
 
   do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
@@ -725,11 +722,13 @@ void GcodeSuite::G26() {
   #endif // !ARC_SUPPORT
 
   mesh_index_pair location;
+  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_START));
   do {
     // Find the nearest confluence
     location = g26.find_closest_circle_to_print(g26.continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos);
 
     if (location.valid()) {
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
       const xy_pos_t circle = _GET_MESH_POS(location.pos);
 
       // If this mesh location is outside the printable radius, skip it.
@@ -845,6 +844,8 @@ void GcodeSuite::G26() {
       g26.connect_neighbor_with_line(location.pos,  1,  0);
       g26.connect_neighbor_with_line(location.pos,  0, -1);
       g26.connect_neighbor_with_line(location.pos,  0,  1);
+      planner.synchronize();
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_FINISH));
       if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE;
     }
 
@@ -854,6 +855,7 @@ void GcodeSuite::G26() {
 
   LEAVE:
   ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
+  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location, ExtUI::G26_FINISH));
 
   g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;

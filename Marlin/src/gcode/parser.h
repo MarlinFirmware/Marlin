@@ -42,10 +42,6 @@
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
 
-
-int32_t parse_int32(const char *buf);
-float parse_float(const char *buf);
-
 /**
  * GCode parser
  *
@@ -230,7 +226,7 @@ public:
 
   // Seen any axis parameter
   static inline bool seen_axis() {
-    return seen_test('X') || seen_test('Y') || seen_test('Z') || seen_test('E');
+    return seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR));
   }
 
   #if ENABLED(GCODE_QUOTED_STRINGS)
@@ -260,12 +256,29 @@ public:
   // The value as a string
   static inline char* value_string() { return value_ptr; }
 
-  // Code value as float
-  static inline float value_float() { return value_ptr ? parse_float(value_ptr) : 0.0; }
+  // Float removes 'E' to prevent scientific notation interpretation
+  static inline float value_float() {
+    if (value_ptr) {
+      char *e = value_ptr;
+      for (;;) {
+        const char c = *e;
+        if (c == '\0' || c == ' ') break;
+        if (c == 'E' || c == 'e') {
+          *e = '\0';
+          const float ret = strtof(value_ptr, nullptr);
+          *e = c;
+          return ret;
+        }
+        ++e;
+      }
+      return strtof(value_ptr, nullptr);
+    }
+    return 0;
+  }
 
   // Code value as a long or ulong
-  static inline int32_t value_long() { return value_ptr ? parse_int32(value_ptr) : 0L; }
-  static inline uint32_t value_ulong() { return value_ptr ? parse_int32(value_ptr) : 0UL; }
+  static inline int32_t value_long() { return value_ptr ? strtol(value_ptr, nullptr, 10) : 0L; }
+  static inline uint32_t value_ulong() { return value_ptr ? strtoul(value_ptr, nullptr, 10) : 0UL; }
 
   // Code value for use as time
   static inline millis_t value_millis() { return value_ulong(); }
@@ -298,7 +311,13 @@ public:
     }
 
     static inline float axis_unit_factor(const AxisEnum axis) {
-      return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
+      return (
+        #if HAS_EXTRUDERS
+          axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor
+        #else
+          linear_unit_factor
+        #endif
+      );
     }
 
     static inline float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
@@ -358,7 +377,7 @@ public:
         case TEMPUNIT_K: f -= 273.15f;
         case TEMPUNIT_F: f = (f - 32) * 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
     static inline celsius_t value_celsius_diff() {
@@ -369,7 +388,7 @@ public:
         case TEMPUNIT_K: break;
         case TEMPUNIT_F: f *= 0.5555555556f;
       }
-      return LROUND(f + 0.5f);
+      return LROUND(f);
     }
 
   #else // !TEMPERATURE_UNITS_SUPPORT
@@ -395,6 +414,8 @@ public:
   static inline int32_t   longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
   static inline uint32_t  ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
   static inline float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
+  static inline float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
+                                                                         { return seenval(c) ? value_axis_units(a)  : dval; }
   static inline celsius_t celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
 
   #if ENABLED(MARLIN_DEV_MODE)

@@ -122,12 +122,9 @@ tags
 .gcc-flags.json
 /lib/
 
-# Workaround Deviot+platformio quirks
-Marlin/lib
-**/platformio.ini
-**/.travis.yml
-**/.gitignore
-**/readme.txt
+
+
+
 
 # Secure Credentials
 Configuration_Secure.h
@@ -151,7 +148,11 @@ vc-fileutils.settings
 .vscode/*.db
 marlin_config.json
 
-# cmake
+#Simulation
+imgui.ini
+eeprom.dat
+
+#cmake
 CMakeLists.txt
 src/CMakeLists.txt
 CMakeListsPrivate.txt

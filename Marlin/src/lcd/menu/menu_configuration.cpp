@@ -130,6 +130,7 @@ void menu_advanced_settings();
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
     #include "../../module/motion.h" // for active_extruder
+    #include "../../gcode/queue.h"
 
     void menu_toolchange_migration() {
       PGM_P const msg_migrate = GET_TEXT(MSG_TOOL_MIGRATION_SWAP);

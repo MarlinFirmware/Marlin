@@ -87,7 +87,7 @@ constexpr int lco[] = LEVEL_CORNERS_LEVELING_ORDER;
 constexpr bool level_corners_3_points = COUNT(lco) == 2;
 static_assert(level_corners_3_points || COUNT(lco) == 4, "LEVEL_CORNERS_LEVELING_ORDER must have exactly 2 or 4 corners.");
 
-constexpr int lcodiff = abs(lco[0] - lco[1]);
+constexpr int lcodiff = ABS(lco[0] - lco[1]);
 static_assert(COUNT(lco) == 4 || lcodiff == 1 || lcodiff == 3, "The first two LEVEL_CORNERS_LEVELING_ORDER corners must be on the same edge.");
 
 constexpr int nr_edge_points = level_corners_3_points ? 3 : 4;
@@ -102,7 +102,7 @@ static int8_t bed_corner;
 /**
  * Select next corner coordinates
  */
-static inline void _lcd_level_bed_corners_get_next_position() {
+static void _lcd_level_bed_corners_get_next_position() {
 
   if (level_corners_3_points) {
     if (bed_corner >= available_points) bed_corner = 0; // Above max position -> move back to first corner
@@ -179,7 +179,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
+      lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_GOOD_POINTS));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_wchar('/');
@@ -187,12 +187,12 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     }
 
     --cy;
-    y -= MENU_FONT_HEIGHT;
+    y -= MENU_LINE_HEIGHT;
 
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
+      lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_LAST_Z));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
@@ -201,10 +201,10 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   void _lcd_draw_raise() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::select_screen(
-      GET_TEXT(MSG_BUTTON_DONE), GET_TEXT(MSG_BUTTON_SKIP)
+        GET_TEXT(MSG_BUTTON_DONE), GET_TEXT(MSG_BUTTON_SKIP)
       , []{ corner_probing_done = true; wait_for_probe = false; }
       , []{ wait_for_probe = false; }
-      , GET_TEXT(MSG_LEVEL_CORNERS_RAISE)
+      , GET_TEXT(MSG_BED_TRAMMING_RAISE)
       , (const char*)nullptr, NUL_STR
     );
   }
@@ -212,11 +212,9 @@ static inline void _lcd_level_bed_corners_get_next_position() {
   void _lcd_draw_level_prompt() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::confirm_screen(
-      []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G29N"), G28_STR));
-          ui.return_to_status();
-      }
+        []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G29N"), G28_STR)); ui.return_to_status(); }
       , []{ ui.goto_previous_screen_no_defer(); }
-      , GET_TEXT(MSG_LEVEL_CORNERS_IN_RANGE)
+      , GET_TEXT(MSG_BED_TRAMMING_IN_RANGE)
       , (const char*)nullptr, PSTR("?")
     );
   }
@@ -225,7 +223,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     if (verify) do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // do clearance if needed
     TERN_(BLTOUCH_SLOW_MODE, bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
-    if (TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))) { // check if probe triggered
+    if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       sync_plan_position();
@@ -268,8 +266,8 @@ static inline void _lcd_level_bed_corners_get_next_position() {
     ui.goto_screen(_lcd_draw_probing);
     do {
       ui.refresh(LCDVIEW_REDRAW_NOW);
-      _lcd_draw_probing();                                             // update screen with # of good points
-      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP + TERN0(BLTOUCH_HS_MODE, 7)); // clearance
+      _lcd_draw_probing();                                // update screen with # of good points
+      do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, current_position.z + LEVEL_CORNERS_Z_HOP, 7)); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       current_position -= probe.offset_xy;                // Account for probe offsets
@@ -308,7 +306,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
 #else // !LEVEL_CORNERS_USE_PROBE
 
-  static inline void _lcd_goto_next_corner() {
+  static void _lcd_goto_next_corner() {
     line_to_z(LEVEL_CORNERS_Z_HOP);
 
     // Select next corner coordinates
@@ -321,7 +319,7 @@ static inline void _lcd_level_bed_corners_get_next_position() {
 
 #endif // !LEVEL_CORNERS_USE_PROBE
 
-static inline void _lcd_level_bed_corners_homing() {
+static void _lcd_level_bed_corners_homing() {
   _lcd_draw_homing();
   if (!all_axes_homed()) return;
   #if ENABLED(LEVEL_CORNERS_USE_PROBE)

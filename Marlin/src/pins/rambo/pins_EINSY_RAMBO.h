@@ -27,7 +27,10 @@
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME "Einsy Rambo"
+#define BOARD_INFO_NAME       "Einsy Rambo"
+#define DEFAULT_MACHINE_NAME  "Prusa MK3"
+
+//#define MK3_FAN_PINS
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
@@ -111,10 +114,11 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                             0  // Analog Input
-#define TEMP_1_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           2  // Analog Input
-#define TEMP_PROBE_PIN                         3  // Analog Input
+#define TEMP_0_PIN                             0  // Analog Input, Header J2
+#define TEMP_1_PIN                             1  // Analog Input, Header J3
+#define TEMP_BOARD_PIN                        91  // Onboard thermistor, 100k TDK NTCG104LH104JT1
+#define TEMP_BED_PIN                           2  // Analog Input, Header J6
+#define TEMP_PROBE_PIN                         3  // Analog Input, Header J15
 
 //
 // Heaters / Fans
@@ -123,11 +127,19 @@
 #define HEATER_BED_PIN                         4
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              8
+  #ifdef MK3_FAN_PINS
+    #define FAN_PIN                            6
+  #else
+    #define FAN_PIN                            8
+  #endif
 #endif
 
 #ifndef FAN1_PIN
-  #define FAN1_PIN                             6
+  #ifdef MK3_FAN_PINS
+    #define FAN1_PIN                           -1
+  #else
+    #define FAN1_PIN                            6
+  #endif
 #endif
 
 //
@@ -192,3 +204,5 @@
 
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 #endif // HAS_WIRED_LCD
+
+#undef MK3_FAN_PINS

@@ -38,7 +38,7 @@
   };
 #endif
 
-#if HAS_CUSTOM_PROBE_PIN
+#if USES_Z_MIN_PROBE_PIN
   #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
 #else
   #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
@@ -56,12 +56,17 @@
 class Probe {
 public:
 
+  #if ENABLED(SENSORLESS_PROBING)
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
+    static sense_bool_t test_sensitivity;
+  #endif
+
   #if HAS_BED_PROBE
 
     static xyz_pos_t offset;
 
     #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp);
+      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
     #endif
 
     static bool set_deployed(const bool deploy);
@@ -110,7 +115,7 @@ public:
 
   #else
 
-    static constexpr xyz_pos_t offset = xyz_pos_t({ 0, 0, 0 }); // See #16767
+    static constexpr xyz_pos_t offset = xyz_pos_t(LINEAR_AXIS_ARRAY(0, 0, 0, 0, 0, 0)); // See #16767
 
     static bool set_deployed(const bool) { return false; }
 
@@ -185,10 +190,10 @@ public:
       );
     }
 
-    static float min_x() { return _min_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float max_x() { return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float min_y() { return _min_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
-    static float max_y() { return _max_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
+    static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float max_x() { return _max_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
+    static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
@@ -222,20 +227,20 @@ public:
           #define VALIDATE_PROBE_PT(N) static_assert(Probe::build_time::can_reach(xy_pos_t{PROBE_PT_##N##_X, PROBE_PT_##N##_Y}), \
             "PROBE_PT_" STRINGIFY(N) "_(X|Y) is unreachable using default NOZZLE_TO_PROBE_OFFSET and PROBING_MARGIN");
           VALIDATE_PROBE_PT(1); VALIDATE_PROBE_PT(2); VALIDATE_PROBE_PT(3);
-          points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
-          points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
-          points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);
+          points[0] = xy_float_t({ PROBE_PT_1_X, PROBE_PT_1_Y });
+          points[1] = xy_float_t({ PROBE_PT_2_X, PROBE_PT_2_Y });
+          points[2] = xy_float_t({ PROBE_PT_3_X, PROBE_PT_3_Y });
         #else
           #if IS_KINEMATIC
             constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
                             COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
-            points[0].set((X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0);
-            points[1].set((X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120);
-            points[2].set((X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240);
+            points[0] = xy_float_t({ (X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0 });
+            points[1] = xy_float_t({ (X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120 });
+            points[2] = xy_float_t({ (X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240 });
           #else
-            points[0].set(min_x(), min_y());
-            points[1].set(max_x(), min_y());
-            points[2].set((min_x() + max_x()) / 2, max_y());
+            points[0] = xy_float_t({ min_x(), min_y() });
+            points[1] = xy_float_t({ max_x(), min_y() });
+            points[2] = xy_float_t({ (min_x() + max_x()) / 2, max_y() });
           #endif
         #endif
       }
@@ -254,6 +259,13 @@ public:
   #if ENABLED(PROBE_TARE)
     static void tare_init();
     static bool tare();
+  #endif
+
+  // Basic functions for Sensorless Homing and Probing
+  #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+    static void enable_stallguard_diag1();
+    static void disable_stallguard_diag1();
+    static void set_homing_current(const bool onoff);
   #endif
 
 private:

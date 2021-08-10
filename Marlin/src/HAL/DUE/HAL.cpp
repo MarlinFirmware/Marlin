@@ -77,6 +77,8 @@ uint8_t HAL_get_reset_source() {
   }
 }
 
+void HAL_reboot() { rstc_start_software_reset(RSTC); }
+
 void _delay_ms(const int delay_ms) {
   // Todo: port for Due?
   delay(delay_ms);

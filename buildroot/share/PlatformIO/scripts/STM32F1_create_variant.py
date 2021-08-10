@@ -1,18 +1,9 @@
 #
 # STM32F1_create_variant.py
 #
-import os,shutil
+import os,shutil,marlin
 from SCons.Script import DefaultEnvironment
 from platformio import util
-
-def copytree(src, dst, symlinks=False, ignore=None):
-    for item in os.listdir(src):
-        s = os.path.join(src, item)
-        d = os.path.join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
 
 env = DefaultEnvironment()
 platform = env.PioPlatform()
@@ -36,4 +27,4 @@ if os.path.isdir(variant_dir):
 if not os.path.isdir(variant_dir):
     os.mkdir(variant_dir)
 
-copytree(source_dir, variant_dir)
+marlin.copytree(source_dir, variant_dir)
