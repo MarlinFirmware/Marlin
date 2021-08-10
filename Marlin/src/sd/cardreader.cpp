@@ -1219,7 +1219,7 @@ void CardReader::cdroot() {
         #if ENABLED(SDSORT_USES_RAM) && DISABLED(SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             for (uint16_t i = 0; i < fileCnt; ++i) free(sortnames[i]);
-            TERN_(HAS_FOLDER_SORTING, free(isDir));
+            TERN_(HAS_FOLDER_SORTING, delete [] isDir);
           #endif
         #endif
       }
@@ -1245,14 +1245,14 @@ void CardReader::cdroot() {
   void CardReader::flush_presort() {
     if (sort_count > 0) {
       #if ENABLED(SDSORT_DYNAMIC_RAM)
-        delete sort_order;
+        delete [] sort_order;
         #if ENABLED(SDSORT_CACHE_NAMES)
           LOOP_L_N(i, sort_count) {
             free(sortshort[i]); // strdup
             free(sortnames[i]); // strdup
           }
-          delete sortshort;
-          delete sortnames;
+          delete [] sortshort;
+          delete [] sortnames;
         #endif
       #endif
       sort_count = 0;
