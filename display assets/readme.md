@@ -14,6 +14,9 @@
 1. Turn off the printer and remove the µSD card from the screen unit
 1. Reassembly the screen unit  
 <br>
+If you wasn't able to update the display, verify the format of the µSD Card
+(FAT32 and allocation unit of 4096 bytes) and the CRC of the files.
+<br>
   
 ---
 
