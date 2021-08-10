@@ -18,6 +18,10 @@ If you wasn't able to update the display, verify the format of the µSD Card
 (FAT32 and allocation unit of 4096 bytes) and the CRC of the files.
 <br>
   
+<img src="DWIN_SET-folder.jpg"  height="350" />  
+Be sure to leave **only** the `DWIN_SET` folder at the root of the card.  
+<br>
+  
 ---
 
 ## [Giadej compilation](Giadej%20compilation/)
