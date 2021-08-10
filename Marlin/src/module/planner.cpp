@@ -1877,6 +1877,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       " A:", target.a, " (", da, " steps)"
       " B:", target.b, " (", db, " steps)"
       " C:", target.c, " (", dc, " steps)"
+      #if LINEAR_AXES >= 4
+        " " AXIS4_STR ":", target.i, " (", di, " steps)"
+      #endif
+      #if LINEAR_AXES >= 5
+        " " AXIS5_STR ":", target.j, " (", dj, " steps)"
+      #endif
+      #if LINEAR_AXES >= 6
+        " " AXIS6_STR ":", target.k, " (", dk, " steps)"
+      #endif
       #if HAS_EXTRUDERS
         " E:", target.e, " (", de, " steps)"
       #endif
@@ -1953,6 +1962,19 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (dk < 0) SBI(dm, K_AXIS)
     );
   #endif
+
+  #if IS_CORE
+    #if LINEAR_AXES >= 4
+      if (di < 0) SBI(dm, I_AXIS);
+    #endif
+    #if LINEAR_AXES >= 5
+      if (dj < 0) SBI(dm, J_AXIS);
+    #endif
+    #if LINEAR_AXES >= 6
+      if (dk < 0) SBI(dm, K_AXIS);
+    #endif
+  #endif
+
   #if HAS_EXTRUDERS
     if (de < 0) SBI(dm, E_AXIS);
   #endif
@@ -2004,7 +2026,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
    */
   struct DistanceMM : abce_float_t {
     #if EITHER(IS_CORE, MARKFORGED_XY)
-      xyz_pos_t head;
+      struct { float x, y, z; } head;
     #endif
   } steps_dist_mm;
   #if IS_CORE
@@ -2026,6 +2048,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       steps_dist_mm.head.z = dc * steps_to_mm[C_AXIS];
       steps_dist_mm.b      = (db + dc) * steps_to_mm[B_AXIS];
       steps_dist_mm.c      = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
+    #endif
+    #if LINEAR_AXES >= 4
+      steps_dist_mm.i = di * steps_to_mm[I_AXIS];
+    #endif
+    #if LINEAR_AXES >= 5
+      steps_dist_mm.j = dj * steps_to_mm[J_AXIS];
+    #endif
+    #if LINEAR_AXES >= 6
+      steps_dist_mm.k = dk * steps_to_mm[K_AXIS];
     #endif
   #elif ENABLED(MARKFORGED_XY)
     steps_dist_mm.head.x = da * steps_to_mm[A_AXIS];
