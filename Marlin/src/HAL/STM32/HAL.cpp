@@ -20,7 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "HAL.h"
 #include "usb_serial.h"
@@ -61,8 +63,6 @@ TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
 // HAL initialization task
 void HAL_init() {
-  FastIO_init();
-
   // Ensure F_CPU is a constant expression.
   // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
   // So better safe than sorry here.
@@ -165,4 +165,4 @@ void HAL_SYSTICK_Callback() {
   if (systick_user_callback) systick_user_callback();
 }
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
+#endif // HAL_STM32

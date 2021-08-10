@@ -19,8 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include "../platforms.h"
 
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfig.h"
 
@@ -114,4 +115,4 @@ uint8_t BulkStorage::Write(uint8_t lun, uint32_t addr, uint16_t bsize, uint8_t b
 }
 
 #endif // USE_OTG_USB_HOST && USBHOST
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
+#endif // HAL_STM32
