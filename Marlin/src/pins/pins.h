@@ -37,6 +37,11 @@
 
 #define MAX_E_STEPPERS 8
 
+
+#ifndef MOTHERBOARD
+  #error "#define MOTHERBOARD has not been set in Configuration.h"
+#endif
+
 #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
 #elif MB(RAMPS_13_EEB, RAMPS_14_EEB, RAMPS_PLUS_EEB, RAMPS_14_RE_ARM_EEB, RAMPS_SMART_EEB, RAMPS_DUO_EEB, RAMPS4DUE_EEB)
@@ -763,7 +768,7 @@
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #elif MB(BTT_SKR_V2_0)
     #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
-  #else
+  #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
 
