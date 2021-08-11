@@ -769,8 +769,10 @@
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #elif MB(BTT_SKR_V2_0)
     #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
+  #elif defined(MOTHERBOARD)
+    #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
-    #error "Unknown MOTHERBOARD value set in Configuration.h"
+    #error "MOTHERBOARD not defined! Use '#define MOTHERBOARD BOARD_...' in Configuration.h."
   #endif
 
   #undef BOARD_MKS_13
