@@ -57,11 +57,11 @@ static constexpr size_t eeprom_data_size = 64;
 enum processID : uint8_t {
   // Process ID
   MainMenu,
+  Menu,
   SelectFile,
   PrintProcess,
   PrintDone,
   FilamentMan,
-  Menu,
   #if ENABLED(ASSISTED_TRAMMING)
     Tramming,
   #endif
@@ -70,7 +70,6 @@ enum processID : uint8_t {
   TemperatureID,
   Motion,
   Info,
-  Tune,
   TuneFlow,
   #if HAS_PREHEAT
     PLAPreheat,
@@ -234,18 +233,6 @@ void Popup_Window_Resume();
 void Goto_PrintProcess();
 void Goto_Main_Menu();
 
-#if HAS_HOTEND
-  void HMI_ETemp();
-#endif
-#if HAS_HEATED_BED
-  void HMI_BedTemp();
-#endif
-#if HAS_FAN
-  void HMI_FanSpeed();
-#endif
-
-void HMI_PrintSpeed();
-
 void HMI_MaxFeedspeedXYZE();
 void HMI_MaxAccelerationXYZE();
 void HMI_MaxJerkXYZE();
@@ -269,8 +256,8 @@ void HMI_StartFrame(const bool with_update);   // Prepare the menu view
 void HMI_MainMenu();    // Main process screen
 void HMI_SelectFile();  // File page
 void HMI_Printing();    // Print page
-void HMI_Control();     // Control page
 void HMI_Leveling();    // Level the page
+void HMI_SetLanguageCache(); // Set the languaje image cache
 #if ENABLED(ASSISTED_TRAMMING)
   void HMI_Tramming();   // Tramming menu
 #endif
@@ -281,7 +268,6 @@ void HMI_Leveling();    // Level the page
 void HMI_Temperature();   // Temperature menu
 void HMI_Motion();        // Sports menu
 void HMI_Info();          // Information menu
-void HMI_Tune();          // Adjust the menu
 void Draw_Main_Area();    // Redraw main area;
 void DWIN_Redraw_screen();  // Redraw all screen elements
 void HMI_ReturnScreen();  // Return to previous screen before popups
@@ -355,6 +341,17 @@ TERN_(HAS_ZOFFSET_ITEM, void HMI_Zoffset());
   void HMI_ProbeOffsetY();
 #endif
 void HMI_GetColorValue();
+#if HAS_HOTEND
+  void HMI_ETemp();
+#endif
+#if HAS_HEATED_BED
+  void HMI_BedTemp();
+#endif
+void HMI_PrintSpeed();
+void HMI_Flow();
+#if HAS_FAN
+  void HMI_FanSpeed();
+#endif
 
 // Menu drawing functions
 void Draw_Control_Menu();
@@ -365,3 +362,4 @@ TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
 TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
+void Draw_Tune_Menu();

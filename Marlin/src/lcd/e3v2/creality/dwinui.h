@@ -269,6 +269,7 @@ extern TitleClass Title;
 class MenuItemClass {
 protected:
 public:
+  uint8_t pos = 0;
   uint8_t icon = 0;
   char caption[32] = "";
   uint8_t frameid = 0;
@@ -277,7 +278,7 @@ public:
   void (*onClick) () = nullptr;
   MenuItemClass() {};
   MenuItemClass(uint8_t cicon, const char * const text=nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
-  MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) { MenuItemClass(cicon, (char*)text, ondraw, onclick); };
+  inline MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) { MenuItemClass(cicon, (char*)text, ondraw, onclick); };
   MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   virtual ~MenuItemClass(){};
@@ -299,6 +300,7 @@ public:
   MenuClass();
   virtual ~MenuClass(){};
   inline int8_t line() { return selected - topline; };
+  inline int8_t line(uint8_t pos) {return pos - topline; };
   void Clear();
   void Draw();
   void onScroll(bool dir);
@@ -572,6 +574,6 @@ namespace DWINUI {
   void MenuItemsPrepare(uint8_t totalitems);
 
   // Add elements to the MenuItems array
-  void MenuItemsAdd(MenuItemClass* menuitem);
+  MenuItemClass* MenuItemsAdd(MenuItemClass* menuitem);
 
 };

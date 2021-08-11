@@ -241,9 +241,16 @@ void DWINUI::MenuItemsPrepare(uint8_t totalitems) {
   MenuItems = new MenuItemClass*[totalitems];
 }
 
-void DWINUI::MenuItemsAdd(MenuItemClass* menuitem) {
-  if (MenuItemCount < MenuItemTotal) MenuItems[MenuItemCount++] = menuitem;
-  else delete menuitem;
+MenuItemClass* DWINUI::MenuItemsAdd(MenuItemClass* menuitem) {
+  if (MenuItemCount < MenuItemTotal) {
+    MenuItems[MenuItemCount] = menuitem;
+    menuitem->pos = MenuItemCount++;
+    return menuitem;
+  }
+  else {
+    delete menuitem;
+    return nullptr;
+  }
 }
 
 /* Title Class ==============================================================*/
