@@ -137,6 +137,7 @@
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
 #define ICON_ManualMesh           ICON_HotendTemp
+#define ICON_LevBed               ICON_SetEndTemp
 #define ICON_Lock                 ICON_Cool
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
@@ -150,7 +151,6 @@
 #define ICON_Reboot               ICON_ResumeEEPROM
 #define ICON_Scolor               ICON_MaxSpeed
 #define ICON_Sound                ICON_Cool
-#define ICON_Tramming             ICON_SetEndTemp
 
 /**
  * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:

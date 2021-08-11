@@ -180,6 +180,7 @@ static bool sdprint = false;
 
 // New menu system pointers
 MenuClass *PrepareMenu = nullptr;
+MenuClass *LevBedMenu = nullptr;
 MenuClass *MoveMenu = nullptr;
 MenuClass *ControlMenu = nullptr;
 MenuClass *AdvancedSettings = nullptr;
@@ -1807,34 +1808,6 @@ void Draw_FilamentMan_Menu(){
 
 #endif
 
-#if ENABLED(ASSISTED_TRAMMING)
-
-  void Draw_Tramming_Menu() {
-    DWINUI::ClearMenu();
-    Title.ShowCaption(GET_TEXT_F(MSG_MANUAL_LEVELING));
-    Draw_Back_First(select_item.now == 0);
-    DWIN_Draw_Label(MBASE(1), F(TRAMMING_POINT_NAME_1));
-    DWIN_Draw_Label(MBASE(2), F(TRAMMING_POINT_NAME_2));
-    DWIN_Draw_Label(MBASE(3), F(TRAMMING_POINT_NAME_3));
-    #ifdef TRAMMING_POINT_NAME_4
-      DWIN_Draw_Label(MBASE(4), F(TRAMMING_POINT_NAME_4));
-      #ifdef TRAMMING_POINT_NAME_5
-        #define TRAM_POINTS 5
-        DWIN_Draw_Label(MBASE(5), F(TRAMMING_POINT_NAME_5));
-      #else
-        #define TRAM_POINTS 4
-        Draw_Menu_Line(5, ICON_Axis, "Center");
-      #endif
-    #else
-      #define TRAM_POINTS 3
-    #endif
-    // Draw separators and icons
-    LOOP_L_N(i, TRAM_POINTS) Draw_Menu_Line(i + 1, ICON_Axis);
-    if (select_item.now) Draw_Menu_Cursor(select_item.now);
-  }
-
-#endif
-
 #if ENABLED(MESH_BED_LEVELING)
 
   void Draw_ManualMesh_Menu() {
@@ -1866,150 +1839,150 @@ void HMI_AudioFeedback(const bool success/*=true*/) {
 }
 
 #if HAS_HOTEND
-void Draw_PLA_Menu() {
-  DWINUI::ClearMenu();
-  if (HMI_IsChinese()) {
-    Title.FrameCopy(1, 59, 16, 139, 29);                                         // "PLA Settings"
-    DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_TEMP));
-    DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));     // PLA nozzle temp
+  void Draw_PLA_Menu() {
+    DWINUI::ClearMenu();
+    if (HMI_IsChinese()) {
+      Title.FrameCopy(1, 59, 16, 139, 29);                                         // "PLA Settings"
+      DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_TEMP));
+      DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));     // PLA nozzle temp
+      #if HAS_HEATED_BED
+        DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_BED));
+        DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // PLA bed temp
+      #endif
+      #if HAS_FAN
+        DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_FAN));
+        DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // PLA fan speed
+      #endif
+      #if ENABLED(EEPROM_SETTINGS)
+        DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
+      #endif
+    }
+    else {
+      #ifdef USE_STRING_HEADINGS
+        Title.ShowCaption("PLA Settings"); // TODO: GET_TEXT_F
+      #else
+        Title.FrameCopy(1, 56, 16, 141, 28);                                       // "PLA Settings"
+      #endif
+      #ifdef USE_STRING_TITLES
+        DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
+        #if HAS_HEATED_BED
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
+        #endif
+        #if HAS_FAN
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+        #endif
+      #else
+        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // PLA nozzle temp
+        #if HAS_HEATED_BED
+          DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // PLA bed temp
+        #endif
+        #if HAS_FAN
+          DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
+          DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));    // PLA fan speed
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
+        #endif
+      #endif
+    }
+
+    Draw_Back_First();
+
+    uint8_t i = 0;
+    Draw_Menu_Line(++i, ICON_SetEndTemp);
+    DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[0].hotend_temp);
     #if HAS_HEATED_BED
-      DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_BED));
-      DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // PLA bed temp
+      Draw_Menu_Line(++i, ICON_SetBedTemp);
+      DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[0].bed_temp);
     #endif
     #if HAS_FAN
-      DWIN_Frame_AreaCopy(1, 100, 89, 124, 101, LBLX, MBASE(PREHEAT_CASE_FAN));
-      DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // PLA fan speed
+      Draw_Menu_Line(++i, ICON_FanSpeed);
+      DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[0].fan_speed);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
+      Draw_Menu_Line(++i, ICON_WriteEEPROM);
     #endif
   }
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption("PLA Settings"); // TODO: GET_TEXT_F
-    #else
-      Title.FrameCopy(1, 56, 16, 141, 28);                                       // "PLA Settings"
-    #endif
-    #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
+
+  void Draw_ABS_Menu(){
+    DWINUI::ClearMenu();
+    if (HMI_IsChinese()) {
+      Title.FrameCopy(1, 142, 16, 223, 29);                                        // "ABS Settings"
+      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_TEMP));
+      DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));    // ABS nozzle temp
       #if HAS_HEATED_BED
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
+        DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_BED));
+        DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // ABS bed temp
       #endif
       #if HAS_FAN
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_FAN));
+        DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // ABS fan speed
       #endif
       #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+        DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));
+        DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX + 28, MBASE(PREHEAT_CASE_SAVE) + 2);   // Save ABS configuration
       #endif
-    #else
-      DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // PLA nozzle temp
-      #if HAS_HEATED_BED
-        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // PLA bed temp
+    }
+    else {
+      #ifdef USE_STRING_HEADINGS
+        Title.ShowCaption("ABS Settings"); // TODO: GET_TEXT_F
+      #else
+        Title.FrameCopy(1, 56, 16, 141, 28);                                                  // "ABS Settings"
       #endif
-      #if HAS_FAN
-        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
-        DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));    // PLA fan speed
+      #ifdef USE_STRING_TITLES
+        DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
+        #if HAS_HEATED_BED
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
+        #endif
+        #if HAS_FAN
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+        #endif
+      #else
+        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
+        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // ABS nozzle temp
+        #if HAS_HEATED_BED
+          DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
+          DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // ABS bed temp
+        #endif
+        #if HAS_FAN
+          DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
+          DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));             // ABS fan speed
+        #endif
+        #if ENABLED(EEPROM_SETTINGS)
+          DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));
+          DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 33, MBASE(PREHEAT_CASE_SAVE));                     // Save ABS configuration
+        #endif
       #endif
-      #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));      // Save PLA configuration
-      #endif
-    #endif
-  }
+    }
 
-  Draw_Back_First();
+    Draw_Back_First();
 
-  uint8_t i = 0;
-  Draw_Menu_Line(++i, ICON_SetEndTemp);
-  DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[0].hotend_temp);
-  #if HAS_HEATED_BED
-    Draw_Menu_Line(++i, ICON_SetBedTemp);
-    DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[0].bed_temp);
-  #endif
-  #if HAS_FAN
-    Draw_Menu_Line(++i, ICON_FanSpeed);
-    DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[0].fan_speed);
-  #endif
-  #if ENABLED(EEPROM_SETTINGS)
-    Draw_Menu_Line(++i, ICON_WriteEEPROM);
-  #endif
-  }
-
-void Draw_ABS_Menu(){
-  DWINUI::ClearMenu();
-  if (HMI_IsChinese()) {
-    Title.FrameCopy(1, 142, 16, 223, 29);                                        // "ABS Settings"
-    DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_TEMP));
-    DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX + 24, MBASE(PREHEAT_CASE_TEMP));    // ABS nozzle temp
+    uint8_t i = 0;
+    Draw_Menu_Line(++i, ICON_SetEndTemp);
+    DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[1].hotend_temp);
     #if HAS_HEATED_BED
-      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_BED));
-      DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX + 24, MBASE(PREHEAT_CASE_BED));  // ABS bed temp
+      Draw_Menu_Line(++i, ICON_SetBedTemp);
+      DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[1].bed_temp);
     #endif
     #if HAS_FAN
-      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX, MBASE(PREHEAT_CASE_FAN));
-      DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX + 24, MBASE(PREHEAT_CASE_FAN)); // ABS fan speed
+      Draw_Menu_Line(++i, ICON_FanSpeed);
+      DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[1].fan_speed);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      DWIN_Frame_AreaCopy(1, 72, 148, 151, 162, LBLX, MBASE(PREHEAT_CASE_SAVE));
-      DWIN_Frame_AreaCopy(1, 180, 89, 204, 100, LBLX + 28, MBASE(PREHEAT_CASE_SAVE) + 2);   // Save ABS configuration
+      Draw_Menu_Line(++i, ICON_WriteEEPROM);
     #endif
-  }
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption("ABS Settings"); // TODO: GET_TEXT_F
-    #else
-      Title.FrameCopy(1, 56, 16, 141, 28);                                                  // "ABS Settings"
-    #endif
-    #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
-      #if HAS_HEATED_BED
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
-      #endif
-      #if HAS_FAN
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
-      #endif
-      #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Draw_Label(MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
-      #endif
-    #else
-      DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX + 27, MBASE(PREHEAT_CASE_TEMP));
-      DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 71, MBASE(PREHEAT_CASE_TEMP));      // ABS nozzle temp
-      #if HAS_HEATED_BED
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX + 27, MBASE(PREHEAT_CASE_BED) + 3);
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 54, MBASE(PREHEAT_CASE_BED) + 3); // ABS bed temp
-      #endif
-      #if HAS_FAN
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX, MBASE(PREHEAT_CASE_FAN));
-        DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX + 27, MBASE(PREHEAT_CASE_FAN));             // ABS fan speed
-      #endif
-      #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Frame_AreaCopy(1, 97, 165, 229, 177, LBLX, MBASE(PREHEAT_CASE_SAVE));
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 33, MBASE(PREHEAT_CASE_SAVE));                     // Save ABS configuration
-      #endif
-    #endif
-  }
-
-  Draw_Back_First();
-
-  uint8_t i = 0;
-  Draw_Menu_Line(++i, ICON_SetEndTemp);
-  DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[1].hotend_temp);
-  #if HAS_HEATED_BED
-    Draw_Menu_Line(++i, ICON_SetBedTemp);
-    DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[1].bed_temp);
-  #endif
-  #if HAS_FAN
-    Draw_Menu_Line(++i, ICON_FanSpeed);
-    DWINUI::Draw_Int(3, 216, MBASE(i), ui.material_preset[1].fan_speed);
-  #endif
-  #if ENABLED(EEPROM_SETTINGS)
-    Draw_Menu_Line(++i, ICON_WriteEEPROM);
-  #endif
   }
 
 #endif // HAS_HOTEND
@@ -2145,91 +2118,6 @@ void Draw_Temperature_Menu() {
   }
 
 #endif // ADVANCED_PAUSE_FEATURE
-
-#if ENABLED(ASSISTED_TRAMMING)
-
-  // Bed Tramming
-  void HMI_Tramming() {
-    ENCODER_DiffState encoder_diffState = get_encoder_state();
-    if (encoder_diffState == ENCODER_DIFF_NO) return;
-
-    // Avoid flicker by updating only the previous menu
-    if (encoder_diffState == ENCODER_DIFF_CW) {
-      if (select_item.inc(1 + 5)) Move_Highlight(1, select_item.now);
-    }
-    else if (encoder_diffState == ENCODER_DIFF_CCW) {
-      if (select_item.dec()) Move_Highlight(-1, select_item.now);
-    }
-    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-
-      char cmd[100] = "";
-      #if HAS_ONESTEP_LEVELING
-        char str_1[6] = "", str_2[6] = "", str_3[6] = "";
-        #define fmt "X:%s, Y:%s, Z:%s"
-        float xpos = 0, ypos = 0, zpos = 0;
-        float margin = PROBING_MARGIN;
-      #else
-        #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
-        int16_t xpos = 0, ypos = 0;
-        int16_t margin = 30;
-      #endif
-
-      switch (select_item.now) {
-        case 0:
-          Draw_Prepare_Menu();
-          break;
-        case 1:
-          DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_1));
-          xpos = ypos = margin;
-          break;
-        case 2:
-          DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_2));
-          xpos = X_BED_SIZE - margin; ypos = margin;
-          break;
-        case 3:
-          DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_3));
-          xpos = X_BED_SIZE - margin; ypos = Y_BED_SIZE - margin;
-          break;
-        #ifdef TRAMMING_POINT_NAME_4
-          case 4:
-            DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_4));
-            xpos = margin; ypos = Y_BED_SIZE - margin;
-            break;
-        #endif
-        #ifdef TRAMMING_POINT_NAME_5
-          case 5:
-            DWIN_StatusChanged_P(PSTR(TRAMMING_POINT_NAME_5));
-            xpos = X_BED_SIZE / 2; ypos = Y_BED_SIZE / 2;
-            break;
-        #else
-          case 5:
-            DWIN_StatusChanged_P(PSTR("Center"));
-            xpos = X_BED_SIZE / 2; ypos = Y_BED_SIZE / 2;
-            break;
-        #endif
-      }
-
-      if (select_item.now) {
-        #if HAS_ONESTEP_LEVELING
-          gcode.process_subcommands_now_P(PSTR("M420S0\nG28O"));
-          planner.synchronize();
-          zpos = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
-          sprintf_P(cmd, PSTR(fmt),
-            dtostrf(xpos, 1, 1, str_1),
-            dtostrf(ypos, 1, 1, str_2),
-            dtostrf(zpos, 1, 2, str_3)
-          );
-          DWIN_StatusChanged(cmd);
-        #else
-          sprintf_P(cmd, PSTR(fmt), xpos, ypos);
-          queue.inject(cmd);
-        #endif
-      }
-    }
-    DWIN_UpdateLCD();
-  }
-
-#endif // ASSISTED_TRAMMING
 
 #if ENABLED(MESH_BED_LEVELING)
 
@@ -2622,9 +2510,6 @@ void Draw_Main_Area() {
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case FilamentPurge:        Draw_Popup_FilamentPurge(); break;
       case FilamentMan:          Draw_FilamentMan_Menu(); break;
-    #endif
-    #if ENABLED(ASSISTED_TRAMMING)
-      case Tramming:             Draw_Tramming_Menu(); break;
     #endif
     #if ENABLED(MESH_BED_LEVELING)
       case ManualMesh:           Draw_ManualMesh_Menu(); break;
@@ -3208,9 +3093,6 @@ void DWIN_HandleScreen() {
     case PrintProcess:    HMI_Printing(); break;
     case PrintDone:       HMI_PrintDone(); break;
     case PauseOrStop:     HMI_PauseOrStop(); break;
-    #if ENABLED(ASSISTED_TRAMMING)
-      case Tramming:      HMI_Tramming(); break;
-    #endif
     #if ENABLED(MESH_BED_LEVELING)
       case ManualMesh:    HMI_ManualMesh(); break;
       case MMeshMoveZ:    HMI_MMeshMoveZ(); break;
@@ -3651,14 +3533,6 @@ void Goto_InfoMenu(){
   }
 #endif
 
-#if ENABLED(ASSISTED_TRAMMING)
-void Goto_ManualLev() {
-  checkkey = Tramming;
-  select_item.reset();
-  Draw_Tramming_Menu();
-}
-#endif
-
 #if ENABLED(MESH_BED_LEVELING)
   void Goto_ManualMesh() {
     checkkey = ManualMesh;
@@ -3804,23 +3678,82 @@ void ApplyColor() {
   DWIN_StatusChanged_P(PSTR("Colors applied"));
 }
 
-void SetSpeed() { SetIntOnClick(PrintSpeed, feedrate_percentage); };
+void SetSpeed() { SetIntOnClick(PrintSpeed, feedrate_percentage); }
 
-TERN_(HAS_HOTEND, void SetHotendTemp() { SetIntOnClick(ETemp, thermalManager.degTargetHotend(0)); };);
+TERN_(HAS_HOTEND, void SetHotendTemp() { SetIntOnClick(ETemp, thermalManager.degTargetHotend(0)); });
 
-TERN_(HAS_HEATED_BED, void SetBedTemp() { SetIntOnClick(BedTemp, thermalManager.degTargetBed()); };);
+TERN_(HAS_HEATED_BED, void SetBedTemp() { SetIntOnClick(BedTemp, thermalManager.degTargetBed()); });
 
-TERN_(HAS_FAN, void SetFanSpeed() { SetIntOnClick(FanSpeed, thermalManager.fan_speed[0]); };);
+TERN_(HAS_FAN, void SetFanSpeed() { SetIntOnClick(FanSpeed, thermalManager.fan_speed[0]); });
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void FilamentChange() {
     Goto_PrintProcess();
     HMI_SaveProcessID(NothingToDo);
     queue.inject_P(PSTR("M600 B2"));
-  };
+  }
 #endif
 
-void SetFlow() { SetIntOnClick(TuneFlow, planner.flow_percentage[0]); };
+void SetFlow() { SetIntOnClick(TuneFlow, planner.flow_percentage[0]); }
+
+// Leveling Bed Corners
+void LevBed(uint8_t point) {
+  char cmd[100] = "";
+  #if HAS_ONESTEP_LEVELING
+    char str_1[6] = "", str_2[6] = "", str_3[6] = "";
+    #define fmt "X:%s, Y:%s, Z:%s"
+    float xpos = 0, ypos = 0, zpos = 0;
+    float margin = PROBING_MARGIN;
+  #else
+    #define fmt "M420 S0\nG28O\nG90\nG0 Z5 F300\nG0 X%i Y%i F5000\nG0 Z0 F300"
+    int16_t xpos = 0, ypos = 0;
+    int16_t margin = 30;
+  #endif
+
+  switch (point) {
+    case 0:
+      ui.set_status_P(GET_TEXT(MSG_LEVBED_FL));
+      xpos = ypos = margin;
+      break;
+    case 1:
+      ui.set_status_P(GET_TEXT(MSG_LEVBED_FR));
+      xpos = X_BED_SIZE - margin; ypos = margin;
+      break;
+    case 2:
+      ui.set_status_P(GET_TEXT(MSG_LEVBED_BR));
+      xpos = X_BED_SIZE - margin; ypos = Y_BED_SIZE - margin;
+      break;
+    case 3:
+      ui.set_status_P(GET_TEXT(MSG_LEVBED_BL));
+      xpos = margin; ypos = Y_BED_SIZE - margin;
+      break;
+    case 4:
+      ui.set_status_P(GET_TEXT(MSG_LEVBED_C));
+      xpos = X_BED_SIZE / 2; ypos = Y_BED_SIZE / 2;
+      break;
+  }
+
+  #if HAS_ONESTEP_LEVELING
+    gcode.process_subcommands_now_P(PSTR("M420S0\nG28O"));
+    planner.synchronize();
+    zpos = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
+    sprintf_P(cmd, PSTR(fmt),
+      dtostrf(xpos, 1, 1, str_1),
+      dtostrf(ypos, 1, 1, str_2),
+      dtostrf(zpos, 1, 2, str_3)
+    );
+    DWIN_StatusChanged(cmd);
+  #else
+    sprintf_P(cmd, PSTR(fmt), xpos, ypos);
+    queue.inject(cmd);
+  #endif
+}
+
+void LevBedFL() { LevBed(0); }
+void LevBedFR() { LevBed(1); }
+void LevBedBR() { LevBed(2); }
+void LevBedBL() { LevBed(3); }
+void LevBedC () { LevBed(4); }
 
 // Menuitem Drawing functions =================================================
 
@@ -4274,9 +4207,7 @@ void Draw_Prepare_Menu() {
       ADDMENUITEM(ICON_FilMan, GET_TEXT(MSG_FILAMENT_MAN), onDrawSubMenu, Goto_FilamentMan);
     #endif
     ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_MOVE_AXIS), onDrawMoveSubMenu, Draw_Move_Menu);
-    #if ENABLED(ASSISTED_TRAMMING)
-      ADDMENUITEM(ICON_Tramming, GET_TEXT(MSG_MANUAL_LEVELING), onDrawSubMenu, Goto_ManualLev);
-    #endif
+    ADDMENUITEM(ICON_LevBed, GET_TEXT(MSG_MANUAL_LEVELING), onDrawSubMenu, Draw_LevBedCorners_Menu);
     ADDMENUITEM(ICON_CloseMotor, GET_TEXT(MSG_DISABLE_STEPPERS), onDrawDisableMotors, DisableMotors);
     ADDMENUITEM(ICON_Homing, GET_TEXT(MSG_AUTO_HOME), onDrawAutoHome, AutoHome);
     #if ENABLED(MESH_BED_LEVELING)
@@ -4301,6 +4232,25 @@ void Draw_Prepare_Menu() {
   }
   CurrentMenu = PrepareMenu;
   PrepareMenu->Draw();
+  DWIN_StatusChanged(nullptr);
+}
+
+void Draw_LevBedCorners_Menu() {
+  DWINUI::ClearMenu();
+  Title.SetCaption(GET_TEXT_F(MSG_MANUAL_LEVELING));
+  checkkey = Menu;
+  if (LevBedMenu == nullptr) LevBedMenu = new MenuClass();
+  if (CurrentMenu != LevBedMenu) {
+    DWINUI::MenuItemsPrepare(8);
+    ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Prepare_Menu);
+    ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_LEVBED_FL), onDrawMenuItem, LevBedFL);
+    ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_LEVBED_FR), onDrawMenuItem, LevBedFR);
+    ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_LEVBED_BR), onDrawMenuItem, LevBedBR);
+    ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_LEVBED_BL), onDrawMenuItem, LevBedBL);
+    ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_LEVBED_C ), onDrawMenuItem, LevBedC );
+  }
+  CurrentMenu = LevBedMenu;
+  LevBedMenu->Draw();
   DWIN_StatusChanged(nullptr);
 }
 

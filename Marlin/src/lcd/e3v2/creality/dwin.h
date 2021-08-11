@@ -62,9 +62,6 @@ enum processID : uint8_t {
   PrintProcess,
   PrintDone,
   FilamentMan,
-  #if ENABLED(ASSISTED_TRAMMING)
-    Tramming,
-  #endif
   ManualMesh,
   MMeshMoveZ,
   TemperatureID,
@@ -259,7 +256,7 @@ void HMI_Printing();    // Print page
 void HMI_Leveling();    // Level the page
 void HMI_SetLanguageCache(); // Set the languaje image cache
 #if ENABLED(ASSISTED_TRAMMING)
-  void HMI_Tramming();   // Tramming menu
+  void HMI_LevBedCorners();   // Tramming menu
 #endif
 #if ENABLED(MESH_BED_LEVELING)
   void HMI_ManualMesh();  // Manual Mesh menu
@@ -358,6 +355,7 @@ void Draw_Control_Menu();
 void Draw_AdvSet_Menu();
 void Draw_Prepare_Menu();
 void Draw_Move_Menu();
+void Draw_LevBedCorners_Menu();
 TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
 TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
 void Draw_SelectColors_Menu();
