@@ -53,10 +53,10 @@ void GcodeSuite::M575() {
     case 115200: case 250000: case 500000: case 1000000: {
       const int8_t port = parser.intval('P', -99);
       const bool set0 = (port == -99 || port == 0);
-      if (set0) SERIAL_ECHO_MSG(" Serial ", '0', " baud rate set to ", baud);
+      if (set0) SERIAL_ECHO_MSG(" Serial ", 0, " baud rate set to ", baud);
       #if HAS_MULTI_SERIAL
         const bool set1 = (port == -99 || port == 1);
-        if (set1) SERIAL_ECHO_MSG(" Serial ", '1', " baud rate set to ", baud);
+        if (set1) SERIAL_ECHO_MSG(" Serial ", 1, " baud rate set to ", baud);
       #endif
 
       SERIAL_FLUSH();
