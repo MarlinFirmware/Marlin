@@ -106,10 +106,31 @@ void Mixer::reset_vtools() {
       MIXER_STEPPER_LOOP(i)
         color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
   #endif
+
+  // MIXING_PRESETS: Set a variety of obvious mixes as presets
+  #if ENABLED(MIXING_PRESETS) && WITHIN(MIXING_STEPPERS, 2, 3)
+    #if MIXING_STEPPERS == 2
+      if (MIXING_VIRTUAL_TOOLS > 2) { collector[0] = 1; collector[1] = 1; mixer.normalize(2); } // 1:1
+      if (MIXING_VIRTUAL_TOOLS > 3) { collector[0] = 3;                   mixer.normalize(3); } // 3:1
+      if (MIXING_VIRTUAL_TOOLS > 4) { collector[0] = 1; collector[1] = 3; mixer.normalize(4); } // 1:3
+      if (MIXING_VIRTUAL_TOOLS > 5) {                   collector[1] = 2; mixer.normalize(5); } // 1:2
+      if (MIXING_VIRTUAL_TOOLS > 6) { collector[0] = 2; collector[1] = 1; mixer.normalize(6); } // 2:1
+      if (MIXING_VIRTUAL_TOOLS > 7) { collector[0] = 3; collector[1] = 2; mixer.normalize(7); } // 3:2
+    #else
+      if (MIXING_VIRTUAL_TOOLS > 3) { collector[0] = 1; collector[1] = 1; collector[2] = 1; mixer.normalize(3); } // 1:1:1
+      if (MIXING_VIRTUAL_TOOLS > 4) {                   collector[1] = 3; collector[2] = 0; mixer.normalize(4); } // 1:3:0
+      if (MIXING_VIRTUAL_TOOLS > 5) { collector[0] = 0;                   collector[2] = 1; mixer.normalize(5); } // 0:3:1
+      if (MIXING_VIRTUAL_TOOLS > 6) {                   collector[1] = 1;                   mixer.normalize(6); } // 0:1:1
+      if (MIXING_VIRTUAL_TOOLS > 7) { collector[0] = 1;                   collector[2] = 0; mixer.normalize(7); } // 1:1:0
+    #endif
+    ZERO(collector);
+  #endif
 }
 
 // called at boot
 void Mixer::init() {
+
+  ZERO(collector);
 
   reset_vtools();
 
@@ -118,8 +139,6 @@ void Mixer::init() {
     MIXER_STEPPER_LOOP(i)
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
   #endif
-
-  ZERO(collector);
 
   #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
     update_mix_from_vtool();

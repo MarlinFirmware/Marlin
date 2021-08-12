@@ -157,8 +157,8 @@ void W25QXXFlash::SPI_FLASH_WriteEnable(void) {
 /*******************************************************************************
 * Function Name  : SPI_FLASH_WaitForWriteEnd
 * Description    : Polls the status of the Write In Progress (WIP) flag in the
-*                  FLASH's status  register  and  loop  until write  opertaion
-*                  has completed.
+*                  FLASH's status register and loop until write operation has
+*                  completed.
 * Input          : None
 * Output         : None
 * Return         : None

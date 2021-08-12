@@ -38,6 +38,9 @@
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32F1/NAME)
 #elif defined(ARDUINO_ARCH_STM32)
+  #ifndef HAL_STM32
+    #define HAL_STM32
+  #endif
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32/NAME)
 #elif defined(ARDUINO_ARCH_ESP32)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/ESP32/NAME)

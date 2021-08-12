@@ -93,7 +93,7 @@ public:
   // Helper for users of this class to estimate if an interaction would be blocking.
   static size_t GetFreeTxBuffer();
 
-  // Checks two things: Can we confirm the presence of the display and has we initiliazed it.
+  // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
   static inline bool isInitialized() { return Initialized; }
 
