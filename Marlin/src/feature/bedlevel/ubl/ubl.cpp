@@ -59,7 +59,7 @@ void unified_bed_leveling::report_current_mesh() {
 
 void unified_bed_leveling::report_state() {
   echo_name();
-  SERIAL_ECHO_TERNARY(planner.leveling_active, " System v" UBL_VERSION " ", "", "in", "active\n");
+  SERIAL_ECHO_TERNARY(planner.leveling_active, " System v" UBL_VERSION " ", "", "in", "active");
   serial_delay(50);
 }
 
