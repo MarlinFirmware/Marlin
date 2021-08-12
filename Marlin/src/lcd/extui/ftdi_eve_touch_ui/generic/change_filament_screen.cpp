@@ -224,7 +224,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
        .tag(6)                .enabled(t_ok).button (LOAD_MOMN_POS, GET_TEXT_F(MSG_MOMENTARY))
        .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (UNLD_CONT_POS, GET_TEXT_F(MSG_CONTINUOUS))
        .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (LOAD_CONT_POS, GET_TEXT_F(MSG_CONTINUOUS))
-       .tag(1).colors(action_btn)           .button (BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).colors(action_btn)           .button (BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

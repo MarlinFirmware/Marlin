@@ -46,7 +46,7 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
+  #include "../lcd/e3v2/creality/dwin.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -107,6 +107,24 @@
 #if (TEMP_SENSOR_0_USES_SW_SPI || TEMP_SENSOR_1_USES_SW_SPI) && !HAS_MAXTC_LIBRARIES
   #include "../libs/private_spi.h"
   #define HAS_MAXTC_SW_SPI 1
+
+  // Define pins for SPI-based sensors
+  #if TEMP_SENSOR_0_USES_SW_SPI
+    #define SW_SPI_SCK_PIN    TEMP_0_SCK_PIN
+    #define SW_SPI_MISO_PIN   TEMP_0_MISO_PIN
+    #if PIN_EXISTS(TEMP_0_MOSI)
+      #define SW_SPI_MOSI_PIN TEMP_0_MOSI_PIN
+    #endif
+  #else
+    #define SW_SPI_SCK_PIN    TEMP_1_SCK_PIN
+    #define SW_SPI_MISO_PIN   TEMP_1_MISO_PIN
+    #if PIN_EXISTS(TEMP_1_MOSI)
+      #define SW_SPI_MOSI_PIN TEMP_1_MOSI_PIN
+    #endif
+  #endif
+  #ifndef SW_SPI_MOSI_PIN
+    #define SW_SPI_MOSI_PIN   SD_MOSI_PIN
+  #endif
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -198,7 +216,8 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
     template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
       SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
-    SPIclass<TEMP_0_MISO_PIN, TEMP_0_MOSI_PIN, TEMP_0_SCK_PIN> max_tc_spi;
+    SPIclass<SW_SPI_MISO_PIN, SW_SPI_MOSI_PIN, SW_SPI_SCK_PIN> max_tc_spi;
+
   #endif
 
   #define MAXTC_INIT(n, M) \
@@ -350,7 +369,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
       }
     #endif
 
-    TERN_(SINGLENOZZLE, fan = 0); // Always use fan index 0 with SINGLENOZZLE
+    TERN_(SINGLENOZZLE, if (fan < EXTRUDERS) fan = 0); // Always fan 0 for SINGLENOZZLE E fan
 
     if (fan >= FAN_COUNT) return;
 
@@ -1469,7 +1488,7 @@ void Temperature::manage_heater() {
             fan_chamber_pwm = CHAMBER_FAN_BASE + _MAX((CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target), 0);
           #endif
           NOMORE(fan_chamber_pwm, 225);
-          set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
+          set_fan_speed(CHAMBER_FAN_INDEX, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
         #endif
 
         #if ENABLED(CHAMBER_VENT)
@@ -1500,7 +1519,7 @@ void Temperature::manage_heater() {
       else if (!flag_chamber_off) {
         #if ENABLED(CHAMBER_FAN)
           flag_chamber_off = true;
-          set_fan_speed(2, 0);
+          set_fan_speed(CHAMBER_FAN_INDEX, 0);
         #endif
         #if ENABLED(CHAMBER_VENT)
           flag_chamber_excess_heat = false;
@@ -1510,7 +1529,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(PIDTEMPCHAMBER)
-      // PIDTEMPCHAMBER doens't support a CHAMBER_VENT yet.
+      // PIDTEMPCHAMBER doesn't support a CHAMBER_VENT yet.
       temp_chamber.soft_pwm_amount = WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP) ? (int)get_pid_output_chamber() >> 1 : 0;
     #else
       if (ELAPSED(ms, next_chamber_check_ms)) {

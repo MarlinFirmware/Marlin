@@ -288,8 +288,8 @@ inline void servo_probe_test() {
  *                  S<pin>  - Start Pin number.   If not given, will default to 0
  *                  L<pin>  - End Pin number.   If not given, will default to last pin defined for this board
  *                  I<bool> - Flag to ignore Marlin's pin protection.   Use with caution!!!!
- *                  R       - Repeat pulses on each pin this number of times before continueing to next pin
- *                  W       - Wait time (in miliseconds) between pulses.  If not given will default to 500
+ *                  R       - Repeat pulses on each pin this number of times before continuing to next pin
+ *                  W       - Wait time (in milliseconds) between pulses.  If not given will default to 500
  *
  *  M43 S       - Servo probe test
  *                  P<index> - Probe index (optional - defaults to 0

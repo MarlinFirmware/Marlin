@@ -21,24 +21,24 @@
  */
 
 /********************************************************************************
- * @file     dwin_lcd.cpp
+ * @file     lcd/e3v2/creality/dwin_lcd.cpp
  * @author   LEO / Creality3D
  * @date     2019/07/18
  * @version  2.0.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ANY(DWIN_CREALITY_LCD, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE)
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #include "dwin_lcd.h"
 #include <string.h> // for memset
 
 //#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
+#include "../../../core/debug_out.h"
 
 // Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
 // Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
@@ -459,7 +459,7 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state) {
   size_t i = 0;
-  DWIN_Byte(i, 0x28);
+  DWIN_Byte(i, 0x29);
   DWIN_Word(i, state);
   DWIN_Send(i);
 }

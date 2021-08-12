@@ -29,30 +29,30 @@ namespace FTDI {
    * be broken so that the display width is less than w. The line will also
    * be broken after a '\n'. Returns the display width of the line.
    */
-  static uint16_t find_line_break(const FontMetrics &utf8_fm, const CLCD::FontMetrics &clcd_fm, const uint16_t w, const char *str, const char *&end, bool use_utf8) {
-    const char *p = str;
-    end = str;
+  static uint16_t find_line_break(const FontMetrics &utf8_fm, const CLCD::FontMetrics &clcd_fm, const uint16_t w, const char *start, const char *&end, bool use_utf8) {
+    const char *p = start;
+    end = start;
     uint16_t lw = 0, result = 0;
     for (;;) {
       const char *next = p;
-      utf8_char_t c = get_utf8_char_and_inc(next);
+      const utf8_char_t c = get_utf8_char_and_inc(next);
       // Decide whether to break the string at this location
       if (c == '\n' || c == '\0' || c == ' ') {
         end = p;
         result = lw;
       }
       if (c == '\n' || c == '\0') break;
-      // Now add the length of the current character to the tally.
-      lw += use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c];
+      // Measure the next character
+      const uint16_t cw = use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c];
       // Stop processing once string exceeds the display width
-      if (lw >= w) {
-        if (end == str) {
-          end = p;
-          result = lw;
-        }
-        break;
-      }
+      if (lw + cw > w) break;
+      // Now add the length of the current character to the tally.
+      lw += cw;
       p = next;
+    }
+    if (end == start) {
+      end = p;
+      result = lw;
     }
     return result;
   }
@@ -66,12 +66,13 @@ namespace FTDI {
     const uint16_t wrap_width = width;
     width = height = 0;
     for (;;) {
-      uint16_t line_width = find_line_break(utf8_fm, clcd_fm, wrap_width, line_start, line_end, use_utf8);
+      const uint16_t line_width = find_line_break(utf8_fm, clcd_fm, wrap_width, line_start, line_end, use_utf8);
       width  = max(width, line_width);
       height += utf8_fm.get_height();
+      if (*line_end == '\n' || *line_end == ' ') line_end++;
+      if (*line_end == '\0') break;
+      if (line_end == line_start) break;
       line_start = line_end;
-      if (line_start[0] == '\n' || line_start[0] == ' ') line_start++;
-      if (line_start[0] == '\0') break;
     }
   }
 
@@ -111,25 +112,22 @@ namespace FTDI {
 
       const size_t line_len = line_end - line_start;
       if (line_len) {
-        char line[line_len + 1];
-        strncpy(line, line_start, line_len);
-        line[line_len] = 0;
-
         #if ENABLED(TOUCH_UI_USE_UTF8)
-          if (use_utf8) {
-            draw_utf8_text(cmd, x + dx, y + dy, line, utf8_fm.fs, options & ~(OPT_CENTERY | OPT_BOTTOMY));
-          } else
+          if (use_utf8)
+            draw_utf8_text(cmd, x + dx, y + dy, line_start, utf8_fm.fs, options & ~(OPT_CENTERY | OPT_BOTTOMY), line_len);
+          else
         #endif
           {
             cmd.CLCD::CommandFifo::text(x + dx, y + dy, font, options & ~(OPT_CENTERY | OPT_BOTTOMY));
-            cmd.CLCD::CommandFifo::str(line);
+            cmd.CLCD::CommandFifo::str(line_start, line_len);
           }
       }
       y += utf8_fm.get_height();
 
+      if (*line_end == '\n' || *line_end == ' ') line_end++;
+      if (*line_end == '\0') break;
+      if (line_end == line_start) break;
       line_start = line_end;
-      if (line_start[0] == '\n' || line_start[0] == ' ') line_start++;
-      if (line_start[0] == '\0') break;
     }
   }
 

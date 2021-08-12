@@ -76,20 +76,10 @@
   #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
   #define INFO_FONT_WIDTH   6
 
-  #define SETCURSOR(col, row)    lcd_moveto((col) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
-  #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
-
-#elif IS_DWIN_MARLINUI
-
-  #include "dwin/marlin/ultralcd_dwin.h"
-
-  #define LCD_PIXEL_WIDTH   DWIN_WIDTH
-  #define LCD_PIXEL_HEIGHT  DWIN_HEIGHT
-  #define LCD_WIDTH  ((LCD_PIXEL_WIDTH)  / (MENU_FONT_WIDTH))
-  #define LCD_HEIGHT ((LCD_PIXEL_HEIGHT) / (MENU_FONT_HEIGHT))
-
-  #define SETCURSOR(col, row)    lcd_moveto(col, row)
-  #define SETCURSOR_RJ(len, row) SETCURSOR(LCD_WIDTH - (len), row)
+  // Graphical LCD uses the menu font size for cursor positioning
+  #define LCD_COL_X(col) ((    (col)) * (MENU_FONT_WIDTH))
+  #define LCD_ROW_Y(row) ((1 + (row)) * (MENU_LINE_HEIGHT))
+  #define LCD_COL_X_RJ(len) (LCD_WIDTH - LCD_COL_X(len))
 
 #else
 
@@ -106,13 +96,19 @@
   #define LCD_PIXEL_WIDTH   LCD_WIDTH
   #define LCD_PIXEL_HEIGHT  LCD_HEIGHT
 
-  #define SETCURSOR(col, row)    lcd_moveto(col, row)
-  #define SETCURSOR_RJ(len, row) SETCURSOR(LCD_WIDTH - (len), row)
+  // Character LCD uses direct cursor positioning
+  #define LCD_COL_X(col) (col)
+  #define LCD_ROW_Y(row) (row)
+  #define LCD_COL_X_RJ(len) (LCD_PIXEL_WIDTH - LCD_COL_X(len))
 
 #endif
 
-#define LCD_COL_X_RJ(len)      (LCD_PIXEL_WIDTH - LCD_COL_X(len))
-#define LCD_BOTTOM_ROW         (LCD_PIXEL_HEIGHT - 1)
+#ifndef MENU_LINE_HEIGHT
+  #define MENU_LINE_HEIGHT MENU_FONT_HEIGHT
+#endif
+
+#define SETCURSOR(col, row)    lcd_moveto(LCD_COL_X(col), LCD_ROW_Y(row))
+#define SETCURSOR_RJ(len, row) lcd_moveto(LCD_COL_X_RJ(len), LCD_ROW_Y(row))
 #define SETCURSOR_X(col)       SETCURSOR(col, _lcdLineNr)
 #define SETCURSOR_X_RJ(len)    SETCURSOR_RJ(len, _lcdLineNr)
 

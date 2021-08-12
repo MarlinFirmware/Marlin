@@ -181,8 +181,6 @@
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_2_PIN                        PE6
 #define MT_DET_PIN_INVERTING               false  // LVGL UI filament RUNOUT PIN STATE
-#define PW_DET                              PA13
-#define PW_OFF                              PB2
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN            MT_DET_1_PIN
@@ -191,19 +189,36 @@
   #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                  PW_DET
-#endif
-#define PS_ON_PIN                         PW_OFF
-
 //
 // Enable MKSPWC support
 //
 //#define SUICIDE_PIN                       PB2
-//#define KILL_PIN                          PA2
-//#define KILL_PIN_INVERTING                true
-
 //#define LED_PIN                           PB2
+//#define KILL_PIN                          PA2
+//#define KILL_PIN_STATE                    HIGH
+
+//
+// Power Supply Control
+//
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
+  #if HAS_TFT_LVGL_UI
+    #error "PSU_CONTROL cannot be used with TFT_LVGL_UI. Disable PSU_CONTROL to continue."
+  #endif
+  #ifndef PS_ON_PIN
+    #define PS_ON_PIN                       PB2   // SUICIDE
+  #endif
+  #ifndef KILL_PIN
+    #define KILL_PIN                        PA13  // PW_DET
+    #define KILL_PIN_STATE                  HIGH
+  #endif
+#else
+  #define SUICIDE_PIN                       PB2
+  #define SUICIDE_PIN_INVERTING            false
+#endif
+
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                    PA13  // PW_DET
+#endif
 
 // Random Info
 #define USB_SERIAL              -1  // USB Serial
@@ -222,10 +237,16 @@
   #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
 #endif
 
+// MKS TEST
+#if ENABLED(MKS_TEST)
+  #define MKS_TEST_POWER_LOSS_PIN           PA13  // PW_DET
+  #define MKS_TEST_PS_ON_PIN                PB2   // PW_OFF
+#endif
+
 //
 // Onboard SD card
 //
-// detect pin dont work when ONBOARD and NO_SD_HOST_DRIVE disabled
+// detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
@@ -361,6 +382,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
+	//#define LCD_SCREEN_ROT_180
 
   #else // !MKS_MINI_12864
 

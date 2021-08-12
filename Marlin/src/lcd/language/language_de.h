@@ -62,7 +62,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Z-Achsen ausgleichen");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Bett ausrichten"); // Bettausrichtung
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("XYZ homen");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Klick zum Starten");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Nächste Koordinate");
@@ -103,7 +102,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Achsen bewegen");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bett-Nivellierung");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Bett nivellieren");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Ecken nivellieren");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bett ausrichten");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Nächste Ecke");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Netz Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Netz bearbeiten");

@@ -27,11 +27,10 @@
 
 class DialogBoxBaseClass : public BaseScreen {
   protected:
-    template<typename T> static void drawMessage(const T, int16_t font = 0);
+    template<typename T> static void drawMessage(T, int16_t font = 0);
+    template<typename T> static void drawButton(T);
     static void drawYesNoButtons(uint8_t default_btn = 0);
     static void drawOkayButton();
-    static void drawSpinner();
-    static void drawButton(const progmem_str);
 
     static void onRedraw(draw_mode_t) {};
   public:

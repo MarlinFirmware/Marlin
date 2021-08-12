@@ -45,10 +45,6 @@
   #define JUST_BABYSTEP 1
 #endif
 
-#include <WString.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "../../fontutils.h"
 #include "../../marlinui.h"
 
@@ -93,6 +89,10 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif
+
+#include <WString.h>
+#include <stdio.h>
+#include <string.h>
 
 #ifndef MACHINE_SIZE
   #define MACHINE_SIZE STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "x" STRINGIFY(Z_MAX_POS)
@@ -146,6 +146,9 @@ constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,        // Total rows, and other
 #define MBASE(L) (49 + MLINE * (L))
 
 #define BABY_Z_VAR TERN(HAS_BED_PROBE, probe.offset.z, dwin_zoffset)
+
+#define DWIN_BOTTOM (DWIN_HEIGHT-1)
+#define DWIN_RIGHT (DWIN_WIDTH-1)
 
 /* Value Init */
 HMI_value_t HMI_ValueStruct;
@@ -398,7 +401,8 @@ void Draw_Menu_IntValue(uint16_t color, uint16_t bcolor, const uint8_t line, uin
   DWIN_Draw_IntValue(true, true, 0, font8x16, color, bcolor, iNum , 216, MBASE(line) - 1, value);
 }
 
-inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, auto &valref) {
+template <typename T>
+inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, T &valref) {
   if (encoder_diffState == ENCODER_DIFF_CW)
     valref += EncoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
@@ -1036,7 +1040,7 @@ void Draw_Main_Menu() {
   #ifdef USE_STRING_HEADINGS
     Draw_Title(MACHINE_NAME);   // M.A.R.C. MachineName
   #else
-    DWIN_Frame_AreaCopy(1, 0, 2, 39, 12, 14, 9);
+      DWIN_Frame_TitleCopy(1, 0, 2, 39, 12);
   #endif
 
   DWIN_ICON_Show(ICON, ICON_LOGO, 71, 52);  // CREALITY logo
@@ -4840,7 +4844,7 @@ void EachMomentUpdate() {
       Goto_PrintProcess();
       Draw_Status_Area(true);
     }
-  #endif
+  #endif // POWER_LOSS_RECOVERY
 
   DWIN_UpdateLCD();
 }
@@ -5051,6 +5055,12 @@ void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const cha
 // Example ui.status_printf_P(0,  PSTR("Element: %i Color: %i"), E, C);
 void DWIN_StatusChanged(const char *text) {
   DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, text);
+}
+
+void DWIN_StatusChanged_P(PGM_P const pstr) {
+  char str[strlen_P((const char*)pstr) + 1];
+  strcpy_P(str, (const char*)pstr);
+  DWIN_StatusChanged(str);
 }
 
 // Start a Print Job

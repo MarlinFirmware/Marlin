@@ -38,6 +38,8 @@
   #include "../gcode/gcode.h"
 #endif
 
+#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
+
 Power powerManager;
 bool Power::psu_on;
 
@@ -55,7 +57,7 @@ bool Power::psu_on;
  * Initialize pins & state for the power manager.
  *
  */
-void Power::init(){
+void Power::init() {
   psu_on = ENABLED(PSU_DEFAULT_OFF);              // Set opposite state to get full power_off/on
   TERN(PSU_DEFAULT_OFF, power_off(), power_on());
 }
@@ -214,3 +216,5 @@ void Power::power_off() {
   #endif
 
 #endif // AUTO_POWER_CONTROL
+
+#endif // PSU_CONTROL || AUTO_POWER_CONTROL

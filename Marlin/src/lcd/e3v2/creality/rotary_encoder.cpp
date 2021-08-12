@@ -21,7 +21,7 @@
  */
 
 /*****************************************************************************
- * @file     rotary_encoder.cpp
+ * @file     lcd/e3v2/creality/rotary_encoder.cpp
  * @author   LEO / Creality3D
  * @date     2019/07/06
  * @version  2.0.1
@@ -121,7 +121,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
     lastEncoderBits = newbutton;
   }
 
-  if (abs(temp_diff) >= ENCODER_PULSES_PER_STEP) {
+  if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
     if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
     else temp_diffState = ENCODER_DIFF_CCW;
 

@@ -26,7 +26,7 @@
  * Enhanced implementation by Miguel A. Risco-Castillo
  */
 
-#include "../dwin_lcd.h"
+#include "dwin_lcd.h"
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
 
@@ -268,6 +268,7 @@ void HMI_MaxFeedspeedXYZE();
 void HMI_MaxAccelerationXYZE();
 void HMI_MaxJerkXYZE();
 void HMI_StepXYZE();
+void HMI_SetLanguageCache();
 
 void update_variable();
 void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
@@ -324,6 +325,7 @@ void DWIN_Startup();
 void DWIN_Update();
 void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
 void DWIN_StatusChanged(const char *text);
+void DWIN_StatusChanged_P(PGM_P const pstr);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if ENABLED(MESH_BED_LEVELING)

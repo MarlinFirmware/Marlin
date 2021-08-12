@@ -71,7 +71,7 @@
 /* ------------------------------------------------------------------------ */
 
 /**
- * \page arduino_due_x_board_info "Arduino Due/X - Board informations"
+ * \page arduino_due_x_board_info "Arduino Due/X - Board information"
  * This page lists several definition related to the board description.
  *
  */

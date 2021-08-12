@@ -47,7 +47,7 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "dwin/e3v2/dwin.h"
+  #include "e3v2/creality/dwin.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -65,15 +65,8 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-  #if HAS_WIRED_LCD
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+  #if BOTH(HAS_WIRED_LCD, STATUS_MESSAGE_SCROLLING)
       uint8_t MarlinUI::status_scroll_offset; // = 0
-      constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
-    #else
-      constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
-    #endif
-  #else
-    constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
@@ -88,6 +81,25 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_MULTI_LANGUAGE
   uint8_t MarlinUI::language; // Initialized by settings.load()
+  void MarlinUI::set_language(const uint8_t lang) {
+    if (lang < NUM_LANGUAGES) {
+      language = lang;
+      TERN_(HAS_MARLINUI_U8GLIB, update_language_font());
+      return_to_status();
+      refresh();
+    }
+  }
+#endif
+
+#if HAS_LCD_BRIGHTNESS
+  uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+  bool MarlinUI::backlight = true;
+
+  void MarlinUI::set_brightness(const uint8_t value) {
+    backlight = !!value;
+    if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
+    // Set brightness on enabled LCD here
+  }
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
@@ -704,7 +716,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
    *     This is used to achieve more rapid stepping on kinematic machines.
    *
    * Currently used by the _lcd_move_xyz function in menu_motion.cpp
-   * and the ubl_map_move_to_xy funtion in menu_ubl.cpp.
+   * and the ubl_map_move_to_xy function in menu_ubl.cpp.
    */
   void ManualMove::task() {
 
@@ -1061,9 +1073,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
         run_current_screen();
 
-        // Apply all DWIN drawing after processing
-        TERN_(IS_DWIN_MARLINUI, DWIN_UpdateLCD());
-        
       #endif
 
       TERN_(HAS_LCD_MENU, lcd_clicked = false);
