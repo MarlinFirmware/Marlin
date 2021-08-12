@@ -222,9 +222,11 @@
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
-#define MT_DET_1_PIN                        PA4   // MT_DET
-#define MT_DET_2_PIN                        PE6   // FALA_CRTL
-#define MT_DET_PIN_INVERTING               false
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_2_PIN                      PE6   // FALA_CRTL
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 //
 // LED / NEOPixel

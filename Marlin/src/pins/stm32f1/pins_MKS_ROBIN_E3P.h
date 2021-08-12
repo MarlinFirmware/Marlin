@@ -191,7 +191,7 @@
   #endif
 
   #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
-  #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
+  #define MT_DET_PIN_STATE                  LOW   // LVGL UI filament RUNOUT PIN STATE
 
   #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
