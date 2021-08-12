@@ -189,35 +189,29 @@
   #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
-//
-// Enable MKSPWC support
-//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                    PA13  // PW_DET
+#endif
+
 //#define SUICIDE_PIN                       PB2
 //#define LED_PIN                           PB2
 //#define KILL_PIN                          PA2
-//#define KILL_PIN_STATE                    HIGH
+//#define KILL_PIN_STATE                    LOW
 
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)                          // MKSPWC
-  #if HAS_TFT_LVGL_UI
-    #error "PSU_CONTROL cannot be used with TFT_LVGL_UI. Disable PSU_CONTROL to continue."
+#if ENABLED(MKS_PWC)
+  #if ENABLED(TFT_LVGL_UI)
+    #undef PSU_CONTROL
+    #undef MKS_PWC
+    #define SUICIDE_PIN                     PB2
+    #define SUICIDE_PIN_INVERTING          false
+  #else
+    #define PS_ON_PIN                       PB2   // PW_OFF
   #endif
-  #ifndef PS_ON_PIN
-    #define PS_ON_PIN                       PB2   // SUICIDE
-  #endif
-  #ifndef KILL_PIN
-    #define KILL_PIN                        PA13  // PW_DET
-    #define KILL_PIN_STATE                  HIGH
-  #endif
-#else
-  #define SUICIDE_PIN                       PB2
-  #define SUICIDE_PIN_INVERTING            false
-#endif
-
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PA13  // PW_DET
+  #define KILL_PIN                          PA13  // PW_DET
+  #define KILL_PIN_STATE                    HIGH
 #endif
 
 // Random Info

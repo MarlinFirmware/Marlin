@@ -183,10 +183,10 @@
 // Misc. Functions
 //
 #if HAS_TFT_LVGL_UI
-  #if ENABLED(PSU_CONTROL)                        // MKSPWC
-    #define SUICIDE_PIN                     PB2   // PW_OFF
+  #if ENABLED(MKS_PWC)
+    #define SUICIDE_PIN                     PB2
     #define SUICIDE_PIN_INVERTING          false
-    #define KILL_PIN                        PA2   // PW_DET
+    #define KILL_PIN                        PA2
     #define KILL_PIN_STATE                  HIGH
   #endif
 

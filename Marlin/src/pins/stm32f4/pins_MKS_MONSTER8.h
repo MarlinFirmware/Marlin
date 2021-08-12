@@ -212,6 +212,8 @@
 //
 #define MT_DET_1                            PC5   // Y+
 #define MT_DET_2                            PB12  // Z+
+#define PW_DET                         Y_MAX_PIN
+#define PW_OFF                         Z_MAX_PIN
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                MT_DET_1
@@ -223,19 +225,10 @@
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)                          // MKSPWC
-  #ifndef PS_ON_PIN
-    #define PS_ON_PIN                   MT_DET_2  // Z+
-  #endif
-  #ifndef KILL_PIN
-    #define KILL_PIN                    MT_DET_1  // Y+
-    #define KILL_PIN_STATE                  HIGH
-  #endif
-#else
-  #define PW_DET                        MT_DET_1
-  #define PW_OFF                        MT_DET_2
-  #define POWER_LOSS_PIN                  PW_DET
-  #define PS_ON_PIN                       PW_OFF
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                         PB12  // Z+
+  #define KILL_PIN                          PC5   // Y+
+  #define KILL_PIN_STATE                    HIGH
 #endif
 
 // Random Info
