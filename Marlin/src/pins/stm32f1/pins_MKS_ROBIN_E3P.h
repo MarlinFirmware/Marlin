@@ -185,7 +185,7 @@
 #if HAS_TFT_LVGL_UI
   #if ENABLED(MKS_PWC)
     #define SUICIDE_PIN                     PB2
-    #define SUICIDE_PIN_INVERTING          false
+    #define SUICIDE_PIN_STATE               LOW
     #define KILL_PIN                        PA2
     #define KILL_PIN_STATE                  HIGH
   #endif

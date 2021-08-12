@@ -135,7 +135,7 @@
     #undef PSU_CONTROL
     #undef MKS_PWC
     #define SUICIDE_PIN                     PB2
-    #define SUICIDE_PIN_INVERTING          false
+    #define SUICIDE_PIN_STATE               LOW
   #else
     #define PS_ON_PIN                       PB2   // PW_OFF
   #endif
