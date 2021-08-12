@@ -39,7 +39,7 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
+  #include "../lcd/e3v2/creality/dwin.h"
 #endif
 
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG

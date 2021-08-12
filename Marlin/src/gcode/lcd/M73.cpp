@@ -37,7 +37,7 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
-  #include "../../lcd/dwin/e3v2/dwin.h"
+  #include "../../lcd/e3v2/creality/dwin.h"
 
   void GcodeSuite::M73() {
     DWIN_Progress_Update(parser.seen('P') ? parser.value_byte() : 0, parser.seen('R') ? parser.value_ulong() : 0);

@@ -323,11 +323,11 @@ void Clear_Title_Bar() {
 }
 
 void Draw_Title(const char * const title) {
-  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, 4, (char*)title);
+  DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, 4, (char*)title);
 }
 
 void Draw_Title(const __FlashStringHelper * title) {
-  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, 4, (char*)title);
+  DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, 4, (char*)title);
 }
 
 void Clear_Menu_Area() {
@@ -383,7 +383,7 @@ void Erase_Menu_Text(const uint8_t line) {
 }
 
 void Draw_Menu_Item(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
-  if (label) DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, LBLX, MBASE(line) - 1, (char*)label);
+  if (label) DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, LBLX, MBASE(line) - 1, (char*)label);
   if (icon) Draw_Menu_Icon(line, icon);
   if (more) Draw_More_Icon(line);
 }
@@ -610,7 +610,7 @@ void Item_Prepare_Lang(const uint8_t row) {
   #else
     DWIN_Frame_AreaCopy(1, 0, 194, 121, 207, LBLX, MBASE(row)); // "Language selection"
   #endif
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 226, MBASE(row), F("EN"));
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 226, MBASE(row), F("EN"));
   Draw_Menu_Icon(row, ICON_Language);
 }
 
@@ -986,19 +986,19 @@ void Draw_Print_ProgressBar() {
   DWIN_ICON_Show(ICON, ICON_Bar, 15, 93);
   DWIN_Draw_Rectangle(1, HMI_data.Barfill_Color, 16 + _percent_done * 240 / 100, 93, 256, 113);
   DWIN_Draw_IntValue(true, true, 0, font8x16, HMI_data.PercentTxt_Color, HMI_data.Background_Color, 3, 117, 133, _percent_done);
-  DWIN_Draw_String(false, false, font8x16, HMI_data.PercentTxt_Color, HMI_data.Background_Color, 142, 133, F("%"));
+  DWIN_Draw_String(false, font8x16, HMI_data.PercentTxt_Color, HMI_data.Background_Color, 142, 133, F("%"));
 }
 
 void Draw_Print_ProgressElapsed() {
   duration_t elapsed = print_job_timer.duration(); // print timer
   DWIN_Draw_IntValue(true, true, 1, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 2, 47, 192, elapsed.value / 3600);
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 63, 192, F(":"));
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 63, 192, F(":"));
   DWIN_Draw_IntValue(true, true, 1, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 2, 71, 192, (elapsed.value % 3600) / 60);
 }
 
 void Draw_Print_ProgressRemain() {
   DWIN_Draw_IntValue(true, true, 1, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 2, 181, 192, _remain_time / 3600);
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 197, 192, F(":"));
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 197, 192, F(":"));
   DWIN_Draw_IntValue(true, true, 1, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, 2, 205, 192, (_remain_time % 3600) / 60);
 }
 
@@ -1804,8 +1804,8 @@ void HMI_StartFrame(const bool with_update) {
 void Draw_Info_Menu() {
   Clear_Main_Window();
 
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, 122, F(MACHINE_SIZE));
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, 195, F(SHORT_BUILD_VERSION));
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, 122, F(MACHINE_SIZE));
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, 195, F(SHORT_BUILD_VERSION));
   
   #ifdef USE_STRING_HEADINGS
     Draw_Title(GET_TEXT_F(MSG_INFO_SCREEN));
@@ -1816,8 +1816,8 @@ void Draw_Info_Menu() {
   DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);
   DWIN_Frame_AreaCopy(1, 146, 151, 254, 161, 82, 175);
 
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen("Build Datetime") * MENU_CHR_W) / 2, 248, (char*)("Build Datetime"));    // M.A.R.C. Display Firmware build date-time
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME) * MENU_CHR_W) / 2, 268, (char*)(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME));
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen("Build Datetime") * MENU_CHR_W) / 2, 248, (char*)("Build Datetime"));    // M.A.R.C. Display Firmware build date-time
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, (DWIN_WIDTH - strlen(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME) * MENU_CHR_W) / 2, 268, (char*)(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME));
 
   Draw_Back_First();
   LOOP_L_N(i, 3) {
@@ -2296,7 +2296,7 @@ void Draw_Runout_Menu() {
 #endif
 
 void Draw_Color_Item(const uint8_t line, const char * const label, uint16_t color) {
-  DWIN_Draw_String(false, false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, LBLX, MBASE(line) - 1, (char*)label);
+  DWIN_Draw_String(false, font8x16, HMI_data.Text_Color, HMI_data.Background_Color, LBLX, MBASE(line) - 1, (char*)label);
   DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 26 + 1, MBASE(line) - 1 + 1, 26 + 18, MBASE(line) - 1 + 18);
   DWIN_Draw_Rectangle(1, color, 26 + 2, MBASE(line) - 1 + 2, 26 + 17, MBASE(line) - 1 + 17);
   DWIN_Draw_Line(HMI_data.SplitLine_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 34);

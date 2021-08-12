@@ -1593,7 +1593,7 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();
     HMI_Init();
-    HMI_SetLanguageCache();
+    DWIN_JPG_CacheTo1(Language_English);
     HMI_StartFrame(true);
     DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
   #endif
