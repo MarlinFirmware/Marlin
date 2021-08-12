@@ -3884,7 +3884,7 @@ void MarlinSettings::reset() {
 
     #if HAS_MULTI_LANGUAGE
       CONFIG_ECHO_HEADING("UI Language:");
-      SERIAL_ECHO_MSG("  M414 S", ui.language);
+      CONFIG_ECHO_MSG("  M414 S", ui.language);
     #endif
   }
 
