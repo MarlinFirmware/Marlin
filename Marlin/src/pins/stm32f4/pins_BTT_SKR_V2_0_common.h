@@ -118,7 +118,7 @@
     #define Z_MIN_PIN                       PC0   // Z-STOP
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                       PC15  // PWRDET
+    #define Z_MAX_PIN                        PA0   // E1DET
   #endif
 #else
   #ifndef Z_STOP_PIN
@@ -210,9 +210,9 @@
 #define TEMP_0_PIN                          PA2   // TH0
 #define TEMP_1_PIN                          PA3   // TH1
 
-#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
+#if HOTENDS == 1
   #if TEMP_SENSOR_PROBE
-    #define TEMP_PROBE_PIN            TEMP_1_PIN
+    #define TEMP_PROBE_PIN            TEMP_0_PIN
   #elif TEMP_SENSOR_CHAMBER
     #define TEMP_CHAMBER_PIN          TEMP_1_PIN
   #endif
@@ -277,20 +277,20 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN                   PE0
-  #define X_SERIAL_RX_PIN                   PE0
+  #define X_SERIAL_TX_PIN                   PA7
+  #define X_SERIAL_RX_PIN                   PB2
 
-  #define Y_SERIAL_TX_PIN                   PD3
-  #define Y_SERIAL_RX_PIN                   PD3
+  #define Y_SERIAL_TX_PIN                   PA4
+  #define Y_SERIAL_RX_PIN                   PE7
 
-  #define Z_SERIAL_TX_PIN                   PD0
-  #define Z_SERIAL_RX_PIN                   PD0
+  #define Z_SERIAL_TX_PIN                   PA5
+  #define Z_SERIAL_RX_PIN                   PA6
 
-  #define E0_SERIAL_TX_PIN                  PC6
-  #define E0_SERIAL_RX_PIN                  PC6
+ // #define E0_SERIAL_TX_PIN                  PE11
+ // #define E0_SERIAL_RX_PIN                  PE10
 
-  #define E1_SERIAL_TX_PIN                  PD12
-  #define E1_SERIAL_RX_PIN                  PD12
+  #define E1_SERIAL_TX_PIN                  PE13
+  #define E1_SERIAL_RX_PIN                  PE12
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -348,6 +348,7 @@
 
 #elif SD_CONNECTION_IS(LCD)
 
+  #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                        PA5
@@ -484,12 +485,12 @@
     #endif // !FYSETC_MINI_12864
 
     #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_05_PIN
-      #define LCD_PINS_D6            EXP1_04_PIN
-      #define LCD_PINS_D7            EXP1_03_PIN
+      //#define LCD_PINS_D5            EXP1_05_PIN
+     // #define LCD_PINS_D6            EXP1_04_PIN
+     // #define LCD_PINS_D7            EXP1_03_PIN
 
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+        //#define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
       #endif
 
     #endif
@@ -501,13 +502,13 @@
 // Alter timing for graphical display
 #if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1   DELAY_NS(120)
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(80)
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(580)
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
   #endif
 #endif
 
