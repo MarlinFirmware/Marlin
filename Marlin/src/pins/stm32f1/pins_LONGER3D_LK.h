@@ -170,10 +170,10 @@
 #if ENABLED(SPI_EEPROM)
   // SPI1 EEPROM Winbond W25Q64 (8MB/64Mbits)
   #define SPI_CHAN_EEPROM1                     1
-  #define SPI_EEPROM1_CS                    PC5   // pin 34
-  #define EEPROM_SCK          BOARD_SPI1_SCK_PIN  // PA5 pin 30
-  #define EEPROM_MISO        BOARD_SPI1_MISO_PIN  // PA6 pin 31
-  #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
+  #define SPI_EEPROM1_CS_PIN                PC5   // pin 34
+  #define EEPROM_SCK_PIN      BOARD_SPI1_SCK_PIN  // PA5 pin 30
+  #define EEPROM_MISO_PIN    BOARD_SPI1_MISO_PIN  // PA6 pin 31
+  #define EEPROM_MOSI_PIN    BOARD_SPI1_MOSI_PIN  // PA7 pin 32
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif HAS_SPI_FLASH
