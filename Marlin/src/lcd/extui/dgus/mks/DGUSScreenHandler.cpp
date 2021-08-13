@@ -304,6 +304,7 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
 
     // Special handling for popup is to return to previous menu
     if (current_screen == DGUSLCD_SCREEN_POPUP && confirm_action_cb) confirm_action_cb();
+    setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
     PopToOldScreen();
     return;
   }

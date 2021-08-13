@@ -120,14 +120,14 @@ bool hasPrintTimer = false;
   }
 
   void onUserConfirmed() {
-    DEBUG_ECHOLN("User confirmation invoked");
-
+    SERIAL_ECHOLN("User confirmation invoked");
+    setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
     ExtUI::setUserConfirmed();
   }
 
   void onUserConfirmRequired(const char * const msg) {
-    if (msg) {
-      DEBUG_ECHOLNPAIR("User confirmation requested: ", msg);
+    //if (msg) {
+      SERIAL_ECHOLNPAIR("User confirmation requested: ", msg);
 
       if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_FEED) {
         // We're in the feed (load filament) workflow - immediately assume confirmed
@@ -143,13 +143,13 @@ bool hasPrintTimer = false;
       } else {
         ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
       }
-    }
-    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
-      DEBUG_ECHOLNPAIR("User confirmation canceled");
+    //}
+    //else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
+    //  DEBUG_ECHOLNPAIR("User confirmation canceled");
 
-      ScreenHandler.setstatusmessagePGM(nullptr);
-      ScreenHandler.PopToOldScreen();
-    }
+    //  ScreenHandler.setstatusmessagePGM(nullptr);
+    //  ScreenHandler.PopToOldScreen();
+    //}
   }
 
   void onStatusChanged(const char * const msg) { ScreenHandler.setstatusmessage(msg); }

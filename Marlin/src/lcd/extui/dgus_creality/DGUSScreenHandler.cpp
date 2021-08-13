@@ -717,8 +717,10 @@ bool DGUSScreenHandler::HandlePendingUserConfirmation() {
 
   // Switch to the resume screen
   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING, false);
-
+  SERIAL_ECHOLN("HandlePending ");
   // We might be re-entrant here
+
+  ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
   ExtUI::setUserConfirmed();
 
   return true;
@@ -1085,6 +1087,8 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (ExtUI::awaitingUserConfirm() && current_screen == DGUSLCD_SCREEN_POPUP) {
     DEBUG_ECHOLN("Executing confirmation action");
+
+    ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
     ExtUI::setUserConfirmed();
     PopToOldScreen();
     return;
@@ -1731,6 +1735,11 @@ bool DGUSScreenHandler::loop() {
       GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
   }
+    // Catch pause / wait for user that bypassed events
+    if (ScreenHandler.getCurrentScreen() != DGUSLCD_SCREEN_PRINT_PAUSED && ScreenHandler.getCurrentScreen() != DGUSLCD_SCREEN_POPUP && ExtUI::awaitingUserConfirm()) {
+      SERIAL_ECHOLN("Catch1");
+      ExtUI::onUserConfirmRequired_P(PSTR("Paused"));
+    }
 
   return IsScreenComplete();
 }

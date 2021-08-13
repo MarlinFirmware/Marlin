@@ -244,6 +244,10 @@ void PrintRunningMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
         break;
 
         case VP_BUTTON_PAUSEPRINTKEY:
+          if (!ScreenHandler.HandlePendingUserConfirmation()) {
+            ExtUI::resumePrint();
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+          } else
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_DIALOG_PAUSE);
         break;
 
@@ -256,15 +260,15 @@ void PrintRunningMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
 void PrintPausedMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_RESUMEPRINTKEY:
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
             runout.reset();
-#endif
+          #endif
 
-            if (!ScreenHandler.HandlePendingUserConfirmation()) {
-                ExtUI::resumePrint();
-                ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
-            }
-            break;
+          if (!ScreenHandler.HandlePendingUserConfirmation()) {
+            ExtUI::resumePrint();
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+          }
+        break;
 
         case VP_BUTTON_ADJUSTENTERKEY:
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TUNING);
