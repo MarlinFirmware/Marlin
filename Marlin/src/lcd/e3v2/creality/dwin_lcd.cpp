@@ -21,16 +21,16 @@
  */
 
 /********************************************************************************
- * @file     lcd/e3v2/creality/dwin_lcd.cpp
- * @author   LEO / Creality3D
- * @date     2019/07/18
- * @version  2.0.1
+ * @file     dwin_lcd.cpp
+ * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
+ * @date     2021/06/20
+ * @version  2.0.2
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(DWIN_CREALITY_LCD, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE)
+#if ANY(DWIN_CREALITY_LCD)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -42,7 +42,7 @@
 
 // Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
 // Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
-uint8_t DWIN_SendBuf[11 + DWIN_WIDTH / 6 * 2] = { 0xAA };
+uint8_t DWIN_SendBuf[11 + DWIN_DataLength] = { 0xAA };
 uint8_t DWIN_BufTail[4] = { 0xCC, 0x33, 0xC3, 0x3C };
 uint8_t databuf[26] = { 0 };
 uint8_t receivedType;
@@ -65,7 +65,7 @@ inline void DWIN_Long(size_t &i, const uint32_t lval) {
   DWIN_SendBuf[++i] = lval & 0xFF;
 }
 
-inline void DWIN_String(size_t &i, char * const string) {
+inline void DWIN_String(size_t &i, const char * const string) {
   const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, strlen(string));
   memcpy(&DWIN_SendBuf[i+1], string, len);
   i += len;
@@ -120,25 +120,6 @@ bool DWIN_Handshake(void) {
         && databuf[1] == '\0'
         && databuf[2] == 'O'
         && databuf[3] == 'K' );
-}
-
-void DWIN_Init(void) {
-  DEBUG_ECHOPGM("\r\nDWIN handshake ");
-  delay(750);   // Delay here or init later in the boot process
-  const bool success = DWIN_Handshake();
-  if (success) DEBUG_ECHOLNPGM("ok."); else DEBUG_ECHOLNPGM("error.");
-  DWIN_Frame_SetDir(DISABLED(DWIN_MARLINUI_LANDSCAPE) ? 1 : 0);
-  TERN(SHOW_BOOTSCREEN,,DWIN_Frame_Clear(Color_Bg_Black));
-  DWIN_UpdateLCD();
-}
-
-// Set the backlight luminance
-//  luminance: (0x00-0xFF)
-void DWIN_Backlight_SetLuminance(const uint8_t luminance) {
-  size_t i = 0;
-  DWIN_Byte(i, 0x30);
-  DWIN_Byte(i, _MAX(luminance, 0x1F));
-  DWIN_Send(i);
 }
 
 // Set screen display direction
@@ -251,7 +232,7 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
   // Bit 7: widthAdjust
@@ -266,14 +247,6 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
   DWIN_String(i, string);
   DWIN_Send(i);
 }
-
-// Draw a Centered  String using DWIN_WIDTH
-void DWIN_Draw_CenteredString(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint8_t CHR_W, uint16_t y, char *string) {
-  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(string) * CHR_W) / 2;  
-  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, string);
-}
-
 
 // Draw a positive integer
 //  bShow: true=display background color; false=don't display background color
@@ -333,7 +306,6 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  value: Float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
-  //uint8_t *fvalue = (uint8_t*)&value;
   size_t i = 0;
   DWIN_Byte(i, 0x14);
   DWIN_Byte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);
@@ -344,34 +316,25 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
   DWIN_Word(i, x);
   DWIN_Word(i, y);
   DWIN_Long(i, value);
-  /*
-  DWIN_Byte(i, fvalue[3]);
-  DWIN_Byte(i, fvalue[2]);
-  DWIN_Byte(i, fvalue[1]);
-  DWIN_Byte(i, fvalue[0]);
-  */
   DWIN_Send(i);
 }
 
-// Draw a signed floating point number
-//  size: Font size
-//  bColor: Background color
-//  iNum: Number of whole digits
-//  fNum: Number of decimal digits
-//  x/y: Upper-left point
-//  value: Float value
-void DWIN_Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
-  if (value < 0) {
-    DWIN_Draw_FloatValue(true, true, 0, size, color, bColor, iNum, fNum, x, y, -value);
-    DWIN_Draw_String(false, true, size, color, bColor, x - 6, y, F("-"));
-  }
-  else {
-    DWIN_Draw_String(false, true, size, color, bColor, x - 6, y, F(" "));
-    DWIN_Draw_FloatValue(true, true, 0, size, color, bColor, iNum, fNum, x, y, value);
-  }
-}
-
 /*---------------------------------------- Picture related functions ----------------------------------------*/
+
+// Display QR code
+//  The size of the QR code is (46*QR_Pixel)*(46*QR_Pixel) dot matrix
+//  QR_Pixel: The pixel size occupied by each point of the QR code: 0x01-0x0F (1-16)
+//  (Nx, Ny): The coordinates of the upper left corner displayed by the QR code
+//  str: multi-bit data
+void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x21);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_Byte(i, QR_Pixel);
+  DWIN_String(i, string);
+  DWIN_Send(i);
+}
 
 // Draw JPG and cached in #0 virtual display area
 // id: Picture ID
@@ -379,22 +342,43 @@ void DWIN_JPG_ShowAndCache(const uint8_t id) {
   size_t i = 0;
   DWIN_Word(i, 0x2200);
   DWIN_Byte(i, id);
-  DWIN_Send(i);     // AA 23 00 00 00 00 08 00 01 02 03 CC 33 C3 3C
+  DWIN_Send(i);
 }
 
 // Draw an Icon
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
-void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
   NOMORE(x, DWIN_WIDTH - 1);
   NOMORE(y, DWIN_HEIGHT - 1); // -- ozy -- srl
   size_t i = 0;
   DWIN_Byte(i, 0x23);
   DWIN_Word(i, x);
   DWIN_Word(i, y);
-  DWIN_Byte(i, 0x80 | libID);
+  DWIN_Byte(i, IBD%2<<7 | BIR%2<<6 | BFI%2<<5 | libID);
   DWIN_Byte(i, picID);
+  DWIN_Send(i);
+}
+
+// Draw an Icon from SRAM
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
+//  x/y: Upper-left point
+//  addr: SRAM address
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint16_t x, uint16_t y, uint16_t addr) {
+  NOMORE(x, DWIN_WIDTH - 1);
+  NOMORE(y, DWIN_HEIGHT - 1); // -- ozy -- srl
+  size_t i = 0;
+  DWIN_Byte(i, 0x24);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_Byte(i, IBD%2<<7 | BIR%2<<6 | BFI%2<<5 | 0x00);
+  DWIN_Word(i, addr);
   DWIN_Send(i);
 }
 
@@ -409,16 +393,36 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id) {
   DWIN_Send(i);
 }
 
+// Copy area from current virtual display area to current screen
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x26);
+  DWIN_Word(i, xStart);
+  DWIN_Word(i, yStart);
+  DWIN_Word(i, xEnd);
+  DWIN_Word(i, yEnd);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_Send(i);
+}
+
 // Copy area from virtual display area to current screen
+//  IBD: background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  cacheID: virtual area number
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+void DWIN_Frame_AreaCopy(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x27);
-  DWIN_Byte(i, 0x80 | cacheID);
+  DWIN_Byte(i, IBD%2<<7 | BIR%2<<6 | BFI%2<<5 | cacheID);
   DWIN_Word(i, xStart);
   DWIN_Word(i, yStart);
   DWIN_Word(i, xEnd);
@@ -464,41 +468,50 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
   DWIN_Send(i);
 }
 
-//Draw a circle
-//Color: circle color
-//x: the abscissa of the center of the circle
-//y: ordinate of the center of the circle
-//r: circle radius
-void DWIN_Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r) {
-  int a,b;
-  a=b=0;	  
-  while(a<=b) {
-    b=sqrt(r*r-a*a);
-    while(a==0){ b=b-1;break;}
-    DWIN_Draw_Point(color, 1,1,x+a,y+b);		               //Draw some sector 1
-    DWIN_Draw_Point(color, 1,1,x+b,y+a);		               //Draw some sector 2
-    DWIN_Draw_Point(color, 1,1,x+b,y-a);		               //Draw some sector 3
-    DWIN_Draw_Point(color, 1,1,x+a,y-b);		               //Draw some sector 4
-      
-    DWIN_Draw_Point(color, 1,1,x-a,y-b);		              //Draw some sector 5
-    DWIN_Draw_Point(color, 1,1,x-b,y-a);		              //Draw some sector 6
-    DWIN_Draw_Point(color, 1,1,x-b,y+a);		              //Draw some sector 7
-    DWIN_Draw_Point(color, 1,1,x-a,y+b);		              //Draw some sector 8
-    a++;
-  }
-}
-
-// GUI extension
-void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
-  DWIN_Draw_String(false,true,font8x16,Color_Blue,bcolor,x+4,y,F(mode ? "x" : " "));
-  DWIN_Draw_Rectangle(0,color,x+2,y+2,x+17,y+17);
-}
-
 // Set LCD Brightness 0x00-0xFF
 void DWIN_LCD_Brightness(const uint8_t brightness) {
   size_t i = 0;
   DWIN_Byte(i, 0x30);
   DWIN_Byte(i, brightness);
+  DWIN_Send(i);
+}
+
+// Write buffer data to the SRAM or Flash
+//  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
+//  addr: start address
+//  length: Bytes to write
+//  data: address of the buffer with data
+void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data) {
+  const uint8_t max_size = 128;
+  uint16_t pending = length;
+  uint16_t to_send;
+  uint16_t indx;
+  uint8_t block = 0;
+  
+  while (pending > 0) {
+    indx = block * max_size;
+    to_send = _MIN(pending, max_size);
+    size_t i = 0;
+    DWIN_Byte(i, 0x31);
+    DWIN_Byte(i, mem);
+    DWIN_Word(i, addr + indx); // start address of the data block
+    ++i;
+    LOOP_L_N(j, i) { LCD_SERIAL.write(DWIN_SendBuf[j]); delayMicroseconds(1); }  // Buf header
+    for (uint16_t j = indx; j <= indx + to_send - 1; j++) LCD_SERIAL.write(*(data + j)); delayMicroseconds(1);  // write block of data
+    LOOP_L_N(j, 4) { LCD_SERIAL.write(DWIN_BufTail[j]); delayMicroseconds(1); }
+    block++;
+    pending -= to_send;
+  } 
+}
+
+// Write the contents of the 32KB SRAM data memory into the designated image memory space.
+//  picID: Picture memory space location, 0x00-0x0F, each space is 32Kbytes
+void DWIN_SRAMToPic(uint8_t picID) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x33);
+  DWIN_Byte(i, 0x5A);
+  DWIN_Byte(i, 0xA5);
+  DWIN_Byte(i, picID);
   DWIN_Send(i);
 }
 
@@ -535,4 +548,4 @@ void DWIN_LCD_Brightness(const uint8_t brightness) {
 //
 //  Flash writing returns 0xA5 0x4F 0x4B
 
-#endif // DWIN_CREALITY_LCD || DWIN_MARLINUI_PORTRAIT || DWIN_MARLINUI_LANDSCAPE
+#endif // DWIN_CREALITY_LCD

@@ -173,7 +173,7 @@ void GCodeParser::parse(char *p) {
    * With Motion Modes enabled any axis letter can come first.
    */
   switch (letter) {
-    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':) TERN_(DWIN_CREALITY_LCD, case 'C':) {
+    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -229,7 +229,7 @@ void GCodeParser::parse(char *p) {
         }
       #endif
 
-    } break;
+      } break;
 
     #if ENABLED(GCODE_MOTION_MODES)
 

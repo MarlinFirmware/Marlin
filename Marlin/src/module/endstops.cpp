@@ -51,10 +51,6 @@
   #include "probe.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/e3v2/creality/dwin.h"
-#endif
-
 Endstops endstops;
 
 // private:
@@ -588,7 +584,7 @@ void _O2 Endstops::report_states() {
     }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-      print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

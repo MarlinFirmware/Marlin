@@ -25,18 +25,15 @@
 #if ENABLED(PLATFORM_M997_SUPPORT)
 
 #if ENABLED(DWIN_CREALITY_LCD)
-#include "../../lcd/e3v2/creality/dwin.h"
+  #include "../../lcd/e3v2/creality/dwin.h"
 #endif
-
 
 /**
  * M997: Perform in-application firmware update
  */
 void GcodeSuite::M997() {
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    DWIN_RebootScreen();
-  #endif
+  TERN_(DWIN_CREALITY_LCD, DWIN_RebootScreen());
 
   flashFirmware(parser.intval('S'));
 

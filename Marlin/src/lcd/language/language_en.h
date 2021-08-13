@@ -49,8 +49,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
   PROGMEM Language_Str MSG_YES                             = _UxGT("YES");
   PROGMEM Language_Str MSG_NO                              = _UxGT("NO");
-  PROGMEM Language_Str MSG_HIGH                            = _UxGT("HIGH");
-  PROGMEM Language_Str MSG_LOW                             = _UxGT("LOW");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Back");
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Aborting...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media Inserted");
@@ -79,12 +77,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_K                     = _UxGT("Home ") LCD_STR_K;
   PROGMEM Language_Str MSG_FILAMENT_MAN                    = _UxGT("Filament Management");
   PROGMEM Language_Str MSG_MANUAL_LEVELING                 = _UxGT("Manual Leveling");
-  PROGMEM Language_Str MSG_MANUAL_MESH                     = _UxGT("Manual Mesh"); 
-  PROGMEM Language_Str MSG_MANLEV_FL                       = _UxGT("Front Left");
-  PROGMEM Language_Str MSG_MANLEV_FR                       = _UxGT("Front Right"); 
-  PROGMEM Language_Str MSG_MANLEV_C                        = _UxGT("Center");
-  PROGMEM Language_Str MSG_MANLEV_BL                       = _UxGT("Back Left");
-  PROGMEM Language_Str MSG_MANLEV_BR                       = _UxGT("Back Right"); 
+  PROGMEM Language_Str MSG_MANUAL_MESH                     = _UxGT("Manual Mesh");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-Align");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Iteration: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Accuracy Decreasing!");
@@ -434,7 +427,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Pausing...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause Print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Resume Print");
-  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Host Start");
+  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Start Host Print");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Stop Print");
   PROGMEM Language_Str MSG_END_LOOPS                       = _UxGT("End Repeat Loops");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Printing Object");
@@ -469,9 +462,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Prime Speed");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Retract Speed");
   PROGMEM Language_Str MSG_FILAMENT_PARK_ENABLED           = _UxGT("Park Head");
-  PROGMEM Language_Str MSG_PARK_XPOSITION                  = _UxGT("Park X Position");
-  PROGMEM Language_Str MSG_PARK_YPOSITION                  = _UxGT("Park Y Position");
-  PROGMEM Language_Str MSG_PARK_ZRAISE                     = _UxGT("Park Z Raise");
   PROGMEM Language_Str MSG_SINGLENOZZLE_UNRETRACT_SPEED    = _UxGT("Recover Speed");
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_SPEED          = _UxGT("Fan Speed");
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("Fan Time");
@@ -621,7 +611,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozzle: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
-  PROGMEM Language_Str MSG_RUNOUT_ENABLE                   = _UxGT("Enable Runout");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
 

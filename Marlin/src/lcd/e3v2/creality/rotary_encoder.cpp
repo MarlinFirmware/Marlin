@@ -48,14 +48,20 @@
   #define ENCODER_PULSES_PER_STEP 4
 #endif
 
+#if ENABLED(SOUND_MENU_ITEM)
+  #include "../../marlinui.h"
+#endif
+
 ENCODER_Rate EncoderRate;
 
 // Buzzer
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
-    WRITE(BEEPER_PIN, HIGH);
-    delay(10);
-    WRITE(BEEPER_PIN, LOW);
+    if (TERN1(SOUND_MENU_ITEM, ui.buzzer_enabled)) {
+      WRITE(BEEPER_PIN, HIGH);
+      delay(10);
+      WRITE(BEEPER_PIN, LOW);
+    }
   #endif
 }
 

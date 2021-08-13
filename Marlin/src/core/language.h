@@ -257,6 +257,7 @@
 
 #define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
 #define STR_WRONG_PASSWORD                  "Incorrect Password"
+#define STR_PASSWORD_REQUIRED               "Password required"
 #define STR_PASSWORD_TOO_LONG               "Password too long"
 #define STR_PASSWORD_REMOVED                "Password removed"
 #define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"

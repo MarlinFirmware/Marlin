@@ -488,9 +488,6 @@
     #define HAS_MARLINUI_U8GLIB 1
   #elif IS_TFTGLCD_PANEL
     // Neither DOGM nor HD44780. Fully customized interface.
-  #elif IS_DWIN_MARLINUI
-    // Since HAS_MARLINUI_U8GLIB refers to U8G displays
-    // the DWIN display can define its own flags
   #elif DISABLED(HAS_GRAPHICAL_TFT)
     #define HAS_MARLINUI_HD44780 1
   #endif

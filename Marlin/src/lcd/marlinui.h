@@ -354,6 +354,12 @@ public:
     static inline void reset_alert_level() {}
   #endif
 
+  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD)
+    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
+  #else
+    static inline void kill_screen(PGM_P const, PGM_P const) {}
+  #endif
+
   #if HAS_DISPLAY
 
     static void init();
@@ -397,14 +403,8 @@ public:
 
       #else
 
-        #if IS_DWIN_MARLINUI
-          static void set_font(const uint8_t font_nr);
-        #endif
+        static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
 
-        #if HAS_MARLINUI_HD44780
-          static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
-        #endif
-        
         #if ENABLED(LCD_PROGRESS_BAR)
           static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
           static void draw_progress_bar(const uint8_t percent);
@@ -459,15 +459,12 @@ public:
     #endif
 
     static bool get_blink();
-    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
     static void draw_kill_screen();
 
   #else // No LCD
-
     static inline void init() {}
     static inline void update() {}
     static inline void return_to_status() {}
-
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -587,12 +584,8 @@ public:
     static inline bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
-  #elif ENABLED(DWIN_CREALITY_LCD)
-    static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder) {
-      DWIN_PauseShow(message);
-    }
   #else
     static inline void _pause_show_message() {}
     #define pause_show_message(...) _pause_show_message()

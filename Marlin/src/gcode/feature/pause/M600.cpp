@@ -46,10 +46,6 @@
   #include "../../../feature/runout.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/e3v2/creality/dwin.h"
-#endif
-
 /**
  * M600: Pause for filament change
  *
@@ -116,12 +112,8 @@ void GcodeSuite::M600() {
   // Initial retract before move to filament change position
   const float retract = -ABS(parser.axisunitsval('E', E_AXIS, PAUSE_PARK_RETRACT_LENGTH));
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    xyz_pos_t park_point = HMI_data.Park_point;
-  #else
-    xyz_pos_t park_point = NOZZLE_PARK_POINT;
-  #endif
-  
+  xyz_pos_t park_point NOZZLE_PARK_POINT;
+
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 

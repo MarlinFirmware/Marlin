@@ -901,13 +901,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNPGM_P(lcd_error); }
 
-  #if HAS_DISPLAY
-    ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
-  #elif ENABLED(DWIN_CREALITY_LCD)
-    DWIN_PrinterKilled(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
-  #else
-    UNUSED(lcd_error); UNUSED(lcd_component);
-  #endif
+  ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
 
   TERN_(HAS_TFT_LVGL_UI, lv_draw_error_message(lcd_error));
 
@@ -1593,7 +1587,7 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();
     HMI_Init();
-    DWIN_JPG_CacheTo1(Language_English);
+    HMI_SetLanguageCache();
     HMI_StartFrame(true);
     DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
   #endif

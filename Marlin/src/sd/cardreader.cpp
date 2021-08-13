@@ -206,14 +206,10 @@ bool CardReader::is_dir_or_gcode(const dir_t &p) {
   ) return false;
 
   flag.filenameIsDir = DIR_IS_SUBDIR(&p);               // We know it's a File or Folder
-  flag.filenameIsBin =  (p.name[8] == 'B' &&            // M.A.R.C. list .bin files (firmware)
-                         p.name[9] == 'I' &&
-                         p.name[10]== 'N');
 
   return (
     flag.filenameIsDir                                  // All Directories are ok
     || (p.name[8] == 'G' && p.name[9] != '~')           // Non-backup *.G* files are accepted
-    || flag.filenameIsBin
   );
 }
 
@@ -869,7 +865,6 @@ void CardReader::selectFileByIndex(const uint16_t nr) {
       strcpy(filename, sortshort[nr]);
       strcpy(longFilename, sortnames[nr]);
       flag.filenameIsDir = IS_DIR(nr);
-      flag.filenameIsBin = (strcmp(strrchr(filename,'.'),".BIN")==0);
       return;
     }
   #endif
@@ -887,7 +882,6 @@ void CardReader::selectFileByName(const char * const match) {
         strcpy(filename, sortshort[nr]);
         strcpy(longFilename, sortnames[nr]);
         flag.filenameIsDir = IS_DIR(nr);
-        flag.filenameIsBin = (strcmp(strrchr(filename,'.'),".BIN")==0);
         return;
       }
   #endif

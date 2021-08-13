@@ -3259,8 +3259,6 @@
   #ifndef LCD_WIDTH
     #if HAS_MARLINUI_U8GLIB
       #define LCD_WIDTH 21
-    #elif IS_DWIN_MARLINUI
-      // Defined by header
     #else
       #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif
@@ -3268,8 +3266,6 @@
   #ifndef LCD_HEIGHT
     #if HAS_MARLINUI_U8GLIB
       #define LCD_HEIGHT 5
-    #elif IS_DWIN_MARLINUI
-      // Defined by header
     #else
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif

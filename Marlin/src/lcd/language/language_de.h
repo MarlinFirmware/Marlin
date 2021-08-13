@@ -102,7 +102,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Achsen bewegen");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bett-Nivellierung");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Bett nivellieren");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bett ausrichten");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Ecken nivellieren");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Nächste Ecke");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Netz Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Netz bearbeiten");
