@@ -44,7 +44,7 @@ bool PersistentStore::access_start() {
       SET_OUTPUT(BOARD_SPI1_SCK_PIN);
       SET_OUTPUT(BOARD_SPI1_MOSI_PIN);
       SET_INPUT(BOARD_SPI1_MISO_PIN);
-      SET_OUTPUT(SPI_EEPROM1_CS);
+      SET_OUTPUT(SPI_EEPROM1_CS_PIN);
     #endif
     spiInit(0);
   #endif

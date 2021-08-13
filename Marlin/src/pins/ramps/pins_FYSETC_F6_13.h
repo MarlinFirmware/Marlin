@@ -34,7 +34,7 @@
 #endif
 
 #define RESET_PIN                             30
-#define SPI_FLASH_CS                          83
+#define SPI_FLASH_CS_PIN                      83
 
 //
 // Servos
