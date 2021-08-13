@@ -178,10 +178,10 @@
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif HAS_SPI_FLASH
   #define SPI_FLASH_SIZE                0x40000U  // limit to 256KB (M993 will reboot with 512)
-  #define W25QXX_CS_PIN                     PC5
-  #define W25QXX_MOSI_PIN                   PA7
-  #define W25QXX_MISO_PIN                   PA6
-  #define W25QXX_SCK_PIN                    PA5
+  #define SPI_FLASH_CS_PIN                  PC5
+  #define SPI_FLASH_MOSI_PIN                PA7
+  #define SPI_FLASH_MISO_PIN                PA6
+  #define SPI_FLASH_SCK_PIN                 PA5
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB

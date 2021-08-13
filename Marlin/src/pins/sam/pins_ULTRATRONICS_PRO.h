@@ -143,7 +143,7 @@
 #define SPI_CHAN_EEPROM1                      -1
 #define SPI_EEPROM1_CS                        -1
 #define SPI_EEPROM2_CS                        -1
-#define SPI_FLASH_CS                          -1
+#define SPI_FLASH_CS_PIN                      -1
 
 #define SD_SCK_PIN                            76
 #define SD_MISO_PIN                           74

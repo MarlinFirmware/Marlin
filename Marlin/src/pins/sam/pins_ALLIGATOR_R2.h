@@ -136,7 +136,7 @@
 
 // FLASH SPI
 // 32Mb
-#define SPI_FLASH_CS                          23  // PA14
+#define SPI_FLASH_CS_PIN                      23  // PA14
 
 //
 // LCD / Controller

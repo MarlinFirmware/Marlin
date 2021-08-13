@@ -67,7 +67,7 @@
   //#define SPI_EEPROM2_CS    ?
 
   // 32Mb FLASH
-  //#define SPI_FLASH_CS      ?
+  //#define SPI_FLASH_CS_PIN  ?
 #endif
 
 //
