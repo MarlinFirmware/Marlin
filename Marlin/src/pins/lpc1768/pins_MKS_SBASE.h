@@ -138,14 +138,10 @@
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)                          // MKSPWC
-  #ifndef PS_ON_PIN
-    #define PS_ON_PIN                      P0_25  // SERVO
-  #endif
-  #ifndef KILL_PIN
-    #define KILL_PIN                       P1_29  // Z+
-    #define KILL_PIN_STATE                  HIGH
-  #endif
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                        P0_25  // SERVO
+  #define KILL_PIN                         P1_29  // Z+
+  #define KILL_PIN_STATE                    HIGH
 #endif
 
 //
