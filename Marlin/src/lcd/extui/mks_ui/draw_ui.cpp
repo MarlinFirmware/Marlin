@@ -237,7 +237,7 @@ void update_spi_flash() {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command befor erase spi flash
+  //read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
@@ -248,7 +248,7 @@ void update_gcode_command(int addr,uint8_t *s) {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command befor erase spi flash
+  //read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));

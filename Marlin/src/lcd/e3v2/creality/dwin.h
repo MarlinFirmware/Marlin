@@ -232,6 +232,7 @@ void HMI_MaxFeedspeedXYZE();
 void HMI_MaxAccelerationXYZE();
 void HMI_MaxJerkXYZE();
 void HMI_StepXYZE();
+void HMI_SetLanguageCache();
 
 void update_variable();
 

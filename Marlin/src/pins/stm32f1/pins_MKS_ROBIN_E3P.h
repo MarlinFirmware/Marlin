@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin nano (STM32F130VET6) board pin assignments
+ * MKS Robin nano (STM32F103VET6) board pin assignments
  */
 
 #include "env_validate.h"
@@ -183,12 +183,11 @@
 // Misc. Functions
 //
 #if HAS_TFT_LVGL_UI
-  //#define MKSPWC
-  #ifdef MKSPWC
-    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
-    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
-    #define KILL_PIN                        PA2   // Enable MKSPWC DET PIN
-    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
+  #if ENABLED(PSU_CONTROL)                        // MKSPWC
+    #define SUICIDE_PIN                     PB2   // PW_OFF
+    #define SUICIDE_PIN_INVERTING          false
+    #define KILL_PIN                        PA2   // PW_DET
+    #define KILL_PIN_STATE                  HIGH
   #endif
 
   #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN

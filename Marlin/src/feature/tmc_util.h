@@ -330,7 +330,7 @@ void tmc_print_current(TMC &st) {
   void tmc_print_sgt(TMC &st) {
     st.printLabel();
     SERIAL_ECHOPGM(" homing sensitivity: ");
-    SERIAL_PRINTLN(st.homing_threshold(), DEC);
+    SERIAL_PRINTLN(st.homing_threshold(), PrintBase::Dec);
   }
 #endif
 

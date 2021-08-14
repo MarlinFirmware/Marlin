@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin (STM32F130ZET6) board pin assignments
+ * MKS Robin (STM32F103ZET6) board pin assignments
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 

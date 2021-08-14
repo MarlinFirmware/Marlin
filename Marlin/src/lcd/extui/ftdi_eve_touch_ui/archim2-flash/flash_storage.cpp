@@ -206,7 +206,7 @@ bool UIFlashStorage::is_present = false;
 
   /* In order to provide some degree of wear leveling, each data write to the
    * SPI Flash chip is appended to data that was already written before, until
-   * the data storage area is completely filled. New data is written preceeded
+   * the data storage area is completely filled. New data is written preceded
    * with a 32-bit delimiter 'LULZ', so that we can distinguish written and
    * unwritten data:
    *

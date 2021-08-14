@@ -363,6 +363,8 @@ G29_TYPE GcodeSuite::G29() {
     #if ABL_USES_GRID
 
       xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_FEEDRATE));
+      if (!xy_probe_feedrate_mm_s) xy_probe_feedrate_mm_s = PLANNER_XY_FEEDRATE();
+      NOLESS(xy_probe_feedrate_mm_s, planner.settings.min_feedrate_mm_s);
 
       const float x_min = probe.min_x(), x_max = probe.max_x(),
                   y_min = probe.min_y(), y_max = probe.max_y();

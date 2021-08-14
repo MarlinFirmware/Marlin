@@ -955,7 +955,7 @@ void reset_trinamic_drivers() {
 // TMC Slave Address Conflict Detection
 //
 // Conflict detection is performed in the following way. Similar methods are used for
-// hardware and software serial, but the implementations are indepenent.
+// hardware and software serial, but the implementations are independent.
 //
 // 1. Populate a data structure with UART parameters and addresses for all possible axis.
 //      If an axis is not in use, populate it with recognizable placeholder data.

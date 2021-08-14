@@ -754,7 +754,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_I_MIN
+  #if HAS_I_MIN && !I_SPI_SENSORLESS
     #if ENABLED(I_DUAL_ENDSTOPS)
       UPDATE_ENDSTOP_BIT(I, MIN);
       #if HAS_I2_MIN
@@ -767,7 +767,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_I_MAX
+  #if HAS_I_MAX && !I_SPI_SENSORLESS
     #if ENABLED(I_DUAL_ENDSTOPS)
       UPDATE_ENDSTOP_BIT(I, MAX);
       #if HAS_I2_MAX
@@ -780,7 +780,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_J_MIN
+  #if HAS_J_MIN && !J_SPI_SENSORLESS
     #if ENABLED(J_DUAL_ENDSTOPS)
       UPDATE_ENDSTOP_BIT(J, MIN);
       #if HAS_J2_MIN
@@ -793,7 +793,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_J_MAX
+  #if HAS_J_MAX && !J_SPI_SENSORLESS
     #if ENABLED(J_DUAL_ENDSTOPS)
       UPDATE_ENDSTOP_BIT(J, MAX);
       #if HAS_J2_MAX
@@ -806,7 +806,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_K_MIN
+  #if HAS_K_MIN && !K_SPI_SENSORLESS
     #if ENABLED(K_DUAL_ENDSTOPS)
       UPDATE_ENDSTOP_BIT(K, MIN);
       #if HAS_K2_MIN
@@ -819,7 +819,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_K_MAX
+  #if HAS_K_MAX && !K_SPI_SENSORLESS
     #if ENABLED(K_DUAL_ENDSTOPS)
       UPDATE_ENDSTOP_BIT(K, MAX);
       #if HAS_K2_MAX
@@ -884,7 +884,7 @@ void Endstops::update() {
     const byte dual_hit = TEST_ENDSTOP(_ENDSTOP(A, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(A##2, MINMAX)) << 1); \
     if (dual_hit) { \
       _ENDSTOP_HIT(A, MINMAX); \
-      /* if not performing home or if both endstops were trigged during homing... */ \
+      /* if not performing home or if both endstops were triggered during homing... */ \
       if (!stepper.separate_multi_axis || dual_hit == 0b11) \
         planner.endstop_triggered(_AXIS(A)); \
     } \
@@ -894,7 +894,7 @@ void Endstops::update() {
     const byte triple_hit = TEST_ENDSTOP(_ENDSTOP(A, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(A##2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(A##3, MINMAX)) << 2); \
     if (triple_hit) { \
       _ENDSTOP_HIT(A, MINMAX); \
-      /* if not performing home or if both endstops were trigged during homing... */ \
+      /* if not performing home or if both endstops were triggered during homing... */ \
       if (!stepper.separate_multi_axis || triple_hit == 0b111) \
         planner.endstop_triggered(_AXIS(A)); \
     } \
@@ -904,7 +904,7 @@ void Endstops::update() {
     const byte quad_hit = TEST_ENDSTOP(_ENDSTOP(A, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(A##2, MINMAX)) << 1) | (TEST_ENDSTOP(_ENDSTOP(A##3, MINMAX)) << 2) | (TEST_ENDSTOP(_ENDSTOP(A##4, MINMAX)) << 3); \
     if (quad_hit) { \
       _ENDSTOP_HIT(A, MINMAX); \
-      /* if not performing home or if both endstops were trigged during homing... */ \
+      /* if not performing home or if both endstops were triggered during homing... */ \
       if (!stepper.separate_multi_axis || quad_hit == 0b1111) \
         planner.endstop_triggered(_AXIS(A)); \
     } \

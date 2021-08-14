@@ -26,45 +26,80 @@
 
 #ifdef FTDI_SPINNER_DIALOG_BOX
 
+#define GRID_COLS 2
+#define GRID_ROWS 8
+
 using namespace FTDI;
 using namespace ExtUI;
+using namespace Theme;
 
 constexpr static SpinnerDialogBoxData &mydata = screen_data.SpinnerDialogBox;
 
 void SpinnerDialogBox::onEntry() {
+  UIScreen::onEntry();
   mydata.auto_hide = true;
+}
+
+void SpinnerDialogBox::onExit() {
+  CommandProcessor cmd;
+  cmd.stop().execute();
+}
+
+void SpinnerDialogBox::onRefresh() {
+  using namespace FTDI;
+  DLCache dlcache(SPINNER_CACHE);
+  CommandProcessor cmd;
+  cmd.cmd(CMD_DLSTART);
+  if (dlcache.has_data())
+    dlcache.append();
+  else
+    dlcache.store(SPINNER_DL_SIZE);
+  cmd.spinner(BTN_POS(1,4), BTN_SIZE(2,3)).execute();
 }
 
 void SpinnerDialogBox::onRedraw(draw_mode_t) {
 }
 
 void SpinnerDialogBox::show(progmem_str message) {
-  drawMessage(message);
-  drawSpinner();
-  storeBackground();
-  GOTO_SCREEN(SpinnerDialogBox);
+  CommandProcessor cmd;
+  if (AT_SCREEN(SpinnerDialogBox)) cmd.stop().execute();
+  cmd.cmd(CMD_DLSTART)
+     .cmd(CLEAR_COLOR_RGB(bg_color))
+     .cmd(CLEAR(true,true,true))
+     .cmd(COLOR_RGB(bg_text_enabled))
+     .tag(0);
+  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(2,3), message, OPT_CENTER, font_large);
+  DLCache dlcache(SPINNER_CACHE);
+  if (!dlcache.store(SPINNER_DL_SIZE)) {
+    SERIAL_ECHO_MSG("CachedScreen::storeBackground() failed: not enough DL cache space");
+    cmd.cmd(CMD_DLSTART).cmd(CLEAR(true,true,true));
+    dlcache.store(SPINNER_DL_SIZE);
+  }
+  if (AT_SCREEN(SpinnerDialogBox))
+    cmd.spinner(BTN_POS(1,4), BTN_SIZE(2,3)).execute();
+  else
+    GOTO_SCREEN(SpinnerDialogBox);
   mydata.auto_hide = false;
 }
 
 void SpinnerDialogBox::hide() {
-  CommandProcessor cmd;
-  cmd.stop().execute();
   GOTO_PREVIOUS();
 }
 
 void SpinnerDialogBox::enqueueAndWait(progmem_str message, progmem_str commands) {
   show(message);
   ExtUI::injectCommands_P((const char*)commands);
+  mydata.auto_hide = true;
 }
 
 void SpinnerDialogBox::enqueueAndWait(progmem_str message, char *commands) {
   show(message);
   ExtUI::injectCommands(commands);
+  mydata.auto_hide = true;
 }
 
 void SpinnerDialogBox::onIdle() {
-  reset_menu_timeout();
-  if (mydata.auto_hide && !commandsInQueue()) {
+  if (mydata.auto_hide && !commandsInQueue() && TERN1(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state == GcodeSuite::NOT_BUSY)) {
     mydata.auto_hide = false;
     hide();
   }

@@ -19,15 +19,15 @@
 #pragma once
 
 /**
- * Support routines for STM32GENERIC (Maple)
+ * Support routines for MAPLE_STM32F1
  */
 
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#ifndef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
-   #error "Expected BOARD_NR_GPIO_PINS not found"
+#ifndef BOARD_NR_GPIO_PINS // Only in MAPLE_STM32F1
+  #error "Expected BOARD_NR_GPIO_PINS not found"
 #endif
 
 #include "fastio.h"
