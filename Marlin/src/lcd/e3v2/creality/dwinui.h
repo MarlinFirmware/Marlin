@@ -255,12 +255,11 @@ public:
   char caption[32] = "";
   uint8_t frameid = 0;
   rect_t frame = {0};
-  void (*onDraw)(TitleClass* title) = nullptr;
   void Draw();
   void SetCaption(const char * const title);
-  inline void SetCaption(const __FlashStringHelper * title) { SetCaption((char*)title); }
+  inline void SetCaption(const __FlashStringHelper * title) { SetCaption((char *)title); }
   void ShowCaption(const char * const title);
-  inline void ShowCaption(const __FlashStringHelper * title) { ShowCaption((char*)title); }
+  inline void ShowCaption(const __FlashStringHelper * title) { ShowCaption((char *)title); }
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   void FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 };
@@ -278,7 +277,7 @@ public:
   void (*onClick) () = nullptr;
   MenuItemClass() {};
   MenuItemClass(uint8_t cicon, const char * const text=nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
-  inline MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) { MenuItemClass(cicon, (char*)text, ondraw, onclick); };
+  MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) : MenuItemClass(cicon, (char*)text, ondraw, onclick){}
   MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   virtual ~MenuItemClass(){};
@@ -290,15 +289,19 @@ public:
   void *value = nullptr;
   using MenuItemClass::MenuItemClass;
   MenuItemPtrClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val);
-  MenuItemPtrClass(uint8_t cicon, const __FlashStringHelper * text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) { MenuItemPtrClass(cicon, (char*)text, ondraw, onclick, val); };
+  MenuItemPtrClass(uint8_t cicon, const __FlashStringHelper * text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) : MenuItemPtrClass(cicon, (char*)text, ondraw, onclick, val){}
 };
 
 class MenuClass {
 public:
   int8_t topline = 0;
   int8_t selected = 0;
+  TitleClass MenuTitle;
   MenuClass();
   virtual ~MenuClass(){};
+  MenuClass(const char * const title);
+  MenuClass(const __FlashStringHelper * title) : MenuClass((char *)title){}
+  MenuClass(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   inline int8_t line() { return selected - topline; };
   inline int8_t line(uint8_t pos) {return pos - topline; };
   void Clear();
@@ -317,6 +320,7 @@ namespace DWINUI {
   extern uint8_t  font;
   extern void (*onCursorErase)(uint8_t line);
   extern void (*onCursorDraw)(uint8_t line);
+  extern void (*onTitleDraw)(TitleClass* title);
 
   // DWIN LCD Initialization
   void Init(void);
@@ -565,7 +569,7 @@ namespace DWINUI {
 
   // Clear Menu by filling the area with background color
   // Area (0, TITLE_HEIGHT, DWIN_WIDTH, STATUS_Y - 1)
-  void ClearMenu();
+  void ClearMenuArea();
 
   // Clear MenuItems array and free MenuItems elements
   void MenuItemsClear();

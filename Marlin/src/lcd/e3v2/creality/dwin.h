@@ -65,9 +65,8 @@ enum processID : uint8_t {
   ManualMesh,
   MMeshMoveZ,
   TemperatureID,
-  Motion,
   Info,
-  TuneFlow,
+  Flow,
   #if HAS_PREHEAT
     PLAPreheat,
     ABSPreheat,
@@ -110,7 +109,6 @@ enum processID : uint8_t {
     FanSpeed,
   #endif
   PrintSpeed,
-  PrintFlow,
 
   // Popup Windows
   Homing,
@@ -263,7 +261,6 @@ void HMI_SetLanguageCache(); // Set the languaje image cache
   void HMI_MMeshMoveZ();  // Manual Mesh move Z
 #endif
 void HMI_Temperature();   // Temperature menu
-void HMI_Motion();        // Sports menu
 void HMI_Info();          // Information menu
 void Draw_Main_Area();    // Redraw main area;
 void DWIN_Redraw_screen();  // Redraw all screen elements
@@ -361,3 +358,4 @@ TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
 void Draw_Tune_Menu();
+void Draw_Motion_Menu();

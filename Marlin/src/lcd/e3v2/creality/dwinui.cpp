@@ -44,6 +44,7 @@ uint16_t DWINUI::backcolor = Def_Background_Color;
 uint8_t  DWINUI::font = font8x16;
 void (*DWINUI::onCursorErase)(uint8_t line)=nullptr;
 void (*DWINUI::onCursorDraw)(uint8_t line)=nullptr;
+void (*DWINUI::onTitleDraw)(TitleClass* title)=nullptr;
 
 void DWINUI::Init(void) {
   DEBUG_ECHOPGM("\r\nDWIN handshake ");
@@ -222,7 +223,7 @@ void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t
 }
 
 // Clear Menu by filling the menu area with background color
-void DWINUI::ClearMenu() {
+void DWINUI::ClearMenuArea() {
   DWIN_Draw_Rectangle(1, backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
 }
 
@@ -258,7 +259,7 @@ MenuItemClass* DWINUI::MenuItemsAdd(MenuItemClass* menuitem) {
 TitleClass Title;
 
 void TitleClass::Draw() {
-  if (onDraw != nullptr) (*onDraw)(this);
+  if (DWINUI::onTitleDraw != nullptr) (*DWINUI::onTitleDraw)(this);
 }
 
 void TitleClass::SetCaption(const char * const title) {
@@ -292,6 +293,19 @@ MenuClass::MenuClass() {
   topline = 0;
 }
 
+MenuClass::MenuClass(const char * const title):MenuClass() {
+  MenuTitle.SetCaption(title);
+}
+
+// MenuClass::MenuClass(const __FlashStringHelper * title) {
+//   MenuTitle.SetCaption(title);
+// }
+
+
+MenuClass::MenuClass(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2):MenuClass() {
+  MenuTitle.SetFrame(id, x1, y1, x2, y2);
+}
+
 // Clear Menu by filling the menu area with background color
 void MenuClass::Clear() {
   DWIN_Draw_Rectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
@@ -299,7 +313,7 @@ void MenuClass::Clear() {
 
 void MenuClass::Draw() {
   Clear();
-  Title.Draw();
+  MenuTitle.Draw();
   for (uint8_t i = 0; i < MenuItemCount; i++) {
     MenuItems[i]->Draw(i - topline);
   }

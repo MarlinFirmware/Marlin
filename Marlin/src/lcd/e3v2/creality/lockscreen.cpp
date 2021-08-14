@@ -36,7 +36,7 @@ void LockScreenClass::Init() {
 
 void LockScreenClass::Draw() {
   Title.SetCaption(PSTR("Lock Screen"));
-  DWINUI::ClearMenu();
+  DWINUI::ClearMenuArea();
   DWINUI::Draw_Icon(ICON_LOGO, 71, 120);  // CREALITY logo
   DWINUI::Draw_CenteredString(Color_White, 180, F("Printer is Locked,"));
   DWINUI::Draw_CenteredString(Color_White, 200, F("Scroll to unlock."));
