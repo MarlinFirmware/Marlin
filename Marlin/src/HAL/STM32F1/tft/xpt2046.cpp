@@ -27,6 +27,8 @@
 #include "xpt2046.h"
 #include <SPI.h>
 
+millis_t XPT2046::lastTouch;
+
 uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
 
 #if ENABLED(TOUCH_BUTTONS_HW_SPI)
@@ -70,18 +72,46 @@ void XPT2046::Init() {
 
   TERN_(TOUCH_BUTTONS_HW_SPI, touch_spi_init(SPI_SPEED_6));
 
+  lastTouch = millis();
+
   // Read once to enable pendrive status pin
   getRawData(XPT2046_X);
 }
 
+void XPT2046::doSleep() {
+  #if PIN_EXISTS(TFT_BACKLIGHT)
+    OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
+  #endif
+  lastTouch = TSLP_SLEEPING;
+}
+
+void XPT2046::doWakeUp() {
+  #if PIN_EXISTS(TFT_BACKLIGHT)
+    WRITE(TFT_BACKLIGHT_PIN, HIGH);
+  #endif
+  lastTouch = millis();
+}
+
 bool XPT2046::isTouched() {
-  return isBusy() ? false : (
+  bool touched = isBusy() ? false : (
     #if PIN_EXISTS(TOUCH_INT)
       READ(TOUCH_INT_PIN) != HIGH
     #else
       getRawData(XPT2046_Z1) >= XPT2046_Z1_THRESHOLD
     #endif
   );
+  #if defined(TOUCH_IDLE_SLEEP)
+    if (touched) {
+      if (lastTouch == TSLP_SLEEPING) {
+        doWakeUp();
+        touched = false;
+      }
+      else lastTouch = millis();
+    }
+    else if (lastTouch != TSLP_SLEEPING && (millis() - lastTouch) > (TOUCH_IDLE_SLEEP*1000))
+      doSleep();
+  #endif
+  return touched;
 }
 
 bool XPT2046::getRawPoint(int16_t *x, int16_t *y) {

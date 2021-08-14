@@ -80,6 +80,13 @@ TFT_IO tftio;
   #include "../marlinui.h"
 #endif
 
+#define HAS_TOUCH_SLEEP (ENABLED(TFT_TOUCH_DEVICE_XPT2046) && defined(TOUCH_IDLE_SLEEP))
+#if HAS_TOUCH_SLEEP
+  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  extern XPT2046 touchIO;
+  static bool sleepCleared;
+#endif
+
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
 
@@ -340,6 +347,18 @@ static uint8_t page;
   }
 #endif // HAS_TOUCH_BUTTONS
 
+static void u8g_upscale_clear_lcd(u8g_t *u8g, u8g_dev_t *dev, uint16_t *buffer) {
+  setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
+  #if HAS_LCD_IO
+    UNUSED(buffer);
+    tftio.WriteMultiple(TFT_MARLINBG_COLOR, (TFT_WIDTH) * (TFT_HEIGHT));
+  #else
+    memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
+    for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
+      u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
+  #endif
+}
+
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
@@ -365,27 +384,32 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       tftio.Init();
       tftio.InitTFT();
       TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
-
-      // Clear Screen
-      setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
-      #if HAS_LCD_IO
-        tftio.WriteMultiple(TFT_MARLINBG_COLOR, (TFT_WIDTH) * (TFT_HEIGHT));
-      #else
-        memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
-        for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
-          u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
-      #endif
+      u8g_upscale_clear_lcd(u8g, dev, buffer);
       return 0;
 
     case U8G_DEV_MSG_STOP: preinit = true; break;
 
     case U8G_DEV_MSG_PAGE_FIRST:
       page = 0;
+      #if HAS_TOUCH_SLEEP
+        if (touchIO.isSleeping()) {
+          if (!sleepCleared) {
+            sleepCleared = true;
+            u8g_upscale_clear_lcd(u8g, dev, buffer);
+            IF_ENABLED(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
+          }
+          break;
+        }
+        else sleepCleared = false;
+      #endif
       TERN_(HAS_TOUCH_BUTTONS, drawTouchButtons(u8g, dev));
       setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
       break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
+      #if HAS_TOUCH_SLEEP
+        if (touchIO.isSleeping()) break;
+      #endif
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;
 
       LOOP_L_N(y, PAGE_HEIGHT) {

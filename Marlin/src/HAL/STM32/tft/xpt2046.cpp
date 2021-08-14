@@ -33,6 +33,7 @@
 uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
 
 SPI_HandleTypeDef XPT2046::SPIx;
+millis_t XPT2046::lastTouch;
 
 void XPT2046::Init() {
   SPI_TypeDef *spiInstance;
@@ -92,17 +93,45 @@ void XPT2046::Init() {
     SET_OUTPUT(TOUCH_SCK_PIN);
   }
 
+  lastTouch = millis();
+
   getRawData(XPT2046_Z1);
 }
 
+void XPT2046::doSleep() {
+  #if PIN_EXISTS(TFT_BACKLIGHT)
+    OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
+  #endif
+  lastTouch = TSLP_SLEEPING;
+}
+
+void XPT2046::doWakeUp() {
+  #if PIN_EXISTS(TFT_BACKLIGHT)
+    WRITE(TFT_BACKLIGHT_PIN, HIGH);
+  #endif
+  lastTouch = millis();
+}
+
 bool XPT2046::isTouched() {
-  return isBusy() ? false : (
+  bool touched = isBusy() ? false : (
     #if PIN_EXISTS(TOUCH_INT)
       READ(TOUCH_INT_PIN) != HIGH
     #else
       getRawData(XPT2046_Z1) >= XPT2046_Z1_THRESHOLD
     #endif
   );
+  #if defined(TOUCH_IDLE_SLEEP)
+    if (touched) {
+      if (lastTouch == TSLP_SLEEPING) {
+        doWakeUp();
+        touched = false;
+      }
+      else lastTouch = millis();
+    }
+    else if (lastTouch != TSLP_SLEEPING && (millis() - lastTouch) > (TOUCH_IDLE_SLEEP*1000))
+      doSleep();
+  #endif
+  return touched;
 }
 
 bool XPT2046::getRawPoint(int16_t *x, int16_t *y) {
