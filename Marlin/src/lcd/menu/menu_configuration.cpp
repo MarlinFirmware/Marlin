@@ -108,7 +108,7 @@ void menu_advanced_settings();
 
   #include "../../module/tool_change.h"
 
-  void menu_tool_change() {
+  void menu_config_tool_change() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -160,7 +160,7 @@ void menu_advanced_settings();
 
 #endif
 
-#if HAS_HOTEND_OFFSET
+#if HAS_MULTI_EXTRUDER
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
@@ -529,7 +529,7 @@ void menu_configuration() {
   // Set single nozzle filament retract and prime length
   //
   #if HAS_MULTI_EXTRUDER
-    SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
+    SUBMENU(MSG_TOOL_CHANGE, menu_config_tool_change);
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SUBMENU(MSG_TOOL_MIGRATION, menu_toolchange_migration);
     #endif

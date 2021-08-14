@@ -307,6 +307,9 @@ namespace Language_en {
   LSTR MSG_MAXSPEED_E                     = _UxGT("Max ") STR_E _UxGT(" Speed");
   LSTR MSG_MAXSPEED_A                     = _UxGT("Max @ Speed");
   LSTR MSG_BED_Z                          = _UxGT("Bed Z");
+  LSTR MSG_TOOL_N                         = _UxGT("Tool ~");
+  LSTR MSG_HOTEND                         = _UxGT("Hotend");
+  LSTR MSG_HOTEND_N                       = _UxGT("Hotend ~");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");
   LSTR MSG_NOZZLE_PARKED                  = _UxGT("Nozzle Parked");
@@ -317,6 +320,7 @@ namespace Language_en {
   LSTR MSG_COOLER_TOGGLE                  = _UxGT("Toggle Cooler");
   LSTR MSG_FLOWMETER_SAFETY               = _UxGT("Flow Safety");
   LSTR MSG_LASER                          = _UxGT("Laser");
+  LSTR MSG_LASER_SPINDLE                  = _UxGT("Laser/Spindle");
   LSTR MSG_FAN_SPEED                      = _UxGT("Fan Speed");
   LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan Speed ~");
   LSTR MSG_STORED_FAN_N                   = _UxGT("Stored Fan ~");

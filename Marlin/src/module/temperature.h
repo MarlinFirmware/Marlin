@@ -391,6 +391,10 @@ class Temperature {
       static uint8_t coolerfan_speed;
     #endif
 
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      static bool heating_enabled;
+    #endif
+
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
                      soft_pwm_count_fan[FAN_COUNT];

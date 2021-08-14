@@ -495,9 +495,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       if (check_tool_sensor_stats(0)) {
         LCD_MESSAGE_F("TC error");
-        switching_toolhead_lock(false);
+        servo_switching_toolhead_lock(false);
         while (check_tool_sensor_stats(0)) { /* nada */ }
-        switching_toolhead_lock(true);
+        servo_switching_toolhead_lock(true);
       }
       LCD_MESSAGE_F("TC Success");
     #endif
@@ -542,7 +542,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     planner.synchronize();
     DEBUG_ECHOLNPGM("(2) Unlock and Place Toolhead");
-    switching_toolhead_lock(false);
+    servo_switching_toolhead_lock(false);
     safe_delay(500);
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS;
@@ -592,7 +592,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     (void)check_tool_sensor_stats(new_tool, true, true);
 
-    switching_toolhead_lock(true);
+    servo_switching_toolhead_lock(true);
     safe_delay(500);
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;

@@ -108,7 +108,14 @@
 
 #endif
 
-#if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  #if defined(SWITCHING_TOOLHEAD_HOTEND_QTY) && defined(SWITCHING_TOOLHEAD_HOTEND_NAMES)
+    static const char* const toolhead_hotend_names[] PROGMEM = SWITCHING_TOOLHEAD_HOTEND_NAMES;
+  #endif
+  #if defined(SWITCHING_TOOLHEAD_UNPOWERED_QTY) && defined(SWITCHING_TOOLHEAD_UNPOWERED_NAMES)
+    static const char* const toolhead_unpowered_names[] PROGMEM = SWITCHING_TOOLHEAD_UNPOWERED_NAMES;
+  #endif
+#elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   void electromagnetic_toolchange_init();
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
   void servo_toolchange_init();

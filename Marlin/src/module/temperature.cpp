@@ -315,6 +315,10 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   uint8_t Temperature::soft_pwm_controller_speed;
 #endif
 
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  bool Temperature::heating_enabled = true;
+#endif
+
 // Init fans according to whether they're native PWM or Software PWM
 #ifdef BOARD_OPENDRAIN_MOSFETS
   #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, FAN_INVERTING ? LOW : HIGH)
@@ -1319,6 +1323,10 @@ void Temperature::manage_heater() {
   static bool no_reentry = false;  // Prevent recursion
   if (no_reentry) return;
   REMEMBER(mh, no_reentry, true);
+
+  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+    if (!heating_enabled) return disable_all_heaters();
+  #endif
 
   #if ENABLED(EMERGENCY_PARSER)
     if (emergency_parser.killed_by_M112) kill(FPSTR(M112_KILL_STR), nullptr, true);

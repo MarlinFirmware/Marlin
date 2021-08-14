@@ -104,6 +104,10 @@ void menu_configuration();
   void menu_language();
 #endif
 
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  void menu_tool_change();
+#endif
+
 #if ENABLED(CUSTOM_MENU_MAIN)
 
   void _lcd_custom_menu_main_gcode(FSTR_P const fstr) {
@@ -316,6 +320,10 @@ void menu_main() {
 
     SUBMENU(MSG_MOTION, menu_motion);
   }
+
+  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+    SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
+  #endif
 
   #if HAS_CUTTER
     SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));

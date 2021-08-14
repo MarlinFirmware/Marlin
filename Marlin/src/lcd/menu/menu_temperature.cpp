@@ -168,7 +168,7 @@ void menu_temperature() {
   // Nozzle:
   // Nozzle [1-5]:
   //
-  #if HOTENDS == 1
+  #if HOTENDS == 1 || ENABLED(MANUAL_SWITCHING_TOOLHEAD_SINGLE_EXTRUDER)
     editable.celsius = thermalManager.temp_hotend[0].target;
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &editable.celsius, 0, thermalManager.hotend_max_target(0), []{ thermalManager.setTargetHotend(editable.celsius, 0); });
   #elif HAS_MULTI_HOTEND

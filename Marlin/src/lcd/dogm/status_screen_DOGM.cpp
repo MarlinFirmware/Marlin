@@ -125,7 +125,11 @@
 #endif
 
 #if DO_DRAW_HOTENDS
-  #define MAX_HOTEND_DRAW _MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
+  #if SWITCHING_TOOLHEAD_MULTI_HOTEND
+    #define MAX_HOTEND_DRAW 1
+  #else
+    #define MAX_HOTEND_DRAW _MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
+  #endif
 #endif
 
 #if EITHER(DO_DRAW_BED, DO_DRAW_HOTENDS)
@@ -664,8 +668,10 @@ void MarlinUI::draw_status_screen() {
   if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
     #if DO_DRAW_HOTENDS
-      LOOP_L_N(e, MAX_HOTEND_DRAW)
+      HOTEND_LOOP() {
+        if (e > MAX_HOTEND_DRAW) break;
         _draw_hotend_status((heater_id_t)e, blink);
+      }
     #endif
 
     // Laser / Spindle
