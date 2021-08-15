@@ -96,7 +96,7 @@
 #define DWIN_FONT_HEAD font10x20
 
 #define MENU_CHAR_LIMIT  24
-#define STATUS_Y 352
+#define STATUS_Y 348
 
 #define MAX_PRINT_SPEED   500
 #define MIN_PRINT_SPEED   10
@@ -138,6 +138,12 @@ constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,
 
 #define MBASE(L) (49 + MLINE * (L))
 
+#define KEY_WIDTH 26
+#define KEY_HEIGHT 30
+#define KEY_INSET 5
+#define KEY_PADDING 3
+#define KEY_Y_START DWIN_HEIGHT-(KEY_HEIGHT*4+2*(KEY_INSET+1))
+
 constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
 constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
 constexpr float default_steps[]               = DEFAULT_AXIS_STEPS_PER_UNIT;
@@ -154,6 +160,11 @@ uint8_t process = Main;
 uint8_t last_process = Main;
 PopupID popup;
 PopupID last_popup;
+bool reset_keyboard = false;
+bool numeric_keyboard = false;
+bool keyboard_restrict;
+uint8_t maxstringlen;
+char *stringpointer = nullptr;
 
 void (*funcpointer)() = nullptr;
 void *valuepointer = nullptr;
@@ -179,6 +190,12 @@ float zoffsetvalue = 0;
 uint8_t gridpoint;
 float corner_avg;
 float corner_pos;
+
+char action1[9];
+char action2[9];
+char action3[9];
+char action4[9];
+char action5[9];
 
 bool probe_deployed = false;
 
@@ -421,7 +438,44 @@ void CrealityDWINClass::Draw_Option(uint8_t value, const char * const * options,
   DWIN_Draw_String(false, false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
 
-uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
+void CrealityDWINClass::Draw_String(char * string, uint8_t row, bool selected/*=false*/, bool below/*=false*/) {
+  if (!string) string[0] = '\0';
+  const uint8_t offset_x = DWIN_WIDTH-strlen(string)*8 - 20;
+  const uint8_t offset_y = (below) ? MENU_CHR_H * 3 / 5 : 0;
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, offset_x - 10, MBASE(row)+offset_y-1, offset_x, MBASE(row)+16+offset_y);
+  DWIN_Draw_String(false, true, DWIN_FONT_MENU, Color_White, (selected) ? Select_Color : Color_Bg_Black, offset_x, MBASE(row)-1+offset_y, string);
+}
+
+const uint64_t CrealityDWINClass::Encode_String(const char * string) {
+  const char table[65] = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+  uint64_t output = 0;
+  LOOP_L_N(i, strlen(string)) {
+    uint8_t upper_bound = 63, lower_bound = 0;
+    uint8_t midpoint;
+    LOOP_L_N(x, 6) {
+      midpoint = (uint8_t)(0.5*(upper_bound+lower_bound));
+      if (string[i] > table[midpoint]) lower_bound = midpoint;
+      else if (string[i] < table[midpoint]) upper_bound = midpoint;
+      else break;
+    }
+    output += midpoint*pow(64,i);
+  }
+  return output;
+}
+
+void CrealityDWINClass::Decode_String(uint64_t num, char * string) {
+  const char table[65] = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+  LOOP_L_N(i, 30) {
+    string[i] = table[num%64];
+    num /= 64;
+    if (num==0) {
+      string[i+1] = '\0';
+      break;
+    }
+  }
+}
+
+const uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
   switch (color){
     case Default:
       return original;
@@ -1019,6 +1073,117 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
   }
 }
 
+void CrealityDWINClass::Draw_Keyboard(bool restrict, bool numeric, uint8_t selected, bool uppercase/*=false*/, bool lock/*=false*/) {
+  process = Keyboard;
+  keyboard_restrict = restrict;
+  numeric_keyboard = numeric;
+  DWIN_Draw_Rectangle(0, Color_White, 0, KEY_Y_START, DWIN_WIDTH-2, DWIN_HEIGHT-2);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 1, KEY_Y_START+1, DWIN_WIDTH-3, DWIN_HEIGHT-3);
+  LOOP_L_N(i, 36) Draw_Keys(i, (i == selected), uppercase, lock);
+}
+
+void CrealityDWINClass::Draw_Keys(uint8_t index, bool selected, bool uppercase/*=false*/, bool lock/*=false*/) {
+  const char *keys;
+  if (numeric_keyboard) keys = "1234567890&<>(){}[]*\"\':;!?";
+  else keys = (uppercase) ? "QWERTYUIOPASDFGHJKLZXCVBNM" : "qwertyuiopasdfghjklzxcvbnm";
+  #define KEY_X1(x) x*KEY_WIDTH+KEY_INSET+KEY_PADDING
+  #define KEY_X2(x) (x+1)*KEY_WIDTH+KEY_INSET-KEY_PADDING
+  #define KEY_Y1(y) KEY_Y_START+KEY_INSET+KEY_PADDING+y*KEY_HEIGHT
+  #define KEY_Y2(y) KEY_Y_START+KEY_INSET-KEY_PADDING+(y+1)*KEY_HEIGHT
+
+  const uint8_t rowCount[3] = {10, 9, 7};
+  const float xOffset[3] = {0, 0.5f*KEY_WIDTH, 1.5f*KEY_WIDTH};
+
+  if (index < 28) {
+    if (index == 19) {
+      DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(0), KEY_Y1(2), KEY_X2(0)+xOffset[1], KEY_Y2(2));
+      DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(0)+1, KEY_Y1(2)+1, KEY_X2(0)+xOffset[1]-1, KEY_Y2(2)-1);
+      if (!numeric_keyboard) {
+        if (lock) {
+          DWIN_Draw_Line(Select_Color, KEY_X1(0)+17, KEY_Y1(2)+16, KEY_X1(0)+25, KEY_Y1(2)+8);
+          DWIN_Draw_Line(Select_Color, KEY_X1(0)+17, KEY_Y1(2)+16, KEY_X1(0)+9, KEY_Y1(2)+8);
+        }
+        else {
+          DWIN_Draw_Line((uppercase) ? Select_Color : Color_White, KEY_X1(0)+17, KEY_Y1(2)+8, KEY_X1(0)+25, KEY_Y1(2)+16);
+          DWIN_Draw_Line((uppercase) ? Select_Color : Color_White, KEY_X1(0)+17, KEY_Y1(2)+8, KEY_X1(0)+9, KEY_Y1(2)+16);
+        }
+      }
+    }
+    else if (index == 27) {
+      DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7)+xOffset[2], KEY_Y1(2), KEY_X2(9), KEY_Y2(2));
+      DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(7)+xOffset[2]+1, KEY_Y1(2)+1, KEY_X2(9)-1, KEY_Y2(2)-1);
+      DWIN_Draw_String(false, true, DWIN_FONT_MENU, Color_Red, Color_Bg_Black, KEY_X1(7)+xOffset[2]+3, KEY_Y1(2)+5, "<--");
+    }
+    else {
+      if (index > 19) index--;
+      if (index > 27) index--;
+      uint8_t y, x;
+      if (index < rowCount[0]) y = 0, x = index;
+      else if (index < (rowCount[0]+rowCount[1])) y = 1, x = index-rowCount[0];
+      else y = 2, x = index-(rowCount[0]+rowCount[1]);
+      const char keyStr[2] = {keys[(y>0)*rowCount[0]+(y>1)*rowCount[1]+x], '\0'};
+      DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(x)+xOffset[y], KEY_Y1(y), KEY_X2(x)+xOffset[y], KEY_Y2(y));
+      DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(x)+xOffset[y]+1, KEY_Y1(y)+1, KEY_X2(x)+xOffset[y]-1, KEY_Y2(y)-1);
+      DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(x)+xOffset[y]+5, KEY_Y1(y)+5, keyStr);
+      if (keyboard_restrict && numeric_keyboard && index > 9) {
+        DWIN_Draw_Line(Color_Light_Red, KEY_X1(x)+xOffset[y]+1, KEY_Y1(y)+1, KEY_X2(x)+xOffset[y]-1, KEY_Y2(y)-1);
+        DWIN_Draw_Line(Color_Light_Red, KEY_X1(x)+xOffset[y]+1, KEY_Y2(y)-1, KEY_X2(x)+xOffset[y]-1, KEY_Y1(y)+1);
+      }
+    }
+  }
+  else {
+    switch (index) {
+      case 28:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(0), KEY_Y1(3), KEY_X2(0)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(0)+1, KEY_Y1(3)+1, KEY_X2(0)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(0)-1, KEY_Y1(3)+5, "?123");
+        break;
+      case 29:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(1)+xOffset[1], KEY_Y1(3), KEY_X2(1)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(1)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(1)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(1)+xOffset[1]+5, KEY_Y1(3)+5, "-");
+        break;
+      case 30:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(2)+xOffset[1], KEY_Y1(3), KEY_X2(2)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(2)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(2)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(2)+xOffset[1]+5, KEY_Y1(3)+5, "_");
+        break;
+      case 31:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(3)+xOffset[1], KEY_Y1(3), KEY_X2(5)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(3)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(5)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(3)+xOffset[1]+14, KEY_Y1(3)+5, "Space");
+        if (keyboard_restrict) {
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(3)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(5)+xOffset[1]-1, KEY_Y2(3)-1);
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(3)+xOffset[1]+1, KEY_Y2(3)-1, KEY_X2(5)+xOffset[1]-1, KEY_Y1(3)+1);
+        }
+        break;
+      case 32:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(6)+xOffset[1], KEY_Y1(3), KEY_X2(6)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(6)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(6)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(6)+xOffset[1]+7, KEY_Y1(3)+5, ".");
+        if (keyboard_restrict) {
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(6)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(6)+xOffset[1]-1, KEY_Y2(3)-1);
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(6)+xOffset[1]+1, KEY_Y2(3)-1, KEY_X2(6)+xOffset[1]-1, KEY_Y1(3)+1);
+        }
+        break;
+      case 33:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7)+xOffset[1], KEY_Y1(3), KEY_X2(7)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(7)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(7)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(7)+xOffset[1]+4, KEY_Y1(3)+5, "/");
+        if (keyboard_restrict) {
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(7)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(7)+xOffset[1]-1, KEY_Y2(3)-1);
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(7)+xOffset[1]+1, KEY_Y2(3)-1, KEY_X2(7)+xOffset[1]-1, KEY_Y1(3)+1);
+        }
+        break;
+      case 34:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7)+xOffset[2], KEY_Y1(3), KEY_X2(9), KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(7)+xOffset[2]+1, KEY_Y1(3)+1, KEY_X2(9)-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, true, DWIN_FONT_MENU, Color_Cyan, Color_Bg_Black, KEY_X1(7)+xOffset[2]+3, KEY_Y1(3)+5, "-->");
+        break;
+    }
+  }
+}
+
 /* Menu Item Config */
 
 void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/*=true*/) {
@@ -1038,7 +1203,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define PREPARE_PREHEAT (PREPARE_ZOFFSET + ENABLED(HAS_PREHEAT))
       #define PREPARE_COOLDOWN (PREPARE_PREHEAT + ENABLED(HAS_PREHEAT))
       #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
-      #define PREPARE_TOTAL PREPARE_CHANGEFIL
+      #define PREPARE_ACTIONCOMMANDS (PREPARE_CHANGEFIL + 1)
+      #define PREPARE_TOTAL PREPARE_ACTIONCOMMANDS
 
       switch (item) {
         case PREPARE_BACK:
@@ -1151,6 +1317,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             }
             break;
         #endif
+        case PREPARE_ACTIONCOMMANDS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_SetHome, "Host Actions", NULL, true);
+          }
+          else {
+            Draw_Menu(HostActions);
+          }
+          break;
       }
       break;
 
@@ -1819,13 +1993,75 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         }
         break;
     #endif
+    case HostActions:
+
+      #define HOSTACTIONS_BACK 0
+      #define HOSTACTIONS_1 (HOSTACTIONS_BACK + 1)
+      #define HOSTACTIONS_2 (HOSTACTIONS_1 + 1)
+      #define HOSTACTIONS_3 (HOSTACTIONS_2 + 1)
+      #define HOSTACTIONS_4 (HOSTACTIONS_3 + 1)
+      #define HOSTACTIONS_5 (HOSTACTIONS_4 + 1)
+      #define HOSTACTIONS_TOTAL HOSTACTIONS_5
+
+      switch(item) {
+        case HOSTACTIONS_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, "Back");
+          }
+          else {
+            Draw_Menu(Prepare, PREPARE_ACTIONCOMMANDS);
+          }
+          break;
+        case HOSTACTIONS_1:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, action1);
+          }
+          else {
+            if (!strcmp(action1, "-") == 0) host_action(PSTR(action1));
+          }
+          break;
+        case HOSTACTIONS_2:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, action2);
+          }
+          else {
+            if (!strcmp(action2, "-") == 0) host_action(PSTR(action2));
+          }
+          break;
+        case HOSTACTIONS_3:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, action3);
+          }
+          else {
+            if (!strcmp(action3, "-") == 0) host_action(PSTR(action3));
+          }
+          break;
+        case HOSTACTIONS_4:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, action4);
+          }
+          else {
+            if (!strcmp(action3, "-") == 0) host_action(PSTR(action4));
+          }
+          break;
+        case HOSTACTIONS_5:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, action5);
+          }
+          else {
+            if (!strcmp(action5, "-") == 0) host_action(PSTR(action5));
+          }
+          break;
+      }
+      break;
     case Control:
 
       #define CONTROL_BACK 0
       #define CONTROL_TEMP (CONTROL_BACK + 1)
       #define CONTROL_MOTION (CONTROL_TEMP + 1)
       #define CONTROL_VISUAL (CONTROL_MOTION + 1)
-      #define CONTROL_ADVANCED (CONTROL_VISUAL + 1)
+      #define CONTROL_HOSTSETTINGS (CONTROL_VISUAL + 1)
+      #define CONTROL_ADVANCED (CONTROL_HOSTSETTINGS + 1)
       #define CONTROL_SAVE (CONTROL_ADVANCED + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESTORE (CONTROL_SAVE + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESET (CONTROL_RESTORE + ENABLED(EEPROM_SETTINGS))
@@ -1863,6 +2099,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           else {
             Draw_Menu(Visual);
+          }
+          break;
+        case CONTROL_HOSTSETTINGS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Contact, "Host Settings", NULL, true);
+          }
+          else {
+            Draw_Menu(HostSettings);
           }
           break;
         case CONTROL_ADVANCED:
@@ -3022,7 +3266,98 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           }
           break;                                              
         }
-        break; 
+        break;
+    case HostSettings:
+
+      #define HOSTSETTINGS_BACK 0
+      #define HOSTSETTINGS_ACTIONCOMMANDS (HOSTSETTINGS_BACK + 1)
+      #define HOSTSETTINGS_TOTAL HOSTSETTINGS_ACTIONCOMMANDS
+
+      switch (item) {
+        case HOSTSETTINGS_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, "Back");
+          }
+          else {
+            Draw_Menu(Control, CONTROL_HOSTSETTINGS);
+          }
+          break;
+        case HOSTSETTINGS_ACTIONCOMMANDS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, "Action Commands");
+          }
+          else {
+            Draw_Menu(ActionCommands);
+          }
+          break;
+      }
+      break;
+    case ActionCommands:
+
+      #define ACTIONCOMMANDS_BACK 0
+      #define ACTIONCOMMANDS_1 (ACTIONCOMMANDS_BACK + 1)
+      #define ACTIONCOMMANDS_2 (ACTIONCOMMANDS_1 + 1)
+      #define ACTIONCOMMANDS_3 (ACTIONCOMMANDS_2 + 1)
+      #define ACTIONCOMMANDS_4 (ACTIONCOMMANDS_3 + 1)
+      #define ACTIONCOMMANDS_5 (ACTIONCOMMANDS_4 + 1)
+      #define ACTIONCOMMANDS_TOTAL ACTIONCOMMANDS_5
+
+      switch (item) {
+        case ACTIONCOMMANDS_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, "Back");
+          }
+          else {
+            Draw_Menu(HostSettings, HOSTSETTINGS_ACTIONCOMMANDS);
+          }
+          break;
+        case ACTIONCOMMANDS_1:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, "Action #1");
+            Draw_String(action1, row);
+          }
+          else {
+            Modify_String(action1, 8, true);
+          }
+          break;
+        case ACTIONCOMMANDS_2:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, "Action #2");
+            Draw_String(action2, row);
+          }
+          else {
+            Modify_String(action2, 8, true);
+          }
+          break;
+        case ACTIONCOMMANDS_3:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, "Action #3");
+            Draw_String(action3, row);
+          }
+          else {
+            Modify_String(action3, 8, true);
+          }
+          break;
+        case ACTIONCOMMANDS_4:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, "Action #4");
+            Draw_String(action4, row);
+          }
+          else {
+            Modify_String(action4, 8, true);
+          }
+          break;
+        case ACTIONCOMMANDS_5:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, "Action #5");
+            Draw_String(action5, row);
+          }
+          else {
+            Modify_String(action5, 8, true);
+          }
+          break;
+      }
+      break;
     case Advanced:
 
       #define ADVANCED_BACK 0
@@ -4284,6 +4619,8 @@ const char * CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       case ChangeFilament:
         return "Change Filament";
     #endif
+    case HostActions:
+      return "Host Action Commands";
     case Control:
       return "Control";
     case TempMenu:
@@ -4336,6 +4673,10 @@ const char * CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
       return "Steps/mm";
     case Visual:
       return "Visual Settings";
+    case HostSettings:
+      return "Host Settings";
+    case ActionCommands:
+      return "Host Action Settings";
     case Advanced:
       return "Advanced Settings";
     #if HAS_BED_PROBE
@@ -4398,6 +4739,8 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       case ChangeFilament:
         return CHANGEFIL_TOTAL;
     #endif
+    case HostActions:
+      return HOSTACTIONS_TOTAL;
     case Control:
       return CONTROL_TOTAL;
     case TempMenu:
@@ -4450,6 +4793,10 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       return STEPS_TOTAL;
     case Visual:
       return VISUAL_TOTAL;
+    case HostSettings:
+      return HOSTSETTINGS_TOTAL;
+    case ActionCommands:
+      return ACTIONCOMMANDS_TOTAL;
     case Advanced:
       return ADVANCED_TOTAL;
     #if HAS_BED_PROBE
@@ -5079,6 +5426,121 @@ void CrealityDWINClass::Confirm_Control() {
   DWIN_UpdateLCD();
 }
 
+void CrealityDWINClass::Keyboard_Control() {
+  const uint8_t keyboard_size = 34;
+  static uint8_t key_selection = 0, cursor = 0;
+  static char string[31];
+  static bool uppercase = false, locked = false;
+  if (reset_keyboard) {
+    if (strcmp(stringpointer, "-") == 0) stringpointer[0] = '\0';
+    key_selection = 0, cursor = strlen(stringpointer);
+    uppercase = false, locked = false;
+    reset_keyboard = false;
+    strcpy(string, stringpointer);
+  }
+  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  if (encoder_diffState == ENCODER_DIFF_CW && key_selection < keyboard_size) {
+    Draw_Keys(key_selection, false, uppercase, locked);
+    key_selection++;
+    Draw_Keys(key_selection, true, uppercase, locked);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW && key_selection > 0) {
+    Draw_Keys(key_selection, false, uppercase, locked);
+    key_selection--;
+    Draw_Keys(key_selection, true, uppercase, locked);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    if (key_selection < 28) {
+      if (key_selection == 19) {
+        if (!numeric_keyboard) {
+          if (locked) {
+            uppercase = false, locked = false;
+            Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+          } else if (uppercase) {
+            locked = true;
+            Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+          }
+          else {
+            uppercase = true;
+            Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+          }
+        }
+      }
+      else if (key_selection == 27) {
+        cursor--;
+        string[cursor] = '\0';
+      }
+      else {
+        uint8_t index = key_selection;
+        if (index > 19) index--;
+        if (index > 27) index--;
+        const char *keys;
+        if (numeric_keyboard) keys = "1234567890&<>(){}[]*\"\':;!?";
+        else keys = (uppercase) ? "QWERTYUIOPASDFGHJKLZXCVBNM" : "qwertyuiopasdfghjklzxcvbnm";
+        if (!(keyboard_restrict && numeric_keyboard && index > 9)) {
+          string[cursor] = keys[index];
+          cursor++;
+          string[cursor] = '\0';
+        }
+        if (!locked && uppercase) {
+          uppercase = false;
+          Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+        }
+      }
+    }
+    else {
+      switch (key_selection) {
+        case 28:
+          if (!numeric_keyboard) uppercase = false, locked = false;
+          Draw_Keyboard(keyboard_restrict, !numeric_keyboard, key_selection, uppercase, locked);
+          break;
+        case 29:
+          string[cursor] = '-';
+          cursor++;
+          string[cursor] = '\0';
+          break;
+        case 30:
+          string[cursor] = '_';
+          cursor++;
+          string[cursor] = '\0';
+          break;
+        case 31:
+          if (!keyboard_restrict) {
+            string[cursor] = ' ';
+            cursor++;
+            string[cursor] = '\0';
+          }
+          break;
+        case 32:
+          if (!keyboard_restrict) {
+            string[cursor] = '.';
+            cursor++;
+            string[cursor] = '\0';
+          }
+          break;
+        case 33:
+          if (!keyboard_restrict) {
+            string[cursor] = '/';
+            cursor++;
+            string[cursor] = '\0';
+          }
+          break;
+        case 34:
+          if (string[0] == '\0') strcpy(string, "-");
+          strcpy(stringpointer, string);
+          process = Menu;
+          Draw_Status_Area(true);
+          Update_Status_Bar(true);
+          break;
+      }
+    }
+    if (strlen(string) > maxstringlen) string[maxstringlen] = '\0', cursor = maxstringlen;
+    Draw_String(string, selection, (process==Keyboard), (maxstringlen > 10));
+  }
+  DWIN_UpdateLCD();
+}
+
 /* In-Menu Value Modification */
 
 void CrealityDWINClass::Setup_Value(float value, float min, float max, float unit, uint8_t type) {
@@ -5137,6 +5599,14 @@ void CrealityDWINClass::Modify_Option(uint8_t value, const char * const * option
   process = Option;
   EncoderRate.enabled = true;
   Draw_Option(value, options, selection-scrollpos, true);
+}
+
+void CrealityDWINClass::Modify_String(char * string, uint8_t maxlength, bool restrict) {
+  stringpointer = string;
+  maxstringlen = maxlength;
+  reset_keyboard = true;
+  Draw_Keyboard(restrict, false);
+  Draw_String(string, selection, true, (maxstringlen > 10));
 }
 
 /* Main Functions */
@@ -5216,6 +5686,9 @@ void CrealityDWINClass::Update() {
     case Confirm:
       Confirm_Control();
       break;
+    case Keyboard:
+      Keyboard_Control();
+      break;
   }
 }
 
@@ -5256,13 +5729,12 @@ void CrealityDWINClass::Screen_Update() {
   static millis_t scrltime = 0;
   if (ELAPSED(millis(), scrltime)) {
     scrltime = millis() + 200;
-    Update_Status_Bar();
-    if (process==Print)
-      Draw_Print_Filename();
+    if (process != Keyboard) Update_Status_Bar();
+    if (process == Print)Draw_Print_Filename();
   }
 
   static millis_t statustime = 0;
-  if (ELAPSED(millis(), statustime)) {
+  if (ELAPSED(millis(), statustime) && process != Keyboard) {
     statustime = millis() + 500;
     Draw_Status_Area();
   }
@@ -5399,6 +5871,11 @@ void CrealityDWINClass::Save_Settings(char *buff) {
     eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid-1;
   #endif
   eeprom_settings.corner_pos = corner_pos * 10;
+  eeprom_settings.host_action_label_1 = Encode_String(action1);
+  eeprom_settings.host_action_label_2 = Encode_String(action2);
+  eeprom_settings.host_action_label_3 = Encode_String(action3);
+  eeprom_settings.host_action_label_4 = Encode_String(action4);
+  eeprom_settings.host_action_label_5 = Encode_String(action5);
   memcpy(buff, &eeprom_settings, min(sizeof(eeprom_settings), eeprom_data_size));
 }
 
@@ -5409,6 +5886,11 @@ void CrealityDWINClass::Load_Settings(const char *buff) {
   #endif
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
   corner_pos = eeprom_settings.corner_pos / 10.0f;
+  Decode_String(eeprom_settings.host_action_label_1, action1);
+  Decode_String(eeprom_settings.host_action_label_2, action2);
+  Decode_String(eeprom_settings.host_action_label_3, action3);
+  Decode_String(eeprom_settings.host_action_label_4, action4);
+  Decode_String(eeprom_settings.host_action_label_5, action5);
   Redraw_Screen();
   static bool init = true;
   if (init) {

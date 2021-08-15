@@ -32,7 +32,7 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 enum processID : uint8_t {
-  Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
+  Main, Print, Menu, Value, Option, File, Popup, Confirm, Keyboard, Wait
 };
 
 enum PopupID : uint8_t {
@@ -50,6 +50,7 @@ enum menuID : uint8_t {
       ZOffset,
       Preheat,
       ChangeFilament,
+      HostActions,
     Control,
       TempMenu,
         PID,
@@ -68,6 +69,8 @@ enum menuID : uint8_t {
         Steps,
       Visual,
         ColorSettings,
+      HostSettings,
+        ActionCommands,
       Advanced,
         ProbeMenu,
       Info,
@@ -288,6 +291,11 @@ public:
     uint8_t status_area_text : 4;
     uint8_t coordinates_text : 4;
     uint8_t coordinates_split_line : 4;
+    uint64_t host_action_label_1 : 48;
+    uint64_t host_action_label_2 : 48;
+    uint64_t host_action_label_3 : 48;
+    uint64_t host_action_label_4 : 48;
+    uint64_t host_action_label_5 : 48;
   } eeprom_settings;
 
   const char * const color_names[11] = {"Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black"};
@@ -297,7 +305,10 @@ public:
   void Clear_Screen(uint8_t e=3);
   void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
   void Draw_Option(uint8_t value, const char * const * options, uint8_t row, bool selected=false, bool color=false);
-  uint16_t GetColor(uint8_t color, uint16_t original, bool light=false);
+  void Draw_String(char * string, uint8_t row, bool selected=false, bool below=false);
+  const uint64_t Encode_String(const char * string);
+  void Decode_String(const uint64_t num, char string[8]);
+  const uint16_t GetColor(uint8_t color, uint16_t original, bool light=false);
   void Draw_Checkbox(uint8_t row, bool value);
   void Draw_Title(const char * title);
   void Draw_Menu_Item(uint8_t row, uint8_t icon=0, const char * const label1=NULL, const char * const label2=NULL, bool more=false, bool centered=false);
@@ -320,6 +331,8 @@ public:
   void Draw_Popup(const char * line1, const char * line2, const char * line3, uint8_t mode, uint8_t icon=0);
   void Popup_Select();
   void Update_Status_Bar(bool refresh=false);
+  void Draw_Keyboard(bool restrict, bool numeric, uint8_t selected=0, bool uppercase=false, bool lock=false);
+  void Draw_Keys(uint8_t index, bool selected, bool uppercase=false, bool lock=false);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7);
@@ -343,6 +356,7 @@ public:
   void Print_Screen_Control();
   void Popup_Control();
   void Confirm_Control();
+  void Keyboard_Control();
 
 
   void Setup_Value(float value, float min, float max, float unit, uint8_t type);
@@ -353,6 +367,7 @@ public:
   void Modify_Value(uint32_t &value, float min, float max, float unit, void (*f)()=NULL);
   void Modify_Value(int8_t &value, float min, float max, float unit, void (*f)()=NULL);
   void Modify_Option(uint8_t value, const char * const * options, uint8_t max);
+  void Modify_String(char * string, uint8_t maxlength, bool restrict);
 
 
   void Update_Status(const char * const text);
