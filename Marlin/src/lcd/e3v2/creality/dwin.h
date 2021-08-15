@@ -61,8 +61,6 @@ enum processID : uint8_t {
   SelectFile,
   PrintProcess,
   PrintDone,
-  FilamentMan,
-  ManualMesh,
   MMeshMoveZ,
   TemperatureID,
   Info,
@@ -360,3 +358,5 @@ void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
 void Draw_Tune_Menu();
 void Draw_Motion_Menu();
+TERN_(ADVANCED_PAUSE_FEATURE, void Draw_FilamentMan_Menu());
+TERN_(MESH_BED_LEVELING, void Draw_ManualMesh_Menu());
