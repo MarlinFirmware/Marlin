@@ -2041,7 +2041,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu_Item(row, ICON_File, action4);
           }
           else {
-            if (!strcmp(action3, "-") == 0) host_action(PSTR(action4));
+            if (!strcmp(action4, "-") == 0) host_action(PSTR(action4));
           }
           break;
         case HOSTACTIONS_5:
