@@ -1481,7 +1481,7 @@ void Draw_Main_Area() {
     #endif
     TERN_(HAS_HOTEND, case ETemp:)
     TERN_(HAS_HEATED_BED, case BedTemp:)
-    #if HAS_PREHEAT && HAS_FAN
+    #if HAS_FAN
       case FanSpeed:
     #endif
     case Flow:
@@ -1714,7 +1714,7 @@ void DWIN_HandleScreen() {
     #if HAS_HEATED_BED
       case BedTemp:       HMI_BedTemp(); break;
     #endif
-    #if HAS_PREHEAT && HAS_FAN
+    #if HAS_FAN
       case FanSpeed:      HMI_FanSpeed(); break;
     #endif
     case PrintSpeed:      HMI_PrintSpeed(); break;
@@ -2340,10 +2340,10 @@ void LevBedC () { LevBed(4); }
   }
 #endif
 
-#if HAS_HOTEND
-  void SetPLAEndTemp() { SetIntOnClick(ETemp, ui.material_preset[HMI_value.Preheat].hotend_temp); };
-  void SetPLABedTemp() { SetIntOnClick(BedTemp, ui.material_preset[HMI_value.Preheat].bed_temp); };
-  void SetPLAFanSpeed() { SetIntOnClick(FanSpeed, ui.material_preset[HMI_value.Preheat].fan_speed); };
+#if HAS_PREHEAT
+  TERN_(HAS_HOTEND, void SetPLAEndTemp() { SetIntOnClick(ETemp, ui.material_preset[HMI_value.Preheat].hotend_temp); });
+  TERN_(HAS_HEATED_BED, void SetPLABedTemp() { SetIntOnClick(BedTemp, ui.material_preset[HMI_value.Preheat].bed_temp); });
+  TERN_(HAS_FAN, void SetPLAFanSpeed() { SetIntOnClick(FanSpeed, ui.material_preset[HMI_value.Preheat].fan_speed); });
 #endif
 
 void SetMaxSpeed(AxisEnum axis) {
@@ -2649,19 +2649,25 @@ void onDrawSteps(MenuItemClass* menuitem, int8_t line) {
   }
 #endif
 
-#if HAS_HOTEND
-  void onDrawSetPreheatHotend(MenuItemClass* menuitem, int8_t line) {
-    if (HMI_IsChinese()) menuitem->SetFrame(1, 1, 134, 56, 146);
-    onDrawIntegerMenu(menuitem, line, ui.material_preset[HMI_value.Preheat].hotend_temp);
-  }
-  void onDrawSetPreheatBed(MenuItemClass* menuitem, int8_t line) {
-    if (HMI_IsChinese()) menuitem->SetFrame(1, 58, 134, 113, 146);
-    onDrawIntegerMenu(menuitem, line, ui.material_preset[HMI_value.Preheat].bed_temp);
-  }
-  void onDrawSetPreheatFan(MenuItemClass* menuitem, int8_t line) {
-    if (HMI_IsChinese()) menuitem->SetFrame(1, 115, 134, 170, 146);
-    onDrawIntegerMenu(menuitem, line, ui.material_preset[HMI_value.Preheat].fan_speed);
-  }
+#if HAS_PREHEAT
+  #if HAS_HOTEND
+      void onDrawSetPreheatHotend(MenuItemClass* menuitem, int8_t line) {
+        if (HMI_IsChinese()) menuitem->SetFrame(1, 1, 134, 56, 146);
+        onDrawIntegerMenu(menuitem, line, ui.material_preset[HMI_value.Preheat].hotend_temp);
+      }
+  #endif
+  #if HAS_HEATED_BED
+    void onDrawSetPreheatBed(MenuItemClass* menuitem, int8_t line) {
+      if (HMI_IsChinese()) menuitem->SetFrame(1, 58, 134, 113, 146);
+      onDrawIntegerMenu(menuitem, line, ui.material_preset[HMI_value.Preheat].bed_temp);
+    }
+  #endif
+  #if HAS_FAN
+    void onDrawSetPreheatFan(MenuItemClass* menuitem, int8_t line) {
+      if (HMI_IsChinese()) menuitem->SetFrame(1, 115, 134, 170, 146);
+      onDrawIntegerMenu(menuitem, line, ui.material_preset[HMI_value.Preheat].fan_speed);
+    }
+  #endif
   void onDrawPLAPreheatSubMenu(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) menuitem->SetFrame(1, 100, 89, 178, 101);
     onDrawSubMenu(menuitem,line);
@@ -3015,7 +3021,7 @@ void HMI_GetColorValue() {
   }
 #endif
 
-#if HAS_PREHEAT && HAS_FAN
+#if HAS_FAN
   void HMI_FanSpeed() {
     int8_t val = HMI_GetInt(0, 255);
     if (!val) return;
@@ -3354,16 +3360,16 @@ void Draw_Motion_Menu() {
   }
 #endif
 
-#if HAS_HOTEND
+#if HAS_PREHEAT
   void Draw_Preheat_Menu() {
     checkkey = Menu;
     if (CurrentMenu != PreheatMenu) {
       CurrentMenu = PreheatMenu;
       DWINUI::MenuItemsPrepare(5);
       ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Temperature_Menu);
-      ADDMENUITEM(ICON_SetEndTemp, GET_TEXT(MSG_UBL_SET_TEMP_HOTEND), onDrawSetPreheatHotend, SetPLAEndTemp);
-      ADDMENUITEM(ICON_SetBedTemp, GET_TEXT(MSG_UBL_SET_TEMP_BED), onDrawSetPreheatBed, SetPLABedTemp);
-      ADDMENUITEM(ICON_FanSpeed, GET_TEXT(MSG_FAN_SPEED), onDrawSetPreheatFan, SetPLAFanSpeed);
+      TERN_(HAS_HOTEND, ADDMENUITEM(ICON_SetEndTemp, GET_TEXT(MSG_UBL_SET_TEMP_HOTEND), onDrawSetPreheatHotend, SetPLAEndTemp));
+      TERN_(HAS_HEATED_BED, ADDMENUITEM(ICON_SetBedTemp, GET_TEXT(MSG_UBL_SET_TEMP_BED), onDrawSetPreheatBed, SetPLABedTemp));
+      TERN_(HAS_FAN, ADDMENUITEM(ICON_FanSpeed, GET_TEXT(MSG_FAN_SPEED), onDrawSetPreheatFan, SetPLAFanSpeed));
       TERN_(EEPROM_SETTINGS, ADDMENUITEM(ICON_WriteEEPROM, GET_TEXT(MSG_STORE_EEPROM), onDrawWriteEeprom, WriteEeprom));
     }
     CurrentMenu->Draw();
