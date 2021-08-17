@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * VERTEX NANO Arduino Mega with RAMPS EFB v1.4 pin assignments.
@@ -47,6 +48,7 @@
 //
 // Misc. Functions
 //
+#define SDSS                                  25
 #define CASE_LIGHT_PIN                         7
 
 //
@@ -86,12 +88,6 @@
 // Heaters / Fans
 //
 #undef HEATER_BED_PIN
-
-//
-// Misc. Functions
-//
-#undef SDSS
-#define SDSS                                  25  // 53
 
 //
 // LCD / Controller

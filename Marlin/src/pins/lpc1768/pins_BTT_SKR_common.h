@@ -139,14 +139,14 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**       _____                        _____
-   *    NC | . . | GND               NC | . . | GND
-   *    NC | . . | M1EN            M2EN | . . | M3EN
-   * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
-   * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
-   * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
-   *        -----                        -----
-   *        EXP2                         EXP1
+  /**       ______                       ______
+   *    NC | 1  2 | GND              NC | 1  2 | GND
+   *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
+   * M1STP | 5  6   M1DIR          M1RX | 5  6   M1DIAG
+   * M2DIR | 7  8 | M2STP          M2RX | 7  8 | M2DIAG
+   * M3DIR | 9 10 | M3STP          M3RX | 9 10 | M3DIAG
+   *        ------                       ------
+   *         EXP2                         EXP1
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */

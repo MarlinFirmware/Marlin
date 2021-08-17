@@ -16,6 +16,10 @@ Marlin 2.0 takes this popular RepRap firmware to the next level by adding suppor
 
 Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases).
 
+## Example Configurations
+
+Before building Marlin you'll need to configure it for your specific hardware. Your vendor should have already provided source code with configurations for the installed firmware, but if you ever decide to upgrade you'll need updated configuration files. Marlin users have contributed dozens of tested example configurations to get you started. Visit the [MarlinFirmware/Configurations](https://github.com/MarlinFirmware/Configurations) repository to find the right configuration for your hardware.
+
 ## Building Marlin 2.0
 
 To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
@@ -75,7 +79,7 @@ Regular users can open and close their own issues, but only the administrators c
  - Victor Oliveira [[@rhapsodyv](https://github.com/rhapsodyv)] - Brazil
  - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
  - Jason Smith [[@sjasonsmith](https://github.com/sjasonsmith)] - USA
- - Luu Lac [[@sjasonsmith](https://github.com/sjasonsmith)] - USA
+ - Luu Lac [[@shitcreek](https://github.com/shitcreek)] - USA
  - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
  - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 

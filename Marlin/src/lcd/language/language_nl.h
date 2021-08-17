@@ -91,6 +91,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Verplaats 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Verplaats 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Verplaats 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Verplaats 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Snelheid");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");

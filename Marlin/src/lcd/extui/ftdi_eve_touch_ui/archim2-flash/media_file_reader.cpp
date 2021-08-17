@@ -27,9 +27,7 @@
 
   #if ENABLED(SDSUPPORT)
     bool MediaFileReader::open(const char *filename) {
-      card.init(SD_SPI_SPEED, SDSS);
-      volume.init(&card);
-      root.openRoot(&volume);
+      root = CardReader::getroot();
       return file.open(&root, filename, O_READ);
     }
 

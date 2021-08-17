@@ -70,15 +70,9 @@ class TMCStorage {
     }
 
     struct {
-      #if ENABLED(HAS_STEALTHCHOP)
-        bool stealthChop_enabled = false;
-      #endif
-      #if ENABLED(HYBRID_THRESHOLD)
-        uint8_t hybrid_thrs = 0;
-      #endif
-      #if ENABLED(USE_SENSORLESS)
-        int16_t homing_thrs = 0;
-      #endif
+      OPTCODE(HAS_STEALTHCHOP,  bool stealthChop_enabled = false)
+      OPTCODE(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0)
+      OPTCODE(USE_SENSORLESS,   int16_t homing_thrs = 0)
     } stored;
 };
 
@@ -341,14 +335,14 @@ void tmc_print_current(TMC &st) {
 #endif
 
 void monitor_tmc_drivers();
-void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z, const bool test_e);
+void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_interval(const uint16_t update_interval);
   #endif
-  void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
-  void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
+  void tmc_report_all(LOGICAL_AXIS_DECL(const bool, true));
+  void tmc_get_registers(LOGICAL_AXIS_ARGS(const bool));
 #endif
 
 /**
@@ -361,16 +355,16 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 #if USE_SENSORLESS
 
   // Track enabled status of stealthChop and only re-enable where applicable
-  struct sensorless_t { bool x, y, z, x2, y2, z2, z3, z4; };
+  struct sensorless_t { bool LINEAR_AXIS_ARGS(), x2, y2, z2, z3, z4; };
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     extern millis_t sg_guard_period;
     constexpr uint16_t default_sg_guard_duration = 400;
 
-    struct slow_homing_t {
+    struct motion_state_t {
       xy_ulong_t acceleration;
       #if ENABLED(HAS_CLASSIC_JERK)
-        xy_float_t jerk_xy;
+        xy_float_t jerk_state;
       #endif
     };
   #endif

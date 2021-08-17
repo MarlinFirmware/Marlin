@@ -165,8 +165,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+#if SCREENS_CAN_TIME_OUT
   bool MarlinUI::defer_return_to_status;
+  millis_t MarlinUI::return_to_status_ms = 0;
 #endif
 
 uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
@@ -223,6 +224,10 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
 #endif
 
+#if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  bool MarlinUI::lcd_clicked;
+#endif
+
 #if HAS_LCD_MENU
   #include "menu/menu.h"
 
@@ -246,14 +251,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     uint8_t MarlinUI::touch_buttons;
     uint8_t MarlinUI::repeat_delay;
   #endif
-
-  bool MarlinUI::lcd_clicked;
-
-  bool MarlinUI::use_click() {
-    const bool click = lcd_clicked;
-    lcd_clicked = false;
-    return click;
-  }
 
   #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
 
@@ -488,12 +485,12 @@ bool MarlinUI::get_blink() {
 
           if (RRK(EN_KEYPAD_MIDDLE))  goto_screen(menu_move);
 
-          #if DISABLED(DELTA) && Z_HOME_DIR < 0
+          #if NONE(DELTA, Z_HOME_TO_MAX)
             if (RRK(EN_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
           #endif
 
           if (homed) {
-            #if ENABLED(DELTA) || Z_HOME_DIR != -1
+            #if EITHER(DELTA, Z_HOME_TO_MAX)
               if (RRK(EN_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
             #endif
             if (RRK(EN_KEYPAD_F3))    _reprapworld_keypad_move(Z_AXIS, -1);
@@ -636,8 +633,8 @@ void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   // RED ALERT. RED ALERT.
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.set_color(LEDColorRed());
-    #ifdef NEOPIXEL_BKGD_LED_INDEX
-      neo.set_pixel_color(NEOPIXEL_BKGD_LED_INDEX, 255, 0, 0, 0);
+    #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+      neo.set_background_color(255, 0, 0, 0);
       neo.show();
     #endif
   #endif
@@ -681,10 +678,10 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     xyze_pos_t ManualMove::all_axes_destination = { 0 };
     bool ManualMove::processing = false;
   #endif
-  #if ENABLED(MULTI_MANUAL)
+  #if MULTI_E_MANUAL
     int8_t ManualMove::e_index = 0;
   #endif
-  AxisEnum ManualMove::axis = NO_AXIS;
+  AxisEnum ManualMove::axis = NO_AXIS_ENUM;
 
   /**
    * If a manual move has been posted and its time has arrived, and if the planner
@@ -695,7 +692,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
    *
    * To post a manual move:
    *   - Update current_position to the new place you want to go.
-   *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES for diagonal moves.
+   *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES_ENUM for diagonal moves.
    *   - Set manual_move.start_time to a point in the future (in ms) when the move should be done.
    *
    * For kinematic machines:
@@ -710,19 +707,21 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     if (processing) return;   // Prevent re-entry from idle() calls
 
     // Add a manual move to the queue?
-    if (axis != NO_AXIS && ELAPSED(millis(), start_time) && !planner.is_full()) {
+    if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
-      const feedRate_t fr_mm_s = (axis <= E_AXIS) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis <= LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
           REMEMBER(ae, active_extruder);
-          if (axis == E_AXIS) active_extruder = e_index;
+          #if MULTI_E_MANUAL
+            if (axis == E_AXIS) active_extruder = e_index;
+          #endif
         #endif
 
         // Apply a linear offset to a single axis
-        if (axis == ALL_AXES)
+        if (axis == ALL_AXES_ENUM)
           destination = all_axes_destination;
         else if (axis <= XYZE) {
           destination = current_position;
@@ -731,7 +730,7 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
         // Reset for the next move
         offset = 0;
-        axis = NO_AXIS;
+        axis = NO_AXIS_ENUM;
 
         // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
         // move_to_destination. This will cause idle() to be called, which can then call this function while the
@@ -744,11 +743,13 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
       #else
 
         // For Cartesian / Core motion simply move to the current_position
-        planner.buffer_line(current_position, fr_mm_s, axis == E_AXIS ? e_index : active_extruder);
+        planner.buffer_line(current_position, fr_mm_s,
+          TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+        );
 
         //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
 
-        axis = NO_AXIS;
+        axis = NO_AXIS_ENUM;
 
       #endif
     }
@@ -758,13 +759,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
   // Tell ui.update() to start a move to current_position after a short delay.
   //
   void ManualMove::soon(const AxisEnum move_axis
-    #if MULTI_MANUAL
-      , const int8_t eindex/*=-1*/
-    #endif
+    OPTARG(MULTI_E_MANUAL, const int8_t eindex/*=active_extruder*/)
   ) {
-    #if MULTI_MANUAL
-      if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
-    #endif
+    TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
     start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
     axis = move_axis;
     //SERIAL_ECHOLNPAIR("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");
@@ -819,9 +816,6 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 millis_t next_lcd_update_ms;
-#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
-  millis_t MarlinUI::return_to_status_ms = 0;
-#endif
 
 inline bool can_encode() {
   return !BUTTON_PRESSED(ENC_EN); // Update encoder only when ENC_EN is not LOW (pressed)
@@ -831,12 +825,6 @@ void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
   millis_t ms = millis();
-
-  #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
-    #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
-  #else
-    #define RESET_STATUS_TIMEOUT() NOOP
-  #endif
 
   #ifdef LED_BACKLIGHT_TIMEOUT
     leds.update_timeout(powersupply_on);
@@ -863,7 +851,7 @@ void MarlinUI::update() {
 
     #if HAS_TOUCH_BUTTONS
       if (touch_buttons) {
-        RESET_STATUS_TIMEOUT();
+        reset_status_timeout(ms);
         if (touch_buttons & (EN_A | EN_B)) {              // Menu arrows, in priority
           if (ELAPSED(ms, next_button_update_ms)) {
             encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * epps * encoderDirection;
@@ -918,7 +906,7 @@ void MarlinUI::update() {
       TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons()); // Buttons that take too long to read in interrupt context
 
       if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
-        RESET_STATUS_TIMEOUT();
+        reset_status_timeout(ms);
 
       uint8_t abs_diff = ABS(encoderDiff);
 
@@ -984,7 +972,7 @@ void MarlinUI::update() {
           encoderDiff = 0;
         }
 
-        RESET_STATUS_TIMEOUT();
+        reset_status_timeout(ms);
 
         refresh(LCDVIEW_REDRAW_NOW);
 
@@ -1010,7 +998,7 @@ void MarlinUI::update() {
         lcd_status_update_delay = ++filename_scroll_pos >= filename_scroll_max ? 12 : 4; // Long delay at end and start
         if (filename_scroll_pos > filename_scroll_max) filename_scroll_pos = 0;
         refresh(LCDVIEW_REDRAW_NOW);
-        RESET_STATUS_TIMEOUT();
+        reset_status_timeout(ms);
       }
     #endif
 
@@ -1079,10 +1067,10 @@ void MarlinUI::update() {
         NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+    #if SCREENS_CAN_TIME_OUT
       // Return to Status Screen after a timeout
       if (on_status_screen() || defer_return_to_status)
-        RESET_STATUS_TIMEOUT();
+        reset_status_timeout(ms);
       else if (ELAPSED(ms, return_to_status_ms))
         return_to_status();
     #endif
@@ -1613,8 +1601,9 @@ void MarlinUI::update() {
 
     if (status) {
       if (old_status < 2) {
-        TERN_(EXTENSIBLE_UI, ExtUI::onMediaInserted()); // ExtUI response
-        #if ENABLED(BROWSE_MEDIA_ON_INSERT)
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaInserted();
+        #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
           clear_menu_history();
           quick_feedback();
           goto_screen(MEDIA_MENU_GATEWAY);
@@ -1625,8 +1614,9 @@ void MarlinUI::update() {
     }
     else {
       if (old_status < 2) {
-        TERN_(EXTENSIBLE_UI, ExtUI::onMediaRemoved()); // ExtUI response
-        #if PIN_EXISTS(SD_DETECT)
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMediaRemoved();
+        #elif PIN_EXISTS(SD_DETECT)
           LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
           #if HAS_LCD_MENU
             if (!defer_return_to_status) return_to_status();

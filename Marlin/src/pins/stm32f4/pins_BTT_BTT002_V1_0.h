@@ -205,13 +205,10 @@
 #define EXP2_10_PIN                         PA6
 
 // HAL SPI1 pins
-#define CUSTOM_SPI_PINS
-#if ENABLED(CUSTOM_SPI_PINS)
-  #define SD_SCK_PIN                 EXP2_09_PIN  // SPI1 SCLK
-  #define SD_SS_PIN                  EXP2_07_PIN  // SPI1 SSEL
-  #define SD_MISO_PIN                EXP2_10_PIN  // SPI1 MISO
-  #define SD_MOSI_PIN                EXP2_05_PIN  // SPI1 MOSI
-#endif
+#define SD_SCK_PIN                   EXP2_09_PIN  // SPI1 SCLK
+#define SD_SS_PIN                    EXP2_07_PIN  // SPI1 SSEL
+#define SD_MISO_PIN                  EXP2_10_PIN  // SPI1 MISO
+#define SD_MOSI_PIN                  EXP2_05_PIN  // SPI1 MOSI
 
 #define SDSS                         EXP2_07_PIN
 

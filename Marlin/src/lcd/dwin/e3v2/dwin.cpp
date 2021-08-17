@@ -1235,7 +1235,7 @@ inline ENCODER_DiffState get_encoder_state() {
 void HMI_Plan_Move(const feedRate_t fr_mm_s) {
   if (!planner.is_full()) {
     planner.synchronize();
-    planner.buffer_line(current_position, fr_mm_s, active_extruder);
+    planner.buffer_line(current_position, fr_mm_s);
     DWIN_UpdateLCD();
   }
 }
