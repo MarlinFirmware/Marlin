@@ -62,21 +62,12 @@ enum processID : uint8_t {
   PrintProcess,
   PrintDone,
   MMeshMoveZ,
-  TemperatureID,
   Info,
   Flow,
-  #if HAS_PREHEAT
-    PLAPreheat,
-    ABSPreheat,
-  #endif
   MaxSpeed,
-  MaxSpeed_value,
   MaxAcceleration,
-  MaxAcceleration_value,
   MaxJerk,
-  MaxJerk_value,
   Step,
-  Step_value,
   #if HAS_HOME_OFFSET
     HomeOffsetX,
     HomeOffsetY,
@@ -96,7 +87,7 @@ enum processID : uint8_t {
   Move_Y,
   Move_Z,
   #if HAS_HOTEND
-    Extruder,
+    Move_E,
     ETemp,
   #endif
   Zoffset,
@@ -131,27 +122,11 @@ extern uint8_t checkkey;
 extern millis_t dwin_heat_time;
 
 typedef struct {
-  #if HAS_HOTEND
-    celsius_t E_Temp = 0;
-  #endif
-  #if HAS_HEATED_BED
-    celsius_t Bed_Temp = 0;
-  #endif
-  #if HAS_FAN
-    int16_t Fan_speed = 0;
-  #endif
-  int16_t print_speed     = 100;
-  float Max_Feedspeed     = 0;
-  float Max_Acceleration  = 0;
-  float Max_Jerk_scaled   = 0;
-  float Max_Step_scaled   = 0;
-  float offset_value      = 0;
-  float Move_Z_scaled     = 0;
-  int8_t show_mode        = 0; // -1: Temperature control    0: Printing temperature
-  int16_t print_flow      = 100;
-  uint16_t Color[3];
-  int16_t Value           = 0;
-  uint16_t *P_Uint        = nullptr;
+  uint8_t Color[3];                   // Color components
+  int8_t Preheat          = 0;        // Material Select 0: PLA, 1: ABS, 2: Custom
+  AxisEnum axis;                      // Axis Select
+  int16_t Value           = 0;        // Auxiliar integer value
+  uint16_t *P_Uint        = nullptr;  // Auxiliar pointer to integer variable
 } HMI_value_t;
 
 typedef struct {
@@ -184,10 +159,6 @@ typedef struct {
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
   bool heat_flag:1;  // 0: heating done  1: during heating
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    bool ETempTooLow_flag:1;
-  #endif
-  AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
   bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune
 } HMI_flag_t;
 
@@ -226,11 +197,6 @@ void Popup_Window_Resume();
 void Goto_PrintProcess();
 void Goto_Main_Menu();
 
-void HMI_MaxFeedspeedXYZE();
-void HMI_MaxAccelerationXYZE();
-void HMI_MaxJerkXYZE();
-void HMI_StepXYZE();
-void HMI_SetLanguageCache();
 
 void update_variable();
 
@@ -256,7 +222,6 @@ void HMI_SetLanguageCache(); // Set the languaje image cache
   void HMI_LevBedCorners();   // Tramming menu
 #endif
 #if ENABLED(MESH_BED_LEVELING)
-  void HMI_ManualMesh();  // Manual Mesh menu
   void HMI_MMeshMoveZ();  // Manual Mesh move Z
 #endif
 void HMI_Temperature();   // Temperature menu
@@ -360,3 +325,13 @@ void Draw_Tune_Menu();
 void Draw_Motion_Menu();
 TERN_(ADVANCED_PAUSE_FEATURE, void Draw_FilamentMan_Menu());
 TERN_(MESH_BED_LEVELING, void Draw_ManualMesh_Menu());
+#if HAS_HOTEND
+  void Draw_PreheatPLA_Menu();
+  void Draw_PreheatABS_Menu();
+  void Draw_Preheat3_Menu();
+#endif
+void Draw_Temperature_Menu();
+void Draw_MaxSpeed_Menu();
+void Draw_MaxAccel_Menu();
+TERN_(HAS_CLASSIC_JERK, void Draw_MaxJerk_Menu());
+void Draw_Steps_Menu();

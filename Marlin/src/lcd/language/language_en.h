@@ -294,6 +294,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Move 0.1in");
   PROGMEM Language_Str MSG_MOVE_1IN                        = _UxGT("Move 1.0in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Speed");
+  PROGMEM Language_Str MSG_MAXSPEED                        = _UxGT("Max Speed (mm/s)");
+  PROGMEM Language_Str MSG_MAXSPEED_X                      = _UxGT("Max Speed X");
+  PROGMEM Language_Str MSG_MAXSPEED_Y                      = _UxGT("Max Speed Y");
+  PROGMEM Language_Str MSG_MAXSPEED_Z                      = _UxGT("Max Speed Z");
+  PROGMEM Language_Str MSG_MAXSPEED_E                      = _UxGT("Max Speed E");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
@@ -345,6 +350,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Select *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
   PROGMEM Language_Str MSG_JERK                            = _UxGT("Jerk");
+  PROGMEM Language_Str MSG_MAXJERK_X                       = _UxGT("Max Jerk X");
+  PROGMEM Language_Str MSG_MAXJERK_Y                       = _UxGT("Max Jerk Y");
+  PROGMEM Language_Str MSG_MAXJERK_Z                       = _UxGT("Max Jerk Z");
+  PROGMEM Language_Str MSG_MAXJERK_E                       = _UxGT("Max Jerk E");
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("V") LCD_STR_A _UxGT("-Jerk");
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("V") LCD_STR_B _UxGT("-Jerk");
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("V") LCD_STR_C _UxGT("-Jerk");
@@ -365,6 +374,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("Vmin");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VTrav Min");
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Acceleration");
+  PROGMEM Language_Str MSG_MAXACCEL_X                      = _UxGT("Max Accel X");
+  PROGMEM Language_Str MSG_MAXACCEL_Y                      = _UxGT("Max Accel Y");
+  PROGMEM Language_Str MSG_MAXACCEL_Z                      = _UxGT("Max Accel Z");
+  PROGMEM Language_Str MSG_MAXACCEL_E                      = _UxGT("Max Accel E");
   PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Amax ") LCD_STR_A;
   PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Amax ") LCD_STR_B;
   PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Amax ") LCD_STR_C;
@@ -378,6 +391,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Frequency max");
   PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("Feed min");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Steps/mm");
+  PROGMEM Language_Str MSG_X_STEPS                         = _UxGT("X Steps/mm");
+  PROGMEM Language_Str MSG_Y_STEPS                         = _UxGT("Y Steps/mm");
+  PROGMEM Language_Str MSG_Z_STEPS                         = _UxGT("Z Steps/mm");
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" Steps/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" Steps/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" Steps/mm");

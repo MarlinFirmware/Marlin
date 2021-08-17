@@ -127,6 +127,7 @@
 #define ICON_AdvSet               ICON_Language
 #define ICON_Brightness           ICON_Motion
 #define ICON_Cancel               ICON_StockConfiguration
+#define ICON_CustomPreheat        ICON_SetEndTemp
 #define ICON_Error                ICON_TempTooHigh
 #define ICON_FilLoad              ICON_WriteEEPROM
 #define ICON_FilMan               ICON_ResumeEEPROM
@@ -150,6 +151,7 @@
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Reboot               ICON_ResumeEEPROM
 #define ICON_Scolor               ICON_MaxSpeed
+#define ICON_SetCustomPreheat     ICON_SetEndTemp
 #define ICON_Sound                ICON_Cool
 
 /**
@@ -226,7 +228,7 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
                    MROWS = TROWS - 1,                          // Other-than-Back
                    ICOX = 26,                                  // Menu item icon X position
                    LBLX = 60,                                  // Menu item label X position
-                   VALX = 216,                                 // Menu itel value x position
+                   VALX = 210,                                 // Menu item value X position
                    MENU_CHR_W = 8, MENU_CHR_H = 16,            // Menu font 8x16
                    STAT_CHR_W = 10;
 
