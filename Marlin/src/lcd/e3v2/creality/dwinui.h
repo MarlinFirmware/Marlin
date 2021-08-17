@@ -25,7 +25,7 @@
 #include "dwin_lcd.h"
 
 // ICON ID
-#define ICON                      0x09  // Icon Library
+#define ICON                      0x07  // Use 7.ICO from unified DWIN_SET
 #define ICON_LOGO                  0
 #define ICON_Print_0               1
 #define ICON_Print_1               2
