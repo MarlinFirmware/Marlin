@@ -195,18 +195,18 @@
 //
 // Misc. Functions
 //
+//#define POWER_LOSS_PIN                    PA2   // PW_DET
 //#define PS_ON_PIN                         PA3   // PW_OFF
 
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)                          // MKSPWC
-  //#define SUICIDE_PIN                     PB2   // LED
-  //#define KILL_PIN                        PA2   // PW_DET
-  //#define KILL_PIN_STATE                  HIGH
+#if ENABLED(MKS_PWC)
+  #define SUICIDE_PIN                       PB2
+  #define KILL_PIN                          PA2
+  #define KILL_PIN_STATE                    LOW
 #else
-  //#define POWER_LOSS_PIN                  PA2   // PW_DET
-  //#define LED_PIN                         PB2
+  #define LED_PIN                           PB2
 #endif
 
 #ifndef SDCARD_CONNECTION
@@ -251,14 +251,14 @@
 //
 // LCD / Controller
 #define SPI_FLASH
-#define HAS_SPI_FLASH 1
+#define HAS_SPI_FLASH                          1
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
-  #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
 
 /**

@@ -25,7 +25,7 @@
 #include "dwin_lcd.h"
 
 // ICON ID
-#define ICON                      0x09  // Icon Library
+#define ICON                      0x07  // Use 7.ICO from unified DWIN_SET
 #define ICON_LOGO                  0
 #define ICON_Print_0               1
 #define ICON_Print_1               2
@@ -239,7 +239,8 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
 #define CAPOFF ((MLINE - MENU_CHR_H) / 2)
 
 // Menuitem caption Y position
-#define MBASE(L) ( MYPOS(L) + CAPOFF)
+#define MBASE(L) (MYPOS(L) + CAPOFF)
+#define EBASE(L) (MBASE(L) + 2 * DISABLED(USE_STRING_TITLES))
 
 // Create and add a MenuItem object to the menu array
 #define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
