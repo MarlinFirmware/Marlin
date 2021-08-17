@@ -37,13 +37,11 @@ LCD_CONTROLLER_TypeDef *TFT_FSMC::LCD;
 void TFT_FSMC::Init() {
   uint32_t controllerAddress;
 
-  #if PIN_EXISTS(TFT_RESET)
-    OUT_WRITE(TFT_RESET_PIN, HIGH);
-    HAL_Delay(100);
-  #endif
-
   #if PIN_EXISTS(TFT_BACKLIGHT)
-    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
+    // Setup pin & prevent a white flash during init
+    // see tft_io/tft_io.cpp for the reset & pin HIGH
+    // TFT_IO::InitTFT() is called just after this Init()
+    OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
   #endif
 
   FSMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
