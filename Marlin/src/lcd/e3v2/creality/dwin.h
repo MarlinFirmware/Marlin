@@ -218,9 +218,7 @@ void HMI_SelectFile();  // File page
 void HMI_Printing();    // Print page
 void HMI_Leveling();    // Level the page
 void HMI_SetLanguageCache(); // Set the languaje image cache
-#if ENABLED(ASSISTED_TRAMMING)
-  void HMI_LevBedCorners();   // Tramming menu
-#endif
+void HMI_LevBedCorners();   // Tramming menu
 #if ENABLED(MESH_BED_LEVELING)
   void HMI_MMeshMoveZ();  // Manual Mesh move Z
 #endif
