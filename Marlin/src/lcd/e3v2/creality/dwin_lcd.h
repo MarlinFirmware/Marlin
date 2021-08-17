@@ -100,8 +100,7 @@ inline void DWIN_Draw_VLine(uint16_t color, uint16_t xStart, uint16_t yStart, ui
 //  color: Rectangle color
 //  xStart/yStart: upper left point
 //  xEnd/yEnd: lower right point
-void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
-                         uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
+void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
 // Draw a box
 //  mode: 0=frame, 1=fill, 2=XOR fill

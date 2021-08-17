@@ -239,7 +239,8 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
 #define CAPOFF ((MLINE - MENU_CHR_H) / 2)
 
 // Menuitem caption Y position
-#define MBASE(L) ( MYPOS(L) + CAPOFF)
+#define MBASE(L) (MYPOS(L) + CAPOFF)
+#define EBASE(L) (MBASE(L) + 2 * DISABLED(USE_STRING_TITLES))
 
 // Create and add a MenuItem object to the menu array
 #define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
@@ -539,10 +540,10 @@ namespace DWINUI {
   //  Color: frame color
   //  bColor: Background color
   //  x/y: Upper-left point
-  //  mode : 0 : unchecked, 1 : checked
-  void Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
-  inline void Draw_Checkbox(uint16_t x, uint16_t y, bool mode=false) {
-    Draw_Checkbox(textcolor, backcolor, x, y, mode);
+  //  checked : 0 : unchecked, 1 : checked
+  void Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked);
+  inline void Draw_Checkbox(uint16_t x, uint16_t y, bool checked=false) {
+    Draw_Checkbox(textcolor, backcolor, x, y, checked);
   }
 
   // Color Interpolator

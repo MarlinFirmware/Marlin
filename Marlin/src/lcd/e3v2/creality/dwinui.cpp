@@ -217,8 +217,8 @@ uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
 //  bColor: Background color
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
-void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, (mode ? F("x") : F(" ")));
+void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked=false) {
+  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 
