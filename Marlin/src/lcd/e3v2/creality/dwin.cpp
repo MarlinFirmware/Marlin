@@ -1760,7 +1760,7 @@ void DWIN_MeshLevelingStart() {
     HMI_SaveProcessID(Leveling);
     DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT(MSG_BED_LEVELING), "Please wait until done.");
   #elif ENABLED(MESH_BED_LEVELING)
-    Draw_ManualMesh_Menu();
+      Draw_ManualMesh_Menu();
   #endif
 }
 
@@ -1835,7 +1835,7 @@ void Draw_Title(TitleClass* title) {
 
 // Startup routines
 void DWIN_Startup() {
-   DWINUI::Init();
+  DWINUI::Init();
    DWINUI::onCursorDraw = Draw_Menu_Cursor;
    DWINUI::onCursorErase = Erase_Menu_Cursor;
    DWINUI::onTitleDraw = Draw_Title;
