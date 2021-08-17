@@ -36,14 +36,6 @@ LCD_CONTROLLER_TypeDef *TFT_FSMC::LCD;
 
 void TFT_FSMC::Init() {
   uint32_t controllerAddress;
-
-  #if PIN_EXISTS(TFT_BACKLIGHT)
-    // Setup pin & prevent a white flash during init
-    // see tft_io/tft_io.cpp for the reset & pin HIGH
-    // TFT_IO::InitTFT() is called just after this Init()
-    OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
-  #endif
-
   FSMC_NORSRAM_TimingTypeDef Timing, ExtTiming;
 
   uint32_t NSBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
