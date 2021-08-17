@@ -120,10 +120,10 @@
 #endif
 
 // SPI 2
-#define W25QXX_CS_PIN                       PB12
-#define W25QXX_MOSI_PIN                     PB15
-#define W25QXX_MISO_PIN                     PB14
-#define W25QXX_SCK_PIN                      PB13
+#define SPI_FLASH_CS_PIN                    PB12
+#define SPI_FLASH_MOSI_PIN                  PB15
+#define SPI_FLASH_MISO_PIN                  PB14
+#define SPI_FLASH_SCK_PIN                   PB13
 
 //
 // TFT with FSMC interface

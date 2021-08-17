@@ -391,8 +391,8 @@
 #ifndef SUICIDE_PIN
   #define SUICIDE_PIN -1
 #endif
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING false
+#ifndef SUICIDE_PIN_STATE
+  #define SUICIDE_PIN_STATE LOW
 #endif
 
 #ifndef NUM_SERVO_PLUGS

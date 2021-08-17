@@ -577,6 +577,8 @@
   #error "CUSTOM_USER_MENUS has been replaced by CUSTOM_MENU_MAIN and CUSTOM_MENU_CONFIG."
 #elif defined(MKS_LCD12864)
   #error "MKS_LCD12864 is now MKS_LCD12864A or MKS_LCD12864B."
+#elif defined(DOGM_SD_PERCENT)
+  #error "DOGM_SD_PERCENT is now SHOW_SD_PERCENT."
 #elif defined(NEOPIXEL_BKGD_LED_INDEX)
   #error "NEOPIXEL_BKGD_LED_INDEX is now NEOPIXEL_BKGD_INDEX_FIRST."
 #elif defined(TEMP_SENSOR_1_AS_REDUNDANT)
@@ -3471,6 +3473,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif HAS_HOTEND_OFFSET
     #error "MIN_ and MAX_SOFTWARE_ENDSTOPS are both required with offset hotends."
   #endif
+#endif
+
+/**
+ * Validate MKS_PWC
+ */
+#if ENABLED(MKS_PWC) && PSU_ACTIVE_STATE != HIGH
+  #error "MKS_PWC requires PSU_ACTIVE_STATE to be set HIGH."
 #endif
 
 /**
