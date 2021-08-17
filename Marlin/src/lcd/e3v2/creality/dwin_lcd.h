@@ -31,6 +31,9 @@
 
 #include <stdint.h>
 
+//#define USE_STRING_HEADINGS
+//#define USE_STRING_TITLES
+
 #define RECEIVED_NO_DATA         0x00
 #define RECEIVED_SHAKE_HAND_ACK  0x01
 
@@ -42,17 +45,12 @@
 #define DWIN_WIDTH  272
 #define DWIN_HEIGHT 480
 
-// Character matrix width x height
-//#define LCD_WIDTH ((DWIN_WIDTH) / 8)
-//#define LCD_HEIGHT ((DWIN_HEIGHT) / 12)
-
 // Picture ID
-#define DWIN_Boot_Screen    0
 #define Language_English    1
 #define Language_Chinese    2
 
 // ICON ID
-#define ICON                      0x09
+#define ICON                7 // Icon set file 7.ICO
 
 #define ICON_LOGO                  0
 #define ICON_Print_0               1
@@ -258,8 +256,7 @@ inline void DWIN_Draw_VLine(uint16_t color, uint16_t xStart, uint16_t yStart, ui
 //  color: Rectangle color
 //  xStart/yStart: upper left point
 //  xEnd/yEnd: lower right point
-void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
-                         uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
+void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,  uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
 // Draw a box
 //  mode: 0=frame, 1=fill, 2=XOR fill

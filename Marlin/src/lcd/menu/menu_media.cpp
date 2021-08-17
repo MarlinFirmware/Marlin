@@ -126,7 +126,7 @@ void menu_media_filelist() {
     #endif
   }
   else if (card.isMounted())
-    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER ".."), lcd_sd_updir);
+    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
