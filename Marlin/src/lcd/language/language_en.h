@@ -75,6 +75,14 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_I                     = _UxGT("Home ") LCD_STR_I;
   PROGMEM Language_Str MSG_AUTO_HOME_J                     = _UxGT("Home ") LCD_STR_J;
   PROGMEM Language_Str MSG_AUTO_HOME_K                     = _UxGT("Home ") LCD_STR_K;
+  PROGMEM Language_Str MSG_FILAMENT_MAN                    = _UxGT("Filament Management");
+  PROGMEM Language_Str MSG_MANUAL_LEVELING                 = _UxGT("Manual Leveling");
+  PROGMEM Language_Str MSG_LEVBED_FL                       = _UxGT("Front Left");
+  PROGMEM Language_Str MSG_LEVBED_FR                       = _UxGT("Front Right");
+  PROGMEM Language_Str MSG_LEVBED_C                        = _UxGT("Center");
+  PROGMEM Language_Str MSG_LEVBED_BL                       = _UxGT("Back Left");
+  PROGMEM Language_Str MSG_LEVBED_BR                       = _UxGT("Back Right");
+  PROGMEM Language_Str MSG_MANUAL_MESH                     = _UxGT("Manual Mesh");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-Align");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Iteration: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Accuracy Decreasing!");
@@ -139,8 +147,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bed Leveling");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Level Bed");
   PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bed Tramming");
-  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Raise Bed Until Probe Triggered");
-  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("All Corners Within Tolerance. Level Bed");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Adjust Z until the probe triggers.");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Corners within tolerance. Bed trammed.");
   PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Good Points: ");
   PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Last Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Next Corner");
@@ -286,6 +294,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Move 0.1in");
   PROGMEM Language_Str MSG_MOVE_1IN                        = _UxGT("Move 1.0in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Speed");
+  PROGMEM Language_Str MSG_MAXSPEED                        = _UxGT("Max Speed (mm/s)");
+  PROGMEM Language_Str MSG_MAXSPEED_X                      = _UxGT("Max Speed X");
+  PROGMEM Language_Str MSG_MAXSPEED_Y                      = _UxGT("Max Speed Y");
+  PROGMEM Language_Str MSG_MAXSPEED_Z                      = _UxGT("Max Speed Z");
+  PROGMEM Language_Str MSG_MAXSPEED_E                      = _UxGT("Max Speed E");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
@@ -318,6 +331,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
+  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID Cycle");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("PID tuning done");
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Autotune failed. Bad extruder.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Autotune failed. Temperature too high.");
@@ -336,6 +350,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Select *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Accel");
   PROGMEM Language_Str MSG_JERK                            = _UxGT("Jerk");
+  PROGMEM Language_Str MSG_MAXJERK_X                       = _UxGT("Max Jerk X");
+  PROGMEM Language_Str MSG_MAXJERK_Y                       = _UxGT("Max Jerk Y");
+  PROGMEM Language_Str MSG_MAXJERK_Z                       = _UxGT("Max Jerk Z");
+  PROGMEM Language_Str MSG_MAXJERK_E                       = _UxGT("Max Jerk E");
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("Max ") LCD_STR_A _UxGT(" Jerk");
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("Max ") LCD_STR_B _UxGT(" Jerk");
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("Max ") LCD_STR_C _UxGT(" Jerk");
@@ -356,6 +374,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("Vmin");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VTrav Min");
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Acceleration");
+  PROGMEM Language_Str MSG_MAXACCEL_X                      = _UxGT("Max Accel X");
+  PROGMEM Language_Str MSG_MAXACCEL_Y                      = _UxGT("Max Accel Y");
+  PROGMEM Language_Str MSG_MAXACCEL_Z                      = _UxGT("Max Accel Z");
+  PROGMEM Language_Str MSG_MAXACCEL_E                      = _UxGT("Max Accel E");
   PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Amax ") LCD_STR_A;
   PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Amax ") LCD_STR_B;
   PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Amax ") LCD_STR_C;
@@ -369,6 +391,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Frequency max");
   PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("Feed min");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Steps/mm");
+  PROGMEM Language_Str MSG_X_STEPS                         = _UxGT("X Steps/mm");
+  PROGMEM Language_Str MSG_Y_STEPS                         = _UxGT("Y Steps/mm");
+  PROGMEM Language_Str MSG_Z_STEPS                         = _UxGT("Z Steps/mm");
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" Steps/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" Steps/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" Steps/mm");
@@ -423,7 +448,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Pausing...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause Print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Resume Print");
-  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Host Start");
+  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Start Host Print");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Stop Print");
   PROGMEM Language_Str MSG_END_LOOPS                       = _UxGT("End Repeat Loops");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Printing Object");
@@ -500,6 +525,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Deploy Z-Probe");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Stow Z-Probe");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s First");
+  PROGMEM Language_Str MSG_ZPROBE_SETTINGS                 = _UxGT("Probe Settings");
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Probe Offsets");
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Probe X Offset");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Probe Y Offset");

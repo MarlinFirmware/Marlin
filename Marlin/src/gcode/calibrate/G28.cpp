@@ -47,7 +47,7 @@
 
 #include "../../lcd/marlinui.h"
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/e3v2/creality/dwin.h"
+  #include "../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)

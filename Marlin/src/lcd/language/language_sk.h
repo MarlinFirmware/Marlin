@@ -132,7 +132,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Posunúť osy");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Vyrovnanie podložky");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Vyrovnať podložku");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Asist. vyrovnanie");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Vyrovnať rohy");
   PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Zdvyhnite podl., kým sa nezopne sonda");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Rohy sú vrámci odchyl. Vyrovnajte podl.");
   PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Dobré body: ");

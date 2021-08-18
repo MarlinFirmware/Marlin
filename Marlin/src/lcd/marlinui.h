@@ -60,6 +60,11 @@
   #include "../module/motion.h" // for active_extruder
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../feature/pause.h"
+  #include "e3v2/enhanced/dwin.h"
+#endif
+
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 
 #if HAS_WIRED_LCD
@@ -349,6 +354,12 @@ public:
     static inline void reset_alert_level() {}
   #endif
 
+  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD)
+    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
+  #else
+    static inline void kill_screen(PGM_P const, PGM_P const) {}
+  #endif
+
   #if HAS_DISPLAY
 
     static void init();
@@ -448,7 +459,6 @@ public:
     #endif
 
     static bool get_blink();
-    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
     static void draw_kill_screen();
 
   #else // No LCD
@@ -576,7 +586,7 @@ public:
     static inline bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}

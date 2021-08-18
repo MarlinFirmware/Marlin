@@ -132,7 +132,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Tengelyek mozgatása");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Ágy szintezés");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Ágy szintezése");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Elektromos segéd");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Sarok szint");
   PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Ágy emelése a szonda váltásig");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Minden sarok tolerancián belül. Szint jó.");
   PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Jó pontok: ");

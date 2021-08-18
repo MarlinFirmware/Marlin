@@ -73,6 +73,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/e3v2/enhanced/dwin.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -437,8 +441,14 @@ typedef struct SettingsDataStruct {
   // EXTENSIBLE_UI
   //
   #if ENABLED(EXTENSIBLE_UI)
-    // This is a significant hardware change; don't reserve space when not present
     uint8_t extui_data[ExtUI::eeprom_data_size];
+  #endif
+
+  //
+  // Creality DWIN
+  //
+  #if ENABLED(DWIN_CREALITY_LCD)
+    uint8_t dwin_data[eeprom_data_size];
   #endif
 
   //
@@ -1347,6 +1357,18 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Creality DWIN User Data
+    //
+    #if ENABLED(DWIN_CREALITY_LCD)
+    {
+      char dwin_data[eeprom_data_size] = { 0 };
+      DWIN_StoreSettings(dwin_data);
+      _FIELD_TEST(dwin_data);
+      EEPROM_WRITE(dwin_data);
+    }
+    #endif
+
+    //
     // Case Light Brightness
     //
     #if CASELIGHT_USES_BRIGHTNESS
@@ -1465,6 +1487,8 @@ void MarlinSettings::postprocess() {
         stored_ver[1] = '\0';
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+      TERN_(DWIN_CREALITY_LCD, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_VERSION)));
+
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
     }
@@ -2226,6 +2250,18 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Creality DWIN User Data
+      //
+      #if ENABLED(DWIN_CREALITY_LCD)
+      {
+        const char dwin_data[eeprom_data_size] = { 0 };
+        _FIELD_TEST(dwin_data);
+        EEPROM_READ(dwin_data);
+        if (!validating) DWIN_LoadSettings(dwin_data);
+      }
+      #endif
+
+      //
       // Case Light Brightness
       //
       #if CASELIGHT_USES_BRIGHTNESS
@@ -2305,6 +2341,7 @@ void MarlinSettings::postprocess() {
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        TERN_(DWIN_CREALITY_LCD, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_CRC)));
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
@@ -2621,6 +2658,7 @@ void MarlinSettings::reset() {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
+  TERN_(DWIN_CREALITY_LCD, DWIN_SetDataDefaults());
 
   //
   // Case Light Brightness
@@ -2961,6 +2999,7 @@ void MarlinSettings::reset() {
   DEBUG_ECHOLNPGM("Hardcoded Default Settings Loaded");
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
+  TERN_(DWIN_CREALITY_LCD, DWIN_SetDataDefaults());
 }
 
 #if DISABLED(DISABLE_M503)

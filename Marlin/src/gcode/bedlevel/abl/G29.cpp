@@ -61,7 +61,7 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../../lcd/e3v2/creality/dwin.h"
+  #include "../../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 #if HAS_MULTI_HOTEND
@@ -407,6 +407,10 @@ G29_TYPE GcodeSuite::G29() {
 
     #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
       ExtUI::onMeshLevelingStart();
+    #endif
+
+    #if BOTH(AUTO_BED_LEVELING_BILINEAR, DWIN_CREALITY_LCD)
+      DWIN_MeshLevelingStart();
     #endif
 
     if (!faux) {

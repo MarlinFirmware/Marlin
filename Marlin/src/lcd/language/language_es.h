@@ -105,7 +105,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Mover ejes");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelando Cama");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivelar Cama");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Recorrido asistido");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Recorrido Cama");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Siguente Esquina");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mallado");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Mallado");

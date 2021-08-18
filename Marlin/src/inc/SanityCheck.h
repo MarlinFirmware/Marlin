@@ -798,8 +798,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
 #elif ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  #if NONE(HAS_MARLINUI_U8GLIB, HAS_GRAPHICAL_TFT, HAS_MARLINUI_HD44780, EXTENSIBLE_UI)
-    #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, or EXTENSIBLE_UI."
+  #if NONE(HAS_MARLINUI_U8GLIB, HAS_GRAPHICAL_TFT, HAS_MARLINUI_HD44780, EXTENSIBLE_UI, DWIN_CREALITY_LCD)
+    #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, DWIN_CREALITY_LCD, or EXTENSIBLE_UI."
   #endif
 #endif
 
@@ -2512,8 +2512,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * G35 Assisted Tramming
  */
-#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE
-  #error "ASSISTED_TRAMMING requires a bed probe."
+#if ENABLED(ASSISTED_TRAMMING) && NONE(HAS_BED_PROBE, DWIN_CREALITY_LCD)
+  #error "ASSISTED_TRAMMING requires a bed probe or DWIN_CREALITY_LCD."
 #endif
 
 /**

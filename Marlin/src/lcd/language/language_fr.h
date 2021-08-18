@@ -110,7 +110,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Assistant Molettes");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Niveau des coins");
   PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Relever le coin jusqu'à la sonde");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Coins dans la tolérance. Niveau lit ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Coin suivant");
