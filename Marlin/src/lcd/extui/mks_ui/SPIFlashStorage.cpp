@@ -204,7 +204,7 @@ void SPIFlashStorage::flushPage() {
       return;
     }
 
-    // Part of the m_pageData was compressed, so ajust the pointers, freeing what was processed, shift the buffer
+    // Part of the m_pageData was compressed, so adjust the pointers, freeing what was processed, shift the buffer
     // TODO: To avoid this copy, use a circular buffer
     memmove(m_pageData, m_pageData + inputProcessed, m_pageDataUsed - inputProcessed);
     m_pageDataUsed -= inputProcessed;

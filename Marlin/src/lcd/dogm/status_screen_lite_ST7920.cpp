@@ -447,7 +447,7 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
  * data buffer (DDRAM) to be used in conjunction with the graphics
  * bitmap buffer (CGRAM). The contents of the graphics buffer is
  * XORed with the data from the character generator. This allows
- * us to make the progess bar out of graphical data (the bar) and
+ * us to make the progress bar out of graphical data (the bar) and
  * text data (the percentage).
  */
 void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
@@ -536,7 +536,7 @@ void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool 
 static struct {
   bool E1_show_target  : 1;
   bool E2_show_target  : 1;
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     bool bed_show_target : 1;
   #endif
 } display_state = {

@@ -66,6 +66,18 @@ CALL_IF_EXISTS_IMPL(void, flushTX);
 CALL_IF_EXISTS_IMPL(bool, connected, true);
 CALL_IF_EXISTS_IMPL(SerialFeature, features, SerialFeature::None);
 
+// A simple forward struct to prevent the compiler from selecting print(double, int) as a default overload
+// for any type other than double/float. For double/float, a conversion exists so the call will be invisible.
+struct EnsureDouble {
+  double a;
+  operator double() { return a; }
+  // If the compiler breaks on ambiguity here, it's likely because print(X, base) is called with X not a double/float, and
+  // a base that's not a PrintBase value. This code is made to detect the error. You MUST set a base explicitly like this:
+  // SERIAL_PRINT(v, PrintBase::Hex)
+  EnsureDouble(double a) : a(a) {}
+  EnsureDouble(float a) : a(a) {}
+};
+
 // Using Curiously-Recurring Template Pattern here to avoid virtual table cost when compiling.
 // Since the real serial class is known at compile time, this results in the compiler writing
 // a completely efficient code.
@@ -143,17 +155,121 @@ struct SerialBase : public NumberFormatter< SerialBase<Child> > {
   FORCE_INLINE void println(double c, int digits)            { print(c, digits); println(); }
   FORCE_INLINE void println()                                { write('\r'); write('\n'); }
 
+  // No default argument to avoid ambiguity
+
+  // Define print for every fundamental integer type, to ensure that all redirect properly
+  // to the correct underlying implementation.
+
+  // Prints are performed with a single size, to avoid needing multiple print functions.
+  // The fixed integer size used for prints will be the larger of long or a pointer.
+  #if __LONG_WIDTH__ >= __INTPTR_WIDTH__
+    typedef long int_fixed_print_t;
+    typedef unsigned long uint_fixed_print_t;
+  #else
+    typedef intptr_t int_fixed_print_t;
+    typedef uintptr_t uint_fixed_print_t;
+
+    FORCE_INLINE void print(intptr_t c, PrintBase base)         { printNumber_signed(c, base); }
+    FORCE_INLINE void print(uintptr_t c, PrintBase base)        { printNumber_unsigned(c, base); }
+  #endif
+
+  FORCE_INLINE void print(char c, PrintBase base)               { printNumber_signed(c, base); }
+  FORCE_INLINE void print(short c, PrintBase base)              { printNumber_signed(c, base); }
+  FORCE_INLINE void print(int c, PrintBase base)                { printNumber_signed(c, base); }
+  FORCE_INLINE void print(long c, PrintBase base)               { printNumber_signed(c, base); }
+  FORCE_INLINE void print(unsigned char c, PrintBase base)      { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned short c, PrintBase base)     { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned int c, PrintBase base)       { printNumber_unsigned(c, base); }
+  FORCE_INLINE void print(unsigned long c, PrintBase base)      { printNumber_unsigned(c, base); }
+
+
+  void print(EnsureDouble c, int digits)           { printFloat(c, digits); }
+
   // Forward the call to the former's method
-  FORCE_INLINE void println(char c)                { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(unsigned char c)       { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(int c)                 { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(unsigned int c)        { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(unsigned long c)       { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(long c)                { println(c, PrintBase::Dec); }
-  FORCE_INLINE void println(double c)              { println(c, 2); }
+
+  // Default implementation for anything without a specialization
+  // This handles integers since they are the most common
+  template <typename T>
+  void print(T c)    { print(c, PrintBase::Dec); }
+
+  void print(float c)    { print(c, 2); }
+  void print(double c)    { print(c, 2); }
+
+  void println(char *s)               { print(s); println(); }
+  void println(const char *s)         { print(s); println(); }
+  void println(float c, int digits)   { print(c, digits); println(); }
+  void println(double c, int digits)  { print(c, digits); println(); }
+  void println()                      { write('\r'); write('\n'); }
+
+  // Default implementations for types without a specialization. Handles integers.
+  template <typename T>
+  void println(T c, PrintBase base)   { print(c, base); println(); }
+
+  template <typename T>
+  void println(T c)                   { println(c, PrintBase::Dec); }
+
+  // Forward the call to the former's method
+  void println(float c)               { println(c, 2); }
+  void println(double c)              { println(c, 2); }
 
   // Inject print methods here
   using NumberFormatter< SerialBase<Child> >::print;
+
+  // Print a number with the given base
+  NO_INLINE void printNumber_unsigned(uint_fixed_print_t n, PrintBase base) {
+    if (n) {
+      unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
+      int8_t i = 0;
+      while (n) {
+        buf[i++] = n % (uint_fixed_print_t)base;
+        n /= (uint_fixed_print_t)base;
+      }
+      while (i--) write((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
+    }
+    else write('0');
+  }
+
+  NO_INLINE void printNumber_signed(int_fixed_print_t n, PrintBase base) {
+    if (base == PrintBase::Dec && n < 0) {
+      n = -n; // This works because all platforms Marlin's builds on are using 2-complement encoding for negative number
+              // On such CPU, changing the sign of a number is done by inverting the bits and adding one, so if n = 0x80000000 = -2147483648 then
+              // -n = 0x7FFFFFFF + 1 => 0x80000000 = 2147483648 (if interpreted as unsigned) or -2147483648 if interpreted as signed.
+              // On non 2-complement CPU, there would be no possible representation for 2147483648.
+      write('-');
+    }
+    printNumber_unsigned((uint_fixed_print_t)n , base);
+  }
+
+  // Print a decimal number
+  NO_INLINE void printFloat(double number, uint8_t digits) {
+    // Handle negative numbers
+    if (number < 0.0) {
+      write('-');
+      number = -number;
+    }
+
+    // Round correctly so that print(1.999, 2) prints as "2.00"
+    double rounding = 0.5;
+    LOOP_L_N(i, digits) rounding *= 0.1;
+    number += rounding;
+
+    // Extract the integer part of the number and print it
+    unsigned long int_part = (unsigned long)number;
+    double remainder = number - (double)int_part;
+    printNumber_unsigned(int_part, PrintBase::Dec);
+
+    // Print the decimal point, but only if there are digits beyond
+    if (digits) {
+      write('.');
+      // Extract digits from the remainder one at a time
+      while (digits--) {
+        remainder *= 10.0;
+        unsigned long toPrint = (unsigned long)remainder;
+        printNumber_unsigned(toPrint, PrintBase::Dec);
+        remainder -= toPrint;
+      }
+    }
+  }
 };
 
 // All serial instances are built by chaining the features required

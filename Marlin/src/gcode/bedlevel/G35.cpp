@@ -91,8 +91,8 @@ void GcodeSuite::G35() {
   // Disable duplication mode on homing
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
-  // Home all before this procedure
-  home_all_axes();
+  // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
+  if (!all_axes_trusted()) process_subcommands_now_P(PSTR("G28Z"));
 
   bool err_break = false;
 
@@ -106,7 +106,7 @@ void GcodeSuite::G35() {
     const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOPAIR("G35 failed at point ", i, " (");
+      SERIAL_ECHOPAIR("G35 failed at point ", i + 1, " (");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       SERIAL_CHAR(')');
       SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y);
@@ -115,7 +115,7 @@ void GcodeSuite::G35() {
     }
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOPAIR("Probing point ", i, " (");
+      DEBUG_ECHOPAIR("Probing point ", i + 1, " (");
       DEBUG_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       DEBUG_CHAR(')');
       DEBUG_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y, SP_Z_STR, z_probed_height);
@@ -130,7 +130,7 @@ void GcodeSuite::G35() {
     // Calculate adjusts
     LOOP_S_L_N(i, 1, G35_PROBE_COUNT) {
       const float diff = z_measured[0] - z_measured[i],
-                  adjust = abs(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
+                  adjust = ABS(diff) < 0.001f ? 0 : diff / threads_factor[(screw_thread - 30) / 10];
 
       const int full_turns = trunc(adjust);
       const float decimal_part = adjust - float(full_turns);
@@ -138,8 +138,8 @@ void GcodeSuite::G35() {
 
       SERIAL_ECHOPGM("Turn ");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPAIR(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", abs(full_turns), " turns");
-      if (minutes) SERIAL_ECHOPAIR(" and ", abs(minutes), " minutes");
+      SERIAL_ECHOPAIR(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
+      if (minutes) SERIAL_ECHOPAIR(" and ", ABS(minutes), " minutes");
       if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPAIR(" (", -diff, "mm)");
       SERIAL_EOL();
     }

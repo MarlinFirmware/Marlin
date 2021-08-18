@@ -164,7 +164,7 @@ static void serial_echo_column_labels(const uint8_t sp) {
  *   2: TODO: Display on Graphical LCD
  *   4: Compact Human-Readable
  */
-void unified_bed_leveling::display_map(const int map_type) {
+void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
   constexpr uint8_t eachsp = 1 + 6 + 1,                           // [-3.567]
@@ -263,7 +263,7 @@ bool unified_bed_leveling::sanity_check() {
   void GcodeSuite::M1004() {
 
     #define ALIGN_GCODE TERN(Z_STEPPER_AUTO_ALIGN, "G34", "")
-    #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R255")
+    #define PROBE_GCODE TERN(HAS_BED_PROBE, "G29P1\nG29P3", "G29P4R")
 
     #if HAS_HOTEND
       if (parser.seenval('H')) {                          // Handle H# parameter to set Hotend temp

@@ -94,7 +94,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Mover eixo");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelação Mesa");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivelar Mesa");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Nivelar Cantos");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Nivelar Cantos");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Próximo Canto");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor de Malha");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Malha");
@@ -218,6 +218,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Mover 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocidade");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Base Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Bocal");

@@ -175,14 +175,29 @@
 /**
  * Note: MKS Robin Pro board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
  */
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PF11  // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PF11  // TC2 - CS2
 
 #define POWER_LOSS_PIN                      PA2   // PW_DET
-#define PS_ON_PIN                           PG11  // PW_OFF
 #define FIL_RUNOUT_PIN                      PA4   // MT_DET1
-//#define FIL_RUNOUT_PIN                    PE6   // MT_DET2
-//#define FIL_RUNOUT_PIN                    PG14  // MT_DET3
+#define FIL_RUNOUT2_PIN                     PE6   // MT_DET2
+#define FIL_RUNOUT3_PIN                     PG14  // MT_DET3
+
+//
+// Power Supply Control
+//
+#if ENABLED(MKS_PWC)
+  #if ENABLED(TFT_LVGL_UI)
+    #undef PSU_CONTROL
+    #undef MKS_PWC
+    #define SUICIDE_PIN                     PG11
+    #define SUICIDE_PIN_STATE               LOW
+  #else
+    #define PS_ON_PIN                       PG11  // PW_OFF
+  #endif
+  #define KILL_PIN                          PA2
+  #define KILL_PIN_STATE                    HIGH
+#endif
 
 //
 // SD Card
@@ -205,12 +220,18 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
- */
+//
+// TFT with FSMC interface
+//
 #if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers.
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   */
+  #define TFT_RESET_PIN            LCD_RESET_PIN
+  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
   #define FSMC_DMA_DEV                      DMA2
@@ -221,8 +242,6 @@
 
   #define LCD_RESET_PIN                     PF6
   #define LCD_BACKLIGHT_PIN                 PD13
-  #define TFT_RESET_PIN            LCD_RESET_PIN
-  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
 
   #define TFT_BUFFER_SIZE                  14400
 
@@ -296,8 +315,8 @@
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12  // Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif

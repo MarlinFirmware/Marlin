@@ -227,6 +227,15 @@
 #define LED_PIN                            P1_18  // Used as a status indicator
 
 //
+// Power Supply Control
+//
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                        P2_00  // SERVO
+  #define KILL_PIN                         P1_24  // Z+
+  #define KILL_PIN_STATE                    HIGH
+#endif
+
+//
 // RGB LED
 //
 #if ENABLED(RGB_LED)

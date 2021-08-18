@@ -32,7 +32,7 @@
 #include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
+  #include "../lcd/e3v2/creality/dwin.h"
 #endif
 
 #include "../module/planner.h"        // for synchronize
@@ -121,13 +121,12 @@ uint8_t CardReader::workDirDepth;
 
 #endif // SDCARD_SORT_ALPHA
 
-#if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  DiskIODriver_USBFlash CardReader::media_usbFlashDrive;
+#if HAS_USB_FLASH_DRIVE
+  DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
-#if NEED_SD2CARD_SDIO
-  DiskIODriver_SDIO CardReader::media_sdio;
-#elif NEED_SD2CARD_SPI
-  DiskIODriver_SPI_SD CardReader::media_sd_spi;
+
+#if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
+  CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
 #endif
 
 DiskIODriver* CardReader::driver = nullptr;
@@ -144,12 +143,10 @@ uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
   changeMedia(&
-    #if SHARED_VOLUME_IS(SD_ONBOARD)
-      TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
-    #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-      media_usbFlashDrive
+    #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(SD_ONBOARD)
+      media_driver_usbFlash
     #else
-      TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
+      media_driver_sdcard
     #endif
   );
 
@@ -259,17 +256,22 @@ void CardReader::selectByName(SdFile dir, const ROString &match) {
   }
 }
 
-//
-// Recursive method to print all files within a folder in flat
-// DOS 8.3 format. This style of listing is the most compatible
-// with legacy hosts.
-//
-// This method recurses to unlimited depth and lists every
-// G-code file within the given parent. If the hierarchy is
-// very deep this can blow up the stack, so a 'depth' parameter
-// (as with printListingJSON) would be a good addition.
-//
-void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/) {
+/**
+ * Recursive method to print all files within a folder in flat
+ * DOS 8.3 format. This style of listing is the most compatible
+ * with legacy hosts.
+ *
+ * This method recurses to unlimited depth and lists all G-code
+ * files within the given parent. If the hierarchy is very deep
+ * this can blow up the stack, so a 'depth' parameter would be a
+ * good addition.
+ */
+void CardReader::printListing(
+  SdFile parent
+  OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+  , const char * const prepend/*=nullptr*/
+  OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
+) {
   dir_t p;
   while (parent.readDir(&p, longFilename.buf()) > 0) {
     if (DIR_IS_SUBDIR(&p)) {
@@ -296,7 +298,23 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       // and dive recursively into it.
       SdFile child; // child.close() in destructor
       if (child.open(&parent, dosFilename, O_READ))
-        printListing(child, path);
+        #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+          if (includeLongNames) {
+            size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
+            // Allocate enough stack space for the full long path including / separator
+            char pathLong[lenPrependLong + strlen(longFilename) + 1];
+            if (prependLong) {
+              strcpy(pathLong, prependLong);
+              pathLong[lenPrependLong - 1] = '/';
+            }
+            strcpy(pathLong + lenPrependLong, longFilename);
+            printListing(child, true, path, pathLong);
+          }
+          else
+            printListing(child, false, path);
+        #else
+          printListing(child, path);
+        #endif
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
@@ -304,9 +322,26 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
     }
     else if (is_dir_or_gcode(p)) {
       createFilename(filename, p);
-      if (prepend) SERIAL_ECHO(prepend);
-      SERIAL_ECHOPAIR(filename, AS_CHAR(' '));
-      SERIAL_ECHOLN(p.fileSize);
+      if (prepend) {
+        SERIAL_ECHOP(prepend);
+        SERIAL_CHAR('/');
+      }
+      SERIAL_ECHO(filename);
+      SERIAL_CHAR(' ');
+
+      if (TERN1(LONG_FILENAME_HOST_SUPPORT, !includeLongNames))
+        SERIAL_ECHOLN(p.fileSize);
+      else {
+        #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+          SERIAL_ECHO(p.fileSize);
+          SERIAL_CHAR(' ');
+          if (prependLong) {
+            SERIAL_ECHO(prependLong);
+            SERIAL_CHAR('/');
+          }
+          SERIAL_ECHOLN(longFilename[0] ? longFilename : "???");
+        #endif
+      }
     }
   }
 }
@@ -314,10 +349,10 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 //
 // List all files on the SD card
 //
-void CardReader::ls() {
+void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root);
+    printListing(root OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
   }
 }
 
@@ -981,6 +1016,7 @@ int8_t CardReader::cdup() {
 void CardReader::cdroot() {
   workDir = root;
   flag.workDirIsRoot = true;
+  workDirDepth = 0;
   TERN_(SDCARD_SORT_ALPHA, presort());
 }
 
@@ -1102,7 +1138,7 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             selectFileByIndex(o1);              // Pre-fetch the first entry and save it
             ROString name1 = longest_filename();  // so the loop only needs one fetch
-            #if ENABLED(HAS_FOLDER_SORTING)
+            #if HAS_FOLDER_SORTING
               bool dir1 = flag.filenameIsDir;
             #endif
           #endif
@@ -1167,7 +1203,7 @@ void CardReader::cdroot() {
         #if ENABLED(SDSORT_USES_RAM) && DISABLED(SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             for (uint16_t i = 0; i < fileCnt; ++i) free(sortnames[i]);
-            TERN_(HAS_FOLDER_SORTING, free(isDir));
+            TERN_(HAS_FOLDER_SORTING, delete [] isDir);
           #endif
         #endif
       }
@@ -1193,14 +1229,14 @@ void CardReader::cdroot() {
   void CardReader::flush_presort() {
     if (sort_count > 0) {
       #if ENABLED(SDSORT_DYNAMIC_RAM)
-        delete sort_order;
+        delete [] sort_order;
         #if ENABLED(SDSORT_CACHE_NAMES)
           LOOP_L_N(i, sort_count) {
             free(sortshort[i]); // strdup
             free(sortnames[i]); // strdup
           }
-          delete sortshort;
-          delete sortnames;
+          delete [] sortshort;
+          delete [] sortnames;
         #endif
       #endif
       sort_count = 0;

@@ -104,16 +104,16 @@
 // MAX6675 Cold-Junction-Compensated K-Thermocouple to Digital Converter (0°C to +1024°C)
 // https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
 
-#define MAX6675_SCK_PIN                     PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
-#define MAX6675_DO_PIN                      PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
-#define MAX6675_SS_PIN                      PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+#define TEMP_0_CS_PIN                       PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+#define TEMP_0_SCK_PIN                      PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
+#define TEMP_0_MISO_PIN                     PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
 
 // Expansion board with second max6675
 // Warning: Some boards leave the slot unpopulated.
 
-//#define MAX6675_SCK2_PIN                  PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
-//#define MAX6675_DO2_PIN                   PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
-//#define MAX6675_SS2_PIN                   PF1   // max6675 datasheet: /CS pin, found with multimeter, not tested
+//#define TEMP_1_CS_PIN                     PF1   // max6675 datasheet: /CS pin, found with multimeter, not tested
+//#define TEMP_1_SCK_PIN                    PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
+//#define TEMP_1_MISO_PIN                   PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
 
 //
 // Heaters / Fans
@@ -179,10 +179,10 @@
 #if ENABLED(SPI_EEPROM)
   // Lerdge has an SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
   #define SPI_CHAN_EEPROM1                     1
-  #define SPI_EEPROM1_CS                    PB12  // datasheet: /CS pin, found with multimeter, not tested
-  #define EEPROM_SCK                        PB13  // datasheet: CLK pin, found with multimeter, not tested
-  #define EEPROM_MISO                       PB14  // datasheet: DO pin, found with multimeter, not tested
-  #define EEPROM_MOSI                       PB15  // datasheet: DI pin, found with multimeter, not tested
+  #define SPI_EEPROM1_CS_PIN                PB12  // datasheet: /CS pin, found with multimeter, not tested
+  #define EEPROM_SCK_PIN                    PB13  // datasheet: CLK pin, found with multimeter, not tested
+  #define EEPROM_MISO_PIN                   PB14  // datasheet: DO pin, found with multimeter, not tested
+  #define EEPROM_MOSI_PIN                   PB15  // datasheet: DI pin, found with multimeter, not tested
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #else

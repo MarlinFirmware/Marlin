@@ -74,8 +74,7 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
     #undef EDGE_R
     #define EDGE_R 30
        .font(font_small)
-       .tag(0).text      (BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_SOUND_VOLUME),   OPT_RIGHTX | OPT_CENTERY)
-              .text      (BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_CLICK_SOUNDS),   OPT_RIGHTX | OPT_CENTERY)
+       .tag(0).text      (BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_CLICK_SOUNDS),   OPT_RIGHTX | OPT_CENTERY)
               .text      (BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_STARTING), OPT_RIGHTX | OPT_CENTERY)
               .text      (BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_FINISHED), OPT_RIGHTX | OPT_CENTERY)
               .text      (BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_ERROR),    OPT_RIGHTX | OPT_CENTERY);
@@ -89,20 +88,18 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
       constexpr uint8_t w = 1;
     #endif
 
-    cmd.font(font_medium)
-       .colors(ui_slider)
+    cmd.font(font_small)
     #define EDGE_R 30
-       .tag(2).slider    (BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume, 0xFF)
        .colors(ui_toggle)
-       .tag(3).toggle2   (BTN_POS(3,3), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::touch_sounds_enabled())
+       .tag(2).toggle2   (BTN_POS(3,3), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::touch_sounds_enabled())
     #undef EDGE_R
        .colors(normal_btn)
     #define EDGE_R 0
-       .tag(4).button    (BTN_POS(3,5), BTN_SIZE(2,1), getSoundSelection(PRINTING_STARTED))
-       .tag(5).button    (BTN_POS(3,6), BTN_SIZE(2,1), getSoundSelection(PRINTING_FINISHED))
-       .tag(6).button    (BTN_POS(3,7), BTN_SIZE(2,1), getSoundSelection(PRINTING_FAILED))
+       .tag(3).button    (BTN_POS(3,5), BTN_SIZE(2,1), getSoundSelection(PRINTING_STARTED))
+       .tag(4).button    (BTN_POS(3,6), BTN_SIZE(2,1), getSoundSelection(PRINTING_FINISHED))
+       .tag(5).button    (BTN_POS(3,7), BTN_SIZE(2,1), getSoundSelection(PRINTING_FAILED))
        .colors(action_btn)
-       .tag(1).button    (BTN_POS(1,9), BTN_SIZE(4,1), GET_TEXT_F(MSG_BACK));
+       .tag(1).button    (BTN_POS(1,9), BTN_SIZE(4,1), GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
@@ -114,46 +111,15 @@ void InterfaceSoundsScreen::onEntry() {
 bool InterfaceSoundsScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS();                                              return true;
-    case 3: UIData::enable_touch_sounds(!UIData::touch_sounds_enabled()); break;
-    case 4: toggleSoundSelection(PRINTING_STARTED);                       break;
-    case 5: toggleSoundSelection(PRINTING_FINISHED);                      break;
-    case 6: toggleSoundSelection(PRINTING_FAILED);                        break;
+    case 2: UIData::enable_touch_sounds(!UIData::touch_sounds_enabled()); break;
+    case 3: toggleSoundSelection(PRINTING_STARTED);                       break;
+    case 4: toggleSoundSelection(PRINTING_FINISHED);                      break;
+    case 5: toggleSoundSelection(PRINTING_FAILED);                        break;
     default:
       return false;
   }
   SaveSettingsDialogBox::settingsChanged();
   return true;
-}
-
-bool InterfaceSoundsScreen::onTouchStart(uint8_t tag) {
-  CommandProcessor cmd;
-  #undef EDGE_R
-  #define EDGE_R 30
-  switch (tag) {
-    case 2: cmd.track_linear(BTN_POS(3,2), BTN_SIZE(2,1), 2).execute(); break;
-    default: break;
-  }
-  return true;
-}
-
-void InterfaceSoundsScreen::onIdle() {
-  if (refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
-    refresh_timer.start();
-
-    uint16_t value;
-    CommandProcessor cmd;
-    switch (cmd.track_tag(value)) {
-      case 2:
-        screen_data.InterfaceSettingsScreen.volume = value >> 8;
-        SoundPlayer::set_volume(screen_data.InterfaceSettingsScreen.volume);
-        SaveSettingsDialogBox::settingsChanged();
-        break;
-      default:
-        return;
-    }
-    onRefresh();
-  }
-  BaseScreen::onIdle();
 }
 
 #endif // FTDI_INTERFACE_SOUNDS_SCREEN

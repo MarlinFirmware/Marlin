@@ -109,7 +109,7 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
 
-// A simple foward class that taking a reference to an existing serial instance (likely created in their respective framework)
+// A simple forward class that taking a reference to an existing serial instance (likely created in their respective framework)
 template <class SerialT>
 struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   typedef SerialBase< ForwardSerial<SerialT> > BaseClassT;

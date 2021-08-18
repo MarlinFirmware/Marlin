@@ -314,26 +314,18 @@ xyze_int8_t Stepper::count_direction{0};
     A##3_STEP_WRITE(V);                           \
   }
 
-#define QUAD_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
-  if (separate_multi_axis) {                                                                                                \
-    if (ENABLED(A##_HOME_TO_MIN)) {                                                                                         \
-      if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
-      if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##3_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##4_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
-    }                                                                                                                       \
-    else {                                                                                                                  \
-      if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
-      if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##3_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##4_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
-    }                                                                                                                       \
-  }                                                                                                                         \
-  else {                                                                                                                    \
-    A##_STEP_WRITE(V);                                                                                                      \
-    A##2_STEP_WRITE(V);                                                                                                     \
-    A##3_STEP_WRITE(V);                                                                                                     \
-    A##4_STEP_WRITE(V);                                                                                                     \
+#define QUAD_ENDSTOP_APPLY_STEP(A,V) \
+  if (separate_multi_axis) {         \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##_MIN,  A##_MAX)))  && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor)  A##_STEP_WRITE(V);  \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##2_MIN, A##2_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##3_MIN, A##3_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
+    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##4_MIN, A##4_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
+  }       \
+  else {  \
+    A##_STEP_WRITE(V);  \
+    A##2_STEP_WRITE(V); \
+    A##3_STEP_WRITE(V); \
+    A##4_STEP_WRITE(V); \
   }
 
 #define QUAD_SEPARATE_APPLY_STEP(A,V)             \
@@ -2833,19 +2825,22 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
-#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
-  #define USES_ABC 1
+#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, IS_SCARA, DELTA)
+  #define SAYS_A 1
 #endif
-#if ANY(USES_ABC, MARKFORGED_XY, IS_SCARA)
-  #define USES_AB 1
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, IS_SCARA, DELTA)
+  #define SAYS_B 1
+#endif
+#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
+  #define SAYS_C 1
 #endif
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
   SERIAL_ECHOLNPAIR_P(
     LIST_N(DOUBLE(LINEAR_AXES),
-      TERN(USES_AB,  PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-      TERN(USES_AB,  PSTR("B:"), SP_Y_LBL), pos.y,
-      TERN(USES_ABC, PSTR("C:"), SP_Z_LBL), pos.z,
+      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
       SP_I_LBL, pos.i,
       SP_J_LBL, pos.j,
       SP_K_LBL, pos.k

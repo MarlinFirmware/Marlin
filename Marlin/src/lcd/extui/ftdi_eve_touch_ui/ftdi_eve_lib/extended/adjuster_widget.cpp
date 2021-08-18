@@ -36,7 +36,8 @@ namespace FTDI {
       cmd.text(VAL_POS, '-');
       return;
     }
-    cmd.text(VAL_POS, DString::format(F("%*.*f%s%s"), width, precision, value, units ? " " : "", units ? units : ""));
+
+    cmd.tag(0).text(VAL_POS, str);
   }
 
   void draw_adjuster(CommandProcessor& cmd, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t tag, float value, progmem_str units, int8_t width, uint8_t precision, draw_mode_t what) {

@@ -42,6 +42,9 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
+#include "../../../core/debug_out.h"
+
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
@@ -59,6 +62,16 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
+  DEBUG_SECTION(log_G29, "G29", true);
+
+  // G29 Q is also available if debugging
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    const bool seenQ = parser.seen_test('Q');
+    if (seenQ || DEBUGGING(LEVELING)) {
+      log_machine_info();
+      if (seenQ) return;
+    }
+  #endif
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
@@ -71,6 +84,7 @@ void GcodeSuite::G29() {
   }
 
   int8_t ix, iy;
+  ix = iy = 0;
 
   switch (state) {
     case MeshReport:
@@ -88,6 +102,7 @@ void GcodeSuite::G29() {
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
         queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : PSTR("G29S2"));
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
         return;
       }
       state = MeshNext;
@@ -109,6 +124,7 @@ void GcodeSuite::G29() {
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.

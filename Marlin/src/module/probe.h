@@ -38,7 +38,7 @@
   };
 #endif
 
-#if HAS_CUSTOM_PROBE_PIN
+#if USES_Z_MIN_PROBE_PIN
   #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
 #else
   #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
@@ -55,6 +55,11 @@
 
 class Probe {
 public:
+
+  #if ENABLED(SENSORLESS_PROBING)
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
+    static sense_bool_t test_sensitivity;
+  #endif
 
   #if HAS_BED_PROBE
 
@@ -254,6 +259,13 @@ public:
   #if ENABLED(PROBE_TARE)
     static void tare_init();
     static bool tare();
+  #endif
+
+  // Basic functions for Sensorless Homing and Probing
+  #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+    static void enable_stallguard_diag1();
+    static void disable_stallguard_diag1();
+    static void set_homing_current(const bool onoff);
   #endif
 
 private:

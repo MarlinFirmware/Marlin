@@ -27,11 +27,9 @@
 #include "draw_ui.h"
 #include "pic_manager.h"
 #include "draw_ready_print.h"
-#include "mks_hardware_test.h"
-
+#include "mks_hardware.h"
 #include "SPIFlashStorage.h"
 #include "../../../libs/W25Qxx.h"
-
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h"
 
@@ -505,7 +503,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
       disp_assets_update_progress("Reading files...");
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
-        // If we dont get a long name, but gets a short one, try it
+        // If we don't get a long name, but gets a short one, try it
         if (card.longFilename[0] == 0 && d.name[0] != 0)
           dosName2LongName((const char*)d.name, card.longFilename);
         if (card.longFilename[0] == 0) continue;
