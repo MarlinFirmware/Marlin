@@ -2033,7 +2033,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
 
         #define PID_BACK 0
         #define PID_HOTEND (PID_BACK + ENABLED(HAS_HOTEND))
-        #define PID_BED (PID_HOTEND + ENABLED(HAS_HEATED_BED))
+        #define PID_BED (PID_HOTEND + BOTH(HAS_HEATED_BED, PIDTEMPBED))
         #define PID_CYCLES (PID_BED + 1)
         #define PID_TOTAL PID_CYCLES
 
@@ -2058,7 +2058,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               }
               break;
           #endif
-          #if HAS_HEATED_BED
+          #if BOTH(HAS_HEATED_BED, PIDTEMPBED)
             case PID_BED:
               if (draw) {
                 Draw_Menu_Item(row, ICON_BedTemp, "Bed", NULL, true);
@@ -2153,7 +2153,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         }
         break;
     #endif
-    #if HAS_HEATED_BED
+    #if BOTH(HAS_HEATED_BED, PIDTEMPBED)
       case BedPID:
 
         #define BEDPID_BACK 0
@@ -4410,7 +4410,7 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
       case HotendPID:
         return HOTENDPID_TOTAL;
     #endif
-    #if HAS_HEATED_BED
+    #if BOTH(HAS_HEATED_BED, PIDTEMPBED)
       case BedPID:
         return BEDPID_TOTAL;
     #endif
@@ -4669,10 +4669,16 @@ void CrealityDWINClass::Value_Control() {
       sprintf_P(cmd, PSTR("M290 Z%s"), dtostrf((tempvalue/valueunit - zoffsetvalue), 1, 3, str_1));
       gcode.process_subcommands_now_P(cmd);
     }
-    if (valuepointer == &thermalManager.temp_hotend[0].pid.Ki || valuepointer == &thermalManager.temp_bed.pid.Ki) 
+    if (valuepointer == &thermalManager.temp_hotend[0].pid.Ki) 
       tempvalue = scalePID_i(tempvalue);
-    if (valuepointer == &thermalManager.temp_hotend[0].pid.Kd || valuepointer == &thermalManager.temp_bed.pid.Kd) 
+    if (valuepointer == &thermalManager.temp_hotend[0].pid.Kd) 
       tempvalue = scalePID_d(tempvalue);
+    #if ENABLED(PIDTEMPBED)
+    if (valuepointer == &thermalManager.temp_bed.pid.Ki) 
+      tempvalue = scalePID_i(tempvalue);
+    if (valuepointer == &thermalManager.temp_bed.pid.Kd) 
+      tempvalue = scalePID_d(tempvalue);
+    #endif
     switch (valuetype) {
       case 0: *(float*)valuepointer = tempvalue/valueunit; break;
       case 1: *(uint8_t*)valuepointer = tempvalue/valueunit; break;
@@ -5082,12 +5088,20 @@ void CrealityDWINClass::Confirm_Control() {
 /* In-Menu Value Modification */
 
 void CrealityDWINClass::Setup_Value(float value, float min, float max, float unit, uint8_t type) {
-  if (valuepointer == &thermalManager.temp_hotend[0].pid.Ki || valuepointer == &thermalManager.temp_bed.pid.Ki) 
+  if (valuepointer == &thermalManager.temp_hotend[0].pid.Ki) 
     tempvalue = unscalePID_i(value) * unit;
-  else if (valuepointer == &thermalManager.temp_hotend[0].pid.Kd || valuepointer == &thermalManager.temp_bed.pid.Kd) 
+  else if (valuepointer == &thermalManager.temp_hotend[0].pid.Kd) 
     tempvalue = unscalePID_d(value) * unit;
   else
     tempvalue = value * unit;
+  #if ENABLED(PIDTEMPBED)
+  if (valuepointer == &thermalManager.temp_bed.pid.Ki) 
+    tempvalue = unscalePID_i(value) * unit;
+  else if (valuepointer == &thermalManager.temp_bed.pid.Kd) 
+    tempvalue = unscalePID_d(value) * unit;
+  else
+    tempvalue = value * unit;
+  #endif
   valuemin = min;
   valuemax = max;
   valueunit = unit;
