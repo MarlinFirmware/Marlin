@@ -34,7 +34,21 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB
+#if IS_DWIN_MARLINUI
+
+  #include "e3v2/marlinui/marlinui_dwin.h"
+
+  #define LCD_PIXEL_WIDTH     DWIN_WIDTH
+  #define LCD_PIXEL_HEIGHT    DWIN_HEIGHT
+  #define LCD_WIDTH           ((LCD_PIXEL_WIDTH)  / (MENU_FONT_WIDTH))
+  #define LCD_HEIGHT          ((LCD_PIXEL_HEIGHT) / (MENU_LINE_HEIGHT))
+
+  // The DWIN lcd_moveto function uses row / column, not pixels
+  #define LCD_COL_X(col)    (col)
+  #define LCD_ROW_Y(row)    (row)
+  #define LCD_COL_X_RJ(len) (LCD_WIDTH - LCD_COL_X(len))
+
+#elif HAS_MARLINUI_U8GLIB
 
   #include "dogm/u8g_fontutf8.h"
   typedef u8g_uint_t lcd_uint_t;
@@ -105,7 +119,10 @@
   #define MENU_LINE_HEIGHT MENU_FONT_HEIGHT
 #endif
 
-#define LCD_COL_X_RJ(len)      (LCD_PIXEL_WIDTH - LCD_COL_X(len))
+#ifndef LCD_COL_X_RJ
+  #define LCD_COL_X_RJ(len)    (LCD_PIXEL_WIDTH - LCD_COL_X(len))
+#endif
+
 #define SETCURSOR(col, row)    lcd_moveto(LCD_COL_X(col), LCD_ROW_Y(row))
 #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_COL_X_RJ(len), LCD_ROW_Y(row))
 #define SETCURSOR_X(col)       SETCURSOR(col, _lcdLineNr)
