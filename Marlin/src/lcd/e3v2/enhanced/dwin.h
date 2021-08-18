@@ -168,19 +168,6 @@ extern HMI_data_t HMI_data;
 
 enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
 
-// Show ICO
-void ICON_Print();
-void ICON_Prepare();
-void ICON_Control();
-void ICON_Leveling(bool show);
-void ICON_StartInfo(bool show);
-
-void ICON_Pause();
-void ICON_Continue();
-void ICON_Stop();
-
-void DWIN_Draw_Popup(uint8_t icon = 0, const char * const msg1 = 0, const char * const msg2 = 0, uint8_t button = 0);
-void DWIN_Popup_Continue(uint8_t icon, const char * const msg1, const char * const msg2);
 void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
 
 #if HAS_HOTEND || HAS_HEATED_BED

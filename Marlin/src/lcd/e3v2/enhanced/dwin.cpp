@@ -86,9 +86,6 @@
 
 #define PAUSE_HEAT
 
-#define USE_STRING_HEADINGS
-#define USE_STRING_TITLES
-
 #define MENU_CHAR_LIMIT  24
 
 // Print speed limit
@@ -219,166 +216,122 @@ void HMI_ToggleLanguage() {
   #endif
 }
 
+typedef struct { uint16_t x, y, w, h; } icon_info_t;
+typedef struct { uint16_t x, y[2], w, h; } text_info_t;
+
+void ICON_Button(const bool here, const int iconid, const icon_info_t &ico, const text_info_t (&txt)[2]) {
+  const bool cn = HMI_IsChinese();
+  DWINUI::Draw_Icon(iconid + here, ico.x, ico.y);
+  if (here) DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, ico.x, ico.y, ico.x + ico.w - 1, ico.y + ico.h - 1);
+  DWIN_Frame_AreaCopy(1, txt[cn].x, txt[cn].y[here], txt[cn].x + txt[cn].w - 1, txt[cn].y[here] + txt[cn].h - 1, ico.x + (ico.w - txt[cn].w) / 2, (ico.y + ico.h - 28) - txt[cn].h/2);
+}
+
+//
+// Main Menu: "Print"
+//
 void ICON_Print() {
-  if (select_page.now == 0) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Print_1, 17, 110);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 17, 110, 126, 209);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 1, 446, 28, 460, 58, 181);
-    else
-      DWIN_Frame_AreaCopy(1, 1, 451, 31, 463, 57, 181);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Print_0, 17, 110);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 1, 405, 28, 420, 58, 181);
-    else
-      DWIN_Frame_AreaCopy(1, 1, 423, 31, 435, 57, 181);
-  }
+  constexpr icon_info_t ico = { 17, 110, 110, 100 };
+  constexpr text_info_t txt[2] = {
+    { 1, { 417, 449 }, 30, 14 },
+    { 1, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_page.now == 0, ICON_Print_0, ico, txt);
 }
 
+//
+// Main Menu: "Prepare"
+//
 void ICON_Prepare() {
-  if (select_page.now == 1) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Prepare_1, 145, 110);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 145, 110, 254, 209);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 31, 446, 58, 460, 186, 181);
-    else
-      DWIN_Frame_AreaCopy(1, 33, 451, 82, 466, 175, 181);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Prepare_0, 145, 110);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 31, 405, 58, 420, 186, 181);
-    else
-      DWIN_Frame_AreaCopy(1, 33, 423, 82, 438, 175, 181);
-  }
+  constexpr icon_info_t ico = { 145, 110, 110, 100 };
+  constexpr text_info_t txt[2] = {
+    { 33, { 417, 449 }, 51, 14 },
+    { 31, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_page.now == 1, ICON_Prepare_0, ico, txt);
 }
 
+//
+// Main Menu: "Control"
+//
 void ICON_Control() {
-  if (select_page.now == 2) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Control_1, 17, 226);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 17, 226, 126, 325);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 61, 446, 88, 460, 58, 298);
-    else
-      DWIN_Frame_AreaCopy(1, 85, 451, 132, 463, 48, 298);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Control_0, 17, 226);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 61, 405, 88, 420, 58, 298);
-    else
-      DWIN_Frame_AreaCopy(1, 85, 423, 132, 434, 48, 298);
-  }
+  constexpr icon_info_t ico = { 17, 226, 110, 100 };
+  constexpr text_info_t txt[2] = {
+    { 85, { 417, 449 }, 46, 14 },
+    { 61, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_page.now == 2, ICON_Control_0, ico, txt);
 }
 
-void ICON_StartInfo(bool show) {
-  if (show) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Info_1, 145, 226);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 145, 226, 254, 325);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 91, 446, 118, 460, 186, 298);
-    else
-      DWIN_Frame_AreaCopy(1, 132, 451, 159, 466, 186, 298);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Info_0, 145, 226);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 91, 405, 118, 420, 186, 298);
-    else
-      DWIN_Frame_AreaCopy(1, 132, 423, 159, 435, 186, 298);
-  }
+//
+// Main Menu: "Info"
+//
+void ICON_StartInfo() {
+  constexpr icon_info_t ico = { 145, 226, 110, 100 };
+  constexpr text_info_t txt[2] = {
+    { 133, { 417, 449 }, 23, 14 },
+    {  91, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_page.now == 3, ICON_Info_0, ico, txt);
 }
 
-void ICON_Leveling(bool show) {
-  if (show) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Leveling_1, 145, 226);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 145, 226, 254, 325);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 211, 446, 238, 460, 186, 298);
-    else
-      DWIN_Frame_AreaCopy(1, 84, 437, 120,  449, 182, 298);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Leveling_0, 145, 226);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 211, 405, 238, 420, 186, 298);
-    else
-      DWIN_Frame_AreaCopy(1, 84, 465, 120, 478, 182, 298);
-  }
+//
+// Main Menu: "Level"
+//
+void ICON_Leveling() {
+  constexpr icon_info_t ico = { 145, 226, 110, 100 };
+  constexpr text_info_t txt[2] = {
+    {  88, { 433, 464 }, 36, 14 },
+    { 211, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_page.now == 3, ICON_Leveling_0, ico, txt);
 }
 
+//
+// Printing: "Tune"
+//
 void ICON_Tune() {
-  if (select_print.now == 0) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Setup_1, 8, 242);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 8, 242, 87, 341);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 121, 446, 148, 458, 34, 315);
-    else
-      DWIN_Frame_AreaCopy(1,   0, 466,  34, 476, 31, 315);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Setup_0, 8, 242);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 121, 405, 148, 420, 34, 315);
-    else
-      DWIN_Frame_AreaCopy(1,   0, 438,  32, 448, 31, 315);
-  }
+  constexpr icon_info_t ico = { 8, 232, 80, 100 };
+  constexpr text_info_t txt[2] = {
+    {   0, { 433, 464 }, 32, 14 },
+    { 121, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_print.now == 0, ICON_Setup_0, ico, txt);
 }
 
+//
+// Printing: "Pause"
+//
 void ICON_Pause() {
-  if (select_print.now == 1) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Pause_1, 96, 242);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 96, 242, 175, 341);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 181, 446, 208, 459, 124, 315);
-    else
-      DWIN_Frame_AreaCopy(1, 177, 451, 216, 462, 116, 315);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Pause_0, 96, 242);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 181, 405, 208, 420, 124, 315);
-    else
-      DWIN_Frame_AreaCopy(1, 177, 423, 215, 433, 116, 315);
-  }
+  constexpr icon_info_t ico = { 96, 232, 80, 100 };
+  constexpr text_info_t txt[2] = {
+    { 157, { 417, 449 }, 39, 14 },
+    { 181, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_print.now == 1, ICON_Pause_0, ico, txt);
 }
 
-void ICON_Continue() {
-  if (select_print.now == 1) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Continue_1, 96, 242);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 96, 242, 175, 341);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 1, 446, 28, 460, 124, 315);
-    else
-      DWIN_Frame_AreaCopy(1, 1, 452, 32, 464, 121, 315);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Continue_0, 96, 242);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 1, 405, 28, 420, 124, 315);
-    else
-      DWIN_Frame_AreaCopy(1, 1, 424, 31, 434, 121, 315);
-  }
+//
+// Printing: "Resume"
+//
+void ICON_Resume() {
+  constexpr icon_info_t ico = { 96, 232, 80, 100 };
+  constexpr text_info_t txt[2] = {
+    { 33, { 433, 464 }, 53, 14 },
+    {  1, { 405, 447 }, 27, 15 }
+  };
+  ICON_Button(select_print.now == 1, ICON_Continue_0, ico, txt);
 }
 
+//
+// Printing: "Stop"
+//
 void ICON_Stop() {
-  if (select_print.now == 2) {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Stop_1, 184, 242);
-    DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 184, 242, 263, 341);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 151, 446, 178, 459, 210, 315);
-    else
-      DWIN_Frame_AreaCopy(1, 218, 451, 249, 465, 209, 315);
-  }
-  else {
-    DWIN_ICON_Show(1, 0, 0, ICON, ICON_Stop_0, 184, 242);
-    if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1, 151, 405, 178, 420, 210, 315);
-    else
-      DWIN_Frame_AreaCopy(1, 218, 423, 247, 436, 209, 315);
-  }
+  constexpr icon_info_t ico = { 184, 232, 80, 100 };
+  constexpr text_info_t txt[2] = {
+    { 196, { 417, 449 }, 29, 14 },
+    { 151, { 405, 447 }, 27, 12 }
+  };
+  ICON_Button(select_print.now == 2, ICON_Stop_0, ico, txt);
 }
 
 void Draw_Menu_Cursor(const uint8_t line) {
@@ -481,7 +434,7 @@ void Clear_Popup_Area() {
   DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
 }
 
-void DWIN_Draw_Popup(uint8_t icon, const char * const msg1, const char * const msg2, uint8_t button) {
+void DWIN_Draw_Popup(uint8_t icon=0, const char * const msg1=nullptr, const char * const msg2=nullptr, uint8_t button=0) {
   DWINUI::ClearMenuArea();
   Draw_Popup_Bkgd_60();
   if (icon) DWINUI::Draw_Icon(icon, 101, 105);
@@ -637,12 +590,19 @@ void Draw_Print_ProgressRemain() {
   DWINUI::Draw_String(HMI_data.Text_Color, HMI_data.Background_Color, 181, 192, buf);
 }
 
+void ICON_ResumeOrPause() {
+  if (printingIsPaused() || HMI_flag.pause_flag || HMI_flag.pause_action)
+    ICON_Resume();
+  else
+    ICON_Pause();
+}
+
 void Draw_PrintProcess() {
   DWINUI::ClearMenuArea();
   Draw_Print_Labels();
 
   ICON_Tune();
-  if (printingIsPaused() || HMI_flag.pause_action) ICON_Continue(); else ICON_Pause();
+  ICON_ResumeOrPause();
   ICON_Stop();
 
   DWIN_Print_Header(sdprint ? card.longest_filename() : nullptr);
@@ -700,7 +660,7 @@ void Draw_Main_Menu() {
   ICON_Print();
   ICON_Prepare();
   ICON_Control();
-  TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(select_page.now == 3);
+  TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)();
   DWIN_UpdateLCD();
 }
 
@@ -1136,7 +1096,7 @@ void HMI_MainMenu() {
         case 0: ICON_Print(); break;
         case 1: ICON_Print(); ICON_Prepare(); break;
         case 2: ICON_Prepare(); ICON_Control(); break;
-        case 3: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
+        case 3: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
       }
     }
   }
@@ -1145,8 +1105,8 @@ void HMI_MainMenu() {
       switch (select_page.now) {
         case 0: ICON_Print(); ICON_Prepare(); break;
         case 1: ICON_Prepare(); ICON_Control(); break;
-        case 2: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(0); break;
-        case 3: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
+        case 2: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
+        case 3: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
       }
     }
   }
@@ -1308,10 +1268,10 @@ void HMI_Printing() {
         case 0: ICON_Tune(); break;
         case 1:
           ICON_Tune();
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           break;
         case 2:
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           ICON_Stop();
           break;
       }
@@ -1322,10 +1282,10 @@ void HMI_Printing() {
       switch (select_print.now) {
         case 0:
           ICON_Tune();
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           break;
         case 1:
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           ICON_Stop();
           break;
         case 2: ICON_Stop(); break;
@@ -1396,7 +1356,7 @@ void HMI_PauseOrStop() {
     if (select_print.now == 1) { // pause window
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
-        ICON_Continue();
+        ICON_Resume();
         queue.inject_P(PSTR("M25"));
       }
       else {
@@ -1549,7 +1509,7 @@ void EachMomentUpdate() {
     else if (HMI_flag.pause_flag != printingIsPaused()) {
       // print status update
       HMI_flag.pause_flag = printingIsPaused();
-      if (HMI_flag.pause_flag) ICON_Continue(); else ICON_Pause();
+      ICON_ResumeOrPause();
     }
   }
 
@@ -2018,12 +1978,10 @@ void HMI_LockScreen() {
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   LockScreen.onEncoderState(encoder_diffState);
   if (LockScreen.isUnlocked()) {
-    if (CurrentMenu==AdvancedSettings) { 
+    if (CurrentMenu == AdvancedSettings)
       Draw_AdvSet_Menu();
-    }
-    else {
+    else
       Draw_Tune_Menu();
-    }
   }
 }
 
