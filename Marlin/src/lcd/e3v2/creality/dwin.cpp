@@ -175,7 +175,7 @@ MenuClass *MoveMenu = nullptr;
 MenuClass *ControlMenu = nullptr;
 MenuClass *AdvancedSettings = nullptr;
 TERN_(HAS_HOME_OFFSET, MenuClass *HomeOffMenu = nullptr);
-TERN_(HAS_HOME_OFFSET, MenuClass *ProbeSetMenu = nullptr);
+TERN_(HAS_BED_PROBE, MenuClass *ProbeSetMenu = nullptr);
 MenuClass *SelectColorMenu = nullptr;
 MenuClass *GetColorMenu = nullptr;
 MenuClass *TuneMenu = nullptr;
@@ -422,8 +422,8 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
   DWIN_Draw_Line(HMI_data.SplitLine_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 33);
 }
 
-void Draw_Chkb_Line(const uint8_t line, const bool mode) {
-  DWINUI::Draw_Checkbox(HMI_data.Text_Color, HMI_data.Background_Color, VALX + 9, MBASE(line) - 1, mode);
+void Draw_Chkb_Line(const uint8_t line, const bool checked) {
+  DWINUI::Draw_Checkbox(HMI_data.Text_Color, HMI_data.Background_Color, VALX + 16, MBASE(line) - 1, checked);
 }
 
 void Draw_Menu_IntValue(uint16_t bcolor, const uint8_t line, uint8_t iNum, const uint16_t value=0) {
@@ -1383,7 +1383,7 @@ void HMI_PrintDone() {
   }
 }
 
-// Pause and Stop window
+// Pause or Stop popup
 void HMI_PauseOrStop() {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
@@ -1819,7 +1819,7 @@ void DWIN_Print_Header(const char *text = nullptr) {
     LOOP_L_N(i, size) headertxt[i] = text[i];
     headertxt[size] = '\0';
   }
-  if (checkkey == PrintProcess || checkkey == PrintDone) {
+  if (checkkey == PrintProcess || checkkey == PrintDone){
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 60, DWIN_WIDTH, 60+16);
     DWINUI::Draw_CenteredString(60, headertxt);
   }
@@ -1935,6 +1935,10 @@ void DWIN_LoadSettings(const char *buff) {
 void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
   DWIN_Draw_Popup(ICON_BLTouch, lcd_error, lcd_component);
   DWIN_UpdateLCD();
+}
+
+void MarlinUI::init() {
+  DWINUI::Init();
 }
 
 void DWIN_RebootScreen() {
@@ -2156,7 +2160,7 @@ void SetPID(celsius_t t, heater_id_t h) {
     dtostrf(Y_CENTER, 1, 1, str_2));
   gcode.process_subcommands_now_P(cmd);
   planner.synchronize();
-  thermalManager.PID_autotune(t, H_E0, 10, true);
+  thermalManager.PID_autotune(t, h, 10, true);
 }
 #if HAS_HOTEND
   void HotendPID() { SetPID(ui.material_preset[0].hotend_temp, H_E0); }
