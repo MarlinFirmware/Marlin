@@ -178,9 +178,11 @@
 //
 // Misc. Functions
 //
-#define MT_DET_1_PIN                        PA4
-#define MT_DET_2_PIN                        PE6
-#define MT_DET_PIN_INVERTING               false  // LVGL UI filament RUNOUT PIN STATE
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_2_PIN                      PE6
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN            MT_DET_1_PIN
@@ -189,35 +191,29 @@
   #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
-//
-// Enable MKSPWC support
-//
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                    PA13  // PW_DET
+#endif
+
 //#define SUICIDE_PIN                       PB2
 //#define LED_PIN                           PB2
 //#define KILL_PIN                          PA2
-//#define KILL_PIN_STATE                    HIGH
+//#define KILL_PIN_STATE                    LOW
 
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)                          // MKSPWC
-  #if HAS_TFT_LVGL_UI
-    #error "PSU_CONTROL cannot be used with TFT_LVGL_UI. Disable PSU_CONTROL to continue."
+#if ENABLED(MKS_PWC)
+  #if ENABLED(TFT_LVGL_UI)
+    #undef PSU_CONTROL
+    #undef MKS_PWC
+    #define SUICIDE_PIN                     PB2
+    #define SUICIDE_PIN_STATE               LOW
+  #else
+    #define PS_ON_PIN                       PB2   // PW_OFF
   #endif
-  #ifndef PS_ON_PIN
-    #define PS_ON_PIN                       PB2   // SUICIDE
-  #endif
-  #ifndef KILL_PIN
-    #define KILL_PIN                        PA13  // PW_DET
-    #define KILL_PIN_STATE                  HIGH
-  #endif
-#else
-  #define SUICIDE_PIN                       PB2
-  #define SUICIDE_PIN_INVERTING            false
-#endif
-
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PA13  // PW_DET
+  #define KILL_PIN                          PA13  // PW_DET
+  #define KILL_PIN_STATE                    HIGH
 #endif
 
 // Random Info
@@ -232,9 +228,9 @@
 
 // MKS WIFI MODULE
 #if ENABLED(MKS_WIFI_MODULE)
-  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
-  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
-  #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
+  #define WIFI_IO0_PIN                      PC13
+  #define WIFI_IO1_PIN                      PC7
+  #define WIFI_RESET_PIN                    PE9
 #endif
 
 // MKS TEST
@@ -276,10 +272,10 @@
 #define SPI_DEVICE                             2
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
-  #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PC3
-  #define W25QXX_MISO_PIN                   PC2
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12
+  #define SPI_FLASH_MOSI_PIN                PC3
+  #define SPI_FLASH_MISO_PIN                PC2
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
 
 /**

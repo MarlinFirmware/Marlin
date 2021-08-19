@@ -79,7 +79,6 @@
   // Graphical LCD uses the menu font size for cursor positioning
   #define LCD_COL_X(col) ((    (col)) * (MENU_FONT_WIDTH))
   #define LCD_ROW_Y(row) ((1 + (row)) * (MENU_LINE_HEIGHT))
-  #define LCD_COL_X_RJ(len) (LCD_WIDTH - LCD_COL_X(len))
 
 #else
 
@@ -99,7 +98,6 @@
   // Character LCD uses direct cursor positioning
   #define LCD_COL_X(col) (col)
   #define LCD_ROW_Y(row) (row)
-  #define LCD_COL_X_RJ(len) (LCD_PIXEL_WIDTH - LCD_COL_X(len))
 
 #endif
 
@@ -107,6 +105,7 @@
   #define MENU_LINE_HEIGHT MENU_FONT_HEIGHT
 #endif
 
+#define LCD_COL_X_RJ(len)      (LCD_PIXEL_WIDTH - LCD_COL_X(len))
 #define SETCURSOR(col, row)    lcd_moveto(LCD_COL_X(col), LCD_ROW_Y(row))
 #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_COL_X_RJ(len), LCD_ROW_Y(row))
 #define SETCURSOR_X(col)       SETCURSOR(col, _lcdLineNr)

@@ -1192,7 +1192,7 @@ void setup() {
 
   #if HAS_SUICIDE
     SETUP_LOG("SUICIDE_PIN");
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
   #endif
 
   #ifdef JTAGSWD_RESET
@@ -1591,7 +1591,7 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();
     HMI_Init();
-    DWIN_JPG_CacheTo1(Language_English);
+    HMI_SetLanguageCache();
     HMI_StartFrame(true);
     DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
   #endif

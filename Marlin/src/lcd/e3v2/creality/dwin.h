@@ -163,18 +163,6 @@ typedef struct {
 extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
 
-// Show ICO
-void ICON_Print(bool show);
-void ICON_Prepare(bool show);
-void ICON_Control(bool show);
-void ICON_Leveling(bool show);
-void ICON_StartInfo(bool show);
-
-void ICON_Setting(bool show);
-void ICON_Pause(bool show);
-void ICON_Continue(bool show);
-void ICON_Stop(bool show);
-
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
   void DWIN_Popup_Temperature(const bool toohigh);
@@ -215,6 +203,7 @@ void HMI_MaxFeedspeedXYZE();
 void HMI_MaxAccelerationXYZE();
 void HMI_MaxJerkXYZE();
 void HMI_StepXYZE();
+void HMI_SetLanguageCache();
 
 void update_variable();
 void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
@@ -260,7 +249,6 @@ void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_StatusChanged(const char *text);
 void DWIN_StatusChanged_P(PGM_P const pstr);
-void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode /* = false*/);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
