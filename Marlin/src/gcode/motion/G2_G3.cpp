@@ -39,14 +39,18 @@
   #undef N_ARC_CORRECTION
   #define N_ARC_CORRECTION 1
 #endif
+#ifndef MIN_CIRCLE_SEGMENTS
+  #define MIN_CIRCLE_SEGMENTS 72  // 5° per segment
+#endif
+#if !defined(MAX_ARC_SEGMENT_MM) && defined(MIN_ARC_SEGMENT_MM)
+  #define MAX_ARC_SEGMENT_MM MIN_ARC_SEGMENT_MM
+#elif !defined(MIN_ARC_SEGMENT_MM) && defined(MAX_ARC_SEGMENT_MM)
+  #define MIN_ARC_SEGMENT_MM MAX_ARC_SEGMENT_MM
+#endif
 
 /**
- * Plan an arc in 2 dimensions, with optional linear motion in a 3rd dimension
- *
- * The arc is traced by generating many small linear segments, as configured by
- * MM_PER_ARC_SEGMENT (Default 1mm). In the future we hope more slicers will include
- * an option to generate G2/G3 arcs for curved surfaces, as this will allow faster
- * boards to produce much smoother curved surfaces.
+ * Plan an arc in 2 dimensions, with linear motion in the other axes.
+ * The arc is traced with many small linear segments according to the configuration.
  */
 void plan_arc(
   const xyze_pos_t &cart,   // Destination position
@@ -76,20 +80,18 @@ void plan_arc(
               rt_Y = cart[q_axis] - center_Q
               OPTARG(HAS_Z_AXIS, start_L = current_position[l_axis]);
 
-  #ifdef MIN_ARC_SEGMENTS
-    uint16_t min_segments = MIN_ARC_SEGMENTS;
-  #else
-    constexpr uint16_t min_segments = 1;
-  #endif
-
   // Angle of rotation between position and target from the circle center.
   float angular_travel, abs_angular_travel;
+
+  // Minimum number of segments in an arc move
+  uint16_t min_segments = 1;
 
   // Do a full circle if starting and ending positions are "identical"
   if (NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
     // Preserve direction for circles
     angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
     abs_angular_travel = RADIANS(360);
+    min_segments = MIN_CIRCLE_SEGMENTS;
   }
   else {
     // Calculate the angle
@@ -106,10 +108,9 @@ void plan_arc(
 
     abs_angular_travel = ABS(angular_travel);
 
-    #ifdef MIN_ARC_SEGMENTS
-      min_segments = CEIL(min_segments * abs_angular_travel / RADIANS(360));
-      NOLESS(min_segments, 1U);
-    #endif
+    // Apply minimum segments to the arc
+    const float portion_of_circle = abs_angular_travel / RADIANS(360);  // Portion of a complete circle (0 < N < 1)
+    min_segments = CEIL((MIN_CIRCLE_SEGMENTS) * portion_of_circle);     // Minimum segments for the arc
   }
 
   #if HAS_Z_AXIS
@@ -119,7 +120,7 @@ void plan_arc(
     float extruder_travel = cart.e - current_position.e;
   #endif
 
-  // If circling around...
+  // If "P" specified circles, call plan_arc recursively then continue with the rest of the arc
   if (TERN0(ARC_P_CIRCLES, circles)) {
     const float total_angular = abs_angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
               part_per_circle = RADIANS(360) / total_angular;             // Each circle's part of the total
@@ -141,26 +142,37 @@ void plan_arc(
     TERN_(HAS_EXTRUDERS, extruder_travel = cart.e - current_position.e);
   }
 
-  const float flat_mm = radius * abs_angular_travel,
-              mm_of_travel = TERN_(HAS_Z_AXIS, linear_travel ? HYPOT(flat_mm, linear_travel) :) flat_mm;
+  const float flat_mm = radius * abs_angular_travel,                      // Millimeters in the arc
+              mm_of_travel = TERN_(HAS_Z_AXIS, linear_travel ? HYPOT(flat_mm, linear_travel) :) flat_mm;  // Real distance according to Pythagoras
+
+  // Return if the move is near zero
   if (mm_of_travel < 0.001f) return;
 
+  // Feedrate for the move, scaled by the feedrate multiplier
   const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
-  // Start with a nominal segment length
-  float seg_length = (
-    #ifdef ARC_SEGMENTS_PER_R
-      constrain(MM_PER_ARC_SEGMENT * radius, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R)
-    #elif ARC_SEGMENTS_PER_SEC
-      _MAX(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC), MM_PER_ARC_SEGMENT)
+  // Get the nominal segment length based on settings
+  float nominal_segment_mm = (
+    #if ARC_SEGMENTS_PER_SEC  // Length based on segments per second and feedrate
+      constrain(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC), MIN_ARC_SEGMENT_MM, MAX_ARC_SEGMENT_MM)
     #else
-      MM_PER_ARC_SEGMENT
+      MAX_ARC_SEGMENT_MM      // Length using the maximum segment size
     #endif
   );
-  // Divide total travel by nominal segment length
-  uint16_t segments = FLOOR(mm_of_travel / seg_length);
-  NOLESS(segments, min_segments);         // At least some segments
-  seg_length = mm_of_travel / segments;
+
+  // Number of whole segments based on the nominal segment length
+  const float nominal_segments = _MAX(FLOOR(flat_mm / nominal_segment_mm), min_segments);
+
+  // A new segment length based on the required minimum
+  const float segment_mm = constrain(flat_mm / nominal_segments, MIN_ARC_SEGMENT_MM, MAX_ARC_SEGMENT_MM);
+
+  // The number of whole segments in the arc, ignoring the remainder
+  uint16_t segments = FLOOR(flat_mm / segment_mm);
+
+  // Are the segments now too few to reach the destination?
+  const float segmented_length = segment_mm * segments;
+  const bool tooshort = segmented_length < flat_mm - 0.0001f;
+  const float proportion = tooshort ? segmented_length / flat_mm : 1.0f;
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
@@ -190,17 +202,20 @@ void plan_arc(
    */
   // Vector rotation matrix values
   xyze_pos_t raw;
-  const float theta_per_segment = angular_travel / segments,
+  const float theta_per_segment = proportion * angular_travel / segments,
               sq_theta_per_segment = sq(theta_per_segment),
               sin_T = theta_per_segment - sq_theta_per_segment * theta_per_segment / 6,
               cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
   #if HAS_Z_AXIS && DISABLED(AUTO_BED_LEVELING_UBL)
-    const float linear_per_segment = linear_travel / segments;
+    const float linear_per_segment = proportion * linear_travel / segments;
   #endif
   #if HAS_EXTRUDERS
-    const float extruder_per_segment = extruder_travel / segments;
+    const float extruder_per_segment = proportion * extruder_travel / segments;
   #endif
+
+  // For shortened segments, run all but the remainder in the loop
+  if (tooshort) segments++;
 
   // Initialize the linear axis
   TERN_(HAS_Z_AXIS, raw[l_axis] = current_position[l_axis]);
@@ -209,7 +224,7 @@ void plan_arc(
   TERN_(HAS_EXTRUDERS, raw.e = current_position.e);
 
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = scaled_fr_mm_s / seg_length;
+    const float inv_duration = scaled_fr_mm_s / segment_mm;
   #endif
 
   millis_t next_idle_ms = millis() + 200UL;
@@ -221,8 +236,9 @@ void plan_arc(
   for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
     thermalManager.manage_heater();
-    if (ELAPSED(millis(), next_idle_ms)) {
-      next_idle_ms = millis() + 200UL;
+    const millis_t ms = millis();
+    if (ELAPSED(ms, next_idle_ms)) {
+      next_idle_ms = ms + 200UL;
       idle();
     }
 
