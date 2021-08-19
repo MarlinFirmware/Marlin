@@ -68,8 +68,8 @@
 //
 #define TEMP_0_PIN                             0  // Analog Input (HOTEND0 thermistor)
 #define TEMP_1_PIN                             2  // Analog Input (unused)
-#define TEMP_2_PIN                             5  // Analog Input (OnBoard thermistor beta 3950)
 #define TEMP_BED_PIN                           1  // Analog Input (BED thermistor)
+#define TEMP_BOARD_PIN                         5  // Analog Input (OnBoard thermistor beta 3950)
 
 // SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
