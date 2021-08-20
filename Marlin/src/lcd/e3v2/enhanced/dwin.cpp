@@ -3641,9 +3641,9 @@ void Draw_Steps_Menu() {
     CurrentMenu = StepsMenu;
     DWINUI::MenuItemsPrepare(5);
     ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Motion_Menu);
-    ADDMENUITEM(ICON_StepX, GET_TEXT(MSG_X_STEPS), onDrawStepsX, SetStepsX);
-    ADDMENUITEM(ICON_StepY, GET_TEXT(MSG_Y_STEPS), onDrawStepsY, SetStepsY);
-    ADDMENUITEM(ICON_StepZ, GET_TEXT(MSG_Z_STEPS), onDrawStepsZ, SetStepsZ);
+    ADDMENUITEM(ICON_StepX, GET_TEXT(MSG_A_STEPS), onDrawStepsX, SetStepsX);
+    ADDMENUITEM(ICON_StepY, GET_TEXT(MSG_B_STEPS), onDrawStepsY, SetStepsY);
+    ADDMENUITEM(ICON_StepZ, GET_TEXT(MSG_C_STEPS), onDrawStepsZ, SetStepsZ);
     TERN_(HAS_HOTEND, ADDMENUITEM(ICON_StepE, GET_TEXT(MSG_E_STEPS), onDrawStepsE, SetStepsE));
   }
   CurrentMenu->Draw();
