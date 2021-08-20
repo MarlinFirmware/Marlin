@@ -146,7 +146,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bed Leveling");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Level Bed");
   PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bed Tramming");
-  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Adjust Z until the probe triggers.");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Adjust bed until the probe triggers.");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Corners within tolerance. Bed trammed.");
   PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Good Points: ");
   PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Last Z: ");
