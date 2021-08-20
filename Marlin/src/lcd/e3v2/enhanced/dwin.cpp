@@ -3418,10 +3418,10 @@ void Draw_MaxAccel_Menu() {
     SetMenuTitle({1, 16, 28, 13}, {144, 16, 46, 11}, GET_TEXT_F(MSG_ACCELERATION)); // TODO: Chinese, English "Bed Tramming" JPG
     DWINUI::MenuItemsPrepare(5);
     ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Motion_Menu);
-    ADDMENUITEM(ICON_MaxAccX, GET_TEXT(MSG_MAXACCEL_X), onDrawMaxAccelX, SetMaxAccelX);
-    ADDMENUITEM(ICON_MaxAccY, GET_TEXT(MSG_MAXACCEL_Y), onDrawMaxAccelY, SetMaxAccelY);
-    ADDMENUITEM(ICON_MaxAccZ, GET_TEXT(MSG_MAXACCEL_Z), onDrawMaxAccelZ, SetMaxAccelZ);
-    TERN_(HAS_HOTEND, ADDMENUITEM(ICON_MaxAccE, GET_TEXT(MSG_MAXACCEL_E), onDrawMaxAccelE, SetMaxAccelE));
+    ADDMENUITEM(ICON_MaxAccX, GET_TEXT(MSG_AMAX_A), onDrawMaxAccelX, SetMaxAccelX);
+    ADDMENUITEM(ICON_MaxAccY, GET_TEXT(MSG_AMAX_B), onDrawMaxAccelY, SetMaxAccelY);
+    ADDMENUITEM(ICON_MaxAccZ, GET_TEXT(MSG_AMAX_C), onDrawMaxAccelZ, SetMaxAccelZ);
+    TERN_(HAS_HOTEND, ADDMENUITEM(ICON_MaxAccE, GET_TEXT(MSG_AMAX_E), onDrawMaxAccelE, SetMaxAccelE));
   }
   CurrentMenu->Draw();
   DWIN_StatusChanged(nullptr);
@@ -3436,10 +3436,10 @@ void Draw_MaxAccel_Menu() {
       SetMenuTitle({1, 16, 28, 13}, {144, 16, 46, 11}, GET_TEXT_F(MSG_JERK));
       DWINUI::MenuItemsPrepare(5);
       ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Motion_Menu);
-      ADDMENUITEM(ICON_MaxSpeedJerkX, GET_TEXT(MSG_MAXJERK_X), onDrawMaxJerkX, SetMaxJerkX);
-      ADDMENUITEM(ICON_MaxSpeedJerkY, GET_TEXT(MSG_MAXJERK_Y), onDrawMaxJerkY, SetMaxJerkY);
-      ADDMENUITEM(ICON_MaxSpeedJerkZ, GET_TEXT(MSG_MAXJERK_Z), onDrawMaxJerkZ, SetMaxJerkZ);
-      TERN_(HAS_HOTEND, ADDMENUITEM(ICON_MaxSpeedJerkE, GET_TEXT(MSG_MAXJERK_E), onDrawMaxJerkE, SetMaxJerkE));
+      ADDMENUITEM(ICON_MaxSpeedJerkX, GET_TEXT(MSG_VA_JERK), onDrawMaxJerkX, SetMaxJerkX);
+      ADDMENUITEM(ICON_MaxSpeedJerkY, GET_TEXT(MSG_VB_JERK), onDrawMaxJerkY, SetMaxJerkY);
+      ADDMENUITEM(ICON_MaxSpeedJerkZ, GET_TEXT(MSG_VC_JERK), onDrawMaxJerkZ, SetMaxJerkZ);
+      TERN_(HAS_HOTEND, ADDMENUITEM(ICON_MaxSpeedJerkE, GET_TEXT(MSG_VE_JERK), onDrawMaxJerkE, SetMaxJerkE));
     }
     CurrentMenu->Draw();
     DWIN_StatusChanged(nullptr);
@@ -3454,9 +3454,9 @@ void Draw_Steps_Menu() {
     SetMenuTitle({1, 16, 28, 13}, {144, 16, 46, 11}, GET_TEXT_F(MSG_STEPS_PER_MM)); // TODO: Chinese, English "Bed Tramming" JPG
     DWINUI::MenuItemsPrepare(5);
     ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Motion_Menu);
-    ADDMENUITEM(ICON_StepX, GET_TEXT(MSG_X_STEPS), onDrawStepsX, SetStepsX);
-    ADDMENUITEM(ICON_StepY, GET_TEXT(MSG_Y_STEPS), onDrawStepsY, SetStepsY);
-    ADDMENUITEM(ICON_StepZ, GET_TEXT(MSG_Z_STEPS), onDrawStepsZ, SetStepsZ);
+    ADDMENUITEM(ICON_StepX, GET_TEXT(MSG_A_STEPS), onDrawStepsX, SetStepsX);
+    ADDMENUITEM(ICON_StepY, GET_TEXT(MSG_B_STEPS), onDrawStepsY, SetStepsY);
+    ADDMENUITEM(ICON_StepZ, GET_TEXT(MSG_C_STEPS), onDrawStepsZ, SetStepsZ);
     TERN_(HAS_HOTEND, ADDMENUITEM(ICON_StepE, GET_TEXT(MSG_E_STEPS), onDrawStepsE, SetStepsE));
   }
   CurrentMenu->Draw();
