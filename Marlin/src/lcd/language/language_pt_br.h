@@ -244,6 +244,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("arrancada V") LCD_STR_A;
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("arrancada V") LCD_STR_B;
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("arrancada V") LCD_STR_C;
+  PROGMEM Language_Str MSG_VI_JERK                         = _UxGT("arrancada V") LCD_STR_I;
+  PROGMEM Language_Str MSG_VJ_JERK                         = _UxGT("arrancada V") LCD_STR_J;
+  PROGMEM Language_Str MSG_VK_JERK                         = _UxGT("arrancada V") LCD_STR_K;
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("arrancada VE");
   PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("Desv. Junção");
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("Velocidade");
@@ -255,6 +258,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("Passo ") LCD_STR_A _UxGT("/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("Passo ") LCD_STR_B _UxGT("/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("Passo ") LCD_STR_C _UxGT("/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = _UxGT("Passo ") LCD_STR_I _UxGT("/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = _UxGT("Passo ") LCD_STR_J _UxGT("/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = _UxGT("Passo ") LCD_STR_K _UxGT("/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("*/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
