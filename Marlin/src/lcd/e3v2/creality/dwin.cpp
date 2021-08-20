@@ -2434,7 +2434,7 @@ void Item_Adv_HomeOffsets(const uint8_t row) {
       #ifdef USE_STRING_TITLES
         DWIN_Draw_Label(row, GET_TEXT_F(MSG_SET_HOME_OFFSETS));
       #else
-        say_probe_offs_en(0, row);
+        say_probe_offs_en(row);
       #endif
     }
     Draw_Menu_Line(row, ICON_ProbeOff);
