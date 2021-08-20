@@ -132,7 +132,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Tengelyek mozgatása");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Ágy szintezés");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Ágy szintezése");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Elektromos segéd");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Sarok szint");
   PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Ágy emelése a szonda váltásig");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Minden sarok tolerancián belül. Szint jó.");
   PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Jó pontok: ");
@@ -582,12 +582,12 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max höfok");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Meghajtási erö");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = AXIS4_STR _UxGT(" Meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = AXIS5_STR _UxGT(" Meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = AXIS6_STR _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = LCD_STR_A _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = LCD_STR_B _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = LCD_STR_C _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Meghajtó %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E meghajtó %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC CSATLAKOZÁSI HIBA");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM írása");

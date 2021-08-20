@@ -167,6 +167,9 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("V") LCD_STR_A _UxGT("-astindua");
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("V") LCD_STR_B _UxGT("-astindua");
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("V") LCD_STR_C _UxGT("-astindua");
+  PROGMEM Language_Str MSG_VI_JERK                         = _UxGT("V") LCD_STR_I _UxGT("-astindua");
+  PROGMEM Language_Str MSG_VJ_JERK                         = _UxGT("V") LCD_STR_J _UxGT("-astindua");
+  PROGMEM Language_Str MSG_VK_JERK                         = _UxGT("V") LCD_STR_K _UxGT("-astindua");
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("Ve-astindua");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VBidaia min");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-retrakt");
@@ -175,6 +178,9 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" pausoak/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" pausoak/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" pausoak/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" pausoak/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" pausoak/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" pausoak/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E pausoak/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* pausoak/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Tenperatura");
@@ -294,9 +300,12 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Tenp. Maximoa");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Elikadura-iturria");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Driver-aren potentzia");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = LCD_STR_A _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = LCD_STR_B _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = LCD_STR_C _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Idatzi DAC EEPROM");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("HARIZPIA ALDATU");
