@@ -110,10 +110,16 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_A;
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_B;
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_C;
+  PROGMEM Language_Str MSG_VI_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_I;
+  PROGMEM Language_Str MSG_VJ_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_J;
+  PROGMEM Language_Str MSG_VK_JERK                         = _UxGT("Vαντίδραση ") LCD_STR_K;
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("Vαντίδραση E");
   PROGMEM Language_Str MSG_VMAX_A                          = _UxGT("Vμεγ ") LCD_STR_A;
   PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("Vμεγ ") LCD_STR_B;
   PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("Vμεγ ") LCD_STR_C;
+  PROGMEM Language_Str MSG_VMAX_I                          = _UxGT("Vμεγ ") LCD_STR_I;
+  PROGMEM Language_Str MSG_VMAX_J                          = _UxGT("Vμεγ ") LCD_STR_J;
+  PROGMEM Language_Str MSG_VMAX_K                          = _UxGT("Vμεγ ") LCD_STR_K;
   PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("Vμεγ ") LCD_STR_E;
   PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("Vμεγ *");
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("Vελαχ");
@@ -122,6 +128,9 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Aμεγ ") LCD_STR_A;
   PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Aμεγ ") LCD_STR_B;
   PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Aμεγ ") LCD_STR_C;
+  PROGMEM Language_Str MSG_AMAX_I                          = _UxGT("Aμεγ ") LCD_STR_I;
+  PROGMEM Language_Str MSG_AMAX_J                          = _UxGT("Aμεγ ") LCD_STR_J;
+  PROGMEM Language_Str MSG_AMAX_K                          = _UxGT("Aμεγ ") LCD_STR_K;
   PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("Aμεγ ") LCD_STR_E;
   PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Aμεγ *");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("Α-ανάσυρση");
@@ -130,6 +139,9 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_A_STEPS                         = _UxGT("Bήματα ") LCD_STR_A _UxGT(" ανά μμ");
   PROGMEM Language_Str MSG_B_STEPS                         = _UxGT("Bήματα ") LCD_STR_B _UxGT(" ανά μμ");
   PROGMEM Language_Str MSG_C_STEPS                         = _UxGT("Bήματα ") LCD_STR_C _UxGT(" ανά μμ");
+  PROGMEM Language_Str MSG_I_STEPS                         = _UxGT("Bήματα ") LCD_STR_I _UxGT(" ανά μμ");
+  PROGMEM Language_Str MSG_J_STEPS                         = _UxGT("Bήματα ") LCD_STR_J _UxGT(" ανά μμ");
+  PROGMEM Language_Str MSG_K_STEPS                         = _UxGT("Bήματα ") LCD_STR_K _UxGT(" ανά μμ");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("Bήματα Ε ανά μμ");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("Bήματα * ανά μμ");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Θερμοκρασία");

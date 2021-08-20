@@ -602,9 +602,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Temp");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Drive Strength");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = LCD_STR_A _UxGT(" Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = LCD_STR_B _UxGT(" Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = LCD_STR_C _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = LCD_STR_A _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = LCD_STR_B _UxGT(" Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = LCD_STR_C _UxGT(" Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Driver %");
   PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Driver %");
