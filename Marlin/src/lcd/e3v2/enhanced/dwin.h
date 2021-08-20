@@ -298,7 +298,7 @@ void HMI_Flow();
 
 // Menu drawing functions
 void Draw_Control_Menu();
-void Draw_AdvSet_Menu();
+void Draw_AdvancedSettings_Menu();
 void Draw_Prepare_Menu();
 void Draw_Move_Menu();
 void Draw_LevBedCorners_Menu();
