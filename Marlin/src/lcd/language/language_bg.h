@@ -99,9 +99,12 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-откат");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-travel");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Стъпки/mm");
-  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("стъпки/mm");
-  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("стъпки/mm");
-  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("стъпки/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" стъпки/mm");
+  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" стъпки/mm");
+  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" стъпки/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" стъпки/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" стъпки/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" стъпки/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E стъпки/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* стъпки/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");

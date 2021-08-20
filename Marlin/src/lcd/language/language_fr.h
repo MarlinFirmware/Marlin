@@ -110,7 +110,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
-  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Assistant Molettes");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Niveau des coins");
   PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Relever le coin jusqu'à la sonde");
   PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Coins dans la tolérance. Niveau lit ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Coin suivant");
@@ -521,12 +521,12 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Temp Max");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Alim.");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Puiss. moteur ");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("Driver X %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Driver Y %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Driver Z %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Driver " AXIS4_STR " %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Driver " AXIS5_STR " %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Driver " AXIS6_STR " %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = _UxGT("Driver ") LCD_STR_A _UxGT(" %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = _UxGT("Driver ") LCD_STR_B _UxGT(" %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = _UxGT("Driver ") LCD_STR_C _UxGT(" %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Driver ") LCD_STR_I _UxGT(" %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Driver ") LCD_STR_J _UxGT(" %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Driver ") LCD_STR_K _UxGT(" %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("Driver E %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM sauv.");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("ERREUR CONNEXION TMC");
