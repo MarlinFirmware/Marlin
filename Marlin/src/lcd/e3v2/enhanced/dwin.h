@@ -311,8 +311,8 @@ void Draw_Motion_Menu();
 TERN_(ADVANCED_PAUSE_FEATURE, void Draw_FilamentMan_Menu());
 TERN_(MESH_BED_LEVELING, void Draw_ManualMesh_Menu());
 #if HAS_HOTEND
-  void Draw_PreheatPLA_Menu();
-  void Draw_PreheatABS_Menu();
+  void Draw_Preheat1_Menu();
+  void Draw_Preheat2_Menu();
   void Draw_Preheat3_Menu();
 #endif
 void Draw_Temperature_Menu();

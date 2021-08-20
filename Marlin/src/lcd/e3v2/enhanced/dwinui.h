@@ -137,17 +137,17 @@
 #define ICON_HomeOffsetX          ICON_StepX
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
-#define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_LevBed               ICON_SetEndTemp
 #define ICON_Lock                 ICON_Cool
+#define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
 #define ICON_Park                 ICON_Motion
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_PIDNozzle            ICON_SetEndTemp
-#define ICON_ProbeSet             ICON_SetEndTemp
 #define ICON_ProbeOffsetX         ICON_StepX
 #define ICON_ProbeOffsetY         ICON_StepY
+#define ICON_ProbeSet             ICON_SetEndTemp
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Reboot               ICON_ResumeEEPROM
 #define ICON_Scolor               ICON_MaxSpeed
@@ -239,18 +239,14 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
 #define CAPOFF ((MLINE - MENU_CHR_H) / 2)
 
 // Menuitem caption Y position
-#define MBASE(L) ( MYPOS(L) + CAPOFF)
+#define MBASE(L) (MYPOS(L) + CAPOFF)
 
 // Create and add a MenuItem object to the menu array
 #define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
 #define ADDMENUITEM_P(V...) DWINUI::MenuItemsAdd(new MenuItemPtrClass(V))
 
-typedef struct {
-  uint16_t left;
-  uint16_t top;
-  uint16_t right;
-  uint16_t bottom;
-} rect_t;
+typedef struct { uint16_t left, top, right, bottom; } rect_t;
+typedef struct { uint16_t x, y, w, h; } frame_rect_t;
 
 class TitleClass {
 public:
@@ -303,10 +299,6 @@ public:
   TitleClass MenuTitle;
   MenuClass();
   virtual ~MenuClass(){};
-  MenuClass(const char * const title);
-  MenuClass(const __FlashStringHelper * title) : MenuClass((char *)title){}
-  MenuClass(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  MenuClass(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
   inline int8_t line() { return selected - topline; };
   inline int8_t line(uint8_t pos) {return pos - topline; };
   void Clear();
@@ -374,7 +366,7 @@ namespace DWINUI {
     DWIN_Draw_Line(pencolor, cursor.x, cursor.y, x, y);
   }
 
-  // Draw an Icon from the library ICON
+  // Draw an Icon with transparent background from the library ICON
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void Draw_Icon(uint8_t icon, uint16_t x, uint16_t y) {
@@ -542,10 +534,10 @@ namespace DWINUI {
   //  Color: frame color
   //  bColor: Background color
   //  x/y: Upper-left point
-  //  mode : 0 : unchecked, 1 : checked
-  void Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode);
-  inline void Draw_Checkbox(uint16_t x, uint16_t y, bool mode=false) {
-    Draw_Checkbox(textcolor, backcolor, x, y, mode);
+  //  checked : 0 : unchecked, 1 : checked
+  void Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked);
+  inline void Draw_Checkbox(uint16_t x, uint16_t y, bool checked=false) {
+    Draw_Checkbox(textcolor, backcolor, x, y, checked);
   }
 
   // Color Interpolator

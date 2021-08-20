@@ -217,8 +217,8 @@ uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
 //  bColor: Background color
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
-void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, (mode ? F("x") : F(" ")));
+void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked=false) {
+  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 
@@ -299,18 +299,6 @@ void TitleClass::FrameCopy(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
 MenuClass::MenuClass() {
   selected = 0;
   topline = 0;
-}
-
-MenuClass::MenuClass(const char * const title):MenuClass() {
-  MenuTitle.SetCaption(title);
-}
-
-MenuClass::MenuClass(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2):MenuClass() {
-  MenuTitle.SetFrame(id, x1, y1, x2, y2);
-}
-
-MenuClass::MenuClass(uint16_t x, uint16_t y, uint16_t w, uint16_t h):MenuClass() {
-  MenuTitle.SetFrame(1, x, y, x + w - 1, y + h - 1);
 }
 
 // Clear Menu by filling the menu area with background color
