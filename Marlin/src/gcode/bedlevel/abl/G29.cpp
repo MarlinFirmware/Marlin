@@ -878,9 +878,7 @@ G29_TYPE GcodeSuite::G29() {
   // Sync the planner from the current_position
   if (planner.leveling_active) sync_plan_position();
 
-  #if HAS_BED_PROBE
-    probe.move_z_after_probing();
-  #endif
+  TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 
   #ifdef Z_PROBE_END_SCRIPT
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
