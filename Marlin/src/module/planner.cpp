@@ -2002,15 +2002,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Number of steps for each axis
   // See https://www.corexy.com/theory.html
   #if CORE_IS_XY
-    block->steps.set(ABS(da + db), ABS(da - db), ABS(dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(da - db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #elif CORE_IS_XZ
-    block->steps.set(ABS(da + dc), ABS(db), ABS(da - dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + dc), ABS(db), ABS(da - dc), ABS(di), ABS(dj), ABS(dk)));
   #elif CORE_IS_YZ
-    block->steps.set(ABS(da), ABS(db + dc), ABS(db - dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db + dc), ABS(db - dc), ABS(di), ABS(dj), ABS(dk)));
   #elif ENABLED(MARKFORGED_XY)
-    block->steps.set(ABS(da + db), ABS(db), ABS(dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #elif IS_SCARA
-    block->steps.set(ABS(da), ABS(db), ABS(dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #else
     // default non-h-bot planning
     block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
@@ -2207,6 +2207,17 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (block->steps.j) ENABLE_AXIS_J(),
       if (block->steps.k) ENABLE_AXIS_K()
     );
+  #endif
+  #if EITHER(IS_CORE, MARKFORGED_XY)
+    #if LINEAR_AXES >= 4
+      if (block->steps.i) ENABLE_AXIS_I();
+    #endif
+    #if LINEAR_AXES >= 5
+      if (block->steps.j) ENABLE_AXIS_J();
+    #endif
+    #if LINEAR_AXES >= 6
+      if (block->steps.k) ENABLE_AXIS_K();
+    #endif
   #endif
 
   // Enable extruder(s)
