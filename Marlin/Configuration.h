@@ -644,8 +644,12 @@
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
-#elif ANY(Creality422, Creality427) && DISABLED(MachineEnder3V2)
+#elif ANY(Creality422, Creality427) && NONE(MachineEnder3V2, FORCE10SPRODISPLAY)
   #define SERIAL_PORT_2 3
+#elif ANY(Creality422, Creality427) && ENABLED(FORCE10SPRODISPLAY)
+  #define LCD_SERIAL_PORT 3
+  #define LCD_BAUDRATE 115200
+  #define SERIAL_CATCHALL 1
 #endif
 
 /**

@@ -164,7 +164,31 @@ void onIdle()
   rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
-  if(awaitingUserConfirm() && PrinterStatusKey[1] != 4) onUserConfirmRequired_P(PSTR("Confirm Continue")); // Handle any extraneous waits
+  if(awaitingUserConfirm())
+  {
+    switch(ExtUI::pauseModeStatus)
+      {
+      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PAUSE_PRINT_PARKING)); break;
+      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INIT)); break;
+      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD)); break;
+      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING)); break;
+      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)); break;
+      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD)); break;
+      case PAUSE_MESSAGE_PURGE:
+        #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_CONT_PURGE)); break;
+        #else
+          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE)); break;
+        #endif
+      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME)); break;
+      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT)); break;
+      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); break;
+      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
+      case PAUSE_MESSAGE_STATUS: SERIAL_ECHOLNPGM_P(PSTR("PauseStatus")); break;
+      default: onUserConfirmRequired_P(PSTR("Confirm Continue")); break;
+    }
+
+  }
 
   reEntryPrevent = true;
   idleThrottling = 0;
@@ -550,10 +574,10 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
 {
 
 	int len = strlen(str);
-
+  constexpr int maxlen = SizeofDatabuf - 6;
 	if (len > 0)
 	{
-    if(len>20) len = 20; //databuf is 26 chars, loop adds 6 for header so limit data to 20
+    if(len>maxlen) len = maxlen;
 		databuf[0] = FHONE;
 		databuf[1] = FHTWO;
 		databuf[2] = 3 + len;
@@ -2067,9 +2091,100 @@ void onUserConfirmRequired(const char *const msg)
 {
   PrinterStatusKey[1] = 4;
   TPShowStatus = false;
-  rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-	SERIAL_ECHOLNPGM_P(PSTR("==onUserConfirmRequired=="));
-  onStatusChanged(msg);
+  switch(ExtUI::pauseModeStatus)
+  {
+    case PAUSE_MESSAGE_WAITING:
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Press Yes to Continue"));
+      break;
+    }
+    case PAUSE_MESSAGE_INSERT:
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Load Filament to Continue"));
+      break;
+    }
+    case PAUSE_MESSAGE_HEAT:
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Press Yes to Reheat"));
+      break;
+    }
+    #if DISABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+      case PAUSE_MESSAGE_PURGE:
+      {
+        rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
+        char newMsg[40] = "Yes to Continue            no to ";
+        if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
+          strcat(newMsg, "Disable sensor");
+        else
+          strcat(newMsg, "Purge More");
+        onStatusChanged(newMsg);
+        break;
+      }
+    #endif
+
+
+    case PAUSE_MESSAGE_OPTION:
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
+      char newMsg[40] = "Yes to continue, no to ";
+      if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
+        strcat(newMsg, "Disable sensor");
+      else
+        strcat(newMsg, "Purge More");
+      onStatusChanged(newMsg);
+      break;
+    }
+
+    case PAUSE_MESSAGE_PARKING:
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Parking..."));
+      break;
+    }
+    case PAUSE_MESSAGE_CHANGING:{
+      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Beginning Filament Change"));
+      break;
+    }
+    case PAUSE_MESSAGE_UNLOAD:{
+      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Unloading..."));
+      break;
+    }
+    case PAUSE_MESSAGE_LOAD:{
+      rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Reloading..."));
+      break;
+    }
+    case PAUSE_MESSAGE_RESUME:
+    #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+      case PAUSE_MESSAGE_PURGE:{
+        rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
+        onStatusChanged_P(PSTR("Press Yes to Stop Purge"));
+        break;
+      }
+    #endif
+
+    case PAUSE_MESSAGE_HEATING:
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
+      onStatusChanged_P(PSTR("Reheating"));
+      break;
+    }
+
+    case PAUSE_MESSAGE_STATUS:
+      default:
+      {
+        setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+        setUserConfirmed();
+        SERIAL_ECHOLNPGM_P(PSTR("Pause Mode Status"));
+        break;
+      }
+  }
+	SERIAL_ECHOLNPAIR_P(PSTR("==onUserConfirmRequired=="), pauseModeStatus);
 }
 
 void onStatusChanged(const char *const statMsg)
