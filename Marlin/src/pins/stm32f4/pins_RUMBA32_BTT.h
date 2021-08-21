@@ -42,10 +42,7 @@
 
 #include "pins_RUMBA32_common.h"
 
-#define X_MIN_PIN                           PB12
-
 #define SERVO0_PIN                          PA15  // Pin is not broken out, is a test point only.
-#undef BTN_PIN
 
 #if HAS_TMC_UART
   //
