@@ -146,10 +146,6 @@
   //#define E0_HARDWARE_SERIAL MSerial1
   //#define E1_HARDWARE_SERIAL MSerial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                   PD5
   #define X_SERIAL_RX_PIN                   PD5
 
