@@ -53,16 +53,12 @@
   #define X_SERIAL_RX_PIN                 PC14
   #define Y_SERIAL_TX_PIN                 PE4
   #define Y_SERIAL_RX_PIN                 PE4
-
   #define Z_SERIAL_TX_PIN                 PE0
   #define Z_SERIAL_RX_PIN                 PE0
-
   #define E0_SERIAL_TX_PIN                PC13
   #define E0_SERIAL_RX_PIN                PC13
-
   #define E1_SERIAL_TX_PIN                PD5
   #define E1_SERIAL_RX_PIN                PD5
-
   #define E2_SERIAL_TX_PIN                PD1
   #define E2_SERIAL_RX_PIN                PD1
 #endif
