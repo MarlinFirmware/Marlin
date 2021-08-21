@@ -3415,7 +3415,7 @@ void Draw_MaxAccel_Menu() {
   if (MaxAccelMenu == nullptr) MaxAccelMenu = new MenuClass();
   if (CurrentMenu != MaxAccelMenu) {
     CurrentMenu = MaxAccelMenu;
-    SetMenuTitle({1, 16, 28, 13}, {144, 16, 46, 11}, GET_TEXT_F(MSG_ACCELERATION)); // TODO: Chinese, English "Bed Tramming" JPG
+    SetMenuTitle({1, 16, 28, 13}, {144, 16, 46, 11}, GET_TEXT_F(MSG_ACCELERATION));
     DWINUI::MenuItemsPrepare(5);
     ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Motion_Menu);
     ADDMENUITEM(ICON_MaxAccX, GET_TEXT(MSG_AMAX_A), onDrawMaxAccelX, SetMaxAccelX);
@@ -3451,7 +3451,7 @@ void Draw_Steps_Menu() {
   if (StepsMenu == nullptr) StepsMenu = new MenuClass();
   if (CurrentMenu != StepsMenu) {
     CurrentMenu = StepsMenu;
-    SetMenuTitle({1, 16, 28, 13}, {144, 16, 46, 11}, GET_TEXT_F(MSG_STEPS_PER_MM)); // TODO: Chinese, English "Bed Tramming" JPG
+    SetMenuTitle({1, 16, 28, 13}, {144, 16, 46, 11}, GET_TEXT_F(MSG_STEPS_PER_MM));
     DWINUI::MenuItemsPrepare(5);
     ADDMENUITEM(ICON_Back, GET_TEXT(MSG_BUTTON_BACK), onDrawBack, Draw_Motion_Menu);
     ADDMENUITEM(ICON_StepX, GET_TEXT(MSG_A_STEPS), onDrawStepsX, SetStepsX);
