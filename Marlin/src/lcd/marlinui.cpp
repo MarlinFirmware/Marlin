@@ -1679,9 +1679,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
     const uint8_t extruder/*=active_extruder*/
   ) {
-    if (mode == PAUSE_MODE_SAME)
-      return;
+    //if (mode == PAUSE_MODE_SAME)
+      //return;
+    SERIAL_ECHOPAIR("PauseMsg=", message);
     pause_mode = mode;
+    ExtUI::pauseModeStatus = message;
     switch (message) {
       case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PAUSE_PRINT_PARKING));
       case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));
