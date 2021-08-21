@@ -569,9 +569,7 @@ void menu_advanced_settings() {
       SUBMENU(MSG_JERK, menu_advanced_jerk);
     #elif HAS_JUNCTION_DEVIATION
       EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
-        #if ENABLED(LIN_ADVANCE)
-          , planner.recalculate_max_e_jerk
-        #endif
+        OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
       );
     #endif
 
