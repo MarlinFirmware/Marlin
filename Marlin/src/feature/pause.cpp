@@ -201,6 +201,9 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
     while (wait_for_user) {
       impatient_beep(max_beep_count);
+      #if BOTH(FILAMENT_CHANGE_RESUME_ON_INSERT, FILAMENT_RUNOUT_SENSOR)
+        if (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE) wait_for_user = false;
+      #endif
       idle_no_sleep();
     }
   }
@@ -538,7 +541,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_REHEATDONE), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_REHEATDONE)));
-      wait_for_user = true;
+      #if DISABLED(FILAMENT_CHANGE_FAST_RESUME)
+        wait_for_user = true;
+      #endif
       nozzle_timed_out = false;
 
       first_impatient_beep(max_beep_count);
