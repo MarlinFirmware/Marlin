@@ -118,9 +118,6 @@
   // TMC2208/TMC2209 stepper drivers
   //
 
-  //
-  // Software serial
-  //
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                 PE9
   #endif

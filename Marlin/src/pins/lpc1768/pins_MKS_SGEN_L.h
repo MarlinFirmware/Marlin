@@ -163,10 +163,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                  P1_04
   #define X_SERIAL_RX_PIN                  P1_01
 
