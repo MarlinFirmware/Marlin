@@ -1994,6 +1994,10 @@ void DWIN_LockScreen(const bool flag) {
 
 // On click functions
 
+// Generic onclick event for float values
+//  process: process id HMI destiny
+//  dp: decimal points
+//  val: scaled value 
 void SetFloatOnClick(uint8_t process, uint8_t dp, const int16_t val) {
   HMI_value.Value = val;
   EncoderRate.enabled = true;
@@ -2002,6 +2006,9 @@ void SetFloatOnClick(uint8_t process, uint8_t dp, const int16_t val) {
   DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, dp, VALX - dp * DWINUI::Get_font_width(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), HMI_value.Value);
 }
 
+// Generic onclick event for integer values
+//  process: process id HMI destiny
+//  val: value 
 void SetIntOnClick(uint8_t process, const int16_t val) {
   HMI_value.Value = val;
   EncoderRate.enabled = true;
@@ -2206,7 +2213,6 @@ TERN_(HAS_FAN, void SetFanSpeed() { SetIntOnClick(FanSpeed, thermalManager.fan_s
     }
   #endif
 #endif
-
 
 void SetFlow() { SetIntOnClick(Flow, planner.flow_percentage[0]); }
 
