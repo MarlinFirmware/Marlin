@@ -1354,7 +1354,7 @@ void setup() {
   #endif
 
   #if HAS_TOUCH_BUTTONS
-    SETUP_RUN(touch.init());
+    SETUP_RUN(touchBt.init());
   #endif
 
   TERN_(HAS_M206_COMMAND, current_position += home_offset); // Init current position based on home_offset

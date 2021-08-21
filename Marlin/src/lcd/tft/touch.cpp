@@ -274,6 +274,21 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
 
   return is_touched;
 }
+
+bool Touch::isSleeping() {
+  #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+    return io.isSleeping();
+  #else
+    return false;
+  #endif
+}
+
+void Touch::wakeUp() {
+  #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+    if (io.isSleeping()) io.doWakeUp();
+  #endif
+}
+
 Touch touch;
 
 bool MarlinUI::touch_pressed() {

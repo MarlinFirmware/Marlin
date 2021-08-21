@@ -50,7 +50,7 @@
 #define BUTTON_AREA_TOP BUTTON_Y_LO
 #define BUTTON_AREA_BOT BUTTON_Y_HI
 
-TouchButtons touch;
+TouchButtons touchBt;
 
 void TouchButtons::init() { touchIO.Init(); }
 

@@ -122,6 +122,9 @@ class Touch {
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
 
+    static bool isSleeping();
+    static void wakeUp();
+
     static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0);
 };
 

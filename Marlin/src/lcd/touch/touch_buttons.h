@@ -56,4 +56,4 @@ public:
   static uint8_t read_buttons();
 };
 
-extern TouchButtons touch;
+extern TouchButtons touchBt;

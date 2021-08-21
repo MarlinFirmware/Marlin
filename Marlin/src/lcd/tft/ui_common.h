@@ -30,6 +30,8 @@
 #include "tft.h"
 #include "tft_image.h"
 
+#define HAS_TOUCH_SLEEP (ENABLED(TFT_TOUCH_DEVICE_XPT2046) && defined(TOUCH_IDLE_SLEEP))
+
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
   extern bool draw_menu_navigation;

@@ -674,7 +674,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
-
+    #if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
+      // Wake up, if needed, the TFT from any button or encoder
+      touch.wakeUp();
+    #endif
     TERN_(HAS_LCD_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
@@ -926,7 +929,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
         if (on_status_screen()) next_lcd_update_ms += (LCD_UPDATE_INTERVAL) * 2;
 
-        TERN_(HAS_ENCODER_ACTION, touch_buttons = touch.read_buttons());
+        TERN_(HAS_ENCODER_ACTION, touch_buttons = touchBt.read_buttons());
 
       #endif
 

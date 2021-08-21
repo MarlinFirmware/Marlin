@@ -39,6 +39,10 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
+  #include "tft/touch.h"
+#endif
+
 #if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
   #define HAS_ENCODER_ACTION 1
 #endif
