@@ -134,7 +134,6 @@
 // Misc. Functions
 //
 #define LED_PIN                             PB14
-#define BTN_PIN                             PC10
 #define PS_ON_PIN                           PE11
 #define KILL_PIN                            PC5
 
