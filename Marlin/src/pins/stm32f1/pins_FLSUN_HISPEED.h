@@ -73,10 +73,10 @@
 
 #if HAS_SPI_FLASH
   // SPI 2
-  #define W25QXX_CS_PIN                     PB12  // SPI2_NSS / Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
 
 //
@@ -195,9 +195,10 @@
 //
 // Misc. Functions
 //
-//#define POWER_LOSS_PIN                    PA1   // PW_SO
 #if ENABLED(BACKUP_POWER_SUPPLY)
   #define POWER_LOSS_PIN                    PA2   // PW_DET (UPS) MKSPWC
+#else
+  //#define POWER_LOSS_PIN                  PA1   // PW_SO
 #endif
 
 /**
@@ -217,13 +218,15 @@
 //
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN                          PA2   // PW_DET
-  #define KILL_PIN_INVERTING                true
+  #define KILL_PIN_STATE                   HIGH
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
-#define MT_DET_1_PIN                        PA4   // MT_DET
-#define MT_DET_2_PIN                        PE6   // FALA_CRTL
-#define MT_DET_PIN_INVERTING               false
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_2_PIN                      PE6
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 //
 // LED / NEOPixel

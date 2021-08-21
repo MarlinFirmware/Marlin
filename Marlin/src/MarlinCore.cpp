@@ -1131,6 +1131,10 @@ inline void tmc_standby_setup() {
  *  - Set Marlin to RUNNING State
  */
 void setup() {
+  #ifdef FASTIO_INIT
+    FASTIO_INIT();
+  #endif
+
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
   #endif
@@ -1188,7 +1192,7 @@ void setup() {
 
   #if HAS_SUICIDE
     SETUP_LOG("SUICIDE_PIN");
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
   #endif
 
   #ifdef JTAGSWD_RESET

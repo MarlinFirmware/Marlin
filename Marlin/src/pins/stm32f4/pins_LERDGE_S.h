@@ -179,10 +179,10 @@
 #if ENABLED(SPI_EEPROM)
   // Lerdge has an SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
   #define SPI_CHAN_EEPROM1                     1
-  #define SPI_EEPROM1_CS                    PB12  // datasheet: /CS pin, found with multimeter, not tested
-  #define EEPROM_SCK                        PB13  // datasheet: CLK pin, found with multimeter, not tested
-  #define EEPROM_MISO                       PB14  // datasheet: DO pin, found with multimeter, not tested
-  #define EEPROM_MOSI                       PB15  // datasheet: DI pin, found with multimeter, not tested
+  #define SPI_EEPROM1_CS_PIN                PB12  // datasheet: /CS pin, found with multimeter, not tested
+  #define EEPROM_SCK_PIN                    PB13  // datasheet: CLK pin, found with multimeter, not tested
+  #define EEPROM_MISO_PIN                   PB14  // datasheet: DO pin, found with multimeter, not tested
+  #define EEPROM_MOSI_PIN                   PB15  // datasheet: DI pin, found with multimeter, not tested
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #else

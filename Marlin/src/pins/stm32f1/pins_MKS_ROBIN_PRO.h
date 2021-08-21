@@ -179,10 +179,25 @@
 //#define MAX6675_SS_PIN                    PF11  // TC2 - CS2
 
 #define POWER_LOSS_PIN                      PA2   // PW_DET
-#define PS_ON_PIN                           PG11  // PW_OFF
 #define FIL_RUNOUT_PIN                      PA4   // MT_DET1
-//#define FIL_RUNOUT_PIN                    PE6   // MT_DET2
-//#define FIL_RUNOUT_PIN                    PG14  // MT_DET3
+#define FIL_RUNOUT2_PIN                     PE6   // MT_DET2
+#define FIL_RUNOUT3_PIN                     PG14  // MT_DET3
+
+//
+// Power Supply Control
+//
+#if ENABLED(MKS_PWC)
+  #if ENABLED(TFT_LVGL_UI)
+    #undef PSU_CONTROL
+    #undef MKS_PWC
+    #define SUICIDE_PIN                     PG11
+    #define SUICIDE_PIN_STATE               LOW
+  #else
+    #define PS_ON_PIN                       PG11  // PW_OFF
+  #endif
+  #define KILL_PIN                          PA2
+  #define KILL_PIN_STATE                    HIGH
+#endif
 
 //
 // SD Card
@@ -300,8 +315,8 @@
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12  // Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif

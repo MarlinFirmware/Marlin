@@ -63,7 +63,7 @@
 #define SPI_SPEED 2  // About 2 MHz
 
 #include <Arduino.h>
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #ifdef __cplusplus
   extern "C" {
@@ -209,7 +209,7 @@ uint8_t u8g_com_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_pt
 #endif
 
 #elif !ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI, HAS_MARLINUI_HD44780) && HAS_MARLINUI_U8GLIB
-  #include <U8glib.h>
+  #include <U8glib-HAL.h>
   uint8_t u8g_com_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {return 0;}
 #endif // HAS_MARLINUI_U8GLIB && !U8GLIB_ST7920
 #endif // __PLAT_NATIVE_SIM__

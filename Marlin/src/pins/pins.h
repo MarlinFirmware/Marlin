@@ -561,6 +561,12 @@
   #include "stm32f1/pins_BEAST.h"               // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
 #elif MB(MINGDA_MPX_ARM_MINI)
   #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
+#elif MB(ZONESTAR_ZM3E2)
+  #include "stm32f1/pins_ZM3E2_V1_0.h"       	  // STM32F1                            	  env:STM32F103RC_ZM3E2_USB env:STM32F103RC_ZM3E2_USB_maple
+#elif MB(ZONESTAR_ZM3E4)
+  #include "stm32f1/pins_ZM3E4_V1_0.h"      	  // STM32F1                           	    env:STM32F103VC_ZM3E4_USB env:STM32F103VC_ZM3E4_USB_maple
+#elif MB(ZONESTAR_ZM3E4V2)
+  #include "stm32f1/pins_ZM3E4_V2_0.h"      	  // STM32F1                           	    env:STM32F103VE_ZM3E4V2_USB env:STM32F103VE_ZM3E4V2_USB_maple
 
 //
 // ARM Cortex-M4F
@@ -763,8 +769,10 @@
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #elif MB(BTT_SKR_V2_0)
     #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
+  #elif defined(MOTHERBOARD)
+    #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
-    #error "Unknown MOTHERBOARD value set in Configuration.h"
+    #error "MOTHERBOARD not defined! Use '#define MOTHERBOARD BOARD_...' in Configuration.h."
   #endif
 
   #undef BOARD_MKS_13

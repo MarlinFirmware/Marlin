@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin nano (STM32F130VET6) board pin assignments
+ * MKS Robin nano (STM32F103VET6) board pin assignments
  */
 
 #include "env_validate.h"
@@ -183,20 +183,19 @@
 // Misc. Functions
 //
 #if HAS_TFT_LVGL_UI
-  //#define MKSPWC
-  #ifdef MKSPWC
-    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
-    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
-    #define KILL_PIN                        PA2   // Enable MKSPWC DET PIN
-    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
+  #if ENABLED(MKS_PWC)
+    #define SUICIDE_PIN                     PB2
+    #define SUICIDE_PIN_STATE               LOW
+    #define KILL_PIN                        PA2
+    #define KILL_PIN_STATE                  HIGH
   #endif
 
-  #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
-  #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
+  #define MT_DET_1_PIN                      PA4
+  #define MT_DET_PIN_STATE                  LOW
 
-  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
-  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
-  #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
+  #define WIFI_IO0_PIN                      PC13
+  #define WIFI_IO1_PIN                      PC7
+  #define WIFI_RESET_PIN                    PE9
 
   #if ENABLED(MKS_TEST)
     #define MKS_TEST_POWER_LOSS_PIN         PA2   // PW_DET
@@ -364,10 +363,10 @@
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
 
 #ifndef BEEPER_PIN

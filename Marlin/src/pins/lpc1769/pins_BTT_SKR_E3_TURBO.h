@@ -212,7 +212,7 @@
   *        BEEPER | 5  6   ENT (BTN_ENC)      (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
   *  (SKR_RX1) TX | 7  8 | RX  (SKR_TX1)               Reset | 7  8 | P0_19 (BTN_EN1)
   *            NC | 9 10 | NC                (BTN_ENC) P0_16 | 9 10 | P2_08 (BEEPER)
-  *                ------					                            ------
+  *                ------                                     ------
   */
 
   #define BEEPER_PIN                 EXP1_10_PIN

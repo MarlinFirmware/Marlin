@@ -105,6 +105,9 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" passo/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" passo/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" passo/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" passo/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" passo/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" passo/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E passo/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* passo/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");

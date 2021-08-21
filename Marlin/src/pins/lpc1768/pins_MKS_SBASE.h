@@ -136,9 +136,13 @@
 #endif
 
 //
-// Misc. Functions
+// Power Supply Control
 //
-#define PS_ON_PIN                          P0_25  // TH3 Connector
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                        P0_25  // SERVO
+  #define KILL_PIN                         P1_29  // Z+
+  #define KILL_PIN_STATE                    HIGH
+#endif
 
 //
 // Ethernet pins

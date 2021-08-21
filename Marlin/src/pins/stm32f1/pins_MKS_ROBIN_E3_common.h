@@ -126,6 +126,15 @@
 
 #define FIL_RUNOUT_PIN                      PB10  // MT_DET
 
+//
+// Power Supply Control
+//
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                         PA14  // PW_OFF
+  #define KILL_PIN                          PB10  // PW_DET
+  #define KILL_PIN_STATE                    HIGH
+#endif
+
 /**
  *                _____                                      _____                                     _____
  *  (BEEPER) PC1 | 1 2 | PC3 (BTN_ENC)          (MISO) PB14 | 1 2 | PB13 (SD_SCK)                  5V | 1 2 | GND
@@ -158,7 +167,7 @@
   #elif ENABLED(MKS_MINI_12864_V3)
     #define DOGLCD_CS                       PA4
     #define DOGLCD_A0                       PA5
-    #define LCD_PINS_DC                     DOGLCD_A0
+    #define LCD_PINS_DC                DOGLCD_A0
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   PA6
     #define NEOPIXEL_PIN                    PA7
@@ -189,8 +198,8 @@
 //
 // SD Card
 //
-#define SPI_DEVICE                          2
-#define ONBOARD_SPI_DEVICE                  2
+#define SPI_DEVICE                             2
+#define ONBOARD_SPI_DEVICE                     2
 #define SDSS                           SD_SS_PIN
 #define SDCARD_CONNECTION                ONBOARD
 #define SD_DETECT_PIN                       PC10

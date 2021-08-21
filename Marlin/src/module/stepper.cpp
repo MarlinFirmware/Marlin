@@ -2825,19 +2825,22 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
-#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
-  #define USES_ABC 1
+#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, IS_SCARA, DELTA)
+  #define SAYS_A 1
 #endif
-#if ANY(USES_ABC, MARKFORGED_XY, IS_SCARA)
-  #define USES_AB 1
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, IS_SCARA, DELTA)
+  #define SAYS_B 1
+#endif
+#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
+  #define SAYS_C 1
 #endif
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
   SERIAL_ECHOLNPAIR_P(
     LIST_N(DOUBLE(LINEAR_AXES),
-      TERN(USES_AB,  PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-      TERN(USES_AB,  PSTR("B:"), SP_Y_LBL), pos.y,
-      TERN(USES_ABC, PSTR("C:"), SP_Z_LBL), pos.z,
+      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
       SP_I_LBL, pos.i,
       SP_J_LBL, pos.j,
       SP_K_LBL, pos.k
