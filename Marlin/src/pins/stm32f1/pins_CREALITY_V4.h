@@ -184,7 +184,7 @@
   #define BTN_EN1                           PB10
   #define BTN_EN2                           PA6
 
-#elif ENABLED(DWIN_CREALITY_LCD)
+#elif EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14
@@ -194,7 +194,7 @@
   //#define LCD_LED_PIN                     PB2
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                      PB13
-    #undef SPEAKER
+    //#undef SPEAKER
   #endif
 
 #elif ENABLED(DWIN_VET6_CREALITY_LCD)
