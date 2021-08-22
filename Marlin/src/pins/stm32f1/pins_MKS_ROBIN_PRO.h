@@ -133,9 +133,6 @@
   //#define E1_HARDWARE_SERIAL MSerial1
   //#define E2_HARDWARE_SERIAL MSerial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PF7
   #define X_SERIAL_RX_PIN                   PF8
 

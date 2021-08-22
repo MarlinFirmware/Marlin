@@ -75,14 +75,16 @@
 #if HAS_TMC_UART
   //
   // TMC220x stepper drivers
-  // Software serial
   //
   #define X_SERIAL_TX_PIN                  P0_04
   #define X_SERIAL_RX_PIN                  P0_05
+
   #define Y_SERIAL_TX_PIN                  P0_10
   #define Y_SERIAL_RX_PIN                  P0_11
+
   #define Z_SERIAL_TX_PIN                  P0_19
   #define Z_SERIAL_RX_PIN                  P0_20
+
   #define E0_SERIAL_TX_PIN                 P0_22
   #define E0_SERIAL_RX_PIN                 P0_21
 

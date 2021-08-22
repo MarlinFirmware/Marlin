@@ -204,9 +204,6 @@
 
 #if HAS_TMC_UART
   // TMC2208/TMC2209 stepper drivers
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN               EXT0_PIN
   #define X_SERIAL_RX_PIN               EXT0_PIN
 

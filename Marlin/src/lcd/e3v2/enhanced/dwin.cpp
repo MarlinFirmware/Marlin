@@ -1754,7 +1754,7 @@ void DWIN_PidTuning(pidresult_t result) {
       break;
     case PID_TEMP_TOO_HIGH:
       checkkey = last_checkkey;
-      DWIN_Popup_Confirm(ICON_TempTooHigh,"PID Autotune failed!","Temperature too high");
+      DWIN_Popup_Confirm(ICON_TempTooHigh, "PID Autotune failed!", "Temperature too high");
       break;
     case PID_DONE:
       checkkey = last_checkkey;
