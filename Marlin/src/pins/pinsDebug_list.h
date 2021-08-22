@@ -30,13 +30,11 @@
   #define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
 #endif
 
-#line 28 // set __LINE__ to a known value for both passes
+#line 34 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments
 //
-
-
 
 #if defined(EXT_AUX_A0) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A0)
