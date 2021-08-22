@@ -117,12 +117,22 @@ extern "C" {
 #define PIN_WIRE_SCL            PB10
 
 // Timer Definitions
-// Use TIM6/TIM7 when possible as servo and tone don't need GPIO output pin
+// Let TIMER 2 for optional Fan PWM
+#ifndef TEMP_TIMER
+  #define TEMP_TIMER            3
+#endif
+// Let TIMER 4 for TFT backlight PWM or Servo freq...
+#ifndef STEP_TIMER
+  #define STEP_TIMER            5
+#endif
 #ifndef TIMER_TONE
   #define TIMER_TONE            TIM6
 #endif
 #ifndef TIMER_SERVO
   #define TIMER_SERVO           TIM7
+#endif
+#ifndef TIMER_SERIAL
+  #define TIMER_SERIAL          TIM8
 #endif
 
 // UART Definitions
