@@ -19,8 +19,7 @@
 
 // Touchscreens in development, not tested
 //#define MachineCR5
-//#define MachineEnder3V2Touchscreen
-//#define MachineCR30Touchscreen
+//#define MachineEnder3Touchscreen
 
 // Standard Display Atmega2560 machines (No bootloader required)
 //#define MachineEnder4
@@ -596,7 +595,7 @@
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-  #if DISABLED(MachineEnder3V2, MachineCR6, MachineCR6Max)
+  #if DISABLED(MachineEnder3V2, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
     #define SHOW_CUSTOM_BOOTSCREEN
     // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
     #define CUSTOM_STATUS_SCREEN_IMAGE
@@ -628,7 +627,7 @@
   #define LCD_SERIAL_PORT 0
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && DISABLED(MachineEnder3V2)
+#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && DISABLED(MachineEnder3V2, MachineEnder3Touchscreen)
   #define SERIAL_PORT_2 0
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
@@ -644,7 +643,7 @@
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
-#elif ANY(Creality422, Creality427) && NONE(MachineEnder3V2, FORCE10SPRODISPLAY)
+#elif ANY(Creality422, Creality427) && NONE(MachineEnder3V2, FORCE10SPRODISPLAY, MachineEnder3Touchscreen)
   #define SERIAL_PORT_2 3
 #elif ANY(Creality422, Creality427) && ENABLED(FORCE10SPRODISPLAY)
   #define LCD_SERIAL_PORT 3
@@ -663,7 +662,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max)
+#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
   #define BAUDRATE 115200
 #else
   #define BAUDRATE 250000
@@ -1688,7 +1687,7 @@
  *
  * :[2,3,4,5,6,7]
  */
-#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max)
+#if ANY(MachineEnder5Plus, CableExtensionNoiseFilter, MachineCR6, MachineCR6Max, MachineEnder6)
   #define ENDSTOP_NOISE_THRESHOLD 2
 #endif
 
@@ -2219,7 +2218,7 @@
   #define Z_AFTER_PROBING           5 // Z position after probing is done
 #endif
 
-#define Z_PROBE_LOW_POINT          -4 // Farthest distance below the trigger-point to go before stopping
+#define Z_PROBE_LOW_POINT          -5 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -9
@@ -3582,9 +3581,9 @@
   #define MKS_MINI_12864
 #elif ENABLED(MachineEnder3V2)
   #define DWIN_CREALITY_LCD
-#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
   #define CR10_STOCKDISPLAY
-#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 //
@@ -3881,7 +3880,7 @@
 //
 // CR-6 OEM touch screen. A DWIN display with touch.
 //
-#if ANY(MachineCR6, MachineCR6Max)
+#if ANY(MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
   #define DGUS_LCD_UI_CREALITY_TOUCH
 #endif
 

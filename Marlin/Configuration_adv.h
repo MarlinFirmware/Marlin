@@ -894,7 +894,7 @@
    * This feature was designed for Deltabots with very fast Z moves; however, higher speed Cartesians
    * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
    */
-  #if NONE(MachineCR10Orig, LowMemoryBoard, MachineCRX)
+  #if NONE(MachineCR10Orig, LowMemoryBoard, MachineCRXs)
     #define BLTOUCH_HS_MODE
   #endif
 

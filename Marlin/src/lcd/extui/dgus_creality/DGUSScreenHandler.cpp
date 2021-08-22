@@ -41,7 +41,9 @@
 #include "../../../sd/cardreader.h"
 #include "../../../libs/duration_t.h"
 #include "../../../module/printcounter.h"
-#include "../../../feature/caselight.h"
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../../feature/caselight.h"
+#endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
@@ -154,9 +156,11 @@ void DGUSScreenHandler::LoadSettings(const char* buff) {
   SERIAL_ECHOLNPGM("Loading DWIN LCD setting from EEPROM");
   memcpy(&Settings, &eepromSettings, sizeof(creality_dwin_settings_t));
 
-  // Apply settings
-  caselight.on = Settings.led_state;
-  caselight.update(Settings.led_state);
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    // Apply settings
+    caselight.on = Settings.led_state;
+    caselight.update(Settings.led_state);
+  #endif
 
   #if HAS_COLOR_LEDS_PREFERENCES
   leds.set_color(Settings.LastLEDColor);
@@ -171,8 +175,10 @@ void DGUSScreenHandler::StoreSettings(char* buff) {
     "Insufficient space in EEPROM for UI parameters"
   );
 
-  // Update settings from Marlin state, if necessary
-  Settings.led_state = caselight.on;
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    // Update settings from Marlin state, if necessary
+    Settings.led_state = caselight.on;
+  #endif
 
   #if HAS_COLOR_LEDS_PREFERENCES
   Settings.LastLEDColor = leds.color;
@@ -1269,9 +1275,10 @@ void DGUSScreenHandler::HandleScreenVersionMismatchLEDFlash() {
   if (ELAPSED(ms, next_event_ms)) {
     next_event_ms = ms + VERSION_MISMATCH_LED_FLASH_DELAY;
 
-    caselight.on = !caselight.on;
-    caselight.update(caselight.on);
-
+    #if ENABLED(CASE_LIGHT_ENABLE)
+      caselight.on = !caselight.on;
+      caselight.update(caselight.on);
+    #endif
     #if HAS_COLOR_LEDS
     if (caselight.on) {
       leds.set_color(LEDColorRed());
@@ -1475,13 +1482,15 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 }
 
 void DGUSScreenHandler::HandleLEDToggle() {
-  bool newState = !caselight.on;
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    bool newState = !caselight.on;
 
-  caselight.on = newState;
-  caselight.update(newState);
+    caselight.on = newState;
+    caselight.update(newState);
 
-  RequestSaveSettings();
-  ForceCompleteUpdate();
+    RequestSaveSettings();
+    ForceCompleteUpdate();
+  #endif
 }
 
 void DGUSScreenHandler::HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void *val_ptr) {
