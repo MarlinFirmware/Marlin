@@ -112,27 +112,24 @@
  * TMC2208/TMC2209 stepper drivers
  */
 #if HAS_TMC_UART
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PD6
-  #define X_SERIAL_RX_PIN                   PD6
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PD1
-  #define Y_SERIAL_RX_PIN                   PD1
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PD15
-  #define Z_SERIAL_RX_PIN                   PD15
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD11
-  #define E0_SERIAL_RX_PIN                  PD11
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
     #define X2_SERIAL_TX_PIN           FPC12_PIN  // X2UART
-    #define X2_SERIAL_RX_PIN           FPC12_PIN  // X2UART
+    #define X2_SERIAL_RX_PIN    X2_SERIAL_TX_PIN
 
     #define E1_SERIAL_TX_PIN            FPC6_PIN  // E1UART
-    #define E1_SERIAL_RX_PIN            FPC6_PIN  // E1UART
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
   #endif
 
   // Reduce baud rate to improve software serial reliability

@@ -118,37 +118,37 @@
     #define X_SERIAL_TX_PIN                 PB2
   #endif
   #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN                 PB2
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
   #endif
   #ifndef Y_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                 PE2
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN                 PE2
+    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
   #endif
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                 PE3
   #endif
   #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN                 PE3
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
   #endif
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN                PE4
   #endif
   #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN                PE4
+    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
   #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN                PE1
   #endif
   #ifndef E1_SERIAL_RX_PIN
-    #define E1_SERIAL_RX_PIN                PE1
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
   #endif
   #ifndef EX_SERIAL_TX_PIN
     #define E2_SERIAL_TX_PIN                PE0
   #endif
   #ifndef EX_SERIAL_RX_PIN
-    #define E2_SERIAL_RX_PIN                PE0
+    #define E2_SERIAL_RX_PIN    E2_SERIAL_TX_PIN
   #endif
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200

@@ -203,11 +203,8 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
         SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
         PRINT_PORT(pin);
-        if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
-          sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
-          SERIAL_ECHO(buffer);
-        }
-        else SERIAL_ECHO_SP(8);   // add padding if not an analog pin
+        if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
+        else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
       }
       else {
         SERIAL_CHAR('.');
@@ -254,12 +251,8 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
     SERIAL_ECHOPGM("PIN: ");
     PRINT_PIN(pin);
     PRINT_PORT(pin);
-    if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
-      sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
-      SERIAL_ECHO(buffer);
-    }
-    else
-      SERIAL_ECHO_SP(8);   // add padding if not an analog pin
+    if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
+    else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
     if (extended) {
 

@@ -114,9 +114,7 @@ void GcodeSuite::M701() {
       true,                                           // show_lcd
       thermalManager.still_heating(target_extruder),  // pause_for_user
       PAUSE_MODE_LOAD_FILAMENT                        // pause_mode
-      #if ENABLED(DUAL_X_CARRIAGE)
-        , target_extruder                             // Dual X target
-      #endif
+      OPTARG(DUAL_X_CARRIAGE, target_extruder)        // Dual X target
     );
   #endif
 
