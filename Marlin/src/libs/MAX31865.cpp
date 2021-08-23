@@ -44,7 +44,7 @@
 //#define MAX31865_DEBUG
 //#define MAX31865_DEBUG_SPI
 
-//TODO: switch to SPIclass/SoftSPI
+#include <SoftwareSPI.h>
 
 #include "../inc/MarlinConfig.h"
 
@@ -62,7 +62,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
     500000
   #endif
   , MSBFIRST
-  , SPI_MODE_1 // CPOL0 CPHA1
+  , SPI_MODE1 // CPOL0 CPHA1
 );
 
 #ifndef LARGE_PINMAP
@@ -81,6 +81,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
     _mosi = spi_mosi;
     _miso = spi_miso;
     _sclk = spi_clk;
+    _spi_speed = swSpiInit(SPI_QUARTER_SPEED, SD_SCK_PIN, SD_MOSI_PIN);
   }
 
   /**
@@ -92,6 +93,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
   MAX31865::MAX31865(int8_t spi_cs) {
     _cs = spi_cs;
     _sclk = _miso = _mosi = -1;
+    _spi_speed = swSpiInit(SPI_QUARTER_SPEED, SD_SCK_PIN, SD_MOSI_PIN);
   }
 
 #else
@@ -150,17 +152,16 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   Rzero = zero;
   Rref = ref;
 
-  OUT_WRITE(_cs, HIGH);
+  SET_OUTPUT(_cs);
+  write(_cs, HIGH);
 
   if (_sclk != TERN(LARGE_PINMAP, -1UL, -1)) {
     // define pin modes for Software SPI
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLN("Initializing MAX31865 Software SPI");
     #endif
-
-    OUT_WRITE(_sclk, LOW);
-    SET_OUTPUT(_mosi);
-    SET_INPUT(_miso);
+    
+    swSpiBegin(_sclk, _miso, _mosi);
   } else {
     // start and configure hardware SPI
     #ifdef MAX31865_DEBUG
@@ -429,9 +430,9 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.beginTransaction(spiConfig);
   else
-    WRITE(_sclk, LOW);
+    write(_sclk, LOW);
 
-  WRITE(_cs, LOW);
+  write(_cs, LOW);
   spixfer(addr);
 
   while (n--) {
@@ -445,7 +446,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.endTransaction();
 
-  WRITE(_cs, HIGH);
+  write(_cs, HIGH);
 }
 
 /**
@@ -458,9 +459,9 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.beginTransaction(spiConfig);
   else
-    WRITE(_sclk, LOW);
+    write(_sclk, LOW);
 
-  WRITE(_cs, LOW);
+  write(_cs, LOW);
 
   spixfer(addr | 0x80); // make sure top bit is set
   spixfer(data);
@@ -468,9 +469,13 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.endTransaction();
 
-  WRITE(_cs, HIGH);
+  write(_cs, HIGH);
 }
 
+void MAX31865::write(pin_t pin, bool value){
+  for (uint8_t i = 0; i < _spi_speed; i++)
+    WRITE(pin, value);
+}
 /**
  * Transfer SPI data +x+ and read the response. From the datasheet...
  * Input data (SDI) is latched on the internal strobe edge and output data (SDO) is
@@ -484,17 +489,7 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     return SPI.transfer(x);
 
-  uint8_t reply = 0;
-  for (int i = 7; i >= 0; i--) {
-    reply <<= 1;
-    WRITE(_sclk, HIGH);
-    WRITE(_mosi, x & (1 << i));
-    WRITE(_sclk, LOW);
-    if (READ(_miso))
-      reply |= 1;
-  }
-
-  return reply;
+  return swSpiTransfer(x, _spi_speed, _sclk, _miso, _mosi);
 }
 
 #endif // HAS_MAX31865 && !LIB_USR_MAX31865
