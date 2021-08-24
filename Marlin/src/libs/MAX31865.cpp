@@ -81,7 +81,6 @@ SPISettings MAX31865::spiConfig = SPISettings(
     _mosi = spi_mosi;
     _miso = spi_miso;
     _sclk = spi_clk;
-    _spi_speed = swSpiInit(SPI_QUARTER_SPEED, SD_SCK_PIN, SD_MOSI_PIN);
   }
 
   /**
@@ -93,7 +92,6 @@ SPISettings MAX31865::spiConfig = SPISettings(
   MAX31865::MAX31865(int8_t spi_cs) {
     _cs = spi_cs;
     _sclk = _miso = _mosi = -1;
-    _spi_speed = swSpiInit(SPI_QUARTER_SPEED, SD_SCK_PIN, SD_MOSI_PIN);
   }
 
 #else
@@ -152,8 +150,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   Rzero = zero;
   Rref = ref;
 
-  SET_OUTPUT(_cs);
-  write(_cs, HIGH);
+  OUT_WRITE(_cs, HIGH);
 
   if (_sclk != TERN(LARGE_PINMAP, -1UL, -1)) {
     // define pin modes for Software SPI
@@ -162,6 +159,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
     #endif
     
     swSpiBegin(_sclk, _miso, _mosi);
+    
   } else {
     // start and configure hardware SPI
     #ifdef MAX31865_DEBUG
@@ -170,6 +168,9 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
 
     SPI.begin();
   }
+
+  // SPI Begin must be called first, then init
+  _spi_speed = swSpiInit(SPI_QUARTER_SPEED, _sclk, _mosi);
 
   setWires(wires);
   enableBias(false);
@@ -430,9 +431,9 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.beginTransaction(spiConfig);
   else
-    write(_sclk, LOW);
+    WRITE(_sclk, LOW);
 
-  write(_cs, LOW);
+  WRITE(_cs, LOW);
   spixfer(addr);
 
   while (n--) {
@@ -446,7 +447,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.endTransaction();
 
-  write(_cs, HIGH);
+  WRITE(_cs, HIGH);
 }
 
 /**
@@ -459,9 +460,9 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.beginTransaction(spiConfig);
   else
-    write(_sclk, LOW);
+    WRITE(_sclk, LOW);
 
-  write(_cs, LOW);
+  WRITE(_cs, LOW);
 
   spixfer(addr | 0x80); // make sure top bit is set
   spixfer(data);
@@ -469,13 +470,9 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.endTransaction();
 
-  write(_cs, HIGH);
+  WRITE(_cs, HIGH);
 }
 
-void MAX31865::write(pin_t pin, bool value){
-  for (uint8_t i = 0; i < _spi_speed; i++)
-    WRITE(pin, value);
-}
 /**
  * Transfer SPI data +x+ and read the response. From the datasheet...
  * Input data (SDI) is latched on the internal strobe edge and output data (SDO) is
