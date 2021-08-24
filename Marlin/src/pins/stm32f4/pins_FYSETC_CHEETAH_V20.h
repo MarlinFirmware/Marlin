@@ -138,7 +138,7 @@
 #endif
 
 /**
- *                _____                                              _____
+ *                -----                                              -----
  *            5V | 1 2 | GND                                     5V | 1 2 | GND
  *         RESET | 3 4 | PC3  (SD_DETECT)             (LCD_D7)  PB7 | 3 4 | PB6  (LCD_D6)
  * (SD_MOSI) PA7   5 6 | PC11 (BTN_EN2)               (LCD_D5) PB14   5 6 | PB13 (LCD_D4)
@@ -149,7 +149,7 @@
  */
 
 /**
-*                 _____
+*                 -----
 *  (BEEPER) PC9  | 1 2 | PC12 (BTN_ENC)
 * (BTN_EN1) PC10 | 3 4 | PB14 (LCD_D5/MISO)
 * (BTN_EN2) PC11   5 6 | PB13 (LCD_D4/SCK)
@@ -258,7 +258,7 @@
     #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3    DELAY_NS(600)
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
   #endif
 #endif
 

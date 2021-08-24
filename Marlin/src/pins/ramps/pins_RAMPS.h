@@ -434,7 +434,7 @@
 /**
  * LCD adapter. Please note: These comes in two variants. The socket keys can be
  * on either side, and may be backwards on some boards / displays.
- *         _____                           _____
+ *         -----                           -----
  *    D37 |10 9 | D35          (MISO) D50 |10 9 | D52 (SCK)
  *    D17 | 8 7 | D16                 D31 | 8 7 | D53
  *    D23   6 5   D25                 D33   6 5   D51 (MOSI)
@@ -778,7 +778,7 @@
    * FYSETC TFT-81050 display pinout
    *
    *               Board                                     Display
-   *               _____                                     _____
+   *               -----                                     -----
    *  (SCK)   D52 | 1 2 | D50    (MISO)                MISO | 1 2 | SCK
    *  (SD_CS) D53 | 3 4 | D33 (BNT_EN2) (BNT_EN2) MOD_RESET | 3 4 | SD_CS
    *  (MOSI)  D51 | 5 6   D31 (BNT_EN1) (BNT_EN1)    LCD_CS | 5 6   MOSI

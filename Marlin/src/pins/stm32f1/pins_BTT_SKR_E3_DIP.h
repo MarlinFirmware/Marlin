@@ -156,7 +156,7 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *                 _____
+ *                 -----
  *             5V | 1 2 | GND
  *  (LCD_EN) PB7  | 3 4 | PB8  (LCD_RS)
  *  (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
@@ -195,7 +195,7 @@
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
-     *                   _____
+     *                   -----
      *               5V | 1 2 | GND
      *      (MOSI) PB7  | 3 4 | PB8  (LCD_RS)
      *    (LCD_A0) PB9  | 5 6   PA10 (BTN_EN2)
@@ -229,7 +229,7 @@
   /** FYSETC TFT TFT81050 display pinout
    *
    *               Board                                     Display
-   *               _____                                      _____
+   *               -----                                      -----
    *           5V | 1 2 | GND               (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
    * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)     (PA9)  MOD_RESET | 3 4 | SD_CS (PA10)
    * (FREE)   PB9 | 5 6   PA10 (SD_CS)      (PB8)     LCD_CS | 5 6   MOSI  (SPI1-MOSI)

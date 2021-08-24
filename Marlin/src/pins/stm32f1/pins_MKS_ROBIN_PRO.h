@@ -299,14 +299,16 @@
 
 #endif
 
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1              DELAY_NS(125)
-#endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2              DELAY_NS(125)
-#endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3              DELAY_NS(125)
+#if HAS_MARLINUI_U8GLIB
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1   DELAY_NS(125)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2   DELAY_NS(125)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(125)
+  #endif
 #endif
 
 #define HAS_SPI_FLASH                          1
