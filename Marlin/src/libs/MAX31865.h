@@ -90,7 +90,9 @@ private:
   static SPISettings spiConfig;
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) _sclk, _miso, _mosi, _cs;
+#if defined(TARGET_LPC1768)
   uint8_t _spi_speed;
+#endif
   float Rzero, Rref;
 
   void setConfig(uint8_t config, bool enable);
@@ -101,9 +103,6 @@ private:
 
   void writeRegister8(uint8_t addr, uint8_t reg);
   uint8_t spixfer(uint8_t addr);
-
-  // Writes value to pin, also factoring in speed of SPI transmission
-  void write(pin_t pin, bool value);
 
 public:
   #ifdef LARGE_PINMAP
