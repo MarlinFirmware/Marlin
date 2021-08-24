@@ -90,9 +90,7 @@ private:
   static SPISettings spiConfig;
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) _sclk, _miso, _mosi, _cs;
-#if defined(TARGET_LPC1768)
   uint8_t _spi_speed;
-#endif
   float Rzero, Rref;
 
   void setConfig(uint8_t config, bool enable);
