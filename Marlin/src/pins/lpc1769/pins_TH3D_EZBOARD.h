@@ -156,7 +156,7 @@
 //
 
 /**
- *         ______
+ *         ------
  *     5V | 1  2 | GND
  *  P0_18 | 3  4 | P0_16
  *  P0_15 | 5  6   P3_25
@@ -181,7 +181,7 @@
 #define EXP1_10_PIN                        P1_31
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  /**          ______
+  /**          ------
    *       5V | 1  2 | GND
    *   LCD_EN | 3  4 | LCD_RS
    *   LCD_D4 | 5  6   EN2
@@ -196,7 +196,7 @@
   #define KILL_PIN                   EXP1_07_PIN
 
 #elif ENABLED(MKS_MINI_12864)
-  /**          ______
+  /**          ------
    *       5V | 1  2 | GND
    * SPI-MOSI | 3  4 | SPI-CS
    *       A0 | 5  6   EN2

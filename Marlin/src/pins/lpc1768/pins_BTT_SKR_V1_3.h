@@ -184,7 +184,7 @@
 #endif
 
 /**
- *               ______                                             ______
+ *               ------                                             ------
  *           NC | 1  2 | GND                                    5V | 1  2 | GND
  *        RESET | 3  4 | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | 3  4 | 1.22 (LCD_D6)
  *  (MOSI) 0.18 | 5  6   3.25 (BTN_EN2)              (LCD_D5) 1.21 | 5  6   1.20 (LCD_D4)
@@ -230,7 +230,7 @@
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
     *                  BEFORE                          AFTER
-    *                  ______                          ______
+    *                  ------                          ------
     *           GND 1 | 1  2 |  2 5V             5V 1 | 1  2 |  2 GND
     *            CS 3 | 3  4 |  4 BTN_EN2        CS 3 | 3  4 |  4 BTN_EN2
     *           SID 5 | 5  6    6 BTN_EN1       SID 5 | 5  6    6 BTN_EN1
@@ -386,11 +386,11 @@
 
         /**
          * Creality Ender-2 display pinout
-         *                   _____
+         *                   -----
          *               5V | 1 2 | GND
          *     (MOSI) P1_23 | 3 4 | P1_22 (LCD_CS)
          *   (LCD_A0) P1_21 | 5 6   P1_20 (BTN_EN2)
-         *      RESET P1_19 | 7 8 | P1_18 (BTN_EN1)
+         *    (RESET) P1_19 | 7 8 | P1_18 (BTN_EN1)
          *  (BTN_ENC) P0_28 | 9 10| P1_30 (SCK)
          *                   -----
          *                    EXP1

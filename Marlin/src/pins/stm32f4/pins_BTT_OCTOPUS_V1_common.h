@@ -311,7 +311,7 @@
 #endif
 
 /**
- *               ______                                              ______
+ *               ------                                              ------
  *           NC | 1  2 | GND                                     5V | 1  2 | GND
  *        RESET | 3  4 | PC15 (SD_DETECT)             (LCD_D7) PE15 | 3  4 | PE14 (LCD_D6)
  *   (MOSI) PA7 | 5  6   PB1  (BTN_EN2)               (LCD_D5) PE13 | 5  6   PE12 (LCD_D4)
@@ -366,7 +366,7 @@
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
   /**
-   *         ______                        ______
+   *         ------                        ------
    *     NC | 1  2 | GND               NC | 1  2 | GND
    *     NC | 3  4 | M1EN            M2EN | 3  4 | M3EN
    *  M1STP | 5  6   M1DIR           M1RX | 5  6   M1DIAG

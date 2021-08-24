@@ -194,7 +194,6 @@
   //#define LCD_LED_PIN                     PB2
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                      PB13
-    //#undef SPEAKER
   #endif
 
 #elif ENABLED(DWIN_VET6_CREALITY_LCD)

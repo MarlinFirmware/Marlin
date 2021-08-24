@@ -192,12 +192,12 @@
 //#define KILL_PIN                          PC5
 
 /**
- *         ______                 ______
- *     5V | 1  2 | GND        5V | 1  2 | GND
- *    PD1 | 3  4 | PD0     RESET | 3  4 | PB10
- *   PC12 | 5  6   PC10      PA7 | 5  6   PC7
- *    PD2 | 7  8 | PC11      PA4 | 7  8 | PC6
- *    PA8 | 9 10 | PC9       PA5 | 9 10 | PA6
+ *         ------                 ------
+ *   PC9  |10  9 | PA8      PA6  |10  9 | PA5
+ *   PC11 | 8  7 | PD2      PC6  | 8  7 | PA4
+ *   PC10 | 6  5   PC12     PC7  | 6  5   PA7
+ *   PD0  | 4  3 | PD1      PB10 | 4  3 | RESET
+ *   GND  | 2  1 | 5V       GND  | 2  1 | 5V
  *         ------                 ------
  *          EXP1                   EXP2
  */
@@ -315,9 +315,15 @@
 
 // Alter timing for graphical display
 #if HAS_MARLINUI_U8GLIB
-  #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
-  #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
-  #define BOARD_ST7920_DELAY_3   DELAY_NS(640)
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
+  #endif
 #endif
 
 #ifndef RGB_LED_R_PIN

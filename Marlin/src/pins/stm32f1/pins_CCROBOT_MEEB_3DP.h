@@ -122,7 +122,7 @@
 #define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
 
 /**
- *     1 _____ 2
+ *     1 ----- 2
  *  PB5 | · · | PB6
  *  PA2 | · · | RESET
  *  PA3 | · · | PB8

@@ -158,7 +158,7 @@ static void sd_power_on() {
   ONBOARD_SD_SPI.begin();
   ONBOARD_SD_SPI.setBitOrder(MSBFIRST);
   ONBOARD_SD_SPI.setDataMode(SPI_MODE0);
-  OUT_WRITE(ONBOARD_SD_CS_PIN, HIGH); // Set CS# high
+  CS_HIGH();
 }
 
 // Disable SPI function

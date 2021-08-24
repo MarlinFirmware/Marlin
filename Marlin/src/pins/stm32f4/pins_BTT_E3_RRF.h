@@ -183,7 +183,7 @@
 
 /**
  *               BTT E3 RRF
- *                 _____
+ *                 -----
  *             5V | 1 2 | GND
  *  (LCD_EN) PE11 | 3 4 | PB1  (LCD_RS)
  *  (LCD_D4) PE10 | 5 6   PB2  (BTN_EN2)
@@ -248,7 +248,7 @@
        * TFTGLCD_PANEL_SPI display pinout
        *
        *               Board                                      Display
-       *               _____                                       _____
+       *               -----                                       -----
        *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
        * (FREE)  PE11 | 3 4 | PB1  (LCD_CS)      (PE7)     LCD_CS | 3 4 | SD_CS (PB2)
        * (FREE)  PE10 | 5 6 | PB2  (SD_CS)                 (FREE) | 5 6 | MOSI  (SPI1-MOSI)
@@ -303,7 +303,7 @@
   /** FYSETC TFT TFT81050 display pinout
    *
    *               Board                                      Display
-   *               _____                                       _____
+   *               -----                                       -----
    *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
    * (FREE)  PE11 | 3 4 | PB1  (LCD_CS)      (PE7)  MOD_RESET | 3 4 | SD_CS (PB2)
    * (FREE)  PE10 | 5 6 | PB2  (SD_CS)       (PB1)     LCD_CS | 5 6 | MOSI  (SPI1-MOSI)
