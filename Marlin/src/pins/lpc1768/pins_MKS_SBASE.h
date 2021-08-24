@@ -165,8 +165,6 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(CUSTOM_CABLE)
 
   /**
@@ -199,6 +197,7 @@
     #define SD_SS_PIN                      P0_28
   #else
     #define SD_DETECT_PIN                  P0_27
+    #define ONBOARD_SD_CS_PIN              P0_06  // Chip select for "System" SD card
     #define SD_SS_PIN          ONBOARD_SD_CS_PIN
   #endif
 #endif

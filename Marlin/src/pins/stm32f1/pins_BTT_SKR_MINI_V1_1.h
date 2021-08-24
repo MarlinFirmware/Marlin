@@ -98,7 +98,7 @@
 //
 
 /**
- *                _____                                             _____
+ *                -----                                             -----
  *            NC | · · | GND                                    5V | · · | GND
  *         RESET | · · | PB9 (SD_DETECT)             (LCD_D7) PC14 | · · | PC15 (LCD_D6)
  *  (MOSI)   PB5 | · · | PB8 (BTN_EN2)               (LCD_D5)  PB7 | · · | PC13 (LCD_D4)

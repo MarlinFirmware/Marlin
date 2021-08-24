@@ -258,13 +258,13 @@
 #endif
 
 /**
- *                _____                                             _____
+ *                -----                                             -----
  *   (BEEPER)PC5 | · · | PE13(BTN_ENC)             (SPI1 MISO) PA6 | · · | PA5 (SPI1 SCK)
  *  (LCD_EN)PD13 | · · | PC6(LCD_RS)                 (BTN_EN1) PE8 | · · | PE10 (SPI1 CS)
  *  (LCD_D4)PE14 | · · | PE15(LCD_D5)               (BTN_EN2) PE11 | · · | PA7 (SPI1 MOSI)
  *  (LCD_D6)PD11 | · · | PD10(LCD_D7)               (SPI DET) PE12 | · · | RESET
  *           GND | · · | 5V                                    GND | · · | 3.3V
- *                ￣￣￣                                             ￣￣￣
+ *                -----                                             -----
  *                EXP1                                               EXP2
  */
 
@@ -355,15 +355,9 @@
       #define LCD_PINS_D7                   PD10
     #endif
 
-    #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1          DELAY_NS(96)
-    #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2        DELAY_NS(48)
-    #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3       DELAY_NS(600)
-    #endif
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
 
   #endif // !MKS_MINI_12864
 

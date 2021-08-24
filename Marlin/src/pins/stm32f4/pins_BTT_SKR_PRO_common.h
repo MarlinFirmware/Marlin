@@ -367,7 +367,7 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**       _____                        _____
+  /**       -----                        -----
    *    NC | . . | GND               NC | . . | GND
    *    NC | . . | M1EN            M2EN | . . | M3EN
    * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
