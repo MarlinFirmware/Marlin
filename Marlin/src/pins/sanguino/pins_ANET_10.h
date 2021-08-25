@@ -87,20 +87,20 @@
  */
 
 /**
- * Installation of Marlin
+ * OptiBoot Bootloader:
+ *   Optiboot is an alternative bootloader that can be flashed on the board to free up space for a larger firmware build.
+ *   See https://github.com/Optiboot/optiboot for more information.
  *
- *   For upload of Marlin onto the board with stock bootloader using the Arduino IDE, select 'Sanguino' in 
- *   'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
- *   For upload of Marlin onto the board with stock bootloader using Platformio, change the default_env in 
- *   platformio.ini to 'default_env = sanguino1284p' or 'default_env = sanguino1284p_optimized'.
  *
- *   optiboot is an alternative bootloader that can be burned onto the board to allow upload of larger firmware. 
- *   Information can be found at https://github.com/Optiboot/optiboot
- *   After burning the optiboot bootloader onto the board, Marlin can be uploaded onto the board as follows:
- *   For upload of Marlin onto the board with optiboot using the Arduino IDE, select 'Sanguino (Optiboot)' in 
- *   'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
- *   For upload of Marlin onto the board with optiboot using Platformio, change the default_env in platformio.ini 
- *   to 'default_env = melzi_optiboot'.
+ * Install Marlin with Arduino IDE:
+ *   For a board with the stock bootloader, select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
+ *   For a board with OptiBoot, select 'Sanguino (Optiboot)' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
+ *
+ * Install Marlin with PlatformIO IDE:
+ *   (NOTE: You can set a default build environment by editing the value of 'default_env' in 'platformio.ini'.
+ *          For the best user experience install the "Auto Build Marlin" extension.)
+ *   For a board with the stock bootloader use Build / Upload under the 'sanguino1284p' or 'sanguino1284p_optimized' target.
+ *   For a board with OptiBoot, use Build / Upload under the 'melzi_optiboot' target.
  */
 
 #if NOT_TARGET(__AVR_ATmega1284P__)
