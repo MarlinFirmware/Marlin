@@ -117,11 +117,11 @@ extern "C" {
 #define PIN_WIRE_SCL            PB10
 
 // Timer Definitions
-// Let TIMER 2 for optional Fan PWM
+// Leave TIMER 2 for optional Fan PWM
 #ifndef TEMP_TIMER
   #define TEMP_TIMER            3
 #endif
-// Let TIMER 4 for TFT backlight PWM or Servo freq...
+// Leave TIMER 4 for TFT backlight PWM or Servo freq...
 #ifndef STEP_TIMER
   #define STEP_TIMER            5
 #endif
