@@ -91,7 +91,6 @@
  *   Optiboot is an alternative bootloader that can be flashed on the board to free up space for a larger firmware build.
  *   See https://github.com/Optiboot/optiboot for more information.
  *
- *
  * Install Marlin with Arduino IDE:
  *   For a board with the stock bootloader, select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
  *   For a board with OptiBoot, select 'Sanguino (Optiboot)' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
