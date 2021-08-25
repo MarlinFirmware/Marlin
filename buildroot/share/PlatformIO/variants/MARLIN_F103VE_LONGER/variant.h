@@ -118,22 +118,12 @@ extern "C" {
 
 // Timer Definitions
 // Leave TIMER 2 for optional Fan PWM
-#ifndef TEMP_TIMER
-  #define TEMP_TIMER            3
-#endif
+#define TEMP_TIMER              3
 // Leave TIMER 4 for TFT backlight PWM or Servo freq...
-#ifndef STEP_TIMER
-  #define STEP_TIMER            5
-#endif
-#ifndef TIMER_TONE
-  #define TIMER_TONE            TIM6
-#endif
-#ifndef TIMER_SERVO
-  #define TIMER_SERVO           TIM7
-#endif
-#ifndef TIMER_SERIAL
-  #define TIMER_SERIAL          TIM8
-#endif
+#define STEP_TIMER              5
+#define TIMER_TONE              TIM6
+#define TIMER_SERVO             TIM7
+#define TIMER_SERIAL            TIM8
 
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name
