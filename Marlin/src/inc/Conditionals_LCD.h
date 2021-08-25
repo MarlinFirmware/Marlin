@@ -488,7 +488,10 @@
     #define HAS_MARLINUI_U8GLIB 1
   #elif IS_TFTGLCD_PANEL
     // Neither DOGM nor HD44780. Fully customized interface.
-  #elif DISABLED(HAS_GRAPHICAL_TFT)
+  #elif IS_DWIN_MARLINUI
+    // Since HAS_MARLINUI_U8GLIB refers to U8G displays
+    // the DWIN display can define its own flags
+  #elif !HAS_GRAPHICAL_TFT
     #define HAS_MARLINUI_HD44780 1
   #endif
 #endif
@@ -1087,7 +1090,7 @@
   #define HAS_ETHERNET 1
 #endif
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
     #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)

@@ -132,8 +132,8 @@
 
 /*
 * EXP1 pinout for the LCD according to Fysetcs schematic for the Cheetah board
-*                 _____
-*  (Beeper) PC9  | 1 2 | PC12 (BTN_ENC)
+*                 -----
+*  (BEEPER) PC9  | 1 2 | PC12 (BTN_ENC)
 * (BTN_EN2) PC11 | 3 4 | PB14 (LCD_RS / MISO)
 * (BTN_EN1) PC10   5 6 | PB13 (SCK)
 *  (LCD_EN) PB12 | 7 8 | PB15 (MOSI)

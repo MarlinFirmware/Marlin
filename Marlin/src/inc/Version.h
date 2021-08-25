@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2021-08-20"
+  #define STRING_DISTRIBUTION_DATE "2021-08-25"
 #endif
 
 /**
@@ -105,18 +105,18 @@
  * Currently only supported by DUE platform
  */
 #ifndef USB_DEVICE_VENDOR_ID
-  #define  USB_DEVICE_VENDOR_ID           0x03EB /* ATMEL VID */
+  #define USB_DEVICE_VENDOR_ID            0x03EB /* ATMEL VID */
 #endif
 #ifndef USB_DEVICE_PRODUCT_ID
-  #define  USB_DEVICE_PRODUCT_ID          0x2424 /* MSC / CDC */
+  #define USB_DEVICE_PRODUCT_ID           0x2424 /* MSC / CDC */
 #endif
 //! USB Device string definitions (Optional)
 #ifndef USB_DEVICE_MANUFACTURE_NAME
-  #define  USB_DEVICE_MANUFACTURE_NAME    WEBSITE_URL
+  #define USB_DEVICE_MANUFACTURE_NAME     WEBSITE_URL
 #endif
 #ifdef CUSTOM_MACHINE_NAME
-  #define  USB_DEVICE_PRODUCT_NAME        CUSTOM_MACHINE_NAME
+  #define USB_DEVICE_PRODUCT_NAME         CUSTOM_MACHINE_NAME
 #else
-  #define  USB_DEVICE_PRODUCT_NAME        MACHINE_NAME
+  #define USB_DEVICE_PRODUCT_NAME         MACHINE_NAME
 #endif
-#define  USB_DEVICE_SERIAL_NAME           "123985739853"
+#define USB_DEVICE_SERIAL_NAME            "123985739853"

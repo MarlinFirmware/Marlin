@@ -2288,9 +2288,7 @@ void Temperature::init() {
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
-  #if HAS_MAXTC_SW_SPI
-    max_tc_spi.init();
-  #endif
+  TERN_(HAS_MAXTC_SW_SPI, max_tc_spi.init());
 
   HAL_adc_init();
 
@@ -3037,15 +3035,15 @@ void Temperature::isr() {
       #endif
 
       #if HAS_HEATED_BED
-        _PWM_MOD(BED,soft_pwm_bed,temp_bed);
+        _PWM_MOD(BED, soft_pwm_bed, temp_bed);
       #endif
 
       #if HAS_HEATED_CHAMBER
-        _PWM_MOD(CHAMBER,soft_pwm_chamber,temp_chamber);
+        _PWM_MOD(CHAMBER, soft_pwm_chamber, temp_chamber);
       #endif
 
       #if HAS_COOLER
-        _PWM_MOD(COOLER,soft_pwm_cooler,temp_cooler);
+        _PWM_MOD(COOLER, soft_pwm_cooler, temp_cooler);
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)

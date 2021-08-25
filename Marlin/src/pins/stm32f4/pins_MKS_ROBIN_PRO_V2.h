@@ -147,24 +147,20 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                   PD5
-  #define X_SERIAL_RX_PIN                   PD5
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PD7
-  #define Y_SERIAL_RX_PIN                   PD7
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PD4
-  #define Z_SERIAL_RX_PIN                   PD4
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD9
-  #define E0_SERIAL_RX_PIN                  PD9
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PD8
-  #define E1_SERIAL_RX_PIN                  PD8
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -262,13 +258,13 @@
 #endif
 
 /**
- *                _____                                             _____
+ *                -----                                             -----
  *   (BEEPER)PC5 | · · | PE13(BTN_ENC)             (SPI1 MISO) PA6 | · · | PA5 (SPI1 SCK)
  *  (LCD_EN)PD13 | · · | PC6(LCD_RS)                 (BTN_EN1) PE8 | · · | PE10 (SPI1 CS)
  *  (LCD_D4)PE14 | · · | PE15(LCD_D5)               (BTN_EN2) PE11 | · · | PA7 (SPI1 MOSI)
  *  (LCD_D6)PD11 | · · | PD10(LCD_D7)               (SPI DET) PE12 | · · | RESET
  *           GND | · · | 5V                                    GND | · · | 3.3V
- *                ￣￣￣                                             ￣￣￣
+ *                -----                                             -----
  *                EXP1                                               EXP2
  */
 
@@ -359,15 +355,9 @@
       #define LCD_PINS_D7                   PD10
     #endif
 
-    #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1          DELAY_NS(96)
-    #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2        DELAY_NS(48)
-    #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3       DELAY_NS(600)
-    #endif
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
 
   #endif // !MKS_MINI_12864
 
