@@ -137,11 +137,11 @@
 
 /**
  *    EXP1 Connector                      EXP1 as CR10 STOCKDISPLAY
- *        -----                                      -----
- *   PA4 | 6 5 | PC0                     BEEPER_PIN | 6 5 | BTN_ENC
- *   PD3 | 7 4 | RESET                      BTN_EN1 | 7 4 | RESET
- *   PD2   8 3 | PA1                        BTN_EN2   8 3 | LCD_PINS_D4 (ST9720 CLK)
- *   PA3 | 9 2 | PC1        (ST9720 CS) LCD_PINS_RS | 9 2 | LCD_PINS_ENABLE (ST9720 DAT)
- *   GND |10 1 | 5V                             GND |10 1 | 5V
- *        -----                                   -----
+ *        ------                                      ------
+ *   PA4 |10  9 | PC0                     BEEPER_PIN |10  9 | BTN_ENC
+ *   PD3 | 8  7 | RESET                      BTN_EN1 | 8  7 | RESET
+ *   PD2   6  5 | PA1                        BTN_EN2   6  5 | LCD_PINS_D4     (ST9720 CLK)
+ *   PA3 | 4  3 | PC1        (ST9720 CS) LCD_PINS_RS | 4  3 | LCD_PINS_ENABLE (ST9720 DAT)
+ *   GND | 2  1 | 5V                             GND | 2  1 | 5V
+ *        ------                                      ------
  */

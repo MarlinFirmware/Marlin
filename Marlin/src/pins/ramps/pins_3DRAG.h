@@ -80,6 +80,7 @@
 #if IS_ULTRA_LCD && IS_NEWPANEL
   #undef BEEPER_PIN
 
+  // TODO: Remap EXP1/2 based on adapter
   #undef LCD_PINS_RS
   #undef LCD_PINS_ENABLE
   #undef LCD_PINS_D4

@@ -310,15 +310,14 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
-/**
- *               ------                                              ------
- *           NC | 1  2 | GND                                     5V | 1  2 | GND
- *        RESET | 3  4 | PC15 (SD_DETECT)             (LCD_D7) PE15 | 3  4 | PE14 (LCD_D6)
- *   (MOSI) PA7 | 5  6   PB1  (BTN_EN2)               (LCD_D5) PE13 | 5  6   PE12 (LCD_D4)
- *  (SD_SS) PA4 | 7  8 | PB2  (BTN_EN1)               (LCD_RS) PE10 | 7  8 | PE9  (LCD_EN)
- *    (SCK) PA5 | 9 10 | PA6  (MISO)                 (BTN_ENC)  PE7 | 9 10 | PE8  (BEEPER)
- *               ------                                               -----
- *               EXP2                                                EXP1
+/**               ------                                      ------
+ * (BEEPER) PE8  |10  9 | PE7  (BTN_ENC)         (MISO) PA6  |10  9 | PA5  (SCK)
+ * (LCD_EN) PE9  | 8  7 | PE10 (LCD_RS)       (BTN_EN1) PB2  | 8  7 | PA4  (SD_SS)
+ * (LCD_D4) PE12   6  5 | PE13 (LCD_D5)       (BTN_EN2) PB1    6  5 | PA7  (MOSI)
+ * (LCD_D6) PE14 | 4  3 | PE15 (LCD_D7)     (SD_DETECT) PC15 | 4  3 | RESET
+ *          GND  | 2  1 | 5V                            GND  | 2  1 | NC
+ *                ------                                      ------
+ *                 EXP1                                        EXP2
  */
 
 #define EXP1_03_PIN                         PE15

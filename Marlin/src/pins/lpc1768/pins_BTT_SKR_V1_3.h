@@ -184,16 +184,15 @@
 #endif
 
 /**
- *               ------                                             ------
- *           NC | 1  2 | GND                                    5V | 1  2 | GND
- *        RESET | 3  4 | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | 3  4 | 1.22 (LCD_D6)
- *  (MOSI) 0.18 | 5  6   3.25 (BTN_EN2)              (LCD_D5) 1.21 | 5  6   1.20 (LCD_D4)
- * (SD_SS) 0.16 | 7  8 | 3.26 (BTN_EN1)              (LCD_RS) 1.19 | 7  8 | 1.18 (LCD_EN)
- *   (SCK) 0.15 | 9 10 | 0.17 (MISO)                (BTN_ENC) 0.28 | 9 10 | 1.30 (BEEPER)
- *               ------                                             ------
- *               EXP2                                               EXP1
+ *                 ------                                     ------
+ *  (BEEPER) 1.30 |10  9 | 0.28 (BTN_ENC)        (MISO) 0.17 |10  9 | 0.15 (SCK)
+ *  (LCD_EN) 1.18 | 8  7 | 1.19  (LCD_RS)     (BTN_EN1) 3.26 | 8  7 | 0.16 (SD_SS)
+ *  (LCD_D4) 1.20   6  5 | 1.21  (LCD_D5)     (BTN_EN2) 3.25   6  5 | 0.18 (MOSI)
+ *  (LCD_D6) 1.22 | 4  3 | 1.23  (LCD_D7)   (SD_DETECT) 1.31 | 4  3 | RESET
+ *            GND | 2  1 | 5V                            GND | 2  1 | NC
+ *                 ------                                     ------
+ *                  EXP1                                       EXP2
  */
-
 #define EXP1_03_PIN                        P1_23
 #define EXP1_04_PIN                        P1_22
 #define EXP1_05_PIN                        P1_21
