@@ -68,7 +68,7 @@
 #define E0_DIR_PIN                          PB0
 #define E0_ENABLE_PIN                       PC4
 
-#if ENABLED(TMC_USE_SW_SPI)
+#if ENABLED(TMC_USE_SW_SPI)                       // Shared with EXP2
   #ifndef TMC_SW_SCK
     #define TMC_SW_SCK                      PB3
   #endif
