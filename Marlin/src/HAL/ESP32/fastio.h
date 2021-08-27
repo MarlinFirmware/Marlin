@@ -41,12 +41,18 @@
 #define _PULLUP(IO, v)          pinMode(IO, v ? INPUT_PULLUP : INPUT)
 
 // Read a pin wrapper
-#define READ(IO)                (IS_I2S_EXPANDER_PIN(IO) ? i2s_state(I2S_EXPANDER_PIN_INDEX(IO)) : digitalRead(IO))
-
+#if (MOTHERBOARD == BOARD_PANDA_ZHU)||(MOTHERBOARD == BOARD_PANDA_M4)
+    #define READ(IO)                digitalRead(IO) 
+    #define WRITE(IO, v)            (IO>=100 ? Write_EXIO(IO,v) : digitalWrite(IO, v))
+#else
+    #define READ(IO)                (IS_I2S_EXPANDER_PIN(IO) ? i2s_state(I2S_EXPANDER_PIN_INDEX(IO)) : digitalRead(IO))
 // Write to a pin wrapper
-#define WRITE(IO, v)            (IS_I2S_EXPANDER_PIN(IO) ? i2s_write(I2S_EXPANDER_PIN_INDEX(IO), v) : digitalWrite(IO, v))
+    #define WRITE(IO, v)            (IS_I2S_EXPANDER_PIN(IO) ? i2s_write(I2S_EXPANDER_PIN_INDEX(IO), v) : digitalWrite(IO, v))
 
-// Set pin as input wrapper
+#endif
+
+
+// Set pin as input wrapper (0x80|(v<<5)|(IO-100))
 #define SET_INPUT(IO)           _SET_INPUT(IO)
 
 // Set pin as input with pullup wrapper

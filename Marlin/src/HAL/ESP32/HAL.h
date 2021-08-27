@@ -141,7 +141,9 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 void HAL_idletask();
 inline void HAL_init() {}
 void HAL_init_board();
-
+#if (MOTHERBOARD == BOARD_PANDA_ZHU)||(MOTHERBOARD == BOARD_PANDA_M4)
+void Write_EXIO(unsigned char IO,unsigned char v);
+#endif
 //
 // Delay in cycles (used by DELAY_NS / DELAY_US)
 //

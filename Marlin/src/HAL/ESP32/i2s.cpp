@@ -20,7 +20,7 @@
  *
  */
 #ifdef ARDUINO_ARCH_ESP32
-
+#if (MOTHERBOARD != BOARD_PANDA_ZHU)&&(MOTHERBOARD != BOARD_PANDA_M4)
 #include "../../inc/MarlinConfigPre.h"
 
 #include "i2s.h"
@@ -339,5 +339,5 @@ uint8_t i2s_state(uint8_t pin) {
 void i2s_push_sample() {
   dma.current[dma.rw_pos++] = i2s_port_data;
 }
-
+#endif
 #endif // ARDUINO_ARCH_ESP32
