@@ -94,11 +94,8 @@ volatile int numPWMUsed = 0,
 #if (MOTHERBOARD == BOARD_PANDA_ZHU)||(MOTHERBOARD == BOARD_PANDA_M4)
 HardwareSerial YSerial2(2);
  
-void Write_EXIO(unsigned char IO,unsigned char v)
-{
-
-    if(ISRS_ENABLED()) 
-    {
+void Write_EXIO(unsigned char IO,unsigned char v){
+    if(ISRS_ENABLED()) {
         DISABLE_ISRS();
         YSerial2.write(0x80|(((char)v)<<5)|(IO-100));
         ENABLE_ISRS();

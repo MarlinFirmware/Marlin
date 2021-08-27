@@ -20,8 +20,9 @@
  *
  */
 #ifdef ARDUINO_ARCH_ESP32
-#if (MOTHERBOARD != BOARD_PANDA_ZHU)&&(MOTHERBOARD != BOARD_PANDA_M4)
 #include "../../inc/MarlinConfigPre.h"
+#if (MOTHERBOARD != BOARD_PANDA_ZHU)&&(MOTHERBOARD != BOARD_PANDA_M4)
+
 
 #include "i2s.h"
 
