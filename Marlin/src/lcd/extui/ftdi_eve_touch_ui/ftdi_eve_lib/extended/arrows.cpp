@@ -1,10 +1,9 @@
-/*******************
- * ftdi_extended.h *
- *******************/
+/**************
+ * arrows.cpp *
+ **************/
 
 /****************************************************************************
- *   Written By Mark Pelletier  2019 - Aleph Objects, Inc.                  *
- *   Written By Marcio Teixeira 201( - Aleph Objects, Inc.                  *
+ *   Written By Marcio Teixeira 2021 - SynDaver 3D                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -20,37 +19,34 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#pragma once
-
-#include "../compat.h"
-#include "../basic/ftdi_basic.h"
-
-#ifndef __MARLIN_FIRMWARE__
-  #define FTDI_EXTENDED
-#endif
+#include "ftdi_extended.h"
 
 #if ENABLED(FTDI_EXTENDED)
-  #include "unicode/font_size_t.h"
-  #include "unicode/unicode.h"
-  #include "unicode/standard_char_set.h"
-  #include "unicode/western_char_set.h"
-  #include "unicode/cyrillic_char_set.h"
-  #include "unicode/font_bitmaps.h"
-  #include "rgb_t.h"
-  #include "bitmap_info.h"
-  #include "tiny_timer.h"
-  #include "grid_layout.h"
-  #include "dl_cache.h"
-  #include "event_loop.h"
-  #include "command_processor.h"
-  #include "screen_types.h"
-  #include "sound_player.h"
-  #include "sound_list.h"
-  #include "polygon.h"
-  #include "poly_ui.h"
-  #include "arrows.h"
-  #include "text_box.h"
-  #include "text_ellipsis.h"
-  #include "adjuster_widget.h"
-  #include "circular_progress.h"
-#endif
+
+#define COORD(X,Y) cx + s*(swapXY ? Y : (flipX ? -X : X)), cy + s*(swapXY ? (flipX ? -X : X) : Y)
+
+namespace FTDI {
+
+  void drawArrow(int x, int y, int w, int h, Direction direction) {
+    const bool swapXY = direction == UP || direction == DOWN;
+    const bool flipX  = direction == UP || direction == LEFT;
+    const int s  = min(w,h);
+    const int cx = (x + w/2)*16;
+    const int cy = (y + h/2)*16;
+
+    CommandProcessor cmd;
+    cmd.cmd(SAVE_CONTEXT())
+       .cmd(LINE_WIDTH(s/2))
+       .cmd(BEGIN(LINES))
+       .cmd(VERTEX2F(COORD( 5, 0)))
+       .cmd(VERTEX2F(COORD( 2,-2)))
+       .cmd(VERTEX2F(COORD( 5, 0)))
+       .cmd(VERTEX2F(COORD( 2, 2)))
+       .cmd(VERTEX2F(COORD( 5, 0)))
+       .cmd(VERTEX2F(COORD(-5, 0)))
+       .cmd(RESTORE_CONTEXT());
+  }
+
+} // namespace FTDI
+
+#endif // FTDI_EXTENDED
