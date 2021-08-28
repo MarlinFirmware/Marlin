@@ -1286,6 +1286,7 @@
   //#endif
   #endif
 
+  #if EITHER(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI)
     //#define PRINT_PROGRESS_SHOW_DECIMALS // Show progress with decimal digits
   #endif
 
