@@ -3295,11 +3295,6 @@
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
     #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
   #endif
-  // CR6Community - Temporary: https://github.com/MarlinFirmware/Marlin/issues/21748
-  #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
-    #undef M600_PURGE_MORE_RESUMABLE
-    #define M600_PURGE_MORE_RESUMABLE 0
-  #endif
 #endif
 
 #if HAS_MULTI_EXTRUDER && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
