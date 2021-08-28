@@ -181,15 +181,25 @@ void gCfgItems_init() {
 }
 
 void ui_cfg_init() {
+//Set extruder Steps distances here in mm
+  uiCfg.eStepMin = 1;
+  uiCfg.eStepMed = 5;
+  uiCfg.eStepMax = 10;
+
+//Set extruder speed here in mm/s
+  uiCfg.eSpeedL = 1;
+  uiCfg.eSpeedN = 10;
+  uiCfg.eSpeedH = 20;
+
   uiCfg.curTempType         = 0;
   uiCfg.extruderIndex       = 0;
   uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = false;
   uiCfg.para_ui_page        = false;
-  uiCfg.extruStep           = 5;
-  uiCfg.extruSpeed          = 10;
+  uiCfg.extruStep           = uiCfg.eStepMed;
+  uiCfg.extruSpeed          = uiCfg.eSpeedN;
   uiCfg.move_dist           = 1;
-  uiCfg.moveSpeed           = 3000;
+  uiCfg.moveSpeed           = 1000;
   uiCfg.stepPrintSpeed      = 10;
   uiCfg.command_send        = false;
   uiCfg.dialogType          = 0;

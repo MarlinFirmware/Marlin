@@ -228,8 +228,14 @@ typedef struct {
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
-  uint8_t extruStep;
-  uint8_t extruSpeed;
+  uint8_t extruStep,
+          eStepMin,
+          eStepMed,
+          eStepMax;
+  uint8_t extruSpeed,
+          eSpeedH,
+          eSpeedN,
+          eSpeedL;
   uint8_t print_state;
   uint8_t stepPrintSpeed;
   uint8_t waitEndMoves;

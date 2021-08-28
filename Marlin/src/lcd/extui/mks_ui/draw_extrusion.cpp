@@ -89,20 +89,22 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_extru_amount();
       break;
     case ID_E_STEP:
-      switch (ABS(uiCfg.extruStep)) {
-        case  1: uiCfg.extruStep = 5; break;
-        case  5: uiCfg.extruStep = 10; break;
-        case 10: uiCfg.extruStep = 1; break;
-        default: break;
+      if(uiCfg.extruStep == uiCfg.eStepMin){
+        uiCfg.extruStep = uiCfg.eStepMed;
+      }else if(uiCfg.extruStep == uiCfg.eStepMed){
+        uiCfg.extruStep = uiCfg.eStepMax;
+      }else if(uiCfg.extruStep == uiCfg.eStepMax){
+        uiCfg.extruStep = uiCfg.eStepMin;
       }
       disp_ext_step();
       break;
     case ID_E_SPEED:
-      switch (uiCfg.extruSpeed) {
-        case  1: uiCfg.extruSpeed = 10; break;
-        case 10: uiCfg.extruSpeed = 20; break;
-        case 20: uiCfg.extruSpeed = 1; break;
-        default: break;
+      if(uiCfg.extruSpeed == uiCfg.eSpeedL){
+        uiCfg.extruSpeed = uiCfg.eSpeedN;
+      }else if(uiCfg.extruSpeed == uiCfg.eSpeedN){
+        uiCfg.extruSpeed = uiCfg.eSpeedH;
+      }else if(uiCfg.extruSpeed == uiCfg.eSpeedH){
+        uiCfg.extruSpeed = uiCfg.eSpeedL;
       }
       disp_ext_speed();
       break;
@@ -170,19 +172,19 @@ void disp_ext_type() {
 }
 
 void disp_ext_speed() {
-  if (uiCfg.extruSpeed == 20)
+  if (uiCfg.extruSpeed == uiCfg.eSpeedH)
     lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_high.bin");
-  else if (uiCfg.extruSpeed == 1)
+  else if (uiCfg.extruSpeed == uiCfg.eSpeedL)
     lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_slow.bin");
   else
     lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_normal.bin");
 
   if (gCfgItems.multiple_language) {
-    if (uiCfg.extruSpeed == 20) {
+    if (uiCfg.extruSpeed == uiCfg.eSpeedH) {
       lv_label_set_text(labelSpeed, extrude_menu.high);
       lv_obj_align(labelSpeed, buttonSpeed, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
-    else if (uiCfg.extruSpeed == 1) {
+    else if (uiCfg.extruSpeed == uiCfg.eSpeedL) {
       lv_label_set_text(labelSpeed, extrude_menu.low);
       lv_obj_align(labelSpeed, buttonSpeed, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
@@ -221,24 +223,27 @@ void disp_extru_amount() {
 }
 
 void disp_ext_step() {
-  if (uiCfg.extruStep == 1)
+  char buf3[20] = {0};
+  sprintf_P(buf3, PSTR("%dmm"), uiCfg.extruStep);
+
+  if (uiCfg.extruStep == uiCfg.eStepMin)
     lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step1_mm.bin");
-  else if (uiCfg.extruStep == 5)
+  else if (uiCfg.extruStep == uiCfg.eStepMed)
     lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step5_mm.bin");
-  else if (uiCfg.extruStep == 10)
+  else if (uiCfg.extruStep == uiCfg.eStepMax)
     lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step10_mm.bin");
 
   if (gCfgItems.multiple_language) {
-    if (uiCfg.extruStep == 1) {
-      lv_label_set_text(labelStep, extrude_menu.step_1mm);
+    if (uiCfg.extruStep == uiCfg.eStepMin) {
+      lv_label_set_text(labelStep, buf3);
       lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
-    else if (uiCfg.extruStep == 5) {
-      lv_label_set_text(labelStep, extrude_menu.step_5mm);
+    else if (uiCfg.extruStep == uiCfg.eStepMed) {
+      lv_label_set_text(labelStep, buf3);
       lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
-    else if (uiCfg.extruStep == 10) {
-      lv_label_set_text(labelStep, extrude_menu.step_10mm);
+    else if (uiCfg.extruStep == uiCfg.eStepMax) {
+      lv_label_set_text(labelStep, buf3);
       lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
   }
