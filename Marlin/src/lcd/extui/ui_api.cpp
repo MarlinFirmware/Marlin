@@ -1083,6 +1083,10 @@ namespace ExtUI {
     onStatusChanged(msg);
   }
 
+   bool isWaitingOnUser() {
+    return TERN(HAS_RESUME_CONTINUE, wait_for_user, false);
+  }
+
   FileList::FileList() { refresh(); }
 
   void FileList::refresh() { num_files = 0xFFFF; }
