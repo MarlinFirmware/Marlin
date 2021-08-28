@@ -39,15 +39,14 @@
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
-float z_measured[G35_PROBE_COUNT];
+static float z_measured[G35_PROBE_COUNT];
+static bool z_isvalid[G35_PROBE_COUNT];
 static uint8_t tram_index = 0;
 static int8_t reference_index = -1;
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
-
-#include <math.h>
 
 static bool probe_single_point() {
   do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
@@ -66,7 +65,7 @@ static void _menu_single_probe(const uint8_t point) {
   DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", point);
   START_MENU();
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
-  if (!isnanf(z_measured[reference_index]) && !isnanf(z_measured[point]))
+  if (z_isvalid[point]) // reference_index is assumed to be valid, since first probed point becomes reference
     STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, ftostr42_52(z_measured[reference_index] - z_measured[point])); // Print diff
   ACTION_ITEM(MSG_UBL_BC_INSERT2, []{ if (probe_single_point()) ui.refresh(); });
   ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen(); }); // Back
@@ -100,7 +99,8 @@ void goto_tramming_wizard() {
   queue.inject_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
 
   // Initialize measured values to NAN so we will know if they have been measured.
-  LOOP_L_N(i, G35_PROBE_COUNT) z_measured[i] = (float)NAN;
+  // LOOP_L_N(i, G35_PROBE_COUNT) z_measured[i] = (float)NAN;
+  LOOP_L_N(i, G35_PROBE_COUNT) z_isvalid[i] = false;
   reference_index = -1;
 
   ui.goto_screen([]{
