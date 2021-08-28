@@ -2320,7 +2320,6 @@ void MarlinSettings::postprocess() {
           ubl.report_state();
 
           if (!ubl.sanity_check()) {
-            SERIAL_EOL();
             #if BOTH(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
               ubl.echo_name();
               DEBUG_ECHOLNPGM(" initialized.\n");
@@ -2556,9 +2555,7 @@ void MarlinSettings::reset() {
     TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK);
   #endif
 
-  #if HAS_JUNCTION_DEVIATION
-    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
-  #endif
+  TERN_(HAS_JUNCTION_DEVIATION, planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM));
 
   #if HAS_SCARA_OFFSET
     scara_home_offset.reset();
@@ -3152,9 +3149,7 @@ void MarlinSettings::reset() {
 
     CONFIG_ECHO_HEADING(
       "Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
-      #if HAS_JUNCTION_DEVIATION
-        " J<junc_dev>"
-      #endif
+      TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
       #if HAS_CLASSIC_JERK
         " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>"
         TERN_(HAS_CLASSIC_E_JERK, " E<max_e_jerk>")
@@ -3266,7 +3261,6 @@ void MarlinSettings::reset() {
         if (!forReplay) {
           SERIAL_EOL();
           ubl.report_state();
-          SERIAL_EOL();
           config_heading(false, PSTR("Active Mesh Slot: "), false);
           SERIAL_ECHOLN(ubl.storage_slot);
           config_heading(false, PSTR("EEPROM can hold "), false);
@@ -3886,7 +3880,7 @@ void MarlinSettings::reset() {
 
     #if HAS_MULTI_LANGUAGE
       CONFIG_ECHO_HEADING("UI Language:");
-      SERIAL_ECHO_MSG("  M414 S", ui.language);
+      CONFIG_ECHO_MSG("  M414 S", ui.language);
     #endif
   }
 

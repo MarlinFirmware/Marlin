@@ -64,7 +64,7 @@ namespace ExtUI {
       ScreenHandler.SetupConfirmAction(setUserConfirmed);
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
     }
-    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP ) {
+    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
       ScreenHandler.SetupConfirmAction(nullptr);
       ScreenHandler.PopToOldScreen();
     }

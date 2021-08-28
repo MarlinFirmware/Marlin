@@ -158,8 +158,6 @@
 // SD Card
 //
 
-#define HAS_ONBOARD_SD
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
@@ -179,6 +177,6 @@
 #endif
 
 #define SUICIDE_PIN                         PC13
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING             false
+#ifndef SUICIDE_PIN_STATE
+  #define SUICIDE_PIN_STATE                  LOW
 #endif

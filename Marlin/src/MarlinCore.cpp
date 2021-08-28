@@ -1131,6 +1131,10 @@ inline void tmc_standby_setup() {
  *  - Set Marlin to RUNNING State
  */
 void setup() {
+  #ifdef FASTIO_INIT
+    FASTIO_INIT();
+  #endif
+
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
   #endif
@@ -1188,7 +1192,7 @@ void setup() {
 
   #if HAS_SUICIDE
     SETUP_LOG("SUICIDE_PIN");
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
   #endif
 
   #ifdef JTAGSWD_RESET
@@ -1275,14 +1279,13 @@ void setup() {
   HAL_clear_reset_source();
 
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
-  SERIAL_EOL();
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-  SERIAL_ECHO_MSG("Compiled: " __DATE__);
+  SERIAL_ECHO_MSG(" Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1587,7 +1590,7 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();
     HMI_Init();
-    DWIN_JPG_CacheTo1(Language_English);
+    HMI_SetLanguageCache();
     HMI_StartFrame(true);
     DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
   #endif

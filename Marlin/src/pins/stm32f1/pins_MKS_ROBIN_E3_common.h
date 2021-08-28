@@ -92,9 +92,6 @@
   //#define Z_HARDWARE_SERIAL  MSerial1
   //#define E0_HARDWARE_SERIAL MSerial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC7
   #define X_SERIAL_RX_PIN                   PC7
 
@@ -129,18 +126,14 @@
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)                          // MKSPWC
-  #ifndef PS_ON_PIN
-    #define PS_ON_PIN                       PA14  // PW_OFF
-  #endif
-  #ifndef KILL_PIN
-    #define KILL_PIN                        PB10  // PW_DET
-    #define KILL_PIN_STATE                  HIGH
-  #endif
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                         PA14  // PW_OFF
+  #define KILL_PIN                          PB10  // PW_DET
+  #define KILL_PIN_STATE                    HIGH
 #endif
 
 /**
- *                _____                                      _____                                     _____
+ *                -----                                      -----                                     -----
  *  (BEEPER) PC1 | 1 2 | PC3 (BTN_ENC)          (MISO) PB14 | 1 2 | PB13 (SD_SCK)                  5V | 1 2 | GND
  *  (LCD_EN) PA4 | 3 4 | PA5 (LCD_RS)        (BTN_EN1) PB11 | 3 4 | PA15 (SD_SS)         (LCD_EN) PA4 | 3 4 | PA5  (LCD_RS)
  *  (LCD_D4) PA6 | 5 6   PA7 (LCD_D5)        (BTN_EN2)  PB0 | 5 6   PB15 (SD_MOSI)       (LCD_D4) PA6 | 5 6   PB0  (BTN_EN2)

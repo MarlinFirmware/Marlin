@@ -1495,17 +1495,17 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
         break;
 
       case UNRUNOUT_STATUS:
-        if (READ(MT_DET_1_PIN) == LOW)
+        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_STATUS;
         break;
 
       case RUNOUT_BEGIN_STATUS:
-        if (READ(MT_DET_1_PIN) == HIGH)
+        if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
         break;
 
       case RUNOUT_WAITTING_STATUS:
-        if (READ(MT_DET_1_PIN) == LOW)
+        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;
 

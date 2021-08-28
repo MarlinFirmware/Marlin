@@ -73,10 +73,10 @@
 
 #if HAS_SPI_FLASH
   // SPI 2
-  #define W25QXX_CS_PIN                     PB12  // SPI2_NSS / Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
 
 //
@@ -124,11 +124,11 @@
   // SoftwareSerial with one pin per driver
   // Compatible with TMC2208 and TMC2209 drivers
   #define X_SERIAL_TX_PIN                   PA10  // RXD1
-  #define X_SERIAL_RX_PIN                   PA10  // RXD1
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
   #define Y_SERIAL_TX_PIN                   PA9   // TXD1
-  #define Y_SERIAL_RX_PIN                   PA9   // TXD1
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
   #define Z_SERIAL_TX_PIN                   PC7   // IO1
-  #define Z_SERIAL_RX_PIN                   PC7   // IO1
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
   #define TMC_BAUD_RATE                    19200
 #else
   // Motor current PWM pins
@@ -222,9 +222,11 @@
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
-#define MT_DET_1_PIN                        PA4   // MT_DET
-#define MT_DET_2_PIN                        PE6   // FALA_CRTL
-#define MT_DET_PIN_INVERTING               false
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_2_PIN                      PE6
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 //
 // LED / NEOPixel

@@ -99,18 +99,11 @@
 // Avoid nozzle heat and fan start before serial init
 #define BOARD_OPENDRAIN_MOSFETS
 
-#define BOARD_INIT_OD_PINS() { \
+#define BOARD_PREINIT() { \
   OUT_WRITE_OD(HEATER_0_PIN, 0); \
   OUT_WRITE_OD(HEATER_BED_PIN, 0); \
   OUT_WRITE_OD(FAN_PIN, 0); \
 }
-
-#ifdef MAPLE_STM32F1
-  // Only Maple Framework allow that early
-  #define BOARD_PREINIT BOARD_INIT_OD_PINS
-#else
-  #define BOARD_INIT BOARD_INIT_OD_PINS
-#endif
 
 //
 // PWM for a servo probe
@@ -177,18 +170,18 @@
 #if ENABLED(SPI_EEPROM)
   // SPI1 EEPROM Winbond W25Q64 (8MB/64Mbits)
   #define SPI_CHAN_EEPROM1                     1
-  #define SPI_EEPROM1_CS                    PC5   // pin 34
-  #define EEPROM_SCK          BOARD_SPI1_SCK_PIN  // PA5 pin 30
-  #define EEPROM_MISO        BOARD_SPI1_MISO_PIN  // PA6 pin 31
-  #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
+  #define SPI_EEPROM1_CS_PIN                PC5   // pin 34
+  #define EEPROM_SCK_PIN      BOARD_SPI1_SCK_PIN  // PA5 pin 30
+  #define EEPROM_MISO_PIN    BOARD_SPI1_MISO_PIN  // PA6 pin 31
+  #define EEPROM_MOSI_PIN    BOARD_SPI1_MOSI_PIN  // PA7 pin 32
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif HAS_SPI_FLASH
   #define SPI_FLASH_SIZE                0x40000U  // limit to 256KB (M993 will reboot with 512)
-  #define W25QXX_CS_PIN                     PC5
-  #define W25QXX_MOSI_PIN                   PA7
-  #define W25QXX_MISO_PIN                   PA6
-  #define W25QXX_SCK_PIN                    PA5
+  #define SPI_FLASH_CS_PIN                  PC5
+  #define SPI_FLASH_MOSI_PIN                PA7
+  #define SPI_FLASH_MISO_PIN                PA6
+  #define SPI_FLASH_SCK_PIN                 PA5
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB

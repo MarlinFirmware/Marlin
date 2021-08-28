@@ -354,12 +354,11 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
-      row_y1 = row * (MENU_FONT_HEIGHT) + 1;
-      row_y2 = row_y1 + MENU_FONT_HEIGHT - 1;
+      u8g_uint_t y1 = row * (MENU_FONT_HEIGHT) + 1, y2 = y1 + MENU_FONT_HEIGHT - 1;
 
-      if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return;
+      if (!PAGE_CONTAINS(y1 + 1, y2 + 2)) return;
 
-      lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2, 'E');
+      lcd_put_wchar(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), y2, 'E');
       lcd_put_wchar((char)('1' + extruder));
       lcd_put_wchar(' ');
       lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegHotend(extruder)));

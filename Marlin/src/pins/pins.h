@@ -329,7 +329,7 @@
 #elif MB(OMCA)
   #include "sanguino/pins_OMCA.h"               // ATmega644P, ATmega644                  env:sanguino644p
 #elif MB(ANET_10)
-  #include "sanguino/pins_ANET_10.h"            // ATmega1284P                            env:sanguino1284p env:sanguino1284p_optimized
+  #include "sanguino/pins_ANET_10.h"            // ATmega1284P                            env:sanguino1284p env:sanguino1284p_optimized env:melzi_optiboot
 #elif MB(SETHI)
   #include "sanguino/pins_SETHI.h"              // ATmega644P, ATmega644, ATmega1284P     env:sanguino1284p_optimized env:sanguino1284p env:sanguino644p
 
@@ -587,6 +587,8 @@
   #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_MKS)
   #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32
+#elif MB(RUMBA32_BTT)
+  #include "stm32f4/pins_RUMBA32_BTT.h"         // STM32F4                                env:rumba32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"   // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
@@ -639,6 +641,8 @@
   #include "stm32f4/pins_FYSETC_CHEETAH_V20.h"  // STM32F4                                env:FYSETC_CHEETAH_V20
 #elif MB(MKS_MONSTER8)
   #include "stm32f4/pins_MKS_MONSTER8.h"        // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
+#elif MB(TH3D_EZBOARD_LITE_V2)
+  #include "stm32f4/pins_TH3D_EZBOARD_LITE_V2.h" // STM32F4                               env:TH3D_EZBoard_Lite_V2
 
 //
 // ARM Cortex M7
@@ -769,8 +773,10 @@
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #elif MB(BTT_SKR_V2_0)
     #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
+  #elif defined(MOTHERBOARD)
+    #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
-    #error "Unknown MOTHERBOARD value set in Configuration.h"
+    #error "MOTHERBOARD not defined! Use '#define MOTHERBOARD BOARD_...' in Configuration.h."
   #endif
 
   #undef BOARD_MKS_13
