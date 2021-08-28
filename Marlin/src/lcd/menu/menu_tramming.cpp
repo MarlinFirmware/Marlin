@@ -98,8 +98,7 @@ void goto_tramming_wizard() {
   set_all_unhomed();
   queue.inject_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
 
-  // Initialize measured values to NAN so we will know if they have been measured.
-  // LOOP_L_N(i, G35_PROBE_COUNT) z_measured[i] = (float)NAN;
+  // Initialize points to invalid so we will know if they have been measured.
   LOOP_L_N(i, G35_PROBE_COUNT) z_isvalid[i] = false;
   reference_index = -1;
 
