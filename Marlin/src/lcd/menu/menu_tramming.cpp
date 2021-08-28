@@ -39,12 +39,15 @@
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
-float z_measured[G35_PROBE_COUNT] = { 0 };
+float z_measured[G35_PROBE_COUNT];
 static uint8_t tram_index = 0;
+static int8_t reference_index = -1;
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
+
+#include <math.h>
 
 static bool probe_single_point() {
   do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
@@ -52,6 +55,7 @@ static bool probe_single_point() {
   const float z_probed_height = probe.probe_at_point(tramming_points[tram_index], TERN(BLTOUCH_HS_MODE, PROBE_PT_STOW, PROBE_PT_RAISE), 0, true);
   DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
   z_measured[tram_index] = z_probed_height;
+  if (reference_index < 0) reference_index = tram_index;
   move_to_tramming_wait_pos();
 
   return !isnan(z_probed_height);
@@ -62,7 +66,8 @@ static void _menu_single_probe(const uint8_t point) {
   DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", point);
   START_MENU();
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
-  STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, ftostr42_52(z_measured[0] - z_measured[point])); // Print diff
+  if (!isnanf(z_measured[reference_index]) && !isnanf(z_measured[point]))
+    STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, ftostr42_52(z_measured[reference_index] - z_measured[point])); // Print diff
   ACTION_ITEM(MSG_UBL_BC_INSERT2, []{ if (probe_single_point()) ui.refresh(); });
   ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen(); }); // Back
   END_MENU();
@@ -93,6 +98,10 @@ void goto_tramming_wizard() {
   // Inject G28, wait for homing to complete,
   set_all_unhomed();
   queue.inject_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+
+  // Initialize measured values to NAN so we will know if they have been measured.
+  LOOP_L_N(i, G35_PROBE_COUNT) z_measured[i] = (float)NAN;
+  reference_index = -1;
 
   ui.goto_screen([]{
     _lcd_draw_homing();
