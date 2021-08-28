@@ -123,11 +123,11 @@
 #define TEMP_1_PIN                            15  // Analog Input
 #define TEMP_BED_PIN                          14  // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      -1  // Don't use 53 if using Display/SD card
+  #define TEMP_0_CS_PIN                       -1  // Don't use 53 if using Display/SD card
 #else
-  #define MAX6675_SS_PIN                      -1  // Don't use 49 (SD_DETECT_PIN)
+  #define TEMP_0_CS_PIN                       -1  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -138,7 +138,7 @@
 #define HEATER_BED_PIN                         8
 
 #define FAN_PIN                                9
-#define FAN1_PIN                               5  // Normall this would be a servo pin
+#define FAN1_PIN                               5  // Normally this would be a servo pin
 
 // XXX Runout support unknown?
 //#define NUM_RUNOUT_SENSORS                   0

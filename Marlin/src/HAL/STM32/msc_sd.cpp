@@ -13,20 +13,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include "../platforms.h"
+
+#ifdef HAL_STM32
+
 #include "../../inc/MarlinConfigPre.h"
 
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && HAS_SD_HOST_DRIVE
+#if HAS_SD_HOST_DRIVE
 
-#include "msc_sd.h"
 #include "../shared/Marduino.h"
+#include "msc_sd.h"
 #include "usbd_core.h"
+
+#include "../../sd/cardreader.h"
+
 #include <USB.h>
 #include <USBMscHandler.h>
 
 #define BLOCK_SIZE 512
 #define PRODUCT_ID 0x29
-
-#include "../../sd/cardreader.h"
 
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
@@ -57,7 +62,7 @@ public:
       return true;
     }
 
-    // multi block optmization
+    // multi block optimization
     sd2card->writeStart(blkAddr, blkLen);
     while (blkLen--) {
       watchdog_refresh();
@@ -77,7 +82,7 @@ public:
       return true;
     }
 
-    // multi block optmization
+    // multi block optimization
     sd2card->readStart(blkAddr);
     while (blkLen--) {
       watchdog_refresh();
@@ -121,4 +126,5 @@ void MSC_SD_init() {
   USBDevice.begin();
 }
 
-#endif // __STM32F1__ && HAS_SD_HOST_DRIVE
+#endif // HAS_SD_HOST_DRIVE
+#endif // HAL_STM32

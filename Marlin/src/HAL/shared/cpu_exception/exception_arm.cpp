@@ -322,7 +322,7 @@ void hook_cpu_exceptions() {
 
     unsigned long *vecAddr = (unsigned long*)get_vtor();
     SERIAL_ECHOPGM("Vector table addr: ");
-    SERIAL_PRINTLN(get_vtor(), HEX);
+    SERIAL_PRINTLN(get_vtor(), PrintBase::Hex);
 
     #ifdef VECTOR_TABLE_SIZE
       uint32_t vec_size = VECTOR_TABLE_SIZE;
@@ -345,11 +345,11 @@ void hook_cpu_exceptions() {
       // We failed to find a valid vector table size, let's abort hooking up
       if (vec_size == VECTOR_TABLE_SENTINEL) return;
       // Poor method that's wasting RAM here, but allocating with malloc and alignment would be worst
-      // 128 bytes alignement is required for writing the VTOR register
+      // 128 bytes alignment is required for writing the VTOR register
       alignas(128) static unsigned long vectable[VECTOR_TABLE_SENTINEL];
 
       SERIAL_ECHOPGM("Detected vector table size: ");
-      SERIAL_PRINTLN(vec_size, HEX);
+      SERIAL_PRINTLN(vec_size, PrintBase::Hex);
     #endif
 
     uint32_t defaultFaultHandler = vecAddr[(unsigned)7];

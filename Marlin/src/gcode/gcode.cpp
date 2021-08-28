@@ -292,7 +292,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   #endif
 
   #if ENABLED(FLOWMETER_SAFETY)
-    if (cooler.fault) {
+    if (cooler.flowfault) {
       SERIAL_ECHO_MSG(STR_FLOWMETER_FAULT);
       return;
     }
@@ -729,6 +729,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 250: M250(); break;                                  // M250: Set LCD contrast
       #endif
 
+      #if HAS_LCD_BRIGHTNESS
+        case 256: M256(); break;                                  // M256: Set LCD brightness
+      #endif
+
       #if ENABLED(EXPERIMENTAL_I2CBUS)
         case 260: M260(); break;                                  // M260: Send data to an i2c slave
         case 261: M261(); break;                                  // M261: Request data from an i2c slave
@@ -908,7 +912,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
         #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.
-          #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+          #if HAS_MOTOR_CURRENT_DAC
             case 909: M909(); break;                              // M909: Print digipot/DAC current value
             case 910: M910(); break;                              // M910: Commit digipot/DAC value to external EEPROM
           #endif

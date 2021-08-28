@@ -76,17 +76,6 @@ void serialprintPGM(PGM_P str) {
 void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serialprintPGM(echomagic); }
 void serial_error_start() { static PGMSTR(errormagic, "Error:"); serialprintPGM(errormagic); }
 
-void serial_echopair_PGM(PGM_P const s_P, serial_char_t v) { serialprintPGM(s_P); SERIAL_CHAR(v.c); }
-void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, char v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
-void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
-void serial_echopair_PGM(PGM_P const s_P, unsigned char v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
-
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
 void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=nullptr*/) {

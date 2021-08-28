@@ -154,13 +154,6 @@
 #endif
 
 //
-// NeoPixel LED
-//
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PE6
-#endif
-
-//
 // Control pin of driver/heater/fan power supply
 //
 #define SAFE_POWER_PIN                      PC13
@@ -210,7 +203,7 @@
 #define TEMP_0_PIN                          PA2   // TH0
 #define TEMP_1_PIN                          PA3   // TH1
 
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
@@ -509,6 +502,13 @@
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3   DELAY_NS(580)
   #endif
+#endif
+
+//
+// NeoPixel LED
+//
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PE6
 #endif
 
 //

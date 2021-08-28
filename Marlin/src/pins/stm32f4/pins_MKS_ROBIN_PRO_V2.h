@@ -189,18 +189,25 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
 
 //
 // Misc. Functions
 //
-//#define POWER_LOSS_PIN                    PA2   // PW_DET
 //#define PS_ON_PIN                         PA3   // PW_OFF
-//#define SUICIDE_PIN                       PB2   // Enable MKSPWC support
-//#define KILL_PIN                          PA2   // Enable MKSPWC support
-//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support
-//#define LED_PIN                           PB2
+
+//
+// Power Supply Control
+//
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
+  //#define SUICIDE_PIN                     PB2   // LED
+  //#define KILL_PIN                        PA2   // PW_DET
+  //#define KILL_PIN_STATE                  HIGH
+#else
+  //#define POWER_LOSS_PIN                  PA2   // PW_DET
+  //#define LED_PIN                         PB2
+#endif
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION ONBOARD
@@ -212,7 +219,7 @@
 // Onboard SD card
 // NOT compatible with LCD
 //
-// detect pin dont work when ONBOARD and NO_SD_HOST_DRIVE disabled
+// detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
   #if USE_NEW_SPI_API
     #define SD_SPI MARLIN_SPI(HardwareSPI3, PC9)

@@ -20,7 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "HAL.h"
 #include "usb_serial.h"
@@ -61,8 +63,6 @@ TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
 // HAL initialization task
 void HAL_init() {
-  FastIO_init();
-
   // Ensure F_CPU is a constant expression.
   // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
   // So better safe than sorry here.
@@ -91,15 +91,13 @@ void HAL_init() {
     USB_Hook_init();
   #endif
 
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
-  #if HAS_SD_HOST_DRIVE
-    MSC_SD_init();                         // Enable USB SD card access
-  #endif
+  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
 
   #if PIN_EXISTS(USB_CONNECT)
-    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
-    delay(1000);                                         // Give OS time to notice
+    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
+    delay(1000);                                        // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }
@@ -167,4 +165,4 @@ void HAL_SYSTICK_Callback() {
   if (systick_user_callback) systick_user_callback();
 }
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // HAL_STM32

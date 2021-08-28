@@ -204,8 +204,8 @@
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
-#define _OPTARG(A)          , A
-#define OPTARG(O,A)         TERN_(O,DEFER4(_OPTARG)(A))
+#define _OPTARG(A...)       , A
+#define OPTARG(O,A...)      TERN_(O,DEFER4(_OPTARG)(A))
 #define _OPTCODE(A)         A;
 #define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
 
@@ -399,7 +399,7 @@
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
   }
-  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
     namespace Private { \
@@ -442,7 +442,7 @@
       return contains(str, '/') ? findLastPos(findStringEnd(str), '/') : str;
     }
 
-    // Find the first occurence of a character in a string (or return the last position in the string)
+    // Find the first occurrence of a character in a string (or return the last position in the string)
     constexpr const char* findFirst(const char *str, const char ch) {
       return *str == ch || *str == 0 ? (str + 1) : findFirst(str + 1, ch);
     }

@@ -117,7 +117,7 @@
 //#define E3_MS2_PIN         ?
 //#define E3_MS3_PIN         ?
 
-#if HAS_CUSTOM_PROBE_PIN
+#if USES_Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     49
 #endif
 
@@ -156,12 +156,12 @@
   #define TEMP_5_PIN                           6  // A6 (Marlin 2.0 not support)
 #endif
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 /*
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      53
+  #define TEMP_0_CS_PIN                       53
 #else
-  #define MAX6675_SS_PIN                      49
+  #define TEMP_0_CS_PIN                       49
 #endif
 */
 

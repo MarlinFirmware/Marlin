@@ -202,7 +202,7 @@
 //
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #ifndef FAN1_PIN
     #define FAN1_PIN                       P2_06
   #endif
@@ -213,6 +213,19 @@
 #endif
 #ifndef FAN_PIN
   #define FAN_PIN                          P2_04
+#endif
+
+//
+// Power Supply Control
+//
+#if ENABLED(PSU_CONTROL)                          // MKSPWC
+  #ifndef PS_ON_PIN
+    #define PS_ON_PIN                      P2_00  // SERVO
+  #endif
+  #ifndef KILL_PIN
+    #define KILL_PIN                       P1_24  // Z+
+    #define KILL_PIN_STATE                  HIGH
+  #endif
 #endif
 
 //

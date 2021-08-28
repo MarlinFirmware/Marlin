@@ -105,7 +105,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Eksen Hareketleri");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Tabla Hizalama");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Tabla Hizası");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Hizalama Köşeleri");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Hizalama Köşeleri");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Sonraki Köşe");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editörü");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Mesh Düzenle");
@@ -235,6 +235,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Hız");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z Mesafesi");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozul");

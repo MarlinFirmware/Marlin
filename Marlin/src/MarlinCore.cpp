@@ -70,13 +70,13 @@
 #if HAS_TFT_LVGL_UI
   #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/mks_ui/draw_ui.h"
-  #include "lcd/extui/mks_ui/mks_hardware_test.h"
+  #include "lcd/extui/mks_ui/mks_hardware.h"
   #include <lvgl.h>
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/dwin/e3v2/dwin.h"
-  #include "lcd/dwin/e3v2/rotary_encoder.h"
+  #include "lcd/e3v2/creality/dwin.h"
+  #include "lcd/e3v2/creality/rotary_encoder.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -135,7 +135,7 @@
   #include "module/servo.h"
 #endif
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
   #include "feature/dac/stepper_dac.h"
 #endif
 
@@ -282,19 +282,22 @@ bool wait_for_heatup = true;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
-#ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-  static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
-#else
+#ifndef RUNTIME_ONLY_ANALOG_TO_DIGITAL
   template <pin_t ...D>
-  constexpr pin_t OnlyPins<-2, D...>::table[sizeof...(D)];
-  #define sensitive_pins OnlyPins<SENSITIVE_PINS>::table
+  constexpr pin_t OnlyPins<_SP_END, D...>::table[sizeof...(D)];
 #endif
 
 bool pin_is_protected(const pin_t pin) {
-  LOOP_L_N(i, COUNT(sensitive_pins)) {
-    pin_t sensitive_pin;
-    memcpy_P(&sensitive_pin, &sensitive_pins[i], sizeof(pin_t));
-    if (pin == sensitive_pin) return true;
+  #ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
+    static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
+    const size_t pincount = COUNT(sensitive_pins);
+  #else
+    static constexpr size_t pincount = OnlyPins<SENSITIVE_PINS>::size;
+    static const pin_t (&sensitive_pins)[pincount] PROGMEM = OnlyPins<SENSITIVE_PINS>::table;
+  #endif
+  LOOP_L_N(i, pincount) {
+    const pin_t * const pptr = &sensitive_pins[i];
+    if (pin == (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(pptr) : (pin_t)pgm_read_byte(pptr))) return true;
   }
   return false;
 }
@@ -507,7 +510,6 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
     static millis_t next_home_key_ms; // = 0
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
-      const millis_t ms = millis();
       if (ELAPSED(ms, next_home_key_ms)) {
         next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
@@ -519,102 +521,154 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #if ENABLED(CUSTOM_USER_BUTTONS)
     // Handle a custom user button if defined
     const bool printer_not_busy = !printingIsActive();
-    #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE) && defined(BUTTON##N##_DESC))
-    #define CHECK_CUSTOM_USER_BUTTON(N) do{                            \
+    #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE))
+    #define HAS_BETTER_USER_BUTTON(N) HAS_CUSTOM_USER_BUTTON(N) && defined(BUTTON##N##_DESC)
+    #define _CHECK_CUSTOM_USER_BUTTON(N, CODE) do{                     \
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
       static millis_t next_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
         && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
-        const millis_t ms = millis();                                  \
         if (ELAPSED(ms, next_cub_ms_##N)) {                            \
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
-          if (strlen(BUTTON##N##_DESC))                                \
-            LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC));                  \
+          CODE;                                                        \
           queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
         }                                                              \
       }                                                                \
     }while(0)
 
-    #if HAS_CUSTOM_USER_BUTTON(1)
+    #define CHECK_CUSTOM_USER_BUTTON(N)     _CHECK_CUSTOM_USER_BUTTON(N, NOOP)
+    #define CHECK_BETTER_USER_BUTTON(N) _CHECK_CUSTOM_USER_BUTTON(N, if (strlen(BUTTON##N##_DESC)) LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC)))
+
+    #if HAS_BETTER_USER_BUTTON(1)
+      CHECK_BETTER_USER_BUTTON(1);
+    #elif HAS_CUSTOM_USER_BUTTON(1)
       CHECK_CUSTOM_USER_BUTTON(1);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(2)
+    #if HAS_BETTER_USER_BUTTON(2)
+      CHECK_BETTER_USER_BUTTON(2);
+    #elif HAS_CUSTOM_USER_BUTTON(2)
       CHECK_CUSTOM_USER_BUTTON(2);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(3)
+    #if HAS_BETTER_USER_BUTTON(3)
+      CHECK_BETTER_USER_BUTTON(3);
+    #elif HAS_CUSTOM_USER_BUTTON(3)
       CHECK_CUSTOM_USER_BUTTON(3);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(4)
+    #if HAS_BETTER_USER_BUTTON(4)
+      CHECK_BETTER_USER_BUTTON(4);
+    #elif HAS_CUSTOM_USER_BUTTON(4)
       CHECK_CUSTOM_USER_BUTTON(4);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(5)
+    #if HAS_BETTER_USER_BUTTON(5)
+      CHECK_BETTER_USER_BUTTON(5);
+    #elif HAS_CUSTOM_USER_BUTTON(5)
       CHECK_CUSTOM_USER_BUTTON(5);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(6)
+    #if HAS_BETTER_USER_BUTTON(6)
+      CHECK_BETTER_USER_BUTTON(6);
+    #elif HAS_CUSTOM_USER_BUTTON(6)
       CHECK_CUSTOM_USER_BUTTON(6);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(7)
+    #if HAS_BETTER_USER_BUTTON(7)
+      CHECK_BETTER_USER_BUTTON(7);
+    #elif HAS_CUSTOM_USER_BUTTON(7)
       CHECK_CUSTOM_USER_BUTTON(7);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(8)
+    #if HAS_BETTER_USER_BUTTON(8)
+      CHECK_BETTER_USER_BUTTON(8);
+    #elif HAS_CUSTOM_USER_BUTTON(8)
       CHECK_CUSTOM_USER_BUTTON(8);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(9)
+    #if HAS_BETTER_USER_BUTTON(9)
+      CHECK_BETTER_USER_BUTTON(9);
+    #elif HAS_CUSTOM_USER_BUTTON(9)
       CHECK_CUSTOM_USER_BUTTON(9);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(10)
+    #if HAS_BETTER_USER_BUTTON(10)
+      CHECK_BETTER_USER_BUTTON(10);
+    #elif HAS_CUSTOM_USER_BUTTON(10)
       CHECK_CUSTOM_USER_BUTTON(10);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(11)
+    #if HAS_BETTER_USER_BUTTON(11)
+      CHECK_BETTER_USER_BUTTON(11);
+    #elif HAS_CUSTOM_USER_BUTTON(11)
       CHECK_CUSTOM_USER_BUTTON(11);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(12)
+    #if HAS_BETTER_USER_BUTTON(12)
+      CHECK_BETTER_USER_BUTTON(12);
+    #elif HAS_CUSTOM_USER_BUTTON(12)
       CHECK_CUSTOM_USER_BUTTON(12);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(13)
+    #if HAS_BETTER_USER_BUTTON(13)
+      CHECK_BETTER_USER_BUTTON(13);
+    #elif HAS_CUSTOM_USER_BUTTON(13)
       CHECK_CUSTOM_USER_BUTTON(13);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(14)
+    #if HAS_BETTER_USER_BUTTON(14)
+      CHECK_BETTER_USER_BUTTON(14);
+    #elif HAS_CUSTOM_USER_BUTTON(14)
       CHECK_CUSTOM_USER_BUTTON(14);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(15)
+    #if HAS_BETTER_USER_BUTTON(15)
+      CHECK_BETTER_USER_BUTTON(15);
+    #elif HAS_CUSTOM_USER_BUTTON(15)
       CHECK_CUSTOM_USER_BUTTON(15);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(16)
+    #if HAS_BETTER_USER_BUTTON(16)
+      CHECK_BETTER_USER_BUTTON(16);
+    #elif HAS_CUSTOM_USER_BUTTON(16)
       CHECK_CUSTOM_USER_BUTTON(16);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(17)
+    #if HAS_BETTER_USER_BUTTON(17)
+      CHECK_BETTER_USER_BUTTON(17);
+    #elif HAS_CUSTOM_USER_BUTTON(17)
       CHECK_CUSTOM_USER_BUTTON(17);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(18)
+    #if HAS_BETTER_USER_BUTTON(18)
+      CHECK_BETTER_USER_BUTTON(18);
+    #elif HAS_CUSTOM_USER_BUTTON(18)
       CHECK_CUSTOM_USER_BUTTON(18);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(19)
+    #if HAS_BETTER_USER_BUTTON(19)
+      CHECK_BETTER_USER_BUTTON(19);
+    #elif HAS_CUSTOM_USER_BUTTON(19)
       CHECK_CUSTOM_USER_BUTTON(19);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(20)
+    #if HAS_BETTER_USER_BUTTON(20)
+      CHECK_BETTER_USER_BUTTON(20);
+    #elif HAS_CUSTOM_USER_BUTTON(20)
       CHECK_CUSTOM_USER_BUTTON(20);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(21)
+    #if HAS_BETTER_USER_BUTTON(21)
+      CHECK_BETTER_USER_BUTTON(21);
+    #elif HAS_CUSTOM_USER_BUTTON(21)
       CHECK_CUSTOM_USER_BUTTON(21);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(22)
+    #if HAS_BETTER_USER_BUTTON(22)
+      CHECK_BETTER_USER_BUTTON(22);
+    #elif HAS_CUSTOM_USER_BUTTON(22)
       CHECK_CUSTOM_USER_BUTTON(22);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(23)
+    #if HAS_BETTER_USER_BUTTON(23)
+      CHECK_BETTER_USER_BUTTON(23);
+    #elif HAS_CUSTOM_USER_BUTTON(23)
       CHECK_CUSTOM_USER_BUTTON(23);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(24)
+    #if HAS_BETTER_USER_BUTTON(24)
+      CHECK_BETTER_USER_BUTTON(24);
+    #elif HAS_CUSTOM_USER_BUTTON(24)
       CHECK_CUSTOM_USER_BUTTON(24);
     #endif
-    #if HAS_CUSTOM_USER_BUTTON(25)
+    #if HAS_BETTER_USER_BUTTON(25)
+      CHECK_BETTER_USER_BUTTON(25);
+    #elif HAS_CUSTOM_USER_BUTTON(25)
       CHECK_CUSTOM_USER_BUTTON(25);
     #endif
   #endif
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
-  TERN_(AUTO_POWER_CONTROL, powerManager.check());
+  TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
@@ -768,10 +822,8 @@ void idle(bool no_stepper_sleep/*=false*/) {
 
   // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
-    if (endstops.tmc_spi_homing.any
-      && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period))
-    ) LOOP_L_N(i, 4) // Read SGT 4 times per idle loop
-        if (endstops.tmc_spi_homing_check()) break;
+    if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period)))
+      LOOP_L_N(i, 4) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
   #endif
 
   // Handle SD Card insert / remove
@@ -887,11 +939,11 @@ void minkill(const bool steppers_off/*=false*/) {
   #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
 
     // Wait for both KILL and ENC to be released
-    while (TERN0(HAS_KILL, !kill_state()) || TERN0(SOFT_RESET_ON_KILL, !ui.button_pressed()))
+    while (TERN0(HAS_KILL, kill_state()) || TERN0(SOFT_RESET_ON_KILL, ui.button_pressed()))
       watchdog_refresh();
 
-    // Wait for either KILL or ENC press
-    while (TERN1(HAS_KILL, kill_state()) && TERN1(SOFT_RESET_ON_KILL, ui.button_pressed()))
+    // Wait for either KILL or ENC to be pressed again
+    while (TERN1(HAS_KILL, !kill_state()) && TERN1(SOFT_RESET_ON_KILL, !ui.button_pressed()))
       watchdog_refresh();
 
     // Reboot the board
@@ -1074,6 +1126,10 @@ inline void tmc_standby_setup() {
  *  - Set Marlin to RUNNING State
  */
 void setup() {
+  #ifdef FASTIO_INIT
+    FASTIO_INIT();
+  #endif
+
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
   #endif
@@ -1153,23 +1209,16 @@ void setup() {
     #endif
   #endif
 
-  #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
-    mks_esp_wifi_init();
-    WIFISERIAL.begin(WIFI_BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #endif
-
   TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
 
   SETUP_RUN(HAL_init());
 
   // Init and disable SPI thermocouples; this is still needed
   #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 0)
-    OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
+    OUT_WRITE(TEMP_0_CS_PIN, HIGH);  // Disable
   #endif
   #if TEMP_SENSOR_1_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && TEMP_SENSOR_REDUNDANT_SOURCE == 1)
-    OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
+    OUT_WRITE(TEMP_1_CS_PIN, HIGH);
   #endif
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
@@ -1225,9 +1274,7 @@ void setup() {
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-  SERIAL_ECHOPGM_P(GET_TEXT(MSG_MARLIN));
-  SERIAL_CHAR(' ');
-  SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
+  SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
   SERIAL_EOL();
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
@@ -1263,11 +1310,7 @@ void setup() {
   // (because EEPROM code calls the UI).
 
   #if ENABLED(DWIN_CREALITY_LCD)
-    delay(800);   // Required delay (since boot?)
-    SERIAL_ECHOPGM("\nDWIN handshake ");
-    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
-    DWIN_Frame_SetDir(1); // Orientation 90°
-    DWIN_UpdateLCD();     // Show bootscreen (first image)
+    SETUP_RUN(DWIN_Startup());
   #else
     SETUP_RUN(ui.init());
     #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
@@ -1352,7 +1395,7 @@ void setup() {
     SETUP_RUN(digipot_i2c.init());
   #endif
 
-  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+  #if HAS_MOTOR_CURRENT_DAC
     SETUP_RUN(stepper_dac.init());
   #endif
 
@@ -1544,9 +1587,9 @@ void setup() {
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();
     HMI_Init();
-    DWIN_JPG_CacheTo1(Language_English);
+    HMI_SetLanguageCache();
     HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT(WELCOME_MSG));
+    DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)

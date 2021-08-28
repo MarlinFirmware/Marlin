@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2021-07-01"
+#define STRING_DISTRIBUTION_DATE "2021-09-01"
 
 
 /**

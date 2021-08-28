@@ -132,14 +132,15 @@ class MenuItem_confirm : public MenuItemBase {
 
 // The Menu Edit shadow value
 typedef union {
-  bool     state;
-  float    decimal;
-  int8_t   int8;
-  int16_t  int16;
-  int32_t  int32;
-  uint8_t  uint8;
-  uint16_t uint16;
-  uint32_t uint32;
+  bool      state;
+  float     decimal;
+  int8_t    int8;
+  int16_t   int16;
+  int32_t   int32;
+  uint8_t   uint8;
+  uint16_t  uint16;
+  uint32_t  uint32;
+  celsius_t celsius;
 } chimera_t;
 extern chimera_t editable;
 

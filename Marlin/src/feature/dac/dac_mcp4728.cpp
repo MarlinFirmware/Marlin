@@ -32,7 +32,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
 
 #include "dac_mcp4728.h"
 
@@ -81,7 +81,7 @@ uint8_t MCP4728::eepromWrite() {
 }
 
 /**
- * Write Voltage reference setting to all input regiters
+ * Write Voltage reference setting to all input registers
  */
 uint8_t MCP4728::setVref_all(const uint8_t value) {
   Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
@@ -89,7 +89,7 @@ uint8_t MCP4728::setVref_all(const uint8_t value) {
   return Wire.endTransmission();
 }
 /**
- * Write Gain setting to all input regiters
+ * Write Gain setting to all input registers
  */
 uint8_t MCP4728::setGain_all(const uint8_t value) {
   Wire.beginTransmission(I2C_ADDRESS(DAC_DEV_ADDRESS));
@@ -129,7 +129,7 @@ void MCP4728::setDrvPct(xyze_uint_t &pct) {
 }
 
 /**
- * FastWrite input register values - All DAC ouput update. refer to DATASHEET 5.6.1
+ * FastWrite input register values - All DAC output update. refer to DATASHEET 5.6.1
  * DAC Input and PowerDown bits update.
  * No EEPROM update
  */

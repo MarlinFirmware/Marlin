@@ -330,7 +330,7 @@ void tmc_print_current(TMC &st) {
   void tmc_print_sgt(TMC &st) {
     st.printLabel();
     SERIAL_ECHOPGM(" homing sensitivity: ");
-    SERIAL_PRINTLN(st.homing_threshold(), DEC);
+    SERIAL_PRINTLN(st.homing_threshold(), PrintBase::Dec);
   }
 #endif
 
@@ -360,13 +360,6 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     extern millis_t sg_guard_period;
     constexpr uint16_t default_sg_guard_duration = 400;
-
-    struct motion_state_t {
-      xy_ulong_t acceleration;
-      #if ENABLED(HAS_CLASSIC_JERK)
-        xy_float_t jerk_state;
-      #endif
-    };
   #endif
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);
