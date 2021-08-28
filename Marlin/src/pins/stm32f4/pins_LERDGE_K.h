@@ -236,14 +236,14 @@
   #undef  TFT_DRIVER
   #define TFT_DRIVER               LERDGE_ST7796
 
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
 
-  #define TFT_CS_PIN                        PD7
-  #define TFT_RS_PIN                        PD11
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TOUCH_CS_PIN                      PG15
   #define TOUCH_SCK_PIN                     PB3
