@@ -63,7 +63,6 @@
  *          ------                    ------
  *           EXP2                      EXP1
  */
-
 #define EXP1_03_PIN                        -1
 #define EXP1_04_PIN                        -1
 #define EXP1_05_PIN                        -1

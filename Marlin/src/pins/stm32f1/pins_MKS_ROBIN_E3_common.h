@@ -220,6 +220,19 @@
 
 #endif // HAS_WIRED_LCD
 
+// Alter timing for graphical display
+#if ENABLED(U8GLIB_ST7920)
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1   DELAY_NS(125)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2   DELAY_NS(125)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(125)
+  #endif
+#endif
+
 //
 // SD Card
 //
@@ -237,13 +250,3 @@
 #define SD_MISO_PIN                  EXP2_10_PIN
 #define SD_MOSI_PIN                  EXP2_05_PIN
 #define SD_SS_PIN                    EXP2_07_PIN
-
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
-#endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
-#endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
-#endif

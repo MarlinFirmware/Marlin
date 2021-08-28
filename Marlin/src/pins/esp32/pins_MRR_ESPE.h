@@ -122,7 +122,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         13
   #define LCD_PINS_ENABLE                     17

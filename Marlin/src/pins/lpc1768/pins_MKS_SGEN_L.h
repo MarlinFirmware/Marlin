@@ -237,7 +237,6 @@
  *                ------                                        ------
  *                 EXP1                                          EXP2
  */
-
 #define EXP1_03_PIN                        P1_22
 #define EXP1_04_PIN                        P1_00
 #define EXP1_05_PIN                        P0_17

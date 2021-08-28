@@ -108,6 +108,12 @@
 
 #endif // IS_ULTRA_LCD && IS_NEWPANEL
 
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1     DELAY_NS(  0)
+  #define BOARD_ST7920_DELAY_2     DELAY_NS(188)
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(  0)
+#endif
+
 /**
  *  M3/M4/M5 - Spindle/Laser Control
  *

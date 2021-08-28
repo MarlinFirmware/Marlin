@@ -303,7 +303,6 @@
  *               -----                                             -----
  *               EXP2                                              EXP1
  */
-
 #define EXP1_03_PIN                         PE13
 #define EXP1_04_PIN                         PE12
 #define EXP1_05_PIN                         PE11
@@ -489,12 +488,12 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
+#if ENABLED(U8GLIB_ST7920)
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1   DELAY_NS(120)
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(80)
+    #define BOARD_ST7920_DELAY_2   DELAY_NS( 80)
   #endif
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3   DELAY_NS(580)
