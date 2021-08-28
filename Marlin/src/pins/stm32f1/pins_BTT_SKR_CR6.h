@@ -172,7 +172,7 @@
 //
 // Misc. Functions
 //
-#define CASE_LIGHT_PIN                      PA13
+#define LED_CONTROL_PIN                     PA13
 
 #ifndef NEOPIXEL_PIN
 #define NEOPIXEL_PIN                        PA8
