@@ -239,16 +239,15 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
-/**       ------                        ------
- *    NC | 1  2 | GND               5V | 1  2 | GND
- * RESET | 3  4 | 1.31            1.23 | 3  4 | 1.22
- *  0.18 | 5  6   3.25            1.21 | 5  6   1.20
- *  0.16 | 7  8 | 3.26            1.19 | 7  8 | 1.18
- *  0.15 | 9  10| 0.17            0.28 | 9  10| 1.30
- *        ------                        ------
- *         EXP2                          EXP1
+/**       ------                ------
+ *  1.30 |10  9 | 0.28    0.17 |10  9 | 0.15
+ *  1.18 | 8  7 | 1.19    3.26 | 8  7 | 0.16
+ *  1.20   6  5 | 1.21    3.25   6  5 | 0.18
+ *  1.22 | 4  3 | 1.23    1.31 | 4  3 | RESET
+ *   GND | 2  1 | 5V       GND | 2  1 | NC
+ *        ------                ------
+ *         EXP1                  EXP2
  */
-
 #define EXP1_03_PIN                        P1_23
 #define EXP1_04_PIN                        P1_22
 #define EXP1_05_PIN                        P1_21
@@ -258,7 +257,7 @@
 #define EXP1_09_PIN                        P0_28
 #define EXP1_10_PIN                        P1_30
 
-#define EXP2_03_PIN                        -1
+#define EXP2_03_PIN                        -1     // RESET
 #define EXP2_04_PIN                        P1_31
 #define EXP2_05_PIN                        P0_18
 #define EXP2_06_PIN                        P3_25

@@ -199,3 +199,10 @@
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL || TOUCH_UI_FTDI_EVE
 
 #endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL || TOUCH_UI_FTDI_EVE
+
+// Alter timing for graphical display
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1     DELAY_NS(  0)
+  #define BOARD_ST7920_DELAY_2     DELAY_NS(250)
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(  0)
+#endif
