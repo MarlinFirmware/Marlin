@@ -54,6 +54,7 @@ class TouchButtons {
 public:
   static void init();
   static uint8_t read_buttons();
+  static void wakeUp();
 };
 
 extern TouchButtons touchBt;

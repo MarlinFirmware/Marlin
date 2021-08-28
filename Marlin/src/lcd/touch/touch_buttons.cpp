@@ -96,4 +96,10 @@ uint8_t TouchButtons::read_buttons() {
   return 0;
 }
 
+void TouchButtons::wakeUp() {
+  #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+    if (touchIO.isSleeping()) touchIO.doWakeUp();
+  #endif
+}
+
 #endif // HAS_TOUCH_BUTTONS

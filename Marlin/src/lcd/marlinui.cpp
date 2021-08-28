@@ -677,6 +677,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
       // Wake up, if needed, the TFT from any button or encoder
       touch.wakeUp();
+    #elif HAS_TOUCH_BUTTONS && defined(TOUCH_IDLE_SLEEP)
+      touchBt.wakeUp();
     #endif
     TERN_(HAS_LCD_MENU, refresh());
 

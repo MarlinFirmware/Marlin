@@ -41,6 +41,8 @@
 
 #if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
   #include "tft/touch.h"
+#elif HAS_TOUCH_BUTTONS && defined(TOUCH_IDLE_SLEEP)
+  #include "touch/touch_buttons.h"
 #endif
 
 #if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
@@ -443,7 +445,13 @@ public:
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
       #else
-        static inline void completion_feedback(const bool=true) {}
+        static inline void completion_feedback(const bool=true) {
+          #if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
+            touch.wakeUp();
+          #elif HAS_TOUCH_BUTTONS && defined(TOUCH_IDLE_SLEEP)
+            touchBt.wakeUp();
+          #endif
+        }
       #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)
