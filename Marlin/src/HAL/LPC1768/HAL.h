@@ -50,15 +50,9 @@ extern "C" volatile uint32_t _millis;
 //
 // Default graphical display delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(600)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(750)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(750)
-#endif
+#define CPU_ST7920_DELAY_1 DELAY_NS(600)
+#define CPU_ST7920_DELAY_2 DELAY_NS(750)
+#define CPU_ST7920_DELAY_3 DELAY_NS(750)
 
 typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
 extern DefaultSerial1 USBSerial;

@@ -119,7 +119,7 @@
 //
 // LCD / Controller
 //
-#if HAS_MARLINUI_U8GLIB
+#if HAS_WIRED_LCD
   // OVERLORD OLED pins
   #define LCD_PINS_RS                         20
   #define LCD_PINS_D5                         21
