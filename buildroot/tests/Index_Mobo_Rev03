@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# Build tests for Index_Mobo_Rev03
+#
+
+# exit on first failure
+set -e
+
+restore_configs
+exec_test $1 $2 "Index_Mobo_Rev03" "$3"
+
+# cleanup
+restore_configs
