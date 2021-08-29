@@ -163,25 +163,22 @@ extern "C" {
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one
 // SPI Definitions
-#define PIN_SPI_SS              PF11
-#define PIN_SPI_MOSI            PB15
-#define PIN_SPI_MISO            PB14
-#define PIN_SPI_SCK             PB13
 
+// SPI1 (Winbond on the Lerdge-K)
+//#define PIN_SPI_SS            PC4
+//#define PIN_SPI_SCK           PA5
+//#define PIN_SPI_MISO          PA6
+//#define PIN_SPI_MOSI          PA7
 
+// SPI2 (Winbond on the Lerdge-S)
+//#define PIN_SPI_SS            PB12
+//#define PIN_SPI_SCK           PB13
+//#define PIN_SPI_MISO          PB14
+//#define PIN_SPI_MOSI          PB15
 
-//max6675
-//#define PIN_SPI_SS              PA4
-//#define PIN_SPI_SCK             PA5
-//#define PIN_SPI_MISO            PA6
-//#define PIN_SPI_MOSI            PA7
-
-
-
-
-// I2C Definitions
-#define PIN_WIRE_SDA            PB7
-#define PIN_WIRE_SCL            PB6
+// I2C Definitions (Software I2C)
+//#define PIN_WIRE_SDA          PG13
+//#define PIN_WIRE_SCL          PG14
 
 // Timer Definitions
 //Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
