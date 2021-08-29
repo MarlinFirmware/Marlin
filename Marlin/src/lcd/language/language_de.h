@@ -107,7 +107,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Netz Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Netz bearbeiten");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Netzbearb. angeh.");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Messpunkt");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Messpunkt");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z-Wert");
