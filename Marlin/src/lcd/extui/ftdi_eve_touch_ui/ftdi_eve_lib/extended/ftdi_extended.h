@@ -48,6 +48,7 @@
   #include "sound_list.h"
   #include "polygon.h"
   #include "poly_ui.h"
+  #include "arrows.h"
   #include "text_box.h"
   #include "text_ellipsis.h"
   #include "adjuster_widget.h"
