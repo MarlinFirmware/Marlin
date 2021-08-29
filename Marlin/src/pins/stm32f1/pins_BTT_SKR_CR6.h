@@ -59,7 +59,7 @@
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
-#define E2END           (MARLIN_EEPROM_SIZE - 1)  // 2KB
+//#define E2END           (MARLIN_EEPROM_SIZE - 1)  // 2KB
 
 //
 // Limit Switches
@@ -113,6 +113,8 @@
 #define FAN_SOFT_PWM
 
 #define CONTROLLER_FAN_PIN                  PC7
+
+#define SDSS ONBOARD_SD_CS_PIN
 
 //
 // LCD / Controller
