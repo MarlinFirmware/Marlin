@@ -223,8 +223,8 @@
 //
 // Misc. Functions
 //
-#define LED_PIN                             PA15  // Alive
-//#define LED_PIN                           PB6   // External LED
+#define LED_PIN                             PA15  // Status LED
+//#define LED_PIN                           PB6   // LED Connector
 #define PS_ON_PIN                           PA4
 #define KILL_PIN                              -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
