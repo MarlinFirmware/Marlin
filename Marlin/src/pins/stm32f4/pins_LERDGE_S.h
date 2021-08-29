@@ -190,24 +190,35 @@
 #endif
 
 //
-// LCD / Controller
+// TFT with FSMC interface
 //
+#if HAS_FSMC_TFT
+  #undef  TFT_DRIVER
+  #define TFT_DRIVER               LERDGE_ST7796
 
-// The LCD is initialized in FSMC mode
-#define BEEPER_PIN                          PD13
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define BTN_EN1                             PC14
-#define BTN_EN2                             PC15
-#define BTN_ENC                             PC13
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
-#define TFT_CS_PIN                          PD7   // TFT works
-#define TFT_RS_PIN                          PD11  // TFT works
+  #define TOUCH_CS_PIN                      PB6
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
 
-// There is touch, but calibration is off
-#define TOUCH_CS_PIN                        PB6
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+#if IS_NEWPANEL
+  #define BTN_EN1                           PC15
+  #define BTN_EN2                           PC14
+  #define BTN_ENC                           PC13
+  #ifndef ENCODER_STEPS_PER_MENU_ITEM
+    #define ENCODER_STEPS_PER_MENU_ITEM        2
+  #endif
+
+  #define BEEPER_PIN                        PD13
+#endif
+
