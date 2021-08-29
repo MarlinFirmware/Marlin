@@ -44,12 +44,11 @@
 //#define MAX31865_DEBUG
 //#define MAX31865_DEBUG_SPI
 
-#include <SoftwareSPI.h>
-
 #include "../inc/MarlinConfig.h"
 
 #if HAS_MAX31865 && !LIB_USR_MAX31865
 
+#include <SoftwareSPI.h>
 #include "MAX31865.h"
 
 // The maximum speed the MAX31865 can do is 5 MHz
@@ -157,9 +156,9 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLN("Initializing MAX31865 Software SPI");
     #endif
-    
+
     swSpiBegin(_sclk, _miso, _mosi);
-    
+
   } else {
     // start and configure hardware SPI
     #ifdef MAX31865_DEBUG
