@@ -150,24 +150,27 @@
 //
 // Misc. Functions
 //
-#define SDSS                                PC11  // SD is working using SDIO, not sure if this definition is needed?
 #define LED_PIN                             PC6   // Mainboard soldered green LED
 #define PS_ON_PIN                           PB2   // Board has a power module connector
-#define KILL_PIN                            -1    // There is no reset button on the LCD
-#define POWER_LOSS_PIN                      -1    // PB2 could be used for this as well
+#define KILL_PIN                              -1  // There is no reset button on the LCD
+#define POWER_LOSS_PIN                        -1  // PB2 could be used for this as well
 
 //
 // SD support
 //
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4800000
-
-#define SD_SCK_PIN                          PC12
-#define SD_MISO_PIN                         PC8
-#define SD_MOSI_PIN                         PD2
-#define SD_SS_PIN                           PC11
-
 #define SD_DETECT_PIN                       PG15
+#if DISABLED(SDIO_SUPPORT)
+  // SD SPI Mode unused/untested
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         PC11
+  #define SDSS                              PC11
+#else
+  #define SDSS                                -1
+#endif
 
 //
 // Persistent Storage
