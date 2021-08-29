@@ -72,6 +72,8 @@ extern "C" {
 //#define HAL_WWDG_MODULE_ENABLED
 //#define HAL_MMC_MODULE_ENABLED
 
+#define HAL_PWR_MODULE_ONLY
+
 /* ########################## Oscillator Values adaptation ####################*/
 /**
   * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
