@@ -981,3 +981,20 @@
 #if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
   #define HAS_MEATPACK 1
 #endif
+
+// Temporary compatibility conversion
+#if ENABLED(ARC_SUPPORT)
+  #if !defined(MAX_ARC_SEGMENT_MM) && defined(MM_PER_ARC_SEGMENT)
+    #define MAX_ARC_SEGMENT_MM MM_PER_ARC_SEGMENT
+  #endif
+  #ifndef MIN_ARC_SEGMENT_MM
+    #ifdef ARC_SEGMENTS_PER_R
+      #define MIN_ARC_SEGMENT_MM ARC_SEGMENTS_PER_R
+    #else
+      #define MIN_ARC_SEGMENT_MM 0.1
+    #endif
+  #endif
+  #if !defined(MIN_CIRCLE_SEGMENTS) && defined(MIN_ARC_SEGMENTS)
+    #define MIN_CIRCLE_SEGMENTS MIN_ARC_SEGMENTS
+  #endif
+#endif
