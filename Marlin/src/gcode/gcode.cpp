@@ -136,7 +136,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
 }
 
 /**
- * Set XYZE destination and feedrate from the current GCode command
+ * Set XYZIJKE destination and feedrate from the current GCode command
  *
  *  - Set destination from included axis codes
  *  - Set to current for missing axis codes

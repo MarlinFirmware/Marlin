@@ -1,9 +1,9 @@
-/**************************
- * bed_mesh_view_screen.h *
- *************************/
+/************
+ * arrows.h *
+ ************/
 
 /****************************************************************************
- *   Written By Marcio Teixeira 2020                                        *
+ *   Written By Marcio Teixeira 2021 - SynDaver 3D                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -21,27 +21,8 @@
 
 #pragma once
 
-#define FTDI_BED_MESH_VIEW_SCREEN
-#define FTDI_BED_MESH_VIEW_SCREEN_CLASS BedMeshViewScreen
+namespace FTDI {
+  enum Direction {UP, DOWN, LEFT, RIGHT};
 
-struct BedMeshViewScreenData {
-  progmem_str message;
-  uint8_t count;
-  xy_uint8_t highlight;
-};
-
-class BedMeshViewScreen : public BedMeshBase, public CachedScreen<BED_MESH_VIEW_SCREEN_CACHE> {
-  private:
-    static float getHighlightedValue();
-    static bool changeHighlightedValue(uint8_t tag);
-    static void drawHighlightedPointValue();
-  public:
-    static void onMeshUpdate(const int8_t x, const int8_t y, const float val);
-    static void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t);
-    static void onEntry();
-    static void onRedraw(draw_mode_t);
-    static bool onTouchEnd(uint8_t tag);
-
-    static void doProbe();
-    static void show();
-};
+  void drawArrow(int x, int y, int w, int h, Direction direction);
+}

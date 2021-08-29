@@ -237,7 +237,7 @@
  *                  ------                                      ------
  *   (BEEPER) PB2  |10  9 | PE10 (BTN_ENC)    (SPI1 MISO) PA6  |10  9 | PA5 (SPI1 SCK)
  *   (LCD_EN) PE11 | 8  7 | PD10 (LCD_RS)       (BTN_EN1) PE9  | 8  7 | PA4 (SPI1 CS)
- *   (LCD_D4) PD9  | 6  5   PD8  (LCD_D5)       (BTN_EN2) PE8  | 6  5   PA7 (SPI1 MOSI)
+ *   (LCD_D4) PD9    6  5 | PD8  (LCD_D5)       (BTN_EN2) PE8    6  5 | PA7 (SPI1 MOSI)
  *   (LCD_D6) PE15 | 4  3 | PE7  (LCD_D7)       (SPI1_RS) PB11 | 4  3 | RESET
  *            GND  | 2  1 | 5V                             GND | 2  1 | 3.3V
  *                  ------                                      ------
