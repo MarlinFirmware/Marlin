@@ -175,10 +175,13 @@
 // If no option is selected below the SD Card will be used
 // (this section modelled after pins_LONGER3D_LK.h)
 // Warning: Not tested yet! Pins traced with multimeter, mistakes are possible
+
 //#define SPI_EEPROM
+//#define I2C_EEPROM
 
 #if ENABLED(SPI_EEPROM)
-  // Lerdge has an SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
+  // SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
+  // Prefer the I2C one (F-RAM) to store marlin settings
   #define SPI_CHAN_EEPROM1                     1
   #define SPI_EEPROM1_CS_PIN                PB12  // datasheet: /CS pin, found with multimeter, not tested
   #define EEPROM_SCK_PIN                    PB13  // datasheet: CLK pin, found with multimeter, not tested
@@ -186,6 +189,11 @@
   #define EEPROM_MOSI_PIN                   PB15  // datasheet: DI pin, found with multimeter, not tested
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
+#elif ENABLED(I2C_EEPROM)
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PG14  // To be confirmed on the Lerdge S, but probably same as the K
+  #define I2C_SDA_PIN                       PG13
+  #define MARLIN_EEPROM_SIZE             0x10000
 #else
   #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
 #endif
