@@ -31,8 +31,6 @@
 #define STEP_TIMER                             4
 #define TEMP_TIMER                             2
 
-//#define I2C_EEPROM
-
 // USB Flash Drive support
 #define HAS_OTG_USB_HOST_SUPPORT
 
@@ -173,15 +171,13 @@
 //
 // Persistent Storage
 // If no option is selected below the SD Card will be used
-// (this section modelled after pins_LONGER3D_LK.h)
-// Warning: Not tested yet! Pins traced with multimeter, mistakes are possible
+// Prefer the I2C one (F-RAM) to store marlin settings, SPI one is not working yet
 
 //#define SPI_EEPROM
 //#define I2C_EEPROM
 
 #if ENABLED(SPI_EEPROM)
   // SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
-  // Prefer the I2C one (F-RAM) to store marlin settings
   #define SPI_CHAN_EEPROM1                     1
   #define SPI_EEPROM1_CS_PIN                PB12  // datasheet: /CS pin, found with multimeter, not tested
   #define EEPROM_SCK_PIN                    PB13  // datasheet: CLK pin, found with multimeter, not tested
@@ -190,9 +186,10 @@
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif ENABLED(I2C_EEPROM)
+  // FM24CL64BG (CYP1813) 64Kbit F-RAM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
-  #define I2C_SCL_PIN                       PG14  // To be confirmed on the Lerdge S, but probably same as the K
   #define I2C_SDA_PIN                       PG13
+  #define I2C_SCL_PIN                       PG14  // To be confirmed on the Lerdge S, but probably same as the K
   #define MARLIN_EEPROM_SIZE             0x10000
 #else
   #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
