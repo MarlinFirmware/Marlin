@@ -56,8 +56,8 @@
 
 // _GRID_X and _GRID_Y computes the positions of the divisions on
 // the layout grid.
-#define _GRID_X(x)        ((x)*(FTDI::display_width-EDGE_R-EDGE_L)/GRID_COLS+EDGE_L)
-#define _GRID_Y(y)        ((y)*(FTDI::display_height-EDGE_B-EDGE_T)/GRID_ROWS+EDGE_T)
+#define _GRID_X(x)       ((x)*(FTDI::display_width-EDGE_R-EDGE_L)/GRID_COLS+EDGE_L)
+#define _GRID_Y(y)       ((y)*(FTDI::display_height-EDGE_B-EDGE_T)/GRID_ROWS+EDGE_T)
 
 // BOX_X, BOX_Y, BOX_W and BOX_X returns the top-left and width
 // and height of position on the grid.
