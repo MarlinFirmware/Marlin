@@ -114,46 +114,57 @@
 //#define NEOPIXEL_PIN                      -1
 
 //
-// Misc. Functions
-//
-#define SDSS                                PC11
-#define LED_PIN                             PC7   // Alive
-#define PS_ON_PIN                           -1
-#define KILL_PIN                            -1
-
-// Lerdge supports auto-power off and power loss sense through a single pin.
-#define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT
-
-#define SD_SCK_PIN                          PC12
-#define SD_MISO_PIN                         PC8
-#define SD_MOSI_PIN                         PD2
-#define SD_SS_PIN                           PC11
-
-//
-// SD support
+// SD support (On board)
 //
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       PA8
 #define SDIO_CLOCK                       4800000
 
+#define SD_SCK_PIN                          PC12
+#define SD_MISO_PIN                         PC8
+#define SD_MOSI_PIN                         PD2
+#define SD_SS_PIN                           PC11
+#define SDSS                                PC11
+
 //
-// LCD / Controller
+// Misc. Functions
 //
+#define LED_PIN                             PC7   // Alive
+#define PS_ON_PIN                             -1
+#define KILL_PIN                              -1
 
-// The LCD is initialized in FSMC mode
-#define BEEPER_PIN                          PD12
+// Lerdge supports auto-power off and power loss sense through a single pin.
+#define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT
 
-#define BTN_EN1                             PE3
-#define BTN_EN2                             PE4
-#define BTN_ENC                             PE2
+//
+// TFT with FSMC interface
+//
+#if HAS_FSMC_TFT
+  #undef  TFT_DRIVER
+  #define TFT_DRIVER               LERDGE_ST7796
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
 
-#define TFT_CS_PIN                          PD7
-#define TFT_RS_PIN                          PD11
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define TOUCH_CS_PIN                        PB6
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
+
+  #define TOUCH_CS_PIN                      PB6
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
+
+#if IS_NEWPANEL
+  #define BTN_EN1                           PE4
+  #define BTN_EN2                           PE3
+  #define BTN_ENC                           PE2
+  #ifndef ENCODER_STEPS_PER_MENU_ITEM
+    #define ENCODER_STEPS_PER_MENU_ITEM        2
+  #endif
+
+  #define BEEPER_PIN                        PD12
+#endif

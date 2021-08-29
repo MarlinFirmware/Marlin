@@ -212,22 +212,20 @@
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4800000
 
-//
-// Misc. Functions
-//
-#define SDSS                                PC11
-#define LED_PIN                             PA15  // Alive
-#define PS_ON_PIN                           PA4
-#define KILL_PIN                            -1
-#define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
-
 #define SD_SCK_PIN                          PC12
 #define SD_MISO_PIN                         PC8
 #define SD_MOSI_PIN                         PD2
 #define SD_SS_PIN                           PC11
-
+#define SDSS                                PC11
 #define SD_DETECT_PIN                       PA8
-#define BEEPER_PIN                          PC7
+
+//
+// Misc. Functions
+//
+#define LED_PIN                             PA15  // Alive
+#define PS_ON_PIN                           PA4
+#define KILL_PIN                              -1
+#define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
 //
 // TFT with FSMC interface
@@ -252,7 +250,12 @@
 #endif
 
 #if IS_NEWPANEL
-  #define BTN_EN1                           PG10
-  #define BTN_EN2                           PG11
+  #define BTN_EN1                           PG11
+  #define BTN_EN2                           PG10
   #define BTN_ENC                           PG9
+  #ifndef ENCODER_STEPS_PER_MENU_ITEM
+    #define ENCODER_STEPS_PER_MENU_ITEM        2
+  #endif
+
+  #define BEEPER_PIN                        PC7
 #endif
