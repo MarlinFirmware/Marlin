@@ -103,9 +103,9 @@
 //  #define E1_CS_PIN                       PE1
 //#endif
 
-//#define E2_STEP_PIN                       PF4  // best guess
-//#define E2_DIR_PIN                        PF3  // best guess
-//#define E2_ENABLE_PIN                     PF5  // best guess
+//#define E2_STEP_PIN                       PF4
+//#define E2_DIR_PIN                        PF3
+//#define E2_ENABLE_PIN                     PF5
 //#ifndef E2_CS_PIN
 //  #define E2_CS_PIN                       PE0
 //#endif
@@ -193,8 +193,10 @@
 //
 // LED / Lighting
 //
-//#define CASE_LIGHT_PIN_CI                 -1
-//#define CASE_LIGHT_PIN_DO                 -1
+#define LED_PIN                             PA15  // Status LED
+//#define CASE_LIGHT_PIN                    PB6   // LED Ribbon Connector (PWM TIM4_CH1)
+//#define CASE_LIGHT_PIN_CI                 -1    // ???
+//#define CASE_LIGHT_PIN_DO                 -1    // ???
 //#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
@@ -224,8 +226,6 @@
 //
 // Misc. Functions
 //
-#define LED_PIN                             PA15  // Status LED
-//#define LED_PIN                           PB6   // LED Connector
 #define PS_ON_PIN                           PA4
 #define KILL_PIN                              -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
