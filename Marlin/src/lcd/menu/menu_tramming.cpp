@@ -65,7 +65,7 @@ static void _menu_single_probe() {
   DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", tram_index);
   START_MENU();
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
-  STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, z_isvalid[tram_index] ? ftostr42_52(z_measured[reference_index] - z_measured[tram_index]) : "---");
+  STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, z_isvalid[reference_index] && z_isvalid[tram_index] ? ftostr42_52(z_measured[reference_index] - z_measured[tram_index]) : "---");
   ACTION_ITEM(MSG_UBL_BC_INSERT2, []{ if (probe_single_point()) ui.refresh(); });
   ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen(); });
   END_MENU();
