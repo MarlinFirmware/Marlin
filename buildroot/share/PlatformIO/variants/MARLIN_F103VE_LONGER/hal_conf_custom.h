@@ -20,25 +20,18 @@ extern "C" {
   */
 #include "stm32yyxx_hal_conf.h"
 
-#ifdef HAL_PWR_MODULE_ENABLED
-  #undef HAL_PWR_MODULE_ENABLED // only way to disable it
-#endif
+#undef HAL_PWR_MODULE_ENABLED
+#define HAL_PWR_MODULE_ONLY   // disable low power & PA0 wakeup pin (its T°c pin)
 
-#if defined(HAL_PWR_MODULE_ENABLED) && !defined(HAL_PWR_MODULE_ONLY)
-  #define HAL_PWR_MODULE_ONLY // disable low power & PA0 wakeup pin (its T°c pin)
-#endif
-
-#ifndef HAL_IWDG_MODULE_ENABLED
-  #define HAL_IWDG_MODULE_ENABLED // USE_WATCHDOG
-#endif
+#define HAL_IWDG_MODULE_ENABLED // USE_WATCHDOG
 
 #ifdef HAL_PCD_MODULE_ENABLED
-  #warning No direct STM32 USB pins on Longer3D board
+  #warning "No direct STM32 USB pins on Longer3D board"
   #undef HAL_PCD_MODULE_ENABLED // USB Device
 #endif
 
 #ifdef HAL_HCD_MODULE_ENABLED
-  #warning No direct STM32 USB pins on Longer3D board
+  #warning "No direct STM32 USB pins on Longer3D board"
   #undef HAL_HCD_MODULE_ENABLED // USB Host
 #endif
 
@@ -46,25 +39,12 @@ extern "C" {
   //#define HAL_USART_MODULE_ENABLED // Useless.... UART_MODULE do it
 #endif
 
-#ifdef HAL_CAN_LEGACY_MODULE_ENABLED
-  #undef HAL_CAN_LEGACY_MODULE_ENABLED
-#endif
+#undef HAL_CAN_LEGACY_MODULE_ENABLED
+#undef HAL_CAN_MODULE_ENABLED
+#undef HAL_DAC_MODULE_ENABLED
+#undef HAL_RTC_MODULE_ENABLED
 
-#ifdef HAL_CAN_MODULE_ENABLED
-  #undef HAL_CAN_MODULE_ENABLED
-#endif
-
-#ifdef HAL_DAC_MODULE_ENABLED
-  #undef HAL_DAC_MODULE_ENABLED
-#endif
-
-#ifdef HAL_RTC_MODULE_ENABLED
-  #undef HAL_RTC_MODULE_ENABLED
-#endif
-
-#ifndef HAL_EXTI_MODULE_ENABLED
-  #define HAL_EXTI_MODULE_ENABLED // for ENDSTOP_INTERRUPTS_FEATURE
-#endif
+#define HAL_EXTI_MODULE_ENABLED // for ENDSTOP_INTERRUPTS_FEATURE
 
 /**
   * @brief List of modules in the framework (first ones enabled by default)
@@ -345,4 +325,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
