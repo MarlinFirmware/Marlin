@@ -41,13 +41,14 @@
 
 static float z_measured[G35_PROBE_COUNT];
 static bool z_isvalid[G35_PROBE_COUNT];
+static uint8_t tram_index = 0;
 static int8_t reference_index; // = 0
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-static bool probe_single_point(const uint8_t tram_index) {
+static bool probe_single_point() {
   do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
   // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
   const float z_probed_height = probe.probe_at_point(tramming_points[tram_index], TERN(BLTOUCH_HS_MODE, PROBE_PT_STOW, PROBE_PT_RAISE), 0, true);
@@ -59,7 +60,8 @@ static bool probe_single_point(const uint8_t tram_index) {
   return (z_isvalid[tram_index] = !isnan(z_probed_height));
 }
 
-static void _menu_single_probe(const uint8_t tram_index) {
+static void _menu_single_probe() {
+  tram_index = MenuItemBase::itemIndex;
   DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", tram_index);
   START_MENU();
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
@@ -75,7 +77,7 @@ static void tramming_wizard_menu() {
 
   // Draw a menu item for each tramming point
   LOOP_L_N(i, G35_PROBE_COUNT)
-    SUBMENU_N_P(i, (char*)pgm_read_ptr(&tramming_point_name[i]), []{ _menu_single_probe(MenuItemBase::itemIndex); });
+    SUBMENU_N_P(i, (char*)pgm_read_ptr(&tramming_point_name[i]), _menu_single_probe);
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     probe.stow(); // Stow before exiting Tramming Wizard
