@@ -215,6 +215,9 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
+//
+// LCD / Controller
+//
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -341,10 +344,8 @@
 #endif
 
 // UNUSED
-#define PIN_P0_27                          P0_27  // EXP2/Onboard SD
-#define PIN_P0_28                          P0_28  // EXP2
-#define PIN_P0_02                          P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-#define PIN_P0_03                          P0_03  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PIN_P0_02                        P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PIN_P0_03                        P0_03  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 
 /**
  *  PWMs

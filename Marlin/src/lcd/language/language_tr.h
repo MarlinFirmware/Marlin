@@ -110,7 +110,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editörü");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Mesh Düzenle");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Mesh Düzenleme Durdu");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Prop Noktası");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Prop Noktası");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("İndeks X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("İndeks Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Değeri");
