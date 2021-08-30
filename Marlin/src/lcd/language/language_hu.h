@@ -312,6 +312,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Ki");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID hangolás");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID hangolás *");
+  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID ciklus");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("PID hangolás kész");
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Hangolási hiba. Rossz adagoló.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Hangolási hiba. Magas hömérséklet.");
@@ -493,7 +494,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY_TOUCHMI           = _UxGT("TouchMI használ");
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Z-Szonda telepítés");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Z-Szonda elhelyezés");
-  PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Elsö %s%s%s kell");
+  PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Elöször %s%s%s kell");
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Szonda eltolások");
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("X szonda eltolás");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Y szonda eltolás");
