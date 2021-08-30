@@ -54,23 +54,33 @@
 #define EDGE_L           0
 #define EDGE_R           0
 
-// GRID_X and GRID_Y computes the positions of the divisions on
+// _GRID_X and _GRID_Y computes the positions of the divisions on
 // the layout grid.
-#define GRID_X(x)        ((x)*(FTDI::display_width-EDGE_R-EDGE_L)/GRID_COLS+EDGE_L)
-#define GRID_Y(y)        ((y)*(FTDI::display_height-EDGE_B-EDGE_T)/GRID_ROWS+EDGE_T)
+#define _GRID_X(x)       ((x)*(FTDI::display_width-EDGE_R-EDGE_L)/GRID_COLS+EDGE_L)
+#define _GRID_Y(y)       ((y)*(FTDI::display_height-EDGE_B-EDGE_T)/GRID_ROWS+EDGE_T)
+
+// BOX_X, BOX_Y, BOX_W and BOX_X returns the top-left and width
+// and height of position on the grid.
+
+#define BOX_X(x)         (_GRID_X((x)-1))
+#define BOX_Y(y)         (_GRID_Y((y)-1))
+#define BOX_W(w)         (_GRID_X(w) - _GRID_X(0))
+#define BOX_H(h)         (_GRID_Y(h) - _GRID_Y(0))
 
 // BTN_X, BTN_Y, BTN_W and BTN_X returns the top-left and width
 // and height of a button, taking into account the button margins.
 
-#define BTN_X(x)         (GRID_X((x)-1) + MARGIN_L)
-#define BTN_Y(y)         (GRID_Y((y)-1) + MARGIN_T)
-#define BTN_W(w)         (GRID_X(w) - GRID_X(0) - MARGIN_L - MARGIN_R)
-#define BTN_H(h)         (GRID_Y(h) - GRID_Y(0) - MARGIN_T - MARGIN_B)
+#define BTN_X(x)         (BOX_X(x) + MARGIN_L)
+#define BTN_Y(y)         (BOX_Y(y) + MARGIN_T)
+#define BTN_W(w)         (BOX_W(w) - MARGIN_L - MARGIN_R)
+#define BTN_H(h)         (BOX_H(h) - MARGIN_T - MARGIN_B)
 
-// Abbreviations for common phrases, to allow a button to be
-// defined in one line of source.
+// Abbreviations for common phrases, to allow a box or button
+// to be defined in one line of source.
 #define BTN_POS(x,y)     BTN_X(x), BTN_Y(y)
 #define BTN_SIZE(w,h)    BTN_W(w), BTN_H(h)
+#define BOX_POS(x,y)     BOX_X(x), BOX_Y(y)
+#define BOX_SIZE(w,h)    BOX_W(w), BOX_H(h)
 
 // Draw a reference grid for ease of spacing out widgets.
 #define DRAW_LAYOUT_GRID \
@@ -78,13 +88,13 @@
     cmd.cmd(LINE_WIDTH(4)); \
     for (int i = 1; i <= GRID_COLS; i++) { \
       cmd.cmd(BEGIN(LINES)); \
-      cmd.cmd(VERTEX2F(GRID_X(i) *16, 0             *16)); \
-      cmd.cmd(VERTEX2F(GRID_X(i) *16, FTDI::display_height *16)); \
+      cmd.cmd(VERTEX2F(_GRID_X(i) *16, 0             *16)); \
+      cmd.cmd(VERTEX2F(_GRID_X(i) *16, FTDI::display_height *16)); \
     } \
     for (int i = 1; i < GRID_ROWS; i++) { \
       cmd.cmd(BEGIN(LINES)); \
-      cmd.cmd(VERTEX2F(0                       *16, GRID_Y(i) *16)); \
-      cmd.cmd(VERTEX2F(FTDI::display_width     *16, GRID_Y(i) *16)); \
+      cmd.cmd(VERTEX2F(0                       *16, _GRID_Y(i) *16)); \
+      cmd.cmd(VERTEX2F(FTDI::display_width     *16, _GRID_Y(i) *16)); \
     } \
     cmd.cmd(LINE_WIDTH(16)); \
   }

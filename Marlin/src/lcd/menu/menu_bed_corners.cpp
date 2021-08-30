@@ -172,7 +172,7 @@ static void _lcd_level_bed_corners_get_next_position() {
 
     TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); // Set up the font for extra info
 
-    MenuItem_static::draw(0, GET_TEXT(MSG_PROBING_MESH), SS_INVERT); // "Probing Mesh" heading
+    MenuItem_static::draw(0, GET_TEXT(MSG_PROBING_POINT), SS_INVERT); // "Probing Mesh" heading
 
     uint8_t cy = TERN(TFT_COLOR_UI, 3, LCD_HEIGHT - 1), y = LCD_ROW_Y(cy);
 
