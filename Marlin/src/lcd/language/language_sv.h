@@ -130,7 +130,7 @@ namespace Language_sv {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Nät Redigerare");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Redigera Nät");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Nätredigering Stoppad");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Sonderingspunkt");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Sonderingspunkt");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Värde");

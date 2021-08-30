@@ -141,7 +141,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Háló szerkesztö");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Háló szerkesztése");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Háló szerk. állj");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Próbapont");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Próbapont");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z érték");

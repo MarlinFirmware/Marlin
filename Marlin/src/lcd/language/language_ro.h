@@ -107,7 +107,7 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editeaza Mesh");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Editarea Meshului Oprita");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Punctul de Probare");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Punctul de Probare");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valoare Z");

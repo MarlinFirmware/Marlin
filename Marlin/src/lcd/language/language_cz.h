@@ -114,7 +114,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor sítě");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Upravit síť bodů");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Konec úprav sítě");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Měření bodu");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Měření bodu");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Hodnota Z");
