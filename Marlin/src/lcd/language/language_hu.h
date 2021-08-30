@@ -26,11 +26,11 @@
  *
  * LCD Menu Messages. See also https://marlinfw.org/docs/development/lcd_language.html
  * Hungarian translation by AntoszHUN. I am constantly improving and updating the translation.
- * Translation last updated: 07/07/2021 - 11:20
+ * Translation last updated: 08/30/2021 - 22:20
  *
  * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
  * A Magyar fordítást készítette: AntoszHUN. A fordítást folyamatosan javítom és frissítem.
- * A Fordítás utolsó frissítése: 2021.07.07. - 11:20
+ * A Fordítás utolsó frissítése: 2021.08.30. - 22:20
  */
 
 namespace Language_hu {
