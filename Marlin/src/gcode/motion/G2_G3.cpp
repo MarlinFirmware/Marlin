@@ -217,7 +217,7 @@ void plan_arc(
    * tool precision in some cases. Therefore, arc path correction is implemented.
    *
    * Small angle approximation may be used to reduce computation overhead further. This approximation
-   * holds for everything, but very small circles and large MM_PER_ARC_SEGMENT values. In other words,
+   * holds for everything, but very small circles and large MAX_ARC_SEGMENT_MM values. In other words,
    * theta_per_segment would need to be greater than 0.1 rad and N_ARC_CORRECTION would need to be large
    * to cause an appreciable drift error. N_ARC_CORRECTION~=25 is more than small enough to correct for
    * numerical drift error. N_ARC_CORRECTION may be on the order a hundred(s) before error becomes an
