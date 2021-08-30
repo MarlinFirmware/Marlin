@@ -250,6 +250,7 @@
   #define TOUCH_SCK_PIN                     PB3
   #define TOUCH_MOSI_PIN                    PB5
   #define TOUCH_MISO_PIN                    PB4
+  #define TOUCH_INT_PIN                     PG12
 #endif
 
 #if IS_NEWPANEL
