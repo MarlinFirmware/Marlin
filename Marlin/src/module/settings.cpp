@@ -2397,13 +2397,15 @@ void MarlinSettings::postprocess() {
       UNUSED(s);
     }
 
-    const uint16_t MarlinSettings::meshes_end = persistentStore.capacity() - 129; // 128 (+1 because of the change to capacity rather than last valid address)
-                                                                                  // is a placeholder for the size of the MAT; the MAT will always
-                                                                                  // live at the very end of the eeprom
+    // 128 (+1 because of the change to capacity rather than last valid address)
+    // is a placeholder for the size of the MAT; the MAT will always
+    // live at the very end of the eeprom
+    const uint16_t MarlinSettings::meshes_end = persistentStore.capacity() - 129;
 
     uint16_t MarlinSettings::meshes_start_index() {
-      return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;  // Pad the end of configuration data so it can float up
-                                                          // or down a little bit without disrupting the mesh data
+      // Pad the end of configuration data so it can float up
+      // or down a little bit without disrupting the mesh data
+      return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;
     }
 
     #define MESH_STORE_SIZE sizeof(TERN(OPTIMIZED_MESH_STORAGE, mesh_store_t, ubl.z_values))
