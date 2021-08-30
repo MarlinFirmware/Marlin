@@ -1470,6 +1470,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Some things should not be used on Belt Printers
+ */
+#if BOTH(BELTPRINTER, HAS_LEVELING)
+  #error "Bed Leveling is not compatible with BELTPRINTER."
+#endif
+
+/**
  * Probes
  */
 

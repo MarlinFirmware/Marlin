@@ -213,6 +213,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     set_duplication_enabled(false, DXC_ext);
   #endif
 
+  TERN_(BELTPRINTER, do_blocking_move_to_xy(0.00, 50.00));
+
   // Slow Load filament
   if (slow_load_length) unscaled_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
 
@@ -606,7 +608,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   ui.pause_show_message(PAUSE_MESSAGE_RESUME);
 
   // Check Temperature before moving hotend
-  ensure_safe_temperature();
+  ensure_safe_temperature(DISABLED(BELTPRINTER));
 
   // Retract to prevent oozing
   unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
