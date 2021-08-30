@@ -331,7 +331,8 @@
   #define ADC_KEYPAD_PIN                    PC0   // PIN6 of AUX1
 #endif
 
-#if HAS_MARLINUI_U8GLIB
+// Alter timing for graphical display
+#if ENABLED(U8GLIB_ST7920)
   #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
   #define BOARD_ST7920_DELAY_2     DELAY_NS(250)
   #define BOARD_ST7920_DELAY_3     DELAY_NS(125)

@@ -195,7 +195,7 @@
  *         ------                 ------
  *   PC9  |10  9 | PA8      PA6  |10  9 | PA5
  *   PC11 | 8  7 | PD2      PC6  | 8  7 | PA4
- *   PC10 | 6  5   PC12     PC7  | 6  5   PA7
+ *   PC10   6  5 | PC12     PC7    6  5 | PA7
  *   PD0  | 4  3 | PD1      PB10 | 4  3 | RESET
  *   GND  | 2  1 | 5V       GND  | 2  1 | 5V
  *         ------                 ------
@@ -314,16 +314,10 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(640)
-  #endif
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1     DELAY_NS( 96)
+  #define BOARD_ST7920_DELAY_2     DELAY_NS( 48)
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(640)
 #endif
 
 #ifndef RGB_LED_R_PIN
