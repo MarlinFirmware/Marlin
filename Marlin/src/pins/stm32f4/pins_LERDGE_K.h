@@ -213,6 +213,7 @@
 #define SDIO_CLOCK                       4800000
 #define SD_DETECT_PIN                       PA8
 #if DISABLED(SDIO_SUPPORT)
+  #define SOFTWARE_SPI
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8
   #define SD_MOSI_PIN                       PD2
