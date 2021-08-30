@@ -49,7 +49,7 @@ static uint8_t tram_index = 0;
 static bool probe_single_point() {
   do_blocking_move_to_z(TERN(BLTOUCH, Z_CLEARANCE_DEPLOY_PROBE, Z_CLEARANCE_BETWEEN_PROBES));
   // Stow after each point with BLTouch "HIGH SPEED" mode for push-pin safety
-  const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[tram_index], TERN(BLTOUCH_HS_MODE, PROBE_PT_STOW, PROBE_PT_RAISE), 0, true);
+  const float z_probed_height = probe.probe_at_point(tramming_points[tram_index], TERN(BLTOUCH_HS_MODE, PROBE_PT_STOW, PROBE_PT_RAISE), 0, true);
   DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
   z_measured[tram_index] = z_probed_height;
   move_to_tramming_wait_pos();
