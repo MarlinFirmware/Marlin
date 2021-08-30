@@ -105,7 +105,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("网格编辑器");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("编辑网格");     // "Edit Mesh"
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("网格编辑已停止");     // "Mesh Editing Stopped"
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("探测点");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("探测点");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("索引X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("索引Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z 值");

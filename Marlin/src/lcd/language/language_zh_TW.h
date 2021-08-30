@@ -103,7 +103,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("網格編輯器");    // "Mesh Editor"
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("編輯網格");     // "Edit Mesh"
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("網格編輯已停止");     // "Mesh Editing Stopped"
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("探測點");   // "Probing Point"
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("探測點");   // "Probing Point"
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("索引 X");    // "Index X"
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("索引 Y");    // "Index Y"
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z 值");    // "Z Value"

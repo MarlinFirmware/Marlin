@@ -141,7 +141,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor sieťe bodov");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Upraviť sieť bodov");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Koniec úprav siete");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Skúšam bod");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Skúšam bod");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Hodnota Z");
