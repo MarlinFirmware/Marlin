@@ -755,13 +755,13 @@
   // to select a USER library for MAX6675, MAX31855, MAX31865
   //
   #if BOTH(HAS_MAX6675, LIB_MAX6675)
-    #define LIB_USR_MAX6675 1
+    #define USE_LIB_MAX6675 1
   #endif
   #if BOTH(HAS_MAX31855, LIB_MAX31855)
-    #define LIB_USR_MAX31855 1
+    #define USE_ADAFRUIT_MAX31855 1
   #endif
   #if BOTH(HAS_MAX31865, LIB_MAX31865)
-    #define LIB_USR_MAX31865 1
+    #define USE_ADAFRUIT_MAX31865 1
   #elif HAS_MAX31865
     #define LIB_INTERNAL_MAX31865 1
   #endif
