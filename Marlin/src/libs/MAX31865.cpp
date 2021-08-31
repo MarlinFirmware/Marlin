@@ -46,7 +46,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_MAX31865 && !LIB_USR_MAX31865
+#if HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
 
 #include <SoftwareSPI.h>
 #include "MAX31865.h"
@@ -488,4 +488,4 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   return swSpiTransfer(x, _spi_speed, _sclk, _miso, _mosi);
 }
 
-#endif // HAS_MAX31865 && !LIB_USR_MAX31865
+#endif // HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
