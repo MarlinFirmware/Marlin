@@ -108,7 +108,7 @@
 //#define Z2_ENABLE_PIN                     PF5
 //#define Z2_STOP_PIN                       PG2
 //#ifndef Z2_CS_PIN
-//  #define 22_CS_PIN                       PE0
+//  #define Z2_CS_PIN                       PE0
 //#endif
 
 #if HAS_TMC_UART
