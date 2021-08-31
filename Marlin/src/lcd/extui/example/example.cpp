@@ -120,6 +120,7 @@ namespace ExtUI {
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
+        case PID_STARTED:          break;
         case PID_BAD_EXTRUDER_NUM: break;
         case PID_TEMP_TOO_HIGH:    break;
         case PID_TUNING_TIMEOUT:   break;
