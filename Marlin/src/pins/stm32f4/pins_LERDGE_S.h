@@ -199,8 +199,7 @@
 // TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
-  #undef  TFT_DRIVER
-  #define TFT_DRIVER               LERDGE_ST7796
+  #define ST7796S_INVERTED
 
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
