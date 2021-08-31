@@ -160,12 +160,11 @@
 #endif
 
 #if IS_NEWPANEL
+  #define BEEPER_PIN                        PD12
   #define BTN_EN1                           PE4
   #define BTN_EN2                           PE3
   #define BTN_ENC                           PE2
   #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM        2
+    #define ENCODER_STEPS_PER_MENU_ITEM 2
   #endif
-
-  #define BEEPER_PIN                        PD12
 #endif

@@ -257,12 +257,11 @@
 #endif
 
 #if IS_NEWPANEL
+  #define BEEPER_PIN                        PC7
   #define BTN_EN1                           PG11
   #define BTN_EN2                           PG10
   #define BTN_ENC                           PG9
   #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM        2
+    #define ENCODER_STEPS_PER_MENU_ITEM 2
   #endif
-
-  #define BEEPER_PIN                        PC7
 #endif

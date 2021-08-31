@@ -217,12 +217,11 @@
 #endif
 
 #if IS_NEWPANEL
+  #define BEEPER_PIN                        PD13
   #define BTN_EN1                           PC15
   #define BTN_EN2                           PC14
   #define BTN_ENC                           PC13
   #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM        2
+    #define ENCODER_STEPS_PER_MENU_ITEM 2
   #endif
-
-  #define BEEPER_PIN                        PD13
 #endif
