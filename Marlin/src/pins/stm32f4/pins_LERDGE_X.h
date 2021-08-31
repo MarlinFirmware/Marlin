@@ -132,8 +132,8 @@
 // Misc. Functions
 //
 #define LED_PIN                             PC7   // Alive
-#define PS_ON_PIN                             -1
-#define KILL_PIN                              -1
+#define PS_ON_PIN                           -1
+#define KILL_PIN                            -1
 
 // Lerdge supports auto-power off and power loss sense through a single pin.
 #define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT

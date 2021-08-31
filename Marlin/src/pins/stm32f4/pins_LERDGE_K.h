@@ -227,7 +227,7 @@
 // Misc. Functions
 //
 #define PS_ON_PIN                           PA4
-#define KILL_PIN                              -1
+#define KILL_PIN                            -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
 //

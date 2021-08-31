@@ -150,8 +150,8 @@
 //
 #define LED_PIN                             PC6   // Mainboard soldered green LED
 #define PS_ON_PIN                           PB2   // Board has a power module connector
-#define KILL_PIN                              -1  // There is no reset button on the LCD
-#define POWER_LOSS_PIN                        -1  // PB2 could be used for this as well
+#define KILL_PIN                            -1    // There is no reset button on the LCD
+#define POWER_LOSS_PIN                      -1    // PB2 could be used for this as well
 
 //
 // SD support
@@ -227,4 +227,3 @@
 
   #define BEEPER_PIN                        PD13
 #endif
-
