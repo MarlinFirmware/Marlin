@@ -1996,7 +1996,7 @@ void DWIN_LockScreen(const bool flag) {
 
 // Generic onclick event for float values
 //  process: process id HMI destiny
-//  dp: decimal points
+//  dp: decimal places
 //  val: scaled value 
 void SetFloatOnClick(uint8_t process, uint8_t dp, const int16_t val) {
   HMI_value.Value = val;
@@ -2824,7 +2824,7 @@ int8_t HMI_GetInt(const int16_t lo, const int16_t hi) {
 }
 
 // Get an scaled float value using the encoder
-//  dp: decimal points
+//  dp: decimal places
 //  lo: low limit
 //  hi: high limit
 // Return value:
