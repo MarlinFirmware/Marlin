@@ -119,9 +119,6 @@
    * If undefined software serial is used according to the pins below
    */
 
-  //
-  // Software serial
-  //
 
   // P2_08 E1-Step
   // P2_13 E1-Dir
@@ -130,28 +127,28 @@
     #define X_SERIAL_TX_PIN                P0_01
   #endif
   #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN                P0_01
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
   #endif
 
   #ifndef Y_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                P0_00
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN                P0_00
+    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
   #endif
 
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                P2_13
   #endif
   #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN                P2_13
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
   #endif
 
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN               P2_08
   #endif
   #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN               P2_08
+    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
   #endif
 
   // Reduce baud rate to improve software serial reliability
