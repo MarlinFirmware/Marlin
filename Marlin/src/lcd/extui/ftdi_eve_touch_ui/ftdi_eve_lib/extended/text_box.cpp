@@ -23,6 +23,10 @@
 
 #if ENABLED(FTDI_EXTENDED)
 
+#define IS_LINE_SEPARATOR(c) c == '\n' || c == '\t'
+#define IS_WORD_SEPARATOR(c) c == ' '
+#define IS_SEPARATOR(c) IS_LINE_SEPARATOR(c) || IS_WORD_SEPARATOR(c)
+
 namespace FTDI {
   /**
    * Given a str, end will be set to the position at which a line needs to
@@ -37,11 +41,11 @@ namespace FTDI {
       const char *next = p;
       const utf8_char_t c = get_utf8_char_and_inc(next);
       // Decide whether to break the string at this location
-      if (c == '\n' || c == '\0' || c == ' ') {
+      if (IS_SEPARATOR(c) || c == '\0' ) {
         end = p;
         result = lw;
       }
-      if (c == '\n' || c == '\0') break;
+      if (IS_LINE_SEPARATOR(c) || c == '\0') break;
       // Measure the next character
       const uint16_t cw = use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c];
       // Stop processing once string exceeds the display width
@@ -69,7 +73,7 @@ namespace FTDI {
       const uint16_t line_width = find_line_break(utf8_fm, clcd_fm, wrap_width, line_start, line_end, use_utf8);
       width  = max(width, line_width);
       height += utf8_fm.get_height();
-      if (*line_end == '\n' || *line_end == ' ') line_end++;
+      if (IS_SEPARATOR(*line_end)) line_end++;
       if (*line_end == '\0') break;
       if (line_end == line_start) break;
       line_start = line_end;
@@ -124,7 +128,7 @@ namespace FTDI {
       }
       y += utf8_fm.get_height();
 
-      if (*line_end == '\n' || *line_end == ' ') line_end++;
+      if (IS_SEPARATOR(*line_end)) line_end++;
       if (*line_end == '\0') break;
       if (line_end == line_start) break;
       line_start = line_end;

@@ -165,8 +165,6 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(CUSTOM_CABLE)
 
   /**
@@ -199,6 +197,7 @@
     #define SD_SS_PIN                      P0_28
   #else
     #define SD_DETECT_PIN                  P0_27
+    #define ONBOARD_SD_CS_PIN              P0_06  // Chip select for "System" SD card
     #define SD_SS_PIN          ONBOARD_SD_CS_PIN
   #endif
 #endif
@@ -216,6 +215,9 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
+//
+// LCD / Controller
+//
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -342,10 +344,8 @@
 #endif
 
 // UNUSED
-#define PIN_P0_27                          P0_27  // EXP2/Onboard SD
-#define PIN_P0_28                          P0_28  // EXP2
-#define PIN_P0_02                          P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-#define PIN_P0_03                          P0_03  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PIN_P0_02                        P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PIN_P0_03                        P0_03  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 
 /**
  *  PWMs

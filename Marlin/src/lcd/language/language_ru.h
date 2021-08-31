@@ -178,7 +178,7 @@ namespace Language_ru {
     PROGMEM Language_Str MSG_EDITING_STOPPED               = _UxGT("Правка окончена");
   #endif
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Редактировать сетку");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Точка сетки");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Точка сетки");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Индекс X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Индекс Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значение Z");
