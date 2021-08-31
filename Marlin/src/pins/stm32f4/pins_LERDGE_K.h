@@ -103,11 +103,12 @@
 //  #define E1_CS_PIN                       PE1
 //#endif
 
-//#define E2_STEP_PIN                       PF4
-//#define E2_DIR_PIN                        PF3
-//#define E2_ENABLE_PIN                     PF5
-//#ifndef E2_CS_PIN
-//  #define E2_CS_PIN                       PE0
+//#define Z2_STEP_PIN                       PF4
+//#define Z2_DIR_PIN                        PF3
+//#define Z2_ENABLE_PIN                     PF5
+//#define Z2_STOP_PIN                       PG2
+//#ifndef Z2_CS_PIN
+//  #define 22_CS_PIN                       PE0
 //#endif
 
 #if HAS_TMC_UART
@@ -144,12 +145,17 @@
   #ifndef E1_SERIAL_RX_PIN
     #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
   #endif
+  // Ex-motor can be any... X2/Y2/Z2 or E2
   #ifndef EX_SERIAL_TX_PIN
-    #define E2_SERIAL_TX_PIN                PE0
+    #define EX_SERIAL_TX_PIN                PE0
   #endif
   #ifndef EX_SERIAL_RX_PIN
-    #define E2_SERIAL_RX_PIN    E2_SERIAL_TX_PIN
+    #define EX_SERIAL_RX_PIN    EX_SERIAL_TX_PIN
   #endif
+  //#define Z2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
+  //#define Z2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
+  //#define E2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
+  //#define E2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif
