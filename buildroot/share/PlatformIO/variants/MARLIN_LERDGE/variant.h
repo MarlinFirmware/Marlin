@@ -213,6 +213,8 @@ extern "C" {
 /* Extra HAL modules */
 //#define HAL_DAC_MODULE_ENABLED
 #define HAL_SD_MODULE_ENABLED
+#define HAL_SRAM_MODULE_ENABLED
+#define HAL_EXTI_MODULE_ENABLED
 
 #ifdef __cplusplus
 } // extern "C"
