@@ -2862,15 +2862,17 @@
 /**
  * Bed Probe dependencies
  */
-#if HAS_BED_PROBE
-  #if BOTH(ENDSTOPPULLUPS, HAS_Z_MIN_PROBE_PIN)
-    #define ENDSTOPPULLUP_ZMIN_PROBE
-  #endif
+#if EITHER(MESH_BED_LEVELING, HAS_BED_PROBE)
   #ifndef Z_PROBE_OFFSET_RANGE_MIN
     #define Z_PROBE_OFFSET_RANGE_MIN -20
   #endif
   #ifndef Z_PROBE_OFFSET_RANGE_MAX
     #define Z_PROBE_OFFSET_RANGE_MAX 20
+  #endif
+#endif
+#if HAS_BED_PROBE
+  #if BOTH(ENDSTOPPULLUPS, HAS_Z_MIN_PROBE_PIN)
+    #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
   #ifndef XY_PROBE_FEEDRATE
     #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
