@@ -185,9 +185,15 @@ extern "C" {
 // FANs may require PWM timers 3 10 11 13
 // The LED/RGB connectors timer 4
 // Beware: STEP_TIMER default is 6 and TEMP_TIMER 14 for the F407
-
-#define TIMER_TONE              TIM8  // TIM3 or TIM8 for SPEAKER compat on the lerdge K (PC6)
-#define TIMER_SERVO             TIM1  // Ideally TIM2 for Hardware PWM (PB11)
+#ifndef TIMER_TONE
+  #define TIMER_TONE            TIM8  // TIM3 or TIM8 for SPEAKER compat on the lerdge K (PC6)
+#endif                                // TIM4 for that on the Lerdge S (PD11)
+#ifndef TIMER_SERVO
+  #define TIMER_SERVO           TIM1  // Ideally TIM2 for Hardware PWM (PB11)
+#endif                                // TIM4 on the S (PD12)
+#ifndef TIMER_SERIAL
+  #define TIMER_SERIAL          TIM7  // Default used in SoftwareSerial lib
+#endif
 
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name
