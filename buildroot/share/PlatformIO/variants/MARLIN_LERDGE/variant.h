@@ -214,7 +214,7 @@ extern "C" {
 //#define HAL_DAC_MODULE_ENABLED
 #define HAL_SD_MODULE_ENABLED
 #define HAL_SRAM_MODULE_ENABLED
-#define HAL_EXTI_MODULE_ENABLED
+#define HAL_EXTI_MODULE_ENABLED   // Needed for Endstop (and other external) Interrupts
 
 #ifdef __cplusplus
 } // extern "C"

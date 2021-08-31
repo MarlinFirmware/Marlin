@@ -47,7 +47,7 @@ extern "C" {
 //#define HAL_DAC_MODULE_ENABLED
 //#define HAL_DMA_MODULE_ENABLED
 //#define HAL_ETH_MODULE_ENABLED
-//#define HAL_EXTI_MODULE_ENABLED
+#define HAL_EXTI_MODULE_ENABLED   // Needed for Endstop (and other external) Interrupts
 //#define HAL_FLASH_MODULE_ENABLED
 //#define HAL_GPIO_MODULE_ENABLED
 //#define HAL_HCD_MODULE_ENABLED
