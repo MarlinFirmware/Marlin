@@ -61,7 +61,6 @@ static bool probe_single_point() {
 }
 
 static void _menu_single_probe() {
-  tram_index = MenuItemBase::itemIndex;
   DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", tram_index);
   START_MENU();
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
@@ -76,8 +75,8 @@ static void tramming_wizard_menu() {
   STATIC_ITEM(MSG_SELECT_ORIGIN);
 
   // Draw a menu item for each tramming point
-  LOOP_L_N(i, G35_PROBE_COUNT)
-    SUBMENU_N_P(i, (char*)pgm_read_ptr(&tramming_point_name[i]), _menu_single_probe);
+  for (tram_index = 0; tram_index < G35_PROBE_COUNT; tram_index++)
+    SUBMENU_P((char*)pgm_read_ptr(&tramming_point_name[tram_index]), _menu_single_probe);
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     probe.stow(); // Stow before exiting Tramming Wizard
