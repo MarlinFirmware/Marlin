@@ -72,7 +72,7 @@
   #else
     #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
   #endif
-#elif ENABLED(X_DUAL_ENDSTOPS)
+#elif EITHER(X_DUAL_ENDSTOPS, DUAL_X_CARRIAGE)
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                 X_DIAG_PIN  // X-STOP
   #endif
