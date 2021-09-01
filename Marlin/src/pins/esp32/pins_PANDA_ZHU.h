@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME "Panda Zhu"
+#define BOARD_INFO_NAME "Panda_ZHU"
 #define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
 
 //
@@ -52,34 +52,34 @@
 
 #define Y_STEP_PIN                           103
 #define Y_DIR_PIN                            102
-#define Y_ENABLE_PIN                         128
+#define Y_ENABLE_PIN                X_ENABLE_PIN
 //#define Y_CS_PIN                            13
 
 #define Z_STEP_PIN                           105
 #define Z_DIR_PIN                            104
-#define Z_ENABLE_PIN                         128
+#define Z_ENABLE_PIN                X_ENABLE_PIN
 //#define Z_CS_PIN                             5  // SS_PIN
 
 #define E0_STEP_PIN                          107
 #define E0_DIR_PIN                           106
-#define E0_ENABLE_PIN                        128
+#define E0_ENABLE_PIN               X_ENABLE_PIN
 //#define E0_CS_PIN                           21
 
 #define E1_STEP_PIN                          115
 #define E1_DIR_PIN                           114
-#define E1_ENABLE_PIN                        128
+#define E1_ENABLE_PIN               X_ENABLE_PIN
 
 #define E2_STEP_PIN                          112
 #define E2_DIR_PIN                           113
-#define E2_ENABLE_PIN                        128
+#define E2_ENABLE_PIN               X_ENABLE_PIN
 
 #define E3_STEP_PIN                          110
 #define E3_DIR_PIN                           111
-#define E3_ENABLE_PIN                        128
+#define E3_ENABLE_PIN               X_ENABLE_PIN
 
 #define E4_STEP_PIN                          121
 #define E4_DIR_PIN                           122
-#define E4_ENABLE_PIN                        128
+#define E4_ENABLE_PIN               X_ENABLE_PIN
 
 //
 // Temperature Sensors

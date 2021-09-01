@@ -27,9 +27,11 @@
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
+
 #if MB(PANDA_ZHU, BOARD_PANDA_M4)
   #include <esp_task_wdt.h>
 #endif
+
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
   #include "wifi.h"
@@ -95,7 +97,7 @@ volatile int numPWMUsed = 0,
 #if MB(PANDA_ZHU, BOARD_PANDA_M4)
   HardwareSerial YSerial2(2);
 
-  void Write_EXIO(uint8_t IO, unsigned char v) {
+  void Write_EXIO(uint8_t IO, uint8_t v) {
     if (ISRS_ENABLED()) {
       DISABLE_ISRS();
       YSerial2.write(0x80 | (((char)v) << 5) | (IO - 100));
