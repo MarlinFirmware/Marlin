@@ -427,10 +427,10 @@
     #define TFT_DRIVER                    ST7796
   #endif
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION            63934
+    #define XPT2046_X_CALIBRATION          63934
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION            63598
+    #define XPT2046_Y_CALIBRATION          63598
   #endif
   #ifndef XPT2046_X_OFFSET
     #define XPT2046_X_OFFSET                  -1

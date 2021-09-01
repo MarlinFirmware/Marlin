@@ -142,6 +142,9 @@
 // TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
+  #ifndef TFT_DRIVER
+    #define TFT_DRIVER                    ST7796
+  #endif
   #define ST7796S_INVERTED
 
   #define FSMC_CS_PIN                       PD7
