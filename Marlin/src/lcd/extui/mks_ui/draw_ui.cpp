@@ -186,8 +186,8 @@ void ui_cfg_init() {
   uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = false;
   uiCfg.para_ui_page        = false;
-  uiCfg.extruStep           = uiCfg.eStepMed;
-  uiCfg.extruSpeed          = uiCfg.eSpeedN;
+  uiCfg.extruStep           = eStepMed;
+  uiCfg.extruSpeed          = eSpeedN;
   uiCfg.move_dist           = 1;
   uiCfg.moveSpeed           = 1000;
   uiCfg.stepPrintSpeed      = 10;

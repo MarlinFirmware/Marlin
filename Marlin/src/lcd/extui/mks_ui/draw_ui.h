@@ -184,6 +184,16 @@
 extern char public_buf_m[100];
 extern char public_buf_l[30];
 
+// Extruder Steps distances (mm)
+const uint8_t eStepMin =  1,
+              eStepMed = 10,
+              eStepMax = 50;
+// Extruder speed (mm/s)
+const uint8_t eSpeedL =  1,
+              eSpeedN =  5,
+              eSpeedH = 10;
+
+
 typedef struct {
   uint32_t  spi_flash_flag;
   uint8_t   disp_rotation_180;
@@ -228,16 +238,8 @@ typedef struct {
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
-  // Extruder Steps distances (mm)
   uint8_t extruStep;
-  constexpr uint8_t eStepMin =  1,
-                    eStepMed =  5,
-                    eStepMax = 10;
-  // Extruder speed (mm/s)
   uint8_t extruSpeed;
-  constexpr uint8_t eSpeedH =  1,
-                    eSpeedN = 10,
-                    eSpeedL = 20;
   uint8_t print_state;
   uint8_t stepPrintSpeed;
   uint8_t waitEndMoves;
