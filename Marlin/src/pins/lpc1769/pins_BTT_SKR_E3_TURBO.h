@@ -129,23 +129,20 @@
    * If undefined software serial is used according to the pins below
    */
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                  P1_01
-  #define X_SERIAL_RX_PIN                  P1_01
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                  P1_10
-  #define Y_SERIAL_RX_PIN                  P1_10
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                  P1_17
-  #define Z_SERIAL_RX_PIN                  P1_17
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                 P0_05
-  #define E0_SERIAL_RX_PIN                 P0_05
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                 P0_22
-  #define E1_SERIAL_RX_PIN                 P0_22
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -182,7 +179,7 @@
 #endif
 
 /**
- *                  ______
+ *                  ------
  *              5V | 1  2 | GND
  *  (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)
  *  (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
@@ -191,7 +188,6 @@
  *                  ------
  *                   EXP
  */
-
 #define EXP1_03_PIN                        P0_18
 #define EXP1_04_PIN                        P0_17
 #define EXP1_05_PIN                        P0_15
@@ -206,7 +202,7 @@
 
  /**
   *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo
-  *                ______                                     ______                                  RX  8 -->  5  P0_15
+  *                ------                                     ------                                  RX  8 -->  5  P0_15
   *            5V | 1  2 | GND                            5V | 1  2 | GND                             TX  7 -->  9  P0_16
   *   (BTN_E1)  A | 3  4 | B   (BTN_E2)       (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)              BEEPER  5 --> 10  P2_08
   *        BEEPER | 5  6   ENT (BTN_ENC)      (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)

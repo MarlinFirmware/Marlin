@@ -856,9 +856,8 @@ void Draw_Control_Menu() {
   #define CLINE(L) MBASE(CSCROL(L))
   #define CVISI(L) VISI(CONTROL_CASE_TOTAL, L, CSCROL(L))
 
-  // "Control" Title
   if (HMI_IsChinese())
-    DWIN_Frame_TitleCopy(103, 1, 28, 14);
+    DWIN_Frame_TitleCopy(103, 1, 28, 14);     // "Control"
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_CONTROL));
@@ -2028,8 +2027,8 @@ void Draw_Info_Menu() {
     DWIN_Frame_TitleCopy(30, 17, 28, 13);                   // "Info"
 
     DWIN_Frame_AreaCopy(1, 197, 149, 252, 161, 108, 102);   // "Size"
-    DWIN_Frame_AreaCopy(1, 1, 164, 56, 176, 108, 175);      // "Firmware Version"
-    DWIN_Frame_AreaCopy(1, 58, 164, 113, 176, 105, 248);    // "Contact Details"
+    DWIN_Frame_AreaCopy(1,   1, 164,  56, 176, 108, 175);   // "Firmware Version"
+    DWIN_Frame_AreaCopy(1,  58, 164, 113, 176, 105, 248);   // "Contact Details"
   }
   else {
     #ifdef USE_STRING_HEADINGS
@@ -2432,9 +2431,9 @@ void Item_Adv_HomeOffsets(const uint8_t row) {
     }
     else {
       #ifdef USE_STRING_TITLES
-        DWIN_Draw_Label(row, GET_TEXT_F(MSG_SET_HOME_OFFSETS));
+        DWIN_Draw_Label(row, GET_TEXT_F(MSG_ZPROBE_OFFSETS));
       #else
-        say_probe_offs_en(0, row);
+        say_probe_offs_en(row);
       #endif
     }
     Draw_Menu_Line(row, ICON_ProbeOff);
@@ -2502,11 +2501,16 @@ void Draw_AdvancedSettings_Menu() {
   #define ASCROL(L) (scroll + (L))
   #define AVISI(L) VISI(ADVSET_CASE_TOTAL, L, ASCROL(L))
 
-  #ifdef USE_STRING_HEADINGS
-    Draw_Title(GET_TEXT_F(MSG_ADVANCED_SETTINGS));
-  #else
-    DWIN_Frame_TitleCopy(93, 401, 126, 15); // "Advanced Settings"
-  #endif
+  if (false && HMI_IsChinese()) {
+    // TODO: Chinese "Advanced Settings"
+  }
+  else {
+    #ifdef USE_STRING_HEADINGS
+      Draw_Title(GET_TEXT_F(MSG_ADVANCED_SETTINGS));
+    #else
+      DWIN_Frame_TitleCopy(93, 401, 126, 15); // "Advanced Settings"
+    #endif
+  }
 
   if (AVISI(0)) Draw_Back_First(select_advset.now == 0);
   if (AVISI(ADVSET_CASE_HOMEOFF)) Item_Adv_HomeOffsets(ASCROL(ADVSET_CASE_HOMEOFF));      // Set Home Offsets >

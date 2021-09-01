@@ -146,10 +146,6 @@
   //#define E0_HARDWARE_SERIAL MSerial1
   //#define E1_HARDWARE_SERIAL MSerial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                   PD5
   #define X_SERIAL_RX_PIN                   PD5
 
@@ -369,13 +365,9 @@
 
     #endif
 
-    #ifndef BOARD_ST7920_DELAY_1
+    #if ENABLED(U8GLIB_ST7920)
       #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
       #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
       #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
     #endif
 

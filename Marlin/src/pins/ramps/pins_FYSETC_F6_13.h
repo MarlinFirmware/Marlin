@@ -124,41 +124,41 @@
    * Software serial communication pins.
    * At the moment, F6 rx pins are not pc interrupt pins
    */
-  #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN                   -1  // 71
-  #endif
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   72
   #endif
-  #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN                   -1  // 73
+  #ifndef X_SERIAL_RX_PIN
+    #define X_SERIAL_RX_PIN                   -1  // 71
   #endif
   #ifndef Y_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                   75
   #endif
-  #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN                   -1  // 78
+  #ifndef Y_SERIAL_RX_PIN
+    #define Y_SERIAL_RX_PIN                   -1  // 73
   #endif
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                   79
   #endif
-  #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN                  -1  // 76
+  #ifndef Z_SERIAL_RX_PIN
+    #define Z_SERIAL_RX_PIN                   -1  // 78
   #endif
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN                  77
   #endif
-  #ifndef E1_SERIAL_RX_PIN
-    #define E1_SERIAL_RX_PIN                  -1  // 80
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN                  -1  // 76
   #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN                  81
   #endif
-  #ifndef E2_SERIAL_RX_PIN
-    #define E2_SERIAL_RX_PIN                  -1  // 22
+  #ifndef E1_SERIAL_RX_PIN
+    #define E1_SERIAL_RX_PIN                  -1  // 80
   #endif
   #ifndef E2_SERIAL_TX_PIN
     #define E2_SERIAL_TX_PIN                  82
+  #endif
+  #ifndef E2_SERIAL_RX_PIN
+    #define E2_SERIAL_RX_PIN                  -1  // 22
   #endif
 #endif
 

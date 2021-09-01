@@ -2397,13 +2397,15 @@ void MarlinSettings::postprocess() {
       UNUSED(s);
     }
 
-    const uint16_t MarlinSettings::meshes_end = persistentStore.capacity() - 129; // 128 (+1 because of the change to capacity rather than last valid address)
-                                                                                  // is a placeholder for the size of the MAT; the MAT will always
-                                                                                  // live at the very end of the eeprom
+    // 128 (+1 because of the change to capacity rather than last valid address)
+    // is a placeholder for the size of the MAT; the MAT will always
+    // live at the very end of the eeprom
+    const uint16_t MarlinSettings::meshes_end = persistentStore.capacity() - 129;
 
     uint16_t MarlinSettings::meshes_start_index() {
-      return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;  // Pad the end of configuration data so it can float up
-                                                          // or down a little bit without disrupting the mesh data
+      // Pad the end of configuration data so it can float up
+      // or down a little bit without disrupting the mesh data
+      return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;
     }
 
     #define MESH_STORE_SIZE sizeof(TERN(OPTIMIZED_MESH_STORAGE, mesh_store_t, ubl.z_values))
@@ -2555,9 +2557,7 @@ void MarlinSettings::reset() {
     TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK);
   #endif
 
-  #if HAS_JUNCTION_DEVIATION
-    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
-  #endif
+  TERN_(HAS_JUNCTION_DEVIATION, planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM));
 
   #if HAS_SCARA_OFFSET
     scara_home_offset.reset();
@@ -3151,9 +3151,7 @@ void MarlinSettings::reset() {
 
     CONFIG_ECHO_HEADING(
       "Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
-      #if HAS_JUNCTION_DEVIATION
-        " J<junc_dev>"
-      #endif
+      TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
       #if HAS_CLASSIC_JERK
         " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>"
         TERN_(HAS_CLASSIC_E_JERK, " E<max_e_jerk>")

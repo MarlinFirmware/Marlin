@@ -191,12 +191,13 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
+
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
+
     #if ENABLED(HOST_PROMPT_SUPPORT)
       const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, active_extruder);
       host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
     #endif
-
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
 
     while (wait_for_user) {
       impatient_beep(max_beep_count);
@@ -211,6 +212,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
     set_duplication_enabled(false, DXC_ext);
   #endif
+
+  TERN_(BELTPRINTER, do_blocking_move_to_xy(0.00, 50.00));
 
   // Slow Load filament
   if (slow_load_length) unscaled_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
@@ -237,8 +240,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
     if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Filament Purging..."), CONTINUE_STR));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Filament Purging...")));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE)));
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_FILAMENT_CHANGE_PURGE), CONTINUE_STR));
     wait_for_user = true; // A click or M108 breaks the purge_length loop
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
       unscaled_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
@@ -272,7 +275,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
       #endif
 
       // Keep looping if "Purge More" was selected
-    } while (TERN0(M600_PURGE_MORE_RESUMABLE, show_lcd && pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
+    } while (TERN0(M600_PURGE_MORE_RESUMABLE, pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
 
   #endif
   TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
@@ -605,7 +608,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   ui.pause_show_message(PAUSE_MESSAGE_RESUME);
 
   // Check Temperature before moving hotend
-  ensure_safe_temperature();
+  ensure_safe_temperature(DISABLED(BELTPRINTER));
 
   // Retract to prevent oozing
   unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));

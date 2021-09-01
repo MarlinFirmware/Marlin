@@ -131,23 +131,20 @@
   //#define E6_HARDWARE_SERIAL Serial1
   //#define E7_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PG10
-  #define X_SERIAL_RX_PIN                   PG10
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PD4
-  #define Y_SERIAL_RX_PIN                   PD4
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PD5
-  #define Z_SERIAL_RX_PIN                   PD5
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PI8
-  #define E0_SERIAL_RX_PIN                  PI8
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PC8
-  #define E1_SERIAL_RX_PIN                  PC8
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200

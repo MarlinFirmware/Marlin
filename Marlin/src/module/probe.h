@@ -33,6 +33,7 @@
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
     PROBE_PT_STOW,      // Do a complete stow after run_z_probe
+    PROBE_PT_LAST_STOW, // Stow for sure, even in BLTouch HS mode
     PROBE_PT_RAISE,     // Raise to "between" clearance after run_z_probe
     PROBE_PT_BIG_RAISE  // Raise to big clearance after run_z_probe
   };
