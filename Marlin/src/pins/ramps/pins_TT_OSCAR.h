@@ -117,10 +117,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                     -1  // 59
   #define X_SERIAL_RX_PIN                     -1  // 63
   #define X2_SERIAL_TX_PIN                    -1

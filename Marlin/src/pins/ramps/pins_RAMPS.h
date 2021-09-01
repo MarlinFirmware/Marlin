@@ -120,14 +120,14 @@
 #define X_DIR_PIN                             55
 #define X_ENABLE_PIN                          38
 #ifndef X_CS_PIN
-  #define X_CS_PIN                   EXP2_07_PIN
+  #define X_CS_PIN                   AUX3_03_PIN
 #endif
 
 #define Y_STEP_PIN                            60
 #define Y_DIR_PIN                             61
 #define Y_ENABLE_PIN                          56
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN                   EXP2_04_PIN
+  #define Y_CS_PIN                   AUX3_07_PIN
 #endif
 
 #ifndef Z_STEP_PIN
@@ -242,7 +242,7 @@
 // Misc. Functions
 //
 #ifndef SDSS
-  #define SDSS                       EXP2_07_PIN
+  #define SDSS                       AUX3_03_PIN
 #endif
 #define LED_PIN                               13
 
@@ -320,10 +320,6 @@
   //#define E2_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
-
-  //
-  // Software serial
-  //
 
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   40
@@ -428,57 +424,78 @@
 #endif
 
 //
-// Aux 3 GND D52 D50 5V
-//       NC  D53 D51 D49
+// AUX3 : GND D52 D50 5V
+//        NC  D53 D51 D49
+
+#define AUX3_03_PIN                           53
+#define AUX3_04_PIN                           52
+#define AUX3_05_PIN                           51
+#define AUX3_06_PIN                           50
+#define AUX3_07_PIN                           49
 
 //
-// Aux 4 D16 D17 D23 D25 D27 D29 D31 D33 D35 D37 D39 D41 D43 D45 D47 D32 GND 5V
+// AUX4 : D16 D17 D23 D25 D27 D29 D31 D33 D35 D37 D39 D41 D43 D45 D47 D32 GND 5V
 //
+
+#define AUX4_03_PIN                           32
+#define AUX4_04_PIN                           47
+#define AUX4_05_PIN                           45
+#define AUX4_06_PIN                           43
+#define AUX4_07_PIN                           41
+#define AUX4_08_PIN                           39
+#define AUX4_09_PIN                           37
+#define AUX4_10_PIN                           35
+#define AUX4_11_PIN                           33
+#define AUX4_12_PIN                           31
+#define AUX4_13_PIN                           29
+#define AUX4_14_PIN                           27
+#define AUX4_15_PIN                           25
+#define AUX4_16_PIN                           23
+#define AUX4_17_PIN                           17
+#define AUX4_18_PIN                           16
 
 /**
- * LCD adapter. Please note: These comes in two variants. The socket keys can be
+ * LCD adapter. NOTE: These come in two variants. The socket keys can be
  * on either side, and may be backwards on some boards / displays.
- *         _____                           _____
- *    D37 |10 9 | D35          (MISO) D50 |10 9 | D52 (SCK)
- *    D17 | 8 7 | D16                 D31 | 8 7 | D53
- *    D23   6 5   D25                 D33   6 5   D51 (MOSI)
- *    D27 | 4 3 | D29                 D49 | 4 3 | D41
- *    GND | 2 1 | 5V                  GND | 2 1 | NC
- *         -----                           -----
- *         EXP1                            EXP2
+ *         ------                     ------
+ *    D37 |10  9 | D35    (MISO) D50 |10  9 | D52 (SCK)
+ *    D17 | 8  7 | D16           D31 | 8  7 | D53
+ *    D23   6  5   D25           D33   6  5   D51 (MOSI)
+ *    D27 | 4  3 | D29           D49 | 4  3 | D41
+ *    GND | 2  1 | 5V            GND | 2  1 | NC
+ *         ------                     ------
+ *          EXP1                       EXP2
  */
-
 #ifndef EXP1_03_PIN
-  #define EXP1_03_PIN                         29
-  #define EXP1_04_PIN                         27
-  #define EXP1_05_PIN                         25
-  #define EXP1_06_PIN                         23
-  #define EXP1_07_PIN                         16
-  #define EXP1_08_PIN                         17
-  #define EXP1_09_PIN                         35
-  #define EXP1_10_PIN                         37
+  #define EXP1_03_PIN                AUX4_13_PIN
+  #define EXP1_04_PIN                AUX4_14_PIN
+  #define EXP1_05_PIN                AUX4_15_PIN
+  #define EXP1_06_PIN                AUX4_16_PIN
+  #define EXP1_07_PIN                AUX4_18_PIN
+  #define EXP1_08_PIN                AUX4_17_PIN
+  #define EXP1_09_PIN                AUX4_10_PIN
+  #define EXP1_10_PIN                AUX4_09_PIN
 
-  #define EXP2_03_PIN                         41
-  #define EXP2_04_PIN                         49
-  #define EXP2_05_PIN                         51
-  #define EXP2_06_PIN                         33
-  #define EXP2_07_PIN                         53
-  #define EXP2_08_PIN                         31
-  #define EXP2_09_PIN                         52
-  #define EXP2_10_PIN                         50
+  #define EXP2_03_PIN                AUX4_07_PIN
+  #define EXP2_04_PIN                AUX3_07_PIN
+  #define EXP2_05_PIN                AUX3_05_PIN
+  #define EXP2_06_PIN                AUX4_11_PIN
+  #define EXP2_07_PIN                AUX3_03_PIN
+  #define EXP2_08_PIN                AUX4_12_PIN
+  #define EXP2_09_PIN                AUX3_04_PIN
+  #define EXP2_10_PIN                AUX3_06_PIN
 #endif
 
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
 
-// GLCD features
-// Uncomment screen orientation
-//#define LCD_SCREEN_ROT_90
-//#define LCD_SCREEN_ROT_180
-//#define LCD_SCREEN_ROT_270
-
 #if HAS_WIRED_LCD
+
+  // Uncomment screen orientation
+  //#define LCD_SCREEN_ROT_90
+  //#define LCD_SCREEN_ROT_180
+  //#define LCD_SCREEN_ROT_270
 
   //
   // LCD Display output pins
@@ -591,7 +608,7 @@
       #endif
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-        #define LCD_BACKLIGHT_PIN             39
+        #define LCD_BACKLIGHT_PIN    AUX4_08_PIN
       #endif
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
@@ -603,9 +620,9 @@
 
     #elif ENABLED(LCD_I2C_PANELOLU2)
 
-      #define BTN_EN1                         47
-      #define BTN_EN2                         43
-      #define BTN_ENC                         32
+      #define BTN_EN1                AUX4_04_PIN
+      #define BTN_EN2                AUX4_06_PIN
+      #define BTN_ENC                AUX4_03_PIN
       #define LCD_SDSS                      SDSS
       #define KILL_PIN               EXP2_03_PIN
 
@@ -729,13 +746,23 @@
 
       // Pins only defined for RAMPS_SMART currently
 
+    #elif ENABLED(G3D_PANEL)
+
+      #define BEEPER_PIN             EXP2_06_PIN
+
+      #define SD_DETECT_PIN          EXP2_04_PIN
+      #define KILL_PIN               EXP2_03_PIN
+
+      #define BTN_EN1                EXP1_10_PIN
+      #define BTN_EN2                EXP1_09_PIN
+      #define BTN_ENC                EXP2_08_PIN
+
     #elif IS_TFTGLCD_PANEL
 
       #define SD_DETECT_PIN          EXP2_04_PIN
 
     #else
 
-      // Beeper on AUX-4
       #define BEEPER_PIN             EXP2_06_PIN
 
       // Buttons are directly attached to AUX-2
@@ -747,11 +774,6 @@
         #define BTN_EN1              EXP1_10_PIN
         #define BTN_EN2              EXP1_09_PIN
         #define BTN_ENC              EXP2_08_PIN
-      #endif
-
-      #if ENABLED(G3D_PANEL)
-        #define SD_DETECT_PIN        EXP2_04_PIN
-        #define KILL_PIN             EXP2_03_PIN
       #endif
 
     #endif
@@ -782,7 +804,7 @@
    * FYSETC TFT-81050 display pinout
    *
    *               Board                                     Display
-   *               _____                                     _____
+   *               -----                                     -----
    *  (SCK)   D52 | 1 2 | D50    (MISO)                MISO | 1 2 | SCK
    *  (SD_CS) D53 | 3 4 | D33 (BNT_EN2) (BNT_EN2) MOD_RESET | 3 4 | SD_CS
    *  (MOSI)  D51 | 5 6   D31 (BNT_EN1) (BNT_EN1)    LCD_CS | 5 6   MOSI

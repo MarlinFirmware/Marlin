@@ -86,8 +86,24 @@
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
  */
 
+/**
+ * OptiBoot Bootloader:
+ *   Optiboot is an alternative bootloader that can be flashed on the board to free up space for a larger firmware build.
+ *   See https://github.com/Optiboot/optiboot for more information.
+ *
+ * Install Marlin with Arduino IDE:
+ *   For a board with the stock bootloader, select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
+ *   For a board with OptiBoot, select 'Sanguino (Optiboot)' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'
+ *
+ * Install Marlin with PlatformIO IDE:
+ *   (NOTE: You can set a default build environment by editing the value of 'default_env' in 'platformio.ini'.
+ *          For the best user experience install the "Auto Build Marlin" extension.)
+ *   For a board with the stock bootloader use Build / Upload under the 'sanguino1284p' or 'sanguino1284p_optimized' target.
+ *   For a board with OptiBoot, use Build / Upload under the 'melzi_optiboot' target.
+ */
+
 #if NOT_TARGET(__AVR_ATmega1284P__)
-  #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.' (For PlatformIO, use 'melzi' or 'melzi_optiboot.')"
+  #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.' (For PlatformIO, use 'sanguino1284p' or 'sanguino1284p_optimized'. With optiboot, use 'melzi_optiboot.')"
 #endif
 
 #define BOARD_INFO_NAME "Anet 1.0"

@@ -60,7 +60,7 @@
      * a print without suicide...
      */
     #if HAS_SUICIDE
-      OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+      OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
     #endif
 
     TERN_(HAS_LCD_MENU, ui.reset_status());

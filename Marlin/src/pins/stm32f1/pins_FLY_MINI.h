@@ -83,28 +83,25 @@
 
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB15
+    #define TMC_SW_MOSI              EXP2_05_PIN
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB14
+    #define TMC_SW_MISO              EXP2_10_PIN
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB13
+    #define TMC_SW_SCK               EXP2_09_PIN
   #endif
 #endif
 
 #if HAS_TMC_UART
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PB0
-  #define X_SERIAL_RX_PIN                   PB0
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
   #define Y_SERIAL_TX_PIN                   PA7
-  #define Y_SERIAL_RX_PIN                   PA7
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
   #define Z_SERIAL_TX_PIN                   PA4
-  #define Z_SERIAL_RX_PIN                   PA4
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
   #define E0_SERIAL_TX_PIN                  PC2
-  #define E0_SERIAL_RX_PIN                  PC2
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 #endif
 
 //
@@ -123,52 +120,69 @@
 #define TEMP_BED_PIN                        PC0   // Analog Input
 #define TEMP_0_PIN                          PC1   // Analog Input
 
-//
-// LCD Pins
-//
+/**               ------                                        ------
+ * (BEEPER) PC14 |10  9 | PC13 (BTN_ENC)      (MISO)      PB14 |10  9 | PB13 (SD_SCK)
+ * (LCD_EN) PB9  | 8  7 | PB8  (LCD_RS)       (BTN_EN1)   PB3  | 8  7 | PB12 (SD_CS2)
+ * (LCD_D4) PB7  | 6  5   PB6  (LCD_D5)       (BTN_EN2)   PD2  | 6  5   PB15 (SD_MOSI)
+ * (LCD_D6) PB5  | 4  3 | PB4  (LCD_D7)       (SD_DETECT) PB11 | 4  3 | RESET
+ *          GND  | 2  1 | 5V                              GND  | 2  1 | NC
+ *                ------                                        ------
+ *                 EXP1                                          EXP2
+ */
+#define EXP1_03_PIN                        PB4
+#define EXP1_04_PIN                        PB5
+#define EXP1_05_PIN                        PB6
+#define EXP1_06_PIN                        PB7
+#define EXP1_07_PIN                        PB8
+#define EXP1_08_PIN                        PB9
+#define EXP1_09_PIN                        PC13
+#define EXP1_10_PIN                        PC14
+
+#define EXP2_03_PIN                        -1     // RESET
+#define EXP2_04_PIN                        PB11
+#define EXP2_05_PIN                        PB15
+#define EXP2_06_PIN                        PD2
+#define EXP2_07_PIN                        PB12
+#define EXP2_08_PIN                        PB3
+#define EXP2_09_PIN                        PB13
+#define EXP2_10_PIN                        PB14
 
 //
 // LCD / Controller
 //
-#define SPI_DEVICE                             2
-#define SD_SS_PIN                           PB12
-#define SD_SCK_PIN                          PB13
-#define SD_MISO_PIN                         PB14
-#define SD_MOSI_PIN                         PB15
+#if HAS_WIRED_LCD
 
-#define SDSS                           SD_SS_PIN
-#define SD_DETECT_PIN                       PB11
+  #define SPI_DEVICE                           2
+  #define SD_SS_PIN                  EXP2_07_PIN
+  #define SD_SCK_PIN                 EXP2_09_PIN
+  #define SD_MISO_PIN                EXP2_10_PIN
+  #define SD_MOSI_PIN                EXP2_05_PIN
 
-#define BEEPER_PIN                          PC14
+  #define SDSS                         SD_SS_PIN
+  #define SD_DETECT_PIN              EXP2_04_PIN
 
-#define LCD_PINS_RS                         PB8
-#define LCD_PINS_ENABLE                     PB9
-#define LCD_PINS_D4                         PB7
-#define LCD_PINS_D5                         PB6
-#define LCD_PINS_D6                         PB5
-#define LCD_PINS_D7                         PB4
+  #define BEEPER_PIN                 EXP1_10_PIN
 
-#define BTN_EN1                             PD2
-#define BTN_EN2                             PB3
-#define BTN_ENC                             PC13
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_D4                EXP1_06_PIN
+  #define LCD_PINS_D5                EXP1_05_PIN
+  #define LCD_PINS_D6                EXP1_04_PIN
+  #define LCD_PINS_D7                EXP1_03_PIN
 
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define BTN_ENC_EN                 LCD_PINS_D7  // Detect the presence of the encoder
-#endif
+  #define BTN_EN1                    EXP2_06_PIN
+  #define BTN_EN2                    EXP2_08_PIN
+  #define BTN_ENC                    EXP1_09_PIN
 
-//
-// Filament runout
-//
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
 
-//
-// ST7920 Delays
-//
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1            DELAY_NS(96)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2            DELAY_NS(48)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(715)
-#endif
+  // Alter timing for graphical display
+  #if ENABLED(U8GLIB_ST7920)
+    #define BOARD_ST7920_DELAY_1   DELAY_NS( 96)
+    #define BOARD_ST7920_DELAY_2   DELAY_NS( 48)
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(715)
+  #endif
+
+#endif // HAS_WIRED_LCD

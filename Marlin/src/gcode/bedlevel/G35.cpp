@@ -103,13 +103,13 @@ void GcodeSuite::G35() {
     // Users of G35 might have a badly misaligned bed, so raise Z by the
     // length of the deployed pin (BLTOUCH stroke < 7mm)
     do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, Z_CLEARANCE_BETWEEN_PROBES, 7));
-    const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
+    const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
       SERIAL_ECHOPAIR("G35 failed at point ", i + 1, " (");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       SERIAL_CHAR(')');
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y);
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
       err_break = true;
       break;
     }
@@ -118,7 +118,7 @@ void GcodeSuite::G35() {
       DEBUG_ECHOPAIR("Probing point ", i + 1, " (");
       DEBUG_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       DEBUG_CHAR(')');
-      DEBUG_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y, SP_Z_STR, z_probed_height);
+      DEBUG_ECHOLNPAIR_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }
 
     z_measured[i] = z_probed_height;

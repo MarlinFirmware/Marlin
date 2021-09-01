@@ -38,16 +38,12 @@ int16_t ProbeTempComp::z_offsets_probe[cali_info_init[TSI_PROBE].measurements], 
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
   ProbeTempComp::z_offsets_probe, ProbeTempComp::z_offsets_bed
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    , ProbeTempComp::z_offsets_ext
-  #endif
+  OPTARG(USE_TEMP_EXT_COMPENSATION, ProbeTempComp::z_offsets_ext)
 };
 
 const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
   cali_info_init[TSI_PROBE], cali_info_init[TSI_BED]
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    , cali_info_init[TSI_EXT]
-  #endif
+  OPTARG(USE_TEMP_EXT_COMPENSATION, cali_info_init[TSI_EXT])
 };
 
 constexpr xyz_pos_t ProbeTempComp::park_point;

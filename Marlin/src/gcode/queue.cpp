@@ -118,11 +118,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
   strcpy(commands[index_w].buffer, cmd);
-  commit_command(skip_ok
-    #if HAS_MULTI_SERIAL
-      , serial_ind
-    #endif
-  );
+  commit_command(skip_ok OPTARG(HAS_MULTI_SERIAL, serial_ind));
   return true;
 }
 
@@ -538,11 +534,7 @@ void GCodeQueue::get_serial_commands() {
         #endif
 
         // Add the command to the queue
-        ring_buffer.enqueue(serial.line_buffer, false
-          #if HAS_MULTI_SERIAL
-            , p
-          #endif
-        );
+        ring_buffer.enqueue(serial.line_buffer, false OPTARG(HAS_MULTI_SERIAL, p));
       }
       else
         process_stream_char(serial_char, serial.input_state, serial.line_buffer, serial.count);

@@ -207,6 +207,7 @@ extern HMI_data_t HMI_data;
 
 enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
 
+<<<<<<< HEAD
 // Show ICO
 void ICON_Print();
 void ICON_Prepare();
@@ -222,6 +223,8 @@ void DWIN_Draw_Popup(uint8_t icon = 0, const char * const msg1 = 0, const char *
 void DWIN_Popup_Continue(uint8_t icon, const char * const msg1, const char * const msg2);
 void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
 
+=======
+>>>>>>> bad46796495403fddfb65e793f4ca4d0e47b9843
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
   void DWIN_Popup_Temperature(const bool toohigh);
@@ -318,10 +321,18 @@ void DWIN_Startup();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
+<<<<<<< HEAD
 void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
 void DWIN_StatusChanged_P(PGM_P const text);
 void DWIN_StatusChanged(const char * const text);
 void DWIN_StartHoming();
+=======
+void DWIN_StatusChanged(const char *text);
+void DWIN_StatusChanged_P(PGM_P const pstr);
+
+inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
+
+>>>>>>> bad46796495403fddfb65e793f4ca4d0e47b9843
 void DWIN_CompletedHoming();
 #if ENABLED(MESH_BED_LEVELING)
   void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);

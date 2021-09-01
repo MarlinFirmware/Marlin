@@ -112,27 +112,24 @@
  * TMC2208/TMC2209 stepper drivers
  */
 #if HAS_TMC_UART
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PD6
-  #define X_SERIAL_RX_PIN                   PD6
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PD1
-  #define Y_SERIAL_RX_PIN                   PD1
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PD15
-  #define Z_SERIAL_RX_PIN                   PD15
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD11
-  #define E0_SERIAL_RX_PIN                  PD11
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #if ENABLED(BTT_E3_RRF_IDEX_BOARD)
     #define X2_SERIAL_TX_PIN           FPC12_PIN  // X2UART
-    #define X2_SERIAL_RX_PIN           FPC12_PIN  // X2UART
+    #define X2_SERIAL_RX_PIN    X2_SERIAL_TX_PIN
 
     #define E1_SERIAL_TX_PIN            FPC6_PIN  // E1UART
-    #define E1_SERIAL_RX_PIN            FPC6_PIN  // E1UART
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
   #endif
 
   // Reduce baud rate to improve software serial reliability
@@ -186,7 +183,7 @@
 
 /**
  *               BTT E3 RRF
- *                 _____
+ *                 -----
  *             5V | 1 2 | GND
  *  (LCD_EN) PE11 | 3 4 | PB1  (LCD_RS)
  *  (LCD_D4) PE10 | 5 6   PB2  (BTN_EN2)
@@ -251,7 +248,7 @@
        * TFTGLCD_PANEL_SPI display pinout
        *
        *               Board                                      Display
-       *               _____                                       _____
+       *               -----                                       -----
        *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
        * (FREE)  PE11 | 3 4 | PB1  (LCD_CS)      (PE7)     LCD_CS | 3 4 | SD_CS (PB2)
        * (FREE)  PE10 | 5 6 | PB2  (SD_CS)                 (FREE) | 5 6 | MOSI  (SPI1-MOSI)
@@ -285,16 +282,10 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+  #if ENABLED(U8GLIB_ST7920)
+    #define BOARD_ST7920_DELAY_1   DELAY_NS( 96)
+    #define BOARD_ST7920_DELAY_2   DELAY_NS( 48)
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -306,7 +297,7 @@
   /** FYSETC TFT TFT81050 display pinout
    *
    *               Board                                      Display
-   *               _____                                       _____
+   *               -----                                       -----
    *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
    * (FREE)  PE11 | 3 4 | PB1  (LCD_CS)      (PE7)  MOD_RESET | 3 4 | SD_CS (PB2)
    * (FREE)  PE10 | 5 6 | PB2  (SD_CS)       (PB1)     LCD_CS | 5 6 | MOSI  (SPI1-MOSI)

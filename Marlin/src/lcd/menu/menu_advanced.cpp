@@ -68,7 +68,7 @@ void menu_backlash();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ stepper_dac.set_current_percents(driverPercent); })
-    LOGICAL_AXIS_CODE(EDIT_DAC_PERCENT(E), EDIT_DAC_PERCENT(X), EDIT_DAC_PERCENT(Y), EDIT_DAC_PERCENT(Z), EDIT_DAC_PERCENT(I), EDIT_DAC_PERCENT(J), EDIT_DAC_PERCENT(K));
+    LOGICAL_AXIS_CODE(EDIT_DAC_PERCENT(E), EDIT_DAC_PERCENT(A), EDIT_DAC_PERCENT(B), EDIT_DAC_PERCENT(C), EDIT_DAC_PERCENT(I), EDIT_DAC_PERCENT(J), EDIT_DAC_PERCENT(K));
     ACTION_ITEM(MSG_DAC_EEPROM_WRITE, stepper_dac.commit_eeprom);
     END_MENU();
   }
@@ -569,9 +569,7 @@ void menu_advanced_settings() {
       SUBMENU(MSG_JERK, menu_advanced_jerk);
     #elif HAS_JUNCTION_DEVIATION
       EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
-        #if ENABLED(LIN_ADVANCE)
-          , planner.recalculate_max_e_jerk
-        #endif
+        OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
       );
     #endif
 

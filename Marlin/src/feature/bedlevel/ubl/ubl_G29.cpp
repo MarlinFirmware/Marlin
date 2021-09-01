@@ -736,7 +736,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
       const uint8_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPAIR("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
-      TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), point_num, int(GRID_MAX_POINTS)));
+      TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
 
       #if HAS_LCD_MENU
         if (ui.button_pressed()) {
@@ -1479,7 +1479,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         SERIAL_ECHOLNPGM("Tilting mesh (3/3)");
         TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " 3/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
 
-        measured_z = probe.probe_at_point(points[2], PROBE_PT_STOW, param.V_verbosity);
+        measured_z = probe.probe_at_point(points[2], PROBE_PT_LAST_STOW, param.V_verbosity);
         #ifdef VALIDATE_MESH_TILT
           z3 = measured_z;
         #endif

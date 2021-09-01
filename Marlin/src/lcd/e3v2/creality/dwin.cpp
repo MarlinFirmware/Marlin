@@ -238,6 +238,9 @@ void ICON_Print() {
   }
 }
 
+//
+// Main Menu: "Prepare"
+//
 void ICON_Prepare() {
   if (select_page.now == 1) {
     DWIN_ICON_Show(1, 0, 0, ICON, ICON_Prepare_1, 145, 130);
@@ -256,6 +259,9 @@ void ICON_Prepare() {
   }
 }
 
+//
+// Main Menu: "Control"
+//
 void ICON_Control() {
   if (select_page.now == 2) {
     DWIN_ICON_Show(1, 0, 0, ICON, ICON_Control_1, 17, 246);
@@ -310,6 +316,9 @@ void ICON_Leveling(bool show) {
   }
 }
 
+//
+// Printing: "Tune"
+//
 void ICON_Tune() {
   if (select_print.now == 0) {
     DWIN_ICON_Show(1, 0, 0, ICON, ICON_Setup_1, 8, 252);
@@ -328,6 +337,9 @@ void ICON_Tune() {
   }
 }
 
+//
+// Printing: "Pause"
+//
 void ICON_Pause() {
   if (select_print.now == 1) {
     DWIN_ICON_Show(1, 0, 0, ICON, ICON_Pause_1, 96, 252);
@@ -364,6 +376,9 @@ void ICON_Continue() {
   }
 }
 
+//
+// Printing: "Stop"
+//
 void ICON_Stop() {
   if (select_print.now == 2) {
     DWIN_ICON_Show(1, 0, 0, ICON, ICON_Stop_1, 184, 252);
@@ -458,7 +473,10 @@ void Draw_Back_Label() {
 // Draw "Back" line at the top
 void Draw_Back_First(const bool is_sel=true) {
   Draw_Menu_Line(0, ICON_Back);
-  Draw_Back_Label();
+  if (HMI_IsChinese())
+    Item_AreaCopy(129,  72, 156,  84);
+  else
+    Item_AreaCopy(223, 179, 254, 189);
   if (is_sel) Draw_Menu_Cursor(0);
 }
 
@@ -579,23 +597,27 @@ void draw_move_en(const uint16_t line) {
   #endif
 }
 
+//
+// Prepare Menu
+//
+
 void Item_Prepare_Move(const uint8_t row) {
   if (HMI_IsChinese())
-    DWIN_Frame_AreaCopy(1, 159, 70, 200, 84, LBLX, MBASE(row));
+    Item_AreaCopy(159, 70, 200, 84, row);
   else
-    draw_move_en(MBASE(row)); // "Move"
+    say_move_en(row);             // "Move"
   Draw_Menu_Line(row, ICON_Axis);
   Draw_More_Icon(row);
 }
 
 void Item_Prepare_Disable(const uint8_t row) {
   if (HMI_IsChinese())
-    DWIN_Frame_AreaCopy(1, 204, 70, 259, 82, LBLX, MBASE(row));
+    Item_AreaCopy(204, 70, 259, 82, row);
   else {
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_DISABLE_STEPPERS));
+      DWIN_Draw_Label(row, GET_TEXT_F(MSG_DISABLE_STEPPERS));
     #else
-      DWIN_Frame_AreaCopy(1, 103, 59, 200, 74, LBLX, MBASE(row)); // "Disable Stepper"
+      Item_AreaCopy(104, 61, 191, 74, row); // "Disable Stepper"
     #endif
   }
   Draw_Menu_Line(row, ICON_CloseMotor);
@@ -603,12 +625,12 @@ void Item_Prepare_Disable(const uint8_t row) {
 
 void Item_Prepare_Home(const uint8_t row) {
   if (HMI_IsChinese())
-    DWIN_Frame_AreaCopy(1, 0, 89, 41, 101, LBLX, MBASE(row));
+    Item_AreaCopy(0, 89, 41, 101, row);
   else {
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_AUTO_HOME));
+      DWIN_Draw_Label(row, GET_TEXT_F(MSG_AUTO_HOME));
     #else
-      DWIN_Frame_AreaCopy(1, 202, 61, 271, 71, LBLX, MBASE(row)); // "Auto Home"
+      Item_AreaCopy(202, 61, 271, 71, row); // "Auto Home"
     #endif
   }
   Draw_Menu_Line(row, ICON_Homing);
@@ -622,25 +644,26 @@ void Item_Prepare_Home(const uint8_t row) {
         DWIN_Frame_AreaCopy(1, 174, 164, 223, 177, LBLX, MBASE(row));
         DWIN.Draw_Signed_Float(2, 2, 202, MBASE(row), probe.offset.z * 100);
       #else
-        DWIN_Frame_AreaCopy(1, 43, 89, 98, 101, LBLX, MBASE(row));
+        Item_AreaCopy(43, 89, 98, 101, row);
       #endif
     }
     else {
       #if HAS_BED_PROBE
         #ifdef USE_STRING_TITLES
-          DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
+          DWIN_Draw_Label(row, GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
         #else
-          DWIN_Frame_AreaCopy(1, 93, 179, 141, 189, LBLX, MBASE(row));    // "Z-Offset"
+          Item_AreaCopy( 94, 179, 143, 190, row); // "Z-Offset"
         #endif
         DWIN.Draw_Signed_Float(2, 2, 202, MBASE(row), probe.offset.z * 100);
       #else
         #ifdef USE_STRING_TITLES
-          DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_SET_HOME_OFFSETS));
+          DWIN_Draw_Label(row, GET_TEXT_F(MSG_SET_HOME_OFFSETS));
         #else
-          DWIN_Frame_AreaCopy(1, 1, 76, 106, 86, LBLX, MBASE(row));       // "Set home offsets"
+          Item_AreaCopy(  1,  76, 103,  87, row); // "Set home offsets"
         #endif
       #endif
     }
+    Draw_Edit_Signed_Float2(row, BABY_Z_VAR * 100);
     Draw_Menu_Line(row, ICON_SetHome);
   }
 
@@ -648,30 +671,28 @@ void Item_Prepare_Home(const uint8_t row) {
 
 #if HAS_HOTEND
   void Item_Prepare_PLA(const uint8_t row) {
-    if (HMI_IsChinese()) {
-      DWIN_Frame_AreaCopy(1, 100, 89, 151, 101, LBLX, MBASE(row));
-    }
+    if (HMI_IsChinese())
+      Item_AreaCopy(100, 89, 151, 101, row);
     else {
       #ifdef USE_STRING_TITLES
-        DWIN_Draw_Label(MBASE(row), F("Preheat " PREHEAT_1_LABEL));
+        DWIN_Draw_Label(row, GET_TEXT_F(MSG_PREHEAT_1));
       #else
-        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(row));       // "Preheat"
-        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX + 52, MBASE(row));  // "PLA"
+        Item_AreaCopy(108,  76, 155,  87, row); // "Preheat"
+        say_pla_en(52, row);                    // "PLA"
       #endif
     }
     Draw_Menu_Line(row, ICON_PLAPreheat);
   }
 
   void Item_Prepare_ABS(const uint8_t row) {
-    if (HMI_IsChinese()) {
-      DWIN_Frame_AreaCopy(1, 180, 89, 233, 100, LBLX, MBASE(row));
-    }
+    if (HMI_IsChinese())
+      Item_AreaCopy(180,  89, 233, 100, row);
     else {
       #ifdef USE_STRING_TITLES
-        DWIN_Draw_Label(MBASE(row), F("Preheat " PREHEAT_2_LABEL));
+        DWIN_Draw_Label(row, F("Preheat " PREHEAT_2_LABEL));
       #else
-        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(row));       // "Preheat"
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 52, MBASE(row));  // "ABS"
+        Item_AreaCopy(108,  76, 155,  87, row); // "Preheat"
+        say_abs_en(52, row);                    // "ABS"
       #endif
     }
     Draw_Menu_Line(row, ICON_ABSPreheat);
@@ -681,12 +702,12 @@ void Item_Prepare_Home(const uint8_t row) {
 #if HAS_PREHEAT
   void Item_Prepare_Cool(const uint8_t row) {
     if (HMI_IsChinese())
-      DWIN_Frame_AreaCopy(1,   1, 104,  56, 117, LBLX, MBASE(row));
+      Item_AreaCopy(1, 104,  56, 117, row);
     else {
       #ifdef USE_STRING_TITLES
-        DWIN_Draw_Label(MBASE(row), GET_TEXT_F(MSG_COOLDOWN));
+        DWIN_Draw_Label(row, GET_TEXT_F(MSG_COOLDOWN));
       #else
-        DWIN_Frame_AreaCopy(1, 200,  76, 264,  86, LBLX, MBASE(row));      // "Cooldown"
+        Item_AreaCopy(200, 76, 264, 86, row); // "Cooldown"
       #endif
     }
     Draw_Menu_Line(row, ICON_Cool);
@@ -695,24 +716,26 @@ void Item_Prepare_Home(const uint8_t row) {
 
 void Item_Prepare_Lang(const uint8_t row) {
   if (HMI_IsChinese())
-    DWIN_Frame_AreaCopy(1, 239, 134, 266, 146, LBLX, MBASE(row));
+    Item_AreaCopy(239, 134, 266, 146, row);
   else {
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(row), F("UI Language"));
+      DWIN_Draw_Label(row, F("UI Language"));
     #else
-      DWIN_Frame_AreaCopy(1, 0, 194, 121, 207, LBLX, MBASE(row)); // "Language selection"
+      Item_AreaCopy(1, 194, 96, 206, row);    // "LCD Language"
     #endif
   }
   DWIN.Draw_String(226, MBASE(row), HMI_IsChinese() ? F("CN") : F("EN"));
   Draw_Menu_Icon(row, ICON_Language);
 }
 
+#define VISI(T,L,S) (WITHIN(L, T - MROWS, MROWS) || WITHIN(S, 0, MROWS))
+
 void Draw_Prepare_Menu() {
   Clear_Menu_Area();
 
   const int16_t scroll = MROWS - index_prepare; // Scrolled-up lines
   #define PSCROL(L) (scroll + (L))
-  #define PVISI(L)  WITHIN(PSCROL(L), 0, MROWS)
+  #define PVISI(L) VISI(PREPARE_CASE_TOTAL, L, PSCROL(L))
 
   if (HMI_IsChinese()) {
     Title.FrameCopy(1, 133, 1, 160, 13);   // "Prepare"
@@ -753,31 +776,91 @@ void Draw_Prepare_Menu() {
   if (select_prepare.now) Draw_Menu_Cursor(PSCROL(select_prepare.now));
 }
 
-void Item_Control_Info(const uint16_t line) {
+//
+// Control Menu
+//
+
+void Item_Control_Temp(const uint16_t row) {
   if (HMI_IsChinese())
-    DWIN_Frame_AreaCopy(1, 231, 104, 258, 116, LBLX, line);
+    Item_AreaCopy(57, 104,  84, 116, row);
+  else {
+    #ifdef USE_STRING_TITLES
+      DWIN_Draw_Label(row, GET_TEXT_F(MSG_TEMPERATURE));
+    #else
+      Item_AreaCopy(1, 89,  83, 101, row);
+    #endif
+  }
+  Draw_Menu_Line(row, ICON_Temperature);
+  Draw_More_Icon(row);
+}
+
+void Item_Control_Motion(const uint16_t row) {
+  if (HMI_IsChinese())
+    Item_AreaCopy(87, 104, 114, 116, row);
   else {
     #ifdef USE_STRING_TITLES
       DWIN_Draw_Label(line, GET_TEXT_F(MSG_INFO_SCREEN));
     #else
-      DWIN_Frame_AreaCopy(1, 0, 104, 24, 114, LBLX, line);
+      Item_AreaCopy(84, 89, 128,  99, row);
     #endif
   }
+  Draw_Menu_Line(row, ICON_Motion);
+  Draw_More_Icon(row);
+}
+
+void Item_Control_Advanced(const uint16_t row) {
+  if (HMI_IsChinese())
+    Item_AreaCopy(62, 180, 120, 192, row);
+  else {
+    #ifdef USE_STRING_TITLES
+      DWIN_Draw_Label(row, GET_TEXT_F(MSG_ADVANCED_SETTINGS));
+    #else
+      Item_AreaCopy(82, 135, 200, 149, row);
+    #endif
+  }
+  Draw_Menu_Line(row, ICON_AdvSet);
+  Draw_More_Icon(row);
+}
+
+void Item_Control_Info(const uint16_t row) {
+  if (HMI_IsChinese())
+    Item_AreaCopy(231, 104, 258, 116, row);
+  else {
+    #ifdef USE_STRING_TITLES
+      DWIN_Draw_Label(row, GET_TEXT_F(MSG_INFO_SCREEN));
+    #else
+      Item_AreaCopy(0, 104, 24, 114, row);
+    #endif
+  }
+  Draw_Menu_Line(row, ICON_Info);
+  Draw_More_Icon(row);
 }
 
 void Draw_Control_Menu() {
   Clear_Menu_Area();
 
-  #if CONTROL_CASE_TOTAL >= 6
+  #if CONTROL_CASE_TOTAL >= TROWS
     const int16_t scroll = MROWS - index_control; // Scrolled-up lines
-    #define CSCROL(L) (scroll + (L))
   #else
-    #define CSCROL(L) (L)
+    constexpr int16_t scroll = 0;
   #endif
-  #define CLINE(L)  MBASE(CSCROL(L))
-  #define CVISI(L)  WITHIN(CSCROL(L), 0, MROWS)
+    #define CSCROL(L) (scroll + (L))
+  #define CLINE(L) MBASE(CSCROL(L))
+  #define CVISI(L) VISI(CONTROL_CASE_TOTAL, L, CSCROL(L))
+
+  if (HMI_IsChinese())
+    DWIN_Frame_TitleCopy(103, 1, 28, 14);     // "Control"
+  else {
+    #ifdef USE_STRING_HEADINGS
+      Draw_Title(GET_TEXT_F(MSG_CONTROL));
+  #else
+      DWIN_Frame_TitleCopy(128, 2, 49, 11);   // "Control"
+  #endif
+  }
 
   if (CVISI(0)) Draw_Back_First(select_control.now == 0);                         // < Back
+  if (CVISI(CONTROL_CASE_TEMP)) Item_Control_Temp(CSCROL(CONTROL_CASE_TEMP));   // Temperature >
+  if (CVISI(CONTROL_CASE_MOVE)) Item_Control_Motion(CSCROL(CONTROL_CASE_MOVE)); // Motion >
 
   if (HMI_IsChinese()) {
     Title.FrameCopy(1, 103, 1, 130, 14);                                     // "Control"
@@ -786,9 +869,9 @@ void Draw_Control_Menu() {
     DWIN_Frame_AreaCopy(1,  87, 104, 114, 116, LBLX, CLINE(CONTROL_CASE_MOVE));   // Motion >
 
     #if ENABLED(EEPROM_SETTINGS)
-      DWIN_Frame_AreaCopy(1, 117, 104, 172, 116, LBLX, CLINE(CONTROL_CASE_SAVE));   // Store Configuration
-      DWIN_Frame_AreaCopy(1, 174, 103, 229, 116, LBLX, CLINE(CONTROL_CASE_LOAD));   // Read Configuration
-      DWIN_Frame_AreaCopy(1,   1, 118,  56, 131, LBLX, CLINE(CONTROL_CASE_RESET));  // Reset Configuration
+      Item_AreaCopy(117, 104, 172, 116, CSCROL(CONTROL_CASE_SAVE));   // "Store Configuration"
+      Item_AreaCopy(174, 103, 229, 116, CSCROL(CONTROL_CASE_LOAD));   // "Read Configuration"
+      Item_AreaCopy(  1, 118,  56, 131, CSCROL(CONTROL_CASE_RESET));  // "Reset Configuration"
     #endif
   }
   else {
@@ -798,35 +881,29 @@ void Draw_Control_Menu() {
       Title.FrameCopy(1, 128, 2, 176, 12);                                         // "Control"
     #endif
     #ifdef USE_STRING_TITLES
-      if (CVISI(CONTROL_CASE_TEMP)) DWIN_Draw_Label(CLINE(CONTROL_CASE_TEMP), GET_TEXT_F(MSG_TEMPERATURE));
-      if (CVISI(CONTROL_CASE_MOVE)) DWIN_Draw_Label(CLINE(CONTROL_CASE_MOVE), GET_TEXT_F(MSG_MOTION));
       #if ENABLED(EEPROM_SETTINGS)
-        if (CVISI(CONTROL_CASE_SAVE)) DWIN_Draw_Label(CLINE(CONTROL_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
-        if (CVISI(CONTROL_CASE_LOAD)) DWIN_Draw_Label(CLINE(CONTROL_CASE_LOAD), GET_TEXT_F(MSG_LOAD_EEPROM));
-        if (CVISI(CONTROL_CASE_RESET)) DWIN_Draw_Label(CLINE(CONTROL_CASE_RESET), GET_TEXT_F(MSG_RESTORE_DEFAULTS));
+        if (CVISI(CONTROL_CASE_SAVE)) DWIN_Draw_Label(CSCROL(CONTROL_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));        // "Store Configuration"
+        if (CVISI(CONTROL_CASE_LOAD)) DWIN_Draw_Label(CSCROL(CONTROL_CASE_LOAD), GET_TEXT_F(MSG_LOAD_EEPROM));         // "Read Configuration"
+        if (CVISI(CONTROL_CASE_RESET)) DWIN_Draw_Label(CSCROL(CONTROL_CASE_RESET), GET_TEXT_F(MSG_RESTORE_DEFAULTS));  // "Reset Configuration"
       #endif
     #else
-      if (CVISI(CONTROL_CASE_TEMP)) DWIN_Frame_AreaCopy(1,  1, 89,  83, 101, LBLX, CLINE(CONTROL_CASE_TEMP));           // Temperature >
-      if (CVISI(CONTROL_CASE_MOVE)) DWIN_Frame_AreaCopy(1, 84, 89, 128,  99, LBLX, CLINE(CONTROL_CASE_MOVE));           // Motion >
       #if ENABLED(EEPROM_SETTINGS)
-        if (CVISI(CONTROL_CASE_SAVE)) DWIN_Frame_AreaCopy(1, 148,  89, 268, 101, LBLX     , CLINE(CONTROL_CASE_SAVE));  // "Store Configuration"
+        if (CVISI(CONTROL_CASE_SAVE))
+          Item_AreaCopy(150,  89, 263, 102, CSCROL(CONTROL_CASE_SAVE));       // "Store Configuration"
         if (CVISI(CONTROL_CASE_LOAD)) {
-          DWIN_Frame_AreaCopy(1,  26, 104,  57, 114, LBLX     , CLINE(CONTROL_CASE_LOAD));  // "Read"
-          DWIN_Frame_AreaCopy(1, 182,  89, 268, 101, LBLX + 34, CLINE(CONTROL_CASE_LOAD));  // "Configuration"
+          Item_AreaCopy( 26, 104,  57, 114, CSCROL(CONTROL_CASE_LOAD));       // "Read"
+          Item_AreaCopy(182,  89, 263, 102, CSCROL(CONTROL_CASE_LOAD), 34);   // "Configuration"
         }
         if (CVISI(CONTROL_CASE_RESET)) {
-          DWIN_Frame_AreaCopy(1,  59, 104,  93, 114, LBLX     , CLINE(CONTROL_CASE_RESET)); // "Reset"
-          DWIN_Frame_AreaCopy(1, 182,  89, 268, 101, LBLX + 37, CLINE(CONTROL_CASE_RESET)); // "Configuration"
+          Item_AreaCopy( 59, 104,  93, 114, CSCROL(CONTROL_CASE_RESET));      // "Reset"
+          Item_AreaCopy(182,  89, 263, 102, CSCROL(CONTROL_CASE_RESET), 37);  // "Configuration"
         }
       #endif
     #endif
   }
 
-  if (CVISI(CONTROL_CASE_ADVSET)) {
-    DWIN_Draw_Label(CLINE(CONTROL_CASE_ADVSET), GET_TEXT_F(MSG_ADVANCED_SETTINGS));  // Advanced Settings
-  }
-
-  if (CVISI(CONTROL_CASE_INFO)) Item_Control_Info(CLINE(CONTROL_CASE_INFO));
+  if (CVISI(CONTROL_CASE_ADVSET)) Item_Control_Advanced(CSCROL(CONTROL_CASE_ADVSET));
+  if (CVISI(CONTROL_CASE_INFO)) Item_Control_Info(CSCROL(CONTROL_CASE_INFO));
 
   if (select_control.now && CVISI(select_control.now))
     Draw_Menu_Cursor(CSCROL(select_control.now));
@@ -841,18 +918,16 @@ void Draw_Control_Menu() {
     } \
   } while(0)
 
-  _TEMP_ICON(CONTROL_CASE_TEMP, ICON_Temperature, true);
-  _TEMP_ICON(CONTROL_CASE_MOVE, ICON_Motion, true);
-
   #if ENABLED(EEPROM_SETTINGS)
     _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
     _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
     _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
   #endif
-
-  _TEMP_ICON(CONTROL_CASE_ADVSET, ICON_AdvSet, true);
-  _TEMP_ICON(CONTROL_CASE_INFO, ICON_Info, true);
 }
+
+//
+// Tune Menu
+//
 
 void Draw_Tune_Menu() {
   Clear_Menu_Area();
@@ -862,16 +937,16 @@ void Draw_Tune_Menu() {
     Title.FrameCopy(1, 73, 2, 100, 13);
     DWIN_Frame_AreaCopy(1, 116, 164, 171, 176, LBLX, MBASE(TUNE_CASE_SPEED));
     #if HAS_HOTEND
-      DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX, MBASE(TUNE_CASE_TEMP));
+      Item_AreaCopy(1, 134, 56, 146, TUNE_CASE_TEMP);
     #endif
     #if HAS_HEATED_BED
-      DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX, MBASE(TUNE_CASE_BED));
+      Item_AreaCopy(58, 134, 113, 146, TUNE_CASE_BED);
     #endif
     #if HAS_FAN
-      DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX, MBASE(TUNE_CASE_FAN));
+      Item_AreaCopy(115, 134, 170, 146, TUNE_CASE_FAN);
     #endif
     #if HAS_ZOFFSET_ITEM
-      DWIN_Frame_AreaCopy(1, 174, 164, 223, 177, LBLX, MBASE(TUNE_CASE_ZOFF));
+      Item_AreaCopy(174, 164, 223, 177, TUNE_CASE_ZOFF);
     #endif
   }
   else {
@@ -887,7 +962,7 @@ void Draw_Tune_Menu() {
     #ifdef USE_STRING_HEADINGS
       Title.SetCaption(GET_TEXT_F(MSG_TUNE));
     #else
-      DWIN_Frame_AreaCopy(1, 94, 2, 126, 12, 14, 9);
+      DWIN_Frame_TitleCopy(94, 2, 33, 11);    // "Tune"
     #endif
 
     if (TVISI(0)) Draw_Back_First(select_tune.now == 0);
@@ -1001,11 +1076,11 @@ void Draw_Motion_Menu() {
     DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(MOTION_CASE_ACCEL));        // Max...
     DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(MOTION_CASE_ACCEL) + 1); // ...Acceleration
     #if HAS_CLASSIC_JERK
-      DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(MOTION_CASE_JERK));        // Max...
-      DWIN_Frame_AreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(MOTION_CASE_JERK) + 1);  // ...
-      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(MOTION_CASE_JERK));   // ...Jerk
+      Item_AreaCopy(173, 133, 200, 147, MOTION_CASE_JERK);      // Max...
+      Item_AreaCopy(1, 180, 28, 192, MOTION_CASE_JERK, 30, 1);  // ...
+      Item_AreaCopy(202, 133, 228, 147, MOTION_CASE_JERK, 57);  // ...Jerk
     #endif
-    DWIN_Frame_AreaCopy(1, 153, 148, 194, 161, LBLX, MBASE(MOTION_CASE_STEPS));         // Flow ratio
+    Item_AreaCopy(153, 148, 194, 161, MOTION_CASE_STEPS);       // Flow ratio
   }
   else {
     #ifdef USE_STRING_HEADINGS
@@ -1014,19 +1089,19 @@ void Draw_Motion_Menu() {
       Title.FrameCopy(1, 144, 16, 189, 26);                                        // "Motion"
     #endif
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(MOTION_CASE_RATE), F("Feedrate"));
-      DWIN_Draw_Label(MBASE(MOTION_CASE_ACCEL), GET_TEXT_F(MSG_ACCELERATION));
+      DWIN_Draw_Label(MOTION_CASE_RATE, F("Feedrate"));                 // "Feedrate"
+      DWIN_Draw_Label(MOTION_CASE_ACCEL, GET_TEXT_F(MSG_ACCELERATION)); // "Acceleration"
       #if HAS_CLASSIC_JERK
-        DWIN_Draw_Label(MBASE(MOTION_CASE_JERK), GET_TEXT_F(MSG_JERK));
+        DWIN_Draw_Label(MOTION_CASE_JERK, GET_TEXT_F(MSG_JERK));        // "Jerk"
       #endif
-      DWIN_Draw_Label(MBASE(MOTION_CASE_STEPS), GET_TEXT_F(MSG_STEPS_PER_MM));
+      DWIN_Draw_Label(MOTION_CASE_STEPS, GET_TEXT_F(MSG_STEPS_PER_MM)); // "Steps/mm"
     #else
-      draw_max_en(MBASE(MOTION_CASE_RATE)); draw_speed_en(27, MBASE(MOTION_CASE_RATE)); // "Max Speed"
-      draw_max_accel_en(MBASE(MOTION_CASE_ACCEL));                                      // "Max Acceleration"
+      say_max_en(MOTION_CASE_RATE); say_speed_en(30, MOTION_CASE_RATE); // "Max Speed"
+      say_max_accel_en(MOTION_CASE_ACCEL);                              // "Max Acceleration"
       #if HAS_CLASSIC_JERK
-        draw_max_en(MBASE(MOTION_CASE_JERK)); draw_jerk_en(MBASE(MOTION_CASE_JERK));    // "Max Jerk"
+        say_max_en(MOTION_CASE_JERK); say_jerk_en(MOTION_CASE_JERK);    // "Max Jerk"
       #endif
-      draw_steps_per_mm(MBASE(MOTION_CASE_STEPS));                                      // "Steps-per-mm"
+      say_steps_per_mm_en(MOTION_CASE_STEPS);                           // "Steps-per-mm"
     #endif
   }
 
@@ -1106,7 +1181,7 @@ void Popup_Window_Resume() {
   Clear_Popup_Area();
   Draw_Popup_Bkgd_105();
   if (HMI_IsChinese()) {
-    DWIN_Frame_AreaCopy(1, 160, 338, 235, 354, 98, 135);
+    DWIN_Frame_AreaCopy(1, 160, 338, 235, 354, 98, 135);    // Resume Interrupted Print
     DWIN_Frame_AreaCopy(1, 103, 321, 271, 335, 52, 192);
     DWIN.Draw_Icon(ICON_Cancel_C,    26, 307);
     DWIN.Draw_Icon(ICON_Continue_C, 146, 307);
@@ -1206,6 +1281,7 @@ void Draw_Print_ProgressBar() {
 }
 
 void Draw_Print_ProgressElapsed() {
+  constexpr uint16_t x = 45, y = 192;
   duration_t elapsed = print_job_timer.duration(); // print timer
   DWIN.Draw_Int(HMI_data.Text_Color, HMI_data.Background_Color, 2, 42, 212, elapsed.value / 3600);
   DWIN.Draw_String(58, 212, F(":"));
@@ -1270,7 +1346,7 @@ void Draw_Main_Menu() {
     #ifdef USE_STRING_HEADINGS
       Title.SetCaption(MACHINE_NAME);
     #else
-      DWIN_Frame_TitleCopy(1, 0, 2, 39, 12);
+      DWIN_Frame_TitleCopy(0, 2, 40, 11); // "Home"
     #endif
   }
 
@@ -1314,41 +1390,44 @@ void HMI_Move_Done(const AxisEnum axis) {
 
 void HMI_Move_X() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_X_scaled))
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_X_scaled)) {
+    Draw_Edit_Float3(1, HMI_ValueStruct.Move_X_scaled);
       return HMI_Move_Done(X_AXIS);
+  }
     LIMIT(HMI_ValueStruct.Move_X_scaled, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
     current_position.x = HMI_ValueStruct.Move_X_scaled / MINUNITMULT;
     DWIN.Draw_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(1), HMI_ValueStruct.Move_X_scaled);
     DWIN_UpdateLCD();
     HMI_Plan_Move(homing_feedrate(X_AXIS));
-  }
 }
 
 void HMI_Move_Y() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Y_scaled))
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Y_scaled)) {
+    Draw_Edit_Float3(2, HMI_ValueStruct.Move_Y_scaled);
       return HMI_Move_Done(Y_AXIS);
+  }
     LIMIT(HMI_ValueStruct.Move_Y_scaled, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
     current_position.y = HMI_ValueStruct.Move_Y_scaled / MINUNITMULT;
     DWIN.Draw_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(2), HMI_ValueStruct.Move_Y_scaled);
     DWIN_UpdateLCD();
     HMI_Plan_Move(homing_feedrate(Y_AXIS));
-  }
 }
 
 void HMI_Move_Z() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
-    if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Z_scaled))
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Z_scaled)) {
+    Draw_Edit_Float3(3, HMI_ValueStruct.Move_Z_scaled);
       return HMI_Move_Done(Z_AXIS);
+  }
     LIMIT(HMI_ValueStruct.Move_Z_scaled, (Z_MIN_POS) * MINUNITMULT, (Z_MAX_POS) * MINUNITMULT);
     current_position.z = HMI_ValueStruct.Move_Z_scaled / MINUNITMULT;
     DWIN.Draw_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, UNITFDIGITS, 216, MBASE(3), HMI_ValueStruct.Move_Z_scaled);
     DWIN_UpdateLCD();
     HMI_Plan_Move(homing_feedrate(Z_AXIS));
-  }
 }
 
 #if HAS_HOTEND
@@ -1356,9 +1435,10 @@ void HMI_Move_Z() {
   void HMI_Move_E() {
     static float last_E_scaled = 0;
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_E_scaled)) {
         last_E_scaled = HMI_ValueStruct.Move_E_scaled;
+      Draw_Edit_Signed_Float3(4, last_E_scaled);
         return HMI_Move_Done(E_AXIS);
       }
       LIMIT(HMI_ValueStruct.Move_E_scaled, last_E_scaled - (EXTRUDE_MAXLENGTH) * MINUNITMULT, last_E_scaled + (EXTRUDE_MAXLENGTH) * MINUNITMULT);
@@ -1367,7 +1447,6 @@ void HMI_Move_Z() {
       DWIN_UpdateLCD();
       HMI_Plan_Move(MMM_TO_MMS(FEEDRATE_E));
     }
-  }
 
 #endif
 
@@ -1377,7 +1456,7 @@ void HMI_Move_Z() {
 
   void HMI_Zoffset() {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
       uint8_t zoff_line;
       switch (HMI_ValueStruct.show_mode) {
         case -4: zoff_line = PREPARE_CASE_ZOFF + MROWS - index_prepare; break;
@@ -1402,7 +1481,6 @@ void HMI_Move_Z() {
       DWIN.Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 2, 2, 202, MBASE(zoff_line), HMI_ValueStruct.offset_value);
       DWIN_UpdateLCD();
     }
-  }
 
 #endif // HAS_ZOFFSET_ITEM
 
@@ -1410,7 +1488,7 @@ void HMI_Move_Z() {
 
   void HMI_ETemp() {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
       uint8_t temp_line;
       switch (HMI_ValueStruct.show_mode) {
         case -1: temp_line = TEMP_CASE_TEMP; break;
@@ -1450,7 +1528,7 @@ void HMI_Move_Z() {
 
   void HMI_BedTemp() {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
       uint8_t bed_line;
       switch (HMI_ValueStruct.show_mode) {
         case -1: bed_line = TEMP_CASE_BED; break;
@@ -1490,7 +1568,7 @@ void HMI_Move_Z() {
 
   void HMI_FanSpeed() {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
       uint8_t fan_line;
       switch (HMI_ValueStruct.show_mode) {
         case -1: fan_line = TEMP_CASE_FAN; break;
@@ -1529,7 +1607,7 @@ void HMI_Move_Z() {
 
 void HMI_PrintSpeed() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.print_speed)) {
       checkkey = Tune;
       EncoderRate.enabled = false;
@@ -1547,7 +1625,7 @@ void HMI_PrintSpeed() {
 
 void HMI_MaxFeedspeedXYZE() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Feedspeed)) {
       checkkey = MaxSpeed;
       EncoderRate.enabled = false;
@@ -1566,7 +1644,7 @@ void HMI_MaxFeedspeedXYZE() {
 
 void HMI_MaxAccelerationXYZE() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Acceleration)) {
       checkkey = MaxAcceleration;
       EncoderRate.enabled = false;
@@ -1587,7 +1665,7 @@ void HMI_MaxAccelerationXYZE() {
 
   void HMI_MaxJerkXYZE() {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Jerk_scaled)) {
         checkkey = MaxJerk;
         EncoderRate.enabled = false;
@@ -1608,7 +1686,7 @@ void HMI_MaxAccelerationXYZE() {
 
 void HMI_StepXYZE() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-  if (encoder_diffState != ENCODER_DIFF_NO) {
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Step_scaled)) {
       checkkey = Step;
       EncoderRate.enabled = false;
@@ -2016,9 +2094,9 @@ void Draw_Info_Menu() {
   if (HMI_IsChinese()) {
     Title.FrameCopy(1, 30, 17, 57, 29); // "Info"
 
-    DWIN_Frame_AreaCopy(1, 197, 149, 252, 161, 108, 102);
-    DWIN_Frame_AreaCopy(1, 1, 164, 56, 176, 108, 175);
-    DWIN_Frame_AreaCopy(1, 58, 164, 113, 176, 105, 248);
+    DWIN_Frame_AreaCopy(1, 197, 149, 252, 161, 108, 102);   // "Size"
+    DWIN_Frame_AreaCopy(1,   1, 164,  56, 176, 108, 175);   // "Firmware Version"
+    DWIN_Frame_AreaCopy(1,  58, 164, 113, 176, 105, 248);   // "Contact Details"
   }
   else {
     #ifdef USE_STRING_HEADINGS
@@ -2027,9 +2105,9 @@ void Draw_Info_Menu() {
       Title.FrameCopy(1, 190, 16, 215, 26); // "Info"
     #endif
 
-    DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);
-    DWIN_Frame_AreaCopy(1, 146, 151, 254, 161, 82, 175);
-    DWIN_Frame_AreaCopy(1, 0, 165, 94, 175, 89, 248);
+    DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);   // "Size"
+    DWIN_Frame_AreaCopy(1, 146, 151, 254, 161,  82, 175);   // "Firmware Version"
+    DWIN_Frame_AreaCopy(1,   1, 164,  96, 175,  89, 248);   // "Contact details"
   }
   DWIN.Draw_CenteredString(268, F(CORP_WEBSITE));
 
@@ -2064,7 +2142,7 @@ void HMI_MainMenu() {
         case 0: ICON_Print(); break;
         case 1: ICON_Print(); ICON_Prepare(); break;
         case 2: ICON_Prepare(); ICON_Control(); break;
-        case 3: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
+        case 3: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
       }
     }
   }
@@ -2073,8 +2151,8 @@ void HMI_MainMenu() {
       switch (select_page.now) {
         case 0: ICON_Print(); ICON_Prepare(); break;
         case 1: ICON_Prepare(); ICON_Control(); break;
-        case 2: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(0); break;
-        case 3: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
+        case 2: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
+        case 3: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
       }
     }
   }
@@ -2177,10 +2255,9 @@ void HMI_SelectFile() {
           Draw_Back_First();
           TERN_(SCROLL_LONG_FILENAMES, shift_ms = 0);
         }
-        else {
+        else
           Draw_SDItem(itemnum, 0);                              // Draw the item (and init shift name)
         }
-      }
       else {
         Move_Highlight(-1, select_file.now + MROWS - index_file); // Just move highlight
         TERN_(SCROLL_LONG_FILENAMES, Init_Shift_Name());        // ...and init the shift name
@@ -2228,7 +2305,8 @@ void HMI_SelectFile() {
       DWIN_Print_Started(true);
     }
   }
-HMI_SelectFileExit:
+
+  HMI_SelectFileExit:
   DWIN_UpdateLCD();
 }
 
@@ -2243,10 +2321,10 @@ void HMI_Printing() {
         case 0: ICON_Tune(); break;
         case 1:
           ICON_Tune();
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           break;
         case 2:
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           ICON_Stop();
           break;
       }
@@ -2257,10 +2335,10 @@ void HMI_Printing() {
       switch (select_print.now) {
         case 0:
           ICON_Tune();
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           break;
         case 1:
-          if (printingIsPaused()) ICON_Continue(); else ICON_Pause();
+          ICON_ResumeOrPause();
           ICON_Stop();
           break;
         case 2: ICON_Stop(); break;
@@ -2335,11 +2413,7 @@ void HMI_PauseOrStop() {
     if (select_print.now == 1) { // pause window
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
-        ICON_Continue();
         queue.inject_P(PSTR("M25"));
-      }
-      else {
-        // cancel pause
       }
       Goto_PrintProcess();
     }
@@ -2413,7 +2487,7 @@ void Draw_Move_Menu() {
 void Draw_AdvSet_Menu() {
   Clear_Menu_Area();
 
-  #if ADVSET_CASE_TOTAL >= 6
+  #if ADVSET_CASE_TOTAL >= TROWS
     const int16_t scroll = MROWS - index_advset; // Scrolled-up lines
     #define ASCROL(L) (scroll + (L))
   #else
@@ -2429,8 +2503,8 @@ void Draw_AdvSet_Menu() {
   #if HAS_ONESTEP_LEVELING
     if (AVISI(ADVSET_CASE_PROBEOFF)) Draw_Menu_Line(ASCROL(ADVSET_CASE_PROBEOFF), ICON_ProbeOff, GET_TEXT(MSG_ZPROBE_OFFSETS), true);  // Probe Offset >
   #endif
-  if (AVISI(ADVSET_CASE_HEPID)) Draw_Menu_Line(ASCROL(ADVSET_CASE_HEPID), ICON_PIDNozzle, "Hotend PID", false);  // Nozzle PID
-  if (AVISI(ADVSET_CASE_BEDPID)) Draw_Menu_Line(ASCROL(ADVSET_CASE_BEDPID), ICON_PIDbed, "Bed PID", false);  // Bed PID
+  if (AVISI(ADVSET_CASE_HEPID)) Item_Adv_HotendPID(ASCROL(ADVSET_CASE_HEPID));            // Nozzle PID
+  if (AVISI(ADVSET_CASE_BEDPID)) Item_Adv_BedPID(ASCROL(ADVSET_CASE_BEDPID));             // Bed PID
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (AVISI(ADVSET_CASE_PWRLOSSR)) {
       Draw_Menu_Line(ASCROL(ADVSET_CASE_PWRLOSSR), ICON_Motion, "Power-loss recovery", false);  // Power-loss recovery
@@ -2937,17 +3011,17 @@ void Draw_Temperature_Menu() {
   if (HMI_IsChinese()) {
     Title.FrameCopy(1, 236, 2, 263, 13); // "Temperature"
     #if HAS_HOTEND
-      DWIN_Frame_AreaCopy(1, 1, 134, 56, 146, LBLX, MBASE(TEMP_CASE_TEMP));
+      Item_AreaCopy(1, 134, 56, 146, TEMP_CASE_TEMP);
     #endif
     #if HAS_HEATED_BED
-      DWIN_Frame_AreaCopy(1, 58, 134, 113, 146, LBLX, MBASE(TEMP_CASE_BED));
+      Item_AreaCopy(58, 134, 113, 146, TEMP_CASE_BED);
     #endif
     #if HAS_FAN
-      DWIN_Frame_AreaCopy(1, 115, 134, 170, 146, LBLX, MBASE(TEMP_CASE_FAN));
+      Item_AreaCopy(115, 134, 170, 146, TEMP_CASE_FAN);
     #endif
     #if HAS_HOTEND
-      DWIN_Frame_AreaCopy(1, 100, 89, 178, 101, LBLX, MBASE(TEMP_CASE_PLA));
-      DWIN_Frame_AreaCopy(1, 180, 89, 260, 100, LBLX, MBASE(TEMP_CASE_ABS));
+      Item_AreaCopy(100, 89, 178, 101, TEMP_CASE_PLA);
+      Item_AreaCopy(180, 89, 260, 100, TEMP_CASE_ABS);
     #endif
   }
   else {
@@ -2958,37 +3032,38 @@ void Draw_Temperature_Menu() {
     #endif
     #ifdef USE_STRING_TITLES
       #if HAS_HOTEND
-        DWIN_Draw_Label(MBASE(TEMP_CASE_TEMP), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
+        DWIN_Draw_Label(TEMP_CASE_TEMP, GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
       #endif
       #if HAS_HEATED_BED
-        DWIN_Draw_Label(MBASE(TEMP_CASE_BED), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
+        DWIN_Draw_Label(TEMP_CASE_BED, GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
       #endif
       #if HAS_FAN
-        DWIN_Draw_Label(MBASE(TEMP_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        DWIN_Draw_Label(TEMP_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
       #endif
       #if HAS_HOTEND
-        DWIN_Draw_Label(MBASE(TEMP_CASE_PLA), F("PLA Preheat Settings"));
-        DWIN_Draw_Label(MBASE(TEMP_CASE_ABS), F("ABS Preheat Settings"));
+        DWIN_Draw_Label(TEMP_CASE_PLA, F(PREHEAT_1_LABEL " Preheat Settings"));
+        DWIN_Draw_Label(TEMP_CASE_ABS, F(PREHEAT_2_LABEL " Preheat Settings"));
       #endif
     #else
       #if HAS_HOTEND
-        DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX, MBASE(TEMP_CASE_TEMP));      // Nozzle...
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 44, MBASE(TEMP_CASE_TEMP));     // ...Temperature
+        Item_AreaCopy(197, 104, 238, 114, TEMP_CASE_TEMP);    // "Nozzle"
+        Item_AreaCopy(1,  89,  83, 101, TEMP_CASE_TEMP, 44);  // "Temperature"
       #endif
       #if HAS_HEATED_BED
-        DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX, MBASE(TEMP_CASE_BED));       // Bed...
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 27, MBASE(TEMP_CASE_BED));      // ...Temperature
+        Item_AreaCopy(240, 104, 264, 114, TEMP_CASE_BED);     // "Bed"
+        Item_AreaCopy(1,  89,  83, 101, TEMP_CASE_BED, 27);   // "Temperature"
       #endif
       #if HAS_FAN
-        DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX, MBASE(TEMP_CASE_FAN));          // Fan speed
+        Item_AreaCopy(  1, 119,  61, 132, TEMP_CASE_FAN);     // "Fan speed"
       #endif
       #if HAS_HOTEND
-        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(TEMP_CASE_PLA));         // Preheat...
-        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX + 52, MBASE(TEMP_CASE_PLA));    // ...PLA
-        DWIN_Frame_AreaCopy(1, 131, 119, 182, 132, LBLX + 79, MBASE(TEMP_CASE_PLA));  // PLA setting
-        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(TEMP_CASE_ABS));         // Preheat...
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 52, MBASE(TEMP_CASE_ABS));    // ...ABS
-        DWIN_Frame_AreaCopy(1, 131, 119, 182, 132, LBLX + 81, MBASE(TEMP_CASE_ABS));  // ABS setting
+        Item_AreaCopy(107,  76, 156,  86, TEMP_CASE_PLA);     // "Preheat"
+        say_pla_en(52, TEMP_CASE_PLA);                        // "PLA"
+        Item_AreaCopy(150, 135, 202, 148, TEMP_CASE_PLA, 79); // "Settings"
+
+        Item_AreaCopy(107,  76, 156,  86, TEMP_CASE_ABS);     // "Preheat"
+        say_abs_en(52, TEMP_CASE_ABS);                        // "ABS"
+        Item_AreaCopy(150, 135, 202, 148, TEMP_CASE_ABS, 81); // "Settings"
       #endif
     #endif
   }
@@ -3035,22 +3110,16 @@ void HMI_Control() {
         Scroll_Menu(DWIN_SCROLL_UP);
 
         switch (index_control) {  // Last menu items
-          case CONTROL_CASE_ADVSET:  // Advanced Settings >
-            Draw_Menu_Item(MROWS, ICON_AdvSet, GET_TEXT(MSG_ADVANCED_SETTINGS), true);
-            break;
-          case CONTROL_CASE_INFO:    // Info >
-            Item_Control_Info(MBASE(MROWS));
-            Draw_Menu_Icon(MROWS, ICON_Info);
-            break;
+          case CONTROL_CASE_ADVSET: Item_Control_Advanced(MROWS); break;
+          case CONTROL_CASE_INFO:   Item_Control_Info(MROWS);     break;
           default: break;
         }
 
       }
-      else {
+      else
         Move_Highlight(1, select_control.now + MROWS - index_control);
       }
     }
-  }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_control.dec()) {
       if (select_control.now < index_control - MROWS) {
@@ -3068,11 +3137,10 @@ void HMI_Control() {
           default: break;
         }
       }
-      else {
+      else
         Move_Highlight(-1, select_control.now + MROWS - index_control);
       }
     }
-  }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_control.now) {
       case 0: // Back
@@ -3111,7 +3179,7 @@ void HMI_Control() {
       case CONTROL_CASE_ADVSET: // Advanced Settings
         checkkey = AdvSet;
         select_advset.reset();
-        Draw_AdvSet_Menu();
+        Draw_AdvancedSettings_Menu();
         break;
       case CONTROL_CASE_INFO: // Info
         checkkey = Info;
@@ -3479,19 +3547,19 @@ void Draw_Max_Speed_Menu() {
   if (HMI_IsChinese()) {
     Title.FrameCopy(1, 1, 16, 28, 28); // "Max Speed (mm/s)"
 
-    auto say_max_speed = [](const uint16_t row) {
-      DWIN_Frame_AreaCopy(1, 173, 133, 228, 147, LBLX, row);              // "Max speed"
+    auto say_max_speed_cn = [](const uint8_t line) {
+      Item_AreaCopy(173, 133, 228, 147, line);    // "Max speed"
     };
 
-    say_max_speed(MBASE(1));                                              // "Max speed"
-    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(1));      // X
-    say_max_speed(MBASE(2));                                              // "Max speed"
-    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(2) + 3);      // Y
-    say_max_speed(MBASE(3));                                              // "Max speed"
-    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(3) + 3);     // Z
+    say_max_speed_cn(1);                          // "Max speed"
+    Item_AreaCopy(229, 133, 236, 147, 1, 58);     // "X"
+    say_max_speed_cn(2);                          // "Max speed"
+    Item_AreaCopy(1, 150, 7, 160, 2, 58, 3);      // "Y"
+    say_max_speed_cn(3);                          // "Max speed"
+    Item_AreaCopy(9, 150, 16, 160, 3, 58, 3);     // "Z"
     #if HAS_HOTEND
-      say_max_speed(MBASE(4));                                            // "Max speed"
-      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(4) + 3);  // E
+      say_max_speed_cn(4);                        // "Max speed"
+      Item_AreaCopy(18, 150, 25, 160, 4, 58, 3);  // "E"
     #endif
   }
   else {
@@ -3501,28 +3569,18 @@ void Draw_Max_Speed_Menu() {
       Title.FrameCopy(1, 144, 16, 189, 26); // "Max Speed (mm/s)"
     #endif
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(1), F("Max Feedrate X"));
-      DWIN_Draw_Label(MBASE(2), F("Max Feedrate Y"));
-      DWIN_Draw_Label(MBASE(3), F("Max Feedrate Z"));
+      DWIN_Draw_Label(1, F("Max Feedrate X"));
+      DWIN_Draw_Label(2, F("Max Feedrate Y"));
+      DWIN_Draw_Label(3, F("Max Feedrate Z"));
       #if HAS_HOTEND
-        DWIN_Draw_Label(MBASE(4), F("Max Feedrate E"));
+        DWIN_Draw_Label(4, F("Max Feedrate E"));
       #endif
     #else
-      draw_max_en(MBASE(1));          // "Max"
-      DWIN_Frame_AreaCopy(1, 184, 119, 234, 132, LBLX + 27, MBASE(1)); // "Speed X"
-
-      draw_max_en(MBASE(2));          // "Max"
-      draw_speed_en(27, MBASE(2));    // "Speed"
-      say_y(70, MBASE(2));            // "Y"
-
-      draw_max_en(MBASE(3));          // "Max"
-      draw_speed_en(27, MBASE(3));    // "Speed"
-      say_z(70, MBASE(3));            // "Z"
-
+      say_max_en(1); say_speed_en(30, 1); say_x_en(73, 1);    // "Max Speed X"
+      say_max_en(2); say_speed_en(30, 2); say_y_en(73, 2);    // "Max Speed Y"
+      say_max_en(3); say_speed_en(30, 3); say_z_en(73, 3);    // "Max Speed Z"
       #if HAS_HOTEND
-        draw_max_en(MBASE(4));        // "Max"
-        draw_speed_en(27, MBASE(4));  // "Speed"
-        say_e(70, MBASE(4));          // "E"
+        say_max_en(4); say_speed_en(30, 4); say_e_en(73, 4);  // "Max Speed E"
       #endif
     #endif
   }
@@ -3543,19 +3601,19 @@ void Draw_Max_Accel_Menu() {
   if (HMI_IsChinese()) {
     Title.FrameCopy(1, 1, 16, 28, 28); // "Acceleration"
 
-    DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(1));
-    DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(1) + 1);
-    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(1));   // Max acceleration X
-    DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(2));
-    DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(2) + 1);
-    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 71, MBASE(2) + 2);   // Max acceleration Y
-    DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(3));
-    DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(3) + 1);
-    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 71, MBASE(3) + 2);  // Max acceleration Z
+    Item_AreaCopy(173, 133, 200, 147, 1);
+    Item_AreaCopy( 28, 149,  69, 161, 1, 30, 1);
+    Item_AreaCopy(229, 133, 236, 147, 1, 74);       // Max acceleration X
+    Item_AreaCopy(173, 133, 200, 147, 2);
+    Item_AreaCopy( 28, 149,  69, 161, 2, 30, 1);
+    Item_AreaCopy(  1, 150,   7, 160, 2, 74, 2);    // Max acceleration Y
+    Item_AreaCopy(173, 133, 200, 147, 3);
+    Item_AreaCopy( 28, 149,  69, 161, 3, 30, 1);
+    Item_AreaCopy(  9, 150,  16, 160, 3, 74, 2);    // Max acceleration Z
     #if HAS_HOTEND
-      DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(4));
-      DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(4) + 1);
-      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 71, MBASE(4) + 2); // Max acceleration E
+      Item_AreaCopy(173, 133, 200, 147, 4);
+      Item_AreaCopy( 28, 149,  69, 161, 4, 30, 1);
+      Item_AreaCopy( 18, 150,  25, 160, 4, 74, 2);  // Max acceleration E
     #endif
   }
   else {
@@ -3565,18 +3623,18 @@ void Draw_Max_Accel_Menu() {
       Title.FrameCopy(1, 144, 16, 189, 26);          // "Acceleration"
     #endif
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(1), F("Max Accel X"));
-      DWIN_Draw_Label(MBASE(2), F("Max Accel Y"));
-      DWIN_Draw_Label(MBASE(3), F("Max Accel Z"));
+      DWIN_Draw_Label(1, F("Max Accel X"));
+      DWIN_Draw_Label(2, F("Max Accel Y"));
+      DWIN_Draw_Label(3, F("Max Accel Z"));
       #if HAS_HOTEND
-        DWIN_Draw_Label(MBASE(4), F("Max Accel E"));
+        DWIN_Draw_Label(4, F("Max Accel E"));
       #endif
     #else
-      draw_max_accel_en(MBASE(1)); say_x(108, MBASE(1));  // "Max Acceleration X"
-      draw_max_accel_en(MBASE(2)); say_y(108, MBASE(2));  // "Max Acceleration Y"
-      draw_max_accel_en(MBASE(3)); say_z(108, MBASE(3));  // "Max Acceleration Z"
+      say_max_accel_en(1); say_x_en(112, 1);    // "Max Acceleration X"
+      say_max_accel_en(2); say_y_en(112, 2);    // "Max Acceleration Y"
+      say_max_accel_en(3); say_z_en(112, 3);    // "Max Acceleration Z"
       #if HAS_HOTEND
-        draw_max_accel_en(MBASE(4)); say_e(108, MBASE(4)); // "Max Acceleration E"
+        say_max_accel_en(4); say_e_en(112, 4);  // "Max Acceleration E"
       #endif
     #endif
   }
@@ -3598,23 +3656,23 @@ void Draw_Max_Accel_Menu() {
     if (HMI_IsChinese()) {
       Title.FrameCopy(1, 1, 16, 28, 28); // "Jerk"
 
-      DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX     , MBASE(1));
-      DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(1) + 1);
-      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(1));
-      DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 83, MBASE(1));        // Max Jerk speed X
-      DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX     , MBASE(2));
-      DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(2) + 1);
-      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(2));
-      DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 83, MBASE(2) + 3);    // Max Jerk speed Y
-      DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX     , MBASE(3));
-      DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(3) + 1);
-      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(3));
-      DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 83, MBASE(3) + 3);    // Max Jerk speed Z
+      Item_AreaCopy(173, 133, 200, 147, 1);
+      Item_AreaCopy(  1, 180,  28, 192, 1, 30, 1);
+      Item_AreaCopy(202, 133, 228, 147, 1, 56);
+      Item_AreaCopy(229, 133, 236, 147, 1, 86);       // Max Jerk speed X
+      Item_AreaCopy(173, 133, 200, 147, 2);
+      Item_AreaCopy(  1, 180,  28, 192, 2, 30, 1);
+      Item_AreaCopy(202, 133, 228, 147, 2, 56);
+      Item_AreaCopy(  1, 150,   7, 160, 2, 86, 3);    // Max Jerk speed Y
+      Item_AreaCopy(173, 133, 200, 147, 3);
+      Item_AreaCopy(  1, 180,  28, 192, 3, 30, 1);
+      Item_AreaCopy(202, 133, 228, 147, 3, 56);
+      Item_AreaCopy(  9, 150,  16, 160, 3, 86, 3);    // Max Jerk speed Z
       #if HAS_HOTEND
-        DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX     , MBASE(4));
-        DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(4) + 1);
-        DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(4));
-        DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 83, MBASE(4) + 3);  // Max Jerk speed E
+        Item_AreaCopy(173, 133, 200, 147, 4);
+        Item_AreaCopy(  1, 180,  28, 192, 4, 30, 1);
+        Item_AreaCopy(202, 133, 228, 147, 4, 56);
+        Item_AreaCopy( 18, 150,  25, 160, 4, 86, 3);  // Max Jerk speed E
       #endif
     }
     else {
@@ -3624,33 +3682,18 @@ void Draw_Max_Accel_Menu() {
         Title.FrameCopy(1, 144, 16, 189, 26); // "Jerk"
       #endif
       #ifdef USE_STRING_TITLES
-        DWIN_Draw_Label(MBASE(1), F("Max Jerk X"));
-        DWIN_Draw_Label(MBASE(2), F("Max Jerk Y"));
-        DWIN_Draw_Label(MBASE(3), F("Max Jerk Z"));
+        DWIN_Draw_Label(1, GET_TEXT_F(MSG_VA_JERK));
+        DWIN_Draw_Label(2, GET_TEXT_F(MSG_VB_JERK));
+        DWIN_Draw_Label(3, GET_TEXT_F(MSG_VC_JERK));
         #if HAS_HOTEND
-          DWIN_Draw_Label(MBASE(4), F("Max Jerk E"));
+          DWIN_Draw_Label(4, GET_TEXT_F(MSG_VE_JERK));
         #endif
       #else
-        draw_max_en(MBASE(1));          // "Max"
-        draw_jerk_en(MBASE(1));         // "Jerk"
-        draw_speed_en(72, MBASE(1));    // "Speed"
-        say_x(115, MBASE(1));           // "X"
-
-        draw_max_en(MBASE(2));          // "Max"
-        draw_jerk_en(MBASE(2));         // "Jerk"
-        draw_speed_en(72, MBASE(2));    // "Speed"
-        say_y(115, MBASE(2));           // "Y"
-
-        draw_max_en(MBASE(3));          // "Max"
-        draw_jerk_en(MBASE(3));         // "Jerk"
-        draw_speed_en(72, MBASE(3));    // "Speed"
-        say_z(115, MBASE(3));           // "Z"
-
+        say_max_jerk_speed_en(1); say_x_en(102, 1);   // Max Jerk speed X
+        say_max_jerk_speed_en(2); say_y_en(102, 2);   // Max Jerk speed Y
+        say_max_jerk_speed_en(3); say_z_en(102, 3);   // Max Jerk speed Z
         #if HAS_HOTEND
-          draw_max_en(MBASE(4));        // "Max"
-          draw_jerk_en(MBASE(4));       // "Jerk"
-          draw_speed_en(72, MBASE(4));  // "Speed"
-          say_e(115, MBASE(4));         // "E"
+          say_max_jerk_speed_en(4); say_e_en(102, 4); // Max Jerk speed E
         #endif
       #endif
     }
@@ -3672,15 +3715,15 @@ void Draw_Steps_Menu() {
   if (HMI_IsChinese()) {
     Title.FrameCopy(1, 1, 16, 28, 28); // "Steps per mm"
 
-    DWIN_Frame_AreaCopy(1, 153, 148, 194, 161, LBLX, MBASE(1));
-    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(1)); // Transmission Ratio X
-    DWIN_Frame_AreaCopy(1, 153, 148, 194, 161, LBLX, MBASE(2));
-    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 44, MBASE(2) + 3); // Transmission Ratio Y
-    DWIN_Frame_AreaCopy(1, 153, 148, 194, 161, LBLX, MBASE(3));
-    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 44, MBASE(3) + 3); // Transmission Ratio Z
+    Item_AreaCopy(153, 148, 194, 161, 1);
+    Item_AreaCopy(229, 133, 236, 147, 1, 44);       // Transmission Ratio X
+    Item_AreaCopy(153, 148, 194, 161, 2);
+    Item_AreaCopy(  1, 150,   7, 160, 2, 44, 3);    // Transmission Ratio Y
+    Item_AreaCopy(153, 148, 194, 161, 3);
+    Item_AreaCopy(  9, 150,  16, 160, 3, 44, 3);    // Transmission Ratio Z
     #if HAS_HOTEND
-      DWIN_Frame_AreaCopy(1, 153, 148, 194, 161, LBLX, MBASE(4));
-      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 44, MBASE(4) + 3); // Transmission Ratio E
+      Item_AreaCopy(153, 148, 194, 161, 4);
+      Item_AreaCopy( 18, 150,  25, 160, 4, 44, 3);  // Transmission Ratio E
     #endif
   }
   else {
@@ -3690,18 +3733,18 @@ void Draw_Steps_Menu() {
       Title.FrameCopy(1, 144, 16, 189, 26); // "Steps per mm"
     #endif
     #ifdef USE_STRING_TITLES
-      DWIN_Draw_Label(MBASE(1), F("Steps/mm X"));
-      DWIN_Draw_Label(MBASE(2), F("Steps/mm Y"));
-      DWIN_Draw_Label(MBASE(3), F("Steps/mm Z"));
+      DWIN_Draw_Label(1, GET_TEXT_F(MSG_A_STEPS));
+      DWIN_Draw_Label(2, GET_TEXT_F(MSG_B_STEPS));
+      DWIN_Draw_Label(3, GET_TEXT_F(MSG_C_STEPS));
       #if HAS_HOTEND
-        DWIN_Draw_Label(MBASE(4), F("Steps/mm E"));
+        DWIN_Draw_Label(4, GET_TEXT_F(MSG_E_STEPS));
       #endif
     #else
-      draw_steps_per_mm(MBASE(1)); say_x(103, MBASE(1)); // "Steps-per-mm X"
-      draw_steps_per_mm(MBASE(2)); say_y(103, MBASE(2)); // "Y"
-      draw_steps_per_mm(MBASE(3)); say_z(103, MBASE(3)); // "Z"
+      say_steps_per_mm_en(1); say_x_en(101, 1);     // "Steps-per-mm X"
+      say_steps_per_mm_en(2); say_y_en(101, 2);     // "Y"
+      say_steps_per_mm_en(3); say_z_en(101, 3);     // "Z"
       #if HAS_HOTEND
-        draw_steps_per_mm(MBASE(4)); say_e(103, MBASE(4)); // "E"
+        say_steps_per_mm_en(4); say_e_en(101, 4);   // "E"
       #endif
     #endif
   }
@@ -4013,7 +4056,7 @@ void HMI_AdvSet() {
       #if ENABLED(POWER_LOSS_RECOVERY)
         case ADVSET_CASE_PWRLOSSR:  // Power-loss recovery
           recovery.enable(!recovery.enabled);
-          Draw_Chkb_Line(ADVSET_CASE_PWRLOSSR + MROWS - index_advset, recovery.enabled);
+          Draw_Checkbox_Line(ADVSET_CASE_PWRLOSSR + MROWS - index_advset, recovery.enabled);
           break;
       #endif
 
@@ -4062,7 +4105,7 @@ void HMI_AdvSet() {
         case 0: // Back
           checkkey = AdvSet;
           select_advset.set(ADVSET_CASE_HOMEOFF);
-          Draw_AdvSet_Menu();
+          Draw_AdvancedSettings_Menu();
           break;
         case 1: // Home Offset X
           checkkey = HomeOffX;
@@ -4087,7 +4130,8 @@ void HMI_AdvSet() {
 
   void HMI_HomeOffsetN(const AxisEnum axis, float &posScaled, const_float_t lo, const_float_t hi) {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+
       if (Apply_Encoder(encoder_diffState, posScaled)) {
         checkkey = HomeOff;
         EncoderRate.enabled = false;
@@ -4123,7 +4167,7 @@ void HMI_AdvSet() {
         case 0: // Back
           checkkey = AdvSet;
           select_advset.set(ADVSET_CASE_PROBEOFF);
-          Draw_AdvSet_Menu();
+          Draw_AdvancedSettings_Menu();
           break;
         case 1: // Probe Offset X
           checkkey = ProbeOffX;
@@ -4142,7 +4186,8 @@ void HMI_AdvSet() {
 
   void HMI_ProbeOffsetN(float &posScaled, float &offset_ref) {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
-    if (encoder_diffState != ENCODER_DIFF_NO) {
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+
       if (Apply_Encoder(encoder_diffState, posScaled)) {
         checkkey = ProbeOff;
         EncoderRate.enabled = false;
@@ -4799,7 +4844,7 @@ void EachMomentUpdate() {
     else if (HMI_flag.pause_flag != printingIsPaused()) {
       // print status update
       HMI_flag.pause_flag = printingIsPaused();
-      if (HMI_flag.pause_flag) ICON_Continue(); else ICON_Pause();
+      ICON_ResumeOrPause();
     }
   }
 
