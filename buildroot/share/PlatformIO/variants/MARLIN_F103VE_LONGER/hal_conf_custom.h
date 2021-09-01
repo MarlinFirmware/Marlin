@@ -20,11 +20,6 @@ extern "C" {
   */
 #include "stm32yyxx_hal_conf.h"
 
-#undef HAL_PWR_MODULE_ENABLED
-#define HAL_PWR_MODULE_ONLY   // disable low power & PA0 wakeup pin (its T°c pin)
-
-#define HAL_IWDG_MODULE_ENABLED // USE_WATCHDOG
-
 #ifdef HAL_PCD_MODULE_ENABLED
   #warning "No direct STM32 USB pins on Longer3D board"
   #undef HAL_PCD_MODULE_ENABLED // USB Device
@@ -35,18 +30,20 @@ extern "C" {
   #undef HAL_HCD_MODULE_ENABLED // USB Host
 #endif
 
-//#define HAL_USART_MODULE_ENABLED // Useless.... UART_MODULE does it
+#define HAL_EXTI_MODULE_ENABLED   // Needed for Endstop (and other external) Interrupts
+#define HAL_IWDG_MODULE_ENABLED // USE_WATCHDOG
+
+#undef HAL_PWR_MODULE_ENABLED
+#define HAL_PWR_MODULE_ONLY   // disable low power & PA0 wakeup pin (its T°c pin)
 
 #undef HAL_CAN_LEGACY_MODULE_ENABLED
 #undef HAL_CAN_MODULE_ENABLED
 #undef HAL_DAC_MODULE_ENABLED
 #undef HAL_RTC_MODULE_ENABLED
 
-#define HAL_EXTI_MODULE_ENABLED // for ENDSTOP_INTERRUPTS_FEATURE
-
 /**
-  * @brief List of modules in the framework (first ones enabled by default)
-  */
+ * @brief List of modules in the framework (first ones enabled by default)
+ */
 //#define HAL_MODULE_ENABLED
 //#define HAL_ADC_MODULE_ENABLED
 //#define HAL_CORTEX_MODULE_ENABLED
@@ -77,7 +74,7 @@ extern "C" {
 //#define HAL_NOR_MODULE_ENABLED
 //#define HAL_PCCARD_MODULE_ENABLED
 //#define HAL_SMARTCARD_MODULE_ENABLED
-//#define HAL_USART_MODULE_ENABLED
+//#define HAL_USART_MODULE_ENABLED // Useless.... UART_MODULE does it
 //#define HAL_WWDG_MODULE_ENABLED
 //#define HAL_MMC_MODULE_ENABLED
 
