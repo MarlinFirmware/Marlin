@@ -31,15 +31,14 @@ Be sure to leave **only** the `DWIN_SET` folder at the root of the card.
 <img src="preview2.jpg"  height="400" />
 
 ## Credits
-- [**AngelV**](https://github.com/AngleV) for "Main Panel" icons  
+- [**Giadej**](https://github.com/Giadej) for "Main Panel" icons and custom Boot-Screen  
 - [**Lighty1989**](https://github.com/Lighty1989) for "XYZ Move Axis" icons and "Bed Points" icons  
 - **Gotcha's** for other icons  
-- [**Giadej**](https://github.com/Giadej) for custom Boot-Screen  
 
 ## CRC  
 |File                        | SHA-256
 |----------------------------|-----------------------
-|9.ICO                       | 8A0D75B63050BC2774FD32C88B142713056CABD5569C10808190632381382C14
+|9.ICO                       | 06E682A2ADC39108348B5EFDEF1404F39CA224823CB5A12B9BF935B882C1CB1C
 |T5UIC1.CFG                  | E1C573639BFA2B3A06C2FA7AD3CAB483653DD3DC383217FF653FAB3145458095
 |T5UIC1_V20_4页面_191022.BIN | F8F9A3075AE5516328044ACB79CA522753133B66F1ECBD108E7B5DB2F3FF2FE5
 
