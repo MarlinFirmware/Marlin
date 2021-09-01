@@ -149,10 +149,10 @@
 #define BOARD_GT2560_REV_A            1314  // Geeetech GT2560 Rev A
 #define BOARD_GT2560_REV_A_PLUS       1315  // Geeetech GT2560 Rev A+ (with auto level probe)
 #define BOARD_GT2560_REV_B            1316  // Geeetech GT2560 Rev B
-#define BOARD_GT2560_V3               1317  // Geeetech GT2560 Rev B for A10(M/D)
-#define BOARD_GT2560_V4               1318  // Geeetech GT2560 Rev B for A10(M/D)
+#define BOARD_GT2560_V3               1317  // Geeetech GT2560 Rev B for A10(M/T/D)
+#define BOARD_GT2560_V4               1318  // Geeetech GT2560 Rev B for A10(M/T/D)
 #define BOARD_GT2560_V3_MC2           1319  // Geeetech GT2560 Rev B for Mecreator2
-#define BOARD_GT2560_V3_A20           1320  // Geeetech GT2560 Rev B for A20(M/D)
+#define BOARD_GT2560_V3_A20           1320  // Geeetech GT2560 Rev B for A20(M/T/D)
 #define BOARD_EINSTART_S              1321  // Einstart retrofit
 #define BOARD_WANHAO_ONEPLUS          1322  // Wanhao 0ne+ i3 Mini
 #define BOARD_LEAPFROG_XEED2015       1323  // Leapfrog Xeed 2015
@@ -160,6 +160,7 @@
 #define BOARD_PICA                    1325  // PICA Shield (rev C or later)
 #define BOARD_INTAMSYS40              1326  // Intamsys 4.0 (Funmat HT)
 #define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
+#define BOARD_GT2560_V4_A20           1328  // Geeetech GT2560 Rev B for A20(M/T/D)
 
 //
 // ATmega1281, ATmega2561

@@ -8,7 +8,7 @@
 #define HAL_I2C_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
-//#define HAL_RTC_MODULE_ENABLED Real Time Clock...do we use it?
+//#define HAL_RTC_MODULE_ENABLED // Real Time Clock...do we use it?
 #define HAL_SPI_MODULE_ENABLED
 #define HAL_TIM_MODULE_ENABLED
 #define HAL_USART_MODULE_ENABLED

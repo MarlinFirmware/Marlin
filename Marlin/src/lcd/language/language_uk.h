@@ -179,7 +179,7 @@ namespace Language_uk {
   #endif
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Редагувати сітку");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Редагув. зупинено");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Точка сітки");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Точка сітки");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Індекс X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Індекс Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значення Z");

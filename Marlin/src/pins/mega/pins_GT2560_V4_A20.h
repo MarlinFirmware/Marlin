@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,24 +22,22 @@
 #pragma once
 
 /**
- * Melzi (Malyan M150) pin assignments
+ * Geeetech A20 GT2560 V4.x board pin assignments
  */
 
-#define BOARD_INFO_NAME "Melzi (Malyan)"
+#define BOARD_INFO_NAME "GT2560 4.x"
 
-#include "pins_MELZI.h"
+#define LCD_PINS_RS                            5
+#define LCD_PINS_ENABLE                       36
+#define LCD_PINS_D4                           21
+#define LCD_PINS_D7                            6
 
-#undef LCD_SDSS
-#undef LCD_PINS_RS
-#undef LCD_PINS_ENABLE
-#undef LCD_PINS_D4
-#undef BTN_EN1
-#undef BTN_EN2
-#undef BTN_ENC
+#define SPEAKER                                  // The speaker can produce tones
 
-#define LCD_PINS_RS                           17  // ST9720 CS
-#define LCD_PINS_ENABLE                       16  // ST9720 DAT
-#define LCD_PINS_D4                           11  // ST9720 CLK
-#define BTN_EN1                               30
-#define BTN_EN2                               29
-#define BTN_ENC                               28
+#if IS_NEWPANEL
+  #define BTN_EN1                             16
+  #define BTN_EN2                             17
+  #define BTN_ENC                             19
+#endif
+
+#include "pins_GT2560_V3.h"
