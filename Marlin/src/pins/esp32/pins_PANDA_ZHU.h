@@ -22,63 +22,64 @@
 #pragma once
 
 /**
- * Espressif ESP32 (Tensilica Xtensa LX6) pin assignments
+ * Panda ZHU pin assignments
  */
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME "PANDA_ZHU"
+#define BOARD_INFO_NAME "Panda Zhu"
 #define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
 
-#define SERVO0_PIN                       0
-
+//
+// Servos
+//
+#define SERVO0_PIN                             0
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             4
-#define Y_MIN_PIN                             35
-#define Z_MIN_PIN                             21
+#define X_STOP_PIN                             4
+#define Y_STOP_PIN                            35
+#define Z_STOP_PIN                            21
 
 //
 // Steppers
 //
-#define X_STEP_PIN                          100+1 
-#define X_DIR_PIN                           100
-#define X_ENABLE_PIN                        100+24+4
+#define X_STEP_PIN                           101
+#define X_DIR_PIN                            100
+#define X_ENABLE_PIN                         128  // Shared with all steppers
 //#define X_CS_PIN                             0
 
-#define Y_STEP_PIN                          100+3
-#define Y_DIR_PIN                           100+2 
-#define Y_ENABLE_PIN                        100+24+4
+#define Y_STEP_PIN                           103
+#define Y_DIR_PIN                            102
+#define Y_ENABLE_PIN                         128
 //#define Y_CS_PIN                            13
 
-#define Z_STEP_PIN                           100+5
-#define Z_DIR_PIN                            100+4
-#define Z_ENABLE_PIN                         100+24+4
+#define Z_STEP_PIN                           105
+#define Z_DIR_PIN                            104
+#define Z_ENABLE_PIN                         128
 //#define Z_CS_PIN                             5  // SS_PIN
 
-#define E0_STEP_PIN                          100+7
-#define E0_DIR_PIN                           100+6
-#define E0_ENABLE_PIN                        100+24+4
+#define E0_STEP_PIN                          107
+#define E0_DIR_PIN                           106
+#define E0_ENABLE_PIN                        128
 //#define E0_CS_PIN                           21
 
-#define E1_STEP_PIN                          100+8+7
-#define E1_DIR_PIN                           100+8+6
-#define E1_ENABLE_PIN                        100+24+4
+#define E1_STEP_PIN                          115
+#define E1_DIR_PIN                           114
+#define E1_ENABLE_PIN                        128
 
-#define E2_STEP_PIN                          100+8+4
-#define E2_DIR_PIN                           100+8+5
-#define E2_ENABLE_PIN                        100+24+4
+#define E2_STEP_PIN                          112
+#define E2_DIR_PIN                           113
+#define E2_ENABLE_PIN                        128
 
-#define E3_STEP_PIN                          100+8+2
-#define E3_DIR_PIN                           100+8+3
-#define E3_ENABLE_PIN                        100+24+4
+#define E3_STEP_PIN                          110
+#define E3_DIR_PIN                           111
+#define E3_ENABLE_PIN                        128
 
-#define E4_STEP_PIN                          100+16+5
-#define E4_DIR_PIN                           100+16+6
-#define E4_ENABLE_PIN                        100+24+4
-
+#define E4_STEP_PIN                          121
+#define E4_DIR_PIN                           122
+#define E4_ENABLE_PIN                        128
 
 //
 // Temperature Sensors
@@ -89,26 +90,27 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           100+8
-#define FAN_PIN                                100+16+2
-#define HEATER_BED_PIN                         100+8+1
-#define E0_AUTO_FAN_PIN_ESP                    100+16+4
+#define HEATER_0_PIN                         108
+#define FAN_PIN                              118
+#define HEATER_BED_PIN                       109
+#define E0_AUTO_FAN_PIN_ESP                  120
+
 //
-// MicroSD card
+// SD card
 //
-#define SD_MOSI_PIN                           23
-#define SD_MISO_PIN                           19
-#define SD_SCK_PIN                            18
-#define SDSS                                   5
-#define SD_DETECT_PIN                          2
+#if ENABLED(SDSUPPORT)
+  #define SDSS                                 5
+  #define SD_DETECT_PIN                        2
+#endif
 
-#define BEEPER_PIN                  100+24+5 
-#define BTN_ENC                     12 
+#if HAS_WIRED_LCD
+  #define BEEPER_PIN                         129
+  #define BTN_ENC                             12
 
-#define BTN_EN1                     33 
-#define BTN_EN2                     32 
+  #define BTN_EN1                             33
+  #define BTN_EN2                             32
 
-#define LCD_PINS_RS                    27
-#define LCD_PINS_ENABLE                26
-#define LCD_PINS_D4                    14
-    
+  #define LCD_PINS_RS                         27
+  #define LCD_PINS_ENABLE                     26
+  #define LCD_PINS_D4                         14
+#endif
