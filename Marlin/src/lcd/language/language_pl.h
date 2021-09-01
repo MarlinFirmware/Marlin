@@ -139,7 +139,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Edytor siatki");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edycja siatki");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Edycja siatki zatrzymana");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Punkt pomiarowy");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Punkt pomiarowy");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Indeks X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Indeks Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Wartość Z");

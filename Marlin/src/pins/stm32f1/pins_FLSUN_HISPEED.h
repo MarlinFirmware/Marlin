@@ -294,13 +294,14 @@
   #define TFT_BACKLIGHT_PIN                 PD13
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_CS_PIN                  TFT_CS_PIN
-  #define TFT_RS_PIN                  TFT_RS_PIN
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #ifdef TFT_CLASSIC_UI
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
@@ -309,11 +310,14 @@
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
   #define TFT_BUFFER_SIZE                  14400
+
 #elif HAS_GRAPHICAL_TFT
+
   #define TFT_RESET_PIN                     PC6
   #define TFT_BACKLIGHT_PIN                 PD13
   #define TFT_CS_PIN                        PD7   // NE4
   #define TFT_RS_PIN                        PD11  // A0
+
 #endif
 
 #if NEED_TOUCH_PINS

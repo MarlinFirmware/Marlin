@@ -20,15 +20,10 @@ extern "C" {
   */
 #include "stm32yyxx_hal_conf.h"
 
-#undef HAL_PWR_MODULE_ENABLED // only way to disable it
+#undef HAL_PWR_MODULE_ENABLED
+#define HAL_PWR_MODULE_ONLY   // disable low power & PA0 wakeup pin (its T°c pin)
 
-#if defined(HAL_PWR_MODULE_ENABLED) && !defined(HAL_PWR_MODULE_ONLY)
-  #define HAL_PWR_MODULE_ONLY // disable low power & PA0 wakeup pin (its T°c pin)
-#endif
-
-#ifndef HAL_IWDG_MODULE_ENABLED
-  #define HAL_IWDG_MODULE_ENABLED // USE_WATCHDOG
-#endif
+#define HAL_IWDG_MODULE_ENABLED // USE_WATCHDOG
 
 #ifdef HAL_PCD_MODULE_ENABLED
   #warning "No direct STM32 USB pins on Longer3D board"
@@ -46,6 +41,7 @@ extern "C" {
 #undef HAL_CAN_MODULE_ENABLED
 #undef HAL_DAC_MODULE_ENABLED
 #undef HAL_RTC_MODULE_ENABLED
+
 #define HAL_EXTI_MODULE_ENABLED // for ENDSTOP_INTERRUPTS_FEATURE
 
 /**
@@ -68,7 +64,6 @@ extern "C" {
 //#define HAL_SRAM_MODULE_ENABLED
 //#define HAL_TIM_MODULE_ENABLED
 //#define HAL_UART_MODULE_ENABLED
-
 //#define HAL_CAN_MODULE_ENABLED
 //#define HAL_CAN_LEGACY_MODULE_ENABLED
 //#define HAL_CEC_MODULE_ENABLED
@@ -326,4 +321,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-

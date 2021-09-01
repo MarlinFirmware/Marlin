@@ -110,7 +110,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mallado");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Mallado");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Ed. Mallado parada");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Sondear Punto");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Sondear Punto");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");

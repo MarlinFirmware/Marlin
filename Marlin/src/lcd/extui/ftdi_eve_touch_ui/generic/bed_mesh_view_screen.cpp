@@ -157,12 +157,6 @@ void BedMeshViewScreen::doProbe() {
   injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
 }
 
-void BedMeshViewScreen::doMeshValidation() {
-  mydata.count = 0;
-  GOTO_SCREEN(StatusScreen);
-  injectCommands_P(PSTR("G28\nM117 Heating...\nG26 R X0 Y0\nG27"));
-}
-
 void BedMeshViewScreen::show() {
   injectCommands_P(PSTR("G29 L1"));
   GOTO_SCREEN(BedMeshViewScreen);
