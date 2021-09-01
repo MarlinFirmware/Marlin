@@ -157,9 +157,9 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLN("Initializing MAX31865 Software SPI");
     #endif
-    
+
     swSpiBegin(_sclk, _miso, _mosi);
-    
+
   } else {
     // start and configure hardware SPI
     #ifdef MAX31865_DEBUG
