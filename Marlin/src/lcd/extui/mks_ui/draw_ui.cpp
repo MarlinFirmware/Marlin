@@ -181,16 +181,6 @@ void gCfgItems_init() {
 }
 
 void ui_cfg_init() {
-//Set extruder Steps distances here in mm
-  uiCfg.eStepMin = 1;
-  uiCfg.eStepMed = 5;
-  uiCfg.eStepMax = 10;
-
-//Set extruder speed here in mm/s
-  uiCfg.eSpeedL = 1;
-  uiCfg.eSpeedN = 10;
-  uiCfg.eSpeedH = 20;
-
   uiCfg.curTempType         = 0;
   uiCfg.extruderIndex       = 0;
   uiCfg.stepHeat            = 10;
@@ -619,9 +609,9 @@ char *creat_title_text() {
             gPicturePreviewStart += (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
             break;
           }
-          else {
+          else
             gPicturePreviewStart += br;
-          }
+
           if (br < 400) break;
         }
       }
@@ -633,11 +623,8 @@ char *creat_title_text() {
 
       while (1) {
         card.read(public_buf, 400);
-        for (i = 0; i < 400;) {
+        for (i = 0; i < 400; i += 2, j++)
           bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
-          i                += 2;
-          j++;
-        }
         if (j >= 400) break;
       }
       for (i = 0; i < 400; i += 2) {
