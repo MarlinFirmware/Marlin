@@ -1692,9 +1692,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
     const uint8_t extruder/*=active_extruder*/
   ) {
-    //if (mode == PAUSE_MODE_SAME)
-      //return;
-    SERIAL_ECHOPAIR("PauseMsg=", message);
+    //if (mode == PAUSE_MODE_SAME) return;
+    SERIAL_ECHOLNPAIR("PauseMsg=", message);
     pause_mode = mode;
     ExtUI::pauseModeStatus = message;
     switch (message) {
@@ -1705,11 +1704,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT));
       case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD));
       case PAUSE_MESSAGE_PURGE:
-        #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_CONT_PURGE));
-        #else
-          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE));
-        #endif
+        ExtUI::onUserConfirmRequired_P(GET_TEXT(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)));
       case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME));
       case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT));
       case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING));
