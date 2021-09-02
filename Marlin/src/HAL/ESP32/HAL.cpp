@@ -110,7 +110,7 @@ volatile int numPWMUsed = 0,
 
 void HAL_init_board() {
   #if MB(PANDA_ZHU, PANDA_M4)
-   esp_task_wdt_init(10, true); // Panda
+    esp_task_wdt_init(10, true);
   #endif
   #if ENABLED(ESP3D_WIFISUPPORT)
     esp3dlib.init();
