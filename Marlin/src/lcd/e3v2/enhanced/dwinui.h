@@ -240,7 +240,6 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
 
 // Menuitem caption Y position
 #define MBASE(L) (MYPOS(L) + CAPOFF)
-#define EBASE(L) (MBASE(L) + 2 * DISABLED(USE_STRING_TITLES))
 
 // Create and add a MenuItem object to the menu array
 #define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
@@ -264,7 +263,9 @@ public:
   void ShowCaption(const char * const title);
   inline void ShowCaption(const __FlashStringHelper * title) { ShowCaption((char *)title); }
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  void SetFrame(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
   void FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  void FrameCopy(uint16_t x, uint16_t y, uint16_t h, uint16_t v);
 };
 extern TitleClass Title;
 
@@ -305,6 +306,7 @@ public:
   MenuClass(const char * const title);
   MenuClass(const __FlashStringHelper * title) : MenuClass((char *)title){}
   MenuClass(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  MenuClass(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
   inline int8_t line() { return selected - topline; };
   inline int8_t line(uint8_t pos) {return pos - topline; };
   void Clear();

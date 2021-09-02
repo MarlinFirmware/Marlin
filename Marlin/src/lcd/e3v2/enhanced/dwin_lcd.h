@@ -23,16 +23,13 @@
 
 /********************************************************************************
  * @file     dwin_lcd.h
- * @author   LEO / Creality3D
- * @date     2019/07/18
- * @version  2.0.1
- * @brief    迪文屏控制操作函数
+ * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
+ * @date     2021/08/01
+ * @version  2.0.3
+ * @brief    DWIN screen control functions
  ********************************************************************************/
 
 #include <stdint.h>
-
-//#define USE_STRING_HEADINGS
-//#define USE_STRING_TITLES
 
 #define RECEIVED_NO_DATA         0x00
 #define RECEIVED_SHAKE_HAND_ACK  0x01
@@ -45,165 +42,12 @@
 #define DWIN_WIDTH  272
 #define DWIN_HEIGHT 480
 
-// Picture ID
-#define Language_English    1
-#define Language_Chinese    2
-
-// ICON ID
-#define ICON                7 // Icon set file 7.ICO
-
-#define ICON_LOGO                  0
-#define ICON_Print_0               1
-#define ICON_Print_1               2
-#define ICON_Prepare_0             3
-#define ICON_Prepare_1             4
-#define ICON_Control_0             5
-#define ICON_Control_1             6
-#define ICON_Leveling_0            7
-#define ICON_Leveling_1            8
-#define ICON_HotendTemp            9
-#define ICON_BedTemp              10
-#define ICON_Speed                11
-#define ICON_Zoffset              12
-#define ICON_Back                 13
-#define ICON_File                 14
-#define ICON_PrintTime            15
-#define ICON_RemainTime           16
-#define ICON_Setup_0              17
-#define ICON_Setup_1              18
-#define ICON_Pause_0              19
-#define ICON_Pause_1              20
-#define ICON_Continue_0           21
-#define ICON_Continue_1           22
-#define ICON_Stop_0               23
-#define ICON_Stop_1               24
-#define ICON_Bar                  25
-#define ICON_More                 26
-
-#define ICON_Axis                 27
-#define ICON_CloseMotor           28
-#define ICON_Homing               29
-#define ICON_SetHome              30
-#define ICON_PLAPreheat           31
-#define ICON_ABSPreheat           32
-#define ICON_Cool                 33
-#define ICON_Language             34
-
-#define ICON_MoveX                35
-#define ICON_MoveY                36
-#define ICON_MoveZ                37
-#define ICON_Extruder             38
-
-#define ICON_Temperature          40
-#define ICON_Motion               41
-#define ICON_WriteEEPROM          42
-#define ICON_ReadEEPROM           43
-#define ICON_ResumeEEPROM         44
-#define ICON_Info                 45
-
-#define ICON_SetEndTemp           46
-#define ICON_SetBedTemp           47
-#define ICON_FanSpeed             48
-#define ICON_SetPLAPreheat        49
-#define ICON_SetABSPreheat        50
-
-#define ICON_MaxSpeed             51
-#define ICON_MaxAccelerated       52
-#define ICON_MaxJerk              53
-#define ICON_Step                 54
-#define ICON_PrintSize            55
-#define ICON_Version              56
-#define ICON_Contact              57
-#define ICON_StockConfiguraton    58
-#define ICON_MaxSpeedX            59
-#define ICON_MaxSpeedY            60
-#define ICON_MaxSpeedZ            61
-#define ICON_MaxSpeedE            62
-#define ICON_MaxAccX              63
-#define ICON_MaxAccY              64
-#define ICON_MaxAccZ              65
-#define ICON_MaxAccE              66
-#define ICON_MaxSpeedJerkX        67
-#define ICON_MaxSpeedJerkY        68
-#define ICON_MaxSpeedJerkZ        69
-#define ICON_MaxSpeedJerkE        70
-#define ICON_StepX                71
-#define ICON_StepY                72
-#define ICON_StepZ                73
-#define ICON_StepE                74
-#define ICON_Setspeed             75
-#define ICON_SetZOffset           76
-#define ICON_Rectangle            77
-#define ICON_BLTouch              78
-#define ICON_TempTooLow           79
-#define ICON_AutoLeveling         80
-#define ICON_TempTooHigh          81
-#define ICON_NoTips_C             82
-#define ICON_NoTips_E             83
-#define ICON_Continue_C           84
-#define ICON_Continue_E           85
-#define ICON_Cancel_C             86
-#define ICON_Cancel_E             87
-#define ICON_Confirm_C            88
-#define ICON_Confirm_E            89
-#define ICON_Info_0               90
-#define ICON_Info_1               91
-
-#define ICON_AdvSet               ICON_Language
-#define ICON_HomeOff              ICON_AdvSet
-#define ICON_HomeOffX             ICON_StepX
-#define ICON_HomeOffY             ICON_StepY
-#define ICON_HomeOffZ             ICON_StepZ
-#define ICON_ProbeOff             ICON_AdvSet
-#define ICON_ProbeOffX            ICON_StepX
-#define ICON_ProbeOffY            ICON_StepY
-#define ICON_PIDNozzle            ICON_SetEndTemp
-#define ICON_PIDbed               ICON_SetBedTemp
-
-/**
- * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
- * 0x00=6*12   0x01=8*16   0x02=10*20  0x03=12*24  0x04=14*28
- * 0x05=16*32  0x06=20*40  0x07=24*48  0x08=28*56  0x09=32*64
- */
-#define font6x12  0x00
-#define font8x16  0x01
-#define font10x20 0x02
-#define font12x24 0x03
-#define font14x28 0x04
-#define font16x32 0x05
-#define font20x40 0x06
-#define font24x48 0x07
-#define font28x56 0x08
-#define font32x64 0x09
-
-#define DWIN_FONT_MENU  font10x20
-#define DWIN_FONT_STAT  font10x20
-#define DWIN_FONT_HEAD  font10x20
-#define DWIN_FONT_ALERT font14x28
-
-// Color
-#define Color_White       0xFFFF
-#define Color_Yellow      0xFF0F
-#define Color_Error_Red   0xB000  // Error!
-#define Color_Bg_Red      0xF00F  // Red background color
-#define Color_Bg_Window   0x31E8  // Popup background color
-#define Color_Bg_Blue     0x1125  // Dark blue background color
-#define Color_Bg_Black    0x0841  // Black background color
-#define Color_IconBlue    0x45FA  // Lighter blue that matches icons/accents
-#define Popup_Text_Color  0xD6BA  // Popup font background color
-#define Line_Color        0x3A6A  // Split line color
-#define Rectangle_Color   0xEE2F  // Blue square cursor color
-#define Percent_Color     0xFE29  // Percentage color
-#define BarFill_Color     0x10E4  // Fill color of progress bar
-#define Select_Color      0x33BB  // Selected color
+#define DWIN_DataLength (DWIN_WIDTH / 6 * 2)
 
 /*-------------------------------------- System variable function --------------------------------------*/
 
 // Handshake (1: Success, 0: Fail)
 bool DWIN_Handshake(void);
-
-// Common DWIN startup
-void DWIN_Startup(void);
 
 // Set the backlight luminance
 //  luminance: (0x00-0xFF)
@@ -256,7 +100,7 @@ inline void DWIN_Draw_VLine(uint16_t color, uint16_t xStart, uint16_t yStart, ui
 //  color: Rectangle color
 //  xStart/yStart: upper left point
 //  xEnd/yEnd: lower right point
-void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,  uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
+void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
 // Draw a box
 //  mode: 0=frame, 1=fill, 2=XOR fill
@@ -280,18 +124,27 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 /*---------------------------------------- Text related functions ----------------------------------------*/
 
 // Draw a string
+//  widthAdjust: true=self-adjust character width; false=no adjustment
 //  bShow: true=display background color; false=don't display background color
 //  size: Font size
 //  color: Character color
 //  bColor: Background color
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
-void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string);
+void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string);
+inline void DWIN_Draw_String(bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
+  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, string);
+}
 
 class __FlashStringHelper;
 
+inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
+}
 inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-  DWIN_Draw_String(bShow, size, color, bColor, x, y, (char *)title);
+  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, (char *)title);
 }
 
 // Draw a positive integer
@@ -307,7 +160,7 @@ inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t 
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                           uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value);
 
-// Draw a floating point number
+// Draw a positive floating point number
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
 //  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
@@ -317,21 +170,51 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  iNum: Number of whole digits
 //  fNum: Number of decimal digits
 //  x/y: Upper-left point
-//  value: Float value
+//  value: Scaled positive float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
+
+// Display QR code
+//  The size of the QR code is (46*QR_Pixel)*(46*QR_Pixel) dot matrix
+//  QR_Pixel: The pixel size occupied by each point of the QR code: 0x01-0x0F (1-16)
+//  (Nx, Ny): The coordinates of the upper left corner displayed by the QR code
+//  str: multi-bit data
+void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string);
+
+inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_QR(QR_Pixel, x, y, (char *)title);
+}
 
 // Draw JPG and cached in #0 virtual display area
 // id: Picture ID
 void DWIN_JPG_ShowAndCache(const uint8_t id);
 
 // Draw an Icon
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
-void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
+
+// Draw an Icon with transparent background
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
+inline void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
+  DWIN_ICON_Show(0, 0, 1, libID, picID, x, y);
+}
+
+// Draw an Icon from SRAM
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
+//  x/y: Upper-left point
+//  addr: SRAM address
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint16_t x, uint16_t y, uint16_t addr);
 
 // Unzip the JPG picture to a virtual display area
 //  n: Cache index
@@ -342,13 +225,33 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id);
 //  id: Picture ID
 inline void DWIN_JPG_CacheTo1(uint8_t id) { DWIN_JPG_CacheToN(1, id); }
 
+// Copy area from current virtual display area to current screen
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
 // Copy area from virtual display area to current screen
+//  IBD: background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  cacheID: virtual area number
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+void DWIN_Frame_AreaCopy(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
+// Copy area from virtual display area to current screen with transparent background
+//  cacheID: virtual area number
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+inline void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
+  DWIN_Frame_AreaCopy(0, 0, 1, cacheID, xStart, yStart, xEnd, yEnd, x, y);
+}
 
 // Animate a series of icons
 //  animID: Animation ID  up to 16
@@ -364,3 +267,17 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 // Animation Control
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state);
+
+// Set LCD Brightness 0x00-0x0F
+void DWIN_LCD_Brightness(const uint8_t brightness);
+
+// Write buffer data to the SRAM or Flash
+//  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
+//  addr: start address
+//  length: Bytes to write
+//  data: address of the buffer with data
+void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data);
+
+// Write the contents of the 32KB SRAM data memory into the designated image memory space.
+//  picID: Picture memory space location, 0x00-0x0F, each space is 32Kbytes
+void DWIN_SRAMToPic(uint8_t picID);

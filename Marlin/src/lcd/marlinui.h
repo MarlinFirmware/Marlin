@@ -62,7 +62,7 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../feature/pause.h"
-  #include "e3v2/creality/dwin.h"
+  #include "e3v2/enhanced/dwin.h"
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)

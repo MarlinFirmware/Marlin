@@ -281,9 +281,17 @@ void TitleClass::SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uin
   frame = { x1, y1, x2, y2 };
 }
 
+void TitleClass::SetFrame(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
+  SetFrame(1, x, y, x + w - 1, y + h - 1);
+}
+
 void TitleClass::FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
   SetFrame(id, x1, y1, x2, y2);
   Draw();
+}
+
+void TitleClass::FrameCopy(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
+  FrameCopy(1, x, y, x + w - 1, y + h - 1);
 }
 
 /* Menu Class ===============================================================*/
@@ -297,13 +305,12 @@ MenuClass::MenuClass(const char * const title):MenuClass() {
   MenuTitle.SetCaption(title);
 }
 
-// MenuClass::MenuClass(const __FlashStringHelper * title) {
-//   MenuTitle.SetCaption(title);
-// }
-
-
 MenuClass::MenuClass(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2):MenuClass() {
   MenuTitle.SetFrame(id, x1, y1, x2, y2);
+}
+
+MenuClass::MenuClass(uint16_t x, uint16_t y, uint16_t w, uint16_t h):MenuClass() {
+  MenuTitle.SetFrame(1, x, y, x + w - 1, y + h - 1);
 }
 
 // Clear Menu by filling the menu area with background color
@@ -314,9 +321,8 @@ void MenuClass::Clear() {
 void MenuClass::Draw() {
   Clear();
   MenuTitle.Draw();
-  for (uint8_t i = 0; i < MenuItemCount; i++) {
+  for (uint8_t i = 0; i < MenuItemCount; i++)
     MenuItems[i]->Draw(i - topline);
-  }
   if (DWINUI::onCursorDraw != nullptr) DWINUI::onCursorDraw(line());
   DWIN_UpdateLCD();
 }
