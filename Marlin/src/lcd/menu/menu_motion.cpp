@@ -320,6 +320,34 @@ void menu_move() {
   END_MENU();
 }
 
+//
+// "Motion" > "Homing" submenu
+//
+void menu_home() {
+  START_MENU();
+  BACK_ITEM(MSG_MOTION);
+
+  GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
+  GCODES_ITEM(MSG_AUTO_HOME_X, PSTR("G28X"));
+  #if HAS_Y_AXIS
+    GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
+  #endif
+  #if HAS_Z_AXIS
+    GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
+  #endif
+  #if LINEAR_AXES >= 4
+    GCODES_ITEM(MSG_AUTO_HOME_I, PSTR("G28" AXIS4_STR));
+  #endif
+  #if LINEAR_AXES >= 5
+    GCODES_ITEM(MSG_AUTO_HOME_J, PSTR("G28" AXIS5_STR));
+  #endif
+  #if LINEAR_AXES >= 6
+    GCODES_ITEM(MSG_AUTO_HOME_K, PSTR("G28" AXIS6_STR));
+  #endif
+
+  END_MENU();
+}
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void _lcd_ubl_level_bed();
 #elif ENABLED(LCD_BED_LEVELING)
@@ -347,24 +375,30 @@ void menu_motion() {
   //
   // Auto Home
   //
-  GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
   #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
-    GCODES_ITEM(MSG_AUTO_HOME_X, PSTR("G28X"));
-    #if HAS_Y_AXIS
-      GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
-    #endif
-    #if HAS_Z_AXIS
-      GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
-    #endif
-    #if LINEAR_AXES >= 4
-      GCODES_ITEM(MSG_AUTO_HOME_I, PSTR("G28" AXIS4_STR));
-    #endif
-    #if LINEAR_AXES >= 5
-      GCODES_ITEM(MSG_AUTO_HOME_J, PSTR("G28" AXIS5_STR));
-    #endif
-    #if LINEAR_AXES >= 6
-      GCODES_ITEM(MSG_AUTO_HOME_K, PSTR("G28" AXIS6_STR));
-    #endif
+    #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUB_MENU)
+	    SUBMENU(MSG_HOMEING, menu_home);
+    #else
+      GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
+      GCODES_ITEM(MSG_AUTO_HOME_X, PSTR("G28X"));
+      #if HAS_Y_AXIS
+        GCODES_ITEM(MSG_AUTO_HOME_Y, PSTR("G28Y"));
+      #endif
+      #if HAS_Z_AXIS
+        GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
+      #endif
+      #if LINEAR_AXES >= 4
+        GCODES_ITEM(MSG_AUTO_HOME_I, PSTR("G28" AXIS4_STR));
+      #endif
+      #if LINEAR_AXES >= 5
+        GCODES_ITEM(MSG_AUTO_HOME_J, PSTR("G28" AXIS5_STR));
+      #endif
+      #if LINEAR_AXES >= 6
+        GCODES_ITEM(MSG_AUTO_HOME_K, PSTR("G28" AXIS6_STR));
+      #endif
+	  #endif
+  #else
+	  GCODES_ITEM(MSG_AUTO_HOME, G28_STR);
   #endif
 
   //
