@@ -90,17 +90,17 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_E_STEP:
       switch (uiCfg.extruStep) {
-        case eStepMin: uiCfg.extruStep = eStepMed; break;
-        case eStepMed: uiCfg.extruStep = eStepMax; break;
-        case eStepMax: uiCfg.extruStep = eStepMin; break;
+        case uiCfg.eStepMin: uiCfg.extruStep = uiCfg.eStepMed; break;
+        case uiCfg.eStepMed: uiCfg.extruStep = uiCfg.eStepMax; break;
+        case uiCfg.eStepMax: uiCfg.extruStep = uiCfg.eStepMin; break;
       }
       disp_ext_step();
       break;
     case ID_E_SPEED:
       switch (uiCfg.extruSpeed) {
-        case eSpeedL: uiCfg.extruSpeed = eSpeedN; break;
-        case eSpeedN: uiCfg.extruSpeed = eSpeedH; break;
-        case eSpeedH: uiCfg.extruSpeed = eSpeedL; break;
+        case uiCfg.eSpeedL: uiCfg.extruSpeed = uiCfg.eSpeedN; break;
+        case uiCfg.eSpeedN: uiCfg.extruSpeed = uiCfg.eSpeedH; break;
+        case uiCfg.eSpeedH: uiCfg.extruSpeed = uiCfg.eSpeedL; break;
       }
       disp_ext_speed();
       break;
@@ -164,17 +164,17 @@ void disp_ext_type() {
 }
 
 void disp_ext_speed() {
-  switch (uiCfg.extruSpeed){
-    case eSpeedH: lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_high.bin");   break;
-    case eSpeedL: lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_slow.bin");   break;
-    case eSpeedN: lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_normal.bin"); break;
+  switch (uiCfg.extruSpeed) {
+    case uiCfg.eSpeedH: lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_high.bin");   break;
+    case uiCfg.eSpeedL: lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_slow.bin");   break;
+    case uiCfg.eSpeedN: lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed_normal.bin"); break;
   }
 
   if (gCfgItems.multiple_language) {
     switch (uiCfg.extruSpeed) {
-      case eSpeedH: lv_label_set_text(labelSpeed, extrude_menu.high);   break;
-      case eSpeedL: lv_label_set_text(labelSpeed, extrude_menu.low);    break;
-      case eSpeedN: lv_label_set_text(labelSpeed, extrude_menu.normal); break;
+      case uiCfg.eSpeedH: lv_label_set_text(labelSpeed, extrude_menu.high);   break;
+      case uiCfg.eSpeedL: lv_label_set_text(labelSpeed, extrude_menu.low);    break;
+      case uiCfg.eSpeedN: lv_label_set_text(labelSpeed, extrude_menu.normal); break;
     }
     lv_obj_align(labelSpeed, buttonSpeed, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
@@ -212,16 +212,16 @@ void disp_ext_step() {
   sprintf_P(buf3, PSTR("%dmm"), uiCfg.extruStep);
 
   switch (uiCfg.extruStep) {
-    case eStepMin: lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step1_mm.bin");  break;
-    case eStepMed: lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step5_mm.bin");  break;
-    case eStepMax: lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step10_mm.bin"); break;
+    case uiCfg.eStepMin: lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step1_mm.bin");  break;
+    case uiCfg.eStepMed: lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step5_mm.bin");  break;
+    case uiCfg.eStepMax: lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step10_mm.bin"); break;
   }
 
   if (gCfgItems.multiple_language) {
     switch (uiCfg.extruStep) {
-      case eStepMin: lv_label_set_text(labelStep, buf3); break;
-      case eStepMed: lv_label_set_text(labelStep, buf3); break;
-      case eStepMax: lv_label_set_text(labelStep, buf3); break;
+      case uiCfg.eStepMin: lv_label_set_text(labelStep, buf3); break;
+      case uiCfg.eStepMed: lv_label_set_text(labelStep, buf3); break;
+      case uiCfg.eStepMax: lv_label_set_text(labelStep, buf3); break;
     }
     lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
