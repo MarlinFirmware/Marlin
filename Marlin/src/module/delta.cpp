@@ -90,16 +90,22 @@ void recalc_delta_settings() {
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     float calibration_radius_factor = 1;
+    bool offset_probe = false
   #endif
 
   float delta_calibration_radius() {
-    return calibration_radius_factor * (
-      #if HAS_BED_PROBE
-        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), PROBING_MARGIN))
-      #else
-        DELTA_PRINTABLE_RADIUS
-      #endif
-    );
+    if (offset_probe){
+      return calibration_radius_factor * (
+        #if HAS_BED_PROBE
+          FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), PROBING_MARGIN))
+        #else
+          DELTA_PRINTABLE_RADIUS
+        #endif
+      );
+    }
+    else {
+    //this needs some work
+    }
   }
 
 #endif

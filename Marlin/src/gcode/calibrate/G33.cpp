@@ -175,9 +175,9 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
 /**
  *  - Probe a point
  */
-static float calibration_probe(const xy_pos_t &xy, const bool stow) {
+static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool offset_probe) {
   #if HAS_BED_PROBE
-    return probe.probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true, false);
+    return probe.probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true, false, offset_probe);
   #else
     UNUSED(stow);
     return lcd_probe_pt(xy);
@@ -187,7 +187,7 @@ static float calibration_probe(const xy_pos_t &xy, const bool stow) {
 /**
  *  - Probe a grid
  */
-static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_points, const bool towers_set, const bool stow_after_each) {
+static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_points, const bool towers_set, const bool stow_after_each, const bool offset_probe) {
   const bool _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1 || probe_points == -1,
              _4p_calibration      = probe_points == 2,
@@ -213,7 +213,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
 
     if (!_7p_no_intermediates && !_7p_4_intermediates && !_7p_11_intermediates) { // probe the center
       const xy_pos_t center{0};
-      z_pt[CEN] += calibration_probe(center, stow_after_each);
+      z_pt[CEN] += calibration_probe(center, stow_after_each, offset_probe);
       if (isnan(z_pt[CEN])) return false;
     }
 
@@ -224,7 +224,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
                     r = dcr * 0.1;
         const xy_pos_t vec = { cos(a), sin(a) };
-        z_pt[CEN] += calibration_probe(vec * r, stow_after_each);
+        z_pt[CEN] += calibration_probe(vec * r, stow_after_each, offset_probe);
         if (isnan(z_pt[CEN])) return false;
      }
       z_pt[CEN] /= float(_7p_2_intermediates ? 7 : probe_points);
@@ -249,7 +249,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
                       r = dcr * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
                       interpol = FMOD(rad, 1);
           const xy_pos_t vec = { cos(a), sin(a) };
-          const float z_temp = calibration_probe(vec * r, stow_after_each);
+          const float z_temp = calibration_probe(vec * r, stow_after_each, offset_probe);
           if (isnan(z_temp)) return false;
           // split probe point to neighbouring calibration points
           z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
@@ -387,6 +387,8 @@ static float auto_tune_a() {
  *
  *   E   Engage the probe for each point
  *
+ *   O   probe at probe offset positions instead of nozzle positions
+ *   
  * With SENSORLESS_PROBING:
  *   Use these flags to calibrate stall sensitivity: (e.g., `G33 P1 Y Z` to calibrate X only.)
  *   X   Don't activate stallguard on X.
@@ -425,6 +427,8 @@ void GcodeSuite::G33() {
 
   const bool stow_after_each = parser.seen_test('E');
 
+  offset_probe = parser.seen('0');
+
   #if ENABLED(SENSORLESS_PROBING)
     probe.test_sensitivity.x = !parser.seen_test('X');
     TERN_(HAS_Y_AXIS, probe.test_sensitivity.y = !parser.seen_test('Y'));
@@ -458,9 +462,16 @@ void GcodeSuite::G33() {
   if (!_1p_calibration && !_0p_calibration) { // test if the outer radius is reachable
     LOOP_CAL_RAD(axis) {
       const float a = RADIANS(210 + (360 / NPP) *  (axis - 1));
-      if (!position_is_reachable(cos(a) * dcr, sin(a) * dcr)) {
-        SERIAL_ECHOLNPGM("?Bed calibration radius implausible.");
-        return;
+      if (offset_probe) {
+        if (!position_is_reachable_by_probe(cos(a) * dcr, sin(a) * dcr)) {
+          SERIAL_ECHOLNPGM("?(M665 B)ed radius for calibration is implausible.");
+          return;
+        }
+      } else {
+        if (!position_is_reachable(cos(a) * dcr, sin(a) * dcr)) {
+          SERIAL_ECHOLNPGM("?(M665 B)ed radius for calibration is implausible.");
+          return;
+        }
       }
     }
   }
@@ -487,7 +498,7 @@ void GcodeSuite::G33() {
 
     // Probe the points
     zero_std_dev_old = zero_std_dev;
-    if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each)) {
+    if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each, offset_probe)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
       return ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
     }
