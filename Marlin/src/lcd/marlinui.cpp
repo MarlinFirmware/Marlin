@@ -47,6 +47,7 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
+  #include "fontutils.h"
   #include "e3v2/enhanced/dwin.h"
 #endif
 
@@ -99,6 +100,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     backlight = !!value;
     if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
     // Set brightness on enabled LCD here
+    TERN_(DWIN_CREALITY_LCD, DWIN_LCD_Brightness(brightness));
   }
 #endif
 
@@ -200,6 +202,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   #if HAS_MARLINUI_U8GLIB
     bool MarlinUI::drawing_screen, MarlinUI::first_page; // = false
+  #endif
+
+  #if IS_DWIN_MARLINUI
+    bool MarlinUI::did_first_redraw;
   #endif
 
   // Encoder Handling
@@ -335,6 +341,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
           col = (LCD_WIDTH - plen - slen) / 2;
           row = LCD_HEIGHT > 3 ? 1 : 0;
         }
+        if (LCD_HEIGHT >= 8) row = LCD_HEIGHT / 2 - 2;
         wrap_string_P(col, row, pref, true);
         if (string) {
           if (col) { col = 0; row++; } // Move to the start of the next line
@@ -1072,6 +1079,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         #else
 
           run_current_screen();
+
+          // Apply all DWIN drawing after processing
+          TERN_(IS_DWIN_MARLINUI, DWIN_UpdateLCD());
 
         #endif
 

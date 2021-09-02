@@ -23,8 +23,8 @@
 /********************************************************************************
  * @file     lcd/e3v2/enhanced/dwin_lcd.cpp
  * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
- * @date     2021/06/20
- * @version  2.0.2
+ * @date     2021/08/29
+ * @version  2.1.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
@@ -65,15 +65,17 @@ inline void DWIN_Long(size_t &i, const uint32_t lval) {
   DWIN_SendBuf[++i] = lval & 0xFF;
 }
 
-inline void DWIN_String(size_t &i, const char * const string) {
-  const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, strlen(string));
+inline void DWIN_String(size_t &i, const char * const string, uint16_t rlimit = 0xFFFF) {
+  if (!string) return;
+  const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, _MIN(strlen(string), rlimit));
+  if (len == 0) return;
   memcpy(&DWIN_SendBuf[i+1], string, len);
   i += len;
 }
 
-inline void DWIN_String(size_t &i, const __FlashStringHelper * string) {
+inline void DWIN_String(size_t &i, const __FlashStringHelper * string, uint16_t rlimit = 0xFFFF) {
   if (!string) return;
-  const size_t len = strlen_P((PGM_P)string); // cast it to PGM_P, which is basically const char *, and measure it using the _P version of strlen.
+  const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, _MIN(rlimit, strlen_P((PGM_P)string))); // cast it to PGM_P, which is basically const char *, and measure it using the _P version of strlen.
   if (len == 0) return;
   memcpy(&DWIN_SendBuf[i+1], string, len);
   i += len;
@@ -231,8 +233,8 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  bColor: Background color
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
-void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
+//  rlimit: For draw less chars than string length use rlimit
+void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
   // Bit 7: widthAdjust
@@ -244,7 +246,7 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
   DWIN_Word(i, bColor);
   DWIN_Word(i, x);
   DWIN_Word(i, y);
-  DWIN_String(i, string);
+  DWIN_String(i, string, rlimit);
   DWIN_Send(i);
 }
 
@@ -514,6 +516,18 @@ void DWIN_SRAMToPic(uint8_t picID) {
   DWIN_Byte(i, picID);
   DWIN_Send(i);
 }
+
+//--------------------------Test area -------------------------
+
+// void DWIN_ReadSRAM(uint16_t addr, uint8_t length, const char * const data) {
+//   size_t i = 0;
+//   DWIN_Byte(i, 0x32);
+//   DWIN_Byte(i, 0x5A);  // 0x5A Read from SRAM - 0xA5 Read from Flash
+//   DWIN_Word(i, addr);  // 0x0000 to 0x7FFF
+//   const size_t len = _MIN(0xF0, length);
+//   DWIN_Byte(i, len);
+//   DWIN_Send(i);
+// }
 
 /*---------------------------------------- Memory functions ----------------------------------------*/
 // The LCD has an additional 32KB SRAM and 16KB Flash

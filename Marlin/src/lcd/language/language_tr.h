@@ -110,7 +110,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editörü");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Mesh Düzenle");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Mesh Düzenleme Durdu");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Prop Noktası");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Prop Noktası");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("İndeks X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("İndeks Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Değeri");
@@ -266,12 +266,18 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("V") LCD_STR_A _UxGT("-Sarsım");
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("V") LCD_STR_B _UxGT("-Sarsım");
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("V") LCD_STR_C _UxGT("-Sarsım");
+  PROGMEM Language_Str MSG_VI_JERK                         = _UxGT("V") LCD_STR_I _UxGT("-Sarsım");
+  PROGMEM Language_Str MSG_VJ_JERK                         = _UxGT("V") LCD_STR_J _UxGT("-Sarsım");
+  PROGMEM Language_Str MSG_VK_JERK                         = _UxGT("V") LCD_STR_K _UxGT("-Sarsım");
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("Ve-Sarsım");
   PROGMEM Language_Str MSG_JUNCTION_DEVIATION              = _UxGT("Jonksiyon Sapması");
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("Hız Vektörü");
   PROGMEM Language_Str MSG_VMAX_A                          = _UxGT("HızVektör.max ") LCD_STR_A;
   PROGMEM Language_Str MSG_VMAX_B                          = _UxGT("HızVektör.max ") LCD_STR_B;
   PROGMEM Language_Str MSG_VMAX_C                          = _UxGT("HızVektör.max ") LCD_STR_C;
+  PROGMEM Language_Str MSG_VMAX_I                          = _UxGT("HızVektör.max ") LCD_STR_I;
+  PROGMEM Language_Str MSG_VMAX_J                          = _UxGT("HızVektör.max ") LCD_STR_J;
+  PROGMEM Language_Str MSG_VMAX_K                          = _UxGT("HızVektör.max ") LCD_STR_K;
   PROGMEM Language_Str MSG_VMAX_E                          = _UxGT("HızVektör.max ") LCD_STR_E;
   PROGMEM Language_Str MSG_VMAX_EN                         = _UxGT("HızVektör.max *");
   PROGMEM Language_Str MSG_VMIN                            = _UxGT("HızVektör.min");
@@ -280,6 +286,9 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Max. ivme ") LCD_STR_A;
   PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Max. ivme ") LCD_STR_B;
   PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Max. ivme ") LCD_STR_C;
+  PROGMEM Language_Str MSG_AMAX_I                          = _UxGT("Max. ivme ") LCD_STR_I;
+  PROGMEM Language_Str MSG_AMAX_J                          = _UxGT("Max. ivme ") LCD_STR_J;
+  PROGMEM Language_Str MSG_AMAX_K                          = _UxGT("Max. ivme ") LCD_STR_K;
   PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("Max. ivme ") LCD_STR_E;
   PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Max. ivme *");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("Ivme-geri çekme");
@@ -288,6 +297,9 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" adım/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" adım/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" adım/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" adım/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" adım/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" adım/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E adım/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* adım/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Sıcaklık");
@@ -464,9 +476,12 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max Sıc.");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Güç Kaynağı");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Sürücü Gücü");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Sürücü %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Sürücü %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = LCD_STR_A _UxGT(" Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = LCD_STR_B _UxGT(" Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = LCD_STR_C _UxGT(" Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Sürücü %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Sürücü %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Sürücü %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC BAĞLANTI HATASI");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Yaz");
@@ -571,6 +586,9 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_BACKLASH_A                      = LCD_STR_A;
   PROGMEM Language_Str MSG_BACKLASH_B                      = LCD_STR_B;
   PROGMEM Language_Str MSG_BACKLASH_C                      = LCD_STR_C;
+  PROGMEM Language_Str MSG_BACKLASH_I                      = LCD_STR_I;
+  PROGMEM Language_Str MSG_BACKLASH_J                      = LCD_STR_J;
+  PROGMEM Language_Str MSG_BACKLASH_K                      = LCD_STR_K;
   PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Düzeltme");
   PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Yumuşatma");
 }

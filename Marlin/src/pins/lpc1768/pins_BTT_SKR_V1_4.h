@@ -220,38 +220,34 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                  P1_10
-  #define X_SERIAL_RX_PIN                  P1_10
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                  P1_09
-  #define Y_SERIAL_RX_PIN                  P1_09
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                  P1_08
-  #define Z_SERIAL_RX_PIN                  P1_08
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                 P1_04
-  #define E0_SERIAL_RX_PIN                 P1_04
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                 P1_01
-  #define E1_SERIAL_RX_PIN                 P1_01
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif
 
-/*               _____                        _____
- *           NC | 1 2 | GND               5V | 1 2 | GND
- *        RESET | 3 4 | 1.31            1.23 | 3 4 | 1.22
- *         0.18 | 5 6   3.25            1.21 | 5 6   1.20
- *         0.16 | 7 8 | 3.26            1.19 | 7 8 | 1.18
- *         0.15 | 9 10| 0.17            0.28 | 9 10| 1.30
- *               -----                        -----
- *               EXP2                         EXP1
+/**       ------                ------
+ *  1.30 |10  9 | 0.28    0.17 |10  9 | 0.15
+ *  1.18 | 8  7 | 1.19    3.26 | 8  7 | 0.16
+ *  1.20   6  5 | 1.21    3.25   6  5 | 0.18
+ *  1.22 | 4  3 | 1.23    1.31 | 4  3 | RESET
+ *   GND | 2  1 | 5V       GND | 2  1 | NC
+ *        ------                ------
+ *         EXP1                  EXP2
  */
-
 #define EXP1_03_PIN                        P1_23
 #define EXP1_04_PIN                        P1_22
 #define EXP1_05_PIN                        P1_21
@@ -261,7 +257,7 @@
 #define EXP1_09_PIN                        P0_28
 #define EXP1_10_PIN                        P1_30
 
-#define EXP2_03_PIN                        -1
+#define EXP2_03_PIN                        -1     // RESET
 #define EXP2_04_PIN                        P1_31
 #define EXP2_05_PIN                        P0_18
 #define EXP2_06_PIN                        P3_25
@@ -270,27 +266,15 @@
 #define EXP2_09_PIN                        P0_15
 #define EXP2_10_PIN                        P0_17
 
-/**
- *               _____                                             _____
- *           NC | · · | GND                                    5V | · · | GND
- *        RESET | · · | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
- *  (MOSI) 0.18 | · ·   3.25 (BTN_EN2)              (LCD_D5) 1.21 | · ·   1.20 (LCD_D4)
- * (SD_SS) 0.16 | · · | 3.26 (BTN_EN1)              (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
- *   (SCK) 0.15 | · · | 0.17 (MISO)                (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
- *               -----                                             -----
- *               EXP2                                              EXP1
- */
-
-#if ENABLED(DWIN_CREALITY_LCD)
+#if EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
 
   // RET6 DWIN ENCODER LCD
-  #define BTN_ENC                          P1_20
-  #define BTN_EN1                          P1_23
-  #define BTN_EN2                          P1_22
+  #define BTN_ENC                    EXP1_06_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_04_PIN
 
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN                     P1_21
-    #undef SPEAKER
+    #define BEEPER_PIN               EXP1_05_PIN
   #endif
 
 #elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
@@ -307,13 +291,13 @@
      * The ANET_FULL_GRAPHICS_LCD_ALT_WIRING connector plug:
      *
      *                BEFORE                     AFTER
-     *                _____                      _____
-     *           GND | 1 2 | 5V              5V | 1 2 | GND
-     *            CS | 3 4 | BTN_EN2         CS | 3 4 | BTN_EN2
-     *           SID | 5 6   BTN_EN1        SID | 5 6   BTN_EN1
-     *          open | 7 8 | BTN_ENC       open | 7 8 | BTN_ENC
-     *           CLK | 9 10| Beeper         CLK | 9 10| Beeper
-     *                -----                      -----
+     *                ------                     ------
+     *           GND | 1  2 | 5V             5V | 1  2 | GND
+     *            CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+     *           SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+     *          open | 7  8 | BTN_ENC      open | 7  8 | BTN_ENC
+     *           CLK | 9  10| BEEPER        CLK | 9  10| BEEPER
+     *                ------                     ------
      *                 LCD                        LCD
      */
 
@@ -340,15 +324,15 @@
     *
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
-    *                BEFORE                     AFTER
-    *                ______                     ______
-    *           GND | 1  2 | 5V             5V | 1  2 | GND
-    *            CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
-    *           SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
-    *          open | 7  8 | BTN_ENC       CLK | 7  8 | BTN_ENC
-    *           CLK | 9 10 | Beeper       open | 9 10 | Beeper
-    *                ------                     ------
-    *                 LCD                        LCD
+    *         BEFORE                     AFTER
+    *         ------                     ------
+    *    GND | 1  2 | 5V             5V | 1  2 | GND
+    *     CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+    *    SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+    *   open | 7  8 | BTN_ENC       CLK | 7  8 | BTN_ENC
+    *    CLK | 9 10 | BEEPER       open | 9 10 | BEEPER
+    *         ------                     ------
+    *          LCD                        LCD
     */
 
     #define LCD_PINS_RS              EXP1_03_PIN
@@ -375,7 +359,7 @@
   #elif ENABLED(ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
-     *                   ______
+     *                   ------
      *               5V | 1  2 | GND
      *      (MOSI) 1.23 | 3  4 | 1.22 (LCD_RS)
      *    (LCD_A0) 1.21 | 5  6   1.20 (BTN_EN2)

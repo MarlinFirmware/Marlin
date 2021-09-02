@@ -4,10 +4,10 @@ root = true
 [{*.patch,syntax_test_*}]
 trim_trailing_whitespace = false
 
-[{*.c,*.cpp,*.h,*.ino}]
+[{*.c,*.cpp,*.h}]
 charset = utf-8
 
-[{*.c,*.cpp,*.h,*.ino,Makefile}]
+[{*.c,*.cpp,*.h,Makefile}]
 trim_trailing_whitespace = true
 insert_final_newline = true
 end_of_line = lf

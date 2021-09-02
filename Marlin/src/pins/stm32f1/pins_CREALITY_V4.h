@@ -154,37 +154,39 @@
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
-#if ENABLED(CR10_STOCKDISPLAY) && NONE(RET6_12864_LCD, VET6_12864_LCD)
-  #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
-#endif
+#if ENABLED(CR10_STOCKDISPLAY)
 
-#if ENABLED(RET6_12864_LCD)
+  #if ENABLED(RET6_12864_LCD)
 
-  // RET6 12864 LCD
-  #define LCD_PINS_RS                       PB12
-  #define LCD_PINS_ENABLE                   PB15
-  #define LCD_PINS_D4                       PB13
+    // RET6 12864 LCD
+    #define LCD_PINS_RS                     PB12
+    #define LCD_PINS_ENABLE                 PB15
+    #define LCD_PINS_D4                     PB13
 
-  #define BTN_ENC                           PB2
-  #define BTN_EN1                           PB10
-  #define BTN_EN2                           PB14
+    #define BTN_ENC                         PB2
+    #define BTN_EN1                         PB10
+    #define BTN_EN2                         PB14
 
-  #ifndef HAS_PIN_27_BOARD
-    #define BEEPER_PIN                      PC6
+    #ifndef HAS_PIN_27_BOARD
+      #define BEEPER_PIN                    PC6
+    #endif
+
+  #elif ENABLED(VET6_12864_LCD)
+
+    // VET6 12864 LCD
+    #define LCD_PINS_RS                     PA4
+    #define LCD_PINS_ENABLE                 PA7
+    #define LCD_PINS_D4                     PA5
+
+    #define BTN_ENC                         PC5
+    #define BTN_EN1                         PB10
+    #define BTN_EN2                         PA6
+
+  #else
+    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
   #endif
 
-#elif ENABLED(VET6_12864_LCD)
-
-  // VET6 12864 LCD
-  #define LCD_PINS_RS                       PA4
-  #define LCD_PINS_ENABLE                   PA7
-  #define LCD_PINS_D4                       PA5
-
-  #define BTN_ENC                           PC5
-  #define BTN_EN1                           PB10
-  #define BTN_EN2                           PA6
-
-#elif ENABLED(DWIN_CREALITY_LCD)
+#elif EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14
@@ -194,7 +196,6 @@
   //#define LCD_LED_PIN                     PB2
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                      PB13
-    #undef SPEAKER
   #endif
 
 #elif ENABLED(DWIN_VET6_CREALITY_LCD)

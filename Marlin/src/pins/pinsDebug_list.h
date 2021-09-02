@@ -24,13 +24,17 @@
 
 // Pin lists 1.1.x and 2.0.x synchronized 2018-02-17
 
-#line 28 // set __LINE__ to a known value for both passes
+#if TARGET_LPC1768
+  #define ANALOG_OK(PN) ((PN) == P0_02 || (PN) == P0_03 || (PN) == P0_23 || (PN) == P0_24 || (PN) == P0_25 || (PN) == P0_26 || (PN) == P1_30 || (PN) == P1_31)
+#else
+  #define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
+#endif
+
+#line 34 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments
 //
-
-#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
 
 #if defined(EXT_AUX_A0) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A0)

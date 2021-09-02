@@ -49,17 +49,13 @@
   #define I2C_EEPROM
 #endif
 
-/* I2C */
 #if ENABLED(I2C_EEPROM)
   #define IIC_EEPROM_SDA                    PB7
   #define IIC_EEPROM_SCL                    PB6
-
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
-
-#define E2END           (MARLIN_EEPROM_SIZE - 1)  // 2KB
 
 //
 // Limit Switches
@@ -67,7 +63,7 @@
 
 #define X_STOP_PIN                          PC0
 #define Y_STOP_PIN                          PC1
-#define Z_STOP_PIN                          PC14  // Endtop or Probe
+#define Z_STOP_PIN                          PC14  // Endstop or Probe
 
 #define FIL_RUNOUT_PIN                      PC15
 
@@ -158,8 +154,6 @@
 // SD Card
 //
 
-#define HAS_ONBOARD_SD
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
@@ -167,6 +161,7 @@
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
   #define ONBOARD_SD_CS_PIN                 PA4   // Chip select for "System" SD card
+  #define SDSS                 ONBOARD_SD_CS_PIN
 #endif
 
 //

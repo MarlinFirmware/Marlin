@@ -179,7 +179,7 @@ namespace Language_uk {
   #endif
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Редагувати сітку");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Редагув. зупинено");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Точка сітки");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Точка сітки");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Індекс X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Індекс Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Значення Z");
@@ -719,12 +719,12 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Макс. ") LCD_STR_THERMOMETER;
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Блок жив-ня");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Сила мотору");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("Драйвер X, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Драйвер Y, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Драйвер Z, %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Драйвер ") AXIS4_STR _UxGT(", %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Драйвер ") AXIS5_STR _UxGT(", %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Драйвер ") AXIS6_STR _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = _UxGT("Драйвер ") LCD_STR_A _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = _UxGT("Драйвер ") LCD_STR_B _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = _UxGT("Драйвер ") LCD_STR_C _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = _UxGT("Драйвер ") LCD_STR_I _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = _UxGT("Драйвер ") LCD_STR_J _UxGT(", %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = _UxGT("Драйвер ") LCD_STR_K _UxGT(", %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("Драйвер E, %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("ЗБІЙ ЗВ'ЯЗКУ З TMC");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Запис ЦАП у EEPROM");

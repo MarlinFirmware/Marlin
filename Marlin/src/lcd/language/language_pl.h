@@ -139,7 +139,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Edytor siatki");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edycja siatki");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Edycja siatki zatrzymana");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Punkt pomiarowy");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Punkt pomiarowy");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Indeks X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Indeks Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Wartość Z");
@@ -327,22 +327,16 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_VA_JERK                         = _UxGT("Zryw V") LCD_STR_A;
   PROGMEM Language_Str MSG_VB_JERK                         = _UxGT("Zryw V") LCD_STR_B;
   PROGMEM Language_Str MSG_VC_JERK                         = _UxGT("Zryw V") LCD_STR_C;
+  PROGMEM Language_Str MSG_VI_JERK                         = _UxGT("Zryw V") LCD_STR_I;
+  PROGMEM Language_Str MSG_VJ_JERK                         = _UxGT("Zryw V") LCD_STR_J;
+  PROGMEM Language_Str MSG_VK_JERK                         = _UxGT("Zryw V") LCD_STR_K;
   PROGMEM Language_Str MSG_VE_JERK                         = _UxGT("Zryw Ve");
   //PROGMEM Language_Str MSG_JUNCTION_DEVIATION            = _UxGT("Junction Dev");
   PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("Prędkość (V)");
-  //PROGMEM Language_Str MSG_VMAX_A                        = _UxGT("Vmax ") LCD_STR_A;
-  //PROGMEM Language_Str MSG_VMAX_B                        = _UxGT("Vmax ") LCD_STR_B;
-  //PROGMEM Language_Str MSG_VMAX_C                        = _UxGT("Vmax ") LCD_STR_C;
-  //PROGMEM Language_Str MSG_VMAX_E                        = _UxGT("Vmax ") LCD_STR_E;
-  //PROGMEM Language_Str MSG_VMAX_EN                       = _UxGT("Vmax *");
-  //PROGMEM Language_Str MSG_VMIN                          = _UxGT("Vmin");
+
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("Vskok min");
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Przyspieszenie (A)");
-  //PROGMEM Language_Str MSG_AMAX_A                        = _UxGT("Amax ") LCD_STR_A;
-  //PROGMEM Language_Str MSG_AMAX_B                        = _UxGT("Amax ") LCD_STR_B;
-  //PROGMEM Language_Str MSG_AMAX_C                        = _UxGT("Amax ") LCD_STR_C;
-  //PROGMEM Language_Str MSG_AMAX_E                        = _UxGT("Amax ") LCD_STR_E;
-  //PROGMEM Language_Str MSG_AMAX_EN                       = _UxGT("Amax *");
+
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("A-wycofanie");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("A-przesuń.");
   PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("Częstotliwość max");
@@ -351,6 +345,9 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" kroki/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" kroki/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" kroki/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" kroki/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" kroki/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" kroki/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E kroki/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* kroki/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
@@ -561,9 +558,12 @@ namespace Language_pl {
   //PROGMEM Language_Str MSG_INFO_MAX_TEMP                 = _UxGT("Max Temp");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Zasilacz");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Siła silnika");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Siła %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Siła %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = LCD_STR_A _UxGT(" Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = LCD_STR_B _UxGT(" Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = LCD_STR_C _UxGT(" Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Siła %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Siła %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Siła %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC BŁĄD POŁĄCZENIA");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Zapisz DAC EEPROM");
@@ -678,9 +678,6 @@ namespace Language_pl {
   //PROGMEM Language_Str MSG_SERVICE_RESET                 = _UxGT("Reset");
   //PROGMEM Language_Str MSG_SERVICE_IN                    = _UxGT(" in:");
   //PROGMEM Language_Str MSG_BACKLASH                      = _UxGT("Backlash");
-  //PROGMEM Language_Str MSG_BACKLASH_A                    = LCD_STR_A;
-  //PROGMEM Language_Str MSG_BACKLASH_B                    = LCD_STR_B;
-  //PROGMEM Language_Str MSG_BACKLASH_C                    = LCD_STR_C;
   PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Korekcja");
   PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Wygładzanie");
 

@@ -62,57 +62,25 @@ void GcodeSuite::M77() {
 
 #if ENABLED(PRINTCOUNTER)
 
-  #if ENABLED(PASSWORD_FEATURE)
-    #include "../../feature/password/password.h"
-  #endif
-
-  /**
+/**
    * M78: Show print statistics
-   *
-   * Parameters:
-   *
-   *  S78      Use M78 S78 to reset all statistics
-   *
-   * With SERVICE_INTERVALS:
-   *
-   *  R<index> Reset service interval 1, 2, or 3 so warnings won't
-   *           appear until the next service interval expires.
-   *
-   * With PASSWORD_FEATURE:
-   *
-   *  P<passcode> - The correct passcode is required for reset.
    */
-  void GcodeSuite::M78() {
-    const bool reset_all = parser.intval('S') == 78,
-               reset_some = TERN0(HAS_SERVICE_INTERVALS, parser.seenval('R'));
-
-    #if ENABLED(PASSWORD_FEATURE)
-      bool authorized = false;
-      if ((reset_all || reset_some) && password.is_set) {
-        if (!parser.seenval('P'))
-          SERIAL_ECHOLNPGM(STR_PASSWORD_REQUIRED);
-        else if (parser.value_ulong() != password.value)
-          SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
-        else
-          authorized = true;
-      }
-    #else
-      constexpr bool authorized = true;
-    #endif
-
-    if (authorized && reset_all) {  // "M78 S78" will reset the statistics
+void GcodeSuite::M78() {
+  if (parser.intval('S') == 78) {  // "M78 S78" will reset the statistics
       print_job_timer.initStats();
       ui.reset_status();
+    return;
     }
 
     #if HAS_SERVICE_INTERVALS
-      if (authorized && parser.seenval('R')) {
+    if (parser.seenval('R')) {
         print_job_timer.resetServiceInterval(parser.value_int());
         ui.reset_status();
+      return;
       }
     #endif
 
     print_job_timer.showStats();
-  }
+}
 
 #endif // PRINTCOUNTER

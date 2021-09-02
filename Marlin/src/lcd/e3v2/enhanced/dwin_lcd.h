@@ -19,15 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /********************************************************************************
  * @file     dwin_lcd.h
  * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
- * @date     2021/08/01
- * @version  2.0.3
+ * @date     2021/08/29
+ * @version  2.1.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
+
+#pragma once
 
 #include <stdint.h>
 
@@ -100,7 +101,7 @@ inline void DWIN_Draw_VLine(uint16_t color, uint16_t xStart, uint16_t yStart, ui
 //  color: Rectangle color
 //  xStart/yStart: upper left point
 //  xEnd/yEnd: lower right point
-void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
+void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,  uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
 // Draw a box
 //  mode: 0=frame, 1=fill, 2=XOR fill
@@ -131,11 +132,10 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  bColor: Background color
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
-void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string);
-inline void DWIN_Draw_String(bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
-  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, string);
+//  rlimit: For draw less chars than string length use rlimit
+void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit = 0xFFFF);
+inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit = 0xFFFF) {
+  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, string, rlimit);
 }
 
 class __FlashStringHelper;

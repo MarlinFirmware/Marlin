@@ -461,7 +461,7 @@
 
 #endif
 
-#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
+#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI) || !PIN_EXISTS(SD_DETECT)
   #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
 #endif
 
@@ -755,13 +755,13 @@
   // to select a USER library for MAX6675, MAX31855, MAX31865
   //
   #if BOTH(HAS_MAX6675, LIB_MAX6675)
-    #define LIB_USR_MAX6675 1
+    #define USE_LIB_MAX6675 1
   #endif
   #if BOTH(HAS_MAX31855, LIB_MAX31855)
-    #define LIB_USR_MAX31855 1
+    #define USE_ADAFRUIT_MAX31855 1
   #endif
   #if BOTH(HAS_MAX31865, LIB_MAX31865)
-    #define LIB_USR_MAX31865 1
+    #define USE_ADAFRUIT_MAX31865 1
   #elif HAS_MAX31865
     #define LIB_INTERNAL_MAX31865 1
   #endif
@@ -2005,7 +2005,7 @@
   #define HAS_TMC_SW_SERIAL 1
 #endif
 
-#if !USE_SENSORLESS
+#if DISABLED(SENSORLESS_HOMING)
   #undef SENSORLESS_BACKOFF_MM
 #endif
 
@@ -2862,15 +2862,17 @@
 /**
  * Bed Probe dependencies
  */
-#if HAS_BED_PROBE
-  #if BOTH(ENDSTOPPULLUPS, HAS_Z_MIN_PROBE_PIN)
-    #define ENDSTOPPULLUP_ZMIN_PROBE
-  #endif
+#if EITHER(MESH_BED_LEVELING, HAS_BED_PROBE)
   #ifndef Z_PROBE_OFFSET_RANGE_MIN
     #define Z_PROBE_OFFSET_RANGE_MIN -20
   #endif
   #ifndef Z_PROBE_OFFSET_RANGE_MAX
     #define Z_PROBE_OFFSET_RANGE_MAX 20
+  #endif
+#endif
+#if HAS_BED_PROBE
+  #if BOTH(ENDSTOPPULLUPS, HAS_Z_MIN_PROBE_PIN)
+    #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
   #ifndef XY_PROBE_FEEDRATE
     #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
@@ -2932,10 +2934,9 @@
 #endif
 #if !BOTH(HAS_BED_PROBE, HAS_EXTRUDERS)
   #undef PROBING_ESTEPPERS_OFF
-#endif
-#if BOTH(PROBING_STEPPERS_OFF, PROBING_ESTEPPERS_OFF)
-  #undef PROBING_ESTEPPERS_OFF
-  #warning "PROBING_STEPPERS_OFF includes PROBING_ESTEPPERS_OFF. Disabling PROBING_ESTEPPERS_OFF."
+#elif ENABLED(PROBING_STEPPERS_OFF)
+  // PROBING_STEPPERS_OFF implies PROBING_ESTEPPERS_OFF, make sure it is defined
+  #define PROBING_ESTEPPERS_OFF
 #endif
 #if EITHER(ADVANCED_PAUSE_FEATURE, PROBING_HEATERS_OFF)
   #define HEATER_IDLE_HANDLER 1
@@ -3259,6 +3260,8 @@
   #ifndef LCD_WIDTH
     #if HAS_MARLINUI_U8GLIB
       #define LCD_WIDTH 21
+    #elif IS_DWIN_MARLINUI
+      // Defined by header
     #else
       #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif
@@ -3266,6 +3269,8 @@
   #ifndef LCD_HEIGHT
     #if HAS_MARLINUI_U8GLIB
       #define LCD_HEIGHT 5
+    #elif IS_DWIN_MARLINUI
+      // Defined by header
     #else
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
