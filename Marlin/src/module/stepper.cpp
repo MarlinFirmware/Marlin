@@ -2205,7 +2205,7 @@ uint32_t Stepper::block_phase_isr() {
       accelerate_until = current_block->accelerate_until << oversampling;
       decelerate_after = current_block->decelerate_after << oversampling;
 
-      TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color))
+      TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
       TERN_(HAS_MULTI_EXTRUDER, stepper_extruder = current_block->extruder);
 
