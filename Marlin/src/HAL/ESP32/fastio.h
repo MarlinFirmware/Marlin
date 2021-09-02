@@ -40,7 +40,7 @@
 // Set pin as input with pullup mode
 #define _PULLUP(IO, v)          pinMode(IO, v ? INPUT_PULLUP : INPUT)
 
-#if MB(PANDA_ZHU, PANDA_M4)
+#if ENABLED(USE_ESP32_EXIO)
   // Read a pin wrapper
   #define READ(IO)                digitalRead(IO)
   // Write to a pin wrapper

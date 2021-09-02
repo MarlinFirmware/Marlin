@@ -23,7 +23,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if !MB(PANDA_ZHU, PANDA_M4)
+#if DISABLED(USE_ESP32_EXIO)
 
 #include "i2s.h"
 
@@ -342,5 +342,5 @@ void i2s_push_sample() {
   dma.current[dma.rw_pos++] = i2s_port_data;
 }
 
-#endif // !MB(PANDA_ZHU, PANDA_M4)
+#endif // !USE_ESP32_EXIO
 #endif // ARDUINO_ARCH_ESP32
