@@ -97,10 +97,6 @@ if (lcd_id != 0xFFFFFFFF) return;
     write_esc_sequence(ili9341_init);
   #elif TFT_DRIVER == ILI9488
     write_esc_sequence(ili9488_init);
-  #elif TFT_DRIVER == LERDGE_ST7796
-    lcd_id = ST7796;
-    write_esc_sequence(lerdge_st7796s_init);
-
   #elif TFT_DRIVER == AUTO // autodetect
 
     lcd_id = io.GetID() & 0xFFFF;

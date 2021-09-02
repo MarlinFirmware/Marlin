@@ -1,9 +1,9 @@
-/**************************
- * bed_mesh_view_screen.h *
- *************************/
+/**************
+ * arrows.cpp *
+ **************/
 
 /****************************************************************************
- *   Written By Marcio Teixeira 2020                                        *
+ *   Written By Marcio Teixeira 2021 - SynDaver 3D                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -19,29 +19,34 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#pragma once
+#include "ftdi_extended.h"
 
-#define FTDI_BED_MESH_VIEW_SCREEN
-#define FTDI_BED_MESH_VIEW_SCREEN_CLASS BedMeshViewScreen
+#if ENABLED(FTDI_EXTENDED)
 
-struct BedMeshViewScreenData {
-  progmem_str message;
-  uint8_t count;
-  xy_uint8_t highlight;
-};
+#define COORD(X,Y) cx + s*(swapXY ? Y : (flipX ? -X : X)), cy + s*(swapXY ? (flipX ? -X : X) : Y)
 
-class BedMeshViewScreen : public BedMeshBase, public CachedScreen<BED_MESH_VIEW_SCREEN_CACHE> {
-  private:
-    static float getHighlightedValue();
-    static bool changeHighlightedValue(uint8_t tag);
-    static void drawHighlightedPointValue();
-  public:
-    static void onMeshUpdate(const int8_t x, const int8_t y, const float val);
-    static void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t);
-    static void onEntry();
-    static void onRedraw(draw_mode_t);
-    static bool onTouchEnd(uint8_t tag);
+namespace FTDI {
 
-    static void doProbe();
-    static void show();
-};
+  void drawArrow(int x, int y, int w, int h, Direction direction) {
+    const bool swapXY = direction == UP || direction == DOWN;
+    const bool flipX  = direction == UP || direction == LEFT;
+    const int s  = min(w,h);
+    const int cx = (x + w/2)*16;
+    const int cy = (y + h/2)*16;
+
+    CommandProcessor cmd;
+    cmd.cmd(SAVE_CONTEXT())
+       .cmd(LINE_WIDTH(s/2))
+       .cmd(BEGIN(LINES))
+       .cmd(VERTEX2F(COORD( 5, 0)))
+       .cmd(VERTEX2F(COORD( 2,-2)))
+       .cmd(VERTEX2F(COORD( 5, 0)))
+       .cmd(VERTEX2F(COORD( 2, 2)))
+       .cmd(VERTEX2F(COORD( 5, 0)))
+       .cmd(VERTEX2F(COORD(-5, 0)))
+       .cmd(RESTORE_CONTEXT());
+  }
+
+} // namespace FTDI
+
+#endif // FTDI_EXTENDED

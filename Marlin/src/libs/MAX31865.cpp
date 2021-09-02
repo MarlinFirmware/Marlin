@@ -44,12 +44,11 @@
 //#define MAX31865_DEBUG
 //#define MAX31865_DEBUG_SPI
 
-#include <SoftwareSPI.h>
-
 #include "../inc/MarlinConfig.h"
 
-#if HAS_MAX31865 && !LIB_USR_MAX31865
+#if HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
 
+//#include <SoftwareSPI.h> // TODO: switch to SPIclass/SoftSPI
 #include "MAX31865.h"
 
 // The maximum speed the MAX31865 can do is 5 MHz
@@ -62,7 +61,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
     500000
   #endif
   , MSBFIRST
-  , SPI_MODE1 // CPOL0 CPHA1
+  , SPI_MODE_1 // CPOL0 CPHA1
 );
 
 #ifndef LARGE_PINMAP
@@ -153,24 +152,23 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   OUT_WRITE(_cs, HIGH);
 
   if (_sclk != TERN(LARGE_PINMAP, -1UL, -1)) {
-    // define pin modes for Software SPI
+    // Define pin modes for Software SPI
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLN("Initializing MAX31865 Software SPI");
     #endif
-    
-    swSpiBegin(_sclk, _miso, _mosi);
-    
-  } else {
-    // start and configure hardware SPI
+
+    OUT_WRITE(_sclk, LOW);
+    SET_OUTPUT(_mosi);
+    SET_INPUT(_miso);
+  }
+  else {
+    // Start and configure hardware SPI
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLN("Initializing MAX31865 Hardware SPI");
     #endif
 
     SPI.begin();
   }
-
-  // SPI Begin must be called first, then init
-  _spi_speed = swSpiInit(SPI_QUARTER_SPEED, _sclk, _mosi);
 
   setWires(wires);
   enableBias(false);
@@ -486,7 +484,17 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     return SPI.transfer(x);
 
-  return swSpiTransfer(x, _spi_speed, _sclk, _miso, _mosi);
+  uint8_t reply = 0;
+  for (int i = 7; i >= 0; i--) {
+    reply <<= 1;
+    WRITE(_sclk, HIGH);
+    WRITE(_mosi, x & (1 << i));
+    WRITE(_sclk, LOW);
+    if (READ(_miso))
+      reply |= 1;
+  }
+
+  return reply;
 }
 
-#endif // HAS_MAX31865 && !LIB_USR_MAX31865
+#endif // HAS_MAX31865 && !USE_ADAFRUIT_MAX31865

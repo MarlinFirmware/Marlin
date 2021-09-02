@@ -41,16 +41,6 @@ struct FilesScreenData {
 
 class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, FILE_SCREEN_DL_SIZE> {
   private:
-    #if ENABLED(TOUCH_UI_PORTRAIT)
-      static constexpr uint8_t header_h       = 2;
-      static constexpr uint8_t footer_h       = 2;
-      static constexpr uint8_t files_per_page = 11;
-    #else
-      static constexpr uint8_t header_h       = 1;
-      static constexpr uint8_t footer_h       = 1;
-      static constexpr uint8_t files_per_page = 6;
-    #endif
-
     static uint8_t  getTagForLine(uint8_t line) {return line + 2;}
     static uint8_t  getLineForTag(uint8_t tag)  {return  tag - 2;}
     static uint16_t getFileForTag(uint8_t tag);
@@ -60,9 +50,11 @@ class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, F
     inline static const char *getSelectedLongFilename()  {return getSelectedFilename(true);}
     static const char *getSelectedFilename(bool longName);
 
+    static void drawFileButton(int x, int y, int w, int h, const char *filename, uint8_t tag, bool is_dir, bool is_highlighted);
     static void drawFileButton(const char *filename, uint8_t tag, bool is_dir, bool is_highlighted);
     static void drawFileList();
     static void drawHeader();
+    static void drawArrows();
     static void drawFooter();
     static void drawSelectedFile();
 
