@@ -70,6 +70,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Disable Steppers");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Progress Bar Test");
+  PROGMEM Language_Str MSG_HOMEING                         = _UxGT("Homing");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Auto Home");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Home X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
