@@ -23,14 +23,13 @@
 
 /**
  * DWIN by Creality3D
- * Enhanced implementation by Miguel A. Risco-Castillo
  */
 
-#include "../../../inc/MarlinConfigPre.h"
-
-#include "dwinui.h"
+#include "dwin_lcd.h"
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
+
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
   #define HAS_PREHEAT 1
@@ -39,28 +38,19 @@
   #endif
 #endif
 
-static constexpr size_t eeprom_data_size = 64;
-
 enum processID : uint8_t {
   // Process ID
   MainMenu,
   SelectFile,
   Prepare,
   Control,
+  Leveling,
   PrintProcess,
-  PrintDone,
-  FilamentMan,
   AxisMove,
-  #if ENABLED(ASSISTED_TRAMMING)
-    Tramming,
-  #endif
-  ManualMesh,
-  MMeshMoveZ,
   TemperatureID,
   Motion,
   Info,
   Tune,
-  TuneFlow,
   #if HAS_PREHEAT
     PLAPreheat,
     ABSPreheat,
@@ -77,19 +67,19 @@ enum processID : uint8_t {
   HomeOffX,
   HomeOffY,
   HomeOffZ,
+
+  // Last Process ID
+  Last_Prepare,
+
   // Advance Settings
   AdvSet,
-  #if HAS_BED_PROBE
-    ProbeOff,
-    ProbeOffX,
-    ProbeOffY,
-  #endif
-  Brightness,
-  LoadLength,
-  UnloadLength,
-  SelColor,
-  GetColor,
-  GetColor_value,
+  ProbeOff,
+  ProbeOffX,
+  ProbeOffY,
+
+  // Back Process ID
+  Back_Main,
+  Back_Print,
 
   // Date variable ID
   Move_X,
@@ -107,27 +97,15 @@ enum processID : uint8_t {
     FanSpeed,
   #endif
   PrintSpeed,
-  PrintFlow,
 
-  // Popup Windows
-  Homing,
-  Leveling,
-  PauseOrStop,
-  FilamentPurge,
-  WaitResponse,
-  Locked,
-  NothingToDo,
+  // Window ID
+  Print_window,
+  Popup_Window
 };
 
-// Picture ID
-#define Start_Process       0
-#define Language_English    1
-#define Language_Chinese    2
-
-#define DWIN_CHINESE 123
-#define DWIN_ENGLISH 0
-
 extern uint8_t checkkey;
+extern float zprobe_zoffset;
+extern char print_filename[16];
 
 extern millis_t dwin_heat_time;
 
@@ -159,72 +137,32 @@ typedef struct {
   float Home_OffZ_scaled  = 0;
   float Probe_OffX_scaled = 0;
   float Probe_OffY_scaled = 0;
-  int16_t print_flow      = 100;
-  int16_t Brightness      = 127;
-  int8_t Color[3];
 } HMI_value_t;
 
-typedef struct {
-  uint8_t Brightness = 127;
-  uint16_t Background_Color = Def_Background_Color;
-  uint16_t Cursor_color     = Def_Cursor_color;
-  uint16_t TitleBg_color    = Def_TitleBg_color;
-  uint16_t TitleTxt_color   = Def_TitleTxt_color;
-  uint16_t Text_Color       = Def_Text_Color;
-  uint16_t Selected_Color   = Def_Selected_Color;
-  uint16_t SplitLine_Color  = Def_SplitLine_Color;
-  uint16_t Highlight_Color  = Def_Highlight_Color;
-  uint16_t StatusBg_Color   = Def_StatusBg_Color;
-  uint16_t StatusTxt_Color  = Def_StatusTxt_Color;
-  uint16_t PopupBg_color    = Def_PopupBg_color;
-  uint16_t PopupTxt_Color   = Def_PopupTxt_Color;
-  uint16_t AlertBg_Color    = Def_AlertBg_Color;
-  uint16_t AlertTxt_Color   = Def_AlertTxt_Color;
-  uint16_t PercentTxt_Color = Def_PercentTxt_Color;
-  uint16_t Barfill_Color    = Def_Barfill_Color;
-  uint16_t Indicator_Color  = Def_Indicator_Color;
-  uint16_t Coordinate_Color = Def_Coordinate_Color;
-} HMI_data_t;
+#define DWIN_CHINESE 123
+#define DWIN_ENGLISH 0
 
 typedef struct {
   uint8_t language;
-  bool pause_flag:1;    // printing is paused
-  bool pause_action:1;  // flag a pause action
-  bool print_finish:1;  // print was finished
-  bool select_flag:1;   // Popup button selected
-  bool home_flag:1;     // homing in course
+  bool pause_flag:1;
+  bool pause_action:1;
+  bool print_finish:1;
+  bool done_confirm_flag:1;
+  bool select_flag:1;
+  bool home_flag:1;
   bool heat_flag:1;  // 0: heating done  1: during heating
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     bool ETempTooLow_flag:1;
   #endif
+  #if HAS_LEVELING
+    bool leveling_offset_flag:1;
+  #endif
   AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
-  bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune
 } HMI_Flag_t;
 
 extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag_t HMI_flag;
-extern HMI_data_t HMI_data;
 
-enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
-
-<<<<<<< HEAD
-// Show ICO
-void ICON_Print();
-void ICON_Prepare();
-void ICON_Control();
-void ICON_Leveling(bool show);
-void ICON_StartInfo(bool show);
-
-void ICON_Pause();
-void ICON_Continue();
-void ICON_Stop();
-
-void DWIN_Draw_Popup(uint8_t icon = 0, const char * const msg1 = 0, const char * const msg2 = 0, uint8_t button = 0);
-void DWIN_Popup_Continue(uint8_t icon, const char * const msg1, const char * const msg2);
-void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
-
-=======
->>>>>>> bad46796495403fddfb65e793f4ca4d0e47b9843
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
   void DWIN_Popup_Temperature(const bool toohigh);
@@ -235,9 +173,11 @@ void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * cons
 #endif
 
 void Popup_Window_Resume();
+void Popup_Window_Home(const bool parking=false);
+void Popup_Window_Leveling();
 
 void Goto_PrintProcess();
-void Goto_Main_Menu();
+void Goto_MainMenu();
 
 // Variable control
 void HMI_Move_X();
@@ -266,19 +206,19 @@ void HMI_StepXYZE();
 void HMI_SetLanguageCache();
 
 void update_variable();
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 // SD Card
 void HMI_SDCardInit();
 void HMI_SDCardUpdate();
 
 // Main Process
-void Icon_print();
-void Icon_control();
+void Icon_print(bool value);
+void Icon_control(bool value);
+void Icon_temperature(bool value);
 void Icon_leveling(bool value);
 
 // Other
-void Clear_Menu_Area();
-void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void HMI_StartFrame(const bool with_update);   // Prepare the menu view
 void HMI_MainMenu();    // Main process screen
@@ -288,20 +228,10 @@ void HMI_Prepare();     // Prepare page
 void HMI_Control();     // Control page
 void HMI_Leveling();    // Level the page
 void HMI_AxisMove();    // Axis movement menu
-#if ENABLED(ASSISTED_TRAMMING)
-  void HMI_Tramming();   // Tramming menu
-#endif
-#if ENABLED(MESH_BED_LEVELING)
-  void HMI_ManualMesh();  // Manual Mesh menu
-  void HMI_MMeshMoveZ();  // Manual Mesh move Z
-#endif
 void HMI_Temperature(); // Temperature menu
 void HMI_Motion();      // Sports menu
 void HMI_Info();        // Information menu
 void HMI_Tune();        // Adjust the menu
-void Draw_Main_Area(uint8_t procID); // Redraw main area;
-void DWIN_Redraw_screen();  // Redraw all screen elements
-void HMI_ReturnScreen();// Return to previous screen before popups
 
 #if HAS_PREHEAT
   void HMI_PLAPreheatSetting(); // PLA warm-up setting
@@ -314,50 +244,13 @@ void HMI_MaxJerk();         // Maximum jerk speed submenu
 void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
-void HMI_Popup();
-void HMI_SaveProcessID(const uint8_t id);
-void HMI_AudioFeedback(const bool success=true);
-void DWIN_Startup();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
-<<<<<<< HEAD
-void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
-void DWIN_StatusChanged_P(PGM_P const text);
-void DWIN_StatusChanged(const char * const text);
-void DWIN_StartHoming();
-=======
 void DWIN_StatusChanged(const char *text);
 void DWIN_StatusChanged_P(PGM_P const pstr);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
->>>>>>> bad46796495403fddfb65e793f4ca4d0e47b9843
 void DWIN_CompletedHoming();
-#if ENABLED(MESH_BED_LEVELING)
-  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
-#endif
-void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
-void DWIN_PidTuning(pidresult_t result);
-void DWIN_Print_Started(const bool sd = false);
-void DWIN_Print_Finished();
-#if HAS_FILAMENT_SENSOR
-  void DWIN_FilamentRunout(const uint8_t extruder);
-#endif
-void DWIN_Progress_Update();
-void DWIN_Print_Header(const char *text);
-void DWIN_SetColorDefaults();
-void DWIN_StoreSettings(char *buff);
-void DWIN_LoadSettings(const char *buff);
-void DWIN_Setdatadefaults();
-void DWIN_RebootScreen();
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void Draw_Popup_FilamentPurge();
-  void DWIN_Popup_FilamentPurge();
-  void HMI_FilamentPurge();
-#endif
-
-void HMI_LockScreen();
-void DWIN_LockScreen(const bool flag);

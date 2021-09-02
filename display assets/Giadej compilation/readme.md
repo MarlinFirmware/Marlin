@@ -31,7 +31,7 @@ Be sure to leave **only** the `DWIN_SET` folder at the root of the card.
 <img src="preview2.jpg"  height="400" />
 
 ## Credits
-- [**Giadej**](https://github.com/Giadej) for "Main Panel" icons and custom Boot-Screen  
+- [**Giadej**](https://github.com/Giadej) for Main and Control panel icons, and custom Boot-Screen  
 - [**Lighty1989**](https://github.com/Lighty1989) for "XYZ Move Axis" icons and "Bed Points" icons  
 - **Gotcha's** for other icons  
 

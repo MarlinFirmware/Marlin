@@ -46,7 +46,7 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/e3v2/creality/dwin.h"
+  #include "../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -629,7 +629,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // PID Tuning loop
     wait_for_heatup = true; // Can be interrupted with M108
-    TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT), "Wait for heat up..."));   
+    TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT), "Wait for heat up..."));
     while (wait_for_heatup) {
 
       const millis_t ms = millis();
@@ -3607,7 +3607,7 @@ void Temperature::isr() {
         #if HAS_MULTI_HOTEND
           PSTR("E%c " S_FMT), '1' + e
         #else
-          PSTR("E " S_FMT)
+          PSTR("Nozzle " S_FMT)
         #endif
         , heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING)
       );
@@ -3731,9 +3731,8 @@ void Temperature::isr() {
           HMI_flag.heat_flag = 0;
           duration_t elapsed = print_job_timer.duration();  // print timer
           dwin_heat_time = elapsed.value;
-        #else
-          ui.reset_status();
         #endif
+        ui.reset_status();
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onHeatingDone());
         return true;
       }
