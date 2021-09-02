@@ -77,6 +77,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_I                     = _UxGT("Home ") LCD_STR_I;
   PROGMEM Language_Str MSG_AUTO_HOME_J                     = _UxGT("Home ") LCD_STR_J;
   PROGMEM Language_Str MSG_AUTO_HOME_K                     = _UxGT("Home ") LCD_STR_K;
+  PROGMEM Language_Str MSG_FILAMENT_SET                    = _UxGT("Filament Settings");
   PROGMEM Language_Str MSG_FILAMENT_MAN                    = _UxGT("Filament Management");
   PROGMEM Language_Str MSG_LEVBED_FL                       = _UxGT("Front Left");
   PROGMEM Language_Str MSG_LEVBED_FR                       = _UxGT("Front Right");
@@ -332,7 +333,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
-  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID Cycle");
+  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID Cycles");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("PID tuning done");
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Autotune failed. Bad extruder.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Autotune failed. Temperature too high.");
@@ -623,6 +624,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozzle: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
+  PROGMEM Language_Str MSG_RUNOUT_ENABLE                   = _UxGT("Enable Runout");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
 

@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 2.3
- * Date: 2021/07/13
+ * Version: 3.6
+ * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as 
@@ -42,9 +42,11 @@ uint16_t DWINUI::pencolor = Color_White;
 uint16_t DWINUI::textcolor = Def_Text_Color;
 uint16_t DWINUI::backcolor = Def_Background_Color;
 uint8_t  DWINUI::font = font8x16;
+
 void (*DWINUI::onCursorErase)(uint8_t line)=nullptr;
 void (*DWINUI::onCursorDraw)(uint8_t line)=nullptr;
 void (*DWINUI::onTitleDraw)(TitleClass* title)=nullptr;
+void (*DWINUI::onMenuDraw)(MenuClass* menu)=nullptr;
 
 void DWINUI::Init(void) {
   DEBUG_ECHOPGM("\r\nDWIN handshake ");
@@ -153,6 +155,26 @@ void DWINUI::Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint1
   DWIN_Draw_String(bShow, size, color, bColor, x, y, string);
 }
 
+// Draw a char at cursor position
+void DWINUI::Draw_Char(const char c) {
+  const char string[2] = { c, 0};
+  DWIN_Draw_String(false, font, textcolor, backcolor, cursor.x, cursor.y, string, 1);
+  MoveBy(Get_font_width(font), 0);
+}
+
+// Draw a string at cursor position
+//  color: Character color
+//  *string: The string
+//  rlimit: For draw less chars than string length use rlimit
+void DWINUI::Draw_String(const char * const string, uint16_t rlimit) {
+  DWIN_Draw_String(false, font, textcolor, backcolor, cursor.x, cursor.y, string, rlimit);
+  MoveBy(strlen(string) * Get_font_width(font), 0);
+}
+void DWINUI::Draw_String(uint16_t color, const char * const string, uint16_t rlimit) {
+  DWIN_Draw_String(false, font, color, backcolor, cursor.x, cursor.y, string, rlimit);
+  MoveBy(strlen(string) * Get_font_width(font), 0);
+}
+
 // Draw a signed floating point number
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
@@ -196,6 +218,24 @@ void DWINUI::Draw_Circle(uint16_t color, uint16_t x, uint16_t y, uint8_t r) {
   }
 }
 
+// Draw a circle filled with color
+//  bcolor: fill color
+//  x: the abscissa of the center of the circle
+//  y: ordinate of the center of the circle
+//  r: circle radius
+void DWINUI::Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r) {
+  int a = 0, b = 0;
+  while (a <= b) {
+    b = SQRT(sq(r) - sq(a)); // b=sqrt(r*r-a*a);
+    if (a == 0) b--;
+    DWIN_Draw_Line(bcolor, x-b,y-a,x+b,y-a);
+    DWIN_Draw_Line(bcolor, x-a,y-b,x+a,y-b);
+    DWIN_Draw_Line(bcolor, x-b,y+a,x+b,y+a);
+    DWIN_Draw_Line(bcolor, x-a,y+b,x+a,y+b);
+    a++;
+  }
+}
+
 // Color Interpolator
 //  val : Interpolator minv..maxv
 //  minv : Minimum value
@@ -212,14 +252,48 @@ uint16_t DWINUI::ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t colo
   return RGB(R,G,B);
 }
 
+// Color Interpolator through Red->Yellow->Green->Blue
+//  val : Interpolator minv..maxv
+//  minv : Minimum value
+//  maxv : Maximun value
+uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
+  uint8_t B,G,R;
+  const uint8_t maxB = 28;
+  const uint8_t maxR = 28;
+  const uint8_t maxG = 38;
+  const int16_t limv = _MAX(abs(minv), abs(maxv)); 
+  float n;
+  if (minv>=0) {
+    n = (float)(val-minv)/(maxv-minv);
+  } else {
+    n = (float)val/limv;
+  }
+  n = _MIN(1, n);
+  n = _MAX(-1, n);
+  if (n < 0) {
+    R = 0;
+    G = (1+n)*maxG;
+    B = (-n)*maxB;
+  } else if (n < 0.5) {
+    R = maxR*n*2;
+    G = maxG;
+    B = 0;
+  } else {
+    R = maxR;
+    G = maxG*(1-n);
+    B = 0;
+  }
+  return RGB(R,G,B);
+}
+
 // Draw a checkbox
 //  Color: frame color
 //  bColor: Background color
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
 void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, checked ? F("X") : F(" "));
-  DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 16, y + 16);
+  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
+  DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 
 // Clear Menu by filling the menu area with background color
@@ -301,14 +375,9 @@ MenuClass::MenuClass() {
   topline = 0;
 }
 
-// Clear Menu by filling the menu area with background color
-void MenuClass::Clear() {
-  DWIN_Draw_Rectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
-}
-
 void MenuClass::Draw() {
-  Clear();
   MenuTitle.Draw();
+  if (DWINUI::onMenuDraw != nullptr) (*DWINUI::onMenuDraw)(this);
   for (uint8_t i = 0; i < MenuItemCount; i++)
     MenuItems[i]->Draw(i - topline);
   if (DWINUI::onCursorDraw != nullptr) DWINUI::onCursorDraw(line());

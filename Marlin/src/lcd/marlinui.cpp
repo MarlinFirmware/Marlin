@@ -47,6 +47,7 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
+  #include "fontutils.h"
   #include "e3v2/enhanced/dwin.h"
 #endif
 
@@ -99,6 +100,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     backlight = !!value;
     if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
     // Set brightness on enabled LCD here
+    TERN_(DWIN_CREALITY_LCD, DWIN_LCD_Brightness(brightness));
   }
 #endif
 

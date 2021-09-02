@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 2.5
- * Date: 2021/08/20
+ * Version: 3.6.1
+ * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -25,7 +25,11 @@
 #include "dwin_lcd.h"
 
 // ICON ID
-#define ICON                      0x07  // Use 7.ICO from unified DWIN_SET
+#ifdef USE_UNIFIED_DWIN_SET
+  #define ICON                  0x07  // Use 7.ICO from unified DWIN_SET
+#else
+  #define ICON                  0x09  // Default 9.ICO icon library
+#endif
 #define ICON_LOGO                  0
 #define ICON_Print_0               1
 #define ICON_Print_1               2
@@ -129,8 +133,10 @@
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_SetEndTemp
 #define ICON_Error                ICON_TempTooHigh
+#define ICON_ExtrudeMinT          ICON_HotendTemp
 #define ICON_FilLoad              ICON_WriteEEPROM
 #define ICON_FilMan               ICON_ResumeEEPROM
+#define ICON_FilSet               ICON_ResumeEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
 #define ICON_HomeOffset           ICON_AdvSet
@@ -142,14 +148,19 @@
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
+#define ICON_MoveZ0               ICON_HotendTemp
 #define ICON_Park                 ICON_Motion
 #define ICON_PIDbed               ICON_SetBedTemp
+#define ICON_PIDcycles            ICON_ResumeEEPROM
 #define ICON_PIDNozzle            ICON_SetEndTemp
+#define ICON_PIDValue             ICON_Contact
 #define ICON_ProbeOffsetX         ICON_StepX
 #define ICON_ProbeOffsetY         ICON_StepY
 #define ICON_ProbeSet             ICON_SetEndTemp
+#define ICON_ProbeTest            ICON_SetEndTemp
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Reboot               ICON_ResumeEEPROM
+#define ICON_Runout               ICON_MaxAccE
 #define ICON_Scolor               ICON_MaxSpeed
 #define ICON_SetCustomPreheat     ICON_SetEndTemp
 #define ICON_Sound                ICON_Cool
@@ -221,6 +232,7 @@
 #define DWIN_FONT_HEAD font10x20
 #define DWIN_FONT_ALERT font10x20
 #define STATUS_Y 354
+#define LCD_WIDTH (DWIN_WIDTH / 8)
 
 constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar height
                    MLINE = 53,                                 // Menu line height
@@ -273,8 +285,8 @@ public:
   char caption[32] = "";
   uint8_t frameid = 0;
   rect_t frame = {0};
-  void (*onDraw) (MenuItemClass* menuitem, int8_t line) = nullptr;
-  void (*onClick) () = nullptr;
+  void (*onDraw)(MenuItemClass* menuitem, int8_t line) = nullptr;
+  void (*onClick)() = nullptr;
   MenuItemClass() {};
   MenuItemClass(uint8_t cicon, const char * const text=nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) : MenuItemClass(cicon, (char*)text, ondraw, onclick){}
@@ -301,7 +313,6 @@ public:
   virtual ~MenuClass(){};
   inline int8_t line() { return selected - topline; };
   inline int8_t line(uint8_t pos) {return pos - topline; };
-  void Clear();
   void Draw();
   void onScroll(bool dir);
   void onClick();
@@ -315,9 +326,11 @@ namespace DWINUI {
   extern uint16_t textcolor;
   extern uint16_t backcolor;
   extern uint8_t  font;
+
   extern void (*onCursorErase)(uint8_t line);
   extern void (*onCursorDraw)(uint8_t line);
   extern void (*onTitleDraw)(TitleClass* title);
+  extern void (*onMenuDraw)(MenuClass* menu);
 
   // DWIN LCD Initialization
   void Init(void);
@@ -386,6 +399,10 @@ namespace DWINUI {
   inline void Draw_Int(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
     DWIN_Draw_IntValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, x, y, value);
   }
+  inline void Draw_Int(uint8_t iNum, uint16_t value) {
+    DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
+    MoveBy(iNum * Get_font_width(font), 0);
+  }
   inline void Draw_Int(uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, x, y, value);
   }
@@ -413,6 +430,10 @@ namespace DWINUI {
   inline void Draw_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, value);
   }
+  inline void Draw_Float(uint8_t iNum, uint8_t fNum, long value) {
+    DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum,  cursor.x, cursor.y, value);
+    MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
+  }
   inline void Draw_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
   }
@@ -437,6 +458,10 @@ namespace DWINUI {
   //  x/y: Upper-left point
   //  value: Float value
   void Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+  inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, long value) {
+    Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
+    MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
+  }
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
   }
@@ -450,18 +475,22 @@ namespace DWINUI {
     Draw_Signed_Float(true, true, 0, size, color, bColor, iNum, fNum, x, y, value);
   }
 
+  // Draw a char at cursor position
+  void Draw_Char(const char c);
+
+  // Draw a string at cursor position
+  //  color: Character color
+  //  *string: The string
+  //  rlimit: For draw less chars than string length use rlimit
+  void Draw_String(const char * const string, uint16_t rlimit = 0xFFFF);
+  void Draw_String(uint16_t color, const char * const string, uint16_t rlimit = 0xFFFF);
+
   // Draw a string
   //  size: Font size
   //  color: Character color
   //  bColor: Background color
   //  x/y: Upper-left coordinate of the string
   //  *string: The string
-  inline void Draw_String(const char * const string) {
-    DWIN_Draw_String(false, font, textcolor, backcolor, cursor.x, cursor.y, string);
-  }
-  inline void Draw_String(uint16_t color, const char * const string) {
-    DWIN_Draw_String(false, font, color, backcolor, cursor.x, cursor.y, string);
-  }
   inline void Draw_String(uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(false, font, textcolor, backcolor, x, y, string);
   }
@@ -547,6 +576,24 @@ namespace DWINUI {
   //  color1 : Start color
   //  color2 : End color
   uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
+
+  // -------------------------- Extra -------------------------------//
+
+  // Draw a circle filled with color
+  //  bcolor: fill color
+  //  x: the abscissa of the center of the circle
+  //  y: ordinate of the center of the circle
+  //  r: circle radius
+  void Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r);
+  inline void Draw_FillCircle(uint16_t bcolor, uint8_t r) {
+    Draw_FillCircle(bcolor, cursor.x, cursor.y, r);
+  }
+
+  // Color Interpolator through Red->Yellow->Green->Blue
+  //  val : Interpolator minv..maxv
+  //  minv : Minimum value
+  //  maxv : Maximun value
+  uint16_t RainbowInt(int16_t val, int16_t minv, int16_t maxv);
 
   // Write buffer data to the SRAM
   //  addr: SRAM start address 0x0000-0x7FFF

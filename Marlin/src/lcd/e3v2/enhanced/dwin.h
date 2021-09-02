@@ -27,8 +27,6 @@
  */
 
 #include "../../../inc/MarlinConfigPre.h"
-
-//#include "dwin_lcd.h"
 #include "dwinui.h"
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
@@ -58,46 +56,15 @@ enum processID : uint8_t {
   // Process ID
   MainMenu,
   Menu,
+  SetInt,
+  SetPInt,
+  SetIntNoDraw,
+  SetFloat,
+  SetPFloat,
   SelectFile,
   PrintProcess,
   PrintDone,
-  MMeshMoveZ,
   Info,
-  Flow,
-  MaxSpeed,
-  MaxAcceleration,
-  MaxJerk,
-  Step,
-  #if HAS_HOME_OFFSET
-    HomeOffsetX,
-    HomeOffsetY,
-    HomeOffsetZ,
-  #endif
-  #if HAS_BED_PROBE
-    ProbeOffsetX,
-    ProbeOffsetY,
-  #endif
-  Brightness,
-  LoadLength,
-  UnloadLength,
-  GetColor_value,
-
-  // Date variable ID
-  Move_X,
-  Move_Y,
-  Move_Z,
-  #if HAS_HOTEND
-    Move_E,
-    ETemp,
-  #endif
-  Zoffset,
-  #if HAS_HEATED_BED
-    BedTemp,
-  #endif
-  #if HAS_FAN
-    FanSpeed,
-  #endif
-  PrintSpeed,
 
   // Popup Windows
   Homing,
@@ -109,6 +76,15 @@ enum processID : uint8_t {
   NothingToDo,
 };
 
+enum pidresult_t : uint8_t {
+  PID_BAD_EXTRUDER_NUM,
+  PID_TEMP_TOO_HIGH, 
+  PID_TUNING_TIMEOUT, 
+  PID_EXTR_START, 
+  PID_BED_START, 
+  PID_DONE
+};
+
 // Picture ID
 #define Start_Process       0
 #define Language_English    1
@@ -117,20 +93,21 @@ enum processID : uint8_t {
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
 
-extern uint8_t checkkey;
-
-extern millis_t dwin_heat_time;
-
 typedef struct {
-  uint8_t Color[3];                   // Color components
+  int8_t Color[3];                    // Color components
   int8_t Preheat          = 0;        // Material Select 0: PLA, 1: ABS, 2: Custom
-  AxisEnum axis;                      // Axis Select
-  int16_t Value           = 0;        // Auxiliar integer value
-  uint16_t *P_Uint        = nullptr;  // Auxiliar pointer to integer variable
+  AxisEnum axis           = X_AXIS;   // Axis Select
+  int32_t MaxValue        = 0;        // Auxiliar max integer/scaled float value
+  int32_t MinValue        = 0;        // Auxiliar min integer/scaled float value
+  int8_t dp               = 0;        // Auxiliar decimal places
+  int32_t Value           = 0;        // Auxiliar integer / scaled float value
+  int16_t *P_Int          = nullptr;  // Auxiliar pointer to 16 bit integer variable
+  float *P_Float          = nullptr;  // Auxiliar pointer to float variable
+  void (*Apply)()         = nullptr;  // Auxiliar apply function
+  void (*LiveUpdate)()    = nullptr;  // Auxiliar live update function
 } HMI_value_t;
 
 typedef struct {
-  uint8_t Brightness = 127;
   uint16_t Background_Color = Def_Background_Color;
   uint16_t Cursor_color     = Def_Cursor_color;
   uint16_t TitleBg_color    = Def_TitleBg_color;
@@ -149,6 +126,12 @@ typedef struct {
   uint16_t Barfill_Color    = Def_Barfill_Color;
   uint16_t Indicator_Color  = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
+  TERN_(HAS_HOTEND, int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND);
+  TERN_(HAS_HOTEND, int16_t PidCycles = 10);
+  #ifdef PREHEAT_1_TEMP_BED
+    int16_t BedPidT = PREHEAT_1_TEMP_BED;
+  #endif
+  TERN_(PREVENT_COLD_EXTRUSION, uint16_t ExtMinT = EXTRUDE_MINTEMP);
 } HMI_data_t;
 
 typedef struct {
@@ -158,72 +141,53 @@ typedef struct {
   bool print_finish:1;  // print was finished
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
-  bool heat_flag:1;  // 0: heating done  1: during heating
+  bool heat_flag:1;     // 0: heating done  1: during heating
   bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune
 } HMI_flag_t;
 
 extern HMI_value_t HMI_value;
 extern HMI_flag_t HMI_flag;
 extern HMI_data_t HMI_data;
+extern uint8_t checkkey;
+extern millis_t dwin_heat_time;
 
-enum pidresult_t : uint8_t { PID_BAD_EXTRUDER_NUM, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_EXTR_START, PID_BED_START, PID_DONE };
-
+// Popups windows
 void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
-
 #if HAS_HOTEND || HAS_HEATED_BED
-  // Popup message window
   void DWIN_Popup_Temperature(const bool toohigh);
 #endif
-
-#if HAS_HOTEND
-  void Popup_Window_ETempTooLow();
-#endif
-
+TERN_(HAS_HOTEND, void Popup_Window_ETempTooLow());
 void Popup_Window_Resume();
-
-void Goto_PrintProcess();
-void Goto_Main_Menu();
-
-
-void update_variable();
 
 // SD Card
 void HMI_SDCardInit();
 void HMI_SDCardUpdate();
 
 // Main Process
-void Icon_print();
-void Icon_control();
-void Icon_leveling(bool value);
+//void Icon_print();
+//void Icon_control();
+//void Icon_leveling(bool value);
 
 // Other
+void Goto_PrintProcess();
+void Goto_Main_Menu();
+void update_variable();
 void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
-void HMI_StartFrame(const bool with_update);   // Prepare the menu view
-void HMI_MainMenu();    // Main process screen
-void HMI_SelectFile();  // File page
-void HMI_Printing();    // Print page
-void HMI_Leveling();    // Level the page
-void HMI_SetLanguageCache(); // Set the languaje image cache
-void HMI_LevBedCorners();   // Tramming menu
-#if ENABLED(MESH_BED_LEVELING)
-  void HMI_MMeshMoveZ();  // Manual Mesh move Z
-#endif
-void HMI_Temperature();   // Temperature menu
-void HMI_Info();          // Information menu
-void Draw_Main_Area();    // Redraw main area;
+void Draw_Main_Area();      // Redraw main area;
 void DWIN_Redraw_screen();  // Redraw all screen elements
-void HMI_ReturnScreen();  // Return to previous screen before popups
+void HMI_StartFrame(const bool with_update);   // Prepare the menu view
+void HMI_MainMenu();        // Main process screen
+void HMI_SelectFile();      // File page
+void HMI_Printing();        // Print page
+void HMI_ReturnScreen();    // Return to previous screen before popups
+void ApplyExtMinT();
+void HMI_SetLanguageCache(); // Set the languaje image cache
 
-#if HAS_PREHEAT
-  void HMI_PLAPreheatSetting(); // PLA warm-up setting
-  void HMI_ABSPreheatSetting(); // ABS warm-up setting
-#endif
+//void HMI_Leveling();    // Level the page
+//void HMI_LevBedCorners();   // Tramming menu
+//void HMI_Info();          // Information menu
 
-void HMI_MaxSpeed();        // Maximum speed submenu
-void HMI_MaxAcceleration(); // Maximum acceleration submenu
-void HMI_MaxJerk();         // Maximum jerk speed submenu
-void HMI_Step();            // Transmission ratio
 
 void HMI_Init();
 void HMI_Popup();
@@ -238,9 +202,7 @@ void DWIN_StatusChanged(const char * const text);
 void DWIN_StatusChanged_P(PGM_P const text);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
-#if ENABLED(MESH_BED_LEVELING)
-  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
-#endif
+TERN_(MESH_BED_LEVELING, void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval));
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);
@@ -263,38 +225,17 @@ void DWIN_RebootScreen();
   void HMI_FilamentPurge();
 #endif
 
+// Utility and extensions
 void HMI_LockScreen();
 void DWIN_LockScreen(const bool flag = true);
 
 // HMI user control functions
 void HMI_Menu();
-void HMI_Brightness();
-void HMI_Move_X();
-void HMI_Move_Y();
-void HMI_Move_Z();
-void HMI_Move_E();
-TERN_(HAS_ZOFFSET_ITEM, void HMI_Zoffset());
-#if HAS_HOME_OFFSET
-  void HMI_HomeOffsetX();
-  void HMI_HomeOffsetY();
-  void HMI_HomeOffsetZ();
-#endif
-#if HAS_BED_PROBE
-  void HMI_ProbeOffsetX();
-  void HMI_ProbeOffsetY();
-#endif
-void HMI_GetColorValue();
-#if HAS_HOTEND
-  void HMI_ETemp();
-#endif
-#if HAS_HEATED_BED
-  void HMI_BedTemp();
-#endif
-void HMI_PrintSpeed();
-void HMI_Flow();
-#if HAS_FAN
-  void HMI_FanSpeed();
-#endif
+void HMI_SetInt();
+void HMI_SetPInt();
+void HMI_SetIntNoDraw();
+void HMI_SetFloat();
+void HMI_SetPFloat();
 
 // Menu drawing functions
 void Draw_Control_Menu();
@@ -304,6 +245,7 @@ void Draw_Move_Menu();
 void Draw_LevBedCorners_Menu();
 TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
 TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
+TERN_(HAS_FILAMENT_SENSOR, void Draw_FilSet_Menu());
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
 void Draw_Tune_Menu();
@@ -320,3 +262,8 @@ void Draw_MaxSpeed_Menu();
 void Draw_MaxAccel_Menu();
 TERN_(HAS_CLASSIC_JERK, void Draw_MaxJerk_Menu());
 void Draw_Steps_Menu();
+TERN_(HAS_HOTEND, void Draw_HotendPID_Menu());
+TERN_(HAS_HEATED_BED, void Draw_BedPID_Menu());
+#if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+  void Draw_ZOffsetWiz_Menu();
+#endif

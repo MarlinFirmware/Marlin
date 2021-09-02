@@ -245,8 +245,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE)));
-    TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT(MSG_FILAMENT_CHANGE_PURGE), CONTINUE_STR));
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_FILAMENT_CHANGE_PURGE), CONTINUE_STR));
+    TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT(MSG_FILAMENT_CHANGE_PURGE), CONTINUE_STR));
     wait_for_user = true; // A click or M108 breaks the purge_length loop
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
       unscaled_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
@@ -527,8 +527,10 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       wait_for_user_response(0, true); // Wait for LCD click or M108
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, GET_TEXT(MSG_REHEATING)));
+
       TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged_P(GET_TEXT(MSG_REHEATING)));
-      TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged_P(GET_TEXT(MSG_REHEATING)));
+
+      TERN_(DWIN_CREALITY_LCD, ui.set_status_P(GET_TEXT(MSG_REHEATING)));
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
@@ -543,9 +545,13 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
 
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
+
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_REHEATDONE), CONTINUE_STR));
+
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_REHEATDONE)));
-      TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged_P(GET_TEXT(MSG_REHEATDONE)));
+
+      TERN_(DWIN_CREALITY_LCD, ui.set_status_P(GET_TEXT(MSG_REHEATDONE)));
+
       wait_for_user = true;
       nozzle_timed_out = false;
 
