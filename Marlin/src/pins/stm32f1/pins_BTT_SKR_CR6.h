@@ -113,8 +113,6 @@
 
 #define CONTROLLER_FAN_PIN                  PC7
 
-#define SDSS ONBOARD_SD_CS_PIN
-
 //
 // LCD / Controller
 //
@@ -168,6 +166,7 @@
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
   #define ONBOARD_SD_CS_PIN                 PA4   // Chip select for "System" SD card
+  #define SDSS                              ONBOARD_SD_CS_PIN
 #endif
 
 //
