@@ -25,44 +25,21 @@
  * Panda ZHU pin assignments
  */
 
-#include "env_validate.h"
-
 #define BOARD_INFO_NAME "Panda_ZHU"
-#define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
 
-//
-// Servos
-//
-#define SERVO0_PIN                             0
-
-//
-// Limit Switches
-//
-#define X_STOP_PIN                             4
-#define Y_STOP_PIN                            35
-#define Z_STOP_PIN                            21
+#include "pins_PANDA_common.h"
 
 //
 // Steppers
 //
-#define X_STEP_PIN                           101
-#define X_DIR_PIN                            100
 #define X_ENABLE_PIN                         128  // Shared with all steppers
-//#define X_CS_PIN                             0
-
-#define Y_STEP_PIN                           103
-#define Y_DIR_PIN                            102
 #define Y_ENABLE_PIN                X_ENABLE_PIN
-//#define Y_CS_PIN                            13
-
-#define Z_STEP_PIN                           105
-#define Z_DIR_PIN                            104
 #define Z_ENABLE_PIN                X_ENABLE_PIN
-//#define Z_CS_PIN                             5  // SS_PIN
-
-#define E0_STEP_PIN                          107
-#define E0_DIR_PIN                           106
 #define E0_ENABLE_PIN               X_ENABLE_PIN
+
+//#define X_CS_PIN                             0
+//#define Y_CS_PIN                            13
+//#define Z_CS_PIN                             5  // SS_PIN
 //#define E0_CS_PIN                           21
 
 #define E1_STEP_PIN                          115
@@ -80,37 +57,3 @@
 #define E4_STEP_PIN                          121
 #define E4_DIR_PIN                           122
 #define E4_ENABLE_PIN               X_ENABLE_PIN
-
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN                            39  // Analog Input
-#define TEMP_BED_PIN                          36  // Analog Input
-
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN                         108
-#define FAN_PIN                              118
-#define HEATER_BED_PIN                       109
-#define E0_AUTO_FAN_PIN_ESP                  120
-
-//
-// SD card
-//
-#if ENABLED(SDSUPPORT)
-  #define SDSS                                 5
-  #define SD_DETECT_PIN                        2
-#endif
-
-#if HAS_WIRED_LCD
-  #define BEEPER_PIN                         129
-  #define BTN_ENC                             12
-
-  #define BTN_EN1                             33
-  #define BTN_EN2                             32
-
-  #define LCD_PINS_RS                         27
-  #define LCD_PINS_ENABLE                     26
-  #define LCD_PINS_D4                         14
-#endif
