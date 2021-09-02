@@ -59,7 +59,6 @@
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
-//#define E2END           (MARLIN_EEPROM_SIZE - 1)  // 2KB
 
 //
 // Limit Switches
