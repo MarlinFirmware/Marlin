@@ -29,21 +29,18 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Index Mobo Rev03"
-#endif
-
+#define BOARD_INFO_NAME      "Index Mobo Rev03"
 #define DEFAULT_MACHINE_NAME "Index Pick and Place"
 
-/*
-By default, the extra stepper motor configuration is:
-  I = Left Head
-  J = Right Head
-  K = Auxiliary (Conveyor belt)
-*/
+/**
+ * By default, the extra stepper motor configuration is:
+ * I = Left Head
+ * J = Right Head
+ * K = Auxiliary (Conveyor belt)
+ */
 
 #define SRAM_EEPROM_EMULATION
-#define MARLIN_EEPROM_SIZE                  0x2000  // 8KB
+#define MARLIN_EEPROM_SIZE                0x2000  // 8KB
 
 //
 // Servos
@@ -54,12 +51,9 @@ By default, the extra stepper motor configuration is:
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PC6
-#define X_MAX_PIN                           -1
-#define Y_MIN_PIN                           PD15
-#define Y_MAX_PIN                           -1
-#define Z_MIN_PIN                           PD14
-#define Z_MAX_PIN                           -1
+#define X_STOP_PIN                          PC6
+#define Y_STOP_PIN                          PD15
+#define Z_STOP_PIN                          PD14
 
 // None of these require limit switches by default, so we leave these commented
 // here for your reference.
@@ -110,11 +104,11 @@ By default, the extra stepper motor configuration is:
 #define K_ENABLE_PIN                        PA3
 
 // Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE                       19200
+#define TMC_BAUD_RATE                      19200
 
 // Not required for this board. Fails to compile otherwise.
 // PD0 is not connected on this board.
-#define TEMP_0_PIN  PD0
+#define TEMP_0_PIN                          PD0
 
 // General use mosfets, useful for things like pumps and solenoids
 #define FAN_PIN                             PE2
@@ -135,18 +129,18 @@ By default, the extra stepper motor configuration is:
 #define I2C_SDA_PIN                         PB7
 #define I2C_SCL_PIN                         PB6
 
-/*
-The index mobo rev03 has 3 aux ports. We define them here so they may be used
-in other places and to make sure someone doesn't have to go look up the pinout
-in the board files. Each 12 pin aux port has this pinout:
-
-VDC    1   2    GND
-3.3V   3   4    SCL  (I2C_SCL_PIN)
-PWM1   5   6    SDA  (I2C_SDA_PIN)
-PWM2   7   8    CIPO (MISO_PIN)
-A1     9  10    COPI (MOSI_PIN)
-A2     11 12    SCK  (SCK_PIN)
-*/
+/**
+ * The index mobo rev03 has 3 aux ports. We define them here so they may be used
+ * in other places and to make sure someone doesn't have to go look up the pinout
+ * in the board files. Each 12 pin aux port has this pinout:
+ *
+ * VDC    1   2    GND
+ * 3.3V   3   4    SCL  (I2C_SCL_PIN)
+ * PWM1   5   6    SDA  (I2C_SDA_PIN)
+ * PWM2   7   8    CIPO (MISO_PIN)
+ * A1     9  10    COPI (MOSI_PIN)
+ * A2     11 12    SCK  (SCK_PIN)
+ */
 #define INDEX_AUX1_PWM1                     PA15
 #define INDEX_AUX1_PWM2                     PA5
 #define INDEX_AUX1_A1                       PC0
