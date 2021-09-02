@@ -28,7 +28,7 @@
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
 
-#if MB(PANDA_ZHU, BOARD_PANDA_M4)
+#if MB(PANDA_ZHU, PANDA_M4)
   #include <esp_task_wdt.h>
 #endif
 
@@ -94,7 +94,7 @@ volatile int numPWMUsed = 0,
 
 #endif
 
-#if MB(PANDA_ZHU, BOARD_PANDA_M4)
+#if MB(PANDA_ZHU, PANDA_M4)
   HardwareSerial YSerial2(2);
 
   void Write_EXIO(uint8_t IO, uint8_t v) {
@@ -109,7 +109,7 @@ volatile int numPWMUsed = 0,
 #endif
 
 void HAL_init_board() {
-  #if MB(PANDA_ZHU, BOARD_PANDA_M4)
+  #if MB(PANDA_ZHU, PANDA_M4)
    esp_task_wdt_init(10, true); // Panda
   #endif
   #if ENABLED(ESP3D_WIFISUPPORT)
@@ -147,7 +147,7 @@ void HAL_init_board() {
   // Initialize the i2s peripheral only if the I2S stepper stream is enabled.
   // The following initialization is performed after Serial1 and Serial2 are defined as
   // their native pins might conflict with the i2s stream even when they are remapped.
-  #if MB(PANDA_ZHU, BOARD_PANDA_M4)
+  #if MB(PANDA_ZHU, PANDA_M4)
     YSerial2.begin(460800 * 3, SERIAL_8N1, 16, 17);
   #elif ENABLED(I2S_STEPPER_STREAM)
     i2s_init();

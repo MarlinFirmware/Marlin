@@ -142,7 +142,7 @@ void HAL_idletask();
 inline void HAL_init() {}
 void HAL_init_board();
 
-#if MB(PANDA_ZHU, BOARD_PANDA_M4)
+#if MB(PANDA_ZHU, PANDA_M4)
   void Write_EXIO(uint8_t IO, uint8_t v);
 #endif
 
