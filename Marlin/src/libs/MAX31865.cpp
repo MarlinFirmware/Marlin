@@ -457,7 +457,19 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     return SPI.transfer(x);
 
-  return softSpiTransfer(x);
+  #ifdef TARGET_LPC1768
+    return swSpiTransfer(x, _spi_speed, _sclk, _miso, _mosi);
+  #else
+    uint8_t reply = 0;
+    for (int i = 7; i >= 0; i--) {
+      WRITE(_sclk, HIGH);           DELAY_NS(_spi_speed);
+      reply <<= 1;
+      WRITE(_mosi, x & _BV(i));     DELAY_NS(_spi_speed);
+      if (READ(_miso)) reply |= 1;
+      WRITE(_sclk, LOW);            DELAY_NS(_spi_speed);
+    }
+    return reply;
+  #endif
 }
 
 void MAX31865::softSpiBegin(const uint8_t spi_speed) {
@@ -475,22 +487,6 @@ void MAX31865::softSpiBegin(const uint8_t spi_speed) {
     OUT_WRITE(_sclk, LOW);
     SET_OUTPUT(_mosi);
     SET_INPUT(_miso);
-  #endif
-}
-
-uint8_t MAX31865::softSpiTransfer(const uint8_t x) {
-  #ifdef TARGET_LPC1768
-    return swSpiTransfer(x, _spi_speed, _sclk, _miso, _mosi);
-  #else
-    uint8_t reply = 0;
-    for (int i = 7; i >= 0; i--) {
-      WRITE(_sclk, HIGH);           DELAY_NS(_spi_speed);
-      reply <<= 1;
-      WRITE(_mosi, x & _BV(i));     DELAY_NS(_spi_speed);
-      if (READ(_miso)) reply |= 1;
-      WRITE(_sclk, LOW);            DELAY_NS(_spi_speed);
-    }
-    return reply;
   #endif
 }
 

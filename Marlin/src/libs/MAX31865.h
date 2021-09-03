@@ -104,8 +104,6 @@ private:
 
   void softSpiBegin(const uint8_t spi_speed);
 
-  uint8_t softSpiTransfer(const uint8_t x);
-
 public:
   #ifdef LARGE_PINMAP
     MAX31865(uint32_t spi_cs, uint8_t pin_mapping);
