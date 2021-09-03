@@ -152,14 +152,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   OUT_WRITE(_cs, HIGH);
 
   if (_sclk != TERN(LARGE_PINMAP, -1UL, -1)) {
-    // Define pin modes for Software SPI
-    #ifdef MAX31865_DEBUG
-      SERIAL_ECHOLN("Initializing MAX31865 Software SPI");
-    #endif
-
-    OUT_WRITE(_sclk, LOW);
-    SET_OUTPUT(_mosi);
-    SET_INPUT(_miso);
+    softSpiBegin(SPI_QUARTER_SPEED); // Define pin modes for Software SPI
   }
   else {
     // Start and configure hardware SPI
@@ -484,17 +477,38 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     return SPI.transfer(x);
 
-  uint8_t reply = 0;
-  for (int i = 7; i >= 0; i--) {
-    reply <<= 1;
-    WRITE(_sclk, HIGH);
-    WRITE(_mosi, x & (1 << i));
-    WRITE(_sclk, LOW);
-    if (READ(_miso))
-      reply |= 1;
-  }
+  return softSpiTransfer(x);
+}
 
-  return reply;
+void MAX31865::softSpiBegin(uint8_t spi_speed) {
+  #ifdef MAX31865_DEBUG
+    SERIAL_ECHOLNPGM("Initializing MAX31865 Software SPI");
+  #endif
+
+  // Calculate the actual clock speed
+  uint8_t target_clock_speed = 10000000/(2^spi_speed);
+
+  // Calculate delay in ns
+  _spi_speed = 1000000000/target_clock_speed;
+
+  OUT_WRITE(_sclk, LOW);
+  SET_OUTPUT(_mosi);
+  SET_INPUT(_miso);
+}
+
+uint8_t MAX31865::softSpiTransfer(uint8_t x) {  
+  uint8_t reply = 0;
+  for (int i = 7; i >= 0; i--) {    
+    WRITE(_mosi, x & (1 << i));
+    DELAY_NS(_spi_speed);
+    WRITE(_sclk, HIGH);
+    DELAY_NS(_spi_speed);
+    reply <<= 1;
+    if (READ(_miso)) reply |= 1;
+    WRITE(_sclk, LOW);
+    DELAY_NS(_spi_speed);
+  }
+  return reply;  
 }
 
 #endif // HAS_MAX31865 && !USE_ADAFRUIT_MAX31865

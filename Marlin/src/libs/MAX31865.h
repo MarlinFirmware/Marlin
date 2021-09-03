@@ -90,6 +90,7 @@ private:
   static SPISettings spiConfig;
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) _sclk, _miso, _mosi, _cs;
+  uint8_t _spi_speed;
   float Rzero, Rref;
 
   void setConfig(uint8_t config, bool enable);
@@ -101,9 +102,10 @@ private:
   void writeRegister8(uint8_t addr, uint8_t reg);
   uint8_t spixfer(uint8_t addr);
 
+  void softSpiBegin(uint8_t spi_speed);
+
 public:
   #ifdef LARGE_PINMAP
-    MAX31865(uint32_t spi_cs, uint8_t pin_mapping);
     MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso,
              uint32_t spi_clk, uint8_t pin_mapping);
   #else
