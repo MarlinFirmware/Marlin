@@ -102,7 +102,7 @@ private:
   void writeRegister8(uint8_t addr, uint8_t reg);
   uint8_t spixfer(uint8_t addr);
 
-  void softSpiBegin(uint8_t spi_speed);
+  void softSpiBegin(const uint8_t spi_speed);
 
 public:
   #ifdef LARGE_PINMAP

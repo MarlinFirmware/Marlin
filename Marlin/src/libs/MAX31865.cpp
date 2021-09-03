@@ -467,16 +467,16 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   return reply;  
 }
 
-void MAX31865::softSpiBegin(uint8_t spi_speed) {
+void MAX31865::softSpiBegin(const uint8_t spi_speed) {
   #ifdef MAX31865_DEBUG
     SERIAL_ECHOLNPGM("Initializing MAX31865 Software SPI");
   #endif
 
   // Calculate the actual clock speed
-  uint8_t target_clock_speed = 10000000/(2^spi_speed);
+  const uint8_t target_clock_speed = 10000000UL / _BV32(spi_speed);
 
   // Calculate delay in ns
-  _spi_speed = 1000000000/target_clock_speed;
+  _spi_speed = 1000000000UL / target_clock_speed;
 
   OUT_WRITE(_sclk, LOW);
   SET_OUTPUT(_mosi);
