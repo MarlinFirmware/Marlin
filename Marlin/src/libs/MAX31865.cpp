@@ -48,6 +48,8 @@
 
 #if HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
 
+// TODO: switch to SPIclass/SoftSPI
+
 #include "MAX31865.h"
 
 // The maximum speed the MAX31865 can do is 5 MHz

@@ -106,6 +106,7 @@ private:
 
 public:
   #ifdef LARGE_PINMAP
+    MAX31865(uint32_t spi_cs, uint8_t pin_mapping);
     MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso,
              uint32_t spi_clk, uint8_t pin_mapping);
   #else
