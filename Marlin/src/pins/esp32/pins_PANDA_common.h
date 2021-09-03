@@ -68,6 +68,7 @@
 #define HEATER_0_PIN                         108
 #define HEATER_BED_PIN                       109
 #define FAN_PIN                              118  // FAN0
+#define FAN1_PIN                             119  // FAN1
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN                    120  // FAN2
@@ -77,6 +78,9 @@
 // SD card
 //
 #if ENABLED(SDSUPPORT)
+  #define SD_MOSI_PIN                           23
+  #define SD_MISO_PIN                           19
+  #define SD_SCK_PIN                            18
   #define SDSS                                 5
   #define SD_DETECT_PIN                        2
 #endif

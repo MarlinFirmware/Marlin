@@ -57,3 +57,5 @@
 #define E4_STEP_PIN                          121
 #define E4_DIR_PIN                           122
 #define E4_ENABLE_PIN               X_ENABLE_PIN
+
+#define HEATER_1_PIN                         123
