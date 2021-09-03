@@ -31,10 +31,13 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                        PB8
-#define X_DIR_PIN                         PB7
+#define X_STEP_PIN                        PC2
+#define X_DIR_PIN                         PB9
 
-#define Y_STEP_PIN                        PC2
-#define Y_DIR_PIN                         PB9
+#define Y_STEP_PIN                        PB8
+#define Y_DIR_PIN                         PB7
+
+#define E0_STEP_PIN                       PB3
+#define E0_DIR_PIN                        PB4
 
 #include "pins_CREALITY_V4.h"
