@@ -57,6 +57,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Apagar motores");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menú depuración");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Prob. barra progreso");
+  PROGMEM Language_Str MSG_HOMING                          = _UxGT("Origen");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Llevar al origen");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Origen X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Origen Y");

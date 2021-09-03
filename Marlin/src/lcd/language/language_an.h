@@ -44,6 +44,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu prencipal");
   PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inicio automatico");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Amortar motors");
+  PROGMEM Language_Str MSG_HOMING                          = _UxGT("Orichen");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Levar a l'orichen");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Orichen X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Orichen Y");
