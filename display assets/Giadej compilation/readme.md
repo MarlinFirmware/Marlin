@@ -1,6 +1,12 @@
-# Display firmware, boot image and icons compilations
+# Giadej boot image and icons compilation
 
+<img align="left" src="Boot_by_Giadej.jpg" height="400" />
+<img  src="preview1.jpg"  height="400" />
+  
 ## How to install
+  
+[**Click to Download**](https://downgit.github.io/#/home?url=https://github.com/mriscoc/Marlin_Ender3v2/tree/Ender3v2-Released/display%20assets/Giadej%20compilation/DWIN_SET)  
+  
 1. Get an µSD card of 8GB or less.
 1. Format the µSD card with a 4 KB sector size
 1. Copy the `DWIN_SET` directory in the Root of SD
@@ -14,21 +20,31 @@
 1. Turn off the printer and remove the µSD card from the screen unit
 1. Reassembly the screen unit  
   
-If you want to change only the icons, then you can left only the **9.ICO** file
+>If you want to change only the icons, then you can left only the **9.ICO** file
 inside of the DWIN_SET folder.  
-If you wasn't able to update the display, verify the format of the µSD Card
-(FAT32 and allocation unit of 4096 bytes) and the CRC of the files.
-  
-<img src="DWIN_SET-folder.jpg"  height="350" />  
 
+If you wasn't able to update the display, verify the format of the µSD Card
+(FAT32 and allocation unit of 4096 bytes) and the CRC of the files.  
+  
+
+<img src="../DWIN_SET-folder.jpg"  height="350" />
+  
 Be sure to leave **only** the `DWIN_SET` folder at the root of the card.  
   
-<br>
   
----
+<img src="preview2.jpg"  height="400" />
 
-## [Giadej compilation](Giadej%20compilation/)
+## Credits
+- [**Giadej**](https://github.com/Giadej) for Main and Control panel icons, and custom Boot-Screen  
+- [**Lighty1989**](https://github.com/Lighty1989) for "XYZ Move Axis" icons and "Bed Points" icons  
+- [**Gothcha**](https://github.com/gothcha) for other icons  
 
-<img align="left" src="Giadej compilation.jpg"  height="400" />  
+## CRC  
+|File                        | SHA-256
+|----------------------------|-----------------------
+|9.ICO                       | B6F15C5BD439AB69CBE5CA0364FBBA91AE0496A9E4AC6A53163263C45673EEAB
+|T5UIC1.CFG                  | E1C573639BFA2B3A06C2FA7AD3CAB483653DD3DC383217FF653FAB3145458095
+|T5UIC1_V20_4页面_191022.BIN | F8F9A3075AE5516328044ACB79CA522753133B66F1ECBD108E7B5DB2F3FF2FE5
+
 
 
