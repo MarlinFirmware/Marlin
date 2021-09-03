@@ -462,11 +462,11 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   #else
     uint8_t reply = 0;
     for (int i = 7; i >= 0; i--) {
-      WRITE(_sclk, HIGH);           DELAY_NS(_spi_delay);
+      WRITE(_sclk, HIGH);           DELAY_NS_VAR(_spi_delay);
       reply <<= 1;
-      WRITE(_mosi, x & _BV(i));     DELAY_NS(_spi_delay);
+      WRITE(_mosi, x & _BV(i));     DELAY_NS_VAR(_spi_delay);
       if (READ(_miso)) reply |= 1;
-      WRITE(_sclk, LOW);            DELAY_NS(_spi_delay);
+      WRITE(_sclk, LOW);            DELAY_NS_VAR(_spi_delay);
     }
     return reply;
   #endif
@@ -480,7 +480,7 @@ void MAX31865::softSpiBegin(const uint8_t spi_speed) {
     swSpiBegin(_sclk, _miso, _mosi);
     _spi_speed = swSpiInit(spi_speed, _sclk, _mosi);
   #else
-    _spi_delay = (100UL << spi_speed); // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
+    _spi_delay = (100UL << spi_speed) / 3; // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
     OUT_WRITE(_sclk, LOW);
     SET_OUTPUT(_mosi);
     SET_INPUT(_miso);
