@@ -90,7 +90,11 @@ void calibrate_delay_loop();
     FORCE_INLINE SmartDelay(int v) { DelayCycleFnc(v); }
   };
 
-  #define DELAY_CYCLES(X) do { SmartDelay<IS_CONSTEXPR(X), IS_CONSTEXPR(X) ? X : 0> _smrtdly_X(X); } while(0)
+  #if GCC_VERSION <= 70000
+    #define DELAY_CYCLES(X) do { DelayCycleFnc(X); } while(0)
+  #else
+    #define DELAY_CYCLES(X) do { SmartDelay<IS_CONSTEXPR(X), IS_CONSTEXPR(X) ? X : 0> _smrtdly_X(X); } while(0)
+  #endif
 
   // For delay in microseconds, no smart delay selection is required, directly call the delay function
   // Teensy compiler is too old and does not accept smart delay compile-time / run-time selection correctly
