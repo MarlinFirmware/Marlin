@@ -48,21 +48,13 @@
 
 #if HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
 
-// TODO: switch to SPIclass/SoftSPI
-
 #include "MAX31865.h"
 
 // The maximum speed the MAX31865 can do is 5 MHz
 SPISettings MAX31865::spiConfig = SPISettings(
-  #if defined(TARGET_LPC1768)
-    SPI_QUARTER_SPEED
-  #elif defined(ARDUINO_ARCH_STM32)
-    SPI_CLOCK_DIV4
-  #else
-    500000
-  #endif
-  , MSBFIRST
-  , SPI_MODE1 // CPOL0 CPHA1
+  TERN(TARGET_LPC1768, SPI_QUARTER_SPEED, TERN(ARDUINO_ARCH_STM32, SPI_CLOCK_DIV4, 500000)),
+  MSBFIRST,
+  SPI_MODE1 // CPOL0 CPHA1
 );
 
 #ifndef LARGE_PINMAP
@@ -94,7 +86,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
     _sclk = _miso = _mosi = -1;
   }
 
-#else
+#else // LARGE_PINMAP
 
   /**
    * Create the interface object using software (bitbang) SPI for PIN values
@@ -107,9 +99,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
    * @param spi_clk      the SPI clock pin to use
    * @param pin_mapping  set to 1 for positive pin values
    */
-  MAX31865::MAX31865(uint32_t spi_cs, uint32_t spi_mosi,
-                     uint32_t spi_miso, uint32_t spi_clk,
-                     uint8_t pin_mapping) {
+  MAX31865::MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso, uint32_t spi_clk, uint8_t pin_mapping) {
     _cs = spi_cs;
     _mosi = spi_mosi;
     _miso = spi_miso;
@@ -131,13 +121,11 @@ SPISettings MAX31865::spiConfig = SPISettings(
 
 #endif // LARGE_PINMAP
 
-
 /**
  *
  * Instance & Class methods
  *
  */
-
 
 /**
  * Initialize the SPI interface and set the number of RTD wires used
@@ -156,12 +144,10 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
     softSpiBegin(SPI_QUARTER_SPEED); // Define pin modes for Software SPI
   }
   else {
-    // Start and configure hardware SPI
     #ifdef MAX31865_DEBUG
-      SERIAL_ECHOLN("Initializing MAX31865 Hardware SPI");
+      SERIAL_ECHOLNPGM("Initializing MAX31865 Hardware SPI");
     #endif
-
-    SPI.begin();
+    SPI.begin();    // Start and configure hardware SPI
   }
 
   setWires(wires);
@@ -170,25 +156,15 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   clearFault();
 
   #ifdef MAX31865_DEBUG_SPI
-    #ifndef LARGE_PINMAP
-      SERIAL_ECHOLNPAIR(
-        "Regular begin call with _cs: ", _cs,
-        " _miso: ", _miso,
-        " _sclk: ", _sclk,
-        " _mosi: ", _mosi
-      );
-    #else
-      SERIAL_ECHOLNPAIR(
-        "LARGE_PINMAP begin call with _cs: ", _cs,
-        " _miso: ", _miso,
-        " _sclk: ", _sclk,
-        " _mosi: ", _mosi
-      );
-    #endif // LARGE_PINMAP
-
-    SERIAL_ECHOLNPAIR("config: ", readRegister8(MAX31856_CONFIG_REG));
-    SERIAL_EOL();
-  #endif // MAX31865_DEBUG_SPI
+    SERIAL_ECHOLNPAIR(
+      TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular")
+      " begin call with _cs: ", _cs,
+      " _miso: ", _miso,
+      " _sclk: ", _sclk,
+      " _mosi: ", _mosi,
+      " config: ", readRegister8(MAX31856_CONFIG_REG)
+    );
+  #endif
 }
 
 /**
@@ -364,7 +340,6 @@ float MAX31865::temperature(float Rrtd) {
 //
 // private:
 //
-
 
 /**
  * Set a value in the configuration register.

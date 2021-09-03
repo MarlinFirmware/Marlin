@@ -74,7 +74,8 @@ void spiBegin() {
       #elif defined(PRR0)
         PRR0
       #endif
-        , PRSPI);
+      , PRSPI
+    );
 
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
