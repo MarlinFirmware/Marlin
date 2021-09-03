@@ -3,7 +3,7 @@
 ## How to install
 1. Get an µSD card of 8GB or less.
 1. Format the µSD card with a 4 KB sector size
-1. Copy the DWIN_SET directory in the Root of SD
+1. Copy the `DWIN_SET` directory in the Root of SD
 1. Turn off your printer
 1. Disconnect and dissasembly the screen unit
 1. Install the µSD card into the slot of the screen unit
@@ -14,6 +14,8 @@
 1. Turn off the printer and remove the µSD card from the screen unit
 1. Reassembly the screen unit  
   
+If you want to change only the icons, then you can left only the **9.ICO** file
+inside of the DWIN_SET folder.  
 If you wasn't able to update the display, verify the format of the µSD Card
 (FAT32 and allocation unit of 4096 bytes) and the CRC of the files.
   
