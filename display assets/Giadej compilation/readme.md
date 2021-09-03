@@ -29,6 +29,6 @@ Be sure to leave **only** the `DWIN_SET` folder at the root of the card.
 
 ## [Giadej compilation](Giadej%20compilation/)
 
-<img align="left" src="Giadej compilation.jpg"  height="400" />  
+<img align="left" src="Giadej%20compilation.jpg"  height="400" />  
 
 
