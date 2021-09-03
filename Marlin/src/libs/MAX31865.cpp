@@ -48,7 +48,6 @@
 
 #if HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
 
-//#include <SoftwareSPI.h> // TODO: switch to SPIclass/SoftSPI
 #include "MAX31865.h"
 
 // The maximum speed the MAX31865 can do is 5 MHz
@@ -61,7 +60,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
     500000
   #endif
   , MSBFIRST
-  , SPI_MODE_1 // CPOL0 CPHA1
+  , SPI_MODE1 // CPOL0 CPHA1
 );
 
 #ifndef LARGE_PINMAP
@@ -477,7 +476,18 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     return SPI.transfer(x);
 
-  return softSpiTransfer(x);
+  uint8_t reply = 0;
+  for (int i = 7; i >= 0; i--) {    
+    WRITE(_mosi, x & (1 << i));
+    DELAY_NS(_spi_speed);
+    WRITE(_sclk, HIGH);
+    DELAY_NS(_spi_speed);
+    reply <<= 1;
+    if (READ(_miso)) reply |= 1;
+    WRITE(_sclk, LOW);
+    DELAY_NS(_spi_speed);
+  }
+  return reply;  
 }
 
 void MAX31865::softSpiBegin(uint8_t spi_speed) {
@@ -494,21 +504,6 @@ void MAX31865::softSpiBegin(uint8_t spi_speed) {
   OUT_WRITE(_sclk, LOW);
   SET_OUTPUT(_mosi);
   SET_INPUT(_miso);
-}
-
-uint8_t MAX31865::softSpiTransfer(uint8_t x) {  
-  uint8_t reply = 0;
-  for (int i = 7; i >= 0; i--) {    
-    WRITE(_mosi, x & (1 << i));
-    DELAY_NS(_spi_speed);
-    WRITE(_sclk, HIGH);
-    DELAY_NS(_spi_speed);
-    reply <<= 1;
-    if (READ(_miso)) reply |= 1;
-    WRITE(_sclk, LOW);
-    DELAY_NS(_spi_speed);
-  }
-  return reply;  
 }
 
 #endif // HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
