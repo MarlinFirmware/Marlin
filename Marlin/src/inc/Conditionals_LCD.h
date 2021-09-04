@@ -653,7 +653,7 @@
  * Delta maps stepper-specific values to ABC steppers.
  */
 #if HAS_EXTRUDERS
-  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
+  #define LOGICAL_AXES (LINEAR_AXES+EXTRUDERS)
 #else
   #define LOGICAL_AXES LINEAR_AXES
 #endif

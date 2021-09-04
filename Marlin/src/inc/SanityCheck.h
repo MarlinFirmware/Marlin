@@ -3674,17 +3674,17 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "Z_DRIVER_TYPE is not recognized."
 #endif
 #if LINEAR_AXES >= 4
-  #if _BAD_DRIVER(I)
+  #if !defined(I_DRIVER_TYPE) || _BAD_DRIVER(I)
     #error "I_DRIVER_TYPE is not recognized."
   #endif
 #endif
 #if LINEAR_AXES >= 5
-  #if _BAD_DRIVER(J)
+  #if !defined(J_DRIVER_TYPE) || _BAD_DRIVER(J)
     #error "J_DRIVER_TYPE is not recognized."
   #endif
 #endif
 #if LINEAR_AXES >= 6
-  #if _BAD_DRIVER(K)
+  #if !defined(K_DRIVER_TYPE) || _BAD_DRIVER(K)
     #error "K_DRIVER_TYPE is not recognized."
   #endif
 #endif

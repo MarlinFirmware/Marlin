@@ -26,13 +26,16 @@
 
 #include "../gcode.h"
 #include "../../module/servo.h"
+#include "../../module/planner.h"
 
 /**
- * M280: Get or set servo position. P<index> [S<angle>]
+ * M280: Get or set servo position. P<index> [S<angle>] [T<milliseconds>]
  */
 void GcodeSuite::M280() {
 
   if (!parser.seen('P')) return;
+
+  planner.synchronize();
 
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
@@ -40,8 +43,29 @@ void GcodeSuite::M280() {
       const int a = parser.value_int();
       if (a == -1)
         servo[servo_index].detach();
-      else
+      else {
+        if (parser.seen('T')) {
+          // distance to move / time passed -> reach destination after t ms.
+          const int b = servo[servo_index].read();
+          int16_t t = parser.value_int();
+          NOLESS(t,0);
+          uint32_t now = millis();
+          uint32_t start = now;
+          uint32_t until = now+t;
+          uint32_t prev = now;
+          float aMinusB = (float)(a-b);
+
+          while(now<until) {
+            now = millis();
+            if(now-prev<5) continue;
+            prev = now;
+            float ratio = (float)(now-start) / (float)t;
+            int i = (int)( aMinusB * ratio + b );
+            MOVE_SERVO(servo_index, i);
+          }
+        }
         MOVE_SERVO(servo_index, a);
+      }
     }
     else
       SERIAL_ECHO_MSG(" Servo ", servo_index, ": ", servo[servo_index].read());
