@@ -1037,8 +1037,7 @@ namespace ExtUI {
 
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
-    PauseMessage pauseModeStatus = PAUSE_MESSAGE_STATUS;
-    PauseMode getPauseMode() { return pause_mode;}
+    PauseMode getPauseMode() { return pause_mode; }
   #endif
 
   void printFile(const char *filename) {
