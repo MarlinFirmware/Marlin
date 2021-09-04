@@ -1,4 +1,5 @@
 # Display firmware, boot image and icons compilations
+This page list the display assets compilations compatible with [MRISCOC's](https://github.com/mriscoc/Marlin_Ender3v2/releases/latest) firmware fork.
 
 ## How to install
 1. Get an µSD card of 8GB or less.
@@ -27,9 +28,17 @@ Be sure to leave **only** the `DWIN_SET` folder at the root of the card.
   
 ---
 
+## [Stock display firmware](stock/)  
+
+<img src="stock/preview1.jpg"  height="400" />  
+  
+<br>
+  
+---
+
 ## [Giadej compilation](Giadej%20compilation/)
 
-<img src="Giadej compilation.jpg"  height="400" />  
+<img src="Giadej%20compilation/preview1.jpg"  height="400" />  
   
 <br>
   
