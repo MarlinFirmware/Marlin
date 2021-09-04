@@ -38,6 +38,10 @@
   #include "../tft_io/touch_calibration.h"
 #endif
 
+#if TOUCH_IDLE_SLEEP > 0
+  millis_t TouchButtons::last_touch_ms;
+#endif
+
 #include "../buttons.h" // For EN_C bit mask
 #include "../marlinui.h" // For ui.refresh
 #include "../tft_io/tft_io.h"
@@ -52,13 +56,24 @@
 
 TouchButtons touchBt;
 
-void TouchButtons::init() { touchIO.Init(); }
+void TouchButtons::init() {
+  touchIO.Init();
+  #if TOUCH_IDLE_SLEEP > 0
+    last_touch_ms = millis();
+  #endif
+}
 
 uint8_t TouchButtons::read_buttons() {
   #ifdef HAS_WIRED_LCD
     int16_t x, y;
 
     const bool is_touched = (TERN(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration.orientation, TOUCH_ORIENTATION) == TOUCH_PORTRAIT ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y));
+    #if TOUCH_IDLE_SLEEP > 0
+      if (is_touched) {
+        wakeUp();
+      } else if (last_touch_ms != TSLP_SLEEPING && (millis() - last_touch_ms) > (TOUCH_IDLE_SLEEP*1000))
+        sleepTimeout();
+    #endif
     if (!is_touched) return 0;
 
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -96,10 +111,21 @@ uint8_t TouchButtons::read_buttons() {
   return 0;
 }
 
-void TouchButtons::wakeUp() {
-  #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
-    if (touchIO.isSleeping()) touchIO.doWakeUp();
-  #endif
-}
+#if TOUCH_IDLE_SLEEP > 0
+  void TouchButtons::sleepTimeout() {
+    #if PIN_EXISTS(TFT_BACKLIGHT)
+      OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
+    #endif
+    last_touch_ms = TSLP_SLEEPING;
+  }
+  void TouchButtons::wakeUp() {
+    if (isSleeping()) {
+      #if PIN_EXISTS(TFT_BACKLIGHT)
+        WRITE(TFT_BACKLIGHT_PIN, HIGH);
+      #endif
+    }
+    last_touch_ms = millis();
+  }
+#endif // TOUCH_IDLE_SLEEP
 
 #endif // HAS_TOUCH_BUTTONS

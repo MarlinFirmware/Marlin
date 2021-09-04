@@ -47,11 +47,6 @@
 #define XPT2046_SER_MODE        0x04
 #define XPT2046_CONTROL         0x80
 
-enum {
-  TSLP_PREINIT = 0,
-  TSLP_SLEEPING = 1
-};
-
 enum XPTCoordinate : uint8_t {
   XPT2046_X  = 0x10 | XPT2046_CONTROL | XPT2046_DFR_MODE,
   XPT2046_Y  = 0x50 | XPT2046_CONTROL | XPT2046_DFR_MODE,
@@ -85,9 +80,4 @@ public:
 
   static void Init();
   static bool getRawPoint(int16_t *x, int16_t *y);
-
-  static millis_t lastTouch;
-  static bool isSleeping() { return (lastTouch == TSLP_SLEEPING); }
-  static void doSleep();
-  static void doWakeUp();
 };
