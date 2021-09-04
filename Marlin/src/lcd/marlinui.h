@@ -441,15 +441,17 @@ public:
         static millis_t next_filament_display;
       #endif
 
+      #ifdef TOUCH_IDLE_SLEEP
+        static void wakeup_screen();
+      #endif
+
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
       #else
         static inline void completion_feedback(const bool=true) {
-          #if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
-            touch.wakeUp();
-          #elif HAS_TOUCH_BUTTONS && defined(TOUCH_IDLE_SLEEP)
-            touchBt.wakeUp();
+          #ifdef TOUCH_IDLE_SLEEP
+            wakeup_screen();
           #endif
         }
       #endif

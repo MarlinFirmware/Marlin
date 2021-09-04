@@ -285,10 +285,9 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if HAS_BUZZER
   void MarlinUI::completion_feedback(const bool good/*=true*/) {
-    #if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
-      touch.wakeUp();
-    #elif HAS_TOUCH_BUTTONS && defined(TOUCH_IDLE_SLEEP)
-      touchBt.wakeUp();
+    #ifdef TOUCH_IDLE_SLEEP
+      // Wake up on rotary encoder click...
+      ui.wakeup_screen();
     #endif
     if (good) {
       BUZZ(100, 659);
