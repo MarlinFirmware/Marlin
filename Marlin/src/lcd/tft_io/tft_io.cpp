@@ -49,6 +49,8 @@
 #include "ili9341.h"
 #include "ili9328.h"
 
+#include "../marlinui.h"
+
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
 
@@ -72,6 +74,9 @@ if (lcd_id != 0xFFFFFFFF) return;
 
   #if PIN_EXISTS(TFT_BACKLIGHT)
     WRITE(TFT_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT));
+    #if HAS_LCD_BRIGHTNESS && DISABLED(DELAYED_BACKLIGHT_INIT)
+      ui._set_brightness();
+    #endif
   #endif
 
   // io.Init();
@@ -146,6 +151,9 @@ if (lcd_id != 0xFFFFFFFF) return;
 
   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
     WRITE(TFT_BACKLIGHT_PIN, HIGH);
+    #if HAS_LCD_BRIGHTNESS
+      ui._set_brightness();
+    #endif
   #endif
 }
 

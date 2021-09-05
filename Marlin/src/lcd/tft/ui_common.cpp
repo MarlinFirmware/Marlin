@@ -264,4 +264,11 @@ void MarlinUI::clear_lcd() {
 
 #endif // TOUCH_SCREEN_CALIBRATION
 
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() {
+    if (PWM_PIN(TFT_BACKLIGHT_PIN))
+      analogWrite(pin_t(TFT_BACKLIGHT_PIN), brightness);
+  }
+#endif
+
 #endif // HAS_GRAPHICAL_TFT
