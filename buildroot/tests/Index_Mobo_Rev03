@@ -6,8 +6,8 @@
 # exit on first failure
 set -e
 
-restore_configs
-exec_test $1 $2 "Index_Mobo_Rev03" "$3"
+use_example_configs Index/REV_03
+exec_test $1 $2 "Index REV03 Pick and Place" "$3"
 
 # cleanup
 restore_configs
