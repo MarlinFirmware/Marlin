@@ -272,7 +272,6 @@
 #elif MB(PROTONEER_CNC_SHIELD_V3)
   #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"// ATmega2560                             env:mega2560
 
-
 //
 // ATmega1281, ATmega2561
 //
