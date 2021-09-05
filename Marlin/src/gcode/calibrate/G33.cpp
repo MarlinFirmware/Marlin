@@ -406,31 +406,24 @@ void GcodeSuite::G33() {
     return;
   }
 
-  const bool towers_set = !parser.seen_test('T');
+  const bool probe_at_offset = TERN0(HAS_PROBE_XY_OFFSET, parser.boolval('O')),
+                  towers_set = !parser.seen_test('T');
 
-  const bool probe_at_offset = 
+  float max_dcr = dcr = DELTA_PRINTABLE_RADIUS;
   #if HAS_PROBE_XY_OFFSET
-    parser.seen_test('O');
-  #else
-    false;
+    // For offset probes the calibration radius is set to a safe but non-optimal value
+    dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
+    if (probe_at_offset) {
+      // With probe positions both probe and nozzle need to be within the printable area
+      max_dcr = dcr;
+    }
+    // else with nozzle positions there is a risk of the probe being outside the bed
+    // but as long the nozzle stays within the printable area there is no risk of
+    // the effector crashing into the towers.
   #endif
 
-  dcr = DELTA_PRINTABLE_RADIUS;
-  float max_dcr = DELTA_PRINTABLE_RADIUS;
-  #if HAS_PROBE_XY_OFFSET
-    // for offset probes calibration radius is set to a safe but non-optimal value
-	dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
-	if (probe_at_offset) {
-	// with probe positions both probe and nozzle need to be within the printable area
-      max_dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
-	}
-	// else with nozzle positions there is a risk of the probe being outside the bed
-	// but as long the nozzle stays within the printable area there is no risk
-	// the effector crashes into the towers
-  #endif
-  ;
-  dcr = parser.floatval('R', dcr);
-  if (dcr < 0 || dcr > max_dcr) {
+  if (parser.seenval('R')) dcr = parser.value_float();
+  if (!WITHIN(dcr, 0, max_dcr)) {
     SERIAL_ECHOLNPGM("?calibration (R)adius implausible.");
     return;
   }
