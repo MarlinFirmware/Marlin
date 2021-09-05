@@ -37,9 +37,9 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
-#define CPU_ST7920_DELAY_1           600
-#define CPU_ST7920_DELAY_2           750
-#define CPU_ST7920_DELAY_3           750
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
 
 // ------------------------
 // Defines
