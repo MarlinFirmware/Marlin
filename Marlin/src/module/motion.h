@@ -504,6 +504,22 @@ void home_if_needed(const bool keeplev=false);
 
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
 
+    #elif ENABLED(IS_POLARGRAPH)
+      //if( rx<X_MIN_POS || rx>=X_MAX_POS) return false;
+      //if( ry<Y_MIN_POS || ry>Y_MAX_POS) return false;
+
+      float y=ry-Y_MAX_POS;
+      float x=rx-X_MIN_POS;
+      const float a = HYPOT(x,y);
+      x=rx-X_MAX_POS;
+      const float b = HYPOT(x,y);
+      boolean aa = a<=POLARGRAPH_MAX_BELT_LEN;
+      boolean bb = b<=POLARGRAPH_MAX_BELT_LEN;
+      SERIAL_ECHO( a);
+      SERIAL_ECHO(" ");
+      SERIAL_ECHOLN( b);
+      return aa && bb;
+
     #elif ENABLED(AXEL_TPARA)
 
       const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);

@@ -976,7 +976,7 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define CLASSIC_JERK
+#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
   #define DEFAULT_XJERK 10.0
   #define DEFAULT_YJERK 10.0
@@ -1322,6 +1322,12 @@
 
 // @section machine
 
+#define IS_KINEMATIC 1
+#define IS_POLARGRAPH 1
+#define POLARGRAPH_MAX_BELT_LEN (1035.0)
+#define POLARGRAPH_MAX_BELT_LEN2 (POLARGRAPH_MAX_BELT_LEN*POLARGRAPH_MAX_BELT_LEN)
+#define DELTA_SEGMENTS_PER_SECOND 5
+
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
@@ -1371,15 +1377,15 @@
 // @section machine
 
 // The size of the printable area
-#define X_BED_SIZE 1035
-#define Y_BED_SIZE 1035
+#define X_BED_SIZE 650
+#define Y_BED_SIZE 1000
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define X_MIN_POS -325
+#define Y_MIN_POS -500
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE
+#define X_MAX_POS 325
+#define Y_MAX_POS 500
 #define Z_MAX_POS 100
 #define I_MIN_POS 0
 #define I_MAX_POS 360
@@ -1721,12 +1727,12 @@
 // @section homing
 
 // The center of the bed is at (X=0, Y=0)
-//#define BED_CENTER_AT_0_0
+#define BED_CENTER_AT_0_0
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-//#define MANUAL_X_HOME_POS 0
-//#define MANUAL_Y_HOME_POS 0
+#define MANUAL_X_HOME_POS 0
+#define MANUAL_Y_HOME_POS -482.65
 //#define MANUAL_Z_HOME_POS 0
 //#define MANUAL_I_HOME_POS 0
 //#define MANUAL_J_HOME_POS 0

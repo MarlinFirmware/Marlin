@@ -158,6 +158,10 @@
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
+#if ENABLED(IS_POLARGRAPH)
+extern float segments_per_second;
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -302,7 +306,9 @@ typedef struct SettingsDataStruct {
           z3_endstop_adj,                               // M666 (S3) Z
           z4_endstop_adj;                               // M666 (S4) Z
   #endif
-
+  #if ENABLED(IS_POLARGRAPH)
+  float segments_per_second;
+  #endif
   //
   // Z_STEPPER_AUTO_ALIGN, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS
   //
@@ -2688,6 +2694,9 @@ void MarlinSettings::reset() {
     segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
     delta_diagonal_rod_trim = ddr;
+  #endif
+  #if ENABLED(IS_POLARGRAPH)
+    segments_per_second = DELTA_SEGMENTS_PER_SECOND;
   #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS)

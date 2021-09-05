@@ -77,6 +77,10 @@
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
+#if ENABLED(IS_POLARGRAPH)
+extern float segments_per_second;
+#endif
+
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
