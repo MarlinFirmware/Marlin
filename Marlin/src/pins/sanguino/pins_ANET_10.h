@@ -208,7 +208,7 @@
       #define BTN_EN2                         10
       #define BTN_ENC                         16
       #define BOARD_ST7920_DELAY_1           125
-      #define BOARD_ST7920_DELAY_2           63
+      #define BOARD_ST7920_DELAY_2            63
       #define BOARD_ST7920_DELAY_3           125
     #endif
 

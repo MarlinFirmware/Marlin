@@ -191,7 +191,7 @@
   #define BTN_EN1                           PF13  // BTN_EN1
   #define BTN_EN2                           PE9   // BTN_EN2
 
-  #define BOARD_ST7920_DELAY_1            125
-  #define BOARD_ST7920_DELAY_2            63
-  #define BOARD_ST7920_DELAY_3            780
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2                63
+  #define BOARD_ST7920_DELAY_3               780
 #endif
