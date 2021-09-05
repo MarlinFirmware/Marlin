@@ -56,6 +56,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Arrêter moteurs");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu debug");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barre progress.");
+  PROGMEM Language_Str MSG_HOMING                          = _UxGT("Origine");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Origine auto");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Origine X auto");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Origine Y auto");
