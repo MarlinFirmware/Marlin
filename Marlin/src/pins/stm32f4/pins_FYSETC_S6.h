@@ -315,9 +315,9 @@
 
 // Alter timing for graphical display
 #if ENABLED(U8GLIB_ST7920)
-  #define BOARD_ST7920_DELAY_1     DELAY_NS( 96)
-  #define BOARD_ST7920_DELAY_2     DELAY_NS( 48)
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(640)
+  #define BOARD_ST7920_DELAY_1                96
+  #define BOARD_ST7920_DELAY_2                48
+  #define BOARD_ST7920_DELAY_3               640
 #endif
 
 #ifndef RGB_LED_R_PIN

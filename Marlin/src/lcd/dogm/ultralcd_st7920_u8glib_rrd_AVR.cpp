@@ -36,15 +36,53 @@
 // Optimize this code with -O3
 #pragma GCC optimize (3)
 
+#ifndef ST7920_DELAY_1
+  #ifndef LCD_ST7920_DELAY_1
+    #define LCD_ST7920_DELAY_1 0
+  #endif
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1 0
+  #endif
+  #ifndef CPU_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1 0
+  #endif
+  #define ST7920_DELAY_1 _MAX(BOARD_ST7920_DELAY_1, CPU_ST7920_DELAY_1, LCD_ST7920_DELAY_1)
+#endif
+#ifndef ST7920_DELAY_2
+  #ifndef LCD_ST7920_DELAY_2
+    #define LCD_ST7920_DELAY_2 0
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2 0
+  #endif
+  #ifndef CPU_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2 0
+  #endif
+  #define ST7920_DELAY_2 _MAX(BOARD_ST7920_DELAY_2, CPU_ST7920_DELAY_2, LCD_ST7920_DELAY_2)
+#endif
+#ifndef ST7920_DELAY_3
+  #ifndef LCD_ST7920_DELAY_3
+    #define LCD_ST7920_DELAY_3 0
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 0
+  #endif
+  #ifndef CPU_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 0
+  #endif
+  #define ST7920_DELAY_3 _MAX(BOARD_ST7920_DELAY_3, CPU_ST7920_DELAY_3, LCD_ST7920_DELAY_3)
+#endif
+
 #ifdef ARDUINO_ARCH_STM32F1
   #define ST7920_DAT(V) !!((V) & 0x80)
 #else
   #define ST7920_DAT(V) ((V) & 0x80)
 #endif
+
 #define ST7920_SND_BIT do{ \
-  WRITE(ST7920_CLK_PIN, LOW);             ST7920_DELAY_1; \
-  WRITE(ST7920_DAT_PIN, ST7920_DAT(val)); ST7920_DELAY_2; \
-  WRITE(ST7920_CLK_PIN, HIGH);            ST7920_DELAY_3; \
+  WRITE(ST7920_CLK_PIN, LOW);             DELAY_NS(ST7920_DELAY_1); \
+  WRITE(ST7920_DAT_PIN, ST7920_DAT(val)); DELAY_NS(ST7920_DELAY_2); \
+  WRITE(ST7920_CLK_PIN, HIGH);            DELAY_NS(ST7920_DELAY_3); \
   val <<= 1; }while(0)
 
 // Optimize this code with -O3

@@ -86,9 +86,9 @@
       #define KILL_PIN                        21
       #define HOME_PIN                        28
     #endif
-    #define BOARD_ST7920_DELAY_1   DELAY_NS(  0)
-    #define BOARD_ST7920_DELAY_2   DELAY_NS(250)
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(  0)
+    #define BOARD_ST7920_DELAY_1               0
+    #define BOARD_ST7920_DELAY_2             250
+    #define BOARD_ST7920_DELAY_3               0
   #endif
 #endif
 
