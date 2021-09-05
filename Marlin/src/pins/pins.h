@@ -269,6 +269,8 @@
   #include "mega/pins_INTAMSYS40.h"             // ATmega2560                             env:mega2560
 #elif MB(MALYAN_M180)
   #include "mega/pins_MALYAN_M180.h"            // ATmega2560                             env:mega2560
+#elif MB(PROTONEER_CNC_SHIELD_V3)
+  #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"// ATmega2560                             env:mega2560
 
 //
 // ATmega1281, ATmega2561
