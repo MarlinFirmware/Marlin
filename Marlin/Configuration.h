@@ -945,10 +945,10 @@
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 500, 500, 500 }
+#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 3000 }
 #if LINEAR_AXES == 6
 #undef DEFAULT_MAX_ACCELERATION
-#define DEFAULT_MAX_ACCELERATION      { 100,100,100, 3000, 3000, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 250, 250, 250, 250, 250, 10000 }
 #endif
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
