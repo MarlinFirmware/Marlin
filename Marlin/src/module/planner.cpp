@@ -2989,22 +2989,6 @@ bool Planner::buffer_segment(const abce_pos_t &abce
 } // buffer_segment()
 
 
-#if ENABLED(IS_POLARGRAPH)
-float segments_per_second;
-
-void inverse_kinematics(const xyz_pos_t &raw) {
-  float y = raw.y-Y_MAX_POS;
-    
-  float x = raw.x-X_MIN_POS;  // x-xmin
-  float a = HYPOT(x,y);
-
-  x = raw.x-X_MAX_POS;  // x-xmax
-  float b = HYPOT(x,y);
-
-  delta.set(a,b,raw.z);
-}
-#endif
-
 /**
  * Add a new linear movement to the buffer.
  * The target is cartesian. It's translated to

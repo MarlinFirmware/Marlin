@@ -917,7 +917,7 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 80 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 160 }
 #if LINEAR_AXES == 6
 #undef DEFAULT_AXIS_STEPS_PER_UNIT
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 189,189,189,189,189,189 }
@@ -945,7 +945,7 @@
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 3000 }
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 500 }
 #if LINEAR_AXES == 6
 #undef DEFAULT_MAX_ACCELERATION
 #define DEFAULT_MAX_ACCELERATION      { 100,100,100, 3000, 3000, 10000 }
@@ -1382,10 +1382,10 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -325
-#define Y_MIN_POS -500
-#define Z_MIN_POS 0
 #define X_MAX_POS 325
+#define Y_MIN_POS -500
 #define Y_MAX_POS 500
+#define Z_MIN_POS 0
 #define Z_MAX_POS 100
 #define I_MIN_POS 0
 #define I_MAX_POS 360
@@ -2107,7 +2107,7 @@
  * SD Card support is disabled by default. If your controller has an SD slot,
  * you must uncomment the following option or it won't work.
  */
-//#define SDSUPPORT
+#define SDSUPPORT
 
 /**
  * SD CARD: ENABLE CRC

@@ -77,10 +77,6 @@
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
-#if ENABLED(IS_POLARGRAPH)
-extern float segments_per_second;
-#endif
-
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
@@ -493,7 +489,7 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
     const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS);
   #endif
 
-  #if EITHER(DELTA, IS_SCARA)
+  #if ANY(DELTA, IS_SCARA, IS_POLARGRAPH)
     if (!position_is_reachable(x, y)) return;
     destination = current_position;          // sync destination at the start
   #endif
@@ -803,11 +799,13 @@ void restore_feedrate_and_scaling() {
         constexpr xy_pos_t offs{0};
       #endif
 
-      if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
+      #if ENABLED(DELTA)
+      if(axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
         const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
         if (dist_2 > delta_max_radius_2)
           target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
       }
+      #endif
 
     #else
 

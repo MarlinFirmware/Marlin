@@ -158,10 +158,6 @@
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
-#if ENABLED(IS_POLARGRAPH)
-extern float segments_per_second;
-#endif
-
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
