@@ -24,7 +24,7 @@
 /**
  * Protoneer v3.00 pin assignments
  * 
- * The SNS shield has an UNO pinout and fits all Arduino-compatibles.
+ * This CNC shield has an UNO pinout and fits all Arduino-compatibles.
  * 
  * Referenced docs:
  * - https://blog.protoneer.co.nz/arduino-cnc-shield-v3-00-assembly-guide/
