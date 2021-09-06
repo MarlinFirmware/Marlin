@@ -159,4 +159,4 @@ namespace ExtUI {
   void onSteppersEnabled()  {}
 }
 
-#endif // HAS_DGUS_LCD
+#endif // HAS_DGUS_LCD_CLASSIC

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,17 +21,15 @@
  */
 
 /**
- * extui_dgus_lcd.cpp
- *
- * DGUS implementation for Marlin by coldtobi, Feb-May 2019
+ * lcd/extui/dgus_reloaded/dgus_reloaded_extui.cpp
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_RELOADED)
 
-#include "ui_api.h"
-#include "dgus_reloaded/DGUSScreenHandler.h"
+#include "../ui_api.h"
+#include "DGUSScreenHandler.h"
 
 namespace ExtUI {
 
@@ -52,17 +50,9 @@ namespace ExtUI {
     dgus_screen_handler.PrinterKilled(error, component);
   }
 
-  void onMediaInserted() {
-    TERN_(SDSUPPORT, dgus_screen_handler.SDCardInserted());
-  }
-
-  void onMediaError() {
-    TERN_(SDSUPPORT, dgus_screen_handler.SDCardError());
-  }
-
-  void onMediaRemoved() {
-    TERN_(SDSUPPORT, dgus_screen_handler.SDCardRemoved());
-  }
+  void onMediaInserted() { TERN_(SDSUPPORT, dgus_screen_handler.SDCardInserted()); }
+  void onMediaError()    { TERN_(SDSUPPORT, dgus_screen_handler.SDCardError()); }
+  void onMediaRemoved()  { TERN_(SDSUPPORT, dgus_screen_handler.SDCardRemoved()); }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
     dgus_screen_handler.PlayTone(frequency, duration);
@@ -108,9 +98,7 @@ namespace ExtUI {
     dgus_screen_handler.LoadSettings(buff);
   }
 
-  void onPostprocessSettings() {
-    // Called after loading or resetting stored settings
-  }
+  void onPostprocessSettings() {}
 
   void onConfigurationStoreWritten(bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);

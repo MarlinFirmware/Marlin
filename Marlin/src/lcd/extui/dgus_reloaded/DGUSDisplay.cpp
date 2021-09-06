@@ -392,7 +392,8 @@ bool DGUS_PopulateVP(const DGUS_Addr addr, DGUS_VP * const buffer) {
   const DGUS_VP *ret = vp_list;
 
   do {
-    const uint16_t addrcheck = pgm_read_word(&ret->addr);
+    const uint16_t *paddr = (uint16_t *)(&ret->addr);
+    const uint16_t addrcheck = pgm_read_word(paddr);
     if (addrcheck == 0) break;
     if ((DGUS_Addr)addrcheck == addr) {
       memcpy_P(buffer, ret, sizeof(*ret));

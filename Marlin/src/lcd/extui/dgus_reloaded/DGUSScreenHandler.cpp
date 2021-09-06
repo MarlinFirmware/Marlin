@@ -360,6 +360,8 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
       case ExtUI::PID_DONE:
         SetStatusMessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
         break;
+      default:
+        return;
     }
 
     dgus_display.PlaySound(3);
