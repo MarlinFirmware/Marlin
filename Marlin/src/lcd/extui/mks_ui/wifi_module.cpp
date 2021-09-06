@@ -1445,16 +1445,12 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
 
   ZERO(FileName_unicode);
 
-  while (1) {
+  for (;;) {
     char_byte_num = source[i] & 0xF0;
-    if (source[i] < 0x80) {
-      //ASCII --1byte
-      FileName_unicode[char_i] = source[i];
-      i += 1;
-      char_i += 1;
+    if (source[i] < 0x80) { // ASCII -- 1 byte
+      FileName_unicode[char_i++] = source[i++];
     }
-    else if (char_byte_num == 0xC0 || char_byte_num == 0xD0) {
-      //--2byte
+    else if (char_byte_num == 0xC0 || char_byte_num == 0xD0) { // -- 2 byte
       u16_h = (((uint16_t)source[i] << 8) & 0x1F00) >> 2;
       u16_l = ((uint16_t)source[i + 1] & 0x003F);
       u16_value = (u16_h | u16_l);
@@ -1463,8 +1459,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 2;
       char_i += 2;
     }
-    else if (char_byte_num == 0xE0) {
-      //--3byte
+    else if (char_byte_num == 0xE0) { // -- 3 byte
       u16_h = (((uint16_t)source[i] << 8) & 0x0F00) << 4;
       u16_m = (((uint16_t)source[i + 1] << 8) & 0x3F00) >> 2;
       u16_l = ((uint16_t)source[i + 2] & 0x003F);
@@ -1474,8 +1469,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 3;
       char_i += 2;
     }
-    else if (char_byte_num == 0xF0) {
-      //--4byte
+    else if (char_byte_num == 0xF0) { // -- 4 byte
       i += 4;
       //char_i += 3;
     }
@@ -1510,7 +1504,7 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
     TERN_(SDSUPPORT, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
-
+    // nothing
   }
   file_writer.write_index = 0;
   lastFragment = -1;

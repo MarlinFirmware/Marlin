@@ -43,13 +43,13 @@
 // Default graphical display delays
 //
 #if F_CPU >= 20000000
-  #define CPU_ST7920_DELAY_1 DELAY_NS(150)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(  0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(150)
+  #define CPU_ST7920_DELAY_1 150
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 150
 #elif F_CPU == 16000000
-  #define CPU_ST7920_DELAY_1 DELAY_NS(125)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(  0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(188)
+  #define CPU_ST7920_DELAY_1 125
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 188
 #endif
 
 #ifndef pgm_read_ptr

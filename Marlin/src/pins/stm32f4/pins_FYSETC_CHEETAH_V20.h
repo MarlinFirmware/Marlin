@@ -192,11 +192,6 @@
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
-
   #elif ENABLED(MKS_MINI_12864)
 
     #define DOGLCD_A0                EXP1_04_PIN
@@ -251,9 +246,9 @@
 
 // Alter timing for graphical display
 #if ENABLED(U8GLIB_ST7920)
-  #define BOARD_ST7920_DELAY_1     DELAY_NS( 96)
-  #define BOARD_ST7920_DELAY_2     DELAY_NS( 48)
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(600)
+  #define BOARD_ST7920_DELAY_1                96
+  #define BOARD_ST7920_DELAY_2                48
+  #define BOARD_ST7920_DELAY_3               600
 #endif
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)

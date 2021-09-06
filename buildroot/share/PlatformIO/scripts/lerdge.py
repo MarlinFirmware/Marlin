@@ -41,7 +41,8 @@ def encrypt(source, target, env):
     renamed.close()
 
 if 'encrypt' in board.get("build").keys():
-    marlin.add_post_action(encrypt);
+    if board.get("build.encrypt") != "":
+        marlin.add_post_action(encrypt)
 else:
     print("LERDGE builds require output file via board_build.encrypt = 'filename' parameter")
-    exit(1);
+    exit(1)

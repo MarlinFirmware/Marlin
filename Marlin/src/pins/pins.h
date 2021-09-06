@@ -243,6 +243,8 @@
   #include "mega/pins_GT2560_REV_B.h"           // ATmega2560                             env:mega2560
 #elif MB(GT2560_V4)
   #include "mega/pins_GT2560_V4.h"              // ATmega2560                             env:mega2560
+  #elif MB(GT2560_V4_A20)
+  #include "mega/pins_GT2560_V4_A20.h"          // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3_MC2)
   #include "mega/pins_GT2560_V3_MC2.h"          // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3_A20)
@@ -267,6 +269,8 @@
   #include "mega/pins_INTAMSYS40.h"             // ATmega2560                             env:mega2560
 #elif MB(MALYAN_M180)
   #include "mega/pins_MALYAN_M180.h"            // ATmega2560                             env:mega2560
+#elif MB(PROTONEER_CNC_SHIELD_V3)
+  #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"// ATmega2560                             env:mega2560
 
 //
 // ATmega1281, ATmega2561
@@ -562,11 +566,11 @@
 #elif MB(MINGDA_MPX_ARM_MINI)
   #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
 #elif MB(ZONESTAR_ZM3E2)
-  #include "stm32f1/pins_ZM3E2_V1_0.h"       	  // STM32F1                            	  env:STM32F103RC_ZM3E2_USB env:STM32F103RC_ZM3E2_USB_maple
+  #include "stm32f1/pins_ZM3E2_V1_0.h"          // STM32F1                                env:STM32F103RC_ZM3E2_USB env:STM32F103RC_ZM3E2_USB_maple
 #elif MB(ZONESTAR_ZM3E4)
-  #include "stm32f1/pins_ZM3E4_V1_0.h"      	  // STM32F1                           	    env:STM32F103VC_ZM3E4_USB env:STM32F103VC_ZM3E4_USB_maple
+  #include "stm32f1/pins_ZM3E4_V1_0.h"          // STM32F1                                env:STM32F103VC_ZM3E4_USB env:STM32F103VC_ZM3E4_USB_maple
 #elif MB(ZONESTAR_ZM3E4V2)
-  #include "stm32f1/pins_ZM3E4_V2_0.h"      	  // STM32F1                           	    env:STM32F103VE_ZM3E4V2_USB env:STM32F103VE_ZM3E4V2_USB_maple
+  #include "stm32f1/pins_ZM3E4_V2_0.h"          // STM32F1                                env:STM32F103VE_ZM3E4V2_USB env:STM32F103VE_ZM3E4V2_USB_maple
 
 //
 // ARM Cortex-M4F
@@ -643,6 +647,8 @@
   #include "stm32f4/pins_MKS_MONSTER8.h"        // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
 #elif MB(TH3D_EZBOARD_LITE_V2)
   #include "stm32f4/pins_TH3D_EZBOARD_LITE_V2.h" // STM32F4                               env:TH3D_EZBoard_Lite_V2
+#elif MB(INDEX_REV03)
+  #include "stm32f4/pins_INDEX_REV03.h"         // STM32F4                                env:Index_Mobo_Rev03
 
 //
 // ARM Cortex M7

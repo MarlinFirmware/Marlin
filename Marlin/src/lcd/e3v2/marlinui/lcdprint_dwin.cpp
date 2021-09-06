@@ -46,11 +46,10 @@ extern dwin_font_t dwin_font;
 void lcd_moveto_xy(const lcd_uint_t x, const lcd_uint_t y) { cursor.x = x; cursor.y = y; }
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) {
-  cursor.x = col * dwin_font.width;
-  cursor.y = (row * (dwin_font.height + EXTRA_ROW_HEIGHT)) + (EXTRA_ROW_HEIGHT / 2);
+  lcd_moveto_xy(col * dwin_font.width, row * (dwin_font.height + EXTRA_ROW_HEIGHT) + EXTRA_ROW_HEIGHT / 2);
 }
 
-inline void lcd_advance_cursor() { cursor.x += dwin_font.width; }
+inline void lcd_advance_cursor(const uint8_t len=1) { cursor.x += len * dwin_font.width; }
 
 void lcd_put_int(const int i) {
   // TODO: Draw an int at the cursor position, advance the cursor
@@ -58,19 +57,18 @@ void lcd_put_int(const int i) {
 
 int lcd_put_dwin_string() {
   DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, (char*)dwin_string.string());
-  cursor.x += dwin_string.length() * dwin_font.width;
+  lcd_advance_cursor(dwin_string.length());
   return dwin_string.length();
 }
 
 // return < 0 on error
 // return the advanced cols
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
-  dwin_string.set();
-  dwin_string.add(c);
+  dwin_string.set(c);
   dwin_string.truncate(max_length);
   // Draw the char(s) at the cursor and advance the cursor
   DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, (char*)dwin_string.string());
-  cursor.x += dwin_string.length() * dwin_font.width;
+  lcd_advance_cursor(dwin_string.length());
   return dwin_string.length();
 }
 
@@ -95,7 +93,7 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(u
     dwin_string.add(ch);
   }
   DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, (char*)dwin_string.string());
-  cursor.x += dwin_string.length() * dwin_font.width;
+  lcd_advance_cursor(dwin_string.length());
   return dwin_string.length();
 }
 
@@ -112,7 +110,7 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
   dwin_string.add((uint8_t*)pstr, ind, (uint8_t*)inStr);
   dwin_string.truncate(maxlen);
   DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, (char*)dwin_string.string());
-  cursor.x += dwin_string.length() * dwin_font.width;
+  lcd_advance_cursor(dwin_string.length());
   return dwin_string.length();
 }
 
