@@ -103,7 +103,7 @@ void SpindleLaser::init() {
 #endif // SPINDLE_LASER_PWM
 
 /**
- * Set state for pin laser/spindle
+ * Set state for pin spindle/laser
  * @param enable true = on; false = off
  */
 void SpindleLaser::ena_pin_set(const bool enable) {
@@ -128,13 +128,11 @@ SpindleLaserEvent SpindleLaser::get_event(const uint8_t opwr) {
 }
 
 /**
- * Apply power for laser/spindle
- *
- * Apply cutter power value for PWM, Servo, and on/off pin.
+ * Set cutter power value for PWM, Servo, and on/off pin.
  *
  * @param opwr Power value. Range 0 to MAX. When 0 disable spindle/laser.
  */
-void SpindleLaser::apply_power(const uint8_t opwr) {
+void SpindleLaser::set_power(const uint8_t opwr) {
   static uint8_t last_power_applied = 0;
 
   switch (get_event(opwr)) {

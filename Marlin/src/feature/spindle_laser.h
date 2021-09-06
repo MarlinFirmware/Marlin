@@ -123,16 +123,14 @@ public:
   static inline bool enabled(const cutter_power_t opwr) { return opwr > 0; }
   static inline bool enabled() { return enabled(power); }
 
-  static void apply_power(const uint8_t inpow);
+  static void set_power(const uint8_t inpow);
 
-  // Alias
-  FORCE_INLINE static void set_power(const uint8_t upwr) { apply_power(upwr); }
-  FORCE_INLINE static void refresh() { apply_power(power); }
+  FORCE_INLINE static void refresh() { set_power(power); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
     public:
 
-    static inline void ocr_set_power(const uint8_t ocr) { apply_power(ocr); }
+    static inline void ocr_set_power(const uint8_t ocr) { set_power(ocr); }
     static void ocr_set(const uint8_t ocr);
     static void ocr_off();
 
@@ -207,7 +205,7 @@ public:
         value = 255;
       #endif
     }
-    apply_power(value);
+    set_power(value);
   }
 
   static inline void disable() { isReady = false; set_enabled(false); }

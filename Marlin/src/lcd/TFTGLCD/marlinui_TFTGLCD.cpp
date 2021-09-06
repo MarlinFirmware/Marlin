@@ -863,7 +863,7 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   //
-  // Line 6..8 Temperatures, FAN for printer or Cooler, Flowmetter, Ampermeter, Cutter for laser/spindle
+  // Line 6..8 Temperatures, FAN for printer or Cooler, Flowmetter, Ampermeter, Cutter for spindle/laser
   //
 
   #if HAS_HOTEND
