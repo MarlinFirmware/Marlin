@@ -3827,10 +3827,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
-#if ENABLED(FREEZE_FEATURE) && !PIN_EXISTS(FREEZE)
-  #error "FREEZE_FEATURE requires a FREEZE_PIN to be defined."
-#endif
-
 // Misc. Cleanup
 #undef _TEST_PWM
 #undef _LINEAR_AXES_STR
