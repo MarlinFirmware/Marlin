@@ -1,14 +1,12 @@
 /**
- * Enhanced DWIN implementation
- * authors: Miguel A. Risco-Castillo (MRISCOC), Scott Lahteine (Thinkyhead)
- * version: 2.0.1
- * date: 2021/08/20
- * 
- * Based on the original code provided by Creality
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 3.6.1
+ * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -16,7 +14,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
@@ -2051,7 +2049,7 @@ void SetValueOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_
 //  hi: scaled high limit
 //  val: value
 //  LiveUpdate: live update function when the encoder changes
-//  Apply: update function when the encoder is pressed 
+//  Apply: update function when the encoder is pressed
 void SetIntOnClick(const int32_t lo, const int32_t hi, const int32_t val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr) {
   SetValueOnClick(SetInt, lo, hi, 0, val, Apply, LiveUpdate);
 }
@@ -2072,7 +2070,7 @@ void SetPIntOnClick(const int32_t lo, const int32_t hi, void (*Apply)() = nullpt
 //  lo: low limit
 //  hi: high limit
 //  dp: decimal places
-//  val: value 
+//  val: value
 void SetFloatOnClick(const float lo, const float hi, uint8_t dp, const float val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr) {
   SetValueOnClick(SetFloat, lo * POW(10, dp), hi * POW(10, dp), dp, val * POW(10, dp), Apply, LiveUpdate);
 }
@@ -2205,10 +2203,10 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
   }
 #endif
 
-void SetMoveZto0() { 
+void SetMoveZto0() {
   char cmd[48] = "";
   char str_1[5] = "", str_2[5] = "";
-  sprintf_P(cmd, PSTR("G28OXY\nG28Z\nG0X%sY%sF5000\nG0Z0F300"), 
+  sprintf_P(cmd, PSTR("G28OXY\nG28Z\nG0X%sY%sF5000\nG0Z0F300"),
     dtostrf(X_CENTER, 1, 1, str_1),
     dtostrf(Y_CENTER, 1, 1, str_2));
   gcode.process_subcommands_now_P(cmd);
@@ -2220,7 +2218,7 @@ void SetMoveZto0() {
 void SetPID(celsius_t t, heater_id_t h) {
   char cmd[48] = "";
   char str_1[5] = "", str_2[5] = "";
-  sprintf_P(cmd, PSTR("G28OXY\nG0Z5F300\nG0X%sY%sF5000\nM84"), 
+  sprintf_P(cmd, PSTR("G28OXY\nG0Z5F300\nG0X%sY%sF5000\nM84"),
     dtostrf(X_CENTER, 1, 1, str_1),
     dtostrf(Y_CENTER, 1, 1, str_2));
   gcode.process_subcommands_now_P(cmd);
@@ -2304,11 +2302,11 @@ void SelColor() {
 }
 
 void LiveRGBColor() {
-    HMI_value.Color[CurrentMenu->line() - 2] = HMI_value.Value; 
+    HMI_value.Color[CurrentMenu->line() - 2] = HMI_value.Value;
     uint16_t color = RGB(HMI_value.Color[2], HMI_value.Color[1], HMI_value.Color[0]);
     DWIN_Draw_Rectangle(1, color, 20, 315, DWIN_WIDTH - 20, 335);
 }
-void SetRGBColor() { 
+void SetRGBColor() {
   const uint8_t line = CurrentMenu->line() - 2;
   SetIntOnClick(0, (line == 1) ? 63 : 31, HMI_value.Color[CurrentMenu->SelectedItem()->icon], nullptr, LiveRGBColor);
 }
@@ -2487,11 +2485,11 @@ TERN_(HAS_HEATED_BED, void SetBedPidT() { SetPIntOnClick(BED_MINTEMP, BED_MAX_TA
   void SetPidCycles() { SetPIntOnClick(3, 50); }
   void SetKp() { SetPFloatOnClick(0, 1000, 2); }
   void ApplyPIDi() {
-    *HMI_value.P_Float = scalePID_i(HMI_value.Value / POW(10, 2)); 
+    *HMI_value.P_Float = scalePID_i(HMI_value.Value / POW(10, 2));
     thermalManager.updatePID();
   }
   void ApplyPIDd() {
-    *HMI_value.P_Float = scalePID_d(HMI_value.Value / POW(10, 2)); 
+    *HMI_value.P_Float = scalePID_d(HMI_value.Value / POW(10, 2));
     thermalManager.updatePID();
   }
   void SetKi() {

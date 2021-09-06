@@ -1,13 +1,12 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 3.6.1
+ * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,19 +14,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /*****************************************************************************
-  * @file     lcd/e3v2/enhanced/rotary_encoder.h
-  * @author   LEO / Creality3D
-  * @date     2019/07/06
-  * @version  2.0.1
-  * @brief    Rotary encoder functions
-  ****************************************************************************/
+ * @file     lcd/e3v2/enhanced/rotary_encoder.h
+ * @author   LEO / Creality3D
+ * @date     2019/07/06
+ * @version  2.0.1
+ * @brief    Rotary encoder functions
+ ****************************************************************************/
 
 #include "../../../inc/MarlinConfig.h"
 

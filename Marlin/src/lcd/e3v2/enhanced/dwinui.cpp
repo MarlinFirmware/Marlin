@@ -1,11 +1,11 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6
+ * Version: 3.6.1
  * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -261,7 +261,7 @@ uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
   const uint8_t maxB = 28;
   const uint8_t maxR = 28;
   const uint8_t maxG = 38;
-  const int16_t limv = _MAX(abs(minv), abs(maxv)); 
+  const int16_t limv = _MAX(abs(minv), abs(maxv));
   float n;
   if (minv>=0) {
     n = (float)(val-minv)/(maxv-minv);
@@ -407,7 +407,7 @@ void MenuClass::onScroll(bool dir) {
 }
 
 void MenuClass::onClick() {
-  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)(); 
+  if (MenuItems[selected]->onClick != nullptr) (*MenuItems[selected]->onClick)();
 }
 
 MenuItemClass *MenuClass::SelectedItem() {
