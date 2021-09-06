@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * VERTEX NANO Arduino Mega with RAMPS EFB v1.4 pin assignments.
@@ -59,29 +60,8 @@
 //
 // Steppers
 //
-#undef X_STEP_PIN
-#undef X_DIR_PIN
-#undef X_ENABLE_PIN
-#define X_STEP_PIN                            54
-#define X_DIR_PIN                             55
-#define X_ENABLE_PIN                          38
-
-#undef Y_STEP_PIN
-#undef Y_DIR_PIN
-#undef Y_ENABLE_PIN
-#define Y_STEP_PIN                            60
-#define Y_DIR_PIN                             61
-#define Y_ENABLE_PIN                          56
-
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN                          63
-
-#undef E0_STEP_PIN
-#undef E0_DIR_PIN
-#undef E0_ENABLE_PIN
-#define E0_STEP_PIN                           26
-#define E0_DIR_PIN                            28
-#define E0_ENABLE_PIN                         24
 
 //
 // Heaters / Fans

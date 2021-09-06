@@ -39,7 +39,7 @@ typedef void (*selectFunc_t)();
 #define SS_INVERT  0x02
 #define SS_DEFAULT SS_CENTER
 
-#if HAS_MARLINUI_U8GLIB && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+#if EITHER(HAS_MARLINUI_U8GLIB, IS_DWIN_MARLINUI) && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const_float_t zvalue);
 #endif
 
@@ -132,14 +132,15 @@ class MenuItem_confirm : public MenuItemBase {
 
 // The Menu Edit shadow value
 typedef union {
-  bool     state;
-  float    decimal;
-  int8_t   int8;
-  int16_t  int16;
-  int32_t  int32;
-  uint8_t  uint8;
-  uint16_t uint16;
-  uint32_t uint32;
+  bool      state;
+  float     decimal;
+  int8_t    int8;
+  int16_t   int16;
+  int32_t   int32;
+  uint8_t   uint8;
+  uint16_t  uint16;
+  uint32_t  uint32;
+  celsius_t celsius;
 } chimera_t;
 extern chimera_t editable;
 

@@ -390,9 +390,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       LOOP_L_N(y, PAGE_HEIGHT) {
         uint32_t k = 0;
-        #if HAS_LCD_IO
-          buffer = (y & 1) ? bufferB : bufferA;
-        #endif
+        TERN_(HAS_LCD_IO, buffer = (y & 1) ? bufferB : bufferA);
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;

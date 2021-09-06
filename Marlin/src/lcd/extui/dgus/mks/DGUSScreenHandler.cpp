@@ -37,7 +37,7 @@
 
 #include "../../../../gcode/gcode.h"
 
-#if ENABLED(HAS_STEALTHCHOP)
+#if HAS_STEALTHCHOP
   #include "../../../../module/stepper/trinamic.h"
   #include "../../../../module/stepper/indirection.h"
 #endif
@@ -396,7 +396,7 @@ void DGUSScreenHandler::Z_offset_select(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
 
-  #if ENABLED(HAS_BED_PROBE)
+  #if HAS_BED_PROBE
     int32_t value = swap32(*(int32_t *)val_ptr);
     float Offset = value / 100.0f;
     DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
@@ -575,7 +575,6 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           settings.save();
         }
         else if (mesh_point_count == 0) {
-
           mesh_point_count = GRID_MAX_POINTS;
           soft_endstop._enabled = true;
           settings.save();
@@ -587,6 +586,10 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
     }
   #endif // MESH_BED_LEVELING
+}
+
+void DGUSScreenHandler::SD_FileBack(DGUS_VP_Variable&, void*) {
+  GotoScreen(MKSLCD_SCREEN_HOME);
 }
 
 void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
@@ -621,25 +624,25 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
 
   switch (point_value) {
     case 0x0001:
-      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[0].x),
-                          Y_MIN_POS + abs(mks_corner_offsets[0].y), level_speed);
+      enqueue_corner_move(X_MIN_POS + ABS(mks_corner_offsets[0].x),
+                          Y_MIN_POS + ABS(mks_corner_offsets[0].y), level_speed);
       queue.enqueue_now_P(PSTR("G28Z"));
       break;
     case 0x0002:
-      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[1].x),
-                          Y_MIN_POS + abs(mks_corner_offsets[1].y), level_speed);
+      enqueue_corner_move(X_MAX_POS - ABS(mks_corner_offsets[1].x),
+                          Y_MIN_POS + ABS(mks_corner_offsets[1].y), level_speed);
       break;
     case 0x0003:
-      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[2].x),
-                          Y_MAX_POS - abs(mks_corner_offsets[2].y), level_speed);
+      enqueue_corner_move(X_MAX_POS - ABS(mks_corner_offsets[2].x),
+                          Y_MAX_POS - ABS(mks_corner_offsets[2].y), level_speed);
       break;
     case 0x0004:
-      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[3].x),
-                          Y_MAX_POS - abs(mks_corner_offsets[3].y), level_speed);
+      enqueue_corner_move(X_MIN_POS + ABS(mks_corner_offsets[3].x),
+                          Y_MAX_POS - ABS(mks_corner_offsets[3].y), level_speed);
       break;
     case 0x0005:
-      enqueue_corner_move(abs(mks_corner_offsets[4].x),
-                          abs(mks_corner_offsets[4].y), level_speed);
+      enqueue_corner_move(ABS(mks_corner_offsets[4].x),
+                          ABS(mks_corner_offsets[4].y), level_speed);
       break;
   }
 
@@ -759,7 +762,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     return;
 
   char axiscode;
-  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, dont hardcode.
+  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, don't hardcode.
 
   switch (var.VP) { // switch X Y Z or Home
     default: return;
@@ -1492,17 +1495,17 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
         break;
 
       case UNRUNOUT_STATUS:
-        if (READ(MT_DET_1_PIN) == LOW)
+        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_STATUS;
         break;
 
       case RUNOUT_BEGIN_STATUS:
-        if (READ(MT_DET_1_PIN) == HIGH)
+        if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
         break;
 
       case RUNOUT_WAITTING_STATUS:
-        if (READ(MT_DET_1_PIN) == LOW)
+        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;
 

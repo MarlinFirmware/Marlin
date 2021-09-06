@@ -60,4 +60,8 @@ void SaveSettingsDialogBox::promptToSaveSettings() {
      GOTO_PREVIOUS(); // No save needed.
 }
 
+void SaveSettingsDialogBox::promptToSaveAndStay() {
+   if (needs_save) GOTO_SCREEN(SaveSettingsDialogBox);
+}
+
 #endif // FTDI_SAVE_SETTINGS_DIALOG_BOX

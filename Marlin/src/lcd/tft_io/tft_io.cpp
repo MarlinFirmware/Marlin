@@ -39,18 +39,15 @@
 #if TFT_DRIVER == R61505 || TFT_DRIVER == AUTO
   #include "r65105.h"
 #endif
-#if TFT_DRIVER == ILI9328 || TFT_DRIVER == AUTO
-  #include "ili9328.h"
-#endif
-#if TFT_DRIVER == ILI9341 || TFT_DRIVER == AUTO
-  #include "ili9341.h"
-#endif
 #if TFT_DRIVER == ILI9488 || TFT_DRIVER == ILI9488_ID1 || TFT_DRIVER == AUTO
   #include "ili9488.h"
 #endif
 #if TFT_DRIVER == SSD1963 || TFT_DRIVER == AUTO
   #include "ssd1963.h"
 #endif
+
+#include "ili9341.h"
+#include "ili9328.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
@@ -68,13 +65,13 @@ if (lcd_id != 0xFFFFFFFF) return;
   #if PIN_EXISTS(TFT_RESET)
     OUT_WRITE(TFT_RESET_PIN, HIGH);
     delay(10);
-    OUT_WRITE(TFT_RESET_PIN, LOW);
+    WRITE(TFT_RESET_PIN, LOW);
     delay(10);
-    OUT_WRITE(TFT_RESET_PIN, HIGH);
+    WRITE(TFT_RESET_PIN, HIGH);
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT)
-    OUT_WRITE(TFT_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT));
+    WRITE(TFT_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT));
   #endif
 
   // io.Init();
@@ -100,10 +97,6 @@ if (lcd_id != 0xFFFFFFFF) return;
     write_esc_sequence(ili9341_init);
   #elif TFT_DRIVER == ILI9488
     write_esc_sequence(ili9488_init);
-  #elif TFT_DRIVER == LERDGE_ST7796
-    lcd_id = ST7796;
-    write_esc_sequence(lerdge_st7796s_init);
-
   #elif TFT_DRIVER == AUTO // autodetect
 
     lcd_id = io.GetID() & 0xFFFF;
@@ -152,7 +145,7 @@ if (lcd_id != 0xFFFFFFFF) return;
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
+    WRITE(TFT_BACKLIGHT_PIN, HIGH);
   #endif
 }
 

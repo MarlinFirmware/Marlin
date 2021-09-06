@@ -23,6 +23,9 @@
 #include "../gcode.h"
 #include "../../module/printcounter.h"
 #include "../../lcd/marlinui.h"
+#if ENABLED(HOST_PAUSE_M76)
+  #include "../../feature/host_actions.h"
+#endif
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
@@ -38,6 +41,7 @@ void GcodeSuite::M75() {
  */
 void GcodeSuite::M76() {
   print_job_timer.pause();
+  TERN_(HOST_PAUSE_M76, host_action_pause());
 }
 
 /**
@@ -50,24 +54,24 @@ void GcodeSuite::M77() {
 #if ENABLED(PRINTCOUNTER)
 
 /**
- * M78: Show print statistics
- */
+   * M78: Show print statistics
+   */
 void GcodeSuite::M78() {
   if (parser.intval('S') == 78) {  // "M78 S78" will reset the statistics
-    print_job_timer.initStats();
-    ui.reset_status();
-    return;
-  }
-
-  #if HAS_SERVICE_INTERVALS
-    if (parser.seenval('R')) {
-      print_job_timer.resetServiceInterval(parser.value_int());
+      print_job_timer.initStats();
       ui.reset_status();
-      return;
+    return;
     }
-  #endif
 
-  print_job_timer.showStats();
+    #if HAS_SERVICE_INTERVALS
+    if (parser.seenval('R')) {
+        print_job_timer.resetServiceInterval(parser.value_int());
+        ui.reset_status();
+      return;
+      }
+    #endif
+
+    print_job_timer.showStats();
 }
 
 #endif // PRINTCOUNTER

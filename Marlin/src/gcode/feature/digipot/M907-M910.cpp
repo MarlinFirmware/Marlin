@@ -34,7 +34,7 @@
   #include "../../../feature/digipot/digipot.h"
 #endif
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if HAS_MOTOR_CURRENT_DAC
   #include "../../../feature/dac/stepper_dac.h"
 #endif
 
@@ -67,11 +67,13 @@ void GcodeSuite::M907() {
     LOOP_LOGICAL_AXES(i) if (parser.seenval(axis_codes[i])) digipot_i2c.set_current(i, parser.value_float());
     // Additional extruders use B,C,D for channels 4,5,6.
     // TODO: Change these parameters because 'E' is used. B<index>?
-    for (uint8_t i = E_AXIS + 1; i < DIGIPOT_I2C_NUM_CHANNELS; i++)
-      if (parser.seenval('B' + i - (E_AXIS + 1))) digipot_i2c.set_current(i, parser.value_float());
+    #if HAS_EXTRUDERS
+      for (uint8_t i = E_AXIS + 1; i < DIGIPOT_I2C_NUM_CHANNELS; i++)
+        if (parser.seenval('B' + i - (E_AXIS + 1))) digipot_i2c.set_current(i, parser.value_float());
+    #endif
   #endif
 
-  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+  #if HAS_MOTOR_CURRENT_DAC
     if (parser.seenval('S')) {
       const float dac_percent = parser.value_float();
       LOOP_LE_N(i, 4) stepper_dac.set_current_percent(i, dac_percent);
@@ -90,7 +92,7 @@ void GcodeSuite::M907() {
     TERN_(HAS_MOTOR_CURRENT_DAC, stepper_dac.set_current_value(parser.byteval('P', -1), parser.ushortval('S', 0)));
   }
 
-  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
+  #if HAS_MOTOR_CURRENT_DAC
 
     void GcodeSuite::M909() { stepper_dac.print_values(); }
     void GcodeSuite::M910() { stepper_dac.commit_eeprom(); }

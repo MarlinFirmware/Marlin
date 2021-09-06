@@ -54,7 +54,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .tag(8).button(BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_ADVANCED_SETTINGS))
        .tag(9).button(BTN_POS(1,9), BTN_SIZE(2,1), GET_TEXT_F(MSG_INFO_MENU))
        .colors(action_btn)
-       .tag(1).button(BTN_POS(1,10), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BTN_POS(1,10), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_DONE));
   }
 
   #undef GRID_COLS
@@ -67,17 +67,17 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   const bool e_homed = isAxisPositionKnown(E0);
 
   switch (tag) {
-    case 1: SaveSettingsDialogBox::promptToSaveSettings();                               break;
-    case 2: GOTO_SCREEN(BioConfirmHomeXYZ);                                              break;
-    case 3: SpinnerDialogBox::enqueueAndWait_P(e_homed ? F("G0 E0 F120") : F("G112"));   break;
-    case 4: StatusScreen::unlockMotors();                                                break;
+    case 1: SaveSettingsDialogBox::promptToSaveSettings();                           break;
+    case 2: GOTO_SCREEN(BioConfirmHomeXYZ);                                          break;
+    case 3: SpinnerDialogBox::enqueueAndWait(e_homed ? F("G0 E0 F120") : F("G112")); break;
+    case 4: StatusScreen::unlockMotors();                                            break;
     #ifdef AXIS_LEVELING_COMMANDS
-    case 5: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS));               break;
+    case 5: SpinnerDialogBox::enqueueAndWait(F(AXIS_LEVELING_COMMANDS));             break;
     #endif
-    case 6: GOTO_SCREEN(TemperatureScreen);                                              break;
-    case 7: GOTO_SCREEN(InterfaceSettingsScreen);                                        break;
-    case 8: GOTO_SCREEN(AdvancedSettingsMenu);                                           break;
-    case 9: GOTO_SCREEN(AboutScreen);                                                    break;
+    case 6: GOTO_SCREEN(TemperatureScreen);                                          break;
+    case 7: GOTO_SCREEN(InterfaceSettingsScreen);                                    break;
+    case 8: GOTO_SCREEN(AdvancedSettingsMenu);                                       break;
+    case 9: GOTO_SCREEN(AboutScreen);                                                break;
     default:
       return false;
   }

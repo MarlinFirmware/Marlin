@@ -85,7 +85,7 @@
 
       case 1: // Pause
 
-        GotoScreen(MKSLCD_SCREEN_PAUSE);
+        GotoScreen(DGUSLCD_SCREEN_SDPRINTMANIPULATION);
         if (!ExtUI::isPrintingFromMediaPaused()) {
           ExtUI::pausePrint();
           //ExtUI::mks_pausePrint();
@@ -161,7 +161,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
   #endif
   char axiscode;
-  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, dont hardcode.
+  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, don't hardcode.
 
   switch (var.VP) {
     default: return;
@@ -251,7 +251,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
     switch (var.VP) {
       default: return;
-        #if HOTENDS >= 1
+        #if HAS_HOTEND
           case VP_E0_PID_P: newvalue = value; break;
           case VP_E0_PID_I: newvalue = scalePID_i(value); break;
           case VP_E0_PID_D: newvalue = scalePID_d(value); break;
@@ -331,18 +331,18 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
 
     if (filament_data.action == 0) { // Go back to utility screen
-      #if HOTENDS >= 1
+      #if HAS_HOTEND
         thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E0);
-      #endif
-      #if HOTENDS >= 2
-        thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E1);
+        #if HOTENDS >= 2
+          thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E1);
+        #endif
       #endif
       GotoScreen(DGUSLCD_SCREEN_UTILITY);
     }
     else { // Go to the preheat screen to show the heating progress
       switch (var.VP) {
         default: return;
-          #if HOTENDS >= 1
+          #if HAS_HOTEND
             case VP_E0_FILAMENT_LOAD_UNLOAD:
               filament_data.extruder = ExtUI::extruder_t::E0;
               thermalManager.setTargetHotend(e_temp, filament_data.extruder);
@@ -411,9 +411,12 @@ bool DGUSScreenHandler::loop() {
     if (!booted && TERN0(POWER_LOSS_RECOVERY, recovery.valid()))
       booted = true;
 
-    if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT)))
+    if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
+      GotoScreen(TERN0(POWER_LOSS_RECOVERY, recovery.valid()) ? DGUSLCD_SCREEN_POWER_LOSS : DGUSLCD_SCREEN_MAIN);
+    }
   #endif
+
   return IsScreenComplete();
 }
 

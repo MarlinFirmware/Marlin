@@ -311,7 +311,13 @@ public:
     }
 
     static inline float axis_unit_factor(const AxisEnum axis) {
-      return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
+      return (
+        #if HAS_EXTRUDERS
+          axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor
+        #else
+          linear_unit_factor
+        #endif
+      );
     }
 
     static inline float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
@@ -410,7 +416,8 @@ public:
   static inline float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
   static inline float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
                                                                          { return seenval(c) ? value_axis_units(a)  : dval; }
-  static inline celsius_t celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
+  static inline celsius_t celsiusval(const char c, const celsius_t dval=0)    { return seenval(c) ? value_celsius() : dval; }
+  static inline feedRate_t feedrateval(const char c, const feedRate_t dval=0) { return seenval(c) ? value_feedrate() : dval; }
 
   #if ENABLED(MARLIN_DEV_MODE)
 

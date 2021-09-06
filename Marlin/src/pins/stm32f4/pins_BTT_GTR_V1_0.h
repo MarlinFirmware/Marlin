@@ -239,42 +239,39 @@
   //#define E6_HARDWARE_SERIAL Serial1  // M5 MOTOR 4
   //#define E7_HARDWARE_SERIAL Serial1  // M5 MOTOR 5
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC14
-  #define X_SERIAL_RX_PIN                   PC14
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE1
-  #define Y_SERIAL_RX_PIN                   PE1
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PB5
-  #define Z_SERIAL_RX_PIN                   PB5
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PG10
-  #define E0_SERIAL_RX_PIN                  PG10
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PD4
-  #define E1_SERIAL_RX_PIN                  PD4
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   #define E2_SERIAL_TX_PIN                  PC12
-  #define E2_SERIAL_RX_PIN                  PC12
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   #if ENABLED(M5_EXTENDER)
     #define E3_SERIAL_TX_PIN                PG4
-    #define E3_SERIAL_RX_PIN                PG4
+    #define E3_SERIAL_RX_PIN    E3_SERIAL_TX_PIN
 
     #define E4_SERIAL_TX_PIN                PE15
-    #define E4_SERIAL_RX_PIN                PE15
+    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
 
     #define E5_SERIAL_TX_PIN                PE7
-    #define E5_SERIAL_RX_PIN                PE7
+    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
 
     #define E6_SERIAL_TX_PIN                PF15
-    #define E6_SERIAL_RX_PIN                PF15
+    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
 
     #define E7_SERIAL_TX_PIN                PH14
-    #define E7_SERIAL_RX_PIN                PH14
+    #define E7_SERIAL_RX_PIN    E7_SERIAL_TX_PIN
   #endif
 
   // Reduce baud rate to improve software serial reliability
@@ -298,19 +295,19 @@
 
 #define TEMP_BED_PIN                        PC0   // T0 <-> Bed
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 // Uses a separate SPI bus
-// If you have a two-way thermocouple, you can customize two THERMO_CSx_PIN pins (x:1~2)
+// If you have a two-way thermocouple, you can customize two TEMP_x_CS_PIN pins (x:0~1)
 
-#define THERMO_SCK_PIN                      PI1   // SCK
-#define THERMO_DO_PIN                       PI2   // MISO
-#define THERMO_CS1_PIN                      PH9   // GTR K-TEMP
-#define THERMO_CS2_PIN                      PH2   // M5 K-TEMP
+#define TEMP_0_CS_PIN                       PH9   // GTR K-TEMP
+#define TEMP_0_SCK_PIN                      PI1   // SCK
+#define TEMP_0_MISO_PIN                     PI2   // MISO
+//#define TEMP_0_MOSI_PIN                   ...   // For MAX31865
 
-#define MAX6675_SS_PIN            THERMO_CS1_PIN
-#define MAX6675_SS2_PIN           THERMO_CS2_PIN
-#define MAX6675_SCK_PIN           THERMO_SCK_PIN
-#define MAX6675_DO_PIN             THERMO_DO_PIN
+#define TEMP_1_CS_PIN                       PH2   // M5 K-TEMP
+#define TEMP_1_SCK_PIN           TEMP_0_SCK_PIN
+#define TEMP_1_MISO_PIN         TEMP_0_MISO_PIN
+//#define TEMP_1_MOSI_PIN       TEMP_0_MOSI_PIN
 
 //
 // Heaters / Fans
@@ -411,6 +408,7 @@
   #define TOUCH_MOSI_PIN             EXP1_08_PIN
   #define TOUCH_SCK_PIN              EXP1_06_PIN
   #define TOUCH_CS_PIN               EXP1_07_PIN
+  #define BTN_ENC                    EXP1_09_PIN
   #define BTN_EN1                    EXP2_08_PIN
   #define BTN_EN2                    EXP2_06_PIN
 
@@ -426,11 +424,6 @@
 
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
-
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
 
   #elif ENABLED(MKS_MINI_12864)
     #define DOGLCD_A0                EXP1_04_PIN
@@ -490,16 +483,10 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+  #if ENABLED(U8GLIB_ST7920)
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 
 #endif // HAS_WIRED_LCD

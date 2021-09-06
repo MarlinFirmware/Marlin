@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DGUS_LCD_UI_HYPRECY)
+#if ENABLED(DGUS_LCD_UI_HIPRECY)
 
 #include "../DGUSScreenHandler.h"
 
@@ -41,6 +41,8 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
+
+  static ExtUI::FileList filelist;
 
   void DGUSScreenHandler::DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t touched_nr = (int16_t)swap16(*(uint16_t*)val_ptr) + top_file;
@@ -159,7 +161,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
   #endif
   char axiscode;
-  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, dont hardcode.
+  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, don't hardcode.
 
   switch (var.VP) {
     default: return;
@@ -249,7 +251,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
     switch (var.VP) {
       default: return;
-        #if HOTENDS >= 1
+        #if HAS_HOTEND
           case VP_E0_PID_P: newvalue = value; break;
           case VP_E0_PID_I: newvalue = scalePID_i(value); break;
           case VP_E0_PID_D: newvalue = scalePID_d(value); break;
@@ -329,18 +331,18 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     }
 
     if (filament_data.action == 0) { // Go back to utility screen
-      #if HOTENDS >= 1
+      #if HAS_HOTEND
         thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E0);
-      #endif
-      #if HOTENDS >= 2
-        thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E1);
+        #if HOTENDS >= 2
+          thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E1);
+        #endif
       #endif
       GotoScreen(DGUSLCD_SCREEN_UTILITY);
     }
     else { // Go to the preheat screen to show the heating progress
       switch (var.VP) {
         default: return;
-          #if HOTENDS >= 1
+          #if HAS_HOTEND
             case VP_E0_FILAMENT_LOAD_UNLOAD:
               filament_data.extruder = ExtUI::extruder_t::E0;
               thermalManager.setTargetHotend(e_temp, filament_data.extruder);
@@ -415,4 +417,4 @@ bool DGUSScreenHandler::loop() {
   return IsScreenComplete();
 }
 
-#endif // DGUS_LCD_UI_HYPRECY
+#endif // DGUS_LCD_UI_HIPRECY

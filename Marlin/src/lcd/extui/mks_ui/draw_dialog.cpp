@@ -61,7 +61,7 @@ static lv_obj_t *scr, *tempText1, *filament_bar;
 extern uint8_t sel_id;
 extern bool once_flag, gcode_preview_over;
 extern int upload_result;
-extern uint32_t upload_time;
+extern uint32_t upload_time_sec;
 extern uint32_t upload_size;
 extern bool temps_update_flag;
 
@@ -238,7 +238,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_t *labelOk = lv_label_create_empty(btnOk);             // Add a label to the button
     lv_label_set_text(labelOk, print_file_dialog_menu.confirm);    // Set the labels text
   }
-  else if (DIALOG_IS(PAUSE_MESSAGE_PAUSING, PAUSE_MESSAGE_CHANGING, PAUSE_MESSAGE_UNLOAD, PAUSE_MESSAGE_LOAD, PAUSE_MESSAGE_PURGE, PAUSE_MESSAGE_RESUME, PAUSE_MESSAGE_HEATING)) {
+  else if (DIALOG_IS(PAUSE_MESSAGE_PARKING, PAUSE_MESSAGE_CHANGING, PAUSE_MESSAGE_UNLOAD, PAUSE_MESSAGE_LOAD, PAUSE_MESSAGE_PURGE, PAUSE_MESSAGE_RESUME, PAUSE_MESSAGE_HEATING)) {
     // nothing to do
   }
   else if (DIALOG_IS(WIFI_ENABLE_TIPS)) {
@@ -324,7 +324,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, print_file_dialog_menu.print_finish);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
-  else if (DIALOG_IS(PAUSE_MESSAGE_PAUSING)) {
+  else if (DIALOG_IS(PAUSE_MESSAGE_PARKING)) {
     lv_label_set_text(labelDialog, pause_msg_menu.pausing);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
@@ -406,28 +406,24 @@ void lv_draw_dialog(uint8_t type) {
         char buf[200];
         int _index = 0;
 
-        strcpy(buf, DIALOG_UPLOAD_FINISH_EN);
+        strcpy_P(buf, PSTR(DIALOG_UPLOAD_FINISH_EN));
         _index = strlen(buf);
-        buf[_index] = '\n';
-        _index++;
-        strcat(buf, DIALOG_UPLOAD_SIZE_EN);
+        buf[_index++] = '\n';
+        strcat_P(buf, PSTR(DIALOG_UPLOAD_SIZE_EN));
 
         _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d KBytes\n", (int)(upload_size / 1024));
+        buf[_index++] = ':';
+        sprintf_P(&buf[_index], PSTR(" %d KBytes\n"), (int)(upload_size / 1024));
 
-        strcat(buf, DIALOG_UPLOAD_TIME_EN);
+        strcat_P(buf, PSTR(DIALOG_UPLOAD_TIME_EN));
         _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d s\n", (int)upload_time);
+        buf[_index++] = ':';
+        sprintf_P(&buf[_index], PSTR(" %d s\n"), (int)upload_time_sec);
 
-        strcat(buf, DIALOG_UPLOAD_SPEED_EN);
+        strcat_P(buf, PSTR(DIALOG_UPLOAD_SPEED_EN));
         _index = strlen(buf);
-        buf[_index] = ':';
-        _index++;
-        sprintf(&buf[_index], " %d KBytes/s\n", (int)(upload_size / upload_time / 1024));
+        buf[_index++] = ':';
+        sprintf_P(&buf[_index], PSTR(" %d KBytes/s\n"), (int)(upload_size / upload_time_sec / 1024));
 
         lv_label_set_text(labelDialog, buf);
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
@@ -435,7 +431,7 @@ void lv_draw_dialog(uint8_t type) {
     }
     else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMWARE)) {
       lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
-      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
     }
   #endif // MKS_WIFI_MODULE
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
@@ -473,7 +469,7 @@ void lv_draw_dialog(uint8_t type) {
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {
       lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
-      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
     }
   #endif
   #if HAS_ROTARY_ENCODER
@@ -523,7 +519,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_load_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-    if (abs(diff) < 2 || diff > 0) {
+    if (ABS(diff) < 2 || diff > 0) {
       uiCfg.filament_load_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
@@ -539,7 +535,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_unload_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-    if (abs(diff) < 2 || diff > 0) {
+    if (ABS(diff) < 2 || diff > 0) {
       uiCfg.filament_unload_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);

@@ -918,9 +918,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       if (ok) {
         // Do a small lift to avoid the workpiece in the move back (below)
         current_position.z += toolchange_settings.z_raise;
-        #if HAS_SOFTWARE_ENDSTOPS
-          NOMORE(current_position.z, soft_endstop.max.z);
-        #endif
+        TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(current_position.z, soft_endstop.max.z));
         fast_line_to_current(Z_AXIS);
         planner.synchronize();
       }
@@ -954,11 +952,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       #if ENABLED(TOOLCHANGE_PARK)
         if (ok) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
-            destination.set(current_position.x, current_position.y);
-            prepare_internal_move_to_destination(planner.settings.max_feedrate_mm_s[Z_AXIS]);
-          #else
-            prepare_internal_move_to_destination(MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+            const float temp = destination.z;
+            destination = current_position;
+            destination.z = temp.z;
           #endif
+          prepare_internal_move_to_destination(TERN(TOOLCHANGE_NO_RETURN, planner.settings.max_feedrate_mm_s[Z_AXIS], MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)));
         }
       #endif
 
@@ -1068,9 +1066,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
-          #if HAS_SOFTWARE_ENDSTOPS
-            NOMORE(current_position.z, soft_endstop.max.z);
-          #endif
+          TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(current_position.z, soft_endstop.max.z));
           fast_line_to_current(Z_AXIS);
           planner.synchronize();
         }
@@ -1117,9 +1113,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
           current_position.z += toolchange_settings.z_raise;
-          #if HAS_SOFTWARE_ENDSTOPS
-            NOMORE(current_position.z, soft_endstop.max.z);
-          #endif
+          TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(current_position.z, soft_endstop.max.z));
           fast_line_to_current(Z_AXIS);
         }
       #endif

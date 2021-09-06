@@ -75,7 +75,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
   switch (obj->mks_obj_id) {
     case ID_M_STEP:
-      if (abs(10 * (int)uiCfg.move_dist) == 100)
+      if (ABS(10 * (int)uiCfg.move_dist) == 100)
         uiCfg.move_dist = 0.1;
       else
         uiCfg.move_dist *= 10.0f;
@@ -119,10 +119,10 @@ void lv_draw_move_motor() {
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_RETURN);
 
   // We need to patch the title to leave some space on the right for displaying the status
-  lv_obj_t * title = lv_obj_get_child_back(scr, NULL);
-  if (title != NULL) lv_obj_set_width(title, TFT_WIDTH - 101);
+  lv_obj_t * title = lv_obj_get_child_back(scr, nullptr);
+  if (title != nullptr) lv_obj_set_width(title, TFT_WIDTH - 101);
   labelP = lv_label_create(scr, TFT_WIDTH - 100, TITLE_YPOS, "Z:0.0mm");
-  if (labelP != NULL)
+  if (labelP != nullptr)
     updatePosTask = lv_task_create(refresh_pos, 300, LV_TASK_PRIO_LOWEST, 0);
 
   disp_move_dist();
