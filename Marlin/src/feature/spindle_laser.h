@@ -207,8 +207,16 @@ public:
    */
   static inline void set_enabled(const bool enable) {
     uint8_t value = 0;
-    if (enable)
-      value = TERN(SPINDLE_LASER_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255);
+    if (enable) {
+      #if ENABLED(SPINDLE_LASER_PWM)
+        if (power)
+          value = power;
+        else if (unitPower)
+          value = upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP));
+      #else
+        value = 255;
+      #endif
+    }
     apply_power(value);
   }
 
