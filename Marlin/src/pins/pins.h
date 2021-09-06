@@ -269,6 +269,8 @@
   #include "mega/pins_INTAMSYS40.h"             // ATmega2560                             env:mega2560
 #elif MB(MALYAN_M180)
   #include "mega/pins_MALYAN_M180.h"            // ATmega2560                             env:mega2560
+#elif MB(PROTONEER_CNC_SHIELD_V3)
+  #include "mega/pins_PROTONEER_CNC_SHIELD_V3.h"// ATmega2560                             env:mega2560
 
 //
 // ATmega1281, ATmega2561
@@ -645,6 +647,8 @@
   #include "stm32f4/pins_MKS_MONSTER8.h"        // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
 #elif MB(TH3D_EZBOARD_LITE_V2)
   #include "stm32f4/pins_TH3D_EZBOARD_LITE_V2.h" // STM32F4                               env:TH3D_EZBoard_Lite_V2
+#elif MB(INDEX_REV03)
+  #include "stm32f4/pins_INDEX_REV03.h"         // STM32F4                                env:Index_Mobo_Rev03
 
 //
 // ARM Cortex M7

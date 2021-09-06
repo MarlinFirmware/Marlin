@@ -46,7 +46,7 @@ class DWIN_String {
     static uint16_t span;   // in pixels
     static uint8_t len;  // in characters
 
-    static void add_character(uint8_t character);
+    static void add_character(const uint8_t character);
     static void eol() { data[len] = 0x00; }
 
   public:
@@ -62,7 +62,7 @@ class DWIN_String {
     //static void add(uint8_t character) { add_character(character); eol(); }
     static void add(wchar_t character);
     static void add(uint8_t *string, uint8_t max_len=MAX_STRING_LENGTH);
-    static void add(uint8_t *string, int8_t index, uint8_t *itemString=nullptr);
+    static void add(uint8_t *string, const int8_t index, uint8_t *itemString=nullptr);
     static void set(uint8_t *string)   { set(); add(string); }
     static void set(wchar_t character) { set(); add(character); }
     static void set(uint8_t *string, int8_t index, const char *itemString=nullptr) { set(); add(string, index, (uint8_t *)itemString); }
@@ -71,20 +71,20 @@ class DWIN_String {
     static inline void set(const char *string, int8_t index, const char *itemString=nullptr) { set((uint8_t *)string, index, itemString); }
     static inline void add(const char *string) { add((uint8_t *)string); }
 
-    static void trim(uint8_t character=0x20);
-    static void rtrim(uint8_t character=0x20);
-    static void ltrim(uint8_t character=0x20);
+    static void trim(const uint8_t character=0x20);
+    static void rtrim(const uint8_t character=0x20);
+    static void ltrim(const uint8_t character=0x20);
 
     static void truncate(uint8_t maxlen) { if (len > maxlen) { len = maxlen; eol(); } }
 
-    static uint8_t length() { return len; }
-    static uint16_t width() { return span; }
-    static uint8_t *string() { return data; }
+    static inline uint8_t length() { return len; }
+    static inline uint16_t width() { return span; }
+    static inline uint8_t *string() { return data; }
     static uint16_t center(uint16_t width) { return span > width ? 0 : (width - span) / 2; }
 };
 
 int dwin_charmap_compare(dwin_charmap_t *v1, dwin_charmap_t *v2);
-int pf_bsearch_cb_comp_dwinmap_pgm(void *userdata, size_t idx, void * data_pin);
+int pf_bsearch_cb_comp_dwinmap_pgm(void *userdata, size_t idx, void *data_pin);
 
 extern DWIN_String dwin_string;
 
@@ -664,7 +664,7 @@ const dwin_charmap_t g_dwin_charmap_device[] PROGMEM = {
   #endif
 };
 
-// the plain ASCII replacement for various char
+// ASCII replacement for various characters
 const dwin_charmap_t g_dwin_charmap_common[] PROGMEM = {
   {IV('¡'), 'i', 0}, // A1
   {IV('¢'), 'c', 0}, // A2

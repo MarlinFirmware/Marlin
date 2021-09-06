@@ -161,6 +161,7 @@
 #define BOARD_INTAMSYS40              1326  // Intamsys 4.0 (Funmat HT)
 #define BOARD_MALYAN_M180             1327  // Malyan M180 Mainboard Version 2 (no display function, direct gcode only)
 #define BOARD_GT2560_V4_A20           1328  // Geeetech GT2560 Rev B for A20(M/T/D)
+#define BOARD_PROTONEER_CNC_SHIELD_V3 1329  // Mega controller & Protoneer CNC Shield V3.00
 
 //
 // ATmega1281, ATmega2561
@@ -395,6 +396,7 @@
 #define BOARD_ANET_ET4P               4230  // ANET ET4P V1.x (STM32F407VGT6)
 #define BOARD_FYSETC_CHEETAH_V20      4231  // FYSETC Cheetah V2.0
 #define BOARD_TH3D_EZBOARD_LITE_V2    4232  // TH3D EZBoard Lite v2.0
+#define BOARD_INDEX_REV03             4233  // Index PnP Controller REV03 (STM32F407VET6/VGT6)
 
 //
 // ARM Cortex M7
