@@ -137,16 +137,16 @@ public:
     static void ocr_off();
 
     /**
-     * Used to update output for power->OCR translation
+     * Update output for power->OCR translation
      */
     static inline uint8_t upower_to_ocr(const cutter_power_t upwr) {
-      return (
+      return uint8_t(
         #if CUTTER_UNIT_IS(PWM255)
-          uint8_t(upwr)
+          upwr
         #elif CUTTER_UNIT_IS(PERCENT)
           pct_to_ocr(upwr)
         #else
-          uint8_t(pct_to_ocr(cpwr_to_pct(upwr)))
+          pct_to_ocr(cpwr_to_pct(upwr))
         #endif
       );
     }
@@ -155,38 +155,28 @@ public:
      * Correct power to configured range
      */
     static inline cutter_power_t power_to_range(const cutter_power_t pwr) {
-      return power_to_range(pwr, (
-        #if CUTTER_UNIT_IS(PWM255)
-          0
-        #elif CUTTER_UNIT_IS(PERCENT)
-          1
-        #elif CUTTER_UNIT_IS(RPM)
-          2
-        #else
-          #error "CUTTER_UNIT_IS(unknown)"
-        #endif
-      ));
+      return power_to_range(pwr, _CUTTER_POWER(CUTTER_POWER_UNIT));
     }
 
     static inline cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
       if (pwr <= 0) return 0;
       cutter_power_t upwr;
       switch (pwrUnit) {
-        case 0:                                                 // PWM
+        case _CUTTER_POWER_PWM255:
           upwr = cutter_power_t(
               (pwr < pct_to_ocr(min_pct)) ? pct_to_ocr(min_pct) // Use minimum if set below
             : (pwr > pct_to_ocr(max_pct)) ? pct_to_ocr(max_pct) // Use maximum if set above
             :  pwr
           );
           break;
-        case 1:                                                 // PERCENT
+        case _CUTTER_POWER_PERCENT:
           upwr = cutter_power_t(
               (pwr < min_pct) ? min_pct                         // Use minimum if set below
             : (pwr > max_pct) ? max_pct                         // Use maximum if set above
             :  pwr                                              // PCT
           );
           break;
-        case 2:                                                 // RPM
+        case _CUTTER_POWER_RPM:
           upwr = cutter_power_t(
               (pwr < SPEED_POWER_MIN) ? SPEED_POWER_MIN         // Use minimum if set below
             : (pwr > SPEED_POWER_MAX) ? SPEED_POWER_MAX         // Use maximum if set above
