@@ -52,9 +52,9 @@ cutter_power_t SpindleLaser::menuPower,                               // Power s
 #endif
 #define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)
 
-//
-// Init the cutter to a safe OFF state
-//
+/**
+ * Init the cutter to a safe OFF state
+ */
 void SpindleLaser::init() {
   #if ENABLED(SPINDLE_SERVO)
     MOVE_SERVO(SPINDLE_SERVO_NR, SPINDLE_SERVO_MIN);
@@ -86,8 +86,10 @@ void SpindleLaser::init() {
 #if ENABLED(SPINDLE_LASER_PWM)
   /**
    * Set the cutter PWM directly to the given ocr value
+   * 
+   * @param ocr Power value
    */
-  void SpindleLaser::_set_ocr(const uint8_t ocr) {
+  void SpindleLaser::ocr_set(const uint8_t ocr) {
     #if NEEDS_HARDWARE_PWM && SPINDLE_LASER_FREQUENCY
       set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), TERN(MARLIN_DEV_MODE, frequency, SPINDLE_LASER_FREQUENCY));
       set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
@@ -96,57 +98,131 @@ void SpindleLaser::init() {
     #endif
   }
 
-  void SpindleLaser::set_ocr(const uint8_t ocr) {
-    WRITE(SPINDLE_LASER_ENA_PIN,  SPINDLE_LASER_ACTIVE_STATE); // Cutter ON
-    _set_ocr(ocr);
-  }
-
   void SpindleLaser::ocr_off() {
-    WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE); // Cutter OFF
-    _set_ocr(0);
+    ocr_set(0);
   }
-#endif
 
-//
-// Set cutter ON/OFF state (and PWM) to the given cutter power value
-//
-void SpindleLaser::apply_power(const uint8_t opwr) {
-  static uint8_t last_power_applied = 0;
-  if (opwr == last_power_applied) return;
-  last_power_applied = opwr;
-  power = opwr;
+#endif  // SPINDLE_LASER_PWM
+
+// Set state for pin laser/spindle
+// :param - enable True - on; False - off
+void SpindleLaser::pin_set(const bool enable) {
+  WRITE(SPINDLE_LASER_ENA_PIN, enable ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
+}
+
+/**
+ * Detection event
+ * 
+ * @param opwr Power value
+ */
+SPINDLE_LASER_EVENT SpindleLaser::get_event(const uint8_t opwr) {
+  SPINDLE_LASER_EVENT event;
+
+  // Conditions
   #if ENABLED(SPINDLE_LASER_PWM)
     if (cutter.unitPower == 0 && CUTTER_UNIT_IS(RPM)) {
-      ocr_off();
-      isReady = false;
+      if (power == 0) {
+        return SPINDLE_LASER_EVENT::OFF;
+      } else {
+        return SPINDLE_LASER_EVENT::TO_OFF;
+      }
     }
-    else if (ENABLED(CUTTER_POWER_RELATIVE) || enabled()) {
-      set_ocr(power);
-      isReady = true;
-    }
-    else {
-      ocr_off();
-      isReady = false;
-    }
-  #elif ENABLED(SPINDLE_SERVO)
-    MOVE_SERVO(SPINDLE_SERVO_NR, power);
-  #else
-    WRITE(SPINDLE_LASER_ENA_PIN, enabled() ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
-    isReady = true;
   #endif
+
+  if ((power + opwr) == 0) {
+    event = SPINDLE_LASER_EVENT::OFF;
+  } else if ((power > 0) && (opwr > 0)){
+    event = SPINDLE_LASER_EVENT::ON;
+  } else if (opwr == 0) {
+    event = SPINDLE_LASER_EVENT::TO_OFF;
+  } else {
+    event = SPINDLE_LASER_EVENT::TO_ON;
+  }
+
+  return event;
+}
+
+/**
+ * Apply power for laser/spindle
+ * 
+ * Apply cutter power value for PWM, Servo, and on/off pin.
+ * 
+ * @param opwr Power value. Range 0 to MAX. When 0 disable laser/spindel.
+ */
+void SpindleLaser::apply_power(const uint8_t opwr) {
+  static uint8_t last_power_applied = 0;
+
+  switch (get_event(opwr)) {
+    case SPINDLE_LASER_EVENT::ON:
+      if (opwr == last_power_applied) break;
+      last_power_applied = opwr;
+      power = opwr;
+
+      #if ENABLED(SPINDLE_LASER_PWM)
+        ocr_set(power);
+        isReady = true;
+      #endif
+      #if ENABLED(SPINDLE_SERVO)
+        MOVE_SERVO(SPINDLE_SERVO_NR, power);
+      #endif
+      #if DISABLED(SPINDLE_SERVO)
+        pin_set(true);
+        isReady = true;
+      #endif
+
+      break;
+    case SPINDLE_LASER_EVENT::TO_ON:
+      last_power_applied = opwr;
+      power = opwr;
+
+      #if ENABLED(SPINDLE_LASER_PWM)
+        ocr_set(power);
+        isReady = true;
+      #endif
+      #if ENABLED(SPINDLE_SERVO)
+        MOVE_SERVO(SPINDLE_SERVO_NR, power);
+      #endif
+      #if DISABLED(SPINDLE_SERVO)
+        pin_set(true);
+        isReady = true;
+      #endif
+
+      power_delay(true);
+      break;
+    case SPINDLE_LASER_EVENT::OFF:
+      break;
+    case SPINDLE_LASER_EVENT::TO_OFF:
+      last_power_applied = opwr;
+      power = opwr;
+
+      #if ENABLED(SPINDLE_LASER_PWM)
+        ocr_set(0);
+        isReady = false;
+      #endif
+      #if ENABLED(SPINDLE_SERVO)
+        MOVE_SERVO(SPINDLE_SERVO_NR, power);
+      #endif
+      #if DISABLED(SPINDLE_SERVO)
+        pin_set(false);
+        isReady = false;
+      #endif
+
+      power_delay(false);
+      break;
+  }
 }
 
 #if ENABLED(SPINDLE_CHANGE_DIR)
-  //
-  // Set the spindle direction and apply immediately
-  // Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
-  //
+  /**
+   * Set the spindle direction and apply immediately
+   * Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
+   */
   void SpindleLaser::set_reverse(const bool reverse) {
     const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
     if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }
-#endif
+#endif  // SPINDLE_CHANGE_DIR
 
 #if ENABLED(AIR_EVACUATION)
 

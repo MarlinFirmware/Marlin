@@ -45,6 +45,10 @@
   #define SPEED_POWER_INTERCEPT 0
 #endif
 
+// States - power == 0 off, power > 0 on
+// TO - transit state (TO_ON - from any to on)
+enum SPINDLE_LASER_EVENT {ON, OFF, TO_ON, TO_OFF};
+
 // #define _MAP(N,S1,S2,D1,D2) ((N)*_MAX((D2)-(D1),0)/_MAX((S2)-(S1),1)+(D1))
 
 class SpindleLaser {
@@ -109,6 +113,7 @@ public:
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
   static void init();
+  static SPINDLE_LASER_EVENT get_event(const uint8_t opwr);
 
   #if ENABLED(MARLIN_DEV_MODE)
     static inline void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
@@ -119,22 +124,20 @@ public:
   static inline bool enabled() { return enabled(power); }
 
   static void apply_power(const uint8_t inpow);
-
+  // Alias
+  FORCE_INLINE static void set_power(const uint8_t upwr) { apply_power(upwr); }
   FORCE_INLINE static void refresh() { apply_power(power); }
-  FORCE_INLINE static void set_power(const uint8_t upwr) { power = upwr; refresh(); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
-
-    private:
-
-    static void _set_ocr(const uint8_t ocr);
-
     public:
 
-    static void set_ocr(const uint8_t ocr);
-    static inline void set_ocr_power(const uint8_t ocr) { power = ocr; set_ocr(ocr); }
+    static inline void ocr_set_power(const uint8_t ocr) { apply_power(ocr); }
+    static void ocr_set(const uint8_t ocr);
     static void ocr_off();
-    // Used to update output for power->OCR translation
+
+    /**
+     * Used to update output for power->OCR translation
+     */
     static inline uint8_t upower_to_ocr(const cutter_power_t upwr) {
       return (
         #if CUTTER_UNIT_IS(PWM255)
@@ -147,7 +150,9 @@ public:
       );
     }
 
-    // Correct power to configured range
+    /**
+     * Correct power to configured range
+     */
     static inline cutter_power_t power_to_range(const cutter_power_t pwr) {
       return power_to_range(pwr, (
         #if CUTTER_UNIT_IS(PWM255)
@@ -161,6 +166,7 @@ public:
         #endif
       ));
     }
+
     static inline cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
       if (pwr <= 0) return 0;
       cutter_power_t upwr;
@@ -190,14 +196,31 @@ public:
       }
       return upwr;
     }
-
   #endif // SPINDLE_LASER_PWM
 
+  static void pin_set(const bool enable);
+
+  /**
+   * Enable/Disabel spindle/laser
+   * @param enable True - enable; False - disable
+   */
   static inline void set_enabled(const bool enable) {
-    set_power(enable ? TERN(SPINDLE_LASER_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
+    uint8_t value = 0;
+    if (enable) {
+      value = TERN(SPINDLE_LASER_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255);
+    }
+    apply_power(value);
   }
 
-  // Wait for spindle to spin up or spin down
+  static inline void disable() {
+    isReady = false; set_enabled(false);
+  }
+
+  /**
+   * Wait for spindle to spin up or spin down
+   * 
+   * @param on True - state to on; False - state to off.
+   */
   static inline void power_delay(const bool on) {
     #if DISABLED(LASER_POWER_INLINE)
       safe_delay(on ? SPINDLE_LASER_POWERUP_DELAY : SPINDLE_LASER_POWERDOWN_DELAY);
@@ -229,8 +252,6 @@ public:
       return (READ(AIR_ASSIST_PIN) == AIR_ASSIST_ACTIVE);
     }
   #endif
-
-  static inline void disable() { isReady = false; set_enabled(false); }
 
   #if HAS_LCD_MENU
     static inline void enable_with_dir(const bool reverse) {
