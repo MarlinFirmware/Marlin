@@ -200,7 +200,7 @@
 
 // Alter timing for graphical display
 #if ENABLED(U8GLIB_ST7920)
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(200)
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(200)
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(200)
+  #define BOARD_ST7920_DELAY_1               200
+  #define BOARD_ST7920_DELAY_2               200
+  #define BOARD_ST7920_DELAY_3               200
 #endif

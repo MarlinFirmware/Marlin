@@ -163,32 +163,37 @@ extern "C" {
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one
 // SPI Definitions
-#define PIN_SPI_SS              PF11
-#define PIN_SPI_MOSI            PB15
-#define PIN_SPI_MISO            PB14
-#define PIN_SPI_SCK             PB13
 
+// SPI1 (Winbond on the Lerdge-K)
+//#define PIN_SPI_SS            PC4
+//#define PIN_SPI_SCK           PA5
+//#define PIN_SPI_MISO          PA6
+//#define PIN_SPI_MOSI          PA7
 
+// SPI2 (Winbond on the Lerdge-S)
+//#define PIN_SPI_SS            PB12
+//#define PIN_SPI_SCK           PB13
+//#define PIN_SPI_MISO          PB14
+//#define PIN_SPI_MOSI          PB15
 
-//max6675
-//#define PIN_SPI_SS              PA4
-//#define PIN_SPI_SCK             PA5
-//#define PIN_SPI_MISO            PA6
-//#define PIN_SPI_MOSI            PA7
-
-
-
-
-// I2C Definitions
-#define PIN_WIRE_SDA            PB7
-#define PIN_WIRE_SCL            PB6
+// I2C Definitions (Software I2C)
+//#define PIN_WIRE_SDA          PG13
+//#define PIN_WIRE_SCL          PG14
 
 // Timer Definitions
-//Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
-#define TIMER_TONE              TIM6
-
-// Do not use basic timer: OC is required
-#define TIMER_SERVO             TIM1  //TODO: advanced-control timers don't work
+// Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
+// FANs may require PWM timers 3 10 11 13
+// The LED/RGB connectors timer 4
+// Beware: STEP_TIMER default is 6 and TEMP_TIMER 14 for the F407
+#ifndef TIMER_TONE
+  #define TIMER_TONE            TIM8  // TIM3 or TIM8 for SPEAKER compat on the lerdge K (PC6)
+#endif                                // TIM4 for that on the Lerdge S (PD11)
+#ifndef TIMER_SERVO
+  #define TIMER_SERVO           TIM1  // Ideally TIM2 for Hardware PWM (PB11)
+#endif                                // TIM4 on the S (PD12)
+#ifndef TIMER_SERIAL
+  #define TIMER_SERIAL          TIM7  // Default used in SoftwareSerial lib
+#endif
 
 // UART Definitions
 // Define here Serial instance number to map on Serial generic name
@@ -208,6 +213,8 @@ extern "C" {
 /* Extra HAL modules */
 //#define HAL_DAC_MODULE_ENABLED
 #define HAL_SD_MODULE_ENABLED
+#define HAL_SRAM_MODULE_ENABLED
+#define HAL_EXTI_MODULE_ENABLED   // Needed for Endstop (and other external) Interrupts
 
 #ifdef __cplusplus
 } // extern "C"

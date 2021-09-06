@@ -1446,7 +1446,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         UNUSED(persist);
       #endif
 
-      #if ENABLED(LCD_PROGRESS_BAR) || BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
+      #if BASIC_PROGRESS_BAR || BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         const millis_t ms = millis();
       #endif
 
