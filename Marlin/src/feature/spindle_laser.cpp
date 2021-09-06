@@ -132,7 +132,7 @@ SpindleLaserEvent SpindleLaser::get_event(const uint8_t opwr) {
  *
  * Apply cutter power value for PWM, Servo, and on/off pin.
  *
- * @param opwr Power value. Range 0 to MAX. When 0 disable laser/spindel.
+ * @param opwr Power value. Range 0 to MAX. When 0 disable spindle/laser.
  */
 void SpindleLaser::apply_power(const uint8_t opwr) {
   static uint8_t last_power_applied = 0;

@@ -215,7 +215,7 @@ public:
   /**
    * Wait for spindle to spin up or spin down
    *
-   * @param on True - state to on; False - state to off.
+   * @param on true = state to on; false = state to off.
    */
   static inline void power_delay(const bool on) {
     #if DISABLED(LASER_POWER_INLINE)
