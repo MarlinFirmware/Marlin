@@ -35,9 +35,7 @@
 
 namespace ExtUI {
 
-  void onStartup() {
-    dgus_screen_handler.Init();
-  }
+  void onStartup() { dgus_screen_handler.Init(); }
 
   void onIdle() {
     static bool processing = false;
@@ -55,21 +53,15 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    #if ENABLED(SDSUPPORT)
-      dgus_screen_handler.SDCardInserted();
-    #endif
+    TERN_(SDSUPPORT, dgus_screen_handler.SDCardInserted());
   }
 
-  void onMediaError()    {
-    #if ENABLED(SDSUPPORT)
-      dgus_screen_handler.SDCardError();
-    #endif
+  void onMediaError() {
+    TERN_(SDSUPPORT, dgus_screen_handler.SDCardError());
   }
 
-  void onMediaRemoved()  {
-    #if ENABLED(SDSUPPORT)
-      dgus_screen_handler.SDCardRemoved();
-    #endif
+  void onMediaRemoved() {
+    TERN_(SDSUPPORT, dgus_screen_handler.SDCardRemoved());
   }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
@@ -130,15 +122,14 @@ namespace ExtUI {
 
   #if HAS_MESH
     void onMeshLevelingStart() {}
-    
+
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       dgus_screen_handler.MeshUpdate(xpos, ypos);
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
-      if (state == G29_POINT_FINISH) {
+      if (state == G29_POINT_FINISH)
         dgus_screen_handler.MeshUpdate(xpos, ypos);
-      }
     }
   #endif
 
