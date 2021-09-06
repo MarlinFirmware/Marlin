@@ -46,8 +46,8 @@
 #endif
 
 // States - power == 0 off, power > 0 on
-// TO - transit state (TO_ON - from any to on)
-enum SPINDLE_LASER_EVENT {ON, OFF, TO_ON, TO_OFF};
+// TO - transition state (TO_ON - from any to on)
+enum SpindleLaserEvent : uint8_t { ON, OFF, TO_ON, TO_OFF };
 
 // #define _MAP(N,S1,S2,D1,D2) ((N)*_MAX((D2)-(D1),0)/_MAX((S2)-(S1),1)+(D1))
 
@@ -113,7 +113,7 @@ public:
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
   static void init();
-  static SPINDLE_LASER_EVENT get_event(const uint8_t opwr);
+  static SpindleLaserEvent get_event(const uint8_t opwr);
 
   #if ENABLED(MARLIN_DEV_MODE)
     static inline void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
@@ -124,6 +124,7 @@ public:
   static inline bool enabled() { return enabled(power); }
 
   static void apply_power(const uint8_t inpow);
+
   // Alias
   FORCE_INLINE static void set_power(const uint8_t upwr) { apply_power(upwr); }
   FORCE_INLINE static void refresh() { apply_power(power); }
@@ -198,27 +199,24 @@ public:
     }
   #endif // SPINDLE_LASER_PWM
 
-  static void pin_set(const bool enable);
+  static void ena_pin_set(const bool enable);
 
   /**
-   * Enable/Disabel spindle/laser
-   * @param enable True - enable; False - disable
+   * Enable/Disable spindle/laser
+   * @param enable true = enable; false = disable
    */
   static inline void set_enabled(const bool enable) {
     uint8_t value = 0;
-    if (enable) {
+    if (enable)
       value = TERN(SPINDLE_LASER_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255);
-    }
     apply_power(value);
   }
 
-  static inline void disable() {
-    isReady = false; set_enabled(false);
-  }
+  static inline void disable() { isReady = false; set_enabled(false); }
 
   /**
    * Wait for spindle to spin up or spin down
-   * 
+   *
    * @param on True - state to on; False - state to off.
    */
   static inline void power_delay(const bool on) {
@@ -346,7 +344,7 @@ public:
         planner.laser_inline.power = ocrpwr;
       }
     #endif
-  #endif  // LASER_POWER_INLINE
+  #endif // LASER_POWER_INLINE
 
   static inline void kill() {
     TERN_(LASER_POWER_INLINE, inline_disable());
