@@ -33,6 +33,8 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "../../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 /**
@@ -67,6 +69,7 @@ void GcodeSuite::M421() {
     float &zval = ubl.z_values[ij.x][ij.y];                               // Altering this Mesh Point
     zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);  // N=NAN, Z=NEWVAL, or Q=ADDVAL
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));          // Ping ExtUI in case it's showing the mesh
+    TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshUpdate(ij.x, ij.y, zval));
   }
 }
 

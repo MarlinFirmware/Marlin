@@ -1,13 +1,12 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 3.6.1
+ * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,16 +14,20 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /********************************************************************************
- * @file     lcd/e3v2/jyersui/dwin_lcd.h
+ * @file     lcd/e3v2/enhanced/dwin_lcd.h
+ * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
+ * @date     2021/08/29
+ * @version  2.1.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
+
+#pragma once
 
 #include <stdint.h>
 
@@ -38,6 +41,8 @@
 
 #define DWIN_WIDTH  272
 #define DWIN_HEIGHT 480
+
+#define DWIN_DataLength (DWIN_WIDTH / 6 * 2)
 
 /*-------------------------------------- System variable function --------------------------------------*/
 
@@ -62,7 +67,7 @@ void DWIN_UpdateLCD(void);
 void DWIN_Frame_Clear(const uint16_t color);
 
 // Draw a point
-//  color: Line segment color
+//  color: point color
 //  width: point width   0x01-0x0F
 //  height: point height 0x01-0x0F
 //  x,y: upper left point
@@ -95,8 +100,7 @@ inline void DWIN_Draw_VLine(uint16_t color, uint16_t xStart, uint16_t yStart, ui
 //  color: Rectangle color
 //  xStart/yStart: upper left point
 //  xEnd/yEnd: lower right point
-void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
-                         uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
+void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,  uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
 
 // Draw a box
 //  mode: 0=frame, 1=fill, 2=XOR fill
@@ -106,11 +110,6 @@ void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
 inline void DWIN_Draw_Box(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xSize, uint16_t ySize) {
   DWIN_Draw_Rectangle(mode, color, xStart, yStart, xStart + xSize - 1, yStart + ySize - 1);
 }
-
-//Color: color
-//x: upper left point
-//y: bottom right point
-void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y);
 
 // Move a screen area
 //  mode: 0, circle shift; 1, translation
@@ -132,15 +131,19 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  bColor: Background color
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
-void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * string);
+//  rlimit: For draw less chars than string length use rlimit
+void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit = 0xFFFF);
+inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit = 0xFFFF) {
+  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, string, rlimit);
+}
 
 class __FlashStringHelper;
 
 inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-  // Note that this won't work on AVR. This is for 32-bit systems only!
-  // Are __FlashStringHelper versions worth keeping?
-  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, reinterpret_cast<const char*>(title));
+  DWIN_Draw_String(widthAdjust, bShow, size, color, bColor, x, y, (char *)title);
+}
+inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_String(0, bShow, size, color, bColor, x, y, (char *)title);
 }
 
 // Draw a positive integer
@@ -156,7 +159,7 @@ inline void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                           uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value);
 
-// Draw a floating point number
+// Draw a positive floating point number
 //  bShow: true=display background color; false=don't display background color
 //  zeroFill: true=zero fill; false=no zero fill
 //  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
@@ -166,21 +169,51 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  iNum: Number of whole digits
 //  fNum: Number of decimal digits
 //  x/y: Upper-left point
-//  value: Float value
+//  value: Scaled positive float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
+
+// Display QR code
+//  The size of the QR code is (46*QR_Pixel)*(46*QR_Pixel) dot matrix
+//  QR_Pixel: The pixel size occupied by each point of the QR code: 0x01-0x0F (1-16)
+//  (Nx, Ny): The coordinates of the upper left corner displayed by the QR code
+//  str: multi-bit data
+void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string);
+
+inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+  DWIN_Draw_QR(QR_Pixel, x, y, (char *)title);
+}
 
 // Draw JPG and cached in #0 virtual display area
 // id: Picture ID
 void DWIN_JPG_ShowAndCache(const uint8_t id);
 
 // Draw an Icon
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  libID: Icon library ID
 //  picID: Icon ID
 //  x/y: Upper-left point
-void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
+
+// Draw an Icon with transparent background
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
+inline void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
+  DWIN_ICON_Show(0, 0, 1, libID, picID, x, y);
+}
+
+// Draw an Icon from SRAM
+//  IBD: The icon background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
+//  x/y: Upper-left point
+//  addr: SRAM address
+void DWIN_ICON_Show(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint16_t x, uint16_t y, uint16_t addr);
 
 // Unzip the JPG picture to a virtual display area
 //  n: Cache index
@@ -191,13 +224,33 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id);
 //  id: Picture ID
 inline void DWIN_JPG_CacheTo1(uint8_t id) { DWIN_JPG_CacheToN(1, id); }
 
+// Copy area from current virtual display area to current screen
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+void DWIN_Frame_AreaCopy(uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
 // Copy area from virtual display area to current screen
+//  IBD: background display: 0=Background filtering is not displayed, 1=Background display \\When setting the background filtering not to display, the background must be pure black
+//  BIR: Background image restoration: 0=Background image is not restored, 1=Automatically use virtual display area image for background restoration
+//  BFI: Background filtering strength: 0=normal, 1=enhanced, (only valid when the icon background display=0)
 //  cacheID: virtual area number
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+void DWIN_Frame_AreaCopy(uint8_t IBD, uint8_t BIR, uint8_t BFI, uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
+// Copy area from virtual display area to current screen with transparent background
+//  cacheID: virtual area number
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
+inline void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
+                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
+  DWIN_Frame_AreaCopy(0, 0, 1, cacheID, xStart, yStart, xEnd, yEnd, x, y);
+}
 
 // Animate a series of icons
 //  animID: Animation ID  up to 16
@@ -213,3 +266,17 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 // Animation Control
 //  state: 16 bits, each bit is the state of an animation id
 void DWIN_ICON_AnimationControl(uint16_t state);
+
+// Set LCD Brightness 0x00-0x0F
+void DWIN_LCD_Brightness(const uint8_t brightness);
+
+// Write buffer data to the SRAM or Flash
+//  mem: 0x5A=32KB SRAM, 0xA5=16KB Flash
+//  addr: start address
+//  length: Bytes to write
+//  data: address of the buffer with data
+void DWIN_WriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data);
+
+// Write the contents of the 32KB SRAM data memory into the designated image memory space.
+//  picID: Picture memory space location, 0x00-0x0F, each space is 32Kbytes
+void DWIN_SRAMToPic(uint8_t picID);
