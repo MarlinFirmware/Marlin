@@ -79,7 +79,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     }
     else
       cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
-    return cutter.unitPower;
+    return cutter.upower_to_ocr(cutter.unitPower);
   };
 
   #if ENABLED(LASER_POWER_INLINE)
@@ -92,7 +92,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
           cutter.inline_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
         }
         else
-          cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
+          cutter.inline_power(get_s_power());
       #else
         cutter.set_inline_enabled(true);
       #endif
@@ -111,9 +111,9 @@ void GcodeSuite::M3_M4(const bool is_M4) {
       cutter.ocr_set_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
     }
     else
-      cutter.set_power(cutter.upower_to_ocr(get_s_power()));
+      cutter.ocr_set_power(get_s_power());
   #elif ENABLED(SPINDLE_SERVO)
-    cutter.set_power(get_s_power());
+    cutter.ocr_set_power(get_s_power());
   #else
     cutter.set_enabled(true);
   #endif

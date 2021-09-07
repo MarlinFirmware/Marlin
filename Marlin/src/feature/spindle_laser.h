@@ -103,7 +103,7 @@ public:
   #endif
 
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
-  static uint8_t power;
+  static uint8_t ocr_power;
 
   #if ENABLED(MARLIN_DEV_MODE)
     static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
@@ -121,21 +121,19 @@ public:
 
   // Modifying this function should update everywhere
   static inline bool enabled(const cutter_power_t opwr) { return opwr > 0; }
-  static inline bool enabled() { return enabled(power); }
+  static inline bool enabled() { return enabled(ocr_power); }
 
-  static void set_power(const uint8_t inpow);
+  static void ocr_set_power(const uint8_t opwr);
 
-  FORCE_INLINE static void refresh() { set_power(power); }
+  FORCE_INLINE static void refresh() { ocr_set_power(ocr_power); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
     public:
 
-    static inline void ocr_set_power(const uint8_t ocr) { set_power(ocr); }
     static void ocr_set(const uint8_t ocr);
-    static void ocr_off();
 
     /**
-     * Update output for power->OCR translation
+     * Update output for upower->OCR translation
      */
     static inline uint8_t upower_to_ocr(const cutter_power_t upwr) {
       return uint8_t(
@@ -194,18 +192,18 @@ public:
    * @param enable true = enable; false = disable
    */
   static inline void set_enabled(const bool enable) {
-    uint8_t value = 0;
+    uint8_t opwr = 0;
     if (enable) {
       #if ENABLED(SPINDLE_LASER_PWM)
-        if (power)
-          value = power;
+        if (ocr_power)
+          opwr = ocr_power;
         else if (unitPower)
-          value = upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP));
+          opwr = upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP));
       #else
-        value = 255;
+        opwr = 255;
       #endif
     }
-    set_power(value);
+    ocr_set_power(opwr);
   }
 
   static inline void disable() { isReady = false; set_enabled(false); }
@@ -252,7 +250,7 @@ public:
       isReady = true;
       const uint8_t ocr = TERN(SPINDLE_LASER_PWM, upower_to_ocr(menuPower), 255);
       if (menuPower)
-        power = ocr;
+        ocr_power = ocr;
       else
         menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
       unitPower = menuPower;
@@ -265,7 +263,7 @@ public:
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void update_from_mpower() {
-        if (isReady) power = upower_to_ocr(menuPower);
+        if (isReady) ocr_power = upower_to_ocr(menuPower);
         unitPower = menuPower;
       }
     #endif
@@ -334,10 +332,9 @@ public:
     static inline void inline_direction(const bool) { /* never */ }
 
     #if ENABLED(SPINDLE_LASER_PWM)
-      static inline void inline_ocr_power(const uint8_t ocrpwr) {
-        isReady = ocrpwr > 0;
-        planner.laser_inline.status.isEnabled = ocrpwr > 0;
-        planner.laser_inline.power = ocrpwr;
+      static inline void inline_ocr_power(const uint8_t opwr) {
+        planner.laser_inline.status.isEnabled = isReady = opwr > 0;
+        planner.laser_inline.power = opwr;
       }
     #endif
   #endif // LASER_POWER_INLINE

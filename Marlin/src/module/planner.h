@@ -221,7 +221,7 @@ typedef struct block_t {
   #endif
 
   #if HAS_CUTTER
-    cutter_power_t cutter_power;            // Power level for Spindle, Laser, etc.
+    cutter_power_t cutter_ocr_power;        // Power level for Spindle, Laser, etc.
   #endif
 
   #if HAS_FAN

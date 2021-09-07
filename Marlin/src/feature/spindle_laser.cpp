@@ -39,7 +39,7 @@
 #endif
 
 SpindleLaser cutter;
-uint8_t SpindleLaser::power;
+uint8_t SpindleLaser::ocr_power;
 #if ENABLED(LASER_FEATURE)
   cutter_test_pulse_t SpindleLaser::testPulse = 50;                   // Test fire Pulse time ms value.
 #endif
@@ -98,8 +98,6 @@ void SpindleLaser::init() {
     #endif
   }
 
-  void SpindleLaser::ocr_off() { ocr_set(0); }
-
 #endif // SPINDLE_LASER_PWM
 
 /**
@@ -118,35 +116,35 @@ void SpindleLaser::ena_pin_set(const bool enable) {
 SpindleLaserEvent SpindleLaser::get_event(const uint8_t opwr) {
   #if ENABLED(SPINDLE_LASER_PWM) && CUTTER_UNIT_IS(RPM)
     if (cutter.unitPower == 0)
-      return power ? SpindleLaserEvent::TO_OFF : SpindleLaserEvent::OFF;
+      return ocr_power ? SpindleLaserEvent::TO_OFF : SpindleLaserEvent::OFF;
   #endif
 
   if (opwr == 0)
-    return power ? SpindleLaserEvent::TO_OFF : SpindleLaserEvent::OFF;
+    return ocr_power ? SpindleLaserEvent::TO_OFF : SpindleLaserEvent::OFF;
   else
-    return power ? SpindleLaserEvent::ON : SpindleLaserEvent::TO_ON;
+    return ocr_power ? SpindleLaserEvent::ON : SpindleLaserEvent::TO_ON;
 }
 
 /**
- * Set cutter power value for PWM, Servo, and on/off pin.
+ * Set cutter ocr_power value for PWM, Servo, and on/off pin.
  *
  * @param opwr Power value. Range 0 to MAX. When 0 disable spindle/laser.
  */
-void SpindleLaser::set_power(const uint8_t opwr) {
+void SpindleLaser::ocr_set_power(const uint8_t opwr) {
   static uint8_t last_power_applied = 0;
 
   switch (get_event(opwr)) {
     case SpindleLaserEvent::ON:
       if (opwr == last_power_applied) break;
-      last_power_applied = power = opwr;
+      last_power_applied = ocr_power = opwr;
 
       #if ENABLED(SPINDLE_LASER_PWM)
-        ocr_set(power);
+        ocr_set(ocr_power);
         isReady = true;
       #endif
 
       #if ENABLED(SPINDLE_SERVO)
-        MOVE_SERVO(SPINDLE_SERVO_NR, power);
+        MOVE_SERVO(SPINDLE_SERVO_NR, ocr_power);
       #else
         ena_pin_set(true);
         isReady = true;
@@ -154,15 +152,15 @@ void SpindleLaser::set_power(const uint8_t opwr) {
       break;
 
     case SpindleLaserEvent::TO_ON:
-      last_power_applied = power = opwr;
+      last_power_applied = ocr_power = opwr;
 
       #if ENABLED(SPINDLE_LASER_PWM)
-        ocr_set(power);
+        ocr_set(ocr_power);
         isReady = true;
       #endif
 
       #if ENABLED(SPINDLE_SERVO)
-        MOVE_SERVO(SPINDLE_SERVO_NR, power);
+        MOVE_SERVO(SPINDLE_SERVO_NR, ocr_power);
       #else
         ena_pin_set(true);
         isReady = true;
@@ -174,7 +172,7 @@ void SpindleLaser::set_power(const uint8_t opwr) {
     case SpindleLaserEvent::OFF: break;
 
     case SpindleLaserEvent::TO_OFF:
-      last_power_applied = power = opwr;
+      last_power_applied = ocr_power = opwr;
 
       #if ENABLED(SPINDLE_LASER_PWM)
         isReady = false;
@@ -182,7 +180,7 @@ void SpindleLaser::set_power(const uint8_t opwr) {
       #endif
 
       #if ENABLED(SPINDLE_SERVO)
-        MOVE_SERVO(SPINDLE_SERVO_NR, power);
+        MOVE_SERVO(SPINDLE_SERVO_NR, ocr_power);
       #else
         isReady = false;
         ena_pin_set(false);
