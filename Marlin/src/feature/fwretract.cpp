@@ -36,7 +36,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 #include "../module/planner.h"
 #include "../module/stepper.h"
 
-#include "../gcode/parser.h"
+#include "../gcode/gcode.h"
 
 #if ENABLED(RETRACT_SYNC_MIXING)
   #include "mixing.h"
@@ -214,8 +214,7 @@ void FWRetract::M207() {
   if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
 }
 
-void FWRetract::M207_report(const bool forReplay/*=false*/) {
-  if (!forReplay) { SERIAL_ECHO_MSG("; Retract: S<length> F<units/m> Z<lift>"); SERIAL_ECHO_START(); }
+void FWRetract::M207_report() {
   SERIAL_ECHOLNPAIR_P(
       PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length)
     , PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length)
@@ -240,8 +239,7 @@ void FWRetract::M208() {
   if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
 }
 
-void FWRetract::M208_report(const bool forReplay/*=false*/) {
-  if (!forReplay) { SERIAL_ECHO_MSG("; Recover: S<length> F<units/m>"); SERIAL_ECHO_START(); }
+void FWRetract::M208_report() {
   SERIAL_ECHOLNPAIR(
       "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
     , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
@@ -262,8 +260,7 @@ void FWRetract::M208_report(const bool forReplay/*=false*/) {
       enable_autoretract(parser.value_bool());
   }
 
-  void FWRetract::M209_report(const bool forReplay/*=false*/) {
-    if (!forReplay) { SERIAL_ECHO_MSG("; Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover"); SERIAL_ECHO_START(); }
+  void FWRetract::M209_report() {
     SERIAL_ECHOLNPAIR("  M209 S", AS_DIGIT(autoretract_enabled));
   }
 

@@ -113,4 +113,22 @@ void GcodeSuite::M425() {
   }
 }
 
+void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_BACKLASH_COMPENSATION));
+  SERIAL_ECHOLNPAIR_P(
+    PSTR("  M425 F"), backlash.get_correction()
+    #ifdef BACKLASH_SMOOTHING_MM
+      , PSTR(" S"), LINEAR_UNIT(backlash.smoothing_mm)
+    #endif
+    , LIST_N(DOUBLE(LINEAR_AXES),
+        SP_X_STR, LINEAR_UNIT(backlash.distance_mm.x),
+        SP_Y_STR, LINEAR_UNIT(backlash.distance_mm.y),
+        SP_Z_STR, LINEAR_UNIT(backlash.distance_mm.z),
+        SP_I_STR, LINEAR_UNIT(backlash.distance_mm.i),
+        SP_J_STR, LINEAR_UNIT(backlash.distance_mm.j),
+        SP_K_STR, LINEAR_UNIT(backlash.distance_mm.k)
+      )
+  );
+}
+
 #endif // BACKLASH_GCODE

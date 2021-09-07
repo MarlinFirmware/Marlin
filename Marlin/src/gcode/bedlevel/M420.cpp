@@ -242,4 +242,18 @@ void GcodeSuite::M420() {
     report_current_position();
 }
 
+void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(
+    TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
+  ));
+  SERIAL_ECHOPAIR_P(
+    PSTR("  M420 S"), planner.leveling_active
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
+    #endif
+    , " ; Leveling "
+  );
+  serialprintln_onoff(planner.leveling_active);
+}
+
 #endif // HAS_LEVELING

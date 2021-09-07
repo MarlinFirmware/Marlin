@@ -32,19 +32,8 @@
  * M851: Set the nozzle-to-probe offsets in current units
  */
 void GcodeSuite::M851() {
-
-  // Show usage with no parameters
-  if (!parser.seen("XYZ")) {
-    SERIAL_ECHOLNPAIR_P(
-      #if HAS_PROBE_XY_OFFSET
-        PSTR(STR_PROBE_OFFSET " X"), probe.offset_xy.x, SP_Y_STR, probe.offset_xy.y, SP_Z_STR
-      #else
-        PSTR(STR_PROBE_OFFSET " X0 Y0 Z")
-      #endif
-      , probe.offset.z
-    );
-    return;
-  }
+  // No parameters? Show current state.
+  if (!parser.seen("XYZ")) return M851_report();
 
   // Start with current offsets and modify
   xyz_pos_t offs = probe.offset;
@@ -92,6 +81,22 @@ void GcodeSuite::M851() {
 
   // Save the new offsets
   if (ok) probe.offset = offs;
+}
+
+void GcodeSuite::M851_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_Z_PROBE_OFFSET));
+  SERIAL_ECHOPAIR_P(
+    #if HAS_PROBE_XY_OFFSET
+      PSTR("  M851 X"), LINEAR_UNIT(probe.offset_xy.x),
+              SP_Y_STR, LINEAR_UNIT(probe.offset_xy.y),
+              SP_Z_STR
+    #else
+      PSTR("  M851 X0 Y0 Z")
+    #endif
+    , LINEAR_UNIT(probe.offset.z)
+    , " ;"
+  );
+  say_units();
 }
 
 #endif // HAS_BED_PROBE
