@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD
+#if HAS_DGUS_LCD_CLASSIC
 
 #include "../ui_api.h"
 #include "DGUSDisplay.h"
@@ -159,4 +159,4 @@ namespace ExtUI {
   void onSteppersEnabled()  {}
 }
 
-#endif // HAS_DGUS_LCD
+#endif // HAS_DGUS_LCD_CLASSIC
