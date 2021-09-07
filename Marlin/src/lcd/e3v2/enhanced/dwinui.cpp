@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "../../../inc/MarlinConfig.h"
 #include "../../../core/macros.h"
@@ -449,4 +449,4 @@ MenuItemPtrClass::MenuItemPtrClass(uint8_t cicon, const char * const text, void 
   value = val;
 };
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD_ENHANCED

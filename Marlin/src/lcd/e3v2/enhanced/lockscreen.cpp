@@ -20,6 +20,9 @@
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+
 #include "../../../core/types.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
@@ -61,6 +64,6 @@ void LockScreenClass::onEncoderState(ENCODER_DiffState encoder_diffState) {
   DWIN_UpdateLCD();
 }
 
-bool LockScreenClass::isUnlocked() {
-  return unlocked;
-}
+bool LockScreenClass::isUnlocked() { return unlocked; }
+
+#endif // DWIN_CREALITY_LCD_ENHANCED

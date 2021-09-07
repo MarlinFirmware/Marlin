@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "dwin.h"
 
@@ -253,13 +253,8 @@ void ICON_Button(const bool here, const int iconid, const frame_rect_t &ico, con
 void ICON_Print() {
   constexpr frame_rect_t ico = { 17, 110, 110, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     { 1, { 417, 449 }, 30, 14 },
     { 1, { 405, 447 }, 27, 15 }
-#else
-    { 1, { 423, 451 }, 30, 14 },
-    { 1, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_page.now == 0, ICON_Print_0, ico, txt);
 }
@@ -270,13 +265,8 @@ void ICON_Print() {
 void ICON_Prepare() {
   constexpr frame_rect_t ico = { 145, 110, 110, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     { 33, { 417, 449 }, 51, 14 },
     { 31, { 405, 447 }, 27, 15 }
-#else
-    { 33, { 423, 451 }, 51, 14 },
-    { 31, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_page.now == 1, ICON_Prepare_0, ico, txt);
 }
@@ -287,13 +277,8 @@ void ICON_Prepare() {
 void ICON_Control() {
   constexpr frame_rect_t ico = { 17, 226, 110, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     { 85, { 417, 449 }, 46, 14 },
     { 61, { 405, 447 }, 27, 15 }
-#else
-    { 85, { 423, 451 }, 46, 14 },
-    { 61, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_page.now == 2, ICON_Control_0, ico, txt);
 }
@@ -304,13 +289,8 @@ void ICON_Control() {
 void ICON_StartInfo() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     { 133, { 417, 449 }, 23, 14 },
     {  91, { 405, 447 }, 27, 15 }
-#else
-    { 132, { 423, 451 }, 23, 14 },
-    {  91, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_page.now == 3, ICON_Info_0, ico, txt);
 }
@@ -321,13 +301,8 @@ void ICON_StartInfo() {
 void ICON_Leveling() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     {  88, { 433, 464 }, 36, 14 },
     { 211, { 405, 447 }, 27, 15 }
-#else
-    {  84, { 437, 465 }, 36, 14 },
-    { 211, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_page.now == 3, ICON_Leveling_0, ico, txt);
 }
@@ -338,13 +313,8 @@ void ICON_Leveling() {
 void ICON_Tune() {
   constexpr frame_rect_t ico = { 8, 232, 80, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     {   0, { 433, 464 }, 32, 14 },
     { 121, { 405, 447 }, 27, 15 }
-#else
-    {   0, { 438, 466 }, 32, 12 },
-    { 121, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_print.now == 0, ICON_Setup_0, ico, txt);
 }
@@ -355,13 +325,8 @@ void ICON_Tune() {
 void ICON_Pause() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     { 157, { 417, 449 }, 39, 14 },
     { 181, { 405, 447 }, 27, 15 }
-#else
-    { 177, { 423, 451 }, 39, 12 },
-    { 181, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_print.now == 1, ICON_Pause_0, ico, txt);
 }
@@ -372,13 +337,8 @@ void ICON_Pause() {
 void ICON_Resume() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     { 33, { 433, 464 }, 53, 14 },
     {  1, { 405, 447 }, 27, 15 }
-#else
-    {  1, { 424, 452 }, 30, 12 },
-    {  1, { 405, 446 }, 27, 15 }
-#endif
   };
   ICON_Button(select_print.now == 1, ICON_Continue_0, ico, txt);
 }
@@ -389,13 +349,8 @@ void ICON_Resume() {
 void ICON_Stop() {
   constexpr frame_rect_t ico = { 184, 232, 80, 100 };
   constexpr text_info_t txt[2] = {
-#ifdef USE_UNIFIED_DWIN_SET
     { 196, { 417, 449 }, 29, 14 },
     { 151, { 405, 447 }, 27, 12 }
-#else
-    { 218, { 423, 451 }, 30, 12 },
-    { 151, { 405, 446 }, 27, 12 }
-#endif
   };
   ICON_Button(select_print.now == 2, ICON_Stop_0, ico, txt);
 }
@@ -3571,4 +3526,4 @@ void Draw_Steps_Menu() {
 #endif
 
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD_ENHANCED

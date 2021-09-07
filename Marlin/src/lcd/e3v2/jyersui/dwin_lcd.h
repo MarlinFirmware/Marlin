@@ -44,9 +44,6 @@
 // Handshake (1: Success, 0: Fail)
 bool DWIN_Handshake(void);
 
-// Common DWIN startup
-void DWIN_Startup(void);
-
 // Set the backlight luminance
 //  luminance: (0x00-0xFF)
 void DWIN_Backlight_SetLuminance(const uint8_t luminance);

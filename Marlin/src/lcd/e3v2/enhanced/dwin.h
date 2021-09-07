@@ -150,7 +150,7 @@ extern HMI_data_t HMI_data;
 extern uint8_t checkkey;
 extern millis_t dwin_heat_time;
 
-// Popups windows
+// Popup windows
 void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
 #if HAS_HOTEND || HAS_HEATED_BED
   void DWIN_Popup_Temperature(const bool toohigh);

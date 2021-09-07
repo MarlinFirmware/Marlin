@@ -40,9 +40,7 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
-#endif
-
-#if ENABLED(DWIN_CREALITY_LCD)
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "../../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
@@ -195,7 +193,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
-        TERN_(DWIN_CREALITY_LCD, DWIN_MeshUpdate(ix, iy, mbl.z_values[ix][iy]));
+        TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');

@@ -29,7 +29,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "rotary_encoder.h"
 #include "../../buttons.h"
@@ -258,4 +258,4 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
 
 #endif // LCD_LED
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD_ENHANCED

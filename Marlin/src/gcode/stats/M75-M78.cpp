@@ -29,7 +29,7 @@
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
@@ -38,7 +38,7 @@
  */
 void GcodeSuite::M75() {
   startOrResumeJob();
-  #if ENABLED(DWIN_CREALITY_LCD)
+  #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
     DWIN_Print_Header(parser.string_arg && parser.string_arg[0] ? parser.string_arg : GET_TEXT(MSG_HOST_START_PRINT));
     DWIN_Print_Started(false);
   #endif
@@ -57,30 +57,30 @@ void GcodeSuite::M76() {
  */
 void GcodeSuite::M77() {
   print_job_timer.stop();
-  TERN_(DWIN_CREALITY_LCD, DWIN_Print_Finished());
+  TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Print_Finished());
 }
 
 #if ENABLED(PRINTCOUNTER)
 
-/**
+  /**
    * M78: Show print statistics
    */
-void GcodeSuite::M78() {
-  if (parser.intval('S') == 78) {  // "M78 S78" will reset the statistics
+  void GcodeSuite::M78() {
+    if (parser.intval('S') == 78) {  // "M78 S78" will reset the statistics
       print_job_timer.initStats();
       ui.reset_status();
-    return;
+      return;
     }
 
     #if HAS_SERVICE_INTERVALS
-    if (parser.seenval('R')) {
+      if (parser.seenval('R')) {
         print_job_timer.resetServiceInterval(parser.value_int());
         ui.reset_status();
-      return;
+        return;
       }
     #endif
 
     print_job_timer.showStats();
-}
+  }
 
 #endif // PRINTCOUNTER

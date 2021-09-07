@@ -58,9 +58,9 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
-#endif
-
-#if ENABLED(DWIN_CREALITY_LCD)
+#elif ENABLED(DWIN_CREALITY_LCD)
+  #include "../../../lcd/e3v2/creality/dwin.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "../../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
@@ -403,14 +403,9 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
-    #endif
-
-    #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
-      ExtUI::onMeshLevelingStart();
-    #endif
-
-    #if BOTH(AUTO_BED_LEVELING_BILINEAR, DWIN_CREALITY_LCD)
-      DWIN_MeshLevelingStart();
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshLevelingStart());
     #endif
 
     if (!faux) {
@@ -890,9 +885,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    DWIN_CompletedLeveling();
-  #endif
+  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedLeveling());
 
   report_current_position();
 

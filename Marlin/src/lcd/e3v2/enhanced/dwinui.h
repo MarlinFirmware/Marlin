@@ -24,11 +24,8 @@
 #include "dwin_lcd.h"
 
 // ICON ID
-#ifdef USE_UNIFIED_DWIN_SET
-  #define ICON                  0x07  // Use 7.ICO from unified DWIN_SET
-#else
-  #define ICON                  0x09  // Default 9.ICO icon library
-#endif
+#define ICON                7 // Icon set file 7.ICO
+
 #define ICON_LOGO                  0
 #define ICON_Print_0               1
 #define ICON_Print_1               2
