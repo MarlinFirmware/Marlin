@@ -59,6 +59,10 @@
   #include "../feature/host_actions.h"
 #endif
 
+#if HAS_TEMP_SENSOR
+  #include "../gcode/gcode.h"
+#endif
+
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 #define TEMP_SENSOR_IS_ANY_MAX_TC(n) (ENABLED(TEMP_SENSOR_##n##_IS_MAX_TC) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX_TC) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
@@ -1722,13 +1726,9 @@ void Temperature::manage_heater() {
     COPY(user_thermistor, default_user_thermistor);
   }
 
-  void Temperature::log_user_thermistor(const uint8_t t_index, const bool eprom/*=false*/) {
-
-    if (eprom)
-      SERIAL_ECHOPGM("  M305 ");
-    else
-      SERIAL_ECHO_START();
-    SERIAL_CHAR('P', '0' + t_index);
+  void Temperature::M305_report(const uint8_t t_index, const bool forReplay/*=true*/) {
+    gcode.report_heading_etc(forReplay, PSTR(STR_USER_THERMISTORS));
+    SERIAL_ECHOPAIR("  M305 P", AS_DIGIT(t_index));
 
     const user_thermistor_t &t = user_thermistor[t_index];
 
@@ -1794,13 +1794,13 @@ void Temperature::manage_heater() {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
   celsius_float_t Temperature::analog_to_celsius_hotend(const int16_t raw, const uint8_t e) {
-      if (e >= HOTENDS) {
-        SERIAL_ERROR_START();
-        SERIAL_ECHO(e);
-        SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER_NUM);
-        kill();
-        return 0;
-      }
+    if (e >= HOTENDS) {
+      SERIAL_ERROR_START();
+      SERIAL_ECHO(e);
+      SERIAL_ECHOLNPGM(STR_INVALID_EXTRUDER_NUM);
+      kill();
+      return 0;
+    }
 
     switch (e) {
       case 0:
@@ -3490,9 +3490,6 @@ void Temperature::isr() {
 }
 
 #if HAS_TEMP_SENSOR
-
-  #include "../gcode/gcode.h"
-
   /**
    * Print a single heater state in the form:
    *        Bed: " B:nnn.nn /nnn.nn"

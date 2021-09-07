@@ -578,13 +578,13 @@ void _O2 Endstops::report_states() {
         default: continue;
         REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
-      SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
+      SERIAL_ECHOPGM(STR_FILAMENT);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
       print_es_state(extDigitalRead(pin) != state);
     }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

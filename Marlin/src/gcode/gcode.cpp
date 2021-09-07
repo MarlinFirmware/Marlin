@@ -102,6 +102,24 @@ uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
+void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
+void GcodeSuite::report_heading(const bool forReplay, PGM_P const pstr, const bool eol/*=true*/) {
+  if (forReplay) return;
+  if (pstr) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM("; ");
+    SERIAL_ECHOPGM_P(pstr);
+  }
+  if (eol) { SERIAL_CHAR(':'); SERIAL_EOL(); }
+}
+
+void GcodeSuite::say_units() {
+  SERIAL_ECHOLNPGM_P(
+    TERN_(INCH_MODE_SUPPORT, parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :)
+    PSTR(" (mm)")
+  );
+}
+
 /**
  * Get the target extruder from the T parameter or the active_extruder
  * Return -1 if the T parameter is out of range
@@ -180,7 +198,7 @@ void GcodeSuite::get_destination_from_command() {
       recovery.save();
   #endif
 
-  if (parser.linearval('F') > 0)
+  if (parser.floatval('F') > 0)
     feedrate_mm_s = parser.value_feedrate();
 
   #if ENABLED(PRINTCOUNTER)

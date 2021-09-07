@@ -33,7 +33,7 @@
  * M17: Enable stepper motors
  */
 void GcodeSuite::M17() {
-  if (parser.seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR))) {
+  if (parser.seen_axis()) {
     LOGICAL_AXIS_CODE(
       if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) enable_e_steppers(),
       if (parser.seen_test('X'))        ENABLE_AXIS_X(),
@@ -59,7 +59,7 @@ void GcodeSuite::M18_M84() {
     stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
-    if (parser.seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR))) {
+    if (parser.seen_axis()) {
       planner.synchronize();
       LOGICAL_AXIS_CODE(
         if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) disable_e_steppers(),

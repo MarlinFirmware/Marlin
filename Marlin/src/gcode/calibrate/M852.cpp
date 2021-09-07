@@ -36,10 +36,11 @@
  *  K[yz_factor] - New YZ skew factor
  */
 void GcodeSuite::M852() {
-  uint8_t ijk = 0, badval = 0, setval = 0;
+  if (!parser.seen("SIJK")) return M852_report();
 
-  if (parser.seen('I') || parser.seen('S')) {
-    ++ijk;
+  uint8_t badval = 0, setval = 0;
+
+  if (parser.seenval('I') || parser.seenval('S')) {
     const float value = parser.value_linear_units();
     if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
       if (planner.skew_factor.xy != value) {
@@ -53,8 +54,7 @@ void GcodeSuite::M852() {
 
   #if ENABLED(SKEW_CORRECTION_FOR_Z)
 
-    if (parser.seen('J')) {
-      ++ijk;
+    if (parser.seenval('J')) {
       const float value = parser.value_linear_units();
       if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
         if (planner.skew_factor.xz != value) {
@@ -66,8 +66,7 @@ void GcodeSuite::M852() {
         ++badval;
     }
 
-    if (parser.seen('K')) {
-      ++ijk;
+    if (parser.seenval('K')) {
       const float value = parser.value_linear_units();
       if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
         if (planner.skew_factor.yz != value) {
@@ -90,17 +89,18 @@ void GcodeSuite::M852() {
     sync_plan_position();
     report_current_position();
   }
+}
 
-  if (!ijk) {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM("Skew Factor");
-    SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
-    #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);
-      SERIAL_ECHOPAIR_F(" YZ: ", planner.skew_factor.yz, 6);
-    #endif
-    SERIAL_EOL();
-  }
+void GcodeSuite::M852_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_SKEW_FACTOR));
+  SERIAL_ECHOPAIR_F("  M851 I", planner.skew_factor.xy, 6);
+  #if ENABLED(SKEW_CORRECTION_FOR_Z)
+    SERIAL_ECHOPAIR_F(" J", planner.skew_factor.xz, 6);
+    SERIAL_ECHOPAIR_F(" K", planner.skew_factor.yz, 6);
+    SERIAL_ECHOLNPGM(" ; XY, XZ, YZ");
+  #else
+    SERIAL_ECHOLNPGM(" ; XY");
+  #endif
 }
 
 #endif // SKEW_CORRECTION_GCODE

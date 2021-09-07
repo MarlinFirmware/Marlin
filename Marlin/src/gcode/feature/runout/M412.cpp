@@ -66,4 +66,16 @@ void GcodeSuite::M412() {
   }
 }
 
+void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+  SERIAL_ECHOLNPAIR(
+    "  M412 S", runout.enabled
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
+      , " D", LINEAR_UNIT(runout.runout_distance())
+    #endif
+    , " ; Sensor "
+  );
+  serialprintln_onoff(runout.enabled);
+}
+
 #endif // HAS_FILAMENT_SENSOR
