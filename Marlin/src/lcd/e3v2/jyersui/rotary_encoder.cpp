@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,25 +21,24 @@
  */
 
 /*****************************************************************************
- * @file     lcd/e3v2/creality/rotary_encoder.cpp
- * @author   LEO / Creality3D
- * @date     2019/07/06
- * @version  2.0.1
+ * @file     lcd/e3v2/jyersui/rotary_encoder.cpp
  * @brief    Rotary encoder functions
  *****************************************************************************/
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
 
 #include "rotary_encoder.h"
 #include "../../buttons.h"
 
 #include "../../../MarlinCore.h"
+#include "../../marlinui.h"
 #include "../../../HAL/shared/Delay.h"
 
 #if HAS_BUZZER
   #include "../../../libs/buzzer.h"
+  #include "dwin.h"
 #endif
 
 #include <stdlib.h>
@@ -53,9 +52,11 @@ ENCODER_Rate EncoderRate;
 // Buzzer
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
-    WRITE(BEEPER_PIN, HIGH);
-    delay(10);
-    WRITE(BEEPER_PIN, LOW);
+    if (CrealityDWIN.eeprom_settings.beeperenable) {
+      WRITE(BEEPER_PIN, HIGH);
+      delay(10);
+      WRITE(BEEPER_PIN, LOW);
+    }
   #endif
 }
 
@@ -93,9 +94,8 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      const bool was_waiting = wait_for_user;
-      wait_for_user = false;
-      return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
+      if (ui.backlight) return ENCODER_DIFF_ENTER;
+      ui.refresh_brightness();
     }
     else return ENCODER_DIFF_NO;
   }
@@ -258,4 +258,4 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
 
 #endif // LCD_LED
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD_JYERSUI
