@@ -409,7 +409,7 @@ void Draw_Back_Label() {
   if (HMI_IsChinese())
     DWIN_Frame_AreaCopy(1, 129, 72, 156, 84, LBLX, MBASE(0));
   else
-    DWIN_Frame_AreaCopy(1, 226, 179, 256, 189, LBLX, MBASE(0));
+    DWIN_Frame_AreaCopy(1, 223, 179, 254, 189, LBLX, MBASE(0));
 }
 
 // Draw "Back" line at the top
