@@ -56,8 +56,8 @@ void GcodeSuite::M280() {
           float aMinusB = (float)(a-b);
 
           while(now<until) {
-            now = millis();
-            if(now-prev<5) continue;
+            now = millis()+50;
+            now = now < until? now : until;
             prev = now;
             float ratio = (float)(now-start) / (float)t;
             int i = (int)( aMinusB * ratio + b );
