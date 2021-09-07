@@ -148,7 +148,7 @@
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
 
-  #error "DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. Comment out this line to continue."
+  #error "Ender-3 V2 display requires a custom cable, see diagram above this line. Comment out this line to continue."
 
   #define BEEPER_PIN                      EXP1_9
   #define BTN_EN1                         EXP1_3
