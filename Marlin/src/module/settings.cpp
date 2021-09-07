@@ -73,6 +73,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #include "../lcd/e3v2/jyersui/dwin.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -439,6 +443,13 @@ typedef struct SettingsDataStruct {
   #if ENABLED(EXTENSIBLE_UI)
     // This is a significant hardware change; don't reserve space when not present
     uint8_t extui_data[ExtUI::eeprom_data_size];
+  #endif
+
+  //
+  // DWIN_CREALITY_LCD_JYERSUI
+  //
+  #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+    uint8_t dwin_settings[CrealityDWIN.eeprom_data_size];
   #endif
 
   //
@@ -1347,6 +1358,18 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Creality UI Settings
+    //
+    #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+    {
+      char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+      CrealityDWIN.Save_Settings(dwin_settings);
+      _FIELD_TEST(dwin_settings);
+      EEPROM_WRITE(dwin_settings);
+    }
+    #endif
+
+    //
     // Case Light Brightness
     //
     #if CASELIGHT_USES_BRIGHTNESS
@@ -2226,6 +2249,18 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Creality UI Settings
+      //
+      #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+      {
+        const char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+        _FIELD_TEST(dwin_settings);
+        EEPROM_READ(dwin_settings);
+        if (!validating) CrealityDWIN.Load_Settings(dwin_settings);
+      }
+      #endif
+
+      //
       // Case Light Brightness
       //
       #if CASELIGHT_USES_BRIGHTNESS
@@ -2621,6 +2656,8 @@ void MarlinSettings::reset() {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
+
+  TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
   //
   // Case Light Brightness
