@@ -53,13 +53,13 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-#if ENABLED(SDSUPPORT)  
-  #if !PIN_EXISTS(SD_SS)
-    #error "SD_SS_PIN not defined!"
-  #endif
+  #if ENABLED(SDSUPPORT)  
+    #if !PIN_EXISTS(SD_SS)
+      #error "SD_SS_PIN not defined!"
+    #endif
 
-  OUT_WRITE(SD_SS_PIN, HIGH);
-#endif // !SDSUPPORT
+    OUT_WRITE(SD_SS_PIN, HIGH);
+  #endif
 }
 
 void spiInit(uint8_t spiRate) {
