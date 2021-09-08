@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD
+#if HAS_DGUS_LCD_CLASSIC
 
 #if HOTENDS > 2
   #warning "More than 2 hotends not implemented on DGUS Display UI."
@@ -268,4 +268,4 @@ bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy) {
   return true;
 }
 
-#endif // HAS_DGUS_LCD
+#endif // HAS_DGUS_LCD_CLASSIC

@@ -260,6 +260,7 @@
 #define CODE_3( A,B,C,...) A; B; C
 #define CODE_2( A,B,...) A; B
 #define CODE_1( A,...) A
+#define CODE_0(...)
 #define _CODE_N(N,V...) CODE_##N(V)
 #define CODE_N(N,V...) _CODE_N(N,V)
 
@@ -279,6 +280,7 @@
 #define GANG_3( A,B,C,...) A B C
 #define GANG_2( A,B,...) A B
 #define GANG_1( A,...) A
+#define GANG_0(...)
 #define _GANG_N(N,V...) GANG_##N(V)
 #define GANG_N(N,V...) _GANG_N(N,V)
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)

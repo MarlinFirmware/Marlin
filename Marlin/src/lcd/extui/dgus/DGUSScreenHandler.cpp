@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD
+#if HAS_DGUS_LCD_CLASSIC
 
 #include "DGUSScreenHandler.h"
 
@@ -772,4 +772,4 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
 
-#endif // HAS_DGUS_LCD
+#endif // HAS_DGUS_LCD_CLASSIC

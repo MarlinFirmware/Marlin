@@ -97,6 +97,7 @@ jobs:
         - REMRAM_V1
         - BTT_SKR_SE_BX
         - chitu_f103
+        - Index_Mobo_Rev03
 
         # Put lengthy tests last
 

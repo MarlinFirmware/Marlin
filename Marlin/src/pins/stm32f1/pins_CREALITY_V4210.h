@@ -165,7 +165,7 @@
      *        ------
      *  PC6  |10  9 | PB2
      *  PB10 | 8  7 | PE8
-     *  PB14 | 6  5 | PB13
+     *  PB14   6  5 | PB13
      *  PB12 | 4  3 | PB15
      *  GND  | 2  1 | 5V
      *        ------
@@ -189,7 +189,7 @@
      *        ------
      *  ?    |10  9 | PC5
      *  PB10 | 8  7 | ?
-     *  PA6  | 6  5 | PA5
+     *  PA6    6  5 | PA5
      *  PA4  | 4  3 | PA7
      *  GND  | 2  1 | 5V
      *        ------
@@ -216,7 +216,7 @@
   #define BTN_EN1                    EXP1_08_PIN
   #define BTN_EN2                    EXP1_06_PIN
 
-#elif EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
+#elif EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14

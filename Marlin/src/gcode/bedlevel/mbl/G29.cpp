@@ -40,6 +40,8 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "../../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -191,6 +193,7 @@ void GcodeSuite::G29() {
       if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
+        TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');
@@ -211,7 +214,7 @@ void GcodeSuite::G29() {
 
   if (state == MeshNext) {
     SERIAL_ECHOLNPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
-    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
   report_current_position();

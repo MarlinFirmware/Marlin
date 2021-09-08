@@ -56,6 +56,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Arrêter moteurs");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu debug");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barre progress.");
+  PROGMEM Language_Str MSG_HOMING                          = _UxGT("Origine");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Origine auto");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Origine X auto");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Origine Y auto");
@@ -117,7 +118,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Modif. maille"); // 13 car. max
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifier grille");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Modification arrêtée");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Mesure point");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Mesure point");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valeur Z");

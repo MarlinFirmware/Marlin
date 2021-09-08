@@ -40,7 +40,7 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if HAS_DWIN_E3V2_BASIC
   bool PrintJobRecovery::dwin_flag; // = false
 #endif
 
@@ -386,7 +386,7 @@ void PrintJobRecovery::resume() {
           ), dtostrf(z_now, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
 
-  #else
+  #elif DISABLED(BELTPRINTER)
 
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
       #define HOMING_Z_DOWN 1

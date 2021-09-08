@@ -57,6 +57,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Apagar motores");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menú depuración");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Prob. barra progreso");
+  PROGMEM Language_Str MSG_HOMING                          = _UxGT("Origen");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Llevar al origen");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Origen X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Origen Y");
@@ -110,7 +111,7 @@ namespace Language_es {
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mallado");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Mallado");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Ed. Mallado parada");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Sondear Punto");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Sondear Punto");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");

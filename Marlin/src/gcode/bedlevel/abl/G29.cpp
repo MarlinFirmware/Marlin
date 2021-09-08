@@ -58,10 +58,10 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
-#endif
-
-#if ENABLED(DWIN_CREALITY_LCD)
+#elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "../../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 #if HAS_MULTI_HOTEND
@@ -403,10 +403,9 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
-    #endif
-
-    #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
-      ExtUI::onMeshLevelingStart();
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshLevelingStart());
     #endif
 
     if (!faux) {
@@ -637,7 +636,7 @@ G29_TYPE GcodeSuite::G29() {
           if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
 
           if (abl.verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(abl.abl_points)));
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
 
           abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
 
@@ -682,7 +681,7 @@ G29_TYPE GcodeSuite::G29() {
 
       LOOP_L_N(i, 3) {
         if (abl.verbose_level) SERIAL_ECHOLNPAIR("Probing point ", i + 1, "/3.");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i + 1)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_POINT), int(i + 1)));
 
         // Retain the last probe position
         abl.probePos = xy_pos_t(points[i]);
@@ -886,9 +885,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    DWIN_CompletedLeveling();
-  #endif
+  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedLeveling());
 
   report_current_position();
 

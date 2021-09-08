@@ -207,11 +207,6 @@
     #define LCD_PINS_ENABLE                 PE11
     #define LCD_PINS_D4                     PE10
 
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
-
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_E3_RRF.h' for details. Comment out this line to continue."
@@ -282,16 +277,10 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+  #if ENABLED(U8GLIB_ST7920)
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 
 #endif // HAS_WIRED_LCD

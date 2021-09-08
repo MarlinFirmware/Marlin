@@ -326,7 +326,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-	//#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
   #else                                           // !MKS_MINI_12864
 
@@ -342,15 +342,9 @@
 
     #endif
 
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
-    #endif
+    #define BOARD_ST7920_DELAY_1             125
+    #define BOARD_ST7920_DELAY_2             125
+    #define BOARD_ST7920_DELAY_3             125
 
   #endif // !MKS_MINI_12864
 

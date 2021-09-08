@@ -36,9 +36,8 @@ typedef const char Language_Str[];
   #define NUM_LANGUAGES 1
 #endif
 
-// Setting the unused languages equal to each other allows
-// the compiler to optimize away the conditionals
-
+// Set unused languages equal to each other so the
+// compiler can optimize away the conditionals.
 #ifndef LCD_LANGUAGE_2
   #define LCD_LANGUAGE_2 LCD_LANGUAGE
 #endif
@@ -58,11 +57,11 @@ typedef const char Language_Str[];
 #if NUM_LANGUAGES > 1
   #define HAS_MULTI_LANGUAGE 1
   #define GET_TEXT(MSG) ( \
-    ui.language == 0 ? GET_LANG(LCD_LANGUAGE  )::MSG : \
-    ui.language == 1 ? GET_LANG(LCD_LANGUAGE_2)::MSG : \
-    ui.language == 2 ? GET_LANG(LCD_LANGUAGE_3)::MSG : \
+    ui.language == 4 ? GET_LANG(LCD_LANGUAGE_5)::MSG : \
     ui.language == 3 ? GET_LANG(LCD_LANGUAGE_4)::MSG : \
-                       GET_LANG(LCD_LANGUAGE_5)::MSG   )
+    ui.language == 2 ? GET_LANG(LCD_LANGUAGE_3)::MSG : \
+    ui.language == 1 ? GET_LANG(LCD_LANGUAGE_2)::MSG : \
+                       GET_LANG(LCD_LANGUAGE  )::MSG   )
   #define MAX_LANG_CHARSIZE _MAX(GET_LANG(LCD_LANGUAGE  )::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_2)::CHARSIZE, \
                                  GET_LANG(LCD_LANGUAGE_3)::CHARSIZE, \

@@ -35,7 +35,7 @@
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("P%d_%02d"), LPC176x::pin_port(p), LPC176x::pin_bit(p)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR("_A%d     "), LPC176x::pin_get_adc_channel(pin)); SERIAL_ECHO(buffer); }while(0)
-#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
+#define MULTI_NAME_PAD 17 // space needed to be pretty if not first name assigned to a pin
 
 // pins that will cause hang/reset/disconnect in M43 Toggle and Watch utilities
 #ifndef M43_NEVER_TOUCH

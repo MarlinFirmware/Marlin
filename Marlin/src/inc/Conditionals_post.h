@@ -421,6 +421,10 @@
   #endif
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #define HAS_LCD_BRIGHTNESS 1
+#endif
+
 /**
  * Override the SD_DETECT_STATE set in Configuration_adv.h
  * and enable sharing of onboard SD host drives (all platforms but AGCM4)
@@ -755,13 +759,13 @@
   // to select a USER library for MAX6675, MAX31855, MAX31865
   //
   #if BOTH(HAS_MAX6675, LIB_MAX6675)
-    #define LIB_USR_MAX6675 1
+    #define USE_LIB_MAX6675 1
   #endif
   #if BOTH(HAS_MAX31855, LIB_MAX31855)
-    #define LIB_USR_MAX31855 1
+    #define USE_ADAFRUIT_MAX31855 1
   #endif
   #if BOTH(HAS_MAX31865, LIB_MAX31865)
-    #define LIB_USR_MAX31865 1
+    #define USE_ADAFRUIT_MAX31865 1
   #elif HAS_MAX31865
     #define LIB_INTERNAL_MAX31865 1
   #endif
@@ -2005,7 +2009,7 @@
   #define HAS_TMC_SW_SERIAL 1
 #endif
 
-#if !USE_SENSORLESS
+#if DISABLED(SENSORLESS_HOMING)
   #undef SENSORLESS_BACKOFF_MM
 #endif
 
@@ -2828,7 +2832,7 @@
   #define HAS_TEMPERATURE 1
 #endif
 
-#if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
+#if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, HAS_DWIN_E3V2)
   #ifdef PREHEAT_6_LABEL
     #define PREHEAT_COUNT 6
   #elif defined(PREHEAT_5_LABEL)
@@ -2862,15 +2866,17 @@
 /**
  * Bed Probe dependencies
  */
-#if HAS_BED_PROBE
-  #if BOTH(ENDSTOPPULLUPS, HAS_Z_MIN_PROBE_PIN)
-    #define ENDSTOPPULLUP_ZMIN_PROBE
-  #endif
+#if EITHER(MESH_BED_LEVELING, HAS_BED_PROBE)
   #ifndef Z_PROBE_OFFSET_RANGE_MIN
     #define Z_PROBE_OFFSET_RANGE_MIN -20
   #endif
   #ifndef Z_PROBE_OFFSET_RANGE_MAX
     #define Z_PROBE_OFFSET_RANGE_MAX 20
+  #endif
+#endif
+#if HAS_BED_PROBE
+  #if BOTH(ENDSTOPPULLUPS, HAS_Z_MIN_PROBE_PIN)
+    #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
   #ifndef XY_PROBE_FEEDRATE
     #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
@@ -2947,7 +2953,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
@@ -3203,7 +3209,7 @@
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
-#if EITHER(SCROLL_LONG_FILENAMES, DWIN_CREALITY_LCD)
+#if EITHER(SCROLL_LONG_FILENAMES, HAS_DWIN_E3V2)
   #define MAX_VFAT_ENTRIES (5)
 #else
   #define MAX_VFAT_ENTRIES (2)

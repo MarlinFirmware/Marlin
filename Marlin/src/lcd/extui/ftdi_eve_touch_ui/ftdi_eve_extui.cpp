@@ -133,6 +133,9 @@ namespace ExtUI {
       // Called for temperature PID tuning result
       //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
+        case PID_STARTED:
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+          break;
         case PID_BAD_EXTRUDER_NUM:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
           break;
