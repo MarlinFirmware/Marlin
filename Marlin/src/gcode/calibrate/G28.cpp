@@ -370,9 +370,11 @@ void GcodeSuite::G28() {
     const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
     if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
-      // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
-      do_z_clearance(z_homing_height);
+      #if DISABLED(NO_MOTION_BEFORE_HOMING)
+        // Raise Z before homing any other axes and z is not already high enough (never lower z)
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
+        do_z_clearance(z_homing_height);
+      #endif
       TERN_(BLTOUCH, bltouch.init());
     }
 
