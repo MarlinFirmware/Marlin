@@ -45,9 +45,18 @@
   #define SPEED_POWER_INTERCEPT 0
 #endif
 
+#define SPINDLE_DIR_CW 0
+#define SPINDLE_DIR_CCW 1
+
 // States - power == 0 off, power > 0 on
 // TO - transition state (TO_ON - from any to on)
-enum SpindleLaserEvent : uint8_t { ON, OFF, TO_ON, TO_OFF };
+enum SpindleLaserEvent : uint8_t {
+  ON_CW, ON_CCW, OFF,
+  TO_ON_CW, TO_ON_CCW,
+  TO_OFF,
+  TO_ON_ON
+};
+
 
 // #define _MAP(N,S1,S2,D1,D2) ((N)*_MAX((D2)-(D1),0)/_MAX((S2)-(S1),1)+(D1))
 
@@ -104,6 +113,7 @@ public:
 
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
   static uint8_t ocr_power;
+  static uint8_t dir;                     // Direction spindel
 
   #if ENABLED(MARLIN_DEV_MODE)
     static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
@@ -111,9 +121,6 @@ public:
 
   static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage or RPM
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
-
-  static void init();
-  static SpindleLaserEvent get_event(const uint8_t opwr);
 
   #if ENABLED(MARLIN_DEV_MODE)
     static inline void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
@@ -123,13 +130,17 @@ public:
   static inline bool enabled(const cutter_power_t opwr) { return opwr > 0; }
   static inline bool enabled() { return enabled(ocr_power); }
 
-  static void ocr_set_power(const uint8_t opwr);
+  static void dir_pin_set();
+  static void ena_pin_set(const bool enable);
+  static void _change_hw(const bool ena_pin_on);
+  static SpindleLaserEvent get_event(const uint8_t opwr, const uint8_t dir);
+
+  static void init();
+  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CW);
 
   FORCE_INLINE static void refresh() { ocr_set_power(ocr_power); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
-    public:
-
     static void ocr_set(const uint8_t ocr);
 
     /**
@@ -184,8 +195,6 @@ public:
       return upwr;
     }
   #endif // SPINDLE_LASER_PWM
-
-  static void ena_pin_set(const bool enable);
 
   /**
    * Enable/Disable spindle/laser
