@@ -1,0 +1,30 @@
+Goal is to apply the makergear marline firmware changes to marlin 2
+
+Take a look at: https://github.com/ibash/Marlin/pull/1/files
+
+Specifically the changes to apply are the ones for the
+MAKERGEAR_MODEL_M3_ID_REV1_000 because that's the hardware I have.
+
+Changes to apply:
+1. Standard configuration changes (bed size, temperatures, etc)
+
+  See:
+  - Marlin/Configuration_makergear.h
+
+2. Changes to Marlin_main.cpp
+
+3. Disabled sanity check in Marlin/SanityCheck.h
+
+4. Buzzer changes to Marlin/buzzer.h
+
+5. Some string changes to Marlin/language.h
+
+6. Rambo pin changes in Marlin/pins_RAMBO.h
+
+7. Stepper changes in Marlin/stepper.cpp
+
+8. Reverse stepper state Marlin/stepper_indirection.h
+
+9. Temperature changes Marlin/temperature.cpp
+
+10. LCD changes Marlin/ultralcd.h
