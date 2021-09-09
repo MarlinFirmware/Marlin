@@ -130,7 +130,7 @@ void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/
     SERIAL_ECHOPGM_P(func);
     SERIAL_CHAR('(');
     SERIAL_ECHO(v1);
-    if (v2 > 0) SERIAL_ECHOPAIR(", ", v2);
+    if (v2 > 0) SERIAL_ECHOPGM(", ", v2);
     SERIAL_CHAR(')');
     SERIAL_EOL();
   #else

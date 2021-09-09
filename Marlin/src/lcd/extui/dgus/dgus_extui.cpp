@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD
+#if HAS_DGUS_LCD_CLASSIC
 
 #include "../ui_api.h"
 #include "DGUSDisplay.h"
@@ -135,6 +135,9 @@ namespace ExtUI {
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
+        case PID_STARTED:
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE));
+          break;
         case PID_BAD_EXTRUDER_NUM:
           ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
           break;
@@ -147,7 +150,6 @@ namespace ExtUI {
         case PID_DONE:
           ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
           break;
-        case PID_STARTED: break;
       }
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
@@ -157,4 +159,4 @@ namespace ExtUI {
   void onSteppersEnabled()  {}
 }
 
-#endif // HAS_DGUS_LCD
+#endif // HAS_DGUS_LCD_CLASSIC
