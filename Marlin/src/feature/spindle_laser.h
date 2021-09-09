@@ -113,7 +113,7 @@ public:
 
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
   static uint8_t ocr_power;
-  static uint8_t dir;                     // Direction spindel
+  static uint8_t dir;                     // Direction spindle
 
   #if ENABLED(MARLIN_DEV_MODE)
     static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
@@ -130,7 +130,12 @@ public:
   static inline bool enabled(const cutter_power_t opwr) { return opwr > 0; }
   static inline bool enabled() { return enabled(ocr_power); }
 
-  static void dir_pin_set();
+  #if ENABLED(SPINDLE_CHANGE_DIR)
+    static void dir_pin_set();
+  #else
+    static inline void dir_pin_set() {}
+  #endif
+
   static void ena_pin_set(const bool enable);
   static void _change_hw(const bool ena_pin_on);
   static SpindleLaserEvent get_event(const uint8_t opwr, const uint8_t dir);

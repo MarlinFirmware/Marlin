@@ -63,7 +63,7 @@ void SpindleLaser::init() {
     OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
   #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
-    // dir_set()
+    //dir_set()
     OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);         // Init rotation to clockwise (M3)
   #endif
   #if ENABLED(SPINDLE_LASER_PWM)
@@ -110,24 +110,22 @@ void SpindleLaser::ena_pin_set(const bool enable) {
   WRITE(SPINDLE_LASER_ENA_PIN, enable ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
 }
 
-/**
- * Set direction pin for spindel
- */
-void SpindleLaser::dir_pin_set(){
-  uint8_t dir_state;
-  // Forward (M3) HIGH when not inverted
-  if (SPINDLE_INVERT_DIR)
-    dir_state = (dir == SPINDLE_DIR_CW) ? LOW : HIGH;
-  else
-    dir_state = (dir == SPINDLE_DIR_CW) ? HIGH : LOW;
-  WRITE(SPINDLE_DIR_PIN, dir_state);
-}
+#if ENABLED(SPINDLE_CHANGE_DIR)
+  /**
+   * Set direction pin for spindle
+   */
+  void SpindleLaser::dir_pin_set() {
+    // Forward (M3) HIGH when not inverted
+    const uint8_t dir_state = (dir == TERN(SPINDLE_INVERT_DIR, SPINDLE_DIR_CCW, SPINDLE_DIR_CW)) ? HIGH : LOW;
+    WRITE(SPINDLE_DIR_PIN, dir_state);
+  }
+#endif
 
 /**
  * Detection event
  *
  * @param opwr New power value
- * @param odir New direction spindel
+ * @param odir New direction spindle
  */
 SpindleLaserEvent SpindleLaser::get_event(const uint8_t opwr, const uint8_t odir) {
   #if ENABLED(SPINDLE_LASER_PWM) && CUTTER_UNIT_IS(RPM)
@@ -166,7 +164,7 @@ void SpindleLaser::_change_hw(const bool ena_pin_on) {
  * Set cutter ocr_power value for PWM, Servo, and on/off pin.
  *
  * @param opwr Power value. Range 0 to MAX. When 0 disable spindle/laser.
- * @param odir Direction spindel
+ * @param odir Direction spindle
  */
 void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir) {
   static uint8_t last_power_applied = 0;
