@@ -167,20 +167,19 @@ void SpindleLaser::_change_hw(const bool ena_pin_on) {
  * @param odir Direction spindle
  */
 void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir) {
-  static uint8_t last_power_applied = 0;
   uint8_t dir_value = TERN(SPINDLE_CHANGE_DIR, odir, SPINDLE_DIR_CW);
 
   switch (get_event(opwr, dir_value)) {
     case SpindleLaserEvent::ON_CW:
     case SpindleLaserEvent::ON_CCW:
-      if (opwr == last_power_applied) break;
-      last_power_applied = ocr_power = opwr;
+      if (opwr == ocr_power) break;
+      ocr_power = opwr;
       _change_hw(true);
       break;
 
     case SpindleLaserEvent::TO_ON_CCW:
     case SpindleLaserEvent::TO_ON_CW:
-      last_power_applied = ocr_power = opwr;
+      ocr_power = opwr;
       dir = dir_value;
       dir_pin_set();
       _change_hw(true);
@@ -193,7 +192,7 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir) {
       break;
 
     case SpindleLaserEvent::TO_OFF:
-      last_power_applied = ocr_power = opwr;
+      ocr_power = opwr;
       dir = dir_value;
       dir_pin_set();
       _change_hw(false);
@@ -201,7 +200,7 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir) {
       break;
 
     case SpindleLaserEvent::TO_ON_ON:
-      last_power_applied = ocr_power = opwr;
+      ocr_power = opwr;
       dir = dir_value;
 
       #if ENABLED(SPINDLE_CHANGE_DIR_STOP)
