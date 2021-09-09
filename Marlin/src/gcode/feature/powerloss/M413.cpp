@@ -40,11 +40,8 @@ void GcodeSuite::M413() {
 
   if (parser.seen('S'))
     recovery.enable(parser.value_bool());
-  else {
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM("Power-loss recovery ");
-    serialprintln_onoff(recovery.enabled);
-  }
+  else
+    M413_report();
 
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     if (parser.seen("RL")) recovery.load();
@@ -57,6 +54,12 @@ void GcodeSuite::M413() {
     if (parser.seen_test('E')) SERIAL_ECHOPGM_P(recovery.exists() ? PSTR("PLR Exists\n") : PSTR("No PLR\n"));
     if (parser.seen_test('V')) SERIAL_ECHOPGM_P(recovery.valid() ? PSTR("Valid\n") : PSTR("Invalid\n"));
   #endif
+}
+
+void GcodeSuite::M413_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_POWER_LOSS_RECOVERY));
+  SERIAL_ECHOPGM("  M413 S", AS_DIGIT(recovery.enabled), " ; ");
+  serialprintln_onoff(recovery.enabled);
 }
 
 #endif // POWER_LOSS_RECOVERY

@@ -39,7 +39,7 @@ void stop();
 #include "../core/debug_out.h"
 
 bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
-  if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("BLTouch Command :", cmd);
+  if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch Command :", cmd);
   MOVE_SERVO(Z_PROBE_SERVO_NR, cmd);
   safe_delay(_MAX(ms, (uint32_t)BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
   return triggered();
@@ -64,7 +64,7 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
   #else
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOLNPAIR("last_written_mode - ", last_written_mode);
+      DEBUG_ECHOLNPGM("last_written_mode - ", last_written_mode);
       DEBUG_ECHOLNPGM("config mode - "
         #if ENABLED(BLTOUCH_SET_5V_MODE)
           "BLTOUCH_SET_5V_MODE"
@@ -175,7 +175,7 @@ bool BLTouch::status_proc() {
   _set_SW_mode();              // Incidentally, _set_SW_mode() will also RESET any active alarm
   const bool tr = triggered(); // If triggered in SW mode, the pin is up, it is STOWED
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch is ", tr);
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch is ", tr);
 
   if (tr) _stow(); else _deploy();  // Turn off SW mode, reset any trigger, honor pin state
   return !tr;
@@ -187,7 +187,7 @@ void BLTouch::mode_conv_proc(const bool M5V) {
    * BLTOUCH V3.0: This will set the mode (twice) and sadly, a STOW is needed at the end, because of the deploy
    * BLTOUCH V3.1: This will set the mode and store it in the eeprom. The STOW is not needed but does not hurt
    */
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("BLTouch Set Mode - ", M5V);
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Set Mode - ", M5V);
   _deploy();
   if (M5V) _set_5V_mode(); else _set_OD_mode();
   _mode_store();

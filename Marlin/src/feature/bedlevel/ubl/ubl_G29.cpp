@@ -428,7 +428,7 @@ void unified_bed_leveling::G29() {
             SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
           }
           if (param.V_verbosity > 1) {
-            SERIAL_ECHOPAIR("Probing around (", param.XY_pos.x);
+            SERIAL_ECHOPGM("Probing around (", param.XY_pos.x);
             SERIAL_CHAR(',');
             SERIAL_DECIMAL(param.XY_pos.y);
             SERIAL_ECHOLNPGM(").\n");
@@ -602,7 +602,7 @@ void unified_bed_leveling::G29() {
     }
 
     if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
       return;
     }
 
@@ -630,7 +630,7 @@ void unified_bed_leveling::G29() {
     }
 
     if (!WITHIN(param.KLS_storage_slot, 0, a - 1)) {
-      SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
       goto LEAVE;
     }
 
@@ -653,7 +653,7 @@ void unified_bed_leveling::G29() {
   #endif
 
   #ifdef Z_PROBE_END_SCRIPT
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
     if (probe_deployed) {
       planner.synchronize();
       gcode.process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
@@ -690,7 +690,7 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t o
     if (!isnan(z_values[x][y]))
       sum_of_diff_squared += sq(z_values[x][y] - mean);
 
-  SERIAL_ECHOLNPAIR("# of samples: ", n);
+  SERIAL_ECHOLNPGM("# of samples: ", n);
   SERIAL_ECHOLNPAIR_F("Mean Mesh Height: ", mean, 6);
 
   const float sigma = SQRT(sum_of_diff_squared / (n + 1));
@@ -735,7 +735,7 @@ void unified_bed_leveling::shift_mesh_height() {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
       const uint8_t point_num = (GRID_MAX_POINTS - count) + 1;
-      SERIAL_ECHOLNPAIR("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
+      SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
 
       #if HAS_LCD_MENU
@@ -1450,7 +1450,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         #endif
         if (param.V_verbosity > 3) {
           serial_spaces(16);
-          SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
+          SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
         }
         incremental_LSF(&lsf_results, points[0], measured_z);
       }
@@ -1469,7 +1469,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           measured_z -= get_z_correction(points[1]);
           if (param.V_verbosity > 3) {
             serial_spaces(16);
-            SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
+            SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
           }
           incremental_LSF(&lsf_results, points[1], measured_z);
         }
@@ -1489,7 +1489,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           measured_z -= get_z_correction(points[2]);
           if (param.V_verbosity > 3) {
             serial_spaces(16);
-            SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
+            SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
           }
           incremental_LSF(&lsf_results, points[2], measured_z);
         }
@@ -1517,7 +1517,7 @@ void unified_bed_leveling::smart_fill_mesh() {
           rpos.y = y_min + dy * (zig_zag ? param.J_grid_size - 1 - iy : iy);
 
           if (!abort_flag) {
-            SERIAL_ECHOLNPAIR("Tilting mesh point ", point_num, "/", total_points, "\n");
+            SERIAL_ECHOLNPGM("Tilting mesh point ", point_num, "/", total_points, "\n");
             TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
 
             measured_z = probe.probe_at_point(rpos, parser.seen_test('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity); // TODO: Needs error handling
@@ -1545,7 +1545,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
             if (param.V_verbosity > 3) {
               serial_spaces(16);
-              SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
+              SERIAL_ECHOLNPGM("Corrected_Z=", measured_z);
             }
             incremental_LSF(&lsf_results, rpos, measured_z);
           }
@@ -1648,7 +1648,7 @@ void unified_bed_leveling::smart_fill_mesh() {
         DEBUG_ECHOLNPAIR_F("0 : ", normed(safe_homing_xy, 0), 6);
         d_from(); DEBUG_ECHOPGM("safe home with Z=");
         DEBUG_ECHOLNPAIR_F("mesh value ", normed(safe_homing_xy, get_z_correction(safe_homing_xy)), 6);
-        DEBUG_ECHOPAIR("   Z error = (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
+        DEBUG_ECHOPGM("   Z error = (", Z_SAFE_HOMING_X_POINT, ",", Z_SAFE_HOMING_Y_POINT);
         DEBUG_ECHOLNPAIR_F(") = ", get_z_correction(safe_homing_xy), 6);
       #endif
     } // DEBUGGING(LEVELING)
@@ -1722,7 +1722,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     if (storage_slot == -1)
       SERIAL_ECHOPGM("No Mesh Loaded.");
     else
-      SERIAL_ECHOPAIR("Mesh ", storage_slot, " Loaded.");
+      SERIAL_ECHOPGM("Mesh ", storage_slot, " Loaded.");
     SERIAL_EOL();
     serial_delay(50);
 
@@ -1736,14 +1736,14 @@ void unified_bed_leveling::smart_fill_mesh() {
       SERIAL_ECHOLNPAIR_F("Probe Offset M851 Z", probe.offset.z, 7);
     #endif
 
-    SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); serial_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); serial_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); serial_delay(50);
-    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
-    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
-    SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
+    SERIAL_ECHOLNPGM("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
+    SERIAL_ECHOLNPGM("MESH_X_DIST  ", MESH_X_DIST);
+    SERIAL_ECHOLNPGM("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
 
     SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
     LOOP_L_N(i, GRID_MAX_POINTS_X) {
@@ -1762,27 +1762,27 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
 
     #if HAS_KILL
-      SERIAL_ECHOLNPAIR("Kill pin on :", KILL_PIN, "  state:", kill_state());
+      SERIAL_ECHOLNPGM("Kill pin on :", KILL_PIN, "  state:", kill_state());
     #endif
 
     SERIAL_EOL();
     serial_delay(50);
 
     #if ENABLED(UBL_DEVEL_DEBUGGING)
-      SERIAL_ECHOLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation, "\nubl_state_recursion_chk :", ubl_state_recursion_chk);
+      SERIAL_ECHOLNPGM("ubl_state_at_invocation :", ubl_state_at_invocation, "\nubl_state_recursion_chk :", ubl_state_recursion_chk);
       serial_delay(50);
 
-      SERIAL_ECHOLNPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
+      SERIAL_ECHOLNPGM("Meshes go from ", hex_address((void*)settings.meshes_start_index()), " to ", hex_address((void*)settings.meshes_end_index()));
       serial_delay(50);
 
-      SERIAL_ECHOLNPAIR("sizeof(ubl) :  ", sizeof(ubl));         SERIAL_EOL();
-      SERIAL_ECHOLNPAIR("z_value[][] size: ", sizeof(z_values)); SERIAL_EOL();
+      SERIAL_ECHOLNPGM("sizeof(ubl) :  ", sizeof(ubl));         SERIAL_EOL();
+      SERIAL_ECHOLNPGM("z_value[][] size: ", sizeof(z_values)); SERIAL_EOL();
       serial_delay(25);
 
-      SERIAL_ECHOLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
+      SERIAL_ECHOLNPGM("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
       serial_delay(50);
 
-      SERIAL_ECHOLNPAIR("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
+      SERIAL_ECHOLNPGM("EEPROM can hold ", settings.calc_num_meshes(), " meshes.\n");
       serial_delay(25);
     #endif // UBL_DEVEL_DEBUGGING
 
@@ -1829,7 +1829,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
 
     if (!parser.has_value() || !WITHIN(parser.value_int(), 0, a - 1)) {
-      SERIAL_ECHOLNPAIR("?Invalid storage slot.\n?Use 0 to ", a - 1);
+      SERIAL_ECHOLNPGM("?Invalid storage slot.\n?Use 0 to ", a - 1);
       return;
     }
 
@@ -1838,7 +1838,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
     settings.load_mesh(param.KLS_storage_slot, &tmp_z_values);
 
-    SERIAL_ECHOLNPAIR("Subtracting mesh in slot ", param.KLS_storage_slot, " from current mesh.");
+    SERIAL_ECHOLNPGM("Subtracting mesh in slot ", param.KLS_storage_slot, " from current mesh.");
 
     GRID_LOOP(x, y) {
       z_values[x][y] -= tmp_z_values[x][y];

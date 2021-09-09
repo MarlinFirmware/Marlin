@@ -107,14 +107,14 @@ void print_signed_float(PGM_P const prefix, const_float_t f) {
  *  - Print the delta settings
  */
 static void print_calibration_settings(const bool end_stops, const bool tower_angles) {
-  SERIAL_ECHOPAIR(".Height:", delta_height);
+  SERIAL_ECHOPGM(".Height:", delta_height);
   if (end_stops) {
     print_signed_float(PSTR("Ex"), delta_endstop_adj.a);
     print_signed_float(PSTR("Ey"), delta_endstop_adj.b);
     print_signed_float(PSTR("Ez"), delta_endstop_adj.c);
   }
   if (end_stops && tower_angles) {
-    SERIAL_ECHOPAIR("  Radius:", delta_radius);
+    SERIAL_ECHOPGM("  Radius:", delta_radius);
     SERIAL_EOL();
     SERIAL_CHAR('.');
     SERIAL_ECHO_SP(13);
@@ -125,7 +125,7 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
     print_signed_float(PSTR("Tz"), delta_tower_angle_trim.c);
   }
   if ((!end_stops && tower_angles) || (end_stops && !tower_angles)) { // XOR
-    SERIAL_ECHOPAIR("  Radius:", delta_radius);
+    SERIAL_ECHOPGM("  Radius:", delta_radius);
   }
   SERIAL_EOL();
 }

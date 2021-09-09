@@ -36,7 +36,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 #include "../module/planner.h"
 #include "../module/stepper.h"
 
-#include "../gcode/parser.h"
+#include "../gcode/gcode.h"
 
 #if ENABLED(RETRACT_SYNC_MIXING)
   #include "mixing.h"
@@ -106,20 +106,20 @@ void FWRetract::retract(const bool retracting OPTARG(HAS_MULTI_EXTRUDER, bool sw
   #endif
 
   /* // debugging
-    SERIAL_ECHOLNPAIR(
+    SERIAL_ECHOLNPGM(
       "retracting ", AS_DIGIT(retracting),
       " swapping ", swapping,
       " active extruder ", active_extruder
     );
     LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPAIR("retracted[", i, "] ", AS_DIGIT(retracted[i]));
+      SERIAL_ECHOLNPGM("retracted[", i, "] ", AS_DIGIT(retracted[i]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
+        SERIAL_ECHOLNPGM("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
       #endif
     }
-    SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
-    SERIAL_ECHOLNPAIR("current_position.e ", current_position.e);
-    SERIAL_ECHOLNPAIR("current_hop ", current_hop);
+    SERIAL_ECHOLNPGM("current_position.z ", current_position.z);
+    SERIAL_ECHOLNPGM("current_position.e ", current_position.e);
+    SERIAL_ECHOLNPGM("current_hop ", current_hop);
   //*/
 
   const float base_retract = TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
@@ -181,18 +181,18 @@ void FWRetract::retract(const bool retracting OPTARG(HAS_MULTI_EXTRUDER, bool sw
   #endif
 
   /* // debugging
-    SERIAL_ECHOLNPAIR("retracting ", AS_DIGIT(retracting));
-    SERIAL_ECHOLNPAIR("swapping ", AS_DIGIT(swapping));
-    SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
+    SERIAL_ECHOLNPGM("retracting ", AS_DIGIT(retracting));
+    SERIAL_ECHOLNPGM("swapping ", AS_DIGIT(swapping));
+    SERIAL_ECHOLNPGM("active_extruder ", active_extruder);
     LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOLNPAIR("retracted[", i, "] ", AS_DIGIT(retracted[i]));
+      SERIAL_ECHOLNPGM("retracted[", i, "] ", AS_DIGIT(retracted[i]));
       #if HAS_MULTI_EXTRUDER
-        SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
+        SERIAL_ECHOLNPGM("retracted_swap[", i, "] ", AS_DIGIT(retracted_swap[i]));
       #endif
     }
-    SERIAL_ECHOLNPAIR("current_position.z ", current_position.z);
-    SERIAL_ECHOLNPAIR("current_position.e ", current_position.e);
-    SERIAL_ECHOLNPAIR("current_hop ", current_hop);
+    SERIAL_ECHOLNPGM("current_position.z ", current_position.z);
+    SERIAL_ECHOLNPGM("current_position.e ", current_position.e);
+    SERIAL_ECHOLNPGM("current_hop ", current_hop);
   //*/
 }
 
@@ -214,9 +214,8 @@ void FWRetract::M207() {
   if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
 }
 
-void FWRetract::M207_report(const bool forReplay/*=false*/) {
-  if (!forReplay) { SERIAL_ECHO_MSG("; Retract: S<length> F<units/m> Z<lift>"); SERIAL_ECHO_START(); }
-  SERIAL_ECHOLNPAIR_P(
+void FWRetract::M207_report() {
+  SERIAL_ECHOLNPGM_P(
       PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length)
     , PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length)
     , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(settings.retract_feedrate_mm_s))
@@ -240,9 +239,8 @@ void FWRetract::M208() {
   if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
 }
 
-void FWRetract::M208_report(const bool forReplay/*=false*/) {
-  if (!forReplay) { SERIAL_ECHO_MSG("; Recover: S<length> F<units/m>"); SERIAL_ECHO_START(); }
-  SERIAL_ECHOLNPAIR(
+void FWRetract::M208_report() {
+  SERIAL_ECHOLNPGM(
       "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
     , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
     , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
@@ -262,9 +260,8 @@ void FWRetract::M208_report(const bool forReplay/*=false*/) {
       enable_autoretract(parser.value_bool());
   }
 
-  void FWRetract::M209_report(const bool forReplay/*=false*/) {
-    if (!forReplay) { SERIAL_ECHO_MSG("; Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover"); SERIAL_ECHO_START(); }
-    SERIAL_ECHOLNPAIR("  M209 S", AS_DIGIT(autoretract_enabled));
+  void FWRetract::M209_report() {
+    SERIAL_ECHOLNPGM("  M209 S", AS_DIGIT(autoretract_enabled));
   }
 
 #endif // FWRETRACT_AUTORETRACT

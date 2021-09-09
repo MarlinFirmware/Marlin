@@ -96,7 +96,7 @@ void print_bin(uint16_t val) {
 
 void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
   if (prefix) serialprintPGM(prefix);
-  SERIAL_ECHOPAIR_P(
+  SERIAL_ECHOPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k)
   );
   if (suffix) serialprintPGM(suffix); else SERIAL_EOL();

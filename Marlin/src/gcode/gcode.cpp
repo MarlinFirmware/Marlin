@@ -102,6 +102,24 @@ uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
+void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
+void GcodeSuite::report_heading(const bool forReplay, PGM_P const pstr, const bool eol/*=true*/) {
+  if (forReplay) return;
+  if (pstr) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM("; ");
+    SERIAL_ECHOPGM_P(pstr);
+  }
+  if (eol) { SERIAL_CHAR(':'); SERIAL_EOL(); }
+}
+
+void GcodeSuite::say_units() {
+  SERIAL_ECHOLNPGM_P(
+    TERN_(INCH_MODE_SUPPORT, parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :)
+    PSTR(" (mm)")
+  );
+}
+
 /**
  * Get the target extruder from the T parameter or the active_extruder
  * Return -1 if the T parameter is out of range
@@ -112,7 +130,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", e);
+    SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
     return -1;
   }
   return active_extruder;
@@ -131,7 +149,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", e);
+    SERIAL_ECHOLNPGM(" " STR_INVALID_E_STEPPER " ", e);
   return -1;
 }
 
@@ -180,7 +198,7 @@ void GcodeSuite::get_destination_from_command() {
       recovery.save();
   #endif
 
-  if (parser.linearval('F') > 0)
+  if (parser.floatval('F') > 0)
     feedrate_mm_s = parser.value_feedrate();
 
   #if ENABLED(PRINTCOUNTER)
@@ -1064,7 +1082,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
+      SERIAL_ECHOPGM("slot:", queue.ring_buffer.index_r);
       M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
     #endif
   }
