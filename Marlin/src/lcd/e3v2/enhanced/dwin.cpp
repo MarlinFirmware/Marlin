@@ -2154,7 +2154,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
 
 #if HAS_HOTEND
   void SetMoveE() {
-    #ifdef PREVENT_COLD_EXTRUSION
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (thermalManager.tooColdToExtrude(0)) {
         Popup_Window_ETempTooLow();
         return;
@@ -2168,13 +2168,14 @@ void SetMoveZto0() {
   char cmd[48] = "";
   char str_1[5] = "", str_2[5] = "";
   sprintf_P(cmd, PSTR("G28OXY\nG28Z\nG0X%sY%sF5000\nG0Z0F300"),
-    #ifdef MESH_BED_LEVELING
+    #if ENABLED(MESH_BED_LEVELING)
       dtostrf(0, 1, 1, str_1),
-      dtostrf(0, 1, 1, str_2));
+      dtostrf(0, 1, 1, str_2)
     #else
-    dtostrf(X_CENTER, 1, 1, str_1),
-    dtostrf(Y_CENTER, 1, 1, str_2));
+      dtostrf(X_CENTER, 1, 1, str_1),
+      dtostrf(Y_CENTER, 1, 1, str_2)
     #endif
+  );
   gcode.process_subcommands_now_P(cmd);
   planner.synchronize();
   ui.set_status_P(PSTR("Now adjust Z Offset"));
@@ -2186,7 +2187,8 @@ void SetPID(celsius_t t, heater_id_t h) {
   char str_1[5] = "", str_2[5] = "";
   sprintf_P(cmd, PSTR("G28OXY\nG0Z5F300\nG0X%sY%sF5000\nM84"),
     dtostrf(X_CENTER, 1, 1, str_1),
-    dtostrf(Y_CENTER, 1, 1, str_2));
+    dtostrf(Y_CENTER, 1, 1, str_2)
+  );
   gcode.process_subcommands_now_P(cmd);
   planner.synchronize();
   thermalManager.PID_autotune(t, h, HMI_data.PidCycles, true);
@@ -3318,7 +3320,7 @@ void Draw_Motion_Menu() {
   CurrentMenu->Draw();
 }
 
-#ifdef ADVANCED_PAUSE_FEATURE
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   void Draw_FilamentMan_Menu() {
     checkkey = Menu;
     if (FilamentMenu == nullptr) FilamentMenu = new MenuClass();
@@ -3336,7 +3338,7 @@ void Draw_Motion_Menu() {
   }
 #endif
 
-#ifdef MESH_BED_LEVELING
+#if ENABLED(MESH_BED_LEVELING)
   void Draw_ManualMesh_Menu() {
     checkkey = Menu;
     if (ManualMesh == nullptr) ManualMesh = new MenuClass();
