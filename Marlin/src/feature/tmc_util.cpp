@@ -226,7 +226,7 @@
     SERIAL_ECHO(timestamp);
     SERIAL_ECHOPGM(": ");
     st.printLabel();
-    SERIAL_ECHOLNPAIR(" driver overtemperature warning! (", st.getMilliamps(), "mA)");
+    SERIAL_ECHOLNPGM(" driver overtemperature warning! (", st.getMilliamps(), "mA)");
   }
 
   template<typename TMC>
@@ -271,7 +271,7 @@
           st.rms_current(I_rms);
           #if ENABLED(REPORT_CURRENT_CHANGE)
             st.printLabel();
-            SERIAL_ECHOLNPAIR(" current decreased to ", I_rms);
+            SERIAL_ECHOLNPGM(" current decreased to ", I_rms);
           #endif
         }
       }

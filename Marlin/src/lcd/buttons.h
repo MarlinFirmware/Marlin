@@ -75,7 +75,7 @@
   #endif
 #endif
 
-#if EITHER(HAS_DIGITAL_BUTTONS, DWIN_CREALITY_LCD)
+#if EITHER(HAS_DIGITAL_BUTTONS, HAS_DWIN_E3V2)
   // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
   #define BLEN_A 0
   #define BLEN_B 1

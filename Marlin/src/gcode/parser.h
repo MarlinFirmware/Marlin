@@ -133,9 +133,9 @@ public:
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (codenum == 800) {
-          SERIAL_ECHOPAIR("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
+          SERIAL_ECHOPGM("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
           print_hex_word((uint16_t)(codebits & 0xFFFF));
-          SERIAL_ECHOLNPAIR(") | param = ", param[ind]);
+          SERIAL_ECHOLNPGM(") | param = ", param[ind]);
         }
       #endif
     }
@@ -225,9 +225,7 @@ public:
   #endif // !FASTER_GCODE_PARSER
 
   // Seen any axis parameter
-  static inline bool seen_axis() {
-    return seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR));
-  }
+  static inline bool seen_axis() { return seen(LOGICAL_AXES_STRING); }
 
   #if ENABLED(GCODE_QUOTED_STRINGS)
     static char* unescape_string(char* &src);
@@ -350,14 +348,15 @@ public:
 
     static inline void set_input_temp_units(const TempUnit units) { input_temp_units = units; }
 
+    static inline char temp_units_code() {
+      return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
+    }
+    static inline PGM_P temp_units_name() {
+      return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
+    }
+
     #if HAS_LCD_MENU && DISABLED(DISABLE_M503)
 
-      static inline char temp_units_code() {
-        return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
-      }
-      static inline PGM_P temp_units_name() {
-        return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
-      }
       static inline float to_temp_units(celsius_t c) {
         switch (input_temp_units) {
           default:

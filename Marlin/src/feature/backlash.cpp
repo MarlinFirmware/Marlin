@@ -134,12 +134,12 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
           switch (axis) {
             case CORE_AXIS_1:
               //block->steps[CORE_AXIS_2] += influence_distance_mm[axis] * planner.settings.axis_steps_per_mm[CORE_AXIS_2];
-              //SERIAL_ECHOLNPAIR("CORE_AXIS_1 dir change. distance=", distance_mm[axis], " r.err=", residual_error[axis],
+              //SERIAL_ECHOLNPGM("CORE_AXIS_1 dir change. distance=", distance_mm[axis], " r.err=", residual_error[axis],
               //  " da=", da, " db=", db, " block->steps[axis]=", block->steps[axis], " err_corr=", error_correction);
               break;
             case CORE_AXIS_2:
               //block->steps[CORE_AXIS_1] += influence_distance_mm[axis] * planner.settings.axis_steps_per_mm[CORE_AXIS_1];;
-              //SERIAL_ECHOLNPAIR("CORE_AXIS_2 dir change. distance=", distance_mm[axis], " r.err=", residual_error[axis],
+              //SERIAL_ECHOLNPGM("CORE_AXIS_2 dir change. distance=", distance_mm[axis], " r.err=", residual_error[axis],
               //  " da=", da, " db=", db, " block->steps[axis]=", block->steps[axis], " err_corr=", error_correction);
               break;
             case NORMAL_AXIS: break;

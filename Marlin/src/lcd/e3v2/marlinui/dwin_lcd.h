@@ -67,7 +67,6 @@
 
 #define DWIN_FONT_MENU  font10x20
 #define DWIN_FONT_STAT  font14x28
-#define DWIN_FONT_HEAD  font10x20
 #define DWIN_FONT_ALERT font14x28
 
 // Color

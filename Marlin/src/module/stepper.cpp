@@ -1914,7 +1914,7 @@ uint32_t Stepper::block_phase_isr() {
                     laser_trap.acc_step_count += current_block->laser.entry_per;
                     if (laser_trap.cur_power < current_block->laser.power) laser_trap.cur_power++;
                   }
-                  cutter.set_ocr_power(laser_trap.cur_power);
+                  cutter.ocr_set_power(laser_trap.cur_power);
                 }
               }
             #else
@@ -1923,7 +1923,7 @@ uint32_t Stepper::block_phase_isr() {
               else {
                 laser_trap.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
                 laser_trap.cur_power = (current_block->laser.power * acc_step_rate) / current_block->nominal_rate;
-                cutter.set_ocr_power(laser_trap.cur_power); // Cycle efficiency is irrelevant it the last line was many cycles
+                cutter.ocr_set_power(laser_trap.cur_power); // Cycle efficiency is irrelevant it the last line was many cycles
               }
             #endif
           }
@@ -1991,7 +1991,7 @@ uint32_t Stepper::block_phase_isr() {
                     laser_trap.acc_step_count += current_block->laser.exit_per;
                     if (laser_trap.cur_power > current_block->laser.power_exit) laser_trap.cur_power--;
                   }
-                  cutter.set_ocr_power(laser_trap.cur_power);
+                  cutter.ocr_set_power(laser_trap.cur_power);
                 }
               }
             #else
@@ -2000,7 +2000,7 @@ uint32_t Stepper::block_phase_isr() {
               else {
                 laser_trap.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
                 laser_trap.cur_power = (current_block->laser.power * step_rate) / current_block->nominal_rate;
-                cutter.set_ocr_power(laser_trap.cur_power); // Cycle efficiency isn't relevant when the last line was many cycles
+                cutter.ocr_set_power(laser_trap.cur_power); // Cycle efficiency isn't relevant when the last line was many cycles
               }
             #endif
           }
@@ -2028,7 +2028,7 @@ uint32_t Stepper::block_phase_isr() {
           if (laser_trap.enabled) {
             if (!laser_trap.cruise_set) {
               laser_trap.cur_power = current_block->laser.power;
-              cutter.set_ocr_power(laser_trap.cur_power);
+              cutter.ocr_set_power(laser_trap.cur_power);
               laser_trap.cruise_set = true;
             }
             #if ENABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
@@ -2249,14 +2249,14 @@ uint32_t Stepper::block_phase_isr() {
           #endif
           // Always have PWM in this case
           if (stat.isPlanned) {                        // Planner controls the laser
-            cutter.set_ocr_power(
+            cutter.ocr_set_power(
               stat.isEnabled ? laser_trap.cur_power : 0 // ON with power or OFF
             );
           }
         #else
           if (stat.isPlanned) {                        // Planner controls the laser
             #if ENABLED(SPINDLE_LASER_PWM)
-              cutter.set_ocr_power(
+              cutter.ocr_set_power(
                 stat.isEnabled ? current_block->laser.power : 0 // ON with power or OFF
               );
             #else
@@ -2304,7 +2304,7 @@ uint32_t Stepper::block_phase_isr() {
         const power_status_t stat = planner.laser_inline.status;
         if (stat.isPlanned) {             // Planner controls the laser
           #if ENABLED(SPINDLE_LASER_PWM)
-            cutter.set_ocr_power(
+            cutter.ocr_set_power(
               stat.isEnabled ? planner.laser_inline.power : 0 // ON with power or OFF
             );
           #else
@@ -2845,7 +2845,7 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 #endif
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
-  SERIAL_ECHOLNPAIR_P(
+  SERIAL_ECHOLNPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES),
       TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
       TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
@@ -3167,7 +3167,7 @@ void Stepper::report_positions() {
 
       #if HAS_MOTOR_CURRENT_SPI
 
-        //SERIAL_ECHOLNPAIR("Digipotss current ", current);
+        //SERIAL_ECHOLNPGM("Digipotss current ", current);
 
         const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
         set_digipot_value_spi(digipot_ch[driver], current);

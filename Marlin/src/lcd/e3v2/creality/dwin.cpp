@@ -30,7 +30,7 @@
 
 #include "dwin.h"
 
-#if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
+#if ENABLED(LCD_BED_LEVELING) && DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
   #define HAS_ONESTEP_LEVELING 1
 #endif
 
@@ -579,14 +579,8 @@ void DWIN_Draw_Label(const uint8_t row, const __FlashStringHelper *title) {
 }
 
 void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
-  if (value < 0) {
-    DWIN_Draw_String(true, size, Color_White, bColor, x - 8, y, F("-"));
-    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, -value);
-  }
-  else {
-    DWIN_Draw_String(true, size, Color_White, bColor, x - 8, y, F(" "));
-    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, value);
-  }
+  DWIN_Draw_String(true, size, Color_White, bColor, x - 8, y, value < 0 ? F("-") : F(" "));
+  DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, value < 0 ? -value : value);
 }
 
 void Draw_Edit_Integer3(const uint8_t row, const uint16_t value, const bool active=false) {
@@ -1929,7 +1923,7 @@ void HMI_SDCardUpdate() {
   if (HMI_flag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
     DWIN_lcd_sd_status = card.isMounted();
-    //SERIAL_ECHOLNPAIR("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
+    //SERIAL_ECHOLNPGM("HMI_SDCardUpdate: ", DWIN_lcd_sd_status);
     if (DWIN_lcd_sd_status) {
       if (checkkey == SelectFile)
         Redraw_SD_List();

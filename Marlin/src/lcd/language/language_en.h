@@ -78,6 +78,14 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_I                     = _UxGT("Home ") LCD_STR_I;
   PROGMEM Language_Str MSG_AUTO_HOME_J                     = _UxGT("Home ") LCD_STR_J;
   PROGMEM Language_Str MSG_AUTO_HOME_K                     = _UxGT("Home ") LCD_STR_K;
+  PROGMEM Language_Str MSG_FILAMENT_SET                    = _UxGT("Filament Settings");
+  PROGMEM Language_Str MSG_FILAMENT_MAN                    = _UxGT("Filament Management");
+  PROGMEM Language_Str MSG_LEVBED_FL                       = _UxGT("Front Left");
+  PROGMEM Language_Str MSG_LEVBED_FR                       = _UxGT("Front Right");
+  PROGMEM Language_Str MSG_LEVBED_C                        = _UxGT("Center");
+  PROGMEM Language_Str MSG_LEVBED_BL                       = _UxGT("Back Left");
+  PROGMEM Language_Str MSG_LEVBED_BR                       = _UxGT("Back Right");
+  PROGMEM Language_Str MSG_MANUAL_MESH                     = _UxGT("Manual Mesh");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-Align");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Iteration: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Accuracy Decreasing!");
@@ -289,6 +297,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Move 0.1in");
   PROGMEM Language_Str MSG_MOVE_1IN                        = _UxGT("Move 1.0in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Speed");
+  PROGMEM Language_Str MSG_MAXSPEED                        = _UxGT("Max Speed (mm/s)");
+  PROGMEM Language_Str MSG_MAXSPEED_X                      = _UxGT("Max ") LCD_STR_A _UxGT(" Speed");
+  PROGMEM Language_Str MSG_MAXSPEED_Y                      = _UxGT("Max ") LCD_STR_B _UxGT(" Speed");
+  PROGMEM Language_Str MSG_MAXSPEED_Z                      = _UxGT("Max ") LCD_STR_C _UxGT(" Speed");
+  PROGMEM Language_Str MSG_MAXSPEED_E                      = _UxGT("Max ") LCD_STR_E _UxGT(" Speed");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Nozzle ~");
@@ -321,7 +334,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Off");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID Autotune");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID Autotune *");
-  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID Cycle");
+  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID Cycles");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("PID tuning done");
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Autotune failed. Bad extruder.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Autotune failed. Temperature too high.");
@@ -504,6 +517,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Deploy Z-Probe");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Stow Z-Probe");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s First");
+  PROGMEM Language_Str MSG_ZPROBE_SETTINGS                 = _UxGT("Probe Settings");
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Probe Offsets");
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Probe X Offset");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Probe Y Offset");
@@ -611,6 +625,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Nozzle: ");
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Runout Sensor");
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
+  PROGMEM Language_Str MSG_RUNOUT_ENABLE                   = _UxGT("Enable Runout");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
 

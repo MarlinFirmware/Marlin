@@ -122,7 +122,7 @@ void set_lcd_error_P(PGM_P const error, PGM_P const component/*=nullptr*/) {
 void process_lcd_c_command(const char *command) {
   const int target_val = command[1] ? atoi(command + 1) : -1;
   if (target_val < 0) {
-    DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
+    DEBUG_ECHOLNPGM("UNKNOWN C COMMAND ", command);
     return;
   }
   switch (command[0]) {
@@ -143,7 +143,7 @@ void process_lcd_c_command(const char *command) {
       case 'P': ExtUI::setTargetTemp_celsius(target_val, ExtUI::heater_t::BED); break;
     #endif
 
-    default: DEBUG_ECHOLNPAIR("UNKNOWN C COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN C COMMAND ", command);
   }
 }
 
@@ -185,7 +185,7 @@ void process_lcd_eb_command(const char *command) {
       write_to_lcd(message_buffer);
     } break;
 
-    default: DEBUG_ECHOLNPAIR("UNKNOWN E/B COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN E/B COMMAND ", command);
   }
 }
 
@@ -212,7 +212,7 @@ void process_lcd_j_command(const char *command) {
     case 'Y': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Y); break;
     case 'Z': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Z); break;
     case 'X': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::X); break;
-    default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN J COMMAND ", command);
   }
 }
 
@@ -336,7 +336,7 @@ void process_lcd_s_command(const char *command) {
       #endif
     } break;
 
-    default: DEBUG_ECHOLNPAIR("UNKNOWN S COMMAND ", command);
+    default: DEBUG_ECHOLNPGM("UNKNOWN S COMMAND ", command);
   }
 }
 
@@ -360,11 +360,11 @@ void process_lcd_command(const char *command) {
       case 'C': process_lcd_c_command(current); break;
       case 'B':
       case 'E': process_lcd_eb_command(current); break;
-      default: DEBUG_ECHOLNPAIR("UNKNOWN COMMAND ", command);
+      default: DEBUG_ECHOLNPGM("UNKNOWN COMMAND ", command);
     }
   }
   else
-    DEBUG_ECHOLNPAIR("UNKNOWN COMMAND FORMAT ", command);
+    DEBUG_ECHOLNPGM("UNKNOWN COMMAND FORMAT ", command);
 }
 
 //
