@@ -78,10 +78,10 @@ void GcodeSuite::M92() {
                      micro_steps = argH ?: Z_MICROSTEPS;
       const float z_full_step_mm = micro_steps * planner.steps_to_mm[Z_AXIS];
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("{ micro_steps:", micro_steps, ", z_full_step_mm:", z_full_step_mm);
+      SERIAL_ECHOPGM("{ micro_steps:", micro_steps, ", z_full_step_mm:", z_full_step_mm);
       if (wanted) {
         const float best = uint16_t(wanted / z_full_step_mm) * z_full_step_mm;
-        SERIAL_ECHOPAIR(", best:[", best);
+        SERIAL_ECHOPGM(", best:[", best);
         if (best != wanted) { SERIAL_CHAR(','); SERIAL_DECIMAL(best + z_full_step_mm); }
         SERIAL_CHAR(']');
       }
@@ -92,7 +92,7 @@ void GcodeSuite::M92() {
 
 void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/) {
   report_heading_etc(forReplay, PSTR(STR_STEPS_PER_UNIT));
-  SERIAL_ECHOPAIR_P(LIST_N(DOUBLE(LINEAR_AXES),
+  SERIAL_ECHOPGM_P(LIST_N(DOUBLE(LINEAR_AXES),
     PSTR("  M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
     SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
     SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),
@@ -101,7 +101,7 @@ void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/
     SP_K_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]))
   );
   #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
-    SERIAL_ECHOPAIR_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
+    SERIAL_ECHOPGM_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
   #endif
   SERIAL_EOL();
 
@@ -109,7 +109,7 @@ void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/
     LOOP_L_N(i, E_STEPPERS) {
       if (e >= 0 && i != e) continue;
       report_echo_start(forReplay);
-      SERIAL_ECHOLNPAIR_P(
+      SERIAL_ECHOLNPGM_P(
         PSTR("  M92 T"), i,
         SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)])
       );

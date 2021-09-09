@@ -33,7 +33,7 @@ uint8_t ScreenRef::lookupScreen(onRedraw_func_t onRedraw_ptr) {
   }
   #if ENABLED(TOUCH_UI_DEBUG)
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("Screen not found: ", (uintptr_t) onRedraw_ptr);
+    SERIAL_ECHOPGM("Screen not found: ", (uintptr_t) onRedraw_ptr);
   #endif
   return 0xFF;
 }

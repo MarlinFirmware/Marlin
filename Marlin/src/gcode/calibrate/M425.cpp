@@ -86,7 +86,7 @@ void GcodeSuite::M425() {
     SERIAL_ECHOPGM("Backlash Correction ");
     if (!backlash.correction) SERIAL_ECHOPGM("in");
     SERIAL_ECHOLNPGM("active:");
-    SERIAL_ECHOLNPAIR("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
+    SERIAL_ECHOLNPGM("  Correction Amount/Fade-out:     F", backlash.get_correction(), " (F1.0 = full, F0.0 = none)");
     SERIAL_ECHOPGM("  Backlash Distance (mm):        ");
     LOOP_LINEAR_AXES(a) if (axis_can_calibrate(a)) {
       SERIAL_CHAR(' ', AXIS_CHAR(a));
@@ -95,7 +95,7 @@ void GcodeSuite::M425() {
     }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      SERIAL_ECHOLNPAIR("  Smoothing (mm):                 S", backlash.smoothing_mm);
+      SERIAL_ECHOLNPGM("  Smoothing (mm):                 S", backlash.smoothing_mm);
     #endif
 
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
@@ -115,7 +115,7 @@ void GcodeSuite::M425() {
 
 void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, PSTR(STR_BACKLASH_COMPENSATION));
-  SERIAL_ECHOLNPAIR_P(
+  SERIAL_ECHOLNPGM_P(
     PSTR("  M425 F"), backlash.get_correction()
     #ifdef BACKLASH_SMOOTHING_MM
       , PSTR(" S"), LINEAR_UNIT(backlash.smoothing_mm)

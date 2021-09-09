@@ -52,17 +52,17 @@
           is_err = true;
         else {
           delta_endstop_adj[i] = v;
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", AS_CHAR(AXIS_CHAR(i)), "] = ", v);
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj[", AS_CHAR(AXIS_CHAR(i)), "] = ", v);
         }
       }
     }
-    if (is_err) SERIAL_ECHOLNPAIR("?M666 offsets must be <= 0");
+    if (is_err) SERIAL_ECHOLNPGM("?M666 offsets must be <= 0");
     if (!is_set) M666_report();
   }
 
   void GcodeSuite::M666_report(const bool forReplay/*=true*/) {
     report_heading_etc(forReplay, PSTR(STR_ENDSTOP_ADJUSTMENT));
-    SERIAL_ECHOLNPAIR_P(
+    SERIAL_ECHOLNPGM_P(
         PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
       , SP_Y_STR, LINEAR_UNIT(delta_endstop_adj.b)
       , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
@@ -108,22 +108,22 @@
     report_heading_etc(forReplay, PSTR(STR_ENDSTOP_ADJUSTMENT));
     SERIAL_ECHOPGM("  M666");
     #if ENABLED(X_DUAL_ENDSTOPS)
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, LINEAR_UNIT(endstops.x2_endstop_adj));
+      SERIAL_ECHOLNPGM_P(SP_X_STR, LINEAR_UNIT(endstops.x2_endstop_adj));
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
-      SERIAL_ECHOLNPAIR_P(SP_Y_STR, LINEAR_UNIT(endstops.y2_endstop_adj));
+      SERIAL_ECHOLNPGM_P(SP_Y_STR, LINEAR_UNIT(endstops.y2_endstop_adj));
     #endif
     #if ENABLED(Z_MULTI_ENDSTOPS)
       #if NUM_Z_STEPPER_DRIVERS >= 3
-        SERIAL_ECHOPAIR(" S2 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
+        SERIAL_ECHOPGM(" S2 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
         report_echo_start(forReplay);
-        SERIAL_ECHOPAIR("  M666 S3 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
+        SERIAL_ECHOPGM("  M666 S3 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
         #if NUM_Z_STEPPER_DRIVERS >= 4
           report_echo_start(forReplay);
-          SERIAL_ECHOPAIR("  M666 S4 Z", LINEAR_UNIT(endstops.z4_endstop_adj));
+          SERIAL_ECHOPGM("  M666 S4 Z", LINEAR_UNIT(endstops.z4_endstop_adj));
         #endif
       #else
-        SERIAL_ECHOLNPAIR_P(SP_Z_STR, LINEAR_UNIT(endstops.z2_endstop_adj));
+        SERIAL_ECHOLNPGM_P(SP_Z_STR, LINEAR_UNIT(endstops.z2_endstop_adj));
       #endif
     #endif
   }

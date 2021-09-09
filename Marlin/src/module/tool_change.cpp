@@ -189,7 +189,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[new_tool] + offsetcompensation;
 
-    DEBUG_ECHOPAIR("(1) Move extruder ", new_tool);
+    DEBUG_ECHOPGM("(1) Move extruder ", new_tool);
     DEBUG_POS(" to new extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.fast_feedrate, new_tool);
@@ -199,7 +199,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = grabpos + offsetcompensation;
 
-    DEBUG_ECHOPAIR("(2) Couple extruder ", new_tool);
+    DEBUG_ECHOPGM("(2) Couple extruder ", new_tool);
     DEBUG_POS(" to new extruder GrabPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
@@ -212,7 +212,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[new_tool] + offsetcompensation;
 
-    DEBUG_ECHOPAIR("(3) Move extruder ", new_tool);
+    DEBUG_ECHOPGM("(3) Move extruder ", new_tool);
     DEBUG_POS(" back to new extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
@@ -222,7 +222,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[active_extruder] + (active_extruder == 0 ? MPE_TRAVEL_DISTANCE : -MPE_TRAVEL_DISTANCE) + offsetcompensation;
 
-    DEBUG_ECHOPAIR("(4) Move extruder ", new_tool);
+    DEBUG_ECHOPGM("(4) Move extruder ", new_tool);
     DEBUG_POS(" close to old extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.fast_feedrate, new_tool);
@@ -232,7 +232,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[active_extruder] + offsetcompensation;
 
-    DEBUG_ECHOPAIR("(5) Park extruder ", new_tool);
+    DEBUG_ECHOPGM("(5) Park extruder ", new_tool);
     DEBUG_POS(" at old extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
@@ -242,7 +242,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = oldx;
 
-    DEBUG_ECHOPAIR("(6) Move extruder ", new_tool);
+    DEBUG_ECHOPGM("(6) Move extruder ", new_tool);
     DEBUG_POS(" to starting position", current_position);
 
     planner.buffer_line(current_position, mpe_settings.fast_feedrate, new_tool);
@@ -277,9 +277,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     if (homed_towards_final_tool) {
       pe_solenoid_magnet_off(1 - final_tool);
-      DEBUG_ECHOLNPAIR("Disengage magnet", 1 - final_tool);
+      DEBUG_ECHOLNPGM("Disengage magnet", 1 - final_tool);
       pe_solenoid_magnet_on(final_tool);
-      DEBUG_ECHOLNPAIR("Engage magnet", final_tool);
+      DEBUG_ECHOLNPGM("Engage magnet", final_tool);
       parking_extruder_set_parked(false);
       return false;
     }
@@ -318,7 +318,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       if (!extruder_parked) {
         current_position.x = parkingposx[active_extruder] + x_offset;
 
-        DEBUG_ECHOLNPAIR("(1) Park extruder ", active_extruder);
+        DEBUG_ECHOLNPGM("(1) Park extruder ", active_extruder);
         DEBUG_POS("Moving ParkPos", current_position);
 
         fast_line_to_current(X_AXIS);
@@ -521,7 +521,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = placexpos;
 
-    DEBUG_ECHOLNPAIR("(1) Place old tool ", active_extruder);
+    DEBUG_ECHOLNPGM("(1) Place old tool ", active_extruder);
     DEBUG_POS("Move X SwitchPos", current_position);
 
     fast_line_to_current(X_AXIS);
@@ -627,7 +627,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR;
 
-    SERIAL_ECHOLNPAIR("(1) Place old tool ", active_extruder);
+    SERIAL_ECHOLNPGM("(1) Place old tool ", active_extruder);
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
 
     fast_line_to_current(Y_AXIS);
@@ -759,7 +759,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // 2. Move to position near active extruder parking
 
     DEBUG_SYNCHRONIZE();
-    DEBUG_ECHOLNPAIR("(2) Move near active extruder parking", active_extruder);
+    DEBUG_ECHOLNPGM("(2) Move near active extruder parking", active_extruder);
     DEBUG_POS("Moving ParkPos", current_position);
 
     current_position.set(hoffs.x + placexpos,
@@ -769,7 +769,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // 3. Move gently to park position of active extruder
 
     DEBUG_SYNCHRONIZE();
-    SERIAL_ECHOLNPAIR("(3) Move gently to park position of active extruder", active_extruder);
+    SERIAL_ECHOLNPGM("(3) Move gently to park position of active extruder", active_extruder);
     DEBUG_POS("Moving ParkPos", current_position);
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
@@ -858,7 +858,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         && IsRunning() && !no_move                                  // ...and movement is permitted
         && (delayed_move_time || current_position.x != xhome)       // ...and delayed_move_time is set OR not "already parked"...
     ) {
-      DEBUG_ECHOLNPAIR("MoveX to ", xhome);
+      DEBUG_ECHOLNPGM("MoveX to ", xhome);
       current_position.x = xhome;
       line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS]);   // Park the current head
       planner.synchronize();
@@ -878,7 +878,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         current_position.x = inactive_extruder_x;
         // Save the inactive extruder's position (from the old current_position)
         inactive_extruder_x = destination.x;
-        DEBUG_ECHOLNPAIR("DXC Full Control curr.x=", current_position.x, " dest.x=", destination.x);
+        DEBUG_ECHOLNPGM("DXC Full Control curr.x=", current_position.x, " dest.x=", destination.x);
         break;
       case DXC_AUTO_PARK_MODE:
         idex_set_parked();
@@ -890,7 +890,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // Ensure X axis DIR pertains to the correct carriage
     stepper.set_directions();
 
-    DEBUG_ECHOLNPAIR("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
+    DEBUG_ECHOLNPGM("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
     DEBUG_POS("New extruder (parked)", current_position);
   }
 
@@ -1170,7 +1170,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       (void)check_tool_sensor_stats(active_extruder, true);
 
       // The newly-selected extruder XYZ is actually at...
-      DEBUG_ECHOLNPAIR("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
+      DEBUG_ECHOLNPGM("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");
       current_position += diff;
 
       // Tell the planner the new "current position"

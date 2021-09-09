@@ -102,7 +102,7 @@ void GcodeSuite::M907() {
   void GcodeSuite::M907_report(const bool forReplay/*=true*/) {
     report_heading_etc(forReplay, PSTR(STR_STEPPER_MOTOR_CURRENTS));
     #if HAS_MOTOR_CURRENT_PWM
-      SERIAL_ECHOLNPAIR_P(                                    // PWM-based has 3 values:
+      SERIAL_ECHOLNPGM_P(                                    // PWM-based has 3 values:
           PSTR("  M907 X"), stepper.motor_current_setting[0]  // X and Y
         , SP_Z_STR,         stepper.motor_current_setting[1]  // Z
         , SP_E_STR,         stepper.motor_current_setting[2]  // E
