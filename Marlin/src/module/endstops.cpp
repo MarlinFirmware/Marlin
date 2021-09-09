@@ -429,7 +429,7 @@ void Endstops::event_handler() {
     #endif
 
     #define _ENDSTOP_HIT_ECHO(A,C) do{ \
-      SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); _SET_STOP_CHAR(A,C); }while(0)
+      SERIAL_ECHOPGM(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); _SET_STOP_CHAR(A,C); }while(0)
 
     #define _ENDSTOP_HIT_TEST(A,C) \
       if (TERN0(HAS_##A##_MIN, TEST(hit_state, A##_MIN)) || TERN0(HAS_##A##_MAX, TEST(hit_state, A##_MAX))) \
@@ -1271,7 +1271,7 @@ void Endstops::update() {
     #endif
 
     uint16_t endstop_change = live_state_local ^ old_live_state_local;
-    #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPAIR("  " STRINGIFY(S) ":", TEST(live_state_local, S))
+    #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPGM("  " STRINGIFY(S) ":", TEST(live_state_local, S))
 
     if (endstop_change) {
       #if HAS_X_MIN

@@ -84,7 +84,7 @@
 
     #if EXTRUDERS == 1
     {
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHOLNPGM(
         "  M200 S", parser.volumetric_enabled, " D", LINEAR_UNIT(planner.filament_size[0])
         #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
           , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
@@ -92,10 +92,10 @@
       );
     }
     #else
-      SERIAL_ECHOLNPAIR("  M200 S", parser.volumetric_enabled);
+      SERIAL_ECHOLNPGM("  M200 S", parser.volumetric_enabled);
       LOOP_L_N(i, EXTRUDERS) {
         report_echo_start(forReplay);
-        SERIAL_ECHOLNPAIR(
+        SERIAL_ECHOLNPGM(
           "  M200 T", i, " D", LINEAR_UNIT(planner.filament_size[i])
           #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
             , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
@@ -134,7 +134,7 @@ void GcodeSuite::M201() {
 
 void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, PSTR(STR_MAX_ACCELERATION));
-  SERIAL_ECHOLNPAIR_P(
+  SERIAL_ECHOLNPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES),
       PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS]),
@@ -150,7 +150,7 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
   #if ENABLED(DISTINCT_E_FACTORS)
     LOOP_L_N(i, E_STEPPERS) {
       report_echo_start(forReplay);
-      SERIAL_ECHOLNPAIR_P(
+      SERIAL_ECHOLNPGM_P(
           PSTR("  M201 T"), i
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
       );
@@ -179,7 +179,7 @@ void GcodeSuite::M203() {
 
 void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, PSTR(STR_MAX_FEEDRATES));
-  SERIAL_ECHOLNPAIR_P(
+  SERIAL_ECHOLNPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES),
       PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]),
@@ -195,7 +195,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   #if ENABLED(DISTINCT_E_FACTORS)
     LOOP_L_N(i, E_STEPPERS) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR_P(
+      SERIAL_ECHOLNPGM_P(
           PSTR("  M203 T"), i
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
       );
@@ -225,7 +225,7 @@ void GcodeSuite::M204() {
 
 void GcodeSuite::M204_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, PSTR(STR_ACCELERATION_P_R_T));
-  SERIAL_ECHOLNPAIR_P(
+  SERIAL_ECHOLNPGM_P(
       PSTR("  M204 P"), LINEAR_UNIT(planner.settings.acceleration)
     , PSTR(" R"), LINEAR_UNIT(planner.settings.retract_acceleration)
     , SP_T_STR, LINEAR_UNIT(planner.settings.travel_acceleration)
@@ -292,7 +292,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
     TERN_(HAS_CLASSIC_E_JERK, " E<max_e_jerk>")
     ")"
   ));
-  SERIAL_ECHOLNPAIR_P(
+  SERIAL_ECHOLNPGM_P(
       PSTR("  M205 B"), LINEAR_UNIT(planner.settings.min_segment_time_us)
     , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
     , SP_T_STR, LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)

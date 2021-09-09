@@ -2353,7 +2353,7 @@ void MarlinSettings::postprocess() {
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHO(version);
-        DEBUG_ECHOLNPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
+        DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -2380,7 +2380,7 @@ void MarlinSettings::postprocess() {
 
           if (ubl.storage_slot >= 0) {
             load_mesh(ubl.storage_slot);
-            DEBUG_ECHOLNPAIR("Mesh ", ubl.storage_slot, " loaded from storage.");
+            DEBUG_ECHOLNPGM("Mesh ", ubl.storage_slot, " loaded from storage.");
           }
           else {
             ubl.reset();
@@ -2436,7 +2436,7 @@ void MarlinSettings::postprocess() {
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
     inline void ubl_invalid_slot(const int s) {
-      DEBUG_ECHOLNPAIR("?Invalid slot.\n", s, " mesh slots available.");
+      DEBUG_ECHOLNPGM("?Invalid slot.\n", s, " mesh slots available.");
       UNUSED(s);
     }
 
@@ -2467,7 +2467,7 @@ void MarlinSettings::postprocess() {
         const int16_t a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
           ubl_invalid_slot(a);
-          DEBUG_ECHOLNPAIR("E2END=", persistentStore.capacity() - 1, " meshes_end=", meshes_end, " slot=", slot);
+          DEBUG_ECHOLNPGM("E2END=", persistentStore.capacity() - 1, " meshes_end=", meshes_end, " slot=", slot);
           DEBUG_EOL();
           return;
         }
@@ -2489,7 +2489,7 @@ void MarlinSettings::postprocess() {
         persistentStore.access_finish();
 
         if (status) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
-        else        DEBUG_ECHOLNPAIR("Mesh saved in slot ", slot);
+        else        DEBUG_ECHOLNPGM("Mesh saved in slot ", slot);
 
       #else
 
@@ -2533,7 +2533,7 @@ void MarlinSettings::postprocess() {
         #endif
 
         if (status) SERIAL_ECHOLNPGM("?Unable to load mesh data.");
-        else        DEBUG_ECHOLNPAIR("Mesh loaded from slot ", slot);
+        else        DEBUG_ECHOLNPGM("Mesh loaded from slot ", slot);
 
         EEPROM_FINISH();
 
@@ -3010,8 +3010,8 @@ void MarlinSettings::reset() {
 #if DISABLED(DISABLE_M503)
 
   #define CONFIG_ECHO_START()       gcode.report_echo_start(forReplay)
-  #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
-  #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPAIR_P(V); }while(0)
+  #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
+  #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
   #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, PSTR(STR))
 
   void M92_report(const bool echo=true, const int8_t e=-1);
@@ -3027,7 +3027,7 @@ void MarlinSettings::reset() {
     //
     CONFIG_ECHO_HEADING("Linear Units");
     #if ENABLED(INCH_MODE_SUPPORT)
-      SERIAL_ECHOPAIR("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
+      SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
       SERIAL_ECHOPGM("  G21 ;");
     #endif
@@ -3096,7 +3096,7 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR("  G29 S3 I", px, " J", py);
+              SERIAL_ECHOPGM("  G29 S3 I", px, " J", py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
@@ -3121,7 +3121,7 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPAIR("  G29 W I", px, " J", py);
+              SERIAL_ECHOPGM("  G29 W I", px, " J", py);
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(z_values[px][py]), 5);
             }
           }

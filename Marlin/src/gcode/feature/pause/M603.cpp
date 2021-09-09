@@ -69,12 +69,12 @@ void GcodeSuite::M603_report(const bool forReplay/*=true*/) {
 
   #if EXTRUDERS == 1
     report_echo_start(forReplay);
-    SERIAL_ECHOPAIR("  M603 L", LINEAR_UNIT(fc_settings[0].load_length), " U", LINEAR_UNIT(fc_settings[0].unload_length), " ;");
+    SERIAL_ECHOPGM("  M603 L", LINEAR_UNIT(fc_settings[0].load_length), " U", LINEAR_UNIT(fc_settings[0].unload_length), " ;");
     say_units();
   #else
     LOOP_L_N(e, EXTRUDERS) {
       report_echo_start(forReplay);
-      SERIAL_ECHOPAIR("  M603 T", e, " L", LINEAR_UNIT(fc_settings[e].load_length), " U", LINEAR_UNIT(fc_settings[e].unload_length), " ;");
+      SERIAL_ECHOPGM("  M603 T", e, " L", LINEAR_UNIT(fc_settings[e].load_length), " U", LINEAR_UNIT(fc_settings[e].unload_length), " ;");
       say_units();
     }
   #endif

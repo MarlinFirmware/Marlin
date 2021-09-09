@@ -127,7 +127,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
  * Return true if the command was consumed
  */
 bool GCodeQueue::enqueue_one(const char *cmd) {
-  //SERIAL_ECHOLNPAIR("enqueue_one(\"", cmd, "\")");
+  //SERIAL_ECHOLNPGM("enqueue_one(\"", cmd, "\")");
 
   if (*cmd == 0 || ISEOL(*cmd)) return true;
 
@@ -260,7 +260,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_CHAR(*p++);
     }
-    SERIAL_ECHOPAIR_P(SP_P_STR, planner.moves_free(),
+    SERIAL_ECHOPGM_P(SP_P_STR, planner.moves_free(),
                       SP_B_STR, BUFSIZE - length);
   #endif
   SERIAL_EOL();
@@ -276,7 +276,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
-  SERIAL_ECHOLNPAIR(STR_RESEND, serial_state[serial_ind.index].last_N + 1);
+  SERIAL_ECHOLNPGM(STR_RESEND, serial_state[serial_ind.index].last_N + 1);
   SERIAL_ECHOLNPGM(STR_OK);
 }
 
@@ -306,7 +306,7 @@ inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(ind
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind.index].last_N);
+  SERIAL_ECHOLNPGM_P(err, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
   serial_state[serial_ind.index].count = 0;
@@ -659,10 +659,10 @@ void GCodeQueue::advance() {
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
-            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL1.dropped());
+            SERIAL_ECHOLNPGM("Dropped bytes: ", MYSERIAL1.dropped());
           #endif
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
+            SERIAL_ECHOLNPGM("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
           #endif
         #endif
 
@@ -693,7 +693,7 @@ void GCodeQueue::advance() {
 #if ENABLED(BUFFER_MONITORING)
 
   void GCodeQueue::report_buffer_statistics() {
-    SERIAL_ECHOLNPAIR("D576"
+    SERIAL_ECHOLNPGM("D576"
       " P:", planner.moves_free(),         " ", -queue.planner_buffer_underruns, " (", queue.max_planner_buffer_empty_duration, ")"
       " B:", BUFSIZE - ring_buffer.length, " ", -queue.command_buffer_underruns, " (", queue.max_command_buffer_empty_duration, ")"
     );

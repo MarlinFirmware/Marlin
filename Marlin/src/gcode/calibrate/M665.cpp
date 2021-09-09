@@ -63,7 +63,7 @@
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
     report_heading_etc(forReplay, PSTR(STR_DELTA_SETTINGS));
-    SERIAL_ECHOLNPAIR_P(
+    SERIAL_ECHOLNPGM_P(
         PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
       , PSTR(" R"), LINEAR_UNIT(delta_radius)
       , PSTR(" H"), LINEAR_UNIT(delta_height)
@@ -133,7 +133,7 @@
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
     report_heading_etc(forReplay, PSTR(STR_SCARA_SETTINGS " (" STR_SCARA_S TERN_(HAS_SCARA_OFFSET, " " STR_SCARA_P_T_Z) ")"));
-    SERIAL_ECHOLNPAIR_P(
+    SERIAL_ECHOLNPGM_P(
       PSTR("  M665 S"), segments_per_second
       #if HAS_SCARA_OFFSET
         , SP_P_STR, scara_home_offset.a

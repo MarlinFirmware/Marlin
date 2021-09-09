@@ -69,7 +69,7 @@ void GcodeSuite::M281_report(const bool forReplay/*=true*/) {
         case Z_PROBE_SERVO_NR:
       #endif
           report_echo_start(forReplay);
-          SERIAL_ECHOLNPAIR("  M281 P", i, " L", servo_angles[i][0], " U", servo_angles[i][1]);
+          SERIAL_ECHOLNPGM("  M281 P", i, " L", servo_angles[i][0], " U", servo_angles[i][1]);
     }
   }
 }

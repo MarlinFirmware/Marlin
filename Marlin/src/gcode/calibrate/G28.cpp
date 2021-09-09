@@ -270,7 +270,7 @@ void GcodeSuite::G28() {
 
   #if HAS_HOMING_CURRENT
     auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
-      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
+      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -371,7 +371,7 @@ void GcodeSuite::G28() {
 
     if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);
       TERN_(BLTOUCH, bltouch.init());
     }
