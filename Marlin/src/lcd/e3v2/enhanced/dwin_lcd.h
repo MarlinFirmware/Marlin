@@ -22,8 +22,8 @@
 /********************************************************************************
  * @file     lcd/e3v2/enhanced/dwin_lcd.h
  * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
- * @date     2021/08/29
- * @version  2.1.1
+ * @date     2021/08/09
+ * @version  2.2.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
@@ -157,7 +157,7 @@ inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t 
 //  x/y: Upper-left coordinate
 //  value: Integer value
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
-                          uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value);
+                          uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value);
 
 // Draw a positive floating point number
 //  bShow: true=display background color; false=don't display background color
@@ -172,6 +172,9 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
 //  value: Scaled positive float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+//  value: positive float value
+void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
+                            uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value);
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 

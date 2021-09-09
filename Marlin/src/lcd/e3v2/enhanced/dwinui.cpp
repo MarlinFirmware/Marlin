@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.1
- * Date: 2021/08/29
+ * Version: 3.6.3
+ * Date: 2021/08/09
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -185,7 +185,7 @@ void DWINUI::Draw_String(uint16_t color, const char * const string, uint16_t rli
 //  fNum: Number of decimal digits
 //  x/y: Upper-left point
 //  value: Float value
-void DWINUI::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+void DWINUI::Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
   if (value < 0) {
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, -value);
     DWIN_Draw_String(bShow, size, color, bColor, x - 6, y, F("-"));
