@@ -83,7 +83,7 @@ void GcodeSuite::M301_report(const bool forReplay/*=true*/, const int8_t eindex/
   HOTEND_LOOP() {
     if (e == eindex || eindex == -1) {
       report_echo_start(forReplay);
-      SERIAL_ECHOPAIR_P(
+      SERIAL_ECHOPGM_P(
         #if ENABLED(PID_PARAMS_PER_HOTEND)
           PSTR("  M301 E"), e, SP_P_STR
         #else
@@ -94,11 +94,11 @@ void GcodeSuite::M301_report(const bool forReplay/*=true*/, const int8_t eindex/
         , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
       );
       #if ENABLED(PID_EXTRUSION_SCALING)
-        SERIAL_ECHOPAIR_P(SP_C_STR, PID_PARAM(Kc, e));
-        if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
+        SERIAL_ECHOPGM_P(SP_C_STR, PID_PARAM(Kc, e));
+        if (e == 0) SERIAL_ECHOPGM(" L", thermalManager.lpq_len);
       #endif
       #if ENABLED(PID_FAN_SCALING)
-        SERIAL_ECHOPAIR(" F", PID_PARAM(Kf, e));
+        SERIAL_ECHOPGM(" F", PID_PARAM(Kf, e));
       #endif
       SERIAL_EOL();
     }

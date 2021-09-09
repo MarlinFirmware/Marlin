@@ -72,7 +72,7 @@ void NextionTFT::Startup() {
   SEND_VALasTXT("tmppage.bedy", Y_BED_SIZE);
   SEND_VALasTXT("tmppage.bedz", Z_MAX_POS);
 
-  DEBUG_ECHOLNPAIR("Nextion Debug Level ", NEXDEBUGLEVEL);
+  DEBUG_ECHOLNPGM("Nextion Debug Level ", NEXDEBUGLEVEL);
 }
 
 void NextionTFT::IdleLoop() {
@@ -98,13 +98,13 @@ void NextionTFT::PrintFinished() {
 void NextionTFT::ConfirmationRequest(const char * const msg) {
   SEND_VALasTXT("tmppage.M117", msg);
   #if NEXDEBUG(N_MARLIN)
-    DEBUG_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
+    DEBUG_ECHOLNPGM("ConfirmationRequest() ", msg, " printer_state:", printer_state);
   #endif
 }
 
 void NextionTFT::StatusChange(const char * const msg) {
   #if NEXDEBUG(N_MARLIN)
-    DEBUG_ECHOLNPAIR("StatusChange() ", msg, "\nprinter_state:", printer_state);
+    DEBUG_ECHOLNPGM("StatusChange() ", msg, "\nprinter_state:", printer_state);
   #endif
   SEND_VALasTXT("tmppage.M117", msg);
 }
@@ -133,12 +133,12 @@ bool NextionTFT::ReadTFTCommand() {
     if (nextion_command[0] == 'G' || nextion_command[0] == 'M' || nextion_command[0] == 'T')
       injectCommands(nextion_command);
     #if NEXDEBUG(N_ALL)
-      DEBUG_ECHOLNPAIR("< ", nextion_command);
+      DEBUG_ECHOLNPGM("< ", nextion_command);
     #endif
     #if NEXDEBUG(N_SOME)
       uint8_t req = atoi(&nextion_command[1]);
       if (req > 7 && req != 20)
-        DEBUG_ECHOLNPAIR(  "> ", AS_CHAR(nextion_command[0]),
+        DEBUG_ECHOLNPGM(  "> ", AS_CHAR(nextion_command[0]),
                          "\n> ", AS_CHAR(nextion_command[1]),
                          "\n> ", AS_CHAR(nextion_command[2]),
                          "\n> ", AS_CHAR(nextion_command[3]),
@@ -151,7 +151,7 @@ bool NextionTFT::ReadTFTCommand() {
 void NextionTFT::SendFileList(int8_t startindex) {
   // respond to panel request for 7 files starting at index
   #if NEXDEBUG(N_INFO)
-    DEBUG_ECHOLNPAIR("## SendFileList ## ", startindex);
+    DEBUG_ECHOLNPGM("## SendFileList ## ", startindex);
   #endif
   filenavigator.getFiles(startindex);
 }

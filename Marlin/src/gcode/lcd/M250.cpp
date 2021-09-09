@@ -38,7 +38,7 @@ void GcodeSuite::M250() {
 
 void GcodeSuite::M250_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, PSTR(STR_LCD_CONTRAST));
-  SERIAL_ECHOLNPAIR("  M250 C", ui.contrast);
+  SERIAL_ECHOLNPGM("  M250 C", ui.contrast);
 }
 
 #endif // HAS_LCD_CONTRAST

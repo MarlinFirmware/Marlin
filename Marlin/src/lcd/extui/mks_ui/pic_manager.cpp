@@ -233,7 +233,7 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
   currentFlashPage = 0;
 
   #if ENABLED(MARLIN_DEV_MODE)
-    SERIAL_ECHOLNPAIR("Getting picture SPI Flash Address: ", (const char*)Pname);
+    SERIAL_ECHOLNPGM("Getting picture SPI Flash Address: ", (const char*)Pname);
   #endif
 
   W25QXX.init(SPI_QUARTER_SPEED);
@@ -408,7 +408,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     createFilename(dosFilename, entry);
     if (!file.open(&dir, dosFilename, O_READ)) {
       #if ENABLED(MARLIN_DEV_MODE)
-        SERIAL_ECHOLNPAIR("Error opening Asset: ", fn);
+        SERIAL_ECHOLNPGM("Error opening Asset: ", fn);
       #endif
       return;
     }
@@ -463,7 +463,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
         } while (pbr >= BMP_WRITE_BUF_LEN);
       #endif
       #if ENABLED(MARLIN_DEV_MODE)
-        SERIAL_ECHOLNPAIR("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
+        SERIAL_ECHOLNPGM("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
         totalCompressed += (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize;
       #endif
       SPIFlash.endWrite();
@@ -481,7 +481,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     file.close();
 
     #if ENABLED(MARLIN_DEV_MODE)
-      SERIAL_ECHOLNPAIR("Asset added: ", fn);
+      SERIAL_ECHOLNPGM("Asset added: ", fn);
     #endif
   }
 
@@ -537,8 +537,8 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     #if ENABLED(MARLIN_DEV_MODE)
       uint8_t pic_counter = 0;
       W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
-      SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter);
-      SERIAL_ECHOLNPAIR("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
+      SERIAL_ECHOLNPGM("Total assets loaded: ", pic_counter);
+      SERIAL_ECHOLNPGM("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
     #endif
   }
 

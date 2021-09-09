@@ -175,7 +175,7 @@ void GcodeSuite::M115() {
       apply_motion_limits(cmax);
       const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
                       wmin = cmin.asLogical(), wmax = cmax.asLogical();
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHOLNPGM(
         "area:{"
           "full:{"
             "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
