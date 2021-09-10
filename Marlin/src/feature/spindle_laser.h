@@ -51,10 +51,14 @@
 // States - power == 0 off, power > 0 on
 // TO - transition state (TO_ON - from any to on)
 enum SpindleLaserEvent : uint8_t {
-  ON_CW, ON_CCW, OFF,
-  TO_ON_CW, TO_ON_CCW,
-  TO_OFF,
-  TO_ON_ON
+  ON_CW = 1,          // 0000 0001  event, state
+  ON_CCW = 2,         // 0000 0010  event, state
+  OFF = 4,            // 0000 0100  event, state
+  TO_ON_CW = 17,      // 0001 0001  event
+  TO_ON_CCW = 34,     // 0010 0010  event
+  TO_OFF = 52,        // 0011 0100  event
+  TO_ON_ON_CW = 65,   // 0100 0001  event
+  TO_ON_ON_CCW = 82   // 0101 0010  event
 };
 
 
@@ -114,6 +118,7 @@ public:
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
   static uint8_t ocr_power;
   static uint8_t dir;                     // Direction spindle
+  static SpindleLaserEvent state;         // Current state
 
   #if ENABLED(MARLIN_DEV_MODE)
     static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
@@ -138,12 +143,13 @@ public:
 
   static void ena_pin_set(const bool enable);
   static void _change_hw(const bool ena_pin_on);
-  static SpindleLaserEvent get_event(const uint8_t opwr, const uint8_t dir);
+  static SpindleLaserEvent get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on);
 
   static void init();
-  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CW);
+  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CW, const bool ena_pin_on = true);
 
-  FORCE_INLINE static void refresh() { ocr_set_power(ocr_power); }
+  FORCE_INLINE static void refresh() {}
+  // { ocr_set_power(ocr_power); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
     static void ocr_set(const uint8_t ocr);
@@ -217,7 +223,8 @@ public:
         opwr = 255;
       #endif
     }
-    ocr_set_power(opwr);
+    // ???
+    ocr_set_power(opwr, dir, enable);
   }
 
   static inline void disable() { isReady = false; set_enabled(false); }
