@@ -63,6 +63,10 @@
 #include "sd/cardreader.h"
 
 #include "lcd/marlinui.h"
+
+#if RESET_CHOOSE_LANGUAGE
+  #include "lcd/menu/menu_item.h"
+#endif
 #if HAS_TOUCH_BUTTONS
   #include "lcd/touch/touch_buttons.h"
 #endif
@@ -239,7 +243,9 @@
 #if ENABLED(PSU_CONTROL)
   #include "feature/power.h"
 #endif
-
+#if RESET_CHOOSE_LANGUAGE
+  #include "lcd/menu/menu.h"
+#endif
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -1041,7 +1047,28 @@ inline void tmc_standby_setup() {
     SET_INPUT_PULLDOWN(E7_STDBY_PIN);
   #endif
 }
+#if RESET_CHOOSE_LANGUAGE
+void language_selected()
+{
+  settings.save();
+  ui.return_to_status();
 
+}
+
+void language_choose()
+{
+    ui.defer_status_screen();
+    START_MENU();
+    MENU_ITEM_P(back,"Language" );
+    ACTION_ITEM_P(GET_LANG(LCD_LANGUAGE)::LANGUAGE, []{ ui.language = 0; language_selected();});
+    ACTION_ITEM_P(GET_LANG(LCD_LANGUAGE_2)::LANGUAGE, []{ui.language = 1;language_selected(); });
+    ACTION_ITEM_P(GET_LANG(LCD_LANGUAGE_3)::LANGUAGE, []{ui.language = 2; language_selected();});
+    ACTION_ITEM_P(GET_LANG(LCD_LANGUAGE_4)::LANGUAGE, []{ui.language = 3; language_selected();});   
+    ACTION_ITEM_P(GET_LANG(LCD_LANGUAGE_5)::LANGUAGE, []{ui.language = 4; language_selected();});   
+    END_MENU();
+
+}
+#endif
 /**
  * Marlin Firmware entry-point. Abandon Hope All Ye Who Enter Here.
  * Setup before the program loop:
@@ -1628,6 +1655,13 @@ void setup() {
 
   #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
     ui.check_touch_calibration();
+  #endif
+
+  #if RESET_CHOOSE_LANGUAGE
+    if(ui.language == 0xaa)
+    {
+      ui.goto_screen(language_choose);    
+    }
   #endif
 
   marlin_state = MF_RUNNING;
