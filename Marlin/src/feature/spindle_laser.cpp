@@ -130,11 +130,6 @@ void SpindleLaser::ena_pin_set(const bool enable) {
  * @param oena_pin_on New ena_pin state
  */
 SpindleLaserEvent SpindleLaser::get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on) {
-  #if ENABLED(SPINDLE_LASER_PWM) && CUTTER_UNIT_IS(RPM)
-    if (cutter.unitPower == 0)
-      return state == SpindleLaserEvent::OFF ? SpindleLaserEvent::OFF : SpindleLaserEvent::TO_OFF;
-  #endif
-
   if ((opwr == 0) && (!oena_pin_on))
     return state == SpindleLaserEvent::OFF ? SpindleLaserEvent::OFF : SpindleLaserEvent::TO_OFF;
   if (state == SpindleLaserEvent::OFF)

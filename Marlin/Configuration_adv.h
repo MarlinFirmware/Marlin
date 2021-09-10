@@ -3334,7 +3334,7 @@
    * If defined ENA_PIN can be disabled throught M5 only.
    * If it isn't defined when call M3 S0 ENA_PIN will be disable.
    */
-  #define SPINDLE_LASER_PWM_SEPARATE_PIN
+  //#define SPINDLE_LASER_PWM_SEPARATE_PIN
 
   //#define AIR_EVACUATION                     // Cutter Vacuum / Laser Blower motor control with G-codes M10-M11
   #if ENABLED(AIR_EVACUATION)
