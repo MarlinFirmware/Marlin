@@ -495,7 +495,7 @@
  */
 #ifndef PSU_NAME
   #if DISABLED(PSU_CONTROL)
-    #define PSU_NAME "Generic"  // No control
+    #define PSU_NAME "Generic 24V"  // No control
   #elif PSU_ACTIVE_STATE
     #define PSU_NAME "XBox"     // X-Box 360 (203W)
   #else
