@@ -33,6 +33,7 @@
 #include "../../marlinui.h"
 #include "../../../MarlinCore.h"
 
+#include "../../../gcode/gcode.h"
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
 #include "../../../module/settings.h"
@@ -180,6 +181,7 @@ bool probe_deployed = false;
 CrealityDWINClass CrealityDWIN;
 
 #if HAS_MESH
+
   struct Mesh_Settings {
     bool viewer_asymmetric_range = false;
     bool viewer_print_value = false;
@@ -362,7 +364,7 @@ CrealityDWINClass CrealityDWIN;
       if (v_min > 3e+10F) v_min = 0.0000001;
       if (v_max > 3e+10F) v_max = 0.0000001;
       if (range > 3e+10F) range = 0.0000001;
-      char msg[32];
+      char msg[46];
       if (viewer_asymmetric_range) {
         dtostrf(-v_min, 1, 3, str_1);
         dtostrf( v_max, 1, 3, str_2);
@@ -378,7 +380,8 @@ CrealityDWINClass CrealityDWIN;
 
   };
   Mesh_Settings mesh_conf;
-#endif
+
+#endif // HAS_MESH
 
 /* General Display Functions */
 
@@ -4754,11 +4757,13 @@ void CrealityDWINClass::Start_Print(bool sd) {
     printing = true;
     statusmsg[0] = '\0';
     if (sd) {
-      if (recovery.valid()) {
-        SdFile *diveDir = nullptr;
-        const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
-        card.selectFileByName(fname);
-      }
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        if (recovery.valid()) {
+          SdFile *diveDir = nullptr;
+          const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
+          card.selectFileByName(fname);
+        }
+      #endif
       strcpy_P(filename, card.longest_filename());
     }
     else
@@ -4798,7 +4803,7 @@ void MarlinUI::update() { CrealityDWIN.Update(); }
 
 void CrealityDWINClass::State_Update() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
-    if (!printing) Start_Print((card.isFileOpen() || recovery.valid()));
+    if (!printing) Start_Print(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
     else Stop_Print();
   }
   if (print_job_timer.isPaused() != paused) {

@@ -22,10 +22,6 @@
 #pragma once
 
 /**
- * gcode.h - Temporary container for all gcode handlers
- */
-
-/**
  * -----------------
  * G-Codes in Marlin
  * -----------------
