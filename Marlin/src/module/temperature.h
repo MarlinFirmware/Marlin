@@ -392,7 +392,7 @@ class Temperature {
     #endif
 
     #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-      static bool heating_enabled;
+      static volatile bool heating_enabled;
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -476,6 +476,11 @@ class Temperature {
       static constexpr millis_t fan_update_interval_ms = TERN(HAS_PWMFANCHECK, 5000, TERN(HAS_FANCHECK, 1000, 2500));
     #endif
 
+    // TODO: make an accessor/function to set this?
+    #if HAS_HOTEND
+      static temp_range_t temp_range[HOTENDS];
+    #endif
+
   private:
 
     #if ENABLED(WATCH_HOTENDS)
@@ -485,10 +490,6 @@ class Temperature {
     #if ENABLED(PID_EXTRUSION_SCALING)
       static int32_t last_e_position, lpq[LPQ_MAX_LEN];
       static lpq_ptr_t lpq_ptr;
-    #endif
-
-    #if HAS_HOTEND
-      static temp_range_t temp_range[HOTENDS];
     #endif
 
     #if HAS_HEATED_BED
@@ -710,8 +711,8 @@ class Temperature {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
 
-    #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      static int16_t rawHotendTemp(const uint8_t E_NAME) {
+    #if ENABLED(SHOW_TEMP_ADC_VALUES) || ENABLED(DEBUG_TEMPERATURE)
+      static inline int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
       }
     #endif

@@ -24,10 +24,16 @@
  * temperature.cpp - temperature control
  */
 
+#include "../MarlinCore.h"
+
+//#define DEBUG_TEMPERATURE
+
+#define DEBUG_OUT ENABLED(DEBUG_TEMPERATURE)
+#include "../core/debug_out.h"
+
 // Useful when debugging thermocouples
 //#define IGNORE_THERMOCOUPLE_ERRORS
 
-#include "../MarlinCore.h"
 #include "../HAL/shared/Delay.h"
 #include "../lcd/marlinui.h"
 
@@ -316,7 +322,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #endif
 
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  bool Temperature::heating_enabled = true;
+  volatile bool Temperature::heating_enabled = true;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -1026,8 +1032,14 @@ void Temperature::_temp_error(const heater_id_t heater_id, FSTR_P const serial_m
       OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: SERIAL_ECHOPGM(STR_HEATER_CHAMBER); break)
       OPTCODE(HAS_TEMP_BED,     case H_BED:     SERIAL_ECHOPGM(STR_HEATER_BED);     break)
       default:
-        if (real_heater_id >= 0)
+        if (real_heater_id >= 0) {
           SERIAL_ECHOLNPGM("E", real_heater_id);
+          DEBUG_ECHO("Sensor readings: ");
+          DEBUG_ECHO(degHotend(real_heater_id));
+          DEBUG_ECHO(", raw ");
+          DEBUG_ECHO(rawHotendTemp(real_heater_id));
+          DEBUG_ECHOLN("");
+        }
     }
     SERIAL_EOL();
   }
@@ -1341,12 +1353,16 @@ void Temperature::manage_heater() {
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_0_IS_MAX_TC
-      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0)) max_temp_error(H_E0);
-      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01)) min_temp_error(H_E0);
+      if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0))
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error(H_E0);
+      if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01))
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) min_temp_error(H_E0);
     #endif
     #if TEMP_SENSOR_1_IS_MAX_TC
-      if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0)) max_temp_error(H_E1);
-      if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01)) min_temp_error(H_E1);
+      if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0))
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error(H_E1);
+      if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01))
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) min_temp_error(H_E1);
     #endif
     #if TEMP_SENSOR_REDUNDANT_IS_MAX_TC
       if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) max_temp_error(H_REDUNDANT);
@@ -1362,7 +1378,10 @@ void Temperature::manage_heater() {
 
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-        if (degHotend(e) > temp_range[e].maxtemp) max_temp_error((heater_id_t)e);
+        if (degHotend(e) > temp_range[e].maxtemp) {
+          DEBUG_ECHOLN("thermal protection triggered: maxtemp");
+          if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error((heater_id_t)e);
+        }
       #endif
 
       TERN_(HEATER_IDLE_HANDLER, heater_idle[e].update(ms));
@@ -1381,6 +1400,7 @@ void Temperature::manage_heater() {
             start_watching_hotend(e);               // If temp reached, turn off elapsed check
           else {
             TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
+            DEBUG_ECHOLN("heating failed: watch_hotends");
             _temp_error((heater_id_t)e, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
           }
         }
@@ -2112,17 +2132,28 @@ void Temperature::updateTemperaturesFromRawValues() {
     };
 
     LOOP_L_N(e, COUNT(temp_dir)) {
+      #if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
+        // only act on the active tool in manual toolhead switching mode
+        if (active_extruder != e) continue;
+      #endif
       const int8_t tdir = temp_dir[e];
       if (tdir) {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp
-        if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error((heater_id_t)e);
+        if (rawtemp > temp_range[e].raw_max * tdir) {
+          DEBUG_ECHOLNPAIR("rawtemp out of range, max: ", temp_range[e].raw_max * tdir);
+          if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error((heater_id_t)e);
+        }
 
         const bool heater_on = temp_hotend[e].target > 0;
         if (heater_on && rawtemp < temp_range[e].raw_min * tdir && !is_preheating(e)) {
           #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
-            if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+            if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED) {
           #endif
-              min_temp_error((heater_id_t)e);
+              DEBUG_ECHOLNPAIR("rawtemp out of range, min: ", temp_range[e].raw_min * tdir);
+              if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) min_temp_error((heater_id_t)e);
+          #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
+            }
+          #endif
         }
         #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
           else
@@ -3106,7 +3137,11 @@ void Temperature::isr() {
 
       #if HAS_HOTEND
         #define _PWM_MOD_E(N) _PWM_MOD(N,soft_pwm_hotend[N],temp_hotend[N]);
-        REPEAT(HOTENDS, _PWM_MOD_E);
+        #if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
+          _PWM_MOD_E(0)
+        #else
+          REPEAT(HOTENDS, _PWM_MOD_E);
+        #endif
       #endif
 
       #if HAS_HEATED_BED
@@ -3161,7 +3196,11 @@ void Temperature::isr() {
       #define _PWM_LOW(N,S) do{ if (S.count <= pwm_count_tmp) WRITE_HEATER_##N(LOW); }while(0)
       #if HAS_HOTEND
         #define _PWM_LOW_E(N) _PWM_LOW(N, soft_pwm_hotend[N]);
-        REPEAT(HOTENDS, _PWM_LOW_E);
+        #if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
+          _PWM_LOW_E(0);
+        #else
+          REPEAT(HOTENDS, _PWM_LOW_E);
+        #endif
       #endif
 
       #if HAS_HEATED_BED
@@ -3234,7 +3273,11 @@ void Temperature::isr() {
 
       #if HAS_HOTEND
         #define _SLOW_PWM_E(N) _SLOW_PWM(N, soft_pwm_hotend[N], temp_hotend[N]);
-        REPEAT(HOTENDS, _SLOW_PWM_E);
+        #if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
+          _SLOW_PWM_E(0);
+        #else
+          REPEAT(HOTENDS, _SLOW_PWM_E);
+        #endif
       #endif
 
       #if HAS_HEATED_BED
@@ -3253,7 +3296,11 @@ void Temperature::isr() {
 
     #if HAS_HOTEND
       #define _PWM_OFF_E(N) _PWM_OFF(N, soft_pwm_hotend[N]);
-      REPEAT(HOTENDS, _PWM_OFF_E);
+      #if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
+        _PWM_OFF_E(0);
+      #else
+        REPEAT(HOTENDS, _PWM_OFF_E);
+      #endif
     #endif
 
     #if HAS_HEATED_BED
