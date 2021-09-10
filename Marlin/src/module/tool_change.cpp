@@ -59,7 +59,7 @@
   #include "../lcd/marlinui.h"
 #endif
 
-#if ENABLED(DUAL_X_CARRIAGE)
+#if ANY(DUAL_X_CARRIAGE, MANUAL_SWITCHING_TOOLHEAD)
   #include "stepper.h"
 #endif
 
@@ -387,6 +387,27 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
+  inline void manual_switching_toolhead_tool_change(const uint8_t new_tool) {
+    DEBUG_ECHOLNPAIR("tool change, active ", active_extruder, " new ", new_tool);
+
+    disable_e_steppers();
+    thermalManager.disable_all_heaters();
+    thermalManager.heating_enabled = false;
+    thermalManager.temp_hotend[new_tool].reset();
+    active_extruder = new_tool;
+
+    // allow temperature readings to stabilize; 1khz, OVERSAMPLENR*2 samples
+    safe_delay(
+      _MAX(
+        10UL,
+        ((TEMP_TIMER_FREQUENCY / CYCLES_PER_MICROSECOND) * (OVERSAMPLENR) * 2) / 1000
+      )
+    );
+
+    thermalManager.heating_enabled = true;
+    reset_stepper_drivers();
+    enable_e_steppers();
+  }
 
 
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
@@ -1002,6 +1023,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     mmu2.tool_change(new_tool);
 
+  #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+
+    UNUSED(no_move);
+
+    manual_switching_toolhead_tool_change(new_tool);
+
   #elif EXTRUDERS == 0
 
     // Nothing to do
@@ -1023,7 +1050,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
          return invalid_extruder_error(new_tool);
     #endif
 
-    if (new_tool >= EXTRUDERS)
+    if (new_tool >= TERN(MANUAL_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD_TOOL_QTY, EXTRUDERS))
       return invalid_extruder_error(new_tool);
 
     if (!no_move && homing_needed()) {

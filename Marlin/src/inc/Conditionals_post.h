@@ -492,6 +492,74 @@
 #endif
 
 /**
+ * Manual Toolhead Switching - toolheads using common electrical connections
+ */
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+
+  // TEMP and HEATER overrides
+  #if HOTENDS > 1
+    #undef TEMP_1_PIN
+    #undef HEATER_1_PIN
+    #define TEMP_1_PIN TEMP_0_PIN
+    #define HEATER_1_PIN HEATER_0_PIN
+
+    #if HOTENDS > 2
+      #undef TEMP_2_PIN
+      #undef HEATER_2_PIN
+      #define TEMP_2_PIN TEMP_0_PIN
+      #define HEATER_2_PIN HEATER_0_PIN
+
+      #if HOTENDS > 3
+        #undef TEMP_3_PIN
+        #undef HEATER_3_PIN
+        #define TEMP_3_PIN TEMP_0_PIN
+        #define HEATER_3_PIN HEATER_0_PIN
+
+        #if HOTENDS > 4
+          #undef TEMP_4_PIN
+          #undef HEATER_4_PIN
+          #define TEMP_4_PIN TEMP_0_PIN
+          #define HEATER_4_PIN HEATER_0_PIN
+
+          #if HOTENDS > 5
+            #undef TEMP_5_PIN
+            #undef HEATER_5_PIN
+            #define TEMP_5_PIN TEMP_0_PIN
+            #define HEATER_5_PIN HEATER_0_PIN
+
+            #if HOTENDS > 6
+              #undef TEMP_6_PIN
+              #undef HEATER_6_PIN
+              #define TEMP_6_PIN TEMP_0_PIN
+              #define HEATER_6_PIN HEATER_0_PIN
+
+              #if HOTENDS > 7
+                #undef TEMP_7_PIN
+                #undef HEATER_7_PIN
+                #define TEMP_7_PIN TEMP_0_PIN
+                #define HEATER_7_PIN HEATER_0_PIN
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
+
+  // STEPPER overrides
+  #if EXTRUDERS == 1
+    #undef E1_DIR_PIN
+    #undef E1_STEP_PIN
+    #undef E1_CS_PIN
+    #undef E1_ENABLE_PIN
+    #undef E1_SERIAL_TX_PIN
+    #undef E1_SERIAL_RX_PIN
+    // TODO: all other pins
+  #endif
+
+#endif
+
+/**
  * Temp Sensor defines; set up pins as needed.
  */
 

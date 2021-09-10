@@ -646,7 +646,66 @@
     #define HAS_DUAL_MIXING 1
   #endif
 
-#elif ANY(MANUAL_SWITCHING_TOOLHEAD, SERVO_SWITCHING_TOOLHEAD)   // Toolchanger
+#elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+
+  // multiple hotends and/or other tools, using the same electrical connections
+  // all hotends will use *_0_PIN for heaters/sensors.
+  #if SWITCHING_TOOLHEAD_TOOL_QTY < 2
+    #error "MANUAL_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_TOOL_QTY >= 2."
+  #else
+    #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && SWITCHING_TOOLHEAD_TOOL_QTY > P
+    #if HOTEND_TEST(0)
+      #if HOTEND_TEST(1)
+        #define SWITCHING_TOOLHEAD_MULTI_HOTEND 1
+        #define HAS_MULTI_EXTRUDER 1
+        #if HOTEND_TEST(2)
+          #if HOTEND_TEST(3)
+            #if HOTEND_TEST(4)
+              #if HOTEND_TEST(5)
+                #if HOTEND_TEST(6)
+                  #define HOTENDS 7
+                #else
+                  #define HOTENDS 6
+                #endif
+              #else
+                #define HOTENDS 5
+              #endif
+            #else
+              #define HOTENDS 4
+            #endif
+          #else
+            #define HOTENDS 3
+          #endif
+        #else
+          #define HOTENDS 2
+        #endif
+      #else
+        #define HOTENDS 1
+      #endif
+    #else
+      #define HOTENDS 0
+    #endif
+  #endif
+  #undef HOTEND_TEST
+
+  #define UNPOWERED_TOOLS (SWITCHING_TOOLHEAD_TOOL_QTY - HOTENDS)
+
+  #if EXTRUDERS == 1 && HOTENDS > 1
+    #define MANUAL_SWITCHING_TOOLHEAD_SINGLE_EXTRUDER 1
+    #define E_STEPPERS 1
+    #define E_MANUAL 1
+    #undef EXTRUDERS
+    #define EXTRUDERS SWITCHING_TOOLHEAD_TOOL_QTY
+  #else
+    #define E_STEPPERS      EXTRUDERS
+    #define E_MANUAL        EXTRUDERS
+  #endif
+
+  #ifndef BOGUS_TEMPERATURE_GRACE_PERIOD // FIXME
+    #define BOGUS_TEMPERATURE_GRACE_PERIOD 1000
+  #endif
+
+#elif ENABLED(SERVO_SWITCHING_TOOLHEAD)   // Toolchanger
 
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
@@ -758,7 +817,11 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
-#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+#if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
+  #define HOTEND_LOOP() for (int8_t e = active_extruder; e <= active_extruder; e++)
+#else
+  #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+#endif
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)

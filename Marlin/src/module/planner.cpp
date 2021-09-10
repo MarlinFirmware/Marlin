@@ -2961,7 +2961,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
   if (!_buffer_steps(target
       OPTARG(HAS_POSITION_FLOAT, target_float)
       OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
-      , fr_mm_s, extruder, millimeters)
+      , fr_mm_s, TERN(MANUAL_SWITCHING_TOOLHEAD, 0, extruder), millimeters)
   ) return false;
 
   stepper.wake_up();

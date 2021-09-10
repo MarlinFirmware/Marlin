@@ -1324,10 +1324,6 @@ void Temperature::manage_heater() {
   if (no_reentry) return;
   REMEMBER(mh, no_reentry, true);
 
-  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-    if (!heating_enabled) return disable_all_heaters();
-  #endif
-
   #if ENABLED(EMERGENCY_PARSER)
     if (emergency_parser.killed_by_M112) kill(FPSTR(M112_KILL_STR), nullptr, true);
 
@@ -1338,6 +1334,10 @@ void Temperature::manage_heater() {
   #endif
 
   if (!updateTemperaturesIfReady()) return; // Will also reset the watchdog if temperatures are ready
+
+  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+    if (!heating_enabled) return disable_all_heaters();
+  #endif
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_0_IS_MAX_TC

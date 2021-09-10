@@ -2194,11 +2194,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "TEMP_SENSOR_0 MAX thermocouple requires TEMP_0_CS_PIN."
 #elif HAS_HOTEND && !HAS_TEMP_HOTEND && !TEMP_SENSOR_0_IS_DUMMY
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
+#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1 && DISABLED(MANUAL_SWITCHING_TOOLHEAD)
   #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
 #endif
 
-#if HAS_MULTI_HOTEND
+#if HAS_MULTI_HOTEND || SWITCHING_TOOLHEAD_MULTI_HOTEND
   #if TEMP_SENSOR_1_IS_MAX_TC && !PIN_EXISTS(TEMP_1_CS)
     #error "TEMP_SENSOR_1 MAX thermocouple requires TEMP_1_CS_PIN."
   #elif TEMP_SENSOR_1 == 0

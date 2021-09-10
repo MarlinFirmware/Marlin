@@ -131,13 +131,13 @@ void GcodeSuite::say_units() {
 int8_t GcodeSuite::get_target_extruder_from_command() {
   if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
-    if (e < EXTRUDERS) return e;
+    if (e < TERN(MANUAL_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD_TOOL_QTY, EXTRUDERS)) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
     SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
     return -1;
   }
-  return active_extruder;
+  return TERN(MANUAL_SWITCHING_TOOLHEAD, 0, active_extruder);
 }
 
 /**
