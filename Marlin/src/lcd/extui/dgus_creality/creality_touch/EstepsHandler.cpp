@@ -92,7 +92,7 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     SetStatusMessage(PSTR("Extruding..."));
 
     char cmd[64];
-    sprintf_P(cmd, PSTR("G1 E%f F50"), filament_to_extrude);
+    sprintf_P(cmd, PSTR("G1 E%s F50"), filament_to_extrude);
 
     ExtUI::injectCommands(cmd);
     queue.advance();

@@ -52,7 +52,7 @@ void FilamentLoadUnloadHandler::HandleLoadUnloadButton(DGUS_VP_Variable &var, vo
         case FILCHANGE_ACTION_LOAD_BUTTON:
             syncOperation.start();
 
-            ChangeFilamentWithTemperature(PSTR("M701 L%f P0"));
+            ChangeFilamentWithTemperature(PSTR("M701 L%s P0"));
 
             syncOperation.done();
         break;
@@ -60,7 +60,7 @@ void FilamentLoadUnloadHandler::HandleLoadUnloadButton(DGUS_VP_Variable &var, vo
         case FILCHANGE_ACTION_UNLOAD_BUTTON:
             syncOperation.start();
 
-            ChangeFilamentWithTemperature(PSTR("M702 U%f"));
+            ChangeFilamentWithTemperature(PSTR("M702 U%s"));
 
             syncOperation.done();
         break;
