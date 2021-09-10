@@ -11,8 +11,7 @@ Changes to apply:
   See:
   - Marlin/Configuration_makergear.h
 
-    - went top to bottom, next up is X_PROBE_OFFSET_FROM_EXTRUDER for
-      configuration.h...
+  - done
 
 2. Changes to Marlin_main.cpp
 
