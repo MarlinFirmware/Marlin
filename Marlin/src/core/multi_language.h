@@ -57,6 +57,7 @@ typedef const char Language_Str[];
 
 #if NUM_LANGUAGES > 1
   #define HAS_MULTI_LANGUAGE 1
+  #define RESET_CHOOSE_LANGUAGE 1
   #define GET_TEXT(MSG) ( \
     ui.language == 0 ? GET_LANG(LCD_LANGUAGE  )::MSG : \
     ui.language == 1 ? GET_LANG(LCD_LANGUAGE_2)::MSG : \
