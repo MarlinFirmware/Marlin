@@ -331,7 +331,7 @@ CrealityDWINClass CrealityDWIN;
               (uint16_t)round(0b111111 *  mesh_z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
                 min(0b11111, (((uint8_t)abs(mesh_z_values[x][y]) / 10) * 4))),                                     // + blue stepping for every mm
           start_x_px, start_y_px, end_x_px, end_y_px);
-        while (LCD_SERIAL.availableForWrite() < 32) { // wait for serial to be available without blocking and resetting the MCU
+        while (LCD_SERIAL.available()) { // wait for serial to be available without blocking and resetting the MCU
           gcode.process_subcommands_now_P("G4 P10");
           planner.synchronize();
         }
