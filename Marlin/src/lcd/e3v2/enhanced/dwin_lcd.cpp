@@ -22,8 +22,8 @@
 /********************************************************************************
  * @file     lcd/e3v2/enhanced/dwin_lcd.cpp
  * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
- * @date     2021/08/29
- * @version  2.1.1
+ * @date     2021/09/08
+ * @version  2.2.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
@@ -260,7 +260,7 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color
 //  x/y: Upper-left coordinate
 //  value: Integer value
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
-                          uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
+                          uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
   size_t i = 0;
   DWIN_Byte(i, 0x14);
   // Bit 7: bshow
@@ -318,6 +318,12 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
   DWIN_Word(i, y);
   DWIN_Long(i, value);
   DWIN_Send(i);
+}
+//  value: positive float value
+void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
+                            uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+  const long val = round(value * POW(10, fNum));
+  DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, val);
 }
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/

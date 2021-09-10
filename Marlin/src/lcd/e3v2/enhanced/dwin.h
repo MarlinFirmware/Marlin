@@ -20,11 +20,6 @@
  */
 #pragma once
 
-/**
- * DWIN by Creality3D
- * Enhanced implementation by Miguel A. Risco-Castillo
- */
-
 #include "../../../inc/MarlinConfigPre.h"
 #include "dwinui.h"
 #include "rotary_encoder.h"
@@ -130,7 +125,7 @@ typedef struct {
   #ifdef PREHEAT_1_TEMP_BED
     int16_t BedPidT = PREHEAT_1_TEMP_BED;
   #endif
-  TERN_(PREVENT_COLD_EXTRUSION, uint16_t ExtMinT = EXTRUDE_MINTEMP);
+  TERN_(PREVENT_COLD_EXTRUSION, int16_t ExtMinT = EXTRUDE_MINTEMP);
 } HMI_data_t;
 
 typedef struct {

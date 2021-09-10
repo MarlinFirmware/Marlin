@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.1
- * Date: 2021/08/29
+ * Version: 3.6.3
+ * Date: 2021/08/09
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -152,6 +152,7 @@
 #define ICON_PIDValue             ICON_Contact
 #define ICON_ProbeOffsetX         ICON_StepX
 #define ICON_ProbeOffsetY         ICON_StepY
+#define ICON_ProbeOffsetZ         ICON_StepZ
 #define ICON_ProbeSet             ICON_SetEndTemp
 #define ICON_ProbeTest            ICON_SetEndTemp
 #define ICON_Pwrlossr             ICON_Motion
@@ -392,14 +393,14 @@ namespace DWINUI {
   //  iNum: Number of digits
   //  x/y: Upper-left coordinate
   //  value: Integer value
-  inline void Draw_Int(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
+  inline void Draw_Int(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_IntValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, x, y, value);
   }
-  inline void Draw_Int(uint8_t iNum, uint16_t value) {
+  inline void Draw_Int(uint8_t iNum, long value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
     MoveBy(iNum * Get_font_width(font), 0);
   }
-  inline void Draw_Int(uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
+  inline void Draw_Int(uint8_t iNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, x, y, value);
   }
   inline void Draw_Int(uint16_t color, uint8_t iNum, uint16_t x, uint16_t y, long value) {
@@ -423,23 +424,23 @@ namespace DWINUI {
   //  fNum: Number of decimal digits
   //  x/y: Upper-left point
   //  value: Float value
-  inline void Draw_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Float(uint8_t iNum, uint8_t fNum, long value) {
+  inline void Draw_Float(uint8_t iNum, uint8_t fNum, float value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum,  cursor.x, cursor.y, value);
     MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
   }
-  inline void Draw_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Float(uint16_t color, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint16_t color, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     DWIN_Draw_FloatValue(false, true, 0, font, color, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     DWIN_Draw_FloatValue(true, true, 0, font, color, bColor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     DWIN_Draw_FloatValue(true, true, 0, size, color, bColor, iNum, fNum, x, y, value);
   }
 
@@ -453,21 +454,21 @@ namespace DWINUI {
   //  fNum: Number of decimal digits
   //  x/y: Upper-left point
   //  value: Float value
-  void Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
-  inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, long value) {
+  void Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value);
+  inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, float value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
     MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
   }
-  inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Signed_Float(uint8_t size, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Signed_Float(uint8_t size, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     Draw_Signed_Float(false, true, 0, size, textcolor, backcolor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Signed_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Signed_Float(uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     Draw_Signed_Float(true, true, 0, font, color, bColor, iNum, fNum, x, y, value);
   }
-  inline void Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+  inline void Draw_Signed_Float(uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     Draw_Signed_Float(true, true, 0, size, color, bColor, iNum, fNum, x, y, value);
   }
 
