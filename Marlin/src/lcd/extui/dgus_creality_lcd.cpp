@@ -26,6 +26,7 @@
  * DGUS implementation written by coldtobi in 2019 for Marlin
  */
 
+#define DEBUG_OUT 1
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
@@ -125,6 +126,9 @@ bool hasPrintTimer = false;
   void onUserConfirmed() {
     DEBUG_ECHOLN("User confirmation invoked");
 
+#if M600_PURGE_MORE_RESUMABLE
+    setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+#endif
     ExtUI::setUserConfirmed();
   }
 
