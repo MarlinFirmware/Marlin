@@ -66,7 +66,15 @@ GcodeSuite gcode;
 #endif
 
 #include "../MarlinCore.h" // for idle, kill
-
+#if G28_PRINTING_LEVELING
+  #include "../module/printcounter.h"
+#endif
+#if M117_HAS_LEVELING
+  #if HAS_LEVELING
+    #include "../../module/planner.h"
+    //  #include "../../feature/bedlevel/bedlevel.h"
+  #endif
+#endif
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
          GcodeSuite::max_inactive_time = 0,
@@ -351,11 +359,29 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 27: G27(); break;                                    // G27: Nozzle Park
       #endif
 
-      case 28: G28(); break;                                      // G28: Home one or more axes
+      case 28: 
+          G28(); 
+          {
+            #if G28_PRINTING_LEVELING
+              bool homeX = parser.seen('X'), homeY = parser.seen('Y'), homeZ = parser.seen('Z'),
+              home_all = homeX == homeY && homeX == homeZ, // All or None
+              doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
+              if((doZ)&&print_job_timer.isRunning())   
+                G29();
+            #endif
+          }
+        break;                                      // G28: Home one or more axes
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration
-          TERN(G29_RETRY_AND_RECOVER, G29_with_retry, G29)();
+            #if ENABLED(G29_RETRY_AND_RECOVER)
+              G29_with_retry();
+            #else
+              #if G28_PRINTING_LEVELING
+                if(!print_job_timer.isRunning()) 
+              #endif
+                G29();
+            #endif
           break;
       #endif
 
@@ -614,7 +640,15 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 114: M114(); break;                                    // M114: Report current position
       case 115: M115(); break;                                    // M115: Report capabilities
 
-      case 117: TERN_(HAS_STATUS_MESSAGE, M117()); break;         // M117: Set LCD message text, if possible
+      case 117: 
+          #if HAS_STATUS_MESSAGE
+              M117();
+            #if M117_HAS_LEVELING
+              if(!planner.leveling_active)
+            #endif
+              G29();
+          #endif
+          break;         // M117: Set LCD message text, if possible
 
       case 118: M118(); break;                                    // M118: Display a message in the host console
       case 119: M119(); break;                                    // M119: Report endstop states
