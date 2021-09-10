@@ -349,7 +349,7 @@
 #define BOARD_ZONESTAR_ZM3E2          4051  // Zonestar ZM3E2    (STM32F103RCT6)
 #define BOARD_ZONESTAR_ZM3E4          4052  // Zonestar ZM3E4 V1 (STM32F103VCT6)
 #define BOARD_ZONESTAR_ZM3E4V2        4053  // Zonestar ZM3E4 V2 (STM32F103VCT6)
-
+#define BOARD_ERYONE_MINI             4054  // STM32F103
 //
 // ARM Cortex-M4F
 //
