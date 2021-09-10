@@ -720,6 +720,9 @@ void MarlinSettings::postprocess() {
         constexpr float runout_distance_mm = 0;
       #endif
       EEPROM_WRITE(runout_distance_mm);
+      #if RESET_CHOOSE_LANGUAGE
+        EEPROM_WRITE(ui.language);
+      #endif
     }
 
     //
@@ -1559,6 +1562,9 @@ void MarlinSettings::postprocess() {
 
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
+        #if RESET_CHOOSE_LANGUAGE
+          EEPROM_READ(ui.language);
+        #endif
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           if (!validating) runout.set_runout_distance(runout_distance_mm);
         #endif
@@ -2522,7 +2528,9 @@ void MarlinSettings::reset() {
     planner.settings.axis_steps_per_mm[i] = pgm_read_float(&_DASU[ALIM(i, _DASU)]);
     planner.settings.max_feedrate_mm_s[i] = pgm_read_float(&_DMF[ALIM(i, _DMF)]);
   }
-
+  #if RESET_CHOOSE_LANGUAGE
+    ui.language=0xaa;
+  #endif
   planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.settings.acceleration = DEFAULT_ACCELERATION;
   planner.settings.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
