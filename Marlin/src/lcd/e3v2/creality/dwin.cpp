@@ -4292,12 +4292,4 @@ void DWIN_StatusChanged_P(PGM_P const pstr) {
   DWIN_StatusChanged(str);
 }
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
-    switch (message) {
-      default: break;
-    }
-  }
-#endif
-
 #endif // DWIN_CREALITY_LCD
