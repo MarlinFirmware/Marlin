@@ -47,7 +47,7 @@
 #endif
 
 bool DGUSSetupHandler::PrintStatus() {
-  if (printingIsActive() || printingIsPaused()) {
+  if (ExtUI::isPrinting() || ExtUI::isPrintingPaused()) {
     return true;
   }
 
@@ -56,7 +56,7 @@ bool DGUSSetupHandler::PrintStatus() {
 }
 
 bool DGUSSetupHandler::PrintAdjust() {
-  if (printingIsActive() || printingIsPaused()) {
+  if (ExtUI::isPrinting() || ExtUI::isPrintingPaused()) {
     return true;
   }
 
