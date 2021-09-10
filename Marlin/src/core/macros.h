@@ -260,6 +260,7 @@
 #define CODE_3( A,B,C,...) A; B; C
 #define CODE_2( A,B,...) A; B
 #define CODE_1( A,...) A
+#define CODE_0(...)
 #define _CODE_N(N,V...) CODE_##N(V)
 #define CODE_N(N,V...) _CODE_N(N,V)
 
@@ -279,6 +280,7 @@
 #define GANG_3( A,B,C,...) A B C
 #define GANG_2( A,B,...) A B
 #define GANG_1( A,...) A
+#define GANG_0(...)
 #define _GANG_N(N,V...) GANG_##N(V)
 #define GANG_N(N,V...) _GANG_N(N,V)
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
@@ -399,7 +401,7 @@
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
   }
-  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
     namespace Private { \

@@ -43,6 +43,5 @@ class BedMeshViewScreen : public BedMeshBase, public CachedScreen<BED_MESH_VIEW_
     static bool onTouchEnd(uint8_t tag);
 
     static void doProbe();
-    static void doMeshValidation();
     static void show();
 };

@@ -84,15 +84,20 @@
 #define E0_STEP_PIN                         PA6
 #define E0_DIR_PIN                          PA5
 
-// Stepper drivers Serial UART
-#define X_SERIAL_TX_PIN                     PB3
-#define X_SERIAL_RX_PIN                     PD2
-#define Y_SERIAL_TX_PIN                     PA15
-#define Y_SERIAL_RX_PIN                     PC6
-#define Z_SERIAL_TX_PIN                     PB11
-#define Z_SERIAL_RX_PIN                     PB10
-#define E0_SERIAL_TX_PIN                    PC5
-#define E0_SERIAL_RX_PIN                    PC4
+#if HAS_TMC_UART
+  // Stepper drivers Serial UART
+  #define X_SERIAL_TX_PIN                   PB3
+  #define X_SERIAL_RX_PIN                   PD2
+
+  #define Y_SERIAL_TX_PIN                   PA15
+  #define Y_SERIAL_RX_PIN                   PC6
+
+  #define Z_SERIAL_TX_PIN                   PB11
+  #define Z_SERIAL_RX_PIN                   PB10
+
+  #define E0_SERIAL_TX_PIN                  PC5
+  #define E0_SERIAL_RX_PIN                  PC4
+#endif
 
 // Reduce baud rate to improve software serial reliability
 #define TMC_BAUD_RATE                      19200
@@ -117,41 +122,43 @@
 #define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
 
 /**
- *     1 _____ 2
- *  PB5 | · · | PB6
- *  PA2 | · · | RESET
- *  PA3 | · · | PB8
- *  PB7 | · · | PA4
- *  GND | · · | VCC5
- *     9 ----- 10
- *      LCD EXP
+ *       ------
+ *  PB5 |10  9 | PB6
+ *  PA2 | 8  7 | RESET
+ *  PA3   6  5 | PB8
+ *  PB7 | 4  3 | PA4
+ *  GND | 2  1 | VCC5
+ *       ------
+ *        EXP1
  */
+#define EXP1_03_PIN                         PA4
+#define EXP1_04_PIN                         PB7
+#define EXP1_05_PIN                         PB8
+#define EXP1_06_PIN                         PA3
+#define EXP1_07_PIN                         -1   // RESET
+#define EXP1_08_PIN                         PA2
+#define EXP1_09_PIN                         PB6
+#define EXP1_10_PIN                         PB5
 
 //
 // LCD / Controller
 //
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define BEEPER_PIN                        PB5
-  #define BTN_EN1                           PA2
-  #define BTN_EN2                           PA3
-  #define BTN_ENC                           PB6
+  #define BEEPER_PIN                 EXP1_10_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_06_PIN
+  #define BTN_ENC                    EXP1_09_PIN
 
-  #define LCD_PINS_RS                       PB7   // CS -- SOFT SPI for ENDER3 LCD
-  #define LCD_PINS_D4                       PB8   // SCLK
-  #define LCD_PINS_ENABLE                   PA4   // DATA MOSI
+  #define LCD_PINS_RS                EXP1_04_PIN  // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4                EXP1_05_PIN  // SCLK
+  #define LCD_PINS_ENABLE            EXP1_03_PIN  // DATA MOSI
 #endif
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
-  #endif
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 #endif
 
 //

@@ -38,6 +38,13 @@
 #include <stdint.h>
 
 //
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
+
+//
 // Serial Ports
 //
 #ifdef USBCON

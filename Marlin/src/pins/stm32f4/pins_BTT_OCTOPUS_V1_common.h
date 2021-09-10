@@ -72,7 +72,7 @@
   #else
     #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
   #endif
-#elif ENABLED(X_DUAL_ENDSTOPS)
+#elif EITHER(X_DUAL_ENDSTOPS, DUAL_X_CARRIAGE)
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                 X_DIAG_PIN  // X-STOP
   #endif
@@ -282,48 +282,43 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC4
-  #define X_SERIAL_RX_PIN                   PC4
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PD11
-  #define Y_SERIAL_RX_PIN                   PD11
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PC6
-  #define Z_SERIAL_RX_PIN                   PC6
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define Z2_SERIAL_TX_PIN                  PC7
-  #define Z2_SERIAL_RX_PIN                  PC7
+  #define Z2_SERIAL_RX_PIN      Z2_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PF2
-  #define E0_SERIAL_RX_PIN                  PF2
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PE4
-  #define E1_SERIAL_RX_PIN                  PE4
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   #define E2_SERIAL_TX_PIN                  PE1
-  #define E2_SERIAL_RX_PIN                  PE1
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   #define E3_SERIAL_TX_PIN                  PD3
-  #define E3_SERIAL_RX_PIN                  PD3
+  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif
 
-/**
- *               ______                                              ______
- *           NC | 1  2 | GND                                     5V | 1  2 | GND
- *        RESET | 3  4 | PC15 (SD_DETECT)             (LCD_D7) PE15 | 3  4 | PE14 (LCD_D6)
- *   (MOSI) PA7 | 5  6   PB1  (BTN_EN2)               (LCD_D5) PE13 | 5  6   PE12 (LCD_D4)
- *  (SD_SS) PA4 | 7  8 | PB2  (BTN_EN1)               (LCD_RS) PE10 | 7  8 | PE9  (LCD_EN)
- *    (SCK) PA5 | 9 10 | PA6  (MISO)                 (BTN_ENC)  PE7 | 9 10 | PE8  (BEEPER)
- *               ------                                               -----
- *               EXP2                                                EXP1
+/**               ------                                      ------
+ * (BEEPER) PE8  |10  9 | PE7  (BTN_ENC)         (MISO) PA6  |10  9 | PA5  (SCK)
+ * (LCD_EN) PE9  | 8  7 | PE10 (LCD_RS)       (BTN_EN1) PB2  | 8  7 | PA4  (SD_SS)
+ * (LCD_D4) PE12   6  5 | PE13 (LCD_D5)       (BTN_EN2) PB1    6  5 | PA7  (MOSI)
+ * (LCD_D6) PE14 | 4  3 | PE15 (LCD_D7)     (SD_DETECT) PC15 | 4  3 | RESET
+ *          GND  | 2  1 | 5V                            GND  | 2  1 | NC
+ *                ------                                      ------
+ *                 EXP1                                        EXP2
  */
-
 #define EXP1_03_PIN                         PE15
 #define EXP1_04_PIN                         PE14
 #define EXP1_05_PIN                         PE13
@@ -369,7 +364,7 @@
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
   /**
-   *         ______                        ______
+   *         ------                        ------
    *     NC | 1  2 | GND               NC | 1  2 | GND
    *     NC | 3  4 | M1EN            M2EN | 3  4 | M3EN
    *  M1STP | 5  6   M1DIR           M1RX | 5  6   M1DIAG
@@ -387,7 +382,7 @@
   #define E4_CS_PIN                  EXP1_05_PIN
   #if HAS_TMC_UART
     #define E4_SERIAL_TX_PIN         EXP1_05_PIN
-    #define E4_SERIAL_RX_PIN         EXP1_05_PIN
+    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
   #endif
 
   // M2 on Driver Expansion Module
@@ -398,7 +393,7 @@
   #define E5_CS_PIN                  EXP1_07_PIN
   #if HAS_TMC_UART
     #define E5_SERIAL_TX_PIN         EXP1_07_PIN
-    #define E5_SERIAL_RX_PIN         EXP1_07_PIN
+    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
   #endif
 
   // M3 on Driver Expansion Module
@@ -409,7 +404,7 @@
   #define E6_CS_PIN                  EXP1_09_PIN
   #if HAS_TMC_UART
     #define E6_SERIAL_TX_PIN         EXP1_09_PIN
-    #define E6_SERIAL_RX_PIN         EXP1_09_PIN
+    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
   #endif
 
 #endif // BTT_MOTOR_EXPANSION
@@ -437,11 +432,6 @@
 
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
-
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
 
   #else
 
@@ -488,16 +478,10 @@
 #endif  // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1   DELAY_NS(120)  // DELAY_NS(96)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2   DELAY_NS(80)   // DELAY_NS(48)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(580)  // DELAY_NS(600)
-  #endif
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif
 
 #if HAS_SPI_TFT

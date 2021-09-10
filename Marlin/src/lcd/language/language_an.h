@@ -44,6 +44,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu prencipal");
   PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inicio automatico");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Amortar motors");
+  PROGMEM Language_Str MSG_HOMING                          = _UxGT("Orichen");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Levar a l'orichen");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Orichen X");
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Orichen Y");
@@ -106,10 +107,13 @@ namespace Language_an {
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Aceleracion");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("Vel. viache min");
   PROGMEM Language_Str MSG_ACCELERATION                    = _UxGT("Accel");
-  PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Acel. max") LCD_STR_A;
-  PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Acel. max") LCD_STR_B;
-  PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Acel. max") LCD_STR_C;
-  PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("Acel. max") LCD_STR_E;
+  PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Acel. max ") LCD_STR_A;
+  PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Acel. max ") LCD_STR_B;
+  PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Acel. max ") LCD_STR_C;
+  PROGMEM Language_Str MSG_AMAX_I                          = _UxGT("Acel. max ") LCD_STR_I;
+  PROGMEM Language_Str MSG_AMAX_J                          = _UxGT("Acel. max ") LCD_STR_J;
+  PROGMEM Language_Str MSG_AMAX_K                          = _UxGT("Acel. max ") LCD_STR_K;
+  PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("Acel. max ") LCD_STR_E;
   PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Acel. max *");
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("Acel. retrac.");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("Acel. Viaje");
@@ -117,6 +121,9 @@ namespace Language_an {
   PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT(" trangos/mm");
   PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT(" trangos/mm");
   PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT(" trangos/mm");
+  PROGMEM Language_Str MSG_I_STEPS                         = LCD_STR_I _UxGT(" trangos/mm");
+  PROGMEM Language_Str MSG_J_STEPS                         = LCD_STR_J _UxGT(" trangos/mm");
+  PROGMEM Language_Str MSG_K_STEPS                         = LCD_STR_K _UxGT(" trangos/mm");
   PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E trangos/mm");
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* trangos/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");

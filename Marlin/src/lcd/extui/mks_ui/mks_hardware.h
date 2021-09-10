@@ -31,6 +31,8 @@
   void mks_test_get();
   void mks_gpio_test();
   extern uint8_t mks_test_flag;
+#else
+  #define mks_test_flag 0
 #endif
 
 // String display and assets

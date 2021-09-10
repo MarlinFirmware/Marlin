@@ -75,14 +75,14 @@ void GcodeSuite::M502() {
         if (dowrite) {
           val = parser.byteval('V');
           persistentStore.write_data(addr, &val);
-          SERIAL_ECHOLNPAIR("Wrote address ", addr, " with ", val);
+          SERIAL_ECHOLNPGM("Wrote address ", addr, " with ", val);
         }
         else {
           if (parser.seenval('T')) {
             const int endaddr = parser.value_ushort();
             while (addr <= endaddr) {
               persistentStore.read_data(addr, &val);
-              SERIAL_ECHOLNPAIR("0x", hex_word(addr), ":", hex_byte(val));
+              SERIAL_ECHOLNPGM("0x", hex_word(addr), ":", hex_byte(val));
               addr++;
               safe_delay(10);
             }
@@ -90,7 +90,7 @@ void GcodeSuite::M502() {
           }
           else {
             persistentStore.read_data(addr, &val);
-            SERIAL_ECHOLNPAIR("Read address ", addr, " and got ", val);
+            SERIAL_ECHOLNPGM("Read address ", addr, " and got ", val);
           }
         }
         return;

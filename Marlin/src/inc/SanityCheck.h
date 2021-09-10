@@ -577,13 +577,25 @@
   #error "CUSTOM_USER_MENUS has been replaced by CUSTOM_MENU_MAIN and CUSTOM_MENU_CONFIG."
 #elif defined(MKS_LCD12864)
   #error "MKS_LCD12864 is now MKS_LCD12864A or MKS_LCD12864B."
+#elif defined(DOGM_SD_PERCENT)
+  #error "DOGM_SD_PERCENT is now SHOW_SD_PERCENT."
 #elif defined(NEOPIXEL_BKGD_LED_INDEX)
   #error "NEOPIXEL_BKGD_LED_INDEX is now NEOPIXEL_BKGD_INDEX_FIRST."
 #elif defined(TEMP_SENSOR_1_AS_REDUNDANT)
   #error "TEMP_SENSOR_1_AS_REDUNDANT is now TEMP_SENSOR_REDUNDANT, with associated TEMP_SENSOR_REDUNDANT_* config."
 #elif defined(MAX_REDUNDANT_TEMP_SENSOR_DIFF)
   #error "MAX_REDUNDANT_TEMP_SENSOR_DIFF is now TEMP_SENSOR_REDUNDANT_MAX_DIFF"
-#elif MOTHERBOARD == BOARD_DUE3DOM_MINI && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+#elif defined(LCD_ALEPHOBJECTS_CLCD_UI)
+  #error "LCD_ALEPHOBJECTS_CLCD_UI is now LCD_LULZBOT_CLCD_UI."
+#elif defined(MIN_ARC_SEGMENTS)
+  #error "MIN_ARC_SEGMENTS is now MIN_CIRCLE_SEGMENTS."
+#elif defined(ARC_SEGMENTS_PER_R)
+  #error "ARC_SUPPORT no longer uses ARC_SEGMENTS_PER_R."
+#elif ENABLED(ARC_SUPPORT) && (!defined(MIN_ARC_SEGMENT_MM) || !defined(MAX_ARC_SEGMENT_MM))
+  #error "ARC_SUPPORT now requires MIN_ARC_SEGMENT_MM and MAX_ARC_SEGMENT_MM."
+#endif
+
+#if MOTHERBOARD == BOARD_DUE3DOM_MINI && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
   #warning "Onboard temperature sensor for BOARD_DUE3DOM_MINI has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
 #elif MOTHERBOARD == BOARD_BTT_SKR_E3_TURBO && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
   #warning "Onboard temperature sensor for BOARD_BTT_SKR_E3_TURBO has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
@@ -795,10 +807,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif PROGRESS_MSG_EXPIRE < 0
     #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
-#elif ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  #if NONE(HAS_MARLINUI_U8GLIB, HAS_GRAPHICAL_TFT, HAS_MARLINUI_HD44780, EXTENSIBLE_UI)
-    #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, or EXTENSIBLE_UI."
-  #endif
+#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_MARLINUI_U8GLIB, HAS_GRAPHICAL_TFT, HAS_MARLINUI_HD44780, EXTENSIBLE_UI, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_*, OR EXTENSIBLE_UI."
 #endif
 
 #if ENABLED(USE_M73_REMAINING_TIME) && DISABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -1182,6 +1192,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Please select either MIXING_EXTRUDER or SWITCHING_EXTRUDER, not both."
   #elif ENABLED(SINGLENOZZLE)
     #error "MIXING_EXTRUDER is incompatible with SINGLENOZZLE."
+  #elif ENABLED(DISABLE_INACTIVE_EXTRUDER)
+    #error "MIXING_EXTRUDER is incompatible with DISABLE_INACTIVE_EXTRUDER."
   #endif
 #endif
 
@@ -1208,6 +1220,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   );
   #if ENABLED(S_CURVE_ACCELERATION) && DISABLED(EXPERIMENTAL_SCURVE)
     #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
+  #elif ENABLED(DIRECT_STEPPING)
+    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+  #elif !HAS_JUNCTION_DEVIATION && defined(DEFAULT_EJERK)
+    static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE.");
   #endif
 #endif
 
@@ -1377,6 +1393,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if LINEAR_AXES >= 4
   #if AXIS4_NAME != 'A' && AXIS4_NAME != 'B' && AXIS4_NAME != 'C' && AXIS4_NAME != 'U' && AXIS4_NAME != 'V' && AXIS4_NAME != 'W'
     #error "AXIS4_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
+  #elif !defined(I_MIN_POS) || !defined(I_MAX_POS)
+    #error "I_MIN_POS and I_MAX_POS are required with LINEAR_AXES >= 4."
+  #elif !defined(I_HOME_DIR)
+    #error "I_HOME_DIR is required with LINEAR_AXES >= 4."
+  #elif HAS_I_ENABLE && !defined(I_ENABLE_ON)
+    #error "I_ENABLE_ON is required for your I driver with LINEAR_AXES >= 4."
   #endif
 #endif
 #if LINEAR_AXES >= 5
@@ -1384,6 +1406,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "AXIS5_NAME must be different from AXIS4_NAME and AXIS6_NAME"
   #elif AXIS5_NAME != 'A' && AXIS5_NAME != 'B' && AXIS5_NAME != 'C' && AXIS5_NAME != 'U' && AXIS5_NAME != 'V' && AXIS5_NAME != 'W'
     #error "AXIS5_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
+  #elif !defined(J_MIN_POS) || !defined(J_MAX_POS)
+    #error "J_MIN_POS and J_MAX_POS are required with LINEAR_AXES >= 5."
+  #elif !defined(J_HOME_DIR)
+    #error "J_HOME_DIR is required with LINEAR_AXES >= 5."
+  #elif HAS_J_ENABLE && !defined(J_ENABLE_ON)
+    #error "J_ENABLE_ON is required for your J driver with LINEAR_AXES >= 5."
   #endif
 #endif
 #if LINEAR_AXES >= 6
@@ -1391,6 +1419,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "AXIS6_NAME must be different from AXIS5_NAME and AXIS4_NAME."
   #elif AXIS6_NAME != 'A' && AXIS6_NAME != 'B' && AXIS6_NAME != 'C' && AXIS6_NAME != 'U' && AXIS6_NAME != 'V' && AXIS6_NAME != 'W'
     #error "AXIS6_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
+  #elif !defined(K_MIN_POS) || !defined(K_MAX_POS)
+    #error "K_MIN_POS and K_MAX_POS are required with LINEAR_AXES >= 6."
+  #elif !defined(K_HOME_DIR)
+    #error "K_HOME_DIR is required with LINEAR_AXES >= 6."
+  #elif HAS_K_ENABLE && !defined(K_ENABLE_ON)
+    #error "K_ENABLE_ON is required for your K driver with LINEAR_AXES >= 6."
   #endif
 #endif
 
@@ -1431,6 +1465,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if HAS_JUNCTION_DEVIATION && IS_KINEMATIC
   #error "CLASSIC_JERK is required for DELTA and SCARA."
+#endif
+
+/**
+ * Some things should not be used on Belt Printers
+ */
+#if BOTH(BELTPRINTER, HAS_LEVELING)
+  #error "Bed Leveling is not compatible with BELTPRINTER."
 #endif
 
 /**
@@ -1695,7 +1736,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !BOTH(AUTO_BED_LEVELING_UBL, HAS_MARLINUI_U8GLIB)
+#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !(ENABLED(AUTO_BED_LEVELING_UBL) && EITHER(HAS_MARLINUI_U8GLIB, IS_DWIN_MARLINUI))
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
@@ -1707,8 +1748,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * LCD_BED_LEVELING requirements
  */
 #if ENABLED(LCD_BED_LEVELING)
-  #if !HAS_LCD_MENU
-    #error "LCD_BED_LEVELING requires a programmable LCD controller."
+  #if NONE(HAS_LCD_MENU, DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_ENHANCED)
+    #error "LCD_BED_LEVELING is not supported by the selected LCD controller."
   #elif !(ENABLED(MESH_BED_LEVELING) || HAS_ABL_NOT_UBL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
   #elif ENABLED(MESH_EDIT_MENU) && !HAS_MESH
@@ -2002,7 +2043,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if REDUNDANT_TEMP_MATCH(SOURCE, E0) && HAS_HOTEND
-    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be 0 if a hotend is used. E0 always uses TEMP_SENSOR_0."
+    #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be E0 if a hotend is used. E0 always uses TEMP_SENSOR_0."
   #elif REDUNDANT_TEMP_MATCH(SOURCE, COOLER) && HAS_TEMP_COOLER
     #error "TEMP_SENSOR_REDUNDANT_SOURCE can't be COOLER. TEMP_SENSOR_COOLER is in use."
   #elif REDUNDANT_TEMP_MATCH(SOURCE, PROBE) && HAS_TEMP_PROBE
@@ -2612,8 +2653,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + (DISABLED(IS_LEGACY_TFT) && ENABLED(TFT_GENERIC)) \
   + (ENABLED(IS_LEGACY_TFT) && COUNT_ENABLED(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)) \
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35) \
-  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS) \
-  + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY, DWIN_CREALITY_LCD) \
+  + COUNT_ENABLED(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS, DGUS_LCD_UI_RELOADED) \
+  + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY) \
+  + COUNT_ENABLED(DWIN_CREALITY_LCD, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
   + COUNT_ENABLED(MKS_12864OLED, MKS_12864OLED_SSD1306) \
@@ -2704,6 +2746,35 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 #if BOTH(CHIRON_TFT_STANDARD, CHIRON_TFT_NEW)
   #error "Please select only one of CHIRON_TFT_STANDARD or CHIRON_TFT_NEW."
+#endif
+
+/**
+ * Ender 3 V2 controller has some limitations
+ */
+#if ENABLED(DWIN_CREALITY_LCD)
+  #if DISABLED(SDSUPPORT)
+    #error "DWIN_CREALITY_LCD requires SDSUPPORT to be enabled."
+  #elif ENABLED(PID_EDIT_MENU)
+    #error "DWIN_CREALITY_LCD does not support PID_EDIT_MENU."
+  #elif ENABLED(PID_AUTOTUNE_MENU)
+    #error "DWIN_CREALITY_LCD does not support PID_AUTOTUNE_MENU."
+  #elif ENABLED(LEVEL_BED_CORNERS)
+    #error "DWIN_CREALITY_LCD does not support LEVEL_BED_CORNERS."
+  #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
+    #error "DWIN_CREALITY_LCD does not support LCD_BED_LEVELING with PROBE_MANUALLY."
+  #endif
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #if DISABLED(SDSUPPORT)
+    #error "DWIN_CREALITY_LCD_ENHANCED requires SDSUPPORT to be enabled."
+  #elif ENABLED(PID_EDIT_MENU)
+    #error "DWIN_CREALITY_LCD_ENHANCED does not support PID_EDIT_MENU."
+  #elif ENABLED(PID_AUTOTUNE_MENU)
+    #error "DWIN_CREALITY_LCD_ENHANCED does not support PID_AUTOTUNE_MENU."
+  #elif ENABLED(LEVEL_BED_CORNERS)
+    #error "DWIN_CREALITY_LCD_ENHANCED does not support LEVEL_BED_CORNERS."
+  #elif BOTH(LCD_BED_LEVELING, PROBE_MANUALLY)
+    #error "DWIN_CREALITY_LCD_ENHANCED does not support LCD_BED_LEVELING with PROBE_MANUALLY."
+  #endif
 #endif
 
 /**
@@ -3450,6 +3521,13 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
+ * Validate MKS_PWC
+ */
+#if ENABLED(MKS_PWC) && PSU_ACTIVE_STATE != HIGH
+  #error "MKS_PWC requires PSU_ACTIVE_STATE to be set HIGH."
+#endif
+
+/**
  * Ensure this option is set intentionally
  */
 #if ENABLED(PSU_CONTROL)
@@ -3599,13 +3677,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Stepper Chunk support
- */
-#if BOTH(DIRECT_STEPPING, LIN_ADVANCE)
-  #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
-#endif
-
-/**
  * Touch Screen Calibration
  */
 #if ENABLED(TFT_TOUCH_DEVICE_XPT2046) && DISABLED(TOUCH_SCREEN_CALIBRATION) \
@@ -3736,6 +3807,35 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "E7_DRIVER_TYPE is not recognized."
 #endif
 #undef _BAD_DRIVER
+
+/**
+ * Require certain features for DGUS_LCD_UI_RELOADED.
+ */
+#if ENABLED(DGUS_LCD_UI_RELOADED)
+  #if BUFSIZE < 4
+    #error "DGUS_LCD_UI_RELOADED requires a BUFSIZE of at least 4."
+  #elif HOTENDS < 1
+    #error "DGUS_LCD_UI_RELOADED requires at least 1 hotend."
+  #elif EXTRUDERS < 1
+    #error "DGUS_LCD_UI_RELOADED requires at least 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI_RELOADED requires a heated bed."
+  #elif FAN_COUNT < 1
+    #error "DGUS_LCD_UI_RELOADED requires a fan."
+  #elif !HAS_BED_PROBE
+    #error "DGUS_LCD_UI_RELOADED requires a bed probe."
+  #elif !HAS_MESH
+    #error "DGUS_LCD_UI_RELOADED requires mesh leveling."
+  #elif DISABLED(LEVEL_BED_CORNERS)
+    #error "DGUS_LCD_UI_RELOADED requires LEVEL_BED_CORNERS."
+  #elif DISABLED(BABYSTEP_ALWAYS_AVAILABLE)
+    #error "DGUS_LCD_UI_RELOADED requires BABYSTEP_ALWAYS_AVAILABLE."
+  #elif DISABLED(BABYSTEP_ZPROBE_OFFSET)
+    #error "DGUS_LCD_UI_RELOADED requires BABYSTEP_ZPROBE_OFFSET."
+  #elif ENABLED(AUTO_BED_LEVELING_UBL) && DISABLED(UBL_SAVE_ACTIVE_ON_M500)
+    #warning "Without UBL_SAVE_ACTIVE_ON_M500, your mesh will not be saved when using the touchscreen."
+  #endif
+#endif
 
 // Misc. Cleanup
 #undef _TEST_PWM

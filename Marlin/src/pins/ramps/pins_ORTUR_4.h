@@ -54,20 +54,19 @@
 #define TEMP_0_PIN                            15  // Analog Input
 #define TEMP_1_PIN                            13  // Analog Input
 
-//
-// Software serial
-//
-#define X_SERIAL_TX_PIN                       59
-#define X_SERIAL_RX_PIN                       63
+#if HAS_TMC_UART
+  #define X_SERIAL_TX_PIN                     59
+  #define X_SERIAL_RX_PIN                     63
 
-#define Y_SERIAL_TX_PIN                       64
-#define Y_SERIAL_RX_PIN                       40
+  #define Y_SERIAL_TX_PIN                     64
+  #define Y_SERIAL_RX_PIN                     40
 
-#define Z_SERIAL_TX_PIN                       44
-#define Z_SERIAL_RX_PIN                       42
+  #define Z_SERIAL_TX_PIN                     44
+  #define Z_SERIAL_RX_PIN                     42
 
-#define E0_SERIAL_TX_PIN                      66
-#define E0_SERIAL_RX_PIN                      65
+  #define E0_SERIAL_TX_PIN                    66
+  #define E0_SERIAL_RX_PIN                    65
+#endif
 
 #include "pins_RAMPS.h"
 
