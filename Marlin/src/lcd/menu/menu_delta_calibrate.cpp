@@ -31,6 +31,7 @@
 #include "menu_item.h"
 #include "../../module/delta.h"
 #include "../../module/motion.h"
+#include "../../module/planner.h"
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -46,7 +47,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     do_blocking_move_to_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
     ui.wait_for_move = false;
     ui.synchronize();
-    ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
+    ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / planner.settings.axis_steps_per_mm[0]); // Use first axis as for delta XYZ should always match
     ui.goto_screen(lcd_move_z);
   }
 }

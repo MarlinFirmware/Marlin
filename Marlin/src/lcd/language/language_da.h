@@ -176,9 +176,12 @@ namespace Language_da {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Strømfors.");
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Driv Styrke");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driv %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driv %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = LCD_STR_A _UxGT(" Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = LCD_STR_B _UxGT(" Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = LCD_STR_C _UxGT(" Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Driv %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Driv %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driv %");
 
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Skriv");

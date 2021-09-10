@@ -98,7 +98,7 @@
   // Struct must be 32 bits aligned because of DMA accesses but fields needs to be 8 bits packed
   typedef struct  __attribute__((aligned(4), packed)) {
     ADC_INPUTCTRL_Type INPUTCTRL;
-  } HAL_DMA_DAC_Registers;    // DMA transfered registers
+  } HAL_DMA_DAC_Registers;    // DMA transferred registers
 
 #endif
 

@@ -76,9 +76,9 @@ void GcodeSuite::M420() {
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
       }
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
-      SERIAL_ECHOPAIR(" (", x_min);
+      SERIAL_ECHOPGM(" (", x_min);
       SERIAL_CHAR(','); SERIAL_ECHO(y_min);
-      SERIAL_ECHOPAIR(")-(", x_max);
+      SERIAL_ECHOPGM(")-(", x_max);
       SERIAL_CHAR(','); SERIAL_ECHO(y_max);
       SERIAL_ECHOLNPGM(")");
     }
@@ -108,7 +108,7 @@ void GcodeSuite::M420() {
 
         if (!WITHIN(storage_slot, 0, a - 1)) {
           SERIAL_ECHOLNPGM("?Invalid storage slot.");
-          SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
+          SERIAL_ECHOLNPGM("?Use 0 to ", a - 1);
           return;
         }
 
@@ -128,7 +128,7 @@ void GcodeSuite::M420() {
       ubl.display_map(parser.byteval('T'));
       SERIAL_ECHOPGM("Mesh is ");
       if (!ubl.mesh_is_valid()) SERIAL_ECHOPGM("in");
-      SERIAL_ECHOLNPAIR("valid\nStorage slot: ", ubl.storage_slot);
+      SERIAL_ECHOLNPGM("valid\nStorage slot: ", ubl.storage_slot);
     }
 
   #endif // AUTO_BED_LEVELING_UBL
@@ -240,6 +240,20 @@ void GcodeSuite::M420() {
   // Report change in position
   if (oldpos != current_position)
     report_current_position();
+}
+
+void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(
+    TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
+  ));
+  SERIAL_ECHOPGM_P(
+    PSTR("  M420 S"), planner.leveling_active
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
+    #endif
+    , " ; Leveling "
+  );
+  serialprintln_onoff(planner.leveling_active);
 }
 
 #endif // HAS_LEVELING

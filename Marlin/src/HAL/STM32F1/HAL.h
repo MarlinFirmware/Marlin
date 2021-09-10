@@ -51,6 +51,13 @@
 // Defines
 // ------------------------
 
+//
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
+
 #ifndef STM32_FLASH_SIZE
   #if ANY(MCU_STM32F103RE, MCU_STM32F103VE, MCU_STM32F103ZE)
     #define STM32_FLASH_SIZE 512

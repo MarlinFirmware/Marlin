@@ -391,8 +391,8 @@
 #ifndef SUICIDE_PIN
   #define SUICIDE_PIN -1
 #endif
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING false
+#ifndef SUICIDE_PIN_STATE
+  #define SUICIDE_PIN_STATE LOW
 #endif
 
 #ifndef NUM_SERVO_PLUGS
@@ -1134,7 +1134,7 @@
   #define USE_ZMIN_PLUG
 #endif
 #undef _STOP_IN_USE
-#if !HAS_CUSTOM_PROBE_PIN
+#if !USES_Z_MIN_PROBE_PIN
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
 #endif
@@ -1221,23 +1221,19 @@
 //
 // Default DOGLCD SPI delays
 //
-#if HAS_MARLINUI_U8GLIB
-  #if !defined(ST7920_DELAY_1) && defined(BOARD_ST7920_DELAY_1)
-    #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
-  #endif
-  #if !defined(ST7920_DELAY_2) && defined(BOARD_ST7920_DELAY_2)
-    #define ST7920_DELAY_2 BOARD_ST7920_DELAY_2
-  #endif
-  #if !defined(ST7920_DELAY_3) && defined(BOARD_ST7920_DELAY_3)
-    #define ST7920_DELAY_3 BOARD_ST7920_DELAY_3
-  #endif
-#else
+#if DISABLED(U8GLIB_ST7920)
   #undef ST7920_DELAY_1
   #undef ST7920_DELAY_2
   #undef ST7920_DELAY_3
+  #undef LCD_ST7920_DELAY_1
+  #undef LCD_ST7920_DELAY_2
+  #undef LCD_ST7920_DELAY_3
   #undef BOARD_ST7920_DELAY_1
   #undef BOARD_ST7920_DELAY_2
   #undef BOARD_ST7920_DELAY_3
+  #undef CPU_ST7920_DELAY_1
+  #undef CPU_ST7920_DELAY_2
+  #undef CPU_ST7920_DELAY_3
 #endif
 
 #if !NEED_CASE_LIGHT_PIN

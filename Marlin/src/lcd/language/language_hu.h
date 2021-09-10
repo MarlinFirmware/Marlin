@@ -26,11 +26,11 @@
  *
  * LCD Menu Messages. See also https://marlinfw.org/docs/development/lcd_language.html
  * Hungarian translation by AntoszHUN. I am constantly improving and updating the translation.
- * Translation last updated: 07/07/2021 - 11:20
+ * Translation last updated: 08/30/2021 - 22:20
  *
  * LCD Menü Üzenetek. Lásd még https://marlinfw.org/docs/development/lcd_language.html
  * A Magyar fordítást készítette: AntoszHUN. A fordítást folyamatosan javítom és frissítem.
- * A Fordítás utolsó frissítése: 2021.07.07. - 11:20
+ * A Fordítás utolsó frissítése: 2021.08.30. - 22:20
  */
 
 namespace Language_hu {
@@ -87,7 +87,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_HOME_OFFSET_K                   = _UxGT("Kezdö eltol. ") LCD_STR_K;
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Eltolás beállítva.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Eredeti Be");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Elektromos segéd");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Elektromos varázsló");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Eredeti választása");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Utolsó érték ");
@@ -133,16 +132,16 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Tengelyek mozgatása");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Ágy szintezés");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Ágy szintezése");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Sarok szint");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Ágy emelése a szonda váltásig");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Minden sarok tolerancián belül. Szint jó.");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Jó pontok: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Utolsó Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Sarok szint");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Ágy emelése a szonda váltásig");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Minden sarok tolerancián belül. Szint jó.");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Jó pontok: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Utolsó Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Következö sarok");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Háló szerkesztö");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Háló szerkesztése");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Háló szerk. állj");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Próbapont");
+  PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Próbapont");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z érték");
@@ -313,6 +312,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Ki");
   PROGMEM Language_Str MSG_PID_AUTOTUNE                    = _UxGT("PID hangolás");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_E                  = _UxGT("PID hangolás *");
+  PROGMEM Language_Str MSG_PID_CYCLE                       = _UxGT("PID ciklus");
   PROGMEM Language_Str MSG_PID_AUTOTUNE_DONE               = _UxGT("PID hangolás kész");
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Hangolási hiba. Rossz adagoló.");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Hangolási hiba. Magas hömérséklet.");
@@ -494,7 +494,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MANUAL_DEPLOY_TOUCHMI           = _UxGT("TouchMI használ");
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Z-Szonda telepítés");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Z-Szonda elhelyezés");
-  PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Elsö %s%s%s kell");
+  PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Elöször %s%s%s kell");
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Szonda eltolások");
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("X szonda eltolás");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Y szonda eltolás");
@@ -583,12 +583,12 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Max höfok");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Meghajtási erö");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = AXIS4_STR _UxGT(" Meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = AXIS5_STR _UxGT(" Meghajtó %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = AXIS6_STR _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_A                   = LCD_STR_A _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_B                   = LCD_STR_B _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_C                   = LCD_STR_C _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_I                   = LCD_STR_I _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_J                   = LCD_STR_J _UxGT(" Meghajtó %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_K                   = LCD_STR_K _UxGT(" Meghajtó %");
   PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E meghajtó %");
   PROGMEM Language_Str MSG_ERROR_TMC                       = _UxGT("TMC CSATLAKOZÁSI HIBA");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM írása");

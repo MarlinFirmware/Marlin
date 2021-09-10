@@ -75,8 +75,14 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/dwin/e3v2/dwin.h"
-  #include "lcd/dwin/e3v2/rotary_encoder.h"
+  #include "lcd/e3v2/creality/dwin.h"
+  #include "lcd/e3v2/creality/rotary_encoder.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "lcd/e3v2/enhanced/dwin.h"
+  #include "lcd/e3v2/enhanced/rotary_encoder.h"
+#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #include "lcd/e3v2/jyersui/dwin.h"
+  #include "lcd/e3v2/jyersui/rotary_encoder.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -792,7 +798,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 void idle(bool no_stepper_sleep/*=false*/) {
   #if ENABLED(MARLIN_DEV_MODE)
     static uint16_t idle_depth = 0;
-    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
+    if (++idle_depth > 5) SERIAL_ECHOLNPGM("idle() call depth: ", idle_depth);
   #endif
 
   // Core Marlin activities
@@ -846,7 +852,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
   TERN_(USE_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+  TERN(HAS_DWIN_E3V2_BASIC, DWIN_Update(), ui.update());
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -868,6 +874,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
       TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
+      TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
     }
   #endif
 
@@ -900,7 +907,7 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLNPGM_P(lcd_error); }
 
-  #if HAS_DISPLAY
+  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
     ui.kill_screen(lcd_error ?: GET_TEXT(MSG_KILLED), lcd_component ?: NUL_STR);
   #else
     UNUSED(lcd_error); UNUSED(lcd_component);
@@ -1130,6 +1137,10 @@ inline void tmc_standby_setup() {
  *  - Set Marlin to RUNNING State
  */
 void setup() {
+  #ifdef FASTIO_INIT
+    FASTIO_INIT();
+  #endif
+
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
   #endif
@@ -1187,7 +1198,7 @@ void setup() {
 
   #if HAS_SUICIDE
     SETUP_LOG("SUICIDE_PIN");
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
+    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
   #endif
 
   #ifdef JTAGSWD_RESET
@@ -1274,14 +1285,13 @@ void setup() {
   HAL_clear_reset_source();
 
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
-  SERIAL_EOL();
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-  SERIAL_ECHO_MSG("Compiled: " __DATE__);
+  SERIAL_ECHO_MSG(" Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1308,12 +1318,8 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  #if ENABLED(DWIN_CREALITY_LCD)
-    delay(800);   // Required delay (since boot?)
-    SERIAL_ECHOPGM("\nDWIN handshake ");
-    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
-    DWIN_Frame_SetDir(1); // Orientation 90°
-    DWIN_UpdateLCD();     // Show bootscreen (first image)
+  #if HAS_DWIN_E3V2_BASIC
+    SETUP_RUN(DWIN_Startup());
   #else
     SETUP_RUN(ui.init());
     #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
@@ -1587,15 +1593,15 @@ void setup() {
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
+  #if HAS_DWIN_E3V2_BASIC
     Encoder_Configuration();
     HMI_Init();
-    DWIN_JPG_CacheTo1(Language_English);
+    HMI_SetLanguageCache();
     HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT(WELCOME_MSG));
+    DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
   #endif
 
-  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
+  #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
     ui.reset_status(true);  // Show service messages or keep current status
   #endif
 
@@ -1617,7 +1623,7 @@ void setup() {
   #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     const millis_t elapsed = millis() - bootscreen_ms;
     #if ENABLED(MARLIN_DEV_MODE)
-      SERIAL_ECHOLNPAIR("elapsed=", elapsed);
+      SERIAL_ECHOLNPGM("elapsed=", elapsed);
     #endif
     SETUP_RUN(ui.bootscreen_completion(elapsed));
   #endif

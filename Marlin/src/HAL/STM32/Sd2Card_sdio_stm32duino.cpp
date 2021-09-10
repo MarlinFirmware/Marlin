@@ -19,7 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfig.h"
 
@@ -290,13 +292,13 @@ static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t *src, uint8_t 
 
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
   uint8_t retries = SDIO_READ_RETRIES;
-  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, NULL, dst)) return true;
+  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, nullptr, dst)) return true;
   return false;
 }
 
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
   uint8_t retries = SDIO_READ_RETRIES;
-  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, src, NULL)) return true;
+  while (retries--) if (SDIO_ReadWriteBlock_DMA(block, src, nullptr)) return true;
   return false;
 }
 
@@ -320,4 +322,4 @@ extern "C" void SDIO_IRQHandler(void) { HAL_SD_IRQHandler(&hsd); }
 extern "C" void DMA_IRQ_HANDLER(void) { HAL_DMA_IRQHandler(&hdma_sdio); }
 
 #endif // SDIO_SUPPORT
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
+#endif // HAL_STM32

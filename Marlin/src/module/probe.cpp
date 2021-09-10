@@ -79,6 +79,8 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -109,7 +111,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
    *              If true, move to MAX_X and release the solenoid
    */
   static void dock_sled(const bool stow) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("dock_sled(", stow, ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("dock_sled(", stow, ")");
 
     // Dock sled a bit closer to ensure proper capturing
     do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
@@ -250,21 +252,16 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     TERN_(PROBING_ESTEPPERS_OFF, if (dopause) disable_e_steppers());
-    #if ENABLED(PROBING_STEPPERS_OFF)
-      IF_DISABLED(DELTA, static uint8_t old_trusted);
+    #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
+      static uint8_t old_trusted;
       if (dopause) {
-        #if DISABLED(DELTA)
-          old_trusted = axis_trusted;
-          DISABLE_AXIS_X();
-          DISABLE_AXIS_Y();
-        #endif
-        IF_DISABLED(PROBING_ESTEPPERS_OFF, disable_e_steppers());
+        old_trusted = axis_trusted;
+        DISABLE_AXIS_X();
+        DISABLE_AXIS_Y();
       }
       else {
-        #if DISABLED(DELTA)
-          if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
-          if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
-        #endif
+        if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
+        if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
         axis_trusted = old_trusted;
       }
     #endif
@@ -277,7 +274,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
  * Raise Z to a minimum height to make room for a probe to move
  */
 void Probe::do_z_raise(const float z_raise) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probe::do_z_raise(", z_raise, ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe::do_z_raise(", z_raise, ")");
   float z_dest = z_raise;
   if (offset.z < 0) z_dest -= offset.z;
   do_z_clearance(z_dest);
@@ -287,7 +284,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
     do {
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
-        if (deploy == PROBE_TRIGGERED()) break;
+        if (deploy != PROBE_TRIGGERED()) break;
       #endif
 
       BUZZ(100, 659);
@@ -300,7 +297,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
-
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, PSTR("Stow Probe"), CONTINUE_STR));
       wait_for_user_response();
       ui.reset_status();
 
@@ -370,7 +367,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
       const celsius_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
       if (hotendPreheat) {
-        DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
+        DEBUG_ECHOPGM("hotend (", hotendPreheat, ")");
         thermalManager.setTargetHotend(hotendPreheat, 0);
       }
     #elif ENABLED(WAIT_FOR_BED_HEAT)
@@ -381,7 +378,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       const celsius_t bedPreheat = bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
       if (bedPreheat) {
         if (hotendPreheat) DEBUG_ECHOPGM(" and ");
-        DEBUG_ECHOPAIR("bed (", bedPreheat, ")");
+        DEBUG_ECHOPGM("bed (", bedPreheat, ")");
         thermalManager.setTargetBed(bedPreheat);
       }
     #endif
@@ -403,7 +400,7 @@ bool Probe::set_deployed(const bool deploy) {
 
   if (DEBUGGING(LEVELING)) {
     DEBUG_POS("Probe::set_deployed", current_position);
-    DEBUG_ECHOLNPAIR("deploy: ", deploy);
+    DEBUG_ECHOLNPGM("deploy: ", deploy);
   }
 
   if (endstops.z_probe_enabled == deploy) return false;
@@ -632,7 +629,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
     const float first_probe_z = current_position.z;
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("1st Probe Z:", first_probe_z);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
     do_blocking_move_to_z(current_position.z + Z_CLEARANCE_MULTI_PROBE, z_probe_fast_mm_s);
@@ -726,7 +723,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
     const float z2 = current_position.z;
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("2nd Probe Z:", z2, " Discrepancy:", first_probe_z - z2);
 
     // Return a weighted average of the fast and slow probes
     const float measured_z = (z2 * 3.0 + first_probe_z * 2.0) * 0.2;
@@ -754,9 +751,9 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
 
   if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOLNPAIR(
+    DEBUG_ECHOLNPGM(
       "...(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
-      ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none",
+      ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_LAST_STOW ? "stow (last)" : raise_after == PROBE_PT_STOW ? "stow" : "none",
       ", ", verbose_level,
       ", ", probe_relative ? "probe" : "nozzle", "_relative)"
     );
@@ -787,11 +784,11 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
       do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), z_probe_fast_mm_s);
-    else if (raise_after == PROBE_PT_STOW)
+    else if (raise_after == PROBE_PT_STOW || raise_after == PROBE_PT_LAST_STOW)
       if (stow()) measured_z = NAN;   // Error on stow?
 
     if (verbose_level > 2)
-      SERIAL_ECHOLNPAIR("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
+      SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
   }
 
   if (isnan(measured_z)) {
@@ -867,7 +864,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       #endif
       #if ((ENABLED(DELTA) && (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y))) || HAS_CURRENT_HOME(Z))
         auto debug_current_on = [](PGM_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b); }
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
         };
       #endif
       if (onoff) {

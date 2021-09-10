@@ -82,7 +82,7 @@ void spiInit(uint8_t spiRate) {
   case SPI_SPEED_5:       clock =   625000; break;
   case SPI_SPEED_6:       clock =   312500; break;
   default:
-    clock = 4000000; // Default from the SPI libarary
+    clock = 4000000; // Default from the SPI library
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
   SPI.begin();
