@@ -181,7 +181,7 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir, const b
     uint8_t ocr_power_tmp;  // For save ocr_power (uint16_t)
   #endif
 
-  #if BOTH(SPINDLE_LASER_PWM, SPINDLE_LASER_PWN_SEPARATE_PIN)
+  #if BOTH(SPINDLE_LASER_PWM, SPINDLE_LASER_PWM_SEPARATE_PIN)
     bool ena_pin_on_value = ena_pin_on;
   #else
     bool ena_pin_on_value = opwr > 0 ? true : false;
@@ -248,8 +248,8 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir, const b
    * Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
    */
   void SpindleLaser::set_reverse(const bool reverse) {
-    // depricate and need delete
-    ocr_set_power(ocr_power, SPINDLE_DIR_CCW)
+    // deprecate and need delete
+    ocr_set_power(ocr_power, SPINDLE_DIR_CCW);
     // const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
     // if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     // WRITE(SPINDLE_DIR_PIN, dir_state);
