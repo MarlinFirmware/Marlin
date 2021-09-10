@@ -701,10 +701,6 @@
     #define E_MANUAL        EXTRUDERS
   #endif
 
-  #ifndef BOGUS_TEMPERATURE_GRACE_PERIOD // FIXME
-    #define BOGUS_TEMPERATURE_GRACE_PERIOD 1000
-  #endif
-
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)   // Toolchanger
 
   #define E_STEPPERS      EXTRUDERS
