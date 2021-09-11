@@ -388,7 +388,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
   inline void manual_switching_toolhead_tool_change(const uint8_t new_tool) {
-    DEBUG_ECHOLNPAIR("tool change, active ", active_extruder, " new ", new_tool);
+    DEBUG_ECHOPGM("tool change, active ", active_extruder, " new ", new_tool);
 
     disable_e_steppers();
     thermalManager.disable_all_heaters();

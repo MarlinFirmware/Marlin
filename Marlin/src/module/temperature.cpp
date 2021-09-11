@@ -2140,7 +2140,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       if (tdir) {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp
         if (rawtemp > temp_range[e].raw_max * tdir) {
-          DEBUG_ECHOLNPAIR("rawtemp out of range, max: ", temp_range[e].raw_max * tdir);
+          DEBUG_ECHOPGM("rawtemp out of range, max: ", temp_range[e].raw_max * tdir);
           if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error((heater_id_t)e);
         }
 
@@ -2149,7 +2149,7 @@ void Temperature::updateTemperaturesFromRawValues() {
           #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
             if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED) {
           #endif
-              DEBUG_ECHOLNPAIR("rawtemp out of range, min: ", temp_range[e].raw_min * tdir);
+              DEBUG_ECHOPGM("rawtemp out of range, min: ", temp_range[e].raw_min * tdir);
               if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) min_temp_error((heater_id_t)e);
           #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
             }
