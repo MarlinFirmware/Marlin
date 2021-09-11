@@ -163,14 +163,16 @@ void SpindleLaser::_change_hw(const bool ena_pin_on) {
  * Set cutter ocr_power value for PWM, Servo, and on/off pin.
  *
  * @param opwr       Power value. Range 0 to MAX. When 0 disable spindle/laser.
- * @param odir       Direction spindle (default SPINDLE_DIR_CW)
+ * @param odir       Direction spindle (default SPINDLE_DIR_CURRENT)
  * @param ena_pin_on Enable/disable ENA_PIN. Work only in separate mode PWM.
  *                   If separate mode is disable - ENA_PIN is managed through opwr value
  *                   if true - enable pin; false - disable pin (default true)
  */
 void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir, const bool ena_pin_on) {
   SpindleLaserEvent event;
-  uint8_t dir_value = TERN(SPINDLE_CHANGE_DIR, odir, SPINDLE_DIR_CW);
+  uint8_t dir_value = TERN(
+    SPINDLE_CHANGE_DIR, (odir == SPINDLE_DIR_CURRENT) ? dir : odir, SPINDLE_DIR_CW
+  );
 
   #if ENABLED(SPINDLE_CHANGE_DIR_STOP)
     uint8_t ocr_power_tmp;  // For save ocr_power (uint16_t)
@@ -236,6 +238,11 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir, const b
   }
   state = static_cast<SpindleLaserEvent>(event & 0b01111);
 }
+
+/**
+ * Return value ocr_power
+ */
+uint8_t SpindleLaser::get_ocr_power(){ return ocr_power; }
 
 #if ENABLED(SPINDLE_CHANGE_DIR)
   /**

@@ -45,11 +45,11 @@
   #define SPEED_POWER_INTERCEPT 0
 #endif
 
-#define SPINDLE_DIR_CW 0
-#define SPINDLE_DIR_CCW 1
+#define SPINDLE_DIR_CURRENT 0  // Don't change current value
+#define SPINDLE_DIR_CW 1
+#define SPINDLE_DIR_CCW 2
 
-// States - power == 0 off, power > 0 on
-// TO - transition state (TO_ON - from any to on)
+// TO - transition event (example: TO_<state> - from any to <state>)
 enum SpindleLaserEvent : uint8_t {
   ON_CW = 1,          // 0000 0001  event, state
   ON_CCW = 2,         // 0000 0010  event, state
@@ -65,6 +65,11 @@ enum SpindleLaserEvent : uint8_t {
 // #define _MAP(N,S1,S2,D1,D2) ((N)*_MAX((D2)-(D1),0)/_MAX((S2)-(S1),1)+(D1))
 
 class SpindleLaser {
+private:
+  static uint8_t dir;                     // Direction spindle
+  static uint8_t ocr_power;               // Value for PWM out
+  static SpindleLaserEvent state;         // Current state
+
 public:
   static constexpr float
     min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
@@ -116,9 +121,6 @@ public:
   #endif
 
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
-  static uint8_t ocr_power;
-  static uint8_t dir;                     // Direction spindle
-  static SpindleLaserEvent state;         // Current state
 
   #if ENABLED(MARLIN_DEV_MODE)
     static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
@@ -131,9 +133,10 @@ public:
     static inline void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
   #endif
 
-  // Modifying this function should update everywhere
-  static inline bool enabled(const cutter_power_t opwr) { return opwr > 0; }
-  static inline bool enabled() { return enabled(ocr_power); }
+private:
+  static void ena_pin_set(const bool enable);
+  static void _change_hw(const bool ena_pin_on);
+  static SpindleLaserEvent get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on);
 
   #if ENABLED(SPINDLE_CHANGE_DIR)
     static void dir_pin_set();
@@ -141,19 +144,24 @@ public:
     static inline void dir_pin_set() {}
   #endif
 
-  static void ena_pin_set(const bool enable);
-  static void _change_hw(const bool ena_pin_on);
-  static SpindleLaserEvent get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on);
+  #if ENABLED(SPINDLE_LASER_PWM)
+    static void ocr_set(const uint8_t ocr);
+  #endif
 
+public:
   static void init();
-  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CW, const bool ena_pin_on = true);
+  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CURRENT, const bool ena_pin_on = true);
+  static uint8_t get_ocr_power();
+
+  /**
+   * Return state laser/spindle; true if enable.
+   */
+  static inline bool enabled() { return !(state == SpindleLaserEvent::OFF); }
 
   FORCE_INLINE static void refresh() {}
   // { ocr_set_power(ocr_power); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
-    static void ocr_set(const uint8_t ocr);
-
     /**
      * Update output for upower->OCR translation
      */
