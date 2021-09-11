@@ -141,7 +141,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       ui.return_to_status();
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI"), CONTINUE_STR));
-      wait_for_user_response();
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
 
@@ -298,7 +298,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
       TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, PSTR("Stow Probe"), CONTINUE_STR));
-      wait_for_user_response();
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
 
     } while (ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED));
