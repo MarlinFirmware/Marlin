@@ -833,6 +833,7 @@ private:
     #if ENABLED(EDITABLE_SERVO_ANGLES)
       static void M281();
     #endif
+    static void M282();
   #endif
 
   #if ENABLED(BABYSTEPPING)

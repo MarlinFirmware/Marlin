@@ -699,6 +699,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if ENABLED(EDITABLE_SERVO_ANGLES)
           case 281: M281(); break;                                // M281: Set servo angles
         #endif
+        case 282: M282(); break;
       #endif
 
       #if ENABLED(BABYSTEPPING)
