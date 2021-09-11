@@ -34,7 +34,6 @@ namespace FTDI {
       #define CHAR_WIDTH(c) use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c]
     #else
       #define CHAR_WIDTH(c) utf8_fm.get_char_width(c)
-      constexpr bool use_utf8 = false;
     #endif
     FontMetrics utf8_fm(font);
     CLCD::FontMetrics clcd_fm;
@@ -46,12 +45,12 @@ namespace FTDI {
     // split and still allow the ellipsis to fit.
     int16_t lineWidth = 0;
     char *breakPoint = str;
-    char *next = str;
+    const char *next = str;
     while (*next) {
       const utf8_char_t c = get_utf8_char_and_inc(next);
       lineWidth += CHAR_WIDTH(c);
       if (lineWidth + ellipsisWidth < w)
-        breakPoint = next;
+        breakPoint = (char*)next;
     }
 
     if (lineWidth > w) {
