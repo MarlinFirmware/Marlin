@@ -649,6 +649,8 @@
   #include "stm32f4/pins_TH3D_EZBOARD_LITE_V2.h" // STM32F4                               env:TH3D_EZBoard_Lite_V2
 #elif MB(INDEX_REV03)
   #include "stm32f4/pins_INDEX_REV03.h"         // STM32F4                                env:Index_Mobo_Rev03
+#elif MB(MKS_ROBIN_NANO_V1_3_F4)
+  #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h"  // STM32F4                            env:mks_robin_nano_v1_3_f4
 
 //
 // ARM Cortex M7
