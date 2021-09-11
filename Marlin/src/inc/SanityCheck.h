@@ -999,6 +999,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   static_assert(WITHIN(npp_xyz.z, Z_MIN_POS, Z_MAX_POS), "NOZZLE_PARK_POINT.Z is out of bounds (Z_MIN_POS, Z_MAX_POS).");
 #endif
 
+#if !HAS_RESUME_CONTINUE && DISABLED(HOST_PROMPT_SUPPORT) && DISABLED(EXTENSIBLE_UI)
+  #warning "Your Configuration provides no method to acquire user feedback!"
+#endif
+
 /**
  * Instant Freeze
  */

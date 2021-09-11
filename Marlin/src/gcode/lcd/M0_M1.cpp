@@ -83,7 +83,7 @@ void GcodeSuite::M0_M1() {
 
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR));
 
-  wait_for_user_response(ms);
+  TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(ms));
 
   TERN_(HAS_LCD_MENU, ui.reset_status());
 }
