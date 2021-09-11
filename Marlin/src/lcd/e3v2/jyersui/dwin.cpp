@@ -333,14 +333,11 @@ CrealityDWINClass CrealityDWIN;
           start_x_px, start_y_px, end_x_px, end_y_px
         );
 
-        while (SERIAL_GET_TX_BUFFER_FREE()) { // wait for serial to be available without blocking and resetting the MCU
-          gcode.process_subcommands_now_P("G4 P10");
-          planner.synchronize();
-        }
+        safe_delay(10);
+        LCD_SERIAL.flushTX();
+
         // Draw value text on
         if (viewer_print_value) {
-          gcode.process_subcommands_now_P("G4 P10");  // still fails without additional delay...
-          planner.synchronize();
           int8_t offset_x, offset_y = cell_height_px / 2 - 6;
           if (isnan(mesh_z_values[x][y])) {  // undefined
             DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
@@ -355,6 +352,8 @@ CrealityDWINClass CrealityDWIN;
               DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
             DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
           }
+          safe_delay(10);
+          LCD_SERIAL.flushTX();
         }
       }
     }
