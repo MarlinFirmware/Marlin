@@ -425,7 +425,7 @@ void GcodeSuite::G33() {
 
   const bool stow_after_each = parser.seen_test('E');
 
-  #if ENABLED(SENSORLESS_PROBING)
+  #if HAS_DELTA_SENSORLESS_PROBING
     probe.test_sensitivity.x = !parser.seen_test('X');
     TERN_(HAS_Y_AXIS, probe.test_sensitivity.y = !parser.seen_test('Y'));
     TERN_(HAS_Z_AXIS, probe.test_sensitivity.z = !parser.seen_test('Z'));
