@@ -136,12 +136,9 @@ void FilesScreen::drawFileList() {
 
   uint16_t fileIndex = mydata.cur_page * FILES_PER_PAGE;
   for (uint8_t i = 0; i < FILES_PER_PAGE; i++, fileIndex++) {
-    if (files.seek(fileIndex)) {
-      drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
-      mydata.flags.is_empty = false;
-    } else {
-      break;
-    }
+    if (!files.seek(fileIndex)) break;
+    drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
+    mydata.flags.is_empty = false;
   }
 }
 
