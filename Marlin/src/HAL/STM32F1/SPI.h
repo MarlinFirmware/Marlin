@@ -138,8 +138,8 @@ private:
   spi_dev *spi_d;
   dma_channel spiRxDmaChannel, spiTxDmaChannel;
   dma_dev* spiDmaDev;
-  void (*receiveCallback)() = NULL;
-  void (*transmitCallback)() = NULL;
+  void (*receiveCallback)() = nullptr;
+  void (*transmitCallback)() = nullptr;
 
   friend class SPIClass;
 };
@@ -162,6 +162,11 @@ public:
    * @param spiPortNumber Number of the SPI port to manage.
    */
   SPIClass(uint32_t spiPortNumber);
+
+  /**
+   * Init using pins
+   */
+  SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel=-1);
 
   /**
    * @brief Equivalent to begin(SPI_1_125MHZ, MSBFIRST, 0).

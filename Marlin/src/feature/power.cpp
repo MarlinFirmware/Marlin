@@ -33,6 +33,14 @@
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
 
+#if ENABLED(PS_OFF_SOUND)
+  #include "../libs/buzzer.h"
+#endif
+
+#if defined(PSU_POWERUP_GCODE) || defined(PSU_POWEROFF_GCODE)
+  #include "../gcode/gcode.h"
+#endif
+
 #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
   #include "controllerfan.h"
 #endif
@@ -42,6 +50,9 @@ Power powerManager;
 millis_t Power::lastPowerOn;
 
 bool Power::is_power_needed() {
+
+  if (printJobOngoing() || printingIsPaused()) return true;
+
   #if ENABLED(AUTO_POWER_FANS)
     FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
   #endif
@@ -55,6 +66,9 @@ bool Power::is_power_needed() {
   #endif
 
   if (TERN0(AUTO_POWER_CHAMBER_FAN, thermalManager.chamberfan_speed))
+    return true;
+
+  if (TERN0(AUTO_POWER_COOLER_FAN, thermalManager.coolerfan_speed))
     return true;
 
   // If any of the drivers or the bed are enabled...
@@ -74,44 +88,86 @@ bool Power::is_power_needed() {
     #endif
   ) return true;
 
-  HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
+  #if HAS_HOTEND
+    HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
+  #endif
+
   if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
   #if HAS_HOTEND && AUTO_POWER_E_TEMP
-    HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
+    HOTEND_LOOP() if (thermalManager.degHotend(e) >= (AUTO_POWER_E_TEMP)) return true;
   #endif
 
   #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
-    if (thermalManager.degChamber() >= AUTO_POWER_CHAMBER_TEMP) return true;
+    if (thermalManager.degChamber() >= (AUTO_POWER_CHAMBER_TEMP)) return true;
+  #endif
+
+  #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
+    if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
   #endif
 
   return false;
 }
 
-void Power::check() {
+#ifndef POWER_TIMEOUT
+  #define POWER_TIMEOUT 0
+#endif
+
+void Power::check(const bool pause) {
+  static bool _pause = false;
   static millis_t nextPowerCheck = 0;
-  millis_t ms = millis();
-  if (ELAPSED(ms, nextPowerCheck)) {
-    nextPowerCheck = ms + 2500UL;
+  const millis_t now = millis();
+  #if POWER_TIMEOUT > 0
+    if (pause != _pause) {
+      lastPowerOn = now + !now;
+      _pause = pause;
+    }
+    if (pause) return;
+  #endif
+  if (ELAPSED(now, nextPowerCheck)) {
+    nextPowerCheck = now + 2500UL;
     if (is_power_needed())
       power_on();
-    else if (!lastPowerOn || ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT)))
+    else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(now, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT))))
       power_off();
   }
 }
 
 void Power::power_on() {
-  lastPowerOn = millis();
+  const millis_t now = millis();
+  lastPowerOn = now + !now;
   if (!powersupply_on) {
     PSU_PIN_ON();
     safe_delay(PSU_POWERUP_DELAY);
     restore_stepper_drivers();
     TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
+    #ifdef PSU_POWERUP_GCODE
+      GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWERUP_GCODE));
+    #endif
   }
 }
 
 void Power::power_off() {
-  if (powersupply_on) PSU_PIN_OFF();
+  if (powersupply_on) {
+    #ifdef PSU_POWEROFF_GCODE
+      GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
+    #endif
+
+    #if ENABLED(PS_OFF_SOUND)
+      BUZZ(1000, 659);
+    #endif
+
+    PSU_PIN_OFF();
+  }
+}
+
+void Power::power_off_soon() {
+  #if POWER_OFF_DELAY
+    lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
+    //if (!lastPowerOn) ++lastPowerOn;
+  #else
+    power_off();
+  #endif
 }
 
 #endif // AUTO_POWER_CONTROL

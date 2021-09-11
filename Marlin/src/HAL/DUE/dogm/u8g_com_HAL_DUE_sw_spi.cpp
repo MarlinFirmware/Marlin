@@ -59,15 +59,12 @@
 
 #if HAS_MARLINUI_U8GLIB && DISABLED(U8GLIB_ST7920)
 
-#undef SPI_SPEED
-#define SPI_SPEED 2  // About 2 MHz
-
 #include "u8g_com_HAL_DUE_sw_spi_shared.h"
 
 #include "../../shared/Marduino.h"
 #include "../../shared/Delay.h"
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #if ENABLED(FYSETC_MINI_12864)
   #define SPISEND_SW_DUE u8g_spiSend_sw_DUE_mode_3

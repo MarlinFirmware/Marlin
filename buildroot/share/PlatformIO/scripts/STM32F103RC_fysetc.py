@@ -1,27 +1,17 @@
+#
+# buildroot/share/PlatformIO/scripts/STM32F103RC_fysetc.py
+#
 import os
 from os.path import join
 from os.path import expandvars
 Import("env")
 
-# Relocate firmware from 0x08000000 to 0x08008000
-#for define in env['CPPDEFINES']:
-#    if define[0] == "VECT_TAB_ADDR":
-#        env['CPPDEFINES'].remove(define)
-#env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08008000"))
-
-#custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/fysetc_stm32f103rc.ld")
-#for i, flag in enumerate(env["LINKFLAGS"]):
-#    if "-Wl,-T" in flag:
-#        env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
-#    elif flag == "-T":
-#        env["LINKFLAGS"][i + 1] = custom_ld_script
-
 # Custom HEX from ELF
 env.AddPostAction(
-	join("$BUILD_DIR","${PROGNAME}.elf"),
+	join("$BUILD_DIR", "${PROGNAME}.elf"),
 	env.VerboseAction(" ".join([
-		"$OBJCOPY", "-O ihex", "$TARGET", # TARGET=.pio/build/fysetc_STM32F1/firmware.elf
-		"\"" + join("$BUILD_DIR","${PROGNAME}.hex") + "\"", # Note: $BUILD_DIR is a full path
+		"$OBJCOPY", "-O ihex", "$TARGET",
+		"\"" + join("$BUILD_DIR", "${PROGNAME}.hex") + "\"", # Note: $BUILD_DIR is a full path
 	]), "Building $TARGET"))
 
 # In-line command with arguments

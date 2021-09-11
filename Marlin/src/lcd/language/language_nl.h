@@ -43,7 +43,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Kaart verwijderd");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hoofdmenu");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motoren uit");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu"); // accepted English terms
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Vooruitgang Test");
@@ -87,10 +87,11 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Verplaats Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Verplaats %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Verplaats %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Verplaats 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Verplaats 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Verplaats 10mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("Verplaats 100mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Snelheid");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
@@ -115,7 +116,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
   PROGMEM Language_Str MSG_ADVANCE_K                       = _UxGT("Advance K");        // accepted english dutch
   PROGMEM Language_Str MSG_ADVANCE_K_E                     = _UxGT("Advance K *"); // accepted english dutch
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD contrast");

@@ -32,8 +32,7 @@ template<typename TMC>
 void tmc_say_stealth_status(TMC &st) {
   st.printLabel();
   SERIAL_ECHOPGM(" driver mode:\t");
-  serialprintPGM(st.get_stealthChop_status() ? PSTR("stealthChop") : PSTR("spreadCycle"));
-  SERIAL_EOL();
+  SERIAL_ECHOLNPGM_P(st.get_stealthChop() ? PSTR("stealthChop") : PSTR("spreadCycle"));
 }
 template<typename TMC>
 void tmc_set_stealthChop(TMC &st, const bool enable) {
@@ -41,132 +40,88 @@ void tmc_set_stealthChop(TMC &st, const bool enable) {
   st.refresh_stepping_mode();
 }
 
-static void set_stealth_status(const bool enable, const int8_t target_extruder) {
+static void set_stealth_status(const bool enable, const int8_t target_e_stepper) {
   #define TMC_SET_STEALTH(Q) tmc_set_stealthChop(stepper##Q, enable)
 
-  #if    AXIS_HAS_STEALTHCHOP(X)  || AXIS_HAS_STEALTHCHOP(X2) \
-      || AXIS_HAS_STEALTHCHOP(Y)  || AXIS_HAS_STEALTHCHOP(Y2) \
-      || AXIS_HAS_STEALTHCHOP(Z)  || AXIS_HAS_STEALTHCHOP(Z2) \
-      || AXIS_HAS_STEALTHCHOP(Z3) || AXIS_HAS_STEALTHCHOP(Z4)
+  #if    X_HAS_STEALTHCHOP  || Y_HAS_STEALTHCHOP  || Z_HAS_STEALTHCHOP \
+      || I_HAS_STEALTHCHOP  || J_HAS_STEALTHCHOP  || K_HAS_STEALTHCHOP \
+      || X2_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP || Z3_HAS_STEALTHCHOP || Z4_HAS_STEALTHCHOP
     const uint8_t index = parser.byteval('I');
   #endif
 
-  LOOP_XYZE(i) if (parser.seen(axis_codes[i])) {
+  LOOP_LOGICAL_AXES(i) if (parser.seen(axis_codes[i])) {
     switch (i) {
       case X_AXIS:
-        #if AXIS_HAS_STEALTHCHOP(X)
-          if (index == 0) TMC_SET_STEALTH(X);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X2)
-          if (index == 1) TMC_SET_STEALTH(X2);
-        #endif
+        TERN_(X_HAS_STEALTHCHOP,  if (index == 0) TMC_SET_STEALTH(X));
+        TERN_(X2_HAS_STEALTHCHOP, if (index == 1) TMC_SET_STEALTH(X2));
         break;
-      case Y_AXIS:
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          if (index == 0) TMC_SET_STEALTH(Y);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y2)
-          if (index == 1) TMC_SET_STEALTH(Y2);
-        #endif
-        break;
-      case Z_AXIS:
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          if (index == 0) TMC_SET_STEALTH(Z);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z2)
-          if (index == 1) TMC_SET_STEALTH(Z2);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z3)
-          if (index == 2) TMC_SET_STEALTH(Z3);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z4)
-          if (index == 3) TMC_SET_STEALTH(Z4);
-        #endif
-        break;
-      case E_AXIS: {
-        if (target_extruder < 0) return;
-        switch (target_extruder) {
-          #if AXIS_HAS_STEALTHCHOP(E0)
-            case 0: TMC_SET_STEALTH(E0); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E1)
-            case 1: TMC_SET_STEALTH(E1); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E2)
-            case 2: TMC_SET_STEALTH(E2); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E3)
-            case 3: TMC_SET_STEALTH(E3); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E4)
-            case 4: TMC_SET_STEALTH(E4); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E5)
-            case 5: TMC_SET_STEALTH(E5); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E6)
-            case 6: TMC_SET_STEALTH(E6); break;
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E7)
-            case 7: TMC_SET_STEALTH(E7); break;
-          #endif
-        }
-      } break;
+
+      #if HAS_Y_AXIS
+        case Y_AXIS:
+          TERN_(Y_HAS_STEALTHCHOP,  if (index == 0) TMC_SET_STEALTH(Y));
+          TERN_(Y2_HAS_STEALTHCHOP, if (index == 1) TMC_SET_STEALTH(Y2));
+          break;
+      #endif
+
+      #if HAS_Z_AXIS
+        case Z_AXIS:
+          TERN_(Z_HAS_STEALTHCHOP,  if (index == 0) TMC_SET_STEALTH(Z));
+          TERN_(Z2_HAS_STEALTHCHOP, if (index == 1) TMC_SET_STEALTH(Z2));
+          TERN_(Z3_HAS_STEALTHCHOP, if (index == 2) TMC_SET_STEALTH(Z3));
+          TERN_(Z4_HAS_STEALTHCHOP, if (index == 3) TMC_SET_STEALTH(Z4));
+          break;
+      #endif
+
+      #if I_HAS_STEALTHCHOP
+        case I_AXIS: TMC_SET_STEALTH(I); break;
+      #endif
+      #if J_HAS_STEALTHCHOP
+        case J_AXIS: TMC_SET_STEALTH(J); break;
+      #endif
+      #if K_HAS_STEALTHCHOP
+        case K_AXIS: TMC_SET_STEALTH(K); break;
+      #endif
+
+      #if E_STEPPERS
+        case E_AXIS: {
+          if (target_e_stepper < 0) return;
+          switch (target_e_stepper) {
+            TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_STEALTH(E0); break;)
+            TERN_(E1_HAS_STEALTHCHOP, case 1: TMC_SET_STEALTH(E1); break;)
+            TERN_(E2_HAS_STEALTHCHOP, case 2: TMC_SET_STEALTH(E2); break;)
+            TERN_(E3_HAS_STEALTHCHOP, case 3: TMC_SET_STEALTH(E3); break;)
+            TERN_(E4_HAS_STEALTHCHOP, case 4: TMC_SET_STEALTH(E4); break;)
+            TERN_(E5_HAS_STEALTHCHOP, case 5: TMC_SET_STEALTH(E5); break;)
+            TERN_(E6_HAS_STEALTHCHOP, case 6: TMC_SET_STEALTH(E6); break;)
+            TERN_(E7_HAS_STEALTHCHOP, case 7: TMC_SET_STEALTH(E7); break;)
+          }
+        } break;
+      #endif
     }
   }
 }
 
 static void say_stealth_status() {
   #define TMC_SAY_STEALTH_STATUS(Q) tmc_say_stealth_status(stepper##Q)
-
-  #if AXIS_HAS_STEALTHCHOP(X)
-    TMC_SAY_STEALTH_STATUS(X);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(X2)
-    TMC_SAY_STEALTH_STATUS(X2);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(Y)
-    TMC_SAY_STEALTH_STATUS(Y);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(Y2)
-    TMC_SAY_STEALTH_STATUS(Y2);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(Z)
-    TMC_SAY_STEALTH_STATUS(Z);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(Z2)
-    TMC_SAY_STEALTH_STATUS(Z2);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(Z3)
-    TMC_SAY_STEALTH_STATUS(Z3);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(Z4)
-    TMC_SAY_STEALTH_STATUS(Z4);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E0)
-    TMC_SAY_STEALTH_STATUS(E0);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E1)
-    TMC_SAY_STEALTH_STATUS(E1);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E2)
-    TMC_SAY_STEALTH_STATUS(E2);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E3)
-    TMC_SAY_STEALTH_STATUS(E3);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E4)
-    TMC_SAY_STEALTH_STATUS(E4);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E5)
-    TMC_SAY_STEALTH_STATUS(E5);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E6)
-    TMC_SAY_STEALTH_STATUS(E6);
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(E7)
-    TMC_SAY_STEALTH_STATUS(E7);
-  #endif
+  OPTCODE( X_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(X))
+  OPTCODE(X2_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(X2))
+  OPTCODE( Y_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Y))
+  OPTCODE(Y2_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Y2))
+  OPTCODE( Z_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Z))
+  OPTCODE(Z2_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Z2))
+  OPTCODE(Z3_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Z3))
+  OPTCODE(Z4_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Z4))
+  OPTCODE( I_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(I))
+  OPTCODE( J_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(J))
+  OPTCODE( K_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(K))
+  OPTCODE(E0_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E0))
+  OPTCODE(E1_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E1))
+  OPTCODE(E2_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E2))
+  OPTCODE(E3_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E3))
+  OPTCODE(E4_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E4))
+  OPTCODE(E5_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E5))
+  OPTCODE(E6_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E6))
+  OPTCODE(E7_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E7))
 }
 
 /**
@@ -178,7 +133,7 @@ static void say_stealth_status() {
  */
 void GcodeSuite::M569() {
   if (parser.seen('S'))
-    set_stealth_status(parser.value_bool(), get_target_extruder_from_command());
+    set_stealth_status(parser.value_bool(), get_target_e_stepper_from_command());
   else
     say_stealth_status();
 }

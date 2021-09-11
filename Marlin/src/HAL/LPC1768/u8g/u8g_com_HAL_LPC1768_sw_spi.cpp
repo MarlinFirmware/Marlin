@@ -60,16 +60,18 @@
 #if HAS_MARLINUI_U8GLIB && DISABLED(U8GLIB_ST7920)
 
 #include <SoftwareSPI.h>
+#include "../../shared/HAL_SPI.h"
 
-#undef SPI_SPEED
-#define SPI_SPEED 2  // About 2 MHz
+#ifndef LCD_SPI_SPEED
+  #define LCD_SPI_SPEED SPI_QUARTER_SPEED  // About 2 MHz
+#endif
 
 #include <Arduino.h>
 #include <algorithm>
 #include <LPC17xx.h>
 #include <gpio.h>
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 
@@ -145,7 +147,7 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       u8g_SetPIOutput(u8g, U8G_PI_CS);
       u8g_SetPIOutput(u8g, U8G_PI_A0);
       if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_SetPIOutput(u8g, U8G_PI_RESET);
-      SPI_speed = swSpiInit(SPI_SPEED, u8g->pin_list[U8G_PI_SCK], u8g->pin_list[U8G_PI_MOSI]);
+      SPI_speed = swSpiInit(LCD_SPI_SPEED, u8g->pin_list[U8G_PI_SCK], u8g->pin_list[U8G_PI_MOSI]);
       u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
       u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
       break;

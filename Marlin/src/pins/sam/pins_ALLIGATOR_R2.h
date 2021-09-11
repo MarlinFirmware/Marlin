@@ -26,9 +26,7 @@
  * https://reprap.org/wiki/Alligator_Board
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME    "Alligator Board R2"
 
@@ -143,7 +141,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+#if IS_RRD_FG_SC
   #define LCD_PINS_RS                         18
   #define LCD_PINS_ENABLE                     15
   #define LCD_PINS_D4                         19
@@ -152,7 +150,7 @@
   #define UI_VOLTAGE_LEVEL                     1
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_EN1                             14
   #define BTN_EN2                             16
   #define BTN_ENC                             17

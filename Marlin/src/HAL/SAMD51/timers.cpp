@@ -107,7 +107,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     tc->COUNT32.INTENCLR.reg = TC_INTENCLR_OVF; // disable overflow interrupt
 
     // TCn clock setup
-    const uint8_t clockID = GCLK_CLKCTRL_IDs[TCC_INST_NUM + timer_num];   // TC clock are preceeded by TCC ones
+    const uint8_t clockID = GCLK_CLKCTRL_IDs[TCC_INST_NUM + timer_num];   // TC clock are preceded by TCC ones
     GCLK->PCHCTRL[clockID].bit.CHEN = false;
     SYNC(GCLK->PCHCTRL[clockID].bit.CHEN);
     GCLK->PCHCTRL[clockID].reg = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN;   // 120MHz startup code programmed
@@ -157,7 +157,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 // missing from CMSIS: Check if interrupt is enabled or not
 static bool NVIC_GetEnabledIRQ(IRQn_Type IRQn) {
-  return (NVIC->ISER[(uint32_t)(IRQn) >> 5] & (1 << ((uint32_t)(IRQn) & 0x1F))) != 0;
+  return TEST(NVIC->ISER[uint32_t(IRQn) >> 5], uint32_t(IRQn) & 0x1F);
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {

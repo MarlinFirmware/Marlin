@@ -71,19 +71,18 @@ class PrintCounter: public Stopwatch {
      * @brief Interval in seconds between counter updates
      * @details This const value defines what will be the time between each
      * accumulator update. This is different from the EEPROM save interval.
-     *
-     * @note The max value for this option is 60(s), otherwise integer
-     * overflow will happen.
      */
-    static constexpr uint16_t updateInterval = 10;
+    static constexpr millis_t updateInterval = SEC_TO_MS(10);
 
-    /**
-     * @brief Interval in seconds between EEPROM saves
-     * @details This const value defines what will be the time between each
-     * EEPROM save cycle, the development team recommends to set this value
-     * no lower than 3600 secs (1 hour).
-     */
-    static constexpr uint16_t saveInterval = 3600;
+    #if PRINTCOUNTER_SAVE_INTERVAL > 0
+      /**
+       * @brief Interval in seconds between EEPROM saves
+       * @details This const value defines what will be the time between each
+       * EEPROM save cycle, the development team recommends to set this value
+       * no lower than 3600 secs (1 hour).
+       */
+      static constexpr millis_t saveInterval = MIN_TO_MS(PRINTCOUNTER_SAVE_INTERVAL);
+    #endif
 
     /**
      * @brief Timestamp of the last call to deltaDuration()
@@ -176,7 +175,10 @@ class PrintCounter: public Stopwatch {
      * The following functions are being overridden
      */
     static bool start();
-    static bool stop();
+    static bool _stop(const bool completed);
+    static inline bool stop()  { return _stop(true);  }
+    static inline bool abort() { return _stop(false); }
+
     static void reset();
 
     #if HAS_SERVICE_INTERVALS

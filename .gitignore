@@ -19,9 +19,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-# Our automatic versioning scheme generates the following file
-# NEVER put it in the repository
+# Generated files
 _Version.h
+bdf2u8g
 
 #
 # OS
@@ -77,7 +77,6 @@ tags
 *.out
 *.app
 
-
 #
 # C
 #
@@ -123,33 +122,10 @@ tags
 .gcc-flags.json
 /lib/
 
-# Workaround for Deviot+platformio quirks
-Marlin/lib
-Marlin/platformio.ini
-Marlin/*/platformio.ini
-Marlin/*/*/platformio.ini
-Marlin/*/*/*/platformio.ini
-Marlin/*/*/*/*/platformio.ini
-Marlin/.travis.yml
-Marlin/*/.travis.yml
-Marlin/*/*/.travis.yml
-Marlin/*/*/*/.travis.yml
-Marlin/*/*/*/*/.travis.yml
-Marlin/.gitignore
-Marlin/*/.gitignore
-Marlin/*/*/.gitignore
-Marlin/*/*/*/.gitignore
-Marlin/*/*/*/*/.gitignore
-Marlin/readme.txt
-Marlin/*/readme.txt
-Marlin/*/*/readme.txt
-Marlin/*/*/*/readme.txt
-Marlin/*/*/*/*/readme.txt
-
 # Secure Credentials
 Configuration_Secure.h
 
-#Visual Studio
+# Visual Studio
 *.sln
 *.vcxproj
 *.vcxproj.user
@@ -160,27 +136,38 @@ __vm/
 .vs/
 vc-fileutils.settings
 
-#Visual Studio Code
+# Visual Studio Code
 .vscode
 .vscode/.browse.c_cpp.db*
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/*.db
 
+#Simulation
+imgui.ini
+eeprom.dat
+
 #cmake
 CMakeLists.txt
 src/CMakeLists.txt
 CMakeListsPrivate.txt
 
-#CLion
+# CLion
 cmake-build-*
 
-#Eclipse
+# Eclipse
 .project
 .cproject
 .pydevproject
 .settings
 .classpath
 
-#Python
+# Python
 __pycache__
+
+# IOLogger logs
+*_log.csv
+
+# Simulation / Native
+eeprom.dat
+imgui.ini

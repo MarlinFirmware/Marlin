@@ -59,9 +59,10 @@
 
 #if ENABLED(U8GLIB_ST7920)
 
+#include "../../../inc/MarlinConfig.h"
 #include "../../shared/Delay.h"
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #include "u8g_com_HAL_DUE_sw_spi_shared.h"
 
@@ -145,7 +146,7 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
 }
 
 #if ENABLED(LIGHTWEIGHT_UI)
-  #include "../../../lcd/ultralcd.h"
+  #include "../../../lcd/marlinui.h"
   #include "../../shared/HAL_ST7920.h"
 
   #define ST7920_CS_PIN LCD_PINS_RS

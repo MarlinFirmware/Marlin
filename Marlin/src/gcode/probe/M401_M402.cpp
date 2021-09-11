@@ -33,6 +33,7 @@
  */
 void GcodeSuite::M401() {
   probe.deploy();
+  TERN_(PROBE_TARE, probe.tare());
   report_current_position();
 }
 

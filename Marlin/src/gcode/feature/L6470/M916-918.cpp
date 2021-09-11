@@ -119,7 +119,7 @@ void GcodeSuite::M916() {
     M91x_counter_max = 256;  // KVAL_HOLD is 8 bits
 
   uint8_t M91x_delay_s = parser.byteval('D');   // get delay in seconds
-  millis_t M91x_delay_ms = M91x_delay_s * 60 * 1000;
+  millis_t M91x_delay_ms = SEC_TO_MS(M91x_delay_s * 60);
   millis_t M91x_delay_end;
 
   DEBUG_ECHOLNPGM(".\n.");
@@ -177,7 +177,7 @@ void GcodeSuite::M916() {
   if ((status_composite & (sh.STATUS_AXIS_TH_WRN | sh.STATUS_AXIS_TH_SD)))
     DEBUG_ECHOLNPGM(".\n.\nTest completed normally - Thermal warning/shutdown has occurred");
   else if (status_composite)
-    DEBUG_ECHOLNPGM(".\n.\nTest completed abnormally - non-thermal error has occured");
+    DEBUG_ECHOLNPGM(".\n.\nTest completed abnormally - non-thermal error has occurred");
   else
     DEBUG_ECHOLNPGM(".\n.\nTest completed normally - Unable to get to thermal warning/shutdown");
 
@@ -308,8 +308,8 @@ void GcodeSuite::M917() {
             L64xxManager.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
-        gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
-        watchdog_refresh();;   // beat the dog
+        gcode.reset_stepper_timeout(); // keep steppers powered
+        watchdog_refresh();
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {

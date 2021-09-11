@@ -27,7 +27,6 @@
 #include "../gcode.h"
 #include "../../feature/babystep.h"
 #include "../../module/probe.h"
-#include "../../module/temperature.h"
 #include "../../module/planner.h"
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -40,17 +39,15 @@
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  FORCE_INLINE void mod_probe_offset(const float &offs) {
+  FORCE_INLINE void mod_probe_offset(const_float_t offs) {
     if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, active_extruder == 0)) {
       probe.offset.z += offs;
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
+      SERIAL_ECHO_MSG(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         hotend_offset[active_extruder].z -= offs;
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET STR_Z ": ", hotend_offset[active_extruder].z);
+        SERIAL_ECHO_MSG(STR_PROBE_OFFSET STR_Z ": ", hotend_offset[active_extruder].z);
       #endif
     }
   }
@@ -72,12 +69,12 @@
  */
 void GcodeSuite::M290() {
   #if ENABLED(BABYSTEP_XY)
-    LOOP_XYZ(a)
-      if (parser.seenval(XYZ_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
+    LOOP_LINEAR_AXES(a)
+      if (parser.seenval(AXIS_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
         babystep.add_mm((AxisEnum)a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_probe_offset(offs);
+          if (a == Z_AXIS && parser.boolval('P', true)) mod_probe_offset(offs);
         #endif
       }
   #else
@@ -85,12 +82,12 @@ void GcodeSuite::M290() {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
       babystep.add_mm(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
+        if (parser.boolval('P', true)) mod_probe_offset(offs);
       #endif
     }
   #endif
 
-  if (!parser.seen("XYZ") || parser.seen('R')) {
+  if (!parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR)) || parser.seen('R')) {
     SERIAL_ECHO_START();
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -100,7 +97,7 @@ void GcodeSuite::M290() {
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
       SERIAL_ECHOLNPAIR_P(
-        PSTR("Hotend "), int(active_extruder)
+        PSTR("Hotend "), active_extruder
         #if ENABLED(BABYSTEP_XY)
           , PSTR("Offset X"), hotend_offset[active_extruder].x
           , SP_Y_STR, hotend_offset[active_extruder].y

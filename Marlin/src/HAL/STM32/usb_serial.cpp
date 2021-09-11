@@ -16,12 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include "../platforms.h"
 
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EMERGENCY_PARSER)
+#if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
 
 #include "usb_serial.h"
 #include "../../feature/e_parser.h"
@@ -51,5 +52,5 @@ void USB_Hook_init() {
   USBD_CDC_fops.Receive = USBD_CDC_Receive_hook;
 }
 
-#endif // EMERGENCY_PARSER
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // EMERGENCY_PARSER && USBD_USE_CDC
+#endif // HAL_STM32

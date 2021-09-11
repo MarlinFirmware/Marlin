@@ -4,9 +4,9 @@
  * This program is PUBLIC DOMAIN.
  * This means that there is no copyright and anyone is able to take a copy
  * for free and use it as they wish, with or without modifications, and in
- * any context, commerically or otherwise. The only limitation is that I
+ * any context, commercially or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liablity for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Internal interface between the ARM unwinding sub-modules.
  **************************************************************************/

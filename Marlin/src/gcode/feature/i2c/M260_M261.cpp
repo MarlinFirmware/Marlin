@@ -26,7 +26,7 @@
 
 #include "../../gcode.h"
 
-#include "../../../MarlinCore.h" // for i2c
+#include "../../../feature/twibus.h"
 
 /**
  * M260: Send data to a I2C slave device

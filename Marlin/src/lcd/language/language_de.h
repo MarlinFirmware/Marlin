@@ -53,7 +53,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hauptmenü");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Erw. Einstellungen");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfiguration");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug-Menü");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Statusbalken-Test");
@@ -62,7 +62,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Z-Achsen ausgleichen");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Bett ausrichten"); // Bettausrichtung
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("XYZ homen");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Klick zum Starten");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Nächste Koordinate");
@@ -70,7 +69,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("Ausblendhöhe");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Setze Homeversatz");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Homeversatz aktiv");
-  PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
+  PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in marlinui.cpp
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
@@ -92,12 +91,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Abkühlen");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequenz");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser aus");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser an");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laserleistung");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindel-Steuerung");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindel aus");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindel an");
   PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindelleistung");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindelrichtung");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Netzteil ein");
@@ -107,7 +102,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Achsen bewegen");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bett-Nivellierung");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Bett nivellieren");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Ecken nivellieren");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Bett ausrichten");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Nächste Ecke");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Netz Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Netz bearbeiten");
@@ -116,7 +111,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z-Wert");
-  PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Benutzer-Menü");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Benutzer-Menü");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Sondentest");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punkt");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Zu weit draußen");
@@ -234,10 +229,11 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Bewege Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Bewege Extruder *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend zu kalt");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT(" %s mm");
-  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT(" 0,1   mm");
-  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT(" 1,0   mm");
-  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("10,0   mm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT(" %s mm");
+  PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("  0,1  mm");
+  PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("  1,0  mm");
+  PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT(" 10,0  mm");
+  PROGMEM Language_Str MSG_MOVE_100MM                      = _UxGT("100,0  mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Geschw.");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bett Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Düse");
@@ -271,16 +267,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_PID_BAD_EXTRUDER_NUM            = _UxGT("Autotune fehlge. Falscher Extruder");
   PROGMEM Language_Str MSG_PID_TEMP_TOO_HIGH               = _UxGT("Autotune fehlge. Temperatur zu hoch.");
   PROGMEM Language_Str MSG_PID_TIMEOUT                     = _UxGT("Autotune fehlge.! Timeout.");
-  PROGMEM Language_Str MSG_PID_P                           = _UxGT("PID-P");
-  PROGMEM Language_Str MSG_PID_P_E                         = _UxGT("PID-P *");
-  PROGMEM Language_Str MSG_PID_I                           = _UxGT("PID-I");
-  PROGMEM Language_Str MSG_PID_I_E                         = _UxGT("PID-I *");
-  PROGMEM Language_Str MSG_PID_D                           = _UxGT("PID-D");
-  PROGMEM Language_Str MSG_PID_D_E                         = _UxGT("PID-D *");
-  PROGMEM Language_Str MSG_PID_C                           = _UxGT("PID-C");
-  PROGMEM Language_Str MSG_PID_C_E                         = _UxGT("PID-C *");
-  PROGMEM Language_Str MSG_PID_F                           = _UxGT("PID-F");
-  PROGMEM Language_Str MSG_PID_F_E                         = _UxGT("PID-F *");
   PROGMEM Language_Str MSG_SELECT                          = _UxGT("Auswählen");
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Auswählen *");
   PROGMEM Language_Str MSG_ACC                             = _UxGT("Beschleunigung");
@@ -318,8 +304,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatur");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Bewegung");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E Limit *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Filamentdurchmesser");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Filamentdurchmesser *");
