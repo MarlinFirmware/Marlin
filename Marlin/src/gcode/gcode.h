@@ -862,6 +862,7 @@ private:
       static void M281();
       static void M281_report(const bool forReplay=true);
     #endif
+    static void M282();
   #endif
 
   #if ENABLED(BABYSTEPPING)
