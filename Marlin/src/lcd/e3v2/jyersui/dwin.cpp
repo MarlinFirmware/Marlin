@@ -4757,11 +4757,13 @@ void CrealityDWINClass::Start_Print(bool sd) {
     printing = true;
     statusmsg[0] = '\0';
     if (sd) {
-      if (recovery.valid()) {
-        SdFile *diveDir = nullptr;
-        const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
-        card.selectFileByName(fname);
-      }
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        if (recovery.valid()) {
+          SdFile *diveDir = nullptr;
+          const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
+          card.selectFileByName(fname);
+        }
+      #endif
       strcpy_P(filename, card.longest_filename());
     }
     else
@@ -4801,7 +4803,7 @@ void MarlinUI::update() { CrealityDWIN.Update(); }
 
 void CrealityDWINClass::State_Update() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
-    if (!printing) Start_Print((card.isFileOpen() || recovery.valid()));
+    if (!printing) Start_Print(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
     else Stop_Print();
   }
   if (print_job_timer.isPaused() != paused) {
