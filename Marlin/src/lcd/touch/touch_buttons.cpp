@@ -71,8 +71,10 @@ uint8_t TouchButtons::read_buttons() {
     #if TOUCH_IDLE_SLEEP > 0
       if (is_touched) {
         wakeUp();
-      } else if (last_touch_ms != TSLP_SLEEPING && (millis() - last_touch_ms) > (TOUCH_IDLE_SLEEP*1000))
-        sleepTimeout();
+      } else if (last_touch_ms != TSLP_SLEEPING && (millis() - last_touch_ms) > (TOUCH_IDLE_SLEEP*1000)) {
+        if (ui.on_status_screen())
+          sleepTimeout();
+      }
     #endif
     if (!is_touched) return 0;
 

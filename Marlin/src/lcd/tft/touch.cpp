@@ -280,8 +280,10 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   #if TOUCH_IDLE_SLEEP > 0
     if (is_touched) {
       wakeUp();
-    } else if (last_touched_ms != TSLP_SLEEPING && (millis() - last_touched_ms) > (TOUCH_IDLE_SLEEP*1000))
-      sleepTimeout();
+    } else if (last_touched_ms != TSLP_SLEEPING && (millis() - last_touched_ms) > (TOUCH_IDLE_SLEEP*1000)) {
+      if (ui.on_status_screen())
+        sleepTimeout();
+    }
   #endif
   return is_touched;
 }
