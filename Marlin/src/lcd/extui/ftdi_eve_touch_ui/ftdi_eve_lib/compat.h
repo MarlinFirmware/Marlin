@@ -296,3 +296,7 @@
   #endif
 
 #endif // !__MARLIN_FIRMWARE__
+
+#ifndef SD_SPI_SPEED
+  #define SD_SPI_SPEED SPI_FULL_SPEED
+#endif
