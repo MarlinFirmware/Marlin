@@ -198,4 +198,99 @@ void GcodeSuite::M906() {
   }
 }
 
+void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
+  report_heading(forReplay, PSTR(STR_STEPPER_DRIVER_CURRENT));
+
+  auto say_M906 = [](const bool forReplay) {
+    report_echo_start(forReplay);
+    SERIAL_ECHOPGM("  M906");
+  };
+
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
+    say_M906(forReplay);
+    #if AXIS_IS_TMC(X)
+      SERIAL_ECHOPGM_P(SP_X_STR, stepperX.getMilliamps());
+    #endif
+    #if AXIS_IS_TMC(Y)
+      SERIAL_ECHOPGM_P(SP_Y_STR, stepperY.getMilliamps());
+    #endif
+    #if AXIS_IS_TMC(Z)
+      SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ.getMilliamps());
+    #endif
+    SERIAL_EOL();
+  #endif
+
+  #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
+    say_M906(forReplay);
+    SERIAL_ECHOPGM(" I1");
+    #if AXIS_IS_TMC(X2)
+      SERIAL_ECHOPGM_P(SP_X_STR, stepperX2.getMilliamps());
+    #endif
+    #if AXIS_IS_TMC(Y2)
+      SERIAL_ECHOPGM_P(SP_Y_STR, stepperY2.getMilliamps());
+    #endif
+    #if AXIS_IS_TMC(Z2)
+      SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ2.getMilliamps());
+    #endif
+    SERIAL_EOL();
+  #endif
+
+  #if AXIS_IS_TMC(Z3)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" I2 Z", stepperZ3.getMilliamps());
+  #endif
+
+  #if AXIS_IS_TMC(Z4)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" I3 Z", stepperZ4.getMilliamps());
+  #endif
+
+  #if AXIS_IS_TMC(I)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_I_STR, stepperI.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(J)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_J_STR, stepperJ.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(K)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.getMilliamps());
+  #endif
+
+  #if AXIS_IS_TMC(E0)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T0 E", stepperE0.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(E1)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T1 E", stepperE1.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(E2)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T2 E", stepperE2.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(E3)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T3 E", stepperE3.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(E4)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T4 E", stepperE4.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(E5)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T5 E", stepperE5.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(E6)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T6 E", stepperE6.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(E7)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM(" T7 E", stepperE7.getMilliamps());
+  #endif
+  SERIAL_EOL();
+}
+
 #endif // HAS_TRINAMIC_CONFIG

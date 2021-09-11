@@ -55,9 +55,15 @@
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
   #include "../feature/pause.h"
   #include "../module/motion.h" // for active_extruder
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "e3v2/creality/dwin.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "e3v2/enhanced/dwin.h"
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
@@ -76,8 +82,6 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
-
   #if HAS_LCD_MENU
 
     #include "lcdprint.h"
@@ -94,6 +98,10 @@
   #endif // HAS_LCD_MENU
 
 #endif // HAS_WIRED_LCD
+
+#if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
+#endif
 
 #if HAS_MARLINUI_U8GLIB
   enum MarlinFont : uint8_t {
@@ -255,7 +263,7 @@ public:
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
-  #if ENABLED(DWIN_CREALITY_LCD)
+  #if HAS_DWIN_E3V2_BASIC
     static void refresh();
   #else
     FORCE_INLINE static void refresh() {
@@ -313,7 +321,7 @@ public:
 
   #if HAS_STATUS_MESSAGE
 
-    #if HAS_WIRED_LCD
+    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
       #else
@@ -349,6 +357,12 @@ public:
     static inline void reset_alert_level() {}
   #endif
 
+  #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
+    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
+  #else
+    static inline void kill_screen(PGM_P const, PGM_P const) {}
+  #endif
+
   #if HAS_DISPLAY
 
     static void init();
@@ -361,6 +375,10 @@ public:
 
     #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
       static void poweroff();
+    #endif
+
+    #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
+      static bool get_blink();
     #endif
 
     #if HAS_WIRED_LCD
@@ -451,8 +469,6 @@ public:
       static bool did_first_redraw;
     #endif
 
-    static bool get_blink();
-    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
     static void draw_kill_screen();
 
   #else // No LCD
@@ -580,7 +596,7 @@ public:
     static inline bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}

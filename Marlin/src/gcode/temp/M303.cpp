@@ -30,6 +30,8 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 /**
@@ -71,6 +73,7 @@ void GcodeSuite::M303() {
     default:
       SERIAL_ECHOLNPGM(STR_PID_BAD_HEATER_ID);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_PidTuning(PID_BAD_EXTRUDER_NUM));
       return;
   }
 

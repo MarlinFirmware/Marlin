@@ -179,7 +179,7 @@ void GcodeSuite::D(const int16_t dcode) {
       break;
 
     case 7: // D7 dump the current serial port type (hence configuration)
-      SERIAL_ECHOLNPAIR("Current serial configuration RX_BS:", RX_BUFFER_SIZE, ", TX_BS:", TX_BUFFER_SIZE);
+      SERIAL_ECHOLNPGM("Current serial configuration RX_BS:", RX_BUFFER_SIZE, ", TX_BS:", TX_BUFFER_SIZE);
       SERIAL_ECHOLN(gtn(&SERIAL_IMPL));
       break;
 
@@ -202,7 +202,7 @@ void GcodeSuite::D(const int16_t dcode) {
       case 101: { // D101 Test SD Write
         card.openFileWrite("test.gco");
         if (!card.isFileOpen()) {
-          SERIAL_ECHOLNPAIR("Failed to open test.gco to write.");
+          SERIAL_ECHOLNPGM("Failed to open test.gco to write.");
           return;
         }
         __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
@@ -224,7 +224,7 @@ void GcodeSuite::D(const int16_t dcode) {
         char testfile[] = "test.gco";
         card.openFileRead(testfile);
         if (!card.isFileOpen()) {
-          SERIAL_ECHOLNPAIR("Failed to open test.gco to read.");
+          SERIAL_ECHOLNPGM("Failed to open test.gco to read.");
           return;
         }
         __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];

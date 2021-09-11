@@ -106,19 +106,19 @@ void GcodeSuite::G35() {
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOPAIR("G35 failed at point ", i + 1, " (");
+      SERIAL_ECHOPGM("G35 failed at point ", i + 1, " (");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       SERIAL_CHAR(')');
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
+      SERIAL_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y);
       err_break = true;
       break;
     }
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOPAIR("Probing point ", i + 1, " (");
+      DEBUG_ECHOPGM("Probing point ", i + 1, " (");
       DEBUG_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
       DEBUG_CHAR(')');
-      DEBUG_ECHOLNPAIR_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
+      DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }
 
     z_measured[i] = z_probed_height;
@@ -138,9 +138,9 @@ void GcodeSuite::G35() {
 
       SERIAL_ECHOPGM("Turn ");
       SERIAL_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
-      SERIAL_ECHOPAIR(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
-      if (minutes) SERIAL_ECHOPAIR(" and ", ABS(minutes), " minutes");
-      if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPAIR(" (", -diff, "mm)");
+      SERIAL_ECHOPGM(" ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW", " by ", ABS(full_turns), " turns");
+      if (minutes) SERIAL_ECHOPGM(" and ", ABS(minutes), " minutes");
+      if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPGM(" (", -diff, "mm)");
       SERIAL_EOL();
     }
   }

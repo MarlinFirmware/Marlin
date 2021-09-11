@@ -77,10 +77,10 @@ void TouchCalibration::validate_calibration() {
 
   if (calibration_state == CALIBRATION_SUCCESS) {
     SERIAL_ECHOLNPGM("Touch screen calibration completed");
-    SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_X ", calibration.x);
-    SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_Y ", calibration.y);
-    SERIAL_ECHOLNPAIR("TOUCH_OFFSET_X ", calibration.offset_x);
-    SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
+    SERIAL_ECHOLNPGM("TOUCH_CALIBRATION_X ", calibration.x);
+    SERIAL_ECHOLNPGM("TOUCH_CALIBRATION_Y ", calibration.y);
+    SERIAL_ECHOLNPGM("TOUCH_OFFSET_X ", calibration.offset_x);
+    SERIAL_ECHOLNPGM("TOUCH_OFFSET_Y ", calibration.offset_y);
     SERIAL_ECHO_TERNARY(calibration.orientation == TOUCH_LANDSCAPE, "TOUCH_ORIENTATION ", "TOUCH_LANDSCAPE", "TOUCH_PORTRAIT", "\n");
     TERN_(TOUCH_CALIBRATION_AUTO_SAVE, settings.save());
   }
@@ -95,7 +95,7 @@ bool TouchCalibration::handleTouch(uint16_t x, uint16_t y) {
   if (calibration_state < CALIBRATION_SUCCESS) {
     calibration_points[calibration_state].raw_x = x;
     calibration_points[calibration_state].raw_y = y;
-    DEBUG_ECHOLNPAIR("TouchCalibration - State: ", calibration_state, ", x: ", calibration_points[calibration_state].x, ", raw_x: ", x, ", y: ", calibration_points[calibration_state].y, ", raw_y: ", y);
+    DEBUG_ECHOLNPGM("TouchCalibration - State: ", calibration_state, ", x: ", calibration_points[calibration_state].x, ", raw_x: ", x, ", y: ", calibration_points[calibration_state].y, ", raw_y: ", y);
   }
 
   switch (calibration_state) {
