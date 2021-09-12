@@ -247,14 +247,11 @@ uint8_t SpindleLaser::get_ocr_power(){ return ocr_power; }
 #if ENABLED(SPINDLE_CHANGE_DIR)
   /**
    * Set the spindle direction and apply immediately
-   * Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
+   * ! deprecate and need delete
+   * @param reverse If True is SPINDLE_DIR_CCW, false is SPINDLE_DIR_CW
    */
   void SpindleLaser::set_reverse(const bool reverse) {
-    // deprecate and need delete
-    ocr_set_power(ocr_power, SPINDLE_DIR_CCW);
-    // const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
-    // if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
-    // WRITE(SPINDLE_DIR_PIN, dir_state);
+    ocr_set_power(ocr_power, reverse ? SPINDLE_DIR_CCW : SPINDLE_DIR_CW);
   }
 #endif
 

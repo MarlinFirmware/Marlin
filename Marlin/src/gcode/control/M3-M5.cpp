@@ -103,19 +103,20 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #endif
 
   planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
-  cutter.set_reverse(is_M4);
+  
+  uint8_t dir_value = is_M4 ? SPINDLE_DIR_CCW : SPINDLE_DIR_CW;
 
   #if ENABLED(SPINDLE_LASER_PWM)
     if (parser.seenval('O')) {
       cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
-      cutter.ocr_set_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+      cutter.ocr_set_power(cutter.unitPower, dir_value); // The OCR is a value from 0 to 255 (uint8_t)
     }
     else
-      cutter.ocr_set_power(get_s_power());
+      cutter.ocr_set_power(get_s_power(), dir_value);
   #elif ENABLED(SPINDLE_SERVO)
     cutter.ocr_set_power(get_s_power());
   #else
-    cutter.set_enabled(true);
+    cutter.set_enabled(true, dir_value);
   #endif
   cutter.menuPower = cutter.unitPower;
 }

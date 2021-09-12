@@ -218,8 +218,9 @@ public:
   /**
    * Enable/Disable spindle/laser
    * @param enable true = enable; false = disable
+   * @param odir   Direction spindle (default SPINDLE_DIR_CURRENT)
    */
-  static inline void set_enabled(const bool enable) {
+  static inline void set_enabled(const bool enable, uint8_t odir = SPINDLE_DIR_CURRENT) {
     uint8_t opwr = 0;
     if (enable) {
       #if ENABLED(SPINDLE_LASER_PWM)
@@ -232,7 +233,7 @@ public:
       #endif
     }
     // ???
-    ocr_set_power(opwr, dir, enable);
+    ocr_set_power(opwr, odir, enable);
   }
 
   static inline void disable() { isReady = false; set_enabled(false); }
