@@ -92,7 +92,7 @@ bool DWIN_Handshake(void) {
   #endif
   LCD_SERIAL.begin(LCD_BAUDRATE);
   const millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!LCD_SERIAL && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   size_t i = 0;
   DWIN_Byte(i, 0x00);
