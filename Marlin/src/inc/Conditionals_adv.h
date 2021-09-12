@@ -655,6 +655,9 @@
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
+  #if ENABLED(SPINDLE_LASER_PWM) && PINS_EXIST(SPINDLE_LASER_ENA, SPINDLE_LASER_PWM)
+    #define HAS_CUTTER_PWM_AND_ENA 1
+  #endif
 #endif
 
 // Add features that need hardware PWM here

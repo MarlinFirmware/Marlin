@@ -170,13 +170,7 @@ void SpindleLaser::_change_hw(const bool ena_pin_on) {
 void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir/*=SPINDLE_DIR_CURRENT*/, const bool ena_pin_on/*=true*/) {
   const uint8_t dir_value = TERN(SPINDLE_CHANGE_DIR, (odir == SPINDLE_DIR_CURRENT) ? spindle_dir : odir, SPINDLE_DIR_CW);
 
-  const bool ena_pin_on_value = (
-    #if BOTH(SPINDLE_LASER_PWM, SPINDLE_LASER_PWM_SEPARATE_PIN)
-      ena_pin_on
-    #else
-      opwr > 0
-    #endif
-  );
+  const bool ena_pin_on_value = TERN(HAS_CUTTER_PWM_AND_ENA, ena_pin_on, opwr > 0);
 
   switch (get_event(opwr, dir_value, ena_pin_on_value)) {
     // Already ON and staying ON
