@@ -3330,9 +3330,9 @@
   #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
 
   /**
-   * Control ENA_PIN in mode PWM.
-   * If defined ENA_PIN can be disabled throught M5 only.
-   * If it isn't defined when call M3 S0 ENA_PIN will be disable.
+   * Control ENA_PIN in PWM mode.
+   * If defined the ENA_PIN is disabled only by 'M5'.
+   * If not defined 'M3 S0' disables the ENA_PIN.
    */
   //#define SPINDLE_LASER_PWM_SEPARATE_PIN
 

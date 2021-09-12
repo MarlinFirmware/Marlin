@@ -49,26 +49,22 @@
 #define SPINDLE_DIR_CW 1
 #define SPINDLE_DIR_CCW 2
 
-// TO - transition event (example: TO_<state> - from any to <state>)
-enum SpindleLaserEvent : uint8_t {
-  ON_CW = 1,          // 0000 0001  event, state
-  ON_CCW = 2,         // 0000 0010  event, state
-  OFF = 4,            // 0000 0100  event, state
-  TO_ON_CW = 17,      // 0001 0001  event
-  TO_ON_CCW = 34,     // 0010 0010  event
-  TO_OFF = 52,        // 0011 0100  event
-  TO_ON_ON_CW = 65,   // 0100 0001  event
-  TO_ON_ON_CCW = 82   // 0101 0010  event
+// Current ON/OFF state and transitions for get_event
+enum CutterState : uint8_t {
+  STAY_OFF = 0,
+  STAY_ON,
+  STAY_ON_REV,
+  TURN_ON,
+  TURN_OFF
 };
-
 
 // #define _MAP(N,S1,S2,D1,D2) ((N)*_MAX((D2)-(D1),0)/_MAX((S2)-(S1),1)+(D1))
 
 class SpindleLaser {
 private:
-  static uint8_t dir;                     // Direction spindle
-  static uint8_t ocr_power;               // Value for PWM out
-  static SpindleLaserEvent state;         // Current state
+  static uint8_t spindle_dir;       // Spindle direction
+  static uint8_t ocr_power;         // Value for PWM out
+  static CutterState state;         // Current state
 
 public:
   static constexpr float
@@ -136,7 +132,7 @@ public:
 private:
   static void ena_pin_set(const bool enable);
   static void _change_hw(const bool ena_pin_on);
-  static SpindleLaserEvent get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on);
+  static CutterState get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on);
 
   #if ENABLED(SPINDLE_CHANGE_DIR)
     static void dir_pin_set();
@@ -150,16 +146,15 @@ private:
 
 public:
   static void init();
-  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CURRENT, const bool ena_pin_on = true);
+  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CURRENT, const bool ena_pin_on=true);
   static uint8_t get_ocr_power();
 
   /**
    * Return state laser/spindle; true if enable.
    */
-  static inline bool enabled() { return !(state == SpindleLaserEvent::OFF); }
+  static inline bool enabled() { return state != CutterState::STAY_OFF; }
 
   FORCE_INLINE static void refresh() {}
-  // { ocr_set_power(ocr_power); }
 
   #if ENABLED(SPINDLE_LASER_PWM)
     /**
@@ -220,7 +215,7 @@ public:
    * @param enable true = enable; false = disable
    * @param odir   Direction spindle (default SPINDLE_DIR_CURRENT)
    */
-  static inline void set_enabled(const bool enable, uint8_t odir = SPINDLE_DIR_CURRENT) {
+  static inline void set_enabled(const bool enable, uint8_t odir=SPINDLE_DIR_CURRENT) {
     uint8_t opwr = 0;
     if (enable) {
       #if ENABLED(SPINDLE_LASER_PWM)
@@ -232,7 +227,6 @@ public:
         opwr = 255;
       #endif
     }
-    // ???
     ocr_set_power(opwr, odir, enable);
   }
 
