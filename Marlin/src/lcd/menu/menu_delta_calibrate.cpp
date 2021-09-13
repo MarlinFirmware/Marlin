@@ -88,8 +88,9 @@ void _man_probe_pt(const xy_pos_t &xy) {
   }
 
   void _goto_tower_a(const_float_t a) {
+    constexpr float dcr = DELTA_PRINTABLE_RADIUS;
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
-    _man_probe_pt(tower_vec * delta_calibration_radius());
+    _man_probe_pt(tower_vec * dcr);
   }
   void _goto_tower_x() { _goto_tower_a(210); }
   void _goto_tower_y() { _goto_tower_a(330); }
