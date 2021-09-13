@@ -67,7 +67,7 @@ void SpindleLaser::init() {
     SET_OUTPUT(SPINDLE_DIR_PIN);
     dir_pin_set();
   #endif
-  #if ENABLED(SPINDLE_LASER_PWM)
+  #if ENABLED(SPINDLE_LASER_USE_PWM)
     SET_PWM(SPINDLE_LASER_PWM_PIN);
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
   #endif
@@ -86,7 +86,7 @@ void SpindleLaser::init() {
   #endif
 }
 
-#if ENABLED(SPINDLE_LASER_PWM)
+#if ENABLED(SPINDLE_LASER_USE_PWM)
   /**
    * Set the cutter PWM directly to the given ocr value
    *
@@ -101,7 +101,7 @@ void SpindleLaser::init() {
     #endif
   }
 
-#endif // SPINDLE_LASER_PWM
+#endif // SPINDLE_LASER_USE_PWM
 
 /**
  * Set state for pin spindle/laser
@@ -149,11 +149,11 @@ CutterState SpindleLaser::get_event(const uint8_t opwr, const uint8_t odir, cons
  * Change hardware state
  */
 void SpindleLaser::_change_hw(const bool ena_pin_on) {
-  TERN_(SPINDLE_LASER_PWM, ocr_set(ocr_power));
+  TERN_(SPINDLE_LASER_USE_PWM, ocr_set(ocr_power));
 
   TERN(SPINDLE_SERVO, MOVE_SERVO(SPINDLE_SERVO_NR, ocr_power), ena_pin_set(ena_pin_on));
 
-  #if ENABLED(SPINDLE_LASER_PWM) || DISABLED(SPINDLE_SERVO)
+  #if ENABLED(SPINDLE_LASER_USE_PWM) || DISABLED(SPINDLE_SERVO)
     isReady = ena_pin_on; // This is a hack. isReady state and ena_pin_on are equivalent.
   #endif
 }
