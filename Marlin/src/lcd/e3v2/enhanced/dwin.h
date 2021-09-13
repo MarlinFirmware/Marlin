@@ -196,7 +196,9 @@ void DWIN_StatusChanged(const char * const text);
 void DWIN_StatusChanged_P(PGM_P const text);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
-TERN_(MESH_BED_LEVELING, void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval));
+#if HAS_MESH
+  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
+#endif
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);

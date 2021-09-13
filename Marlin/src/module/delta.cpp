@@ -83,28 +83,6 @@ void recalc_delta_settings() {
 }
 
 /**
- * Get a safe radius for calibration
- */
-
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-
-  #if ENABLED(DELTA_AUTO_CALIBRATION)
-    float calibration_radius_factor = 1;
-  #endif
-
-  float delta_calibration_radius() {
-    return calibration_radius_factor * (
-      #if HAS_BED_PROBE
-        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), PROBING_MARGIN))
-      #else
-        DELTA_PRINTABLE_RADIUS
-      #endif
-    );
-  }
-
-#endif
-
-/**
  * Delta Inverse Kinematics
  *
  * Calculate the tower positions for a given machine
@@ -254,7 +232,7 @@ void home_delta() {
   current_position.z = DIFF_TERN(HAS_BED_PROBE, delta_height + 10, probe.offset.z);
   line_to_current_position(homing_feedrate(Z_AXIS));
   planner.synchronize();
-  TERN_(SENSORLESS_PROBING,endstops.report_states());
+  TERN_(HAS_DELTA_SENSORLESS_PROBING, endstops.report_states());
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)

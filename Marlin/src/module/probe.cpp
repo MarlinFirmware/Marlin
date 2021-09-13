@@ -141,7 +141,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       ui.return_to_status();
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI"), CONTINUE_STR));
-      wait_for_user_response();
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
 
@@ -298,7 +298,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
       TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, PSTR("Stow Probe"), CONTINUE_STR));
-      wait_for_user_response();
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
 
     } while (ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED));
@@ -493,7 +493,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
-    #if ENABLED(DELTA)
+    #if HAS_DELTA_SENSORLESS_PROBING
       if (probe.test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
       if (probe.test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
@@ -509,7 +509,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
 
   // Check to see if the probe was triggered
   const bool probe_triggered =
-    #if BOTH(DELTA, SENSORLESS_PROBING)
+    #if HAS_DELTA_SENSORLESS_PROBING
       endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX))
     #else
       TEST(endstops.trigger_state(), Z_MIN_PROBE)
@@ -521,7 +521,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
     endstops.not_homing();
-    #if ENABLED(DELTA)
+    #if HAS_DELTA_SENSORLESS_PROBING
       if (probe.test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
       if (probe.test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
@@ -765,7 +765,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   #endif
 
   // On delta keep Z below clip height or do_blocking_move_to will abort
-  xyz_pos_t npos = { rx, ry, _MIN(TERN(DELTA, delta_clip_start_height, current_position.z), current_position.z) };
+  xyz_pos_t npos = { rx, ry, TERN(DELTA, _MIN(delta_clip_start_height, current_position.z), current_position.z) };
   if (probe_relative) {                                     // The given position is in terms of the probe
     if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
@@ -827,7 +827,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
    */
   void Probe::enable_stallguard_diag1() {
     #if ENABLED(SENSORLESS_PROBING)
-      #if ENABLED(DELTA)
+      #if HAS_DELTA_SENSORLESS_PROBING
         stealth_states.x = tmc_enable_stallguard(stepperX);
         stealth_states.y = tmc_enable_stallguard(stepperY);
       #endif
@@ -842,7 +842,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   void Probe::disable_stallguard_diag1() {
     #if ENABLED(SENSORLESS_PROBING)
       endstops.not_homing();
-      #if ENABLED(DELTA)
+      #if HAS_DELTA_SENSORLESS_PROBING
         tmc_disable_stallguard(stepperX, stealth_states.x);
         tmc_disable_stallguard(stepperY, stealth_states.y);
       #endif
@@ -907,6 +907,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     #endif
   }
 
-#endif // SENSORLESS_PROBING
+#endif // SENSORLESS_PROBING || SENSORLESS_HOMING
 
 #endif // HAS_BED_PROBE
