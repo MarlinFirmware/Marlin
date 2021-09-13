@@ -67,11 +67,10 @@
 #define E0_DIAG_PIN                         PC4
 #define E1_DIAG_PIN                         PE7
 
-//
-#define X_STOP_PIN                          PA15
-#define Y_STOP_PIN                          PD2
-#define Z_MIN_PIN                           PC8
-#define Z_MAX_PIN                           PC4
+#define X_STOP_PIN                    X_DIAG_PIN
+#define Y_STOP_PIN                    Y_DIAG_PIN
+#define Z_MIN_PIN                     Z_DIAG_PIN
+#define Z_MAX_PIN                    E0_DIAG_PIN
 
 //
 // Steppers
