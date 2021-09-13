@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,7 +30,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Nano V1.3 supports up to 2 hotends / E-steppers."
+  #error "MKS Robin Nano V1.3 F4 supports up to 2 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin Nano V1.3"
@@ -44,7 +44,7 @@
 // EEPROM
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
-#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
+#define FLASH_EEPROM_EMULATION                    // Use Flash-based EEPROM emulation
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
@@ -176,7 +176,7 @@
 //
 #define BEEPER_PIN                          PC5
 
-#define SPI_DEVICE                            2
+#define SPI_DEVICE                             2
 
 //
 // TFT with FSMC interface
