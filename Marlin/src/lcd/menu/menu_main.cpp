@@ -118,8 +118,8 @@ void menu_configuration();
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
-    #ifdef MAIN_MENU_ITEM_SCRIPT_DONE
-      #define _DONE_SCRIPT "\n" MAIN_MENU_ITEM_SCRIPT_DONE
+    #ifdef CUSTOM_MENU_MAIN_SCRIPT_DONE
+      #define _DONE_SCRIPT "\n" CUSTOM_MENU_MAIN_SCRIPT_DONE
     #else
       #define _DONE_SCRIPT ""
     #endif
