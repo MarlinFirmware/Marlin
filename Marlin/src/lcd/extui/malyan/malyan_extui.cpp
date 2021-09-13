@@ -106,7 +106,7 @@ namespace ExtUI {
 
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      //SERIAL_ECHOLNPGM("OnPidTuning:", rst);
       switch (rst) {
         case PID_STARTED:
           set_lcd_error_P(GET_TEXT(MSG_PID_AUTOTUNE));

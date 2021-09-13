@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,33 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../inc/MarlinConfig.h"
-
-#if HAS_MULTI_LANGUAGE
-
-#include "../gcode.h"
-#include "../../MarlinCore.h"
-#include "../../lcd/marlinui.h"
+#pragma once
 
 /**
- * M414: Set the language for the UI
- *
- * Parameters
- *  S<index> : The language to select
+ * MKS Robin nano V1.3 (STM32F407VET6) board pin assignments
+ * https://github.com/makerbase-mks/MKS-Robin-Nano-V1.X/tree/master/hardware
  */
-void GcodeSuite::M414() {
 
-  if (parser.seenval('S'))
-    ui.set_language(parser.value_byte());
-  else
-    M414_report();
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
 
-}
+#define BOARD_INFO_NAME "MKS Robin Nano V1.3"
 
-void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_UI_LANGUAGE));
-  SERIAL_ECHOLNPGM("  M414 S", ui.language);
-}
+//
+// EEPROM
+// Use one of these or SDCard-based Emulation will be used
+//
+#if NO_EEPROM_SELECTED
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
+#endif
 
-#endif // HAS_MULTI_LANGUAGE
+#define LED_PIN                             PB1
+
+#include "../stm32f1/pins_MKS_ROBIN_NANO_common.h"

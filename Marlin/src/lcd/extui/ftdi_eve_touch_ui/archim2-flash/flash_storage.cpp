@@ -178,9 +178,9 @@ bool UIFlashStorage::is_present = false;
 
     if (!is_known) {
       SERIAL_ECHO_MSG("Unable to locate supported SPI Flash Memory.");
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Manufacturer ID, got: ", manufacturer_id);
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Device Type    , got: ", device_type);
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Capacity       , got: ", capacity);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("  Manufacturer ID, got: ", manufacturer_id);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("  Device Type    , got: ", device_type);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("  Capacity       , got: ", capacity);
     }
 
     return is_known;
@@ -247,7 +247,7 @@ bool UIFlashStorage::is_present = false;
         case 0xFFFFFFFFul: return read_offset;
         case delimiter:    read_offset = offset; break;
         default:
-          SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("Invalid delimiter in Flash: ", delim);
+          SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Invalid delimiter in Flash: ", delim);
           return -1;
       }
     }
@@ -325,7 +325,7 @@ bool UIFlashStorage::is_present = false;
     }
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("Writing UI settings to SPI Flash (offset ", write_addr);
+    SERIAL_ECHOPGM("Writing UI settings to SPI Flash (offset ", write_addr);
     SERIAL_ECHOPGM(")...");
 
     const uint32_t delim = delimiter;
@@ -509,7 +509,7 @@ bool UIFlashStorage::is_present = false;
 
     bytes_remaining = get_media_file_size(slot);
     if (bytes_remaining != 0xFFFFFFFFUL) {
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("Boot media file size:", bytes_remaining);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Boot media file size:", bytes_remaining);
       addr = get_media_file_start(slot);
       return true;
     }

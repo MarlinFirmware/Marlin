@@ -224,28 +224,28 @@
 #endif
 
 //
-// Case Light
+// M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
+#if EITHER(SPINDLE_FEATURE, LASER_FEATURE) && !PIN_EXISTS(SPINDLE_LASER_ENA)
   #if !NUM_SERVOS                                 // Prefer the servo connector
-    #define CASE_LIGHT_PIN                     6  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+    #define SPINDLE_DIR_PIN                    5
   #elif HAS_FREE_AUX2_PINS                        // Try to use AUX 2
-    #define CASE_LIGHT_PIN                    44  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_DIR_PIN                   65
   #endif
 #endif
 
 //
-// M3/M4/M5 - Spindle/Laser Control
+// Case Light
 //
-#if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
+#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENA_PIN)
   #if !NUM_SERVOS                                 // Prefer the servo connector
-    #define SPINDLE_LASER_ENABLE_PIN           4  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
-    #define SPINDLE_DIR_PIN                    5
+    #define CASE_LIGHT_PIN                     6  // Hardware PWM
   #elif HAS_FREE_AUX2_PINS                        // Try to use AUX 2
-    #define SPINDLE_LASER_ENABLE_PIN          40  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
-    #define SPINDLE_DIR_PIN                   65
+    #define CASE_LIGHT_PIN                    44  // Hardware PWM
   #endif
 #endif
 
