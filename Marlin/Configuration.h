@@ -2946,3 +2946,6 @@
 
 // Edit servo angles with M281 and save to EEPROM with M500
 //#define EDITABLE_SERVO_ANGLES
+
+// Disable servo with M282 to reduce power consumption, noise and heat when not necessary
+//#define SERVOS_CAN_BE_DISABLED

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS
+#if HAS_SERVOS && ENABLED(SERVOS_CAN_BE_DISABLED)
 
 #include "../gcode.h"
 #include "../../module/servo.h"
@@ -39,8 +39,8 @@ void GcodeSuite::M282() {
     DETACH_SERVO(servo_index);
   }
   else
-    SERIAL_ERROR_MSG("Servo ", servo_index, " out of range");
+    SERIAL_ECHO("Servo ", servo_index, " out of range");
 
 }
 
-#endif // HAS_SERVOS
+#endif // HAS_SERVOS && SERVOS_CAN_BE_DISABLED
