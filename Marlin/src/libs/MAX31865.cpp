@@ -160,7 +160,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   clearFault();
 
   #ifdef MAX31865_DEBUG_SPI
-    SERIAL_ECHOLNPAIR(
+    SERIAL_ECHOLNPGM(
       TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular")
       " begin call with _cs: ", _cs,
       " _miso: ", _miso,
@@ -264,7 +264,7 @@ uint16_t MAX31865::readRaw() {
   uint16_t rtd = readRegister16(MAX31856_RTDMSB_REG);
 
   #ifdef MAX31865_DEBUG
-    SERIAL_ECHOLNPAIR("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
+    SERIAL_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
   #endif
 
   // Disable the bias to lower power dissipation between reads.
@@ -410,7 +410,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   while (n--) {
     buffer[0] = spixfer(0xFF);
     #ifdef MAX31865_DEBUG_SPI
-      SERIAL_ECHOLNPAIR("buffer read ", n, " data: ", buffer[0]);
+      SERIAL_ECHOLNPGM("buffer read ", n, " data: ", buffer[0]);
     #endif
     buffer++;
   }

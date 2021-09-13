@@ -195,7 +195,7 @@ inline void report_more_positions() {
 // Report the logical position for a given machine position
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
-  SERIAL_ECHOPAIR_P(
+  SERIAL_ECHOPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES),
          X_LBL, lpos.x,
       SP_Y_LBL, lpos.y,
@@ -257,7 +257,7 @@ void report_current_position_projected() {
   /**
    * Output the current grbl compatible state to serial while moving
    */
-  void report_current_grblstate_moving() { SERIAL_ECHOLNPAIR("S_XYZ:", int(M_State_grbl)); }
+  void report_current_grblstate_moving() { SERIAL_ECHOLNPGM("S_XYZ:", int(M_State_grbl)); }
 
   /**
    * Output the current position (processed) to serial while moving
@@ -266,7 +266,7 @@ void report_current_position_projected() {
 
     get_cartesian_from_steppers();
     const xyz_pos_t lpos = cartes.asLogical();
-    SERIAL_ECHOPAIR(
+    SERIAL_ECHOPGM(
       "X:", lpos.x
       #if HAS_Y_AXIS
         , " Y:", lpos.y
@@ -774,7 +774,7 @@ void restore_feedrate_and_scaling() {
     #endif
 
     if (DEBUGGING(LEVELING))
-      SERIAL_ECHOLNPAIR("Axis ", AS_CHAR(AXIS_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
+      SERIAL_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
   }
 
   /**
@@ -969,10 +969,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     #endif
 
     /*
-    SERIAL_ECHOPAIR("mm=", cartesian_mm);
-    SERIAL_ECHOPAIR(" seconds=", seconds);
-    SERIAL_ECHOPAIR(" segments=", segments);
-    SERIAL_ECHOPAIR(" segment_mm=", cartesian_segment_mm);
+    SERIAL_ECHOPGM("mm=", cartesian_mm);
+    SERIAL_ECHOPGM(" seconds=", seconds);
+    SERIAL_ECHOPGM(" segments=", segments);
+    SERIAL_ECHOPGM(" segment_mm=", cartesian_segment_mm);
     SERIAL_EOL();
     //*/
 
@@ -1035,9 +1035,9 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         const float inv_duration = scaled_fr_mm_s / cartesian_segment_mm;
       #endif
 
-      // SERIAL_ECHOPAIR("mm=", cartesian_mm);
-      // SERIAL_ECHOLNPAIR(" segments=", segments);
-      // SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
+      //SERIAL_ECHOPGM("mm=", cartesian_mm);
+      //SERIAL_ECHOLNPGM(" segments=", segments);
+      //SERIAL_ECHOLNPGM(" segment_mm=", cartesian_segment_mm);
 
       // Get the raw current position as starting point
       xyze_pos_t raw = current_position;
@@ -1204,7 +1204,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
               new_pos.x += duplicate_extruder_x_offset;
 
             // Move duplicate extruder into the correct position
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Set planner X", inactive_extruder_x, " ... Line to X", new_pos.x);
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set planner X", inactive_extruder_x, " ... Line to X", new_pos.x);
             if (!planner.buffer_line(new_pos, planner.settings.max_feedrate_mm_s[X_AXIS], 1)) break;
             planner.synchronize();
 
@@ -1515,11 +1515,11 @@ void prepare_line_to_destination() {
     const feedRate_t home_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOPAIR("...(", AS_CHAR(AXIS_CHAR(axis)), ", ", distance, ", ");
+      DEBUG_ECHOPGM("...(", AS_CHAR(AXIS_CHAR(axis)), ", ", distance, ", ");
       if (fr_mm_s)
         DEBUG_ECHO(fr_mm_s);
       else
-        DEBUG_ECHOPAIR("[", home_fr_mm_s, "]");
+        DEBUG_ECHOPGM("[", home_fr_mm_s, "]");
       DEBUG_ECHOLNPGM(")");
     }
 
@@ -1595,12 +1595,12 @@ void prepare_line_to_destination() {
    * "trusted" position).
    */
   void set_axis_never_homed(const AxisEnum axis) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_never_homed(", AS_CHAR(AXIS_CHAR(axis)), ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> set_axis_never_homed(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
     set_axis_untrusted(axis);
     set_axis_unhomed(axis);
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_never_homed(", AS_CHAR(AXIS_CHAR(axis)), ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< set_axis_never_homed(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
     TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
   }
@@ -1683,7 +1683,7 @@ void prepare_line_to_destination() {
 
       // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
       if (ABS(phaseDelta) * planner.steps_to_mm[axis] / phasePerUStep < 0.05f)
-        SERIAL_ECHOLNPAIR("Selected home phase ", home_phase[axis],
+        SERIAL_ECHOLNPGM("Selected home phase ", home_phase[axis],
                          " too close to endstop trigger phase ", phaseCurrent,
                          ". Pick a different phase for ", AS_CHAR(AXIS_CHAR(axis)));
 
@@ -1695,7 +1695,7 @@ void prepare_line_to_destination() {
 
       // Optional debug messages
       if (DEBUGGING(LEVELING)) {
-        DEBUG_ECHOLNPAIR(
+        DEBUG_ECHOLNPGM(
           "Endstop ", AS_CHAR(AXIS_CHAR(axis)), " hit at Phase:", phaseCurrent,
           " Delta:", phaseDelta, " Distance:", mmDelta
         );
@@ -1741,7 +1741,7 @@ void prepare_line_to_destination() {
       ) return;
     #endif
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
@@ -1780,7 +1780,7 @@ void prepare_line_to_destination() {
       const xyz_float_t backoff = SENSORLESS_BACKOFF_MM;
       if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Sensorless backoff: ", backoff_length, "mm");
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
         do_homing_move(axis, backoff_length, homing_feedrate(axis));
       }
     #endif
@@ -1796,7 +1796,7 @@ void prepare_line_to_destination() {
     // Fast move towards endstop until triggered
     //
     const float move_length = 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Home Fast: ", move_length, "mm");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
     do_homing_move(axis, move_length, 0.0, !use_probe_bump);
 
     #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH_SLOW_MODE)
@@ -1806,7 +1806,7 @@ void prepare_line_to_destination() {
     // If a second homing move is configured...
     if (bump) {
       // Move away from the endstop by the axis HOMING_BUMP_MM
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Move Away: ", -bump, "mm");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
       do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0), false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
@@ -1839,7 +1839,7 @@ void prepare_line_to_destination() {
 
       // Slow move towards endstop until triggered
       const float rebump = bump * 2;
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Re-bump: ", rebump, "mm");
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Re-bump: ", rebump, "mm");
       do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
 
       #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
@@ -2003,7 +2003,7 @@ void prepare_line_to_destination() {
 
       // Retrace by the amount specified in delta_endstop_adj if more than min steps.
       if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("adjDistance:", adjDistance);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("adjDistance:", adjDistance);
         do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
       }
 
@@ -2050,7 +2050,7 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
   } // homeaxis()
 
@@ -2075,7 +2075,7 @@ void prepare_line_to_destination() {
  * Callers must sync the planner position after calling this!
  */
 void set_axis_is_at_home(const AxisEnum axis) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_is_at_home(", AS_CHAR(AXIS_CHAR(axis)), ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> set_axis_is_at_home(", AS_CHAR(AXIS_CHAR(axis)), ")");
 
   set_axis_trusted(axis);
   set_axis_homed(axis);
@@ -2104,7 +2104,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
         current_position.z -= probe.offset.z;
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***\n> probe.offset.z = ", probe.offset.z);
 
       #else
 
@@ -2125,17 +2125,17 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET
-      DEBUG_ECHOLNPAIR("> home_offset[", AS_CHAR(AXIS_CHAR(axis)), "] = ", home_offset[axis]);
+      DEBUG_ECHOLNPGM("> home_offset[", AS_CHAR(AXIS_CHAR(axis)), "] = ", home_offset[axis]);
     #endif
     DEBUG_POS("", current_position);
-    DEBUG_ECHOLNPAIR("<<< set_axis_is_at_home(", AS_CHAR(AXIS_CHAR(axis)), ")");
+    DEBUG_ECHOLNPGM("<<< set_axis_is_at_home(", AS_CHAR(AXIS_CHAR(axis)), ")");
   }
 }
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis) {
     workspace_offset[axis] = home_offset[axis] + position_shift[axis];
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Axis ", AS_CHAR(AXIS_CHAR(axis)), " home_offset = ", home_offset[axis], " position_shift = ", position_shift[axis]);
   }
 #endif
 

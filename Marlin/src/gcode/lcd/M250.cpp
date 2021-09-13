@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_LCD_CONTRAST
@@ -31,8 +30,15 @@
  * M250: Read and optionally set the LCD contrast
  */
 void GcodeSuite::M250() {
-  if (parser.seen('C')) ui.set_contrast(parser.value_int());
-  SERIAL_ECHOLNPAIR("LCD Contrast: ", ui.contrast);
+  if (parser.seenval('C'))
+    ui.set_contrast(parser.value_int());
+  else
+    M250_report();
+}
+
+void GcodeSuite::M250_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_LCD_CONTRAST));
+  SERIAL_ECHOLNPGM("  M250 C", ui.contrast);
 }
 
 #endif // HAS_LCD_CONTRAST

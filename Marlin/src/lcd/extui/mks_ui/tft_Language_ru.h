@@ -194,7 +194,6 @@
 #define TITLE_HOME_RU                       "Home"
 #define TITLE_EXTRUDE_RU                    "экструзия"
 #define TITLE_LEVELING_RU                   "уровень"
-#define TITLE_MLEVELING_RU                  "углы"
 #define TITLE_SET_RU                        "настройки"
 #define TITLE_MORE_RU                       "больше"
 #define TITLE_CHOOSEFILE_RU                 "файла"

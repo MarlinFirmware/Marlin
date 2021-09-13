@@ -27,8 +27,10 @@
 
 #define ROUND(val) uint16_t((val)+0.5)
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wno-format"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wno-format"
+#endif
 
 /**
  * Formats a temperature string (e.g. "100°C")
@@ -103,6 +105,8 @@ void format_position(char *str, float x, float y, float z) {
   sprintf_P(str, PSTR("%s; %s; %s " S_FMT), num1, num2, num3, GET_TEXT(MSG_UNITS_MM));
 }
 
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 #endif // TOUCH_UI_FTDI_EVE

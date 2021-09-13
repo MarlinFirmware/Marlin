@@ -35,6 +35,8 @@
   #include "../../lcd/marlinui.h"
 #elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
+#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -68,6 +70,8 @@ void GcodeSuite::M0_M1() {
       ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
     else
       ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
+  #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+    DWIN_Popup_Confirm(ICON_BLTouch, parser.string_arg ?: GET_TEXT(MSG_STOPPED), GET_TEXT(MSG_USERWAIT));
   #else
 
     if (parser.string_arg) {
@@ -79,7 +83,7 @@ void GcodeSuite::M0_M1() {
 
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR));
 
-  wait_for_user_response(ms);
+  TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(ms));
 
   TERN_(HAS_LCD_MENU, ui.reset_status());
 }

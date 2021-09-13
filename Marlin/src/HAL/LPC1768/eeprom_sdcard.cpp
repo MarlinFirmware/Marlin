@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * Implementation of EEPROM settings in SD Card
+ */
+
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(SDCARD_EEPROM_EMULATION)
+
+//#define DEBUG_SD_EEPROM_EMULATION
 
 #include "../shared/eeprom_api.h"
 
@@ -38,9 +44,11 @@ FATFS fat_fs;
 FIL eeprom_file;
 bool eeprom_file_open = false;
 
+#define EEPROM_FILENAME "eeprom.dat"
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE size_t(0x1000) // 4KiB of Emulated EEPROM
 #endif
+
 size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
@@ -50,7 +58,7 @@ bool PersistentStore::access_start() {
     MSC_Release_Lock();
     return false;
   }
-  FRESULT res = f_open(&eeprom_file, "eeprom.dat", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+  FRESULT res = f_open(&eeprom_file, EEPROM_FILENAME, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
   if (res) MSC_Release_Lock();
 
   if (res == FR_OK) {
@@ -81,18 +89,20 @@ bool PersistentStore::access_finish() {
 // This extra chit-chat goes away soon, but is helpful for now
 // to see errors that are happening in read_data / write_data
 static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
-  PGM_P const rw_str = write ? PSTR("write") : PSTR("read");
-  SERIAL_CHAR(' ');
-  SERIAL_ECHOPGM_P(rw_str);
-  SERIAL_ECHOLNPAIR("_data(", pos, ",", value, ",", size, ", ...)");
-  if (total) {
-    SERIAL_ECHOPGM(" f_");
+  #if ENABLED(DEBUG_SD_EEPROM_EMULATION)
+    PGM_P const rw_str = write ? PSTR("write") : PSTR("read");
+    SERIAL_CHAR(' ');
     SERIAL_ECHOPGM_P(rw_str);
-    SERIAL_ECHOPAIR("()=", s, "\n size=", size, "\n bytes_");
-    SERIAL_ECHOLNPAIR_P(write ? PSTR("written=") : PSTR("read="), total);
-  }
-  else
-    SERIAL_ECHOLNPAIR(" f_lseek()=", s);
+    SERIAL_ECHOLNPGM("_data(", pos, ",", *value, ",", size, ", ...)");
+    if (total) {
+      SERIAL_ECHOPGM(" f_");
+      SERIAL_ECHOPGM_P(rw_str);
+      SERIAL_ECHOPGM("()=", s, "\n size=", size, "\n bytes_");
+      SERIAL_ECHOLNPGM_P(write ? PSTR("written=") : PSTR("read="), total);
+    }
+    else
+      SERIAL_ECHOLNPGM(" f_lseek()=", s);
+  #endif
 }
 
 // File function return codes for type FRESULT. This goes away soon, but

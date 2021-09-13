@@ -122,8 +122,13 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   }
 
   if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
-    if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
-    else temp_diffState = ENCODER_DIFF_CCW;
+    #if ENABLED(REVERSE_ENCODER_DIRECTION)
+      if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CCW;
+      else temp_diffState = ENCODER_DIFF_CW;
+    #else
+      if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
+      else temp_diffState = ENCODER_DIFF_CCW;
+    #endif
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -140,7 +145,9 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
           const float encoderStepRate = encoderMovementSteps / float(ms - EncoderRate.lastEncoderTime) * 1000;
                if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC) encoderMultiplier = 100;
           else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)  encoderMultiplier = 10;
-          else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)   encoderMultiplier = 5;
+          #if ENCODER_5X_STEPS_PER_SEC
+            else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC) encoderMultiplier = 5;
+          #endif
         }
         EncoderRate.lastEncoderTime = ms;
       }
