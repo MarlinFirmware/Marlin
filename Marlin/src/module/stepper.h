@@ -372,11 +372,11 @@ class Stepper {
         uint8_t cur_power;  // Current laser power
         bool cruise_set;    // Power set up for cruising?
 
-        #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+        #if ENABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
+          uint16_t till_update;     // Countdown to the next update
+        #else
           uint32_t last_step_count, // Step count from the last update
                    acc_step_count;  // Bresenham counter for laser accel/decel
-        #else
-          uint16_t till_update;     // Countdown to the next update
         #endif
       } stepper_laser_t;
 
