@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,30 +22,24 @@
 #pragma once
 
 /**
- * CREALITY v4.3.1 (STM32F103) board pin assignments
+ * MKS Robin nano V1.3 (STM32F407VET6) board pin assignments
+ * https://github.com/makerbase-mks/MKS-Robin-Nano-V1.X/tree/master/hardware
  */
 
-#define BOARD_INFO_NAME      "Creality v4.3.1"
-#define DEFAULT_MACHINE_NAME "Creality3D"
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#define BOARD_INFO_NAME "MKS Robin Nano V1.3"
 
 //
-// Steppers
+// EEPROM
+// Use one of these or SDCard-based Emulation will be used
 //
-#if MB(CREALITY_V431, CREALITY_V431_A, CREALITY_V431_B)
-
-  #define X_STEP_PIN                        PB8
-  #define X_DIR_PIN                         PB7
-
-  #define Y_STEP_PIN                        PC2
-  #define Y_DIR_PIN                         PB9
-
+#if NO_EEPROM_SELECTED
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
 #endif
 
-#if MB(CREALITY_V431_B, CREALITY_V431_C)
+#define LED_PIN                             PB1
 
-  #define E0_STEP_PIN                       PB3
-  #define E0_DIR_PIN                        PB4
-
-#endif
-
-#include "pins_CREALITY_V4.h"
+#include "../stm32f1/pins_MKS_ROBIN_NANO_common.h"
