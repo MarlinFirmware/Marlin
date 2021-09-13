@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,26 +22,24 @@
 #pragma once
 
 /**
- * MKS Robin nano (STM32F103VET6) board pin assignments
+ * MKS Robin nano V1.3 (STM32F407VET6) board pin assignments
  * https://github.com/makerbase-mks/MKS-Robin-Nano-V1.X/tree/master/hardware
  */
 
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME "MKS Robin Nano"
+#define BOARD_INFO_NAME "MKS Robin Nano V1.3"
 
 //
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+// EEPROM
+// Use one of these or SDCard-based Emulation will be used
 //
-#define DISABLE_JTAG
+#if NO_EEPROM_SELECTED
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
+#endif
 
-//
-// Thermocouples
-//
-//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
-//#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
+#define LED_PIN                             PB1
 
-//#define LED_PIN                           PB2
-
-#include "pins_MKS_ROBIN_NANO_common.h"
+#include "../stm32f1/pins_MKS_ROBIN_NANO_common.h"
