@@ -43,7 +43,7 @@
 #define TEST2 1
 #define TEST3 0
 #define TEST4 true
-#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3)
+#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3) || !ENABLED(TEST1, TEST2, TEST4)
   #error "ENABLED is borked!"
 #endif
 #if BOTH(TEST0, TEST1)
