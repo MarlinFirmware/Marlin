@@ -33,12 +33,40 @@
  * M17: Enable stepper motors
  */
 void GcodeSuite::M17() {
+
+#define CHECK_ENABLE_CONFLICTS_X(ACTION) do { \
+  if (X_ENABLE_PIN == Y_ENABLE_PIN) SERIAL_ECHOLNPGM("echo:; X enable is shared with Y, Both will be modified."); \
+  if (X_ENABLE_PIN == Z_ENABLE_PIN) SERIAL_ECHOLNPGM("echo:; X enable is shared with Z, Both will be modified."); \
+  if (X_ENABLE_PIN == TERN(LINEAR_AXES > 3,I_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; X enable is shared with I, Both will be modified."); \
+  if (X_ENABLE_PIN == TERN(LINEAR_AXES > 4,J_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; X enable is shared with J, Both will be modified."); \
+  if (X_ENABLE_PIN == TERN(LINEAR_AXES > 5,K_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; X enable is shared with K, Both will be modified."); \
+  ACTION\
+} while(0)
+
+#define CHECK_ENABLE_CONFLICTS_Y(ACTION) do { \
+  if (Y_ENABLE_PIN == X_ENABLE_PIN) SERIAL_ECHOLNPGM("echo:; Y enable is shared with X, Both will be modified."); \
+  if (Y_ENABLE_PIN == Z_ENABLE_PIN) SERIAL_ECHOLNPGM("echo:; Y enable is shared with Z, Both will be modified."); \
+  if (Y_ENABLE_PIN == TERN(LINEAR_AXES > 3,I_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; Y enable is shared with I, Both will be modified."); \
+  if (Y_ENABLE_PIN == TERN(LINEAR_AXES > 4,J_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; Y enable is shared with J, Both will be modified."); \
+  if (Y_ENABLE_PIN == TERN(LINEAR_AXES > 5,K_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; Y enable is shared with K, Both will be modified."); \
+  ACTION\
+} while(0)
+
+#define CHECK_ENABLE_CONFLICTS_Z(ACTION) do { \
+  if (Z_ENABLE_PIN == X_ENABLE_PIN) SERIAL_ECHOLNPGM("echo:; Z enable is shared with X, Both will be modified."); \
+  if (Z_ENABLE_PIN == Y_ENABLE_PIN) SERIAL_ECHOLNPGM("echo:; Z enable is shared with Y, Both will be modified."); \
+  if (Z_ENABLE_PIN == TERN(LINEAR_AXES > 3,I_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; Z enable is shared with I, Both will be modified."); \
+  if (Z_ENABLE_PIN == TERN(LINEAR_AXES > 4,J_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; Z enable is shared with J, Both will be modified."); \
+  if (Z_ENABLE_PIN == TERN(LINEAR_AXES > 5,K_ENABLE_PIN,-1)) SERIAL_ECHOLNPGM("echo:; Z enable is shared with K, Both will be modified."); \
+  ACTION\
+} while(0)
+
   if (parser.seen_axis()) {
     LOGICAL_AXIS_CODE(
       if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) enable_e_steppers(),
-      if (parser.seen_test('X'))        ENABLE_AXIS_X(),
-      if (parser.seen_test('Y'))        ENABLE_AXIS_Y(),
-      if (parser.seen_test('Z'))        ENABLE_AXIS_Z(),
+      if (parser.seen_test('X'))        CHECK_ENABLE_CONFLICTS_X(ENABLE_AXIS_Y()),
+      if (parser.seen_test('Y'))        CHECK_ENABLE_CONFLICTS_Y(ENABLE_AXIS_Y()),
+      if (parser.seen_test('Z'))        CHECK_ENABLE_CONFLICTS_Z(ENABLE_AXIS_Z()),
       if (parser.seen_test(AXIS4_NAME)) ENABLE_AXIS_I(),
       if (parser.seen_test(AXIS5_NAME)) ENABLE_AXIS_J(),
       if (parser.seen_test(AXIS6_NAME)) ENABLE_AXIS_K()
@@ -63,9 +91,9 @@ void GcodeSuite::M18_M84() {
       planner.synchronize();
       LOGICAL_AXIS_CODE(
         if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) disable_e_steppers(),
-        if (parser.seen_test('X'))        DISABLE_AXIS_X(),
-        if (parser.seen_test('Y'))        DISABLE_AXIS_Y(),
-        if (parser.seen_test('Z'))        DISABLE_AXIS_Z(),
+        if (parser.seen_test('X'))        CHECK_ENABLE_CONFLICTS_X(DISABLE_AXIS_X()),
+        if (parser.seen_test('Y'))        CHECK_ENABLE_CONFLICTS_Y(DISABLE_AXIS_Y()),
+        if (parser.seen_test('Z'))        CHECK_ENABLE_CONFLICTS_Z(DISABLE_AXIS_Z()),
         if (parser.seen_test(AXIS4_NAME)) DISABLE_AXIS_I(),
         if (parser.seen_test(AXIS5_NAME)) DISABLE_AXIS_J(),
         if (parser.seen_test(AXIS6_NAME)) DISABLE_AXIS_K()
