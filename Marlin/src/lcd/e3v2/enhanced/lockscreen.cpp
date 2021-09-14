@@ -5,7 +5,7 @@
  * Date: 2021/06/14
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser Lesser General Public License as
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -64,8 +64,6 @@ void LockScreenClass::onEncoderState(ENCODER_DiffState encoder_diffState) {
   DWIN_UpdateLCD();
 }
 
-bool LockScreenClass::isUnlocked() {
-  return unlocked;
-}
+bool LockScreenClass::isUnlocked() { return unlocked; }
 
 #endif // DWIN_CREALITY_LCD_ENHANCED
