@@ -47,9 +47,9 @@ millis_t Touch::last_touch_ms = 0,
          Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::touch_time;
-TouchControlType  Touch::touch_control_type = NONE;
-#if TOUCH_IDLE_SLEEP > 0
-  millis_t Touch::last_touched_ms;
+TouchControlType Touch::touch_control_type = NONE;
+#if HAS_TOUCH_SLEEP
+  millis_t Touch::next_sleep_ms; // = 0
 #endif
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
@@ -59,9 +59,7 @@ void Touch::init() {
   TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
   io.Init();
-  #if TOUCH_IDLE_SLEEP > 0
-    last_touched_ms = millis();
-  #endif
+  TERN_(HAS_TOUCH_SLEEP, wakeUp());
   enable();
 }
 
@@ -277,23 +275,22 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
     bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getPoint(y, x) : io.getPoint(x, y));
   #endif
-  #if TOUCH_IDLE_SLEEP > 0
-    if (is_touched) {
+  #if HAS_TOUCH_SLEEP
+    if (is_touched)
       wakeUp();
-    } else if (last_touched_ms != TSLP_SLEEPING && (millis() - last_touched_ms) > (TOUCH_IDLE_SLEEP*1000)) {
-      if (ui.on_status_screen())
-        sleepTimeout();
-    }
+    else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+      sleepTimeout();
   #endif
   return is_touched;
 }
 
-#if TOUCH_IDLE_SLEEP > 0
+#if HAS_TOUCH_SLEEP
+
   void Touch::sleepTimeout() {
     #if PIN_EXISTS(TFT_BACKLIGHT)
       OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
     #endif
-    last_touched_ms = TSLP_SLEEPING;
+    next_sleep_ms = TSLP_SLEEPING;
   }
   void Touch::wakeUp() {
     if (isSleeping()) {
@@ -301,9 +298,10 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    last_touched_ms = millis();
+    next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
   }
-#endif // TOUCH_IDLE_SLEEP
+
+#endif // HAS_TOUCH_SLEEP
 
 Touch touch;
 

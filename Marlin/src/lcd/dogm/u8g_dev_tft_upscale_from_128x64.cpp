@@ -73,16 +73,17 @@ TFT_IO tftio;
 #define HEIGHT LCD_PIXEL_HEIGHT
 #define PAGE_HEIGHT 8
 
-#include "../touch/touch_buttons.h"
-
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../tft_io/touch_calibration.h"
   #include "../marlinui.h"
 #endif
 
-#define HAS_TOUCH_SLEEP (defined(TOUCH_IDLE_SLEEP) && TOUCH_IDLE_SLEEP > 0 && HAS_TOUCH_BUTTONS)
-#if HAS_TOUCH_SLEEP
-  static bool sleepCleared;
+#if HAS_TOUCH_BUTTONS
+  #include "../touch/touch_buttons.h"
+  #if HAS_TOUCH_SLEEP
+    #define HAS_TOUCH_BUTTONS_SLEEP 1
+    static bool sleepCleared;
+  #endif
 #endif
 
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
@@ -389,7 +390,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
     case U8G_DEV_MSG_PAGE_FIRST:
       page = 0;
-      #if HAS_TOUCH_SLEEP
+      #if HAS_TOUCH_BUTTONS_SLEEP
         if (touchBt.isSleeping()) {
           if (!sleepCleared) {
             sleepCleared = true;
@@ -405,9 +406,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
-      #if HAS_TOUCH_SLEEP
-        if (touchBt.isSleeping()) break;
-      #endif
+      if (TERN0(HAS_TOUCH_BUTTONS_SLEEP, touchBt.isSleeping())) break;
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;
 
       LOOP_L_N(y, PAGE_HEIGHT) {

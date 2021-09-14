@@ -673,22 +673,20 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     draw_kill_screen();
   }
 
-  #ifdef TOUCH_IDLE_SLEEP
-    // Handle events which should wake up a sleeping TFT
+  #if HAS_TOUCH_SLEEP
+    #if HAS_TOUCH_BUTTONS
+      #include "touch/touch_buttons.h"
+    #else
+      #include "tft/touch.h"
+    #endif
+    // Wake up a sleeping TFT
     void MarlinUI::wakeup_screen() {
-      #if ENABLED(TOUCH_SCREEN)
-       touch.wakeUp();
-      #elif HAS_TOUCH_BUTTONS
-        touchBt.wakeUp();
-      #endif
+      TERN(HAS_TOUCH_BUTTONS, touchBt.wakeUp(), touch.wakeUp());
     }
   #endif
 
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
-    #ifdef TOUCH_IDLE_SLEEP
-      // Wake up the TFT with most buttons
-      ui.wakeup_screen();
-    #endif
+    TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up the TFT with most buttons
     TERN_(HAS_LCD_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
@@ -969,9 +967,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
             abs_diff = epps;                                            // Treat as a full step size
             encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
           }
-          #ifdef TOUCH_IDLE_SLEEP
-            if (lastEncoderDiff != encoderDiff) ui.wakeup_screen();
-          #endif
+          TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
           lastEncoderDiff = encoderDiff;
         #endif
 

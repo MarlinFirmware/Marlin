@@ -30,8 +30,6 @@
 #include "tft.h"
 #include "tft_image.h"
 
-#define HAS_TOUCH_SLEEP (defined(TOUCH_IDLE_SLEEP) && TOUCH_IDLE_SLEEP > 0)
-
 #if ENABLED(TOUCH_SCREEN)
   #include "touch.h"
   extern bool draw_menu_navigation;

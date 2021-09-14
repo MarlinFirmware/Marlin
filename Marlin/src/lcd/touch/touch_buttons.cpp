@@ -38,8 +38,8 @@
   #include "../tft_io/touch_calibration.h"
 #endif
 
-#if TOUCH_IDLE_SLEEP > 0
-  millis_t TouchButtons::last_touch_ms;
+#if HAS_TOUCH_SLEEP
+  millis_t TouchButtons::next_sleep_ms;
 #endif
 
 #include "../buttons.h" // For EN_C bit mask
@@ -58,8 +58,8 @@ TouchButtons touchBt;
 
 void TouchButtons::init() {
   touchIO.Init();
-  #if TOUCH_IDLE_SLEEP > 0
-    last_touch_ms = millis();
+  #if HAS_TOUCH_SLEEP
+    next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
   #endif
 }
 
@@ -68,13 +68,11 @@ uint8_t TouchButtons::read_buttons() {
     int16_t x, y;
 
     const bool is_touched = (TERN(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration.orientation, TOUCH_ORIENTATION) == TOUCH_PORTRAIT ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y));
-    #if TOUCH_IDLE_SLEEP > 0
-      if (is_touched) {
+    #if HAS_TOUCH_SLEEP
+      if (is_touched)
         wakeUp();
-      } else if (last_touch_ms != TSLP_SLEEPING && (millis() - last_touch_ms) > (TOUCH_IDLE_SLEEP*1000)) {
-        if (ui.on_status_screen())
-          sleepTimeout();
-      }
+      else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+        sleepTimeout();
     #endif
     if (!is_touched) return 0;
 
@@ -113,12 +111,13 @@ uint8_t TouchButtons::read_buttons() {
   return 0;
 }
 
-#if TOUCH_IDLE_SLEEP > 0
+#if HAS_TOUCH_SLEEP
+
   void TouchButtons::sleepTimeout() {
     #if PIN_EXISTS(TFT_BACKLIGHT)
       OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
     #endif
-    last_touch_ms = TSLP_SLEEPING;
+    next_sleep_ms = TSLP_SLEEPING;
   }
   void TouchButtons::wakeUp() {
     if (isSleeping()) {
@@ -126,8 +125,9 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    last_touch_ms = millis();
+    next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
   }
-#endif // TOUCH_IDLE_SLEEP
+
+#endif // HAS_TOUCH_SLEEP
 
 #endif // HAS_TOUCH_BUTTONS

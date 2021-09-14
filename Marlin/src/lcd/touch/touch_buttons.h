@@ -57,9 +57,9 @@ class TouchButtons {
 public:
   static void init();
   static uint8_t read_buttons();
-  #if TOUCH_IDLE_SLEEP > 0
-    static millis_t last_touch_ms;
-    static bool isSleeping() { return (last_touch_ms == TSLP_SLEEPING); }
+  #if HAS_TOUCH_SLEEP
+    static millis_t next_sleep_ms;
+    static bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
     static void sleepTimeout();
     static void wakeUp();
   #endif

@@ -124,9 +124,9 @@ class Touch {
     }
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
-    #if TOUCH_IDLE_SLEEP > 0
-      static millis_t last_touched_ms;
-      static bool isSleeping() { return (last_touched_ms == TSLP_SLEEPING); }
+    #if HAS_TOUCH_SLEEP
+      static millis_t next_sleep_ms;
+      static inline bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
       static void sleepTimeout();
       static void wakeUp();
     #endif

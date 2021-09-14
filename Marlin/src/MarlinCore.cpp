@@ -542,7 +542,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
           queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
-          TERN_(HAS_LCD_MENU, ui.completion_feedback());               \
+          TERN_(HAS_LCD_MENU, ui.quick_feedback());                    \
         }                                                              \
       }                                                                \
     }while(0)

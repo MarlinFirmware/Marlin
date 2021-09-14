@@ -39,12 +39,6 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
-#if ENABLED(TOUCH_SCREEN) && defined(TOUCH_IDLE_SLEEP)
-  #include "tft/touch.h"
-#elif HAS_TOUCH_BUTTONS && defined(TOUCH_IDLE_SLEEP)
-  #include "touch/touch_buttons.h"
-#endif
-
 #if ANY(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY, SOFT_RESET_ON_KILL)
   #define HAS_ENCODER_ACTION 1
 #endif
@@ -441,7 +435,7 @@ public:
         static millis_t next_filament_display;
       #endif
 
-      #ifdef TOUCH_IDLE_SLEEP
+      #if HAS_TOUCH_SLEEP
         static void wakeup_screen();
       #endif
 
@@ -449,11 +443,7 @@ public:
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
       #else
-        static inline void completion_feedback(const bool=true) {
-          #ifdef TOUCH_IDLE_SLEEP
-            wakeup_screen();
-          #endif
-        }
+        static inline void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
       #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)
