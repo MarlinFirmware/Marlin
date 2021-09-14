@@ -192,9 +192,7 @@ void tft_lvgl_init() {
 
   systick_attach_callback(SysTick_Callback);
 
-  #if HAS_SPI_FLASH_FONT
-    init_gb2312_font();
-  #endif
+  TERN_(HAS_SPI_FLASH_FONT, init_gb2312_font());
 
   tft_style_init();
   filament_pin_setup();

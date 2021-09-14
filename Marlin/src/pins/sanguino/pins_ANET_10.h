@@ -195,9 +195,9 @@
       #define BTN_EN1                         28
       #define BTN_EN2                         10
       #define BTN_ENC                         17
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(250)
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(250)
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(250)
+      #define BOARD_ST7920_DELAY_1           250
+      #define BOARD_ST7920_DELAY_2           250
+      #define BOARD_ST7920_DELAY_3           250
     #else
       #define SERVO0_PIN                      29  // free for BLTouch/3D-Touch
       #define BEEPER_PIN                      17
@@ -207,9 +207,9 @@
       #define BTN_EN1                         11
       #define BTN_EN2                         10
       #define BTN_ENC                         16
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(63)
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+      #define BOARD_ST7920_DELAY_1           125
+      #define BOARD_ST7920_DELAY_2            63
+      #define BOARD_ST7920_DELAY_3           125
     #endif
 
   #endif

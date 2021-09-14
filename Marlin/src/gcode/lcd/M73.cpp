@@ -28,7 +28,7 @@
 #include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "../../lcd/e3v2/enhanced/dwin.h"
 #endif
 
@@ -40,7 +40,7 @@
  */
 void GcodeSuite::M73() {
 
-  #if ENABLED(DWIN_CREALITY_LCD)
+  #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
     DWIN_Progress_Update();
 

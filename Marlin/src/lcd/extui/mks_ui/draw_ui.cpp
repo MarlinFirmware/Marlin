@@ -186,10 +186,10 @@ void ui_cfg_init() {
   uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = false;
   uiCfg.para_ui_page        = false;
-  uiCfg.extruStep           = 5;
-  uiCfg.extruSpeed          = 10;
+  uiCfg.extruStep           = uiCfg.eStepMed;
+  uiCfg.extruSpeed          = uiCfg.eSpeedN;
   uiCfg.move_dist           = 1;
-  uiCfg.moveSpeed           = 3000;
+  uiCfg.moveSpeed           = 1000;
   uiCfg.stepPrintSpeed      = 10;
   uiCfg.command_send        = false;
   uiCfg.dialogType          = 0;
@@ -347,13 +347,8 @@ void tft_style_init() {
   style_num_key_rel.body.grad_color = LV_COLOR_KEY_BACKGROUND;
   style_num_key_rel.text.color      = LV_COLOR_TEXT;
   style_num_key_rel.text.sel_color  = LV_COLOR_TEXT;
-  #if HAS_SPI_FLASH_FONT
-    style_num_key_pre.text.font = &gb2312_puhui32;
-    style_num_key_rel.text.font = &gb2312_puhui32;
-  #else
-    style_num_key_pre.text.font = LV_FONT_DEFAULT;
-    style_num_key_rel.text.font = LV_FONT_DEFAULT;
-  #endif
+  style_num_key_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
 
   style_num_key_pre.line.width        = 0;
   style_num_key_rel.line.width        = 0;
@@ -609,9 +604,9 @@ char *creat_title_text() {
             gPicturePreviewStart += (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
             break;
           }
-          else {
+          else
             gPicturePreviewStart += br;
-          }
+
           if (br < 400) break;
         }
       }
@@ -623,11 +618,8 @@ char *creat_title_text() {
 
       while (1) {
         card.read(public_buf, 400);
-        for (i = 0; i < 400;) {
+        for (i = 0; i < 400; i += 2, j++)
           bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
-          i                += 2;
-          j++;
-        }
         if (j >= 400) break;
       }
       for (i = 0; i < 400; i += 2) {

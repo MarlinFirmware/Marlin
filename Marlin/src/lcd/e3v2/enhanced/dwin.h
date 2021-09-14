@@ -1,13 +1,12 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 3.6.1
+ * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,16 +14,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
-
-/**
- * DWIN by Creality3D
- * Enhanced implementation by Miguel A. Risco-Castillo
- */
 
 #include "../../../inc/MarlinConfigPre.h"
 #include "dwinui.h"
@@ -78,10 +72,10 @@ enum processID : uint8_t {
 
 enum pidresult_t : uint8_t {
   PID_BAD_EXTRUDER_NUM,
-  PID_TEMP_TOO_HIGH, 
-  PID_TUNING_TIMEOUT, 
-  PID_EXTR_START, 
-  PID_BED_START, 
+  PID_TEMP_TOO_HIGH,
+  PID_TUNING_TIMEOUT,
+  PID_EXTR_START,
+  PID_BED_START,
   PID_DONE
 };
 
@@ -131,7 +125,7 @@ typedef struct {
   #ifdef PREHEAT_1_TEMP_BED
     int16_t BedPidT = PREHEAT_1_TEMP_BED;
   #endif
-  TERN_(PREVENT_COLD_EXTRUSION, uint16_t ExtMinT = EXTRUDE_MINTEMP);
+  TERN_(PREVENT_COLD_EXTRUSION, int16_t ExtMinT = EXTRUDE_MINTEMP);
 } HMI_data_t;
 
 typedef struct {
@@ -151,7 +145,7 @@ extern HMI_data_t HMI_data;
 extern uint8_t checkkey;
 extern millis_t dwin_heat_time;
 
-// Popups windows
+// Popup windows
 void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
 #if HAS_HOTEND || HAS_HEATED_BED
   void DWIN_Popup_Temperature(const bool toohigh);
@@ -202,7 +196,9 @@ void DWIN_StatusChanged(const char * const text);
 void DWIN_StatusChanged_P(PGM_P const text);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
-TERN_(MESH_BED_LEVELING, void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval));
+#if HAS_MESH
+  void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
+#endif
 void DWIN_MeshLevelingStart();
 void DWIN_CompletedLeveling();
 void DWIN_PidTuning(pidresult_t result);

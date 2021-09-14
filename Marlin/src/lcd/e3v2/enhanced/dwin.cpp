@@ -23,7 +23,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "dwin.h"
 
@@ -35,12 +35,14 @@
 #include "../../../MarlinCore.h"
 #include "../../../core/serial.h"
 #include "../../../core/macros.h"
-#include "../../../gcode/queue.h"
 
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
+
+#include "../../../gcode/gcode.h"
+#include "../../../gcode/queue.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../../../feature/runout.h"
@@ -3573,4 +3575,4 @@ void Draw_Steps_Menu() {
 #endif
 
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD_ENHANCED

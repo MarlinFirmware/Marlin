@@ -1221,35 +1221,7 @@
 //
 // Default DOGLCD SPI delays
 //
-#if ENABLED(U8GLIB_ST7920)
-  #ifndef ST7920_DELAY_1
-    #ifdef LCD_ST7920_DELAY_1
-      #define ST7920_DELAY_1 LCD_ST7920_DELAY_1
-    #elif defined(BOARD_ST7920_DELAY_1)
-      #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
-    #elif defined(CPU_ST7920_DELAY_1)
-      #define ST7920_DELAY_1 CPU_ST7920_DELAY_1
-    #endif
-  #endif
-  #ifndef ST7920_DELAY_2
-    #ifdef LCD_ST7920_DELAY_2
-      #define ST7920_DELAY_2 LCD_ST7920_DELAY_2
-    #elif defined(BOARD_ST7920_DELAY_2)
-      #define ST7920_DELAY_2 BOARD_ST7920_DELAY_2
-    #elif defined(CPU_ST7920_DELAY_2)
-      #define ST7920_DELAY_2 CPU_ST7920_DELAY_2
-    #endif
-  #endif
-  #ifndef ST7920_DELAY_3
-    #ifdef LCD_ST7920_DELAY_3
-      #define ST7920_DELAY_3 LCD_ST7920_DELAY_3
-    #elif defined(BOARD_ST7920_DELAY_3)
-      #define ST7920_DELAY_3 BOARD_ST7920_DELAY_3
-    #elif defined(CPU_ST7920_DELAY_3)
-      #define ST7920_DELAY_3 CPU_ST7920_DELAY_3
-    #endif
-  #endif
-#else
+#if DISABLED(U8GLIB_ST7920)
   #undef ST7920_DELAY_1
   #undef ST7920_DELAY_2
   #undef ST7920_DELAY_3

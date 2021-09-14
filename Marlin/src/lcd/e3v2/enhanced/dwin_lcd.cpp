@@ -1,13 +1,8 @@
 /**
- * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,7 +10,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
@@ -23,14 +18,14 @@
 /********************************************************************************
  * @file     lcd/e3v2/enhanced/dwin_lcd.cpp
  * @author   LEO / Creality3D - Enhanced by Miguel A. Risco-Castillo
- * @date     2021/08/29
- * @version  2.1.1
+ * @date     2021/09/08
+ * @version  2.2.1
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -261,7 +256,7 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size, uint16_t color
 //  x/y: Upper-left coordinate
 //  value: Integer value
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
-                          uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
+                          uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, long value) {
   size_t i = 0;
   DWIN_Byte(i, 0x14);
   // Bit 7: bshow
@@ -319,6 +314,12 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
   DWIN_Word(i, y);
   DWIN_Long(i, value);
   DWIN_Send(i);
+}
+//  value: positive float value
+void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
+                            uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
+  const long val = round(value * POW(10, fNum));
+  DWIN_Draw_FloatValue(bShow, zeroFill, zeroMode, size, color, bColor, iNum, fNum, x, y, val);
 }
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
@@ -562,4 +563,4 @@ void DWIN_SRAMToPic(uint8_t picID) {
 //
 //  Flash writing returns 0xA5 0x4F 0x4B
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD_ENHANCED

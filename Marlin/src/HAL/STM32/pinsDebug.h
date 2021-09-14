@@ -237,7 +237,7 @@ void pwm_details(const pin_t Ard_num) {
       if (over_7) pin_number -= 8;
 
       uint8_t alt_func = (alt_all >> (4 * pin_number)) & 0x0F;
-      SERIAL_ECHOPAIR("Alt Function: ", alt_func);
+      SERIAL_ECHOPGM("Alt Function: ", alt_func);
       if (alt_func < 10) SERIAL_CHAR(' ');
       SERIAL_ECHOPGM(" - ");
       switch (alt_func) {

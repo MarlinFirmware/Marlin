@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6
- * Date: 2021/08/29
+ * Version: 3.6.3
+ * Date: 2021/08/09
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as 
@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "../../../inc/MarlinConfig.h"
 #include "../../../core/macros.h"
@@ -449,4 +449,4 @@ MenuItemPtrClass::MenuItemPtrClass(uint8_t cicon, const char * const text, void 
   value = val;
 };
 
-#endif // DWIN_CREALITY_LCD
+#endif // DWIN_CREALITY_LCD_ENHANCED
