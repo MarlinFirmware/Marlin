@@ -32,6 +32,10 @@
 #include "menu_item.h"
 #include "../../module/tool_change.h"
 
+#if ENABLED(SWITCHING_TOOLHEAD_PARKING)
+  #include "../../libs/nozzle.h"
+  xyz_pos_t toolchange_resume_position;
+#endif
 
 /**
  * Callback for a completed/successful tool change.
@@ -42,6 +46,14 @@ void menu_tool_change_done() {
   thermalManager.heating_enabled = true;
   ui.set_status_P(PSTR("Tool Changed"));
   ui.return_to_status();
+
+  #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
+    // Move XY to starting position, then Z
+    do_blocking_move_to_xy(toolchange_resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+
+    // Move Z_AXIS to saved position
+    do_blocking_move_to_z(toolchange_resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+  #endif
 }
 
 
@@ -53,6 +65,14 @@ void menu_tool_change_cancel() {
   thermalManager.heating_enabled = true;
   ui.set_status_P(PSTR("M117 Tool Change Cancelled"));
   ui.return_to_status();
+
+  #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
+    // Move XY to starting position, then Z
+    do_blocking_move_to_xy(toolchange_resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+
+    // Move Z_AXIS to saved position
+    do_blocking_move_to_z(toolchange_resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+  #endif
 }
 
 
@@ -64,6 +84,10 @@ void menu_tool_change_cancel() {
  */
 void menu_tool_changing() {
   thermalManager.heating_enabled = false;
+  #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
+    toolchange_resume_position = current_position;
+    nozzle.park(0);
+  #endif
 
   ui.push_current_screen();
   ui.goto_screen([]{

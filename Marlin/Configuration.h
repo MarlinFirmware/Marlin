@@ -297,14 +297,14 @@
    * related settings, as well as PID_PARAMS_PER_HOTEND.
    *
    * Do not include laser/spindle in this count. Enabling LASER_FEATURE/SPINDLE_FEATURE
-   *  will add the appropriate tool.
+   * will add the appropriate tool.
    */
   #define SWITCHING_TOOLHEAD_TOOL_QTY   4
 
   // Define the names of Hotends/Unpowered tools. Optional.
   #define SWITCHING_TOOLHEAD_TOOL_NAMES { "E3D v6", "Mosquito", "Pen Plotter", "Drag Knife" }
 
-  // Move the tool to the parked position for tool changes.
+  // Move the tool to the parked position for tool changes. Requires NOZZLE_PARK_FEATURE.
   #define SWITCHING_TOOLHEAD_PARKING
 #endif
 
