@@ -31,3 +31,15 @@ exec_test $1 $2 "BigTreeTech SKR Pro | Laser (Percent) | Cooling | LCD" "$3"
 
 # clean up
 restore_configs
+
+#
+# Test Laser features [When use only one ENA PIN]
+#
+
+opt_enable LASER_FEATURE
+opt_disable SPINDLE_LASER_USE_PWM
+
+exec_test $1 $2 "BigTreeTech SKR Pro | Laser (one ENA PIN)" "$3"
+
+# clean up
+restore_configs
