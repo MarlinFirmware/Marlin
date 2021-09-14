@@ -435,11 +435,15 @@ public:
         static millis_t next_filament_display;
       #endif
 
+      #if HAS_TOUCH_SLEEP
+        static void wakeup_screen();
+      #endif
+
       static void quick_feedback(const bool clear_buttons=true);
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
       #else
-        static inline void completion_feedback(const bool=true) {}
+        static inline void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
       #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)
