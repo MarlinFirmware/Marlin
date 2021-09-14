@@ -47,19 +47,7 @@
 
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
-    #if HAS_TOUCH_SLEEP
-      static bool sleepCleared;
-      if (touch.isSleeping()) {
-        tft.queue.reset();
-        if (!sleepCleared) {
-          sleepCleared = true;
-          ui.clear_lcd();
-          tft.queue.async();
-        }
-        touch.idle();
-        return;
-      } else sleepCleared = false;
-    #endif
+    if (TERN0(HAS_TOUCH_SLEEP, lcd_sleep_task())) return;
     if (draw_menu_navigation) {
       add_control(104, TFT_HEIGHT - 34, PAGE_UP, imgPageUp, encoderTopLine > 0);
       add_control(344, TFT_HEIGHT - 34, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);

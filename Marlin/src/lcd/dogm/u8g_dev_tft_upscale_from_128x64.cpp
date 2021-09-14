@@ -82,7 +82,6 @@ TFT_IO tftio;
   #include "../touch/touch_buttons.h"
   #if HAS_TOUCH_SLEEP
     #define HAS_TOUCH_BUTTONS_SLEEP 1
-    static bool sleepCleared;
   #endif
 #endif
 
@@ -388,9 +387,10 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
     case U8G_DEV_MSG_STOP: preinit = true; break;
 
-    case U8G_DEV_MSG_PAGE_FIRST:
+    case U8G_DEV_MSG_PAGE_FIRST: {
       page = 0;
       #if HAS_TOUCH_BUTTONS_SLEEP
+        static bool sleepCleared;
         if (touchBt.isSleeping()) {
           if (!sleepCleared) {
             sleepCleared = true;
@@ -399,11 +399,12 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           }
           break;
         }
-        else sleepCleared = false;
+        else
+          sleepCleared = false;
       #endif
       TERN_(HAS_TOUCH_BUTTONS, drawTouchButtons(u8g, dev));
       setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
-      break;
+    } break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
       if (TERN0(HAS_TOUCH_BUTTONS_SLEEP, touchBt.isSleeping())) break;

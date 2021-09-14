@@ -58,9 +58,7 @@ TouchButtons touchBt;
 
 void TouchButtons::init() {
   touchIO.Init();
-  #if HAS_TOUCH_SLEEP
-    next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
-  #endif
+  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP));
 }
 
 uint8_t TouchButtons::read_buttons() {
