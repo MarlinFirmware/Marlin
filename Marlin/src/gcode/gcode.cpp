@@ -215,7 +215,7 @@ void GcodeSuite::get_destination_from_command() {
     // Set the laser power in the planner to configure this move
     if (parser.seen('S')) {
       const float spwr = parser.value_float();
-      cutter.inline_power(TERN(SPINDLE_LASER_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
+      cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
     }
     else if (ENABLED(LASER_MOVE_G0_OFF) && parser.codenum == 0) // G0
       cutter.set_inline_enabled(false);

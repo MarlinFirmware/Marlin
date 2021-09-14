@@ -214,7 +214,7 @@ void DGUSTxHandler::Percent(DGUS_VP &vp) {
 void DGUSTxHandler::StatusIcons(DGUS_VP &vp) {
   uint16_t icons = 0;
 
-  if (printingIsActive()) {
+  if (ExtUI::isPrinting()) {
     icons |= (uint16_t)DGUS_Data::StatusIcon::PAUSE;
 
     dgus_display.EnableControl(DGUS_Screen::PRINT_STATUS,
@@ -227,7 +227,7 @@ void DGUSTxHandler::StatusIcons(DGUS_VP &vp) {
                                 DGUS_Control::PAUSE);
   }
 
-  if (printingIsPaused()) {
+  if (ExtUI::isPrintingPaused()) {
     icons |= (uint16_t)DGUS_Data::StatusIcon::RESUME;
 
     dgus_display.EnableControl(DGUS_Screen::PRINT_STATUS,
@@ -561,11 +561,7 @@ void DGUSTxHandler::FilamentUsed(DGUS_VP &vp) {
 void DGUSTxHandler::WaitIcons(DGUS_VP &vp) {
   uint16_t icons = 0;
 
-  if (printingIsPaused()
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      && did_pause_print
-    #endif
-  ) {
+  if (ExtUI::isPrintingPaused()) {
     icons |= (uint16_t)DGUS_Data::WaitIcon::ABORT;
 
     dgus_display.EnableControl(DGUS_Screen::WAIT,

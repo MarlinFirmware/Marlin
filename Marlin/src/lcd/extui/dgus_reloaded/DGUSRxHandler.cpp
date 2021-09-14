@@ -63,13 +63,13 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Idle
-      && (printingIsActive() || printingIsPaused())) {
+      && (ExtUI::isPrinting() || ExtUI::isPrintingPaused())) {
     dgus_screen_handler.SetStatusMessagePGM(PSTR("Impossible while printing"));
     return;
   }
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Printing
-      && (!printingIsActive() && !printingIsPaused())) {
+      && (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused())) {
     dgus_screen_handler.SetStatusMessagePGM(PSTR("Impossible while idle"));
     return;
   }
@@ -166,7 +166,7 @@ void DGUSRxHandler::PrintAbort(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsActive() && !printingIsPaused()) {
+  if (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
@@ -183,7 +183,7 @@ void DGUSRxHandler::PrintPause(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsActive()) {
+  if (!ExtUI::isPrinting()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
@@ -200,7 +200,7 @@ void DGUSRxHandler::PrintResume(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsPaused()) {
+  if (!ExtUI::isPrintingPaused()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
@@ -984,20 +984,11 @@ void DGUSRxHandler::WaitAbort(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsPaused()
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        || !did_pause_print
-      #endif
-  ) {
+  if (!ExtUI::isPrintingPaused()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    did_pause_print = 0;
-  #endif
-
-  ExtUI::setUserConfirmed();
   ExtUI::stopPrint();
 
   dgus_screen_handler.TriggerFullUpdate();

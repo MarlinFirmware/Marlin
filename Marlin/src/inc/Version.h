@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2021-09-10"
+  #define STRING_DISTRIBUTION_DATE "2021-09-14"
 #endif
 
 /**
@@ -52,7 +52,7 @@
  * to alert users to major changes.
  */
 
-#define MARLIN_HEX_VERSION 02000901
+#define MARLIN_HEX_VERSION 02000902
 #ifndef REQUIRED_CONFIGURATION_H_VERSION
   #define REQUIRED_CONFIGURATION_H_VERSION MARLIN_HEX_VERSION
 #endif
