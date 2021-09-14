@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SERVOS_CAN_BE_DISABLED)
+#if ENABLED(SERVO_DETACH_GCODE)
 
 #include "../gcode.h"
 #include "../../module/servo.h"
@@ -42,4 +42,4 @@ void GcodeSuite::M282() {
 
 }
 
-#endif // SERVOS_CAN_BE_DISABLED
+#endif // SERVO_DETACH_GCODE

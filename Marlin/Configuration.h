@@ -2948,4 +2948,4 @@
 //#define EDITABLE_SERVO_ANGLES
 
 // Disable servo with M282 to reduce power consumption, noise, and heat when not in use
-//#define SERVOS_CAN_BE_DISABLED
+//#define SERVO_DETACH_GCODE

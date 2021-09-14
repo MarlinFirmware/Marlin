@@ -717,7 +717,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if ENABLED(EDITABLE_SERVO_ANGLES)
           case 281: M281(); break;                                // M281: Set servo angles
         #endif
-        #if ENABLED(SERVOS_CAN_BE_DISABLED)
+        #if ENABLED(SERVO_DETACH_GCODE)
           case 282: M282(); break;                                // M282: Detach servo
         #endif
       #endif
