@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS && ENABLED(SERVOS_CAN_BE_DISABLED)
+#if ENABLED(SERVOS_CAN_BE_DISABLED)
 
 #include "../gcode.h"
 #include "../../module/servo.h"
@@ -35,12 +35,11 @@ void GcodeSuite::M282() {
   if (!parser.seen('P')) return;
 
   const int servo_index = parser.value_int();
-  if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
+  if (WITHIN(servo_index, 0, NUM_SERVOS - 1))
     DETACH_SERVO(servo_index);
-  }
   else
-    SERIAL_ECHO("Servo ", servo_index, " out of range");
+    SERIAL_ECHO_MSG("Servo ", servo_index, " out of range");
 
 }
 
-#endif // HAS_SERVOS && SERVOS_CAN_BE_DISABLED
+#endif // SERVOS_CAN_BE_DISABLED

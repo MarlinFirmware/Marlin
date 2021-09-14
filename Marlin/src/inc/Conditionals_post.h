@@ -2593,9 +2593,14 @@
 #endif
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
-#endif
-#if HAS_SERVOS && defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
-  #define HAS_PAUSE_SERVO_OUTPUT 1
+  #if defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
+    #define HAS_PAUSE_SERVO_OUTPUT 1
+  #endif
+#else
+  #undef SERVO_DELAY
+  #undef DEACTIVATE_SERVOS_AFTER_MOVE
+  #undef EDITABLE_SERVO_ANGLES
+  #undef SERVOS_CAN_BE_DISABLED
 #endif
 
 // Sensors
