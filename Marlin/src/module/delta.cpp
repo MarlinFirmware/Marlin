@@ -83,28 +83,6 @@ void recalc_delta_settings() {
 }
 
 /**
- * Get a safe radius for calibration
- */
-
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-
-  #if ENABLED(DELTA_AUTO_CALIBRATION)
-    float calibration_radius_factor = 1;
-  #endif
-
-  float delta_calibration_radius() {
-    return calibration_radius_factor * (
-      #if HAS_BED_PROBE
-        FLOOR((DELTA_PRINTABLE_RADIUS) - _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y), PROBING_MARGIN))
-      #else
-        DELTA_PRINTABLE_RADIUS
-      #endif
-    );
-  }
-
-#endif
-
-/**
  * Delta Inverse Kinematics
  *
  * Calculate the tower positions for a given machine

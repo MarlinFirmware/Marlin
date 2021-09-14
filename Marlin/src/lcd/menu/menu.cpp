@@ -285,6 +285,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if HAS_BUZZER
   void MarlinUI::completion_feedback(const bool good/*=true*/) {
+    TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
     if (good) {
       BUZZ(100, 659);
       BUZZ(100, 698);

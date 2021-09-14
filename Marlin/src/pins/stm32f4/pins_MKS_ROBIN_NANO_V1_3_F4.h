@@ -22,22 +22,24 @@
 #pragma once
 
 /**
- * Test X86_64-specific configuration values for errors at compile-time.
+ * MKS Robin nano V1.3 (STM32F407VET6) board pin assignments
+ * https://github.com/makerbase-mks/MKS-Robin-Nano-V1.X/tree/master/hardware
  */
 
-// Emulating RAMPS
-#if ENABLED(SPINDLE_LASER_USE_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
-  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#define BOARD_INFO_NAME "MKS Robin Nano V1.3"
+
+//
+// EEPROM
+// Use one of these or SDCard-based Emulation will be used
+//
+#if NO_EEPROM_SELECTED
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
 #endif
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on LINUX."
-#endif
+#define LED_PIN                             PB1
 
-#if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on LINUX."
-#endif
-
-#if ENABLED(POSTMORTEM_DEBUGGING)
-  #error "POSTMORTEM_DEBUGGING is not yet supported on LINUX."
-#endif
+#include "../stm32f1/pins_MKS_ROBIN_NANO_common.h"

@@ -35,7 +35,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 02000901
+#define CONFIGURATION_H_VERSION 02000902
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -2566,7 +2566,7 @@
 //  - Copy the downloaded DWIN_SET folder to the SD card.
 //
 // RELOADED (T5UID1)
-//  - Download https://github.com/Desuuuu/DGUS-reloaded
+//  - Download https://github.com/Desuuuu/DGUS-reloaded/releases
 //  - Copy the downloaded DWIN_SET folder to the SD card.
 //
 //#define DGUS_LCD_UI_ORIGIN
@@ -2779,6 +2779,8 @@
 #if ENABLED(TOUCH_SCREEN)
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
+
+  //#define TOUCH_IDLE_SLEEP 300 // (secs) Turn off the TFT backlight if set (5mn)
 
   #define TOUCH_SCREEN_CALIBRATION
 
