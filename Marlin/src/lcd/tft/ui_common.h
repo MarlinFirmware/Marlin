@@ -51,6 +51,10 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
 void menu_item(const uint8_t row, bool sel = false);
 
+#if HAS_TOUCH_SLEEP
+  bool lcd_sleep_task();
+#endif
+
 #define ABSOLUTE_ZERO     -273.15
 
 #if HAS_TEMP_CHAMBER && HOTENDS > 1
