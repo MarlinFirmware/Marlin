@@ -34,7 +34,7 @@
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " BLTouch, based on bugfix-2.0.x"       // MRiscoC
+#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " Manual Mesh, based on bugfix-2.0.x"       // MRiscoC
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
@@ -43,8 +43,8 @@
  */
 //#define STRING_DISTRIBUTION_DATE "2021-09-14"
 
-#define STRING_DISTRIBUTION_DATE __DATE__      // MRiscoC Set Automatic Distribution Date
-#define STRING_DISTRIBUTION_TIME __TIME__      // MRiscoC Set Automatic Distribution Time
+#define STRING_DISTRIBUTION_DATE __DATE__       // MRiscoC Set Automatic Distribution Date
+#define STRING_DISTRIBUTION_TIME __TIME__       // MRiscoC Set Automatic Distribution Time
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.

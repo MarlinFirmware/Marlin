@@ -41,6 +41,8 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
+//#define STRING_DISTRIBUTION_DATE "2021-09-14"
+
 #define STRING_DISTRIBUTION_DATE __DATE__       // MRiscoC Set Automatic Distribution Date
 #define STRING_DISTRIBUTION_TIME __TIME__       // MRiscoC Set Automatic Distribution Time
 
@@ -66,7 +68,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "github.com/mriscoc/Marlin_Ender3v2/wiki"
+#define WEBSITE_URL ".../Marlin_Ender3v2/wiki"
 
 /**
  * Set the vendor info the serial USB interface, if changable

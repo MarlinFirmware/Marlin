@@ -145,7 +145,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "Ender 3v2 3D/BLTouch"
+#define CUSTOM_MACHINE_NAME "Ender 3V2 ManualMesh"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -596,6 +596,7 @@
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
+// Ender 3 v2 (MRiscoC Actual Hotend PID parameters)
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify up to one value per hotend here, according to your setup.
     // If there are fewer values, the last one applies to the remaining hotends.
@@ -603,7 +604,6 @@
     #define DEFAULT_Ki_LIST {   1.87,   1.87 }
     #define DEFAULT_Kd_LIST {  70.18,  70.18 }
   #else
-    // Ender 3 v2
     #define DEFAULT_Kp  22.89
     #define DEFAULT_Ki   1.87
     #define DEFAULT_Kd  70.18
@@ -643,7 +643,9 @@
   //#define MIN_BED_POWER 0
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
-  // Ender 3 V2
+  // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+  // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
+  // Ender 3 V2 :
   #define DEFAULT_bedKp 462.10
   #define DEFAULT_bedKi  85.47
   #define DEFAULT_bedKd 624.59
@@ -720,7 +722,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 1000
+#define EXTRUDE_MAXLENGTH 1000  // Ender3v2 Configs
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -741,7 +743,7 @@
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
-//#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
+//#define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber  // Ender3v2 Configs
 #define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
 
 //===========================================================================
@@ -942,7 +944,7 @@
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 100, 2500 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -1060,7 +1062,7 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-//#define PROBE_MANUALLY
+#define PROBE_MANUALLY              // DAE activo para mesh manual
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
@@ -1083,7 +1085,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-#define BLTOUCH   // MRiscoC Activate BLTouch
+//#define BLTOUCH
 
 /**
  * Touch-MI Probe by hotends.fr
@@ -1175,7 +1177,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { -41.5, -7, 0 } // MRiscoC BLTouch offset for support: https://www.thingiverse.com/thing:4605354 (z-offset = -1.80 mm)
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 } //Dae pongo todo a cero para mesh manual
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1244,18 +1246,18 @@
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
 #define Z_CLEARANCE_DEPLOY_PROBE    5 // Z Clearance for Deploy/Stow    // MRiscoC speed-up
-#define Z_CLEARANCE_BETWEEN_PROBES  4 // Z Clearance between probe points    // MRiscoC speed-up
+#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN -10
-#define Z_PROBE_OFFSET_RANGE_MAX 10
+#define Z_PROBE_OFFSET_RANGE_MIN -20
+#define Z_PROBE_OFFSET_RANGE_MAX  20
 
 // Enable the M48 repeatability test to test probe accuracy
-#define Z_MIN_PROBE_REPEATABILITY_TEST	// MRiscoC Enable M48 repeatability test
+//#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
@@ -1435,7 +1437,7 @@
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
-  #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present. // DAE cambiar a High si esta funcionando al reves
+  #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
@@ -1532,9 +1534,9 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR    // MRiscoC BLTouch auto level
+//#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
+#define MESH_BED_LEVELING 		//DAE mesh manual activate
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
@@ -1549,7 +1551,7 @@
  */
 #define PREHEAT_BEFORE_LEVELING     // MRiscoC heatting to compensate thermal expansions
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #define LEVELING_NOZZLE_TEMP   0  // (°C) Only applies to E0 at this time  // MRiscoC no necessary for BLTouch
+  #define LEVELING_NOZZLE_TEMP 170   // (°C) Only applies to E0 at this time  // MRiscoC necessary for Manual Mesh
   #define LEVELING_BED_TEMP     50
 #endif
 
@@ -1609,7 +1611,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    // #define EXTRAPOLATE_BEYOND_GRID      // MRiscoC No extrapolate beyond of mesh points
+    //#define EXTRAPOLATE_BEYOND_GRID      // MRiscoC No extrapolate beyond of mesh points
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1651,7 +1653,7 @@
   //=================================== Mesh ==================================
   //===========================================================================
 
-  #define MESH_INSET 25          // Set Mesh bounds as an inset region of the bed //DAE cambio de 10 a 15
+  #define MESH_INSET 25          // Set Mesh bounds as an inset region of the bed //MRiscoC Center mesh
   #define GRID_MAX_POINTS_X 5    // Don't use more than 7 points per axis, implementation limited. 	// MRiscoC Mesh grid points (3 or 5)
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1733,7 +1735,7 @@
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-#define Z_SAFE_HOMING   // MRiscoC Z Homing on Center of bed
+//#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
@@ -2168,7 +2170,7 @@
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
 //#define INDIVIDUAL_AXIS_HOMING_MENU
-//#define INDIVIDUAL_AXIS_HOMING_SUBMENU
+#define INDIVIDUAL_AXIS_HOMING_SUBMENU
 
 //
 // SPEAKER/BUZZER
@@ -2575,7 +2577,7 @@
 //  - Copy the downloaded DWIN_SET folder to the SD card.
 //
 // RELOADED (T5UID1)
-//  - Download https://github.com/Desuuuu/DGUS-reloaded/releases
+//  - Download https://github.com/Desuuuu/DGUS-reloaded
 //  - Copy the downloaded DWIN_SET folder to the SD card.
 //
 //#define DGUS_LCD_UI_ORIGIN
@@ -2788,8 +2790,6 @@
 #if ENABLED(TOUCH_SCREEN)
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
-
-  //#define TOUCH_IDLE_SLEEP 300 // (secs) Turn off the TFT backlight if set (5mn)
 
   #define TOUCH_SCREEN_CALIBRATION
 
