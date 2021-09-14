@@ -157,15 +157,9 @@ void Popup_Window_Resume();
 void HMI_SDCardInit();
 void HMI_SDCardUpdate();
 
-// Main Process
-//void Icon_print();
-//void Icon_control();
-//void Icon_leveling(bool value);
-
 // Other
 void Goto_PrintProcess();
 void Goto_Main_Menu();
-void update_variable();
 void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area;
@@ -178,19 +172,15 @@ void HMI_ReturnScreen();    // Return to previous screen before popups
 void ApplyExtMinT();
 void HMI_SetLanguageCache(); // Set the languaje image cache
 
-//void HMI_Leveling();    // Level the page
-//void HMI_LevBedCorners();   // Tramming menu
-//void HMI_Info();          // Information menu
-
-
 void HMI_Init();
 void HMI_Popup();
 void HMI_SaveProcessID(const uint8_t id);
 void HMI_AudioFeedback(const bool success=true);
+void EachMomentUpdate();
+void update_variable();
+void DWIN_HandleScreen();
 void DWIN_Startup();
 void DWIN_Update();
-void EachMomentUpdate();
-void DWIN_HandleScreen();
 void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
 void DWIN_StatusChanged(const char * const text);
 void DWIN_StatusChanged_P(PGM_P const text);

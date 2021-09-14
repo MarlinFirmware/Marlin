@@ -1917,6 +1917,7 @@ void DWIN_Redraw_screen() {
     DWINUI::Draw_Icon(ICON_Confirm_E, 26, 280);
     DWINUI::Draw_Icon(ICON_Continue_E, 146, 280);
     Draw_Select_Highlight(true);
+    DWIN_UpdateLCD();
   }
 
   // Handle responses such as:
@@ -1981,7 +1982,6 @@ void DWIN_LockScreen(const bool flag) {
 //  LiveUpdate: live update function when the encoder changes
 //  Apply: update function when the encoder is pressed
 void SetOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_t dp, const int32_t val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr) {
-  last_checkkey = Menu;
   checkkey = process;
   HMI_value.MinValue = lo;
   HMI_value.MaxValue = hi;
@@ -2986,7 +2986,7 @@ int8_t HMI_GetIntNoDraw(const int32_t lo, const int32_t hi) {
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_value.Value)) {
       EncoderRate.enabled = false;
-      checkkey = last_checkkey;
+      checkkey = Menu;
       return 2;
     }
     LIMIT(HMI_value.Value, lo, hi);
@@ -3008,7 +3008,7 @@ int8_t HMI_GetInt(const int32_t lo, const int32_t hi) {
     if (Apply_Encoder(encoder_diffState, HMI_value.Value)) {
       EncoderRate.enabled = false;
       DWINUI::Draw_Int(HMI_data.Text_Color, HMI_data.Background_Color, 4 , VALX, MBASE(CurrentMenu->line()) - 1, HMI_value.Value);
-      checkkey = last_checkkey;
+      checkkey = Menu;
       return 2;
     }
     LIMIT(HMI_value.Value, lo, hi);
@@ -3062,7 +3062,7 @@ int8_t HMI_GetFloat(uint8_t dp, int32_t lo, int32_t hi) {
     if (Apply_Encoder(encoder_diffState, HMI_value.Value)) {
       EncoderRate.enabled = false;
       DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, dp, VALX - dp * DWINUI::Get_font_width(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), HMI_value.Value / POW(10, dp));
-      checkkey = last_checkkey;
+      checkkey = Menu;
       return 2;
     }
     LIMIT(HMI_value.Value, lo, hi);
