@@ -86,9 +86,6 @@
 
 #define PAUSE_HEAT
 
-#define USE_STRING_HEADINGS
-#define USE_STRING_TITLES
-
 #define MENU_CHAR_LIMIT  24
 
 // Print speed limit
@@ -601,16 +598,9 @@ void Draw_Print_Labels() {
     DWIN_Frame_AreaCopy(1, 65, 72, 128, 86, 176, 173);  // Remain
   }
   else {
-    #ifdef USE_STRING_TITLES
-      Title.ShowCaption(GET_TEXT(MSG_PRINTING));
-      DWINUI::Draw_String( 46, 173, F("Print Time"));
-      DWINUI::Draw_String(181, 173, F("Remain"));
-    #else
-      const uint16_t y = 168;
-      Title.FrameCopy(42, 0, 47, 14);                   // "Printing"
-      DWIN_Frame_AreaCopy(1,  0, 44,  96, 58,  41, y);  // Printing Time
-      DWIN_Frame_AreaCopy(1, 98, 44, 152, 58, 176, y);  // Remain
-    #endif
+    Title.ShowCaption(GET_TEXT(MSG_PRINTING));
+    DWINUI::Draw_String( 46, 173, F("Print Time"));
+    DWINUI::Draw_String(181, 173, F("Remain"));
   }
 }
 
@@ -690,13 +680,8 @@ void Draw_Main_Menu() {
 
   if (HMI_IsChinese())
     Title.FrameCopy(2, 2, 26, 13);   // "Home" etc
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption(MACHINE_NAME);
-    #else
-      Title.FrameCopy(0, 2, 40, 11); // "Home"
-    #endif
-  }
+  else
+    Title.ShowCaption(MACHINE_NAME);
 
   DWINUI::Draw_Icon(ICON_LOGO, 71, 52);  // CREALITY logo
 
@@ -1087,11 +1072,7 @@ void Draw_Info_Menu() {
     DWIN_Frame_AreaCopy(1,  58, 164, 113, 176, 105, 248);   // "Contact Details"
   }
   else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption(GET_TEXT_F(MSG_INFO_SCREEN));
-    #else
-      Title.FrameCopy(192, 15, 23, 12);                     // "Info"
-    #endif
+    Title.ShowCaption(GET_TEXT_F(MSG_INFO_SCREEN));
 
     DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);   // "Size"
     DWIN_Frame_AreaCopy(1, 146, 151, 254, 161,  82, 175);   // "Firmware Version"
@@ -1110,13 +1091,8 @@ void Draw_Info_Menu() {
 void Draw_Print_File_Menu() {
   if (HMI_IsChinese())
     Title.FrameCopy(0, 31, 56, 14);    // "Print file"
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption(GET_TEXT_F(MSG_MEDIA_MENU));
-    #else
-      Title.FrameCopy(52, 31, 86, 11); // "Print file"
-    #endif
-  }
+  else
+    Title.ShowCaption(GET_TEXT_F(MSG_MEDIA_MENU));
   Redraw_SD_List();
 }
 
@@ -3083,13 +3059,8 @@ void HMI_SetPFloat() {
 void SetMenuTitle(frame_rect_t cn, frame_rect_t en, const __FlashStringHelper* text) {
   if (HMI_IsChinese() && (cn.w != 0))
     CurrentMenu->MenuTitle.SetFrame(cn.x, cn.y, cn.w, cn.h);
-  else {
-    #ifdef USE_STRING_HEADINGS
-      CurrentMenu->MenuTitle.SetCaption(text);
-    #else
-      if (en.w != 0) CurrentMenu->MenuTitle.SetFrame(en.x, en.y, en.w, en.h);
-    #endif
-  }
+  else
+    CurrentMenu->MenuTitle.SetCaption(text);
 }
 
 void Draw_Prepare_Menu() {
