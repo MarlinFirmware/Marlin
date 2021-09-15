@@ -1305,6 +1305,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "MANUAL_SWITCHING_TOOLHEAD requires either matching hotend/EXTRUDER count, or just one EXTRUDER."
   #elif ENABLED(SWITCHING_TOOLHEAD_PARKING) && DISABLED(NOZZLE_PARK_FEATURE)
     #error "SWITCHING_TOOLHEAD_PARKING requires NOZZLE_PARK_FEATURE."
+  #elif ENABLED(TOOLCHANGE_PARK)
+    #error "MANUAL_SWITCHING_TOOLHEAD does not use TOOLCHANGE_PARK - use SWITCHING_TOOLHEAD_PARKING instead."
   #elif defined(SWITCHING_TOOLHEAD_TOOL_NAMES)
     constexpr const char* st_hn[] = SWITCHING_TOOLHEAD_TOOL_NAMES;
     static_assert(

@@ -63,7 +63,7 @@ void menu_tool_change_done() {
  */
 void menu_tool_change_cancel() {
   thermalManager.heating_enabled = true;
-  ui.set_status_P(PSTR("M117 Tool Change Cancelled"));
+  ui.set_status_P(PSTR("Tool Change Canceled"));
   ui.return_to_status();
 
   #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
@@ -84,6 +84,7 @@ void menu_tool_change_cancel() {
  */
 void menu_tool_changing() {
   thermalManager.heating_enabled = false;
+
   #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
     toolchange_resume_position = current_position;
     nozzle.park(0);
@@ -197,12 +198,27 @@ void menu_tool_change_unpowered() {
  *
  */
 void menu_tool_change() {
-  START_MENU();
+  const char* tool_name;
 
-  //
-  // ^ Main
-  //
+  // display the current tool
+  #ifdef SWITCHING_TOOLHEAD_TOOL_NAMES
+    tool_name = toolhead_names[active_extruder];
+  #else
+    if (active_extruder < HOTENDS) {
+      char buf[7 + 1 + 1]; // "Hotend ", digit, null
+      sprintf_P(buf, PSTR("Hotend %c"), (active_extruder + 1) + '0');
+      tool_name = buf;
+    } else {
+      char buf[5 + 1 + 1]; // "Tool ", digit, null
+      sprintf_P(buf, PSTR("Tool %c"), (active_extruder + 1) + '0');
+      tool_name = buf;
+    }
+  #endif
+
+  START_MENU();
+  STATIC_ITEM_P(tool_name, SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_MAIN);
+
 
   #if HOTENDS > 0
     SUBMENU(MSG_HOTEND, menu_tool_change_hotend);
