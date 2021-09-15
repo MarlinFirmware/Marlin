@@ -22,7 +22,7 @@
 #pragma once
 
 /*****************************************************************************
-  * @file     lcd/e3v2/jyersui/rotary_encoder.h
+  * @file     lcd/e3v2/common/encoder.h
   * @brief    Rotary encoder functions
   ****************************************************************************/
 

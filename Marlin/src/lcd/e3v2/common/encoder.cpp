@@ -21,15 +21,15 @@
  */
 
 /*****************************************************************************
- * @file     lcd/e3v2/jyersui/rotary_encoder.cpp
+ * @file     lcd/e3v2/common/encoder.cpp
  * @brief    Rotary encoder functions
  *****************************************************************************/
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+#if HAS_DWIN_E3V2
 
-#include "rotary_encoder.h"
+#include "encoder.h"
 #include "../../buttons.h"
 
 #include "../../../MarlinCore.h"
@@ -38,7 +38,6 @@
 
 #if HAS_BUZZER
   #include "../../../libs/buzzer.h"
-  #include "dwin.h"
 #endif
 
 #include <stdlib.h>
@@ -49,10 +48,10 @@
 
 ENCODER_Rate EncoderRate;
 
-// Buzzer
+// TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
-    if (CrealityDWIN.eeprom_settings.beeperenable) {
+    if (ui.buzzer_enabled) {
       WRITE(BEEPER_PIN, HIGH);
       delay(10);
       WRITE(BEEPER_PIN, LOW);
@@ -72,7 +71,7 @@ void Encoder_Configuration() {
     SET_INPUT_PULLUP(BTN_ENC);
   #endif
   #if PIN_EXISTS(BEEPER)
-    SET_OUTPUT(BEEPER_PIN);
+    SET_OUTPUT(BEEPER_PIN);     // TODO: Use buzzer.h which already inits this
   #endif
 }
 
@@ -94,8 +93,10 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      if (ui.backlight) return ENCODER_DIFF_ENTER;
-      ui.refresh_brightness();
+      if (!ui.backlight) ui.refresh_brightness();
+      const bool was_waiting = wait_for_user;
+      wait_for_user = false;
+      return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
     }
     else return ENCODER_DIFF_NO;
   }
@@ -122,13 +123,8 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   }
 
   if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
-    #if ENABLED(REVERSE_ENCODER_DIRECTION)
-      if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CCW;
-      else temp_diffState = ENCODER_DIFF_CW;
-    #else
-      if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
-      else temp_diffState = ENCODER_DIFF_CCW;
-    #endif
+    if (temp_diff > 0) temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW);
+    else temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW, ENCODER_DIFF_CCW);
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -260,4 +256,4 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
 
 #endif // LCD_LED
 
-#endif // DWIN_CREALITY_LCD_JYERSUI
+#endif // HAS_DWIN_E3V2

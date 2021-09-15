@@ -30,7 +30,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 #include "dwinui.h"
-#include "rotary_encoder.h"
+#include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
 
 #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
