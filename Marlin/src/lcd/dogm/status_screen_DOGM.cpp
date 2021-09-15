@@ -125,11 +125,7 @@
 #endif
 
 #if DO_DRAW_HOTENDS
-  #if SWITCHING_TOOLHEAD_MULTI_HOTEND
-    #define MAX_HOTEND_DRAW 1
-  #else
-    #define MAX_HOTEND_DRAW _MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
-  #endif
+  #define MAX_HOTEND_DRAW _MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
 #endif
 
 #if EITHER(DO_DRAW_BED, DO_DRAW_HOTENDS)
@@ -669,6 +665,9 @@ void MarlinUI::draw_status_screen() {
     // Extruders
     #if DO_DRAW_HOTENDS
       HOTEND_LOOP() {
+        #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+          if (e != active_extruder) continue;
+        #endif
         if (e > MAX_HOTEND_DRAW) break;
         _draw_hotend_status((heater_id_t)e, blink);
       }
