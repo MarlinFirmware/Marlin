@@ -56,7 +56,7 @@ void (*DWINUI::onCursorDraw)(uint8_t line)=nullptr;
 void (*DWINUI::onTitleDraw)(TitleClass* title)=nullptr;
 void (*DWINUI::onMenuDraw)(MenuClass* menu)=nullptr;
 
-void DWINUI::Init(void) {
+void DWINUI::Init() {
   DEBUG_ECHOPGM("\r\nDWIN handshake ");
   delay(750);   // Delay here or init later in the boot process
   const bool success = DWIN_Handshake();
@@ -294,7 +294,7 @@ uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
 void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
+  DWIN_Draw_String(true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 

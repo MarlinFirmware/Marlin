@@ -269,7 +269,7 @@ typedef struct { uint16_t x, y[2], w, h; } text_info_t;
 
 void ICON_Button(const bool here, const int iconid, const frame_rect_t &ico, const text_info_t (&txt)[2]) {
   const bool cn = HMI_IsChinese();
-  DWIN_ICON_Show(1, 0, 0, ICON, iconid + here, ico.x, ico.y);
+  DWIN_ICON_Show(true, false, false, ICON, iconid + here, ico.x, ico.y);
   if (here) DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, ico.x, ico.y, ico.x + ico.w - 1, ico.y + ico.h - 1);
   DWIN_Frame_AreaCopy(1, txt[cn].x, txt[cn].y[here], txt[cn].x + txt[cn].w - 1, txt[cn].y[here] + txt[cn].h - 1, ico.x + (ico.w - txt[cn].w) / 2, (ico.y + ico.h - 28) - txt[cn].h/2);
 }
@@ -1722,7 +1722,7 @@ void Draw_Title(TitleClass* title) {
   if (title->frameid)
     DWIN_Frame_AreaCopy(title->frameid, title->frame.left, title->frame.top, title->frame.right, title->frame.bottom, 14, (TITLE_HEIGHT - (title->frame.bottom - title->frame.top)) / 2 - 1);
   else
-    DWIN_Draw_String(false, false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, (TITLE_HEIGHT - DWINUI::Get_font_height(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
+    DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, (TITLE_HEIGHT - DWINUI::Get_font_height(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
 }
 
 void Draw_Menu(MenuClass* menu) {

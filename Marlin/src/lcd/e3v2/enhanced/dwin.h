@@ -87,11 +87,6 @@ enum pidresult_t : uint8_t {
   PID_DONE
 };
 
-// Picture ID
-#define Start_Process       0
-#define Language_English    1
-#define Language_Chinese    2
-
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
 
@@ -193,7 +188,6 @@ void HMI_AudioFeedback(const bool success=true);
 void EachMomentUpdate();
 void update_variable();
 void DWIN_HandleScreen();
-void DWIN_Startup();
 void DWIN_Update();
 void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
 void DWIN_StatusChanged(const char * const text);

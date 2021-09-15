@@ -593,7 +593,7 @@ void DWIN_Draw_Label(const uint8_t row, const __FlashStringHelper *title) {
   DWIN_Draw_Label(row, (char*)title);
 }
 
-void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, int32_t value) {
   DWIN_Draw_String(true, size, Color_White, bColor, x - 8, y, value < 0 ? F("-") : F(" "));
   DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, value < 0 ? -value : value);
 }
@@ -607,7 +607,7 @@ void Draw_Edit_Integer4(const uint8_t row, const uint16_t value, const bool acti
 }
 
 void Draw_Edit_Float3(const uint8_t row, const uint16_t value, const bool active=false) {
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, active ? Select_Color : Color_Bg_Black, 3, UNITFDIGITS, 220 - UNITFDIGITS * 8, EBASE(row), value);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, active ? Select_Color : Color_Bg_Black, 3, UNITFDIGITS, 220 - UNITFDIGITS * 8, EBASE(row), (int32_t)value);
 }
 
 void Draw_Edit_Signed_Float2(const uint8_t row, const float value, const bool active=false) {
@@ -1816,8 +1816,6 @@ void HMI_SDCardInit() { card.cdroot(); }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
 
-#define ICON_Folder ICON_More
-
 #if ENABLED(SCROLL_LONG_FILENAMES)
 
   char shift_name[LONG_FILENAME_LENGTH + 1];
@@ -2417,7 +2415,7 @@ void Item_Adv_HomeOffsets(const uint8_t row) {
       Item_AreaCopy(1,  76, 102,  87, row); // "Set Home Offsets"
     #endif
   }
-  Draw_Menu_Line(row, ICON_HomeOff);
+  Draw_Menu_Line(row, ICON_HomeOffset);
   Draw_More_Icon(row);
 }
 
@@ -2434,7 +2432,7 @@ void Item_Adv_HomeOffsets(const uint8_t row) {
         say_probe_offs_en(row);
       #endif
     }
-    Draw_Menu_Line(row, ICON_ProbeOff);
+    Draw_Menu_Line(row, ICON_ProbeOffset);
     Draw_More_Icon(row);
   }
 
@@ -2529,12 +2527,12 @@ void Item_HomeOffs_X(const uint8_t row) {
   }
   else {
     #ifdef USE_STRING_TITLES
-      Draw_Menu_LineF(row, ICON_HomeOffX, GET_TEXT_F(MSG_HOME_OFFSET_X));
+      Draw_Menu_LineF(row, ICON_HomeOffsetX, GET_TEXT_F(MSG_HOME_OFFSET_X));
     #else
       say_home_offs_en(row); say_x_en(75, row);   // "Home Offset X"
     #endif
   }
-  Draw_Menu_Line(row, ICON_HomeOff);
+  Draw_Menu_Line(row, ICON_HomeOffset);
   Draw_Edit_Signed_Float3(row, HMI_ValueStruct.Home_OffX_scaled);
 }
 
@@ -2544,12 +2542,12 @@ void Item_HomeOffs_Y(const uint8_t row) {
   }
   else {
     #ifdef USE_STRING_TITLES
-      Draw_Menu_LineF(row, ICON_HomeOffY, GET_TEXT_F(MSG_HOME_OFFSET_Y));
+      Draw_Menu_LineF(row, ICON_HomeOffsetY, GET_TEXT_F(MSG_HOME_OFFSET_Y));
     #else
       say_home_offs_en(row); say_y_en(75, row);   // "Home Offset X"
     #endif
   }
-  Draw_Menu_Line(row, ICON_HomeOff);
+  Draw_Menu_Line(row, ICON_HomeOffset);
   Draw_Edit_Signed_Float3(row, HMI_ValueStruct.Home_OffY_scaled);
 }
 
@@ -2559,12 +2557,12 @@ void Item_HomeOffs_Z(const uint8_t row) {
   }
   else {
     #ifdef USE_STRING_TITLES
-      Draw_Menu_LineF(row, ICON_HomeOffZ, GET_TEXT_F(MSG_HOME_OFFSET_Z));
+      Draw_Menu_LineF(row, ICON_HomeOffsetZ, GET_TEXT_F(MSG_HOME_OFFSET_Z));
     #else
       say_home_offs_en(row); say_z_en(75, row);   // "Home Offset Z"
     #endif
   }
-  Draw_Menu_Line(row, ICON_HomeOff);
+  Draw_Menu_Line(row, ICON_HomeOffset);
   Draw_Edit_Signed_Float3(row, HMI_ValueStruct.Home_OffZ_scaled);
 }
 
@@ -2602,8 +2600,8 @@ void Draw_HomeOff_Menu() {
         DWIN_Frame_TitleCopy(124, 431, 91, 12);                             // "Probe Offsets"
       #endif
       #ifdef USE_STRING_TITLES
-        Draw_Menu_LineF(1, ICON_ProbeOffX, GET_TEXT_F(MSG_ZPROBE_XOFFSET));  // Probe X Offset
-        Draw_Menu_LineF(2, ICON_ProbeOffY, GET_TEXT_F(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
+        Draw_Menu_LineF(1, ICON_ProbeOffsetX, GET_TEXT_F(MSG_ZPROBE_XOFFSET));  // Probe X Offset
+        Draw_Menu_LineF(2, ICON_ProbeOffsetY, GET_TEXT_F(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
       #else
         say_probe_offs_en(1); say_x_en(75, 1);  // "Probe Offset X"
         say_probe_offs_en(2); say_y_en(75, 2);  // "Probe Offset Y"
