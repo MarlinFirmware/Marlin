@@ -652,8 +652,11 @@
   // all hotends will use *_0_PIN for heaters/sensors.
   #if SWITCHING_TOOLHEAD_TOOL_QTY < 2
     #error "MANUAL_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_TOOL_QTY >= 2."
+  #elif SWITCHING_TOOLHEAD_TOOL_QTY > 8
+    #error "SWITCHING_TOOLHEAD_TOOL_QTY can not be more than 8."
   #else
     #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && SWITCHING_TOOLHEAD_TOOL_QTY > P
+
     #if HOTEND_TEST(0)
       #if HOTEND_TEST(1)
         #define SWITCHING_TOOLHEAD_MULTI_HOTEND 1
@@ -663,7 +666,11 @@
             #if HOTEND_TEST(4)
               #if HOTEND_TEST(5)
                 #if HOTEND_TEST(6)
-                  #define HOTENDS 7
+                  #if HOTEND_TEST(7)
+                    #define HOTENDS 8
+                  #else
+                    #define HOTENDS 7
+                  #endif
                 #else
                   #define HOTENDS 6
                 #endif
@@ -685,20 +692,24 @@
     #else
       #define HOTENDS 0
     #endif
-  #endif
-  #undef HOTEND_TEST
 
+    #undef HOTEND_TEST
+  #endif
+
+  // non-hotend tools are classified as "unpowered tools"
   #define UNPOWERED_TOOLS (SWITCHING_TOOLHEAD_TOOL_QTY - HOTENDS)
 
   #if EXTRUDERS == 1 && HOTENDS > 1
+    // single extruder - plates don't have steppers on them
     #define MANUAL_SWITCHING_TOOLHEAD_SINGLE_EXTRUDER 1
-    #define E_STEPPERS 1
-    #define E_MANUAL 1
     #undef EXTRUDERS
-    #define EXTRUDERS SWITCHING_TOOLHEAD_TOOL_QTY
+    #define EXTRUDERS HOTENDS
+    #define E_STEPPERS HOTENDS
+    #define E_MANUAL 1
   #else
+    // multiple extruders - plates likely direct drive, or multiple bowden tools
     #define E_STEPPERS      EXTRUDERS
-    #define E_MANUAL        EXTRUDERS
+    #define E_MANUAL        1
   #endif
 
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)   // Toolchanger
@@ -813,11 +824,7 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
-#if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
-  #define HOTEND_LOOP() for (int8_t e = active_extruder; e <= active_extruder; e++)
-#else
-  #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
-#endif
+#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
