@@ -2866,7 +2866,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     case Advanced:
 
       #define ADVANCED_BACK 0
-      #define ADVANCED_BEEPER (ADVANCED_BACK + 1)
+      #define ADVANCED_BEEPER (ADVANCED_BACK + ENABLED(SOUND_MENU_ITEM))
       #define ADVANCED_PROBE (ADVANCED_BEEPER + ENABLED(HAS_BED_PROBE))
       #define ADVANCED_CORNER (ADVANCED_PROBE + 1)
       #define ADVANCED_LA (ADVANCED_CORNER + ENABLED(LIN_ADVANCE))
@@ -2886,16 +2886,18 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu(Control, CONTROL_ADVANCED);
           break;
 
-        case ADVANCED_BEEPER:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_Version, "LCD Beeper");
-            Draw_Checkbox(row, eeprom_settings.beeperenable);
-          }
-          else {
-            eeprom_settings.beeperenable = !eeprom_settings.beeperenable;
-            Draw_Checkbox(row, eeprom_settings.beeperenable);
-          }
-          break;
+        #if ENABLED(SOUND_MENU_ITEM)
+          case ADVANCED_BEEPER:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Version, "LCD Beeper");
+              Draw_Checkbox(row, ui.buzzer_enabled);
+            }
+            else {
+              ui.buzzer_enabled = !ui.buzzer_enabled;
+              Draw_Checkbox(row, ui.buzzer_enabled);
+            }
+            break;
+        #endif
 
         #if HAS_BED_PROBE
           case ADVANCED_PROBE:
@@ -4967,14 +4969,14 @@ void CrealityDWINClass::Screen_Update() {
 
 void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
   if (success) {
-    if (eeprom_settings.beeperenable) {
+    if (ui.buzzer_enabled) {
       BUZZ(100, 659);
       BUZZ( 10,   0);
       BUZZ(100, 698);
     }
     else Update_Status("Success");
   }
-  else if (eeprom_settings.beeperenable)
+  else if (ui.buzzer_enabled)
     BUZZ(40, 440);
   else
     Update_Status("Failed");
@@ -5003,7 +5005,6 @@ void CrealityDWINClass::Load_Settings(const char *buff) {
 
 void CrealityDWINClass::Reset_Settings() {
   eeprom_settings.time_format_textual = false;
-  eeprom_settings.beeperenable = true;
   TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = 0);
   eeprom_settings.corner_pos = 325;
   eeprom_settings.cursor_color = 0;
@@ -5019,6 +5020,7 @@ void CrealityDWINClass::Reset_Settings() {
   eeprom_settings.coordinates_split_line = 0;
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   corner_pos = eeprom_settings.corner_pos / 10.0f;
+  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
   Redraw_Screen();
 }
 
