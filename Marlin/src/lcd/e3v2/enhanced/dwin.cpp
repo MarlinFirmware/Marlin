@@ -1294,7 +1294,7 @@ void HMI_Printing() {
       case PRINT_PAUSE_RESUME:
         if (HMI_flag.pause_flag) {
           ICON_Pause();
-          #ifndef ADVANCED_PAUSE_FEATURE
+          #if DISABLED(ADVANCED_PAUSE_FEATURE)
             char cmd[40];
             cmd[0] = '\0';
             #if BOTH(HAS_HEATED_BED, PAUSE_HEAT)
