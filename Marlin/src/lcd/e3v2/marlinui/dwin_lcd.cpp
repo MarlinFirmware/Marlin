@@ -384,8 +384,7 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id) {
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
-                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
+void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x27);
   DWIN_Byte(i, 0x80 | cacheID);

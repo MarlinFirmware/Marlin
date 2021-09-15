@@ -107,9 +107,9 @@ inline void DWIN_Draw_Box(uint8_t mode, uint16_t color, uint16_t xStart, uint16_
   DWIN_Draw_Rectangle(mode, color, xStart, yStart, xStart + xSize - 1, yStart + ySize - 1);
 }
 
-//Color: color
-//x: upper left point
-//y: bottom right point
+// Draw the degree (°) symbol
+// Color: color
+//  x/y: Upper-left coordinate of the first pixel
 void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y);
 
 // Move a screen area

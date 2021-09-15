@@ -28,7 +28,10 @@
 #include "dwin_lcd.h"
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
+
 #include "../../../inc/MarlinConfigPre.h"
+
+//#define DWIN_CREALITY_LCD_CUSTOM_ICONS
 
 enum processID : uint8_t {
   Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
@@ -261,7 +264,7 @@ enum colorID : uint8_t {
 #define BarFill_Color       0x10E4  // Fill color of progress bar
 #define Select_Color        0x33BB  // Selected color
 #define Check_Color         0x4E5C  // Check-box check color
-#define Confirm_Color   	  0x34B9
+#define Confirm_Color       0x34B9
 #define Cancel_Color        0x3186
 
 class CrealityDWINClass {

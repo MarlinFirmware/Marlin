@@ -206,8 +206,9 @@ void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
   DWIN_Send(i);
 }
 
-//Color: color
-//x/y: Upper-left coordinate of the first pixel
+// Draw the degree (°) symbol
+// Color: color
+//  x/y: Upper-left coordinate of the first pixel
 void DWIN_Draw_DegreeSymbol(uint16_t Color, uint16_t x, uint16_t y) {
   DWIN_Draw_Point(Color, 1, 1, x + 1, y);
   DWIN_Draw_Point(Color, 1, 1, x + 2, y);
@@ -388,8 +389,7 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id) {
 //  xStart/yStart: Upper-left of virtual area
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
-                         uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
+void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x27);
   DWIN_Byte(i, 0x80 | cacheID);

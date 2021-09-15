@@ -138,7 +138,7 @@ constexpr uint16_t MROWS = TROWS - 1,   // Last Row Index
 
 // Value Init
 HMI_value_t HMI_ValueStruct;
-HMI_Flag_t HMI_flag{0};
+HMI_flag_t HMI_flag{0};
 
 millis_t dwin_heat_time = 0;
 
@@ -2615,6 +2615,7 @@ void Draw_HomeOff_Menu() {
 
     if (select_item.now != CASE_BACK) Draw_Menu_Cursor(select_item.now);
   }
+
 #endif
 
 #include "../../../libs/buzzer.h"
@@ -2932,16 +2933,13 @@ void HMI_Control() {
   DWIN_UpdateLCD();
 }
 
-
 #if HAS_ONESTEP_LEVELING
-
   // Leveling
   void HMI_Leveling() {
     Popup_Window_Leveling();
     DWIN_UpdateLCD();
     queue.inject_P(PSTR("G28O\nG29"));
   }
-
 #endif
 
 // Axis Move
@@ -2951,9 +2949,9 @@ void HMI_AxisMove() {
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     // popup window resume
-    if (HMI_flag.ETempTooLow_flag) {
+    if (HMI_flag.cold_flag) {
       if (encoder_diffState == ENCODER_DIFF_ENTER) {
-        HMI_flag.ETempTooLow_flag = false;
+        HMI_flag.cold_flag = false;
         HMI_ValueStruct.Move_E_scaled = current_position.e * MINUNITMULT;
         Draw_Move_Menu();
         Draw_Edit_Float3(1, HMI_ValueStruct.Move_X_scaled);
@@ -3003,7 +3001,7 @@ void HMI_AxisMove() {
           case 4: // Extruder
             #if ENABLED(PREVENT_COLD_EXTRUSION)
               if (thermalManager.tooColdToExtrude(0)) {
-                HMI_flag.ETempTooLow_flag = true;
+                HMI_flag.cold_flag = true;
                 Popup_Window_ETempTooLow();
                 DWIN_UpdateLCD();
                 return;
@@ -3654,6 +3652,7 @@ void HMI_AdvSet() {
 #endif // HAS_HOME_OFFSET
 
 #if HAS_ONESTEP_LEVELING
+
   // Probe Offset
   void HMI_ProbeOff() {
     ENCODER_DiffState encoder_diffState = get_encoder_state();

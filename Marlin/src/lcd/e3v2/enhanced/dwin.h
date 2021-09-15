@@ -120,12 +120,16 @@ typedef struct {
   uint16_t Barfill_Color    = Def_Barfill_Color;
   uint16_t Indicator_Color  = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
-  TERN_(HAS_HOTEND, int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND);
-  TERN_(HAS_HOTEND, int16_t PidCycles = 10);
+  #if HAS_HOTEND
+    int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
+    int16_t PidCycles = 10;
+  #endif
   #ifdef PREHEAT_1_TEMP_BED
     int16_t BedPidT = PREHEAT_1_TEMP_BED;
   #endif
-  TERN_(PREVENT_COLD_EXTRUSION, int16_t ExtMinT = EXTRUDE_MINTEMP);
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    int16_t ExtMinT = EXTRUDE_MINTEMP;
+  #endif
 } HMI_data_t;
 
 typedef struct {
@@ -150,7 +154,9 @@ void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * cons
 #if HAS_HOTEND || HAS_HEATED_BED
   void DWIN_Popup_Temperature(const bool toohigh);
 #endif
-TERN_(HAS_HOTEND, void Popup_Window_ETempTooLow());
+#if HAS_HOTEND
+  void Popup_Window_ETempTooLow();
+#endif
 void Popup_Window_Resume();
 
 // SD Card
@@ -229,27 +235,41 @@ void Draw_AdvancedSettings_Menu();
 void Draw_Prepare_Menu();
 void Draw_Move_Menu();
 void Draw_LevBedCorners_Menu();
-TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
-TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
-TERN_(HAS_FILAMENT_SENSOR, void Draw_FilSet_Menu());
+#if HAS_HOME_OFFSET
+  void Draw_HomeOffset_Menu();
+#endif
+#if HAS_BED_PROBE
+  void Draw_ProbeSet_Menu();
+#endif
+#if HAS_FILAMENT_SENSOR
+  void Draw_FilSet_Menu();
+#endif
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
 void Draw_Tune_Menu();
 void Draw_Motion_Menu();
-TERN_(ADVANCED_PAUSE_FEATURE, void Draw_FilamentMan_Menu());
-TERN_(MESH_BED_LEVELING, void Draw_ManualMesh_Menu());
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void Draw_FilamentMan_Menu();
+#endif
+#if ENABLED(MESH_BED_LEVELING)
+  void Draw_ManualMesh_Menu();
+#endif
 #if HAS_HOTEND
   void Draw_Preheat1_Menu();
   void Draw_Preheat2_Menu();
   void Draw_Preheat3_Menu();
+  void Draw_HotendPID_Menu();
 #endif
 void Draw_Temperature_Menu();
 void Draw_MaxSpeed_Menu();
 void Draw_MaxAccel_Menu();
-TERN_(HAS_CLASSIC_JERK, void Draw_MaxJerk_Menu());
+#if HAS_CLASSIC_JERK
+  void Draw_MaxJerk_Menu();
+#endif
 void Draw_Steps_Menu();
-TERN_(HAS_HOTEND, void Draw_HotendPID_Menu());
-TERN_(HAS_HEATED_BED, void Draw_BedPID_Menu());
+#if HAS_HEATED_BED
+  void Draw_BedPID_Menu();
+#endif
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
   void Draw_ZOffsetWiz_Menu();
 #endif
