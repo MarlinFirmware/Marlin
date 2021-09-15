@@ -141,15 +141,24 @@ constexpr float default_steps[]               = DEFAULT_AXIS_STEPS_PER_UNIT;
   constexpr float default_max_jerk[]            = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
 #endif
 
-uint8_t active_menu = MainMenu;
-uint8_t last_menu = MainMenu;
-uint8_t selection = 0;
-uint8_t last_selection = 0;
+enum SelectItem : uint8_t {
+  PAGE_PRINT = 0,
+  PAGE_PREPARE,
+  PAGE_CONTROL,
+  PAGE_INFO_LEVELING,
+  PAGE_COUNT,
+
+  PRINT_SETUP = 0,
+  PRINT_PAUSE_RESUME,
+  PRINT_STOP,
+  PRINT_COUNT
+};
+
+uint8_t active_menu = MainMenu, last_menu = MainMenu;
+uint8_t selection = 0, last_selection = 0;
 uint8_t scrollpos = 0;
-uint8_t process = Main;
-uint8_t last_process = Main;
-PopupID popup;
-PopupID last_popup;
+uint8_t process = Main, last_process = Main;
+PopupID popup, last_popup;
 
 void (*funcpointer)() = nullptr;
 void *valuepointer = nullptr;
@@ -4208,7 +4217,7 @@ void CrealityDWINClass::Confirm_Handler(PopupID popupid) {
 void CrealityDWINClass::Main_Menu_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < 3) {
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < PAGE_COUNT - 1) {
     selection++; // Select Down
     Main_Menu_Icons();
   }
@@ -4218,10 +4227,10 @@ void CrealityDWINClass::Main_Menu_Control() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
     switch (selection) {
-      case 0: card.mount(); Draw_SD_List(); break;
-      case 1: Draw_Menu(Prepare); break;
-      case 2: Draw_Menu(Control); break;
-      case 3: Draw_Menu(TERN(HAS_MESH, Leveling, InfoMain)); break;
+      case PAGE_PRINT: card.mount(); Draw_SD_List(); break;
+      case PAGE_PREPARE: Draw_Menu(Prepare); break;
+      case PAGE_CONTROL: Draw_Menu(Control); break;
+      case PAGE_INFO_LEVELING: Draw_Menu(TERN(HAS_MESH, Leveling, InfoMain)); break;
     }
   DWIN_UpdateLCD();
 }
@@ -4449,7 +4458,7 @@ void CrealityDWINClass::File_Control() {
 void CrealityDWINClass::Print_Screen_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < 2) {
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < PRINT_COUNT - 1) {
     selection++; // Select Down
     Print_Screen_Icons();
   }
@@ -4459,11 +4468,11 @@ void CrealityDWINClass::Print_Screen_Control() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (selection) {
-      case 0:
+      case PRINT_SETUP:
         Draw_Menu(Tune);
         Update_Status_Bar(true);
         break;
-      case 1:
+      case PRINT_PAUSE_RESUME:
         if (paused) {
           if (sdprint) {
             wait_for_user = false;
@@ -4493,9 +4502,7 @@ void CrealityDWINClass::Print_Screen_Control() {
         else
           Popup_Handler(Pause);
         break;
-      case 2:
-        Popup_Handler(Stop);
-        break;
+      case PRINT_STOP: Popup_Handler(Stop); break;
     }
   }
   DWIN_UpdateLCD();
