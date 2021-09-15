@@ -2748,30 +2748,6 @@ void onDrawSpeedItem(MenuItemClass* menuitem, int8_t line) {
   }
 #endif
 
-void onDrawSpeed(MenuItemClass* menuitem, int8_t line) {
-  if (HMI_IsChinese()) menuitem->SetFrame(1, 173, 133, 228, 147);
-  onDrawSubMenu(menuitem, line);
-}
-
-void onDrawAcc(MenuItemClass* menuitem, int8_t line) {
-  if (HMI_IsChinese()) {
-    menuitem->SetFrame(1, 173, 133, 200, 147);
-    DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line) + 1); // ...Acceleration
-  }
-  onDrawSubMenu(menuitem, line);
-}
-
-#if HAS_CLASSIC_JERK
-  void onDrawJerk(MenuItemClass* menuitem, int8_t line) {
-    if (HMI_IsChinese()) {
-      menuitem->SetFrame(1, 173, 133, 200, 147);
-      DWIN_Frame_AreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
-      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
-    }
-    onDrawSubMenu(menuitem, line);
-  }
-#endif
-
 void onDrawSteps(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) menuitem->SetFrame(1, 153, 148, 194, 161);
   onDrawSubMenu(menuitem, line);
@@ -2813,6 +2789,12 @@ void onDrawSteps(MenuItemClass* menuitem, int8_t line) {
   }
 #endif // HAS_HOTEND
 
+void onDrawSpeed(MenuItemClass* menuitem, int8_t line) {
+  if (HMI_IsChinese())
+    menuitem->SetFrame(1, 173, 133, 228, 147);
+  onDrawSubMenu(menuitem, line);
+}
+
 void onDrawMaxSpeedX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
     menuitem->SetFrame(1, 173, 133, 228, 147);
@@ -2847,9 +2829,17 @@ void onDrawMaxSpeedZ(MenuItemClass* menuitem, int8_t line) {
   }
 #endif
 
+void onDrawAcc(MenuItemClass* menuitem, int8_t line) {
+  if (HMI_IsChinese()) {
+    menuitem->SetFrame(1, 173, 133, 200, 147);
+    DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line) + 1); // ...Acceleration
+  }
+  onDrawSubMenu(menuitem, line);
+}
+
 void onDrawMaxAccelX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 173, 133, 200, 147);
+    menuitem->SetFrame(1, 173, 133, 200, 147);
     DWIN_Frame_AreaCopy(1, 28,  149,  69, 161, LBLX + 27, MBASE(line));
     DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(line));      // X
   }
@@ -2858,7 +2848,7 @@ void onDrawMaxAccelX(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawMaxAccelY(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 173, 133, 200, 147);
+    menuitem->SetFrame(1, 173, 133, 200, 147);
     DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
     DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 71, MBASE(line));          // Y
   }
@@ -2867,7 +2857,7 @@ void onDrawMaxAccelY(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 173, 133, 200, 147);
+    menuitem->SetFrame(1, 173, 133, 200, 147);
     DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
     DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 71, MBASE(line));         // Z
   }
@@ -2877,7 +2867,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 #if HAS_HOTEND
   void onDrawMaxAccelE(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 71, MBASE(line));        // E
     }
@@ -2886,9 +2876,19 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 #endif
 
 #if HAS_CLASSIC_JERK
+
+  void onDrawJerk(MenuItemClass* menuitem, int8_t line) {
+    if (HMI_IsChinese()) {
+      menuitem->SetFrame(1, 173, 133, 200, 147);
+      DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line) + 1);  // ...
+      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
+    }
+    onDrawSubMenu(menuitem, line);
+  }
+
   void onDrawMaxJerkX(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
       DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 83, MBASE(line));
@@ -2898,7 +2898,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 
   void onDrawMaxJerkY(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
       DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 83, MBASE(line));
@@ -2908,7 +2908,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 
   void onDrawMaxJerkZ(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
       DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 83, MBASE(line));
@@ -2919,7 +2919,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
   #if HAS_HOTEND
     void onDrawMaxJerkE(MenuItemClass* menuitem, int8_t line) {
       if (HMI_IsChinese()) {
-        menuitem->SetFrame (1, 173, 133, 200, 147);
+        menuitem->SetFrame(1, 173, 133, 200, 147);
         DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
         DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
         DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 83, MBASE(line));
@@ -2927,11 +2927,12 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
       onDrawPFloatMenu(menuitem, line);
     }
   #endif
+
 #endif // HAS_CLASSIC_JERK
 
 void onDrawStepsX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 153, 148, 194, 161);
+    menuitem->SetFrame(1, 153, 148, 194, 161);
     DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line));      // X
   }
   onDrawPFloatMenu(menuitem, line);
@@ -2939,7 +2940,7 @@ void onDrawStepsX(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawStepsY(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 153, 148, 194, 161);
+    menuitem->SetFrame(1, 153, 148, 194, 161);
     DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 44, MBASE(line));      // Y
   }
   onDrawPFloatMenu(menuitem, line);
@@ -2947,7 +2948,7 @@ void onDrawStepsY(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawStepsZ(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 153, 148, 194, 161);
+    menuitem->SetFrame(1, 153, 148, 194, 161);
     DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 44, MBASE(line));      // Z
   }
   onDrawPFloatMenu(menuitem, line);
@@ -2956,7 +2957,7 @@ void onDrawStepsZ(MenuItemClass* menuitem, int8_t line) {
 #if HAS_HOTEND
   void onDrawStepsE(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 153, 148, 194, 161);
+      menuitem->SetFrame(1, 153, 148, 194, 161);
       DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 44, MBASE(line));    // E
     }
     onDrawPFloatMenu(menuitem, line);
