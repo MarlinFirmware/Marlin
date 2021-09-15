@@ -34,10 +34,6 @@
 #include "../../../inc/MarlinConfig.h"
 
 #include "dwin_lcd.h"
-#include <string.h> // for memset
-
-//#define DEBUG_OUT 1
-#include "../../../core/debug_out.h"
 
 /*---------------------------------------- Picture related functions ----------------------------------------*/
 

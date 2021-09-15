@@ -28,6 +28,8 @@
 
 #include "../../../inc/MarlinConfig.h"
 
+#include <string.h> // for memset
+
 uint8_t DWIN_SendBuf[11 + DWIN_WIDTH / 6 * 2] = { 0xAA };
 uint8_t DWIN_BufTail[4] = { 0xCC, 0x33, 0xC3, 0x3C };
 uint8_t databuf[26] = { 0 };

@@ -28,16 +28,18 @@
  * Date: 2021/09/08
  */
 
-#include "../../../core/types.h"
+#include "../common/encoder.h"
+#include <stdint.h>
 
 class LockScreenClass {
 private:
-  uint8_t Lock_Pos = 0;
-  bool unlocked = false;
+  static bool unlocked;
+  static uint8_t lock_pos;
 public:
-  void Init();
-  void onEncoderState(ENCODER_DiffState encoder_diffState);
-  void Draw();
-  bool isUnlocked();
+  static void init();
+  static void onEncoder(EncoderState encoder_diffState);
+  static void draw();
+  static inline bool isUnlocked() { return unlocked; }
 };
-extern LockScreenClass LockScreen;
+
+extern LockScreenClass lockScreen;

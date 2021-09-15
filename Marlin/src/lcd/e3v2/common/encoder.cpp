@@ -76,13 +76,13 @@ void Encoder_Configuration() {
 }
 
 // Analyze encoder value and return state
-ENCODER_DiffState Encoder_ReceiveAnalyze() {
+EncoderState Encoder_ReceiveAnalyze() {
   const millis_t now = millis();
   static uint8_t lastEncoderBits;
   uint8_t newbutton = 0;
   static signed char temp_diff = 0;
 
-  ENCODER_DiffState temp_diffState = ENCODER_DIFF_NO;
+  EncoderState temp_diffState = ENCODER_DIFF_NO;
   if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
   if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
   if (BUTTON_PRESSED(ENC)) {

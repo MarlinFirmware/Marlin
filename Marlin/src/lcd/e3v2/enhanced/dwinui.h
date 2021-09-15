@@ -83,7 +83,7 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color   Color_White
 
-//UI elements defines and constants
+// UI element defines and constants
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
 #define DWIN_FONT_HEAD font10x20
@@ -122,7 +122,7 @@ public:
   char caption[32] = "";
   uint8_t frameid = 0;
   rect_t frame = {0};
-  void Draw();
+  void draw();
   void SetCaption(const char * const title);
   inline void SetCaption(const __FlashStringHelper * title) { SetCaption((char *)title); }
   void ShowCaption(const char * const title);
@@ -150,7 +150,7 @@ public:
   MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   virtual ~MenuItemClass(){};
-  virtual void Draw(int8_t line);
+  virtual void draw(int8_t line);
 };
 
 class MenuItemPtrClass: public MenuItemClass {
@@ -170,7 +170,7 @@ public:
   virtual ~MenuClass(){};
   inline int8_t line() { return selected - topline; };
   inline int8_t line(uint8_t pos) {return pos - topline; };
-  void Draw();
+  void draw();
   void onScroll(bool dir);
   void onClick();
   MenuItemClass* SelectedItem();
@@ -190,16 +190,16 @@ namespace DWINUI {
   extern void (*onMenuDraw)(MenuClass* menu);
 
   // DWIN LCD Initialization
-  void Init();
+  void init();
 
   // Set text/number font
-  void SetFont(uint8_t cfont);
+  void setFont(uint8_t cfont);
 
   // Get font character width
-  uint8_t Get_font_width(uint8_t cfont);
+  uint8_t fontWidth(uint8_t cfont);
 
   // Get font character heigh
-  uint8_t Get_font_height(uint8_t cfont);
+  uint8_t fontHeight(uint8_t cfont);
 
   // Get screen x coodinates from text column
   uint16_t ColToX(uint8_t col);
@@ -258,7 +258,7 @@ namespace DWINUI {
   }
   inline void Draw_Int(uint8_t iNum, long value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
-    MoveBy(iNum * Get_font_width(font), 0);
+    MoveBy(iNum * fontWidth(font), 0);
   }
   inline void Draw_Int(uint8_t iNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, x, y, value);
@@ -289,7 +289,7 @@ namespace DWINUI {
   }
   inline void Draw_Float(uint8_t iNum, uint8_t fNum, float value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum,  cursor.x, cursor.y, value);
-    MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
+    MoveBy((iNum + fNum + 1) * fontWidth(font), 0);
   }
   inline void Draw_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
@@ -317,7 +317,7 @@ namespace DWINUI {
   void Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value);
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, float value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
-    MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
+    MoveBy((iNum + fNum + 1) * fontWidth(font), 0);
   }
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
@@ -408,7 +408,7 @@ namespace DWINUI {
 
   // Draw a circle
   //  Color: circle color
-  //  x: the abscissa of the center of the circle
+  //  x: abscissa of the center of the circle
   //  y: ordinate of the center of the circle
   //  r: circle radius
   void Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
@@ -429,7 +429,7 @@ namespace DWINUI {
   // Color Interpolator
   //  val : Interpolator minv..maxv
   //  minv : Minimum value
-  //  maxv : Maximun value
+  //  maxv : Maximum value
   //  color1 : Start color
   //  color2 : End color
   uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
@@ -438,7 +438,7 @@ namespace DWINUI {
 
   // Draw a circle filled with color
   //  bcolor: fill color
-  //  x: the abscissa of the center of the circle
+  //  x: abscissa of the center of the circle
   //  y: ordinate of the center of the circle
   //  r: circle radius
   void Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r);
@@ -449,7 +449,7 @@ namespace DWINUI {
   // Color Interpolator through Red->Yellow->Green->Blue
   //  val : Interpolator minv..maxv
   //  minv : Minimum value
-  //  maxv : Maximun value
+  //  maxv : Maximum value
   uint16_t RainbowInt(int16_t val, int16_t minv, int16_t maxv);
 
   // Write buffer data to the SRAM

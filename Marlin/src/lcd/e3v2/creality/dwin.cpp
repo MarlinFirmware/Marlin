@@ -470,7 +470,7 @@ void Draw_Back_First(const bool is_sel=true) {
 }
 
 template <typename T>
-inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, T &valref) {
+inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
   if (encoder_diffState == ENCODER_DIFF_CW)
     valref += EncoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
@@ -1292,11 +1292,11 @@ void Goto_MainMenu() {
   TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)();
 }
 
-inline ENCODER_DiffState get_encoder_state() {
+inline EncoderState get_encoder_state() {
   static millis_t Encoder_ms = 0;
   const millis_t ms = millis();
   if (PENDING(ms, Encoder_ms)) return ENCODER_DIFF_NO;
-  const ENCODER_DiffState state = Encoder_ReceiveAnalyze();
+  const EncoderState state = Encoder_ReceiveAnalyze();
   if (state != ENCODER_DIFF_NO) Encoder_ms = ms + ENCODER_WAIT_MS;
   return state;
 }
@@ -1317,7 +1317,7 @@ void HMI_Move_Done(const AxisEnum axis) {
 }
 
 void HMI_Move_X() {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_X_scaled)) {
     Draw_Edit_Float3(1, HMI_ValueStruct.Move_X_scaled);
@@ -1331,7 +1331,7 @@ void HMI_Move_X() {
 }
 
 void HMI_Move_Y() {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Y_scaled)) {
     Draw_Edit_Float3(2, HMI_ValueStruct.Move_Y_scaled);
@@ -1345,7 +1345,7 @@ void HMI_Move_Y() {
 }
 
 void HMI_Move_Z() {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_Z_scaled)) {
     Draw_Edit_Float3(3, HMI_ValueStruct.Move_Z_scaled);
@@ -1362,7 +1362,7 @@ void HMI_Move_Z() {
 
   void HMI_Move_E() {
     static float last_E_scaled = 0;
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Move_E_scaled)) {
       last_E_scaled = HMI_ValueStruct.Move_E_scaled;
@@ -1383,7 +1383,7 @@ void HMI_Move_Z() {
   bool printer_busy() { return planner.movesplanned() || printingIsActive(); }
 
   void HMI_Zoffset() {
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     uint8_t zoff_line;
     switch (HMI_ValueStruct.show_mode) {
@@ -1416,7 +1416,7 @@ void HMI_Move_Z() {
 #if HAS_HOTEND
 
   void HMI_ETemp() {
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     uint8_t temp_line;
     switch (HMI_ValueStruct.show_mode) {
@@ -1458,7 +1458,7 @@ void HMI_Move_Z() {
 #if HAS_HEATED_BED
 
   void HMI_BedTemp() {
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     uint8_t bed_line;
     switch (HMI_ValueStruct.show_mode) {
@@ -1500,7 +1500,7 @@ void HMI_Move_Z() {
 #if HAS_PREHEAT && HAS_FAN
 
   void HMI_FanSpeed() {
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     uint8_t fan_line;
     switch (HMI_ValueStruct.show_mode) {
@@ -1541,7 +1541,7 @@ void HMI_Move_Z() {
 #endif // HAS_PREHEAT && HAS_FAN
 
 void HMI_PrintSpeed() {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.print_speed)) {
     checkkey = Tune;
@@ -1559,7 +1559,7 @@ void HMI_PrintSpeed() {
 #define LAST_AXIS TERN(HAS_HOTEND, E_AXIS, Z_AXIS)
 
 void HMI_MaxFeedspeedXYZE() {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Feedspeed)) {
     checkkey = MaxSpeed;
@@ -1578,7 +1578,7 @@ void HMI_MaxFeedspeedXYZE() {
 }
 
 void HMI_MaxAccelerationXYZE() {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Acceleration)) {
     checkkey = MaxAcceleration;
@@ -1599,7 +1599,7 @@ void HMI_MaxAccelerationXYZE() {
 #if HAS_CLASSIC_JERK
 
   void HMI_MaxJerkXYZE() {
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Jerk_scaled)) {
       checkkey = MaxJerk;
@@ -1620,7 +1620,7 @@ void HMI_MaxAccelerationXYZE() {
 #endif // HAS_CLASSIC_JERK
 
 void HMI_StepXYZE() {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Step_scaled)) {
     checkkey = Step;
@@ -2075,7 +2075,7 @@ void Draw_Print_File_Menu() {
 
 // Main Process
 void HMI_MainMenu() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   if (encoder_diffState == ENCODER_DIFF_CW) {
@@ -2135,7 +2135,7 @@ void HMI_MainMenu() {
 
 // Select (and Print) File
 void HMI_SelectFile() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
 
   const uint16_t hasUpDir = !card.flag.workDirIsRoot;
 
@@ -2255,7 +2255,7 @@ void HMI_SelectFile() {
 
 // Printing
 void HMI_Printing() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   if (HMI_flag.done_confirm_flag) {
@@ -2333,7 +2333,7 @@ void HMI_Printing() {
 
 // Pause and Stop window
 void HMI_PauseOrStop() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   if (encoder_diffState == ENCODER_DIFF_CW)
@@ -2632,7 +2632,7 @@ void HMI_AudioFeedback(const bool success=true) {
 
 // Prepare
 void HMI_Prepare() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -2846,7 +2846,7 @@ void Draw_Temperature_Menu() {
 
 // Control
 void HMI_Control() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -2942,7 +2942,7 @@ void HMI_Control() {
 
 // Axis Move
 void HMI_AxisMove() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -3018,7 +3018,7 @@ void HMI_AxisMove() {
 
 // TemperatureID
 void HMI_Temperature() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -3445,7 +3445,7 @@ void Draw_Steps_Menu() {
 
 // Motion
 void HMI_Motion() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -3493,7 +3493,7 @@ void HMI_Motion() {
 
 // Advanced Settings
 void HMI_AdvSet() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -3590,7 +3590,7 @@ void HMI_AdvSet() {
 
   // Home Offset
   void HMI_HomeOff() {
-    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
     // Avoid flicker by updating only the previous menu
@@ -3629,7 +3629,7 @@ void HMI_AdvSet() {
   }
 
   void HMI_HomeOffN(const AxisEnum axis, float &posScaled, const_float_t lo, const_float_t hi) {
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
     if (Apply_Encoder(encoder_diffState, posScaled)) {
@@ -3653,7 +3653,7 @@ void HMI_AdvSet() {
 
   // Probe Offset
   void HMI_ProbeOff() {
-    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
     // Avoid flicker by updating only the previous menu
@@ -3686,7 +3686,7 @@ void HMI_AdvSet() {
   }
 
   void HMI_ProbeOffN(float &posScaled, float &offset_ref) {
-    ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+    EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
     if (Apply_Encoder(encoder_diffState, posScaled)) {
@@ -3707,7 +3707,7 @@ void HMI_AdvSet() {
 
 // Info
 void HMI_Info() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
     #if HAS_ONESTEP_LEVELING
@@ -3724,7 +3724,7 @@ void HMI_Info() {
 
 // Tune
 void HMI_Tune() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -3810,7 +3810,7 @@ void HMI_Tune() {
 
   // PLA Preheat
   void HMI_PLAPreheatSetting() {
-    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
     // Avoid flicker by updating only the previous menu
@@ -3866,7 +3866,7 @@ void HMI_Tune() {
 
   // ABS Preheat
   void HMI_ABSPreheatSetting() {
-    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
     // Avoid flicker by updating only the previous menu
@@ -3924,7 +3924,7 @@ void HMI_Tune() {
 
 // Max Speed
 void HMI_MaxSpeed() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -3953,7 +3953,7 @@ void HMI_MaxSpeed() {
 
 // Max Acceleration
 void HMI_MaxAcceleration() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -3983,7 +3983,7 @@ void HMI_MaxAcceleration() {
 #if HAS_CLASSIC_JERK
   // Max Jerk
   void HMI_MaxJerk() {
-    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 
     // Avoid flicker by updating only the previous menu
@@ -4013,7 +4013,7 @@ void HMI_MaxAcceleration() {
 
 // Step
 void HMI_Step() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   // Avoid flicker by updating only the previous menu
@@ -4169,7 +4169,7 @@ void EachMomentUpdate() {
       DWIN_UpdateLCD();
 
       while (recovery_flag) {
-        ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+        EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
         if (encoder_diffState != ENCODER_DIFF_NO) {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
