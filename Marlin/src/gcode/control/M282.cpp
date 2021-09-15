@@ -19,25 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(SERVO_DETACH_GCODE)
+
+#include "../gcode.h"
+#include "../../module/servo.h"
 
 /**
- * Test X86_64-specific configuration values for errors at compile-time.
+ * M282: Detach Servo. P<index>
  */
+void GcodeSuite::M282() {
 
-// Emulating RAMPS
-#if ENABLED(SPINDLE_LASER_USE_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
-  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
-#endif
+  if (!parser.seen('P')) return;
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on LINUX."
-#endif
+  const int servo_index = parser.value_int();
+  if (WITHIN(servo_index, 0, NUM_SERVOS - 1))
+    DETACH_SERVO(servo_index);
+  else
+    SERIAL_ECHO_MSG("Servo ", servo_index, " out of range");
 
-#if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on LINUX."
-#endif
+}
 
-#if ENABLED(POSTMORTEM_DEBUGGING)
-  #error "POSTMORTEM_DEBUGGING is not yet supported on LINUX."
-#endif
+#endif // SERVO_DETACH_GCODE

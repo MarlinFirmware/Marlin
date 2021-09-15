@@ -31,9 +31,6 @@
 
 #include <stdint.h>
 
-//#define USE_STRING_HEADINGS
-//#define USE_STRING_TITLES
-
 #define RECEIVED_NO_DATA         0x00
 #define RECEIVED_SHAKE_HAND_ACK  0x01
 

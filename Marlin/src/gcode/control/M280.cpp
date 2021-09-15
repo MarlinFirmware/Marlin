@@ -39,7 +39,7 @@ void GcodeSuite::M280() {
     if (parser.seen('S')) {
       const int a = parser.value_int();
       if (a == -1)
-        servo[servo_index].detach();
+        DETACH_SERVO(servo_index);
       else
         MOVE_SERVO(servo_index, a);
     }

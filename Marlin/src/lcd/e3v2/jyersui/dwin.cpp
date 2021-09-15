@@ -141,15 +141,24 @@ constexpr float default_steps[]               = DEFAULT_AXIS_STEPS_PER_UNIT;
   constexpr float default_max_jerk[]            = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
 #endif
 
-uint8_t active_menu = MainMenu;
-uint8_t last_menu = MainMenu;
-uint8_t selection = 0;
-uint8_t last_selection = 0;
+enum SelectItem : uint8_t {
+  PAGE_PRINT = 0,
+  PAGE_PREPARE,
+  PAGE_CONTROL,
+  PAGE_INFO_LEVELING,
+  PAGE_COUNT,
+
+  PRINT_SETUP = 0,
+  PRINT_PAUSE_RESUME,
+  PRINT_STOP,
+  PRINT_COUNT
+};
+
+uint8_t active_menu = MainMenu, last_menu = MainMenu;
+uint8_t selection = 0, last_selection = 0;
 uint8_t scrollpos = 0;
-uint8_t process = Main;
-uint8_t last_process = Main;
-PopupID popup;
-PopupID last_popup;
+uint8_t process = Main, last_process = Main;
+PopupID popup, last_popup;
 
 void (*funcpointer)() = nullptr;
 void *valuepointer = nullptr;
@@ -307,16 +316,16 @@ CrealityDWINClass CrealityDWIN;
       const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
       const uint16_t cell_width_px  = total_width_px / GRID_MAX_POINTS_X;
       const uint16_t cell_height_px = total_width_px / GRID_MAX_POINTS_Y;
-      const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = max(v_min, v_max);
+      const float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
 
       // Clear background from previous selection and select new square
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, max(0, padding_x - gridline_width), max(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
+      DWIN_Draw_Rectangle(1, Color_Bg_Black, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
       if (selected >= 0) {
         const auto selected_y = selected / GRID_MAX_POINTS_X;
         const auto selected_x = selected - (GRID_MAX_POINTS_X * selected_y);
         const auto start_y_px = padding_y_top + selected_y * cell_height_px;
         const auto start_x_px = padding_x + selected_x * cell_width_px;
-        DWIN_Draw_Rectangle(1, Color_White, max(0, start_x_px - gridline_width), max(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
+        DWIN_Draw_Rectangle(1, Color_White, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
       }
 
       // Draw value square grid
@@ -326,21 +335,20 @@ CrealityDWINClass CrealityDWIN;
         const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
         const auto start_y_px = padding_y_top + (GRID_MAX_POINTS_Y - y - 1) * cell_height_px;
         const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
-        DWIN_Draw_Rectangle(1,        // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
-          isnan(mesh_z_values[x][y]) ? Color_Grey : (                                                              // gray if undefined
+        DWIN_Draw_Rectangle(1,                                                                                  // RGB565 colors: http://www.barth-dev.de/online/rgb565-color-picker/
+          isnan(mesh_z_values[x][y]) ? Color_Grey : (                                                           // gray if undefined
             (mesh_z_values[x][y] < 0 ?
-              (uint16_t)round(0b11111  * -mesh_z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
-              (uint16_t)round(0b111111 *  mesh_z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
-                min(0b11111, (((uint8_t)abs(mesh_z_values[x][y]) / 10) * 4))),                                     // + blue stepping for every mm
-          start_x_px, start_y_px, end_x_px, end_y_px);
-        while (LCD_SERIAL.availableForWrite() < 32) { // wait for serial to be available without blocking and resetting the MCU
-          gcode.process_subcommands_now_P("G4 P10");
-          planner.synchronize();
-        }
+              (uint16_t)round(0x1F * -mesh_z_values[x][y] / (!viewer_asymmetric_range ? range : v_min)) << 11 : // red if mesh point value is negative
+              (uint16_t)round(0x3F *  mesh_z_values[x][y] / (!viewer_asymmetric_range ? range : v_max)) << 5) | // green if mesh point value is positive
+                _MIN(0x1F, (((uint8_t)abs(mesh_z_values[x][y]) / 10) * 4))),                                    // + blue stepping for every mm
+          start_x_px, start_y_px, end_x_px, end_y_px
+        );
+
+        safe_delay(10);
+        LCD_SERIAL.flushTX();
+
         // Draw value text on
         if (viewer_print_value) {
-          gcode.process_subcommands_now_P("G4 P10");  // still fails without additional delay...
-          planner.synchronize();
           int8_t offset_x, offset_y = cell_height_px / 2 - 6;
           if (isnan(mesh_z_values[x][y])) {  // undefined
             DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px + cell_width_px / 2 - 5, start_y_px + offset_y, F("X"));
@@ -355,12 +363,14 @@ CrealityDWINClass CrealityDWIN;
               DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px - 2 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, F("."));
             DWIN_Draw_String(false, false, font6x12, Color_White, Color_Bg_Blue, start_x_px + 1 + offset_x, start_y_px + offset_y /*+ square / 2 - 6*/, buf);
           }
+          safe_delay(10);
+          LCD_SERIAL.flushTX();
         }
       }
     }
 
     void Set_Mesh_Viewer_Status() { // TODO: draw gradient with values as a legend instead
-      float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = max(v_min, v_max);
+      float v_max = abs(get_max_value()), v_min = abs(get_min_value()), range = _MAX(v_min, v_max);
       if (v_min > 3e+10F) v_min = 0.0000001;
       if (v_max > 3e+10F) v_max = 0.0000001;
       if (range > 3e+10F) range = 0.0000001;
@@ -470,8 +480,8 @@ void CrealityDWINClass::Draw_Title(const char * title) {
 
 void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, const char * label1, const char * label2, bool more/*=false*/, bool centered/*=false*/) {
   const uint8_t label_offset_y = !(label1 && label2) ? 0 : MENU_CHR_H * 3 / 5;
-  const uint8_t label1_offset_x = !centered ? LBLX : LBLX * 4/5 + max(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2);
-  const uint8_t label2_offset_x = !centered ? LBLX : LBLX * 4/5 + max(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
+  const uint8_t label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2);
+  const uint8_t label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
   if (label1) DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, label1); // Draw Label
   if (label2) DWIN_Draw_String(false, false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label2_offset_x, MBASE(row) - 1 + label_offset_y, label2); // Draw Label
   if (icon) DWIN_ICON_Show(ICON, icon, 26, MBASE(row) - 3);   //Draw Menu Icon
@@ -501,7 +511,7 @@ void CrealityDWINClass::Draw_Menu(uint8_t menu, uint8_t select/*=0*/, uint8_t sc
     last_menu = active_menu;
     if (process == Menu) last_selection = selection;
   }
-  selection = min(select, Get_Menu_Size(menu));
+  selection = _MIN(select, Get_Menu_Size(menu));
   scrollpos = scroll;
   if (selection - scrollpos > MROWS)
     scrollpos = selection - MROWS;
@@ -4207,7 +4217,7 @@ void CrealityDWINClass::Confirm_Handler(PopupID popupid) {
 void CrealityDWINClass::Main_Menu_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < 3) {
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < PAGE_COUNT - 1) {
     selection++; // Select Down
     Main_Menu_Icons();
   }
@@ -4217,10 +4227,10 @@ void CrealityDWINClass::Main_Menu_Control() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER)
     switch (selection) {
-      case 0: card.mount(); Draw_SD_List(); break;
-      case 1: Draw_Menu(Prepare); break;
-      case 2: Draw_Menu(Control); break;
-      case 3: Draw_Menu(TERN(HAS_MESH, Leveling, InfoMain)); break;
+      case PAGE_PRINT: card.mount(); Draw_SD_List(); break;
+      case PAGE_PREPARE: Draw_Menu(Prepare); break;
+      case PAGE_CONTROL: Draw_Menu(Control); break;
+      case PAGE_INFO_LEVELING: Draw_Menu(TERN(HAS_MESH, Leveling, InfoMain)); break;
     }
   DWIN_UpdateLCD();
 }
@@ -4448,7 +4458,7 @@ void CrealityDWINClass::File_Control() {
 void CrealityDWINClass::Print_Screen_Control() {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_CW && selection < 2) {
+  if (encoder_diffState == ENCODER_DIFF_CW && selection < PRINT_COUNT - 1) {
     selection++; // Select Down
     Print_Screen_Icons();
   }
@@ -4458,11 +4468,11 @@ void CrealityDWINClass::Print_Screen_Control() {
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (selection) {
-      case 0:
+      case PRINT_SETUP:
         Draw_Menu(Tune);
         Update_Status_Bar(true);
         break;
-      case 1:
+      case PRINT_PAUSE_RESUME:
         if (paused) {
           if (sdprint) {
             wait_for_user = false;
@@ -4492,9 +4502,7 @@ void CrealityDWINClass::Print_Screen_Control() {
         else
           Popup_Handler(Pause);
         break;
-      case 2:
-        Popup_Handler(Stop);
-        break;
+      case PRINT_STOP: Popup_Handler(Stop); break;
     }
   }
   DWIN_UpdateLCD();
@@ -4975,11 +4983,11 @@ void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
 void CrealityDWINClass::Save_Settings(char *buff) {
   TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid - 1);
   eeprom_settings.corner_pos = corner_pos * 10;
-  memcpy(buff, &eeprom_settings, min(sizeof(eeprom_settings), eeprom_data_size));
+  memcpy(buff, &eeprom_settings, _MIN(sizeof(eeprom_settings), eeprom_data_size));
 }
 
 void CrealityDWINClass::Load_Settings(const char *buff) {
-  memcpy(&eeprom_settings, buff, min(sizeof(eeprom_settings), eeprom_data_size));
+  memcpy(&eeprom_settings, buff, _MIN(sizeof(eeprom_settings), eeprom_data_size));
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
   corner_pos = eeprom_settings.corner_pos / 10.0f;
