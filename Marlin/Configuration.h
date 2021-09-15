@@ -3586,7 +3586,7 @@
 #elif ANY(MachineCR20, MachineCR2020)
   #define MKS_MINI_12864
 #elif ENABLED(MachineEnder3V2)
-  #define DWIN_CREALITY_LCD_ENHANCED
+  #define DWIN_CREALITY_LCD_JYERSUI
 #elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
   #define CR10_STOCKDISPLAY
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
