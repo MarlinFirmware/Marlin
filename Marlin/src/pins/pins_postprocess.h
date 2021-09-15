@@ -542,6 +542,7 @@
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
 #define DIAG_REMAPPED(p,q) (PIN_EXISTS(q) && _EPIN(p##_E_INDEX, DIAG) == q##_PIN)
+#define _En_DIAG_(p) _E##p##_DIAG_
 
 // The E0/E1 steppers are always used for Dual E
 #if ENABLED(E_DUAL_STEPPER_DRIVERS)
@@ -566,19 +567,33 @@
     #define X2_ENABLE_PIN _EPIN(X2_E_INDEX, ENABLE)
     #if X2_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(X2_STEP)
       #error "No E stepper plug left for X2!"
+    #else
+      #define AUTO_ASSIGNED_X2_STEPPER 1
     #endif
   #endif
   #ifndef X2_MS1_PIN
     #define X2_MS1_PIN    _EPIN(X2_E_INDEX, MS1)
+    #if PIN_EXISTS(X2_MS1)
+      #define AUTO_ASSIGNED_X2_MS1 1
+    #endif
   #endif
   #ifndef X2_MS2_PIN
     #define X2_MS2_PIN    _EPIN(X2_E_INDEX, MS2)
+    #if PIN_EXISTS(X2_MS2)
+      #define AUTO_ASSIGNED_X2_MS2 1
+    #endif
   #endif
   #ifndef X2_MS3_PIN
     #define X2_MS3_PIN    _EPIN(X2_E_INDEX, MS3)
+    #if PIN_EXISTS(X2_MS3)
+      #define AUTO_ASSIGNED_X2_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_SPI(X2) && !defined(X2_CS_PIN)
     #define X2_CS_PIN     _EPIN(X2_E_INDEX, CS)
+    #if PIN_EXISTS(X2_CS)
+      #define AUTO_ASSIGNED_X2_CS 1
+    #endif
   #endif
   #if AXIS_HAS_UART(X2)
     #ifndef X2_SERIAL_TX_PIN
@@ -606,11 +621,11 @@
       #define X2_USE_ENDSTOP _YMAX_
     #elif DIAG_REMAPPED(X2, Z_MAX)
       #define X2_USE_ENDSTOP _ZMAX_
-    #else                               // Otherwise use the driver DIAG_PIN directly
-      #define _X2_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define X2_USE_ENDSTOP _X2_USE_ENDSTOP(X2_E_INDEX)
+    #else                               // Otherwise pick the next free En_DIAG_PIN directly
+      #define X2_USE_ENDSTOP _En_DIAG_(X2_E_INDEX)
     #endif
-    #undef X2_DIAG_PIN
+    #define AUTO_ASSIGNED_X2_DIAG 1
+    #undef X2_DIAG_PIN // Defined in Conditionals_post.h based on X2_USE_ENDSTOP
   #endif
 #endif
 
@@ -640,19 +655,33 @@
     #define Y2_ENABLE_PIN _EPIN(Y2_E_INDEX, ENABLE)
     #if Y2_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(Y2_STEP)
       #error "No E stepper plug left for Y2!"
+    #else
+      #define AUTO_ASSIGNED_Y2_STEPPER 1
     #endif
   #endif
   #ifndef Y2_MS1_PIN
     #define Y2_MS1_PIN    _EPIN(Y2_E_INDEX, MS1)
+    #if PIN_EXISTS(Y2_MS1)
+      #define AUTO_ASSIGNED_Y2_MS1 1
+    #endif
   #endif
   #ifndef Y2_MS2_PIN
     #define Y2_MS2_PIN    _EPIN(Y2_E_INDEX, MS2)
+    #if PIN_EXISTS(Y2_MS2)
+      #define AUTO_ASSIGNED_Y2_MS2 1
+    #endif
   #endif
   #ifndef Y2_MS3_PIN
     #define Y2_MS3_PIN    _EPIN(Y2_E_INDEX, MS3)
+    #if PIN_EXISTS(Y2_MS3)
+      #define AUTO_ASSIGNED_Y2_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_SPI(Y2) && !defined(Y2_CS_PIN)
     #define Y2_CS_PIN     _EPIN(Y2_E_INDEX, CS)
+    #if PIN_EXISTS(Y2_CS)
+      #define AUTO_ASSIGNED_Y2_CS 1
+    #endif
   #endif
   #if AXIS_HAS_UART(Y2)
     #ifndef Y2_SERIAL_TX_PIN
@@ -678,10 +707,10 @@
     #elif DIAG_REMAPPED(Y2, Z_MAX)
       #define Y2_USE_ENDSTOP _ZMAX_
     #else
-      #define _Y2_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define Y2_USE_ENDSTOP _Y2_USE_ENDSTOP(Y2_E_INDEX)
+      #define Y2_USE_ENDSTOP _En_DIAG_(Y2_E_INDEX)
     #endif
-    #undef Y2_DIAG_PIN
+    #define AUTO_ASSIGNED_Y2_DIAG 1
+    #undef Y2_DIAG_PIN // Defined in Conditionals_post.h based on Y2_USE_ENDSTOP
   #endif
 #endif
 
@@ -711,19 +740,33 @@
     #define Z2_ENABLE_PIN _EPIN(Z2_E_INDEX, ENABLE)
     #if Z2_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(Z2_STEP)
       #error "No E stepper plug left for Z2!"
+    #else
+      #define AUTO_ASSIGNED_Z2_STEPPER 1
     #endif
   #endif
   #ifndef Z2_MS1_PIN
     #define Z2_MS1_PIN    _EPIN(Z2_E_INDEX, MS1)
+    #if PIN_EXISTS(Z2_MS1)
+      #define AUTO_ASSIGNED_Z2_MS1 1
+    #endif
   #endif
   #ifndef Z2_MS2_PIN
     #define Z2_MS2_PIN    _EPIN(Z2_E_INDEX, MS2)
+    #if PIN_EXISTS(Z2_MS2)
+      #define AUTO_ASSIGNED_Z2_MS2 1
+    #endif
   #endif
   #ifndef Z2_MS3_PIN
     #define Z2_MS3_PIN    _EPIN(Z2_E_INDEX, MS3)
+    #if PIN_EXISTS(Z2_MS3)
+      #define AUTO_ASSIGNED_Z2_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_SPI(Z2) && !defined(Z2_CS_PIN)
     #define Z2_CS_PIN     _EPIN(Z2_E_INDEX, CS)
+    #if PIN_EXISTS(Z2_CS)
+      #define AUTO_ASSIGNED_Z2_CS 1
+    #endif
   #endif
   #if AXIS_HAS_UART(Z2)
     #ifndef Z2_SERIAL_TX_PIN
@@ -749,10 +792,10 @@
     #elif DIAG_REMAPPED(Z2, Z_MAX)
       #define Z2_USE_ENDSTOP _ZMAX_
     #else
-      #define _Z2_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define Z2_USE_ENDSTOP _Z2_USE_ENDSTOP(Z2_E_INDEX)
+      #define Z2_USE_ENDSTOP _En_DIAG_(Z2_E_INDEX)
     #endif
-    #undef Z2_DIAG_PIN
+    #define AUTO_ASSIGNED_Z2_DIAG 1
+    #undef Z2_DIAG_PIN // Defined in Conditionals_post.h based on Z2_USE_ENDSTOP
   #endif
 #endif
 
@@ -782,21 +825,33 @@
     #define Z3_ENABLE_PIN _EPIN(Z3_E_INDEX, ENABLE)
     #if Z3_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(Z3_STEP)
       #error "No E stepper plug left for Z3!"
+    #else
+      #define AUTO_ASSIGNED_Z3_STEPPER 1
     #endif
   #endif
-  #if AXIS_HAS_SPI(Z3)
-    #ifndef Z3_CS_PIN
-      #define Z3_CS_PIN   _EPIN(Z3_E_INDEX, CS)
+  #if AXIS_HAS_SPI(Z3) && !defined(Z3_CS_PIN)
+    #define Z3_CS_PIN     _EPIN(Z3_E_INDEX, CS)
+    #if PIN_EXISTS(Z3_CS)
+      #define AUTO_ASSIGNED_Z3_CS 1
     #endif
   #endif
   #ifndef Z3_MS1_PIN
     #define Z3_MS1_PIN    _EPIN(Z3_E_INDEX, MS1)
+    #if PIN_EXISTS(Z3_MS1)
+      #define AUTO_ASSIGNED_Z3_MS1 1
+    #endif
   #endif
   #ifndef Z3_MS2_PIN
     #define Z3_MS2_PIN    _EPIN(Z3_E_INDEX, MS2)
+    #if PIN_EXISTS(Z3_MS2)
+      #define AUTO_ASSIGNED_Z3_MS2 1
+    #endif
   #endif
   #ifndef Z3_MS3_PIN
     #define Z3_MS3_PIN    _EPIN(Z3_E_INDEX, MS3)
+    #if PIN_EXISTS(Z3_MS3)
+      #define AUTO_ASSIGNED_Z3_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_UART(Z3)
     #ifndef Z3_SERIAL_TX_PIN
@@ -822,10 +877,10 @@
     #elif DIAG_REMAPPED(Z3, Z_MAX)
       #define Z3_USE_ENDSTOP _ZMAX_
     #else
-      #define _Z3_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define Z3_USE_ENDSTOP _Z3_USE_ENDSTOP(Z3_E_INDEX)
+      #define Z3_USE_ENDSTOP _En_DIAG_(Z3_E_INDEX)
     #endif
-    #undef Z3_DIAG_PIN
+    #define AUTO_ASSIGNED_Z3_DIAG 1
+    #undef Z3_DIAG_PIN // Defined in Conditionals_post.h based on Z3_USE_ENDSTOP
   #endif
 #endif
 
@@ -855,21 +910,33 @@
     #define Z4_ENABLE_PIN _EPIN(Z4_E_INDEX, ENABLE)
     #if Z4_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(Z4_STEP)
       #error "No E stepper plug left for Z4!"
+    #else
+      #define AUTO_ASSIGNED_Z4_STEPPER 1
     #endif
   #endif
-  #if AXIS_HAS_SPI(Z4)
-    #ifndef Z4_CS_PIN
-      #define Z4_CS_PIN     _EPIN(Z4_E_INDEX, CS)
+  #if AXIS_HAS_SPI(Z4) && !defined(Z4_CS_PIN)
+    #define Z4_CS_PIN     _EPIN(Z4_E_INDEX, CS)
+    #if PIN_EXISTS(Z4_CS)
+      #define AUTO_ASSIGNED_Z4_CS 1
     #endif
   #endif
   #ifndef Z4_MS1_PIN
     #define Z4_MS1_PIN    _EPIN(Z4_E_INDEX, MS1)
+    #if PIN_EXISTS(Z4_MS1)
+      #define AUTO_ASSIGNED_Z4_MS1 1
+    #endif
   #endif
   #ifndef Z4_MS2_PIN
     #define Z4_MS2_PIN    _EPIN(Z4_E_INDEX, MS2)
+    #if PIN_EXISTS(Z4_MS2)
+      #define AUTO_ASSIGNED_Z4_MS2 1
+    #endif
   #endif
   #ifndef Z4_MS3_PIN
     #define Z4_MS3_PIN    _EPIN(Z4_E_INDEX, MS3)
+    #if PIN_EXISTS(Z4_MS3)
+      #define AUTO_ASSIGNED_Z4_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_UART(Z4)
     #ifndef Z4_SERIAL_TX_PIN
@@ -895,10 +962,10 @@
     #elif DIAG_REMAPPED(Z4, Z_MAX)
       #define Z4_USE_ENDSTOP _ZMAX_
     #else
-      #define _Z4_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define Z4_USE_ENDSTOP _Z4_USE_ENDSTOP(Z4_E_INDEX)
+      #define Z4_USE_ENDSTOP _En_DIAG_(Z4_E_INDEX)
     #endif
-    #undef Z4_DIAG_PIN
+    #define AUTO_ASSIGNED_Z4_DIAG 1
+    #undef Z4_DIAG_PIN // Defined in Conditionals_post.h based on Z4_USE_ENDSTOP
   #endif
 #endif
 
@@ -928,21 +995,33 @@
     #define I_ENABLE_PIN _EPIN(I_E_INDEX, ENABLE)
     #if I_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(I_STEP)
       #error "No E stepper plug left for I!"
+    #else
+      #define AUTO_ASSIGNED_I_STEPPER 1
     #endif
   #endif
-  #if AXIS_HAS_SPI(I)
-    #ifndef I_CS_PIN
-      #define I_CS_PIN   _EPIN(I_E_INDEX, CS)
+  #if AXIS_HAS_SPI(I) && !defined(I_CS_PIN)
+    #define I_CS_PIN     _EPIN(I_E_INDEX, CS)
+    #if PIN_EXISTS(I_CS)
+      #define AUTO_ASSIGNED_I_CS 1
     #endif
   #endif
   #ifndef I_MS1_PIN
     #define I_MS1_PIN    _EPIN(I_E_INDEX, MS1)
+    #if PIN_EXISTS(I_MS1)
+      #define AUTO_ASSIGNED_I_MS1 1
+    #endif
   #endif
   #ifndef I_MS2_PIN
     #define I_MS2_PIN    _EPIN(I_E_INDEX, MS2)
+    #if PIN_EXISTS(I_MS2)
+      #define AUTO_ASSIGNED_I_MS2 1
+    #endif
   #endif
   #ifndef I_MS3_PIN
     #define I_MS3_PIN    _EPIN(I_E_INDEX, MS3)
+    #if PIN_EXISTS(I_MS3)
+      #define AUTO_ASSIGNED_I_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_UART(I)
     #ifndef I_SERIAL_TX_PIN
@@ -968,10 +1047,10 @@
     #elif DIAG_REMAPPED(I, Z_MAX)
       #define I_USE_ENDSTOP _ZMAX_
     #else
-      #define _I_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define I_USE_ENDSTOP _I_USE_ENDSTOP(I_E_INDEX)
+      #define I_USE_ENDSTOP _En_DIAG_(I_E_INDEX)
     #endif
-    #undef I_DIAG_PIN
+    #define AUTO_ASSIGNED_I_DIAG 1
+    #undef I_DIAG_PIN // Defined in Conditionals_post.h based on I_USE_ENDSTOP
   #endif
 #endif
 
@@ -1001,21 +1080,33 @@
     #define J_ENABLE_PIN _EPIN(J_E_INDEX, ENABLE)
     #if I_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(J_STEP)
       #error "No E stepper plug left for J!"
+    #else
+      #define AUTO_ASSIGNED_J_STEPPER 1
     #endif
   #endif
-  #if AXIS_HAS_SPI(J)
-    #ifndef J_CS_PIN
-      #define J_CS_PIN   _EPIN(J_E_INDEX, CS)
+  #if AXIS_HAS_SPI(J) && !defined(J_CS_PIN)
+    #define J_CS_PIN     _EPIN(J_E_INDEX, CS)
+    #if PIN_EXISTS(J_CS)
+      #define AUTO_ASSIGNED_J_CS 1
     #endif
   #endif
   #ifndef J_MS1_PIN
     #define J_MS1_PIN    _EPIN(J_E_INDEX, MS1)
+    #if PIN_EXISTS(J_MS1)
+      #define AUTO_ASSIGNED_J_MS1 1
+    #endif
   #endif
   #ifndef J_MS2_PIN
     #define J_MS2_PIN    _EPIN(J_E_INDEX, MS2)
+    #if PIN_EXISTS(J_MS2)
+      #define AUTO_ASSIGNED_J_MS2 1
+    #endif
   #endif
   #ifndef J_MS3_PIN
     #define J_MS3_PIN    _EPIN(J_E_INDEX, MS3)
+    #if PIN_EXISTS(J_MS3)
+      #define AUTO_ASSIGNED_J_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_UART(J)
     #ifndef J_SERIAL_TX_PIN
@@ -1041,10 +1132,10 @@
     #elif DIAG_REMAPPED(I, Z_MAX)
       #define J_USE_ENDSTOP _ZMAX_
     #else
-      #define _J_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define J_USE_ENDSTOP _J_USE_ENDSTOP(J_E_INDEX)
+      #define J_USE_ENDSTOP _En_DIAG_(J_E_INDEX)
     #endif
-    #undef J_DIAG_PIN
+    #define AUTO_ASSIGNED_J_DIAG 1
+    #undef J_DIAG_PIN // Defined in Conditionals_post.h based on J_USE_ENDSTOP
   #endif
 #endif
 
@@ -1069,21 +1160,33 @@
     #define K_ENABLE_PIN _EPIN(K_E_INDEX, ENABLE)
     #if K_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(K_STEP)
       #error "No E stepper plug left for K!"
+    #else
+      #define AUTO_ASSIGNED_K_STEPPER 1
     #endif
   #endif
-  #if AXIS_HAS_SPI(K)
-    #ifndef K_CS_PIN
-      #define K_CS_PIN   _EPIN(K_E_INDEX, CS)
+  #if AXIS_HAS_SPI(K) && !defined(K_CS_PIN)
+    #define K_CS_PIN     _EPIN(K_E_INDEX, CS)
+    #if PIN_EXISTS(K_CS)
+      #define AUTO_ASSIGNED_K_CS 1
     #endif
   #endif
   #ifndef K_MS1_PIN
     #define K_MS1_PIN    _EPIN(K_E_INDEX, MS1)
+    #if PIN_EXISTS(K_MS1)
+      #define AUTO_ASSIGNED_K_MS1 1
+    #endif
   #endif
   #ifndef K_MS2_PIN
     #define K_MS2_PIN    _EPIN(K_E_INDEX, MS2)
+    #if PIN_EXISTS(K_MS2)
+      #define AUTO_ASSIGNED_K_MS2 1
+    #endif
   #endif
   #ifndef K_MS3_PIN
     #define K_MS3_PIN    _EPIN(K_E_INDEX, MS3)
+    #if PIN_EXISTS(K_MS3)
+      #define AUTO_ASSIGNED_K_MS3 1
+    #endif
   #endif
   #if AXIS_HAS_UART(K)
     #ifndef K_SERIAL_TX_PIN
@@ -1109,10 +1212,10 @@
     #elif DIAG_REMAPPED(K, Z_MAX)
       #define K_USE_ENDSTOP _ZMAX_
     #else
-      #define _K_USE_ENDSTOP(P) _E##P##_DIAG_
-      #define K_USE_ENDSTOP _K_USE_ENDSTOP(K_E_INDEX)
+      #define K_USE_ENDSTOP _En_DIAG_(K_E_INDEX)
     #endif
-    #undef K_DIAG_PIN
+    #define AUTO_ASSIGNED_K_DIAG 1
+    #undef K_DIAG_PIN // Defined in Conditionals_post.h based on K_USE_ENDSTOP
   #endif
 #endif
 
