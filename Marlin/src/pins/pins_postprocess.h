@@ -554,6 +554,11 @@
 #endif
 
 // The X2 axis, if any, should be the next open extruder port
+#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && !defined(X2_DIAG_PIN) && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS_PIN)
+  #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
+#else
+  #define Y2_E_INDEX X2_E_INDEX
+#endif
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
@@ -587,7 +592,7 @@
   //
   // Auto-assign pins for stallGuard sensorless homing
   //
-  #if !defined(X2_USE_ENDSTOP) && defined(X2_STALL_SENSITIVITY) && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
+  #if !defined(X2_DIAG_PIN) && !defined(X2_USE_ENDSTOP) && defined(X2_STALL_SENSITIVITY) && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
     #define X2_DIAG_PIN _EPIN(X2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(X2, X_MIN)      // If already remapped in the pins file...
       #define X2_USE_ENDSTOP _XMIN_
@@ -607,10 +612,6 @@
     #endif
     #undef X2_DIAG_PIN
   #endif
-
-  #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
-#else
-  #define Y2_E_INDEX X2_E_INDEX
 #endif
 
 #ifndef X2_CS_PIN
@@ -627,6 +628,11 @@
 #endif
 
 // The Y2 axis, if any, should be the next open extruder port
+#if ENABLED(Y_DUAL_STEPPER_DRIVERS) && !defined(Y2_DIAG_PIN) && !defined(Y2_STEP_PIN) && !PIN_EXISTS(Y2_CS_PIN)
+  #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
+#else
+  #define Z2_E_INDEX Y2_E_INDEX
+#endif
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   #ifndef Y2_STEP_PIN
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
@@ -657,7 +663,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(Y2_USE_ENDSTOP) && defined(Y2_STALL_SENSITIVITY) && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
+  #if !defined(Y2_DIAG_PIN) && !defined(Y2_USE_ENDSTOP) && defined(Y2_STALL_SENSITIVITY) && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
     #define Y2_DIAG_PIN _EPIN(Y2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Y2, X_MIN)
       #define Y2_USE_ENDSTOP _XMIN_
@@ -677,9 +683,6 @@
     #endif
     #undef Y2_DIAG_PIN
   #endif
-  #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
-#else
-  #define Z2_E_INDEX Y2_E_INDEX
 #endif
 
 #ifndef Y2_CS_PIN
@@ -696,6 +699,11 @@
 #endif
 
 // The Z2 axis, if any, should be the next open extruder port
+#if NUM_Z_STEPPER_DRIVERS >= 2 && !defined(Z2_DIAG_PIN) && !defined(Z2_STEP_PIN) && !PIN_EXISTS(Z2_CS_PIN)
+  #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
+#else
+  #define Z3_E_INDEX Z2_E_INDEX
+#endif
 #if NUM_Z_STEPPER_DRIVERS >= 2
   #ifndef Z2_STEP_PIN
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
@@ -726,7 +734,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(Z2_USE_ENDSTOP) && defined(Z2_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
+  #if !defined(Z2_DIAG_PIN) && !defined(Z2_USE_ENDSTOP) && defined(Z2_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
     #define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z2, X_MIN)
       #define Z2_USE_ENDSTOP _XMIN_
@@ -746,9 +754,6 @@
     #endif
     #undef Z2_DIAG_PIN
   #endif
-  #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
-#else
-  #define Z3_E_INDEX Z2_E_INDEX
 #endif
 
 #ifndef Z2_CS_PIN
@@ -764,6 +769,12 @@
   #define Z2_MS3_PIN -1
 #endif
 
+// The Z3 axis, if any, should be the next open extruder port
+#if NUM_Z_STEPPER_DRIVERS >= 3 && !defined(Z3_DIAG_PIN) && !defined(Z3_STEP_PIN) && !PIN_EXISTS(Z3_CS_PIN)
+  #define Z4_E_INDEX INCREMENT(Z3_E_INDEX)
+#else
+  #define Z4_E_INDEX Z3_E_INDEX
+#endif
 #if NUM_Z_STEPPER_DRIVERS >= 3
   #ifndef Z3_STEP_PIN
     #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
@@ -796,7 +807,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(Z3_USE_ENDSTOP) && defined(Z3_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
+  #if !defined(Z3_DIAG_PIN) && !defined(Z3_USE_ENDSTOP) && defined(Z3_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
     #define Z3_DIAG_PIN _EPIN(Z3_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z3, X_MIN)
       #define Z3_USE_ENDSTOP _XMIN_
@@ -816,9 +827,6 @@
     #endif
     #undef Z3_DIAG_PIN
   #endif
-  #define Z4_E_INDEX INCREMENT(Z3_E_INDEX)
-#else
-  #define Z4_E_INDEX Z3_E_INDEX
 #endif
 
 #ifndef Z3_CS_PIN
@@ -834,6 +842,12 @@
   #define Z3_MS3_PIN -1
 #endif
 
+// The Z4 axis, if any, should be the next open extruder port
+#if NUM_Z_STEPPER_DRIVERS >= 4 && !defined(Z4_DIAG_PIN) && !defined(Z4_STEP_PIN) && !PIN_EXISTS(Z4_CS_PIN)
+  #define I_E_INDEX INCREMENT(Z4_E_INDEX)
+#else
+  #define I_E_INDEX Z4_E_INDEX
+#endif
 #if NUM_Z_STEPPER_DRIVERS >= 4
   #ifndef Z4_STEP_PIN
     #define Z4_STEP_PIN   _EPIN(Z4_E_INDEX, STEP)
@@ -866,7 +880,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(Z4_USE_ENDSTOP) && defined(Z4_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
+  #if !defined(Z4_DIAG_PIN) && !defined(Z4_USE_ENDSTOP) && defined(Z4_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
     #define Z4_DIAG_PIN _EPIN(Z4_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z4, X_MIN)
       #define Z4_USE_ENDSTOP _XMIN_
@@ -886,9 +900,6 @@
     #endif
     #undef Z4_DIAG_PIN
   #endif
-  #define I_E_INDEX INCREMENT(Z4_E_INDEX)
-#else
-  #define I_E_INDEX Z4_E_INDEX
 #endif
 
 #ifndef Z4_CS_PIN
@@ -904,6 +915,12 @@
   #define Z4_MS3_PIN -1
 #endif
 
+// The I axis, if any, should be the next open extruder port
+#if LINEAR_AXES >= 4 && !defined(I_DIAG_PIN) && !defined(I_STEP_PIN) && !PIN_EXISTS(I_CS_PIN)
+  #define J_E_INDEX INCREMENT(I_E_INDEX)
+#else
+  #define J_E_INDEX I_E_INDEX
+#endif
 #if LINEAR_AXES >= 4
   #ifndef I_STEP_PIN
     #define I_STEP_PIN   _EPIN(I_E_INDEX, STEP)
@@ -936,7 +953,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(I_USE_ENDSTOP) && defined(I_STALL_SENSITIVITY) && _PEXI(I_E_INDEX, DIAG)
+  #if !defined(I_DIAG_PIN) && !defined(I_USE_ENDSTOP) && defined(I_STALL_SENSITIVITY) && _PEXI(I_E_INDEX, DIAG)
     #define I_DIAG_PIN _EPIN(I_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(I, X_MIN)
       #define I_USE_ENDSTOP _XMIN_
@@ -956,9 +973,6 @@
     #endif
     #undef I_DIAG_PIN
   #endif
-  #define J_E_INDEX INCREMENT(I_E_INDEX)
-#else
-  #define J_E_INDEX I_E_INDEX
 #endif
 
 #ifndef I_CS_PIN
@@ -974,6 +988,12 @@
   #define I_MS3_PIN -1
 #endif
 
+// The J axis, if any, should be the next open extruder port
+#if LINEAR_AXES >= 5 && !defined(J_DIAG_PIN) && !defined(J_STEP_PIN) && !PIN_EXISTS(J_CS_PIN)
+  #define K_E_INDEX INCREMENT(J_E_INDEX)
+#else
+  #define K_E_INDEX J_E_INDEX
+#endif
 #if LINEAR_AXES >= 5
   #ifndef J_STEP_PIN
     #define J_STEP_PIN   _EPIN(J_E_INDEX, STEP)
@@ -1006,7 +1026,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(J_USE_ENDSTOP) && defined(J_STALL_SENSITIVITY) && _PEXI(J_E_INDEX, DIAG)
+  #if !defined(J_DIAG_PIN) && !defined(J_USE_ENDSTOP) && defined(J_STALL_SENSITIVITY) && _PEXI(J_E_INDEX, DIAG)
     #define J_DIAG_PIN _EPIN(J_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(J, X_MIN)
       #define J_USE_ENDSTOP _XMIN_
@@ -1026,9 +1046,6 @@
     #endif
     #undef J_DIAG_PIN
   #endif
-  #define K_E_INDEX INCREMENT(J_E_INDEX)
-#else
-  #define K_E_INDEX J_E_INDEX
 #endif
 
 #ifndef J_CS_PIN
@@ -1044,6 +1061,7 @@
   #define J_MS3_PIN -1
 #endif
 
+// The K axis, if any, should be the next open extruder port
 #if LINEAR_AXES >= 6
   #ifndef K_STEP_PIN
     #define K_STEP_PIN   _EPIN(K_E_INDEX, STEP)
@@ -1076,7 +1094,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(K_USE_ENDSTOP) && defined(K_STALL_SENSITIVITY) && _PEXI(K_E_INDEX, DIAG)
+  #if !defined(K_DIAG_PIN) && !defined(K_USE_ENDSTOP) && defined(K_STALL_SENSITIVITY) && _PEXI(K_E_INDEX, DIAG)
     #define K_DIAG_PIN _EPIN(K_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(K, X_MIN)
       #define K_USE_ENDSTOP _XMIN_
