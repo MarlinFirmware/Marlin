@@ -57,9 +57,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     #if ENABLED(MKS_WIFI_MODULE)
       case ID_WIFI_PARA:
-      lv_clear_advance_settings();
-      lv_draw_wifi_settings();
-      break;
+        lv_clear_advance_settings();
+        lv_draw_wifi_settings();
+        break;
     #endif
     #if HAS_ROTARY_ENCODER
       case ID_ENCODER_SETTINGS:
