@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,34 +22,17 @@
 #pragma once
 
 /**
- * sd/SdFile.h
- *
- * Arduino SdFat Library
- * Copyright (c) 2009 by William Greiman
- *
- * This file is part of the Arduino Sd2Card Library
+ * 3-.0：The font size, 0x00-0x09, corresponds to the font size below:
+ * 0x00=6*12   0x01=8*16   0x02=10*20  0x03=12*24  0x04=14*28
+ * 0x05=16*32  0x06=20*40  0x07=24*48  0x08=28*56  0x09=32*64
  */
-
-#include "SdBaseFile.h"
-
-#include <stdint.h>
-
-/**
- * \class SdFile
- * \brief SdBaseFile with Print.
- */
-class SdFile : public SdBaseFile {
- public:
-  SdFile() {}
-  SdFile(const char *name, uint8_t oflag);
-  #if ARDUINO >= 100
-    size_t write(uint8_t b);
-  #else
-    void write(uint8_t b);
-  #endif
-
-  int16_t write(const void *buf, uint16_t nbyte);
-  void write(const char *str);
-  void write_P(PGM_P str);
-  void writeln_P(PGM_P str);
-};
+#define font6x12  0x00
+#define font8x16  0x01
+#define font10x20 0x02
+#define font12x24 0x03
+#define font14x28 0x04
+#define font16x32 0x05
+#define font20x40 0x06
+#define font24x48 0x07
+#define font28x56 0x08
+#define font32x64 0x09

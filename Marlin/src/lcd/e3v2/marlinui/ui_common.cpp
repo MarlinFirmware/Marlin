@@ -83,7 +83,7 @@ void MarlinUI::init_lcd() {
   DWIN_Startup();
 
   // Load the assets JPG (currently just the status screen 'icon')
-  DWIN_JPG_CacheToN(1, DWIN_MarlinUI_Assets);
+  DWIN_JPG_CacheTo1(DWIN_MarlinUI_Assets);
 }
 
 // This LCD should clear where it will draw anew
@@ -545,8 +545,8 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // Show the location value
       dwin_string.set(Z_LBL);
-      if (!isnan(ubl.z_values[x_plot][y_plot]))
-        dwin_string.add(ftostr43sign(ubl.z_values[x_plot][y_plot]));
+      if (!isnan(Z_VALUES_ARR[x_plot][y_plot]))
+        dwin_string.add(ftostr43sign(Z_VALUES_ARR[x_plot][y_plot]));
       else
         dwin_string.add(PSTR(" -----"));
       lcd_moveto(

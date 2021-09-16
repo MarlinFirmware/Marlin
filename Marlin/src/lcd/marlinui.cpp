@@ -104,7 +104,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
     // Set brightness on enabled LCD here
     TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_LCD_Brightness(brightness));
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, DWIN_Backlight_SetLuminance(backlight ? brightness : 0));
+    TERN_(DWIN_CREALITY_LCD_JYERSUI, DWIN_LCD_Brightness(backlight ? brightness : 0));
   }
 #endif
 
