@@ -1447,7 +1447,7 @@
 #endif
 
 //
-// Reduce the number of warnings for comon combinations
+// Reduce the number of warnings for common combinations
 //
 #if SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_YZ && SHARED_ENABLE_XE
   #define SHARED_ENABLE_XYZE 1
