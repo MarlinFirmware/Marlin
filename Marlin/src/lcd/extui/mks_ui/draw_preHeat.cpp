@@ -31,10 +31,17 @@
 
 static lv_obj_t *scr;
 extern lv_group_t*  g;
-static lv_obj_t *buttonType, *buttonStep;
+static lv_obj_t *buttonType, *buttonStep, *buttonAdd, *buttonDec;;
 static lv_obj_t *labelType;
 static lv_obj_t *labelStep;
 static lv_obj_t *tempText1;
+static lv_obj_t *btn_pla;
+static lv_obj_t *btn_abs;
+static lv_obj_t *label_abs;
+static lv_obj_t *label_pla;
+
+static lv_style_t btn_style_pre;
+static lv_style_t btn_style_rel;
 
 enum {
   ID_P_ADD = 1,
@@ -42,7 +49,9 @@ enum {
   ID_P_TYPE,
   ID_P_STEP,
   ID_P_OFF,
-  ID_P_RETURN
+  ID_P_RETURN,
+  ID_P_ABS,
+  ID_P_PLA,
 };
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
@@ -120,6 +129,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       else if (uiCfg.curTempType == 1) {
         uiCfg.extruderIndex = 0;
         uiCfg.curTempType      = 0;
+        disp_add_dec();
+        disp_ext_heart();
       }
       disp_temp_type();
       break;
@@ -149,6 +160,12 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       clear_cur_ui();
       draw_return_ui();
       break;
+    case ID_P_ABS:
+      thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, 0);
+      break;
+    case ID_P_PLA:
+      thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, 0);
+      break;
   }
 }
 
@@ -156,11 +173,17 @@ void lv_draw_preHeat() {
   scr = lv_screen_create(PRE_HEAT_UI);
 
   // Create image buttons
-  lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
-  lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
+  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
+  buttonDec = lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
 
   buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_TYPE);
   buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_STEP);
+  
+  if(uiCfg.curTempType == 0) {
+    disp_ext_heart();
+  }
+
+  
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonType);
@@ -183,6 +206,20 @@ void lv_draw_preHeat() {
   disp_desire_temp();
 }
 
+void disp_ext_heart() {
+
+    btn_abs = lv_btn_create(scr, 160, 40, 80, 40, event_handler, ID_P_ABS);
+    btn_pla = lv_btn_create(scr, 260, 40, 80, 40, event_handler, ID_P_PLA);
+
+    lv_btn_set_style(btn_abs, LV_BTN_STYLE_PR, &btn_style_pre);
+    lv_btn_set_style(btn_abs, LV_BTN_STYLE_REL, &btn_style_rel);
+    lv_btn_set_style(btn_pla, LV_BTN_STYLE_PR, &btn_style_pre); 
+    lv_btn_set_style(btn_pla, LV_BTN_STYLE_REL, &btn_style_rel);
+
+    label_abs = lv_label_create(btn_abs, PREHEAT_2_LABEL);
+    label_pla = lv_label_create(btn_pla, PREHEAT_1_LABEL);
+}
+
 void disp_temp_type() {
   if (uiCfg.curTempType == 0) {
     if (uiCfg.extruderIndex == 1) {
@@ -199,7 +236,6 @@ void disp_temp_type() {
         lv_obj_align(labelType, buttonType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
       }
     }
-
   }
   else {
   lv_imgbtn_set_src_both(buttonType, "F:/bmp_bed.bin");
@@ -256,6 +292,14 @@ void disp_step_heat() {
     }
   }
 }
+
+void disp_add_dec() {
+
+  // Create image buttons
+  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
+  buttonDec = lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
+}
+
 
 void lv_clear_preHeat() {
   #if HAS_ROTARY_ENCODER
