@@ -658,7 +658,7 @@
 #endif
 
 // Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_PWM)
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM)
   #define NEEDS_HARDWARE_PWM 1
 #endif
 

@@ -169,7 +169,7 @@ void MMU2::mmu_loop() {
       if (rx_ok()) {
         sscanf(rx_buffer, "%huok\n", &version);
 
-        DEBUG_ECHOLNPAIR("MMU => ", version, "\nMMU <= 'S2'");
+        DEBUG_ECHOLNPGM("MMU => ", version, "\nMMU <= 'S2'");
 
         MMU2_COMMAND("S2");   // Read Build Number
         state = -3;
@@ -180,7 +180,7 @@ void MMU2::mmu_loop() {
       if (rx_ok()) {
         sscanf(rx_buffer, "%huok\n", &buildnr);
 
-        DEBUG_ECHOLNPAIR("MMU => ", buildnr);
+        DEBUG_ECHOLNPGM("MMU => ", buildnr);
 
         check_version();
 
@@ -217,7 +217,7 @@ void MMU2::mmu_loop() {
       if (rx_ok()) {
         sscanf(rx_buffer, "%hhuok\n", &finda);
 
-        DEBUG_ECHOLNPAIR("MMU => ", finda, "\nMMU - ENABLED");
+        DEBUG_ECHOLNPGM("MMU => ", finda, "\nMMU - ENABLED");
 
         _enabled = true;
         state = 1;
@@ -230,7 +230,7 @@ void MMU2::mmu_loop() {
         if (WITHIN(cmd, MMU_CMD_T0, MMU_CMD_T0 + EXTRUDERS - 1)) {
           // tool change
           int filament = cmd - MMU_CMD_T0;
-          DEBUG_ECHOLNPAIR("MMU <= T", filament);
+          DEBUG_ECHOLNPGM("MMU <= T", filament);
           tx_printf_P(PSTR("T%d\n"), filament);
           TERN_(MMU_EXTRUDER_SENSOR, mmu_idl_sens = 1); // enable idler sensor, if any
           state = 3; // wait for response
@@ -238,7 +238,7 @@ void MMU2::mmu_loop() {
         else if (WITHIN(cmd, MMU_CMD_L0, MMU_CMD_L0 + EXTRUDERS - 1)) {
           // load
           int filament = cmd - MMU_CMD_L0;
-          DEBUG_ECHOLNPAIR("MMU <= L", filament);
+          DEBUG_ECHOLNPGM("MMU <= L", filament);
           tx_printf_P(PSTR("L%d\n"), filament);
           state = 3; // wait for response
         }
@@ -258,7 +258,7 @@ void MMU2::mmu_loop() {
         else if (WITHIN(cmd, MMU_CMD_E0, MMU_CMD_E0 + EXTRUDERS - 1)) {
           // eject filament
           int filament = cmd - MMU_CMD_E0;
-          DEBUG_ECHOLNPAIR("MMU <= E", filament);
+          DEBUG_ECHOLNPGM("MMU <= E", filament);
           tx_printf_P(PSTR("E%d\n"), filament);
           state = 3; // wait for response
         }
@@ -271,7 +271,7 @@ void MMU2::mmu_loop() {
         else if (WITHIN(cmd, MMU_CMD_F0, MMU_CMD_F0 + EXTRUDERS - 1)) {
           // filament type
           int filament = cmd - MMU_CMD_F0;
-          DEBUG_ECHOLNPAIR("MMU <= F", filament, " ", cmd_arg);
+          DEBUG_ECHOLNPGM("MMU <= F", filament, " ", cmd_arg);
           tx_printf_P(PSTR("F%d %d\n"), filament, cmd_arg);
           state = 3; // wait for response
         }
@@ -647,7 +647,7 @@ static void mmu2_not_responding() {
 
   void MMU2::mmu_continue_loading() {
     for (uint8_t i = 0; i < MMU_LOADING_ATTEMPTS_NR; i++) {
-      DEBUG_ECHOLNPAIR("Additional load attempt #", i);
+      DEBUG_ECHOLNPGM("Additional load attempt #", i);
       if (FILAMENT_PRESENT()) break;
       command(MMU_CMD_C0);
       manage_response(true, true);
@@ -962,7 +962,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
     BUZZ(200, 404);
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), CONTINUE_STR));
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover")));
-    wait_for_user_response();
+    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
     BUZZ(200, 404);
     BUZZ(200, 404);
 
@@ -1025,7 +1025,7 @@ void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
     const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
 
     DEBUG_ECHO_START();
-    DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
+    DEBUG_ECHOLNPGM("E step ", es, "/", fr_mm_m);
 
     current_position.e += es;
     line_to_current_position(MMM_TO_MMS(fr_mm_m));

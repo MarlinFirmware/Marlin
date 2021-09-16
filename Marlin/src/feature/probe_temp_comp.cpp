@@ -75,7 +75,7 @@ void ProbeTempComp::print_offsets() {
         #endif
         PSTR("Probe")
       );
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHOLNPGM(
         " temp: ", temp,
         "C; Offset: ", i < 0 ? 0.0f : sensor_z_offsets[s][i], " um"
       );
@@ -117,7 +117,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   // Extrapolate
   float k, d;
   if (calib_idx < measurements) {
-    SERIAL_ECHOLNPAIR("Got ", calib_idx, " measurements. ");
+    SERIAL_ECHOLNPGM("Got ", calib_idx, " measurements. ");
     if (linear_regression(tsi, k, d)) {
       SERIAL_ECHOPGM("Applying linear extrapolation");
       calib_idx--;
