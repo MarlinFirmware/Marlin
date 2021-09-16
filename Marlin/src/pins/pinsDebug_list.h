@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,15 +25,13 @@
 // Following this pattern is a must.
 // If the new pin name is over 28 characters long then pinsDebug.h will need to be modified.
 
-// Pin lists 1.1.x and 2.0.x synchronized 2018-02-17
-
 #if TARGET_LPC1768
   #define ANALOG_OK(PN) ((PN) == P0_02 || (PN) == P0_03 || (PN) == P0_23 || (PN) == P0_24 || (PN) == P0_25 || (PN) == P0_26 || (PN) == P1_30 || (PN) == P1_31)
 #else
   #define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
 #endif
 
-#line 34 // set __LINE__ to a known value for both passes
+#line 35 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments

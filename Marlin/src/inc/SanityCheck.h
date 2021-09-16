@@ -3279,10 +3279,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Check per-axis initializers for errors
  */
-constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
-                sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
-                sanity_arr_3[] = DEFAULT_MAX_ACCELERATION,
-                sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
 
 #define __PLUS_TEST(I,A) && (sanity_arr_##A[_MIN(I,signed(COUNT(sanity_arr_##A)-1))] > 0)
 #define _PLUS_TEST(A) (1 REPEAT2(14,__PLUS_TEST,A))
@@ -3292,18 +3288,22 @@ constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
   #define _EXTRA_NOTE " (Should be " STRINGIFY(LINEAR_AXES) "+" STRINGIFY(E_STEPPERS) ")"
 #endif
 
+constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
 static_assert(COUNT(sanity_arr_1) >= LOGICAL_AXES,  "DEFAULT_AXIS_STEPS_PER_UNIT requires " _LOGICAL_AXES_STR "elements.");
 static_assert(COUNT(sanity_arr_1) <= DISTINCT_AXES, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(1), "DEFAULT_AXIS_STEPS_PER_UNIT values must be positive.");
 
+constexpr float sanity_arr_2[] = DEFAULT_MAX_FEEDRATE;
 static_assert(COUNT(sanity_arr_2) >= LOGICAL_AXES,  "DEFAULT_MAX_FEEDRATE requires " _LOGICAL_AXES_STR "elements.");
 static_assert(COUNT(sanity_arr_2) <= DISTINCT_AXES, "DEFAULT_MAX_FEEDRATE has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(2), "DEFAULT_MAX_FEEDRATE values must be positive.");
 
+constexpr float sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
 static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION requires " _LOGICAL_AXES_STR "elements.");
 static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
+constexpr float sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
 static_assert(COUNT(sanity_arr_4) == LINEAR_AXES,  "HOMING_FEEDRATE_MM_M requires " _LINEAR_AXES_STR "elements (and no others).");
 static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 
