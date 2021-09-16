@@ -21,11 +21,10 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
-
 #include "../module/motion.h"
-
 #include "buttons.h"
+
+#include "../inc/MarlinConfig.h"
 
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
