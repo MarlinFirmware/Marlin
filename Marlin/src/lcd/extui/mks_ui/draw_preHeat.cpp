@@ -31,7 +31,7 @@
 
 static lv_obj_t *scr;
 extern lv_group_t*  g;
-static lv_obj_t *buttonType, *buttonStep, *buttonAdd, *buttonDec;;
+static lv_obj_t *buttonType, *buttonStep, *buttonAdd, *buttonDec;
 static lv_obj_t *labelType;
 static lv_obj_t *labelStep;
 static lv_obj_t *tempText1;
@@ -222,14 +222,14 @@ void disp_ext_heart() {
 void disp_temp_type() {
   if (uiCfg.curTempType == 0) {
     if (uiCfg.extruderIndex == 1) {
-    lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru2.bin");
+      lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru2.bin");
       if (gCfgItems.multiple_language) {
         lv_label_set_text(labelType, preheat_menu.ext2);
         lv_obj_align(labelType, buttonType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
       }
     }
     else {
-    lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru1.bin");
+      lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru1.bin");
       if (gCfgItems.multiple_language) {
         lv_label_set_text(labelType, preheat_menu.ext1);
         lv_obj_align(labelType, buttonType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -237,7 +237,7 @@ void disp_temp_type() {
     }
   }
   else {
-  lv_imgbtn_set_src_both(buttonType, "F:/bmp_bed.bin");
+    lv_imgbtn_set_src_both(buttonType, "F:/bmp_bed.bin");
     if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.hotbed);
       lv_obj_align(labelType, buttonType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);

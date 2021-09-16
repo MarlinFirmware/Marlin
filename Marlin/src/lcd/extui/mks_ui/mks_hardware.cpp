@@ -713,7 +713,7 @@ void disp_assets_update_progress(const char *msg) {
   char buf[30];
   memset(buf, ' ', COUNT(buf));
   strncpy(buf, msg, strlen(msg));
-  buf[COUNT(buf)-1] = '\0';
+  buf[COUNT(buf) - 1] = '\0';
   disp_string(100, 165, buf, 0xFFFF, 0x0000);
 }
 

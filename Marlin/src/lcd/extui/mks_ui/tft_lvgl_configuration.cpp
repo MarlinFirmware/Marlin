@@ -333,7 +333,7 @@ bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
 
 extern uint8_t currentFlashPage;
 
-//spi_flash
+// spi_flash
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
@@ -382,7 +382,7 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
   return LV_FS_RES_OK;
 }
 
-//sd
+// sd
 char *cur_namefff;
 uint32_t sd_read_base_addr = 0, sd_read_addr_offset = 0, small_image_size = 409;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
