@@ -1363,3 +1363,43 @@
 
 #undef HAS_FREE_AUX2_PINS
 #undef DIAG_REMAPPED
+
+//
+// Find shared stepper enable pins
+//
+#if X_ENABLE_PIN == Y_ENABLE_PIN
+  #define SHARED_ENABLE_XY 1
+#endif
+#if X_ENABLE_PIN == Z_ENABLE_PIN
+  #define SHARED_ENABLE_XZ 1
+#endif
+#if Y_ENABLE_PIN == Z_ENABLE_PIN
+  #define SHARED_ENABLE_YZ 1
+#endif
+
+#if EXTRUDERS > 0
+  #if X_ENABLE_PIN == E0_ENABLE_PIN
+    #define SHARED_ENABLE_XE 1
+  #endif
+  #if Y_ENABLE_PIN == E0_ENABLE_PIN
+    #define SHARED_ENABLE_YE 1
+  #endif
+  #if Z_ENABLE_PIN == E0_ENABLE_PIN
+    #define SHARED_ENABLE_ZE 1
+  #endif
+#endif
+
+#if SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_YZ && SHARED_ENABLE_XE
+  #define SHARED_ENABLE_XYZE 1
+  #undef SHARED_ENABLE_XY
+  #undef SHARED_ENABLE_XZ
+  #undef SHARED_ENABLE_YZ
+  #undef SHARED_ENABLE_XE
+  #undef SHARED_ENABLE_YE
+  #undef SHARED_ENABLE_ZE
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_YZ
+  #define SHARED_ENABLE_XYZ 1
+  #undef SHARED_ENABLE_XY
+  #undef SHARED_ENABLE_XZ
+  #undef SHARED_ENABLE_YZ
+#endif

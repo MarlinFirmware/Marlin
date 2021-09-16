@@ -455,3 +455,28 @@
     #warning "Auto-assigned K_DIAG_PIN to E7_DIAG_PIN."
   #endif
 #endif
+
+#if SHARED_ENABLE_XY
+  #warning "X and Y enable pins are shared. M17/M18/M84 can not be used to disable just X or Y"
+#endif
+#if SHARED_ENABLE_XZ
+  #warning "X and Z enable pins are shared. M17/M18/M84 can not be used to disable just X or Z"
+#endif
+#if SHARED_ENABLE_XE
+  #warning "X and E enable pins are shared. M17/M18/M84 can not be used to disable just X or E"
+#endif
+#if SHARED_ENABLE_YZ
+  #warning "Y and Z enable pins are shared. M17/M18/M84 cqn not be used to disable just Y or Z"
+#endif
+#if SHARED_ENABLE_YE
+  #warning "Y and E enable pins are shared. M17/M18/M84 can not be used to disable just Y or E"
+#endif
+#if SHARED_ENABLE_ZE
+  #warning "Z and E enable pins are shared. M17/M18/M84 can not be used to disable just Z or E"
+#endif
+#if SHARED_ENABLE_XYZE
+  #warning "X,Y,Z and E enable pins are shared. M17/M18/M84 can not be used to disable just X,Y,Z or E"
+#endif
+#if SHARED_ENABLE_XYZ
+  #warning "X,Y and Z enable pins are shared. M17/M18/M84 can not be used to disable just X,Y or Z"
+#endif
