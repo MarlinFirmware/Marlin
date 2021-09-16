@@ -47,27 +47,23 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             35
-#define Y_MIN_PIN                             34
-
-#define X_MAX_PIN                             37
-#define Y_MAX_PIN                             36
-
+#define X_MIN_PIN                             37
+#define X_MAX_PIN                             36
+#define Y_MIN_PIN                             35
+#define Y_MAX_PIN                             34
 #define Z_MIN_PIN                             33
 #define Z_MAX_PIN                             32
 
-#if LINEAR_AXES >= 4
-#undef X_MAX_PIN
+#if ENABLED(IS_POLARGRAPH)
+// Makelangelo polargraphs were wired with left motor on XMIN and right motor on XMAX.
+#undef X_MIN_PIN
+#define X_MIN_PIN                             35
 #undef Y_MIN_PIN
+#define Y_MIN_PIN                             34
+#undef X_MAX_PIN
+#define X_MAX_PIN                             37
 #undef Y_MAX_PIN
-#undef Z_MIN_PIN
-#undef Z_MAX_PIN
-
-#define Y_MIN_PIN                             36
-#define Z_MIN_PIN                             35
-#define I_MIN_PIN                             34
-#define J_MIN_PIN                             33
-#define K_MIN_PIN                             32
+#define Y_MAX_PIN                             36
 #endif
 
 //
