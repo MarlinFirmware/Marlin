@@ -525,3 +525,6 @@
 #if SHARED_ENABLE_XYZ
   #warning "X,Y and Z enable pins are shared. M17/M18/M84 can not be used to disable just X,Y or Z"
 #endif
+#if SHARED_ENABLE_XYE
+  #warning "X,Y and E enable pins are shared. M17/M18/M84 can not be used to disable just X,Y or E"
+#endif

@@ -1446,6 +1446,9 @@
   #endif
 #endif
 
+//
+// Reduce the number of warnings for comon combinations
+//
 #if SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_YZ && SHARED_ENABLE_XE
   #define SHARED_ENABLE_XYZE 1
   #undef SHARED_ENABLE_XY
@@ -1459,4 +1462,9 @@
   #undef SHARED_ENABLE_XY
   #undef SHARED_ENABLE_XZ
   #undef SHARED_ENABLE_YZ
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XE && SHARED_ENABLE_YE
+  #define SHARED_ENABLE_XYE 1
+  #undef SHARED_ENABLE_XY
+  #undef SHARED_ENABLE_XE
+  #undef SHARED_ENABLE_YE
 #endif
