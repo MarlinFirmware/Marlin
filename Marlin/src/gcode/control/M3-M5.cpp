@@ -103,8 +103,8 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #endif
 
   planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
-  
-  uint8_t dir_value = is_M4 ? SPINDLE_DIR_CCW : SPINDLE_DIR_CW;
+
+  const SpindleDir dir_value = is_M4 ? SpindleDirCCW : SpindleDirCW;
 
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     if (parser.seenval('O')) {

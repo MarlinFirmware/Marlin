@@ -45,13 +45,11 @@
   #define SPEED_POWER_INTERCEPT 0
 #endif
 
-#define SPINDLE_DIR_CURRENT 0  // Don't change current value
-#define SPINDLE_DIR_CW 1
-#define SPINDLE_DIR_CCW 2
+enum SpindleDir : uint8_t { SpindleDirSame, SpindleDirCW, SpindleDirCCW };
 
 // Current ON/OFF state and transitions for get_event
 enum CutterState : uint8_t {
-  STAY_OFF = 0,
+  STAY_OFF,
   STAY_ON,
   STAY_ON_REV,
   TURN_ON,
@@ -62,7 +60,7 @@ enum CutterState : uint8_t {
 
 class SpindleLaser {
 private:
-  static uint8_t spindle_dir;       // Spindle direction
+  static SpindleDir spindle_dir;    // Spindle direction
   static uint8_t ocr_power;         // Value for PWM out
   static CutterState state;         // Current state
 
@@ -132,7 +130,7 @@ public:
 private:
   static void ena_pin_set(const bool enable);
   static void _change_hw(const bool ena_pin_on);
-  static CutterState get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on);
+  static CutterState get_event(const uint8_t opwr, const SpindleDir odir, const bool oena_pin_on);
 
   #if ENABLED(SPINDLE_CHANGE_DIR)
     static void dir_pin_set();
@@ -146,7 +144,7 @@ private:
 
 public:
   static void init();
-  static void ocr_set_power(const uint8_t opwr, const uint8_t odir=SPINDLE_DIR_CURRENT, const bool ena_pin_on=true);
+  static void ocr_set_power(const uint8_t opwr, const SpindleDir odir=SpindleDirSame, const bool ena_pin_on=true);
   static uint8_t get_ocr_power();
 
   /**
@@ -213,9 +211,9 @@ public:
   /**
    * Enable/Disable spindle/laser
    * @param enable true = enable; false = disable
-   * @param odir   Direction spindle (default SPINDLE_DIR_CURRENT)
+   * @param odir   Direction spindle (default SpindleDirSame)
    */
-  static inline void set_enabled(const bool enable, uint8_t odir=SPINDLE_DIR_CURRENT) {
+  static inline void set_enabled(const bool enable, SpindleDir odir=SpindleDirSame) {
     uint8_t opwr = 0;
     if (enable) {
       #if ENABLED(SPINDLE_LASER_USE_PWM)
@@ -281,8 +279,8 @@ public:
       set_reverse(reverse);
       set_enabled(true);
     }
-    FORCE_INLINE static void enable_forward() { enable_with_dir(false); }
-    FORCE_INLINE static void enable_reverse() { enable_with_dir(true); }
+    FORCE_INLINE static void enable_forward()  { enable_with_dir(false); }
+    FORCE_INLINE static void enable_reverse()  { enable_with_dir(true); }
     FORCE_INLINE static void enable_same_dir() { enable_with_dir(is_reverse()); }
 
     #if ENABLED(SPINDLE_LASER_USE_PWM)

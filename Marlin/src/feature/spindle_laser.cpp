@@ -39,18 +39,18 @@
 #endif
 
 SpindleLaser cutter;
-uint8_t SpindleLaser::ocr_power = 0;                // Startup disable
-uint8_t SpindleLaser::spindle_dir = SPINDLE_DIR_CW; // Startup clockwise
-CutterState SpindleLaser::state = STAY_OFF;         // Startup OFF
+uint8_t SpindleLaser::ocr_power = 0;                  // Startup disable
+SpindleDir SpindleLaser::spindle_dir = SpindleDirCW;  // Startup clockwise
+CutterState SpindleLaser::state = STAY_OFF;           // Startup OFF
 #if ENABLED(LASER_FEATURE)
-  cutter_test_pulse_t SpindleLaser::testPulse = 50; // Test fire Pulse time ms value.
+  cutter_test_pulse_t SpindleLaser::testPulse = 50;   // Test fire Pulse time ms value.
 #endif
-bool SpindleLaser::isReady;                         // Ready to apply power setting from the UI to OCR
-cutter_power_t SpindleLaser::menuPower,             // Power set via LCD menu in PWM, PERCENT, or RPM
-               SpindleLaser::unitPower;             // LCD status power in PWM, PERCENT, or RPM
+bool SpindleLaser::isReady;                           // Ready to apply power setting from the UI to OCR
+cutter_power_t SpindleLaser::menuPower,               // Power set via LCD menu in PWM, PERCENT, or RPM
+               SpindleLaser::unitPower;               // LCD status power in PWM, PERCENT, or RPM
 
 #if ENABLED(MARLIN_DEV_MODE)
-  cutter_frequency_t SpindleLaser::frequency;       // PWM frequency setting; range: 2K - 50K
+  cutter_frequency_t SpindleLaser::frequency;         // PWM frequency setting; range: 2K - 50K
 #endif
 #define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)
 
@@ -117,7 +117,7 @@ void SpindleLaser::ena_pin_set(const bool enable) {
    */
   void SpindleLaser::dir_pin_set() {
     // Forward (M3) HIGH when not inverted
-    const uint8_t dir_state = (spindle_dir == TERN(SPINDLE_INVERT_DIR, SPINDLE_DIR_CCW, SPINDLE_DIR_CW)) ? HIGH : LOW;
+    const uint8_t dir_state = (spindle_dir == TERN(SPINDLE_INVERT_DIR, SpindleDirCCW, SpindleDirCW)) ? HIGH : LOW;
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }
 #endif
@@ -129,18 +129,18 @@ void SpindleLaser::ena_pin_set(const bool enable) {
  * @param odir        New direction spindle
  * @param oena_pin_on New ena_pin state
  */
-CutterState SpindleLaser::get_event(const uint8_t opwr, const uint8_t odir, const bool oena_pin_on) {
+CutterState SpindleLaser::get_event(const uint8_t opwr, const SpindleDir odir, const bool oena_pin_on) {
   // Setting PWM and ENA both off
   if (opwr == 0 && !oena_pin_on)
-    return state == CutterState::STAY_OFF ? CutterState::STAY_OFF : CutterState::TURN_OFF;
+    return state == STAY_OFF ? STAY_OFF : TURN_OFF;
 
   // Setting PWM or ENA while OFF
-  if (state == CutterState::STAY_OFF)
-    return CutterState::TURN_ON;
+  if (state == STAY_OFF)
+    return TURN_ON;
 
   // Changing direction while already ON
   if (odir != spindle_dir)
-    return CutterState::STAY_ON_REV;
+    return STAY_ON_REV;
 
   return state;
 }
@@ -162,19 +162,19 @@ void SpindleLaser::_change_hw(const bool ena_pin_on) {
  * Set cutter ocr_power value for PWM, Servo, and on/off pin.
  *
  * @param opwr       Power value. Range 0 to MAX. When 0 disable spindle/laser.
- * @param odir       Direction spindle (default SPINDLE_DIR_CURRENT)
+ * @param odir       Direction spindle (default SpindleDirSame)
  * @param ena_pin_on Enable/disable ENA_PIN. Work only in separate mode PWM.
  *                   If separate mode is disable - ENA_PIN is managed through opwr value
  *                   if true - enable pin; false - disable pin (default true)
  */
-void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir/*=SPINDLE_DIR_CURRENT*/, const bool ena_pin_on/*=true*/) {
-  const uint8_t dir_value = TERN(SPINDLE_CHANGE_DIR, (odir == SPINDLE_DIR_CURRENT) ? spindle_dir : odir, SPINDLE_DIR_CW);
+void SpindleLaser::ocr_set_power(const uint8_t opwr, const SpindleDir odir/*=SpindleDirSame*/, const bool ena_pin_on/*=true*/) {
+  const SpindleDir dir_value = TERN(SPINDLE_CHANGE_DIR, (odir == SpindleDirSame) ? spindle_dir : odir, SpindleDirCW);
 
   const bool ena_pin_on_value = TERN(HAS_CUTTER_PWM_AND_ENA, ena_pin_on, opwr > 0);
 
   switch (get_event(opwr, dir_value, ena_pin_on_value)) {
     // Already ON and staying ON
-    case CutterState::STAY_ON:
+    case STAY_ON:
       state = STAY_ON;                   // Probably already the current state
       if (opwr != ocr_power) {
         ocr_power = opwr;
@@ -182,7 +182,7 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir/*=SPINDL
       }
       break;
 
-    case CutterState::TURN_ON:
+    case TURN_ON:
       state = STAY_ON;
       ocr_power = opwr;
       spindle_dir = dir_value;
@@ -191,12 +191,12 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir/*=SPINDL
       power_delay(true);
       break;
 
-    case CutterState::STAY_OFF:
-      state = STAY_OFF;                   // Probably already the current state
+    case STAY_OFF:
+      state = STAY_OFF;                  // Probably already the current state
       spindle_dir = dir_value;
       break;
 
-    case CutterState::TURN_OFF:
+    case TURN_OFF:
       state = STAY_OFF;
       ocr_power = opwr;
       spindle_dir = dir_value;
@@ -205,7 +205,7 @@ void SpindleLaser::ocr_set_power(const uint8_t opwr, const uint8_t odir/*=SPINDL
       power_delay(false);
       break;
 
-    case CutterState::STAY_ON_REV: {
+    case STAY_ON_REV: {
       state = STAY_ON;
       ocr_power = opwr;
       spindle_dir = dir_value;
@@ -239,10 +239,10 @@ uint8_t SpindleLaser::get_ocr_power(){ return ocr_power; }
   /**
    * Set the spindle direction and apply immediately
    * ! deprecate and need delete
-   * @param reverse If True is SPINDLE_DIR_CCW, false is SPINDLE_DIR_CW
+   * @param reverse If True is SpindleDirCCW, false is SpindleDirCW
    */
   void SpindleLaser::set_reverse(const bool reverse) {
-    ocr_set_power(ocr_power, reverse ? SPINDLE_DIR_CCW : SPINDLE_DIR_CW);
+    ocr_set_power(ocr_power, reverse ? SpindleDirCCW : SpindleDirCW);
   }
 #endif
 
