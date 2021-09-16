@@ -465,14 +465,59 @@
 #if SHARED_ENABLE_XE
   #warning "X and E enable pins are shared. M17/M18/M84 can not be used to disable just X or E"
 #endif
+#if SHARED_ENABLE_XI
+  #warning "X and I enable pins are shared. M17/M18/M84 can not be used to disable just X or I"
+#endif
+#if SHARED_ENABLE_XJ
+  #warning "X and J enable pins are shared. M17/M18/M84 can not be used to disable just X or J"
+#endif
+#if SHARED_ENABLE_XK
+  #warning "X and K enable pins are shared. M17/M18/M84 can not be used to disable just X or K"
+#endif
 #if SHARED_ENABLE_YZ
   #warning "Y and Z enable pins are shared. M17/M18/M84 cqn not be used to disable just Y or Z"
 #endif
 #if SHARED_ENABLE_YE
   #warning "Y and E enable pins are shared. M17/M18/M84 can not be used to disable just Y or E"
 #endif
+#if SHARED_ENABLE_YI
+  #warning "Y and I enable pins are shared. M17/M18/M84 can not be used to disable just Y or I"
+#endif
+#if SHARED_ENABLE_YJ
+  #warning "Y and J enable pins are shared. M17/M18/M84 can not be used to disable just Y or J"
+#endif
+#if SHARED_ENABLE_YK
+  #warning "Y and K enable pins are shared. M17/M18/M84 can not be used to disable just Y or K"
+#endif
 #if SHARED_ENABLE_ZE
   #warning "Z and E enable pins are shared. M17/M18/M84 can not be used to disable just Z or E"
+#endif
+#if SHARED_ENABLE_ZI
+  #warning "Z and I enable pins are shared. M17/M18/M84 can not be used to disable just Z or I"
+#endif
+#if SHARED_ENABLE_ZJ
+  #warning "Z and J enable pins are shared. M17/M18/M84 can not be used to disable just Z or J"
+#endif
+#if SHARED_ENABLE_ZK
+  #warning "Z and K enable pins are shared. M17/M18/M84 can not be used to disable just Z or K"
+#endif
+#if SHARED_ENABLE_IE
+  #warning "I and E enable pins are shared. M17/M18/M84 can not be used to disable just I or E"
+#endif
+#if SHARED_ENABLE_JE
+  #warning "J and E enable pins are shared. M17/M18/M84 can not be used to disable just J or E"
+#endif
+#if SHARED_ENABLE_KE
+  #warning "K and E enable pins are shared. M17/M18/M84 can not be used to disable just K or E"
+#endif
+#if SHARED_ENABLE_IJ
+  #warning "I and J enable pins are shared. M17/M18/M84 can not be used to disable just I or J"
+#endif
+#if SHARED_ENABLE_IK
+  #warning "I and K enable pins are shared. M17/M18/M84 can not be used to disable just I or K"
+#endif
+#if SHARED_ENABLE_JK
+  #warning "J and K enable pins are shared. M17/M18/M84 can not be used to disable just J or K"
 #endif
 #if SHARED_ENABLE_XYZE
   #warning "X,Y,Z and E enable pins are shared. M17/M18/M84 can not be used to disable just X,Y,Z or E"

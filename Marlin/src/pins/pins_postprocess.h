@@ -1373,6 +1373,48 @@
 #if X_ENABLE_PIN == Z_ENABLE_PIN
   #define SHARED_ENABLE_XZ 1
 #endif
+#if LINEAR_AXES > 3
+  #if X_ENABLE_PIN == I_ENABLE_PIN
+    #define SHARED_ENABLE_XI 1
+  #endif
+  #if Y_ENABLE_PIN == I_ENABLE_PIN
+    #define SHARED_ENABLE_YI 1
+  #endif
+  #if Z_ENABLE_PIN == I_ENABLE_PIN
+    #define SHARED_ENABLE_ZI 1
+  #endif
+#endif
+#if LINEAR_AXES > 4
+  #if X_ENABLE_PIN == J_ENABLE_PIN
+    #define SHARED_ENABLE_XJ 1
+  #endif
+  #if Y_ENABLE_PIN == J_ENABLE_PIN
+    #define SHARED_ENABLE_YJ 1
+  #endif
+  #if Z_ENABLE_PIN == J_ENABLE_PIN
+    #define SHARED_ENABLE_ZJ 1
+  #endif
+  #if I_ENABLE_PIN == J_ENABLE_PIN
+    #define SHARED_ENABLE_IJ 1
+  #endif
+#endif
+#if LINEAR_AXES > 5
+  #if X_ENABLE_PIN == K_ENABLE_PIN
+    #define SHARED_ENABLE_XK 1
+  #endif
+  #if Y_ENABLE_PIN == K_ENABLE_PIN
+    #define SHARED_ENABLE_YK 1
+  #endif
+  #if Z_ENABLE_PIN == K_ENABLE_PIN
+    #define SHARED_ENABLE_ZK 1
+  #endif
+  #if I_ENABLE_PIN == K_ENABLE_PIN
+    #define SHARED_ENABLE_IK 1
+  #endif
+  #if J_ENABLE_PIN == K_ENABLE_PIN
+    #define SHARED_ENABLE_JK 1
+  #endif
+#endif
 #if Y_ENABLE_PIN == Z_ENABLE_PIN
   #define SHARED_ENABLE_YZ 1
 #endif
@@ -1386,6 +1428,21 @@
   #endif
   #if Z_ENABLE_PIN == E0_ENABLE_PIN
     #define SHARED_ENABLE_ZE 1
+  #endif
+  #if LINEAR_AXES > 3
+    #if I_ENABLE_PIN == E0_ENABLE_PIN
+      #define SHARED_ENABLE_IE 1
+    #endif
+  #endif
+  #if LINEAR_AXES > 4
+    #if J_ENABLE_PIN == E0_ENABLE_PIN
+      #define SHARED_ENABLE_JE 1
+    #endif
+  #endif
+  #if LINEAR_AXES > 5
+    #if K_ENABLE_PIN == E0_ENABLE_PIN
+      #define SHARED_ENABLE_KE 1
+    #endif
   #endif
 #endif
 
