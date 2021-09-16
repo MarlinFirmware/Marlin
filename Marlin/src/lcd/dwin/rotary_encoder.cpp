@@ -56,9 +56,7 @@ ENCODER_Rate EncoderRate;
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
     if (CrealityDWIN.eeprom_settings.beeperenable) {
-      WRITE(BEEPER_PIN, HIGH);
-      delay(10);
-      WRITE(BEEPER_PIN, LOW);
+      BUZZ(30, 880);
     }
   #endif
 }
