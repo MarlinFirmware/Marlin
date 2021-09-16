@@ -234,6 +234,7 @@ namespace ExtUI {
 
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse);
+    extern PauseMessage pauseModeStatus;
     PauseMode getPauseMode();
   #endif
 
