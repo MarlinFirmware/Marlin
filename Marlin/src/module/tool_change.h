@@ -108,8 +108,51 @@
 
 #endif
 
-#if ENABLED(MANUAL_SWITCHING_TOOLHEAD) && defined(SWITCHING_TOOLHEAD_TOOL_NAMES)
-  static const char* const toolhead_names[] PROGMEM = SWITCHING_TOOLHEAD_TOOL_NAMES;
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  const char tool_name_0[] PROGMEM = TOOL_NAME_0;
+  const char tool_name_1[] PROGMEM = TOOL_NAME_1;
+
+  #if SWITCHING_TOOLHEAD_TOOL_QTY > 2
+    const char tool_name_2[] PROGMEM = TOOL_NAME_2;
+  #endif
+  #if SWITCHING_TOOLHEAD_TOOL_QTY > 3
+    const char tool_name_3[] PROGMEM = TOOL_NAME_3;
+  #endif
+  #if SWITCHING_TOOLHEAD_TOOL_QTY > 4
+    const char tool_name_4[] PROGMEM = TOOL_NAME_4;
+  #endif
+  #if SWITCHING_TOOLHEAD_TOOL_QTY > 5
+    const char tool_name_5[] PROGMEM = TOOL_NAME_5;
+  #endif
+  #if SWITCHING_TOOLHEAD_TOOL_QTY > 6
+    const char tool_name_6[] PROGMEM = TOOL_NAME_6;
+  #endif
+  #if SWITCHING_TOOLHEAD_TOOL_QTY > 7
+    const char tool_name_7[] PROGMEM = TOOL_NAME_7;
+  #endif
+
+  PGM_P const toolhead_names[SWITCHING_TOOLHEAD_TOOL_QTY] PROGMEM = {
+    tool_name_0,
+    tool_name_1
+    #if SWITCHING_TOOLHEAD_TOOL_QTY > 2
+      , tool_name_2
+    #endif
+    #if SWITCHING_TOOLHEAD_TOOL_QTY > 3
+      , tool_name_3
+    #endif
+    #if SWITCHING_TOOLHEAD_TOOL_QTY > 4
+      , tool_name_4
+    #endif
+    #if SWITCHING_TOOLHEAD_TOOL_QTY > 5
+      , tool_name_5
+    #endif
+    #if SWITCHING_TOOLHEAD_TOOL_QTY > 6
+      , tool_name_6
+    #endif
+    #if SWITCHING_TOOLHEAD_TOOL_QTY > 7
+      , tool_name_7
+    #endif
+  };
 #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   void electromagnetic_toolchange_init();
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)

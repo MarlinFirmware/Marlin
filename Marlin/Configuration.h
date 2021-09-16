@@ -299,10 +299,20 @@
    * Do not include laser/spindle in this count. Enabling LASER_FEATURE/SPINDLE_FEATURE
    * will add the appropriate tool.
    */
-  #define SWITCHING_TOOLHEAD_TOOL_QTY   4
+  #define SWITCHING_TOOLHEAD_TOOL_QTY 4
 
   // Define the names of Hotends/Unpowered tools. Optional.
-  #define SWITCHING_TOOLHEAD_TOOL_NAMES { "E3D v6", "Mosquito", "Pen Plotter", "Drag Knife" }
+  //#define SWITCHING_TOOLHEAD_TOOL_NAMES
+  #if ENABLED(SWITCHING_TOOLHEAD_TOOL_NAMES)
+    #define TOOL_NAME_0 "Tool 0"
+    #define TOOL_NAME_1 "Tool 1"
+    #define TOOL_NAME_2 "Tool 2"
+    #define TOOL_NAME_3 "Tool 3"
+    #define TOOL_NAME_4 "Tool 4"
+    #define TOOL_NAME_5 "Tool 5"
+    #define TOOL_NAME_6 "Tool 6"
+    #define TOOL_NAME_7 "Tool 7"
+  #endif
 
   // Move the tool to the parked position for tool changes. Requires NOZZLE_PARK_FEATURE.
   #define SWITCHING_TOOLHEAD_PARKING

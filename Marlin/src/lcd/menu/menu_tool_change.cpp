@@ -92,28 +92,13 @@ void menu_tool_changing() {
 
   ui.push_current_screen();
   ui.goto_screen([]{
-    const char* tool_name;
-    #ifdef SWITCHING_TOOLHEAD_TOOL_NAMES
-      tool_name = toolhead_names[editable.uint8];
-    #else
-      if (editable.uint8 < HOTENDS) {
-        char buf[7 + 1 + 1]; // "Hotend ", digit, null
-        sprintf_P(buf, PSTR("Hotend %c"), (editable.uint8 + 1) + '0');
-        tool_name = buf;
-      } else {
-        char buf[5 + 1 + 1]; // "Tool ", digit, null
-        sprintf_P(buf, PSTR("Tool %c"), (editable.uint8 + 1) + '0');
-        tool_name = buf;
-      }
-    #endif
-
     MenuItem_confirm::select_screen(
       GET_TEXT(MSG_BUTTON_DONE),
       GET_TEXT(MSG_BUTTON_CANCEL),
       menu_tool_change_done,
       menu_tool_change_cancel,
       PSTR("Install tool:"),
-      tool_name,
+      toolhead_names[editable.uint8],
       (const char *)nullptr
     );
   });
@@ -138,11 +123,7 @@ void menu_tool_change_hotend() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    #ifdef SWITCHING_TOOLHEAD_TOOL_NAMES
-      SUBMENU_P(toolhead_names[e], []{ menu_tool_changing(); });
-    #else
-      SUBMENU_N(e, MSG_HOTEND_N, []{ menu_tool_changing(); });
-    #endif
+    SUBMENU_P(toolhead_names[e], []{ menu_tool_changing(); });
   }
 
   END_MENU();
@@ -181,11 +162,7 @@ void menu_tool_change_unpowered() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    #ifdef SWITCHING_TOOLHEAD_TOOL_NAMES
-      SUBMENU_P(toolhead_names[e], []{ menu_tool_changing(); });
-    #else
-      SUBMENU_N(e-HOTENDS, MSG_TOOL_N, []{ menu_tool_changing(); });
-    #endif
+    SUBMENU_P(toolhead_names[e], []{ menu_tool_changing(); });
   }
 
   END_MENU();
@@ -198,27 +175,12 @@ void menu_tool_change_unpowered() {
  *
  */
 void menu_tool_change() {
-  const char* tool_name;
+  START_MENU();
 
   // display the current tool
-  #ifdef SWITCHING_TOOLHEAD_TOOL_NAMES
-    tool_name = toolhead_names[active_extruder];
-  #else
-    if (active_extruder < HOTENDS) {
-      char buf[7 + 1 + 1]; // "Hotend ", digit, null
-      sprintf_P(buf, PSTR("Hotend %c"), (active_extruder + 1) + '0');
-      tool_name = buf;
-    } else {
-      char buf[5 + 1 + 1]; // "Tool ", digit, null
-      sprintf_P(buf, PSTR("Tool %c"), (active_extruder + 1) + '0');
-      tool_name = buf;
-    }
-  #endif
+  STATIC_ITEM_P(toolhead_names[active_extruder], SS_DEFAULT|SS_INVERT);
 
-  START_MENU();
-  STATIC_ITEM_P(tool_name, SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_MAIN);
-
 
   #if HOTENDS > 0
     SUBMENU(MSG_HOTEND, menu_tool_change_hotend);
