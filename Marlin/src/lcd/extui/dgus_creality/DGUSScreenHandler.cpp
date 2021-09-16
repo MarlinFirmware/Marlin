@@ -22,7 +22,8 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#define DEBUG_ECHOLNPAIR DEBUG_ECHOLNPAIR
+#define DEBUG_ECHOLNPAIR DEBUG_ECHOLNPGM
+#define DEBUG_ECHOPAIR DEBUG_ECHOPGM
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
@@ -519,8 +520,8 @@ void DGUSScreenHandler::DGUSLCD_SendScrollingStringToDisplayPGM(DGUS_VP_Variable
 #if HAS_FAN
   void DGUSScreenHandler::DGUSLCD_SendFanStatusToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
-      DEBUG_ECHOPAIR(" DGUSLCD_SendFanStatusToDisplay ", var.VP);
-      DEBUG_ECHOLNPAIR(" data ", *(uint8_t *)var.memadr);
+      DEBUG_ECHOPGM(" DGUSLCD_SendFanStatusToDisplay ", var.VP);
+      DEBUG_ECHOLNPGM(" data ", *(uint8_t *)var.memadr);
       uint16_t data_to_send = ICON_TOGGLE_OFF;
       if (*(uint8_t *) var.memadr) data_to_send = ICON_TOGGLE_ON;
       dgusdisplay.WriteVariable(var.VP, data_to_send);
@@ -538,7 +539,7 @@ void DGUSScreenHandler::DGUSLCD_SendScrollingStringToDisplayPGM(DGUS_VP_Variable
 // Send heater status value to the display.
 void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
-    DEBUG_ECHOPAIR(" DGUSLCD_SendHeaterStatusToDisplay ", var.VP);
+    DEBUG_ECHOPGM(" DGUSLCD_SendHeaterStatusToDisplay ", var.VP);
     DEBUG_ECHOLNPAIR(" data ", *(int16_t *)var.memadr);
     uint16_t data_to_send = 0;
     if (*(int16_t *) var.memadr) data_to_send = 1;
@@ -596,7 +597,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     const int16_t scroll = (int16_t)swap16(*(uint16_t*)val_ptr);
     if (scroll) {
       top_file += scroll;
-      DEBUG_ECHOPAIR("new topfile calculated:", top_file);
+      DEBUG_ECHOPGM("new topfile calculated:", top_file);
       if (top_file < 0) {
         top_file = 0;
         DEBUG_ECHOLNPGM("Top of filelist reached");
@@ -606,7 +607,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
         NOLESS(max_top, 0);
         NOMORE(top_file, max_top);
       }
-      DEBUG_ECHOPAIR("new topfile adjusted:", top_file);
+      DEBUG_ECHOPGM("new topfile adjusted:", top_file);
     }
     else {
       if (!filelist.isAtRootDir()) {
@@ -782,10 +783,10 @@ void DGUSScreenHandler::OnMeshLevelingStart() {
 }
 
 void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z) {
-  SERIAL_ECHOPAIR("X: ", x);
-  SERIAL_ECHOPAIR("; Y: ", y);
-  SERIAL_ECHOPAIR("; Index ", MeshLevelIndex);
-  SERIAL_ECHOLNPAIR("; Icon ", MeshLevelIconIndex);
+  SERIAL_ECHOPGM("X: ", x);
+    SERIAL_ECHOPGM("; Y: ", y);
+    SERIAL_ECHOPGM("; Index ", MeshLevelIndex);
+    SERIAL_ECHOLNPGM("; Icon ", MeshLevelIconIndex);
 
   UpdateMeshValue(x, y, z);
 
@@ -927,12 +928,12 @@ uint16_t CreateRgb(double h, double s, double v) {
   return (((static_cast<uint8_t>(out.r * 255) & 0xf8)<<8) + ((static_cast<uint8_t>(out.g * 255) & 0xfc)<<3) + (static_cast<uint8_t>(out.b * 255)>>3));
 }
 
-
-void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
-  SERIAL_ECHOPAIR("X", x);
-  SERIAL_ECHOPAIR(" Y", y);
-  SERIAL_ECHO(" Z");
-  SERIAL_ECHO_F(z, 4);
+#if HAS_BED_PROBE
+  void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
+    SERIAL_ECHOPGM("X", x);
+    SERIAL_ECHOPGM(" Y", y);
+    SERIAL_ECHO(" Z");
+    SERIAL_ECHO_F(z, 4);
 
   // Determine the screen X and Y value
   if (x % SkipMeshPoint != 0 || y % SkipMeshPoint != 0) {
@@ -1003,21 +1004,23 @@ void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
 
   int16_t rawZ = *(int16_t*)val_ptr;
   float z = swap16(rawZ) * 0.001;
+    SERIAL_ECHOPGM("Overriding mesh value. X:", x);
+    SERIAL_ECHOPGM(" Y:", y);
+    SERIAL_ECHO(" Z:");
+    SERIAL_ECHO_F(z, 4);
+    SERIAL_ECHOPGM(" [raw: ", rawZ);
+    SERIAL_ECHOPGM("] [point ", probe_point, "] ");
+    SERIAL_ECHOPGM(" [VP: ", var.VP);
+    SERIAL_ECHOLN("]");
 
-  SERIAL_ECHOPAIR("Overriding mesh value. X:", x);
-  SERIAL_ECHOPAIR(" Y:", y);
-  SERIAL_ECHO(" Z:");
-  SERIAL_ECHO_F(z, 4);
-  SERIAL_ECHOPAIR(" [raw: ", rawZ);
-  SERIAL_ECHOPAIR("] [point ", probe_point, "] ");
-  SERIAL_ECHOPAIR(" [VP: ", var.VP);
-  SERIAL_ECHOLN("]");
 
   UpdateMeshValue(x, y, z);
   ExtUI::setMeshPoint({ x, y }, z);
 
   RequestSaveSettings();
 }
+
+#endif
 
 #if HAS_COLOR_LEDS
 void DGUSScreenHandler::HandleLED(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1030,7 +1033,7 @@ void DGUSScreenHandler::HandleLED(DGUS_VP_Variable &var, void *val_ptr) {
   (*(uint8_t*)var.memadr) = static_cast<uint8_t>(newValue);
   leds.set_color(leds.color);
 
-  SERIAL_ECHOLNPAIR("HandleLED ", newValue);
+  SERIAL_ECHOLNPGM("HandleLED ", newValue);
   RequestSaveSettings();
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1147,7 +1150,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
 void DGUSScreenHandler::HandleFanSpeedChanged(DGUS_VP_Variable &var, void *val_ptr) {
   uint16_t newValue = swap16(*(uint16_t*)val_ptr);
 
-    SERIAL_ECHOLNPAIR("Fan speed changed: ", newValue);
+    SERIAL_ECHOLNPGM("Fan speed changed: ", newValue);
     ExtUI::setTargetFan_percent(newValue, ExtUI::fan_t::FAN0);
 
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1157,7 +1160,7 @@ void DGUSScreenHandler::HandleFlowRateChanged(DGUS_VP_Variable &var, void *val_p
   #if EXTRUDERS
     uint16_t newValue = swap16(*(uint16_t*)val_ptr);
 
-    SERIAL_ECHOLNPAIR("Flow rate changed: ", newValue);
+    SERIAL_ECHOLNPGM("Flow rate changed: ", newValue);
     ExtUI::setFlow_percent(newValue, ExtUI::E0);
 
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1226,8 +1229,8 @@ void DGUSScreenHandler::HandleScreenVersion(DGUS_VP_Variable &var, void *val_ptr
 
   uint16_t actualScreenVersion = swap16(*(uint16_t*)val_ptr);
 
-  SERIAL_ECHOLNPAIR("DWIN version received: ", actualScreenVersion);
-  SERIAL_ECHOLNPAIR("We expected DWIN version: ", EXPECTED_UI_VERSION_MAJOR);
+  SERIAL_ECHOLNPGM("DWIN version received: ", actualScreenVersion);
+  SERIAL_ECHOLNPGM("We expected DWIN version: ", EXPECTED_UI_VERSION_MAJOR);
 
   if (actualScreenVersion == EXPECTED_UI_VERSION_MAJOR) {
     SERIAL_ECHOLN("Screen version check passed.");
@@ -1237,10 +1240,10 @@ void DGUSScreenHandler::HandleScreenVersion(DGUS_VP_Variable &var, void *val_ptr
   // Dump error to serial
   SERIAL_ECHOLN("WARNING: Your screen is not flashed correctly.");
 
-  SERIAL_ECHOPAIR("We received version ", actualScreenVersion);
+  SERIAL_ECHOPGM("We received version ", actualScreenVersion);
   SERIAL_ECHOLN("from the display");
 
-  SERIAL_ECHOLNPAIR("This firmware needs screen version ", actualScreenVersion);
+  SERIAL_ECHOLNPGM("This firmware needs screen version ", actualScreenVersion);
   SERIAL_ECHOLN("Please follow the release notes for flashing instructions.");
 
   // Will cause flashing in the loop()
@@ -1302,9 +1305,9 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
     case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
     default: return;
   }
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPAIR("value:", value);
   ExtUI::setAxisSteps_per_mm(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(axis));
+  DEBUG_ECHOLNPAIR("value_set:", ExtUI::getAxisSteps_per_mm(axis));
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
 }
@@ -1325,9 +1328,9 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
       case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
     #endif
   }
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPAIR("value:", value);
   ExtUI::setAxisSteps_per_mm(value,extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
+  DEBUG_ECHOLNPAIR("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
 }
@@ -1359,7 +1362,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
       #endif
     }
 
-    DEBUG_ECHOLNPAIR_F("V3:", newvalue);
+    DEBUG_ECHOLNPAIR("V3:", newvalue);
     *(float *)var.memadr = newvalue;
     ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
@@ -1526,7 +1529,7 @@ void DGUSScreenHandler::HandleToggleProbePreheatTemp(DGUS_VP_Variable &var, void
 void DGUSScreenHandler::HandleTouchScreenBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
   uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
 
-  SERIAL_ECHOLNPAIR("HandleTouchScreenBrightnessSetting: ", newvalue);
+  SERIAL_ECHOLNPGM("HandleTouchScreenBrightnessSetting: ", newvalue);
   Settings.screen_brightness = newvalue;
   ScreenHandler.SetTouchScreenConfiguration();
 
@@ -1537,7 +1540,7 @@ void DGUSScreenHandler::HandleTouchScreenBrightnessSetting(DGUS_VP_Variable &var
 void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variable &var, void *val_ptr) {
   uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
 
-  SERIAL_ECHOLNPAIR("HandleTouchScreenStandbyBrightnessSetting: ", newvalue);
+  SERIAL_ECHOLNPGM("HandleTouchScreenStandbyBrightnessSetting: ", newvalue);
   Settings.standby_screen_brightness = newvalue;
   ScreenHandler.SetTouchScreenConfiguration();
 
@@ -1548,7 +1551,7 @@ void DGUSScreenHandler::HandleTouchScreenStandbyBrightnessSetting(DGUS_VP_Variab
 void DGUSScreenHandler::HandleTouchScreenStandbyTimeSetting(DGUS_VP_Variable &var, void *val_ptr) {
   uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
 
-  SERIAL_ECHOLNPAIR("HandleTouchScreenStandbyTimeSetting: ", newvalue);
+  SERIAL_ECHOLNPGM("HandleTouchScreenStandbyTimeSetting: ", newvalue);
   Settings.standby_time_seconds = newvalue;
   ScreenHandler.SetTouchScreenConfiguration();
 
@@ -1557,7 +1560,7 @@ void DGUSScreenHandler::HandleTouchScreenStandbyTimeSetting(DGUS_VP_Variable &va
 }
 
 void DGUSScreenHandler::HandleToggleTouchScreenStandbySetting(DGUS_VP_Variable &var, void *val_ptr) {
-  SERIAL_ECHOLNPAIR("HandleToggleTouchScreenStandbySetting");
+  SERIAL_ECHOLNPGM("HandleToggleTouchScreenStandbySetting");
 
   Settings.display_standby = !Settings.display_standby;
   ScreenHandler.SetTouchScreenConfiguration();
@@ -1573,10 +1576,10 @@ void DGUSScreenHandler::HandleFanToggle() {
 }
 
 void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool save_current_screen) {
-  SERIAL_ECHOLNPAIR("SetNewScreen: ", newscreen);
+  SERIAL_ECHOLNPGM("SetNewScreen: ", newscreen);
 
   if (save_current_screen && current_screen != DGUSLCD_SCREEN_POPUP && current_screen != DGUSLCD_SCREEN_CONFIRM) {
-    SERIAL_ECHOLNPAIR("SetNewScreen (saving): ", newscreen);
+    SERIAL_ECHOLNPGM("SetNewScreen (saving): ", newscreen);
     memmove(&past_screens[1], &past_screens[0], sizeof(past_screens) - 1);
     past_screens[0] = current_screen;
   }
@@ -1637,7 +1640,7 @@ void DGUSScreenHandler::UpdateScreenVPData() {
   bool sent_one = false;
   do {
     uint16_t VP = pgm_read_word(VPList);
-    DEBUG_ECHOPAIR(" VP: ", VP);
+    DEBUG_ECHOPGM(" VP: ", VP);
     if (!VP) {
       update_ptr = 0;
       DEBUG_ECHOLNPGM(" UpdateScreenVPData done");
@@ -1653,13 +1656,13 @@ void DGUSScreenHandler::UpdateScreenVPData() {
       // Send the VP to the display, but try to avoid overrunning the Tx Buffer.
       // But send at least one VP, to avoid getting stalled.
       if (rcpy.send_to_display_handler && (!sent_one || expected_tx <= dgusdisplay.GetFreeTxBuffer())) {
-        DEBUG_ECHOPAIR(" calling handler for ", rcpy.VP);
+        DEBUG_ECHOPGM(" calling handler for ", rcpy.VP);
         sent_one = true;
         rcpy.send_to_display_handler(rcpy);
       }
       else {
         auto x = dgusdisplay.GetFreeTxBuffer();
-        DEBUG_ECHOLNPAIR(" tx almost full: ", x);
+        DEBUG_ECHOLNPGM(" tx almost full: ", x);
         UNUSED(x);
         //DEBUG_ECHOPAIR(" update_ptr ", update_ptr);
         ScreenComplete = false;

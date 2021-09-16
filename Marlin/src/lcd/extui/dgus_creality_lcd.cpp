@@ -130,7 +130,7 @@ bool hasPrintTimer = false;
 
   void onUserConfirmRequired(const char * const msg) {
     //if (msg) {
-      SERIAL_ECHOLNPAIR("User confirmation requested: ", msg);
+      SERIAL_ECHOLNPGM("User confirmation requested: ", msg);
 
       if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_FEED) {
         // We're in the feed (load filament) workflow - immediately assume confirmed

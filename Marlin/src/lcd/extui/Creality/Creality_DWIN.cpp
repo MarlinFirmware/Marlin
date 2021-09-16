@@ -1181,7 +1181,7 @@ void RTSSHOW::RTS_HandleData()
       break;
 
     case ReturnBack:
-      SERIAL_ECHOPAIR("Return : ", recdat.data[0]);
+      SERIAL_ECHOPGM("Return : ", recdat.data[0]);
       if (recdat.data[0] == 1) // return to the tool page
       {
         InforShowStatus = false;

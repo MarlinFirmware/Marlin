@@ -169,11 +169,11 @@ void EstepsHandler::HandleRemainingFilament(DGUS_VP_Variable &var, void *val_ptr
     }
 
     float current_steps = ExtUI::getAxisSteps_per_mm(ExtUI::E0);
-    SERIAL_ECHOLNPAIR("Current steps: ", current_steps);
-    SERIAL_ECHOLNPAIR("Actual extrusion: ", actualExtrusion);
+    SERIAL_ECHOLNPGM("Current steps: ", current_steps);
+    SERIAL_ECHOLNPGM("Actual extrusion: ", actualExtrusion);
 
     float new_steps = (current_steps * filament_to_extrude) / actualExtrusion;
-    SERIAL_ECHOLNPAIR("New steps: ", new_steps);
+    SERIAL_ECHOLNPGM("New steps: ", new_steps);
 
     calculated_esteps = new_steps;
 

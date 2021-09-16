@@ -1717,7 +1717,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   ) {
     //if (mode == PAUSE_MODE_SAME)
       //return;
-    SERIAL_ECHOPAIR("PauseMsg=", message);
+    SERIAL_ECHOLNPGM("PauseMsg=", message);
     pause_mode = mode;
     ExtUI::pauseModeStatus = message;
     switch (message) {
