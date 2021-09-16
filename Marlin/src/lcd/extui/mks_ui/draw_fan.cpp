@@ -46,9 +46,8 @@ enum {
 uint8_t fanPercent = 0;
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  // uint8_t fanPercent = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
-  uint8_t temp = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
-  if( fanPercent != temp ) { if( abs(fanPercent - temp) > 2 ) fanPercent = temp; }
+  const uint8_t temp = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
+  if (abs(fanPercent - temp) > 2) fanPercent = temp;
   switch (obj->mks_obj_id) {
     case ID_F_ADD: if (fanPercent < 100) fanPercent++; break;
     case ID_F_DEC: if (fanPercent !=  0) fanPercent--; break;
@@ -57,9 +56,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_F_OFF:  fanPercent =   0; break;
     case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
   }
-  // thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
   thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
-  if(obj->mks_obj_id != ID_F_RETURN) disp_fan_value();
+  if (obj->mks_obj_id != ID_F_RETURN) disp_fan_value();
 }
 
 void lv_draw_fan() {
@@ -82,7 +80,6 @@ void lv_draw_fan() {
 
 void disp_fan_value() {
   #if HAS_FAN
-    // sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, (int)map(thermalManager.fan_speed[0], 0, 255, 0, 100));
     sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, fanPercent);
   #else
     sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);

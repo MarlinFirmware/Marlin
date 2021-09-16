@@ -42,7 +42,7 @@
 #include "mks_hardware.h"
 #include <stdio.h>
 
-#define ICON_POS_Y          260// 38
+#define ICON_POS_Y          260
 #define TARGET_LABEL_MOD_Y -36
 #define LABEL_MOD_Y         30
 

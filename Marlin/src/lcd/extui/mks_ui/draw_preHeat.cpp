@@ -51,7 +51,7 @@ enum {
   ID_P_OFF,
   ID_P_RETURN,
   ID_P_ABS,
-  ID_P_PLA,
+  ID_P_PLA
 };
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
@@ -63,10 +63,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         thermalManager.temp_hotend[uiCfg.extruderIndex].target += uiCfg.stepHeat;
         if (uiCfg.extruderIndex == 0)
           max_target = HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
-        #if HAS_MULTI_HOTEND
-          else
+        else {
+          #if HAS_MULTI_HOTEND
             max_target = HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
-        #endif
+          #endif
+        }
         if (thermalManager.degTargetHotend(uiCfg.extruderIndex) > max_target)
           thermalManager.setTargetHotend(max_target, uiCfg.extruderIndex);
         thermalManager.start_watching_hotend(uiCfg.extruderIndex);
@@ -91,16 +92,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           thermalManager.setTargetHotend(0, uiCfg.extruderIndex);
         thermalManager.start_watching_hotend(uiCfg.extruderIndex);
       }
-      #if HAS_HEATED_BED
-        else {
+      else {
+        #if HAS_HEATED_BED
           if (thermalManager.degTargetBed() > uiCfg.stepHeat)
             thermalManager.temp_bed.target -= uiCfg.stepHeat;
           else
             thermalManager.setTargetBed(0);
 
           thermalManager.start_watching_bed();
-        }
-      #endif
+        #endif
+      }
       disp_desire_temp();
       break;
     case ID_P_TYPE:
@@ -110,25 +111,22 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             uiCfg.extruderIndex = 1;
           }
           else if (uiCfg.extruderIndex == 1) {
-            if (TEMP_SENSOR_BED != 0) {
+            if (ENABLED(HAS_HEATED_BED)) {
               uiCfg.curTempType = 1;
             }
             else {
-              uiCfg.curTempType      = 0;
+              uiCfg.curTempType = 0;
               uiCfg.extruderIndex = 0;
             }
           }
         }
         else if (uiCfg.extruderIndex == 0) {
-          if (TEMP_SENSOR_BED != 0)
-            uiCfg.curTempType = 1;
-          else
-            uiCfg.curTempType = 0;
+          uiCfg.curTempType = TERN(HAS_HEATED_BED, 1, 0);
         }
       }
       else if (uiCfg.curTempType == 1) {
         uiCfg.extruderIndex = 0;
-        uiCfg.curTempType      = 0;
+        uiCfg.curTempType = 0;
         disp_add_dec();
         disp_ext_heart();
       }
@@ -148,12 +146,12 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         thermalManager.setTargetHotend(0, uiCfg.extruderIndex);
         thermalManager.start_watching_hotend(uiCfg.extruderIndex);
       }
-      #if HAS_HEATED_BED
-        else {
+      else {
+        #if HAS_HEATED_BED
           thermalManager.temp_bed.target = 0;
           thermalManager.start_watching_bed();
-        }
-      #endif
+        #endif
+      }
       disp_desire_temp();
       break;
     case ID_P_RETURN:
@@ -169,21 +167,23 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
+void disp_add_dec() {
+  // Create image buttons
+  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
+  buttonDec = lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
+}
+
 void lv_draw_preHeat() {
   scr = lv_screen_create(PRE_HEAT_UI);
 
   // Create image buttons
-  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
-  buttonDec = lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
+  disp_add_dec();
 
   buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_TYPE);
   buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_STEP);
-  
-  if(uiCfg.curTempType == 0) {
-    disp_ext_heart();
-  }
 
-  
+  if (uiCfg.curTempType == 0) disp_ext_heart();
+
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonType);
@@ -207,17 +207,16 @@ void lv_draw_preHeat() {
 }
 
 void disp_ext_heart() {
+  btn_abs = lv_btn_create(scr, 160, 40, 80, 40, event_handler, ID_P_ABS);
+  btn_pla = lv_btn_create(scr, 260, 40, 80, 40, event_handler, ID_P_PLA);
 
-    btn_abs = lv_btn_create(scr, 160, 40, 80, 40, event_handler, ID_P_ABS);
-    btn_pla = lv_btn_create(scr, 260, 40, 80, 40, event_handler, ID_P_PLA);
+  lv_btn_set_style(btn_abs, LV_BTN_STYLE_PR, &btn_style_pre);
+  lv_btn_set_style(btn_abs, LV_BTN_STYLE_REL, &btn_style_rel);
+  lv_btn_set_style(btn_pla, LV_BTN_STYLE_PR, &btn_style_pre);
+  lv_btn_set_style(btn_pla, LV_BTN_STYLE_REL, &btn_style_rel);
 
-    lv_btn_set_style(btn_abs, LV_BTN_STYLE_PR, &btn_style_pre);
-    lv_btn_set_style(btn_abs, LV_BTN_STYLE_REL, &btn_style_rel);
-    lv_btn_set_style(btn_pla, LV_BTN_STYLE_PR, &btn_style_pre); 
-    lv_btn_set_style(btn_pla, LV_BTN_STYLE_REL, &btn_style_rel);
-
-    label_abs = lv_label_create(btn_abs, PREHEAT_2_LABEL);
-    label_pla = lv_label_create(btn_pla, PREHEAT_1_LABEL);
+  label_abs = lv_label_create(btn_abs, PREHEAT_2_LABEL);
+  label_pla = lv_label_create(btn_pla, PREHEAT_1_LABEL);
 }
 
 void disp_temp_type() {
@@ -292,14 +291,6 @@ void disp_step_heat() {
     }
   }
 }
-
-void disp_add_dec() {
-
-  // Create image buttons
-  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
-  buttonDec = lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
-}
-
 
 void lv_clear_preHeat() {
   #if HAS_ROTARY_ENCODER
