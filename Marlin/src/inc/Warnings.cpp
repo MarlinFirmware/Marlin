@@ -456,75 +456,103 @@
   #endif
 #endif
 
-#if SHARED_ENABLE_XY
-  #warning "X and Y enable pins are shared. M17/M18/M84 can not be used to disable just X or Y"
+//
+// Find shared stepper enable pins
+//
+#define _ENA_OVERLAP(A,B) (PINS_EXIST(A##_ENABLE,B##_ENABLE) && A##_ENABLE_PIN == B##_ENABLE_PIN)
+#if HAS_Y_AXIS
+  #define SHARED_ENABLE_XY _ENA_OVERLAP(X,Y)
 #endif
-#if SHARED_ENABLE_XZ
-  #warning "X and Z enable pins are shared. M17/M18/M84 can not be used to disable just X or Z"
+#if HAS_Z_AXIS
+  #define SHARED_ENABLE_XZ _ENA_OVERLAP(X,Z)
+  #define SHARED_ENABLE_YZ _ENA_OVERLAP(Y,Z)
 #endif
-#if SHARED_ENABLE_XE
-  #warning "X and E enable pins are shared. M17/M18/M84 can not be used to disable just X or E"
+#if LINEAR_AXES >= 4
+  #define SHARED_ENABLE_XI _ENA_OVERLAP(X,I)
+  #define SHARED_ENABLE_YI _ENA_OVERLAP(Y,I)
+  #define SHARED_ENABLE_ZI _ENA_OVERLAP(Z,I)
 #endif
+#if LINEAR_AXES >= 5
+  #define SHARED_ENABLE_XJ _ENA_OVERLAP(X,J)
+  #define SHARED_ENABLE_YJ _ENA_OVERLAP(Y,J)
+  #define SHARED_ENABLE_ZJ _ENA_OVERLAP(Z,J)
+  #define SHARED_ENABLE_IJ _ENA_OVERLAP(I,J)
+#endif
+#if LINEAR_AXES >= 6
+  #define SHARED_ENABLE_XK _ENA_OVERLAP(X,K)
+  #define SHARED_ENABLE_YK _ENA_OVERLAP(Y,K)
+  #define SHARED_ENABLE_ZK _ENA_OVERLAP(Z,K)
+  #define SHARED_ENABLE_IK _ENA_OVERLAP(I,K)
+  #define SHARED_ENABLE_JK _ENA_OVERLAP(J,K)
+#endif
+#if HAS_EXTRUDERS
+  #define SHARED_ENABLE_XE _ENA_OVERLAP(X,E0)
+  #define SHARED_ENABLE_YE _ENA_OVERLAP(Y,E0)
+  #define SHARED_ENABLE_ZE _ENA_OVERLAP(Z,E0)
+  #if LINEAR_AXES >= 4
+    #define SHARED_ENABLE_IE _ENA_OVERLAP(I,E0)
+  #endif
+  #if LINEAR_AXES >= 5
+    #define SHARED_ENABLE_JE _ENA_OVERLAP(J,E0)
+  #endif
+  #if LINEAR_AXES >= 6
+    #define SHARED_ENABLE_KE _ENA_OVERLAP(K,E0)
+  #endif
+#endif
+
+//
+// Reduce the number of warnings for common combinations
+//
+#if SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XE
+  #warning "X, Y, Z and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z or E."
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ
+  #warning "X, Y and Z use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y or Z."
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XE
+  #warning "X, Y and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y or E."
+#elif SHARED_ENABLE_XZ && SHARED_ENABLE_XE
+  #warning "X, Z, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Z or E."
+#elif SHARED_ENABLE_YZ && SHARED_ENABLE_YE
+  #warning "Y, Z and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y, Z or E."
+#elif SHARED_ENABLE_XZ
+  #warning "X and Z use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X or Z."
+#elif SHARED_ENABLE_YZ
+  #warning "Y and Z share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y or Z."
+#elif SHARED_ENABLE_XE
+  #warning "X and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X or E."
+#elif SHARED_ENABLE_YE
+  #warning "Y and E share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y or E."
+#elif SHARED_ENABLE_ZE
+  #warning "Z and E share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Z or E."
+#endif
+
 #if SHARED_ENABLE_XI
-  #warning "X and I enable pins are shared. M17/M18/M84 can not be used to disable just X or I"
-#endif
-#if SHARED_ENABLE_XJ
-  #warning "X and J enable pins are shared. M17/M18/M84 can not be used to disable just X or J"
-#endif
-#if SHARED_ENABLE_XK
-  #warning "X and K enable pins are shared. M17/M18/M84 can not be used to disable just X or K"
-#endif
-#if SHARED_ENABLE_YZ
-  #warning "Y and Z enable pins are shared. M17/M18/M84 cqn not be used to disable just Y or Z"
-#endif
-#if SHARED_ENABLE_YE
-  #warning "Y and E enable pins are shared. M17/M18/M84 can not be used to disable just Y or E"
-#endif
-#if SHARED_ENABLE_YI
-  #warning "Y and I enable pins are shared. M17/M18/M84 can not be used to disable just Y or I"
-#endif
-#if SHARED_ENABLE_YJ
-  #warning "Y and J enable pins are shared. M17/M18/M84 can not be used to disable just Y or J"
-#endif
-#if SHARED_ENABLE_YK
-  #warning "Y and K enable pins are shared. M17/M18/M84 can not be used to disable just Y or K"
-#endif
-#if SHARED_ENABLE_ZE
-  #warning "Z and E enable pins are shared. M17/M18/M84 can not be used to disable just Z or E"
-#endif
-#if SHARED_ENABLE_ZI
-  #warning "Z and I enable pins are shared. M17/M18/M84 can not be used to disable just Z or I"
-#endif
-#if SHARED_ENABLE_ZJ
-  #warning "Z and J enable pins are shared. M17/M18/M84 can not be used to disable just Z or J"
-#endif
-#if SHARED_ENABLE_ZK
-  #warning "Z and K enable pins are shared. M17/M18/M84 can not be used to disable just Z or K"
-#endif
-#if SHARED_ENABLE_IE
-  #warning "I and E enable pins are shared. M17/M18/M84 can not be used to disable just I or E"
-#endif
-#if SHARED_ENABLE_JE
-  #warning "J and E enable pins are shared. M17/M18/M84 can not be used to disable just J or E"
-#endif
-#if SHARED_ENABLE_KE
-  #warning "K and E enable pins are shared. M17/M18/M84 can not be used to disable just K or E"
-#endif
-#if SHARED_ENABLE_IJ
-  #warning "I and J enable pins are shared. M17/M18/M84 can not be used to disable just I or J"
-#endif
-#if SHARED_ENABLE_IK
-  #warning "I and K enable pins are shared. M17/M18/M84 can not be used to disable just I or K"
-#endif
-#if SHARED_ENABLE_JK
-  #warning "J and K enable pins are shared. M17/M18/M84 can not be used to disable just J or K"
-#endif
-#if SHARED_ENABLE_XYZE
-  #warning "X,Y,Z and E enable pins are shared. M17/M18/M84 can not be used to disable just X,Y,Z or E"
-#endif
-#if SHARED_ENABLE_XYZ
-  #warning "X,Y and Z enable pins are shared. M17/M18/M84 can not be used to disable just X,Y or Z"
-#endif
-#if SHARED_ENABLE_XYE
-  #warning "X,Y and E enable pins are shared. M17/M18/M84 can not be used to disable just X,Y or E"
+  #warning "X and I share the same ENABLE_PIN. M17/M18/M84 can't be used to set just X or I."
+#elif SHARED_ENABLE_XJ
+  #warning "X and J share the same ENABLE_PIN. M17/M18/M84 can't be used to set just X or J."
+#elif SHARED_ENABLE_XK
+  #warning "X and K share the same ENABLE_PIN. M17/M18/M84 can't be used to set just X or K."
+#elif SHARED_ENABLE_YI
+  #warning "Y and I share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y or I."
+#elif SHARED_ENABLE_YJ
+  #warning "Y and J share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y or J."
+#elif SHARED_ENABLE_YK
+  #warning "Y and K share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y or K."
+#elif SHARED_ENABLE_ZI
+  #warning "Z and I share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Z or I."
+#elif SHARED_ENABLE_ZJ
+  #warning "Z and J share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Z or J."
+#elif SHARED_ENABLE_ZK
+  #warning "Z and K share the same ENABLE_PIN. M17/M18/M84 can't be used to set just Z or K."
+#elif SHARED_ENABLE_IE
+  #warning "I and E share the same ENABLE_PIN. M17/M18/M84 can't be used to set just I or E."
+#elif SHARED_ENABLE_JE
+  #warning "J and E share the same ENABLE_PIN. M17/M18/M84 can't be used to set just J or E."
+#elif SHARED_ENABLE_KE
+  #warning "K and E share the same ENABLE_PIN. M17/M18/M84 can't be used to set just K or E."
+#elif SHARED_ENABLE_IJ
+  #warning "I and J share the same ENABLE_PIN. M17/M18/M84 can't be used to set just I or J."
+#elif SHARED_ENABLE_IK
+  #warning "I and K share the same ENABLE_PIN. M17/M18/M84 can't be used to set just I or K."
+#elif SHARED_ENABLE_JK
+  #warning "J and K share the same ENABLE_PIN. M17/M18/M84 can't be used to set just J or K."
 #endif
