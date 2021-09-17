@@ -503,16 +503,26 @@
 //
 // Reduce the number of warnings for common combinations
 //
-#if SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XE
-  #warning "X, Y, Z and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z or E."
+#if SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XI && SHARED_ENABLE_XJ && SHARED_ENABLE_XK && SHARED_ENABLE_XE
+  #warning "X, Y, Z, I, J, K and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z, I, J, K, or E."
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XE && SHARED_ENABLE_XI && SHARED_ENABLE_XJ
+  #warning "X, Y, Z, I, J, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z, I, J, or E."
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XE && SHARED_ENABLE_XI
+  #warning "X, Y, Z, I, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z, I, or E."
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XE && SHARED_ENABLE_XI
+  #warning "X, Y, Z, I, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z, I, or E."
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XE && SHARED_ENABLE_XI
+  #warning "X, Y, Z, I, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z, I, or E."
+#elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ && SHARED_ENABLE_XE
+  #warning "X, Y, Z, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, Z, or E."
 #elif SHARED_ENABLE_XY && SHARED_ENABLE_XZ
-  #warning "X, Y and Z use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y or Z."
+  #warning "X, Y, and Z use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, or Z."
 #elif SHARED_ENABLE_XY && SHARED_ENABLE_XE
-  #warning "X, Y and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y or E."
+  #warning "X, Y, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Y, or E."
 #elif SHARED_ENABLE_XZ && SHARED_ENABLE_XE
-  #warning "X, Z, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Z or E."
+  #warning "X, Z, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X, Z, or E."
 #elif SHARED_ENABLE_YZ && SHARED_ENABLE_YE
-  #warning "Y, Z and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y, Z or E."
+  #warning "Y, Z, and E use the same ENABLE_PIN. M17/M18/M84 can't be used to set just Y, Z, or E."
 #elif SHARED_ENABLE_XZ
   #warning "X and Z use the same ENABLE_PIN. M17/M18/M84 can't be used to set just X or Z."
 #elif SHARED_ENABLE_YZ
