@@ -33,6 +33,7 @@
 #include "../../../core/language.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
+#include "../../../module/stepper.h"
 #include "../../../gcode/queue.h"
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../../feature/pause.h"
@@ -379,10 +380,10 @@ void DGUSRxHandler::Steppers(DGUS_VP &vp, void *data_ptr) {
 
   switch (control) {
     case DGUS_Data::Control::ENABLE:
-      enable_all_steppers();
+      stepper.enable_all_steppers();
       break;
     case DGUS_Data::Control::DISABLE:
-      disable_all_steppers();
+      stepper.disable_all_steppers();
       break;
   }
 

@@ -131,6 +131,10 @@ Stepper stepper; // Singleton
   #include "../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
+#endif
+
 // public:
 
 #if EITHER(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
@@ -144,6 +148,8 @@ Stepper stepper; // Singleton
     constexpr uint32_t Stepper::digipot_count[];
   #endif
 #endif
+
+axis_flags_t Stepper::axis_enabled; // {0}
 
 // private:
 
@@ -472,6 +478,45 @@ xyze_int8_t Stepper::count_direction{0};
 #else
   #define DIR_WAIT_AFTER()
 #endif
+
+void Stepper::enable_e_steppers() {
+  #define _ENA_E(N) ENABLE_AXIS_E##N();
+  REPEAT(E_STEPPERS, _ENA_E)
+}
+
+void Stepper::disable_e_steppers() {
+  #define _DIS_E(N) disable_e_stepper(N);
+  REPEAT(E_STEPPERS, _DIS_E)
+}
+
+void Stepper::enable_all_steppers() {
+  TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+  LINEAR_AXIS_CODE(
+    _enable_linear_axis(X_AXIS),
+    _enable_linear_axis(Y_AXIS),
+    _enable_linear_axis(Z_AXIS),
+    _enable_linear_axis(I_AXIS),
+    _enable_linear_axis(J_AXIS),
+    _enable_linear_axis(K_AXIS)
+  );
+  enable_e_steppers();
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
+}
+
+void Stepper::disable_all_steppers() {
+  LINEAR_AXIS_CODE(
+    _disable_linear_axis(X_AXIS),
+    _disable_linear_axis(Y_AXIS),
+    _disable_linear_axis(Z_AXIS),
+    _disable_linear_axis(I_AXIS),
+    _disable_linear_axis(J_AXIS),
+    _disable_linear_axis(K_AXIS)
+  );
+  disable_e_steppers();
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
+}
 
 /**
  * Set the stepper direction of each axis

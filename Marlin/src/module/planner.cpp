@@ -1375,7 +1375,7 @@ void Planner::check_axes_activity() {
   // Disable inactive axes
   //
   LOGICAL_AXIS_CODE(
-    if (TERN0(DISABLE_E, !axis_active.e)) disable_e_steppers(),
+    if (TERN0(DISABLE_E, !axis_active.e)) stepper.disable_e_steppers(),
     if (TERN0(DISABLE_X, !axis_active.x)) DISABLE_AXIS_X(),
     if (TERN0(DISABLE_Y, !axis_active.y)) DISABLE_AXIS_Y(),
     if (TERN0(DISABLE_Z, !axis_active.z)) DISABLE_AXIS_Z(),
@@ -1707,7 +1707,7 @@ float Planner::triggered_position_mm(const AxisEnum axis) {
 
 void Planner::finish_and_disable() {
   while (has_blocks_queued() || cleaning_buffer_counter) idle();
-  disable_all_steppers();
+  stepper.disable_all_steppers();
 }
 
 /**
@@ -3085,7 +3085,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
     // Move buffer head
     block_buffer_head = next_buffer_head;
 
-    enable_all_steppers();
+    stepper.enable_all_steppers();
     stepper.wake_up();
   }
 

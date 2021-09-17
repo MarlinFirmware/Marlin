@@ -81,10 +81,6 @@
   #endif
 #endif
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "lcd/extui/ui_api.h"
-#endif
-
 #if HAS_ETHERNET
   #include "feature/ethernet.h"
 #endif
@@ -310,48 +306,6 @@ bool pin_is_protected(const pin_t pin) {
 
 #pragma GCC diagnostic pop
 
-void enable_e_steppers() {
-  #define _ENA_E(N) ENABLE_AXIS_E##N();
-  REPEAT(E_STEPPERS, _ENA_E)
-}
-
-void enable_all_steppers() {
-  TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
-  ENABLE_AXIS_X();
-  ENABLE_AXIS_Y();
-  ENABLE_AXIS_Z();
-  ENABLE_AXIS_I(); // Marlin 6-axis support by DerAndere (https://github.com/DerAndere1/Marlin/wiki)
-  ENABLE_AXIS_J();
-  ENABLE_AXIS_K();
-  enable_e_steppers();
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
-}
-
-void disable_e_steppers() {
-  #define _DIS_E(N) DISABLE_AXIS_E##N();
-  REPEAT(E_STEPPERS, _DIS_E)
-}
-
-void disable_e_stepper(const uint8_t e) {
-  #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
-  switch (e) {
-    REPEAT(E_STEPPERS, _CASE_DIS_E)
-  }
-}
-
-void disable_all_steppers() {
-  DISABLE_AXIS_X();
-  DISABLE_AXIS_Y();
-  DISABLE_AXIS_Z();
-  DISABLE_AXIS_I();
-  DISABLE_AXIS_J();
-  DISABLE_AXIS_K();
-  disable_e_steppers();
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
-}
-
 /**
  * A Print Job exists when the timer is running or SD is printing
  */
@@ -468,7 +422,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         if (ENABLED(DISABLE_INACTIVE_I)) DISABLE_AXIS_I();
         if (ENABLED(DISABLE_INACTIVE_J)) DISABLE_AXIS_J();
         if (ENABLED(DISABLE_INACTIVE_K)) DISABLE_AXIS_K();
-        if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
+        if (ENABLED(DISABLE_INACTIVE_E)) stepper.disable_e_steppers();
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
       }
@@ -938,7 +892,7 @@ void minkill(const bool steppers_off/*=false*/) {
   TERN_(HAS_CUTTER, cutter.kill());  // Reiterate cutter shutdown
 
   // Power off all steppers (for M112) or just the E steppers
-  steppers_off ? disable_all_steppers() : disable_e_steppers();
+  steppers_off ? stepper.disable_all_steppers() : stepper.disable_e_steppers();
 
   TERN_(PSU_CONTROL, powerManager.power_off());
 

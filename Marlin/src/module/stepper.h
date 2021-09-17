@@ -236,6 +236,10 @@
 // Perhaps DISABLE_MULTI_STEPPING should be required with ADAPTIVE_STEP_SMOOTHING.
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
+typedef struct {
+  bool LOGICAL_AXIS_LIST(E:1, X:1, Y:1, Z:1, I:1, J:1, K:1);
+} axis_flags_t;
+
 //
 // Stepper class definition
 //
@@ -384,6 +388,22 @@ class Stepper {
 
     #endif
 
+    // Return a mask of axes that overlap an axis ENABLE pin
+    static inline uint16_t ena_overlap(const AxisEnum axis, const uint8_t eindex=0) {
+      constexpr pin_t enalist[] = {
+        LINEAR_AXIS_LIST(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN),
+        LIST_N(EXTRUDERS, E0_ENABLE_PIN, E1_ENABLE_PIN, E2_ENABLE_PIN, E3_ENABLE_PIN, E4_ENABLE_PIN, E5_ENABLE_PIN, E6_ENABLE_PIN, E7_ENABLE_PIN)
+      };
+
+      uint16_t overlap = 0;
+      for (uint8_t i = 0; i < COUNT(enalist); i++) {
+        const uint8_t a = i < E_AXIS ? i : E_AXIS;
+        if (a != axis && enalist[a] == enalist[axis]) SBI(overlap, a);
+      }
+
+      return overlap;
+    }
+
   public:
     // Initialize stepper hardware
     static void init();
@@ -518,6 +538,58 @@ class Stepper {
     #if HAS_MOTOR_CURRENT_PWM
       static void refresh_motor_power();
     #endif
+
+    static axis_flags_t axis_enabled;   // Axis stepper ENABLED states
+
+    static inline void _enable_linear_axis(const AxisEnum axis) {
+      #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); axis_enabled.N = true; break;
+      switch (axis) {
+        LINEAR_AXIS_CODE(
+          _CASE_ENABLE(X),
+          _CASE_ENABLE(Y),
+          _CASE_ENABLE(Z),
+          _CASE_ENABLE(I),
+          _CASE_ENABLE(J),
+          _CASE_ENABLE(K)
+        );
+        default: break;
+      }
+      #undef _CASE_ENABLE
+    }
+
+    static inline void _disable_linear_axis(const AxisEnum axis) {
+      #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); axis_enabled.N = false; break;
+      switch (axis) {
+        LINEAR_AXIS_CODE(
+          _CASE_DISABLE(X),
+          _CASE_DISABLE(Y),
+          _CASE_DISABLE(Z),
+          _CASE_DISABLE(I),
+          _CASE_DISABLE(J),
+          _CASE_DISABLE(K)
+        );
+        default: break;
+      }
+      #undef _CASE_DISABLE
+    }
+
+    static void enable_all_steppers();
+    static void enable_e_steppers();
+    static inline void enable_e_stepper(const uint8_t e) {
+      #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); break;
+      switch (e) {
+        REPEAT(E_STEPPERS, _CASE_ENA_E)
+      }
+    }
+
+    static void disable_all_steppers();
+    static void disable_e_steppers();
+    static inline void disable_e_stepper(const uint8_t e) {
+      #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
+      switch (e) {
+        REPEAT(E_STEPPERS, _CASE_DIS_E)
+      }
+    }
 
     // Update direction states for all steppers
     static void set_directions();

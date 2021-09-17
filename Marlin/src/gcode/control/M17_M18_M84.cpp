@@ -34,8 +34,16 @@
  */
 void GcodeSuite::M17() {
   if (parser.seen_axis()) {
-    LOGICAL_AXIS_CODE(
-      if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) enable_e_steppers(),
+    #if HAS_EXTRUDERS && HAS_E_STEPPER_ENABLE
+      if (parser.seen('E')) {
+        const int8_t e = parser.has_value() ? parser.value_int() : -1;
+        if (e >= 0)
+          stepper.enable_e_stepper(e);
+        else
+          stepper.enable_e_steppers();
+      }
+    #endif
+    LINEAR_AXIS_CODE(
       if (parser.seen_test('X'))        ENABLE_AXIS_X(),
       if (parser.seen_test('Y'))        ENABLE_AXIS_Y(),
       if (parser.seen_test('Z'))        ENABLE_AXIS_Z(),
@@ -46,7 +54,7 @@ void GcodeSuite::M17() {
   }
   else {
     LCD_MESSAGEPGM(MSG_NO_MOVE);
-    enable_all_steppers();
+    stepper.enable_all_steppers();
   }
 }
 
@@ -61,8 +69,16 @@ void GcodeSuite::M18_M84() {
   else {
     if (parser.seen_axis()) {
       planner.synchronize();
-      LOGICAL_AXIS_CODE(
-        if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) disable_e_steppers(),
+      #if HAS_EXTRUDERS && HAS_E_STEPPER_ENABLE
+        if (parser.seen('E')) {
+          const int8_t e = parser.has_value() ? parser.value_int() : -1;
+          if (e >= 0)
+            stepper.disable_e_stepper(e);
+          else
+            stepper.disable_e_steppers();
+        }
+      #endif
+      LINEAR_AXIS_CODE(
         if (parser.seen_test('X'))        DISABLE_AXIS_X(),
         if (parser.seen_test('Y'))        DISABLE_AXIS_Y(),
         if (parser.seen_test('Z'))        DISABLE_AXIS_Z(),

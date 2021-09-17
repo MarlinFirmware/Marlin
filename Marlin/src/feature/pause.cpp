@@ -303,7 +303,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
  */
 inline void disable_active_extruder() {
   #if HAS_E_STEPPER_ENABLE
-    disable_e_stepper(active_extruder);
+    stepper.disable_e_stepper(active_extruder);
     safe_delay(100);
   #endif
 }

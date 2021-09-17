@@ -33,6 +33,7 @@
 
 #include "../../../MarlinCore.h"
 #include "../../../feature/pause.h"
+#include "../../../module/stepper.h"
 #include "../../../gcode/queue.h"
 #include "../../../libs/numtostr.h"
 #include "../../../sd/cardreader.h"
@@ -536,7 +537,7 @@ void NextionTFT::PanelAction(uint8_t req) {
 
     case 57: // Disable Motors
       if (!isPrinting()) {
-        disable_all_steppers(); // from marlincore.h
+        stepper.disable_all_steppers();
         SEND_TXT("tmppage.M117", "Motors disabled");
       }
       break;
