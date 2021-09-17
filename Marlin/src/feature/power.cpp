@@ -141,18 +141,15 @@ void Power::power_off() {
       return true;
 
     // If any of the drivers or the bed are enabled...
-    if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
-      #if HAS_X2_ENABLE
-        || X2_ENABLE_READ() == X_ENABLE_ON
-      #endif
-      #if HAS_Y2_ENABLE
-        || Y2_ENABLE_READ() == Y_ENABLE_ON
-      #endif
-      #if HAS_Z2_ENABLE
-        || Z2_ENABLE_READ() == Z_ENABLE_ON
-      #endif
+    if (false
+      TERN_(HAS_X_ENABLE,  || MOTOR_IS_ON(X,X))
+      TERN_(HAS_Y_ENABLE,  || MOTOR_IS_ON(Y,Y))
+      TERN_(HAS_Z_ENABLE,  || MOTOR_IS_ON(Z,Z))
+      TERN_(HAS_X2_ENABLE, || MOTOR_IS_ON(X2,X))
+      TERN_(HAS_Y2_ENABLE, || MOTOR_IS_ON(Y2,Y))
+      TERN_(HAS_Z2_ENABLE, || MOTOR_IS_ON(Z2,Z))
       #if E_STEPPERS
-        #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == E_ENABLE_ON
+        #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
         REPEAT(E_STEPPERS, _OR_ENABLED_E)
       #endif
     ) return true;

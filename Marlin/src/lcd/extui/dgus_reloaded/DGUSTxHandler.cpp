@@ -290,14 +290,8 @@ void DGUSTxHandler::TempMax(DGUS_VP &vp) {
 }
 
 void DGUSTxHandler::StepperStatus(DGUS_VP &vp) {
-  if (X_ENABLE_READ() == X_ENABLE_ON
-      && Y_ENABLE_READ() == Y_ENABLE_ON
-      && Z_ENABLE_READ() == Z_ENABLE_ON) {
-    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::ENABLED));
-  }
-  else {
-    dgus_display.Write((uint16_t)vp.addr, Swap16((uint16_t)DGUS_Data::Status::DISABLED));
-  }
+  const bool motor_on = MOTOR_IS_ON(X,X) && TERN1(HAS_Y_AXIS, MOTOR_IS_ON(Y,Y)) && TERN1(HAS_Z_AXIS, MOTOR_IS_ON(Z,Z));
+  dgus_display.Write((uint16_t)vp.addr, Swap16(uint16_t(motor_on ? DGUS_Data::Status::ENABLED : DGUS_Data::Status::DISABLED)));
 }
 
 void DGUSTxHandler::StepIcons(DGUS_VP &vp) {

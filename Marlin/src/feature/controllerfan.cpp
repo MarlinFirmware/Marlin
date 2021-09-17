@@ -54,7 +54,6 @@ void ControllerFan::update() {
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
-    #define MOTOR_IS_ON(A,B) (A##_ENABLE_READ() == bool(B##_ENABLE_ON))
     #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
 
     const bool motor_on = (
