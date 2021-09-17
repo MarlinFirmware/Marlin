@@ -471,31 +471,6 @@
 #endif
 
 /**
- * Set defaults for missing (newer) options
- */
-#ifndef DISABLE_INACTIVE_X
-  #define DISABLE_INACTIVE_X DISABLE_X
-#endif
-#if HAS_Y_AXIS && !defined(DISABLE_INACTIVE_Y)
-  #define DISABLE_INACTIVE_Y DISABLE_Y
-#endif
-#if HAS_Z_AXIS && !defined(DISABLE_INACTIVE_Z)
-  #define DISABLE_INACTIVE_Z DISABLE_Z
-#endif
-#ifndef DISABLE_INACTIVE_E
-  #define DISABLE_INACTIVE_E DISABLE_E
-#endif
-#if LINEAR_AXES >= 4 && !defined(DISABLE_INACTIVE_I)
-  #define DISABLE_INACTIVE_I DISABLE_I
-#endif
-#if LINEAR_AXES >= 5 && !defined(DISABLE_INACTIVE_J)
-  #define DISABLE_INACTIVE_J DISABLE_J
-#endif
-#if LINEAR_AXES >= 6 && !defined(DISABLE_INACTIVE_K)
-  #define DISABLE_INACTIVE_K DISABLE_K
-#endif
-
-/**
  * Power Supply
  */
 #ifndef PSU_NAME
@@ -1481,6 +1456,13 @@
   #define HAS_X2_MS_PINS 1
 #endif
 
+/**
+ * Set defaults for missing (newer) options
+ */
+#if !defined(DISABLE_INACTIVE_X) && ENABLED(DISABLE_X)
+  #define DISABLE_INACTIVE_X 1
+#endif
+
 #if HAS_Y_AXIS
   #if PIN_EXISTS(Y_ENABLE) || AXIS_IS_L64XX(Y) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y))
     #define HAS_Y_ENABLE 1
@@ -1507,6 +1489,11 @@
   #if PIN_EXISTS(Y2_MS1)
     #define HAS_Y2_MS_PINS 1
   #endif
+  #if !defined(DISABLE_INACTIVE_Y) && ENABLED(DISABLE_Y)
+    #define DISABLE_INACTIVE_Y 1
+  #endif
+#else
+  #undef DISABLE_INACTIVE_Y
 #endif
 
 #if HAS_Z_AXIS
@@ -1522,6 +1509,11 @@
   #if PIN_EXISTS(Z_MS1)
     #define HAS_Z_MS_PINS 1
   #endif
+  #if !defined(DISABLE_INACTIVE_Z) && ENABLED(DISABLE_Z)
+    #define DISABLE_INACTIVE_Z 1
+  #endif
+#else
+  #undef DISABLE_INACTIVE_Z
 #endif
 
 #if NUM_Z_STEPPER_DRIVERS >= 2
@@ -1582,6 +1574,11 @@
   #if PIN_EXISTS(I_MS1)
     #define HAS_I_MS_PINS 1
   #endif
+  #if !defined(DISABLE_INACTIVE_I) && ENABLED(DISABLE_I)
+    #define DISABLE_INACTIVE_I 1
+  #endif
+#else
+  #undef DISABLE_INACTIVE_I
 #endif
 
 #if LINEAR_AXES >= 5
@@ -1597,6 +1594,11 @@
   #if PIN_EXISTS(J_MS1)
     #define HAS_J_MS_PINS 1
   #endif
+  #if !defined(DISABLE_INACTIVE_J) && ENABLED(DISABLE_J)
+    #define DISABLE_INACTIVE_J 1
+  #endif
+#else
+  #undef DISABLE_INACTIVE_J
 #endif
 
 #if LINEAR_AXES >= 6
@@ -1612,6 +1614,11 @@
   #if PIN_EXISTS(K_MS1)
     #define HAS_K_MS_PINS 1
   #endif
+  #if !defined(DISABLE_INACTIVE_K) && ENABLED(DISABLE_K)
+    #define DISABLE_INACTIVE_K 1
+  #endif
+#else
+  #undef DISABLE_INACTIVE_K
 #endif
 
 // Extruder steppers and solenoids
@@ -1759,6 +1766,11 @@
     #endif
   #endif
 
+  #if !defined(DISABLE_INACTIVE_E) && ENABLED(DISABLE_E)
+    #define DISABLE_INACTIVE_E 1
+  #endif
+#else
+  #undef DISABLE_INACTIVE_E
 #endif // HAS_EXTRUDERS
 
 //

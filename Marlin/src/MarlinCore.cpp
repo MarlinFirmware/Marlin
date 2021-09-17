@@ -416,13 +416,13 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
 
         // Individual axes will be disabled if configured
-        if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
-        if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
-        if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
-        if (ENABLED(DISABLE_INACTIVE_I)) DISABLE_AXIS_I();
-        if (ENABLED(DISABLE_INACTIVE_J)) DISABLE_AXIS_J();
-        if (ENABLED(DISABLE_INACTIVE_K)) DISABLE_AXIS_K();
-        if (ENABLED(DISABLE_INACTIVE_E)) stepper.disable_e_steppers();
+        TERN_(DISABLE_INACTIVE_X, stepper.disable_axis(X_AXIS));
+        TERN_(DISABLE_INACTIVE_Y, stepper.disable_axis(Y_AXIS));
+        TERN_(DISABLE_INACTIVE_Z, stepper.disable_axis(Z_AXIS));
+        TERN_(DISABLE_INACTIVE_I, stepper.disable_axis(I_AXIS));
+        TERN_(DISABLE_INACTIVE_J, stepper.disable_axis(J_AXIS));
+        TERN_(DISABLE_INACTIVE_K, stepper.disable_axis(K_AXIS));
+        TERN_(DISABLE_INACTIVE_E, stepper.disable_e_steppers());
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
       }

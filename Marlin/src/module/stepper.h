@@ -397,7 +397,7 @@ class Stepper {
 
       uint16_t overlap = 0;
       for (uint8_t i = 0; i < COUNT(enalist); i++) {
-        const uint8_t a = i < E_AXIS ? i : E_AXIS;
+        const uint8_t a = TERN(HAS_EXTRUDERS, i <= E_AXIS ? i : E_AXIS, i);
         if (a != axis && enalist[a] == enalist[axis]) SBI(overlap, a);
       }
 
@@ -541,7 +541,7 @@ class Stepper {
 
     static axis_flags_t axis_enabled;   // Axis stepper ENABLED states
 
-    static inline void _enable_linear_axis(const AxisEnum axis) {
+    static inline void enable_axis(const AxisEnum axis) {
       #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); axis_enabled.N = true; break;
       switch (axis) {
         LINEAR_AXIS_CODE(
@@ -557,7 +557,7 @@ class Stepper {
       #undef _CASE_ENABLE
     }
 
-    static inline void _disable_linear_axis(const AxisEnum axis) {
+    static inline void disable_axis(const AxisEnum axis) {
       #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); axis_enabled.N = false; break;
       switch (axis) {
         LINEAR_AXIS_CODE(

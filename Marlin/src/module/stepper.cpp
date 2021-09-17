@@ -492,12 +492,12 @@ void Stepper::disable_e_steppers() {
 void Stepper::enable_all_steppers() {
   TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
   LINEAR_AXIS_CODE(
-    _enable_linear_axis(X_AXIS),
-    _enable_linear_axis(Y_AXIS),
-    _enable_linear_axis(Z_AXIS),
-    _enable_linear_axis(I_AXIS),
-    _enable_linear_axis(J_AXIS),
-    _enable_linear_axis(K_AXIS)
+    enable_axis(X_AXIS),
+    enable_axis(Y_AXIS),
+    enable_axis(Z_AXIS),
+    enable_axis(I_AXIS),
+    enable_axis(J_AXIS),
+    enable_axis(K_AXIS)
   );
   enable_e_steppers();
 
@@ -506,12 +506,12 @@ void Stepper::enable_all_steppers() {
 
 void Stepper::disable_all_steppers() {
   LINEAR_AXIS_CODE(
-    _disable_linear_axis(X_AXIS),
-    _disable_linear_axis(Y_AXIS),
-    _disable_linear_axis(Z_AXIS),
-    _disable_linear_axis(I_AXIS),
-    _disable_linear_axis(J_AXIS),
-    _disable_linear_axis(K_AXIS)
+    disable_axis(X_AXIS),
+    disable_axis(Y_AXIS),
+    disable_axis(Z_AXIS),
+    disable_axis(I_AXIS),
+    disable_axis(J_AXIS),
+    disable_axis(K_AXIS)
   );
   disable_e_steppers();
 
