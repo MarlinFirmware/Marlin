@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -43,9 +44,11 @@ enum {
   ID_F_RETURN
 };
 
+uint8_t fanPercent = 0;
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  uint8_t fanPercent = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
+  const uint8_t temp = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
+  if (abs(fanPercent - temp) > 2) fanPercent = temp;
   switch (obj->mks_obj_id) {
     case ID_F_ADD: if (fanPercent < 100) fanPercent++; break;
     case ID_F_DEC: if (fanPercent !=  0) fanPercent--; break;
@@ -55,6 +58,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
   }
   thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
+  if (obj->mks_obj_id != ID_F_RETURN) disp_fan_value();
 }
 
 void lv_draw_fan() {
@@ -62,7 +66,7 @@ void lv_draw_fan() {
 
   scr = lv_screen_create(FAN_UI);
   // Create an Image button
-  buttonAdd  = lv_big_button_create(scr, "F:/bmp_Add.bin", fan_menu.add, INTERVAL_V, titleHeight, event_handler, ID_F_ADD);
+  buttonAdd = lv_big_button_create(scr, "F:/bmp_Add.bin", fan_menu.add, INTERVAL_V, titleHeight, event_handler, ID_F_ADD);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
   lv_big_button_create(scr, "F:/bmp_Dec.bin", fan_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_F_DEC);
   lv_big_button_create(scr, "F:/bmp_speed255.bin", fan_menu.full, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_HIGH);
@@ -77,7 +81,7 @@ void lv_draw_fan() {
 
 void disp_fan_value() {
   #if HAS_FAN
-    sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, (int)map(thermalManager.fan_speed[0], 0, 255, 0, 100));
+    sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, fanPercent);
   #else
     sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);
   #endif

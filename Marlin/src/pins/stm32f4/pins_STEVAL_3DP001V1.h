@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // Source: https://github.com/stm32duino/Arduino_Core_STM32/blob/master/variants/ST3DP001_EVAL/variant.cpp
 
@@ -37,8 +38,6 @@
  *          Optimize: "Smallest (-Os default)"
  *          C Runtime Library: "newlib Nano (default)"
  */
-
-#pragma once
 
 #include "env_validate.h"
 

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -54,7 +55,7 @@ void printer_state_polling() {
 
         gcode.process_subcommands_now_P(PSTR("M25"));
 
-        //save the position
+        // save the position
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
         uiCfg.current_z_position_bak = current_position.z;

@@ -192,6 +192,7 @@
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
  * M281 - Set servo min|max position: "M281 P<index> L<min> U<max>". (Requires EDITABLE_SERVO_ANGLES)
+ * M282 - Detach servo: "M282 P<index>". (Requires SERVO_DETACH_GCODE)
  * M290 - Babystepping (Requires BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
@@ -861,6 +862,9 @@ private:
     #if ENABLED(EDITABLE_SERVO_ANGLES)
       static void M281();
       static void M281_report(const bool forReplay=true);
+    #endif
+    #if ENABLED(SERVO_DETACH_GCODE)
+      static void M282();
     #endif
   #endif
 

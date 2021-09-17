@@ -112,9 +112,9 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define SPINDLE_DIR_PIN                     16
-  #define SPINDLE_LASER_ENABLE_PIN            17  // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN               17  // Pin should have a pullup!
   #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
 #endif
 

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -264,12 +265,12 @@ const char *bakPath = "_assets";
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
-  //erase 0x001000 -64K
+  // erase 0x001000 -64K
   for (pic_sectorcnt = 0; pic_sectorcnt < (64 - 4) / 4; pic_sectorcnt++) {
     watchdog_refresh();
     W25QXX.SPI_FLASH_SectorErase(PICINFOADDR + pic_sectorcnt * 4 * 1024);
   }
-  //erase 64K -- 6M
+  // erase 64K -- 6M
   for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++) {
     watchdog_refresh();
     W25QXX.SPI_FLASH_BlockErase((pic_sectorcnt + 1) * 64 * 1024);
@@ -280,7 +281,7 @@ void spiFlashErase_PIC() {
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
-    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++) {
+    for (Font_sectorcnt = 0; Font_sectorcnt < 32 - 1; Font_sectorcnt++) {
       watchdog_refresh();
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
     }
@@ -564,7 +565,7 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
       W25QXX.SPI_FLASH_BufferRead(&PIC.name[j], PIC_NAME_ADDR + tmp_cnt, 1);
       tmp_cnt++;
     } while (PIC.name[j++] != '\0');
-    //pic size
+    // pic size
     W25QXX.SPI_FLASH_BufferRead(PIC.size.bytes, PIC_SIZE_ADDR + i * 4, 4);
 
     if ((strcmp((char*)Pname, (char*)PIC.name)) == 0) {

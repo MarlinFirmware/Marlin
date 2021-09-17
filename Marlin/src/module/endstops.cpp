@@ -595,7 +595,7 @@ void _O2 Endstops::report_states() {
 // The following routines are called from an ISR context. It could be the temperature ISR, the
 // endstop ISR or the Stepper ISR.
 
-#if BOTH(DELTA, SENSORLESS_PROBING)
+#if HAS_DELTA_SENSORLESS_PROBING
   #define __ENDSTOP(AXIS, ...) AXIS ##_MAX
   #define _ENDSTOP_PIN(AXIS, ...) AXIS ##_MAX_PIN
   #define _ENDSTOP_INVERTING(AXIS, ...) AXIS ##_MAX_ENDSTOP_INVERTING

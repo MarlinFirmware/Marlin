@@ -1,12 +1,13 @@
 /**
- * DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 3.6.1
- * Date: 2021/08/29
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,9 +15,16 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 3.6.3
+ * Date: 2021/09/10
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -86,9 +94,6 @@
 
 #define PAUSE_HEAT
 
-#define USE_STRING_HEADINGS
-#define USE_STRING_TITLES
-
 #define MENU_CHAR_LIMIT  24
 
 // Print speed limit
@@ -133,8 +138,20 @@ HMI_data_t HMI_data;
 
 millis_t dwin_heat_time = 0;
 
-uint8_t checkkey = MainMenu;
-uint8_t last_checkkey = MainMenu;
+uint8_t checkkey = MainMenu, last_checkkey = MainMenu;
+
+enum SelectItem : uint8_t {
+  PAGE_PRINT = 0,
+  PAGE_PREPARE,
+  PAGE_CONTROL,
+  PAGE_INFO_LEVELING,
+  PAGE_COUNT,
+
+  PRINT_SETUP = 0,
+  PRINT_PAUSE_RESUME,
+  PRINT_STOP,
+  PRINT_COUNT
+};
 
 typedef struct {
   uint8_t now, last;
@@ -252,7 +269,7 @@ typedef struct { uint16_t x, y[2], w, h; } text_info_t;
 
 void ICON_Button(const bool here, const int iconid, const frame_rect_t &ico, const text_info_t (&txt)[2]) {
   const bool cn = HMI_IsChinese();
-  DWIN_ICON_Show(1, 0, 0, ICON, iconid + here, ico.x, ico.y);
+  DWIN_ICON_Show(true, false, false, ICON, iconid + here, ico.x, ico.y);
   if (here) DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, ico.x, ico.y, ico.x + ico.w - 1, ico.y + ico.h - 1);
   DWIN_Frame_AreaCopy(1, txt[cn].x, txt[cn].y[here], txt[cn].x + txt[cn].w - 1, txt[cn].y[here] + txt[cn].h - 1, ico.x + (ico.w - txt[cn].w) / 2, (ico.y + ico.h - 28) - txt[cn].h/2);
 }
@@ -266,7 +283,7 @@ void ICON_Print() {
     { 1, { 417, 449 }, 30, 14 },
     { 1, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_page.now == 0, ICON_Print_0, ico, txt);
+  ICON_Button(select_page.now == PAGE_PRINT, ICON_Print_0, ico, txt);
 }
 
 //
@@ -278,7 +295,7 @@ void ICON_Prepare() {
     { 33, { 417, 449 }, 51, 14 },
     { 31, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_page.now == 1, ICON_Prepare_0, ico, txt);
+  ICON_Button(select_page.now == PAGE_PREPARE, ICON_Prepare_0, ico, txt);
 }
 
 //
@@ -290,7 +307,7 @@ void ICON_Control() {
     { 85, { 417, 449 }, 46, 14 },
     { 61, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_page.now == 2, ICON_Control_0, ico, txt);
+  ICON_Button(select_page.now == PAGE_CONTROL, ICON_Control_0, ico, txt);
 }
 
 //
@@ -302,7 +319,7 @@ void ICON_StartInfo() {
     { 133, { 417, 449 }, 23, 14 },
     {  91, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_page.now == 3, ICON_Info_0, ico, txt);
+  ICON_Button(select_page.now == PAGE_INFO_LEVELING, ICON_Info_0, ico, txt);
 }
 
 //
@@ -314,7 +331,7 @@ void ICON_Leveling() {
     {  88, { 433, 464 }, 36, 14 },
     { 211, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_page.now == 3, ICON_Leveling_0, ico, txt);
+  ICON_Button(select_page.now == PAGE_INFO_LEVELING, ICON_Leveling_0, ico, txt);
 }
 
 //
@@ -326,7 +343,7 @@ void ICON_Tune() {
     {   0, { 433, 464 }, 32, 14 },
     { 121, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_print.now == 0, ICON_Setup_0, ico, txt);
+  ICON_Button(select_print.now == PRINT_SETUP, ICON_Setup_0, ico, txt);
 }
 
 //
@@ -338,7 +355,7 @@ void ICON_Pause() {
     { 157, { 417, 449 }, 39, 14 },
     { 181, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_print.now == 1, ICON_Pause_0, ico, txt);
+  ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Pause_0, ico, txt);
 }
 
 //
@@ -350,7 +367,7 @@ void ICON_Resume() {
     { 33, { 433, 464 }, 53, 14 },
     {  1, { 405, 447 }, 27, 15 }
   };
-  ICON_Button(select_print.now == 1, ICON_Continue_0, ico, txt);
+  ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Continue_0, ico, txt);
 }
 
 //
@@ -362,7 +379,7 @@ void ICON_Stop() {
     { 196, { 417, 449 }, 29, 14 },
     { 151, { 405, 447 }, 27, 12 }
   };
-  ICON_Button(select_print.now == 2, ICON_Stop_0, ico, txt);
+  ICON_Button(select_print.now == PRINT_STOP, ICON_Stop_0, ico, txt);
 }
 
 void Draw_Menu_Cursor(const uint8_t line) {
@@ -429,17 +446,17 @@ void Draw_Back_First(const bool is_sel=true) {
   if (is_sel) Draw_Menu_Cursor(0);
 }
 
-inline ENCODER_DiffState get_encoder_state() {
+inline EncoderState get_encoder_state() {
   static millis_t Encoder_ms = 0;
   const millis_t ms = millis();
   if (PENDING(ms, Encoder_ms)) return ENCODER_DIFF_NO;
-  const ENCODER_DiffState state = Encoder_ReceiveAnalyze();
+  const EncoderState state = Encoder_ReceiveAnalyze();
   if (state != ENCODER_DIFF_NO) Encoder_ms = ms + ENCODER_WAIT_MS;
   return state;
 }
 
 template<typename T>
-inline bool Apply_Encoder(const ENCODER_DiffState &encoder_diffState, T &valref) {
+inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
   if (encoder_diffState == ENCODER_DIFF_CW)
     valref += EncoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
@@ -537,14 +554,14 @@ void Popup_window_PauseOrStop() {
   if (HMI_IsChinese()) {
     DWINUI::ClearMenuArea();
     Draw_Popup_Bkgd_60();
-         if (select_print.now == 1) DWIN_Frame_AreaCopy(1, 237, 338, 269, 356, 98, 150);
-    else if (select_print.now == 2) DWIN_Frame_AreaCopy(1, 221, 320, 253, 336, 98, 150);
+         if (select_print.now == PRINT_PAUSE_RESUME) DWIN_Frame_AreaCopy(1, 237, 338, 269, 356, 98, 150);
+    else if (select_print.now == PRINT_STOP) DWIN_Frame_AreaCopy(1, 221, 320, 253, 336, 98, 150);
     DWIN_Frame_AreaCopy(1, 220, 304, 264, 319, 130, 150);
     DWINUI::Draw_Icon(ICON_Confirm_C, 26, 280);
     DWINUI::Draw_Icon(ICON_Cancel_C, 146, 280);
   }
   else {
-    DWIN_Draw_Popup(ICON_BLTouch, "Please confirm",(select_print.now == 1) ? GET_TEXT(MSG_PAUSE_PRINT) : GET_TEXT(MSG_STOP_PRINT));
+    DWIN_Draw_Popup(ICON_BLTouch, "Please confirm", select_print.now == PRINT_PAUSE_RESUME ? GET_TEXT(MSG_PAUSE_PRINT) : GET_TEXT(MSG_STOP_PRINT));
     DWINUI::Draw_Icon(ICON_Confirm_E, 26, 280);
     DWINUI::Draw_Icon(ICON_Cancel_E, 146, 280);
   }
@@ -589,16 +606,9 @@ void Draw_Print_Labels() {
     DWIN_Frame_AreaCopy(1, 65, 72, 128, 86, 176, 173);  // Remain
   }
   else {
-    #ifdef USE_STRING_TITLES
-      Title.ShowCaption(GET_TEXT(MSG_PRINTING));
-      DWINUI::Draw_String( 46, 173, F("Print Time"));
-      DWINUI::Draw_String(181, 173, F("Remain"));
-    #else
-      const uint16_t y = 168;
-      Title.FrameCopy(42, 0, 47, 14);                   // "Printing"
-      DWIN_Frame_AreaCopy(1,  0, 44,  96, 58,  41, y);  // Printing Time
-      DWIN_Frame_AreaCopy(1, 98, 44, 152, 58, 176, y);  // Remain
-    #endif
+    Title.ShowCaption(GET_TEXT(MSG_PRINTING));
+    DWINUI::Draw_String( 46, 173, F("Print Time"));
+    DWINUI::Draw_String(181, 173, F("Remain"));
   }
 }
 
@@ -678,13 +688,8 @@ void Draw_Main_Menu() {
 
   if (HMI_IsChinese())
     Title.FrameCopy(2, 2, 26, 13);   // "Home" etc
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption(MACHINE_NAME);
-    #else
-      Title.FrameCopy(0, 2, 40, 11); // "Home"
-    #endif
-  }
+  else
+    Title.ShowCaption(MACHINE_NAME);
 
   DWINUI::Draw_Icon(ICON_LOGO, 71, 52);  // CREALITY logo
 
@@ -765,15 +770,15 @@ void update_variable() {
     // Tune page temperature update
     #if HAS_HOTEND
       if (_new_hotend_target)
-        HotendTargetItem->Draw(CurrentMenu->line(HotendTargetItem->pos));
+        HotendTargetItem->draw(CurrentMenu->line(HotendTargetItem->pos));
     #endif
     #if HAS_HEATED_BED
       if (_new_bed_target)
-        BedTargetItem->Draw(CurrentMenu->line(BedTargetItem->pos));
+        BedTargetItem->draw(CurrentMenu->line(BedTargetItem->pos));
     #endif
     #if HAS_FAN
       if (_new_fanspeed)
-        FanSpeedItem->Draw(CurrentMenu->line(FanSpeedItem->pos));
+        FanSpeedItem->draw(CurrentMenu->line(FanSpeedItem->pos));
     #endif
   }
 
@@ -1075,11 +1080,7 @@ void Draw_Info_Menu() {
     DWIN_Frame_AreaCopy(1,  58, 164, 113, 176, 105, 248);   // "Contact Details"
   }
   else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption(GET_TEXT_F(MSG_INFO_SCREEN));
-    #else
-      Title.FrameCopy(192, 15, 23, 12);                     // "Info"
-    #endif
+    Title.ShowCaption(GET_TEXT_F(MSG_INFO_SCREEN));
 
     DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);   // "Size"
     DWIN_Frame_AreaCopy(1, 146, 151, 254, 161,  82, 175);   // "Firmware Version"
@@ -1098,59 +1099,50 @@ void Draw_Info_Menu() {
 void Draw_Print_File_Menu() {
   if (HMI_IsChinese())
     Title.FrameCopy(0, 31, 56, 14);    // "Print file"
-  else {
-    #ifdef USE_STRING_HEADINGS
-      Title.ShowCaption(GET_TEXT_F(MSG_MEDIA_MENU));
-    #else
-      Title.FrameCopy(52, 31, 86, 11); // "Print file"
-    #endif
-  }
+  else
+    Title.ShowCaption(GET_TEXT_F(MSG_MEDIA_MENU));
   Redraw_SD_List();
 }
 
 // Main Process
 void HMI_MainMenu() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_page.inc(4)) {
+    if (select_page.inc(PAGE_COUNT)) {
       switch (select_page.now) {
-        case 0: ICON_Print(); break;
-        case 1: ICON_Print(); ICON_Prepare(); break;
-        case 2: ICON_Prepare(); ICON_Control(); break;
-        case 3: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
+        case PAGE_PRINT: ICON_Print(); break;
+        case PAGE_PREPARE: ICON_Print(); ICON_Prepare(); break;
+        case PAGE_CONTROL: ICON_Prepare(); ICON_Control(); break;
+        case PAGE_INFO_LEVELING: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
       }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_page.dec()) {
       switch (select_page.now) {
-        case 0: ICON_Print(); ICON_Prepare(); break;
-        case 1: ICON_Prepare(); ICON_Control(); break;
-        case 2: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
-        case 3: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
+        case PAGE_PRINT: ICON_Print(); ICON_Prepare(); break;
+        case PAGE_PREPARE: ICON_Prepare(); ICON_Control(); break;
+        case PAGE_CONTROL: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
+        case PAGE_INFO_LEVELING: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(); break;
       }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_page.now) {
-      case 0: // Print File
+      case PAGE_PRINT:
         checkkey = SelectFile;
         Draw_Print_File_Menu();
         break;
 
-      case 1: // Prepare
-        Draw_Prepare_Menu();
-        break;
+      case PAGE_PREPARE: Draw_Prepare_Menu(); break;
 
-      case 2: // Control
-        Draw_Control_Menu();
-        break;
+      case PAGE_CONTROL: Draw_Control_Menu(); break;
 
-      case 3: // Leveling or Info
+      case PAGE_INFO_LEVELING:
         #if HAS_ONESTEP_LEVELING
-          queue.inject_P(PSTR("G28XYO\nG28Z\nG29"));
+          queue.inject_P(PSTR("G28XYO\nG28Z\nG29"));  // TODO: 'G29' should be homing when needed. Does it make sense for every LCD to do this differently?
         #else
           checkkey = Info;
           Draw_Info_Menu();
@@ -1163,7 +1155,7 @@ void HMI_MainMenu() {
 
 // Select (and Print) File
 void HMI_SelectFile() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
 
   const uint16_t hasUpDir = !card.flag.workDirIsRoot;
 
@@ -1238,8 +1230,8 @@ void HMI_SelectFile() {
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (select_file.now == 0) { // Back
-      select_page.set(0);
+    if (select_file.now == 0) {
+      select_page.set(PAGE_PRINT);
       Goto_Main_Menu();
     }
     else if (hasUpDir && select_file.now == 1) { // CD-Up
@@ -1276,54 +1268,41 @@ void HMI_SelectFile() {
       DWIN_Print_Started(true);
     }
   }
-HMI_SelectFileExit:
+
+  HMI_SelectFileExit:
   DWIN_UpdateLCD();
 }
 
 // Printing
 void HMI_Printing() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_print.inc(3)) {
+    if (select_print.inc(PRINT_COUNT)) {
       switch (select_print.now) {
-        case 0: ICON_Tune(); break;
-        case 1:
-          ICON_Tune();
-          ICON_ResumeOrPause();
-          break;
-        case 2:
-          ICON_ResumeOrPause();
-          ICON_Stop();
-          break;
+        case PRINT_SETUP: ICON_Tune(); break;
+        case PRINT_PAUSE_RESUME: ICON_Tune(); ICON_ResumeOrPause(); break;
+        case PRINT_STOP: ICON_ResumeOrPause(); ICON_Stop(); break;
       }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_print.dec()) {
       switch (select_print.now) {
-        case 0:
-          ICON_Tune();
-          ICON_ResumeOrPause();
-          break;
-        case 1:
-          ICON_ResumeOrPause();
-          ICON_Stop();
-          break;
-        case 2: ICON_Stop(); break;
+        case PRINT_SETUP: ICON_Tune(); ICON_ResumeOrPause(); break;
+        case PRINT_PAUSE_RESUME: ICON_ResumeOrPause(); ICON_Stop(); break;
+        case PRINT_STOP: ICON_Stop(); break;
       }
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
     switch (select_print.now) {
-      case 0: // Tune
-        Draw_Tune_Menu();
-        break;
-      case 1: // Pause
+      case PRINT_SETUP: Draw_Tune_Menu(); break;
+      case PRINT_PAUSE_RESUME:
         if (HMI_flag.pause_flag) {
           ICON_Pause();
-          #ifndef ADVANCED_PAUSE_FEATURE
+          #if DISABLED(ADVANCED_PAUSE_FEATURE)
             char cmd[40];
             cmd[0] = '\0';
             #if BOTH(HAS_HEATED_BED, PAUSE_HEAT)
@@ -1346,7 +1325,7 @@ void HMI_Printing() {
         }
         break;
 
-      case 2: // Stop
+      case PRINT_STOP:
         HMI_flag.select_flag = true;
         checkkey = PauseOrStop;
         Popup_window_PauseOrStop();
@@ -1360,7 +1339,7 @@ void HMI_Printing() {
 
 // Print done
 void HMI_PrintDone() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
     dwin_abort_flag = true; // Reset feedrate, return to Home
@@ -1370,7 +1349,7 @@ void HMI_PrintDone() {
 
 // Pause or Stop popup
 void HMI_PauseOrStop() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
 
   if (encoder_diffState == ENCODER_DIFF_CW)
@@ -1378,7 +1357,7 @@ void HMI_PauseOrStop() {
   else if (encoder_diffState == ENCODER_DIFF_CCW)
     Draw_Select_Highlight(true);
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (select_print.now == 1) { // pause window
+    if (select_print.now == PRINT_PAUSE_RESUME) {
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
         ICON_Resume();
@@ -1389,7 +1368,7 @@ void HMI_PauseOrStop() {
       }
       Goto_PrintProcess();
     }
-    else if (select_print.now == 2) { // stop window
+    else if (select_print.now == PRINT_STOP) {
       if (HMI_flag.select_flag) {
         checkkey = MainMenu;
         if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!
@@ -1433,13 +1412,13 @@ void Draw_Main_Area() {
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case FilamentPurge:        Draw_Popup_FilamentPurge(); break;
     #endif
-    case Locked:                 LockScreen.Draw(); break;
+    case Locked:                 lockScreen.draw(); break;
     case Menu:
     case SetInt:
     case SetPInt:
     case SetIntNoDraw:
     case SetFloat:
-    case SetPFloat:              CurrentMenu->Draw(); break;
+    case SetPFloat:              CurrentMenu->draw(); break;
     default: break;
   }
 }
@@ -1452,7 +1431,7 @@ void HMI_ReturnScreen() {
 }
 
 void HMI_Popup() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
     wait_for_user = false;
@@ -1511,22 +1490,12 @@ void EachMomentUpdate() {
   if (HMI_flag.pause_action && printingIsPaused() && !planner.has_blocks_queued()) {
     HMI_flag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
-      if (sdprint) {
-        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));
-        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.degTargetBed());
-      }
-      else {
-        TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.wholeDegHotend(0));
-        TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.wholeDegBed());
-      }
+      TERN_(HAS_HOTEND, resume_hotend_temp = sdprint ? thermalManager.degTargetHotend(0) : thermalManager.wholeDegHotend(0));
+      TERN_(HAS_HEATED_BED, resume_bed_temp = sdprint ? thermalManager.degTargetBed() : thermalManager.wholeDegBed());
       TERN_(HAS_FAN, resume_fan = thermalManager.fan_speed[0]);
     #endif
-    #if DISABLED(ADVANCED_PAUSE_FEATURE)
-      thermalManager.disable_all_heaters();
-    #endif
-    #if DISABLED(PARK_HEAD_ON_PAUSE)
-      queue.inject_P(PSTR("G1 F1200 X0 Y0"));
-	#endif
+    IF_DISABLED(ADVANCED_PAUSE_FEATURE, thermalManager.disable_all_heaters());
+    IF_DISABLED(PARK_HEAD_ON_PAUSE, queue.inject_P(PSTR("G1 F1200 X0 Y0")));
   }
 
   if (checkkey == PrintProcess) { // print process
@@ -1565,7 +1534,7 @@ void EachMomentUpdate() {
   else if (dwin_abort_flag && !HMI_flag.home_flag) { // Print Stop
     dwin_abort_flag = false;
     dwin_zoffset = BABY_Z_VAR;
-    select_page.set(0);
+    select_page.set(PAGE_PRINT);
     Goto_Main_Menu();
   }
 
@@ -1599,7 +1568,7 @@ void EachMomentUpdate() {
       DWIN_UpdateLCD();
 
       while (recovery_flag) {
-        ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+        EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
         if (encoder_diffState != ENCODER_DIFF_NO) {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
@@ -1615,7 +1584,7 @@ void EachMomentUpdate() {
         watchdog_refresh();
       }
 
-      select_print.set(0);
+      select_print.set(PRINT_SETUP);
       queue.inject_P(PSTR("M1000"));
       sdprint = true;
       Goto_PrintProcess();
@@ -1735,7 +1704,6 @@ void DWIN_PidTuning(pidresult_t result) {
 
 // Update filename on print
 void DWIN_Print_Header(const char *text = nullptr) {
-
   static char headertxt[31] = "";  // Print header text
 
   if (text != nullptr) {
@@ -1754,7 +1722,7 @@ void Draw_Title(TitleClass* title) {
   if (title->frameid)
     DWIN_Frame_AreaCopy(title->frameid, title->frame.left, title->frame.top, title->frame.right, title->frame.bottom, 14, (TITLE_HEIGHT - (title->frame.bottom - title->frame.top)) / 2 - 1);
   else
-    DWIN_Draw_String(false, false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, (TITLE_HEIGHT - DWINUI::Get_font_height(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
+    DWIN_Draw_String(false, DWIN_FONT_HEAD, HMI_data.TitleTxt_color, HMI_data.TitleBg_color, 14, (TITLE_HEIGHT - DWINUI::fontHeight(DWIN_FONT_HEAD)) / 2 - 1, title->caption);
 }
 
 void Draw_Menu(MenuClass* menu) {
@@ -1765,7 +1733,7 @@ void Draw_Menu(MenuClass* menu) {
 
 // Startup routines
 void DWIN_Startup() {
-  DWINUI::Init();
+  DWINUI::init();
   DWINUI::onCursorDraw = Draw_Menu_Cursor;
   DWINUI::onCursorErase = Erase_Menu_Cursor;
   DWINUI::onTitleDraw = Draw_Title;
@@ -1917,6 +1885,7 @@ void DWIN_Redraw_screen() {
     DWINUI::Draw_Icon(ICON_Confirm_E, 26, 280);
     DWINUI::Draw_Icon(ICON_Continue_E, 146, 280);
     Draw_Select_Highlight(true);
+    DWIN_UpdateLCD();
   }
 
   // Handle responses such as:
@@ -1929,7 +1898,7 @@ void DWIN_Redraw_screen() {
   }
 
   void HMI_FilamentPurge() {
-    ENCODER_DiffState encoder_diffState = get_encoder_state();
+    EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (encoder_diffState == ENCODER_DIFF_CW)
       Draw_Select_Highlight(false);
@@ -1949,10 +1918,10 @@ void DWIN_Redraw_screen() {
 #endif // ADVANCED_PAUSE_FEATURE
 
 void HMI_LockScreen() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  LockScreen.onEncoderState(encoder_diffState);
-  if (LockScreen.isUnlocked()) {
+  lockScreen.onEncoder(encoder_diffState);
+  if (lockScreen.isUnlocked()) {
     if (CurrentMenu == AdvancedSettings)
       Draw_AdvancedSettings_Menu();
     else
@@ -1963,7 +1932,7 @@ void HMI_LockScreen() {
 void DWIN_LockScreen(const bool flag) {
   HMI_flag.lock_flag = flag;
   checkkey = Locked;
-  LockScreen.Init();
+  lockScreen.init();
 }
 
 //
@@ -1981,7 +1950,6 @@ void DWIN_LockScreen(const bool flag) {
 //  LiveUpdate: live update function when the encoder changes
 //  Apply: update function when the encoder is pressed
 void SetOnClick(uint8_t process, const int32_t lo, const int32_t hi, uint8_t dp, const int32_t val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr) {
-  last_checkkey = Menu;
   checkkey = process;
   HMI_value.MinValue = lo;
   HMI_value.MaxValue = hi;
@@ -2014,7 +1982,7 @@ void SetValueOnClick(uint8_t process, const int32_t lo, const int32_t hi, const 
 void SetValueOnClick(uint8_t process, const float lo, const float hi, uint8_t dp, const float val, void (*Apply)() = nullptr, void (*LiveUpdate)() = nullptr) {
   const int32_t value =  round(val * POW(10, dp));
   SetOnClick(process, lo * POW(10, dp), hi * POW(10, dp), dp, value, Apply, LiveUpdate);
-  DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, dp, VALX - dp * DWINUI::Get_font_width(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), val);
+  DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, dp, VALX - dp * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), val);
 }
 
 // Generic onclick event for integer values
@@ -2092,13 +2060,9 @@ void Goto_InfoMenu(){
   Draw_Info_Menu();
 }
 
-void DisableMotors() {
-  queue.inject_P(PSTR("M84"));
-}
+void DisableMotors() { queue.inject_P(PSTR("M84")); }
 
-void AutoHome() {
-  queue.inject_P(G28_STR);
-}
+void AutoHome() { queue.inject_P(G28_STR); }
 
 void SetHome() {
   // Apply workspace offset, making the current position 0,0,0
@@ -2116,9 +2080,11 @@ void SetHome() {
       if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
     #endif
   }
-    #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
-    void SetZOffset() { SetPFloatOnClick(Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, 2, ApplyZOffset, LiveZOffset); }
-    #endif
+  #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+    void SetZOffset() {
+      SetPFloatOnClick(Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX, 2, ApplyZOffset, LiveZOffset);
+    }
+  #endif
 #endif
 
 #if HAS_PREHEAT
@@ -2233,9 +2199,7 @@ void SetPID(celsius_t t, heater_id_t h) {
   }
 #endif
 
-void Goto_LockScreen() {
-  DWIN_LockScreen(true);
-}
+void Goto_LockScreen() { DWIN_LockScreen(true); }
 
 #if HAS_HOME_OFFSET
   void ApplyHomeOffset() { set_home_offset(HMI_value.axis, HMI_value.Value / MINUNITMULT); }
@@ -2327,6 +2291,7 @@ void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+
   void ChangeFilament() {
     HMI_SaveProcessID(NothingToDo);
     queue.inject_P(PSTR("M600 B2"));
@@ -2348,7 +2313,8 @@ void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
       queue.inject_P(PSTR("M701 Z20"));
     }
   #endif
-#endif
+
+#endif // ADVANCED_PAUSE_FEATURE
 
 void SetFlow() { SetPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW); }
 
@@ -2414,13 +2380,14 @@ void LevBedBL() { LevBed(3); }
 void LevBedC () { LevBed(4); }
 
 #if ENABLED(MESH_BED_LEVELING)
+
   void ManualMeshStart(){
     ui.set_status_P(GET_TEXT(MSG_UBL_BUILD_MESH_MENU));
     gcode.process_subcommands_now_P(PSTR("G28 XYO\nG28 Z\nM211 S0\nG29S1"));
     planner.synchronize();
     #ifdef MANUAL_PROBE_START_Z
       const uint8_t line = CurrentMenu->line(MMeshMoveZItem->pos);
-      DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, VALX - 2 * DWINUI::Get_font_width(DWIN_FONT_MENU), MBASE(line), MANUAL_PROBE_START_Z);
+      DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, 2, VALX - 2 * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(line), MANUAL_PROBE_START_Z);
     #endif
   }
 
@@ -2436,14 +2403,15 @@ void LevBedC () { LevBed(4); }
   void ManualMeshContinue(){
     gcode.process_subcommands_now_P(PSTR("G29S2"));
     planner.synchronize();
-    MMeshMoveZItem->Draw(CurrentMenu->line(MMeshMoveZItem->pos));
+    MMeshMoveZItem->draw(CurrentMenu->line(MMeshMoveZItem->pos));
   }
 
   void ManualMeshSave(){
     ui.set_status_P(GET_TEXT(MSG_UBL_STORAGE_MESH_MENU));
     queue.inject_P(PSTR("M211 S1\nM500"));
   }
-#endif
+
+#endif // MESH_BED_LEVELING
 
 #if HAS_PREHEAT
   #if HAS_HOTEND
@@ -2516,6 +2484,7 @@ void SetStepsZ() { HMI_value.axis = Z_AXIS, SetPFloatOnClick( MIN_STEP, MAX_STEP
     SetFloatOnClick(0, 1000, 2, value, ApplyPIDd);
   }
 #endif
+
 // Menuitem Drawing functions =================================================
 
 void onDrawMenuItem(MenuItemClass* menuitem, int8_t line) {
@@ -2554,7 +2523,7 @@ void onDrawPInt32Menu(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawFloatMenu(MenuItemClass* menuitem, int8_t line, uint8_t dp, const float value) {
   onDrawMenuItem(menuitem, line);
-  DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, dp, VALX - dp * DWINUI::Get_font_width(DWIN_FONT_MENU), MBASE(line), value);
+  DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, dp, VALX - dp * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(line), value);
 }
 
 void onDrawPFloatMenu(MenuItemClass* menuitem, int8_t line) {
@@ -2721,7 +2690,6 @@ void onDrawGetColorItem(MenuItemClass* menuitem, int8_t line) {
 void onDrawPIDi(MenuItemClass* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_i(*(float*)static_cast<MenuItemPtrClass*>(menuitem)->value)); }
 void onDrawPIDd(MenuItemClass* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_d(*(float*)static_cast<MenuItemPtrClass*>(menuitem)->value)); }
 
-
 void onDrawSpeedItem(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) menuitem->SetFrame(1, 116, 164, 171, 176);
   onDrawPIntMenu(menuitem, line);
@@ -2748,30 +2716,6 @@ void onDrawSpeedItem(MenuItemClass* menuitem, int8_t line) {
   }
 #endif
 
-void onDrawSpeed(MenuItemClass* menuitem, int8_t line) {
-  if (HMI_IsChinese()) menuitem->SetFrame(1, 173, 133, 228, 147);
-  onDrawSubMenu(menuitem, line);
-}
-
-void onDrawAcc(MenuItemClass* menuitem, int8_t line) {
-  if (HMI_IsChinese()) {
-    menuitem->SetFrame(1, 173, 133, 200, 147);
-    DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line) + 1); // ...Acceleration
-  }
-  onDrawSubMenu(menuitem, line);
-}
-
-#if HAS_CLASSIC_JERK
-  void onDrawJerk(MenuItemClass* menuitem, int8_t line) {
-    if (HMI_IsChinese()) {
-      menuitem->SetFrame(1, 173, 133, 200, 147);
-      DWIN_Frame_AreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
-      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
-    }
-    onDrawSubMenu(menuitem, line);
-  }
-#endif
-
 void onDrawSteps(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) menuitem->SetFrame(1, 153, 148, 194, 161);
   onDrawSubMenu(menuitem, line);
@@ -2786,10 +2730,10 @@ void onDrawSteps(MenuItemClass* menuitem, int8_t line) {
 
 #if HAS_PREHEAT
   #if HAS_HOTEND
-      void onDrawSetPreheatHotend(MenuItemClass* menuitem, int8_t line) {
-        if (HMI_IsChinese()) menuitem->SetFrame(1, 1, 134, 56, 146);
-        onDrawPIntMenu(menuitem, line);
-      }
+    void onDrawSetPreheatHotend(MenuItemClass* menuitem, int8_t line) {
+      if (HMI_IsChinese()) menuitem->SetFrame(1, 1, 134, 56, 146);
+      onDrawPIntMenu(menuitem, line);
+    }
   #endif
   #if HAS_HEATED_BED
     void onDrawSetPreheatBed(MenuItemClass* menuitem, int8_t line) {
@@ -2811,7 +2755,13 @@ void onDrawSteps(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) menuitem->SetFrame(1, 180, 89, 260, 100);
     onDrawSubMenu(menuitem,line);
   }
-#endif // HAS_HOTEND
+#endif // HAS_PREHEAT
+
+void onDrawSpeed(MenuItemClass* menuitem, int8_t line) {
+  if (HMI_IsChinese())
+    menuitem->SetFrame(1, 173, 133, 228, 147);
+  onDrawSubMenu(menuitem, line);
+}
 
 void onDrawMaxSpeedX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
@@ -2847,9 +2797,17 @@ void onDrawMaxSpeedZ(MenuItemClass* menuitem, int8_t line) {
   }
 #endif
 
+void onDrawAcc(MenuItemClass* menuitem, int8_t line) {
+  if (HMI_IsChinese()) {
+    menuitem->SetFrame(1, 173, 133, 200, 147);
+    DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line) + 1); // ...Acceleration
+  }
+  onDrawSubMenu(menuitem, line);
+}
+
 void onDrawMaxAccelX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 173, 133, 200, 147);
+    menuitem->SetFrame(1, 173, 133, 200, 147);
     DWIN_Frame_AreaCopy(1, 28,  149,  69, 161, LBLX + 27, MBASE(line));
     DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(line));      // X
   }
@@ -2858,7 +2816,7 @@ void onDrawMaxAccelX(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawMaxAccelY(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 173, 133, 200, 147);
+    menuitem->SetFrame(1, 173, 133, 200, 147);
     DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
     DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 71, MBASE(line));          // Y
   }
@@ -2867,7 +2825,7 @@ void onDrawMaxAccelY(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 173, 133, 200, 147);
+    menuitem->SetFrame(1, 173, 133, 200, 147);
     DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
     DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 71, MBASE(line));         // Z
   }
@@ -2877,7 +2835,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 #if HAS_HOTEND
   void onDrawMaxAccelE(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,  28, 149,  69, 161, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 71, MBASE(line));        // E
     }
@@ -2886,9 +2844,19 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 #endif
 
 #if HAS_CLASSIC_JERK
+
+  void onDrawJerk(MenuItemClass* menuitem, int8_t line) {
+    if (HMI_IsChinese()) {
+      menuitem->SetFrame(1, 173, 133, 200, 147);
+      DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line) + 1);  // ...
+      DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
+    }
+    onDrawSubMenu(menuitem, line);
+  }
+
   void onDrawMaxJerkX(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
       DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 83, MBASE(line));
@@ -2898,7 +2866,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 
   void onDrawMaxJerkY(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
       DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 83, MBASE(line));
@@ -2908,7 +2876,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
 
   void onDrawMaxJerkZ(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 173, 133, 200, 147);
+      menuitem->SetFrame(1, 173, 133, 200, 147);
       DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
       DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
       DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 83, MBASE(line));
@@ -2919,7 +2887,7 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
   #if HAS_HOTEND
     void onDrawMaxJerkE(MenuItemClass* menuitem, int8_t line) {
       if (HMI_IsChinese()) {
-        menuitem->SetFrame (1, 173, 133, 200, 147);
+        menuitem->SetFrame(1, 173, 133, 200, 147);
         DWIN_Frame_AreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
         DWIN_Frame_AreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
         DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 83, MBASE(line));
@@ -2927,11 +2895,12 @@ void onDrawMaxAccelZ(MenuItemClass* menuitem, int8_t line) {
       onDrawPFloatMenu(menuitem, line);
     }
   #endif
+
 #endif // HAS_CLASSIC_JERK
 
 void onDrawStepsX(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 153, 148, 194, 161);
+    menuitem->SetFrame(1, 153, 148, 194, 161);
     DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line));      // X
   }
   onDrawPFloatMenu(menuitem, line);
@@ -2939,7 +2908,7 @@ void onDrawStepsX(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawStepsY(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 153, 148, 194, 161);
+    menuitem->SetFrame(1, 153, 148, 194, 161);
     DWIN_Frame_AreaCopy(1,   1, 150,   7, 160, LBLX + 44, MBASE(line));      // Y
   }
   onDrawPFloatMenu(menuitem, line);
@@ -2947,7 +2916,7 @@ void onDrawStepsY(MenuItemClass* menuitem, int8_t line) {
 
 void onDrawStepsZ(MenuItemClass* menuitem, int8_t line) {
   if (HMI_IsChinese()) {
-    menuitem->SetFrame (1, 153, 148, 194, 161);
+    menuitem->SetFrame(1, 153, 148, 194, 161);
     DWIN_Frame_AreaCopy(1,   9, 150,  16, 160, LBLX + 44, MBASE(line));      // Z
   }
   onDrawPFloatMenu(menuitem, line);
@@ -2956,7 +2925,7 @@ void onDrawStepsZ(MenuItemClass* menuitem, int8_t line) {
 #if HAS_HOTEND
   void onDrawStepsE(MenuItemClass* menuitem, int8_t line) {
     if (HMI_IsChinese()) {
-      menuitem->SetFrame (1, 153, 148, 194, 161);
+      menuitem->SetFrame(1, 153, 148, 194, 161);
       DWIN_Frame_AreaCopy(1,  18, 150,  25, 160, LBLX + 44, MBASE(line));    // E
     }
     onDrawPFloatMenu(menuitem, line);
@@ -2967,7 +2936,7 @@ void onDrawStepsZ(MenuItemClass* menuitem, int8_t line) {
 
 // Generic menu control using the encoder
 void HMI_Menu() {
-  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
     if (CurrentMenu != nullptr) CurrentMenu->onClick();
@@ -2982,11 +2951,11 @@ void HMI_Menu() {
 //  1 : live change
 //  2 : apply change
 int8_t HMI_GetIntNoDraw(const int32_t lo, const int32_t hi) {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_value.Value)) {
       EncoderRate.enabled = false;
-      checkkey = last_checkkey;
+      checkkey = Menu;
       return 2;
     }
     LIMIT(HMI_value.Value, lo, hi);
@@ -3003,12 +2972,12 @@ int8_t HMI_GetIntNoDraw(const int32_t lo, const int32_t hi) {
 //  1 : live change
 //  2 : apply change
 int8_t HMI_GetInt(const int32_t lo, const int32_t hi) {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_value.Value)) {
       EncoderRate.enabled = false;
       DWINUI::Draw_Int(HMI_data.Text_Color, HMI_data.Background_Color, 4 , VALX, MBASE(CurrentMenu->line()) - 1, HMI_value.Value);
-      checkkey = last_checkkey;
+      checkkey = Menu;
       return 2;
     }
     LIMIT(HMI_value.Value, lo, hi);
@@ -3048,7 +3017,7 @@ void HMI_SetPInt() {
   } else if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate();
 }
 
-// Get an scaled float value using the encoder
+// Get a scaled float value using the encoder
 //  dp: decimal places
 //  lo: scaled low limit
 //  hi: scaled high limit
@@ -3057,53 +3026,49 @@ void HMI_SetPInt() {
 //  1 : live change
 //  2 : apply change
 int8_t HMI_GetFloat(uint8_t dp, int32_t lo, int32_t hi) {
-  ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (Apply_Encoder(encoder_diffState, HMI_value.Value)) {
       EncoderRate.enabled = false;
-      DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, dp, VALX - dp * DWINUI::Get_font_width(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), HMI_value.Value / POW(10, dp));
-      checkkey = last_checkkey;
+      DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Background_Color, 3, dp, VALX - dp * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), HMI_value.Value / POW(10, dp));
+      checkkey = Menu;
       return 2;
     }
     LIMIT(HMI_value.Value, lo, hi);
-    DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, dp, VALX - dp * DWINUI::Get_font_width(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), HMI_value.Value / POW(10, dp));
+    DWINUI::Draw_Signed_Float(HMI_data.Text_Color, HMI_data.Selected_Color, 3, dp, VALX - dp * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(CurrentMenu->line()), HMI_value.Value / POW(10, dp));
     return 1;
   }
   return 0;
 }
 
-// Set an scaled float using the encoder
+// Set a scaled float using the encoder
 void HMI_SetFloat() {
-  int8_t val = HMI_GetFloat(HMI_value.dp, HMI_value.MinValue, HMI_value.MaxValue);
+  const int8_t val = HMI_GetFloat(HMI_value.dp, HMI_value.MinValue, HMI_value.MaxValue);
   switch (val) {
-    case 0: return; break;
+    case 0: return;
     case 1: if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate(); break;
     case 2: if (HMI_value.Apply != nullptr) HMI_value.Apply(); break;
   }
 }
 
-// Set an scaled float pointer variable using the encoder
+// Set a scaled float pointer variable using the encoder
 void HMI_SetPFloat() {
-  int8_t val = HMI_GetFloat(HMI_value.dp, HMI_value.MinValue, HMI_value.MaxValue);
+  const int8_t val = HMI_GetFloat(HMI_value.dp, HMI_value.MinValue, HMI_value.MaxValue);
   if (!val) return;
-  else if (val == 2) {  // Apply
+  if (val == 2) {  // Apply
     *HMI_value.P_Float = HMI_value.Value / POW(10, HMI_value.dp);
     if (HMI_value.Apply != nullptr) HMI_value.Apply();
-  } else if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate();
+  }
+  else if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate();
 }
 
 // Menu Creation and Drawing functions ======================================================
 
 void SetMenuTitle(frame_rect_t cn, frame_rect_t en, const __FlashStringHelper* text) {
-    if (HMI_IsChinese() && (cn.w != 0))
-      CurrentMenu->MenuTitle.SetFrame(cn.x, cn.y, cn.w, cn.h);
-    else {
-      #ifdef USE_STRING_HEADINGS
-        CurrentMenu->MenuTitle.SetCaption(text);
-      #else
-        if (en.w != 0) CurrentMenu->MenuTitle.SetFrame(en.x, en.y, en.w, en.h);
-      #endif
-    }
+  if (HMI_IsChinese() && (cn.w != 0))
+    CurrentMenu->MenuTitle.SetFrame(cn.x, cn.y, cn.w, cn.h);
+  else
+    CurrentMenu->MenuTitle.SetCaption(text);
 }
 
 void Draw_Prepare_Menu() {
@@ -3141,7 +3106,7 @@ void Draw_Prepare_Menu() {
     #endif
     ADDMENUITEM(ICON_Language, PSTR("UI Language"), onDrawLanguage, SetLanguage);
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_LevBedCorners_Menu() {
@@ -3159,7 +3124,7 @@ void Draw_LevBedCorners_Menu() {
     ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_LEVBED_BL), onDrawMenuItem, LevBedBL);
     ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_LEVBED_C ), onDrawMenuItem, LevBedC );
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_Control_Menu() {
@@ -3181,7 +3146,7 @@ void Draw_Control_Menu() {
     ADDMENUITEM(ICON_AdvSet, GET_TEXT(MSG_ADVANCED_SETTINGS), onDrawSubMenu, Draw_AdvancedSettings_Menu);
     ADDMENUITEM(ICON_Info, GET_TEXT(MSG_INFO_SCREEN), onDrawInfoSubMenu, Goto_InfoMenu);
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_AdvancedSettings_Menu() {
@@ -3219,7 +3184,7 @@ void Draw_AdvancedSettings_Menu() {
     #endif
     ADDMENUITEM(ICON_Lock, F("Lock Screen"), onDrawMenuItem, Goto_LockScreen);
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_Move_Menu() {
@@ -3237,7 +3202,7 @@ void Draw_Move_Menu() {
       ADDMENUITEM_P(ICON_Extruder, GET_TEXT(MSG_MOVE_E), onDrawMoveE, SetMoveE, &current_position.e);
     #endif
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
   if (!all_axes_trusted()) ui.set_status_P(PSTR("WARNING: position is unknow"));
 }
 
@@ -3254,7 +3219,7 @@ void Draw_Move_Menu() {
       ADDMENUITEM_P(ICON_HomeOffsetY, GET_TEXT(MSG_HOME_OFFSET_Y), onDrawPFloatMenu, SetHomeOffsetY, &home_offset[Y_AXIS]);
       ADDMENUITEM_P(ICON_HomeOffsetZ, GET_TEXT(MSG_HOME_OFFSET_Z), onDrawPFloatMenu, SetHomeOffsetZ, &home_offset[Z_AXIS]);
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 #endif
 
@@ -3272,7 +3237,7 @@ void Draw_Move_Menu() {
       ADDMENUITEM_P(ICON_ProbeOffsetZ, GET_TEXT(MSG_ZPROBE_ZOFFSET), onDrawPFloat2Menu, SetProbeOffsetZ, &probe.offset.z);
       ADDMENUITEM(ICON_ProbeTest, GET_TEXT(MSG_M48_TEST), onDrawMenuItem, ProbeTest);
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 #endif
 
@@ -3299,9 +3264,10 @@ void Draw_Move_Menu() {
         ADDMENUITEM_P(ICON_FilUnload, GET_TEXT(MSG_FILAMENT_UNLOAD), onDrawPFloatMenu, SetFilUnload, &fc_settings[0].unload_length);
       #endif
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
-#endif
+#endif // HAS_FILAMENT_SENSOR
+
 void Draw_SelectColors_Menu() {
   checkkey = Menu;
   if (SelectColorMenu == nullptr) SelectColorMenu = new MenuClass();
@@ -3330,7 +3296,7 @@ void Draw_SelectColors_Menu() {
     ADDMENUITEM_P(0, "Indicator value", onDrawSelColorItem, SelColor, &HMI_data.Indicator_Color);
     ADDMENUITEM_P(0, "Coordinate value", onDrawSelColorItem, SelColor, &HMI_data.Coordinate_Color);
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_GetColor_Menu() {
@@ -3346,7 +3312,7 @@ void Draw_GetColor_Menu() {
     ADDMENUITEM(1, "Green", onDrawGetColorItem, SetRGBColor);
     ADDMENUITEM(2, "Blue", onDrawGetColorItem, SetRGBColor);
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
   DWIN_Draw_Rectangle(1, *HMI_value.P_Int, 20, 315, DWIN_WIDTH - 20, 335);
 }
 
@@ -3380,7 +3346,7 @@ void Draw_Tune_Menu() {
       ADDMENUITEM_P(ICON_Brightness, F("LCD Brightness"), onDrawPInt8Menu, SetBrightness, &ui.brightness);
     #endif
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_Motion_Menu() {
@@ -3399,7 +3365,7 @@ void Draw_Motion_Menu() {
     ADDMENUITEM(ICON_Step, GET_TEXT(MSG_STEPS_PER_MM), onDrawSteps, Draw_Steps_Menu);
     ADDMENUITEM_P(ICON_Flow, GET_TEXT(MSG_FLOW), onDrawPIntMenu, SetFlow, &planner.flow_percentage[0]);
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -3418,7 +3384,7 @@ void Draw_Motion_Menu() {
         ADDMENUITEM(ICON_FilLoad, GET_TEXT(MSG_FILAMENTLOAD), onDrawMenuItem, LoadFilament);
       #endif
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 #endif
 
@@ -3436,11 +3402,12 @@ void Draw_Motion_Menu() {
       ADDMENUITEM(ICON_Axis, GET_TEXT(MSG_UBL_CONTINUE_MESH), onDrawMenuItem, ManualMeshContinue);
       ADDMENUITEM(ICON_MeshSave, GET_TEXT(MSG_UBL_SAVE_MESH), onDrawMenuItem, ManualMeshSave);
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 #endif
 
 #if HAS_PREHEAT
+
   void Draw_Preheat_Menu(frame_rect_t cn, frame_rect_t en, const __FlashStringHelper* text) {
     checkkey = Menu;
     if (CurrentMenu != PreheatMenu) {
@@ -3461,7 +3428,7 @@ void Draw_Motion_Menu() {
         ADDMENUITEM(ICON_WriteEEPROM, GET_TEXT(MSG_STORE_EEPROM), onDrawWriteEeprom, WriteEeprom);
       #endif
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 
   void Draw_Preheat1_Menu() {
@@ -3485,7 +3452,7 @@ void Draw_Motion_Menu() {
     }
   #endif
 
-#endif
+#endif // HAS_PREHEAT
 
 void Draw_Temperature_Menu() {
   checkkey = Menu;
@@ -3512,7 +3479,7 @@ void Draw_Temperature_Menu() {
       #endif
     #endif
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_MaxSpeed_Menu() {
@@ -3530,7 +3497,7 @@ void Draw_MaxSpeed_Menu() {
       ADDMENUITEM_P(ICON_MaxSpeedE, GET_TEXT(MSG_MAXSPEED_E), onDrawMaxSpeedE, SetMaxSpeedE, &planner.settings.max_feedrate_mm_s[Z_AXIS]);
     #endif
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 void Draw_MaxAccel_Menu() {
@@ -3548,7 +3515,7 @@ void Draw_MaxAccel_Menu() {
       ADDMENUITEM_P(ICON_MaxAccE, GET_TEXT(MSG_AMAX_E), onDrawMaxAccelE, SetMaxAccelE, &planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
     #endif
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 #if HAS_CLASSIC_JERK
@@ -3567,7 +3534,7 @@ void Draw_MaxAccel_Menu() {
         ADDMENUITEM_P(ICON_MaxSpeedJerkE, GET_TEXT(MSG_VE_JERK), onDrawMaxJerkE, SetMaxJerkE, &planner.max_jerk[E_AXIS]);
       #endif
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 #endif
 
@@ -3586,7 +3553,7 @@ void Draw_Steps_Menu() {
       ADDMENUITEM_P(ICON_StepE, GET_TEXT(MSG_E_STEPS), onDrawStepsE, SetStepsE, &planner.settings.axis_steps_per_mm[E_AXIS]);
     #endif
   }
-  CurrentMenu->Draw();
+  CurrentMenu->draw();
 }
 
 #if HAS_HOTEND
@@ -3608,7 +3575,7 @@ void Draw_Steps_Menu() {
         ADDMENUITEM(ICON_WriteEEPROM, GET_TEXT(MSG_STORE_EEPROM), onDrawMenuItem, WriteEeprom);
       #endif
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 #endif
 
@@ -3631,7 +3598,7 @@ void Draw_Steps_Menu() {
         ADDMENUITEM(ICON_WriteEEPROM, GET_TEXT(MSG_STORE_EEPROM), onDrawMenuItem, WriteEeprom);
       #endif
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
   }
 #endif
 
@@ -3648,10 +3615,9 @@ void Draw_Steps_Menu() {
       ADDMENUITEM(ICON_MoveZ0, F("Move Z to Home"), onDrawMenuItem, SetMoveZto0);
       ADDMENUITEM_P(ICON_Zoffset, GET_TEXT(MSG_ZPROBE_ZOFFSET), onDrawPFloat2Menu, SetZOffset, &BABY_Z_VAR);
     }
-    CurrentMenu->Draw();
+    CurrentMenu->draw();
     if (!axis_is_trusted(Z_AXIS)) ui.set_status_P(PSTR("WARNING: Z position is unknow, move Z to home"));
   }
 #endif
-
 
 #endif // DWIN_CREALITY_LCD_ENHANCED

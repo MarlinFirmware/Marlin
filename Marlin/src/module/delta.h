@@ -46,19 +46,6 @@ extern abc_float_t delta_diagonal_rod_trim;
 void recalc_delta_settings();
 
 /**
- * Get a safe radius for calibration
- */
-#if ENABLED(DELTA_AUTO_CALIBRATION)
-  extern float calibration_radius_factor;
-#else
-  constexpr float calibration_radius_factor = 1;
-#endif
-
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-  float delta_calibration_radius();
-#endif
-
-/**
  * Delta Inverse Kinematics
  *
  * Calculate the tower positions for a given machine

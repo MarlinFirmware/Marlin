@@ -1,12 +1,13 @@
 /**
- * DWIN UI Enhanced implementation
- * Author: Miguel A. Risco-Castillo
- * Version: 3.6.1
- * Date: 2021/08/29
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -14,15 +15,22 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
+/**
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 3.6.3
+ * Date: 2021/09/08
+ */
+
 #include "../../../inc/MarlinConfigPre.h"
 #include "dwinui.h"
-#include "rotary_encoder.h"
+#include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
 
 #if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
@@ -79,11 +87,6 @@ enum pidresult_t : uint8_t {
   PID_DONE
 };
 
-// Picture ID
-#define Start_Process       0
-#define Language_English    1
-#define Language_Chinese    2
-
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
 
@@ -120,12 +123,16 @@ typedef struct {
   uint16_t Barfill_Color    = Def_Barfill_Color;
   uint16_t Indicator_Color  = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
-  TERN_(HAS_HOTEND, int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND);
-  TERN_(HAS_HOTEND, int16_t PidCycles = 10);
+  #if HAS_HOTEND
+    int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
+    int16_t PidCycles = 10;
+  #endif
   #ifdef PREHEAT_1_TEMP_BED
     int16_t BedPidT = PREHEAT_1_TEMP_BED;
   #endif
-  TERN_(PREVENT_COLD_EXTRUSION, int16_t ExtMinT = EXTRUDE_MINTEMP);
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    int16_t ExtMinT = EXTRUDE_MINTEMP;
+  #endif
 } HMI_data_t;
 
 typedef struct {
@@ -150,22 +157,18 @@ void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * cons
 #if HAS_HOTEND || HAS_HEATED_BED
   void DWIN_Popup_Temperature(const bool toohigh);
 #endif
-TERN_(HAS_HOTEND, void Popup_Window_ETempTooLow());
+#if HAS_HOTEND
+  void Popup_Window_ETempTooLow();
+#endif
 void Popup_Window_Resume();
 
 // SD Card
 void HMI_SDCardInit();
 void HMI_SDCardUpdate();
 
-// Main Process
-//void Icon_print();
-//void Icon_control();
-//void Icon_leveling(bool value);
-
 // Other
 void Goto_PrintProcess();
 void Goto_Main_Menu();
-void update_variable();
 void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area;
@@ -178,19 +181,14 @@ void HMI_ReturnScreen();    // Return to previous screen before popups
 void ApplyExtMinT();
 void HMI_SetLanguageCache(); // Set the languaje image cache
 
-//void HMI_Leveling();    // Level the page
-//void HMI_LevBedCorners();   // Tramming menu
-//void HMI_Info();          // Information menu
-
-
 void HMI_Init();
 void HMI_Popup();
 void HMI_SaveProcessID(const uint8_t id);
 void HMI_AudioFeedback(const bool success=true);
-void DWIN_Startup();
-void DWIN_Update();
 void EachMomentUpdate();
+void update_variable();
 void DWIN_HandleScreen();
+void DWIN_Update();
 void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
 void DWIN_StatusChanged(const char * const text);
 void DWIN_StatusChanged_P(PGM_P const text);
@@ -239,27 +237,41 @@ void Draw_AdvancedSettings_Menu();
 void Draw_Prepare_Menu();
 void Draw_Move_Menu();
 void Draw_LevBedCorners_Menu();
-TERN_(HAS_HOME_OFFSET, void Draw_HomeOffset_Menu());
-TERN_(HAS_BED_PROBE, void Draw_ProbeSet_Menu());
-TERN_(HAS_FILAMENT_SENSOR, void Draw_FilSet_Menu());
+#if HAS_HOME_OFFSET
+  void Draw_HomeOffset_Menu();
+#endif
+#if HAS_BED_PROBE
+  void Draw_ProbeSet_Menu();
+#endif
+#if HAS_FILAMENT_SENSOR
+  void Draw_FilSet_Menu();
+#endif
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
 void Draw_Tune_Menu();
 void Draw_Motion_Menu();
-TERN_(ADVANCED_PAUSE_FEATURE, void Draw_FilamentMan_Menu());
-TERN_(MESH_BED_LEVELING, void Draw_ManualMesh_Menu());
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void Draw_FilamentMan_Menu();
+#endif
+#if ENABLED(MESH_BED_LEVELING)
+  void Draw_ManualMesh_Menu();
+#endif
 #if HAS_HOTEND
   void Draw_Preheat1_Menu();
   void Draw_Preheat2_Menu();
   void Draw_Preheat3_Menu();
+  void Draw_HotendPID_Menu();
 #endif
 void Draw_Temperature_Menu();
 void Draw_MaxSpeed_Menu();
 void Draw_MaxAccel_Menu();
-TERN_(HAS_CLASSIC_JERK, void Draw_MaxJerk_Menu());
+#if HAS_CLASSIC_JERK
+  void Draw_MaxJerk_Menu();
+#endif
 void Draw_Steps_Menu();
-TERN_(HAS_HOTEND, void Draw_HotendPID_Menu());
-TERN_(HAS_HEATED_BED, void Draw_BedPID_Menu());
+#if HAS_HEATED_BED
+  void Draw_BedPID_Menu();
+#endif
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
   void Draw_ZOffsetWiz_Menu();
 #endif
