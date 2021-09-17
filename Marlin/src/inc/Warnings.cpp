@@ -455,3 +455,12 @@
     #warning "Auto-assigned K_DIAG_PIN to E7_DIAG_PIN."
   #endif
 #endif
+
+/**
+ * Linear Advance 1.5 - Warn for LIN_ADVANCE + low DEFAULT_EJERK
+ */
+#if ENABLED(LIN_ADVANCE) && defined(DEFAULT_EJERK)
+  #if !HAS_JUNCTION_DEVIATION && DEFAULT_EJERK < 10
+    #warning "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE."
+  #endif
+#endif
