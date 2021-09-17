@@ -468,7 +468,7 @@ void menu_backlash();
         #elif ENABLED(LIMITED_JERK_EDITING)
           { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
         #else
-          { 990, 990, 990, 990 }
+          { 990, 990, 990 }
         #endif
       ;
       #define EDIT_JERK(N) EDIT_ITEM_FAST(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_edit[_AXIS(N)])

@@ -2734,6 +2734,10 @@ void MarlinSettings::reset() {
     delta_tower_angle_trim = dta;
     delta_diagonal_rod_trim = ddr;
   #endif
+  
+  #if ENABLED(IS_POLARGRAPH)
+    segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+  #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS)
     #ifndef X2_ENDSTOP_ADJUSTMENT

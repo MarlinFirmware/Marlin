@@ -48,6 +48,8 @@
 
 #if ENABLED(DELTA)
   #include "delta.h"
+#elif IS_POLARGRAPH
+  #include "polargraph.h"
 #endif
 
 #if ABL_PLANAR
