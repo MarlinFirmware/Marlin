@@ -1468,7 +1468,7 @@
   #define HAS_X_MS_PINS 1
 #endif
 
-#if PIN_EXISTS(X2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(X2))
+#if PIN_EXISTS(X2_ENABLE) || AXIS_IS_L64XX(X2) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(X2))
   #define HAS_X2_ENABLE 1
 #endif
 #if PIN_EXISTS(X2_DIR)
@@ -1482,7 +1482,7 @@
 #endif
 
 #if HAS_Y_AXIS
-  #if PIN_EXISTS(Y_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y))
+  #if PIN_EXISTS(Y_ENABLE) || AXIS_IS_L64XX(Y) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y))
     #define HAS_Y_ENABLE 1
   #endif
   #if PIN_EXISTS(Y_DIR)
@@ -1495,7 +1495,7 @@
     #define HAS_Y_MS_PINS 1
   #endif
 
-  #if PIN_EXISTS(Y2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2))
+  #if PIN_EXISTS(Y2_ENABLE) || AXIS_IS_L64XX(Y2) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2))
     #define HAS_Y2_ENABLE 1
   #endif
   #if PIN_EXISTS(Y2_DIR)
@@ -1510,7 +1510,7 @@
 #endif
 
 #if HAS_Z_AXIS
-  #if PIN_EXISTS(Z_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z))
+  #if PIN_EXISTS(Z_ENABLE) || AXIS_IS_L64XX(Z) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z))
     #define HAS_Z_ENABLE 1
   #endif
   #if PIN_EXISTS(Z_DIR)
@@ -1525,7 +1525,7 @@
 #endif
 
 #if NUM_Z_STEPPER_DRIVERS >= 2
-  #if PIN_EXISTS(Z2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2))
+  #if PIN_EXISTS(Z2_ENABLE) || AXIS_IS_L64XX(Z2) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2))
     #define HAS_Z2_ENABLE 1
   #endif
   #if PIN_EXISTS(Z2_DIR)
@@ -1540,7 +1540,7 @@
 #endif
 
 #if NUM_Z_STEPPER_DRIVERS >= 3
-  #if PIN_EXISTS(Z3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z3))
+  #if PIN_EXISTS(Z3_ENABLE) || AXIS_IS_L64XX(Z3) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z3))
     #define HAS_Z3_ENABLE 1
   #endif
   #if PIN_EXISTS(Z3_DIR)
@@ -1555,7 +1555,7 @@
 #endif
 
 #if NUM_Z_STEPPER_DRIVERS >= 4
-  #if PIN_EXISTS(Z4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z4))
+  #if PIN_EXISTS(Z4_ENABLE) || AXIS_IS_L64XX(Z4) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z4))
     #define HAS_Z4_ENABLE 1
   #endif
   #if PIN_EXISTS(Z4_DIR)
@@ -1570,7 +1570,7 @@
 #endif
 
 #if LINEAR_AXES >= 4
-  #if PIN_EXISTS(I_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(I))
+  #if PIN_EXISTS(I_ENABLE) || AXIS_IS_L64XX(I) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(I))
     #define HAS_I_ENABLE 1
   #endif
   #if PIN_EXISTS(I_DIR)
@@ -1585,7 +1585,7 @@
 #endif
 
 #if LINEAR_AXES >= 5
-  #if PIN_EXISTS(J_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(J))
+  #if PIN_EXISTS(J_ENABLE) || AXIS_IS_L64XX(J) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(J))
     #define HAS_J_ENABLE 1
   #endif
   #if PIN_EXISTS(J_DIR)
@@ -1600,7 +1600,7 @@
 #endif
 
 #if LINEAR_AXES >= 6
-  #if PIN_EXISTS(K_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(K))
+  #if PIN_EXISTS(K_ENABLE) || AXIS_IS_L64XX(K) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(K))
     #define HAS_K_ENABLE 1
   #endif
   #if PIN_EXISTS(K_DIR)
@@ -1617,7 +1617,7 @@
 // Extruder steppers and solenoids
 #if HAS_EXTRUDERS
 
-  #if PIN_EXISTS(E0_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0))
+  #if PIN_EXISTS(E0_ENABLE) || AXIS_IS_L64XX(E0) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0))
     #define HAS_E0_ENABLE 1
   #endif
   #if PIN_EXISTS(E0_DIR)
@@ -1633,116 +1633,130 @@
     #define HAS_SOLENOID_0 1
   #endif
 
-  #if PIN_EXISTS(E1_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1))
-    #define HAS_E1_ENABLE 1
-  #endif
-  #if PIN_EXISTS(E1_DIR)
-    #define HAS_E1_DIR 1
-  #endif
-  #if PIN_EXISTS(E1_STEP)
-    #define HAS_E1_STEP 1
-  #endif
-  #if PIN_EXISTS(E1_MS1)
-    #define HAS_E1_MS_PINS 1
-  #endif
-  #if PIN_EXISTS(SOL1)
-    #define HAS_SOLENOID_1 1
-  #endif
-
-  #if PIN_EXISTS(E2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2))
-    #define HAS_E2_ENABLE 1
-  #endif
-  #if PIN_EXISTS(E2_DIR)
-    #define HAS_E2_DIR 1
-  #endif
-  #if PIN_EXISTS(E2_STEP)
-    #define HAS_E2_STEP 1
-  #endif
-  #if PIN_EXISTS(E2_MS1)
-    #define HAS_E2_MS_PINS 1
-  #endif
-  #if PIN_EXISTS(SOL2)
-    #define HAS_SOLENOID_2 1
+  #if E_STEPPERS > 1
+    #if PIN_EXISTS(E1_ENABLE) || AXIS_IS_L64XX(E1) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1))
+      #define HAS_E1_ENABLE 1
+    #endif
+    #if PIN_EXISTS(E1_DIR)
+      #define HAS_E1_DIR 1
+    #endif
+    #if PIN_EXISTS(E1_STEP)
+      #define HAS_E1_STEP 1
+    #endif
+    #if PIN_EXISTS(E1_MS1)
+      #define HAS_E1_MS_PINS 1
+    #endif
+    #if PIN_EXISTS(SOL1)
+      #define HAS_SOLENOID_1 1
+    #endif
   #endif
 
-  #if PIN_EXISTS(E3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3))
-    #define HAS_E3_ENABLE 1
-  #endif
-  #if PIN_EXISTS(E3_DIR)
-    #define HAS_E3_DIR 1
-  #endif
-  #if PIN_EXISTS(E3_STEP)
-    #define HAS_E3_STEP 1
-  #endif
-  #if PIN_EXISTS(E3_MS1)
-    #define HAS_E3_MS_PINS 1
-  #endif
-  #if PIN_EXISTS(SOL3)
-    #define HAS_SOLENOID_3 1
-  #endif
-
-  #if PIN_EXISTS(E4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4))
-    #define HAS_E4_ENABLE 1
-  #endif
-  #if PIN_EXISTS(E4_DIR)
-    #define HAS_E4_DIR 1
-  #endif
-  #if PIN_EXISTS(E4_STEP)
-    #define HAS_E4_STEP 1
-  #endif
-  #if PIN_EXISTS(E4_MS1)
-    #define HAS_E4_MS_PINS 1
-  #endif
-  #if PIN_EXISTS(SOL4)
-    #define HAS_SOLENOID_4 1
+  #if E_STEPPERS > 2
+    #if PIN_EXISTS(E2_ENABLE) || AXIS_IS_L64XX(E2) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2))
+      #define HAS_E2_ENABLE 1
+    #endif
+    #if PIN_EXISTS(E2_DIR)
+      #define HAS_E2_DIR 1
+    #endif
+    #if PIN_EXISTS(E2_STEP)
+      #define HAS_E2_STEP 1
+    #endif
+    #if PIN_EXISTS(E2_MS1)
+      #define HAS_E2_MS_PINS 1
+    #endif
+    #if PIN_EXISTS(SOL2)
+      #define HAS_SOLENOID_2 1
+    #endif
   #endif
 
-  #if PIN_EXISTS(E5_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5))
-    #define HAS_E5_ENABLE 1
-  #endif
-  #if PIN_EXISTS(E5_DIR)
-    #define HAS_E5_DIR 1
-  #endif
-  #if PIN_EXISTS(E5_STEP)
-    #define HAS_E5_STEP 1
-  #endif
-  #if PIN_EXISTS(E5_MS1)
-    #define HAS_E5_MS_PINS 1
-  #endif
-  #if PIN_EXISTS(SOL5)
-    #define HAS_SOLENOID_5 1
-  #endif
-
-  #if PIN_EXISTS(E6_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E6))
-    #define HAS_E6_ENABLE 1
-  #endif
-  #if PIN_EXISTS(E6_DIR)
-    #define HAS_E6_DIR 1
-  #endif
-  #if PIN_EXISTS(E6_STEP)
-    #define HAS_E6_STEP 1
-  #endif
-  #if PIN_EXISTS(E6_MS1)
-    #define HAS_E6_MS_PINS 1
-  #endif
-  #if PIN_EXISTS(SOL6)
-    #define HAS_SOLENOID_6 1
+  #if E_STEPPERS > 3
+    #if PIN_EXISTS(E3_ENABLE) || AXIS_IS_L64XX(E3) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3))
+      #define HAS_E3_ENABLE 1
+    #endif
+    #if PIN_EXISTS(E3_DIR)
+      #define HAS_E3_DIR 1
+    #endif
+    #if PIN_EXISTS(E3_STEP)
+      #define HAS_E3_STEP 1
+    #endif
+    #if PIN_EXISTS(E3_MS1)
+      #define HAS_E3_MS_PINS 1
+    #endif
+    #if PIN_EXISTS(SOL3)
+      #define HAS_SOLENOID_3 1
+    #endif
   #endif
 
-  #if PIN_EXISTS(E7_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E7))
-    #define HAS_E7_ENABLE 1
+  #if E_STEPPERS > 4
+    #if PIN_EXISTS(E4_ENABLE) || AXIS_IS_L64XX(E4) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4))
+      #define HAS_E4_ENABLE 1
+    #endif
+    #if PIN_EXISTS(E4_DIR)
+      #define HAS_E4_DIR 1
+    #endif
+    #if PIN_EXISTS(E4_STEP)
+      #define HAS_E4_STEP 1
+    #endif
+    #if PIN_EXISTS(E4_MS1)
+      #define HAS_E4_MS_PINS 1
+    #endif
+    #if PIN_EXISTS(SOL4)
+      #define HAS_SOLENOID_4 1
+    #endif
   #endif
-  #if PIN_EXISTS(E7_DIR)
-    #define HAS_E7_DIR 1
+
+  #if E_STEPPERS > 5
+    #if PIN_EXISTS(E5_ENABLE) || AXIS_IS_L64XX(E5) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5))
+      #define HAS_E5_ENABLE 1
+    #endif
+    #if PIN_EXISTS(E5_DIR)
+      #define HAS_E5_DIR 1
+    #endif
+    #if PIN_EXISTS(E5_STEP)
+      #define HAS_E5_STEP 1
+    #endif
+    #if PIN_EXISTS(E5_MS1)
+      #define HAS_E5_MS_PINS 1
+    #endif
+    #if PIN_EXISTS(SOL5)
+      #define HAS_SOLENOID_5 1
+    #endif
   #endif
-  #if PIN_EXISTS(E7_STEP)
-    #define HAS_E7_STEP 1
+
+  #if E_STEPPERS > 6
+    #if PIN_EXISTS(E6_ENABLE) || AXIS_IS_L64XX(E6) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E6))
+      #define HAS_E6_ENABLE 1
+    #endif
+    #if PIN_EXISTS(E6_DIR)
+      #define HAS_E6_DIR 1
+    #endif
+    #if PIN_EXISTS(E6_STEP)
+      #define HAS_E6_STEP 1
+    #endif
+    #if PIN_EXISTS(E6_MS1)
+      #define HAS_E6_MS_PINS 1
+    #endif
+    #if PIN_EXISTS(SOL6)
+      #define HAS_SOLENOID_6 1
+    #endif
   #endif
-  #if PIN_EXISTS(E7_MS1)
-    #define HAS_E7_MS_PINS 1
-  #endif
-  #if PIN_EXISTS(SOL7)
-    #define HAS_SOLENOID_7 1
+
+  #if E_STEPPERS > 7
+    #if PIN_EXISTS(E7_ENABLE) || AXIS_IS_L64XX(E7) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E7))
+      #define HAS_E7_ENABLE 1
+    #endif
+    #if PIN_EXISTS(E7_DIR)
+      #define HAS_E7_DIR 1
+    #endif
+    #if PIN_EXISTS(E7_STEP)
+      #define HAS_E7_STEP 1
+    #endif
+    #if PIN_EXISTS(E7_MS1)
+      #define HAS_E7_MS_PINS 1
+    #endif
+    #if PIN_EXISTS(SOL7)
+      #define HAS_SOLENOID_7 1
+    #endif
   #endif
 
 #endif // HAS_EXTRUDERS
@@ -1997,11 +2011,21 @@
   #endif
 #endif
 
-#if (HAS_E_DRIVER(TMC2660) \
-  || ( E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != X_ENABLE_PIN   \
-    && E0_ENABLE_PIN != Y_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN ) )
+#define _ENA_PASS(A,B) (!PINS_EXIST(A##_ENABLE,B##_ENABLE) || A##_ENABLE_PIN != B##_ENABLE_PIN)
+#if (HAS_E_DRIVER(TMC2660) || \
+  (    _ENA_PASS(E0,X) && _ENA_PASS(E0,Y) && _ENA_PASS(E0,Z) \
+    && _ENA_PASS(E1,X) && _ENA_PASS(E1,Y) && _ENA_PASS(E1,Z) \
+    && _ENA_PASS(E2,X) && _ENA_PASS(E2,Y) && _ENA_PASS(E2,Z) \
+    && _ENA_PASS(E3,X) && _ENA_PASS(E3,Y) && _ENA_PASS(E3,Z) \
+    && _ENA_PASS(E4,X) && _ENA_PASS(E4,Y) && _ENA_PASS(E4,Z) \
+    && _ENA_PASS(E5,X) && _ENA_PASS(E5,Y) && _ENA_PASS(E5,Z) \
+    && _ENA_PASS(E6,X) && _ENA_PASS(E6,Y) && _ENA_PASS(E6,Z) \
+    && _ENA_PASS(E7,X) && _ENA_PASS(E7,Y) && _ENA_PASS(E7,Z) \
+  ) \
+)
   #define HAS_E_STEPPER_ENABLE 1
 #endif
+#undef _ENA_PASS
 
 #if ANY_AXIS_HAS(HW_SERIAL)
   #define HAS_TMC_HW_SERIAL 1
