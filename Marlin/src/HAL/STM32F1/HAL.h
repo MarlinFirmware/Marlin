@@ -238,7 +238,11 @@ static inline int freeMemory() {
 void HAL_adc_init();
 
 #define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
+#ifndef ADC_RESOLUTION
+#define HAL_ADC_RESOLUTION 10
+#else
+#define HAL_ADC_RESOLUTION ADC_RESOLUTION
+#endif
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
