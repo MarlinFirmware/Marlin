@@ -437,7 +437,11 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
       case POWER_MONITOR_VOLTAGE_PIN: pin_index = POWERMON_VOLTS; break;
     #endif
   }
+#if (HAL_ADC_RESOLUTION == 10)
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
+#else
+  HAL_adc_result = (HAL_adc_results[(int)pin_index]); // get 12 bits or more
+#endif
 }
 
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
