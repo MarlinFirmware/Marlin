@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V84"
+#define EEPROM_VERSION "V85"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -295,6 +295,10 @@ typedef struct SettingsDataStruct {
           z2_endstop_adj,                               // M666 (S2) Z
           z3_endstop_adj,                               // M666 (S3) Z
           z4_endstop_adj;                               // M666 (S4) Z
+  #endif
+
+  #if IS_SCARA
+    float segments_per_second;                          // M665 S
   #endif
 
   //
@@ -896,6 +900,13 @@ void MarlinSettings::postprocess() {
 
       #endif
     }
+
+    //
+    // SCARA Geometry
+    //
+    #if IS_SCARA
+      EEPROM_WRITE(segments_per_second);
+    #endif
 
     #if ENABLED(Z_STEPPER_AUTO_ALIGN)
       EEPROM_WRITE(z_stepper_align.xy);
@@ -1760,6 +1771,13 @@ void MarlinSettings::postprocess() {
 
         #endif
       }
+
+      //
+      // SCARA Geometry
+      //
+      #if IS_SCARA
+        EEPROM_READ(segments_per_second);
+      #endif
 
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
         EEPROM_READ(z_stepper_align.xy);
@@ -2733,8 +2751,10 @@ void MarlinSettings::reset() {
     segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
     delta_diagonal_rod_trim = ddr;
+  #elif IS_SCARA
+    segments_per_second = SCARA_SEGMENTS_PER_SECOND;
   #endif
-  
+
   #if ENABLED(IS_POLARGRAPH)
     segments_per_second = DELTA_SEGMENTS_PER_SECOND;
   #endif
@@ -3143,7 +3163,7 @@ void MarlinSettings::reset() {
     //
     // Delta / SCARA Kinematics
     //
-    TERN_(IS_KINEMATIC, gcode.M665_report(forReplay));
+    TERN_(HAS_M665_COMMAND, gcode.M665_report(forReplay));
 
     //
     // M666 Endstops Adjustment

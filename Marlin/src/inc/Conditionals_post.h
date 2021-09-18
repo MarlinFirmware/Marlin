@@ -3189,6 +3189,10 @@
   #endif
 #endif
 
+#if EITHER(DELTA, IS_SCARA)
+  #define HAS_M665_COMMAND 1
+#endif
+
 #if HAS_LCD_MENU
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS

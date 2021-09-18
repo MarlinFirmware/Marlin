@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if IS_KINEMATIC
+#if HAS_M665_COMMAND
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -145,4 +145,4 @@
 
 #endif
 
-#endif // IS_KINEMATIC
+#endif // HAS_M665_COMMAND
