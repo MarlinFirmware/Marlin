@@ -409,17 +409,21 @@ void GcodeSuite::G33() {
   const bool probe_at_offset = TERN0(HAS_PROBE_XY_OFFSET, parser.boolval('O')),
                   towers_set = !parser.seen_test('T');
 
+  // needs to be moved to all delta config files
+  #define BED_DIAMETER 220
+  
   float max_dcr = dcr = DELTA_PRINTABLE_RADIUS;
   #if HAS_PROBE_XY_OFFSET
-    // For offset probes the calibration radius is set to a safe but non-optimal value
-    dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
+    // For offset probes the calibration radius is set to a calculated value
     if (probe_at_offset) {
-      // With probe positions both probe and nozzle need to be within the printable area
-      max_dcr = dcr;
+      // with probe positions both probe and nozzle need to be within the printable area
+      max_dcr = dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
     }
-    // else with nozzle positions there is a risk of the probe being outside the bed
-    // but as long the nozzle stays within the printable area there is no risk of
-    // the effector crashing into the towers.
+	else {
+      // else with nozzle positions only the nozzle needs to be within the printable area
+  	  // and the probe needs to be inside the physical bed diameter
+      max_dcr = dcr -= _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y) - BED_DIAMETER / 2 + DELTA_PRINTABLE_RADIUS, 0);
+	}
   #endif
 
   if (parser.seenval('R')) dcr = parser.value_float();
@@ -479,6 +483,7 @@ void GcodeSuite::G33() {
   // Report settings
   PGM_P const checkingac = PSTR("Checking... AC");
   SERIAL_ECHOPGM_P(checkingac);
+  SERIAL_ECHOPGM(" at radius:", dcr);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
   ui.set_status_P(checkingac);
