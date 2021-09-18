@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR 1.4 pin assignments
+ */
+
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME

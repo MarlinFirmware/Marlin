@@ -26,8 +26,6 @@
 
 #include "tft_spi.h"
 
-// TFT_SPI tft;
-
 SPIClass TFT_SPI::SPIx(1);
 
 void TFT_SPI::Init() {
