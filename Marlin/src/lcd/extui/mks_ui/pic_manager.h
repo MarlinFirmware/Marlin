@@ -55,19 +55,19 @@
 #define PIC_MAX_CN           100    // Maximum number of pictures
 #define PIC_NAME_MAX_LEN      50    // Picture name maximum length
 
-#define LOGO_MAX_SIZE_TFT35             (300*1024)
-#define LOGO_MAX_SIZE_TFT32             (150*1024)
-#define TITLELOGO_MAX_SIZE              (150*1024) // Little logo maximum
-#define DEFAULT_VIEW_MAX_SIZE           (200*200*2)
-#define FLASH_VIEW_MAX_SIZE             (200*200*2)
+#define LOGO_MAX_SIZE_TFT35             (300 * 1024)
+#define LOGO_MAX_SIZE_TFT32             (150 * 1024)
+#define TITLELOGO_MAX_SIZE              (150 * 1024) // Little logo maximum
+#define DEFAULT_VIEW_MAX_SIZE           (200 * 200 * 2)
+#define FLASH_VIEW_MAX_SIZE             (200 * 200 * 2)
 
-#define PER_PIC_MAX_SPACE_TFT35         (9*1024)
-#define PER_PIC_MAX_SPACE_TFT32         (16*1024)
-#define PER_FONT_MAX_SPACE              (16*1024)
+#define PER_PIC_MAX_SPACE_TFT35         (9 * 1024)
+#define PER_PIC_MAX_SPACE_TFT32         (16 * 1024)
+#define PER_FONT_MAX_SPACE              (16 * 1024)
 
 #if SPI_FLASH_SIZE == 0x200000
-  //pic
-  //Robin_pro pic addr
+  // pic
+  // Robin_pro pic addr
   #define PIC_NAME_ADDR                 0x001000      // Pic information addr
   #define PIC_SIZE_ADDR                 0x001800      // Pic size information addr
   #define PIC_COUNTER_ADDR              0x002000      // Pic total number
@@ -77,8 +77,8 @@
 
   // TFT35
   #define DEFAULT_VIEW_ADDR_TFT35       0x1EA070
-  #define BAK_VIEW_ADDR_TFT35           (DEFAULT_VIEW_ADDR_TFT35+90*1024)
-  #define PIC_ICON_LOGO_ADDR_TFT35      (BAK_VIEW_ADDR_TFT35+80*1024)
+  #define BAK_VIEW_ADDR_TFT35           (DEFAULT_VIEW_ADDR_TFT35 + 90 * 1024)
+  #define PIC_ICON_LOGO_ADDR_TFT35      (BAK_VIEW_ADDR_TFT35 + 80 * 1024)
   #define PIC_DATA_ADDR_TFT35           0x003000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
 
   #define PIC_DATA_ADDR_TFT32           0x00F000
@@ -87,11 +87,11 @@
 
   // font
   #define FONTINFOADDR                  0x150000 // 6M -- font addr
-  #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
+  #define UNIGBK_FLASH_ADDR            (FONTINFOADDR + 4096) // 4*1024
 
 #else
-  //pic
-  //Robin_pro pic addr
+  // pic
+  // Robin_pro pic addr
   #define PIC_NAME_ADDR                 0x003000      // Pic information addr
   #define PIC_SIZE_ADDR                 0x007000      // Pic size information addr
   #define PIC_COUNTER_ADDR              0x008000      // Pic total number
@@ -99,9 +99,9 @@
 
   // TFT35
   #define DEFAULT_VIEW_ADDR_TFT35       0xC5800
-  #define BAK_VIEW_ADDR_TFT35           (DEFAULT_VIEW_ADDR_TFT35+90*1024)
-  #define PIC_ICON_LOGO_ADDR_TFT35      (BAK_VIEW_ADDR_TFT35+80*1024)
-  #define PIC_DATA_ADDR_TFT35           (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
+  #define BAK_VIEW_ADDR_TFT35           (DEFAULT_VIEW_ADDR_TFT35 + 90 * 1024)
+  #define PIC_ICON_LOGO_ADDR_TFT35      (BAK_VIEW_ADDR_TFT35 + 80 * 1024)
+  #define PIC_DATA_ADDR_TFT35           (PIC_ICON_LOGO_ADDR_TFT35 + 350 * 1024) // 0xC5800
 
   // TFT32
   #define PIC_DATA_ADDR_TFT32           0x02F000
@@ -110,20 +110,20 @@
 
   // font
   #define FONTINFOADDR                  0x600000 // 6M -- font addr
-  #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
-  #define GBK_FLASH_ADDR               (UNIGBK_FLASH_ADDR+180224) // 176*1024
+  #define UNIGBK_FLASH_ADDR            (FONTINFOADDR + 4096) // 4*1024
+  #define GBK_FLASH_ADDR               (UNIGBK_FLASH_ADDR + 180224) // 176*1024
 
 #endif
 
 // Flash flag
-#define REFLSHE_FLGA_ADD                (0x800000-32)
+#define REFLSHE_FLGA_ADD                (0x800000 - 32)
 
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
 #define FLASH_INF_VALID_FLAG            0x20201118
 
-//Store some gcode commands, such as auto leveling commands
-#define GCODE_COMMAND_ADDR              VAR_INF_ADDR + 3*1024
+// Store some gcode commands, such as auto leveling commands
+#define GCODE_COMMAND_ADDR              VAR_INF_ADDR + 3 * 1024
 #define AUTO_LEVELING_COMMAND_ADDR      GCODE_COMMAND_ADDR
 #define OTHERS_COMMAND_ADDR_1           AUTO_LEVELING_COMMAND_ADDR + 100
 #define OTHERS_COMMAND_ADDR_2           OTHERS_COMMAND_ADDR_1 + 100
@@ -155,7 +155,7 @@ typedef struct pic_msg PIC_MSG;
 #define FONT_SIZE_xM  2
 
 void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff);
-void Pic_Logo_Read(uint8_t *LogoName,uint8_t *Logo_Rbuff,uint32_t LogoReadsize);
+void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize);
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);
 uint32_t lv_get_pic_addr(uint8_t *Pname);
 void get_spi_flash_data(const char *rec_buf, int offset, int size);

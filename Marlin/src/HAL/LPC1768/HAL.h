@@ -50,15 +50,9 @@ extern "C" volatile uint32_t _millis;
 //
 // Default graphical display delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(600)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(750)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(750)
-#endif
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
 
 typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
 extern DefaultSerial1 USBSerial;
@@ -113,7 +107,7 @@ extern DefaultSerial1 USBSerial;
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() MSerial0.available()
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
 

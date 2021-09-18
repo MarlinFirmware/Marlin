@@ -45,21 +45,21 @@ void TFT_String::set_font(const uint8_t *font) {
 
   for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = nullptr;
 
-  DEBUG_ECHOLNPAIR("Format: ",            font_header->Format);
-  DEBUG_ECHOLNPAIR("BBXWidth: ",          font_header->BBXWidth);
-  DEBUG_ECHOLNPAIR("BBXHeight: ",         font_header->BBXHeight);
-  DEBUG_ECHOLNPAIR("BBXOffsetX: ",        font_header->BBXOffsetX);
-  DEBUG_ECHOLNPAIR("BBXOffsetY: ",        font_header->BBXOffsetY);
-  DEBUG_ECHOLNPAIR("CapitalAHeight: ",    font_header->CapitalAHeight);
-  DEBUG_ECHOLNPAIR("Encoding65Pos: ",     font_header->Encoding65Pos);
-  DEBUG_ECHOLNPAIR("Encoding97Pos: ",     font_header->Encoding97Pos);
-  DEBUG_ECHOLNPAIR("FontStartEncoding: ", font_header->FontStartEncoding);
-  DEBUG_ECHOLNPAIR("FontEndEncoding: ",   font_header->FontEndEncoding);
-  DEBUG_ECHOLNPAIR("LowerGDescent: ",     font_header->LowerGDescent);
-  DEBUG_ECHOLNPAIR("FontAscent: ",        font_header->FontAscent);
-  DEBUG_ECHOLNPAIR("FontDescent: ",       font_header->FontDescent);
-  DEBUG_ECHOLNPAIR("FontXAscent: ",       font_header->FontXAscent);
-  DEBUG_ECHOLNPAIR("FontXDescent: ",      font_header->FontXDescent);
+  DEBUG_ECHOLNPGM("Format: ",            font_header->Format);
+  DEBUG_ECHOLNPGM("BBXWidth: ",          font_header->BBXWidth);
+  DEBUG_ECHOLNPGM("BBXHeight: ",         font_header->BBXHeight);
+  DEBUG_ECHOLNPGM("BBXOffsetX: ",        font_header->BBXOffsetX);
+  DEBUG_ECHOLNPGM("BBXOffsetY: ",        font_header->BBXOffsetY);
+  DEBUG_ECHOLNPGM("CapitalAHeight: ",    font_header->CapitalAHeight);
+  DEBUG_ECHOLNPGM("Encoding65Pos: ",     font_header->Encoding65Pos);
+  DEBUG_ECHOLNPGM("Encoding97Pos: ",     font_header->Encoding97Pos);
+  DEBUG_ECHOLNPGM("FontStartEncoding: ", font_header->FontStartEncoding);
+  DEBUG_ECHOLNPGM("FontEndEncoding: ",   font_header->FontEndEncoding);
+  DEBUG_ECHOLNPGM("LowerGDescent: ",     font_header->LowerGDescent);
+  DEBUG_ECHOLNPGM("FontAscent: ",        font_header->FontAscent);
+  DEBUG_ECHOLNPGM("FontDescent: ",       font_header->FontDescent);
+  DEBUG_ECHOLNPGM("FontXAscent: ",       font_header->FontXAscent);
+  DEBUG_ECHOLNPGM("FontXDescent: ",      font_header->FontXDescent);
 
   add_glyphs(font);
 }

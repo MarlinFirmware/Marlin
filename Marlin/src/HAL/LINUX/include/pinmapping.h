@@ -55,7 +55,7 @@ constexpr bool VALID_PIN(const pin_t p) { return WITHIN(p, 0, NUM_DIGITAL_PINS);
 // Test whether the pin is PWM
 constexpr bool PWM_PIN(const pin_t p) { return false; }
 
-// Test whether the pin is interruptable
+// Test whether the pin is interruptible
 constexpr bool INTERRUPT_PIN(const pin_t p) { return false; }
 
 // Get the pin number at the given index

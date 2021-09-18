@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -22,15 +25,17 @@
 // Following this pattern is a must.
 // If the new pin name is over 28 characters long then pinsDebug.h will need to be modified.
 
-// Pin lists 1.1.x and 2.0.x synchronized 2018-02-17
+#if TARGET_LPC1768
+  #define ANALOG_OK(PN) ((PN) == P0_02 || (PN) == P0_03 || (PN) == P0_23 || (PN) == P0_24 || (PN) == P0_25 || (PN) == P0_26 || (PN) == P1_30 || (PN) == P1_31)
+#else
+  #define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
+#endif
 
-#line 28 // set __LINE__ to a known value for both passes
+#line 35 // set __LINE__ to a known value for both passes
 
 //
 // Analog Pin Assignments
 //
-
-#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
 
 #if defined(EXT_AUX_A0) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A0)
@@ -291,11 +296,11 @@
 #if PIN_EXISTS(DAC_DISABLE)
   REPORT_NAME_DIGITAL(__LINE__, DAC_DISABLE_PIN)
 #endif
-#if defined(DAC0_SYNC) && DAC0_SYNC >= 0
-  REPORT_NAME_DIGITAL(__LINE__, DAC0_SYNC)
+#if PIN_EXISTS(DAC0_SYNC)
+  REPORT_NAME_DIGITAL(__LINE__, DAC0_SYNC_PIN)
 #endif
-#if defined(DAC1_SYNC) && DAC1_SYNC >= 0
-  REPORT_NAME_DIGITAL(__LINE__, DAC1_SYNC)
+#if PIN_EXISTS(DAC1_SYNC)
+  REPORT_NAME_DIGITAL(__LINE__, DAC1_SYNC_PIN)
 #endif
 #if PIN_EXISTS(DEBUG)
   REPORT_NAME_DIGITAL(__LINE__, DEBUG_PIN)
@@ -974,14 +979,14 @@
 #if defined(SPARE_IO) && SPARE_IO >= 0
   REPORT_NAME_DIGITAL(__LINE__, SPARE_IO)
 #endif
-#if defined(SPI_EEPROM1_CS) && SPI_EEPROM1_CS >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM1_CS)
+#if PIN_EXISTS(SPI_EEPROM1_CS)
+  REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM1_CS_PIN)
 #endif
-#if defined(SPI_EEPROM2_CS) && SPI_EEPROM2_CS >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM2_CS)
+#if PIN_EXISTS(SPI_EEPROM2_CS)
+  REPORT_NAME_DIGITAL(__LINE__, SPI_EEPROM2_CS_PIN)
 #endif
-#if defined(SPI_FLASH_CS) && SPI_FLASH_CS >= 0
-  REPORT_NAME_DIGITAL(__LINE__, SPI_FLASH_CS)
+#if PIN_EXISTS(SPI_FLASH_CS)
+  REPORT_NAME_DIGITAL(__LINE__, SPI_FLASH_CS_PIN)
 #endif
 #if PIN_EXISTS(SPINDLE_DIR)
   REPORT_NAME_DIGITAL(__LINE__, SPINDLE_DIR_PIN)

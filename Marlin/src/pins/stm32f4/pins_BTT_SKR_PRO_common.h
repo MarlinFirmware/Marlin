@@ -204,26 +204,23 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC13
-  #define X_SERIAL_RX_PIN                   PC13
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PE1
-  #define Z_SERIAL_RX_PIN                   PE1
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD4
-  #define E0_SERIAL_RX_PIN                  PD4
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PD1
-  #define E1_SERIAL_RX_PIN                  PD1
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   #define E2_SERIAL_TX_PIN                  PD6
-  #define E2_SERIAL_RX_PIN                  PD6
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -231,25 +228,79 @@
 
 //
 // Temperature Sensors
+// Use ADC pins without pullup for sensors that don't need a pullup.
 //
-#define TEMP_0_PIN                          PF4   // T1 <-> E0
-#define TEMP_1_PIN                          PF5   // T2 <-> E1
-#define TEMP_2_PIN                          PF6   // T3 <-> E2
-#define TEMP_BED_PIN                        PF3   // T0 <-> Bed
+#if TEMP_SENSOR_0_IS_AD8495 || TEMP_SENSOR_0 == 20
+  #define TEMP_0_PIN                        PF8
+#else
+  #define TEMP_0_PIN                        PF4   // T1 <-> E0
+#endif
+#if TEMP_SENSOR_1_IS_AD8495 || TEMP_SENSOR_1 == 20
+  #define TEMP_1_PIN                        PF9
+#else
+  #define TEMP_1_PIN                        PF5   // T2 <-> E1
+#endif
+#if TEMP_SENSOR_2_IS_AD8495 || TEMP_SENSOR_2 == 20
+  #define TEMP_2_PIN                        PF10
+#else
+  #define TEMP_2_PIN                        PF6   // T3 <-> E2
+#endif
+#if TEMP_SENSOR_BED_IS_AD8495 || TEMP_SENSOR_BED == 20
+  #define TEMP_BED_PIN                      PF7
+#else
+  #define TEMP_BED_PIN                      PF3   // T0 <-> Bed
+#endif
+
+#if TEMP_SENSOR_PROBE && !defined(TEMP_PROBE_PIN)
+  #if TEMP_SENSOR_PROBE_IS_AD8495 || TEMP_SENSOR_PROBE == 20
+    #if HOTENDS == 2
+      #define TEMP_PROBE_PIN                PF10
+    #elif HOTENDS < 2
+      #define TEMP_PROBE_PIN                PF9
+    #endif
+  #else
+    #if HOTENDS == 2
+      #define TEMP_PROBE_PIN          TEMP_2_PIN
+    #elif HOTENDS < 2
+      #define TEMP_PROBE_PIN          TEMP_1_PIN
+    #endif
+  #endif
+#endif
+
+#if TEMP_SENSOR_CHAMBER && !defined(TEMP_CHAMBER_PIN)
+  #if TEMP_SENSOR_CHAMBER_IS_AD8495 || TEMP_SENSOR_CHAMBER == 20
+    #define TEMP_CHAMBER_PIN                PF10
+  #else
+    #define TEMP_CHAMBER_PIN          TEMP_2_PIN
+  #endif
+#endif
 
 //
-// Heaters / Fans
+// Heaters
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+#if TEMP_SENSOR_CHAMBER && HOTENDS < 3
+  #define HEATER_CHAMBER_PIN                PB0   // Heater2
+#else
+  #define HEATER_2_PIN                      PB0   // Heater2
+#endif
 #define HEATER_BED_PIN                      PD12  // Hotbed
+
+//
+// Fans
+//
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
-#define FAN2_PIN                            PE6   // Fan2
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
+#endif
+
+#if !defined(CONTROLLER_FAN_PIN) && ENABLED(USE_CONTROLLER_FAN) && HOTENDS < 2
+  #define CONTROLLER_FAN_PIN                PE6   // Fan2
+#else
+  #define FAN2_PIN                          PE6   // Fan2
 #endif
 
 //
@@ -260,17 +311,15 @@
   #define SDCARD_CONNECTION                  LCD
 #endif
 
-/**
- *               -----                                             -----
- *           NC | 1 2 | GND                                    5V | 1 2 | GND
- *        RESET | 3 4 | PF12(SD_DETECT)             (LCD_D7)  PG7 | 3 4 | PG6  (LCD_D6)
- *   (MOSI)PB15 | 5 6   PF11(BTN_EN2)               (LCD_D5)  PG3 | 5 6   PG2  (LCD_D4)
- *  (SD_SS)PB12 | 7 8 | PG10(BTN_EN1)               (LCD_RS) PD10 | 7 8 | PD11 (LCD_EN)
- *    (SCK)PB13 | 9 10| PB14(MISO)                 (BTN_ENC)  PA8 | 9 10| PG4  (BEEPER)
- *               -----                                             -----
- *               EXP2                                              EXP1
+/**               ------                                      ------
+ * (BEEPER) PG4  |10  9 | PA8  (BTN_ENC)         (MISO) PB14 |10  9 | PB13 (SCK)
+ * (LCD_EN) PD11 | 8  7 | PD10 (LCD_RS)       (BTN_EN1) PG10 | 8  7 | PB12 (SD_SS)
+ * (LCD_D4) PG2    6  5 | PG3  (LCD_D5)       (BTN_EN2) PF11   6  5 | PB15 (MOSI)
+ * (LCD_D6) PG6  | 4  3 | PG7  (LCD_D7)     (SD_DETECT) PF12 | 4  3 | RESET
+ *          GND  | 2  1 | 5V                            GND  | 2  1 | NC
+ *                ------                                      ------
+ *                 EXP1                                        EXP2
  */
-
 #define EXP1_03_PIN                         PG7
 #define EXP1_04_PIN                         PG6
 #define EXP1_05_PIN                         PG3
@@ -316,7 +365,7 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**       _____                        _____
+  /**       -----                        -----
    *    NC | . . | GND               NC | . . | GND
    *    NC | . . | M1EN            M2EN | . . | M3EN
    * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
@@ -397,11 +446,6 @@
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
-
   #elif ENABLED(MKS_MINI_12864)
 
     #define DOGLCD_A0                EXP1_04_PIN
@@ -455,15 +499,15 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
+#if ENABLED(U8GLIB_ST7920)
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1    DELAY_NS(125)
+    #define BOARD_ST7920_DELAY_1             125
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(90)
+    #define BOARD_ST7920_DELAY_2              90
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 #endif
 

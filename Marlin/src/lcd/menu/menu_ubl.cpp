@@ -192,9 +192,7 @@ void _lcd_ubl_edit_mesh() {
     char ubl_lcd_gcode[20];
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_HEATED_BED, "B%" PRIi16))
       , custom_hotend_temp
-      #if HAS_HEATED_BED
-        , custom_bed_temp
-      #endif
+      OPTARG(HAS_HEATED_BED, custom_bed_temp)
     );
     queue.inject(ubl_lcd_gcode);
   }
@@ -668,6 +666,10 @@ void _lcd_ubl_level_bed() {
     GCODES_ITEM(MSG_UBL_DEACTIVATE_MESH, PSTR("G29D"));
   else
     GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, PSTR("G29A"));
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    editable.decimal = planner.z_fade_height;
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
+  #endif
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   #endif
@@ -679,10 +681,6 @@ void _lcd_ubl_level_bed() {
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29W"));
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
-  #endif
   END_MENU();
 }
 

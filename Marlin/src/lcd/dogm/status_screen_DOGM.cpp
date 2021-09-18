@@ -264,29 +264,33 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       #define HOTEND_BITMAP(N,S) status_hotend_a_bmp
     #endif
 
-    if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
+    #if DISABLED(STATUS_COMBINE_HEATERS)
 
-      #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
+      if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
-      const float prop = target - 20,
-                  perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
-      uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
-      NOMORE(tall, BAR_TALL);
+        #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
 
-      // Draw hotend bitmap, either whole or split by the heating percent
-      const uint8_t hx = STATUS_HOTEND_X(heater_id),
-                    bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
-      #if ENABLED(STATUS_HEAT_PERCENT)
-        if (isHeat && tall <= BAR_TALL) {
-          const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
-          u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), false));
-          u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), true) + ph * bw);
-        }
-        else
-      #endif
-          u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
+        const float prop = target - 20,
+                    perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
+        uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
+        NOMORE(tall, BAR_TALL);
 
-    } // PAGE_CONTAINS
+        // Draw hotend bitmap, either whole or split by the heating percent
+        const uint8_t hx = STATUS_HOTEND_X(heater_id),
+                      bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
+        #if ENABLED(STATUS_HEAT_PERCENT)
+          if (isHeat && tall <= BAR_TALL) {
+            const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), false));
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), true) + ph * bw);
+          }
+          else
+        #endif
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
+
+      } // PAGE_CONTAINS
+
+    #endif // !STATUS_COMBINE_HEATERS
 
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER
@@ -452,13 +456,13 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if HAS_PRINT_PROGRESS
-    #if DISABLED(DOGM_SD_PERCENT)
+    #if DISABLED(SHOW_SD_PERCENT)
       #define _SD_INFO_X(len) (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH) / 2 - (len) * (MENU_FONT_WIDTH) / 2)
     #else
       #define _SD_INFO_X(len) (LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH))
     #endif
 
-    #if ENABLED(DOGM_SD_PERCENT)
+    #if ENABLED(SHOW_SD_PERCENT)
       static char progress_string[5];
     #endif
     static uint8_t lastElapsed = 0xFF, lastProgress = 0xFF;
@@ -467,7 +471,7 @@ void MarlinUI::draw_status_screen() {
     #if ENABLED(SHOW_REMAINING_TIME)
       static u8g_uint_t estimation_x_pos = 0;
       static char estimation_string[10];
-      #if BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
+      #if BOTH(SHOW_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
         static u8g_uint_t progress_x_pos = 0;
         static uint8_t progress_state = 0;
         static bool prev_blink = 0;
@@ -522,7 +526,7 @@ void MarlinUI::draw_status_screen() {
 
         progress_bar_solid_width = u8g_uint_t((PROGRESS_BAR_WIDTH - 2) * (progress / (PROGRESS_SCALE)) * 0.01f);
 
-        #if ENABLED(DOGM_SD_PERCENT)
+        #if ENABLED(SHOW_SD_PERCENT)
           if (progress == 0) {
             progress_string[0] = '\0';
             #if ENABLED(SHOW_REMAINING_TIME)
@@ -539,7 +543,7 @@ void MarlinUI::draw_status_screen() {
         #endif
       }
 
-      constexpr bool can_show_days = DISABLED(DOGM_SD_PERCENT) || ENABLED(ROTATE_PROGRESS_DISPLAY);
+      constexpr bool can_show_days = DISABLED(SHOW_SD_PERCENT) || ENABLED(ROTATE_PROGRESS_DISPLAY);
       if (ev != lastElapsed) {
         lastElapsed = ev;
         const uint8_t len = elapsed.toDigital(elapsed_string, can_show_days && elapsed.value >= 60*60*24L);
@@ -560,11 +564,7 @@ void MarlinUI::draw_status_screen() {
             else {
               duration_t estimation = timeval;
               const uint8_t len = estimation.toDigital(estimation_string, can_show_days && estimation.value >= 60*60*24L);
-              estimation_x_pos = _SD_INFO_X(len
-                #if !BOTH(DOGM_SD_PERCENT, ROTATE_PROGRESS_DISPLAY)
-                  + 1
-                #endif
-              );
+              estimation_x_pos = _SD_INFO_X(len + !BOTH(SHOW_SD_PERCENT, ROTATE_PROGRESS_DISPLAY));
             }
           }
         #endif
@@ -763,7 +763,7 @@ void MarlinUI::draw_status_screen() {
 
     if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
 
-      #if ALL(DOGM_SD_PERCENT, SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY)
+      #if ALL(SHOW_SD_PERCENT, SHOW_REMAINING_TIME, ROTATE_PROGRESS_DISPLAY)
 
         if (prev_blink != blink) {
           prev_blink = blink;
@@ -785,13 +785,13 @@ void MarlinUI::draw_status_screen() {
           lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
         }
 
-      #else // !DOGM_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
+      #else // !SHOW_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
 
         //
         // SD Percent Complete
         //
 
-        #if ENABLED(DOGM_SD_PERCENT)
+        #if ENABLED(SHOW_SD_PERCENT)
           if (progress_string[0]) {
             lcd_put_u8str(55, EXTRAS_BASELINE, progress_string); // Percent complete
             lcd_put_wchar('%');
@@ -811,7 +811,7 @@ void MarlinUI::draw_status_screen() {
         #endif
             lcd_put_u8str(elapsed_x_pos, EXTRAS_BASELINE, elapsed_string);
 
-      #endif // !DOGM_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
+      #endif // !SHOW_SD_PERCENT || !SHOW_REMAINING_TIME || !ROTATE_PROGRESS_DISPLAY
     }
 
   #endif // HAS_PRINT_PROGRESS

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -42,7 +43,7 @@
 #include "mks_hardware.h"
 #include <stdio.h>
 
-#define ICON_POS_Y          38
+#define ICON_POS_Y          260
 #define TARGET_LABEL_MOD_Y -36
 #define LABEL_MOD_Y         30
 
@@ -61,7 +62,7 @@ static lv_obj_t *buttonExt1, *labelExt1, *buttonFanstate, *labelFan;
 #endif
 
 #if ENABLED(MKS_TEST)
-  uint8_t curent_disp_ui = 0;
+  uint8_t current_disp_ui = 0;
 #endif
 
 enum { ID_TOOL = 1, ID_SET, ID_PRINT, ID_INFO_EXT, ID_INFO_BED, ID_INFO_FAN };
@@ -106,8 +107,10 @@ void disp_det_error() {
 lv_obj_t *e1, *e2, *e3, *bed;
 void mks_disp_test() {
   char buf[30] = {0};
-  sprintf_P(buf, PSTR("e1:%d"), thermalManager.wholeDegHotend(0));
-  lv_label_set_text(e1, buf);
+  #if HAS_HOTEND
+    sprintf_P(buf, PSTR("e1:%d"), thermalManager.wholeDegHotend(0));
+    lv_label_set_text(e1, buf);
+  #endif
   #if HAS_MULTI_HOTEND
     sprintf_P(buf, PSTR("e2:%d"), thermalManager.wholeDegHotend(1));
     lv_label_set_text(e2, buf);
@@ -126,7 +129,7 @@ void lv_draw_ready_print() {
   ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(PRINT_READY_UI, "");
 
-  if (TERN0(SDSUPPORT, mks_test_flag == 0x1E)) {
+  if (mks_test_flag == 0x1E) {
     // Create image buttons
     buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", event_handler, ID_TOOL);
 
@@ -147,7 +150,7 @@ void lv_draw_ready_print() {
     #if HAS_MULTI_HOTEND
       e2 = lv_label_create_empty(scr);
       lv_obj_set_pos(e2, 20, 45);
-      sprintf_P(buf, PSTR("e1:  %d"), thermalManager.wholeDegHotend(1));
+      sprintf_P(buf, PSTR("e2:  %d"), thermalManager.wholeDegHotend(1));
       lv_label_set_text(e2, buf);
     #endif
     #if HAS_HEATED_BED
@@ -180,16 +183,16 @@ void lv_draw_ready_print() {
     lv_label_set_text(det_info, " ");
   }
   else {
-    lv_big_button_create(scr, "F:/bmp_tool.bin", main_menu.tool, 20, 150, event_handler, ID_TOOL);
-    lv_big_button_create(scr, "F:/bmp_set.bin", main_menu.set, 180, 150, event_handler, ID_SET);
-    lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 150, event_handler, ID_PRINT);
+    lv_big_button_create(scr, "F:/bmp_tool.bin", main_menu.tool, 20, 90, event_handler, ID_TOOL);
+    lv_big_button_create(scr, "F:/bmp_set.bin", main_menu.set, 180, 90, event_handler, ID_SET);
+    lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 90, event_handler, ID_PRINT);
 
     // Monitoring
     #if HAS_HOTEND
-      buttonExt1 = lv_big_button_create(scr, "F:/bmp_ext1_state.bin", " ", 55, ICON_POS_Y, event_handler, ID_INFO_EXT);
+      buttonExt1 = lv_big_button_create(scr, "F:/bmp_ext1_state.bin", " ", 20, ICON_POS_Y, event_handler, ID_INFO_EXT);
     #endif
     #if HAS_MULTI_HOTEND
-      buttonExt2 = lv_big_button_create(scr, "F:/bmp_ext2_state.bin", " ", 163, ICON_POS_Y, event_handler, ID_INFO_EXT);
+      buttonExt2 = lv_big_button_create(scr, "F:/bmp_ext2_state.bin", " ", 180, ICON_POS_Y, event_handler, ID_INFO_EXT);
     #endif
     #if HAS_HEATED_BED
       buttonBedstate = lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", TERN(HAS_MULTI_HOTEND, 271, 210), ICON_POS_Y, event_handler, ID_INFO_BED);
@@ -216,22 +219,22 @@ void lv_temp_refr() {
   #if HAS_HOTEND
     sprintf(public_buf_l, printing_menu.temp1, thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0));
     lv_label_set_text(labelExt1, public_buf_l);
-    lv_obj_align(labelExt1, buttonExt1, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_align(labelExt1, buttonExt1, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
   #endif
   #if HAS_MULTI_HOTEND
     sprintf(public_buf_l, printing_menu.temp1, thermalManager.wholeDegHotend(1), thermalManager.degTargetHotend(1));
     lv_label_set_text(labelExt2, public_buf_l);
-    lv_obj_align(labelExt2, buttonExt2, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_align(labelExt2, buttonExt2, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
   #endif
   #if HAS_HEATED_BED
     sprintf(public_buf_l, printing_menu.bed_temp, thermalManager.wholeDegBed(), thermalManager.degTargetBed());
     lv_label_set_text(labelBed, public_buf_l);
-    lv_obj_align(labelBed, buttonBedstate, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_align(labelBed, buttonBedstate, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
   #endif
   #if HAS_FAN
     sprintf_P(public_buf_l, PSTR("%d%%"), (int)thermalManager.fanSpeedPercent(0));
     lv_label_set_text(labelFan, public_buf_l);
-    lv_obj_align(labelFan, buttonFanstate, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_align(labelFan, buttonFanstate, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
   #endif
 }
 

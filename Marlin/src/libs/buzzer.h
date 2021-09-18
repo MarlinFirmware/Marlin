@@ -56,7 +56,7 @@
       static CircularQueue<tone_t, TONE_QUEUE_LENGTH> buffer;
 
       /**
-       * @brief Inverts the sate of a digital PIN
+       * @brief Inverts the state of a digital PIN
        * @details This will invert the current state of an digital IO pin.
        */
       FORCE_INLINE static void invert() { TOGGLE(BEEPER_PIN); }

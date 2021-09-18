@@ -1388,9 +1388,7 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  #if HAS_TAIL_FAN_SPEED
-    sync_fan_speeds(tail_fan_speed);
-  #endif
+  TERN_(HAS_TAIL_FAN_SPEED, sync_fan_speeds(tail_fan_speed));
 
   TERN_(AUTOTEMP, autotemp_task());
 
@@ -1585,11 +1583,7 @@ void Planner::check_axes_activity() {
 
       raw.z += (
         #if ENABLED(MESH_BED_LEVELING)
-          mbl.get_z(raw
-            #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-              , fade_scaling_factor
-            #endif
-          )
+          mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
         #elif ENABLED(AUTO_BED_LEVELING_UBL)
           fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -1622,11 +1616,7 @@ void Planner::check_axes_activity() {
 
         raw.z -= (
           #if ENABLED(MESH_BED_LEVELING)
-            mbl.get_z(raw
-              #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-                , fade_scaling_factor
-              #endif
-            )
+            mbl.get_z(raw OPTARG(ENABLE_LEVELING_FADE_HEIGHT, fade_scaling_factor))
           #elif ENABLED(AUTO_BED_LEVELING_UBL)
             fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw) : 0.0
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -1811,12 +1801,8 @@ bool Planner::_buffer_steps(const xyze_long_t &target
 
   // Fill the block with the specified movement
   if (!_populate_block(block, false, target
-    #if HAS_POSITION_FLOAT
-      , target_float
-    #endif
-    #if HAS_DIST_MM_ARG
-      , cart_dist_mm
-    #endif
+    OPTARG(HAS_POSITION_FLOAT, target_float)
+    OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
     , fr_mm_s, extruder, millimeters
   )) {
     // Movement was not queued, probably because it was too short.
@@ -1872,11 +1858,20 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   );
 
   /* <-- add a slash to enable
-    SERIAL_ECHOLNPAIR(
+    SERIAL_ECHOLNPGM(
       "  _populate_block FR:", fr_mm_s,
       " A:", target.a, " (", da, " steps)"
       " B:", target.b, " (", db, " steps)"
       " C:", target.c, " (", dc, " steps)"
+      #if LINEAR_AXES >= 4
+        " " AXIS4_STR ":", target.i, " (", di, " steps)"
+      #endif
+      #if LINEAR_AXES >= 5
+        " " AXIS5_STR ":", target.j, " (", dj, " steps)"
+      #endif
+      #if LINEAR_AXES >= 6
+        " " AXIS6_STR ":", target.k, " (", dk, " steps)"
+      #endif
       #if HAS_EXTRUDERS
         " E:", target.e, " (", de, " steps)"
       #endif
@@ -1953,9 +1948,20 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (dk < 0) SBI(dm, K_AXIS)
     );
   #endif
-  #if HAS_EXTRUDERS
-    if (de < 0) SBI(dm, E_AXIS);
+
+  #if IS_CORE
+    #if LINEAR_AXES >= 4
+      if (di < 0) SBI(dm, I_AXIS);
+    #endif
+    #if LINEAR_AXES >= 5
+      if (dj < 0) SBI(dm, J_AXIS);
+    #endif
+    #if LINEAR_AXES >= 6
+      if (dk < 0) SBI(dm, K_AXIS);
+    #endif
   #endif
+
+  TERN_(HAS_EXTRUDERS, if (de < 0) SBI(dm, E_AXIS));
 
   #if HAS_EXTRUDERS
     const float esteps_float = de * e_factor[extruder];
@@ -1980,15 +1986,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Number of steps for each axis
   // See https://www.corexy.com/theory.html
   #if CORE_IS_XY
-    block->steps.set(ABS(da + db), ABS(da - db), ABS(dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(da - db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #elif CORE_IS_XZ
-    block->steps.set(ABS(da + dc), ABS(db), ABS(da - dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + dc), ABS(db), ABS(da - dc), ABS(di), ABS(dj), ABS(dk)));
   #elif CORE_IS_YZ
-    block->steps.set(ABS(da), ABS(db + dc), ABS(db - dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db + dc), ABS(db - dc), ABS(di), ABS(dj), ABS(dk)));
   #elif ENABLED(MARKFORGED_XY)
-    block->steps.set(ABS(da + db), ABS(db), ABS(dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #elif IS_SCARA
-    block->steps.set(ABS(da), ABS(db), ABS(dc));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #else
     // default non-h-bot planning
     block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
@@ -2004,7 +2010,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
    */
   struct DistanceMM : abce_float_t {
     #if EITHER(IS_CORE, MARKFORGED_XY)
-      xyz_pos_t head;
+      struct { float x, y, z; } head;
     #endif
   } steps_dist_mm;
   #if IS_CORE
@@ -2027,6 +2033,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       steps_dist_mm.b      = (db + dc) * steps_to_mm[B_AXIS];
       steps_dist_mm.c      = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
     #endif
+    #if LINEAR_AXES >= 4
+      steps_dist_mm.i = di * steps_to_mm[I_AXIS];
+    #endif
+    #if LINEAR_AXES >= 5
+      steps_dist_mm.j = dj * steps_to_mm[J_AXIS];
+    #endif
+    #if LINEAR_AXES >= 6
+      steps_dist_mm.k = dk * steps_to_mm[K_AXIS];
+    #endif
   #elif ENABLED(MARKFORGED_XY)
     steps_dist_mm.head.x = da * steps_to_mm[A_AXIS];
     steps_dist_mm.head.y = db * steps_to_mm[B_AXIS];
@@ -2044,9 +2059,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     );
   #endif
 
-  #if HAS_EXTRUDERS
-    steps_dist_mm.e = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
-  #endif
+  TERN_(HAS_EXTRUDERS, steps_dist_mm.e = esteps_float * steps_to_mm[E_AXIS_N(extruder)]);
 
   TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += steps_dist_mm.e);
 
@@ -2118,7 +2131,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color))
+  TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
 
   TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
@@ -2131,9 +2144,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
-  #if HAS_MULTI_EXTRUDER
-    block->extruder = extruder;
-  #endif
+  TERN_(HAS_MULTI_EXTRUDER, block->extruder = extruder);
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (LINEAR_AXIS_GANG(
@@ -2176,6 +2187,17 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (block->steps.j) ENABLE_AXIS_J(),
       if (block->steps.k) ENABLE_AXIS_K()
     );
+  #endif
+  #if EITHER(IS_CORE, MARKFORGED_XY)
+    #if LINEAR_AXES >= 4
+      if (block->steps.i) ENABLE_AXIS_I();
+    #endif
+    #if LINEAR_AXES >= 5
+      if (block->steps.j) ENABLE_AXIS_J();
+    #endif
+    #if LINEAR_AXES >= 6
+      if (block->steps.k) ENABLE_AXIS_K();
+    #endif
   #endif
 
   // Enable extruder(s)
@@ -2309,10 +2331,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           if (max_vfr > 0 && cs > max_vfr) {
             NOMORE(speed_factor, max_vfr / cs); // respect volumetric extruder limit (if any)
             /* <-- add a slash to enable
-            SERIAL_ECHOPAIR("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
-            SERIAL_ECHOPAIR(" mm^3/s (", cs);
-            SERIAL_ECHOPAIR(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
-            SERIAL_ECHOPAIR(" mm^3/s (", max_vfr);
+            SERIAL_ECHOPGM("volumetric extruder limit enforced: ", (cs * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPGM(" mm^3/s (", cs);
+            SERIAL_ECHOPGM(" mm/s) limited to ", (max_vfr * CIRCLE_AREA(filament_size[extruder] * 0.5f)));
+            SERIAL_ECHOPGM(" mm^3/s (", max_vfr);
             SERIAL_ECHOLNPGM(" mm/s)");
             //*/
           }
@@ -2684,7 +2706,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #ifndef TRAVEL_EXTRA_XYJERK
       #define TRAVEL_EXTRA_XYJERK 0
     #endif
-    const float extra_xyjerk = (de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
+    const float extra_xyjerk = TERN0(HAS_EXTRUDERS, de <= 0) ? TRAVEL_EXTRA_XYJERK : 0;
 
     uint8_t limited = 0;
     TERN(HAS_LINEAR_E_JERK, LOOP_LINEAR_AXES, LOOP_LOGICAL_AXES)(i) {
@@ -2899,44 +2921,44 @@ bool Planner::buffer_segment(const abce_pos_t &abce
   #endif
 
   /* <-- add a slash to enable
-    SERIAL_ECHOPAIR("  buffer_segment FR:", fr_mm_s);
+    SERIAL_ECHOPGM("  buffer_segment FR:", fr_mm_s);
     #if IS_KINEMATIC
-      SERIAL_ECHOPAIR(" A:", abce.a, " (", position.a, "->", target.a, ") B:", abce.b);
+      SERIAL_ECHOPGM(" A:", abce.a, " (", position.a, "->", target.a, ") B:", abce.b);
     #else
-      SERIAL_ECHOPAIR_P(SP_X_LBL, abce.a);
-      SERIAL_ECHOPAIR(" (", position.x, "->", target.x);
+      SERIAL_ECHOPGM_P(SP_X_LBL, abce.a);
+      SERIAL_ECHOPGM(" (", position.x, "->", target.x);
       SERIAL_CHAR(')');
-      SERIAL_ECHOPAIR_P(SP_Y_LBL, abce.b);
+      SERIAL_ECHOPGM_P(SP_Y_LBL, abce.b);
     #endif
-    SERIAL_ECHOPAIR(" (", position.y, "->", target.y);
+    SERIAL_ECHOPGM(" (", position.y, "->", target.y);
     #if LINEAR_AXES >= ABC
       #if ENABLED(DELTA)
-        SERIAL_ECHOPAIR(") C:", abce.c);
+        SERIAL_ECHOPGM(") C:", abce.c);
       #else
         SERIAL_CHAR(')');
-        SERIAL_ECHOPAIR_P(SP_Z_LBL, abce.c);
+        SERIAL_ECHOPGM_P(SP_Z_LBL, abce.c);
       #endif
-      SERIAL_ECHOPAIR(" (", position.z, "->", target.z);
+      SERIAL_ECHOPGM(" (", position.z, "->", target.z);
       SERIAL_CHAR(')');
     #endif
     #if LINEAR_AXES >= 4
-      SERIAL_ECHOPAIR_P(SP_I_LBL, abce.i);
-      SERIAL_ECHOPAIR(" (", position.i, "->", target.i);
+      SERIAL_ECHOPGM_P(SP_I_LBL, abce.i);
+      SERIAL_ECHOPGM(" (", position.i, "->", target.i);
       SERIAL_CHAR(')');
     #endif
     #if LINEAR_AXES >= 5
-      SERIAL_ECHOPAIR_P(SP_J_LBL, abce.j);
-      SERIAL_ECHOPAIR(" (", position.j, "->", target.j);
+      SERIAL_ECHOPGM_P(SP_J_LBL, abce.j);
+      SERIAL_ECHOPGM(" (", position.j, "->", target.j);
       SERIAL_CHAR(')');
     #endif
     #if LINEAR_AXES >= 6
-      SERIAL_ECHOPAIR_P(SP_K_LBL, abce.k);
-      SERIAL_ECHOPAIR(" (", position.k, "->", target.k);
+      SERIAL_ECHOPGM_P(SP_K_LBL, abce.k);
+      SERIAL_ECHOPGM(" (", position.k, "->", target.k);
       SERIAL_CHAR(')');
     #endif
     #if HAS_EXTRUDERS
-      SERIAL_ECHOPAIR_P(SP_E_LBL, abce.e);
-      SERIAL_ECHOLNPAIR(" (", position.e, "->", target.e, ")");
+      SERIAL_ECHOPGM_P(SP_E_LBL, abce.e);
+      SERIAL_ECHOLNPGM(" (", position.e, "->", target.e, ")");
     #else
       SERIAL_EOL();
     #endif
@@ -2944,12 +2966,8 @@ bool Planner::buffer_segment(const abce_pos_t &abce
 
   // Queue the movement. Return 'false' if the move was not queued.
   if (!_buffer_steps(target
-      #if HAS_POSITION_FLOAT
-        , target_float
-      #endif
-      #if HAS_DIST_MM_ARG
-        , cart_dist_mm
-      #endif
+      OPTARG(HAS_POSITION_FLOAT, target_float)
+      OPTARG(HAS_DIST_MM_ARG, cart_dist_mm)
       , fr_mm_s, extruder, millimeters)
   ) return false;
 
@@ -3168,7 +3186,7 @@ inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_n
     SERIAL_CHAR(AXIS_CHAR(lim_axis));
     SERIAL_ECHOPGM(" Max ");
     SERIAL_ECHOPGM_P(setting_name);
-    SERIAL_ECHOLNPAIR(" limited to ", val);
+    SERIAL_ECHOLNPGM(" limited to ", val);
   }
 }
 

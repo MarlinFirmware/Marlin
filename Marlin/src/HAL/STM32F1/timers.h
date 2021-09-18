@@ -166,7 +166,7 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
   case STEP_TIMER_NUM:
     // NOTE: WE have set ARPE = 0, which means the Auto reload register is not preloaded
     // and there is no need to use any compare, as in the timer mode used, setting ARR to the compare value
-    // will result in exactly the same effect, ie trigerring an interrupt, and on top, set counter to 0
+    // will result in exactly the same effect, ie triggering an interrupt, and on top, set counter to 0
     timer_set_reload(STEP_TIMER_DEV, compare); // We reload direct ARR as needed during counting up
     break;
   case TEMP_TIMER_NUM:

@@ -179,6 +179,8 @@ bool printer_busy() {
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
 
+    TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
+
     TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
     TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
@@ -283,6 +285,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if HAS_BUZZER
   void MarlinUI::completion_feedback(const bool good/*=true*/) {
+    TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
     if (good) {
       BUZZ(100, 659);
       BUZZ(100, 698);

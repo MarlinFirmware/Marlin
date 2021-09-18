@@ -227,6 +227,7 @@
  * M913: Set HYBRID_THRESHOLD speed.
  */
 #if ENABLED(HYBRID_THRESHOLD)
+
   void GcodeSuite::M913() {
     #define TMC_SAY_PWMTHRS(A,Q) tmc_print_pwmthrs(stepper##Q)
     #define TMC_SET_PWMTHRS(A,Q) stepper##Q.set_pwm_thrs(value)
@@ -308,12 +309,109 @@
       TERN_(E7_HAS_STEALTHCHOP, TMC_SAY_PWMTHRS_E(7));
     }
   }
+
+  void GcodeSuite::M913_report(const bool forReplay/*=true*/) {
+    report_heading(forReplay, PSTR(STR_HYBRID_THRESHOLD));
+
+    auto say_M913 = [](const bool forReplay) {
+      report_echo_start(forReplay);
+      SERIAL_ECHOPGM("  M913");
+    };
+
+    #if X_HAS_STEALTHCHOP || Y_HAS_STEALTHCHOP || Z_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      #if X_HAS_STEALTHCHOP
+        SERIAL_ECHOPGM_P(SP_X_STR, stepperX.get_pwm_thrs());
+      #endif
+      #if Y_HAS_STEALTHCHOP
+        SERIAL_ECHOPGM_P(SP_Y_STR, stepperY.get_pwm_thrs());
+      #endif
+      #if Z_HAS_STEALTHCHOP
+        SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ.get_pwm_thrs());
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    #if X2_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOPGM(" I1");
+      #if X2_HAS_STEALTHCHOP
+        SERIAL_ECHOPGM_P(SP_X_STR, stepperX2.get_pwm_thrs());
+      #endif
+      #if Y2_HAS_STEALTHCHOP
+        SERIAL_ECHOPGM_P(SP_Y_STR, stepperY2.get_pwm_thrs());
+      #endif
+      #if Z2_HAS_STEALTHCHOP
+        SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ2.get_pwm_thrs());
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    #if Z3_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" I2 Z", stepperZ3.get_pwm_thrs());
+    #endif
+
+    #if Z4_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" I3 Z", stepperZ4.get_pwm_thrs());
+    #endif
+
+    #if I_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_I_STR, stepperI.get_pwm_thrs());
+    #endif
+    #if J_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_J_STR, stepperJ.get_pwm_thrs());
+    #endif
+    #if K_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.get_pwm_thrs());
+    #endif
+
+    #if E0_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T0 E", stepperE0.get_pwm_thrs());
+    #endif
+    #if E1_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T1 E", stepperE1.get_pwm_thrs());
+    #endif
+    #if E2_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T2 E", stepperE2.get_pwm_thrs());
+    #endif
+    #if E3_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T3 E", stepperE3.get_pwm_thrs());
+    #endif
+    #if E4_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T4 E", stepperE4.get_pwm_thrs());
+    #endif
+    #if E5_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T5 E", stepperE5.get_pwm_thrs());
+    #endif
+    #if E6_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T6 E", stepperE6.get_pwm_thrs());
+    #endif
+    #if E7_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM(" T7 E", stepperE7.get_pwm_thrs());
+    #endif
+    SERIAL_EOL();
+  }
+
 #endif // HYBRID_THRESHOLD
 
 /**
  * M914: Set StallGuard sensitivity.
  */
 #if USE_SENSORLESS
+
   void GcodeSuite::M914() {
 
     bool report = true;
@@ -412,6 +510,68 @@
       #endif
     }
   }
+
+  void GcodeSuite::M914_report(const bool forReplay/*=true*/) {
+    report_heading(forReplay, PSTR(STR_STALLGUARD_THRESHOLD));
+
+    auto say_M914 = [](const bool forReplay) {
+      report_echo_start(forReplay);
+      SERIAL_ECHOPGM("  M914");
+    };
+
+    #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+      say_M914(forReplay);
+      #if X_SENSORLESS
+        SERIAL_ECHOPGM_P(SP_X_STR, stepperX.homing_threshold());
+      #endif
+      #if Y_SENSORLESS
+        SERIAL_ECHOPGM_P(SP_Y_STR, stepperY.homing_threshold());
+      #endif
+      #if Z_SENSORLESS
+        SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ.homing_threshold());
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOPGM(" I1");
+      #if X2_SENSORLESS
+        SERIAL_ECHOPGM_P(SP_X_STR, stepperX2.homing_threshold());
+      #endif
+      #if Y2_SENSORLESS
+        SERIAL_ECHOPGM_P(SP_Y_STR, stepperY2.homing_threshold());
+      #endif
+      #if Z2_SENSORLESS
+        SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ2.homing_threshold());
+      #endif
+      SERIAL_EOL();
+    #endif
+
+    #if Z3_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM(" I2 Z", stepperZ3.homing_threshold());
+    #endif
+
+    #if Z4_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM(" I3 Z", stepperZ4.homing_threshold());
+    #endif
+
+    #if I_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_I_STR, stepperI.homing_threshold());
+    #endif
+    #if J_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_J_STR, stepperJ.homing_threshold());
+    #endif
+    #if K_SENSORLESS
+      say_M914(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.homing_threshold());
+    #endif
+  }
+
 #endif // USE_SENSORLESS
 
 #endif // HAS_TRINAMIC_CONFIG

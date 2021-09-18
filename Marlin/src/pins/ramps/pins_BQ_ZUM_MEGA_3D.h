@@ -123,3 +123,10 @@
   #undef HEATER_BED_PIN
   #define HEATER_BED_PIN                       8
 #endif
+
+// Alter timing for graphical display
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2                 0
+  #define BOARD_ST7920_DELAY_3               189
+#endif

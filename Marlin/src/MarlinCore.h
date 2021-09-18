@@ -23,10 +23,6 @@
 
 #include "inc/MarlinConfig.h"
 
-#ifdef DEBUG_GCODE_PARSER
-  #include "gcode/parser.h"
-#endif
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,7 +80,7 @@ extern bool wait_for_heatup;
 bool pin_is_protected(const pin_t pin);
 
 #if HAS_SUICIDE
-  inline void suicide() { OUT_WRITE(SUICIDE_PIN, SUICIDE_PIN_INVERTING); }
+  inline void suicide() { OUT_WRITE(SUICIDE_PIN, SUICIDE_PIN_STATE); }
 #endif
 
 #if HAS_KILL

@@ -205,4 +205,10 @@
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 #endif // HAS_WIRED_LCD
 
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2               250
+  #define BOARD_ST7920_DELAY_3                 0
+#endif
+
 #undef MK3_FAN_PINS

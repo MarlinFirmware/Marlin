@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -139,7 +140,7 @@ void tft_lvgl_init() {
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
     watchdog_refresh();   // LVGL init takes time
-    mks_test_get();
+    TERN_(MKS_TEST, mks_test_get());
   #endif
 
   touch.Init();
@@ -192,9 +193,7 @@ void tft_lvgl_init() {
 
   systick_attach_callback(SysTick_Callback);
 
-  #if HAS_SPI_FLASH_FONT
-    init_gb2312_font();
-  #endif
+  TERN_(HAS_SPI_FLASH_FONT, init_gb2312_font());
 
   tft_style_init();
   filament_pin_setup();
@@ -242,8 +241,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
-  for (uint16_t i = 0; i < height; i++)
-    SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
+  SPI_TFT.tftio.WriteSequence((uint16_t*)color_p, width * height);
 
   lv_disp_flush_ready(disp); // Indicate you are ready with the flushing
 
@@ -334,7 +332,7 @@ bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
 
 extern uint8_t currentFlashPage;
 
-//spi_flash
+// spi_flash
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
@@ -383,7 +381,7 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
   return LV_FS_RES_OK;
 }
 
-//sd
+// sd
 char *cur_namefff;
 uint32_t sd_read_base_addr = 0, sd_read_addr_offset = 0, small_image_size = 409;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
@@ -398,7 +396,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   // find small image size
   card.read(public_buf, 512);
   public_buf[511] = '\0';
-  char* eol = strpbrk((const char*)public_buf, "\n\r");
+  const char* eol = strpbrk((const char*)public_buf, "\n\r");
   small_image_size = (uintptr_t)eol - (uintptr_t)((uint32_t *)(&public_buf[0])) + 1;
   return LV_FS_RES_OK;
 }
@@ -529,5 +527,11 @@ void lv_encoder_pin_init() {
   }
 
 #endif // HAS_ENCODER_ACTION
+
+#if __PLAT_NATIVE_SIM__
+  #include <lv_misc/lv_log.h>
+  typedef void (*lv_log_print_g_cb_t)(lv_log_level_t level, const char *, uint32_t, const char *);
+  extern "C" void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb) {}
+#endif
 
 #endif // HAS_TFT_LVGL_UI

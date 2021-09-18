@@ -28,26 +28,14 @@
 
 W25QXXFlash W25QXX;
 
-#ifndef SPI_FLASH_MISO_PIN
-  #define SPI_FLASH_MISO_PIN W25QXX_MISO_PIN
-#endif
-#ifndef SPI_FLASH_MOSI_PIN
-  #define SPI_FLASH_MOSI_PIN W25QXX_MOSI_PIN
-#endif
-#ifndef SPI_FLASH_SCK_PIN
-  #define SPI_FLASH_SCK_PIN  W25QXX_SCK_PIN
-#endif
-#ifndef SPI_FLASH_CS_PIN
-  #define SPI_FLASH_CS_PIN   W25QXX_CS_PIN
-#endif
 #ifndef NC
   #define NC -1
 #endif
 
 MarlinSPI W25QXXFlash::mySPI(SPI_FLASH_MOSI_PIN, SPI_FLASH_MISO_PIN, SPI_FLASH_SCK_PIN, NC);
 
-#define W25QXX_CS_H OUT_WRITE(SPI_FLASH_CS_PIN, HIGH)
-#define W25QXX_CS_L OUT_WRITE(SPI_FLASH_CS_PIN, LOW)
+#define SPI_FLASH_CS_H() OUT_WRITE(SPI_FLASH_CS_PIN, HIGH)
+#define SPI_FLASH_CS_L() OUT_WRITE(SPI_FLASH_CS_PIN, LOW)
 
 bool flash_dma_mode = true;
 
@@ -134,31 +122,31 @@ void W25QXXFlash::spi_flash_SendBlock(uint8_t token, const uint8_t *buf) {
 
 uint16_t W25QXXFlash::W25QXX_ReadID(void) {
   uint16_t Temp = 0;
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
   spi_flash_Send(0x90);
   spi_flash_Send(0x00);
   spi_flash_Send(0x00);
   spi_flash_Send(0x00);
   Temp |= spi_flash_Rec() << 8;
   Temp |= spi_flash_Rec();
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
   return Temp;
 }
 
 void W25QXXFlash::SPI_FLASH_WriteEnable(void) {
   // Select the FLASH: Chip Select low
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
   // Send "Write Enable" instruction
   spi_flash_Send(W25X_WriteEnable);
   // Deselect the FLASH: Chip Select high
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
 }
 
 /*******************************************************************************
 * Function Name  : SPI_FLASH_WaitForWriteEnd
 * Description    : Polls the status of the Write In Progress (WIP) flag in the
-*                  FLASH's status  register  and  loop  until write  opertaion
-*                  has completed.
+*                  FLASH's status register and loop until write operation has
+*                  completed.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -167,7 +155,7 @@ void W25QXXFlash::SPI_FLASH_WaitForWriteEnd(void) {
   uint8_t FLASH_Status = 0;
 
   // Select the FLASH: Chip Select low
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
   // Send "Read Status Register" instruction
   spi_flash_Send(W25X_ReadStatusReg);
 
@@ -179,7 +167,7 @@ void W25QXXFlash::SPI_FLASH_WaitForWriteEnd(void) {
   while ((FLASH_Status & WIP_Flag) == 0x01); // Write in progress
 
   // Deselect the FLASH: Chip Select high
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
 }
 
 void W25QXXFlash::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
@@ -188,7 +176,7 @@ void W25QXXFlash::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
 
   // Sector Erase
   // Select the FLASH: Chip Select low
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
   // Send Sector Erase instruction
   spi_flash_Send(W25X_SectorErase);
   // Send SectorAddr high nybble address byte
@@ -199,14 +187,14 @@ void W25QXXFlash::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
   spi_flash_Send(SectorAddr & 0xFF);
   // Deselect the FLASH: Chip Select high
 
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
   // Wait the end of Flash writing
   SPI_FLASH_WaitForWriteEnd();
 }
 
 void W25QXXFlash::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
   SPI_FLASH_WriteEnable();
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
   // Send Sector Erase instruction
   spi_flash_Send(W25X_BlockErase);
   // Send SectorAddr high nybble address byte
@@ -216,7 +204,7 @@ void W25QXXFlash::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
   // Send SectorAddr low nybble address byte
   spi_flash_Send(BlockAddr & 0xFF);
 
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
 
   SPI_FLASH_WaitForWriteEnd();
 }
@@ -234,12 +222,12 @@ void W25QXXFlash::SPI_FLASH_BulkErase(void) {
 
   // Bulk Erase
   // Select the FLASH: Chip Select low
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
 
   // Send Bulk Erase instruction
   spi_flash_Send(W25X_ChipErase);
   // Deselect the FLASH: Chip Select high
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
   // Wait the end of Flash writing
   SPI_FLASH_WaitForWriteEnd();
 }
@@ -262,7 +250,7 @@ void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint
   SPI_FLASH_WriteEnable();
 
   // Select the FLASH: Chip Select low
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
   // Send "Write to Memory " instruction
   spi_flash_Send(W25X_PageProgram);
   // Send WriteAddr high nybble address byte to write to
@@ -283,7 +271,7 @@ void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint
   }
 
   // Deselect the FLASH: Chip Select high
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
 
   // Wait the end of Flash writing
   SPI_FLASH_WaitForWriteEnd();
@@ -366,7 +354,7 @@ void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t *pBuffer, uint32_t WriteAddr, ui
 *******************************************************************************/
 void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead) {
   // Select the FLASH: Chip Select low
-  W25QXX_CS_L;
+  SPI_FLASH_CS_L();
 
   // Send "Read from Memory " instruction
   spi_flash_Send(W25X_ReadData);
@@ -389,7 +377,7 @@ void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint
   else
     spi_flash_Read(pBuffer, NumByteToRead);
 
-  W25QXX_CS_H;
+  SPI_FLASH_CS_H();
 }
 
 #endif // HAS_SPI_FLASH

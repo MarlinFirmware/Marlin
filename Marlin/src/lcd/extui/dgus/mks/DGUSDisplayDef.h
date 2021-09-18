@@ -28,9 +28,9 @@
 #define LOGO_TIME_DELAY TERN(USE_MKS_GREEN_UI, 8000, 1500)
 
 #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-  #define MT_DET_1_PIN         1
-  #define MT_DET_2_PIN         2
-  #define MT_DET_PIN_INVERTING false
+  #define MT_DET_1_PIN     1
+  #define MT_DET_2_PIN     2
+  #define MT_DET_PIN_STATE LOW
 #endif
 
 #define MKS_FINSH
@@ -266,7 +266,7 @@ constexpr uint16_t VP_MOVE_OPTION = 0x3500;
 // constexpr uint16_t VP_BED_PID_I = 0x3712;
 // constexpr uint16_t VP_BED_PID_D = 0x3714;
 
-// Wating screen status
+// Waiting screen status
 constexpr uint16_t VP_WAITING_STATUS = 0x3800;
 
 // SPs for certain variables...
