@@ -168,7 +168,7 @@
 
 #if ENABLED(DELTA)
   #include "module/delta.h"
-#elif IS_POLARGRAPH
+#elif ENABLED(POLARGRAPH)
   #include "module/polargraph.h"
 #elif IS_SCARA
   #include "module/scara.h"

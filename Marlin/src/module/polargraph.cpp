@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(IS_POLARGRAPH)
+#if ENABLED(POLARGRAPH)
 
 #include "polargraph.h"
 #include "motion.h"
@@ -37,18 +37,11 @@
 #include "../lcd/marlinui.h"
 #include "../MarlinCore.h"
 
-
-float segments_per_second;
+float segments_per_second; // Initialized by settings.load()
 
 void inverse_kinematics(const xyz_pos_t &raw) {
-  float y = raw.y-Y_MAX_POS;
-    
-  float x = raw.x-X_MIN_POS;  // x-xmin
-  float a = HYPOT(x,y);
-
-  x = X_MAX_POS-raw.x;  // x-xmax
-  float b = HYPOT(x,y);
-
-  delta.set(a,b,raw.z);
+  const float x1 = raw.x - (X_MIN_POS), x2 = (X_MAX_POS) - raw.x, y = raw.y - (Y_MAX_POS);
+  delta.set(HYPOT(x1, y), HYPOT(x2, y), raw.z);
 }
-#endif
+
+#endif // POLARGRAPH

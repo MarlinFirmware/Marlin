@@ -2753,10 +2753,8 @@ void MarlinSettings::reset() {
     delta_diagonal_rod_trim = ddr;
   #elif IS_SCARA
     segments_per_second = SCARA_SEGMENTS_PER_SECOND;
-  #endif
-
-  #if ENABLED(IS_POLARGRAPH)
-    segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+  #elif ENABLED(POLARGRAPH)
+    segments_per_second = POLAR_SEGMENTS_PER_SECOND;
   #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS)

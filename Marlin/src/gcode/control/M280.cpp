@@ -29,13 +29,18 @@
 #include "../../module/planner.h"
 
 /**
- * M280: Get or set servo position. P<index> [S<angle>]
+ * M280: Get or set servo position.
+ *  P<index> - Servo index
+ *  S<angle> - Angle to set, omit to read current angle, or use -1 to detach
+ *
+ * With POLARGRAPH:
+ *  T<ms>    - Duration of servo move
  */
 void GcodeSuite::M280() {
 
   if (!parser.seen('P')) return;
 
-  planner.synchronize();
+  TERN_(POLARGRAPH, planner.synchronize());
 
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
@@ -44,26 +49,26 @@ void GcodeSuite::M280() {
       if (a == -1)
         DETACH_SERVO(servo_index);
       else {
-        if (parser.seen('T')) {
-          // distance to move / time passed -> reach destination after t ms.
-          const int b = servo[servo_index].read();
-          int16_t t = parser.value_int();
-          NOLESS(t,0);
-          uint32_t now = millis();
-          uint32_t start = now;
-          uint32_t until = now+t;
-          float aMinusB = (float)(a-b);
-
-          while(now<until) {
-            now = millis()+50;
-            now = now < until? now : until;
-            float ratio = (float)(now-start) / (float)t;
-            int i = (int)( aMinusB * ratio + b );
-            MOVE_SERVO(servo_index, i);
+        #if ENABLED(POLARGRAPH)
+          if (parser.seen('T')) {
+            // distance to move / time passed -> reach destination after t ms.
+            int16_t t = parser.value_int();
+            NOLESS(t, 0);
+            const int b = servo[servo_index].read();
+            const float aMinusB = (float)(a - b);
+            millis_t now = millis(), start = now, until = now + t;
+            while (PENDING(now, until)) {
+              now = millis() + 50;
+              if (now >= until) now = until;
+              const float ratio = (float)(now - start) / (float)t;
+              const int i = (int)(aMinusB * ratio + b);
+              MOVE_SERVO(servo_index, i);
+              idle();
+            }
           }
+          MOVE_SERVO(servo_index, a);
         }
-        MOVE_SERVO(servo_index, a);
-      }
+      #endif // POLARGRAPH
     }
     else
       SERIAL_ECHO_MSG(" Servo ", servo_index, ": ", servo[servo_index].read());

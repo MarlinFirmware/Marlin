@@ -48,7 +48,7 @@
 
 #if ENABLED(DELTA)
   #include "delta.h"
-#elif IS_POLARGRAPH
+#elif ENABLED(POLARGRAPH)
   #include "polargraph.h"
 #endif
 
