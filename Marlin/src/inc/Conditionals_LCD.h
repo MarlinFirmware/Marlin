@@ -674,7 +674,7 @@
  * Delta maps stepper-specific values to ABC steppers.
  */
 #if HAS_EXTRUDERS
-  #define LOGICAL_AXES (LINEAR_AXES+EXTRUDERS)
+  #define LOGICAL_AXES INCREMENT(LINEAR_AXES)
 #else
   #define LOGICAL_AXES LINEAR_AXES
 #endif
@@ -1061,7 +1061,7 @@
 #if ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
-#elif ENABLED(DELTA)
+#elif EITHER(DELTA, POLARGRAPH)
   #define IS_KINEMATIC 1
 #else
   #define IS_CARTESIAN 1

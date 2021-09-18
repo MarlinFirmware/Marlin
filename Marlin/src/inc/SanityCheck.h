@@ -1340,10 +1340,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
-#if !defined(IS_POLARGRAPH) || DISABLED(IS_POLARGRAPH)
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_PROBE && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
-  #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead or switching extruder is required for DEACTIVATE_SERVOS_AFTER_MOVE."
-#endif
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+  #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead, switching extruder, or POLARGRAPH is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**
