@@ -120,6 +120,9 @@ void Power::power_off() {
    */
   bool Power::is_power_needed() {
 
+    // If any of the stepper drivers are enabled...
+    if (stepper.axis_enabled.bits) return true;
+
     if (printJobOngoing() || printingIsPaused()) return true;
 
     #if ENABLED(AUTO_POWER_FANS)
@@ -139,16 +142,6 @@ void Power::power_off() {
 
     if (TERN0(AUTO_POWER_COOLER_FAN, thermalManager.coolerfan_speed))
       return true;
-
-    // If any of the drivers or the bed are enabled...
-    if (LINEAR_AXIS_GANG(
-           stepper.axis_is_enabled(X_AXIS), || stepper.axis_is_enabled(Y_AXIS), || stepper.axis_is_enabled(Z_AXIS),
-        || stepper.axis_is_enabled(I_AXIS), || stepper.axis_is_enabled(J_AXIS), || stepper.axis_is_enabled(K_AXIS))
-      #if HAS_EXTRUDERS
-        #define _OR_ENABLED_E(N) || stepper.axis_is_enabled(E_AXIS, N)
-        REPEAT(EXTRUDERS, _OR_ENABLED_E)
-      #endif
-    ) return true;
 
     #if HAS_HOTEND
       HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
