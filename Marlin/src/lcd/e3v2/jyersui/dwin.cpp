@@ -135,6 +135,12 @@ constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,
                    LBLX = 60,
                    MENU_CHR_W = 8, MENU_CHR_H = 16, STAT_CHR_W = 10;
 
+#define KEY_WIDTH 26
+#define KEY_HEIGHT 30
+#define KEY_INSET 5
+#define KEY_PADDING 3
+#define KEY_Y_START DWIN_HEIGHT-(KEY_HEIGHT*4+2*(KEY_INSET+1))
+
 #define MBASE(L) (49 + MLINE * (L))
 
 constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
@@ -162,6 +168,9 @@ uint8_t selection = 0, last_selection = 0;
 uint8_t scrollpos = 0;
 uint8_t process = Main, last_process = Main;
 PopupID popup, last_popup;
+bool keyboard_restrict, reset_keyboard, numeric_keyboard = false;
+uint8_t maxstringlen;
+char *stringpointer = nullptr;
 
 void (*funcpointer)() = nullptr;
 void *valuepointer = nullptr;
@@ -430,6 +439,44 @@ void CrealityDWINClass::Draw_Option(uint8_t value, const char * const * options,
   DWIN_Draw_Rectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
   DWIN_Draw_String(false, DWIN_FONT_MENU, tColor, bColor, 202, MBASE(row) - 1, options[value]);
 }
+
+void CrealityDWINClass::Draw_String(char * string, uint8_t row, bool selected/*=false*/, bool below/*=false*/) {
+  if (!string) string[0] = '\0';
+  const uint8_t offset_x = DWIN_WIDTH-strlen(string)*8 - 20;
+  const uint8_t offset_y = (below) ? MENU_CHR_H * 3 / 5 : 0;
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, offset_x - 10, MBASE(row)+offset_y-1, offset_x, MBASE(row)+16+offset_y);
+  DWIN_Draw_String(true, DWIN_FONT_MENU, Color_White, (selected) ? Select_Color : Color_Bg_Black, offset_x, MBASE(row)-1+offset_y, string);
+}
+
+const uint64_t CrealityDWINClass::Encode_String(const char * string) {
+  const char table[65] = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+  uint64_t output = 0;
+  LOOP_L_N(i, strlen(string)) {
+    uint8_t upper_bound = 63, lower_bound = 0;
+    uint8_t midpoint;
+    LOOP_L_N(x, 6) {
+      midpoint = (uint8_t)(0.5*(upper_bound+lower_bound));
+      if (string[i] > table[midpoint]) lower_bound = midpoint;
+      else if (string[i] < table[midpoint]) upper_bound = midpoint;
+      else break;
+    }
+    output += midpoint*pow(64,i);
+  }
+  return output;
+}
+
+void CrealityDWINClass::Decode_String(uint64_t num, char * string) {
+  const char table[65] = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+  LOOP_L_N(i, 30) {
+    string[i] = table[num%64];
+    num /= 64;
+    if (num==0) {
+      string[i+1] = '\0';
+      break;
+    }
+  }
+}
+
 
 uint16_t CrealityDWINClass::GetColor(uint8_t color, uint16_t original, bool light/*=false*/) {
   switch (color){
@@ -1000,6 +1047,118 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
     }
   }
 }
+
+void CrealityDWINClass::Draw_Keyboard(bool restrict, bool numeric, uint8_t selected, bool uppercase/*=false*/, bool lock/*=false*/) {
+  process = Keyboard;
+  keyboard_restrict = restrict;
+  numeric_keyboard = numeric;
+  DWIN_Draw_Rectangle(0, Color_White, 0, KEY_Y_START, DWIN_WIDTH-2, DWIN_HEIGHT-2);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 1, KEY_Y_START+1, DWIN_WIDTH-3, DWIN_HEIGHT-3);
+  LOOP_L_N(i, 36) Draw_Keys(i, (i == selected), uppercase, lock);
+}
+
+void CrealityDWINClass::Draw_Keys(uint8_t index, bool selected, bool uppercase/*=false*/, bool lock/*=false*/) {
+  const char *keys;
+  if (numeric_keyboard) keys = "1234567890&<>(){}[]*\"\':;!?";
+  else keys = (uppercase) ? "QWERTYUIOPASDFGHJKLZXCVBNM" : "qwertyuiopasdfghjklzxcvbnm";
+  #define KEY_X1(x) x*KEY_WIDTH+KEY_INSET+KEY_PADDING
+  #define KEY_X2(x) (x+1)*KEY_WIDTH+KEY_INSET-KEY_PADDING
+  #define KEY_Y1(y) KEY_Y_START+KEY_INSET+KEY_PADDING+y*KEY_HEIGHT
+  #define KEY_Y2(y) KEY_Y_START+KEY_INSET-KEY_PADDING+(y+1)*KEY_HEIGHT
+
+  const uint8_t rowCount[3] = {10, 9, 7};
+  const float xOffset[3] = {0, 0.5f*KEY_WIDTH, 1.5f*KEY_WIDTH};
+
+  if (index < 28) {
+    if (index == 19) {
+      DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(0), KEY_Y1(2), KEY_X2(0)+xOffset[1], KEY_Y2(2));
+      DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(0)+1, KEY_Y1(2)+1, KEY_X2(0)+xOffset[1]-1, KEY_Y2(2)-1);
+      if (!numeric_keyboard) {
+        if (lock) {
+          DWIN_Draw_Line(Select_Color, KEY_X1(0)+17, KEY_Y1(2)+16, KEY_X1(0)+25, KEY_Y1(2)+8);
+          DWIN_Draw_Line(Select_Color, KEY_X1(0)+17, KEY_Y1(2)+16, KEY_X1(0)+9, KEY_Y1(2)+8);
+        }
+        else {
+          DWIN_Draw_Line((uppercase) ? Select_Color : Color_White, KEY_X1(0)+17, KEY_Y1(2)+8, KEY_X1(0)+25, KEY_Y1(2)+16);
+          DWIN_Draw_Line((uppercase) ? Select_Color : Color_White, KEY_X1(0)+17, KEY_Y1(2)+8, KEY_X1(0)+9, KEY_Y1(2)+16);
+        }
+      }
+    }
+    else if (index == 27) {
+      DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7)+xOffset[2], KEY_Y1(2), KEY_X2(9), KEY_Y2(2));
+      DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(7)+xOffset[2]+1, KEY_Y1(2)+1, KEY_X2(9)-1, KEY_Y2(2)-1);
+      DWIN_Draw_String(true, DWIN_FONT_MENU, Color_Red, Color_Bg_Black, KEY_X1(7)+xOffset[2]+3, KEY_Y1(2)+5, F("<--"));
+    }
+    else {
+      if (index > 19) index--;
+      if (index > 27) index--;
+      uint8_t y, x;
+      if (index < rowCount[0]) y = 0, x = index;
+      else if (index < (rowCount[0]+rowCount[1])) y = 1, x = index-rowCount[0];
+      else y = 2, x = index-(rowCount[0]+rowCount[1]);
+      const char keyStr[2] = {keys[(y>0)*rowCount[0]+(y>1)*rowCount[1]+x], '\0'};
+      DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(x)+xOffset[y], KEY_Y1(y), KEY_X2(x)+xOffset[y], KEY_Y2(y));
+      DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(x)+xOffset[y]+1, KEY_Y1(y)+1, KEY_X2(x)+xOffset[y]-1, KEY_Y2(y)-1);
+      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(x)+xOffset[y]+5, KEY_Y1(y)+5, keyStr);
+      if (keyboard_restrict && numeric_keyboard && index > 9) {
+        DWIN_Draw_Line(Color_Light_Red, KEY_X1(x)+xOffset[y]+1, KEY_Y1(y)+1, KEY_X2(x)+xOffset[y]-1, KEY_Y2(y)-1);
+        DWIN_Draw_Line(Color_Light_Red, KEY_X1(x)+xOffset[y]+1, KEY_Y2(y)-1, KEY_X2(x)+xOffset[y]-1, KEY_Y1(y)+1);
+      }
+    }
+  }
+  else {
+    switch (index) {
+      case 28:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(0), KEY_Y1(3), KEY_X2(0)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(0)+1, KEY_Y1(3)+1, KEY_X2(0)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(0)-1, KEY_Y1(3)+5, F("?123"));
+        break;
+      case 29:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(1)+xOffset[1], KEY_Y1(3), KEY_X2(1)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(1)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(1)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(1)+xOffset[1]+5, KEY_Y1(3)+5, F("-"));
+        break;
+      case 30:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(2)+xOffset[1], KEY_Y1(3), KEY_X2(2)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(2)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(2)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(2)+xOffset[1]+5, KEY_Y1(3)+5, F("_"));
+        break;
+      case 31:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(3)+xOffset[1], KEY_Y1(3), KEY_X2(5)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(3)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(5)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(3)+xOffset[1]+14, KEY_Y1(3)+5, F("Space"));
+        if (keyboard_restrict) {
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(3)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(5)+xOffset[1]-1, KEY_Y2(3)-1);
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(3)+xOffset[1]+1, KEY_Y2(3)-1, KEY_X2(5)+xOffset[1]-1, KEY_Y1(3)+1);
+        }
+        break;
+      case 32:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(6)+xOffset[1], KEY_Y1(3), KEY_X2(6)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(6)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(6)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(6)+xOffset[1]+7, KEY_Y1(3)+5, F("."));
+        if (keyboard_restrict) {
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(6)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(6)+xOffset[1]-1, KEY_Y2(3)-1);
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(6)+xOffset[1]+1, KEY_Y2(3)-1, KEY_X2(6)+xOffset[1]-1, KEY_Y1(3)+1);
+        }
+        break;
+      case 33:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7)+xOffset[1], KEY_Y1(3), KEY_X2(7)+xOffset[1], KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(7)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(7)+xOffset[1]-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, KEY_X1(7)+xOffset[1]+4, KEY_Y1(3)+5, F("/"));
+        if (keyboard_restrict) {
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(7)+xOffset[1]+1, KEY_Y1(3)+1, KEY_X2(7)+xOffset[1]-1, KEY_Y2(3)-1);
+          DWIN_Draw_Line(Color_Light_Red, KEY_X1(7)+xOffset[1]+1, KEY_Y2(3)-1, KEY_X2(7)+xOffset[1]-1, KEY_Y1(3)+1);
+        }
+        break;
+      case 34:
+        DWIN_Draw_Rectangle(0, Color_Light_Blue, KEY_X1(7)+xOffset[2], KEY_Y1(3), KEY_X2(9), KEY_Y2(3));
+        DWIN_Draw_Rectangle(0, (selected) ? Select_Color : Color_Bg_Black, KEY_X1(7)+xOffset[2]+1, KEY_Y1(3)+1, KEY_X2(9)-1, KEY_Y2(3)-1);
+        DWIN_Draw_String(true, DWIN_FONT_MENU, Color_Cyan, Color_Bg_Black, KEY_X1(7)+xOffset[2]+3, KEY_Y1(3)+5, F("-->"));
+        break;
+    }
+  }
+}
+
 
 /* Menu Item Config */
 
@@ -4471,14 +4630,13 @@ void CrealityDWINClass::Print_Screen_Control() {
               card.startOrResumeFilePrinting();
               TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             #else
-              char cmnd[20];
               #if HAS_HEATED_BED
-                cmnd[sprintf_P(cmnd, PSTR("M140 S%i"), pausebed)] = '\0';
-                gcode.process_subcommands_now_P(PSTR(cmnd));
+                cmd[sprintf_P(cmd, PSTR("M140 S%i"), pausebed)] = '\0';
+                gcode.process_subcommands_now_P(cmd);
               #endif
               #if HAS_EXTRUDERS
-                cmnd[sprintf_P(cmnd, PSTR("M109 S%i"), pausetemp)] = '\0';
-                gcode.process_subcommands_now_P(PSTR(cmnd));
+                cmd[sprintf_P(cmd, PSTR("M109 S%i"), pausetemp)] = '\0';
+                gcode.process_subcommands_now_P(cmd);
               #endif
               TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();
@@ -4674,6 +4832,122 @@ void CrealityDWINClass::Confirm_Control() {
   DWIN_UpdateLCD();
 }
 
+void CrealityDWINClass::Keyboard_Control() {
+  const uint8_t keyboard_size = 34;
+  static uint8_t key_selection = 0, cursor = 0;
+  static char string[31];
+  static bool uppercase = false, locked = false;
+  if (reset_keyboard) {
+    if (strcmp(stringpointer, "-") == 0) stringpointer[0] = '\0';
+    key_selection = 0, cursor = strlen(stringpointer);
+    uppercase = false, locked = false;
+    reset_keyboard = false;
+    strcpy(string, stringpointer);
+  }
+  EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
+  if (encoder_diffState == ENCODER_DIFF_CW && key_selection < keyboard_size) {
+    Draw_Keys(key_selection, false, uppercase, locked);
+    key_selection++;
+    Draw_Keys(key_selection, true, uppercase, locked);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW && key_selection > 0) {
+    Draw_Keys(key_selection, false, uppercase, locked);
+    key_selection--;
+    Draw_Keys(key_selection, true, uppercase, locked);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    if (key_selection < 28) {
+      if (key_selection == 19) {
+        if (!numeric_keyboard) {
+          if (locked) {
+            uppercase = false, locked = false;
+            Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+          } else if (uppercase) {
+            locked = true;
+            Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+          }
+          else {
+            uppercase = true;
+            Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+          }
+        }
+      }
+      else if (key_selection == 27) {
+        cursor--;
+        string[cursor] = '\0';
+      }
+      else {
+        uint8_t index = key_selection;
+        if (index > 19) index--;
+        if (index > 27) index--;
+        const char *keys;
+        if (numeric_keyboard) keys = "1234567890&<>(){}[]*\"\':;!?";
+        else keys = (uppercase) ? "QWERTYUIOPASDFGHJKLZXCVBNM" : "qwertyuiopasdfghjklzxcvbnm";
+        if (!(keyboard_restrict && numeric_keyboard && index > 9)) {
+          string[cursor] = keys[index];
+          cursor++;
+          string[cursor] = '\0';
+        }
+        if (!locked && uppercase) {
+          uppercase = false;
+          Draw_Keyboard(keyboard_restrict, false, key_selection, uppercase, locked);
+        }
+      }
+    }
+    else {
+      switch (key_selection) {
+        case 28:
+          if (!numeric_keyboard) uppercase = false, locked = false;
+          Draw_Keyboard(keyboard_restrict, !numeric_keyboard, key_selection, uppercase, locked);
+          break;
+        case 29:
+          string[cursor] = '-';
+          cursor++;
+          string[cursor] = '\0';
+          break;
+        case 30:
+          string[cursor] = '_';
+          cursor++;
+          string[cursor] = '\0';
+          break;
+        case 31:
+          if (!keyboard_restrict) {
+            string[cursor] = ' ';
+            cursor++;
+            string[cursor] = '\0';
+          }
+          break;
+        case 32:
+          if (!keyboard_restrict) {
+            string[cursor] = '.';
+            cursor++;
+            string[cursor] = '\0';
+          }
+          break;
+        case 33:
+          if (!keyboard_restrict) {
+            string[cursor] = '/';
+            cursor++;
+            string[cursor] = '\0';
+          }
+          break;
+        case 34:
+          if (string[0] == '\0') strcpy(string, "-");
+          strcpy(stringpointer, string);
+          process = Menu;
+          Draw_Status_Area(true);
+          Update_Status_Bar(true);
+          break;
+      }
+    }
+    if (strlen(string) > maxstringlen) string[maxstringlen] = '\0', cursor = maxstringlen;
+    Draw_String(string, selection, (process==Keyboard), (maxstringlen > 10));
+  }
+  DWIN_UpdateLCD();
+}
+
+
 /* In-Menu Value Modification */
 
 void CrealityDWINClass::Setup_Value(float value, float min, float max, float unit, uint8_t type) {
@@ -4733,6 +5007,14 @@ void CrealityDWINClass::Modify_Option(uint8_t value, const char * const * option
   Draw_Option(value, options, selection - scrollpos, true);
 }
 
+void CrealityDWINClass::Modify_String(char * string, uint8_t maxlength, bool restrict) {
+  stringpointer = string;
+  maxstringlen = maxlength;
+  reset_keyboard = true;
+  Draw_Keyboard(restrict, false);
+  Draw_String(string, selection, true, (maxstringlen > 10));
+}
+
 /* Main Functions */
 
 void CrealityDWINClass::Update_Status(const char * const text) {
@@ -4787,14 +5069,15 @@ void CrealityDWINClass::Update() {
   State_Update();
   Screen_Update();
   switch (process) {
-    case Main:    Main_Menu_Control();    break;
-    case Menu:    Menu_Control();         break;
-    case Value:   Value_Control();        break;
-    case Option:  Option_Control();       break;
-    case File:    File_Control();         break;
-    case Print:   Print_Screen_Control(); break;
-    case Popup:   Popup_Control();        break;
-    case Confirm: Confirm_Control();      break;
+    case Main:      Main_Menu_Control();    break;
+    case Menu:      Menu_Control();         break;
+    case Value:     Value_Control();        break;
+    case Option:    Option_Control();       break;
+    case File:      File_Control();         break;
+    case Print:     Print_Screen_Control(); break;
+    case Popup:     Popup_Control();        break;
+    case Confirm:   Confirm_Control();      break;
+    case Keyboard:  Keyboard_Control();     break;
   }
 }
 

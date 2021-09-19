@@ -37,7 +37,7 @@
 //#define DWIN_CREALITY_LCD_CUSTOM_ICONS
 
 enum processID : uint8_t {
-  Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
+  Main, Print, Menu, Value, Option, File, Popup, Confirm, Keyboard, Wait
 };
 
 enum PopupID : uint8_t {
@@ -172,6 +172,9 @@ public:
   static void Clear_Screen(uint8_t e=3);
   static void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
   static void Draw_Option(uint8_t value, const char * const * options, uint8_t row, bool selected=false, bool color=false);
+  static void Draw_String(char * string, uint8_t row, bool selected=false, bool below=false);
+  static const uint64_t Encode_String(const char * string);
+  static void Decode_String(const uint64_t num, char string[8]);
   static uint16_t GetColor(uint8_t color, uint16_t original, bool light=false);
   static void Draw_Checkbox(uint8_t row, bool value);
   static void Draw_Title(const char * title);
@@ -197,6 +200,8 @@ public:
   static void Draw_Popup(PGM_P const line1, PGM_P const line2, PGM_P const line3, uint8_t mode, uint8_t icon=0);
   static void Popup_Select();
   static void Update_Status_Bar(bool refresh=false);
+  static void Draw_Keyboard(bool restrict, bool numeric, uint8_t selected=0, bool uppercase=false, bool lock=false);
+  static void Draw_Keys(uint8_t index, bool selected, bool uppercase=false, bool lock=false);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     static void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7);
@@ -218,6 +223,7 @@ public:
   static void Print_Screen_Control();
   static void Popup_Control();
   static void Confirm_Control();
+  static void Keyboard_Control();
 
   static void Setup_Value(float value, float min, float max, float unit, uint8_t type);
   static void Modify_Value(float &value, float min, float max, float unit, void (*f)()=nullptr);
@@ -227,6 +233,7 @@ public:
   static void Modify_Value(uint32_t &value, float min, float max, float unit, void (*f)()=nullptr);
   static void Modify_Value(int8_t &value, float min, float max, float unit, void (*f)()=nullptr);
   static void Modify_Option(uint8_t value, const char * const * options, uint8_t max);
+  static void Modify_String(char * string, uint8_t maxlength, bool restrict);
 
   static void Update_Status(const char * const text);
   static void Start_Print(bool sd);
