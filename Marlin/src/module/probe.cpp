@@ -256,12 +256,12 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       static uint8_t old_trusted;
       if (dopause) {
         old_trusted = axis_trusted;
-        DISABLE_AXIS_X();
-        DISABLE_AXIS_Y();
+        stepper.disable_axis(X_AXIS);
+        stepper.disable_axis(Y_AXIS);
       }
       else {
-        if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
-        if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
+        if (TEST(old_trusted, X_AXIS)) stepper.enable_axis(X_AXIS);
+        if (TEST(old_trusted, Y_AXIS)) stepper.enable_axis(Y_AXIS);
         axis_trusted = old_trusted;
       }
     #endif

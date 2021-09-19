@@ -641,13 +641,13 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       #if ENABLED(SWITCHING_EXTRUDER)
         bool oldstatus;
         switch (active_extruder) {
-          default: oldstatus = E0_ENABLE_READ(); ENABLE_AXIS_E0(); break;
+          default: oldstatus = stepper.axis_is_enabled(E_AXIS, 0); stepper.enable_e_stepper(0); break;
           #if E_STEPPERS > 1
-            case 2: case 3: oldstatus = E1_ENABLE_READ(); ENABLE_AXIS_E1(); break;
+            case 2: case 3: oldstatus = stepper.axis_is_enabled(E_AXIS, 1); stepper.enable_e_stepper(1); break;
             #if E_STEPPERS > 2
-              case 4: case 5: oldstatus = E2_ENABLE_READ(); ENABLE_AXIS_E2(); break;
+              case 4: case 5: oldstatus = stepper.axis_is_enabled(E_AXIS, 2); stepper.enable_e_stepper(2); break;
               #if E_STEPPERS > 3
-                case 6: case 7: oldstatus = E3_ENABLE_READ(); ENABLE_AXIS_E3(); break;
+                case 6: case 7: oldstatus = stepper.axis_is_enabled(E_AXIS, 3); stepper.enable_e_stepper(3); break;
               #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
@@ -656,7 +656,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         bool oldstatus;
         switch (active_extruder) {
           default:
-          #define _CASE_EN(N) case N: oldstatus = E##N##_ENABLE_READ(); ENABLE_AXIS_E##N(); break;
+          #define _CASE_EN(N) case N: oldstatus = stepper.axis_is_enabled(E_AXIS, N); stepper.enable_e_stepper(N); break;
           REPEAT(E_STEPPERS, _CASE_EN);
         }
       #endif
@@ -670,17 +670,17 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
       #if ENABLED(SWITCHING_EXTRUDER)
         switch (active_extruder) {
-          default: oldstatus = E0_ENABLE_WRITE(oldstatus); break;
+          default: if (oldstatus) stepper.enable_e_stepper(0); else stepper.disable_e_stepper(0); break;
           #if E_STEPPERS > 1
-            case 2: case 3: oldstatus = E1_ENABLE_WRITE(oldstatus); break;
+            case 2: case 3: if (oldstatus) stepper.enable_e_stepper(1); else stepper.disable_e_stepper(1); break;
             #if E_STEPPERS > 2
-              case 4: case 5: oldstatus = E2_ENABLE_WRITE(oldstatus); break;
+              case 4: case 5: if (oldstatus) stepper.enable_e_stepper(2); else stepper.disable_e_stepper(2); break;
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
       #else // !SWITCHING_EXTRUDER
         switch (active_extruder) {
-          #define _CASE_RESTORE(N) case N: E##N##_ENABLE_WRITE(oldstatus); break;
+          #define _CASE_RESTORE(N) case N: if (oldstatus) stepper.enable_e_stepper(N); else stepper.disable_e_stepper(N); break;
           REPEAT(E_STEPPERS, _CASE_RESTORE);
         }
       #endif // !SWITCHING_EXTRUDER

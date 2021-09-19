@@ -27,7 +27,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "power.h"
-#include "../module/stepper/indirection.h"
+#include "../module/stepper.h"
 #include "../MarlinCore.h"
 
 #if ENABLED(PS_OFF_SOUND)
@@ -141,21 +141,12 @@ void Power::power_off() {
       return true;
 
     // If any of the drivers or the bed are enabled...
-    if (false
-      TERN_(HAS_X_ENABLE,  || MOTOR_IS_ON(X,X))
-      TERN_(HAS_Y_ENABLE,  || MOTOR_IS_ON(Y,Y))
-      TERN_(HAS_Z_ENABLE,  || MOTOR_IS_ON(Z,Z))
-      TERN_(HAS_I_ENABLE,  || MOTOR_IS_ON(I,I))
-      TERN_(HAS_J_ENABLE,  || MOTOR_IS_ON(J,J))
-      TERN_(HAS_K_ENABLE,  || MOTOR_IS_ON(K,K))
-      TERN_(HAS_X2_ENABLE, || MOTOR_IS_ON(X2,X))
-      TERN_(HAS_Y2_ENABLE, || MOTOR_IS_ON(Y2,Y))
-      TERN_(HAS_Z2_ENABLE, || MOTOR_IS_ON(Z2,Z))
-      TERN_(HAS_Z3_ENABLE, || MOTOR_IS_ON(Z3,Z))
-      TERN_(HAS_Z4_ENABLE, || MOTOR_IS_ON(Z4,Z))
-      #if E_STEPPERS
-        #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
-        REPEAT(E_STEPPERS, _OR_ENABLED_E)
+    if (LINEAR_AXIS_GANG(
+           stepper.axis_is_enabled(X_AXIS), || stepper.axis_is_enabled(Y_AXIS), || stepper.axis_is_enabled(Z_AXIS),
+        || stepper.axis_is_enabled(I_AXIS), || stepper.axis_is_enabled(J_AXIS), || stepper.axis_is_enabled(K_AXIS))
+      #if HAS_EXTRUDERS
+        #define _OR_ENABLED_E(N) || stepper.axis_is_enabled(E_AXIS, N)
+        REPEAT(EXTRUDERS, _OR_ENABLED_E)
       #endif
     ) return true;
 

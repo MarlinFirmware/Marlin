@@ -94,6 +94,8 @@
 #endif
 #if HAS_Z_AXIS
   #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
+#else
+  #undef CONTROLLER_FAN_USE_Z_ONLY
 #endif
 #if LINEAR_AXES >= 4
   #define I_MAX_LENGTH (I_MAX_POS - (I_MIN_POS))
@@ -2022,22 +2024,6 @@
     #define E7_SLAVE_ADDRESS 0
   #endif
 #endif
-
-#define _ENA_PASS(A,B) (!PINS_EXIST(A##_ENABLE,B##_ENABLE) || A##_ENABLE_PIN != B##_ENABLE_PIN)
-#if (HAS_E_DRIVER(TMC2660) || \
-  (    _ENA_PASS(E0,X) && _ENA_PASS(E0,Y) && _ENA_PASS(E0,Z) \
-    && _ENA_PASS(E1,X) && _ENA_PASS(E1,Y) && _ENA_PASS(E1,Z) \
-    && _ENA_PASS(E2,X) && _ENA_PASS(E2,Y) && _ENA_PASS(E2,Z) \
-    && _ENA_PASS(E3,X) && _ENA_PASS(E3,Y) && _ENA_PASS(E3,Z) \
-    && _ENA_PASS(E4,X) && _ENA_PASS(E4,Y) && _ENA_PASS(E4,Z) \
-    && _ENA_PASS(E5,X) && _ENA_PASS(E5,Y) && _ENA_PASS(E5,Z) \
-    && _ENA_PASS(E6,X) && _ENA_PASS(E6,Y) && _ENA_PASS(E6,Z) \
-    && _ENA_PASS(E7,X) && _ENA_PASS(E7,Y) && _ENA_PASS(E7,Z) \
-  ) \
-)
-  #define HAS_E_STEPPER_ENABLE 1
-#endif
-#undef _ENA_PASS
 
 #if ANY_AXIS_HAS(HW_SERIAL)
   #define HAS_TMC_HW_SERIAL 1

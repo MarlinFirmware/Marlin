@@ -34,22 +34,19 @@
  */
 void GcodeSuite::M17() {
   if (parser.seen_axis()) {
-    #if HAS_EXTRUDERS && HAS_E_STEPPER_ENABLE
-      if (parser.seen('E')) {
-        const int8_t e = parser.has_value() ? parser.value_int() : -1;
-        if (e >= 0)
-          stepper.enable_e_stepper(e);
-        else
-          stepper.enable_e_steppers();
-      }
-    #endif
+    if (TERN0(HAS_EXTRUDERS, parser.seen('E'))) {
+      if (parser.has_value())
+        stepper.enable_e_stepper(parser.value_int());
+      else
+        stepper.enable_e_steppers();
+    }
     LINEAR_AXIS_CODE(
-      if (parser.seen_test('X'))        ENABLE_AXIS_X(),
-      if (parser.seen_test('Y'))        ENABLE_AXIS_Y(),
-      if (parser.seen_test('Z'))        ENABLE_AXIS_Z(),
-      if (parser.seen_test(AXIS4_NAME)) ENABLE_AXIS_I(),
-      if (parser.seen_test(AXIS5_NAME)) ENABLE_AXIS_J(),
-      if (parser.seen_test(AXIS6_NAME)) ENABLE_AXIS_K()
+      if (parser.seen_test('X'))        stepper.enable_axis(X_AXIS),
+      if (parser.seen_test('Y'))        stepper.enable_axis(Y_AXIS),
+      if (parser.seen_test('Z'))        stepper.enable_axis(Z_AXIS),
+      if (parser.seen_test(AXIS4_NAME)) stepper.enable_axis(I_AXIS),
+      if (parser.seen_test(AXIS5_NAME)) stepper.enable_axis(J_AXIS),
+      if (parser.seen_test(AXIS6_NAME)) stepper.enable_axis(K_AXIS)
     );
   }
   else {
@@ -69,23 +66,21 @@ void GcodeSuite::M18_M84() {
   else {
     if (parser.seen_axis()) {
       planner.synchronize();
-      #if HAS_EXTRUDERS && HAS_E_STEPPER_ENABLE
-        if (parser.seen('E')) {
-          const int8_t e = parser.has_value() ? parser.value_int() : -1;
-          if (e >= 0)
-            stepper.disable_e_stepper(e);
-          else
-            stepper.disable_e_steppers();
-        }
-      #endif
+      if (TERN0(HAS_EXTRUDERS, parser.seen('E'))) {
+        if (parser.has_value())
+          stepper.disable_e_stepper(parser.value_int());
+        else
+          stepper.disable_e_steppers();
+      }
       LINEAR_AXIS_CODE(
-        if (parser.seen_test('X'))        DISABLE_AXIS_X(),
-        if (parser.seen_test('Y'))        DISABLE_AXIS_Y(),
-        if (parser.seen_test('Z'))        DISABLE_AXIS_Z(),
-        if (parser.seen_test(AXIS4_NAME)) DISABLE_AXIS_I(),
-        if (parser.seen_test(AXIS5_NAME)) DISABLE_AXIS_J(),
-        if (parser.seen_test(AXIS6_NAME)) DISABLE_AXIS_K()
+        if (parser.seen_test('X'))        stepper.disable_axis(X_AXIS),
+        if (parser.seen_test('Y'))        stepper.disable_axis(Y_AXIS),
+        if (parser.seen_test('Z'))        stepper.disable_axis(Z_AXIS),
+        if (parser.seen_test(AXIS4_NAME)) stepper.disable_axis(I_AXIS),
+        if (parser.seen_test(AXIS5_NAME)) stepper.disable_axis(J_AXIS),
+        if (parser.seen_test(AXIS6_NAME)) stepper.disable_axis(K_AXIS)
       );
+      // TODO: Message if the axis was not actually disabled
     }
     else
       planner.finish_and_disable();

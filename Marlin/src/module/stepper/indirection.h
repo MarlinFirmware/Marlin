@@ -47,8 +47,6 @@
 void restore_stepper_drivers();  // Called by powerManager.power_on()
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
-#define MOTOR_IS_ON(A,B) (A##_ENABLE_READ() == bool(B##_ENABLE_ON))
-
 // X Stepper
 #ifndef X_ENABLE_INIT
   #define X_ENABLE_INIT() SET_OUTPUT(X_ENABLE_PIN)

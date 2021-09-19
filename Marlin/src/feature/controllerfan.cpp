@@ -25,7 +25,7 @@
 #if ENABLED(USE_CONTROLLER_FAN)
 
 #include "controllerfan.h"
-#include "../module/stepper/indirection.h"
+#include "../module/stepper.h"
 #include "../module/temperature.h"
 
 ControllerFan controllerFan;
@@ -54,25 +54,23 @@ void ControllerFan::update() {
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
-    #define _OR_ENABLED_E(N) || MOTOR_IS_ON(E##N,E)
-
     const bool motor_on = (
-      ( DISABLED(CONTROLLER_FAN_IGNORE_Z) &&
-        (    MOTOR_IS_ON(Z,Z)
-          || TERN0(HAS_Z2_ENABLE, MOTOR_IS_ON(Z2,Z))
-          || TERN0(HAS_Z3_ENABLE, MOTOR_IS_ON(Z3,Z))
-          || TERN0(HAS_Z4_ENABLE, MOTOR_IS_ON(Z4,Z))
+      #if ENABLED(CONTROLLER_FAN_USE_Z_ONLY)
+        stepper.axis_is_enabled(Z_AXIS)
+      #else
+        LINEAR_AXIS_GANG(
+             stepper.axis_is_enabled(X_AXIS),
+          || stepper.axis_is_enabled(Y_AXIS),
+          || TERN0(CONTROLLER_FAN_IGNORE_Z, stepper.axis_is_enabled(Z_AXIS)),
+          || stepper.axis_is_enabled(I_AXIS),
+          || stepper.axis_is_enabled(J_AXIS),
+          || stepper.axis_is_enabled(K_AXIS)
         )
-      ) || (
-        DISABLED(CONTROLLER_FAN_USE_Z_ONLY) &&
-        (    MOTOR_IS_ON(X,X) || MOTOR_IS_ON(Y,Y)
-          || TERN0(HAS_X2_ENABLE, MOTOR_IS_ON(X2,X))
-          || TERN0(HAS_Y2_ENABLE, MOTOR_IS_ON(Y2,Y))
-          #if E_STEPPERS
-            REPEAT(E_STEPPERS, _OR_ENABLED_E)
-          #endif
-        )
-      )
+        #if HAS_EXTRUDERS
+          #define _OR_ENABLED_E(N) || stepper.axis_is_enabled(E_AXIS, N)
+          REPEAT(EXTRUDERS, _OR_ENABLED_E)
+        #endif
+      #endif
     );
 
     // If any triggers for the controller fan are true...

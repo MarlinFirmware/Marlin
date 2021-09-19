@@ -483,25 +483,23 @@ xyze_int8_t Stepper::count_direction{0};
   #define DIR_WAIT_AFTER()
 #endif
 
-void Stepper::enable_e_steppers() {
-  #define _ENA_E(N) ENABLE_AXIS_E##N();
-  REPEAT(E_STEPPERS, _ENA_E)
-}
+#if HAS_EXTRUDERS
+  void Stepper::enable_e_steppers() {
+    #define _ENA_E(N) enable_e_stepper(N);
+    REPEAT(E_STEPPERS, _ENA_E)
+  }
 
-void Stepper::disable_e_steppers() {
-  #define _DIS_E(N) disable_e_stepper(N);
-  REPEAT(E_STEPPERS, _DIS_E)
-}
+  void Stepper::disable_e_steppers() {
+    #define _DIS_E(N) disable_e_stepper(N);
+    REPEAT(E_STEPPERS, _DIS_E)
+  }
+#endif
 
 void Stepper::enable_all_steppers() {
   TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
   LINEAR_AXIS_CODE(
-    enable_axis(X_AXIS),
-    enable_axis(Y_AXIS),
-    enable_axis(Z_AXIS),
-    enable_axis(I_AXIS),
-    enable_axis(J_AXIS),
-    enable_axis(K_AXIS)
+    enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
+    enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
   );
   enable_e_steppers();
 
@@ -510,12 +508,8 @@ void Stepper::enable_all_steppers() {
 
 void Stepper::disable_all_steppers() {
   LINEAR_AXIS_CODE(
-    disable_axis(X_AXIS),
-    disable_axis(Y_AXIS),
-    disable_axis(Z_AXIS),
-    disable_axis(I_AXIS),
-    disable_axis(J_AXIS),
-    disable_axis(K_AXIS)
+    disable_axis(X_AXIS), disable_axis(Y_AXIS), disable_axis(Z_AXIS),
+    disable_axis(I_AXIS), disable_axis(J_AXIS), disable_axis(K_AXIS)
   );
   disable_e_steppers();
 
@@ -543,27 +537,12 @@ void Stepper::set_directions() {
       count_direction[_AXIS(A)] = 1;            \
     }
 
-  #if HAS_X_DIR
-    SET_STEP_DIR(X); // A
-  #endif
-  #if HAS_Y_DIR
-    SET_STEP_DIR(Y); // B
-  #endif
-  #if HAS_Z_DIR
-    SET_STEP_DIR(Z); // C
-  #endif
-
-  #if HAS_I_DIR
-    SET_STEP_DIR(I); // I
-  #endif
-
-  #if HAS_J_DIR
-    SET_STEP_DIR(J); // J
-  #endif
-
-  #if HAS_K_DIR
-    SET_STEP_DIR(K); // K
-  #endif
+  TERN_(HAS_X_DIR, SET_STEP_DIR(X)); // A
+  TERN_(HAS_Y_DIR, SET_STEP_DIR(Y)); // B
+  TERN_(HAS_Z_DIR, SET_STEP_DIR(Z)); // C
+  TERN_(HAS_I_DIR, SET_STEP_DIR(I)); // I
+  TERN_(HAS_J_DIR, SET_STEP_DIR(J)); // J
+  TERN_(HAS_K_DIR, SET_STEP_DIR(K)); // K
 
   #if DISABLED(LIN_ADVANCE)
     #if ENABLED(MIXING_EXTRUDER)
@@ -2328,7 +2307,7 @@ uint32_t Stepper::block_phase_isr() {
         // If delayed Z enable, enable it now. This option will severely interfere with
         // timing between pulses when chaining motion between blocks, and it could lead
         // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps.z) ENABLE_AXIS_Z();
+        if (current_block->steps.z) enable_axis(Z_AXIS);
       #endif
 
       // Mark the time_nominal as not calculated yet
@@ -2924,7 +2903,7 @@ void Stepper::report_positions() {
 
 #if ENABLED(BABYSTEPPING)
 
-  #define _ENABLE_AXIS(AXIS) ENABLE_AXIS_## AXIS()
+  #define _ENABLE_AXIS(A) enable_axis(_AXIS(A))
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
@@ -3052,12 +3031,10 @@ void Stepper::report_positions() {
 
           const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          ENABLE_AXIS_X();
-          ENABLE_AXIS_Y();
-          ENABLE_AXIS_Z();
-          ENABLE_AXIS_I();
-          ENABLE_AXIS_J();
-          ENABLE_AXIS_K();
+          LINEAR_AXIS_CODE(
+            enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
+            enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
+          );
 
           DIR_WAIT_BEFORE();
 

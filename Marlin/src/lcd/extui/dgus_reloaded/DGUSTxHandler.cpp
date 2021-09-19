@@ -286,7 +286,10 @@ void DGUSTxHandler::TempMax(DGUS_VP &vp) {
 }
 
 void DGUSTxHandler::StepperStatus(DGUS_VP &vp) {
-  const bool motor_on = MOTOR_IS_ON(X,X) && TERN1(HAS_Y_AXIS, MOTOR_IS_ON(Y,Y)) && TERN1(HAS_Z_AXIS, MOTOR_IS_ON(Z,Z));
+  const bool motor_on = LINEAR_AXIS_GANG(
+       stepper.axis_is_enabled(X_AXIS), || stepper.axis_is_enabled(Y_AXIS), || stepper.axis_is_enabled(Z_AXIS),
+    || stepper.axis_is_enabled(I_AXIS), || stepper.axis_is_enabled(J_AXIS), || stepper.axis_is_enabled(K_AXIS)
+  );
   dgus_display.Write((uint16_t)vp.addr, Swap16(uint16_t(motor_on ? DGUS_Data::Status::ENABLED : DGUS_Data::Status::DISABLED)));
 }
 

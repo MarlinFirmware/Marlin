@@ -1376,12 +1376,12 @@ void Planner::check_axes_activity() {
   //
   LOGICAL_AXIS_CODE(
     if (TERN0(DISABLE_E, !axis_active.e)) stepper.disable_e_steppers(),
-    if (TERN0(DISABLE_X, !axis_active.x)) DISABLE_AXIS_X(),
-    if (TERN0(DISABLE_Y, !axis_active.y)) DISABLE_AXIS_Y(),
-    if (TERN0(DISABLE_Z, !axis_active.z)) DISABLE_AXIS_Z(),
-    if (TERN0(DISABLE_I, !axis_active.i)) DISABLE_AXIS_I(),
-    if (TERN0(DISABLE_J, !axis_active.j)) DISABLE_AXIS_J(),
-    if (TERN0(DISABLE_K, !axis_active.k)) DISABLE_AXIS_K()
+    if (TERN0(DISABLE_X, !axis_active.x)) stepper.disable_axis(X_AXIS),
+    if (TERN0(DISABLE_Y, !axis_active.y)) stepper.disable_axis(Y_AXIS),
+    if (TERN0(DISABLE_Z, !axis_active.z)) stepper.disable_axis(Z_AXIS),
+    if (TERN0(DISABLE_I, !axis_active.i)) stepper.disable_axis(I_AXIS),
+    if (TERN0(DISABLE_J, !axis_active.j)) stepper.disable_axis(J_AXIS),
+    if (TERN0(DISABLE_K, !axis_active.k)) stepper.disable_axis(K_AXIS)
   );
 
   //
@@ -2160,43 +2160,43 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Enable active axes
   #if EITHER(CORE_IS_XY, MARKFORGED_XY)
     if (block->steps.a || block->steps.b) {
-      ENABLE_AXIS_X();
-      ENABLE_AXIS_Y();
+      stepper.enable_axis(X_AXIS);
+      stepper.enable_axis(Y_AXIS);
     }
     #if DISABLED(Z_LATE_ENABLE)
-      if (block->steps.z) ENABLE_AXIS_Z();
+      if (block->steps.z) stepper.enable_axis(Z_AXIS);
     #endif
   #elif CORE_IS_XZ
     if (block->steps.a || block->steps.c) {
-      ENABLE_AXIS_X();
-      ENABLE_AXIS_Z();
+      stepper.enable_axis(X_AXIS);
+      stepper.enable_axis(Z_AXIS);
     }
-    if (block->steps.y) ENABLE_AXIS_Y();
+    if (block->steps.y) stepper.enable_axis(Y_AXIS);
   #elif CORE_IS_YZ
     if (block->steps.b || block->steps.c) {
-      ENABLE_AXIS_Y();
-      ENABLE_AXIS_Z();
+      stepper.enable_axis(Y_AXIS);
+      stepper.enable_axis(Z_AXIS);
     }
-    if (block->steps.x) ENABLE_AXIS_X();
+    if (block->steps.x) stepper.enable_axis(X_AXIS);
   #else
     LINEAR_AXIS_CODE(
-      if (block->steps.x) ENABLE_AXIS_X(),
-      if (block->steps.y) ENABLE_AXIS_Y(),
-      if (TERN(Z_LATE_ENABLE, 0, block->steps.z)) ENABLE_AXIS_Z(),
-      if (block->steps.i) ENABLE_AXIS_I(),
-      if (block->steps.j) ENABLE_AXIS_J(),
-      if (block->steps.k) ENABLE_AXIS_K()
+      if (block->steps.x) stepper.enable_axis(X_AXIS),
+      if (block->steps.y) stepper.enable_axis(Y_AXIS),
+      if (TERN(Z_LATE_ENABLE, 0, block->steps.z)) stepper.enable_axis(Z_AXIS),
+      if (block->steps.i) stepper.enable_axis(I_AXIS),
+      if (block->steps.j) stepper.enable_axis(J_AXIS),
+      if (block->steps.k) stepper.enable_axis(K_AXIS)
     );
   #endif
   #if EITHER(IS_CORE, MARKFORGED_XY)
     #if LINEAR_AXES >= 4
-      if (block->steps.i) ENABLE_AXIS_I();
+      if (block->steps.i) stepper.enable_axis(I_AXIS);
     #endif
     #if LINEAR_AXES >= 5
-      if (block->steps.j) ENABLE_AXIS_J();
+      if (block->steps.j) stepper.enable_axis(J_AXIS);
     #endif
     #if LINEAR_AXES >= 6
-      if (block->steps.k) ENABLE_AXIS_K();
+      if (block->steps.k) stepper.enable_axis(K_AXIS);
     #endif
   #endif
 
@@ -2214,21 +2214,21 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         #define ENABLE_ONE_E(N) do{ \
           if (E_STEPPER_INDEX(extruder) == N) { \
-            ENABLE_AXIS_E##N(); \
+            stepper.enable_e_stepper(N); \
             g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              ENABLE_AXIS_E1(); \
+              stepper.enable_e_stepper(1); \
           } \
           else if (!g_uc_extruder_last_move[N]) { \
-            DISABLE_AXIS_E##N(); \
+            stepper.disable_e_stepper(N); \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              DISABLE_AXIS_E1(); \
+              stepper.disable_e_stepper(1); \
           } \
         }while(0);
 
       #else
 
-        #define ENABLE_ONE_E(N) ENABLE_AXIS_E##N();
+        #define ENABLE_ONE_E(N) stepper.enable_e_stepper(N);
 
       #endif
 
