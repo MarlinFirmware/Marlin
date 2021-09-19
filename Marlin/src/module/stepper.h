@@ -574,7 +574,7 @@ class Stepper {
       CBI(axis_enabled.bits, index_of_axis(axis, eindex));
     }
     static inline bool can_axis_disable(const AxisEnum axis, const uint8_t eindex=0) {
-      uint8_t axis_index = index_of_axis(axis, eindex);
+      const uint8_t axis_index = index_of_axis(axis, eindex);
       return ena_overlaps[axis_index] == _BV(axis_index) || !(ena_overlaps[axis_index] & axis_enabled.bits);
     }
 
