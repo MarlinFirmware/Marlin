@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS SGEN-L pin assignments
+ * Makerbase MKS SGEN-L pin assignments
  */
 
 #include "env_validate.h"
