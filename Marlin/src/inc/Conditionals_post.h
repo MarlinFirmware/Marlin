@@ -3296,11 +3296,6 @@
   #define SD_SPI_SPEED SPI_FULL_SPEED
 #endif
 
-// Defined here to catch the above defines
-#if ENABLED(SDCARD_SORT_ALPHA) && (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
-  #define HAS_FOLDER_SORTING 1
-#endif
-
 #if HAS_WIRED_LCD
   // Get LCD character width/height, which may be overridden by pins, configs, etc.
   #ifndef LCD_WIDTH
