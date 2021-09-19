@@ -55,7 +55,7 @@ enum class DGUS_Addr : uint16_t {
   STATUS_Resume             = 0x2009, // Popup / Data: DGUS_Data::Popup
   ADJUST_SetFeedrate        = 0x200A, // Type: Integer (16 bits signed)
   ADJUST_SetFlowrate_CUR    = 0x200B, // Type: Integer (16 bits signed)
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     ADJUST_SetFlowrate_E0   = 0x200C, // Type: Integer (16 bits signed)
     ADJUST_SetFlowrate_E1   = 0x200D, // Type: Integer (16 bits signed)
   #endif
@@ -113,7 +113,7 @@ enum class DGUS_Addr : uint16_t {
   STATUS_Icons              = 0x30F7, // Bits: DGUS_Data::StatusIcon
   ADJUST_Feedrate           = 0x30F8, // Type: Integer (16 bits signed)
   ADJUST_Flowrate_CUR       = 0x30F9, // Type: Integer (16 bits signed)
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     ADJUST_Flowrate_E0      = 0x30FA, // Type: Integer (16 bits signed)
     ADJUST_Flowrate_E1      = 0x30FB, // Type: Integer (16 bits signed)
   #endif
