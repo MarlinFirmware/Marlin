@@ -410,7 +410,7 @@ void GcodeSuite::G33() {
                   towers_set = !parser.seen_test('T');
 
   // needs to be moved to all delta config files
-  #define MAX_RADIUS 110
+  #define DELTA_MAX_RADIUS 110
   
   float max_dcr = dcr = DELTA_PRINTABLE_RADIUS;
   #if HAS_PROBE_XY_OFFSET
@@ -422,7 +422,7 @@ void GcodeSuite::G33() {
     else {
       // else with nozzle positions only the nozzle needs to be within the printable area
       // and the probe needs to be inside the physical machine diameter
-      max_dcr = dcr -= _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y) - ((MAX_RADIUS) - (DELTA_PRINTABLE_RADIUS)), 0);
+      max_dcr = dcr -= _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y) - ((DELTA_MAX_RADIUS) - (DELTA_PRINTABLE_RADIUS)), 0);
     }
   #endif
 
