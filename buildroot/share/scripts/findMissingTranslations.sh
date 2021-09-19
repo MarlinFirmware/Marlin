@@ -30,19 +30,17 @@ fi
 
 echo "Missing strings for $TEST_LANGS..."
 
-for WORD in $(awk '/Language_Str/{print $3}' language_en.h); do
-  [[ $WORD == "MSG_CUBED" ]] && continue
+for WORD in $(awk '/LSTR/{print $2}' language_en.h); do
   LANG_LIST=""
   for LANG in $TEST_LANGS; do
-    if [[ $(grep -c " ${WORD} " language_${LANG}.h) -eq 0 ]]; then
+    if [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${LANG}.h) -eq 0 ]]; then
       INHERIT=$(awk '/using namespace/{print $3}' language_${LANG}.h | sed -E 's/Language_([a-zA-Z_]+)\s*;/\1/')
       if [[ -z $INHERIT || $INHERIT == "en" ]]; then
         LANG_LIST+=" $LANG"
-      elif [[ $(grep -c " ${WORD} " language_${INHERIT}.h) -eq 0 ]]; then
+      elif [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${INHERIT}.h) -eq 0 ]]; then
         LANG_LIST+=" $LANG"
       fi
     fi
   done
-  [[ -z $LANG_LIST ]] && continue;
-  printf "%-38s :%s\n" "$WORD" "$LANG_LIST"
+  [[ -n $LANG_LIST ]] && printf "%-38s :%s\n" "$WORD" "$LANG_LIST"
 done
