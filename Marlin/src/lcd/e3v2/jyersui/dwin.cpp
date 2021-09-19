@@ -197,6 +197,12 @@ uint8_t gridpoint;
 float corner_avg;
 float corner_pos;
 
+#if ENABLED(HOST_ACTION_COMMANDS)
+  char action1[9];
+  char action2[9];
+  char action3[9];
+#endif
+
 bool probe_deployed = false;
 
 CrealityDWINClass CrealityDWIN;
@@ -1179,7 +1185,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define PREPARE_PREHEAT (PREPARE_ZOFFSET + ENABLED(HAS_PREHEAT))
       #define PREPARE_COOLDOWN (PREPARE_PREHEAT + ENABLED(HAS_PREHEAT))
       #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
-      #define PREPARE_TOTAL PREPARE_CHANGEFIL
+      #define PREPARE_ACTIONCOMMANDS (PREPARE_CHANGEFIL + 1)
+      #define PREPARE_TOTAL PREPARE_ACTIONCOMMANDS
 
       switch (item) {
         case PREPARE_BACK:
@@ -1251,6 +1258,17 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               thermalManager.disable_all_heaters();
             }
             break;
+        #endif
+
+        #if ENABLED(HOST_ACTION_COMMANDS)
+          case PREPARE_ACTIONCOMMANDS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_SetHome, "Host Actions", NULL, true);
+          }
+          else {
+            Draw_Menu(HostActions);
+          }
+          break;
         #endif
 
         #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -1925,6 +1943,54 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         }
         break;
     #endif // FILAMENT_LOAD_UNLOAD_GCODES
+
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      case HostActions:
+
+        #define HOSTACTIONS_BACK 0
+        #define HOSTACTIONS_1 (HOSTACTIONS_BACK + 1)
+        #define HOSTACTIONS_2 (HOSTACTIONS_1 + 1)
+        #define HOSTACTIONS_3 (HOSTACTIONS_2 + 1)
+        #define HOSTACTIONS_4 (HOSTACTIONS_3 + 1)
+        #define HOSTACTIONS_5 (HOSTACTIONS_4 + 1)
+        #define HOSTACTIONS_TOTAL HOSTACTIONS_5
+
+        switch(item) {
+          case HOSTACTIONS_BACK:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_Back, "Back");
+            }
+            else {
+              Draw_Menu(Prepare, PREPARE_ACTIONCOMMANDS);
+            }
+            break;
+          case HOSTACTIONS_1:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_File, action1);
+            }
+            else {
+              if (!strcmp(action1, "-") == 0) host_action(PSTR(action1));
+            }
+            break;
+          case HOSTACTIONS_2:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_File, action2);
+            }
+            else {
+              if (!strcmp(action2, "-") == 0) host_action(PSTR(action2));
+            }
+            break;
+          case HOSTACTIONS_3:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_File, action3);
+            }
+            else {
+              if (!strcmp(action3, "-") == 0) host_action(PSTR(action3));
+            }
+            break;
+        }
+        break;
+    #endif
 
     case Control:
 
@@ -5257,6 +5323,11 @@ void CrealityDWINClass::AudioFeedback(const bool success/*=true*/) {
 void CrealityDWINClass::Save_Settings(char *buff) {
   TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid - 1);
   eeprom_settings.corner_pos = corner_pos * 10;
+  #if ENABLED(HOST_ACTION_COMMANDS)
+    eeprom_settings.host_action_label_1 = Encode_String(action1);
+    eeprom_settings.host_action_label_2 = Encode_String(action2);
+    eeprom_settings.host_action_label_3 = Encode_String(action3);
+  #endif
   memcpy(buff, &eeprom_settings, _MIN(sizeof(eeprom_settings), eeprom_data_size));
 }
 
@@ -5265,6 +5336,11 @@ void CrealityDWINClass::Load_Settings(const char *buff) {
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
   corner_pos = eeprom_settings.corner_pos / 10.0f;
+  #if ENABLED(HOST_ACTION_COMMANDS)
+    Decode_String(eeprom_settings.host_action_label_1, action1);
+    Decode_String(eeprom_settings.host_action_label_2, action2);
+    Decode_String(eeprom_settings.host_action_label_3, action3);
+  #endif
   Redraw_Screen();
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool init = true;
@@ -5290,6 +5366,11 @@ void CrealityDWINClass::Reset_Settings() {
   eeprom_settings.status_area_text = 0;
   eeprom_settings.coordinates_text = 0;
   eeprom_settings.coordinates_split_line = 0;
+  #if ENABLED(HOST_ACTION_COMMANDS)
+    eeprom_settings.host_action_label_1 = 0;
+    eeprom_settings.host_action_label_2 = 0;
+    eeprom_settings.host_action_label_3 = 0;
+  #endif
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   corner_pos = eeprom_settings.corner_pos / 10.0f;
   TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
