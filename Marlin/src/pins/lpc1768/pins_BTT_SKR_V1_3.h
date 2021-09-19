@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR 1.3 pin assignments
+ */
+
 #define BOARD_INFO_NAME "BTT SKR V1.3"
 #define LPC1768_IS_SKRV1_3 1
 

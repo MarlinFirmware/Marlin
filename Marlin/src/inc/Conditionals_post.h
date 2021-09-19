@@ -421,8 +421,9 @@
   #endif
 #endif
 
-#if EITHER(DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
   #define HAS_LCD_BRIGHTNESS 1
+  #define MAX_LCD_BRIGHTNESS 31
 #endif
 
 /**
@@ -2593,9 +2594,14 @@
 #endif
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
-#endif
-#if HAS_SERVOS && defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
-  #define HAS_PAUSE_SERVO_OUTPUT 1
+  #if defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
+    #define HAS_PAUSE_SERVO_OUTPUT 1
+  #endif
+#else
+  #undef SERVO_DELAY
+  #undef DEACTIVATE_SERVOS_AFTER_MOVE
+  #undef EDITABLE_SERVO_ANGLES
+  #undef SERVO_DETACH_GCODE
 #endif
 
 // Sensors
