@@ -365,9 +365,6 @@ namespace Language_pt_br {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Erro:Temp Mínima");
   LSTR MSG_HALTED                         = _UxGT("IMPRESSORA PAROU");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Favor resetar");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d");
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h");
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m");
   LSTR MSG_HEATING                        = _UxGT("Aquecendo...");
   LSTR MSG_COOLING                        = _UxGT("Resfriando...");
   LSTR MSG_BED_HEATING                    = _UxGT("Aquecendo mesa...");

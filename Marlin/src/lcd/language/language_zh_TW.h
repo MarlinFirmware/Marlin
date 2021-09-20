@@ -34,7 +34,6 @@ namespace Language_zh_TW {
   LSTR LANGUAGE                           = _UxGT("Traditional Chinese");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT("已就緒.");     // " ready."
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("是");  // "YES"
   LSTR MSG_NO                             = _UxGT("否");  // "NO"
   LSTR MSG_BACK                           = _UxGT("返回");     // "Back"

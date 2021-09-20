@@ -40,7 +40,6 @@ namespace Language_hu {
   LSTR LANGUAGE                           = _UxGT("Magyar");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Kész.");
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("IGEN");
   LSTR MSG_NO                             = _UxGT("NEM");
   LSTR MSG_BACK                           = _UxGT("Vissza");
@@ -317,16 +316,6 @@ namespace Language_hu {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Hangolási hiba. Rossz adagoló.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Hangolási hiba. Magas hömérséklet.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Hangolási hiba! Idötúllépés.");
-  LSTR MSG_PID_P                          = _UxGT("PID-P");
-  LSTR MSG_PID_P_E                        = _UxGT("PID-P *");
-  LSTR MSG_PID_I                          = _UxGT("PID-I");
-  LSTR MSG_PID_I_E                        = _UxGT("PID-I *");
-  LSTR MSG_PID_D                          = _UxGT("PID-D");
-  LSTR MSG_PID_D_E                        = _UxGT("PID-D *");
-  LSTR MSG_PID_C                          = _UxGT("PID-C");
-  LSTR MSG_PID_C_E                        = _UxGT("PID-C *");
-  LSTR MSG_PID_F                          = _UxGT("PID-F");
-  LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
   LSTR MSG_SELECT                         = _UxGT("Kiválaszt");
   LSTR MSG_SELECT_E                       = _UxGT("Kiválaszt *");
   LSTR MSG_ACC                            = _UxGT("Gyorsítás");
@@ -703,12 +692,6 @@ namespace Language_hu {
   LSTR MSG_SERVICE_RESET                  = _UxGT("Újraindítás");
   LSTR MSG_SERVICE_IN                     = _UxGT(" be:");
   LSTR MSG_BACKLASH                       = _UxGT("Holtjáték");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Korrekció");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Simítás");
 

@@ -36,7 +36,6 @@ namespace Language_ro {
   LSTR LANGUAGE                           = _UxGT("Romanian");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Pregatit.");
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("DA");
   LSTR MSG_NO                             = _UxGT("NU");
   LSTR MSG_BACK                           = _UxGT("Inapoi");
@@ -449,9 +448,6 @@ namespace Language_ro {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("PRINTER HALTED");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Please Reset");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
   LSTR MSG_HEATING                        = _UxGT("Heating...");
   LSTR MSG_COOLING                        = _UxGT("Cooling...");
   LSTR MSG_BED_HEATING                    = _UxGT("Bed Heating...");
@@ -618,12 +614,6 @@ namespace Language_ro {
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Corectare");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Smoothing");
 

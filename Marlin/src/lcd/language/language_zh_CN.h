@@ -617,12 +617,6 @@ namespace Language_zh_CN {
   LSTR MSG_SERVICE_RESET                  = _UxGT("复位");
   LSTR MSG_SERVICE_IN                     = _UxGT(" 在:");
   LSTR MSG_BACKLASH                       = _UxGT("回差");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("校正");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("平滑的");
 

@@ -166,6 +166,5 @@ namespace Language_hr {
   #else
     // Up to 2 lines allowed
     LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT("Pričekaj...");
-    //LSTR MSG_FILAMENT_CHANGE_INSERT     = _UxGT(MSG_2_LINE("?", "?"));
   #endif
 }

@@ -37,7 +37,6 @@ namespace Language_sv {
   LSTR LANGUAGE                           = _UxGT("Swedish");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Redo.");
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEJ");
   LSTR MSG_BACK                           = _UxGT("Bakåt");
@@ -483,9 +482,7 @@ namespace Language_sv {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Fel: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("Utskrift stoppad");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Snälla Återställ");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("t"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
   LSTR MSG_HEATING                        = _UxGT("Värmer...");
   LSTR MSG_COOLING                        = _UxGT("Kyler...");
   LSTR MSG_BED_HEATING                    = _UxGT("Bädd Värmer...");
@@ -665,12 +662,6 @@ namespace Language_sv {
   LSTR MSG_SERVICE_RESET                  = _UxGT("Återställ");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Korrigering");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Glättning");
 
