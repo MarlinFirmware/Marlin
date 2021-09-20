@@ -412,15 +412,15 @@ void GcodeSuite::G33() {
   float max_dcr = dcr = DELTA_PRINTABLE_RADIUS;
   #if HAS_PROBE_XY_OFFSET
     // For offset probes the calibration radius is set to a calculated value
-    if (probe_at_offset) {
-      // with probe positions both probe and nozzle need to be within the printable area
-      max_dcr = dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
-    }
-    else {
+    // With probe positions both probe and nozzle need to be within the printable area
+    float offset_radius = HYPOT(probe.offset_xy.x, probe.offset_xy.y);
+    if (!probe_at_offset) {
       // else with nozzle positions only the nozzle needs to be within the printable area
       // and the probe needs to be inside the physical machine diameter
-      max_dcr = dcr -= _MAX(HYPOT(probe.offset_xy.x, probe.offset_xy.y) - ((DELTA_MAX_RADIUS) - (DELTA_PRINTABLE_RADIUS)), 0);
+      offset_radius -= (DELTA_MAX_RADIUS) - (DELTA_PRINTABLE_RADIUS);
+      NOLESS(offset_radius, 0);
     }
+    max_dcr = dcr -= offset_radius;
   #endif
 
   if (parser.seenval('R')) dcr = parser.value_float();
