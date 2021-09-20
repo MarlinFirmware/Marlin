@@ -45,30 +45,25 @@ void GcodeSuite::M280() {
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
     if (parser.seen('S')) {
-      const int a = parser.value_int();
-      if (a == -1)
-        DETACH_SERVO(servo_index);
-      else {
+      const int anew = parser.value_int();
+      if (anew >= 0) {
         #if ENABLED(POLARGRAPH)
-          if (parser.seen('T')) {
-            // distance to move / time passed -> reach destination after t ms.
-            int16_t t = parser.value_int();
-            NOLESS(t, 0);
-            const int b = servo[servo_index].read();
-            const float aMinusB = (float)(a - b);
-            millis_t now = millis(), start = now, until = now + t;
-            while (PENDING(now, until)) {
-              now = millis() + 50;
-              if (now >= until) now = until;
-              const float ratio = (float)(now - start) / (float)t;
-              const int i = (int)(aMinusB * ratio + b);
-              MOVE_SERVO(servo_index, i);
-              idle();
+          if (parser.seen('T')) { // (ms) Total duration of servo move
+            const int16_t t = constrain(parser.value_int(), 0, 10000);
+            const int aold = servo[servo_index].read();
+            millis_t now = millis();
+            const millis_t start = now, end = start + t;
+            while (PENDING(now, end)) {
+              safe_delay(50);
+              now = _MIN(millis(), end);
+              MOVE_SERVO(servo_index, LROUND(aold + (anew - aold) * (float(now - start) / t)));
             }
           }
-          MOVE_SERVO(servo_index, a);
-        }
-      #endif // POLARGRAPH
+        #endif // POLARGRAPH
+        MOVE_SERVO(servo_index, anew);
+      }
+      else
+        DETACH_SERVO(servo_index);
     }
     else
       SERIAL_ECHO_MSG(" Servo ", servo_index, ": ", servo[servo_index].read());
