@@ -409,9 +409,6 @@ void GcodeSuite::G33() {
   const bool probe_at_offset = TERN0(HAS_PROBE_XY_OFFSET, parser.boolval('O')),
                   towers_set = !parser.seen_test('T');
 
-  // needs to be moved to all delta config files
-  #define DELTA_MAX_RADIUS 110
-  
   float max_dcr = dcr = DELTA_PRINTABLE_RADIUS;
   #if HAS_PROBE_XY_OFFSET
     // For offset probes the calibration radius is set to a calculated value
