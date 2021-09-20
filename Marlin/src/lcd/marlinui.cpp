@@ -1490,9 +1490,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         next_filament_display = ms + 5000UL; // Show status message for 5s
       #endif
 
-      #if ENABLED(STATUS_MESSAGE_SCROLLING)
-        status_scroll_offset = 0;
-      #endif
+      TERN_(STATUS_MESSAGE_SCROLLING, status_scroll_offset = 0);
     #else // HAS_WIRED_LCD
       UNUSED(persist);
     #endif
