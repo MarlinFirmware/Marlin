@@ -58,13 +58,6 @@
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
-#if ENABLED(POLARGRAPH)
-  #define X_MIN_PIN                           35  // AUX4_10_PIN
-  #define Y_MIN_PIN                           34  // E1_DIR_PIN
-  #define X_MAX_PIN                           37  // AUX4_09_PIN
-  #define Y_MAX_PIN                           36  // E1_STEP_PIN
-#endif
-
 //
 // Servos
 //
