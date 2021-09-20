@@ -246,14 +246,19 @@
     #undef MKS_PWC
     #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
     #define SUICIDE_PIN_STATE               LOW   // Enable MKSPWC PIN STATE
-  #elif ENABLED(BACKUP_POWER_SUPPLY)
-    #define POWER_LOSS_PIN                  PA2   // PW_DET (UPS) MKSPWC
+  #else    
     #define PS_ON_PIN                       PB2   // PW_OFF
-  #else
+  #endif
+  #define KILL_PIN                          PA2
+  #define KILL_PIN_STATE                    HIGH
+#endif
+
+#if ENABLED(BACKUP_POWER_SUPPLY)
+    #define POWER_LOSS_PIN                  PA2   // PW_DET (UPS) MKSPWC
     #define PS_ON_PIN                       PA3   // PW_CN /PW_OFF, you can change it to other pin
-  #endif 
-  #define KILL_PIN                          PA2   // PW_DET, you can change it to other pin
-  #define KILL_PIN_STATE                    HIGH  // true : HIGH level trigger
+#else
+    #define POWER_LOSS_PIN                  -1    // PW_DET
+    #define PS_ON_PIN                       PB2   // PW_OFF
 #endif
 
 //
