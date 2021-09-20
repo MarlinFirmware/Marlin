@@ -276,8 +276,13 @@
 /**
  * If DELTA_HEIGHT isn't defined use the old setting
  */
-#if ENABLED(DELTA) && !defined(DELTA_HEIGHT)
-  #define DELTA_HEIGHT Z_HOME_POS
+#if ENABLED(DELTA)
+  #ifndef DELTA_HEIGHT
+    #define DELTA_HEIGHT Z_HOME_POS
+  #endif
+  #ifndef DELTA_MAX_RADIUS
+    #define DELTA_MAX_RADIUS DELTA_PRINTABLE_RADIUS
+  #endif
 #endif
 
 /**
