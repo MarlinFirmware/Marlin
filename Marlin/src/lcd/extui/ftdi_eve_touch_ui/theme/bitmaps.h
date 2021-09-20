@@ -256,4 +256,4 @@ namespace Theme {
 
   constexpr PROGMEM uint32_t UTF8_FONT_OFFSET  = 10000;
   constexpr PROGMEM uint32_t BACKGROUND_OFFSET = 40000;
-}; // namespace Theme
+} // namespace Theme

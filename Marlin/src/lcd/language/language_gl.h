@@ -37,7 +37,6 @@ namespace Language_gl {
   LSTR LANGUAGE                           = _UxGT("Galician");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" lista.");
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NON");
   LSTR MSG_BACK                           = _UxGT("Atrás");
@@ -443,9 +442,6 @@ namespace Language_gl {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Erro:TEMP MÍN");
   LSTR MSG_HALTED                         = _UxGT("IMPRESORA DETIDA");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Debe reiniciar!");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
   LSTR MSG_HEATING                        = _UxGT("Quentando...");
   LSTR MSG_COOLING                        = _UxGT("Arrefriando...");
   LSTR MSG_BED_HEATING                    = _UxGT("Quentando cama...");
@@ -605,12 +601,6 @@ namespace Language_gl {
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reiniciar");
   LSTR MSG_SERVICE_IN                     = _UxGT(" dentro:");
   LSTR MSG_BACKLASH                       = _UxGT("Reacción");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Corrección");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Suavizado");
 

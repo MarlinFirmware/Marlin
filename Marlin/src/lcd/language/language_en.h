@@ -47,8 +47,8 @@ namespace Language_en {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("English");
 
+  // These strings should be translated
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Ready.");
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("YES");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_BACK                           = _UxGT("Back");
@@ -339,16 +339,6 @@ namespace Language_en {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune failed. Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed. Temperature too high.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
-  LSTR MSG_PID_P                          = _UxGT("PID-P");
-  LSTR MSG_PID_P_E                        = _UxGT("PID-P *");
-  LSTR MSG_PID_I                          = _UxGT("PID-I");
-  LSTR MSG_PID_I_E                        = _UxGT("PID-I *");
-  LSTR MSG_PID_D                          = _UxGT("PID-D");
-  LSTR MSG_PID_D_E                        = _UxGT("PID-D *");
-  LSTR MSG_PID_C                          = _UxGT("PID-C");
-  LSTR MSG_PID_C_E                        = _UxGT("PID-C *");
-  LSTR MSG_PID_F                          = _UxGT("PID-F");
-  LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
   LSTR MSG_SELECT                         = _UxGT("Select");
   LSTR MSG_SELECT_E                       = _UxGT("Select *");
   LSTR MSG_ACC                            = _UxGT("Accel");
@@ -542,9 +532,6 @@ namespace Language_en {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: MINTEMP");
   LSTR MSG_HALTED                         = _UxGT("PRINTER HALTED");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Please Reset");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
   LSTR MSG_HEATING                        = _UxGT("Heating...");
   LSTR MSG_COOLING                        = _UxGT("Cooling...");
   LSTR MSG_BED_HEATING                    = _UxGT("Bed Heating...");
@@ -727,12 +714,6 @@ namespace Language_en {
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correction");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Smoothing");
 
@@ -764,6 +745,28 @@ namespace Language_en {
 
   LSTR MSG_SD_CARD                        = _UxGT("SD Card");
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
+
+  // These strings can be the same in all languages
+  LSTR MSG_MARLIN                         = _UxGT("Marlin");
+  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
+  LSTR MSG_PID_P                          = _UxGT("PID-P");
+  LSTR MSG_PID_P_E                        = _UxGT("PID-P *");
+  LSTR MSG_PID_I                          = _UxGT("PID-I");
+  LSTR MSG_PID_I_E                        = _UxGT("PID-I *");
+  LSTR MSG_PID_D                          = _UxGT("PID-D");
+  LSTR MSG_PID_D_E                        = _UxGT("PID-D *");
+  LSTR MSG_PID_C                          = _UxGT("PID-C");
+  LSTR MSG_PID_C_E                        = _UxGT("PID-C *");
+  LSTR MSG_PID_F                          = _UxGT("PID-F");
+  LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
+  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
+  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
+  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
+  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
+  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
+  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
 }
 
 #if FAN_COUNT == 1

@@ -177,9 +177,6 @@ namespace Language_an {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Error: Temp Min");
   LSTR MSG_HALTED                         = _UxGT("IMPRESORA ATURADA");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Per favor reinic.");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d");
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h");
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m");
   LSTR MSG_HEATING                        = _UxGT("Calentando...");
   LSTR MSG_BED_HEATING                    = _UxGT("Calentando base...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Calibracion Delta");

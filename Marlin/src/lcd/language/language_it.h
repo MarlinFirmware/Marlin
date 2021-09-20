@@ -44,7 +44,6 @@ namespace Language_it {
   LSTR LANGUAGE                           = _UxGT("Italiano");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("Si");
   LSTR MSG_NO                             = _UxGT("No");
   LSTR MSG_BACK                           = _UxGT("Indietro");
@@ -700,12 +699,6 @@ namespace Language_it {
   LSTR MSG_SERVICE_IN                     = _UxGT(" tra:");
 
   LSTR MSG_BACKLASH                       = _UxGT("Gioco");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correzione");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Appianamento");
 

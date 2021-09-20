@@ -40,9 +40,9 @@ namespace Language_ru {
   LSTR MSG_NO                               = _UxGT("Нет");
   LSTR MSG_BACK                             = _UxGT("Назад");
   LSTR MSG_MEDIA_ABORTING                   = _UxGT("Прерывание...");
-  LSTR MSG_MEDIA_INSERTED                   = _UxGT("SD-карта вставлена");
-  LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD-карта извлечена");
-  LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD-карту");
+  LSTR MSG_MEDIA_INSERTED                   = _UxGT("SD карта вставлена");
+  LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD карта извлечена");
+  LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD карту");
   #if LCD_WIDTH > 21
     LSTR MSG_SD_INIT_FAIL                   = _UxGT("Сбой инициализации SD");
   #else

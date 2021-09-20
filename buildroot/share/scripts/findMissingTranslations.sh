@@ -31,6 +31,7 @@ fi
 echo "Missing strings for $TEST_LANGS..."
 
 for WORD in $(awk '/LSTR/{print $2}' language_en.h); do
+  [[ $WORD == "MSG_MARLIN" ]] && break
   LANG_LIST=""
   for LANG in $TEST_LANGS; do
     if [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${LANG}.h) -eq 0 ]]; then

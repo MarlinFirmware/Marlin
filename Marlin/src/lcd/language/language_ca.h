@@ -165,9 +165,6 @@ namespace Language_ca {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: TEMP MINIMA");
   LSTR MSG_HALTED                         = _UxGT("IMPRESSORA PARADA");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Reinicieu");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
   LSTR MSG_HEATING                        = _UxGT("Escalfant...");
   LSTR MSG_BED_HEATING                    = _UxGT("Escalfant llit...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Calibratge Delta");

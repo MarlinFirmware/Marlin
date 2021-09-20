@@ -35,7 +35,6 @@ namespace Language_de {
   LSTR LANGUAGE                           = _UxGT("Deutsch");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" bereit");
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEIN");
   LSTR MSG_BACK                           = _UxGT("Zurück");
@@ -630,12 +629,6 @@ namespace Language_de {
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" im:");
   LSTR MSG_BACKLASH                       = _UxGT("Spiel");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Korrektur");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Glätten");
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("X Achse leveln");

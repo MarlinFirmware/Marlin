@@ -166,9 +166,6 @@ namespace Language_nl {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: Min. temp");
   LSTR MSG_HALTED                         = _UxGT("PRINTER GESTOPT");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Reset A.U.B.");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); //  One character only. Keep English standard
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); //  One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); //  One character only
   LSTR MSG_HEATING                        = _UxGT("Voorwarmen...");
   LSTR MSG_BED_HEATING                    = _UxGT("Bed voorverw...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Calibratie");

@@ -252,9 +252,6 @@ namespace Language_eu {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: Tenp Minimoa");
   LSTR MSG_HALTED                         = _UxGT("INPRIMA. GELDIRIK");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Berrabia. Mesedez");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
   LSTR MSG_HEATING                        = _UxGT("Berotzen...");
   LSTR MSG_BED_HEATING                    = _UxGT("Ohea Berotzen...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Kalibraketa");

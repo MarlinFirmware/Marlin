@@ -144,9 +144,6 @@ namespace Language_da {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Fejl: Min temp");
   LSTR MSG_HALTED                         = _UxGT("PRINTER STOPPET");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Reset Venligst");
-  LSTR MSG_SHORT_DAY                      = _UxGT("d"); // Kun et bogstav
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // Kun et bogstav
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // Kun et bogstav
   LSTR MSG_HEATING                        = _UxGT("Opvarmer...");
   LSTR MSG_BED_HEATING                    = _UxGT("Opvarmer plade...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Kalibrering");

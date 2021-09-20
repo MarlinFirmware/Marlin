@@ -625,12 +625,6 @@ namespace Language_fr {
   LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop activé");
   LSTR MSG_SERVICE_RESET                  = _UxGT("Réinit.");
   LSTR MSG_SERVICE_IN                     = _UxGT("  dans:");
-  LSTR MSG_BACKLASH_A                     = LCD_STR_A;
-  LSTR MSG_BACKLASH_B                     = LCD_STR_B;
-  LSTR MSG_BACKLASH_C                     = LCD_STR_C;
-  LSTR MSG_BACKLASH_I                     = LCD_STR_I;
-  LSTR MSG_BACKLASH_J                     = LCD_STR_J;
-  LSTR MSG_BACKLASH_K                     = LCD_STR_K;
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correction");
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Lissage");
 

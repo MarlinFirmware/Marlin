@@ -192,9 +192,6 @@ namespace Language_jp_kana {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("エラー:サイテイオンミマン");          // "Err: MINTEMP"
   LSTR MSG_HALTED                         = _UxGT("プリンターハテイシシマシタ");         // "PRINTER HALTED"
   LSTR MSG_PLEASE_RESET                   = _UxGT("リセットシテクダサイ");              // "Please reset"
-  LSTR MSG_SHORT_DAY                      = _UxGT("d");                          // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h");                          // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m");                          // One character only
   LSTR MSG_HEATING                        = _UxGT("カネツチュウ");                   // "Heating..."
   LSTR MSG_BED_HEATING                    = _UxGT("ベッド カネツチュウ");              // "Bed Heating..."
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("デルタ コウセイ");                // "Delta Calibration"
