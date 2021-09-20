@@ -168,7 +168,7 @@
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
   #define MOTOR_CURRENT_PWM_Z_PIN           PA7   // VREF4 CONTROL Z
-  #define MOTOR_CURRENT_PWM_RANGE           1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #define MOTOR_CURRENT_PWM_RANGE          1500   // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
     #define DEFAULT_PWM_MOTOR_CURRENT { 900, 900, 900 }
   #endif
@@ -246,6 +246,9 @@
     #undef MKS_PWC
     #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
     #define SUICIDE_PIN_STATE               LOW   // Enable MKSPWC PIN STATE
+  #elif ENABLED(BACKUP_POWER_SUPPLY)
+    #define POWER_LOSS_PIN                  PA2   // PW_DET (UPS) MKSPWC
+    #define PS_ON_PIN                       PB2   // PW_OFF
   #else
     #define PS_ON_PIN                       PA3   // PW_CN /PW_OFF, you can change it to other pin
   #endif 
@@ -261,10 +264,7 @@
   #define MT_DET_PIN_STATE                  LOW
   #define FIL_RUNOUT_PIN           MT_DET_1_PIN   // MT_DET
 #else
-  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
-#elif ENABLED(BACKUP_POWER_SUPPLY)
-  #define POWER_LOSS_PIN                    PA2   // PW_DET (UPS) MKSPWC
-  //#define PS_ON_PIN                       PB2   // PW_OFF
+  #define FIL_RUNOUT_PIN                    PA4   // MT_DET  
 #endif
 
 //
