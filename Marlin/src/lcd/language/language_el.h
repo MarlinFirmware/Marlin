@@ -34,7 +34,7 @@ namespace Language_el {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
-  LSTR LANGUAGE                           = _UxGT("Greek");
+  LSTR LANGUAGE                           = _UxGT("Greek (Greece)");
 
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" έτοιμος.");
   LSTR MSG_YES                            = _UxGT("ΝΑΙ");
