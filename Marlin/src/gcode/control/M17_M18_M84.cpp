@@ -33,27 +33,103 @@
 #include "../../core/debug_out.h"
 #include "../../libs/hex_print.h"
 
+inline axis_flags_t selected_axis_bits() {
+  axis_flags_t selected{0};
+  #if HAS_EXTRUDERS
+    if (parser.seen('E')) {
+      if (parser.has_value()) {
+        const uint8_t e = parser.value_int();
+        if (e < E_STEPPERS)
+          selected.bits = _BV(index_of_axis(E_AXIS, e));
+      }
+      else
+        selected.bits = selected.e_bits();
+    }
+  #endif
+  selected.bits |= LINEAR_AXIS_GANG(
+      (parser.seen_test('X')        << X_AXIS),
+    | (parser.seen_test('Y')        << Y_AXIS),
+    | (parser.seen_test('Z')        << Z_AXIS),
+    | (parser.seen_test(AXIS4_NAME) << I_AXIS),
+    | (parser.seen_test(AXIS5_NAME) << J_AXIS),
+    | (parser.seen_test(AXIS6_NAME) << K_AXIS)
+  );
+  return selected;
+}
+
+void do_enable(const axis_flags_t to_enable) {
+  const uint16_t was_enabled = stepper.axis_enabled.bits,
+                 shall_enable = to_enable.bits & ~was_enabled;
+
+  DEBUG_ECHOLNPGM("Enabled: ", hex_word(stepper.axis_enabled.bits), " To Enable: ", hex_word(to_enable.bits), " | ", shall_enable);
+
+  // Axes are already enabled?
+  if (!shall_enable) return;
+
+  auto has_enable_overlap = [](const uint8_t axis_index) {
+    return (any_enable_overlap() && enable_overlap[axis_index] != _BV(axis_index));
+  };
+
+  auto overlap_warning = [](const uint8_t axis_index, const uint16_t was_enabled) {
+    if (has_enable_overlap(axis_index)) {
+      SERIAL_CHAR('(');
+      const uint16_t other_bits = enable_overlap[axis_index] & ~(_BV(axis_index) | was_enabled);
+      LOOP_LINEAR_AXES(a) if (TEST(other_bits, a)) SERIAL_CHAR(axis_codes[a]);
+      #if HAS_EXTRUDERS
+        #define _EN_STILLON(N) if (TEST(other_bits, index_of_axis(E_AXIS, N))) SERIAL_CHAR('E', '0' + N);
+        REPEAT(E_STEPPERS, _EN_STILLON)
+      #endif
+      SERIAL_ECHOLNPGM(" also enabled)");
+    }
+  };
+
+  // Enable all flagged axes
+  LOOP_LINEAR_AXES(a) {
+    if (TEST(shall_enable, a)) {
+      stepper.enable_axis(AxisEnum(a));         // Mark and enable the requested axis
+      DEBUG_ECHOLNPGM("Enabled ", axis_codes[a], " with overlap ", hex_word(enable_overlap[a]), " ... Enabled: ", hex_word(stepper.axis_enabled.bits));
+      overlap_warning(a, was_enabled);
+    }
+  }
+  #if HAS_EXTRUDERS
+    LOOP_L_N(e, E_STEPPERS) {
+      const uint8_t a = index_of_axis(E_AXIS, e);
+      if (TEST(shall_enable, a)) {
+        stepper.enable_e_stepper(e);
+        DEBUG_ECHOLNPGM("Enabled E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ", hex_word(stepper.axis_enabled.bits));
+        overlap_warning(a, was_enabled);
+      }
+    }
+  #endif
+
+  DEBUG_ECHOLNPGM("Enabled Now: ", hex_word(stepper.axis_enabled.bits));
+}
+
 /**
  * M17: Enable stepper motors
  */
 void GcodeSuite::M17() {
   if (parser.seen_axis()) {
-    if (TERN0(HAS_EXTRUDERS, parser.seen('E'))) {
-      if (parser.has_value()) {
-        const uint8_t e = parser.value_int();
-        if (e < E_STEPPERS) stepper.enable_e_stepper(e);
+    if (any_enable_overlap())
+      do_enable(selected_axis_bits());
+    else {
+      if (TERN0(HAS_EXTRUDERS, parser.seen('E'))) {
+        if (parser.has_value()) {
+          const uint8_t e = parser.value_int();
+          if (e < E_STEPPERS) stepper.enable_e_stepper(e);
+        }
+        else
+          stepper.enable_e_steppers();
       }
-      else
-        stepper.enable_e_steppers();
+      LINEAR_AXIS_CODE(
+        if (parser.seen_test('X'))        stepper.enable_axis(X_AXIS),
+        if (parser.seen_test('Y'))        stepper.enable_axis(Y_AXIS),
+        if (parser.seen_test('Z'))        stepper.enable_axis(Z_AXIS),
+        if (parser.seen_test(AXIS4_NAME)) stepper.enable_axis(I_AXIS),
+        if (parser.seen_test(AXIS5_NAME)) stepper.enable_axis(J_AXIS),
+        if (parser.seen_test(AXIS6_NAME)) stepper.enable_axis(K_AXIS)
+      );
     }
-    LINEAR_AXIS_CODE(
-      if (parser.seen_test('X'))        stepper.enable_axis(X_AXIS),
-      if (parser.seen_test('Y'))        stepper.enable_axis(Y_AXIS),
-      if (parser.seen_test('Z'))        stepper.enable_axis(Z_AXIS),
-      if (parser.seen_test(AXIS4_NAME)) stepper.enable_axis(I_AXIS),
-      if (parser.seen_test(AXIS5_NAME)) stepper.enable_axis(J_AXIS),
-      if (parser.seen_test(AXIS6_NAME)) stepper.enable_axis(K_AXIS)
-    );
   }
   else {
     LCD_MESSAGEPGM(MSG_NO_MOVE);
@@ -84,7 +160,7 @@ void try_to_disable(const axis_flags_t to_disable) {
     LOOP_L_N(e, E_STEPPERS) {
       const uint8_t a = index_of_axis(E_AXIS, e);
       if (TEST(to_disable.bits, a)) {
-        DEBUG_ECHOPGM("Try to disable E", e, " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
+        DEBUG_ECHOPGM("Try to disable E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
         if (stepper.disable_e_stepper(e)) {
           still_enabled &= ~enable_overlap[a];
           DEBUG_ECHOPGM("OK");
@@ -139,29 +215,8 @@ void GcodeSuite::M18_M84() {
   else {
     if (parser.seen_axis()) {
       planner.synchronize();
-      if (any_enable_overlap()) {
-        axis_flags_t to_disable{0};
-        #if HAS_EXTRUDERS
-          if (parser.seen('E')) {
-            if (parser.has_value()) {
-              const uint8_t e = parser.value_int();
-              if (e < E_STEPPERS)
-                to_disable.bits = _BV(index_of_axis(E_AXIS, e));
-            }
-            else
-              to_disable.bits = to_disable.e_bits();
-          }
-        #endif
-        to_disable.bits |= LINEAR_AXIS_GANG(
-            (parser.seen_test('X')        << X_AXIS),
-          | (parser.seen_test('Y')        << Y_AXIS),
-          | (parser.seen_test('Z')        << Z_AXIS),
-          | (parser.seen_test(AXIS4_NAME) << I_AXIS),
-          | (parser.seen_test(AXIS5_NAME) << J_AXIS),
-          | (parser.seen_test(AXIS6_NAME) << K_AXIS)
-        );
-        try_to_disable(to_disable);
-      }
+      if (any_enable_overlap())
+        try_to_disable(selected_axis_bits());
       else {
         #if HAS_EXTRUDERS
           if (parser.seen('E')) {
