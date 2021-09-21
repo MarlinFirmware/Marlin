@@ -61,25 +61,24 @@ void do_enable(const axis_flags_t to_enable) {
   const uint16_t was_enabled = stepper.axis_enabled.bits,
                  shall_enable = to_enable.bits & ~was_enabled;
 
-  DEBUG_ECHOLNPGM("Enabled: ", hex_word(stepper.axis_enabled.bits), " To Enable: ", hex_word(to_enable.bits), " | ", shall_enable);
+  DEBUG_ECHOLNPGM("Now Enabled: ", hex_word(stepper.axis_enabled.bits), "  Enabling: ", hex_word(to_enable.bits), " | ", shall_enable);
 
   // Axes are already enabled?
   if (!shall_enable) return;
 
-  auto has_enable_overlap = [](const uint8_t axis_index) {
-    return (any_enable_overlap() && enable_overlap[axis_index] != _BV(axis_index));
-  };
-
-  auto overlap_warning = [](const uint8_t axis_index, const uint16_t was_enabled) {
-    if (has_enable_overlap(axis_index)) {
-      SERIAL_CHAR('(');
-      const uint16_t other_bits = enable_overlap[axis_index] & ~(_BV(axis_index) | was_enabled);
-      LOOP_LINEAR_AXES(a) if (TEST(other_bits, a)) SERIAL_CHAR(axis_codes[a]);
-      #if HAS_EXTRUDERS
-        #define _EN_STILLON(N) if (TEST(other_bits, index_of_axis(E_AXIS, N))) SERIAL_CHAR('E', '0' + N);
-        REPEAT(E_STEPPERS, _EN_STILLON)
-      #endif
-      SERIAL_ECHOLNPGM(" also enabled)");
+  auto overlap_warning = [&](const uint8_t axis_index) {
+    const uint16_t o = enable_overlap[axis_index];
+    if (any_enable_overlap() && o) {
+      const uint16_t other_bits = o & ~was_enabled;
+      if (other_bits) {
+        SERIAL_CHAR('(');
+        LOOP_LINEAR_AXES(a) if (TEST(other_bits, a)) SERIAL_CHAR(axis_codes[a], ' ');
+        #if HAS_EXTRUDERS
+          #define _EN_ALSO(N) if (TEST(other_bits, index_of_axis(E_AXIS, N))) SERIAL_CHAR('E', '0' + N, ' ');
+          REPEAT(E_STEPPERS, _EN_ALSO)
+        #endif
+        SERIAL_ECHOLNPGM("also enabled)");
+      }
     }
   };
 
@@ -88,7 +87,7 @@ void do_enable(const axis_flags_t to_enable) {
     if (TEST(shall_enable, a)) {
       stepper.enable_axis(AxisEnum(a));         // Mark and enable the requested axis
       DEBUG_ECHOLNPGM("Enabled ", axis_codes[a], " with overlap ", hex_word(enable_overlap[a]), " ... Enabled: ", hex_word(stepper.axis_enabled.bits));
-      overlap_warning(a, was_enabled);
+      overlap_warning(a);
     }
   }
   #if HAS_EXTRUDERS
@@ -97,7 +96,7 @@ void do_enable(const axis_flags_t to_enable) {
       if (TEST(shall_enable, a)) {
         stepper.enable_e_stepper(e);
         DEBUG_ECHOLNPGM("Enabled E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ", hex_word(stepper.axis_enabled.bits));
-        overlap_warning(a, was_enabled);
+        overlap_warning(a);
       }
     }
   #endif
@@ -106,7 +105,14 @@ void do_enable(const axis_flags_t to_enable) {
 }
 
 /**
- * M17: Enable stepper motors
+ * M17: Enable stepper motor power for one or more axes.
+ *      Print warnings for axes that share an ENABLE_PIN.
+ *
+ * Examples:
+ *
+ *  M17 XZ ; Enable X and Z axes
+ *  M17 E  ; Enable all E steppers
+ *  M17 E1 ; Enable just the E1 stepper
  */
 void GcodeSuite::M17() {
   if (parser.seen_axis()) {
@@ -148,9 +154,9 @@ void try_to_disable(const axis_flags_t to_disable) {
   LOOP_LINEAR_AXES(a)
     if (TEST(to_disable.bits, a)) {
       DEBUG_ECHOPGM("Try to disable ", axis_codes[a], " with overlap ", hex_word(enable_overlap[a]), " ... ");
-      if (stepper.disable_axis(AxisEnum(a))) {  // Mark the requested axis and request to disable
-        still_enabled &= ~enable_overlap[a];    // If actually disabled, clear one or more tracked bits
+      if (stepper.disable_axis(AxisEnum(a))) {            // Mark the requested axis and request to disable
         DEBUG_ECHOPGM("OK");
+        still_enabled &= ~(_BV(a) | enable_overlap[a]);   // If actually disabled, clear one or more tracked bits
       }
       else
         DEBUG_ECHOPGM("OVERLAP");
@@ -162,8 +168,8 @@ void try_to_disable(const axis_flags_t to_disable) {
       if (TEST(to_disable.bits, a)) {
         DEBUG_ECHOPGM("Try to disable E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
         if (stepper.disable_e_stepper(e)) {
-          still_enabled &= ~enable_overlap[a];
           DEBUG_ECHOPGM("OK");
+          still_enabled &= ~(_BV(a) | enable_overlap[a]);
         }
         else
           DEBUG_ECHOPGM("OVERLAP");
@@ -173,10 +179,10 @@ void try_to_disable(const axis_flags_t to_disable) {
   #endif
 
   auto overlap_warning = [](const uint16_t axis_bits) {
-    SERIAL_ECHOPGM(" not disabled. Shared with ");
-    LOOP_LINEAR_AXES(a) if (TEST(axis_bits, a)) SERIAL_CHAR(axis_codes[a]);
+    SERIAL_ECHOPGM(" not disabled. Shared with");
+    LOOP_LINEAR_AXES(a) if (TEST(axis_bits, a)) SERIAL_CHAR(' ', axis_codes[a]);
     #if HAS_EXTRUDERS
-      #define _EN_STILLON(N) if (TEST(axis_bits, index_of_axis(E_AXIS, N))) SERIAL_CHAR('E', '0' + N);
+      #define _EN_STILLON(N) if (TEST(axis_bits, index_of_axis(E_AXIS, N))) SERIAL_CHAR(' ', 'E', '0' + N);
       REPEAT(E_STEPPERS, _EN_STILLON)
     #endif
     SERIAL_ECHOLNPGM(".");
@@ -202,10 +208,9 @@ void try_to_disable(const axis_flags_t to_disable) {
   DEBUG_ECHOLNPGM("Enabled Now: ", hex_word(stepper.axis_enabled.bits));
 }
 
-//static_assert(!any_enable_overlap(), "There is some overlap.");
-
 /**
- * M18, M84: Disable stepper motors
+ * M18, M84: Disable stepper motor power for one or more axes.
+ *           Print warnings for axes that share an ENABLE_PIN.
  */
 void GcodeSuite::M18_M84() {
   if (parser.seenval('S')) {

@@ -266,12 +266,12 @@ constexpr int8_t index_of_axis(const AxisEnum axis, const uint8_t eindex=0) {
 
 // Bit mask for a matching enable pin, or 0
 constexpr uint16_t ena_same(const uint8_t a, const uint8_t b) {
-  return (ena_pins[a] == ena_pins[b]) ? _BV(b) : 0;
+  return ena_pins[a] == ena_pins[b] ? _BV(b) : 0;
 }
 
 // Recursively get the enable overlaps mask for a given linear axis or extruder
 constexpr uint16_t ena_overlap(const uint8_t a=0, const uint8_t b=0) {
-  return b >= ENABLE_COUNT ? 0 : ena_same(a, b) | ena_overlap(a, b + 1);
+  return b >= ENABLE_COUNT ? 0 : (a == b ? 0 : ena_same(a, b)) | ena_overlap(a, b + 1);
 }
 
 // Recursively get whether there's any overlap at all
@@ -288,6 +288,8 @@ constexpr uint16_t enable_overlap[] = {
     REPEAT(E_STEPPERS, _E_OVERLAP)
   #endif
 };
+
+//static_assert(!any_enable_overlap(), "There is some overlap.");
 
 //
 // Stepper class definition
@@ -584,9 +586,7 @@ class Stepper {
       CBI(axis_enabled.bits, index_of_axis(axis, eindex));
     }
     static inline bool can_axis_disable(const AxisEnum axis, const uint8_t eindex=0) {
-      const uint8_t a = index_of_axis(axis, eindex);
-      const uint16_t o = enable_overlap[a];
-      return o == _BV(a) || !(axis_enabled.bits & o);
+      return !any_enable_overlap() || !(axis_enabled.bits & enable_overlap[index_of_axis(axis, eindex)]);
     }
 
     static void enable_axis(const AxisEnum axis);
