@@ -302,8 +302,10 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
  * send current back to their board, potentially frying it.
  */
 inline void disable_active_extruder() {
-  stepper.disable_e_stepper(active_extruder);
-  safe_delay(100);
+  #if HAS_EXTRUDERS
+    stepper.disable_e_stepper(active_extruder);
+    safe_delay(100);
+  #endif
 }
 
 /**
