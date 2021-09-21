@@ -372,7 +372,7 @@ static float auto_tune_a() {
  *      P3       Probe all positions: center, towers and opposite towers. Calibrate all.
  *      P4-P10   Probe all positions at different intermediate locations and average them.
  *
- *   Rn.nn  override default calibration Radius
+ *   Rn.nn  Fit all probe positions in this radius (temporary overrides DELTA_MAX_RADIUS)
  *
  *   T   Don't calibrate tower angle corrections
  *
@@ -409,25 +409,14 @@ void GcodeSuite::G33() {
   const bool probe_at_offset = TERN0(HAS_PROBE_XY_OFFSET, parser.boolval('O')),
                   towers_set = !parser.seen_test('T');
 
-  float max_dcr = dcr = DELTA_PRINTABLE_RADIUS;
-  #if HAS_PROBE_XY_OFFSET
-    // For offset probes the calibration radius is set to a calculated value
-    // With probe positions both probe and nozzle need to be within the printable area
-    float offset_radius = HYPOT(probe.offset_xy.x, probe.offset_xy.y);
-    if (!probe_at_offset) {
-      // else with nozzle positions only the nozzle needs to be within the printable area
-      // and the probe needs to be inside the physical machine diameter
-      offset_radius -= (DELTA_MAX_RADIUS) - (DELTA_PRINTABLE_RADIUS);
-      NOLESS(offset_radius, 0);
-    }
-    max_dcr = dcr -= offset_radius;
-  #endif
-
+  float dcr = DELTA_MAX_RADIUS;
   if (parser.seenval('R')) dcr = parser.value_float();
-  if (!WITHIN(dcr, 0, max_dcr)) {
-    SERIAL_ECHOLNPGM("?calibration (R)adius implausible.");
-    return;
-  }
+  #if HAS_PROBE_XY_OFFSET
+    // The calibration radius is set to a calculated value
+    if (probe_at_offset) NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
+    dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
+  #endif
+  NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
