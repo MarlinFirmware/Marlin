@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,26 +20,28 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(SERVO_DETACH_GCODE)
-
-#include "../gcode.h"
-#include "../../module/servo.h"
-
 /**
- * M282: Detach Servo. P<index>
+ * polargraph.cpp
  */
-void GcodeSuite::M282() {
 
-  if (!parser.seenval('P')) return;
+#include "../inc/MarlinConfig.h"
 
-  const int servo_index = parser.value_int();
-  if (WITHIN(servo_index, 0, NUM_SERVOS - 1))
-    DETACH_SERVO(servo_index);
-  else
-    SERIAL_ECHO_MSG("Servo ", servo_index, " out of range");
+#if ENABLED(POLARGRAPH)
 
+#include "polargraph.h"
+#include "motion.h"
+
+// For homing:
+#include "planner.h"
+#include "endstops.h"
+#include "../lcd/marlinui.h"
+#include "../MarlinCore.h"
+
+float segments_per_second; // Initialized by settings.load()
+
+void inverse_kinematics(const xyz_pos_t &raw) {
+  const float x1 = raw.x - (X_MIN_POS), x2 = (X_MAX_POS) - raw.x, y = raw.y - (Y_MAX_POS);
+  delta.set(HYPOT(x1, y), HYPOT(x2, y), raw.z);
 }
 
-#endif // SERVO_DETACH_GCODE
+#endif // POLARGRAPH

@@ -489,7 +489,7 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
     const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS);
   #endif
 
-  #if EITHER(DELTA, IS_SCARA)
+  #if IS_KINEMATIC
     if (!position_is_reachable(x, y)) return;
     destination = current_position;          // sync destination at the start
   #endif
