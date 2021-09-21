@@ -37,7 +37,7 @@ class WifiSerial {
 
     // Set up / tear down
     void begin(uint32_t baud);
-    void begin(uint32_t baud,uint8_t config);
+    void begin(uint32_t baud, uint8_t config);
     void end();
     int available(void);
     int read(void);
@@ -51,13 +51,13 @@ class WifiSerial {
     bool isHalfDuplex(void) const;
     void enableHalfDuplexRx(void);
 
-    private:
-      void setRx(uint32_t _rx);
-      void setTx(uint32_t _tx);
-      void setRx(PinName _rx);
-      void setTx(PinName _tx);
-      void init(PinName _rx, PinName _tx);
-      bool _rx_enabled;
-      uint8_t _config;
-      unsigned long _baud;
+  private:
+    void setRx(uint32_t _rx);
+    void setTx(uint32_t _tx);
+    void setRx(PinName _rx);
+    void setTx(PinName _tx);
+    void init(PinName _rx, PinName _tx);
+    bool _rx_enabled;
+    uint8_t _config;
+    unsigned long _baud;
 };

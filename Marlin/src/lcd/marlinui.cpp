@@ -1444,6 +1444,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   void MarlinUI::set_alert_status_P(PGM_P const message) {
     set_status_P(message, 1);
+    TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
@@ -1482,9 +1483,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         next_filament_display = ms + 5000UL; // Show status message for 5s
       #endif
 
-      #if ENABLED(STATUS_MESSAGE_SCROLLING)
-        status_scroll_offset = 0;
-      #endif
+      TERN_(STATUS_MESSAGE_SCROLLING, status_scroll_offset = 0);
     #else // HAS_WIRED_LCD
       UNUSED(persist);
     #endif
@@ -1557,6 +1556,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       defer_status_screen();
     #endif
 
+    TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume")));
 
     LCD_MESSAGEPGM(MSG_PRINT_PAUSED);

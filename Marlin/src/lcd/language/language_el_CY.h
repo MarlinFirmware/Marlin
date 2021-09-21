@@ -19,22 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
-
-#include "../../feature/host_actions.h"
-#include "../gcode.h"
-#include "../../MarlinCore.h"
+#pragma once
 
 /**
- * M876: Handle Prompt Response
+ * Greek (Cyprus)
+ *
+ * LCD Menu Messages
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  */
-void GcodeSuite::M876() {
 
-  if (parser.seenval('S')) host_response_handler((uint8_t)parser.value_int());
+#include "language_el.h"
 
+namespace Language_el_CY {
+  using namespace Language_el; // Inherit undefined strings from Greek (or English)
+
+  constexpr uint8_t CHARSIZE              = 2;
+  LSTR LANGUAGE                           = _UxGT("Greek (Cyprus)");
 }
-
-#endif // HOST_PROMPT_SUPPORT && !EMERGENCY_PARSER

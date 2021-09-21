@@ -254,7 +254,7 @@ extern "C" {
 #endif
 
 // Timer Definitions
-//Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
+// Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
 #define TIMER_TONE              TIM10
 #define TIMER_SERVO             TIM5
 #define TIMER_SERIAL            TIM7

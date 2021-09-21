@@ -20,21 +20,28 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
-
-#include "../../feature/host_actions.h"
-#include "../gcode.h"
-#include "../../MarlinCore.h"
-
 /**
- * M876: Handle Prompt Response
+ * polargraph.cpp
  */
-void GcodeSuite::M876() {
 
-  if (parser.seenval('S')) host_response_handler((uint8_t)parser.value_int());
+#include "../inc/MarlinConfig.h"
 
+#if ENABLED(POLARGRAPH)
+
+#include "polargraph.h"
+#include "motion.h"
+
+// For homing:
+#include "planner.h"
+#include "endstops.h"
+#include "../lcd/marlinui.h"
+#include "../MarlinCore.h"
+
+float segments_per_second; // Initialized by settings.load()
+
+void inverse_kinematics(const xyz_pos_t &raw) {
+  const float x1 = raw.x - (X_MIN_POS), x2 = (X_MAX_POS) - raw.x, y = raw.y - (Y_MAX_POS);
+  delta.set(HYPOT(x1, y), HYPOT(x2, y), raw.z);
 }
 
-#endif // HOST_PROMPT_SUPPORT && !EMERGENCY_PARSER
+#endif // POLARGRAPH

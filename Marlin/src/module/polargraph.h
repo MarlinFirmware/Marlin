@@ -19,22 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
-
-#include "../../feature/host_actions.h"
-#include "../gcode.h"
-#include "../../MarlinCore.h"
+#pragma once
 
 /**
- * M876: Handle Prompt Response
+ * polargraph.h - Polargraph-specific functions
  */
-void GcodeSuite::M876() {
 
-  if (parser.seenval('S')) host_response_handler((uint8_t)parser.value_int());
+#include "../core/types.h"
+#include "../core/macros.h"
 
-}
+extern float segments_per_second;
 
-#endif // HOST_PROMPT_SUPPORT && !EMERGENCY_PARSER
+void inverse_kinematics(const xyz_pos_t &raw);

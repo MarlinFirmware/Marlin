@@ -28,7 +28,7 @@
 void lv_draw_wifi_list();
 void lv_clear_wifi_list();
 void disp_wifi_list();
-void cutWifiName(char *name, int len,char *outStr);
+void cutWifiName(char *name, int len, char *outStr);
 void wifi_scan_handle();
 
 #define NUMBER_OF_PAGE 5
