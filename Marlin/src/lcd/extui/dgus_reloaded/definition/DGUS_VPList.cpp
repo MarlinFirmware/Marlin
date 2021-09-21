@@ -92,7 +92,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
 
   VP_HELPER_RX(DGUS_Addr::ADJUST_SetFeedrate,     &DGUSRxHandler::Feedrate),
   VP_HELPER_RX(DGUS_Addr::ADJUST_SetFlowrate_CUR, &DGUSRxHandler::Flowrate),
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     VP_HELPER_RX(DGUS_Addr::ADJUST_SetFlowrate_E0,  &DGUSRxHandler::Flowrate),
     VP_HELPER_RX(DGUS_Addr::ADJUST_SetFlowrate_E1,  &DGUSRxHandler::Flowrate),
   #endif
@@ -194,7 +194,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_TX_AUTO(DGUS_Addr::ADJUST_Flowrate_CUR,
                     nullptr,
                     &DGUSTxHandler::Flowrate),
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     VP_HELPER_TX_AUTO(DGUS_Addr::ADJUST_Flowrate_E0,
                       nullptr,
                       &DGUSTxHandler::Flowrate),
