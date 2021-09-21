@@ -483,7 +483,54 @@ xyze_int8_t Stepper::count_direction{0};
   #define DIR_WAIT_AFTER()
 #endif
 
+void Stepper::enable_axis(const AxisEnum axis) {
+  #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); break;
+  switch (axis) {
+    LINEAR_AXIS_CODE(
+      _CASE_ENABLE(X), _CASE_ENABLE(Y), _CASE_ENABLE(Z),
+      _CASE_ENABLE(I), _CASE_ENABLE(J), _CASE_ENABLE(K)
+    );
+    default: break;
+  }
+  mark_axis_enabled(axis);
+}
+
+bool Stepper::disable_axis(const AxisEnum axis) {
+  mark_axis_disabled(axis);
+  // If all the axes that share the enabled bit are disabled
+  const bool can_disable = can_axis_disable(axis);
+  if (can_disable) {
+    #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
+    switch (axis) {
+      LINEAR_AXIS_CODE(
+        _CASE_DISABLE(X), _CASE_DISABLE(Y), _CASE_DISABLE(Z),
+        _CASE_DISABLE(I), _CASE_DISABLE(J), _CASE_DISABLE(K)
+      );
+      default: break;
+    }
+  }
+  return can_disable;
+}
+
 #if HAS_EXTRUDERS
+
+  void Stepper::enable_e_stepper(const uint8_t eindex) {
+    #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); mark_axis_enabled(E_AXIS, eindex); break;
+    switch (eindex) {
+      REPEAT(E_STEPPERS, _CASE_ENA_E)
+    }
+  }
+
+  bool Stepper::disable_e_stepper(const uint8_t eindex) {
+    mark_axis_disabled(E_AXIS, eindex);
+    const bool can_disable = can_axis_disable(E_AXIS, eindex);
+    if (can_disable) {
+      #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
+      switch (eindex) { REPEAT(E_STEPPERS, _CASE_DIS_E) }
+    }
+    return can_disable;
+  }
+
   void Stepper::enable_e_steppers() {
     #define _ENA_E(N) enable_e_stepper(N);
     REPEAT(E_STEPPERS, _ENA_E)
@@ -493,6 +540,7 @@ xyze_int8_t Stepper::count_direction{0};
     #define _DIS_E(N) disable_e_stepper(N);
     REPEAT(E_STEPPERS, _DIS_E)
   }
+
 #endif
 
 void Stepper::enable_all_steppers() {

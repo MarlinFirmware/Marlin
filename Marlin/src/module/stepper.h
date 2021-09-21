@@ -236,6 +236,8 @@
 // Perhaps DISABLE_MULTI_STEPPING should be required with ADAPTIVE_STEP_SMOOTHING.
 #define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X / 2)
 
+#define ENABLE_COUNT (LINEAR_AXES + E_STEPPERS)
+
 // Axis flags type, for enabled state or other simple state
 typedef struct {
   union {
@@ -243,22 +245,24 @@ typedef struct {
     struct {
       bool LINEAR_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1);
       #if HAS_EXTRUDERS
-        bool LIST_N(EXTRUDERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
+        bool LIST_N(E_STEPPERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
       #endif
     };
   };
+  constexpr uint16_t linear_bits() { return _BV(LINEAR_AXES) - 1; }
+  constexpr uint16_t e_bits() { return (_BV(E_STEPPERS) - 1) << LINEAR_AXES; }
 } axis_flags_t;
+
+// All the stepper enable pins
+constexpr pin_t ena_pins[] = {
+  LINEAR_AXIS_LIST(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN),
+  LIST_N(E_STEPPERS, E0_ENABLE_PIN, E1_ENABLE_PIN, E2_ENABLE_PIN, E3_ENABLE_PIN, E4_ENABLE_PIN, E5_ENABLE_PIN, E6_ENABLE_PIN, E7_ENABLE_PIN)
+};
 
 // Index of the axis or extruder element in a combined array
 constexpr int8_t index_of_axis(const AxisEnum axis, const uint8_t eindex=0) {
   return uint8_t(axis) + (axis < LINEAR_AXES ? 0 : eindex);
 }
-
-// All the stepper enable pins
-constexpr pin_t ena_pins[] = {
-  LINEAR_AXIS_LIST(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN),
-  LIST_N(EXTRUDERS, E0_ENABLE_PIN, E1_ENABLE_PIN, E2_ENABLE_PIN, E3_ENABLE_PIN, E4_ENABLE_PIN, E5_ENABLE_PIN, E6_ENABLE_PIN, E7_ENABLE_PIN)
-};
 
 // Bit mask for a matching enable pin, or 0
 constexpr uint16_t ena_same(const uint8_t a, const uint8_t b) {
@@ -266,16 +270,22 @@ constexpr uint16_t ena_same(const uint8_t a, const uint8_t b) {
 }
 
 // Recursively get the enable overlaps mask for a given linear axis or extruder
-constexpr uint16_t ena_overlap(const AxisEnum axis, const uint8_t eindex=0, const uint16_t value=0, const uint8_t cmpindex=0) {
-  return value | (cmpindex < COUNT(ena_pins) ? ena_overlap(axis, eindex, ena_same(index_of_axis(axis, eindex), cmpindex), cmpindex + 1) : 0);
+constexpr uint16_t ena_overlap(const uint8_t a=0, const uint8_t b=0) {
+  return b >= ENABLE_COUNT ? 0 : ena_same(a, b) | ena_overlap(a, b + 1);
 }
 
-#define _OVERLAP(N) ena_overlap(AxisEnum(N)),
-#define _E_OVERLAP(N) ena_overlap(E_AXIS, N),
-constexpr uint16_t ena_overlaps[] = {
+// Recursively get whether there's any overlap at all
+constexpr bool any_enable_overlap(const uint8_t a=0) {
+  return a >= ENABLE_COUNT ? false : ena_overlap(a) || any_enable_overlap(a + 1);
+}
+
+// Array of axes that overlap with each
+constexpr uint16_t enable_overlap[] = {
+  #define _OVERLAP(N) ena_overlap(index_of_axis(AxisEnum(N))),
   REPEAT(LINEAR_AXES, _OVERLAP)
   #if HAS_EXTRUDERS
-    REPEAT(EXTRUDERS, _E_OVERLAP)
+    #define _E_OVERLAP(N) ena_overlap(index_of_axis(E_AXIS, N)),
+    REPEAT(E_STEPPERS, _E_OVERLAP)
   #endif
 };
 
@@ -564,66 +574,32 @@ class Stepper {
 
     static axis_flags_t axis_enabled;   // Axis stepper ENABLED states
 
-    static inline void mark_axis_enabled(const AxisEnum axis, const uint8_t eindex=0) {
-      SBI(axis_enabled.bits, index_of_axis(axis, eindex));
-    }
     static inline bool axis_is_enabled(const AxisEnum axis, const uint8_t eindex=0) {
       return TEST(axis_enabled.bits, index_of_axis(axis, eindex));
+    }
+    static inline void mark_axis_enabled(const AxisEnum axis, const uint8_t eindex=0) {
+      SBI(axis_enabled.bits, index_of_axis(axis, eindex));
     }
     static inline void mark_axis_disabled(const AxisEnum axis, const uint8_t eindex=0) {
       CBI(axis_enabled.bits, index_of_axis(axis, eindex));
     }
     static inline bool can_axis_disable(const AxisEnum axis, const uint8_t eindex=0) {
-      const uint8_t axis_index = index_of_axis(axis, eindex);
-      return ena_overlaps[axis_index] == _BV(axis_index) || !(ena_overlaps[axis_index] & axis_enabled.bits);
+      const uint8_t a = index_of_axis(axis, eindex);
+      const uint16_t o = enable_overlap[a];
+      return o == _BV(a) || !(axis_enabled.bits & o);
     }
 
-    static inline void enable_axis(const AxisEnum axis) {
-      #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); break;
-      switch (axis) {
-        LINEAR_AXIS_CODE(
-          _CASE_ENABLE(X), _CASE_ENABLE(Y), _CASE_ENABLE(Z),
-          _CASE_ENABLE(I), _CASE_ENABLE(J), _CASE_ENABLE(K)
-        );
-        default: break;
-      }
-      mark_axis_enabled(axis);
-    }
-
-    static inline void disable_axis(const AxisEnum axis) {
-      mark_axis_disabled(axis);
-      // If all the axes that share the enabled bit are disabled
-      if (can_axis_disable(axis)) {
-        #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
-        switch (axis) {
-          LINEAR_AXIS_CODE(
-            _CASE_DISABLE(X), _CASE_DISABLE(Y), _CASE_DISABLE(Z),
-            _CASE_DISABLE(I), _CASE_DISABLE(J), _CASE_DISABLE(K)
-          );
-          default: break;
-        }
-      }
-    }
+    static void enable_axis(const AxisEnum axis);
+    static bool disable_axis(const AxisEnum axis);
 
     #if HAS_EXTRUDERS
-      static inline void enable_e_stepper(const uint8_t eindex) {
-        #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); break;
-        switch (eindex) {
-          REPEAT(E_STEPPERS, _CASE_ENA_E)
-        }
-      }
-      static inline void disable_e_stepper(const uint8_t eindex) {
-        mark_axis_disabled(E_AXIS, eindex);
-        if (can_axis_disable(E_AXIS, eindex)) {
-          #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
-          switch (eindex) { REPEAT(E_STEPPERS, _CASE_DIS_E) }
-        }
-      }
+      static void enable_e_stepper(const uint8_t eindex);
+      static bool disable_e_stepper(const uint8_t eindex);
       static void enable_e_steppers();
       static void disable_e_steppers();
     #else
       static inline void enable_e_stepper(const uint8_t) {}
-      static inline void disable_e_stepper(const uint8_t) {}
+      static inline bool disable_e_stepper(const uint8_t) {}
       static inline void enable_e_steppers() {}
       static inline void disable_e_steppers() {}
     #endif
