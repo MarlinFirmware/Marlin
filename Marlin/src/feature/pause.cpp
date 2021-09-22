@@ -207,7 +207,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
         #if ENABLED(MULTI_FILAMENT_SENSOR)
           #define _CASE_INSERTED(N) case N-1: if (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) wait_for_user = false; break;
           switch (active_extruder) {
-            REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_INSERTED)
+            REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_INSERTED)
           }
         #else
           if (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE) wait_for_user = false;

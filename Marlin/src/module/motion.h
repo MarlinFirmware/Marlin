@@ -504,6 +504,14 @@ void home_if_needed(const bool keeplev=false);
 
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
 
+    #elif ENABLED(POLARGRAPH)
+
+      const float x1 = rx - (X_MIN_POS), x2 = (X_MAX_POS) - rx, y = ry - (Y_MAX_POS),
+                  a = HYPOT(x1, y), b = HYPOT(x2, y);
+      return a < (POLARGRAPH_MAX_BELT_LEN) + 1
+          && b < (POLARGRAPH_MAX_BELT_LEN) + 1
+          && (a + b) > _MIN(X_BED_SIZE, Y_BED_SIZE);
+
     #elif ENABLED(AXEL_TPARA)
 
       const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
