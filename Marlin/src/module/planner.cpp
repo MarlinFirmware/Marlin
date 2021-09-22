@@ -2214,21 +2214,21 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         #define ENABLE_ONE_E(N) do{ \
           if (E_STEPPER_INDEX(extruder) == N) { \
-            stepper.enable_e_stepper(N); \
+            stepper.enable_extruder(N); \
             g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.enable_e_stepper(1); \
+              stepper.enable_extruder(1); \
           } \
           else if (!g_uc_extruder_last_move[N]) { \
-            stepper.disable_e_stepper(N); \
+            stepper.disable_extruder(N); \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.disable_e_stepper(1); \
+              stepper.disable_extruder(1); \
           } \
         }while(0);
 
       #else
 
-        #define ENABLE_ONE_E(N) stepper.enable_e_stepper(N);
+        #define ENABLE_ONE_E(N) stepper.enable_extruder(N);
 
       #endif
 

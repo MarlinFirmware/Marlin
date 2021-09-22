@@ -593,13 +593,13 @@ class Stepper {
     static bool disable_axis(const AxisEnum axis);
 
     #if HAS_EXTRUDERS
-      static void enable_e_stepper(const uint8_t eindex);
-      static bool disable_e_stepper(const uint8_t eindex);
+      static void enable_extruder(const uint8_t eindex=0);
+      static bool disable_extruder(const uint8_t eindex=0);
       static void enable_e_steppers();
       static void disable_e_steppers();
     #else
-      static inline void enable_e_stepper(const uint8_t) {}
-      static inline bool disable_e_stepper(const uint8_t) {}
+      static inline void enable_extruder(const uint8_t) {}
+      static inline bool disable_extruder(const uint8_t) {}
       static inline void enable_e_steppers() {}
       static inline void disable_e_steppers() {}
     #endif

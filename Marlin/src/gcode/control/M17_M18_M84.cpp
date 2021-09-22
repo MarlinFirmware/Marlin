@@ -80,7 +80,7 @@ void do_enable(const axis_flags_t to_enable) {
     LOOP_L_N(e, E_STEPPERS) {
       const uint8_t a = index_of_axis(E_AXIS, e);
       if (TEST(shall_enable, a)) {
-        stepper.enable_e_stepper(e);
+        stepper.enable_extruder(e);
         DEBUG_ECHOLNPGM("Enabled E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ", hex_word(stepper.axis_enabled.bits));
         also_enabled |= enable_overlap[a];
       }
@@ -118,7 +118,7 @@ void GcodeSuite::M17() {
       if (TERN0(HAS_EXTRUDERS, parser.seen('E'))) {
         if (parser.has_value()) {
           const uint8_t e = parser.value_int();
-          if (e < E_STEPPERS) stepper.enable_e_stepper(e);
+          if (e < E_STEPPERS) stepper.enable_extruder(e);
         }
         else
           stepper.enable_e_steppers();
@@ -163,7 +163,7 @@ void try_to_disable(const axis_flags_t to_disable) {
       const uint8_t a = index_of_axis(E_AXIS, e);
       if (TEST(to_disable.bits, a)) {
         DEBUG_ECHOPGM("Try to disable E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
-        if (stepper.disable_e_stepper(e)) {
+        if (stepper.disable_extruder(e)) {
           DEBUG_ECHOPGM("OK");
           still_enabled &= ~(_BV(a) | enable_overlap[a]);
         }
@@ -222,7 +222,7 @@ void GcodeSuite::M18_M84() {
         #if HAS_EXTRUDERS
           if (parser.seen('E')) {
             if (parser.has_value())
-              stepper.disable_e_stepper(parser.value_int());
+              stepper.disable_extruder(parser.value_int());
             else
               stepper.disable_e_steppers();
           }

@@ -514,14 +514,14 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
 #if HAS_EXTRUDERS
 
-  void Stepper::enable_e_stepper(const uint8_t eindex) {
+  void Stepper::enable_extruder(const uint8_t eindex/*=0*/) {
     #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); mark_axis_enabled(E_AXIS, eindex); break;
     switch (eindex) {
       REPEAT(E_STEPPERS, _CASE_ENA_E)
     }
   }
 
-  bool Stepper::disable_e_stepper(const uint8_t eindex) {
+  bool Stepper::disable_extruder(const uint8_t eindex/*=0*/) {
     mark_axis_disabled(E_AXIS, eindex);
     const bool can_disable = can_axis_disable(E_AXIS, eindex);
     if (can_disable) {
@@ -532,12 +532,12 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   }
 
   void Stepper::enable_e_steppers() {
-    #define _ENA_E(N) enable_e_stepper(N);
+    #define _ENA_E(N) enable_extruder(N);
     REPEAT(E_STEPPERS, _ENA_E)
   }
 
   void Stepper::disable_e_steppers() {
-    #define _DIS_E(N) disable_e_stepper(N);
+    #define _DIS_E(N) disable_extruder(N);
     REPEAT(E_STEPPERS, _DIS_E)
   }
 
