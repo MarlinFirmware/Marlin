@@ -260,9 +260,16 @@ constexpr pin_t ena_pins[] = {
 };
 
 // Index of the axis or extruder element in a combined array
-constexpr int8_t index_of_axis(const AxisEnum axis, const uint8_t eindex=0) {
-  return uint8_t(axis) + (axis < LINEAR_AXES ? 0 : eindex);
+constexpr uint8_t index_of_axis(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+  return uint8_t(axis) + (E_TERN0(axis < LINEAR_AXES ? 0 : eindex));
 }
+//#define __IAX_N(N,V...)           _IAX_##N(V)
+//#define _IAX_N(N,V...)            __IAX_N(N,V)
+//#define _IAX_1(A)                 index_of_axis(A)
+//#define _IAX_2(A,B)               index_of_axis(A E_OPTARG(B))
+//#define INDEX_OF_AXIS(V...)       _IAX_N(TWO_ARGS(V),V)
+
+#define INDEX_OF_AXIS(A,V...)     index_of_axis(A E_OPTARG(V+0))
 
 // Bit mask for a matching enable pin, or 0
 constexpr uint16_t ena_same(const uint8_t a, const uint8_t b) {
@@ -283,10 +290,10 @@ constexpr bool any_enable_overlap(const uint8_t a=0) {
 // TODO: Consider cases where >=2 steppers are used by a linear axis or extruder
 //       (e.g., CoreXY, Dual XYZ, or E with multiple steppers, etc.).
 constexpr uint16_t enable_overlap[] = {
-  #define _OVERLAP(N) ena_overlap(index_of_axis(AxisEnum(N))),
+  #define _OVERLAP(N) ena_overlap(INDEX_OF_AXIS(AxisEnum(N))),
   REPEAT(LINEAR_AXES, _OVERLAP)
   #if HAS_EXTRUDERS
-    #define _E_OVERLAP(N) ena_overlap(index_of_axis(E_AXIS, N)),
+    #define _E_OVERLAP(N) ena_overlap(INDEX_OF_AXIS(E_AXIS, N)),
     REPEAT(E_STEPPERS, _E_OVERLAP)
   #endif
 };
@@ -578,33 +585,37 @@ class Stepper {
 
     static axis_flags_t axis_enabled;   // Axis stepper(s) ENABLED states
 
-    static inline bool axis_is_enabled(const AxisEnum axis, const uint8_t eindex=0) {
-      return TEST(axis_enabled.bits, index_of_axis(axis, eindex));
+    static inline bool axis_is_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+      return TEST(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
     }
-    static inline void mark_axis_enabled(const AxisEnum axis, const uint8_t eindex=0) {
-      SBI(axis_enabled.bits, index_of_axis(axis, eindex));
+    static inline void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+      SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
     }
-    static inline void mark_axis_disabled(const AxisEnum axis, const uint8_t eindex=0) {
-      CBI(axis_enabled.bits, index_of_axis(axis, eindex));
+    static inline void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+      CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
     }
-    static inline bool can_axis_disable(const AxisEnum axis, const uint8_t eindex=0) {
-      return !any_enable_overlap() || !(axis_enabled.bits & enable_overlap[index_of_axis(axis, eindex)]);
+    static inline bool can_axis_disable(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+      return !any_enable_overlap() || !(axis_enabled.bits & enable_overlap[INDEX_OF_AXIS(axis, eindex)]);
     }
 
     static void enable_axis(const AxisEnum axis);
     static bool disable_axis(const AxisEnum axis);
 
     #if HAS_EXTRUDERS
-      static void enable_extruder(const uint8_t eindex=0);
-      static bool disable_extruder(const uint8_t eindex=0);
+      static void enable_extruder(E_TERN_(const uint8_t eindex=0));
+      static bool disable_extruder(E_TERN_(const uint8_t eindex=0));
       static void enable_e_steppers();
       static void disable_e_steppers();
     #else
-      static inline void enable_extruder(const uint8_t) {}
-      static inline bool disable_extruder(const uint8_t) {}
+      static inline void enable_extruder() {}
+      static inline bool disable_extruder() {}
       static inline void enable_e_steppers() {}
       static inline void disable_e_steppers() {}
     #endif
+
+    #define  ENABLE_EXTRUDER(N)  enable_extruder(E_TERN_(N))
+    #define DISABLE_EXTRUDER(N) disable_extruder(E_TERN_(N))
+    #define AXIS_IS_ENABLED(N,V...) axis_is_enabled(N E_OPTARG(#V))
 
     static void enable_all_steppers();
     static void disable_all_steppers();

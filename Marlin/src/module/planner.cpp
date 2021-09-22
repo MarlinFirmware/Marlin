@@ -2144,7 +2144,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
-  TERN_(HAS_MULTI_EXTRUDER, block->extruder = extruder);
+  E_TERN_(block->extruder = extruder);
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (LINEAR_AXIS_GANG(
@@ -2214,27 +2214,27 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         #define ENABLE_ONE_E(N) do{ \
           if (E_STEPPER_INDEX(extruder) == N) { \
-            stepper.enable_extruder(N); \
+            stepper.ENABLE_EXTRUDER(N); \
             g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.enable_extruder(1); \
+              stepper.ENABLE_EXTRUDER(1); \
           } \
           else if (!g_uc_extruder_last_move[N]) { \
-            stepper.disable_extruder(N); \
+            stepper.DISABLE_EXTRUDER(N); \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.disable_extruder(1); \
+              stepper.DISABLE_EXTRUDER(1); \
           } \
         }while(0);
 
       #else
 
-        #define ENABLE_ONE_E(N) stepper.enable_extruder(N);
+        #define ENABLE_ONE_E(N) stepper.ENABLE_EXTRUDER(N);
 
       #endif
 
       REPEAT(E_STEPPERS, ENABLE_ONE_E); // (ENABLE_ONE_E must end with semicolon)
     }
-  #endif // EXTRUDERS
+  #endif // HAS_EXTRUDERS
 
   if (esteps)
     NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
@@ -3049,7 +3049,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
       FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
     #endif
 
-    TERN_(HAS_MULTI_EXTRUDER, block->extruder = extruder);
+    E_TERN_(block->extruder = extruder);
 
     block->page_idx = page_idx;
 

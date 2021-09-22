@@ -37,10 +37,10 @@ inline axis_flags_t selected_axis_bits() {
   axis_flags_t selected{0};
   #if HAS_EXTRUDERS
     if (parser.seen('E')) {
-      if (parser.has_value()) {
+      if (E_TERN0(parser.has_value())) {
         const uint8_t e = parser.value_int();
         if (e < EXTRUDERS)
-          selected.bits = _BV(index_of_axis(E_AXIS, e));
+          selected.bits = _BV(INDEX_OF_AXIS(E_AXIS, e));
       }
       else
         selected.bits = selected.e_bits();
@@ -78,9 +78,9 @@ void do_enable(const axis_flags_t to_enable) {
   }
   #if HAS_EXTRUDERS
     LOOP_L_N(e, EXTRUDERS) {
-      const uint8_t a = index_of_axis(E_AXIS, e);
+      const uint8_t a = INDEX_OF_AXIS(E_AXIS, e);
       if (TEST(shall_enable, a)) {
-        stepper.enable_extruder(e);
+        stepper.ENABLE_EXTRUDER(e);
         DEBUG_ECHOLNPGM("Enabled E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ", hex_word(stepper.axis_enabled.bits));
         also_enabled |= enable_overlap[a];
       }
@@ -91,7 +91,7 @@ void do_enable(const axis_flags_t to_enable) {
     SERIAL_CHAR('(');
     LOOP_LINEAR_AXES(a) if (TEST(also_enabled, a)) SERIAL_CHAR(axis_codes[a], ' ');
     #if HAS_EXTRUDERS
-      #define _EN_ALSO(N) if (TEST(also_enabled, index_of_axis(E_AXIS, N))) SERIAL_CHAR('E', '0' + N, ' ');
+      #define _EN_ALSO(N) if (TEST(also_enabled, INDEX_OF_AXIS(E_AXIS, N))) SERIAL_CHAR('E', '0' + N, ' ');
       REPEAT(EXTRUDERS, _EN_ALSO)
     #endif
     SERIAL_ECHOLNPGM("also enabled)");
@@ -115,14 +115,16 @@ void GcodeSuite::M17() {
     if (any_enable_overlap())
       do_enable(selected_axis_bits());
     else {
-      if (TERN0(HAS_EXTRUDERS, parser.seen('E'))) {
-        if (parser.has_value()) {
-          const uint8_t e = parser.value_int();
-          if (e < EXTRUDERS) stepper.enable_extruder(e);
+      #if HAS_EXTRUDERS
+        if (parser.seen('E')) {
+          if (parser.has_value()) {
+            const uint8_t e = parser.value_int();
+            if (e < EXTRUDERS) stepper.ENABLE_EXTRUDER(e);
+          }
+          else
+            stepper.enable_e_steppers();
         }
-        else
-          stepper.enable_e_steppers();
-      }
+      #endif
       LINEAR_AXIS_CODE(
         if (parser.seen_test('X'))        stepper.enable_axis(X_AXIS),
         if (parser.seen_test('Y'))        stepper.enable_axis(Y_AXIS),
@@ -160,10 +162,10 @@ void try_to_disable(const axis_flags_t to_disable) {
     }
   #if HAS_EXTRUDERS
     LOOP_L_N(e, EXTRUDERS) {
-      const uint8_t a = index_of_axis(E_AXIS, e);
+      const uint8_t a = INDEX_OF_AXIS(E_AXIS, e);
       if (TEST(to_disable.bits, a)) {
         DEBUG_ECHOPGM("Try to disable E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
-        if (stepper.disable_extruder(e)) {
+        if (stepper.DISABLE_EXTRUDER(e)) {
           DEBUG_ECHOPGM("OK");
           still_enabled &= ~(_BV(a) | enable_overlap[a]);
         }
@@ -178,7 +180,7 @@ void try_to_disable(const axis_flags_t to_disable) {
     SERIAL_ECHOPGM(" not disabled. Shared with");
     LOOP_LINEAR_AXES(a) if (TEST(axis_bits, a)) SERIAL_CHAR(' ', axis_codes[a]);
     #if HAS_EXTRUDERS
-      #define _EN_STILLON(N) if (TEST(axis_bits, index_of_axis(E_AXIS, N))) SERIAL_CHAR(' ', 'E', '0' + N);
+      #define _EN_STILLON(N) if (TEST(axis_bits, INDEX_OF_AXIS(E_AXIS, N))) SERIAL_CHAR(' ', 'E', '0' + N);
       REPEAT(EXTRUDERS, _EN_STILLON)
     #endif
     SERIAL_ECHOLNPGM(".");
@@ -193,7 +195,7 @@ void try_to_disable(const axis_flags_t to_disable) {
   }
   #if HAS_EXTRUDERS
     LOOP_L_N(e, EXTRUDERS) {
-      const uint8_t a = index_of_axis(E_AXIS, e);
+      const uint8_t a = INDEX_OF_AXIS(E_AXIS, e);
       if (TEST(still_enabled, a)) {
         SERIAL_CHAR('E', '0' + e);
         overlap_warning(stepper.axis_enabled.bits & enable_overlap[a]);
@@ -221,8 +223,8 @@ void GcodeSuite::M18_M84() {
       else {
         #if HAS_EXTRUDERS
           if (parser.seen('E')) {
-            if (parser.has_value())
-              stepper.disable_extruder(parser.value_int());
+            if (E_TERN0(parser.has_value()))
+              stepper.DISABLE_EXTRUDER(parser.value_int());
             else
               stepper.disable_e_steppers();
           }

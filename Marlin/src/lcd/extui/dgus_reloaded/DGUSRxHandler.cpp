@@ -554,7 +554,7 @@ void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
     case DGUS_Data::Extruder::E0:
-    TERN_(HAS_MULTI_EXTRUDER, case DGUS_Data::Extruder::E1:)
+    E_TERN_(case DGUS_Data::Extruder::E1:)
       dgus_screen_handler.filament_extruder = extruder;
       break;
   }

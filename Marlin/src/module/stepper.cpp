@@ -514,16 +514,18 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
 #if HAS_EXTRUDERS
 
-  void Stepper::enable_extruder(const uint8_t eindex/*=0*/) {
-    #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); mark_axis_enabled(E_AXIS, eindex); break;
+  void Stepper::enable_extruder(E_TERN_(const uint8_t eindex)) {
+    IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr uint8_t eindex = 0);
+    #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); mark_axis_enabled(E_AXIS E_OPTARG(eindex)); break;
     switch (eindex) {
       REPEAT(E_STEPPERS, _CASE_ENA_E)
     }
   }
 
-  bool Stepper::disable_extruder(const uint8_t eindex/*=0*/) {
-    mark_axis_disabled(E_AXIS, eindex);
-    const bool can_disable = can_axis_disable(E_AXIS, eindex);
+  bool Stepper::disable_extruder(E_TERN_(const uint8_t eindex)) {
+    IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr uint8_t eindex = 0);
+    mark_axis_disabled(E_AXIS E_OPTARG(eindex));
+    const bool can_disable = can_axis_disable(E_AXIS E_OPTARG(eindex));
     if (can_disable) {
       #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
       switch (eindex) { REPEAT(E_STEPPERS, _CASE_DIS_E) }
@@ -532,13 +534,13 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   }
 
   void Stepper::enable_e_steppers() {
-    #define _ENA_E(N) enable_extruder(N);
-    REPEAT(E_STEPPERS, _ENA_E)
+    #define _ENA_E(N) ENABLE_EXTRUDER(N);
+    REPEAT(EXTRUDERS, _ENA_E)
   }
 
   void Stepper::disable_e_steppers() {
-    #define _DIS_E(N) disable_extruder(N);
-    REPEAT(E_STEPPERS, _DIS_E)
+    #define _DIS_E(N) DISABLE_EXTRUDER(N);
+    REPEAT(EXTRUDERS, _DIS_E)
   }
 
 #endif
@@ -2283,7 +2285,7 @@ uint32_t Stepper::block_phase_isr() {
 
       TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
-      TERN_(HAS_MULTI_EXTRUDER, stepper_extruder = current_block->extruder);
+      E_TERN_(stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
@@ -2306,7 +2308,7 @@ uint32_t Stepper::block_phase_isr() {
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
-        TERN_(HAS_MULTI_EXTRUDER, last_moved_extruder = stepper_extruder);
+        E_TERN_(last_moved_extruder = stepper_extruder);
         TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
         set_directions(current_block->direction_bits);
       }
