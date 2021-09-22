@@ -39,7 +39,7 @@ inline axis_flags_t selected_axis_bits() {
     if (parser.seen('E')) {
       if (parser.has_value()) {
         const uint8_t e = parser.value_int();
-        if (e < E_STEPPERS)
+        if (e < EXTRUDERS)
           selected.bits = _BV(index_of_axis(E_AXIS, e));
       }
       else
@@ -77,7 +77,7 @@ void do_enable(const axis_flags_t to_enable) {
     }
   }
   #if HAS_EXTRUDERS
-    LOOP_L_N(e, E_STEPPERS) {
+    LOOP_L_N(e, EXTRUDERS) {
       const uint8_t a = index_of_axis(E_AXIS, e);
       if (TEST(shall_enable, a)) {
         stepper.enable_extruder(e);
@@ -92,7 +92,7 @@ void do_enable(const axis_flags_t to_enable) {
     LOOP_LINEAR_AXES(a) if (TEST(also_enabled, a)) SERIAL_CHAR(axis_codes[a], ' ');
     #if HAS_EXTRUDERS
       #define _EN_ALSO(N) if (TEST(also_enabled, index_of_axis(E_AXIS, N))) SERIAL_CHAR('E', '0' + N, ' ');
-      REPEAT(E_STEPPERS, _EN_ALSO)
+      REPEAT(EXTRUDERS, _EN_ALSO)
     #endif
     SERIAL_ECHOLNPGM("also enabled)");
   }
@@ -118,7 +118,7 @@ void GcodeSuite::M17() {
       if (TERN0(HAS_EXTRUDERS, parser.seen('E'))) {
         if (parser.has_value()) {
           const uint8_t e = parser.value_int();
-          if (e < E_STEPPERS) stepper.enable_extruder(e);
+          if (e < EXTRUDERS) stepper.enable_extruder(e);
         }
         else
           stepper.enable_e_steppers();
@@ -159,7 +159,7 @@ void try_to_disable(const axis_flags_t to_disable) {
       DEBUG_ECHOLNPGM(" ... still_enabled=", hex_word(still_enabled));
     }
   #if HAS_EXTRUDERS
-    LOOP_L_N(e, E_STEPPERS) {
+    LOOP_L_N(e, EXTRUDERS) {
       const uint8_t a = index_of_axis(E_AXIS, e);
       if (TEST(to_disable.bits, a)) {
         DEBUG_ECHOPGM("Try to disable E", AS_DIGIT(e), " (", a, ") with overlap ", hex_word(enable_overlap[a]), " ... ");
@@ -179,7 +179,7 @@ void try_to_disable(const axis_flags_t to_disable) {
     LOOP_LINEAR_AXES(a) if (TEST(axis_bits, a)) SERIAL_CHAR(' ', axis_codes[a]);
     #if HAS_EXTRUDERS
       #define _EN_STILLON(N) if (TEST(axis_bits, index_of_axis(E_AXIS, N))) SERIAL_CHAR(' ', 'E', '0' + N);
-      REPEAT(E_STEPPERS, _EN_STILLON)
+      REPEAT(EXTRUDERS, _EN_STILLON)
     #endif
     SERIAL_ECHOLNPGM(".");
   };
@@ -192,7 +192,7 @@ void try_to_disable(const axis_flags_t to_disable) {
     }
   }
   #if HAS_EXTRUDERS
-    LOOP_L_N(e, E_STEPPERS) {
+    LOOP_L_N(e, EXTRUDERS) {
       const uint8_t a = index_of_axis(E_AXIS, e);
       if (TEST(still_enabled, a)) {
         SERIAL_CHAR('E', '0' + e);

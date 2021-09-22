@@ -245,12 +245,12 @@ typedef struct {
     struct {
       bool LINEAR_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1);
       #if HAS_EXTRUDERS
-        bool LIST_N(E_STEPPERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
+        bool LIST_N(EXTRUDERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
       #endif
     };
   };
   constexpr uint16_t linear_bits() { return _BV(LINEAR_AXES) - 1; }
-  constexpr uint16_t e_bits() { return (_BV(E_STEPPERS) - 1) << LINEAR_AXES; }
+  constexpr uint16_t e_bits() { return (_BV(EXTRUDERS) - 1) << LINEAR_AXES; }
 } axis_flags_t;
 
 // All the stepper enable pins
@@ -280,6 +280,8 @@ constexpr bool any_enable_overlap(const uint8_t a=0) {
 }
 
 // Array of axes that overlap with each
+// TODO: Consider cases where >=2 steppers are used by a linear axis or extruder
+//       (e.g., CoreXY, Dual XYZ, or E with multiple steppers, etc.).
 constexpr uint16_t enable_overlap[] = {
   #define _OVERLAP(N) ena_overlap(index_of_axis(AxisEnum(N))),
   REPEAT(LINEAR_AXES, _OVERLAP)
@@ -574,7 +576,7 @@ class Stepper {
       static void refresh_motor_power();
     #endif
 
-    static axis_flags_t axis_enabled;   // Axis stepper ENABLED states
+    static axis_flags_t axis_enabled;   // Axis stepper(s) ENABLED states
 
     static inline bool axis_is_enabled(const AxisEnum axis, const uint8_t eindex=0) {
       return TEST(axis_enabled.bits, index_of_axis(axis, eindex));
