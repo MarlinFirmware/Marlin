@@ -609,7 +609,7 @@ void unified_bed_leveling::G29() {
     settings.load_mesh(param.KLS_storage_slot);
     storage_slot = param.KLS_storage_slot;
 
-    SERIAL_ECHOLNPGM("Done.");
+    SERIAL_ECHOLNPGM(STR_DONE);
   }
 
   //
@@ -637,7 +637,7 @@ void unified_bed_leveling::G29() {
     settings.store_mesh(param.KLS_storage_slot);
     storage_slot = param.KLS_storage_slot;
 
-    SERIAL_ECHOLNPGM("Done.");
+    SERIAL_ECHOLNPGM(STR_DONE);
   }
 
   if (parser.seen_test('T'))

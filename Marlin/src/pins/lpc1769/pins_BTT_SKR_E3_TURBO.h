@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR E3 Turbo pin assignments
+ */
+
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME

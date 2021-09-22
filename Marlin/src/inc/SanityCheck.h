@@ -43,7 +43,7 @@
 #define TEST2 1
 #define TEST3 0
 #define TEST4 true
-#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3)
+#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3) || !ENABLED(TEST1, TEST2, TEST4)
   #error "ENABLED is borked!"
 #endif
 #if BOTH(TEST0, TEST1)
@@ -593,6 +593,8 @@
   #error "ARC_SUPPORT no longer uses ARC_SEGMENTS_PER_R."
 #elif ENABLED(ARC_SUPPORT) && (!defined(MIN_ARC_SEGMENT_MM) || !defined(MAX_ARC_SEGMENT_MM))
   #error "ARC_SUPPORT now requires MIN_ARC_SEGMENT_MM and MAX_ARC_SEGMENT_MM."
+#elif defined(SPINDLE_LASER_PWM)
+  #error "SPINDLE_LASER_PWM (true) is now set with SPINDLE_LASER_USE_PWM (enabled)."
 #endif
 
 #if MOTHERBOARD == BOARD_DUE3DOM_MINI && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
@@ -1338,8 +1340,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_PROBE && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
-  #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead or switching extruder is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+  #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead, switching extruder, or POLARGRAPH is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**
@@ -2353,46 +2355,30 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if E_STEPPERS
-  #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
-    #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-  #endif
-  #if E_STEPPERS > 1
-    #if !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
-      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
-    #endif
-    #if E_STEPPERS > 2
-      #if !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
-        #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
-      #endif
-      #if E_STEPPERS > 3
-        #if !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
-          #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
-        #endif
-        #if E_STEPPERS > 4
-          #if !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
-            #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
-          #endif
-          #if E_STEPPERS > 5
-            #if !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
-              #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
-            #endif
-            #if E_STEPPERS > 6
-              #if !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
-                #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
-              #endif
-              #if E_STEPPERS > 7
-                #if !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
-                  #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
-                #endif
-              #endif // E_STEPPERS > 7
-            #endif // E_STEPPERS > 6
-          #endif // E_STEPPERS > 5
-        #endif // E_STEPPERS > 4
-      #endif // E_STEPPERS > 3
-    #endif // E_STEPPERS > 2
-  #endif // E_STEPPERS > 1
-#endif // E_STEPPERS
+#if E_STEPPERS > 0 && !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
+  #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+#endif
+#if E_STEPPERS > 1 && !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
+  #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+#endif
+#if E_STEPPERS > 2 && !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
+  #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
+#endif
+#if E_STEPPERS > 3 && !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
+  #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
+#endif
+#if E_STEPPERS > 4 && !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
+  #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+#endif
+#if E_STEPPERS > 5 && !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
+  #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
+#endif
+#if E_STEPPERS > 6 && !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
+  #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
+#endif
+#if E_STEPPERS > 7 && !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
+  #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
+#endif
 
 /**
  * Endstop Tests
@@ -3277,82 +3263,64 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Check per-axis initializers for errors
  */
-constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
-                sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
-                sanity_arr_3[] = DEFAULT_MAX_ACCELERATION,
-                sanity_arr_7[] = HOMING_FEEDRATE_MM_M;
 
-#define _ARR_TEST(N,I) (sanity_arr_##N[_MIN(I,int(COUNT(sanity_arr_##N))-1)] > 0)
+#define __PLUS_TEST(I,A) && (sanity_arr_##A[_MIN(I,signed(COUNT(sanity_arr_##A)-1))] > 0)
+#define _PLUS_TEST(A) (1 REPEAT2(14,__PLUS_TEST,A))
 #if HAS_MULTI_EXTRUDER
   #define _EXTRA_NOTE " (Did you forget to enable DISTINCT_E_FACTORS?)"
 #else
   #define _EXTRA_NOTE " (Should be " STRINGIFY(LINEAR_AXES) "+" STRINGIFY(E_STEPPERS) ")"
 #endif
 
+constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
 static_assert(COUNT(sanity_arr_1) >= LOGICAL_AXES,  "DEFAULT_AXIS_STEPS_PER_UNIT requires " _LOGICAL_AXES_STR "elements.");
 static_assert(COUNT(sanity_arr_1) <= DISTINCT_AXES, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements." _EXTRA_NOTE);
-static_assert(   _ARR_TEST(1,0) && _ARR_TEST(1,1) && _ARR_TEST(1,2)
-              && _ARR_TEST(1,3) && _ARR_TEST(1,4) && _ARR_TEST(1,5)
-              && _ARR_TEST(1,6) && _ARR_TEST(1,7) && _ARR_TEST(1,8),
-              "DEFAULT_AXIS_STEPS_PER_UNIT values must be positive.");
+static_assert(_PLUS_TEST(1), "DEFAULT_AXIS_STEPS_PER_UNIT values must be positive.");
 
+constexpr float sanity_arr_2[] = DEFAULT_MAX_FEEDRATE;
 static_assert(COUNT(sanity_arr_2) >= LOGICAL_AXES,  "DEFAULT_MAX_FEEDRATE requires " _LOGICAL_AXES_STR "elements.");
 static_assert(COUNT(sanity_arr_2) <= DISTINCT_AXES, "DEFAULT_MAX_FEEDRATE has too many elements." _EXTRA_NOTE);
-static_assert(   _ARR_TEST(2,0) && _ARR_TEST(2,1) && _ARR_TEST(2,2)
-              && _ARR_TEST(2,3) && _ARR_TEST(2,4) && _ARR_TEST(2,5)
-              && _ARR_TEST(2,6) && _ARR_TEST(2,7) && _ARR_TEST(2,8),
-              "DEFAULT_MAX_FEEDRATE values must be positive.");
+static_assert(_PLUS_TEST(2), "DEFAULT_MAX_FEEDRATE values must be positive.");
 
+constexpr float sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
 static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION requires " _LOGICAL_AXES_STR "elements.");
 static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
-static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
-              && _ARR_TEST(3,3) && _ARR_TEST(3,4) && _ARR_TEST(3,5)
-              && _ARR_TEST(3,6) && _ARR_TEST(3,7) && _ARR_TEST(3,8),
-              "DEFAULT_MAX_ACCELERATION values must be positive.");
+static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
-static_assert(COUNT(sanity_arr_7) == LINEAR_AXES,  "HOMING_FEEDRATE_MM_M requires " _LINEAR_AXES_STR "elements (and no others).");
-static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
-              && _ARR_TEST(3,3) && _ARR_TEST(3,4) && _ARR_TEST(3,5)
-              && _ARR_TEST(3,6) && _ARR_TEST(3,7) && _ARR_TEST(3,8),
-              "HOMING_FEEDRATE_MM_M values must be positive.");
+constexpr float sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
+static_assert(COUNT(sanity_arr_4) == LINEAR_AXES,  "HOMING_FEEDRATE_MM_M requires " _LINEAR_AXES_STR "elements (and no others).");
+static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 
-#if ENABLED(LIMITED_MAX_ACCEL_EDITING)
-  #ifdef MAX_ACCEL_EDIT_VALUES
-    constexpr float sanity_arr_4[] = MAX_ACCEL_EDIT_VALUES;
-    static_assert(COUNT(sanity_arr_4) >= LOGICAL_AXES, "MAX_ACCEL_EDIT_VALUES requires " _LOGICAL_AXES_STR "elements.");
-    static_assert(COUNT(sanity_arr_4) <= LOGICAL_AXES, "MAX_ACCEL_EDIT_VALUES has too many elements. " _LOGICAL_AXES_STR "elements only.");
-    static_assert(   _ARR_TEST(4,0) && _ARR_TEST(4,1) && _ARR_TEST(4,2)
-                  && _ARR_TEST(4,3) && _ARR_TEST(4,4) && _ARR_TEST(4,5)
-                  && _ARR_TEST(4,6) && _ARR_TEST(4,7) && _ARR_TEST(4,8),
-                  "MAX_ACCEL_EDIT_VALUES values must be positive.");
-  #endif
+#ifdef MAX_ACCEL_EDIT_VALUES
+  constexpr float sanity_arr_5[] = MAX_ACCEL_EDIT_VALUES;
+  static_assert(COUNT(sanity_arr_5) >= LOGICAL_AXES, "MAX_ACCEL_EDIT_VALUES requires " _LOGICAL_AXES_STR "elements.");
+  static_assert(COUNT(sanity_arr_5) <= LOGICAL_AXES, "MAX_ACCEL_EDIT_VALUES has too many elements. " _LOGICAL_AXES_STR "elements only.");
+  static_assert(_PLUS_TEST(5), "MAX_ACCEL_EDIT_VALUES values must be positive.");
 #endif
 
-#if ENABLED(LIMITED_MAX_FR_EDITING)
-  #ifdef MAX_FEEDRATE_EDIT_VALUES
-    constexpr float sanity_arr_5[] = MAX_FEEDRATE_EDIT_VALUES;
-    static_assert(COUNT(sanity_arr_5) >= LOGICAL_AXES, "MAX_FEEDRATE_EDIT_VALUES requires " _LOGICAL_AXES_STR "elements.");
-    static_assert(COUNT(sanity_arr_5) <= LOGICAL_AXES, "MAX_FEEDRATE_EDIT_VALUES has too many elements. " _LOGICAL_AXES_STR "elements only.");
-    static_assert(   _ARR_TEST(5,0) && _ARR_TEST(5,1) && _ARR_TEST(5,2)
-                  && _ARR_TEST(5,3) && _ARR_TEST(5,4) && _ARR_TEST(5,5)
-                  && _ARR_TEST(5,6) && _ARR_TEST(5,7) && _ARR_TEST(5,8),
-                  "MAX_FEEDRATE_EDIT_VALUES values must be positive.");
-  #endif
+#ifdef MAX_FEEDRATE_EDIT_VALUES
+  constexpr float sanity_arr_6[] = MAX_FEEDRATE_EDIT_VALUES;
+  static_assert(COUNT(sanity_arr_6) >= LOGICAL_AXES, "MAX_FEEDRATE_EDIT_VALUES requires " _LOGICAL_AXES_STR "elements.");
+  static_assert(COUNT(sanity_arr_6) <= LOGICAL_AXES, "MAX_FEEDRATE_EDIT_VALUES has too many elements. " _LOGICAL_AXES_STR "elements only.");
+  static_assert(_PLUS_TEST(6), "MAX_FEEDRATE_EDIT_VALUES values must be positive.");
 #endif
 
-#if ENABLED(LIMITED_JERK_EDITING)
-  #ifdef MAX_JERK_EDIT_VALUES
-    constexpr float sanity_arr_6[] = MAX_JERK_EDIT_VALUES;
-    static_assert(COUNT(sanity_arr_6) >= LOGICAL_AXES, "MAX_JERK_EDIT_VALUES requires " _LOGICAL_AXES_STR "elements.");
-    static_assert(COUNT(sanity_arr_6) <= LOGICAL_AXES, "MAX_JERK_EDIT_VALUES has too many elements. " _LOGICAL_AXES_STR "elements only.");
-    static_assert(   _ARR_TEST(6,0) && _ARR_TEST(6,1) && _ARR_TEST(6,2)
-                  && _ARR_TEST(6,3) && _ARR_TEST(6,4) && _ARR_TEST(6,5)
-                  && _ARR_TEST(6,6) && _ARR_TEST(6,7) && _ARR_TEST(6,8),
-                  "MAX_JERK_EDIT_VALUES values must be positive.");
-  #endif
+#ifdef MAX_JERK_EDIT_VALUES
+  constexpr float sanity_arr_7[] = MAX_JERK_EDIT_VALUES;
+  static_assert(COUNT(sanity_arr_7) >= LOGICAL_AXES, "MAX_JERK_EDIT_VALUES requires " _LOGICAL_AXES_STR "elements.");
+  static_assert(COUNT(sanity_arr_7) <= LOGICAL_AXES, "MAX_JERK_EDIT_VALUES has too many elements. " _LOGICAL_AXES_STR "elements only.");
+  static_assert(_PLUS_TEST(7), "MAX_JERK_EDIT_VALUES values must be positive.");
 #endif
 
-#undef _ARR_TEST
+#ifdef MANUAL_FEEDRATE
+  constexpr float sanity_arr_8[] = MANUAL_FEEDRATE;
+  static_assert(COUNT(sanity_arr_8) >= LOGICAL_AXES, "MANUAL_FEEDRATE requires " _LOGICAL_AXES_STR "elements.");
+  static_assert(COUNT(sanity_arr_8) <= LOGICAL_AXES, "MANUAL_FEEDRATE has too many elements. " _LOGICAL_AXES_STR "elements only.");
+  static_assert(_PLUS_TEST(8), "MANUAL_FEEDRATE values must be positive.");
+#endif
+
+#undef __PLUS_TEST
+#undef _PLUS_TEST
 #undef _EXTRA_NOTE
 
 #if BOTH(CNC_COORDINATE_SYSTEMS, NO_WORKSPACE_OFFSETS)
@@ -3554,8 +3522,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
       #error "LASER_MOVE_G0_OFF requires LASER_MOVE_POWER."
     #endif
     #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-      #if DISABLED(SPINDLE_LASER_PWM)
-        #error "LASER_POWER_INLINE_TRAPEZOID requires SPINDLE_LASER_PWM to function."
+      #if DISABLED(SPINDLE_LASER_USE_PWM)
+        #error "LASER_POWER_INLINE_TRAPEZOID requires SPINDLE_LASER_USE_PWM to function."
       #elif ENABLED(S_CURVE_ACCELERATION)
         //#ifndef LASER_POWER_INLINE_S_CURVE_ACCELERATION_WARN
         //  #define LASER_POWER_INLINE_S_CURVE_ACCELERATION_WARN
@@ -3587,21 +3555,21 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "(SPINDLE|LASER)_FEATURE requires SPINDLE_LASER_ENA_PIN or SPINDLE_SERVO to control the power."
   #elif ENABLED(SPINDLE_CHANGE_DIR) && !PIN_EXISTS(SPINDLE_DIR)
     #error "SPINDLE_DIR_PIN is required for SPINDLE_CHANGE_DIR."
-  #elif ENABLED(SPINDLE_LASER_PWM)
+  #elif ENABLED(SPINDLE_LASER_USE_PWM)
     #if !defined(SPINDLE_LASER_PWM_PIN) || SPINDLE_LASER_PWM_PIN < 0
-      #error "SPINDLE_LASER_PWM_PIN is required for SPINDLE_LASER_PWM."
+      #error "SPINDLE_LASER_PWM_PIN is required for SPINDLE_LASER_USE_PWM."
     #elif !_TEST_PWM(SPINDLE_LASER_PWM_PIN)
       #error "SPINDLE_LASER_PWM_PIN not assigned to a PWM pin."
     #elif !defined(SPINDLE_LASER_PWM_INVERT)
       #error "SPINDLE_LASER_PWM_INVERT is required for (SPINDLE|LASER)_FEATURE."
     #elif !(defined(SPEED_POWER_INTERCEPT) && defined(SPEED_POWER_MIN) && defined(SPEED_POWER_MAX) && defined(SPEED_POWER_STARTUP))
-      #error "SPINDLE_LASER_PWM equation constant(s) missing."
+      #error "SPINDLE_LASER_USE_PWM equation constant(s) missing."
     #elif _PIN_CONFLICT(X_MIN)
-      #error "SPINDLE_LASER_PWM pin conflicts with X_MIN_PIN."
+      #error "SPINDLE_LASER_USE_PWM pin conflicts with X_MIN_PIN."
     #elif _PIN_CONFLICT(X_MAX)
-      #error "SPINDLE_LASER_PWM pin conflicts with X_MAX_PIN."
+      #error "SPINDLE_LASER_USE_PWM pin conflicts with X_MAX_PIN."
     #elif _PIN_CONFLICT(Z_STEP)
-      #error "SPINDLE_LASER_PWM pin conflicts with Z_STEP_PIN."
+      #error "SPINDLE_LASER_USE_PWM pin conflicts with Z_STEP_PIN."
     #elif _PIN_CONFLICT(CASE_LIGHT)
       #error "SPINDLE_LASER_PWM_PIN conflicts with CASE_LIGHT_PIN."
     #elif _PIN_CONFLICT(E0_AUTO_FAN)

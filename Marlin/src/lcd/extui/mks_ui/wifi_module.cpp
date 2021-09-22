@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
@@ -987,11 +988,11 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                   if (card.isFileOpen()) {
                     //saved_feedrate_percentage = feedrate_percentage;
                     feedrate_percentage = 100;
-                    #if EXTRUDERS
+                    #if HAS_EXTRUDERS
                       planner.flow_percentage[0] = 100;
                       planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
                     #endif
-                    #if EXTRUDERS == 2
+                    #if HAS_MULTI_EXTRUDER
                       planner.flow_percentage[1] = 100;
                       planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
                     #endif

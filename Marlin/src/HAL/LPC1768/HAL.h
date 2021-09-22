@@ -107,7 +107,7 @@ extern DefaultSerial1 USBSerial;
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() MSerial0.available()
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
 
@@ -156,17 +156,17 @@ int freeMemory();
 
 using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 extern uint32_t HAL_adc_reading;
-[[gnu::always_inline]] inline void HAL_start_adc(const pin_t pin) {
+[[gnu::always_inline]] inline void HAL_adc_start_conversion(const pin_t pin) {
   HAL_adc_reading = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
 }
-[[gnu::always_inline]] inline uint16_t HAL_read_adc() {
+[[gnu::always_inline]] inline uint16_t HAL_adc_get_result() {
   return HAL_adc_reading;
 }
 
 #define HAL_adc_init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
-#define HAL_START_ADC(pin)     HAL_start_adc(pin)
-#define HAL_READ_ADC()         HAL_read_adc()
+#define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
+#define HAL_READ_ADC()         HAL_adc_get_result()
 #define HAL_ADC_READY()        (true)
 
 // Test whether the pin is valid

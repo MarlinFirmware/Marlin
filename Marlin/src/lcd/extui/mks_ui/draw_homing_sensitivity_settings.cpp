@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_TFT_LVGL_UI && USE_SENSORLESS

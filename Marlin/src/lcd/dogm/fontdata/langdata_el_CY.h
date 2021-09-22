@@ -77,7 +77,7 @@ const u8g_fntpgm_uint8_t fontpage_64_166_166[24] U8G_FONT_SECTION("fontpage_64_1
   0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0xA6,0xA6,0x00,0x01,0x00,0x00,
   0x00,0x05,0x01,0x01,0x06,0x00,0x00,0xA8};
 
-static const uxg_fontinfo_t g_fontinfo_el_gr[] PROGMEM = {
+static const uxg_fontinfo_t g_fontinfo_el_CY[] PROGMEM = {
   FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136), // 'Έ' -- 'Έ'
   FONTDATA_ITEM(7, 145, 157, fontpage_7_145_157), // 'Α' -- 'Ν'
   FONTDATA_ITEM(7, 159, 161, fontpage_7_159_161), // 'Ο' -- 'Ρ'

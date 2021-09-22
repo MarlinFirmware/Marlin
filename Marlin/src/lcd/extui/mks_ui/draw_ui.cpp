@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -347,13 +348,8 @@ void tft_style_init() {
   style_num_key_rel.body.grad_color = LV_COLOR_KEY_BACKGROUND;
   style_num_key_rel.text.color      = LV_COLOR_TEXT;
   style_num_key_rel.text.sel_color  = LV_COLOR_TEXT;
-  #if HAS_SPI_FLASH_FONT
-    style_num_key_pre.text.font = &gb2312_puhui32;
-    style_num_key_rel.text.font = &gb2312_puhui32;
-  #else
-    style_num_key_pre.text.font = LV_FONT_DEFAULT;
-    style_num_key_rel.text.font = LV_FONT_DEFAULT;
-  #endif
+  style_num_key_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
 
   style_num_key_pre.line.width        = 0;
   style_num_key_rel.line.width        = 0;
