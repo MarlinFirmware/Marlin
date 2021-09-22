@@ -16,10 +16,11 @@
 //#define MachineCR6
 //#define MachineCR6Max
 //#define MachineEnder6
+//#define MachineEnder3Touchscreen
 
 // Touchscreens in development, not tested
 //#define MachineCR5
-//#define MachineEnder3Touchscreen
+//#define MachineSermoonD1
 
 // Standard Display Atmega2560 machines (No bootloader required)
 //#define MachineEnder4
@@ -488,7 +489,7 @@
   #endif
 #endif
 
-#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6)
+#if ANY(MachineCRX, MachineCRXPro, MachineEnder5Plus, MachineCR10SPro, MachineCR10Max, MachineEnder6, MachineSermoonD1)
   #if NONE(GraphicLCD, OrigLCD, FORCE10SPRODISPLAY)
     #define FORCE10SPRODISPLAY
   #endif
@@ -591,6 +592,12 @@
   #define POWER_LOSS_RECOVERY
 #endif
 
+#if ENABLED(MachineSermoonD1)
+  #ifndef Creality422
+    #define Creality422
+  #endif
+#endif
+
 #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, FORCE10SPRODISPLAY) || ENABLED(GraphicLCD)
   #define SHOW_BOOTSCREEN
 
@@ -612,7 +619,7 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo, SKR_CR6)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max)
+ #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -639,16 +646,12 @@
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 0
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && NONE(GraphicLCD, OrigLCD)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, Creality422, Creality427, MachineSermoonD1) && NONE(GraphicLCD, OrigLCD)
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
 #elif ANY(Creality422, Creality427) && NONE(MachineEnder3V2, FORCE10SPRODISPLAY, MachineEnder3Touchscreen)
   #define SERIAL_PORT_2 3
-#elif ANY(Creality422, Creality427) && ENABLED(FORCE10SPRODISPLAY)
-  #define LCD_SERIAL_PORT 3
-  #define LCD_BAUDRATE 115200
-  #define SERIAL_CATCHALL 1
 #endif
 
 /**
@@ -1770,7 +1773,7 @@
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder3Max, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineEnder5Plus)
+#elif ANY(MachineMini, MachineCR20, MachineEnder2, MachineEnder3, MachineEnder3Max, MachineEnder3V2, MachineEnder4, MachineEnder5, MachineEnder5Plus, MachineSermoonD1)
   #define DEFAULT_MAX_FEEDRATE          { 750, 750, 10, 75 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 100, 75 }
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
@@ -2337,14 +2340,18 @@
     #define INVERT_X_DIR true
     #define INVERT_Y_DIR false
   #else
-    #define INVERT_X_DIR false
+    #if ENABLED(MachineSermoonD1)
+      #define INVERT_X_DIR true
+    #else
+      #define INVERT_X_DIR false
+    #endif
     #if ANY(MachineCRX,MachineCR10SPro, MachineCR10Max, MachineCR2020, MachineEnder6)
       #define INVERT_Y_DIR true
     #else
       #define INVERT_Y_DIR false
     #endif
   #endif
-  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6)
+  #if ANY(MachineEnder5Plus, MachineCR2020, MachineEnder6, MachineSermoonD1)
     #define INVERT_Z_DIR false
   #else
     #define INVERT_Z_DIR true
@@ -2481,6 +2488,13 @@
     #define X_MAX_POS 260
     #define Y_MAX_POS 260
     #define ClipClearance 10
+  #elif ENABLED(MachineSermoonD1)
+    #define X_BED_SIZE 290
+    #define Y_BED_SIZE 270
+    #define Z_MAX_POS 320
+    #define X_MAX_POS 290
+    #define Y_MAX_POS 270
+    #define ClipClearance 10
   #elif ENABLED(MachineCR20)
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
@@ -2561,6 +2575,9 @@
 #elif ENABLED(MachineCR6)
   #define X_MIN_POS -5
   #define Y_MIN_POS -2
+#elif ENABLED(MachineSermoonD1)
+  #define X_MIN_POS -10
+  #define Y_MIN_POS -10
 #elif ENABLED(MachineCR6Max)
   #define X_MIN_POS -10
   #define Y_MIN_POS -3
