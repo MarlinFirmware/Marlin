@@ -594,6 +594,7 @@
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
   #define E_STEPPERS      2
+  #define E_MANUAL        1
 
 #elif ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
 
@@ -623,7 +624,8 @@
 
 #elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
 
-  #define E_STEPPERS 1
+  #define E_STEPPERS      1
+  #define E_MANUAL        1
 
 #endif
 
