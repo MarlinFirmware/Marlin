@@ -3062,22 +3062,22 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       SERIAL_ECHOPGM(" (", position.k, "->", target.k);
       SERIAL_CHAR(')');
     #endif
-    #if LINEAR_AXES >= 7    
+    #if LINEAR_AXES >= 7
       SERIAL_ECHOPAIR_P(SP_M_LBL, abce.m);
       SERIAL_ECHOPAIR(" (", position.m, "->", target.m);
       SERIAL_CHAR(')');
     #endif
-    #if LINEAR_AXES >= 8    
+    #if LINEAR_AXES >= 8
       SERIAL_ECHOPAIR_P(SP_O_LBL, abce.o);
       SERIAL_ECHOPAIR(" (", position.o, "->", target.o);
       SERIAL_CHAR(')');
     #endif
-    #if LINEAR_AXES >= 9    
+    #if LINEAR_AXES >= 9
       SERIAL_ECHOPAIR_P(SP_P_LBL, abce.p);
       SERIAL_ECHOPAIR(" (", position.p, "->", target.p);
       SERIAL_CHAR(')');
     #endif
-    #if LINEAR_AXES >= 10    
+    #if LINEAR_AXES >= 10
       SERIAL_ECHOPAIR_P(SP_Q_LBL, abce.q);
       SERIAL_ECHOPAIR(" (", position.q, "->", target.q);
       SERIAL_CHAR(')');

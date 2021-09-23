@@ -88,16 +88,16 @@
   #define AXIS6_NAME 'C'
 #endif
 #ifndef AXIS7_NAME
-  #define AXIS7_NAME 'U'  
+  #define AXIS7_NAME 'U'
 #endif
 #ifndef AXIS8_NAME
-  #define AXIS8_NAME 'V'  
+  #define AXIS8_NAME 'V'
 #endif
 #ifndef AXIS9_NAME
-  #define AXIS9_NAME 'W'  
+  #define AXIS9_NAME 'W'
 #endif
 #ifndef AXIS10_NAME
-  #define AXIS10_NAME 'D'  
+  #define AXIS10_NAME 'D'
 #endif
 
 #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))

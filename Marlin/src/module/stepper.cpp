@@ -437,19 +437,19 @@ xyze_int8_t Stepper::count_direction{0};
   #define K_APPLY_DIR(v,Q) K_DIR_WRITE(v)
   #define K_APPLY_STEP(v,Q) K_STEP_WRITE(v)
 #endif
-#if LINEAR_AXES >= 7  
+#if LINEAR_AXES >= 7
   #define M_APPLY_DIR(v,Q) M_DIR_WRITE(v)
   #define M_APPLY_STEP(v,Q) M_STEP_WRITE(v)
 #endif
-#if LINEAR_AXES >= 8  
+#if LINEAR_AXES >= 8
   #define O_APPLY_DIR(v,Q) O_DIR_WRITE(v)
   #define O_APPLY_STEP(v,Q) O_STEP_WRITE(v)
 #endif
-#if LINEAR_AXES >= 9  
+#if LINEAR_AXES >= 9
   #define P_APPLY_DIR(v,Q) P_DIR_WRITE(v)
   #define P_APPLY_STEP(v,Q) P_STEP_WRITE(v)
 #endif
-#if LINEAR_AXES >= 10  
+#if LINEAR_AXES >= 10
   #define Q_APPLY_DIR(v,Q) Q_DIR_WRITE(v)
   #define Q_APPLY_STEP(v,Q) Q_STEP_WRITE(v)
 #endif
@@ -3159,7 +3159,7 @@ void Stepper::report_positions() {
           #ifdef Q_DIR_WRITE
             Q_DIR_WRITE(INVERT_Q_DIR ^ z_direction);
           #endif
-          
+
           DIR_WAIT_AFTER();
 
           _SAVE_START();
