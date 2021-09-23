@@ -405,10 +405,10 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
     WRITE(_sclk, LOW);
 
   WRITE(_cs, LOW);
-  spixfer(addr);
+  spiTransfer(addr);
 
   while (n--) {
-    buffer[0] = spixfer(0xFF);
+    buffer[0] = spiTransfer(0xFF);
     #ifdef MAX31865_DEBUG_SPI
       SERIAL_ECHOLNPGM("buffer read ", n, " data: ", buffer[0]);
     #endif
@@ -435,8 +435,8 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
 
   WRITE(_cs, LOW);
 
-  spixfer(addr | 0x80); // make sure top bit is set
-  spixfer(data);
+  spiTransfer(addr | 0x80); // make sure top bit is set
+  spiTransfer(data);
 
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.endTransaction();
@@ -453,7 +453,7 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
  * @param  x  an 8-bit chunk of data to write
  * @return    the 8-bit response
  */
-uint8_t MAX31865::spixfer(uint8_t x) {
+uint8_t MAX31865::spiTransfer(uint8_t x) {
   if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
     return SPI.transfer(x);
 

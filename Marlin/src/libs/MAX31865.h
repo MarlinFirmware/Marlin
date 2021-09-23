@@ -106,7 +106,7 @@ private:
   uint16_t readRegister16(uint8_t addr);
 
   void writeRegister8(uint8_t addr, uint8_t reg);
-  uint8_t spixfer(uint8_t addr);
+  uint8_t spiTransfer(uint8_t addr);
 
   void softSpiBegin(const uint8_t spi_speed);
 
