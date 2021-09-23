@@ -372,7 +372,7 @@ static float auto_tune_a() {
  *      P3       Probe all positions: center, towers and opposite towers. Calibrate all.
  *      P4-P10   Probe all positions at different intermediate locations and average them.
  *
- *   Rn.nn  Fit all probe positions in this radius (temporary overrides DELTA_MAX_RADIUS)
+ *   Rn.nn  Temporary reduce the probe grid by the specified amount (mm)
  *
  *   T   Don't calibrate tower angle corrections
  *
@@ -410,7 +410,7 @@ void GcodeSuite::G33() {
                   towers_set = !parser.seen_test('T');
 
   float dcr = DELTA_MAX_RADIUS;
-  if (parser.seenval('R')) dcr = parser.value_float();
+  if (parser.seenval('R')) dcr -= parser.value_float();
   #if HAS_PROBE_XY_OFFSET
     // The calibration radius is set to a calculated value
     if (probe_at_offset) NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
