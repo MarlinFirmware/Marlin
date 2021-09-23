@@ -103,15 +103,13 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
         if (card.isFileOpen()) {
           feedrate_percentage = 100;
           planner.flow_percentage[0] = 100;
-          planner.e_factor[0]        = planner.flow_percentage[0] * 0.01f;
+          planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
           #if HAS_MULTI_EXTRUDER
             planner.flow_percentage[1] = 100;
-            planner.e_factor[1]        = planner.flow_percentage[1] * 0.01f;
+            planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
           #endif
           card.startOrResumeFilePrinting();
-          #if ENABLED(POWER_LOSS_RECOVERY)
-            recovery.prepare();
-          #endif
+          TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
         }
       }
@@ -229,14 +227,14 @@ void lv_draw_dialog(uint8_t type) {
   lv_obj_t *labelDialog = lv_label_create(scr, "");
 
   if (DIALOG_IS(TYPE_FINISH_PRINT, PAUSE_MESSAGE_RESUME)) {
-      btnOk = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_ok_event_cb);
-      lv_obj_t *labelOk = lv_label_create_empty(btnOk);             // Add a label to the button
-      lv_label_set_text(labelOk, print_file_dialog_menu.confirm);    // Set the labels text
+    btnOk = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_ok_event_cb);
+    lv_obj_t *labelOk = lv_label_create_empty(btnOk);           // Add a label to the button
+    lv_label_set_text(labelOk, print_file_dialog_menu.confirm); // Set the labels text
   }
   else if (DIALOG_IS(PAUSE_MESSAGE_WAITING, PAUSE_MESSAGE_INSERT, PAUSE_MESSAGE_HEAT)) {
     btnOk = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_ok_event_cb);
-    lv_obj_t *labelOk = lv_label_create_empty(btnOk);             // Add a label to the button
-    lv_label_set_text(labelOk, print_file_dialog_menu.confirm);    // Set the labels text
+    lv_obj_t *labelOk = lv_label_create_empty(btnOk);           // Add a label to the button
+    lv_label_set_text(labelOk, print_file_dialog_menu.confirm); // Set the labels text
   }
   else if (DIALOG_IS(PAUSE_MESSAGE_PARKING, PAUSE_MESSAGE_CHANGING, PAUSE_MESSAGE_UNLOAD, PAUSE_MESSAGE_LOAD, PAUSE_MESSAGE_PURGE, PAUSE_MESSAGE_RESUME, PAUSE_MESSAGE_HEATING)) {
     // nothing to do
@@ -269,7 +267,7 @@ void lv_draw_dialog(uint8_t type) {
     }
   #endif
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT)) {
-    btnCancel = lv_button_btn_create(scr, BTN_OK_X+90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
+    btnCancel = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
     lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
 
@@ -287,7 +285,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
 
     filament_bar = lv_bar_create(scr, nullptr);
-    lv_obj_set_pos(filament_bar, (TFT_WIDTH-400)/2, ((TFT_HEIGHT - titleHeight)-40)/2);
+    lv_obj_set_pos(filament_bar, (TFT_WIDTH - 400) / 2, ((TFT_HEIGHT - titleHeight) - 40) / 2);
     lv_obj_set_size(filament_bar, 400, 25);
     lv_bar_set_style(filament_bar, LV_BAR_STYLE_INDIC, &lv_bar_style_indic);
     lv_bar_set_anim_time(filament_bar, 1000);
@@ -301,11 +299,11 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);     // Add a label to the button
 
     if (DIALOG_IS(PAUSE_MESSAGE_OPTION)) {
-      lv_label_set_text(labelOk, pause_msg_menu.purgeMore);        // Set the labels text
+      lv_label_set_text(labelOk, pause_msg_menu.purgeMore);       // Set the labels text
       lv_label_set_text(labelCancel, pause_msg_menu.continuePrint);
     }
     else {
-      lv_label_set_text(labelOk, print_file_dialog_menu.confirm);  // Set the labels text
+      lv_label_set_text(labelOk, print_file_dialog_menu.confirm); // Set the labels text
       lv_label_set_text(labelCancel, print_file_dialog_menu.cancel);
     }
   }

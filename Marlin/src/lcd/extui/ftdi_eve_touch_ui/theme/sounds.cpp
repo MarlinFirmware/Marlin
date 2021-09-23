@@ -385,7 +385,7 @@ namespace Theme {
     {CHACK},
     {SILENCE, END_SONG, 0}
   };
-}; // namespace Theme
+} // namespace Theme
 
 #define N_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 

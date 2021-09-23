@@ -46,6 +46,7 @@ exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBR
 
 #
 # Delta Config (generic) + ABL bilinear + BLTOUCH
+#
 use_example_configs delta/generic
 opt_set LCD_LANGUAGE cz \
         Z_MIN_PROBE_ENDSTOP_INVERTING false \

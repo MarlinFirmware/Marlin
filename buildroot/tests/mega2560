@@ -182,7 +182,7 @@ opt_set MOTHERBOARD BOARD_RAMPS_14_EFB EXTRUDERS 0 LCD_LANGUAGE en TEMP_SENSOR_C
 opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS EEPROM_BOOT_SILENT EEPROM_AUTO_INIT \
            LASER_FEATURE AIR_EVACUATION AIR_EVACUATION_PIN AIR_ASSIST AIR_ASSIST_PIN LASER_COOLANT_FLOW_METER MEATPACK_ON_SERIAL_PORT_1
 
-exec_test $1 $2 "REPRAP MEGA2560 RAMPS | Laser Feature | Air Evacuation | Air Assist | Cooler | Flowmeter | 12864 LCD | meatpack | SERIAL_PORT_2 " "$3"
+exec_test $1 $2 "MEGA2560 RAMPS | Laser Feature | Air Evacuation | Air Assist | Cooler | Flowmeter | 12864 LCD | meatpack | SERIAL_PORT_2 " "$3"
 
 #
 # Test Laser features with 44780 LCD
@@ -197,7 +197,7 @@ opt_set MOTHERBOARD BOARD_RAMPS_14_EFB EXTRUDERS 0 LCD_LANGUAGE en TEMP_SENSOR_C
 opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS EEPROM_BOOT_SILENT EEPROM_AUTO_INIT \
            LASER_FEATURE AIR_EVACUATION AIR_EVACUATION_PIN AIR_ASSIST AIR_ASSIST_PIN LASER_COOLANT_FLOW_METER I2C_AMMETER
 
-exec_test $1 $2 "REPRAP MEGA2560 RAMPS | Laser Feature | Air Evacuation | Air Assist | Cooler | Flowmeter | 44780 LCD " "$3"
+exec_test $1 $2 "MEGA2560 RAMPS | Laser Feature | Air Evacuation | Air Assist | Cooler | Flowmeter | 44780 LCD " "$3"
 
 #
 # Test redundant temperature sensors + MAX TC
@@ -211,15 +211,21 @@ opt_set MOTHERBOARD BOARD_RAMPS_14_EFB EXTRUDERS 1 \
 exec_test $1 $2 "MEGA2560 RAMPS | Redundant temperature sensor | 2x MAX6675" "$3"
 
 #
+# Polargraph Config
+#
+use_example_configs Polargraph
+exec_test $1 $2 "RUMBA | POLARGRAPH | RRD LCD" "$3"
+
+#
 # Language files test with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
+#for lang in an bg ca cz da de el el_CY en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
+#for lang in an bg ca cz da de el el_CY en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk sv tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 
 ######## Example Configurations ##############
 #

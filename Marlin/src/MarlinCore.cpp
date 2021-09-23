@@ -30,10 +30,6 @@
 
 #include "MarlinCore.h"
 
-#if ENABLED(MARLIN_DEV_MODE)
-  #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
-#endif
-
 #include "HAL/shared/Delay.h"
 #include "HAL/shared/esp_wifi.h"
 #include "HAL/shared/cpu_exception/exception_hook.h"
@@ -74,15 +70,15 @@
   #include <lvgl.h>
 #endif
 
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/e3v2/creality/dwin.h"
-  #include "lcd/e3v2/creality/rotary_encoder.h"
-#elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "lcd/e3v2/enhanced/dwin.h"
-  #include "lcd/e3v2/enhanced/rotary_encoder.h"
-#elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-  #include "lcd/e3v2/jyersui/dwin.h"
-  #include "lcd/e3v2/jyersui/rotary_encoder.h"
+#if HAS_DWIN_E3V2
+  #include "lcd/e3v2/common/encoder.h"
+  #if ENABLED(DWIN_CREALITY_LCD)
+    #include "lcd/e3v2/creality/dwin.h"
+  #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+    #include "lcd/e3v2/enhanced/dwin.h"
+  #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+    #include "lcd/e3v2/jyersui/dwin.h"
+  #endif
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -172,6 +168,8 @@
 
 #if ENABLED(DELTA)
   #include "module/delta.h"
+#elif ENABLED(POLARGRAPH)
+  #include "module/polargraph.h"
 #elif IS_SCARA
   #include "module/scara.h"
 #endif
