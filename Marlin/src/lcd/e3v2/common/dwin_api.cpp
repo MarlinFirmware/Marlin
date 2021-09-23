@@ -27,6 +27,7 @@
 #include "dwin_set.h"
 
 #include "../../../inc/MarlinConfig.h"
+#include "../../marlinui.h"
 
 #include <string.h> // for memset
 
