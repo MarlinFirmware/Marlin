@@ -1473,15 +1473,20 @@
   // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
-  // After a runout is detected, continue printing this length of filament
-  // before executing the runout script. Useful for a sensor at the end of
-  // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+  // When using a runout switch (no encoder), after a runout is detected, 
+  // continue printing this length of filament before executing the runout script. 
+  // Useful for a sensor at the end of a feed tube.
+  // If using an encoder disc, this is the lenth of filament that would print
+  // without any movement from the sensor before it triggers a runout.
+  // Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
   //#define FILAMENT_RUNOUT_DISTANCE_MM 25
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
-    // Enable this option to use an encoder disc that toggles the runout pin
-    // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
-    // large enough to avoid false positives.)
+    // Enable this option to use an encoder disc that toggles the runout pin as the filament moves. 
+    // Be sure to set FILAMENT_RUNOUT_DISTANCE_MM large enough to avoid false positives. 
+    // Start at the value of the sensor for one revolution and if you experience false positives, 
+    // increment the value by the same amount. 
+    // ie., 7mm is set, and you get false positives, set it to 14 and try it again.
     //#define FILAMENT_MOTION_SENSOR
   #endif
 #endif
