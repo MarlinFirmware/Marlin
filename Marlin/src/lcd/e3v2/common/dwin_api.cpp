@@ -87,6 +87,11 @@ bool DWIN_Handshake() {
     DWIN_Byte(i, brightness);
     DWIN_Send(i);
   }
+
+  void MarlinUI::_set_brightness() {
+    DWIN_LCD_Brightness(backlight ? brightness : 0);
+  }
+
 #endif
 
 // Set screen display direction
