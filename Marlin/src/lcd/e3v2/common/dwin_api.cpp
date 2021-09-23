@@ -78,12 +78,12 @@ bool DWIN_Handshake() {
         && databuf[3] == 'K' );
 }
 
-// Set the backlight brightness
-//  brightness: (0x00-0x1F)
+// Set LCD backlight (from DWIN Enhanced)
+//  brightness: 0x00-0xFF
 void DWIN_LCD_Brightness(const uint8_t brightness) {
   size_t i = 0;
   DWIN_Byte(i, 0x30);
-  DWIN_Byte(i, _MAX(brightness, 0x1F));
+  DWIN_Byte(i, brightness);
   DWIN_Send(i);
 }
 
