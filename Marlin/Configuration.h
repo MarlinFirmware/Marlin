@@ -161,7 +161,7 @@
  *             DEFAULT_MAX_ACCELERATION, AXIS_RELATIVE_MODES,
  *             MICROSTEP_MODES, MANUAL_FEEDRATE
  *
- * :[3, 4, 5, 6]
+ * :[3, 4, 5, 6, 7, 8]
  */
 //#define LINEAR_AXES 3
 
@@ -794,20 +794,20 @@
 //#define USE_IMIN_PLUG
 //#define USE_JMIN_PLUG
 //#define USE_KMIN_PLUG
-#define USE_MMIN_PLUG    /**SG**/
-#define USE_OMIN_PLUG    /**SG**/
-#define USE_PMIN_PLUG    /**SG**/
-#define USE_QMIN_PLUG    /**SG**/
+//#define USE_MMIN_PLUG
+//#define USE_OMIN_PLUG
+//#define USE_PMIN_PLUG
+//#define USE_QMIN_PLUG
 //#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
 //#define USE_IMAX_PLUG
 //#define USE_JMAX_PLUG
 //#define USE_KMAX_PLUG
-//#define USE_MMAX_PLUG   /**SG**/
-//#define USE_OMAX_PLUG   /**SG**/
-//#define USE_PMAX_PLUG   /**SG**/
-//#define USE_QMAX_PLUG   /**SG**/
+//#define USE_MMAX_PLUG
+//#define USE_OMAX_PLUG
+//#define USE_PMAX_PLUG
+//#define USE_QMAX_PLUG
 
 // Enable pullup for all endstops to prevent a floating state
 #define ENDSTOPPULLUPS
@@ -819,20 +819,20 @@
   //#define ENDSTOPPULLUP_IMAX
   //#define ENDSTOPPULLUP_JMAX
   //#define ENDSTOPPULLUP_KMAX
-  //#define ENDSTOPPULLUP_MMAX    /**SG**/
-  //#define ENDSTOPPULLUP_OMAX    /**SG**/
-  //#define ENDSTOPPULLUP_PMAX    /**SG**/
-  //#define ENDSTOPPULLUP_QMAX    /**SG**/
+  //#define ENDSTOPPULLUP_MMAX
+  //#define ENDSTOPPULLUP_OMAX
+  //#define ENDSTOPPULLUP_PMAX
+  //#define ENDSTOPPULLUP_QMAX
   //#define ENDSTOPPULLUP_XMIN
   //#define ENDSTOPPULLUP_YMIN
   //#define ENDSTOPPULLUP_ZMIN
   //#define ENDSTOPPULLUP_IMIN
   //#define ENDSTOPPULLUP_JMIN
   //#define ENDSTOPPULLUP_KMIN
-  //#define ENDSTOPPULLUP_MMIN    /**SG**/
-  //#define ENDSTOPPULLUP_OMIN    /**SG**/
-  //#define ENDSTOPPULLUP_OMIN    /**SG**/
-  //#define ENDSTOPPULLUP_QMIN    /**SG**/
+  //#define ENDSTOPPULLUP_MMIN
+  //#define ENDSTOPPULLUP_OMIN
+  //#define ENDSTOPPULLUP_OMIN
+  //#define ENDSTOPPULLUP_QMIN
   //#define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
 
@@ -847,20 +847,20 @@
   //#define ENDSTOPPULLDOWN_JMAX
   //#define ENDSTOPPULLDOWN_KMAX
   //#define ENDSTOPPULLDOWN_KMAX
-  //#define ENDSTOPPULLDOWN_MMAX    /**SG**/
-  //#define ENDSTOPPULLDOWN_OMAX    /**SG**/
-  //#define ENDSTOPPULLDOWN_PMAX    /**SG**/
-  //#define ENDSTOPPULLDOWN_QMAX    /**SG**/
+  //#define ENDSTOPPULLDOWN_MMAX
+  //#define ENDSTOPPULLDOWN_OMAX
+  //#define ENDSTOPPULLDOWN_PMAX
+  //#define ENDSTOPPULLDOWN_QMAX
   //#define ENDSTOPPULLDOWN_XMIN
   //#define ENDSTOPPULLDOWN_YMIN
   //#define ENDSTOPPULLDOWN_ZMIN
   //#define ENDSTOPPULLDOWN_IMIN
   //#define ENDSTOPPULLDOWN_JMIN
   //#define ENDSTOPPULLDOWN_KMIN
-  //#define ENDSTOPPULLDOWN_MMIN    /**SG**/
-  //#define ENDSTOPPULLDOWN_OMIN    /**SG**/
-  //#define ENDSTOPPULLDOWN_PMIN    /**SG**/
-  //#define ENDSTOPPULLDOWN_QMIN    /**SG**/
+  //#define ENDSTOPPULLDOWN_MMIN
+  //#define ENDSTOPPULLDOWN_OMIN
+  //#define ENDSTOPPULLDOWN_PMIN
+  //#define ENDSTOPPULLDOWN_QMIN
   //#define ENDSTOPPULLDOWN_ZMIN_PROBE
 #endif
 
@@ -871,20 +871,20 @@
 #define I_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define J_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define M_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
-#define O_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
-#define P_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
-#define Q_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
+#define M_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define O_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define P_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Q_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define I_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define J_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define K_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-#define M_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
-#define O_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
-#define P_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
-#define Q_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.    /**SG**/
+#define M_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define O_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define P_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Q_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
 /**
@@ -916,10 +916,10 @@
 //#define I_DRIVER_TYPE  A4988
 //#define J_DRIVER_TYPE  A4988
 //#define K_DRIVER_TYPE  A4988
-//#define M_DRIVER_TYPE  A4988    /**SG**/
-//#define O_DRIVER_TYPE  A4988    /**SG**/
-//#define P_DRIVER_TYPE  A4988    /**SG**/
-//#define Q_DRIVER_TYPE  A4988    /**SG**/
+//#define M_DRIVER_TYPE  A4988
+//#define O_DRIVER_TYPE  A4988
+//#define P_DRIVER_TYPE  A4988
+//#define Q_DRIVER_TYPE  A4988
 //#define E0_DRIVER_TYPE A4988
 #define E0_DRIVER_TYPE A4988
 //#define E1_DRIVER_TYPE A4988
@@ -1031,10 +1031,10 @@
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
-  //#define DEFAULT_MJERK  0.3    /**SG**/
-  //#define DEFAULT_OJERK  0.3    /**SG**/
-  //#define DEFAULT_PJERK  0.3    /**SG**/
-  //#define DEFAULT_QJERK  0.3    /**SG**/
+  //#define DEFAULT_MJERK  0.3
+  //#define DEFAULT_OJERK  0.3
+  //#define DEFAULT_PJERK  0.3
+  //#define DEFAULT_QJERK  0.3
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
@@ -1353,10 +1353,10 @@
 //#define I_ENABLE_ON 0
 //#define J_ENABLE_ON 0
 //#define K_ENABLE_ON 0
-//#define M_ENABLE_ON 0   /**SG**/
-//#define O_ENABLE_ON 0   /**SG**/
-//#define P_ENABLE_ON 0   /**SG**/
-//#define Q_ENABLE_ON 0   /**SG**/
+//#define M_ENABLE_ON 0
+//#define O_ENABLE_ON 0
+//#define P_ENABLE_ON 0
+//#define Q_ENABLE_ON 0
 
 // Disable axis steppers immediately when they're not being stepped.
 // WARNING: When motors turn off there is a chance of losing position accuracy!
@@ -1366,10 +1366,10 @@
 //#define DISABLE_I false
 //#define DISABLE_J false
 //#define DISABLE_K false
-//#define DISABLE_M false   /**SG**/
-//#define DISABLE_O false   /**SG**/
-//#define DISABLE_P false   /**SG**/
-//#define DISABLE_Q false   /**SG**/
+//#define DISABLE_M false
+//#define DISABLE_O false
+//#define DISABLE_P false
+//#define DISABLE_Q false
 
 // Turn off the display blinking that warns about possible accuracy reduction
 //#define DISABLE_REDUCED_ACCURACY_WARNING
@@ -1388,10 +1388,10 @@
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
 //#define INVERT_K_DIR false
-//#define INVERT_M_DIR false   /**SG**/
-//#define INVERT_O_DIR false   /**SG**/
-//#define INVERT_P_DIR false   /**SG**/
-//#define INVERT_Q_DIR false   /**SG**/
+//#define INVERT_M_DIR false
+//#define INVERT_O_DIR false
+//#define INVERT_P_DIR false
+//#define INVERT_Q_DIR false
 
 // @section extruder
 
@@ -1430,10 +1430,10 @@
 //#define I_HOME_DIR -1
 //#define J_HOME_DIR -1
 //#define K_HOME_DIR -1
-//#define M_HOME_DIR -1   /**SG**/
-//#define O_HOME_DIR -1   /**SG**/
-//#define P_HOME_DIR -1   /**SG**/
-//#define Q_HOME_DIR -1   /**SG**/
+//#define M_HOME_DIR -1
+//#define O_HOME_DIR -1
+//#define P_HOME_DIR -1
+//#define Q_HOME_DIR -1
 
 // @section machine
 
@@ -1454,14 +1454,14 @@
 //#define J_MAX_POS 50
 //#define K_MIN_POS 0
 //#define K_MAX_POS 50
-//#define M_MIN_POS 0   /**SG**/
-//#define M_MAX_POS 50  /**SG**/
-//#define O_MIN_POS 0   /**SG**/
-//#define O_MAX_POS 50  /**SG**/
-//#define P_MIN_POS 0   /**SG**/
-//#define P_MAX_POS 50  /**SG**/
-//#define Q_MIN_POS 0   /**SG**/
-//#define Q_MAX_POS 50  /**SG**/
+//#define M_MIN_POS 0
+//#define M_MAX_POS 50
+//#define O_MIN_POS 0
+//#define O_MAX_POS 50
+//#define P_MIN_POS 0
+//#define P_MAX_POS 50
+//#define Q_MIN_POS 0
+//#define Q_MAX_POS 50
 
 /**
  * Software Endstops
@@ -1481,10 +1481,10 @@
   #define MIN_SOFTWARE_ENDSTOP_I
   #define MIN_SOFTWARE_ENDSTOP_J
   #define MIN_SOFTWARE_ENDSTOP_K
-  #define MIN_SOFTWARE_ENDSTOP_M   /**SG**/
-  #define MIN_SOFTWARE_ENDSTOP_O   /**SG**/
-  #define MIN_SOFTWARE_ENDSTOP_P   /**SG**/
-  #define MIN_SOFTWARE_ENDSTOP_Q   /**SG**/
+  #define MIN_SOFTWARE_ENDSTOP_M
+  #define MIN_SOFTWARE_ENDSTOP_O
+  #define MIN_SOFTWARE_ENDSTOP_P
+  #define MIN_SOFTWARE_ENDSTOP_Q
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
@@ -1496,10 +1496,10 @@
   #define MAX_SOFTWARE_ENDSTOP_I
   #define MAX_SOFTWARE_ENDSTOP_J
   #define MAX_SOFTWARE_ENDSTOP_K
-  #define MAX_SOFTWARE_ENDSTOP_M   /**SG**/
-  #define MAX_SOFTWARE_ENDSTOP_O   /**SG**/
-  #define MAX_SOFTWARE_ENDSTOP_P   /**SG**/
-  #define MAX_SOFTWARE_ENDSTOP_Q   /**SG**/
+  #define MAX_SOFTWARE_ENDSTOP_M
+  #define MAX_SOFTWARE_ENDSTOP_O
+  #define MAX_SOFTWARE_ENDSTOP_P
+  #define MAX_SOFTWARE_ENDSTOP_Q
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
@@ -1814,10 +1814,10 @@
 //#define MANUAL_I_HOME_POS 0
 //#define MANUAL_J_HOME_POS 0
 //#define MANUAL_K_HOME_POS 0
-//#define MANUAL_M_HOME_POS 0  /**SG**/
-//#define MANUAL_O_HOME_POS 0  /**SG**/
-//#define MANUAL_P_HOME_POS 0  /**SG**/
-//#define MANUAL_Q_HOME_POS 0  /**SG**/
+//#define MANUAL_M_HOME_POS 0
+//#define MANUAL_O_HOME_POS 0
+//#define MANUAL_P_HOME_POS 0
+//#define MANUAL_Q_HOME_POS 0
 
 /**
  * Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.

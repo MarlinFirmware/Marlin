@@ -211,7 +211,6 @@ void setup_endstop_interrupts() {
     #endif
     attachInterrupt(K_MIN_PIN, endstop_ISR, CHANGE);
   #endif
-  /**SG**/
   #if HAS_M_MAX
     #if !AVAILABLE_EILINE(M_MAX_PIN)
       #error "M_MAX_PIN has no EXTINT line available."
@@ -224,7 +223,6 @@ void setup_endstop_interrupts() {
     #endif
     attachInterrupt(M_MIN_PIN, endstop_ISR, CHANGE);
   #endif
-    /**SG**/
   #if HAS_O_MAX
     #if !AVAILABLE_EILINE(O_MAX_PIN)
       #error "O_MAX_PIN has no EXTINT line available."
@@ -237,7 +235,6 @@ void setup_endstop_interrupts() {
     #endif
     attachInterrupt(O_MIN_PIN, endstop_ISR, CHANGE);
   #endif
-    /**SG**/
   #if HAS_P_MAX
     #if !AVAILABLE_EILINE(P_MAX_PIN)
       #error "P_MAX_PIN has no EXTINT line available."
@@ -250,7 +247,6 @@ void setup_endstop_interrupts() {
     #endif
     attachInterrupt(P_MIN_PIN, endstop_ISR, CHANGE);
   #endif
-    /**SG**/
   #if HAS_Q_MAX
     #if !AVAILABLE_EILINE(Q_MAX_PIN)
       #error "Q_MAX_PIN has no EXTINT line available."

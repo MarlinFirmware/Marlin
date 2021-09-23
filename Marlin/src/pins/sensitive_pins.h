@@ -293,7 +293,6 @@
 
 #endif
 
-/**SG**/
 #if LINEAR_AXES >= 7
   #if PIN_EXISTS(M_MIN)
     #define _M_MIN M_MIN_PIN,
@@ -334,7 +333,6 @@
 
 #endif
 
-/**SG**/
 #if LINEAR_AXES >= 8
   #if PIN_EXISTS(O_MIN)
     #define _O_MIN O_MIN_PIN,
@@ -375,7 +373,6 @@
 
 #endif
 
-/**SG**/
 #if LINEAR_AXES >= 9
   #if PIN_EXISTS(P_MIN)
     #define _P_MIN P_MIN_PIN,
@@ -416,7 +413,6 @@
 
 #endif
 
-/**SG**/
 #if LINEAR_AXES >= 10
   #if PIN_EXISTS(Q_MIN)
     #define _Q_MIN Q_MIN_PIN,

@@ -42,7 +42,7 @@ void M217_report(const bool eeprom=false) {
     SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
     SERIAL_ECHOPAIR_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
                       SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
-                      SP_P2_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
+                      SP_PLETTER_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
                     " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
                     " F", toolchange_settings.fan_speed,

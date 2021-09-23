@@ -64,7 +64,11 @@ void GcodeSuite::M18_M84() {
     stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
+<<<<<<< Upstream, based on origin/bugfix-2.0.x
     if (parser.seen_axis()) {
+=======
+    if (parser.seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR, AXIS7_STR, AXIS8_STR, AXIS9_STR, AXIS10_STR))) {
+>>>>>>> 5c59720 Cleanup after adding 9 axis support, removing comments etc.
       planner.synchronize();
       LOGICAL_AXIS_CODE(
         if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) disable_e_steppers(),

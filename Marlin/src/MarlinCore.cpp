@@ -322,13 +322,13 @@ void enable_all_steppers() {
   ENABLE_AXIS_X();
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
-  ENABLE_AXIS_I(); // Marlin 6-axis support by DerAndere (https://github.com/DerAndere1/Marlin/wiki)
+  ENABLE_AXIS_I();  // Marlin multi-axis support by DerAndere (https://github.com/DerAndere1/Marlin/wiki)
   ENABLE_AXIS_J();
   ENABLE_AXIS_K();
-  ENABLE_AXIS_M();   /**SG**/
-  ENABLE_AXIS_O();   /**SG**/
-  ENABLE_AXIS_P();   /**SG**/
-  ENABLE_AXIS_Q();   /**SG**/
+  ENABLE_AXIS_M();  // Extension of multi-axis support for more than 6 axes by Paloky  /**SG**/
+  ENABLE_AXIS_O();
+  ENABLE_AXIS_P();
+  ENABLE_AXIS_Q();
   enable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
@@ -353,10 +353,10 @@ void disable_all_steppers() {
   DISABLE_AXIS_I();
   DISABLE_AXIS_J();
   DISABLE_AXIS_K();
-  DISABLE_AXIS_M();    /**SG**/
-  DISABLE_AXIS_O();    /**SG**/
-  DISABLE_AXIS_P();    /**SG**/
-  DISABLE_AXIS_Q();    /**SG**/
+  DISABLE_AXIS_M();
+  DISABLE_AXIS_O();
+  DISABLE_AXIS_P();
+  DISABLE_AXIS_Q();
   disable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());

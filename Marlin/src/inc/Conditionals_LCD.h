@@ -923,7 +923,26 @@
 #elif K_HOME_DIR < 0
   #define K_HOME_TO_MIN 1
 #endif
-
+#if M_HOME_DIR > 0
+  #define M_HOME_TO_MAX 1
+#elif M_HOME_DIR < 0
+  #define M_HOME_TO_MIN 1
+#endif
+#if O_HOME_DIR > 0
+  #define O_HOME_TO_MAX 1
+#elif O_HOME_DIR < 0
+  #define O_HOME_TO_MIN 1
+#endif
+#if P_HOME_DIR > 0
+  #define P_HOME_TO_MAX 1
+#elif P_HOME_DIR < 0
+  #define P_HOME_TO_MIN 1
+#endif
+#if Q_HOME_DIR > 0
+  #define Q_HOME_TO_MAX 1
+#elif Q_HOME_DIR < 0
+  #define Q_HOME_TO_MIN 1
+#endif
 /**
  * Conditionals based on the type of Bed Probe
  */
@@ -1207,16 +1226,16 @@
 #if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
   #define INVERT_K_DIR false
 #endif
-#if LINEAR_AXES >= 7 && !defined(INVERT_M_DIR)    /**SG**/
+#if LINEAR_AXES >= 7 && !defined(INVERT_M_DIR)
   #define INVERT_M_DIR false
 #endif
-#if LINEAR_AXES >= 8 && !defined(INVERT_O_DIR)    /**SG**/
+#if LINEAR_AXES >= 8 && !defined(INVERT_O_DIR)
   #define INVERT_O_DIR false
 #endif
-#if LINEAR_AXES >= 9 && !defined(INVERT_P_DIR)    /**SG**/
+#if LINEAR_AXES >= 9 && !defined(INVERT_P_DIR)
   #define INVERT_P_DIR false
 #endif
-#if LINEAR_AXES >= 10 && !defined(INVERT_Q_DIR)    /**SG**/
+#if LINEAR_AXES >= 10 && !defined(INVERT_Q_DIR)
   #define INVERT_Q_DIR false
 #endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)

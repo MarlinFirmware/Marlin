@@ -266,7 +266,7 @@
   #endif
 #endif
 
-// M Stepper   /**SG**/
+// M Stepper
 #if LINEAR_AXES >= 7
   #if AXIS_IS_L64XX(M)
     extern L64XX_CLASS(M)         stepperM;
@@ -288,7 +288,7 @@
   #endif
 #endif
 
-// O Stepper   /**SG**/
+// O Stepper
 #if LINEAR_AXES >= 8
   #if AXIS_IS_L64XX(O)
     extern L64XX_CLASS(O)         stepperO;
@@ -310,7 +310,7 @@
   #endif
 #endif
 
-// P Stepper   /**SG**/
+// P Stepper
 #if LINEAR_AXES >= 9
   #if AXIS_IS_L64XX(P)
     extern L64XX_CLASS(P)         stepperP;
@@ -332,7 +332,7 @@
   #endif
 #endif
 
-// Q Stepper   /**SG**/
+// Q Stepper
 #if LINEAR_AXES >= 10
   #if AXIS_IS_L64XX(Q)
     extern L64XX_CLASS(Q)         stepperQ;

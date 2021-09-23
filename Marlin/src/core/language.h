@@ -342,13 +342,10 @@
 #define STR_I AXIS4_STR
 #define STR_J AXIS5_STR
 #define STR_K AXIS6_STR
-#define STR_I AXIS4_STR
-#define STR_J AXIS5_STR
-#define STR_K AXIS6_STR
-#define STR_M AXIS7_STR   /**SG**/
-#define STR_O AXIS8_STR   /**SG**/
-#define STR_P AXIS9_STR   /**SG**/
-#define STR_Q AXIS10_STR   /**SG**/
+#define STR_M AXIS7_STR
+#define STR_O AXIS8_STR
+#define STR_P AXIS9_STR
+#define STR_Q AXIS10_STR
 #define STR_E "E"
 #if IS_KINEMATIC
   #define STR_A "A"
@@ -371,10 +368,10 @@
 #define LCD_STR_I STR_I
 #define LCD_STR_J STR_J
 #define LCD_STR_K STR_K
-#define LCD_STR_M STR_M   /**SG**/
-#define LCD_STR_O STR_O   /**SG**/
-#define LCD_STR_P STR_P   /**SG**/
-#define LCD_STR_Q STR_Q   /**SG**/
+#define LCD_STR_M STR_M
+#define LCD_STR_O STR_O
+#define LCD_STR_P STR_P
+#define LCD_STR_Q STR_Q
 #define LCD_STR_E STR_E
 
 // Extra Axis and Endstop Names
@@ -492,7 +489,6 @@
   #define AXIS6_STR   ""
 #endif
 
-/**SG**/
 #if LINEAR_AXES >= 7
   #if AXIS7_NAME == 'A'
     #define AXIS7_STR "A"
@@ -531,7 +527,6 @@
   #define AXIS7_STR   ""
 #endif
 
-/**SG**/
 #if LINEAR_AXES >= 8
   #if AXIS8_NAME == 'A'
     #define AXIS8_STR "A"
@@ -570,7 +565,6 @@
   #define AXIS8_STR   ""
 #endif
 
-/**SG**/
 #if LINEAR_AXES >= 9
   #if AXIS9_NAME == 'A'
     #define AXIS9_STR "A"

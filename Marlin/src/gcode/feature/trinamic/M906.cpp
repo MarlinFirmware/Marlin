@@ -183,16 +183,16 @@ void GcodeSuite::M906() {
     #if AXIS_IS_TMC(K)
       TMC_SAY_CURRENT(K);
     #endif
-    #if AXIS_IS_TMC(M)    /**SG**/
+    #if AXIS_IS_TMC(M)
       TMC_SAY_CURRENT(M);
     #endif
-    #if AXIS_IS_TMC(O)    /**SG**/
+    #if AXIS_IS_TMC(O)
       TMC_SAY_CURRENT(O);
     #endif
-    #if AXIS_IS_TMC(P)    /**SG**/
+    #if AXIS_IS_TMC(P)
       TMC_SAY_CURRENT(P);
     #endif
-    #if AXIS_IS_TMC(Q)    /**SG**/
+    #if AXIS_IS_TMC(Q)
       TMC_SAY_CURRENT(Q);
     #endif
 

@@ -652,7 +652,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES >= 7  /**SG**/
+#if LINEAR_AXES >= 7
   void do_blocking_move_to_m(const_float_t rm, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzijk_m(current_position, rm, fr_mm_s);
   }
@@ -664,7 +664,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES >= 8  /**SG**/
+#if LINEAR_AXES >= 8
   void do_blocking_move_to_o(const_float_t ro, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzijkm_o(current_position, ro, fr_mm_s);
   }
@@ -676,7 +676,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES >= 9  /**SG**/
+#if LINEAR_AXES >= 9
   void do_blocking_move_to_p(const_float_t rp, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzijkmo_p(current_position, rp, fr_mm_s);
   }
@@ -688,7 +688,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES >= 10  /**SG**/
+#if LINEAR_AXES >= 10
   void do_blocking_move_to_q(const_float_t rq, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzijkmop_q(current_position, rq, fr_mm_s);
   }

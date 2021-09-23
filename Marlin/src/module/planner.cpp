@@ -1310,7 +1310,7 @@ void Planner::recalculate() {
  */
 void Planner::check_axes_activity() {
 
-  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z , DISABLE_I , DISABLE_J , DISABLE_K, DISABLE_E)
+  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I , DISABLE_J , DISABLE_K, DISABLE_M, DISABLE_O, DISABLE_P, DISABLE_Q, DISABLE_E)
     xyze_bool_t axis_active = { false };
   #endif
 
@@ -1937,7 +1937,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
-  uint8_t dm = 0;
+  axis_bits_t dm = 0;
   #if CORE_IS_XY
     if (da < 0) SBI(dm, X_HEAD);                // Save the toolhead's true direction in X
     if (db < 0) SBI(dm, Y_HEAD);                // ...and Y
@@ -1969,7 +1969,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (dc < 0) SBI(dm, Z_AXIS),
       if (di < 0) SBI(dm, I_AXIS),
       if (dj < 0) SBI(dm, J_AXIS),
-      if (dk < 0) SBI(dm, K_AXIS)
+      if (dk < 0) SBI(dm, K_AXIS),
+      if (dmv < 0) SBI(dm, M_AXIS),
+      if (dov < 0) SBI(dm, O_AXIS),
+      if (dpv < 0) SBI(dm, P_AXIS),
+      if (dqv < 0) SBI(dm, Q_AXIS)
     );
   #endif
 
@@ -1993,7 +1997,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (dpv < 0) SBI(dm, P_AXIS);
     #endif
     #if LINEAR_AXES >= 10
-      if (dqv < 0) SBI(dm, K_AXIS);
+      if (dqv < 0) SBI(dm, Q_AXIS);
     #endif
   #endif
 
@@ -2186,7 +2190,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   block->step_event_count = _MAX(LOGICAL_AXIS_LIST(
     esteps, block->steps.a, block->steps.b, block->steps.c, block->steps.i, block->steps.j, block->steps.k, \
-    block->steps.m, block->steps.o, block->steps.p, block->steps.q),  /**SG**/
+    block->steps.m, block->steps.o, block->steps.p, block->steps.q
   ));
 
   // Bail if this is a zero-length block
@@ -2426,11 +2430,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #ifdef XY_FREQUENCY_LIMIT
 
-    static uint8_t old_direction_bits; // = 0
+    static axis_bits_t old_direction_bits; // = 0
 
     if (xy_freq_limit_hz) {
       // Check and limit the xy direction change frequency
-      const uint8_t direction_change = block->direction_bits ^ old_direction_bits;
+      const axis_bits_t direction_change = block->direction_bits ^ old_direction_bits;
       old_direction_bits = block->direction_bits;
       segment_time_us = LROUND(float(segment_time_us) / speed_factor);
 
@@ -2468,7 +2472,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   uint32_t accel;
   if (LINEAR_AXIS_GANG(
          !block->steps.a, && !block->steps.b, && !block->steps.c,
-      && !block->steps.i, && !block->steps.j, && !block->steps.k),
+      && !block->steps.i, && !block->steps.j, && !block->steps.k,
       && !block->steps.m, && !block->steps.o, && !block->steps.p, && !block->steps.q)
   ) {                                                             // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
@@ -2542,7 +2546,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         LIMIT_ACCEL_LONG(C_AXIS, 0),
         LIMIT_ACCEL_LONG(I_AXIS, 0),
         LIMIT_ACCEL_LONG(J_AXIS, 0),
-        LIMIT_ACCEL_LONG(K_AXIS, 0)
+        LIMIT_ACCEL_LONG(K_AXIS, 0),
+        LIMIT_ACCEL_LONG(M_AXIS, 0),
+        LIMIT_ACCEL_LONG(O_AXIS, 0),
+        LIMIT_ACCEL_LONG(P_AXIS, 0),
+        LIMIT_ACCEL_LONG(Q_AXIS, 0)
       );
     }
     else {
@@ -2553,7 +2561,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         LIMIT_ACCEL_FLOAT(C_AXIS, 0),
         LIMIT_ACCEL_FLOAT(I_AXIS, 0),
         LIMIT_ACCEL_FLOAT(J_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(K_AXIS, 0)
+        LIMIT_ACCEL_FLOAT(K_AXIS, 0),
+        LIMIT_ACCEL_FLOAT(M_AXIS, 0),
+        LIMIT_ACCEL_FLOAT(O_AXIS, 0),
+        LIMIT_ACCEL_FLOAT(P_AXIS, 0),
+        LIMIT_ACCEL_FLOAT(Q_AXIS, 0)
       );
     }
   }
@@ -2644,7 +2656,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                                  + (-prev_unit_vec.z * unit_vec.z),
                                  + (-prev_unit_vec.i * unit_vec.i),
                                  + (-prev_unit_vec.j * unit_vec.j),
-                                 + (-prev_unit_vec.k * unit_vec.k)
+                                 + (-prev_unit_vec.k * unit_vec.k),
+                                 + (-prev_unit_vec.m * unit_vec.m),
+                                 + (-prev_unit_vec.o * unit_vec.o),
+                                 + (-prev_unit_vec.p * unit_vec.p),
+                                 + (-prev_unit_vec.q * unit_vec.q)
                                );
 
       // NOTE: Computed without any expensive trig, sin() or acos(), by trig half angle identity of cos(theta).
@@ -2987,10 +3003,10 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       int32_t(LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS])),
       int32_t(LROUND(abce.j * settings.axis_steps_per_mm[J_AXIS])),
       int32_t(LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS])),
-      int32_t(LROUND(abce.m * settings.axis_steps_per_mm[M_AXIS])),    /**SG**/
-      int32_t(LROUND(abce.o * settings.axis_steps_per_mm[O_AXIS])),    /**SG**/
-      int32_t(LROUND(abce.p * settings.axis_steps_per_mm[P_AXIS])),    /**SG**/
-      int32_t(LROUND(abce.q * settings.axis_steps_per_mm[Q_AXIS]))    /**SG**/
+      int32_t(LROUND(abce.m * settings.axis_steps_per_mm[M_AXIS])),
+      int32_t(LROUND(abce.o * settings.axis_steps_per_mm[O_AXIS])),
+      int32_t(LROUND(abce.p * settings.axis_steps_per_mm[P_AXIS])),
+      int32_t(LROUND(abce.q * settings.axis_steps_per_mm[Q_AXIS]))
     )
   };
 

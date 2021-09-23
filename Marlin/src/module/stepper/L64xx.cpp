@@ -230,7 +230,6 @@ void L64XX_Marlin::init_to_defaults() {
   #if AXIS_IS_L64XX(K)
     L6470_INIT_CHIP(K);
   #endif
-  /**SG**/
   #if AXIS_IS_L64XX(M)
     L6470_INIT_CHIP(M);
   #endif

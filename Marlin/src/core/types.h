@@ -111,7 +111,7 @@ enum AxisEnum : uint8_t {
 };
 
 typedef IF<(NUM_AXIS_ENUMS > 8), uint16_t, uint8_t>::type axis_bits_t;
-
+typedef IF<(LINEAR_AXES > 8), uint16_t, uint8_t>::type linear_axis_bits_t;
 //
 // Loop over axes
 //
@@ -290,8 +290,8 @@ struct XYval {
   FI XYval<float> reciprocal()                    const { return {  _RECIP(x),  _RECIP(y) }; }
 
   // Marlin workspace shifting is done with G92 and M206
-  FI XYval<float>  asLogical()                    const { XYval<float> o = asFloat(); toLogical(o); return o; }
-  FI XYval<float>   asNative()                    const { XYval<float> o = asFloat(); toNative(o);  return o; }
+  FI XYval<float>  asLogical()                    const { XYval<float> obj = asFloat(); toLogical(obj); return obj; }
+  FI XYval<float>   asNative()                    const { XYval<float> obj = asFloat(); toNative(obj);  return obj; }
 
   // Cast to a type with more fields by making a new object
   FI operator XYZval<T>()                               { return { x, y }; }
@@ -385,12 +385,12 @@ template<typename T>
 struct XYZval {
   union {
     struct { T LINEAR_AXIS_ARGS(); };
-    struct { T LINEAR_AXIS_LIST(a, b, c, u, v, w, ax7, ax8, a9, ax10); };
+    struct { T LINEAR_AXIS_LIST(a, b, c, u, v, w, ax7, ax8, ax9, ax10); };
     T pos[LINEAR_AXES];
   };
 
   // Set all to 0
-  FI void reset()                                      { LINEAR_AXIS_GANG(x =, y =, z =, i =, j =, k =) 0; }
+  FI void reset()                                      { LINEAR_AXIS_GANG(x =, y =, z =, i =, j =, k =, m =, o =, p =, q =) 0; }
 
   // Setters taking struct types and arrays
   FI void set(const T px)                              { x = px; }
@@ -432,11 +432,11 @@ struct XYZval {
   #endif
 
   // Length reduced to one dimension
-  FI T magnitude()                               const { return (T)sqrtf(LINEAR_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k)); }
+  FI T magnitude()                               const { return (T)sqrtf(LINEAR_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + m*m, + o*o, + p*p, + q*q)); }
   // Pointer to the data as a simple array
   FI operator T* ()                                    { return pos; }
   // If any element is true then it's true
-  FI operator bool()                                   { return LINEAR_AXIS_GANG(x, || y, || z, || i, || j, || k); }
+  FI operator bool()                                   { return LINEAR_AXIS_GANG(x, || y, || z, || i, || j, || k, || m, || o, || p, || q); }
 
   // Explicit copy and copies with conversion
   FI XYZval<T>          copy()                   const { XYZval<T> obj = *this; return obj; }

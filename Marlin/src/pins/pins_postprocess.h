@@ -1769,6 +1769,42 @@
   #undef K_MAX_PIN
   #define K_MAX_PIN          -1
 #endif
+#if DISABLED(USE_IMIN_PLUG)
+  #undef I_MIN_PIN
+  #define I_MIN_PIN          -1
+#endif
+#if DISABLED(USE_IMAX_PLUG)
+  #undef I_MAX_PIN
+  #define I_MAX_PIN          -1
+#endif
+#if DISABLED(USE_JMIN_PLUG)
+  #undef J_MIN_PIN
+  #define J_MIN_PIN          -1
+#endif
+#if DISABLED(USE_JMAX_PLUG)
+  #undef J_MAX_PIN
+  #define J_MAX_PIN          -1
+#endif
+#if DISABLED(USE_KMIN_PLUG)
+  #undef K_MIN_PIN
+  #define K_MIN_PIN          -1
+#endif
+#if DISABLED(USE_MMAX_PLUG)
+  #undef M_MAX_PIN
+  #define M_MAX_PIN          -1
+#endif
+#if DISABLED(USE_OMAX_PLUG)
+  #undef O_MAX_PIN
+  #define O_MAX_PIN          -1
+#endif
+#if DISABLED(USE_PMAX_PLUG)
+  #undef P_MAX_PIN
+  #define P_MAX_PIN          -1
+#endif
+#if DISABLED(USE_QMAX_PLUG)
+  #undef Q_MAX_PIN
+  #define Q_MAX_PIN          -1
+#endif
 
 #if DISABLED(X_DUAL_ENDSTOPS) || X_HOME_TO_MAX
   #undef X2_MIN_PIN

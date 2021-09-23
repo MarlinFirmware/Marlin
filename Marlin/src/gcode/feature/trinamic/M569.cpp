@@ -45,7 +45,7 @@ static void set_stealth_status(const bool enable, const int8_t target_e_stepper)
 
   #if    X_HAS_STEALTHCHOP  || Y_HAS_STEALTHCHOP  || Z_HAS_STEALTHCHOP \
       || I_HAS_STEALTHCHOP  || J_HAS_STEALTHCHOP  || K_HAS_STEALTHCHOP \
-      || M_HAS_STEALTHCHOP  || O_HAS_STEALTHCHOP  || P_HAS_STEALTHCHOP  || Q_HAS_STEALTHCHOP \   
+      || M_HAS_STEALTHCHOP  || O_HAS_STEALTHCHOP  || P_HAS_STEALTHCHOP  || Q_HAS_STEALTHCHOP \
       || X2_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP || Z3_HAS_STEALTHCHOP || Z4_HAS_STEALTHCHOP
     const uint8_t index = parser.byteval('I');
   #endif

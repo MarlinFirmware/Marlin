@@ -1238,7 +1238,7 @@ void MarlinSettings::postprocess() {
           TERN_(Z_SENSORLESS, tmc_sgt.Z = stepperZ.homing_threshold()),
           TERN_(I_SENSORLESS, tmc_sgt.I = stepperI.homing_threshold()),
           TERN_(J_SENSORLESS, tmc_sgt.J = stepperJ.homing_threshold()),
-          TERN_(K_SENSORLESS, tmc_sgt.K = stepperK.homing_threshold())
+          TERN_(K_SENSORLESS, tmc_sgt.K = stepperK.homing_threshold()),
           TERN_(M_SENSORLESS, tmc_sgt.M = stepperM.homing_threshold()),
           TERN_(O_SENSORLESS, tmc_sgt.O = stepperO.homing_threshold()),
           TERN_(P_SENSORLESS, tmc_sgt.P = stepperP.homing_threshold()),
@@ -2049,19 +2049,15 @@ void MarlinSettings::postprocess() {
             #if AXIS_IS_TMC(K)
               SET_CURR(K);
             #endif
-            /**SG**/
             #if AXIS_IS_TMC(M)
               SET_CURR(M);
             #endif
-            /**SG**/
             #if AXIS_IS_TMC(O)
               SET_CURR(O);
             #endif
-            /**SG**/
             #if AXIS_IS_TMC(P)
               SET_CURR(P);
             #endif
-            /**SG**/
             #if AXIS_IS_TMC(Q)
               SET_CURR(Q);
             #endif
@@ -2144,10 +2140,10 @@ void MarlinSettings::postprocess() {
               TERN_(I_SENSORLESS, stepperI.homing_threshold(tmc_sgt.I)),
               TERN_(J_SENSORLESS, stepperJ.homing_threshold(tmc_sgt.J)),
               TERN_(K_SENSORLESS, stepperK.homing_threshold(tmc_sgt.K)),
-              TERN_(M_SENSORLESS, stepperM.homing_threshold(tmc_sgt.M)),   /**SG**/
-              TERN_(O_SENSORLESS, stepperO.homing_threshold(tmc_sgt.O)),   /**SG**/
-              TERN_(P_SENSORLESS, stepperP.homing_threshold(tmc_sgt.P)),   /**SG**/
-              TERN_(Q_SENSORLESS, stepperQ.homing_threshold(tmc_sgt.Q))   /**SG**/
+              TERN_(M_SENSORLESS, stepperM.homing_threshold(tmc_sgt.M)),
+              TERN_(O_SENSORLESS, stepperO.homing_threshold(tmc_sgt.O)),
+              TERN_(P_SENSORLESS, stepperP.homing_threshold(tmc_sgt.P)),
+              TERN_(Q_SENSORLESS, stepperQ.homing_threshold(tmc_sgt.Q))
             );
             TERN_(X2_SENSORLESS, stepperX2.homing_threshold(tmc_sgt.X2));
             TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(tmc_sgt.Y2));
@@ -2665,20 +2661,20 @@ void MarlinSettings::reset() {
     #if LINEAR_AXES >= 6 && !defined(DEFAULT_KJERK)
       #define DEFAULT_KJERK 0
     #endif
-    #if LINEAR_AXES >= 7 && !defined(DEFAULT_MJERK)   /**SG**/
+    #if LINEAR_AXES >= 7 && !defined(DEFAULT_MJERK)
       #define DEFAULT_MJERK 0
     #endif
-    #if LINEAR_AXES >= 8 && !defined(DEFAULT_OJERK)   /**SG**/
+    #if LINEAR_AXES >= 8 && !defined(DEFAULT_OJERK)
       #define DEFAULT_OJERK 0
     #endif
-    #if LINEAR_AXES >= 9 && !defined(DEFAULT_PJERK)   /**SG**/
+    #if LINEAR_AXES >= 9 && !defined(DEFAULT_PJERK)
       #define DEFAULT_PJERK 0
     #endif
-    #if LINEAR_AXES >= 10 && !defined(DEFAULT_QJERK)   /**SG**/
+    #if LINEAR_AXES >= 10 && !defined(DEFAULT_QJERK)
       #define DEFAULT_QJERK 0
     #endif
     planner.max_jerk.set(
-      LINEAR_AXIS_LIST(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_IJERK, DEFAULT_JJERK, DEFAULT_KJERK)
+      LINEAR_AXIS_LIST(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_IJERK, DEFAULT_JJERK, DEFAULT_KJERK, DEFAULT_MJERK, DEFAULT_OJERK, DEFAULT_PJERK, DEFAULT_QJERK)
     );
     TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK);
   #endif
@@ -2782,7 +2778,7 @@ void MarlinSettings::reset() {
     #if HAS_PROBE_XY_OFFSET
       LOOP_LINEAR_AXES(a) probe.offset[a] = dpo[a];
     #else
-      probe.offset.set(LINEAR_AXIS_LIST(0, 0, dpo[Z_AXIS], 0, 0, 0));
+      probe.offset.set(LINEAR_AXIS_LIST(0, 0, dpo[Z_AXIS], 0, 0, 0, 0, 0, 0, 0));
     #endif
   #endif
 

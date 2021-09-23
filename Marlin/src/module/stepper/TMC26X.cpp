@@ -69,7 +69,6 @@
 #if AXIS_DRIVER_TYPE_K(TMC26X)
   _TMC26X_DEFINE(K);
 #endif
-/**SG**/
 #if AXIS_DRIVER_TYPE_M(TMC26X)
   _TMC26X_DEFINE(M);
 #endif
@@ -146,7 +145,6 @@ void tmc26x_init_to_defaults() {
   #if AXIS_DRIVER_TYPE_K(TMC26X)
     _TMC26X_INIT(K);
   #endif
-  /**SG**/
   #if AXIS_DRIVER_TYPE_M(TMC26X)
     _TMC26X_INIT(M);
   #endif

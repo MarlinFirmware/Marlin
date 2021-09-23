@@ -106,7 +106,6 @@ enum StealthIndex : uint8_t {
 #if AXIS_HAS_SPI(K)
   TMC_SPI_DEFINE(K, K);
 #endif
-/**SG**/
 #if AXIS_HAS_SPI(M)
   TMC_SPI_DEFINE(M, M);
 #endif
@@ -399,12 +398,13 @@ enum StealthIndex : uint8_t {
       #define K_HAS_SW_SERIAL 1
     #endif
   #endif
-  /**SG**/
   #if AXIS_HAS_UART(M)
     #ifdef M_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, M, M);
+      #define M_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, M, M);
+      #define M_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(O)
@@ -412,20 +412,25 @@ enum StealthIndex : uint8_t {
       TMC_UART_DEFINE(HW, O, O);
     #else
       TMC_UART_DEFINE(SW, O, O);
+      #define O_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(P)
     #ifdef P_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, P, P);
+      #define P_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, P, P);
+      #define P_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(Q)
     #ifdef Q_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Q, Q);
+      #define Q_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, Q, Q);
+      #define Q_HAS_SW_SERIAL 1
     #endif
   #endif
 
@@ -597,7 +602,6 @@ enum StealthIndex : uint8_t {
         stepperK.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
-    /**SG**/
     #if AXIS_HAS_UART(M)
       #ifdef M_HARDWARE_SERIAL
         HW_SERIAL_BEGIN(M);
@@ -897,7 +901,6 @@ void restore_trinamic_drivers() {
   #if AXIS_IS_TMC(K)
     stepperK.push();
   #endif
-  /**SG**/
   #if AXIS_IS_TMC(M)
     stepperM.push();
   #endif
@@ -984,7 +987,6 @@ void reset_trinamic_drivers() {
   #if AXIS_IS_TMC(K)
     TMC_INIT(K, STEALTH_AXIS_K);
   #endif
-  /**SG**/
   #if AXIS_IS_TMC(M)
     TMC_INIT(M, STEALTH_AXIS_M);
   #endif
@@ -1065,7 +1067,7 @@ void reset_trinamic_drivers() {
         stepperK.homing_threshold(CAT(TERN(K_SENSORLESS, K, K), _STALL_SENSITIVITY));
       #endif
     #endif
-    /**SG**/
+
     #if M_SENSORLESS
       stepperM.homing_threshold(M_STALL_SENSITIVITY);
       #if AXIS_HAS_STALLGUARD(M)

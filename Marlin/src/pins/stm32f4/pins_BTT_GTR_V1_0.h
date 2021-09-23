@@ -79,7 +79,6 @@
   #define X_MAX_PIN                  E0_DIAG_PIN  // X+
 #endif
 
-<<<<<<< 9axis_pull
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
   #if Y_HOME_TO_MIN
@@ -91,21 +90,7 @@
   #define Y_MIN_PIN                   Y_DIAG_PIN  // Y-
   #define Y_MAX_PIN                  E1_DIAG_PIN  // Y+
 #endif
-=======
-#define I_MIN_PIN                           -1
-#define I_MAX_PIN                           -1
 
-#define J_MIN_PIN                           -1
-#define J_MAX_PIN                           -1
-
-#define K_MIN_PIN                           -1
-#define K_MAX_PIN                           -1
-
-#define M_MIN_PIN                           -1
-#define M_MAX_PIN                           -1
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
-
-<<<<<<< 9axis_pull
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
   #if Z_HOME_TO_MIN
@@ -117,17 +102,6 @@
   #define Z_MIN_PIN                   Z_DIAG_PIN  // Z-
   #define Z_MAX_PIN                  E2_DIAG_PIN  // Z+
 #endif
-=======
-#define O_MIN_PIN                           -1
-#define O_MAX_PIN                           -1
-
-#define P_MIN_PIN                           -1
-#define P_MAX_PIN                           -1
-
-#define Q_MIN_PIN                           -1
-#define Q_MAX_PIN                           -1
-
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 
 //
 // Pins on the extender
@@ -147,7 +121,6 @@
 //
 // Steppers
 //
-// 1.- OpenPnP "X" Axis
 #define X_STEP_PIN                          PC15
 #define X_DIR_PIN                           PF0
 #define X_ENABLE_PIN                        PF1
@@ -155,7 +128,6 @@
   #define X_CS_PIN                          PC14
 #endif
 
-// 2.- OpenPnP "Y" Axis
 #define Y_STEP_PIN                          PE3
 #define Y_DIR_PIN                           PE2
 #define Y_ENABLE_PIN                        PE4
@@ -163,10 +135,6 @@
   #define Y_CS_PIN                          PE1
 #endif
 
-<<<<<<< 9axis_pull
-=======
-// 3.- OpenPnP Z1 (Nozzles 1,2)
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 #define Z_STEP_PIN                          PB8
 #define Z_DIR_PIN                           PB7   // PB7
 #define Z_ENABLE_PIN                        PB9
@@ -174,19 +142,6 @@
   #define Z_CS_PIN                          PB5
 #endif
 
-<<<<<<< 9axis_pull
-=======
-
-// 4.- OpenPnP Z2 (Nozzles 3,4)
-// 'U'[O_Axis]
-#define O_STEP_PIN                         PG12
-#define O_DIR_PIN                          PG11
-#define O_ENABLE_PIN                       PG13
-#ifndef O_CS_PIN
-  #define O_CS_PIN                         PG10
-#endif
-/*
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 #define E0_STEP_PIN                         PG12
 #define E0_DIR_PIN                          PG11
 #define E0_ENABLE_PIN                       PG13
@@ -194,19 +149,6 @@
   #define E0_CS_PIN                         PG10
 #endif
 
-<<<<<<< 9axis_pull
-=======
-// 4.- OpenPnP C1 (Nozzles 1)
-// 'A' [I_AXIS]
-#define I_STEP_PIN                         PD6
-#define I_DIR_PIN                          PD5
-#define I_ENABLE_PIN                       PD7
-#ifndef I_CS_PIN
-  #define I_CS_PIN                         PD4
-#endif
-/*
-// [E1]
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 #define E1_STEP_PIN                         PD6
 #define E1_DIR_PIN                          PD5
 #define E1_ENABLE_PIN                       PD7
@@ -214,19 +156,6 @@
   #define E1_CS_PIN                         PD4
 #endif
 
-<<<<<<< 9axis_pull
-=======
-// 5.- OpenPnP C2 (Nozzles 2)
-// 'B' [J_AXIS]
-#define J_STEP_PIN                         PD1
-#define J_DIR_PIN                          PD0
-#define J_ENABLE_PIN                       PD2
-#ifndef J_CS_PIN
-  #define J_CS_PIN                         PC12
-#endif
-/*
-// [E2]
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 #define E2_STEP_PIN                         PD1
 #define E2_DIR_PIN                          PD0
 #define E2_ENABLE_PIN                       PD2
@@ -264,86 +193,15 @@
     #define E6_CS_PIN                       PF15
   #endif
 
-<<<<<<< 9axis_pull
   #define E7_STEP_PIN                       PH12
   #define E7_DIR_PIN                        PH15
   #define E7_ENABLE_PIN                     PI0
   #ifndef E7_CS_PIN
     #define E7_CS_PIN                       PH14
   #endif
-=======
-// 6.- OpenPnP C3 (Nozzles 3)
-// 'C' [K_AXIS]
-#define K_STEP_PIN                         PF3
-#define K_DIR_PIN                          PG3
-#define K_ENABLE_PIN                       PF8
-#ifndef K_CS_PIN
-  #define K_CS_PIN                         PG4
-#endif
-/*
-//[E3]
-#define E3_STEP_PIN                         PF3
-#define E3_DIR_PIN                          PG3
-#define E3_ENABLE_PIN                       PF8
-#ifndef E3_CS_PIN
-  #define E3_CS_PIN                         PG4
-#endif
-*/
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 
-<<<<<<< 9axis_pull
-=======
-// 7.- OpenPnP C4 (Nozzles 4)
-// 'D' [M_AXIS]
-#define M_STEP_PIN                         PD14
-#define M_DIR_PIN                          PD11
-#define M_ENABLE_PIN                       PG2
-#ifndef M_CS_PIN
-  #define M_CS_PIN                         PE15
-#endif
-/*
-// [E4]
-#define E4_STEP_PIN                         PD14
-#define E4_DIR_PIN                          PD11
-#define E4_ENABLE_PIN                       PG2
-#ifndef E4_CS_PIN
-  #define E4_CS_PIN                         PE15
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
-#endif
-*/
-
-<<<<<<< 9axis_pull
-=======
-
-#define E5_STEP_PIN                         PE12
-#define E5_DIR_PIN                          PE10
-#define E5_ENABLE_PIN                       PF14
-#ifndef E5_CS_PIN
-  #define E5_CS_PIN                         PE7
 #endif
 
-#define E6_STEP_PIN                         PG0
-#define E6_DIR_PIN                          PG1
-#define E6_ENABLE_PIN                       PE8
-#ifndef E6_CS_PIN
-  #define E6_CS_PIN                         PF15
-#endif
-
-#define E7_STEP_PIN                         PH12
-#define E7_DIR_PIN                          PH15
-#define E7_ENABLE_PIN                       PI0
-#ifndef E7_CS_PIN
-  #define E7_CS_PIN                         PH14
-#endif
-
-// E7
-#define E0_STEP_PIN                         PH12
-#define E0_DIR_PIN                          PH15
-#define E0_ENABLE_PIN                       PI0
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN                         PH14
-#endif
->>>>>>> 87fc337 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 //
 // Software SPI pins for TMC2130 stepper drivers
 //

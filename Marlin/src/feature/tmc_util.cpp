@@ -835,19 +835,15 @@
     #if AXIS_IS_TMC(K)
       if (k) tmc_status(stepperK, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(M)
       if (m) tmc_status(stepperM, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(O)
       if (o) tmc_status(stepperO, n);
     #endif
-     /**SG**/
     #if AXIS_IS_TMC(P)
       if (p) tmc_status(stepperP, n);
     #endif
-     /**SG**/
     #if AXIS_IS_TMC(Q)
       if (q) tmc_status(stepperQ, n);
     #endif
@@ -928,15 +924,12 @@
     #if AXIS_IS_TMC(M)
       if (m) tmc_parse_drv_status(stepperM, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(O)
       if (o) tmc_parse_drv_status(stepperO, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(P)
       if (p) tmc_parse_drv_status(stepperP, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(Q)
       if (q) tmc_parse_drv_status(stepperQ, n);
     #endif
@@ -1145,19 +1138,15 @@
     #if AXIS_IS_TMC(K)
       if (k) tmc_get_registers(stepperK, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(M)
       if (m) tmc_get_registers(stepperM, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(O)
       if (o) tmc_get_registers(stepperO, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(P)
       if (p) tmc_get_registers(stepperP, n);
     #endif
-    /**SG**/
     #if AXIS_IS_TMC(Q)
       if (q) tmc_get_registers(stepperQ, n);
     #endif
@@ -1287,19 +1276,15 @@
     #if AXIS_HAS_SPI(K)
       SET_CS_PIN(K);
     #endif
-    /**SG**/
     #if AXIS_HAS_SPI(M)
       SET_CS_PIN(M);
     #endif
-    /**SG**/
     #if AXIS_HAS_SPI(O)
       SET_CS_PIN(O);
     #endif
-    /**SG**/
     #if AXIS_HAS_SPI(P)
       SET_CS_PIN(P);
     #endif
-    /**SG**/
     #if AXIS_HAS_SPI(Q)
       SET_CS_PIN(Q);
     #endif

@@ -87,16 +87,16 @@
 #ifndef AXIS6_NAME
   #define AXIS6_NAME 'C'
 #endif
-#ifndef AXIS7_NAME    /**SG**/
+#ifndef AXIS7_NAME
   #define AXIS7_NAME 'U'  
 #endif
-#ifndef AXIS8_NAME    /**SG**/
+#ifndef AXIS8_NAME
   #define AXIS8_NAME 'V'  
 #endif
-#ifndef AXIS9_NAME    /**SG**/
+#ifndef AXIS9_NAME
   #define AXIS9_NAME 'W'  
 #endif
-#ifndef AXIS10_NAME    /**SG**/
+#ifndef AXIS10_NAME
   #define AXIS10_NAME 'D'  
 #endif
 
@@ -118,13 +118,13 @@
 #if LINEAR_AXES >= 6
   #define K_MAX_LENGTH (K_MAX_POS - (K_MIN_POS))
 #endif
-#if LINEAR_AXES >= 7    /**SG**/
+#if LINEAR_AXES >= 7
   #define M_MAX_LENGTH (M_MAX_POS - (M_MIN_POS))
 #endif
-#if LINEAR_AXES >= 8    /**SG**/
+#if LINEAR_AXES >= 8
   #define O_MAX_LENGTH (O_MAX_POS - (O_MIN_POS))
 #endif
-#if LINEAR_AXES >= 9    /**SG**/
+#if LINEAR_AXES >= 9
   #define P_MAX_LENGTH (P_MAX_POS - (P_MIN_POS))
 #endif
 #if LINEAR_AXES >= 10    /**SG**/
@@ -147,16 +147,16 @@
 #if LINEAR_AXES >= 6 && !defined(K_BED_SIZE)
   #define K_BED_SIZE K_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 7 && !defined(M_BED_SIZE)    /**SG**/
+#if LINEAR_AXES >= 7 && !defined(M_BED_SIZE)
   #define M_BED_SIZE M_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 8 && !defined(O_BED_SIZE)    /**SG**/
+#if LINEAR_AXES >= 8 && !defined(O_BED_SIZE)
   #define O_BED_SIZE O_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 9 && !defined(P_BED_SIZE)    /**SG**/
+#if LINEAR_AXES >= 9 && !defined(P_BED_SIZE)
   #define P_BED_SIZE P_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 10 && !defined(Q_BED_SIZE)    /**SG**/
+#if LINEAR_AXES >= 10 && !defined(Q_BED_SIZE)
   #define Q_BED_SIZE Q_MAX_LENGTH
 #endif
 
@@ -179,16 +179,16 @@
 #if LINEAR_AXES >= 6
   #define _K_HALF_KMAX ((K_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 7    /**SG**/
+#if LINEAR_AXES >= 7
   #define _M_HALF_MMAX ((M_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 8    /**SG**/
+#if LINEAR_AXES >= 8
   #define _O_HALF_OMAX ((O_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 9    /**SG**/
+#if LINEAR_AXES >= 9
   #define _P_HALF_PMAX ((P_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 10    /**SG**/
+#if LINEAR_AXES >= 10
   #define _Q_HALF_PMAX ((Q_BED_SIZE) / 2)
 #endif
 
@@ -206,13 +206,13 @@
 #if LINEAR_AXES >= 6
   #define K_CENTER TERN(BED_CENTER_AT_0_0, 0, _K_HALF_BED)
 #endif
-#if LINEAR_AXES >= 8    /**SG**/
+#if LINEAR_AXES >= 8
   #define O_CENTER TERN(BED_CENTER_AT_0_0, 0, _O_HALF_BED)
 #endif
-#if LINEAR_AXES >= 9    /**SG**/
+#if LINEAR_AXES >= 9
   #define P_CENTER TERN(BED_CENTER_AT_0_0, 0, _P_HALF_BED)
 #endif
-#if LINEAR_AXES >= 10    /**SG**/
+#if LINEAR_AXES >= 10
   #define Q_CENTER TERN(BED_CENTER_AT_0_0, 0, _Q_HALF_BED)
 #endif
 
@@ -235,19 +235,19 @@
   #define K_MINIM (K_CENTER - _K_HALF_BED_SIZE)
   #define K_MAXIM (K_MINIM + K_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 7    /**SG**/
+#if LINEAR_AXES >= 7
   #define M_MINIM (M_CENTER - _M_HALF_BED_SIZE)
   #define M_MAXIM (M_MINIM + M_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 8    /**SG**/
+#if LINEAR_AXES >= 8
   #define O_MINIM (O_CENTER - _O_HALF_BED_SIZE)
   #define O_MAXIM (O_MINIM + O_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 9    /**SG**/
+#if LINEAR_AXES >= 9
   #define P_MINIM (P_CENTER - _P_HALF_BED_SIZE)
   #define P_MAXIM (P_MINIM + P_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 10    /**SG**/
+#if LINEAR_AXES >= 10
   #define Q_MINIM (Q_CENTER - _Q_HALF_BED_SIZE)
   #define Q_MAXIM (Q_MINIM + Q_BED_SIZE)
 #endif
@@ -354,21 +354,21 @@
     #define M_HOME_POS (M_HOME_DIR < 0 ? M_MIN_POS : M_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 8    /**SG**/
+#if LINEAR_AXES >= 8
   #ifdef MANUAL_O_HOME_POS
     #define O_HOME_POS MANUAL_O_HOME_POS
   #else
     #define O_HOME_POS (O_HOME_DIR < 0 ? O_MIN_POS : O_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 9    /**SG**/
+#if LINEAR_AXES >= 9
   #ifdef MANUAL_P_HOME_POS
     #define P_HOME_POS MANUAL_P_HOME_POS
   #else
     #define P_HOME_POS (P_HOME_DIR < 0 ? P_MIN_POS : P_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 10    /**SG**/
+#if LINEAR_AXES >= 10
   #ifdef MANUAL_Q_HOME_POS
     #define Q_HOME_POS MANUAL_Q_HOME_POS
   #else
@@ -1484,16 +1484,16 @@
   #if ENABLED(USE_KMAX_PLUG)
     #define ENDSTOPPULLUP_KMAX
   #endif
-    #if ENABLED(USE_MMAX_PLUG)   /**SG**/
+    #if ENABLED(USE_MMAX_PLUG)
     #define ENDSTOPPULLUP_MMAX
   #endif
-  #if ENABLED(USE_OMAX_PLUG)   /**SG**/
+  #if ENABLED(USE_OMAX_PLUG)
     #define ENDSTOPPULLUP_OMAX
   #endif
-  #if ENABLED(USE_PMAX_PLUG)   /**SG**/
+  #if ENABLED(USE_PMAX_PLUG)
     #define ENDSTOPPULLUP_PMAX
   #endif
-  #if ENABLED(USE_QMAX_PLUG)   /**SG**/
+  #if ENABLED(USE_QMAX_PLUG)
     #define ENDSTOPPULLUP_QMAX
   #endif
   #if ENABLED(USE_XMIN_PLUG)
@@ -1514,16 +1514,16 @@
   #if ENABLED(USE_KMIN_PLUG)
     #define ENDSTOPPULLUP_KMIN
   #endif
-  #if ENABLED(USE_MMIN_PLUG)    /**SG**/
+  #if ENABLED(USE_MMIN_PLUG)
     #define ENDSTOPPULLUP_MMIN
   #endif
-  #if ENABLED(USE_OMIN_PLUG)    /**SG**/
+  #if ENABLED(USE_OMIN_PLUG)
     #define ENDSTOPPULLUP_OMIN
   #endif
-  #if ENABLED(USE_PMIN_PLUG)    /**SG**/
+  #if ENABLED(USE_PMIN_PLUG)
     #define ENDSTOPPULLUP_PMIN
   #endif
-  #if ENABLED(USE_QMIN_PLUG)    /**SG**/
+  #if ENABLED(USE_QMIN_PLUG)
     #define ENDSTOPPULLUP_QMIN
   #endif
 #endif
@@ -1985,7 +1985,7 @@
 //
 
 #if HAS_TRINAMIC_CONFIG
-  #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K)
+  #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_M, STEALTHCHOP_O, STEALTHCHOP_P, STEALTHCHOP_Q)
     #define STEALTHCHOP_ENABLED 1
   #endif
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
@@ -2184,11 +2184,6 @@
   #if LINEAR_AXES >= 6
     #ifndef K_INTERPOLATE
       #define K_INTERPOLATE INTERPOLATE
-    #endif
-  #endif
-  #if LINEAR_AXES >= 7
-    #ifndef M_INTERPOLATE
-      #define M_INTERPOLATE INTERPOLATE
     #endif
   #endif
   #if LINEAR_AXES >= 7
@@ -2466,28 +2461,24 @@
 #if _HAS_STOP(K,MAX)
   #define HAS_K_MAX 1
 #endif
-/**SG**/
 #if _HAS_STOP(M,MIN)
   #define HAS_M_MIN 1
 #endif
 #if _HAS_STOP(M,MAX)
   #define HAS_M_MAX 1
 #endif
-/**SG**/
 #if _HAS_STOP(O,MIN)
   #define HAS_O_MIN 1
 #endif
 #if _HAS_STOP(O,MAX)
   #define HAS_O_MAX 1
 #endif
-/**SG**/
 #if _HAS_STOP(P,MIN)
   #define HAS_P_MIN 1
 #endif
 #if _HAS_STOP(P,MAX)
   #define HAS_P_MAX 1
 #endif
-/**SG**/
 #if _HAS_STOP(Q,MIN)
   #define HAS_Q_MIN 1
 #endif

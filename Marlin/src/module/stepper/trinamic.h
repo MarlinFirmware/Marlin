@@ -49,10 +49,10 @@
 #define TMC_I_LABEL 'I', '0'
 #define TMC_J_LABEL 'J', '0'
 #define TMC_K_LABEL 'K', '0'
-#define TMC_M_LABEL 'M', '0'    /**SG**/
-#define TMC_O_LABEL 'O', '0'    /**SG**/
-#define TMC_P_LABEL 'P', '0'    /**SG**/
-#define TMC_Q_LABEL 'Q', '0'    /**SG**/
+#define TMC_M_LABEL 'M', '0'
+#define TMC_O_LABEL 'O', '0'
+#define TMC_P_LABEL 'P', '0'
+#define TMC_Q_LABEL 'Q', '0'
 
 #define TMC_X2_LABEL 'X', '2'
 #define TMC_Y2_LABEL 'Y', '2'
@@ -295,7 +295,7 @@ void reset_trinamic_drivers();
     #define K_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(K_STEP_PIN); }while(0)
   #endif
 #endif
-/**SG**/
+
 // M Stepper
 #if AXIS_IS_TMC(M)
   extern TMC_CLASS(M, M) stepperM;

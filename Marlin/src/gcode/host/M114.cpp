@@ -134,16 +134,16 @@
       #if AXIS_IS_L64XX(K)
         REPORT_ABSOLUTE_POS(K);
       #endif
-      #if AXIS_IS_L64XX(M)  /**SG**/
+      #if AXIS_IS_L64XX(M)
         REPORT_ABSOLUTE_POS(M);
       #endif
-      #if AXIS_IS_L64XX(O)  /**SG**/
+      #if AXIS_IS_L64XX(O)
         REPORT_ABSOLUTE_POS(O);
       #endif
-      #if AXIS_IS_L64XX(P)  /**SG**/
+      #if AXIS_IS_L64XX(P)
         REPORT_ABSOLUTE_POS(P);
       #endif
-      #if AXIS_IS_L64XX(Q)  /**SG**/
+      #if AXIS_IS_L64XX(Q)
         REPORT_ABSOLUTE_POS(Q);
       #endif
       #if AXIS_IS_L64XX(E0)

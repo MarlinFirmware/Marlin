@@ -108,7 +108,7 @@ void stepper_driver_backward_check() {
 void stepper_driver_backward_report() {
   if (!axis_plug_backward) return;
 
-  auto _report_if_backward = [](PGM_P axis, uint8_t bit) {
+  auto _report_if_backward = [](PGM_P axis, axis_bit_t bit) {
     if (TEST(axis_plug_backward, bit))
       stepper_driver_backward_error(axis);
   };
@@ -140,6 +140,28 @@ void stepper_driver_backward_report() {
   #endif
   #if HAS_Z4_ENABLE
     REPORT_BACKWARD(Z4, 7);
+  #endif
+
+  #if HAS_I_ENABLE
+    REPORT_BACKWARD(I, 0);
+  #endif
+  #if HAS_J_ENABLE
+    REPORT_BACKWARD(J, 0);
+  #endif
+  #if HAS_K_ENABLE
+    REPORT_BACKWARD(K, 0);
+  #endif
+  #if HAS_M_ENABLE
+    REPORT_BACKWARD(M, 0);
+  #endif
+  #if HAS_O_ENABLE
+    REPORT_BACKWARD(O, 0);
+  #endif
+  #if HAS_P_ENABLE
+    REPORT_BACKWARD(P, 0);
+  #endif
+  #if HAS_Q_ENABLE
+    REPORT_BACKWARD(Q, 0);
   #endif
 
   #if HAS_E0_ENABLE

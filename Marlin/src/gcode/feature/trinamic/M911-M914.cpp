@@ -211,19 +211,19 @@
       const int8_t kval = int8_t(parser.byteval(axis_codes.k, 0xFF));
       if (hasNone || kval == 1 || (hasK && kval < 0)) tmc_clear_otpw(stepperK);
     #endif
-    #if M91x_USE_M    /**SG**/
+    #if M91x_USE_M
       const int8_t mval = int8_t(parser.byteval(axis_codes.m, 0xFF));
       if (hasNone || mval == 1 || (hasM && mval < 0)) tmc_clear_otpw(stepperM);
     #endif
-    #if M91x_USE_O    /**SG**/
+    #if M91x_USE_O
       const int8_t oval = int8_t(parser.byteval(axis_codes.o, 0xFF));
       if (hasNone || oval == 1 || (hasO && oval < 0)) tmc_clear_otpw(stepperO);
     #endif
-    #if M91x_USE_P    /**SG**/
+    #if M91x_USE_P
       const int8_t pval = int8_t(parser.byteval(axis_codes.p, 0xFF));
       if (hasNone || pval == 1 || (hasP && pval < 0)) tmc_clear_otpw(stepperP);
     #endif
-    #if M91x_USE_Q    /**SG**/
+    #if M91x_USE_Q
       const int8_t qval = int8_t(parser.byteval(axis_codes.q, 0xFF));
       if (hasNone || qval == 1 || (hasQ && qval < 0)) tmc_clear_otpw(stepperQ);
     #endif
@@ -295,16 +295,16 @@
         #if K_HAS_STEALTHCHOP
           case K_AXIS: TMC_SET_PWMTHRS(K,K); break;
         #endif
-        #if M_HAS_STEALTHCHOP   /**SG**/
+        #if M_HAS_STEALTHCHOP
           case M_AXIS: TMC_SET_PWMTHRS(M,M); break;
         #endif
-        #if O_HAS_STEALTHCHOP   /**SG**/
+        #if O_HAS_STEALTHCHOP
           case O_AXIS: TMC_SET_PWMTHRS(O,O); break;
         #endif
-        #if P_HAS_STEALTHCHOP   /**SG**/
+        #if P_HAS_STEALTHCHOP
           case P_AXIS: TMC_SET_PWMTHRS(P,P); break;
         #endif
-        #if Q_HAS_STEALTHCHOP   /**SG**/
+        #if Q_HAS_STEALTHCHOP
           case Q_AXIS: TMC_SET_PWMTHRS(Q,Q); break;
         #endif
 
@@ -517,16 +517,16 @@
         #if K_SENSORLESS && AXIS_HAS_STALLGUARD(K)
           case K_AXIS: stepperK.homing_threshold(value); break;
         #endif
-        #if M_SENSORLESS && AXIS_HAS_STALLGUARD(M)   /**SG**/
+        #if M_SENSORLESS && AXIS_HAS_STALLGUARD(M)
           case M_AXIS: stepperM.homing_threshold(value); break;
         #endif
-        #if O_SENSORLESS && AXIS_HAS_STALLGUARD(O)   /**SG**/
+        #if O_SENSORLESS && AXIS_HAS_STALLGUARD(O)
           case O_AXIS: stepperO.homing_threshold(value); break;
         #endif
-        #if P_SENSORLESS && AXIS_HAS_STALLGUARD(P)   /**SG**/
+        #if P_SENSORLESS && AXIS_HAS_STALLGUARD(P)
           case P_AXIS: stepperP.homing_threshold(value); break;
         #endif
-        #if Q_SENSORLESS && AXIS_HAS_STALLGUARD(Q)   /**SG**/
+        #if Q_SENSORLESS && AXIS_HAS_STALLGUARD(Q)
           case Q_AXIS: stepperQ.homing_threshold(value); break;
         #endif
       }
@@ -572,16 +572,16 @@
       #if K_SENSORLESS && AXIS_HAS_STALLGUARD(K)
         tmc_print_sgt(stepperK);
       #endif
-      #if M_SENSORLESS && AXIS_HAS_STALLGUARD(M)   /**SG**/
+      #if M_SENSORLESS && AXIS_HAS_STALLGUARD(M)
         tmc_print_sgt(stepperM);
       #endif
-      #if O_SENSORLESS && AXIS_HAS_STALLGUARD(O)   /**SG**/
+      #if O_SENSORLESS && AXIS_HAS_STALLGUARD(O)
         tmc_print_sgt(stepperO);
       #endif
-      #if P_SENSORLESS && AXIS_HAS_STALLGUARD(P)   /**SG**/
+      #if P_SENSORLESS && AXIS_HAS_STALLGUARD(P)
         tmc_print_sgt(stepperP);
       #endif
-      #if Q_SENSORLESS && AXIS_HAS_STALLGUARD(Q)   /**SG**/
+      #if Q_SENSORLESS && AXIS_HAS_STALLGUARD(Q)
         tmc_print_sgt(stepperQ);
       #endif
     }

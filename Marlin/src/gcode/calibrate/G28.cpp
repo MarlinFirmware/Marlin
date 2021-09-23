@@ -297,6 +297,41 @@ void GcodeSuite::G28() {
       stepperZ.rms_current(Z_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
     #endif
+    #if HAS_CURRENT_HOME(I)
+      const int16_t tmc_save_current_I = stepperI.getMilliamps();
+      stepperI.rms_current(I_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS4_STR), tmc_save_current_I, I_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(J)
+      const int16_t tmc_save_current_J = stepperJ.getMilliamps();
+      stepperJ.rms_current(I_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS5_STR), tmc_save_current_J, J_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(K)
+      const int16_t tmc_save_current_K = stepperK.getMilliamps();
+      stepperK.rms_current(K_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS6_STR), tmc_save_current_K, K_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(M)
+      const int16_t tmc_save_current_M = stepperM.getMilliamps();
+      stepperM.rms_current(M_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS7_STR), tmc_save_current_M, M_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(O)
+      const int16_t tmc_save_current_O = stepperO.getMilliamps();
+      stepperO.rms_current(O_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS8_STR), tmc_save_current_O, O_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(P)
+      const int16_t tmc_save_current_P = stepperP.getMilliamps();
+      stepperP.rms_current(P_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS9_STR), tmc_save_current_P, P_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(Q)
+      const int16_t tmc_save_current_Q = stepperQ.getMilliamps();
+      stepperQ.rms_current(Q_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS10_STR), tmc_save_current_Q, Q_CURRENT_HOME);
+    #endif
   #endif
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
@@ -440,16 +475,16 @@ void GcodeSuite::G28() {
     #if LINEAR_AXES >= 6
       if (doK) homeaxis(K_AXIS);
     #endif
-    #if LINEAR_AXES >= 7    /**SG**/
+    #if LINEAR_AXES >= 7
       if (doM) homeaxis(M_AXIS);
     #endif
-    #if LINEAR_AXES >= 8    /**SG**/
+    #if LINEAR_AXES >= 8
       if (doO) homeaxis(O_AXIS);
     #endif
-    #if LINEAR_AXES >= 9    /**SG**/
+    #if LINEAR_AXES >= 9
       if (doP) homeaxis(P_AXIS);
     #endif
-    #if LINEAR_AXES >= 10    /**SG**/
+    #if LINEAR_AXES >= 10
       if (doQ) homeaxis(Q_AXIS);
     #endif
 
@@ -534,16 +569,16 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(K)
       stepperK.rms_current(tmc_save_current_K);
     #endif
-    #if HAS_CURRENT_HOME(M)   /**SG**/
+    #if HAS_CURRENT_HOME(M)
       stepperM.rms_current(tmc_save_current_M);
     #endif
-    #if HAS_CURRENT_HOME(O)   /**SG**/
+    #if HAS_CURRENT_HOME(O)
       stepperO.rms_current(tmc_save_current_O);
     #endif
-    #if HAS_CURRENT_HOME(P)   /**SG**/
+    #if HAS_CURRENT_HOME(P)
       stepperP.rms_current(tmc_save_current_P);
     #endif
-    #if HAS_CURRENT_HOME(Q)   /**SG**/
+    #if HAS_CURRENT_HOME(Q)
       stepperQ.rms_current(tmc_save_current_Q);
     #endif
   #endif // HAS_HOMING_CURRENT
