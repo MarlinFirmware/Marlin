@@ -2187,8 +2187,7 @@ void SetPID(celsius_t t, heater_id_t h) {
 
 #if HAS_LCD_BRIGHTNESS
   void ApplyBrightness() { ui.set_brightness(HMI_value.Value); }
-  void LiveBrightness() { DWIN_LCD_Brightness(HMI_value.Value); }
-  void SetBrightness() { SetIntOnClick(MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, ui.brightness, ApplyBrightness, LiveBrightness); }
+  void SetBrightness() { SetIntOnClick(MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, ui.brightness, ApplyBrightness, ApplyBrightness); }
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)

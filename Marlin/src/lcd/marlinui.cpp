@@ -100,11 +100,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   bool MarlinUI::backlight = true;
 
   void MarlinUI::set_brightness(const uint8_t value) {
+    // Backlight off with 0
     backlight = !!value;
+    // Leave brightness intact with 0
     if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
     // Set brightness on enabled LCD here
-    TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_LCD_Brightness(brightness));
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, DWIN_LCD_Brightness(backlight ? brightness : 0));
+    #if EITHER(DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+      DWIN_LCD_Brightness(backlight ? brightness : 0);
+    #endif
   }
 #endif
 

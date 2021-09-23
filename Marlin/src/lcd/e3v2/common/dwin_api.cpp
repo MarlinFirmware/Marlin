@@ -78,14 +78,16 @@ bool DWIN_Handshake() {
         && databuf[3] == 'K' );
 }
 
-// Set LCD backlight (from DWIN Enhanced)
-//  brightness: 0x00-0xFF
-void DWIN_LCD_Brightness(const uint8_t brightness) {
-  size_t i = 0;
-  DWIN_Byte(i, 0x30);
-  DWIN_Byte(i, brightness);
-  DWIN_Send(i);
-}
+#if HAS_LCD_BRIGHTNESS
+  // Set LCD backlight (from DWIN Enhanced)
+  //  brightness: 0x00-0xFF
+  void DWIN_LCD_Brightness(const uint8_t brightness) {
+    size_t i = 0;
+    DWIN_Byte(i, 0x30);
+    DWIN_Byte(i, brightness);
+    DWIN_Send(i);
+  }
+#endif
 
 // Set screen display direction
 //  dir: 0=0°, 1=90°, 2=180°, 3=270°
