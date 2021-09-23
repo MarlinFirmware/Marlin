@@ -2551,30 +2551,6 @@
     #define Q_MICROSTEPS       16
   #endif
 
-  #if AXIS_DRIVER_TYPE_M(TMC26X)
-    #define M_MAX_CURRENT    1000
-    #define M_SENSE_RESISTOR   91
-    #define M_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_O(TMC26X)
-    #define O_MAX_CURRENT    1000
-    #define O_SENSE_RESISTOR   91
-    #define O_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_P(TMC26X)
-    #define P_MAX_CURRENT    1000
-    #define P_SENSE_RESISTOR   91
-    #define P_MICROSTEPS       16
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Q(TMC26X)
-    #define Q_MAX_CURRENT    1000
-    #define Q_SENSE_RESISTOR   91
-    #define Q_MICROSTEPS       16
-  #endif
-
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
     #define E0_MAX_CURRENT    1000
     #define E0_SENSE_RESISTOR   91

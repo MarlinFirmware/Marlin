@@ -179,7 +179,7 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
              chop_p = TERN0(P_HAS_STEALTHCHOP, stepperP.get_stored_stealthChop()),
              chop_q = TERN0(Q_HAS_STEALTHCHOP, stepperQ.get_stored_stealthChop());
 
-  if (chop_x || chop_y || chop_z || chop_i || chop_j || chop_k) {
+  if (chop_x || chop_y || chop_z || chop_i || chop_j || chop_k || chop_m || chop_o || chop_p || chop_q) {
     say_M569(forReplay);
     LINEAR_AXIS_CODE(
       if (chop_x) SERIAL_ECHOPGM_P(SP_X_STR),
@@ -187,7 +187,11 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
       if (chop_z) SERIAL_ECHOPGM_P(SP_Z_STR),
       if (chop_i) SERIAL_ECHOPGM_P(SP_I_STR),
       if (chop_j) SERIAL_ECHOPGM_P(SP_J_STR),
-      if (chop_k) SERIAL_ECHOPGM_P(SP_K_STR)
+      if (chop_k) SERIAL_ECHOPGM_P(SP_K_STR),
+      if (chop_m) SERIAL_ECHOPGM_P(SP_O_STR),
+      if (chop_o) SERIAL_ECHOPGM_P(SP_J_STR),
+      if (chop_p) SERIAL_ECHOPGM_P(SP_P_STR),
+      if (chop_q) SERIAL_ECHOPGM_P(SP_Q_STR)
     );
     SERIAL_EOL();
   }

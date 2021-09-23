@@ -421,6 +421,22 @@
       say_M913(forReplay);
       SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.get_pwm_thrs());
     #endif
+    #if M_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_M_STR, stepperM.get_pwm_thrs());
+    #endif
+    #if O_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_O_STR, stepperO.get_pwm_thrs());
+    #endif
+    #if P_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_P_STR, stepperP.get_pwm_thrs());
+    #endif
+    #if Q_HAS_STEALTHCHOP
+      say_M913(forReplay);
+      SERIAL_ECHOLNPGM_P(SP_Q_STR, stepperQ.get_pwm_thrs());
+    #endif
 
     #if E0_HAS_STEALTHCHOP
       say_M913(forReplay);
