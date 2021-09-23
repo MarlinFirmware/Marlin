@@ -2186,8 +2186,8 @@ void SetPID(celsius_t t, heater_id_t h) {
 #endif
 
 #if HAS_LCD_BRIGHTNESS
-  void ApplyBrightness() { ui.set_brightness(HMI_value.Value); }
-  void SetBrightness() { SetIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, ApplyBrightness, ApplyBrightness); }
+  void LiveBrightness() { ui.set_brightness(HMI_value.Value); }
+  void SetBrightness() { SetIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, nullptr, LiveBrightness); }
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
@@ -3175,7 +3175,7 @@ void Draw_AdvancedSettings_Menu() {
       ADDMENUITEM(ICON_Pwrlossr, F("Power-loss recovery"), onDrawPwrLossR, SetPwrLossr);
     #endif
     #if HAS_LCD_BRIGHTNESS
-      ADDMENUITEM_P(ICON_Brightness, F("LCD Brightness"), onDrawPInt8Menu, SetBrightness, &ui.brightness);
+      ADDMENUITEM_P(ICON_Brightness, GET_TEXT(MSG_BRIGHTNESS), onDrawPInt8Menu, SetBrightness, &ui.brightness);
     #endif
     ADDMENUITEM(ICON_Scolor, F("Select Colors"), onDrawSubMenu, Draw_SelectColors_Menu);
     #if ENABLED(SOUND_MENU_ITEM)
