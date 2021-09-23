@@ -406,17 +406,16 @@ void GcodeSuite::G33() {
     return;
   }
 
-  const bool probe_at_offset = TERN0(HAS_PROBE_XY_OFFSET, parser.boolval('O')),
+  const bool probe_at_offset = parser.seen_test('O'),
                   towers_set = !parser.seen_test('T');
 
-  float dcr = DELTA_MAX_RADIUS;
-  if (parser.seenval('R')) dcr -= parser.value_float();
+  // The calibration radius is set to a calculated value
+  float dcr = TERN1(HAS_PROBE_XY_OFFSET, probe_at_offset) ? DELTA_PRINTABLE_RADIUS : DELTA_MAX_RADIUS;
   #if HAS_PROBE_XY_OFFSET
-    // The calibration radius is set to a calculated value
-    if (probe_at_offset) NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
     dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
+    NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
   #endif
-  NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
+  if (parser.seenval('R')) dcr -= _MAX(parser.value_float(),0);
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
@@ -489,7 +488,7 @@ void GcodeSuite::G33() {
 
     // Probe the points
     zero_std_dev_old = zero_std_dev;
-    if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each, probe_at_offset)) {
+    if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each, TERN0(HAS_PROBE_XY_OFFSET, probe_at_offset))) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
       return ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
     }
