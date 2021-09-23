@@ -284,7 +284,7 @@
  * DELTA_MAX_RADIUS is required only for delta calibration
  */
 #if ENABLED(DELTA_AUTO_CALIBRATION) && !defined(DELTA_MAX_RADIUS)
-    #define DELTA_MAX_RADIUS DELTA_PRINTABLE_RADIUS
+  #define DELTA_MAX_RADIUS DELTA_PRINTABLE_RADIUS
 #endif
 
 /**
