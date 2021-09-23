@@ -769,18 +769,26 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "Enable only one of ENDSTOPPULLUP_Y_MAX or ENDSTOPPULLDOWN_Y_MAX."
 #elif BOTH(ENDSTOPPULLUP_ZMAX, ENDSTOPPULLDOWN_ZMAX)
   #error "Enable only one of ENDSTOPPULLUP_Z_MAX or ENDSTOPPULLDOWN_Z_MAX."
+#elif BOTH(ENDSTOPPULLUP_IMAX, ENDSTOPPULLDOWN_IMAX)
+  #error "Enable only one of ENDSTOPPULLUP_I_MAX or ENDSTOPPULLDOWN_I_MAX."
+#elif BOTH(ENDSTOPPULLUP_JMAX, ENDSTOPPULLDOWN_JMAX)
+  #error "Enable only one of ENDSTOPPULLUP_J_MAX or ENDSTOPPULLDOWN_J_MAX."
+#elif BOTH(ENDSTOPPULLUP_KMAX, ENDSTOPPULLDOWN_KMAX)
+  #error "Enable only one of ENDSTOPPULLUP_K_MAX or ENDSTOPPULLDOWN_K_MAX."
+#elif BOTH(ENDSTOPPULLUP_MMAX, ENDSTOPPULLDOWN_MMAX)
+  #error "Enable only one of ENDSTOPPULLUP_M_MAX or ENDSTOPPULLDOWN_M_MAX."
+#elif BOTH(ENDSTOPPULLUP_OMAX, ENDSTOPPULLDOWN_OMAX)
+  #error "Enable only one of ENDSTOPPULLUP_O_MAX or ENDSTOPPULLDOWN_O_MAX."
+#elif BOTH(ENDSTOPPULLUP_PMAX, ENDSTOPPULLDOWN_PMAX)
+  #error "Enable only one of ENDSTOPPULLUP_P_MAX or ENDSTOPPULLDOWN_P_MAX."
+#elif BOTH(ENDSTOPPULLUP_QMAX, ENDSTOPPULLDOWN_QMAX)
+  #error "Enable only one of ENDSTOPPULLUP_Q_MAX or ENDSTOPPULLDOWN_Q_MAX."
 #elif BOTH(ENDSTOPPULLUP_XMIN, ENDSTOPPULLDOWN_XMIN)
   #error "Enable only one of ENDSTOPPULLUP_X_MIN or ENDSTOPPULLDOWN_X_MIN."
 #elif BOTH(ENDSTOPPULLUP_YMIN, ENDSTOPPULLDOWN_YMIN)
   #error "Enable only one of ENDSTOPPULLUP_Y_MIN or ENDSTOPPULLDOWN_Y_MIN."
 #elif BOTH(ENDSTOPPULLUP_ZMIN, ENDSTOPPULLDOWN_ZMIN)
   #error "Enable only one of ENDSTOPPULLUP_Z_MIN or ENDSTOPPULLDOWN_Z_MIN."
-#elif BOTH(ENDSTOPPULLUP_IMIN, ENDSTOPPULLDOWN_IMIN)
-  #error "Enable only one of ENDSTOPPULLUP_I_MIN or ENDSTOPPULLDOWN_I_MIN."
-#elif BOTH(ENDSTOPPULLUP_JMIN, ENDSTOPPULLDOWN_JMIN)
-  #error "Enable only one of ENDSTOPPULLUP_J_MIN or ENDSTOPPULLDOWN_J_MIN."
-#elif BOTH(ENDSTOPPULLUP_KMIN, ENDSTOPPULLDOWN_KMIN)
-  #error "Enable only one of ENDSTOPPULLUP_K_MIN or ENDSTOPPULLDOWN_K_MIN."
 #elif BOTH(ENDSTOPPULLUP_IMIN, ENDSTOPPULLDOWN_IMIN)
   #error "Enable only one of ENDSTOPPULLUP_I_MIN or ENDSTOPPULLDOWN_I_MIN."
 #elif BOTH(ENDSTOPPULLUP_JMIN, ENDSTOPPULLDOWN_JMIN)
@@ -795,7 +803,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "Enable only one of ENDSTOPPULLUP_P_MIN or ENDSTOPPULLDOWN_P_MIN."
 #elif BOTH(ENDSTOPPULLUP_QMIN, ENDSTOPPULLDOWN_QMIN)
   #error "Enable only one of ENDSTOPPULLUP_Q_MIN or ENDSTOPPULLDOWN_Q_MIN."
-
 #endif
 
 /**
@@ -1419,8 +1426,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 #if LINEAR_AXES >= 5
-  #if AXIS5_NAME == AXIS4_NAME || AXIS5_NAME == AXIS6_NAME
-    #error "AXIS5_NAME must be different from AXIS4_NAME and AXIS6_NAME"
+  #if AXIS5_NAME == AXIS4_NAME
+    #error "AXIS5_NAME must be unique."
   #elif AXIS5_NAME != 'A' && AXIS5_NAME != 'B' && AXIS5_NAME != 'C' && AXIS5_NAME != 'U' && AXIS5_NAME != 'V' && AXIS5_NAME != 'W'
     #error "AXIS5_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
   #elif !defined(J_MIN_POS) || !defined(J_MAX_POS)
@@ -1433,7 +1440,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 #if LINEAR_AXES >= 6
   #if AXIS6_NAME == AXIS5_NAME || AXIS6_NAME == AXIS4_NAME
-    #error "AXIS6_NAME must be different from AXIS5_NAME and AXIS4_NAME."
+    #error "AXIS6_NAME must be unique."
   #elif AXIS6_NAME != 'A' && AXIS6_NAME != 'B' && AXIS6_NAME != 'C' && AXIS6_NAME != 'U' && AXIS6_NAME != 'V' && AXIS6_NAME != 'W'
     #error "AXIS6_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
   #elif !defined(K_MIN_POS) || !defined(K_MAX_POS)
@@ -1446,28 +1453,28 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 #if LINEAR_AXES >= 7
   #if AXIS7_NAME == AXIS6_NAME || AXIS7_NAME == AXIS5_NAME || AXIS7_NAME == AXIS4_NAME
-    #error "AXIS7_NAME must be different from AXIS6_NAME, AXIS5_NAME and AXIS4_NAME."
+    #error "AXIS7_NAME must be unique."
   #elif AXIS7_NAME != 'A' && AXIS7_NAME != 'B' && AXIS7_NAME != 'C' && AXIS7_NAME != 'D' && AXIS7_NAME != 'U' && AXIS7_NAME != 'V' && AXIS7_NAME != 'W'
     #error "AXIS7_NAME can only be one of 'A', 'B', 'C', 'D', 'U', 'V', or 'W'."
   #endif
 #endif
 #if LINEAR_AXES >= 8
-  #if AXIS8_NAME == AXIS7_NAME || AXIS7_NAME == AXIS6_NAME || AXIS7_NAME == AXIS5_NAME || AXIS7_NAME == AXIS4_NAME
-    #error "AXIS8_NAME must be different from AXIS7_NAME, AXIS6_NAME, AXIS5_NAME and AXIS4_NAME."
+  #if AXIS8_NAME == AXIS7_NAME || AXIS8_NAME == AXIS6_NAME || AXIS8_NAME == AXIS5_NAME || AXIS8_NAME == AXIS4_NAME
+    #error "AXIS8_NAME must be unique."
   #elif AXIS8_NAME != 'A' && AXIS8_NAME != 'B' && AXIS8_NAME != 'C' && AXIS8_NAME != 'D' && AXIS8_NAME != 'U' && AXIS8_NAME != 'V' && AXIS8_NAME != 'W'
     #error "AXIS8_NAME can only be one of 'A', 'B', 'C', 'D', 'U', 'V', or 'W'."
   #endif
 #endif
 #if LINEAR_AXES >= 9
-  #if AXIS9_NAME == AXIS8_NAME || AXIS8_NAME == AXIS7_NAME || AXIS7_NAME == AXIS6_NAME || AXIS7_NAME == AXIS5_NAME || AXIS7_NAME == AXIS4_NAME
-    #error "AXIS9_NAME must be different from AXIS8_NAME, AXIS7_NAME, AXIS6_NAME, AXIS5_NAME and AXIS4_NAME."
+  #if AXIS9_NAME == AXIS8_NAME || AXIS9_NAME == AXIS7_NAME || AXIS9_NAME == AXIS6_NAME || AXIS9_NAME == AXIS5_NAME || AXIS9_NAME == AXIS4_NAME
+    #error "AXIS9_NAME must be unique."
   #elif AXIS9_NAME != 'A' && AXIS9_NAME != 'B' && AXIS9_NAME != 'C' && AXIS9_NAME != 'D' && AXIS9_NAME != 'U' && AXIS9_NAME != 'V' && AXIS9_NAME != 'W'
     #error "AXIS9_NAME can only be one of 'A', 'B', 'C', 'D', 'U', 'V', or 'W'."
   #endif
 #endif
 #if LINEAR_AXES >= 10
-  #if AXIS10_NAME == AXIS9_NAME || AXIS9_NAME == AXIS8_NAME || AXIS8_NAME == AXIS7_NAME || AXIS7_NAME == AXIS6_NAME || AXIS7_NAME == AXIS5_NAME || AXIS7_NAME == AXIS4_NAME
-    #error "AXIS10_NAME must be different from AXIS9_NAME, AXIS8_NAME, AXIS7_NAME, AXIS6_NAME, AXIS5_NAME and AXIS4_NAME."
+  #if AXIS10_NAME == AXIS9_NAME || AXIS10_NAME == AXIS8_NAME || AXIS10_NAME == AXIS7_NAME || AXIS10_NAME == AXIS6_NAME || AXIS10_NAME == AXIS5_NAME || AXIS10_NAME == AXIS4_NAME
+    #error "AXIS10_NAME must be unique."
   #elif AXIS10_NAME != 'A' && AXIS10_NAME != 'B' && AXIS10_NAME != 'C' && AXIS10_NAME != 'D' && AXIS10_NAME != 'U' && AXIS10_NAME != 'V' && AXIS10_NAME != 'W'
     #error "AXIS10_NAME can only be one of 'A', 'B', 'C', 'D', 'U', 'V', or 'W'."
   #endif
@@ -2446,7 +2453,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #define _PLUG_UNUSED_TEST(A,P) (DISABLED(USE_##P##MIN_PLUG, USE_##P##MAX_PLUG) \
   && !(ENABLED(A##_DUAL_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) \
   && !(ENABLED(A##_MULTI_ENDSTOPS) && WITHIN(A##2_USE_ENDSTOP, _##P##MAX_, _##P##MIN_)) )
-#define _AXIS_PLUG_UNUSED_TEST(A) (1 LINEAR_AXIS_GANG(&& _PLUG_UNUSED_TEST(A,X), && _PLUG_UNUSED_TEST(A,Y), && _PLUG_UNUSED_TEST(A,Z), && _PLUG_UNUSED_TEST(A,I), && _PLUG_UNUSED_TEST(A,J), && _PLUG_UNUSED_TEST(A,K), && _PLUG_UNUSED_TEST(A,Z), && _PLUG_UNUSED_TEST(A,I), && _PLUG_UNUSED_TEST(A,J), && _PLUG_UNUSED_TEST(A,K), && _PLUG_UNUSED_TEST(A,M), && _PLUG_UNUSED_TEST(A,O), && _PLUG_UNUSED_TEST(A,P), && _PLUG_UNUSED_TEST(A,Q) ) )
+#define _AXIS_PLUG_UNUSED_TEST(A) (1 LINEAR_AXIS_GANG(&& _PLUG_UNUSED_TEST(A,X), && _PLUG_UNUSED_TEST(A,Y), && _PLUG_UNUSED_TEST(A,Z), \
+                                                      && _PLUG_UNUSED_TEST(A,I), && _PLUG_UNUSED_TEST(A,J), && _PLUG_UNUSED_TEST(A,K), \
+                                                      && _PLUG_UNUSED_TEST(A,M), && _PLUG_UNUSED_TEST(A,O), && _PLUG_UNUSED_TEST(A,P), \
+                                                      && _PLUG_UNUSED_TEST(A,Q) ) )
 
 // A machine with endstops must have a minimum of 3
 #if HAS_ENDSTOPS

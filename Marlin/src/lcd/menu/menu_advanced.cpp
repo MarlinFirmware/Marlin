@@ -470,7 +470,7 @@ void menu_backlash();
           { LOGICAL_AXIS_LIST((DEFAULT_EJERK) * 2,
                               (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2,
                               (DEFAULT_IJERK) * 2, (DEFAULT_JJERK) * 2, (DEFAULT_KJERK) * 2,
-                              (DEFAULT_IJERK) * 2, (DEFAULT_JJERK) * 2, (DEFAULT_KJERK) * 2) }
+                              (DEFAULT_MJERK) * 2, (DEFAULT_OJERK) * 2, (DEFAULT_PJERK) * 2, (DEFAULT_QJERK) * 2) }
         #else
           { LOGICAL_AXIS_LIST(990, 990, 990, 990, 990, 990, 990, 990, 990, 990, 990) }
         #endif

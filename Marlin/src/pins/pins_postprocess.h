@@ -646,7 +646,8 @@
 #endif
 
 // Filament Sensor first pin alias
-#if HAS_FILAMENT_SENSOK_  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
+#if HAS_FILAMENT_SENSOR
+  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
 #else
   #undef FIL_RUNOUT_PIN
   #undef FIL_RUNOUT1_PIN
@@ -1451,7 +1452,6 @@
   #define M_MS3_PIN -1
 #endif
 
-
 // The O axis, if any, should be the next open extruder port
 #if LINEAR_AXES >= 8
   #ifndef O_STEP_PIN
@@ -1464,7 +1464,7 @@
       #define AUTO_ASSIGNED_O_STEPPER 1
     #endif
   #endif
-  #if AXIS_HAS_SPI(K) && !defined(O_CS_PIN)
+  #if AXIS_HAS_SPI(O) && !defined(O_CS_PIN)
     #define O_CS_PIN     _EPIN(O_E_INDEX, CS)
     #if PIN_EXISTS(O_CS)
       #define AUTO_ASSIGNED_O_CS 1
@@ -1488,7 +1488,7 @@
       #define AUTO_ASSIGNED_O_MS3 1
     #endif
   #endif
-  #if AXIS_HAS_UART(K)
+  #if AXIS_HAS_UART(O)
     #ifndef O_SERIAL_TX_PIN
       #define O_SERIAL_TX_PIN _EPIN(O_E_INDEX, SERIAL_TX)
     #endif
@@ -1531,7 +1531,6 @@
 #ifndef O_MS3_PIN
   #define O_MS3_PIN -1
 #endif
-
 
 // The P axis, if any, should be the next open extruder port
 #if LINEAR_AXES >= 9
@@ -1612,7 +1611,6 @@
 #ifndef P_MS3_PIN
   #define P_MS3_PIN -1
 #endif
-
 
 // The Q axis, if any, should be the next open extruder port
 #if LINEAR_AXES >= 10
@@ -1769,37 +1767,33 @@
   #undef K_MAX_PIN
   #define K_MAX_PIN          -1
 #endif
-#if DISABLED(USE_IMIN_PLUG)
-  #undef I_MIN_PIN
-  #define I_MIN_PIN          -1
-#endif
-#if DISABLED(USE_IMAX_PLUG)
-  #undef I_MAX_PIN
-  #define I_MAX_PIN          -1
-#endif
-#if DISABLED(USE_JMIN_PLUG)
-  #undef J_MIN_PIN
-  #define J_MIN_PIN          -1
-#endif
-#if DISABLED(USE_JMAX_PLUG)
-  #undef J_MAX_PIN
-  #define J_MAX_PIN          -1
-#endif
-#if DISABLED(USE_KMIN_PLUG)
-  #undef K_MIN_PIN
-  #define K_MIN_PIN          -1
+#if DISABLED(USE_MMIN_PLUG)
+  #undef M_MIN_PIN
+  #define M_MIN_PIN          -1
 #endif
 #if DISABLED(USE_MMAX_PLUG)
   #undef M_MAX_PIN
   #define M_MAX_PIN          -1
 #endif
+#if DISABLED(USE_OMIN_PLUG)
+  #undef O_MIN_PIN
+  #define O_MIN_PIN          -1
+#endif
 #if DISABLED(USE_OMAX_PLUG)
   #undef O_MAX_PIN
   #define O_MAX_PIN          -1
 #endif
+#if DISABLED(USE_PMIN_PLUG)
+  #undef P_MIN_PIN
+  #define P_MIN_PIN          -1
+#endif
 #if DISABLED(USE_PMAX_PLUG)
   #undef P_MAX_PIN
   #define P_MAX_PIN          -1
+#endif
+#if DISABLED(USE_QMIN_PLUG)
+  #undef Q_MIN_PIN
+  #define Q_MIN_PIN          -1
 #endif
 #if DISABLED(USE_QMAX_PLUG)
   #undef Q_MAX_PIN

@@ -1032,21 +1032,21 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #if LINEAR_AXES >= 4
-  #define  ENABLE_AXIS_I() if (SHOULD_ENABLE(i))  {  ENABLE_STEPPER_I();  AFTER_CHANGE(i, true); }
+  #define  ENABLE_AXIS_I() if (SHOULD_ENABLE(i))  {  ENABLE_STEPPER_I(); AFTER_CHANGE(i, true); }
   #define DISABLE_AXIS_I() if (SHOULD_DISABLE(i)) { DISABLE_STEPPER_I(); AFTER_CHANGE(i, false); set_axis_untrusted(I_AXIS); }
 #else
   #define  ENABLE_AXIS_I() NOOP
   #define DISABLE_AXIS_I() NOOP
 #endif
 #if LINEAR_AXES >= 5
-  #define  ENABLE_AXIS_J() if (SHOULD_ENABLE(j))  {  ENABLE_STEPPER_J();  AFTER_CHANGE(j, true); }
+  #define  ENABLE_AXIS_J() if (SHOULD_ENABLE(j))  {  ENABLE_STEPPER_J(); AFTER_CHANGE(j, true); }
   #define DISABLE_AXIS_J() if (SHOULD_DISABLE(j)) { DISABLE_STEPPER_J(); AFTER_CHANGE(j, false); set_axis_untrusted(J_AXIS); }
 #else
   #define  ENABLE_AXIS_J() NOOP
   #define DISABLE_AXIS_J() NOOP
 #endif
 #if LINEAR_AXES >= 6
-  #define  ENABLE_AXIS_K() if (SHOULD_ENABLE(k))  {  ENABLE_STEPPER_K();  AFTER_CHANGE(k, true); }
+  #define  ENABLE_AXIS_K() if (SHOULD_ENABLE(k))  {  ENABLE_STEPPER_K(); AFTER_CHANGE(k, true); }
   #define DISABLE_AXIS_K() if (SHOULD_DISABLE(k)) { DISABLE_STEPPER_K(); AFTER_CHANGE(k, false); set_axis_untrusted(K_AXIS); }
 #else
   #define  ENABLE_AXIS_K() NOOP
@@ -1054,28 +1054,28 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #if LINEAR_AXES >= 7
-  #define  ENABLE_AXIS_M() if (SHOULD_ENABLE(m))  {  ENABLE_STEPPER_M();  AFTER_CHANGE(m, true); }
+  #define  ENABLE_AXIS_M() if (SHOULD_ENABLE(m))  {  ENABLE_STEPPER_M(); AFTER_CHANGE(m, true); }
   #define DISABLE_AXIS_M() if (SHOULD_DISABLE(m)) { DISABLE_STEPPER_M(); AFTER_CHANGE(m, false); set_axis_untrusted(M_AXIS); }
 #else
   #define  ENABLE_AXIS_M() NOOP
   #define DISABLE_AXIS_M() NOOP
 #endif
 #if LINEAR_AXES >= 8
-  #define  ENABLE_AXIS_O() if (SHOULD_ENABLE(o))  {  ENABLE_STEPPER_O();  AFTER_CHANGE(o, true); }
+  #define  ENABLE_AXIS_O() if (SHOULD_ENABLE(o))  {  ENABLE_STEPPER_O(); AFTER_CHANGE(o, true); }
   #define DISABLE_AXIS_O() if (SHOULD_DISABLE(o)) { DISABLE_STEPPER_O(); AFTER_CHANGE(o, false); set_axis_untrusted(O_AXIS); }
 #else
   #define  ENABLE_AXIS_O() NOOP
   #define DISABLE_AXIS_O() NOOP
 #endif
 #if LINEAR_AXES >= 9
-  #define  ENABLE_AXIS_P() if (SHOULD_ENABLE(p))  {  ENABLE_STEPPER_P();  AFTER_CHANGE(p, true); }
+  #define  ENABLE_AXIS_P() if (SHOULD_ENABLE(p))  {  ENABLE_STEPPER_P(); AFTER_CHANGE(p, true); }
   #define DISABLE_AXIS_P() if (SHOULD_DISABLE(p)) { DISABLE_STEPPER_P(); AFTER_CHANGE(p, false); set_axis_untrusted(P_AXIS); }
 #else
   #define  ENABLE_AXIS_P() NOOP
   #define DISABLE_AXIS_P() NOOP
 #endif
 #if LINEAR_AXES >= 10
-  #define  ENABLE_AXIS_Q() if (SHOULD_ENABLE(q))  {  ENABLE_STEPPER_Q();  AFTER_CHANGE(q, true); }
+  #define  ENABLE_AXIS_Q() if (SHOULD_ENABLE(q))  {  ENABLE_STEPPER_Q(); AFTER_CHANGE(q, true); }
   #define DISABLE_AXIS_Q() if (SHOULD_DISABLE(q)) { DISABLE_STEPPER_Q(); AFTER_CHANGE(q, false); set_axis_untrusted(Q_AXIS); }
 #else
   #define  ENABLE_AXIS_Q() NOOP

@@ -501,7 +501,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_STATUS_MESSAGE
-      char LINEAR_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrM = ' ', chrO = ' ', chrAX9 = ' ', chrQ = ' '),
+      char LINEAR_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrM = ' ', chrO = ' ', chrP = ' ', chrQ = ' '),
            chrS = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -1318,8 +1318,8 @@ void Endstops::update() {
         #endif
       }
     }
-
   #endif
+
   #if LINEAR_AXES >= 7
     if (stepper.axis_is_moving(M_AXIS)) {
       if (stepper.motor_direction(M_AXIS_HEAD)) { // -direction
@@ -1439,28 +1439,24 @@ void Endstops::update() {
         hit = true;
       }
     #endif
-
     #if M_SPI_SENSORLESS
       if (tmc_spi_homing.m && stepperM.test_stall_status()) {
         SBI(live_state, M_ENDSTOP);
         hit = true;
       }
     #endif
-
     #if O_SPI_SENSORLESS
       if (tmc_spi_homing.o && stepperO.test_stall_status()) {
         SBI(live_state, O_ENDSTOP);
         hit = true;
       }
     #endif
-
     #if P_SPI_SENSORLESS
       if (tmc_spi_homing.p && stepperP.test_stall_status()) {
         SBI(live_state, P_ENDSTOP);
         hit = true;
       }
     #endif
-
     #if Q_SPI_SENSORLESS
       if (tmc_spi_homing.q && stepperQ.test_stall_status()) {
         SBI(live_state, Q_ENDSTOP);

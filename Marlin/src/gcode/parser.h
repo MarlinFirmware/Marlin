@@ -225,13 +225,7 @@ public:
   #endif // !FASTER_GCODE_PARSER
 
   // Seen any axis parameter
-<<<<<<< Upstream, based on origin/bugfix-2.0.x
   static inline bool seen_axis() { return seen(LOGICAL_AXES_STRING); }
-=======
-  static inline bool seen_axis() {
-    return seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR, AXIS7_STR, AXIS8_STR, AXIS9_STR, AXIS10_STR));
-  }
->>>>>>> 17f4b41 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 
   #if ENABLED(GCODE_QUOTED_STRINGS)
     static char* unescape_string(char* &src);

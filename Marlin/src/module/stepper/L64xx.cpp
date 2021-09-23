@@ -66,7 +66,7 @@
 #endif
 /**sg**/
 #if AXIS_IS_L64XX(M)
-  L64XX_CLASS(m) stepperK(L6470_CHAIN_SS_PIN);
+  L64XX_CLASS(m) stepperM(L6470_CHAIN_SS_PIN);
 #endif
 #if AXIS_IS_L64XX(O)
   L64XX_CLASS(o) stepperO(L6470_CHAIN_SS_PIN);

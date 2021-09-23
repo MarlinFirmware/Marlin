@@ -384,17 +384,20 @@ void GcodeSuite::G28() {
                  homeX = needX || parser.seen_test('X'),
                  homeY = needY || parser.seen_test('Y'),
                  homeZZ = homeZ,
-                 homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME), homeK = needK || parser.seen_test(AXIS6_NAME),
-                 homeM = needM || parser.seen_test(AXIS7_NAME), homeO = needO || parser.seen_test(AXIS8_NAME), homeP = needP || parser.seen_test(AXIS9_NAME), homeQ = needQ || parser.seen_test(AXIS10_NAME),
+                 homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
+                 homeK = needK || parser.seen_test(AXIS6_NAME), homeM = needM || parser.seen_test(AXIS7_NAME),
+                 homeO = needO || parser.seen_test(AXIS8_NAME), homeP = needP || parser.seen_test(AXIS9_NAME),
+                 homeQ = needQ || parser.seen_test(AXIS10_NAME),
                ),
                home_all = LINEAR_AXIS_GANG(   // Home-all if all or none are flagged
                     homeX == homeX, && homeY == homeX, && homeZ == homeX,
-                 && homeI == homeX, && homeJ == homeX, && homeK == homeX
-                 && homeM == homeM, && homeO == homeO, && homeP == homeP, && homeQ == homeQ
+                 && homeI == homeX, && homeJ == homeX, && homeK == homeX,
+                 && homeM == homeX, && homeO == homeX, && homeP == homeX, && homeQ == homeX
                ),
                LINEAR_AXIS_LIST(
                  doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ,
-                 doI = home_all || homeI, doJ = home_all || homeJ, doK = home_all || homeK
+                 doI = home_all || homeI, doJ = home_all || homeJ, doK = home_all || homeK,
+                 doM = home_all || homeM, doO = home_all || homeO, doP = home_all || homeP, doQ = home_all || homeQ
                );
 
     #if HAS_Z_AXIS
@@ -407,7 +410,7 @@ void GcodeSuite::G28() {
 
     const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
-    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doI, || doJ, || doK, || doM, || doO, || doP, || doQ))) {
+    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doM, || doO, || doP, || doQ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);

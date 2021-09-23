@@ -943,6 +943,7 @@
 #elif Q_HOME_DIR < 0
   #define Q_HOME_TO_MIN 1
 #endif
+
 /**
  * Conditionals based on the type of Bed Probe
  */

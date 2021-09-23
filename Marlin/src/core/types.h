@@ -112,6 +112,7 @@ enum AxisEnum : uint8_t {
 
 typedef IF<(NUM_AXIS_ENUMS > 8), uint16_t, uint8_t>::type axis_bits_t;
 typedef IF<(LINEAR_AXES > 8), uint16_t, uint8_t>::type linear_axis_bits_t;
+
 //
 // Loop over axes
 //
@@ -290,8 +291,8 @@ struct XYval {
   FI XYval<float> reciprocal()                    const { return {  _RECIP(x),  _RECIP(y) }; }
 
   // Marlin workspace shifting is done with G92 and M206
-  FI XYval<float>  asLogical()                    const { XYval<float> obj = asFloat(); toLogical(obj); return obj; }
-  FI XYval<float>   asNative()                    const { XYval<float> obj = asFloat(); toNative(obj);  return obj; }
+  FI XYval<float>  asLogical()                    const { XYval<float> o = asFloat(); toLogical(o); return o; }
+  FI XYval<float>   asNative()                    const { XYval<float> o = asFloat(); toNative(o);  return o; }
 
   // Cast to a type with more fields by making a new object
   FI operator XYZval<T>()                               { return { x, y }; }
@@ -345,8 +346,8 @@ struct XYval {
   FI XYval<T>  operator>>(const int &v)                 { XYval<T> ls = *this; _RS(ls.x);    _RS(ls.y);    return ls; }
   FI XYval<T>  operator<<(const int &v)           const { XYval<T> ls = *this; _LS(ls.x);    _LS(ls.y);    return ls; }
   FI XYval<T>  operator<<(const int &v)                 { XYval<T> ls = *this; _LS(ls.x);    _LS(ls.y);    return ls; }
-  FI const XYval<T> operator-()                   const { XYval<T> obj = *this; obj.x = -x; obj.y = -y; return obj; }
-  FI XYval<T>       operator-()                         { XYval<T> obj = *this; obj.x = -x; obj.y = -y; return obj; }
+  FI const XYval<T> operator-()                   const { XYval<T> o = *this; o.x = -x; o.y = -y; return o; }
+  FI XYval<T>       operator-()                         { XYval<T> o = *this; o.x = -x; o.y = -y; return o; }
 
   // Modifier operators
   FI XYval<T>& operator+=(const XYval<T>   &rs)         { x += rs.x; y += rs.y; return *this; }
@@ -440,7 +441,7 @@ struct XYZval {
 
   // Explicit copy and copies with conversion
   FI XYZval<T>          copy()                   const { XYZval<T> obj = *this; return obj; }
-  FI XYZval<T>           ABS()                   const { return LINEAR_AXIS_ARRAY(T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(i)), T(_ABS(j)), T(_ABS(k), T(_ABS(m)), T(_ABS(o)), T(_ABS(p)), T(_ABS(q))); }
+  FI XYZval<T>           ABS()                   const { return LINEAR_AXIS_ARRAY(T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(i)), T(_ABS(j)), T(_ABS(k)), T(_ABS(m)),  T(_ABS(o)),  T(_ABS(p)),  T(_ABS(q))); }
   FI XYZval<int16_t>   asInt()                         { return LINEAR_AXIS_ARRAY(int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(m),  int16_t(o),  int16_t(p),  int16_t(q)); }
   FI XYZval<int16_t>   asInt()                   const { return LINEAR_AXIS_ARRAY(int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(m),  int16_t(o),  int16_t(p),  int16_t(q)); }
   FI XYZval<int32_t>  asLong()                         { return LINEAR_AXIS_ARRAY(int32_t(x), int32_t(y), int32_t(z), int32_t(i), int32_t(j), int32_t(k), int32_t(m),  int32_t(o),  int32_t(p),  int32_t(q)); }
@@ -594,7 +595,7 @@ struct XYZEval {
 
   // Explicit copy and copies with conversion
   FI XYZEval<T>          copy()  const { XYZEval<T> o = *this; return o; }
-  FI XYZEval<T>           ABS()  const { return LOGICAL_AXIS_ARRAY(T(_ABS(e)), T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(i)), T(_ABS(j)), T(_ABS(k)), T(_ABS(m)), T(_ABS(o)), (_ABS(p)), T(_ABS(q)); }
+  FI XYZEval<T>           ABS()  const { return LOGICAL_AXIS_ARRAY(T(_ABS(e)), T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(i)), T(_ABS(j)), T(_ABS(k)), T(_ABS(m)), T(_ABS(o)), T(_ABS(p)), T(_ABS(q))); }
   FI XYZEval<int16_t>   asInt()        { return LOGICAL_AXIS_ARRAY(int16_t(e), int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(m), int16_t(o), int16_t(p), int16_t(q)); }
   FI XYZEval<int16_t>   asInt()  const { return LOGICAL_AXIS_ARRAY(int16_t(e), int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(m), int16_t(o), int16_t(p), int16_t(q)); }
   FI XYZEval<int32_t>  asLong()        { return LOGICAL_AXIS_ARRAY(int32_t(e), int32_t(x), int32_t(y), int32_t(z), int32_t(i), int32_t(j), int32_t(k), int32_t(m), int32_t(o), int32_t(p), int32_t(q)); }

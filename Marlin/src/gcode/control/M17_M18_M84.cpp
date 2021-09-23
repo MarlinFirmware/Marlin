@@ -64,20 +64,16 @@ void GcodeSuite::M18_M84() {
     stepper_inactive_time = parser.value_millis_from_seconds();
   }
   else {
-<<<<<<< Upstream, based on origin/bugfix-2.0.x
     if (parser.seen_axis()) {
-=======
-    if (parser.seen(LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR, AXIS7_STR, AXIS8_STR, AXIS9_STR, AXIS10_STR))) {
->>>>>>> 5c59720 Cleanup after adding 9 axis support, removing comments etc.
       planner.synchronize();
       LOGICAL_AXIS_CODE(
         if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) disable_e_steppers(),
-        if (parser.seen_test('X'))        DISABLE_AXIS_X(),
-        if (parser.seen_test('Y'))        DISABLE_AXIS_Y(),
-        if (parser.seen_test('Z'))        DISABLE_AXIS_Z(),
-        if (parser.seen_test(AXIS4_NAME)) DISABLE_AXIS_I(),
-        if (parser.seen_test(AXIS5_NAME)) DISABLE_AXIS_J(),
-        if (parser.seen_test(AXIS6_NAME)) DISABLE_AXIS_K(),
+        if (parser.seen_test('X'))         DISABLE_AXIS_X(),
+        if (parser.seen_test('Y'))         DISABLE_AXIS_Y(),
+        if (parser.seen_test('Z'))         DISABLE_AXIS_Z(),
+        if (parser.seen_test(AXIS4_NAME))  DISABLE_AXIS_I(),
+        if (parser.seen_test(AXIS5_NAME))  DISABLE_AXIS_J(),
+        if (parser.seen_test(AXIS6_NAME))  DISABLE_AXIS_K(),
         if (parser.seen_test(AXIS7_NAME))  DISABLE_AXIS_M(),
         if (parser.seen_test(AXIS8_NAME))  DISABLE_AXIS_O(),
         if (parser.seen_test(AXIS9_NAME))  DISABLE_AXIS_P(),

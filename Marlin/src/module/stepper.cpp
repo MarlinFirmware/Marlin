@@ -519,33 +519,26 @@ void Stepper::set_directions() {
   #if HAS_Z_DIR
     SET_STEP_DIR(Z); // C
   #endif
-
   #if HAS_I_DIR
-    SET_STEP_DIR(I); // I
+    SET_STEP_DIR(I);
   #endif
-
   #if HAS_J_DIR
-    SET_STEP_DIR(J); // J
+    SET_STEP_DIR(J);
   #endif
-
   #if HAS_K_DIR
-    SET_STEP_DIR(K); // K
+    SET_STEP_DIR(K);
   #endif
-
   #if HAS_M_DIR
-    SET_STEP_DIR(M); // M
+    SET_STEP_DIR(M);
   #endif
-
   #if HAS_O_DIR
-    SET_STEP_DIR(O); // O
+    SET_STEP_DIR(O);
   #endif
-
   #if HAS_P_DIR
-    SET_STEP_DIR(P); // P
+    SET_STEP_DIR(P);
   #endif
-
   #if HAS_Q_DIR
-    SET_STEP_DIR(Q); // Q
+    SET_STEP_DIR(Q);
   #endif
 
   #if DISABLED(LIN_ADVANCE)
@@ -1667,7 +1660,7 @@ void Stepper::pulse_phase_isr() {
             case 0: {
               const uint8_t low = page_step_state.page[page_step_state.segment_idx],
                            high = page_step_state.page[page_step_state.segment_idx + 1];
-              uint8_t dm = last_direction_bits;
+              axis_bits_t dm = last_direction_bits;
 
               PAGE_SEGMENT_UPDATE(X, low >> 4);
               PAGE_SEGMENT_UPDATE(Y, low & 0xF);
@@ -3124,21 +3117,19 @@ void Stepper::report_positions() {
 
           const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          ENABLE_AXIS_X();
-          ENABLE_AXIS_Y();
-          ENABLE_AXIS_Z();
-          ENABLE_AXIS_I();
-          ENABLE_AXIS_J();
-          ENABLE_AXIS_K();
-          ENABLE_AXIS_M();
-          ENABLE_AXIS_O();
-          ENABLE_AXIS_P();
+          ENABLE_AXIS_X(); ENABLE_AXIS_Y(); ENABLE_AXIS_Z();
+          ENABLE_AXIS_I(); ENABLE_AXIS_J(); ENABLE_AXIS_K();
+          ENABLE_AXIS_M(); ENABLE_AXIS_O(); ENABLE_AXIS_P();
           ENABLE_AXIS_Q();
 
           DIR_WAIT_BEFORE();
 
-          const xyz_byte_t old_dir = LINEAR_AXIS_ARRAY(X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(), I_DIR_READ(), J_DIR_READ(), K_DIR_READ(), \
-                                                       M_DIR_READ(), O_DIR_READ(), P_DIR_READ(), Q_DIR_READ());
+          const xyz_byte_t old_dir = LINEAR_AXIS_ARRAY(
+            X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(),
+            I_DIR_READ(), J_DIR_READ(), K_DIR_READ(),
+            M_DIR_READ(), O_DIR_READ(), P_DIR_READ(),
+            Q_DIR_READ()
+          );
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           #ifdef Y_DIR_WRITE

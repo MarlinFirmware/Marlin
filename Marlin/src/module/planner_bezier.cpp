@@ -188,10 +188,10 @@ void cubic_b_spline(
       interp(position.z, target.z, t),  // FIXME. Wrong, since t is not linear in the distance.
       interp(position.i, target.i, t),  // FIXME. Wrong, since t is not linear in the distance.
       interp(position.j, target.j, t),  // FIXME. Wrong, since t is not linear in the distance.
-      interp(position.k, target.k, t)   // FIXME. Wrong, since t is not linear in the distance.
+      interp(position.k, target.k, t),  // FIXME. Wrong, since t is not linear in the distance.
       interp(position.m, target.m, t),  // FIXME. Wrong, since t is not linear in the distance.
       interp(position.o, target.o, t),  // FIXME. Wrong, since t is not linear in the distance.
-      interp(position.p, target.p, t)   // FIXME. Wrong, since t is not linear in the distance.
+      interp(position.p, target.p, t),  // FIXME. Wrong, since t is not linear in the distance.
       interp(position.q, target.q, t)   // FIXME. Wrong, since t is not linear in the distance.
     );
     apply_motion_limits(new_bez);

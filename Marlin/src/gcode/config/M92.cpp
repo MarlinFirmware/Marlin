@@ -23,40 +23,6 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 
-<<<<<<< Upstream, based on origin/bugfix-2.0.x
-=======
-void report_M92(const bool echo=true, const int8_t e=-1) {
-  if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-  SERIAL_ECHOPAIR_P(LIST_N(DOUBLE(LINEAR_AXES),
-    PSTR(" M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
-    SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
-    SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),
-    SP_I_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[I_AXIS]),
-    SP_J_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[J_AXIS]),
-    SP_K_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]),
-    SP_M_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[M_AXIS]),
-    SP_O_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[O_AXIS]),
-    SP_P_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[P_AXIS]),
-    SP_Q_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Q_AXIS]))
-  );
-  #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
-    SERIAL_ECHOPAIR_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
-  #endif
-  SERIAL_EOL();
-
-  #if ENABLED(DISTINCT_E_FACTORS)
-    LOOP_L_N(i, E_STEPPERS) {
-      if (e >= 0 && i != e) continue;
-      if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
-      SERIAL_ECHOLNPAIR_P(PSTR(" M92 T"), i,
-                        SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
-    }
-  #endif
-
-  UNUSED(e);
-}
-
->>>>>>> 5c59720 Cleanup after adding 9 axis support, removing comments etc.
 /**
  * M92: Set axis steps-per-unit for one or more axes, X, Y, Z, and E.
  *      (Follows the same syntax as G92)

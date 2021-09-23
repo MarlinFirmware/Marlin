@@ -424,16 +424,16 @@ void menu_motion() {
       #endif
     #endif
     #if LINEAR_AXES >= 7
-      GCODES_ITEM(MSG_AUTO_HOME_M, PSTR("G28" M_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_M, PSTR("G28" AXIS7_STR));
     #endif
     #if LINEAR_AXES >= 8
-      GCODES_ITEM(MSG_AUTO_HOME_O, PSTR("G28" O_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_O, PSTR("G28" AXIS8_STR));
     #endif
     #if LINEAR_AXES >= 9
-      GCODES_ITEM(MSG_AUTO_HOME_P, PSTR("G28" P_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_P, PSTR("G28" AXIS9_STR));
     #endif
     #if LINEAR_AXES >= 10
-      GCODES_ITEM(MSG_AUTO_HOME_Q, PSTR("G28" Q_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_Q, PSTR("G28" AXIS10_STR));
     #endif
   #endif
 

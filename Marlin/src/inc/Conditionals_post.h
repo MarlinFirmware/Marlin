@@ -206,6 +206,9 @@
 #if LINEAR_AXES >= 6
   #define K_CENTER TERN(BED_CENTER_AT_0_0, 0, _K_HALF_BED)
 #endif
+#if LINEAR_AXES >= 7
+  #define M_CENTER TERN(BED_CENTER_AT_0_0, 0, _M_HALF_BED)
+#endif
 #if LINEAR_AXES >= 8
   #define O_CENTER TERN(BED_CENTER_AT_0_0, 0, _O_HALF_BED)
 #endif
@@ -1484,7 +1487,7 @@
   #if ENABLED(USE_KMAX_PLUG)
     #define ENDSTOPPULLUP_KMAX
   #endif
-    #if ENABLED(USE_MMAX_PLUG)
+  #if ENABLED(USE_MMAX_PLUG)
     #define ENDSTOPPULLUP_MMAX
   #endif
   #if ENABLED(USE_OMAX_PLUG)
@@ -1985,7 +1988,7 @@
 //
 
 #if HAS_TRINAMIC_CONFIG
-  #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_M, STEALTHCHOP_O, STEALTHCHOP_P, STEALTHCHOP_Q)
+  #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_M, STEALTHCHOP_O, STEALTHCHOP_P, STEALTHCHOP_Q)
     #define STEALTHCHOP_ENABLED 1
   #endif
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
@@ -2156,55 +2159,26 @@
   #ifndef Z4_INTERPOLATE
     #define Z4_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 4
-    #ifndef I_INTERPOLATE
-      #define I_INTERPOLATE INTERPOLATE
-    #endif
+  #if LINEAR_AXES >= 4 && !defined(I_INTERPOLATE)
+    #define I_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 5
-    #ifndef J_INTERPOLATE
-      #define J_INTERPOLATE INTERPOLATE
-    #endif
+  #if LINEAR_AXES >= 5 && !defined(J_INTERPOLATE)
+    #define J_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 6
-    #ifndef K_INTERPOLATE
-      #define K_INTERPOLATE INTERPOLATE
-    #endif
+  #if LINEAR_AXES >= 6 && !defined(K_INTERPOLATE)
+    #define K_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 4
-    #ifndef I_INTERPOLATE
-      #define I_INTERPOLATE INTERPOLATE
-    #endif
+  #if LINEAR_AXES >= 7 && !defined(M_INTERPOLATE)
+    #define M_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 5
-    #ifndef J_INTERPOLATE
-      #define J_INTERPOLATE INTERPOLATE
-    #endif
+  #if LINEAR_AXES >= 8 && !defined(O_INTERPOLATE)
+    #define O_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 6
-    #ifndef K_INTERPOLATE
-      #define K_INTERPOLATE INTERPOLATE
-    #endif
+  #if LINEAR_AXES >= 9 && !defined(P_INTERPOLATE)
+    #define P_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 7
-    #ifndef M_INTERPOLATE
-      #define M_INTERPOLATE INTERPOLATE
-    #endif
-  #endif
-  #if LINEAR_AXES >= 8
-    #ifndef O_INTERPOLATE
-      #define O_INTERPOLATE INTERPOLATE
-    #endif
-  #endif
-  #if LINEAR_AXES >= 9
-    #ifndef P_INTERPOLATE
-      #define P_INTERPOLATE INTERPOLATE
-    #endif
-  #endif
-  #if LINEAR_AXES >= 10
-    #ifndef Q_INTERPOLATE
-      #define Q_INTERPOLATE INTERPOLATE
-    #endif
+  #if LINEAR_AXES >= 10 && !defined(Q_INTERPOLATE)
+    #define Q_INTERPOLATE INTERPOLATE
   #endif
   #ifndef E0_INTERPOLATE
     #define E0_INTERPOLATE INTERPOLATE
@@ -2231,13 +2205,13 @@
     #define E7_INTERPOLATE INTERPOLATE
   #endif
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS 0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  0
+    #define Y_SLAVE_ADDRESS 0
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  0
+    #define Z_SLAVE_ADDRESS 0
   #endif
   #ifndef I_SLAVE_ADDRESS
     #define I_SLAVE_ADDRESS 0

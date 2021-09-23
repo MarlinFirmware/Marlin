@@ -152,7 +152,7 @@ void tmc26x_init_to_defaults() {
     _TMC26X_INIT(O);
   #endif
   #if AXIS_DRIVER_TYPE_P(TMC26X)
-    _TMC26X_INIT(P=;
+    _TMC26X_INIT(P);
   #endif
   #if AXIS_DRIVER_TYPE_Q(TMC26X)
     _TMC26X_INIT(Q);

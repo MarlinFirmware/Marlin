@@ -230,7 +230,6 @@ void home_delta() {
     TERN_(O_SENSORLESS, sensorless_t stealth_states_o = start_sensorless_homing_per_axis(O_AXIS));
     TERN_(P_SENSORLESS, sensorless_t stealth_states_p = start_sensorless_homing_per_axis(P_AXIS));
     TERN_(Q_SENSORLESS, sensorless_t stealth_states_q = start_sensorless_homing_per_axis(Q_AXIS));
-
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
