@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
@@ -54,13 +55,13 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
+extern uint8_t Explore_Disk(char *path, uint8_t recu_level);
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
-extern unsigned int  getTickDiff(unsigned int curTick, unsigned int  lastTick);
+extern unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick);
 
-volatile SZ_USART_FIFO  WifiRxFifo;
+volatile SZ_USART_FIFO WifiRxFifo;
 
 #define WAIT_ESP_TRANS_TIMEOUT_TICK 10500
 
@@ -486,7 +487,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     if (len > UDISKBUFLEN) return 0;
 
     if (wifiDmaRcvFifo.state[tmpW] == udisk_buf_empty) {
-      const int timeOut = 2000; //millisecond
+      const int timeOut = 2000; // millisecond
       dmaTransmitBegin();
       if (HAL_DMA_PollForTransferCustomize(&wifiUsartDMArx, HAL_DMA_FULL_TRANSFER, timeOut) == HAL_OK) {
         memcpy((unsigned char *) wifiDmaRcvFifo.bufferAddr[tmpW], (uint8_t *)bufToCpy, len);
@@ -611,14 +612,14 @@ int package_to_wifi(WIFI_RET_TYPE type, uint8_t *buf, int len) {
       return 0;
     }
 
-   if (len > 0) {
+    if (len > 0) {
       memcpy(&buf_to_wifi[4 + index_to_wifi], buf, len);
       index_to_wifi += len;
 
       if (index_to_wifi < 1)
         return 0;
 
-       if (buf_to_wifi[index_to_wifi + 3] == '\n') {
+      if (buf_to_wifi[index_to_wifi + 3] == '\n') {
         // mask "wait" "busy" "X:"
         if ( ((buf_to_wifi[4] == 'w') && (buf_to_wifi[5] == 'a') && (buf_to_wifi[6] == 'i') && (buf_to_wifi[7] == 't'))
           || ((buf_to_wifi[4] == 'b') && (buf_to_wifi[5] == 'u') && (buf_to_wifi[6] == 's') && (buf_to_wifi[7] == 'y'))
@@ -767,7 +768,7 @@ int write_to_file(char *buf, int len) {
   if (res == -1) {
     ZERO(public_buf);
     file_writer.write_index = 0;
-    return  -1;
+    return -1;
   }
 
   return 0;
@@ -839,7 +840,7 @@ uint8_t Explore_Disk(char *path , uint8_t recu_level) {
 static void wifi_gcode_exec(uint8_t *cmd_line) {
   int8_t tempBuf[100] = { 0 };
   uint8_t *tmpStr = 0;
-  int  cmd_value;
+  int cmd_value;
   volatile int print_rate;
   if (strchr((char *)cmd_line, '\n') && (strchr((char *)cmd_line, 'G') || strchr((char *)cmd_line, 'M') || strchr((char *)cmd_line, 'T'))) {
     tmpStr = (uint8_t *)strchr((char *)cmd_line, '\n');
@@ -987,11 +988,11 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
                   if (card.isFileOpen()) {
                     //saved_feedrate_percentage = feedrate_percentage;
                     feedrate_percentage = 100;
-                    #if EXTRUDERS
+                    #if HAS_EXTRUDERS
                       planner.flow_percentage[0] = 100;
                       planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
                     #endif
-                    #if EXTRUDERS == 2
+                    #if HAS_MULTI_EXTRUDER
                       planner.flow_percentage[1] = 100;
                       planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
                     #endif
@@ -1491,7 +1492,7 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
   memcpy(file_writer.saveFileName, msg + 5, fileNameLen);
 
-  utf8_2_unicode(file_writer.saveFileName,fileNameLen);
+  utf8_2_unicode(file_writer.saveFileName, fileNameLen);
 
   ZERO(public_buf);
 
@@ -1744,7 +1745,7 @@ int32_t readWifiFifo(uint8_t *retBuf, uint32_t bufLen) {
 
 void stopEspTransfer() {
   if (wifi_link_state == WIFI_TRANS_FILE)
-  wifi_link_state = WIFI_CONNECTED;
+    wifi_link_state = WIFI_CONNECTED;
 
   TERN_(SDSUPPORT, card.closefile());
 
@@ -2014,8 +2015,8 @@ void get_wifi_commands() {
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
               case 0 ... 1:
-              TERN_(ARC_SUPPORT, case 2 ... 3:)
-              TERN_(BEZIER_CURVE_SUPPORT, case 5:)
+                TERN_(ARC_SUPPORT, case 2 ... 3:)
+                TERN_(BEZIER_CURVE_SUPPORT, case 5:)
                 SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;

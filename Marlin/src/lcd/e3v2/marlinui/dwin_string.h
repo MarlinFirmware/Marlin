@@ -21,11 +21,10 @@
  */
 #pragma once
 
-#include <stdint.h>
-
-
 #include "../../fontutils.h"
 #include "../../marlinui.h"
+
+#include <stdint.h>
 
 typedef struct _dwin_charmap_t {
   wchar_t uchar; // the unicode char

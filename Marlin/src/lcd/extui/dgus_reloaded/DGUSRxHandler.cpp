@@ -63,13 +63,13 @@ void DGUSRxHandler::ScreenChange(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Idle
-      && (printingIsActive() || printingIsPaused())) {
+      && (ExtUI::isPrinting() || ExtUI::isPrintingPaused())) {
     dgus_screen_handler.SetStatusMessagePGM(PSTR("Impossible while printing"));
     return;
   }
 
   if (vp.addr == DGUS_Addr::SCREENCHANGE_Printing
-      && (!printingIsActive() && !printingIsPaused())) {
+      && (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused())) {
     dgus_screen_handler.SetStatusMessagePGM(PSTR("Impossible while idle"));
     return;
   }
@@ -166,7 +166,7 @@ void DGUSRxHandler::PrintAbort(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsActive() && !printingIsPaused()) {
+  if (!ExtUI::isPrinting() && !ExtUI::isPrintingPaused()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
@@ -183,7 +183,7 @@ void DGUSRxHandler::PrintPause(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsActive()) {
+  if (!ExtUI::isPrinting()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
@@ -200,7 +200,7 @@ void DGUSRxHandler::PrintResume(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsPaused()) {
+  if (!ExtUI::isPrintingPaused()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
@@ -229,13 +229,9 @@ void DGUSRxHandler::Flowrate(DGUS_VP &vp, void *data_ptr) {
   switch (vp.addr) {
     default: return;
     case DGUS_Addr::ADJUST_SetFlowrate_CUR:
-      #if EXTRUDERS > 1
-        ExtUI::setFlow_percent(flowrate, ExtUI::getActiveTool());
-      #else
-        ExtUI::setFlow_percent(flowrate, ExtUI::E0);
-      #endif
+      ExtUI::setFlow_percent(flowrate, TERN(HAS_MULTI_EXTRUDER, ExtUI::getActiveTool(), ExtUI::E0));
       break;
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       case DGUS_Addr::ADJUST_SetFlowrate_E0:
         ExtUI::setFlow_percent(flowrate, ExtUI::E0);
         break;
@@ -557,9 +553,7 @@ void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
     case DGUS_Data::Extruder::E0:
-    #if EXTRUDERS > 1
-      case DGUS_Data::Extruder::E1:
-    #endif
+    TERN_(HAS_MULTI_EXTRUDER, case DGUS_Data::Extruder::E1:)
       dgus_screen_handler.filament_extruder = extruder;
       break;
   }
@@ -590,14 +584,14 @@ void DGUSRxHandler::FilamentMove(DGUS_VP &vp, void *data_ptr) {
   switch (dgus_screen_handler.filament_extruder) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         extruder = ExtUI::getActiveTool();
         break;
       #endif
     case DGUS_Data::Extruder::E0:
       extruder = ExtUI::E0;
       break;
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       case DGUS_Data::Extruder::E1:
         extruder = ExtUI::E1;
         break;
@@ -984,20 +978,11 @@ void DGUSRxHandler::WaitAbort(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  if (!printingIsPaused()
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        || !did_pause_print
-      #endif
-  ) {
+  if (!ExtUI::isPrintingPaused()) {
     dgus_screen_handler.TriggerFullUpdate();
     return;
   }
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    did_pause_print = 0;
-  #endif
-
-  ExtUI::setUserConfirmed();
   ExtUI::stopPrint();
 
   dgus_screen_handler.TriggerFullUpdate();

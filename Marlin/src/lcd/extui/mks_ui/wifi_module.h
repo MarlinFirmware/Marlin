@@ -56,7 +56,7 @@
 
 #define UDISKBUFLEN           1024
 
-typedef enum{
+typedef enum {
   udisk_buf_empty = 0,
   udisk_buf_full,
 } UDISK_DATA_BUFFER_STATE;
@@ -74,41 +74,41 @@ typedef struct {
 
 typedef struct {
   uint8_t flag; // 0x0: no error;  0x01: error
-  uint32_t start_tick; //error start time
+  uint32_t start_tick; // error start time
   uint32_t now_tick;
 } WIFI_TRANS_ERROR;
 
 extern volatile WIFI_TRANS_ERROR wifiTransError;
 
 typedef struct {
-  char ap_name[32];   //wifi-name
-  char keyCode[64]; //wifi password
-  int  decodeType;
-  int  baud;
-  int  mode;
+  char ap_name[32];   // wifi-name
+  char keyCode[64]; // wifi password
+  int decodeType;
+  int baud;
+  int mode;
 } WIFI_PARA;
 
 typedef struct {
   char state;
   char hostUrl[96];
-  int  port;
+  int port;
   char id[21];
 } CLOUD_PARA;
 
 typedef struct {
-  char  dhcp_flag;
-  char  ip_addr[16];
-  char  mask[16];
-  char  gate[16];
-  char  dns[16];
+  char dhcp_flag;
+  char ip_addr[16];
+  char mask[16];
+  char gate[16];
+  char dns[16];
 
-  char  dhcpd_flag;
-  char  dhcpd_ip[16];
-  char  dhcpd_mask[16];
-  char  dhcpd_gate[16];
-  char  dhcpd_dns[16];
-  char  start_ip_addr[16];
-  char  end_ip_addr[16];
+  char dhcpd_flag;
+  char dhcpd_ip[16];
+  char dhcpd_mask[16];
+  char dhcpd_gate[16];
+  char dhcpd_dns[16];
+  char start_ip_addr[16];
+  char end_ip_addr[16];
 } IP_PARA;
 
 typedef enum {
@@ -144,8 +144,8 @@ extern volatile TRANSFER_STATE esp_state;
 
 typedef struct {
   char buf[20][80];
-  int  rd_index;
-  int  wt_index;
+  int rd_index;
+  int wt_index;
 } QUEUE;
 
 typedef enum {
