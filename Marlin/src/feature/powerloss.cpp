@@ -410,7 +410,7 @@ void PrintJobRecovery::resume() {
     }
 
     // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
-    gcode.process_subcommands_now_P(PSTR("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
+    gcode.process_subcommands_now_P(PSTR("G28R0XY")); // No raise during G28
 
   #endif
 
