@@ -410,7 +410,7 @@ void GcodeSuite::G33() {
                   towers_set = !parser.seen_test('T');
 
   // The calibration radius is set to a calculated value
-  float dcr = TERN1(HAS_PROBE_XY_OFFSET, probe_at_offset) ? DELTA_PRINTABLE_RADIUS : DELTA_MAX_RADIUS;
+  float dcr = TERN1(HAS_PROBE_XY_OFFSET, probe_at_offset) ? DELTA_PRINTABLE_RADIUS : BED_DIAMETER / 2 - BED_MOUNTING_MARGIN;
   #if HAS_PROBE_XY_OFFSET
     dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
     NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
