@@ -423,11 +423,13 @@
   #endif
 #endif
 
-#if IS_DWIN_MARLINUI
+#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
   #define HAS_LCD_BRIGHTNESS 1
+#endif
+
+#if IS_DWIN_MARLINUI
   #define MAX_LCD_BRIGHTNESS 31
 #elif HAS_DWIN_E3V2
-  #define HAS_LCD_BRIGHTNESS 5
   #define MAX_LCD_BRIGHTNESS 250
 #endif
 
