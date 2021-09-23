@@ -1386,15 +1386,15 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
   #if AXIS_IS_TMC(M)
     if (m) axis_connection += test_connection(stepperM);
   #endif
-  /**SG**/  
+  /**SG**/
   #if AXIS_IS_TMC(O)
     if (o) axis_connection += test_connection(stepperO);
   #endif
-  /**SG**/  
+  /**SG**/
   #if AXIS_IS_TMC(P)
     if (p) axis_connection += test_connection(stepperP);
   #endif
-  /**SG**/  
+  /**SG**/
   #if AXIS_IS_TMC(Q)
     if (q) axis_connection += test_connection(stepperQ);
   #endif

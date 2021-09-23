@@ -3945,42 +3945,27 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #if _BAD_DRIVER(Z)
   #error "Z_DRIVER_TYPE is not recognized."
 #endif
-#if LINEAR_AXES >= 4
-  #if _BAD_DRIVER(I)
-    #error "I_DRIVER_TYPE is not recognized."
-  #endif
+#if LINEAR_AXES >= 4 && _BAD_DRIVER(I)
+  #error "I_DRIVER_TYPE is not recognized."
 #endif
-#if LINEAR_AXES >= 5
-  #if _BAD_DRIVER(J)
-    #error "J_DRIVER_TYPE is not recognized."
-  #endif
+#if LINEAR_AXES >= 5 && _BAD_DRIVER(J)
+  #error "J_DRIVER_TYPE is not recognized."
 #endif
-#if LINEAR_AXES >= 6
-  #if _BAD_DRIVER(K)
-    #error "K_DRIVER_TYPE is not recognized."
-  #endif
+#if LINEAR_AXES >= 6 && _BAD_DRIVER(K)
+  #error "K_DRIVER_TYPE is not recognized."
 #endif
-#if LINEAR_AXES >= 7 
-  #if _BAD_DRIVER(M)
-    #error "M_DRIVER_TYPE is not recognized."
-  #endif
+#if LINEAR_AXES >= 7 && _BAD_DRIVER(M)
+  #error "M_DRIVER_TYPE is not recognized."
 #endif
-#if LINEAR_AXES >= 8 
-  #if _BAD_DRIVER(O)
-    #error "O_DRIVER_TYPE is not recognized."
-  #endif
+#if LINEAR_AXES >= 8 && _BAD_DRIVER(O)
+  #error "O_DRIVER_TYPE is not recognized."
 #endif
-#if LINEAR_AXES >= 9 
-  #if _BAD_DRIVER(P)
-    #error "P_DRIVER_TYPE is not recognized."
-  #endif
+#if LINEAR_AXES >= 9 && _BAD_DRIVER(P)
+  #error "P_DRIVER_TYPE is not recognized."
 #endif
-#if LINEAR_AXES >= 10 
-  #if _BAD_DRIVER(Q)
-    #error "Q_DRIVER_TYPE is not recognized."
-  #endif
+#if LINEAR_AXES >= 10 && _BAD_DRIVER(Q)
+  #error "Q_DRIVER_TYPE is not recognized."
 #endif
-
 #if _BAD_DRIVER(X2)
   #error "X2_DRIVER_TYPE is not recognized."
 #endif

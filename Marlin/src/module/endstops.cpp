@@ -1689,7 +1689,7 @@ void Endstops::update() {
       #endif
       #if HAS_P_MAX
         ES_REPORT_CHANGE(P_MAX);
-      #endif    
+      #endif
       #if HAS_Q_MIN
         ES_REPORT_CHANGE(Q_MIN);
       #endif

@@ -49,7 +49,7 @@
 #endif
 
 #define ARC_LIJKMOPQ_CODE(L,I,J,K,M,O,P,Q)    CODE_N(SUB2(LINEAR_AXES),L,I,J,K,M,O,P,Q)
-#define ARC_LIJKMOPQE_CODE(L,I,J,K,M,O,P,Q,E) ARC_LIJK_CODE(L,I,J,K,M,O,P,Q); CODE_ITEM_E(E)
+#define ARC_LIJKMOPQE_CODE(L,I,J,K,M,O,P,Q,E) ARC_LIJKMOPQ_CODE(L,I,J,K,M,O,P,Q); CODE_ITEM_E(E)
 
 /**
  * Plan an arc in 2 dimensions, with linear motion in the other axes.
@@ -335,11 +335,17 @@ void plan_arc(
     // Update raw location
     raw[axis_p] = center_P + rvec.a;
     raw[axis_q] = center_Q + rvec.b;
-    ARC_LIJKE_CODE(
+    ARC_LIJKMOPQE_CODE(
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        raw[axis_l] = start_L, raw.i = start_I, raw.j = start_J, raw.k = start_K, raw.m = start_M, raw.o = start_O, raw.p = start_P, raw.q = start_Q
+        raw[axis_l] = start_L,
+        raw.i = start_I, raw.j = start_J, raw.k = start_K,
+        raw.m = start_M, raw.o = start_O, raw.p = start_P,
+        raw.q = start_Q
       #else
-        raw[axis_l] += per_segment_L, raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K, raw.m += per_segment_M, raw.o += per_segment_O, raw.p += per_segment_P, raw.q += per_segment_Q
+        raw[axis_l] += per_segment_L,
+        raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K,
+        raw.m += per_segment_M, raw.o += per_segment_O, raw.p += per_segment_P,
+        raw.q += per_segment_Q
       #endif
       , raw.e += extruder_per_segment
     );
@@ -357,7 +363,12 @@ void plan_arc(
   // Ensure last segment arrives at target location.
   raw = cart;
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKMOPQ_CODE(raw[axis_l] = start_L, raw.i = start_I, raw.j = start_J, raw.k = start_K, raw.m = start_M, raw.o = start_O, raw.p = start_P, raw.q = start_Q);
+    ARC_LIJKMOPQ_CODE(
+      raw[axis_l] = start_L,
+      raw.i = start_I, raw.j = start_J, raw.k = start_K,
+      raw.m = start_M, raw.o = start_O, raw.p = start_P,
+      raw.q = start_Q
+    );
   #endif
 
   apply_motion_limits(raw);
@@ -369,7 +380,12 @@ void plan_arc(
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKMOPQ_CODE(raw[axis_l] = start_L, raw.i = start_I, raw.j = start_J, raw.k = start_K, raw.m = start_M, raw.o = start_O, raw.p = start_P, raw.q = start_Q);
+    ARC_LIJKMOPQ_CODE(
+      raw[axis_l] = start_L,
+      raw.i = start_I, raw.j = start_J, raw.k = start_K,
+      raw.m = start_M, raw.o = start_O, raw.p = start_P,
+      raw.q = start_Q
+    );
   #endif
   current_position = raw;
 
