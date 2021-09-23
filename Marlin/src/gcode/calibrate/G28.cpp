@@ -342,17 +342,20 @@ void GcodeSuite::G28() {
     const bool homeZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
                LINEAR_AXIS_LIST(              // Other axes should be homed before Z safe-homing
                  needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
-                 needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K)
+                 needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
+                 needM = _UNSAFE(M), needO = _UNSAFE(O), needP = _UNSAFE(P), needQ = _UNSAFE(Q)
                ),
                LINEAR_AXIS_LIST(              // Home each axis if needed or flagged
                  homeX = needX || parser.seen_test('X'),
                  homeY = needY || parser.seen_test('Y'),
                  homeZZ = homeZ,
                  homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME), homeK = needK || parser.seen_test(AXIS6_NAME),
+                 homeM = needM || parser.seen_test(AXIS7_NAME), homeO = needO || parser.seen_test(AXIS8_NAME), homeP = needP || parser.seen_test(AXIS9_NAME), homeQ = needQ || parser.seen_test(AXIS10_NAME),
                ),
                home_all = LINEAR_AXIS_GANG(   // Home-all if all or none are flagged
                     homeX == homeX, && homeY == homeX, && homeZ == homeX,
                  && homeI == homeX, && homeJ == homeX, && homeK == homeX
+                 && homeM == homeM, && homeO == homeO, && homeP == homeP, && homeQ == homeQ
                ),
                LINEAR_AXIS_LIST(
                  doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ,
@@ -369,7 +372,7 @@ void GcodeSuite::G28() {
 
     const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
-    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
+    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doI, || doJ, || doK, || doM, || doO, || doP, || doQ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);
@@ -436,6 +439,18 @@ void GcodeSuite::G28() {
     #endif
     #if LINEAR_AXES >= 6
       if (doK) homeaxis(K_AXIS);
+    #endif
+    #if LINEAR_AXES >= 7    /**SG**/
+      if (doM) homeaxis(M_AXIS);
+    #endif
+    #if LINEAR_AXES >= 8    /**SG**/
+      if (doO) homeaxis(O_AXIS);
+    #endif
+    #if LINEAR_AXES >= 9    /**SG**/
+      if (doP) homeaxis(P_AXIS);
+    #endif
+    #if LINEAR_AXES >= 10    /**SG**/
+      if (doQ) homeaxis(Q_AXIS);
     #endif
 
     sync_plan_position();
@@ -519,6 +534,18 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(K)
       stepperK.rms_current(tmc_save_current_K);
     #endif
+    #if HAS_CURRENT_HOME(M)   /**SG**/
+      stepperM.rms_current(tmc_save_current_M);
+    #endif
+    #if HAS_CURRENT_HOME(O)   /**SG**/
+      stepperO.rms_current(tmc_save_current_O);
+    #endif
+    #if HAS_CURRENT_HOME(P)   /**SG**/
+      stepperP.rms_current(tmc_save_current_P);
+    #endif
+    #if HAS_CURRENT_HOME(Q)   /**SG**/
+      stepperQ.rms_current(tmc_save_current_Q);
+    #endif
   #endif // HAS_HOMING_CURRENT
 
   ui.refresh();
@@ -539,7 +566,7 @@ void GcodeSuite::G28() {
     // If not, this will need a PROGMEM directive and an accessor.
     #define _EN_ITEM(N) , E_AXIS
     static constexpr AxisEnum L64XX_axis_xref[MAX_L64XX] = {
-      LINEAR_AXIS_LIST(X_AXIS, Y_AXIS, Z_AXIS, I_AXIS, J_AXIS, K_AXIS),
+      LINEAR_AXIS_LIST(X_AXIS, Y_AXIS, Z_AXIS, I_AXIS, J_AXIS, K_AXIS, M_AXIS, O_AXIS, P_AXIS, Q_AXIS),
       X_AXIS, Y_AXIS, Z_AXIS, Z_AXIS, Z_AXIS
       REPEAT(E_STEPPERS, _EN_ITEM)
     };

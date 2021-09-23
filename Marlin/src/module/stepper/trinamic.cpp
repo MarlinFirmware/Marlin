@@ -36,7 +36,7 @@
 #include <SPI.h>
 
 enum StealthIndex : uint8_t {
-  LOGICAL_AXIS_LIST(STEALTH_AXIS_E, STEALTH_AXIS_X, STEALTH_AXIS_Y, STEALTH_AXIS_Z, STEALTH_AXIS_I, STEALTH_AXIS_J, STEALTH_AXIS_K)
+  LOGICAL_AXIS_LIST(STEALTH_AXIS_E, STEALTH_AXIS_X, STEALTH_AXIS_Y, STEALTH_AXIS_Z, STEALTH_AXIS_I, STEALTH_AXIS_J, STEALTH_AXIS_K, STEALTH_AXIS_M, STEALTH_AXIS_O, STEALTH_AXIS_P, STEALTH_AXIS_Q)
 };
 #define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE)
 
@@ -106,6 +106,19 @@ enum StealthIndex : uint8_t {
 #if AXIS_HAS_SPI(K)
   TMC_SPI_DEFINE(K, K);
 #endif
+/**SG**/
+#if AXIS_HAS_SPI(M)
+  TMC_SPI_DEFINE(M, M);
+#endif
+#if AXIS_HAS_SPI(O)
+  TMC_SPI_DEFINE(O, O);
+#endif
+#if AXIS_HAS_SPI(P)
+  TMC_SPI_DEFINE(P, P);
+#endif
+#if AXIS_HAS_SPI(Q)
+  TMC_SPI_DEFINE(Q, Q);
+#endif
 #if AXIS_HAS_SPI(E0)
   TMC_SPI_DEFINE_E(0);
 #endif
@@ -163,6 +176,27 @@ enum StealthIndex : uint8_t {
 #endif
 #ifndef TMC_Z4_BAUD_RATE
   #define TMC_Z4_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_I_BAUD_RATE
+  #define TMC_I_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_J_BAUD_RATE
+  #define TMC_J_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_K_BAUD_RATE
+  #define TMC_K_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_M_BAUD_RATE
+  #define TMC_M_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_O_BAUD_RATE
+  #define TMC_O_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_P_BAUD_RATE
+  #define TMC_P_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_Q_BAUD_RATE
+  #define TMC_Q_BAUD_RATE TMC_BAUD_RATE
 #endif
 #ifndef TMC_E0_BAUD_RATE
   #define TMC_E0_BAUD_RATE TMC_BAUD_RATE
@@ -365,6 +399,35 @@ enum StealthIndex : uint8_t {
       #define K_HAS_SW_SERIAL 1
     #endif
   #endif
+  /**SG**/
+  #if AXIS_HAS_UART(M)
+    #ifdef M_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, M, M);
+    #else
+      TMC_UART_DEFINE(SW, M, M);
+    #endif
+  #endif
+  #if AXIS_HAS_UART(O)
+    #ifdef O_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, O, O);
+    #else
+      TMC_UART_DEFINE(SW, O, O);
+    #endif
+  #endif
+  #if AXIS_HAS_UART(P)
+    #ifdef P_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, P, P);
+    #else
+      TMC_UART_DEFINE(SW, P, P);
+    #endif
+  #endif
+  #if AXIS_HAS_UART(Q)
+    #ifdef Q_HARDWARE_SERIAL
+      TMC_UART_DEFINE(HW, Q, Q);
+    #else
+      TMC_UART_DEFINE(SW, Q, Q);
+    #endif
+  #endif
 
   #if AXIS_HAS_UART(E0)
     #ifdef E0_HARDWARE_SERIAL
@@ -440,7 +503,7 @@ enum StealthIndex : uint8_t {
   #endif
 
   #define _EN_ITEM(N) , E##N
-  enum TMCAxis : uint8_t { LINEAR_AXIS_LIST(X, Y, Z, I, J, K), X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
+  enum TMCAxis : uint8_t { LINEAR_AXIS_LIST(X, Y, Z, I, J, K, M, O, P, Q), X2, Y2, Z2, Z3, Z4 REPEAT(EXTRUDERS, _EN_ITEM), TOTAL };
   #undef _EN_ITEM
 
   void tmc_serial_begin() {
@@ -532,6 +595,35 @@ enum StealthIndex : uint8_t {
         HW_SERIAL_BEGIN(K);
       #else
         stepperK.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    /**SG**/
+    #if AXIS_HAS_UART(M)
+      #ifdef M_HARDWARE_SERIAL
+        HW_SERIAL_BEGIN(M);
+      #else
+        stepperM.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(O)
+      #ifdef O_HARDWARE_SERIAL
+        HW_SERIAL_BEGIN(O);
+      #else
+        stepperO.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(P)
+      #ifdef P_HARDWARE_SERIAL
+        HW_SERIAL_BEGIN(P);
+      #else
+        stepperP.beginSerial(TMC_BAUD_RATE);
+      #endif
+    #endif
+    #if AXIS_HAS_UART(Q)
+      #ifdef Q_HARDWARE_SERIAL
+        HW_SERIAL_BEGIN(Q);
+      #else
+        stepperQ.beginSerial(TMC_BAUD_RATE);
       #endif
     #endif
     #if AXIS_HAS_UART(E0)
@@ -805,6 +897,19 @@ void restore_trinamic_drivers() {
   #if AXIS_IS_TMC(K)
     stepperK.push();
   #endif
+  /**SG**/
+  #if AXIS_IS_TMC(M)
+    stepperM.push();
+  #endif
+  #if AXIS_IS_TMC(O)
+    stepperO.push();
+  #endif
+  #if AXIS_IS_TMC(P)
+    stepperP.push();
+  #endif
+  #if AXIS_IS_TMC(Q)
+    stepperQ.push();
+  #endif
   #if AXIS_IS_TMC(E0)
     stepperE0.push();
   #endif
@@ -839,7 +944,11 @@ void reset_trinamic_drivers() {
     ENABLED(STEALTHCHOP_Z),
     ENABLED(STEALTHCHOP_I),
     ENABLED(STEALTHCHOP_J),
-    ENABLED(STEALTHCHOP_K)
+    ENABLED(STEALTHCHOP_K),
+    ENABLED(STEALTHCHOP_M),
+    ENABLED(STEALTHCHOP_O),
+    ENABLED(STEALTHCHOP_P),
+    ENABLED(STEALTHCHOP_Q)
   );
 
   #if AXIS_IS_TMC(X)
@@ -874,6 +983,19 @@ void reset_trinamic_drivers() {
   #endif
   #if AXIS_IS_TMC(K)
     TMC_INIT(K, STEALTH_AXIS_K);
+  #endif
+  /**SG**/
+  #if AXIS_IS_TMC(M)
+    TMC_INIT(M, STEALTH_AXIS_M);
+  #endif
+  #if AXIS_IS_TMC(O)
+    TMC_INIT(O, STEALTH_AXIS_O);
+  #endif
+  #if AXIS_IS_TMC(P)
+    TMC_INIT(P, STEALTH_AXIS_P);
+  #endif
+  #if AXIS_IS_TMC(Q)
+    TMC_INIT(Q, STEALTH_AXIS_Q);
   #endif
   #if AXIS_IS_TMC(E0)
     TMC_INIT(E0, STEALTH_AXIS_E);
@@ -943,6 +1065,31 @@ void reset_trinamic_drivers() {
         stepperK.homing_threshold(CAT(TERN(K_SENSORLESS, K, K), _STALL_SENSITIVITY));
       #endif
     #endif
+    /**SG**/
+    #if M_SENSORLESS
+      stepperM.homing_threshold(M_STALL_SENSITIVITY);
+      #if AXIS_HAS_STALLGUARD(M)
+        stepperM.homing_threshold(CAT(TERN(M_SENSORLESS, M, M), _STALL_SENSITIVITY));
+      #endif
+    #endif
+    #if O_SENSORLESS
+      stepperO.homing_threshold(O_STALL_SENSITIVITY);
+      #if AXIS_HAS_STALLGUARD(O)
+        stepperO.homing_threshold(CAT(TERN(O_SENSORLESS, O, O), _STALL_SENSITIVITY));
+      #endif
+    #endif
+    #if P_SENSORLESS
+      stepperP.homing_threshold(P_STALL_SENSITIVITY);
+      #if AXIS_HAS_STALLGUARD(P)
+        stepperP.homing_threshold(CAT(TERN(P_SENSORLESS, P, P), _STALL_SENSITIVITY));
+      #endif
+    #endif
+    #if Q_SENSORLESS
+      stepperQ.homing_threshold(Q_STALL_SENSITIVITY);
+      #if AXIS_HAS_STALLGUARD(Q)
+        stepperQ.homing_threshold(CAT(TERN(Q_SENSORLESS, Q, Q), _STALL_SENSITIVITY));
+      #endif
+    #endif
   #endif // USE SENSORLESS
 
   #ifdef TMC_ADV
@@ -973,6 +1120,7 @@ void reset_trinamic_drivers() {
     TMC_HW_DETAIL(Y), TMC_HW_DETAIL(Y2),
     TMC_HW_DETAIL(Z), TMC_HW_DETAIL(Z2), TMC_HW_DETAIL(Z3), TMC_HW_DETAIL(Z4),
     TMC_HW_DETAIL(I), TMC_HW_DETAIL(J), TMC_HW_DETAIL(K),
+    TMC_HW_DETAIL(M), TMC_HW_DETAIL(O), TMC_HW_DETAIL(P), TMC_HW_DETAIL(Q),
     TMC_HW_DETAIL(E0), TMC_HW_DETAIL(E1), TMC_HW_DETAIL(E2), TMC_HW_DETAIL(E3), TMC_HW_DETAIL(E4), TMC_HW_DETAIL(E5), TMC_HW_DETAIL(E6), TMC_HW_DETAIL(E7)
   };
 
@@ -996,6 +1144,7 @@ void reset_trinamic_drivers() {
   SA_NO_TMC_HW_C(Y); SA_NO_TMC_HW_C(Y2);
   SA_NO_TMC_HW_C(Z); SA_NO_TMC_HW_C(Z2); SA_NO_TMC_HW_C(Z3); SA_NO_TMC_HW_C(Z4);
   SA_NO_TMC_HW_C(I); SA_NO_TMC_HW_C(J); SA_NO_TMC_HW_C(K);
+  SA_NO_TMC_HW_C(M);SA_NO_TMC_HW_C(O);SA_NO_TMC_HW_C(P);;SA_NO_TMC_HW_C(Q);
   SA_NO_TMC_HW_C(E0); SA_NO_TMC_HW_C(E1); SA_NO_TMC_HW_C(E2); SA_NO_TMC_HW_C(E3); SA_NO_TMC_HW_C(E4); SA_NO_TMC_HW_C(E5); SA_NO_TMC_HW_C(E6); SA_NO_TMC_HW_C(E7);
 #endif
 
@@ -1008,6 +1157,7 @@ void reset_trinamic_drivers() {
     TMC_SW_DETAIL(Y), TMC_SW_DETAIL(Y2),
     TMC_SW_DETAIL(Z), TMC_SW_DETAIL(Z2), TMC_SW_DETAIL(Z3), TMC_SW_DETAIL(Z4),
     TMC_SW_DETAIL(I), TMC_SW_DETAIL(J), TMC_SW_DETAIL(K),
+    TMC_SW_DETAIL(M), TMC_SW_DETAIL(O), TMC_SW_DETAIL(P), TMC_SW_DETAIL(Q),
     TMC_SW_DETAIL(E0), TMC_SW_DETAIL(E1), TMC_SW_DETAIL(E2), TMC_SW_DETAIL(E3), TMC_SW_DETAIL(E4), TMC_SW_DETAIL(E5), TMC_SW_DETAIL(E6), TMC_SW_DETAIL(E7)
   };
 
@@ -1026,6 +1176,7 @@ void reset_trinamic_drivers() {
   SA_NO_TMC_SW_C(Y); SA_NO_TMC_SW_C(Y2);
   SA_NO_TMC_SW_C(Z); SA_NO_TMC_SW_C(Z2); SA_NO_TMC_SW_C(Z3); SA_NO_TMC_SW_C(Z4);
   SA_NO_TMC_SW_C(I); SA_NO_TMC_SW_C(J); SA_NO_TMC_SW_C(K);
+  SA_NO_TMC_SW_C(M);SA_NO_TMC_SW_C(O);SA_NO_TMC_SW_C(P);SA_NO_TMC_SW_C(Q);
   SA_NO_TMC_SW_C(E0); SA_NO_TMC_SW_C(E1); SA_NO_TMC_SW_C(E2); SA_NO_TMC_SW_C(E3); SA_NO_TMC_SW_C(E4); SA_NO_TMC_SW_C(E5); SA_NO_TMC_SW_C(E6); SA_NO_TMC_SW_C(E7);
 #endif
 

@@ -68,7 +68,7 @@ void menu_backlash();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ stepper_dac.set_current_percents(driverPercent); })
-    LOGICAL_AXIS_CODE(EDIT_DAC_PERCENT(E), EDIT_DAC_PERCENT(A), EDIT_DAC_PERCENT(B), EDIT_DAC_PERCENT(C), EDIT_DAC_PERCENT(I), EDIT_DAC_PERCENT(J), EDIT_DAC_PERCENT(K));
+    LOGICAL_AXIS_CODE(EDIT_DAC_PERCENT(E), EDIT_DAC_PERCENT(A), EDIT_DAC_PERCENT(B), EDIT_DAC_PERCENT(C), EDIT_DAC_PERCENT(I), EDIT_DAC_PERCENT(J), EDIT_DAC_PERCENT(K), EDIT_DAC_PERCENT(M), EDIT_DAC_PERCENT(O), EDIT_DAC_PERCENT(P), EDIT_DAC_PERCENT(Q));
     ACTION_ITEM(MSG_DAC_EEPROM_WRITE, stepper_dac.commit_eeprom);
     END_MENU();
   }
@@ -369,7 +369,7 @@ void menu_backlash();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #define EDIT_VMAX(N) EDIT_ITEM_FAST(float5, MSG_VMAX_##N, &planner.settings.max_feedrate_mm_s[_AXIS(N)], 1, max_fr_edit_scaled[_AXIS(N)])
-    LINEAR_AXIS_CODE(EDIT_VMAX(A), EDIT_VMAX(B), EDIT_VMAX(C), EDIT_VMAX(I), EDIT_VMAX(J), EDIT_VMAX(K));
+    LINEAR_AXIS_CODE(EDIT_VMAX(A), EDIT_VMAX(B), EDIT_VMAX(C), EDIT_VMAX(I), EDIT_VMAX(J), EDIT_VMAX(K), EDIT_VMAX(M), EDIT_VMAX(O), EDIT_VMAX(P), EDIT_VMAX(Q));
 
     #if E_STEPPERS
       EDIT_ITEM_FAST(float5, MSG_VMAX_E, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
@@ -399,7 +399,7 @@ void menu_backlash();
       #elif ENABLED(LIMITED_MAX_ACCEL_EDITING)
         DEFAULT_MAX_ACCELERATION
       #else
-        LOGICAL_AXIS_ARRAY(99000, 99000, 99000, 99000, 99000, 99000, 99000)
+        LOGICAL_AXIS_ARRAY(99000, 99000, 99000, 99000, 99000, 99000, 99000, 99000, 99000, 99000, 99000)
       #endif
     ;
     #if ENABLED(LIMITED_MAX_ACCEL_EDITING) && !defined(MAX_ACCEL_EDIT_VALUES)
@@ -425,7 +425,8 @@ void menu_backlash();
     #define EDIT_AMAX(Q,L) EDIT_ITEM_FAST(long5_25, MSG_AMAX_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, max_accel_edit_scaled[_AXIS(Q)], []{ planner.reset_acceleration_rates(); })
     LINEAR_AXIS_CODE(
       EDIT_AMAX(A, 100), EDIT_AMAX(B, 100), EDIT_AMAX(C, 10),
-      EDIT_AMAX(I,  10), EDIT_AMAX(J,  10), EDIT_AMAX(K, 10)
+      EDIT_AMAX(I,  10), EDIT_AMAX(J,  10), EDIT_AMAX(K, 10),
+      EDIT_AMAX(M,  10), EDIT_AMAX(O,  10), EDIT_AMAX(P,  10), EDIT_AMAX(Q, 10)
     );
 
     #if ENABLED(DISTINCT_E_FACTORS)
@@ -468,9 +469,10 @@ void menu_backlash();
         #elif ENABLED(LIMITED_JERK_EDITING)
           { LOGICAL_AXIS_LIST((DEFAULT_EJERK) * 2,
                               (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2,
+                              (DEFAULT_IJERK) * 2, (DEFAULT_JJERK) * 2, (DEFAULT_KJERK) * 2,
                               (DEFAULT_IJERK) * 2, (DEFAULT_JJERK) * 2, (DEFAULT_KJERK) * 2) }
         #else
-          { LOGICAL_AXIS_LIST(990, 990, 990, 990, 990, 990, 990) }
+          { LOGICAL_AXIS_LIST(990, 990, 990, 990, 990, 990, 990, 990, 990, 990, 990) }
         #endif
       ;
       #define EDIT_JERK(N) EDIT_ITEM_FAST(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_edit[_AXIS(N)])
@@ -481,7 +483,8 @@ void menu_backlash();
       #endif
       LINEAR_AXIS_CODE(
         EDIT_JERK(A), EDIT_JERK(B), EDIT_JERK_C(),
-        EDIT_JERK(I), EDIT_JERK(J), EDIT_JERK(K)
+        EDIT_JERK(I), EDIT_JERK(J), EDIT_JERK(K),
+        EDIT_JERK(M), EDIT_JERK(O), EDIT_JERK(P), EDIT_JERK(Q)
       );
 
       #if HAS_EXTRUDERS
@@ -522,7 +525,8 @@ void menu_advanced_steps_per_mm() {
   #define EDIT_QSTEPS(Q) EDIT_ITEM_FAST(float51, MSG_##Q##_STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, []{ planner.refresh_positioning(); })
   LINEAR_AXIS_CODE(
     EDIT_QSTEPS(A), EDIT_QSTEPS(B), EDIT_QSTEPS(C),
-    EDIT_QSTEPS(I), EDIT_QSTEPS(J), EDIT_QSTEPS(K)
+    EDIT_QSTEPS(I), EDIT_QSTEPS(J), EDIT_QSTEPS(K),
+    EDIT_QSTEPS(M), EDIT_QSTEPS(O), EDIT_QSTEPS(P), EDIT_QSTEPS(Q)
   );
 
   #if ENABLED(DISTINCT_E_FACTORS)

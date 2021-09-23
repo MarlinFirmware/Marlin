@@ -134,6 +134,18 @@
       #if AXIS_IS_L64XX(K)
         REPORT_ABSOLUTE_POS(K);
       #endif
+      #if AXIS_IS_L64XX(M)  /**SG**/
+        REPORT_ABSOLUTE_POS(M);
+      #endif
+      #if AXIS_IS_L64XX(O)  /**SG**/
+        REPORT_ABSOLUTE_POS(O);
+      #endif
+      #if AXIS_IS_L64XX(P)  /**SG**/
+        REPORT_ABSOLUTE_POS(P);
+      #endif
+      #if AXIS_IS_L64XX(Q)  /**SG**/
+        REPORT_ABSOLUTE_POS(Q);
+      #endif
       #if AXIS_IS_L64XX(E0)
         REPORT_ABSOLUTE_POS(E0);
       #endif
@@ -184,7 +196,11 @@
       cartes.x, cartes.y, cartes.z,
       planner.get_axis_position_mm(I_AXIS),
       planner.get_axis_position_mm(J_AXIS),
-      planner.get_axis_position_mm(K_AXIS)
+      planner.get_axis_position_mm(K_AXIS),
+      planner.get_axis_position_mm(M_AXIS),
+      planner.get_axis_position_mm(O_AXIS),
+      planner.get_axis_position_mm(P_AXIS),
+      planner.get_axis_position_mm(Q_AXIS)
     );
     report_all_axis_pos(from_steppers);
 

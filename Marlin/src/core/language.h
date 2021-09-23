@@ -342,6 +342,13 @@
 #define STR_I AXIS4_STR
 #define STR_J AXIS5_STR
 #define STR_K AXIS6_STR
+#define STR_I AXIS4_STR
+#define STR_J AXIS5_STR
+#define STR_K AXIS6_STR
+#define STR_M AXIS7_STR   /**SG**/
+#define STR_O AXIS8_STR   /**SG**/
+#define STR_P AXIS9_STR   /**SG**/
+#define STR_Q AXIS10_STR   /**SG**/
 #define STR_E "E"
 #if IS_KINEMATIC
   #define STR_A "A"
@@ -364,6 +371,10 @@
 #define LCD_STR_I STR_I
 #define LCD_STR_J STR_J
 #define LCD_STR_K STR_K
+#define LCD_STR_M STR_M   /**SG**/
+#define LCD_STR_O STR_O   /**SG**/
+#define LCD_STR_P STR_P   /**SG**/
+#define LCD_STR_Q STR_Q   /**SG**/
 #define LCD_STR_E STR_E
 
 // Extra Axis and Endstop Names
@@ -380,6 +391,10 @@
     #define AXIS4_STR "C"
     #define STR_I_MIN "c_min"
     #define STR_I_MAX "c_max"
+  #elif AXIS4_NAME == 'D'
+    #define AXIS4_STR "D"
+    #define STR_I_MIN "d_min"
+    #define STR_I_MAX "d_max"
   #elif AXIS4_NAME == 'U'
     #define AXIS4_STR "U"
     #define STR_I_MIN "u_min"
@@ -414,6 +429,10 @@
     #define AXIS5_STR "C"
     #define STR_J_MIN "c_min"
     #define STR_J_MAX "c_max"
+  #elif AXIS5_NAME == 'D'
+    #define AXIS5_STR "D"
+    #define STR_J_MIN "d_min"
+    #define STR_J_MAX "d_max"
   #elif AXIS5_NAME == 'U'
     #define AXIS5_STR "U"
     #define STR_J_MIN "u_min"
@@ -448,6 +467,10 @@
     #define AXIS6_STR "C"
     #define STR_K_MIN "c_min"
     #define STR_K_MAX "c_max"
+  #elif AXIS6_NAME == 'D'
+    #define AXIS6_STR "D"
+    #define STR_K_MIN "d_min"
+    #define STR_K_MAX "d_max"
   #elif AXIS6_NAME == 'U'
     #define AXIS6_STR "U"
     #define STR_K_MIN "u_min"
@@ -467,6 +490,161 @@
   #endif
 #else
   #define AXIS6_STR   ""
+#endif
+
+/**SG**/
+#if LINEAR_AXES >= 7
+  #if AXIS7_NAME == 'A'
+    #define AXIS7_STR "A"
+    #define STR_M_MIN "a_min"
+    #define STR_M_MAX "a_max"
+  #elif AXIS7_NAME == 'B'
+    #define AXIS7_STR "B"
+    #define STR_M_MIN "b_min"
+    #define STR_M_MAX "b_max"
+  #elif AXIS7_NAME == 'C'
+    #define AXIS7_STR "C"
+    #define STR_M_MIN "c_min"
+    #define STR_M_MAX "c_max"
+  #elif AXIS7_NAME == 'D'
+    #define AXIS7_STR "D"
+    #define STR_M_MIN "d_min"
+    #define STR_M_MAX "d_max"
+  #elif AXIS7_NAME == 'U'
+    #define AXIS7_STR "U"
+    #define STR_M_MIN "u_min"
+    #define STR_M_MAX "u_max"
+  #elif AXIS7_NAME == 'V'
+    #define AXIS7_STR "V"
+    #define STR_M_MIN "v_min"
+    #define STR_M_MAX "v_max"
+  #elif AXIS7_NAME == 'W'
+    #define AXIS7_STR "W"
+    #define STR_M_MIN "w_min"
+    #define STR_M_MAX "w_max"
+  #else
+    #define AXIS7_STR "U"
+    #define STR_M_MIN "u_min"
+    #define STR_M_MAX "u_max"
+  #endif
+#else
+  #define AXIS7_STR   ""
+#endif
+
+/**SG**/
+#if LINEAR_AXES >= 8
+  #if AXIS8_NAME == 'A'
+    #define AXIS8_STR "A"
+    #define STR_O_MIN "a_min"
+    #define STR_O_MAX "a_max"
+  #elif AXIS8_NAME == 'B'
+    #define AXIS8_STR "B"
+    #define STR_O_MIN "b_min"
+    #define STR_O_MAX "b_max"
+  #elif AXIS8_NAME == 'C'
+    #define AXIS8_STR "C"
+    #define STR_O_MIN "c_min"
+    #define STR_O_MAX "c_max"
+  #elif AXIS8_NAME == 'D'
+    #define AXIS8_STR "D"
+    #define STR_O_MIN "d_min"
+    #define STR_O_MAX "d_max"
+  #elif AXIS8_NAME == 'U'
+    #define AXIS8_STR "U"
+    #define STR_O_MIN "u_min"
+    #define STR_O_MAX "u_max"
+  #elif AXIS8_NAME == 'V'
+    #define AXIS8_STR "V"
+    #define STR_O_MIN "v_min"
+    #define STR_O_MAX "v_max"
+  #elif AXIS8_NAME == 'W'
+    #define AXIS8_STR "W"
+    #define STR_O_MIN "w_min"
+    #define STR_O_MAX "w_max"
+  #else
+    #define AXIS8_STR "V"
+    #define STR_O_MIN "v_min"
+    #define STR_O_MAX "v_max"
+  #endif
+#else
+  #define AXIS8_STR   ""
+#endif
+
+/**SG**/
+#if LINEAR_AXES >= 9
+  #if AXIS9_NAME == 'A'
+    #define AXIS9_STR "A"
+    #define STR_P_MIN "a_min"
+    #define STR_P_MAX "a_max"
+  #elif AXIS9_NAME == 'B'
+    #define AXIS9_STR "B"
+    #define STR_P_MIN "b_min"
+    #define STR_P_MAX "b_max"
+  #elif AXIS9_NAME == 'C'
+    #define AXIS9_STR "C"
+    #define STR_P_MIN "c_min"
+    #define STR_P_MAX "c_max"
+  #elif AXIS9_NAME == 'D'
+    #define AXIS9_STR "D"
+    #define STR_P_MIN "d_min"
+    #define STR_P_MAX "d_max"
+  #elif AXIS9_NAME == 'U'
+    #define AXIS9_STR "U"
+    #define STR_P_MIN "u_min"
+    #define STR_P_MAX "u_max"
+  #elif AXIS9_NAME == 'V'
+    #define AXIS9_STR "V"
+    #define STR_P_MIN "v_min"
+    #define STR_P_MAX "v_max"
+  #elif AXIS9_NAME == 'W'
+    #define AXIS9_STR "W"
+    #define STR_P_MIN "w_min"
+    #define STR_P_MAX "w_max"
+  #else
+    #define AXIS9_STR "W"
+    #define STR_P_MIN "w_min"
+    #define STR_P_MAX "w_max"
+  #endif
+#else
+  #define AXIS9_STR   ""
+#endif
+
+#if LINEAR_AXES >= 10
+  #if AXIS10_NAME == 'A'
+    #define AXIS10_STR "A"
+    #define STR_Q_MIN "a_min"
+    #define STR_Q_MAX "a_max"
+  #elif AXIS10_NAME == 'B'
+    #define AXIS10_STR "B"
+    #define STR_Q_MIN "b_min"
+    #define STR_Q_MAX "b_max"
+  #elif AXIS10_NAME == 'C'
+    #define AXIS10_STR "C"
+    #define STR_Q_MIN "c_min"
+    #define STR_Q_MAX "c_max"
+  #elif AXIS10_NAME == 'D'
+    #define AXIS10_STR "D"
+    #define STR_Q_MIN "d_min"
+    #define STR_Q_MAX "d_max"
+  #elif AXIS10_NAME == 'U'
+    #define AXIS10_STR "U"
+    #define STR_QMIN "u_min"
+    #define STR_Q_MAX "u_max"
+  #elif AXIS10_NAME == 'V'
+    #define AXIS10_STR "V"
+    #define STR_Q_MIN "v_min"
+    #define STR_Q_MAX "v_max"
+  #elif AXIS10_NAME == 'W'
+    #define AXIS10_STR "W"
+    #define STR_Q_MIN "w_min"
+    #define STR_Q_MAX "w_max"
+  #else
+    #define AXIS10_STR "D"
+    #define STR_Q_MIN "d_min"
+    #define STR_Q_MAX "d_max"
+  #endif
+#else
+  #define AXIS10_STR   ""
 #endif
 
 #if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)

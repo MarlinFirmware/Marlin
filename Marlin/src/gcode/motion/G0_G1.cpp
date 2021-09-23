@@ -53,9 +53,13 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
             (parser.seen_test('X') ? _BV(X_AXIS) : 0),
           | (parser.seen_test('Y') ? _BV(Y_AXIS) : 0),
           | (parser.seen_test('Z') ? _BV(Z_AXIS) : 0),
-          | (parser.seen_test(AXIS4_NAME) ? _BV(I_AXIS) : 0),
-          | (parser.seen_test(AXIS5_NAME) ? _BV(J_AXIS) : 0),
-          | (parser.seen_test(AXIS6_NAME) ? _BV(K_AXIS) : 0))
+          | (parser.seen_test(AXIS4_NAME)  ? _BV(I_AXIS) : 0),
+          | (parser.seen_test(AXIS5_NAME)  ? _BV(J_AXIS) : 0),
+          | (parser.seen_test(AXIS6_NAME)  ? _BV(K_AXIS) : 0),
+          | (parser.seen_test(AXIS7_NAME)  ? _BV(M_AXIS) : 0),    /**SG**/
+          | (parser.seen_test(AXIS8_NAME)  ? _BV(O_AXIS) : 0),    /**SG**/
+          | (parser.seen_test(AXIS9_NAME)  ? _BV(P_AXIS) : 0),    /**SG**/
+          | (parser.seen_test(AXIS10_NAME) ? _BV(Q_AXIS) : 0))    /**SG**/
       )
     #endif
   ) {
@@ -89,7 +93,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
         if (fwretract.autoretract_enabled && parser.seen_test('E')
-          && !parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR))
+          && !parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR, AXIS7_STR, AXIS8_STR, AXIS9_STR, AXIS10_STR))
         ) {
           const float echange = destination.e - current_position.e;
           // Is this a retract or recover move?

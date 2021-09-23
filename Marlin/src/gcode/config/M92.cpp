@@ -98,7 +98,11 @@ void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/
     SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),
     SP_I_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[I_AXIS]),
     SP_J_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[J_AXIS]),
-    SP_K_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]))
+    SP_K_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[K_AXIS]),
+    SP_M_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[M_AXIS]),
+    SP_O_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[O_AXIS]),
+    SP_P_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[P_AXIS]),
+    SP_Q_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Q_AXIS]))
   );
   #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
     SERIAL_ECHOPGM_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));

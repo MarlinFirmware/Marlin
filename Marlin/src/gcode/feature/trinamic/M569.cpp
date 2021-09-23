@@ -45,6 +45,7 @@ static void set_stealth_status(const bool enable, const int8_t target_e_stepper)
 
   #if    X_HAS_STEALTHCHOP  || Y_HAS_STEALTHCHOP  || Z_HAS_STEALTHCHOP \
       || I_HAS_STEALTHCHOP  || J_HAS_STEALTHCHOP  || K_HAS_STEALTHCHOP \
+      || M_HAS_STEALTHCHOP  || O_HAS_STEALTHCHOP  || P_HAS_STEALTHCHOP  || Q_HAS_STEALTHCHOP \   
       || X2_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP || Z3_HAS_STEALTHCHOP || Z4_HAS_STEALTHCHOP
     const uint8_t index = parser.byteval('I');
   #endif
@@ -81,6 +82,18 @@ static void set_stealth_status(const bool enable, const int8_t target_e_stepper)
       #if K_HAS_STEALTHCHOP
         case K_AXIS: TMC_SET_STEALTH(K); break;
       #endif
+      #if M_HAS_STEALTHCHOP
+        case M_AXIS: TMC_SET_STEALTH(M); break;
+      #endif
+      #if O_HAS_STEALTHCHOP
+        case O_AXIS: TMC_SET_STEALTH(O); break;
+      #endif
+      #if P_HAS_STEALTHCHOP
+        case P_AXIS: TMC_SET_STEALTH(P); break;
+      #endif
+      #if Q_HAS_STEALTHCHOP
+        case Q_AXIS: TMC_SET_STEALTH(Q); break;
+      #endif
 
       #if E_STEPPERS
         case E_AXIS: {
@@ -114,6 +127,10 @@ static void say_stealth_status() {
   OPTCODE( I_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(I))
   OPTCODE( J_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(J))
   OPTCODE( K_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(K))
+  OPTCODE( M_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(M))
+  OPTCODE( O_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(O))
+  OPTCODE( P_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(P))
+  OPTCODE( Q_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Q))
   OPTCODE(E0_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E0))
   OPTCODE(E1_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E1))
   OPTCODE(E2_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E2))
@@ -156,7 +173,11 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
              chop_z = TERN0(Z_HAS_STEALTHCHOP, stepperZ.get_stored_stealthChop()),
              chop_i = TERN0(I_HAS_STEALTHCHOP, stepperI.get_stored_stealthChop()),
              chop_j = TERN0(J_HAS_STEALTHCHOP, stepperJ.get_stored_stealthChop()),
-             chop_k = TERN0(K_HAS_STEALTHCHOP, stepperK.get_stored_stealthChop());
+             chop_k = TERN0(K_HAS_STEALTHCHOP, stepperK.get_stored_stealthChop()),
+             chop_m = TERN0(M_HAS_STEALTHCHOP, stepperM.get_stored_stealthChop()),
+             chop_o = TERN0(O_HAS_STEALTHCHOP, stepperO.get_stored_stealthChop()),
+             chop_p = TERN0(P_HAS_STEALTHCHOP, stepperP.get_stored_stealthChop()),
+             chop_q = TERN0(Q_HAS_STEALTHCHOP, stepperQ.get_stored_stealthChop());
 
   if (chop_x || chop_y || chop_z || chop_i || chop_j || chop_k) {
     say_M569(forReplay);
@@ -189,6 +210,10 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
   if (TERN0( I_HAS_STEALTHCHOP, stepperI.get_stored_stealthChop()))  { say_M569(forReplay, SP_I_STR, true); }
   if (TERN0( J_HAS_STEALTHCHOP, stepperJ.get_stored_stealthChop()))  { say_M569(forReplay, SP_J_STR, true); }
   if (TERN0( K_HAS_STEALTHCHOP, stepperK.get_stored_stealthChop()))  { say_M569(forReplay, SP_K_STR, true); }
+  if (TERN0( M_HAS_STEALTHCHOP, stepperM.get_stored_stealthChop()))  { say_M569(forReplay, SP_M_STR, true); }
+  if (TERN0( O_HAS_STEALTHCHOP, stepperO.get_stored_stealthChop()))  { say_M569(forReplay, SP_O_STR, true); }
+  if (TERN0( P_HAS_STEALTHCHOP, stepperP.get_stored_stealthChop()))  { say_M569(forReplay, SP_P_STR, true); }
+  if (TERN0( Q_HAS_STEALTHCHOP, stepperQ.get_stored_stealthChop()))  { say_M569(forReplay, SP_Q_STR, true); }
 
   if (TERN0(E0_HAS_STEALTHCHOP, stepperE0.get_stored_stealthChop())) { say_M569(forReplay, PSTR("T0 E"), true); }
   if (TERN0(E1_HAS_STEALTHCHOP, stepperE1.get_stored_stealthChop())) { say_M569(forReplay, PSTR("T1 E"), true); }

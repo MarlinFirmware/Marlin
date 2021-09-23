@@ -34,12 +34,16 @@ extern const char NUL_STR[],
                   SP_A_STR[], SP_B_STR[], SP_C_STR[], SP_E_STR[],
                   SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[],
                   SP_I_STR[], SP_J_STR[], SP_K_STR[],
+                  SP_M_STR[], SP_O_STR[], SP_P_STR[], SP_Q_STR[],
                   SP_I_LBL[], SP_J_LBL[], SP_K_LBL[],
-                  SP_P_STR[], SP_T_STR[],
+                  SP_M_LBL[], SP_O_LBL[], SP_P_LBL[], SP_Q_LBL[],
+                  SP_P2_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],
                   I_STR[], J_STR[], K_STR[],
+                  M_STR[], O_STR[], P_STR[], Q_STR[],
                   X_LBL[], Y_LBL[], Z_LBL[], E_LBL[],
-                  I_LBL[], J_LBL[], K_LBL[];
+                  I_LBL[], J_LBL[], K_LBL[],
+                  M_LBL[], O_LBL[], P_LBL[], Q_LBL[];
 
 //
 // Debugging flags for use by M111

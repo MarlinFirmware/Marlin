@@ -221,6 +221,18 @@
 #if !AXIS_HAS_SPI(K)
   #undef K_CS_PIN
 #endif
+#if !AXIS_HAS_SPI(M)
+  #undef M_CS_PIN
+#endif
+#if !AXIS_HAS_SPI(O)
+  #undef O_CS_PIN
+#endif
+#if !AXIS_HAS_SPI(P)
+  #undef P_CS_PIN
+#endif
+#if !AXIS_HAS_SPI(Q)
+  #undef Q_CS_PIN
+#endif
 #if E_STEPPERS && !AXIS_HAS_SPI(E0)
   #undef E0_CS_PIN
 #endif
@@ -263,6 +275,18 @@
 #endif
 #ifndef K_CS_PIN
   #define K_CS_PIN -1
+#endif
+#ifndef M_CS_PIN
+  #define M_CS_PIN -1
+#endif
+#ifndef O_CS_PIN
+  #define O_CS_PIN -1
+#endif
+#ifndef P_CS_PIN
+  #define P_CS_PIN -1
+#endif
+#ifndef Q_CS_PIN
+  #define Q_CS_PIN -1
 #endif
 #ifndef E0_CS_PIN
   #define E0_CS_PIN -1
@@ -464,11 +488,19 @@
   #ifdef I_STOP_PIN
     #if I_HOME_TO_MIN
       #define I_MIN_PIN I_STOP_PIN
-      #define I_MAX_PIN -1
+      #ifndef I_MAX_PIN
+        #define I_MAX_PIN -1
+      #endif
     #else
-      #define I_MIN_PIN -1
       #define I_MAX_PIN I_STOP_PIN
+      #ifndef I_MIN_PIN
+        #define I_MIN_PIN -1
+      #endif
     #endif
+  #elif I_HOME_TO_MIN
+    #define I_STOP_PIN I_MIN_PIN
+  #else
+    #define I_STOP_PIN I_MAX_PIN
   #endif
 #else
   #undef I_MIN_PIN
@@ -479,11 +511,19 @@
   #ifdef J_STOP_PIN
     #if J_HOME_TO_MIN
       #define J_MIN_PIN J_STOP_PIN
-      #define J_MAX_PIN -1
+      #ifndef J_MAX_PIN
+        #define J_MAX_PIN -1
+      #endif
     #else
-      #define J_MIN_PIN -1
       #define J_MAX_PIN J_STOP_PIN
+      #ifndef J_MIN_PIN
+        #define J_MIN_PIN -1
+      #endif
     #endif
+  #elif J_HOME_TO_MIN
+    #define J_STOP_PIN J_MIN_PIN
+  #else
+    #define J_STOP_PIN J_MAX_PIN
   #endif
 #else
   #undef J_MIN_PIN
@@ -494,20 +534,119 @@
   #ifdef K_STOP_PIN
     #if K_HOME_TO_MIN
       #define K_MIN_PIN K_STOP_PIN
-      #define K_MAX_PIN -1
+      #ifndef K_MAX_PIN
+        #define K_MAX_PIN -1
+      #endif
     #else
-      #define K_MIN_PIN -1
       #define K_MAX_PIN K_STOP_PIN
+      #ifndef K_MIN_PIN
+        #define K_MIN_PIN -1
+      #endif
     #endif
+  #elif K_HOME_TO_MIN
+    #define K_STOP_PIN K_MIN_PIN
+  #else
+    #define K_STOP_PIN K_MAX_PIN
   #endif
 #else
   #undef K_MIN_PIN
   #undef K_MAX_PIN
 #endif
 
+#if LINEAR_AXES >= 7
+  #ifdef M_STOP_PIN
+    #if M_HOME_TO_MIN
+      #define M_MIN_PIN M_STOP_PIN
+      #ifndef M_MAX_PIN
+        #define M_MAX_PIN -1
+      #endif
+    #else
+      #define M_MAX_PIN M_STOP_PIN
+      #ifndef M_MIN_PIN
+        #define M_MIN_PIN -1
+      #endif
+    #endif
+  #elif M_HOME_TO_MIN
+    #define M_STOP_PIN M_MIN_PIN
+  #else
+    #define M_STOP_PIN M_MAX_PIN
+  #endif
+#else
+  #undef M_MIN_PIN
+  #undef M_MAX_PIN
+#endif
+
+#if LINEAR_AXES >= 8
+  #ifdef O_STOP_PIN
+    #if O_HOME_TO_MIN
+      #define O_MIN_PIN O_STOP_PIN
+      #ifndef O_MAX_PIN
+        #define O_MAX_PIN -1
+      #endif
+    #else
+      #define O_MAX_PIN O_STOP_PIN
+      #ifndef O_MIN_PIN
+        #define O_MIN_PIN -1
+      #endif
+    #endif
+  #elif O_HOME_TO_MIN
+    #define O_STOP_PIN O_MIN_PIN
+  #else
+    #define O_STOP_PIN O_MAX_PIN
+  #endif
+#else
+  #undef O_MIN_PIN
+  #undef O_MAX_PIN
+#endif
+
+#if LINEAR_AXES >= 9
+  #ifdef P_STOP_PIN
+    #if P_HOME_TO_MIN
+      #define P_MIN_PIN P_STOP_PIN
+      #ifndef P_MAX_PIN
+        #define P_MAX_PIN -1
+      #endif
+    #else
+      #define P_MAX_PIN P_STOP_PIN
+      #ifndef P_MIN_PIN
+        #define P_MIN_PIN -1
+      #endif
+    #endif
+  #elif P_HOME_TO_MIN
+    #define P_STOP_PIN P_MIN_PIN
+  #else
+    #define P_STOP_PIN P_MAX_PIN
+  #endif
+#else
+  #undef P_MIN_PIN
+  #undef P_MAX_PIN
+#endif
+
+#if LINEAR_AXES >= 10
+  #ifdef Q_STOP_PIN
+    #if Q_HOME_TO_MIN
+      #define Q_MIN_PIN Q_STOP_PIN
+      #ifndef Q_MAX_PIN
+        #define Q_MAX_PIN -1
+      #endif
+    #else
+      #define Q_MAX_PIN Q_STOP_PIN
+      #ifndef Q_MIN_PIN
+        #define Q_MIN_PIN -1
+      #endif
+    #endif
+  #elif Q_HOME_TO_MIN
+    #define Q_STOP_PIN Q_MIN_PIN
+  #else
+    #define Q_STOP_PIN Q_MAX_PIN
+  #endif
+#else
+  #undef Q_MIN_PIN
+  #undef Q_MAX_PIN
+#endif
+
 // Filament Sensor first pin alias
-#if HAS_FILAMENT_SENSOR
-  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
+#if HAS_FILAMENT_SENSOK_  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
 #else
   #undef FIL_RUNOUT_PIN
   #undef FIL_RUNOUT1_PIN
@@ -1230,6 +1369,329 @@
 #endif
 #ifndef K_MS3_PIN
   #define K_MS3_PIN -1
+#endif
+
+// The M axis, if any, should be the next open extruder port
+#if LINEAR_AXES >= 7
+  #ifndef M_STEP_PIN
+    #define M_STEP_PIN   _EPIN(M_E_INDEX, STEP)
+    #define M_DIR_PIN    _EPIN(M_E_INDEX, DIR)
+    #define M_ENABLE_PIN _EPIN(M_E_INDEX, ENABLE)
+    #if M_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(M_STEP)
+      #error "No E stepper plug left for M!"
+    #else
+      #define AUTO_ASSIGNED_M_STEPPER 1
+    #endif
+  #endif
+  #if AXIS_HAS_SPI(K) && !defined(M_CS_PIN)
+    #define M_CS_PIN     _EPIN(M_E_INDEX, CS)
+    #if PIN_EXISTS(M_CS)
+      #define AUTO_ASSIGNED_M_CS 1
+    #endif
+  #endif
+  #ifndef M_MS1_PIN
+    #define M_MS1_PIN    _EPIN(M_E_INDEX, MS1)
+    #if PIN_EXISTS(M_MS1)
+      #define AUTO_ASSIGNED_M_MS1 1
+    #endif
+  #endif
+  #ifndef M_MS2_PIN
+    #define M_MS2_PIN    _EPIN(M_E_INDEX, MS2)
+    #if PIN_EXISTS(M_MS2)
+      #define AUTO_ASSIGNED_M_MS2 1
+    #endif
+  #endif
+  #ifndef M_MS3_PIN
+    #define M_MS3_PIN    _EPIN(M_E_INDEX, MS3)
+    #if PIN_EXISTS(M_MS3)
+      #define AUTO_ASSIGNED_M_MS3 1
+    #endif
+  #endif
+  #if AXIS_HAS_UART(K)
+    #ifndef M_SERIAL_TX_PIN
+      #define M_SERIAL_TX_PIN _EPIN(M_E_INDEX, SERIAL_TX)
+    #endif
+    #ifndef M_SERIAL_RX_PIN
+      #define M_SERIAL_RX_PIN _EPIN(M_E_INDEX, SERIAL_RX)
+    #endif
+  #endif
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(M_DIAG_PIN) && !defined(M_USE_ENDSTOP) && defined(M_STALL_SENSITIVITY) && _PEXI(M_E_INDEX, DIAG)
+    #define M_DIAG_PIN _EPIN(M_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(M, X_MIN)
+      #define M_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(M, Y_MIN)
+      #define M_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(M, Z_MIN)
+      #define M_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(M, X_MAX)
+      #define M_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(M, Y_MAX)
+      #define M_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(M, Z_MAX)
+      #define M_USE_ENDSTOP _ZMAX_
+    #else
+      #define M_USE_ENDSTOP _En_DIAG_(M_E_INDEX)
+    #endif
+    #define AUTO_ASSIGNED_M_DIAG 1
+    #undef M_DIAG_PIN // Defined in Conditionals_post.h based on M_USE_ENDSTOP
+  #endif
+#endif
+
+#ifndef M_CS_PIN
+  #define M_CS_PIN  -1
+#endif
+#ifndef M_MS1_PIN
+  #define M_MS1_PIN -1
+#endif
+#ifndef M_MS2_PIN
+  #define M_MS2_PIN -1
+#endif
+#ifndef M_MS3_PIN
+  #define M_MS3_PIN -1
+#endif
+
+
+// The O axis, if any, should be the next open extruder port
+#if LINEAR_AXES >= 8
+  #ifndef O_STEP_PIN
+    #define O_STEP_PIN   _EPIN(O_E_INDEX, STEP)
+    #define O_DIR_PIN    _EPIN(O_E_INDEX, DIR)
+    #define O_ENABLE_PIN _EPIN(O_E_INDEX, ENABLE)
+    #if O_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(O_STEP)
+      #error "No E stepper plug left for O!"
+    #else
+      #define AUTO_ASSIGNED_O_STEPPER 1
+    #endif
+  #endif
+  #if AXIS_HAS_SPI(K) && !defined(O_CS_PIN)
+    #define O_CS_PIN     _EPIN(O_E_INDEX, CS)
+    #if PIN_EXISTS(O_CS)
+      #define AUTO_ASSIGNED_O_CS 1
+    #endif
+  #endif
+  #ifndef O_MS1_PIN
+    #define O_MS1_PIN    _EPIN(O_E_INDEX, MS1)
+    #if PIN_EXISTS(O_MS1)
+      #define AUTO_ASSIGNED_O_MS1 1
+    #endif
+  #endif
+  #ifndef O_MS2_PIN
+    #define O_MS2_PIN    _EPIN(O_E_INDEX, MS2)
+    #if PIN_EXISTS(O_MS2)
+      #define AUTO_ASSIGNED_O_MS2 1
+    #endif
+  #endif
+  #ifndef O_MS3_PIN
+    #define O_MS3_PIN    _EPIN(O_E_INDEX, MS3)
+    #if PIN_EXISTS(O_MS3)
+      #define AUTO_ASSIGNED_O_MS3 1
+    #endif
+  #endif
+  #if AXIS_HAS_UART(K)
+    #ifndef O_SERIAL_TX_PIN
+      #define O_SERIAL_TX_PIN _EPIN(O_E_INDEX, SERIAL_TX)
+    #endif
+    #ifndef O_SERIAL_RX_PIN
+      #define O_SERIAL_RX_PIN _EPIN(O_E_INDEX, SERIAL_RX)
+    #endif
+  #endif
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(O_DIAG_PIN) && !defined(O_USE_ENDSTOP) && defined(O_STALL_SENSITIVITY) && _PEXI(O_E_INDEX, DIAG)
+    #define O_DIAG_PIN _EPIN(O_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(O, X_MIN)
+      #define O_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(O, Y_MIN)
+      #define O_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(O, Z_MIN)
+      #define O_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(O, X_MAX)
+      #define O_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(O, Y_MAX)
+      #define O_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(O, Z_MAX)
+      #define O_USE_ENDSTOP _ZMAX_
+    #else
+      #define O_USE_ENDSTOP _En_DIAG_(O_E_INDEX)
+    #endif
+    #define AUTO_ASSIGNED_O_DIAG 1
+    #undef O_DIAG_PIN // Defined in Conditionals_post.h based on O_USE_ENDSTOP
+  #endif
+#endif
+
+#ifndef O_CS_PIN
+  #define O_CS_PIN  -1
+#endif
+#ifndef O_MS1_PIN
+  #define O_MS1_PIN -1
+#endif
+#ifndef O_MS2_PIN
+  #define O_MS2_PIN -1
+#endif
+#ifndef O_MS3_PIN
+  #define O_MS3_PIN -1
+#endif
+
+
+// The P axis, if any, should be the next open extruder port
+#if LINEAR_AXES >= 9
+  #ifndef P_STEP_PIN
+    #define P_STEP_PIN   _EPIN(P_E_INDEX, STEP)
+    #define P_DIR_PIN    _EPIN(P_E_INDEX, DIR)
+    #define P_ENABLE_PIN _EPIN(P_E_INDEX, ENABLE)
+    #if P_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(P_STEP)
+      #error "No E stepper plug left for P!"
+    #else
+      #define AUTO_ASSIGNED_P_STEPPER 1
+    #endif
+  #endif
+  #if AXIS_HAS_SPI(K) && !defined(P_CS_PIN)
+    #define P_CS_PIN     _EPIN(P_E_INDEX, CS)
+    #if PIN_EXISTS(P_CS)
+      #define AUTO_ASSIGNED_P_CS 1
+    #endif
+  #endif
+  #ifndef P_MS1_PIN
+    #define P_MS1_PIN    _EPIN(P_E_INDEX, MS1)
+    #if PIN_EXISTS(P_MS1)
+      #define AUTO_ASSIGNED_P_MS1 1
+    #endif
+  #endif
+  #ifndef P_MS2_PIN
+    #define P_MS2_PIN    _EPIN(P_E_INDEX, MS2)
+    #if PIN_EXISTS(P_MS2)
+      #define AUTO_ASSIGNED_P_MS2 1
+    #endif
+  #endif
+  #ifndef P_MS3_PIN
+    #define P_MS3_PIN    _EPIN(P_E_INDEX, MS3)
+    #if PIN_EXISTS(P_MS3)
+      #define AUTO_ASSIGNED_P_MS3 1
+    #endif
+  #endif
+  #if AXIS_HAS_UART(K)
+    #ifndef P_SERIAL_TX_PIN
+      #define P_SERIAL_TX_PIN _EPIN(P_E_INDEX, SERIAL_TX)
+    #endif
+    #ifndef P_SERIAL_RX_PIN
+      #define P_SERIAL_RX_PIN _EPIN(P_E_INDEX, SERIAL_RX)
+    #endif
+  #endif
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(P_DIAG_PIN) && !defined(P_USE_ENDSTOP) && defined(P_STALL_SENSITIVITY) && _PEXI(P_E_INDEX, DIAG)
+    #define P_DIAG_PIN _EPIN(P_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(P, X_MIN)
+      #define P_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(P, Y_MIN)
+      #define P_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(P, Z_MIN)
+      #define P_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(P, X_MAX)
+      #define P_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(P, Y_MAX)
+      #define P_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(P, Z_MAX)
+      #define P_USE_ENDSTOP _ZMAX_
+    #else
+      #define P_USE_ENDSTOP _En_DIAG_(P_E_INDEX)
+    #endif
+    #define AUTO_ASSIGNED_P_DIAG 1
+    #undef P_DIAG_PIN // Defined in Conditionals_post.h based on P_USE_ENDSTOP
+  #endif
+#endif
+
+#ifndef P_CS_PIN
+  #define P_CS_PIN  -1
+#endif
+#ifndef P_MS1_PIN
+  #define P_MS1_PIN -1
+#endif
+#ifndef P_MS2_PIN
+  #define P_MS2_PIN -1
+#endif
+#ifndef P_MS3_PIN
+  #define P_MS3_PIN -1
+#endif
+
+
+// The Q axis, if any, should be the next open extruder port
+#if LINEAR_AXES >= 10
+  #ifndef Q_STEP_PIN
+    #define Q_STEP_PIN   _EPIN(Q_E_INDEX, STEP)
+    #define Q_DIR_PIN    _EPIN(Q_E_INDEX, DIR)
+    #define Q_ENABLE_PIN _EPIN(Q_E_INDEX, ENABLE)
+    #if Q_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(Q_STEP)
+      #error "No E stepper plug left for Q!"
+    #else
+      #define AUTO_ASSIGNED_Q_STEPPER 1
+    #endif
+  #endif
+  #if AXIS_HAS_SPI(K) && !defined(Q_CS_PIN)
+    #define Q_CS_PIN     _EPIN(Q_E_INDEX, CS)
+    #if PIN_EXISTS(Q_CS)
+      #define AUTO_ASSIGNED_Q_CS 1
+    #endif
+  #endif
+  #ifndef Q_MS1_PIN
+    #define Q_MS1_PIN    _EPIN(Q_E_INDEX, MS1)
+    #if PIN_EXISTS(Q_MS1)
+      #define AUTO_ASSIGNED_Q_MS1 1
+    #endif
+  #endif
+  #ifndef Q_MS2_PIN
+    #define Q_MS2_PIN    _EPIN(Q_E_INDEX, MS2)
+    #if PIN_EXISTS(Q_MS2)
+      #define AUTO_ASSIGNED_Q_MS2 1
+    #endif
+  #endif
+  #ifndef Q_MS3_PIN
+    #define Q_MS3_PIN    _EPIN(Q_E_INDEX, MS3)
+    #if PIN_EXISTS(Q_MS3)
+      #define AUTO_ASSIGNED_Q_MS3 1
+    #endif
+  #endif
+  #if AXIS_HAS_UART(K)
+    #ifndef Q_SERIAL_TX_PIN
+      #define Q_SERIAL_TX_PIN _EPIN(Q_E_INDEX, SERIAL_TX)
+    #endif
+    #ifndef Q_SERIAL_RX_PIN
+      #define Q_SERIAL_RX_PIN _EPIN(Q_E_INDEX, SERIAL_RX)
+    #endif
+  #endif
+  // Auto-assign pins for stallGuard sensorless homing
+  #if !defined(Q_DIAG_PIN) && !defined(Q_USE_ENDSTOP) && defined(Q_STALL_SENSITIVITY) && _PEXI(Q_E_INDEX, DIAG)
+    #define Q_DIAG_PIN _EPIN(Q_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Q, X_MIN)
+      #define Q_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Q, Y_MIN)
+      #define Q_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Q, Z_MIN)
+      #define Q_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Q, X_MAX)
+      #define Q_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Q, Y_MAX)
+      #define Q_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Q, Z_MAX)
+      #define Q_USE_ENDSTOP _ZMAX_
+    #else
+      #define Q_USE_ENDSTOP _En_DIAG_(Q_E_INDEX)
+    #endif
+    #define AUTO_ASSIGNED_Q_DIAG 1
+    #undef Q_DIAG_PIN // Defined in Conditionals_post.h based on Q_USE_ENDSTOP
+  #endif
+#endif
+
+#ifndef Q_CS_PIN
+  #define Q_CS_PIN  -1
+#endif
+#ifndef Q_MS1_PIN
+  #define Q_MS1_PIN -1
+#endif
+#ifndef Q_MS2_PIN
+  #define Q_MS2_PIN -1
+#endif
+#ifndef Q_MS3_PIN
+  #define Q_MS3_PIN -1
 #endif
 
 //

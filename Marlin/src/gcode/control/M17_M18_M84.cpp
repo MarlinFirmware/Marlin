@@ -36,12 +36,17 @@ void GcodeSuite::M17() {
   if (parser.seen_axis()) {
     LOGICAL_AXIS_CODE(
       if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen_test('E'))) enable_e_steppers(),
-      if (parser.seen_test('X'))        ENABLE_AXIS_X(),
-      if (parser.seen_test('Y'))        ENABLE_AXIS_Y(),
-      if (parser.seen_test('Z'))        ENABLE_AXIS_Z(),
-      if (parser.seen_test(AXIS4_NAME)) ENABLE_AXIS_I(),
-      if (parser.seen_test(AXIS5_NAME)) ENABLE_AXIS_J(),
-      if (parser.seen_test(AXIS6_NAME)) ENABLE_AXIS_K()
+      if (parser.seen_test('X'))         ENABLE_AXIS_X(),
+      if (parser.seen_test('Y'))         ENABLE_AXIS_Y(),
+      if (parser.seen_test('Z'))         ENABLE_AXIS_Z(),
+      if (parser.seen_test(AXIS4_NAME))  ENABLE_AXIS_I(),
+      if (parser.seen_test(AXIS5_NAME))  ENABLE_AXIS_J(),
+      if (parser.seen_test(AXIS6_NAME))  ENABLE_AXIS_K(),
+      if (parser.seen_test(AXIS7_NAME))  ENABLE_AXIS_M(),
+      if (parser.seen_test(AXIS8_NAME))  ENABLE_AXIS_O(),
+      if (parser.seen_test(AXIS9_NAME))  ENABLE_AXIS_P(),
+      if (parser.seen_test(AXIS10_NAME)) ENABLE_AXIS_Q()
+
     );
   }
   else {
@@ -68,7 +73,11 @@ void GcodeSuite::M18_M84() {
         if (parser.seen_test('Z'))        DISABLE_AXIS_Z(),
         if (parser.seen_test(AXIS4_NAME)) DISABLE_AXIS_I(),
         if (parser.seen_test(AXIS5_NAME)) DISABLE_AXIS_J(),
-        if (parser.seen_test(AXIS6_NAME)) DISABLE_AXIS_K()
+        if (parser.seen_test(AXIS6_NAME)) DISABLE_AXIS_K(),
+        if (parser.seen_test(AXIS7_NAME))  DISABLE_AXIS_M(),
+        if (parser.seen_test(AXIS8_NAME))  DISABLE_AXIS_O(),
+        if (parser.seen_test(AXIS9_NAME))  DISABLE_AXIS_P(),
+        if (parser.seen_test(AXIS10_NAME)) DISABLE_AXIS_Q()
       );
     }
     else

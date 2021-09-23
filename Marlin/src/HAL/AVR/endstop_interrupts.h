@@ -301,5 +301,54 @@ void setup_endstop_interrupts() {
       pciSetup(Z_MIN_PROBE_PIN);
     #endif
   #endif
+
+  /**SG**/
+  #if HAS_O_MAX
+    #if (digitalPinToInterrupt(O_MAX_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(O_MAX_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(O_MAX_PIN), "O_MAX_PIN is not interrupt-capable");
+      pciSetup(O_MAX_PIN);
+    #endif
+  #elif HAS_O_MIN
+    #if (digitalPinToInterrupt(O_MIN_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(O_MIN_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(O_MIN_PIN), "O_MIN_PIN is not interrupt-capable");
+      pciSetup(O_MIN_PIN);
+    #endif
+  #endif  
+    /**SG**/
+  #if HAS_P_MAX
+    #if (digitalPinToInterrupt(P_MAX_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(P_MAX_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(P_MAX_PIN), "P_MAX_PIN is not interrupt-capable");
+      pciSetup(P_MAX_PIN);
+    #endif
+  #elif HAS_P_MIN
+    #if (digitalPinToInterrupt(P_MIN_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(P_MIN_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(P_MIN_PIN), "P_MIN_PIN is not interrupt-capable");
+      pciSetup(P_MIN_PIN);
+    #endif
+  #endif
+    /**SG**/
+  #if HAS_Q_MAX
+    #if (digitalPinToInterrupt(Q_MAX_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(Q_MAX_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(Q_MAX_PIN), "Q_MAX_PIN is not interrupt-capable");
+      pciSetup(Q_MAX_PIN);
+    #endif
+  #elif HAS_Q_MIN
+    #if (digitalPinToInterrupt(Q_MIN_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(Q_MIN_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(Q_MIN_PIN), "Q_MIN_PIN is not interrupt-capable");
+      pciSetup(Q_MIN_PIN);
+    #endif
+  #endif
   // If we arrive here without raising an assertion, each pin has either an EXT-interrupt or a PCI.
 }

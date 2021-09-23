@@ -316,7 +316,7 @@
 #endif
 
 enum AxisRelative : uint8_t {
-  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K)
+  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K, REL_M, REL_O, REL_P, REL_Q)
   #if HAS_EXTRUDERS
     , E_MODE_ABS, E_MODE_REL
   #endif

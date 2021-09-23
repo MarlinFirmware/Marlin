@@ -52,13 +52,32 @@ void GcodeSuite::M122() {
         tmc_set_report_interval(MONITOR_DRIVER_STATUS_INTERVAL_MS);
     #endif
 
+<<<<<<< Upstream, based on origin/bugfix-2.0.x
     if (parser.seen_test('V'))
       tmc_get_registers(LOGICAL_AXIS_ELEM(print_axis));
     else
       tmc_report_all(LOGICAL_AXIS_ELEM(print_axis));
+=======
+    if (parser.seen_test('V')) {
+      tmc_get_registers(
+        LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z, print_axis.i, print_axis.j, print_axis.k, print_axis.m, print_axis.o, print_axis.p, print_axis.q)
+      );
+    }
+    else {
+      tmc_report_all(
+        LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z, print_axis.i, print_axis.j, print_axis.k, print_axis.m, print_axis.o, print_axis.p, print_axis.q)
+      );
+    }
+>>>>>>> 17f4b41 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
   #endif
 
+<<<<<<< Upstream, based on origin/bugfix-2.0.x
   test_tmc_connection(LOGICAL_AXIS_ELEM(print_axis));
+=======
+  test_tmc_connection(
+    LOGICAL_AXIS_LIST(print_axis.e, print_axis.x, print_axis.y, print_axis.z, print_axis.i, print_axis.j, print_axis.k, print_axis.m, print_axis.o, print_axis.p, print_axis.q)
+  );
+>>>>>>> 17f4b41 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 }
 
 #endif // HAS_TRINAMIC_CONFIG

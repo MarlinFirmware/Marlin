@@ -1207,6 +1207,18 @@
 #if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
   #define INVERT_K_DIR false
 #endif
+#if LINEAR_AXES >= 7 && !defined(INVERT_M_DIR)    /**SG**/
+  #define INVERT_M_DIR false
+#endif
+#if LINEAR_AXES >= 8 && !defined(INVERT_O_DIR)    /**SG**/
+  #define INVERT_O_DIR false
+#endif
+#if LINEAR_AXES >= 9 && !defined(INVERT_P_DIR)    /**SG**/
+  #define INVERT_P_DIR false
+#endif
+#if LINEAR_AXES >= 10 && !defined(INVERT_Q_DIR)    /**SG**/
+  #define INVERT_Q_DIR false
+#endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
   #define INVERT_E_DIR false
 #endif

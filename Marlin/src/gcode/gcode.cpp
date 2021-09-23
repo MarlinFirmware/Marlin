@@ -81,7 +81,12 @@ uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   | (ar_init.z << REL_Z),
   | (ar_init.i << REL_I),
   | (ar_init.j << REL_J),
-  | (ar_init.k << REL_K)
+  | (ar_init.k << REL_K),
+  | (ar_init.m << REL_M),
+  | (ar_init.o << REL_O),
+  | (ar_init.p << REL_P),
+  | (ar_init.q << REL_Q),
+  
 );
 
 #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)

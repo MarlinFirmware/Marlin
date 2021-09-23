@@ -48,7 +48,7 @@ void GcodeSuite::M906() {
 
   bool report = true;
 
-  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4) || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4) || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K) || AXIS_IS_TMC(M) || AXIS_IS_TMC(O) || AXIS_IS_TMC(P) || AXIS_IS_TMC(Q)
     const uint8_t index = parser.byteval('I');
   #endif
 
@@ -100,6 +100,18 @@ void GcodeSuite::M906() {
       #endif
       #if AXIS_IS_TMC(K)
         case K_AXIS: TMC_SET_CURRENT(K); break;
+      #endif
+      #if AXIS_IS_TMC(M)
+        case M_AXIS: TMC_SET_CURRENT(M); break;
+      #endif
+      #if AXIS_IS_TMC(O)
+        case O_AXIS: TMC_SET_CURRENT(O); break;
+      #endif
+      #if AXIS_IS_TMC(P)
+        case P_AXIS: TMC_SET_CURRENT(P); break;
+      #endif
+      #if AXIS_IS_TMC(Q)
+        case Q_AXIS: TMC_SET_CURRENT(Q); break;
       #endif
 
       #if E_STEPPERS
@@ -171,6 +183,19 @@ void GcodeSuite::M906() {
     #if AXIS_IS_TMC(K)
       TMC_SAY_CURRENT(K);
     #endif
+    #if AXIS_IS_TMC(M)    /**SG**/
+      TMC_SAY_CURRENT(M);
+    #endif
+    #if AXIS_IS_TMC(O)    /**SG**/
+      TMC_SAY_CURRENT(O);
+    #endif
+    #if AXIS_IS_TMC(P)    /**SG**/
+      TMC_SAY_CURRENT(P);
+    #endif
+    #if AXIS_IS_TMC(Q)    /**SG**/
+      TMC_SAY_CURRENT(Q);
+    #endif
+
     #if AXIS_IS_TMC(E0)
       TMC_SAY_CURRENT(E0);
     #endif
@@ -206,7 +231,7 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
     SERIAL_ECHOPGM("  M906");
   };
 
-  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z) // TODO (DerAndere): Test for LINEAR_AXES >= 4
     say_M906(forReplay);
     #if AXIS_IS_TMC(X)
       SERIAL_ECHOPGM_P(SP_X_STR, stepperX.getMilliamps());
@@ -256,6 +281,22 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
   #if AXIS_IS_TMC(K)
     say_M906(forReplay);
     SERIAL_ECHOLNPGM_P(SP_K_STR, stepperK.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(M)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_M_STR, stepperM.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(O)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_O_STR, stepperO.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(P)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_P_STR, stepperP.getMilliamps());
+  #endif
+  #if AXIS_IS_TMC(Q)
+    say_M906(forReplay);
+    SERIAL_ECHOLNPGM_P(SP_Q_STR, stepperQ.getMilliamps());
   #endif
 
   #if AXIS_IS_TMC(E0)

@@ -293,6 +293,170 @@
 
 #endif
 
+/**SG**/
+#if LINEAR_AXES >= 7
+  #if PIN_EXISTS(M_MIN)
+    #define _M_MIN M_MIN_PIN,
+  #else
+    #define _M_MIN
+  #endif
+  #if PIN_EXISTS(M_MAX)
+    #define _M_MAX M_MAX_PIN,
+  #else
+    #define _M_MAX
+  #endif
+  #if PIN_EXISTS(M_CS) && AXIS_HAS_SPI(M)
+    #define _M_CS M_CS_PIN,
+  #else
+    #define _M_CS
+  #endif
+  #if PIN_EXISTS(M_MS1)
+    #define _M_MS1 M_MS1_PIN,
+  #else
+    #define _M_MS1
+  #endif
+  #if PIN_EXISTS(M_MS2)
+    #define _M_MS2 M_MS2_PIN,
+  #else
+    #define _M_MS2
+  #endif
+  #if PIN_EXISTS(M_MS3)
+    #define _M_MS3 M_MS3_PIN,
+  #else
+    #define _M_MS3
+  #endif
+
+  #define _M_PINS M_STEP_PIN, M_DIR_PIN, M_ENABLE_PIN, _M_MIN _M_MAX _M_MS1 _M_MS2 _M_MS3 _M_CS
+
+#else
+
+  #define _M_PINS
+
+#endif
+
+/**SG**/
+#if LINEAR_AXES >= 8
+  #if PIN_EXISTS(O_MIN)
+    #define _O_MIN O_MIN_PIN,
+  #else
+    #define _O_MIN
+  #endif
+  #if PIN_EXISTS(O_MAX)
+    #define _O_MAX O_MAX_PIN,
+  #else
+    #define _O_MAX
+  #endif
+  #if PIN_EXISTS(O_CS) && AXIS_HAS_SPI(O)
+    #define _O_CS O_CS_PIN,
+  #else
+    #define _O_CS
+  #endif
+  #if PIN_EXISTS(O_MS1)
+    #define _O_MS1 O_MS1_PIN,
+  #else
+    #define _O_MS1
+  #endif
+  #if PIN_EXISTS(O_MS2)
+    #define _O_MS2 O_MS2_PIN,
+  #else
+    #define _O_MS2
+  #endif
+  #if PIN_EXISTS(O_MS3)
+    #define _O_MS3 O_MS3_PIN,
+  #else
+    #define _O_MS3
+  #endif
+
+  #define _O_PINS O_STEP_PIN, O_DIR_PIN, O_ENABLE_PIN, _O_MIN _O_MAX _O_MS1 _O_MS2 _O_MS3 _O_CS
+
+#else
+
+  #define _O_PINS
+
+#endif
+
+/**SG**/
+#if LINEAR_AXES >= 9
+  #if PIN_EXISTS(P_MIN)
+    #define _P_MIN P_MIN_PIN,
+  #else
+    #define _P_MIN
+  #endif
+  #if PIN_EXISTS(P_MAX)
+    #define _P_MAX P_MAX_PIN,
+  #else
+    #define _P_MAX
+  #endif
+  #if PIN_EXISTS(P_CS) && AXIS_HAS_SPI(P)
+    #define _P_CS P_CS_PIN,
+  #else
+    #define _P_CS
+  #endif
+  #if PIN_EXISTS(P_MS1)
+    #define _P_MS1 P_MS1_PIN,
+  #else
+    #define _P_MS1
+  #endif
+  #if PIN_EXISTS(P_MS2)
+    #define _P_MS2 P_MS2_PIN,
+  #else
+    #define _P_MS2
+  #endif
+  #if PIN_EXISTS(P_MS3)
+    #define _P_MS3 P_MS3_PIN,
+  #else
+    #define _P_MS3
+  #endif
+
+  #define _P_PINS P_STEP_PIN, P_DIR_PIN, P_ENABLE_PIN, _P_MIN _P_MAX _P_MS1 _P_MS2 _P_MS3 _P_CS
+
+#else
+
+  #define _P_PINS
+
+#endif
+
+/**SG**/
+#if LINEAR_AXES >= 10
+  #if PIN_EXISTS(Q_MIN)
+    #define _Q_MIN Q_MIN_PIN,
+  #else
+    #define _Q_MIN
+  #endif
+  #if PIN_EXISTS(Q_MAX)
+    #define _Q_MAX Q_MAX_PIN,
+  #else
+    #define _Q_MAX
+  #endif
+  #if PIN_EXISTS(Q_CS) && AXIS_HAS_SPI(Q)
+    #define _Q_CS Q_CS_PIN,
+  #else
+    #define _Q_CS
+  #endif
+  #if PIN_EXISTS(Q_MS1)
+    #define _Q_MS1 Q_MS1_PIN,
+  #else
+    #define _Q_MS1
+  #endif
+  #if PIN_EXISTS(Q_MS2)
+    #define _Q_MS2 Q_MS2_PIN,
+  #else
+    #define _Q_MS2
+  #endif
+  #if PIN_EXISTS(Q_MS3)
+    #define _Q_MS3 Q_MS3_PIN,
+  #else
+    #define _Q_MS3
+  #endif
+
+  #define _Q_PINS Q_STEP_PIN, Q_DIR_PIN, Q_ENABLE_PIN, _Q_MIN _Q_MAX _Q_MS1 _Q_MS2 _Q_MS3 _Q_CS
+
+#else
+
+  #define _Q_PINS
+
+#endif
+
 //
 // Extruder Chip Select, Digital Micro-steps
 //
@@ -886,7 +1050,7 @@
 #endif
 
 #define SENSITIVE_PINS \
-  _X_PINS _Y_PINS _Z_PINS _I_PINS _J_PINS _K_PINS \
+  _X_PINS _Y_PINS _Z_PINS _I_PINS _J_PINS _K_PINS  _M_PINS _O_PINS _P_PINS _Q_PINS \
   _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS _Z4_PINS _Z_PROBE \
   _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS _E6_PINS _E7_PINS \
   _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS _H6_PINS _H7_PINS \

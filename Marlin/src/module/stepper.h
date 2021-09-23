@@ -159,6 +159,18 @@
 #if HAS_K_STEP
   #define ISR_K_STEPPER_CYCLES  ISR_STEPPER_CYCLES
 #endif
+#if HAS_M_STEP
+  #define ISR_M_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_O_STEP
+  #define ISR_O_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_P_STEP
+  #define ISR_P_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
+#if HAS_Q_STEP
+  #define ISR_Q_STEPPER_CYCLES  ISR_STEPPER_CYCLES
+#endif
 #if HAS_EXTRUDERS
   #define ISR_E_STEPPER_CYCLES  ISR_STEPPER_CYCLES    // E is always interpolated, even for mixing extruders
 #endif

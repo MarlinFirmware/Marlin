@@ -325,6 +325,10 @@ void enable_all_steppers() {
   ENABLE_AXIS_I(); // Marlin 6-axis support by DerAndere (https://github.com/DerAndere1/Marlin/wiki)
   ENABLE_AXIS_J();
   ENABLE_AXIS_K();
+  ENABLE_AXIS_M();   /**SG**/
+  ENABLE_AXIS_O();   /**SG**/
+  ENABLE_AXIS_P();   /**SG**/
+  ENABLE_AXIS_Q();   /**SG**/
   enable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
@@ -349,6 +353,10 @@ void disable_all_steppers() {
   DISABLE_AXIS_I();
   DISABLE_AXIS_J();
   DISABLE_AXIS_K();
+  DISABLE_AXIS_M();    /**SG**/
+  DISABLE_AXIS_O();    /**SG**/
+  DISABLE_AXIS_P();    /**SG**/
+  DISABLE_AXIS_Q();    /**SG**/
   disable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
@@ -470,6 +478,10 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         if (ENABLED(DISABLE_INACTIVE_I)) DISABLE_AXIS_I();
         if (ENABLED(DISABLE_INACTIVE_J)) DISABLE_AXIS_J();
         if (ENABLED(DISABLE_INACTIVE_K)) DISABLE_AXIS_K();
+        if (ENABLED(DISABLE_INACTIVE_M)) DISABLE_AXIS_M();
+        if (ENABLED(DISABLE_INACTIVE_O)) DISABLE_AXIS_O();
+        if (ENABLED(DISABLE_INACTIVE_P)) DISABLE_AXIS_P();
+        if (ENABLED(DISABLE_INACTIVE_Q)) DISABLE_AXIS_Q();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
@@ -1020,6 +1032,18 @@ inline void tmc_standby_setup() {
   #endif
   #if PIN_EXISTS(K_STDBY)
     SET_INPUT_PULLDOWN(K_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(M_STDBY)
+    SET_INPUT_PULLDOWN(M_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(O_STDBY)
+    SET_INPUT_PULLDOWN(O_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(P_STDBY)
+    SET_INPUT_PULLDOWN(P_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(Q_STDBY)
+    SET_INPUT_PULLDOWN(Q_STDBY_PIN);
   #endif
   #if PIN_EXISTS(E0_STDBY)
     SET_INPUT_PULLDOWN(E0_STDBY_PIN);

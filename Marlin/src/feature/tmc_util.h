@@ -335,14 +335,29 @@ void tmc_print_current(TMC &st) {
 #endif
 
 void monitor_tmc_drivers();
+<<<<<<< Upstream, based on origin/bugfix-2.0.x
 void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
+=======
+void test_tmc_connection(
+  LOGICAL_AXIS_LIST(const bool test_e=true, const bool test_x=true, const bool test_y=true, const bool test_z=true, const bool test_i=true, const bool test_j=true, const bool test_k=true, const bool test_m=true, const bool test_o=true, const bool test_p=true, const bool test_q=true)
+);
+>>>>>>> 17f4b41 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_interval(const uint16_t update_interval);
   #endif
+<<<<<<< Upstream, based on origin/bugfix-2.0.x
   void tmc_report_all(LOGICAL_AXIS_DECL(const bool, true));
   void tmc_get_registers(LOGICAL_AXIS_ARGS(const bool));
+=======
+  void tmc_report_all(
+    LOGICAL_AXIS_LIST(const bool print_e=true, const bool print_x=true, const bool print_y=true, const bool print_z=true, const bool print_i=true, const bool print_j=true, const bool print_k=true, const bool test_m=true, const bool test_o=true, const bool test_p=true, const bool test_q=true)
+  );
+  void tmc_get_registers(
+    LOGICAL_AXIS_LIST(const bool print_e, const bool print_x, const bool print_y, const bool print_z, const bool print_i, const bool print_j, const bool print_k, const bool print_m, const bool print_o, const bool print_p, const bool print_q)
+  );
+>>>>>>> 17f4b41 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 #endif
 
 /**
@@ -355,7 +370,11 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
 #if USE_SENSORLESS
 
   // Track enabled status of stealthChop and only re-enable where applicable
+<<<<<<< Upstream, based on origin/bugfix-2.0.x
   struct sensorless_t { bool LINEAR_AXIS_ARGS(), x2, y2, z2, z3, z4; };
+=======
+  struct sensorless_t { bool LINEAR_AXIS_LIST(x, y, z, i, j, k, m, o, p, q), x2, y2, z2, z3, z4; };
+>>>>>>> 17f4b41 Up to 9 Axis Working. (X, Y, Z, A, B, C, D, U, E0)
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     extern millis_t sg_guard_period;

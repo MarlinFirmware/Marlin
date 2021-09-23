@@ -85,10 +85,22 @@
 #if LINEAR_AXES >= 6 && BOTH(CALIBRATION_MEASURE_KMIN, CALIBRATION_MEASURE_KMAX)
   #define HAS_K_CENTER 1
 #endif
+#if LINEAR_AXES >= 7 && BOTH(CALIBRATION_MEASURE_MMIN, CALIBRATION_MEASURE_MMAX)    /**SG**/
+  #define HAS_M_CENTER 1
+#endif
+#if LINEAR_AXES >= 8 && BOTH(CALIBRATION_MEASURE_OMIN, CALIBRATION_MEASURE_OMAX)    /**SG**/
+  #define HAS_O_CENTER 1
+#endif
+#if LINEAR_AXES >= 9 && BOTH(CALIBRATION_MEASURE_PMIN, CALIBRATION_MEASURE_PMAX)    /**SG**/
+  #define HAS_P_CENTER 1
+#endif
+#if LINEAR_AXES >= 10 && BOTH(CALIBRATION_MEASURE_QMIN, CALIBRATION_MEASURE_QMAX)    /**SG**/
+  #define HAS_Q_CENTER 1
+#endif
 
 enum side_t : uint8_t {
   TOP, RIGHT, FRONT, LEFT, BACK, NUM_SIDES,
-  LIST_N(DOUBLE(SUB3(LINEAR_AXES)), IMINIMUM, IMAXIMUM, JMINIMUM, JMAXIMUM, KMINIMUM, KMAXIMUM)
+  LIST_N(DOUBLE(SUB3(LINEAR_AXES)), IMINIMUM, IMAXIMUM, JMINIMUM, JMAXIMUM, KMINIMUM, KMAXIMUM, MMINIMUM, MMAXIMUM, OMINIMUM, OMAXIMUM, PMINIMUM, PMAXIMUM, QMINIMUM, QMAXIMUM)
 };
 
 static constexpr xyz_pos_t true_center CALIBRATION_OBJECT_CENTER;
@@ -270,6 +282,22 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
       case KMINIMUM: dir = -1;
       case KMAXIMUM: axis = K_AXIS; break;
     #endif
+    #if LINEAR_AXES >= 7    /**SG**/
+      case MMINIMUM: dir = -1;
+      case MMAXIMUM: axis = M_AXIS; break;
+    #endif
+    #if LINEAR_AXES >= 8    /**SG**/
+      case OMINIMUM: dir = -1;
+      case OMAXIMUM: axis = O_AXIS; break;
+    #endif
+    #if LINEAR_AXES >= 9    /**SG**/
+      case PMINIMUM: dir = -1;
+      case PMAXIMUM: axis = P_AXIS; break;
+    #endif
+    #if LINEAR_AXES >= 10    /**SG**/
+      case QMINIMUM: dir = -1;
+      case QMAXIMUM: axis = Q_AXIS; break;
+    #endif
     default: return;
   }
 
@@ -323,6 +351,14 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   TERN_(CALIBRATION_MEASURE_JMAX,  probe_side(m, uncertainty, JMAXIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_KMIN,  probe_side(m, uncertainty, KMINIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_KMAX,  probe_side(m, uncertainty, KMAXIMUM, probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_MMIN,  probe_side(m, uncertainty, MMINIMUM, probe_top_at_edge));   /**SG**/
+  TERN_(CALIBRATION_MEASURE_MMAX,  probe_side(m, uncertainty, MMAXIMUM, probe_top_at_edge));   /**SG**/
+  TERN_(CALIBRATION_MEASURE_OMIN,  probe_side(m, uncertainty, OMINIMUM, probe_top_at_edge));   /**SG**/
+  TERN_(CALIBRATION_MEASURE_OMAX,  probe_side(m, uncertainty, OMAXIMUM, probe_top_at_edge));   /**SG**/
+  TERN_(CALIBRATION_MEASURE_PMIN,  probe_side(m, uncertainty, PMINIMUM, probe_top_at_edge));   /**SG**/
+  TERN_(CALIBRATION_MEASURE_PMAX,  probe_side(m, uncertainty, PMAXIMUM, probe_top_at_edge));   /**SG**/
+  TERN_(CALIBRATION_MEASURE_QMIN,  probe_side(m, uncertainty, QMINIMUM, probe_top_at_edge));   /**SG**/
+  TERN_(CALIBRATION_MEASURE_QMAX,  probe_side(m, uncertainty, QMAXIMUM, probe_top_at_edge));   /**SG**/
 
   // Compute the measured center of the calibration object.
   TERN_(HAS_X_CENTER, m.obj_center.x = (m.obj_side[LEFT]     + m.obj_side[RIGHT])    / 2);
@@ -330,6 +366,10 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   TERN_(HAS_I_CENTER, m.obj_center.i = (m.obj_side[IMINIMUM] + m.obj_side[IMAXIMUM]) / 2);
   TERN_(HAS_J_CENTER, m.obj_center.j = (m.obj_side[JMINIMUM] + m.obj_side[JMAXIMUM]) / 2);
   TERN_(HAS_K_CENTER, m.obj_center.k = (m.obj_side[KMINIMUM] + m.obj_side[KMAXIMUM]) / 2);
+  TERN_(HAS_M_CENTER, m.obj_center.m = (m.obj_side[MMINIMUM] + m.obj_side[MMAXIMUM]) / 2);    /**SG**/
+  TERN_(HAS_O_CENTER, m.obj_center.o = (m.obj_side[OMINIMUM] + m.obj_side[OMAXIMUM]) / 2);    /**SG**/
+  TERN_(HAS_P_CENTER, m.obj_center.p = (m.obj_side[PMINIMUM] + m.obj_side[PMAXIMUM]) / 2);    /**SG**/
+  TERN_(HAS_Q_CENTER, m.obj_center.q = (m.obj_side[QMINIMUM] + m.obj_side[QMAXIMUM]) / 2);    /**SG**/
 
   // Compute the outside diameter of the nozzle at the height
   // at which it makes contact with the calibration object
@@ -346,7 +386,11 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     m.pos_error.z = true_center.z - m.obj_center.z,
     m.pos_error.i = TERN0(HAS_I_CENTER, true_center.i - m.obj_center.i),
     m.pos_error.j = TERN0(HAS_J_CENTER, true_center.j - m.obj_center.j),
-    m.pos_error.k = TERN0(HAS_K_CENTER, true_center.k - m.obj_center.k)
+    m.pos_error.k = TERN0(HAS_K_CENTER, true_center.k - m.obj_center.k),
+    m.pos_error.m = TERN0(HAS_M_CENTER, true_center.m - m.obj_center.m),
+    m.pos_error.o = TERN0(HAS_O_CENTER, true_center.o - m.obj_center.o),
+    m.pos_error.p = TERN0(HAS_P_CENTER, true_center.p - m.obj_center.p),
+    m.pos_error.q = TERN0(HAS_Q_CENTER, true_center.q - m.obj_center.q)
   );
 }
 
@@ -394,6 +438,38 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_K_MAX ": ", m.obj_side[KMAXIMUM]);
       #endif
     #endif
+    #if LINEAR_AXES >= 7    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_MMIN)
+        SERIAL_ECHOLNPAIR("  " STR_M_MIN ": ", m.obj_side[MMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_MMAX)
+        SERIAL_ECHOLNPAIR("  " STR_M_MAX ": ", m.obj_side[MMAXIMUM]);
+      #endif
+    #endif
+    #if LINEAR_AXES >= 8    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_OMIN)
+        SERIAL_ECHOLNPAIR("  " STR_O_MIN ": ", m.obj_side[OMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_OMAX)
+        SERIAL_ECHOLNPAIR("  " STR_O_MAX ": ", m.obj_side[OMAXIMUM]);
+      #endif
+    #endif
+    #if LINEAR_AXES >= 9    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_PMIN)
+        SERIAL_ECHOLNPAIR("  " STR_P_MIN ": ", m.obj_side[PMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_PMAX)
+        SERIAL_ECHOLNPAIR("  " STR_P_MAX ": ", m.obj_side[PMAXIMUM]);
+      #endif
+    #endif
+    #if LINEAR_AXES >= 10    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_QMIN)
+        SERIAL_ECHOLNPAIR("  " STR_Q_MIN ": ", m.obj_side[QMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_QMAX)
+        SERIAL_ECHOLNPAIR("  " STR_Q_MAX ": ", m.obj_side[QMAXIMUM]);
+      #endif
+    #endif
     SERIAL_EOL();
   }
 
@@ -414,6 +490,18 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #endif
     #if HAS_K_CENTER
       SERIAL_ECHOLNPGM_P(SP_K_STR, m.obj_center.k);
+    #endif
+    #if HAS_M_CENTER      /**SG**/
+      SERIAL_ECHOLNPAIR_P(SP_M_STR, m.obj_center.m);
+    #endif
+    #if HAS_O_CENTER      /**SG**/
+      SERIAL_ECHOLNPAIR_P(SP_O_STR, m.obj_center.o);
+    #endif
+    #if HAS_P_CENTER      /**SG**/
+      SERIAL_ECHOLNPAIR_P(SP_P_STR, m.obj_center.p);
+    #endif
+    #if HAS_Q_CENTER      /**SG**/
+      SERIAL_ECHOLNPAIR_P(SP_Q_STR, m.obj_center.q);
     #endif
     SERIAL_EOL();
   }
@@ -461,6 +549,38 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
       #endif
       #if ENABLED(CALIBRATION_MEASURE_KMAX)
         SERIAL_ECHOLNPGM("  " STR_K_MAX ": ", m.backlash[KMAXIMUM]);
+      #endif
+    #endif
+    #if LINEAR_AXES >= 7    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_MMIN)
+        SERIAL_ECHOLNPAIR("  " STR_M_MIN ": ", m.backlash[MMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_MMAX)
+        SERIAL_ECHOLNPAIR("  " STR_M_MAX ": ", m.backlash[MMAXIMUM]);
+      #endif
+    #endif
+    #if LINEAR_AXES >= 8    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_OMIN)
+        SERIAL_ECHOLNPAIR("  " STR_O_MIN ": ", m.backlash[OMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_OMAX)
+        SERIAL_ECHOLNPAIR("  " STR_O_MAX ": ", m.backlash[OMAXIMUM]);
+      #endif
+    #endif
+    #if LINEAR_AXES >= 9    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_PMIN)
+        SERIAL_ECHOLNPAIR("  " STR_P_MIN ": ", m.backlash[PMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_PMAX)
+        SERIAL_ECHOLNPAIR("  " STR_P_MAX ": ", m.backlash[PMAXIMUM]);
+      #endif
+    #endif
+    #if LINEAR_AXES >= 10    /**SG**/
+      #if ENABLED(CALIBRATION_MEASURE_QMIN)
+        SERIAL_ECHOLNPAIR("  " STR_Q_MIN ": ", m.backlash[QMINIMUM]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_QMAX)
+        SERIAL_ECHOLNPAIR("  " STR_Q_MAX ": ", m.backlash[QMAXIMUM]);
       #endif
     #endif
     SERIAL_EOL();
@@ -575,6 +695,38 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
         backlash.distance_mm.k = m.backlash[KMAXIMUM];
       #endif
 
+      #if HAS_M_CENTER    /**SG**/
+        backlash.distance_mm.m = (m.backlash[MMINIMUM] + m.backlash[MMAXIMUM]) / 2;
+      #elif ENABLED(CALIBRATION_MEASURE_MMIN)
+        backlash.distance_mm.m = m.backlash[MMINIMUM];
+      #elif ENABLED(CALIBRATION_MEASURE_MMAX)
+        backlash.distance_mm.m = m.backlash[MMAXIMUM];
+      #endif
+
+      #if HAS_O_CENTER    /**SG**/
+        backlash.distance_mm.o = (m.backlash[OMINIMUM] + m.backlash[OMAXIMUM]) / 2;
+      #elif ENABLED(CALIBRATION_MEASURE_OMIN)
+        backlash.distance_mm.o = m.backlash[OMINIMUM];
+      #elif ENABLED(CALIBRATION_MEASURE_MMAX)
+        backlash.distance_mm.o = m.backlash[OMAXIMUM];
+      #endif
+
+      #if HAS_P_CENTER    /**SG**/
+        backlash.distance_mm.p = (m.backlash[PMINIMUM] + m.backlash[PMAXIMUM]) / 2;
+      #elif ENABLED(CALIBRATION_MEASURE_PMIN)
+        backlash.distance_mm.p = m.backlash[PMINIMUM];
+      #elif ENABLED(CALIBRATION_MEASURE_PMAX)
+        backlash.distance_mm.p = m.backlash[PMAXIMUM];
+      #endif
+
+      #if HAS_Q_CENTER    /**SG**/
+        backlash.distance_mm.q = (m.backlash[QMINIMUM] + m.backlash[QMAXIMUM]) / 2;
+      #elif ENABLED(CALIBRATION_MEASURE_QMIN)
+        backlash.distance_mm.q = m.backlash[QMINIMUM];
+      #elif ENABLED(CALIBRATION_MEASURE_QMAX)
+        backlash.distance_mm.q = m.backlash[QMAXIMUM];
+      #endif
+
     #endif // BACKLASH_GCODE
   }
 
@@ -587,7 +739,8 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
       TEMPORARY_BACKLASH_SMOOTHING(0.0f);
       const xyz_float_t move = LINEAR_AXIS_ARRAY(
         AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3,
-        AXIS_CAN_CALIBRATE(I) * 3, AXIS_CAN_CALIBRATE(J) * 3, AXIS_CAN_CALIBRATE(K) * 3
+        AXIS_CAN_CALIBRATE(I) * 3, AXIS_CAN_CALIBRATE(J) * 3, AXIS_CAN_CALIBRATE(K) * 3,
+        AXIS_CAN_CALIBRATE(M) * 3, AXIS_CAN_CALIBRATE(O) * 3, AXIS_CAN_CALIBRATE(P) * 3, AXIS_CAN_CALIBRATE(Q) * 3   /**SG**/
       );
       current_position += move; calibration_move();
       current_position -= move; calibration_move();
@@ -638,6 +791,10 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
   TERN_(HAS_I_CENTER, update_measurements(m, I_AXIS));
   TERN_(HAS_J_CENTER, update_measurements(m, J_AXIS));
   TERN_(HAS_K_CENTER, update_measurements(m, K_AXIS));
+  TERN_(HAS_M_CENTER, update_measurements(m, M_AXIS));  /**SG**/
+  TERN_(HAS_O_CENTER, update_measurements(m, O_AXIS));  /**SG**/
+  TERN_(HAS_P_CENTER, update_measurements(m, P_AXIS));  /**SG**/
+  TERN_(HAS_Q_CENTER, update_measurements(m, Q_AXIS));  /**SG**/
 
   sync_plan_position();
 }
