@@ -228,7 +228,6 @@ void home_delta() {
     TERN_(K_SENSORLESS, sensorless_t stealth_states_k = start_sensorless_homing_per_axis(K_AXIS));
     TERN_(M_SENSORLESS, sensorless_t stealth_states_m = start_sensorless_homing_per_axis(M_AXIS));
     TERN_(O_SENSORLESS, sensorless_t stealth_states_o = start_sensorless_homing_per_axis(O_AXIS));
-    TERN_(P_SENSORLESS, sensorless_t stealth_states_p = start_sensorless_homing_per_axis(P_AXIS));
     TERN_(Q_SENSORLESS, sensorless_t stealth_states_q = start_sensorless_homing_per_axis(Q_AXIS));
   #endif
 
@@ -248,7 +247,6 @@ void home_delta() {
     TERN_(K_SENSORLESS, end_sensorless_homing_per_axis(K_AXIS, stealth_states_k));
     TERN_(M_SENSORLESS, end_sensorless_homing_per_axis(M_AXIS, stealth_states_m));
     TERN_(O_SENSORLESS, end_sensorless_homing_per_axis(O_AXIS, stealth_states_o));
-    TERN_(P_SENSORLESS, end_sensorless_homing_per_axis(P_AXIS, stealth_states_p));
     TERN_(Q_SENSORLESS, end_sensorless_homing_per_axis(Q_AXIS, stealth_states_q));
   #endif
 

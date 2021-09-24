@@ -58,7 +58,6 @@ void GcodeSuite::M425() {
         case K_AXIS: return AXIS_CAN_CALIBRATE(K),
         case M_AXIS: return AXIS_CAN_CALIBRATE(M),
         case O_AXIS: return AXIS_CAN_CALIBRATE(O),
-        case P_AXIS: return AXIS_CAN_CALIBRATE(P),
         case Q_AXIS: return AXIS_CAN_CALIBRATE(Q)
       );
     }

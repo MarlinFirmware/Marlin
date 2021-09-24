@@ -431,22 +431,17 @@
         if (monitor_tmc_driver(stepperK, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperK);
       #endif
-      /**SG**/
+
       #if AXIS_IS_TMC(M)
         if (monitor_tmc_driver(stepperM, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperM);
       #endif
-      /**SG**/
+
       #if AXIS_IS_TMC(O)
         if (monitor_tmc_driver(stepperO, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperO);
       #endif
-      /**SG**/
-      #if AXIS_IS_TMC(P)
-        if (monitor_tmc_driver(stepperP, need_update_error_counters, need_debug_reporting))
-          step_current_down(stepperPM);
-      #endif
-      /**SG**/
+
       #if AXIS_IS_TMC(Q)
         if (monitor_tmc_driver(stepperQ, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperQ);
@@ -841,9 +836,6 @@
     #if AXIS_IS_TMC(O)
       if (o) tmc_status(stepperO, n);
     #endif
-    #if AXIS_IS_TMC(P)
-      if (p) tmc_status(stepperP, n);
-    #endif
     #if AXIS_IS_TMC(Q)
       if (q) tmc_status(stepperQ, n);
     #endif
@@ -926,9 +918,6 @@
     #endif
     #if AXIS_IS_TMC(O)
       if (o) tmc_parse_drv_status(stepperO, n);
-    #endif
-    #if AXIS_IS_TMC(P)
-      if (p) tmc_parse_drv_status(stepperP, n);
     #endif
     #if AXIS_IS_TMC(Q)
       if (q) tmc_parse_drv_status(stepperQ, n);
@@ -1144,9 +1133,6 @@
     #if AXIS_IS_TMC(O)
       if (o) tmc_get_registers(stepperO, n);
     #endif
-    #if AXIS_IS_TMC(P)
-      if (p) tmc_get_registers(stepperP, n);
-    #endif
     #if AXIS_IS_TMC(Q)
       if (q) tmc_get_registers(stepperQ, n);
     #endif
@@ -1282,9 +1268,6 @@
     #if AXIS_HAS_SPI(O)
       SET_CS_PIN(O);
     #endif
-    #if AXIS_HAS_SPI(P)
-      SET_CS_PIN(P);
-    #endif
     #if AXIS_HAS_SPI(Q)
       SET_CS_PIN(Q);
     #endif
@@ -1382,19 +1365,12 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
   #if AXIS_IS_TMC(K)
     if (k) axis_connection += test_connection(stepperK);
   #endif
-  /**SG**/
   #if AXIS_IS_TMC(M)
     if (m) axis_connection += test_connection(stepperM);
   #endif
-  /**SG**/
   #if AXIS_IS_TMC(O)
     if (o) axis_connection += test_connection(stepperO);
   #endif
-  /**SG**/
-  #if AXIS_IS_TMC(P)
-    if (p) axis_connection += test_connection(stepperP);
-  #endif
-  /**SG**/
   #if AXIS_IS_TMC(Q)
     if (q) axis_connection += test_connection(stepperQ);
   #endif

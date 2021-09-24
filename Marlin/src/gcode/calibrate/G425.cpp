@@ -91,16 +91,13 @@
 #if LINEAR_AXES >= 8 && BOTH(CALIBRATION_MEASURE_OMIN, CALIBRATION_MEASURE_OMAX)
   #define HAS_O_CENTER 1
 #endif
-#if LINEAR_AXES >= 9 && BOTH(CALIBRATION_MEASURE_PMIN, CALIBRATION_MEASURE_PMAX)
-  #define HAS_P_CENTER 1
-#endif
-#if LINEAR_AXES >= 10 && BOTH(CALIBRATION_MEASURE_QMIN, CALIBRATION_MEASURE_QMAX)
+#if LINEAR_AXES >= 9 && BOTH(CALIBRATION_MEASURE_QMIN, CALIBRATION_MEASURE_QMAX)
   #define HAS_Q_CENTER 1
 #endif
 
 enum side_t : uint8_t {
   TOP, RIGHT, FRONT, LEFT, BACK, NUM_SIDES,
-  LIST_N(DOUBLE(SUB3(LINEAR_AXES)), IMINIMUM, IMAXIMUM, JMINIMUM, JMAXIMUM, KMINIMUM, KMAXIMUM, MMINIMUM, MMAXIMUM, OMINIMUM, OMAXIMUM, PMINIMUM, PMAXIMUM, QMINIMUM, QMAXIMUM)
+  LIST_N(DOUBLE(SUB3(LINEAR_AXES)), IMINIMUM, IMAXIMUM, JMINIMUM, JMAXIMUM, KMINIMUM, KMAXIMUM, MMINIMUM, MMAXIMUM, OMINIMUM, OMAXIMUM, QMINIMUM, QMAXIMUM)
 };
 
 static constexpr xyz_pos_t true_center CALIBRATION_OBJECT_CENTER;
@@ -291,10 +288,6 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
       case OMAXIMUM: axis = O_AXIS; break;
     #endif
     #if LINEAR_AXES >= 9
-      case PMINIMUM: dir = -1;
-      case PMAXIMUM: axis = P_AXIS; break;
-    #endif
-    #if LINEAR_AXES >= 10
       case QMINIMUM: dir = -1;
       case QMAXIMUM: axis = Q_AXIS; break;
     #endif
@@ -355,8 +348,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   TERN_(CALIBRATION_MEASURE_MMAX,  probe_side(m, uncertainty, MMAXIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_OMIN,  probe_side(m, uncertainty, OMINIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_OMAX,  probe_side(m, uncertainty, OMAXIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_PMIN,  probe_side(m, uncertainty, PMINIMUM, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_PMAX,  probe_side(m, uncertainty, PMAXIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_QMIN,  probe_side(m, uncertainty, QMINIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_QMAX,  probe_side(m, uncertainty, QMAXIMUM, probe_top_at_edge));
 
@@ -368,7 +359,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   TERN_(HAS_K_CENTER, m.obj_center.k = (m.obj_side[KMINIMUM] + m.obj_side[KMAXIMUM]) / 2);
   TERN_(HAS_M_CENTER, m.obj_center.m = (m.obj_side[MMINIMUM] + m.obj_side[MMAXIMUM]) / 2);
   TERN_(HAS_O_CENTER, m.obj_center.o = (m.obj_side[OMINIMUM] + m.obj_side[OMAXIMUM]) / 2);
-  TERN_(HAS_P_CENTER, m.obj_center.p = (m.obj_side[PMINIMUM] + m.obj_side[PMAXIMUM]) / 2);
   TERN_(HAS_Q_CENTER, m.obj_center.q = (m.obj_side[QMINIMUM] + m.obj_side[QMAXIMUM]) / 2);
 
   // Compute the outside diameter of the nozzle at the height
@@ -389,7 +379,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     m.pos_error.k = TERN0(HAS_K_CENTER, true_center.k - m.obj_center.k),
     m.pos_error.m = TERN0(HAS_M_CENTER, true_center.m - m.obj_center.m),
     m.pos_error.o = TERN0(HAS_O_CENTER, true_center.o - m.obj_center.o),
-    m.pos_error.p = TERN0(HAS_P_CENTER, true_center.p - m.obj_center.p),
     m.pos_error.q = TERN0(HAS_Q_CENTER, true_center.q - m.obj_center.q)
   );
 }
@@ -455,14 +444,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
       #endif
     #endif
     #if LINEAR_AXES >= 9
-      #if ENABLED(CALIBRATION_MEASURE_PMIN)
-        SERIAL_ECHOLNPAIR("  " STR_P_MIN ": ", m.obj_side[PMINIMUM]);
-      #endif
-      #if ENABLED(CALIBRATION_MEASURE_PMAX)
-        SERIAL_ECHOLNPAIR("  " STR_P_MAX ": ", m.obj_side[PMAXIMUM]);
-      #endif
-    #endif
-    #if LINEAR_AXES >= 10
       #if ENABLED(CALIBRATION_MEASURE_QMIN)
         SERIAL_ECHOLNPAIR("  " STR_Q_MIN ": ", m.obj_side[QMINIMUM]);
       #endif
@@ -496,9 +477,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #endif
     #if HAS_O_CENTER
       SERIAL_ECHOLNPAIR_P(SP_O_STR, m.obj_center.o);
-    #endif
-    #if HAS_P_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_P_STR, m.obj_center.p);
     #endif
     #if HAS_Q_CENTER
       SERIAL_ECHOLNPAIR_P(SP_Q_STR, m.obj_center.q);
@@ -568,14 +546,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
       #endif
     #endif
     #if LINEAR_AXES >= 9
-      #if ENABLED(CALIBRATION_MEASURE_PMIN)
-        SERIAL_ECHOLNPAIR("  " STR_P_MIN ": ", m.backlash[PMINIMUM]);
-      #endif
-      #if ENABLED(CALIBRATION_MEASURE_PMAX)
-        SERIAL_ECHOLNPAIR("  " STR_P_MAX ": ", m.backlash[PMAXIMUM]);
-      #endif
-    #endif
-    #if LINEAR_AXES >= 10
       #if ENABLED(CALIBRATION_MEASURE_QMIN)
         SERIAL_ECHOLNPAIR("  " STR_Q_MIN ": ", m.backlash[QMINIMUM]);
       #endif
@@ -711,14 +681,6 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
         backlash.distance_mm.o = m.backlash[OMAXIMUM];
       #endif
 
-      #if HAS_P_CENTER
-        backlash.distance_mm.p = (m.backlash[PMINIMUM] + m.backlash[PMAXIMUM]) / 2;
-      #elif ENABLED(CALIBRATION_MEASURE_PMIN)
-        backlash.distance_mm.p = m.backlash[PMINIMUM];
-      #elif ENABLED(CALIBRATION_MEASURE_PMAX)
-        backlash.distance_mm.p = m.backlash[PMAXIMUM];
-      #endif
-
       #if HAS_Q_CENTER
         backlash.distance_mm.q = (m.backlash[QMINIMUM] + m.backlash[QMAXIMUM]) / 2;
       #elif ENABLED(CALIBRATION_MEASURE_QMIN)
@@ -740,7 +702,7 @@ inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
       const xyz_float_t move = LINEAR_AXIS_ARRAY(
         AXIS_CAN_CALIBRATE(X) * 3, AXIS_CAN_CALIBRATE(Y) * 3, AXIS_CAN_CALIBRATE(Z) * 3,
         AXIS_CAN_CALIBRATE(I) * 3, AXIS_CAN_CALIBRATE(J) * 3, AXIS_CAN_CALIBRATE(K) * 3,
-        AXIS_CAN_CALIBRATE(M) * 3, AXIS_CAN_CALIBRATE(O) * 3, AXIS_CAN_CALIBRATE(P) * 3, AXIS_CAN_CALIBRATE(Q) * 3
+        AXIS_CAN_CALIBRATE(M) * 3, AXIS_CAN_CALIBRATE(O) * 3, AXIS_CAN_CALIBRATE(Q) * 3
       );
       current_position += move; calibration_move();
       current_position -= move; calibration_move();
@@ -793,7 +755,6 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
   TERN_(HAS_K_CENTER, update_measurements(m, K_AXIS));
   TERN_(HAS_M_CENTER, update_measurements(m, M_AXIS));
   TERN_(HAS_O_CENTER, update_measurements(m, O_AXIS));
-  TERN_(HAS_P_CENTER, update_measurements(m, P_AXIS));
   TERN_(HAS_Q_CENTER, update_measurements(m, Q_AXIS));
 
   sync_plan_position();

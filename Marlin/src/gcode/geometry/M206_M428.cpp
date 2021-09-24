@@ -65,7 +65,6 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
         SP_K_STR, LINEAR_UNIT(home_offset.k),
         SP_M_STR, LINEAR_UNIT(home_offset.m),
         SP_O_STR, LINEAR_UNIT(home_offset.o),
-        SP_P_STR, LINEAR_UNIT(home_offset.p),
         SP_Q_STR, LINEAR_UNIT(home_offset.q)
       )
     #else

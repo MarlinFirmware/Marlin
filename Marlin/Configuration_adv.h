@@ -973,7 +973,6 @@
 #define INVERT_K_STEP_PIN false
 #define INVERT_M_STEP_PIN false
 #define INVERT_O_STEP_PIN false
-#define INVERT_P_STEP_PIN false
 #define INVERT_Q_STEP_PIN false
 #define INVERT_E_STEP_PIN false
 
@@ -991,7 +990,6 @@
 #define DISABLE_INACTIVE_K true
 #define DISABLE_INACTIVE_M true
 #define DISABLE_INACTIVE_O true
-#define DISABLE_INACTIVE_P true
 #define DISABLE_INACTIVE_Q true
 #define DISABLE_INACTIVE_E true
 
@@ -1114,8 +1112,6 @@
   //#define CALIBRATION_MEASURE_MMAX
   //#define CALIBRATION_MEASURE_QMIN
   //#define CALIBRATION_MEASURE_OMAX
-  //#define CALIBRATION_MEASURE_PMIN
-  //#define CALIBRATION_MEASURE_PMAX
   //#define CALIBRATION_MEASURE_QMIN
   //#define CALIBRATION_MEASURE_QMAX
 
@@ -2539,12 +2535,6 @@
     #define O_MICROSTEPS       16
   #endif
 
-  #if AXIS_DRIVER_TYPE_P(TMC26X)
-    #define P_MAX_CURRENT    1000
-    #define P_SENSE_RESISTOR   91
-    #define P_MICROSTEPS       16
-  #endif
-
   #if AXIS_DRIVER_TYPE_Q(TMC26X)
     #define Q_MAX_CURRENT    1000
     #define Q_SENSE_RESISTOR   91
@@ -2746,15 +2736,6 @@
     //#define O_INTERPOLATE  true
   #endif
 
-  #if AXIS_IS_TMC(P)
-    #define P_CURRENT      800
-    #define P_CURRENT_HOME P_CURRENT
-    #define P_MICROSTEPS     8
-    #define P_RSENSE         0.11
-    #define P_CHAIN_POS     -1
-    //#define P_INTERPOLATE  true
-  #endif
-
   #if AXIS_IS_TMC(Q)
     #define Q_CURRENT      800
     #define Q_CURRENT_HOME Q_CURRENT
@@ -2845,7 +2826,6 @@
   //#define K_CS_PIN          -1
   //#define M_CS_PIN          -1
   //#define O_CS_PIN          -1
-  //#define P_CS_PIN          -1
   //#define Q_CS_PIN          -1
   //#define E0_CS_PIN         -1
   //#define E1_CS_PIN         -1
@@ -2891,7 +2871,6 @@
   //#define  K_SLAVE_ADDRESS 0
   //#define  M_SLAVE_ADDRESS 0
   //#define  O_SLAVE_ADDRESS 0
-  //#define  P_SLAVE_ADDRESS 0
   //#define  Q_SLAVE_ADDRESS 0
   //#define E0_SLAVE_ADDRESS 0
   //#define E1_SLAVE_ADDRESS 0
@@ -2922,7 +2901,6 @@
   #define STEALTHCHOP_K
   #define STEALTHCHOP_M
   #define STEALTHCHOP_O
-  #define STEALTHCHOP_P
   #define STEALTHCHOP_Q
   #define STEALTHCHOP_E
 
@@ -3000,7 +2978,6 @@
   #define K_HYBRID_THRESHOLD       3
   #define M_HYBRID_THRESHOLD       3
   #define O_HYBRID_THRESHOLD       3
-  #define P_HYBRID_THRESHOLD       3
   #define Q_HYBRID_THRESHOLD       3
   #define E0_HYBRID_THRESHOLD     30
   #define E1_HYBRID_THRESHOLD     30
@@ -3053,7 +3030,6 @@
     //#define K_STALL_SENSITIVITY  8
     //#define M_STALL_SENSITIVITY  8
     //#define O_STALL_SENSITIVITY  8
-    //#define P_STALL_SENSITIVITY  8
     //#define Q_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY
@@ -3238,51 +3214,6 @@
     #define O_MAX_VOLTAGE     127
     #define O_CHAIN_POS        -1
     #define O_SLEW_RATE         1
-  #endif
-
-  #if AXIS_DRIVER_TYPE_P(L6470)
-    #define P_MICROSTEPS      128
-    #define P_OVERCURRENT    2000
-    #define P_STALLCURRENT   1500
-    #define P_MAX_VOLTAGE     127
-    #define P_CHAIN_POS        -1
-    #define P_SLEW_RATE         1
-  #endif
-
-  #if AXIS_DRIVER_TYPE_Q(L6470)
-    #define Q_MICROSTEPS      128
-    #define Q_OVERCURRENT    2000
-    #define Q_STALLCURRENT   1500
-    #define Q_MAX_VOLTAGE     127
-    #define Q_CHAIN_POS        -1
-    #define Q_SLEW_RATE         1
-  #endif
-
-  #if AXIS_DRIVER_TYPE_M(L6470)
-    #define M_MICROSTEPS      128
-    #define M_OVERCURRENT    2000
-    #define M_STALLCURRENT   1500
-    #define M_MAX_VOLTAGE     127
-    #define M_CHAIN_POS        -1
-    #define M_SLEW_RATE         1
-  #endif
-
-  #if AXIS_DRIVER_TYPE_O(L6470)
-    #define O_MICROSTEPS      128
-    #define O_OVERCURRENT    2000
-    #define O_STALLCURRENT   1500
-    #define O_MAX_VOLTAGE     127
-    #define O_CHAIN_POS        -1
-    #define O_SLEW_RATE         1
-  #endif
-
-  #if AXIS_DRIVER_TYPE_P(L6470)
-    #define P_MICROSTEPS      128
-    #define P_OVERCURRENT    2000
-    #define P_STALLCURRENT   1500
-    #define P_MAX_VOLTAGE     127
-    #define P_CHAIN_POS        -1
-    #define P_SLEW_RATE         1
   #endif
 
   #if AXIS_DRIVER_TYPE_Q(L6470)

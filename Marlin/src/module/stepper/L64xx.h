@@ -310,30 +310,8 @@
   #endif
 #endif
 
-// P Stepper
-#if LINEAR_AXES >= 9
-  #if AXIS_IS_L64XX(P)
-    extern L64XX_CLASS(P)         stepperP;
-    #define P_ENABLE_INIT()       NOOP
-    #define P_ENABLE_WRITE(STATE) (STATE ? stepperP.hardStop() : stepperP.free())
-    #define P_ENABLE_READ()       (stepperP.getStatus() & STATUS_HIZ)
-    #if AXIS_DRIVER_TYPE_P(L6474)
-      #define P_DIR_INIT()        SET_OUTPUT(P_DIR_PIN)
-      #define P_DIR_WRITE(STATE)  L6474_DIR_WRITE(P, STATE)
-      #define P_DIR_READ()        READ(P_DIR_PIN)
-    #else
-      #define P_DIR_INIT()        NOOP
-      #define P_DIR_WRITE(STATE)  L64XX_DIR_WRITE(P, STATE)
-      #define P_DIR_READ()        (stepper##P.getStatus() & STATUS_DIR);
-      #if AXIS_DRIVER_TYPE_P(L6470)
-        #define DISABLE_STEPPER_P() stepperP.free()
-      #endif
-    #endif
-  #endif
-#endif
-
 // Q Stepper
-#if LINEAR_AXES >= 10
+#if LINEAR_AXES >= 9
   #if AXIS_IS_L64XX(Q)
     extern L64XX_CLASS(Q)         stepperQ;
     #define Q_ENABLE_INIT()       NOOP

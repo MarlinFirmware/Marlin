@@ -300,27 +300,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define O_STEP_READ() bool(READ(O_STEP_PIN))
 #endif
 
-// P Stepper
-#if LINEAR_AXES >= 9
-  #ifndef P_ENABLE_INIT
-    #define P_ENABLE_INIT() SET_OUTPUT(P_ENABLE_PIN)
-    #define P_ENABLE_WRITE(STATE) WRITE(P_ENABLE_PIN,STATE)
-    #define P_ENABLE_READ() bool(READ(P_ENABLE_PIN))
-  #endif
-  #ifndef P_DIR_INIT
-    #define P_DIR_INIT() SET_OUTPUT(P_DIR_PIN)
-    #define P_DIR_WRITE(STATE) WRITE(P_DIR_PIN,STATE)
-    #define P_DIR_READ() bool(READ(P_DIR_PIN))
-  #endif
-  #define P_STEP_INIT() SET_OUTPUT(P_STEP_PIN)
-  #ifndef P_STEP_WRITE
-    #define P_STEP_WRITE(STATE) WRITE(P_STEP_PIN,STATE)
-  #endif
-  #define P_STEP_READ() bool(READ(P_STEP_PIN))
-#endif
-
 // Q Stepper
-#if LINEAR_AXES >= 10
+#if LINEAR_AXES >= 9
   #ifndef Q_ENABLE_INIT
     #define Q_ENABLE_INIT() SET_OUTPUT(Q_ENABLE_PIN)
     #define Q_ENABLE_WRITE(STATE) WRITE(Q_ENABLE_PIN,STATE)
@@ -849,21 +830,6 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #endif
 #endif
 
-#ifndef ENABLE_STEPPER_P
-  #if HAS_P_ENABLE
-    #define  ENABLE_STEPPER_P() P_ENABLE_WRITE( P_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_P() NOOP
-  #endif
-#endif
-#ifndef DISABLE_STEPPER_P
-  #if HAS_P_ENABLE
-    #define DISABLE_STEPPER_P() P_ENABLE_WRITE(!P_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_P() NOOP
-  #endif
-#endif
-
 #ifndef ENABLE_STEPPER_Q
   #if HAS_Q_ENABLE
     #define  ENABLE_STEPPER_Q() Q_ENABLE_WRITE( Q_ENABLE_ON)
@@ -1068,13 +1034,6 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define DISABLE_AXIS_O() NOOP
 #endif
 #if LINEAR_AXES >= 9
-  #define  ENABLE_AXIS_P() if (SHOULD_ENABLE(p))  {  ENABLE_STEPPER_P(); AFTER_CHANGE(p, true); }
-  #define DISABLE_AXIS_P() if (SHOULD_DISABLE(p)) { DISABLE_STEPPER_P(); AFTER_CHANGE(p, false); set_axis_untrusted(P_AXIS); }
-#else
-  #define  ENABLE_AXIS_P() NOOP
-  #define DISABLE_AXIS_P() NOOP
-#endif
-#if LINEAR_AXES >= 10
   #define  ENABLE_AXIS_Q() if (SHOULD_ENABLE(q))  {  ENABLE_STEPPER_Q(); AFTER_CHANGE(q, true); }
   #define DISABLE_AXIS_Q() if (SHOULD_DISABLE(q)) { DISABLE_STEPPER_Q(); AFTER_CHANGE(q, false); set_axis_untrusted(Q_AXIS); }
 #else

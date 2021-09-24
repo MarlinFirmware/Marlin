@@ -139,14 +139,6 @@ void tmc26x_init_to_defaults();
   #define O_ENABLE_READ() stepperO.isEnabled()
 #endif
 
-// P Stepper
-#if HAS_P_ENABLE && AXIS_DRIVER_TYPE_P(TMC26X)
-  extern TMC26XStepper stepperP;
-  #define P_ENABLE_INIT() NOOP
-  #define P_ENABLE_WRITE(STATE) stepperP.setEnabled(STATE)
-  #define P_ENABLE_READ() stepperP.isEnabled()
-#endif
-
 // Q Stepper
 #if HAS_Q_ENABLE && AXIS_DRIVER_TYPE_Q(TMC26X)
   extern TMC26XStepper stepperQ;

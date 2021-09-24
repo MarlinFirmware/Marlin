@@ -250,14 +250,6 @@ void setup_endstop_interrupts() {
       static_assert(digitalPinHasPCICR(P_MAX_PIN), "P_MAX_PIN is not interrupt-capable");
       pciSetup(P_MAX_PIN);
     #endif
-  #elif HAS_P_MIN
-    #if (digitalPinToInterrupt(P_MIN_PIN) != NOT_AN_INTERRUPT)
-      _ATTACH(P_MIN_PIN);
-    #else
-      static_assert(digitalPinHasPCICR(P_MIN_PIN), "P_MIN_PIN is not interrupt-capable");
-      pciSetup(P_MIN_PIN);
-    #endif
-  #endif
   #if HAS_Q_MAX
     #if (digitalPinToInterrupt(Q_MAX_PIN) != NOT_AN_INTERRUPT)
       _ATTACH(Q_MAX_PIN);

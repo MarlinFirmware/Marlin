@@ -327,7 +327,6 @@ void enable_all_steppers() {
   ENABLE_AXIS_K();
   ENABLE_AXIS_M();  // Extension of multi-axis support for more than 6 axes by Paloky  /**SG**/
   ENABLE_AXIS_O();
-  ENABLE_AXIS_P();
   ENABLE_AXIS_Q();
   enable_e_steppers();
 
@@ -355,7 +354,6 @@ void disable_all_steppers() {
   DISABLE_AXIS_K();
   DISABLE_AXIS_M();
   DISABLE_AXIS_O();
-  DISABLE_AXIS_P();
   DISABLE_AXIS_Q();
   disable_e_steppers();
 
@@ -480,7 +478,6 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         if (ENABLED(DISABLE_INACTIVE_K)) DISABLE_AXIS_K();
         if (ENABLED(DISABLE_INACTIVE_M)) DISABLE_AXIS_M();
         if (ENABLED(DISABLE_INACTIVE_O)) DISABLE_AXIS_O();
-        if (ENABLED(DISABLE_INACTIVE_P)) DISABLE_AXIS_P();
         if (ENABLED(DISABLE_INACTIVE_Q)) DISABLE_AXIS_Q();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 
@@ -1038,9 +1035,6 @@ inline void tmc_standby_setup() {
   #endif
   #if PIN_EXISTS(O_STDBY)
     SET_INPUT_PULLDOWN(O_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(P_STDBY)
-    SET_INPUT_PULLDOWN(P_STDBY_PIN);
   #endif
   #if PIN_EXISTS(Q_STDBY)
     SET_INPUT_PULLDOWN(Q_STDBY_PIN);

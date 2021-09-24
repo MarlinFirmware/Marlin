@@ -157,9 +157,6 @@ void stepper_driver_backward_report() {
   #if HAS_O_ENABLE
     REPORT_BACKWARD(O, 0);
   #endif
-  #if HAS_P_ENABLE
-    REPORT_BACKWARD(P, 0);
-  #endif
   #if HAS_Q_ENABLE
     REPORT_BACKWARD(Q, 0);
   #endif

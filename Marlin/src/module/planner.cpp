@@ -1310,7 +1310,7 @@ void Planner::recalculate() {
  */
 void Planner::check_axes_activity() {
 
-  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_M, DISABLE_O, DISABLE_P, DISABLE_Q, DISABLE_E)
+  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_M, DISABLE_O, DISABLE_Q, DISABLE_E)
     xyze_bool_t axis_active = { false };
   #endif
 
@@ -1355,7 +1355,6 @@ void Planner::check_axes_activity() {
           if (TERN0(DISABLE_K, block->steps.k)) axis_active.k = true,
           if (TERN0(DISABLE_M, block->steps.m)) axis_active.m = true,
           if (TERN0(DISABLE_O, block->steps.o)) axis_active.o = true,
-          if (TERN0(DISABLE_P, block->steps.p)) axis_active.p = true,
           if (TERN0(DISABLE_Q, block->steps.q)) axis_active.q = true
         );
       }
@@ -1388,7 +1387,6 @@ void Planner::check_axes_activity() {
     if (TERN0(DISABLE_K, !axis_active.k)) DISABLE_AXIS_K(),
     if (TERN0(DISABLE_M, !axis_active.m)) DISABLE_AXIS_M(),
     if (TERN0(DISABLE_O, !axis_active.o)) DISABLE_AXIS_O(),
-    if (TERN0(DISABLE_P, !axis_active.p)) DISABLE_AXIS_P(),
     if (TERN0(DISABLE_Q, !axis_active.q)) DISABLE_AXIS_Q()
   );
 
@@ -1457,7 +1455,7 @@ void Planner::check_axes_activity() {
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t *block = &block_buffer[b];
-      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k, block->steps.m, || block->steps.o, || block->steps.p, || block->steps.q)) {
+      if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k, block->steps.m, || block->steps.o, || block->steps.q)) {
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
@@ -1865,7 +1863,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     dk = target.k - position.k,
     dmv = target.m - position.m, // prevent name clash with dm
     dov = target.o - position.o, // prevent name clash with do
-    dpv = target.p - position.p,
     dqv = target.q - position.q
   );
 
@@ -1891,10 +1888,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         " " AXIS8_STR ":", target.o, " (", dov, " steps)"
       #endif
       #if LINEAR_AXES >= 9
-        " " AXIS9_STR ":", target.p, " (", dpv, " steps)"
-      #endif
-      #if LINEAR_AXES >= 10
-        " " AXIS10_STR ":", target.q, " (", dqv, " steps)"
+        " " AXIS9_STR ":", target.q, " (", dqv, " steps)"
       #endif
       #if HAS_EXTRUDERS
         " E:", target.e, " (", de, " steps)"
@@ -1972,7 +1966,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (dk < 0) SBI(dm, K_AXIS),
       if (dmv < 0) SBI(dm, M_AXIS),
       if (dov < 0) SBI(dm, O_AXIS),
-      if (dpv < 0) SBI(dm, P_AXIS),
       if (dqv < 0) SBI(dm, Q_AXIS)
     );
   #endif
@@ -1994,9 +1987,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (dov < 0) SBI(dm, O_AXIS);
     #endif
     #if LINEAR_AXES >= 9
-      if (dpv < 0) SBI(dm, P_AXIS);
-    #endif
-    #if LINEAR_AXES >= 10
       if (dqv < 0) SBI(dm, Q_AXIS);
     #endif
   #endif
@@ -2026,18 +2016,18 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Number of steps for each axis
   // See https://www.corexy.com/theory.html
   #if CORE_IS_XY
-    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(da - db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dpv), ABS(dqv)));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(da - db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dqv)));
   #elif CORE_IS_XZ
-    block->steps.set(LINEAR_AXIS_LIST(ABS(da + dc), ABS(db), ABS(da - dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dpv), ABS(dqv)));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + dc), ABS(db), ABS(da - dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dqv)));
   #elif CORE_IS_YZ
-    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db + dc), ABS(db - dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dpv), ABS(dqv)));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db + dc), ABS(db - dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dqv)));
   #elif ENABLED(MARKFORGED_XY)
-    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dpv), ABS(dqv)));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dqv)));
   #elif IS_SCARA
-    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dpv), ABS(dqv)));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dqv)));
   #else
     // default non-h-bot planning
-    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dpv), ABS(dqv)));
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk), ABS(dmv), ABS(dov), ABS(dqv)));
   #endif
 
   /**
@@ -2089,9 +2079,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       steps_dist_mm.o = dov * steps_to_mm[O_AXIS];
     #endif
     #if LINEAR_AXES >= 9
-      steps_dist_mm.p = dpv * steps_to_mm[P_AXIS];
-    #endif
-    #if LINEAR_AXES >= 10
       steps_dist_mm.q = dqv * steps_to_mm[Q_AXIS];
     #endif
   #elif ENABLED(MARKFORGED_XY)
@@ -2110,7 +2097,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       steps_dist_mm.k = dk * steps_to_mm[K_AXIS],
       steps_dist_mm.m = dmv * steps_to_mm[M_AXIS],
       steps_dist_mm.o = dov * steps_to_mm[O_AXIS],
-      steps_dist_mm.p = dpv * steps_to_mm[P_AXIS],
       steps_dist_mm.q = dqv * steps_to_mm[Q_AXIS]
     );
   #endif
@@ -2128,7 +2114,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       && block->steps.k < MIN_STEPS_PER_SEGMENT,
       && block->steps.m < MIN_STEPS_PER_SEGMENT,
       && block->steps.o < MIN_STEPS_PER_SEGMENT,
-      && block->steps.p < MIN_STEPS_PER_SEGMENT,
       && block->steps.q < MIN_STEPS_PER_SEGMENT
     )
   ) {
@@ -2143,21 +2128,19 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           LINEAR_AXIS_GANG(
               sq(steps_dist_mm.head.x), + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i),      + sq(steps_dist_mm.j),      + sq(steps_dist_mm.k),
-            + sq(steps_dist_mm.m),      + sq(steps_dist_mm.o),      + sq(steps_dist_mm.p), + sq(steps_dist_mm.q)
+            + sq(steps_dist_mm.m),      + sq(steps_dist_mm.o),      + sq(steps_dist_mm.q)
           )
         #elif CORE_IS_XZ
           LINEAR_AXIS_GANG(
               sq(steps_dist_mm.head.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.head.z),
             + sq(steps_dist_mm.i),      + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
-            + sq(steps_dist_mm.m),      + sq(steps_dist_mm.o), + sq(steps_dist_mm.p),
-            + sq(steps_dist_mm.q)
+            + sq(steps_dist_mm.m),      + sq(steps_dist_mm.o), + sq(steps_dist_mm.q)
           )
         #elif CORE_IS_YZ
           LINEAR_AXIS_GANG(
               sq(steps_dist_mm.x)  + sq(steps_dist_mm.head.y) + sq(steps_dist_mm.head.z)
             + sq(steps_dist_mm.i), + sq(steps_dist_mm.j),     + sq(steps_dist_mm.k),
-            + sq(steps_dist_mm.m), + sq(steps_dist_mm.o),     + sq(steps_dist_mm.p),
-            + sq(steps_dist_mm.q)
+            + sq(steps_dist_mm.m), + sq(steps_dist_mm.o),     + sq(steps_dist_mm.q)
           )
         #elif ENABLED(FOAMCUTTER_XYUV)
           // Return the largest distance move from either X/Y or I/J plane
@@ -2170,8 +2153,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           LINEAR_AXIS_GANG(
               sq(steps_dist_mm.x), + sq(steps_dist_mm.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i), + sq(steps_dist_mm.j), + sq(steps_dist_mm.k),
-            + sq(steps_dist_mm.m), + sq(steps_dist_mm.o), + sq(steps_dist_mm.p),
-            + sq(steps_dist_mm.q)
+            + sq(steps_dist_mm.m), + sq(steps_dist_mm.o), + sq(steps_dist_mm.q)
           )
         #endif
       );
@@ -2194,7 +2176,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->step_event_count = _MAX(LOGICAL_AXIS_LIST(esteps,
     block->steps.a, block->steps.b, block->steps.c,
     block->steps.i, block->steps.j, block->steps.k,
-    block->steps.m, block->steps.o, block->steps.p, block->steps.q
+    block->steps.m, block->steps.o, block->steps.q
   ));
 
   // Bail if this is a zero-length block
@@ -2225,7 +2207,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       || block->steps.k,
       || block->steps.m,
       || block->steps.o,
-      || block->steps.p,
       || block->steps.q
     )) powerManager.power_on();
   #endif
@@ -2261,7 +2242,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (block->steps.k) ENABLE_AXIS_K(),
       if (block->steps.m) ENABLE_AXIS_M(),
       if (block->steps.o) ENABLE_AXIS_O(),
-      if (block->steps.p) ENABLE_AXIS_P(),
       if (block->steps.q) ENABLE_AXIS_Q()
     );
   #endif
@@ -2282,9 +2262,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (block->steps.o) ENABLE_AXIS_O();
     #endif
     #if LINEAR_AXES >= 9
-      if (block->steps.p) ENABLE_AXIS_P();
-    #endif
-    #if LINEAR_AXES >= 10
       if (block->steps.q) ENABLE_AXIS_Q();
     #endif
   #endif
@@ -2477,7 +2454,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (LINEAR_AXIS_GANG(
          !block->steps.a, && !block->steps.b, && !block->steps.c,
       && !block->steps.i, && !block->steps.j, && !block->steps.k,
-      && !block->steps.m, && !block->steps.o, && !block->steps.p, && !block->steps.q)
+      && !block->steps.m, && !block->steps.o, && !block->steps.q)
   ) {                                                             // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
     TERN_(LIN_ADVANCE, block->use_advance_lead = false);          // No linear advance for simple retract/recover
@@ -2553,7 +2530,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         LIMIT_ACCEL_LONG(K_AXIS, 0),
         LIMIT_ACCEL_LONG(M_AXIS, 0),
         LIMIT_ACCEL_LONG(O_AXIS, 0),
-        LIMIT_ACCEL_LONG(P_AXIS, 0),
         LIMIT_ACCEL_LONG(Q_AXIS, 0)
       );
     }
@@ -2568,7 +2544,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         LIMIT_ACCEL_FLOAT(K_AXIS, 0),
         LIMIT_ACCEL_FLOAT(M_AXIS, 0),
         LIMIT_ACCEL_FLOAT(O_AXIS, 0),
-        LIMIT_ACCEL_FLOAT(P_AXIS, 0),
         LIMIT_ACCEL_FLOAT(Q_AXIS, 0)
       );
     }
@@ -2663,7 +2638,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                                  + (-prev_unit_vec.k * unit_vec.k),
                                  + (-prev_unit_vec.m * unit_vec.m),
                                  + (-prev_unit_vec.o * unit_vec.o),
-                                 + (-prev_unit_vec.p * unit_vec.p),
                                  + (-prev_unit_vec.q * unit_vec.q)
                                );
 
@@ -3009,7 +2983,6 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       int32_t(LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS])),
       int32_t(LROUND(abce.m * settings.axis_steps_per_mm[M_AXIS])),
       int32_t(LROUND(abce.o * settings.axis_steps_per_mm[O_AXIS])),
-      int32_t(LROUND(abce.p * settings.axis_steps_per_mm[P_AXIS])),
       int32_t(LROUND(abce.q * settings.axis_steps_per_mm[Q_AXIS]))
     )
   };
@@ -3073,11 +3046,6 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       SERIAL_CHAR(')');
     #endif
     #if LINEAR_AXES >= 9
-      SERIAL_ECHOPAIR_P(SP_P_LBL, abce.p);
-      SERIAL_ECHOPAIR(" (", position.p, "->", target.p);
-      SERIAL_CHAR(')');
-    #endif
-    #if LINEAR_AXES >= 10
       SERIAL_ECHOPAIR_P(SP_Q_LBL, abce.q);
       SERIAL_ECHOPAIR(" (", position.q, "->", target.q);
       SERIAL_CHAR(')');
@@ -3124,14 +3092,14 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
       const xyze_pos_t cart_dist_mm = LOGICAL_AXIS_ARRAY(
         cart.e - position_cart.e,
         cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
-        cart.i - position_cart.i, cart.j - position_cart.j, cart.j - position_cart.k,
-        cart.m - position_cart.m, cart.o - position_cart.o, cart.p - position_cart.p, cart.q - position_cart.q
+        cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
+        cart.m - position_cart.m, cart.o - position_cart.o, cart.q - position_cart.q
       );
     #else
       const xyz_pos_t cart_dist_mm = LINEAR_AXIS_ARRAY(
         cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
-        cart.i - position_cart.i, cart.j - position_cart.j, cart.j - position_cart.k,
-        cart.m - position_cart.m, cart.o - position_cart.o, cart.p - position_cart.p, cart.q - position_cart.q
+        cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
+        cart.m - position_cart.m, cart.o - position_cart.o, cart.q - position_cart.q
       );
     #endif
 
@@ -3239,7 +3207,6 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
       LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS]),
       LROUND(abce.m * settings.axis_steps_per_mm[M_AXIS]),
       LROUND(abce.o * settings.axis_steps_per_mm[O_AXIS]),
-      LROUND(abce.p * settings.axis_steps_per_mm[P_AXIS]),
       LROUND(abce.q * settings.axis_steps_per_mm[Q_AXIS])
     )
   );

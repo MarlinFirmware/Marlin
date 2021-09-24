@@ -420,9 +420,6 @@ namespace ExtUI {
         #if AXIS_IS_TMC(O)
           case O: return stepperO.getMilliamps();
         #endif
-        #if AXIS_IS_TMC(P)
-          case P: return stepperP.getMilliamps();
-        #endif
         #if AXIS_IS_TMC(Q)
           case Q: return stepperQ.getMilliamps();
         #endif
@@ -501,9 +498,6 @@ namespace ExtUI {
         #if AXIS_IS_TMC(O)
           case O: stepperO.rms_current(constrain(mA, 400, 1500)); break;
         #endif
-        #if AXIS_IS_TMC(P)
-          case P: stepperP.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
         #if AXIS_IS_TMC(Q)
           case Q: stepperQ.rms_current(constrain(mA, 400, 1500)); break;
         #endif
@@ -566,7 +560,6 @@ namespace ExtUI {
         OPTCODE(K_SENSORLESS,  case K:  return stepperK.homing_threshold())
         OPTCODE(M_SENSORLESS,  case M:  return stepperM.homing_threshold())
         OPTCODE(O_SENSORLESS,  case O:  return stepperO.homing_threshold())
-        OPTCODE(P_SENSORLESS,  case P:  return stepperP.homing_threshold())
         OPTCODE(Q_SENSORLESS,  case Q:  return stepperQ.homing_threshold())
         OPTCODE(X2_SENSORLESS, case X2: return stepperX2.homing_threshold())
         OPTCODE(Y2_SENSORLESS, case Y2: return stepperY2.homing_threshold())
@@ -602,9 +595,6 @@ namespace ExtUI {
         #endif
         #if O_SENSORLESS
           case O: stepperO.homing_threshold(value); break;
-        #endif
-        #if P_SENSORLESS
-          case P: stepperP.homing_threshold(value); break;
         #endif
         #if Q_SENSORLESS
           case Q: stepperQ.homing_threshold(value); break;

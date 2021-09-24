@@ -96,9 +96,6 @@
 #ifndef AXIS9_NAME
   #define AXIS9_NAME 'W'
 #endif
-#ifndef AXIS10_NAME
-  #define AXIS10_NAME 'D'
-#endif
 
 #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
 #if HAS_Y_AXIS
@@ -125,9 +122,6 @@
   #define O_MAX_LENGTH (O_MAX_POS - (O_MIN_POS))
 #endif
 #if LINEAR_AXES >= 9
-  #define P_MAX_LENGTH (P_MAX_POS - (P_MIN_POS))
-#endif
-#if LINEAR_AXES >= 10    /**SG**/
   #define Q_MAX_LENGTH (Q_MAX_POS - (Q_MIN_POS))
 #endif
 
@@ -153,10 +147,7 @@
 #if LINEAR_AXES >= 8 && !defined(O_BED_SIZE)
   #define O_BED_SIZE O_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 9 && !defined(P_BED_SIZE)
-  #define P_BED_SIZE P_MAX_LENGTH
-#endif
-#if LINEAR_AXES >= 10 && !defined(Q_BED_SIZE)
+#if LINEAR_AXES >= 9 && !defined(Q_BED_SIZE)
   #define Q_BED_SIZE Q_MAX_LENGTH
 #endif
 
@@ -186,9 +177,6 @@
   #define _O_HALF_OMAX ((O_BED_SIZE) / 2)
 #endif
 #if LINEAR_AXES >= 9
-  #define _P_HALF_PMAX ((P_BED_SIZE) / 2)
-#endif
-#if LINEAR_AXES >= 10
   #define _Q_HALF_PMAX ((Q_BED_SIZE) / 2)
 #endif
 
@@ -213,9 +201,6 @@
   #define O_CENTER TERN(BED_CENTER_AT_0_0, 0, _O_HALF_BED)
 #endif
 #if LINEAR_AXES >= 9
-  #define P_CENTER TERN(BED_CENTER_AT_0_0, 0, _P_HALF_BED)
-#endif
-#if LINEAR_AXES >= 10
   #define Q_CENTER TERN(BED_CENTER_AT_0_0, 0, _Q_HALF_BED)
 #endif
 
@@ -247,10 +232,6 @@
   #define O_MAXIM (O_MINIM + O_BED_SIZE)
 #endif
 #if LINEAR_AXES >= 9
-  #define P_MINIM (P_CENTER - _P_HALF_BED_SIZE)
-  #define P_MAXIM (P_MINIM + P_BED_SIZE)
-#endif
-#if LINEAR_AXES >= 10
   #define Q_MINIM (Q_CENTER - _Q_HALF_BED_SIZE)
   #define Q_MAXIM (Q_MINIM + Q_BED_SIZE)
 #endif
@@ -350,7 +331,7 @@
     #define K_HOME_POS TERN(K_HOME_TO_MIN, K_MIN_POS, K_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 7    /**SG**/
+#if LINEAR_AXES >= 7
   #ifdef MANUAL_M_HOME_POS
     #define M_HOME_POS MANUAL_M_HOME_POS
   #else
@@ -365,13 +346,6 @@
   #endif
 #endif
 #if LINEAR_AXES >= 9
-  #ifdef MANUAL_P_HOME_POS
-    #define P_HOME_POS MANUAL_P_HOME_POS
-  #else
-    #define P_HOME_POS (P_HOME_DIR < 0 ? P_MIN_POS : P_MAX_POS)
-  #endif
-#endif
-#if LINEAR_AXES >= 10
   #ifdef MANUAL_Q_HOME_POS
     #define Q_HOME_POS MANUAL_Q_HOME_POS
   #else
@@ -1493,9 +1467,6 @@
   #if ENABLED(USE_OMAX_PLUG)
     #define ENDSTOPPULLUP_OMAX
   #endif
-  #if ENABLED(USE_PMAX_PLUG)
-    #define ENDSTOPPULLUP_PMAX
-  #endif
   #if ENABLED(USE_QMAX_PLUG)
     #define ENDSTOPPULLUP_QMAX
   #endif
@@ -1522,9 +1493,6 @@
   #endif
   #if ENABLED(USE_OMIN_PLUG)
     #define ENDSTOPPULLUP_OMIN
-  #endif
-  #if ENABLED(USE_PMIN_PLUG)
-    #define ENDSTOPPULLUP_PMIN
   #endif
   #if ENABLED(USE_QMIN_PLUG)
     #define ENDSTOPPULLUP_QMIN
@@ -1792,26 +1760,6 @@
 #endif
 
 #if LINEAR_AXES >= 9
-  #if PIN_EXISTS(P_ENABLE) || AXIS_IS_L64XX(P) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(P))
-    #define HAS_P_ENABLE 1
-  #endif
-  #if PIN_EXISTS(P_DIR)
-    #define HAS_P_DIR 1
-  #endif
-  #if PIN_EXISTS(P_STEP)
-    #define HAS_P_STEP 1
-  #endif
-  #if PIN_EXISTS(P_MS1)
-    #define HAS_P_MS_PINS 1
-  #endif
-  #if !defined(DISABLE_INACTIVE_P) && ENABLED(DISABLE_P)
-    #define DISABLE_INACTIVE_P 1
-  #endif
-#else
-  #undef DISABLE_INACTIVE_P
-#endif
-
-#if LINEAR_AXES >= 10
   #if PIN_EXISTS(Q_ENABLE) || AXIS_IS_L64XX(Q) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Q))
     #define HAS_Q_ENABLE 1
   #endif
@@ -1822,7 +1770,7 @@
     #define HAS_Q_STEP 1
   #endif
   #if PIN_EXISTS(Q_MS1)
-    #define HAS_K_MS_PINS 1
+    #define HAS_Q_MS_PINS 1
   #endif
   #if !defined(DISABLE_INACTIVE_Q) && ENABLED(DISABLE_Q)
     #define DISABLE_INACTIVE_Q 1
@@ -1988,7 +1936,7 @@
 //
 
 #if HAS_TRINAMIC_CONFIG
-  #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_M, STEALTHCHOP_O, STEALTHCHOP_P, STEALTHCHOP_Q)
+  #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_M, STEALTHCHOP_O, STEALTHCHOP_Q)
     #define STEALTHCHOP_ENABLED 1
   #endif
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
@@ -2034,6 +1982,15 @@
   #if defined(K_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(K)
     #define K_SENSORLESS 1
   #endif
+  #if defined(M_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(M)
+    #define M_SENSORLESS 1
+  #endif
+  #if defined(O_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(O)
+    #define O_SENSORLESS 1
+  #endif
+  #if defined(Q_STALL_SENSITIVITY)  && AXIS_HAS_STALLGUARD(Q)
+    #define Q_SENSORLESS 1
+  #endif
 
   #if AXIS_HAS_STEALTHCHOP(X)
     #define X_HAS_STEALTHCHOP 1
@@ -2073,9 +2030,6 @@
   #endif
   #if AXIS_HAS_STEALTHCHOP(O)
     #define O_HAS_STEALTHCHOP 1
-  #endif
-  #if AXIS_HAS_STEALTHCHOP(P)
-    #define P_HAS_STEALTHCHOP 1
   #endif
   #if AXIS_HAS_STEALTHCHOP(Q)
     #define Q_HAS_STEALTHCHOP 1
@@ -2129,9 +2083,6 @@
       #define O_SPI_SENSORLESS O_SENSORLESS
     #endif
     #if LINEAR_AXES >= 9
-      #define P_SPI_SENSORLESS P_SENSORLESS
-    #endif
-    #if LINEAR_AXES >= 10
       #define Q_SPI_SENSORLESS Q_SENSORLESS
     #endif
   #endif
@@ -2174,10 +2125,7 @@
   #if LINEAR_AXES >= 8 && !defined(O_INTERPOLATE)
     #define O_INTERPOLATE INTERPOLATE
   #endif
-  #if LINEAR_AXES >= 9 && !defined(P_INTERPOLATE)
-    #define P_INTERPOLATE INTERPOLATE
-  #endif
-  #if LINEAR_AXES >= 10 && !defined(Q_INTERPOLATE)
+  #if LINEAR_AXES >= 9 && !defined(Q_INTERPOLATE)
     #define Q_INTERPOLATE INTERPOLATE
   #endif
   #ifndef E0_INTERPOLATE
@@ -2227,9 +2175,6 @@
   #endif
   #ifndef O_SLAVE_ADDRESS
     #define O_SLAVE_ADDRESS 0
-  #endif
-  #ifndef P_SLAVE_ADDRESS
-    #define P_SLAVE_ADDRESS 0
   #endif
   #ifndef Q_SLAVE_ADDRESS
     #define Q_SLAVE_ADDRESS 0
@@ -2446,12 +2391,6 @@
 #endif
 #if _HAS_STOP(O,MAX)
   #define HAS_O_MAX 1
-#endif
-#if _HAS_STOP(P,MIN)
-  #define HAS_P_MIN 1
-#endif
-#if _HAS_STOP(P,MAX)
-  #define HAS_P_MAX 1
 #endif
 #if _HAS_STOP(Q,MIN)
   #define HAS_Q_MIN 1
@@ -2939,7 +2878,7 @@
 #if HAS_EXTRUDERS && PIN_EXISTS(MOTOR_CURRENT_PWM_E)
   #define HAS_MOTOR_CURRENT_PWM_E 1
 #endif
-#if HAS_MOTOR_CURRENT_PWM_E || ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_M, MOTOR_CURRENT_PWM_O, MOTOR_CURRENT_PWM_P, MOTOR_CURRENT_PWM_Q)
+#if HAS_MOTOR_CURRENT_PWM_E || ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_M, MOTOR_CURRENT_PWM_O, MOTOR_CURRENT_PWM_Q)
   #define HAS_MOTOR_CURRENT_PWM 1
 #endif
 
@@ -2949,7 +2888,7 @@
 #if ANY(HAS_E0_MS_PINS, HAS_E1_MS_PINS, HAS_E2_MS_PINS, HAS_E3_MS_PINS, HAS_E4_MS_PINS, HAS_E5_MS_PINS, HAS_E6_MS_PINS, HAS_E7_MS_PINS)
   #define HAS_SOME_E_MS_PINS 1
 #endif
-#if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_I_MS_PINS, HAS_J_MS_PINS, HAS_K_MS_PINS, HAS_M_MS_PINS, HAS_O_MS_PINS, HAS_P_MS_PINS, HAS_Q_MS_PINS, HAS_SOME_E_MS_PINS)
+#if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_I_MS_PINS, HAS_J_MS_PINS, HAS_K_MS_PINS, HAS_M_MS_PINS, HAS_O_MS_PINS, HAS_Q_MS_PINS, HAS_SOME_E_MS_PINS)
   #define HAS_MICROSTEPS 1
 #endif
 

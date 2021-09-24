@@ -177,17 +177,6 @@ void setup_endstop_interrupts() {
     #endif
     _ATTACH(O_MIN_PIN);
   #endif
-  #if HAS_P_MAX
-    #if !LPC1768_PIN_INTERRUPT_M(P_MAX_PIN)
-      #error "P_MAX_PIN is not INTERRUPT-capable."
-    #endif
-    _ATTACH(P_MAX_PIN);
-  #elif HAS_P_MIN
-    #if !LPC1768_PIN_INTERRUPT_M(P_MIN_PIN)
-      #error "P_MIN_PIN is not INTERRUPT-capable."
-    #endif
-    _ATTACH(P_MIN_PIN);
-  #endif
   #if HAS_Q_MAX
     #if !LPC1768_PIN_INTERRUPT_M(Q_MAX_PIN)
       #error "Q_MAX_PIN is not INTERRUPT-capable."

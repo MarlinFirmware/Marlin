@@ -84,7 +84,6 @@ axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   | (ar_init.k << REL_K),
   | (ar_init.m << REL_M),
   | (ar_init.o << REL_O),
-  | (ar_init.p << REL_P),
   | (ar_init.q << REL_Q)
 );
 

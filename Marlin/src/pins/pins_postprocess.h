@@ -227,9 +227,6 @@
 #if !AXIS_HAS_SPI(O)
   #undef O_CS_PIN
 #endif
-#if !AXIS_HAS_SPI(P)
-  #undef P_CS_PIN
-#endif
 #if !AXIS_HAS_SPI(Q)
   #undef Q_CS_PIN
 #endif
@@ -281,9 +278,6 @@
 #endif
 #ifndef O_CS_PIN
   #define O_CS_PIN -1
-#endif
-#ifndef P_CS_PIN
-  #define P_CS_PIN -1
 #endif
 #ifndef Q_CS_PIN
   #define Q_CS_PIN -1
@@ -600,29 +594,6 @@
 #endif
 
 #if LINEAR_AXES >= 9
-  #ifdef P_STOP_PIN
-    #if P_HOME_TO_MIN
-      #define P_MIN_PIN P_STOP_PIN
-      #ifndef P_MAX_PIN
-        #define P_MAX_PIN -1
-      #endif
-    #else
-      #define P_MAX_PIN P_STOP_PIN
-      #ifndef P_MIN_PIN
-        #define P_MIN_PIN -1
-      #endif
-    #endif
-  #elif P_HOME_TO_MIN
-    #define P_STOP_PIN P_MIN_PIN
-  #else
-    #define P_STOP_PIN P_MAX_PIN
-  #endif
-#else
-  #undef P_MIN_PIN
-  #undef P_MAX_PIN
-#endif
-
-#if LINEAR_AXES >= 10
   #ifdef Q_STOP_PIN
     #if Q_HOME_TO_MIN
       #define Q_MIN_PIN Q_STOP_PIN
@@ -1532,88 +1503,8 @@
   #define O_MS3_PIN -1
 #endif
 
-// The P axis, if any, should be the next open extruder port
-#if LINEAR_AXES >= 9
-  #ifndef P_STEP_PIN
-    #define P_STEP_PIN   _EPIN(P_E_INDEX, STEP)
-    #define P_DIR_PIN    _EPIN(P_E_INDEX, DIR)
-    #define P_ENABLE_PIN _EPIN(P_E_INDEX, ENABLE)
-    #if P_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(P_STEP)
-      #error "No E stepper plug left for P!"
-    #else
-      #define AUTO_ASSIGNED_P_STEPPER 1
-    #endif
-  #endif
-  #if AXIS_HAS_SPI(K) && !defined(P_CS_PIN)
-    #define P_CS_PIN     _EPIN(P_E_INDEX, CS)
-    #if PIN_EXISTS(P_CS)
-      #define AUTO_ASSIGNED_P_CS 1
-    #endif
-  #endif
-  #ifndef P_MS1_PIN
-    #define P_MS1_PIN    _EPIN(P_E_INDEX, MS1)
-    #if PIN_EXISTS(P_MS1)
-      #define AUTO_ASSIGNED_P_MS1 1
-    #endif
-  #endif
-  #ifndef P_MS2_PIN
-    #define P_MS2_PIN    _EPIN(P_E_INDEX, MS2)
-    #if PIN_EXISTS(P_MS2)
-      #define AUTO_ASSIGNED_P_MS2 1
-    #endif
-  #endif
-  #ifndef P_MS3_PIN
-    #define P_MS3_PIN    _EPIN(P_E_INDEX, MS3)
-    #if PIN_EXISTS(P_MS3)
-      #define AUTO_ASSIGNED_P_MS3 1
-    #endif
-  #endif
-  #if AXIS_HAS_UART(K)
-    #ifndef P_SERIAL_TX_PIN
-      #define P_SERIAL_TX_PIN _EPIN(P_E_INDEX, SERIAL_TX)
-    #endif
-    #ifndef P_SERIAL_RX_PIN
-      #define P_SERIAL_RX_PIN _EPIN(P_E_INDEX, SERIAL_RX)
-    #endif
-  #endif
-  // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(P_DIAG_PIN) && !defined(P_USE_ENDSTOP) && defined(P_STALL_SENSITIVITY) && _PEXI(P_E_INDEX, DIAG)
-    #define P_DIAG_PIN _EPIN(P_E_INDEX, DIAG)
-    #if   DIAG_REMAPPED(P, X_MIN)
-      #define P_USE_ENDSTOP _XMIN_
-    #elif DIAG_REMAPPED(P, Y_MIN)
-      #define P_USE_ENDSTOP _YMIN_
-    #elif DIAG_REMAPPED(P, Z_MIN)
-      #define P_USE_ENDSTOP _ZMIN_
-    #elif DIAG_REMAPPED(P, X_MAX)
-      #define P_USE_ENDSTOP _XMAX_
-    #elif DIAG_REMAPPED(P, Y_MAX)
-      #define P_USE_ENDSTOP _YMAX_
-    #elif DIAG_REMAPPED(P, Z_MAX)
-      #define P_USE_ENDSTOP _ZMAX_
-    #else
-      #define P_USE_ENDSTOP _En_DIAG_(P_E_INDEX)
-    #endif
-    #define AUTO_ASSIGNED_P_DIAG 1
-    #undef P_DIAG_PIN // Defined in Conditionals_post.h based on P_USE_ENDSTOP
-  #endif
-#endif
-
-#ifndef P_CS_PIN
-  #define P_CS_PIN  -1
-#endif
-#ifndef P_MS1_PIN
-  #define P_MS1_PIN -1
-#endif
-#ifndef P_MS2_PIN
-  #define P_MS2_PIN -1
-#endif
-#ifndef P_MS3_PIN
-  #define P_MS3_PIN -1
-#endif
-
 // The Q axis, if any, should be the next open extruder port
-#if LINEAR_AXES >= 10
+#if LINEAR_AXES >= 9
   #ifndef Q_STEP_PIN
     #define Q_STEP_PIN   _EPIN(Q_E_INDEX, STEP)
     #define Q_DIR_PIN    _EPIN(Q_E_INDEX, DIR)
@@ -1782,14 +1673,6 @@
 #if DISABLED(USE_OMAX_PLUG)
   #undef O_MAX_PIN
   #define O_MAX_PIN          -1
-#endif
-#if DISABLED(USE_PMIN_PLUG)
-  #undef P_MIN_PIN
-  #define P_MIN_PIN          -1
-#endif
-#if DISABLED(USE_PMAX_PLUG)
-  #undef P_MAX_PIN
-  #define P_MAX_PIN          -1
 #endif
 #if DISABLED(USE_QMIN_PLUG)
   #undef Q_MIN_PIN

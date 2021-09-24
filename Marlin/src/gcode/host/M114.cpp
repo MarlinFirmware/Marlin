@@ -140,9 +140,6 @@
       #if AXIS_IS_L64XX(O)
         REPORT_ABSOLUTE_POS(O);
       #endif
-      #if AXIS_IS_L64XX(P)
-        REPORT_ABSOLUTE_POS(P);
-      #endif
       #if AXIS_IS_L64XX(Q)
         REPORT_ABSOLUTE_POS(Q);
       #endif
@@ -199,7 +196,6 @@
       planner.get_axis_position_mm(K_AXIS),
       planner.get_axis_position_mm(M_AXIS),
       planner.get_axis_position_mm(O_AXIS),
-      planner.get_axis_position_mm(P_AXIS),
       planner.get_axis_position_mm(Q_AXIS)
     );
     report_all_axis_pos(from_steppers);

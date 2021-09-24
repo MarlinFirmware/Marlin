@@ -933,11 +933,6 @@
 #elif O_HOME_DIR < 0
   #define O_HOME_TO_MIN 1
 #endif
-#if P_HOME_DIR > 0
-  #define P_HOME_TO_MAX 1
-#elif P_HOME_DIR < 0
-  #define P_HOME_TO_MIN 1
-#endif
 #if Q_HOME_DIR > 0
   #define Q_HOME_TO_MAX 1
 #elif Q_HOME_DIR < 0
@@ -1233,10 +1228,7 @@
 #if LINEAR_AXES >= 8 && !defined(INVERT_O_DIR)
   #define INVERT_O_DIR false
 #endif
-#if LINEAR_AXES >= 9 && !defined(INVERT_P_DIR)
-  #define INVERT_P_DIR false
-#endif
-#if LINEAR_AXES >= 10 && !defined(INVERT_Q_DIR)
+#if LINEAR_AXES >= 9 && !defined(INVERT_Q_DIR)
   #define INVERT_Q_DIR false
 #endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)

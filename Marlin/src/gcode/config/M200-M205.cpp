@@ -186,7 +186,10 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
       SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]),
       SP_I_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[I_AXIS]),
       SP_J_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[J_AXIS]),
-      SP_K_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[K_AXIS])
+      SP_K_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[K_AXIS]),
+      SP_M_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[M_AXIS]),
+      SP_O_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[O_AXIS]),
+      SP_Q_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Q_AXIS])
     )
     #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
       , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS])
@@ -253,7 +256,7 @@ void GcodeSuite::M205() {
   if (parser.seenval('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seenval('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if HAS_JUNCTION_DEVIATION
-    #if HAS_CLASSIC_JERK && (AXIS4_NAME == 'J' || AXIS5_NAME == 'J' || AXIS6_NAME == 'J' || AXIS7_NAME == 'J' || AXIS8_NAME == 'J' || AXIS9_NAME == 'J' || AXIS10_NAME == 'J')
+    #if HAS_CLASSIC_JERK && (AXIS4_NAME == 'J' || AXIS5_NAME == 'J' || AXIS6_NAME == 'J' || AXIS7_NAME == 'J' || AXIS8_NAME == 'J' || AXIS9_NAME == 'J')
       #error "Can't set_max_jerk for 'J' axis because 'J' is used for Junction Deviation."
     #endif
     if (parser.seenval('J')) {
@@ -273,13 +276,12 @@ void GcodeSuite::M205() {
       if (parser.seenval('X')) planner.set_max_jerk(X_AXIS, parser.value_linear_units()),
       if (parser.seenval('Y')) planner.set_max_jerk(Y_AXIS, parser.value_linear_units()),
       if ((seenZ = parser.seenval('Z'))) planner.set_max_jerk(Z_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS4_NAME))  planner.set_max_jerk(I_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS5_NAME))  planner.set_max_jerk(J_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS6_NAME))  planner.set_max_jerk(K_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS7_NAME))  planner.set_max_jerk(M_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS8_NAME))  planner.set_max_jerk(O_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS9_NAME))  planner.set_max_jerk(P_AXIS, parser.value_linear_units()),
-      if (parser.seenval(AXIS10_NAME)) planner.set_max_jerk(Q_AXIS, parser.value_linear_units())
+      if (parser.seenval(AXIS4_NAME)) planner.set_max_jerk(I_AXIS, parser.value_linear_units()),
+      if (parser.seenval(AXIS5_NAME)) planner.set_max_jerk(J_AXIS, parser.value_linear_units()),
+      if (parser.seenval(AXIS6_NAME)) planner.set_max_jerk(K_AXIS, parser.value_linear_units()),
+      if (parser.seenval(AXIS7_NAME)) planner.set_max_jerk(M_AXIS, parser.value_linear_units()),
+      if (parser.seenval(AXIS8_NAME)) planner.set_max_jerk(O_AXIS, parser.value_linear_units()),
+      if (parser.seenval(AXIS9_NAME)) planner.set_max_jerk(Q_AXIS, parser.value_linear_units())
     );
     #if HAS_MESH && DISABLED(LIMITED_JERK_EDITING)
       if (seenZ && planner.max_jerk.z <= 0.1f)
@@ -292,7 +294,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, PSTR(
     "Advanced (B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
     TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
-    TERN_(HAS_CLASSIC_JERK, " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>")
+    TERN_(HAS_CLASSIC_JERK, " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>")  // TODO (DerAndere): Add support for LINEAR_AXES >= 4
     TERN_(HAS_CLASSIC_E_JERK, " E<max_e_jerk>")
     ")"
   ));
@@ -310,7 +312,10 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
         SP_Z_STR, LINEAR_UNIT(planner.max_jerk.z),
         SP_I_STR, LINEAR_UNIT(planner.max_jerk.i),
         SP_J_STR, LINEAR_UNIT(planner.max_jerk.j),
-        SP_K_STR, LINEAR_UNIT(planner.max_jerk.k)
+        SP_K_STR, LINEAR_UNIT(planner.max_jerk.k),
+        SP_M_STR, LINEAR_UNIT(planner.max_jerk.m),
+        SP_O_STR, LINEAR_UNIT(planner.max_jerk.o),
+        SP_Q_STR, LINEAR_UNIT(planner.max_jerk.q)
       )
       #if HAS_CLASSIC_E_JERK
         , SP_E_STR, LINEAR_UNIT(planner.max_jerk.e)

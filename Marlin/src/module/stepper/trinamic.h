@@ -51,7 +51,6 @@
 #define TMC_K_LABEL 'K', '0'
 #define TMC_M_LABEL 'M', '0'
 #define TMC_O_LABEL 'O', '0'
-#define TMC_P_LABEL 'P', '0'
 #define TMC_Q_LABEL 'Q', '0'
 
 #define TMC_X2_LABEL 'X', '2'
@@ -108,10 +107,7 @@ typedef struct {
 #if LINEAR_AXES >= 8 && !defined(CHOPPER_TIMING_O)
   #define CHOPPER_TIMING_O CHOPPER_TIMING
 #endif
-#if LINEAR_AXES >= 9 && !defined(CHOPPER_TIMING_P)
-  #define CHOPPER_TIMING_P CHOPPER_TIMING
-#endif
-#if LINEAR_AXES >= 10 && !defined(CHOPPER_TIMING_Q)
+#if LINEAR_AXES >= 9 && !defined(CHOPPER_TIMING_Q)
   #define CHOPPER_TIMING_Q CHOPPER_TIMING
 #endif
 #if HAS_EXTRUDERS && !defined(CHOPPER_TIMING_E)
@@ -321,20 +317,6 @@ void reset_trinamic_drivers();
   #endif
   #if AXIS_HAS_SQUARE_WAVE(O)
     #define O_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(O_STEP_PIN); }while(0)
-  #endif
-#endif
-
-// P Stepper
-#if AXIS_IS_TMC(P)
-  extern TMC_CLASS(P, P) stepperP;
-  static constexpr chopper_timing_t chopper_timing_P = CHOPPER_TIMING_P;
-  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define P_ENABLE_INIT() NOOP
-    #define P_ENABLE_WRITE(STATE) stepperP.toff((STATE)==P_ENABLE_ON ? chopper_timing_P.toff : 0)
-    #define P_ENABLE_READ() stepperP.isEnabled()
-  #endif
-  #if AXIS_HAS_SQUARE_WAVE(P)
-    #define P_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(P_STEP_PIN); }while(0)
   #endif
 #endif
 

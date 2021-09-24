@@ -65,7 +65,6 @@
 #define AXIS_DRIVER_TYPE_K(T) _AXIS_DRIVER_TYPE(K,T)
 #define AXIS_DRIVER_TYPE_M(T) _AXIS_DRIVER_TYPE(M,T)
 #define AXIS_DRIVER_TYPE_O(T) _AXIS_DRIVER_TYPE(O,T)
-#define AXIS_DRIVER_TYPE_P(T) _AXIS_DRIVER_TYPE(P,T)
 #define AXIS_DRIVER_TYPE_Q(T) _AXIS_DRIVER_TYPE(Q,T)
 
 #define AXIS_DRIVER_TYPE_X2(T) (EITHER(X_DUAL_STEPPER_DRIVERS, DUAL_X_CARRIAGE) && _AXIS_DRIVER_TYPE(X2,T))
@@ -91,7 +90,7 @@
 
 #define HAS_DRIVER(T) (  AXIS_DRIVER_TYPE_X(T)  || AXIS_DRIVER_TYPE_Y(T)  || AXIS_DRIVER_TYPE_Z(T)  \
                       || AXIS_DRIVER_TYPE_I(T)  || AXIS_DRIVER_TYPE_J(T)  || AXIS_DRIVER_TYPE_K(T)  \
-                      || AXIS_DRIVER_TYPE_M(T)  || AXIS_DRIVER_TYPE_O(T)  || AXIS_DRIVER_TYPE_P(T) || AXIS_DRIVER_TYPE_Q(T) \
+                      || AXIS_DRIVER_TYPE_M(T)  || AXIS_DRIVER_TYPE_O(T)  || AXIS_DRIVER_TYPE_Q(T)  \
                       || AXIS_DRIVER_TYPE_X2(T) || AXIS_DRIVER_TYPE_Y2(T) || AXIS_DRIVER_TYPE_Z2(T) \
                       || AXIS_DRIVER_TYPE_Z3(T) || AXIS_DRIVER_TYPE_Z4(T) || HAS_E_DRIVER(T) )
 
@@ -166,7 +165,7 @@
                           || AXIS_HAS_##T(Y) || AXIS_HAS_##T(Y2) \
                           || AXIS_HAS_##T(Z) || AXIS_HAS_##T(Z2) || AXIS_HAS_##T(Z3) || AXIS_HAS_##T(Z4) \
                           || AXIS_HAS_##T(I) || AXIS_HAS_##T(J)  || AXIS_HAS_##T(K) \
-                          || AXIS_HAS_##T(M) || AXIS_HAS_##T(O) || AXIS_HAS_##T(P)  || AXIS_HAS_##T(Q) \
+                          || AXIS_HAS_##T(M) || AXIS_HAS_##T(O)  || AXIS_HAS_##T(Q) \
                           || E_AXIS_HAS(T) )
 
 #if ANY_AXIS_HAS(STEALTHCHOP)

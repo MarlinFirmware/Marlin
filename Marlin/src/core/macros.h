@@ -41,7 +41,6 @@
 #define _KMIN_   0x16
 #define _MMIN_   0x17
 #define _OMIN_   0x18
-#define _PMIN_   0x19
 #define _QMIN_   0x1A
 #define _XMAX_   0x21
 #define _YMAX_   0x22
@@ -51,7 +50,6 @@
 #define _KMAX_   0x26
 #define _MMAX_   0x27
 #define _OMAX_   0x28
-#define _PMAX_   0x29
 #define _QMAX_   0x2A
 #define _XDIAG_  0x31
 #define _YDIAG_  0x32
@@ -263,7 +261,6 @@
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
-#define CODE_11( A,B,C,D,E,F,G,H,I,J,K,...) A; B; C; D; E; F; G; H; I; J; K
 #define CODE_10( A,B,C,D,E,F,G,H,I,J,...) A; B; C; D; E; F; G; H; I; J
 #define CODE_9( A,B,C,D,E,F,G,H,I,...) A; B; C; D; E; F; G; H; I
 #define CODE_8( A,B,C,D,E,F,G,H,...) A; B; C; D; E; F; G; H
@@ -300,8 +297,6 @@
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 
 // Macros for initializing arrays
-#define LIST_20(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T
-#define LIST_19(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S
 #define LIST_18(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
 #define LIST_17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q
 #define LIST_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
@@ -324,7 +319,7 @@
 
 #define _LIST_N(N,V...) LIST_##N(V)
 #define LIST_N(N,V...) _LIST_N(N,V)
-#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
+#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 #define ARRAY_N(N,V...) { _LIST_N(N,V) }
 #define ARRAY_N_1(N,K)  { LIST_N_1(N,K) }
 
@@ -523,8 +518,6 @@
 #define INC_16 17
 #define INC_17 18
 #define INC_18 19
-#define INC_19 20
-#define INC_20 21
 #define INCREMENT_(n) INC_##n
 #define INCREMENT(n) INCREMENT_(n)
 

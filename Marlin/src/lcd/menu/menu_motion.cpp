@@ -113,9 +113,6 @@ void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
   void lcd_move_o() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_O), O_AXIS); }
 #endif
 #if LINEAR_AXES >= 9
-  void lcd_move_p() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_P), P_AXIS); }
-#endif
-#if LINEAR_AXES >= 10
   void lcd_move_q() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Q), Q_AXIS); }
 #endif
 
@@ -273,9 +270,6 @@ void menu_move() {
       SUBMENU(MSG_MOVE_O, []{ _menu_move_distance(O_AXIS, lcd_move_o); });
     #endif
     #if LINEAR_AXES >= 9
-      SUBMENU(MSG_MOVE_P, []{ _menu_move_distance(P_AXIS, lcd_move_p); });
-    #endif
-    #if LINEAR_AXES >= 10
       SUBMENU(MSG_MOVE_Q, []{ _menu_move_distance(Q_AXIS, lcd_move_q); });
     #endif
   }
@@ -430,10 +424,7 @@ void menu_motion() {
       GCODES_ITEM(MSG_AUTO_HOME_O, PSTR("G28" AXIS8_STR));
     #endif
     #if LINEAR_AXES >= 9
-      GCODES_ITEM(MSG_AUTO_HOME_P, PSTR("G28" AXIS9_STR));
-    #endif
-    #if LINEAR_AXES >= 10
-      GCODES_ITEM(MSG_AUTO_HOME_Q, PSTR("G28" AXIS10_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_Q, PSTR("G28" AXIS9_STR));
     #endif
   #endif
 
