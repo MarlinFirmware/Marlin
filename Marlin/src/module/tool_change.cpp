@@ -405,7 +405,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     );
 
     thermalManager.heating_enabled = true;
-    reset_stepper_drivers();
+    //restore_stepper_drivers();
     enable_e_steppers();
   }
 
