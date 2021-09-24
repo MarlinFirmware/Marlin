@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_upload.cpp
 
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_upload.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
@@ -41,6 +44,10 @@ extern SZ_USART_FIFO WifiRxFifo;
 extern int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
 extern int writeUsartFifo(SZ_USART_FIFO * fifo, int8_t * buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_upload.cpp
+=======
+extern int usartFifoAvailable(SZ_USART_FIFO *fifo);
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_upload.cpp
 void wifi_delay(int n);
 
 #define ARRAY_SIZE(a) sizeof(a) / sizeof((a)[0])

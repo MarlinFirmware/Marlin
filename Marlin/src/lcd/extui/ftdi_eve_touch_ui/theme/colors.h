@@ -108,7 +108,10 @@ namespace Theme {
 
     constexpr uint32_t bed_mesh_lines_rgb   = accent_color_6;
     constexpr uint32_t bed_mesh_shadow_rgb  = 0x444444;
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/theme/colors.h
     #define BED_MESH_POINTS_GRAY
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/ftdi_eve_touch_ui/theme/colors.h
   #else
     constexpr uint32_t theme_darkest        = gray_color_1;
     constexpr uint32_t theme_dark           = gray_color_2;

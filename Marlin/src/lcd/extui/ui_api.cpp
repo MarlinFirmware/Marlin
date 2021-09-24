@@ -182,10 +182,17 @@ namespace ExtUI {
         #if HAS_HEATED_BED
           case BED: thermalManager.reset_bed_idle_timer(); return;
         #endif
+<<<<<<< Updated upstream
         #if HAS_HEATED_CHAMBER
           case CHAMBER: return; // Chamber has no idle timer
         #endif
         #if HAS_COOLER
+=======
+        #if ENABLED(HAS_HEATED_CHAMBER)
+          case CHAMBER: return; // Chamber has no idle timer
+        #endif
+        #if ENABLED(HAS_COOLER)
+>>>>>>> Stashed changes
           case COOLER: return;  // Cooler has no idle timer
         #endif
         default:
@@ -245,10 +252,17 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
+<<<<<<< Updated upstream
         #if HAS_HEATED_BED
           case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out;
         #endif
         #if HAS_HEATED_CHAMBER
+=======
+        #if ENABLED(HAS_HEATED_BED)
+          case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out;
+        #endif
+        #if ENABLED(HAS_HEATED_CHAMBER)
+>>>>>>> Stashed changes
           case CHAMBER: return false; // Chamber has no idle timer
         #endif
         default:
@@ -268,10 +282,17 @@ namespace ExtUI {
 
   celsius_float_t getActualTemp_celsius(const heater_t heater) {
     switch (heater) {
+<<<<<<< Updated upstream
       #if HAS_HEATED_BED
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
       #endif
       #if HAS_HEATED_CHAMBER
+=======
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+>>>>>>> Stashed changes
         case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degChamber());
       #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degHotend(heater - H0));
@@ -284,10 +305,17 @@ namespace ExtUI {
 
   celsius_float_t getTargetTemp_celsius(const heater_t heater) {
     switch (heater) {
+<<<<<<< Updated upstream
       #if HAS_HEATED_BED
         case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
       #endif
       #if HAS_HEATED_CHAMBER
+=======
+      #if ENABLED(HAS_HEATED_BED)
+        case BED: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetBed());
+      #endif
+      #if ENABLED(HAS_HEATED_CHAMBER)
+>>>>>>> Stashed changes
         case CHAMBER: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetChamber());
       #endif
       default: return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(heater - H0));
@@ -309,7 +337,11 @@ namespace ExtUI {
   }
 
   float getAxisPosition_mm(const axis_t axis) {
+<<<<<<< Updated upstream
     return current_position[axis];
+=======
+    return TERN0(JOYSTICK, flags.jogging) ? destination[axis] : current_position[axis];
+>>>>>>> Stashed changes
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
@@ -358,9 +390,20 @@ namespace ExtUI {
 
   extruder_t getTool(const uint8_t extruder) {
     switch (extruder) {
+<<<<<<< Updated upstream
       default:
       case 0: return E0; case 1: return E1; case 2: return E2; case 3: return E3;
       case 4: return E4; case 5: return E5; case 6: return E6; case 7: return E7;
+=======
+      case 7:  return E7;
+      case 6:  return E6;
+      case 5:  return E5;
+      case 4:  return E4;
+      case 3:  return E3;
+      case 2:  return E2;
+      case 1:  return E1;
+      default: return E0;
+>>>>>>> Stashed changes
     }
   }
 
@@ -422,6 +465,12 @@ namespace ExtUI {
         #endif
         #if AXIS_IS_TMC(Z2)
           case Z2: return stepperZ2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z3)
+          case Z3: return stepperZ3.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z4)
+          case Z4: return stepperZ4.getMilliamps();
         #endif
         default: return NAN;
       };
@@ -486,6 +535,12 @@ namespace ExtUI {
         #if AXIS_IS_TMC(Z2)
           case Z2: stepperZ2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
+        #if AXIS_IS_TMC(Z3)
+          case Z3: stepperZ3.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z4)
+          case Z4: stepperZ4.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
         default: break;
       };
     }
@@ -522,6 +577,7 @@ namespace ExtUI {
 
     int getTMCBumpSensitivity(const axis_t axis) {
       switch (axis) {
+<<<<<<< Updated upstream
         OPTCODE(X_SENSORLESS,  case X:  return stepperX.homing_threshold())
         OPTCODE(Y_SENSORLESS,  case Y:  return stepperY.homing_threshold())
         OPTCODE(Z_SENSORLESS,  case Z:  return stepperZ.homing_threshold())
@@ -533,6 +589,32 @@ namespace ExtUI {
         OPTCODE(Z2_SENSORLESS, case Z2: return stepperZ2.homing_threshold())
         OPTCODE(Z3_SENSORLESS, case Z3: return stepperZ3.homing_threshold())
         OPTCODE(Z4_SENSORLESS, case Z4: return stepperZ4.homing_threshold())
+=======
+        #if ENABLED(X_SENSORLESS)
+          case X:  return stepperX.homing_threshold();
+        #endif
+        #if ENABLED(X2_SENSORLESS)
+          case X2: return stepperX2.homing_threshold();
+        #endif
+        #if ENABLED(Y_SENSORLESS)
+          case Y:  return stepperY.homing_threshold();
+        #endif
+        #if ENABLED(Y2_SENSORLESS)
+          case Y2: return stepperY2.homing_threshold();
+        #endif
+        #if ENABLED(Z_SENSORLESS)
+          case Z:  return stepperZ.homing_threshold();
+        #endif
+        #if ENABLED(Z2_SENSORLESS)
+          case Z2: return stepperZ2.homing_threshold();
+        #endif
+        #if ENABLED(Z3_SENSORLESS)
+          case Z3: return stepperZ3.homing_threshold();
+        #endif
+        #if ENABLED(Z4_SENSORLESS)
+          case Z4: return stepperZ4.homing_threshold();
+        #endif
+>>>>>>> Stashed changes
         default: return 0;
       }
     }
@@ -593,7 +675,11 @@ namespace ExtUI {
   }
 
   void setAxisSteps_per_mm(const_float_t value, const extruder_t extruder) {
+<<<<<<< Updated upstream
     UNUSED(extruder);
+=======
+    UNUSED_E(extruder);
+>>>>>>> Stashed changes
     planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
     planner.refresh_positioning();
   }
@@ -630,7 +716,11 @@ namespace ExtUI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const_float_t value, const extruder_t extruder) {
+<<<<<<< Updated upstream
     UNUSED(extruder);
+=======
+    UNUSED_E(extruder);
+>>>>>>> Stashed changes
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
   }
 
@@ -694,7 +784,11 @@ namespace ExtUI {
   #endif
 
   #if PREHEAT_COUNT
+<<<<<<< Updated upstream
     uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
+=======
+      uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
+>>>>>>> Stashed changes
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
     #endif
@@ -783,10 +877,13 @@ namespace ExtUI {
       return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
 
+<<<<<<< Updated upstream
     float mmFromWholeSteps(int16_t steps, const axis_t axis) {
       return steps * planner.steps_to_mm[axis];
     }
 
+=======
+>>>>>>> Stashed changes
   #endif // BABYSTEPPING
 
   float getZOffset_mm() {
@@ -1021,6 +1118,7 @@ namespace ExtUI {
   }
 
   void setFeedrate_percent(const_float_t value) { feedrate_percentage = constrain(value, 10, 500); }
+<<<<<<< Updated upstream
 
   void coolDown() {
     #if HAS_HOTEND
@@ -1032,24 +1130,46 @@ namespace ExtUI {
 
   bool awaitingUserConfirm() {
     return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getHostKeepaliveIsPaused();
+=======
+
+  void coolDown() {
+    #if HAS_HOTEND
+      HOTEND_LOOP() thermalManager.setTargetHotend(0, e);
+    #endif
+    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
+    TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
+>>>>>>> Stashed changes
   }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
+<<<<<<< Updated upstream
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
     PauseMessage pauseModeStatus = PAUSE_MESSAGE_STATUS;
     PauseMode getPauseMode() { return pause_mode;}
   #endif
+=======
+  bool awaitingUserConfirm() { return wait_for_user; }
+
+  void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
+>>>>>>> Stashed changes
 
   void printFile(const char *filename) {
     TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
   }
 
   bool isPrintingFromMediaPaused() {
+<<<<<<< Updated upstream
     return TERN0(SDSUPPORT, IS_SD_PAUSED());
   }
 
   bool isPrintingFromMedia() { return TERN0(SDSUPPORT, IS_SD_PRINTING() || IS_SD_PAUSED()); }
+=======
+    return TERN0(SDSUPPORT, isPrintingFromMedia() && printingIsPaused());
+  }
+
+  bool isPrintingFromMedia() { return IS_SD_PRINTING(); }
+>>>>>>> Stashed changes
 
   bool isPrinting() {
     return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
@@ -1059,7 +1179,11 @@ namespace ExtUI {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
+<<<<<<< Updated upstream
   bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED()); }
+=======
+  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED() && card.isMounted()); }
+>>>>>>> Stashed changes
 
   void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }

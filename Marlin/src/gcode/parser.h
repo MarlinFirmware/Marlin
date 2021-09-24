@@ -133,9 +133,15 @@ public:
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (codenum == 800) {
+<<<<<<< Updated upstream
           SERIAL_ECHOPGM("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
           print_hex_word((uint16_t)(codebits & 0xFFFF));
           SERIAL_ECHOLNPGM(") | param = ", param[ind]);
+=======
+          SERIAL_ECHOPAIR("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
+          print_hex_word((uint16_t)(codebits & 0xFFFF));
+          SERIAL_ECHOLNPAIR(") | param = ", param[ind]);
+>>>>>>> Stashed changes
         }
       #endif
     }
@@ -357,6 +363,15 @@ public:
 
     #if HAS_LCD_MENU && DISABLED(DISABLE_M503)
 
+<<<<<<< Updated upstream
+=======
+      static inline char temp_units_code() {
+        return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
+      }
+      static inline PGM_P temp_units_name() {
+        return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
+      }
+>>>>>>> Stashed changes
       static inline float to_temp_units(celsius_t c) {
         switch (input_temp_units) {
           default:
@@ -415,8 +430,12 @@ public:
   static inline float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
   static inline float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
                                                                          { return seenval(c) ? value_axis_units(a)  : dval; }
+<<<<<<< Updated upstream
   static inline celsius_t celsiusval(const char c, const celsius_t dval=0)    { return seenval(c) ? value_celsius() : dval; }
   static inline feedRate_t feedrateval(const char c, const feedRate_t dval=0) { return seenval(c) ? value_feedrate() : dval; }
+=======
+  static inline celsius_t celsiusval(const char c, const float dval=0)   { return seenval(c) ? value_celsius()      : dval; }
+>>>>>>> Stashed changes
 
   #if ENABLED(MARLIN_DEV_MODE)
 

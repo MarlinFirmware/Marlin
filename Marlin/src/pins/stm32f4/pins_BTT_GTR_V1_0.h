@@ -23,9 +23,13 @@
 
 #include "env_validate.h"
 
+<<<<<<< Updated upstream
 #if E_STEPPERS > MAX_E_STEPPERS
   #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
 #elif HOTENDS > 8 || E_STEPPERS > 8
+=======
+#if HOTENDS > 8 || E_STEPPERS > 8
+>>>>>>> Stashed changes
   #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
 #endif
 
@@ -408,7 +412,10 @@
   #define TOUCH_MOSI_PIN             EXP1_08_PIN
   #define TOUCH_SCK_PIN              EXP1_06_PIN
   #define TOUCH_CS_PIN               EXP1_07_PIN
+<<<<<<< Updated upstream
   #define BTN_ENC                    EXP1_09_PIN
+=======
+>>>>>>> Stashed changes
   #define BTN_EN1                    EXP2_08_PIN
   #define BTN_EN2                    EXP2_06_PIN
 
@@ -418,9 +425,18 @@
 
   #if ENABLED(CR10_STOCKDISPLAY)
     #define LCD_PINS_RS              EXP1_04_PIN
+<<<<<<< Updated upstream
 
     #define BTN_EN1                  EXP1_08_PIN
     #define BTN_EN2                  EXP1_06_PIN
+=======
+
+    #define BTN_EN1                  EXP1_08_PIN
+    #define BTN_EN2                  EXP1_06_PIN
+
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
+>>>>>>> Stashed changes
 
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN

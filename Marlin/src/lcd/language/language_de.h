@@ -86,6 +86,7 @@ namespace Language_de {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("$ Bett Vorwärmen");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("$ Einstellungen");
   #endif
+<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("benutzerdef. Heizen");
   LSTR MSG_COOLDOWN                       = _UxGT("Abkühlen");
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frequenz");
@@ -145,6 +146,67 @@ namespace Language_de {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Bearbeitung beendet");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Eigenes Netz erst.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Netz erstellen");
+=======
+  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("benutzerdef. Heizen");
+  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Abkühlen");
+  PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequenz");
+  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laserleistung");
+  PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindel-Steuerung");
+  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindelleistung");
+  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindelrichtung");
+  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Netzteil ein");
+  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Netzteil aus");
+  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrudieren");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Einzug");
+  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Achsen bewegen");
+  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Bett-Nivellierung");
+  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Bett nivellieren");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Ecken nivellieren");
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Nächste Ecke");
+  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Netz Editor");
+  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Netz bearbeiten");
+  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Netzbearb. angeh.");
+  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Messpunkt");
+  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
+  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
+  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z-Wert");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Benutzer-Menü");
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Sondentest");
+  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punkt");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Zu weit draußen");
+  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Abweichung");
+  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX-Modus");
+  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Werkzeugversätze");
+  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Autom. parken");
+  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplizieren");
+  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Spiegelkopie");
+  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("vollstä. Kontrolle");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2. Düse X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2. Düse Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2. Düse Z");
+  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("G29 ausführen");
+  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("UBL-Werkzeuge");
+  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");
+  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Berührungspunkt");
+  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Netz manuell erst.");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Unterlegen & messen");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Messen");
+  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Entfernen & messen");
+  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Nächster Punkt...");
+  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("UBL aktivieren");
+  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("UBL deaktivieren");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Betttemperatur");
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Betttemperatur");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Hotend-Temp.");
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Hotend-Temp.");
+  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Netz bearbeiten");
+  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Eigenes Netz bearb.");
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Feineinstellung...");
+  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Bearbeitung beendet");
+  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Eigenes Netz erst.");
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Netz erstellen");
+>>>>>>> Stashed changes
   #if PREHEAT_COUNT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("$ Netz erstellen");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("$ Netz validieren");

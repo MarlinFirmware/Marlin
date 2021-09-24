@@ -49,7 +49,11 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
 
   initialized = true;
 
+<<<<<<< Updated upstream
   SERIAL_ECHOLNPGM("Setting up encoder on ", AS_CHAR(axis_codes[encoderAxis]), " axis, addr = ", address);
+=======
+  SERIAL_ECHOLNPAIR("Setting up encoder on ", AS_CHAR(axis_codes[encoderAxis]), " axis, addr = ", address);
+>>>>>>> Stashed changes
 
   position = get_position();
 }
@@ -67,7 +71,11 @@ void I2CPositionEncoder::update() {
     /*
     if (trusted) { //commented out as part of the note below
       trusted = false;
+<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM("Fault detected on ", AS_CHAR(axis_codes[encoderAxis]), " axis encoder. Disengaging error correction until module is trusted again.");
+=======
+      SERIAL_ECHOLNPAIR("Fault detected on ", AS_CHAR(axis_codes[encoderAxis]), " axis encoder. Disengaging error correction until module is trusted again.");
+>>>>>>> Stashed changes
     }
     */
     return;
@@ -92,7 +100,11 @@ void I2CPositionEncoder::update() {
       if (millis() - lastErrorTime > I2CPE_TIME_TRUSTED) {
         trusted = true;
 
+<<<<<<< Updated upstream
         SERIAL_ECHOLNPGM("Untrusted encoder module on ", AS_CHAR(axis_codes[encoderAxis]), " axis has been fault-free for set duration, reinstating error correction.");
+=======
+        SERIAL_ECHOLNPAIR("Untrusted encoder module on ", AS_CHAR(axis_codes[encoderAxis]), " axis has been fault-free for set duration, reinstating error correction.");
+>>>>>>> Stashed changes
 
         //the encoder likely lost its place when the error occurred, so we'll reset and use the printer's
         //idea of where it the axis is to re-initialize
@@ -173,7 +185,11 @@ void I2CPositionEncoder::update() {
             LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
             const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_CHAR(axis_codes[encoderAxis]);
+<<<<<<< Updated upstream
             SERIAL_ECHOLNPGM(" : CORRECT ERR ", errorP * planner.steps_to_mm[encoderAxis], "mm");
+=======
+            SERIAL_ECHOLNPAIR(" : CORRECT ERR ", errorP * planner.steps_to_mm[encoderAxis], "mm");
+>>>>>>> Stashed changes
             babystep.add_steps(encoderAxis, -LROUND(errorP));
             errPrstIdx = 0;
           }
@@ -193,7 +209,11 @@ void I2CPositionEncoder::update() {
       const millis_t ms = millis();
       if (ELAPSED(ms, nextErrorCountTime)) {
         SERIAL_CHAR(axis_codes[encoderAxis]);
+<<<<<<< Updated upstream
         SERIAL_ECHOLNPGM(" : LARGE ERR ", error, "; diffSum=", diffSum);
+=======
+        SERIAL_ECHOLNPAIR(" : LARGE ERR ", error, "; diffSum=", diffSum);
+>>>>>>> Stashed changes
         errorCount++;
         nextErrorCountTime = ms + I2CPE_ERR_CNT_DEBOUNCE_MS;
       }
@@ -213,7 +233,11 @@ void I2CPositionEncoder::set_homed() {
 
     #ifdef I2CPE_DEBUG
       SERIAL_CHAR(axis_codes[encoderAxis]);
+<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM(" axis encoder homed, offset of ", zeroOffset, " ticks.");
+=======
+      SERIAL_ECHOLNPAIR(" axis encoder homed, offset of ", zeroOffset, " ticks.");
+>>>>>>> Stashed changes
     #endif
   }
 }
@@ -253,7 +277,11 @@ float I2CPositionEncoder::get_axis_error_mm(const bool report) {
 
   if (report) {
     SERIAL_CHAR(axis_codes[encoderAxis]);
+<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" axis target=", target, "mm; actual=", actual, "mm; err=", error, "mm");
+=======
+    SERIAL_ECHOLNPAIR(" axis target=", target, "mm; actual=", actual, "mm; err=", error, "mm");
+>>>>>>> Stashed changes
   }
 
   return error;
@@ -288,7 +316,11 @@ int32_t I2CPositionEncoder::get_axis_error_steps(const bool report) {
 
   if (report) {
     SERIAL_CHAR(axis_codes[encoderAxis]);
+<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" axis target=", target, "; actual=", encoderCountInStepperTicksScaled, "; err=", error);
+=======
+    SERIAL_ECHOLNPAIR(" axis target=", target, "; actual=", encoderCountInStepperTicksScaled, "; err=", error);
+>>>>>>> Stashed changes
   }
 
   if (suppressOutput) {
@@ -813,7 +845,11 @@ void I2CPositionEncodersMgr::M860() {
   const bool hasU = parser.seen_test('U'), hasO = parser.seen_test('O');
 
   if (I2CPE_idx == 0xFF) {
+<<<<<<< Updated upstream
     LOOP_LOGICAL_AXES(i) {
+=======
+    LOOP_XYZE(i) {
+>>>>>>> Stashed changes
       if (!I2CPE_anyaxis || parser.seen_test(axis_codes[i])) {
         const uint8_t idx = idx_from_axis(AxisEnum(i));
         if ((int8_t)idx >= 0) report_position(idx, hasU, hasO);

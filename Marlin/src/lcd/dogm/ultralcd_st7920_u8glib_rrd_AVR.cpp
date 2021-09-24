@@ -33,8 +33,42 @@
 
 #include "ultralcd_st7920_u8glib_rrd_AVR.h"
 
+<<<<<<< Updated upstream
 // Optimize this code with -O3
 #pragma GCC optimize (3)
+=======
+#if F_CPU >= 20000000
+  #define CPU_ST7920_DELAY_1 DELAY_NS(150)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(150)
+#elif MB(3DRAG, K8200, K8400)
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(188)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
+#elif MB(MINIRAMBO, EINSY_RAMBO, EINSY_RETRO, SILVER_GATE)
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(250)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
+#elif MB(RAMBO)
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
+#elif MB(BQ_ZUM_MEGA_3D)
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(189)
+#elif defined(ARDUINO_ARCH_STM32)
+  #define CPU_ST7920_DELAY_1 DELAY_NS(300)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(40)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(340)
+#elif F_CPU == 16000000
+  #define CPU_ST7920_DELAY_1 DELAY_NS(125)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(188)
+#else
+  #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd_AVR.h'"
+#endif
+>>>>>>> Stashed changes
 
 #ifndef ST7920_DELAY_1
   #ifndef LCD_ST7920_DELAY_1

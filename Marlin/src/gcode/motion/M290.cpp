@@ -96,7 +96,11 @@ void GcodeSuite::M290() {
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
+<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM_P(
+=======
+      SERIAL_ECHOLNPAIR_P(
+>>>>>>> Stashed changes
         PSTR("Hotend "), active_extruder
         #if ENABLED(BABYSTEP_XY)
           , PSTR("Offset X"), hotend_offset[active_extruder].x

@@ -38,9 +38,13 @@
  */
 void GcodeSuite::M280() {
 
+<<<<<<< Updated upstream
   if (!parser.seenval('P')) return;
 
   TERN_(POLARGRAPH, planner.synchronize());
+=======
+  if (!parser.seen('P')) return;
+>>>>>>> Stashed changes
 
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {

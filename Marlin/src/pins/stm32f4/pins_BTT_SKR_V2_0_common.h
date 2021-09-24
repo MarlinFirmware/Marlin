@@ -72,7 +72,11 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
+<<<<<<< Updated upstream
   #if X_HOME_TO_MIN
+=======
+  #if X_HOME_DIR < 0
+>>>>>>> Stashed changes
     #define X_MAX_PIN                       PC2   // E0DET
   #else
     #define X_MIN_PIN                       PC2   // E0DET
@@ -90,7 +94,11 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
+<<<<<<< Updated upstream
   #if Y_HOME_TO_MIN
+=======
+  #if Y_HOME_DIR < 0
+>>>>>>> Stashed changes
     #define Y_MAX_PIN                       PA0   // E1DET
   #else
     #define Y_MIN_PIN                       PA0   // E1DET
@@ -108,7 +116,11 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
+<<<<<<< Updated upstream
   #if Z_HOME_TO_MIN
+=======
+  #if Z_HOME_DIR < 0
+>>>>>>> Stashed changes
     #define Z_MAX_PIN                       PC15  // PWRDET
   #else
     #define Z_MIN_PIN                       PC15  // PWRDET
@@ -154,6 +166,16 @@
 #endif
 
 //
+<<<<<<< Updated upstream
+=======
+// NeoPixel LED
+//
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PE6
+#endif
+
+//
+>>>>>>> Stashed changes
 // Control pin of driver/heater/fan power supply
 //
 #define SAFE_POWER_PIN                      PC13
@@ -203,7 +225,11 @@
 #define TEMP_0_PIN                          PA2   // TH0
 #define TEMP_1_PIN                          PA3   // TH1
 
+<<<<<<< Updated upstream
 #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
+=======
+#if HOTENDS == 1
+>>>>>>> Stashed changes
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
@@ -267,6 +293,7 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
+<<<<<<< Updated upstream
   #define X_SERIAL_TX_PIN                   PE0
   #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
@@ -281,6 +308,25 @@
 
   #define E1_SERIAL_TX_PIN                  PD12
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
+=======
+  //
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN                   PE0
+  #define X_SERIAL_RX_PIN                   PE0
+
+  #define Y_SERIAL_TX_PIN                   PD3
+  #define Y_SERIAL_RX_PIN                   PD3
+
+  #define Z_SERIAL_TX_PIN                   PD0
+  #define Z_SERIAL_RX_PIN                   PD0
+
+  #define E0_SERIAL_TX_PIN                  PC6
+  #define E0_SERIAL_RX_PIN                  PC6
+
+  #define E1_SERIAL_TX_PIN                  PD12
+  #define E1_SERIAL_RX_PIN                  PD12
+>>>>>>> Stashed changes
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -303,6 +349,10 @@
  *               -----                                             -----
  *               EXP2                                              EXP1
  */
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 #define EXP1_03_PIN                         PE13
 #define EXP1_04_PIN                         PE12
 #define EXP1_05_PIN                         PE11
@@ -337,6 +387,10 @@
 
 #elif SD_CONNECTION_IS(LCD)
 
+<<<<<<< Updated upstream
+=======
+  #define CUSTOM_SPI_PINS
+>>>>>>> Stashed changes
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                        PA5
@@ -349,7 +403,11 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
+<<<<<<< Updated upstream
   /**       -----                        -----
+=======
+  /**       _____                        _____
+>>>>>>> Stashed changes
    *    NC | . . | GND               NC | . . | GND
    *    NC | . . | M1EN            M2EN | . . | M3EN
    * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
@@ -430,6 +488,14 @@
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
+<<<<<<< Updated upstream
+=======
+    // CR10_STOCKDISPLAY default timing is too fast
+    #undef BOARD_ST7920_DELAY_1
+    #undef BOARD_ST7920_DELAY_2
+    #undef BOARD_ST7920_DELAY_3
+
+>>>>>>> Stashed changes
   #elif ENABLED(MKS_MINI_12864)
 
     #define DOGLCD_A0                EXP1_04_PIN
@@ -483,6 +549,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
+<<<<<<< Updated upstream
 #if ENABLED(U8GLIB_ST7920)
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1             120
@@ -492,10 +559,22 @@
   #endif
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3             580
+=======
+#if HAS_MARLINUI_U8GLIB
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+>>>>>>> Stashed changes
   #endif
 #endif
 
 //
+<<<<<<< Updated upstream
 // NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
@@ -503,6 +582,8 @@
 #endif
 
 //
+=======
+>>>>>>> Stashed changes
 // WIFI
 //
 

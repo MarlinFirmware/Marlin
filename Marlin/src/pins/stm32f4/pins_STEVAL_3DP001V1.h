@@ -39,6 +39,11 @@
  *          C Runtime Library: "newlib Nano (default)"
  */
 
+<<<<<<< Updated upstream
+=======
+#pragma once
+
+>>>>>>> Stashed changes
 #include "env_validate.h"
 
 #ifndef MACHINE_NAME

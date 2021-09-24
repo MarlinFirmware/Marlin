@@ -32,7 +32,13 @@
 class MediaFileReader {
   private:
     #if ENABLED(SDSUPPORT)
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/archim2-flash/media_file_reader.h
       SdFile root, file;
+=======
+      DiskIODriver_SPI_SD card;
+      SdVolume volume;
+      SdFile   root, file;
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/ftdi_eve_touch_ui/archim2-flash/media_file_reader.h
     #endif
 
   public:

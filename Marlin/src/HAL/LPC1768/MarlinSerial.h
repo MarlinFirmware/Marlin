@@ -46,8 +46,11 @@ public:
 
   void end() {}
 
+<<<<<<< Updated upstream
   uint8_t availableForWrite(void) { /* flushTX(); */ return TX_BUFFER_SIZE; }
 
+=======
+>>>>>>> Stashed changes
   #if ENABLED(EMERGENCY_PARSER)
     bool recv_callback(const char c) override;
   #endif

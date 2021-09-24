@@ -50,10 +50,13 @@
   #include "../../feature/cooler.h"
 #endif
 
+<<<<<<< Updated upstream
 #if ENABLED(I2C_AMMETER)
   #include "../../feature/ammeter.h"
 #endif
 
+=======
+>>>>>>> Stashed changes
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -584,12 +587,17 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   FORCE_INLINE void _draw_flowmeter_status() {
+<<<<<<< Updated upstream
     lcd_put_u8str("~");
+=======
+    lcd_put_u8str("~ ");
+>>>>>>> Stashed changes
     lcd_put_u8str(ftostr11ns(cooler.flowrate));
     lcd_put_wchar('L');
   }
 #endif
 
+<<<<<<< Updated upstream
 #if ENABLED(I2C_AMMETER)
   FORCE_INLINE void _draw_ammeter_status() {
     lcd_put_u8str(" ");
@@ -605,6 +613,8 @@ FORCE_INLINE void _draw_cooler_status(const char prefix, const bool blink) {
   }
 #endif
 
+=======
+>>>>>>> Stashed changes
 FORCE_INLINE void _draw_bed_status(const bool blink) {
   _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
 }
@@ -838,6 +848,16 @@ void MarlinUI::draw_status_screen() {
           lcd_moveto(10, 0);
           _draw_bed_status(blink);
         #endif
+<<<<<<< Updated upstream
+=======
+      #endif
+
+      #if HAS_COOLER
+        _draw_cooler_status('*', blink);
+      #endif
+      #if ENABLED(LASER_COOLANT_FLOW_METER)
+        _draw_flowmeter_status();
+>>>>>>> Stashed changes
       #endif
 
       TERN_(HAS_COOLER, _draw_cooler_status('*', blink));

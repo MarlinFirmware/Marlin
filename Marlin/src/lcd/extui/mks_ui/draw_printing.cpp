@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_printing.cpp
 
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_printing.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -48,11 +51,18 @@ static lv_obj_t *scr;
 static lv_obj_t *labelExt1, *labelFan, *labelZpos, *labelTime;
 static lv_obj_t *labelPause, *labelStop, *labelOperat;
 static lv_obj_t *bar1, *bar1ValueText;
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_printing.cpp
 static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonExt1, *buttonFanstate, *buttonZpos;
 
 #if HAS_MULTI_EXTRUDER
   static lv_obj_t *labelExt2;
   static lv_obj_t *buttonExt2;
+=======
+static lv_obj_t *buttonPause, *buttonOperat, *buttonStop, *buttonExt1, *buttonExt2, *buttonBedstate, *buttonFanstate, *buttonZpos;
+
+#if ENABLED(HAS_MULTI_EXTRUDER)
+  static lv_obj_t *labelExt2;
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_printing.cpp
 #endif
 
 #if HAS_HEATED_BED

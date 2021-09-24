@@ -90,6 +90,7 @@ namespace Language_pl {
     LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" stół");
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" ustaw.");
 
+<<<<<<< Updated upstream
     LSTR MSG_PREHEAT_M                    = _UxGT("Rozgrzej $");
     LSTR MSG_PREHEAT_M_H                  = _UxGT("Rozgrzej $ ~");
     LSTR MSG_PREHEAT_M_END                = _UxGT("Rozgrzej $ Dysza");
@@ -97,6 +98,76 @@ namespace Language_pl {
     LSTR MSG_PREHEAT_M_ALL                = _UxGT("Rozgrzej $ wsz.");
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Rozgrzej $ stół");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Rozgrzej $ ustaw.");
+=======
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Rozgrzej $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Rozgrzej $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Rozgrzej $ Dysza");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Rozgrzej $ Dysza ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Rozgrzej $ wsz.");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Rozgrzej $ stół");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Rozgrzej $ ustaw.");
+  #endif
+  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Rozgrzej własne ust.");
+  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Chłodzenie");
+  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Sterowanie Lasera");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Zasilanie Lasera");
+  PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Sterowanie wrzeciona");
+  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Zasilanie wrzeciona");
+  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Rewers wrzeciona");
+  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Włącz zasilacz");
+  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Wyłącz zasilacz");
+  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Ekstruzja");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Wycofanie");
+  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Ruch osi");
+  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Poziomowanie stołu");
+  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Wypoziomuj stół");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Narożniki poziomowania");
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Nastepny narożnik");
+  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Edytor siatki");
+  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edycja siatki");
+  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Edycja siatki zatrzymana");
+  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Punkt pomiarowy");
+  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Indeks X");
+  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Indeks Y");
+  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Wartość Z");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Własne Polecenia");
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Test sondy");
+  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punky");
+  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Odchylenie");
+  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Tryb IDEX");
+  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Przesunięcie narzędzia");
+  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Auto-Parkowanie");
+  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplikowanie");
+  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Kopia lustrzana");
+  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Pełne sterowanie");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2ga dysza X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2ga dysza Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2ga dysza Z");
+  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Wykonywanie G29");
+  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Narzędzia UBL");
+  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");
+  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Punkt pochylenia");
+  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Ręczne Budowanie Siatki");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Umieść podkładkę i zmierz");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Zmierz");
+  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Usuń & Zmierz Stół");
+  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Przesuwanie do następnego");
+  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("Aktywacja UBL");
+  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("Dezaktywacja UBL");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Temperatura stołu");
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Temperatura stołu");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Temperatura dyszy");
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Temperatura dyszy");
+  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Edycja siatki");
+  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Edycja własnej siatki");
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Dostrajanie siatki");
+  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Koniec edycji siati");
+  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Buduj własna siatkę");
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Buduj siatkę");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Buduj siatkę ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Sprawdzenie siatki ($)");
+>>>>>>> Stashed changes
   #endif
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Rozgrzej własne ust.");
   LSTR MSG_COOLDOWN                       = _UxGT("Chłodzenie");

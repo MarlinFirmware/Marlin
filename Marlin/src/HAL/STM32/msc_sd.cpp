@@ -13,6 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream
 #include "../platforms.h"
 
 #ifdef HAL_STM32
@@ -27,20 +28,40 @@
 
 #include "../../sd/cardreader.h"
 
+=======
+#include "../../inc/MarlinConfigPre.h"
+
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && HAS_SD_HOST_DRIVE
+
+#include "msc_sd.h"
+#include "../shared/Marduino.h"
+#include "usbd_core.h"
+>>>>>>> Stashed changes
 #include <USB.h>
 #include <USBMscHandler.h>
 
 #define BLOCK_SIZE 512
 #define PRODUCT_ID 0x29
 
+<<<<<<< Updated upstream
+=======
+#include "../../sd/cardreader.h"
+
+>>>>>>> Stashed changes
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
   DiskIODriver* diskIODriver() {
     #if ENABLED(MULTI_VOLUME)
       #if SHARED_VOLUME_IS(SD_ONBOARD)
+<<<<<<< Updated upstream
         return &card.media_driver_sdcard;
       #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
         return &card.media_driver_usbFlash;
+=======
+        return &card.media_sd_spi;
+      #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+        return &card.media_usbFlashDrive;
+>>>>>>> Stashed changes
       #endif
     #else
       return card.diskIODriver();
@@ -62,7 +83,11 @@ public:
       return true;
     }
 
+<<<<<<< Updated upstream
     // multi block optimization
+=======
+    // multi block optmization
+>>>>>>> Stashed changes
     sd2card->writeStart(blkAddr, blkLen);
     while (blkLen--) {
       watchdog_refresh();
@@ -82,7 +107,11 @@ public:
       return true;
     }
 
+<<<<<<< Updated upstream
     // multi block optimization
+=======
+    // multi block optmization
+>>>>>>> Stashed changes
     sd2card->readStart(blkAddr);
     while (blkLen--) {
       watchdog_refresh();
@@ -126,5 +155,9 @@ void MSC_SD_init() {
   USBDevice.begin();
 }
 
+<<<<<<< Updated upstream
 #endif // HAS_SD_HOST_DRIVE
 #endif // HAL_STM32
+=======
+#endif // __STM32F1__ && HAS_SD_HOST_DRIVE
+>>>>>>> Stashed changes

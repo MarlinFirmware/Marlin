@@ -90,6 +90,7 @@ namespace Language_es {
     LSTR MSG_PREHEAT_M_BEDONLY           = _UxGT("Precal. $ Cama");
     LSTR MSG_PREHEAT_M_SETTINGS          = _UxGT("Precal. $ Ajuste");
   #endif
+<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Precal. manual");
   LSTR MSG_COOLDOWN                       = _UxGT("Enfriar");
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frecuencia");
@@ -148,6 +149,66 @@ namespace Language_es {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Term. edici. Mallado");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Crear Mallado Pers.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Crear Mallado");
+=======
+  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Precal. manual");
+  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Enfriar");
+  PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecuencia");
+  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Control Láser");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Potencia Láser");
+  PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Control Mandrino");
+  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Potencia Mandrino");
+  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Invertir giro");
+  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Encender Fuente");
+  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Apagar Fuente");
+  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extruir");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Retraer");
+  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Mover ejes");
+  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelando Cama");
+  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivelar Cama");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Nivelar Esquinas");
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Siguente Esquina");
+  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mallado");
+  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Mallado");
+  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Ed. Mallado parada");
+  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Sondear Punto");
+  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
+  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
+  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Com. Personalizados");
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probar Sonda");
+  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punto");
+  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Desviación");
+  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");
+  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Desfase Herramienta");
+  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Auto-Aparcado");
+  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplicar");
+  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Copia Reflejada");
+  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Control Total");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2ª Fusor X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2ª Fusor Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2ª Fusor Z");
+  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Hacer G29");
+  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Herramientas UBL");
+  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Nivelado UBL");
+  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Punto de inclinación");
+  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Crear Mallado man.");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Colocar cuña y Medir");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Medir");
+  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Retirar y Medir Cama");
+  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Mover al Siguente");
+  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("Activar UBL");
+  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("Desactivar UBL");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Temp. Cama");
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Temp. Cama perso.");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Temp. Fusor");
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Temp. Fusor perso.");
+  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Editar Mallado");
+  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Edit. Mallado perso.");
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Ajuste fino Mallado");
+  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Term. edici. Mallado");
+  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Crear Mallado Pers.");
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Crear Mallado");
+>>>>>>> Stashed changes
   #if PREHEAT_COUNT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Crear Mallado ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Valid. Mall. ($)");

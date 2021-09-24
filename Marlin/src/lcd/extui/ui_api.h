@@ -224,10 +224,17 @@ namespace ExtUI {
   void setFeedrate_mm_s(const feedRate_t);
   void setMinFeedrate_mm_s(const feedRate_t);
   void setMinTravelFeedrate_mm_s(const feedRate_t);
+<<<<<<< Updated upstream
   void setPrintingAcceleration_mm_s2(const_float_t);
   void setRetractAcceleration_mm_s2(const_float_t);
   void setTravelAcceleration_mm_s2(const_float_t);
   void setFeedrate_percent(const_float_t);
+=======
+  void setPrintingAcceleration_mm_s2(const_float_t );
+  void setRetractAcceleration_mm_s2(const_float_t );
+  void setTravelAcceleration_mm_s2(const_float_t );
+  void setFeedrate_percent(const_float_t );
+>>>>>>> Stashed changes
   void setFlow_percent(const int16_t, const extruder_t);
   bool awaitingUserConfirm();
   void setUserConfirmed();
@@ -245,7 +252,11 @@ namespace ExtUI {
 
   #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
+<<<<<<< Updated upstream
     void setJunctionDeviation_mm(const_float_t);
+=======
+    void setJunctionDeviation_mm(const_float_t );
+>>>>>>> Stashed changes
   #else
     float getAxisMaxJerk_mm_s(const axis_t);
     float getAxisMaxJerk_mm_s(const extruder_t);
@@ -259,7 +270,10 @@ namespace ExtUI {
 
   #if ENABLED(BABYSTEPPING)
     int16_t mmToWholeSteps(const_float_t mm, const axis_t axis);
+<<<<<<< Updated upstream
     float mmFromWholeSteps(int16_t steps, const axis_t axis);
+=======
+>>>>>>> Stashed changes
 
     bool babystepAxis_steps(const int16_t steps, const axis_t axis);
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
@@ -272,7 +286,11 @@ namespace ExtUI {
   #endif
 
   float getZOffset_mm();
+<<<<<<< Updated upstream
   void setZOffset_mm(const_float_t);
+=======
+  void setZOffset_mm(const_float_t );
+>>>>>>> Stashed changes
 
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
@@ -284,11 +302,19 @@ namespace ExtUI {
     void setAxisBacklash_mm(const_float_t, const axis_t);
 
     float getBacklashCorrection_percent();
+<<<<<<< Updated upstream
     void setBacklashCorrection_percent(const_float_t);
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm();
       void setBacklashSmoothing_mm(const_float_t);
+=======
+    void setBacklashCorrection_percent(const_float_t );
+
+    #ifdef BACKLASH_SMOOTHING_MM
+      float getBacklashSmoothing_mm();
+      void setBacklashSmoothing_mm(const_float_t );
+>>>>>>> Stashed changes
     #endif
   #endif
 
@@ -300,7 +326,11 @@ namespace ExtUI {
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm();
+<<<<<<< Updated upstream
       void setFilamentRunoutDistance_mm(const_float_t);
+=======
+      void setFilamentRunoutDistance_mm(const_float_t );
+>>>>>>> Stashed changes
     #endif
   #endif
 
@@ -310,7 +340,11 @@ namespace ExtUI {
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
       float getCaseLightBrightness_percent();
+<<<<<<< Updated upstream
       void setCaseLightBrightness_percent(const_float_t);
+=======
+      void setCaseLightBrightness_percent(const_float_t );
+>>>>>>> Stashed changes
     #endif
   #endif
 
@@ -319,15 +353,24 @@ namespace ExtUI {
     float getPIDValues_Ki(const extruder_t);
     float getPIDValues_Kd(const extruder_t);
     void setPIDValues(const_float_t, const_float_t , const_float_t , extruder_t);
+<<<<<<< Updated upstream
     void startPIDTune(const celsius_t, extruder_t);
+=======
+    void startPIDTune(const_float_t, extruder_t);
+>>>>>>> Stashed changes
   #endif
 
   #if ENABLED(PIDTEMPBED)
     float getBedPIDValues_Kp();
     float getBedPIDValues_Ki();
     float getBedPIDValues_Kd();
+<<<<<<< Updated upstream
     void setBedPIDValues(const_float_t, const_float_t , const_float_t);
     void startBedPIDTune(const celsius_t);
+=======
+    void setBedPIDValues(const_float_t, const_float_t , const_float_t );
+    void startBedPIDTune(const_float_t );
+>>>>>>> Stashed changes
   #endif
 
   /**

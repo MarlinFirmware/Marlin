@@ -41,7 +41,15 @@ bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 #if CASE_LIGHT_IS_COLOR_LED
   #include "leds/leds.h"
   constexpr uint8_t init_case_light[] = CASE_LIGHT_DEFAULT_COLOR;
+<<<<<<< Updated upstream
   LEDColor CaseLight::color = { init_case_light[0], init_case_light[1], init_case_light[2] OPTARG(HAS_WHITE_LED, init_case_light[3]) };
+=======
+  LEDColor CaseLight::color = { init_case_light[0], init_case_light[1], init_case_light[2], TERN_(HAS_WHITE_LED, init_case_light[3]) };
+#endif
+
+#ifndef INVERT_CASE_LIGHT
+  #define INVERT_CASE_LIGHT false
+>>>>>>> Stashed changes
 #endif
 
 void CaseLight::update(const bool sflag) {
@@ -60,12 +68,22 @@ void CaseLight::update(const bool sflag) {
     if (sflag && on)
       brightness = brightness_sav;  // Restore last brightness for M355 S1
 
+<<<<<<< Updated upstream
     const uint8_t i = on ? brightness : 0, n10ct = ENABLED(INVERT_CASE_LIGHT) ? 255 - i : i;
+=======
+    const uint8_t i = on ? brightness : 0, n10ct = INVERT_CASE_LIGHT ? 255 - i : i;
+>>>>>>> Stashed changes
     UNUSED(n10ct);
   #endif
 
   #if CASE_LIGHT_IS_COLOR_LED
+<<<<<<< Updated upstream
     leds.set_color(LEDColor(color.r, color.g, color.b OPTARG(HAS_WHITE_LED, color.w), n10ct));
+=======
+
+    leds.set_color(MakeLEDColor(color.r, color.g, color.b, color.w, n10ct));
+
+>>>>>>> Stashed changes
   #else // !CASE_LIGHT_IS_COLOR_LED
 
     #if CASELIGHT_USES_BRIGHTNESS

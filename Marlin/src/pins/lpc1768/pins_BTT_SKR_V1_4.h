@@ -21,10 +21,13 @@
  */
 #pragma once
 
+<<<<<<< Updated upstream
 /**
  * BigTreeTech SKR 1.4 pin assignments
  */
 
+=======
+>>>>>>> Stashed changes
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -36,6 +39,7 @@
 #endif
 
 //
+<<<<<<< Updated upstream
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
@@ -50,6 +54,8 @@
 #endif
 
 //
+=======
+>>>>>>> Stashed changes
 // Servos
 //
 #define SERVO0_PIN                         P2_00
@@ -243,6 +249,7 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
+<<<<<<< Updated upstream
 /**       ------                ------
  *  1.30 |10  9 | 0.28    0.17 |10  9 | 0.15
  *  1.18 | 8  7 | 1.19    3.26 | 8  7 | 0.16
@@ -251,6 +258,45 @@
  *   GND | 2  1 | 5V       GND | 2  1 | NC
  *        ------                ------
  *         EXP1                  EXP2
+=======
+/*               _____                        _____
+ *           NC | 1 2 | GND               5V | 1 2 | GND
+ *        RESET | 3 4 | 1.31            1.23 | 3 4 | 1.22
+ *         0.18 | 5 6   3.25            1.21 | 5 6   1.20
+ *         0.16 | 7 8 | 3.26            1.19 | 7 8 | 1.18
+ *         0.15 | 9 10| 0.17            0.28 | 9 10| 1.30
+ *               -----                        -----
+ *               EXP2                         EXP1
+ */
+
+#define EXP1_03_PIN                        P1_23
+#define EXP1_04_PIN                        P1_22
+#define EXP1_05_PIN                        P1_21
+#define EXP1_06_PIN                        P1_20
+#define EXP1_07_PIN                        P1_19
+#define EXP1_08_PIN                        P1_18
+#define EXP1_09_PIN                        P0_28
+#define EXP1_10_PIN                        P1_30
+
+#define EXP2_03_PIN                        -1
+#define EXP2_04_PIN                        P1_31
+#define EXP2_05_PIN                        P0_18
+#define EXP2_06_PIN                        P3_25
+#define EXP2_07_PIN                        P0_16
+#define EXP2_08_PIN                        P3_26
+#define EXP2_09_PIN                        P0_15
+#define EXP2_10_PIN                        P0_17
+
+/**
+ *               _____                                             _____
+ *           NC | · · | GND                                    5V | · · | GND
+ *        RESET | · · | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
+ *  (MOSI) 0.18 | · ·   3.25 (BTN_EN2)              (LCD_D5) 1.21 | · ·   1.20 (LCD_D4)
+ * (SD_SS) 0.16 | · · | 3.26 (BTN_EN1)              (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
+ *   (SCK) 0.15 | · · | 0.17 (MISO)                (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
+ *               -----                                             -----
+ *               EXP2                                              EXP1
+>>>>>>> Stashed changes
  */
 #define EXP1_03_PIN                        P1_23
 #define EXP1_04_PIN                        P1_22
@@ -273,12 +319,22 @@
 #if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
   // RET6 DWIN ENCODER LCD
+<<<<<<< Updated upstream
   #define BTN_ENC                    EXP1_06_PIN
   #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                    EXP1_04_PIN
 
   #ifndef BEEPER_PIN
     #define BEEPER_PIN               EXP1_05_PIN
+=======
+  #define BTN_ENC                          P1_20
+  #define BTN_EN1                          P1_23
+  #define BTN_EN2                          P1_22
+
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN                     P1_21
+    #undef SPEAKER
+>>>>>>> Stashed changes
   #endif
 
 #elif HAS_WIRED_LCD && !BTT_MOTOR_EXPANSION
@@ -328,6 +384,7 @@
     *
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
+<<<<<<< Updated upstream
     *         BEFORE                     AFTER
     *         ------                     ------
     *    GND | 1  2 | 5V             5V | 1  2 | GND
@@ -337,6 +394,17 @@
     *    CLK | 9 10 | BEEPER       open | 9 10 | BEEPER
     *         ------                     ------
     *          LCD                        LCD
+=======
+    *                BEFORE                     AFTER
+    *                ______                     ______
+    *           GND | 1  2 | 5V             5V | 1  2 | GND
+    *            CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+    *           SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+    *          open | 7  8 | BTN_ENC       CLK | 7  8 | BTN_ENC
+    *           CLK | 9 10 | Beeper       open | 9 10 | Beeper
+    *                ------                     ------
+    *                 LCD                        LCD
+>>>>>>> Stashed changes
     */
 
     #define LCD_PINS_RS              EXP1_03_PIN
@@ -363,7 +431,11 @@
   #elif ENABLED(ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
+<<<<<<< Updated upstream
      *                   ------
+=======
+     *                   ______
+>>>>>>> Stashed changes
      *               5V | 1  2 | GND
      *      (MOSI) 1.23 | 3  4 | 1.22 (LCD_RS)
      *    (LCD_A0) 1.21 | 5  6   1.20 (BTN_EN2)
@@ -418,6 +490,7 @@
 
     #define BTN_ENC                  EXP1_09_PIN  // (58) open-drain
     #define LCD_PINS_RS              EXP1_07_PIN
+<<<<<<< Updated upstream
 
     #define BTN_EN1                  EXP2_08_PIN  // (31) J3-2 & AUX-4
     #define BTN_EN2                  EXP2_06_PIN  // (33) J3-4 & AUX-4
@@ -425,6 +498,15 @@
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
+=======
+
+    #define BTN_EN1                  EXP2_08_PIN  // (31) J3-2 & AUX-4
+    #define BTN_EN2                  EXP2_06_PIN  // (33) J3-4 & AUX-4
+
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_D4              EXP1_06_PIN
+
+>>>>>>> Stashed changes
     #define LCD_SDSS                 EXP2_07_PIN  // (16) J3-7 & AUX-4
 
     #if ENABLED(FYSETC_MINI_12864)

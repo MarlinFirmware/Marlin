@@ -114,6 +114,16 @@
 //  #define Z2_CS_PIN                       PE0
 //#endif
 
+<<<<<<< Updated upstream
+=======
+//#define E2_STEP_PIN                       PF4  // best guess
+//#define E2_DIR_PIN                        PF3  // best guess
+//#define E2_ENABLE_PIN                     PF5  // best guess
+//#ifndef E2_CS_PIN
+//  #define E2_CS_PIN                       PB2  // best guess
+//#endif
+
+>>>>>>> Stashed changes
 #if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
@@ -122,30 +132,47 @@
     #define X_SERIAL_TX_PIN                 PB2
   #endif
   #ifndef X_SERIAL_RX_PIN
+<<<<<<< Updated upstream
     #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
+=======
+    #define X_SERIAL_RX_PIN                 PB2
+>>>>>>> Stashed changes
   #endif
   #ifndef Y_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                 PE2
   #endif
   #ifndef Y_SERIAL_RX_PIN
+<<<<<<< Updated upstream
     #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
+=======
+    #define Y_SERIAL_RX_PIN                 PE2
+>>>>>>> Stashed changes
   #endif
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                 PE3
   #endif
   #ifndef Z_SERIAL_RX_PIN
+<<<<<<< Updated upstream
     #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+=======
+    #define Z_SERIAL_RX_PIN                 PE3
+>>>>>>> Stashed changes
   #endif
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN                PE4
   #endif
   #ifndef E0_SERIAL_RX_PIN
+<<<<<<< Updated upstream
     #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
+=======
+    #define E0_SERIAL_RX_PIN                PE4
+>>>>>>> Stashed changes
   #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN                PE1
   #endif
   #ifndef E1_SERIAL_RX_PIN
+<<<<<<< Updated upstream
     #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
   #endif
   // Ex-motor can be any... X2/Y2/Z2 or E2
@@ -159,6 +186,16 @@
   //#define Z2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
   //#define E2_SERIAL_RX_PIN EX_SERIAL_RX_PIN
   //#define E2_SERIAL_TX_PIN EX_SERIAL_TX_PIN
+=======
+    #define E1_SERIAL_RX_PIN                PE1
+  #endif
+  #ifndef EX_SERIAL_TX_PIN
+    #define E2_SERIAL_TX_PIN                PE0
+  #endif
+  #ifndef EX_SERIAL_RX_PIN
+    #define E2_SERIAL_RX_PIN                PE0
+  #endif
+>>>>>>> Stashed changes
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif
@@ -191,12 +228,21 @@
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN                   PB1
+<<<<<<< Updated upstream
 #endif
 
 #ifndef E1_AUTO_FAN_PIN
   #define E1_AUTO_FAN_PIN                   PB0
 #endif
 
+=======
+#endif
+
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                   PB0
+#endif
+
+>>>>>>> Stashed changes
 #define CONTROLLER_FAN_PIN                  PF8
 
 //
@@ -233,6 +279,11 @@
 //
 // Misc. Functions
 //
+<<<<<<< Updated upstream
+=======
+#define SDSS                                PC11
+#define LED_PIN                             PA15  // Alive
+>>>>>>> Stashed changes
 #define PS_ON_PIN                           PA4
 #define KILL_PIN                            -1
 #define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
@@ -249,6 +300,7 @@
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
 
+<<<<<<< Updated upstream
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
 
@@ -270,4 +322,25 @@
   #ifndef ENCODER_STEPS_PER_MENU_ITEM
     #define ENCODER_STEPS_PER_MENU_ITEM 2
   #endif
+=======
+#if HAS_FSMC_TFT
+  //#define TFT_DRIVER             LERDGE_ST7796
+
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
+
+  #define TFT_CS_PIN                        PD7
+  #define TFT_RS_PIN                        PD11
+
+  #define TOUCH_CS_PIN                      PG15
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
+
+#if IS_NEWPANEL
+  #define BTN_EN1                           PG10
+  #define BTN_EN2                           PG11
+  #define BTN_ENC                           PG9
+>>>>>>> Stashed changes
 #endif

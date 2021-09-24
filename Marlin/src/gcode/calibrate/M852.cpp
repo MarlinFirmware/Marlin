@@ -91,6 +91,7 @@ void GcodeSuite::M852() {
   }
 }
 
+<<<<<<< Updated upstream
 void GcodeSuite::M852_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, PSTR(STR_SKEW_FACTOR));
   SERIAL_ECHOPAIR_F("  M851 I", planner.skew_factor.xy, 6);
@@ -101,6 +102,18 @@ void GcodeSuite::M852_report(const bool forReplay/*=true*/) {
   #else
     SERIAL_ECHOLNPGM(" ; XY");
   #endif
+=======
+  if (!ijk) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM_P(GET_TEXT(MSG_SKEW_FACTOR));
+    SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
+    #if ENABLED(SKEW_CORRECTION_FOR_Z)
+      SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);
+      SERIAL_ECHOPAIR_F(" YZ: ", planner.skew_factor.yz, 6);
+    #endif
+    SERIAL_EOL();
+  }
+>>>>>>> Stashed changes
 }
 
 #endif // SKEW_CORRECTION_GCODE

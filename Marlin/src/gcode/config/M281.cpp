@@ -35,7 +35,10 @@
  *  U<angle> - Stowed Angle
  */
 void GcodeSuite::M281() {
+<<<<<<< Updated upstream
   if (!parser.seen_any()) return M281_report();
+=======
+>>>>>>> Stashed changes
 
   if (!parser.seenval('P')) return;
 
@@ -47,6 +50,7 @@ void GcodeSuite::M281() {
         return;
       }
     #endif
+<<<<<<< Updated upstream
     if (parser.seen('L')) servo_angles[servo_index][0] = parser.value_int();
     if (parser.seen('U')) servo_angles[servo_index][1] = parser.value_int();
   }
@@ -73,6 +77,26 @@ void GcodeSuite::M281_report(const bool forReplay/*=true*/) {
           SERIAL_ECHOLNPGM("  M281 P", i, " L", servo_angles[i][0], " U", servo_angles[i][1]);
     }
   }
+=======
+    bool angle_change = false;
+    if (parser.seen('L')) {
+      servo_angles[servo_index][0] = parser.value_int();
+      angle_change = true;
+    }
+    if (parser.seen('U')) {
+      servo_angles[servo_index][1] = parser.value_int();
+      angle_change = true;
+    }
+    if (!angle_change) {
+      SERIAL_ECHO_MSG(" Servo ", servo_index,
+                      " L", servo_angles[servo_index][0],
+                      " U", servo_angles[servo_index][1]);
+    }
+  }
+  else
+    SERIAL_ERROR_MSG("Servo ", servo_index, " out of range");
+
+>>>>>>> Stashed changes
 }
 
 #endif // EDITABLE_SERVO_ANGLES

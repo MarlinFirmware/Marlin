@@ -527,6 +527,10 @@
   #endif
 #endif
 
+#if TEMP_SENSOR_COOLER == 0
+  #undef THERMAL_PROTECTION_COOLER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -969,7 +973,11 @@
 #endif
 
 #if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
+<<<<<<< Updated upstream
   #define _HAS_1(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
+=======
+  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+>>>>>>> Stashed changes
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else
   #define HAS_USER_ITEM(N) 0

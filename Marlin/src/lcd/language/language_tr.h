@@ -90,6 +90,7 @@ namespace Language_tr {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Ön Isınma $ Tabla");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Ön Isınma $ Ayarlar");
   #endif
+<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Özel Ön Isınma");
   LSTR MSG_COOLDOWN                       = _UxGT("Soğut/(Durdur)");
   LSTR MSG_LASER_MENU                     = _UxGT("Lazer Kontrolü");
@@ -147,6 +148,65 @@ namespace Language_tr {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Mesh Düzenleme Tamam");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Özel Mesh Oluştur");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Mesh Oluştur");
+=======
+  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Özel Ön Isınma");
+  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Soğut/(Durdur)");
+  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Lazer Kontrolü");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Lazer Gücü");
+  PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindle Kontrolü");
+  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Gücü");
+  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindle Ters Yön");
+  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Gücü Aç");
+  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Gücü Kapat");
+  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Ekstrüzyon");
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Geri Çek");
+  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Eksen Hareketleri");
+  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Tabla Hizalama");
+  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Tabla Hizası");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Hizalama Köşeleri");
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Sonraki Köşe");
+  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editörü");
+  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Mesh Düzenle");
+  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Mesh Düzenleme Durdu");
+  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Prop Noktası");
+  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("İndeks X");
+  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("İndeks Y");
+  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z Değeri");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Özel Komutlar");
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Prob Testi");
+  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Nokta");
+  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Sapma");
+  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX Modu");
+  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Takım Ofsetleri");
+  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Oto-Park");
+  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Kopyala");
+  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Yansıtılmış kopya");
+  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Tam Kontrol");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2. nozul X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2. nozul Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2. nozul Z");
+  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("G29 Çalışıyor");
+  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("UBL Araçları");
+  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("UBL Yatak Hizalama");
+  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Eğim Noktası");
+  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Elle Mesh Oluştur");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Altlık & Ölçü Ver");
+  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Ölçü");
+  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Yataktan Ölçü Kaldır");
+  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Sonrakine Git");
+  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("UBL'yi Etkinleştir");
+  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("UBL'yi Etkisizleştir");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Yatak Sıcaklığı");
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Yatak Sıcaklığı");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Nozul Sıcaklığı");
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Nozul Sıcaklığı");
+  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Mesh Düzenleme");
+  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Özel Mesh Düzenleme");
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("İnce Ayar Mesh");
+  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Mesh Düzenleme Tamam");
+  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Özel Mesh Oluştur");
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Mesh Oluştur");
+>>>>>>> Stashed changes
   #if PREHEAT_COUNT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Mesh Oluştur ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Doğrulama Mesh ($)");

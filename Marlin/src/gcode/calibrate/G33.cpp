@@ -63,7 +63,11 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 #define LOOP_CAL_RAD(VAR) LOOP_CAL_PT(VAR, __A, _7P_STEP)
 #define LOOP_CAL_ACT(VAR, _4P, _OP) LOOP_CAL_PT(VAR, _OP ? _AB : __A, _4P ? _4P_STEP : _7P_STEP)
 
+<<<<<<< Updated upstream
 #if HAS_MULTI_HOTEND
+=======
+#if ENABLED(HAS_MULTI_HOTEND)
+>>>>>>> Stashed changes
   const uint8_t old_tool_index = active_extruder;
 #endif
 
@@ -406,6 +410,7 @@ void GcodeSuite::G33() {
     return;
   }
 
+<<<<<<< Updated upstream
   const bool probe_at_offset = TERN0(HAS_PROBE_XY_OFFSET, parser.boolval('O')),
                   towers_set = !parser.seen_test('T');
 
@@ -427,6 +432,9 @@ void GcodeSuite::G33() {
     SERIAL_ECHOLNPGM("?calibration (R)adius implausible.");
     return;
   }
+=======
+  const bool towers_set = !parser.seen_test('T');
+>>>>>>> Stashed changes
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
@@ -447,12 +455,15 @@ void GcodeSuite::G33() {
   }
 
   const bool stow_after_each = parser.seen_test('E');
+<<<<<<< Updated upstream
 
   #if HAS_DELTA_SENSORLESS_PROBING
     probe.test_sensitivity.x = !parser.seen_test('X');
     TERN_(HAS_Y_AXIS, probe.test_sensitivity.y = !parser.seen_test('Y'));
     TERN_(HAS_Z_AXIS, probe.test_sensitivity.z = !parser.seen_test('Z'));
   #endif
+=======
+>>>>>>> Stashed changes
 
   const bool _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1 || probe_points == -1,

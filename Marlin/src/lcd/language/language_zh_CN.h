@@ -85,6 +85,7 @@ namespace Language_zh_CN {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("预热 $ 热床");     //MSG_PREHEAT_1 " Bed"
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("预热 $ 设置");     //MSG_PREHEAT_1 " conf"
   #endif
+<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("预热自定义");
   LSTR MSG_COOLDOWN                       = _UxGT("降温");     // "Cooldown"
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("切割频率");
@@ -143,6 +144,66 @@ namespace Language_zh_CN {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("完成编辑网格");     // "Done Editing Mesh"
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("创设客户网格");     // "Build Custom Mesh"
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("创设网格");     // "Build Mesh"
+=======
+  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("预热自定义");
+  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("降温");     //"Cooldown"
+  PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("切割频率");
+  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("激光控制");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("激光电源");
+  PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("主轴控制");
+  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("主轴电源");
+  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("主轴反转");
+  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("电源打开");     //"Switch power on"
+  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("电源关闭");     //"Switch power off"
+  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("挤出");     //"Extrude"
+  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("回抽");     //"Retract"
+  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("移动轴");     //"Move axis"
+  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("调平热床");     //"Bed leveling"
+  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("调平热床");     //"Level bed"
+  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("调平边角");     // "Level corners"
+  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("下个边角");     // "Next corner"
+  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("网格编辑器");
+  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("编辑网格");     // "Edit Mesh"
+  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("网格编辑已停止");     // "Mesh Editing Stopped"
+  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("探测点");
+  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("索引X");
+  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("索引Y");
+  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Z 值");
+  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("定制命令");     // "Custom Commands"
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48探测");
+  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48点");
+  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("M48偏差");
+  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX模式");
+  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("工具偏移量");
+  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("自动停靠");
+  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("复制");
+  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("镜像复制");
+  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("完全控制");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("第二喷头是X");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("第二喷头是Y");
+  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("第二喷头是Z");
+  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("执行G29");     // "Doing G29"
+  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("UBL工具");     // "UBL Tools"
+  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("统一热床调平(UBL)");     // "Unified Bed Leveling"
+  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("倾斜點");
+  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("手工创设网格");     // "Manually Build Mesh"
+  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("放置垫片并测量");     // "Place shim & measure"
+  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("测量");     // "Measure"
+  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("移除并测量热床");     // "Remove & measure bed"
+  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("移动到下一个");     // "Moving to next"
+  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("激活UBL");     // "Activate UBL"
+  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("关闭UBL");     // "Deactivate UBL"
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("热床温度");     // "Bed Temp"
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("热床温度");
+  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("热端温度");     // "Hotend Temp"
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("热端温度");
+  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("网格编辑");     // "Mesh Edit"
+  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("编辑客户网格");     // "Edit Custom Mesh"
+  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("细调网格");     // "Fine Tuning Mesh"
+  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("完成编辑网格");     // "Done Editing Mesh"
+  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("创设客户网格");     // "Build Custom Mesh"
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("创设网格");     // "Build Mesh"
+>>>>>>> Stashed changes
   #if PREHEAT_COUNT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("创设 $ 网格");     // "Build PREHEAT_1_LABEL Mesh"
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("批准 $ 网格");     // "Validate PREHEAT_1_LABEL Mesh"

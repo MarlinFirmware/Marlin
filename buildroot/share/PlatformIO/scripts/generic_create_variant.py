@@ -28,7 +28,11 @@ if len(platform_packages) == 0:
 else:
     platform_name = PackageSpec(platform_packages[0]).name
 
+<<<<<<< Updated upstream
 if platform_name in [ "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino" ]:
+=======
+if platform_name in [ "usb-host-msc", "usb-host-msc-cdc-msc", "tool-stm32duino" ]:
+>>>>>>> Stashed changes
     platform_name = "framework-arduinoststm32"
 
 FRAMEWORK_DIR = platform.get_package_dir(platform_name)

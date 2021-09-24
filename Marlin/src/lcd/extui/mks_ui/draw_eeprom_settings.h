@@ -25,8 +25,18 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_eeprom_settings.h
 void lv_draw_eeprom_settings();
 void lv_clear_eeprom_settings();
+=======
+void lv_draw_advance_settings();
+void lv_clear_advance_settings();
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/mks_ui/draw_advance_settings.h
+=======
+void lv_draw_eeprom_settings();
+void lv_clear_eeprom_settings();
+>>>>>>> Stashed changes
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

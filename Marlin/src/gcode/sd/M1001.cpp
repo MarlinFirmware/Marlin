@@ -97,7 +97,11 @@ void GcodeSuite::M1001() {
       printerEventLEDs.onPrintCompleted();
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PRINT_DONE)));
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_PRINT_DONE), CONTINUE_STR));
+<<<<<<< Updated upstream
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(SEC_TO_MS(TERN(HAS_LCD_MENU, PE_LEDS_COMPLETED_TIME, 30))));
+=======
+      wait_for_user_response(SEC_TO_MS(TERN(HAS_LCD_MENU, PE_LEDS_COMPLETED_TIME, 30)));
+>>>>>>> Stashed changes
       printerEventLEDs.onResumeAfterWait();
     }
   #endif

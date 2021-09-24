@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_keyboard.cpp
 
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_keyboard.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -252,9 +255,15 @@ void lv_draw_keyboard() {
   lv_obj_align(ta, nullptr, LV_ALIGN_IN_TOP_MID, 0, 10);
   switch (keyboard_value) {
     case autoLevelGcodeCommand:
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_keyboard.cpp
       get_gcode_command(AUTO_LEVELING_COMMAND_ADDR, (uint8_t *)public_buf_m);
       public_buf_m[sizeof(public_buf_m) - 1] = '\0';
       lv_ta_set_text(ta, public_buf_m);
+=======
+    get_gcode_command(AUTO_LEVELING_COMMAND_ADDR,(uint8_t *)public_buf_m);
+    public_buf_m[sizeof(public_buf_m)-1] = 0;
+    lv_ta_set_text(ta, public_buf_m);
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_keyboard.cpp
       break;
     case GCodeCommand:
       // Start with uppercase by default
@@ -262,7 +271,11 @@ void lv_draw_keyboard() {
       lv_btnm_set_ctrl_map(kb, kb_ctrl_uc_map);
       // Fallthrough
     default:
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_keyboard.cpp
       lv_ta_set_text(ta, "");
+=======
+    lv_ta_set_text(ta, "");
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_keyboard.cpp
   }
 
   // Assign the text area to the keyboard

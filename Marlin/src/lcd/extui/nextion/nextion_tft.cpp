@@ -72,7 +72,11 @@ void NextionTFT::Startup() {
   SEND_VALasTXT("tmppage.bedy", Y_BED_SIZE);
   SEND_VALasTXT("tmppage.bedz", Z_MAX_POS);
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("Nextion Debug Level ", NEXDEBUGLEVEL);
+=======
+  DEBUG_ECHOLNPAIR("Nextion Debug Level ", NEXDEBUGLEVEL);
+>>>>>>> Stashed changes
 }
 
 void NextionTFT::IdleLoop() {
@@ -98,13 +102,21 @@ void NextionTFT::PrintFinished() {
 void NextionTFT::ConfirmationRequest(const char * const msg) {
   SEND_VALasTXT("tmppage.M117", msg);
   #if NEXDEBUG(N_MARLIN)
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("ConfirmationRequest() ", msg, " printer_state:", printer_state);
+=======
+    DEBUG_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
+>>>>>>> Stashed changes
   #endif
 }
 
 void NextionTFT::StatusChange(const char * const msg) {
   #if NEXDEBUG(N_MARLIN)
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("StatusChange() ", msg, "\nprinter_state:", printer_state);
+=======
+    DEBUG_ECHOLNPAIR("StatusChange() ", msg, "\nprinter_state:", printer_state);
+>>>>>>> Stashed changes
   #endif
   SEND_VALasTXT("tmppage.M117", msg);
 }
@@ -133,12 +145,20 @@ bool NextionTFT::ReadTFTCommand() {
     if (nextion_command[0] == 'G' || nextion_command[0] == 'M' || nextion_command[0] == 'T')
       injectCommands(nextion_command);
     #if NEXDEBUG(N_ALL)
+<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM("< ", nextion_command);
+=======
+      DEBUG_ECHOLNPAIR("< ", nextion_command);
+>>>>>>> Stashed changes
     #endif
     #if NEXDEBUG(N_SOME)
       uint8_t req = atoi(&nextion_command[1]);
       if (req > 7 && req != 20)
+<<<<<<< Updated upstream
         DEBUG_ECHOLNPGM(  "> ", AS_CHAR(nextion_command[0]),
+=======
+        DEBUG_ECHOLNPAIR(  "> ", AS_CHAR(nextion_command[0]),
+>>>>>>> Stashed changes
                          "\n> ", AS_CHAR(nextion_command[1]),
                          "\n> ", AS_CHAR(nextion_command[2]),
                          "\n> ", AS_CHAR(nextion_command[3]),
@@ -151,7 +171,11 @@ bool NextionTFT::ReadTFTCommand() {
 void NextionTFT::SendFileList(int8_t startindex) {
   // respond to panel request for 7 files starting at index
   #if NEXDEBUG(N_INFO)
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("## SendFileList ## ", startindex);
+=======
+    DEBUG_ECHOLNPAIR("## SendFileList ## ", startindex);
+>>>>>>> Stashed changes
   #endif
   filenavigator.getFiles(startindex);
 }
@@ -645,9 +669,12 @@ void NextionTFT::UpdateOnChange() {
     last_flow_speed = getFlow_percent(getActiveTool());
   }
 
+<<<<<<< Updated upstream
   // tmppage Axis
   static float last_get_axis_position_mmX = 999, last_get_axis_position_mmY = 999, last_get_axis_position_mmZ = 999;
 
+=======
+>>>>>>> Stashed changes
   // tmppage Progress + Layer + Time
   if (isPrinting()) {
 
@@ -682,6 +709,12 @@ void NextionTFT::UpdateOnChange() {
     }
   }
 
+<<<<<<< Updated upstream
+=======
+  // tmppage Axis
+  static float last_get_axis_position_mmX = 999, last_get_axis_position_mmY = 999, last_get_axis_position_mmZ = 999;
+
+>>>>>>> Stashed changes
   if (!WITHIN(last_get_axis_position_mmX - getAxisPosition_mm(X), -0.1, 0.1)) {
     if (ELAPSED(ms, next_event_ms)) {
       next_event_ms = ms + 30;
@@ -723,9 +756,15 @@ void NextionTFT::UpdateOnChange() {
     last_homedZ = isAxisPositionKnown(Z);
   }
 
+<<<<<<< Updated upstream
   #if ENABLED(DUAL_X_CARRIAGE)
     // tmppage IDEX Mode
     static uint8_t last_IDEX_Mode = 99;
+=======
+  // tmppage IDEX Mode
+  static uint8_t last_IDEX_Mode = 99;
+  #if ENABLED(DUAL_X_CARRIAGE)
+>>>>>>> Stashed changes
     if (last_IDEX_Mode != getIDEX_Mode()) {
       SEND_VAL("tmppage.idexmode", getIDEX_Mode());
       last_IDEX_Mode = getIDEX_Mode();

@@ -126,8 +126,17 @@
   #endif
 #endif
 
+<<<<<<< Updated upstream
 #if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
   #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
+#endif
+=======
+
+#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
+>>>>>>> Stashed changes
+
+#if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
+  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
 #endif
 
 #if SD_CONNECTION_IS(LCD)
@@ -150,6 +159,7 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
+<<<<<<< Updated upstream
   /**       ------                       ------
    *    NC | 1  2 | GND              NC | 1  2 | GND
    *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
@@ -158,6 +168,16 @@
    * M3DIR | 9 10 | M3STP          M3RX | 9 10 | M3DIAG
    *        ------                       ------
    *         EXP2                         EXP1
+=======
+  /**       _____                        _____
+   *    NC | . . | GND               NC | . . | GND
+   *    NC | . . | M1EN            M2EN | . . | M3EN
+   * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
+   * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
+   * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
+   *        -----                        -----
+   *        EXP2                         EXP1
+>>>>>>> Stashed changes
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */
@@ -171,7 +191,11 @@
     #define E2_CS_PIN                EXP1_05_PIN
     #if HAS_TMC_UART
       #define E2_SERIAL_TX_PIN       EXP1_05_PIN
+<<<<<<< Updated upstream
       #define E2_SERIAL_RX_PIN  E2_SERIAL_TX_PIN
+=======
+      #define E2_SERIAL_RX_PIN       EXP1_05_PIN
+>>>>>>> Stashed changes
     #endif
   #endif
 
@@ -184,7 +208,11 @@
     #define E3_CS_PIN                EXP1_07_PIN
     #if HAS_TMC_UART
       #define E3_SERIAL_TX_PIN       EXP1_07_PIN
+<<<<<<< Updated upstream
       #define E3_SERIAL_RX_PIN  E3_SERIAL_TX_PIN
+=======
+      #define E3_SERIAL_RX_PIN       EXP1_07_PIN
+>>>>>>> Stashed changes
     #endif
   #else
     #define E3_ENABLE_PIN            EXP2_04_PIN
@@ -199,7 +227,11 @@
     #define E4_CS_PIN                EXP1_09_PIN
     #if HAS_TMC_UART
       #define E4_SERIAL_TX_PIN       EXP1_09_PIN
+<<<<<<< Updated upstream
       #define E4_SERIAL_RX_PIN  E4_SERIAL_TX_PIN
+=======
+      #define E4_SERIAL_RX_PIN       EXP1_09_PIN
+>>>>>>> Stashed changes
     #endif
   #else
     #define E4_ENABLE_PIN            EXP2_04_PIN

@@ -140,7 +140,11 @@ void MeatPack::handle_output_char(const uint8_t c) {
   #if ENABLED(MP_DEBUG)
     if (chars_decoded < 1024) {
       ++chars_decoded;
+<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM("RB: ", AS_CHAR(c));
+=======
+      DEBUG_ECHOLNPAIR("RB: ", AS_CHAR(c));
+>>>>>>> Stashed changes
     }
   #endif
 }

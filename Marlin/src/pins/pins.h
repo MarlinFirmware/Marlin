@@ -35,6 +35,14 @@
  *    These numbers are the same in any pin mapping.
  */
 
+<<<<<<< Updated upstream
+=======
+#if HAS_EXTENDABLE_MMU
+  #define MAX_EXTRUDERS 15
+#else
+  #define MAX_EXTRUDERS 8
+#endif
+>>>>>>> Stashed changes
 #define MAX_E_STEPPERS 8
 
 #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
@@ -216,7 +224,11 @@
 #elif MB(CNCONTROLS_15)
   #include "mega/pins_CNCONTROLS_15.h"          // ATmega2560, ATmega1280                 env:mega2560 env:mega1280
 #elif MB(MIGHTYBOARD_REVE)
+<<<<<<< Updated upstream
   #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega2560, ATmega1280                 env:mega2560ext env:mega1280 env:MightyBoard1280 env:MightyBoard2560
+=======
+  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega2560, ATmega1280                 env:mega2560ext env:mega1280
+>>>>>>> Stashed changes
 #elif MB(CHEAPTRONIC)
   #include "mega/pins_CHEAPTRONIC.h"            // ATmega2560                             env:mega2560
 #elif MB(CHEAPTRONIC_V2)
@@ -243,8 +255,11 @@
   #include "mega/pins_GT2560_REV_B.h"           // ATmega2560                             env:mega2560
 #elif MB(GT2560_V4)
   #include "mega/pins_GT2560_V4.h"              // ATmega2560                             env:mega2560
+<<<<<<< Updated upstream
   #elif MB(GT2560_V4_A20)
   #include "mega/pins_GT2560_V4_A20.h"          // ATmega2560                             env:mega2560
+=======
+>>>>>>> Stashed changes
 #elif MB(GT2560_V3_MC2)
   #include "mega/pins_GT2560_V3_MC2.h"          // ATmega2560                             env:mega2560
 #elif MB(GT2560_V3_A20)
@@ -474,9 +489,15 @@
 #elif MB(STM3R_MINI)
   #include "stm32f1/pins_STM3R_MINI.h"          // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VB)
+<<<<<<< Updated upstream
   #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_PRO_VD)
   #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
+=======
+  #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F1                                env:STM32F103RE
+#elif MB(GTM32_PRO_VD)
+  #include "stm32f1/pins_GTM32_PRO_VD.h"        // STM32F1                                env:STM32F103RE
+>>>>>>> Stashed changes
 #elif MB(GTM32_MINI)
   #include "stm32f1/pins_GTM32_MINI.h"          // STM32F103VE                            env:STM32F103VE env:STM32F103RE_maple
 #elif MB(GTM32_MINI_A30)
@@ -492,9 +513,15 @@
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini env:mks_robin_mini_maple
 #elif MB(MKS_ROBIN_NANO)
+<<<<<<< Updated upstream
   #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_maple
 #elif MB(MKS_ROBIN_NANO_V2)
   #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_maple
+=======
+  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_stm32
+#elif MB(MKS_ROBIN_NANO_V2)
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35 env:mks_robin_nano35_stm32
+>>>>>>> Stashed changes
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite env:mks_robin_lite_maple
 #elif MB(MKS_ROBIN_LITE3)
@@ -512,6 +539,7 @@
 #elif MB(MKS_ROBIN_E3P)
   #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p env:mks_robin_e3p_maple
 #elif MB(BTT_SKR_MINI_V1_1)
+<<<<<<< Updated upstream
   #include "stm32f1/pins_BTT_SKR_MINI_V1_1.h"   // STM32F1                                env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
 #elif MB(BTT_SKR_MINI_E3_V1_0)
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
@@ -521,10 +549,25 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple
 #elif MB(BTT_SKR_MINI_MZ_V1_0)
   #include "stm32f1/pins_BTT_SKR_MINI_MZ_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
+=======
+  #include "stm32f1/pins_BTT_SKR_MINI_V1_1.h"   // STM32F1                                env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_E3_V1_0)
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_E3_V1_2)
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_E3_V2_0)
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_MZ_V1_0)
+  #include "stm32f1/pins_BTT_SKR_MINI_MZ_V1_0.h"  // STM32F1                              env:STM32F103RC_btt_stm32 env:STM32F103RC_btt_512K_stm32 env:STM32F103RC_btt_USB_stm32 env:STM32F103RC_btt_512K_USB_stm32 env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+>>>>>>> Stashed changes
 #elif MB(BTT_SKR_E3_DIP)
   #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple
 #elif MB(BTT_SKR_CR6)
+<<<<<<< Updated upstream
   #include "stm32f1/pins_BTT_SKR_CR6.h"         // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RE_btt_maple env:STM32F103RE_btt_USB_maple
+=======
+  #include "stm32f1/pins_BTT_SKR_CR6.h"         // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB
+>>>>>>> Stashed changes
 #elif MB(JGAURORA_A5S_A1)
   #include "stm32f1/pins_JGAURORA_A5S_A1.h"     // STM32F1                                env:jgaurora_a5s_a1 env:jgaurora_a5s_a1_maple
 #elif MB(FYSETC_AIO_II)
@@ -562,6 +605,7 @@
 #elif MB(FLSUN_HISPEED)
   #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeedv1
 #elif MB(BEAST)
+<<<<<<< Updated upstream
   #include "stm32f1/pins_BEAST.h"               // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
 #elif MB(MINGDA_MPX_ARM_MINI)
   #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
@@ -571,6 +615,11 @@
   #include "stm32f1/pins_ZM3E4_V1_0.h"          // STM32F1                                env:STM32F103VC_ZM3E4_USB env:STM32F103VC_ZM3E4_USB_maple
 #elif MB(ZONESTAR_ZM3E4V2)
   #include "stm32f1/pins_ZM3E4_V2_0.h"          // STM32F1                                env:STM32F103VE_ZM3E4V2_USB env:STM32F103VE_ZM3E4V2_USB_maple
+=======
+  #include "stm32f1/pins_BEAST.h"               // STM32F1                                env:STM32F103RE
+#elif MB(MINGDA_MPX_ARM_MINI)
+  #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:STM32F103RE
+>>>>>>> Stashed changes
 
 //
 // ARM Cortex-M4F
@@ -608,6 +657,7 @@
 #elif MB(BTT_E3_RRF)
   #include "stm32f4/pins_BTT_E3_RRF.h"          // STM32F4                                env:BIGTREE_E3_RRF
 #elif MB(BTT_SKR_V2_0_REV_A)
+<<<<<<< Updated upstream
   #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB
 #elif MB(BTT_SKR_V2_0_REV_B)
   #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB
@@ -615,6 +665,13 @@
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
 #elif MB(BTT_OCTOPUS_V1_1)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_1.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
+=======
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"  // STM32F4                                env:BIGTREE_SKR_2
+#elif MB(BTT_SKR_V2_0_REV_B)
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2
+#elif MB(BTT_OCTOPUS_V1_0)
+  #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1_0 env:BIGTREE_OCTOPUS_V1_0_USB
+>>>>>>> Stashed changes
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:LERDGEK env:LERDGEK_usb_flash_drive
 #elif MB(LERDGE_S)
@@ -626,9 +683,15 @@
 #elif MB(FYSETC_S6)
   #include "stm32f4/pins_FYSETC_S6.h"           // STM32F4                                env:FYSETC_S6 env:FYSETC_S6_8000
 #elif MB(FYSETC_S6_V2_0)
+<<<<<<< Updated upstream
   #include "stm32f4/pins_FYSETC_S6_V2_0.h"      // STM32F4                                env:FYSETC_S6 env:FYSETC_S6_8000
 #elif MB(FYSETC_SPIDER)
   #include "stm32f4/pins_FYSETC_SPIDER.h"       // STM32F4                                env:FYSETC_S6 env:FYSETC_S6_8000
+=======
+  #include "stm32f4/pins_FYSETC_S6_V2_0.h"      // STM32F4                                env:FYSETC_S6
+#elif MB(FYSETC_SPIDER)
+  #include "stm32f4/pins_FYSETC_SPIDER.h"       // STM32F4                                env:FYSETC_S6
+>>>>>>> Stashed changes
 #elif MB(FLYF407ZG)
   #include "stm32f4/pins_FLYF407ZG.h"           // STM32F4                                env:FLYF407ZG
 #elif MB(MKS_ROBIN2)
@@ -643,6 +706,7 @@
   #include "stm32f4/pins_ANET_ET4P.h"           // STM32F4                                env:Anet_ET4_OpenBLT
 #elif MB(FYSETC_CHEETAH_V20)
   #include "stm32f4/pins_FYSETC_CHEETAH_V20.h"  // STM32F4                                env:FYSETC_CHEETAH_V20
+<<<<<<< Updated upstream
 #elif MB(MKS_MONSTER8)
   #include "stm32f4/pins_MKS_MONSTER8.h"        // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
 #elif MB(TH3D_EZBOARD_LITE_V2)
@@ -651,6 +715,8 @@
   #include "stm32f4/pins_INDEX_REV03.h"         // STM32F4                                env:Index_Mobo_Rev03
 #elif MB(MKS_ROBIN_NANO_V1_3_F4)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h" // STM32F4                             env:mks_robin_nano_v1_3_f4
+=======
+>>>>>>> Stashed changes
 
 //
 // ARM Cortex M7
@@ -781,8 +847,11 @@
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #elif MB(BTT_SKR_V2_0)
     #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
+<<<<<<< Updated upstream
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
+=======
+>>>>>>> Stashed changes
   #else
     #error "MOTHERBOARD not defined! Use '#define MOTHERBOARD BOARD_...' in Configuration.h."
   #endif

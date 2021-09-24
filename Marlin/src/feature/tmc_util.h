@@ -70,9 +70,21 @@ class TMCStorage {
     }
 
     struct {
+<<<<<<< Updated upstream
       OPTCODE(HAS_STEALTHCHOP,  bool stealthChop_enabled = false)
       OPTCODE(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0)
       OPTCODE(USE_SENSORLESS,   int16_t homing_thrs = 0)
+=======
+      #if ENABLED(HAS_STEALTHCHOP)
+        bool stealthChop_enabled = false;
+      #endif
+      #if ENABLED(HYBRID_THRESHOLD)
+        uint8_t hybrid_thrs = 0;
+      #endif
+      #if ENABLED(USE_SENSORLESS)
+        int16_t homing_thrs = 0;
+      #endif
+>>>>>>> Stashed changes
     } stored;
 };
 
@@ -360,6 +372,16 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     extern millis_t sg_guard_period;
     constexpr uint16_t default_sg_guard_duration = 400;
+<<<<<<< Updated upstream
+=======
+
+    struct slow_homing_t {
+      xy_ulong_t acceleration;
+      #if ENABLED(HAS_CLASSIC_JERK)
+        xy_float_t jerk_xy;
+      #endif
+    };
+>>>>>>> Stashed changes
   #endif
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);

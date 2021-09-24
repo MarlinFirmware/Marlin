@@ -28,7 +28,11 @@
 void lv_draw_wifi_list();
 void lv_clear_wifi_list();
 void disp_wifi_list();
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_wifi_list.h
 void cutWifiName(char *name, int len, char *outStr);
+=======
+void cutWifiName(char *name, int len,char *outStr);
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_wifi_list.h
 void wifi_scan_handle();
 
 #define NUMBER_OF_PAGE 5

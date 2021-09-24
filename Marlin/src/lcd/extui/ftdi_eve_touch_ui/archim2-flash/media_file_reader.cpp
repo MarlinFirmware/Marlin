@@ -27,7 +27,13 @@
 
   #if ENABLED(SDSUPPORT)
     bool MediaFileReader::open(const char *filename) {
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/archim2-flash/media_file_reader.cpp
       root = CardReader::getroot();
+=======
+      card.init(SD_SPI_SPEED, SDSS);
+      volume.init(&card);
+      root.openRoot(&volume);
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/ftdi_eve_touch_ui/archim2-flash/media_file_reader.cpp
       return file.open(&root, filename, O_READ);
     }
 

@@ -88,7 +88,10 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getTool(extruder)));
+<<<<<<< Updated upstream
   TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_FilamentRunout(extruder));
+=======
+>>>>>>> Stashed changes
 
   #if ANY(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS, MULTI_FILAMENT_SENSOR)
     const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, extruder);
@@ -132,7 +135,11 @@ void event_filament_runout(const uint8_t extruder) {
       char script[strlen(FILAMENT_RUNOUT_SCRIPT) + 1];
       sprintf_P(script, PSTR(FILAMENT_RUNOUT_SCRIPT), tool);
       #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+<<<<<<< Updated upstream
         SERIAL_ECHOLNPGM("Runout Command: ", script);
+=======
+        SERIAL_ECHOLNPAIR("Runout Command: ", script);
+>>>>>>> Stashed changes
       #endif
       queue.inject(script);
     #else

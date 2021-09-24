@@ -154,7 +154,21 @@ public:
      * Correct power to configured range
      */
     static inline cutter_power_t power_to_range(const cutter_power_t pwr) {
+<<<<<<< Updated upstream
       return power_to_range(pwr, _CUTTER_POWER(CUTTER_POWER_UNIT));
+=======
+      return power_to_range(pwr, (
+        #if CUTTER_UNIT_IS(PWM255)
+          0
+        #elif CUTTER_UNIT_IS(PERCENT)
+          1
+        #elif CUTTER_UNIT_IS(RPM)
+          2
+        #else
+          #error "CUTTER_UNIT_IS(unknown)"
+        #endif
+      ));
+>>>>>>> Stashed changes
     }
 
     static inline cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
@@ -236,6 +250,7 @@ public:
       return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE);
     }
   #endif
+<<<<<<< Updated upstream
 
   #if ENABLED(AIR_ASSIST)
     static void air_assist_enable();         // Turn on air assist
@@ -246,6 +261,20 @@ public:
     }
   #endif
 
+=======
+
+  #if ENABLED(AIR_ASSIST)
+    static void air_assist_enable();         // Turn on air assist
+    static void air_assist_disable();        // Turn off air assist
+    static void air_assist_toggle();         // Toggle air assist
+    static inline bool air_assist_state() {  // Get current state
+      return (READ(AIR_ASSIST_PIN) == AIR_ASSIST_ACTIVE);
+    }
+  #endif
+
+  static inline void disable() { isReady = false; set_enabled(false); }
+
+>>>>>>> Stashed changes
   #if HAS_LCD_MENU
     static inline void enable_with_dir(const bool reverse) {
       isReady = true;

@@ -28,6 +28,11 @@
 #include "../core/types.h"
 #include "../core/macros.h"
 
+<<<<<<< Updated upstream:Marlin/src/module/polargraph.h
 extern float segments_per_second;
+=======
+void lv_draw_more();
+void lv_clear_more();
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/mks_ui/draw_more.h
 
 void inverse_kinematics(const xyz_pos_t &raw);

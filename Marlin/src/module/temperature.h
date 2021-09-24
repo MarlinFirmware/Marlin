@@ -46,6 +46,7 @@
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
+<<<<<<< Updated upstream
   H_REDUNDANT = HID_REDUNDANT,
   H_COOLER = HID_COOLER,
   H_PROBE = HID_PROBE,
@@ -53,6 +54,11 @@ typedef enum : int8_t {
   H_CHAMBER = HID_CHAMBER,
   H_BED = HID_BED,
   H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+=======
+  INDEX_NONE = -6,
+  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
+  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+>>>>>>> Stashed changes
 } heater_id_t;
 
 // PID storage
@@ -238,9 +244,12 @@ struct PIDHeaterInfo : public HeaterInfo {
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
 #endif
+<<<<<<< Updated upstream
 #if HAS_TEMP_BOARD
   typedef temp_info_t board_info_t;
 #endif
+=======
+>>>>>>> Stashed changes
 #if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
   typedef heater_info_t cooler_info_t;
 #endif
@@ -319,6 +328,7 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
     #endif
+<<<<<<< Updated upstream
     #if TEMP_SENSOR_COOLER_IS_CUSTOM
       CTI_COOLER,
     #endif
@@ -328,6 +338,11 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       CTI_REDUNDANT,
     #endif
+=======
+    #if COOLER_USER_THERMISTOR
+      CTI_COOLER,
+    #endif
+>>>>>>> Stashed changes
     USER_THERMISTORS
   };
 
@@ -349,10 +364,17 @@ class Temperature {
   public:
 
     #if HAS_HOTEND
+<<<<<<< Updated upstream
+=======
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        static temp_info_t temp_redundant;
+      #endif
+>>>>>>> Stashed changes
       static hotend_info_t temp_hotend[HOTENDS];
       static const celsius_t hotend_maxtemp[HOTENDS];
       static inline celsius_t hotend_max_target(const uint8_t e) { return hotend_maxtemp[e] - (HOTEND_OVERSHOOT); }
     #endif
+<<<<<<< Updated upstream
     #if HAS_HEATED_BED
       static bed_info_t temp_bed;
     #endif
@@ -370,6 +392,19 @@ class Temperature {
     #endif
     #if HAS_TEMP_REDUNDANT
       static redundant_info_t temp_redundant;
+=======
+    #if ENABLED(HAS_HEATED_BED)
+      static bed_info_t temp_bed;
+    #endif
+    #if ENABLED(HAS_TEMP_PROBE)
+      static probe_info_t temp_probe;
+    #endif
+    #if ENABLED(HAS_TEMP_CHAMBER)
+      static chamber_info_t temp_chamber;
+    #endif
+    #if ENABLED(HAS_TEMP_COOLER)
+      static cooler_info_t temp_cooler;
+>>>>>>> Stashed changes
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -446,6 +481,7 @@ class Temperature {
 
     #endif // HEATER_IDLE_TIMER
 
+<<<<<<< Updated upstream
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
       static uint16_t ADCKey_count;
@@ -457,6 +493,8 @@ class Temperature {
 
   private:
 
+=======
+>>>>>>> Stashed changes
     #if ENABLED(WATCH_HOTENDS)
       static hotend_watch_t watch_hotend[HOTENDS];
     #endif
@@ -466,7 +504,11 @@ class Temperature {
       static lpq_ptr_t lpq_ptr;
     #endif
 
+<<<<<<< Updated upstream
     #if HAS_HOTEND
+=======
+    #if ENABLED(HAS_HOTEND)
+>>>>>>> Stashed changes
       static temp_range_t temp_range[HOTENDS];
     #endif
 
@@ -492,10 +534,13 @@ class Temperature {
       #endif
       static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
       static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
+<<<<<<< Updated upstream
     #endif
 
     #if HAS_TEMP_BOARD && ENABLED(THERMAL_PROTECTION_BOARD)
       static int16_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
+=======
+>>>>>>> Stashed changes
     #endif
 
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
@@ -506,12 +551,31 @@ class Temperature {
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
+<<<<<<< Updated upstream
     #if HAS_AUTO_FAN
       static millis_t next_auto_fan_check_ms;
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
       static bool paused_for_probing;
+=======
+    #if ENABLED(HAS_AUTO_FAN)
+      static millis_t next_auto_fan_check_ms;
+    #endif
+
+    #if ENABLED(PROBING_HEATERS_OFF)
+      static bool paused_for_probing;
+    #endif
+
+  public:
+    #if HAS_ADC_BUTTONS
+      static uint32_t current_ADCKey_raw;
+      static uint16_t ADCKey_count;
+    #endif
+
+    #if ENABLED(PID_EXTRUSION_SCALING)
+      static int16_t lpq_len;
+>>>>>>> Stashed changes
     #endif
 
   public:
@@ -570,12 +634,15 @@ class Temperature {
     #endif
     #if HAS_TEMP_COOLER
       static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
+<<<<<<< Updated upstream
     #endif
     #if HAS_TEMP_BOARD
       static celsius_float_t analog_to_celsius_board(const int16_t raw);
     #endif
     #if HAS_TEMP_REDUNDANT
       static celsius_float_t analog_to_celsius_redundant(const int16_t raw);
+=======
+>>>>>>> Stashed changes
     #endif
 
     #if HAS_FAN
@@ -665,6 +732,13 @@ class Temperature {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
     }
 
+<<<<<<< Updated upstream
+=======
+    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      static inline celsius_float_t degHotendRedundant() { return temp_redundant.celsius; }
+    #endif
+
+>>>>>>> Stashed changes
     static inline celsius_t wholeDegHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
@@ -673,6 +747,9 @@ class Temperature {
       static inline int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
       }
+      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+        static inline int16_t rawHotendTempRedundant() { return temp_redundant.raw; }
+      #endif
     #endif
 
     static inline celsius_t degTargetHotend(const uint8_t E_NAME) {
@@ -810,6 +887,7 @@ class Temperature {
       #endif
     #endif
 
+<<<<<<< Updated upstream
     #if HAS_TEMP_BOARD
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static inline int16_t rawBoardTemp()    { return temp_board.raw; }
@@ -829,6 +907,8 @@ class Temperature {
       static inline celsius_t wholeDegRedundantTarget()  { return static_cast<celsius_t>((*temp_redundant.target).celsius + 0.5f); }
     #endif
 
+=======
+>>>>>>> Stashed changes
     #if HAS_COOLER
       static inline void setTargetCooler(const celsius_t celsius) {
         temp_cooler.target = constrain(celsius, COOLER_MIN_TARGET, COOLER_MAX_TARGET);
@@ -885,7 +965,11 @@ class Temperature {
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
+<<<<<<< Updated upstream
       static void pause_heaters(const bool p);
+=======
+      static void pause(const bool p);
+>>>>>>> Stashed changes
     #endif
 
     #if HEATER_IDLE_HANDLER
@@ -914,10 +998,15 @@ class Temperature {
       #endif
     #endif
 
+<<<<<<< Updated upstream
     #if HAS_HOTEND && HAS_STATUS_MESSAGE
       static void set_heating_message(const uint8_t e);
     #else
       static inline void set_heating_message(const uint8_t) {}
+=======
+    #if HAS_STATUS_MESSAGE
+      static void set_heating_message(const uint8_t e);
+>>>>>>> Stashed changes
     #endif
 
     #if HAS_LCD_MENU && HAS_TEMPERATURE
@@ -939,19 +1028,31 @@ class Temperature {
 
     // MAX Thermocouples
     #if HAS_MAX_TC
+<<<<<<< Updated upstream
       #define MAX_TC_COUNT COUNT_ENABLED(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC, TEMP_SENSOR_REDUNDANT_IS_MAX_TC)
+=======
+      #define MAX_TC_COUNT 1 + BOTH(TEMP_SENSOR_0_IS_MAX_TC, TEMP_SENSOR_1_IS_MAX_TC)
+>>>>>>> Stashed changes
       #if MAX_TC_COUNT > 1
         #define HAS_MULTI_MAX_TC 1
         #define READ_MAX_TC(N) read_max_tc(N)
       #else
         #define READ_MAX_TC(N) read_max_tc()
       #endif
+<<<<<<< Updated upstream
       static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
+=======
+      static int read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
+>>>>>>> Stashed changes
     #endif
 
     static void checkExtruderAutoFans();
 
+<<<<<<< Updated upstream
     #if HAS_HOTEND
+=======
+    #if ENABLED(HAS_HOTEND)
+>>>>>>> Stashed changes
       static float get_pid_output_hotend(const uint8_t e);
     #endif
     #if ENABLED(PIDTEMPBED)
@@ -977,17 +1078,42 @@ class Temperature {
           REPEAT(HOTENDS, _RUNAWAY_IND_E)
           #undef _RUNAWAY_IND_E
         #endif
+<<<<<<< Updated upstream
         OPTARG(HAS_THERMALLY_PROTECTED_BED, RUNAWAY_IND_BED)
         OPTARG(THERMAL_PROTECTION_CHAMBER, RUNAWAY_IND_CHAMBER)
         OPTARG(THERMAL_PROTECTION_COOLER, RUNAWAY_IND_COOLER)
         , NR_HEATER_RUNAWAY
+=======
+        #if ENABLED(HAS_THERMALLY_PROTECTED_BED)
+          RUNAWAY_IND_BED,
+        #endif
+        #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+          RUNAWAY_IND_CHAMBER,
+        #endif
+        #if ENABLED(THERMAL_PROTECTION_COOLER)
+          RUNAWAY_IND_COOLER,
+        #endif
+        NR_HEATER_RUNAWAY
+>>>>>>> Stashed changes
       };
 
       // Convert the given heater_id_t to runaway state array index
       static inline RunawayIndex runaway_index_for_id(const int8_t heater_id) {
+<<<<<<< Updated upstream
         TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
         TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
         TERN_(HAS_THERMALLY_PROTECTED_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
+=======
+        #if HAS_THERMALLY_PROTECTED_CHAMBER
+          if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER;
+        #endif
+        #if HAS_THERMALLY_PROTECTED_CHAMBER
+          if (heater_id == H_COOLER) return RUNAWAY_IND_COOLER;
+        #endif
+        #if HAS_THERMALLY_PROTECTED_BED
+          if (heater_id == H_BED) return RUNAWAY_IND_BED;
+        #endif
+>>>>>>> Stashed changes
         return (RunawayIndex)_MAX(heater_id, 0);
       }
 

@@ -296,7 +296,19 @@ typedef struct SettingsDataStruct {
   //
   // Extra Endstops offsets
   //
+<<<<<<< Updated upstream
   #if HAS_EXTRA_ENDSTOPS
+=======
+  #if ENABLED(DELTA)
+    float delta_height;                                 // M666 H
+    abc_float_t delta_endstop_adj;                      // M666 X Y Z
+    float delta_radius,                                 // M665 R
+          delta_diagonal_rod,                           // M665 L
+          segments_per_second;                          // M665 S
+    abc_float_t delta_tower_angle_trim,                 // M665 X Y Z
+                delta_diagonal_rod_trim;                // M665 A B C
+  #elif HAS_EXTRA_ENDSTOPS
+>>>>>>> Stashed changes
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
           z2_endstop_adj,                               // M666 (S2) Z
@@ -875,6 +887,10 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_endstop_adj);         // 3 floats
         EEPROM_WRITE(delta_radius);              // 1 float
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
+<<<<<<< Updated upstream
+=======
+        EEPROM_WRITE(segments_per_second);       // 1 float
+>>>>>>> Stashed changes
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
         EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
       #endif
@@ -1175,6 +1191,7 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(HYBRID_THRESHOLD)
         tmc_hybrid_threshold_t tmc_hybrid_threshold{0};
+<<<<<<< Updated upstream
         TERN_(X_HAS_STEALTHCHOP,  tmc_hybrid_threshold.X =  stepperX.get_pwm_thrs());
         TERN_(Y_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Y =  stepperY.get_pwm_thrs());
         TERN_(Z_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Z =  stepperZ.get_pwm_thrs());
@@ -1194,6 +1211,56 @@ void MarlinSettings::postprocess() {
         TERN_(E5_HAS_STEALTHCHOP, tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs());
         TERN_(E6_HAS_STEALTHCHOP, tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs());
         TERN_(E7_HAS_STEALTHCHOP, tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs());
+=======
+        #if AXIS_HAS_STEALTHCHOP(X)
+          tmc_hybrid_threshold.X = stepperX.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          tmc_hybrid_threshold.Y = stepperY.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          tmc_hybrid_threshold.Z = stepperZ.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(X2)
+          tmc_hybrid_threshold.X2 = stepperX2.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y2)
+          tmc_hybrid_threshold.Y2 = stepperY2.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z2)
+          tmc_hybrid_threshold.Z2 = stepperZ2.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z3)
+          tmc_hybrid_threshold.Z3 = stepperZ3.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z4)
+          tmc_hybrid_threshold.Z4 = stepperZ4.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E0)
+          tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E1)
+          tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E2)
+          tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E3)
+          tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E4)
+          tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E5)
+          tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E6)
+          tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E7)
+          tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs();
+        #endif
+>>>>>>> Stashed changes
       #else
         #define _EN_ITEM(N) , .E##N =  30
         const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
@@ -1518,9 +1585,15 @@ void MarlinSettings::postprocess() {
       {
         // Get only the number of E stepper parameters previously stored
         // Any steppers added later are set to their defaults
+<<<<<<< Updated upstream
         uint32_t tmp1[LINEAR_AXES + esteppers];
         float tmp2[LINEAR_AXES + esteppers];
         feedRate_t tmp3[LINEAR_AXES + esteppers];
+=======
+        uint32_t tmp1[XYZ + esteppers];
+        float tmp2[XYZ + esteppers];
+        feedRate_t tmp3[XYZ + esteppers];
+>>>>>>> Stashed changes
         EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
         EEPROM_READ(planner.settings.min_segment_time_us);
         EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
@@ -1545,7 +1618,11 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(dummyf);
           #endif
         #else
+<<<<<<< Updated upstream
           for (uint8_t q = LOGICAL_AXES; q--;) EEPROM_READ(dummyf);
+=======
+          for (uint8_t q = XYZE; q--;) EEPROM_READ(dummyf);
+>>>>>>> Stashed changes
         #endif
 
         EEPROM_READ(TERN(CLASSIC_JERK, dummyf, planner.junction_deviation_mm));
@@ -1746,6 +1823,10 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_endstop_adj);         // 3 floats
           EEPROM_READ(delta_radius);              // 1 float
           EEPROM_READ(delta_diagonal_rod);        // 1 float
+<<<<<<< Updated upstream
+=======
+          EEPROM_READ(segments_per_second);       // 1 float
+>>>>>>> Stashed changes
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
           EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
         #endif
@@ -2356,7 +2437,12 @@ void MarlinSettings::postprocess() {
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
+<<<<<<< Updated upstream
         DEBUG_ECHO_MSG("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
+=======
+        DEBUG_ECHO_START();
+        DEBUG_ECHOLNPAIR("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
+>>>>>>> Stashed changes
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
       }
       else if (working_crc != stored_crc) {
@@ -2739,6 +2825,7 @@ void MarlinSettings::reset() {
   // Kinematic settings
   //
 
+<<<<<<< Updated upstream
   #if IS_KINEMATIC
     segments_per_second = (
       TERN_(DELTA, DELTA_SEGMENTS_PER_SECOND)
@@ -2754,6 +2841,17 @@ void MarlinSettings::reset() {
       delta_tower_angle_trim = dta;
       delta_diagonal_rod_trim = ddr;
     #endif
+=======
+  #if ENABLED(DELTA)
+    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
+    delta_height = DELTA_HEIGHT;
+    delta_endstop_adj = adj;
+    delta_radius = DELTA_RADIUS;
+    delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+    segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+    delta_tower_angle_trim = dta;
+    delta_diagonal_rod_trim = ddr;
+>>>>>>> Stashed changes
   #endif
 
   //
@@ -3034,12 +3132,64 @@ void MarlinSettings::reset() {
 
 #if DISABLED(DISABLE_M503)
 
+<<<<<<< Updated upstream
   #define CONFIG_ECHO_START()       gcode.report_echo_start(forReplay)
   #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
   #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
   #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, PSTR(STR))
 
   void M92_report(const bool echo=true, const int8_t e=-1);
+=======
+  static void config_heading(const bool repl, PGM_P const pstr, const bool eol=true) {
+    if (!repl) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("; ");
+      SERIAL_ECHOPGM_P(pstr);
+      if (eol) SERIAL_EOL();
+    }
+  }
+
+  #define CONFIG_ECHO_START()       do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
+  #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
+  #define CONFIG_ECHO_HEADING(STR)  config_heading(forReplay, PSTR(STR))
+
+  #if HAS_TRINAMIC_CONFIG
+    inline void say_M906(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M906"); }
+    #if HAS_STEALTHCHOP
+      void say_M569(const bool forReplay, const char * const etc=nullptr, const bool newLine = false) {
+        CONFIG_ECHO_START();
+        SERIAL_ECHOPGM("  M569 S1");
+        if (etc) {
+          SERIAL_CHAR(' ');
+          SERIAL_ECHOPGM_P(etc);
+        }
+        if (newLine) SERIAL_EOL();
+      }
+    #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      inline void say_M913(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M913"); }
+    #endif
+    #if USE_SENSORLESS
+      inline void say_M914() { SERIAL_ECHOPGM("  M914"); }
+    #endif
+  #endif
+
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    inline void say_M603(const bool forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOPGM("  M603 "); }
+  #endif
+
+  inline void say_units(const bool colon) {
+    SERIAL_ECHOPGM_P(
+      #if ENABLED(INCH_MODE_SUPPORT)
+        parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :
+      #endif
+      PSTR(" (mm)")
+    );
+    if (colon) SERIAL_ECHOLNPGM(":");
+  }
+
+  void report_M92(const bool echo=true, const int8_t e=-1);
+>>>>>>> Stashed changes
 
   /**
    * M503 - Report current settings in RAM
@@ -3056,7 +3206,25 @@ void MarlinSettings::reset() {
     #else
       SERIAL_ECHOPGM("  G21 ;");
     #endif
+<<<<<<< Updated upstream
     gcode.say_units();
+=======
+    SERIAL_EOL();
+
+    #if HAS_LCD_MENU
+
+      // Temperature units - for Ultipanel temperature options
+
+      CONFIG_ECHO_START();
+      #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
+        SERIAL_ECHOPGM("  M149 ");
+        SERIAL_CHAR(parser.temp_units_code());
+        SERIAL_ECHOPGM(" ; Units in ");
+        SERIAL_ECHOPGM_P(parser.temp_units_name());
+      #else
+        SERIAL_ECHOLNPGM("  M149 C ; Units in Celsius");
+      #endif
+>>>>>>> Stashed changes
 
     //
     // M149 Temperature units
@@ -3078,6 +3246,7 @@ void MarlinSettings::reset() {
     //
     gcode.M92_report(forReplay);
 
+<<<<<<< Updated upstream
     //
     // M203 Maximum feedrates (units/s)
     //
@@ -3087,6 +3256,71 @@ void MarlinSettings::reset() {
     // M201 Maximum Acceleration (units/s2)
     //
     gcode.M201_report(forReplay);
+=======
+      #if EXTRUDERS == 1
+        CONFIG_ECHO_MSG("  M200 S", parser.volumetric_enabled
+                            , " D", LINEAR_UNIT(planner.filament_size[0])
+                            #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                              , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
+                            #endif
+                       );
+      #else
+        LOOP_L_N(i, EXTRUDERS) {
+          CONFIG_ECHO_MSG("  M200 T", i
+                              , " D", LINEAR_UNIT(planner.filament_size[i])
+                              #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+                                , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[i])
+                              #endif
+                         );
+        }
+        CONFIG_ECHO_MSG("  M200 S", parser.volumetric_enabled);
+      #endif
+
+    #endif // EXTRUDERS && !NO_VOLUMETRICS
+
+    CONFIG_ECHO_HEADING("Steps per unit:");
+    report_M92(!forReplay);
+
+    CONFIG_ECHO_HEADING("Maximum feedrates (units/s):");
+    CONFIG_ECHO_START();
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M203 X"), LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS])
+      , SP_Y_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS])
+      , SP_Z_STR, LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS])
+      #if DISABLED(DISTINCT_E_FACTORS)
+        , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS])
+      #endif
+    );
+    #if ENABLED(DISTINCT_E_FACTORS)
+      LOOP_L_N(i, E_STEPPERS) {
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR_P(
+            PSTR("  M203 T"), i
+          , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
+        );
+      }
+    #endif
+
+    CONFIG_ECHO_HEADING("Maximum Acceleration (units/s2):");
+    CONFIG_ECHO_START();
+    SERIAL_ECHOLNPAIR_P(
+        PSTR("  M201 X"), LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS])
+      , SP_Y_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS])
+      , SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS])
+      #if DISABLED(DISTINCT_E_FACTORS)
+        , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])
+      #endif
+    );
+    #if ENABLED(DISTINCT_E_FACTORS)
+      LOOP_L_N(i, E_STEPPERS) {
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR_P(
+            PSTR("  M201 T"), i
+          , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)])
+        );
+      }
+    #endif
+>>>>>>> Stashed changes
 
     //
     // M204 Acceleration (units/s2)
@@ -3103,17 +3337,61 @@ void MarlinSettings::reset() {
     //
     TERN_(HAS_M206_COMMAND, gcode.M206_report(forReplay));
 
+<<<<<<< Updated upstream
     //
     // M218 Hotend offsets
     //
     TERN_(HAS_HOTEND_OFFSET, gcode.M218_report(forReplay));
+=======
+    #if HAS_HOTEND_OFFSET
+      CONFIG_ECHO_HEADING("Hotend offsets:");
+      CONFIG_ECHO_START();
+      LOOP_S_L_N(e, 1, HOTENDS) {
+        SERIAL_ECHOPAIR_P(
+          PSTR("  M218 T"), e,
+          SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
+          SP_Y_STR, LINEAR_UNIT(hotend_offset[e].y)
+        );
+        SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(hotend_offset[e].z), 3);
+      }
+    #endif
+>>>>>>> Stashed changes
 
     //
     // Bed Leveling
     //
     #if HAS_LEVELING
 
+<<<<<<< Updated upstream
       gcode.M420_report(forReplay);
+=======
+      #if ENABLED(MESH_BED_LEVELING)
+
+        CONFIG_ECHO_HEADING("Mesh Bed Leveling:");
+
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+
+        config_heading(forReplay, NUL_STR, false);
+        if (!forReplay) {
+          ubl.echo_name();
+          SERIAL_CHAR(':');
+          SERIAL_EOL();
+        }
+
+      #elif HAS_ABL_OR_UBL
+
+        CONFIG_ECHO_HEADING("Auto Bed Leveling:");
+
+      #endif
+
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR_P(
+        PSTR("  M420 S"), planner.leveling_active
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
+        #endif
+      );
+>>>>>>> Stashed changes
 
       #if ENABLED(MESH_BED_LEVELING)
 
@@ -3121,7 +3399,11 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
+<<<<<<< Updated upstream
               SERIAL_ECHOPGM("  G29 S3 I", px, " J", py);
+=======
+              SERIAL_ECHOPAIR("  G29 S3 I", px, " J", py);
+>>>>>>> Stashed changes
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
@@ -3146,7 +3428,11 @@ void MarlinSettings::reset() {
           LOOP_L_N(py, GRID_MAX_POINTS_Y) {
             LOOP_L_N(px, GRID_MAX_POINTS_X) {
               CONFIG_ECHO_START();
+<<<<<<< Updated upstream
               SERIAL_ECHOPGM("  G29 W I", px, " J", py);
+=======
+              SERIAL_ECHOPAIR("  G29 W I", px, " J", py);
+>>>>>>> Stashed changes
               SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(z_values[px][py]), 5);
             }
           }
@@ -3156,10 +3442,70 @@ void MarlinSettings::reset() {
 
     #endif // HAS_LEVELING
 
+<<<<<<< Updated upstream
     //
     // Editable Servo Angles
     //
     TERN_(EDITABLE_SERVO_ANGLES, gcode.M281_report(forReplay));
+=======
+    #if ENABLED(EDITABLE_SERVO_ANGLES)
+
+      CONFIG_ECHO_HEADING("Servo Angles:");
+      LOOP_L_N(i, NUM_SERVOS) {
+        switch (i) {
+          #if ENABLED(SWITCHING_EXTRUDER)
+            case SWITCHING_EXTRUDER_SERVO_NR:
+            #if EXTRUDERS > 3
+              case SWITCHING_EXTRUDER_E23_SERVO_NR:
+            #endif
+          #elif ENABLED(SWITCHING_NOZZLE)
+            case SWITCHING_NOZZLE_SERVO_NR:
+          #elif ENABLED(BLTOUCH) || (HAS_Z_SERVO_PROBE && defined(Z_SERVO_ANGLES))
+            case Z_PROBE_SERVO_NR:
+          #endif
+            CONFIG_ECHO_MSG("  M281 P", i, " L", servo_angles[i][0], " U", servo_angles[i][1]);
+          default: break;
+        }
+      }
+
+    #endif // EDITABLE_SERVO_ANGLES
+
+    #if HAS_SCARA_OFFSET
+
+      CONFIG_ECHO_HEADING("SCARA settings: S<seg-per-sec> P<theta-psi-offset> T<theta-offset>");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M665 S"), segments_per_second
+        , SP_P_STR, scara_home_offset.a
+        , SP_T_STR, scara_home_offset.b
+        , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
+      );
+
+    #elif ENABLED(DELTA)
+
+      CONFIG_ECHO_HEADING("Endstop adjustment:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M666 X"), LINEAR_UNIT(delta_endstop_adj.a)
+        , SP_Y_STR, LINEAR_UNIT(delta_endstop_adj.b)
+        , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
+      );
+
+      CONFIG_ECHO_HEADING("Delta settings: L<diagonal rod> R<radius> H<height> S<segments per sec> XYZ<tower angle trim> ABC<rod trim>");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR_P(
+          PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
+        , PSTR(" R"), LINEAR_UNIT(delta_radius)
+        , PSTR(" H"), LINEAR_UNIT(delta_height)
+        , PSTR(" S"), segments_per_second
+        , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
+        , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
+        , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
+        , PSTR(" A"), LINEAR_UNIT(delta_diagonal_rod_trim.a)
+        , PSTR(" B"), LINEAR_UNIT(delta_diagonal_rod_trim.b)
+        , PSTR(" C"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
+      );
+>>>>>>> Stashed changes
 
     //
     // Kinematic Settings
@@ -3182,6 +3528,7 @@ void MarlinSettings::reset() {
     // LCD Preheat Settings
     //
     #if PREHEAT_COUNT
+<<<<<<< Updated upstream
       gcode.M145_report(forReplay);
     #endif
 
@@ -3191,12 +3538,82 @@ void MarlinSettings::reset() {
     TERN_(PIDTEMP,        gcode.M301_report(forReplay));
     TERN_(PIDTEMPBED,     gcode.M304_report(forReplay));
     TERN_(PIDTEMPCHAMBER, gcode.M309_report(forReplay));
+=======
+
+      CONFIG_ECHO_HEADING("Material heatup parameters:");
+      LOOP_L_N(i, PREHEAT_COUNT) {
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR_P(
+          PSTR("  M145 S"), i
+          #if HAS_HOTEND
+            , PSTR(" H"), parser.to_temp_units(ui.material_preset[i].hotend_temp)
+          #endif
+          #if HAS_HEATED_BED
+            , SP_B_STR, parser.to_temp_units(ui.material_preset[i].bed_temp)
+          #endif
+          #if HAS_FAN
+            , PSTR(" F"), ui.material_preset[i].fan_speed
+          #endif
+        );
+      }
+
+    #endif
+
+    #if HAS_PID_HEATING
+
+      CONFIG_ECHO_HEADING("PID settings:");
+
+      #if ENABLED(PIDTEMP)
+        HOTEND_LOOP() {
+          CONFIG_ECHO_START();
+          SERIAL_ECHOPAIR_P(
+            #if ENABLED(PID_PARAMS_PER_HOTEND)
+              PSTR("  M301 E"), e,
+              SP_P_STR
+            #else
+              PSTR("  M301 P")
+            #endif
+                        , PID_PARAM(Kp, e)
+            , PSTR(" I"), unscalePID_i(PID_PARAM(Ki, e))
+            , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
+          );
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            SERIAL_ECHOPAIR_P(SP_C_STR, PID_PARAM(Kc, e));
+            if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
+          #endif
+          #if ENABLED(PID_FAN_SCALING)
+            SERIAL_ECHOPAIR(" F", PID_PARAM(Kf, e));
+          #endif
+          SERIAL_EOL();
+        }
+      #endif // PIDTEMP
+
+      #if ENABLED(PIDTEMPBED)
+        CONFIG_ECHO_MSG(
+            "  M304 P", thermalManager.temp_bed.pid.Kp
+          , " I", unscalePID_i(thermalManager.temp_bed.pid.Ki)
+          , " D", unscalePID_d(thermalManager.temp_bed.pid.Kd)
+        );
+      #endif
+
+      #if ENABLED(PIDTEMPCHAMBER)
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR(
+            "  M309 P", thermalManager.temp_chamber.pid.Kp
+          , " I", unscalePID_i(thermalManager.temp_chamber.pid.Ki)
+          , " D", unscalePID_d(thermalManager.temp_chamber.pid.Kd)
+        );
+      #endif
+
+    #endif // PIDTEMP || PIDTEMPBED || PIDTEMPCHAMBER
+>>>>>>> Stashed changes
 
     #if HAS_USER_THERMISTORS
       LOOP_L_N(i, USER_THERMISTORS)
         thermalManager.M305_report(i, forReplay);
     #endif
 
+<<<<<<< Updated upstream
     //
     // LCD Contrast
     //
@@ -3211,6 +3628,25 @@ void MarlinSettings::reset() {
     // Controller Fan
     //
     TERN_(CONTROLLER_FAN_EDITABLE, gcode.M710_report(forReplay));
+=======
+    #if HAS_LCD_CONTRAST
+      CONFIG_ECHO_HEADING("LCD Contrast:");
+      CONFIG_ECHO_MSG("  M250 C", ui.contrast);
+    #endif
+
+    TERN_(CONTROLLER_FAN_EDITABLE, M710_report(forReplay));
+
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      CONFIG_ECHO_HEADING("Power-Loss Recovery:");
+      CONFIG_ECHO_MSG("  M413 S", recovery.enabled);
+    #endif
+
+    #if ENABLED(FWRETRACT)
+      fwretract.M207_report(forReplay);
+      fwretract.M208_report(forReplay);
+      TERN_(FWRETRACT_AUTORETRACT, fwretract.M209_report(forReplay));
+    #endif
+>>>>>>> Stashed changes
 
     //
     // Power-Loss Recovery
@@ -3258,10 +3694,25 @@ void MarlinSettings::reset() {
     //
     TERN_(HAS_STEALTHCHOP, gcode.M569_report(forReplay));
 
+<<<<<<< Updated upstream
     //
     // Linear Advance
     //
     TERN_(LIN_ADVANCE, gcode.M900_report(forReplay));
+=======
+    /**
+     * Linear Advance
+     */
+    #if ENABLED(LIN_ADVANCE)
+      CONFIG_ECHO_HEADING("Linear Advance:");
+      #if EXTRUDERS < 2
+        CONFIG_ECHO_MSG("  M900 K", planner.extruder_advance_K[0]);
+      #else
+        LOOP_L_N(i, EXTRUDERS)
+          CONFIG_ECHO_MSG("  M900 T", i, " K", planner.extruder_advance_K[i]);
+      #endif
+    #endif
+>>>>>>> Stashed changes
 
     //
     // Motor Current (SPI or PWM)
@@ -3270,10 +3721,26 @@ void MarlinSettings::reset() {
       gcode.M907_report(forReplay);
     #endif
 
+<<<<<<< Updated upstream
     //
     // Advanced Pause filament load & unload lengths
     //
     TERN_(ADVANCED_PAUSE_FEATURE, gcode.M603_report(forReplay));
+=======
+    /**
+     * Advanced Pause filament load & unload lengths
+     */
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      CONFIG_ECHO_HEADING("Filament load/unload lengths:");
+      #if EXTRUDERS == 1
+        say_M603(forReplay);
+        SERIAL_ECHOLNPAIR("L", LINEAR_UNIT(fc_settings[0].load_length), " U", LINEAR_UNIT(fc_settings[0].unload_length));
+      #else
+        auto echo_603 = [](const bool f, const uint8_t n) { say_M603(f); SERIAL_ECHOLNPAIR("T", n, " L", LINEAR_UNIT(fc_settings[n].load_length), " U", LINEAR_UNIT(fc_settings[n].unload_length)); };
+        LOOP_L_N(i, EXTRUDERS) echo_603(forReplay, i);
+      #endif
+    #endif
+>>>>>>> Stashed changes
 
     //
     // Tool-changing Parameters
@@ -3285,10 +3752,22 @@ void MarlinSettings::reset() {
     //
     TERN_(BACKLASH_GCODE, gcode.M425_report(forReplay));
 
+<<<<<<< Updated upstream
     //
     // Filament Runout Sensor
     //
     TERN_(HAS_FILAMENT_SENSOR, gcode.M412_report(forReplay));
+=======
+    #if HAS_FILAMENT_SENSOR
+      CONFIG_ECHO_HEADING("Filament runout sensor:");
+      CONFIG_ECHO_MSG(
+        "  M412 S", runout.enabled
+        #if HAS_FILAMENT_RUNOUT_DISTANCE
+          , " D", LINEAR_UNIT(runout.runout_distance())
+        #endif
+      );
+    #endif
+>>>>>>> Stashed changes
 
     #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet");
@@ -3299,7 +3778,14 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M554_report();
     #endif
 
+<<<<<<< Updated upstream
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
+=======
+    #if HAS_MULTI_LANGUAGE
+      CONFIG_ECHO_HEADING("UI Language:");
+      SERIAL_ECHO_MSG("  M414 S", ui.language);
+    #endif
+>>>>>>> Stashed changes
   }
 
 #endif // !DISABLE_M503

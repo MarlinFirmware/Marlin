@@ -458,8 +458,13 @@ void tft_style_init();
 extern char *creat_title_text();
 void preview_gcode_prehandle(char *path);
 void update_spi_flash();
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_ui.h
 void update_gcode_command(int addr, uint8_t *s);
 void get_gcode_command(int addr, uint8_t *d);
+=======
+void update_gcode_command(int addr,uint8_t *s);
+void get_gcode_command(int addr,uint8_t *d);
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_ui.h
 void lv_serial_capt_hook(void *, uint8_t);
 void lv_eom_hook(void *);
 #if HAS_GCODE_PREVIEW

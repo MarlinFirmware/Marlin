@@ -42,7 +42,11 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2021-09-21"
+<<<<<<< Updated upstream
+  #define STRING_DISTRIBUTION_DATE "2021-09-24"
+=======
+  #define STRING_DISTRIBUTION_DATE "2021-05-13"
+>>>>>>> Stashed changes
 #endif
 
 /**

@@ -41,12 +41,19 @@
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
+<<<<<<< Updated upstream
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
 #endif
+=======
+#define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
+#define I2C_SCL_PIN                         PB6
+#define I2C_SDA_PIN                         PB7
+>>>>>>> Stashed changes
 
 //
 // Release PB4 (Z_DIR_PIN) from JTAG NRST role
@@ -341,6 +348,7 @@
 
   #define TFT_BUFFER_SIZE                  14400
 
+<<<<<<< Updated upstream
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
   #endif
@@ -361,6 +369,16 @@
 
   #define LCD_PINS_ENABLE            EXP1_08_PIN
   #define LCD_PINS_RS                EXP1_07_PIN
+=======
+#elif HAS_WIRED_LCD
+
+  #define BEEPER_PIN                        PC5
+  #define BTN_ENC                           PE13
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
+>>>>>>> Stashed changes
   #define LCD_BACKLIGHT_PIN                 -1
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
@@ -406,6 +424,7 @@
   #endif // !MKS_MINI_12864
 
 #endif // HAS_WIRED_LCD
+<<<<<<< Updated upstream
 
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
   #define BEEPER_PIN                 EXP1_10_PIN
@@ -413,3 +432,5 @@
   #define BTN_EN2                    EXP2_06_PIN
   #define BTN_ENC                    EXP1_09_PIN
 #endif
+=======
+>>>>>>> Stashed changes

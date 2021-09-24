@@ -249,6 +249,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   #endif
 
   void Probe::set_probing_paused(const bool dopause) {
+<<<<<<< Updated upstream
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     TERN_(PROBING_ESTEPPERS_OFF, if (dopause) disable_e_steppers());
@@ -262,6 +263,25 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       else {
         if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
         if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
+=======
+    TERN_(PROBING_HEATERS_OFF, thermalManager.pause(dopause));
+    TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
+    #if ENABLED(PROBING_STEPPERS_OFF)
+      IF_DISABLED(DELTA, static uint8_t old_trusted);
+      if (dopause) {
+        #if DISABLED(DELTA)
+          old_trusted = axis_trusted;
+          DISABLE_AXIS_X();
+          DISABLE_AXIS_Y();
+        #endif
+        disable_e_steppers();
+      }
+      else {
+        #if DISABLED(DELTA)
+          if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
+          if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
+        #endif
+>>>>>>> Stashed changes
         axis_trusted = old_trusted;
       }
     #endif
@@ -367,7 +387,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
       const celsius_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
       if (hotendPreheat) {
+<<<<<<< Updated upstream
         DEBUG_ECHOPGM("hotend (", hotendPreheat, ")");
+=======
+        DEBUG_ECHOPAIR("hotend (", hotendPreheat, ")");
+>>>>>>> Stashed changes
         thermalManager.setTargetHotend(hotendPreheat, 0);
       }
     #elif ENABLED(WAIT_FOR_BED_HEAT)
@@ -378,7 +402,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       const celsius_t bedPreheat = bed_temp > thermalManager.degTargetBed() ? bed_temp : 0;
       if (bedPreheat) {
         if (hotendPreheat) DEBUG_ECHOPGM(" and ");
+<<<<<<< Updated upstream
         DEBUG_ECHOPGM("bed (", bedPreheat, ")");
+=======
+        DEBUG_ECHOPAIR("bed (", bedPreheat, ")");
+>>>>>>> Stashed changes
         thermalManager.setTargetBed(bedPreheat);
       }
     #endif
@@ -386,7 +414,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     DEBUG_EOL();
 
     TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
+<<<<<<< Updated upstream
     TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
+=======
+    TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW))    thermalManager.wait_for_bed_heating());
+>>>>>>> Stashed changes
   }
 
 #endif
@@ -753,7 +785,11 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(
       "...(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
+<<<<<<< Updated upstream
       ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_LAST_STOW ? "stow (last)" : raise_after == PROBE_PT_STOW ? "stow" : "none",
+=======
+      ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none",
+>>>>>>> Stashed changes
       ", ", verbose_level,
       ", ", probe_relative ? "probe" : "nozzle", "_relative)"
     );

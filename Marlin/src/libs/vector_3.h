@@ -44,6 +44,7 @@
 
 class matrix_3x3;
 
+<<<<<<< Updated upstream
 struct vector_3 {
   union {
     struct { float x, y, z; };
@@ -54,6 +55,14 @@ struct vector_3 {
   vector_3(const xyz_float_t  &in) { x = in.x; TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }
   vector_3(const xyze_float_t &in) { x = in.x; TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }
   vector_3() { x = y = z = 0; }
+=======
+struct vector_3 : xyz_float_t {
+  vector_3(const_float_t _x, const_float_t _y, const_float_t _z) { set(_x, _y, _z); }
+  vector_3(const xy_float_t   &in) { set(in.x, in.y); }
+  vector_3(const xyz_float_t  &in) { set(in.x, in.y, in.z); }
+  vector_3(const xyze_float_t &in) { set(in.x, in.y, in.z); }
+  vector_3() { reset(); }
+>>>>>>> Stashed changes
 
   // Factory method
   static vector_3 cross(const vector_3 &a, const vector_3 &b);
@@ -94,4 +103,9 @@ struct matrix_3x3 {
   void debug(PGM_P const title);
 
   void apply_rotation_xyz(float &x, float &y, float &z);
+<<<<<<< Updated upstream
+=======
+
+  FORCE_INLINE void apply_rotation_xyz(xyz_pos_t &pos) { apply_rotation_xyz(pos.x, pos.y, pos.z); }
+>>>>>>> Stashed changes
 };

@@ -188,6 +188,7 @@
 #endif
 
 /**
+<<<<<<< Updated upstream
  *                 ------                                     ------
  *  (BEEPER) 1.30 |10  9 | 0.28 (BTN_ENC)        (MISO) 0.17 |10  9 | 0.15 (SCK)
  *  (LCD_EN) 1.18 | 8  7 | 1.19  (LCD_RS)     (BTN_EN1) 3.26 | 8  7 | 0.16 (SD_SS)
@@ -197,6 +198,18 @@
  *                 ------                                     ------
  *                  EXP1                                       EXP2
  */
+=======
+ *               ______                                             ______
+ *           NC | 1  2 | GND                                    5V | 1  2 | GND
+ *        RESET | 3  4 | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | 3  4 | 1.22 (LCD_D6)
+ *  (MOSI) 0.18 | 5  6   3.25 (BTN_EN2)              (LCD_D5) 1.21 | 5  6   1.20 (LCD_D4)
+ * (SD_SS) 0.16 | 7  8 | 3.26 (BTN_EN1)              (LCD_RS) 1.19 | 7  8 | 1.18 (LCD_EN)
+ *   (SCK) 0.15 | 9 10 | 0.17 (MISO)                (BTN_ENC) 0.28 | 9 10 | 1.30 (BEEPER)
+ *               ------                                             ------
+ *               EXP2                                               EXP1
+ */
+
+>>>>>>> Stashed changes
 #define EXP1_03_PIN                        P1_23
 #define EXP1_04_PIN                        P1_22
 #define EXP1_05_PIN                        P1_21
@@ -233,7 +246,11 @@
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
     *                  BEFORE                          AFTER
+<<<<<<< Updated upstream
     *                  ------                          ------
+=======
+    *                  ______                          ______
+>>>>>>> Stashed changes
     *           GND 1 | 1  2 |  2 5V             5V 1 | 1  2 |  2 GND
     *            CS 3 | 3  4 |  4 BTN_EN2        CS 3 | 3  4 |  4 BTN_EN2
     *           SID 5 | 5  6    6 BTN_EN1       SID 5 | 5  6    6 BTN_EN1
@@ -283,6 +300,7 @@
     #define BTN_EN2                  EXP2_06_PIN
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_ENC                  EXP1_09_PIN
+<<<<<<< Updated upstream
 
     #define TOUCH_BUTTONS_HW_SPI
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
@@ -328,6 +346,53 @@
       #define TFT_BUFFER_SIZE               2400
     #endif
 
+=======
+
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+
+    #define TFT_BUFFER_SIZE                 2400
+
+    #ifndef TFT_WIDTH
+      #define TFT_WIDTH                      480
+    #endif
+    #ifndef TFT_HEIGHT
+      #define TFT_HEIGHT                     320
+    #endif
+
+    #define LCD_READ_ID                     0xD3
+    #define LCD_USE_DMA_SPI
+
+    #if ENABLED(TFT_CLASSIC_UI)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X       -11386
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y         8684
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X               689
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y              -273
+      #endif
+    #elif ENABLED(TFT_COLOR_UI)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X       -16741
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        11258
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X              1024
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y              -367
+      #endif
+      #define TFT_BUFFER_SIZE               2400
+    #endif
+
+>>>>>>> Stashed changes
   #elif IS_TFTGLCD_PANEL
     #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS             EXP2_08_PIN

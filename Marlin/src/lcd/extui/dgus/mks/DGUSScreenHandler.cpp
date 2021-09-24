@@ -37,7 +37,11 @@
 
 #include "../../../../gcode/gcode.h"
 
+<<<<<<< Updated upstream
 #if HAS_STEALTHCHOP
+=======
+#if ENABLED(HAS_STEALTHCHOP)
+>>>>>>> Stashed changes
   #include "../../../../module/stepper/trinamic.h"
   #include "../../../../module/stepper/indirection.h"
 #endif
@@ -83,8 +87,13 @@ void DGUSScreenHandler::sendinfoscreen_mks(const void *line1, const void *line2,
 
 void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
+<<<<<<< Updated upstream
     //DEBUG_ECHOPGM(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
     //DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
+=======
+    //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
+    //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
+>>>>>>> Stashed changes
     uint16_t tmp = *(uint8_t *) var.memadr; // +1 -> avoid rounding issues for the display.
     // tmp = map(tmp, 0, 255, 0, 100);
     dgusdisplay.WriteVariable(var.VP, tmp);
@@ -109,14 +118,24 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay_MKS(DGUS_VP_Variable &var
 void DGUSScreenHandler::DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
     const uint16_t value = swap16(*(uint16_t*)val_ptr);
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("FAN value get:", value);
     *(uint8_t*)var.memadr = map(constrain(value, 0, 255), 0, 255, 0, 255);
     DEBUG_ECHOLNPGM("FAN value change:", *(uint8_t*)var.memadr);
+=======
+    DEBUG_ECHOLNPAIR("FAN value get:", value);
+    *(uint8_t*)var.memadr = map(constrain(value, 0, 255), 0, 255, 0, 255);
+    DEBUG_ECHOLNPAIR("FAN value change:", *(uint8_t*)var.memadr);
+>>>>>>> Stashed changes
   }
 }
 
 void DGUSScreenHandler::DGUSLCD_SendGbkToDisplay(DGUS_VP_Variable &var) {
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
+=======
+  DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
+>>>>>>> Stashed changes
   uint16_t *tmp = (uint16_t*) var.memadr;
   dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
 }
@@ -134,6 +153,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplay_Language_MKS(DGUS_VP_Variabl
 
 void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #if ENABLED(SENSORLESS_HOMING)
+<<<<<<< Updated upstream
     #if X_HAS_STEALTHCHOP
       tmc_step.x = stepperX.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
@@ -143,6 +163,17 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
     #if Z_HAS_STEALTHCHOP
+=======
+    #if AXIS_HAS_STEALTHCHOP(X)
+      tmc_step.x = stepperX.homing_threshold();
+      dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Y)
+      tmc_step.y = stepperY.homing_threshold();
+      dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Z)
+>>>>>>> Stashed changes
       tmc_step.z = stepperZ.homing_threshold();
       dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
     #endif
@@ -282,7 +313,11 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // meaning "return to previous screen"
   DGUSLCD_Screens target = (DGUSLCD_Screens)tmp[1];
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("\n DEBUG target", target);
+=======
+  DEBUG_ECHOLNPAIR("\n DEBUG target", target);
+>>>>>>> Stashed changes
 
   // when the dgus had reboot, it will enter the DGUSLCD_SCREEN_MAIN page,
   // so user can change any page to use this function, an it will check
@@ -311,13 +346,21 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   UpdateNewScreen(target);
 
   #ifdef DEBUG_DGUSLCD
+<<<<<<< Updated upstream
     if (!DGUSLCD_FindScreenVPMapList(target)) DEBUG_ECHOLNPGM("WARNING: No screen Mapping found for ", target);
+=======
+    if (!DGUSLCD_FindScreenVPMapList(target)) DEBUG_ECHOLNPAIR("WARNING: No screen Mapping found for ", target);
+>>>>>>> Stashed changes
   #endif
 }
 
 void DGUSScreenHandler::ScreenBackChange(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t target = swap16(*(uint16_t *)val_ptr);
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM(" back = 0x%x", target);
+=======
+  DEBUG_ECHOLNPAIR(" back = 0x%x", target);
+>>>>>>> Stashed changes
   switch (target) {
   }
 }
@@ -342,7 +385,11 @@ void DGUSScreenHandler::GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr) {
 void DGUSScreenHandler::GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr) {
   DEBUG_ECHOLNPGM("GetMinExtrudeTemp");
   const uint16_t value = swap16(*(uint16_t *)val_ptr);
+<<<<<<< Updated upstream
   TERN_(PREVENT_COLD_EXTRUSION, thermalManager.extrude_min_temp = value);
+=======
+  thermalManager.extrude_min_temp = value;
+>>>>>>> Stashed changes
   mks_min_extrusion_temp = value;
   settings.save();
 }
@@ -396,7 +443,11 @@ void DGUSScreenHandler::Z_offset_select(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
 
+<<<<<<< Updated upstream
   #if HAS_BED_PROBE
+=======
+  #if ENABLED(HAS_BED_PROBE)
+>>>>>>> Stashed changes
     int32_t value = swap32(*(int32_t *)val_ptr);
     float Offset = value / 100.0f;
     DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
@@ -575,6 +626,10 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           settings.save();
         }
         else if (mesh_point_count == 0) {
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
           mesh_point_count = GRID_MAX_POINTS;
           soft_endstop._enabled = true;
           settings.save();
@@ -588,10 +643,13 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
   #endif // MESH_BED_LEVELING
 }
 
+<<<<<<< Updated upstream
 void DGUSScreenHandler::SD_FileBack(DGUS_VP_Variable&, void*) {
   GotoScreen(MKSLCD_SCREEN_HOME);
 }
 
+=======
+>>>>>>> Stashed changes
 void DGUSScreenHandler::LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t lcd_value = swap16(*(uint16_t *)val_ptr);
 
@@ -624,6 +682,7 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
 
   switch (point_value) {
     case 0x0001:
+<<<<<<< Updated upstream
       enqueue_corner_move(X_MIN_POS + ABS(mks_corner_offsets[0].x),
                           Y_MIN_POS + ABS(mks_corner_offsets[0].y), level_speed);
       queue.enqueue_now_P(PSTR("G28Z"));
@@ -643,6 +702,27 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
     case 0x0005:
       enqueue_corner_move(ABS(mks_corner_offsets[4].x),
                           ABS(mks_corner_offsets[4].y), level_speed);
+=======
+      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[0].x),
+                          Y_MIN_POS + abs(mks_corner_offsets[0].y), level_speed);
+      queue.enqueue_now_P(PSTR("G28Z"));
+      break;
+    case 0x0002:
+      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[1].x),
+                          Y_MIN_POS + abs(mks_corner_offsets[1].y), level_speed);
+      break;
+    case 0x0003:
+      enqueue_corner_move(X_MAX_POS - abs(mks_corner_offsets[2].x),
+                          Y_MAX_POS - abs(mks_corner_offsets[2].y), level_speed);
+      break;
+    case 0x0004:
+      enqueue_corner_move(X_MIN_POS + abs(mks_corner_offsets[3].x),
+                          Y_MAX_POS - abs(mks_corner_offsets[3].y), level_speed);
+      break;
+    case 0x0005:
+      enqueue_corner_move(abs(mks_corner_offsets[4].x),
+                          abs(mks_corner_offsets[4].y), level_speed);
+>>>>>>> Stashed changes
       break;
   }
 
@@ -662,7 +742,11 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
   switch (var.VP) {
     case VP_TMC_X_STEP:
       #if USE_SENSORLESS
+<<<<<<< Updated upstream
         #if X_HAS_STEALTHCHOP
+=======
+        #if AXIS_HAS_STEALTHCHOP(X)
+>>>>>>> Stashed changes
           stepperX.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.x = stepperX.homing_threshold();
@@ -671,7 +755,11 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
     case VP_TMC_Y_STEP:
       #if USE_SENSORLESS
+<<<<<<< Updated upstream
         #if Y_HAS_STEALTHCHOP
+=======
+        #if AXIS_HAS_STEALTHCHOP(Y)
+>>>>>>> Stashed changes
           stepperY.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.y = stepperY.homing_threshold();
@@ -680,7 +768,11 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
     case VP_TMC_Z_STEP:
       #if USE_SENSORLESS
+<<<<<<< Updated upstream
         #if Z_HAS_STEALTHCHOP
+=======
+        #if AXIS_HAS_STEALTHCHOP(Z)
+>>>>>>> Stashed changes
           stepperZ.homing_threshold(mks_min(tmc_value, 255));
           settings.save();
           //tmc_step.z = stepperZ.homing_threshold();
@@ -740,9 +832,21 @@ void DGUSScreenHandler::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
       break;
   }
   #if USE_SENSORLESS
+<<<<<<< Updated upstream
     TERN_(X_HAS_STEALTHCHOP, tmc_step.x = stepperX.homing_threshold());
     TERN_(Y_HAS_STEALTHCHOP, tmc_step.y = stepperY.homing_threshold());
     TERN_(Z_HAS_STEALTHCHOP, tmc_step.z = stepperZ.homing_threshold());
+=======
+    #if AXIS_HAS_STEALTHCHOP(X)
+      tmc_step.x = stepperX.homing_threshold();
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Y)
+      tmc_step.y = stepperY.homing_threshold();
+    #endif
+    #if AXIS_HAS_STEALTHCHOP(Z)
+      tmc_step.z = stepperZ.homing_threshold();
+    #endif
+>>>>>>> Stashed changes
   #endif
 }
 
@@ -756,13 +860,21 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (manualMoveStep == 0x02) manualMoveStep =  100;
   else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("QUEUE LEN:", queue.length);
+=======
+  DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
+>>>>>>> Stashed changes
 
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
 
   char axiscode;
+<<<<<<< Updated upstream
   unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, don't hardcode.
+=======
+  unsigned int speed = 1500; // FIXME: get default feedrate for manual moves, dont hardcode.
+>>>>>>> Stashed changes
 
   switch (var.VP) { // switch X Y Z or Home
     default: return;
@@ -818,7 +930,11 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
       break;
   }
 
+<<<<<<< Updated upstream
   DEBUG_ECHOPGM("movevalue = ", movevalue);
+=======
+  DEBUG_ECHOPAIR("movevalue = ", movevalue);
+>>>>>>> Stashed changes
   if (movevalue != 0 && movevalue != 5) { // get move distance
     switch (movevalue) {
       case 0x0001: movevalue =  manualMoveStep; break;
@@ -829,20 +945,32 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM(" homing ", AS_CHAR(axiscode));
+=======
+    DEBUG_ECHOPAIR(" homing ", AS_CHAR(axiscode));
+>>>>>>> Stashed changes
     // char buf[6] = "G28 X";
     // buf[4] = axiscode;
 
     char buf[6];
     sprintf(buf, "G28 %c", axiscode);
+<<<<<<< Updated upstream
     //DEBUG_ECHOPGM(" ", buf);
+=======
+    //DEBUG_ECHOPAIR(" ", buf);
+>>>>>>> Stashed changes
     queue.enqueue_one_now(buf);
     //DEBUG_ECHOLNPGM(" ✓");
     ForceCompleteUpdate();
     return;
   }
   else if (movevalue == 5) {
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM("send M84");
+=======
+    DEBUG_ECHOPAIR("send M84");
+>>>>>>> Stashed changes
     char buf[6];
     snprintf_P(buf,6,PSTR("M84 %c"), axiscode);
     queue.enqueue_one_now(buf);
@@ -851,7 +979,11 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
   else {
     // movement
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM(" move ", AS_CHAR(axiscode));
+=======
+    DEBUG_ECHOPAIR(" move ", AS_CHAR(axiscode));
+>>>>>>> Stashed changes
     bool old_relative_mode = relative_mode;
 
     if (!relative_mode) {
@@ -871,7 +1003,11 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     //if (backup_speed != speed) {
     //  snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
     //  queue.enqueue_one_now(buf);
+<<<<<<< Updated upstream
     //  //DEBUG_ECHOPGM(" ", buf);
+=======
+    //  //DEBUG_ECHOPAIR(" ", buf);
+>>>>>>> Stashed changes
     //}
 
     //while (!enqueue_and_echo_command(buf)) idle();
@@ -889,7 +1025,11 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM(" cannot move ", AS_CHAR(axiscode));
+=======
+    DEBUG_ECHOLNPAIR(" cannot move ", AS_CHAR(axiscode));
+>>>>>>> Stashed changes
     return;
 }
 
@@ -923,7 +1063,11 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
+=======
+  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+>>>>>>> Stashed changes
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::axis_t axis;
@@ -945,7 +1089,11 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
+=======
+  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+>>>>>>> Stashed changes
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::extruder_t extruder;
@@ -970,7 +1118,11 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
+=======
+  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+>>>>>>> Stashed changes
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::axis_t axis;
@@ -992,7 +1144,11 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
+=======
+  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+>>>>>>> Stashed changes
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::extruder_t extruder;
@@ -1017,7 +1173,11 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
+=======
+  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+>>>>>>> Stashed changes
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::axis_t axis;
@@ -1037,7 +1197,11 @@ void DGUSScreenHandler::HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void 
   DEBUG_ECHOLNPGM("HandleExtruderAccChange_MKS");
 
   uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
+=======
+  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+>>>>>>> Stashed changes
   float value = (float)value_raw;
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -1080,6 +1244,7 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
+<<<<<<< Updated upstream
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr) {
     const uint16_t value_ex_min_temp = swap16(*(uint16_t*)val_ptr);
@@ -1087,13 +1252,26 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
     skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
 #endif
+=======
+void DGUSScreenHandler::HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr) {
+  const uint16_t value_ex_min_temp = swap16(*(uint16_t*)val_ptr);
+  thermalManager.extrude_min_temp = value_ex_min_temp;
+  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+}
+>>>>>>> Stashed changes
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr) {
     const uint16_t rawvalue = swap16(*(uint16_t*)val_ptr);
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("V1:", rawvalue);
     const float value = 1.0f * rawvalue;
     DEBUG_ECHOLNPGM("V2:", value);
+=======
+    DEBUG_ECHOLNPAIR("V1:", rawvalue);
+    const float value = 1.0f * rawvalue;
+    DEBUG_ECHOLNPAIR("V2:", value);
+>>>>>>> Stashed changes
     float newvalue = 0;
 
     switch (var.VP) {
@@ -1230,7 +1408,11 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
       break;
   }
 
+<<<<<<< Updated upstream
   #if BOTH(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
+=======
+  #if HAS_HOTEND
+>>>>>>> Stashed changes
     if (hotend_too_cold) {
       if (thermalManager.targetTooColdToExtrude(hotend_too_cold - 1)) thermalManager.setTargetHotend(thermalManager.extrude_min_temp, hotend_too_cold - 1);
       sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
@@ -1416,6 +1598,7 @@ bool DGUSScreenHandler::loop() {
     if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT))) {
       booted = true;
       #if USE_SENSORLESS
+<<<<<<< Updated upstream
         TERN_(X_HAS_STEALTHCHOP, tmc_step.x = stepperX.homing_threshold());
         TERN_(Y_HAS_STEALTHCHOP, tmc_step.y = stepperY.homing_threshold());
         TERN_(Z_HAS_STEALTHCHOP, tmc_step.z = stepperZ.homing_threshold());
@@ -1425,6 +1608,21 @@ bool DGUSScreenHandler::loop() {
         if (mks_min_extrusion_temp != 0)
           thermalManager.extrude_min_temp = mks_min_extrusion_temp;
       #endif
+=======
+        #if AXIS_HAS_STEALTHCHOP(X)
+          tmc_step.x = stepperX.homing_threshold();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          tmc_step.y = stepperY.homing_threshold();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          tmc_step.z = stepperZ.homing_threshold();
+        #endif
+      #endif
+
+      if (mks_min_extrusion_temp != 0)
+        thermalManager.extrude_min_temp = mks_min_extrusion_temp;
+>>>>>>> Stashed changes
 
       DGUS_ExtrudeLoadInit();
 
@@ -1495,17 +1693,29 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
         break;
 
       case UNRUNOUT_STATUS:
+<<<<<<< Updated upstream
         if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
+=======
+        if (READ(MT_DET_1_PIN) == LOW)
+>>>>>>> Stashed changes
           runout_mks.runout_status = RUNOUT_STATUS;
         break;
 
       case RUNOUT_BEGIN_STATUS:
+<<<<<<< Updated upstream
         if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
+=======
+        if (READ(MT_DET_1_PIN) == HIGH)
+>>>>>>> Stashed changes
           runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
         break;
 
       case RUNOUT_WAITTING_STATUS:
+<<<<<<< Updated upstream
         if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
+=======
+        if (READ(MT_DET_1_PIN) == LOW)
+>>>>>>> Stashed changes
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;
 

@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_cloud_bind.cpp
 
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_cloud_bind.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)

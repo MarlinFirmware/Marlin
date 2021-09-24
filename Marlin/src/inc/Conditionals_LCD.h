@@ -248,7 +248,11 @@
   #define LCD_ST7920_DELAY_2           150
   #define LCD_ST7920_DELAY_3           150
 
+<<<<<<< Updated upstream
 #elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, BQ_LCD_SMART_CONTROLLER, K3D_FULL_GRAPHIC_SMART_CONTROLLER)
+=======
+#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING, BQ_LCD_SMART_CONTROLLER, K3D_FULL_GRAPHIC_SMART_CONTROLLER)
+>>>>>>> Stashed changes
 
   #define IS_RRD_FG_SC 1
 
@@ -478,11 +482,15 @@
 #endif
 
 // Aliases for LCD features
+<<<<<<< Updated upstream
 #if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY, DGUS_LCD_UI_MKS)
   #define HAS_DGUS_LCD_CLASSIC 1
 #endif
 
 #if ANY(HAS_DGUS_LCD_CLASSIC, DGUS_LCD_UI_RELOADED)
+=======
+#if ANY(DGUS_LCD_UI_ORIGIN, DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_HIPRECY,DGUS_LCD_UI_MKS)
+>>>>>>> Stashed changes
   #define HAS_DGUS_LCD 1
 #endif
 
@@ -514,11 +522,15 @@
   #endif
 #endif
 
+<<<<<<< Updated upstream
 #if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
   #define HAS_DISPLAY 1
 #endif
 
 #if ANY(HAS_DISPLAY, HAS_DWIN_E3V2, GLOBAL_STATUS_MESSAGE)
+=======
+#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD, GLOBAL_STATUS_MESSAGE)
+>>>>>>> Stashed changes
   #define HAS_STATUS_MESSAGE 1
 #endif
 
@@ -554,7 +566,11 @@
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
+<<<<<<< Updated upstream
   #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
+=======
+  #if MMU_MODEL == EXTENDABLE_EMU_MMU2 || MMU_MODEL == EXTENDABLE_EMU_MMU2S
+>>>>>>> Stashed changes
     #define HAS_EXTENDABLE_MMU 1
   #endif
 #endif
@@ -723,6 +739,13 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
+<<<<<<< Updated upstream
+=======
+
+#if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
+  #define DO_SWITCH_EXTRUDER 1
+#endif
+>>>>>>> Stashed changes
 
 /**
  * Default hotend offsets, if not defined
@@ -741,6 +764,8 @@
 
 /**
  * Disable unused SINGLENOZZLE sub-options
+<<<<<<< Updated upstream
+=======
  */
 #if DISABLED(SINGLENOZZLE)
   #undef SINGLENOZZLE_STANDBY_TEMP
@@ -749,11 +774,25 @@
   #undef SINGLENOZZLE_STANDBY_FAN
 #endif
 
+/**
+ * DISTINCT_E_FACTORS affects how some E factors are accessed
+>>>>>>> Stashed changes
+ */
+#if DISABLED(SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_TEMP
+#endif
+#if !BOTH(HAS_FAN, SINGLENOZZLE)
+  #undef SINGLENOZZLE_STANDBY_FAN
+#endif
+
+<<<<<<< Updated upstream
 // Switching extruder has its own servo?
 #if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
   #define DO_SWITCH_EXTRUDER 1
 #endif
 
+=======
+>>>>>>> Stashed changes
 /**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
@@ -892,6 +931,7 @@
   #endif
 #endif // FILAMENT_RUNOUT_SENSOR
 
+<<<<<<< Updated upstream
 // Homing to Min or Max
 #if X_HOME_DIR > 0
   #define X_HOME_TO_MAX 1
@@ -927,6 +967,8 @@
 /**
  * Conditionals based on the type of Bed Probe
  */
+=======
+>>>>>>> Stashed changes
 #if HAS_BED_PROBE
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
@@ -1003,6 +1045,12 @@
   #undef RESTORE_LEVELING_AFTER_G28
   #undef ENABLE_LEVELING_AFTER_G28
   #undef G29_RETRY_AND_RECOVER
+#endif
+#if !HAS_LEVELING || EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+  #undef PROBE_MANUALLY
+#endif
+#if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
+  #define PROBE_SELECTED 1
 #endif
 #if !HAS_LEVELING || EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #undef PROBE_MANUALLY
@@ -1111,6 +1159,7 @@
   #define HAS_ETHERNET 1
 #endif
 
+<<<<<<< Updated upstream
 #if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
@@ -1119,6 +1168,12 @@
     #else
       #define LCD_SERIAL_PORT 3 // Creality 4.x board
     #endif
+=======
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+  #ifndef LCD_SERIAL_PORT
+    #define LCD_SERIAL_PORT 3 // Creality 4.x board
+>>>>>>> Stashed changes
   #endif
 #endif
 
@@ -1258,8 +1313,21 @@
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_RES_320x240
   #define TFT_INTERFACE_FSMC
+<<<<<<< Updated upstream
 #elif ENABLED(BIQU_BX_TFT70)        // RGB
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
+=======
+#elif ENABLED(ANET_ET4_TFT28)       // ST7789
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
+  #define TFT_RES_320x240
+  #define TFT_INTERFACE_FSMC
+#elif ENABLED(ANET_ET5_TFT35)       // ST7796
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
+  #define TFT_RES_480x320
+  #define TFT_INTERFACE_FSMC
+#elif ENABLED(BIQU_BX_TFT70)        // RGB
+  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
+>>>>>>> Stashed changes
   #define TFT_RES_1024x600
   #define TFT_INTERFACE_LTDC
   #if ENABLED(TOUCH_SCREEN)
@@ -1360,9 +1428,12 @@
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN)
+<<<<<<< Updated upstream
   #if TOUCH_IDLE_SLEEP
     #define HAS_TOUCH_SLEEP 1
   #endif
+=======
+>>>>>>> Stashed changes
   #if NONE(TFT_TOUCH_DEVICE_GT911, TFT_TOUCH_DEVICE_XPT2046)
     #define TFT_TOUCH_DEVICE_XPT2046          // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
   #endif
@@ -1400,6 +1471,7 @@
 #else
   #define COORDINATE_OKAY(N,L,H) true
 #endif
+<<<<<<< Updated upstream
 
 /**
  * LED Backlight INDEX END
@@ -1407,3 +1479,5 @@
 #if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
   #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
 #endif
+=======
+>>>>>>> Stashed changes

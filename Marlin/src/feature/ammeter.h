@@ -21,6 +21,7 @@
  */
 #pragma once
 
+<<<<<<< Updated upstream:Marlin/src/feature/ammeter.h
 #include "../inc/MarlinConfigPre.h"
 
 #include <Wire.h>
@@ -37,3 +38,25 @@ public:
 };
 
 extern Ammeter ammeter;
+=======
+#define MARLIN_LOGO_FULL_SIZE MarlinLogo480x320x16
+
+#include "ui_common.h"
+
+#define TFT_STATUS_TOP_Y       4
+#define TFT_TOP_LINE_Y         4
+
+#define MENU_TEXT_X_OFFSET    16
+#define MENU_TEXT_Y_OFFSET     7
+
+#define MENU_ITEM_ICON_X       5
+#define MENU_ITEM_ICON_Y       5
+#define MENU_ITEM_ICON_SPACE  42
+
+#define MENU_FONT_NAME      Helvetica18
+#define SYMBOLS_FONT_NAME   Helvetica18_symbols
+#define MENU_ITEM_HEIGHT    43
+#define FONT_LINE_HEIGHT    34
+
+#define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
+>>>>>>> Stashed changes:Marlin/src/lcd/tft/ui_1024x600.h

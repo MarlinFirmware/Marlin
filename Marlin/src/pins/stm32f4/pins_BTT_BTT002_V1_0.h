@@ -182,6 +182,10 @@
  *                EXP2                                            EXP1                   |
  * --------------------------------------------------------------------------------------
  */
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 #define EXP1_03_PIN                         PE13
 #define EXP1_04_PIN                         PE12
 #define EXP1_05_PIN                         PE11
@@ -202,10 +206,20 @@
 #define EXP2_10_PIN                         PA6
 
 // HAL SPI1 pins
+<<<<<<< Updated upstream
 #define SD_SCK_PIN                   EXP2_09_PIN  // SPI1 SCLK
 #define SD_SS_PIN                    EXP2_07_PIN  // SPI1 SSEL
 #define SD_MISO_PIN                  EXP2_10_PIN  // SPI1 MISO
 #define SD_MOSI_PIN                  EXP2_05_PIN  // SPI1 MOSI
+=======
+#define CUSTOM_SPI_PINS
+#if ENABLED(CUSTOM_SPI_PINS)
+  #define SD_SCK_PIN                 EXP2_09_PIN  // SPI1 SCLK
+  #define SD_SS_PIN                  EXP2_07_PIN  // SPI1 SSEL
+  #define SD_MISO_PIN                EXP2_10_PIN  // SPI1 MISO
+  #define SD_MOSI_PIN                EXP2_05_PIN  // SPI1 MOSI
+#endif
+>>>>>>> Stashed changes
 
 #define SDSS                         EXP2_07_PIN
 
@@ -220,6 +234,7 @@
 
   #if ENABLED(CR10_STOCKDISPLAY)
     #define LCD_PINS_RS              EXP1_04_PIN
+<<<<<<< Updated upstream
 
     #define BTN_EN1                  EXP1_08_PIN
     #define BTN_EN2                  EXP1_06_PIN
@@ -229,6 +244,17 @@
 
   #elif ENABLED(MKS_MINI_12864)
 
+=======
+
+    #define BTN_EN1                  EXP1_08_PIN
+    #define BTN_EN2                  EXP1_06_PIN
+
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
+
+  #elif ENABLED(MKS_MINI_12864)
+
+>>>>>>> Stashed changes
     #define DOGLCD_A0                EXP1_04_PIN
     #define DOGLCD_CS                EXP1_05_PIN
     #define BTN_EN1                  EXP2_08_PIN
@@ -240,6 +266,7 @@
 
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_EN2                  EXP2_06_PIN
+<<<<<<< Updated upstream
 
     #define LCD_PINS_ENABLE          EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
@@ -253,6 +280,21 @@
 
       #define LCD_BACKLIGHT_PIN             -1
 
+=======
+
+    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_D4              EXP1_06_PIN
+
+    #if ENABLED(FYSETC_MINI_12864)
+      #define DOGLCD_CS              EXP1_08_PIN
+      #define DOGLCD_A0              EXP1_07_PIN
+      #define DOGLCD_MOSI            EXP2_05_PIN
+      #define DOGLCD_MISO            EXP2_10_PIN
+      #define DOGLCD_SCK             EXP2_09_PIN
+
+      #define LCD_BACKLIGHT_PIN             -1
+
+>>>>>>> Stashed changes
       #define FORCE_SOFT_SPI
 
       #define LCD_RESET_PIN          EXP1_06_PIN  // Must be high or open for LCD to operate normally.

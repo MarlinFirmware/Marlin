@@ -146,7 +146,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AXIS_LEVELING            = u8"Axis Leveling";
   PROGMEM Language_Str MSG_PROBE_BED                = u8"Probe Mesh";
   PROGMEM Language_Str MSG_SHOW_MESH                = u8"View Mesh";
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/language/language_en.h
   PROGMEM Language_Str MSG_PRINT_TEST               = u8"Print Test (PLA)";
+=======
+  PROGMEM Language_Str MSG_PRINT_TEST               = u8"Print Test";
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/ftdi_eve_touch_ui/language/language_en.h
   PROGMEM Language_Str MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
 
   #if ENABLED(TOUCH_UI_LULZBOT_BIO)

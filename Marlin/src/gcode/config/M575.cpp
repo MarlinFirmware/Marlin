@@ -65,12 +65,19 @@ void GcodeSuite::M575() {
 
       SERIAL_FLUSH();
 
+<<<<<<< Updated upstream
       if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
       #if HAS_MULTI_SERIAL
         if (set2) { MYSERIAL2.end(); MYSERIAL2.begin(baud); }
         #ifdef SERIAL_PORT_3
           if (set3) { MYSERIAL3.end(); MYSERIAL3.begin(baud); }
         #endif
+=======
+      if (set0) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
+
+      #if HAS_MULTI_SERIAL
+        if (set1) { MYSERIAL2.end(); MYSERIAL2.begin(baud); }
+>>>>>>> Stashed changes
       #endif
 
     } break;

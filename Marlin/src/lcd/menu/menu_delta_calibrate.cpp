@@ -88,7 +88,10 @@ void _man_probe_pt(const xy_pos_t &xy) {
   }
 
   void _goto_tower_a(const_float_t a) {
+<<<<<<< Updated upstream
     constexpr float dcr = DELTA_PRINTABLE_RADIUS;
+=======
+>>>>>>> Stashed changes
     xy_pos_t tower_vec = { cos(RADIANS(a)), sin(RADIANS(a)) };
     _man_probe_pt(tower_vec * dcr);
   }

@@ -21,7 +21,11 @@
  */
 #pragma once
 
+<<<<<<< Updated upstream
 #if BOTH(SDSUPPORT, USBD_USE_CDC_MSC) && DISABLED(NO_SD_HOST_DRIVE)
+=======
+#if defined(USBD_USE_CDC_MSC) && DISABLED(NO_SD_HOST_DRIVE)
+>>>>>>> Stashed changes
   #define HAS_SD_HOST_DRIVE 1
 #endif
 
@@ -30,6 +34,9 @@
   #undef F_CPU
   #define F_CPU BOARD_F_CPU
 #endif
+<<<<<<< Updated upstream
 
 // The Sensitive Pins array is not optimizable
 #define RUNTIME_ONLY_ANALOG_TO_DIGITAL
+=======
+>>>>>>> Stashed changes

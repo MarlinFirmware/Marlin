@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -30,7 +33,11 @@
 #include "../../../inc/MarlinConfig.h"
 
 extern lv_group_t *g;
+<<<<<<< Updated upstream
 static lv_obj_t *scr, *outL, *outV = 0;
+=======
+static lv_obj_t *scr,*outL,*outV = 0;
+>>>>>>> Stashed changes
 static int currentWritePos = 0;
 extern uint8_t public_buf[513];
 extern "C" { extern char public_buf_m[100]; }
@@ -59,7 +66,11 @@ void lv_show_gcode_output(void * that, const char * txt) {
   if (!memcmp(txt, "echo:", 5)) {
     public_buf[0] = 0; // Clear output buffer
     return;
+<<<<<<< Updated upstream
   }
+=======
+   }
+>>>>>>> Stashed changes
 
   // Avoid overflow if the answer is too large
   size_t len = strlen((const char*)public_buf), tlen = strlen(txt);
@@ -69,17 +80,29 @@ void lv_show_gcode_output(void * that, const char * txt) {
   }
 }
 
+<<<<<<< Updated upstream
 void lv_serial_capt_hook(void * userPointer, uint8_t c) {
+=======
+void lv_serial_capt_hook(void * userPointer, uint8_t c)
+{
+>>>>>>> Stashed changes
   if (c == '\n' || currentWritePos == sizeof(public_buf_m) - 1) { // End of line, probably end of command anyway
     public_buf_m[currentWritePos] = 0;
     lv_show_gcode_output(userPointer, public_buf_m);
     currentWritePos = 0;
   }
+<<<<<<< Updated upstream
   else
     public_buf_m[currentWritePos++] = c;
 }
 
 void lv_eom_hook(void *) {
+=======
+  else public_buf_m[currentWritePos++] = c;
+}
+void lv_eom_hook(void *)
+{
+>>>>>>> Stashed changes
   // Message is done, let's remove the hook now
   MYSERIAL1.setHook();
   // We are back from the keyboard, so let's redraw ourselves

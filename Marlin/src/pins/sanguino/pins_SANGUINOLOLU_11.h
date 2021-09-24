@@ -164,6 +164,19 @@
       #define LCD_PINS_D4                     11
       #define KILL_PIN                        10
       #define BEEPER_PIN                      27
+<<<<<<< Updated upstream
+=======
+
+      #ifndef BOARD_ST7920_DELAY_1
+        #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_2
+        #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_3
+        #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+      #endif
+>>>>>>> Stashed changes
 
     #elif ENABLED(U8GLIB_ST7920)                  // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 

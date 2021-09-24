@@ -20,9 +20,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream
 #include "../platforms.h"
 
 #ifdef HAL_STM32
+=======
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+>>>>>>> Stashed changes
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -125,7 +129,11 @@ static void TX(char c) {
     }
     regs->DR = c;
   #else
+<<<<<<< Updated upstream
     // Let's hope a mystical guru will fix this, one day by writing interrupt-free USB CDC ACM code (or, at least, by polling the registers since interrupt will be queued but will never trigger)
+=======
+    // Let's hope a mystical guru will fix this, one day by writting interrupt-free USB CDC ACM code (or, at least, by polling the registers since interrupt will be queued but will never trigger)
+>>>>>>> Stashed changes
     // For now, it's completely lost to oblivion.
   #endif
 }
@@ -151,4 +159,8 @@ extern "C" {
 #endif
 
 #endif // POSTMORTEM_DEBUGGING
+<<<<<<< Updated upstream
 #endif // HAL_STM32
+=======
+#endif // ARDUINO_ARCH_STM32
+>>>>>>> Stashed changes

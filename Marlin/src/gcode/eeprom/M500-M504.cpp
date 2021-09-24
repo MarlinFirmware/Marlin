@@ -75,7 +75,11 @@ void GcodeSuite::M502() {
         if (dowrite) {
           val = parser.byteval('V');
           persistentStore.write_data(addr, &val);
+<<<<<<< Updated upstream
           SERIAL_ECHOLNPGM("Wrote address ", addr, " with ", val);
+=======
+          SERIAL_ECHOLNPAIR("Wrote address ", addr, " with ", val);
+>>>>>>> Stashed changes
         }
         else {
           if (parser.seenval('T')) {
@@ -90,7 +94,11 @@ void GcodeSuite::M502() {
           }
           else {
             persistentStore.read_data(addr, &val);
+<<<<<<< Updated upstream
             SERIAL_ECHOLNPGM("Read address ", addr, " and got ", val);
+=======
+            SERIAL_ECHOLNPAIR("Read address ", addr, " and got ", val);
+>>>>>>> Stashed changes
           }
         }
         return;

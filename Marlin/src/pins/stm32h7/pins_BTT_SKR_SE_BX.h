@@ -131,6 +131,7 @@
   //#define E6_HARDWARE_SERIAL Serial1
   //#define E7_HARDWARE_SERIAL Serial1
 
+<<<<<<< Updated upstream
   #define X_SERIAL_TX_PIN                   PG10
   #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
@@ -145,6 +146,25 @@
 
   #define E1_SERIAL_TX_PIN                  PC8
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
+=======
+  //
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN                   PG10
+  #define X_SERIAL_RX_PIN                   PG10
+
+  #define Y_SERIAL_TX_PIN                   PD4
+  #define Y_SERIAL_RX_PIN                   PD4
+
+  #define Z_SERIAL_TX_PIN                   PD5
+  #define Z_SERIAL_RX_PIN                   PD5
+
+  #define E0_SERIAL_TX_PIN                  PI8
+  #define E0_SERIAL_RX_PIN                  PI8
+
+  #define E1_SERIAL_TX_PIN                  PC8
+  #define E1_SERIAL_RX_PIN                  PC8
+>>>>>>> Stashed changes
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -220,16 +240,23 @@
   #define BTN_ENC                           PH8
 #endif
 
+<<<<<<< Updated upstream
 //
 // SD card
 //
+=======
+>>>>>>> Stashed changes
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #define SOFTWARE_SPI
 #define SDSS                                PA15
+<<<<<<< Updated upstream
 #define SD_SS_PIN                           SDSS
+=======
+#define SS_PIN                              SDSS
+>>>>>>> Stashed changes
 #define SD_SCK_PIN                          PC10
 #define SD_MISO_PIN                         PC11
 #define SD_MOSI_PIN                         PC12

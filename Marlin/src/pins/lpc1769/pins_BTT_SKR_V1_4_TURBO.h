@@ -26,6 +26,19 @@
  */
 
 #define BOARD_INFO_NAME "BTT SKR V1.4 TURBO"
+<<<<<<< Updated upstream
+=======
+
+// Adding EEPROM. Ensure matching EEPROM sizes are uncommented 
+
+#define MNV_SKR_V1_4T_256K_END 0x7FFF       //32Kb  256Kb EEPROM
+//#define MNV_SKR_V1_4T_512K_END 0xFFFF     //64Kb  512Kb EEPROM
+
+#define I2C_EEPROM
+
+#define E2END MNV_SKR_V1_4T_256K_END        //256Kb EEPROM
+//#define E2END MNV_SKR_V1_4T_512K_END      //512Kb EEPROM
+>>>>>>> Stashed changes
 
 //
 // Include SKR 1.4 pins

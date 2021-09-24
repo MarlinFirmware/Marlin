@@ -86,7 +86,11 @@ void FileNavigator::refresh() { filelist.refresh(); }
 
 void FileNavigator::changeDIR(const char *folder) {
   if (currentfolderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("FD:" , folderdepth, " FP:",currentindex, " currentfolder:", currentfoldername, " enter:", folder);
+=======
+  DEBUG_ECHOLNPAIR("FD:" , folderdepth, " FP:",currentindex, " currentfolder:", currentfoldername, " enter:", folder);
+>>>>>>> Stashed changes
   currentfolderindex[currentfolderdepth] = currentindex;
   strcat(currentfoldername, folder);
   strcat(currentfoldername, "/");
@@ -96,7 +100,11 @@ void FileNavigator::changeDIR(const char *folder) {
 }
 
 void FileNavigator::upDIR() {
+<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("upDIR() from D:", currentfolderdepth, " N:", currentfoldername);
+=======
+  DEBUG_ECHOLNPAIR("upDIR() from D:", currentfolderdepth, " N:", currentfoldername);
+>>>>>>> Stashed changes
   if (!filelist.isAtRootDir()) {
     filelist.upDir();
     currentfolderdepth--;
@@ -117,7 +125,11 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
   if (skip == 0) return;
   while (skip > 0) {
     if (filelist.seek(currentindex)) {
+<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM("CI:", currentindex, " FD:", currentfolderdepth, " N:", skip, " ", filelist.longFilename());
+=======
+      DEBUG_ECHOLNPAIR("CI:", currentindex, " FD:", currentfolderdepth, " N:", skip, " ", filelist.longFilename());
+>>>>>>> Stashed changes
       if (!filelist.isDir()) {
         skip--;
         currentindex++;
@@ -151,7 +163,11 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
     }
     lastpanelindex = index;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("index=", index, " currentindex=", currentindex);
+=======
+    DEBUG_ECHOLNPAIR("index=", index, " currentindex=", currentindex);
+>>>>>>> Stashed changes
 
     if (currentindex == 0 && currentfolderdepth > 0) { // Add a link to go up a folder
       // The new panel ignores entries that don't end in .GCO or .gcode so add and pad them.
@@ -169,7 +185,11 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
     for (uint16_t seek = currentindex; seek < currentindex + filesneeded; seek++) {
       if (filelist.seek(seek)) {
         sendFile(paneltype);
+<<<<<<< Updated upstream
         DEBUG_ECHOLNPGM("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'");
+=======
+        DEBUG_ECHOLNPAIR("-", seek, " '", filelist.longFilename(), "' '", currentfoldername, "", filelist.shortFilename(), "'");
+>>>>>>> Stashed changes
       }
     }
   }
@@ -212,7 +232,11 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
 #else // Flat file list
 
   void FileNavigator::getFiles(uint16_t index, panel_type_t paneltype, uint8_t filesneeded) {
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("getFiles() I:", index," L:", lastpanelindex);
+=======
+    DEBUG_ECHOLNPAIR("getFiles() I:", index," L:", lastpanelindex);
+>>>>>>> Stashed changes
     // if we're searching backwards, jump back to start and search forward
     if (index < lastpanelindex) {
       reset();
@@ -248,7 +272,11 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
     TFTSer.println(filelist.shortFilename());
     if (currentfolderdepth > 0) TFTSer.print(currentfoldername);
     TFTSer.println(filelist.longFilename());
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("/", currentfoldername, "", filelist.shortFilename(), " ", filelist.longFilename());
+=======
+    DEBUG_ECHOLNPAIR("/", currentfoldername, "", filelist.shortFilename(), " ", filelist.longFilename());
+>>>>>>> Stashed changes
   }
 
 #endif // Flat file list

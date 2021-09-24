@@ -32,6 +32,7 @@
 class Joystick {
   friend class Temperature;
   private:
+<<<<<<< Updated upstream
     #if HAS_JOY_ADC_X
       static temp_info_t x;
     #endif
@@ -39,6 +40,15 @@ class Joystick {
       static temp_info_t y;
     #endif
     #if HAS_JOY_ADC_Z
+=======
+    #if ENABLED(HAS_JOY_ADC_X)
+      static temp_info_t x;
+    #endif
+    #if ENABLED(HAS_JOY_ADC_Y)
+      static temp_info_t y;
+    #endif
+    #if ENABLED(HAS_JOY_ADC_Z)
+>>>>>>> Stashed changes
       static temp_info_t z;
     #endif
   public:

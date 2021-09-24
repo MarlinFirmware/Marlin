@@ -46,8 +46,11 @@
    *    C = Gamma (Tower 3) diagonal rod trim
    */
   void GcodeSuite::M665() {
+<<<<<<< Updated upstream
     if (!parser.seen_any()) return M665_report();
 
+=======
+>>>>>>> Stashed changes
     if (parser.seenval('H')) delta_height              = parser.value_linear_units();
     if (parser.seenval('L')) delta_diagonal_rod        = parser.value_linear_units();
     if (parser.seenval('R')) delta_radius              = parser.value_linear_units();
@@ -98,8 +101,11 @@
    *   B, T, and Y are all aliases for the elbow angle
    */
   void GcodeSuite::M665() {
+<<<<<<< Updated upstream
     if (!parser.seen_any()) return M665_report();
 
+=======
+>>>>>>> Stashed changes
     if (parser.seenval('S')) segments_per_second = parser.value_float();
 
     #if HAS_SCARA_OFFSET

@@ -77,6 +77,8 @@ void GcodeSuite::G29() {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
+  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+
   static int mbl_probe_index = -1;
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
@@ -103,8 +105,12 @@ void GcodeSuite::G29() {
       mbl.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
+<<<<<<< Updated upstream
         queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : PSTR("G29S2"));
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+=======
+        queue.inject_P(parser.seen_test('N') ? PSTR("G28" TERN(G28_L0_ENSURES_LEVELING_OFF, "L0", "") "\nG29S2") : PSTR("G29S2"));
+>>>>>>> Stashed changes
         return;
       }
       state = MeshNext;
@@ -173,7 +179,11 @@ void GcodeSuite::G29() {
       if (parser.seenval('I')) {
         ix = parser.value_int();
         if (!WITHIN(ix, 0, (GRID_MAX_POINTS_X) - 1)) {
+<<<<<<< Updated upstream
           SERIAL_ECHOLNPGM("I out of range (0-", (GRID_MAX_POINTS_X) - 1, ")");
+=======
+          SERIAL_ECHOLNPAIR("I out of range (0-", (GRID_MAX_POINTS_X) - 1, ")");
+>>>>>>> Stashed changes
           return;
         }
       }
@@ -183,7 +193,11 @@ void GcodeSuite::G29() {
       if (parser.seenval('J')) {
         iy = parser.value_int();
         if (!WITHIN(iy, 0, (GRID_MAX_POINTS_Y) - 1)) {
+<<<<<<< Updated upstream
           SERIAL_ECHOLNPGM("J out of range (0-", (GRID_MAX_POINTS_Y) - 1, ")");
+=======
+          SERIAL_ECHOLNPAIR("J out of range (0-", (GRID_MAX_POINTS_Y) - 1, ")");
+>>>>>>> Stashed changes
           return;
         }
       }
@@ -213,8 +227,13 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
+<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
     if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+=======
+    SERIAL_ECHOLNPAIR("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+>>>>>>> Stashed changes
   }
 
   report_current_position();

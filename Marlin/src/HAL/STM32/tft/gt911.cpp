@@ -19,9 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream
 #include "../../platforms.h"
 
 #ifdef HAL_STM32
+=======
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+>>>>>>> Stashed changes
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -201,4 +205,8 @@ bool GT911::getPoint(int16_t *x, int16_t *y) {
 }
 
 #endif // TFT_TOUCH_DEVICE_GT911
+<<<<<<< Updated upstream
 #endif // HAL_STM32
+=======
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+>>>>>>> Stashed changes

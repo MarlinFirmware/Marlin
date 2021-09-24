@@ -97,12 +97,22 @@ void LEDLights::set_color(const LEDColor &incol
 
     neo.set_brightness(incol.i);
 
+<<<<<<< Updated upstream
     #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
       if (isSequence) {
         neo.set_pixel_color(nextLed, neocolor);
         neo.show();
         if (++nextLed >= neo.pixels()) nextLed = 0;
         return;
+=======
+    #ifdef NEOPIXEL_BKGD_LED_INDEX
+      if (NEOPIXEL_BKGD_LED_INDEX == nextLed) {
+        neo.set_color_background();
+        if (++nextLed >= neo.pixels()) {
+          nextLed = 0;
+          return;
+        }
+>>>>>>> Stashed changes
       }
     #endif
 

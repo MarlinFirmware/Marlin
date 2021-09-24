@@ -48,7 +48,10 @@
   #include "sound_list.h"
   #include "polygon.h"
   #include "poly_ui.h"
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/ftdi_eve_lib/extended/ftdi_extended.h
   #include "arrows.h"
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/ftdi_eve_touch_ui/ftdi_eve_lib/extended/ftdi_extended.h
   #include "text_box.h"
   #include "text_ellipsis.h"
   #include "adjuster_widget.h"

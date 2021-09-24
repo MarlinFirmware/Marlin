@@ -145,7 +145,11 @@ class TFilamentMonitor : public FilamentMonitorBase {
           if (runout_flags) {
             SERIAL_ECHOPGM("Runout Sensors: ");
             LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(runout_flags, i));
+<<<<<<< Updated upstream
             SERIAL_ECHOPGM(" -> ", extruder);
+=======
+            SERIAL_ECHOPAIR(" -> ", extruder);
+>>>>>>> Stashed changes
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();
           }
@@ -317,7 +321,11 @@ class FilamentSensorBase {
             static uint8_t was_out; // = 0
             if (out != TEST(was_out, s)) {
               TBI(was_out, s);
+<<<<<<< Updated upstream
               SERIAL_ECHOLNPGM_P(PSTR("Filament Sensor "), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
+=======
+              SERIAL_ECHOLNPAIR_P(PSTR("Filament Sensor "), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
+>>>>>>> Stashed changes
             }
           #endif
         }
@@ -352,7 +360,11 @@ class FilamentSensorBase {
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
             LOOP_L_N(i, NUM_RUNOUT_SENSORS)
+<<<<<<< Updated upstream
               SERIAL_ECHOPGM_P(i ? PSTR(", ") : PSTR("Remaining mm: "), runout_mm_countdown[i]);
+=======
+              SERIAL_ECHOPAIR_P(i ? PSTR(", ") : PSTR("Remaining mm: "), runout_mm_countdown[i]);
+>>>>>>> Stashed changes
             SERIAL_EOL();
           }
         #endif

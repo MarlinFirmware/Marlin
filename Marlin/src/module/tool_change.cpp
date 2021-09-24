@@ -49,9 +49,13 @@
   bool toolchange_extruder_ready[EXTRUDERS];
 #endif
 
+<<<<<<< Updated upstream
 #if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) \
   || defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) \
   || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+=======
+#if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+>>>>>>> Stashed changes
   #include "../gcode/gcode.h"
 #endif
 
@@ -189,7 +193,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[new_tool] + offsetcompensation;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM("(1) Move extruder ", new_tool);
+=======
+    DEBUG_ECHOPAIR("(1) Move extruder ", new_tool);
+>>>>>>> Stashed changes
     DEBUG_POS(" to new extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.fast_feedrate, new_tool);
@@ -199,7 +207,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = grabpos + offsetcompensation;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM("(2) Couple extruder ", new_tool);
+=======
+    DEBUG_ECHOPAIR("(2) Couple extruder ", new_tool);
+>>>>>>> Stashed changes
     DEBUG_POS(" to new extruder GrabPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
@@ -212,7 +224,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[new_tool] + offsetcompensation;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM("(3) Move extruder ", new_tool);
+=======
+    DEBUG_ECHOPAIR("(3) Move extruder ", new_tool);
+>>>>>>> Stashed changes
     DEBUG_POS(" back to new extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
@@ -222,7 +238,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[active_extruder] + (active_extruder == 0 ? MPE_TRAVEL_DISTANCE : -MPE_TRAVEL_DISTANCE) + offsetcompensation;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM("(4) Move extruder ", new_tool);
+=======
+    DEBUG_ECHOPAIR("(4) Move extruder ", new_tool);
+>>>>>>> Stashed changes
     DEBUG_POS(" close to old extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.fast_feedrate, new_tool);
@@ -232,7 +252,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = mpe_settings.parking_xpos[active_extruder] + offsetcompensation;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM("(5) Park extruder ", new_tool);
+=======
+    DEBUG_ECHOPAIR("(5) Park extruder ", new_tool);
+>>>>>>> Stashed changes
     DEBUG_POS(" at old extruder ParkPos", current_position);
 
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
@@ -242,7 +266,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = oldx;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOPGM("(6) Move extruder ", new_tool);
+=======
+    DEBUG_ECHOPAIR("(6) Move extruder ", new_tool);
+>>>>>>> Stashed changes
     DEBUG_POS(" to starting position", current_position);
 
     planner.buffer_line(current_position, mpe_settings.fast_feedrate, new_tool);
@@ -277,9 +305,15 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     if (homed_towards_final_tool) {
       pe_solenoid_magnet_off(1 - final_tool);
+<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM("Disengage magnet", 1 - final_tool);
       pe_solenoid_magnet_on(final_tool);
       DEBUG_ECHOLNPGM("Engage magnet", final_tool);
+=======
+      DEBUG_ECHOLNPAIR("Disengage magnet", 1 - final_tool);
+      pe_solenoid_magnet_on(final_tool);
+      DEBUG_ECHOLNPAIR("Engage magnet", final_tool);
+>>>>>>> Stashed changes
       parking_extruder_set_parked(false);
       return false;
     }
@@ -318,7 +352,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       if (!extruder_parked) {
         current_position.x = parkingposx[active_extruder] + x_offset;
 
+<<<<<<< Updated upstream
         DEBUG_ECHOLNPGM("(1) Park extruder ", active_extruder);
+=======
+        DEBUG_ECHOLNPAIR("(1) Park extruder ", active_extruder);
+>>>>>>> Stashed changes
         DEBUG_POS("Moving ParkPos", current_position);
 
         fast_line_to_current(X_AXIS);
@@ -521,7 +559,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.x = placexpos;
 
+<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("(1) Place old tool ", active_extruder);
+=======
+    DEBUG_ECHOLNPAIR("(1) Place old tool ", active_extruder);
+>>>>>>> Stashed changes
     DEBUG_POS("Move X SwitchPos", current_position);
 
     fast_line_to_current(X_AXIS);
@@ -627,7 +669,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR;
 
+<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("(1) Place old tool ", active_extruder);
+=======
+    SERIAL_ECHOLNPAIR("(1) Place old tool ", active_extruder);
+>>>>>>> Stashed changes
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
 
     fast_line_to_current(Y_AXIS);
@@ -952,9 +998,16 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       #if ENABLED(TOOLCHANGE_PARK)
         if (ok) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
+<<<<<<< Updated upstream
             const float temp = destination.z;
             destination = current_position;
             destination.z = temp.z;
+=======
+            destination.set(current_position.x, current_position.y);
+            prepare_internal_move_to_destination(planner.settings.max_feedrate_mm_s[Z_AXIS]);
+          #else
+            prepare_internal_move_to_destination(MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+>>>>>>> Stashed changes
           #endif
           prepare_internal_move_to_destination(TERN(TOOLCHANGE_NO_RETURN, planner.settings.max_feedrate_mm_s[Z_AXIS], MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)));
         }
@@ -1313,6 +1366,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_TOOLCHANGE_T0));
       #endif
 
+<<<<<<< Updated upstream
       #ifdef EVENT_GCODE_TOOLCHANGE_T1
         if (new_tool == 1)
           gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_TOOLCHANGE_T1));
@@ -1324,6 +1378,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
     }
 
+=======
+>>>>>>> Stashed changes
     SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, active_extruder);
 
   #endif // HAS_MULTI_EXTRUDER
@@ -1390,7 +1446,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #if HAS_MULTI_HOTEND
       thermalManager.setTargetHotend(thermalManager.degTargetHotend(active_extruder), migration_extruder);
       TERN_(AUTOTEMP, planner.autotemp_update());
+<<<<<<< Updated upstream
       thermalManager.set_heating_message(0);
+=======
+      TERN_(HAS_STATUS_MESSAGE, thermalManager.set_heating_message(0));
+>>>>>>> Stashed changes
       thermalManager.wait_for_hotend(active_extruder);
     #endif
 

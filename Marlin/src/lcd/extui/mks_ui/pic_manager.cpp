@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/pic_manager.cpp
 
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/pic_manager.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -31,6 +34,10 @@
 #include "mks_hardware.h"
 #include "SPIFlashStorage.h"
 #include "../../../libs/W25Qxx.h"
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/pic_manager.cpp
+=======
+
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/pic_manager.cpp
 #include "../../../sd/cardreader.h"
 #include "../../../MarlinCore.h"
 

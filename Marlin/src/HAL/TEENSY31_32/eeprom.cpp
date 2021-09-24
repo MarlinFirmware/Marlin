@@ -20,8 +20,11 @@
  *
  */
 
+<<<<<<< Updated upstream
 #ifdef __MK20DX256__
 
+=======
+>>>>>>> Stashed changes
 /**
  * HAL PersistentStore for Teensy 3.2 (MK20DX256)
  */

@@ -190,7 +190,11 @@
 
     const xyze_float_t diff = from_steppers - leveled;
     SERIAL_ECHOPGM("Diff:   ");
+<<<<<<< Updated upstream
     report_all_axis_pos(diff);
+=======
+    report_xyze(diff);
+>>>>>>> Stashed changes
 
     TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   }
@@ -216,12 +220,19 @@ void GcodeSuite::M114() {
       report_current_position_detail();
       return;
     }
+<<<<<<< Updated upstream
     #if HAS_EXTRUDERS
       if (parser.seen_test('E')) {
         SERIAL_ECHOLNPGM("Count E:", stepper.position(E_AXIS));
         return;
       }
     #endif
+=======
+    if (parser.seen_test('E')) {
+      SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
+      return;
+    }
+>>>>>>> Stashed changes
   #endif
 
   #if ENABLED(M114_REALTIME)

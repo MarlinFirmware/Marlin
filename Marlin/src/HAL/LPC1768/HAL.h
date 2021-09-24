@@ -57,6 +57,9 @@ extern "C" volatile uint32_t _millis;
 typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
 extern DefaultSerial1 USBSerial;
 
+typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
+extern DefaultSerial1 USBSerial;
+
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
@@ -73,6 +76,7 @@ extern DefaultSerial1 USBSerial;
     #define MYSERIAL2 USBSerial
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
+<<<<<<< Updated upstream
   #else
     #error "SERIAL_PORT_2 must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
@@ -84,6 +88,19 @@ extern DefaultSerial1 USBSerial;
   #elif WITHIN(SERIAL_PORT_3, 0, 3)
     #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
   #else
+=======
+  #else
+    #error "SERIAL_PORT_2 must be from 0 to 3. You can also use -1 if the board supports Native USB."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 USBSerial
+  #elif WITHIN(SERIAL_PORT_3, 0, 3)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+>>>>>>> Stashed changes
     #error "SERIAL_PORT_3 must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
 #endif
@@ -107,7 +124,11 @@ extern DefaultSerial1 USBSerial;
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
+<<<<<<< Updated upstream
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
+=======
+    #define SERIAL_GET_TX_BUFFER_FREE() MSerial0.available()
+>>>>>>> Stashed changes
   #endif
 #endif
 

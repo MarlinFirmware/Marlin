@@ -19,10 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream
 
 #include "../platforms.h"
 
 #if defined(HAL_STM32) && !defined(STM32H7xx)
+=======
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(STM32H7xx)
+>>>>>>> Stashed changes
 
 #include "MarlinSPI.h"
 

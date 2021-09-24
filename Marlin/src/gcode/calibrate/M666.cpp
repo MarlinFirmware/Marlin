@@ -48,12 +48,17 @@
       if (parser.seen(AXIS_CHAR(i))) {
         is_set = true;
         const float v = parser.value_linear_units();
+<<<<<<< Updated upstream
         if (v > 0)
           is_err = true;
         else {
           delta_endstop_adj[i] = v;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("delta_endstop_adj[", AS_CHAR(AXIS_CHAR(i)), "] = ", v);
         }
+=======
+        if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", AS_CHAR(XYZ_CHAR(i)), "] = ", delta_endstop_adj[i]);
+>>>>>>> Stashed changes
       }
     }
     if (is_err) SERIAL_ECHOLNPGM("?M666 offsets must be <= 0");

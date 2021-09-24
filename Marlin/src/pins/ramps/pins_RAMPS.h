@@ -120,35 +120,59 @@
 #define X_DIR_PIN                             55
 #define X_ENABLE_PIN                          38
 #ifndef X_CS_PIN
+<<<<<<< Updated upstream
   #define X_CS_PIN                   AUX3_03_PIN
+=======
+  #define X_CS_PIN                   EXP2_07_PIN
+>>>>>>> Stashed changes
 #endif
 
 #define Y_STEP_PIN                            60
 #define Y_DIR_PIN                             61
 #define Y_ENABLE_PIN                          56
 #ifndef Y_CS_PIN
+<<<<<<< Updated upstream
   #define Y_CS_PIN                   AUX3_07_PIN
+=======
+  #define Y_CS_PIN                   EXP2_04_PIN
+>>>>>>> Stashed changes
 #endif
 
 #ifndef Z_STEP_PIN
   #define Z_STEP_PIN                          46
 #endif
-#define Z_DIR_PIN                             48
-#define Z_ENABLE_PIN                          62
+#ifndef Z_DIR_PIN
+  #define Z_DIR_PIN                           48
+#endif
+#ifndef Z_ENABLE_PIN
+  #define Z_ENABLE_PIN                        62
+#endif
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                            40
 #endif
 
-#define E0_STEP_PIN                           26
-#define E0_DIR_PIN                            28
-#define E0_ENABLE_PIN                         24
+#ifndef E0_STEP_PIN
+  #define E0_STEP_PIN                         26
+#endif
+#ifndef E0_DIR_PIN
+  #define E0_DIR_PIN                          28
+#endif
+#ifndef E0_ENABLE_PIN
+  #define E0_ENABLE_PIN                       24
+#endif
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                           42
 #endif
 
-#define E1_STEP_PIN                           36
-#define E1_DIR_PIN                            34
-#define E1_ENABLE_PIN                         30
+#ifndef E1_STEP_PIN
+  #define E1_STEP_PIN                         36
+#endif
+#ifndef E1_DIR_PIN
+  #define E1_DIR_PIN                          34
+#endif
+#ifndef E1_ENABLE_PIN
+  #define E1_ENABLE_PIN                       30
+#endif
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                           44
 #endif
@@ -219,10 +243,10 @@
   #define FAN1_PIN                  RAMPS_D8_PIN
 #elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
-    #define FAN1_PIN                MOSFET_D_PIN
-  #else
+  #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
     #define HEATER_1_PIN            MOSFET_D_PIN
+  #else
+    #define FAN1_PIN                MOSFET_D_PIN
   #endif
 #endif
 
@@ -241,9 +265,13 @@
 //
 // Misc. Functions
 //
+<<<<<<< Updated upstream
 #ifndef SDSS
   #define SDSS                       AUX3_03_PIN
 #endif
+=======
+#define SDSS                         EXP2_07_PIN
+>>>>>>> Stashed changes
 #define LED_PIN                               13
 
 #ifndef FILWIDTH_PIN
@@ -424,6 +452,7 @@
 #endif
 
 //
+<<<<<<< Updated upstream
 // AUX3 : GND D52 D50 5V
 //        NC  D53 D51 D49
 
@@ -484,11 +513,57 @@
   #define EXP2_08_PIN                AUX4_12_PIN
   #define EXP2_09_PIN                AUX3_04_PIN
   #define EXP2_10_PIN                AUX3_06_PIN
+=======
+// Aux 3 GND D52 D50 5V
+//       NC  D53 D51 D49
+
+//
+// Aux 4 D16 D17 D23 D25 D27 D29 D31 D33 D35 D37 D39 D41 D43 D45 D47 D32 GND 5V
+//
+
+/**
+ * LCD adapter. Please note: These comes in two variants. The socket keys can be
+ * on either side, and may be backwards on some boards / displays.
+ *         _____                           _____
+ *    D37 |10 9 | D35          (MISO) D50 |10 9 | D52 (SCK)
+ *    D17 | 8 7 | D16                 D31 | 8 7 | D53
+ *    D23   6 5   D25                 D33   6 5   D51 (MOSI)
+ *    D27 | 4 3 | D29                 D49 | 4 3 | D41
+ *    GND | 2 1 | 5V                  GND | 2 1 | NC
+ *         -----                           -----
+ *         EXP1                            EXP2
+ */
+
+#ifndef EXP1_03_PIN
+  #define EXP1_03_PIN                         29
+  #define EXP1_04_PIN                         27
+  #define EXP1_05_PIN                         25
+  #define EXP1_06_PIN                         23
+  #define EXP1_07_PIN                         16
+  #define EXP1_08_PIN                         17
+  #define EXP1_09_PIN                         35
+  #define EXP1_10_PIN                         37
+
+  #define EXP2_03_PIN                         41
+  #define EXP2_04_PIN                         49
+  #define EXP2_05_PIN                         51
+  #define EXP2_06_PIN                         33
+  #define EXP2_07_PIN                         53
+  #define EXP2_08_PIN                         31
+  #define EXP2_09_PIN                         52
+  #define EXP2_10_PIN                         50
+>>>>>>> Stashed changes
 #endif
 
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
+
+// GLCD features
+// Uncomment screen orientation
+//#define LCD_SCREEN_ROT_90
+//#define LCD_SCREEN_ROT_180
+//#define LCD_SCREEN_ROT_270
 
 #if HAS_WIRED_LCD
 
@@ -672,9 +747,13 @@
 
       #define BEEPER_PIN             EXP1_10_PIN
       #define BTN_ENC                EXP1_09_PIN
+<<<<<<< Updated upstream
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_04_PIN
       #endif
+=======
+      #define SD_DETECT_PIN          EXP2_04_PIN
+>>>>>>> Stashed changes
 
       #ifndef KILL_PIN
         #define KILL_PIN             EXP2_03_PIN
@@ -745,6 +824,7 @@
     #elif ENABLED(AZSMZ_12864)
 
       // Pins only defined for RAMPS_SMART currently
+<<<<<<< Updated upstream
 
     #elif ENABLED(G3D_PANEL)
 
@@ -756,6 +836,8 @@
       #define BTN_EN1                EXP1_10_PIN
       #define BTN_EN2                EXP1_09_PIN
       #define BTN_ENC                EXP2_08_PIN
+=======
+>>>>>>> Stashed changes
 
     #elif IS_TFTGLCD_PANEL
 
@@ -763,6 +845,10 @@
 
     #else
 
+<<<<<<< Updated upstream
+=======
+      // Beeper on AUX-4
+>>>>>>> Stashed changes
       #define BEEPER_PIN             EXP2_06_PIN
 
       // Buttons are directly attached to AUX-2
@@ -774,6 +860,14 @@
         #define BTN_EN1              EXP1_10_PIN
         #define BTN_EN2              EXP1_09_PIN
         #define BTN_ENC              EXP2_08_PIN
+<<<<<<< Updated upstream
+=======
+      #endif
+
+      #if ENABLED(G3D_PANEL)
+        #define SD_DETECT_PIN        EXP2_04_PIN
+        #define KILL_PIN             EXP2_03_PIN
+>>>>>>> Stashed changes
       #endif
 
     #endif

@@ -208,6 +208,7 @@ void L64XX_Marlin::init_to_defaults() {
   #if AXIS_IS_L64XX(Z4)
     L6470_INIT_CHIP(Z4);
   #endif
+<<<<<<< Updated upstream
   #if AXIS_IS_L64XX(I)
     L6470_INIT_CHIP(I);
   #endif
@@ -217,6 +218,8 @@ void L64XX_Marlin::init_to_defaults() {
   #if AXIS_IS_L64XX(K)
     L6470_INIT_CHIP(K);
   #endif
+=======
+>>>>>>> Stashed changes
   #if AXIS_IS_L64XX(E0)
     L6470_INIT_CHIP(E0);
   #endif

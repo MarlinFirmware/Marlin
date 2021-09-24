@@ -44,6 +44,7 @@ namespace FTDI {
     // the location in the string where it can
     // split and still allow the ellipsis to fit.
     int16_t lineWidth = 0;
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/ftdi_eve_lib/extended/text_ellipsis.cpp
     char *breakPoint = str;
     const char *next = str;
     while (*next) {
@@ -52,6 +53,25 @@ namespace FTDI {
       if (lineWidth + ellipsisWidth < w)
         breakPoint = (char*)next;
     }
+=======
+    char *breakPoint   = str;
+    #ifdef TOUCH_UI_USE_UTF8
+      char *tstr = str;
+      while (*tstr) {
+        breakPoint = tstr;
+        const utf8_char_t c = get_utf8_char_and_inc(tstr);
+        lineWidth += fm.get_char_width(c);
+        if (lineWidth + ellipsisWidth < w)
+          break;
+      }
+    #else
+      for (char *c = str; *c; c++) {
+        lineWidth += fm.get_char_width(*c);
+        if (lineWidth + ellipsisWidth < w)
+          breakPoint = c;
+      }
+    #endif
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/ftdi_eve_touch_ui/ftdi_eve_lib/extended/text_ellipsis.cpp
 
     if (lineWidth > w) {
       *breakPoint = '\0';

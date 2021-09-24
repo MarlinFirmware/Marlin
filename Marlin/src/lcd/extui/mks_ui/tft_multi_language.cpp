@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/tft_multi_language.cpp
 
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/tft_multi_language.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -58,8 +61,11 @@ MachinePara_menu_def         MachinePara_menu;
 pause_msg_def                pause_msg_menu;
 eeprom_def                   eeprom_menu;
 media_select_menu_def        media_select_menu;
+<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/tft_multi_language.cpp
 
 // TODO: Make all strings PSTR and update accessors for the benefit of AVR
+=======
+>>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/tft_multi_language.cpp
 
 machine_common_def machine_menu;
 void machine_setting_disp() {

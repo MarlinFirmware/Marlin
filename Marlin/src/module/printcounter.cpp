@@ -179,7 +179,11 @@ void PrintCounter::saveStats() {
   inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
     SERIAL_ECHOPGM(STR_STATS);
     SERIAL_ECHOPGM_P(msg);
+<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" in ", duration_t(when).toString(buffer));
+=======
+    SERIAL_ECHOLNPAIR(" in ", duration_t(when).toString(buffer));
+>>>>>>> Stashed changes
   }
 #endif
 

@@ -37,7 +37,11 @@ env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 tee
 TESTPATH=buildroot/tests
 
 STATE_FILE="./.pio/.mftestrc"
+<<<<<<< Updated upstream:buildroot/bin/mftest
 SED=$(which gsed sed | head -n1)
+=======
+SED=$(which gsed || which sed)
+>>>>>>> Stashed changes:buildroot/share/git/mftest
 
 shopt -s extglob nocasematch
 
@@ -133,7 +137,11 @@ lp9|lpc9) TESTENV='LPC1769' ;;
      t36) TESTENV='teensy35' ;;
      t40) TESTENV='teensy41' ;;
      t41) TESTENV='teensy41' ;;
+<<<<<<< Updated upstream:buildroot/bin/mftest
 [1-9]|[1-9][0-9]) TESTNUM=$TESTENV ; TESTENV=- ;;
+=======
+[1-9][1-9]|[1-9]) TESTNUM=$TESTENV ; TESTENV=- ;;
+>>>>>>> Stashed changes:buildroot/share/git/mftest
 esac
 
 if ((AUTO_BUILD)); then
@@ -206,9 +214,13 @@ fi
 if [[ $TESTENV == '-' ]]; then
   IND=0
   NAMES=()
+<<<<<<< Updated upstream:buildroot/bin/mftest
   MENU=()
   BIGLEN=0
   for FILE in $( ls -1 $TESTPATH/* | sort -f )
+=======
+  for FILE in $( ls -1 $TESTPATH/* )
+>>>>>>> Stashed changes:buildroot/share/git/mftest
   do
     let IND++
     TNAME=${FILE/$TESTPATH\//}

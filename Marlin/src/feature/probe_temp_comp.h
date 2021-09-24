@@ -64,7 +64,11 @@ typedef struct {
 #ifndef BTC_SAMPLE_COUNT
   #define BTC_SAMPLE_COUNT 10
 #endif
+<<<<<<< Updated upstream
 #ifndef BTC_SAMPLE_RES
+=======
+#ifndef BTC_SAMPLE_STEP
+>>>>>>> Stashed changes
   #define BTC_SAMPLE_RES 5
 #endif
 #ifndef BTC_SAMPLE_START

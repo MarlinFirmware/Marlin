@@ -42,6 +42,7 @@
 #define OV_SCALE(N) (N)
 #define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
+<<<<<<< Updated upstream
 #define TEMP_SENSOR_IS(n,H) (n == TEMP_SENSOR_##H)
 #define ANY_THERMISTOR_IS(n) ( TEMP_SENSOR_IS(n, 0) || TEMP_SENSOR_IS(n, 1) \
                             || TEMP_SENSOR_IS(n, 2) || TEMP_SENSOR_IS(n, 3) \
@@ -53,6 +54,9 @@
                             || TEMP_SENSOR_IS(n, PROBE) \
                             || TEMP_SENSOR_IS(n, BOARD) \
                             || TEMP_SENSOR_IS(n, REDUNDANT) )
+=======
+#define ANY_THERMISTOR_IS(n) (TEMP_SENSOR_0_THERMISTOR_ID == n || TEMP_SENSOR_1_THERMISTOR_ID == n || TEMP_SENSOR_2_THERMISTOR_ID == n || TEMP_SENSOR_3_THERMISTOR_ID == n || TEMP_SENSOR_4_THERMISTOR_ID == n || TEMP_SENSOR_5_THERMISTOR_ID == n || TEMP_SENSOR_6_THERMISTOR_ID == n || TEMP_SENSOR_7_THERMISTOR_ID == n || TEMP_SENSOR_BED_THERMISTOR_ID == n || TEMP_SENSOR_CHAMBER_THERMISTOR_ID == n || TEMP_SENSOR_COOLER_THERMISTOR_ID == n || TEMP_SENSOR_PROBE_THERMISTOR_ID == n)
+>>>>>>> Stashed changes
 
 typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 
@@ -241,6 +245,7 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
   #define TEMPTABLE_2_LEN 0
 #endif
 
+<<<<<<< Updated upstream
 #if TEMP_SENSOR_3 > 0
   #define TEMPTABLE_3 TT_NAME(TEMP_SENSOR_3)
   #define TEMPTABLE_3_LEN COUNT(TEMPTABLE_3)
@@ -333,14 +338,146 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
            || 255 > TEMPTABLE_BOARD_LEN
            || 255 > TEMPTABLE_REDUNDANT_LEN
   , "Temperature conversion tables over 255 entries need special consideration."
+=======
+#if TEMP_SENSOR_0_THERMISTOR_ID
+  #define TEMPTABLE_0 TT_NAME(TEMP_SENSOR_0_THERMISTOR_ID)
+  #define TEMPTABLE_0_LEN COUNT(TEMPTABLE_0)
+#elif TEMP_SENSOR_0_IS_THERMISTOR
+  #error "No heater 0 thermistor table specified"
+#else
+  #define TEMPTABLE_0 nullptr
+  #define TEMPTABLE_0_LEN 0
+#endif
+
+#if TEMP_SENSOR_1_THERMISTOR_ID
+  #define TEMPTABLE_1 TT_NAME(TEMP_SENSOR_1_THERMISTOR_ID)
+  #define TEMPTABLE_1_LEN COUNT(TEMPTABLE_1)
+#elif TEMP_SENSOR_1_IS_THERMISTOR
+  #error "No heater 1 thermistor table specified"
+#else
+  #define TEMPTABLE_1 nullptr
+  #define TEMPTABLE_1_LEN 0
+#endif
+
+#if TEMP_SENSOR_2_THERMISTOR_ID
+  #define TEMPTABLE_2 TT_NAME(TEMP_SENSOR_2_THERMISTOR_ID)
+  #define TEMPTABLE_2_LEN COUNT(TEMPTABLE_2)
+#elif TEMP_SENSOR_2_IS_THERMISTOR
+  #error "No heater 2 thermistor table specified"
+#else
+  #define TEMPTABLE_2 nullptr
+  #define TEMPTABLE_2_LEN 0
+#endif
+
+#if TEMP_SENSOR_3_THERMISTOR_ID
+  #define TEMPTABLE_3 TT_NAME(TEMP_SENSOR_3_THERMISTOR_ID)
+  #define TEMPTABLE_3_LEN COUNT(TEMPTABLE_3)
+#elif TEMP_SENSOR_3_IS_THERMISTOR
+  #error "No heater 3 thermistor table specified"
+#else
+  #define TEMPTABLE_3 nullptr
+  #define TEMPTABLE_3_LEN 0
+#endif
+
+#if TEMP_SENSOR_4_THERMISTOR_ID
+  #define TEMPTABLE_4 TT_NAME(TEMP_SENSOR_4_THERMISTOR_ID)
+  #define TEMPTABLE_4_LEN COUNT(TEMPTABLE_4)
+#elif TEMP_SENSOR_4_IS_THERMISTOR
+  #error "No heater 4 thermistor table specified"
+#else
+  #define TEMPTABLE_4 nullptr
+  #define TEMPTABLE_4_LEN 0
+#endif
+
+#if TEMP_SENSOR_5_THERMISTOR_ID
+  #define TEMPTABLE_5 TT_NAME(TEMP_SENSOR_5_THERMISTOR_ID)
+  #define TEMPTABLE_5_LEN COUNT(TEMPTABLE_5)
+#elif TEMP_SENSOR_5_IS_THERMISTOR
+  #error "No heater 5 thermistor table specified"
+#else
+  #define TEMPTABLE_5 nullptr
+  #define TEMPTABLE_5_LEN 0
+#endif
+
+#if TEMP_SENSOR_6_THERMISTOR_ID
+  #define TEMPTABLE_6 TT_NAME(TEMP_SENSOR_6_THERMISTOR_ID)
+  #define TEMPTABLE_6_LEN COUNT(TEMPTABLE_6)
+#elif TEMP_SENSOR_6_IS_THERMISTOR
+  #error "No heater 6 thermistor table specified"
+#else
+  #define TEMPTABLE_6 nullptr
+  #define TEMPTABLE_6_LEN 0
+#endif
+
+#if TEMP_SENSOR_7_THERMISTOR_ID
+  #define TEMPTABLE_7 TT_NAME(TEMP_SENSOR_7_THERMISTOR_ID)
+  #define TEMPTABLE_7_LEN COUNT(TEMPTABLE_7)
+#elif TEMP_SENSOR_7_IS_THERMISTOR
+  #error "No heater 7 thermistor table specified"
+#else
+  #define TEMPTABLE_7 nullptr
+  #define TEMPTABLE_7_LEN 0
+#endif
+
+#ifdef TEMP_SENSOR_BED_THERMISTOR_ID
+  #define TEMPTABLE_BED TT_NAME(TEMP_SENSOR_BED_THERMISTOR_ID)
+  #define TEMPTABLE_BED_LEN COUNT(TEMPTABLE_BED)
+#elif TEMP_SENSOR_BED_IS_THERMISTOR
+  #error "No bed thermistor table specified"
+#else
+  #define TEMPTABLE_BED_LEN 0
+#endif
+
+#ifdef TEMP_SENSOR_CHAMBER_THERMISTOR_ID
+  #define TEMPTABLE_CHAMBER TT_NAME(TEMP_SENSOR_CHAMBER_THERMISTOR_ID)
+  #define TEMPTABLE_CHAMBER_LEN COUNT(TEMPTABLE_CHAMBER)
+#elif TEMP_SENSOR_CHAMBER_IS_THERMISTOR
+  #error "No chamber thermistor table specified"
+#else
+  #define TEMPTABLE_CHAMBER_LEN 0
+#endif
+
+#ifdef TEMP_SENSOR_COOLER_THERMISTOR_ID
+  #define TEMPTABLE_COOLER TT_NAME(TEMP_SENSOR_COOLER_THERMISTOR_ID)
+  #define TEMPTABLE_COOLER_LEN COUNT(TEMPTABLE_COOLER)
+#elif TEMP_SENSOR_COOLER_IS_THERMISTOR
+  #error "No cooler thermistor table specified"
+#else
+  #define TEMPTABLE_COOLER_LEN 0
+#endif
+#ifdef TEMP_SENSOR_PROBE_THERMISTOR_ID
+  #define TEMPTABLE_PROBE TT_NAME(TEMP_SENSOR_PROBE_THERMISTOR_ID)
+  #define TEMPTABLE_PROBE_LEN COUNT(TEMPTABLE_PROBE)
+#elif TEMP_SENSOR_PROBE_IS_THERMISTOR
+  #error "No probe thermistor table specified"
+#else
+  #define TEMPTABLE_PROBE_LEN 0
+#endif
+
+// The SCAN_THERMISTOR_TABLE macro needs alteration?
+static_assert(
+     TEMPTABLE_0_LEN < 256 && TEMPTABLE_1_LEN < 256
+  && TEMPTABLE_2_LEN < 256 && TEMPTABLE_3_LEN < 256
+  && TEMPTABLE_4_LEN < 256 && TEMPTABLE_5_LEN < 256
+  && TEMPTABLE_6_LEN < 256 && TEMPTABLE_7_LEN < 256
+  && TEMPTABLE_BED_LEN < 256 && TEMPTABLE_CHAMBER_LEN < 256
+  && TEMPTABLE_COOLER_LEN < 256 && TEMPTABLE_PROBE_LEN < 256,
+  "Temperature conversion tables over 255 entries need special consideration."
+>>>>>>> Stashed changes
 );
 
 // Set the high and low raw values for the heaters
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
 
+<<<<<<< Updated upstream
 #define _TT_REV(N)    REVERSE_TEMP_SENSOR_RANGE_##N
 #define TT_REV(N)     TERN0(TEMP_SENSOR_##N##_IS_THERMISTOR, DEFER4(_TT_REV)(TEMP_SENSOR_##N))
+=======
+#define __TT_REV(N)   REVERSE_TEMP_SENSOR_RANGE_##N
+#define _TT_REV(N)    __TT_REV(N)
+#define TT_REV(N)     _TT_REV(TEMP_SENSOR_##N##_THERMISTOR_ID)
+>>>>>>> Stashed changes
 #define _TT_REVRAW(N) !TEMP_SENSOR_##N##_IS_THERMISTOR
 #define TT_REVRAW(N)  (TT_REV(N) || _TT_REVRAW(N))
 
@@ -430,6 +567,7 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
   #if TT_REVRAW(1)
     #define TEMP_SENSOR_1_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define TEMP_SENSOR_1_RAW_LO_TEMP 0
+<<<<<<< Updated upstream
   #else
     #define TEMP_SENSOR_1_RAW_HI_TEMP 0
     #define TEMP_SENSOR_1_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
@@ -541,6 +679,101 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
   #else
     #define TEMP_SENSOR_REDUNDANT_RAW_HI_TEMP 0
     #define TEMP_SENSOR_REDUNDANT_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+=======
+  #else
+    #define TEMP_SENSOR_1_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_1_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_2_RAW_HI_TEMP
+  #if TT_REVRAW(2)
+    #define TEMP_SENSOR_2_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_2_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_2_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_2_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_3_RAW_HI_TEMP
+  #if TT_REVRAW(3)
+    #define TEMP_SENSOR_3_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_3_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_3_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_3_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_4_RAW_HI_TEMP
+  #if TT_REVRAW(4)
+    #define TEMP_SENSOR_4_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_4_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_4_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_4_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_5_RAW_HI_TEMP
+  #if TT_REVRAW(5)
+    #define TEMP_SENSOR_5_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_5_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_5_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_5_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_6_RAW_HI_TEMP
+  #if TT_REVRAW(6)
+    #define TEMP_SENSOR_6_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_6_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_6_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_6_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_7_RAW_HI_TEMP
+  #if TT_REVRAW(7)
+    #define TEMP_SENSOR_7_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_7_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_7_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_7_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_BED_RAW_HI_TEMP
+  #if TT_REVRAW(BED)
+    #define TEMP_SENSOR_BED_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_BED_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_BED_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_BED_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_CHAMBER_RAW_HI_TEMP
+  #if TT_REVRAW(CHAMBER)
+    #define TEMP_SENSOR_CHAMBER_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_CHAMBER_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_CHAMBER_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_CHAMBER_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_COOLER_RAW_HI_TEMP
+  #if TT_REVRAW(COOLER)
+    #define TEMP_SENSOR_COOLER_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_COOLER_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_COOLER_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_COOLER_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_PROBE_RAW_HI_TEMP
+  #if TT_REVRAW(PROBE)
+    #define TEMP_SENSOR_PROBE_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_PROBE_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_PROBE_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_PROBE_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+>>>>>>> Stashed changes
   #endif
 #endif
 
