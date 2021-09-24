@@ -44,32 +44,25 @@
 #define RAMPS_D8_PIN                          10
 #define RAMPS_D10_PIN                          8
 
-#include "pins_RAMPS.h"
-
 //
-// Steppers - Swap E0 / E1 on 3DYMY
+// Steppers
 //
-#undef E0_STEP_PIN
-#undef E0_DIR_PIN
-#undef E0_ENABLE_PIN
+#define X_CS_PIN                              -1
+#define Y_CS_PIN                              -1
+#define Z_CS_PIN                              -1
 
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-
+// Swap E0 / E1 on 3DYMY
 #define E0_STEP_PIN                           36
 #define E0_DIR_PIN                            34
 #define E0_ENABLE_PIN                         30
+#define E0_CS_PIN                             -1
 
 #define E1_STEP_PIN                           26
 #define E1_DIR_PIN                            28
 #define E1_ENABLE_PIN                         24
+#define E1_CS_PIN                             -1
 
-#undef X_CS_PIN
-#undef Y_CS_PIN
-#undef Z_CS_PIN
-#undef E0_CS_PIN
-#undef E1_CS_PIN
+#include "pins_RAMPS.h"
 
 #if IS_ULTRA_LCD && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(IS_NEWPANEL, PANEL_ONE)
   #if DISABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
