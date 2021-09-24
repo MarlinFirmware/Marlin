@@ -1348,7 +1348,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::set_status(const char * const message, const bool persist) {
     if (alert_level) return;
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_notify(message));
+    TERN_(HOST_STATUS_NOTIFICATIONS, host_action_notify(message));
 
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
@@ -1419,7 +1419,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(message));
+    TERN_(HOST_STATUS_NOTIFICATIONS, host_action_notify_P(message));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1457,6 +1457,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     va_start(args, fmt);
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
     va_end(args);
+
+    TERN_(HOST_STATUS_NOTIFICATIONS, host_action_notify(status_message));
+
     finish_status(level > 0);
   }
 

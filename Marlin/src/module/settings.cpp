@@ -77,6 +77,10 @@
   #include "../lcd/e3v2/jyersui/dwin.h"
 #endif
 
+#if ENABLED(HOST_PROMPT_SUPPORT)
+  #include "../feature/host_actions.h"
+#endif
+
 #if HAS_SERVOS
   #include "servo.h"
 #endif
@@ -1471,7 +1475,10 @@ void MarlinSettings::postprocess() {
         store_mesh(ubl.storage_slot);
     #endif
 
-    if (!eeprom_error) LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
+    if (!eeprom_error) {
+      LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
+      TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(GET_TEXT(MSG_SETTINGS_STORED)));
+    }
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
 
@@ -1498,6 +1505,7 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_VERSION)));
+      TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(GET_TEXT(MSG_ERR_EEPROM_VERSION)));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
@@ -2363,12 +2371,14 @@ void MarlinSettings::postprocess() {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_CRC)));
+        TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(GET_TEXT(MSG_ERR_EEPROM_CRC)));
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHO(version);
         DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
+        TERN_(HOST_PROMPT_SUPPORT, host_action_notify("Stored settings retrieved"));
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -3028,6 +3038,7 @@ void MarlinSettings::reset() {
   postprocess();
 
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
+  TERN_(HOST_PROMPT_SUPPORT, host_action_notify("Hardcoded Default Settings Loaded"));
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
