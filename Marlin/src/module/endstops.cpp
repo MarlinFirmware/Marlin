@@ -919,7 +919,7 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_M_MIN && !K_SPI_SENSORLESS
+  #if HAS_M_MIN && !M_SPI_SENSORLESS
     #if ENABLED(M_DUAL_ENDSTOPS)
       UPDATE_ENDSTOP_BIT(M, MIN);
       #if HAS_M2_MIN

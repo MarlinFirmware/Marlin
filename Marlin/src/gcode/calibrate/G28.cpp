@@ -83,9 +83,7 @@
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
-          tmc_enable_stallguard(stepperX)
-        , tmc_enable_stallguard(stepperY)
-        , false
+        LINEAR_AXIS_LIST(tmc_enable_stallguard(stepperX), tmc_enable_stallguard(stepperY), false, false, false, false, false, false, false)
         , false
           #if AXIS_HAS_STALLGUARD(X2)
             || tmc_enable_stallguard(stepperX2)
@@ -154,6 +152,24 @@
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
+      #if LINEAR_AXIS >= 4
+        homeaxis(I_AXIS);
+      #endif
+      #if LINEAR_AXIS >= 5
+        homeaxis(J_AXIS);
+      #endif
+      #if LINEAR_AXIS >= 6
+        homeaxis(K_AXIS);
+      #endif
+      #if LINEAR_AXIS >= 7
+        homeaxis(M_AXIS);
+      #endif
+      #if LINEAR_AXIS >= 8
+        homeaxis(O_AXIS);
+      #endif
+      #if LINEAR_AXIS >= 9
+        homeaxis(Q_AXIS);
+      #endif
     }
     else {
       LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
