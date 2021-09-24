@@ -141,9 +141,9 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
                       SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
                       SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPGM(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
-                    " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
-                    " F", toolchange_settings.fan_speed,
-                    " G", toolchange_settings.fan_time);
+                   " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
+                   " F", toolchange_settings.fan_speed,
+                   " G", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
       SERIAL_ECHOPGM(" A", migration.automode);

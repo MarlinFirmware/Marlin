@@ -162,12 +162,14 @@ void setup_endstop_interrupts() {
       #error "Z_MIN_PROBE_PIN has no EXTINT line available."
     #endif
     _ATTACH(Z_MIN_PROBE_PIN);
-  #elif HAS_I_MAX
+  #endif
+  #if HAS_I_MAX
     #if !AVAILABLE_EILINE(I_MAX_PIN)
       #error "I_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(I_MAX_PIN, endstop_ISR, CHANGE);
-  #elif HAS_I_MIN
+  #endif
+  #if HAS_I_MIN
     #if !AVAILABLE_EILINE(I_MIN_PIN)
       #error "I_MIN_PIN has no EXTINT line available."
     #endif
@@ -178,7 +180,8 @@ void setup_endstop_interrupts() {
       #error "J_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(J_MAX_PIN, endstop_ISR, CHANGE);
-  #elif HAS_J_MIN
+  #endif
+  #if HAS_J_MIN
     #if !AVAILABLE_EILINE(J_MIN_PIN)
       #error "J_MIN_PIN has no EXTINT line available."
     #endif
@@ -189,7 +192,8 @@ void setup_endstop_interrupts() {
       #error "K_MAX_PIN has no EXTINT line available."
     #endif
     attachInterrupt(K_MAX_PIN, endstop_ISR, CHANGE);
-  #elif HAS_K_MIN
+  #endif
+  #if HAS_K_MIN
     #if !AVAILABLE_EILINE(K_MIN_PIN)
       #error "K_MIN_PIN has no EXTINT line available."
     #endif
