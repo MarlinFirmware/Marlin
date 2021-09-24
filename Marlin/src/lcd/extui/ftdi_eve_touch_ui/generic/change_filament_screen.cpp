@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/change_filament_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_CHANGE_FILAMENT_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/change_filament_screen.cpp
 
 #ifdef FTDI_CHANGE_FILAMENT_SCREEN
 

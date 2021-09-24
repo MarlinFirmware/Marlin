@@ -359,17 +359,10 @@
 
       #if ENABLED(FYSETC_MINI_12864)
 
-<<<<<<< Updated upstream
         #define DOGLCD_CS            EXP1_08_PIN
         #define DOGLCD_A0            EXP1_07_PIN
         #define DOGLCD_SCK           EXP2_09_PIN
         #define DOGLCD_MOSI          EXP2_05_PIN
-=======
-        #define DOGLCD_CS                  P0_18
-        #define DOGLCD_A0                  P0_16
-        #define DOGLCD_SCK                 P0_07
-        #define DOGLCD_MOSI                P0_09
->>>>>>> Stashed changes
 
         #define LCD_BACKLIGHT_PIN          -1
 

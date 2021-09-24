@@ -327,7 +327,7 @@ extern const char G28_STR[];
 class GcodeSuite {
 public:
 
-  static axis_bits_t axis_relative;
+  static uint8_t axis_relative;
 
   static inline bool axis_is_relative(const AxisEnum a) {
     #if HAS_EXTRUDERS
@@ -444,11 +444,8 @@ public:
 
 private:
 
-<<<<<<< Updated upstream
   friend class MarlinSettings;
 
-=======
->>>>>>> Stashed changes
   #if ENABLED(MARLIN_DEV_MODE)
     static void D(const int16_t dcode);
   #endif
@@ -529,10 +526,7 @@ private:
 
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     static void M422();
-<<<<<<< Updated upstream
     static void M422_report(const bool forReplay=true);
-=======
->>>>>>> Stashed changes
   #endif
 
   #if ENABLED(ASSISTED_TRAMMING)
@@ -543,11 +537,7 @@ private:
     static void G38(const int8_t subcode);
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_MESH
-=======
-  #if ENABLED(HAS_MESH)
->>>>>>> Stashed changes
     static void G42();
   #endif
 
@@ -580,24 +570,15 @@ private:
     static void G425();
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_RESUME_CONTINUE
-=======
-  #if ENABLED(HAS_RESUME_CONTINUE)
->>>>>>> Stashed changes
     static void M0_M1();
   #endif
 
   #if HAS_CUTTER
     static void M3_M4(const bool is_M4);
     static void M5();
-    #if ENABLED(AIR_EVACUATION)
-      static void M10();
-      static void M11();
-    #endif
   #endif
 
-<<<<<<< Updated upstream
   #if ENABLED(COOLANT_MIST)
     static void M7();
   #endif
@@ -619,22 +600,6 @@ private:
     static void M12();
   #endif
 
-=======
-  #if ENABLED(COOLANT_CONTROL)
-    #if ENABLED(COOLANT_MIST)
-      static void M7();
-    #endif
-    #if ENABLED(COOLANT_FLOOD)
-      static void M8();
-    #endif
-    static void M9();
-  #endif
-
-  #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-    static void M12();
-  #endif
-
->>>>>>> Stashed changes
   #if ENABLED(EXPECTED_PRINTER_CHECK)
     static void M16();
   #endif
@@ -660,11 +625,7 @@ private:
   static void M31();
 
   #if ENABLED(SDSUPPORT)
-<<<<<<< Updated upstream
     #if HAS_MEDIA_SUBCALLS
-=======
-    #if ENABLED(HAS_MEDIA_SUBCALLS)
->>>>>>> Stashed changes
       static void M32();
     #endif
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -697,13 +658,6 @@ private:
   #if ENABLED(PRINTCOUNTER)
     static void M78();
   #endif
-<<<<<<< Updated upstream
-=======
-
-  #if ENABLED(PSU_CONTROL)
-    static void M80();
-  #endif
->>>>>>> Stashed changes
 
   #if ENABLED(PSU_CONTROL)
     static void M80();
@@ -802,7 +756,6 @@ private:
 
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
     static void M149();
-<<<<<<< Updated upstream
     static void M149_report(const bool forReplay=true);
   #endif
 
@@ -812,12 +765,6 @@ private:
 
   #if ENABLED(AUTO_REPORT_POSITION)
     static void M154();
-=======
-  #endif
-
-  #if ENABLED(HAS_COLOR_LEDS)
-    static void M150();
->>>>>>> Stashed changes
   #endif
 
   #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
@@ -853,36 +800,25 @@ private:
   static void M205();
   static void M205_report(const bool forReplay=true);
 
-<<<<<<< Updated upstream
   #if HAS_M206_COMMAND
     static void M206();
     static void M206_report(const bool forReplay=true);
-=======
-  #if ENABLED(HAS_M206_COMMAND)
-    static void M206();
->>>>>>> Stashed changes
   #endif
 
   #if ENABLED(FWRETRACT)
     static void M207();
     static void M207_report(const bool forReplay=true);
     static void M208();
-<<<<<<< Updated upstream
     static void M208_report(const bool forReplay=true);
     #if ENABLED(FWRETRACT_AUTORETRACT)
       static void M209();
       static void M209_report(const bool forReplay=true);
-=======
-    #if ENABLED(FWRETRACT_AUTORETRACT)
-      static void M209();
->>>>>>> Stashed changes
     #endif
   #endif
 
   static void M211();
   static void M211_report(const bool forReplay=true);
 
-<<<<<<< Updated upstream
   #if HAS_MULTI_EXTRUDER
     static void M217();
     static void M217_report(const bool forReplay=true);
@@ -891,14 +827,6 @@ private:
   #if HAS_HOTEND_OFFSET
     static void M218();
     static void M218_report(const bool forReplay=true);
-=======
-  #if ENABLED(HAS_MULTI_EXTRUDER)
-    static void M217();
-  #endif
-
-  #if ENABLED(HAS_HOTEND_OFFSET)
-    static void M218();
->>>>>>> Stashed changes
   #endif
 
   static void M220();
@@ -915,7 +843,6 @@ private:
     static void M240();
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_LCD_CONTRAST
     static void M250();
     static void M250_report(const bool forReplay=true);
@@ -924,10 +851,6 @@ private:
   #if HAS_LCD_BRIGHTNESS
     static void M256();
     static void M256_report(const bool forReplay=true);
-=======
-  #if ENABLED(HAS_LCD_CONTRAST)
-    static void M250();
->>>>>>> Stashed changes
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS)
@@ -939,20 +862,16 @@ private:
     static void M280();
     #if ENABLED(EDITABLE_SERVO_ANGLES)
       static void M281();
-<<<<<<< Updated upstream
       static void M281_report(const bool forReplay=true);
     #endif
     #if ENABLED(SERVO_DETACH_GCODE)
       static void M282();
-=======
->>>>>>> Stashed changes
     #endif
   #endif
 
   #if ENABLED(BABYSTEPPING)
     static void M290();
   #endif
-<<<<<<< Updated upstream
 
   #if HAS_BUZZER
     static void M300();
@@ -968,46 +887,21 @@ private:
   #endif
 
   #if HAS_PID_HEATING
-=======
-
-  #if ENABLED(HAS_BUZZER)
-    static void M300();
-  #endif
-
-  #if ENABLED(PIDTEMP)
-    static void M301();
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    static void M302();
-  #endif
-
-  #if ENABLED(HAS_PID_HEATING)
->>>>>>> Stashed changes
     static void M303();
   #endif
 
   #if ENABLED(PIDTEMPBED)
     static void M304();
-<<<<<<< Updated upstream
     static void M304_report(const bool forReplay=true);
   #endif
 
   #if HAS_USER_THERMISTORS
-=======
-  #endif
-
-  #if ENABLED(HAS_USER_THERMISTORS)
->>>>>>> Stashed changes
     static void M305();
   #endif
 
   #if ENABLED(PIDTEMPCHAMBER)
     static void M309();
-<<<<<<< Updated upstream
     static void M309_report(const bool forReplay=true);
-=======
->>>>>>> Stashed changes
   #endif
 
   #if HAS_MICROSTEPS
@@ -1043,11 +937,7 @@ private:
     static void M402();
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_PRUSA_MMU2
-=======
-  #if ENABLED(HAS_PRUSA_MMU2)
->>>>>>> Stashed changes
     static void M403();
   #endif
 
@@ -1058,7 +948,6 @@ private:
     static void M407();
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_FILAMENT_SENSOR
     static void M412();
     static void M412_report(const bool forReplay=true);
@@ -1067,14 +956,6 @@ private:
   #if HAS_MULTI_LANGUAGE
     static void M414();
     static void M414_report(const bool forReplay=true);
-=======
-  #if ENABLED(HAS_FILAMENT_SENSOR)
-    static void M412();
-  #endif
-
-  #if ENABLED(HAS_MULTI_LANGUAGE)
-    static void M414();
->>>>>>> Stashed changes
   #endif
 
   #if HAS_LEVELING
@@ -1085,7 +966,6 @@ private:
 
   #if ENABLED(BACKLASH_GCODE)
     static void M425();
-<<<<<<< Updated upstream
     static void M425_report(const bool forReplay=true);
   #endif
 
@@ -1094,15 +974,6 @@ private:
   #endif
 
   #if HAS_POWER_MONITOR
-=======
-  #endif
-
-  #if ENABLED(HAS_M206_COMMAND)
-    static void M428();
-  #endif
-
-  #if ENABLED(HAS_POWER_MONITOR)
->>>>>>> Stashed changes
     static void M430();
   #endif
 
@@ -1147,14 +1018,11 @@ private:
     static void M554_report();
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_STEALTHCHOP
     static void M569();
     static void M569_report(const bool forReplay=true);
   #endif
 
-=======
->>>>>>> Stashed changes
   #if ENABLED(BAUD_RATE_GCODE)
     static void M575();
   #endif
@@ -1165,7 +1033,6 @@ private:
     static void M603_report(const bool forReplay=true);
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_DUPLICATION_MODE
     static void M605();
   #endif
@@ -1173,14 +1040,6 @@ private:
   #if IS_KINEMATIC
     static void M665();
     static void M665_report(const bool forReplay=true);
-=======
-  #if ENABLED(HAS_DUPLICATION_MODE)
-    static void M605();
-  #endif
-
-  #if ENABLED(IS_KINEMATIC)
-    static void M665();
->>>>>>> Stashed changes
   #endif
 
   #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
@@ -1205,22 +1064,14 @@ private:
     static void M810_819();
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_BED_PROBE
     static void M851();
     static void M851_report(const bool forReplay=true);
-=======
-  #if ENABLED(HAS_BED_PROBE)
-    static void M851();
->>>>>>> Stashed changes
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
     static void M852();
-<<<<<<< Updated upstream
     static void M852_report(const bool forReplay=true);
-=======
->>>>>>> Stashed changes
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1243,39 +1094,24 @@ private:
 
   #if ENABLED(LIN_ADVANCE)
     static void M900();
-<<<<<<< Updated upstream
     static void M900_report(const bool forReplay=true);
-=======
->>>>>>> Stashed changes
   #endif
 
   #if HAS_TRINAMIC_CONFIG
     static void M122();
     static void M906();
-<<<<<<< Updated upstream
     static void M906_report(const bool forReplay=true);
-=======
-    #if ENABLED(HAS_STEALTHCHOP)
-      static void M569();
-    #endif
->>>>>>> Stashed changes
     #if ENABLED(MONITOR_DRIVER_STATUS)
       static void M911();
       static void M912();
     #endif
     #if ENABLED(HYBRID_THRESHOLD)
       static void M913();
-<<<<<<< Updated upstream
       static void M913_report(const bool forReplay=true);
     #endif
     #if ENABLED(USE_SENSORLESS)
       static void M914();
       static void M914_report(const bool forReplay=true);
-=======
-    #endif
-    #if ENABLED(USE_SENSORLESS)
-      static void M914();
->>>>>>> Stashed changes
     #endif
   #endif
 
@@ -1337,29 +1173,18 @@ private:
   #if ENABLED(DGUS_LCD_UI_MKS)
     static void M1002();
   #endif
-<<<<<<< Updated upstream
 
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
   #endif
 
-=======
-
-  #if ENABLED(UBL_MESH_WIZARD)
-    static void M1004();
-  #endif
-
->>>>>>> Stashed changes
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
   #endif
 
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
     static void M710();
-<<<<<<< Updated upstream
     static void M710_report(const bool forReplay=true);
-=======
->>>>>>> Stashed changes
   #endif
 
   static void T(const int8_t tool_index);

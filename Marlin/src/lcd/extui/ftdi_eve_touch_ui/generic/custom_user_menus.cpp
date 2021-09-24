@@ -21,13 +21,7 @@
  */
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/custom_user_menus.cpp
 #include "../screens.h"
-
-#ifdef FTDI_CUSTOM_USER_MENUS
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/custom_user_menus.cpp
 
 #ifdef FTDI_CUSTOM_USER_MENUS
 

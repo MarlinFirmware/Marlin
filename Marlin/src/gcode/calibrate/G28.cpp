@@ -225,11 +225,7 @@ void GcodeSuite::G28() {
 
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen_test('S')) {
-<<<<<<< Updated upstream
       LOOP_LINEAR_AXES(a) set_axis_is_at_home((AxisEnum)a);
-=======
-      LOOP_XYZ(a) set_axis_is_at_home((AxisEnum)a);
->>>>>>> Stashed changes
       sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
@@ -273,13 +269,8 @@ void GcodeSuite::G28() {
   #endif
 
   #if HAS_HOMING_CURRENT
-<<<<<<< Updated upstream
     auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
       DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
-=======
-    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
-      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
->>>>>>> Stashed changes
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -340,26 +331,9 @@ void GcodeSuite::G28() {
 
   #elif ENABLED(AXEL_TPARA)
 
-<<<<<<< Updated upstream
     constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
 
     home_TPARA();
-=======
-  #elif ENABLED(AXEL_TPARA)
-
-    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
-
-    home_TPARA();
-
-  #else
-
-    const bool homeZ = parser.seen_test('Z'),
-               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
-               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(Y_AXIS))),
-               homeX = needX || parser.seen_test('X'), homeY = needY || parser.seen_test('Y'),
-               home_all = homeX == homeY && homeX == homeZ, // All or None
-               doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
->>>>>>> Stashed changes
 
   #else
 
@@ -391,21 +365,13 @@ void GcodeSuite::G28() {
       constexpr bool doZ = false;
     #endif
 
-<<<<<<< Updated upstream
     TERN_(HOME_Z_FIRST, if (doZ) homeaxis(Z_AXIS));
-=======
-    const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
->>>>>>> Stashed changes
 
     const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
     if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-<<<<<<< Updated upstream
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
-=======
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
->>>>>>> Stashed changes
       do_z_clearance(z_homing_height);
       TERN_(BLTOUCH, bltouch.init());
     }

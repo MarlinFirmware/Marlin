@@ -29,10 +29,6 @@
  *  (not affiliated with Anycubic, Ltd.)
  */
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/anycubic_chiron/chiron_tft_defs.h
-=======
-#pragma once
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/anycubic_chiron/chiron_tft_defs.h
 #include "../../../inc/MarlinConfigPre.h"
 //#define ACDEBUGLEVEL 4
 

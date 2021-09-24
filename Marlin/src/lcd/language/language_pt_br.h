@@ -85,7 +85,6 @@ namespace Language_pt_br {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Pre-aq.Mesa $");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Ajustar $");
   #endif
-<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Customizar Pre-aq.");
   LSTR MSG_COOLDOWN                       = _UxGT("Esfriar");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Ligar");
@@ -135,57 +134,6 @@ namespace Language_pt_br {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Fim da Edição");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Montar Malha Custom");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Montar ");
-=======
-  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Customizar Pre-aq.");
-  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Esfriar");
-  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Ligar");
-  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Desligar");
-  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrusar");
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Retrair");
-  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Mover eixo");
-  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelação Mesa");
-  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivelar Mesa");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Nivelar Cantos");
-  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Próximo Canto");
-  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor de Malha");
-  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Malha");
-  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Fim da Edição");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Sondando ponto");
-  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
-  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
-  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
-  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comando customizado");
-  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Teste de sonda");
-  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Ponto");
-  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");
-  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Auto-Estacionar");
-  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplicação");
-  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Cópia espelhada");
-  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Controle Total");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2o bico X");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2o bico Y");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2o bico Z");
-  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Executando G29");
-  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Ferramentas UBL");
-  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Nivel. Mesa Unif.");
-  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Fazer malha manual");
-  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Calçar e calibrar");
-  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Medir");
-  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Remover e calibrar");
-  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Movendo para Próximo");
-  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("Ativar UBL");
-  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("Desativar UBL");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Temp. Mesa");
-  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Temp. Mesa");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Temp. Extrusora");
-  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Temp. Extrusora");
-  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Editar Malha");
-  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Editar Malha Custom");
-  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Ajuste Fino da Malha");
-  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Fim da Edição");
-  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Montar Malha Custom");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Montar ");
->>>>>>> Stashed changes
   #if PREHEAT_COUNT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Montar $");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Checar $");

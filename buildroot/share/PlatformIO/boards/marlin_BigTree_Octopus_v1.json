@@ -4,11 +4,7 @@
     "extra_flags": "-DSTM32F446xx",
     "f_cpu": "180000000L",
     "mcu": "stm32f446zet6",
-<<<<<<< Updated upstream
     "variant": "MARLIN_BIGTREE_OCTOPUS_V1"
-=======
-    "variant": "MARLIN_BIGTREE_OCTOPUS_V1_0"
->>>>>>> Stashed changes
   },
   "connectivity": [
     "can"

@@ -132,11 +132,7 @@ fil_change_settings_t fc_settings[EXTRUDERS];
  */
 static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=PAUSE_MODE_SAME) {
   DEBUG_SECTION(est, "ensure_safe_temperature", true);
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("... wait:", wait, " mode:", mode);
-=======
-  DEBUG_ECHOLNPAIR("... wait:", wait, " mode:", mode);
->>>>>>> Stashed changes
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
@@ -182,11 +178,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
                    DXC_ARGS
 ) {
   DEBUG_SECTION(lf, "load_filament", true);
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " showlcd:", show_lcd, " pauseforuser:", pause_for_user, " pausemode:", mode DXC_SAY);
-=======
-  DEBUG_ECHOLNPAIR("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " showlcd:", show_lcd, " pauseforuser:", pause_for_user, " pausemode:", mode DXC_SAY);
->>>>>>> Stashed changes
 
   if (!ensure_safe_temperature(false, mode)) {
     if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_STATUS, mode);
@@ -286,11 +278,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
-<<<<<<< Updated upstream
           #if EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD_ENHANCED)
-=======
-          #if HAS_LCD_MENU
->>>>>>> Stashed changes
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
@@ -300,11 +288,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
       #endif
 
       // Keep looping if "Purge More" was selected
-<<<<<<< Updated upstream
     } while (TERN0(M600_PURGE_MORE_RESUMABLE, pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
-=======
-    } while (TERN0(M600_PURGE_MORE_RESUMABLE, show_lcd && pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
->>>>>>> Stashed changes
 
   #endif
   TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
@@ -341,11 +325,7 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
                      #endif
 ) {
   DEBUG_SECTION(uf, "unload_filament", true);
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("... unloadlen:", unload_length, " showlcd:", show_lcd, " mode:", mode
-=======
-  DEBUG_ECHOLNPAIR("... unloadlen:", unload_length, " showlcd:", show_lcd, " mode:", mode
->>>>>>> Stashed changes
     #if BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
       , " mixmult:", mix_multiplier
     #endif
@@ -409,11 +389,7 @@ uint8_t did_pause_print = 0;
 
 bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const_float_t unload_length/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
-=======
-  DEBUG_ECHOLNPAIR("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
->>>>>>> Stashed changes
 
   UNUSED(show_lcd);
 
@@ -506,11 +482,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
 void show_continue_prompt(const bool is_reload) {
   DEBUG_SECTION(scp, "pause_print", true);
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
-=======
-  DEBUG_ECHOLNPAIR("... is_reload:", is_reload);
->>>>>>> Stashed changes
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
   SERIAL_ECHO_START();
@@ -519,11 +491,7 @@ void show_continue_prompt(const bool is_reload) {
 
 void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(wfc, "wait_for_confirmation", true);
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("... is_reload:", is_reload, " maxbeep:", max_beep_count DXC_SAY);
-=======
-  DEBUG_ECHOLNPAIR("... is_reload:", is_reload, " maxbeep:", max_beep_count DXC_SAY);
->>>>>>> Stashed changes
 
   bool nozzle_timed_out = false;
 
@@ -624,11 +592,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  */
 void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_length/*=0*/, const_float_t purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/, const celsius_t targetTemp/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(rp, "resume_print", true);
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " targetTemp:", targetTemp DXC_SAY);
-=======
-  DEBUG_ECHOLNPAIR("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " targetTemp:", targetTemp DXC_SAY);
->>>>>>> Stashed changes
 
   /*
   SERIAL_ECHOLNPGM(

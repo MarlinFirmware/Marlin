@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/lock_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_LOCK_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/lock_screen.cpp
 
 #ifdef FTDI_LOCK_SCREEN
 

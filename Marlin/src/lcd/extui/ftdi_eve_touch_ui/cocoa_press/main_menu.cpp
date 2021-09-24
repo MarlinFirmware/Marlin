@@ -22,15 +22,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/main_menu.cpp
 #include "../screens.h"
 
 #ifdef COCOA_MAIN_MENU
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_main_menu.cpp
-
-#ifdef FTDI_COCOA_MAIN_MENU
 
 using namespace FTDI;
 using namespace Theme;
@@ -74,11 +68,7 @@ void MainMenu::onRedraw(draw_mode_t what) {
        .tag(10).button(LEVELING_POS,          GET_TEXT_F(MSG_LEVELING))
        .tag(11).button(ABOUT_PRINTER_POS,     GET_TEXT_F(MSG_INFO_MENU))
        .colors(action_btn)
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/main_menu.cpp
        .tag(1).button(BACK_POS,               GET_TEXT_F(MSG_BUTTON_DONE));
-=======
-       .tag(1).button(BACK_POS,               GET_TEXT_F(MSG_BACK));
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_main_menu.cpp
   }
 }
 
@@ -98,11 +88,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case  8: GOTO_SCREEN(AdvancedSettingsMenu);             break;
     case  9: injectCommands_P(PSTR("M84"));                 break;
     #if HAS_LEVELING
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/main_menu.cpp
     case 10:  GOTO_SCREEN(LevelingMenu);                    break;
-=======
-    case 10:  GOTO_SCREEN(LevelingMenu);                     break;
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_main_menu.cpp
     #endif
     case 11: GOTO_SCREEN(AboutScreen);                      break;
     default:
@@ -111,8 +97,4 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/main_menu.cpp
 #endif // COCOA_MAIN_MENU
-=======
-#endif // FTDI_COCOA_MAIN_MENU
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_main_menu.cpp

@@ -119,7 +119,6 @@ namespace Language_cz {
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Hodnota Z");
 
-<<<<<<< Updated upstream
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Vlastní příkazy");
   LSTR MSG_M48_TEST                       = _UxGT("M48 test sondy");
   LSTR MSG_M48_POINT                      = _UxGT("M48 bod");
@@ -133,21 +132,6 @@ namespace Language_cz {
   LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2. tryska X");
   LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2. tryska Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
-=======
-  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Vlastní příkazy");
-  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 test sondy");
-  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 bod");
-  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Odchylka");
-  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Režim IDEX");
-  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Ofsety nástrojů");
-  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Auto-Park");
-  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplikace");
-  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Zrcadlení");
-  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Plná kontrola");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2. tryska X");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2. tryska Y");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2. tryska Z");
->>>>>>> Stashed changes
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");

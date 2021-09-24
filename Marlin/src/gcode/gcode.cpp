@@ -74,7 +74,7 @@ millis_t GcodeSuite::previous_move_ms = 0,
 
 // Relative motion mode for each logical axis
 static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
-axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
+uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   | (ar_init.e << REL_E),
   | (ar_init.x << REL_X),
   | (ar_init.y << REL_Y),
@@ -130,11 +130,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
-=======
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", e);
->>>>>>> Stashed changes
     return -1;
   }
   return active_extruder;
@@ -153,11 +149,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" " STR_INVALID_E_STEPPER " ", e);
-=======
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", e);
->>>>>>> Stashed changes
   return -1;
 }
 
@@ -297,11 +289,7 @@ void GcodeSuite::dwell(millis_t time) {
     #endif
   }
 
-<<<<<<< Updated upstream
 #endif // G29_RETRY_AND_RECOVER
-=======
-#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
->>>>>>> Stashed changes
 
 /**
  * Process the parsed command and dispatch it to its handler
@@ -322,11 +310,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   #endif
 
   #if ENABLED(FLOWMETER_SAFETY)
-<<<<<<< Updated upstream
     if (cooler.flowfault) {
-=======
-    if (cooler.fault) {
->>>>>>> Stashed changes
       SERIAL_ECHO_MSG(STR_FLOWMETER_FAULT);
       return;
     }
@@ -475,10 +459,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 3: M3_M4(false); break;                              // M3: Turn ON Laser | Spindle (clockwise), set Power | Speed
         case 4: M3_M4(true ); break;                              // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
         case 5: M5(); break;                                      // M5: Turn OFF Laser | Spindle
-        #if ENABLED(AIR_EVACUATION)
-          case 10: M10(); break;                                  // M10: Vacuum or Blower motor ON
-          case 11: M11(); break;                                  // M11: Vacuum or Blower motor OFF
-        #endif
       #endif
 
       #if ENABLED(COOLANT_MIST)
@@ -611,13 +591,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
       #endif
 
-<<<<<<< Updated upstream
       #if ENABLED(AUTO_REPORT_POSITION)
         case 154: M154(); break;                                  // M154: Set position auto-report interval
       #endif
 
-=======
->>>>>>> Stashed changes
       #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
         case 155: M155(); break;                                  // M155: Set temperature auto-report interval
       #endif
@@ -1108,11 +1085,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-<<<<<<< Updated upstream
       SERIAL_ECHOPGM("slot:", queue.ring_buffer.index_r);
-=======
-      SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
->>>>>>> Stashed changes
       M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
     #endif
   }

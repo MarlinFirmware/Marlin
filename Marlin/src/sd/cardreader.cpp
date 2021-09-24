@@ -123,22 +123,12 @@ uint8_t CardReader::workDirDepth;
 
 #endif // SDCARD_SORT_ALPHA
 
-<<<<<<< Updated upstream
 #if HAS_USB_FLASH_DRIVE
   DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
 
 #if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
   CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
-=======
-#if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  DiskIODriver_USBFlash CardReader::media_usbFlashDrive;
-#endif
-#if NEED_SD2CARD_SDIO
-  DiskIODriver_SDIO CardReader::media_sdio;
-#elif NEED_SD2CARD_SPI
-  DiskIODriver_SPI_SD CardReader::media_sd_spi;
->>>>>>> Stashed changes
 #endif
 
 DiskIODriver* CardReader::driver = nullptr;
@@ -155,19 +145,10 @@ uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
   changeMedia(&
-<<<<<<< Updated upstream
     #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(SD_ONBOARD)
       media_driver_usbFlash
     #else
       media_driver_sdcard
-=======
-    #if SHARED_VOLUME_IS(SD_ONBOARD)
-      media_sd_spi
-    #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-      media_usbFlashDrive
-    #else
-      TERN(SDIO_SUPPORT, media_sdio, media_sd_spi)
->>>>>>> Stashed changes
     #endif
   );
 
@@ -311,7 +292,6 @@ void CardReader::printListing(
 
       // Get a new directory object using the full path
       // and dive recursively into it.
-<<<<<<< Updated upstream
       SdFile child; // child.close() in destructor
       if (child.open(&parent, dosFilename, O_READ))
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -335,14 +315,6 @@ void CardReader::printListing(
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
       }
-=======
-      SdFile child;
-      if (!child.open(&parent, dosFilename, O_READ))
-        SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
-
-      printListing(child, path);
-      // close() is done automatically by destructor of SdFile
->>>>>>> Stashed changes
     }
     else if (is_dir_or_gcode(p)) {
       if (prepend) {
@@ -594,11 +566,7 @@ void CardReader::startOrResumeFilePrinting() {
 //
 void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
-<<<<<<< Updated upstream
   TERN_(HAS_DWIN_E3V2_BASIC, HMI_flag.print_finish = flag.sdprinting);
-=======
-  TERN_(DWIN_CREALITY_LCD, HMI_flag.print_finish = flag.sdprinting);
->>>>>>> Stashed changes
   flag.abort_sd_printing = false;
   if (isFileOpen()) file.close();
   TERN_(SD_RESORT, if (re_sort) presort());
@@ -647,11 +615,7 @@ void announceOpen(const uint8_t doing, const char * const path) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Now ");
     SERIAL_ECHOPGM_P(doing == 1 ? PSTR("doing") : PSTR("fresh"));
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" file: ", path);
-=======
-    SERIAL_ECHOLNPAIR(" file: ", path);
->>>>>>> Stashed changes
   }
 }
 
@@ -714,11 +678,7 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
 
     { // Don't remove this block, as the PORT_REDIRECT is a RAII
       PORT_REDIRECT(SerialMask::All);
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM(STR_SD_FILE_OPENED, fname, STR_SD_SIZE, filesize);
-=======
-      SERIAL_ECHOLNPAIR(STR_SD_FILE_OPENED, fname, STR_SD_SIZE, filesize);
->>>>>>> Stashed changes
       SERIAL_ECHOLNPGM(STR_SD_FILE_SELECTED);
     }
 
@@ -954,11 +914,7 @@ uint16_t CardReader::countFilesInWorkDir() {
  * NOTE: End the path with a slash to dive to a folder. In this case the
  *       returned filename will be blank (points to the end of the path).
  */
-<<<<<<< Updated upstream
 const char* CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, const char * const path, const bool echo/*=false*/) {
-=======
-const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, const char * const path, const bool echo/*=false*/) {
->>>>>>> Stashed changes
   DEBUG_SECTION(est, "diveToFile", true);
 
   // Track both parent and subfolder
@@ -968,21 +924,12 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
   // Parsing the path string
   const char *atom_ptr = path;
 
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM(" path = '", path, "'");
 
   if (path[0] == '/') {               // Starting at the root directory?
     inDirPtr = &root;
     atom_ptr++;
     DEBUG_ECHOLNPGM(" CWD to root: ", hex_address((void*)inDirPtr));
-=======
-  DEBUG_ECHOLNPAIR(" path = '", path, "'");
-
-  if (path[0] == '/') {               // Starting at the root directory?
-    diveDir = &root;
-    item_name_adr++;
-    DEBUG_ECHOLNPAIR(" CWD to root: ", hex_address((void*)diveDir));
->>>>>>> Stashed changes
     if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
   }
   else
@@ -990,11 +937,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
 
   startDirPtr = inDirPtr;
 
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM(" startDirPtr = ", hex_address((void*)startDirPtr));
-=======
-  DEBUG_ECHOLNPAIR(" startDir = ", hex_address((void*)startDir));
->>>>>>> Stashed changes
 
   while (atom_ptr) {
     // Find next subdirectory delimiter
@@ -1011,11 +954,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
-<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM(" sub = ", hex_address((void*)sub));
-=======
-    DEBUG_ECHOLNPAIR(" sub = ", hex_address((void*)sub));
->>>>>>> Stashed changes
 
     // Open inDirPtr (closing first)
     sub->close();
@@ -1025,7 +964,6 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
       break;
     }
 
-<<<<<<< Updated upstream
     // Close inDirPtr if not at starting-point
     if (inDirPtr != startDirPtr) {
       DEBUG_ECHOLNPGM(" closing inDirPtr: ", hex_address((void*)inDirPtr));
@@ -1039,57 +977,27 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &diveDir, cons
     // Update workDirParents and workDirDepth
     if (update_cwd) {
       DEBUG_ECHOLNPGM(" update_cwd");
-=======
-    // Close diveDir if not at starting-point
-    if (diveDir != startDir) {
-      DEBUG_ECHOLNPAIR(" closing diveDir: ", hex_address((void*)diveDir));
-      diveDir->close();
-    }
-
-    // diveDir now subDir
-    diveDir = sub;
-    DEBUG_ECHOLNPAIR(" diveDir = sub: ", hex_address((void*)diveDir));
-
-    // Update workDirParents and workDirDepth
-    if (update_cwd) {
-      DEBUG_ECHOLNPAIR(" update_cwd");
->>>>>>> Stashed changes
       if (workDirDepth < MAX_DIR_DEPTH)
         workDirParents[workDirDepth++] = *inDirPtr;
     }
 
     // Point sub at the other scratch object
-<<<<<<< Updated upstream
     sub = (inDirPtr != &newDir1) ? &newDir1 : &newDir2;
     DEBUG_ECHOLNPGM(" swapping sub = ", hex_address((void*)sub));
-=======
-    sub = (diveDir != &newDir1) ? &newDir1 : &newDir2;
-    DEBUG_ECHOLNPAIR(" swapping sub = ", hex_address((void*)sub));
->>>>>>> Stashed changes
 
     // Next path atom address
     atom_ptr = name_end + 1;
   }
 
   if (update_cwd) {
-<<<<<<< Updated upstream
     workDir = *inDirPtr;
     DEBUG_ECHOLNPGM(" final workDir = ", hex_address((void*)inDirPtr));
-=======
-    workDir = *diveDir;
-    DEBUG_ECHOLNPAIR(" final workDir = ", hex_address((void*)diveDir));
->>>>>>> Stashed changes
     flag.workDirIsRoot = (workDirDepth == 0);
     TERN_(SDCARD_SORT_ALPHA, presort());
   }
 
-<<<<<<< Updated upstream
   DEBUG_ECHOLNPGM(" returning string ", atom_ptr ?: "nullptr");
   return atom_ptr;
-=======
-  DEBUG_ECHOLNPAIR(" returning string ", item_name_adr ?: "nullptr");
-  return item_name_adr;
->>>>>>> Stashed changes
 }
 
 void CardReader::cd(const char * relpath) {
@@ -1248,11 +1156,7 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             selectFileByIndex(o1);              // Pre-fetch the first entry and save it
             strcpy(name1, longest_filename());  // so the loop only needs one fetch
-<<<<<<< Updated upstream
             #if HAS_FOLDER_SORTING
-=======
-            #if ENABLED(HAS_FOLDER_SORTING)
->>>>>>> Stashed changes
               bool dir1 = flag.filenameIsDir;
             #endif
           #endif

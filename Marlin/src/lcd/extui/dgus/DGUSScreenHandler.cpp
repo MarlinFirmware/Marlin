@@ -122,13 +122,8 @@ void DGUSScreenHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var) {
 // Send an uint8_t between 0 and 255 to the display, but scale to a percentage (0..100)
 void DGUSScreenHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
     //DEBUG_ECHOPGM(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
     //DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
-=======
-    //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
-    //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
     uint16_t tmp = *(uint8_t *) var.memadr + 1; // +1 -> avoid rounding issues for the display.
     tmp = map(tmp, 0, 255, 0, 100);
     dgusdisplay.WriteVariable(var.VP, tmp);
@@ -156,15 +151,9 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
 void DGUSScreenHandler::DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
     uint16_t value = swap16(*(uint16_t*)val_ptr);
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
     DEBUG_ECHOLNPGM("FAN value get:", value);
     *(uint8_t*)var.memadr = map(constrain(value, 0, 100), 0, 100, 0, 255);
     DEBUG_ECHOLNPGM("FAN value change:", *(uint8_t*)var.memadr);
-=======
-    DEBUG_ECHOLNPAIR("FAN value get:", value);
-    *(uint8_t*)var.memadr = map(constrain(value, 0, 100), 0, 100, 0, 255);
-    DEBUG_ECHOLNPAIR("FAN value change:", *(uint8_t*)var.memadr);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
   }
 }
 
@@ -510,11 +499,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_
   DEBUG_ECHOLNPGM("HandleStepPerMMChanged");
 
   uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-=======
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
   float value = (float)value_raw / 10;
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -534,28 +519,16 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
   DEBUG_ECHOLNPGM("HandleStepPerMMExtruderChanged");
 
   uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-=======
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
   float value = (float)value_raw / 10;
   ExtUI::extruder_t extruder;
   switch (var.VP) {
     default: return;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
       #if HAS_EXTRUDERS
         case VP_E0_STEP_PER_MM: extruder = ExtUI::extruder_t::E0; break;
         #if HAS_MULTI_EXTRUDER
           case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
         #endif
-=======
-      #if HOTENDS >= 1
-        case VP_E0_STEP_PER_MM: extruder = ExtUI::extruder_t::E0; break;
-      #endif
-      #if HOTENDS >= 2
-        case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
       #endif
   }
   DEBUG_ECHOLNPAIR_F("value:", value);
@@ -573,11 +546,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     switch (var.VP) {
       default: break;
         #if ENABLED(PIDTEMP)
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
           #if HAS_HOTEND
-=======
-          #if HOTENDS >= 1
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
             case VP_PID_AUTOTUNE_E0: // Autotune Extruder 0
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E0);
               break;
@@ -590,11 +559,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
         #endif
         #if ENABLED(PIDTEMPBED)
           case VP_PID_AUTOTUNE_BED:
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
             strcpy_P(buf, PSTR("M303 E-1 C5 S70 U1"));
-=======
-            sprintf_P(buf, PSTR("M303 E-1 C5 S70 U1"));
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
             break;
         #endif
     }
@@ -633,7 +598,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   switch (var.VP) {
     #if HAS_HOTEND
       case VP_E0_CONTROL:
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
       #if HOTENDS >= 2
         case VP_E1_CONTROL:
         #if HOTENDS >= 3
@@ -643,17 +607,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       preheat_temp = PREHEAT_1_TEMP_HOTEND;
       break;
     #endif
-=======
-    #endif
-    #if HOTENDS >= 2
-      case VP_E1_CONTROL:
-    #endif
-    #if HOTENDS >= 3
-      case VP_E2_CONTROL:
-    #endif
-    preheat_temp = PREHEAT_1_TEMP_HOTEND;
-    break;
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
 
     case VP_BED_CONTROL:
       preheat_temp = PREHEAT_1_TEMP_BED;
@@ -669,11 +622,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
     DEBUG_ECHOLNPGM("HandlePreheat");
 
     uint8_t e_temp = 0;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
     #if HAS_HEATED_BED
-=======
-    #if ENABLED(HAS_HEATED_BED)
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
       uint8_t bed_temp = 0;
     #endif
     const uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
@@ -709,11 +658,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 
     switch (var.VP) {
       default: return;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
         #if HAS_HOTEND
-=======
-        #if HOTENDS >= 1
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
           case VP_E0_BED_PREHEAT:
             thermalManager.setTargetHotend(e_temp, 0);
             TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
@@ -751,11 +696,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 #endif
 
 void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
   DEBUG_ECHOLNPGM("SetNewScreen: ", newscreen);
-=======
-  DEBUG_ECHOLNPAIR("SetNewScreen: ", newscreen);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
   if (!popup) {
     memmove(&past_screens[1], &past_screens[0], sizeof(past_screens) - 1);
     past_screens[0] = current_screen;
@@ -810,13 +751,8 @@ void DGUSScreenHandler::UpdateScreenVPData() {
       }
       else {
         // auto x=dgusdisplay.GetFreeTxBuffer();
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSScreenHandler.cpp
         //DEBUG_ECHOLNPGM(" tx almost full: ", x);
         //DEBUG_ECHOPGM(" update_ptr ", update_ptr);
-=======
-        //DEBUG_ECHOLNPAIR(" tx almost full: ", x);
-        //DEBUG_ECHOPAIR(" update_ptr ", update_ptr);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.cpp
         ScreenComplete = false;
         return; // please call again!
       }

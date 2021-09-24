@@ -22,11 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/DGUSDisplay.cpp
 #if HAS_DGUS_LCD_CLASSIC
-=======
-#if HAS_DGUS_LCD
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSDisplay.cpp
 
 #if HOTENDS > 2
   #warning "More than 2 hotends not implemented on DGUS Display UI."

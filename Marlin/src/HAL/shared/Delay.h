@@ -34,7 +34,6 @@
 #include "../../core/macros.h"
 
 void calibrate_delay_loop();
-<<<<<<< Updated upstream
 
 #if defined(__arm__) || defined(__thumb__)
 
@@ -73,46 +72,6 @@ void calibrate_delay_loop();
       FORCE_INLINE static void build() {}
     };
 
-=======
-
-#if defined(__arm__) || defined(__thumb__)
-
-  // We want to have delay_cycle function with the lowest possible overhead, so we adjust at the function at runtime based on the current CPU best feature
-  typedef void (*DelayImpl)(uint32_t);
-  extern DelayImpl DelayCycleFnc;
-
-  // I've measured 36 cycles on my system to call the cycle waiting method, but it shouldn't change much to have a bit more margin, it only consume a bit more flash
-  #define TRIP_POINT_FOR_CALLING_FUNCTION   40
-
-  // A simple recursive template class that output exactly one 'nop' of code per recursion
-  template <int N> struct NopWriter {
-    FORCE_INLINE static void build() {
-      __asm__ __volatile__("nop");
-      NopWriter<N-1>::build();
-    }
-  };
-  // End the loop
-  template <> struct NopWriter<0> { FORCE_INLINE static void build() {} };
-
-  namespace Private {
-    // Split recursing template in 2 different class so we don't reach the maximum template instantiation depth limit
-    template <bool belowTP, int N> struct Helper {
-      FORCE_INLINE static void build() {
-        DelayCycleFnc(N - 2); //  Approximative cost of calling the function (might be off by one or 2 cycles)
-      }
-    };
-
-    template <int N> struct Helper<true, N> {
-      FORCE_INLINE static void build() {
-        NopWriter<N - 1>::build();
-      }
-    };
-
-    template <> struct Helper<true, 0> {
-      FORCE_INLINE static void build() {}
-    };
-
->>>>>>> Stashed changes
   }
   // Select a behavior based on the constexpr'ness of the parameter
   // If called with a compile-time parameter, then write as many NOP as required to reach the asked cycle count
@@ -201,11 +160,7 @@ void calibrate_delay_loop();
   // Delay in microseconds
   #define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
 
-<<<<<<< Updated upstream
 #elif defined(ESP32) || defined(__PLAT_LINUX__) || defined(__PLAT_NATIVE_SIM__)
-=======
-#elif defined(__PLAT_LINUX__) || defined(ESP32)
->>>>>>> Stashed changes
 
   // DELAY_CYCLES specified inside platform
 
@@ -238,21 +193,12 @@ void calibrate_delay_loop();
  *    e.g., 165 will be rounded up to 3 cycles (187.5ns) because
  *          it's closer to the requested delay than 2 cycle (125ns).
  */
-<<<<<<< Updated upstream
 
 #ifndef __AVR__
   #undef DELAY_NS_ROUND_DOWN
   #undef DELAY_NS_ROUND_CLOSEST
 #endif
 
-=======
-
-#ifndef __AVR__
-  #undef DELAY_NS_ROUND_DOWN
-  #undef DELAY_NS_ROUND_CLOSEST
-#endif
-
->>>>>>> Stashed changes
 #if ENABLED(DELAY_NS_ROUND_DOWN)
   #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)          // floor
 #elif ENABLED(DELAY_NS_ROUND_CLOSEST)

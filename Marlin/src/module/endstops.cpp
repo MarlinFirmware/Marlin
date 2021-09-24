@@ -421,12 +421,8 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_STATUS_MESSAGE
-<<<<<<< Updated upstream
       char LINEAR_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' '),
            chrP = ' ';
-=======
-      char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
->>>>>>> Stashed changes
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
       #define _SET_STOP_CHAR(A,C) NOOP
@@ -463,7 +459,6 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-<<<<<<< Updated upstream
     TERN_(HAS_STATUS_MESSAGE,
       ui.status_printf_P(0,
         PSTR(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
@@ -471,9 +466,6 @@ void Endstops::event_handler() {
         LINEAR_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK), chrP
       )
     );
-=======
-    TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %c %c %c %c"), GET_TEXT(MSG_LCD_ENDSTOPS), chrX, chrY, chrZ, chrP));
->>>>>>> Stashed changes
 
     #if BOTH(SD_ABORT_ON_ENDSTOP_HIT, SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
@@ -586,21 +578,13 @@ void _O2 Endstops::report_states() {
         default: continue;
         REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
-<<<<<<< Updated upstream
       SERIAL_ECHOPGM(STR_FILAMENT);
-=======
-      SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
->>>>>>> Stashed changes
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
       print_es_state(extDigitalRead(pin) != state);
     }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-<<<<<<< Updated upstream
     print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT));
-=======
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
->>>>>>> Stashed changes
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

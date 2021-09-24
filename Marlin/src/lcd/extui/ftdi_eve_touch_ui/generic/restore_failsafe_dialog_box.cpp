@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/restore_failsafe_dialog_box.cpp
 #include "../screens.h"
-
-#ifdef FTDI_RESTORE_FAILSAFE_DIALOG_BOX
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/restore_failsafe_dialog_box.cpp
 
 #ifdef FTDI_RESTORE_FAILSAFE_DIALOG_BOX
 

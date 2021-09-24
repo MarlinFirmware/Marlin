@@ -36,11 +36,7 @@ public:
   static bool loop();
 
   // Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
-<<<<<<< Updated upstream
   // The bools specifying whether the strings are in RAM or FLASH.
-=======
-  // The bools specifing whether the strings are in RAM or FLASH.
->>>>>>> Stashed changes
   static void sendinfoscreen(const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
   static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
@@ -86,13 +82,9 @@ public:
   static void GetZoffsetDistance(DGUS_VP_Variable &var, void *val_ptr);
   static void GetMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr);
   static void GetParkPos_MKS(DGUS_VP_Variable &var, void *val_ptr);
-<<<<<<< Updated upstream
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
   #endif
-=======
-  static void HandleGetExMinTemp_MKS(DGUS_VP_Variable &var, void *val_ptr);
->>>>>>> Stashed changes
   static void DGUS_LanguageDisplay(uint8_t var);
   static void TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
   static void GetTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);
@@ -101,10 +93,7 @@ public:
   static void DGUS_RunoutInit(void);
   static void DGUS_ExtrudeLoadInit(void);
   static void LCD_BLK_Adjust(DGUS_VP_Variable &var, void *val_ptr);
-<<<<<<< Updated upstream
   static void SD_FileBack(DGUS_VP_Variable &var, void *val_ptr);
-=======
->>>>>>> Stashed changes
 
   // Hook for manual move.
   static void HandleManualMove(DGUS_VP_Variable &var, void *val_ptr);
@@ -201,21 +190,12 @@ public:
     static void PrintReturn(DGUS_VP_Variable &var, void *val_ptr);
   #endif
 
-<<<<<<< Updated upstream
   // OK Button on the Confirm screen.
   static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
 
   // Update data after going to a new screen (by display or by GotoScreen)
   // remember: store the last-displayed screen, so it can be returned to.
   // (e.g for popup messages)
-=======
-  // OK Button the Confirm screen.
-  static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
-
-  // Update data after went to new screen (by display or by GotoScreen)
-  // remember: store the last-displayed screen, so it can get returned to.
-  // (e.g for pop up messages)
->>>>>>> Stashed changes
   static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup=false);
 
   // Recall the remembered screen.

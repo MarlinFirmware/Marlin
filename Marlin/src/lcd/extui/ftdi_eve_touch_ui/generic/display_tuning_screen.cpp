@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/display_tuning_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_DISPLAY_TUNING_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/display_tuning_screen.cpp
 
 #ifdef FTDI_DISPLAY_TUNING_SCREEN
 

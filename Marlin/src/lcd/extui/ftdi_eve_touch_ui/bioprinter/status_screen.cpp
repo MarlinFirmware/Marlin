@@ -22,11 +22,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/bioprinter/status_screen.cpp
 #include "../screens.h"
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bio_status_screen.cpp
 
 #ifdef FTDI_BIO_STATUS_SCREEN
 

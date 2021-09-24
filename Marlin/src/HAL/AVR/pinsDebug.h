@@ -238,15 +238,9 @@ static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); 
 
 inline void com_print(const uint8_t N, const uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
-<<<<<<< Updated upstream
   SERIAL_ECHOPGM("    COM", AS_DIGIT(N));
   SERIAL_CHAR(Z);
   SERIAL_ECHOPGM(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
-=======
-  SERIAL_ECHOPAIR("    COM", AS_CHAR('0' + N));
-  SERIAL_CHAR(Z);
-  SERIAL_ECHOPAIR(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
->>>>>>> Stashed changes
 }
 
 void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - WGM bit layout
@@ -256,11 +250,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   uint8_t WGM = (((*TCCRB & _BV(WGM_2)) >> 1) | (*TCCRA & (_BV(WGM_0) | _BV(WGM_1))));
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
-<<<<<<< Updated upstream
   SERIAL_ECHOPGM("    TIMER", AS_DIGIT(T));
-=======
-  SERIAL_ECHOPAIR("    TIMER", AS_CHAR(T + '0'));
->>>>>>> Stashed changes
   SERIAL_CHAR(L);
   SERIAL_ECHO_SP(3);
 
@@ -274,21 +264,12 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   }
   SERIAL_ECHOPGM("    WGM: ", WGM);
   com_print(T,L);
-<<<<<<< Updated upstream
   SERIAL_ECHOPGM("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
   SERIAL_ECHOPGM("    TCCR", AS_DIGIT(T), "A: ", *TCCRA);
   SERIAL_ECHOPGM("    TCCR", AS_DIGIT(T), "B: ", *TCCRB);
 
   const uint8_t *TMSK = (uint8_t*)TIMSK(T);
   SERIAL_ECHOPGM("    TIMSK", AS_DIGIT(T), ": ", *TMSK);
-=======
-  SERIAL_ECHOPAIR("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
-  SERIAL_ECHOPAIR("    TCCR", AS_CHAR(T + '0'), "A: ", *TCCRA);
-  SERIAL_ECHOPAIR("    TCCR", AS_CHAR(T + '0'), "B: ", *TCCRB);
-
-  const uint8_t *TMSK = (uint8_t*)TIMSK(T);
-  SERIAL_ECHOPAIR("    TIMSK", AS_CHAR(T + '0'), ": ", *TMSK);
->>>>>>> Stashed changes
 
   const uint8_t OCIE = L - 'A' + 1;
   if (N == 3) { if (WGM == 0 || WGM == 2 || WGM ==  4 || WGM ==  6) err_is_counter(); }

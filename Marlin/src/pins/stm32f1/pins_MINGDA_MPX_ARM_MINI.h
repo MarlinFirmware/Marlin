@@ -22,11 +22,7 @@
 #pragma once
 
 /**
-<<<<<<< Updated upstream
  * MKS Robin mini (STM32F103VET6) board pin assignments
-=======
- * MKS Robin mini (STM32F130VET6) board pin assignments
->>>>>>> Stashed changes
  */
 
 #if NOT_TARGET(STM32F1, STM32F1xx)
@@ -104,17 +100,10 @@
 //#define TEMP_0_PIN                        PB3   // E0 K+
 #define TEMP_BED_PIN                        PF7   // THERM_BED
 
-<<<<<<< Updated upstream
 #define TEMP_0_CS_PIN                       PB5
 #define TEMP_0_SCK_PIN                      PB3
 #define TEMP_0_MISO_PIN                     PB4
 #define TEMP_0_MOSI_PIN                     PA14
-=======
-#define MAX6675_SS_PIN                      PB5
-#define MAX6675_SCK_PIN                     PB3
-#define MAX6675_DO_PIN                      PB4
-#define MAX6675_MOSI_PIN                    PA14
->>>>>>> Stashed changes
 
 //
 // Heaters / Fans
@@ -144,17 +133,9 @@
 //
 #define BEEPER_PIN                          PE4
 
-<<<<<<< Updated upstream
 //
 // TFT with FSMC interface
 //
-=======
-/**
- * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
- */
->>>>>>> Stashed changes
 #if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
@@ -168,7 +149,6 @@
    * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-<<<<<<< Updated upstream
   #define TFT_RESET_PIN                     PF15
   #define TFT_BACKLIGHT_PIN                 PF11
 
@@ -180,20 +160,6 @@
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
-=======
-  #define TFT_CS_PIN                        PD7   // NE4
-  #define TFT_RS_PIN                        PG0   // A0
-
-  #define FSMC_CS_PIN                 TFT_CS_PIN
-  #define FSMC_RS_PIN                 TFT_RS_PIN
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define TFT_RESET_PIN                     PF15
-  #define TFT_BACKLIGHT_PIN                 PF11
->>>>>>> Stashed changes
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1

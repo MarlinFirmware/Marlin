@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/save_settings_dialog_box.cpp
 #include "../screens.h"
-
-#ifdef FTDI_SAVE_SETTINGS_DIALOG_BOX
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/save_settings_dialog_box.cpp
 
 #ifdef FTDI_SAVE_SETTINGS_DIALOG_BOX
 
@@ -66,11 +60,8 @@ void SaveSettingsDialogBox::promptToSaveSettings() {
      GOTO_PREVIOUS(); // No save needed.
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/save_settings_dialog_box.cpp
 void SaveSettingsDialogBox::promptToSaveAndStay() {
    if (needs_save) GOTO_SCREEN(SaveSettingsDialogBox);
 }
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/save_settings_dialog_box.cpp
 #endif // FTDI_SAVE_SETTINGS_DIALOG_BOX

@@ -68,11 +68,7 @@ extern uint8_t marlin_debug_flags;
 // Serial redirection
 //
 // Step 1: Find out what the first serial leaf is
-<<<<<<< Updated upstream
 #if HAS_MULTI_SERIAL && defined(SERIAL_CATCHALL)
-=======
-#if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
->>>>>>> Stashed changes
   #define _SERIAL_LEAF_1 MYSERIAL
 #else
   #define _SERIAL_LEAF_1 MYSERIAL1
@@ -92,11 +88,7 @@ extern uint8_t marlin_debug_flags;
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n,p)  RESTORE(n)
-<<<<<<< Updated upstream
   #define SERIAL_ASSERT(P)    if (multiSerial.portMask!=(P)) { debugger(); }
-=======
-  #define SERIAL_ASSERT(P)    if(multiSerial.portMask!=(P)){ debugger(); }
->>>>>>> Stashed changes
   // If we have a catchall, use that directly
   #ifdef SERIAL_CATCHALL
     #define _SERIAL_LEAF_2 SERIAL_CATCHALL
@@ -119,7 +111,6 @@ extern uint8_t marlin_debug_flags;
   #else
     #define SERIAL_LEAF_2 _SERIAL_LEAF_2
   #endif
-<<<<<<< Updated upstream
 
   // Hook Meatpack if it's enabled on the third leaf
   #if ENABLED(MEATPACK_ON_SERIAL_PORT_3)
@@ -135,23 +126,6 @@ extern uint8_t marlin_debug_flags;
 
   typedef MultiSerial< REPEAT_1(NUM_SERIAL, _S_MULTI) 0> SerialOutputT;
 
-=======
-
-  // Hook Meatpack if it's enabled on the third leaf
-  #if ENABLED(MEATPACK_ON_SERIAL_PORT_3)
-    typedef MeatpackSerial<decltype(_SERIAL_LEAF_3)> SerialLeafT3;
-    extern SerialLeafT3 mpSerial3;
-    #define SERIAL_LEAF_3 mpSerial3
-  #else
-    #define SERIAL_LEAF_3 _SERIAL_LEAF_3
-  #endif
-
-  #define __S_MULTI(N) decltype(SERIAL_LEAF_##N),
-  #define _S_MULTI(N) __S_MULTI(N)
-
-  typedef MultiSerial< REPEAT_1(NUM_SERIAL, _S_MULTI) 0> SerialOutputT;
-
->>>>>>> Stashed changes
   #undef __S_MULTI
   #undef _S_MULTI
 
@@ -203,13 +177,8 @@ void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 template <typename T, typename U>
 void SERIAL_PRINT(T x, U y) { SERIAL_IMPL.print(x, y); }
 
-<<<<<<< Updated upstream
 template <typename T>
 void SERIAL_PRINTLN(T x, PrintBase y) { SERIAL_IMPL.println(x, y); }
-=======
-template <typename T, typename U>
-void SERIAL_PRINTLN(T x, U y) { SERIAL_IMPL.println(x, y); }
->>>>>>> Stashed changes
 
 // Flush the serial port
 inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
@@ -219,76 +188,44 @@ inline void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
 void serialprintPGM(PGM_P str);
 
 //
-<<<<<<< Updated upstream
 // SERIAL_ECHOPGM... macros are used to output string-value pairs.
-=======
-// SERIAL_ECHOPAIR... macros are used to output string-value pairs.
->>>>>>> Stashed changes
 //
 
 // Print up to 20 pairs of values. Odd elements must be literal strings.
 #define __SEP_N(N,V...)           _SEP_##N(V)
 #define _SEP_N(N,V...)            __SEP_N(N,V)
 #define _SEP_N_REF()              _SEP_N
-<<<<<<< Updated upstream
 #define _SEP_1(s)                 serialprintPGM(PSTR(s));
 #define _SEP_2(s,v)               serial_echopair_PGM(PSTR(s),v);
 #define _SEP_3(s,v,V...)          _SEP_2(s,v); DEFER2(_SEP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM(V...)      do{ EVAL(_SEP_N(TWO_ARGS(V),V)); }while(0)
-=======
-#define _SEP_1(s)                 SERIAL_ECHOPGM(s);
-#define _SEP_2(s,v)               serial_echopair_PGM(PSTR(s),v);
-#define _SEP_3(s,v,V...)          _SEP_2(s,v); DEFER2(_SEP_N_REF)()(TWO_ARGS(V),V);
-#define SERIAL_ECHOPAIR(V...)     do{ EVAL(_SEP_N(TWO_ARGS(V),V)); }while(0)
->>>>>>> Stashed changes
 
 // Print up to 20 pairs of values followed by newline. Odd elements must be literal strings.
 #define __SELP_N(N,V...)          _SELP_##N(V)
 #define _SELP_N(N,V...)           __SELP_N(N,V)
 #define _SELP_N_REF()             _SELP_N
-<<<<<<< Updated upstream
 #define _SELP_1(s)                serialprintPGM(PSTR(s "\n"));
 #define _SELP_2(s,v)              serial_echopair_PGM(PSTR(s),v); SERIAL_EOL();
 #define _SELP_3(s,v,V...)         _SEP_2(s,v); DEFER2(_SELP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOLNPGM(V...)    do{ EVAL(_SELP_N(TWO_ARGS(V),V)); }while(0)
-=======
-#define _SELP_1(s)                SERIAL_ECHOLNPGM(s);
-#define _SELP_2(s,v)              serial_echopair_PGM(PSTR(s),v); SERIAL_EOL();
-#define _SELP_3(s,v,V...)         _SEP_2(s,v); DEFER2(_SELP_N_REF)()(TWO_ARGS(V),V);
-#define SERIAL_ECHOLNPAIR(V...)   do{ EVAL(_SELP_N(TWO_ARGS(V),V)); }while(0)
->>>>>>> Stashed changes
 
 // Print up to 20 pairs of values. Odd elements must be PSTR pointers.
 #define __SEP_N_P(N,V...)         _SEP_##N##_P(V)
 #define _SEP_N_P(N,V...)          __SEP_N_P(N,V)
 #define _SEP_N_P_REF()            _SEP_N_P
-<<<<<<< Updated upstream
 #define _SEP_1_P(p)               serialprintPGM(p);
 #define _SEP_2_P(p,v)             serial_echopair_PGM(p,v);
 #define _SEP_3_P(p,v,V...)        _SEP_2_P(p,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM_P(V...)    do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
-=======
-#define _SEP_1_P(s)               serialprintPGM(s);
-#define _SEP_2_P(s,v)             serial_echopair_PGM(s,v);
-#define _SEP_3_P(s,v,V...)        _SEP_2_P(s,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
-#define SERIAL_ECHOPAIR_P(V...)   do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
->>>>>>> Stashed changes
 
 // Print up to 20 pairs of values followed by newline. Odd elements must be PSTR pointers.
 #define __SELP_N_P(N,V...)        _SELP_##N##_P(V)
 #define _SELP_N_P(N,V...)         __SELP_N_P(N,V)
 #define _SELP_N_P_REF()           _SELP_N_P
-<<<<<<< Updated upstream
 #define _SELP_1_P(p)              { serialprintPGM(p); SERIAL_EOL(); }
 #define _SELP_2_P(p,v)            { serial_echopair_PGM(p,v); SERIAL_EOL(); }
 #define _SELP_3_P(p,v,V...)       { _SEP_2_P(p,v); DEFER2(_SELP_N_P_REF)()(TWO_ARGS(V),V); }
 #define SERIAL_ECHOLNPGM_P(V...)  do{ EVAL(_SELP_N_P(TWO_ARGS(V),V)); }while(0)
-=======
-#define _SELP_1_P(s)              { serialprintPGM(s); SERIAL_EOL(); }
-#define _SELP_2_P(s,v)            { serial_echopair_PGM(s,v); SERIAL_EOL(); }
-#define _SELP_3_P(s,v,V...)       { _SEP_2_P(s,v); DEFER2(_SELP_N_P_REF)()(TWO_ARGS(V),V); }
-#define SERIAL_ECHOLNPAIR_P(V...) do{ EVAL(_SELP_N_P(TWO_ARGS(V),V)); }while(0)
->>>>>>> Stashed changes
 
 #ifdef AllowDifferentTypeInList
 
@@ -323,15 +260,6 @@ void serialprintPGM(PGM_P str);
   }
 
 #endif
-<<<<<<< Updated upstream
-=======
-
-#define SERIAL_ECHOPGM_P(P)         (serialprintPGM(P))
-#define SERIAL_ECHOLNPGM_P(P)       do{ serialprintPGM(P); SERIAL_EOL(); }while(0)
-
-#define SERIAL_ECHOPGM(S)           (serialprintPGM(PSTR(S)))
-#define SERIAL_ECHOLNPGM(S)         (serialprintPGM(PSTR(S "\n")))
->>>>>>> Stashed changes
 
 #define SERIAL_ECHOPAIR_F_P(P,V...) do{ serialprintPGM(P); SERIAL_ECHO_F(V); }while(0)
 #define SERIAL_ECHOLNPAIR_F_P(V...) do{ SERIAL_ECHOPAIR_F_P(V); SERIAL_EOL(); }while(0)
@@ -359,7 +287,6 @@ void serialprintPGM(PGM_P str);
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
-<<<<<<< Updated upstream
 inline void serial_echopair_PGM(PGM_P const s_P, serial_char_t v) { serialprintPGM(s_P); SERIAL_CHAR(v.c); }
 
 inline void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
@@ -370,18 +297,6 @@ inline void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintP
 template <typename T>
 void serial_echopair_PGM(PGM_P const s_P, T v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
-=======
-void serial_echopair_PGM(PGM_P const s_P, serial_char_t v);
-void serial_echopair_PGM(PGM_P const s_P, const char *v);
-void serial_echopair_PGM(PGM_P const s_P, char v);
-void serial_echopair_PGM(PGM_P const s_P, int v);
-void serial_echopair_PGM(PGM_P const s_P, long v);
-void serial_echopair_PGM(PGM_P const s_P, float v);
-void serial_echopair_PGM(PGM_P const s_P, double v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned char v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
->>>>>>> Stashed changes
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 
@@ -394,11 +309,7 @@ void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);
-<<<<<<< Updated upstream
 void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
-=======
-void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
->>>>>>> Stashed changes
 
 inline void print_pos(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {
   print_pos(LINEAR_AXIS_ELEM(xyz), prefix, suffix);

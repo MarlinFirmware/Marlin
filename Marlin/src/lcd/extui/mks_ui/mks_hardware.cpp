@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/mks_hardware.cpp
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/mks_ui/mks_hardware_test.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI

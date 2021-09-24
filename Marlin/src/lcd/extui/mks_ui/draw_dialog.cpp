@@ -106,15 +106,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
           planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
           #if HAS_MULTI_EXTRUDER
             planner.flow_percentage[1] = 100;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_dialog.cpp
             planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
-=======
-            planner.e_factor[1]        = planner.flow_percentage[1] * 0.01f;
-          #endif
-          card.startOrResumeFilePrinting();
-          #if ENABLED(POWER_LOSS_RECOVERY)
-            recovery.prepare();
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_dialog.cpp
           #endif
           card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
@@ -525,11 +517,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_load_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_dialog.cpp
     if (ABS(diff) < 2 || diff > 0) {
-=======
-    if (abs(diff) < 2 || diff > 0) {
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_dialog.cpp
       uiCfg.filament_load_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
@@ -545,11 +533,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_unload_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_dialog.cpp
     if (ABS(diff) < 2 || diff > 0) {
-=======
-    if (abs(diff) < 2 || diff > 0) {
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_dialog.cpp
       uiCfg.filament_unload_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);

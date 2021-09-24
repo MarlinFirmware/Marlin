@@ -20,11 +20,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/bed_mesh_base.cpp
 #include "../screens.h"
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_base.cpp
 
 #ifdef FTDI_BED_MESH_BASE
 
@@ -145,7 +141,6 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
         if (ISVAL(x,y)) {
           if (opts & USE_COLORS) {
             const float val_dev = sq(VALUE(x, y) - val_mean);
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/bed_mesh_base.cpp
             float r = 0, b = 0;
             if (sq_min != sq_max) {
               if (VALUE(x, y) < 0)
@@ -158,15 +153,6 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
             #else
               cmd.cmd(COLOR_RGB((1.0f - b) * 0xFF, (1.0f - b - r) * 0xFF, (1.0f - r) * 0xFF));
             #endif
-=======
-            uint8_t r = 0, b = 0;
-            //*(VALUE(x, y) < 0 ? &r : &b) = val_dev / sq_min * 0xFF;
-            if (VALUE(x, y) < 0)
-              r = val_dev / sq_min * 0xFF;
-            else
-              b = val_dev / sq_max * 0xFF;
-            cmd.cmd(COLOR_RGB(0xFF - b, 0xFF - b - r, 0xFF - r));
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bed_mesh_base.cpp
           }
           cmd.cmd(VERTEX2F(TRANSFORM(x, y, HEIGHT(x, y))));
         }

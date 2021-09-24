@@ -107,7 +107,6 @@
   #define STATUS_FLOWMETER_BYTEWIDTH BW(STATUS_FLOWMETER_WIDTH)
 #endif
 
-<<<<<<< Updated upstream
 //
 // Laser Ammeter
 //
@@ -119,9 +118,6 @@
     #define STATUS_AMMETER_WIDTH 0
   #endif
 #endif
-=======
-
->>>>>>> Stashed changes
 
 //
 // Bed
@@ -484,11 +480,7 @@
     #endif
 
     #ifndef STATUS_CUTTER_TEXT_X
-<<<<<<< Updated upstream
       #define STATUS_CUTTER_TEXT_X (STATUS_CUTTER_X - 1)
-=======
-      #define STATUS_CUTTER_TEXT_X (STATUS_CUTTER_X -1)
->>>>>>> Stashed changes
     #endif
 
     #ifndef STATUS_CUTTER_TEXT_Y
@@ -496,20 +488,12 @@
     #endif
 
     static_assert(
-<<<<<<< Updated upstream
       sizeof(status_cutter_bmp) == (STATUS_CUTTER_BYTEWIDTH) * STATUS_CUTTER_HEIGHT(0),
-=======
-      sizeof(status_cutter_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(0)),
->>>>>>> Stashed changes
       "Status cutter bitmap (status_cutter_bmp) dimensions don't match data."
     );
     #ifdef STATUS_CUTTER_ANIM
       static_assert(
-<<<<<<< Updated upstream
         sizeof(status_cutter_on_bmp) == (STATUS_CUTTER_BYTEWIDTH) * STATUS_CUTTER_HEIGHT(1),
-=======
-        sizeof(status_cutter_on_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(1)),
->>>>>>> Stashed changes
         "Status cutter bitmap (status_cutter_on_bmp) dimensions don't match data."
       );
     #endif
@@ -581,20 +565,12 @@
     #endif
 
     static_assert(
-<<<<<<< Updated upstream
       sizeof(status_cooler_bmp1) == (STATUS_COOLER_BYTEWIDTH) * STATUS_COOLER_HEIGHT(0),
-=======
-      sizeof(status_cooler_bmp1) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(0)),
->>>>>>> Stashed changes
       "Status cooler bitmap (status_cooler_bmp1) dimensions don't match data."
     );
     #ifdef STATUS_COOLER_ANIM
       static_assert(
-<<<<<<< Updated upstream
         sizeof(status_cooler_bmp2) == (STATUS_COOLER_BYTEWIDTH) * STATUS_COOLER_HEIGHT(1),
-=======
-        sizeof(status_cooler_bmp2) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(1)),
->>>>>>> Stashed changes
         "Status cooler bitmap (status_cooler_bmp2) dimensions don't match data."
       );
     #endif
@@ -638,7 +614,6 @@
 #endif
 
 //
-<<<<<<< Updated upstream
 // I2C Laser Ammeter
 //
 #if ENABLED(I2C_AMMETER) && STATUS_AMMETER_WIDTH
@@ -664,8 +639,6 @@
 #endif
 
 //
-=======
->>>>>>> Stashed changes
 // Bed Bitmap Properties
 //
 #ifndef STATUS_BED_BYTEWIDTH
@@ -758,12 +731,9 @@
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   #define DO_DRAW_FLOWMETER 1
 #endif
-<<<<<<< Updated upstream
 #if ENABLED(I2C_AMMETER)
   #define DO_DRAW_AMMETER 1
 #endif
-=======
->>>>>>> Stashed changes
 
 #if HAS_TEMP_CHAMBER && STATUS_CHAMBER_WIDTH && HOTENDS <= 4
   #define DO_DRAW_CHAMBER 1

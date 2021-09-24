@@ -58,11 +58,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     cartes.y = a_sin + b_sin + scara_offset.y;  // phi
 
     /*
-<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM(
-=======
-      DEBUG_ECHOLNPAIR(
->>>>>>> Stashed changes
         "SCARA FK Angle a=", a,
         " b=", b,
         " a_sin=", a_sin,
@@ -70,11 +66,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
         " b_sin=", b_sin,
         " b_cos=", b_cos
       );
-<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")");
-=======
-      DEBUG_ECHOLNPAIR(" cartes (X,Y) = "(cartes.x, ", ", cartes.y, ")");
->>>>>>> Stashed changes
     //*/
   }
 
@@ -88,21 +80,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     else {
       // MORGAN_SCARA uses a Cartesian XY home position
       xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
-<<<<<<< Updated upstream
       //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y);
-=======
-      //DEBUG_ECHOLNPAIR_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y);
->>>>>>> Stashed changes
 
       delta = homeposition;
       forward_kinematics(delta.a, delta.b);
       current_position[axis] = cartes[axis];
 
-<<<<<<< Updated upstream
       //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
-=======
-      //DEBUG_ECHOLNPAIR_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
->>>>>>> Stashed changes
       update_software_endstops(axis);
     }
   }
@@ -148,11 +132,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     /*
       DEBUG_POS("SCARA IK", raw);
       DEBUG_POS("SCARA IK", delta);
-<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Psi=", PSI);
-=======
-      DEBUG_ECHOLNPAIR("  SCARA (x,y) ", sx, ",", sy, " C2=", C2, " S2=", S2, " Theta=", THETA, " Psi=", PSI);
->>>>>>> Stashed changes
     //*/
   }
 
@@ -170,21 +150,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
         #define SCARA_OFFSET_THETA2 131 // degrees
       #endif
       ab_float_t homeposition = { SCARA_OFFSET_THETA1, SCARA_OFFSET_THETA2 };
-<<<<<<< Updated upstream
       //DEBUG_ECHOLNPGM("homeposition A:", homeposition.a, " B:", homeposition.b);
-=======
-      //DEBUG_ECHOLNPAIR("homeposition A:", homeposition.a, " B:", homeposition.b);
->>>>>>> Stashed changes
 
       inverse_kinematics(homeposition);
       forward_kinematics(delta.a, delta.b);
       current_position[axis] = cartes[axis];
 
-<<<<<<< Updated upstream
       //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
-=======
-      //DEBUG_ECHOLNPAIR_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
->>>>>>> Stashed changes
       update_software_endstops(axis);
     }
   }
@@ -213,21 +185,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
       current_position.z = Z_HOME_POS;
     else {
       xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
-<<<<<<< Updated upstream
       //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
-=======
-      //DEBUG_ECHOLNPAIR_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
->>>>>>> Stashed changes
 
       inverse_kinematics(homeposition);
       forward_kinematics(delta.a, delta.b, delta.c);
       current_position[axis] = cartes[axis];
 
-<<<<<<< Updated upstream
       //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
-=======
-      //DEBUG_ECHOLNPAIR_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
->>>>>>> Stashed changes
       update_software_endstops(axis);
     }
   }
@@ -257,17 +221,10 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
       TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
     #endif
 
-<<<<<<< Updated upstream
     //const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
     //const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };
     //const float mlz = max_length(X_AXIS),
-=======
-    // const int x_axis_home_dir = x_home_dir(active_extruder);
-
-    // const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };
-    // const float mlz = max_length(X_AXIS),
->>>>>>> Stashed changes
 
     // Move all carriages together linearly until an endstop is hit.
     //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));
@@ -297,11 +254,7 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
     // Do this here all at once for Delta, because
     // XYZ isn't ABC. Applying this per-tower would
     // give the impression that they are the same.
-<<<<<<< Updated upstream
     LOOP_LINEAR_AXES(i) set_axis_is_at_home((AxisEnum)i);
-=======
-    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
->>>>>>> Stashed changes
 
     sync_plan_position();
   }
@@ -336,21 +289,13 @@ float segments_per_second = TERN(AXEL_TPARA, TPARA_SEGMENTS_PER_SECOND, SCARA_SE
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
-<<<<<<< Updated upstream
     //SERIAL_ECHOLNPGM(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
-=======
-    //SERIAL_ECHOLNPAIR(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
->>>>>>> Stashed changes
   }
 
 #endif
 
 void scara_report_positions() {
-<<<<<<< Updated upstream
   SERIAL_ECHOLNPGM("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
-=======
-  SERIAL_ECHOLNPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
->>>>>>> Stashed changes
     #if ENABLED(AXEL_TPARA)
       , "  Phi:", planner.get_axis_position_degrees(B_AXIS)
       , "  Psi:", planner.get_axis_position_degrees(C_AXIS)

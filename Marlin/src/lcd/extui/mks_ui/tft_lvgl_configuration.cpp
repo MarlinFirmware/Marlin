@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/tft_lvgl_configuration.cpp
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/tft_lvgl_configuration.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -47,7 +44,6 @@ XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/tft_lvgl_configuration.cpp
 #endif
 
 #if HAS_SERVOS
@@ -56,8 +52,6 @@ XPT2046 touch;
 
 #if EITHER(PROBE_TARE, HAS_Z_SERVO_PROBE)
   #include "../../../module/probe.h"
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/tft_lvgl_configuration.cpp
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -223,7 +217,6 @@ void tft_lvgl_init() {
 
       uiCfg.print_state = REPRINTING;
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/tft_lvgl_configuration.cpp
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
         strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
         card.printLongPath(public_buf_m);
@@ -231,11 +224,6 @@ void tft_lvgl_init() {
       #else
         strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
       #endif
-=======
-      strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
-      card.printLongPath(public_buf_m);
-      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/tft_lvgl_configuration.cpp
       lv_draw_printing();
     }
   #endif
@@ -276,7 +264,9 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 }
 
 static bool get_point(int16_t *x, int16_t *y) {
-  if (!touch.getRawPoint(x, y)) return false;
+  bool is_touched = touch.getRawPoint(x, y);
+
+  if (!is_touched) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
@@ -296,26 +286,34 @@ static bool get_point(int16_t *x, int16_t *y) {
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   static int16_t last_x = 0, last_y = 0;
-  if (get_point(&last_x, &last_y)) {
-    #if TFT_ROTATION == TFT_ROTATE_180
-      data->point.x = TFT_WIDTH - last_x;
-      data->point.y = TFT_HEIGHT - last_y;
-    #else
+  static uint8_t last_touch_state = LV_INDEV_STATE_REL;
+  static int32_t touch_time1 = 0;
+  uint32_t tmpTime, diffTime = 0;
+
+  tmpTime = millis();
+  diffTime = getTickDiff(tmpTime, touch_time1);
+  if (diffTime > 20) {
+    if (get_point(&last_x, &last_y)) {
+
+      if (last_touch_state == LV_INDEV_STATE_PR) return false;
+      data->state = LV_INDEV_STATE_PR;
+
+      // Set the coordinates (if released use the last-pressed coordinates)
       data->point.x = last_x;
       data->point.y = last_y;
-    #endif
-    data->state = LV_INDEV_STATE_PR;
+
+      last_x = last_y = 0;
+      last_touch_state = LV_INDEV_STATE_PR;
+    }
+    else {
+      if (last_touch_state == LV_INDEV_STATE_PR)
+        data->state = LV_INDEV_STATE_REL;
+      last_touch_state = LV_INDEV_STATE_REL;
+    }
+
+    touch_time1 = tmpTime;
   }
-  else {
-    #if TFT_ROTATION == TFT_ROTATE_180
-      data->point.x = TFT_WIDTH - last_x;
-      data->point.y = TFT_HEIGHT - last_y;
-    #else
-      data->point.x = last_x;
-      data->point.y = last_y;
-    #endif
-    data->state = LV_INDEV_STATE_REL;
-  }
+
   return false; // Return `false` since no data is buffering or left to read
 }
 

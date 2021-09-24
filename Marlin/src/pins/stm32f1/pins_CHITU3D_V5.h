@@ -21,11 +21,7 @@
  */
 #pragma once
 
-<<<<<<< Updated upstream
 #define BOARD_INFO_NAME "Chitu3D V5"
-=======
-#include "env_validate.h"
->>>>>>> Stashed changes
 
 #define Z_STOP_PIN                          PG9
 

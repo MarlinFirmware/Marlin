@@ -202,7 +202,7 @@ typedef struct block_t {
     uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
   #endif
 
-  axis_bits_t direction_bits;               // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+  uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
@@ -496,19 +496,6 @@ class Planner {
 
     // For an axis set the Maximum Acceleration in mm/s^2
     static void set_max_acceleration(const uint8_t axis, float inMaxAccelMMS2);
-<<<<<<< Updated upstream
-=======
-
-    // For an axis set the Maximum Feedrate in mm/s
-    static void set_max_feedrate(const uint8_t axis, float inMaxFeedrateMMS);
-
-    // For an axis set the Maximum Jerk (instant change) in mm/s
-    #if HAS_CLASSIC_JERK
-      static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
-    #else
-      static inline void set_max_jerk(const AxisEnum, const_float_t ) {}
-    #endif
->>>>>>> Stashed changes
 
     // For an axis set the Maximum Feedrate in mm/s
     static void set_max_feedrate(const uint8_t axis, float inMaxFeedrateMMS);
@@ -622,15 +609,9 @@ class Planner {
 
     #else
 
-<<<<<<< Updated upstream
       FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t) { return 1; }
 
       FORCE_INLINE static bool leveling_active_at_z(const_float_t) { return true; }
-=======
-      FORCE_INLINE static float fade_scaling_factor_for_z(const_float_t ) { return 1; }
-
-      FORCE_INLINE static bool leveling_active_at_z(const_float_t ) { return true; }
->>>>>>> Stashed changes
 
     #endif
 
@@ -743,17 +724,8 @@ class Planner {
      * Returns true if movement was buffered, false otherwise
      */
     static bool _buffer_steps(const xyze_long_t &target
-<<<<<<< Updated upstream
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-=======
-      #if HAS_POSITION_FLOAT
-        , const xyze_pos_t &target_float
-      #endif
-      #if HAS_DIST_MM_ARG
-        , const xyze_float_t &cart_dist_mm
-      #endif
->>>>>>> Stashed changes
       , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
     );
 
@@ -769,20 +741,9 @@ class Planner {
      *
      * Returns true is movement is acceptable, false otherwise
      */
-<<<<<<< Updated upstream
     static bool _populate_block(block_t * const block, bool split_move, const xyze_long_t &target
       OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-=======
-    static bool _populate_block(block_t * const block, bool split_move,
-        const xyze_long_t &target
-      #if HAS_POSITION_FLOAT
-        , const xyze_pos_t &target_float
-      #endif
-      #if HAS_DIST_MM_ARG
-        , const xyze_float_t &cart_dist_mm
-      #endif
->>>>>>> Stashed changes
       , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
     );
 
@@ -814,34 +775,11 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-<<<<<<< Updated upstream
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
       , const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const_float_t millimeters=0.0
     );
 
-=======
-    static bool buffer_segment(const_float_t a, const_float_t b, const_float_t c, const_float_t e
-      #if HAS_DIST_MM_ARG
-        , const xyze_float_t &cart_dist_mm
-      #endif
-      , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-    );
-
-    FORCE_INLINE static bool buffer_segment(abce_pos_t &abce
-      #if HAS_DIST_MM_ARG
-        , const xyze_float_t &cart_dist_mm
-      #endif
-      , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters=0.0
-    ) {
-      return buffer_segment(abce.a, abce.b, abce.c, abce.e
-        #if HAS_DIST_MM_ARG
-          , cart_dist_mm
-        #endif
-        , fr_mm_s, extruder, millimeters);
-    }
-
->>>>>>> Stashed changes
   public:
 
     /**
@@ -855,31 +793,10 @@ class Planner {
      *  millimeters  - the length of the movement, if known
      *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
      */
-<<<<<<< Updated upstream
     static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder=active_extruder, const float millimeters=0.0
       OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration=0.0)
     );
 
-=======
-    static bool buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters=0.0
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , const_float_t inv_duration=0.0
-      #endif
-    );
-
-    FORCE_INLINE static bool buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters=0.0
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        , const_float_t inv_duration=0.0
-      #endif
-    ) {
-      return buffer_line(cart.x, cart.y, cart.z, cart.e, fr_mm_s, extruder, millimeters
-        #if ENABLED(SCARA_FEEDRATE_SCALING)
-          , inv_duration
-        #endif
-      );
-    }
-
->>>>>>> Stashed changes
     #if ENABLED(DIRECT_STEPPING)
       static void buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps);
     #endif
@@ -897,17 +814,11 @@ class Planner {
      *
      * Clears previous speed values.
      */
-<<<<<<< Updated upstream
     static void set_position_mm(const xyze_pos_t &xyze);
 
     #if HAS_EXTRUDERS
       static void set_e_position_mm(const_float_t e);
     #endif
-=======
-    static void set_position_mm(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e);
-    FORCE_INLINE static void set_position_mm(const xyze_pos_t &cart) { set_position_mm(cart.x, cart.y, cart.z, cart.e); }
-    static void set_e_position_mm(const_float_t e);
->>>>>>> Stashed changes
 
     /**
      * Set the planner.position and individual stepper positions.
@@ -915,12 +826,7 @@ class Planner {
      * The supplied position is in machine space, and no additional
      * conversions are applied.
      */
-<<<<<<< Updated upstream
     static void set_machine_position_mm(const abce_pos_t &abce);
-=======
-    static void set_machine_position_mm(const_float_t a, const_float_t b, const_float_t c, const_float_t e);
-    FORCE_INLINE static void set_machine_position_mm(const abce_pos_t &abce) { set_machine_position_mm(abce.a, abce.b, abce.c, abce.e); }
->>>>>>> Stashed changes
 
     /**
      * Get an axis position according to stepper position(s)
@@ -953,11 +859,7 @@ class Planner {
       static void quick_resume();
     #endif
 
-<<<<<<< Updated upstream
     // Called when an endstop is triggered. Causes the machine to stop immediately
-=======
-    // Called when an endstop is triggered. Causes the machine to stop inmediately
->>>>>>> Stashed changes
     static void endstop_triggered(const AxisEnum axis);
 
     // Triggered position of an axis in mm (not core-savvy)

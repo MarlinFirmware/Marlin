@@ -47,15 +47,11 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-<<<<<<< Updated upstream
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "e3v2/enhanced/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
-=======
-  #include "dwin/e3v2/dwin.h"
->>>>>>> Stashed changes
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -73,20 +69,8 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-<<<<<<< Updated upstream
   #if BOTH(HAS_WIRED_LCD, STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
-=======
-  #if HAS_WIRED_LCD
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      uint8_t MarlinUI::status_scroll_offset; // = 0
-      constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
-    #else
-      constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
-    #endif
-  #else
-    constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
->>>>>>> Stashed changes
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
@@ -566,29 +550,18 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
    * This is very display-dependent, so the lcd implementation draws this.
    */
 
-<<<<<<< Updated upstream
   #if BASIC_PROGRESS_BAR
     millis_t MarlinUI::progress_bar_ms; // = 0
     #if PROGRESS_MSG_EXPIRE > 0
       millis_t MarlinUI::expire_status_ms; // = 0
     #endif
-=======
-#if BASIC_PROGRESS_BAR
-  millis_t MarlinUI::progress_bar_ms; // = 0
-  #if PROGRESS_MSG_EXPIRE > 0
-    millis_t MarlinUI::expire_status_ms; // = 0
->>>>>>> Stashed changes
   #endif
 
   void MarlinUI::status_screen() {
 
     TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
-<<<<<<< Updated upstream
     #if BASIC_PROGRESS_BAR
-=======
-  #if BASIC_PROGRESS_BAR
->>>>>>> Stashed changes
 
       //
       // HD44780 implements the following message blinking and
@@ -628,11 +601,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
       #endif // PROGRESS_MSG_EXPIRE
 
-<<<<<<< Updated upstream
     #endif // BASIC_PROGRESS_BAR
-=======
-  #endif // BASIC_PROGRESS_BAR
->>>>>>> Stashed changes
 
     #if HAS_LCD_MENU
       if (use_click()) {
@@ -720,49 +689,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up the TFT with most buttons
     TERN_(HAS_LCD_MENU, refresh());
 
-<<<<<<< Updated upstream
     #if HAS_ENCODER_ACTION
       if (clear_buttons) buttons = 0;
       next_button_update_ms = millis() + 500;
     #else
       UNUSED(clear_buttons);
     #endif
-=======
-  ManualMove MarlinUI::manual_move{};
-
-  millis_t ManualMove::start_time = 0;
-  float ManualMove::menu_scale = 1;
-  #if IS_KINEMATIC
-    float ManualMove::offset = 0;
-    xyze_pos_t ManualMove::all_axes_destination = { 0 };
-    bool ManualMove::processing = false;
-  #endif
-  #if ENABLED(MULTI_MANUAL)
-    int8_t ManualMove::e_index = 0;
-  #endif
-  AxisEnum ManualMove::axis = NO_AXIS;
-
-  /**
-   * If a manual move has been posted and its time has arrived, and if the planner
-   * has a space for it, then add a linear move to current_position the planner.
-   *
-   * If any manual move needs to be interrupted, make sure to force a manual move
-   * by setting manual_move.start_time to millis() after updating current_position.
-   *
-   * To post a manual move:
-   *   - Update current_position to the new place you want to go.
-   *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES for diagonal moves.
-   *   - Set manual_move.start_time to a point in the future (in ms) when the move should be done.
-   *
-   * For kinematic machines:
-   *   - Set manual_move.offset to modify one axis and post the move.
-   *     This is used to achieve more rapid stepping on kinematic machines.
-   *
-   * Currently used by the _lcd_move_xyz function in menu_motion.cpp
-   * and the ubl_map_move_to_xy funtion in menu_ubl.cpp.
-   */
-  void ManualMove::task() {
->>>>>>> Stashed changes
 
     #if HAS_CHIRP
       chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
@@ -858,11 +790,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
           );
 
-<<<<<<< Updated upstream
           //SERIAL_ECHOLNPGM("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
-=======
-        //SERIAL_ECHOLNPAIR("Add planner.move with Axis ", AS_CHAR(axis_codes[axis]), " at FR ", fr_mm_s);
->>>>>>> Stashed changes
 
           axis = NO_AXIS_ENUM;
 
@@ -870,7 +798,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       }
     }
 
-<<<<<<< Updated upstream
     //
     // Tell ui.update() to start a move to current_position after a short delay.
     //
@@ -882,23 +809,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       axis = move_axis;
       //SERIAL_ECHOLNPGM("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");
     }
-=======
-  //
-  // Tell ui.update() to start a move to current_position after a short delay.
-  //
-  void ManualMove::soon(const AxisEnum move_axis
-    #if MULTI_MANUAL
-      , const int8_t eindex/*=-1*/
-    #endif
-  ) {
-    #if MULTI_MANUAL
-      if (move_axis == E_AXIS) e_index = eindex >= 0 ? eindex : active_extruder;
-    #endif
-    start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
-    axis = move_axis;
-    //SERIAL_ECHOLNPAIR("Post Move with Axis ", AS_CHAR(axis_codes[axis]), " soon.");
-  }
->>>>>>> Stashed changes
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -975,21 +885,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       // If the action button is pressed...
       static bool wait_for_unclick; // = false
 
-<<<<<<< Updated upstream
       auto do_click = [&]{
         wait_for_unclick = true;                        //  - Set debounce flag to ignore continuous clicks
         lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
         wait_for_user = false;                          //  - Any click clears wait for user
         quick_feedback();                               //  - Always make a click sound
       };
-=======
-    auto do_click = [&]{
-      wait_for_unclick = true;                        //  - Set debounce flag to ignore continuous clicks
-      lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
-      wait_for_user = false;                          //  - Any click clears wait for user
-      quick_feedback();                               //  - Always make a click sound
-    };
->>>>>>> Stashed changes
 
       #if HAS_TOUCH_BUTTONS
         if (touch_buttons) {
@@ -1117,14 +1018,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
           reset_status_timeout(ms);
 
-<<<<<<< Updated upstream
           refresh(LCDVIEW_REDRAW_NOW);
-=======
-        #ifdef LED_BACKLIGHT_TIMEOUT
-          if (!powersupply_on) leds.reset_timeout(ms);
-        #endif
-      }
->>>>>>> Stashed changes
 
           #if ENABLED(PSU_CONTROL) && defined(LED_BACKLIGHT_TIMEOUT)
             if (!powerManager.psu_on) leds.reset_timeout(ms);
@@ -1589,24 +1483,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         next_filament_display = ms + 5000UL; // Show status message for 5s
       #endif
 
-<<<<<<< Updated upstream
       TERN_(STATUS_MESSAGE_SCROLLING, status_scroll_offset = 0);
-=======
-      #if ENABLED(STATUS_MESSAGE_SCROLLING)
-        status_scroll_offset = 0;
-      #endif
->>>>>>> Stashed changes
     #else // HAS_WIRED_LCD
       UNUSED(persist);
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
-<<<<<<< Updated upstream
     TERN_(HAS_DWIN_E3V2_BASIC, DWIN_StatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
-=======
-    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
->>>>>>> Stashed changes
   }
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -1649,7 +1533,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
-<<<<<<< Updated upstream
   #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
     void MarlinUI::poweroff() {
       queue.inject_P(PSTR("M81"));
@@ -1657,8 +1540,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     }
   #endif
 
-=======
->>>>>>> Stashed changes
   void MarlinUI::flow_fault() {
     LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
     TERN_(HAS_BUZZER, buzz(1000, 440));
@@ -1826,7 +1707,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       if (touch_calibration.need_calibration()) ui.goto_screen(touch_screen_calibration);
     #endif
   }
-<<<<<<< Updated upstream
 #endif
 
 #if BOTH(EXTENSIBLE_UI, ADVANCED_PAUSE_FEATURE)
@@ -1856,8 +1736,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     }
   }
 
-=======
->>>>>>> Stashed changes
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)

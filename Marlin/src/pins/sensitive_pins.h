@@ -57,42 +57,10 @@
 #endif
 #if PIN_EXISTS(X_ENABLE)
   #define _X_ENABLE_PIN X_ENABLE_PIN,
-<<<<<<< Updated upstream
-=======
 #else
   #define _X_ENABLE_PIN
 #endif
 
-#define _X_PINS X_STEP_PIN, X_DIR_PIN, _X_ENABLE_PIN _X_MIN _X_MAX _X_MS1 _X_MS2 _X_MS3 _X_CS
-
-#if PIN_EXISTS(Y_MIN)
-  #define _Y_MIN Y_MIN_PIN,
-#else
-  #define _Y_MIN
-#endif
-#if PIN_EXISTS(Y_MAX)
-  #define _Y_MAX Y_MAX_PIN,
-#else
-  #define _Y_MAX
-#endif
-#if PIN_EXISTS(Y_CS) && AXIS_HAS_SPI(Y)
-  #define _Y_CS Y_CS_PIN,
-#else
-  #define _Y_CS
-#endif
-#if PIN_EXISTS(Y_MS1)
-  #define _Y_MS1 Y_MS1_PIN,
->>>>>>> Stashed changes
-#else
-  #define _X_ENABLE_PIN
-#endif
-#if PIN_EXISTS(Y_ENABLE)
-  #define _Y_ENABLE_PIN Y_ENABLE_PIN,
-#else
-  #define _Y_ENABLE_PIN
-#endif
-
-<<<<<<< Updated upstream
 #define _X_PINS X_STEP_PIN, X_DIR_PIN, _X_ENABLE_PIN _X_MIN _X_MAX _X_MS1 _X_MS2 _X_MS3 _X_CS
 
 #if HAS_Y_AXIS
@@ -134,9 +102,6 @@
   #endif
 
   #define _Y_PINS Y_STEP_PIN, Y_DIR_PIN, _Y_ENABLE_PIN _Y_MIN _Y_MAX _Y_MS1 _Y_MS2 _Y_MS3 _Y_CS
-=======
-#define _Y_PINS Y_STEP_PIN, Y_DIR_PIN, _Y_ENABLE_PIN _Y_MIN _Y_MAX _Y_MS1 _Y_MS2 _Y_MS3 _Y_CS
->>>>>>> Stashed changes
 
 #else
 
@@ -323,22 +288,10 @@
   #define _K_PINS K_STEP_PIN, K_DIR_PIN, _K_ENABLE_PIN _K_MIN _K_MAX _K_MS1 _K_MS2 _K_MS3 _K_CS
 
 #else
-<<<<<<< Updated upstream
 
   #define _K_PINS
 
 #endif
-=======
-  #define _Z_MS3
-#endif
-#if PIN_EXISTS(Z_ENABLE)
-  #define _Z_ENABLE_PIN Z_ENABLE_PIN,
-#else
-  #define _Z_ENABLE_PIN
-#endif
-
-#define _Z_PINS Z_STEP_PIN, Z_DIR_PIN, _Z_ENABLE_PIN _Z_MIN _Z_MAX _Z_MS1 _Z_MS2 _Z_MS3 _Z_CS
->>>>>>> Stashed changes
 
 //
 // Extruder Chip Select, Digital Micro-steps
@@ -895,27 +848,15 @@
 #endif
 
 #if TEMP_SENSOR_COOLER && PIN_EXISTS(TEMP_COOLER)
-<<<<<<< Updated upstream
   #define _COOLER_TEMP DIO_PIN(TEMP_COOLER_PIN),
 #else
   #define _COOLER_TEMP
 #endif
-=======
-  #define _COOLER_TEMP analogInputToDigitalPin(TEMP_COOLER_PIN),
-#else
-  #define _COOLER_TEMP
-#endif
-
->>>>>>> Stashed changes
 #if TEMP_SENSOR_COOLER && PIN_EXISTS(COOLER)
   #define _COOLER COOLER_PIN,
 #else
   #define _COOLER
 #endif
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 #if TEMP_SENSOR_COOLER && PINS_EXIST(TEMP_COOLER, COOLER_AUTO_FAN)
   #define _COOLER_FAN COOLER_AUTO_FAN_PIN,
 #else
@@ -950,11 +891,6 @@
   _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS _E6_PINS _E7_PINS \
   _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS _H6_PINS _H7_PINS \
   _PS_ON _FAN0 _FAN1 _FAN2 _FAN3 _FAN4 _FAN5 _FAN6 _FAN7 _FANC \
-<<<<<<< Updated upstream
   _BED_PINS _CHAMBER_TEMP _CHAMBER_HEATER _CHAMBER_FAN \
   _COOLER_TEMP _COOLER _COOLER_FAN HAL_SENSITIVE_PINS \
   _SP_END
-=======
-  _BED_PINS _COOLER _CHAMBER_TEMP _CHAMBER_HEATER _CHAMBER_FAN HAL_SENSITIVE_PINS \
-}
->>>>>>> Stashed changes

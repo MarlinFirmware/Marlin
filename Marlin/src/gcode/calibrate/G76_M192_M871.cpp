@@ -171,11 +171,7 @@ void GcodeSuite::G76() {
   millis_t next_temp_report = millis() + 1000;
 
   auto report_targets = [&](const celsius_t tb, const celsius_t tp) {
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("Target Bed:", tb, " Probe:", tp);
-=======
-    SERIAL_ECHOLNPAIR("Target Bed:", tb, " Probe:", tp);
->>>>>>> Stashed changes
   };
 
   if (do_bed_cal) {
@@ -259,11 +255,7 @@ void GcodeSuite::G76() {
       do_blocking_move_to(noz_pos_xyz);
 
       say_waiting_for_probe_heating();
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM(" Bed:", target_bed, " Probe:", target_probe);
-=======
-      SERIAL_ECHOLNPAIR(" Bed:", target_bed, " Probe:", target_probe);
->>>>>>> Stashed changes
       const millis_t probe_timeout_ms = millis() + SEC_TO_MS(900UL);
       while (thermalManager.degProbe() < target_probe) {
         if (report_temps(next_temp_report, probe_timeout_ms)) {

@@ -248,7 +248,6 @@ namespace Language_jp_kana {
   LSTR MSG_BUTTON_CANCEL                  = _UxGT("キャンセル");
   LSTR MSG_BUTTON_DONE                    = _UxGT("カンリョウ");
 
-<<<<<<< Updated upstream
   LSTR MSG_YES                            = _UxGT("ハイ");
   LSTR MSG_NO                             = _UxGT("イイエ");
   LSTR MSG_BACK                           = _UxGT("モドリ");
@@ -257,14 +256,4 @@ namespace Language_jp_kana {
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("ユーザーコマンド");
   LSTR MSG_PRINT_PAUSED                   = _UxGT("プリントガイチジテイシサレマシタ");
   LSTR MSG_PRINTING                       = _UxGT("プリントチュウ...");
-=======
-  PROGMEM Language_Str MSG_YES                             = _UxGT("ハイ");
-  PROGMEM Language_Str MSG_NO                              = _UxGT("イイエ");
-  PROGMEM Language_Str MSG_BACK                            = _UxGT("モドリ");
-  PROGMEM Language_Str MSG_VELOCITY                        = _UxGT("ソクド");
-  PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("ステップ/mm");
-  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("ユーザーコマンド");
-  PROGMEM Language_Str MSG_PRINT_PAUSED                    = _UxGT("プリントガイチジテイシサレマシタ");
-  PROGMEM Language_Str MSG_PRINTING                        = _UxGT("プリントチュウ...");
->>>>>>> Stashed changes
 }

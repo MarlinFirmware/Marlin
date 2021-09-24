@@ -27,10 +27,6 @@
 //
 
 #undef DEBUG_SECTION
-<<<<<<< Updated upstream
-=======
-#undef DEBUG_ECHOPGM_P
->>>>>>> Stashed changes
 #undef DEBUG_ECHO_START
 #undef DEBUG_ERROR_START
 #undef DEBUG_CHAR
@@ -60,10 +56,6 @@
   #include "debug_section.h"
   #define DEBUG_SECTION(N,S,D)    SectionLog N(PSTR(S),D)
 
-<<<<<<< Updated upstream
-=======
-  #define DEBUG_ECHOPGM_P(P)      SERIAL_ECHOPGM_P(P)
->>>>>>> Stashed changes
   #define DEBUG_ECHO_START        SERIAL_ECHO_START
   #define DEBUG_ERROR_START       SERIAL_ERROR_START
   #define DEBUG_CHAR              SERIAL_CHAR
@@ -93,10 +85,6 @@
 #else
 
   #define DEBUG_SECTION(...)        NOOP
-<<<<<<< Updated upstream
-=======
-  #define DEBUG_ECHOPGM_P(P)          NOOP
->>>>>>> Stashed changes
   #define DEBUG_ECHO_START()        NOOP
   #define DEBUG_ERROR_START()       NOOP
   #define DEBUG_CHAR(...)           NOOP

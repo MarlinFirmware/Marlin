@@ -69,12 +69,6 @@ void HAL_init() {
   constexpr int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
 
-  // Ensure F_CPU is a constant expression.
-  // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
-  // So better safe than sorry here.
-  constexpr int cpuFreq = F_CPU;
-  UNUSED(cpuFreq);
-
   #if ENABLED(SDSUPPORT) && DISABLED(SDIO_SUPPORT) && (defined(SDSS) && SDSS != -1)
     OUT_WRITE(SDSS, HIGH); // Try to set SDSS inactive before any other SPI users start up
   #endif
@@ -97,7 +91,6 @@ void HAL_init() {
     USB_Hook_init();
   #endif
 
-<<<<<<< Updated upstream
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
   TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
@@ -105,17 +98,6 @@ void HAL_init() {
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
     delay(1000);                                        // Give OS time to notice
-=======
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
-
-  #if HAS_SD_HOST_DRIVE
-    MSC_SD_init();                         // Enable USB SD card access
-  #endif
-
-  #if PIN_EXISTS(USB_CONNECT)
-    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
-    delay(1000);                                         // Give OS time to notice
->>>>>>> Stashed changes
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }

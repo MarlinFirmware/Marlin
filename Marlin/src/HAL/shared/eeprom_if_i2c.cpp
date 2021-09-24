@@ -61,7 +61,6 @@ static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRE
 // Public functions
 // ------------------------
 
-<<<<<<< Updated upstream
 #define SMALL_EEPROM (MARLIN_EEPROM_SIZE <= 2048)
 
 // Combine Address high bits into the device address on <=16Kbit (2K) and >512Kbit (64K) EEPROMs.
@@ -80,13 +79,6 @@ static void _eeprom_begin(uint8_t * const pos) {
   if (!SMALL_EEPROM)
     Wire.write(uint8_t((eeprom_address >> 8) & 0xFF));  // Address High, if needed
   Wire.write(uint8_t(eeprom_address & 0xFF));           // Address Low
-=======
-static void _eeprom_begin(uint8_t * const pos) {
-  const unsigned eeprom_address = (unsigned)pos;
-  Wire.beginTransmission(eeprom_device_address);
-  Wire.write(int(eeprom_address >> 8));   // Address High
-  Wire.write(int(eeprom_address & 0xFF)); // Address Low
->>>>>>> Stashed changes
 }
 
 void eeprom_write_byte(uint8_t *pos, uint8_t value) {

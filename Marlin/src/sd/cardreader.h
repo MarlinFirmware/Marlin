@@ -180,7 +180,6 @@ public:
     return 0;
   }
 
-<<<<<<< Updated upstream
   /**
    * Dive down to a relative or absolute path.
    * Relative paths apply to the workDir.
@@ -192,10 +191,6 @@ public:
    *       echo: Set 'true' to print the path throughout the loop.
    */
   static const char* diveToFile(const bool update_cwd, SdFile* &inDirPtr, const char * const path, const bool echo=false);
-=======
-  // Helper for open and remove
-  static const char* diveToFile(const bool update_cwd, SdFile* &curDir, const char * const path, const bool echo=false);
->>>>>>> Stashed changes
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
@@ -219,17 +214,13 @@ public:
 
   // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
   static inline char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
-<<<<<<< Updated upstream
   static inline SdFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
-=======
->>>>>>> Stashed changes
 
   // Print File stats
   static inline uint32_t getFileSize()  { return filesize; }
   static inline uint32_t getIndex()     { return sdpos; }
   static inline bool isFileOpen()       { return isMounted() && file.isOpen(); }
   static inline bool eof()              { return getIndex() >= getFileSize(); }
-<<<<<<< Updated upstream
 
   // File data operations
   static inline int16_t get()                            { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
@@ -237,15 +228,6 @@ public:
   static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
   static inline void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
 
-=======
-
-  // File data operations
-  static inline int16_t get()                            { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
-  static inline int16_t read(void *buf, uint16_t nbyte)  { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-  static inline int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
-  static inline void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
-
->>>>>>> Stashed changes
   // TODO: rename to diskIODriver()
   static DiskIODriver* diskIODriver() { return driver; }
 
@@ -258,7 +240,6 @@ public:
   #endif
 
   #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-<<<<<<< Updated upstream
     #define HAS_USB_FLASH_DRIVE 1
     static DiskIODriver_USBFlash media_driver_usbFlash;
   #endif
@@ -266,14 +247,6 @@ public:
   #if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
     typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
     static sdcard_driver_t media_driver_sdcard;
-=======
-    static DiskIODriver_USBFlash media_usbFlashDrive;
-  #endif
-  #if NEED_SD2CARD_SDIO
-    static DiskIODriver_SDIO media_sdio;
-  #elif NEED_SD2CARD_SPI
-    static DiskIODriver_SPI_SD media_sd_spi;
->>>>>>> Stashed changes
   #endif
 
 private:

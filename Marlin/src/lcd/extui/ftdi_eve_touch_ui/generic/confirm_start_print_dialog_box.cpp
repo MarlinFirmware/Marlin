@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_start_print_dialog_box.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_CONFIRM_START_PRINT_DIALOG_BOX
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_start_print_dialog_box.cpp
 
 #ifdef FTDI_CONFIRM_START_PRINT_DIALOG_BOX
 
@@ -62,11 +55,7 @@ bool ConfirmStartPrintDialogBox::onTouchEnd(uint8_t tag) {
 const char *ConfirmStartPrintDialogBox::getFilename(bool shortName) {
   FileList files;
   files.seek(mydata.file_index, true);
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_start_print_dialog_box.cpp
   return shortName ? files.shortFilename() : files.filename();
-=======
-  return longName ? files.longFilename() : files.shortFilename();
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_start_print_dialog_box.cpp
 }
 
 void ConfirmStartPrintDialogBox::show(uint8_t file_index) {

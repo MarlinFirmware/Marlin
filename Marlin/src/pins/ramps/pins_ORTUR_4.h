@@ -45,14 +45,7 @@
 //
 // Steppers
 //
-#define E0_STEP_PIN                           36
-#define E0_DIR_PIN                            34
-#define E0_ENABLE_PIN                         30
 #define E0_CS_PIN                             44
-
-#define E1_STEP_PIN                           26
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         24
 #define E1_CS_PIN                             42
 
 //
@@ -76,6 +69,23 @@
 #endif
 
 #include "pins_RAMPS.h"
+
+//
+// Steppers
+//
+#undef E0_STEP_PIN
+#undef E0_DIR_PIN
+#undef E0_ENABLE_PIN
+#define E0_STEP_PIN                           36
+#define E0_DIR_PIN                            34
+#define E0_ENABLE_PIN                         30
+
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#define E1_STEP_PIN                           26
+#define E1_DIR_PIN                            28
+#define E1_ENABLE_PIN                         24
 
 //
 // LCD / Controller

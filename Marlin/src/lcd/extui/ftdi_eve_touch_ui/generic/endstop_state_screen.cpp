@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/endstop_state_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_ENDSTOP_STATE_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/endstop_state_screen.cpp
 
 #ifdef FTDI_ENDSTOP_STATE_SCREEN
 

@@ -81,7 +81,6 @@ namespace Language_vi {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Làm nóng $ Bàn");        // bed -- using vietnamese term for 'table' instead
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Làm nóng $ Cấu hình");   // conf
   #endif
-<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Sự nóng trước tự chọn");                // Preheat Custom
   LSTR MSG_COOLDOWN                       = _UxGT("Nguội xuống");                          // Cooldown
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Bật nguồn");                            // Switch power on
@@ -127,53 +126,6 @@ namespace Language_vi {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Chỉnh sửa xong lưới");                  // Done Editing Mesh
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Xây dựng lưới tự chọn");                // Build Custom Mesh
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Xây dựng lưới");                        // Build Mesh
-=======
-  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Sự nóng trước tự chọn");                // Preheat Custom
-  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Nguội xuống");                          // Cooldown
-  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Bật nguồn");                            // Switch power on
-  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Tắt nguồn");                            // Switch power off
-  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Ép đùn");                               // Extrude
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rút lại");                              // Retract
-  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Di chuyển trục");                       // Move axis
-  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("San Lấp Bàn");                          // Bed Leveling
-  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Làm bằng mặt bàn");                     // Level bed
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Làm bằng góc bàn");                     // Level corners
-  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Góc tiếp theo");                        // Next corner
-  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Chỉnh lưới đã dừng");                   // Mesh Editing Stopped
-  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Mục lục X");                            // Index X
-  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Mục lục Y");
-  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Giá trị Z");                            // Z Value
-  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Các lệnh tự chọn");                     // Custom Commands
-  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Đang chạy G29");                        // Doing G29
-  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Công cụ UBL");                          // UBL tools
-  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("San Lấp Bàn Thống Nhất (UBL)");         // Unified Bed Leveling
-  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("chế độ IDEX");                          // IDEX Mode
-  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Đậu tự động");                          // Auto-Park
-  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Sự gấp đôi");                           // Duplication
-  PROGMEM Language_Str MSG_IDEX_MODE_SCALED_COPY           = _UxGT("Bản sao thu nhỏ");
-  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Toàn quyền điều khiển");                // Full control
-  PROGMEM Language_Str MSG_IDEX_X_OFFSET                   = _UxGT("Đầu phun X nhì");                       // 2nd nozzle X
-  PROGMEM Language_Str MSG_IDEX_Y_OFFSET                   = _UxGT("Đầu phun Y nhì");
-  PROGMEM Language_Str MSG_IDEX_Z_OFFSET                   = _UxGT("Đầu phun Z nhì");
-  PROGMEM Language_Str MSG_IDEX_SAVE_OFFSETS               = _UxGT("Lưu bù đắp");                           // Save offsets
-  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Tự xây dựng lưới");                     // Manually Build Mesh
-  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Đặt chêm và đo");                       // Place shim & measure
-  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Đo");                                   // Measure
-  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Tháo và đo bàn");                       // Remove & measure bed
-  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Chuyển sang tiếp theo");                // moving to next
-  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("Bật UBL");
-  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("Tắt UBL");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Nhiệt độ bàn");                         // Bed Temp
-  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Bed Temp");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Nhiệt độ đầu phun");                    // Hotend Temp
-  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Hotend Temp");
-  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Chỉnh sửa lưới");                       // Mesh Edit
-  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Chỉnh sửa lưới tự chọn");               // Edit Custom Mesh
-  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Chỉnh lưới chính xác");                 // Fine tuning mesh
-  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Chỉnh sửa xong lưới");                  // Done Editing Mesh
-  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Xây dựng lưới tự chọn");                // Build Custom Mesh
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Xây dựng lưới");                        // Build Mesh
->>>>>>> Stashed changes
   #if PREHEAT_COUNT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Xây dựng lưới ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Thẩm tra lưới ($)");

@@ -86,7 +86,6 @@ namespace Language_ro {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Preincalzeste $ Patul");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preincalzeste $ Conf");
   #endif
-<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Preincalzeste Personalizat");
   LSTR MSG_COOLDOWN                       = _UxGT("Racire");
   LSTR MSG_CUTTER_FREQUENCY               = _UxGT("Frecventa");
@@ -145,66 +144,6 @@ namespace Language_ro {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Done Editing Mesh");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Build Custom Mesh");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Build Mesh");
-=======
-  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preincalzeste Personalizat");
-  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Racire");
-  PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecventa");
-  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Control Laser");
-  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Puterea Laserului");
-  PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Controlul Spindle");
-  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Puterea Spindle");
-  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindle Invers");
-  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Porneste");
-  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Opreste");
-  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrudeaza");
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Retracteaza");
-  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Muta Axa");
-  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Nivelarea Patului");
-  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveleaza Patul");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Niveleaza Colturile");
-  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Urmatorul Colt");
-  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
-  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editeaza Mesh");
-  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Editarea Meshului Oprita");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Punctul de Probare");
-  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
-  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
-  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valoare Z");
-  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Comenzi Personalizate");
-  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probe Test");
-  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Point");
-  PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviation");
-  PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX Mode");
-  PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Tool Offsets");
-  PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Auto-Park");
-  PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplication");
-  PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Mirrored Copy");
-  PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Full Control");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2nd Nozzle X");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2nd Nozzle Y");
-  PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2nd Nozzle Z");
-  PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Doing G29");
-  PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("UBL Tools");
-  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");
-  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Tilting Point");
-  PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Manually Build Mesh");
-  PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Place Shim & Measure");
-  PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Measure");
-  PROGMEM Language_Str MSG_UBL_BC_REMOVE                   = _UxGT("Remove & Measure Bed");
-  PROGMEM Language_Str MSG_UBL_MOVING_TO_NEXT              = _UxGT("Moving to next");
-  PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("Activate UBL");
-  PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("Deactivate UBL");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Bed Temp");
-  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Bed Temp");
-  PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Hotend Temp");
-  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Hotend Temp");
-  PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Mesh Edit");
-  PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Edit Custom Mesh");
-  PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Fine Tuning Mesh");
-  PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Done Editing Mesh");
-  PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Build Custom Mesh");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Build Mesh");
->>>>>>> Stashed changes
   #if PREHEAT_COUNT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Build Mesh ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Validate Mesh ($)");

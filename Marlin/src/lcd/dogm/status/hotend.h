@@ -39,11 +39,7 @@
 
 #define STATUS_HOTEND1_WIDTH  16
 
-<<<<<<< Updated upstream
 #if STATUS_HOTEND_BITMAPS == 1 || defined(STATUS_HOTEND_NUMBERLESS)
-=======
-#if STATUS_HOTEND_BITMAPS == 1 || ENABLED(STATUS_HOTEND_NUMBERLESS)
->>>>>>> Stashed changes
 
   const unsigned char status_hotend_a_bmp[] PROGMEM = {
     B00011111,B11100000,

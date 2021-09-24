@@ -64,15 +64,9 @@ class WifiSerial {
       /* TXE signifies readiness to send a byte to DR. */
       if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
         if (!rb_is_empty(this->usart_device->wb))
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifiSerial_STM32F1.h
           regs->DR = rb_remove(this->usart_device->wb);
         else
           regs->CR1 &= ~((uint32)USART_CR1_TXEIE);         // disable TXEIE
-=======
-          regs->DR=rb_remove(this->usart_device->wb);
-        else
-          regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
->>>>>>> Stashed changes:Marlin/src/lcd/extui/mks_ui/wifiSerial.h
       }
     }
     int wifi_rb_is_full();

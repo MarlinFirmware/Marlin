@@ -217,11 +217,8 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
-<<<<<<< Updated upstream
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 
-=======
->>>>>>> Stashed changes
   TERN_(PROBE_MANUALLY, static) G29_State abl;
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
@@ -247,11 +244,7 @@ G29_TYPE GcodeSuite::G29() {
 
   // Send 'N' to force homing before G29 (internal only)
   if (parser.seen_test('N'))
-<<<<<<< Updated upstream
     process_subcommands_now_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
-=======
-    process_subcommands_now_P(TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
->>>>>>> Stashed changes
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false);
@@ -386,11 +379,7 @@ G29_TYPE GcodeSuite::G29() {
 
       if (!probe.good_bounds(abl.probe_position_lf, abl.probe_position_rb)) {
         if (DEBUGGING(LEVELING)) {
-<<<<<<< Updated upstream
           DEBUG_ECHOLNPGM("G29 L", abl.probe_position_lf.x, " R", abl.probe_position_rb.x,
-=======
-          DEBUG_ECHOLNPAIR("G29 L", abl.probe_position_lf.x, " R", abl.probe_position_rb.x,
->>>>>>> Stashed changes
                               " F", abl.probe_position_lf.y, " B", abl.probe_position_rb.y);
         }
         SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
@@ -480,15 +469,8 @@ G29_TYPE GcodeSuite::G29() {
     // Query G29 status
     if (abl.verbose_level || seenQ) {
       SERIAL_ECHOPGM("Manual G29 ");
-<<<<<<< Updated upstream
       if (g29_in_progress)
         SERIAL_ECHOLNPGM("point ", _MIN(abl.abl_probe_index + 1, abl.abl_points), " of ", abl.abl_points);
-=======
-      if (g29_in_progress) {
-        SERIAL_ECHOPAIR("point ", _MIN(abl.abl_probe_index + 1, abl.abl_points));
-        SERIAL_ECHOLNPAIR(" of ", abl.abl_points);
-      }
->>>>>>> Stashed changes
       else
         SERIAL_ECHOLNPGM("idle");
     }
@@ -531,11 +513,7 @@ G29_TYPE GcodeSuite::G29() {
         z_values[abl.meshCount.x][abl.meshCount.y] = newz;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
-<<<<<<< Updated upstream
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
-=======
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
->>>>>>> Stashed changes
 
       #endif
     }
@@ -585,11 +563,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Probe at 3 arbitrary points
       if (abl.abl_probe_index < abl.abl_points) {
-<<<<<<< Updated upstream
         abl.probePos = xy_pos_t(points[abl.abl_probe_index]);
-=======
-        abl.probePos = points[abl.abl_probe_index];
->>>>>>> Stashed changes
         _manual_goto_xy(abl.probePos);
         // Disable software endstops to allow manual adjustment
         // If G29 is not completed, they will not be re-enabled
@@ -621,19 +595,11 @@ G29_TYPE GcodeSuite::G29() {
     const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
     abl.measured_z = 0;
-<<<<<<< Updated upstream
 
     #if ABL_USES_GRID
 
       bool zig = PR_OUTER_SIZE & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
-=======
-
-    #if ABL_USES_GRID
-
-      bool zig = PR_OUTER_SIZE & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
-
->>>>>>> Stashed changes
       abl.measured_z = 0;
 
       // Outer loop is X with PROBE_Y_FIRST enabled
@@ -669,13 +635,8 @@ G29_TYPE GcodeSuite::G29() {
           // Avoid probing outside the round or hexagonal area
           if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
 
-<<<<<<< Updated upstream
           if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
           TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
-=======
-          if (abl.verbose_level) SERIAL_ECHOLNPAIR("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_MESH), int(pt_index), int(abl.abl_points)));
->>>>>>> Stashed changes
 
           abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
 
@@ -719,19 +680,11 @@ G29_TYPE GcodeSuite::G29() {
       // Probe at 3 arbitrary points
 
       LOOP_L_N(i, 3) {
-<<<<<<< Updated upstream
         if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing point ", i + 1, "/3.");
         TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_POINT), int(i + 1)));
 
         // Retain the last probe position
         abl.probePos = xy_pos_t(points[i]);
-=======
-        if (abl.verbose_level) SERIAL_ECHOLNPAIR("Probing point ", i + 1, "/3.");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_MESH), int(i + 1)));
-
-        // Retain the last probe position
-        abl.probePos = points[i];
->>>>>>> Stashed changes
         abl.measured_z = faux ? 0.001 * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
         if (isnan(abl.measured_z)) {
           set_bed_leveling_enabled(abl.reenable);
@@ -837,11 +790,7 @@ G29_TYPE GcodeSuite::G29() {
               const int ind = abl.indexIntoAB[xx][yy];
               xyz_float_t tmp = { abl.eqnAMatrix[ind + 0 * abl.abl_points],
                                   abl.eqnAMatrix[ind + 1 * abl.abl_points], 0 };
-<<<<<<< Updated upstream
               planner.bed_level_matrix.apply_rotation_xyz(tmp.x, tmp.y, tmp.z);
-=======
-              planner.bed_level_matrix.apply_rotation_xyz(tmp);
->>>>>>> Stashed changes
               if (get_min) NOMORE(min_diff, abl.eqnBVector[ind] - tmp.z);
               const float subval = get_min ? abl.mean : tmp.z + min_diff,
                             diff = abl.eqnBVector[ind] - subval;
@@ -893,11 +842,7 @@ G29_TYPE GcodeSuite::G29() {
           && NEAR(current_position.y, abl.probePos.y - probe.offset_xy.y)
         ) {
           const float simple_z = current_position.z - abl.measured_z;
-<<<<<<< Updated upstream
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);
-=======
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);
->>>>>>> Stashed changes
           converted.z = simple_z;
         }
 
@@ -910,11 +855,7 @@ G29_TYPE GcodeSuite::G29() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!abl.dryrun) {
-<<<<<<< Updated upstream
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("G29 uncorrected Z:", current_position.z);
-=======
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("G29 uncorrected Z:", current_position.z);
->>>>>>> Stashed changes
 
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z

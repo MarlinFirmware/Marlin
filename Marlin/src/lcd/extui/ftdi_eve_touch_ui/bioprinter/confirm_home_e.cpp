@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/bioprinter/confirm_home_e.cpp
 #include "../screens.h"
-
-#ifdef FTDI_BIO_CONFIRM_HOME_E
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bio_confirm_home_e.cpp
 
 #ifdef FTDI_BIO_CONFIRM_HOME_E
 

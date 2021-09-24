@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/widget_demo_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_WIDGET_DEMO_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/widget_demo_screen.cpp
 
 #ifdef FTDI_WIDGET_DEMO_SCREEN
 

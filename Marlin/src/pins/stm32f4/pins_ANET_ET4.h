@@ -23,11 +23,6 @@
 
 #include "env_validate.h"
 
-<<<<<<< Updated upstream
-=======
-#include "env_validate.h"
-
->>>>>>> Stashed changes
 #if HOTENDS > 1 || E_STEPPERS > 1
   #error "Anet ET4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif

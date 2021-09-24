@@ -59,11 +59,7 @@ public:
   struct CommandLine {
     char buffer[MAX_CMD_SIZE];      //!< The command buffer
     bool skip_ok;                   //!< Skip sending ok when command is processed?
-<<<<<<< Updated upstream
     #if HAS_MULTI_SERIAL
-=======
-    #if ENABLED(HAS_MULTI_SERIAL)
->>>>>>> Stashed changes
       serial_index_t port;          //!< Serial port the command was received on
     #endif
   };
@@ -84,7 +80,6 @@ public:
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
     void commit_command(bool skip_ok
-<<<<<<< Updated upstream
       OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
@@ -92,19 +87,6 @@ public:
       OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
-=======
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
-    );
-
-    bool enqueue(const char *cmd, bool skip_ok = true
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
-    );
-
->>>>>>> Stashed changes
     void ok_to_send();
 
     inline bool full(uint8_t cmdCount=1) const { return length > (BUFSIZE - cmdCount); }
@@ -214,7 +196,6 @@ public:
    * (Re)Set the current line number for the last received command
    */
   static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
-<<<<<<< Updated upstream
 
   #if ENABLED(BUFFER_MONITORING)
 
@@ -256,9 +237,6 @@ public:
 
   #endif // BUFFER_MONITORING
 
-=======
-
->>>>>>> Stashed changes
 private:
 
   static void get_serial_commands();

@@ -90,11 +90,7 @@ const uint16_t VPList_Status[] PROGMEM = {
 
 const uint16_t VPList_Status2[] PROGMEM = {
   // VP_M117, for completeness, but it cannot be auto-uploaded
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/origin/DGUSDisplayDef.cpp
   #if HAS_HOTEND
-=======
-  #if HOTENDS >= 1
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/origin/DGUSDisplayDef.cpp
     VP_Flowrate_E0,
     #if HOTENDS >= 2
       VP_Flowrate_E1,
@@ -187,37 +183,21 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     #endif
   #endif
   #if HOTENDS >= 2
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/origin/DGUSDisplayDef.cpp
     VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, ScreenHandler.HandleTemperatureChanged, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_Flowrate_E1, nullptr, ScreenHandler.HandleFlowRateChanged, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_MOVE_E1, nullptr, ScreenHandler.HandleManualExtrude, nullptr),
     VPHELPER(VP_E1_CONTROL, &thermalManager.temp_hotend[1].target, ScreenHandler.HandleHeaterControl, nullptr),
     VPHELPER(VP_E1_STATUS, &thermalManager.temp_hotend[1].target, nullptr, ScreenHandler.DGUSLCD_SendHeaterStatusToDisplay),
-=======
-    VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E1, nullptr, ScreenHandler.HandleFlowRateChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_MOVE_E1, nullptr, &ScreenHandler.HandleManualExtrude, nullptr),
-    VPHELPER(VP_E1_CONTROL, &thermalManager.temp_hotend[1].target, &ScreenHandler.HandleHeaterControl, nullptr),
-    VPHELPER(VP_E1_STATUS, &thermalManager.temp_hotend[1].target, nullptr, &ScreenHandler.DGUSLCD_SendHeaterStatusToDisplay),
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/origin/DGUSDisplayDef.cpp
     #if ENABLED(PIDTEMP)
       VPHELPER(VP_PID_AUTOTUNE_E1, nullptr, ScreenHandler.HandlePIDAutotune, nullptr),
     #endif
   #endif
   #if HAS_HEATED_BED
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/origin/DGUSDisplayDef.cpp
     VPHELPER(VP_T_Bed_Is, &thermalManager.temp_bed.celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_Bed_Set, &thermalManager.temp_bed.target, ScreenHandler.HandleTemperatureChanged, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_BED_CONTROL, &thermalManager.temp_bed.target, ScreenHandler.HandleHeaterControl, nullptr),
     VPHELPER(VP_BED_STATUS, &thermalManager.temp_bed.target, nullptr, ScreenHandler.DGUSLCD_SendHeaterStatusToDisplay),
-=======
-    VPHELPER(VP_T_Bed_Is, &thermalManager.temp_bed.celsius, nullptr, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_T_Bed_Set, &thermalManager.temp_bed.target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
-    VPHELPER(VP_BED_CONTROL, &thermalManager.temp_bed.target, &ScreenHandler.HandleHeaterControl, nullptr),
-    VPHELPER(VP_BED_STATUS, &thermalManager.temp_bed.target, nullptr, &ScreenHandler.DGUSLCD_SendHeaterStatusToDisplay),
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/origin/DGUSDisplayDef.cpp
     #if ENABLED(PIDTEMPBED)
       VPHELPER(VP_BED_PID_P, &thermalManager.temp_bed.pid.Kp, ScreenHandler.HandleTemperaturePIDChanged, ScreenHandler.DGUSLCD_SendTemperaturePID),
       VPHELPER(VP_BED_PID_I, &thermalManager.temp_bed.pid.Ki, ScreenHandler.HandleTemperaturePIDChanged, ScreenHandler.DGUSLCD_SendTemperaturePID),

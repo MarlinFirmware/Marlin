@@ -112,11 +112,7 @@ extern "C" {
 #define PIN_SERIAL_RX           PA10
 #define PIN_SERIAL_TX           PA9
 
-<<<<<<< Updated upstream
 // Used when user instantiate a hardware Serial using its peripheral name.
-=======
-// Used when user instanciate a hardware Serial using its peripheral name.
->>>>>>> Stashed changes
 // Example: HardwareSerial mySerial(USART3);
 // will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
 #define PIN_SERIAL1_RX          PA10

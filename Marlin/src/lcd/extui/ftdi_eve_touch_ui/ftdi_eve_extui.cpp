@@ -28,7 +28,7 @@
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
 
-#include "screens/screens.h"
+#include "screens.h"
 
 namespace ExtUI {
   using namespace Theme;
@@ -45,24 +45,23 @@ namespace ExtUI {
   }
 
   void onMediaInserted() {
-    if (AT_SCREEN(StatusScreen))
-      StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
-    sound.play(media_inserted, PLAY_ASYNCHRONOUS);
+    #if ENABLED(SDSUPPORT)
+      sound.play(media_inserted, PLAY_ASYNCHRONOUS);
+      StatusScreen::onMediaInserted();
+    #endif
   }
 
   void onMediaRemoved() {
-    if (isPrintingFromMedia()) {
-      stopPrint();
-      InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
-    }
-    else
-      sound.play(media_removed, PLAY_ASYNCHRONOUS);
-
-    if (AT_SCREEN(StatusScreen) || isPrintingFromMedia())
-      StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
-
     #if ENABLED(SDSUPPORT)
-      if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen);
+      if (isPrintingFromMedia()) {
+        stopPrint();
+        InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
+      }
+      else
+        sound.play(media_removed, PLAY_ASYNCHRONOUS);
+
+      StatusScreen::onMediaRemoved();
+      FilesScreen::onMediaRemoved();
     #endif
   }
 
@@ -132,8 +131,11 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      //SERIAL_ECHOLNPGM("OnPidTuning:", rst);
       switch (rst) {
+        case PID_STARTED:
+          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+          break;
         case PID_BAD_EXTRUDER_NUM:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
           break;

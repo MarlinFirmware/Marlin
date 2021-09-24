@@ -341,21 +341,12 @@
 
 #elif HAS_WIRED_LCD
 
-<<<<<<< Updated upstream
   #define BEEPER_PIN                 EXP1_10_PIN
   #define BTN_ENC                    EXP1_09_PIN
   #define LCD_PINS_ENABLE            EXP1_08_PIN
   #define LCD_PINS_RS                EXP1_07_PIN
   #define BTN_EN1                    EXP2_08_PIN
   #define BTN_EN2                    EXP2_06_PIN
-=======
-  #define BEEPER_PIN                        PC5
-  #define BTN_ENC                           PE13
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
->>>>>>> Stashed changes
   #define LCD_BACKLIGHT_PIN                 -1
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)

@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_auto_calibration_dialog_box.cpp
 #include "../screens.h"
-
-#ifdef FTDI_CONFIRM_AUTO_CALIBRATION_DIALOG_BOX
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_auto_calibration_dialog_box.cpp
 
 #ifdef FTDI_CONFIRM_AUTO_CALIBRATION_DIALOG_BOX
 

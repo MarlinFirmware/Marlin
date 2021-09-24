@@ -52,20 +52,6 @@ PGMSTR(SP_I_LBL, " " AXIS4_STR ":"); PGMSTR(SP_J_LBL, " " AXIS5_STR ":"); PGMSTR
   SerialLeafT3 mpSerial3(false, _SERIAL_LEAF_3);
 #endif
 
-<<<<<<< Updated upstream
-=======
-// Hook Meatpack if it's enabled on the first leaf
-#if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
-  SerialLeafT1 mpSerial1(false, _SERIAL_LEAF_1);
-#endif
-#if ENABLED(MEATPACK_ON_SERIAL_PORT_2)
-  SerialLeafT2 mpSerial2(false, _SERIAL_LEAF_2);
-#endif
-#if ENABLED(MEATPACK_ON_SERIAL_PORT_3)
-  SerialLeafT3 mpSerial3(false, _SERIAL_LEAF_3);
-#endif
-
->>>>>>> Stashed changes
 // Step 2: For multiserial, handle the second serial port as well
 #if HAS_MULTI_SERIAL
   #if HAS_ETHERNET
@@ -90,20 +76,6 @@ void serialprintPGM(PGM_P str) {
 void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serialprintPGM(echomagic); }
 void serial_error_start() { static PGMSTR(errormagic, "Error:"); serialprintPGM(errormagic); }
 
-<<<<<<< Updated upstream
-=======
-void serial_echopair_PGM(PGM_P const s_P, serial_char_t v) { serialprintPGM(s_P); SERIAL_CHAR(v.c); }
-void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, char v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
-void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
-void serial_echopair_PGM(PGM_P const s_P, unsigned char v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
-
->>>>>>> Stashed changes
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
 void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=nullptr*/) {
@@ -122,11 +94,7 @@ void print_bin(uint16_t val) {
   }
 }
 
-<<<<<<< Updated upstream
 void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
-=======
-void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
->>>>>>> Stashed changes
   if (prefix) serialprintPGM(prefix);
   SERIAL_ECHOPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k)

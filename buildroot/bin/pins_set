@@ -4,7 +4,6 @@ IFS='/' read -r -a PINPATH <<< "$1"
 DIR=${PINPATH[0]}
 NAM=${PINPATH[1]}
 
-<<<<<<< Updated upstream
 SED=$(which gsed sed | head -n1)
 
 shift
@@ -14,8 +13,3 @@ while [[ $# > 1 ]]; do
   (echo "ERROR: pins_set Can't find ${PIN}" >&2 && exit 9)
   shift 2
 done
-=======
-SED=$(which gsed || which sed)
-eval "${SED} -i '/^[[:blank:]]*\(\/\/\)*[[:blank:]]*\(#define \+${PIN}\b\).*$/{s//\2 ${VAL}/;h};\${x;/./{x;q0};x;q9}' Marlin/src/pins/$DIR/pins_${NAM}.h" ||
-(echo "ERROR: pins_set Can't find ${PIN}" >&2 && exit 9)
->>>>>>> Stashed changes

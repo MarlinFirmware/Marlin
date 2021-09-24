@@ -27,24 +27,11 @@
 
 #define BOARD_INFO_NAME "Melzi V2"
 
-<<<<<<< Updated upstream
 // Alter timing for graphical display
 #if ENABLED(U8GLIB_ST7920)
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2               400
   #define BOARD_ST7920_DELAY_3                 0
-=======
-#if HAS_MARLINUI_U8GLIB
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(400)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
-  #endif
->>>>>>> Stashed changes
 #endif
 
 #include "pins_MELZI.h"

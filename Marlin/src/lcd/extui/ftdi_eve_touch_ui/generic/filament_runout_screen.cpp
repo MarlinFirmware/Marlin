@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/filament_runout_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_FILAMENT_RUNOUT_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/filament_runout_screen.cpp
 
 #ifdef FTDI_FILAMENT_RUNOUT_SCREEN
 

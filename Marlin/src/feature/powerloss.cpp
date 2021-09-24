@@ -197,11 +197,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       #endif
     #endif
 
-<<<<<<< Updated upstream
     #if HAS_EXTRUDERS
-=======
-    #if EXTRUDERS
->>>>>>> Stashed changes
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
@@ -378,7 +374,6 @@ void PrintJobRecovery::resume() {
   //
 
   gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
-<<<<<<< Updated upstream
 
   #if Z_HOME_TO_MAX
 
@@ -399,29 +394,6 @@ void PrintJobRecovery::resume() {
       #define HOME_XY_ONLY 1
     #endif
 
-=======
-
-  #if Z_HOME_DIR > 0
-
-    float z_now = z_raised;
-
-    // If Z homing goes to max then just move back to the "raised" position
-    gcode.process_subcommands_now_P(PSTR(
-        "G28R0\n"     // Home all axes (no raise)
-        "G1Z%sF1200"  // Move Z down to (raised) height
-      ),
-      dtostrf(z_now, 1, 3, str_1)
-    );
-
-  #else
-
-    #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
-      #define HOMING_Z_DOWN 1
-    #else
-      #define HOME_XY_ONLY 1
-    #endif
-
->>>>>>> Stashed changes
     float z_now = info.flag.raised ? z_raised : z_print;
 
     // Reset E to 0 and set Z to the real position
@@ -436,12 +408,6 @@ void PrintJobRecovery::resume() {
       sprintf_P(cmd, PSTR("G1Z%sF600"), dtostrf(z_now, 1, 3, str_1));
       gcode.process_subcommands_now(cmd);
     }
-<<<<<<< Updated upstream
-
-    // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
-    gcode.process_subcommands_now_P(PSTR("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
-=======
->>>>>>> Stashed changes
 
     // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
     gcode.process_subcommands_now_P(PSTR("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
@@ -455,16 +421,6 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now(cmd);
   #endif
 
-<<<<<<< Updated upstream
-  #if HOMING_Z_DOWN
-    // Move to a safe XY position and home Z while avoiding the print.
-    constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
-    sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
-    gcode.process_subcommands_now(cmd);
-  #endif
-
-=======
->>>>>>> Stashed changes
   // Mark all axes as having been homed (no effect on current_position)
   set_all_homed();
 
@@ -621,11 +577,7 @@ void PrintJobRecovery::resume() {
 
   void PrintJobRecovery::debug(PGM_P const prefix) {
     DEBUG_ECHOPGM_P(prefix);
-<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
-=======
-    DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
->>>>>>> Stashed changes
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         DEBUG_ECHOPGM("current_position: ");
@@ -635,7 +587,6 @@ void PrintJobRecovery::resume() {
         }
         DEBUG_EOL();
 
-<<<<<<< Updated upstream
         DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
 
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
@@ -644,16 +595,6 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOLNPGM("repeat index: ", info.stored_repeat.index);
           LOOP_L_N(i, info.stored_repeat.index)
             DEBUG_ECHOLNPGM("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
-=======
-        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
-
-        DEBUG_ECHOLNPAIR("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
-
-        #if ENABLED(GCODE_REPEAT_MARKERS)
-          DEBUG_ECHOLNPAIR("repeat index: ", info.stored_repeat.index);
-          LOOP_L_N(i, info.stored_repeat.index)
-            DEBUG_ECHOLNPAIR("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
->>>>>>> Stashed changes
         #endif
 
         #if HAS_HOME_OFFSET
@@ -675,20 +616,12 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_MULTI_EXTRUDER
-<<<<<<< Updated upstream
           DEBUG_ECHOLNPGM("active_extruder: ", info.active_extruder);
-=======
-          DEBUG_ECHOLNPAIR("active_extruder: ", info.active_extruder);
->>>>>>> Stashed changes
         #endif
 
         #if DISABLED(NO_VOLUMETRICS)
           DEBUG_ECHOPGM("filament_size:");
-<<<<<<< Updated upstream
           LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPGM(" ", info.filament_size[i]);
-=======
-          LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPAIR(" ", info.filament_size[i]);
->>>>>>> Stashed changes
           DEBUG_EOL();
         #endif
 
@@ -715,11 +648,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-<<<<<<< Updated upstream
           DEBUG_ECHOLNPGM("leveling: ", info.flag.leveling ? "ON" : "OFF", "  fade: ", info.fade);
-=======
-          DEBUG_ECHOLNPAIR("leveling: ", info.flag.leveling ? "ON" : "OFF", "  fade: ", info.fade);
->>>>>>> Stashed changes
         #endif
 
         #if ENABLED(FWRETRACT)
@@ -737,20 +666,9 @@ void PrintJobRecovery::resume() {
           DEBUG_ECHOLNPGM("gradient: ", info.gradient.enabled ? "ON" : "OFF");
         #endif
 
-<<<<<<< Updated upstream
         DEBUG_ECHOLNPGM("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPGM("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPGM("print_job_elapsed: ", info.print_job_elapsed);
-=======
-        // Mixing extruder and gradient
-        #if BOTH(MIXING_EXTRUDER, GRADIENT_MIX)
-          DEBUG_ECHOLNPAIR("gradient: ", info.gradient.enabled ? "ON" : "OFF");
-        #endif
-
-        DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
-        DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
-        DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
->>>>>>> Stashed changes
 
         DEBUG_ECHOPGM("axis_relative:");
         if (TEST(info.axis_relative, REL_X)) DEBUG_ECHOPGM(" REL_X");
@@ -761,15 +679,9 @@ void PrintJobRecovery::resume() {
         if (TEST(info.axis_relative, E_MODE_REL)) DEBUG_ECHOPGM(" E_MODE_REL");
         DEBUG_EOL();
 
-<<<<<<< Updated upstream
         DEBUG_ECHOLNPGM("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
         DEBUG_ECHOLNPGM("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
         DEBUG_ECHOLNPGM("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
-=======
-        DEBUG_ECHOLNPAIR("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
-        DEBUG_ECHOLNPAIR("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
-        DEBUG_ECHOLNPAIR("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
->>>>>>> Stashed changes
       }
       else
         DEBUG_ECHOLNPGM("INVALID DATA");

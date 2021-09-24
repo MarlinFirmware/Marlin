@@ -150,7 +150,6 @@ void GCodeParser::parse(char *p) {
   #endif
 
   /**
-<<<<<<< Updated upstream
    * Screen for good command letters.
    * With Realtime Reporting, commands S000, P000, and R000 are allowed.
    */
@@ -175,14 +174,6 @@ void GCodeParser::parse(char *p) {
    */
   switch (letter) {
     case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':) {
-=======
-   * Screen for good command letters. G, M, and T are always accepted.
-   * With Motion Modes enabled any axis letter can come first.
-   * With Realtime Reporting, commands S000, P000, and R000 are allowed.
-   */
-  switch (letter) {
-    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
->>>>>>> Stashed changes
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -241,7 +232,6 @@ void GCodeParser::parse(char *p) {
       } break;
 
     #if ENABLED(GCODE_MOTION_MODES)
-<<<<<<< Updated upstream
 
       #if EITHER(BEZIER_CURVE_SUPPORT, ARC_SUPPORT)
         case 'I' ... 'J': case 'P':
@@ -260,42 +250,13 @@ void GCodeParser::parse(char *p) {
 
       LOGICAL_AXIS_GANG(case 'E':, case 'X':, case 'Y':, case 'Z':, case AXIS4_NAME:, case AXIS5_NAME:, case AXIS6_NAME:)
       case 'F':
-=======
-      case 'I' ... 'J':
-        if (motion_mode_codenum != 5 && \
-            TERN1(ARC_SUPPORT, motion_mode_codenum != 2 && motion_mode_codenum != 3)) return;
-      case 'Q':
-        if (motion_mode_codenum != 5) return;
-      case 'X' ... 'Z': case 'E' ... 'F':
->>>>>>> Stashed changes
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
-<<<<<<< Updated upstream
         break;
 
-=======
-      break;
-    #endif
-
-    #if ENABLED(REALTIME_REPORTING_COMMANDS)
-      case 'P': case 'R': {
-        if (letter == 'R') {
-          #if ENABLED(GCODE_MOTION_MODES)
-            if (ENABLED(ARC_SUPPORT) && !WITHIN(motion_mode_codenum, 2, 3)) return;
-          #endif
-        }
-        else if (TERN0(GCODE_MOTION_MODES, motion_mode_codenum != 5)) return;
-      } // fall-thru
-      case 'S': {
-        codenum = 0;                  // The only valid codenum is 0
-        uint8_t digits = 0;
-        while (*p++ == '0') digits++; // Count up '0' characters
-        command_letter = (digits == 3) ? letter : '?'; // Three '0' digits is a good command
-      } return;                       // No parameters needed, so return now
->>>>>>> Stashed changes
     #endif
 
     default: return;
@@ -372,11 +333,7 @@ void GCodeParser::parse(char *p) {
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
-<<<<<<< Updated upstream
           SERIAL_ECHOPGM("Got param ", AS_CHAR(param), " at index ", p - command_ptr - 1);
-=======
-          SERIAL_ECHOPAIR("Got param ", AS_CHAR(param), " at index ", p - command_ptr - 1);
->>>>>>> Stashed changes
           if (has_val) SERIAL_ECHOPGM(" (has_val)");
         }
       #endif

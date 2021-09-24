@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/move_axis_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_MOVE_AXIS_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/move_axis_screen.cpp
 
 #ifdef FTDI_MOVE_AXIS_SCREEN
 
@@ -73,11 +66,7 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
       w.adjuster( 14, GET_TEXT_F(MSG_AXIS_E4), mydata.e_rel[3], canMove(E3));
     #endif
   #endif
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/move_axis_screen.cpp
   #if Z_HOME_TO_MIN
-=======
-  #if Z_HOME_DIR < 0
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/move_axis_screen.cpp
     w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !axis_should_home(Z_AXIS));
   #endif
   w.increments();
@@ -109,17 +98,10 @@ bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
     case 14: UI_DECREMENT_AXIS(E3); mydata.e_rel[3] -= increment; break;
     case 15: UI_INCREMENT_AXIS(E3); mydata.e_rel[3] += increment; break;
     #endif
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/move_axis_screen.cpp
     case 20: SpinnerDialogBox::enqueueAndWait(F("G28X")); break;
     case 21: SpinnerDialogBox::enqueueAndWait(F("G28Y")); break;
     case 22: SpinnerDialogBox::enqueueAndWait(F("G28Z")); break;
     case 23: SpinnerDialogBox::enqueueAndWait(F("G28")); break;
-=======
-    case 20: SpinnerDialogBox::enqueueAndWait_P(F("G28X")); break;
-    case 21: SpinnerDialogBox::enqueueAndWait_P(F("G28Y")); break;
-    case 22: SpinnerDialogBox::enqueueAndWait_P(F("G28Z")); break;
-    case 23: SpinnerDialogBox::enqueueAndWait_P(F("G28")); break;
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/move_axis_screen.cpp
     case 24: raiseZtoTop(); break;
     default:
       return false;

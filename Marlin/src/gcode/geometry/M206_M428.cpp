@@ -30,13 +30,6 @@
 #include "../../libs/buzzer.h"
 #include "../../MarlinCore.h"
 
-<<<<<<< Updated upstream
-=======
-void M206_report() {
-  SERIAL_ECHOLNPAIR_P(PSTR("M206 X"), home_offset.x, SP_Y_STR, home_offset.y, SP_Z_STR, home_offset.z);
-}
-
->>>>>>> Stashed changes
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
  *
@@ -56,7 +49,6 @@ void GcodeSuite::M206() {
     if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
-<<<<<<< Updated upstream
   report_current_position();
 }
 
@@ -76,12 +68,6 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
       PSTR("  M206 Z"), LINEAR_UNIT(home_offset.z)
     #endif
   );
-=======
-  if (!parser.seen("XYZ"))
-    M206_report();
-  else
-    report_current_position();
->>>>>>> Stashed changes
 }
 
 /**

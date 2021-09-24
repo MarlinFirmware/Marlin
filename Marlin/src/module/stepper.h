@@ -252,11 +252,7 @@ class Stepper {
         #ifndef PWM_MOTOR_CURRENT
           #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
         #endif
-<<<<<<< Updated upstream
         #define MOTOR_CURRENT_COUNT LINEAR_AXES
-=======
-        #define MOTOR_CURRENT_COUNT XYZ
->>>>>>> Stashed changes
       #elif HAS_MOTOR_CURRENT_SPI
         static constexpr uint32_t digipot_count[] = DIGIPOT_MOTOR_CURRENT;
         #define MOTOR_CURRENT_COUNT COUNT(Stepper::digipot_count)
@@ -280,8 +276,8 @@ class Stepper {
 
     static block_t* current_block;          // A pointer to the block currently being traced
 
-    static axis_bits_t last_direction_bits, // The next stepping-bits to be output
-                       axis_did_move;       // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
+    static uint8_t last_direction_bits,     // The next stepping-bits to be output
+                   axis_did_move;           // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
     static bool abort_current_block;        // Signals to the stepper that current block should be aborted
 
@@ -527,7 +523,7 @@ class Stepper {
     static void set_directions();
 
     // Set direction bits and update all stepper DIR states
-    static void set_directions(const axis_bits_t bits) {
+    static void set_directions(const uint8_t bits) {
       last_direction_bits = bits;
       set_directions();
     }

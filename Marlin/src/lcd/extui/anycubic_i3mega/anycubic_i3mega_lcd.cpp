@@ -38,13 +38,8 @@
 #define SEND(x)           send(x)
 #define SENDLINE(x)       sendLine(x)
 #if ENABLED(ANYCUBIC_LCD_DEBUG)
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/anycubic_i3mega/anycubic_i3mega_lcd.cpp
-  #define SENDLINE_DBG_PGM(x,y)       do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y); }while(0)
-  #define SENDLINE_DBG_PGM_VAL(x,y,z) do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y, z); }while(0)
-=======
   #define SENDLINE_DBG_PGM(x,y)       (sendLine_P(PSTR(x)), SERIAL_ECHOLNPGM(y))
   #define SENDLINE_DBG_PGM_VAL(x,y,z) (sendLine_P(PSTR(x)), SERIAL_ECHOPGM(y), SERIAL_ECHOLN(z))
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/anycubic_i3mega/anycubic_i3mega_lcd.cpp
 #else
   #define SENDLINE_DBG_PGM(x,y)       sendLine_P(PSTR(x))
   #define SENDLINE_DBG_PGM_VAL(x,y,z) sendLine_P(PSTR(x))
@@ -148,11 +143,7 @@ void AnycubicTFTClass::OnKillTFT() {
 
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/anycubic_i3mega/anycubic_i3mega_lcd.cpp
     SERIAL_ECHOLNPGM("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
-=======
-    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/anycubic_i3mega/anycubic_i3mega_lcd.cpp
   #endif
   DoSDCardStateCheck();
 }
@@ -173,11 +164,7 @@ void AnycubicTFTClass::OnFilamentRunout() {
 
 void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/anycubic_i3mega/anycubic_i3mega_lcd.cpp
     SERIAL_ECHOLNPGM("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
-=======
-    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/anycubic_i3mega/anycubic_i3mega_lcd.cpp
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -570,11 +557,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
           if ((a_command > 7) && (a_command != 20))   // No debugging of status polls, please!
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/anycubic_i3mega/anycubic_i3mega_lcd.cpp
             SERIAL_ECHOLNPGM("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
-=======
-            SERIAL_ECHOLNPAIR("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/anycubic_i3mega/anycubic_i3mega_lcd.cpp
         #endif
 
         switch (a_command) {

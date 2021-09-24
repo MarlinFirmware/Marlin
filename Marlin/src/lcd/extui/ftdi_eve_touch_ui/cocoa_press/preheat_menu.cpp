@@ -20,15 +20,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/preheat_menu.cpp
 #include "../screens.h"
 
 #ifdef COCOA_PREHEAT_MENU
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_preheat_menu.cpp
-
-#ifdef FTDI_COCOA_PREHEAT_MENU
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -119,8 +113,4 @@ bool PreheatMenu::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/preheat_menu.cpp
 #endif // COCOA_PREHEAT_MENU
-=======
-#endif // FTDI_COCOA_PREHEAT_MENU
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_preheat_menu.cpp

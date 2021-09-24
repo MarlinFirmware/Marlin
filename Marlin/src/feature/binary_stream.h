@@ -39,19 +39,6 @@ inline int bs_read_serial(const serial_index_t index) {
   return SERIAL_IMPL.read(index);
 }
 
-<<<<<<< Updated upstream
-=======
-#if ENABLED(BINARY_STREAM_COMPRESSION)
-  static heatshrink_decoder hsd;
-  #if BOTH(ARDUINO_ARCH_STM32F1, SDIO_SUPPORT)
-    // STM32 requires a word-aligned buffer for SD card transfers via DMA
-    static __attribute__((aligned(sizeof(size_t)))) uint8_t decode_buffer[512] = {};
-  #else
-    static uint8_t decode_buffer[512] = {};
-  #endif
-#endif
-
->>>>>>> Stashed changes
 class SDFileTransferProtocol  {
 private:
   struct Packet {
@@ -415,11 +402,7 @@ public:
             packet_retries++;
             stream_state = StreamState::PACKET_RESET;
             SERIAL_ECHO_MSG("Resend request ", packet_retries);
-<<<<<<< Updated upstream
             SERIAL_ECHOLNPGM("rs", sync);
-=======
-            SERIAL_ECHOLNPAIR("rs", sync);
->>>>>>> Stashed changes
           }
           else
             stream_state = StreamState::PACKET_ERROR;

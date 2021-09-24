@@ -69,10 +69,7 @@ void GcodeSuite::M421() {
     float &zval = ubl.z_values[ij.x][ij.y];                               // Altering this Mesh Point
     zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);  // N=NAN, Z=NEWVAL, or Q=ADDVAL
     TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));          // Ping ExtUI in case it's showing the mesh
-<<<<<<< Updated upstream
     TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_MeshUpdate(ij.x, ij.y, zval));
-=======
->>>>>>> Stashed changes
   }
 }
 

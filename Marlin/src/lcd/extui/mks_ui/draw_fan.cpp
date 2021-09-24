@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_fan.cpp
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_fan.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -47,17 +44,11 @@ enum {
   ID_F_RETURN
 };
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_fan.cpp
 uint8_t fanPercent = 0;
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   const uint8_t temp = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
   if (abs(fanPercent - temp) > 2) fanPercent = temp;
-=======
-static void event_handler(lv_obj_t *obj, lv_event_t event) {
-  if (event != LV_EVENT_RELEASED) return;
-  uint8_t fanPercent = map(thermalManager.fan_speed[0], 0, 255, 0, 100);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_fan.cpp
   switch (obj->mks_obj_id) {
     case ID_F_ADD: if (fanPercent < 100) fanPercent++; break;
     case ID_F_DEC: if (fanPercent !=  0) fanPercent--; break;
@@ -67,10 +58,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_F_RETURN: clear_cur_ui(); draw_return_ui(); return;
   }
   thermalManager.set_fan_speed(0, map(fanPercent, 0, 100, 0, 255));
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_fan.cpp
   if (obj->mks_obj_id != ID_F_RETURN) disp_fan_value();
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_fan.cpp
 }
 
 void lv_draw_fan() {
@@ -93,11 +81,7 @@ void lv_draw_fan() {
 
 void disp_fan_value() {
   #if HAS_FAN
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_fan.cpp
     sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, fanPercent);
-=======
-    sprintf_P(public_buf_l, PSTR("%s: %3d%%"), fan_menu.state, (int)map(thermalManager.fan_speed[0], 0, 255, 0, 100));
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_fan.cpp
   #else
     sprintf_P(public_buf_l, PSTR("%s: ---"), fan_menu.state);
   #endif

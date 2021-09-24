@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/dialog_box_base_class.cpp
 #include "../screens.h"
-
-#ifdef FTDI_DIALOG_BOX_BASE_CLASS
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/dialog_box_base_class.cpp
 
 #ifdef FTDI_DIALOG_BOX_BASE_CLASS
 

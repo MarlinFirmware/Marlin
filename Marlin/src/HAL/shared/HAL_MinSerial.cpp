@@ -21,24 +21,6 @@
  */
 #include "HAL_MinSerial.h"
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream:Marlin/src/HAL/NATIVE_SIM/u8g/LCD_I2C_routines.h
-#ifdef __cplusplus
-  extern "C" {
-#endif
-
-void u8g_i2c_init(const uint8_t clock_options);
-//uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos);
-uint8_t u8g_i2c_start(uint8_t sla);
-uint8_t u8g_i2c_send_byte(uint8_t data);
-void u8g_i2c_stop();
-
-#ifdef __cplusplus
-  }
-#endif
-=======
->>>>>>> Stashed changes
 #if ENABLED(POSTMORTEM_DEBUGGING)
 
 void HAL_min_serial_init_default() {}
@@ -47,9 +29,5 @@ void (*HAL_min_serial_init)() = &HAL_min_serial_init_default;
 void (*HAL_min_serial_out)(char) = &HAL_min_serial_out_default;
 
 bool MinSerial::force_using_default_output = false;
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes:Marlin/src/HAL/shared/HAL_MinSerial.cpp
->>>>>>> Stashed changes
 
 #endif

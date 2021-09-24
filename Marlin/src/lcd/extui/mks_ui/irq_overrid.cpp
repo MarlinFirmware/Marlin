@@ -19,11 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/irq_overrid.cpp
 #ifdef __STM32F1__
-=======
-#include "../../../inc/MarlinConfigPre.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/irq_overrid.cpp
 
 #include "../../../inc/MarlinConfigPre.h"
 

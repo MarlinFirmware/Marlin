@@ -21,17 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/alert_dialog_box.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_ALERT_DIALOG_BOX
-
-constexpr static AlertDialogBoxData &mydata = screen_data.AlertDialogBox;
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/alert_dialog_box.cpp
 
 #ifdef FTDI_ALERT_DIALOG_BOX
 

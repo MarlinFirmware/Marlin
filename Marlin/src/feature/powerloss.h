@@ -64,7 +64,6 @@ typedef struct {
     Repeat stored_repeat;
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_HOME_OFFSET
     xyz_pos_t home_offset;
   #endif
@@ -72,15 +71,6 @@ typedef struct {
     xyz_pos_t position_shift;
   #endif
   #if HAS_MULTI_EXTRUDER
-=======
-  #if ENABLED(HAS_HOME_OFFSET)
-    xyz_pos_t home_offset;
-  #endif
-  #if ENABLED(HAS_POSITION_SHIFT)
-    xyz_pos_t position_shift;
-  #endif
-  #if ENABLED(HAS_MULTI_EXTRUDER)
->>>>>>> Stashed changes
     uint8_t active_extruder;
   #endif
 
@@ -88,7 +78,6 @@ typedef struct {
     float filament_size[EXTRUDERS];
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_HOTEND
     celsius_t target_temperature[HOTENDS];
   #endif
@@ -100,19 +89,6 @@ typedef struct {
   #endif
 
   #if HAS_LEVELING
-=======
-  #if ENABLED(HAS_HOTEND)
-    celsius_t target_temperature[HOTENDS];
-  #endif
-  #if ENABLED(HAS_HEATED_BED)
-    celsius_t target_temperature_bed;
-  #endif
-  #if ENABLED(HAS_FAN)
-    uint8_t fan_speed[FAN_COUNT];
-  #endif
-
-  #if ENABLED(HAS_LEVELING)
->>>>>>> Stashed changes
     float fade;
   #endif
 
@@ -144,11 +120,7 @@ typedef struct {
     bool raised:1;                // Raised before saved
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
-<<<<<<< Updated upstream
     #if HAS_LEVELING
-=======
-    #if ENABLED(HAS_LEVELING)
->>>>>>> Stashed changes
       bool leveling:1;            // M420 S
     #endif
     #if DISABLED(NO_VOLUMETRICS)

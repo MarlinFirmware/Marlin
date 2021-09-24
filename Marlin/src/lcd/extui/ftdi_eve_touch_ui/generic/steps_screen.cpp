@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/steps_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_STEPS_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/steps_screen.cpp
 
 #ifdef FTDI_STEPS_SCREEN
 

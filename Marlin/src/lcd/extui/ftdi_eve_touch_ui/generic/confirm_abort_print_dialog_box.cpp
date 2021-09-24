@@ -21,11 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_abort_print_dialog_box.cpp
 #include "../screens.h"
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_abort_print_dialog_box.cpp
 
 #ifdef FTDI_CONFIRM_ABORT_PRINT_DIALOG_BOX
 

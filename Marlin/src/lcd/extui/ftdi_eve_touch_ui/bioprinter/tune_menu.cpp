@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/bioprinter/tune_menu.cpp
 #include "../screens.h"
-
-#ifdef FTDI_BIO_TUNE_MENU
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/bio_tune_menu.cpp
 
 #ifdef FTDI_BIO_TUNE_MENU
 

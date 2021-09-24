@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_erase_flash_dialog_box.cpp
 #include "../screens.h"
-
-#ifdef FTDI_CONFIRM_ERASE_FLASH_DIALOG_BOX
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_erase_flash_dialog_box.cpp
 
 #ifdef FTDI_CONFIRM_ERASE_FLASH_DIALOG_BOX
 

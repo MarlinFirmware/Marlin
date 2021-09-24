@@ -179,11 +179,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-<<<<<<< Updated upstream
       lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_GOOD_POINTS));
-=======
-      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_GOOD_POINTS));
->>>>>>> Stashed changes
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_wchar('/');
@@ -196,11 +192,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-<<<<<<< Updated upstream
       lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_LAST_Z));
-=======
-      lcd_put_u8str_P(GET_TEXT(MSG_LEVEL_CORNERS_LAST_Z));
->>>>>>> Stashed changes
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
@@ -231,11 +223,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     if (verify) do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // do clearance if needed
     TERN_(BLTOUCH_SLOW_MODE, bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
-<<<<<<< Updated upstream
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
-=======
-    if (TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE))) { // check if probe triggered
->>>>>>> Stashed changes
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       sync_plan_position();

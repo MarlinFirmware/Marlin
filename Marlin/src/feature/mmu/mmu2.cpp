@@ -271,11 +271,7 @@ void MMU2::mmu_loop() {
         else if (WITHIN(cmd, MMU_CMD_F0, MMU_CMD_F0 + EXTRUDERS - 1)) {
           // filament type
           int filament = cmd - MMU_CMD_F0;
-<<<<<<< Updated upstream
           DEBUG_ECHOLNPGM("MMU <= F", filament, " ", cmd_arg);
-=======
-          DEBUG_ECHOLNPAIR("MMU <= F", filament, " ", cmd_arg);
->>>>>>> Stashed changes
           tx_printf_P(PSTR("F%d %d\n"), filament, cmd_arg);
           state = 3; // wait for response
         }
@@ -516,11 +512,7 @@ static void mmu2_not_responding() {
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
   void MMU2::tool_change(const char *special) {
-<<<<<<< Updated upstream
       if (!_enabled) return;
-=======
-      if (!enabled) return;
->>>>>>> Stashed changes
 
       set_runout_valid(false);
 
@@ -607,11 +599,7 @@ static void mmu2_not_responding() {
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
   void MMU2::tool_change(const char *special) {
-<<<<<<< Updated upstream
     if (!_enabled) return;
-=======
-    if (!enabled) return;
->>>>>>> Stashed changes
 
     set_runout_valid(false);
 
@@ -705,11 +693,7 @@ static void mmu2_not_responding() {
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
   void MMU2::tool_change(const char *special) {
-<<<<<<< Updated upstream
     if (!_enabled) return;
-=======
-    if (!enabled) return;
->>>>>>> Stashed changes
 
     set_runout_valid(false);
 
@@ -908,11 +892,7 @@ void MMU2::filament_runout() {
 
 // Load filament into MMU2
 void MMU2::load_filament(const uint8_t index) {
-<<<<<<< Updated upstream
   if (!_enabled) return;
-=======
-  if (!enabled) return;
->>>>>>> Stashed changes
 
   command(MMU_CMD_L0 + index);
   manage_response(false, false);

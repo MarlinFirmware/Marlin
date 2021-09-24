@@ -192,12 +192,9 @@ void get_wifi_list_command_send();
 void get_wifi_commands();
 int readWifiBuf(int8_t *buf, int32_t len);
 void mks_wifi_firmware_update();
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.h
 int usartFifoAvailable(SZ_USART_FIFO *fifo);
 int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.h
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

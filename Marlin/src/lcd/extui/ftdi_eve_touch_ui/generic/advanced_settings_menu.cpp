@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/advanced_settings_menu.cpp
 #include "../screens.h"
-
-#ifdef FTDI_ADVANCED_SETTINGS_MENU
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/advanced_settings_menu.cpp
 
 #ifdef FTDI_ADVANCED_SETTINGS_MENU
 

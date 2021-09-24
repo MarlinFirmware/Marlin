@@ -19,9 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "HAL_MinSerial.h"
+#pragma once
 
-<<<<<<< Updated upstream:Marlin/src/HAL/NATIVE_SIM/u8g/LCD_I2C_routines.h
 #ifdef __cplusplus
   extern "C" {
 #endif
@@ -35,15 +34,4 @@ void u8g_i2c_stop();
 #ifdef __cplusplus
   }
 #endif
-=======
-#if ENABLED(POSTMORTEM_DEBUGGING)
 
-void HAL_min_serial_init_default() {}
-void HAL_min_serial_out_default(char ch) { SERIAL_CHAR(ch); }
-void (*HAL_min_serial_init)() = &HAL_min_serial_init_default;
-void (*HAL_min_serial_out)(char) = &HAL_min_serial_out_default;
-
-bool MinSerial::force_using_default_output = false;
->>>>>>> Stashed changes:Marlin/src/HAL/shared/HAL_MinSerial.cpp
-
-#endif

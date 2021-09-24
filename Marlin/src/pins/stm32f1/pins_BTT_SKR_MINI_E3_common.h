@@ -21,13 +21,7 @@
  */
 #pragma once
 
-<<<<<<< Updated upstream
 #include "env_validate.h"
-=======
-#if NOT_TARGET(__STM32F1__, STM32F1)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
->>>>>>> Stashed changes
 
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
@@ -308,19 +302,8 @@
 #define ONBOARD_SPI_DEVICE                     1  // SPI1 -> used only by HAL/STM32F1...
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
 
-<<<<<<< Updated upstream
 #define ENABLE_SPI1
 #define SDSS                   ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7
-=======
-#define CUSTOM_SPI_PINS                           // TODO: needed because is the only way to set SPI for SD on STM32 (for now)
-#if ENABLED(CUSTOM_SPI_PINS)
-  #define ENABLE_SPI1
-  #define SDSS                              ONBOARD_SD_CS_PIN
-  #define SD_SCK_PIN                        PA5
-  #define SD_MISO_PIN                       PA6
-  #define SD_MOSI_PIN                       PA7
-#endif
->>>>>>> Stashed changes

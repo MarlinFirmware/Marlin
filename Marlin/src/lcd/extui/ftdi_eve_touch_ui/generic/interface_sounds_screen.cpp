@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/interface_sounds_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_INTERFACE_SOUNDS_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/interface_sounds_screen.cpp
 
 #ifdef FTDI_INTERFACE_SOUNDS_SCREEN
 
@@ -97,10 +90,6 @@ void InterfaceSoundsScreen::onRedraw(draw_mode_t what) {
 
     cmd.font(font_small)
     #define EDGE_R 30
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/interface_sounds_screen.cpp
-=======
-       .tag(2).slider    (BTN_POS(3,2), BTN_SIZE(2,1), screen_data.InterfaceSettingsScreen.volume, 0xFF)
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/interface_sounds_screen.cpp
        .colors(ui_toggle)
        .tag(2).toggle2   (BTN_POS(3,3), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), UIData::touch_sounds_enabled())
     #undef EDGE_R
@@ -133,38 +122,4 @@ bool InterfaceSoundsScreen::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/interface_sounds_screen.cpp
-=======
-bool InterfaceSoundsScreen::onTouchStart(uint8_t tag) {
-  CommandProcessor cmd;
-  #undef EDGE_R
-  #define EDGE_R 30
-  switch (tag) {
-    case 2: cmd.track_linear(BTN_POS(3,2), BTN_SIZE(2,1), 2).execute(); break;
-    default: break;
-  }
-  return true;
-}
-
-void InterfaceSoundsScreen::onIdle() {
-  if (refresh_timer.elapsed(TOUCH_UPDATE_INTERVAL)) {
-    refresh_timer.start();
-
-    uint16_t value;
-    CommandProcessor cmd;
-    switch (cmd.track_tag(value)) {
-      case 2:
-        screen_data.InterfaceSettingsScreen.volume = value >> 8;
-        SoundPlayer::set_volume(screen_data.InterfaceSettingsScreen.volume);
-        SaveSettingsDialogBox::settingsChanged();
-        break;
-      default:
-        return;
-    }
-    onRefresh();
-  }
-  BaseScreen::onIdle();
-}
-
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/interface_sounds_screen.cpp
 #endif // FTDI_INTERFACE_SOUNDS_SCREEN

@@ -22,11 +22,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/boot_screen.cpp
 #include "../screens.h"
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/boot_screen.cpp
 
 #ifdef FTDI_BOOT_SCREEN
 

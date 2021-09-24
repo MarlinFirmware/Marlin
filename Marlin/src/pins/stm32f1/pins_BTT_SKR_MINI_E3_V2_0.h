@@ -23,11 +23,7 @@
 
 #define SKR_MINI_E3_V2
 
-<<<<<<< Updated upstream
 #define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
-=======
-#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4
->>>>>>> Stashed changes
 
 // Onboard I2C EEPROM
 #if NO_EEPROM_SELECTED

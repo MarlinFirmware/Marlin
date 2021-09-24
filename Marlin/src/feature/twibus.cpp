@@ -84,11 +84,7 @@ void TWIBus::send() {
 void TWIBus::echoprefix(uint8_t bytes, const char pref[], uint8_t adr) {
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM_P(pref);
-<<<<<<< Updated upstream
   SERIAL_ECHOPGM(": from:", adr, " bytes:", bytes, " data:");
-=======
-  SERIAL_ECHOPAIR(": from:", adr, " bytes:", bytes, " data:");
->>>>>>> Stashed changes
 }
 
 // static

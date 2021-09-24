@@ -25,18 +25,8 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-<<<<<<< Updated upstream
 void lv_draw_auto_level_offset_settings();
 void lv_clear_auto_level_offset_settings();
-=======
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_homing_sensitivity_settings.h
-void lv_draw_homing_sensitivity_settings();
-void lv_clear_homing_sensitivity_settings();
-=======
-void lv_draw_auto_level_offset_settings();
-void lv_clear_auto_level_offset_settings();
->>>>>>> Stashed changes:Marlin/src/lcd/extui/mks_ui/draw_auto_level_offset_settings.h
->>>>>>> Stashed changes
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

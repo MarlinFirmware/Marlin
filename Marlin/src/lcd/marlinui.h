@@ -59,15 +59,12 @@
   #include "../module/motion.h" // for active_extruder
 #endif
 
-<<<<<<< Updated upstream
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "e3v2/enhanced/dwin.h"
 #endif
 
-=======
->>>>>>> Stashed changes
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 
 #if HAS_WIRED_LCD
@@ -121,7 +118,6 @@
 
 #if PREHEAT_COUNT
   typedef struct {
-<<<<<<< Updated upstream
     #if HAS_HOTEND
       celsius_t hotend_temp;
     #endif
@@ -129,15 +125,6 @@
       celsius_t bed_temp;
     #endif
     #if HAS_FAN
-=======
-    #if ENABLED(HAS_HOTEND)
-      celsius_t hotend_temp;
-    #endif
-    #if ENABLED(HAS_HEATED_BED)
-      celsius_t bed_temp;
-    #endif
-    #if ENABLED(HAS_FAN)
->>>>>>> Stashed changes
       uint16_t fan_speed;
     #endif
   } preheat_t;
@@ -155,20 +142,12 @@
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
-<<<<<<< Updated upstream
     #if IS_KINEMATIC
-=======
-    #if ENABLED(IS_KINEMATIC)
->>>>>>> Stashed changes
       static xyze_pos_t all_axes_destination;
     #endif
   public:
     static float menu_scale;
-<<<<<<< Updated upstream
     #if IS_KINEMATIC
-=======
-    #if ENABLED(IS_KINEMATIC)
->>>>>>> Stashed changes
       static float offset;
     #endif
     template <typename T>
@@ -210,15 +189,7 @@
       static bool constexpr processing = false;
     #endif
     static void task();
-<<<<<<< Updated upstream
     static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
-=======
-    static void soon(const AxisEnum axis
-      #if MULTI_MANUAL
-        , const int8_t eindex=-1
-      #endif
-    );
->>>>>>> Stashed changes
   };
 
 #endif
@@ -400,7 +371,6 @@ public:
     static void pause_print();
     static void resume_print();
     static void flow_fault();
-<<<<<<< Updated upstream
 
     #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
       static void poweroff();
@@ -409,8 +379,6 @@ public:
     #if EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_JYERSUI)
       static bool get_blink();
     #endif
-=======
->>>>>>> Stashed changes
 
     #if HAS_WIRED_LCD
 

@@ -276,7 +276,6 @@ typedef struct {
     if (dist_start > 2.0) retract_lift_move(s);
 
     move_to(s, 0.0); // Get to the starting point with no extrusion / un-Z lift
-<<<<<<< Updated upstream
 
     const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
@@ -333,68 +332,6 @@ typedef struct {
         // Wait for the temperature to stabilize
         if (!thermalManager.wait_for_bed(true OPTARG(G26_CLICK_CAN_CANCEL, true)))
           return G26_ERR;
-=======
-
-    const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
-
-    recover_filament(destination);
-    move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
-  }
-
-  void connect_neighbor_with_line(const xy_int8_t &p1, int8_t dx, int8_t dy) {
-    xy_int8_t p2;
-    p2.x = p1.x + dx;
-    p2.y = p1.y + dy;
-
-    if (p2.x < 0 || p2.x >= (GRID_MAX_POINTS_X)) return;
-    if (p2.y < 0 || p2.y >= (GRID_MAX_POINTS_Y)) return;
-
-    if(circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
-      xyz_pos_t s, e;
-      s.x = _GET_MESH_X(p1.x) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
-      e.x = _GET_MESH_X(p2.x) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
-      s.y = _GET_MESH_Y(p1.y) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
-      e.y = _GET_MESH_Y(p2.y) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dy;
-      s.z = e.z = layer_height;
-
-      #if HAS_ENDSTOPS
-        LIMIT(s.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-        LIMIT(e.y, Y_MIN_POS + 1, Y_MAX_POS - 1);
-        LIMIT(s.x, X_MIN_POS + 1, X_MAX_POS - 1);
-        LIMIT(e.x, X_MIN_POS + 1, X_MAX_POS - 1);
-      #endif
-
-      if (position_is_reachable(s.x, s.y) && position_is_reachable(e.x, e.y))
-        print_line_from_here_to_there(s, e);
-    }
-  }
-
-  /**
-   * Turn on the bed and nozzle heat and
-   * wait for them to get up to temperature.
-   */
-  bool turn_on_heaters() {
-
-    SERIAL_ECHOLNPGM("Waiting for heatup.");
-
-    #if HAS_HEATED_BED
-
-      if (bed_temp > 25) {
-        #if HAS_WIRED_LCD
-          ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
-          ui.quick_feedback();
-          TERN_(HAS_LCD_MENU, ui.capture());
-        #endif
-        thermalManager.setTargetBed(bed_temp);
-
-        // Wait for the temperature to stabilize
-        if (!thermalManager.wait_for_bed(true
-            #if G26_CLICK_CAN_CANCEL
-              , true
-            #endif
-          )
-        ) return G26_ERR;
->>>>>>> Stashed changes
       }
 
     #else
@@ -411,16 +348,8 @@ typedef struct {
     thermalManager.setTargetHotend(hotend_temp, active_extruder);
 
     // Wait for the temperature to stabilize
-<<<<<<< Updated upstream
     if (!thermalManager.wait_for_hotend(active_extruder, true OPTARG(G26_CLICK_CAN_CANCEL, true)))
       return G26_ERR;
-=======
-    if (!thermalManager.wait_for_hotend(active_extruder, true
-      #if G26_CLICK_CAN_CANCEL
-        , true
-      #endif
-    )) return G26_ERR;
->>>>>>> Stashed changes
 
     #if HAS_WIRED_LCD
       ui.reset_status();
@@ -610,11 +539,7 @@ void GcodeSuite::G26() {
 
     if (bedtemp) {
       if (!WITHIN(bedtemp, 40, BED_MAX_TARGET)) {
-<<<<<<< Updated upstream
         SERIAL_ECHOLNPGM("?Specified bed temperature not plausible (40-", BED_MAX_TARGET, "C).");
-=======
-        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", BED_MAX_TARGET, "C).");
->>>>>>> Stashed changes
         return;
       }
       g26.bed_temp = bedtemp;

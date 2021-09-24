@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_error_message.cpp
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_error_message.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -31,13 +28,8 @@
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 #include "SPI_TFT.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_error_message.cpp
 #include "../../../inc/MarlinConfig.h"
 #include "mks_hardware.h"
-=======
-#include "mks_hardware_test.h"
-#include "../../../inc/MarlinConfig.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_error_message.cpp
 
 static lv_obj_t *scr;
 

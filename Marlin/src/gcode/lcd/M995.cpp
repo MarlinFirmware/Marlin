@@ -26,11 +26,7 @@
 
 #include "../gcode.h"
 
-<<<<<<< Updated upstream
 #if HAS_TFT_LVGL_UI
-=======
-#if ENABLED(TFT_LVGL_UI)
->>>>>>> Stashed changes
   #include "../../lcd/extui/mks_ui/draw_touch_calibration.h"
 #else
   #include "../../lcd/menu/menu.h"

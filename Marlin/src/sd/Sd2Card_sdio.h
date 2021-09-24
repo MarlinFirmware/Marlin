@@ -38,7 +38,6 @@ class DiskIODriver_SDIO : public DiskIODriver {
 
     bool readCSD(csd_t *csd)                              override { return false; }
 
-<<<<<<< Updated upstream
     bool readStart(const uint32_t block)                  override { curBlock = block; return true; }
     bool readData(uint8_t *dst)                           override { return readBlock(curBlock++, dst); }
     bool readStop()                                       override { curBlock = -1; return true; }
@@ -46,20 +45,10 @@ class DiskIODriver_SDIO : public DiskIODriver {
     bool writeStart(const uint32_t block, const uint32_t) override { curBlock = block; return true; }
     bool writeData(const uint8_t *src)                    override { return writeBlock(curBlock++, src); }
     bool writeStop()                                      override { curBlock = -1; return true; }
-=======
-    bool readStart(const uint32_t block)                  override { return false; }
-    bool readData(uint8_t *dst)                           override { return false; }
-    bool readStop()                                       override { return false; }
-
-    bool writeStart(const uint32_t block, const uint32_t) override { return false; }
-    bool writeData(const uint8_t *src)                    override { return false; }
-    bool writeStop()                                      override { return false; }
->>>>>>> Stashed changes
 
     bool readBlock(uint32_t block, uint8_t *dst)          override { return SDIO_ReadBlock(block, dst); }
     bool writeBlock(uint32_t block, const uint8_t *src)   override { return SDIO_WriteBlock(block, src); }
 
-<<<<<<< Updated upstream
     uint32_t cardSize()                                   override { return SDIO_GetCardSize(); }
 
     bool isReady()                                        override { return SDIO_IsReady(); }
@@ -67,11 +56,4 @@ class DiskIODriver_SDIO : public DiskIODriver {
     void idle()                                           override {}
   private:
     uint32_t curBlock;
-=======
-    uint32_t cardSize()                                   override { return 0; }
-
-    bool isReady()                                        override { return true; }
-
-    void idle()                                           override {}
->>>>>>> Stashed changes
 };

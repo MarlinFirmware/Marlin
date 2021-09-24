@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/base_numeric_adjustment_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_BASE_NUMERIC_ADJ_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/base_numeric_adjustment_screen.cpp
 
 #ifdef FTDI_BASE_NUMERIC_ADJ_SCREEN
 

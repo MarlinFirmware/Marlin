@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/interface_settings_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_INTERFACE_SETTINGS_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/interface_settings_screen.cpp
 
 #ifdef FTDI_INTERFACE_SETTINGS_SCREEN
 
@@ -102,10 +95,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
        .tag(2).slider(BTN_POS(3,2), BTN_SIZE(2,1), mydata.brightness, 128)
     #endif
        .tag(3).slider(BTN_POS(3,3), BTN_SIZE(2,1), mydata.volume,     0xFF)
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/interface_settings_screen.cpp
     #if ENABLED(FTDI_LOCK_SCREEN)
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/interface_settings_screen.cpp
        .colors(ui_toggle)
        .tag(4).toggle2(BTN_POS(3,4), BTN_SIZE(w,1), GET_TEXT_F(MSG_NO), GET_TEXT_F(MSG_YES), LockScreen::is_enabled())
     #endif

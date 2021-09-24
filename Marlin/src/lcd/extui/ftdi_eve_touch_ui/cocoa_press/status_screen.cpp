@@ -22,15 +22,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/status_screen.cpp
 #include "../screens.h"
 
 #ifdef COCOA_STATUS_SCREEN
-=======
-#include "screens.h"
-
-#ifdef FTDI_COCOA_STATUS_SCREEN
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_status_screen.cpp
 
 #include "cocoa_press_ui.h"
 
@@ -239,11 +233,7 @@ bool StatusScreen::onTouchStart(uint8_t) {
 
 bool StatusScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/status_screen.cpp
     case  1: SpinnerDialogBox::enqueueAndWait(F("G28 O\nG27")); break;
-=======
-    case  1: SpinnerDialogBox::enqueueAndWait_P(F("G28 O\nG27")); break;
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_status_screen.cpp
     case  2: GOTO_SCREEN(LoadChocolateScreen); break;
     case  3: GOTO_SCREEN(PreheatMenu); break;
     case  4: GOTO_SCREEN(MainMenu); break;
@@ -304,7 +294,6 @@ void StatusScreen::onIdle() {
   }
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/status_screen.cpp
 void StatusScreen::onMediaInserted() {
   if (AT_SCREEN(StatusScreen))
     setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
@@ -316,6 +305,3 @@ void StatusScreen::onMediaRemoved() {
 }
 
 #endif // COCOA_STATUS_SCREEN
-=======
-#endif // FTDI_COCOA_STATUS_SCREEN
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_status_screen.cpp

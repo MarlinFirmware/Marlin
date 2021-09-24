@@ -26,11 +26,8 @@
  */
 
 #include "env_validate.h"
-<<<<<<< Updated upstream
 
 //#define V3_EZABL_ON_SERVO                       // As in TH3D Firmware Config
-=======
->>>>>>> Stashed changes
 
 #define BOARD_INFO_NAME   "TH3D EZBoard"
 #define BOARD_WEBSITE_URL "th3dstudio.com"

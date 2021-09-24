@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_user_request_alert_box.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_CONFIRM_USER_REQUEST_ALERT_BOX
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_user_request_alert_box.cpp
 
 #ifdef FTDI_CONFIRM_USER_REQUEST_ALERT_BOX
 
@@ -60,25 +53,12 @@ bool ConfirmUserRequestAlertBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_user_request_alert_box.cpp
-=======
-void ConfirmUserRequestAlertBox::onIdle() {
-  if (!ExtUI::awaitingUserConfirm()) {
-    hide();
-  }
-}
-
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_user_request_alert_box.cpp
 void ConfirmUserRequestAlertBox::show(const char *msg) {
   drawMessage(msg);
   storeBackground();
   screen_data.AlertDialogBox.isError = false;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/confirm_user_request_alert_box.cpp
   if (!AT_SCREEN(ConfirmUserRequestAlertBox))
     GOTO_SCREEN(ConfirmUserRequestAlertBox);
-=======
-  GOTO_SCREEN(ConfirmUserRequestAlertBox);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/confirm_user_request_alert_box.cpp
 }
 
 void ConfirmUserRequestAlertBox::hide() {

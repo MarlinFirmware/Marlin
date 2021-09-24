@@ -116,11 +116,7 @@
 #endif
 
 // Flash flag
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/pic_manager.h
 #define REFLSHE_FLGA_ADD                (0x800000 - 32)
-=======
-#define REFLSHE_FLGA_ADD                (0x800000-32)
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/pic_manager.h
 
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
@@ -159,11 +155,7 @@ typedef struct pic_msg PIC_MSG;
 #define FONT_SIZE_xM  2
 
 void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff);
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/pic_manager.h
 void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize);
-=======
-void Pic_Logo_Read(uint8_t *LogoName,uint8_t *Logo_Rbuff,uint32_t LogoReadsize);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/pic_manager.h
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);
 uint32_t lv_get_pic_addr(uint8_t *Pname);
 void get_spi_flash_data(const char *rec_buf, int offset, int size);

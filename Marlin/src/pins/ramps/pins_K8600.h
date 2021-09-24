@@ -41,11 +41,6 @@
 #define Z_MIN_PIN                             -1
 
 //
-// Steppers
-//
-#define Z_ENABLE_PIN                          63
-
-//
 // Heaters / Fans
 //
 #define FAN_PIN                                8
@@ -61,6 +56,12 @@
 //
 #define IS_RAMPS_EFB                              // Override autodetection. Bed will be undefined.
 #include "pins_RAMPS.h"
+
+//
+// Steppers
+//
+#undef Z_ENABLE_PIN
+#define Z_ENABLE_PIN                          63
 
 //
 // Heaters / Fans

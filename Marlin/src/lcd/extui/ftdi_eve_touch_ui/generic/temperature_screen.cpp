@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/temperature_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_TEMPERATURE_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/temperature_screen.cpp
 
 #ifdef FTDI_TEMPERATURE_SCREEN
 

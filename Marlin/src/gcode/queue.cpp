@@ -65,7 +65,6 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 
 #if NO_TIMEOUTS > 0
   static millis_t last_command_time = 0;
-<<<<<<< Updated upstream
 #endif
 
 /**
@@ -83,8 +82,6 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 
   uint8_t GCodeQueue::auto_buffer_report_interval;
   millis_t GCodeQueue::next_buffer_report_ms;
-=======
->>>>>>> Stashed changes
 #endif
 
 /**
@@ -102,16 +99,8 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
 
-<<<<<<< Updated upstream
 void GCodeQueue::RingBuffer::commit_command(bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
-=======
-
-void GCodeQueue::RingBuffer::commit_command(bool skip_ok
-  #if HAS_MULTI_SERIAL
-    , serial_index_t serial_ind/*=-1*/
-  #endif
->>>>>>> Stashed changes
 ) {
   commands[index_w].skip_ok = skip_ok;
   TERN_(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
@@ -125,25 +114,11 @@ void GCodeQueue::RingBuffer::commit_command(bool skip_ok
  * Return false for a full buffer, or if the 'command' is a comment.
  */
 bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
-<<<<<<< Updated upstream
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
   strcpy(commands[index_w].buffer, cmd);
   commit_command(skip_ok OPTARG(HAS_MULTI_SERIAL, serial_ind));
-=======
-  #if HAS_MULTI_SERIAL
-    , serial_index_t serial_ind/*=-1*/
-  #endif
-) {
-  if (*cmd == ';' || length >= BUFSIZE) return false;
-  strcpy(commands[index_w].buffer, cmd);
-  commit_command(skip_ok
-    #if HAS_MULTI_SERIAL
-      , serial_ind
-    #endif
-  );
->>>>>>> Stashed changes
   return true;
 }
 
@@ -152,11 +127,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
  * Return true if the command was consumed
  */
 bool GCodeQueue::enqueue_one(const char *cmd) {
-<<<<<<< Updated upstream
   //SERIAL_ECHOLNPGM("enqueue_one(\"", cmd, "\")");
-=======
-  //SERIAL_ECHOLNPAIR("enqueue_one(\"", cmd, "\")");
->>>>>>> Stashed changes
 
   if (*cmd == 0 || ISEOL(*cmd)) return true;
 
@@ -289,12 +260,8 @@ void GCodeQueue::RingBuffer::ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_CHAR(*p++);
     }
-<<<<<<< Updated upstream
-    SERIAL_ECHOPGM_P(SP_P_STR, planner.moves_free(), SP_B_STR, BUFSIZE - length);
-=======
-    SERIAL_ECHOPAIR_P(SP_P_STR, planner.moves_free(),
+    SERIAL_ECHOPGM_P(SP_P_STR, planner.moves_free(),
                       SP_B_STR, BUFSIZE - length);
->>>>>>> Stashed changes
   #endif
   SERIAL_EOL();
 }
@@ -309,11 +276,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
-<<<<<<< Updated upstream
   SERIAL_ECHOLNPGM(STR_RESEND, serial_state[serial_ind.index].last_N + 1);
-=======
-  SERIAL_ECHOLNPAIR(STR_RESEND, serial_state[serial_ind.index].last_N + 1);
->>>>>>> Stashed changes
   SERIAL_ECHOLNPGM(STR_OK);
 }
 
@@ -337,7 +300,6 @@ static bool serial_data_available(serial_index_t index) {
     return false;
   }
 #endif
-<<<<<<< Updated upstream
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
@@ -345,15 +307,6 @@ void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_i
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
   SERIAL_ECHOLNPGM_P(err, serial_state[serial_ind.index].last_N);
-=======
-
-inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
-
-void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
-  PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
-  SERIAL_ERROR_START();
-  SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind.index].last_N);
->>>>>>> Stashed changes
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
   serial_state[serial_ind.index].count = 0;
@@ -581,15 +534,7 @@ void GCodeQueue::get_serial_commands() {
         #endif
 
         // Add the command to the queue
-<<<<<<< Updated upstream
         ring_buffer.enqueue(serial.line_buffer, false OPTARG(HAS_MULTI_SERIAL, p));
-=======
-        ring_buffer.enqueue(serial.line_buffer, false
-          #if HAS_MULTI_SERIAL
-            , p
-          #endif
-        );
->>>>>>> Stashed changes
       }
       else
         process_stream_char(serial_char, serial.input_state, serial.line_buffer, serial.count);
@@ -684,7 +629,6 @@ void GCodeQueue::advance() {
   if (process_injected_command_P() || process_injected_command()) return;
 
   // Return if the G-code buffer is empty
-<<<<<<< Updated upstream
   if (ring_buffer.empty()) {
     #if ENABLED(BUFFER_MONITORING)
       if (!command_buffer_empty) {
@@ -703,9 +647,6 @@ void GCodeQueue::advance() {
       NOLESS(max_command_buffer_empty_duration, command_buffer_empty_duration);
     }
   #endif
-=======
-  if (ring_buffer.empty()) return;
->>>>>>> Stashed changes
 
   #if ENABLED(SDSUPPORT)
 
@@ -718,17 +659,10 @@ void GCodeQueue::advance() {
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
-<<<<<<< Updated upstream
             SERIAL_ECHOLNPGM("Dropped bytes: ", MYSERIAL1.dropped());
           #endif
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
             SERIAL_ECHOLNPGM("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
-=======
-            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL1.dropped());
-          #endif
-          #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
->>>>>>> Stashed changes
           #endif
         #endif
 

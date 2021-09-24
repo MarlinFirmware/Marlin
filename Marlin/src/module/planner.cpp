@@ -1310,7 +1310,7 @@ void Planner::recalculate() {
  */
 void Planner::check_axes_activity() {
 
-  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_I, DISABLE_J, DISABLE_K, DISABLE_E)
+  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z , DISABLE_I , DISABLE_J , DISABLE_K, DISABLE_E)
     xyze_bool_t axis_active = { false };
   #endif
 
@@ -1388,13 +1388,7 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-<<<<<<< Updated upstream
   TERN_(HAS_TAIL_FAN_SPEED, sync_fan_speeds(tail_fan_speed));
-=======
-  #if HAS_TAIL_FAN_SPEED
-    sync_fan_speeds(tail_fan_speed);
-  #endif
->>>>>>> Stashed changes
 
   TERN_(AUTOTEMP, autotemp_task());
 
@@ -1455,11 +1449,7 @@ void Planner::check_axes_activity() {
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t *block = &block_buffer[b];
-<<<<<<< Updated upstream
       if (LINEAR_AXIS_GANG(block->steps.x, || block->steps.y, || block->steps.z, || block->steps.i, || block->steps.j, || block->steps.k)) {
-=======
-      if (block->steps.x || block->steps.y || block->steps.z) {
->>>>>>> Stashed changes
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
@@ -1795,17 +1785,8 @@ void Planner::synchronize() {
  * Returns true if movement was properly queued, false otherwise (if cleaning)
  */
 bool Planner::_buffer_steps(const xyze_long_t &target
-<<<<<<< Updated upstream
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-=======
-  #if HAS_POSITION_FLOAT
-    , const xyze_pos_t &target_float
-  #endif
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
->>>>>>> Stashed changes
   , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters
 ) {
 
@@ -1862,17 +1843,8 @@ bool Planner::_buffer_steps(const xyze_long_t &target
  */
 bool Planner::_populate_block(block_t * const block, bool split_move,
   const abce_long_t &target
-<<<<<<< Updated upstream
   OPTARG(HAS_POSITION_FLOAT, const xyze_pos_t &target_float)
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-=======
-  #if HAS_POSITION_FLOAT
-    , const xyze_pos_t &target_float
-  #endif
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
->>>>>>> Stashed changes
   , feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
 ) {
   int32_t LOGICAL_AXIS_LIST(
@@ -1941,7 +1913,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif // PREVENT_COLD_EXTRUSION || PREVENT_LENGTHY_EXTRUDE
 
   // Compute direction bit-mask for this block
-  axis_bits_t dm = 0;
+  uint8_t dm = 0;
   #if CORE_IS_XY
     if (da < 0) SBI(dm, X_HEAD);                // Save the toolhead's true direction in X
     if (db < 0) SBI(dm, Y_HEAD);                // ...and Y
@@ -2159,11 +2131,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-<<<<<<< Updated upstream
   TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
-=======
-  TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color))
->>>>>>> Stashed changes
 
   TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
@@ -2377,11 +2345,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #ifdef XY_FREQUENCY_LIMIT
 
-    static axis_bits_t old_direction_bits; // = 0
+    static uint8_t old_direction_bits; // = 0
 
     if (xy_freq_limit_hz) {
       // Check and limit the xy direction change frequency
-      const axis_bits_t direction_change = block->direction_bits ^ old_direction_bits;
+      const uint8_t direction_change = block->direction_bits ^ old_direction_bits;
       old_direction_bits = block->direction_bits;
       segment_time_us = LROUND(float(segment_time_us) / speed_factor);
 
@@ -2417,14 +2385,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   uint32_t accel;
-<<<<<<< Updated upstream
   if (LINEAR_AXIS_GANG(
          !block->steps.a, && !block->steps.b, && !block->steps.c,
       && !block->steps.i, && !block->steps.j, && !block->steps.k)
   ) {                                                             // Is this a retract / recover move?
-=======
-  if (!block->steps.a && !block->steps.b && !block->steps.c) {    // Is this a retract / recover move?
->>>>>>> Stashed changes
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
     TERN_(LIN_ADVANCE, block->use_advance_lead = false);          // No linear advance for simple retract/recover
   }
@@ -2489,7 +2453,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     // Limit acceleration per axis
     if (block->step_event_count <= acceleration_long_cutoff) {
-<<<<<<< Updated upstream
       LOGICAL_AXIS_CODE(
         LIMIT_ACCEL_LONG(E_AXIS, E_INDEX_N(extruder)),
         LIMIT_ACCEL_LONG(A_AXIS, 0),
@@ -2499,12 +2462,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         LIMIT_ACCEL_LONG(J_AXIS, 0),
         LIMIT_ACCEL_LONG(K_AXIS, 0)
       );
-=======
-      LIMIT_ACCEL_LONG(A_AXIS, 0);
-      LIMIT_ACCEL_LONG(B_AXIS, 0);
-      LIMIT_ACCEL_LONG(C_AXIS, 0);
-      LIMIT_ACCEL_LONG(E_AXIS, E_INDEX_N(extruder));
->>>>>>> Stashed changes
     }
     else {
       LOGICAL_AXIS_CODE(
@@ -2921,17 +2878,9 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
  *
  * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
-<<<<<<< Updated upstream
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
   , const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/, const_float_t millimeters/*=0.0*/
-=======
-bool Planner::buffer_segment(const_float_t a, const_float_t b, const_float_t c, const_float_t e
-  #if HAS_DIST_MM_ARG
-    , const xyze_float_t &cart_dist_mm
-  #endif
-  , const_feedRate_t fr_mm_s, const uint8_t extruder, const_float_t millimeters/*=0.0*/
->>>>>>> Stashed changes
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -3037,15 +2986,8 @@ bool Planner::buffer_segment(const_float_t a, const_float_t b, const_float_t c, 
  *  millimeters     - the length of the movement, if known
  *  inv_duration    - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
  */
-<<<<<<< Updated upstream
 bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, const uint8_t extruder/*=active_extruder*/, const float millimeters/*=0.0*/
   OPTARG(SCARA_FEEDRATE_SCALING, const_float_t inv_duration/*=0.0*/)
-=======
-bool Planner::buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e, const_feedRate_t fr_mm_s, const uint8_t extruder, const float millimeters
-  #if ENABLED(SCARA_FEEDRATE_SCALING)
-    , const_float_t inv_duration
-  #endif
->>>>>>> Stashed changes
 ) {
   xyze_pos_t machine = cart;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
@@ -3155,12 +3097,7 @@ bool Planner::buffer_line(const_float_t rx, const_float_t ry, const_float_t rz, 
  *
  * The provided ABCE position is in machine units.
  */
-<<<<<<< Updated upstream
 void Planner::set_machine_position_mm(const abce_pos_t &abce) {
-=======
-
-void Planner::set_machine_position_mm(const_float_t a, const_float_t b, const_float_t c, const_float_t e) {
->>>>>>> Stashed changes
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
   TERN_(HAS_POSITION_FLOAT, position_float = abce);
   position.set(
@@ -3183,17 +3120,9 @@ void Planner::set_machine_position_mm(const_float_t a, const_float_t b, const_fl
     stepper.set_position(position);
 }
 
-<<<<<<< Updated upstream
 void Planner::set_position_mm(const xyze_pos_t &xyze) {
   xyze_pos_t machine = xyze;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine, true));
-=======
-void Planner::set_position_mm(const_float_t rx, const_float_t ry, const_float_t rz, const_float_t e) {
-  xyze_pos_t machine = { rx, ry, rz, e };
-  #if HAS_POSITION_MODIFIERS
-    apply_modifiers(machine, true);
-  #endif
->>>>>>> Stashed changes
   #if IS_KINEMATIC
     position_cart = xyze;
     inverse_kinematics(machine);
@@ -3204,7 +3133,6 @@ void Planner::set_position_mm(const_float_t rx, const_float_t ry, const_float_t 
   #endif
 }
 
-<<<<<<< Updated upstream
 #if HAS_EXTRUDERS
 
   /**
@@ -3218,19 +3146,6 @@ void Planner::set_position_mm(const_float_t rx, const_float_t ry, const_float_t 
     position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
     TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
     TERN_(IS_KINEMATIC, TERN_(HAS_EXTRUDERS, position_cart.e = e));
-=======
-/**
- * Setters for planner position (also setting stepper position).
- */
-void Planner::set_e_position_mm(const_float_t e) {
-  const uint8_t axis_index = E_AXIS_N(active_extruder);
-  TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
-
-  const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[active_extruder]);
-  position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
-  TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
-  TERN_(IS_KINEMATIC, position_cart.e = e);
->>>>>>> Stashed changes
 
     if (has_blocks_queued())
       buffer_sync_block();
@@ -3271,11 +3186,7 @@ inline void limit_and_warn(float &val, const uint8_t axis, PGM_P const setting_n
     SERIAL_CHAR(AXIS_CHAR(lim_axis));
     SERIAL_ECHOPGM(" Max ");
     SERIAL_ECHOPGM_P(setting_name);
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" limited to ", val);
-=======
-    SERIAL_ECHOLNPAIR(" limited to ", val);
->>>>>>> Stashed changes
   }
 }
 

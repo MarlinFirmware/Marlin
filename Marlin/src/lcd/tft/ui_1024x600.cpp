@@ -47,10 +47,7 @@
 
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
-<<<<<<< Updated upstream
     if (TERN0(HAS_TOUCH_SLEEP, lcd_sleep_task())) return;
-=======
->>>>>>> Stashed changes
     if (draw_menu_navigation) {
       add_control(164, TFT_HEIGHT - 50, PAGE_UP, imgPageUp, encoderTopLine > 0);
       add_control(796, TFT_HEIGHT - 50, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
@@ -657,19 +654,12 @@ static void drawAxisValue(const AxisEnum axis) {
 static void moveAxis(const AxisEnum axis, const int8_t direction) {
   quick_feedback();
 
-<<<<<<< Updated upstream
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
       drawMessage("Too cold");
       return;
     }
   #endif
-=======
-  if (axis == E_AXIS && thermalManager.tooColdToExtrude(motionAxisState.e_selection)) {
-    drawMessage("Too cold");
-    return;
-  }
->>>>>>> Stashed changes
 
   const float diff = motionAxisState.currentStepSize * direction;
 
@@ -737,15 +727,7 @@ static void moveAxis(const AxisEnum axis, const int8_t direction) {
       drawMessage(msg);
     #endif
 
-<<<<<<< Updated upstream
     ui.manual_move.soon(axis OPTARG(MULTI_E_MANUAL, motionAxisState.e_selection));
-=======
-    ui.manual_move.soon(axis
-      #if MULTI_MANUAL
-        , motionAxisState.e_selection
-      #endif
-    );
->>>>>>> Stashed changes
   }
 
   drawAxisValue(axis);

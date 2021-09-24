@@ -22,35 +22,23 @@
 
 #include "../inc/MarlinConfig.h"
 
-<<<<<<< Updated upstream
 #if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
-=======
-#if HAS_COOLER
->>>>>>> Stashed changes
 
 #include "cooler.h"
 Cooler cooler;
 
-<<<<<<< Updated upstream
 #if HAS_COOLER
   uint8_t Cooler::mode = 0;
   uint16_t Cooler::capacity;
   uint16_t Cooler::load;
   bool Cooler::enabled = false;
 #endif
-=======
-uint8_t Cooler::mode = 0;
-uint16_t Cooler::capacity;
-uint16_t Cooler::load;
-bool Cooler::enabled = false;
->>>>>>> Stashed changes
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   bool Cooler::flowmeter = false;
   millis_t Cooler::flowmeter_next_ms; // = 0
   volatile uint16_t Cooler::flowpulses;
   float Cooler::flowrate;
-<<<<<<< Updated upstream
   #if ENABLED(FLOWMETER_SAFETY)
     bool Cooler::flowsafety_enabled = true;
     bool Cooler::flowfault = false;
@@ -58,13 +46,3 @@ bool Cooler::enabled = false;
 #endif
 
 #endif // HAS_COOLER || LASER_COOLANT_FLOW_METER
-=======
-#endif
-
-#if ENABLED(FLOWMETER_SAFETY)
-  bool Cooler::flowsafety_enabled = true;
-  bool Cooler::fault = false;
-#endif
-
-#endif // HAS_COOLER
->>>>>>> Stashed changes

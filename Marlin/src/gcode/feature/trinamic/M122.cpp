@@ -32,11 +32,7 @@
  * M122: Debug TMC drivers
  */
 void GcodeSuite::M122() {
-<<<<<<< Updated upstream
   xyze_bool_t print_axis = ARRAY_N_1(LOGICAL_AXES, false);
-=======
-  xyze_bool_t print_axis = ARRAY_N_1(XYZE, false);
->>>>>>> Stashed changes
 
   bool print_all = true;
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) { print_axis[i] = true; print_all = false; }
@@ -57,11 +53,7 @@ void GcodeSuite::M122() {
     #endif
 
     if (parser.seen_test('V'))
-<<<<<<< Updated upstream
       tmc_get_registers(LOGICAL_AXIS_ELEM(print_axis));
-=======
-      tmc_get_registers(print_axis.x, print_axis.y, print_axis.z, print_axis.e);
->>>>>>> Stashed changes
     else
       tmc_report_all(LOGICAL_AXIS_ELEM(print_axis));
   #endif

@@ -37,14 +37,10 @@ L64XX_Marlin L64xxManager;
 #include "../../module/planner.h"
 #include "../../HAL/shared/Delay.h"
 
-<<<<<<< Updated upstream
 static const char LINEAR_AXIS_LIST(
                    str_X[] PROGMEM = "X ",          str_Y[] PROGMEM = "Y ",          str_Z[] PROGMEM = "Z ",
                    str_I[] PROGMEM = AXIS4_STR " ", str_J[] PROGMEM = AXIS5_STR " ", str_K[] PROGMEM = AXIS6_STR " "
                  ),
-=======
-static const char str_X[] PROGMEM = "X ",  str_Y[] PROGMEM = "Y ",  str_Z[] PROGMEM = "Z ",
->>>>>>> Stashed changes
                  str_X2[] PROGMEM = "X2", str_Y2[] PROGMEM = "Y2",
                  str_Z2[] PROGMEM = "Z2", str_Z3[] PROGMEM = "Z3", str_Z4[] PROGMEM = "Z4",
                  LIST_N(EXTRUDERS,
@@ -395,11 +391,7 @@ inline void echo_min_max(const char a, const_float_t min, const_float_t max) {
   DEBUG_ECHOLNPGM(" min = ", min, "  max = ", max);
 }
 inline void echo_oct_used(const_float_t oct, const uint8_t stall) {
-<<<<<<< Updated upstream
   DEBUG_ECHOPGM("over_current_threshold used     : ", oct);
-=======
-  DEBUG_ECHOPAIR("over_current_threshold used     : ", oct);
->>>>>>> Stashed changes
   DEBUG_ECHOPGM_P(stall ? PSTR("  (Stall") : PSTR("  (OCD"));
   DEBUG_ECHOLNPGM(" threshold)");
 }
@@ -475,22 +467,12 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       position_min = X_center - displacement;
       position_max = X_center + displacement;
       echo_min_max('X', position_min, position_max);
-<<<<<<< Updated upstream
       if (TERN0(HAS_ENDSTOPS, position_min < (X_MIN_POS) || position_max > (X_MAX_POS))) {
-=======
-      if (false
-        #if HAS_ENDSTOPS
-          || position_min < (X_MIN_POS)
-          || position_max > (X_MAX_POS)
-        #endif
-      ) {
->>>>>>> Stashed changes
         err_out_of_bounds();
         return true;
       }
     } break;
 
-<<<<<<< Updated upstream
     #if HAS_Y_AXIS
       case 'Y': {
         position_min = Y_center - displacement;
@@ -514,37 +496,6 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
         }
       } break;
     #endif
-=======
-    case 'Y': {
-      position_min = Y_center - displacement;
-      position_max = Y_center + displacement;
-      echo_min_max('Y', position_min, position_max);
-      if (false
-        #if HAS_ENDSTOPS
-          || position_min < (Y_MIN_POS)
-          || position_max > (Y_MAX_POS)
-        #endif
-      ) {
-        err_out_of_bounds();
-        return true;
-      }
-    } break;
-
-    case 'Z': {
-      position_min = Z_center - displacement;
-      position_max = Z_center + displacement;
-      echo_min_max('Z', position_min, position_max);
-      if (false
-        #if HAS_ENDSTOPS
-          || position_min < (Z_MIN_POS)
-          || position_max > (Z_MAX_POS)
-        #endif
-      ) {
-        err_out_of_bounds();
-        return true;
-      }
-    } break;
->>>>>>> Stashed changes
 
     #if LINEAR_AXES >= 4
       case AXIS4_NAME: {

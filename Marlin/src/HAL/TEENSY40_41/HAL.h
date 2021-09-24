@@ -41,15 +41,9 @@
   #include "../../feature/ethernet.h"
 #endif
 
-<<<<<<< Updated upstream
 #define CPU_ST7920_DELAY_1 600
 #define CPU_ST7920_DELAY_2 750
 #define CPU_ST7920_DELAY_3 750
-=======
-//#define ST7920_DELAY_1 DELAY_NS(600)
-//#define ST7920_DELAY_2 DELAY_NS(750)
-//#define ST7920_DELAY_3 DELAY_NS(750)
->>>>>>> Stashed changes
 
 // ------------------------
 // Defines

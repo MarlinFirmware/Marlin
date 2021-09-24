@@ -21,13 +21,10 @@
  */
 #pragma once
 
-<<<<<<< Updated upstream
 /**
  * GMARSH X6 Rev.1 pin assignments
  */
 
-=======
->>>>>>> Stashed changes
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME "GMARSH X6 REV1"

@@ -129,16 +129,7 @@ void menu_led() {
   BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(LED_CONTROL_MENU)
-<<<<<<< Updated upstream
     if (TERN1(PSU_CONTROL, powerManager.psu_on)) {
-=======
-    #if ENABLED(PSU_CONTROL)
-      extern bool powersupply_on;
-    #else
-      constexpr bool powersupply_on = true;
-    #endif
-    if (powersupply_on) {
->>>>>>> Stashed changes
       editable.state = leds.lights_on;
       EDIT_ITEM(bool, MSG_LEDS, &editable.state, leds.toggle);
     }

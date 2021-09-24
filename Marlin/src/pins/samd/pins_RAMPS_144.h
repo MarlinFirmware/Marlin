@@ -193,13 +193,6 @@
   //#define Z2_HARDWARE_SERIAL Serial1
   //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial1
-<<<<<<< Updated upstream
-=======
-
-  //
-  // Software serial
-  //
->>>>>>> Stashed changes
 
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   47
@@ -250,11 +243,7 @@
     #define E1_SERIAL_TX_PIN                  -1
   #endif
   #ifndef E1_SERIAL_RX_PIN
-<<<<<<< Updated upstream
     #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
-=======
-    #define E1_SERIAL_RX_PIN                  -1
->>>>>>> Stashed changes
   #endif
 #endif
 

@@ -20,17 +20,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/preheat_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
 
 #ifdef COCOA_PREHEAT_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
-
-#ifdef FTDI_COCOA_PREHEAT_SCREEN
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_preheat_screen.cpp
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -165,8 +158,4 @@ void PreheatTimerScreen::onIdle() {
   BaseScreen::onIdle();
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/preheat_screen.cpp
 #endif // COCOA_PREHEAT_SCREEN
-=======
-#endif // FTDI_COCOA_PREHEAT_SCREEN
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_preheat_screen.cpp

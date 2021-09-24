@@ -23,7 +23,6 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
-<<<<<<< Updated upstream
 
 #include "tft_io.h"
 #include "tft_ids.h"
@@ -46,8 +45,6 @@
 #if TFT_DRIVER == SSD1963 || TFT_DRIVER == AUTO
   #include "ssd1963.h"
 #endif
-=======
->>>>>>> Stashed changes
 
 #include "ili9341.h"
 #include "ili9328.h"

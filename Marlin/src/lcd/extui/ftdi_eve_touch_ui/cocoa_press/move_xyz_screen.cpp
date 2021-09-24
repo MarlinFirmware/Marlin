@@ -1,9 +1,5 @@
 /***********************************
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/move_xyz_screen.cpp
  * cocoa_press/move_xyz_screen.cpp *
-=======
- * cocoa_press_move_xyz_screen.cpp *
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_move_xyz_screen.cpp
  ***********************************/
 
 /****************************************************************************
@@ -26,17 +22,10 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/move_xyz_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
 
 #ifdef COCOA_MOVE_XYZ_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_move_xyz_screen.cpp
-
-#ifdef FTDI_COCOA_MOVE_XYZ_SCREEN
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -60,8 +49,4 @@ void MoveXYZScreen::onIdle() {
   }
   BaseScreen::onIdle();
 }
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/move_xyz_screen.cpp
 #endif // COCOA_MOVE_XYZ_SCREEN
-=======
-#endif // FTDI_COCOA_MOVE_XYZ_SCREEN
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_move_xyz_screen.cpp

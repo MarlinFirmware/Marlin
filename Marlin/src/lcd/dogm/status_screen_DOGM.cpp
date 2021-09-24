@@ -57,13 +57,10 @@
   #include "../../feature/cooler.h"
 #endif
 
-<<<<<<< Updated upstream
 #if ENABLED(I2C_AMMETER)
   #include "../../feature/ammeter.h"
 #endif
 
-=======
->>>>>>> Stashed changes
 #if HAS_POWER_MONITOR
   #include "../../feature/power_monitor.h"
 #endif
@@ -212,7 +209,6 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
   }
 #endif
 
-<<<<<<< Updated upstream
 #if DO_DRAW_AMMETER
   FORCE_INLINE void _draw_centered_current(const float current, const uint8_t tx, const uint8_t ty) {
     const char *str = ftostr31ns(current);
@@ -221,8 +217,6 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
   }
 #endif
 
-=======
->>>>>>> Stashed changes
 #if DO_DRAW_HOTENDS
 
   // Draw hotend bitmap with current and target temperatures
@@ -293,10 +287,6 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
           else
         #endif
             u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), isHeat));
-<<<<<<< Updated upstream
-=======
-      #endif
->>>>>>> Stashed changes
 
       } // PAGE_CONTAINS
 
@@ -407,7 +397,6 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       _draw_centered_temp(thermalManager.wholeDegChamber(), STATUS_CHAMBER_TEXT_X, 28);
   }
 #endif
-<<<<<<< Updated upstream
 
 #if DO_DRAW_COOLER
   FORCE_INLINE void _draw_cooler_status() {
@@ -427,20 +416,6 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
   FORCE_INLINE void _draw_ammeter_status() {
     if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
       _draw_centered_current(ammeter.read(), STATUS_AMMETER_TEXT_X, 28);
-=======
-
-#if DO_DRAW_COOLER
-  FORCE_INLINE void _draw_cooler_status() {
-    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_temp(thermalManager.wholeDegCooler(), STATUS_COOLER_TEXT_X, 28);
-  }
-#endif
-
-#if DO_DRAW_FLOWMETER
-  FORCE_INLINE void _draw_flowmeter_status() {
-    if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
-      _draw_centered_flowrate(cooler.flowrate, STATUS_FLOWMETER_TEXT_X, 28);
->>>>>>> Stashed changes
   }
 #endif
 
@@ -713,7 +688,6 @@ void MarlinUI::draw_status_screen() {
         u8g.drawBitmapP(STATUS_FLOWMETER_X, flowmetery, STATUS_FLOWMETER_BYTEWIDTH, flowmeterh, blink && cooler.flowpulses ? status_flowmeter_bmp2 : status_flowmeter_bmp1);
     #endif
 
-<<<<<<< Updated upstream
     // Laser Ammeter
     #if DO_DRAW_AMMETER
       const uint8_t ammetery = STATUS_AMMETER_Y(status_ammeter_bmp_mA),
@@ -721,8 +695,6 @@ void MarlinUI::draw_status_screen() {
        if (PAGE_CONTAINS(ammetery, ammetery + ammeterh - 1))
         u8g.drawBitmapP(STATUS_AMMETER_X, ammetery, STATUS_AMMETER_BYTEWIDTH, ammeterh, (ammeter.current < 0.1f) ? status_ammeter_bmp_mA : status_ammeter_bmp_A);
     #endif
-=======
->>>>>>> Stashed changes
 
     // Heated Bed
     TERN_(DO_DRAW_BED, _draw_bed_status(blink));
@@ -736,12 +708,9 @@ void MarlinUI::draw_status_screen() {
     // Flowmeter
     TERN_(DO_DRAW_FLOWMETER, _draw_flowmeter_status());
 
-<<<<<<< Updated upstream
     // Flowmeter
     TERN_(DO_DRAW_AMMETER, _draw_ammeter_status());
 
-=======
->>>>>>> Stashed changes
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
       if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y - 1)) {

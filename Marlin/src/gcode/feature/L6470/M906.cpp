@@ -108,11 +108,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
                       "   ADC_OUT: ", L6470_ADC_out);
       SERIAL_ECHOPGM("   Vs_compensation: ");
       SERIAL_ECHOPGM_P((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM("   Compensation coefficient: ~", comp_coef * 0.01f);
-=======
-      SERIAL_ECHOLNPAIR("   Compensation coefficient: ~", comp_coef * 0.01f);
->>>>>>> Stashed changes
 
       SERIAL_ECHOPGM("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD),
                       "   KVAL_RUN : ", motor.GetParam(L6470_KVAL_RUN),

@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/default_acceleration_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_DEFAULT_ACCELERATION_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/default_acceleration_screen.cpp
 
 #ifdef FTDI_DEFAULT_ACCELERATION_SCREEN
 

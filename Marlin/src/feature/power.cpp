@@ -113,7 +113,6 @@ void Power::power_off() {
     #define POWER_TIMEOUT 0
   #endif
 
-<<<<<<< Updated upstream
   /**
    * Check all conditions that would signal power needing to be on.
    *
@@ -125,15 +124,6 @@ void Power::power_off() {
 
     #if ENABLED(AUTO_POWER_FANS)
       FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
-=======
-  if (TERN0(AUTO_POWER_COOLER_FAN, thermalManager.coolerfan_speed))
-    return true;
-
-  // If any of the drivers or the bed are enabled...
-  if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
-    #if HAS_X2_ENABLE
-      || X2_ENABLE_READ() == X_ENABLE_ON
->>>>>>> Stashed changes
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -173,7 +163,6 @@ void Power::power_off() {
 
     if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
-<<<<<<< Updated upstream
     #if HAS_HOTEND && AUTO_POWER_E_TEMP
       HOTEND_LOOP() if (thermalManager.degHotend(e) >= (AUTO_POWER_E_TEMP)) return true;
     #endif
@@ -181,41 +170,12 @@ void Power::power_off() {
     #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
       if (thermalManager.degChamber() >= (AUTO_POWER_CHAMBER_TEMP)) return true;
     #endif
-=======
-  #if HAS_HOTEND && AUTO_POWER_E_TEMP
-    HOTEND_LOOP() if (thermalManager.degHotend(e) >= (AUTO_POWER_E_TEMP)) return true;
-  #endif
-
-  #if HAS_HEATED_CHAMBER && AUTO_POWER_CHAMBER_TEMP
-    if (thermalManager.degChamber() >= (AUTO_POWER_CHAMBER_TEMP)) return true;
-  #endif
-
-  #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
-    if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
-  #endif
->>>>>>> Stashed changes
 
     #if HAS_COOLER && AUTO_POWER_COOLER_TEMP
       if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
     #endif
 
-<<<<<<< Updated upstream
     return false;
-=======
-#ifndef POWER_TIMEOUT
-  #define POWER_TIMEOUT 0
-#endif
-
-void Power::check() {
-  static millis_t nextPowerCheck = 0;
-  millis_t ms = millis();
-  if (ELAPSED(ms, nextPowerCheck)) {
-    nextPowerCheck = ms + 2500UL;
-    if (is_power_needed())
-      power_on();
-    else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(ms, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT))))
-      power_off();
->>>>>>> Stashed changes
   }
 
   /**

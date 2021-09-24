@@ -32,11 +32,7 @@ def encrypt(source, target, env):
     fwname = board.get("build.encrypt")
     print("Encrypting %s to %s" % (target[0].path, fwname))
     firmware = open(target[0].path, "rb")
-<<<<<<< Updated upstream
     renamed = open(target[0].dir.path + "/" + fwname, "wb")
-=======
-    renamed = open(target[0].dir.path + "/" + board.get("build.firmware"), "wb")
->>>>>>> Stashed changes
     length = os.path.getsize(target[0].path)
 
     encrypt_file(firmware, renamed, length)
@@ -44,14 +40,9 @@ def encrypt(source, target, env):
     firmware.close()
     renamed.close()
 
-<<<<<<< Updated upstream
 if 'encrypt' in board.get("build").keys():
     if board.get("build.encrypt") != "":
         marlin.add_post_action(encrypt)
-=======
-if 'firmware' in board.get("build").keys():
-  marlin.add_post_action(encrypt);
->>>>>>> Stashed changes
 else:
     print("LERDGE builds require output file via board_build.encrypt = 'filename' parameter")
     exit(1)

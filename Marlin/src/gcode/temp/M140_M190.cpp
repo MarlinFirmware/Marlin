@@ -40,47 +40,6 @@
  *
  *  I<index>  : Preset index (if material presets are defined)
  *  S<target> : The target temperature in current units
-<<<<<<< Updated upstream
-=======
- */
-void GcodeSuite::M140() {
-  if (DEBUGGING(DRYRUN)) return;
-
-  bool got_temp = false;
-  celsius_t temp = 0;
-
-  // Accept 'I' if temperature presets are defined
-  #if PREHEAT_COUNT
-    got_temp = parser.seenval('I');
-    if (got_temp) {
-      const uint8_t index = parser.value_byte();
-      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].bed_temp;
-    }
-  #endif
-
-  // If no 'I' get the temperature from 'S'
-  if (!got_temp) {
-    got_temp = parser.seenval('S');
-    if (got_temp) temp = parser.value_celsius();
-  }
-
-  if (got_temp) {
-    thermalManager.setTargetBed(temp);
-
-    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-      /**
-       * Stop the timer at the end of print. Hotend, bed target, and chamber
-       * temperatures need to be set below mintemp. Order of M140, M104, and M141
-       * at the end of the print does not matter.
-       */
-      thermalManager.auto_job_check_timer(false, true);
-    #endif
-  }
-}
-
-/**
- * M190 - Set Bed Temperature target and wait
->>>>>>> Stashed changes
  *
  * Parameters
  *  I<index>  : Preset index (if material presets are defined)
@@ -116,11 +75,7 @@ void GcodeSuite::M140_M190(const bool isM190) {
   bool no_wait_for_cooling = false;
   if (!got_temp) {
     no_wait_for_cooling = parser.seenval('S');
-<<<<<<< Updated upstream
     got_temp = no_wait_for_cooling || (isM190 && parser.seenval('R'));
-=======
-    got_temp = no_wait_for_cooling || parser.seenval('R');
->>>>>>> Stashed changes
     if (got_temp) temp = parser.value_celsius();
   }
 

@@ -20,13 +20,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/flow_percent_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_FLOW_PERCENT_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/flow_percent_screen.cpp
 
 #ifdef FTDI_FLOW_PERCENT_SCREEN
 

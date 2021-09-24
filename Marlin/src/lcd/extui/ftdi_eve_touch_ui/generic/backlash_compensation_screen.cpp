@@ -21,13 +21,7 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/backlash_compensation_screen.cpp
 #include "../screens.h"
-
-#ifdef FTDI_BACKLASH_COMP_SCREEN
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/backlash_compensation_screen.cpp
 
 #ifdef FTDI_BACKLASH_COMP_SCREEN
 

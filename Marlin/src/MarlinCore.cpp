@@ -66,7 +66,6 @@
 #if HAS_TFT_LVGL_UI
   #include "lcd/extui/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/mks_ui/draw_ui.h"
-<<<<<<< Updated upstream
   #include "lcd/extui/mks_ui/mks_hardware.h"
   #include <lvgl.h>
 #endif
@@ -80,15 +79,6 @@
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
   #endif
-=======
-  #include "lcd/extui/mks_ui/mks_hardware_test.h"
-  #include <lvgl.h>
-#endif
-
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/dwin/e3v2/dwin.h"
-  #include "lcd/dwin/e3v2/rotary_encoder.h"
->>>>>>> Stashed changes
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -250,13 +240,10 @@
   #include "feature/stepper_driver_safety.h"
 #endif
 
-<<<<<<< Updated upstream
 #if ENABLED(PSU_CONTROL)
   #include "feature/power.h"
 #endif
 
-=======
->>>>>>> Stashed changes
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -542,37 +529,22 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   #if ENABLED(CUSTOM_USER_BUTTONS)
     // Handle a custom user button if defined
     const bool printer_not_busy = !printingIsActive();
-<<<<<<< Updated upstream
     #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE))
     #define HAS_BETTER_USER_BUTTON(N) HAS_CUSTOM_USER_BUTTON(N) && defined(BUTTON##N##_DESC)
     #define _CHECK_CUSTOM_USER_BUTTON(N, CODE) do{                     \
-=======
-    #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE) && defined(BUTTON##N##_DESC))
-    #define CHECK_CUSTOM_USER_BUTTON(N) do{                            \
->>>>>>> Stashed changes
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
       static millis_t next_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
         && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)) { \
-<<<<<<< Updated upstream
         if (ELAPSED(ms, next_cub_ms_##N)) {                            \
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
           queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
           TERN_(HAS_LCD_MENU, ui.quick_feedback());                    \
-=======
-        const millis_t ms = millis();                                  \
-        if (ELAPSED(ms, next_cub_ms_##N)) {                            \
-          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
-          if (strlen(BUTTON##N##_DESC))                                \
-            LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC));                  \
-          queue.inject_P(PSTR(BUTTON##N##_GCODE));                     \
->>>>>>> Stashed changes
         }                                                              \
       }                                                                \
     }while(0)
 
-<<<<<<< Updated upstream
     #define CHECK_CUSTOM_USER_BUTTON(N)     _CHECK_CUSTOM_USER_BUTTON(N, NOOP)
     #define CHECK_BETTER_USER_BUTTON(N) _CHECK_CUSTOM_USER_BUTTON(N, if (strlen(BUTTON##N##_DESC)) LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC)))
 
@@ -699,81 +671,6 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #if HAS_BETTER_USER_BUTTON(25)
       CHECK_BETTER_USER_BUTTON(25);
     #elif HAS_CUSTOM_USER_BUTTON(25)
-=======
-    #if HAS_CUSTOM_USER_BUTTON(1)
-      CHECK_CUSTOM_USER_BUTTON(1);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(2)
-      CHECK_CUSTOM_USER_BUTTON(2);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(3)
-      CHECK_CUSTOM_USER_BUTTON(3);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(4)
-      CHECK_CUSTOM_USER_BUTTON(4);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(5)
-      CHECK_CUSTOM_USER_BUTTON(5);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(6)
-      CHECK_CUSTOM_USER_BUTTON(6);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(7)
-      CHECK_CUSTOM_USER_BUTTON(7);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(8)
-      CHECK_CUSTOM_USER_BUTTON(8);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(9)
-      CHECK_CUSTOM_USER_BUTTON(9);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(10)
-      CHECK_CUSTOM_USER_BUTTON(10);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(11)
-      CHECK_CUSTOM_USER_BUTTON(11);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(12)
-      CHECK_CUSTOM_USER_BUTTON(12);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(13)
-      CHECK_CUSTOM_USER_BUTTON(13);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(14)
-      CHECK_CUSTOM_USER_BUTTON(14);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(15)
-      CHECK_CUSTOM_USER_BUTTON(15);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(16)
-      CHECK_CUSTOM_USER_BUTTON(16);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(17)
-      CHECK_CUSTOM_USER_BUTTON(17);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(18)
-      CHECK_CUSTOM_USER_BUTTON(18);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(19)
-      CHECK_CUSTOM_USER_BUTTON(19);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(20)
-      CHECK_CUSTOM_USER_BUTTON(20);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(21)
-      CHECK_CUSTOM_USER_BUTTON(21);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(22)
-      CHECK_CUSTOM_USER_BUTTON(22);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(23)
-      CHECK_CUSTOM_USER_BUTTON(23);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(24)
-      CHECK_CUSTOM_USER_BUTTON(24);
-    #endif
-    #if HAS_CUSTOM_USER_BUTTON(25)
->>>>>>> Stashed changes
       CHECK_CUSTOM_USER_BUTTON(25);
     #endif
   #endif
@@ -900,11 +797,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 void idle(bool no_stepper_sleep/*=false*/) {
   #if ENABLED(MARLIN_DEV_MODE)
     static uint16_t idle_depth = 0;
-<<<<<<< Updated upstream
     if (++idle_depth > 5) SERIAL_ECHOLNPGM("idle() call depth: ", idle_depth);
-=======
-    if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
->>>>>>> Stashed changes
   #endif
 
   // Core Marlin activities
@@ -979,11 +872,8 @@ void idle(bool no_stepper_sleep/*=false*/) {
     if (!gcode.autoreport_paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
-<<<<<<< Updated upstream
       TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
       TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
-=======
->>>>>>> Stashed changes
     }
   #endif
 
@@ -1059,19 +949,11 @@ void minkill(const bool steppers_off/*=false*/) {
   #if EITHER(HAS_KILL, SOFT_RESET_ON_KILL)
 
     // Wait for both KILL and ENC to be released
-<<<<<<< Updated upstream
     while (TERN0(HAS_KILL, kill_state()) || TERN0(SOFT_RESET_ON_KILL, ui.button_pressed()))
       watchdog_refresh();
 
     // Wait for either KILL or ENC to be pressed again
     while (TERN1(HAS_KILL, !kill_state()) && TERN1(SOFT_RESET_ON_KILL, !ui.button_pressed()))
-=======
-    while (TERN0(HAS_KILL, !kill_state()) || TERN0(SOFT_RESET_ON_KILL, !ui.button_pressed()))
-      watchdog_refresh();
-
-    // Wait for either KILL or ENC press
-    while (TERN1(HAS_KILL, kill_state()) && TERN1(SOFT_RESET_ON_KILL, ui.button_pressed()))
->>>>>>> Stashed changes
       watchdog_refresh();
 
     // Reboot the board
@@ -1254,13 +1136,10 @@ inline void tmc_standby_setup() {
  *  - Set Marlin to RUNNING State
  */
 void setup() {
-<<<<<<< Updated upstream
   #ifdef FASTIO_INIT
     FASTIO_INIT();
   #endif
 
-=======
->>>>>>> Stashed changes
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
   #endif
@@ -1284,7 +1163,6 @@ void setup() {
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
-<<<<<<< Updated upstream
     #ifndef BAUDRATE_2
       #define BAUDRATE_2 BAUDRATE
     #endif
@@ -1296,13 +1174,6 @@ void setup() {
         #define BAUDRATE_3 BAUDRATE
       #endif
       MYSERIAL3.begin(BAUDRATE_3);
-=======
-    MYSERIAL2.begin(BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-    #ifdef SERIAL_PORT_3
-      MYSERIAL3.begin(BAUDRATE);
->>>>>>> Stashed changes
       serial_connect_timeout = millis() + 1000UL;
       while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #endif
@@ -1319,7 +1190,6 @@ void setup() {
     #endif
   #endif
 
-<<<<<<< Updated upstream
   #if HAS_FREEZE_PIN
     SETUP_LOG("FREEZE_PIN");
     SET_INPUT_PULLUP(FREEZE_PIN);
@@ -1333,11 +1203,6 @@ void setup() {
   #ifdef JTAGSWD_RESET
     SETUP_LOG("JTAGSWD_RESET");
     JTAGSWD_RESET();
-=======
-  #if HAS_SUICIDE
-    SETUP_LOG("SUICIDE_PIN");
-    OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
->>>>>>> Stashed changes
   #endif
 
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
@@ -1354,37 +1219,17 @@ void setup() {
     #endif
   #endif
 
-<<<<<<< Updated upstream
-  TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
-=======
-  #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
-    mks_esp_wifi_init();
-    WIFISERIAL.begin(WIFI_BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #endif
->>>>>>> Stashed changes
-
   TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
 
   SETUP_RUN(HAL_init());
 
   // Init and disable SPI thermocouples; this is still needed
-<<<<<<< Updated upstream
   #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E0))
     OUT_WRITE(TEMP_0_CS_PIN, HIGH);  // Disable
   #endif
   #if TEMP_SENSOR_1_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E1))
     OUT_WRITE(TEMP_1_CS_PIN, HIGH);
   #endif
-=======
-  #if TEMP_SENSOR_0_IS_MAX_TC
-    OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
-  #endif
-  #if TEMP_SENSOR_1_IS_MAX_TC
-    OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
-  #endif
->>>>>>> Stashed changes
 
   #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
     OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
@@ -1401,14 +1246,6 @@ void setup() {
   #if ENABLED(PSU_CONTROL)
     SETUP_LOG("PSU_CONTROL");
     powerManager.init();
-  #endif
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    SETUP_RUN(recovery.setup());
-  #endif
-
-  #if HAS_L64XX
-    SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1446,25 +1283,14 @@ void setup() {
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-<<<<<<< Updated upstream
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
-=======
-  SERIAL_ECHOPGM_P(GET_TEXT(MSG_MARLIN));
-  SERIAL_CHAR(' ');
-  SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
-  SERIAL_EOL();
->>>>>>> Stashed changes
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-<<<<<<< Updated upstream
   SERIAL_ECHO_MSG(" Compiled: " __DATE__);
-=======
-  SERIAL_ECHO_MSG("Compiled: " __DATE__);
->>>>>>> Stashed changes
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1756,10 +1582,6 @@ void setup() {
     SETUP_RUN(stepper_driver_backward_report());
   #endif
 
-  #if HAS_DRIVER_SAFE_POWER_PROTECT
-    SETUP_RUN(stepper_driver_backward_report());
-  #endif
-
   #if HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
@@ -1773,15 +1595,9 @@ void setup() {
   #if HAS_DWIN_E3V2_BASIC
     Encoder_Configuration();
     HMI_Init();
-<<<<<<< Updated upstream
     HMI_SetLanguageCache();
     HMI_StartFrame(true);
     DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
-=======
-    DWIN_JPG_CacheTo1(Language_English);
-    HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT(WELCOME_MSG));
->>>>>>> Stashed changes
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
@@ -1806,11 +1622,7 @@ void setup() {
   #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     const millis_t elapsed = millis() - bootscreen_ms;
     #if ENABLED(MARLIN_DEV_MODE)
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM("elapsed=", elapsed);
-=======
-      SERIAL_ECHOLNPAIR("elapsed=", elapsed);
->>>>>>> Stashed changes
     #endif
     SETUP_RUN(ui.bootscreen_completion(elapsed));
   #endif

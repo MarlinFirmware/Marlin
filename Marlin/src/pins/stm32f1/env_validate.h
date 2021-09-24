@@ -21,10 +21,6 @@
  */
 #pragma once
 
-<<<<<<< Updated upstream
 #if NOT_TARGET(__STM32F1__, STM32F1)
-=======
-#if NOT_TARGET(__STM32F1__)
->>>>>>> Stashed changes
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif

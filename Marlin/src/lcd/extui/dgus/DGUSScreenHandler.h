@@ -56,7 +56,6 @@ inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (v
 #endif
 
 extern DGUSScreenHandler ScreenHandler;
-<<<<<<< Updated upstream
 
 // Helper to define a DGUS_VP_Variable for common use-cases.
 #define VPHELPER(VPADR, VPADRVAR, RXFPTR, TXFPTR) { \
@@ -75,5 +74,3 @@ extern DGUSScreenHandler ScreenHandler;
   .set_by_display_handler = RXFPTR, \
   .send_to_display_handler = TXFPTR \
 }
-=======
->>>>>>> Stashed changes

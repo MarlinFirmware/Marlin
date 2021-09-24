@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_filament_change.cpp
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_filament_change.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -54,14 +51,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_FILAMNT_IN:
       uiCfg.filament_load_heat_flg = true;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_filament_change.cpp
       if (ABS(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
         || gCfgItems.filament_limit_temp <= thermalManager.wholeDegHotend(uiCfg.extruderIndex)
       ) {
-=======
-      if (abs(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
-          || gCfgItems.filament_limit_temp <= thermalManager.wholeDegHotend(uiCfg.extruderIndex)) {
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_filament_change.cpp
         lv_clear_filament_change();
         lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
       }
@@ -77,11 +69,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_FILAMNT_OUT:
       uiCfg.filament_unload_heat_flg = true;
       if (thermalManager.degTargetHotend(uiCfg.extruderIndex)
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/draw_filament_change.cpp
           && (ABS(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
-=======
-          && (abs(thermalManager.degTargetHotend(uiCfg.extruderIndex) - thermalManager.wholeDegHotend(uiCfg.extruderIndex)) <= 1
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/draw_filament_change.cpp
               || thermalManager.wholeDegHotend(uiCfg.extruderIndex) >= gCfgItems.filament_limit_temp)
       ) {
         lv_clear_filament_change();

@@ -1,10 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
-<<<<<<< Updated upstream
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-=======
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
->>>>>>> Stashed changes
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,27 +21,6 @@
  */
 #pragma once
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream:Marlin/src/feature/ammeter.h
-#include "../inc/MarlinConfigPre.h"
-
-#include <Wire.h>
-#include <INA226.h>
-
-class Ammeter {
-private:
-  static float scale;
-
-public:
-  static float current;
-  static void init();
-  static float read();
-};
-
-extern Ammeter ammeter;
-=======
->>>>>>> Stashed changes
 #define MARLIN_LOGO_FULL_SIZE MarlinLogo480x320x16
 
 #include "ui_common.h"
@@ -66,7 +41,3 @@ extern Ammeter ammeter;
 #define FONT_LINE_HEIGHT    34
 
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/tft/ui_1024x600.h
->>>>>>> Stashed changes

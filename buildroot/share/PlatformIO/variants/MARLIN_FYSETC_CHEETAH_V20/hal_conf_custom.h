@@ -35,10 +35,7 @@ extern "C" {
 #define HAL_ADC_MODULE_ENABLED
 #define HAL_CRC_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
-<<<<<<< Updated upstream
 #define HAL_EXTI_MODULE_ENABLED   // Needed for Endstop (and other external) Interrupts
-=======
->>>>>>> Stashed changes
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
@@ -65,10 +62,6 @@ extern "C" {
 //#define HAL_SRAM_MODULE_ENABLED
 //#define HAL_SDRAM_MODULE_ENABLED
 //#define HAL_HASH_MODULE_ENABLED
-<<<<<<< Updated upstream
-=======
-//#define HAL_EXTI_MODULE_ENABLED
->>>>>>> Stashed changes
 //#define HAL_SMBUS_MODULE_ENABLED
 //#define HAL_I2S_MODULE_ENABLED
 //#define HAL_LTDC_MODULE_ENABLED

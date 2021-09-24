@@ -36,11 +36,7 @@ public:
   static bool loop();
 
   // Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/fysetc/DGUSScreenHandler.h
   // The bools specifying whether the strings are in RAM or FLASH.
-=======
-  // The bools specifing whether the strings are in RAM or FLASH.
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/DGUSScreenHandler.h
   static void sendinfoscreen(const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
   static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);

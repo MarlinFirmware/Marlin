@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
@@ -32,19 +29,12 @@
 #include "wifi_upload.h"
 #include "SPI_TFT.h"
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
 #include "../../marlinui.h"
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
 #include "../../../MarlinCore.h"
 #include "../../../module/temperature.h"
 #include "../../../gcode/queue.h"
 #include "../../../gcode/gcode.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
-=======
-#include "../../../lcd/marlinui.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
 #include "../../../sd/cardreader.h"
 #include "../../../module/planner.h"
 #include "../../../module/servo.h"
@@ -65,11 +55,7 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
 extern uint8_t Explore_Disk(char *path, uint8_t recu_level);
-=======
-extern uint8_t Explore_Disk (char *path , uint8_t recu_level);
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
 
 extern uint8_t commands_in_queue;
 extern uint8_t sel_id;
@@ -159,22 +145,12 @@ static bool longName2DosName(const char *longName, char *dosName) {
   uint8_t i = FILENAME_LENGTH;
   while (i) dosName[--i] = '\0';
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
-=======
-static bool longName2DosName(const char *longName, char *dosName) {
-  uint8_t i;
-  for (i = FILENAME_LENGTH; i--;) dosName[i] = '\0';
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
   while (*longName) {
     uint8_t c = *longName++;
     if (c == '.') { // For a dot...
       if (i == 0) return false;
       strcat_P(dosName, PSTR(".GCO"));
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
       return dosName[0] != '\0';
-=======
-      break;
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
     }
     else {
       // Fail for illegal characters
@@ -185,11 +161,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     }
     if (i >= 5) {
       strcat_P(dosName, PSTR("~1.GCO"));
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
       return dosName[0] != '\0';
-=======
-      break;
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
     }
   }
   return dosName[0] != '\0'; // Return true if any name was set
@@ -1158,10 +1130,6 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             sprintf_P(tbuf, PSTR("%d /%d"), thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0));
 
             const int tlen = strlen(tbuf);
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
-=======
-
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
             sprintf_P(outBuf, PSTR("T:%s"), tbuf);
             outBuf += 2 + tlen;
 
@@ -1183,11 +1151,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
             #if HAS_MULTI_HOTEND
               sprintf_P(outBuf, PSTR("%d /%d"), thermalManager.wholeDegHotend(1), thermalManager.degTargetHotend(1));
             #else
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
               strcpy_P(outBuf, PSTR("0 /0"));
-=======
-              strcat_P(outBuf, PSTR("0 /0"));
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
             #endif
             outBuf += 4;
 
@@ -1196,25 +1160,11 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           else {
             sprintf_P((char *)tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
               thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
               TERN0(HAS_HEATED_BED, thermalManager.wholeDegBed()),
               TERN0(HAS_HEATED_BED, thermalManager.degTargetBed()),
               thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
               TERN0(HAS_MULTI_HOTEND, thermalManager.wholeDegHotend(1)),
               TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1))
-=======
-              #if HAS_HEATED_BED
-                thermalManager.wholeDegBed(), thermalManager.degTargetBed(),
-              #else
-                0, 0,
-              #endif
-              thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
-              #if HAS_MULTI_HOTEND
-                thermalManager.wholeDegHotend(1), thermalManager.degTargetHotend(1)
-              #else
-                0, 0
-              #endif
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
             );
           }
 
@@ -1498,21 +1448,10 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
 
   for (;;) {
     char_byte_num = source[i] & 0xF0;
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
     if (source[i] < 0x80) { // ASCII -- 1 byte
       FileName_unicode[char_i++] = source[i++];
     }
     else if (char_byte_num == 0xC0 || char_byte_num == 0xD0) { // -- 2 byte
-=======
-    if (source[i] < 0x80) {
-      //ASCII --1byte
-      FileName_unicode[char_i] = source[i];
-      i += 1;
-      char_i += 1;
-    }
-    else if (char_byte_num == 0xC0 || char_byte_num == 0xD0) {
-      //--2byte
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
       u16_h = (((uint16_t)source[i] << 8) & 0x1F00) >> 2;
       u16_l = ((uint16_t)source[i + 1] & 0x003F);
       u16_value = (u16_h | u16_l);
@@ -1521,12 +1460,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 2;
       char_i += 2;
     }
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
     else if (char_byte_num == 0xE0) { // -- 3 byte
-=======
-    else if (char_byte_num == 0xE0) {
-      //--3byte
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
       u16_h = (((uint16_t)source[i] << 8) & 0x0F00) << 4;
       u16_m = (((uint16_t)source[i + 1] << 8) & 0x3F00) >> 2;
       u16_l = ((uint16_t)source[i + 2] & 0x003F);
@@ -1536,12 +1470,7 @@ void utf8_2_unicode(uint8_t *source, uint8_t Len) {
       i += 3;
       char_i += 2;
     }
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
     else if (char_byte_num == 0xF0) { // -- 4 byte
-=======
-    else if (char_byte_num == 0xF0) {
-      //--4byte
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
       i += 4;
       //char_i += 3;
     }
@@ -2086,13 +2015,8 @@ void get_wifi_commands() {
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
               case 0 ... 1:
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/mks_ui/wifi_module.cpp
                 TERN_(ARC_SUPPORT, case 2 ... 3:)
                 TERN_(BEZIER_CURVE_SUPPORT, case 5:)
-=======
-              TERN_(ARC_SUPPORT, case 2 ... 3:)
-              TERN_(BEZIER_CURVE_SUPPORT, case 5:)
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/mks_ui/wifi_module.cpp
                 SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;

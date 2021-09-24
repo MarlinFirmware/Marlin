@@ -82,12 +82,8 @@ void GcodeSuite::M106() {
     constexpr bool got_preset = false;
   #endif
 
-<<<<<<< Updated upstream
   if (!got_preset && parser.seenval('S'))
     speed = parser.value_ushort();
-=======
-    const uint16_t dspeed = parser.seen_test('A') ? thermalManager.fan_speed[active_extruder] : 255;
->>>>>>> Stashed changes
 
   TERN_(FOAMCUTTER_XYUV, speed *= 2.55); // Get command in % of max heat
 
@@ -96,19 +92,8 @@ void GcodeSuite::M106() {
 
   TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_FLAG_SYNC_FANS));
 
-<<<<<<< Updated upstream
   if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
     thermalManager.set_fan_speed(1 - pfan, speed);
-=======
-    // Set speed, with constraint
-    thermalManager.set_fan_speed(pfan, speed);
-
-    TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_FLAG_SYNC_FANS));
-
-    if (TERN0(DUAL_X_CARRIAGE, idex_is_duplicating()))  // pfan == 0 when duplicating
-      thermalManager.set_fan_speed(1 - pfan, speed);
-  }
->>>>>>> Stashed changes
 }
 
 /**
@@ -117,12 +102,9 @@ void GcodeSuite::M106() {
 void GcodeSuite::M107() {
   const uint8_t pfan = parser.byteval('P', _ALT_P);
   if (pfan >= _CNT_P) return;
-<<<<<<< Updated upstream
   #if REDUNDANT_PART_COOLING_FAN
     if (pfan == REDUNDANT_PART_COOLING_FAN) return;
   #endif
-=======
->>>>>>> Stashed changes
 
   thermalManager.set_fan_speed(pfan, 0);
 

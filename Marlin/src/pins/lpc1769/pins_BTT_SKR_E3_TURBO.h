@@ -21,13 +21,10 @@
  */
 #pragma once
 
-<<<<<<< Updated upstream
 /**
  * BigTreeTech SKR E3 Turbo pin assignments
  */
 
-=======
->>>>>>> Stashed changes
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -195,10 +192,6 @@
  *                  ------
  *                   EXP
  */
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 #define EXP1_03_PIN                        P0_18
 #define EXP1_04_PIN                        P0_17
 #define EXP1_05_PIN                        P0_15
@@ -208,7 +201,6 @@
 #define EXP1_09_PIN                        P0_16
 #define EXP1_10_PIN                        P2_08
 
-<<<<<<< Updated upstream
 #if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
   #error "Ender-3 V2 display requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
 
@@ -229,9 +221,6 @@
   #define BTN_ENC                    EXP1_06_PIN
 
 #elif HAS_WIRED_LCD
-=======
-#if HAS_WIRED_LCD
->>>>>>> Stashed changes
 
   #if ENABLED(CR10_STOCKDISPLAY)
 

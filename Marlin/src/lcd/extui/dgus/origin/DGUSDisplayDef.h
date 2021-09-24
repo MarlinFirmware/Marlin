@@ -24,7 +24,6 @@
 #include "../DGUSDisplayDef.h"
 
 enum DGUSLCD_Screens : uint8_t {
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/origin/DGUSDisplayDef.h
   DGUSLCD_SCREEN_BOOT                =   0,
   DGUSLCD_SCREEN_MAIN                =  10,
   DGUSLCD_SCREEN_TEMPERATURE         =  20,
@@ -36,19 +35,6 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_FLOWRATES           =  46,
   DGUSLCD_SCREEN_SDFILELIST          =  50,
   DGUSLCD_SCREEN_SDPRINTMANIPULATION =  52,
-=======
-  DGUSLCD_SCREEN_BOOT                = 0,
-  DGUSLCD_SCREEN_MAIN                = 10,
-  DGUSLCD_SCREEN_TEMPERATURE         = 20,
-  DGUSLCD_SCREEN_STATUS              = 30,
-  DGUSLCD_SCREEN_STATUS2             = 32,
-  DGUSLCD_SCREEN_MANUALMOVE          = 40,
-  DGUSLCD_SCREEN_MANUALEXTRUDE       = 42,
-  DGUSLCD_SCREEN_FANANDFEEDRATE      = 44,
-  DGUSLCD_SCREEN_FLOWRATES           = 46,
-  DGUSLCD_SCREEN_SDFILELIST          = 50,
-  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 52,
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/origin/DGUSDisplayDef.h
   DGUSLCD_SCREEN_POWER_LOSS          = 100,
   DGUSLCD_SCREEN_PREHEAT             = 120,
   DGUSLCD_SCREEN_UTILITY             = 110,
@@ -60,11 +46,7 @@ enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_KILL                = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
   DGUSLCD_SCREEN_WAITING             = 251,
   DGUSLCD_SCREEN_POPUP               = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/dgus/origin/DGUSDisplayDef.h
   DGUSLCD_SCREEN_UNUSED              = 255
-=======
-  DGUSLDC_SCREEN_UNUSED              = 255
->>>>>>> Stashed changes:Marlin/src/lcd/extui/lib/dgus/origin/DGUSDisplayDef.h
 };
 
 // Display Memory layout used (T5UID)

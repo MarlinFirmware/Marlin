@@ -292,10 +292,6 @@
 //
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
-<<<<<<< Updated upstream
-=======
-#define FAN2_PIN                            PE6   // Fan2
->>>>>>> Stashed changes
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
@@ -324,10 +320,6 @@
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 #define EXP1_03_PIN                         PG7
 #define EXP1_04_PIN                         PG6
 #define EXP1_05_PIN                         PG3
@@ -373,11 +365,7 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-<<<<<<< Updated upstream
   /**       -----                        -----
-=======
-  /**       _____                        _____
->>>>>>> Stashed changes
    *    NC | . . | GND               NC | . . | GND
    *    NC | . . | M1EN            M2EN | . . | M3EN
    * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
@@ -451,18 +439,9 @@
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define LCD_PINS_RS              EXP1_04_PIN
-<<<<<<< Updated upstream
 
     #define BTN_EN1                  EXP1_08_PIN
     #define BTN_EN2                  EXP1_06_PIN
-=======
-
-    #define BTN_EN1                  EXP1_08_PIN
-    #define BTN_EN2                  EXP1_06_PIN
-
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
->>>>>>> Stashed changes
 
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
@@ -522,17 +501,10 @@
 // Alter timing for graphical display
 #if ENABLED(U8GLIB_ST7920)
   #ifndef BOARD_ST7920_DELAY_1
-<<<<<<< Updated upstream
     #define BOARD_ST7920_DELAY_1             125
   #endif
   #ifndef BOARD_ST7920_DELAY_2
     #define BOARD_ST7920_DELAY_2              90
-=======
-    #define BOARD_ST7920_DELAY_1    DELAY_NS(125)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(90)
->>>>>>> Stashed changes
   #endif
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3             600

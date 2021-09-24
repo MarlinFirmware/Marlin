@@ -73,10 +73,7 @@ void GcodeSuite::M303() {
     default:
       SERIAL_ECHOLNPGM(STR_PID_BAD_HEATER_ID);
       TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
-<<<<<<< Updated upstream
       TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_PidTuning(PID_BAD_EXTRUDER_NUM));
-=======
->>>>>>> Stashed changes
       return;
   }
 

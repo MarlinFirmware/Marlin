@@ -42,11 +42,7 @@
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
-<<<<<<< Updated upstream
 #if HAS_LEVELING
-=======
-#if ENABLED(HAS_LEVELING)
->>>>>>> Stashed changes
   bool leveling_was_active;
 #endif
 

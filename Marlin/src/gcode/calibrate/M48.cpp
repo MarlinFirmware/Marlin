@@ -241,11 +241,7 @@ void GcodeSuite::M48() {
 
       if (verbose_level > 1) {
         SERIAL_ECHO(n + 1);
-<<<<<<< Updated upstream
         SERIAL_ECHOPGM(" of ", n_samples);
-=======
-        SERIAL_ECHOPAIR(" of ", n_samples);
->>>>>>> Stashed changes
         SERIAL_ECHOPAIR_F(": z: ", pz, 3);
         SERIAL_CHAR(' ');
         dev_report(verbose_level > 2, mean, sigma, min, max);

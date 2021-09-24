@@ -44,11 +44,7 @@ void Repeat::add_marker(const uint32_t sdpos, const uint16_t count) {
     marker[index].sdpos = sdpos;
     marker[index].counter = count ?: -1;
     index++;
-<<<<<<< Updated upstream
     DEBUG_ECHOLNPGM("Add Marker ", index, " at ", sdpos, " (", count, ")");
-=======
-    DEBUG_ECHOLNPAIR("Add Marker ", index, " at ", sdpos, " (", count, ")");
->>>>>>> Stashed changes
   }
 }
 
@@ -58,22 +54,14 @@ void Repeat::loop() {
   else {
     const uint8_t ind = index - 1;      // Active marker's index
     if (!marker[ind].counter) {         // Did its counter run out?
-<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM("Pass Marker ", index);
-=======
-      DEBUG_ECHOLNPAIR("Pass Marker ", index);
->>>>>>> Stashed changes
       index--;                          //  Carry on. Previous marker on the next 'M808'.
     }
     else {
       card.setIndex(marker[ind].sdpos); // Loop back to the marker.
       if (marker[ind].counter > 0)      // Ignore a negative (or zero) counter.
         --marker[ind].counter;          // Decrement the counter. If zero this 'M808' will be skipped next time.
-<<<<<<< Updated upstream
       DEBUG_ECHOLNPGM("Goto Marker ", index, " at ", marker[ind].sdpos, " (", marker[ind].counter, ")");
-=======
-      DEBUG_ECHOLNPAIR("Goto Marker ", index, " at ", marker[ind].sdpos, " (", marker[ind].counter, ")");
->>>>>>> Stashed changes
     }
   }
 }

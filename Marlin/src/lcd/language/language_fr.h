@@ -99,7 +99,6 @@ namespace Language_fr {
     LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Préch. $ lit");
     LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Régler préch. $");
   #endif
-<<<<<<< Updated upstream
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Préchauf. perso");
   LSTR MSG_COOLDOWN                       = _UxGT("Refroidir");
   LSTR MSG_LASER_MENU                     = _UxGT("Contrôle Laser");
@@ -124,32 +123,6 @@ namespace Language_fr {
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Valeur Z");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Commandes perso");
-=======
-  PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Préchauf. perso");
-  PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Refroidir");
-  PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Contrôle Laser");
-  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Puissance");
-  PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Inverser broches");
-  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Allumer alim.");
-  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Eteindre alim.");
-  PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrusion");
-  PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Rétractation");
-  PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Déplacer un axe");
-  PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
-  PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Niveau des coins");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Relever le coin jusqu'à la sonde");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Coins dans la tolérance. Niveau lit ");
-  PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Coin suivant");
-  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Modif. maille"); // 13 car. max
-  PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifier grille");
-  PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Modification arrêtée");
-  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Mesure point");
-  PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
-  PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Index Y");
-  PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valeur Z");
-  PROGMEM Language_Str MSG_CUSTOM_COMMANDS                 = _UxGT("Commandes perso");
->>>>>>> Stashed changes
 
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Mesure point");
   LSTR MSG_M48_TEST                       = _UxGT("Ecart sonde Z M48");

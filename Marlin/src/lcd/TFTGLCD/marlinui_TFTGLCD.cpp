@@ -445,7 +445,6 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_put_u8str(value);
 }
 
-<<<<<<< Updated upstream
 #if HAS_HOTEND || HAS_HEATED_BED
 
   FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
@@ -573,64 +572,10 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
       lcd_put_u8str(" A");
       lcd.setCursor(10, 7);
       lcd_put_u8str(ftostr12ns(ammeter.current));
-=======
-FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
-  uint8_t pic_hot_bits;
-  #if HAS_HEATED_BED
-    const bool isBed = heater_id < 0;
-    const celsius_t t1 = (isBed ? thermalManager.wholeDegBed() : thermalManager.wholeDegHotend(heater_id)),
-                    t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
-  #else
-    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
-  #endif
-
-  #if HOTENDS < 2
-    if (heater_id == H_E0) {
-      lcd.setCursor(2, 5);  lcd.print(prefix); //HE
-      lcd.setCursor(1, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(1, 7);
-    }
-    else {
-      lcd.setCursor(6, 5);  lcd.print(prefix); //BED
-      lcd.setCursor(6, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(6, 7);
-    }
-  #else
-    if (heater_id > H_BED) {
-      lcd.setCursor(heater_id * 4, 5);  lcd.print(prefix); // HE1 or HE2 or HE3
-      lcd.setCursor(heater_id * 4, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(heater_id * 4, 7);
-    }
-    else {
-      lcd.setCursor(13, 5);  lcd.print(prefix); //BED
-      lcd.setCursor(13, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(13, 7);
->>>>>>> Stashed changes
     }
 
-<<<<<<< Updated upstream
     if (ammeter.current)  picBits |= ICON_BED;
     else                  picBits &= ~ICON_BED;
-=======
-  #if !HEATER_IDLE_HANDLER
-    UNUSED(blink);
-  #else
-    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
-      lcd.write(' ');
-      if (t2 >= 10) lcd.write(' ');
-      if (t2 >= 100) lcd.write(' ');
-    }
-    else
-  #endif // !HEATER_IDLE_HANDLER
-      lcd.print(i16tostr3rj(t2));
-
-  switch (heater_id) {
-    case H_BED: pic_hot_bits = ICON_BED;   break;
-    case H_E0:  pic_hot_bits = ICON_TEMP1; break;
-    case H_E1:  pic_hot_bits = ICON_TEMP2; break;
-    case H_E2:  pic_hot_bits = ICON_TEMP3;
-    default:    break;
->>>>>>> Stashed changes
   }
 
 #endif // I2C_AMMETER
@@ -846,16 +791,10 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 0);
-<<<<<<< Updated upstream
   const xyz_pos_t lpos = current_position.asLogical();
   _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink); lcd.write(' ');
   _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink); lcd.write(' ');
   _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
-=======
-  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position.x)), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position.y)), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
->>>>>>> Stashed changes
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');
@@ -927,19 +866,7 @@ void MarlinUI::draw_status_screen() {
   // Line 6..8 Temperatures, FAN for printer or Cooler, Flowmetter, Ampermeter, Cutter for laser/spindle
   //
 
-<<<<<<< Updated upstream
   #if HAS_HOTEND
-=======
-  #if HOTENDS < 2
-    _draw_heater_status(H_E0, "HE", blink);    // Hotend Temperature
-  #else
-    _draw_heater_status(H_E0, "HE1", blink);   // Hotend 1 Temperature
-    _draw_heater_status(H_E1, "HE2", blink);   // Hotend 2 Temperature
-    #if HOTENDS > 2
-      _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
-    #endif
-  #endif
->>>>>>> Stashed changes
 
     #if HOTENDS < 2
       _draw_heater_status(H_E0, "HE", blink);    // Hotend Temperature
@@ -950,7 +877,6 @@ void MarlinUI::draw_status_screen() {
         _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
       #endif
     #endif
-<<<<<<< Updated upstream
 
     #if HAS_HEATED_BED
       #if HAS_LEVELING
@@ -958,35 +884,14 @@ void MarlinUI::draw_status_screen() {
       #else
         _draw_heater_status(H_BED, "BED", blink);
       #endif
-=======
-  #endif
-
-  #if HAS_FAN
-    uint16_t spd = thermalManager.fan_speed[0];
-    #if ENABLED(ADAPTIVE_FAN_SLOWING)
-      if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
->>>>>>> Stashed changes
     #endif
-    uint16_t per = thermalManager.pwmToPercent(spd);
 
-<<<<<<< Updated upstream
     #if HAS_FAN
       uint16_t spd = thermalManager.fan_speed[0];
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
         if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
       #endif
       uint16_t per = thermalManager.pwmToPercent(spd);
-=======
-    #if HOTENDS < 2
-      #define FANX 11
-    #else
-      #define FANX 17
-    #endif
-    lcd.setCursor(FANX, 5); lcd_put_u8str_P(PSTR("FAN"));
-    lcd.setCursor(FANX + 1, 6); lcd.write('%');
-    lcd.setCursor(FANX, 7);
-    lcd.print(i16tostr3rj(per));
->>>>>>> Stashed changes
 
       #if HOTENDS < 2
         #define FANX 11
@@ -1003,7 +908,6 @@ void MarlinUI::draw_status_screen() {
       else
         picBits &= ~ICON_FAN;
 
-<<<<<<< Updated upstream
     #endif // HAS_FAN
 
   #else
@@ -1014,9 +918,6 @@ void MarlinUI::draw_status_screen() {
     TERN_(HAS_CUTTER, _draw_cutter_status());
 
   #endif
-=======
-  #endif // HAS_FAN
->>>>>>> Stashed changes
 
   //
   // Line 9, 10 - icons

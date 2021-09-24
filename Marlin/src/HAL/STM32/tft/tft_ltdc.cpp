@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream
 #include "../../platforms.h"
 
 #ifdef HAL_STM32
-=======
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
->>>>>>> Stashed changes
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -390,8 +386,4 @@ void TFT_LTDC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
 }
 
 #endif // HAS_LTDC_TFT
-<<<<<<< Updated upstream
 #endif // HAL_STM32
-=======
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
->>>>>>> Stashed changes

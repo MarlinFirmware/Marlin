@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 #include "Delay.h"
 
 #include "../../inc/MarlinConfig.h"
@@ -114,26 +111,16 @@
       auto report_call_time = [](PGM_P const name, PGM_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
         SERIAL_ECHOPGM("Calling ");
         SERIAL_ECHOPGM_P(name);
-<<<<<<< Updated upstream
         SERIAL_ECHOLNPGM(" for ", cycles);
         SERIAL_ECHOPGM_P(unit);
         SERIAL_ECHOLNPGM(" took: ", total);
-=======
-        SERIAL_ECHOLNPAIR(" for ", cycles);
-        SERIAL_ECHOPGM_P(unit);
-        SERIAL_ECHOLNPAIR(" took: ", total);
->>>>>>> Stashed changes
         SERIAL_ECHOPGM_P(unit);
         if (do_flush) SERIAL_FLUSHTX();
       };
 
       uint32_t s, e;
 
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM("Computed delay calibration value: ", ASM_CYCLES_PER_ITERATION);
-=======
-      SERIAL_ECHOLNPAIR("Computed delay calibration value: ", ASM_CYCLES_PER_ITERATION);
->>>>>>> Stashed changes
       SERIAL_FLUSH();
       // Display the results of the calibration above
       constexpr uint32_t testValues[] = { 1, 5, 10, 20, 50, 100, 150, 200, 350, 500, 750, 1000 };

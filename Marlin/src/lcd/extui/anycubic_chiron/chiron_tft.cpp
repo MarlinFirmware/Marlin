@@ -104,11 +104,7 @@ void ChironTFT::Startup() {
   PlayTune(BEEPER_PIN, TERN(AC_DEFAULT_STARTUP_TUNE, Anycubic_PowerOn, GB_PowerOn), 1);
 
   #if ACDEBUGLEVEL
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("AC Debug Level ", ACDEBUGLEVEL);
-=======
-    SERIAL_ECHOLNPAIR("AC Debug Level ", ACDEBUGLEVEL);
->>>>>>> Stashed changes
   #endif
   SendtoTFTLN(AC_msg_ready);
 }
@@ -132,21 +128,13 @@ void ChironTFT::IdleLoop()  {
 void ChironTFT::PrinterKilled(PGM_P error,PGM_P component)  {
   SendtoTFTLN(AC_msg_kill_lcd);
   #if ACDEBUG(AC_MARLIN)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("PrinterKilled()\nerror: ", error , "\ncomponent: ", component);
-=======
-    SERIAL_ECHOLNPAIR("PrinterKilled()\nerror: ", error , "\ncomponent: ", component);
->>>>>>> Stashed changes
   #endif
 }
 
 void ChironTFT::MediaEvent(media_event_t event)  {
   #if ACDEBUG(AC_MARLIN)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("ProcessMediaStatus() ", event);
-=======
-    SERIAL_ECHOLNPAIR("ProcessMediaStatus() ", event);
->>>>>>> Stashed changes
   #endif
   switch (event) {
     case AC_media_inserted:
@@ -166,13 +154,8 @@ void ChironTFT::MediaEvent(media_event_t event)  {
 
 void ChironTFT::TimerEvent(timer_event_t event)  {
   #if ACDEBUG(AC_MARLIN)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("TimerEvent() ", event);
     SERIAL_ECHOLNPGM("Printer State: ", printer_state);
-=======
-    SERIAL_ECHOLNPAIR("TimerEvent() ", event);
-    SERIAL_ECHOLNPAIR("Printer State: ", printer_state);
->>>>>>> Stashed changes
   #endif
 
   switch (event) {
@@ -201,11 +184,7 @@ void ChironTFT::TimerEvent(timer_event_t event)  {
 
 void ChironTFT::FilamentRunout()  {
   #if ACDEBUG(AC_MARLIN)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("FilamentRunout() printer_state ", printer_state);
-=======
-    SERIAL_ECHOLNPAIR("FilamentRunout() printer_state ", printer_state);
->>>>>>> Stashed changes
   #endif
   // 1 Signal filament out
   last_error = AC_error_filament_runout;
@@ -216,11 +195,7 @@ void ChironTFT::FilamentRunout()  {
 void ChironTFT::ConfirmationRequest(const char * const msg)  {
   // M108 continue
   #if ACDEBUG(AC_MARLIN)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("ConfirmationRequest() ", msg, " printer_state:", printer_state);
-=======
-    SERIAL_ECHOLNPAIR("ConfirmationRequest() ", msg, " printer_state:", printer_state);
->>>>>>> Stashed changes
   #endif
   switch (printer_state) {
     case AC_printer_pausing: {
@@ -233,11 +208,7 @@ void ChironTFT::ConfirmationRequest(const char * const msg)  {
     case AC_printer_resuming_from_power_outage:
     case AC_printer_printing:
     case AC_printer_paused: {
-<<<<<<< Updated upstream
       // Heater timeout, send acknowledgement
-=======
-      // Heater timout, send acknowledgement
->>>>>>> Stashed changes
       if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
         pause_state = AC_paused_heater_timed_out;
         SendtoTFTLN(AC_msg_paused); // enable continue button
@@ -261,13 +232,8 @@ void ChironTFT::ConfirmationRequest(const char * const msg)  {
 
 void ChironTFT::StatusChange(const char * const msg)  {
   #if ACDEBUG(AC_MARLIN)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("StatusChange() ", msg);
     SERIAL_ECHOLNPGM("printer_state:", printer_state);
-=======
-    SERIAL_ECHOLNPAIR("StatusChange() ", msg);
-    SERIAL_ECHOLNPAIR("printer_state:", printer_state);
->>>>>>> Stashed changes
   #endif
   bool msg_matched = false;
   // The only way to get printer status is to parse messages
@@ -282,11 +248,7 @@ void ChironTFT::StatusChange(const char * const msg)  {
         printer_state = AC_printer_idle;
         msg_matched = true;
       }
-<<<<<<< Updated upstream
       // If probing fails don't save the mesh raise the probe above the bad point
-=======
-      // If probing fails dont save the mesh raise the probe above the bad point
->>>>>>> Stashed changes
       if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
         PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
         injectCommands_P(PSTR("G1 Z50 F500"));
@@ -386,11 +348,7 @@ bool ChironTFT::ReadTFTCommand() {
   if (command_ready || command_len == MAX_CMND_LEN) {
     panel_command[command_len] = '\0';
     #if ACDEBUG(AC_ALL)
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM("len(",command_len,") < ", panel_command);
-=======
-      SERIAL_ECHOLNPAIR("len(",command_len,") < ", panel_command);
->>>>>>> Stashed changes
     #endif
     command_ready = true;
   }
@@ -402,21 +360,13 @@ int8_t ChironTFT::FindToken(char c) {
   do {
     if (panel_command[pos] == c) {
       #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
         SERIAL_ECHOLNPGM("Tpos:", pos, " ", c);
-=======
-        SERIAL_ECHOLNPAIR("Tpos:", pos, " ", c);
->>>>>>> Stashed changes
       #endif
       return pos;
     }
   } while(++pos < command_len);
   #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("Not found: ", c);
-=======
-    SERIAL_ECHOLNPAIR("Not found: ", c);
->>>>>>> Stashed changes
   #endif
   return -1;
 }
@@ -431,11 +381,7 @@ void ChironTFT::CheckHeaters() {
     if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
       SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
       last_error = AC_error_abnormal_temp_t0;
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM("Extruder temp abnormal! : ", temp);
-=======
-      SERIAL_ECHOLNPAIR("Extruder temp abnormal! : ", temp);
->>>>>>> Stashed changes
       break;
     }
     delay_ms(500);
@@ -450,11 +396,7 @@ void ChironTFT::CheckHeaters() {
     if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
       SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
       last_error = AC_error_abnormal_temp_bed;
-<<<<<<< Updated upstream
       SERIAL_ECHOLNPGM("Bed temp abnormal! : ", temp);
-=======
-      SERIAL_ECHOLNPAIR("Bed temp abnormal! : ", temp);
->>>>>>> Stashed changes
       break;
     }
     delay_ms(500);
@@ -481,11 +423,7 @@ void ChironTFT::CheckHeaters() {
 void ChironTFT::SendFileList(int8_t startindex) {
   // Respond to panel request for 4 files starting at index
   #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM("## SendFileList ## ", startindex);
-=======
-    SERIAL_ECHOLNPAIR("## SendFileList ## ", startindex);
->>>>>>> Stashed changes
   #endif
   SendtoTFTLN(PSTR("FN "));
   filenavigator.getFiles(startindex, panel_type, 4);
@@ -502,11 +440,7 @@ void ChironTFT::SelectFile() {
     selectedfile[command_len - 5] = '\0';
   }
   #if ACDEBUG(AC_FILE)
-<<<<<<< Updated upstream
     SERIAL_ECHOLNPGM(" Selected File: ",selectedfile);
-=======
-    SERIAL_ECHOLNPAIR(" Selected File: ",selectedfile);
->>>>>>> Stashed changes
   #endif
   switch (selectedfile[0]) {
     case '/':   // Valid file selected
@@ -627,11 +561,7 @@ void ChironTFT::PanelInfo(uint8_t req) {
       TFTSer.print(ui8tostr2(time % 60));
       SendtoTFT(PSTR(" M"));
       #if ACDEBUG(AC_ALL)
-<<<<<<< Updated upstream
         SERIAL_ECHOLNPGM("Print time ", ui8tostr2(time / 60), ":", ui8tostr2(time % 60));
-=======
-        SERIAL_ECHOLNPAIR("Print time ", ui8tostr2(time / 60), ":", ui8tostr2(time % 60));
->>>>>>> Stashed changes
       #endif
     } break;
 
@@ -692,11 +622,7 @@ void ChironTFT::PanelAction(uint8_t req) {
       break;
 
     case 14: { // A14 Start Printing
-<<<<<<< Updated upstream
       // Allows printer to restart the job if we don't want to recover
-=======
-      // Allows printer to restart the job if we dont want to recover
->>>>>>> Stashed changes
       if (printer_state == AC_printer_resuming_from_power_outage) {
         injectCommands_P(PSTR("M1000 C")); // Cancel recovery
         printer_state = AC_printer_idle;
@@ -776,11 +702,7 @@ void ChironTFT::PanelAction(uint8_t req) {
         char MoveCmnd[30];
         sprintf_P(MoveCmnd, PSTR("G91\nG0%s\nG90"), panel_command + 3);
         #if ACDEBUG(AC_ACTION)
-<<<<<<< Updated upstream
           SERIAL_ECHOLNPGM("Move: ", MoveCmnd);
-=======
-          SERIAL_ECHOLNPAIR("Move: ", MoveCmnd);
->>>>>>> Stashed changes
         #endif
         setSoftEndstopState(true);  // enable endstops
         injectCommands(MoveCmnd);
@@ -859,11 +781,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
 
           if (isPositionKnown()) {
             #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
               SERIAL_ECHOLNPGM("Moving to mesh point at x: ", pos.x, " y: ", pos.y, " z: ", pos_z);
-=======
-              SERIAL_ECHOLNPAIR("Moving to mesh point at x: ", pos.x, " y: ", pos.y, " z: ", pos_z);
->>>>>>> Stashed changes
             #endif
             // Go up before moving
             setAxisPosition_mm(3.0,Z);
@@ -872,11 +790,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
             setAxisPosition_mm(20 + (93 * pos.y), Y);
             setAxisPosition_mm(0.0, Z);
             #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
               SERIAL_ECHOLNPGM("Current Z: ", getAxisPosition_mm(Z));
-=======
-              SERIAL_ECHOLNPAIR("Current Z: ", getAxisPosition_mm(Z));
->>>>>>> Stashed changes
             #endif
           }
         }
@@ -944,29 +858,17 @@ void ChironTFT::PanelProcess(uint8_t req) {
           // From the leveling panel use the all points UI to adjust the print pos.
           if (isPrinting()) {
             #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
               SERIAL_ECHOLNPGM("Change Zoffset from:", live_Zoffset, " to ", live_Zoffset + Zshift);
-=======
-              SERIAL_ECHOLNPAIR("Change Zoffset from:", live_Zoffset, " to ", live_Zoffset + Zshift);
->>>>>>> Stashed changes
             #endif
             if (isAxisPositionKnown(Z)) {
               #if ACDEBUG(AC_INFO)
                 const float currZpos = getAxisPosition_mm(Z);
-<<<<<<< Updated upstream
                 SERIAL_ECHOLNPGM("Nudge Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));
-=======
-                SERIAL_ECHOLNPAIR("Nudge Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));
->>>>>>> Stashed changes
               #endif
               // Use babystepping to adjust the head position
               int16_t steps = mmToWholeSteps(constrain(Zshift,-0.05,0.05), Z);
               #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
                 SERIAL_ECHOLNPGM("Steps to move Z: ", steps);
-=======
-                SERIAL_ECHOLNPAIR("Steps to move Z: ", steps);
->>>>>>> Stashed changes
               #endif
               babystepAxis_steps(steps, Z);
               live_Zoffset += Zshift;
@@ -980,20 +882,12 @@ void ChironTFT::PanelProcess(uint8_t req) {
               const float currval = getMeshPoint(pos);
               setMeshPoint(pos, constrain(currval + Zshift, AC_LOWEST_MESHPOINT_VAL, 2));
               #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
                 SERIAL_ECHOLNPGM("Change mesh point X", x," Y",y ," from ", currval, " to ", getMeshPoint(pos) );
-=======
-                SERIAL_ECHOLNPAIR("Change mesh point X", x," Y",y ," from ", currval, " to ", getMeshPoint(pos) );
->>>>>>> Stashed changes
               #endif
             }
             const float currZOffset = getZOffset_mm();
             #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
               SERIAL_ECHOLNPGM("Change probe offset from ", currZOffset, " to  ", currZOffset + Zshift);
-=======
-              SERIAL_ECHOLNPAIR("Change probe offset from ", currZOffset, " to  ", currZOffset + Zshift);
->>>>>>> Stashed changes
             #endif
 
             setZOffset_mm(currZOffset + Zshift);
@@ -1004,11 +898,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
               // Move Z axis
               const float currZpos = getAxisPosition_mm(Z);
               #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
                 SERIAL_ECHOLNPGM("Move Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));
-=======
-                SERIAL_ECHOLNPAIR("Move Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));
->>>>>>> Stashed changes
               #endif
               setAxisPosition_mm(currZpos+constrain(Zshift,-0.05,0.05),Z);
             }
@@ -1040,13 +930,8 @@ void ChironTFT::PanelProcess(uint8_t req) {
         float currmesh = getMeshPoint(pos);
         float newval   = atof(&panel_command[11])/100;
         #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
           SERIAL_ECHOLNPGM("Change mesh point x:", pos.x, " y:", pos.y);
           SERIAL_ECHOLNPGM("from ", currmesh, " to ", newval);
-=======
-          SERIAL_ECHOLNPAIR("Change mesh point x:", pos.x, " y:", pos.y);
-          SERIAL_ECHOLNPAIR("from ", currmesh, " to ", newval);
->>>>>>> Stashed changes
         #endif
         // Update Meshpoint
         setMeshPoint(pos,newval);
@@ -1057,11 +942,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
             setSoftEndstopState(false);
             float currZpos = getAxisPosition_mm(Z);
             #if ACDEBUG(AC_INFO)
-<<<<<<< Updated upstream
               SERIAL_ECHOLNPGM("Move Z pos from ", currZpos, " to ", currZpos + constrain(newval - currmesh, -0.05, 0.05));
-=======
-              SERIAL_ECHOLNPAIR("Move Z pos from ", currZpos, " to ", currZpos + constrain(newval - currmesh, -0.05, 0.05));
->>>>>>> Stashed changes
             #endif
             setAxisPosition_mm(currZpos + constrain(newval - currmesh, -0.05, 0.05), Z);
           }

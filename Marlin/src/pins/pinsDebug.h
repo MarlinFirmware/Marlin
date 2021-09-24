@@ -44,11 +44,7 @@
 #define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-<<<<<<< Updated upstream
 #line 48
-=======
-#line 45
->>>>>>> Stashed changes
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if ANY(AVR_ATmega2560_FAMILY, AVR_ATmega1284_FAMILY, ARDUINO_ARCH_SAM, TARGET_LPC1768)
@@ -167,11 +163,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "pinsDebug_list.h"
-<<<<<<< Updated upstream
   #line 167
-=======
-  #line 164
->>>>>>> Stashed changes
 
 };
 

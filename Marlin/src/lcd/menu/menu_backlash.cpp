@@ -45,7 +45,6 @@ void menu_backlash() {
   #endif
   #define EDIT_BACKLASH_DISTANCE(N) EDIT_ITEM_FAST(float43, MSG_BACKLASH_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
   if (_CAN_CALI(A)) EDIT_BACKLASH_DISTANCE(A);
-<<<<<<< Updated upstream
   #if HAS_Y_AXIS && _CAN_CALI(B)
     EDIT_BACKLASH_DISTANCE(B);
   #endif
@@ -61,10 +60,6 @@ void menu_backlash() {
   #if LINEAR_AXES >= 6 && _CAN_CALI(K)
     EDIT_BACKLASH_DISTANCE(K);
   #endif
-=======
-  if (_CAN_CALI(B)) EDIT_BACKLASH_DISTANCE(B);
-  if (_CAN_CALI(C)) EDIT_BACKLASH_DISTANCE(C);
->>>>>>> Stashed changes
 
   #ifdef BACKLASH_SMOOTHING_MM
     EDIT_ITEM_FAST(float43, MSG_BACKLASH_SMOOTHING, &backlash.smoothing_mm, 0.0f, 9.9f);

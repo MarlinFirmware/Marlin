@@ -21,15 +21,8 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/status_screen.cpp
 #include "../screens.h"
 #include "../screen_data.h"
-
-#ifdef FTDI_STATUS_SCREEN
-=======
-#include "screens.h"
-#include "screen_data.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/status_screen.cpp
 
 #ifdef FTDI_STATUS_SCREEN
 
@@ -468,7 +461,6 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/generic/status_screen.cpp
 void StatusScreen::onMediaInserted() {
   if (AT_SCREEN(StatusScreen))
     setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
@@ -479,6 +471,4 @@ void StatusScreen::onMediaRemoved() {
     setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
 }
 
-=======
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/status_screen.cpp
 #endif // FTDI_STATUS_SCREEN

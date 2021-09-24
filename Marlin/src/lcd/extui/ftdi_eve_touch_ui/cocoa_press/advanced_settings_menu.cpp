@@ -21,15 +21,9 @@
  ****************************************************************************/
 
 #include "../config.h"
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/advanced_settings_menu.cpp
 #include "../screens.h"
 
 #ifdef COCOA_ADVANCED_SETTINGS_MENU
-=======
-#include "screens.h"
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_advanced_settings_menu.cpp
-
-#ifdef FTDI_COCOA_ADVANCED_SETTINGS_MENU
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -98,8 +92,4 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
   }
   return true;
 }
-<<<<<<< Updated upstream:Marlin/src/lcd/extui/ftdi_eve_touch_ui/cocoa_press/advanced_settings_menu.cpp
 #endif // COCOA_ADVANCED_SETTINGS_MENU
-=======
-#endif // FTDI_COCOA_ADVANCED_SETTINGS_MENU
->>>>>>> Stashed changes:Marlin/src/lcd/extui/ftdi_eve_touch_ui/screens/cocoa_press_advanced_settings_menu.cpp

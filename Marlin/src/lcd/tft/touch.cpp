@@ -274,17 +274,13 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
     #endif
   #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
     bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getPoint(y, x) : io.getPoint(x, y));
-<<<<<<< Updated upstream
   #endif
   #if HAS_TOUCH_SLEEP
     if (is_touched)
       wakeUp();
     else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
       sleepTimeout();
-=======
->>>>>>> Stashed changes
   #endif
-
   return is_touched;
 }
 

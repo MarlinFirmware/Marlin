@@ -44,11 +44,7 @@ extern xyze_pos_t current_position,  // High-level current tool position
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
-<<<<<<< Updated upstream
   extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3]; // TODO: Add support for LINEAR_AXES >= 4
-=======
-  extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
->>>>>>> Stashed changes
   extern xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
@@ -238,15 +234,12 @@ void report_real_position();
 void report_current_position();
 void report_current_position_projected();
 
-<<<<<<< Updated upstream
 #if ENABLED(AUTO_REPORT_POSITION)
   #include "../libs/autoreport.h"
   struct PositionReport { static void report() { report_current_position_projected(); } };
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-=======
->>>>>>> Stashed changes
 #if EITHER(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
   /**
@@ -305,25 +298,13 @@ void sync_plan_position();
  */
 void line_to_current_position(const_feedRate_t fr_mm_s=feedrate_mm_s);
 
-<<<<<<< Updated upstream
 #if HAS_EXTRUDERS
-=======
-#if EXTRUDERS
->>>>>>> Stashed changes
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s);
 #endif
 
 void prepare_line_to_destination();
 
-<<<<<<< Updated upstream
 void _internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f OPTARG(IS_KINEMATIC, const bool is_fast=false));
-=======
-void _internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f
-  #if IS_KINEMATIC
-    , const bool is_fast=false
-  #endif
-);
->>>>>>> Stashed changes
 
 inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) {
   _internal_move_to_destination(fr_mm_s);
@@ -340,17 +321,12 @@ inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) 
 /**
  * Blocking movement and shorthand functions
  */
-<<<<<<< Updated upstream
 void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s=0.0f);
-=======
-void do_blocking_move_to(const float rx, const float ry, const float rz, const_feedRate_t fr_mm_s=0.0f);
->>>>>>> Stashed changes
 void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
 
 void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
-<<<<<<< Updated upstream
 #if HAS_Y_AXIS
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
 #endif
@@ -382,43 +358,22 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
   FORCE_INLINE void do_blocking_move_to_xy_z(const xyz_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f)  { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
   FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
 #endif
-=======
-void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s=0.0f);
-
-void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to_xy(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
-FORCE_INLINE void do_blocking_move_to_xy(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f)  { do_blocking_move_to_xy(xy_pos_t(raw), fr_mm_s); }
-FORCE_INLINE void do_blocking_move_to_xy(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy(xy_pos_t(raw), fr_mm_s); }
-
-void do_blocking_move_to_xy_z(const xy_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f);
-FORCE_INLINE void do_blocking_move_to_xy_z(const xyz_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f)  { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
-FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
->>>>>>> Stashed changes
 
 void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
-<<<<<<< Updated upstream
 #if HAS_Z_AXIS
   void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
 #else
   inline void do_z_clearance(float, bool=false) {}
 #endif
-=======
-void do_z_clearance(const_float_t zclear, const bool lower_allowed=false);
->>>>>>> Stashed changes
 
 /**
  * Homing and Trusted Axes
  */
-<<<<<<< Updated upstream
 typedef IF<(LINEAR_AXES > 8), uint16_t, uint8_t>::type linear_axis_bits_t;
 constexpr linear_axis_bits_t linear_bits = _BV(LINEAR_AXES) - 1;
-=======
-constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
->>>>>>> Stashed changes
 
 void set_axis_is_at_home(const AxisEnum axis);
 
@@ -432,7 +387,6 @@ void set_axis_is_at_home(const AxisEnum axis);
    *   Flags that the position is trusted in each linear axis. Set when homed.
    *   Cleared whenever a stepper powers off, potentially losing its position.
    */
-<<<<<<< Updated upstream
   extern linear_axis_bits_t axis_homed, axis_trusted;
   void homeaxis(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
@@ -467,40 +421,6 @@ inline bool homing_needed()                           { return !all_axes_homed()
 inline bool all_axes_trusted()                        { return linear_bits == (axis_trusted & linear_bits); }
 
 void home_if_needed(const bool keeplev=false);
-=======
-  extern uint8_t axis_homed, axis_trusted;
-  void homeaxis(const AxisEnum axis);
-  void set_axis_never_homed(const AxisEnum axis);
-  uint8_t axes_should_home(uint8_t axis_bits=0x07);
-  bool homing_needed_error(uint8_t axis_bits=0x07);
-  FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   { CBI(axis_homed, axis); }
-  FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) { CBI(axis_trusted, axis); }
-  FORCE_INLINE void set_all_unhomed()                       { axis_homed = axis_trusted = 0; }
-  FORCE_INLINE void set_axis_homed(const AxisEnum axis)     { SBI(axis_homed, axis); }
-  FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   { SBI(axis_trusted, axis); }
-  FORCE_INLINE void set_all_homed()                         { axis_homed = axis_trusted = xyz_bits; }
-#else
-  constexpr uint8_t axis_homed = xyz_bits, axis_trusted = xyz_bits; // Zero-endstop machines are always homed and trusted
-  FORCE_INLINE void homeaxis(const AxisEnum axis)           {}
-  FORCE_INLINE void set_axis_never_homed(const AxisEnum)    {}
-  FORCE_INLINE uint8_t axes_should_home(uint8_t=0x07)       { return false; }
-  FORCE_INLINE bool homing_needed_error(uint8_t=0x07)       { return false; }
-  FORCE_INLINE void set_axis_unhomed(const AxisEnum axis)   {}
-  FORCE_INLINE void set_axis_untrusted(const AxisEnum axis) {}
-  FORCE_INLINE void set_all_unhomed()                       {}
-  FORCE_INLINE void set_axis_homed(const AxisEnum axis)     {}
-  FORCE_INLINE void set_axis_trusted(const AxisEnum axis)   {}
-  FORCE_INLINE void set_all_homed()                         {}
-#endif
-
-FORCE_INLINE bool axis_was_homed(const AxisEnum axis)       { return TEST(axis_homed, axis); }
-FORCE_INLINE bool axis_is_trusted(const AxisEnum axis)      { return TEST(axis_trusted, axis); }
-FORCE_INLINE bool axis_should_home(const AxisEnum axis)     { return (axes_should_home() & _BV(axis)) != 0; }
-FORCE_INLINE bool no_axes_homed()                           { return !axis_homed; }
-FORCE_INLINE bool all_axes_homed()                          { return xyz_bits == (axis_homed & xyz_bits); }
-FORCE_INLINE bool homing_needed()                           { return !all_axes_homed(); }
-FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits == (axis_trusted & xyz_bits); }
->>>>>>> Stashed changes
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
   #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
@@ -584,7 +504,6 @@ FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits ==
 
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
 
-<<<<<<< Updated upstream
     #elif ENABLED(POLARGRAPH)
 
       const float x1 = rx - (X_MIN_POS), x2 = (X_MAX_POS) - rx, y = ry - (Y_MAX_POS),
@@ -593,8 +512,6 @@ FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits ==
           && b < (POLARGRAPH_MAX_BELT_LEN) + 1
           && (a + b) > _MIN(X_BED_SIZE, Y_BED_SIZE);
 
-=======
->>>>>>> Stashed changes
     #elif ENABLED(AXEL_TPARA)
 
       const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
@@ -686,11 +603,7 @@ FORCE_INLINE bool all_axes_trusted()                        { return xyz_bits ==
     FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif
 
-<<<<<<< Updated upstream
   #define TOOL_X_HOME_DIR(T) X_HOME_DIR
-=======
-  FORCE_INLINE int x_home_dir(const uint8_t) { return X_HOME_DIR; }
->>>>>>> Stashed changes
 
 #endif
 
