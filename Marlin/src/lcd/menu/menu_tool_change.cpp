@@ -34,79 +34,12 @@
 #include "../../feature/pause.h"
 #include "../../gcode/queue.h"
 
-/**
- * Callback for a completed/successful tool change.
- *
- */
-void menu_tool_change_done() {
-  ui.set_status_P(PSTR("Tool Changed"));
-  ui.return_to_status();
-
-  /*#if ENABLED(SWITCHING_TOOLHEAD_PARKING)
-    // Move XY to starting position, then Z
-    do_blocking_move_to_xy(toolchange_resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
-
-    // Move Z_AXIS to saved position
-    do_blocking_move_to_z(toolchange_resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
-  #endif*/
-}
-
-
-/**
- * Callback for a cancelled tool change.
- *
- */
-void menu_tool_change_cancel() {
-  ui.set_status_P(PSTR("Tool Change Canceled"));
-  ui.return_to_status();
-
-  /*#if ENABLED(SWITCHING_TOOLHEAD_PARKING)
-    // Move XY to starting position, then Z
-    do_blocking_move_to_xy(toolchange_resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
-
-    // Move Z_AXIS to saved position
-    do_blocking_move_to_z(toolchange_resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
-  #endif*/
-}
-
-
-/**
- * Menu shown when a tool is being changed, prompting the user
- * to install the selected tool, and allowing cancelling of the
- * tool change.
- *
- */
-void menu_tool_changing() {
-
-  char tgc[3];
-  sprintf_P(tgc, PSTR("T%c"), editable.uint8);
-  //tool_change(editable.uint8);
+inline void menu_tool_change_action() {
+  char tgc[3] = { '\0' };
+  const char n = editable.uint8 + '0';
+  sprintf_P(tgc, PSTR("T%c"), n);
   queue.inject(tgc);
-
-  /*xyz_pos_t park_point = TERN(SWITCHING_TOOLHEAD_PARKING, park_point, current_position);
-
-  if (park_point.z <= (current_position.z + 5)) park_point.z = current_position.z + 10;
-
-  if (pause_print(0.0, park_point, true, 0)) {
-    tool_change(editable.uint8);
-    wait_for_confirmation(false, 2);
-    thermalManager.heating_enabled = true;
-    resume_print();
-    ui.set_status_P(PSTR("Tool Changed"));
-  }
-
-  ui.push_current_screen();
-  ui.goto_screen([]{
-    MenuItem_confirm::select_screen(
-      GET_TEXT(MSG_BUTTON_DONE),
-      GET_TEXT(MSG_BUTTON_CANCEL),
-      menu_tool_change_done,
-      menu_tool_change_cancel,
-      PSTR("Install tool:"),
-      toolhead_names[editable.uint8],
-      (const char *)nullptr
-    );
-  });*/
+  ui.return_to_status();
 }
 
 /**
@@ -128,12 +61,7 @@ void menu_tool_change_hotend() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    SUBMENU_P(toolhead_names[e], []{
-      char tgc[3] = { '\0' };
-      char n = editable.uint8 + '0';
-      sprintf_P(tgc, PSTR("T%c"), n);
-      queue.inject(tgc);
-    });
+    ACTION_ITEM_P(toolhead_names[e], menu_tool_change_action);
   }
 
   END_MENU();
@@ -172,12 +100,7 @@ void menu_tool_change_unpowered() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    SUBMENU_P(toolhead_names[e], []{
-      char tgc[3] = { '\0' };
-      char n = editable.uint8 + '0';
-      sprintf_P(tgc, PSTR("T%c"), n);
-      queue.inject(tgc);
-    });
+    ACTION_ITEM_P(toolhead_names[e], menu_tool_change_action);
   }
 
   END_MENU();

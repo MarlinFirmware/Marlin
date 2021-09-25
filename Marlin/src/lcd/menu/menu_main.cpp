@@ -280,6 +280,7 @@ void menu_main() {
     #if MACHINE_CAN_PAUSE
       ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print);
     #endif
+
     #if MACHINE_CAN_STOP
       SUBMENU(MSG_STOP_PRINT, []{
         MenuItem_confirm::select_screen(
@@ -300,6 +301,10 @@ void menu_main() {
     #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
       SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
     #endif
+
+    #if MACHINE_CAN_PAUSE && ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
+    #endif
   }
   else {
 
@@ -319,11 +324,11 @@ void menu_main() {
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
-  }
 
-  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-    SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
-  #endif
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
+    #endif
+  }
 
   #if HAS_CUTTER
     SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
