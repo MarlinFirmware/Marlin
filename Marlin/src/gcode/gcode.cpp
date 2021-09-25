@@ -242,7 +242,7 @@ void GcodeSuite::dwell(millis_t time) {
       host_action(PSTR(ACTION_ON_G29_RECOVER));
     #endif
     #ifdef G29_RECOVER_COMMANDS
-      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+      process_subcommands_now(F(G29_RECOVER_COMMANDS));
     #endif
   }
 
@@ -255,7 +255,7 @@ void GcodeSuite::dwell(millis_t time) {
       host_action(PSTR(ACTION_ON_G29_FAILURE));
     #endif
     #ifdef G29_FAILURE_COMMANDS
-      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+      process_subcommands_now(F(G29_FAILURE_COMMANDS));
     #endif
     #if ENABLED(G29_HALT_ON_FAILURE)
       #ifdef ACTION_ON_CANCEL
@@ -285,7 +285,7 @@ void GcodeSuite::dwell(millis_t time) {
     TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
 
     #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
+      process_subcommands_now(F(G29_SUCCESS_COMMANDS));
     #endif
   }
 
@@ -1100,7 +1100,8 @@ void GcodeSuite::process_next_command() {
  * G-code "macros" to be called from within other G-code handlers.
  */
 
-void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
+void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
+  PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
   for (;;) {
     PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline

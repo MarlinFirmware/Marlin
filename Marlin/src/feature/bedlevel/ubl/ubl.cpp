@@ -281,10 +281,10 @@ bool unified_bed_leveling::sanity_check() {
       }
     #endif
 
-    process_subcommands_now_P(G28_STR);               // Home
-    process_subcommands_now_P(PSTR(ALIGN_GCODE "\n"   // Align multi z axis if available
-                                   PROBE_GCODE "\n"   // Build mesh with available hardware
-                                   "G29P3\nG29P3"));  // Ensure mesh is complete by running smart fill twice
+    process_subcommands_now(FPSTR(G28_STR));      // Home
+    process_subcommands_now(F(ALIGN_GCODE "\n"    // Align multi z axis if available
+                              PROBE_GCODE "\n"    // Build mesh with available hardware
+                              "G29P3\nG29P3"));   // Ensure mesh is complete by running smart fill twice
 
     if (parser.seenval('S')) {
       char umw_gcode[32];
@@ -292,9 +292,9 @@ bool unified_bed_leveling::sanity_check() {
       queue.inject(umw_gcode);
     }
 
-    process_subcommands_now_P(PSTR("G29A\nG29F10\n"   // Set UBL Active & Fade 10
-                                   "M140S0\nM104S0\n" // Turn off heaters
-                                   "M500"));          // Store settings
+    process_subcommands_now(F("G29A\nG29F10\n"    // Set UBL Active & Fade 10
+                              "M140S0\nM104S0\n"  // Turn off heaters
+                              "M500"));           // Store settings
   }
 
 #endif // UBL_MESH_WIZARD

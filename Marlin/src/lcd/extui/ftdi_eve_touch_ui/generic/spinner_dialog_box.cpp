@@ -99,7 +99,7 @@ void SpinnerDialogBox::enqueueAndWait(FSTR_P message, char *commands) {
 }
 
 void SpinnerDialogBox::onIdle() {
-  if (mydata.auto_hide && !commandsInQueue() && TERN1(HOST_KEEPALIVE_FEATURE, GcodeSuite::busy_state == GcodeSuite::NOT_BUSY)) {
+  if (mydata.auto_hide && !commandsInQueue() && TERN1(HOST_KEEPALIVE_FEATURE, gcode.busy_state == gcode.NOT_BUSY)) {
     mydata.auto_hide = false;
     hide();
   }

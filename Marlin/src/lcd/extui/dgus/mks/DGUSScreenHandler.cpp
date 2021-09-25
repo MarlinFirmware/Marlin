@@ -262,7 +262,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   void DGUSScreenHandler::SDPrintingFinished() {
     if (DGUSAutoTurnOff) {
       queue.exhaust();
-      gcode.process_subcommands_now_P(PSTR("M81"));
+      gcode.process_subcommands_now(F("M81"));
     }
     GotoScreen(MKSLCD_SCREEN_PrintDone);
   }

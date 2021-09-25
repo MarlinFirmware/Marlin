@@ -656,7 +656,7 @@ void unified_bed_leveling::G29() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
     if (probe_deployed) {
       planner.synchronize();
-      gcode.process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
+      gcode.process_subcommands_now(F(Z_PROBE_END_SCRIPT));
     }
   #else
     UNUSED(probe_deployed);

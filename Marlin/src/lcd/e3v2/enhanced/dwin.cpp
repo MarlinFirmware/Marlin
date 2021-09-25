@@ -2172,7 +2172,7 @@ void SetMoveZto0() {
       dtostrf(Y_CENTER, 1, 1, str_2)
     #endif
   );
-  gcode.process_subcommands_now_P(cmd);
+  gcode.process_subcommands_now(cmd);
   planner.synchronize();
   ui.set_status_P(PSTR("Now adjust Z Offset"));
   HMI_AudioFeedback(true);
@@ -2185,7 +2185,7 @@ void SetPID(celsius_t t, heater_id_t h) {
     dtostrf(X_CENTER, 1, 1, str_1),
     dtostrf(Y_CENTER, 1, 1, str_2)
   );
-  gcode.process_subcommands_now_P(cmd);
+  gcode.process_subcommands_now(cmd);
   planner.synchronize();
   thermalManager.PID_autotune(t, h, HMI_data.PidCycles, true);
 }
@@ -2375,7 +2375,7 @@ void LevBed(uint8_t point) {
 
   #if HAS_ONESTEP_LEVELING
     planner.synchronize();
-    gcode.process_subcommands_now_P(PSTR("M420S0\nG28O"));
+    gcode.process_subcommands_now(F("M420S0\nG28O"));
     planner.synchronize();
     zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
     sprintf_P(cmd, PSTR(fmt),
@@ -2401,7 +2401,7 @@ void LevBedC () { LevBed(4); }
 
   void ManualMeshStart(){
     ui.set_status_P(GET_TEXT(MSG_UBL_BUILD_MESH_MENU));
-    gcode.process_subcommands_now_P(PSTR("G28 XYO\nG28 Z\nM211 S0\nG29S1"));
+    gcode.process_subcommands_now(F("G28 XYO\nG28 Z\nM211 S0\nG29S1"));
     planner.synchronize();
     #ifdef MANUAL_PROBE_START_Z
       const uint8_t line = CurrentMenu->line(MMeshMoveZItem->pos);
@@ -2419,7 +2419,7 @@ void LevBedC () { LevBed(4); }
   void SetMMeshMoveZ() { SetPFloatOnClick(-1, 1, 2, planner.synchronize, LiveMeshMoveZ);}
 
   void ManualMeshContinue(){
-    gcode.process_subcommands_now_P(PSTR("G29S2"));
+    gcode.process_subcommands_now(F("G29S2"));
     planner.synchronize();
     MMeshMoveZItem->draw(CurrentMenu->line(MMeshMoveZItem->pos));
   }
