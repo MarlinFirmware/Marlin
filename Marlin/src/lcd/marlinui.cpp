@@ -1442,8 +1442,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     finish_status(level > 0);
   }
 
-  void MarlinUI::set_alert_status_P(PGM_P const message) {
-    set_status_P(message, 1);
+  void MarlinUI::set_alert_status_P(PGM_P const pstr) {
+    set_status_P(pstr, 1);
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
     TERN_(HAS_LCD_MENU, return_to_status());
   }

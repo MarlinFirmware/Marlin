@@ -789,12 +789,12 @@ void unified_bed_leveling::shift_mesh_height() {
 
 #endif // HAS_BED_PROBE
 
-void set_message_with_feedback(PGM_P const msg_P) {
+void set_message_with_feedback(PGM_P const pstr) {
   #if HAS_LCD_MENU
-    ui.set_status_P(msg_P);
+    ui.set_status_P(pstr);
     ui.quick_feedback();
   #else
-    UNUSED(msg_P);
+    UNUSED(pstr);
   #endif
 }
 

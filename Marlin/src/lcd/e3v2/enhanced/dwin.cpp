@@ -2365,7 +2365,7 @@ void LevBed(uint8_t point) {
       dtostrf(ypos, 1, 1, str_2),
       dtostrf(zval, 1, 2, str_3)
     );
-    ui.set_status_P(cmd);
+    ui.set_status(cmd);
   #else
     planner.synchronize();
     sprintf_P(cmd, PSTR(fmt), xpos, ypos);
