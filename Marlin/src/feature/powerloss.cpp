@@ -384,9 +384,9 @@ void PrintJobRecovery::resume() {
   // establish the current position as best we can.
   //
 
-  #if Z_HOME_TO_MAX
+  gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
 
-    gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
+  #if Z_HOME_TO_MAX
 
     float z_now = z_raised;
 
@@ -407,7 +407,7 @@ void PrintJobRecovery::resume() {
 
     // Reset E to 0 and set Z to the real position
     #if !HOMING_Z_DOWN
-      sprintf_P(cmd, PSTR("G92.9E0Z%s"), dtostrf(z_now, 1, 3, str_1));
+      sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 3, str_1));
       gcode.process_subcommands_now(cmd);
     #endif
 
