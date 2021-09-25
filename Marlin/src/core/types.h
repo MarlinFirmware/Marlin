@@ -29,9 +29,9 @@
 class __FlashStringHelper;
 typedef const __FlashStringHelper* FSTR_P;
 #ifndef FPSTR
-  #define FPSTR(pstr) (reinterpret_cast<FSTR_P>(pstr))
+  #define FPSTR(S) (reinterpret_cast<FSTR_P>(S))
 #endif
-#define FTOP(str) ((const char *)str)
+#define FTOP(S) (reinterpret_cast<const char*>(S))
 
 //
 // Conditional type assignment magic. For example...

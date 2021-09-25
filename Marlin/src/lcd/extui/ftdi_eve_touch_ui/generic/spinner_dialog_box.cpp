@@ -60,7 +60,7 @@ void SpinnerDialogBox::onRefresh() {
 void SpinnerDialogBox::onRedraw(draw_mode_t) {
 }
 
-void SpinnerDialogBox::show(progmem_str message) {
+void SpinnerDialogBox::show(FSTR_P message) {
   CommandProcessor cmd;
   if (AT_SCREEN(SpinnerDialogBox)) cmd.stop().execute();
   cmd.cmd(CMD_DLSTART)
@@ -86,13 +86,13 @@ void SpinnerDialogBox::hide() {
   GOTO_PREVIOUS();
 }
 
-void SpinnerDialogBox::enqueueAndWait(progmem_str message, progmem_str commands) {
+void SpinnerDialogBox::enqueueAndWait(FSTR_P message, FSTR_P commands) {
   show(message);
   ExtUI::injectCommands_P((const char*)commands);
   mydata.auto_hide = true;
 }
 
-void SpinnerDialogBox::enqueueAndWait(progmem_str message, char *commands) {
+void SpinnerDialogBox::enqueueAndWait(FSTR_P message, char *commands) {
   show(message);
   ExtUI::injectCommands(commands);
   mydata.auto_hide = true;
