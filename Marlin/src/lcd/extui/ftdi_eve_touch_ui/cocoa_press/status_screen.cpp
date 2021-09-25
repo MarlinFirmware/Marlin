@@ -279,7 +279,7 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   return false;
 }
 
-void StatusScreen::setStatusMessage(progmem_str) {
+void StatusScreen::setStatusMessage(FSTR_P) {
 }
 
 void StatusScreen::setStatusMessage(const char * const) {
