@@ -38,7 +38,8 @@
 #define PSTR(str) (str)
 #endif
 #ifndef F
-#define F(str) (str)
+class __FlashStringHelper;
+#define F(str) (reinterpret_cast<const __FlashStringHelper *>(PSTR(str)))
 #endif
 #ifndef _SFR_BYTE
 #define _SFR_BYTE(n) (n)
