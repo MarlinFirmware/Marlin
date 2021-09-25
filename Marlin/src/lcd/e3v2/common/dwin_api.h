@@ -87,9 +87,11 @@ bool DWIN_Handshake();
 // DWIN startup
 void DWIN_Startup();
 
-// Set the backlight brightness
-//  brightness: (0x00-0xFF)
-void DWIN_LCD_Brightness(const uint8_t brightness);
+#if HAS_LCD_BRIGHTNESS
+  // Set the backlight brightness
+  //  brightness: (0x00-0xFF)
+  void DWIN_LCD_Brightness(const uint8_t brightness);
+#endif
 
 // Set screen display direction
 //  dir: 0=0°, 1=90°, 2=180°, 3=270°
