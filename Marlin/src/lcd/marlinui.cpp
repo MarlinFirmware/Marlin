@@ -665,7 +665,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
     init();
-    status_printf_P(1, PSTR(S_FMT ": " S_FMT), lcd_error, lcd_component);
+    status_printf(1, F(S_FMT ": " S_FMT), lcd_error, lcd_component);
     TERN_(HAS_LCD_MENU, return_to_status());
 
     // RED ALERT. RED ALERT.
@@ -1393,76 +1393,77 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #if SERVICE_INTERVAL_3 > 0
       static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
     #endif
-    PGM_P msg;
+    FSTR_P msg;
     if (printingIsPaused())
-      msg = GET_TEXT(MSG_PRINT_PAUSED);
+      msg = GET_TEXT_F(MSG_PRINT_PAUSED);
     #if ENABLED(SDSUPPORT)
       else if (IS_SD_PRINTING())
         return set_status(card.longest_filename(), true);
     #endif
     else if (print_job_timer.isRunning())
-      msg = GET_TEXT(MSG_PRINTING);
+      msg = GET_TEXT_F(MSG_PRINTING);
 
     #if SERVICE_INTERVAL_1 > 0
-      else if (print_job_timer.needsService(1)) msg = service1;
+      else if (print_job_timer.needsService(1)) msg = FPSTR(service1);
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      else if (print_job_timer.needsService(2)) msg = service2;
+      else if (print_job_timer.needsService(2)) msg = FPSTR(service2);
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      else if (print_job_timer.needsService(3)) msg = service3;
+      else if (print_job_timer.needsService(3)) msg = FPSTR(service3);
     #endif
 
     else if (!no_welcome)
-      msg = GET_TEXT(WELCOME_MSG);
+      msg = GET_TEXT_F(WELCOME_MSG);
     else
       return;
 
-    set_status_P(msg, -1);
+    set_status(msg, -1);
   }
 
-  void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
+  void MarlinUI::set_status(FSTR_P const fstr, int8_t level) {
+    PGM_P const pstr = FTOP(fstr);
     if (level < 0) level = alert_level = 0;
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(message));
+    TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(pstr));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
 
     // Get a pointer to the null terminator
-    PGM_P pend = message + strlen_P(message);
+    PGM_P pend = pstr + strlen_P(pstr);
 
     // If length of supplied UTF8 string is greater than
     // the buffer size, start cutting whole UTF8 chars
-    while ((pend - message) > MAX_MESSAGE_LENGTH) {
+    while ((pend - pstr) > MAX_MESSAGE_LENGTH) {
       --pend;
       while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;
     };
 
     // At this point, we have the proper cut point. Use it
-    uint8_t maxLen = pend - message;
-    strncpy_P(status_message, message, maxLen);
+    uint8_t maxLen = pend - pstr;
+    strncpy_P(status_message, pstr, maxLen);
     status_message[maxLen] = '\0';
 
     finish_status(level > 0);
   }
 
-  void MarlinUI::set_alert_status_P(PGM_P const message) {
-    set_status_P(message, 1);
+  void MarlinUI::set_alert_status(FSTR_P const fstr) {
+    set_status(fstr, 1);
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
   #include <stdarg.h>
 
-  void MarlinUI::status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
+  void MarlinUI::status_printf(const uint8_t level, FSTR_P const fmt, ...) {
     if (level < alert_level) return;
     alert_level = level;
     va_list args;
-    va_start(args, fmt);
-    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
+    va_start(args, FTOP(fmt));
+    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, FTOP(fmt), args);
     va_end(args);
     finish_status(level > 0);
   }
@@ -1536,7 +1537,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #endif
     IF_DISABLED(SDSUPPORT, print_job_timer.stop());
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
-    LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
+    LCD_MESSAGE(MSG_PRINT_ABORTED);
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
@@ -1548,7 +1549,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 
   void MarlinUI::flow_fault() {
-    LCD_ALERTMESSAGEPGM(MSG_FLOWMETER_FAULT);
+    LCD_ALERTMESSAGE(MSG_FLOWMETER_FAULT);
     TERN_(HAS_BUZZER, buzz(1000, 440));
     TERN_(HAS_LCD_MENU, return_to_status());
   }
@@ -1566,7 +1567,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume")));
 
-    LCD_MESSAGEPGM(MSG_PRINT_PAUSED);
+    LCD_MESSAGE(MSG_PRINT_PAUSED);
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT); // Show message immediately to let user know about pause in progress
@@ -1637,14 +1638,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   //
   // Send the status line as a host notification
   //
-  void MarlinUI::set_status(const char * const message, const bool) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
+  void MarlinUI::set_status(const char * const cstr, const bool) {
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify(cstr), UNUSED(cstr));
   }
-  void MarlinUI::set_status_P(PGM_P message, const int8_t) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
+  void MarlinUI::set_status(FSTR_P const fstr, const int8_t) {
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(FTOP(fstr)), UNUSED(fstr));
   }
-  void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
+  void MarlinUI::status_printf(const uint8_t, FSTR_P const fstr, ...) {
+    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(FPSTR(fstr)), UNUSED(fstr));
   }
 
 #endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE
@@ -1670,7 +1671,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
           quick_feedback();
           goto_screen(MEDIA_MENU_GATEWAY);
         #else
-          LCD_MESSAGEPGM(MSG_MEDIA_INSERTED);
+          LCD_MESSAGE(MSG_MEDIA_INSERTED);
         #endif
       }
     }
@@ -1679,7 +1680,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
         #elif PIN_EXISTS(SD_DETECT)
-          LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
+          LCD_MESSAGE(MSG_MEDIA_REMOVED);
           #if HAS_LCD_MENU
             if (!defer_return_to_status) return_to_status();
           #endif
@@ -1802,7 +1803,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
           );
         });
       #else
-        set_status_P(eeprom_err(msgid));
+        set_status(FPSTR(eeprom_err(msgid)));
       #endif
     }
 

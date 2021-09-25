@@ -477,11 +477,11 @@ void GcodeSuite::G33() {
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
   // Report settings
-  PGM_P const checkingac = PSTR("Checking... AC");
-  SERIAL_ECHOPGM_P(checkingac);
+  FSTR_P const checkingac = F("Checking... AC");
+  SERIAL_ECHOF(checkingac);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
-  ui.set_status_P(checkingac);
+  ui.set_status(checkingac);
 
   print_calibration_settings(_endstop_results, _angle_results);
 

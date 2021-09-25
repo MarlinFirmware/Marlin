@@ -91,7 +91,7 @@ void GcodeSuite::M428() {
       diff[i] = -current_position[i];
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
-      LCD_ALERTMESSAGEPGM_P(PSTR("Err: Too far!"));
+      LCD_ALERTMESSAGE_F("Err: Too far!");
       BUZZ(200, 40);
       return;
     }
@@ -99,7 +99,7 @@ void GcodeSuite::M428() {
 
   LOOP_LINEAR_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
   report_current_position();
-  LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
+  LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
   BUZZ(100, 659);
   BUZZ(100, 698);
 }

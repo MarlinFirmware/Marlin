@@ -59,7 +59,7 @@ void GcodeSuite::M0_M1() {
     if (parser.string_arg)
       ui.set_status(parser.string_arg, true);
     else {
-      LCD_MESSAGEPGM(MSG_USERWAIT);
+      LCD_MESSAGE(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         ui.reset_progress_bar_timeout();
       #endif
