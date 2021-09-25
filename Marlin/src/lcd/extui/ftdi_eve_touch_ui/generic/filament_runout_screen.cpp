@@ -39,7 +39,7 @@ void FilamentRunoutScreen::onRedraw(draw_mode_t what) {
     w.units(GET_TEXT_F(MSG_UNITS_MM));
     w.precision(0);
     w.color(e_axis);
-    w.adjuster( 10, progmem_str(NUL_STR), getFilamentRunoutDistance_mm(), getFilamentRunoutEnabled());
+    w.adjuster( 10, FPSTR(NUL_STR), getFilamentRunoutDistance_mm(), getFilamentRunoutEnabled());
     w.increments();
   #endif
 }
