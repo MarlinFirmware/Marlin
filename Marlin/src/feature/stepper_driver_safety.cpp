@@ -32,7 +32,7 @@ void stepper_driver_backward_error(PGM_P str) {
   SERIAL_ERROR_START();
   SERIAL_ECHOPGM_P(str);
   SERIAL_ECHOLNPGM(" driver is backward!");
-  ui.status_printf_P(2, PSTR(S_FMT S_FMT), str, GET_TEXT(MSG_DRIVER_BACKWARD));
+  ui.status_printf(2, F(S_FMT S_FMT), str, GET_TEXT(MSG_DRIVER_BACKWARD));
 }
 
 void stepper_driver_backward_check() {

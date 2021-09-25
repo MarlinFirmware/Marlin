@@ -460,8 +460,8 @@ void Endstops::event_handler() {
     SERIAL_EOL();
 
     TERN_(HAS_STATUS_MESSAGE,
-      ui.status_printf_P(0,
-        PSTR(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
+      ui.status_printf(0,
+        F(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
         LINEAR_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK), chrP
       )

@@ -713,7 +713,7 @@ void Draw_Main_Menu() {
 
 void Goto_Main_Menu() {
   checkkey = MainMenu;
-  DWIN_StatusChanged(nullptr);
+  DWIN_StatusChanged();
   Draw_Main_Menu();
 }
 
@@ -1758,20 +1758,20 @@ void DWIN_Startup() {
   HMI_SetLanguage();
 }
 
-void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text) {
+void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char * const text/*=nullptr*/) {
   DWIN_Draw_Rectangle(1, bgcolor, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
   if (text) DWINUI::Draw_CenteredString(color, STATUS_Y + 2, text);
   DWIN_UpdateLCD();
 }
 
 // Update Status line
-void DWIN_StatusChanged(const char *text) {
-  DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, text);
+void DWIN_StatusChanged(const char * const cstr/*=nullptr*/) {
+  DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, cstr);
 }
 
-void DWIN_StatusChanged_P(PGM_P const pstr) {
-  char str[strlen_P((const char*)pstr) + 1];
-  strcpy_P(str, (const char*)pstr);
+void DWIN_StatusChanged(FSTR_P const fstr) {
+  char str[strlen_P(FTOP(fstr)) + 1];
+  strcpy_P(str, FTOP(fstr));
   DWIN_StatusChanged(str);
 }
 
@@ -1806,7 +1806,7 @@ void DWIN_Progress_Update() {
 
 #if HAS_FILAMENT_SENSOR
   // Filament Runout process
-  void DWIN_FilamentRunout(const uint8_t extruder) { ui.set_status_P(GET_TEXT(MSG_RUNOUT_SENSOR)); }
+  void DWIN_FilamentRunout(const uint8_t extruder) { LCD_MESSAGE(MSG_RUNOUT_SENSOR); }
 #endif
 
 void DWIN_SetColorDefaults() {
@@ -1891,7 +1891,7 @@ void DWIN_Redraw_screen() {
       case PAUSE_MESSAGE_OPTION:   DWIN_Popup_FilamentPurge(); break;
       case PAUSE_MESSAGE_RESUME:   DWIN_Popup_Pause(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
       case PAUSE_MESSAGE_HEAT:     DWIN_Popup_Pause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT), ICON_Continue_E);   break;
-      case PAUSE_MESSAGE_HEATING:  ui.set_status_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); break;
+      case PAUSE_MESSAGE_HEATING:  LCD_MESSAGE(MSG_FILAMENT_CHANGE_HEATING); break;
       case PAUSE_MESSAGE_STATUS:   HMI_ReturnScreen(); break;
       default: break;
     }
@@ -2183,7 +2183,7 @@ void SetMoveZto0() {
   );
   gcode.process_subcommands_now(cmd);
   planner.synchronize();
-  ui.set_status_P(PSTR("Now adjust Z Offset"));
+  LCD_MESSAGE_F("Now adjust Z Offset");
   HMI_AudioFeedback(true);
 }
 
@@ -2240,7 +2240,7 @@ void Goto_LockScreen() { DWIN_LockScreen(true); }
   void SetProbeOffsetY() { SetPFloatOnClick(-50, 50, UNITFDIGITS); }
   void SetProbeOffsetZ() { SetPFloatOnClick(-10, 10, 2); }
   void ProbeTest() {
-    ui.set_status_P(GET_TEXT(MSG_M48_TEST));
+    LCD_MESSAGE(MSG_M48_TEST);
     queue.inject(F("G28O\nM48 P10"));
   }
 #endif
@@ -2297,7 +2297,7 @@ void DWIN_ApplyColor() {
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color);
   Draw_Status_Area(false);
   Draw_SelectColors_Menu();
-  ui.set_status_P(PSTR("Colors applied"));
+  LCD_MESSAGE_F("Colors applied");
 }
 
 void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
@@ -2325,18 +2325,18 @@ void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
   }
 
   void ParkHead(){
-    ui.set_status_P(GET_TEXT(MSG_FILAMENT_PARK_ENABLED));
+    LCD_MESSAGE(MSG_FILAMENT_PARK_ENABLED);
     queue.inject(F("G28O\nG27"));
   }
 
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     void UnloadFilament(){
-      ui.set_status_P(GET_TEXT(MSG_FILAMENTUNLOAD));
+      LCD_MESSAGE(MSG_FILAMENTUNLOAD);
       queue.inject(F("M702 Z20"));
     }
 
     void LoadFilament(){
-      ui.set_status_P(GET_TEXT(MSG_FILAMENTLOAD));
+      LCD_MESSAGE(MSG_FILAMENTLOAD);
       queue.inject(F("M701 Z20"));
     }
   #endif
@@ -2362,23 +2362,23 @@ void LevBed(uint8_t point) {
 
   switch (point) {
     case 0:
-      ui.set_status_P(GET_TEXT(MSG_LEVBED_FL));
+      LCD_MESSAGE(MSG_LEVBED_FL);
       xpos = ypos = margin;
       break;
     case 1:
-      ui.set_status_P(GET_TEXT(MSG_LEVBED_FR));
+      LCD_MESSAGE(MSG_LEVBED_FR);
       xpos = X_BED_SIZE - margin; ypos = margin;
       break;
     case 2:
-      ui.set_status_P(GET_TEXT(MSG_LEVBED_BR));
+      LCD_MESSAGE(MSG_LEVBED_BR);
       xpos = X_BED_SIZE - margin; ypos = Y_BED_SIZE - margin;
       break;
     case 3:
-      ui.set_status_P(GET_TEXT(MSG_LEVBED_BL));
+      LCD_MESSAGE(MSG_LEVBED_BL);
       xpos = margin; ypos = Y_BED_SIZE - margin;
       break;
     case 4:
-      ui.set_status_P(GET_TEXT(MSG_LEVBED_C));
+      LCD_MESSAGE(MSG_LEVBED_C);
       xpos = X_BED_SIZE / 2; ypos = Y_BED_SIZE / 2;
       break;
   }
@@ -2393,7 +2393,7 @@ void LevBed(uint8_t point) {
       dtostrf(ypos, 1, 1, str_2),
       dtostrf(zval, 1, 2, str_3)
     );
-    ui.set_status_P(cmd);
+    ui.set_status(cmd);
   #else
     planner.synchronize();
     sprintf_P(cmd, PSTR(fmt), xpos, ypos);
@@ -2410,7 +2410,7 @@ void LevBedC () { LevBed(4); }
 #if ENABLED(MESH_BED_LEVELING)
 
   void ManualMeshStart(){
-    ui.set_status_P(GET_TEXT(MSG_UBL_BUILD_MESH_MENU));
+    LCD_MESSAGE(MSG_UBL_BUILD_MESH_MENU);
     gcode.process_subcommands_now(F("G28 XYO\nG28 Z\nM211 S0\nG29S1"));
     planner.synchronize();
     #ifdef MANUAL_PROBE_START_Z
@@ -2435,7 +2435,7 @@ void LevBedC () { LevBed(4); }
   }
 
   void ManualMeshSave(){
-    ui.set_status_P(GET_TEXT(MSG_UBL_STORAGE_MESH_MENU));
+    LCD_MESSAGE(MSG_UBL_STORAGE_MESH_MENU);
     queue.inject(F("M211 S1\nM500"));
   }
 
@@ -3092,11 +3092,11 @@ void HMI_SetPFloat() {
 
 // Menu Creation and Drawing functions ======================================================
 
-void SetMenuTitle(frame_rect_t cn, frame_rect_t en, const __FlashStringHelper* text) {
+void SetMenuTitle(frame_rect_t cn, frame_rect_t en, const __FlashStringHelper* fstr) {
   if (HMI_IsChinese() && (cn.w != 0))
     CurrentMenu->MenuTitle.SetFrame(cn.x, cn.y, cn.w, cn.h);
   else
-    CurrentMenu->MenuTitle.SetCaption(text);
+    CurrentMenu->MenuTitle.SetCaption(fstr);
 }
 
 void Draw_Prepare_Menu() {
@@ -3234,7 +3234,7 @@ void Draw_Move_Menu() {
     #endif
   }
   CurrentMenu->draw();
-  if (!all_axes_trusted()) ui.set_status_P(PSTR("WARNING: position is unknow"));
+  if (!all_axes_trusted()) LCD_MESSAGE_F("WARNING: position is unknown");
 }
 
 #if HAS_HOME_OFFSET
@@ -3440,11 +3440,11 @@ void Draw_Motion_Menu() {
 
 #if HAS_PREHEAT
 
-  void Draw_Preheat_Menu(frame_rect_t cn, frame_rect_t en, const __FlashStringHelper* text) {
+  void Draw_Preheat_Menu(frame_rect_t cn, frame_rect_t en, const __FlashStringHelper* fstr) {
     checkkey = Menu;
     if (CurrentMenu != PreheatMenu) {
       CurrentMenu = PreheatMenu;
-      SetMenuTitle(cn, en, text);
+      SetMenuTitle(cn, en, fstr);
       DWINUI::MenuItemsPrepare(5);
       ADDMENUITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Draw_Temperature_Menu);
       #if HAS_HOTEND
@@ -3648,7 +3648,7 @@ void Draw_Steps_Menu() {
       ADDMENUITEM_P(ICON_Zoffset, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), onDrawPFloat2Menu, SetZOffset, &BABY_Z_VAR);
     }
     CurrentMenu->draw();
-    if (!axis_is_trusted(Z_AXIS)) ui.set_status_P(PSTR("WARNING: Z position is unknow, move Z to home"));
+    if (!axis_is_trusted(Z_AXIS)) LCD_MESSAGE_F("WARNING: Z position unknown, move Z to home");
   }
 #endif
 

@@ -253,7 +253,7 @@ void menu_mixer() {
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
     []{
       mixer.reset_vtools();
-      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
+      LCD_MESSAGE(MSG_VTOOLS_RESET);
       ui.return_to_status();
     },
     nullptr,

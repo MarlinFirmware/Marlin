@@ -1341,7 +1341,7 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
     #endif
   }
 
-  if (axis_connection) LCD_MESSAGEPGM(MSG_ERROR_TMC);
+  if (axis_connection) LCD_MESSAGE(MSG_ERROR_TMC);
 }
 
 #endif // HAS_TRINAMIC_CONFIG

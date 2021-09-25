@@ -630,7 +630,7 @@ void menu_advanced_settings() {
                  didset = settings.set_sd_update_status(new_state);
       ui.completion_feedback(didset);
       ui.return_to_status();
-      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
+      if (new_state) LCD_MESSAGE(MSG_RESET_PRINTER); else ui.reset_status();
     });
   #endif
 
