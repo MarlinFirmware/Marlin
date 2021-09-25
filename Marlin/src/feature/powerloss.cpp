@@ -390,14 +390,12 @@ void PrintJobRecovery::resume() {
 
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
       #define HOMING_Z_DOWN 1
-    #else
-      #define HOME_XY_ONLY 1
     #endif
 
     float z_now = info.flag.raised ? z_raised : z_print;
 
     // Reset E to 0 and set Z to the real position
-    #if HOME_XY_ONLY
+    #if !HOMING_Z_DOWN
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 3, str_1));
       gcode.process_subcommands_now(cmd);
     #endif
@@ -409,7 +407,7 @@ void PrintJobRecovery::resume() {
       gcode.process_subcommands_now(cmd);
     }
 
-    // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
+    // Home XY with no Z raise
     gcode.process_subcommands_now_P(PSTR("G28R0XY")); // No raise during G28
 
   #endif
@@ -417,7 +415,7 @@ void PrintJobRecovery::resume() {
   #if HOMING_Z_DOWN
     // Move to a safe XY position and home Z while avoiding the print.
     constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
-    sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28Z"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
+    sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28HZ"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -431,7 +429,7 @@ void PrintJobRecovery::resume() {
     sprintf_P(cmd, PSTR("M420S%cZ%s"), '0' + (char)info.flag.leveling, dtostrf(info.fade, 1, 1, str_1));
     gcode.process_subcommands_now(cmd);
 
-    #if HOME_XY_ONLY
+    #if !HOMING_Z_DOWN
       // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
       sprintf_P(cmd, PSTR("G92.9Z%s"), dtostrf(z_now, 1, 1, str_1));
       gcode.process_subcommands_now(cmd);
@@ -513,12 +511,12 @@ void PrintJobRecovery::resume() {
 
   // Un-retract if there was a retract at outage
   #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
-    gcode.process_subcommands_now_P(PSTR("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
+    gcode.process_subcommands_now_P(PSTR("G1F3000E" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
   #endif
 
   // Additional purge on resume if configured
   #if POWER_LOSS_PURGE_LEN
-    sprintf_P(cmd, PSTR("G1 E%d F3000"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
+    sprintf_P(cmd, PSTR("G1F3000E%d"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
   #endif
 
