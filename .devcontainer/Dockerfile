@@ -11,6 +11,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
      python3-pip \
      build-essential
 
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
 RUN platformio update
