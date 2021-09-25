@@ -251,7 +251,7 @@ void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       , SP_Z_STR, LINEAR_UNIT(planner.z_fade_height)
     #endif
-    , " ; Leveling "
+    , PSTR(" ; Leveling ")
   );
   serialprintln_onoff(planner.leveling_active);
 }
