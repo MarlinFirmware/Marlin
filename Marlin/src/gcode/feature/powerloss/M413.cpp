@@ -48,9 +48,8 @@ void GcodeSuite::M413() {
     if (parser.seen_test('W')) recovery.save(true);
     if (parser.seen_test('P')) recovery.purge();
     if (parser.seen_test('D')) recovery.debug(PSTR("M413"));
-    #if PIN_EXISTS(POWER_LOSS)
-      if (parser.seen_test('O')) recovery._outage();
-    #endif
+    if (parser.seen_test('O')) recovery._outage();
+    if (parser.seen_test('C')) recovery.check();
     if (parser.seen_test('E')) SERIAL_ECHOPGM_P(recovery.exists() ? PSTR("PLR Exists\n") : PSTR("No PLR\n"));
     if (parser.seen_test('V')) SERIAL_ECHOPGM_P(recovery.valid() ? PSTR("Valid\n") : PSTR("Invalid\n"));
   #endif

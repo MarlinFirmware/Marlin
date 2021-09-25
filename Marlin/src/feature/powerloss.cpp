@@ -265,6 +265,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
   #endif
 
+#endif // POWER_LOSS_PIN
+
+#if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+
   /**
    * An outage was detected by a sensor pin.
    *  - If not SD printing, let the machine turn off on its own with no "KILL" screen
@@ -273,7 +277,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
    *  - If backup power is available Retract E and Raise Z
    *  - Go to the KILL screen
    */
-  void PrintJobRecovery::_outage() {
+  void PrintJobRecovery::_outage(TERN_(DEBUG_POWER_LOSS_RECOVERY, const bool simulated/*=false*/)) {
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
       if (lock) return; // No re-entrance from idle() during retract_and_lift()
@@ -301,10 +305,16 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       retract_and_lift(zraise);
     #endif
 
-    kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
+    if (TERN0(DEBUG_POWER_LOSS_RECOVERY, simulated)) {
+      card.fileHasFinished();
+      current_position.reset();
+      sync_plan_position();
+    }
+    else
+      kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
 
-#endif
+#endif // POWER_LOSS_PIN || DEBUG_POWER_LOSS_RECOVERY
 
 /**
  * Save the recovery info the recovery file
