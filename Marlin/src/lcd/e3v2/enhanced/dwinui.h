@@ -146,7 +146,7 @@ public:
   void (*onClick)() = nullptr;
   MenuItemClass() {};
   MenuItemClass(uint8_t cicon, const char * const text=nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
-  MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) : MenuItemClass(cicon, (char*)text, ondraw, onclick){}
+  MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) : MenuItemClass(cicon, FTOP(text), ondraw, onclick){}
   MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   virtual ~MenuItemClass(){};
@@ -158,7 +158,7 @@ public:
   void *value = nullptr;
   using MenuItemClass::MenuItemClass;
   MenuItemPtrClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val);
-  MenuItemPtrClass(uint8_t cicon, const __FlashStringHelper * text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) : MenuItemPtrClass(cicon, (char*)text, ondraw, onclick, val){}
+  MenuItemPtrClass(uint8_t cicon, const __FlashStringHelper * text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) : MenuItemPtrClass(cicon, FTOP(text), ondraw, onclick, val){}
 };
 
 class MenuClass {

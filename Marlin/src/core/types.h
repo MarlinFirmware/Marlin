@@ -27,7 +27,11 @@
 #include "../inc/MarlinConfigPre.h"
 
 class __FlashStringHelper;
-typedef const __FlashStringHelper *progmem_str;
+typedef const __FlashStringHelper* FSTR_P;
+#ifndef FPSTR
+  #define FPSTR(pstr) (reinterpret_cast<FSTR_P>(pstr))
+#endif
+#define FTOP(str) ((const char *)str)
 
 //
 // Conditional type assignment magic. For example...

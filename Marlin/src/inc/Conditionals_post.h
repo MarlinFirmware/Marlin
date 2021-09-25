@@ -423,11 +423,6 @@
   #endif
 #endif
 
-#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
-  #define HAS_LCD_BRIGHTNESS 1
-  #define LCD_BRIGHTNESS_MAX 250
-#endif
-
 /**
  * Override the SD_DETECT_STATE set in Configuration_adv.h
  * and enable sharing of onboard SD host drives (all platforms but AGCM4)

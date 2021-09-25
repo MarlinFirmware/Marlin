@@ -21,10 +21,10 @@
  */
 #pragma once
 
+#include "../../../inc/MarlinConfigPre.h"
+#include "../../../HAL/shared/Marduino.h"
 #include <stddef.h>
 #include <stdint.h>
-
-#include "../../../HAL/shared/Marduino.h"
 
 #ifndef DWIN_WIDTH
   #define DWIN_WIDTH  272

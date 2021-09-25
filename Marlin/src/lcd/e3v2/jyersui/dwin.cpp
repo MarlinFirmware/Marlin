@@ -4800,6 +4800,10 @@ void CrealityDWINClass::Update() {
 
 void MarlinUI::update() { CrealityDWIN.Update(); }
 
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
+#endif
+
 void CrealityDWINClass::State_Update() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
     if (!printing) Start_Print(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
