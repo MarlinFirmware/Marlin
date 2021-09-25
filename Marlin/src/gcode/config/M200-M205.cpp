@@ -141,7 +141,10 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
       SP_Z_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS]),
       SP_I_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[I_AXIS]),
       SP_J_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[J_AXIS]),
-      SP_K_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[K_AXIS])
+      SP_K_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[K_AXIS]),
+      SP_M_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[M_AXIS]),
+      SP_O_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[O_AXIS]),
+      SP_Q_STR, LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Q_AXIS])
     )
     #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
       , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS])

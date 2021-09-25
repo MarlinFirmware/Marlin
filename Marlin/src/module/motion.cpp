@@ -582,7 +582,8 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
 }
 
 void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
-  do_blocking_move_to(LINEAR_AXIS_LIST(raw.x, raw.y, current_position.z, current_position.i, current_position.j, current_position.k), fr_mm_s);
+  do_blocking_move_to(LINEAR_AXIS_LIST(raw.x, raw.y, current_position.z, current_position.i, current_position.j, current_position.k,
+                                       current_position.m, current_position.o, current_position.q), fr_mm_s);
 }
 void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
   do_blocking_move_to(LINEAR_AXIS_ELEM(raw), fr_mm_s);
@@ -592,7 +593,8 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
 }
 void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   do_blocking_move_to(
-    LINEAR_AXIS_LIST(rx, current_position.y, current_position.z, current_position.i, current_position.j, current_position.k),
+    LINEAR_AXIS_LIST(rx, current_position.y, current_position.z, current_position.i, current_position.j, current_position.k,
+                     current_position.m, current_position.o, current_position.q),
     fr_mm_s
   );
 }
@@ -600,7 +602,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 #if HAS_Y_AXIS
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to(
-      LINEAR_AXIS_LIST(current_position.x, ry, current_position.z, current_position.i, current_position.j, current_position.k, \
+      LINEAR_AXIS_LIST(current_position.x, ry, current_position.z, current_position.i, current_position.j, current_position.k,
                        current_position.m, current_position.o, current_position.q),
       fr_mm_s
     );
@@ -688,7 +690,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 #if HAS_Y_AXIS
   void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to(
-      LINEAR_AXIS_LIST(rx, ry, current_position.z, current_position.i, current_position.j, current_position.k, \
+      LINEAR_AXIS_LIST(rx, ry, current_position.z, current_position.i, current_position.j, current_position.k,
                        current_position.m, current_position.o, current_position.q),
       fr_mm_s
     );
@@ -701,7 +703,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
 #if HAS_Z_AXIS
   void do_blocking_move_to_xy_z(const xy_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
-      LINEAR_AXIS_LIST(raw.x, raw.y, z, current_position.i, current_position.j, current_position.k, \
+      LINEAR_AXIS_LIST(raw.x, raw.y, z, current_position.i, current_position.j, current_position.k,
                      current_position.m, current_position.o, current_position.q),
       fr_mm_s
     );
