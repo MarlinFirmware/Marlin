@@ -178,7 +178,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.valid_foot = info.valid_head;
 
     // Machine state
-    info.current_position = current_position;
+    // info.sdpos and info.current_position are pre-filled from the Stepper ISR
+
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
     info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
