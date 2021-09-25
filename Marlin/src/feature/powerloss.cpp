@@ -425,7 +425,7 @@ void PrintJobRecovery::resume() {
 
   #if HOMING_Z_DOWN
     // Move to a safe XY position and home Z while avoiding the print.
-    constexpr xy_pos_t p = POWER_LOSS_ZHOME_POS;
+    const xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS) TERN_(HOMING_Z_WITH_PROBE, - probe.offset_xy);
     sprintf_P(cmd, PSTR("G1X%sY%sF1000\nG28HZ"), dtostrf(p.x, 1, 3, str_1), dtostrf(p.y, 1, 3, str_2));
     gcode.process_subcommands_now(cmd);
   #endif
