@@ -92,7 +92,7 @@ void GcodeSuite::G35() {
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
-  if (!all_axes_trusted()) process_subcommands_now_P(PSTR("G28Z"));
+  if (!all_axes_trusted()) process_subcommands_now(F("G28Z"));
 
   bool err_break = false;
 

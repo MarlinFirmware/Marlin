@@ -77,10 +77,10 @@ void GcodeSuite::M1001() {
 
   // Report total print time
   const bool long_print = print_job_timer.duration() > 60;
-  if (long_print) gcode.process_subcommands_now_P(PSTR("M31"));
+  if (long_print) process_subcommands_now(F("M31"));
 
   // Stop the print job timer
-  gcode.process_subcommands_now_P(PSTR("M77"));
+  process_subcommands_now(F("M77"));
 
   // Set the progress bar "done" state
   TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress_done());
@@ -104,7 +104,7 @@ void GcodeSuite::M1001() {
 
   // Inject SD_FINISHED_RELEASECOMMAND, if any
   #ifdef SD_FINISHED_RELEASECOMMAND
-    gcode.process_subcommands_now_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintFinished());

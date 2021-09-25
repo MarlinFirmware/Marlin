@@ -158,7 +158,7 @@ void GcodeSuite::G76() {
       return;
     }
 
-    process_subcommands_now_P(G28_STR);
+    process_subcommands_now(FPSTR(G28_STR));
   }
 
   remember_feedrate_scaling_off();
