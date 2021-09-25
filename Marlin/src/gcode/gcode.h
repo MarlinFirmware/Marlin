@@ -397,11 +397,11 @@ public:
   static void process_next_command();
 
   // Execute G-code in-place, preserving current G-code parameters
-  static void process_subcommands_now_P(PGM_P pgcode);
+  static void process_subcommands_now(FSTR_P fgcode);
   static void process_subcommands_now(char * gcode);
 
   static inline void home_all_axes(const bool keep_leveling=false) {
-    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+    process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)

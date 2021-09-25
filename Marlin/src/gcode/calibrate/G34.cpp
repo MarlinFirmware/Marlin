@@ -47,7 +47,7 @@ void GcodeSuite::G34() {
   TemporaryGlobalEndstopsState unlock_z(false);
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_PRE
-    gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_PRE));
+    process_subcommands_now(F(GANTRY_CALIBRATION_COMMANDS_PRE));
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sub Commands Processed");
   #endif
 
@@ -148,7 +148,7 @@ void GcodeSuite::G34() {
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_POST
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Running Post Commands");
-    gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_POST));
+    process_subcommands_now(F(GANTRY_CALIBRATION_COMMANDS_POST));
   #endif
 
   SET_SOFT_ENDSTOP_LOOSE(false);

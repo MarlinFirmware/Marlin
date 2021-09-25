@@ -244,7 +244,7 @@ G29_TYPE GcodeSuite::G29() {
 
   // Send 'N' to force homing before G29 (internal only)
   if (parser.seen_test('N'))
-    process_subcommands_now_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+    process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false);
@@ -882,7 +882,7 @@ G29_TYPE GcodeSuite::G29() {
   #ifdef Z_PROBE_END_SCRIPT
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
     planner.synchronize();
-    process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
+    process_subcommands_now(F(Z_PROBE_END_SCRIPT));
   #endif
 
   TERN_(HAS_DWIN_E3V2_BASIC, DWIN_CompletedLeveling());
