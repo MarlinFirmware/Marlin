@@ -500,6 +500,20 @@
   #define HAS_DWIN_E3V2 1
 #endif
 
+// E3V2 extras
+#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+  #define SERIAL_CATCHALL 0
+  #ifndef LCD_SERIAL_PORT
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+      #define LCD_SERIAL_PORT 1
+    #else
+      #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #endif
+  #endif
+  #define HAS_LCD_BRIGHTNESS 1
+  #define LCD_BRIGHTNESS_MAX 250
+#endif
+
 #if IS_ULTRA_LCD
   #define HAS_WIRED_LCD 1
   #if ENABLED(DOGLCD)
@@ -1109,17 +1123,6 @@
 #endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
-#endif
-
-#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
-  #define SERIAL_CATCHALL 0
-  #ifndef LCD_SERIAL_PORT
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
-      #define LCD_SERIAL_PORT 1
-    #else
-      #define LCD_SERIAL_PORT 3 // Creality 4.x board
-    #endif
-  #endif
 #endif
 
 // Fallback Stepper Driver types that don't depend on Configuration_adv.h

@@ -865,6 +865,10 @@ void HMI_SDCardInit() { card.cdroot(); }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
 
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
+#endif
+
 #define ICON_Folder ICON_More
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
@@ -2186,9 +2190,8 @@ void SetPID(celsius_t t, heater_id_t h) {
 #endif
 
 #if HAS_LCD_BRIGHTNESS
-  void ApplyBrightness() { ui.set_brightness(HMI_value.Value); }
-  void LiveBrightness() { DWIN_LCD_Brightness(HMI_value.Value); }
-  void SetBrightness() { SetIntOnClick(MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS, ui.brightness, ApplyBrightness, LiveBrightness); }
+  void LiveBrightness() { ui.set_brightness(HMI_value.Value); }
+  void SetBrightness() { SetIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, nullptr, LiveBrightness); }
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
