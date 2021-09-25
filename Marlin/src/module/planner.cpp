@@ -2818,7 +2818,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     block->sdpos = recovery.command_sdpos();
-    block->start_position = position_float;
+    block->start_position = position_float.asLogical();
   #endif
 
   TERN_(HAS_POSITION_FLOAT, position_float = target_float);
