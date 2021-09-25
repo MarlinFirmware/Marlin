@@ -264,9 +264,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 }
 
 static bool get_point(int16_t *x, int16_t *y) {
-  bool is_touched = touch.getRawPoint(x, y);
-
-  if (!is_touched) return false;
+  if (!touch.getRawPoint(x, y)) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
@@ -286,34 +284,26 @@ static bool get_point(int16_t *x, int16_t *y) {
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   static int16_t last_x = 0, last_y = 0;
-  static uint8_t last_touch_state = LV_INDEV_STATE_REL;
-  static int32_t touch_time1 = 0;
-  uint32_t tmpTime, diffTime = 0;
-
-  tmpTime = millis();
-  diffTime = getTickDiff(tmpTime, touch_time1);
-  if (diffTime > 20) {
-    if (get_point(&last_x, &last_y)) {
-
-      if (last_touch_state == LV_INDEV_STATE_PR) return false;
-      data->state = LV_INDEV_STATE_PR;
-
-      // Set the coordinates (if released use the last-pressed coordinates)
+  if (get_point(&last_x, &last_y)) {
+    #if TFT_ROTATION == TFT_ROTATE_180
+      data->point.x = TFT_WIDTH - last_x;
+      data->point.y = TFT_HEIGHT - last_y;
+    #else
       data->point.x = last_x;
       data->point.y = last_y;
-
-      last_x = last_y = 0;
-      last_touch_state = LV_INDEV_STATE_PR;
-    }
-    else {
-      if (last_touch_state == LV_INDEV_STATE_PR)
-        data->state = LV_INDEV_STATE_REL;
-      last_touch_state = LV_INDEV_STATE_REL;
-    }
-
-    touch_time1 = tmpTime;
+    #endif
+    data->state = LV_INDEV_STATE_PR;
   }
-
+  else {
+    #if TFT_ROTATION == TFT_ROTATE_180
+      data->point.x = TFT_WIDTH - last_x;
+      data->point.y = TFT_HEIGHT - last_y;
+    #else
+      data->point.x = last_x;
+      data->point.y = last_y;
+    #endif
+    data->state = LV_INDEV_STATE_REL;
+  }
   return false; // Return `false` since no data is buffering or left to read
 }
 

@@ -133,22 +133,38 @@
 #ifndef Z_STEP_PIN
   #define Z_STEP_PIN                          46
 #endif
-#define Z_DIR_PIN                             48
-#define Z_ENABLE_PIN                          62
+#ifndef Z_DIR_PIN
+  #define Z_DIR_PIN                           48
+#endif
+#ifndef Z_ENABLE_PIN
+  #define Z_ENABLE_PIN                        62
+#endif
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                            40
 #endif
 
-#define E0_STEP_PIN                           26
-#define E0_DIR_PIN                            28
-#define E0_ENABLE_PIN                         24
+#ifndef E0_STEP_PIN
+  #define E0_STEP_PIN                         26
+#endif
+#ifndef E0_DIR_PIN
+  #define E0_DIR_PIN                          28
+#endif
+#ifndef E0_ENABLE_PIN
+  #define E0_ENABLE_PIN                       24
+#endif
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                           42
 #endif
 
-#define E1_STEP_PIN                           36
-#define E1_DIR_PIN                            34
-#define E1_ENABLE_PIN                         30
+#ifndef E1_STEP_PIN
+  #define E1_STEP_PIN                         36
+#endif
+#ifndef E1_DIR_PIN
+  #define E1_DIR_PIN                          34
+#endif
+#ifndef E1_ENABLE_PIN
+  #define E1_ENABLE_PIN                       30
+#endif
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                           44
 #endif
@@ -219,10 +235,10 @@
   #define FAN1_PIN                  RAMPS_D8_PIN
 #elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
-    #define FAN1_PIN                MOSFET_D_PIN
-  #else
+  #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
     #define HEATER_1_PIN            MOSFET_D_PIN
+  #else
+    #define FAN1_PIN                MOSFET_D_PIN
   #endif
 #endif
 

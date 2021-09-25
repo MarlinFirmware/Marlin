@@ -31,6 +31,41 @@
 #define BOARD_INFO_NAME "ZUM Mega 3D"
 
 //
+// Limit Switches
+//
+#define X_MAX_PIN                             79
+
+// This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
+// decided to ship the printer only with the probe and no additional Z-min
+// endstop and the instruction manual advises the user to connect the probe to
+// IND_S_5V the option Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN will not work.
+#if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #define Z_MIN_PIN                           19  // IND_S_5V
+  #define Z_MAX_PIN                           18  // Z-MIN Label
+#endif
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                     19  // IND_S_5V
+#endif
+
+//
+// Steppers
+//
+#define Z_ENABLE_PIN                          77
+
+#define DIGIPOTSS_PIN                         22
+#define DIGIPOT_CHANNELS { 4, 5, 3, 0, 1 }
+
+//
+// Temperature Sensors
+//
+#define TEMP_1_PIN                            14  // Analog Input
+#define TEMP_BED_PIN                          15  // Analog Input
+
+//
 // Heaters / Fans
 //
 #define RAMPS_D8_PIN                          10
@@ -62,66 +97,12 @@
 #define SPINDLE_DIR_PIN                       42
 
 //
-// Limit Switches
-//
-#define X_MAX_PIN                             79  // 2
-
-//
-// Import RAMPS 1.3 pins
-//
-#include "pins_RAMPS_13.h"
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#undef Z_MIN_PROBE_PIN
-#define Z_MIN_PROBE_PIN                       19  // IND_S_5V
-
-#undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN                          77  // 62
-
-//
-// Steppers
-//
-#define DIGIPOTSS_PIN                         22
-#define DIGIPOT_CHANNELS { 4, 5, 3, 0, 1 }
-
-//
-// Temperature Sensors
-//
-#undef TEMP_1_PIN
-#define TEMP_1_PIN                            14  // Analog Input (15)
-
-#undef TEMP_BED_PIN
-#define TEMP_BED_PIN                          15  // Analog Input (14)
-
-//
 // Misc. Functions
 //
-#undef PS_ON_PIN                                  // 12
 #define PS_ON_PIN                             81  // External Power Supply
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      44  // Hardware PWM
-#endif
-
-// This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
-// decided to ship the printer only with the probe and no additional Z-min
-// endstop and the instruction manual advises the user to connect the probe to
-// IND_S_5V the option Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN will not work.
-#ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-  #undef Z_MIN_PIN
-  #undef Z_MAX_PIN
-  #define Z_MIN_PIN                           19  // IND_S_5V
-  #define Z_MAX_PIN                           18  // Z-MIN Label
-#endif
-
-//
-// Used by the Hephestos 2 heated bed upgrade kit
-//
-#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
-  #undef HEATER_BED_PIN
-  #define HEATER_BED_PIN                       8
 #endif
 
 // Alter timing for graphical display
@@ -129,4 +110,17 @@
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2                 0
   #define BOARD_ST7920_DELAY_3               189
+#endif
+
+//
+// Import RAMPS 1.3 pins
+//
+#include "pins_RAMPS_13.h"
+
+//
+// Used by the Hephestos 2 heated bed upgrade kit
+//
+#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
+  #undef HEATER_BED_PIN
+  #define HEATER_BED_PIN                       8
 #endif
