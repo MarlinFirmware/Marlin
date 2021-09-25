@@ -208,7 +208,7 @@
   #if ENABLED(STOP_ON_ERROR)
     void report_driver_error(const TMC_driver_data &data) {
       SERIAL_ECHOPGM(" driver error detected: 0x");
-      SERIAL_PRINTLN(data.drv_status, HEX);
+      SERIAL_PRINTLN(data.drv_status, PrintBase::Hex);
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());

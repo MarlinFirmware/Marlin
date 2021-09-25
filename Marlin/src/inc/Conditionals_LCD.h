@@ -141,6 +141,13 @@
   #define IS_RRD_SC 1
   #define IS_U8GLIB_SSD1306
 
+#elif ENABLED(SAV_3DGLCD)
+
+  #ifdef U8GLIB_SSD1306
+    #define IS_U8GLIB_SSD1306
+  #endif
+  #define IS_NEWPANEL 1
+
 #elif ENABLED(FYSETC_242_OLED_12864)
 
   #define IS_RRD_SC 1
@@ -213,7 +220,7 @@
     #define LCD_PROGRESS_BAR
   #endif
   #if ENABLED(TFTGLCD_PANEL_I2C)
-    #define LCD_I2C_ADDRESS           0x33  // Must be 0x33 for STM32 main boards and equal to panel's I2C slave addres
+    #define LCD_I2C_ADDRESS           0x33  // Must be 0x33 for STM32 main boards and equal to panel's I2C slave address
   #endif
   #define LCD_USE_I2C_BUZZER                // Enable buzzer on LCD, used for both I2C and SPI buses (LiquidTWI2 not required)
   #define STD_ENCODER_PULSES_PER_STEP 2
@@ -475,10 +482,6 @@
 #endif
 
 // Aliases for LCD features
-#if EITHER(IS_ULTRA_LCD, EXTENSIBLE_UI)
-  #define HAS_DISPLAY 1
-#endif
-
 #if IS_ULTRA_LCD
   #define HAS_WIRED_LCD 1
   #if ENABLED(DOGLCD)
@@ -488,6 +491,10 @@
   #elif DISABLED(HAS_GRAPHICAL_TFT)
     #define HAS_MARLINUI_HD44780 1
   #endif
+#endif
+
+#if EITHER(HAS_WIRED_LCD, EXTENSIBLE_UI)
+  #define HAS_DISPLAY 1
 #endif
 
 #if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD, GLOBAL_STATUS_MESSAGE)
@@ -764,7 +771,7 @@
 #endif
 
 /**
- * Set flags for enabled probes
+ * Set a flag for any type of bed probe, including the paper-test
  */
 #if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE)
   #define HAS_BED_PROBE 1
@@ -904,9 +911,9 @@
     #define HAS_PROBE_XY_OFFSET 1
   #endif
   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && !BOTH(DELTA, SENSORLESS_PROBING)
-    #define HAS_CUSTOM_PROBE_PIN 1
+    #define USES_Z_MIN_PROBE_PIN 1
   #endif
-  #if Z_HOME_TO_MIN && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+  #if Z_HOME_TO_MIN && TERN1(USES_Z_MIN_PROBE_PIN, ENABLED(USE_PROBE_FOR_Z_HOMING))
     #define HOMING_Z_WITH_PROBE 1
   #endif
   #ifndef Z_PROBE_LOW_POINT

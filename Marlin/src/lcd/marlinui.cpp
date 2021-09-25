@@ -47,7 +47,7 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "dwin/e3v2/dwin.h"
+  #include "e3v2/creality/dwin.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
@@ -65,15 +65,8 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-  #if HAS_WIRED_LCD
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      uint8_t MarlinUI::status_scroll_offset; // = 0
-      constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
-    #else
-      constexpr uint8_t MAX_MESSAGE_LENGTH = MAX_LANG_CHARSIZE * (LCD_WIDTH);
-    #endif
-  #else
-    constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
+  #if BOTH(HAS_WIRED_LCD, STATUS_MESSAGE_SCROLLING)
+    uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
@@ -95,6 +88,17 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       return_to_status();
       refresh();
     }
+  }
+#endif
+
+#if HAS_LCD_BRIGHTNESS
+  uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+  bool MarlinUI::backlight = true;
+
+  void MarlinUI::set_brightness(const uint8_t value) {
+    backlight = !!value;
+    if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
+    // Set brightness on enabled LCD here
   }
 #endif
 
@@ -708,7 +712,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
      *     This is used to achieve more rapid stepping on kinematic machines.
      *
      * Currently used by the _lcd_move_xyz function in menu_motion.cpp
-     * and the ubl_map_move_to_xy funtion in menu_ubl.cpp.
+     * and the ubl_map_move_to_xy function in menu_ubl.cpp.
      */
     void ManualMove::task() {
 

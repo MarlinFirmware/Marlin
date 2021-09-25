@@ -431,7 +431,7 @@ void lv_draw_dialog(uint8_t type) {
     }
     else if (DIALOG_IS(TYPE_UPDATE_ESP_FIRMWARE)) {
       lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
-      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
     }
   #endif // MKS_WIFI_MODULE
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
@@ -469,7 +469,7 @@ void lv_draw_dialog(uint8_t type) {
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UNBIND)) {
       lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
-      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
+      lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -70);
     }
   #endif
   #if HAS_ROTARY_ENCODER
@@ -519,7 +519,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_load_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-    if (abs(diff) < 2 || diff > 0) {
+    if (ABS(diff) < 2 || diff > 0) {
       uiCfg.filament_load_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
@@ -535,7 +535,7 @@ void filament_dialog_handle() {
 
   if (uiCfg.filament_unload_heat_flg) {
     const celsius_t diff = thermalManager.wholeDegHotend(uiCfg.extruderIndex) - gCfgItems.filament_limit_temp;
-    if (abs(diff) < 2 || diff > 0) {
+    if (ABS(diff) < 2 || diff > 0) {
       uiCfg.filament_unload_heat_flg = false;
       lv_clear_dialog();
       lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);

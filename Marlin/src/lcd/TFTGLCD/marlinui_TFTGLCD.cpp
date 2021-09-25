@@ -98,7 +98,7 @@ TFTGLCD lcd;
 #define COLOR_EDIT      '#'
 #define COLOR_ERROR     '!'
 
-#ifdef CONVERT_TO_EXT_ASCII   //use standart pseudographic symbols in ASCII table
+#ifdef CONVERT_TO_EXT_ASCII   //use standard pseudographic symbols in ASCII table
   #define LR            179   //vertical line
   #define TRC           191   //top right corner
   #define BLC           192   //bottom left corner
@@ -401,7 +401,7 @@ static void center_text_P(PGM_P pstart, uint8_t y) {
     //
     uint8_t indent = (LCD_WIDTH - 8) / 2;
     // symbols 217 (bottom right corner) and 218 (top left corner) are using for letters in some languages
-    // and they should be moved to begining ASCII table as spetial symbols
+    // and they should be moved to beginning ASCII table as special symbols
     lcd.setCursor(indent, 0); lcd.write(TLC); lcd_put_u8str_P(PSTR("------"));  lcd.write(TRC);
     lcd.setCursor(indent, 1); lcd.write(LR);  lcd_put_u8str_P(PSTR("Marlin"));  lcd.write(LR);
     lcd.setCursor(indent, 2); lcd.write(BLC); lcd_put_u8str_P(PSTR("------"));  lcd.write(BRC);
@@ -733,7 +733,7 @@ Equal to 20x10 text LCD
 |                    |
 |  HE  BED  FAN      |
 | ttc  ttc   %       | ttc - current temperature
-| tts  tts  %%%      | tts - setted temperature, %%% - percent for FAN
+| tts  tts  %%%      | tts - set temperature, %%% - percent for FAN
 | ICO  ICO  ICO  ICO | ICO - icon 48x48, placed in 2 text lines
 | ICO  ICO  ICO  ICO | ICO
 
@@ -791,9 +791,10 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 0);
-  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position.x)), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position.y)), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+  const xyz_pos_t lpos = current_position.asLogical();
+  _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink); lcd.write(' ');
+  _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink); lcd.write(' ');
+  _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');

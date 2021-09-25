@@ -239,6 +239,22 @@ public:
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
 
+  #if HAS_LCD_BRIGHTNESS
+    #ifndef MIN_LCD_BRIGHTNESS
+      #define MIN_LCD_BRIGHTNESS   1
+    #endif
+    #ifndef MAX_LCD_BRIGHTNESS
+      #define MAX_LCD_BRIGHTNESS 255
+    #endif
+    #ifndef DEFAULT_LCD_BRIGHTNESS
+      #define DEFAULT_LCD_BRIGHTNESS MAX_LCD_BRIGHTNESS
+    #endif
+    static uint8_t brightness;
+    static bool backlight;
+    static void set_brightness(const uint8_t value);
+    FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
+  #endif
+
   #if ENABLED(DWIN_CREALITY_LCD)
     static void refresh();
   #else
@@ -296,6 +312,17 @@ public:
   #endif
 
   #if HAS_STATUS_MESSAGE
+
+    #if HAS_WIRED_LCD
+      #if ENABLED(STATUS_MESSAGE_SCROLLING)
+        #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
+      #else
+        #define MAX_MESSAGE_LENGTH (MAX_LANG_CHARSIZE * (LCD_WIDTH))
+      #endif
+    #else
+      #define MAX_MESSAGE_LENGTH 63
+    #endif
+
     static char status_message[];
     static uint8_t alert_level; // Higher levels block lower levels
 

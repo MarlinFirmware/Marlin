@@ -91,7 +91,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_HOME_OFFSET_K                   = _UxGT("Offset home ") LCD_STR_K;
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset applicato");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Imposta Origine");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Tramming assistito");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Wizard Tramming");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Selez. origine");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Ultimo valore ");
@@ -137,11 +136,11 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Muovi Asse");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Livella piano");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Livella piano");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Calibra piano");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Regola la vite finche' la sonda non rileva il piano.");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato!");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Punti buoni: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Ultimo Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Tramming piano");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Regola la vite finche' la sonda non rileva il piano.");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato!");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Punti buoni: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Ultimo Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Prossimo punto");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifica Mesh");

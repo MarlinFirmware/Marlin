@@ -71,7 +71,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        #undef  GRID_COLS
        #define GRID_COLS 3
        .colors(action_btn)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
@@ -82,7 +82,7 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     case 3: BedMeshViewScreen::show(); break;
     case 4: BedMeshEditScreen::show(); break;
     case 5: injectCommands_P(PSTR("M280 P0 S60")); break;
-    case 6: SpinnerDialogBox::enqueueAndWait_P(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
+    case 6: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
     default: return false;
   }
   return true;

@@ -37,6 +37,7 @@ extern const char NUL_STR[],
                   SP_I_LBL[], SP_J_LBL[], SP_K_LBL[],
                   SP_P_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],
+                  I_STR[], J_STR[], K_STR[],
                   X_LBL[], Y_LBL[], Z_LBL[], E_LBL[],
                   I_LBL[], J_LBL[], K_LBL[];
 
@@ -176,8 +177,8 @@ void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 template <typename T, typename U>
 void SERIAL_PRINT(T x, U y) { SERIAL_IMPL.print(x, y); }
 
-template <typename T, typename U>
-void SERIAL_PRINTLN(T x, U y) { SERIAL_IMPL.println(x, y); }
+template <typename T>
+void SERIAL_PRINTLN(T x, PrintBase y) { SERIAL_IMPL.println(x, y); }
 
 // Flush the serial port
 inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
@@ -292,16 +293,16 @@ void serialprintPGM(PGM_P str);
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
-void serial_echopair_PGM(PGM_P const s_P, serial_char_t v);
-void serial_echopair_PGM(PGM_P const s_P, const char *v);
-void serial_echopair_PGM(PGM_P const s_P, char v);
-void serial_echopair_PGM(PGM_P const s_P, int v);
-void serial_echopair_PGM(PGM_P const s_P, long v);
-void serial_echopair_PGM(PGM_P const s_P, float v);
-void serial_echopair_PGM(PGM_P const s_P, double v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned char v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
+inline void serial_echopair_PGM(PGM_P const s_P, serial_char_t v) { serialprintPGM(s_P); SERIAL_CHAR(v.c); }
+
+inline void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+inline void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+inline void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
+
+// Default implementation for types without a specialization. Handles integers.
+template <typename T>
+void serial_echopair_PGM(PGM_P const s_P, T v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
+
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 

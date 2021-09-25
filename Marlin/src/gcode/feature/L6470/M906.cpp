@@ -212,7 +212,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
  *     L6474 - current in mA (4A max)
  *     All others - 0-255
  *
- * Sets KVAL_HOLD wich affects the current being driven through the stepper.
+ * Sets KVAL_HOLD which affects the current being driven through the stepper.
  *
  * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
  * that affects the effective voltage seen by the stepper.

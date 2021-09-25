@@ -257,7 +257,7 @@ void MAX31865::oneShot() {
   // From the datasheet:
   // Note that a single conversion requires approximately 52ms in 60Hz filter
   // mode or 62.5ms in 50Hz filter mode to complete. 1-Shot is a self-clearing bit.
-  // TODO: switch this out depeding on the filter mode.
+  // TODO: switch this out depending on the filter mode.
   DELAY_US(65000); // 65ms
 }
 
@@ -301,7 +301,7 @@ uint16_t MAX31865::readRaw() {
 }
 
 /**
- * Calulate and return the resistance value of the connected RTD.
+ * Calculate and return the resistance value of the connected RTD.
  *
  * @param  refResistor The value of the matching reference resistor, usually 430 or 4300
  * @return             The raw RTD resistance value, NOT temperature!

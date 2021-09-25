@@ -87,7 +87,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_HOME_OFFSET_K                   = _UxGT("Kezdö eltol. ") LCD_STR_K;
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Eltolás beállítva.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Eredeti Be");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Elektromos segéd");
   PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Elektromos varázsló");
   PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Eredeti választása");
   PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Utolsó érték ");
@@ -133,11 +132,11 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Tengelyek mozgatása");
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Ágy szintezés");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Ágy szintezése");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Sarok szint");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Ágy emelése a szonda váltásig");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Minden sarok tolerancián belül. Szint jó.");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_GOOD_POINTS       = _UxGT("Jó pontok: ");
-  PROGMEM Language_Str MSG_LEVEL_CORNERS_LAST_Z            = _UxGT("Utolsó Z: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING                    = _UxGT("Elektromos segéd");
+  PROGMEM Language_Str MSG_BED_TRAMMING_RAISE              = _UxGT("Ágy emelése a szonda váltásig");
+  PROGMEM Language_Str MSG_BED_TRAMMING_IN_RANGE           = _UxGT("Minden sarok tolerancián belül. Szint jó.");
+  PROGMEM Language_Str MSG_BED_TRAMMING_GOOD_POINTS        = _UxGT("Jó pontok: ");
+  PROGMEM Language_Str MSG_BED_TRAMMING_LAST_Z             = _UxGT("Utolsó Z: ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Következö sarok");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Háló szerkesztö");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Háló szerkesztése");

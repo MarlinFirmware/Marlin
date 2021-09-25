@@ -567,7 +567,7 @@
 #endif
 
 #if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
-  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
+  #define _HAS_1(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else
   #define HAS_USER_ITEM(N) 0

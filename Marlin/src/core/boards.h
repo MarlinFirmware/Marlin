@@ -346,6 +346,9 @@
 #define BOARD_BEAST                   4048  // STM32F103RET6 Libmaple-based controller
 #define BOARD_MINGDA_MPX_ARM_MINI     4049  // STM32F103ZET6 Mingda MD-16
 #define BOARD_GTM32_PRO_VD            4050  // STM32F103VET6 controller
+#define BOARD_ZONESTAR_ZM3E2          4051  // Zonestar ZM3E2    (STM32F103RCT6)
+#define BOARD_ZONESTAR_ZM3E4          4052  // Zonestar ZM3E4 V1 (STM32F103VCT6)
+#define BOARD_ZONESTAR_ZM3E4V2        4053  // Zonestar ZM3E4 V2 (STM32F103VCT6)
 
 //
 // ARM Cortex-M4F
@@ -385,10 +388,10 @@
 #define BOARD_MKS_ROBIN2              4224  // MKS_ROBIN2 (STM32F407ZE)
 #define BOARD_MKS_ROBIN_PRO_V2        4225  // MKS Robin Pro V2 (STM32F407VE)
 #define BOARD_MKS_ROBIN_NANO_V3       4226  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_ANET_ET4                4227  // ANET ET4 V1.x (STM32F407VGT6)
-#define BOARD_ANET_ET4P               4228  // ANET ET4P V1.x (STM32F407VGT6)
-#define BOARD_FYSETC_CHEETAH_V20      4229  // FYSETC Cheetah V2.0
-
+#define BOARD_MKS_MONSTER8            4227  // MKS Monster8 (STM32F407VGT6)
+#define BOARD_ANET_ET4                4228  // ANET ET4 V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4229  // ANET ET4P V1.x (STM32F407VGT6)
+#define BOARD_FYSETC_CHEETAH_V20      4230  // FYSETC Cheetah V2.0
 
 //
 // ARM Cortex M7

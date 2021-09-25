@@ -25,7 +25,7 @@
 
 #define BOARD_INFO_NAME "GMARSH X6 REV1"
 
-// Ignore temp readings during develpment.
+// Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //

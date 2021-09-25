@@ -32,7 +32,7 @@
 #include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
+  #include "../lcd/e3v2/creality/dwin.h"
 #endif
 
 #include "../module/planner.h"        // for synchronize
@@ -939,7 +939,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, con
 
   while (atom_ptr) {
     // Find next subdirectory delimiter
-    char * const name_end = strchr(atom_ptr, '/');
+    const char * const name_end = strchr(atom_ptr, '/');
 
     // Last atom in the path? Item found.
     if (name_end <= atom_ptr) break;
@@ -1024,6 +1024,7 @@ int8_t CardReader::cdup() {
 void CardReader::cdroot() {
   workDir = root;
   flag.workDirIsRoot = true;
+  workDirDepth = 0;
   TERN_(SDCARD_SORT_ALPHA, presort());
 }
 
@@ -1218,7 +1219,7 @@ void CardReader::cdroot() {
         #if ENABLED(SDSORT_USES_RAM) && DISABLED(SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             for (uint16_t i = 0; i < fileCnt; ++i) free(sortnames[i]);
-            TERN_(HAS_FOLDER_SORTING, free(isDir));
+            TERN_(HAS_FOLDER_SORTING, delete [] isDir);
           #endif
         #endif
       }
@@ -1244,14 +1245,14 @@ void CardReader::cdroot() {
   void CardReader::flush_presort() {
     if (sort_count > 0) {
       #if ENABLED(SDSORT_DYNAMIC_RAM)
-        delete sort_order;
+        delete [] sort_order;
         #if ENABLED(SDSORT_CACHE_NAMES)
           LOOP_L_N(i, sort_count) {
             free(sortshort[i]); // strdup
             free(sortnames[i]); // strdup
           }
-          delete sortshort;
-          delete sortnames;
+          delete [] sortshort;
+          delete [] sortnames;
         #endif
       #endif
       sort_count = 0;

@@ -184,7 +184,6 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       PGM_P const label = GET_TEXT(MSG_MOVE_N_MM);
       char tmp[strlen_P(label) + 10 + 1], numstr[10];
       sprintf_P(tmp, label, dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
-
       #if DISABLED(HAS_GRAPHICAL_TFT)
         SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
         MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
@@ -358,13 +357,13 @@ void menu_motion() {
       GCODES_ITEM(MSG_AUTO_HOME_Z, PSTR("G28Z"));
     #endif
     #if LINEAR_AXES >= 4
-      GCODES_ITEM(MSG_AUTO_HOME_I, PSTR("G28" I_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_I, PSTR("G28" AXIS4_STR));
     #endif
     #if LINEAR_AXES >= 5
-      GCODES_ITEM(MSG_AUTO_HOME_J, PSTR("G28" J_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_J, PSTR("G28" AXIS5_STR));
     #endif
     #if LINEAR_AXES >= 6
-      GCODES_ITEM(MSG_AUTO_HOME_K, PSTR("G28" K_STR));
+      GCODES_ITEM(MSG_AUTO_HOME_K, PSTR("G28" AXIS6_STR));
     #endif
   #endif
 
@@ -420,7 +419,7 @@ void menu_motion() {
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-    SUBMENU(MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

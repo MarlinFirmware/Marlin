@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin mini (STM32F130VET6) board pin assignments
+ * MKS Robin mini (STM32F103VET6) board pin assignments
  */
 
 #if NOT_TARGET(STM32F1, STM32F1xx)

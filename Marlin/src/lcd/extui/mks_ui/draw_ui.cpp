@@ -237,7 +237,7 @@ void update_spi_flash() {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command befor erase spi flash
+  //read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
@@ -248,7 +248,7 @@ void update_gcode_command(int addr,uint8_t *s) {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command befor erase spi flash
+  //read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
@@ -560,11 +560,11 @@ char *creat_title_text() {
 
 #if HAS_GCODE_PREVIEW
 
-  uint32_t gPicturePreviewStart = 0;
+  uintptr_t gPicturePreviewStart = 0;
 
   void preview_gcode_prehandle(char *path) {
     #if ENABLED(SDSUPPORT)
-      uint32_t pre_read_cnt = 0;
+      uintptr_t pre_read_cnt = 0;
       uint32_t *p1;
       char *cur_name;
 
@@ -575,7 +575,7 @@ char *creat_title_text() {
       p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
 
       if (p1) {
-        pre_read_cnt = (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+        pre_read_cnt = (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
 
         To_pre_view              = pre_read_cnt;
         gcode_preview_over       = true;
@@ -606,7 +606,7 @@ char *creat_title_text() {
           uint32_t br  = card.read(public_buf, 400);
           uint32_t *p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
           if (p1) {
-            gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+            gPicturePreviewStart += (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
             break;
           }
           else {
