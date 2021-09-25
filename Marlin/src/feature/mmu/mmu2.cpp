@@ -451,7 +451,7 @@ void MMU2::check_version() {
 }
 
 static void mmu2_not_responding() {
-  LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
+  LCD_MESSAGE(MSG_MMU2_NOT_RESPONDING);
   BUZZ(100, 659);
   BUZZ(200, 698);
   BUZZ(100, 659);
@@ -487,7 +487,7 @@ static void mmu2_not_responding() {
     if (index != extruder) {
 
       stepper.disable_extruder();
-      ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+      ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
@@ -573,7 +573,7 @@ static void mmu2_not_responding() {
         command(MMU_CMD_U0);
         manage_response(true, true);
       }
-      ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+      ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
       mmu_loading_flag = true;
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
@@ -671,7 +671,7 @@ static void mmu2_not_responding() {
 
     if (index != extruder) {
       stepper.disable_extruder();
-      ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+      ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
       command(MMU_CMD_C0);
@@ -808,14 +808,14 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
       if (turn_off_nozzle && resume_hotend_temp) {
         thermalManager.setTargetHotend(resume_hotend_temp, active_extruder);
-        LCD_MESSAGEPGM(MSG_HEATING);
+        LCD_MESSAGE(MSG_HEATING);
         BUZZ(200, 40);
 
         while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(1000);
       }
 
       if (move_axes && all_axes_homed()) {
-        LCD_MESSAGEPGM(MSG_MMU2_RESUMING);
+        LCD_MESSAGE(MSG_MMU2_RESUMING);
         BUZZ(198, 404); BUZZ(4, 0); BUZZ(198, 404);
 
         // Move XY to starting position, then Z
@@ -826,7 +826,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
       }
       else {
         BUZZ(198, 404); BUZZ(4, 0); BUZZ(198, 404);
-        LCD_MESSAGEPGM(MSG_MMU2_RESUMING);
+        LCD_MESSAGE(MSG_MMU2_RESUMING);
       }
     }
   }
@@ -908,7 +908,7 @@ bool MMU2::load_filament_to_nozzle(const uint8_t index) {
 
   if (thermalManager.tooColdToExtrude(active_extruder)) {
     BUZZ(200, 404);
-    LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
+    LCD_ALERTMESSAGE(MSG_HOTEND_TOO_COLD);
     return false;
   }
 
@@ -944,11 +944,11 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
 
   if (thermalManager.tooColdToExtrude(active_extruder)) {
     BUZZ(200, 404);
-    LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
+    LCD_ALERTMESSAGE(MSG_HOTEND_TOO_COLD);
     return false;
   }
 
-  LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
+  LCD_MESSAGE(MSG_MMU2_EJECTING_FILAMENT);
 
   stepper.enable_extruder();
   current_position.e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
@@ -958,7 +958,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
   manage_response(false, false);
 
   if (recover)  {
-    LCD_MESSAGEPGM(MSG_MMU2_EJECT_RECOVER);
+    LCD_MESSAGE(MSG_MMU2_EJECT_RECOVER);
     BUZZ(200, 404);
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("MMU2 Eject Recover"), CONTINUE_STR));
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("MMU2 Eject Recover")));
@@ -993,7 +993,7 @@ bool MMU2::unload() {
 
   if (thermalManager.tooColdToExtrude(active_extruder)) {
     BUZZ(200, 404);
-    LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
+    LCD_ALERTMESSAGE(MSG_HOTEND_TOO_COLD);
     return false;
   }
 

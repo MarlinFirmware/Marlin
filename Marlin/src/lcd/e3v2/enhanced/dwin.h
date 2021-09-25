@@ -179,9 +179,9 @@ void EachMomentUpdate();
 void update_variable();
 void DWIN_HandleScreen();
 void DWIN_Update();
-void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
-void DWIN_StatusChanged(const char * const text);
-void DWIN_StatusChanged_P(PGM_P const text);
+void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text=nullptr);
+void DWIN_StatusChanged(const char * const cstr=nullptr);
+void DWIN_StatusChanged(FSTR_P const fstr);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if HAS_MESH

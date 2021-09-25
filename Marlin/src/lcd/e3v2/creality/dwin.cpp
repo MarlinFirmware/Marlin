@@ -4287,16 +4287,16 @@ void DWIN_CompletedLeveling() {
   if (checkkey == Leveling) Goto_MainMenu();
 }
 
-void DWIN_StatusChanged(const char *text) {
+void DWIN_StatusChanged(const char * const cstr/*=nullptr*/) {
   DWIN_Draw_Rectangle(1, Color_Bg_Blue, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 24);
-  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen_P(text) * MENU_CHR_W) / 2;
-  DWIN_Draw_String(false, font8x16, Color_White, Color_Bg_Blue, x, STATUS_Y + 3, F(text));
+  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen(cstr) * MENU_CHR_W) / 2;
+  DWIN_Draw_String(false, font8x16, Color_White, Color_Bg_Blue, x, STATUS_Y + 3, cstr);
   DWIN_UpdateLCD();
 }
 
-void DWIN_StatusChanged_P(PGM_P const pstr) {
-  char str[strlen_P((const char*)pstr) + 1];
-  strcpy_P(str, (const char*)pstr);
+void DWIN_StatusChanged(FSTR_P const fstr) {
+  char str[strlen_P(FTOP(fstr)) + 1];
+  strcpy_P(str, FTOP(fstr));
   DWIN_StatusChanged(str);
 }
 

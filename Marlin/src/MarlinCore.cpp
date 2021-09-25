@@ -474,7 +474,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
       if (ELAPSED(ms, next_home_key_ms)) {
         next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
-        LCD_MESSAGEPGM(MSG_AUTO_HOME);
+        LCD_MESSAGE(MSG_AUTO_HOME);
         queue.inject_P(G28_STR);
       }
     }
@@ -499,8 +499,8 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       }                                                                \
     }while(0)
 
-    #define CHECK_CUSTOM_USER_BUTTON(N)     _CHECK_CUSTOM_USER_BUTTON(N, NOOP)
-    #define CHECK_BETTER_USER_BUTTON(N) _CHECK_CUSTOM_USER_BUTTON(N, if (strlen(BUTTON##N##_DESC)) LCD_MESSAGEPGM_P(PSTR(BUTTON##N##_DESC)))
+    #define CHECK_CUSTOM_USER_BUTTON(N) _CHECK_CUSTOM_USER_BUTTON(N, NOOP)
+    #define CHECK_BETTER_USER_BUTTON(N) _CHECK_CUSTOM_USER_BUTTON(N, if (strlen(BUTTON##N##_DESC)) LCD_MESSAGE_F(BUTTON##N##_DESC))
 
     #if HAS_BETTER_USER_BUTTON(1)
       CHECK_BETTER_USER_BUTTON(1);
@@ -935,7 +935,7 @@ void stop() {
 
   if (!IsStopped()) {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
-    LCD_MESSAGEPGM(MSG_STOPPED);
+    LCD_MESSAGE(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
     marlin_state = MF_STOPPED;
   }
@@ -1551,7 +1551,7 @@ void setup() {
     HMI_Init();
     HMI_SetLanguageCache();
     HMI_StartFrame(true);
-    DWIN_StatusChanged_P(GET_TEXT(WELCOME_MSG));
+    DWIN_StatusChanged(GET_TEXT_F(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
