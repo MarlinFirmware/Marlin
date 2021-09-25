@@ -611,6 +611,12 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     thermalManager.reset_hotend_idle_timer(e);
   }
 
+  ui.pause_show_message(PAUSE_MESSAGE_RESUME);
+
+  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+    if (active_extruder < HOTENDS) {
+  #endif
+
   if (targetTemp > thermalManager.degTargetHotend(active_extruder))
     thermalManager.setTargetHotend(targetTemp, active_extruder);
 
@@ -622,13 +628,15 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     thermalManager.wait_for_hotend(active_extruder, false);
   }
 
-  ui.pause_show_message(PAUSE_MESSAGE_RESUME);
-
   // Check Temperature before moving hotend
   ensure_safe_temperature(DISABLED(BELTPRINTER));
 
   // Retract to prevent oozing
   unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+
+  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+    }
+  #endif
 
   if (!axes_should_home()) {
     // Move XY back to saved position

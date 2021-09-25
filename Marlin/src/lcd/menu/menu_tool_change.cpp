@@ -31,29 +31,24 @@
 #include "menu.h"
 #include "menu_item.h"
 #include "../../module/tool_change.h"
-
-#if ENABLED(SWITCHING_TOOLHEAD_PARKING)
-  #include "../../libs/nozzle.h"
-  xyz_pos_t toolchange_resume_position;
-#endif
+#include "../../feature/pause.h"
+#include "../../gcode/queue.h"
 
 /**
  * Callback for a completed/successful tool change.
  *
  */
 void menu_tool_change_done() {
-  tool_change(editable.uint8);
-  thermalManager.heating_enabled = true;
   ui.set_status_P(PSTR("Tool Changed"));
   ui.return_to_status();
 
-  #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
+  /*#if ENABLED(SWITCHING_TOOLHEAD_PARKING)
     // Move XY to starting position, then Z
     do_blocking_move_to_xy(toolchange_resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
     // Move Z_AXIS to saved position
     do_blocking_move_to_z(toolchange_resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
-  #endif
+  #endif*/
 }
 
 
@@ -62,17 +57,16 @@ void menu_tool_change_done() {
  *
  */
 void menu_tool_change_cancel() {
-  thermalManager.heating_enabled = true;
   ui.set_status_P(PSTR("Tool Change Canceled"));
   ui.return_to_status();
 
-  #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
+  /*#if ENABLED(SWITCHING_TOOLHEAD_PARKING)
     // Move XY to starting position, then Z
     do_blocking_move_to_xy(toolchange_resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
     // Move Z_AXIS to saved position
     do_blocking_move_to_z(toolchange_resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
-  #endif
+  #endif*/
 }
 
 
@@ -83,12 +77,23 @@ void menu_tool_change_cancel() {
  *
  */
 void menu_tool_changing() {
-  thermalManager.heating_enabled = false;
 
-  #if ENABLED(SWITCHING_TOOLHEAD_PARKING)
-    toolchange_resume_position = current_position;
-    nozzle.park(0);
-  #endif
+  char tgc[3];
+  sprintf_P(tgc, PSTR("T%c"), editable.uint8);
+  //tool_change(editable.uint8);
+  queue.inject(tgc);
+
+  /*xyz_pos_t park_point = TERN(SWITCHING_TOOLHEAD_PARKING, park_point, current_position);
+
+  if (park_point.z <= (current_position.z + 5)) park_point.z = current_position.z + 10;
+
+  if (pause_print(0.0, park_point, true, 0)) {
+    tool_change(editable.uint8);
+    wait_for_confirmation(false, 2);
+    thermalManager.heating_enabled = true;
+    resume_print();
+    ui.set_status_P(PSTR("Tool Changed"));
+  }
 
   ui.push_current_screen();
   ui.goto_screen([]{
@@ -101,7 +106,7 @@ void menu_tool_changing() {
       toolhead_names[editable.uint8],
       (const char *)nullptr
     );
-  });
+  });*/
 }
 
 /**
@@ -123,7 +128,12 @@ void menu_tool_change_hotend() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    SUBMENU_P(toolhead_names[e], []{ menu_tool_changing(); });
+    SUBMENU_P(toolhead_names[e], []{
+      char tgc[3] = { '\0' };
+      char n = editable.uint8 + '0';
+      sprintf_P(tgc, PSTR("T%c"), n);
+      queue.inject(tgc);
+    });
   }
 
   END_MENU();
@@ -162,7 +172,12 @@ void menu_tool_change_unpowered() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    SUBMENU_P(toolhead_names[e], []{ menu_tool_changing(); });
+    SUBMENU_P(toolhead_names[e], []{
+      char tgc[3] = { '\0' };
+      char n = editable.uint8 + '0';
+      sprintf_P(tgc, PSTR("T%c"), n);
+      queue.inject(tgc);
+    });
   }
 
   END_MENU();

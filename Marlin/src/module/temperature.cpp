@@ -3752,6 +3752,10 @@ void Temperature::isr() {
         REMEMBER(1, planner.autotemp_enabled, false);
       #endif
 
+      #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+        if (!heating_enabled) return false;
+      #endif
+
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         bool first_loop = true;
@@ -3888,6 +3892,10 @@ void Temperature::isr() {
     bool Temperature::wait_for_bed(const bool no_wait_for_cooling/*=true*/
       OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
+      #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+        if (!heating_enabled) return false;
+      #endif
+
       #if TEMP_BED_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         bool first_loop = true;

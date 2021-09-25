@@ -63,6 +63,10 @@
   #include "stepper.h"
 #endif
 
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  #include "../lcd/menu/menu.h"
+#endif
+
 #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SERVO_SWITCHING_TOOLHEAD)
   #include "servo.h"
 #endif
@@ -391,10 +395,42 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_ECHOPGM("tool change, active ", active_extruder, " new ", new_tool);
 
     disable_e_steppers();
-    thermalManager.disable_all_heaters();
     thermalManager.heating_enabled = false;
+    thermalManager.disable_all_heaters();
+
+    if (printingIsActive()) {
+      // use the pause print menu
+      xyz_pos_t park_point = TERN(SWITCHING_TOOLHEAD_PARKING, park_point, current_position);
+      if (park_point.z <= (current_position.z + 5)) park_point.z = current_position.z + 10;
+
+      pause_print(0.0, park_point, true, 0);
+    } else {
+      // use a normal screen
+      ui.push_current_screen();
+      editable.uint8 = new_tool;
+			ui.push_current_screen();
+			ui.goto_screen([]{
+				MenuItem_confirm::select_screen(
+					GET_TEXT(MSG_BUTTON_DONE),
+					GET_TEXT(MSG_BUTTON_CANCEL),
+					[]{ui.return_to_status();},
+					[]{ui.return_to_status();},
+					PSTR("Install tool:"),
+					toolhead_names[editable.uint8],
+					(const char *)nullptr
+				);
+			});
+    }
+
+    // switch to the new tool
     thermalManager.temp_hotend[new_tool].reset();
     active_extruder = new_tool;
+
+    if (printingIsActive()) {
+      wait_for_confirmation(false, 2);
+      resume_print();
+      ui.set_status_P(PSTR("Tool Changed"));
+    }
 
     // allow temperature readings to stabilize; 1khz, OVERSAMPLENR*2 samples
     safe_delay(
