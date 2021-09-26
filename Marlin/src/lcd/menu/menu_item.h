@@ -23,7 +23,7 @@
 
 #include "menu.h"
 #include "../marlinui.h"
-#include "../../gcode/queue.h" // for inject_P
+#include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -64,8 +64,8 @@ class MenuItem_gcode : public MenuItem_button {
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
       _draw(sel, row, pstr, '>', ' ');
     }
-    static void action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
-    static inline void action(PGM_P const pstr, const uint8_t, const char * const pgcode) { action(pstr, pgcode); }
+    static void action(PGM_P const, PGM_P const pgcode) { queue.inject(FPSTR(pgcode)); }
+    static inline void action(PGM_P const pstr, const uint8_t, PGM_P const pgcode) { action(pstr, pgcode); }
 };
 
 ////////////////////////////////////////////

@@ -523,9 +523,9 @@ void DGUSRxHandler::Probe(DGUS_VP &vp, void *data_ptr) {
   dgus_screen_handler.TriggerScreenChange(DGUS_Screen::LEVELING_PROBING);
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    queue.enqueue_now_P(PSTR("G29P1\nG29P3\nG29P5C"));
+    queue.enqueue_now(F("G29P1\nG29P3\nG29P5C"));
   #else
-    queue.enqueue_now_P(PSTR("G29"));
+    queue.enqueue_now(F("G29"));
   #endif
   queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
 }
@@ -634,13 +634,13 @@ void DGUSRxHandler::Home(DGUS_VP &vp, void *data_ptr) {
 
   switch (axis) {
     case DGUS_Data::Axis::X_Y_Z:
-      queue.enqueue_now_P(PSTR("G28XYZ"));
+      queue.enqueue_now(F("G28XYZ"));
       break;
     case DGUS_Data::Axis::X_Y:
-      queue.enqueue_now_P(PSTR("G28XY"));
+      queue.enqueue_now(F("G28XY"));
       break;
     case DGUS_Data::Axis::Z:
-      queue.enqueue_now_P(PSTR("G28Z"));
+      queue.enqueue_now(F("G28Z"));
       break;
   }
 }
@@ -784,7 +784,7 @@ void DGUSRxHandler::ResetEEPROM(DGUS_VP &vp, void *data_ptr) {
     return;
   }
 
-  queue.enqueue_now_P(PSTR("M502"));
+  queue.enqueue_now(F("M502"));
   queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
 }
 
@@ -802,7 +802,7 @@ void DGUSRxHandler::SettingsExtra(DGUS_VP &vp, void *data_ptr) {
           return;
         }
 
-        queue.enqueue_now_P(PSTR(DGUS_RESET_BLTOUCH));
+        queue.enqueue_now(F(DGUS_RESET_BLTOUCH));
       #else
         dgus_screen_handler.TriggerScreenChange(DGUS_Screen::INFOS);
       #endif
@@ -942,7 +942,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
 
     dgus_screen_handler.TriggerScreenChange(DGUS_Screen::HOME);
 
-    queue.enqueue_now_P(PSTR("M1000C"));
+    queue.enqueue_now(F("M1000C"));
   }
 
   void DGUSRxHandler::PowerLossResume(DGUS_VP &vp, void *data_ptr) {
@@ -966,7 +966,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
 
     dgus_screen_handler.TriggerScreenChange(DGUS_Screen::PRINT_STATUS);
 
-    queue.enqueue_now_P(PSTR("M1000"));
+    queue.enqueue_now(F("M1000"));
   }
 #endif // POWER_LOSS_RECOVERY
 

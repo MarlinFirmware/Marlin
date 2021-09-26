@@ -74,7 +74,7 @@ bool DGUSSetupHandler::LevelingMenu() {
 
   if (ExtUI::isPositionKnown()) {
     if (ExtUI::getAxisPosition_mm(ExtUI::Z) < 10.0f) {
-      queue.enqueue_now_P(PSTR("G0Z10"));
+      queue.enqueue_now(F("G0Z10"));
     }
 
     return true;
@@ -124,14 +124,14 @@ bool DGUSSetupHandler::LevelingOffset() {
 
   if (ExtUI::isPositionKnown()) {
     if (ExtUI::getAxisPosition_mm(ExtUI::Z) < 4.0f) {
-      queue.enqueue_now_P(PSTR("G0Z4"));
+      queue.enqueue_now(F("G0Z4"));
     }
 
     char buffer[20];
     snprintf_P(buffer, sizeof(buffer), PSTR("G0X%dY%d"), DGUS_LEVEL_CENTER_X, DGUS_LEVEL_CENTER_Y);
 
     queue.enqueue_one_now(buffer);
-    queue.enqueue_now_P(PSTR("G0Z0"));
+    queue.enqueue_now(F("G0Z0"));
 
     return true;
   }

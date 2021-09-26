@@ -683,7 +683,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   void DGUSScreenHandler::HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t value = swap16(*(uint16_t*)val_ptr);
     if (value) {
-      queue.inject_P(PSTR("M1000"));
+      queue.inject(F("M1000"));
       dgusdisplay.WriteVariable(VP_SD_Print_Filename, filelist.filename(), 32, true);
       GotoScreen(PLR_SCREEN_RECOVER);
     }

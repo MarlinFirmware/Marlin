@@ -1157,7 +1157,7 @@ void HMI_MainMenu() {
 
       case PAGE_INFO_LEVELING:
         #if HAS_ONESTEP_LEVELING
-          queue.inject_P(PSTR("G28XYO\nG28Z\nG29"));  // TODO: 'G29' should be homing when needed. Does it make sense for every LCD to do this differently?
+          queue.inject(F("G28XYO\nG28Z\nG29"));  // TODO: 'G29' should be homing when needed. Does it make sense for every LCD to do this differently?
         #else
           checkkey = Info;
           Draw_Info_Menu();
@@ -1376,7 +1376,7 @@ void HMI_PauseOrStop() {
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
         ICON_Resume();
-        queue.inject_P(PSTR("M25"));
+        queue.inject(F("M25"));
       }
       else {
         // cancel pause
@@ -1510,7 +1510,7 @@ void EachMomentUpdate() {
       TERN_(HAS_FAN, resume_fan = thermalManager.fan_speed[0]);
     #endif
     IF_DISABLED(ADVANCED_PAUSE_FEATURE, thermalManager.disable_all_heaters());
-    IF_DISABLED(PARK_HEAD_ON_PAUSE, queue.inject_P(PSTR("G1 F1200 X0 Y0")));
+    IF_DISABLED(PARK_HEAD_ON_PAUSE, queue.inject(F("G1 F1200 X0 Y0")));
   }
 
   if (checkkey == PrintProcess) { // print process
@@ -1588,7 +1588,7 @@ void EachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (HMI_flag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject_P(PSTR("M1000C")));
+            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
             return HMI_StartFrame(true);
           }
           else
@@ -1600,7 +1600,7 @@ void EachMomentUpdate() {
       }
 
       select_print.set(PRINT_SETUP);
-      queue.inject_P(PSTR("M1000"));
+      queue.inject(F("M1000"));
       sdprint = true;
       Goto_PrintProcess();
       Draw_Status_Area(true);
@@ -2088,13 +2088,13 @@ void Goto_InfoMenu(){
   Draw_Info_Menu();
 }
 
-void DisableMotors() { queue.inject_P(PSTR("M84")); }
+void DisableMotors() { queue.inject(F("M84")); }
 
 void AutoHome() { queue.inject_P(G28_STR); }
 
 void SetHome() {
   // Apply workspace offset, making the current position 0,0,0
-  queue.inject_P(PSTR("G92 X0 Y0 Z0"));
+  queue.inject(F("G92 X0 Y0 Z0"));
   HMI_AudioFeedback();
 }
 
@@ -2241,7 +2241,7 @@ void Goto_LockScreen() { DWIN_LockScreen(true); }
   void SetProbeOffsetZ() { SetPFloatOnClick(-10, 10, 2); }
   void ProbeTest() {
     ui.set_status_P(GET_TEXT(MSG_M48_TEST));
-    queue.inject_P(PSTR("G28O\nM48 P10"));
+    queue.inject(F("G28O\nM48 P10"));
   }
 #endif
 
@@ -2321,23 +2321,23 @@ void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
 
   void ChangeFilament() {
     HMI_SaveProcessID(NothingToDo);
-    queue.inject_P(PSTR("M600 B2"));
+    queue.inject(F("M600 B2"));
   }
 
   void ParkHead(){
     ui.set_status_P(GET_TEXT(MSG_FILAMENT_PARK_ENABLED));
-    queue.inject_P(PSTR("G28O\nG27"));
+    queue.inject(F("G28O\nG27"));
   }
 
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     void UnloadFilament(){
       ui.set_status_P(GET_TEXT(MSG_FILAMENTUNLOAD));
-      queue.inject_P(PSTR("M702 Z20"));
+      queue.inject(F("M702 Z20"));
     }
 
     void LoadFilament(){
       ui.set_status_P(GET_TEXT(MSG_FILAMENTLOAD));
-      queue.inject_P(PSTR("M701 Z20"));
+      queue.inject(F("M701 Z20"));
     }
   #endif
 
@@ -2436,7 +2436,7 @@ void LevBedC () { LevBed(4); }
 
   void ManualMeshSave(){
     ui.set_status_P(GET_TEXT(MSG_UBL_STORAGE_MESH_MENU));
-    queue.inject_P(PSTR("M211 S1\nM500"));
+    queue.inject(F("M211 S1\nM500"));
   }
 
 #endif // MESH_BED_LEVELING

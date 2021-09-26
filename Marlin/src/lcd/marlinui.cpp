@@ -1542,7 +1542,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
     void MarlinUI::poweroff() {
-      queue.inject_P(PSTR("M81"));
+      queue.inject(F("M81"));
       goto_previous_screen();
     }
   #endif
@@ -1570,9 +1570,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT); // Show message immediately to let user know about pause in progress
-      queue.inject_P(PSTR("M25 P\nM24"));
+      queue.inject(F("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
-      queue.inject_P(PSTR("M25"));
+      queue.inject(F("M25"));
     #elif defined(ACTION_ON_PAUSE)
       host_action_pause();
     #endif

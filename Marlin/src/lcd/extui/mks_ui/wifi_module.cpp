@@ -1169,7 +1169,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
 
           send_to_wifi((uint8_t *)tempBuf, strlen((char *)tempBuf));
-          queue.enqueue_one_P(PSTR("M105"));
+          queue.enqueue_one(F("M105"));
           break;
 
         case 992:
@@ -2035,7 +2035,7 @@ void get_wifi_commands() {
         #endif
 
         // Add the command to the queue
-        queue.enqueue_one_P(wifi_line_buffer);
+        queue.enqueue_one(wifi_line_buffer);
       }
       else if (wifi_read_count >= MAX_CMD_SIZE - 1) {
 

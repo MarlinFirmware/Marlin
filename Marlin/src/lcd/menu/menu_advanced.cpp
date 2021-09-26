@@ -557,7 +557,7 @@ void menu_advanced_settings() {
       //
       // Set Home Offsets
       //
-      ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject_P(PSTR("M428")); ui.return_to_status(); });
+      ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
     // M203 / M205 - Feedrate items
