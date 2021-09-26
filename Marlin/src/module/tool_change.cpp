@@ -411,14 +411,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     thermalManager.disable_all_heaters(); // ?
 
     if (printingIsActive()) {
-      // use the pause print menu
-      xyz_pos_t park_point = TERN(SWITCHING_TOOLHEAD_PARKING, park_point, current_position);
-      if (park_point.z <= (current_position.z + 5)) park_point.z = current_position.z + 10;
+      //xyz_pos_t park_point = TERN(SWITCHING_TOOLHEAD_PARKING, park_point, current_position);
+      //if (park_point.z <= (current_position.z + 5)) park_point.z = current_position.z + 10;
 
-      if (pause_print(0.0, park_point, true, 0)) {
+      // use the pause print menu
+      if (pause_print(0.0, current_position, true, 0)) {
         wait_for_confirmation(false, 2);
         manual_switching_toolhead_set_new_tool(new_tool);
-        resume_print();
         ui.set_status_P(PSTR("Tool Changed"));
       }
     } else {
@@ -1178,6 +1177,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       #endif
 
+      // Toolchange Z-Raise
       #if DISABLED(TOOLCHANGE_ZRAISE_BEFORE_RETRACT) && DISABLED(SWITCHING_NOZZLE)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
@@ -1197,6 +1197,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
       #endif
 
+      // Tool offsets
       #if HAS_TOOL_OFFSET
         xyz_pos_t diff = tool_offset[new_tool] - tool_offset[old_tool];
         TERN_(DUAL_X_CARRIAGE, diff.x = 0);
@@ -1204,6 +1205,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         constexpr xyz_pos_t diff{0};
       #endif
 
+      // Implementation-specific calls
       #if ENABLED(DUAL_X_CARRIAGE)
         dualx_tool_change(new_tool, no_move);
       #elif ENABLED(PARKING_EXTRUDER)                                   // Dual Parking extruder
@@ -1234,7 +1236,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         move_nozzle_servo(new_tool);
       #endif
 
-      IF_DISABLED(DUAL_X_CARRIAGE, active_extruder = new_tool); // Set the new active extruder
+      // Set the new active extruder
+      IF_DISABLED(DUAL_X_CARRIAGE, active_extruder = new_tool);
 
       TERN_(TOOL_SENSOR, tool_sensor_disabled = false);
 
@@ -1394,6 +1397,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_TOOLCHANGE));
       #endif
     }
+
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      if (did_pause_print) {
+        resume_print();
+      }
+    #endif
 
     SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, active_extruder);
 
