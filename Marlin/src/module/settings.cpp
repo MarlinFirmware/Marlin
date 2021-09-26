@@ -2371,14 +2371,18 @@ void MarlinSettings::postprocess() {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_CRC)));
-        TERN_(HOST_PROMPT_SUPPORT, host_action_notify_P(GET_TEXT(MSG_ERR_EEPROM_CRC)));
+        #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+          host_action_notify_P(GET_TEXT(MSG_ERR_EEPROM_CRC));
+        #endif
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHO(version);
         DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
-        TERN_(HOST_PROMPT_SUPPORT, host_action_notify("Stored settings retrieved"));
+        #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+          host_action_notify("Stored settings retrieved");
+        #endif
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -3038,7 +3042,9 @@ void MarlinSettings::reset() {
   postprocess();
 
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
-  TERN_(HOST_PROMPT_SUPPORT, host_action_notify("Hardcoded Default Settings Loaded"));
+  #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+    host_action_notify("Hardcoded Default Settings Loaded");
+  #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
