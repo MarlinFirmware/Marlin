@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< HEAD
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
-=======
 #include "../../platforms.h"
 
 #ifdef HAL_STM32
->>>>>>> upstream/2.0.x
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -390,8 +386,4 @@ void TFT_LTDC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
 }
 
 #endif // HAS_LTDC_TFT
-<<<<<<< HEAD
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
-=======
 #endif // HAL_STM32
->>>>>>> upstream/2.0.x

@@ -189,14 +189,6 @@
   #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
-<<<<<<< HEAD
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PA13  // PW_DET
-#endif
-#define PS_ON_PIN                           PB2   // PW_OFF
-
-=======
->>>>>>> upstream/2.0.x
 //
 // Enable MKSPWC support
 //
@@ -247,13 +239,8 @@
 
 // MKS TEST
 #if ENABLED(MKS_TEST)
-<<<<<<< HEAD
-  #define MKS_TEST_POWER_LOSS_PIN           PA13   // PW_DET
-  #define MKS_TEST_PS_ON_PIN                PB2    // PW_OFF
-=======
   #define MKS_TEST_POWER_LOSS_PIN           PA13  // PW_DET
   #define MKS_TEST_PS_ON_PIN                PB2   // PW_OFF
->>>>>>> upstream/2.0.x
 #endif
 
 //
@@ -395,10 +382,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-<<<<<<< HEAD
-=======
 	//#define LCD_SCREEN_ROT_180
->>>>>>> upstream/2.0.x
 
   #else // !MKS_MINI_12864
 

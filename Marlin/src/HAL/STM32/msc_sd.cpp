@@ -13,13 +13,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< HEAD
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
-=======
 #include "../platforms.h"
 
 #ifdef HAL_STM32
->>>>>>> upstream/2.0.x
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -131,8 +127,4 @@ void MSC_SD_init() {
 }
 
 #endif // HAS_SD_HOST_DRIVE
-<<<<<<< HEAD
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
-=======
 #endif // HAL_STM32
->>>>>>> upstream/2.0.x

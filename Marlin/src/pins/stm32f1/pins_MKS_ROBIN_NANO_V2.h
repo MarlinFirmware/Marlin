@@ -190,8 +190,6 @@
 //
 //#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
 //#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
-<<<<<<< HEAD
-=======
 
 //
 // Power Supply Control
@@ -211,7 +209,6 @@
   #define SUICIDE_PIN                       PB2
   #define SUICIDE_PIN_INVERTING            false
 #endif
->>>>>>> upstream/2.0.x
 
 //
 // Misc. Functions
@@ -360,10 +357,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-<<<<<<< HEAD
-=======
 	//#define LCD_SCREEN_ROT_180
->>>>>>> upstream/2.0.x
 
   #else                                           // !MKS_MINI_12864
 

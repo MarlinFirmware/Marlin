@@ -13,20 +13,6 @@ Import("env")
 # The script will set the value as the default one (64 bytes)
 # or the user-configured one, whichever is higher.
 #
-<<<<<<< HEAD
-# Marlin has 128 and 32 as default values for RX_BUFFER_SIZE and
-# TX_BUFFER_SIZE respectively. We use the highest value.
-mf = env["MARLIN_FEATURES"]
-rxBuf = str(max(128, int(mf["RX_BUFFER_SIZE"]) if "RX_BUFFER_SIZE" in mf else 0))
-txBuf = str(max(64, int(mf["TX_BUFFER_SIZE"]) if "TX_BUFFER_SIZE" in mf else 0))
-
-build_flags = env.get('BUILD_FLAGS')
-build_flags.append("-DSERIAL_RX_BUFFER_SIZE=" + rxBuf)
-build_flags.append("-DSERIAL_TX_BUFFER_SIZE=" + txBuf)
-build_flags.append("-DUSART_RX_BUF_SIZE=" + rxBuf)
-build_flags.append("-DUSART_TX_BUF_SIZE=" + txBuf)
-env.Replace(BUILD_FLAGS=build_flags)
-=======
 # Marlin's default buffer sizes are 128 for RX and 32 for TX.
 # The highest value is taken (128/64).
 #
@@ -71,4 +57,3 @@ tryAddFlag("SERIAL_RX_BUFFER_SIZE", rxBuf)
 tryAddFlag("SERIAL_TX_BUFFER_SIZE", txBuf)
 tryAddFlag("USART_RX_BUF_SIZE", rxBuf)
 tryAddFlag("USART_TX_BUF_SIZE", txBuf)
->>>>>>> upstream/2.0.x

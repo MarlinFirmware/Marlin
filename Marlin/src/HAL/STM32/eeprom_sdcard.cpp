@@ -19,13 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< HEAD
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
-=======
 #include "../platforms.h"
 
 #ifdef HAL_STM32
->>>>>>> upstream/2.0.x
 
 /**
  * Implementation of EEPROM settings in SD Card
@@ -94,8 +90,4 @@ bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uin
 }
 
 #endif // SDCARD_EEPROM_EMULATION
-<<<<<<< HEAD
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
-=======
 #endif // HAL_STM32
->>>>>>> upstream/2.0.x

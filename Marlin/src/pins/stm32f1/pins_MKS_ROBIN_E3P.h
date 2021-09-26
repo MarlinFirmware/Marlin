@@ -37,12 +37,9 @@
 
 #define BOARD_NO_NATIVE_USB
 #define MKS_HARDWARE_TEST_ONLY_E0
-<<<<<<< HEAD
-=======
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
 #define TEMP_TIMER                             5
->>>>>>> upstream/2.0.x
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role

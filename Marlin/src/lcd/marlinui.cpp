@@ -89,8 +89,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       refresh();
     }
   }
-<<<<<<< HEAD
-=======
 #endif
 
 #if HAS_LCD_BRIGHTNESS
@@ -102,7 +100,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
     // Set brightness on enabled LCD here
   }
->>>>>>> upstream/2.0.x
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)

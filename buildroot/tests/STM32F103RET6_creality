@@ -9,13 +9,8 @@ set -e
 #
 # Build with configs included in the PR
 #
-<<<<<<< HEAD
-use_example_configs "Creality/Ender-3 V2"
-opt_enable MARLIN_DEV_MODE BUFFER_MONITORING
-=======
 use_example_configs "Creality/Ender-3 V2/CrealityUI"
 opt_enable MARLIN_DEV_MODE
->>>>>>> upstream/2.0.x
 exec_test $1 $2 "Ender 3 v2" "$3"
 
 use_example_configs "Creality/Ender-3 V2/CrealityUI"

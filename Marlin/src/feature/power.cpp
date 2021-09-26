@@ -46,17 +46,12 @@ bool Power::psu_on;
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../module/temperature.h"
 
-<<<<<<< HEAD
-  #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
-    #include "controllerfan.h"
-=======
 bool Power::is_power_needed() {
 
   if (printJobOngoing() || printingIsPaused()) return true;
 
   #if ENABLED(AUTO_POWER_FANS)
     FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
->>>>>>> upstream/2.0.x
   #endif
 
   millis_t Power::lastPowerOn;
@@ -131,18 +126,6 @@ void Power::power_off() {
 
     if (printJobOngoing() || printingIsPaused()) return true;
 
-<<<<<<< HEAD
-    #if ENABLED(AUTO_POWER_FANS)
-      FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
-    #endif
-
-    #if ENABLED(AUTO_POWER_E_FANS)
-      HOTEND_LOOP() if (thermalManager.autofan_speed[e]) return true;
-    #endif
-
-    #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
-      if (controllerFan.state()) return true;
-=======
 void Power::check(const bool pause) {
   static bool _pause = false;
   static millis_t nextPowerCheck = 0;
@@ -173,7 +156,6 @@ void Power::power_on() {
     TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
     #ifdef PSU_POWERUP_GCODE
       GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWERUP_GCODE));
->>>>>>> upstream/2.0.x
     #endif
 
     if (TERN0(AUTO_POWER_CHAMBER_FAN, thermalManager.chamberfan_speed))
@@ -236,43 +218,20 @@ void Power::power_on() {
       }
       if (pause) return;
     #endif
-<<<<<<< HEAD
-    if (ELAPSED(now, nextPowerCheck)) {
-      nextPowerCheck = now + 2500UL;
-      if (is_power_needed())
-        power_on();
-      else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(now, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT))))
-        power_off();
-    }
-=======
 
     #if ENABLED(PS_OFF_SOUND)
       BUZZ(1000, 659);
     #endif
 
     PSU_PIN_OFF();
->>>>>>> upstream/2.0.x
   }
 
-<<<<<<< HEAD
-  #if POWER_OFF_DELAY > 0
-
-    /**
-     * Power off with a delay. Power off is triggered by check() after the delay.
-     *
-     */
-    void Power::power_off_soon() {
-      lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
-    }
-
-=======
 void Power::power_off_soon() {
   #if POWER_OFF_DELAY
     lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
     //if (!lastPowerOn) ++lastPowerOn;
   #else
     power_off();
->>>>>>> upstream/2.0.x
   #endif
 
 #endif // AUTO_POWER_CONTROL

@@ -126,21 +126,6 @@
   #define FSMC_RS_PIN                       PD11  // pin 58 A16 Register. Only one address needed
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
-<<<<<<< HEAD
-
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
-
-  #define TFT_RESET_PIN                     PC4   // pin 33
-  #define TFT_BACKLIGHT_PIN                 PD12  // pin 59
-
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
-  #define DOGLCD_SCK                        -1
-
-  // Buffer for Color UI
-  #define TFT_BUFFER_SIZE                   3200
-#endif
-=======
 
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
@@ -158,7 +143,6 @@
 #if ENABLED(SDIO_SUPPORT)
   #define SD_SS_PIN                         -1    // else SDSS set to PA4 in M43 (spi_pins.h)
 #endif
->>>>>>> upstream/2.0.x
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer

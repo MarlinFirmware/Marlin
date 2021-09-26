@@ -20,13 +20,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-<<<<<<< HEAD
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
-=======
 #include "../platforms.h"
 
 #ifdef HAL_STM32
->>>>>>> upstream/2.0.x
 
 #include "HAL.h"
 #include "usb_serial.h"
@@ -98,15 +94,6 @@ void HAL_init() {
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
   TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
-<<<<<<< HEAD
-
-  #if PIN_EXISTS(USB_CONNECT)
-    OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
-    delay(1000);                                        // Give OS time to notice
-    WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
-  #endif
-=======
->>>>>>> upstream/2.0.x
 
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
@@ -178,8 +165,4 @@ void HAL_SYSTICK_Callback() {
   if (systick_user_callback) systick_user_callback();
 }
 
-<<<<<<< HEAD
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
-=======
 #endif // HAL_STM32
->>>>>>> upstream/2.0.x

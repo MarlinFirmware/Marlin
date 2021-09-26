@@ -596,16 +596,6 @@ void _O2 Endstops::report_states() {
 // endstop ISR or the Stepper ISR.
 
 #if BOTH(DELTA, SENSORLESS_PROBING)
-<<<<<<< HEAD
-  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_MAX
-  #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_MAX_PIN
-  #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_MAX_ENDSTOP_INVERTING
-#else
-  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
-  #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
-  #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
-#endif
-=======
   #define __ENDSTOP(AXIS, ...) AXIS ##_MAX
   #define _ENDSTOP_PIN(AXIS, ...) AXIS ##_MAX_PIN
   #define _ENDSTOP_INVERTING(AXIS, ...) AXIS ##_MAX_ENDSTOP_INVERTING
@@ -615,7 +605,6 @@ void _O2 Endstops::report_states() {
   #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
 #endif
 #define _ENDSTOP(AXIS, MINMAX) __ENDSTOP(AXIS, MINMAX)
->>>>>>> upstream/2.0.x
 
 // Check endstops - Could be called from Temperature ISR!
 void Endstops::update() {

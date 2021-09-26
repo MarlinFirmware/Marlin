@@ -604,30 +604,6 @@
   #endif
 #endif
 
-<<<<<<< HEAD
-/**
- * Compatibility layer for MAX (SPI) temp boards
- */
-#if HAS_MAX_TC
-
-  // Translate old _SS, _CS, _SCK, _DO, _DI, _MISO, and _MOSI PIN defines.
-  #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E1))
-
-    #if !PIN_EXISTS(TEMP_0_CS) // SS, CS
-      #if PIN_EXISTS(MAX6675_SS)
-        #define TEMP_0_CS_PIN MAX6675_SS_PIN
-      #elif PIN_EXISTS(MAX6675_CS)
-        #define TEMP_0_CS_PIN MAX6675_CS_PIN
-      #elif PIN_EXISTS(MAX31855_SS)
-        #define TEMP_0_CS_PIN MAX31855_SS_PIN
-      #elif PIN_EXISTS(MAX31855_CS)
-        #define TEMP_0_CS_PIN MAX31855_CS_PIN
-      #elif PIN_EXISTS(MAX31865_SS)
-        #define TEMP_0_CS_PIN MAX31865_SS_PIN
-      #elif PIN_EXISTS(MAX31865_CS)
-        #define TEMP_0_CS_PIN MAX31865_CS_PIN
-      #endif
-=======
 #if TEMP_SENSOR_0 == -5 || TEMP_SENSOR_0 == -3 || TEMP_SENSOR_0 == -2
   #define TEMP_SENSOR_0_IS_MAX_TC 1
   #if TEMP_SENSOR_0 == -5
@@ -688,120 +664,8 @@
       #error "If MAX31855 Thermocouple (-3) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
     #elif TEMP_SENSOR_1 == -2
       #error "If MAX6675 Thermocouple (-2) is used for TEMP_SENSOR_1 then TEMP_SENSOR_0 must match."
->>>>>>> upstream/2.0.x
     #endif
 
-<<<<<<< HEAD
-    #if TEMP_SENSOR_0_IS_MAX6675
-      #if !PIN_EXISTS(TEMP_0_MISO) // DO
-        #if PIN_EXISTS(MAX6675_MISO)
-          #define TEMP_0_MISO_PIN MAX6675_MISO_PIN
-        #elif PIN_EXISTS(MAX6675_DO)
-          #define TEMP_0_MISO_PIN MAX6675_DO_PIN
-        #endif
-      #endif
-      #if !PIN_EXISTS(TEMP_0_SCK) && PIN_EXISTS(MAX6675_SCK)
-        #define TEMP_0_SCK_PIN MAX6675_SCK_PIN
-      #endif
-
-    #elif TEMP_SENSOR_0_IS_MAX31855
-      #if !PIN_EXISTS(TEMP_0_MISO) // DO
-        #if PIN_EXISTS(MAX31855_MISO)
-          #define TEMP_0_MISO_PIN MAX31855_MISO_PIN
-        #elif PIN_EXISTS(MAX31855_DO)
-          #define TEMP_0_MISO_PIN MAX31855_DO_PIN
-        #endif
-      #endif
-      #if !PIN_EXISTS(TEMP_0_SCK) && PIN_EXISTS(MAX31855_SCK)
-        #define TEMP_0_SCK_PIN MAX31855_SCK_PIN
-      #endif
-
-    #elif TEMP_SENSOR_1_IS_MAX31865
-      #if !PIN_EXISTS(TEMP_1_MISO) // DO
-        #if PIN_EXISTS(MAX31865_MISO)
-          #define TEMP_1_MISO_PIN MAX31865_MISO_PIN
-        #elif PIN_EXISTS(MAX31865_DO)
-          #define TEMP_1_MISO_PIN MAX31865_DO_PIN
-        #endif
-      #endif
-      #if !PIN_EXISTS(TEMP_1_SCK) && PIN_EXISTS(MAX31865_SCK)
-        #define TEMP_1_SCK_PIN MAX31865_SCK_PIN
-      #endif
-      #if !PIN_EXISTS(TEMP_1_MOSI) && PIN_EXISTS(MAX31865_MOSI) // MOSI for '65 only
-        #define TEMP_1_MOSI_PIN MAX31865_MOSI_PIN
-      #endif
-    #endif
-
-    // Software SPI - enable if MISO/SCK are defined.
-    #if PIN_EXISTS(TEMP_0_MISO) && PIN_EXISTS(TEMP_0_SCK) && DISABLED(TEMP_SENSOR_0_FORCE_HW_SPI)
-      #if TEMP_SENSOR_0_IS_MAX31865 && !PIN_EXISTS(TEMP_0_MOSI)
-        #error "TEMP_SENSOR_0 MAX31865 requires TEMP_0_MOSI_PIN defined for Software SPI. To use Hardware SPI instead, undefine MISO/SCK or enable TEMP_SENSOR_0_FORCE_HW_SPI."
-      #else
-        #define TEMP_SENSOR_0_HAS_SPI_PINS 1
-      #endif
-    #endif
-
-  #endif // TEMP_SENSOR_0_IS_MAX_TC
-
-  #if TEMP_SENSOR_1_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E1))
-
-    #if !PIN_EXISTS(TEMP_1_CS) // SS2, CS2
-      #if PIN_EXISTS(MAX6675_SS2)
-        #define TEMP_1_CS_PIN MAX6675_SS2_PIN
-      #elif PIN_EXISTS(MAX6675_CS)
-        #define TEMP_1_CS_PIN MAX6675_CS2_PIN
-      #elif PIN_EXISTS(MAX31855_SS2)
-        #define TEMP_1_CS_PIN MAX31855_SS2_PIN
-      #elif PIN_EXISTS(MAX31855_CS2)
-        #define TEMP_1_CS_PIN MAX31855_CS2_PIN
-      #elif PIN_EXISTS(MAX31865_SS2)
-        #define TEMP_1_CS_PIN MAX31865_SS2_PIN
-      #elif PIN_EXISTS(MAX31865_CS2)
-        #define TEMP_1_CS_PIN MAX31865_CS2_PIN
-      #endif
-    #endif
-
-    #if TEMP_SENSOR_1_IS_MAX6675
-      #if !PIN_EXISTS(TEMP_1_MISO) // DO
-        #if PIN_EXISTS(MAX6675_MISO)
-          #define TEMP_1_MISO_PIN MAX6675_MISO_PIN
-        #elif PIN_EXISTS(MAX6675_DO)
-          #define TEMP_1_MISO_PIN MAX6675_DO_PIN
-        #endif
-      #endif
-      #if !PIN_EXISTS(TEMP_1_SCK) && PIN_EXISTS(MAX6675_SCK)
-        #define TEMP_1_SCK_PIN MAX6675_SCK_PIN
-      #endif
-
-    #elif TEMP_SENSOR_1_IS_MAX31855
-      #if !PIN_EXISTS(TEMP_1_MISO) // DO
-        #if PIN_EXISTS(MAX31855_MISO)
-          #define TEMP_1_MISO_PIN MAX31855_MISO_PIN
-        #elif PIN_EXISTS(MAX31855_DO)
-          #define TEMP_1_MISO_PIN MAX31855_DO_PIN
-        #endif
-      #endif
-      #if !PIN_EXISTS(TEMP_1_SCK) && PIN_EXISTS(MAX31855_SCK)
-        #define TEMP_1_SCK_PIN MAX31855_SCK_PIN
-      #endif
-
-    #elif TEMP_SENSOR_1_IS_MAX31865
-      #if !PIN_EXISTS(TEMP_1_MISO) // DO
-        #if PIN_EXISTS(MAX31865_MISO)
-          #define TEMP_1_MISO_PIN MAX31865_MISO_PIN
-        #elif PIN_EXISTS(MAX31865_DO)
-          #define TEMP_1_MISO_PIN MAX31865_DO_PIN
-        #endif
-      #endif
-      #if !PIN_EXISTS(TEMP_1_SCK) && PIN_EXISTS(MAX31865_SCK)
-        #define TEMP_1_SCK_PIN MAX31865_SCK_PIN
-      #endif
-      #if !PIN_EXISTS(TEMP_1_MOSI) && PIN_EXISTS(MAX31865_MOSI) // MOSI for '65 only
-        #define TEMP_1_MOSI_PIN MAX31865_MOSI_PIN
-      #endif
-    #endif
-
-=======
 #if TEMP_SENSOR_REDUNDANT == -5 || TEMP_SENSOR_REDUNDANT == -3 || TEMP_SENSOR_REDUNDANT == -2
   #define TEMP_SENSOR_REDUNDANT_IS_MAX_TC 1
 
@@ -1014,7 +878,6 @@
       #endif
     #endif
 
->>>>>>> upstream/2.0.x
     // Software SPI - enable if MISO/SCK are defined.
     #if PIN_EXISTS(TEMP_1_MISO) && PIN_EXISTS(TEMP_1_SCK) && DISABLED(TEMP_SENSOR_1_FORCE_HW_SPI)
       #if TEMP_SENSOR_1_IS_MAX31865 && !PIN_EXISTS(TEMP_1_MOSI)
@@ -1023,8 +886,6 @@
         #define TEMP_SENSOR_1_HAS_SPI_PINS 1
       #endif
     #endif
-<<<<<<< HEAD
-=======
 
   #endif // TEMP_SENSOR_1_IS_MAX_TC
 
@@ -1047,7 +908,6 @@
   #endif
 
 #endif //HAS_MAX_TC
->>>>>>> upstream/2.0.x
 
   #endif // TEMP_SENSOR_1_IS_MAX_TC
 

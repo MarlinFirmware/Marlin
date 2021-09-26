@@ -81,8 +81,6 @@ extern bool wait_for_heatup;
   void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
 #endif
 
-<<<<<<< HEAD
-=======
 #if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
   #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
@@ -102,7 +100,6 @@ extern bool wait_for_heatup;
   #endif
 #endif
 
->>>>>>> upstream/2.0.x
 bool pin_is_protected(const pin_t pin);
 
 #if HAS_SUICIDE
