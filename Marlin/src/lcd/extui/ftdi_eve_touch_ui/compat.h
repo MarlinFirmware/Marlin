@@ -49,5 +49,5 @@
 #endif
 
 class __FlashStringHelper;
-typedef const __FlashStringHelper *progmem_str;
+typedef const __FlashStringHelper *FSTR_P;
 extern const char G28_STR[];

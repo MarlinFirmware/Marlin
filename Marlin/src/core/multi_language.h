@@ -78,7 +78,7 @@ typedef const char Language_Str[];
   #define GET_TEXT(MSG) GET_LANG(LCD_LANGUAGE)::MSG
   #define MAX_LANG_CHARSIZE LANG_CHARSIZE
 #endif
-#define GET_TEXT_F(MSG) (const __FlashStringHelper*)GET_TEXT(MSG)
+#define GET_TEXT_F(MSG) FPSTR(GET_TEXT(MSG))
 
 #define GET_LANGUAGE_NAME(INDEX) GET_LANG(LCD_LANGUAGE_##INDEX)::LANGUAGE
 #define LANG_CHARSIZE GET_TEXT(CHARSIZE)
