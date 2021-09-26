@@ -69,7 +69,7 @@ void GcodeSuite::M0_M1() {
     if (parser.string_arg)
       ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
     else
-      ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
+      ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_USERWAIT));
   #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
     if (parser.string_arg)
       DWIN_Popup_Confirm(ICON_BLTouch, parser.string_arg, GET_TEXT_F(MSG_USERWAIT));
