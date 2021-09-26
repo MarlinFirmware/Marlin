@@ -140,7 +140,7 @@ void event_filament_runout(const uint8_t extruder) {
         SERIAL_ECHOPGM("Runout Command: ");
         SERIAL_ECHOLNPGM(FILAMENT_RUNOUT_SCRIPT);
       #endif
-      queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
     #endif
   }
 }

@@ -109,7 +109,7 @@ void PrintJobRecovery::check() {
   if (card.isMounted()) {
     load();
     if (!valid()) return cancel();
-    queue.inject_P(PSTR("M1000S"));
+    queue.inject(F("M1000S"));
   }
 }
 

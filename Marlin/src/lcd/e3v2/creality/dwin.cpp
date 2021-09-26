@@ -2352,7 +2352,7 @@ void HMI_PauseOrStop() {
     if (select_print.now == PRINT_PAUSE_RESUME) {
       if (HMI_flag.select_flag) {
         HMI_flag.pause_action = true;
-        queue.inject_P(PSTR("M25"));
+        queue.inject(F("M25"));
       }
       Goto_PrintProcess();
     }
@@ -2711,7 +2711,7 @@ void HMI_Prepare() {
         #endif
         break;
 
-      case PREPARE_CASE_DISA: queue.inject_P(PSTR("M84")); break;
+      case PREPARE_CASE_DISA: queue.inject(F("M84")); break;
 
       case PREPARE_CASE_HOME: // Homing
         checkkey = Last_Prepare;
@@ -2729,7 +2729,7 @@ void HMI_Prepare() {
             EncoderRate.enabled = true;
           #else
             // Apply workspace offset, making the current position 0,0,0
-            queue.inject_P(PSTR("G92 X0 Y0 Z0"));
+            queue.inject(F("G92 X0 Y0 Z0"));
             HMI_AudioFeedback();
           #endif
           break;
@@ -2944,7 +2944,7 @@ void HMI_Control() {
   void HMI_Leveling() {
     Popup_Window_Leveling();
     DWIN_UpdateLCD();
-    queue.inject_P(PSTR("G28O\nG29"));
+    queue.inject(F("G28O\nG29"));
   }
 #endif
 
@@ -3803,7 +3803,7 @@ void HMI_Tune() {
             EncoderRate.enabled = true;
           #else
             // Apply workspace offset, making the current position 0,0,0
-            queue.inject_P(PSTR("G92 X0 Y0 Z0"));
+            queue.inject(F("G92 X0 Y0 Z0"));
             HMI_AudioFeedback();
           #endif
         break;
@@ -4112,7 +4112,7 @@ void EachMomentUpdate() {
       TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.degTargetBed());
       thermalManager.disable_all_heaters();
     #endif
-    queue.inject_P(PSTR("G1 F1200 X0 Y0"));
+    queue.inject(F("G1 F1200 X0 Y0"));
   }
 
   if (card.isPrinting() && checkkey == PrintProcess) { // print process
@@ -4182,7 +4182,7 @@ void EachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (HMI_flag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject_P(PSTR("M1000C")));
+            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
             HMI_StartFrame(true);
             return;
           }
@@ -4195,7 +4195,7 @@ void EachMomentUpdate() {
 
       select_print.set(0);
       HMI_ValueStruct.show_mode = 0;
-      queue.inject_P(PSTR("M1000"));
+      queue.inject(F("M1000"));
       Goto_PrintProcess();
       Draw_Status_Area(true);
     }
