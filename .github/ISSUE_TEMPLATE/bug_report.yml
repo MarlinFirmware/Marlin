@@ -112,6 +112,18 @@ body:
 
   - type: dropdown
     attributes:
+      label: Bed Leveling
+      description: What kind of bed leveling compensation are you using?
+      options:
+        - UBL Bilinear mesh
+        - ABL Bilinear mesh
+        - ABL Linear grid
+        - ABL 3-point
+        - MBL Manual Bed Leveling
+        - No Bed Leveling
+
+  - type: dropdown
+    attributes:
       label: Your Slicer
       description: Do you use Slic3r, Prusa Slicer, Simplify3D, IdeaMaker...?
       options:

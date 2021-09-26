@@ -143,13 +143,13 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   // Sanity check
   for (calib_idx = 0; calib_idx < measurements; ++calib_idx) {
     // Restrict the max. offset
-    if (abs(data[calib_idx]) > 2000) {
+    if (ABS(data[calib_idx]) > 2000) {
       SERIAL_ECHOLNPGM("!Invalid Z-offset detected (0-2).");
       clear_offsets(tsi);
       return false;
     }
     // Restrict the max. offset difference between two probings
-    if (calib_idx > 0 && abs(data[calib_idx - 1] - data[calib_idx]) > 800) {
+    if (calib_idx > 0 && ABS(data[calib_idx - 1] - data[calib_idx]) > 800) {
       SERIAL_ECHOLNPGM("!Invalid Z-offset between two probings detected (0-0.8).");
       clear_offsets(TSI_PROBE);
       return false;

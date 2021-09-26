@@ -19,7 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< HEAD
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1) && !defined(STM32H7xx)
+=======
+#include "../platforms.h"
+
+#if defined(HAL_STM32) && !defined(STM32H7xx)
+>>>>>>> upstream/2.0.x
 
 #include "MarlinSPI.h"
 
@@ -165,4 +171,8 @@ uint8_t MarlinSPI::dmaSend(const void * transmitBuf, uint16_t length, bool minc)
   return 1;
 }
 
+<<<<<<< HEAD
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1 && !STM32H7xx
+=======
+#endif // HAL_STM32 && !STM32H7xx
+>>>>>>> upstream/2.0.x

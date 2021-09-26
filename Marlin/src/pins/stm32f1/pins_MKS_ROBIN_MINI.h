@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin mini (STM32F130VET6) board pin assignments
+ * MKS Robin mini (STM32F103VET6) board pin assignments
  */
 
 #include "env_validate.h"

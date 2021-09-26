@@ -65,7 +65,11 @@
   #define TEMP_BED_PIN                  P0_23_A0  // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
 
+<<<<<<< HEAD
 #if HOTENDS == 1 && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
+=======
+#if HOTENDS == 1 && TEMP_SENSOR_REDUNDANT_SOURCE != 1
+>>>>>>> upstream/2.0.x
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
@@ -126,11 +130,10 @@
   #endif
 #endif
 
-
 #define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
-  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
+  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
 #endif
 
 #if SD_CONNECTION_IS(LCD)

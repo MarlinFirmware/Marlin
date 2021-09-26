@@ -105,7 +105,7 @@
 
 #define LEVELING_PARA_CONF_TITLE_EN     "leveling setting"
 #define AUTO_LEVELING_ENABLE_EN         "Enable auto leveling"
-#define BLTOUCH_LEVELING_ENABLE_EN      "Enable BLtouch"
+#define BLTOUCH_LEVELING_ENABLE_EN      "Enable BLTouch"
 #define PROBE_PORT_EN                   "Probe connector"
 #define PROBE_X_OFFSET_EN               "Probe X-axis offset"
 #define PROBE_Y_OFFSET_EN               "Probe Y-axis offset"

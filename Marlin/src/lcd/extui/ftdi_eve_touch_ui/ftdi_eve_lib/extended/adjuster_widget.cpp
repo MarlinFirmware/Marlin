@@ -42,7 +42,7 @@ namespace FTDI {
       strcat_P(str, (const char*) units);
     }
 
-    cmd.text(VAL_POS, str);
+    cmd.tag(0).text(VAL_POS, str);
   }
 
   void draw_adjuster(CommandProcessor& cmd, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t tag, float value, progmem_str units, int8_t width, uint8_t precision, draw_mode_t what) {

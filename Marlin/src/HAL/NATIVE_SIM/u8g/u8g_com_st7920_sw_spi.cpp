@@ -59,7 +59,11 @@
 
 #if ENABLED(U8GLIB_ST7920)
 
+<<<<<<< HEAD
 #include <U8glib.h>
+=======
+#include <U8glib-HAL.h>
+>>>>>>> upstream/2.0.x
 #include "../../shared/Delay.h"
 
 #undef SPI_SPEED

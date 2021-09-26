@@ -191,6 +191,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
         dma_clear_isr_bits(DMA1, DMA_CH4);
       }
     }
+<<<<<<< HEAD
   }
 
   static int storeRcvData(volatile uint8_t *bufToCpy, int32_t len) {
@@ -208,6 +209,25 @@ static bool longName2DosName(const char *longName, char *dosName) {
   static void esp_dma_pre() {
     dma_channel_reg_map *channel_regs = dma_tube_regs(DMA1, DMA_CH5);
 
+=======
+  }
+
+  static int storeRcvData(volatile uint8_t *bufToCpy, int32_t len) {
+    unsigned char tmpW = wifiDmaRcvFifo.write_cur;
+    if (len > UDISKBUFLEN) return 0;
+    if (wifiDmaRcvFifo.state[tmpW] == udisk_buf_empty) {
+      memcpy((unsigned char *) wifiDmaRcvFifo.bufferAddr[tmpW], (uint8_t *)bufToCpy, len);
+      wifiDmaRcvFifo.state[tmpW] = udisk_buf_full;
+      wifiDmaRcvFifo.write_cur = (tmpW + 1) % TRANS_RCV_FIFO_BLOCK_NUM;
+      return 1;
+    }
+    return 0;
+  }
+
+  static void esp_dma_pre() {
+    dma_channel_reg_map *channel_regs = dma_tube_regs(DMA1, DMA_CH5);
+
+>>>>>>> upstream/2.0.x
     CBI32(channel_regs->CCR, 0);
     channel_regs->CMAR = (uint32_t)WIFISERIAL.usart_device->rb->buf;
     channel_regs->CNDTR = 0x0000;
@@ -225,7 +245,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
     else if (status_bits & 0x2) {
       // DMA transmit complete
       if (esp_state == TRANSFER_IDLE)
-        esp_state = TRANSFERING;
+        esp_state = TRANSFERRING;
 
       if (storeRcvData(WIFISERIAL.usart_device->rb->buf, UART_RX_BUFFER_SIZE)) {
         esp_dma_pre();
@@ -303,6 +323,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
   }
 
   #ifdef STM32F1xx
+<<<<<<< HEAD
 
     HAL_StatusTypeDef HAL_DMA_PollForTransferCustomize(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout) {
       uint32_t temp;
@@ -462,6 +483,167 @@ static bool longName2DosName(const char *longName, char *dosName) {
       else
         regs->IFCR = (DMA_FLAG_HTIF0_4) << hdma->StreamIndex;   // Clear the half transfer and transfer complete flags
 
+=======
+
+    HAL_StatusTypeDef HAL_DMA_PollForTransferCustomize(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout) {
+      uint32_t temp;
+      uint32_t tickstart = 0U;
+
+      if (HAL_DMA_STATE_BUSY != hdma->State) {              // No transfer ongoing
+        hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
+        __HAL_UNLOCK(hdma);
+        return HAL_ERROR;
+      }
+
+      // Polling mode not supported in circular mode
+      if (RESET != (hdma->Instance->CCR & DMA_CCR_CIRC)) {
+        hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
+        return HAL_ERROR;
+      }
+
+      // Get the level transfer complete flag
+      temp = (CompleteLevel == HAL_DMA_FULL_TRANSFER
+        ? __HAL_DMA_GET_TC_FLAG_INDEX(hdma)                 // Transfer Complete flag
+        : __HAL_DMA_GET_HT_FLAG_INDEX(hdma)                 // Half Transfer Complete flag
+      );
+
+      // Get tick
+      tickstart = HAL_GetTick();
+
+      while (__HAL_DMA_GET_FLAG(hdma, temp) == RESET) {
+        if ((__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma)) != RESET)) {
+          __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));  // Clear the half transfer complete flag
+          WIFI_IO1_SET();
+        }
+
+        if ((__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma)) != RESET)) {
+          /**
+           * When a DMA transfer error occurs
+           * A hardware clear of its EN bits is performed
+           * Clear all flags
+           */
+          hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
+
+          SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);       // Update error code
+          hdma->State= HAL_DMA_STATE_READY;                 // Change the DMA state
+          __HAL_UNLOCK(hdma);                               // Process Unlocked
+          return HAL_ERROR;
+        }
+
+        // Check for the Timeout
+        if (Timeout != HAL_MAX_DELAY && (!Timeout || (HAL_GetTick() - tickstart) > Timeout)) {
+          SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TIMEOUT);  // Update error code
+          hdma->State = HAL_DMA_STATE_READY;                // Change the DMA state
+          __HAL_UNLOCK(hdma);                               // Process Unlocked
+          return HAL_ERROR;
+        }
+      }
+
+      if (CompleteLevel == HAL_DMA_FULL_TRANSFER) {
+        // Clear the transfer complete flag
+        __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma));
+
+        /* The selected Channelx EN bit is cleared (DMA is disabled and
+           all transfers are complete) */
+        hdma->State = HAL_DMA_STATE_READY;
+      }
+      else
+        __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));  // Clear the half transfer complete flag
+
+      __HAL_UNLOCK(hdma);   // Process unlocked
+
+      return HAL_OK;
+    }
+
+  #else // !STM32F1xx
+
+    typedef struct {
+      __IO uint32_t ISR;   //!< DMA interrupt status register
+      __IO uint32_t Reserved0;
+      __IO uint32_t IFCR;  //!< DMA interrupt flag clear register
+    } MYDMA_Base_Registers;
+
+    HAL_StatusTypeDef HAL_DMA_PollForTransferCustomize(DMA_HandleTypeDef *hdma, HAL_DMA_LevelCompleteTypeDef CompleteLevel, uint32_t Timeout) {
+      HAL_StatusTypeDef status = HAL_OK;
+      uint32_t mask_cpltlevel;
+      uint32_t tickstart = HAL_GetTick();
+      uint32_t tmpisr;
+
+      MYDMA_Base_Registers *regs;                               // Calculate DMA base and stream number
+
+      if (HAL_DMA_STATE_BUSY != hdma->State) {                  // No transfer ongoing
+        hdma->ErrorCode = HAL_DMA_ERROR_NO_XFER;
+        __HAL_UNLOCK(hdma);
+        return HAL_ERROR;
+      }
+
+      // Polling mode not supported in circular mode and double buffering mode
+      if ((hdma->Instance->CR & DMA_SxCR_CIRC) != RESET) {
+        hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
+        return HAL_ERROR;
+      }
+
+      // Get the level transfer complete flag
+      mask_cpltlevel = (CompleteLevel == HAL_DMA_FULL_TRANSFER
+        ? DMA_FLAG_TCIF0_4 << hdma->StreamIndex                 // Transfer Complete flag
+        : DMA_FLAG_HTIF0_4 << hdma->StreamIndex                 // Half Transfer Complete flag
+      );
+
+      regs = (MYDMA_Base_Registers *)hdma->StreamBaseAddress;
+      tmpisr = regs->ISR;
+
+      while (((tmpisr & mask_cpltlevel) == RESET) && ((hdma->ErrorCode & HAL_DMA_ERROR_TE) == RESET)) {
+        // Check for the Timeout (Not applicable in circular mode)
+        if (Timeout != HAL_MAX_DELAY) {
+          if (!Timeout || (HAL_GetTick() - tickstart) > Timeout) {
+            hdma->ErrorCode = HAL_DMA_ERROR_TIMEOUT;            // Update error code
+            __HAL_UNLOCK(hdma);                                 // Process Unlocked
+            hdma->State = HAL_DMA_STATE_READY;                  // Change the DMA state
+            return HAL_TIMEOUT;
+          }
+        }
+
+        tmpisr = regs->ISR;                                     // Get the ISR register value
+
+        if ((tmpisr & (DMA_FLAG_HTIF0_4 << hdma->StreamIndex)) != RESET) {
+          regs->IFCR = DMA_FLAG_HTIF0_4 << hdma->StreamIndex;   // Clear the Direct Mode error flag
+          WIFI_IO1_SET();
+        }
+
+        if ((tmpisr & (DMA_FLAG_TEIF0_4 << hdma->StreamIndex)) != RESET) {
+          hdma->ErrorCode |= HAL_DMA_ERROR_TE;                  // Update error code
+          regs->IFCR = DMA_FLAG_TEIF0_4 << hdma->StreamIndex;   // Clear the transfer error flag
+        }
+
+        if ((tmpisr & (DMA_FLAG_FEIF0_4 << hdma->StreamIndex)) != RESET) {
+          hdma->ErrorCode |= HAL_DMA_ERROR_FE;                  // Update error code
+          regs->IFCR = DMA_FLAG_FEIF0_4 << hdma->StreamIndex;   // Clear the FIFO error flag
+        }
+
+        if ((tmpisr & (DMA_FLAG_DMEIF0_4 << hdma->StreamIndex)) != RESET) {
+          hdma->ErrorCode |= HAL_DMA_ERROR_DME;                 // Update error code
+          regs->IFCR = DMA_FLAG_DMEIF0_4 << hdma->StreamIndex;  // Clear the Direct Mode error flag
+        }
+      }
+
+      if (hdma->ErrorCode != HAL_DMA_ERROR_NONE && (hdma->ErrorCode & HAL_DMA_ERROR_TE) != RESET) {
+        HAL_DMA_Abort(hdma);
+        regs->IFCR = (DMA_FLAG_HTIF0_4 | DMA_FLAG_TCIF0_4) << hdma->StreamIndex;  // Clear the half transfer and transfer complete flags
+        __HAL_UNLOCK(hdma);                                     // Process Unlocked
+        hdma->State= HAL_DMA_STATE_READY;                       // Change the DMA state
+        return HAL_ERROR;
+      }
+
+      // Get the level transfer complete flag
+      if (CompleteLevel == HAL_DMA_FULL_TRANSFER) {
+        regs->IFCR = (DMA_FLAG_HTIF0_4 | DMA_FLAG_TCIF0_4) << hdma->StreamIndex;  // Clear the half transfer and transfer complete flags
+        __HAL_UNLOCK(hdma);                                     // Process Unlocked
+        hdma->State = HAL_DMA_STATE_READY;
+      }
+      else
+        regs->IFCR = (DMA_FLAG_HTIF0_4) << hdma->StreamIndex;   // Clear the half transfer and transfer complete flags
+
+>>>>>>> upstream/2.0.x
       return status;
     }
   #endif
@@ -1819,7 +2001,11 @@ void wifi_rcv_handle() {
     #ifdef __STM32F1__
       if (esp_state == TRANSFER_STORE) {
         if (storeRcvData(WIFISERIAL.wifiRxBuf, UART_RX_BUFFER_SIZE)) {
+<<<<<<< HEAD
           esp_state = TRANSFERING;
+=======
+          esp_state = TRANSFERRING;
+>>>>>>> upstream/2.0.x
           esp_dma_pre();
           if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
         }

@@ -72,7 +72,11 @@
 #define MAX31865_FAULT_OVUV 0x04        // D2
 
 // http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
+<<<<<<< HEAD
 // constants for calulating temperature from the measured RTD resistance.
+=======
+// constants for calculating temperature from the measured RTD resistance.
+>>>>>>> upstream/2.0.x
 #define RTD_Z1 -0.0039083
 #define RTD_Z2 0.00001758480889
 #define RTD_Z3 -0.0000000231

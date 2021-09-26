@@ -21,6 +21,11 @@
  * Support routines for X86_64
  */
 
+<<<<<<< HEAD
+=======
+#pragma once
+
+>>>>>>> upstream/2.0.x
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
@@ -37,16 +42,28 @@
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 // active ADC function/mode/code values for PINSEL registers
+<<<<<<< HEAD
 constexpr int8_t ADC_pin_mode(pin_t pin) {
   return (-1);
 }
 
 int8_t get_pin_mode(pin_t pin) {
+=======
+inline constexpr int8_t ADC_pin_mode(pin_t pin) {
+  return (-1);
+}
+
+inline int8_t get_pin_mode(pin_t pin) {
+>>>>>>> upstream/2.0.x
   if (!VALID_PIN(pin)) return -1;
   return 0;
 }
 
+<<<<<<< HEAD
 bool GET_PINMODE(pin_t pin) {
+=======
+inline bool GET_PINMODE(pin_t pin) {
+>>>>>>> upstream/2.0.x
   int8_t pin_mode = get_pin_mode(pin);
   if (pin_mode == -1 || pin_mode == ADC_pin_mode(pin)) // found an invalid pin or active analog pin
     return false;
@@ -54,6 +71,10 @@ bool GET_PINMODE(pin_t pin) {
   return (Gpio::getMode(pin) != 0); //input/output state
 }
 
+<<<<<<< HEAD
 bool GET_ARRAY_IS_DIGITAL(pin_t pin) {
+=======
+inline bool GET_ARRAY_IS_DIGITAL(pin_t pin) {
+>>>>>>> upstream/2.0.x
   return (!IS_ANALOG(pin) || get_pin_mode(pin) != ADC_pin_mode(pin));
 }

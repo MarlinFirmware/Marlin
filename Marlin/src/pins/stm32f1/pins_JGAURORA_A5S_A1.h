@@ -45,14 +45,19 @@
 #endif
 
 //#define MCU_STM32F103ZE // not yet required
+
 // Enable EEPROM Emulation for this board, so that we don't overwrite factory data
+#if NO_EEPROM_SELECTED
+  //#define I2C_EEPROM                            // AT24C64
+  //#define FLASH_EEPROM_EMULATION
+#endif
 
-//#define I2C_EEPROM                              // AT24C64
-//#define MARLIN_EEPROM_SIZE            0x8000UL  // 64KB
-
-//#define FLASH_EEPROM_EMULATION
-//#define MARLIN_EEPROM_SIZE            0x1000UL  // 4KB
-//#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
+#if ENABLED(I2C_EEPROM)
+  //#define MARLIN_EEPROM_SIZE          0x8000UL  // 32KB
+#elif ENABLED(FLASH_EEPROM_EMULATION)
+  //#define MARLIN_EEPROM_SIZE          0x1000UL  // 4KB
+  //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
+#endif
 
 //
 // Limit Switches
@@ -110,11 +115,19 @@
   #define LCD_BACKLIGHT_PIN                 PF11
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PG0
+<<<<<<< HEAD
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
+=======
+
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+
+>>>>>>> upstream/2.0.x
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 #endif

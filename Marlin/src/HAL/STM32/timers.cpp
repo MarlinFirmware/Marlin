@@ -19,7 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< HEAD
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC) && !defined(MAPLE_STM32F1)
+=======
+#include "../platforms.h"
+
+#ifdef HAL_STM32
+>>>>>>> upstream/2.0.x
 
 #include "../../inc/MarlinConfig.h"
 
@@ -319,4 +325,8 @@ static constexpr bool verify_no_timer_conflicts() {
 // when hovering over it, making it easy to identify the conflicting timers.
 static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected. Examine \"timers_in_use\" to help identify conflict.");
 
+<<<<<<< HEAD
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC && !MAPLE_STM32F1
+=======
+#endif // HAL_STM32
+>>>>>>> upstream/2.0.x
