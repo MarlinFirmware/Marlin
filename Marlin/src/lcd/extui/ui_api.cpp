@@ -1077,15 +1077,15 @@ namespace ExtUI {
   void resumePrint() { ui.resume_print(); }
   void stopPrint()   { ui.abort_print(); }
 
-  void onUserConfirmRequired_P(PGM_P const pstr) {
-    char msg[strlen_P(pstr) + 1];
-    strcpy_P(msg, pstr);
+  void onUserConfirmRequired(FSTR_P const fstr) {
+    char msg[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(msg, FTOP(fstr));
     onUserConfirmRequired(msg);
   }
 
-  void onStatusChanged_P(PGM_P const pstr) {
-    char msg[strlen_P(pstr) + 1];
-    strcpy_P(msg, pstr);
+  void onStatusChanged(FSTR_P const fstr) {
+    char msg[strlen_P(FTOP(fstr)) + 1];
+    strcpy_P(msg, FTOP(fstr));
     onStatusChanged(msg);
   }
 

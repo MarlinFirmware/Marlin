@@ -79,6 +79,7 @@ namespace ExtUI {
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
   void injectCommands_P(PGM_P const);
+  inline void injectCommands(FSTR_P const fstr) { injectCommands_P(FTOP(fstr)); }
   void injectCommands(char * const);
   bool commandsInQueue();
 
@@ -400,9 +401,9 @@ namespace ExtUI {
   void onPrintFinished();
   void onFilamentRunout(const extruder_t extruder);
   void onUserConfirmRequired(const char * const msg);
-  void onUserConfirmRequired_P(PGM_P const pstr);
+  void onUserConfirmRequired(FSTR_P const fstr);
   void onStatusChanged(const char * const msg);
-  void onStatusChanged_P(PGM_P const pstr);
+  void onStatusChanged(FSTR_P const fstr);
   void onHomingStart();
   void onHomingComplete();
   void onSteppersDisabled();
