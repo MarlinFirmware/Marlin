@@ -714,7 +714,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 
-      #if HAS_HOTEND_OFFSET
+      #if HAS_TOOL_OFFSET
         case 218: M218(); break;                                  // M218: Set a tool offset
       #endif
 

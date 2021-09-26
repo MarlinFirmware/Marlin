@@ -656,11 +656,13 @@
     #error "SWITCHING_TOOLHEAD_TOOL_QTY can not be more than 8."
   #else
     #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && SWITCHING_TOOLHEAD_TOOL_QTY > P
+    #define HAS_TOOL_OFFSET 1
+    #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
 
     #if HOTEND_TEST(0)
       #if HOTEND_TEST(1)
         #define SWITCHING_TOOLHEAD_MULTI_HOTEND 1
-        #define HAS_MULTI_EXTRUDER 1
+        //#define HAS_MULTI_EXTRUDER 1
         #if HOTEND_TEST(2)
           #if HOTEND_TEST(3)
             #if HOTEND_TEST(4)
@@ -737,8 +739,8 @@
 #if EITHER(SINGLENOZZLE, MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
   #undef HOTENDS
   #define HOTENDS       1
-  #undef HOTEND_OFFSET_X
-  #undef HOTEND_OFFSET_Y
+  #undef TOOL_OFFSET_X
+  #undef TOOL_OFFSET_Y
 #endif
 
 #ifndef HOTENDS
@@ -817,7 +819,7 @@
   #endif
   #if HOTENDS > 1
     #define HAS_MULTI_HOTEND 1
-    #define HAS_HOTEND_OFFSET 1
+    #define HAS_TOOL_OFFSET 1
   #endif
 #else
   #undef PID_PARAMS_PER_HOTEND
@@ -825,23 +827,31 @@
 
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  // a stand-in for HOTEND_LOOP()
+  #define TOOLHEAD_LOOP() for(int8_t e = 0; e < SWITCHING_TOOLHEAD_TOOL_QTY; e++)
+#endif
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
 
 /**
- * Default hotend offsets, if not defined
+ * Tool Offsets: defaults, determine array size
  */
-#if HAS_HOTEND_OFFSET
-  #ifndef HOTEND_OFFSET_X
-    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
+#if HAS_TOOL_OFFSET
+  #ifndef TOOL_OFFSET_X
+    #define TOOL_OFFSET_X { 0 } // X offsets for each extruder
   #endif
-  #ifndef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
+  #ifndef TOOL_OFFSET_Y
+    #define TOOL_OFFSET_Y { 0 } // Y offsets for each extruder
   #endif
-  #ifndef HOTEND_OFFSET_Z
-    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
+  #ifndef TOOL_OFFSET_Z
+    #define TOOL_OFFSET_Z { 0 } // Z offsets for each extruder
+  #endif
+
+  #ifndef NUM_TOOL_OFFSET
+    #define NUM_TOOL_OFFSET TERN(MANUAL_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD_TOOL_QTY, HOTENDS)
   #endif
 #endif
 

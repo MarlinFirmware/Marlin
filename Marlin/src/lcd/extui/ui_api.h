@@ -266,7 +266,7 @@ namespace ExtUI {
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
   #endif
 
-  #if HAS_HOTEND_OFFSET
+  #if HAS_TOOL_OFFSET
     float getNozzleOffset_mm(const axis_t, const extruder_t);
     void setNozzleOffset_mm(const_float_t, const axis_t, const extruder_t);
     void normalizeNozzleOffset(const axis_t axis);

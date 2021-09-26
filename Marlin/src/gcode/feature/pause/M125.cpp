@@ -76,8 +76,8 @@ void GcodeSuite::M125() {
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-  #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += hotend_offset[active_extruder];
+  #if HAS_TOOL_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
+    park_point += tool_offset[active_extruder];
   #endif
 
   const bool sd_printing = TERN0(SDSUPPORT, IS_SD_PRINTING());

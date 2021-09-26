@@ -853,7 +853,7 @@ private:
     static void M217_report(const bool forReplay=true);
   #endif
 
-  #if HAS_HOTEND_OFFSET
+  #if HAS_TOOL_OFFSET
     static void M218();
     static void M218_report(const bool forReplay=true);
   #endif

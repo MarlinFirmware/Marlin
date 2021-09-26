@@ -172,7 +172,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     const float oldx = current_position.x,
                 grabpos = mpe_settings.parking_xpos[new_tool] + (new_tool ? mpe_settings.grab_distance : -mpe_settings.grab_distance),
-                offsetcompensation = TERN0(HAS_HOTEND_OFFSET, hotend_offset[active_extruder].x * mpe_settings.compensation_factor);
+                offsetcompensation = TERN0(HAS_TOOL_OFFSET, tool_offset[active_extruder].x * mpe_settings.compensation_factor);
 
     if (homing_needed_error(_BV(X_AXIS))) return;
 
@@ -295,8 +295,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       constexpr float parkingposx[] = PARKING_EXTRUDER_PARKING_X;
 
-      #if HAS_HOTEND_OFFSET
-        const float x_offset = hotend_offset[active_extruder].x;
+      #if HAS_TOOL_OFFSET
+        const float x_offset = tool_offset[active_extruder].x;
       #else
         constexpr float x_offset = 0;
       #endif
@@ -365,7 +365,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       // STEP 6
 
-      current_position.x = DIFF_TERN(HAS_HOTEND_OFFSET, midpos, hotend_offset[new_tool].x);
+      current_position.x = DIFF_TERN(HAS_TOOL_OFFSET, midpos, tool_offset[new_tool].x);
 
       DEBUG_SYNCHRONIZE();
       DEBUG_POS("(6) Move midway between hotends", current_position);
@@ -799,7 +799,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS;
     const float placexpos = toolheadposx[active_extruder],
                 grabxpos = toolheadposx[new_tool];
-    const xyz_pos_t &hoffs = hotend_offset[active_extruder];
+    const xyz_pos_t &hoffs = tool_offset[active_extruder];
 
     /**
      * 1. Raise Z-Axis to give enough clearance
@@ -882,7 +882,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     // 9. Apply Z hotend offset to current position
 
     DEBUG_POS("(9) Applying Z-offset", current_position);
-    current_position.z += hoffs.z - hotend_offset[new_tool].z;
+    current_position.z += hoffs.z - tool_offset[new_tool].z;
 
     DEBUG_POS("EMST Tool-Change done.", current_position);
   }
@@ -1166,7 +1166,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       REMEMBER(fr, feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
 
       #if HAS_SOFTWARE_ENDSTOPS
-        #if HAS_HOTEND_OFFSET
+        #if HAS_TOOL_OFFSET
           #define _EXT_ARGS , old_tool, new_tool
         #else
           #define _EXT_ARGS
@@ -1197,8 +1197,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         }
       #endif
 
-      #if HAS_HOTEND_OFFSET
-        xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
+      #if HAS_TOOL_OFFSET
+        xyz_pos_t diff = tool_offset[new_tool] - tool_offset[old_tool];
         TERN_(DUAL_X_CARRIAGE, diff.x = 0);
       #else
         constexpr xyz_pos_t diff{0};

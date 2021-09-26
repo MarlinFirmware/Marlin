@@ -126,7 +126,9 @@
 #elif defined(LANGUAGE_INCLUDE)
   #error "LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE."
 #elif defined(EXTRUDER_OFFSET_X) || defined(EXTRUDER_OFFSET_Y)
-  #error "EXTRUDER_OFFSET_[XY] is deprecated. Use HOTEND_OFFSET_[XY] instead."
+  #error "EXTRUDER_OFFSET_[XY] is deprecated. Use TOOL_OFFSET_[XY] instead."
+#elif defined(HOTEND_OFFSET_X) || defined(HOTEND_OFFSET_Y) || defined(HOTEND_OFFSET_Z)
+  #error "HOTEND_OFFSET_[XYZ] is deprecated. Use TOOL_OFFSET_[XYZ] instead."
 #elif defined(PID_PARAMS_PER_EXTRUDER)
   #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
 #elif defined(EXTRUDER_WATTS) || defined(BED_WATTS)
@@ -938,7 +940,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a Graphical LCD."
   #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
-  #elif ENABLED(BABYSTEP_HOTEND_Z_OFFSET) && !HAS_HOTEND_OFFSET
+  #elif ENABLED(BABYSTEP_HOTEND_Z_OFFSET) && !HAS_TOOL_OFFSET
     #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
   #elif BOTH(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
     #error "BABYSTEP_ALWAYS_AVAILABLE and MOVE_Z_WHEN_IDLE are incompatible."
@@ -3596,7 +3598,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #if !BOTH(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #if ENABLED(DUAL_X_CARRIAGE)
     #error "DUAL_X_CARRIAGE requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
-  #elif HAS_HOTEND_OFFSET
+  #elif HAS_TOOL_OFFSET
     #error "MIN_ and MAX_SOFTWARE_ENDSTOPS are both required with offset hotends."
   #endif
 #endif
