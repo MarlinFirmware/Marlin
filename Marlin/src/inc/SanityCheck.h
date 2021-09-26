@@ -1529,10 +1529,41 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if ENABLED(BLTOUCH)
+    //Check for coltrollers that we know about.
+    #define ENABLE_FT_CHECK ENABLED(STM32F1)
+
+    //What pin does probe use?
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #define PROBE_ON_PIN Z_MIN_PIN
+    #else
+      #define PROBE_ON_PIN Z_MIN_PROBE_PIN
+    #endif
+
+    #if ENABLED(STM32F1)
+      // List of pins that are 5 volt tolerant for stm32f103
+      #define CHECK_FT_PIN(FT) (\
+        FT == PA8 || FT == PA9 || FT == PA10 || FT == PA11 || FT == PA12 || FT == PA13 || FT == PA14 || FT == PA15 || \
+        FT == PB2 || FT == PB3 || FT == PB4  || FT == PB5  || FT == PB6  || FT == PB7  || FT == PB8  || FT == PB9  || FT == PB10 || FT == PB11 || FT == PB12 || FT == PB13 || FT == PB14 || FT == PB15 || \
+        FT == PC6 || FT == PC7 || FT == PC8  || FT == PC9  || FT == PC10 || FT == PC11 || FT == PC12 || \
+        FT == PD0 || FT == PD1 || FT == PD2  || FT == PD3  || FT == PD4  || FT == PD5  || FT == PD6  || FT == PD7  || FT == PD8  || FT == PD9  || FT == PD10 || FT == PD11 || FT == PD12 || FT == PD13 || FT == PD14 || FT == PD15 || \
+        FT == PE0 || FT == PE1 || FT == PE2  || FT == PE3  || FT == PE4  || FT == PE5  || FT == PE6  || FT == PE7  || FT == PE8  || FT == PE9  || FT == PE10 || FT == PE11 || FT == PE12 || FT == PE13 || FT == PE14 || FT == PE15 || \
+        FT == PF0 || FT == PF1 || FT == PF2  || FT == PF3  || FT == PF4  || FT == PF5  || FT == PF11 || FT == PF12 || FT == PF13 || FT == PF14 || FT == PF15 \
+      )
+    #endif
+
+    #if ENABLE_FT_CHECK
+      #define CHECK_BLTOUCH_PIN_IS_FIVE_VOLT_TOLERNT CHECK_FT_PIN(PROBE_ON_PIN)
+    #else
+      #define CHECK_BLTOUCH_PIN_IS_FIVE_VOLT_TOLERNT 1
+    #endif
+
     #if BLTOUCH_DELAY < 200
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
     #elif DISABLED(BLTOUCH_SET_5V_MODE) && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
       #error "BLTOUCH without BLTOUCH_SET_5V_MODE requires ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN or ENDSTOPPULLUP_ZMIN_PROBE."
+    #endif
+    #if ENABLED(BLTOUCH_SET_5V_MODE) && !CHECK_BLTOUCH_PIN_IS_FIVE_VOLT_TOLERNT
+      #error "BLTOUCH_SET_5V_MODE is active but the pin is not 5V tolerant. Disable BLTOUCH_SET_5V_MODE"
     #endif
   #endif
 
