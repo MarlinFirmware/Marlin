@@ -192,6 +192,7 @@ void lv_draw_preHeat() {
   buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_STEP);
 
   if (uiCfg.curTempType == 0) disp_ext_heart();
+  if (uiCfg.curTempType == 1) disp_ext_heart();
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
