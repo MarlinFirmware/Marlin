@@ -180,6 +180,9 @@ namespace Language_en {
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicate X-Gap");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
+  LSTR MSG_TOOL_N_OFFSET_X                = _UxGT("Tool = X");
+  LSTR MSG_TOOL_N_OFFSET_Y                = _UxGT("Tool = Y");
+  LSTR MSG_TOOL_N_OFFSET_Z                = _UxGT("Tool = Z");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Doing G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tools");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
