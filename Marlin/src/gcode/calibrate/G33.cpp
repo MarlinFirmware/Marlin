@@ -386,7 +386,7 @@ static float auto_tune_a(const float dcr) {
  *
  *   E   Engage the probe for each point
  *
- *   O   Probe at offset points (this is wrong but it seems to work)
+ *   O   Probe at offsetted probe positions (this is wrong but it seems to work)
  *
  * With SENSORLESS_PROBING:
  *   Use these flags to calibrate stall sensitivity: (e.g., `G33 P1 Y Z` to calibrate X only.)
@@ -404,15 +404,17 @@ void GcodeSuite::G33() {
     return;
   }
 
-  const bool probe_at_offset = parser.seen_test('O'),
+  const bool probe_at_offset = TERN0(HAS_PROBE_XY_OFFSET, parser.seen_test('O')),
                   towers_set = !parser.seen_test('T');
 
   // The calibration radius is set to a calculated value
-  float dcr = TERN1(HAS_PROBE_XY_OFFSET, probe_at_offset) ? DELTA_PRINTABLE_RADIUS : BED_DIAMETER / 2 - BED_MOUNTING_MARGIN;
+  const float absolute_probing_margin = DELTA_PRINTABLE_RADIUS - (BED_DIAMETER / 2 - BED_MOUNTING_MARGIN);
+  float dcr = probe_at_offset ? DELTA_PRINTABLE_RADIUS : DELTA_PRINTABLE_RADIUS - absolute_probing_margin;
   #if HAS_PROBE_XY_OFFSET
-    dcr -= HYPOT(probe.offset_xy.x, probe.offset_xy.y);
-    NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
+    const float total_offset = HYPOT(probe.offset_xy.x, probe.offset_xy.y);
+    dcr -= probe_at_offset ? _MAX(total_offset, absolute_probing_margin) : total_offset;
   #endif
+  NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
   if (parser.seenval('R')) dcr -= _MAX(parser.value_float(),0);
 
   const float calibration_precision = parser.floatval('C', 0.0f);
@@ -486,7 +488,7 @@ void GcodeSuite::G33() {
 
     // Probe the points
     zero_std_dev_old = zero_std_dev;
-    if (!probe_calibration_points(z_at_pt, probe_points, dcr, towers_set, stow_after_each, TERN0(HAS_PROBE_XY_OFFSET, probe_at_offset))) {
+    if (!probe_calibration_points(z_at_pt, probe_points, dcr, towers_set, stow_after_each, probe_at_offset)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
       return ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
     }
@@ -529,7 +531,7 @@ void GcodeSuite::G33() {
       h_factor = auto_tune_h(dcr);
       r_factor = auto_tune_r(dcr);
       a_factor = auto_tune_a(dcr);
-      dcr /= 0.9f;
+      if (_7p_9_center) dcr /= 0.9f;
 
       switch (probe_points) {
         case 0:

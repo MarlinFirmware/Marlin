@@ -283,7 +283,7 @@
 /**
  * BED_DIAMETER and BED_MOUNTING_MARGIN are required to calculate delta calibration radius (dcr)
  */
-#if ENABLED(DELTA_AUTO_CALIBRATION)
+#if ENABLED(DELTA)
   #ifndef BED_MOUNTING_MARGIN
     #define BED_MOUNTING_MARGIN 0
   #endif
