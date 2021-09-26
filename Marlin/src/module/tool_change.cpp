@@ -21,6 +21,7 @@
  */
 
 #include "../inc/MarlinConfigPre.h"
+#include "../MarlinCore.h"
 
 #include "tool_change.h"
 
@@ -29,12 +30,7 @@
 #include "planner.h"
 #include "temperature.h"
 
-#include "../MarlinCore.h"
-
-//#define DEBUG_TOOL_CHANGE
-
-#define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
-#include "../core/debug_out.h"
+#define DEBUG_TOOL_CHANGE
 
 #if HAS_MULTI_EXTRUDER
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
@@ -108,6 +104,9 @@
     #define TOOLCHANGE_FS_WIPE_RETRACT 0
   #endif
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
+#include "../core/debug_out.h"
 
 #if DO_SWITCH_EXTRUDER
 
@@ -1042,8 +1041,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
+  DEBUG_ECHOLNPGM("tool change, new_tool: ", new_tool);
 
   if (TERN0(MAGNETIC_SWITCHING_TOOLHEAD, new_tool == active_extruder))
+    return;
+
+  if (TERN0(MANUAL_SWITCHING_TOOLHEAD, new_tool == active_extruder))
     return;
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -1063,12 +1066,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     UNUSED(no_move);
 
     mmu2.tool_change(new_tool);
-
-  #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-
-    UNUSED(no_move);
-
-    manual_switching_toolhead_tool_change(new_tool);
 
   #elif EXTRUDERS == 0
 
@@ -1213,6 +1210,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         parking_extruder_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)                          // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(new_tool);
+      #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)                          // Manual Switching Toolhead
+        manual_switching_toolhead_tool_change(new_tool);
       #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)                           // Servo Switching Toolhead
         servo_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)                        // Magnetic Switching Toolhead
