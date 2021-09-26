@@ -842,7 +842,7 @@ void MMU2::set_filament_type(const uint8_t index, const uint8_t filamentType) {
 }
 
 void MMU2::filament_runout() {
-  queue.inject_P(PSTR(MMU2_FILAMENT_RUNOUT_SCRIPT));
+  queue.inject(F(MMU2_FILAMENT_RUNOUT_SCRIPT));
   planner.synchronize();
 }
 

@@ -1055,7 +1055,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           if (draw)
             Draw_Menu_Item(row, ICON_CloseMotor, F("Disable Stepper"));
           else
-            queue.inject_P(PSTR("M84"));
+            queue.inject(F("M84"));
           break;
         case PREPARE_HOME:
           if (draw)
@@ -4499,7 +4499,7 @@ void CrealityDWINClass::Print_Screen_Control() {
               #endif
               TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();
-              TERN_(SDSUPPORT, queue.inject_P(PSTR("M24")));
+              TERN_(SDSUPPORT, queue.inject(F("M24")));
             #endif
           }
           else {
@@ -4541,10 +4541,10 @@ void CrealityDWINClass::Popup_Control() {
                 if (IS_SD_PRINTING()) card.pauseSDPrint();
               #endif
               planner.synchronize();
-              queue.inject_P(PSTR("M125"));
+              queue.inject(F("M125"));
               planner.synchronize();
             #else
-              queue.inject_P(PSTR("M25"));
+              queue.inject(F("M25"));
               TERN_(HAS_HOTEND, pausetemp = thermalManager.temp_hotend[0].target);
               TERN_(HAS_HEATED_BED, pausebed = thermalManager.temp_bed.target);
               TERN_(HAS_FAN, pausefan = thermalManager.fan_speed[0]);
@@ -4574,9 +4574,9 @@ void CrealityDWINClass::Popup_Control() {
         break;
       case Resume:
         if (selection == 0)
-          queue.inject_P(PSTR("M1000"));
+          queue.inject(F("M1000"));
         else {
-          queue.inject_P(PSTR("M1000 C"));
+          queue.inject(F("M1000 C"));
           Draw_Main_Menu();
         }
         break;
@@ -5008,7 +5008,7 @@ void CrealityDWINClass::Load_Settings(const char *buff) {
     static bool init = true;
     if (init) {
       init = false;
-      queue.inject_P(PSTR("M1000 S"));
+      queue.inject(F("M1000 S"));
     }
   #endif
 }
