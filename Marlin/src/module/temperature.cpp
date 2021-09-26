@@ -1037,8 +1037,10 @@ void Temperature::_temp_error(const heater_id_t heater_id, FSTR_P const serial_m
           DEBUG_ECHO("Sensor readings: ");
           DEBUG_ECHO(degHotend(real_heater_id));
           DEBUG_ECHO(", raw ");
-          DEBUG_ECHO(rawHotendTemp(real_heater_id));
-          DEBUG_ECHOLN("");
+          #if ENABLED(SHOW_TEMP_ADC_VALUES)
+            DEBUG_ECHO(rawHotendTemp(real_heater_id));
+            DEBUG_ECHOLN("");
+          #endif
         }
     }
     SERIAL_EOL();
