@@ -332,7 +332,7 @@ void GcodeSuite::G28() {
   #endif
 
   // Always home with tool 0 active
-  #if HAS_MULTI_HOTEND
+  #if HAS_MULTI_HOTEND && ENABLED(TOOLCHANGE_HOMING_USE_T0)
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
     #endif
@@ -511,7 +511,7 @@ void GcodeSuite::G28() {
   restore_feedrate_and_scaling();
 
   // Restore the active tool after homing
-  #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+  #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE) || ENABLED(TOOLCHANGE_HOMING_USE_T0))
     tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
   #endif
 

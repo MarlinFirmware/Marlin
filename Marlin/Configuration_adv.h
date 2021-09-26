@@ -2398,6 +2398,9 @@
     //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // Extra G-code to run after tool-change
   #endif
 
+  // Always switch to T0 when homing; comment out to disable.
+  #define TOOLCHANGE_HOMING_USE_T0
+
   /**
    * Extra G-code to run while executing tool-change commands. Can be used to use an additional
    * stepper motor (I axis, see option LINEAR_AXES in Configuration.h) to drive the tool-changer.
