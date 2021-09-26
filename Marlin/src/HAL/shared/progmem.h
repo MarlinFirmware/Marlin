@@ -111,7 +111,7 @@ class __FlashStringHelper;
 #define strrchr_P(str, c) strrchr((str), (c))
 #endif
 #ifndef strsep_P
-#define strsep_P(strp, delim) strsep((strp), (delim))
+#define strsep_P(pstr, delim) strsep((pstr), (delim))
 #endif
 #ifndef strspn_P
 #define strspn_P(str, chrs) strspn((str), (chrs))
