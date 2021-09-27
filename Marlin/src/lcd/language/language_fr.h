@@ -336,6 +336,7 @@ namespace Language_fr {
   LSTR MSG_FILAMENT_LOAD                  = _UxGT("Charger mm");
   LSTR MSG_ADVANCE_K                      = _UxGT("Avance K");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Avance K *");
+  LSTR MSG_BRIGHTNESS                     = _UxGT("Luminosité LCD");
   LSTR MSG_CONTRAST                       = _UxGT("Contraste LCD");
   LSTR MSG_STORE_EEPROM                   = _UxGT("Enregistrer config.");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Charger config.");
