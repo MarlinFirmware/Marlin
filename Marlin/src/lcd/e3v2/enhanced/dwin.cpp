@@ -62,7 +62,7 @@
   #include "../../../feature/host_actions.h"
 #endif
 
-#if HAS_ONESTEP_LEVELING
+#if HAS_MESH || HAS_ONESTEP_LEVELING
   #include "../../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -1925,16 +1925,16 @@ void DWIN_Redraw_screen() {
 
 #endif // ADVANCED_PAUSE_FEATURE
 
-#if HAS_LEVELING
+#if HAS_MESH
   void DWIN_MeshViewer() {
-    if (!leveling_is_valid()) {
-      DWIN_Popup_Continue(ICON_BLTouch, "Mesh viewer", "There isn't a valid mesh");
-    } else {
+    if (!leveling_is_valid())
+      DWIN_Popup_Continue(ICON_BLTouch, "Mesh viewer", "No valid mesh");
+    else {
       HMI_SaveProcessID(WaitResponse);
       MeshViewer.Draw();
     }
   }
-#endif // HAS_LEVELING
+#endif
 
 void HMI_LockScreen() {
   EncoderState encoder_diffState = get_encoder_state();
@@ -3200,7 +3200,7 @@ void Draw_AdvancedSettings_Menu() {
     #if ENABLED(SOUND_MENU_ITEM)
       ADDMENUITEM(ICON_Sound, F("Enable Sound"), onDrawEnableSound, SetEnableSound);
     #endif
-    #if HAS_LEVELING
+    #if HAS_MESH
       ADDMENUITEM(ICON_MeshViewer, F("Mesh Viewer"), onDrawSubMenu, DWIN_MeshViewer);
     #endif
     ADDMENUITEM(ICON_Lock, F("Lock Screen"), onDrawMenuItem, Goto_LockScreen);
