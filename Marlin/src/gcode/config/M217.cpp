@@ -131,7 +131,7 @@ void GcodeSuite::M217() {
 }
 
 void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_TOOL_CHANGING));
+  report_heading_etc(forReplay, F(STR_TOOL_CHANGING));
 
   SERIAL_ECHOPGM("  M217");
 

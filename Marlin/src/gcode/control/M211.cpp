@@ -40,7 +40,7 @@ void GcodeSuite::M211() {
 }
 
 void GcodeSuite::M211_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_SOFT_ENDSTOPS));
+  report_heading_etc(forReplay, F(STR_SOFT_ENDSTOPS));
   SERIAL_ECHOPGM("  M211 S", AS_DIGIT(soft_endstop._enabled), " ; ");
   serialprintln_onoff(soft_endstop._enabled);
 

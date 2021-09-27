@@ -538,7 +538,7 @@ void GcodeSuite::M422() {
 }
 
 void GcodeSuite::M422_report(const bool forReplay/*=true*/) {
-  report_heading(forReplay, PSTR(STR_Z_AUTO_ALIGN));
+  report_heading(forReplay, F(STR_Z_AUTO_ALIGN));
   LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
     report_echo_start(forReplay);
     SERIAL_ECHOLNPGM_P(
