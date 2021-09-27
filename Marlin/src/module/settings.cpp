@@ -225,7 +225,7 @@ typedef struct SettingsDataStruct {
   // Tool Offset
   //
   #if HAS_TOOL_OFFSET
-    xyz_pos_t tool_offset[HOTENDS - 1];               // M218 XYZ
+    xyz_pos_t tool_offset[NUM_TOOL_OFFSET - 1];               // M218 XYZ
   #endif
 
   //
@@ -756,7 +756,7 @@ void MarlinSettings::postprocess() {
     {
       #if HAS_TOOL_OFFSET
         // Skip tool 0 which must be {0, 0, 0}
-        LOOP_S_L_N(e, 1, HOTENDS)
+        LOOP_S_L_N(e, 1, NUM_TOOL_OFFSET)
           EEPROM_WRITE(tool_offset[e]);
       #endif
     }
@@ -1660,7 +1660,7 @@ void MarlinSettings::postprocess() {
       {
         #if HAS_TOOL_OFFSET
           // Skip hotend 0 which must be 0
-          LOOP_S_L_N(e, 1, HOTENDS)
+          LOOP_S_L_N(e, 1, NUM_TOOL_OFFSET)
             EEPROM_READ(tool_offset[e]);
         #endif
       }
@@ -2733,7 +2733,7 @@ void MarlinSettings::reset() {
     home_offset.reset();
   #endif
 
-  TERN_(HAS_TOOL_OFFSET, reset_hotend_offsets());
+  TERN_(HAS_TOOL_OFFSET, reset_tool_offsets());
 
   //
   // Filament Runout Sensor

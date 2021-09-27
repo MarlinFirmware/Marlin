@@ -394,11 +394,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     thermalManager.temp_hotend[new_tool].reset();
     active_extruder = new_tool;
 
-    // allow temperature readings to stabilize; 1khz, OVERSAMPLENR*2 samples
+    // allow temperature readings to stabilize; 1khz, OVERSAMPLENR*4 samples
     safe_delay(
       _MAX(
-        10UL,
-        ((TEMP_TIMER_FREQUENCY / CYCLES_PER_MICROSECOND) * (OVERSAMPLENR) * 2) / 1000
+        100UL,
+        ((TEMP_TIMER_FREQUENCY / CYCLES_PER_MICROSECOND) * (OVERSAMPLENR) * 4) / 1000
       )
     );
   }

@@ -117,7 +117,7 @@ xyze_pos_t destination; // {0}
 // Extruder offsets
 #if HAS_TOOL_OFFSET
   xyz_pos_t tool_offset[NUM_TOOL_OFFSET]; // Initialized by settings.load()
-  void reset_hotend_offsets() {
+  void reset_tool_offsets() {
     constexpr float tmp[XYZ][NUM_TOOL_OFFSET] = { TOOL_OFFSET_X, TOOL_OFFSET_Y, TOOL_OFFSET_Z };
     static_assert(
       !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
