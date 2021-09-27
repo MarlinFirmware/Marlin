@@ -61,7 +61,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .font(font_medium).colors(normal_btn)
        .tag(2).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
        .enabled(ENABLED(HAS_MESH))
-       .tag(3).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH))
+       .tag(3).button(SHOW_MESH_POS, GET_TEXT_F(MSG_MESH_VIEW))
        .enabled(ENABLED(HAS_MESH))
        .tag(4).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
        #undef  GRID_COLS

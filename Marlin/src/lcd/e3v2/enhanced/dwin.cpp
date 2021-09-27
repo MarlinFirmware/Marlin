@@ -62,7 +62,7 @@
   #include "../../../feature/host_actions.h"
 #endif
 
-#if HAS_ONESTEP_LEVELING
+#if HAS_MESH || HAS_ONESTEP_LEVELING
   #include "../../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -76,6 +76,10 @@
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
+#endif
+
+#if HAS_MESH
+  #include "meshviewer.h"
 #endif
 
 #include <WString.h>
@@ -1661,7 +1665,7 @@ void DWIN_MeshLevelingStart() {
   #endif
 }
 
-void DWIN_CompletedLeveling() { HMI_ReturnScreen(); }
+void DWIN_CompletedLeveling() { DWIN_MeshViewer(); }
 
 #if HAS_MESH
   void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
@@ -1920,6 +1924,17 @@ void DWIN_Redraw_screen() {
   }
 
 #endif // ADVANCED_PAUSE_FEATURE
+
+#if HAS_MESH
+  void DWIN_MeshViewer() {
+    if (!leveling_is_valid())
+      DWIN_Popup_Continue(ICON_BLTouch, "Mesh viewer", "No valid mesh");
+    else {
+      HMI_SaveProcessID(WaitResponse);
+      MeshViewer.Draw();
+    }
+  }
+#endif
 
 void HMI_LockScreen() {
   EncoderState encoder_diffState = get_encoder_state();
@@ -3185,6 +3200,9 @@ void Draw_AdvancedSettings_Menu() {
     #if ENABLED(SOUND_MENU_ITEM)
       ADDMENUITEM(ICON_Sound, F("Enable Sound"), onDrawEnableSound, SetEnableSound);
     #endif
+    #if HAS_MESH
+      ADDMENUITEM(ICON_MeshViewer, GET_TEXT_F(MSG_MESH_VIEW), onDrawSubMenu, DWIN_MeshViewer);
+    #endif
     ADDMENUITEM(ICON_Lock, F("Lock Screen"), onDrawMenuItem, Goto_LockScreen);
   }
   CurrentMenu->draw();
@@ -3403,6 +3421,7 @@ void Draw_Motion_Menu() {
       ADDMENUITEM(ICON_ManualMesh, GET_TEXT_F(MSG_LEVEL_BED), onDrawMenuItem, ManualMeshStart);
       MMeshMoveZItem = ADDMENUITEM_P(ICON_Zoffset, GET_TEXT_F(MSG_MOVE_Z), onDrawMMeshMoveZ, SetMMeshMoveZ, &current_position.z);
       ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_UBL_CONTINUE_MESH), onDrawMenuItem, ManualMeshContinue);
+      ADDMENUITEM(ICON_MeshViewer, GET_TEXT_F(MSG_MESH_VIEW), onDrawSubMenu, DWIN_MeshViewer);
       ADDMENUITEM(ICON_MeshSave, GET_TEXT_F(MSG_UBL_SAVE_MESH), onDrawMenuItem, ManualMeshSave);
     }
     CurrentMenu->draw();
