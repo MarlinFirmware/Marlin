@@ -1609,7 +1609,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
 
     if (DEBUGGING(LEVELING)) {
-      rotation.debug(PSTR("rotation matrix:\n"));
+      rotation.debug(F("rotation matrix:\n"));
       DEBUG_ECHOPAIR_F("LSF Results A=", lsf_results.A, 7);
       DEBUG_ECHOPAIR_F("  B=", lsf_results.B, 7);
       DEBUG_ECHOLNPAIR_F("  D=", lsf_results.D, 7);
@@ -1636,14 +1636,14 @@ void unified_bed_leveling::smart_fill_mesh() {
         auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
-        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const_float_t zadd) {
-          d_from(); SERIAL_ECHOPGM_P(pre);
+        auto debug_pt = [](FSTR_P const pre, const xy_pos_t &pos, const_float_t zadd) {
+          d_from(); SERIAL_ECHOF(pre);
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
         };
-        debug_pt(PSTR("1st point: "), probe_pt[0], normal.z * z1);
-        debug_pt(PSTR("2nd point: "), probe_pt[1], normal.z * z2);
-        debug_pt(PSTR("3rd point: "), probe_pt[2], normal.z * z3);
+        debug_pt(F("1st point: "), probe_pt[0], normal.z * z1);
+        debug_pt(F("2nd point: "), probe_pt[1], normal.z * z2);
+        debug_pt(F("3rd point: "), probe_pt[2], normal.z * z3);
         d_from(); DEBUG_ECHOPGM("safe home with Z=");
         DEBUG_ECHOLNPAIR_F("0 : ", normed(safe_homing_xy, 0), 6);
         d_from(); DEBUG_ECHOPGM("safe home with Z=");

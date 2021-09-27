@@ -195,7 +195,7 @@ void GcodeSuite::M420() {
   // V to print the matrix or mesh
   if (seenV) {
     #if ABL_PLANAR
-      planner.bed_level_matrix.debug(PSTR("Bed Level Correction Matrix:"));
+      planner.bed_level_matrix.debug(F("Bed Level Correction Matrix:"));
     #else
       if (leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)

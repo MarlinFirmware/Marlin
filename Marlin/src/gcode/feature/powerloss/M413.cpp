@@ -47,7 +47,7 @@ void GcodeSuite::M413() {
     if (parser.seen("RL")) recovery.load();
     if (parser.seen_test('W')) recovery.save(true);
     if (parser.seen_test('P')) recovery.purge();
-    if (parser.seen_test('D')) recovery.debug(PSTR("M413"));
+    if (parser.seen_test('D')) recovery.debug(F("M413"));
     #if PIN_EXISTS(POWER_LOSS)
       if (parser.seen_test('O')) recovery._outage();
     #endif
