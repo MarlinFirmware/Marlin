@@ -78,7 +78,7 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-#if HAS_MESH
+#if HAS_LEVELING
   #include "meshviewer.h"
 #endif
 
@@ -1925,7 +1925,7 @@ void DWIN_Redraw_screen() {
 
 #endif // ADVANCED_PAUSE_FEATURE
 
-#if HAS_MESH
+#if HAS_LEVELING
   void DWIN_MeshViewer() {
     if (!leveling_is_valid()) {
       DWIN_Popup_Continue(ICON_BLTouch, "Mesh viewer", "There isn't a valid mesh");
@@ -1934,7 +1934,7 @@ void DWIN_Redraw_screen() {
       MeshViewer.Draw();
     }
   }
-#endif // HAS_MESH
+#endif // HAS_LEVELING
 
 void HMI_LockScreen() {
   EncoderState encoder_diffState = get_encoder_state();
@@ -3200,7 +3200,7 @@ void Draw_AdvancedSettings_Menu() {
     #if ENABLED(SOUND_MENU_ITEM)
       ADDMENUITEM(ICON_Sound, F("Enable Sound"), onDrawEnableSound, SetEnableSound);
     #endif
-    #if HAS_MESH
+    #if HAS_LEVELING
       ADDMENUITEM(ICON_MeshViewer, F("Mesh Viewer"), onDrawSubMenu, DWIN_MeshViewer);
     #endif
     ADDMENUITEM(ICON_Lock, F("Lock Screen"), onDrawMenuItem, Goto_LockScreen);

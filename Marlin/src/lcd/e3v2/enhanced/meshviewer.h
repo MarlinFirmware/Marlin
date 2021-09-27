@@ -1,8 +1,8 @@
 /**
  * DWIN Mesh Viewer
  * Author: Miguel A. Risco-Castillo
- * version: 2.3
- * Date: 2021/07/12
+ * version: 2.5
+ * Date: 2021/09/27
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as 
