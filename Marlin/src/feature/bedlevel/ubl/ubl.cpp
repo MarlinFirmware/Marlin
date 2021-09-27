@@ -180,10 +180,8 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
     SERIAL_EOL();
     serial_echo_column_labels(eachsp - 2);
   }
-  else {
-    SERIAL_ECHOPGM(" for ");
-    SERIAL_ECHOPGM_P(csv ? PSTR("CSV:\n") : PSTR("LCD:\n"));
-  }
+  else
+    SERIAL_ECHOPGM(" for ", csv ? F("CSV:\n") : F("LCD:\n"));
 
   // Add XY probe offset from extruder because probe.probe_at_point() subtracts them when
   // moving to the XY position to be measured. This ensures better agreement between
@@ -213,7 +211,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         // TODO: Display on Graphical LCD
       }
       else if (isnan(f))
-        SERIAL_ECHOPGM_P(human ? PSTR("  .   ") : PSTR("NAN"));
+        SERIAL_ECHOF(human ? F("  .   ") : F("NAN"));
       else if (human || csv) {
         if (human && f >= 0.0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO_F(f, 3);                                    // Positive: 5 digits, Negative: 6 digits
