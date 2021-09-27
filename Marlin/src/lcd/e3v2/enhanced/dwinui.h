@@ -50,6 +50,7 @@
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
+#define ICON_MeshViewer           ICON_HotendTemp
 #define ICON_MoveZ0               ICON_HotendTemp
 #define ICON_Park                 ICON_Motion
 #define ICON_PIDcycles            ICON_ResumeEEPROM
