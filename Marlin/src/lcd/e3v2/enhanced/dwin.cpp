@@ -78,7 +78,7 @@
   #include "../../../feature/powerloss.h"
 #endif
 
-#if HAS_LEVELING
+#if HAS_MESH
   #include "meshviewer.h"
 #endif
 
@@ -3201,7 +3201,7 @@ void Draw_AdvancedSettings_Menu() {
       ADDMENUITEM(ICON_Sound, F("Enable Sound"), onDrawEnableSound, SetEnableSound);
     #endif
     #if HAS_MESH
-      ADDMENUITEM(ICON_MeshViewer, F("Mesh Viewer"), onDrawSubMenu, DWIN_MeshViewer);
+      ADDMENUITEM(ICON_MeshViewer, F("View Mesh"), onDrawSubMenu, DWIN_MeshViewer);
     #endif
     ADDMENUITEM(ICON_Lock, F("Lock Screen"), onDrawMenuItem, Goto_LockScreen);
   }
@@ -3421,7 +3421,7 @@ void Draw_Motion_Menu() {
       ADDMENUITEM(ICON_ManualMesh, GET_TEXT_F(MSG_LEVEL_BED), onDrawMenuItem, ManualMeshStart);
       MMeshMoveZItem = ADDMENUITEM_P(ICON_Zoffset, GET_TEXT_F(MSG_MOVE_Z), onDrawMMeshMoveZ, SetMMeshMoveZ, &current_position.z);
       ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_UBL_CONTINUE_MESH), onDrawMenuItem, ManualMeshContinue);
-      ADDMENUITEM(ICON_MeshViewer, F("Mesh Viewer"), onDrawSubMenu, DWIN_MeshViewer);
+      ADDMENUITEM(ICON_MeshViewer, F("View Mesh"), onDrawSubMenu, DWIN_MeshViewer);
       ADDMENUITEM(ICON_MeshSave, GET_TEXT_F(MSG_UBL_SAVE_MESH), onDrawMenuItem, ManualMeshSave);
     }
     CurrentMenu->draw();
