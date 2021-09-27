@@ -109,6 +109,16 @@
 #endif
 
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  static millis_t last_tool_change = 0;
+
+  inline int32_t ms_since_tool_change(millis_t ms) {
+    return (int32_t)(ms-last_tool_change);
+  }
+
+  inline int32_t ms_since_tool_change() {
+    return ms_since_tool_change(millis());
+  }
+
   const char tool_name_0[] PROGMEM = TOOL_NAME_0;
   const char tool_name_1[] PROGMEM = TOOL_NAME_1;
 

@@ -187,6 +187,10 @@
   #include "servo.h"
 #endif
 
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  #include "tool_change.h"
+#endif
+
 #if ANY(TEMP_SENSOR_0_IS_THERMISTOR, TEMP_SENSOR_1_IS_THERMISTOR, TEMP_SENSOR_2_IS_THERMISTOR, TEMP_SENSOR_3_IS_THERMISTOR, \
         TEMP_SENSOR_4_IS_THERMISTOR, TEMP_SENSOR_5_IS_THERMISTOR, TEMP_SENSOR_6_IS_THERMISTOR, TEMP_SENSOR_7_IS_THERMISTOR )
   #define HAS_HOTEND_THERMISTOR 1
@@ -1353,18 +1357,20 @@ void Temperature::manage_heater() {
     if (!heating_enabled) return disable_all_heaters();
   #endif
 
+  millis_t ms = millis();
+
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_0_IS_MAX_TC
       if (degHotend(0) > _MIN(HEATER_0_MAXTEMP, TEMP_SENSOR_0_MAX_TC_TMAX - 1.0))
-        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error(H_E0);
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, (ms_since_tool_change(ms) > 100))) max_temp_error(H_E0);
       if (degHotend(0) < _MAX(HEATER_0_MINTEMP, TEMP_SENSOR_0_MAX_TC_TMIN + .01))
-        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) min_temp_error(H_E0);
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, (ms_since_tool_change(ms) > 100))) min_temp_error(H_E0);
     #endif
     #if TEMP_SENSOR_1_IS_MAX_TC
       if (degHotend(1) > _MIN(HEATER_1_MAXTEMP, TEMP_SENSOR_1_MAX_TC_TMAX - 1.0))
-        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error(H_E1);
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, (ms_since_tool_change(ms) > 100))) max_temp_error(H_E1);
       if (degHotend(1) < _MAX(HEATER_1_MINTEMP, TEMP_SENSOR_1_MAX_TC_TMIN + .01))
-        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) min_temp_error(H_E1);
+        if (TERN1(MANUAL_SWITCHING_TOOLHEAD, (ms_since_tool_change(ms) > 100))) min_temp_error(H_E1);
     #endif
     #if TEMP_SENSOR_REDUNDANT_IS_MAX_TC
       if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) max_temp_error(H_REDUNDANT);
@@ -1374,15 +1380,17 @@ void Temperature::manage_heater() {
     #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
   #endif
 
-  millis_t ms = millis();
-
   #if HAS_HOTEND
 
     HOTEND_LOOP() {
+      #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+        if(active_extruder != e) continue;
+      #endif
+
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         if (degHotend(e) > temp_range[e].maxtemp) {
           DEBUG_ECHOLN("thermal protection triggered: maxtemp");
-          if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error((heater_id_t)e);
+          if (TERN1(MANUAL_SWITCHING_TOOLHEAD, (ms_since_tool_change(ms) > 100))) max_temp_error((heater_id_t)e);
         }
       #endif
 
@@ -2133,6 +2141,10 @@ void Temperature::updateTemperaturesFromRawValues() {
       #endif
     };
 
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      millis_t ms_since_tc = ms_since_tool_change();
+    #endif
+
     LOOP_L_N(e, COUNT(temp_dir)) {
       #if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
         // only act on the active tool in manual toolhead switching mode
@@ -2143,7 +2155,7 @@ void Temperature::updateTemperaturesFromRawValues() {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp
         if (rawtemp > temp_range[e].raw_max * tdir) {
           DEBUG_ECHOPGM("rawtemp out of range, max: ", temp_range[e].raw_max * tdir);
-          if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) max_temp_error((heater_id_t)e);
+          if (TERN1(MANUAL_SWITCHING_TOOLHEAD, (ms_since_tc > 100))) max_temp_error((heater_id_t)e);
         }
 
         const bool heater_on = temp_hotend[e].target > 0;
@@ -2152,7 +2164,7 @@ void Temperature::updateTemperaturesFromRawValues() {
             if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED) {
           #endif
               DEBUG_ECHOPGM("rawtemp out of range, min: ", temp_range[e].raw_min * tdir);
-              if (TERN1(MANUAL_SWITCHING_TOOLHEAD, heating_enabled)) min_temp_error((heater_id_t)e);
+              if (TERN1(MANUAL_SWITCHING_TOOLHEAD, (ms_since_tc > 100))) min_temp_error((heater_id_t)e);
           #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
             }
           #endif
