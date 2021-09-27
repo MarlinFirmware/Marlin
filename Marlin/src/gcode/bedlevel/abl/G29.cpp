@@ -783,8 +783,8 @@ G29_TYPE GcodeSuite::G29() {
 
         float min_diff = 999;
 
-        auto print_topo_map = [&](PGM_P const title, const bool get_min) {
-          SERIAL_ECHOPGM_P(title);
+        auto print_topo_map = [&](FSTR_P const title, const bool get_min) {
+          SERIAL_ECHOF(title);
           for (int8_t yy = abl.grid_points.y - 1; yy >= 0; yy--) {
             LOOP_L_N(xx, abl.grid_points.x) {
               const int ind = abl.indexIntoAB[xx][yy];
@@ -802,19 +802,19 @@ G29_TYPE GcodeSuite::G29() {
           SERIAL_EOL();
         };
 
-        print_topo_map(PSTR("\nBed Height Topography:\n"
-                               "   +--- BACK --+\n"
-                               "   |           |\n"
-                               " L |    (+)    | R\n"
-                               " E |           | I\n"
-                               " F | (-) N (+) | G\n"
-                               " T |           | H\n"
-                               "   |    (-)    | T\n"
-                               "   |           |\n"
-                               "   O-- FRONT --+\n"
-                               " (0,0)\n"), true);
+        print_topo_map(F("\nBed Height Topography:\n"
+                           "   +--- BACK --+\n"
+                           "   |           |\n"
+                           " L |    (+)    | R\n"
+                           " E |           | I\n"
+                           " F | (-) N (+) | G\n"
+                           " T |           | H\n"
+                           "   |    (-)    | T\n"
+                           "   |           |\n"
+                           "   O-- FRONT --+\n"
+                           " (0,0)\n"), true);
         if (abl.verbose_level > 3)
-          print_topo_map(PSTR("\nCorrected Bed Height vs. Bed Topology:\n"), false);
+          print_topo_map(F("\nCorrected Bed Height vs. Bed Topology:\n"), false);
 
       } // abl.topography_map
 
@@ -825,7 +825,7 @@ G29_TYPE GcodeSuite::G29() {
       // For LINEAR and 3POINT leveling correct the current position
 
       if (abl.verbose_level > 0)
-        planner.bed_level_matrix.debug(PSTR("\n\nBed Level Correction Matrix:"));
+        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"));
 
       if (!abl.dryrun) {
         //

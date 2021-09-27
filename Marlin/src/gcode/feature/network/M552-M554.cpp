@@ -57,14 +57,14 @@ void MAC_report() {
 
 // Display current values when the link is active,
 // otherwise show the stored values
-void ip_report(const uint16_t cmd, PGM_P const post, const IPAddress &ipo) {
+void ip_report(const uint16_t cmd, FSTR_P const post, const IPAddress &ipo) {
   SERIAL_CHAR('M'); SERIAL_ECHO(cmd); SERIAL_CHAR(' ');
   LOOP_L_N(i, 4) {
     SERIAL_ECHO(ipo[i]);
     if (i < 3) SERIAL_CHAR('.');
   }
   SERIAL_ECHOPGM(" ; ");
-  SERIAL_ECHOLNPGM_P(post);
+  SERIAL_ECHOLNF(post);
 }
 
 /**
@@ -98,7 +98,7 @@ void GcodeSuite::M552() {
 }
 
 void GcodeSuite::M552_report() {
-  ip_report(552, PSTR("ip address"), Ethernet.linkStatus() == LinkON ? Ethernet.localIP() : ethernet.ip);
+  ip_report(552, F("ip address"), Ethernet.linkStatus() == LinkON ? Ethernet.localIP() : ethernet.ip);
 }
 
 /**
@@ -112,7 +112,7 @@ void GcodeSuite::M553() {
 }
 
 void GcodeSuite::M553_report() {
-  ip_report(553, PSTR("subnet mask"), Ethernet.linkStatus() == LinkON ? Ethernet.subnetMask() : ethernet.subnet);
+  ip_report(553, F("subnet mask"), Ethernet.linkStatus() == LinkON ? Ethernet.subnetMask() : ethernet.subnet);
 }
 
 /**
@@ -126,7 +126,7 @@ void GcodeSuite::M554() {
 }
 
 void GcodeSuite::M554_report() {
-  ip_report(554, PSTR("gateway"), Ethernet.linkStatus() == LinkON ? Ethernet.gatewayIP() : ethernet.gateway);
+  ip_report(554, F("gateway"), Ethernet.linkStatus() == LinkON ? Ethernet.gatewayIP() : ethernet.gateway);
 }
 
 #endif // HAS_ETHERNET

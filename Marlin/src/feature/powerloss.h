@@ -204,9 +204,9 @@ class PrintJobRecovery {
     static inline bool valid() { return info.valid() && interrupted_file_exists(); }
 
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      static void debug(PGM_P const prefix);
+      static void debug(FSTR_P const prefix);
     #else
-      static inline void debug(PGM_P const) {}
+      static inline void debug(FSTR_P const) {}
     #endif
 
   private:
