@@ -130,7 +130,7 @@ void PrintJobRecovery::load() {
     (void)file.read(&info, sizeof(info));
     close();
   }
-  debug(PSTR("Load"));
+  debug(F("Load"));
 }
 
 /**
@@ -311,7 +311,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
  */
 void PrintJobRecovery::write() {
 
-  debug(PSTR("Write"));
+  debug(F("Write"));
 
   open(false);
   file.seekSet(0);
@@ -575,8 +575,8 @@ void PrintJobRecovery::resume() {
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
-  void PrintJobRecovery::debug(PGM_P const prefix) {
-    DEBUG_ECHOPGM_P(prefix);
+  void PrintJobRecovery::debug(FSTR_P const prefix) {
+    DEBUG_ECHOF(prefix);
     DEBUG_ECHOLNPGM(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {

@@ -65,12 +65,12 @@ inline void toggle_pins() {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!VALID_PIN(pin)) continue;
     if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
-      report_pin_state_extended(pin, ignore_protection, true, PSTR("Untouched "));
+      report_pin_state_extended(pin, ignore_protection, true, F("Untouched "));
       SERIAL_EOL();
     }
     else {
       watchdog_refresh();
-      report_pin_state_extended(pin, ignore_protection, true, PSTR("Pulsing   "));
+      report_pin_state_extended(pin, ignore_protection, true, F("Pulsing   "));
       #ifdef __STM32F1__
         const auto prior_mode = _GET_MODE(i);
       #else
@@ -303,7 +303,7 @@ void GcodeSuite::M43() {
   if (parser.seen('E')) {
     endstops.monitor_flag = parser.value_bool();
     SERIAL_ECHOPGM("endstop monitor ");
-    SERIAL_ECHOPGM_P(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
+    SERIAL_ECHOF(endstops.monitor_flag ? F("en") : F("dis"));
     SERIAL_ECHOLNPGM("abled");
     return;
   }

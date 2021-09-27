@@ -259,7 +259,7 @@ private:
    */
   static bool enqueue_one(const char *cmd);
 
-  static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
+  static void gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind);
 
   friend class GcodeSuite;
 };

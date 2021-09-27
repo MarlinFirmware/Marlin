@@ -142,7 +142,7 @@ class TWIBus {
      *
      * @param bytes the number of bytes to request
      */
-    static void echoprefix(uint8_t bytes, const char prefix[], uint8_t adr);
+    static void echoprefix(uint8_t bytes, FSTR_P prefix, uint8_t adr);
 
     /**
      * @brief Echo data on the bus to serial
@@ -151,7 +151,7 @@ class TWIBus {
      *
      * @param bytes the number of bytes to request
      */
-    static void echodata(uint8_t bytes, const char prefix[], uint8_t adr);
+    static void echodata(uint8_t bytes, FSTR_P prefix, uint8_t adr);
 
     /**
      * @brief Echo data in the buffer to serial
@@ -160,7 +160,7 @@ class TWIBus {
      *
      * @param bytes the number of bytes to request
      */
-    void echobuffer(const char prefix[], uint8_t adr);
+    void echobuffer(FSTR_P prefix, uint8_t adr);
 
     /**
      * @brief Request data from the slave device and wait.
@@ -237,17 +237,16 @@ class TWIBus {
        * @brief Prints a debug message
        * @details Prints a simple debug message "TWIBus::function: value"
        */
-      static void prefix(const char func[]);
-      static void debug(const char func[], uint32_t adr);
-      static void debug(const char func[], char c);
-      static void debug(const char func[], char adr[]);
-      static inline void debug(const char func[], uint8_t v) { debug(func, (uint32_t)v); }
+      static void prefix(FSTR_P const func);
+      static void debug(FSTR_P const func, uint32_t adr);
+      static void debug(FSTR_P const func, char c);
+      static void debug(FSTR_P const func, char adr[]);
     #else
-      static inline void debug(const char[], uint32_t) {}
-      static inline void debug(const char[], char) {}
-      static inline void debug(const char[], char[]) {}
-      static inline void debug(const char[], uint8_t) {}
+      static inline void debug(FSTR_P const, uint32_t) {}
+      static inline void debug(FSTR_P const, char) {}
+      static inline void debug(FSTR_P const, char[]) {}
     #endif
+    static inline void debug(FSTR_P const func, uint8_t v) { debug(func, (uint32_t)v); }
 };
 
 extern TWIBus i2c;

@@ -302,10 +302,10 @@ static bool serial_data_available(serial_index_t index) {
 
 inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(index); }
 
-void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
+void GCodeQueue::gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNPGM_P(err, serial_state[serial_ind.index].last_N);
+  SERIAL_ECHOLNF(ferr, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
   serial_state[serial_ind.index].count = 0;
@@ -470,7 +470,7 @@ void GCodeQueue::get_serial_commands() {
 
           if (gcode_N != serial.last_N + 1 && !M110) {
             // In case of error on a serial port, don't prevent other serial port from making progress
-            gcode_line_error(PSTR(STR_ERR_LINE_NO), p);
+            gcode_line_error(F(STR_ERR_LINE_NO), p);
             break;
           }
 
@@ -480,13 +480,13 @@ void GCodeQueue::get_serial_commands() {
             while (count) checksum ^= command[--count];
             if (strtol(apos + 1, nullptr, 10) != checksum) {
               // In case of error on a serial port, don't prevent other serial port from making progress
-              gcode_line_error(PSTR(STR_ERR_CHECKSUM_MISMATCH), p);
+              gcode_line_error(F(STR_ERR_CHECKSUM_MISMATCH), p);
               break;
             }
           }
           else {
             // In case of error on a serial port, don't prevent other serial port from making progress
-            gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), p);
+            gcode_line_error(F(STR_ERR_NO_CHECKSUM), p);
             break;
           }
 
@@ -495,7 +495,7 @@ void GCodeQueue::get_serial_commands() {
         #if ENABLED(SDSUPPORT)
           // Pronterface "M29" and "M29 " has no line number
           else if (card.flag.saving && !is_M29(command)) {
-            gcode_line_error(PSTR(STR_ERR_NO_CHECKSUM), p);
+            gcode_line_error(F(STR_ERR_NO_CHECKSUM), p);
             break;
           }
         #endif

@@ -43,8 +43,14 @@ static void config_line(PGM_P const name, const float val, PGM_P const pref=null
   config_prefix(name, pref, ind);
   SERIAL_ECHOLN(val);
 }
+static void config_line(FSTR_P const name, const float val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
+  config_line(FTOP(name), val, FTOP(pref) , ind);
+}
 static void config_line_e(const int8_t e, PGM_P const name, const float val) {
   config_line(name, val, PSTR("Extr."), e + 1);
+}
+static void config_line_e(const int8_t e, FSTR_P const name, const float val) {
+  config_line_e(e, FTOP(name), val);
 }
 
 /**
@@ -60,19 +66,19 @@ void GcodeSuite::M360() {
   //
   // Basics and Enabled items
   //
-  config_line(PSTR("Baudrate"),                   BAUDRATE);
-  config_line(PSTR("InputBuffer"),                MAX_CMD_SIZE);
-  config_line(PSTR("PrintlineCache"),             BUFSIZE);
-  config_line(PSTR("MixingExtruder"),             ENABLED(MIXING_EXTRUDER));
-  config_line(PSTR("SDCard"),                     ENABLED(SDSUPPORT));
-  config_line(PSTR("Fan"),                        ENABLED(HAS_FAN));
-  config_line(PSTR("LCD"),                        ENABLED(HAS_DISPLAY));
-  config_line(PSTR("SoftwarePowerSwitch"), 1);
-  config_line(PSTR("SupportLocalFilamentchange"), ENABLED(ADVANCED_PAUSE_FEATURE));
-  config_line(PSTR("CaseLights"),                 ENABLED(CASE_LIGHT_ENABLE));
-  config_line(PSTR("ZProbe"),                     ENABLED(HAS_BED_PROBE));
-  config_line(PSTR("Autolevel"),                  ENABLED(HAS_LEVELING));
-  config_line(PSTR("EEPROM"),                     ENABLED(EEPROM_SETTINGS));
+  config_line(F("Baudrate"),                    BAUDRATE);
+  config_line(F("InputBuffer"),                 MAX_CMD_SIZE);
+  config_line(F("PrintlineCache"),              BUFSIZE);
+  config_line(F("MixingExtruder"),              ENABLED(MIXING_EXTRUDER));
+  config_line(F("SDCard"),                      ENABLED(SDSUPPORT));
+  config_line(F("Fan"),                         ENABLED(HAS_FAN));
+  config_line(F("LCD"),                         ENABLED(HAS_DISPLAY));
+  config_line(F("SoftwarePowerSwitch"),         1);
+  config_line(F("SupportLocalFilamentchange"),  ENABLED(ADVANCED_PAUSE_FEATURE));
+  config_line(F("CaseLights"),                  ENABLED(CASE_LIGHT_ENABLE));
+  config_line(F("ZProbe"),                      ENABLED(HAS_BED_PROBE));
+  config_line(F("Autolevel"),                   ENABLED(HAS_LEVELING));
+  config_line(F("EEPROM"),                      ENABLED(EEPROM_SETTINGS));
 
   //
   // Homing Directions
@@ -87,7 +93,7 @@ void GcodeSuite::M360() {
   //
   #if HAS_CLASSIC_JERK
     if (planner.max_jerk.x == planner.max_jerk.y)
-      config_line(PSTR("XY"), planner.max_jerk.x, JERK_STR);
+      config_line(F("XY"), planner.max_jerk.x, JERK_STR);
     else {
       config_line(X_STR, planner.max_jerk.x, JERK_STR);
       config_line(Y_STR, planner.max_jerk.y, JERK_STR);
@@ -98,21 +104,21 @@ void GcodeSuite::M360() {
   //
   // Firmware Retraction
   //
-  config_line(PSTR("SupportG10G11"), ENABLED(FWRETRACT));
+  config_line(F("SupportG10G11"), ENABLED(FWRETRACT));
   #if ENABLED(FWRETRACT)
     PGMSTR(RET_STR, "Retraction");
     PGMSTR(UNRET_STR, "RetractionUndo");
     PGMSTR(SPEED_STR, "Speed");
     // M10 Retract with swap (long) moves
-    config_line(PSTR("Length"),     fwretract.settings.retract_length, RET_STR);
+    config_line(F("Length"),     fwretract.settings.retract_length, RET_STR);
     config_line(SPEED_STR,          fwretract.settings.retract_feedrate_mm_s, RET_STR);
-    config_line(PSTR("ZLift"),      fwretract.settings.retract_zraise, RET_STR);
-    config_line(PSTR("LongLength"), fwretract.settings.swap_retract_length, RET_STR);
+    config_line(F("ZLift"),      fwretract.settings.retract_zraise, RET_STR);
+    config_line(F("LongLength"), fwretract.settings.swap_retract_length, RET_STR);
     // M11 Recover (undo) with swap (long) moves
     config_line(SPEED_STR,               fwretract.settings.retract_recover_feedrate_mm_s, UNRET_STR);
-    config_line(PSTR("ExtraLength"),     fwretract.settings.retract_recover_extra, UNRET_STR);
-    config_line(PSTR("ExtraLongLength"), fwretract.settings.swap_retract_recover_extra, UNRET_STR);
-    config_line(PSTR("LongSpeed"),       fwretract.settings.swap_retract_recover_feedrate_mm_s, UNRET_STR);
+    config_line(F("ExtraLength"),     fwretract.settings.retract_recover_extra, UNRET_STR);
+    config_line(F("ExtraLongLength"), fwretract.settings.swap_retract_recover_extra, UNRET_STR);
+    config_line(F("LongSpeed"),       fwretract.settings.swap_retract_recover_feedrate_mm_s, UNRET_STR);
   #endif
 
   //
@@ -163,22 +169,22 @@ void GcodeSuite::M360() {
   //
   // Heated Bed
   //
-  config_line(PSTR("HeatedBed"), ENABLED(HAS_HEATED_BED));
+  config_line(F("HeatedBed"), ENABLED(HAS_HEATED_BED));
   #if HAS_HEATED_BED
-    config_line(PSTR("MaxBedTemp"), BED_MAX_TARGET);
+    config_line(F("MaxBedTemp"), BED_MAX_TARGET);
   #endif
 
   //
   // Per-Extruder settings
   //
-  config_line(PSTR("NumExtruder"), EXTRUDERS);
+  config_line(F("NumExtruder"), EXTRUDERS);
   #if HAS_EXTRUDERS
     LOOP_L_N(e, EXTRUDERS) {
       config_line_e(e, JERK_STR, TERN(HAS_LINEAR_E_JERK, planner.max_e_jerk[E_INDEX_N(e)], TERN(HAS_CLASSIC_JERK, planner.max_jerk.e, DEFAULT_EJERK)));
-      config_line_e(e, PSTR("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
-      config_line_e(e, PSTR("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
-      config_line_e(e, PSTR("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));
-      config_line_e(e, PSTR("MaxTemp"), thermalManager.hotend_maxtemp[e]);
+      config_line_e(e, F("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
+      config_line_e(e, F("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
+      config_line_e(e, F("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));
+      config_line_e(e, F("MaxTemp"), thermalManager.hotend_maxtemp[e]);
     }
   #endif
 }
