@@ -48,7 +48,7 @@
 
     // S: Report the current power supply state and exit
     if (parser.seen('S')) {
-      SERIAL_ECHOPGM_P(powerManager.psu_on ? PSTR("PS:1\n") : PSTR("PS:0\n"));
+      SERIAL_ECHOF(powerManager.psu_on ? F("PS:1\n") : F("PS:0\n"));
       return;
     }
 

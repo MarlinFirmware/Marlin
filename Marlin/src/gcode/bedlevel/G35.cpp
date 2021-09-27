@@ -116,7 +116,7 @@ void GcodeSuite::G35() {
 
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM("Probing point ", i + 1, " (");
-      DEBUG_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      DEBUG_ECHOF(FPSTR(pgm_read_ptr(&tramming_point_name[i])));
       DEBUG_CHAR(')');
       DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }
