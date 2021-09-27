@@ -313,9 +313,6 @@
     #define TOOL_NAME_6 "Tool 6"
     #define TOOL_NAME_7 "Tool 7"
   #endif
-
-  // Move the tool to the parked position for tool changes. Requires NOZZLE_PARK_FEATURE.
-  #define SWITCHING_TOOLHEAD_PARKING
 #endif
 
 /**

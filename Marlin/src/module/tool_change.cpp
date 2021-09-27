@@ -411,9 +411,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     thermalManager.disable_all_heaters(); // ?
 
     if (printingIsActive()) {
-      //xyz_pos_t park_point = TERN(SWITCHING_TOOLHEAD_PARKING, park_point, current_position);
-      //if (park_point.z <= (current_position.z + 5)) park_point.z = current_position.z + 10;
-
       // use the pause print menu
       if (pause_print(0.0, current_position, true, 0)) {
         wait_for_confirmation(false, 2);
