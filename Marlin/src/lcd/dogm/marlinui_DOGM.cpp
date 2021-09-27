@@ -93,14 +93,7 @@ U8G_CLASS u8g;
 #endif
 
 #if HAS_LCD_CONTRAST
-
-  int16_t MarlinUI::contrast = DEFAULT_LCD_CONTRAST;
-
-  void MarlinUI::set_contrast(const int16_t value) {
-    contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-    u8g.setContrast(contrast);
-  }
-
+  void MarlinUI::_set_contrast() { u8g.setContrast(contrast); }
 #endif
 
 void MarlinUI::set_font(const MarlinFont font_nr) {

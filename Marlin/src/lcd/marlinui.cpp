@@ -95,16 +95,23 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
+#if HAS_LCD_CONTRAST
+  uint8_t MarlinUI::contrast; // Initialized by settings.load()
+
+  void MarlinUI::set_contrast(const uint8_t value) {
+    contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
+    _set_contrast();
+  }
+#endif
+
 #if HAS_LCD_BRIGHTNESS
   uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
   bool MarlinUI::backlight = true;
 
   void MarlinUI::set_brightness(const uint8_t value) {
     backlight = !!value;
-    if (backlight) brightness = constrain(value, MIN_LCD_BRIGHTNESS, MAX_LCD_BRIGHTNESS);
-    // Set brightness on enabled LCD here
-    TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_LCD_Brightness(brightness));
-    TERN_(DWIN_CREALITY_LCD_JYERSUI, DWIN_LCD_Brightness(backlight ? brightness : 0));
+    if (backlight) brightness = constrain(value, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX);
+    _set_brightness();
   }
 #endif
 

@@ -135,7 +135,7 @@ namespace FTDI {
     }
   }
 
-  void draw_text_box(CommandProcessor& cmd, int x, int y, int w, int h, progmem_str pstr, uint16_t options, uint8_t font) {
+  void draw_text_box(CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P pstr, uint16_t options, uint8_t font) {
     char str[strlen_P((const char*)pstr) + 1];
     strcpy_P(str, (const char*)pstr);
     draw_text_box(cmd, x, y, w, h, (const char*) str, options, font);

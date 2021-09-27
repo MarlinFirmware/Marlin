@@ -416,7 +416,7 @@ bool UIFlashStorage::is_present = false;
   /* Writes a media file from the SD card/USB flash drive into a slot on the SPI Flash. Media
    * files must be written sequentially following by a chip erase and it is not possible to
    * overwrite files. */
-  UIFlashStorage::error_t UIFlashStorage::write_media_file(progmem_str filename, uint8_t slot) {
+  UIFlashStorage::error_t UIFlashStorage::write_media_file(FSTR_P filename, uint8_t slot) {
     #if ENABLED(SDSUPPORT)
       uint32_t addr;
       uint8_t buff[write_page_size];
@@ -543,7 +543,7 @@ bool UIFlashStorage::is_present = false;
   void UIFlashStorage::write_config_data(const void *, size_t)                {}
   bool UIFlashStorage::verify_config_data(const void *, size_t)               {return false;}
   bool UIFlashStorage::read_config_data(void *, size_t )                      {return false;}
-  UIFlashStorage::error_t UIFlashStorage::write_media_file(progmem_str, uint8_t) {return FILE_NOT_FOUND;}
+  UIFlashStorage::error_t UIFlashStorage::write_media_file(FSTR_P, uint8_t)   {return FILE_NOT_FOUND;}
   void UIFlashStorage::format_flash()                                         {}
 
   bool UIFlashStorage::BootMediaReader::isAvailable(uint32_t)                 {return false;}

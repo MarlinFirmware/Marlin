@@ -247,17 +247,18 @@ public:
   #endif
 
   #if HAS_LCD_BRIGHTNESS
-    #ifndef MIN_LCD_BRIGHTNESS
-      #define MIN_LCD_BRIGHTNESS   1
+    #ifndef LCD_BRIGHTNESS_MIN
+      #define LCD_BRIGHTNESS_MIN   1
     #endif
-    #ifndef MAX_LCD_BRIGHTNESS
-      #define MAX_LCD_BRIGHTNESS 255
+    #ifndef LCD_BRIGHTNESS_MAX
+      #define LCD_BRIGHTNESS_MAX 255
     #endif
     #ifndef DEFAULT_LCD_BRIGHTNESS
-      #define DEFAULT_LCD_BRIGHTNESS MAX_LCD_BRIGHTNESS
+      #define DEFAULT_LCD_BRIGHTNESS LCD_BRIGHTNESS_MAX
     #endif
     static uint8_t brightness;
     static bool backlight;
+    static void _set_brightness(); // Implementation-specific
     static void set_brightness(const uint8_t value);
     FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
@@ -425,8 +426,9 @@ public:
       static uint8_t lcd_status_update_delay;
 
       #if HAS_LCD_CONTRAST
-        static int16_t contrast;
-        static void set_contrast(const int16_t value);
+        static uint8_t contrast;
+        static void _set_contrast(); // Implementation-specific
+        static void set_contrast(const uint8_t value);
         FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }
       #endif
 

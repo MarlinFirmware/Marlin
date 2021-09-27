@@ -65,7 +65,7 @@ class DWIN_String {
     static void set(uint8_t *string)   { set(); add(string); }
     static void set(wchar_t character) { set(); add(character); }
     static void set(uint8_t *string, int8_t index, const char *itemString=nullptr) { set(); add(string, index, (uint8_t *)itemString); }
-    static inline void set(const __FlashStringHelper *fstring) { set((uint8_t *)fstring); }
+    static inline void set(FSTR_P fstring) { set((uint8_t *)fstring); }
     static inline void set(const char *string) { set((uint8_t *)string); }
     static inline void set(const char *string, int8_t index, const char *itemString=nullptr) { set((uint8_t *)string, index, itemString); }
     static inline void add(const char *string) { add((uint8_t *)string); }
