@@ -237,9 +237,9 @@ void GcodeSuite::dwell(millis_t time) {
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
     #ifdef ACTION_ON_G29_RECOVER
-      host_action(PSTR(ACTION_ON_G29_RECOVER));
+      host_action(F(ACTION_ON_G29_RECOVER));
     #endif
     #ifdef G29_RECOVER_COMMANDS
       process_subcommands_now(F(G29_RECOVER_COMMANDS));
@@ -252,7 +252,7 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_G29_FAILURE));
+      host_action(F(ACTION_ON_G29_FAILURE));
     #endif
     #ifdef G29_FAILURE_COMMANDS
       process_subcommands_now(F(G29_FAILURE_COMMANDS));
