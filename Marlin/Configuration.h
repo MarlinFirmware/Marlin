@@ -390,12 +390,13 @@
   #endif
 #endif
 
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// Offset of additional tools, from tool 0. Uncomment if using more than one tool,
+// and relying on firmware to position when changing.
+// The first offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle
-//#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
-//#define HOTEND_OFFSET_Z { 0.0, 0.00 }  // (mm) relative Z-offset for each nozzle
+//#define TOOL_OFFSET_X { 0.0, 20.00, -11.0 }  // (mm) relative X-offset for each nozzle
+//#define TOOL_OFFSET_Y { 0.0,  5.00,  16.0 }  // (mm) relative Y-offset for each nozzle
+//#define TOOL_OFFSET_Z { 0.0,  0.00,   0.3 }  // (mm) relative Z-offset for each nozzle
 
 // @section machine
 
