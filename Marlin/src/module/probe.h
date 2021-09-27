@@ -78,36 +78,19 @@ public:
         // Return true if the both nozzle and the probe can reach the given point.
         // Note: This won't work on SCARA since the probe offset rotates with the arm.
         static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
-          #if ENABLED(DELTA)
-   		    const float absolute_probing_margin = DELTA_PRINTABLE_RADIUS - (BED_DIAMETER / 2 - BED_MOUNTING_MARGIN);
-		  #endif
           if (probe_relative) {
             return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-                && position_is_reachable(rx, ry, ABS(PROBING_MARGIN));       // Can the probe also go near there?
+                && position_is_reachable(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
 		  }
 		  else {
-            #if ENABLED(DELTA)
-              return position_is_reachable(rx, ry)
-                  && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, absolute_probing_margin);
-		    #else
-              return position_is_reachable(rx, ry)                                                   
-                  && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, ABS(PROBING_MARGIN));
-		    #endif
+            return position_is_reachable(rx, ry)                                                   
+                && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
 		  }
         }
       #else
         static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
-          if (probe_relative) {
-            return position_is_reachable(rx, ry, PROBING_MARGIN);
-		  }
-		  else {
-          #if ENABLED(DELTA)
-            return position_is_reachable(rx, ry)
-                && position_is_reachable(rx, ry, absolute_probing_margin);
-		  #else
-            return position_is_reachable(rx, ry, PROBING_MARGIN);
-		  #endif
-		  }
+          return position_is_reachable(rx, ry)
+			  && position_is_reachable(rx, ry, PROBING_MARGIN);
         }
       #endif
 

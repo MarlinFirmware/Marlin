@@ -281,19 +281,6 @@
 #endif
 
 /**
- * BED_DIAMETER and BED_MOUNTING_MARGIN are required to calculate delta calibration radius (dcr)
- */
-#if ENABLED(DELTA)
-  #ifndef BED_MOUNTING_MARGIN
-    #define BED_MOUNTING_MARGIN 0
-  #endif
-  #ifndef BED_DIAMETER
-    // if ommitted the initial value of dcr defaults to DELTA_PRINTABLE_RADIUS
-    #define BED_DIAMETER ((DELTA_PRINTABLE_RADIUS + BED_MOUNTING_MARGIN) * 2)
-  #endif
-#endif
-
-/**
  * Z Sled Probe requires Z_SAFE_HOMING
  */
 #if ENABLED(Z_PROBE_SLED)

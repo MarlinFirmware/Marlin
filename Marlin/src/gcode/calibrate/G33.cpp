@@ -408,11 +408,10 @@ void GcodeSuite::G33() {
                   towers_set = !parser.seen_test('T');
 
   // The calibration radius is set to a calculated value
-  const float absolute_probing_margin = DELTA_PRINTABLE_RADIUS - (BED_DIAMETER / 2 - BED_MOUNTING_MARGIN);
-  float dcr = probe_at_offset ? DELTA_PRINTABLE_RADIUS : DELTA_PRINTABLE_RADIUS - absolute_probing_margin;
+  float dcr = probe_at_offset ? DELTA_PRINTABLE_RADIUS : DELTA_PRINTABLE_RADIUS - PROBING_MARGIN;
   #if HAS_PROBE_XY_OFFSET
     const float total_offset = HYPOT(probe.offset_xy.x, probe.offset_xy.y);
-    dcr -= probe_at_offset ? _MAX(total_offset, absolute_probing_margin) : total_offset;
+    dcr -= probe_at_offset ? _MAX(total_offset, PROBING_MARGIN) : total_offset;
   #endif
   NOMORE(dcr, DELTA_PRINTABLE_RADIUS);
   if (parser.seenval('R')) dcr -= _MAX(parser.value_float(),0);
