@@ -382,9 +382,9 @@ public:
   }
 
   static void report_echo_start(const bool forReplay);
-  static void report_heading(const bool forReplay, PGM_P const pstr, const bool eol=true);
-  static inline void report_heading_etc(const bool forReplay, PGM_P const pstr, const bool eol=true) {
-    report_heading(forReplay, pstr, eol);
+  static void report_heading(const bool forReplay, FSTR_P const fstr, const bool eol=true);
+  static inline void report_heading_etc(const bool forReplay, FSTR_P const fstr, const bool eol=true) {
+    report_heading(forReplay, fstr, eol);
     report_echo_start(forReplay);
   }
   static void say_units();

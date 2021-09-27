@@ -1727,7 +1727,7 @@ void Temperature::manage_heater() {
   }
 
   void Temperature::M305_report(const uint8_t t_index, const bool forReplay/*=true*/) {
-    gcode.report_heading_etc(forReplay, PSTR(STR_USER_THERMISTORS));
+    gcode.report_heading_etc(forReplay, F(STR_USER_THERMISTORS));
     SERIAL_ECHOPGM("  M305 P", AS_DIGIT(t_index));
 
     const user_thermistor_t &t = user_thermistor[t_index];

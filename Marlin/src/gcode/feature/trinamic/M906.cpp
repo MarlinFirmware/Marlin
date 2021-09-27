@@ -199,7 +199,7 @@ void GcodeSuite::M906() {
 }
 
 void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
-  report_heading(forReplay, PSTR(STR_STEPPER_DRIVER_CURRENT));
+  report_heading(forReplay, F(STR_STEPPER_DRIVER_CURRENT));
 
   auto say_M906 = [](const bool forReplay) {
     report_echo_start(forReplay);

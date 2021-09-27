@@ -139,7 +139,7 @@ void GcodeSuite::M569() {
 }
 
 void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
-  report_heading(forReplay, PSTR(STR_DRIVER_STEPPING_MODE));
+  report_heading(forReplay, F(STR_DRIVER_STEPPING_MODE));
 
   auto say_M569 = [](const bool forReplay, const char * const etc=nullptr, const bool eol=false) {
     if (!forReplay) SERIAL_ECHO_START();

@@ -57,7 +57,7 @@ void GcodeSuite::M413() {
 }
 
 void GcodeSuite::M413_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_POWER_LOSS_RECOVERY));
+  report_heading_etc(forReplay, F(STR_POWER_LOSS_RECOVERY));
   SERIAL_ECHOPGM("  M413 S", AS_DIGIT(recovery.enabled), " ; ");
   serialprintln_onoff(recovery.enabled);
 }
