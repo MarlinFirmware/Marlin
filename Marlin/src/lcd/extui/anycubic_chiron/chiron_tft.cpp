@@ -306,7 +306,7 @@ void ChironTFT::PowerLossRecovery()  {
   printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
   last_error = AC_error_powerloss;
   PlayTune(BEEPER_PIN, SOS, 1);
-  SERIAL_ECHOLNPGM_P(AC_msg_powerloss_recovery);
+  SERIAL_ECHOLNF(AC_msg_powerloss_recovery);
 }
 
 void ChironTFT::PrintComplete() {
@@ -488,7 +488,7 @@ void ChironTFT::ProcessPanelRequest() {
         if (tpos != -1) {
           if (panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
             panel_type = AC_panel_standard;
-            SERIAL_ECHOLNPGM_P(AC_msg_old_panel_detected);
+            SERIAL_ECHOLNF(AC_msg_old_panel_detected);
           }
         }
         else {
@@ -496,7 +496,7 @@ void ChironTFT::ProcessPanelRequest() {
           if (tpos != -1) {
             if (panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
               panel_type = AC_panel_new;
-              SERIAL_ECHOLNPGM_P(AC_msg_new_panel_detected);
+              SERIAL_ECHOLNF(AC_msg_new_panel_detected);
             }
           }
         }
@@ -825,7 +825,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
         if (!isPrinting()) {
           injectCommands_P(PSTR("M501\nM420 S1"));
           selectedmeshpoint.x = selectedmeshpoint.y = 99;
-          SERIAL_ECHOLNPGM_P(AC_msg_mesh_changes_abandoned);
+          SERIAL_ECHOLNF(AC_msg_mesh_changes_abandoned);
         }
       }
 
@@ -833,7 +833,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
         if (!isPrinting()) {
           setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
           injectCommands_P(PSTR("M500"));
-          SERIAL_ECHOLNPGM_P(AC_msg_mesh_changes_saved);
+          SERIAL_ECHOLNF(AC_msg_mesh_changes_saved);
           selectedmeshpoint.x = selectedmeshpoint.y = 99;
         }
       }

@@ -755,10 +755,10 @@ volatile bool Temperature::raw_temps_ready = false;
         SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_FINISHED);
 
         #if EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
-          PGM_P const estring = GHV(PSTR("chamber"), PSTR("bed"), NUL_STR);
-          say_default_(); SERIAL_ECHOPGM_P(estring); SERIAL_ECHOLNPGM("Kp ", tune_pid.Kp);
-          say_default_(); SERIAL_ECHOPGM_P(estring); SERIAL_ECHOLNPGM("Ki ", tune_pid.Ki);
-          say_default_(); SERIAL_ECHOPGM_P(estring); SERIAL_ECHOLNPGM("Kd ", tune_pid.Kd);
+          FSTR_P const estring = GHV(F("chamber"), F("bed"), FPSTR(NUL_STR));
+          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Kp ", tune_pid.Kp);
+          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Ki ", tune_pid.Ki);
+          say_default_(); SERIAL_ECHOF(estring); SERIAL_ECHOLNPGM("Kd ", tune_pid.Kd);
         #else
           say_default_(); SERIAL_ECHOLNPGM("Kp ", tune_pid.Kp);
           say_default_(); SERIAL_ECHOLNPGM("Ki ", tune_pid.Ki);
@@ -1737,21 +1737,21 @@ void Temperature::manage_heater() {
     SERIAL_ECHOPAIR_F_P(SP_B_STR, t.beta, 1);
     SERIAL_ECHOPAIR_F_P(SP_C_STR, t.sh_c_coeff, 9);
     SERIAL_ECHOPGM(" ; ");
-    SERIAL_ECHOPGM_P(
-      TERN_(TEMP_SENSOR_0_IS_CUSTOM, t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :)
-      TERN_(TEMP_SENSOR_1_IS_CUSTOM, t_index == CTI_HOTEND_1 ? PSTR("HOTEND 1") :)
-      TERN_(TEMP_SENSOR_2_IS_CUSTOM, t_index == CTI_HOTEND_2 ? PSTR("HOTEND 2") :)
-      TERN_(TEMP_SENSOR_3_IS_CUSTOM, t_index == CTI_HOTEND_3 ? PSTR("HOTEND 3") :)
-      TERN_(TEMP_SENSOR_4_IS_CUSTOM, t_index == CTI_HOTEND_4 ? PSTR("HOTEND 4") :)
-      TERN_(TEMP_SENSOR_5_IS_CUSTOM, t_index == CTI_HOTEND_5 ? PSTR("HOTEND 5") :)
-      TERN_(TEMP_SENSOR_6_IS_CUSTOM, t_index == CTI_HOTEND_6 ? PSTR("HOTEND 6") :)
-      TERN_(TEMP_SENSOR_7_IS_CUSTOM, t_index == CTI_HOTEND_7 ? PSTR("HOTEND 7") :)
-      TERN_(TEMP_SENSOR_BED_IS_CUSTOM, t_index == CTI_BED ? PSTR("BED") :)
-      TERN_(TEMP_SENSOR_CHAMBER_IS_CUSTOM, t_index == CTI_CHAMBER ? PSTR("CHAMBER") :)
-      TERN_(TEMP_SENSOR_COOLER_IS_CUSTOM, t_index == CTI_COOLER ? PSTR("COOLER") :)
-      TERN_(TEMP_SENSOR_PROBE_IS_CUSTOM, t_index == CTI_PROBE ? PSTR("PROBE") :)
-      TERN_(TEMP_SENSOR_BOARD_IS_CUSTOM, t_index == CTI_BOARD ? PSTR("BOARD") :)
-      TERN_(TEMP_SENSOR_REDUNDANT_IS_CUSTOM, t_index == CTI_REDUNDANT ? PSTR("REDUNDANT") :)
+    SERIAL_ECHOF(
+      TERN_(TEMP_SENSOR_0_IS_CUSTOM, t_index == CTI_HOTEND_0 ? F("HOTEND 0") :)
+      TERN_(TEMP_SENSOR_1_IS_CUSTOM, t_index == CTI_HOTEND_1 ? F("HOTEND 1") :)
+      TERN_(TEMP_SENSOR_2_IS_CUSTOM, t_index == CTI_HOTEND_2 ? F("HOTEND 2") :)
+      TERN_(TEMP_SENSOR_3_IS_CUSTOM, t_index == CTI_HOTEND_3 ? F("HOTEND 3") :)
+      TERN_(TEMP_SENSOR_4_IS_CUSTOM, t_index == CTI_HOTEND_4 ? F("HOTEND 4") :)
+      TERN_(TEMP_SENSOR_5_IS_CUSTOM, t_index == CTI_HOTEND_5 ? F("HOTEND 5") :)
+      TERN_(TEMP_SENSOR_6_IS_CUSTOM, t_index == CTI_HOTEND_6 ? F("HOTEND 6") :)
+      TERN_(TEMP_SENSOR_7_IS_CUSTOM, t_index == CTI_HOTEND_7 ? F("HOTEND 7") :)
+      TERN_(TEMP_SENSOR_BED_IS_CUSTOM, t_index == CTI_BED ? F("BED") :)
+      TERN_(TEMP_SENSOR_CHAMBER_IS_CUSTOM, t_index == CTI_CHAMBER ? F("CHAMBER") :)
+      TERN_(TEMP_SENSOR_COOLER_IS_CUSTOM, t_index == CTI_COOLER ? F("COOLER") :)
+      TERN_(TEMP_SENSOR_PROBE_IS_CUSTOM, t_index == CTI_PROBE ? F("PROBE") :)
+      TERN_(TEMP_SENSOR_BOARD_IS_CUSTOM, t_index == CTI_BOARD ? F("BOARD") :)
+      TERN_(TEMP_SENSOR_REDUNDANT_IS_CUSTOM, t_index == CTI_REDUNDANT ? F("REDUNDANT") :)
       nullptr
     );
     SERIAL_EOL();
