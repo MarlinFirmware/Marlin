@@ -411,6 +411,9 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 
 #if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
+    // don't do a move on a non-extruder tool
+    if (active_extruder >= EXTRUDERS) return;
+
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];
     line_to_current_position(fr_mm_s);
@@ -455,8 +458,11 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
   feedrate_percentage = 100;
 
   #if HAS_EXTRUDERS
-    const float old_fac = planner.e_factor[active_extruder];
-    planner.e_factor[active_extruder] = 1.0f;
+    float old_fac = 1.0f;
+    if (active_extruder < EXTRUDERS) {
+      old_fac = planner.e_factor[active_extruder];
+      planner.e_factor[active_extruder] = 1.0f;
+    }
   #endif
 
   if (TERN0(IS_KINEMATIC, is_fast))
@@ -466,7 +472,11 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 
   feedrate_mm_s = old_feedrate;
   feedrate_percentage = old_pct;
-  TERN_(HAS_EXTRUDERS, planner.e_factor[active_extruder] = old_fac);
+
+  #if HAS_EXTRUDERS
+    if (active_extruder < EXTRUDERS)
+      planner.e_factor[active_extruder] = old_fac;
+  #endif
 }
 
 /**
@@ -1252,22 +1262,24 @@ void prepare_line_to_destination() {
       #endif
 
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
-        if (e_delta > (EXTRUDE_MAXLENGTH)) {
-          #if ENABLED(MIXING_EXTRUDER)
-            float collector[MIXING_STEPPERS];
-            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
-            MIXER_STEPPER_LOOP(e) {
-              if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
-                ignore_e = true;
-                SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-                break;
+        if (active_extruder < EXTRUDERS) {
+          const float e_delta = ABS(destination.e - current_position.e) * planner.e_factor[active_extruder];
+          if (e_delta > (EXTRUDE_MAXLENGTH)) {
+            #if ENABLED(MIXING_EXTRUDER)
+              float collector[MIXING_STEPPERS];
+              mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+              MIXER_STEPPER_LOOP(e) {
+                if (e_delta * collector[e] > (EXTRUDE_MAXLENGTH)) {
+                  ignore_e = true;
+                  SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+                  break;
+                }
               }
-            }
-          #else
-            ignore_e = true;
-            SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
-          #endif
+            #else
+              ignore_e = true;
+              SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
+            #endif
+          }
         }
       #endif
 
