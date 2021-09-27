@@ -3037,7 +3037,7 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_START()       gcode.report_echo_start(forReplay)
   #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
   #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
-  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, PSTR(STR))
+  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, F(STR))
 
   void M92_report(const bool echo=true, const int8_t e=-1);
 
