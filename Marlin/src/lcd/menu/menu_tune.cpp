@@ -65,7 +65,7 @@
       babystep.add_steps(axis, steps);
     }
     if (ui.should_draw()) {
-      const float spm = planner.steps_to_mm[axis];
+      const float spm = planner.mms_per_step[axis];
       MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
         const bool in_view = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));

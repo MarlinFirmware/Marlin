@@ -1682,7 +1682,7 @@ void prepare_line_to_destination() {
       int16_t phaseDelta = (home_phase[axis] - phaseCurrent) * stepperBackoutDir;
 
       // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
-      if (ABS(phaseDelta) * planner.steps_to_mm[axis] / phasePerUStep < 0.05f)
+      if (ABS(phaseDelta) * planner.mms_per_step[axis] / phasePerUStep < 0.05f)
         SERIAL_ECHOLNPGM("Selected home phase ", home_phase[axis],
                          " too close to endstop trigger phase ", phaseCurrent,
                          ". Pick a different phase for ", AS_CHAR(AXIS_CHAR(axis)));
@@ -1691,7 +1691,7 @@ void prepare_line_to_destination() {
       if (phaseDelta < 0) phaseDelta += 1024;
 
       // Convert TMC µsteps(phase) to whole Marlin µsteps to effector backout direction to mm
-      const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.steps_to_mm[axis];
+      const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.mms_per_step[axis];
 
       // Optional debug messages
       if (DEBUGGING(LEVELING)) {
@@ -1999,7 +1999,7 @@ void prepare_line_to_destination() {
       // Delta homing treats the axes as normal linear axes.
 
       const float adjDistance = delta_endstop_adj[axis],
-                  minDistance = (MIN_STEPS_PER_SEGMENT) * planner.steps_to_mm[axis];
+                  minDistance = (MIN_STEPS_PER_SEGMENT) * planner.mms_per_step[axis];
 
       // Retrace by the amount specified in delta_endstop_adj if more than min steps.
       if (adjDistance * (Z_HOME_DIR) < 0 && ABS(adjDistance) > minDistance) { // away from endstop, more than min distance
