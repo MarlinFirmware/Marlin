@@ -114,7 +114,7 @@ class MenuItem_confirm : public MenuItemBase {
     static inline void select_screen(
       PGM_P const yes, PGM_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      PGM_P const pref, const progmem_str string, PGM_P const suff=nullptr
+      PGM_P const pref, FSTR_P const string, PGM_P const suff=nullptr
     ) {
       char str[strlen_P((PGM_P)string) + 1];
       strcpy_P(str, (PGM_P)string);

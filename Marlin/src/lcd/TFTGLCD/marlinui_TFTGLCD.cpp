@@ -376,12 +376,9 @@ void MarlinUI::clear_lcd() {
   lcd.clear_buffer();
 }
 
-int16_t MarlinUI::contrast; // Initialized by settings.load()
-
-void MarlinUI::set_contrast(const int16_t value) {
-  contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-  lcd.setContrast(contrast);
-}
+#if HAS_LCD_CONTRAST
+  void MarlinUI::_set_contrast() { lcd.setContrast(contrast); }
+#endif
 
 static void center_text_P(PGM_P pstart, uint8_t y) {
   uint8_t len = utf8_strlen_P(pstart);

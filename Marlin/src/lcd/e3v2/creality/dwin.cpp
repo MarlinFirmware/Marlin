@@ -363,7 +363,7 @@ void Draw_Title(const char * const title) {
   DWIN_Draw_String(false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char*)title);
 }
 
-void Draw_Title(const __FlashStringHelper * title) {
+void Draw_Title(FSTR_P title) {
   DWIN_Draw_String(false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char*)title);
 }
 
@@ -439,7 +439,7 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
   DWIN_Draw_Line(Line_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
 
-void Draw_Menu_LineF(const uint8_t line, const uint8_t icon=0, const __FlashStringHelper *label=nullptr, bool more=false) {
+void Draw_Menu_LineF(const uint8_t line, const uint8_t icon=0, FSTR_P label=nullptr, bool more=false) {
   Draw_Menu_Line(line, icon, (char*)label, more);
 }
 
@@ -589,7 +589,7 @@ void say_steps_per_mm_en(const uint8_t row) {
 void DWIN_Draw_Label(const uint8_t row, char *string) {
   DWIN_Draw_String(true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(row), string);
 }
-void DWIN_Draw_Label(const uint8_t row, const __FlashStringHelper *title) {
+void DWIN_Draw_Label(const uint8_t row, FSTR_P title) {
   DWIN_Draw_Label(row, (char*)title);
 }
 
@@ -1815,6 +1815,10 @@ void make_name_without_ext(char *dst, char *src, size_t maxlen=MENU_CHAR_LIMIT) 
 void HMI_SDCardInit() { card.cdroot(); }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
+
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
+#endif
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
 

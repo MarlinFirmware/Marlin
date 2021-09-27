@@ -260,8 +260,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_CHAR(*p++);
     }
-    SERIAL_ECHOPGM_P(SP_P_STR, planner.moves_free(),
-                      SP_B_STR, BUFSIZE - length);
+    SERIAL_ECHOPGM_P(SP_P_STR, planner.moves_free(), SP_B_STR, BUFSIZE - length);
   #endif
   SERIAL_EOL();
 }
