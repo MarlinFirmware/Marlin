@@ -543,7 +543,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
 
       // Wait for the heaters to reach the target temperatures
-      ensure_safe_temperature(false);
+      if (TERN1(MANUAL_SWITCHING_TOOLHEAD, thermalManager.heating_enabled)) ensure_safe_temperature(false);
 
       // Show the prompt to continue
       show_continue_prompt(is_reload);
@@ -621,18 +621,19 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     thermalManager.setTargetHotend(targetTemp, active_extruder);
 
   // Load the new filament
-  load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
+  if (slow_load_length != 0 && fast_load_length != 0 && purge_length != 0)
+    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
 
   if (targetTemp > 0) {
     thermalManager.setTargetHotend(targetTemp, active_extruder);
     thermalManager.wait_for_hotend(active_extruder, false);
+
+    // Check Temperature before moving hotend
+    ensure_safe_temperature(DISABLED(BELTPRINTER));
+
+    // Retract to prevent oozing
+    unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
   }
-
-  // Check Temperature before moving hotend
-  ensure_safe_temperature(DISABLED(BELTPRINTER));
-
-  // Retract to prevent oozing
-  unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
     }
@@ -649,20 +650,23 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   }
 
   // Unretract
-  unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+  if (targetTemp > 0) {
+    ensure_safe_temperature(DISABLED(BELTPRINTER));
+    unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
-  // Intelligent resuming
-  #if ENABLED(FWRETRACT)
-    // If retracted before goto pause
-    if (fwretract.retracted[active_extruder])
-      unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
-  #endif
+    // Intelligent resuming
+    #if ENABLED(FWRETRACT)
+      // If retracted before goto pause
+      if (fwretract.retracted[active_extruder])
+        unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+    #endif
 
-  // If resume_position is negative
-  if (resume_position.e < 0) unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
-  #if ADVANCED_PAUSE_RESUME_PRIME != 0
-    unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
-  #endif
+    // If resume_position is negative
+    if (resume_position.e < 0) unscaled_e_move(resume_position.e, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
+    #if ADVANCED_PAUSE_RESUME_PRIME != 0
+      unscaled_e_move(ADVANCED_PAUSE_RESUME_PRIME, feedRate_t(ADVANCED_PAUSE_PURGE_FEEDRATE));
+    #endif
+  }
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
