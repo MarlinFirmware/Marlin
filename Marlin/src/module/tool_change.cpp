@@ -410,35 +410,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     thermalManager.heating_enabled = false;
     thermalManager.disable_all_heaters(); // ?
 
-    if (printingIsActive()) {
-      // use the pause print menu
-      if (pause_print(0.0, current_position, true, 0)) {
-        wait_for_confirmation(false, 2);
-        manual_switching_toolhead_set_new_tool(new_tool);
-        ui.set_status_P(PSTR("Tool Changed"));
-      }
+    if (pause_print(0.0, current_position, true, 0)) {
+      wait_for_confirmation(false, 2);
+      manual_switching_toolhead_set_new_tool(new_tool);
+      ui.set_status_P(PSTR("Tool Changed"));
     } else {
-      // use a normal screen
-      editable.uint8 = new_tool;
-			ui.push_current_screen();
-			ui.goto_screen([]{
-				MenuItem_confirm::select_screen(
-					GET_TEXT(MSG_BUTTON_DONE),
-					GET_TEXT(MSG_BUTTON_CANCEL),
-					[]{
-            manual_switching_toolhead_set_new_tool(editable.uint8);
-            ui.set_status_P(PSTR("Tool Changed"));
-            ui.return_to_status();
-          },
-					[]{
-            ui.set_status_P(PSTR("Tool Change Canceled"));
-            ui.return_to_status();
-          },
-					PSTR("Install tool:"),
-					toolhead_names[editable.uint8],
-					(const char *)nullptr
-				);
-			});
+      // we couldn't pause..?
+      SERIAL_ERROR_MSG("Tool change failed: unable to pause printer.");
+      stop();
     }
 
     thermalManager.heating_enabled = true;

@@ -119,50 +119,27 @@
     return ms_since_tool_change(millis());
   }
 
-  const char tool_name_0[] PROGMEM = TOOL_NAME_0;
-  const char tool_name_1[] PROGMEM = TOOL_NAME_1;
+  #define _TOOL_NAME(T) GET_TEXT(MSG_TOOL_NAME_##T)
+  inline const char* tool_name(int8_t tool) {
+    switch (tool) {
+      case 0:
+        return _TOOL_NAME(0);
+        break;
+      case 1:
+        return _TOOL_NAME(1);
+        break;
 
-  #if SWITCHING_TOOLHEAD_TOOL_QTY > 2
-    const char tool_name_2[] PROGMEM = TOOL_NAME_2;
-  #endif
-  #if SWITCHING_TOOLHEAD_TOOL_QTY > 3
-    const char tool_name_3[] PROGMEM = TOOL_NAME_3;
-  #endif
-  #if SWITCHING_TOOLHEAD_TOOL_QTY > 4
-    const char tool_name_4[] PROGMEM = TOOL_NAME_4;
-  #endif
-  #if SWITCHING_TOOLHEAD_TOOL_QTY > 5
-    const char tool_name_5[] PROGMEM = TOOL_NAME_5;
-  #endif
-  #if SWITCHING_TOOLHEAD_TOOL_QTY > 6
-    const char tool_name_6[] PROGMEM = TOOL_NAME_6;
-  #endif
-  #if SWITCHING_TOOLHEAD_TOOL_QTY > 7
-    const char tool_name_7[] PROGMEM = TOOL_NAME_7;
-  #endif
-
-  PGM_P const toolhead_names[SWITCHING_TOOLHEAD_TOOL_QTY] PROGMEM = {
-    tool_name_0,
-    tool_name_1
-    #if SWITCHING_TOOLHEAD_TOOL_QTY > 2
-      , tool_name_2
-    #endif
-    #if SWITCHING_TOOLHEAD_TOOL_QTY > 3
-      , tool_name_3
-    #endif
-    #if SWITCHING_TOOLHEAD_TOOL_QTY > 4
-      , tool_name_4
-    #endif
-    #if SWITCHING_TOOLHEAD_TOOL_QTY > 5
-      , tool_name_5
-    #endif
-    #if SWITCHING_TOOLHEAD_TOOL_QTY > 6
-      , tool_name_6
-    #endif
-    #if SWITCHING_TOOLHEAD_TOOL_QTY > 7
-      , tool_name_7
-    #endif
-  };
+      OPTCODE(HAS_TOOL_2, case 2: return _TOOL_NAME(2); break);
+      OPTCODE(HAS_TOOL_3, case 3: return _TOOL_NAME(3); break);
+      OPTCODE(HAS_TOOL_4, case 4: return _TOOL_NAME(4); break);
+      OPTCODE(HAS_TOOL_5, case 5: return _TOOL_NAME(5); break);
+      OPTCODE(HAS_TOOL_6, case 6: return _TOOL_NAME(6); break);
+      OPTCODE(HAS_TOOL_7, case 7: return _TOOL_NAME(7); break);
+      default:
+        return "Tool";
+    }
+  }
+  #undef _TOOL_NAME
 #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   void electromagnetic_toolchange_init();
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)

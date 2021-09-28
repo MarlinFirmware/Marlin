@@ -61,7 +61,7 @@ void menu_tool_change_hotend() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    ACTION_ITEM_P(toolhead_names[e], menu_tool_change_action);
+    ACTION_ITEM_P(tool_name(e), menu_tool_change_action);
   }
 
   END_MENU();
@@ -100,7 +100,7 @@ void menu_tool_change_unpowered() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    ACTION_ITEM_P(toolhead_names[e], menu_tool_change_action);
+    ACTION_ITEM_P(tool_name(e), menu_tool_change_action);
   }
 
   END_MENU();
@@ -116,7 +116,7 @@ void menu_tool_change() {
   START_MENU();
 
   // display the current tool
-  STATIC_ITEM_P(toolhead_names[active_extruder], SS_DEFAULT|SS_INVERT);
+  STATIC_ITEM_P(tool_name(active_extruder), SS_DEFAULT|SS_INVERT);
 
   BACK_ITEM(MSG_MAIN);
 

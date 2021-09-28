@@ -1303,11 +1303,35 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Manual Switching Toolhead requirements
  */
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  #if E_STEPPERS != 1 && E_STEPPERS != HOTENDS
+  #if TOOLS < 2
+    #error "MANUAL_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_TOOL_QTY >= 2."
+  #elif TOOLS > 8
+    #error "SWITCHING_TOOLHEAD_TOOL_QTY can not be more than 8."
+  #elif E_STEPPERS != 1 && E_STEPPERS != HOTENDS
     #error "MANUAL_SWITCHING_TOOLHEAD requires either matching hotend/EXTRUDER count, or just one EXTRUDER."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     #error "MANUAL_SWITCHING_TOOLHEAD requires ADVANCED_PAUSE_FEATURE."
   #endif
+
+  #if TOOLS < 8
+    #undef TOOL_NAME_7
+  #endif
+  #if TOOLS < 7
+    #undef TOOL_NAME_6
+  #endif
+  #if TOOLS < 6
+    #undef TOOL_NAME_5
+  #endif
+  #if TOOLS < 5
+    #undef TOOL_NAME_4
+  #endif
+  #if TOOLS < 4
+    #undef TOOL_NAME_3
+  #endif
+  #if TOOLS < 3
+    #undef TOOL_NAME_2
+  #endif
+
 #endif
 
 /**

@@ -558,31 +558,29 @@
   #endif
 
   // Default Tool Names
-  #if DISABLED(SWITCHING_TOOLHEAD_TOOL_NAMES)
-    #ifndef TOOL_NAME_0
-      #define TOOL_NAME_0 TERN(HOTENDS > 0, "Hotend 1", "Tool 1")
-    #endif
-    #ifndef TOOL_NAME_1
-      #define TOOL_NAME_1 TERN(HOTENDS > 1, "Hotend 2", "Tool 2")
-    #endif
-    #ifndef TOOL_NAME_2
-      #define TOOL_NAME_2 TERN(HOTENDS > 2, "Hotend 3", "Tool 3")
-    #endif
-    #ifndef TOOL_NAME_3
-      #define TOOL_NAME_3 TERN(HOTENDS > 3, "Hotend 4", "Tool 4")
-    #endif
-    #ifndef TOOL_NAME_4
-      #define TOOL_NAME_4 TERN(HOTENDS > 4, "Hotend 5", "Tool 5")
-    #endif
-    #ifndef TOOL_NAME_5
-      #define TOOL_NAME_5 TERN(HOTENDS > 5, "Hotend 6", "Tool 6")
-    #endif
-    #ifndef TOOL_NAME_6
-      #define TOOL_NAME_6 TERN(HOTENDS > 6, "Hotend 7", "Tool 7")
-    #endif
-    #ifndef TOOL_NAME_7
-      #define TOOL_NAME_7 TERN(HOTENDS > 7, "Hotend 8", "Tool 8")
-    #endif
+  #ifndef TOOL_NAME_0
+    #define TOOL_NAME_0 TERN(HOTENDS > 0, "Hotend 1", "Tool 1")
+  #endif
+  #ifndef TOOL_NAME_1
+    #define TOOL_NAME_1 TERN(HOTENDS > 1, "Hotend 2", "Tool 2")
+  #endif
+  #ifndef TOOL_NAME_2
+    #define TOOL_NAME_2 TERN(HOTENDS > 2, "Hotend 3", "Tool 3")
+  #endif
+  #ifndef TOOL_NAME_3
+    #define TOOL_NAME_3 TERN(HOTENDS > 3, "Hotend 4", "Tool 4")
+  #endif
+  #ifndef TOOL_NAME_4
+    #define TOOL_NAME_4 TERN(HOTENDS > 4, "Hotend 5", "Tool 5")
+  #endif
+  #ifndef TOOL_NAME_5
+    #define TOOL_NAME_5 TERN(HOTENDS > 5, "Hotend 6", "Tool 6")
+  #endif
+  #ifndef TOOL_NAME_6
+    #define TOOL_NAME_6 TERN(HOTENDS > 6, "Hotend 7", "Tool 7")
+  #endif
+  #ifndef TOOL_NAME_7
+    #define TOOL_NAME_7 TERN(HOTENDS > 7, "Hotend 8", "Tool 8")
   #endif
 
 #endif
