@@ -59,8 +59,7 @@
 #define _KDIAG_  0x36
 #define _MDIAG_  0x37
 #define _ODIAG_  0x38
-#define _PDIAG_  0x39
-#define _QDIAG_  0x3A
+#define _QDIAG_  0x39
 #define _E0DIAG_ 0xE0
 #define _E1DIAG_ 0xE1
 #define _E2DIAG_ 0xE2
@@ -261,7 +260,8 @@
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
-#define CODE_10( A,B,C,D,E,F,G,H,I,J,...) A; B; C; D; E; F; G; H; I; J
+#define CODE_11(A,B,C,D,E,F,G,H,I,J,K,...) A; B; C; D; E; F; G; H; I; J; K
+#define CODE_10(A,B,C,D,E,F,G,H,I,J,...) A; B; C; D; E; F; G; H; I; J
 #define CODE_9( A,B,C,D,E,F,G,H,I,...) A; B; C; D; E; F; G; H; I
 #define CODE_8( A,B,C,D,E,F,G,H,...) A; B; C; D; E; F; G; H
 #define CODE_7( A,B,C,D,E,F,G,...) A; B; C; D; E; F; G
@@ -297,6 +297,8 @@
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 
 // Macros for initializing arrays
+#define LIST_20(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T
+#define LIST_19(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S
 #define LIST_18(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
 #define LIST_17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q
 #define LIST_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P

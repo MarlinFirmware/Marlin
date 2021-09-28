@@ -2239,7 +2239,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (TERN(Z_LATE_ENABLE, 0, block->steps.z)) stepper.enable_axis(Z_AXIS),
       if (block->steps.i) stepper.enable_axis(I_AXIS),
       if (block->steps.j) stepper.enable_axis(J_AXIS),
-      if (block->steps.k) stepper.enable_axis(K_AXIS)
+      if (block->steps.k) stepper.enable_axis(K_AXIS),
       if (block->steps.m) stepper.enable_axis(M_AXIS),
       if (block->steps.o) stepper.enable_axis(O_AXIS),
       if (block->steps.q) stepper.enable_axis(Q_AXIS)
@@ -2256,13 +2256,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (block->steps.k) stepper.enable_axis(K_AXIS);
     #endif
     #if LINEAR_AXES >= 7
-      if (block->steps.m) ENABLE_AXIS_M();
+      if (block->steps.m) stepper.enable_axis(M_AXIS);
     #endif
     #if LINEAR_AXES >= 8
-      if (block->steps.o) ENABLE_AXIS_O();
+      if (block->steps.o) stepper.enable_axis(O_AXIS);
     #endif
     #if LINEAR_AXES >= 9
-      if (block->steps.q) ENABLE_AXIS_Q();
+      if (block->steps.q) stepper.enable_axis(Q_AXIS);
     #endif
   #endif
 

@@ -536,7 +536,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     }
   }
 
-  bool Stepper::disable_extruder(E_TERN_(const uint8_t eindex)) {
+  bool Stepper::disable_extruder(E_TERN_(const uint8_t eindex/*=0*/)) {
     IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr uint8_t eindex = 0);
     mark_axis_disabled(E_AXIS E_OPTARG(eindex));
     const bool can_disable = can_axis_disable(E_AXIS E_OPTARG(eindex));

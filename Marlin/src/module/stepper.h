@@ -253,7 +253,7 @@ typedef struct {
   union {
     ena_mask_t bits;
     struct {
-      bool LINEAR_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1);
+      bool LINEAR_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, M:1, O:1, Q:1);
       #if HAS_EXTRUDERS
         bool LIST_N(EXTRUDERS, E0:1, E1:1, E2:1, E3:1, E4:1, E5:1, E6:1, E7:1);
       #endif
@@ -265,7 +265,7 @@ typedef struct {
 
 // All the stepper enable pins
 constexpr pin_t ena_pins[] = {
-  LINEAR_AXIS_LIST(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN),
+  LINEAR_AXIS_LIST(X_ENABLE_PIN, Y_ENABLE_PIN, Z_ENABLE_PIN, I_ENABLE_PIN, J_ENABLE_PIN, K_ENABLE_PIN, M_ENABLE_PIN, O_ENABLE_PIN, Q_ENABLE_PIN),
   LIST_N(E_STEPPERS, E0_ENABLE_PIN, E1_ENABLE_PIN, E2_ENABLE_PIN, E3_ENABLE_PIN, E4_ENABLE_PIN, E5_ENABLE_PIN, E6_ENABLE_PIN, E7_ENABLE_PIN)
 };
 
@@ -618,7 +618,7 @@ class Stepper {
       static void disable_e_steppers();
     #else
       static inline void enable_extruder() {}
-      static inline bool disable_extruder() {}
+      static inline bool disable_extruder() { return true; }
       static inline void enable_e_steppers() {}
       static inline void disable_e_steppers() {}
     #endif
