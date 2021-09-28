@@ -121,15 +121,17 @@ void menu_tool_change() {
   BACK_ITEM(MSG_MAIN);
 
   #if HOTENDS > 0
-    SUBMENU(MSG_HOTEND, menu_tool_change_hotend);
+    if ( HOTENDS != 1 || active_extruder != (TOOLS-1))
+      SUBMENU(MSG_HOTEND, menu_tool_change_hotend);
+  #endif
+
+  #if UNPOWERED_TOOLS > 0
+    if ( UNPOWERED_TOOLS != 1 || active_extruder != (TOOLS-1))
+      SUBMENU(MSG_TOOL_CHANGE_UNPOWERED, menu_tool_change_unpowered);
   #endif
 
   #if ENABLED(SWITCHING_TOOLHEAD_LASER_SPINDLE)
     SUBMENU(MSG_LASER_SPINDLE, menu_tool_change_laser_spindle);
-  #endif
-
-  #if UNPOWERED_TOOLS > 0
-    SUBMENU(MSG_TOOL_CHANGE_UNPOWERED, menu_tool_change_unpowered);
   #endif
 
   END_MENU();
