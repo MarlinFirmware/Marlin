@@ -1,4 +1,8 @@
 /**
+ * DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo
+ * Version: 3.6.1
+ * Date: 2021/08/29
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -471,7 +475,8 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
   DWIN_Send(i);
 }
 
-// Set LCD Brightness 0x00-0xFF
+// Set LCD backlight
+//  brightness: 0x00-0xFF
 void DWIN_LCD_Brightness(const uint8_t brightness) {
   size_t i = 0;
   DWIN_Byte(i, 0x30);

@@ -1,7 +1,7 @@
 /**
- * Lock screen implementation for DWIN display
+ * DWIN Mesh Viewer
  * Author: Miguel A. Risco-Castillo
- * version: 1.2
+ * version: 2.5
  * Date: 2021/09/27
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,18 +20,9 @@
  */
 #pragma once
 
-#include "../common/encoder.h"
-#include <stdint.h>
-
-class LockScreenClass {
-private:
-  static bool unlocked;
-  static uint8_t lock_pos;
+class MeshViewerClass {
 public:
-  static void init();
-  static void onEncoder(EncoderState encoder_diffState);
-  static void draw();
-  static inline bool isUnlocked() { return unlocked; }
+  void Draw();
 };
 
-extern LockScreenClass lockScreen;
+extern MeshViewerClass MeshViewer;

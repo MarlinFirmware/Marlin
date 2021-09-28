@@ -1,8 +1,8 @@
 /**
  * Lock screen implementation for DWIN display
  * Author: Miguel A. Risco-Castillo
- * version: 1.1
- * Date: 2021/06/14
+ * version: 1.2
+ * Date: 2021/09/27
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -29,15 +29,18 @@
 #include "dwin.h"
 #include "lockscreen.h"
 
-LockScreenClass LockScreen;
+LockScreenClass lockScreen;
 
-void LockScreenClass::Init() {
-  Lock_Pos = 0;
+uint8_t LockScreenClass::lock_pos = 0;
+bool LockScreenClass::unlocked = false;
+
+void LockScreenClass::init() {
+  lock_pos = 0;
   unlocked = false;
-  Draw();
+  draw();
 }
 
-void LockScreenClass::Draw() {
+void LockScreenClass::draw() {
   Title.SetCaption(PSTR("Lock Screen"));
   DWINUI::ClearMenuArea();
   DWINUI::Draw_Icon(ICON_LOGO, 71, 120);  // CREALITY logo
@@ -45,25 +48,20 @@ void LockScreenClass::Draw() {
   DWINUI::Draw_CenteredString(Color_White, 200, F("Scroll to unlock."));
   DWINUI::Draw_CenteredString(Color_White, 240, F("-> | <-"));
   DWIN_Draw_Box(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
-  DWIN_Draw_VLine(Color_Yellow, Lock_Pos * DWIN_WIDTH / 255, 260, 20);
+  DWIN_Draw_VLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
   DWIN_UpdateLCD();
 }
 
-void LockScreenClass::onEncoderState(ENCODER_DiffState encoder_diffState) {
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    Lock_Pos += 8;
-  }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    Lock_Pos -= 8;
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    unlocked = (Lock_Pos == 128);
+void LockScreenClass::onEncoder(EncoderState encoder_diffState) {
+  switch (encoder_diffState) {
+    case ENCODER_DIFF_CW:    lock_pos += 8; break;
+    case ENCODER_DIFF_CCW:   lock_pos -= 8; break;
+    case ENCODER_DIFF_ENTER: unlocked = (lock_pos == 128); break;
+    default: break;
   }
   DWIN_Draw_Box(1, HMI_data.Barfill_Color, 0, 260, DWIN_WIDTH, 20);
-  DWIN_Draw_VLine(Color_Yellow, Lock_Pos * DWIN_WIDTH / 255, 260, 20);
+  DWIN_Draw_VLine(Color_Yellow, lock_pos * DWIN_WIDTH / 255, 260, 20);
   DWIN_UpdateLCD();
 }
-
-bool LockScreenClass::isUnlocked() { return unlocked; }
 
 #endif // DWIN_CREALITY_LCD_ENHANCED

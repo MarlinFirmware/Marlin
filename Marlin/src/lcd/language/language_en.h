@@ -157,6 +157,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Next Corner");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Mesh Editor");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Edit Mesh");
+  PROGMEM Language_Str MSG_MESH_VIEW                       = _UxGT("View Mesh");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Mesh Editing Stopped");
   PROGMEM Language_Str MSG_PROBING_POINT                   = _UxGT("Probing Point");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Index X");
@@ -407,6 +408,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_ADVANCE_K                       = _UxGT("Advance K");
   PROGMEM Language_Str MSG_ADVANCE_K_E                     = _UxGT("Advance K *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD Contrast");
+  PROGMEM Language_Str MSG_BRIGHTNESS                      = _UxGT("LCD Brightness");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Store Settings");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Load Settings");
   PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restore Defaults");

@@ -79,7 +79,7 @@
   #include "lcd/e3v2/creality/rotary_encoder.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
   #include "lcd/e3v2/enhanced/dwin.h"
-  #include "lcd/e3v2/enhanced/rotary_encoder.h"
+  #include "lcd/e3v2/common/encoder.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "lcd/e3v2/jyersui/dwin.h"
   #include "lcd/e3v2/jyersui/rotary_encoder.h"

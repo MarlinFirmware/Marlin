@@ -128,6 +128,9 @@
 
 // Extra Icons
 #define ICON_AdvSet               ICON_Language
+#define ICON_BedSizeX             ICON_PrintSize
+#define ICON_BedSizeY             ICON_PrintSize
+#define ICON_Binary               ICON_Contact
 #define ICON_Brightness           ICON_Motion
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_SetEndTemp
@@ -142,17 +145,29 @@
 #define ICON_HomeOffsetX          ICON_StepX
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
+#define ICON_InvertE0             ICON_StepE
 #define ICON_LevBed               ICON_SetEndTemp
 #define ICON_Lock                 ICON_Cool
 #define ICON_ManualMesh           ICON_HotendTemp
+#define ICON_MaxPosX              ICON_MoveX
+#define ICON_MaxPosY              ICON_MoveY
+#define ICON_MaxPosZ              ICON_MoveZ
 #define ICON_MeshNext             ICON_Axis
+#define ICON_MeshPoints           ICON_SetEndTemp
 #define ICON_MeshSave             ICON_WriteEEPROM
+#define ICON_MeshViewer           ICON_HotendTemp
 #define ICON_MoveZ0               ICON_HotendTemp
 #define ICON_Park                 ICON_Motion
+#define ICON_ParkPos              ICON_AdvSet
+#define ICON_ParkPosX             ICON_StepX
+#define ICON_ParkPosY             ICON_StepY
+#define ICON_ParkPosZ             ICON_StepZ
+#define ICON_PhySet               ICON_PrintSize
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_PIDcycles            ICON_ResumeEEPROM
 #define ICON_PIDNozzle            ICON_SetEndTemp
 #define ICON_PIDValue             ICON_Contact
+#define ICON_ProbeMargin          ICON_PrintSize
 #define ICON_ProbeOffsetX         ICON_StepX
 #define ICON_ProbeOffsetY         ICON_StepY
 #define ICON_ProbeOffsetZ         ICON_StepZ
@@ -207,15 +222,15 @@
 #define Color_Blue            RGB(0,0,31)
 
 // Default UI Colors
-#define Def_Background_Color  Color_Bg_Black
-#define Def_Cursor_color      Rectangle_Color
-#define Def_TitleBg_color     Color_Bg_Blue
+#define Def_Background_Color  RGB( 1, 12,  8)
+#define Def_Cursor_color      RGB(20, 49, 31)
+#define Def_TitleBg_color     RGB( 0, 23, 16)
 #define Def_TitleTxt_color    Color_White
 #define Def_Text_Color        Color_White
 #define Def_Selected_Color    Select_Color
-#define Def_SplitLine_Color   Line_Color
+#define Def_SplitLine_Color   RGB( 0, 23, 16)
 #define Def_Highlight_Color   Color_White
-#define Def_StatusBg_Color    RGB(0,20,20)
+#define Def_StatusBg_Color    RGB( 0, 23, 16)
 #define Def_StatusTxt_Color   Color_Yellow
 #define Def_PopupBg_color     Color_Bg_Window
 #define Def_PopupTxt_Color    Popup_Text_Color
@@ -226,7 +241,7 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color   Color_White
 
-//UI elements defines and constants
+// UI element defines and constants
 #define DWIN_FONT_MENU font8x16
 #define DWIN_FONT_STAT font10x20
 #define DWIN_FONT_HEAD font10x20
@@ -265,7 +280,7 @@ public:
   char caption[32] = "";
   uint8_t frameid = 0;
   rect_t frame = {0};
-  void Draw();
+  void draw();
   void SetCaption(const char * const title);
   inline void SetCaption(const __FlashStringHelper * title) { SetCaption((char *)title); }
   void ShowCaption(const char * const title);
@@ -280,7 +295,7 @@ extern TitleClass Title;
 class MenuItemClass {
 protected:
 public:
-  uint8_t pos = 0;
+  int8_t pos = 0;
   uint8_t icon = 0;
   char caption[32] = "";
   uint8_t frameid = 0;
@@ -293,7 +308,7 @@ public:
   MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   virtual ~MenuItemClass(){};
-  virtual void Draw(int8_t line);
+  virtual void draw(int8_t line);
 };
 
 class MenuItemPtrClass: public MenuItemClass {
@@ -313,7 +328,7 @@ public:
   virtual ~MenuClass(){};
   inline int8_t line() { return selected - topline; };
   inline int8_t line(uint8_t pos) {return pos - topline; };
-  void Draw();
+  void draw();
   void onScroll(bool dir);
   void onClick();
   MenuItemClass* SelectedItem();
@@ -327,22 +342,22 @@ namespace DWINUI {
   extern uint16_t backcolor;
   extern uint8_t  font;
 
-  extern void (*onCursorErase)(uint8_t line);
-  extern void (*onCursorDraw)(uint8_t line);
+  extern void (*onCursorErase)(const int8_t line);
+  extern void (*onCursorDraw)(const int8_t line);
   extern void (*onTitleDraw)(TitleClass* title);
   extern void (*onMenuDraw)(MenuClass* menu);
 
   // DWIN LCD Initialization
-  void Init(void);
+  void init();
 
   // Set text/number font
-  void SetFont(uint8_t cfont);
+  void setFont(uint8_t cfont);
 
   // Get font character width
-  uint8_t Get_font_width(uint8_t cfont);
+  uint8_t fontWidth(uint8_t cfont);
 
   // Get font character heigh
-  uint8_t Get_font_height(uint8_t cfont);
+  uint8_t fontHeight(uint8_t cfont);
 
   // Get screen x coodinates from text column
   uint16_t ColToX(uint8_t col);
@@ -401,7 +416,7 @@ namespace DWINUI {
   }
   inline void Draw_Int(uint8_t iNum, long value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, cursor.x, cursor.y, value);
-    MoveBy(iNum * Get_font_width(font), 0);
+    MoveBy(iNum * fontWidth(font), 0);
   }
   inline void Draw_Int(uint8_t iNum, uint16_t x, uint16_t y, long value) {
     DWIN_Draw_IntValue(false, true, 0, font, textcolor, backcolor, iNum, x, y, value);
@@ -432,7 +447,7 @@ namespace DWINUI {
   }
   inline void Draw_Float(uint8_t iNum, uint8_t fNum, float value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum,  cursor.x, cursor.y, value);
-    MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
+    MoveBy((iNum + fNum + 1) * fontWidth(font), 0);
   }
   inline void Draw_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     DWIN_Draw_FloatValue(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
@@ -460,7 +475,7 @@ namespace DWINUI {
   void Draw_Signed_Float(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value);
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, float value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, cursor.x, cursor.y, value);
-    MoveBy((iNum + fNum + 1) * Get_font_width(font), 0);
+    MoveBy((iNum + fNum + 1) * fontWidth(font), 0);
   }
   inline void Draw_Signed_Float(uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, float value) {
     Draw_Signed_Float(false, true, 0, font, textcolor, backcolor, iNum, fNum, x, y, value);
@@ -551,7 +566,7 @@ namespace DWINUI {
 
   // Draw a circle
   //  Color: circle color
-  //  x: the abscissa of the center of the circle
+  //  x: abscissa of the center of the circle
   //  y: ordinate of the center of the circle
   //  r: circle radius
   void Draw_Circle(uint16_t color, uint16_t x,uint16_t y,uint8_t r);
@@ -572,7 +587,7 @@ namespace DWINUI {
   // Color Interpolator
   //  val : Interpolator minv..maxv
   //  minv : Minimum value
-  //  maxv : Maximun value
+  //  maxv : Maximum value
   //  color1 : Start color
   //  color2 : End color
   uint16_t ColorInt(int16_t val, int16_t minv, int16_t maxv, uint16_t color1, uint16_t color2);
@@ -581,7 +596,7 @@ namespace DWINUI {
 
   // Draw a circle filled with color
   //  bcolor: fill color
-  //  x: the abscissa of the center of the circle
+  //  x: abscissa of the center of the circle
   //  y: ordinate of the center of the circle
   //  r: circle radius
   void Draw_FillCircle(uint16_t bcolor, uint16_t x,uint16_t y,uint8_t r);
@@ -592,7 +607,7 @@ namespace DWINUI {
   // Color Interpolator through Red->Yellow->Green->Blue
   //  val : Interpolator minv..maxv
   //  minv : Minimum value
-  //  maxv : Maximun value
+  //  maxv : Maximum value
   uint16_t RainbowInt(int16_t val, int16_t minv, int16_t maxv);
 
   // Write buffer data to the SRAM
@@ -619,7 +634,7 @@ namespace DWINUI {
   void MenuItemsClear();
 
   // Prepare MenuItems array
-  void MenuItemsPrepare(uint8_t totalitems);
+  void MenuItemsPrepare(int8_t totalitems);
 
   // Add elements to the MenuItems array
   MenuItemClass* MenuItemsAdd(MenuItemClass* menuitem);

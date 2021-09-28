@@ -1,13 +1,13 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License, or
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,27 +15,25 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /*****************************************************************************
- * @file     lcd/e3v2/enhanced/rotary_encoder.cpp
- * @author   LEO / Creality3D
- * @date     2019/07/06
- * @version  2.0.1
+ * @file     lcd/e3v2/common/encoder.cpp
  * @brief    Rotary encoder functions
  *****************************************************************************/
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+#if HAS_DWIN_E3V2
 
-#include "rotary_encoder.h"
+#include "encoder.h"
 #include "../../buttons.h"
 
 #include "../../../MarlinCore.h"
+#include "../../marlinui.h"
 #include "../../../HAL/shared/Delay.h"
 
 #if HAS_BUZZER
@@ -48,16 +46,12 @@
   #define ENCODER_PULSES_PER_STEP 4
 #endif
 
-#if ENABLED(SOUND_MENU_ITEM)
-  #include "../../marlinui.h"
-#endif
-
 ENCODER_Rate EncoderRate;
 
-// Buzzer
+// TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
   #if PIN_EXISTS(BEEPER)
-    if (TERN1(SOUND_MENU_ITEM, ui.buzzer_enabled)) {
+    if (ui.buzzer_enabled) {
       WRITE(BEEPER_PIN, HIGH);
       delay(10);
       WRITE(BEEPER_PIN, LOW);
@@ -77,18 +71,18 @@ void Encoder_Configuration() {
     SET_INPUT_PULLUP(BTN_ENC);
   #endif
   #if PIN_EXISTS(BEEPER)
-    SET_OUTPUT(BEEPER_PIN);
+    SET_OUTPUT(BEEPER_PIN);     // TODO: Use buzzer.h which already inits this
   #endif
 }
 
 // Analyze encoder value and return state
-ENCODER_DiffState Encoder_ReceiveAnalyze() {
+EncoderState Encoder_ReceiveAnalyze() {
   const millis_t now = millis();
   static uint8_t lastEncoderBits;
   uint8_t newbutton = 0;
   static signed char temp_diff = 0;
 
-  ENCODER_DiffState temp_diffState = ENCODER_DIFF_NO;
+  EncoderState temp_diffState = ENCODER_DIFF_NO;
   if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
   if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
   if (BUTTON_PRESSED(ENC)) {
@@ -99,6 +93,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
+      if (!ui.backlight) ui.refresh_brightness();
       const bool was_waiting = wait_for_user;
       wait_for_user = false;
       return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
@@ -128,8 +123,8 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
   }
 
   if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
-    if (temp_diff > 0) temp_diffState = ENCODER_DIFF_CW;
-    else temp_diffState = ENCODER_DIFF_CCW;
+    if (temp_diff > 0) temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW);
+    else temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW, ENCODER_DIFF_CCW);
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -147,7 +142,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
                if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC) encoderMultiplier = 100;
           else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)  encoderMultiplier = 10;
           #if ENCODER_5X_STEPS_PER_SEC
-          else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)   encoderMultiplier = 5;
+            else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC) encoderMultiplier = 5;
           #endif
         }
         EncoderRate.lastEncoderTime = ms;
@@ -261,4 +256,4 @@ ENCODER_DiffState Encoder_ReceiveAnalyze() {
 
 #endif // LCD_LED
 
-#endif // DWIN_CREALITY_LCD_ENHANCED
+#endif // HAS_DWIN_E3V2
