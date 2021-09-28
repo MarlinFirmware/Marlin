@@ -25,6 +25,7 @@
 //
 
 #include "../../inc/MarlinConfigPre.h"
+#include "../../MarlinCore.h"
 
 #if HAS_LCD_MENU && ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
@@ -34,7 +35,12 @@
 #include "../../feature/pause.h"
 #include "../../gcode/queue.h"
 
-inline void menu_tool_change_action() {
+/**
+ * Inject a toolchange gcode (Tn) using the editable.uint8 field,
+ * and then return to the status screen.
+ *
+ */
+inline void inject_toolchange_gcode() {
   char tgc[3] = { '\0' };
   const char n = editable.uint8 + '0';
   sprintf_P(tgc, PSTR("T%c"), n);
@@ -61,7 +67,14 @@ void menu_tool_change_hotend() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    ACTION_ITEM_P(tool_name(e), menu_tool_change_action);
+    if (printingIsActive()) {
+      CONFIRM_ITEM_P(PSTR("Change Tool?"),
+        MSG_YES, MSG_NO,
+        inject_toolchange_gcode, ui.goto_previous_screen,
+        PSTR("Change Tool?"), (const char *)nullptr, PSTR("?"));
+    } else {
+      ACTION_ITEM_P(tool_name(e), inject_toolchange_gcode);
+    }
   }
 
   END_MENU();
@@ -100,7 +113,14 @@ void menu_tool_change_unpowered() {
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
-    ACTION_ITEM_P(tool_name(e), menu_tool_change_action);
+    if (printingIsActive()) {
+      CONFIRM_ITEM_P(PSTR("Change Tool?"),
+        MSG_YES, MSG_NO,
+        inject_toolchange_gcode, ui.goto_previous_screen,
+        PSTR("Change Tool?"), (const char *)nullptr, PSTR("?"));
+    } else {
+      ACTION_ITEM_P(tool_name(e), inject_toolchange_gcode);
+    }
   }
 
   END_MENU();
