@@ -32,7 +32,7 @@
  */
 void GcodeSuite::M250() {
   if (parser.seenval('C'))
-    ui.set_contrast(parser.value_int());
+    ui.set_contrast(parser.value_byte());
   else
     M250_report();
 }

@@ -64,8 +64,8 @@ void AlertDialogBox::hide() {
 }
 
 template void AlertDialogBox::show(const char *);
-template void AlertDialogBox::show(progmem_str);
+template void AlertDialogBox::show(FSTR_P);
 template void AlertDialogBox::showError(const char *);
-template void AlertDialogBox::showError(progmem_str);
+template void AlertDialogBox::showError(FSTR_P);
 
 #endif // FTDI_ALERT_DIALOG_BOX

@@ -500,6 +500,20 @@
   #define HAS_DWIN_E3V2 1
 #endif
 
+// E3V2 extras
+#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+  #define SERIAL_CATCHALL 0
+  #ifndef LCD_SERIAL_PORT
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+      #define LCD_SERIAL_PORT 1
+    #else
+      #define LCD_SERIAL_PORT 3 // Creality 4.x board
+    #endif
+  #endif
+  #define HAS_LCD_BRIGHTNESS 1
+  #define LCD_BRIGHTNESS_MAX 250
+#endif
+
 #if IS_ULTRA_LCD
   #define HAS_WIRED_LCD 1
   #if ENABLED(DOGLCD)
@@ -573,6 +587,8 @@
  *  HOTENDS      - Number of hotends, whether connected or separate
  *  E_STEPPERS   - Number of actual E stepper motors
  *  E_MANUAL     - Number of E steppers for LCD move options
+ *
+ * These defines must be simple constants for use in REPEAT, etc.
  */
 #if EXTRUDERS
   #define HAS_EXTRUDERS 1
@@ -591,9 +607,14 @@
   #undef DISABLE_E
 #endif
 
+#define E_OPTARG(N) OPTARG(HAS_MULTI_EXTRUDER, N)
+#define E_TERN_(N)  TERN_(HAS_MULTI_EXTRUDER, N)
+#define E_TERN0(N)  TERN0(HAS_MULTI_EXTRUDER, N)
+
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
   #define E_STEPPERS      2
+  #define E_MANUAL        1
 
 #elif ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
 
@@ -623,7 +644,8 @@
 
 #elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
 
-  #define E_STEPPERS 1
+  #define E_STEPPERS      1
+  #define E_MANUAL        1
 
 #endif
 
@@ -1124,17 +1146,6 @@
 #endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
-#endif
-
-#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
-  #define SERIAL_CATCHALL 0
-  #ifndef LCD_SERIAL_PORT
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
-      #define LCD_SERIAL_PORT 1
-    #else
-      #define LCD_SERIAL_PORT 3 // Creality 4.x board
-    #endif
-  #endif
 #endif
 
 // Fallback Stepper Driver types that don't depend on Configuration_adv.h

@@ -98,6 +98,7 @@ void disp_det_ok() {
   lv_obj_set_style(det_info, &det_style);
   lv_label_set_text(det_info, "det:ok");
 }
+
 void disp_det_error() {
   det_style.text.color.full = 0xF800;
   lv_obj_set_style(det_info, &det_style);

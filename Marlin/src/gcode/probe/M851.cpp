@@ -94,7 +94,7 @@ void GcodeSuite::M851_report(const bool forReplay/*=true*/) {
       PSTR("  M851 X0 Y0 Z")
     #endif
     , LINEAR_UNIT(probe.offset.z)
-    , " ;"
+    , PSTR(" ;")
   );
   say_units();
 }

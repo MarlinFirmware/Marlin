@@ -37,6 +37,7 @@
 #include "FileNavigator.h"
 
 #include "../../../gcode/queue.h"
+#include "../../../module/stepper.h"
 #include "../../../sd/cardreader.h"
 #include "../../../libs/numtostr.h"
 #include "../../../MarlinCore.h"
@@ -665,7 +666,7 @@ void ChironTFT::PanelAction(uint8_t req) {
 
     case 19:   // A19 Motors off
       if (!isPrinting()) {
-        disable_all_steppers(); // from marlincore.h
+        stepper.disable_all_steppers();
         SendtoTFTLN(AC_msg_ready);
       }
       break;

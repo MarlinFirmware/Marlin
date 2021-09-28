@@ -352,7 +352,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_LCD_CONTRAST
   //
-  int16_t lcd_contrast;                                 // M250 C
+  uint8_t lcd_contrast;                                 // M250 C
 
   //
   // HAS_LCD_BRIGHTNESS
@@ -557,7 +557,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
-  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
   planner.refresh_positioning();
 
@@ -1017,7 +1017,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(lcd_contrast);
-      const int16_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
+      const uint8_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
       EEPROM_WRITE(lcd_contrast);
     }
 
@@ -1902,7 +1902,7 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(lcd_contrast);
-        int16_t lcd_contrast;
+        uint8_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
         if (!validating) {
           TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
@@ -3323,7 +3323,7 @@ void MarlinSettings::reset() {
     //
     // Tool-changing Parameters
     //
-    TERN_(HAS_MULTI_EXTRUDER, gcode.M217_report(forReplay));
+    E_TERN_(gcode.M217_report(forReplay));
 
     //
     // Backlash Compensation

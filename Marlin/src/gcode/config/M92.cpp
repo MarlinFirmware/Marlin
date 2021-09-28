@@ -76,7 +76,7 @@ void GcodeSuite::M92() {
     if (parser.seen('H') || wanted) {
       const uint16_t argH = parser.ushortval('H'),
                      micro_steps = argH ?: Z_MICROSTEPS;
-      const float z_full_step_mm = micro_steps * planner.steps_to_mm[Z_AXIS];
+      const float z_full_step_mm = micro_steps * planner.mm_per_step[Z_AXIS];
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("{ micro_steps:", micro_steps, ", z_full_step_mm:", z_full_step_mm);
       if (wanted) {

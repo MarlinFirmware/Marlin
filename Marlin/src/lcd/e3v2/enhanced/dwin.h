@@ -222,6 +222,9 @@ void DWIN_RebootScreen();
 // Utility and extensions
 void HMI_LockScreen();
 void DWIN_LockScreen(const bool flag = true);
+#if HAS_MESH
+  void DWIN_MeshViewer();
+#endif
 
 // HMI user control functions
 void HMI_Menu();

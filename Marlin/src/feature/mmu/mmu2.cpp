@@ -35,7 +35,7 @@ MMU2 mmu2;
 #include "../../libs/nozzle.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
-#include "../../module/stepper/indirection.h"
+#include "../../module/stepper.h"
 #include "../../MarlinCore.h"
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -486,7 +486,7 @@ static void mmu2_not_responding() {
 
     if (index != extruder) {
 
-      DISABLE_AXIS_E0();
+      stepper.disable_extruder();
       ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
 
       command(MMU_CMD_T0 + index);
@@ -495,7 +495,7 @@ static void mmu2_not_responding() {
       if (load_to_gears()) {
         extruder = index; // filament change is finished
         active_extruder = 0;
-        ENABLE_AXIS_E0();
+        stepper.enable_extruder();
         SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, extruder);
       }
       ui.reset_status();
@@ -531,13 +531,13 @@ static void mmu2_not_responding() {
           #if ENABLED(MMU2_MENUS)
             planner.synchronize();
             const uint8_t index = mmu2_choose_filament();
-            DISABLE_AXIS_E0();
+            stepper.disable_extruder();
             command(MMU_CMD_T0 + index);
             manage_response(true, true);
 
             if (load_to_gears()) {
               mmu_loop();
-              ENABLE_AXIS_E0();
+              stepper.enable_extruder();
               extruder = index;
               active_extruder = 0;
             }
@@ -566,7 +566,7 @@ static void mmu2_not_responding() {
     set_runout_valid(false);
 
     if (index != extruder) {
-      DISABLE_AXIS_E0();
+      stepper.disable_extruder();
       if (FILAMENT_PRESENT()) {
         DEBUG_ECHOLNPGM("Unloading\n");
         mmu_loading_flag = false;
@@ -582,7 +582,7 @@ static void mmu2_not_responding() {
       extruder = index;
       active_extruder = 0;
 
-      ENABLE_AXIS_E0();
+      stepper.enable_extruder();
       SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, extruder);
 
       ui.reset_status();
@@ -620,14 +620,14 @@ static void mmu2_not_responding() {
         #if ENABLED(MMU2_MENUS)
           planner.synchronize();
           uint8_t index = mmu2_choose_filament();
-          DISABLE_AXIS_E0();
+          stepper.disable_extruder();
           command(MMU_CMD_T0 + index);
           manage_response(true, true);
           mmu_continue_loading();
           command(MMU_CMD_C0);
           mmu_loop();
 
-          ENABLE_AXIS_E0();
+          stepper.enable_extruder();
           extruder = index;
           active_extruder = 0;
         #else
@@ -670,14 +670,14 @@ static void mmu2_not_responding() {
     set_runout_valid(false);
 
     if (index != extruder) {
-      DISABLE_AXIS_E0();
+      stepper.disable_extruder();
       ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
       command(MMU_CMD_T0 + index);
       manage_response(true, true);
       command(MMU_CMD_C0);
       extruder = index; //filament change is finished
       active_extruder = 0;
-      ENABLE_AXIS_E0();
+      stepper.enable_extruder();
       SERIAL_ECHO_MSG(STR_ACTIVE_EXTRUDER, extruder);
       ui.reset_status();
     }
@@ -714,13 +714,13 @@ static void mmu2_not_responding() {
         #if ENABLED(MMU2_MENUS)
           planner.synchronize();
           uint8_t index = mmu2_choose_filament();
-          DISABLE_AXIS_E0();
+          stepper.disable_extruder();
           command(MMU_CMD_T0 + index);
           manage_response(true, true);
           command(MMU_CMD_C0);
           mmu_loop();
 
-          ENABLE_AXIS_E0();
+          stepper.enable_extruder();
           extruder = index;
           active_extruder = 0;
         #else
@@ -912,7 +912,7 @@ bool MMU2::load_filament_to_nozzle(const uint8_t index) {
     return false;
   }
 
-  DISABLE_AXIS_E0();
+  stepper.disable_extruder();
   command(MMU_CMD_T0 + index);
   manage_response(true, true);
 
@@ -950,7 +950,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
 
   LCD_MESSAGEPGM(MSG_MMU2_EJECTING_FILAMENT);
 
-  ENABLE_AXIS_E0();
+  stepper.enable_extruder();
   current_position.e -= MMU2_FILAMENTCHANGE_EJECT_FEED;
   line_to_current_position(MMM_TO_MMS(2500));
   planner.synchronize();
@@ -979,7 +979,7 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
 
   BUZZ(200, 404);
 
-  DISABLE_AXIS_E0();
+  stepper.disable_extruder();
 
   return true;
 }
@@ -1016,7 +1016,7 @@ bool MMU2::unload() {
 void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
 
   planner.synchronize();
-  ENABLE_AXIS_E0();
+  stepper.enable_extruder();
 
   const E_Step* step = sequence;
 
@@ -1034,7 +1034,7 @@ void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
     step++;
   }
 
-  DISABLE_AXIS_E0();
+  stepper.disable_extruder();
 }
 
 #endif // HAS_PRUSA_MMU2
