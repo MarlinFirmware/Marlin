@@ -251,17 +251,17 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   void Probe::set_probing_paused(const bool dopause) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
-    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) disable_e_steppers());
+    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
     #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
       static uint8_t old_trusted;
       if (dopause) {
         old_trusted = axis_trusted;
-        DISABLE_AXIS_X();
-        DISABLE_AXIS_Y();
+        stepper.disable_axis(X_AXIS);
+        stepper.disable_axis(Y_AXIS);
       }
       else {
-        if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
-        if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
+        if (TEST(old_trusted, X_AXIS)) stepper.enable_axis(X_AXIS);
+        if (TEST(old_trusted, Y_AXIS)) stepper.enable_axis(Y_AXIS);
         axis_trusted = old_trusted;
       }
     #endif

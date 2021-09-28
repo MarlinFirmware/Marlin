@@ -1529,10 +1529,34 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 
   #if ENABLED(BLTOUCH)
+
+    // BLTouch can't run in 5V mode with a 3.3V probe pin
+    #if ENABLED(BLTOUCH_SET_5V_MODE)
+      #define _5V(P,A,B) WITHIN(P,A,B)
+      #ifdef STM32F1            // STM32F103 5V-tolerant pins
+        #define _IS_5V_TOLERANT(P) (_5V(P,PA8,PA15) || _5V(P,PB2,PB15) || _5V(P,PC6,PC12) || _5V(P,PD0,PD15) || _5V(P,PE0,PE15) || _5V(P,PF0,PF5) || _5V(P,PF11,PF15))
+      #elif defined(ARDUINO_ARCH_SAM)
+        #define _IS_5V_TOLERANT(P) 0 // Assume no 5V tolerance
+      #else
+        #define _IS_5V_TOLERANT(P) 1 // Assume 5V tolerance
+      #endif
+      #if USES_Z_MIN_PROBE_PIN && !_IS_5V_TOLERANT(Z_MIN_PROBE_PIN)
+        #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PROBE_PIN."
+      #elif !_IS_5V_TOLERANT(Z_MIN_PIN)
+        #error "BLTOUCH_SET_5V_MODE is not compatible with the Z_MIN_PIN."
+      #endif
+      #undef _IS_5V_TOLERANT
+      #undef _5V
+    #elif NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
+      #if USES_Z_MIN_PROBE_PIN
+        #error "BLTOUCH on Z_MIN_PROBE_PIN requires ENDSTOPPULLUP_ZMIN_PROBE, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
+      #else
+        #error "BLTOUCH on Z_MIN_PIN requires ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUPS, or BLTOUCH_SET_5V_MODE."
+      #endif
+    #endif
+
     #if BLTOUCH_DELAY < 200
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
-    #elif DISABLED(BLTOUCH_SET_5V_MODE) && NONE(ONBOARD_ENDSTOPPULLUPS, ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN, ENDSTOPPULLUP_ZMIN_PROBE)
-      #error "BLTOUCH without BLTOUCH_SET_5V_MODE requires ENDSTOPPULLUPS, ENDSTOPPULLUP_ZMIN or ENDSTOPPULLUP_ZMIN_PROBE."
     #endif
   #endif
 
