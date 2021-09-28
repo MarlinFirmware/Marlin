@@ -33,6 +33,7 @@
 #include "../../../core/language.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
+#include "../../../module/stepper.h"
 #include "../../../gcode/queue.h"
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../../feature/pause.h"
@@ -375,10 +376,10 @@ void DGUSRxHandler::Steppers(DGUS_VP &vp, void *data_ptr) {
 
   switch (control) {
     case DGUS_Data::Control::ENABLE:
-      enable_all_steppers();
+      stepper.enable_all_steppers();
       break;
     case DGUS_Data::Control::DISABLE:
-      disable_all_steppers();
+      stepper.disable_all_steppers();
       break;
   }
 
@@ -553,7 +554,7 @@ void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
     case DGUS_Data::Extruder::E0:
-    TERN_(HAS_MULTI_EXTRUDER, case DGUS_Data::Extruder::E1:)
+    E_TERN_(case DGUS_Data::Extruder::E1:)
       dgus_screen_handler.filament_extruder = extruder;
       break;
   }
