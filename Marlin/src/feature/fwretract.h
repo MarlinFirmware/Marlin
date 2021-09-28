@@ -74,7 +74,7 @@ public:
     #endif
   }
 
-  static void retract(const bool retracting OPTARG(HAS_MULTI_EXTRUDER, bool swapping = false));
+  static void retract(const bool retracting E_OPTARG(bool swapping=false));
 
   static void M207_report();
   static void M207();

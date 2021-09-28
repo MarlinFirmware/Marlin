@@ -879,7 +879,7 @@ private:
 
   #if ENABLED(PIDTEMP)
     static void M301();
-    static void M301_report(const bool forReplay=true, const int8_t eindex=-1);
+    static void M301_report(const bool forReplay=true E_OPTARG(const int8_t eindex=-1));
   #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
