@@ -286,33 +286,38 @@
  * Wham Bam MUTANT. Toolheads are manually docked/locked,
  * and all use the same heater/sensor pins when switched.
  *
- */
+ * You may also desire to enable/check the following:
+ *  - DISTINCT_E_FACTORS and the related settings
+ *  - PID_PARAMS_PER_HOTEND
+ *  - TOOL_OFFSET_[XYZ]
+ *  - Tool Change settings in Configuration_adv.h
+
+*/
 //#define MANUAL_SWITCHING_TOOLHEAD
 
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   /**
    * Number of tools that are being set up. The type of tool (i.e. hotend, unpowered tool)
    * is dependent on if a TEMP_SENSOR_n is defined for each tool. Hotends must come first,
-   * so start with TEMP_SENSOR_0. You may also desire to enable DISTINCT_E_FACTORS and the
-   * related settings, as well as PID_PARAMS_PER_HOTEND.
+   * so start with TEMP_SENSOR_0.
    *
    * Do not include laser/spindle in this count. Enabling LASER_FEATURE/SPINDLE_FEATURE
    * will add the appropriate tool.
    */
   #define SWITCHING_TOOLHEAD_TOOL_QTY 4
 
-  // Define the names of Hotends/Unpowered tools. Optional.
-  //#define SWITCHING_TOOLHEAD_TOOL_NAMES
-  #if ENABLED(SWITCHING_TOOLHEAD_TOOL_NAMES)
-    #define TOOL_NAME_0 "Tool 0"
-    #define TOOL_NAME_1 "Tool 1"
-    #define TOOL_NAME_2 "Tool 2"
-    #define TOOL_NAME_3 "Tool 3"
-    #define TOOL_NAME_4 "Tool 4"
-    #define TOOL_NAME_5 "Tool 5"
-    #define TOOL_NAME_6 "Tool 6"
-    #define TOOL_NAME_7 "Tool 7"
-  #endif
+  /**
+   * Define the names of Hotends/Unpowered tools. Optional.
+   * Default to "Hotend #"/"Tool #" as appropriate.
+   */
+  //#define TOOL_NAME_0 "Tool 0"
+  //#define TOOL_NAME_1 "Tool 1"
+  //#define TOOL_NAME_2 "Tool 2"
+  //#define TOOL_NAME_3 "Tool 3"
+  //#define TOOL_NAME_4 "Tool 4"
+  //#define TOOL_NAME_5 "Tool 5"
+  //#define TOOL_NAME_6 "Tool 6"
+  //#define TOOL_NAME_7 "Tool 7"
 #endif
 
 /**
