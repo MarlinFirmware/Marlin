@@ -186,7 +186,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
-    TERN_(HAS_MULTI_EXTRUDER, info.active_extruder = active_extruder);
+    E_TERN_(info.active_extruder = active_extruder);
 
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;

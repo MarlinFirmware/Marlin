@@ -48,10 +48,10 @@
 void GcodeSuite::M301() {
   // multi-extruder PID patch: M301 updates or prints a single extruder's PID values
   // default behavior (omitting E parameter) is to update for extruder 0 only
-  int8_t e = parser.byteval('E', -1); // extruder being updated
+  int8_t e = E_TERN0(parser.byteval('E', -1)); // extruder being updated
 
   if (!parser.seen("PID" TERN_(PID_EXTRUSION_SCALING, "CL") TERN_(PID_FAN_SCALING, "F")))
-    return M301_report(true, e);
+    return M301_report(true E_OPTARG(e));
 
   if (e == -1) e = 0;
 
@@ -78,8 +78,9 @@ void GcodeSuite::M301() {
     SERIAL_ERROR_MSG(STR_INVALID_EXTRUDER);
 }
 
-void GcodeSuite::M301_report(const bool forReplay/*=true*/, const int8_t eindex/*=-1*/) {
+void GcodeSuite::M301_report(const bool forReplay/*=true*/ E_OPTARG(const int8_t eindex/*=-1*/)) {
   report_heading(forReplay, PSTR(STR_HOTEND_PID));
+  IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr int8_t eindex = -1);
   HOTEND_LOOP() {
     if (e == eindex || eindex == -1) {
       report_echo_start(forReplay);

@@ -254,6 +254,10 @@ void MarlinUI::draw_status_message(const bool blink) {
   #endif
 }
 
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
+#endif
+
 #if HAS_LCD_MENU
 
   #include "../../menu/menu.h"
