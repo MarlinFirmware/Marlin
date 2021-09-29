@@ -112,7 +112,7 @@ void event_filament_runout(const uint8_t extruder) {
       // Legacy Repetier command for use until newer version supports standard dialog
       // To be removed later when pause command also triggers dialog
       #ifdef ACTION_ON_FILAMENT_RUNOUT
-        hostui.action(PSTR(ACTION_ON_FILAMENT_RUNOUT " T"), false);
+        hostui.action(F(ACTION_ON_FILAMENT_RUNOUT " T"), false);
         SERIAL_CHAR(tool);
         SERIAL_EOL();
       #endif
