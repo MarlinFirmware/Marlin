@@ -2094,7 +2094,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       steps_dist_mm.c = dc * mm_per_step[C_AXIS],
       steps_dist_mm.i = di * mm_per_step[I_AXIS],
       steps_dist_mm.j = dj * mm_per_step[J_AXIS],
-      steps_dist_mm.k = dk * mm_per_step[K_AXIS]
+      steps_dist_mm.k = dk * mm_per_step[K_AXIS],
       steps_dist_mm.m = dmv * mm_per_step[M_AXIS],
       steps_dist_mm.o = dov * mm_per_step[O_AXIS],
       steps_dist_mm.q = dqv * mm_per_step[Q_AXIS]
