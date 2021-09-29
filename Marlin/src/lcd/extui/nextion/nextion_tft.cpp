@@ -84,12 +84,12 @@ void NextionTFT::IdleLoop() {
   UpdateOnChange();
 }
 
-void NextionTFT::PrinterKilled(PGM_P error, PGM_P component) {
+void NextionTFT::PrinterKilled(FSTR_P const error, FSTR_P const component) {
   SEND_TXT_END("page error");
-  SEND_TXT("t3", "Error");
-  SEND_TXT_P("t4", component);
-  SEND_TXT_P("t5", error);
-  SEND_TXT("t6", "Need reset");
+  SEND_TXT_F("t3", F("Error"));
+  SEND_TXT_F("t4", component);
+  SEND_TXT_F("t5", error);
+  SEND_TXT_F("t6", F("Need reset"));
 }
 
 void NextionTFT::PrintFinished() {

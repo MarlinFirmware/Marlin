@@ -2030,7 +2030,7 @@ void get_wifi_commands() {
             wait_for_heatup = false;
             TERN_(HAS_LCD_MENU, wait_for_user = false);
           }
-          if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
+          if (strcmp(command, "M112") == 0) kill(FPSTR(M112_KILL_STR), nullptr, true);
           if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 

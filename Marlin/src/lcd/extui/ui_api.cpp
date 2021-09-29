@@ -1077,6 +1077,7 @@ namespace ExtUI {
   void resumePrint() { ui.resume_print(); }
   void stopPrint()   { ui.abort_print(); }
 
+  // Simplest approach is to make an SRAM copy
   void onUserConfirmRequired(FSTR_P const fstr) {
     char msg[strlen_P(FTOP(fstr)) + 1];
     strcpy_P(msg, FTOP(fstr));
@@ -1153,7 +1154,7 @@ void MarlinUI::init() { ExtUI::onStartup(); }
 
 void MarlinUI::update() { ExtUI::onIdle(); }
 
-void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
+void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const component) {
   using namespace ExtUI;
   if (!flags.printer_killed) {
     flags.printer_killed = true;

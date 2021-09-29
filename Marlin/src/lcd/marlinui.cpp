@@ -663,9 +663,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     draw_status_screen();
   }
 
-  void MarlinUI::kill_screen(PGM_P lcd_error, PGM_P lcd_component) {
+  void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component) {
     init();
-    status_printf(1, F(S_FMT ": " S_FMT), lcd_error, lcd_component);
+    status_printf(1, F(S_FMT ": " S_FMT), FTOP(lcd_error), FTOP(lcd_component));
     TERN_(HAS_LCD_MENU, return_to_status());
 
     // RED ALERT. RED ALERT.

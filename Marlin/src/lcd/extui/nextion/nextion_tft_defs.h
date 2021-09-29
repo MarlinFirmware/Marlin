@@ -56,8 +56,8 @@
 
 #define SEND_TEMP(x,y,t,z)  (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F(".txt=\"")), LCD_SERIAL.print(y), nextion.SendtoTFT(F(t)), LCD_SERIAL.print(z), nextion.SendtoTFT(F("\"\xFF\xFF\xFF")))
 #define SEND_VAL(x,y)       (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F(".val=")),   LCD_SERIAL.print(y), nextion.SendtoTFT(F("\xFF\xFF\xFF")))
-#define SEND_TXT(x,y)       (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F(".txt=\"")), nextion.SendtoTFT(F(y)),  nextion.SendtoTFT(F("\"\xFF\xFF\xFF")))
-#define SEND_TXT_P(x,y)     (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F(".txt=\"")), nextion.SendtoTFT(y), nextion.SendtoTFT(F("\"\xFF\xFF\xFF")))
+#define SEND_TXT(x,y)       (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F(".txt=\"")), nextion.SendtoTFT(F(y)), nextion.SendtoTFT(F("\"\xFF\xFF\xFF")))
+#define SEND_TXT_F(x,y)     (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F(".txt=\"")), nextion.SendtoTFT(y), nextion.SendtoTFT(F("\"\xFF\xFF\xFF")))
 #define SEND_VALasTXT(x,y)  (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F(".txt=\"")), LCD_SERIAL.print(y), nextion.SendtoTFT(F("\"\xFF\xFF\xFF")))
 #define SEND_TXT_END(x)     (nextion.SendtoTFT(F(x)), nextion.SendtoTFT(F("\xFF\xFF\xFF")))
 #define SEND_PCO2(x,y,z)    (nextion.SendtoTFT(F(x)), LCD_SERIAL.print(y), nextion.SendtoTFT(F(".pco=")), nextion.SendtoTFT(F(z)), nextion.SendtoTFT(F("\xFF\xFF\xFF")))
