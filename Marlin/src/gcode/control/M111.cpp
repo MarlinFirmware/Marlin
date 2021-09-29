@@ -33,7 +33,7 @@ void GcodeSuite::M111() {
   if (parser.seenval('S')) marlin_debug_flags = parser.value_byte();
 
   #if EITHER(HOST_ACTION_COMMANDS, HOST_PROMPT_SUPPORT)
-    if (parser.seenval('H')) host_enable.bits = parser.value_byte();
+    if (parser.seenval('H')) hostui.flag.bits = parser.value_byte();
   #endif
 
   static PGMSTR(str_debug_1, STR_DEBUG_ECHO);

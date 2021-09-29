@@ -239,7 +239,7 @@ void GcodeSuite::dwell(millis_t time) {
   void GcodeSuite::event_probe_recover() {
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
     #ifdef ACTION_ON_G29_RECOVER
-      hostui(PSTR(ACTION_ON_G29_RECOVER));
+      hostui.g29_recover();
     #endif
     #ifdef G29_RECOVER_COMMANDS
       process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
@@ -252,7 +252,7 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
-      hostui(PSTR(ACTION_ON_G29_FAILURE));
+      hostui.g29_failure();
     #endif
     #ifdef G29_FAILURE_COMMANDS
       process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));

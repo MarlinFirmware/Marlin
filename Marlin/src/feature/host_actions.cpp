@@ -39,9 +39,10 @@
 
 HostUI hostui;
 
-host_enable_t HostUI::host_enable; // {0}
+flag_t HostUI::flag;
 
 void HostUI::action(FSTR_P const fstr, const bool eol) {
+  if (!flag.bits) return;
   PORT_REDIRECT(SerialMask::All);
   SERIAL_ECHOPGM("//action:");
   SERIAL_ECHOPGM_P(FTOP(fstr));
@@ -70,6 +71,15 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
   void HostUI::start() { action(F(ACTION_ON_START)); }
 #endif
 
+#if ENABLED(G29_RETRY_AND_RECOVER)
+  #ifdef ACTION_ON_G29_RECOVER
+    void HostUI::g29_recover() { action(F(ACTION_ON_G29_RECOVER)); }
+  #endif
+  #ifdef ACTION_ON_G29_FAILURE
+    void HostUI::g29_failure() { action(F(ACTION_ON_G29_FAILURE)); }
+  #endif
+#endif
+
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
   PromptReason HostUI::host_prompt_reason = PROMPT_NOT_DEFINED;
@@ -82,18 +92,21 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
   #endif
 
   void HostUI::notify(const char * const message) {
+    if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("notification "), false);
     SERIAL_ECHOLN(message);
   }
 
   void HostUI::notify_P(PGM_P const message) {
+    if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("notification "), false);
     SERIAL_ECHOLNPGM_P(message);
   }
 
-  void HostUI::prompt(FSTR_P const ptype, const bool eol=true) {
+  void HostUI::prompt(FSTR_P const ptype, const bool eol/*=true*/) {
+    if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("prompt_"), false);
     SERIAL_ECHOPGM_P(FTOP(ptype));
@@ -101,6 +114,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
   }
 
   void HostUI::prompt_plus(FSTR_P const ptype, FSTR_P const fstr, const char extra_char/*='\0'*/) {
+    if (!flag.bits) return;
     prompt(ptype, false);
     PORT_REDIRECT(SerialMask::All);
     SERIAL_CHAR(' ');
@@ -109,6 +123,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
     SERIAL_EOL();
   }
   void HostUI::prompt_begin(const PromptReason reason, FSTR_P const fstr, const char extra_char/*='\0'*/) {
+    if (!flag.bits) return;
     prompt_end();
     host_prompt_reason = reason;
     prompt_plus(F("begin"), fstr, extra_char);
@@ -131,12 +146,14 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
     _prompt_show(btn1, btn2);
   }
 
-  void HostUI::filament_load_prompt() {
-    const bool disable_to_continue = TERN0(HAS_FILAMENT_SENSOR, runout.filament_ran_out);
-    prompt_do(PROMPT_FILAMENT_RUNOUT, F("Paused"), F("PurgeMore"),
-      disable_to_continue ? F("DisableRunout") : FPSTR(CONTINUE_STR)
-    );
-  }
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    void HostUI::filament_load_prompt() {
+      const bool disable_to_continue = TERN0(HAS_FILAMENT_SENSOR, runout.filament_ran_out);
+      prompt_do(PROMPT_FILAMENT_RUNOUT, F("Paused"), F("PurgeMore"),
+        disable_to_continue ? F("DisableRunout") : FPSTR(CONTINUE_STR)
+      );
+    }
+  #endif
 
   //
   // Handle responses from the host, such as:

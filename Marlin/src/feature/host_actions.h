@@ -26,11 +26,8 @@
 
 typedef union {
   uint8_t bits;
-  bool info:1,
-       errors:1,
-       debug:1,
-       muted:1;
-} host_enable_t;
+  struct { bool info:1, errors:1, debug:1; };
+} flag_t;
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
@@ -46,11 +43,12 @@ typedef union {
 #endif
 
 class HostUI {
-  private:
-  static void action(FSTR_P const fstr, const bool eol=true);
-
   public:
-  static host_enable_t host_enable;
+
+  static flag_t flag;
+  HostUI() { flag.bits = 0xFF; }
+
+  static void action(FSTR_P const fstr, const bool eol=true);
 
   #ifdef ACTION_ON_KILL
     static void kill();
@@ -72,6 +70,15 @@ class HostUI {
   #endif
   #ifdef ACTION_ON_START
     static void start();
+  #endif
+
+  #if ENABLED(G29_RETRY_AND_RECOVER)
+    #ifdef ACTION_ON_G29_RECOVER
+      void g29_recover();
+    #endif
+    #ifdef ACTION_ON_G29_FAILURE
+      void g29_failure();
+    #endif
   #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -99,7 +106,9 @@ class HostUI {
       if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
     }
 
-    static void filament_load_prompt();
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      static void filament_load_prompt();
+    #endif
 
   #endif
 

@@ -39,6 +39,12 @@
   #warning "Your Configuration provides no method to acquire user feedback!"
 #endif
 
+#if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+  #warning "Onboard temperature sensor for BOARD_DUE3DOM_MINI has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
+#elif MB(BTT_SKR_E3_TURBO) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
+  #warning "Onboard temperature sensor for BOARD_BTT_SKR_E3_TURBO has moved from TEMP_SENSOR_2 (TEMP_2_PIN) to TEMP_SENSOR_BOARD (TEMP_BOARD_PIN)."
+#endif
+
 #if AUTO_ASSIGNED_X2_STEPPER
   #warning "Auto-assigned X2 STEP/DIR/ENABLE_PINs to unused En_STEP/DIR/ENABLE_PINs."
 #endif
@@ -454,4 +460,8 @@
   #elif K_USE_ENDSTOP == _E7DIAG_
     #warning "Auto-assigned K_DIAG_PIN to E7_DIAG_PIN."
   #endif
+#endif
+
+#if PRINTCOUNTER_SYNC
+  #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
