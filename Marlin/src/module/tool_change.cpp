@@ -432,7 +432,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         }
         else if (kill_on_error && (!tool_sensor_disabled || disable)) {
           sensor_tries++;
-          if (sensor_tries > 10) kill(PSTR("Tool Sensor error"));
+          if (sensor_tries > 10) kill(F("Tool Sensor error"));
           safe_delay(5);
         }
         else {

@@ -187,8 +187,8 @@
 
 Temperature thermalManager;
 
-const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
-           str_t_heating_failed[] PROGMEM = STR_T_HEATING_FAILED;
+PGMSTR(str_t_thermal_runaway, STR_T_THERMAL_RUNAWAY);
+PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 /**
  * Macros to include the heater id in temp errors. The compiler's dead-code
@@ -196,22 +196,22 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
  */
 
 #if HAS_HEATED_BED
-  #define _BED_PSTR(h) (h) == H_BED ? GET_TEXT(MSG_BED) :
+  #define _BED_FSTR(h) (h) == H_BED ? GET_TEXT_F(MSG_BED) :
 #else
-  #define _BED_PSTR(h)
+  #define _BED_FSTR(h)
 #endif
 #if HAS_HEATED_CHAMBER
-  #define _CHAMBER_PSTR(h) (h) == H_CHAMBER ? GET_TEXT(MSG_CHAMBER) :
+  #define _CHAMBER_FSTR(h) (h) == H_CHAMBER ? GET_TEXT_F(MSG_CHAMBER) :
 #else
-  #define _CHAMBER_PSTR(h)
+  #define _CHAMBER_FSTR(h)
 #endif
 #if HAS_COOLER
-  #define _COOLER_PSTR(h) (h) == H_COOLER ? GET_TEXT(MSG_COOLER) :
+  #define _COOLER_FSTR(h) (h) == H_COOLER ? GET_TEXT_F(MSG_COOLER) :
 #else
-  #define _COOLER_PSTR(h)
+  #define _COOLER_FSTR(h)
 #endif
-#define _E_PSTR(h,N) ((HOTENDS) > N && (h) == N) ? PSTR(LCD_STR_E##N) :
-#define HEATER_PSTR(h) _BED_PSTR(h) _CHAMBER_PSTR(h) _COOLER_PSTR(h) _E_PSTR(h,1) _E_PSTR(h,2) _E_PSTR(h,3) _E_PSTR(h,4) _E_PSTR(h,5) PSTR(LCD_STR_E0)
+#define _E_FSTR(h,N) ((HOTENDS) > N && (h) == N) ? F(LCD_STR_E##N) :
+#define HEATER_FSTR(h) _BED_FSTR(h) _CHAMBER_FSTR(h) _COOLER_FSTR(h) _E_FSTR(h,1) _E_FSTR(h,2) _E_FSTR(h,3) _E_FSTR(h,4) _E_FSTR(h,5) F(LCD_STR_E0)
 
 //
 // Initialize MAX TC objects/SPI
@@ -731,10 +731,10 @@ volatile bool Temperature::raw_temps_ready = false;
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
               else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
-                _temp_error(heater_id, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+                _temp_error(heater_id, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
             }
             else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
-              _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+              _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
           }
         #endif
       } // every 2 seconds
@@ -951,7 +951,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 // Temperature Error Handlers
 //
 
-inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
+inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
   marlin_state = MF_KILLED;
   #if USE_BEEPER
     thermalManager.disable_all_heaters();
@@ -967,16 +967,16 @@ inline void loud_kill(PGM_P const lcd_msg, const heater_id_t heater_id) {
     }
     WRITE(BEEPER_PIN, HIGH);
   #endif
-  kill(lcd_msg, HEATER_PSTR(heater_id));
+  kill(lcd_msg, HEATER_FSTR(heater_id));
 }
 
-void Temperature::_temp_error(const heater_id_t heater_id, PGM_P const serial_msg, PGM_P const lcd_msg) {
+void Temperature::_temp_error(const heater_id_t heater_id, FSTR_P const serial_msg, FSTR_P const lcd_msg) {
 
   static uint8_t killed = 0;
 
   if (IsRunning() && TERN1(BOGUS_TEMPERATURE_GRACE_PERIOD, killed == 2)) {
     SERIAL_ERROR_START();
-    SERIAL_ECHOPGM_P(serial_msg);
+    SERIAL_ECHOF(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
 
     heater_id_t real_heater_id = heater_id;
@@ -1031,14 +1031,14 @@ void Temperature::max_temp_error(const heater_id_t heater_id) {
   #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(1);
   #endif
-  _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
+  _temp_error(heater_id, F(STR_T_MAXTEMP), GET_TEXT_F(MSG_ERR_MAXTEMP));
 }
 
 void Temperature::min_temp_error(const heater_id_t heater_id) {
   #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(0);
   #endif
-  _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
+  _temp_error(heater_id, F(STR_T_MINTEMP), GET_TEXT_F(MSG_ERR_MINTEMP));
 }
 
 #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
@@ -1294,7 +1294,7 @@ void Temperature::manage_heater() {
   REMEMBER(mh, no_reentry, true);
 
   #if ENABLED(EMERGENCY_PARSER)
-    if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
+    if (emergency_parser.killed_by_M112) kill(FPSTR(M112_KILL_STR), nullptr, true);
 
     if (emergency_parser.quickstop_by_M410) {
       emergency_parser.quickstop_by_M410 = false; // quickstop_stepper may call idle so clear this now!
@@ -1344,7 +1344,7 @@ void Temperature::manage_heater() {
             start_watching_hotend(e);               // If temp reached, turn off elapsed check
           else {
             TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
-            _temp_error((heater_id_t)e, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+            _temp_error((heater_id_t)e, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
           }
         }
       #endif
@@ -1356,7 +1356,7 @@ void Temperature::manage_heater() {
   #if HAS_TEMP_REDUNDANT
     // Make sure measured temperatures are close together
     if (ABS(degRedundantTarget() - degRedundant()) > TEMP_SENSOR_REDUNDANT_MAX_DIFF)
-      _temp_error((heater_id_t)HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET), PSTR(STR_REDUNDANCY), GET_TEXT(MSG_ERR_REDUNDANT_TEMP));
+      _temp_error((heater_id_t)HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET), F(STR_REDUNDANCY), GET_TEXT_F(MSG_ERR_REDUNDANT_TEMP));
   #endif
 
   #if HAS_AUTO_FAN
@@ -1387,7 +1387,7 @@ void Temperature::manage_heater() {
           start_watching_bed();                 // If temp reached, turn off elapsed check
         else {
           TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
-          _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+          _temp_error(H_BED, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
         }
       }
     #endif // WATCH_BED
@@ -1467,7 +1467,7 @@ void Temperature::manage_heater() {
         if (watch_chamber.check(degChamber()))  // Increased enough? Error below.
           start_watching_chamber();             // If temp reached, turn off elapsed check.
         else
-          _temp_error(H_CHAMBER, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+          _temp_error(H_CHAMBER, FPSTR(str_t_heating_failed), GET_TEXT_F(MSG_HEATING_FAILED_LCD));
       }
     #endif
 
@@ -1589,7 +1589,7 @@ void Temperature::manage_heater() {
       // Make sure temperature is decreasing
       if (watch_cooler.elapsed(ms)) {             // Time to check the cooler?
         if (degCooler() > watch_cooler.target)    // Failed to decrease enough?
-          _temp_error(H_COOLER, GET_TEXT(MSG_COOLING_FAILED), GET_TEXT(MSG_COOLING_FAILED));
+          _temp_error(H_COOLER, GET_TEXT_F(MSG_COOLING_FAILED), GET_TEXT_F(MSG_COOLING_FAILED));
         else
           start_watching_cooler();                 // Start again if the target is still far off
       }
@@ -2597,7 +2597,7 @@ void Temperature::init() {
 
       case TRRunaway:
         TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
-        _temp_error(heater_id, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+        _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
     }
   }
 
@@ -3896,7 +3896,7 @@ void Temperature::isr() {
       const bool wants_to_cool = isProbeAboveTemp(target_temp),
                  will_wait = !(wants_to_cool && no_wait_for_cooling);
       if (will_wait)
-        SERIAL_ECHOLNPGM("Waiting for probe to ", (wants_to_cool ? PSTR("cool down") : PSTR("heat up")), " to ", target_temp, " degrees.");
+        SERIAL_ECHOLNPGM("Waiting for probe to ", wants_to_cool ? F("cool down") : F("heat up"), " to ", target_temp, " degrees.");
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
         KEEPALIVE_STATE(NOT_BUSY);

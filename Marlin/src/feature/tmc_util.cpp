@@ -212,7 +212,7 @@
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
-      kill(PSTR("Driver error"));
+      kill(F("Driver error"));
     }
   #endif
 

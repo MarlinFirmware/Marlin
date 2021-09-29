@@ -1829,7 +1829,7 @@ void prepare_line_to_destination() {
         }
         if (TEST(endstops.state(), es)) {
           SERIAL_ECHO_MSG("Bad ", AS_CHAR(AXIS_CHAR(axis)), " Endstop?");
-          kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
+          kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
         }
       #endif
 

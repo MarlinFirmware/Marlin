@@ -394,7 +394,7 @@ namespace ExtUI {
   void onMediaError();
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
-  void onPrinterKilled(PGM_P const error, PGM_P const component);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component);
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();

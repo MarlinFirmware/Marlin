@@ -159,9 +159,9 @@ void DGUSScreenHandler::Loop() {
   dgus_display.Loop();
 }
 
-void DGUSScreenHandler::PrinterKilled(PGM_P error, PGM_P component) {
-  SetMessageLinePGM(error, 1);
-  SetMessageLinePGM(component, 2);
+void DGUSScreenHandler::PrinterKilled(FSTR_P const error, FSTR_P const component) {
+  SetMessageLinePGM(FTOP(error), 1);
+  SetMessageLinePGM(FTOP(component), 2);
   SetMessageLinePGM(NUL_STR, 3);
   SetMessageLinePGM(GET_TEXT(MSG_PLEASE_RESET), 4);
 

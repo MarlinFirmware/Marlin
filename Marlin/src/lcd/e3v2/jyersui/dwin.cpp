@@ -949,7 +949,7 @@ void CrealityDWINClass::Draw_Popup(FSTR_P const line1, FSTR_P const line2, FSTR_
   }
 }
 
-void MarlinUI::kill_screen(PGM_P const error, PGM_P const component) {
+void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
   CrealityDWIN.Draw_Popup(F("Printer Kill Reason:"), error, F("Restart Required"), Wait, ICON_BLTouch);
 }
 

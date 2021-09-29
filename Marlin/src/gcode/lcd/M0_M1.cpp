@@ -67,7 +67,7 @@ void GcodeSuite::M0_M1() {
 
   #elif ENABLED(EXTENSIBLE_UI)
     if (parser.string_arg)
-      ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
+      ExtUI::onUserConfirmRequired(parser.string_arg); // String in an SRAM buffer
     else
       ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_USERWAIT));
   #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)

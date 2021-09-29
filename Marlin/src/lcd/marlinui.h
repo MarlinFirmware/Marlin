@@ -356,9 +356,9 @@ public:
   static void status_printf(const uint8_t level, FSTR_P const fmt, ...);
 
   #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
-    static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
+    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
   #else
-    static inline void kill_screen(PGM_P const, PGM_P const) {}
+    static inline void kill_screen(FSTR_P const, FSTR_P const) {}
   #endif
 
   #if HAS_DISPLAY

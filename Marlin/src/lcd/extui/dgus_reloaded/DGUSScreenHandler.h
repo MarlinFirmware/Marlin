@@ -37,7 +37,7 @@ public:
   static void Ready();
   static void Loop();
 
-  static void PrinterKilled(PGM_P error, PGM_P component);
+  static void PrinterKilled(FSTR_P const error, FSTR_P const component);
   static void UserConfirmRequired(const char * const msg);
   static void SettingsReset();
   static void StoreSettings(char *buff);

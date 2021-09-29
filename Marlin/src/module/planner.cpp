@@ -3036,7 +3036,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
 
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
     if (!last_page_step_rate) {
-      kill(GET_TEXT(MSG_BAD_PAGE_SPEED));
+      kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
       return;
     }
 

@@ -654,7 +654,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 12: // A12 kill
-            kill(PSTR(STR_ERR_KILLED));
+            kill(F(STR_ERR_KILLED));
             break;
 
           case 13: // A13 SELECTION FILE
