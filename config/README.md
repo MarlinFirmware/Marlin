@@ -18,6 +18,10 @@ The following examples are available:
 - [BTT SKR CR6 with BTT TFT](./cr6-max-btt-skr-cr6-with-btt-tft)
 - [BTT SKR CR6 with Creality stock TFT](./cr6-max-btt-skr-cr6-with-stock-creality-tft)
 
+**Other printers:**
+- [Ender 3 Pro with v4.2.7 board and BLTouch](./ender-3-pro-v427-board-bltouch)
+- [Sovol SV-01 with touch screen and BLTouch](./sovol-sv-01)
+
 ## Helper scripts
 
 There are some helper scripts. You need Powershell Core (`pwsh`) to run them.
