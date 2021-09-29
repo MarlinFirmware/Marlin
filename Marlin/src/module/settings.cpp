@@ -557,7 +557,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
-  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
   planner.refresh_positioning();
 
@@ -3278,7 +3278,7 @@ void MarlinSettings::reset() {
     //
     // Tool-changing Parameters
     //
-    TERN_(HAS_MULTI_EXTRUDER, gcode.M217_report(forReplay));
+    E_TERN_(gcode.M217_report(forReplay));
 
     //
     // Backlash Compensation

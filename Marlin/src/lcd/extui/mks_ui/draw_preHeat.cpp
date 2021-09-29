@@ -124,19 +124,21 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         else if (uiCfg.extruderIndex == 0) {
           uiCfg.curTempType = TERN(HAS_HEATED_BED, 1, 0);
         }
-        lv_obj_del(btn_pla);
-        lv_obj_del(btn_abs);
       }
       else if (uiCfg.curTempType == 1) {
         uiCfg.extruderIndex = 0;
         uiCfg.curTempType = 0;
-        lv_obj_del(buttonAdd);
-        lv_obj_del(buttonDec);
-        disp_add_dec();
-        disp_ext_heart();
       }
-
       disp_temp_type();
+      break;
+    case ID_P_STEP:
+      switch (uiCfg.stepHeat) {
+        case  1: uiCfg.stepHeat =  5; break;
+        case  5: uiCfg.stepHeat = 10; break;
+        case 10: uiCfg.stepHeat =  1; break;
+        default: break;
+      }
+      disp_step_heat();
       break;
     case ID_P_OFF:
       if (uiCfg.curTempType == 0) {
@@ -156,10 +158,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       draw_return_ui();
       break;
     case ID_P_ABS:
-      thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, 0);
+      if (uiCfg.curTempType == 0)
+        thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, 0);
+      else if (uiCfg.curTempType == 1)
+        thermalManager.setTargetBed(PREHEAT_2_TEMP_BED);
       break;
     case ID_P_PLA:
-      thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, 0);
+      if (uiCfg.curTempType == 0)
+        thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, 0);
+      else if (uiCfg.curTempType == 1)
+        thermalManager.setTargetBed(PREHEAT_1_TEMP_BED);
       break;
   }
 }
@@ -180,6 +188,7 @@ void lv_draw_preHeat() {
   buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_STEP);
 
   if (uiCfg.curTempType == 0) disp_ext_heart();
+  if (uiCfg.curTempType == 1) disp_ext_heart();
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {

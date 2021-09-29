@@ -173,7 +173,7 @@ void I2CPositionEncoder::update() {
             LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
             const int32_t errorP = int32_t(sumP * RECIPROCAL(I2CPE_ERR_PRST_ARRAY_SIZE));
             SERIAL_CHAR(axis_codes[encoderAxis]);
-            SERIAL_ECHOLNPGM(" : CORRECT ERR ", errorP * planner.steps_to_mm[encoderAxis], "mm");
+            SERIAL_ECHOLNPGM(" : CORRECT ERR ", errorP * planner.mm_per_step[encoderAxis], "mm");
             babystep.add_steps(encoderAxis, -LROUND(errorP));
             errPrstIdx = 0;
           }
