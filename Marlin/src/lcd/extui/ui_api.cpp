@@ -918,7 +918,7 @@ namespace ExtUI {
   #endif // HAS_LEVELING
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    void setHostResponse(const uint8_t response) { host_response_handler(response); }
+    void setHostResponse(const uint8_t response) { hostui.handle_response(response); }
   #endif
 
   #if ENABLED(PRINTCOUNTER)

@@ -1355,7 +1355,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::set_status(const char * const message, const bool persist) {
     if (alert_level) return;
 
-    TERN_(HOST_STATUS_NOTIFICATIONS, host_action_notify(message));
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(message));
 
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
@@ -1426,7 +1426,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_STATUS_NOTIFICATIONS, host_action_notify_P(message));
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify_P(message));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1465,7 +1465,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
     va_end(args);
 
-    TERN_(HOST_STATUS_NOTIFICATIONS, host_action_notify(status_message));
+    TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify(status_message));
 
     finish_status(level > 0);
   }
@@ -1535,10 +1535,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       card.abortFilePrintSoon();
     #endif
     #ifdef ACTION_ON_CANCEL
-      host_action_cancel();
+      hostui.cancel();
     #endif
     IF_DISABLED(SDSUPPORT, print_job_timer.stop());
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("UI Aborted"), FPSTR(DISMISS_STR)));
     LCD_MESSAGEPGM(MSG_PRINT_ABORTED);
     TERN_(HAS_LCD_MENU, return_to_status());
   }
@@ -1567,7 +1567,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #endif
 
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("UI Pause"), PSTR("Resume")));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("UI Pause"), F("Resume")));
 
     LCD_MESSAGEPGM(MSG_PRINT_PAUSED);
 
@@ -1577,7 +1577,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #elif ENABLED(SDSUPPORT)
       queue.inject_P(PSTR("M25"));
     #elif defined(ACTION_ON_PAUSE)
-      host_action_pause();
+      hostui.pause();
     #endif
   }
 
@@ -1586,7 +1586,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
     TERN_(SDSUPPORT, if (IS_SD_PAUSED()) queue.inject_P(M24_STR));
     #ifdef ACTION_ON_RESUME
-      host_action_resume();
+      hostui.resume();
     #endif
     print_job_timer.start(); // Also called by M24
   }
@@ -1641,13 +1641,13 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   // Send the status line as a host notification
   //
   void MarlinUI::set_status(const char * const message, const bool) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify(message), UNUSED(message));
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify(message), UNUSED(message));
   }
   void MarlinUI::set_status_P(PGM_P message, const int8_t) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify_P(message), UNUSED(message));
   }
   void MarlinUI::status_printf_P(const uint8_t, PGM_P const message, ...) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify_P(message), UNUSED(message));
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify_P(message), UNUSED(message));
   }
 
 #endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE
