@@ -301,7 +301,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       retract_and_lift(zraise);
     #endif
 
-    kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
+    kill(GET_TEXT_F(MSG_OUTAGE_RECOVERY));
   }
 
 #endif

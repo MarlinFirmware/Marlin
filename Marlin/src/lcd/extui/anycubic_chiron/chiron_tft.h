@@ -59,7 +59,7 @@ class ChironTFT {
   public:
     static void Startup();
     static void IdleLoop();
-    static void PrinterKilled(PGM_P, PGM_P);
+    static void PrinterKilled(FSTR_P, FSTR_P);
     static void MediaEvent(media_event_t);
     static void TimerEvent(timer_event_t);
     static void FilamentRunout();

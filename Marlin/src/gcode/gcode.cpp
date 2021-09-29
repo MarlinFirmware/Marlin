@@ -262,7 +262,7 @@ void GcodeSuite::dwell(millis_t time) {
       #ifdef ACTION_ON_CANCEL
         host_action_cancel();
       #endif
-      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
+      kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
   }
 

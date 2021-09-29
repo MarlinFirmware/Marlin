@@ -126,7 +126,7 @@ void ChironTFT::IdleLoop()  {
   CheckHeaters();
 }
 
-void ChironTFT::PrinterKilled(PGM_P error,PGM_P component)  {
+void ChironTFT::PrinterKilled(FSTR_P const error, FSTR_P const component)  {
   SendtoTFTLN(AC_msg_kill_lcd);
   #if ACDEBUG(AC_MARLIN)
     SERIAL_ECHOLNPGM("PrinterKilled()\nerror: ", error , "\ncomponent: ", component);
