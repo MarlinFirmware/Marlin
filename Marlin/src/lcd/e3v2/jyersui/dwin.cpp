@@ -3246,7 +3246,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case LEVELING_VIEW:
             if (draw)
-              Draw_Menu_Item(row, ICON_Mesh, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
+              Draw_Menu_Item(row, ICON_Mesh, GET_TEXT(MSG_MESH_VIEW), nullptr, true);
             else {
               #if ENABLED(AUTO_BED_LEVELING_UBL)
                 if (ubl.storage_slot < 0) {
@@ -3319,7 +3319,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
           case LEVELING_VIEW_MESH:
             if (draw)
-              Draw_Menu_Item(row, ICON_PrintSize, GET_TEXT_F(MSG_MESH_VIEW), nullptr, true);
+              Draw_Menu_Item(row, ICON_PrintSize, GET_TEXT(MSG_MESH_VIEW), nullptr, true);
             else
               Draw_Menu(MeshViewer);
             break;
@@ -4070,9 +4070,9 @@ const char * CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     case InfoMain:          return "Info";
     #if HAS_MESH
       case Leveling:        return "Leveling";
-      case LevelView:       return GET_TEXT_F(MSG_MESH_VIEW);
+      case LevelView:       return GET_TEXT(MSG_MESH_VIEW);
       case LevelSettings:   return "Leveling Settings";
-      case MeshViewer:      return GET_TEXT_F(MSG_MESH_VIEW);
+      case MeshViewer:      return GET_TEXT(MSG_MESH_VIEW);
       case LevelManual:     return "Manual Tuning";
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
