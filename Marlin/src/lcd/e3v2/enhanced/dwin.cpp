@@ -1665,9 +1665,9 @@ void DWIN_MeshLevelingStart() {
   #endif
 }
 
-#if HAS_MESH
-  void DWIN_CompletedLeveling() { DWIN_MeshViewer(); }
+void DWIN_CompletedLeveling() { TERN_(HAS_MESH, DWIN_MeshViewer()); }
 
+#if HAS_MESH
   void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
     char msg[33] = "";
     char str_1[6] = "";
