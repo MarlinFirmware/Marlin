@@ -307,7 +307,6 @@ void menu_main() {
     #endif
   }
   else {
-
     #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
       sdcard_menu_items();
     #endif
@@ -319,15 +318,15 @@ void menu_main() {
       ACTION_ITEM(MSG_HOST_START_PRINT, hostui.start);
     #endif
 
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
+    #endif
+
     #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
       SUBMENU(MSG_PREHEAT_CUSTOM, menu_preheat_only);
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
-
-    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-      SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
-    #endif
   }
 
   #if HAS_CUTTER
