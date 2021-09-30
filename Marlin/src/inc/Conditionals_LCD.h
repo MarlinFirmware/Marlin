@@ -727,6 +727,7 @@
     #define E_MANUAL 1
   #else
     // multiple extruders - plates likely direct drive, or multiple bowden tools
+    #define MANUAL_SWITCHING_TOOLHEAD_MULTI_EXTRUDER 1
     #define E_STEPPERS      EXTRUDERS
     #define E_MANUAL        1
   #endif

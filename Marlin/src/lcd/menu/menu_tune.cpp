@@ -127,7 +127,7 @@ void menu_tune() {
   //
   #if HOTENDS == 1
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0), []{ thermalManager.start_watching_hotend(0); });
-  #elif HAS_MULTI_HOTEND
+  #elif HAS_MULTI_HOTEND && DISABLED(MANUAL_SWITCHING_TOOLHEAD_MULTI_EXTRUDER)
     HOTEND_LOOP()
       EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.hotend_max_target(e), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
@@ -198,8 +198,8 @@ void menu_tune() {
   #if HAS_EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
     // Flow En:
-    #if HAS_MULTI_EXTRUDER
-      LOOP_L_N(n, EXTRUDERS)
+    #if HAS_MULTI_EXTRUDER && DISABLED(MANUAL_SWITCHING_TOOLHEAD_MULTI_EXTRUDER)
+      LOOP_L_N(n)
         EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
     #endif
   #endif
