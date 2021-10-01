@@ -318,6 +318,15 @@
   //#define TOOL_NAME_5 "Tool 5"
   //#define TOOL_NAME_6 "Tool 6"
   //#define TOOL_NAME_7 "Tool 7"
+
+  // Display a menu prompting you to select the inserted toolhead at boot.
+  //#define SWITCHING_TOOLHEAD_BOOT_MENU
+
+  // Keep the selected tool in EEPROM. Must be committed/saved with M500 like other settings.
+  #define SWITCHING_TOOLHEAD_EEPROM
+
+  // Auto-save EEPROM on toolchange. Warning: this will save ALL settings.
+  //#define SWITCHING_TOOLHEAD_EEPROM_AUTOSAVE
 #endif
 
 /**
@@ -368,7 +377,7 @@
 /**
  * Common Switching Toolhead settings
  */
-#if ANY(MANUAL_SWITCHING_TOOLHEAD, SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+#if ANY(SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   #define SWITCHING_TOOLHEAD_Y_POS          235       // (mm) Y position of the toolhead dock
   #define SWITCHING_TOOLHEAD_Y_SECURITY      10       // (mm) Security distance Y axis
   #define SWITCHING_TOOLHEAD_Y_CLEAR         60       // (mm) Minimum distance from dock for unobstructed X axis

@@ -45,14 +45,22 @@
   bool toolchange_extruder_ready[EXTRUDERS];
 #endif
 
-#if EITHER(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR) \
-  || defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) \
-  || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
+#if ANY(MAGNETIC_PARKING_EXTRUDER, TOOL_SENSOR, TOOLCHANGE_FILAMENT_SWAP) || defined(EVENT_GCODE_TOOLCHANGE_T0) \
+ || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_AFTER_TOOLCHANGE) \
+ || (ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0)
   #include "../gcode/gcode.h"
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP) && TOOLCHANGE_FS_WIPE_RETRACT <= 0
+    #undef TOOLCHANGE_FS_WIPE_RETRACT
+    #define TOOLCHANGE_FS_WIPE_RETRACT 0
+  #endif
 #endif
 
-#if ENABLED(TOOL_SENSOR)
+#if ANY(HAS_LCD_MENU, TOOL_SENSOR)
   #include "../lcd/marlinui.h"
+#endif
+
+#if ENABLED(SWITCHING_TOOLHEAD_EEPROM)
+  #include "settings.h"
 #endif
 
 #if ANY(DUAL_X_CARRIAGE, MANUAL_SWITCHING_TOOLHEAD)
@@ -89,22 +97,11 @@
   #include "../feature/mmu/mmu2.h"
 #endif
 
-#if HAS_LCD_MENU
-  #include "../lcd/marlinui.h"
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
 
-#if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-  #include "../gcode/gcode.h"
-  #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
-    #undef TOOLCHANGE_FS_WIPE_RETRACT
-    #define TOOLCHANGE_FS_WIPE_RETRACT 0
-  #endif
-#endif
-
+// below other includes on purpose. moving it up makes debug not work..
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
 
@@ -393,6 +390,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   inline void manual_switching_toolhead_set_new_tool(const uint8_t new_tool) {
     thermalManager.temp_hotend[new_tool].reset();
     active_extruder = new_tool;
+    toolchange_settings.selected_tool = new_tool;
 
     // allow temperature readings to stabilize; 1khz, OVERSAMPLENR*4 samples
     safe_delay(
@@ -401,6 +399,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         ((TEMP_TIMER_FREQUENCY / CYCLES_PER_MICROSECOND) * (OVERSAMPLENR) * 4) / 1000
       )
     );
+
+    #if ENABLED(SWITCHING_TOOLHEAD_EEPROM_AUTOSAVE)
+      settings.save();
+    #endif
   }
 
   inline void manual_switching_toolhead_tool_change(const uint8_t new_tool) {
@@ -424,6 +426,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     enable_e_steppers();
   }
 
+  void manual_switching_toolchange_init() {
+    #if ENABLED(SWITCHING_TOOLHEAD_EEPROM)
+      // set active_extruder on first load
+      //manual_switching_toolhead_set_new_tool(toolchange_settings.selected_tool);
+      active_extruder = toolchange_settings.selected_tool;
+    #endif
+  }
 
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
 

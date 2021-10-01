@@ -28,6 +28,9 @@
 #if HAS_MULTI_EXTRUDER
 
   typedef struct {
+    #if ENABLED(SWITCHING_TOOLHEAD_EEPROM)
+      int8_t selected_tool = 0;
+    #endif
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       float swap_length, extra_prime, extra_resume;
       int16_t prime_speed, retract_speed, unretract_speed, fan, fan_speed, fan_time;
@@ -110,6 +113,8 @@
 
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   static millis_t last_tool_change = 0;
+
+  void manual_switching_toolchange_init();
 
   inline int32_t ms_since_tool_change(millis_t ms) {
     return (int32_t)(ms-last_tool_change);
