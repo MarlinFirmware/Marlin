@@ -335,20 +335,21 @@
 #define BOARD_CHITU3D_V6              4037  // Chitu3D TronXY X5SA V6 Board
 #define BOARD_CHITU3D_V9              4038  // Chitu3D TronXY X5SA V9 Board
 #define BOARD_CREALITY_V4             4039  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V427           4040  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V4210          4041  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
-#define BOARD_CREALITY_V431           4042  // Creality v4.3.1 (STM32F103RE)
-#define BOARD_CREALITY_V452           4043  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_CREALITY_V453           4044  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4045  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4046  // FLYmaker FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4047  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4048  // STM32F103RET6 Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4049  // STM32F103ZET6 Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4050  // STM32F103VET6 controller
-#define BOARD_ZONESTAR_ZM3E2          4051  // Zonestar ZM3E2    (STM32F103RCT6)
-#define BOARD_ZONESTAR_ZM3E4          4052  // Zonestar ZM3E4 V1 (STM32F103VCT6)
-#define BOARD_ZONESTAR_ZM3E4V2        4053  // Zonestar ZM3E4 V2 (STM32F103VCT6)
+#define BOARD_CREALITY_V425           4040  // Creality v4.2.5 (STM32F103RE) as found in the CR-200b
+#define BOARD_CREALITY_V427           4041  // Creality v4.2.7 (STM32F103RE)
+#define BOARD_CREALITY_V4210          4042  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
+#define BOARD_CREALITY_V431           4043  // Creality v4.3.1 (STM32F103RE)
+#define BOARD_CREALITY_V452           4044  // Creality v4.5.2 (STM32F103RE)
+#define BOARD_CREALITY_V453           4045  // Creality v4.5.3 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4046  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4047  // FLYmaker FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4048  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4049  // STM32F103RET6 Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4050  // STM32F103ZET6 Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4051  // STM32F103VET6 controller
+#define BOARD_ZONESTAR_ZM3E2          4052  // Zonestar ZM3E2    (STM32F103RCT6)
+#define BOARD_ZONESTAR_ZM3E4          4053  // Zonestar ZM3E4 V1 (STM32F103VCT6)
+#define BOARD_ZONESTAR_ZM3E4V2        4054  // Zonestar ZM3E4 V2 (STM32F103VCT6)
 
 //
 // ARM Cortex-M4F
