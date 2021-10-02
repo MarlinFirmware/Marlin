@@ -3458,7 +3458,23 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif !PIN_EXISTS(PS_ON)
     #error "PSU_CONTROL requires PS_ON_PIN."
   #elif POWER_OFF_DELAY < 0
-    #error "POWER_OFF_DELAY must be a positive value."
+    #error "POWER_OFF_DELAY must be a positive value."   
+  #endif
+
+  #if ENABLED(PSU_SELF_LATCHING)
+    #ifndef PSU_LATCH_DELAY
+      #error "PSU_SELF_LATCHING requires PSU_LATCH_DELAY"
+    #elif PSU_LATCH_DELAY < 0
+      #error "PSU_LATCH_DELAY must be a positive value."
+    #endif
+
+    #if ENABLED(PSU_RS_LATCH) 
+      #ifndef PS_OFF_PIN
+        #error "PSU_RS_LATCH requires PS_OFF_PIN"
+      #elif PS_OFF_PIN < 0
+        #error "PS_OFF_PIN must be a valid pin."
+      #endif
+    #endif
   #endif
 #endif
 

@@ -83,8 +83,20 @@ extern bool wait_for_heatup;
 
 #if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
-  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
-  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
+  #if ENABLED(PSU_SELF_LATCHING)
+    #if ENABLED(PSU_RS_LATCH)
+      // Reset/Set Latch
+      #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); safe_delay(PSU_LATCH_DELAY); OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = true; }while(0)
+      #define PSU_PIN_OFF() do{ OUT_WRITE(PS_OFF_PIN,  PSU_ACTIVE_STATE); safe_delay(PSU_LATCH_DELAY); OUT_WRITE(PS_OFF_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
+    #else
+      // Toggle Latch
+      #define PSU_PIN_ON()  while(!powersupply_on) { OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); safe_delay(PSU_LATCH_DELAY); OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = true; }
+      #define PSU_PIN_OFF() while(powersupply_on) { OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); safe_delay(PSU_LATCH_DELAY); OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }
+    #endif
+  #else
+    #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
+    #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
+  #endif
   #if ENABLED(AUTO_POWER_CONTROL)
     #define PSU_ON()       powerManager.power_on()
     #define PSU_OFF()      powerManager.power_off()

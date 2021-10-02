@@ -367,6 +367,17 @@
 
 #if ENABLED(PSU_CONTROL)
   #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
+  //#define PSU_SELF_LATCHING         // Enable if your PSU is self-latching rather than digital-state
+
+  #if ENABLED(PSU_SELF_LATCHING)
+    #define PSU_LATCH_DELAY 200 // (ms) Latch signal delay
+
+    //#define PSU_RS_LATCH // Enable if your PSU latch is Reset/Set, Disable for a Toggle Latch.
+
+    #if ENABLED(PSU_RS_LATCH)
+      #define PS_OFF_PIN 0 // Pin number for the Latch-Reset signal. (Add to pins.h ?)
+    #endif
+  #endif
 
   //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
   //#define PSU_POWERUP_DELAY 250   // (ms) Delay for the PSU to warm up to full power
@@ -374,7 +385,7 @@
   //#define PSU_POWERUP_GCODE  "M355 S1"  // G-code to run after power-on (e.g., case light on)
   //#define PSU_POWEROFF_GCODE "M355 S0"  // G-code to run before power-off (e.g., case light off)
 
-  //#define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
+  #define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS         // Turn on PSU if fans need power
     #define AUTO_POWER_E_FANS
