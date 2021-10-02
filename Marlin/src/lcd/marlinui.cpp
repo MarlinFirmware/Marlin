@@ -1714,6 +1714,20 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       if (touch_calibration.need_calibration()) ui.goto_screen(touch_screen_calibration);
     #endif
   }
+
+  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+    void MarlinUI::zoffset_overlay(const_float_t zvalue) {
+      // Determine whether the user is raising or lowering the nozzle.
+      static int8_t dir;
+      static float old_zvalue;
+      if (zvalue != old_zvalue) {
+        dir = zvalue ? zvalue < old_zvalue ? -1 : 1 : 0;
+        old_zvalue = zvalue;
+      }
+      zoffset_overlay(dir);
+    }
+  #endif
+
 #endif
 
 #if BOTH(EXTENSIBLE_UI, ADVANCED_PAUSE_FEATURE)

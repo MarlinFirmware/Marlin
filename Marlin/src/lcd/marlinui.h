@@ -474,6 +474,11 @@ public:
       static bool did_first_redraw;
     #endif
 
+    #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+      static void zoffset_overlay(const int8_t dir);
+      static void zoffset_overlay(const_float_t zvalue);
+    #endif
+
     static void draw_kill_screen();
 
   #else // No LCD
