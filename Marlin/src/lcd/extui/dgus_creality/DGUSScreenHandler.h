@@ -23,7 +23,7 @@
 
 #include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
-
+#include "../../../module/motion.h"
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_COLOR_LEDS
@@ -39,7 +39,7 @@ enum DGUSLCD_Screens : uint8_t;
 struct creality_dwin_settings_t {
   size_t settings_size;
   uint8_t settings_version;
-  
+
   bool led_state;
   bool display_standby;
   bool display_sound;
@@ -136,11 +136,13 @@ public:
   #if HAS_BED_PROBE
     // Hook for "Change probe offset z"
     static void HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
 
+  #if HAS_MESH
     static void OnMeshLevelingStart();
 
     static void OnMeshLevelingUpdate(const int8_t x, const int8_t y, const float z);
-    
+
     static void InitMeshValues();
 
     static void ResetMeshValues();

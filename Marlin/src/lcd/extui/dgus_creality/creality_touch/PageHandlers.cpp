@@ -116,7 +116,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
                 ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN, false);
             }
-
+#if HAS_MESH
             if (buttonValue == 1) {
                 // TODO: set state for "view leveling mesh"
                 ScreenHandler.SetViewMeshLevelState();
@@ -124,14 +124,15 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
                 ScreenHandler.GotoScreen(DGUSLCD_SCREEN_LEVELING);
             }
+#endif
             break;
 
         case VP_BUTTON_MAINENTERKEY:
             // Go to leveling screen
             ExtUI::injectCommands_P("G28 U0\nG29 U0");
-
+#if HAS_MESH
             ScreenHandler.ResetMeshValues();
-            
+#endif
             dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_LEVELING);
             break;
@@ -367,17 +368,20 @@ void MoveHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             break;
         case 4:
             // Temporary copy probe settings so we home without preheating, then restore setings afterward
+#if ALL(HAS_PROBE, HAS_PROBE_SETTINGS)
             auto prev_probe_settings = probe.settings;
 
             probe.settings.preheat_bed_temp = 0;
             probe.settings.preheat_hotend_temp = 0;
             probe.settings.stabilize_temperatures_after_probing = false;
-
+#endif
             ExtUI::injectCommands_P("G28");
+#if ALL(HAS_PROBE, HAS_PROBE_SETTINGS)
             while (queue.has_commands_queued()) queue.advance();
 
             // ... Restore settings
             probe.settings = prev_probe_settings;
+#endif
             break;
         }
     }
