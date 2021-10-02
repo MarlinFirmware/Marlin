@@ -27,7 +27,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "power.h"
-#include "../module/stepper/indirection.h"
+#include "../module/stepper.h"
 #include "../MarlinCore.h"
 
 #if ENABLED(PS_OFF_SOUND)
@@ -120,6 +120,9 @@ void Power::power_off() {
    */
   bool Power::is_power_needed() {
 
+    // If any of the stepper drivers are enabled...
+    if (stepper.axis_enabled.bits) return true;
+
     if (printJobOngoing() || printingIsPaused()) return true;
 
     #if ENABLED(AUTO_POWER_FANS)
@@ -139,23 +142,6 @@ void Power::power_off() {
 
     if (TERN0(AUTO_POWER_COOLER_FAN, thermalManager.coolerfan_speed))
       return true;
-
-    // If any of the drivers or the bed are enabled...
-    if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
-      #if HAS_X2_ENABLE
-        || X2_ENABLE_READ() == X_ENABLE_ON
-      #endif
-      #if HAS_Y2_ENABLE
-        || Y2_ENABLE_READ() == Y_ENABLE_ON
-      #endif
-      #if HAS_Z2_ENABLE
-        || Z2_ENABLE_READ() == Z_ENABLE_ON
-      #endif
-      #if E_STEPPERS
-        #define _OR_ENABLED_E(N) || E##N##_ENABLE_READ() == E_ENABLE_ON
-        REPEAT(E_STEPPERS, _OR_ENABLED_E)
-      #endif
-    ) return true;
 
     #if HAS_HOTEND
       HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;

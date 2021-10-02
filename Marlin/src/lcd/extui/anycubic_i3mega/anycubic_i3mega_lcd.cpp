@@ -27,6 +27,7 @@
 #include "../ui_api.h"
 
 #include "../../../libs/numtostr.h"
+#include "../../../module/stepper.h" // for disable_all_steppers
 #include "../../../module/motion.h"  // for quickstop_stepper, A20 read printing speed, feedrate_percentage
 #include "../../../MarlinCore.h"     // for disable_steppers
 #include "../../../inc/MarlinConfig.h"
@@ -738,7 +739,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
             if (!isPrinting()) {
               quickstop_stepper();
-              disable_all_steppers();
+              stepper.disable_all_steppers();
             }
 
             SENDLINE_PGM("");
