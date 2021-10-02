@@ -715,15 +715,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       B00001100,B00000000
     };
 
-    void _lcd_zoffset_overlay_gfx(const_float_t zvalue) {
-      // Determine whether the user is raising or lowering the nozzle.
-      static int8_t dir;
-      static float old_zvalue;
-      if (zvalue != old_zvalue) {
-        dir = zvalue ? zvalue < old_zvalue ? -1 : 1 : 0;
-        old_zvalue = zvalue;
-      }
-
+    void MarlinUI::zoffset_overlay(const int8_t dir) {
       const unsigned char *rot_up = TERN(OVERLAY_GFX_REVERSE, ccw_bmp,  cw_bmp),
                         *rot_down = TERN(OVERLAY_GFX_REVERSE,  cw_bmp, ccw_bmp);
 

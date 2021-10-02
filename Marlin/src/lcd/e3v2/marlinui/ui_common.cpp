@@ -562,19 +562,11 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GFX_OVERLAY)
+  #if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
-    void _lcd_zoffset_overlay_gfx(const float zvalue) {
-      // Determine whether the user is raising or lowering the nozzle.
-      static int8_t dir;
-      static float old_zvalue;
-      if (zvalue != old_zvalue) {
-        dir = zvalue ? zvalue < old_zvalue ? -1 : 1 : 0;
-        old_zvalue = zvalue;
-      }
-
+    void MarlinUI::zoffset_overlay(const int8_t dir) {
       const int rot_up = TERN(OVERLAY_GFX_REVERSE, ICON_RotateCCW, ICON_RotateCW),
-                rot_down = TERN(OVERLAY_GFX_REVERSE, ICON_RotateCW, ICON_RotateCCW);
+              rot_down = TERN(OVERLAY_GFX_REVERSE, ICON_RotateCW, ICON_RotateCCW);
 
       const int nozzle = (LCD_PIXEL_WIDTH / 2) - 20;
 
