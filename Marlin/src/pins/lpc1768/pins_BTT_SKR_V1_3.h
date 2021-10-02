@@ -254,7 +254,7 @@
 
   #elif ENABLED(WYH_L12864)
 
-  //#error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+  #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
 
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
