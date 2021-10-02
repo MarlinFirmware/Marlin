@@ -69,11 +69,13 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     // Prepare
     bool zAxisWasRelative = GcodeSuite::axis_is_relative(Z_AXIS);
     bool eAxisWasRelative = GcodeSuite::axis_is_relative(E_AXIS);
+#if ENABLED(LIN_ADVANCE)
     float kFactor = planner.extruder_advance_K[0];
-
+    planner.extruder_advance_K[0] = 0;
+#endif
     GcodeSuite::set_e_relative();
     GcodeSuite::set_relative_mode(true);
-    planner.extruder_advance_K[0] = 0;
+    
 
     ExtUI::injectCommands_P("G0 Z5 F150");
     queue.advance();
@@ -92,7 +94,7 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     SetStatusMessage(PSTR("Extruding..."));
 
     char cmd[64];
-    sprintf_P(cmd, PSTR("G1 E%s F50"), filament_to_extrude);
+    sprintf_P(cmd, PSTR("G1 E%f F50"), filament_to_extrude);
 
     ExtUI::injectCommands(cmd);
     queue.advance();
@@ -106,8 +108,9 @@ void EstepsHandler::HandleStartButton(DGUS_VP_Variable &var, void *val_ptr) {
     // Restore defaults
     if (!zAxisWasRelative) GcodeSuite::set_relative_mode(false);
     if (!eAxisWasRelative) GcodeSuite::set_e_absolute();
+#if ENABLED(LIN_ADVANCE)
     planner.extruder_advance_K[0] = kFactor;
-
+#endif
     // Done
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_ESTEPS_CALIBRATION_RESULTS, false);
     ScreenHandler.Buzzer(0, 250);
