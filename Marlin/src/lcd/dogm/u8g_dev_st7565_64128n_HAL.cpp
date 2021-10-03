@@ -63,6 +63,9 @@
 #define WIDTH 128
 #define HEIGHT 64
 #define PAGE_HEIGHT 8
+#ifndef ST7565_XOFFSET
+  #define ST7565_XOFFSET 0x00
+#endif
 
 #define ST7565_ADC_REVERSE(N)    ((N) ? 0xA1 : 0xA0)
 #define ST7565_BIAS_MODE(N)      ((N) ? 0xA3 : 0xA2)
@@ -123,7 +126,7 @@ static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
 static const uint8_t u8g_dev_st7565_64128n_HAL_data_start[] PROGMEM = {
   U8G_ESC_ADR(0),             // instruction mode
   U8G_ESC_CS(1),              // enable chip
-  ST7565_COLUMN_ADR(0x00),    // high 4 bits to 0, low 4 bits to 0. Changed for DisplayTech 64128N
+  ST7565_COLUMN_ADR(ST7565_XOFFSET), // high 4 bits to 0, low 4 bits to 0. Changed for DisplayTech 64128N
   U8G_ESC_END                 // end of sequence
 };
 
