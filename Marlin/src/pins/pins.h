@@ -683,6 +683,8 @@
 
 #elif MB(CUSTOM)
   #include "pins_custom.h"                      //                                        env:custom
+#elif MB(RESP32_CUSTOM)
+  #include "custom/esp32/pins_resp32_custom.h"        // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board
