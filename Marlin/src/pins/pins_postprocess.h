@@ -1366,7 +1366,7 @@
 //
 // Default DOGLCD SPI delays
 //
-#if DISABLED(U8GLIB_ST7920)
+#if !IS_U8GLIB_ST7920
   #undef ST7920_DELAY_1
   #undef ST7920_DELAY_2
   #undef ST7920_DELAY_3

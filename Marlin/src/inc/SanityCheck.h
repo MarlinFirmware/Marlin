@@ -833,7 +833,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * LCD Lightweight Screen Style
  */
-#if ENABLED(LIGHTWEIGHT_UI) && DISABLED(U8GLIB_ST7920)
+#if ENABLED(LIGHTWEIGHT_UI) && !IS_U8GLIB_ST7920
   #error "LIGHTWEIGHT_UI requires a U8GLIB_ST7920-based display."
 #endif
 
