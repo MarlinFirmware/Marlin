@@ -63,7 +63,7 @@
 #endif
 
 
-// Check for aditional used endstop pins
+// Check for additional used endstop pins
 //
 #if ANY(X_DUAL_ENDSTOPS,Y_DUAL_ENDSTOPS,Z_MULTI_ENDSTOPS)
   #if X2_USE_ENDSTOP == _XMIN_ || Y2_USE_ENDSTOP == _XMIN_|| Z2_USE_ENDSTOP == _XMIN_ || Z3_USE_ENDSTOP == _XMIN_ || Z4_USE_ENDSTOP == _XMIN_
