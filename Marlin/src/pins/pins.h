@@ -681,6 +681,8 @@
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 #elif MB(FYSETC_E4)
   #include "esp32/pins_FYSETC_E4.h"             // ESP32                                  env:FYSETC_E4
+#elif MB(RESP32_CUSTOM)
+  #include "esp32/pins_RESP32_CUSTOM.h"         // ESP32                                  env:esp32
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)
@@ -695,8 +697,6 @@
 
 #elif MB(CUSTOM)
   #include "pins_custom.h"                      //                                        env:custom
-#elif MB(RESP32_CUSTOM)
-  #include "custom/esp32/pins_resp32_custom.h"        // ESP32                                  env:esp32
 
 //
 // Linux Native Debug board
