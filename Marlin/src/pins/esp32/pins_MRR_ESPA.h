@@ -42,14 +42,6 @@
 #include "pins_ESPA_common.h"
 
 //
-// Disable I2S stepper stream
-//
-#undef I2S_STEPPER_STREAM
-#undef I2S_WS
-#undef I2S_BCK
-#undef I2S_DATA
-
-//
 // Steppers
 //
 //#define X_CS_PIN                            21

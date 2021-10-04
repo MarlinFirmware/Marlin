@@ -40,14 +40,6 @@
 
 #include "pins_ESPA_common.h"
 
-//
-// Disable I2S stepper stream
-//
-#undef I2S_STEPPER_STREAM
-#define I2S_WS                                -1
-#define I2S_BCK                               -1
-#define I2S_DATA                              -1
-
 #if HAS_TMC_UART
   //
   // TMC2209 stepper drivers
