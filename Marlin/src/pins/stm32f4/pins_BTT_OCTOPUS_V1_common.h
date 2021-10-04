@@ -96,7 +96,7 @@
   #else
     #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
   #endif
-#elif ANY(X_DUAL_ENDSTOPS, DUAL_X_CARRIAGE, NEEDS_X_MIN, NEEDS_X_MAX)
+#elif ANY( DUAL_X_CARRIAGE, NEEDS_X_MIN, NEEDS_X_MAX)
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                 X_DIAG_PIN  // X-STOP
   #endif
@@ -114,7 +114,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
   #endif
-#elif ANY(Y_DUAL_ENDSTOPS, NEEDS_Y_MIN, NEEDS_Y_MAX)
+#elif EITHER( NEEDS_Y_MIN, NEEDS_Y_MAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-STOP
   #endif
@@ -132,7 +132,7 @@
   #else
     #define Z_MIN_PIN                E2_DIAG_PIN  // PWRDET
   #endif
-#elif EITHER(NEEDS_Z_MIN, NEEDS_Z_MAX)
+#elif EITHER( NEEDS_Z_MIN, NEEDS_Z_MAX )
   #ifndef Z_MIN_PIN
     #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-STOP
   #endif
