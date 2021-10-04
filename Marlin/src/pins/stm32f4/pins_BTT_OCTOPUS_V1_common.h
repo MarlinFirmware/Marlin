@@ -62,6 +62,30 @@
   #define Z_MIN_PROBE_PIN                   PB7
 #endif
 
+
+// Check for aditional used endstop pins
+//
+#if ANY(X_DUAL_ENDSTOPS,Y_DUAL_ENDSTOPS,Z_MULTI_ENDSTOPS)
+  #if X2_USE_ENDSTOP == _XMIN_ || Y2_USE_ENDSTOP == _XMIN_|| Z2_USE_ENDSTOP == _XMIN_ || Z3_USE_ENDSTOP == _XMIN_ || Z4_USE_ENDSTOP == _XMIN_
+    #define NEEDS_X_MIN
+  #endif
+  #if X2_USE_ENDSTOP == _XMAX_ || Y2_USE_ENDSTOP == _XMAX_|| Z2_USE_ENDSTOP == _XMAX_ || Z3_USE_ENDSTOP == _XMAX_ || Z4_USE_ENDSTOP == _XMAX_
+    #define NEEDS_X_MAX
+  #endif
+  #if X2_USE_ENDSTOP == _YMIN_ || Y2_USE_ENDSTOP == _YMIN_|| Z2_USE_ENDSTOP == _YMIN_ || Z3_USE_ENDSTOP == _YMIN_ || Z4_USE_ENDSTOP == _YMIN_
+    #define NEEDS_Y_MIN
+  #endif
+  #if X2_USE_ENDSTOP == _YMAX_ || Y2_USE_ENDSTOP == _YMAX_|| Z2_USE_ENDSTOP == _YMAX_ || Z3_USE_ENDSTOP == _YMAX_ || Z4_USE_ENDSTOP == _YMAX_
+    #define NEEDS_Y_MAX
+  #endif
+  #if X2_USE_ENDSTOP == _ZMIN_ || Y2_USE_ENDSTOP == _ZMIN_|| Z2_USE_ENDSTOP == _ZMIN_ || Z3_USE_ENDSTOP == _ZMIN_ || Z4_USE_ENDSTOP == _ZMIN_
+    #define NEEDS_Z_MIN
+  #endif
+  #if X2_USE_ENDSTOP == _ZMAX_ || Y2_USE_ENDSTOP == _ZMAX_|| Z2_USE_ENDSTOP == _ZMAX_ || Z3_USE_ENDSTOP == _ZMAX_ || Z4_USE_ENDSTOP == _ZMAX_
+    #define NEEDS_Z_MAX
+  #endif
+#endif
+
 //
 // Limit Switches
 //
@@ -72,7 +96,7 @@
   #else
     #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
   #endif
-#elif EITHER(X_DUAL_ENDSTOPS, DUAL_X_CARRIAGE)
+#elif ANY(X_DUAL_ENDSTOPS, DUAL_X_CARRIAGE, NEEDS_X_MIN, NEEDS_X_MAX)
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                 X_DIAG_PIN  // X-STOP
   #endif
@@ -90,7 +114,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
   #endif
-#elif ENABLED(Y_DUAL_ENDSTOPS)
+#elif ANY(Y_DUAL_ENDSTOPS, NEEDS_Y_MIN, NEEDS_Y_MAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-STOP
   #endif
@@ -108,7 +132,7 @@
   #else
     #define Z_MIN_PIN                E2_DIAG_PIN  // PWRDET
   #endif
-#elif ENABLED(Z_MULTI_ENDSTOPS)
+#elif EITHER(NEEDS_Z_MIN, NEEDS_Z_MAX)
   #ifndef Z_MIN_PIN
     #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-STOP
   #endif
