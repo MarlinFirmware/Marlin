@@ -1726,18 +1726,18 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     pause_mode = mode;
     ExtUI::pauseModeStatus = message;
     switch (message) {
-      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PAUSE_PRINT_PARKING));
-      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INIT));
-      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD));
-      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING));
-      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT));
-      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD));
+      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PAUSE_PRINT_PARKING)); break;
+      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INIT)); break;
+      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD)); break;
+      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING)); break;
+      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)); break;
+      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD)); break;
       case PAUSE_MESSAGE_PURGE:
-        ExtUI::onUserConfirmRequired_P(GET_TEXT(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)));
-      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME));
-      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT));
-      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING));
-      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_OPTION_HEADER));
+        ExtUI::onUserConfirmRequired_P(GET_TEXT(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE))); break;
+      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME)); break;
+      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT)); break;
+      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); break;
+      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
       case PAUSE_MESSAGE_STATUS:
       default: break;
     }
