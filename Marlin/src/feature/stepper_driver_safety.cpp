@@ -28,11 +28,11 @@
 
 static uint32_t axis_plug_backward = 0;
 
-void stepper_driver_backward_error(PGM_P str) {
+void stepper_driver_backward_error(FSTR_P const fstr) {
   SERIAL_ERROR_START();
-  SERIAL_ECHOPGM_P(str);
+  SERIAL_ECHOF(fstr);
   SERIAL_ECHOLNPGM(" driver is backward!");
-  ui.status_printf_P(2, PSTR(S_FMT S_FMT), str, GET_TEXT(MSG_DRIVER_BACKWARD));
+  ui.status_printf(2, F(S_FMT S_FMT), FTOP(fstr), GET_TEXT(MSG_DRIVER_BACKWARD));
 }
 
 void stepper_driver_backward_check() {
@@ -45,7 +45,7 @@ void stepper_driver_backward_check() {
       delay(20); \
       if (READ(AXIS##_ENABLE_PIN) == false) { \
         SBI(axis_plug_backward, BIT); \
-        stepper_driver_backward_error(PSTR(STRINGIFY(AXIS))); \
+        stepper_driver_backward_error(F(STRINGIFY(AXIS))); \
       } \
     }while(0)
 
@@ -82,12 +82,12 @@ void stepper_driver_backward_check() {
 void stepper_driver_backward_report() {
   if (!axis_plug_backward) return;
 
-  auto _report_if_backward = [](PGM_P axis, uint8_t bit) {
+  auto _report_if_backward = [](FSTR_P const axis, uint8_t bit) {
     if (TEST(axis_plug_backward, bit))
       stepper_driver_backward_error(axis);
   };
 
-  #define REPORT_BACKWARD(axis, bit) TERN_(HAS_##axis##_ENABLE, _report_if_backward(PSTR(STRINGIFY(axis)), bit))
+  #define REPORT_BACKWARD(axis, bit) TERN_(HAS_##axis##_ENABLE, _report_if_backward(F(STRINGIFY(axis)), bit))
 
   REPORT_BACKWARD(X,   0);
   REPORT_BACKWARD(X2,  1);

@@ -84,7 +84,7 @@ void StressTestScreen::runTestOnBootup(bool enable) {
   // whether or not we need to re-run the test
   // at startup.
   LockScreen::set_hash(enable ? 0xDEAD : 0);
-  injectCommands_P(PSTR("M500"));
+  injectCommands(F("M500"));
 }
 
 void StressTestScreen::startupCheck() {
@@ -122,7 +122,7 @@ void StressTestScreen::onIdle() {
       injectCommands_P(G28_STR);
     }
     else {
-      injectCommands_P(PSTR(
+      injectCommands(F(
         "G0 X100 Y100 Z100 F6000\n"
         "T0\nG4 S1"
         E_TERN_("\nT1\nG4 S1")

@@ -382,9 +382,9 @@ public:
   }
 
   static void report_echo_start(const bool forReplay);
-  static void report_heading(const bool forReplay, PGM_P const pstr, const bool eol=true);
-  static inline void report_heading_etc(const bool forReplay, PGM_P const pstr, const bool eol=true) {
-    report_heading(forReplay, pstr, eol);
+  static void report_heading(const bool forReplay, FSTR_P const fstr, const bool eol=true);
+  static inline void report_heading_etc(const bool forReplay, FSTR_P const fstr, const bool eol=true) {
+    report_heading(forReplay, fstr, eol);
     report_echo_start(forReplay);
   }
   static void say_units();
@@ -397,11 +397,11 @@ public:
   static void process_next_command();
 
   // Execute G-code in-place, preserving current G-code parameters
-  static void process_subcommands_now_P(PGM_P pgcode);
+  static void process_subcommands_now(FSTR_P fgcode);
   static void process_subcommands_now(char * gcode);
 
   static inline void home_all_axes(const bool keep_leveling=false) {
-    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+    process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)

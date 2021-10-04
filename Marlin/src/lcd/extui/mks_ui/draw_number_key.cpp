@@ -404,7 +404,7 @@ static void set_value_confirm() {
     case z_sensitivity: TERN_(Z_SENSORLESS, stepperZ.homing_threshold(atoi(key_value))); break;
     case z2_sensitivity: TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(atoi(key_value))); break;
   }
-  gcode.process_subcommands_now_P(PSTR("M500"));
+  gcode.process_subcommands_now(F("M500"));
 }
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {

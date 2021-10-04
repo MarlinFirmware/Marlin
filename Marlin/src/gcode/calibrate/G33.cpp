@@ -97,10 +97,9 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
   TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, true));
 }
 
-void print_signed_float(PGM_P const prefix, const_float_t f) {
+void print_signed_float(FSTR_P const prefix, const_float_t f) {
   SERIAL_ECHOPGM("  ");
-  SERIAL_ECHOPGM_P(prefix);
-  SERIAL_CHAR(':');
+  SERIAL_ECHOF(prefix, AS_CHAR(':'));
   if (f >= 0) SERIAL_CHAR('+');
   SERIAL_ECHO_F(f, 2);
 }
@@ -111,24 +110,23 @@ void print_signed_float(PGM_P const prefix, const_float_t f) {
 static void print_calibration_settings(const bool end_stops, const bool tower_angles) {
   SERIAL_ECHOPGM(".Height:", delta_height);
   if (end_stops) {
-    print_signed_float(PSTR("Ex"), delta_endstop_adj.a);
-    print_signed_float(PSTR("Ey"), delta_endstop_adj.b);
-    print_signed_float(PSTR("Ez"), delta_endstop_adj.c);
+    print_signed_float(F("Ex"), delta_endstop_adj.a);
+    print_signed_float(F("Ey"), delta_endstop_adj.b);
+    print_signed_float(F("Ez"), delta_endstop_adj.c);
   }
   if (end_stops && tower_angles) {
-    SERIAL_ECHOPGM("  Radius:", delta_radius);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPGM("  Radius:", delta_radius);
     SERIAL_CHAR('.');
     SERIAL_ECHO_SP(13);
   }
   if (tower_angles) {
-    print_signed_float(PSTR("Tx"), delta_tower_angle_trim.a);
-    print_signed_float(PSTR("Ty"), delta_tower_angle_trim.b);
-    print_signed_float(PSTR("Tz"), delta_tower_angle_trim.c);
+    print_signed_float(F("Tx"), delta_tower_angle_trim.a);
+    print_signed_float(F("Ty"), delta_tower_angle_trim.b);
+    print_signed_float(F("Tz"), delta_tower_angle_trim.c);
   }
-  if ((!end_stops && tower_angles) || (end_stops && !tower_angles)) { // XOR
+  if (end_stops != tower_angles)
     SERIAL_ECHOPGM("  Radius:", delta_radius);
-  }
+
   SERIAL_EOL();
 }
 
@@ -137,11 +135,11 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
  */
 static void print_calibration_results(const float z_pt[NPP + 1], const bool tower_points, const bool opposite_points) {
   SERIAL_ECHOPGM(".    ");
-  print_signed_float(PSTR("c"), z_pt[CEN]);
+  print_signed_float(F("c"), z_pt[CEN]);
   if (tower_points) {
-    print_signed_float(PSTR(" x"), z_pt[__A]);
-    print_signed_float(PSTR(" y"), z_pt[__B]);
-    print_signed_float(PSTR(" z"), z_pt[__C]);
+    print_signed_float(F(" x"), z_pt[__A]);
+    print_signed_float(F(" y"), z_pt[__B]);
+    print_signed_float(F(" z"), z_pt[__C]);
   }
   if (tower_points && opposite_points) {
     SERIAL_EOL();
@@ -149,9 +147,9 @@ static void print_calibration_results(const float z_pt[NPP + 1], const bool towe
     SERIAL_ECHO_SP(13);
   }
   if (opposite_points) {
-    print_signed_float(PSTR("yz"), z_pt[_BC]);
-    print_signed_float(PSTR("zx"), z_pt[_CA]);
-    print_signed_float(PSTR("xy"), z_pt[_AB]);
+    print_signed_float(F("yz"), z_pt[_BC]);
+    print_signed_float(F("zx"), z_pt[_CA]);
+    print_signed_float(F("xy"), z_pt[_AB]);
   }
   SERIAL_EOL();
 }
@@ -477,11 +475,11 @@ void GcodeSuite::G33() {
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
   // Report settings
-  PGM_P const checkingac = PSTR("Checking... AC");
-  SERIAL_ECHOPGM_P(checkingac);
+  FSTR_P const checkingac = F("Checking... AC");
+  SERIAL_ECHOF(checkingac);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
-  ui.set_status_P(checkingac);
+  ui.set_status(checkingac);
 
   print_calibration_settings(_endstop_results, _angle_results);
 
@@ -653,13 +651,13 @@ void GcodeSuite::G33() {
       }
     }
     else { // dry run
-      PGM_P const enddryrun = PSTR("End DRY-RUN");
-      SERIAL_ECHOPGM_P(enddryrun);
+      FSTR_P const enddryrun = F("End DRY-RUN");
+      SERIAL_ECHOF(enddryrun);
       SERIAL_ECHO_SP(35);
       SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);
 
       char mess[21];
-      strcpy_P(mess, enddryrun);
+      strcpy_P(mess, FTOP(enddryrun));
       strcpy_P(&mess[11], PSTR(" sd:"));
       if (zero_std_dev < 1)
         sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0f));

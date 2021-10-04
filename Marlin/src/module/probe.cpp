@@ -137,10 +137,10 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #if ENABLED(TOUCH_MI_MANUAL_DEPLOY)
 
       const screenFunc_t prev_screen = ui.currentScreen;
-      LCD_MESSAGEPGM(MSG_MANUAL_DEPLOY_TOUCHMI);
+      LCD_MESSAGE(MSG_MANUAL_DEPLOY_TOUCHMI);
       ui.return_to_status();
 
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Deploy TouchMI"), CONTINUE_STR));
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, F("Deploy TouchMI"), FPSTR(CONTINUE_STR)));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
@@ -290,14 +290,14 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       BUZZ(100, 659);
       BUZZ(100, 698);
 
-      PGM_P const ds_str = deploy ? GET_TEXT(MSG_MANUAL_DEPLOY) : GET_TEXT(MSG_MANUAL_STOW);
+      FSTR_P const ds_str = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
       ui.return_to_status();       // To display the new status message
-      ui.set_status_P(ds_str, 99);
-      SERIAL_ECHOLNPGM_P(ds_str);
+      ui.set_status(ds_str, 99);
+      SERIAL_ECHOLNF(ds_str);
 
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Stow Probe"), CONTINUE_STR));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Stow Probe")));
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, PSTR("Stow Probe"), CONTINUE_STR));
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, F("Stow Probe"), FPSTR(CONTINUE_STR)));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Stow Probe")));
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, F("Stow Probe"), FPSTR(CONTINUE_STR)));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
 
@@ -439,7 +439,7 @@ bool Probe::set_deployed(const bool deploy) {
     if (PROBE_TRIGGERED() == deploy) {             // Unchanged after deploy/stow action?
       if (IsRunning()) {
         SERIAL_ERROR_MSG("Z-Probe failed");
-        LCD_ALERTMESSAGEPGM_P(PSTR("Err: ZPROBE"));
+        LCD_ALERTMESSAGE_F("Err: ZPROBE");
       }
       stop();
       return true;
@@ -793,7 +793,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   if (isnan(measured_z)) {
     stow();
-    LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
+    LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
     #if DISABLED(G29_RETRY_AND_RECOVER)
       SERIAL_ERROR_MSG(STR_ERR_PROBING_FAILED);
     #endif

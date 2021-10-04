@@ -103,12 +103,12 @@ axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
 #endif
 
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
-void GcodeSuite::report_heading(const bool forReplay, PGM_P const pstr, const bool eol/*=true*/) {
+void GcodeSuite::report_heading(const bool forReplay, FSTR_P const fstr, const bool eol/*=true*/) {
   if (forReplay) return;
-  if (pstr) {
+  if (fstr) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("; ");
-    SERIAL_ECHOPGM_P(pstr);
+    SERIAL_ECHOF(fstr);
   }
   if (eol) { SERIAL_CHAR(':'); SERIAL_EOL(); }
 }
@@ -237,12 +237,12 @@ void GcodeSuite::dwell(millis_t time) {
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
     #ifdef ACTION_ON_G29_RECOVER
-      host_action(PSTR(ACTION_ON_G29_RECOVER));
+      host_action(F(ACTION_ON_G29_RECOVER));
     #endif
     #ifdef G29_RECOVER_COMMANDS
-      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+      process_subcommands_now(F(G29_RECOVER_COMMANDS));
     #endif
   }
 
@@ -252,16 +252,16 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_G29_FAILURE));
+      host_action(F(ACTION_ON_G29_FAILURE));
     #endif
     #ifdef G29_FAILURE_COMMANDS
-      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+      process_subcommands_now(F(G29_FAILURE_COMMANDS));
     #endif
     #if ENABLED(G29_HALT_ON_FAILURE)
       #ifdef ACTION_ON_CANCEL
         host_action_cancel();
       #endif
-      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
+      kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
   }
 
@@ -285,7 +285,7 @@ void GcodeSuite::dwell(millis_t time) {
     TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
 
     #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
+      process_subcommands_now(F(G29_SUCCESS_COMMANDS));
     #endif
   }
 
@@ -1067,7 +1067,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 }
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)
-  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
+  void M100_dump_routine(FSTR_P const title, const char * const start, const uintptr_t size);
 #endif
 
 /**
@@ -1086,7 +1086,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
       SERIAL_ECHOPGM("slot:", queue.ring_buffer.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
+      M100_dump_routine(F("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
     #endif
   }
 
@@ -1100,7 +1100,8 @@ void GcodeSuite::process_next_command() {
  * G-code "macros" to be called from within other G-code handlers.
  */
 
-void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
+void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
+  PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
   for (;;) {
     PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline

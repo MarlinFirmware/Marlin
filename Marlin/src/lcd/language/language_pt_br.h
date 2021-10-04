@@ -111,9 +111,8 @@ namespace Language_pt_br {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplicação");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Cópia espelhada");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Controle Total");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2o bico X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2o bico Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2o bico Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2o bico @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Executando G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Ferramentas UBL");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Nivel. Mesa Unif.");

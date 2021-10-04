@@ -785,7 +785,7 @@ static void z_minus() { moveAxis(Z_AXIS, -1); }
 
 static void disable_steppers() {
   quick_feedback();
-  queue.inject_P(PSTR("M84"));
+  queue.inject(F("M84"));
 }
 
 static void drawBtn(int x, int y, const char *label, intptr_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {

@@ -84,12 +84,12 @@ void NextionTFT::IdleLoop() {
   UpdateOnChange();
 }
 
-void NextionTFT::PrinterKilled(PGM_P error, PGM_P component) {
+void NextionTFT::PrinterKilled(FSTR_P const error, FSTR_P const component) {
   SEND_TXT_END("page error");
-  SEND_TXT("t3", "Error");
-  SEND_TXT_P("t4", component);
-  SEND_TXT_P("t5", error);
-  SEND_TXT("t6", "Need reset");
+  SEND_TXT_F("t3", F("Error"));
+  SEND_TXT_F("t4", component);
+  SEND_TXT_F("t5", error);
+  SEND_TXT_F("t6", F("Need reset"));
 }
 
 void NextionTFT::PrintFinished() {
@@ -110,12 +110,12 @@ void NextionTFT::StatusChange(const char * const msg) {
   SEND_VALasTXT("tmppage.M117", msg);
 }
 
-void NextionTFT::SendtoTFT(PGM_P str) { // A helper to print PROGMEM string to the panel
+void NextionTFT::SendtoTFT(FSTR_P fstr) { // A helper to print PROGMEM string to the panel
   #if NEXDEBUG(N_SOME)
-    DEBUG_ECHOPGM_P(str);
+    DEBUG_ECHOF(fstr);
   #endif
-  while (const char c = pgm_read_byte(str++))
-    LCD_SERIAL.write(c);
+  PGM_P str = FTOP(fstr);
+  while (const char c = pgm_read_byte(str++)) LCD_SERIAL.write(c);
 }
 
 bool NextionTFT::ReadTFTCommand() {
@@ -522,7 +522,7 @@ void NextionTFT::PanelAction(uint8_t req) {
 
     case 66: // Refresh SD
       if (!isPrinting()) {
-        injectCommands_P(PSTR("M21"));
+        injectCommands(F("M21"));
         filenavigator.reset();
       }
       break;
@@ -546,8 +546,8 @@ void NextionTFT::PanelAction(uint8_t req) {
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         if (canMove(getActiveTool())) {
           switch (nextion_command[4]) {
-            case 'L': injectCommands_P(PSTR("M701")); break;
-            case 'U': injectCommands_P(PSTR("M702")); break;
+            case 'L': injectCommands(F("M701")); break;
+            case 'U': injectCommands(F("M702")); break;
           }
         }
         else {

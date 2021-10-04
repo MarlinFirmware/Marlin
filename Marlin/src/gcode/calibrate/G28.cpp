@@ -156,7 +156,7 @@
       homeaxis(Z_AXIS);
     }
     else {
-      LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+      LCD_MESSAGE(MSG_ZPROBE_OUT);
       SERIAL_ECHO_MSG(STR_ZPROBE_OUT_SER);
     }
   }
@@ -269,33 +269,33 @@ void GcodeSuite::G28() {
   #endif
 
   #if HAS_HOMING_CURRENT
-    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
-      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+    auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
+      DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
       stepperX.rms_current(X_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("X"), tmc_save_current_X, X_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("X"), tmc_save_current_X, X_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(X2)
       const int16_t tmc_save_current_X2 = stepperX2.getMilliamps();
       stepperX2.rms_current(X2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("X2"), tmc_save_current_X2, X2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("X2"), tmc_save_current_X2, X2_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y)
       const int16_t tmc_save_current_Y = stepperY.getMilliamps();
       stepperY.rms_current(Y_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y"), tmc_save_current_Y, Y_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("Y"), tmc_save_current_Y, Y_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y2)
       const int16_t tmc_save_current_Y2 = stepperY2.getMilliamps();
       stepperY2.rms_current(Y2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
       const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
       stepperZ.rms_current(Z_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
     #endif
   #endif
 
