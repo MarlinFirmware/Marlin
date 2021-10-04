@@ -66,23 +66,17 @@
 // Check for additional used endstop pins
 //
 #if ANY(X_DUAL_ENDSTOPS,Y_DUAL_ENDSTOPS,Z_MULTI_ENDSTOPS)
-  #if X2_USE_ENDSTOP == _XMIN_ || Y2_USE_ENDSTOP == _XMIN_|| Z2_USE_ENDSTOP == _XMIN_ || Z3_USE_ENDSTOP == _XMIN_ || Z4_USE_ENDSTOP == _XMIN_
-    #define NEEDS_X_MIN
+  #if X2_USE_ENDSTOP == _XMIN_ || Y2_USE_ENDSTOP == _XMIN_|| Z2_USE_ENDSTOP == _XMIN_ || Z3_USE_ENDSTOP == _XMIN_ || Z4_USE_ENDSTOP == _XMIN_ \
+    || X2_USE_ENDSTOP == _XMAX_ || Y2_USE_ENDSTOP == _XMAX_|| Z2_USE_ENDSTOP == _XMAX_ || Z3_USE_ENDSTOP == _XMAX_ || Z4_USE_ENDSTOP == _XMAX_
+    #define NEEDS_X_MINMAX
   #endif
-  #if X2_USE_ENDSTOP == _XMAX_ || Y2_USE_ENDSTOP == _XMAX_|| Z2_USE_ENDSTOP == _XMAX_ || Z3_USE_ENDSTOP == _XMAX_ || Z4_USE_ENDSTOP == _XMAX_
-    #define NEEDS_X_MAX
+  #if X2_USE_ENDSTOP == _YMIN_ || Y2_USE_ENDSTOP == _YMIN_|| Z2_USE_ENDSTOP == _YMIN_ || Z3_USE_ENDSTOP == _YMIN_ || Z4_USE_ENDSTOP == _YMIN_ \
+    || X2_USE_ENDSTOP == _YMAX_ || Y2_USE_ENDSTOP == _YMAX_|| Z2_USE_ENDSTOP == _YMAX_ || Z3_USE_ENDSTOP == _YMAX_ || Z4_USE_ENDSTOP == _YMAX_
+    #define NEEDS_Y_MINMAX
   #endif
-  #if X2_USE_ENDSTOP == _YMIN_ || Y2_USE_ENDSTOP == _YMIN_|| Z2_USE_ENDSTOP == _YMIN_ || Z3_USE_ENDSTOP == _YMIN_ || Z4_USE_ENDSTOP == _YMIN_
-    #define NEEDS_Y_MIN
-  #endif
-  #if X2_USE_ENDSTOP == _YMAX_ || Y2_USE_ENDSTOP == _YMAX_|| Z2_USE_ENDSTOP == _YMAX_ || Z3_USE_ENDSTOP == _YMAX_ || Z4_USE_ENDSTOP == _YMAX_
-    #define NEEDS_Y_MAX
-  #endif
-  #if X2_USE_ENDSTOP == _ZMIN_ || Y2_USE_ENDSTOP == _ZMIN_|| Z2_USE_ENDSTOP == _ZMIN_ || Z3_USE_ENDSTOP == _ZMIN_ || Z4_USE_ENDSTOP == _ZMIN_
-    #define NEEDS_Z_MIN
-  #endif
-  #if X2_USE_ENDSTOP == _ZMAX_ || Y2_USE_ENDSTOP == _ZMAX_|| Z2_USE_ENDSTOP == _ZMAX_ || Z3_USE_ENDSTOP == _ZMAX_ || Z4_USE_ENDSTOP == _ZMAX_
-    #define NEEDS_Z_MAX
+  #if X2_USE_ENDSTOP == _ZMIN_ || Y2_USE_ENDSTOP == _ZMIN_|| Z2_USE_ENDSTOP == _ZMIN_ || Z3_USE_ENDSTOP == _ZMIN_ || Z4_USE_ENDSTOP == _ZMIN_ \
+    || X2_USE_ENDSTOP == _ZMAX_ || Y2_USE_ENDSTOP == _ZMAX_|| Z2_USE_ENDSTOP == _ZMAX_ || Z3_USE_ENDSTOP == _ZMAX_ || Z4_USE_ENDSTOP == _ZMAX_
+    #define NEEDS_Z_MINMAX
   #endif
 #endif
 
@@ -96,7 +90,7 @@
   #else
     #define X_MIN_PIN                E0_DIAG_PIN  // E0DET
   #endif
-#elif ANY(DUAL_X_CARRIAGE, NEEDS_X_MIN, NEEDS_X_MAX)
+#elif EITHER(DUAL_X_CARRIAGE, NEEDS_X_MINMAX)
   #ifndef X_MIN_PIN
     #define X_MIN_PIN                 X_DIAG_PIN  // X-STOP
   #endif
@@ -114,7 +108,7 @@
   #else
     #define Y_MIN_PIN                E1_DIAG_PIN  // E1DET
   #endif
-#elif EITHER(NEEDS_Y_MIN, NEEDS_Y_MAX)
+#elif ENABLED(NEEDS_Y_MINMAX)
   #ifndef Y_MIN_PIN
     #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-STOP
   #endif
@@ -132,7 +126,7 @@
   #else
     #define Z_MIN_PIN                E2_DIAG_PIN  // PWRDET
   #endif
-#elif EITHER(NEEDS_Z_MIN, NEEDS_Z_MAX)
+#elif ENABLED(NEEDS_Z_MINMAX)
   #ifndef Z_MIN_PIN
     #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-STOP
   #endif
