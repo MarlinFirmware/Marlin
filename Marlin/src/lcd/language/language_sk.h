@@ -34,9 +34,11 @@
  * Substitutions are applied for the following characters when used
  * in menu items that call lcd_put_u8str_ind_P with an index:
  *
+ *   $ displays an inserted C-string
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 #define DISPLAY_CHARSET_ISO10646_SK
 
@@ -172,9 +174,8 @@ namespace Language_sk {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Zrkadlená kópia");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplik. medz.-X");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2. tryska X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2. tryska Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Vykonávam G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Nástroje UBL");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("UBL rovnanie");
@@ -300,6 +301,7 @@ namespace Language_sk {
   LSTR MSG_MAXSPEED_Y                     = _UxGT("Max rýchl. ") LCD_STR_B;
   LSTR MSG_MAXSPEED_Z                     = _UxGT("Max rýchl. ") LCD_STR_C;
   LSTR MSG_MAXSPEED_E                     = _UxGT("Max rýchl. ") LCD_STR_E;
+  LSTR MSG_MAXSPEED_A                     = _UxGT("Max rýchl. @");
   LSTR MSG_BED_Z                          = _UxGT("Výška podl.");
   LSTR MSG_NOZZLE                         = _UxGT("Tryska");
   LSTR MSG_NOZZLE_N                       = _UxGT("Tryska ~");
