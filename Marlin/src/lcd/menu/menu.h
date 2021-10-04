@@ -60,7 +60,9 @@ class MenuItemBase {
     // Store the index of the item ahead of use by indexed items
     FORCE_INLINE static void init(const int8_t ind=0, PGM_P const pstr=nullptr) { itemIndex = ind; itemString = pstr; }
 
+    // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
+    // Menus may set up itemIndex, itemString and pass them to string-building or string-emitting functions
     static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
 
     // Draw an item either selected ('>') or not (space) with post_char
@@ -167,11 +169,11 @@ class MenuEditItemBase : public MenuItemBase {
     );
     static void edit_screen(strfunc_t, loadfunc_t); // Edit value handler
   public:
-    // Implemented for HD44780 and DOGM
+    // Implementation-specific:
     // Draw the current item at specified row with edit data
     static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char * const inStr, const bool pgm=false);
 
-    // Implemented for HD44780 and DOGM
+    // Implementation-specific:
     // This low-level method is good to draw from anywhere
     static void draw_edit_screen(PGM_P const pstr, const char * const value);
 

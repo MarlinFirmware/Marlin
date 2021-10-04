@@ -174,12 +174,12 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(DUAL_X_CARRIAGE)
-      EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_X, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_X, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Y, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
-    EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Z, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
