@@ -121,9 +121,8 @@ namespace Language_de {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplizieren");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Spiegelkopie");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("vollstä. Kontrolle");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2. Düse X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2. Düse Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. Düse Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. Düse @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 ausführen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
