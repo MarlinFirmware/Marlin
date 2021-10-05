@@ -719,11 +719,10 @@ namespace Language_en {
   LSTR MSG_PASSWORD_REMOVED               = _UxGT("Password Removed");
 
   //
-  // Filament Change screens show up to 3 lines on a 4-line display
-  //                        ...or up to 2 lines on a 3-line display
+  // Advanced Pause screens show up to 3 lines on a 4-line display
+  //                       ...or up to 2 lines on a 3-line display
   //
   #if LCD_HEIGHT >= 4
-<<<<<<< HEAD
     LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_2_LINE("Press Button", "to resume print"));
     LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parking..."));
     LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Wait for", "filament change", "to start"));
@@ -735,6 +734,15 @@ namespace Language_en {
     LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_2_LINE("Wait for", "filament purge"));
     LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Click to finish", "filament purge"));
     LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Wait for print", "to resume..."));
+    LSTR MSG_PAUSE_TOOL_CHANGE            = _UxGT(MSG_2_LINE("Change tool and", "click to resume..."));
+    LSTR MSG_PAUSE_TOOL_CHANGE_0          = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_0, "Click to resume..."));
+    LSTR MSG_PAUSE_TOOL_CHANGE_1          = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_1, "Click to resume..."));
+    OPTCODE(HAS_TOOL_2, LSTR MSG_PAUSE_TOOL_CHANGE_2 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_2, "Click to resume...")));
+    OPTCODE(HAS_TOOL_3, LSTR MSG_PAUSE_TOOL_CHANGE_3 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_3, "Click to resume...")));
+    OPTCODE(HAS_TOOL_4, LSTR MSG_PAUSE_TOOL_CHANGE_4 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_4, "Click to resume...")));
+    OPTCODE(HAS_TOOL_5, LSTR MSG_PAUSE_TOOL_CHANGE_5 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_5, "Click to resume...")));
+    OPTCODE(HAS_TOOL_6, LSTR MSG_PAUSE_TOOL_CHANGE_6 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_6, "Click to resume...")));
+    OPTCODE(HAS_TOOL_7, LSTR MSG_PAUSE_TOOL_CHANGE_7 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_7, "Click to resume...")));
   #else
     LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_1_LINE("Click to continue"));
     LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parking..."));
@@ -747,33 +755,15 @@ namespace Language_en {
     LSTR MSG_FILAMENT_CHANGE_PURGE        = _UxGT(MSG_1_LINE("Purging..."));
     LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("Click to finish"));
     LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("Resuming..."));
-=======
-    PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Press Button", "to resume print"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parking..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Wait for", "filament change", "to start"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Insert filament", "and press button", "to continue"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Press button", "to heat nozzle"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_2_LINE("Nozzle heating", "Please wait..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_2_LINE("Wait for", "filament unload"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_2_LINE("Wait for", "filament load"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_2_LINE("Wait for", "filament purge"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_2_LINE("Click to finish", "filament purge"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Wait for print", "to resume..."));
-    PROGMEM Language_Str MSG_PAUSE_TOOL_CHANGE             = _UxGT(MSG_2_LINE("Change tool and", "click to resume..."));
-  #else
-    PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Click to continue"));
-    PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parking..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Please wait..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Insert and Click"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Click to heat"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_1_LINE("Heating..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_1_LINE("Ejecting..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_1_LINE("Loading..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_1_LINE("Purging..."));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("Click to finish"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("Resuming..."));
-    PROGMEM Language_Str MSG_PAUSE_TOOL_CHANGE             = _UxGT(MSG_1_LINE("Change Tool and Click"));
->>>>>>> 50e16a0275 (better pause screens)
+    LSTR MSG_PAUSE_TOOL_CHANGE            = _UxGT(MSG_1_LINE("Change Tool and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_0          = _UxGT(MSG_1_LINE("Insert Tool 0 and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_1          = _UxGT(MSG_1_LINE("Insert Tool 1 and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_2          = _UxGT(MSG_1_LINE("Insert Tool 2 and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_3          = _UxGT(MSG_1_LINE("Insert Tool 3 and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_4          = _UxGT(MSG_1_LINE("Insert Tool 4 and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_5          = _UxGT(MSG_1_LINE("Insert Tool 5 and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_6          = _UxGT(MSG_1_LINE("Insert Tool 6 and Click"));
+    LSTR MSG_PAUSE_TOOL_CHANGE_7          = _UxGT(MSG_1_LINE("Insert Tool 7 and Click"));
   #endif
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");

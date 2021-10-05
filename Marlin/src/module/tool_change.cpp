@@ -405,6 +405,21 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
   }
 
+  PauseMessage manual_switching_toolhead_pause_message(const uint8_t new_tool) {
+    switch (new_tool) {
+      case 0: return PAUSE_MESSAGE_TOOL_CHANGE_0;
+      case 1: return PAUSE_MESSAGE_TOOL_CHANGE_1;
+      OPTCODE(HAS_TOOL_2, case 2: return PAUSE_MESSAGE_TOOL_CHANGE_2);
+      OPTCODE(HAS_TOOL_3, case 3: return PAUSE_MESSAGE_TOOL_CHANGE_3);
+      OPTCODE(HAS_TOOL_4, case 4: return PAUSE_MESSAGE_TOOL_CHANGE_4);
+      OPTCODE(HAS_TOOL_5, case 5: return PAUSE_MESSAGE_TOOL_CHANGE_5);
+      OPTCODE(HAS_TOOL_6, case 6: return PAUSE_MESSAGE_TOOL_CHANGE_6);
+      OPTCODE(HAS_TOOL_7, case 7: return PAUSE_MESSAGE_TOOL_CHANGE_7);
+      default: break;
+    }
+    return PAUSE_MESSAGE_TOOL_CHANGE;
+  }
+
   inline void manual_switching_toolhead_tool_change(const uint8_t new_tool) {
     DEBUG_ECHOPGM("tool change, active ", active_extruder, " new ", new_tool);
 
@@ -412,8 +427,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     thermalManager.heating_enabled = false;
     thermalManager.disable_all_heaters(); // ?
 
+    PauseMessage pm = manual_switching_toolhead_pause_message(new_tool);
+    ui.pause_show_message(pm, PAUSE_MODE_TOOL_CHANGE);
     if (pause_print(0.0, current_position, true, 0)) {
-      wait_for_confirmation(false, 2, PAUSE_MESSAGE_TOOL_CHANGE);
+      wait_for_confirmation(false, 2, pm);
       manual_switching_toolhead_set_new_tool(new_tool);
       ui.set_status_P(PSTR("Tool Changed"));
     } else {

@@ -1766,6 +1766,26 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       case PAUSE_MESSAGE_HEATING:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
       case PAUSE_MESSAGE_OPTION:      ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
       case PAUSE_MESSAGE_TOOL_CHANGE: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE));
+      case PAUSE_MESSAGE_TOOL_CHANGE_0: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_0));
+      case PAUSE_MESSAGE_TOOL_CHANGE_1: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_1));
+      #if HAS_TOOL_2
+        case PAUSE_MESSAGE_TOOL_CHANGE_2: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_2));
+      #endif
+      #if HAS_TOOL_3
+        case PAUSE_MESSAGE_TOOL_CHANGE_3: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_3));
+      #endif
+      #if HAS_TOOL_4
+        case PAUSE_MESSAGE_TOOL_CHANGE_4: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_4));
+      #endif
+      #if HAS_TOOL_5
+        case PAUSE_MESSAGE_TOOL_CHANGE_5: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_5));
+      #endif
+      #if HAS_TOOL_6
+        case PAUSE_MESSAGE_TOOL_CHANGE_6: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_6));
+      #endif
+      #if HAS_TOOL_7
+        case PAUSE_MESSAGE_TOOL_CHANGE_7: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_7));
+      #endif
       case PAUSE_MESSAGE_STATUS:
       default: break;
     }
