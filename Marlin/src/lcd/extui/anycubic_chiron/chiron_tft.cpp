@@ -315,7 +315,7 @@ void ChironTFT::PrintComplete() {
   setSoftEndstopState(true); // enable endstops
 }
 
-void ChironTFT::SendtoTFT(FSTR_P const fstr) {  // A helper to print PROGMEM string to the panel
+void ChironTFT::SendtoTFT(FSTR_P const fstr/*=nullptr*/) {  // A helper to print PROGMEM string to the panel
   #if ACDEBUG(AC_SOME)
     SERIAL_ECHOF(fstr);
   #endif
@@ -323,7 +323,7 @@ void ChironTFT::SendtoTFT(FSTR_P const fstr) {  // A helper to print PROGMEM str
   while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
 }
 
-void ChironTFT::SendtoTFTLN(FSTR_P const fstr) {
+void ChironTFT::SendtoTFTLN(FSTR_P const fstr/*=nullptr*/) {
   if (fstr) {
     #if ACDEBUG(AC_SOME)
       SERIAL_ECHOPGM("> ");

@@ -67,8 +67,8 @@ class ChironTFT {
     static void StatusChange(const char * const);
     static void PowerLossRecovery();
     static void PrintComplete();
-    static void SendtoTFT(FSTR_P const);
-    static void SendtoTFTLN(FSTR_P const);
+    static void SendtoTFT(FSTR_P const=nullptr);
+    static void SendtoTFTLN(FSTR_P const=nullptr);
   private:
     static void DetectPanelType();
     static bool ReadTFTCommand();
