@@ -145,7 +145,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
           if (runout_flags) {
             SERIAL_ECHOPGM("Runout Sensors: ");
             LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(runout_flags, i));
-            SERIAL_ECHOPAIR(" -> ", extruder);
+            SERIAL_ECHOPGM(" -> ", extruder);
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();
           }
@@ -317,7 +317,7 @@ class FilamentSensorBase {
             static uint8_t was_out; // = 0
             if (out != TEST(was_out, s)) {
               TBI(was_out, s);
-              SERIAL_ECHOLNPAIR_P(PSTR("Filament Sensor "), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
+              SERIAL_ECHOLNF(F("Filament Sensor "), AS_DIGIT(s), out ? F(" OUT") : F(" IN"));
             }
           #endif
         }
@@ -352,7 +352,7 @@ class FilamentSensorBase {
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
             LOOP_L_N(i, NUM_RUNOUT_SENSORS)
-              SERIAL_ECHOPAIR_P(i ? PSTR(", ") : PSTR("Remaining mm: "), runout_mm_countdown[i]);
+              SERIAL_ECHOF(i ? F(", ") : F("Remaining mm: "), runout_mm_countdown[i]);
             SERIAL_EOL();
           }
         #endif
@@ -373,7 +373,7 @@ class FilamentSensorBase {
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps.e;
-          runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.steps_to_mm[E_AXIS_N(e)];
+          runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.mm_per_step[E_AXIS_N(e)];
         }
       }
   };

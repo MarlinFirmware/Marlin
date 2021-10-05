@@ -527,7 +527,7 @@ class Temperature {
 
     #if HAS_USER_THERMISTORS
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
-      static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
+      static void M305_report(const uint8_t t_index, const bool forReplay=true);
       static void reset_user_thermistors();
       static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int16_t raw);
       static inline bool set_pull_up_res(int8_t t_index, float value) {
@@ -961,7 +961,7 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
+    static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 

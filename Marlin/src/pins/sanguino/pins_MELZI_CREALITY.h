@@ -36,10 +36,10 @@
 #define BOARD_INFO_NAME "Melzi (Creality)"
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
-  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 #endif
 
 #include "pins_MELZI.h"

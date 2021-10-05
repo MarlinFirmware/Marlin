@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -132,12 +135,18 @@
 
   #define TFT_RESET_PIN                     PC4   // pin 33
   #define TFT_BACKLIGHT_PIN                 PD12  // pin 59
+  #define TFT_BACKLIGHT_PWM                 150   // Brightness with alt. TIM4 chan 1 (1-255)
 
   #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
   #define DOGLCD_SCK                        -1
 
   // Buffer for Color UI
   #define TFT_BUFFER_SIZE                   3200
+#endif
+
+#if defined(TFT_BACKLIGHT_PWM) && !defined(MAPLE_STM32F1)
+  #define HAS_LCD_BRIGHTNESS 1
+  #define DEFAULT_LCD_BRIGHTNESS TFT_BACKLIGHT_PWM
 #endif
 
 #if ENABLED(SDIO_SUPPORT)

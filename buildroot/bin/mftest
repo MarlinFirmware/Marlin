@@ -133,7 +133,7 @@ lp9|lpc9) TESTENV='LPC1769' ;;
      t36) TESTENV='teensy35' ;;
      t40) TESTENV='teensy41' ;;
      t41) TESTENV='teensy41' ;;
-[1-9][1-9]|[1-9]) TESTNUM=$TESTENV ; TESTENV=- ;;
+[1-9]|[1-9][0-9]) TESTNUM=$TESTENV ; TESTENV=- ;;
 esac
 
 if ((AUTO_BUILD)); then
@@ -208,7 +208,7 @@ if [[ $TESTENV == '-' ]]; then
   NAMES=()
   MENU=()
   BIGLEN=0
-  for FILE in $( ls -1 $TESTPATH/* )
+  for FILE in $( ls -1 $TESTPATH/* | sort -f )
   do
     let IND++
     TNAME=${FILE/$TESTPATH\//}

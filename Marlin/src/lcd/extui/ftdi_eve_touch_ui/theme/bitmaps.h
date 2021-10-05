@@ -239,7 +239,7 @@ namespace Theme {
     .width        = 31,
     .height       = 32,
   };
-  
+
   const unsigned char Light_Bulb[128] PROGMEM = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
     0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x04, 0x00, 0x00, 0x40,
@@ -256,4 +256,4 @@ namespace Theme {
 
   constexpr PROGMEM uint32_t UTF8_FONT_OFFSET  = 10000;
   constexpr PROGMEM uint32_t BACKGROUND_OFFSET = 40000;
-}; // namespace Theme
+} // namespace Theme

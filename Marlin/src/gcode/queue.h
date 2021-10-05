@@ -127,6 +127,7 @@ public:
    * Aborts the current PROGMEM queue so only use for one or two commands.
    */
   static inline void inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
+  static inline void inject(FSTR_P const fgcode) { inject_P(FTOP(fgcode)); }
 
   /**
    * Enqueue command(s) to run from SRAM. Drained by process_injected_command().
@@ -139,18 +140,19 @@ public:
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  static void enqueue_one_now(const char *cmd);
+  static void enqueue_one_now(const char * const cmd);
 
   /**
    * Attempt to enqueue a single G-code command
    * and return 'true' if successful.
    */
-  static bool enqueue_one_P(PGM_P const pgcode);
+  static bool enqueue_one(FSTR_P const fgcode);
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued
    */
-  static void enqueue_now_P(PGM_P const cmd);
+  static void enqueue_now_P(PGM_P const pcmd);
+  static inline void enqueue_now(FSTR_P const fcmd) { enqueue_now_P(FTOP(fcmd)); }
 
   /**
    * Check whether there are any commands yet to be executed
@@ -257,7 +259,7 @@ private:
    */
   static bool enqueue_one(const char *cmd);
 
-  static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
+  static void gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind);
 
   friend class GcodeSuite;
 };

@@ -446,17 +446,45 @@
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
-
   #elif ENABLED(MKS_MINI_12864)
 
     #define DOGLCD_A0                EXP1_04_PIN
     #define DOGLCD_CS                EXP1_05_PIN
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_EN2                  EXP2_06_PIN
+
+  #elif ENABLED(WYH_L12864)
+
+    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+
+    /**
+     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires.
+     *
+     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+     *
+     * The WYH_L12864 connector plug:
+     *
+     *                  BEFORE                      AFTER
+     *                  ______                     ______
+     *             GND | 1  2 | 5V             5V | 1  2 | GND
+     *              CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+     *             SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+     *             SCK | 7  8 | BTN_ENC       SCK | 7  8 | BTN_ENC
+     *            MOSI | 9 10 |              MOSI | 9 10 |
+     *                  ------                     ------
+     *                   LCD                        LCD
+     */
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+    #define BTN_EN1                  EXP1_06_PIN
+    #define BTN_EN2                  EXP1_04_PIN
+    #define BTN_ENC                  EXP1_08_PIN
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP1_07_PIN
+    #define DOGLCD_MOSI              EXP1_09_PIN
+    #define LCD_BACKLIGHT_PIN            -1
 
   #else
 
@@ -504,15 +532,15 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1   DELAY_NS(125)
+    #define BOARD_ST7920_DELAY_1             125
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2   DELAY_NS( 90)
+    #define BOARD_ST7920_DELAY_2              90
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 #endif
 

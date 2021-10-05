@@ -70,10 +70,10 @@ void FilesScreen::onEntry() {
   BaseScreen::onEntry();
 }
 
-const char *FilesScreen::getSelectedFilename(bool longName) {
+const char *FilesScreen::getSelectedFilename(bool shortName) {
   FileList files;
   files.seek(getSelectedFileIndex(), true);
-  return longName ? files.longFilename() : files.shortFilename();
+  return shortName ? files.shortFilename() : files.filename();
 }
 
 void FilesScreen::drawSelectedFile() {
@@ -132,13 +132,13 @@ void FilesScreen::drawFileList() {
   mydata.num_page = max(1,ceil(float(files.count()) / FILES_PER_PAGE));
   mydata.cur_page = min(mydata.cur_page, mydata.num_page-1);
   mydata.flags.is_root  = files.isAtRootDir();
+  mydata.flags.is_empty = true;
 
   uint16_t fileIndex = mydata.cur_page * FILES_PER_PAGE;
   for (uint8_t i = 0; i < FILES_PER_PAGE; i++, fileIndex++) {
-    if (files.seek(fileIndex))
-      drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
-    else
-      break;
+    if (!files.seek(fileIndex)) break;
+    drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
+    mydata.flags.is_empty = false;
   }
 }
 
@@ -252,11 +252,11 @@ bool FilesScreen::onTouchEnd(uint8_t tag) {
           mydata.scroll_pos = 0;
           mydata.scroll_max = 0;
           if (FTDI::ftdi_chip >= 810) {
-            const char *longFilename = getSelectedLongFilename();
-            if (longFilename[0]) {
+            const char *filename = getSelectedFilename();
+            if (filename[0]) {
               CommandProcessor cmd;
               constexpr int dim[4] = {LIST_POS};
-              const uint16_t text_width = cmd.font(font_medium).text_width(longFilename);
+              const uint16_t text_width = cmd.font(font_medium).text_width(filename);
               if (text_width > dim[2])
                 mydata.scroll_max = text_width - dim[2] + MARGIN_L + MARGIN_R + 10;
             }

@@ -74,7 +74,7 @@ millis_t GcodeSuite::previous_move_ms = 0,
 
 // Relative motion mode for each logical axis
 static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
-uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
+axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   | (ar_init.e << REL_E),
   | (ar_init.x << REL_X),
   | (ar_init.y << REL_Y),
@@ -102,6 +102,24 @@ uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
+void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
+void GcodeSuite::report_heading(const bool forReplay, FSTR_P const fstr, const bool eol/*=true*/) {
+  if (forReplay) return;
+  if (fstr) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM("; ");
+    SERIAL_ECHOF(fstr);
+  }
+  if (eol) { SERIAL_CHAR(':'); SERIAL_EOL(); }
+}
+
+void GcodeSuite::say_units() {
+  SERIAL_ECHOLNPGM_P(
+    TERN_(INCH_MODE_SUPPORT, parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :)
+    PSTR(" (mm)")
+  );
+}
+
 /**
  * Get the target extruder from the T parameter or the active_extruder
  * Return -1 if the T parameter is out of range
@@ -112,7 +130,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     if (e < EXTRUDERS) return e;
     SERIAL_ECHO_START();
     SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_EXTRUDER " ", e);
+    SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
     return -1;
   }
   return active_extruder;
@@ -131,7 +149,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command() {
   if (e == -1)
     SERIAL_ECHOLNPGM(" " STR_E_STEPPER_NOT_SPECIFIED);
   else
-    SERIAL_ECHOLNPAIR(" " STR_INVALID_E_STEPPER " ", e);
+    SERIAL_ECHOLNPGM(" " STR_INVALID_E_STEPPER " ", e);
   return -1;
 }
 
@@ -180,7 +198,7 @@ void GcodeSuite::get_destination_from_command() {
       recovery.save();
   #endif
 
-  if (parser.linearval('F') > 0)
+  if (parser.floatval('F') > 0)
     feedrate_mm_s = parser.value_feedrate();
 
   #if ENABLED(PRINTCOUNTER)
@@ -197,7 +215,7 @@ void GcodeSuite::get_destination_from_command() {
     // Set the laser power in the planner to configure this move
     if (parser.seen('S')) {
       const float spwr = parser.value_float();
-      cutter.inline_power(TERN(SPINDLE_LASER_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
+      cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
     }
     else if (ENABLED(LASER_MOVE_G0_OFF) && parser.codenum == 0) // G0
       cutter.set_inline_enabled(false);
@@ -219,12 +237,12 @@ void GcodeSuite::dwell(millis_t time) {
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
+    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
     #ifdef ACTION_ON_G29_RECOVER
-      host_action(PSTR(ACTION_ON_G29_RECOVER));
+      host_action(F(ACTION_ON_G29_RECOVER));
     #endif
     #ifdef G29_RECOVER_COMMANDS
-      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+      process_subcommands_now(F(G29_RECOVER_COMMANDS));
     #endif
   }
 
@@ -234,16 +252,16 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_G29_FAILURE));
+      host_action(F(ACTION_ON_G29_FAILURE));
     #endif
     #ifdef G29_FAILURE_COMMANDS
-      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+      process_subcommands_now(F(G29_FAILURE_COMMANDS));
     #endif
     #if ENABLED(G29_HALT_ON_FAILURE)
       #ifdef ACTION_ON_CANCEL
         host_action_cancel();
       #endif
-      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
+      kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
   }
 
@@ -267,7 +285,7 @@ void GcodeSuite::dwell(millis_t time) {
     TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
 
     #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
+      process_subcommands_now(F(G29_SUCCESS_COMMANDS));
     #endif
   }
 
@@ -699,6 +717,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if ENABLED(EDITABLE_SERVO_ANGLES)
           case 281: M281(); break;                                // M281: Set servo angles
         #endif
+        #if ENABLED(SERVO_DETACH_GCODE)
+          case 282: M282(); break;                                // M282: Detach servo
+        #endif
       #endif
 
       #if ENABLED(BABYSTEPPING)
@@ -864,8 +885,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 605: M605(); break;                                  // M605: Set Dual X Carriage movement mode
       #endif
 
-      #if ENABLED(DELTA)
-        case 665: M665(); break;                                  // M665: Set delta configurations
+      #if IS_KINEMATIC
+        case 665: M665(); break;                                  // M665: Set Delta/SCARA parameters
       #endif
 
       #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS
@@ -1046,7 +1067,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 }
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)
-  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
+  void M100_dump_routine(FSTR_P const title, const char * const start, const uintptr_t size);
 #endif
 
 /**
@@ -1064,8 +1085,8 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHO_START();
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      SERIAL_ECHOPAIR("slot:", queue.ring_buffer.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
+      SERIAL_ECHOPGM("slot:", queue.ring_buffer.index_r);
+      M100_dump_routine(F("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
     #endif
   }
 
@@ -1079,7 +1100,8 @@ void GcodeSuite::process_next_command() {
  * G-code "macros" to be called from within other G-code handlers.
  */
 
-void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
+void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
+  PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
   for (;;) {
     PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline

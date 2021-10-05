@@ -32,15 +32,15 @@
 #define IS_MELZI 1
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1   DELAY_NS(  0)
+    #define BOARD_ST7920_DELAY_1               0
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2   DELAY_NS(188)
+    #define BOARD_ST7920_DELAY_2             188
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(  0)
+    #define BOARD_ST7920_DELAY_3               0
   #endif
 #endif
 

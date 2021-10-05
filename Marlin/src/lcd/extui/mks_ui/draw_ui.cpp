@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -158,7 +159,7 @@ void gCfgItems_init() {
     gCfgItems.spi_flash_flag = FLASH_INF_VALID_FLAG;
     W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
-    //init gcode command
+    // init gcode command
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[0], AUTO_LEVELING_COMMAND_ADDR, 100);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[1], OTHERS_COMMAND_ADDR_1, 100);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[2], OTHERS_COMMAND_ADDR_2, 100);
@@ -186,10 +187,10 @@ void ui_cfg_init() {
   uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = false;
   uiCfg.para_ui_page        = false;
-  uiCfg.extruStep           = 5;
-  uiCfg.extruSpeed          = 10;
+  uiCfg.extruStep           = uiCfg.eStepMed;
+  uiCfg.extruSpeed          = uiCfg.eSpeedN;
   uiCfg.move_dist           = 1;
-  uiCfg.moveSpeed           = 3000;
+  uiCfg.moveSpeed           = 1000;
   uiCfg.stepPrintSpeed      = 10;
   uiCfg.command_send        = false;
   uiCfg.dialogType          = 0;
@@ -207,7 +208,7 @@ void ui_cfg_init() {
     memset(&ipPara, 0, sizeof(ipPara));
     strcpy_P(wifiPara.ap_name, PSTR(WIFI_AP_NAME));
     strcpy_P(wifiPara.keyCode, PSTR(WIFI_KEY_CODE));
-    //client
+    // client
     strcpy_P(ipPara.ip_addr, PSTR(IP_ADDR));
     strcpy_P(ipPara.mask, PSTR(IP_MASK));
     strcpy_P(ipPara.gate, PSTR(IP_GATE));
@@ -215,7 +216,7 @@ void ui_cfg_init() {
 
     ipPara.dhcp_flag = IP_DHCP_FLAG;
 
-    //AP
+    // AP
     strcpy_P(ipPara.dhcpd_ip, PSTR(AP_IP_ADDR));
     strcpy_P(ipPara.dhcpd_mask, PSTR(AP_IP_MASK));
     strcpy_P(ipPara.dhcpd_gate, PSTR(AP_IP_GATE));
@@ -237,33 +238,33 @@ void update_spi_flash() {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command before erase spi flash
+  // read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
 }
 
-void update_gcode_command(int addr,uint8_t *s) {
+void update_gcode_command(int addr, uint8_t *s) {
   uint8_t command_buf[512];
 
   W25QXX.init(SPI_QUARTER_SPEED);
-  //read back the gcode command before erase spi flash
+  // read back the gcode command before erase spi flash
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   switch (addr) {
-    case AUTO_LEVELING_COMMAND_ADDR: memcpy(&command_buf[0*100], s, 100); break;
-    case OTHERS_COMMAND_ADDR_1: memcpy(&command_buf[1*100], s, 100); break;
-    case OTHERS_COMMAND_ADDR_2: memcpy(&command_buf[2*100], s, 100); break;
-    case OTHERS_COMMAND_ADDR_3: memcpy(&command_buf[3*100], s, 100); break;
-    case OTHERS_COMMAND_ADDR_4: memcpy(&command_buf[4*100], s, 100); break;
+    case AUTO_LEVELING_COMMAND_ADDR: memcpy(&command_buf[0 * 100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_1: memcpy(&command_buf[1 * 100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_2: memcpy(&command_buf[2 * 100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_3: memcpy(&command_buf[3 * 100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_4: memcpy(&command_buf[4 * 100], s, 100); break;
     default: break;
   }
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
 }
 
-void get_gcode_command(int addr,uint8_t *d) {
+void get_gcode_command(int addr, uint8_t *d) {
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)d, addr, 100);
 }
@@ -347,13 +348,8 @@ void tft_style_init() {
   style_num_key_rel.body.grad_color = LV_COLOR_KEY_BACKGROUND;
   style_num_key_rel.text.color      = LV_COLOR_TEXT;
   style_num_key_rel.text.sel_color  = LV_COLOR_TEXT;
-  #if HAS_SPI_FLASH_FONT
-    style_num_key_pre.text.font = &gb2312_puhui32;
-    style_num_key_rel.text.font = &gb2312_puhui32;
-  #else
-    style_num_key_pre.text.font = LV_FONT_DEFAULT;
-    style_num_key_rel.text.font = LV_FONT_DEFAULT;
-  #endif
+  style_num_key_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_key_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
 
   style_num_key_pre.line.width        = 0;
   style_num_key_rel.line.width        = 0;
@@ -373,14 +369,14 @@ void tft_style_init() {
   style_num_text.text.line_space   = -5;
 
   lv_style_copy(&style_sel_text, &lv_style_scr);
-  style_sel_text.body.main_color  = LV_COLOR_BACKGROUND;
-  style_sel_text.body.grad_color  = LV_COLOR_BACKGROUND;
-  style_sel_text.text.color       = LV_COLOR_YELLOW;
-  style_sel_text.text.sel_color   = LV_COLOR_YELLOW;
-  style_sel_text.text.font        = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
-  style_sel_text.line.width       = 0;
-  style_sel_text.text.letter_space  = 0;
-  style_sel_text.text.line_space    = -5;
+  style_sel_text.body.main_color   = LV_COLOR_BACKGROUND;
+  style_sel_text.body.grad_color   = LV_COLOR_BACKGROUND;
+  style_sel_text.text.color        = LV_COLOR_YELLOW;
+  style_sel_text.text.sel_color    = LV_COLOR_YELLOW;
+  style_sel_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_sel_text.line.width        = 0;
+  style_sel_text.text.letter_space = 0;
+  style_sel_text.text.line_space   = -5;
   lv_style_copy(&style_line, &lv_style_plain);
   style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xFF);
   style_line.line.width   = 1;
@@ -609,9 +605,9 @@ char *creat_title_text() {
             gPicturePreviewStart += (uintptr_t)p1 - (uintptr_t)((uint32_t *)(&public_buf[0]));
             break;
           }
-          else {
+          else
             gPicturePreviewStart += br;
-          }
+
           if (br < 400) break;
         }
       }
@@ -623,15 +619,12 @@ char *creat_title_text() {
 
       while (1) {
         card.read(public_buf, 400);
-        for (i = 0; i < 400;) {
+        for (i = 0; i < 400; i += 2, j++)
           bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
-          i                += 2;
-          j++;
-        }
         if (j >= 400) break;
       }
       for (i = 0; i < 400; i += 2) {
-        p_index  = (uint16_t *)(&bmp_public_buf[i]);
+        p_index = (uint16_t *)(&bmp_public_buf[i]);
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
       SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
@@ -1360,7 +1353,7 @@ extern volatile uint32_t systick_uptime_millis;
 
 void print_time_count() {
   if ((systick_uptime_millis % 1000) == 0)
-  if (print_time.start == 1) print_time.seconds++;
+    if (print_time.start == 1) print_time.seconds++;
 }
 
 void LV_TASK_HANDLER() {

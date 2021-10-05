@@ -69,13 +69,13 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
+      SERIAL_ECHOF(s == TSI_BED ? F("Bed") :
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          s == TSI_EXT ? PSTR("Extruder") :
+          s == TSI_EXT ? F("Extruder") :
         #endif
-        PSTR("Probe")
+        F("Probe")
       );
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHOLNPGM(
         " temp: ", temp,
         "C; Offset: ", i < 0 ? 0.0f : sensor_z_offsets[s][i], " um"
       );
@@ -117,7 +117,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   // Extrapolate
   float k, d;
   if (calib_idx < measurements) {
-    SERIAL_ECHOLNPAIR("Got ", calib_idx, " measurements. ");
+    SERIAL_ECHOLNPGM("Got ", calib_idx, " measurements. ");
     if (linear_regression(tsi, k, d)) {
       SERIAL_ECHOPGM("Applying linear extrapolation");
       calib_idx--;

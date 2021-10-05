@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../platforms.h"
 
 #ifdef HAL_STM32
@@ -88,9 +89,9 @@ void USBHost::setUsbTaskState(uint8_t state) {
     capacity = info.capacity.block_nbr / 2000;
     block_size = info.capacity.block_size;
     block_count = info.capacity.block_nbr;
-    // SERIAL_ECHOLNPAIR("info.capacity.block_nbr : %ld\n", info.capacity.block_nbr);
-    // SERIAL_ECHOLNPAIR("info.capacity.block_size: %d\n", info.capacity.block_size);
-    // SERIAL_ECHOLNPAIR("capacity                : %d MB\n", capacity);
+    //SERIAL_ECHOLNPGM("info.capacity.block_nbr : %ld\n", info.capacity.block_nbr);
+    //SERIAL_ECHOLNPGM("info.capacity.block_size: %d\n", info.capacity.block_size);
+    //SERIAL_ECHOLNPGM("capacity                : %d MB\n", capacity);
   }
 };
 

@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR E3 Turbo pin assignments
+ */
+
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -197,8 +201,8 @@
 #define EXP1_09_PIN                        P0_16
 #define EXP1_10_PIN                        P2_08
 
-#if ENABLED(DWIN_CREALITY_LCD)
-  #error "DWIN_CREALITY_LCD requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
+#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+  #error "Ender-3 V2 display requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
 
  /**
   *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo

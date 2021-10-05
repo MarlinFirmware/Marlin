@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -87,7 +90,7 @@ bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
 void pwm_details(int32_t pin) {
   if (pwm_status(pin)) {
     uint32_t chan = g_APinDescription[pin].ulPWMChannel;
-    SERIAL_ECHOPAIR("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
+    SERIAL_ECHOPGM("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
   }
 }
 

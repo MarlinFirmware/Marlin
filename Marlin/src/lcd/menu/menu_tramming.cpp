@@ -56,12 +56,12 @@ static bool probe_single_point() {
   if (reference_index < 0) reference_index = tram_index;
   move_to_tramming_wait_pos();
 
-  DEBUG_ECHOLNPAIR("probe_single_point(", tram_index, ") = ", z_probed_height, "mm");
+  DEBUG_ECHOLNPGM("probe_single_point(", tram_index, ") = ", z_probed_height, "mm");
   return (z_isvalid[tram_index] = !isnan(z_probed_height));
 }
 
 static void _menu_single_probe() {
-  DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", tram_index);
+  DEBUG_ECHOLNPGM("Screen: single probe screen Arg:", tram_index);
   START_MENU();
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
   STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, z_isvalid[tram_index] ? ftostr42_52(z_measured[reference_index] - z_measured[tram_index]) : "---");
@@ -87,7 +87,7 @@ static void tramming_wizard_menu() {
 
 // Init the wizard and enter the submenu
 void goto_tramming_wizard() {
-  DEBUG_ECHOLNPAIR("Screen: goto_tramming_wizard", 1);
+  DEBUG_ECHOLNPGM("Screen: goto_tramming_wizard", 1);
   ui.defer_status_screen();
 
   // Initialize measured point flags
@@ -96,7 +96,7 @@ void goto_tramming_wizard() {
 
   // Inject G28, wait for homing to complete,
   set_all_unhomed();
-  queue.inject_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+  queue.inject(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
 
   ui.goto_screen([]{
     _lcd_draw_homing();

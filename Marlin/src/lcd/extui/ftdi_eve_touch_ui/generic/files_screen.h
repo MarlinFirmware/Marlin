@@ -27,8 +27,9 @@
 
 struct FilesScreenData {
   struct {
-    uint8_t is_dir  : 1;
-    uint8_t is_root : 1;
+    uint8_t is_dir   : 1;
+    uint8_t is_root  : 1;
+    uint8_t is_empty : 1;
   } flags;
   uint8_t   selected_tag;
   uint8_t   num_page;
@@ -46,9 +47,8 @@ class FilesScreen : public BaseScreen, public CachedScreen<FILES_SCREEN_CACHE, F
     static uint16_t getFileForTag(uint8_t tag);
     static uint16_t getSelectedFileIndex();
 
-    inline static const char *getSelectedShortFilename() {return getSelectedFilename(false);}
-    inline static const char *getSelectedLongFilename()  {return getSelectedFilename(true);}
-    static const char *getSelectedFilename(bool longName);
+    inline static const char *getSelectedShortFilename() {return getSelectedFilename(true);}
+    static const char *getSelectedFilename(bool shortName = false);
 
     static void drawFileButton(int x, int y, int w, int h, const char *filename, uint8_t tag, bool is_dir, bool is_highlighted);
     static void drawFileButton(const char *filename, uint8_t tag, bool is_dir, bool is_highlighted);

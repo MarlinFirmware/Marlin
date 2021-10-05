@@ -45,7 +45,8 @@ if 'encrypt' in board_keys:
 	def encrypt(source, target, env):
 		marlin.encrypt_mks(source, target, env, board.get("build.encrypt"))
 
-	marlin.add_post_action(encrypt);
+	if board.get("build.encrypt") != "":
+		marlin.add_post_action(encrypt)
 
 #
 # For build.rename simply rename the firmware file.
