@@ -26,9 +26,6 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-class __FlashStringHelper;
-typedef const __FlashStringHelper *progmem_str;
-
 //
 // Conditional type assignment magic. For example...
 //

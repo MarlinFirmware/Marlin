@@ -31,7 +31,7 @@
 #include "../../module/stepper.h"
 #include "../../module/planner.h"
 #include "../../module/probe.h"
-#include "../../lcd/marlinui.h" // for LCD_MESSAGEPGM
+#include "../../lcd/marlinui.h" // for LCD_MESSAGE
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -229,7 +229,7 @@ void GcodeSuite::G34() {
           const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
-            LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
+            LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
             err_break = true;
             break;
           }
@@ -328,7 +328,7 @@ void GcodeSuite::G34() {
         auto decreasing_accuracy = [](const_float_t v1, const_float_t v2) {
           if (v1 < v2 * 0.7f) {
             SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
-            LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);
+            LCD_MESSAGE(MSG_DECREASING_ACCURACY);
             return true;
           }
           return false;
@@ -411,7 +411,7 @@ void GcodeSuite::G34() {
 
         if (success_break) {
           SERIAL_ECHOLNPGM("Target accuracy achieved.");
-          LCD_MESSAGEPGM(MSG_ACCURACY_ACHIEVED);
+          LCD_MESSAGE(MSG_ACCURACY_ACHIEVED);
           break;
         }
 
@@ -433,7 +433,7 @@ void GcodeSuite::G34() {
         // After this operation the z position needs correction
         set_axis_never_homed(Z_AXIS);
         // Home Z after the alignment procedure
-        process_subcommands_now_P(PSTR("G28Z"));
+        process_subcommands_now(F("G28Z"));
       #else
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
@@ -538,7 +538,7 @@ void GcodeSuite::M422() {
 }
 
 void GcodeSuite::M422_report(const bool forReplay/*=true*/) {
-  report_heading(forReplay, PSTR(STR_Z_AUTO_ALIGN));
+  report_heading(forReplay, F(STR_Z_AUTO_ALIGN));
   LOOP_L_N(i, NUM_Z_STEPPER_DRIVERS) {
     report_echo_start(forReplay);
     SERIAL_ECHOLNPGM_P(

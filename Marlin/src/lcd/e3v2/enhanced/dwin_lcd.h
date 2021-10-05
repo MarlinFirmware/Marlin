@@ -37,7 +37,7 @@
 //  str: multi-bit data
 void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string);
 
-inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
+inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, FSTR_P title) {
   DWIN_Draw_QR(QR_Pixel, x, y, (char *)title);
 }
 

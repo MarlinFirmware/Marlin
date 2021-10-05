@@ -21,10 +21,7 @@
  */
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
-
-#include "../../../HAL/shared/Marduino.h"
+#include "../../../inc/MarlinConfig.h"
 
 #ifndef DWIN_WIDTH
   #define DWIN_WIDTH  272
@@ -74,7 +71,7 @@ inline void DWIN_Text(size_t &i, const char * const string, uint16_t rlimit=0xFF
   i += len;
 }
 
-inline void DWIN_Text(size_t &i, const __FlashStringHelper * string, uint16_t rlimit=0xFFFF) {
+inline void DWIN_Text(size_t &i, FSTR_P string, uint16_t rlimit=0xFFFF) {
   if (!string) return;
   const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, _MIN(rlimit, strlen_P((PGM_P)string))); // cast to PGM_P (const char*) measure with strlen_P.
   if (len == 0) return;
@@ -90,9 +87,11 @@ bool DWIN_Handshake();
 // DWIN startup
 void DWIN_Startup();
 
-// Set the backlight brightness
-//  brightness: (0x00-0xFF)
-void DWIN_LCD_Brightness(const uint8_t brightness);
+#if HAS_LCD_BRIGHTNESS
+  // Set the backlight brightness
+  //  brightness: (0x00-0xFF)
+  void DWIN_LCD_Brightness(const uint8_t brightness);
+#endif
 
 // Set screen display direction
 //  dir: 0=0°, 1=90°, 2=180°, 3=270°
@@ -175,9 +174,10 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  rlimit: For draw less chars than string length use rlimit
 void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit=0xFFFF);
 
-inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-  // Note that this won't work on AVR, only 32-bit systems!
-  DWIN_Draw_String(bShow, size, color, bColor, x, y, reinterpret_cast<const char*>(title));
+inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, FSTR_P const ftitle) {
+  char ctitle[strlen_P(FTOP(ftitle)) + 1];
+  strcpy_P(ctitle, FTOP(ftitle));
+  DWIN_Draw_String(bShow, size, color, bColor, x, y, ctitle);
 }
 
 // Draw a positive integer

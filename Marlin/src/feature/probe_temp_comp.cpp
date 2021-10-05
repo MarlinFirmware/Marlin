@@ -69,11 +69,11 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
+      SERIAL_ECHOF(s == TSI_BED ? F("Bed") :
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          s == TSI_EXT ? PSTR("Extruder") :
+          s == TSI_EXT ? F("Extruder") :
         #endif
-        PSTR("Probe")
+        F("Probe")
       );
       SERIAL_ECHOLNPGM(
         " temp: ", temp,

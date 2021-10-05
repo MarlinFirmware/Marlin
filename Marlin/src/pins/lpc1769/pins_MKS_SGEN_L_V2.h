@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS SGen pin assignments
+ * MKS SGen-L V2 pin assignments
  */
 
 #include "env_validate.h"
