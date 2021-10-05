@@ -110,7 +110,7 @@ void NextionTFT::StatusChange(const char * const msg) {
   SEND_VALasTXT("tmppage.M117", msg);
 }
 
-void NextionTFT::SendtoTFT(FSTR_P fstr) { // A helper to print PROGMEM string to the panel
+void NextionTFT::SendtoTFT(FSTR_P const fstr/*=nullptr*/) { // A helper to print PROGMEM string to the panel
   #if NEXDEBUG(N_SOME)
     DEBUG_ECHOF(fstr);
   #endif
