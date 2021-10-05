@@ -421,27 +421,22 @@
         if (monitor_tmc_driver(stepperI, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperI);
       #endif
-
       #if AXIS_IS_TMC(J)
         if (monitor_tmc_driver(stepperJ, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperJ);
       #endif
-
       #if AXIS_IS_TMC(K)
         if (monitor_tmc_driver(stepperK, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperK);
       #endif
-
       #if AXIS_IS_TMC(M)
         if (monitor_tmc_driver(stepperM, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperM);
       #endif
-
       #if AXIS_IS_TMC(O)
         if (monitor_tmc_driver(stepperO, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperO);
       #endif
-
       #if AXIS_IS_TMC(Q)
         if (monitor_tmc_driver(stepperQ, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperQ);
