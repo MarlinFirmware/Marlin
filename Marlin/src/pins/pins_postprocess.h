@@ -472,6 +472,32 @@
         #endif
       #endif
     #endif
+    #ifdef Z3_STOP_PIN
+      #if Z_HOME_TO_MIN
+        #define Z3_MIN_PIN Z3_STOP_PIN
+        #ifndef Z3_MAX_PIN
+          #define Z3_MAX_PIN -1
+        #endif
+      #else
+        #define Z3_MAX_PIN Z3_STOP_PIN
+        #ifndef Z3_MIN_PIN
+          #define Z3_MIN_PIN -1
+        #endif
+      #endif
+    #endif
+    #ifdef Z4_STOP_PIN
+      #if Z_HOME_TO_MIN
+        #define Z4_MIN_PIN Z4_STOP_PIN
+        #ifndef Z4_MAX_PIN
+          #define Z4_MAX_PIN -1
+        #endif
+      #else
+        #define Z4_MAX_PIN Z4_STOP_PIN
+        #ifndef Z4_MIN_PIN
+          #define Z4_MIN_PIN -1
+        #endif
+      #endif
+    #endif
   #endif
 #endif
 
