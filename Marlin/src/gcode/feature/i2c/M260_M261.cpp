@@ -67,8 +67,11 @@ void GcodeSuite::M261() {
 
   uint8_t bytes = parser.byteval('B', 1);
 
+  //Serial output style (ASCII, HEX etc)
+  uint8_t style = parser.byteval('S', 0);
+
   if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE)
-    i2c.relay(bytes);
+    i2c.relay(bytes, style);
   else
     SERIAL_ERROR_MSG("Bad i2c request");
 }
