@@ -37,6 +37,7 @@
 
 //
 // Servos
+//
 #define SERVO0_PIN                          PB6
 
 //
@@ -56,15 +57,17 @@
 #define E2_DIAG_PIN                         PG14  // E2DET
 #define E3_DIAG_PIN                         PG15  // E3DET
 
+//
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB7
 #endif
 
+//
 // Check for additional used endstop pins
 //
-#if ANY(X_DUAL_ENDSTOPS,Y_DUAL_ENDSTOPS,Z_MULTI_ENDSTOPS)
+#if HAS_EXTRA_ENDSTOPS
   #define _ENDSTOP_IS_ANY(ES) X2_USE_ENDSTOP == ES || Y2_USE_ENDSTOP == ES || Z2_USE_ENDSTOP == ES || Z3_USE_ENDSTOP == ES || Z4_USE_ENDSTOP == ES
   #if _ENDSTOP_IS_ANY(_XMIN_) || _ENDSTOP_IS_ANY(_XMAX_)
     #define NEEDS_X_MINMAX
