@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,18 +21,18 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-  extern "C" {
-#endif
+/**
+ * Panda M4 pin assignments
+ */
 
-  esp_err_t esp_task_wdt_reset();
+#define BOARD_INFO_NAME "Panda_M4"
 
-#ifdef __cplusplus
-  }
-#endif
+#include "pins_PANDA_common.h"
 
-// Initialize watchdog with a 4 second interrupt time
-void watchdog_init();
-
-// Reset watchdog.
-inline void HAL_watchdog_refresh() { esp_task_wdt_reset(); }
+//
+// Steppers
+//
+#define X_ENABLE_PIN                         115
+#define Y_ENABLE_PIN                         114
+#define Z_ENABLE_PIN                         113
+#define E0_ENABLE_PIN                        112
