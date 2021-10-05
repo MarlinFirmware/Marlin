@@ -479,22 +479,22 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
  * Used by M125 and M600
  */
 
-void show_continue_prompt(const bool is_reload) {
+void show_continue_prompt(const bool is_reload, const PauseMessage message/*=PAUSE_MESSAGE_WAITING*/) {
   DEBUG_SECTION(scp, "pause_print", true);
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
 
-  ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
+  ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : message);
   SERIAL_ECHO_START();
   SERIAL_ECHOF(is_reload ? F(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : F(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
 
-void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
+void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/, const PauseMessage message/*=PAUSE_MESSAGE_WAITING*/ DXC_ARGS) {
   DEBUG_SECTION(wfc, "wait_for_confirmation", true);
   DEBUG_ECHOLNPGM("... is_reload:", is_reload, " maxbeep:", max_beep_count DXC_SAY);
 
   bool nozzle_timed_out = false;
 
-  show_continue_prompt(is_reload);
+  show_continue_prompt(is_reload, message);
 
   first_impatient_beep(max_beep_count);
 
@@ -546,7 +546,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       if (TERN1(MANUAL_SWITCHING_TOOLHEAD, thermalManager.heating_enabled)) ensure_safe_temperature(false);
 
       // Show the prompt to continue
-      show_continue_prompt(is_reload);
+      show_continue_prompt(is_reload, message);
 
       // Start the heater idle timers
       const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);

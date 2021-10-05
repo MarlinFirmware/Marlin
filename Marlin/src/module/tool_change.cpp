@@ -413,7 +413,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     thermalManager.disable_all_heaters(); // ?
 
     if (pause_print(0.0, current_position, true, 0)) {
-      wait_for_confirmation(false, 2);
+      wait_for_confirmation(false, 2, PAUSE_MESSAGE_TOOL_CHANGE);
       manual_switching_toolhead_set_new_tool(new_tool);
       ui.set_status_P(PSTR("Tool Changed"));
     } else {
@@ -429,7 +429,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   void manual_switching_toolchange_init() {
     #if ENABLED(SWITCHING_TOOLHEAD_EEPROM)
       // set active_extruder on first load
-      //manual_switching_toolhead_set_new_tool(toolchange_settings.selected_tool);
       active_extruder = toolchange_settings.selected_tool;
     #endif
   }

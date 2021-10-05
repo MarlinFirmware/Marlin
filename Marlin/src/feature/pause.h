@@ -58,6 +58,7 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_STATUS,
   PAUSE_MESSAGE_HEAT,
   PAUSE_MESSAGE_HEATING,
+  PAUSE_MESSAGE_TOOL_CHANGE
 };
 
 #if M600_PURGE_MORE_RESUMABLE
@@ -89,8 +90,9 @@ bool pause_print(
 );
 
 void wait_for_confirmation(
-  const bool      is_reload=false,                            // Reload Filament? (otherwise Resume Print)
-  const int8_t    max_beep_count=0                            // Beep alert for attention
+  const bool         is_reload=false,                         // Reload Filament? (otherwise Resume Print)
+  const int8_t       max_beep_count=0,                        // Beep alert for attention
+  const PauseMessage message=PAUSE_MESSAGE_WAITING            // The message to show, if not a reload
   DXC_PARAMS                                                  // Dual-X-Carriage extruder index
 );
 
