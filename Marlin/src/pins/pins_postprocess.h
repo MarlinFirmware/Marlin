@@ -458,6 +458,21 @@
   #else
     #define Z_STOP_PIN Z_MAX_PIN
   #endif
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #ifdef Z2_STOP_PIN
+      #if Z_HOME_TO_MIN
+        #define Z2_MIN_PIN Z2_STOP_PIN
+        #ifndef Z2_MAX_PIN
+          #define Z2_MAX_PIN -1
+        #endif
+      #else
+        #define Z2_MAX_PIN Z2_STOP_PIN
+        #ifndef Z2_MIN_PIN
+          #define Z2_MIN_PIN -1
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
 
 #if LINEAR_AXES >= 4
