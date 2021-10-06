@@ -1100,6 +1100,9 @@ void GcodeSuite::process_next_command() {
  * G-code "macros" to be called from within other G-code handlers.
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+
 void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
   PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
@@ -1116,6 +1119,8 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
   }
   parser.parse(saved_cmd);                            // Restore the parser state
 }
+
+#pragma GCC diagnostic pop
 
 void GcodeSuite::process_subcommands_now(char * gcode) {
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
