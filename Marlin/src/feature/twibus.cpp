@@ -36,9 +36,9 @@ TWIBus::TWIBus() {
   #if I2C_SLAVE_ADDRESS == 0
   // No address joins the BUS as the master
   Wire.begin(
-#if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+    #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
       uint8_t(I2C_SDA_PIN), uint8_t(I2C_SCL_PIN)
-#endif
+    #endif
   );
   #else
     Wire.begin(I2C_SLAVE_ADDRESS); // Join the bus as a slave
@@ -96,45 +96,37 @@ void TWIBus::echoprefix(uint8_t bytes, FSTR_P const pref, uint8_t adr) {
 
 // static
 void TWIBus::echodata(uint8_t bytes, FSTR_P const pref, uint8_t adr, const uint8_t style) {
-  union TwoBytesToInt16
-	{
-		uint8_t bytes[2];
-		int16_t integervalue;
-	};
-
+  union TwoBytesToInt16 { uint8_t bytes[2]; int16_t integervalue; };
   TwoBytesToInt16 ConversionUnion;
 
   echoprefix(bytes, pref, adr);  
 
   while (bytes-- && Wire.available()) {
-    int value=Wire.read();
+    int value = Wire.read();
     switch (style) {
 
       case 1:
-          //Style 1, HEX DUMP
-          SERIAL_CHAR(hex_nybble((value & 0xF0) >> 4));
-          SERIAL_CHAR(hex_nybble(value & 0x0F));
-          break;
-
-      case 2:
-          //Style 2, signed two byte integer (int16)
-          if (bytes==1) {
-            ConversionUnion.bytes[1]=(uint8_t)value;
-          } else
-          if (bytes==0) {
-            ConversionUnion.bytes[0]=(uint8_t)value;
-            //Output value in base 10 (standard decimal)
-            SERIAL_ECHO(ConversionUnion.integervalue);
-          }
-          
-          break;
-
-      default:
-        //Default style (zero), raw serial output
-        //This can cause issues with some serial consoles, Pronterface is an example where things go wrong
-        SERIAL_CHAR(value);
+        // Style 1, HEX DUMP
+        SERIAL_CHAR(hex_nybble((value & 0xF0) >> 4));
+        SERIAL_CHAR(hex_nybble(value & 0x0F));
         break;
 
+      case 2:
+        // Style 2, signed two byte integer (int16)
+        if (bytes == 1)
+          ConversionUnion.bytes[1] = (uint8_t)value;
+        else if (bytes == 0) {
+          ConversionUnion.bytes[0] = (uint8_t)value;
+          // Output value in base 10 (standard decimal)
+          SERIAL_ECHO(ConversionUnion.integervalue);
+        }
+        break;
+
+      default:
+        // Default style (zero), raw serial output
+        // This can cause issues with some serial consoles, Pronterface is an example where things go wrong
+        SERIAL_CHAR(value);
+        break;
     }
   }
 

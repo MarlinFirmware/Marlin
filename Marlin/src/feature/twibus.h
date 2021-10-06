@@ -150,7 +150,7 @@ class TWIBus {
      *          to serial in a parser-friendly format.
      *
      * @param bytes the number of bytes to request
-     * @param style Output format for the bytes, 0=raw byte [default], 1=Hex characters, 2=Unsigned Int 16
+     * @param style Output format for the bytes, 0 = Raw byte [default], 1 = Hex characters, 2 = uint16_t
      */
     static void echodata(uint8_t bytes, FSTR_P prefix, uint8_t adr, const uint8_t style);
 
@@ -193,7 +193,7 @@ class TWIBus {
      * @brief Request data from the slave device, echo to serial.
      * @details Request a number of bytes from a slave device and output
      *          the returned data to serial in a parser-friendly format.
-     * @style Output format for the bytes, 0=raw byte [default], 1=Hex characters, 2=Unsigned Int 16
+     * @style Output format for the bytes, 0 = raw byte [default], 1 = Hex characters, 2 = uint16_t
      *
      * @param bytes the number of bytes to request
      */
