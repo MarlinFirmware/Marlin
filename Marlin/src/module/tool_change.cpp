@@ -432,7 +432,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         }
         else if (kill_on_error && (!tool_sensor_disabled || disable)) {
           sensor_tries++;
-          if (sensor_tries > 10) kill(PSTR("Tool Sensor error"));
+          if (sensor_tries > 10) kill(F("Tool Sensor error"));
           safe_delay(5);
         }
         else {
@@ -490,12 +490,12 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       #endif
 
       if (check_tool_sensor_stats(0)) {
-        ui.set_status_P("TC error");
+        LCD_MESSAGE_F("TC error");
         switching_toolhead_lock(false);
         while (check_tool_sensor_stats(0)) { /* nada */ }
         switching_toolhead_lock(true);
       }
-      ui.set_status_P("TC Success");
+      LCD_MESSAGE_F("TC Success");
     #endif
   }
 
@@ -1310,17 +1310,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (!no_move) {
       #ifdef EVENT_GCODE_TOOLCHANGE_T0
         if (new_tool == 0)
-          gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_TOOLCHANGE_T0));
+          gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T0));
       #endif
 
       #ifdef EVENT_GCODE_TOOLCHANGE_T1
         if (new_tool == 1)
-          gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_TOOLCHANGE_T1));
+          gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T1));
       #endif
 
       #ifdef EVENT_GCODE_AFTER_TOOLCHANGE
         if (TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))
-          gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_AFTER_TOOLCHANGE));
+          gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_TOOLCHANGE));
       #endif
     }
 

@@ -66,7 +66,7 @@ void MeshViewerClass::Draw() {
     }
   }
   char str_1[6], str_2[6] = "";
-  ui.status_printf_P(0, PSTR("Mesh minZ: %s, maxZ: %s"),
+  ui.status_printf(0, F("Mesh minZ: %s, maxZ: %s"),
     dtostrf((float)minz / 100, 1, 2, str_1),
     dtostrf((float)maxz / 100, 1, 2, str_2)
   );

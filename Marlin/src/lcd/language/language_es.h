@@ -124,9 +124,8 @@ namespace Language_es {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplicar");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Copia Reflejada");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Control Total");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2ª Fusor X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2ª Fusor Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2ª Fusor Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2ª Fusor @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Hacer G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Herramientas UBL");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Nivelado UBL");

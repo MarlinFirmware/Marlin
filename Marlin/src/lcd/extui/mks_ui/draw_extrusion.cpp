@@ -74,11 +74,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (ENABLED(HAS_MULTI_EXTRUDER)) {
         if (uiCfg.extruderIndex == 0) {
           uiCfg.extruderIndex = 1;
-          queue.inject_P(PSTR("T1"));
+          queue.inject(F("T1"));
         }
         else {
           uiCfg.extruderIndex = 0;
-          queue.inject_P(PSTR("T0"));
+          queue.inject(F("T0"));
         }
       }
       else

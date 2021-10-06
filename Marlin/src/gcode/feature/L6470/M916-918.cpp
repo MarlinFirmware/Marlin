@@ -138,10 +138,10 @@ void GcodeSuite::M916() {
     do {
       // turn the motor(s) both directions
       sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_min), uint16_t(final_feedrate));
-      gcode.process_subcommands_now_P(gcode_string);
+      process_subcommands_now(gcode_string);
 
       sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_max), uint16_t(final_feedrate));
-      gcode.process_subcommands_now_P(gcode_string);
+      process_subcommands_now(gcode_string);
 
       // get the status after the motors have stopped
       planner.synchronize();
@@ -266,10 +266,10 @@ void GcodeSuite::M917() {
     DEBUG_ECHOLNPGM("   OCD threshold : ", (OCD_TH_val + 1) * 375);
 
     sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_min), uint16_t(final_feedrate));
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_max), uint16_t(final_feedrate));
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     planner.synchronize();
 
@@ -308,7 +308,7 @@ void GcodeSuite::M917() {
             L64xxManager.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
-        gcode.reset_stepper_timeout(); // keep steppers powered
+        reset_stepper_timeout(); // keep steppers powered
         watchdog_refresh();
         safe_delay(5000);
         status_composite_temp = 0;
@@ -615,10 +615,10 @@ void GcodeSuite::M918() {
     DEBUG_ECHOLNPGM("...feedrate = ", current_feedrate);
 
     sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_min), uint16_t(current_feedrate));
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     sprintf_P(gcode_string, PSTR("G0 %s%03d F%03d"), temp_axis_string, uint16_t(position_max), uint16_t(current_feedrate));
-    gcode.process_subcommands_now_P(gcode_string);
+    process_subcommands_now(gcode_string);
 
     planner.synchronize();
 
