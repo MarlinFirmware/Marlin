@@ -649,7 +649,7 @@
 #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   // multiple hotends and/or other tools, using the same electrical connections
   // all hotends will use *_0_PIN for heaters/sensors.
-
+  #undef EXTRUDERS
   #define HAS_TOOL_OFFSET 1
   #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
 
@@ -715,21 +715,20 @@
   #endif
   #undef HOTEND_TEST
 
+  #define EXTRUDERS  HOTENDS
+  #define E_MANUAL   1
+
   // non-hotend tools are classified as "unpowered tools"
   #define UNPOWERED_TOOLS (TOOLS - HOTENDS)
 
-  #if EXTRUDERS == 1 && HOTENDS > 1
+  #if DISABLED(SWITCHING_TOOLHEAD_DIRECT_DRIVE_EXTRUDERS)
     // single extruder - plates don't have steppers on them
     #define MANUAL_SWITCHING_TOOLHEAD_SINGLE_EXTRUDER 1
-    #undef EXTRUDERS
-    #define EXTRUDERS HOTENDS
-    #define E_STEPPERS HOTENDS
-    #define E_MANUAL 1
+    #define E_STEPPERS  1
   #else
     // multiple extruders - plates likely direct drive, or multiple bowden tools
     #define MANUAL_SWITCHING_TOOLHEAD_MULTI_EXTRUDER 1
-    #define E_STEPPERS      EXTRUDERS
-    #define E_MANUAL        1
+    #define E_STEPPERS  HOTENDS
   #endif
 
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)   // Toolchanger

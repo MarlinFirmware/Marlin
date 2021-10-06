@@ -287,8 +287,6 @@
  * and all use the same heater/sensor pins when switched.
  *
  * You may also desire to enable/check the following:
- *  - DISTINCT_E_FACTORS and the related settings
- *  - PID_PARAMS_PER_HOTEND
  *  - TOOL_OFFSET_[XYZ]
  *  - Tool Change settings in Configuration_adv.h
 
@@ -305,6 +303,19 @@
    * will add the appropriate tool.
    */
   #define SWITCHING_TOOLHEAD_TOOL_QTY 4
+
+  /**
+   * Hotend extruder setup: by default, the toolchange code will assume that all hotends use
+   * a single shared stepper/extruder, i.e. in a remote bowden setup. If all of your hotends
+   * have their own direct drive stepper/extruder on the tool plate, enable this.
+   *
+   * Once enabled, consider enabling:
+   *  - DISTINCT_E_FACTORS and the related settings
+   *  - PID_PARAMS_PER_HOTEND
+   *
+   * NOTE: The MANUAL_SWITCHING_TOOLHEAD feature overrides EXTRUDERS set above.
+   */
+  #define SWITCHING_TOOLHEAD_DIRECT_DRIVE_EXTRUDERS
 
   /**
    * Define the names of Hotends/Unpowered tools. Optional.
