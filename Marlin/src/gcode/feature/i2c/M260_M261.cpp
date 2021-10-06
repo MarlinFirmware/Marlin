@@ -65,8 +65,8 @@ void GcodeSuite::M260() {
 void GcodeSuite::M261() {
   if (parser.seen('A')) i2c.address(parser.value_byte());
 
-  const uint8_t bytes = parser.byteval('B', 1);   // Bytes to request
-  const uint8_t style = parser.byteval('S', 0);   // Serial output style (ASCII, HEX etc)
+  const uint8_t bytes = parser.byteval('B', 1),   // Bytes to request
+                style = parser.byteval('S');      // Serial output style (ASCII, HEX etc)
 
   if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE)
     i2c.relay(bytes, style);
