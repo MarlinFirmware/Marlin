@@ -120,9 +120,8 @@ namespace Language_ro {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplication");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2nd Nozzle X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2nd Nozzle Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Doing G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tools");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");

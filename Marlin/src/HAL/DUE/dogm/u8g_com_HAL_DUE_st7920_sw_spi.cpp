@@ -57,7 +57,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
 
 #include "../../../inc/MarlinConfig.h"
 #include "../../shared/Delay.h"
@@ -182,5 +182,5 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   }
 #endif // LIGHTWEIGHT_UI
 
-#endif // U8GLIB_ST7920
+#endif // IS_U8GLIB_ST7920
 #endif // ARDUINO_ARCH_SAM

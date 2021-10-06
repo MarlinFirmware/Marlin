@@ -202,7 +202,7 @@ typedef struct block_t {
     uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
   #endif
 
-  uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+  axis_bits_t direction_bits;               // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
@@ -374,7 +374,7 @@ class Planner {
     #endif
 
     static uint32_t max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-    static float steps_to_mm[DISTINCT_AXES];          // Millimeters per step
+    static float mm_per_step[DISTINCT_AXES];          // Millimeters per step
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;             // (mm) M205 J
@@ -489,7 +489,7 @@ class Planner {
     static void reset_acceleration_rates();
 
     /**
-     * Recalculate 'position' and 'steps_to_mm'.
+     * Recalculate 'position' and 'mm_per_step'.
      * Must be called whenever settings.axis_steps_per_mm changes!
      */
     static void refresh_positioning();

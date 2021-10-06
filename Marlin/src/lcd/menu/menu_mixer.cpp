@@ -57,7 +57,7 @@
     if (ui.should_draw()) {
       char tmp[16];
       SETCURSOR(1, (LCD_HEIGHT - 1) / 2);
-      lcd_put_u8str_P(isend ? GET_TEXT(MSG_END_Z) : GET_TEXT(MSG_START_Z));
+      lcd_put_u8str(isend ? GET_TEXT_F(MSG_END_Z) : GET_TEXT_F(MSG_START_Z));
       sprintf_P(tmp, PSTR("%4d.%d mm"), int(zvar), int(zvar * 10) % 10);
       SETCURSOR_RJ(9, (LCD_HEIGHT - 1) / 2);
       lcd_put_u8str(tmp);
@@ -114,7 +114,7 @@ static uint8_t v_index;
   void _lcd_draw_mix(const uint8_t y) {
     char tmp[20]; // "100%_100%"
     sprintf_P(tmp, PSTR("%3d%% %3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
-    SETCURSOR(2, y); lcd_put_u8str_P(GET_TEXT(MSG_MIX));
+    SETCURSOR(2, y); lcd_put_u8str(GET_TEXT_F(MSG_MIX));
     SETCURSOR_RJ(10, y); lcd_put_u8str(tmp);
   }
 #endif
@@ -253,7 +253,7 @@ void menu_mixer() {
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
     []{
       mixer.reset_vtools();
-      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
+      LCD_MESSAGE(MSG_VTOOLS_RESET);
       ui.return_to_status();
     },
     nullptr,

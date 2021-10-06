@@ -145,9 +145,8 @@ namespace Language_sv {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Speglad Kopia");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Kontroll");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicera X-Avstånd");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2:a Munstycke X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2:a Munstycke Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2:a Munstycke Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2:a Munstycke @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Utför G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Verktyg");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Enad Bädd Nivellering (UBL)");

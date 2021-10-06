@@ -201,7 +201,7 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
     draw_return_ui();
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOADING, TYPE_FILAMENT_UNLOADING)) {
-    queue.enqueue_one_P(PSTR("M410"));
+    queue.enqueue_one(F("M410"));
     uiCfg.filament_rate                = 0;
     uiCfg.filament_loading_completed   = false;
     uiCfg.filament_unloading_completed = false;
