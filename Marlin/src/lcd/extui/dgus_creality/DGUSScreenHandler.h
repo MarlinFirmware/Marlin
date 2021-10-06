@@ -133,9 +133,13 @@ public:
     // Hook for PID autotune
     static void HandlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr);
   #endif
-  #if HAS_BED_PROBE
+
+  #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
     // Hook for "Change probe offset z"
-    static void HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr);
+    template<int decimals>
+    static void HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr) {
+      HandleLiveAdjustZ(var, val_ptr, cpow(10.f, decimals));
+    }
   #endif
 
   #if HAS_MESH
@@ -159,7 +163,8 @@ public:
   #endif
 
   // Hook for live z adjust action
-  static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr);
+  static void HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr, const_float_t scalingFactor);
+  static float GetCurrentLifeAdjustZ();
 
   // Hook for heater control
   static void HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr);
@@ -368,6 +373,16 @@ public:
       int16_t roundedValue = static_cast<int16_t>(round(d));
       dgusdisplay.WriteVariable(var.VP, roundedValue);
     }
+  }
+
+  // Send the current Z-offset to the display, scaled to a number of digits
+  template<unsigned int decimals>
+  static void DGUSLCD_SendZOffsetToDisplay(DGUS_VP_Variable &var) {
+    float currentOffset = GetCurrentLifeAdjustZ() * cpow(10.f, decimals);
+
+    // Round - truncated values look like skipped numbers
+    int16_t roundedValue = static_cast<int16_t>(round(currentOffset));
+    dgusdisplay.WriteVariable(var.VP, roundedValue);
   }
 
   template<AxisEnum Axis>

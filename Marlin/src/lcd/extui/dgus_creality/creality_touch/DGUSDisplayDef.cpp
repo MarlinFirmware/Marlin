@@ -621,8 +621,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(SP_Z_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Z_AXIS>),
 
 #if ENABLED(HAS_PROBE)
-  VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+  VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange<2>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+#elif ENABLED(BABYSTEPPING)
+  VPHELPER(VP_Z_OFFSET, nullptr, ScreenHandler.HandleZoffsetChange<2>, ScreenHandler.DGUSLCD_SendZOffsetToDisplay<2>),
 #endif
+
   VPHELPER(VP_FAN_TOGGLE, &thermalManager.fan_speed[0], nullptr, ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
   VPHELPER(VP_Fan0_Percentage, &thermalManager.fan_speed[0], ScreenHandler.HandleFanSpeedChanged, ScreenHandler.DGUSLCD_SendFanSpeedToDisplay),
 

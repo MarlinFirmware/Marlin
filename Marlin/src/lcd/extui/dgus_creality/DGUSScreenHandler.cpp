@@ -758,12 +758,6 @@ void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) 
   if (ramcopy.set_by_display_handler) ramcopy.set_by_display_handler(ramcopy, val_ptr);
 }
 
-#if HAS_BED_PROBE
-void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr) {
-  HandleLiveAdjustZ(var, val_ptr);
-}
-#endif
-
 #if HAS_MESH
 void DGUSScreenHandler::OnMeshLevelingStart() {
   GotoScreen(DGUSLCD_SCREEN_LEVELING);
@@ -1430,22 +1424,27 @@ void DGUSScreenHandler::HandlePositionChange(DGUS_VP_Variable &var, void *val_pt
   DEBUG_ECHOLNPGM("poschg done.");
 }
 
-void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
+void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr, const_float_t scalingFactor) {
   DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
 
-  float absoluteAmount = float(swap16(*(int16_t*)val_ptr))  / 100.0f;
+  float absoluteAmount = float(swap16(*(int16_t*)val_ptr))  / scalingFactor;
   float existingAmount = ExtUI::getZOffset_mm();
   float difference = (absoluteAmount - existingAmount) < 0 ? -0.01 : 0.01;
 
   int16_t steps = ExtUI::mmToWholeSteps(difference, ExtUI::axis_t::Z);
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
-
+#if ENABLED(HAS_PROBE) //  Without a probe the Z offset is applied using baby offsets, which aren't saved anyway.
   RequestSaveSettings();
-  
+#endif
   ScreenHandler.ForceCompleteUpdate();
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
+}
+
+// This wrapper function is needed to avoid pulling in ExtUI in DGUSScreenHandler.h
+float DGUSScreenHandler::GetCurrentLifeAdjustZ() {
+  return ExtUI::getZOffset_mm();
 }
 
 void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr) {
