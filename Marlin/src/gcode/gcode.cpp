@@ -1125,6 +1125,8 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
   parser.parse(saved_cmd);                            // Restore the parser state
 }
 
+#pragma GCC diagnostic pop
+
 void GcodeSuite::process_subcommands_now(char * gcode) {
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
   for (;;) {
