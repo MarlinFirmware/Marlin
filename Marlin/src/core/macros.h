@@ -33,6 +33,12 @@
 
 #define _AXIS(A) (A##_AXIS)
 
+#define _XSTOP_  0x01
+#define _YSTOP_  0x02
+#define _ZSTOP_  0x03
+#define _ISTOP_  0x04
+#define _JSTOP_  0x05
+#define _KSTOP_  0x06
 #define _XMIN_   0x11
 #define _YMIN_   0x12
 #define _ZMIN_   0x13

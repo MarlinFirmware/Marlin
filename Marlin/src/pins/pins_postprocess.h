@@ -419,6 +419,9 @@
 #else
   #define X_STOP_PIN X_MAX_PIN
 #endif
+#if !defined(X2_USE_ENDSTOP) && ENABLED(X_DUAL_ENDSTOPS) && PIN_EXISTS(X_STOP)
+  #define X2_USE_ENDSTOP _XSTOP_
+#endif
 
 #if HAS_Y_AXIS
   #ifdef Y_STOP_PIN
@@ -437,6 +440,9 @@
     #define Y_STOP_PIN Y_MIN_PIN
   #else
     #define Y_STOP_PIN Y_MAX_PIN
+  #endif
+  #if !defined(Y2_USE_ENDSTOP) && ENABLED(Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y_STOP)
+    #define Y2_USE_ENDSTOP _YSTOP_
   #endif
 #endif
 
@@ -458,45 +464,15 @@
   #else
     #define Z_STOP_PIN Z_MAX_PIN
   #endif
-  #if ENABLED(Z_MULTI_ENDSTOPS)
-    #ifdef Z2_STOP_PIN
-      #if Z_HOME_TO_MIN
-        #define Z2_MIN_PIN Z2_STOP_PIN
-        #ifndef Z2_MAX_PIN
-          #define Z2_MAX_PIN -1
-        #endif
-      #else
-        #define Z2_MAX_PIN Z2_STOP_PIN
-        #ifndef Z2_MIN_PIN
-          #define Z2_MIN_PIN -1
-        #endif
-      #endif
+  #if ENABLED(Z_MULTI_ENDSTOPS) && PIN_EXISTS(Z_STOP)
+    #ifndef Z2_USE_ENDSTOP
+      #define Z2_USE_ENDSTOP _ZSTOP_
     #endif
-    #ifdef Z3_STOP_PIN
-      #if Z_HOME_TO_MIN
-        #define Z3_MIN_PIN Z3_STOP_PIN
-        #ifndef Z3_MAX_PIN
-          #define Z3_MAX_PIN -1
-        #endif
-      #else
-        #define Z3_MAX_PIN Z3_STOP_PIN
-        #ifndef Z3_MIN_PIN
-          #define Z3_MIN_PIN -1
-        #endif
-      #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 3 && !defined(Z3_USE_ENDSTOP)
+      #define Z3_USE_ENDSTOP _ZSTOP_
     #endif
-    #ifdef Z4_STOP_PIN
-      #if Z_HOME_TO_MIN
-        #define Z4_MIN_PIN Z4_STOP_PIN
-        #ifndef Z4_MAX_PIN
-          #define Z4_MAX_PIN -1
-        #endif
-      #else
-        #define Z4_MAX_PIN Z4_STOP_PIN
-        #ifndef Z4_MIN_PIN
-          #define Z4_MIN_PIN -1
-        #endif
-      #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4 && !defined(Z4_USE_ENDSTOP)
+      #define Z4_USE_ENDSTOP _ZSTOP_
     #endif
   #endif
 #endif
@@ -842,7 +818,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(Z2_DIAG_PIN) && !defined(Z2_USE_ENDSTOP) && defined(Z2_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
+  #if !defined(Z2_DIAG_PIN) && !defined(Z2_USE_ENDSTOP) && defined(Z2_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && _PEXI(Z2_E_INDEX, DIAG)
     #define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z2, X_MIN)
       #define Z2_USE_ENDSTOP _XMIN_
@@ -927,7 +903,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(Z3_DIAG_PIN) && !defined(Z3_USE_ENDSTOP) && defined(Z3_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
+  #if !defined(Z3_DIAG_PIN) && !defined(Z3_USE_ENDSTOP) && defined(Z3_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && _PEXI(Z3_E_INDEX, DIAG)
     #define Z3_DIAG_PIN _EPIN(Z3_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z3, X_MIN)
       #define Z3_USE_ENDSTOP _XMIN_
@@ -1012,7 +988,7 @@
     #endif
   #endif
   // Auto-assign pins for stallGuard sensorless homing
-  #if !defined(Z4_DIAG_PIN) && !defined(Z4_USE_ENDSTOP) && defined(Z4_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
+  #if !defined(Z4_DIAG_PIN) && !defined(Z4_USE_ENDSTOP) && defined(Z4_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && _PEXI(Z4_E_INDEX, DIAG)
     #define Z4_DIAG_PIN _EPIN(Z4_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z4, X_MIN)
       #define Z4_USE_ENDSTOP _XMIN_
