@@ -286,6 +286,12 @@
  * Wham Bam MUTANT. Toolheads are manually docked/locked,
  * and all use the same heater/sensor pins when switched.
  *
+ * !! TOOL TYPE ORDERING MATTERS !!
+ *  1. Hotends (Set TEMP_SENSOR_n)
+ *  2. Non-Hotend Extruder (no TEMP_SENSOR)
+ *  3. Unpowered
+ *  4. Laser/Spindle
+ *
  * You may also desire to enable/check the following:
  *  - TOOL_OFFSET_[XYZ]
  *  - Tool Change settings in Configuration_adv.h
@@ -299,7 +305,7 @@
    * is dependent on if a TEMP_SENSOR_n is defined for each tool. Hotends must come first,
    * so start with TEMP_SENSOR_0.
    *
-   * Do not include laser/spindle in this count. Enabling LASER_FEATURE/SPINDLE_FEATURE
+   * Do not include laser/spindle in this count. Enabling SWITCHING_TOOLHEAD_LASER_SPINDLE
    * will add the appropriate tool.
    */
   #define SWITCHING_TOOLHEAD_TOOL_QTY 4
@@ -315,7 +321,16 @@
    *
    * NOTE: The MANUAL_SWITCHING_TOOLHEAD feature overrides EXTRUDERS set above.
    */
-  #define SWITCHING_TOOLHEAD_DIRECT_DRIVE_EXTRUDERS
+  //#define SWITCHING_TOOLHEAD_DIRECT_DRIVE_EXTRUDERS
+
+  // TODO: Extra Extruders; use these for extruder-only tools, such as cake/frosting/clay extruders.
+  #define SWITCHING_TOOLHEAD_EXTRA_EXTRUDERS 0
+
+  // TODO: Enable the LASER/SPINDLE tool. Can use LASER/SPINDLE_FEATURE, or a fan-pwm based laser.
+  // This will always be the LAST tool. Can not be used with SWITCHING_TOOLHEAD_TOOL_QTY > 7
+  #if SWITCHING_TOOLHEAD_TOOL_QTY <= 7
+    //#define SWITCHING_TOOLHEAD_LASER_SPINDLE
+  #endif
 
   /**
    * Define the names of Hotends/Unpowered tools. Optional.
@@ -330,7 +345,7 @@
   //#define TOOL_NAME_6 "Tool 6"
   //#define TOOL_NAME_7 "Tool 7"
 
-  // Display a menu prompting you to select the inserted toolhead at boot.
+  // TODO: Display a menu prompting you to select the inserted toolhead at boot.
   //#define SWITCHING_TOOLHEAD_BOOT_MENU
 
   // Keep the selected tool in EEPROM. Must be committed/saved with M500 like other settings.
