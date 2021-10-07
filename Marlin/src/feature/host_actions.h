@@ -47,6 +47,9 @@ void host_action(PGM_P const pstr, const bool eol=true);
 #ifdef ACTION_ON_START
   void host_action_start();
 #endif
+#ifdef ACTION_SHUTDOWN_HOST
+  void host_action_shutdown_host();
+#endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 

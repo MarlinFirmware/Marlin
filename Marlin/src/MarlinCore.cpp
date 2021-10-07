@@ -893,6 +893,18 @@ void idle(bool no_stepper_sleep/*=false*/) {
 }
 
 /**
+ * Stop and tell the host to shutdown
+ */
+#ifdef ACTION_SHUTDOWN_HOST
+void shutdown_host() {
+  thermalManager.disable_all_heaters();
+  TERN_(HAS_CUTTER, cutter.kill());
+  disable_all_steppers();
+  host_action_shutdown_host();
+}
+#endif
+
+/**
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */

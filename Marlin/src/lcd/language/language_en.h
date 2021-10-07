@@ -764,6 +764,10 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_SD_CARD                         = _UxGT("SD Card");
   PROGMEM Language_Str MSG_USB_DISK                        = _UxGT("USB Disk");
+
+  #if ENABLED(HOST_SHUTDOWN)
+    PROGMEM Language_Str SHUTDOWN_HOST                     = _UxGT("Shutdown Host");
+  #endif
 }
 
 #if FAN_COUNT == 1

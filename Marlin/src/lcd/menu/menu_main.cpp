@@ -442,6 +442,10 @@ void menu_main() {
     SUBMENU(LANGUAGE, menu_language);
   #endif
 
+  #if ENABLED(HOST_SHUTDOWN)
+    SUBMENU(SHUTDOWN_HOST, shutdown_host);
+  #endif
+
   END_MENU();
 }
 

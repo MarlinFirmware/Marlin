@@ -698,6 +698,11 @@
   #ifndef ACTION_ON_START
     #define ACTION_ON_START   "start"
   #endif
+  #if ENABLED(HOST_SHUTDOWN)
+  #ifndef ACTION_SHUTDOWN_HOST
+    #define ACTION_SHUTDOWN_HOST "shutdown_host"
+  #endif
+  #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
   #endif
