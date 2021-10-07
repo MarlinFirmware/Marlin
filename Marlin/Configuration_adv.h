@@ -3838,6 +3838,7 @@
   //#define HOST_PAUSE_M76
   //#define HOST_PROMPT_SUPPORT
   //#define HOST_START_MENU_ITEM  // Add a menu item that tells the host to start
+  #define HOST_SHUTDOWN // Action menu item to tell the host to shutdown
 #endif
 
 /**
@@ -4211,8 +4212,3 @@
  */
 //#define SOFT_RESET_VIA_SERIAL         // 'KILL' and '^X' commands will soft-reset the controller
 //#define SOFT_RESET_ON_KILL            // Use a digital button to soft-reset the controller after KILL
-
-/**
- * Action menu item to tell the host to shutdown
- */
-//#define HOST_SHUTDOWN
