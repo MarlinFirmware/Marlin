@@ -2035,7 +2035,7 @@ void get_wifi_commands() {
         #endif
 
         // Add the command to the queue
-        queue.enqueue_one(wifi_line_buffer);
+        queue.enqueue_one(F(wifi_line_buffer));
       }
       else if (wifi_read_count >= MAX_CMD_SIZE - 1) {
 
