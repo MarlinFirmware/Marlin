@@ -4215,4 +4215,4 @@
 /**
  * Action menu item to tell the host to shutdown
  */
-#define HOST_SHUTDOWN
+//#define HOST_SHUTDOWN
