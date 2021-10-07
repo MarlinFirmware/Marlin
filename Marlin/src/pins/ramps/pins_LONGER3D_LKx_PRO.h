@@ -82,10 +82,30 @@
   #define Z_MAX_PIN                           37
 #endif
 
+#undef CHANGE_Y_LIMIT_PINS
+
+//
+// Steppers - No E1 pins
+//
+#define E1_STEP_PIN                           -1
+#define E1_DIR_PIN                            -1
+#define E1_ENABLE_PIN                         -1
+#define E1_CS_PIN                             -1
+
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #define Z_MIN_PROBE_PIN                       -1
+
+//
+// Temperature Sensors
+//
+#define TEMP_1_PIN                            -1
+
+//
+// Průša i3 MK2 Multiplexer Support
+//
+#define E_MUX2_PIN                            -1
 
 //
 // Misc. Functions
@@ -98,22 +118,3 @@
 //
 #define IS_RAMPS_EFB                              // Override autodetection. Bed will be undefined.
 #include "pins_RAMPS_13.h"
-
-//
-// Steppers
-//
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-#undef E1_CS_PIN
-
-//
-// Temperature Sensors
-//
-#undef TEMP_1_PIN
-
-//
-// Průša i3 MK2 Multiplexer Support
-//
-#undef E_MUX2_PIN
-#undef CHANGE_Y_LIMIT_PINS

@@ -403,7 +403,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     else {
       #if ENABLED(CNC_WORKSPACE_PLANES)
         char achar, bchar;
-        switch (gcode.workspace_plane) {
+        switch (workspace_plane) {
           default:
           case GcodeSuite::PLANE_XY: achar = 'I'; bchar = 'J'; break;
           case GcodeSuite::PLANE_YZ: achar = 'J'; bchar = 'K'; break;

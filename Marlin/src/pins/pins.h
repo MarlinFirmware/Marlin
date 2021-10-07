@@ -49,7 +49,7 @@
   #define IS_RAMPS_SF
 #endif
 
-#if !(BOTH(IS_ULTRA_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
+#if !(BOTH(IS_ULTRA_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, WYH_L12864, MINIPANEL, REPRAPWORLD_KEYPAD))
   #define HAS_FREE_AUX2_PINS 1
 #endif
 
@@ -681,6 +681,10 @@
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 #elif MB(FYSETC_E4)
   #include "esp32/pins_FYSETC_E4.h"             // ESP32                                  env:FYSETC_E4
+#elif MB(PANDA_ZHU)
+  #include "esp32/pins_PANDA_ZHU.h"             // ESP32                                  env:PANDA
+#elif MB(PANDA_M4)
+  #include "esp32/pins_PANDA_M4.h"              // ESP32                                  env:PANDA
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)

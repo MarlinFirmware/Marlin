@@ -106,8 +106,8 @@ void menu_configuration();
 
 #if ENABLED(CUSTOM_MENU_MAIN)
 
-  void _lcd_custom_menu_main_gcode(PGM_P const cmd) {
-    queue.inject_P(cmd);
+  void _lcd_custom_menu_main_gcode(FSTR_P const fstr) {
+    queue.inject(fstr);
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
   }
@@ -123,7 +123,7 @@ void menu_configuration();
     #else
       #define _DONE_SCRIPT ""
     #endif
-    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(PSTR(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(F(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
     #define _CUSTOM_ITEM_MAIN_CONFIRM(N)             \
       SUBMENU_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), []{ \

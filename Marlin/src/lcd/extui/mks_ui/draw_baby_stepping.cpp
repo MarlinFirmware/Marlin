@@ -65,32 +65,32 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_BABY_STEP_X_P:
       sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_X_N:
       sprintf_P(baby_buf, PSTR("M290 X%s"), dtostrf(-babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Y_P:
       sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Y_N:
       sprintf_P(baby_buf, PSTR("M290 Y%s"), dtostrf(-babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_P:
       sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_N:
       sprintf_P(baby_buf, PSTR("M290 Z%s"), dtostrf(-babystep_dist, 1, 3, str_1));
-      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_DIST:

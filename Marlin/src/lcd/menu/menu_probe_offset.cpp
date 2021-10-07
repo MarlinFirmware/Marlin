@@ -111,7 +111,7 @@ void probe_offset_wizard_menu() {
     // If wizard-homing was done by probe with PROBE_OFFSET_WIZARD_START_Z
     #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
       set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
-      queue.inject_P(PSTR("G28Z"));
+      queue.inject(F("G28Z"));
     #else // Otherwise do a Z clearance move like after Homing
       z_clearance_move();
     #endif

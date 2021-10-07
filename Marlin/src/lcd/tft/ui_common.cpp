@@ -105,9 +105,9 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   return tft_string.width();
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length) {
   if (max_length < 1) return 0;
-  tft_string.set(utf8_str_P);
+  tft_string.set(utf8_pstr);
   tft_string.trim();
   tft_string.truncate(max_length);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
@@ -209,6 +209,15 @@ void MarlinUI::clear_lcd() {
   tft.fill(0, 0, TFT_WIDTH, TFT_HEIGHT, COLOR_BACKGROUND);
   cursor.set(0, 0);
 }
+
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() {
+    #if PIN_EXISTS(TFT_BACKLIGHT)
+      if (PWM_PIN(TFT_BACKLIGHT_PIN))
+        analogWrite(pin_t(TFT_BACKLIGHT_PIN), brightness);
+    #endif
+  }
+#endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
 

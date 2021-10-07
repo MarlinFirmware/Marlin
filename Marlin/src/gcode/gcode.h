@@ -244,6 +244,7 @@
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
+ *        Set SCARA configurations: "M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset> (Requires MORGAN_SCARA or MP_SCARA)
  * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
@@ -326,7 +327,7 @@ extern const char G28_STR[];
 class GcodeSuite {
 public:
 
-  static uint8_t axis_relative;
+  static axis_bits_t axis_relative;
 
   static inline bool axis_is_relative(const AxisEnum a) {
     #if HAS_EXTRUDERS
@@ -381,9 +382,9 @@ public:
   }
 
   static void report_echo_start(const bool forReplay);
-  static void report_heading(const bool forReplay, PGM_P const pstr, const bool eol=true);
-  static inline void report_heading_etc(const bool forReplay, PGM_P const pstr, const bool eol=true) {
-    report_heading(forReplay, pstr, eol);
+  static void report_heading(const bool forReplay, FSTR_P const fstr, const bool eol=true);
+  static inline void report_heading_etc(const bool forReplay, FSTR_P const fstr, const bool eol=true) {
+    report_heading(forReplay, fstr, eol);
     report_echo_start(forReplay);
   }
   static void say_units();
@@ -396,11 +397,11 @@ public:
   static void process_next_command();
 
   // Execute G-code in-place, preserving current G-code parameters
-  static void process_subcommands_now_P(PGM_P pgcode);
+  static void process_subcommands_now(FSTR_P fgcode);
   static void process_subcommands_now(char * gcode);
 
   static inline void home_all_axes(const bool keep_leveling=false) {
-    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+    process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -878,7 +879,7 @@ private:
 
   #if ENABLED(PIDTEMP)
     static void M301();
-    static void M301_report(const bool forReplay=true, const int8_t eindex=-1);
+    static void M301_report(const bool forReplay=true E_OPTARG(const int8_t eindex=-1));
   #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
