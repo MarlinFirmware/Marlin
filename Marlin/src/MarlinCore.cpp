@@ -855,7 +855,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
 void shutdown_host() {
   thermalManager.disable_all_heaters();
   TERN_(HAS_CUTTER, cutter.kill());
-  disable_all_steppers();
+  stepper.disable_all_steppers();
   host_action_shutdown_host();
 }
 #endif

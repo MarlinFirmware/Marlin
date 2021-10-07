@@ -66,7 +66,7 @@ void host_action(FSTR_P const fstr, const bool eol) {
   void host_action_start() { host_action(F(ACTION_ON_START)); }
 #endif
 #ifdef ACTION_SHUTDOWN_HOST
-  void host_action_shutdown_host(){ host_action(PSTR(ACTION_SHUTDOWN_HOST)); }
+  void host_action_shutdown_host(){ host_action(F(ACTION_SHUTDOWN_HOST)); }
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
