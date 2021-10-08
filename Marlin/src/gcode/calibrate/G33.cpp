@@ -73,9 +73,9 @@ float dcr;
 
 void ac_home() {
   endstops.enable(true);
-  TERN_(HAS_BED_PROBE, probe.set_homing_current(true));
+  TERN_(SENSORLESS_PROBING, probe.set_homing_current(true));
   home_delta();
-  TERN_(HAS_BED_PROBE, probe.set_homing_current(false));
+  TERN_(SENSORLESS_PROBING, probe.set_homing_current(false));
   endstops.not_homing();
 }
 
