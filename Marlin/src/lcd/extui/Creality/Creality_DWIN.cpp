@@ -388,7 +388,7 @@ void onIdle()
 		}
 		else if (getActualTemp_celsius(H0) >= getTargetTemp_celsius(H0) && NozzleTempStatus[2])
 		{
-			SERIAL_ECHOLNPAIR("***NozzleTempStatus[2] =", (int)NozzleTempStatus[2]);
+			SERIAL_ECHOLNPGM("***NozzleTempStatus[2] =", (int)NozzleTempStatus[2]);
 			NozzleTempStatus[2] = 0;
 			TPShowStatus = true;
 			rtscheck.RTS_SndData(4, ExchFlmntIcon);
@@ -682,14 +682,14 @@ void RTSSHOW::RTS_HandleData()
 	SERIAL_ECHOLNPGM_P(PSTR("  *******RTS_HandleData******** "));
 	if (waitway > 0) //for waiting
 	{
-		SERIAL_ECHOLNPAIR("waitway ==", (int)waitway);
+		SERIAL_ECHOLNPGM("waitway ==", (int)waitway);
 		memset(&recdat, 0, sizeof(recdat));
 		recdat.head[0] = FHONE;
 		recdat.head[1] = FHTWO;
 		return;
 	}
-	SERIAL_ECHOLNPAIR("recdat.data[0] ==", recdat.data[0]);
-	SERIAL_ECHOLNPAIR("recdat.addr ==", recdat.addr);
+	SERIAL_ECHOLNPGM("recdat.data[0] ==", recdat.data[0]);
+	SERIAL_ECHOLNPGM("recdat.addr ==", recdat.addr);
 	for (int i = 0; Addrbuf[i] != 0; i++)
 	{
 		if (recdat.addr == Addrbuf[i])
@@ -868,14 +868,14 @@ void RTSSHOW::RTS_HandleData()
         if (recdat.data[0] == 240) // no
         {
           RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-          SERIAL_ECHOLNPAIR("Stop No", recdat.data[0] );
+          SERIAL_ECHOLNPGM("Stop No", recdat.data[0] );
         }
         else
         {
           RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
           RTS_SndData(0, Timehour);
           RTS_SndData(0, Timemin);
-          SERIAL_ECHOLNPAIR("Stop Triggered", recdat.data[0] );
+          SERIAL_ECHOLNPGM("Stop Triggered", recdat.data[0] );
           stopPrint();
         }
       }
@@ -918,7 +918,7 @@ void RTSSHOW::RTS_HandleData()
       {
         tmp_zprobe_offset = ((float)recdat.data[0]) / 100;
       }
-      SERIAL_ECHOLNPAIR("Requested Offset ", tmp_zprobe_offset);
+      SERIAL_ECHOLNPGM("Requested Offset ", tmp_zprobe_offset);
       if (WITHIN((tmp_zprobe_offset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
       {
         int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, (axis_t)Z);
@@ -1194,7 +1194,7 @@ void RTSSHOW::RTS_HandleData()
       break;
 
     case Bedlevel:
-      SERIAL_ECHOLNPAIR("Bed Level Option ",  recdat.data[0]);
+      SERIAL_ECHOLNPGM("Bed Level Option ",  recdat.data[0]);
       switch(recdat.data[0])
       {
         case 1: // Z-axis to home
@@ -1213,7 +1213,7 @@ void RTSSHOW::RTS_HandleData()
           if (WITHIN((getZOffset_mm() + 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
           {
             smartAdjustAxis_steps((getAxisSteps_per_mm(Z) / 10), (axis_t)Z, false);
-            //SERIAL_ECHOLNPAIR("Babystep Pos Steps : ", (int)(getAxisSteps_per_mm(Z) / 10));
+            //SERIAL_ECHOLNPGM("Babystep Pos Steps : ", (int)(getAxisSteps_per_mm(Z) / 10));
             //setZOffset_mm(getZOffset_mm() + 0.1);
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
             char zOffs[20], tmp1[11];
@@ -1228,7 +1228,7 @@ void RTSSHOW::RTS_HandleData()
           if (WITHIN((getZOffset_mm() - 0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
           {
             smartAdjustAxis_steps(((getAxisSteps_per_mm(Z) / 10) * -1), (axis_t)Z, false);
-            //SERIAL_ECHOLNPAIR("Babystep Neg Steps : ", (int)((getAxisSteps_per_mm(Z) / 10) * -1));
+            //SERIAL_ECHOLNPGM("Babystep Neg Steps : ", (int)((getAxisSteps_per_mm(Z) / 10) * -1));
             //babystepAxis_steps((((int)getAxisSteps_per_mm(Z) / 10) * -1), (axis_t)Z);
             //setZOffset_mm(getZOffset_mm() - 0.1);
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
@@ -1407,7 +1407,7 @@ void RTSSHOW::RTS_HandleData()
         }
         default:
         {
-          SERIAL_ECHOLNPAIR("Unsupported Option Selected", recdat.data[0]);
+          SERIAL_ECHOLNPGM("Unsupported Option Selected", recdat.data[0]);
           break;
         }
       }
@@ -1552,7 +1552,7 @@ void RTSSHOW::RTS_HandleData()
 
     case LanguageChoice:
 
-      SERIAL_ECHOLNPAIR("\n ***recdat.data[0] =", recdat.data[0]);
+      SERIAL_ECHOLNPGM("\n ***recdat.data[0] =", recdat.data[0]);
       /*if(recdat.data[0]==1) {
           settings.save();
         }
@@ -1615,16 +1615,14 @@ void RTSSHOW::RTS_HandleData()
 
       if (recdat.data[0] == 1) //Filament is out, resume / resume selected on screen
       {
+
         if(
-          #if (FIL_RUNOUT_STATE == LOW)
-            #define FIL_RUNOUT_INVERTING false
-          #endif
         #if DISABLED(FILAMENT_RUNOUT_SENSOR) || ENABLED(FILAMENT_MOTION_SENSOR)
           true
         #elif NUM_RUNOUT_SENSORS > 1
-          (getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT_INVERTING)
+          (getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT2_STATE)
         #else
-          getActiveTool() == E0 && READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING
+          getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE
         #endif
         ) {
           SERIAL_ECHOLNPGM_P(PSTR("Resume Yes during print"));
@@ -1707,14 +1705,14 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(0, Choosefilename + j);
 
         if(filenavigator.getIndexisDir(fileIndex + recordcount)) {
-          SERIAL_ECHOLNPAIR("Is Dir ", (fileIndex + recordcount));
+          SERIAL_ECHOLNPGM("Is Dir ", (fileIndex + recordcount));
           filenavigator.changeDIR((char *)filenavigator.getIndexName(fileIndex + recordcount));
           filenavigator.getFiles(0);
           fileIndex = 0;
           return;
         }
         else{
-          SERIAL_ECHOLNPAIR("Is File ", (fileIndex + recordcount));
+          SERIAL_ECHOLNPGM("Is File ", (fileIndex + recordcount));
           RTS_SndData(filenavigator.getIndexName(fileIndex + recordcount), Choosefilename);
           RTS_SndData((unsigned long)0x87F0, FilenameNature + recdat.data[0] * 16); // Change BG of selected line to Light Green
           RTS_SndData(6, FilenameIcon1 + recdat.data[0]);							  // show frame
@@ -1848,18 +1846,18 @@ void RTSSHOW::RTS_HandleData()
       else
         xPnt = (GRID_MAX_POINTS_X - 1)- (meshPoint - (yPnt*GRID_MAX_POINTS_X)); //zag row
       float meshVal;
-      SERIAL_ECHOLNPAIR("meshPoint ", meshPoint);
-      SERIAL_ECHOLNPAIR("xPnt ", xPnt);
-      SERIAL_ECHOLNPAIR("yPnt ", yPnt);
+      SERIAL_ECHOLNPGM("meshPoint ", meshPoint);
+      SERIAL_ECHOLNPGM("xPnt ", xPnt);
+      SERIAL_ECHOLNPGM("yPnt ", yPnt);
 
       if (recdat.data[0] >= 32768)
         meshVal = ((float)recdat.data[0] - 65536) / 1000;
       else
         meshVal = ((float)recdat.data[0]) / 1000;
 
-      SERIAL_ECHOLNPAIR("meshVal ", meshVal);
+      SERIAL_ECHOLNPGM("meshVal ", meshVal);
       meshVal = constrain(meshVal, Z_PROBE_LOW_POINT, Z_CLEARANCE_BETWEEN_PROBES);
-      SERIAL_ECHOLNPAIR("Constrain meshVal ", meshVal);
+      SERIAL_ECHOLNPGM("Constrain meshVal ", meshVal);
       xy_uint8_t point = {xPnt, yPnt};
       setMeshPoint(point, meshVal);
       rtscheck.RTS_SndData((meshVal*1000), recdat.addr);
@@ -2184,7 +2182,7 @@ void onUserConfirmRequired(const char *const msg)
         break;
       }
   }
-	SERIAL_ECHOLNPAIR_P(PSTR("==onUserConfirmRequired=="), pauseModeStatus);
+	SERIAL_ECHOLNPGM_P(PSTR("==onUserConfirmRequired=="), pauseModeStatus);
 }
 
 void onStatusChanged(const char *const statMsg)
@@ -2279,14 +2277,14 @@ void onLoadSettings(const char *buff)
   SERIAL_ECHOLNPGM("Loading DWIN LCD setting from EEPROM");
   memcpy(&Settings, &eepromSettings, sizeof(creality_dwin_settings_t));
 
-  SERIAL_ECHOLNPAIR("Setting Brightness : ", Settings.screen_brightness);
-  SERIAL_ECHOLNPAIR("Setting Standby : ", Settings.standby_screen_brightness);
-  SERIAL_ECHOLNPAIR("Setting Standby Time : ", Settings.standby_time_seconds);
-  SERIAL_ECHOLNPAIR("Setting Rotation : ", Settings.screen_rotation);
-  SERIAL_ECHOLNPAIR("Setting Volume : ", Settings.display_volume);
+  SERIAL_ECHOLNPGM("Setting Brightness : ", Settings.screen_brightness);
+  SERIAL_ECHOLNPGM("Setting Standby : ", Settings.standby_screen_brightness);
+  SERIAL_ECHOLNPGM("Setting Standby Time : ", Settings.standby_time_seconds);
+  SERIAL_ECHOLNPGM("Setting Rotation : ", Settings.screen_rotation);
+  SERIAL_ECHOLNPGM("Setting Volume : ", Settings.display_volume);
 
-  SERIAL_ECHOLNPAIR("Setting Standby On : ", Settings.display_standby);
-  SERIAL_ECHOLNPAIR("Setting Volume On : ", Settings.display_sound);
+  SERIAL_ECHOLNPGM("Setting Standby On : ", Settings.display_standby);
+  SERIAL_ECHOLNPGM("Setting Volume On : ", Settings.display_sound);
 
   SetTouchScreenConfiguration();
 }
@@ -2328,7 +2326,7 @@ void onConfigurationStoreRead(bool success)
     }
   #endif
 
-	SERIAL_ECHOLNPAIR("\n init zprobe_zoffset = ", getZOffset_mm());
+	SERIAL_ECHOLNPGM("\n init zprobe_zoffset = ", getZOffset_mm());
 	rtscheck.RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
   SetTouchScreenConfiguration();
 }

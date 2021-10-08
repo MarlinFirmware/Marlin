@@ -168,6 +168,8 @@
   #define CUSTOM_MACHINE_NAME "500 SuPeR"
 #elif ENABLED(MachineCR2020)
   #define CUSTOM_MACHINE_NAME "TM3D 2020"
+#elif ENABLED(MachineSermoonD1)
+  #define CUSTOM_MACHINE_NAME "SermoonD1"
 #endif
 
 /**

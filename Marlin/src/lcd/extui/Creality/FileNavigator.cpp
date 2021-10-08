@@ -115,7 +115,7 @@ void FileNavigator::getFiles(uint16_t index) {
     rtscheck.RTS_SndData(10, FilenameIcon1 + j);
   }
 
-  DEBUG_ECHOLNPAIR("index=", index, " currentindex=", currentindex, "folderdepth=", folderdepth);
+  DEBUG_ECHOLNPGM("index=", index, " currentindex=", currentindex, "folderdepth=", folderdepth);
 
   if (currentindex == 0 && folderdepth > 0) { // Add a link to go up a folder
     files--;
@@ -149,14 +149,14 @@ void FileNavigator::getFiles(uint16_t index) {
         rtscheck.RTS_SndData((uint8_t)0, FilenameIcon + (fcnt+1));
         rtscheck.RTS_SndData((unsigned long)0xFFFF, (FilenameNature + ((1+fcnt) * 16))); // white
       }
-      SERIAL_ECHOLNPAIR("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
+      SERIAL_ECHOLNPGM("-", seek, " '", filelist.filename(), "' '", currentfoldername, "", filelist.shortFilename(), "'\n");
       fcnt++;
     }
   }
 }
 
 void FileNavigator::changeDIR(char *folder) {
-  DEBUG_ECHOLNPAIR("currentfolder: ", currentfoldername, "  New: ", folder);
+  DEBUG_ECHOLNPGM("currentfolder: ", currentfoldername, "  New: ", folder);
   if (folderdepth >= MAX_FOLDER_DEPTH) return; // limit the folder depth
   strcat(currentfoldername, folder);
   strcat(currentfoldername, "/");
@@ -182,7 +182,7 @@ void FileNavigator::upDIR() {
       pos = strchr(currentfoldername, '/');
     pos[1] = '\0';
   }
-  DEBUG_ECHOLNPAIR("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
+  DEBUG_ECHOLNPGM("depth: ", folderdepth, " currentfoldername: ", currentfoldername);
 }
 
 char* FileNavigator::getCurrentFolderName() { return currentfoldername; }

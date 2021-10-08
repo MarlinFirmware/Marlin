@@ -2091,7 +2091,7 @@
       #define NOZZLE_TO_PROBE_OFFSET { -27.625, 0.0, 0 }
     #endif
   #endif
-#elif ENABLED(MachineCRXPro, HotendStock, ABL_BLTOUCH)
+#elif EITHER(MachineCRXPro, MachineEnder3Max) && ALL(HotendStock, ABL_BLTOUCH)
   #define NOZZLE_TO_PROBE_OFFSET { 48, 3, 0 }
 #elif ANY(MachineCR6, MachineCR6Max)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0.2 }
@@ -3970,7 +3970,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, MachineSermoonD1) && (NONE(GraphicLCD, SKRMiniE3V2, OrigLCD) || ENABLED(FORCE10SPRODISPLAY))
   #ifndef FORCE10SPRODISPLAY
     #define FORCE10SPRODISPLAY
   #endif
