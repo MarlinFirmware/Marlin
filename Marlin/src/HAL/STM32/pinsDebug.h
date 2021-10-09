@@ -196,7 +196,7 @@ void port_print(const pin_t Ard_num) {
     SERIAL_ECHO_SP(7);
 
   // Print number to be used with M42
-  int calc_p = Ard_num%(NUM_DIGITAL_PINS+1);
+  int calc_p = Ard_num % (NUM_DIGITAL_PINS + 1);
   if (Ard_num > NUM_DIGITAL_PINS && calc_p > 7) calc_p += 8;
   sprintf_P(buffer, PSTR(" M42 P%d "), calc_p);
   SERIAL_ECHO(buffer);
