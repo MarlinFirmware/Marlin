@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V85"
+#define EEPROM_VERSION "V86"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -277,6 +277,7 @@ typedef struct SettingsDataStruct {
   // BLTOUCH
   //
   bool bltouch_last_written_mode;
+  bool bltouch_high_speed;.
 
   //
   // Kinematic Settings
@@ -861,6 +862,10 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(bltouch_last_written_mode);
       const bool bltouch_last_written_mode = TERN(BLTOUCH, bltouch.last_written_mode, false);
       EEPROM_WRITE(bltouch_last_written_mode);
+
+      _FIELD_TEST(bltouch_high_speed);
+      const bool bltouch_high_speed = TERN(BLTOUCH, bltouch.bltouch_high_speed, false);
+      EEPROM_WRITE(bltouch_high_speed);
     }
 
     //
@@ -1730,6 +1735,14 @@ void MarlinSettings::postprocess() {
           const bool &bltouch_last_written_mode = bltouch.last_written_mode;
         #else
           bool bltouch_last_written_mode;
+        #endif
+        EEPROM_READ(bltouch_last_written_mode);
+
+        _FIELD_TEST(bltouch_high_speed);
+        #if ENABLED(BLTOUCH)
+          const bool &bltouch_high_speed = bltouch.bltouch_high_speed;
+        #else
+          bool bltouch_high_speed;
         #endif
         EEPROM_READ(bltouch_last_written_mode);
       }
@@ -2729,12 +2742,9 @@ void MarlinSettings::reset() {
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
   //
-  // BLTOUCH
+  // BLTouch
   //
-  //#if ENABLED(BLTOUCH)
-  //  bltouch.last_written_mode;
-  //#endif
-
+  TERN_(BLTOUCH_HS_MODE, bltouch.bltouch_high_speed = true);
   //
   // Kinematic settings
   //

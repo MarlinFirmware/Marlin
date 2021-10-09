@@ -27,11 +27,23 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
 
 /**
  * M401: Deploy and activate the Z probe
  */
 void GcodeSuite::M401() {
+  #if ENABLED(BLTOUCH)
+    const bool seen_S = parser.seen('S'),
+             to_enable = (seen_S && parser.value_bool());
+    if (seen_S)
+      if(to_enable)
+       bltouch.bltouch_high_speed = true;
+      else
+        bltouch.bltouch_high_speed = false;
+  #endif
   probe.deploy();
   TERN_(PROBE_TARE, probe.tare());
   report_current_position();

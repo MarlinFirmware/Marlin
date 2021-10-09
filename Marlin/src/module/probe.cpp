@@ -487,8 +487,10 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if BOTH(HAS_TEMP_HOTEND, WAIT_FOR_HOTEND)
     thermalManager.wait_for_hotend_heating(active_extruder);
   #endif
-
-  if (TERN0(BLTOUCH_SLOW_MODE, bltouch.deploy())) return true; // Deploy in LOW SPEED MODE on every probe action
+  #if ENABLED(BLTOUCH)
+    if(!bltouch.bltouch_high_speed)
+      if (bltouch.deploy()) return true; // Deploy in LOW SPEED MODE on every probe action
+  #endif
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -528,10 +530,11 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     if (probe.test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
     set_homing_current(false);
   #endif
-
-  if (probe_triggered && TERN0(BLTOUCH_SLOW_MODE, bltouch.stow())) // Stow in LOW SPEED MODE on every trigger
-    return true;
-
+  #if ENABLED(BLTOUCH)
+    if(!bltouch.bltouch_high_speed)
+      if (probe_triggered && bltouch.stow()) // Stow in LOW SPEED MODE on every trigger
+        return true;
+  #endif
   // Clear endstop flags
   endstops.hit_on_purpose();
 
@@ -760,8 +763,8 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     DEBUG_POS("", current_position);
   }
 
-  #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
-    if (bltouch.triggered()) bltouch._reset();
+  #if ENABLED(BLTOUCH)
+    if (bltouch.triggered() && bltouch.bltouch_high_speed) bltouch._reset();
   #endif
 
   // On delta keep Z below clip height or do_blocking_move_to will abort

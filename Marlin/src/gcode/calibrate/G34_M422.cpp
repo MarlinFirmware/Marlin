@@ -149,7 +149,7 @@ void GcodeSuite::G34() {
       // In BLTOUCH HS mode, the probe travels in a deployed state.
       // Users of G34 might have a badly misaligned bed, so raise Z by the
       // length of the deployed pin (BLTOUCH stroke < 7mm)
-      #define Z_BASIC_CLEARANCE (Z_CLEARANCE_BETWEEN_PROBES + 7.0f * BOTH(BLTOUCH, BLTOUCH_HS_MODE))
+      #define Z_BASIC_CLEARANCE (Z_CLEARANCE_BETWEEN_PROBES + 7.0f * bltouch.bltouch_high_speed)
 
       // Compute a worst-case clearance height to probe from. After the first
       // iteration this will be re-calculated based on the actual bed position

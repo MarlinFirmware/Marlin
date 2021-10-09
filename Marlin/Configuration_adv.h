@@ -857,6 +857,8 @@
    * Danger: Disable if your probe sometimes fails. Only suitable for stable well-adjusted systems.
    * This feature was designed for Deltabots with very fast Z moves; however, higher speed Cartesians
    * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
+   *
+   * This sets the default state. Can be changed through the SCD
    */
   //#define BLTOUCH_HS_MODE
 
