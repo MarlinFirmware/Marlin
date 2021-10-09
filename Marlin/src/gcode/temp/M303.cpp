@@ -85,7 +85,7 @@ void GcodeSuite::M303() {
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
-  LCD_MESSAGEPGM(MSG_PID_AUTOTUNE);
+  LCD_MESSAGE(MSG_PID_AUTOTUNE);
   thermalManager.PID_autotune(temp, hid, c, u);
   ui.reset_status();
 }

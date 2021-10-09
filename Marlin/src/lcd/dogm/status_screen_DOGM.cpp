@@ -191,7 +191,7 @@
 
 FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
   if (temp < 0)
-    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, "err");
+    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, F("err"));
   else {
     const char *str = i16tostr3rj(temp);
     const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
@@ -436,7 +436,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
+    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
@@ -777,7 +777,7 @@ void MarlinUI::draw_status_screen() {
           }
         }
         else if (progress_state == 2 && estimation_string[0]) {
-          lcd_put_u8str_P(PROGRESS_BAR_X, EXTRAS_BASELINE, PSTR("R:"));
+          lcd_put_u8str(PROGRESS_BAR_X, EXTRAS_BASELINE, F("R:"));
           lcd_put_u8str(estimation_x_pos, EXTRAS_BASELINE, estimation_string);
         }
         else if (elapsed_string[0]) {
@@ -879,7 +879,7 @@ void MarlinUI::draw_status_screen() {
         if (show_e_total) {
           #if ENABLED(LCD_SHOW_E_TOTAL)
             _draw_axis_value(E_AXIS, xstring, true);
-            lcd_put_u8str_P(PSTR("       "));
+            lcd_put_u8str(F("       "));
           #endif
         }
         else {
@@ -918,7 +918,7 @@ void MarlinUI::draw_status_screen() {
       lcd_put_u8str(102, EXTRAS_2_BASELINE, mstring);
       lcd_put_wchar('%');
       set_font(FONT_MENU);
-      lcd_put_wchar(47, EXTRAS_2_BASELINE, LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
+      lcd_put_wchar(47, EXTRAS_2_BASELINE, LCD_STR_FILAM_DIA[0]); // lcd_put_u8str(F(LCD_STR_FILAM_DIA));
       lcd_put_wchar(93, EXTRAS_2_BASELINE, LCD_STR_FILAM_MUL[0]);
     #endif
   }
@@ -932,10 +932,10 @@ void MarlinUI::draw_status_screen() {
     #if BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
       // Alternate Status message and Filament display
       if (ELAPSED(millis(), next_filament_display)) {
-        lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
+        lcd_put_u8str(F(LCD_STR_FILAM_DIA));
         lcd_put_wchar(':');
         lcd_put_u8str(wstring);
-        lcd_put_u8str_P(PSTR("  " LCD_STR_FILAM_MUL));
+        lcd_put_u8str(F("  " LCD_STR_FILAM_MUL));
         lcd_put_wchar(':');
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');
