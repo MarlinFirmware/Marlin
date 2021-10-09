@@ -180,4 +180,3 @@
   #define BOARD_ST7920_DELAY_2               125
   #define BOARD_ST7920_DELAY_3               125
 #endif
-
