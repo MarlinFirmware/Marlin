@@ -113,9 +113,10 @@ struct duration_t {
 
   /**
    * @brief Formats the duration as a string
-   * @details String will be formated using a "full" representation of duration
+   * @details String will be formatted using a "full" representation of duration
    *
-   * @param buffer The array pointed to must be able to accommodate 21 bytes
+   * @param buffer The array pointed to must be able to accommodate 22 bytes
+   *               (21 for the string, 1 more for the terminating nul)
    *
    * Output examples:
    *  123456789012345678901 (strlen)
@@ -142,7 +143,7 @@ struct duration_t {
 
   /**
    * @brief Formats the duration as a string
-   * @details String will be formated using a "digital" representation of duration
+   * @details String will be formatted using a "digital" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 10 bytes
    *

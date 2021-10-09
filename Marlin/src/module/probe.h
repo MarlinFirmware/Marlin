@@ -33,12 +33,13 @@
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
     PROBE_PT_STOW,      // Do a complete stow after run_z_probe
+    PROBE_PT_LAST_STOW, // Stow for sure, even in BLTouch HS mode
     PROBE_PT_RAISE,     // Raise to "between" clearance after run_z_probe
     PROBE_PT_BIG_RAISE  // Raise to big clearance after run_z_probe
   };
 #endif
 
-#if HAS_CUSTOM_PROBE_PIN
+#if USES_Z_MIN_PROBE_PIN
   #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
 #else
   #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
@@ -56,12 +57,17 @@
 class Probe {
 public:
 
+  #if ENABLED(SENSORLESS_PROBING)
+    typedef struct { bool x:1, y:1, z:1; } sense_bool_t;
+    static sense_bool_t test_sensitivity;
+  #endif
+
   #if HAS_BED_PROBE
 
     static xyz_pos_t offset;
 
     #if EITHER(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const int16_t hotend_temp, const int16_t bed_temp);
+      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp);
     #endif
 
     static bool set_deployed(const bool deploy);
@@ -71,12 +77,12 @@ public:
       #if HAS_PROBE_XY_OFFSET
         // Return true if the both nozzle and the probe can reach the given point.
         // Note: This won't work on SCARA since the probe offset rotates with the arm.
-        static bool can_reach(const float &rx, const float &ry) {
+        static bool can_reach(const_float_t rx, const_float_t ry) {
           return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
               && position_is_reachable(rx, ry, ABS(PROBING_MARGIN));       // Can the nozzle also go near there?
         }
       #else
-        static bool can_reach(const float &rx, const float &ry) {
+        static bool can_reach(const_float_t rx, const_float_t ry) {
           return position_is_reachable(rx, ry, PROBING_MARGIN);
         }
       #endif
@@ -90,7 +96,7 @@ public:
        * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
        *          nozzle must be be able to reach +10,-10.
        */
-      static bool can_reach(const float &rx, const float &ry) {
+      static bool can_reach(const_float_t rx, const_float_t ry) {
         return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
             && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
             && COORDINATE_OKAY(ry, min_y() - fslop, max_y() + fslop);
@@ -103,18 +109,18 @@ public:
         do_z_clearance(Z_AFTER_PROBING, true); // Move down still permitted
       #endif
     }
-    static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
+    static float probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
 
   #else
 
-    static constexpr xyz_pos_t offset = xyz_pos_t({ 0, 0, 0 }); // See #16767
+    static constexpr xyz_pos_t offset = xyz_pos_t(LINEAR_AXIS_ARRAY(0, 0, 0, 0, 0, 0)); // See #16767
 
     static bool set_deployed(const bool) { return false; }
 
-    static bool can_reach(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
+    static bool can_reach(const_float_t rx, const_float_t ry) { return position_is_reachable(rx, ry); }
 
   #endif
 
@@ -185,10 +191,10 @@ public:
       );
     }
 
-    static float min_x() { return _min_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float max_x() { return _max_x() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x)); }
-    static float min_y() { return _min_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
-    static float max_y() { return _max_y() - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y)); }
+    static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float max_x() { return _max_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
+    static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {
@@ -222,20 +228,20 @@ public:
           #define VALIDATE_PROBE_PT(N) static_assert(Probe::build_time::can_reach(xy_pos_t{PROBE_PT_##N##_X, PROBE_PT_##N##_Y}), \
             "PROBE_PT_" STRINGIFY(N) "_(X|Y) is unreachable using default NOZZLE_TO_PROBE_OFFSET and PROBING_MARGIN");
           VALIDATE_PROBE_PT(1); VALIDATE_PROBE_PT(2); VALIDATE_PROBE_PT(3);
-          points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
-          points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
-          points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);
+          points[0] = xy_float_t({ PROBE_PT_1_X, PROBE_PT_1_Y });
+          points[1] = xy_float_t({ PROBE_PT_2_X, PROBE_PT_2_Y });
+          points[2] = xy_float_t({ PROBE_PT_3_X, PROBE_PT_3_Y });
         #else
           #if IS_KINEMATIC
             constexpr float SIN0 = 0.0, SIN120 = 0.866025, SIN240 = -0.866025,
                             COS0 = 1.0, COS120 = -0.5    , COS240 = -0.5;
-            points[0].set((X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0);
-            points[1].set((X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120);
-            points[2].set((X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240);
+            points[0] = xy_float_t({ (X_CENTER) + probe_radius() * COS0,   (Y_CENTER) + probe_radius() * SIN0 });
+            points[1] = xy_float_t({ (X_CENTER) + probe_radius() * COS120, (Y_CENTER) + probe_radius() * SIN120 });
+            points[2] = xy_float_t({ (X_CENTER) + probe_radius() * COS240, (Y_CENTER) + probe_radius() * SIN240 });
           #else
-            points[0].set(min_x(), min_y());
-            points[1].set(max_x(), min_y());
-            points[2].set((min_x() + max_x()) / 2, max_y());
+            points[0] = xy_float_t({ min_x(), min_y() });
+            points[1] = xy_float_t({ max_x(), min_y() });
+            points[2] = xy_float_t({ (min_x() + max_x()) / 2, max_y() });
           #endif
         #endif
       }
@@ -256,8 +262,15 @@ public:
     static bool tare();
   #endif
 
+  // Basic functions for Sensorless Homing and Probing
+  #if USE_SENSORLESS
+    static void enable_stallguard_diag1();
+    static void disable_stallguard_diag1();
+    static void set_homing_current(const bool onoff);
+  #endif
+
 private:
-  static bool probe_down_to_z(const float z, const feedRate_t fr_mm_s);
+  static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
   static void do_z_raise(const float z_raise);
   static float run_z_probe(const bool sanity_check=true);
 };

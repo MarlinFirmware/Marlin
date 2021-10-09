@@ -19,7 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#include "../platforms.h"
+
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfig.h"
 
@@ -74,7 +76,7 @@
 #elif defined(STM32F401xC) || defined(STM32F401xE)
   #define MCU_STEP_TIMER  9
   #define MCU_TEMP_TIMER 10
-#elif defined(STM32F4xx) || defined(STM32F7xx)
+#elif defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx)
   #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
 #endif
@@ -319,4 +321,4 @@ static constexpr bool verify_no_timer_conflicts() {
 // when hovering over it, making it easy to identify the conflicting timers.
 static_assert(verify_no_timer_conflicts(), "One or more timer conflict detected. Examine \"timers_in_use\" to help identify conflict.");
 
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // HAL_STM32

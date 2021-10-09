@@ -171,10 +171,10 @@
 #define SPINDLE_DIR_PIN                       32
 
 //
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 //
-#ifndef MAX6675_SS_PIN
-  #define MAX6675_SS_PIN                      32  // SPINDLE_DIR_PIN / STAT_LED_BLUE_PIN
+#ifndef TEMP_0_CS_PIN
+  #define TEMP_0_CS_PIN                       32  // SPINDLE_DIR_PIN / STAT_LED_BLUE_PIN
 #endif
 
 //
@@ -268,3 +268,10 @@
   #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2                 0
+  #define BOARD_ST7920_DELAY_3                 0
+#endif

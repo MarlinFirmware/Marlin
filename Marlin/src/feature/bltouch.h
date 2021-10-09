@@ -74,33 +74,33 @@ public:
   static bool last_written_mode; // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
-  FORCE_INLINE static bool deploy()              { return deploy_proc(); }
-  FORCE_INLINE static bool stow()                { return stow_proc(); }
-  FORCE_INLINE static bool status()              { return status_proc(); }
+  static bool deploy()              { return deploy_proc(); }
+  static bool stow()                { return stow_proc(); }
+  static bool status()              { return status_proc(); }
 
   // Native BLTouch commands ("Underscore"...), used in lcd menus and internally
-  FORCE_INLINE static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
+  static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
 
-  FORCE_INLINE static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
+  static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
 
-  FORCE_INLINE static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
-  FORCE_INLINE static void _reset_SW_mode()      { if (triggered()) _stow(); else _deploy(); }
+  static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
+  static void _reset_SW_mode()      { if (triggered()) _stow(); else _deploy(); }
 
-  FORCE_INLINE static void _set_5V_mode()        { command(BLTOUCH_5V_MODE, BLTOUCH_SET5V_DELAY); }
-  FORCE_INLINE static void _set_OD_mode()        { command(BLTOUCH_OD_MODE, BLTOUCH_SETOD_DELAY); }
-  FORCE_INLINE static void _mode_store()         { command(BLTOUCH_MODE_STORE, BLTOUCH_MODE_STORE_DELAY); }
+  static void _set_5V_mode()        { command(BLTOUCH_5V_MODE, BLTOUCH_SET5V_DELAY); }
+  static void _set_OD_mode()        { command(BLTOUCH_OD_MODE, BLTOUCH_SETOD_DELAY); }
+  static void _mode_store()         { command(BLTOUCH_MODE_STORE, BLTOUCH_MODE_STORE_DELAY); }
 
-  FORCE_INLINE static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
-  FORCE_INLINE static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
+  static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
+  static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
-  FORCE_INLINE static void mode_conv_5V()        { mode_conv_proc(true); }
-  FORCE_INLINE static void mode_conv_OD()        { mode_conv_proc(false); }
+  static void mode_conv_5V()        { mode_conv_proc(true); }
+  static void mode_conv_OD()        { mode_conv_proc(false); }
 
   static bool triggered();
 
 private:
-  FORCE_INLINE static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
-  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY) == STOW_ALARM; }
+  static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
+  static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY) == STOW_ALARM; }
 
   static void clear();
   static bool command(const BLTCommand cmd, const millis_t &ms);

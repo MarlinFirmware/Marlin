@@ -1,5 +1,6 @@
 #
-# download_mks_assets.py
+# buildroot/share/PlatformIO/scripts/download_mks_assets.py
+# Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
 #
 Import("env")
 import os,requests,zipfile,tempfile,shutil

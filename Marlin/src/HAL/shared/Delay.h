@@ -97,48 +97,70 @@ void calibrate_delay_loop();
   #define DELAY_US(x) DelayCycleFnc((x) * ((F_CPU) / 1000000UL))
 
 #elif defined(__AVR__)
-
-  #define nop() __asm__ __volatile__("nop;\n\t":::)
-
-  FORCE_INLINE static void __delay_4cycles(uint8_t cy) {
-    __asm__ __volatile__(
-      L("1")
-      A("dec %[cnt]")
-      A("nop")
-      A("brne 1b")
-      : [cnt] "+r"(cy)  // output: +r means input+output
-      :                 // input:
-      : "cc"            // clobbers:
-    );
+  FORCE_INLINE static void __delay_up_to_3c(uint8_t cycles) {
+    switch (cycles) {
+      case 3:
+        __asm__ __volatile__(A("RJMP .+0") A("NOP"));
+        break;
+      case 2:
+        __asm__ __volatile__(A("RJMP .+0"));
+        break;
+      case 1:
+        __asm__ __volatile__(A("NOP"));
+        break;
+    }
   }
 
   // Delay in cycles
-  FORCE_INLINE static void DELAY_CYCLES(uint16_t x) {
-
-    if (__builtin_constant_p(x)) {
-      #define MAXNOPS 4
-
-      if (x <= (MAXNOPS)) {
-        switch (x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+  FORCE_INLINE static void DELAY_CYCLES(uint16_t cycles) {
+    if (__builtin_constant_p(cycles)) {
+      if (cycles <= 3) {
+        __delay_up_to_3c(cycles);
+      }
+      else if (cycles == 4) {
+        __delay_up_to_3c(2);
+        __delay_up_to_3c(2);
       }
       else {
-        const uint32_t rem = (x) % (MAXNOPS);
-        switch (rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
-        if ((x = (x) / (MAXNOPS)))
-          __delay_4cycles(x); // if need more then 4 nop loop is more optimal
-      }
+        cycles -= 1 + 4; // Compensate for the first LDI (1) and the first round (4)
+        __delay_up_to_3c(cycles % 4);
 
-      #undef MAXNOPS
+        cycles /= 4;
+        // The following code burns [1 + 4 * (rounds+1)] cycles
+        uint16_t dummy;
+        __asm__ __volatile__(
+          // "manually" load counter from constants, otherwise the compiler may optimize this part away
+          A("LDI %A[rounds], %[l]") // 1c
+          A("LDI %B[rounds], %[h]") // 1c (compensating the non branching BRCC)
+          L("1")
+          A("SBIW %[rounds], 1")    // 2c
+          A("BRCC 1b")              // 2c when branching, else 1c (end of loop)
+          : // Outputs ...
+          [rounds] "=w" (dummy) // Restrict to a wo (=) 16 bit register pair (w)
+          : // Inputs ...
+          [l] "M" (cycles%256), // Restrict to 0..255 constant (M)
+          [h] "M" (cycles/256)  // Restrict to 0..255 constant (M)
+          :// Clobbers ...
+          "cc"                  // Indicate we are modifying flags like Carry (cc)
+        );
+      }
     }
-    else if ((x >>= 2))
-      __delay_4cycles(x);
+    else {
+      __asm__ __volatile__(
+        L("1")
+        A("SBIW %[cycles], 4")   // 2c
+        A("BRCC 1b")             // 2c when branching, else 1c (end of loop)
+        : [cycles] "+w" (cycles) // output: Restrict to a rw (+) 16 bit register pair (w)
+        :                        // input: -
+        : "cc"                   // clobbers: We are modifying flags like Carry (cc)
+      );
+    }
   }
-  #undef nop
 
   // Delay in microseconds
   #define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))
 
-#elif defined(__PLAT_LINUX__) || defined(ESP32)
+#elif defined(ESP32) || defined(__PLAT_LINUX__) || defined(__PLAT_NATIVE_SIM__)
 
   // DELAY_CYCLES specified inside platform
 
@@ -150,8 +172,37 @@ void calibrate_delay_loop();
 
 #endif
 
-// Delay in nanoseconds
-#define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
+/**************************************************************
+ *  Delay in nanoseconds. Requires the F_CPU macro.
+ *  These macros follow avr-libc delay conventions.
+ *
+ * For AVR there are three possible operation modes, due to its
+ * slower clock speeds and thus coarser delay resolution. For
+ * example, when F_CPU = 16000000 the resolution is 62.5ns.
+ *
+ *  Round up (default)
+ *    Round up the delay according to the CPU clock resolution.
+ *    e.g., 100 will give a delay of 2 cycles (125ns).
+ *
+ *  Round down (DELAY_NS_ROUND_DOWN)
+ *    Round down the delay according to the CPU clock resolution.
+ *    e.g., 100 will be rounded down to 1 cycle (62.5ns).
+ *
+ *  Nearest (DELAY_NS_ROUND_CLOSEST)
+ *    Round the delay to the nearest number of clock cycles.
+ *    e.g., 165 will be rounded up to 3 cycles (187.5ns) because
+ *          it's closer to the requested delay than 2 cycle (125ns).
+ */
 
+#ifndef __AVR__
+  #undef DELAY_NS_ROUND_DOWN
+  #undef DELAY_NS_ROUND_CLOSEST
+#endif
 
-
+#if ENABLED(DELAY_NS_ROUND_DOWN)
+  #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)          // floor
+#elif ENABLED(DELAY_NS_ROUND_CLOSEST)
+  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 500) / 1000UL)  // round
+#else
+  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 999) / 1000UL)  // "ceil"
+#endif

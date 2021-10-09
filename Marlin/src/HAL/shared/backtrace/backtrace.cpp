@@ -29,7 +29,7 @@
 #include <stdarg.h>
 
 // Dump a backtrace entry
-static bool UnwReportOut(void* ctx, const UnwReport* bte) {
+static bool UnwReportOut(void *ctx, const UnwReport *bte) {
   int *p = (int*)ctx;
 
   (*p)++;
@@ -44,7 +44,7 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
 }
 
 #ifdef UNW_DEBUG
-  void UnwPrintf(const char* format, ...) {
+  void UnwPrintf(const char *format, ...) {
     char dest[256];
     va_list argptr;
     va_start(argptr, format);

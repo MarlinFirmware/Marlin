@@ -37,9 +37,9 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
-#define ST7920_DELAY_1 DELAY_NS(600)
-#define ST7920_DELAY_2 DELAY_NS(750)
-#define ST7920_DELAY_3 DELAY_NS(750)
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
 
 // ------------------------
 // Defines
@@ -72,6 +72,8 @@ extern USBSerialType USBSerial;
 #elif WITHIN(SERIAL_PORT, 0, 3)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
   DECLARE_SERIAL(SERIAL_PORT);
+#else
+  #error "SERIAL_PORT must be from 0 to 3, or -1 for Native USB."
 #endif
 
 #define HAL_SERVO_LIB libServo
@@ -99,7 +101,7 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 

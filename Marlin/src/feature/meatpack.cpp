@@ -57,7 +57,9 @@ uint8_t meatPackLookupTable[16] = {
   '\0' // Unused. 0b1111 indicates a literal character
 };
 
-TERN_(MP_DEBUG, uint8_t chars_decoded = 0); // Log the first 64 bytes after each reset
+#if ENABLED(MP_DEBUG)
+  uint8_t chars_decoded = 0;  // Log the first 64 bytes after each reset
+#endif
 
 void MeatPack::reset_state() {
   state = 0;
@@ -138,7 +140,7 @@ void MeatPack::handle_output_char(const uint8_t c) {
   #if ENABLED(MP_DEBUG)
     if (chars_decoded < 1024) {
       ++chars_decoded;
-      DEBUG_ECHOLNPAIR("RB: ", AS_CHAR(c));
+      DEBUG_ECHOLNPGM("RB: ", AS_CHAR(c));
     }
   #endif
 }
@@ -167,10 +169,9 @@ void MeatPack::handle_command(const MeatPack_Command c) {
 void MeatPack::report_state() {
   // NOTE: if any configuration vars are added below, the outgoing sync text for host plugin
   // should not contain the "PV' substring, as this is used to indicate protocol version
-  SERIAL_ECHOPGM("[MP] ");
-  SERIAL_ECHOPGM(MeatPack_ProtocolVersion " ");
+  SERIAL_ECHOPGM("[MP] " MeatPack_ProtocolVersion " ");
   serialprint_onoff(TEST(state, MPConfig_Bit_Active));
-  SERIAL_ECHOPGM_P(TEST(state, MPConfig_Bit_NoSpaces) ? PSTR(" NSP\n") : PSTR(" ESP\n"));
+  SERIAL_ECHOF(TEST(state, MPConfig_Bit_NoSpaces) ? F(" NSP\n") : F(" ESP\n"));
 }
 
 /**
@@ -203,7 +204,7 @@ void MeatPack::handle_rx_char(const uint8_t c, const serial_index_t serial_ind) 
   handle_rx_char_inner(c);                // Other characters are passed on for MeatPack decoding
 }
 
-uint8_t MeatPack::get_result_char(char* const __restrict out) {
+uint8_t MeatPack::get_result_char(char * const __restrict out) {
   uint8_t res = 0;
   if (char_out_count) {
     res = char_out_count;

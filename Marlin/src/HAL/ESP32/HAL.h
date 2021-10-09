@@ -101,7 +101,7 @@ void HAL_clear_reset_source();
 // reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 void _delay_ms(int delay);
 
@@ -141,6 +141,10 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 void HAL_idletask();
 inline void HAL_init() {}
 void HAL_init_board();
+
+#if ENABLED(USE_ESP32_EXIO)
+  void Write_EXIO(uint8_t IO, uint8_t v);
+#endif
 
 //
 // Delay in cycles (used by DELAY_NS / DELAY_US)

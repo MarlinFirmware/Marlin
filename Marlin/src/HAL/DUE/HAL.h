@@ -50,13 +50,12 @@ extern DefaultSerial4 MSerial3;
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
-// Define MYSERIAL1/2 before MarlinSerial includes!
 #if SERIAL_PORT == -1 || ENABLED(EMERGENCY_PARSER)
   #define MYSERIAL1 customizedSerial1
 #elif WITHIN(SERIAL_PORT, 0, 3)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "The required SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #error "The required SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -65,7 +64,17 @@ extern DefaultSerial4 MSerial3;
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from 0 to 3, or -1 for USB Serial."
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1 || ENABLED(EMERGENCY_PARSER)
+    #define MYSERIAL3 customizedSerial3
+  #elif WITHIN(SERIAL_PORT_3, 0, 3)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
   #endif
 #endif
 
@@ -73,17 +82,15 @@ extern DefaultSerial4 MSerial3;
   #if WITHIN(MMU2_SERIAL_PORT, 0, 3)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
-    #error "MMU2_SERIAL_PORT must be from 0 to 3. Please update your configuration."
+    #error "MMU2_SERIAL_PORT must be from 0 to 3."
   #endif
 #endif
 
 #ifdef LCD_SERIAL_PORT
-  #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL lcdSerial
-  #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
+  #if WITHIN(LCD_SERIAL_PORT, 0, 3)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from 0 to 3."
   #endif
 #endif
 
@@ -113,7 +120,7 @@ void sei();                     // Enable interrupts
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 //
 // ADC

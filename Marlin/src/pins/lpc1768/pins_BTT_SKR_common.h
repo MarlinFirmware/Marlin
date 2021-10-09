@@ -23,11 +23,11 @@
 
 #include "env_validate.h"
 
-// If you have the Big tree tech driver expansion module, enable HAS_BTT_EXP_MOT
+// If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
-//#define HAS_BTT_EXP_MOT 1
+//#define BTT_MOTOR_EXPANSION
 
-#if BOTH(HAS_WIRED_LCD, HAS_BTT_EXP_MOT)
+#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
   #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY 1
   #else
@@ -65,12 +65,25 @@
   #define TEMP_BED_PIN                  P0_23_A0  // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
 
-#if HOTENDS == 1
+#if HOTENDS == 1 && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
     #define TEMP_CHAMBER_PIN          TEMP_1_PIN
   #endif
+#endif
+
+// CS, MISO, MOSI, and SCK for MAX Thermocouple SPI
+#if HAS_MAX_TC
+  //#define TEMP_0_CS_PIN   P...
+  //#define TEMP_0_MISO_PIN P...
+  //#define TEMP_0_MOSI_PIN P...
+  //#define TEMP_0_SCK_PIN  P...
+
+  //#define TEMP_1_CS_PIN   P...
+  //#define TEMP_1_MISO_PIN P...
+  //#define TEMP_1_MOSI_PIN P...
+  //#define TEMP_1_SCK_PIN  P...
 #endif
 
 //
@@ -79,7 +92,7 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                     P2_07
 #endif
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #ifndef FAN1_PIN
     #define FAN1_PIN                       P2_04
   #endif
@@ -105,33 +118,46 @@
 //
 // SD Support
 //
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
+#ifndef SDCARD_CONNECTION
+  #if HAS_WIRED_LCD
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+#endif
+
+#if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
+  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
+#endif
 
 #if SD_CONNECTION_IS(LCD)
   #define SD_SCK_PIN                       P0_15
   #define SD_MISO_PIN                      P0_17
   #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                  EXP2_07_PIN
+  #define SD_DETECT_PIN              EXP2_04_PIN
+
 #elif SD_CONNECTION_IS(ONBOARD)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                    P0_27
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08
   #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
 
-#if HAS_BTT_EXP_MOT
-
-  /**              _____                                      _____
-   *           NC | · · | GND                             NC | · · | GND
-   *           NC | · · | 1.31 (M1EN)            (M2EN) 1.23 | · · | 1.22 (M3EN)
-   * (M1STP) 0.18 | · ·   3.25 (M1DIR)           (M1RX) 1.21 | · ·   1.20 (M1DIAG)
-   * (M2DIR) 0.16 | · · | 3.26 (M2STP)           (M2RX) 1.19 | · · | 1.18 (M2DIAG)
-   * (M3DIR) 0.15 | · · | 0.17 (M3STP)           (M3RX) 0.28 | · · | 1.30 (M3DIAG)
-   *               -----                                      -----
-   *               EXP2                                       EXP1
+#if ENABLED(BTT_MOTOR_EXPANSION)
+  /**       ------                       ------
+   *    NC | 1  2 | GND              NC | 1  2 | GND
+   *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
+   * M1STP | 5  6   M1DIR          M1RX | 5  6   M1DIAG
+   * M2DIR | 7  8 | M2STP          M2RX | 7  8 | M2DIAG
+   * M3DIR | 9 10 | M3STP          M3RX | 9 10 | M3DIAG
+   *        ------                       ------
+   *         EXP2                         EXP1
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */
@@ -145,7 +171,7 @@
     #define E2_CS_PIN                EXP1_05_PIN
     #if HAS_TMC_UART
       #define E2_SERIAL_TX_PIN       EXP1_05_PIN
-      #define E2_SERIAL_RX_PIN       EXP1_05_PIN
+      #define E2_SERIAL_RX_PIN  E2_SERIAL_TX_PIN
     #endif
   #endif
 
@@ -158,7 +184,7 @@
     #define E3_CS_PIN                EXP1_07_PIN
     #if HAS_TMC_UART
       #define E3_SERIAL_TX_PIN       EXP1_07_PIN
-      #define E3_SERIAL_RX_PIN       EXP1_07_PIN
+      #define E3_SERIAL_RX_PIN  E3_SERIAL_TX_PIN
     #endif
   #else
     #define E3_ENABLE_PIN            EXP2_04_PIN
@@ -173,10 +199,10 @@
     #define E4_CS_PIN                EXP1_09_PIN
     #if HAS_TMC_UART
       #define E4_SERIAL_TX_PIN       EXP1_09_PIN
-      #define E4_SERIAL_RX_PIN       EXP1_09_PIN
+      #define E4_SERIAL_RX_PIN  E4_SERIAL_TX_PIN
     #endif
   #else
     #define E4_ENABLE_PIN            EXP2_04_PIN
   #endif
 
-#endif // HAS_BTT_EXP_MOT
+#endif // BTT_MOTOR_EXPANSION

@@ -23,11 +23,16 @@
 
 #include "env_validate.h"
 
-// BigTreeTech driver expansion module https://bit.ly/3ptRRoj
+// If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
+// https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define BTT_MOTOR_EXPANSION
 
 #if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
-  #error "It's not possible to have both LCD and motor expansion module on EXP1/EXP2."
+  #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
+    #define EXP_MOT_USE_EXP2_ONLY 1
+  #else
+    #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
+  #endif
 #endif
 
 // Use one of these or SDCard-based Emulation will be used
@@ -66,7 +71,7 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MAX_PIN                       PE15  // E0
   #else
     #define X_MIN_PIN                       PE15  // E0
@@ -78,7 +83,7 @@
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MAX_PIN                       PE10  // E1
   #else
     #define Y_MIN_PIN                       PE10  // E1
@@ -90,7 +95,7 @@
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_DIR < 0
+  #if Z_HOME_TO_MIN
     #define Z_MAX_PIN                       PG5   // E2
   #else
     #define Z_MIN_PIN                       PG5   // E2
@@ -199,26 +204,23 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC13
-  #define X_SERIAL_RX_PIN                   PC13
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PE1
-  #define Z_SERIAL_RX_PIN                   PE1
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD4
-  #define E0_SERIAL_RX_PIN                  PD4
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PD1
-  #define E1_SERIAL_RX_PIN                  PD1
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   #define E2_SERIAL_TX_PIN                  PD6
-  #define E2_SERIAL_RX_PIN                  PD6
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -226,25 +228,79 @@
 
 //
 // Temperature Sensors
+// Use ADC pins without pullup for sensors that don't need a pullup.
 //
-#define TEMP_0_PIN                          PF4   // T1 <-> E0
-#define TEMP_1_PIN                          PF5   // T2 <-> E1
-#define TEMP_2_PIN                          PF6   // T3 <-> E2
-#define TEMP_BED_PIN                        PF3   // T0 <-> Bed
+#if TEMP_SENSOR_0_IS_AD8495 || TEMP_SENSOR_0 == 20
+  #define TEMP_0_PIN                        PF8
+#else
+  #define TEMP_0_PIN                        PF4   // T1 <-> E0
+#endif
+#if TEMP_SENSOR_1_IS_AD8495 || TEMP_SENSOR_1 == 20
+  #define TEMP_1_PIN                        PF9
+#else
+  #define TEMP_1_PIN                        PF5   // T2 <-> E1
+#endif
+#if TEMP_SENSOR_2_IS_AD8495 || TEMP_SENSOR_2 == 20
+  #define TEMP_2_PIN                        PF10
+#else
+  #define TEMP_2_PIN                        PF6   // T3 <-> E2
+#endif
+#if TEMP_SENSOR_BED_IS_AD8495 || TEMP_SENSOR_BED == 20
+  #define TEMP_BED_PIN                      PF7
+#else
+  #define TEMP_BED_PIN                      PF3   // T0 <-> Bed
+#endif
+
+#if TEMP_SENSOR_PROBE && !defined(TEMP_PROBE_PIN)
+  #if TEMP_SENSOR_PROBE_IS_AD8495 || TEMP_SENSOR_PROBE == 20
+    #if HOTENDS == 2
+      #define TEMP_PROBE_PIN                PF10
+    #elif HOTENDS < 2
+      #define TEMP_PROBE_PIN                PF9
+    #endif
+  #else
+    #if HOTENDS == 2
+      #define TEMP_PROBE_PIN          TEMP_2_PIN
+    #elif HOTENDS < 2
+      #define TEMP_PROBE_PIN          TEMP_1_PIN
+    #endif
+  #endif
+#endif
+
+#if TEMP_SENSOR_CHAMBER && !defined(TEMP_CHAMBER_PIN)
+  #if TEMP_SENSOR_CHAMBER_IS_AD8495 || TEMP_SENSOR_CHAMBER == 20
+    #define TEMP_CHAMBER_PIN                PF10
+  #else
+    #define TEMP_CHAMBER_PIN          TEMP_2_PIN
+  #endif
+#endif
 
 //
-// Heaters / Fans
+// Heaters
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+#if TEMP_SENSOR_CHAMBER && HOTENDS < 3
+  #define HEATER_CHAMBER_PIN                PB0   // Heater2
+#else
+  #define HEATER_2_PIN                      PB0   // Heater2
+#endif
 #define HEATER_BED_PIN                      PD12  // Hotbed
+
+//
+// Fans
+//
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
-#define FAN2_PIN                            PE6   // Fan2
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
+#endif
+
+#if !defined(CONTROLLER_FAN_PIN) && ENABLED(USE_CONTROLLER_FAN) && HOTENDS < 2
+  #define CONTROLLER_FAN_PIN                PE6   // Fan2
+#else
+  #define FAN2_PIN                          PE6   // Fan2
 #endif
 
 //
@@ -255,17 +311,15 @@
   #define SDCARD_CONNECTION                  LCD
 #endif
 
-/**
- *               -----                                             -----
- *           NC | 1 2 | GND                                    5V | 1 2 | GND
- *        RESET | 3 4 | PF12(SD_DETECT)             (LCD_D7)  PG7 | 3 4 | PG6  (LCD_D6)
- *   (MOSI)PB15 | 5 6   PF11(BTN_EN2)               (LCD_D5)  PG3 | 5 6   PG2  (LCD_D4)
- *  (SD_SS)PB12 | 7 8 | PG10(BTN_EN1)               (LCD_RS) PD10 | 7 8 | PD11 (LCD_EN)
- *    (SCK)PB13 | 9 10| PB14(MISO)                 (BTN_ENC)  PA8 | 9 10| PG4  (BEEPER)
- *               -----                                             -----
- *               EXP2                                              EXP1
+/**               ------                                      ------
+ * (BEEPER) PG4  |10  9 | PA8  (BTN_ENC)         (MISO) PB14 |10  9 | PB13 (SCK)
+ * (LCD_EN) PD11 | 8  7 | PD10 (LCD_RS)       (BTN_EN1) PG10 | 8  7 | PB12 (SD_SS)
+ * (LCD_D4) PG2    6  5 | PG3  (LCD_D5)       (BTN_EN2) PF11   6  5 | PB15 (MOSI)
+ * (LCD_D6) PG6  | 4  3 | PG7  (LCD_D7)     (SD_DETECT) PF12 | 4  3 | RESET
+ *          GND  | 2  1 | 5V                            GND  | 2  1 | NC
+ *                ------                                      ------
+ *                 EXP1                                        EXP2
  */
-
 #define EXP1_03_PIN                         PG7
 #define EXP1_04_PIN                         PG6
 #define EXP1_05_PIN                         PG3
@@ -311,48 +365,59 @@
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**
-   *               _____                                      _____
-   *           NC | · · | GND                             NC | · · | GND
-   *           NC | · · | PF12 (M1EN)            (M2EN)  PG7 | · · | PG6  (M3EN)
-   * (M1STP) PB15 | · ·   PF11 (M1DIR)           (M1RX)  PG3 | · ·   PG2  (M1DIAG)
-   * (M2DIR) PB12 | · · | PG10 (M2STP)           (M2RX) PD10 | · · | PD11 (M2DIAG)
-   * (M3DIR) PB13 | · · | PB14 (M3STP)           (M3RX)  PA8 | · · | PG4  (M3DIAG)
-   *               -----                                      -----
-   *               EXP2                                       EXP1
+  /**       -----                        -----
+   *    NC | . . | GND               NC | . . | GND
+   *    NC | . . | M1EN            M2EN | . . | M3EN
+   * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
+   * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
+   * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
+   *        -----                        -----
+   *        EXP2                         EXP1
+   *
+   * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */
 
   // M1 on Driver Expansion Module
   #define E3_STEP_PIN                EXP2_05_PIN
   #define E3_DIR_PIN                 EXP2_06_PIN
   #define E3_ENABLE_PIN              EXP2_04_PIN
-  #define E3_DIAG_PIN                EXP1_06_PIN
-  #define E3_CS_PIN                  EXP1_05_PIN
-  #if HAS_TMC_UART
-    #define E3_SERIAL_TX_PIN         EXP1_05_PIN
-    #define E3_SERIAL_RX_PIN         EXP1_05_PIN
+  #if !EXP_MOT_USE_EXP2_ONLY
+    #define E3_DIAG_PIN              EXP1_06_PIN
+    #define E3_CS_PIN                EXP1_05_PIN
+    #if HAS_TMC_UART
+      #define E3_SERIAL_TX_PIN       EXP1_05_PIN
+      #define E3_SERIAL_RX_PIN       EXP1_05_PIN
+    #endif
   #endif
 
   // M2 on Driver Expansion Module
   #define E4_STEP_PIN                EXP2_08_PIN
   #define E4_DIR_PIN                 EXP2_07_PIN
-  #define E4_ENABLE_PIN              EXP1_03_PIN
-  #define E4_DIAG_PIN                EXP1_08_PIN
-  #define E4_CS_PIN                  EXP1_07_PIN
-  #if HAS_TMC_UART
-    #define E4_SERIAL_TX_PIN         EXP1_07_PIN
-    #define E4_SERIAL_RX_PIN         EXP1_07_PIN
+  #if !EXP_MOT_USE_EXP2_ONLY
+    #define E4_ENABLE_PIN            EXP1_03_PIN
+    #define E4_DIAG_PIN              EXP1_08_PIN
+    #define E4_CS_PIN                EXP1_07_PIN
+    #if HAS_TMC_UART
+      #define E4_SERIAL_TX_PIN       EXP1_07_PIN
+      #define E4_SERIAL_RX_PIN       EXP1_07_PIN
+    #endif
+  #else
+    #define E4_ENABLE_PIN            EXP2_04_PIN
   #endif
 
   // M3 on Driver Expansion Module
   #define E5_STEP_PIN                EXP2_10_PIN
   #define E5_DIR_PIN                 EXP2_09_PIN
-  #define E5_ENABLE_PIN              EXP1_04_PIN
-  #define E5_DIAG_PIN                EXP1_10_PIN
-  #define E5_CS_PIN                  EXP1_09_PIN
-  #if HAS_TMC_UART
-    #define E5_SERIAL_TX_PIN         EXP1_09_PIN
-    #define E5_SERIAL_RX_PIN         EXP1_09_PIN
+  #if !EXP_MOT_USE_EXP2_ONLY
+    #define E5_ENABLE_PIN            EXP1_04_PIN
+    #define E5_DIAG_PIN              EXP1_10_PIN
+    #define E5_CS_PIN                EXP1_09_PIN
+    #if HAS_TMC_UART
+      #define E5_SERIAL_TX_PIN       EXP1_09_PIN
+      #define E5_SERIAL_RX_PIN       EXP1_09_PIN
+    #endif
+  #else
+    #define E5_ENABLE_PIN            EXP2_04_PIN
   #endif
 
 #endif // BTT_MOTOR_EXPANSION
@@ -381,17 +446,45 @@
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
-
   #elif ENABLED(MKS_MINI_12864)
 
     #define DOGLCD_A0                EXP1_04_PIN
     #define DOGLCD_CS                EXP1_05_PIN
     #define BTN_EN1                  EXP2_08_PIN
     #define BTN_EN2                  EXP2_06_PIN
+
+  #elif ENABLED(WYH_L12864)
+
+    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+
+    /**
+     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires.
+     *
+     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+     *
+     * The WYH_L12864 connector plug:
+     *
+     *                  BEFORE                      AFTER
+     *                  ______                     ______
+     *             GND | 1  2 | 5V             5V | 1  2 | GND
+     *              CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+     *             SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+     *             SCK | 7  8 | BTN_ENC       SCK | 7  8 | BTN_ENC
+     *            MOSI | 9 10 |              MOSI | 9 10 |
+     *                  ------                     ------
+     *                   LCD                        LCD
+     */
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+    #define BTN_EN1                  EXP1_06_PIN
+    #define BTN_EN2                  EXP1_04_PIN
+    #define BTN_ENC                  EXP1_08_PIN
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP1_07_PIN
+    #define DOGLCD_MOSI              EXP1_09_PIN
+    #define LCD_BACKLIGHT_PIN            -1
 
   #else
 
@@ -439,15 +532,15 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
+#if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1    DELAY_NS(125)
+    #define BOARD_ST7920_DELAY_1             125
   #endif
   #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(90)
+    #define BOARD_ST7920_DELAY_2              90
   #endif
   #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 #endif
 

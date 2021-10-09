@@ -101,12 +101,12 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       static inline float& runout_distance() { return response.runout_distance_mm; }
-      static inline void set_runout_distance(const float &mm) { response.runout_distance_mm = mm; }
+      static inline void set_runout_distance(const_float_t mm) { response.runout_distance_mm = mm; }
     #endif
 
     // Handle a block completion. RunoutResponseDelayed uses this to
     // add up the length of filament moved while the filament is out.
-    static inline void block_completed(const block_t* const b) {
+    static inline void block_completed(const block_t * const b) {
       if (enabled) {
         response.block_completed(b);
         sensor.block_completed(b);
@@ -145,7 +145,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
           if (runout_flags) {
             SERIAL_ECHOPGM("Runout Sensors: ");
             LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(runout_flags, i));
-            SERIAL_ECHOPAIR(" -> ", extruder);
+            SERIAL_ECHOPGM(" -> ", extruder);
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();
           }
@@ -207,7 +207,7 @@ class FilamentSensorBase {
     // Return a bitmask of runout pin states
     static inline uint8_t poll_runout_pins() {
       #define _OR_RUNOUT(N) | (READ(FIL_RUNOUT##N##_PIN) ? _BV((N) - 1) : 0)
-      return (0 REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _OR_RUNOUT));
+      return (0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));
       #undef _OR_RUNOUT
     }
 
@@ -273,7 +273,7 @@ class FilamentSensorBase {
       }
 
     public:
-      static inline void block_completed(const block_t* const b) {
+      static inline void block_completed(const block_t * const b) {
         // If the sensor wheel has moved since the last call to
         // this method reset the runout counter for the extruder.
         if (TEST(motion_detected, b->extruder))
@@ -307,7 +307,7 @@ class FilamentSensorBase {
       }
 
     public:
-      static inline void block_completed(const block_t* const) {}
+      static inline void block_completed(const block_t * const) {}
 
       static inline void run() {
         LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
@@ -317,7 +317,7 @@ class FilamentSensorBase {
             static uint8_t was_out; // = 0
             if (out != TEST(was_out, s)) {
               TBI(was_out, s);
-              SERIAL_ECHOLNPAIR_P(PSTR("Filament Sensor "), '0' + s, out ? PSTR(" OUT") : PSTR(" IN"));
+              SERIAL_ECHOLNF(F("Filament Sensor "), AS_DIGIT(s), out ? F(" OUT") : F(" IN"));
             }
           #endif
         }
@@ -352,7 +352,7 @@ class FilamentSensorBase {
           if (ELAPSED(ms, t)) {
             t = millis() + 1000UL;
             LOOP_L_N(i, NUM_RUNOUT_SENSORS)
-              SERIAL_ECHOPAIR_P(i ? PSTR(", ") : PSTR("Remaining mm: "), runout_mm_countdown[i]);
+              SERIAL_ECHOF(i ? F(", ") : F("Remaining mm: "), runout_mm_countdown[i]);
             SERIAL_EOL();
           }
         #endif
@@ -368,12 +368,12 @@ class FilamentSensorBase {
         runout_mm_countdown[extruder] = runout_distance_mm;
       }
 
-      static inline void block_completed(const block_t* const b) {
+      static inline void block_completed(const block_t * const b) {
         if (b->steps.x || b->steps.y || b->steps.z || did_pause_print) { // Allow pause purge move to re-trigger runout state
           // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps.e;
-          runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.steps_to_mm[E_AXIS_N(e)];
+          runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.mm_per_step[E_AXIS_N(e)];
         }
       }
   };
@@ -403,7 +403,7 @@ class FilamentSensorBase {
         return runout_flags;
       }
 
-      static inline void block_completed(const block_t* const) { }
+      static inline void block_completed(const block_t * const) { }
 
       static inline void filament_present(const uint8_t extruder) {
         runout_count[extruder] = runout_threshold;

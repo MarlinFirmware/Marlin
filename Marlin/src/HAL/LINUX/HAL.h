@@ -63,9 +63,9 @@ uint8_t _getc();
 extern MSerialT usb_serial;
 #define MYSERIAL1 usb_serial
 
-#define ST7920_DELAY_1 DELAY_NS(600)
-#define ST7920_DELAY_2 DELAY_NS(750)
-#define ST7920_DELAY_3 DELAY_NS(750)
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
 
 //
 // Interrupts
@@ -107,7 +107,7 @@ uint16_t HAL_adc_get_result();
 inline void HAL_clear_reset_source(void) {}
 inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot(); // Reset the application state and GPIO
 
 /* ---------------- Delay in cycles */
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {

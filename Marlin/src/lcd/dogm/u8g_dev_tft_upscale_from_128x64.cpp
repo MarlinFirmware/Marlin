@@ -55,14 +55,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT)
+#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT || HAS_LTDC_GRAPHICAL_TFT)
 
 #include "HAL_LCD_com_defines.h"
 #include "marlinui_DOGM.h"
 
 #include <string.h>
 
-#if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+#if ANY(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI, HAS_LTDC_GRAPHICAL_TFT)
   #define HAS_LCD_IO 1
 #endif
 
@@ -73,17 +73,23 @@ TFT_IO tftio;
 #define HEIGHT LCD_PIXEL_HEIGHT
 #define PAGE_HEIGHT 8
 
-#include "../touch/touch_buttons.h"
-
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../tft_io/touch_calibration.h"
   #include "../marlinui.h"
 #endif
 
+#if HAS_TOUCH_BUTTONS
+  #include "../touch/touch_buttons.h"
+  #if HAS_TOUCH_SLEEP
+    #define HAS_TOUCH_BUTTONS_SLEEP 1
+  #endif
+#endif
+
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
 
-// see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
+// 16 bit color generator: https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
+// RGB565 color picker:  https://trolsoft.ru/en/articles/rgb565-color-picker
 
 #define COLOR_BLACK       0x0000  // #000000
 #define COLOR_WHITE       0xFFFF  // #FFFFFF
@@ -91,7 +97,7 @@ TFT_IO tftio;
 #define COLOR_GREY        0x7BEF  // #808080
 #define COLOR_DARKGREY    0x4208  // #404040
 #define COLOR_DARKGREY2   0x39E7  // #303030
-#define COLOR_DARK        0x0003  // Some dark color
+#define COLOR_DARK        0x0003  // #000019
 
 #define COLOR_RED         0xF800  // #FF0000
 #define COLOR_LIME        0x7E00  // #00FF00
@@ -311,7 +317,7 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, 
 
 // Used to fill RGB565 (16bits) background
 inline void memset2(const void *ptr, uint16_t fill, size_t cnt) {
-  uint16_t* wptr = (uint16_t*)ptr;
+  uint16_t *wptr = (uint16_t*)ptr;
   for (size_t i = 0; i < cnt; i += 2) { *wptr = fill; wptr++; }
 }
 
@@ -339,6 +345,18 @@ static uint8_t page;
   }
 #endif // HAS_TOUCH_BUTTONS
 
+static void u8g_upscale_clear_lcd(u8g_t *u8g, u8g_dev_t *dev, uint16_t *buffer) {
+  setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
+  #if HAS_LCD_IO
+    UNUSED(buffer);
+    tftio.WriteMultiple(TFT_MARLINBG_COLOR, (TFT_WIDTH) * (TFT_HEIGHT));
+  #else
+    memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
+    for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
+      u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
+  #endif
+}
+
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
@@ -346,7 +364,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
   #if HAS_LCD_IO
     static uint16_t bufferA[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)], bufferB[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)];
-    uint16_t* buffer = &bufferA[0];
+    uint16_t *buffer = &bufferA[0];
   #else
     uint16_t buffer[WIDTH * GRAPHICAL_TFT_UPSCALE]; // 16-bit RGB 565 pixel line buffer
   #endif
@@ -364,34 +382,37 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       tftio.Init();
       tftio.InitTFT();
       TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
-
-      // Clear Screen
-      setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
-      #if HAS_LCD_IO
-        tftio.WriteMultiple(TFT_MARLINBG_COLOR, (TFT_WIDTH) * (TFT_HEIGHT));
-      #else
-        memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
-        for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
-          u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
-      #endif
+      u8g_upscale_clear_lcd(u8g, dev, buffer);
       return 0;
 
     case U8G_DEV_MSG_STOP: preinit = true; break;
 
-    case U8G_DEV_MSG_PAGE_FIRST:
+    case U8G_DEV_MSG_PAGE_FIRST: {
       page = 0;
+      #if HAS_TOUCH_BUTTONS_SLEEP
+        static bool sleepCleared;
+        if (touchBt.isSleeping()) {
+          if (!sleepCleared) {
+            sleepCleared = true;
+            u8g_upscale_clear_lcd(u8g, dev, buffer);
+            IF_ENABLED(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
+          }
+          break;
+        }
+        else
+          sleepCleared = false;
+      #endif
       TERN_(HAS_TOUCH_BUTTONS, drawTouchButtons(u8g, dev));
       setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
-      break;
+    } break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
+      if (TERN0(HAS_TOUCH_BUTTONS_SLEEP, touchBt.isSleeping())) break;
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;
 
       LOOP_L_N(y, PAGE_HEIGHT) {
         uint32_t k = 0;
-        #if HAS_LCD_IO
-          buffer = (y & 1) ? bufferB : bufferA;
-        #endif
+        TERN_(HAS_LCD_IO, buffer = (y & 1) ? bufferB : bufferA);
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
@@ -404,7 +425,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
           tftio.WriteSequence(buffer, COUNT(bufferA));
         #else
-          uint8_t* bufptr = (uint8_t*) buffer;
+          uint8_t *bufptr = (uint8_t*) buffer;
           for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;) {
             LOOP_S_L_N(n, 0, GRAPHICAL_TFT_UPSCALE * 2) {
               u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);

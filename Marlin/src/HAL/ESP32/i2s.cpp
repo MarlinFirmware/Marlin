@@ -23,6 +23,8 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#if DISABLED(USE_ESP32_EXIO)
+
 #include "i2s.h"
 
 #include "../shared/Marduino.h"
@@ -139,7 +141,7 @@ static void IRAM_ATTR i2s_intr_handler_default(void *arg) {
   I2S0.int_clr.val = I2S0.int_st.val; //clear pending interrupt
 }
 
-void stepperTask(void* parameter) {
+void stepperTask(void *parameter) {
   uint32_t remaining = 0;
 
   while (1) {
@@ -340,4 +342,5 @@ void i2s_push_sample() {
   dma.current[dma.rw_pos++] = i2s_port_data;
 }
 
+#endif // !USE_ESP32_EXIO
 #endif // ARDUINO_ARCH_ESP32

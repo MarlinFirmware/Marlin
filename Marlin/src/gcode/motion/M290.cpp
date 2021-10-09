@@ -39,7 +39,7 @@
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  FORCE_INLINE void mod_probe_offset(const float &offs) {
+  FORCE_INLINE void mod_probe_offset(const_float_t offs) {
     if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, active_extruder == 0)) {
       probe.offset.z += offs;
       SERIAL_ECHO_MSG(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
@@ -69,12 +69,12 @@
  */
 void GcodeSuite::M290() {
   #if ENABLED(BABYSTEP_XY)
-    LOOP_XYZ(a)
-      if (parser.seenval(XYZ_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
+    LOOP_LINEAR_AXES(a)
+      if (parser.seenval(AXIS_CHAR(a)) || (a == Z_AXIS && parser.seenval('S'))) {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
         babystep.add_mm((AxisEnum)a, offs);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_probe_offset(offs);
+          if (a == Z_AXIS && parser.boolval('P', true)) mod_probe_offset(offs);
         #endif
       }
   #else
@@ -82,21 +82,21 @@ void GcodeSuite::M290() {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
       babystep.add_mm(Z_AXIS, offs);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        if (!parser.seen('P') || parser.value_bool()) mod_probe_offset(offs);
+        if (parser.boolval('P', true)) mod_probe_offset(offs);
       #endif
     }
   #endif
 
-  if (!parser.seen("XYZ") || parser.seen('R')) {
+  if (!parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR)) || parser.seen('R')) {
     SERIAL_ECHO_START();
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
+      SERIAL_ECHOLNPGM(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     #endif
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
-      SERIAL_ECHOLNPAIR_P(
+      SERIAL_ECHOLNPGM_P(
         PSTR("Hotend "), active_extruder
         #if ENABLED(BABYSTEP_XY)
           , PSTR("Offset X"), hotend_offset[active_extruder].x
@@ -111,12 +111,12 @@ void GcodeSuite::M290() {
     #endif
 
     #if ENABLED(MESH_BED_LEVELING)
-      SERIAL_ECHOLNPAIR("MBL Adjust Z", mbl.z_offset);
+      SERIAL_ECHOLNPGM("MBL Adjust Z", mbl.z_offset);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
     {
-      SERIAL_ECHOLNPAIR_P(
+      SERIAL_ECHOLNPGM_P(
         #if ENABLED(BABYSTEP_XY)
             PSTR("Babystep X"), babystep.axis_total[X_AXIS]
           , SP_Y_STR, babystep.axis_total[Y_AXIS]

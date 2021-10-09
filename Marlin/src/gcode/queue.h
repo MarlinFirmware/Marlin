@@ -40,9 +40,9 @@ public:
      * M110 N<int> sets the current line number.
      */
     long last_N;
-    int count;                        //!< Number of characters read in the current line of serial input
-    char line_buffer[MAX_CMD_SIZE];   //!< The current line accumulator
-    uint8_t input_state;              //!< The input state
+    int count;                      //!< Number of characters read in the current line of serial input
+    char line_buffer[MAX_CMD_SIZE]; //!< The current line accumulator
+    uint8_t input_state;            //!< The input state
   };
 
   static SerialState serial_state[NUM_SERIAL]; //!< Serial states for each serial port
@@ -57,9 +57,11 @@ public:
    * command and hands off execution to individual handler functions.
    */
   struct CommandLine {
-    char buffer[MAX_CMD_SIZE];                    //!< The command buffer
-    bool skip_ok;                                 //!< Skip sending ok when command is processed?
-    TERN_(HAS_MULTI_SERIAL, serial_index_t port); //!< Serial port the command was received on
+    char buffer[MAX_CMD_SIZE];      //!< The command buffer
+    bool skip_ok;                   //!< Skip sending ok when command is processed?
+    #if HAS_MULTI_SERIAL
+      serial_index_t port;          //!< Serial port the command was received on
+    #endif
   };
 
   /**
@@ -78,15 +80,11 @@ public:
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
     void commit_command(bool skip_ok
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
-    bool enqueue(const char* cmd, bool skip_ok = true
-      #if HAS_MULTI_SERIAL
-        , serial_index_t serial_ind = serial_index_t()
-      #endif
+    bool enqueue(const char *cmd, bool skip_ok = true
+      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
     );
 
     void ok_to_send();
@@ -129,6 +127,7 @@ public:
    * Aborts the current PROGMEM queue so only use for one or two commands.
    */
   static inline void inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
+  static inline void inject(FSTR_P const fgcode) { inject_P(FTOP(fgcode)); }
 
   /**
    * Enqueue command(s) to run from SRAM. Drained by process_injected_command().
@@ -141,18 +140,19 @@ public:
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  static void enqueue_one_now(const char* cmd);
+  static void enqueue_one_now(const char * const cmd);
 
   /**
    * Attempt to enqueue a single G-code command
    * and return 'true' if successful.
    */
-  static bool enqueue_one_P(PGM_P const pgcode);
+  static bool enqueue_one(FSTR_P const fgcode);
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued
    */
-  static void enqueue_now_P(PGM_P const cmd);
+  static void enqueue_now_P(PGM_P const pcmd);
+  static inline void enqueue_now(FSTR_P const fcmd) { enqueue_now_P(FTOP(fcmd)); }
 
   /**
    * Check whether there are any commands yet to be executed
@@ -199,6 +199,46 @@ public:
    */
   static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
 
+  #if ENABLED(BUFFER_MONITORING)
+
+    private:
+
+    /**
+     * Track buffer underruns
+     */
+    static uint32_t command_buffer_underruns, planner_buffer_underruns;
+    static bool command_buffer_empty, planner_buffer_empty;
+    static millis_t max_command_buffer_empty_duration, max_planner_buffer_empty_duration,
+                    command_buffer_empty_at, planner_buffer_empty_at;
+
+    /**
+     * Report buffer statistics to the host to be able to detect buffer underruns
+     *
+     * Returns "D576 " followed by:
+     *  P<uint>   Planner space remaining
+     *  B<uint>   Command buffer space remaining
+     *  PU<uint>  Number of planner buffer underruns since last report
+     *  PD<uint>  Max time in ms the planner buffer was empty since last report
+     *  BU<uint>  Number of command buffer underruns since last report
+     *  BD<uint>  Max time in ms the command buffer was empty since last report
+     */
+    static void report_buffer_statistics();
+
+    static uint8_t auto_buffer_report_interval;
+    static millis_t next_buffer_report_ms;
+
+    public:
+
+    static void auto_report_buffer_statistics();
+
+    static inline void set_auto_report_interval(uint8_t v) {
+      NOMORE(v, 60);
+      auto_buffer_report_interval = v;
+      next_buffer_report_ms = millis() + 1000UL * v;
+    }
+
+  #endif // BUFFER_MONITORING
+
 private:
 
   static void get_serial_commands();
@@ -217,9 +257,9 @@ private:
    * Enqueue with Serial Echo
    * Return true on success
    */
-  static bool enqueue_one(const char* cmd);
+  static bool enqueue_one(const char *cmd);
 
-  static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
+  static void gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind);
 
   friend class GcodeSuite;
 };

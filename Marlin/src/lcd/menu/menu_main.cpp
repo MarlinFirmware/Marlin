@@ -35,6 +35,10 @@
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
 
+#if ENABLED(PSU_CONTROL)
+  #include "../../feature/power.h"
+#endif
+
 #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
   #include "game/game.h"
 #endif
@@ -47,7 +51,7 @@
 #endif
 
 #if ENABLED(MMU2_MENUS)
-  #include "../../lcd/menu/menu_mmu2.h"
+  #include "menu_mmu2.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -68,10 +72,6 @@ void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
-#if ENABLED(CUSTOM_USER_MENUS)
-  void menu_user();
-#endif
-
 #if HAS_POWER_MONITOR
   void menu_power_monitor();
 #endif
@@ -81,7 +81,6 @@ void menu_configuration();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
 #endif
 
@@ -105,6 +104,125 @@ void menu_configuration();
   void menu_language();
 #endif
 
+#if ENABLED(CUSTOM_MENU_MAIN)
+
+  void _lcd_custom_menu_main_gcode(FSTR_P const fstr) {
+    queue.inject(fstr);
+    TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+    TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
+  }
+
+  void custom_menus_main() {
+    START_MENU();
+    BACK_ITEM(MSG_MAIN);
+
+    #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
+
+    #ifdef CUSTOM_MENU_MAIN_SCRIPT_DONE
+      #define _DONE_SCRIPT "\n" CUSTOM_MENU_MAIN_SCRIPT_DONE
+    #else
+      #define _DONE_SCRIPT ""
+    #endif
+    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(F(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
+    #define _CUSTOM_ITEM_MAIN_CONFIRM(N)             \
+      SUBMENU_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), []{ \
+          MenuItem_confirm::confirm_screen(          \
+            GCODE_LAMBDA_MAIN(N),                    \
+            ui.goto_previous_screen,                 \
+            PSTR(MAIN_MENU_ITEM_##N##_DESC "?")      \
+          );                                         \
+        })
+
+    #define CUSTOM_ITEM_MAIN(N) do{ \
+      constexpr char c = MAIN_MENU_ITEM_##N##_GCODE[strlen(MAIN_MENU_ITEM_##N##_GCODE) - 1]; \
+      static_assert(c != '\n' && c != '\r', "MAIN_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
+      if (ENABLED(MAIN_MENU_ITEM_##N##_CONFIRM)) \
+        _CUSTOM_ITEM_MAIN_CONFIRM(N); \
+      else \
+        _CUSTOM_ITEM_MAIN(N); \
+    }while(0)
+
+    #if HAS_CUSTOM_ITEM_MAIN(1)
+      CUSTOM_ITEM_MAIN(1);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(2)
+      CUSTOM_ITEM_MAIN(2);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(3)
+      CUSTOM_ITEM_MAIN(3);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(4)
+      CUSTOM_ITEM_MAIN(4);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(5)
+      CUSTOM_ITEM_MAIN(5);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(6)
+      CUSTOM_ITEM_MAIN(6);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(7)
+      CUSTOM_ITEM_MAIN(7);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(8)
+      CUSTOM_ITEM_MAIN(8);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(9)
+      CUSTOM_ITEM_MAIN(9);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(10)
+      CUSTOM_ITEM_MAIN(10);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(11)
+      CUSTOM_ITEM_MAIN(11);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(12)
+      CUSTOM_ITEM_MAIN(12);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(13)
+      CUSTOM_ITEM_MAIN(13);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(14)
+      CUSTOM_ITEM_MAIN(14);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(15)
+      CUSTOM_ITEM_MAIN(15);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(16)
+      CUSTOM_ITEM_MAIN(16);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(17)
+      CUSTOM_ITEM_MAIN(17);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(18)
+      CUSTOM_ITEM_MAIN(18);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(19)
+      CUSTOM_ITEM_MAIN(19);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(20)
+      CUSTOM_ITEM_MAIN(20);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(21)
+      CUSTOM_ITEM_MAIN(21);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(22)
+      CUSTOM_ITEM_MAIN(22);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(23)
+      CUSTOM_ITEM_MAIN(23);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(24)
+      CUSTOM_ITEM_MAIN(24);
+    #endif
+    #if HAS_CUSTOM_ITEM_MAIN(25)
+      CUSTOM_ITEM_MAIN(25);
+    #endif
+    END_MENU();
+  }
+
+#endif // CUSTOM_MENU_MAIN
+
 void menu_main() {
   const bool busy = printingIsActive()
     #if ENABLED(SDSUPPORT)
@@ -115,6 +233,38 @@ void menu_main() {
 
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
+
+  #if ENABLED(SDSUPPORT)
+
+    #if !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+      #define MEDIA_MENU_AT_TOP
+    #endif
+
+    auto sdcard_menu_items = [&]{
+      #if ENABLED(MENU_ADDAUTOSTART)
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+      #endif
+
+      if (card_detected) {
+        if (!card_open) {
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
+          #else                                               // - or -
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));      // M22 Release Media
+          #endif
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
+        }
+      }
+      else {
+        #if PIN_EXISTS(SD_DETECT)
+          ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // "No Media"
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));         // M21 Attach Media
+        #endif
+      }
+    };
+
+  #endif
 
   if (busy) {
     #if MACHINE_CAN_PAUSE
@@ -143,36 +293,9 @@ void menu_main() {
   }
   else {
 
-    #if !HAS_ENCODER_WHEEL && ENABLED(SDSUPPORT)
-
-      // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
-
-      //
-      // Run Auto Files
-      //
-      #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
-      #endif
-
-      if (card_detected) {
-        if (!card_open) {
-          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
-          #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
-          #else
-            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
-          #endif
-        }
-      }
-      else {
-        #if PIN_EXISTS(SD_DETECT)
-          ACTION_ITEM(MSG_NO_MEDIA, nullptr);
-        #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
-        #endif
-      }
-
-    #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
+    #if BOTH(SDSUPPORT, MEDIA_MENU_AT_TOP)
+      sdcard_menu_items();
+    #endif
 
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
@@ -210,22 +333,22 @@ void menu_main() {
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
 
-  #if ENABLED(CUSTOM_USER_MENUS)
-    if (TERN1(CUSTOM_MENU_ONLY_IDLE, !busy)) {
-      #ifdef CUSTOM_USER_MENU_TITLE
-        SUBMENU_P(PSTR(CUSTOM_USER_MENU_TITLE), menu_user);
+  #if ENABLED(CUSTOM_MENU_MAIN)
+    if (TERN1(CUSTOM_MENU_MAIN_ONLY_IDLE, !busy)) {
+      #ifdef CUSTOM_MENU_MAIN_TITLE
+        SUBMENU_P(PSTR(CUSTOM_MENU_MAIN_TITLE), custom_menus_main);
       #else
-        SUBMENU(MSG_USER_MENU, menu_user);
+        SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_main);
       #endif
     }
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-        GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      else
-        SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
+      YESNO_ITEM(MSG_FILAMENTCHANGE,
+        menu_change_filament, ui.goto_previous_screen,
+        GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
+      );
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
@@ -243,45 +366,23 @@ void menu_main() {
   // Switch power on/off
   //
   #if ENABLED(PSU_CONTROL)
-    if (powersupply_on)
-      GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+    if (powerManager.psu_on)
+      #if ENABLED(PS_OFF_CONFIRM)
+        CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
+          MSG_YES, MSG_NO,
+          ui.poweroff, ui.goto_previous_screen,
+          GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
+        );
+      #else
+        GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+      #endif
     else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 
-  #if BOTH(HAS_ENCODER_WHEEL, SDSUPPORT)
-
-    if (!busy) {
-
-      // *** IF THIS SECTION IS CHANGED, REPRODUCE ABOVE ***
-
-      //
-      // Autostart
-      //
-      #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin);
-      #endif
-
-      if (card_detected) {
-        if (!card_open) {
-          #if PIN_EXISTS(SD_DETECT)
-            GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));
-          #else
-            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
-          #endif
-          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
-        }
-      }
-      else {
-        #if PIN_EXISTS(SD_DETECT)
-          ACTION_ITEM(MSG_NO_MEDIA, nullptr);
-        #else
-          GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));
-        #endif
-      }
-    }
-
-  #endif // HAS_ENCODER_WHEEL && SDSUPPORT
+  #if ENABLED(SDSUPPORT) && DISABLED(MEDIA_MENU_AT_TOP)
+    sdcard_menu_items();
+  #endif
 
   #if HAS_SERVICE_INTERVALS
     static auto _service_reset = [](const int index) {

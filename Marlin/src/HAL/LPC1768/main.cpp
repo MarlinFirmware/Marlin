@@ -117,7 +117,7 @@ void HAL_init() {
     PinCfg.Pinmode = 2;    // no pull-up/pull-down
     PINSEL_ConfigPin(&PinCfg);
     // now set CLKOUT_EN bit
-    LPC_SC->CLKOUTCFG |= (1<<8);
+    SBI(LPC_SC->CLKOUTCFG, 8);
   #endif
 
   USB_Init();                               // USB Initialization
