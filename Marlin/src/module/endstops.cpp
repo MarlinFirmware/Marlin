@@ -384,7 +384,7 @@ void Endstops::not_homing() {
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
     if (trigger_state()) hit_on_purpose();
-    else kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
+    else kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
   }
 #endif
 
@@ -429,7 +429,7 @@ void Endstops::event_handler() {
     #endif
 
     #define _ENDSTOP_HIT_ECHO(A,C) do{ \
-      SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); _SET_STOP_CHAR(A,C); }while(0)
+      SERIAL_ECHOPGM(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); _SET_STOP_CHAR(A,C); }while(0)
 
     #define _ENDSTOP_HIT_TEST(A,C) \
       if (TERN0(HAS_##A##_MIN, TEST(hit_state, A##_MIN)) || TERN0(HAS_##A##_MAX, TEST(hit_state, A##_MAX))) \
@@ -460,8 +460,8 @@ void Endstops::event_handler() {
     SERIAL_EOL();
 
     TERN_(HAS_STATUS_MESSAGE,
-      ui.status_printf_P(0,
-        PSTR(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
+      ui.status_printf(0,
+        F(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
         LINEAR_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK), chrP
       )
@@ -483,10 +483,10 @@ void Endstops::event_handler() {
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
-  if (label) SERIAL_ECHOPGM_P(label);
+static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
+  if (flabel) SERIAL_ECHOF(flabel);
   SERIAL_ECHOPGM(": ");
-  SERIAL_ECHOLNPGM_P(is_hit ? PSTR(STR_ENDSTOP_HIT) : PSTR(STR_ENDSTOP_OPEN));
+  SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
 }
 
 #if GCC_VERSION <= 50000
@@ -496,7 +496,7 @@ static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
 void _O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
   SERIAL_ECHOLNPGM(STR_M119_REPORT);
-  #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(STR_##S))
+  #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, F(STR_##S))
   #if HAS_X_MIN
     ES_REPORT(X_MIN);
   #endif
@@ -564,10 +564,10 @@ void _O2 Endstops::report_states() {
     ES_REPORT(K_MAX);
   #endif
   #if BOTH(MARLIN_DEV_MODE, PROBE_ACTIVATION_SWITCH)
-    print_es_state(probe_switch_activated(), PSTR(STR_PROBE_EN));
+    print_es_state(probe_switch_activated(), F(STR_PROBE_EN));
   #endif
   #if USES_Z_MIN_PROBE_PIN
-    print_es_state(PROBE_TRIGGERED(), PSTR(STR_Z_PROBE));
+    print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
   #endif
   #if MULTI_FILAMENT_SENSOR
     #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
@@ -578,13 +578,13 @@ void _O2 Endstops::report_states() {
         default: continue;
         REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
       }
-      SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
+      SERIAL_ECHOPGM(STR_FILAMENT);
       if (i > 1) SERIAL_CHAR(' ', '0' + i);
       print_es_state(extDigitalRead(pin) != state);
     }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, F(STR_FILAMENT));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());
@@ -595,7 +595,7 @@ void _O2 Endstops::report_states() {
 // The following routines are called from an ISR context. It could be the temperature ISR, the
 // endstop ISR or the Stepper ISR.
 
-#if BOTH(DELTA, SENSORLESS_PROBING)
+#if HAS_DELTA_SENSORLESS_PROBING
   #define __ENDSTOP(AXIS, ...) AXIS ##_MAX
   #define _ENDSTOP_PIN(AXIS, ...) AXIS ##_MAX_PIN
   #define _ENDSTOP_INVERTING(AXIS, ...) AXIS ##_MAX_ENDSTOP_INVERTING
@@ -1271,7 +1271,7 @@ void Endstops::update() {
     #endif
 
     uint16_t endstop_change = live_state_local ^ old_live_state_local;
-    #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPAIR("  " STRINGIFY(S) ":", TEST(live_state_local, S))
+    #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPGM("  " STRINGIFY(S) ":", TEST(live_state_local, S))
 
     if (endstop_change) {
       #if HAS_X_MIN

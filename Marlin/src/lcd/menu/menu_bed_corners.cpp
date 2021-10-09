@@ -172,14 +172,14 @@ static void _lcd_level_bed_corners_get_next_position() {
 
     TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); // Set up the font for extra info
 
-    MenuItem_static::draw(0, GET_TEXT(MSG_PROBING_MESH), SS_INVERT); // "Probing Mesh" heading
+    MenuItem_static::draw(0, GET_TEXT(MSG_PROBING_POINT), SS_INVERT); // "Probing Mesh" heading
 
     uint8_t cy = TERN(TFT_COLOR_UI, 3, LCD_HEIGHT - 1), y = LCD_ROW_Y(cy);
 
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-      lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_GOOD_POINTS));
+      lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_GOOD_POINTS));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_wchar('/');
@@ -192,7 +192,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     // Display the Last Z value
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
-      lcd_put_u8str_P(GET_TEXT(MSG_BED_TRAMMING_LAST_Z));
+      lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_LAST_Z));
       IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
@@ -212,7 +212,7 @@ static void _lcd_level_bed_corners_get_next_position() {
   void _lcd_draw_level_prompt() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::confirm_screen(
-        []{ queue.inject_P(TERN(HAS_LEVELING, PSTR("G29N"), G28_STR)); ui.return_to_status(); }
+        []{ queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR))); ui.return_to_status(); }
       , []{ ui.goto_previous_screen_no_defer(); }
       , GET_TEXT(MSG_BED_TRAMMING_IN_RANGE)
       , (const char*)nullptr, PSTR("?")

@@ -158,7 +158,7 @@ void GcodeSuite::G76() {
       return;
     }
 
-    process_subcommands_now_P(G28_STR);
+    process_subcommands_now(FPSTR(G28_STR));
   }
 
   remember_feedrate_scaling_off();
@@ -171,7 +171,7 @@ void GcodeSuite::G76() {
   millis_t next_temp_report = millis() + 1000;
 
   auto report_targets = [&](const celsius_t tb, const celsius_t tp) {
-    SERIAL_ECHOLNPAIR("Target Bed:", tb, " Probe:", tp);
+    SERIAL_ECHOLNPGM("Target Bed:", tb, " Probe:", tp);
   };
 
   if (do_bed_cal) {
@@ -211,7 +211,7 @@ void GcodeSuite::G76() {
       if (isnan(measured_z) || target_bed > (BED_MAX_TARGET)) break;
     }
 
-    SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
+    SERIAL_ECHOLNPGM("Retrieved measurements: ", temp_comp.get_index());
     if (temp_comp.finish_calibration(TSI_BED)) {
       say_successfully_calibrated();
       SERIAL_ECHOLNPGM(" bed.");
@@ -255,7 +255,7 @@ void GcodeSuite::G76() {
       do_blocking_move_to(noz_pos_xyz);
 
       say_waiting_for_probe_heating();
-      SERIAL_ECHOLNPAIR(" Bed:", target_bed, " Probe:", target_probe);
+      SERIAL_ECHOLNPGM(" Bed:", target_bed, " Probe:", target_probe);
       const millis_t probe_timeout_ms = millis() + SEC_TO_MS(900UL);
       while (thermalManager.degProbe() < target_probe) {
         if (report_temps(next_temp_report, probe_timeout_ms)) {
@@ -270,7 +270,7 @@ void GcodeSuite::G76() {
       if (isnan(measured_z) || target_probe > cali_info_init[TSI_PROBE].end_temp) break;
     }
 
-    SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
+    SERIAL_ECHOLNPGM("Retrieved measurements: ", temp_comp.get_index());
     if (temp_comp.finish_calibration(TSI_PROBE))
       say_successfully_calibrated();
     else
@@ -325,7 +325,7 @@ void GcodeSuite::M871() {
                                 TSI_PROBE
                               );
     if (idx > 0 && temp_comp.set_offset(mod, idx - 1, offset_val))
-      SERIAL_ECHOLNPAIR("Set value: ", offset_val);
+      SERIAL_ECHOLNPGM("Set value: ", offset_val);
     else
       SERIAL_ECHOLNPGM("!Invalid index. Failed to set value (note: value at index 0 is constant).");
 
@@ -351,7 +351,7 @@ void GcodeSuite::M192() {
   }
 
   const celsius_t target_temp = parser.value_celsius();
-  ui.set_status_P(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
+  ui.set_status(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT_F(MSG_PROBE_HEATING) : GET_TEXT_F(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }
 

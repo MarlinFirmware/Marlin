@@ -46,7 +46,7 @@ namespace ExtUI {
      */
   }
   void onIdle() {}
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {}
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
@@ -120,6 +120,7 @@ namespace ExtUI {
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
+        case PID_STARTED:          break;
         case PID_BAD_EXTRUDER_NUM: break;
         case PID_TEMP_TOO_HIGH:    break;
         case PID_TUNING_TIMEOUT:   break;

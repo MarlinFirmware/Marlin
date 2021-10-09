@@ -35,7 +35,7 @@ class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_
     static void draw_message(draw_mode_t);
     static void draw_time_remaining(draw_mode_t);
     static void draw_interaction_buttons(draw_mode_t);
-    static void draw_adjuster(draw_mode_t, uint8_t tag, progmem_str label, float value, int16_t x, int16_t y, int16_t w, int16_t h);
+    static void draw_adjuster(draw_mode_t, uint8_t tag, FSTR_P label, float value, int16_t x, int16_t y, int16_t w, int16_t h);
   public:
     static void onRedraw(draw_mode_t);
 

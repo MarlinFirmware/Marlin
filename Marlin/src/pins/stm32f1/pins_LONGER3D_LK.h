@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -132,12 +135,18 @@
 
   #define TFT_RESET_PIN                     PC4   // pin 33
   #define TFT_BACKLIGHT_PIN                 PD12  // pin 59
+  #define TFT_BACKLIGHT_PWM                 150   // Brightness with alt. TIM4 chan 1 (1-255)
 
   #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
   #define DOGLCD_SCK                        -1
 
   // Buffer for Color UI
   #define TFT_BUFFER_SIZE                   3200
+#endif
+
+#if defined(TFT_BACKLIGHT_PWM) && !defined(MAPLE_STM32F1)
+  #define HAS_LCD_BRIGHTNESS 1
+  #define DEFAULT_LCD_BRIGHTNESS TFT_BACKLIGHT_PWM
 #endif
 
 #if ENABLED(SDIO_SUPPORT)
@@ -170,18 +179,18 @@
 #if ENABLED(SPI_EEPROM)
   // SPI1 EEPROM Winbond W25Q64 (8MB/64Mbits)
   #define SPI_CHAN_EEPROM1                     1
-  #define SPI_EEPROM1_CS                    PC5   // pin 34
-  #define EEPROM_SCK          BOARD_SPI1_SCK_PIN  // PA5 pin 30
-  #define EEPROM_MISO        BOARD_SPI1_MISO_PIN  // PA6 pin 31
-  #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
+  #define SPI_EEPROM1_CS_PIN                PC5   // pin 34
+  #define EEPROM_SCK_PIN      BOARD_SPI1_SCK_PIN  // PA5 pin 30
+  #define EEPROM_MISO_PIN    BOARD_SPI1_MISO_PIN  // PA6 pin 31
+  #define EEPROM_MOSI_PIN    BOARD_SPI1_MOSI_PIN  // PA7 pin 32
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif HAS_SPI_FLASH
   #define SPI_FLASH_SIZE                0x40000U  // limit to 256KB (M993 will reboot with 512)
-  #define W25QXX_CS_PIN                     PC5
-  #define W25QXX_MOSI_PIN                   PA7
-  #define W25QXX_MISO_PIN                   PA6
-  #define W25QXX_SCK_PIN                    PA5
+  #define SPI_FLASH_CS_PIN                  PC5
+  #define SPI_FLASH_MOSI_PIN                PA7
+  #define SPI_FLASH_MISO_PIN                PA6
+  #define SPI_FLASH_SCK_PIN                 PA5
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
