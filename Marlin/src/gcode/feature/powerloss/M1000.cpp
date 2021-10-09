@@ -44,10 +44,10 @@
 
 void menu_job_recovery();
 
-inline void plr_error(PGM_P const prefix) {
+inline void plr_error(FSTR_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
-    DEBUG_ECHOPGM_P(prefix);
+    DEBUG_ECHOF(prefix);
     DEBUG_ECHOLNPGM(" Job Recovery Data");
   #else
     UNUSED(prefix);
@@ -91,7 +91,7 @@ void GcodeSuite::M1000() {
       recovery.resume();
   }
   else
-    plr_error(recovery.info.valid_head ? PSTR("No") : PSTR("Invalid"));
+    plr_error(recovery.info.valid_head ? F("No") : F("Invalid"));
 
 }
 

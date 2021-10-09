@@ -208,7 +208,7 @@ if [[ $TESTENV == '-' ]]; then
   NAMES=()
   MENU=()
   BIGLEN=0
-  for FILE in $( ls -1 $TESTPATH/* )
+  for FILE in $( ls -1 $TESTPATH/* | sort -f )
   do
     let IND++
     TNAME=${FILE/$TESTPATH\//}

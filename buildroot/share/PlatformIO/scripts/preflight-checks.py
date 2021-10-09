@@ -76,13 +76,20 @@ def sanity_check_target():
 				raise SystemExit(err)
 
 	#
+	# Give warnings on every build
+	#
+	warnfile = os.path.join(env['PROJECT_BUILD_DIR'], build_env, "src", "src", "inc", "Warnings.cpp.o")
+	if os.path.exists(warnfile):
+		os.remove(warnfile)
+
+	#
 	# Check for old files indicating an entangled Marlin (mixing old and new code)
 	#
 	mixedin = []
-	for p in [ os.path.join(env['PROJECT_DIR'], "Marlin/src/lcd/dogm") ]:
-		for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
-			if os.path.isfile(os.path.join(p, f)):
-				mixedin += [ f ]
+	p = os.path.join(env['PROJECT_DIR'], "Marlin", "src", "lcd", "dogm")
+	for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
+		if os.path.isfile(os.path.join(p, f)):
+			mixedin += [ f ]
 	if mixedin:
 		err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
 		raise SystemExit(err)
@@ -90,4 +97,4 @@ def sanity_check_target():
 # Detect that 'vscode init' is running
 from SCons.Script import COMMAND_LINE_TARGETS
 if "idedata" not in COMMAND_LINE_TARGETS:
-    sanity_check_target()
+	sanity_check_target()

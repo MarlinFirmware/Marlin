@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V84"
+#define EEPROM_VERSION "V85"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -279,17 +279,24 @@ typedef struct SettingsDataStruct {
   bool bltouch_last_written_mode;
 
   //
-  // DELTA / [XYZ]_DUAL_ENDSTOPS
+  // Kinematic Settings
   //
-  #if ENABLED(DELTA)
-    float delta_height;                                 // M666 H
-    abc_float_t delta_endstop_adj;                      // M666 X Y Z
-    float delta_radius,                                 // M665 R
-          delta_diagonal_rod,                           // M665 L
-          segments_per_second;                          // M665 S
-    abc_float_t delta_tower_angle_trim,                 // M665 X Y Z
-                delta_diagonal_rod_trim;                // M665 A B C
-  #elif HAS_EXTRA_ENDSTOPS
+  #if IS_KINEMATIC
+    float segments_per_second;                          // M665 S
+    #if ENABLED(DELTA)
+      float delta_height;                               // M666 H
+      abc_float_t delta_endstop_adj;                    // M666 X Y Z
+      float delta_radius,                               // M665 R
+            delta_diagonal_rod;                         // M665 L
+      abc_float_t delta_tower_angle_trim,               // M665 X Y Z
+                  delta_diagonal_rod_trim;              // M665 A B C
+    #endif
+  #endif
+
+  //
+  // Extra Endstops offsets
+  //
+  #if HAS_EXTRA_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
           z2_endstop_adj,                               // M666 (S2) Z
@@ -345,7 +352,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_LCD_CONTRAST
   //
-  int16_t lcd_contrast;                                 // M250 C
+  uint8_t lcd_contrast;                                 // M250 C
 
   //
   // HAS_LCD_BRIGHTNESS
@@ -550,7 +557,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
-  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
   planner.refresh_positioning();
 
@@ -857,45 +864,49 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // DELTA Geometry or Dual Endstops offsets
+    // Kinematic Settings
     //
+    #if IS_KINEMATIC
     {
+      EEPROM_WRITE(segments_per_second);
       #if ENABLED(DELTA)
-
         _FIELD_TEST(delta_height);
-
         EEPROM_WRITE(delta_height);              // 1 float
         EEPROM_WRITE(delta_endstop_adj);         // 3 floats
         EEPROM_WRITE(delta_radius);              // 1 float
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
-        EEPROM_WRITE(segments_per_second);       // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
         EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
-
-      #elif HAS_EXTRA_ENDSTOPS
-
-        _FIELD_TEST(x2_endstop_adj);
-
-        // Write dual endstops in X, Y, Z order. Unused = 0.0
-        dummyf = 0;
-        EEPROM_WRITE(TERN(X_DUAL_ENDSTOPS, endstops.x2_endstop_adj, dummyf));   // 1 float
-        EEPROM_WRITE(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));   // 1 float
-        EEPROM_WRITE(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf));  // 1 float
-
-        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
-          EEPROM_WRITE(endstops.z3_endstop_adj);   // 1 float
-        #else
-          EEPROM_WRITE(dummyf);
-        #endif
-
-        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
-          EEPROM_WRITE(endstops.z4_endstop_adj);   // 1 float
-        #else
-          EEPROM_WRITE(dummyf);
-        #endif
-
       #endif
     }
+    #endif
+
+    //
+    // Extra Endstops offsets
+    //
+    #if HAS_EXTRA_ENDSTOPS
+    {
+      _FIELD_TEST(x2_endstop_adj);
+
+      // Write dual endstops in X, Y, Z order. Unused = 0.0
+      dummyf = 0;
+      EEPROM_WRITE(TERN(X_DUAL_ENDSTOPS, endstops.x2_endstop_adj, dummyf));   // 1 float
+      EEPROM_WRITE(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));   // 1 float
+      EEPROM_WRITE(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf));  // 1 float
+
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+        EEPROM_WRITE(endstops.z3_endstop_adj);   // 1 float
+      #else
+        EEPROM_WRITE(dummyf);
+      #endif
+
+      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+        EEPROM_WRITE(endstops.z4_endstop_adj);   // 1 float
+      #else
+        EEPROM_WRITE(dummyf);
+      #endif
+    }
+    #endif
 
     #if ENABLED(Z_STEPPER_AUTO_ALIGN)
       EEPROM_WRITE(z_stepper_align.xy);
@@ -1006,7 +1017,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(lcd_contrast);
-      const int16_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
+      const uint8_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
       EEPROM_WRITE(lcd_contrast);
     }
 
@@ -1460,7 +1471,7 @@ void MarlinSettings::postprocess() {
         store_mesh(ubl.storage_slot);
     #endif
 
-    if (!eeprom_error) LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
+    if (!eeprom_error) LCD_MESSAGE(MSG_SETTINGS_STORED);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
 
@@ -1486,7 +1497,7 @@ void MarlinSettings::postprocess() {
         stored_ver[1] = '\0';
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_VERSION)));
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
@@ -1724,42 +1735,46 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // DELTA Geometry or Dual Endstops offsets
+      // Kinematic Segments-per-second
       //
+      #if IS_KINEMATIC
       {
+        EEPROM_READ(segments_per_second);
         #if ENABLED(DELTA)
-
           _FIELD_TEST(delta_height);
-
           EEPROM_READ(delta_height);              // 1 float
           EEPROM_READ(delta_endstop_adj);         // 3 floats
           EEPROM_READ(delta_radius);              // 1 float
           EEPROM_READ(delta_diagonal_rod);        // 1 float
-          EEPROM_READ(segments_per_second);       // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
           EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
-
-        #elif HAS_EXTRA_ENDSTOPS
-
-          _FIELD_TEST(x2_endstop_adj);
-
-          EEPROM_READ(TERN(X_DUAL_ENDSTOPS, endstops.x2_endstop_adj, dummyf));  // 1 float
-          EEPROM_READ(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));  // 1 float
-          EEPROM_READ(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf)); // 1 float
-
-          #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
-            EEPROM_READ(endstops.z3_endstop_adj); // 1 float
-          #else
-            EEPROM_READ(dummyf);
-          #endif
-          #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
-            EEPROM_READ(endstops.z4_endstop_adj); // 1 float
-          #else
-            EEPROM_READ(dummyf);
-          #endif
-
         #endif
       }
+      #endif
+
+      //
+      // Extra Endstops offsets
+      //
+      #if HAS_EXTRA_ENDSTOPS
+      {
+        _FIELD_TEST(x2_endstop_adj);
+
+        EEPROM_READ(TERN(X_DUAL_ENDSTOPS, endstops.x2_endstop_adj, dummyf));  // 1 float
+        EEPROM_READ(TERN(Y_DUAL_ENDSTOPS, endstops.y2_endstop_adj, dummyf));  // 1 float
+        EEPROM_READ(TERN(Z_MULTI_ENDSTOPS, endstops.z2_endstop_adj, dummyf)); // 1 float
+
+        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+          EEPROM_READ(endstops.z3_endstop_adj); // 1 float
+        #else
+          EEPROM_READ(dummyf);
+        #endif
+        #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+          EEPROM_READ(endstops.z4_endstop_adj); // 1 float
+        #else
+          EEPROM_READ(dummyf);
+        #endif
+      }
+      #endif
 
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
         EEPROM_READ(z_stepper_align.xy);
@@ -1869,7 +1884,7 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(lcd_contrast);
-        int16_t lcd_contrast;
+        uint8_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
         if (!validating) {
           TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
@@ -2347,7 +2362,7 @@ void MarlinSettings::postprocess() {
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_CRC)));
+        TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_CRC));
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
@@ -2721,19 +2736,29 @@ void MarlinSettings::reset() {
   //#endif
 
   //
-  // Endstop Adjustments
+  // Kinematic settings
   //
 
-  #if ENABLED(DELTA)
-    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
-    delta_height = DELTA_HEIGHT;
-    delta_endstop_adj = adj;
-    delta_radius = DELTA_RADIUS;
-    delta_diagonal_rod = DELTA_DIAGONAL_ROD;
-    segments_per_second = DELTA_SEGMENTS_PER_SECOND;
-    delta_tower_angle_trim = dta;
-    delta_diagonal_rod_trim = ddr;
+  #if IS_KINEMATIC
+    segments_per_second = (
+      TERN_(DELTA, DELTA_SEGMENTS_PER_SECOND)
+      TERN_(IS_SCARA, SCARA_SEGMENTS_PER_SECOND)
+      TERN_(POLARGRAPH, POLAR_SEGMENTS_PER_SECOND)
+    );
+    #if ENABLED(DELTA)
+      const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
+      delta_height = DELTA_HEIGHT;
+      delta_endstop_adj = adj;
+      delta_radius = DELTA_RADIUS;
+      delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+      delta_tower_angle_trim = dta;
+      delta_diagonal_rod_trim = ddr;
+    #endif
   #endif
+
+  //
+  // Endstop Adjustments
+  //
 
   #if ENABLED(X_DUAL_ENDSTOPS)
     #ifndef X2_ENDSTOP_ADJUSTMENT
@@ -3012,7 +3037,7 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_START()       gcode.report_echo_start(forReplay)
   #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
   #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
-  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, PSTR(STR))
+  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, F(STR))
 
   void M92_report(const bool echo=true, const int8_t e=-1);
 
@@ -3137,7 +3162,7 @@ void MarlinSettings::reset() {
     TERN_(EDITABLE_SERVO_ANGLES, gcode.M281_report(forReplay));
 
     //
-    // Delta / SCARA Kinematics
+    // Kinematic Settings
     //
     TERN_(IS_KINEMATIC, gcode.M665_report(forReplay));
 
@@ -3253,7 +3278,7 @@ void MarlinSettings::reset() {
     //
     // Tool-changing Parameters
     //
-    TERN_(HAS_MULTI_EXTRUDER, gcode.M217_report(forReplay));
+    E_TERN_(gcode.M217_report(forReplay));
 
     //
     // Backlash Compensation

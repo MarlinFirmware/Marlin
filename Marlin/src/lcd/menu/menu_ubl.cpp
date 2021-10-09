@@ -83,7 +83,7 @@ void _lcd_mesh_fine_tune(PGM_P const msg) {
   if (ui.should_draw()) {
     const float rounded_f = rounded_mesh_value();
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(rounded_f));
-    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(rounded_f));
+    TERN_(MESH_EDIT_GFX_OVERLAY, ui.zoffset_overlay(rounded_f));
     TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }
@@ -666,6 +666,10 @@ void _lcd_ubl_level_bed() {
     GCODES_ITEM(MSG_UBL_DEACTIVATE_MESH, PSTR("G29D"));
   else
     GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, PSTR("G29A"));
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    editable.decimal = planner.z_fade_height;
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
+  #endif
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   #endif
@@ -677,10 +681,6 @@ void _lcd_ubl_level_bed() {
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29W"));
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
-  #endif
   END_MENU();
 }
 

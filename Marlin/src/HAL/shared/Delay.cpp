@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "Delay.h"
 
 #include "../../inc/MarlinConfig.h"
@@ -107,13 +108,14 @@
 
   #if ENABLED(MARLIN_DEV_MODE)
     void dump_delay_accuracy_check() {
-      auto report_call_time = [](PGM_P const name, PGM_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
+      auto report_call_time = [](FSTR_P const name, FSTR_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
         SERIAL_ECHOPGM("Calling ");
-        SERIAL_ECHOPGM_P(name);
+        SERIAL_ECHOF(name);
         SERIAL_ECHOLNPGM(" for ", cycles);
-        SERIAL_ECHOPGM_P(unit);
+        SERIAL_ECHOF(unit);
         SERIAL_ECHOLNPGM(" took: ", total);
-        SERIAL_ECHOPGM_P(unit);
+        SERIAL_CHAR(' ');
+        SERIAL_ECHOF(unit);
         if (do_flush) SERIAL_FLUSHTX();
       };
 
@@ -125,41 +127,42 @@
       constexpr uint32_t testValues[] = { 1, 5, 10, 20, 50, 100, 150, 200, 350, 500, 750, 1000 };
       for (auto i : testValues) {
         s = micros(); DELAY_US(i); e = micros();
-        report_call_time(PSTR("delay"), PSTR("us"), i, e - s);
+        report_call_time(F("delay"), F("us"), i, e - s);
       }
 
       if (HW_REG(_DWT_CTRL)) {
+        static FSTR_P cyc = F("cycles");
+        static FSTR_P dcd = F("DELAY_CYCLES directly ");
+
         for (auto i : testValues) {
           s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(i); e = HW_REG(_DWT_CYCCNT);
-          report_call_time(PSTR("runtime delay"), PSTR("cycles"), i, e - s);
+          report_call_time(F("runtime delay"), cyc, i, e - s);
         }
 
         // Measure the delay to call a real function compared to a function pointer
         s = HW_REG(_DWT_CYCCNT); delay_dwt(1); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(PSTR("delay_dwt"), PSTR("cycles"), 1, e - s);
-
-        static PGMSTR(dcd, "DELAY_CYCLES directly ");
+        report_call_time(F("delay_dwt"), cyc, 1, e - s);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES( 1); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, PSTR("cycles"),  1, e - s, false);
+        report_call_time(dcd, cyc,  1, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES( 5); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, PSTR("cycles"),  5, e - s, false);
+        report_call_time(dcd, cyc,  5, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(10); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, PSTR("cycles"), 10, e - s, false);
+        report_call_time(dcd, cyc, 10, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(20); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, PSTR("cycles"), 20, e - s, false);
+        report_call_time(dcd, cyc, 20, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(50); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, PSTR("cycles"), 50, e - s, false);
+        report_call_time(dcd, cyc, 50, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(100); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, PSTR("cycles"), 100, e - s, false);
+        report_call_time(dcd, cyc, 100, e - s, false);
 
         s = HW_REG(_DWT_CYCCNT); DELAY_CYCLES(200); e = HW_REG(_DWT_CYCCNT);
-        report_call_time(dcd, PSTR("cycles"), 200, e - s, false);
+        report_call_time(dcd, cyc, 200, e - s, false);
       }
     }
   #endif // MARLIN_DEV_MODE
@@ -169,7 +172,7 @@
 
   void calibrate_delay_loop() {}
   #if ENABLED(MARLIN_DEV_MODE)
-    void dump_delay_accuracy_check() { SERIAL_ECHOPGM_P(PSTR("N/A on this platform")); }
+    void dump_delay_accuracy_check() { SERIAL_ECHOPGM("N/A on this platform"); }
   #endif
 
 #endif

@@ -19,13 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * No offical schematics have been found.
  * But these differences where noted in https://github.com/bigtreetech/Rumba32/issues/1
  */
-
-#pragma once
 
 #define BOARD_INFO_NAME "RUMBA32 (BTT)"
 

@@ -93,14 +93,7 @@ U8G_CLASS u8g;
 #endif
 
 #if HAS_LCD_CONTRAST
-
-  int16_t MarlinUI::contrast = DEFAULT_LCD_CONTRAST;
-
-  void MarlinUI::set_contrast(const int16_t value) {
-    contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-    u8g.setContrast(contrast);
-  }
-
+  void MarlinUI::_set_contrast() { u8g.setContrast(contrast); }
 #endif
 
 void MarlinUI::set_font(const MarlinFont font_nr) {
@@ -224,8 +217,8 @@ bool MarlinUI::detected() { return true; }
     auto _draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
       u8g.drawBitmapP(offx, offy, START_BMP_BYTEWIDTH, START_BMPHEIGHT, bitmap);
       set_font(FONT_MENU);
-      if (!two_part || !line2) lcd_put_u8str_P(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), PSTR(SHORT_BUILD_VERSION));
-      if (!two_part || line2) lcd_put_u8str_P(txt_offx_2, txt_base, PSTR(MARLIN_WEBSITE_URL));
+      if (!two_part || !line2) lcd_put_u8str(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), F(SHORT_BUILD_VERSION));
+      if (!two_part || line2) lcd_put_u8str(txt_offx_2, txt_base, F(MARLIN_WEBSITE_URL));
     };
 
     auto draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
@@ -338,12 +331,21 @@ void MarlinUI::draw_kill_screen() {
   do {
     set_font(FONT_MENU);
     lcd_put_u8str(0, h4 * 1, status_message);
-    lcd_put_u8str_P(0, h4 * 2, GET_TEXT(MSG_HALTED));
-    lcd_put_u8str_P(0, h4 * 3, GET_TEXT(MSG_PLEASE_RESET));
+    lcd_put_u8str(0, h4 * 2, GET_TEXT_F(MSG_HALTED));
+    lcd_put_u8str(0, h4 * 3, GET_TEXT_F(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
+
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() {
+    #if PIN_EXISTS(TFT_BACKLIGHT)
+      if (PWM_PIN(TFT_BACKLIGHT_PIN))
+        analogWrite(pin_t(TFT_BACKLIGHT_PIN), brightness);
+    #endif
+  }
+#endif
 
 #if HAS_LCD_MENU
 
@@ -609,7 +611,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
-          lcd_put_u8str_P(PSTR(" -----"));
+          lcd_put_u8str(F(" -----"));
       }
 
     }
@@ -713,15 +715,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       B00001100,B00000000
     };
 
-    void _lcd_zoffset_overlay_gfx(const_float_t zvalue) {
-      // Determine whether the user is raising or lowering the nozzle.
-      static int8_t dir;
-      static float old_zvalue;
-      if (zvalue != old_zvalue) {
-        dir = zvalue ? zvalue < old_zvalue ? -1 : 1 : 0;
-        old_zvalue = zvalue;
-      }
-
+    void MarlinUI::zoffset_overlay(const int8_t dir) {
       const unsigned char *rot_up = TERN(OVERLAY_GFX_REVERSE, ccw_bmp,  cw_bmp),
                         *rot_down = TERN(OVERLAY_GFX_REVERSE,  cw_bmp, ccw_bmp);
 

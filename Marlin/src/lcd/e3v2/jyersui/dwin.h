@@ -26,9 +26,15 @@
  */
 
 #include "dwin_lcd.h"
-#include "rotary_encoder.h"
+#include "../common/dwin_set.h"
+#include "../common/dwin_font.h"
+#include "../common/dwin_color.h"
+#include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
+
 #include "../../../inc/MarlinConfigPre.h"
+
+//#define DWIN_CREALITY_LCD_CUSTOM_ICONS
 
 enum processID : uint8_t {
   Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
@@ -82,109 +88,6 @@ enum menuID : uint8_t {
   PreheatHotend
 };
 
-#define Start_Process       0
-#define Language_English    1
-#define Language_Chinese    2
-
-#define ICON                7 // Icon set file 7.ICO
-
-#define ICON_LOGO                  0
-#define ICON_Print_0               1
-#define ICON_Print_1               2
-#define ICON_Prepare_0             3
-#define ICON_Prepare_1             4
-#define ICON_Control_0             5
-#define ICON_Control_1             6
-#define ICON_Leveling_0            7
-#define ICON_Leveling_1            8
-#define ICON_HotendTemp            9
-#define ICON_BedTemp              10
-#define ICON_Speed                11
-#define ICON_Zoffset              12
-#define ICON_Back                 13
-#define ICON_File                 14
-#define ICON_PrintTime            15
-#define ICON_RemainTime           16
-#define ICON_Setup_0              17
-#define ICON_Setup_1              18
-#define ICON_Pause_0              19
-#define ICON_Pause_1              20
-#define ICON_Continue_0           21
-#define ICON_Continue_1           22
-#define ICON_Stop_0               23
-#define ICON_Stop_1               24
-#define ICON_Bar                  25
-#define ICON_More                 26
-
-#define ICON_Axis                 27
-#define ICON_CloseMotor           28
-#define ICON_Homing               29
-#define ICON_SetHome              30
-#define ICON_PLAPreheat           31
-#define ICON_ABSPreheat           32
-#define ICON_Cool                 33
-#define ICON_Language             34
-
-#define ICON_MoveX                35
-#define ICON_MoveY                36
-#define ICON_MoveZ                37
-#define ICON_Extruder             38
-
-#define ICON_Temperature          40
-#define ICON_Motion               41
-#define ICON_WriteEEPROM          42
-#define ICON_ReadEEPROM           43
-#define ICON_ResumeEEPROM         44
-#define ICON_Info                 45
-
-#define ICON_SetEndTemp           46
-#define ICON_SetBedTemp           47
-#define ICON_FanSpeed             48
-#define ICON_SetPLAPreheat        49
-#define ICON_SetABSPreheat        50
-
-#define ICON_MaxSpeed             51
-#define ICON_MaxAccelerated       52
-#define ICON_MaxJerk              53
-#define ICON_Step                 54
-#define ICON_PrintSize            55
-#define ICON_Version              56
-#define ICON_Contact              57
-#define ICON_StockConfiguraton    58
-#define ICON_MaxSpeedX            59
-#define ICON_MaxSpeedY            60
-#define ICON_MaxSpeedZ            61
-#define ICON_MaxSpeedE            62
-#define ICON_MaxAccX              63
-#define ICON_MaxAccY              64
-#define ICON_MaxAccZ              65
-#define ICON_MaxAccE              66
-#define ICON_MaxSpeedJerkX        67
-#define ICON_MaxSpeedJerkY        68
-#define ICON_MaxSpeedJerkZ        69
-#define ICON_MaxSpeedJerkE        70
-#define ICON_StepX                71
-#define ICON_StepY                72
-#define ICON_StepZ                73
-#define ICON_StepE                74
-#define ICON_Setspeed             75
-#define ICON_SetZOffset           76
-#define ICON_Rectangle            77
-#define ICON_BLTouch              78
-#define ICON_TempTooLow           79
-#define ICON_AutoLeveling         80
-#define ICON_TempTooHigh          81
-#define ICON_NoTips_C             82
-#define ICON_NoTips_E             83
-#define ICON_Continue_C           84
-#define ICON_Continue_E           85
-#define ICON_Cancel_C             86
-#define ICON_Cancel_E             87
-#define ICON_Confirm_C            88
-#define ICON_Confirm_E            89
-#define ICON_Info_0               90
-#define ICON_Info_1               91
-
 // Custom icons
 #if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS)
   // index of every custom icon should be >= CUSTOM_ICON_START
@@ -214,25 +117,14 @@ enum menuID : uint8_t {
   #define ICON_AxisC                ICON_Axis
 #endif
 
-#define font6x12  0x00
-#define font8x16  0x01
-#define font10x20 0x02
-#define font12x24 0x03
-#define font14x28 0x04
-#define font16x32 0x05
-#define font20x40 0x06
-#define font24x48 0x07
-#define font28x56 0x08
-#define font32x64 0x09
-
 enum colorID : uint8_t {
   Default, White, Green, Cyan, Blue, Magenta, Red, Orange, Yellow, Brown, Black
 };
 
 #define Custom_Colors       10
-#define Color_White         0xFFFF
+#define Color_Aqua          RGB(0x00,0x3F,0x1F)
 #define Color_Light_White   0xBDD7
-#define Color_Green         0x07E0
+#define Color_Green         RGB(0x00,0x3F,0x00)
 #define Color_Light_Green   0x3460
 #define Color_Cyan          0x07FF
 #define Color_Light_Cyan    0x04F3
@@ -240,28 +132,16 @@ enum colorID : uint8_t {
 #define Color_Light_Blue    0x3A6A
 #define Color_Magenta       0xF81F
 #define Color_Light_Magenta 0x9813
-#define Color_Red           0xF800
 #define Color_Light_Red     0x8800
 #define Color_Orange        0xFA20
 #define Color_Light_Orange  0xFBC0
-#define Color_Yellow        0xFF0F
 #define Color_Light_Yellow  0x8BE0
 #define Color_Brown         0xCC27
 #define Color_Light_Brown   0x6204
 #define Color_Black         0x0000
 #define Color_Grey          0x18E3
-#define Color_Bg_Window     0x31E8  // Popup background color
-#define Color_Bg_Blue       0x1125  // Dark blue background color
-#define Color_Bg_Black      0x0841  // Black background color
-#define Color_Bg_Red        0xF00F  // Red background color
-#define Popup_Text_Color    0xD6BA  // Popup font background color
-#define Line_Color          0x3A6A  // Split line color
-#define Rectangle_Color     0xEE2F  // Blue square cursor color
-#define Percent_Color       0xFE29  // Percentage color
-#define BarFill_Color       0x10E4  // Fill color of progress bar
-#define Select_Color        0x33BB  // Selected color
 #define Check_Color         0x4E5C  // Check-box check color
-#define Confirm_Color   	  0x34B9
+#define Confirm_Color       0x34B9
 #define Cancel_Color        0x3186
 
 class CrealityDWINClass {
@@ -269,7 +149,6 @@ public:
   static constexpr size_t eeprom_data_size = 48;
   static struct EEPROM_Settings { // use bit fields to save space, max 48 bytes
     bool time_format_textual : 1;
-    bool beeperenable : 1;
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       uint8_t tilt_grid_size : 3;
     #endif
@@ -296,7 +175,9 @@ public:
   static uint16_t GetColor(uint8_t color, uint16_t original, bool light=false);
   static void Draw_Checkbox(uint8_t row, bool value);
   static void Draw_Title(const char * title);
+  static void Draw_Title(FSTR_P const title);
   static void Draw_Menu_Item(uint8_t row, uint8_t icon=0, const char * const label1=nullptr, const char * const label2=nullptr, bool more=false, bool centered=false);
+  static void Draw_Menu_Item(uint8_t row, uint8_t icon=0, FSTR_P const flabel1=nullptr, FSTR_P const flabel2=nullptr, bool more=false, bool centered=false);
   static void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
   static void Redraw_Menu(bool lastprocess=true, bool lastselection=false, bool lastmenu=false);
   static void Redraw_Screen();
@@ -315,7 +196,7 @@ public:
   static void Draw_SD_Item(uint8_t item, uint8_t row);
   static void Draw_SD_List(bool removed=false);
   static void Draw_Status_Area(bool icons=false);
-  static void Draw_Popup(PGM_P const line1, PGM_P const line2, PGM_P const line3, uint8_t mode, uint8_t icon=0);
+  static void Draw_Popup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon=0);
   static void Popup_Select();
   static void Update_Status_Bar(bool refresh=false);
 
@@ -324,7 +205,7 @@ public:
     static void Set_Mesh_Viewer_Status();
   #endif
 
-  static const char * Get_Menu_Title(uint8_t menu);
+  static FSTR_P Get_Menu_Title(uint8_t menu);
   static uint8_t Get_Menu_Size(uint8_t menu);
   static void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
 

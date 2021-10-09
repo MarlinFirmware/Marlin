@@ -158,7 +158,7 @@ void GcodeSuite::G76() {
       return;
     }
 
-    process_subcommands_now_P(G28_STR);
+    process_subcommands_now(FPSTR(G28_STR));
   }
 
   remember_feedrate_scaling_off();
@@ -351,7 +351,7 @@ void GcodeSuite::M192() {
   }
 
   const celsius_t target_temp = parser.value_celsius();
-  ui.set_status_P(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
+  ui.set_status(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT_F(MSG_PROBE_HEATING) : GET_TEXT_F(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }
 

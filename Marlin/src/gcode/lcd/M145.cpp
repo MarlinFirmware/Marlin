@@ -61,7 +61,7 @@ void GcodeSuite::M145() {
 }
 
 void GcodeSuite::M145_report(const bool forReplay/*=true*/) {
-  report_heading(forReplay, PSTR(STR_MATERIAL_HEATUP));
+  report_heading(forReplay, F(STR_MATERIAL_HEATUP));
   LOOP_L_N(i, PREHEAT_COUNT) {
     report_echo_start(forReplay);
     SERIAL_ECHOLNPGM_P(

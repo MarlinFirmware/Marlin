@@ -156,7 +156,7 @@ extern "C" {
 #define NUM_ANALOG_FIRST        108
 
 // Timer Definitions
-//Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
+// Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
 #define TIMER_TONE              TIM2
 #define TIMER_SERVO             TIM5
 #define TIMER_SERIAL            TIM7

@@ -92,7 +92,7 @@ void GcodeSuite::G35() {
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
-  if (!all_axes_trusted()) process_subcommands_now_P(PSTR("G28Z"));
+  if (!all_axes_trusted()) process_subcommands_now(F("G28Z"));
 
   bool err_break = false;
 
@@ -116,7 +116,7 @@ void GcodeSuite::G35() {
 
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM("Probing point ", i + 1, " (");
-      DEBUG_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      DEBUG_ECHOF(FPSTR(pgm_read_ptr(&tramming_point_name[i])));
       DEBUG_CHAR(')');
       DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }

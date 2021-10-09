@@ -480,7 +480,7 @@
     #endif
 
     #ifndef STATUS_CUTTER_TEXT_X
-      #define STATUS_CUTTER_TEXT_X (STATUS_CUTTER_X -1)
+      #define STATUS_CUTTER_TEXT_X (STATUS_CUTTER_X - 1)
     #endif
 
     #ifndef STATUS_CUTTER_TEXT_Y
@@ -488,12 +488,12 @@
     #endif
 
     static_assert(
-      sizeof(status_cutter_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(0)),
+      sizeof(status_cutter_bmp) == (STATUS_CUTTER_BYTEWIDTH) * STATUS_CUTTER_HEIGHT(0),
       "Status cutter bitmap (status_cutter_bmp) dimensions don't match data."
     );
     #ifdef STATUS_CUTTER_ANIM
       static_assert(
-        sizeof(status_cutter_on_bmp) == (STATUS_CUTTER_BYTEWIDTH) * (STATUS_CUTTER_HEIGHT(1)),
+        sizeof(status_cutter_on_bmp) == (STATUS_CUTTER_BYTEWIDTH) * STATUS_CUTTER_HEIGHT(1),
         "Status cutter bitmap (status_cutter_on_bmp) dimensions don't match data."
       );
     #endif
@@ -530,12 +530,12 @@
   #endif
 
   static_assert(
-    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(0)),
+    sizeof(status_chamber_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * STATUS_CHAMBER_HEIGHT(0),
     "Status chamber bitmap (status_chamber_bmp) dimensions don't match data."
   );
   #ifdef STATUS_CHAMBER_ANIM
     static_assert(
-      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * (STATUS_CHAMBER_HEIGHT(1)),
+      sizeof(status_chamber_on_bmp) == (STATUS_CHAMBER_BYTEWIDTH) * STATUS_CHAMBER_HEIGHT(1),
       "Status chamber bitmap (status_chamber_on_bmp) dimensions don't match data."
     );
   #endif
@@ -565,12 +565,12 @@
     #endif
 
     static_assert(
-      sizeof(status_cooler_bmp1) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(0)),
+      sizeof(status_cooler_bmp1) == (STATUS_COOLER_BYTEWIDTH) * STATUS_COOLER_HEIGHT(0),
       "Status cooler bitmap (status_cooler_bmp1) dimensions don't match data."
     );
     #ifdef STATUS_COOLER_ANIM
       static_assert(
-        sizeof(status_cooler_bmp2) == (STATUS_COOLER_BYTEWIDTH) * (STATUS_COOLER_HEIGHT(1)),
+        sizeof(status_cooler_bmp2) == (STATUS_COOLER_BYTEWIDTH) * STATUS_COOLER_HEIGHT(1),
         "Status cooler bitmap (status_cooler_bmp2) dimensions don't match data."
       );
     #endif
@@ -647,7 +647,7 @@
 #if STATUS_BED_WIDTH && !STATUS_HEATERS_WIDTH
 
   #ifndef STATUS_BED_X
-    #define STATUS_BED_X (LCD_PIXEL_WIDTH - (STATUS_CHAMBER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_BED_BYTEWIDTH) * 8)
+    #define STATUS_BED_X (LCD_PIXEL_WIDTH - (STATUS_CHAMBER_BYTEWIDTH + STATUS_FAN_BYTEWIDTH + STATUS_BED_BYTEWIDTH) * 8 - TERN0(STATUS_HEAT_PERCENT, 4))
   #endif
 
   #ifndef STATUS_BED_HEIGHT
@@ -667,12 +667,12 @@
   #endif
 
   static_assert(
-    sizeof(status_bed_bmp) == (STATUS_BED_BYTEWIDTH) * (STATUS_BED_HEIGHT(0)),
+    sizeof(status_bed_bmp) == (STATUS_BED_BYTEWIDTH) * STATUS_BED_HEIGHT(0),
     "Status bed bitmap (status_bed_bmp) dimensions don't match data."
   );
   #ifdef STATUS_BED_ANIM
     static_assert(
-      sizeof(status_bed_on_bmp) == (STATUS_BED_BYTEWIDTH) * (STATUS_BED_HEIGHT(1)),
+      sizeof(status_bed_on_bmp) == (STATUS_BED_BYTEWIDTH) * STATUS_BED_HEIGHT(1),
       "Status bed bitmap (status_bed_on_bmp) dimensions don't match data."
     );
   #endif

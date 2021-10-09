@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(DIRECT_STEPPING)
@@ -173,7 +174,7 @@ namespace DirectStepping {
   template <typename Cfg>
   void SerialPageManager<Cfg>::write_responses() {
     if (fatal_error) {
-      kill(GET_TEXT(MSG_BAD_PAGE));
+      kill(GET_TEXT_F(MSG_BAD_PAGE));
       return;
     }
 
