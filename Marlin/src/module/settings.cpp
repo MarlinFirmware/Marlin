@@ -277,7 +277,7 @@ typedef struct SettingsDataStruct {
   // BLTOUCH
   //
   bool bltouch_last_written_mode;
-  bool bltouch_high_speed;.
+  bool bltouch_high_speed;
 
   //
   // Kinematic Settings
