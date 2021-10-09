@@ -198,10 +198,10 @@ void port_print(const pin_t Ard_num) {
   // Print number to be used with M42
   int calc_p = Ard_num % (NUM_DIGITAL_PINS + 1);
   if (Ard_num > NUM_DIGITAL_PINS && calc_p > 7) calc_p += 8;
-  sprintf_P(buffer, PSTR(" M42 P%d "), calc_p);
-  SERIAL_ECHO(buffer);
-  if (calc_p < 10) SERIAL_CHAR(' ');
-  if (Ard_num < 100) SERIAL_CHAR(' ');
+  SERIAL_ECHOPGM(" M42 P", calc_p);
+  SERIAL_CHAR(' ');
+  if (calc_p <  10) SERIAL_CHAR(' ');
+  if (calc_p < 100) SERIAL_CHAR(' ');
 }
 
 bool pwm_status(const pin_t Ard_num) {
