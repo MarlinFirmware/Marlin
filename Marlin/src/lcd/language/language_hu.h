@@ -156,9 +156,8 @@ namespace Language_hu {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Tükrözött másolás");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Teljes felügyelet");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-hézag másolása");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2. fej X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2. fej Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. fej Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. fej @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Szintezz! G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL eszköz");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Egységes ágy szint");

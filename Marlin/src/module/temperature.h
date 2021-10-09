@@ -961,7 +961,7 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
+    static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 

@@ -36,6 +36,8 @@
 #undef DEBUG_ECHOLN
 #undef DEBUG_ECHOPGM
 #undef DEBUG_ECHOLNPGM
+#undef DEBUG_ECHOF
+#undef DEBUG_ECHOLNF
 #undef DEBUG_ECHOPGM_P
 #undef DEBUG_ECHOLNPGM_P
 #undef DEBUG_ECHOPAIR_F
@@ -54,7 +56,7 @@
 #if DEBUG_OUT
 
   #include "debug_section.h"
-  #define DEBUG_SECTION(N,S,D)    SectionLog N(PSTR(S),D)
+  #define DEBUG_SECTION(N,S,D)    SectionLog N(F(S),D)
 
   #define DEBUG_ECHO_START        SERIAL_ECHO_START
   #define DEBUG_ERROR_START       SERIAL_ERROR_START
@@ -65,6 +67,8 @@
   #define DEBUG_ECHOLN            SERIAL_ECHOLN
   #define DEBUG_ECHOPGM           SERIAL_ECHOPGM
   #define DEBUG_ECHOLNPGM         SERIAL_ECHOLNPGM
+  #define DEBUG_ECHOF             SERIAL_ECHOF
+  #define DEBUG_ECHOLNF           SERIAL_ECHOLNF
   #define DEBUG_ECHOPGM           SERIAL_ECHOPGM
   #define DEBUG_ECHOPGM_P         SERIAL_ECHOPGM_P
   #define DEBUG_ECHOPAIR_F        SERIAL_ECHOPAIR_F
@@ -94,6 +98,8 @@
   #define DEBUG_ECHOLN(...)         NOOP
   #define DEBUG_ECHOPGM(...)        NOOP
   #define DEBUG_ECHOLNPGM(...)      NOOP
+  #define DEBUG_ECHOF(...)          NOOP
+  #define DEBUG_ECHOLNF(...)        NOOP
   #define DEBUG_ECHOPGM_P(...)      NOOP
   #define DEBUG_ECHOLNPGM_P(...)    NOOP
   #define DEBUG_ECHOPAIR_F(...)     NOOP

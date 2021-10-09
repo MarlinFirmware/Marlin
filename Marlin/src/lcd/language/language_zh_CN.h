@@ -119,9 +119,8 @@ namespace Language_zh_CN {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("复制");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("镜像复制");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("完全控制");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("第二喷头是X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("第二喷头是Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("第二喷头是Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("第二喷头是@");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("执行G29");     // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具");     // "UBL Tools"
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("统一热床调平(UBL)");     // "Unified Bed Leveling"

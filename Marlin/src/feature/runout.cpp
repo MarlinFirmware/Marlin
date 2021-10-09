@@ -96,7 +96,7 @@ void event_filament_runout(const uint8_t extruder) {
 
   //action:out_of_filament
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_action_prompt_begin(PROMPT_FILAMENT_RUNOUT, PSTR("FilamentRunout T"), tool);
+    host_action_prompt_begin(PROMPT_FILAMENT_RUNOUT, F("FilamentRunout T"), tool);
     host_action_prompt_show();
   #endif
 
@@ -115,7 +115,7 @@ void event_filament_runout(const uint8_t extruder) {
       // Legacy Repetier command for use until newer version supports standard dialog
       // To be removed later when pause command also triggers dialog
       #ifdef ACTION_ON_FILAMENT_RUNOUT
-        host_action(PSTR(ACTION_ON_FILAMENT_RUNOUT " T"), false);
+        host_action(F(ACTION_ON_FILAMENT_RUNOUT " T"), false);
         SERIAL_CHAR(tool);
         SERIAL_EOL();
       #endif
@@ -140,7 +140,7 @@ void event_filament_runout(const uint8_t extruder) {
         SERIAL_ECHOPGM("Runout Command: ");
         SERIAL_ECHOLNPGM(FILAMENT_RUNOUT_SCRIPT);
       #endif
-      queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
     #endif
   }
 }

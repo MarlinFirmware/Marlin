@@ -1169,7 +1169,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
           }
 
           send_to_wifi((uint8_t *)tempBuf, strlen((char *)tempBuf));
-          queue.enqueue_one_P(PSTR("M105"));
+          queue.enqueue_one(F("M105"));
           break;
 
         case 992:
@@ -2018,7 +2018,7 @@ void get_wifi_commands() {
                 TERN_(ARC_SUPPORT, case 2 ... 3:)
                 TERN_(BEZIER_CURVE_SUPPORT, case 5:)
                 SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
-                LCD_MESSAGEPGM(MSG_STOPPED);
+                LCD_MESSAGE(MSG_STOPPED);
                 break;
             }
           }
@@ -2030,12 +2030,12 @@ void get_wifi_commands() {
             wait_for_heatup = false;
             TERN_(HAS_LCD_MENU, wait_for_user = false);
           }
-          if (strcmp(command, "M112") == 0) kill(M112_KILL_STR, nullptr, true);
+          if (strcmp(command, "M112") == 0) kill(FPSTR(M112_KILL_STR), nullptr, true);
           if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
         // Add the command to the queue
-        queue.enqueue_one_P(wifi_line_buffer);
+        queue.enqueue_one(wifi_line_buffer);
       }
       else if (wifi_read_count >= MAX_CMD_SIZE - 1) {
 

@@ -30,9 +30,11 @@
  * Substitutions are applied for the following characters when used
  * in menu items that call lcd_put_u8str_ind_P with an index:
  *
+ *   $ displays an inserted C-string
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 #define DISPLAY_CHARSET_ISO10646_PL
@@ -133,9 +135,8 @@ namespace Language_pl {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplikowanie");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Kopia lustrzana");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Pełne sterowanie");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2ga dysza X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2ga dysza Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2ga dysza Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2ga dysza @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Wykonywanie G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Narzędzia UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punkt pochylenia");
