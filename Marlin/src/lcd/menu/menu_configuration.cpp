@@ -235,7 +235,7 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_DEPLOY, bltouch._deploy);
     ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
-    EDIT_ITEM(bool, MSG_BLTOUCH_SPEED_MODE, &bltouch.bltouch_high_speed);
+    EDIT_ITEM(bool, MSG_BLTOUCH_SPEED_MODE, &bltouch.high_speed_mode);
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
       CONFIRM_ITEM(MSG_BLTOUCH_5V_MODE, MSG_BLTOUCH_5V_MODE, MSG_BUTTON_CANCEL, bltouch._set_5V_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       CONFIRM_ITEM(MSG_BLTOUCH_OD_MODE, MSG_BLTOUCH_OD_MODE, MSG_BUTTON_CANCEL, bltouch._set_OD_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));

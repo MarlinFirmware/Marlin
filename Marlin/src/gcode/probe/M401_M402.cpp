@@ -38,13 +38,8 @@
  */
 void GcodeSuite::M401() {
   #if ENABLED(BLTOUCH)
-    const bool seen_S = parser.seen('S'),
-             to_enable = (seen_S && parser.value_bool());
-    if (seen_S) {
-      if(to_enable)
-       bltouch.bltouch_high_speed = true;
-      else
-        bltouch.bltouch_high_speed = false;
+    if (parser.seen('S')) {
+      bltouch.high_speed_mode = parser.value_bool();
       return;
     }
   #endif

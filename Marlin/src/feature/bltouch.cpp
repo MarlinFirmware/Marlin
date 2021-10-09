@@ -28,8 +28,8 @@
 
 BLTouch bltouch;
 
-bool BLTouch::last_written_mode;  // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
-bool BLTouch::bltouch_high_speed; // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
+bool BLTouch::last_written_mode,  // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+     BLTouch::high_speed_mode;    // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
 
 #include "../module/servo.h"
 #include "../module/probe.h"

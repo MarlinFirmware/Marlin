@@ -1800,7 +1800,7 @@ void prepare_line_to_destination() {
     do_homing_move(axis, move_length, 0.0, !use_probe_bump);
 
     #if ENABLED(HOMING_Z_WITH_PROBE, BLTOUCH)
-      if (axis == Z_AXIS && !bltouch.bltouch_high_speed) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+      if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
     #endif
 
     // If a second homing move is configured...
@@ -1834,8 +1834,8 @@ void prepare_line_to_destination() {
       #endif
 
       #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if(!bltouch.bltouch_high_speed)
-          if (axis == Z_AXIS && bltouch.deploy()) return; // Intermediate DEPLOY (in LOW SPEED MODE)
+        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy())
+          return; // Intermediate DEPLOY (in LOW SPEED MODE)
       #endif
 
       // Slow move towards endstop until triggered
