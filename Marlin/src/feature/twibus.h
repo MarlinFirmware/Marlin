@@ -142,7 +142,7 @@ class TWIBus {
      *
      * @param bytes the number of bytes to request
      */
-    static void echoprefix(uint8_t bytes, FSTR_P prefix, uint8_t adr);
+    static void echoprefix(uint8_t bytes, FSTR_P const prefix, uint8_t adr);
 
     /**
      * @brief Echo data on the bus to serial
@@ -150,8 +150,9 @@ class TWIBus {
      *          to serial in a parser-friendly format.
      *
      * @param bytes the number of bytes to request
+     * @param style Output format for the bytes, 0 = Raw byte [default], 1 = Hex characters, 2 = uint16_t
      */
-    static void echodata(uint8_t bytes, FSTR_P prefix, uint8_t adr);
+    static void echodata(uint8_t bytes, FSTR_P const prefix, uint8_t adr, const uint8_t style=0);
 
     /**
      * @brief Echo data in the buffer to serial
@@ -160,7 +161,7 @@ class TWIBus {
      *
      * @param bytes the number of bytes to request
      */
-    void echobuffer(FSTR_P prefix, uint8_t adr);
+    void echobuffer(FSTR_P const prefix, uint8_t adr);
 
     /**
      * @brief Request data from the slave device and wait.
@@ -192,10 +193,11 @@ class TWIBus {
      * @brief Request data from the slave device, echo to serial.
      * @details Request a number of bytes from a slave device and output
      *          the returned data to serial in a parser-friendly format.
+     * @style Output format for the bytes, 0 = raw byte [default], 1 = Hex characters, 2 = uint16_t
      *
      * @param bytes the number of bytes to request
      */
-    void relay(const uint8_t bytes);
+    void relay(const uint8_t bytes, const uint8_t style=0);
 
     #if I2C_SLAVE_ADDRESS > 0
 
