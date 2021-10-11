@@ -2222,7 +2222,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           else if (!g_uc_extruder_last_move[N]) { \
             stepper.DISABLE_EXTRUDER(N); \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.DISABLE_EXTRUDER(1); \
+              stepper.ENABLE_EXTRUDER(1); \
           } \
         }while(0);
 
