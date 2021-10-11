@@ -2220,9 +2220,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
               stepper.ENABLE_EXTRUDER(1); \
           } \
           else if (!g_uc_extruder_last_move[N]) { \
-            stepper.DISABLE_EXTRUDER(N); \
-            if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.ENABLE_EXTRUDER(1); \
+            if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled) && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(duplication_e_mask, N))) \
+              stepper.ENABLE_EXTRUDER(N); \
+            else
+              stepper.DISABLE_EXTRUDER(N); \
           } \
         }while(0);
 
