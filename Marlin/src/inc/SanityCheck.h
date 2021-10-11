@@ -2751,6 +2751,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "(FMSC|SPI)TFT_LVGL_UI requires TFT_RES_480x320."
 #endif
 
+#if HAS_TFT_LVGL_UI && DISABLED(SDSUPPORT)
+  #error "(FMSC|SPI)TFT_LVGL_UI requires SDSUPPORT."
+#endif
+
+#if HAS_TFT_LVGL_UI && TEMP_SENSOR_BED == 0
+  #error "(FMSC|SPI)TFT_LVGL_UI requires a Heated bed."
+#endif
+
 #if defined(GRAPHICAL_TFT_UPSCALE) && !WITHIN(GRAPHICAL_TFT_UPSCALE, 2, 4)
   #error "GRAPHICAL_TFT_UPSCALE must be 2, 3, or 4."
 #endif
