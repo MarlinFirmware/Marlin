@@ -14,7 +14,6 @@
         "0x3748"
       ]
     ],
-    "ldscript": "stm32f401rc.ld",
     "mcu": "stm32f401rct6",
     "variant": "MARLIN_FYSETC_CHEETAH_V20"
   },
