@@ -1038,11 +1038,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     const uint8_t old_tool = active_extruder;
     const bool can_move_away = !no_move && !idex_full_control;
 
-    #if HAS_LEVELING
-      // Set current position to the physical position
-      TEMPORARY_BED_LEVELING_STATE(false);
-    #endif
-
     // First tool priming. To prime again, reboot the machine.
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
       static bool first_tool_is_primed = false;
