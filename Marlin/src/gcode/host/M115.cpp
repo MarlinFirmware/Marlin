@@ -164,6 +164,9 @@ void GcodeSuite::M115() {
     // MEATPACK Compression
     cap_line(PSTR("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
+    // EXTENDED_M20 (M20 L)
+    cap_line(PSTR("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
+
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
       const xyz_pos_t bmin = { 0, 0, 0 },
