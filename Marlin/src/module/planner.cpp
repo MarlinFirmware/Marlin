@@ -2211,18 +2211,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
           if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
 
         #define E_STEPPER_INDEX(E) TERN(SWITCHING_EXTRUDER, (E) / 2, E)
-        #define _IS_DUPE_0(N) TERN0(HAS_DUPLICATION_MODE, (N) == 0 && extruder_duplication_enabled)
+        #define _IS_DUPE_0(N) TERN0(HAS_DUPLICATION_MODE, (extruder_duplication_enabled && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(duplication_e_mask, N))))
 
         #define ENABLE_ONE_E(N) do{ \
-          if (E_STEPPER_INDEX(extruder) == N) { \
+          if (E_STEPPER_INDEX(extruder) == N || _IS_DUPE_0(N)) { \
             stepper.ENABLE_EXTRUDER(N); \
             g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
-            if (_IS_DUPE_0(N)) stepper.ENABLE_EXTRUDER(1); \
           } \
           else if (!g_uc_extruder_last_move[N]) { \
-            if (_IS_DUPE_0(N) && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(duplication_e_mask, 0))) \
-              stepper.ENABLE_EXTRUDER(0); \
-            else \
               stepper.DISABLE_EXTRUDER(N); \
           } \
         }while(0);
