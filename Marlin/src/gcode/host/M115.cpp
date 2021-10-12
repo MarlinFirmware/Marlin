@@ -143,6 +143,9 @@ void GcodeSuite::M115() {
     // LONG_FILENAME_HOST_SUPPORT (M33)
     cap_line(PSTR("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
+    // EXTENDED_M20 (M20 L)
+    cap_line(PSTR("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
+
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION"), ENABLED(THERMALLY_SAFE));
 
@@ -163,9 +166,6 @@ void GcodeSuite::M115() {
 
     // MEATPACK Compression
     cap_line(PSTR("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
-
-    // EXTENDED_M20 (M20 L)
-    cap_line(PSTR("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
