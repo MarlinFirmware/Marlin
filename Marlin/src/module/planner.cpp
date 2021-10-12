@@ -2207,6 +2207,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
+        // Count down all steppers that were recently moved
         LOOP_L_N(i, E_STEPPERS)
           if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
 
