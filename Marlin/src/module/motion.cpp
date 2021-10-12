@@ -1193,6 +1193,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         case DXC_MIRRORED_MODE:
         case DXC_DUPLICATION_MODE:
           if (active_extruder == 0) {
+            set_duplication_enabled(false); // Clear stale duplication state
             // Restore planner to parked head (T1) X position
             float x0_pos = current_position.x;
             xyze_pos_t pos_now = current_position;
