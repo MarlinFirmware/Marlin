@@ -81,11 +81,6 @@ enum pidresult_t : uint8_t {
   PID_DONE
 };
 
-// Picture ID
-#define Start_Process       0
-#define Language_English    1
-#define Language_Chinese    2
-
 #define DWIN_CHINESE 123
 #define DWIN_ENGLISH 0
 

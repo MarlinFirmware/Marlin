@@ -27,6 +27,7 @@
 #include "../ui_api.h"
 
 #include "../../../libs/numtostr.h"
+#include "../../../module/stepper.h" // for disable_all_steppers
 #include "../../../module/motion.h"  // for quickstop_stepper, A20 read printing speed, feedrate_percentage
 #include "../../../MarlinCore.h"     // for disable_steppers
 #include "../../../inc/MarlinConfig.h"
@@ -38,8 +39,8 @@
 #define SEND(x)           send(x)
 #define SENDLINE(x)       sendLine(x)
 #if ENABLED(ANYCUBIC_LCD_DEBUG)
-  #define SENDLINE_DBG_PGM(x,y)       (sendLine_P(PSTR(x)), SERIAL_ECHOLNPGM(y))
-  #define SENDLINE_DBG_PGM_VAL(x,y,z) (sendLine_P(PSTR(x)), SERIAL_ECHOPGM(y), SERIAL_ECHOLN(z))
+  #define SENDLINE_DBG_PGM(x,y)       do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y); }while(0)
+  #define SENDLINE_DBG_PGM_VAL(x,y,z) do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y, z); }while(0)
 #else
   #define SENDLINE_DBG_PGM(x,y)       sendLine_P(PSTR(x))
   #define SENDLINE_DBG_PGM_VAL(x,y,z) sendLine_P(PSTR(x))
@@ -738,7 +739,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
             if (!isPrinting()) {
               quickstop_stepper();
-              disable_all_steppers();
+              stepper.disable_all_steppers();
             }
 
             SENDLINE_PGM("");

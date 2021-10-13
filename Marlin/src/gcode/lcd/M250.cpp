@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_LCD_CONTRAST
@@ -31,7 +32,7 @@
  */
 void GcodeSuite::M250() {
   if (parser.seenval('C'))
-    ui.set_contrast(parser.value_int());
+    ui.set_contrast(parser.value_byte());
   else
     M250_report();
 }

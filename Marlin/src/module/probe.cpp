@@ -48,8 +48,17 @@
   #include "delta.h"
 #endif
 
-#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-  #include "planner.h"
+#if ANY(HAS_QUIET_PROBING, USE_SENSORLESS)
+  #include "stepper/indirection.h"
+  #if BOTH(HAS_QUIET_PROBING, PROBING_ESTEPPERS_OFF)
+    #include "stepper.h"
+  #endif
+  #if USE_SENSORLESS
+    #include "../feature/tmc_util.h"
+    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
+      #include "planner.h"
+    #endif
+  #endif
 #endif
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
@@ -66,15 +75,6 @@
 
 #if HAS_Z_SERVO_PROBE
   #include "servo.h"
-#endif
-
-#if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
-  #include "stepper.h"
-  #include "../feature/tmc_util.h"
-#endif
-
-#if HAS_QUIET_PROBING
-  #include "stepper/indirection.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -251,17 +251,17 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   void Probe::set_probing_paused(const bool dopause) {
     TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
-    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) disable_e_steppers());
+    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
     #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
       static uint8_t old_trusted;
       if (dopause) {
         old_trusted = axis_trusted;
-        DISABLE_AXIS_X();
-        DISABLE_AXIS_Y();
+        stepper.disable_axis(X_AXIS);
+        stepper.disable_axis(Y_AXIS);
       }
       else {
-        if (TEST(old_trusted, X_AXIS)) ENABLE_AXIS_X();
-        if (TEST(old_trusted, Y_AXIS)) ENABLE_AXIS_Y();
+        if (TEST(old_trusted, X_AXIS)) stepper.enable_axis(X_AXIS);
+        if (TEST(old_trusted, Y_AXIS)) stepper.enable_axis(Y_AXIS);
         axis_trusted = old_trusted;
       }
     #endif
@@ -818,7 +818,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
 #endif // HAS_Z_SERVO_PROBE
 
-#if EITHER(SENSORLESS_PROBING, SENSORLESS_HOMING)
+#if USE_SENSORLESS
 
   sensorless_t stealth_states { false };
 

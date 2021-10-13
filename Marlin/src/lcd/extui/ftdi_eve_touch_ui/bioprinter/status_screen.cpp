@@ -354,7 +354,7 @@ bool StatusScreen::onTouchHeld(uint8_t tag) {
   return false;
 }
 
-void StatusScreen::setStatusMessage(progmem_str pstr) {
+void StatusScreen::setStatusMessage(FSTR_P pstr) {
   BioPrintingDialogBox::setStatusMessage(pstr);
 }
 

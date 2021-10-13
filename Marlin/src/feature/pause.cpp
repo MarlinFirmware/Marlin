@@ -203,6 +203,16 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
 
     while (wait_for_user) {
       impatient_beep(max_beep_count);
+      #if BOTH(FILAMENT_CHANGE_RESUME_ON_INSERT, FILAMENT_RUNOUT_SENSOR)
+        #if ENABLED(MULTI_FILAMENT_SENSOR)
+          #define _CASE_INSERTED(N) case N-1: if (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) wait_for_user = false; break;
+          switch (active_extruder) {
+            REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_INSERTED)
+          }
+        #else
+          if (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE) wait_for_user = false;
+        #endif
+      #endif
       idle_no_sleep();
     }
   }
@@ -292,8 +302,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
  * send current back to their board, potentially frying it.
  */
 inline void disable_active_extruder() {
-  #if HAS_E_STEPPER_ENABLE
-    disable_e_stepper(active_extruder);
+  #if HAS_EXTRUDERS
+    stepper.DISABLE_EXTRUDER(active_extruder);
     safe_delay(100);
   #endif
 }
@@ -545,14 +555,12 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_REHEATDONE), CONTINUE_STR));
-
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_REHEATDONE)));
-
       TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status_P(GET_TEXT(MSG_REHEATDONE)));
 
-      wait_for_user = true;
-      nozzle_timed_out = false;
+      IF_DISABLED(PAUSE_REHEAT_FAST_RESUME, wait_for_user = true);
 
+      nozzle_timed_out = false;
       first_impatient_beep(max_beep_count);
     }
     idle_no_sleep();

@@ -41,7 +41,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-//#define STRING_DISTRIBUTION_DATE "2021-09-14"
+//#define STRING_DISTRIBUTION_DATE "2021-10-01"
 
 #define STRING_DISTRIBUTION_DATE __DATE__       // MRiscoC Set Automatic Distribution Date
 #define STRING_DISTRIBUTION_TIME __TIME__       // MRiscoC Set Automatic Distribution Time

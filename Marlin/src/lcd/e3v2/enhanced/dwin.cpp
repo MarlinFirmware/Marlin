@@ -267,7 +267,7 @@ typedef struct { uint16_t x, y[2], w, h; } text_info_t;
 
 void ICON_Button(const bool here, const int iconid, const frame_rect_t &ico, const text_info_t (&txt)[2]) {
   const bool cn = HMI_IsChinese();
-  DWIN_ICON_Show(1, 0, 0, ICON, iconid + here, ico.x, ico.y);
+  DWIN_ICON_Show(true, false, false, ICON, iconid + here, ico.x, ico.y);
   if (here) DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, ico.x, ico.y, ico.x + ico.w - 1, ico.y + ico.h - 1);
   DWIN_Frame_AreaCopy(1, txt[cn].x, txt[cn].y[here], txt[cn].x + txt[cn].w - 1, txt[cn].y[here] + txt[cn].h - 1, ico.x + (ico.w - txt[cn].w) / 2, (ico.y + ico.h - 28) - txt[cn].h/2);
 }
@@ -915,6 +915,10 @@ void HMI_SDCardInit() { card.cdroot(); }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
 
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() { DWIN_LCD_Brightness(backlight ? brightness : 0); }
+#endif
+
 #define ICON_Folder ICON_More
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
@@ -1192,7 +1196,7 @@ void HMI_MainMenu() {
 
       case PAGE_INFO_LEVELING:
         #if HAS_ONESTEP_LEVELING
-          queue.inject_P(PSTR("G28XYO\nG28Z\nG29"));
+          queue.inject_P(PSTR("G28XYO\nG28Z\nG29"));  // TODO: 'G29' should be homing when needed. Does it make sense for every LCD to do this differently?
         #else
           last_checkkey = MainMenu;
           Goto_InfoMenu();
@@ -1706,7 +1710,7 @@ void DWIN_MeshLevelingStart() {
   #endif
 }
 
-void DWIN_CompletedLeveling() { DWIN_MeshViewer(); }
+void DWIN_CompletedLeveling() { TERN_(HAS_MESH, DWIN_MeshViewer()); }
 
 #if HAS_MESH
   void DWIN_MeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {

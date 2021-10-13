@@ -112,7 +112,7 @@ inline void toggle_pins() {
     }
     SERIAL_EOL();
   }
-  SERIAL_ECHOLNPGM("Done.");
+  SERIAL_ECHOLNPGM(STR_DONE);
 
 } // toggle_pins
 

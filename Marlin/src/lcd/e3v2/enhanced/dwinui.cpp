@@ -5,7 +5,7 @@
  * Date: 2021/08/09
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as 
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -19,12 +19,12 @@
  *
  */
 
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "../../../inc/MarlinConfig.h"
-#include "../../../core/macros.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
 
@@ -286,7 +286,7 @@ uint16_t DWINUI::RainbowInt(int16_t val, int16_t minv, int16_t maxv) {
 //  x/y: Upper-left point
 //  mode : 0 : unchecked, 1 : checked
 void DWINUI::Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool checked=false) {
-  DWIN_Draw_String(false, true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
+  DWIN_Draw_String(true, font8x16, color, bcolor, x + 4, y, checked ? F("x") : F(" "));
   DWIN_Draw_Rectangle(0, color, x + 2, y + 2, x + 17, y + 17);
 }
 

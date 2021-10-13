@@ -48,6 +48,7 @@ void lcd_sd_updir() {
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
     defer_status_screen();
+    TERN_(HAS_TOUCH_SLEEP, ui.wakeup_screen());
   }
 
 #endif

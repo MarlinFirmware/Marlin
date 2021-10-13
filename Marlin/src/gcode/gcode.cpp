@@ -74,7 +74,7 @@ millis_t GcodeSuite::previous_move_ms = 0,
 
 // Relative motion mode for each logical axis
 static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
-uint8_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
+axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
   | (ar_init.e << REL_E),
   | (ar_init.x << REL_X),
   | (ar_init.y << REL_Y),
@@ -717,6 +717,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if ENABLED(EDITABLE_SERVO_ANGLES)
           case 281: M281(); break;                                // M281: Set servo angles
         #endif
+        #if ENABLED(SERVO_DETACH_GCODE)
+          case 282: M282(); break;                                // M282: Detach servo
+        #endif
       #endif
 
       #if ENABLED(BABYSTEPPING)
@@ -882,8 +885,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 605: M605(); break;                                  // M605: Set Dual X Carriage movement mode
       #endif
 
-      #if ENABLED(DELTA)
-        case 665: M665(); break;                                  // M665: Set delta configurations
+      #if IS_KINEMATIC
+        case 665: M665(); break;                                  // M665: Set Delta/SCARA parameters
       #endif
 
       #if ENABLED(DELTA) || HAS_EXTRA_ENDSTOPS

@@ -192,6 +192,7 @@
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
  * M281 - Set servo min|max position: "M281 P<index> L<min> U<max>". (Requires EDITABLE_SERVO_ANGLES)
+ * M282 - Detach servo: "M282 P<index>". (Requires SERVO_DETACH_GCODE)
  * M290 - Babystepping (Requires BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
@@ -243,6 +244,7 @@
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
+ *        Set SCARA configurations: "M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset> (Requires MORGAN_SCARA or MP_SCARA)
  * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
@@ -325,7 +327,7 @@ extern const char G28_STR[];
 class GcodeSuite {
 public:
 
-  static uint8_t axis_relative;
+  static axis_bits_t axis_relative;
 
   static inline bool axis_is_relative(const AxisEnum a) {
     #if HAS_EXTRUDERS
@@ -862,6 +864,9 @@ private:
       static void M281();
       static void M281_report(const bool forReplay=true);
     #endif
+    #if ENABLED(SERVO_DETACH_GCODE)
+      static void M282();
+    #endif
   #endif
 
   #if ENABLED(BABYSTEPPING)
@@ -874,7 +879,7 @@ private:
 
   #if ENABLED(PIDTEMP)
     static void M301();
-    static void M301_report(const bool forReplay=true, const int8_t eindex=-1);
+    static void M301_report(const bool forReplay=true E_OPTARG(const int8_t eindex=-1));
   #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)

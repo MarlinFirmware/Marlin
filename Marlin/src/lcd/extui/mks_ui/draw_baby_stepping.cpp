@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -54,7 +55,7 @@ enum {
   ID_BABY_STEP_RETURN
 };
 
-static float babystep_dist=0.01;
+static float babystep_dist  = 0.01;
 static uint8_t has_adjust_z = 0;
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
@@ -123,9 +124,8 @@ void lv_draw_baby_stepping() {
   buttonV = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_BABY_STEP_DIST);
   labelV = lv_label_create_empty(buttonV);
   #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) {
+    if (gCfgItems.encoder_enable)
       lv_group_add_obj(g, buttonV);
-    }
   #endif
 
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_RETURN);

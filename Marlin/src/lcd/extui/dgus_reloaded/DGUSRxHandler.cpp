@@ -33,6 +33,7 @@
 #include "../../../core/language.h"
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
+#include "../../../module/stepper.h"
 #include "../../../gcode/queue.h"
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../../feature/pause.h"
@@ -229,13 +230,9 @@ void DGUSRxHandler::Flowrate(DGUS_VP &vp, void *data_ptr) {
   switch (vp.addr) {
     default: return;
     case DGUS_Addr::ADJUST_SetFlowrate_CUR:
-      #if EXTRUDERS > 1
-        ExtUI::setFlow_percent(flowrate, ExtUI::getActiveTool());
-      #else
-        ExtUI::setFlow_percent(flowrate, ExtUI::E0);
-      #endif
+      ExtUI::setFlow_percent(flowrate, TERN(HAS_MULTI_EXTRUDER, ExtUI::getActiveTool(), ExtUI::E0));
       break;
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       case DGUS_Addr::ADJUST_SetFlowrate_E0:
         ExtUI::setFlow_percent(flowrate, ExtUI::E0);
         break;
@@ -379,10 +376,10 @@ void DGUSRxHandler::Steppers(DGUS_VP &vp, void *data_ptr) {
 
   switch (control) {
     case DGUS_Data::Control::ENABLE:
-      enable_all_steppers();
+      stepper.enable_all_steppers();
       break;
     case DGUS_Data::Control::DISABLE:
-      disable_all_steppers();
+      stepper.disable_all_steppers();
       break;
   }
 
@@ -557,9 +554,7 @@ void DGUSRxHandler::FilamentSelect(DGUS_VP &vp, void *data_ptr) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
     case DGUS_Data::Extruder::E0:
-    #if EXTRUDERS > 1
-      case DGUS_Data::Extruder::E1:
-    #endif
+    E_TERN_(case DGUS_Data::Extruder::E1:)
       dgus_screen_handler.filament_extruder = extruder;
       break;
   }
@@ -590,14 +585,14 @@ void DGUSRxHandler::FilamentMove(DGUS_VP &vp, void *data_ptr) {
   switch (dgus_screen_handler.filament_extruder) {
     default: return;
     case DGUS_Data::Extruder::CURRENT:
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         extruder = ExtUI::getActiveTool();
         break;
       #endif
     case DGUS_Data::Extruder::E0:
       extruder = ExtUI::E0;
       break;
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       case DGUS_Data::Extruder::E1:
         extruder = ExtUI::E1;
         break;

@@ -39,18 +39,18 @@ class WifiSerial {
 
     /* Set up/tear down */
     void begin(uint32 baud);
-    void begin(uint32 baud,uint8_t config);
+    void begin(uint32 baud, uint8_t config);
     void end();
     int available();
     int read();
     int write(uint8_t);
     inline void wifi_usart_irq(usart_reg_map *regs) {
       /* Handling RXNEIE and TXEIE interrupts.
-      * RXNE signifies availability of a byte in DR.
-      *
-      * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
-      * We enable RXNEIE.
-      */
+       * RXNE signifies availability of a byte in DR.
+       *
+       * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
+       * We enable RXNEIE.
+       */
       if ((regs->CR1 & USART_CR1_RXNEIE) && (regs->SR & USART_SR_RXNE)) {
         #ifdef USART_SAFE_INSERT
           /* If the buffer is full and the user defines USART_SAFE_INSERT,
@@ -63,15 +63,15 @@ class WifiSerial {
       }
       /* TXE signifies readiness to send a byte to DR. */
       if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
-          if (!rb_is_empty(this->usart_device->wb))
-              regs->DR=rb_remove(this->usart_device->wb);
-          else
-              regs->CR1 &= ~((uint32)USART_CR1_TXEIE); // disable TXEIE
+        if (!rb_is_empty(this->usart_device->wb))
+          regs->DR = rb_remove(this->usart_device->wb);
+        else
+          regs->CR1 &= ~((uint32)USART_CR1_TXEIE);         // disable TXEIE
       }
     }
     int wifi_rb_is_full();
     struct usart_dev *usart_device;
-    private:
+  private:
     uint8 tx_pin;
     uint8 rx_pin;
 };
