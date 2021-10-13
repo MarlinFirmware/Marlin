@@ -43,9 +43,11 @@ uint8_t read_byte(uint8_t *byte) { return *byte; }
 /**
  * Add a string, applying substitutions for the following characters:
  *
+ *   $ displays the clipped C-string given by the itemString argument
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 void DWIN_String::add(uint8_t *string, const int8_t index, uint8_t *itemString/*=nullptr*/) {
   wchar_t wchar;
@@ -62,17 +64,15 @@ void DWIN_String::add(uint8_t *string, const int8_t index, uint8_t *itemString/*
         if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
         add_character('0' + inum);
       }
-      else {
+      else
         add(index == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED));
-      }
-      continue;
     }
-    else if (ch == '$' && itemString) {
+    else if (ch == '$' && itemString)
       add(itemString);
-      continue;
-    }
-
-    add_character(ch);
+    else if (ch == '@')
+      add_character(axis_codes[index]);
+    else
+      add_character(ch);
   }
   eol();
 }

@@ -124,11 +124,10 @@ uint8_t Max7219::suspended; // = 0;
   #define SIG_DELAY() DELAY_NS(250)
 #endif
 
-void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/*=-1*/) {
+void Max7219::error(FSTR_P const func, const int32_t v1, const int32_t v2/*=-1*/) {
   #if ENABLED(MAX7219_ERRORS)
     SERIAL_ECHOPGM("??? Max7219::");
-    SERIAL_ECHOPGM_P(func);
-    SERIAL_CHAR('(');
+    SERIAL_ECHOF(func, AS_CHAR('('));
     SERIAL_ECHO(v1);
     if (v2 > 0) SERIAL_ECHOPGM(", ", v2);
     SERIAL_CHAR(')');
@@ -268,24 +267,24 @@ void Max7219::set(const uint8_t line, const uint8_t bits) {
 
 // Modify a single LED bit and send the changed line
 void Max7219::led_set(const uint8_t x, const uint8_t y, const bool on) {
-  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(PSTR("led_set"), x, y);
+  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_set"), x, y);
   if (BIT_7219(x, y) == on) return;
   XOR_7219(x, y);
   refresh_unit_line(LED_IND(x, y));
 }
 
 void Max7219::led_on(const uint8_t x, const uint8_t y) {
-  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(PSTR("led_on"), x, y);
+  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_on"), x, y);
   led_set(x, y, true);
 }
 
 void Max7219::led_off(const uint8_t x, const uint8_t y) {
-  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(PSTR("led_off"), x, y);
+  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_off"), x, y);
   led_set(x, y, false);
 }
 
 void Max7219::led_toggle(const uint8_t x, const uint8_t y) {
-  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(PSTR("led_toggle"), x, y);
+  if (x >= MAX7219_X_LEDS || y >= MAX7219_Y_LEDS) return error(F("led_toggle"), x, y);
   led_set(x, y, !BIT_7219(x, y));
 }
 
@@ -328,13 +327,13 @@ void Max7219::fill() {
 }
 
 void Max7219::clear_row(const uint8_t row) {
-  if (row >= MAX7219_Y_LEDS) return error(PSTR("clear_row"), row);
+  if (row >= MAX7219_Y_LEDS) return error(F("clear_row"), row);
   LOOP_L_N(x, MAX7219_X_LEDS) CLR_7219(x, row);
   send_row(row);
 }
 
 void Max7219::clear_column(const uint8_t col) {
-  if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
+  if (col >= MAX7219_X_LEDS) return error(F("set_column"), col);
   LOOP_L_N(y, MAX7219_Y_LEDS) CLR_7219(col, y);
   send_column(col);
 }
@@ -345,7 +344,7 @@ void Max7219::clear_column(const uint8_t col) {
  * once with a single call to the function (if rotated 90° or 270°).
  */
 void Max7219::set_row(const uint8_t row, const uint32_t val) {
-  if (row >= MAX7219_Y_LEDS) return error(PSTR("set_row"), row);
+  if (row >= MAX7219_Y_LEDS) return error(F("set_row"), row);
   uint32_t mask = _BV32(MAX7219_X_LEDS - 1);
   LOOP_L_N(x, MAX7219_X_LEDS) {
     if (val & mask) SET_7219(x, row); else CLR_7219(x, row);
@@ -360,7 +359,7 @@ void Max7219::set_row(const uint8_t row, const uint32_t val) {
  * once with a single call to the function (if rotated 0° or 180°).
  */
 void Max7219::set_column(const uint8_t col, const uint32_t val) {
-  if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
+  if (col >= MAX7219_X_LEDS) return error(F("set_column"), col);
   uint32_t mask = _BV32(MAX7219_Y_LEDS - 1);
   LOOP_L_N(y, MAX7219_Y_LEDS) {
     if (val & mask) SET_7219(col, y); else CLR_7219(col, y);
@@ -371,56 +370,56 @@ void Max7219::set_column(const uint8_t col, const uint32_t val) {
 
 void Max7219::set_rows_16bits(const uint8_t y, uint32_t val) {
   #if MAX7219_X_LEDS == 8
-    if (y > MAX7219_Y_LEDS - 2) return error(PSTR("set_rows_16bits"), y, val);
+    if (y > MAX7219_Y_LEDS - 2) return error(F("set_rows_16bits"), y, val);
     set_row(y + 1, val); val >>= 8;
     set_row(y + 0, val);
   #else // at least 16 bits on each row
-    if (y > MAX7219_Y_LEDS - 1) return error(PSTR("set_rows_16bits"), y, val);
+    if (y > MAX7219_Y_LEDS - 1) return error(F("set_rows_16bits"), y, val);
     set_row(y, val);
   #endif
 }
 
 void Max7219::set_rows_32bits(const uint8_t y, uint32_t val) {
   #if MAX7219_X_LEDS == 8
-    if (y > MAX7219_Y_LEDS - 4) return error(PSTR("set_rows_32bits"), y, val);
+    if (y > MAX7219_Y_LEDS - 4) return error(F("set_rows_32bits"), y, val);
     set_row(y + 3, val); val >>= 8;
     set_row(y + 2, val); val >>= 8;
     set_row(y + 1, val); val >>= 8;
     set_row(y + 0, val);
   #elif MAX7219_X_LEDS == 16
-    if (y > MAX7219_Y_LEDS - 2) return error(PSTR("set_rows_32bits"), y, val);
+    if (y > MAX7219_Y_LEDS - 2) return error(F("set_rows_32bits"), y, val);
     set_row(y + 1, val); val >>= 16;
     set_row(y + 0, val);
   #else // at least 24 bits on each row.  In the 3 matrix case, just display the low 24 bits
-    if (y > MAX7219_Y_LEDS - 1) return error(PSTR("set_rows_32bits"), y, val);
+    if (y > MAX7219_Y_LEDS - 1) return error(F("set_rows_32bits"), y, val);
     set_row(y, val);
   #endif
 }
 
 void Max7219::set_columns_16bits(const uint8_t x, uint32_t val) {
   #if MAX7219_Y_LEDS == 8
-    if (x > MAX7219_X_LEDS - 2) return error(PSTR("set_columns_16bits"), x, val);
+    if (x > MAX7219_X_LEDS - 2) return error(F("set_columns_16bits"), x, val);
     set_column(x + 0, val); val >>= 8;
     set_column(x + 1, val);
   #else // at least 16 bits in each column
-    if (x > MAX7219_X_LEDS - 1) return error(PSTR("set_columns_16bits"), x, val);
+    if (x > MAX7219_X_LEDS - 1) return error(F("set_columns_16bits"), x, val);
     set_column(x, val);
   #endif
 }
 
 void Max7219::set_columns_32bits(const uint8_t x, uint32_t val) {
   #if MAX7219_Y_LEDS == 8
-    if (x > MAX7219_X_LEDS - 4) return error(PSTR("set_rows_32bits"), x, val);
+    if (x > MAX7219_X_LEDS - 4) return error(F("set_rows_32bits"), x, val);
     set_column(x + 3, val); val >>= 8;
     set_column(x + 2, val); val >>= 8;
     set_column(x + 1, val); val >>= 8;
     set_column(x + 0, val);
   #elif MAX7219_Y_LEDS == 16
-    if (x > MAX7219_X_LEDS - 2) return error(PSTR("set_rows_32bits"), x, val);
+    if (x > MAX7219_X_LEDS - 2) return error(F("set_rows_32bits"), x, val);
     set_column(x + 1, val); val >>= 16;
     set_column(x + 0, val);
   #else // at least 24 bits on each row.  In the 3 matrix case, just display the low 24 bits
-    if (x > MAX7219_X_LEDS - 1) return error(PSTR("set_rows_32bits"), x, val);
+    if (x > MAX7219_X_LEDS - 1) return error(F("set_rows_32bits"), x, val);
     set_column(x, val);
   #endif
 }

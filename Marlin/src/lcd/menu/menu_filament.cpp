@@ -209,7 +209,7 @@ void menu_change_filament() {
   #else
 
     if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-      queue.inject_P(PSTR("M600B0"));
+      queue.inject(F("M600B0"));
     else
       ui.goto_screen([]{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
 

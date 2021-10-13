@@ -51,12 +51,9 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #ifndef SD_SS_PIN
-    #error "SD_SS_PIN is not defined!"
+  #if PIN_EXISTS(SD_SS)
+    OUT_WRITE(SD_SS_PIN, HIGH);
   #endif
-
-  OUT_WRITE(SD_SS_PIN, HIGH);
-
   //SET_OUTPUT(SD_SCK_PIN);
   //SET_INPUT(SD_MISO_PIN);
   //SET_OUTPUT(SD_MOSI_PIN);

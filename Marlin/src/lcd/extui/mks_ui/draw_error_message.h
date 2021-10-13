@@ -29,7 +29,7 @@
   #define PGM_P const char *
 #endif
 
-void lv_draw_error_message(PGM_P const msg);
+void lv_draw_error_message(FSTR_P const fmsg);
 void lv_clear_error_message();
 
 #ifdef __cplusplus

@@ -83,7 +83,7 @@ void _lcd_mesh_fine_tune(PGM_P const msg) {
   if (ui.should_draw()) {
     const float rounded_f = rounded_mesh_value();
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(rounded_f));
-    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(rounded_f));
+    TERN_(MESH_EDIT_GFX_OVERLAY, ui.zoffset_overlay(rounded_f));
     TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }

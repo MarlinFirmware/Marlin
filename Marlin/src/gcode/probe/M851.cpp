@@ -84,7 +84,7 @@ void GcodeSuite::M851() {
 }
 
 void GcodeSuite::M851_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_Z_PROBE_OFFSET));
+  report_heading_etc(forReplay, F(STR_Z_PROBE_OFFSET));
   SERIAL_ECHOPGM_P(
     #if HAS_PROBE_XY_OFFSET
       PSTR("  M851 X"), LINEAR_UNIT(probe.offset_xy.x),

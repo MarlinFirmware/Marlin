@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../HAL/shared/Marduino.h"
 
-void host_action(PGM_P const pstr, const bool eol=true);
+void host_action(FSTR_P const fstr, const bool eol=true);
 
 #ifdef ACTION_ON_KILL
   void host_action_kill();
@@ -64,16 +64,16 @@ void host_action(PGM_P const pstr, const bool eol=true);
   extern PromptReason host_prompt_reason;
 
   void host_response_handler(const uint8_t response);
-  void host_action_notify(const char * const message);
-  void host_action_notify_P(PGM_P const message);
-  void host_action_prompt_begin(const PromptReason reason, PGM_P const pstr, const char extra_char='\0');
-  void host_action_prompt_button(PGM_P const pstr);
+  void host_action_notify(const char * const cstr);
+  void host_action_notify(FSTR_P const fstr);
+  void host_action_prompt_begin(const PromptReason reason, FSTR_P const fstr, const char extra_char='\0');
+  void host_action_prompt_button(FSTR_P const fstr);
   void host_action_prompt_end();
   void host_action_prompt_show();
-  void host_prompt_do(const PromptReason reason, PGM_P const pstr, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr);
-  void host_prompt_do(const PromptReason reason, PGM_P const pstr, const char extra_char, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr);
-  inline void host_prompt_open(const PromptReason reason, PGM_P const pstr, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr) {
-    if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, pstr, btn1, btn2);
+  void host_prompt_do(const PromptReason reason, FSTR_P const fstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
+  void host_prompt_do(const PromptReason reason, FSTR_P const fstr, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
+  inline void host_prompt_open(const PromptReason reason, FSTR_P const fstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr) {
+    if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, fstr, btn1, btn2);
   }
 
   void filament_load_host_prompt();

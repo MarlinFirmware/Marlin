@@ -123,9 +123,8 @@ namespace Language_tr {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Kopyala");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Yansıtılmış kopya");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Tam Kontrol");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2. nozul X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2. nozul Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. nozul Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. nozul @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 Çalışıyor");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Araçları");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("UBL Yatak Hizalama");

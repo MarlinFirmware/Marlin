@@ -656,7 +656,7 @@ void unified_bed_leveling::G29() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
     if (probe_deployed) {
       planner.synchronize();
-      gcode.process_subcommands_now_P(PSTR(Z_PROBE_END_SCRIPT));
+      gcode.process_subcommands_now(F(Z_PROBE_END_SCRIPT));
     }
   #else
     UNUSED(probe_deployed);
@@ -736,7 +736,7 @@ void unified_bed_leveling::shift_mesh_height() {
 
       const uint8_t point_num = (GRID_MAX_POINTS - count) + 1;
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
-      TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
+      TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
 
       #if HAS_LCD_MENU
         if (ui.button_pressed()) {
@@ -789,12 +789,12 @@ void unified_bed_leveling::shift_mesh_height() {
 
 #endif // HAS_BED_PROBE
 
-void set_message_with_feedback(PGM_P const msg_P) {
+void set_message_with_feedback(FSTR_P const fstr) {
   #if HAS_LCD_MENU
-    ui.set_status_P(msg_P);
+    ui.set_status(fstr);
     ui.quick_feedback();
   #else
-    UNUSED(msg_P);
+    UNUSED(fstr);
   #endif
 }
 
@@ -850,7 +850,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
     planner.synchronize();
 
     SERIAL_ECHOPGM("Place shim under nozzle");
-    LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
+    LCD_MESSAGE(MSG_UBL_BC_INSERT);
     ui.return_to_status();
     echo_and_take_a_measurement();
 
@@ -859,7 +859,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
     planner.synchronize();
 
     SERIAL_ECHOPGM("Remove shim");
-    LCD_MESSAGEPGM(MSG_UBL_BC_REMOVE);
+    LCD_MESSAGE(MSG_UBL_BC_REMOVE);
     echo_and_take_a_measurement();
 
     const float z2 = measure_point_with_encoder();
@@ -905,7 +905,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
 
       if (!position_is_reachable(ppos)) break; // SHOULD NOT OCCUR (find_closest_mesh_point only returns reachable points)
 
-      LCD_MESSAGEPGM(MSG_UBL_MOVING_TO_NEXT);
+      LCD_MESSAGE(MSG_UBL_MOVING_TO_NEXT);
 
       do_blocking_move_to(ppos);
       do_z_clearance(z_clearance);
@@ -917,11 +917,11 @@ void set_message_with_feedback(PGM_P const msg_P) {
 
       if (parser.seen_test('B')) {
         SERIAL_ECHOPGM("Place Shim & Measure");
-        LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
+        LCD_MESSAGE(MSG_UBL_BC_INSERT);
       }
       else {
         SERIAL_ECHOPGM("Measure");
-        LCD_MESSAGEPGM(MSG_UBL_BC_INSERT2);
+        LCD_MESSAGE(MSG_UBL_BC_INSERT2);
       }
 
       const float z_step = 0.01f;                         // 0.01mm per encoder tick, occasionally step
@@ -974,7 +974,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
 
     save_ubl_active_state_and_disable();
 
-    LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
+    LCD_MESSAGE(MSG_UBL_FINE_TUNE_MESH);
     ui.capture();                                               // Take over control of the LCD encoder
 
     do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);  // Move to the given XY with probe clearance
@@ -1039,7 +1039,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
       if (_click_and_hold([]{
         ui.return_to_status();
         do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
-        set_message_with_feedback(GET_TEXT(MSG_EDITING_STOPPED));
+        set_message_with_feedback(GET_TEXT_F(MSG_EDITING_STOPPED));
       })) break;
 
       // TODO: Disable leveling here so the Z value becomes the 'native' Z value.
@@ -1060,7 +1060,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
 
     do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);
 
-    LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
+    LCD_MESSAGE(MSG_UBL_DONE_EDITING_MESH);
     SERIAL_ECHOLNPGM("Done Editing Mesh");
 
     if (lcd_map_control)
@@ -1077,7 +1077,7 @@ void set_message_with_feedback(PGM_P const msg_P) {
 bool unified_bed_leveling::G29_parse_parameters() {
   bool err_flag = false;
 
-  set_message_with_feedback(GET_TEXT(MSG_UBL_DOING_G29));
+  set_message_with_feedback(GET_TEXT_F(MSG_UBL_DOING_G29));
 
   param.C_constant = 0;
   param.R_repetition = 0;
@@ -1200,7 +1200,7 @@ void unified_bed_leveling::save_ubl_active_state_and_disable() {
     ubl_state_recursion_chk++;
     if (ubl_state_recursion_chk != 1) {
       SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
-      set_message_with_feedback(GET_TEXT(MSG_UBL_SAVE_ERROR));
+      set_message_with_feedback(GET_TEXT_F(MSG_UBL_SAVE_ERROR));
       return;
     }
   #endif
@@ -1213,7 +1213,7 @@ void unified_bed_leveling::restore_ubl_active_state_and_leave() {
   #if ENABLED(UBL_DEVEL_DEBUGGING)
     if (--ubl_state_recursion_chk) {
       SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
-      set_message_with_feedback(GET_TEXT(MSG_UBL_RESTORE_ERROR));
+      set_message_with_feedback(GET_TEXT_F(MSG_UBL_RESTORE_ERROR));
       return;
     }
   #endif
@@ -1438,7 +1438,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
     if (do_3_pt_leveling) {
       SERIAL_ECHOLNPGM("Tilting mesh (1/3)");
-      TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " 1/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
+      TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 1/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
 
       measured_z = probe.probe_at_point(points[0], PROBE_PT_RAISE, param.V_verbosity);
       if (isnan(measured_z))
@@ -1457,7 +1457,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       if (!abort_flag) {
         SERIAL_ECHOLNPGM("Tilting mesh (2/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " 2/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 2/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
 
         measured_z = probe.probe_at_point(points[1], PROBE_PT_RAISE, param.V_verbosity);
         #ifdef VALIDATE_MESH_TILT
@@ -1477,7 +1477,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
       if (!abort_flag) {
         SERIAL_ECHOLNPGM("Tilting mesh (3/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " 3/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " 3/3"), GET_TEXT(MSG_LCD_TILTING_MESH)));
 
         measured_z = probe.probe_at_point(points[2], PROBE_PT_LAST_STOW, param.V_verbosity);
         #ifdef VALIDATE_MESH_TILT
@@ -1518,7 +1518,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 
           if (!abort_flag) {
             SERIAL_ECHOLNPGM("Tilting mesh point ", point_num, "/", total_points, "\n");
-            TERN_(HAS_STATUS_MESSAGE, ui.status_printf_P(0, PSTR(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
+            TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
 
             measured_z = probe.probe_at_point(rpos, parser.seen_test('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity); // TODO: Needs error handling
 
@@ -1609,7 +1609,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
 
     if (DEBUGGING(LEVELING)) {
-      rotation.debug(PSTR("rotation matrix:\n"));
+      rotation.debug(F("rotation matrix:\n"));
       DEBUG_ECHOPAIR_F("LSF Results A=", lsf_results.A, 7);
       DEBUG_ECHOPAIR_F("  B=", lsf_results.B, 7);
       DEBUG_ECHOLNPAIR_F("  D=", lsf_results.D, 7);
@@ -1636,14 +1636,14 @@ void unified_bed_leveling::smart_fill_mesh() {
         auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
-        auto debug_pt = [](PGM_P const pre, const xy_pos_t &pos, const_float_t zadd) {
-          d_from(); SERIAL_ECHOPGM_P(pre);
+        auto debug_pt = [](FSTR_P const pre, const xy_pos_t &pos, const_float_t zadd) {
+          d_from(); SERIAL_ECHOF(pre);
           DEBUG_ECHO_F(normed(pos, zadd), 6);
           DEBUG_ECHOLNPAIR_F("   Z error = ", zadd - get_z_correction(pos), 6);
         };
-        debug_pt(PSTR("1st point: "), probe_pt[0], normal.z * z1);
-        debug_pt(PSTR("2nd point: "), probe_pt[1], normal.z * z2);
-        debug_pt(PSTR("3rd point: "), probe_pt[2], normal.z * z3);
+        debug_pt(F("1st point: "), probe_pt[0], normal.z * z1);
+        debug_pt(F("2nd point: "), probe_pt[1], normal.z * z2);
+        debug_pt(F("3rd point: "), probe_pt[2], normal.z * z3);
         d_from(); DEBUG_ECHOPGM("safe home with Z=");
         DEBUG_ECHOLNPAIR_F("0 : ", normed(safe_homing_xy, 0), 6);
         d_from(); DEBUG_ECHOPGM("safe home with Z=");
