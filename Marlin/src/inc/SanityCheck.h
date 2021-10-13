@@ -3436,10 +3436,6 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #endif
 #endif
 
-#if BOTH(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
-  #error "You cannot use Z_STEPPER_AUTO_ALIGN and MECHANICAL_GANTRY_CALIBRATION at the same time."
-#endif
-
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
   #error "PRINTCOUNTER requires EEPROM_SETTINGS."
 #endif

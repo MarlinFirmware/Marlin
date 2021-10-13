@@ -100,9 +100,15 @@
   #define E1_CS_PIN                           44
 #endif
 
-#define E2_STEP_PIN                           42
-#define E2_DIR_PIN                            43
-#define E2_ENABLE_PIN                         44
+#if HAS_X2_STEPPER
+  #define X2_STEP_PIN                         42
+  #define X2_DIR_PIN                          43
+  #define X2_ENABLE_PIN                       44
+#else
+  #define E2_STEP_PIN                         42
+  #define E2_DIR_PIN                          43
+  #define E2_ENABLE_PIN                       44
+#endif
 
 //
 // Temperature Sensors
@@ -173,4 +179,10 @@
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                        37
   #endif
+#endif
+
+#if HAS_MARLINUI_U8GLIB
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               125
+  #define BOARD_ST7920_DELAY_3               125
 #endif
