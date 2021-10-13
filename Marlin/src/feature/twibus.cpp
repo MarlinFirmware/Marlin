@@ -28,11 +28,17 @@
 
 #include <Wire.h>
 
+#include "../libs/hex_print.h"
+
 TWIBus i2c;
 
 TWIBus::TWIBus() {
   #if I2C_SLAVE_ADDRESS == 0
-    Wire.begin();                  // No address joins the BUS as the master
+    Wire.begin(                    // No address joins the BUS as the master
+      #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+        pin_t(I2C_SDA_PIN), pin_t(I2C_SCL_PIN)
+      #endif
+    );
   #else
     Wire.begin(I2C_SLAVE_ADDRESS); // Join the bus as a slave
   #endif
@@ -88,14 +94,53 @@ void TWIBus::echoprefix(uint8_t bytes, FSTR_P const pref, uint8_t adr) {
 }
 
 // static
-void TWIBus::echodata(uint8_t bytes, FSTR_P const pref, uint8_t adr) {
-  echoprefix(bytes, pref, adr);
-  while (bytes-- && Wire.available()) SERIAL_CHAR(Wire.read());
+void TWIBus::echodata(uint8_t bytes, FSTR_P const pref, uint8_t adr, const uint8_t style/*=0*/) {
+  union TwoBytesToInt16 { uint8_t bytes[2]; int16_t integervalue; };
+  TwoBytesToInt16 ConversionUnion;
+
+  echoprefix(bytes, pref, adr);  
+
+  while (bytes-- && Wire.available()) {
+    int value = Wire.read();
+    switch (style) {
+
+      // Style 1, HEX DUMP
+      case 1:
+        SERIAL_CHAR(hex_nybble((value & 0xF0) >> 4));
+        SERIAL_CHAR(hex_nybble(value & 0x0F));
+        if (bytes) SERIAL_CHAR(' ');
+        break;
+
+      // Style 2, signed two byte integer (int16)
+      case 2:
+        if (bytes == 1)
+          ConversionUnion.bytes[1] = (uint8_t)value;
+        else if (bytes == 0) {
+          ConversionUnion.bytes[0] = (uint8_t)value;
+          // Output value in base 10 (standard decimal)
+          SERIAL_ECHO(ConversionUnion.integervalue);
+        }
+        break;
+
+      // Style 3, unsigned byte, base 10 (uint8)
+      case 3:
+        SERIAL_ECHO(value);
+        if (bytes) SERIAL_CHAR(' ');
+        break;
+
+      // Default style (zero), raw serial output
+      default:
+        // This can cause issues with some serial consoles, Pronterface is an example where things go wrong
+        SERIAL_CHAR(value);
+        break;
+    }
+  }
+
   SERIAL_EOL();
 }
 
-void TWIBus::echobuffer(FSTR_P const pref, uint8_t adr) {
-  echoprefix(buffer_s, pref, adr);
+void TWIBus::echobuffer(FSTR_P const prefix, uint8_t adr) {
+  echoprefix(buffer_s, prefix, adr);
   LOOP_L_N(i, buffer_s) SERIAL_CHAR(buffer[i]);
   SERIAL_EOL();
 }
@@ -114,11 +159,11 @@ bool TWIBus::request(const uint8_t bytes) {
   return true;
 }
 
-void TWIBus::relay(const uint8_t bytes) {
+void TWIBus::relay(const uint8_t bytes, const uint8_t style/*=0*/) {
   debug(F("relay"), bytes);
 
   if (request(bytes))
-    echodata(bytes, F("i2c-reply"), addr);
+    echodata(bytes, F("i2c-reply"), addr, style);
 }
 
 uint8_t TWIBus::capture(char *dst, const uint8_t bytes) {
