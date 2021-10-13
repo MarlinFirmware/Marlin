@@ -52,7 +52,7 @@ bool  StatusScreen::jog_xy;
 bool  StatusScreen::fine_motion;
 
 void StatusScreen::unlockMotors() {
-  injectCommands_P(PSTR("M84 XY"));
+  injectCommands(F("M84 XY"));
   jog_xy = false;
 }
 
@@ -305,7 +305,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 12:
       if (!jog_xy) {
         jog_xy = true;
-        injectCommands_P(PSTR("M17"));
+        injectCommands(F("M17"));
       }
       jog({ 0, 0, 0 });
       break;

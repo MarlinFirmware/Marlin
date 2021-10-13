@@ -459,3 +459,8 @@
 #if IS_LEGACY_TFT
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
+
+// Ender 3 Pro (but, apparently all Creality 4.2.2 boards)
+#if ENABLED(EMIT_CREALITY_422_WARNING) || MB(CREALITY_V4)
+  #warning "Creality 4.2.2 boards may have A4988 or TMC2208_STANDALONE drivers. Check your board and make sure to select the correct DRIVER_TYPE!"
+#endif
