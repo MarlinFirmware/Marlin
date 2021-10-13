@@ -27,10 +27,11 @@
 #include "../common/dwin_color.h"
 
 // ICON ID
-#ifdef USE_UNIFIED_DWIN_SET
-  #define ICON                  0x07  // Use 7.ICO from unified DWIN_SET
-#else
-  #define ICON                  0x09  // Default 9.ICO icon library
+#ifndef USE_UNIFIED_DWIN_SET            // Official Marlin DWIN_SET
+  #ifdef ICON
+    #undef ICON
+  #endif
+  #define ICON                    0x09  // Default Creality DWIN_SET
 #endif
 
 // Extra Icons
