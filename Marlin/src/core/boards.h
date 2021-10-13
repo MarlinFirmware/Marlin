@@ -402,6 +402,7 @@
 #define BOARD_TH3D_EZBOARD_LITE_V2    4232  // TH3D EZBoard Lite v2.0
 #define BOARD_INDEX_REV03             4233  // Index PnP Controller REV03 (STM32F407VET6/VGT6)
 #define BOARD_MKS_ROBIN_NANO_V1_3_F4  4234  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VET6)
+#define BOARD_MKS_EAGLE               4235  // MKS Eagle (STM32F407VET6)
 
 //
 // ARM Cortex M7
