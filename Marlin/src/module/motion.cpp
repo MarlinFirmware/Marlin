@@ -1193,7 +1193,9 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
         case DXC_MIRRORED_MODE:
         case DXC_DUPLICATION_MODE:
           if (active_extruder == 0) {
+            set_duplication_enabled(false); // Clear stale duplication state
             // Restore planner to parked head (T1) X position
+            float x0_pos = current_position.x;
             xyze_pos_t pos_now = current_position;
             pos_now.x = inactive_extruder_x;
             planner.set_position_mm(pos_now);
@@ -1201,7 +1203,9 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             // Keep the same X or add the duplication X offset
             xyze_pos_t new_pos = pos_now;
             if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
-              new_pos.x += duplicate_extruder_x_offset;
+              new_pos.x = x0_pos + duplicate_extruder_x_offset;
+            else
+              new_pos.x = _MIN(X_BED_SIZE - x0_pos, X_MAX_POS);
 
             // Move duplicate extruder into the correct position
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set planner X", inactive_extruder_x, " ... Line to X", new_pos.x);
