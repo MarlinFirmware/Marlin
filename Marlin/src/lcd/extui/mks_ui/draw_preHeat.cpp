@@ -160,18 +160,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_P_ABS:
       if (uiCfg.curTempType == 0)
         thermalManager.setTargetHotend(PREHEAT_2_TEMP_HOTEND, 0);
-      #if HAS_HEATED_BED
-      else if (uiCfg.curTempType == 1)
-        thermalManager.setTargetBed(PREHEAT_2_TEMP_BED);
-      #endif  //HAS_HEATED_BED
+      else if (uiCfg.curTempType == 1) {
+        TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(PREHEAT_2_TEMP_BED));
+      }
       break;
     case ID_P_PLA:
       if (uiCfg.curTempType == 0)
         thermalManager.setTargetHotend(PREHEAT_1_TEMP_HOTEND, 0);
-      #if HAS_HEATED_BED
-      else if (uiCfg.curTempType == 1)
-        thermalManager.setTargetBed(PREHEAT_1_TEMP_BED);
-      #endif  //HAS_HEATED_BED
+      else if (uiCfg.curTempType == 1) {
+        TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(PREHEAT_1_TEMP_BED));
+      }
       break;
   }
 }
