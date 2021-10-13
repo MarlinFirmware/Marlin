@@ -455,3 +455,7 @@
     #warning "Auto-assigned K_DIAG_PIN to E7_DIAG_PIN."
   #endif
 #endif
+
+#if IS_LEGACY_TFT
+  #warning "Don't forget to update your TFT settings in Configuration.h."
+#endif
