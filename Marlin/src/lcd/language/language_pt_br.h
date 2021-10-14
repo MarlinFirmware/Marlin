@@ -414,8 +414,8 @@ namespace Language_pt_br {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("T. Extrusão");
   #endif
 
-  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temp Mín");
-  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Temp Máx");
+  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Temp Mín");
+  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Temp Máx");
   LSTR MSG_INFO_PSU                       = _UxGT("PSU");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Força do Motor");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("Escrever EEPROM DAC");

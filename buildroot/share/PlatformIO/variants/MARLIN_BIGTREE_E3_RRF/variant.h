@@ -229,7 +229,7 @@ extern "C" {
 //#define PWM_FREQUENCY           20000
 //The bottom values are the default and don't need to be redefined
 //#define PWM_RESOLUTION          8
-//#define PWM_MAX_DUTY_CYCLE      255
+//#define PWU_MAX_DUTY_CYCLE      255
 
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one

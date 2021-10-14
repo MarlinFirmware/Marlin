@@ -53,9 +53,9 @@ inline axis_flags_t selected_axis_bits() {
     | (parser.seen_test(AXIS4_NAME) << I_AXIS),
     | (parser.seen_test(AXIS5_NAME) << J_AXIS),
     | (parser.seen_test(AXIS6_NAME) << K_AXIS),
-    | (parser.seen_test(AXIS7_NAME) << M_AXIS),
-    | (parser.seen_test(AXIS8_NAME) << O_AXIS),
-    | (parser.seen_test(AXIS9_NAME) << Q_AXIS)
+    | (parser.seen_test(AXIS7_NAME) << U_AXIS),
+    | (parser.seen_test(AXIS8_NAME) << V_AXIS),
+    | (parser.seen_test(AXIS9_NAME) << W_AXIS)
   );
   return selected;
 }
@@ -135,9 +135,9 @@ void GcodeSuite::M17() {
         if (parser.seen_test(AXIS4_NAME)) stepper.enable_axis(I_AXIS),
         if (parser.seen_test(AXIS5_NAME)) stepper.enable_axis(J_AXIS),
         if (parser.seen_test(AXIS6_NAME)) stepper.enable_axis(K_AXIS),
-        if (parser.seen_test(AXIS7_NAME)) stepper.enable_axis(M_AXIS),
-        if (parser.seen_test(AXIS8_NAME)) stepper.enable_axis(O_AXIS),
-        if (parser.seen_test(AXIS9_NAME)) stepper.enable_axis(Q_AXIS)
+        if (parser.seen_test(AXIS7_NAME)) stepper.enable_axis(U_AXIS),
+        if (parser.seen_test(AXIS8_NAME)) stepper.enable_axis(V_AXIS),
+        if (parser.seen_test(AXIS9_NAME)) stepper.enable_axis(W_AXIS)
       );
     }
   }
@@ -242,9 +242,9 @@ void GcodeSuite::M18_M84() {
           if (parser.seen_test(AXIS4_NAME)) stepper.disable_axis(I_AXIS),
           if (parser.seen_test(AXIS5_NAME)) stepper.disable_axis(J_AXIS),
           if (parser.seen_test(AXIS6_NAME)) stepper.disable_axis(K_AXIS),
-          if (parser.seen_test(AXIS7_NAME)) stepper.disable_axis(M_AXIS),
-          if (parser.seen_test(AXIS8_NAME)) stepper.disable_axis(O_AXIS),
-          if (parser.seen_test(AXIS9_NAME)) stepper.disable_axis(Q_AXIS)
+          if (parser.seen_test(AXIS7_NAME)) stepper.disable_axis(U_AXIS),
+          if (parser.seen_test(AXIS8_NAME)) stepper.disable_axis(V_AXIS),
+          if (parser.seen_test(AXIS9_NAME)) stepper.disable_axis(W_AXIS)
         );
       }
     }

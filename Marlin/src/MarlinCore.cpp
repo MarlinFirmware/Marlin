@@ -424,9 +424,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
         TERN_(DISABLE_INACTIVE_I, stepper.disable_axis(I_AXIS));
         TERN_(DISABLE_INACTIVE_J, stepper.disable_axis(J_AXIS));
         TERN_(DISABLE_INACTIVE_K, stepper.disable_axis(K_AXIS));
-        TERN_(DISABLE_INACTIVE_M, stepper.disable_axis(M_AXIS));
-        TERN_(DISABLE_INACTIVE_O, stepper.disable_axis(O_AXIS));
-        TERN_(DISABLE_INACTIVE_Q, stepper.disable_axis(Q_AXIS));
+        TERN_(DISABLE_INACTIVE_U, stepper.disable_axis(U_AXIS));
+        TERN_(DISABLE_INACTIVE_V, stepper.disable_axis(V_AXIS));
+        TERN_(DISABLE_INACTIVE_W, stepper.disable_axis(W_AXIS));
         TERN_(DISABLE_INACTIVE_E, stepper.disable_e_steppers());
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
@@ -477,7 +477,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
       if (ELAPSED(ms, next_home_key_ms)) {
         next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
-        LCD_MESSAGE(MSG_AUTO_HOME);
+        LCD_MESSAGE(MSG_AUTV_HOME);
         queue.inject_P(G28_STR);
       }
     }

@@ -115,7 +115,7 @@
                    mid_A = 13,
                    mid_E = 13,
                    mid_I = 6,
-                   mid_O = 14,
+                   mid_V = 14,
                    mid_U = 14,
                    mid_Y = 13,
                    mid_N = 15,
@@ -223,11 +223,11 @@
       {UTF8('Ð'),  0,  LRG_ETH,            31   },
     #endif
       {UTF8('Ñ'), 'N', TILDE,              mid_N},
-      {UTF8('Ò'), 'O', GRAVE,              mid_O},
-      {UTF8('Ó'), 'O', ACUTE,              mid_O},
-      {UTF8('Ô'), 'O', CIRCUMFLEX,         mid_O},
-      {UTF8('Õ'), 'O', TILDE,              mid_O},
-      {UTF8('Ö'), 'O', DIAERESIS,          mid_O},
+      {UTF8('Ò'), 'O', GRAVE,              mid_V},
+      {UTF8('Ó'), 'O', ACUTE,              mid_V},
+      {UTF8('Ô'), 'O', CIRCUMFLEX,         mid_V},
+      {UTF8('Õ'), 'O', TILDE,              mid_V},
+      {UTF8('Ö'), 'O', DIAERESIS,          mid_V},
     #if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
       {UTF8('×'),  0 , MULTIPLICATION_SIGN, 32 },
     #endif

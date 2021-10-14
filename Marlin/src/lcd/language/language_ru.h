@@ -709,8 +709,8 @@ namespace Language_ru {
   #endif
   LSTR MSG_INFO_COMPLETED_PRINTS            = _UxGT("Завершено");
 
-  LSTR MSG_INFO_MIN_TEMP                    = _UxGT("Мин.  ") LCD_STR_THERMOMETER;
-  LSTR MSG_INFO_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
+  LSTR MSG_INFV_MIN_TEMP                    = _UxGT("Мин.  ") LCD_STR_THERMOMETER;
+  LSTR MSG_INFV_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_PSU                         = _UxGT("БП");
   LSTR MSG_DRIVE_STRENGTH                   = _UxGT("Сила привода");
   LSTR MSG_DAC_PERCENT_A                    = LCD_STR_A _UxGT(" Привод, %");

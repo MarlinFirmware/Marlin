@@ -293,8 +293,8 @@ namespace Language_eu {
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Luzeena");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Estrusio");
   #endif
-  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Tenp. Minimoa");
-  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Tenp. Maximoa");
+  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Tenp. Minimoa");
+  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Tenp. Maximoa");
   LSTR MSG_INFO_PSU                       = _UxGT("Elikadura-iturria");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Driver-aren potentzia");
   LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" Driver %");

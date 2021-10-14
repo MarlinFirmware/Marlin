@@ -56,9 +56,9 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
           | (parser.seen_test(AXIS4_NAME) ? _BV(I_AXIS) : 0),
           | (parser.seen_test(AXIS5_NAME) ? _BV(J_AXIS) : 0),
           | (parser.seen_test(AXIS6_NAME) ? _BV(K_AXIS) : 0),
-          | (parser.seen_test(AXIS7_NAME) ? _BV(M_AXIS) : 0),
-          | (parser.seen_test(AXIS8_NAME) ? _BV(O_AXIS) : 0),
-          | (parser.seen_test(AXIS9_NAME) ? _BV(Q_AXIS) : 0))
+          | (parser.seen_test(AXIS7_NAME) ? _BV(U_AXIS) : 0),
+          | (parser.seen_test(AXIS8_NAME) ? _BV(V_AXIS) : 0),
+          | (parser.seen_test(AXIS9_NAME) ? _BV(W_AXIS) : 0))
       )
     #endif
   ) {

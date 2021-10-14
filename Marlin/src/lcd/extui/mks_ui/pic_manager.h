@@ -55,9 +55,9 @@
 #define PIC_MAX_CN           100    // Maximum number of pictures
 #define PIC_NAME_MAX_LEN      50    // Picture name maximum length
 
-#define LOGO_MAX_SIZE_TFT35             (300 * 1024)
-#define LOGO_MAX_SIZE_TFT32             (150 * 1024)
-#define TITLELOGO_MAX_SIZE              (150 * 1024) // Little logo maximum
+#define LOGV_MAX_SIZE_TFT35             (300 * 1024)
+#define LOGV_MAX_SIZE_TFT32             (150 * 1024)
+#define TITLELOGV_MAX_SIZE              (150 * 1024) // Little logo maximum
 #define DEFAULT_VIEW_MAX_SIZE           (200 * 200 * 2)
 #define FLASH_VIEW_MAX_SIZE             (200 * 200 * 2)
 

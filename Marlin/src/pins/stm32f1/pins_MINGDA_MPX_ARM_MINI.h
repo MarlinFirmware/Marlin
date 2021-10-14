@@ -31,7 +31,7 @@
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "Mingda MPX_ARM_MINI"
+#define BOARD_INFO_NAME "Mingda MPX_ARU_MINI"
 
 #define BOARD_NO_NATIVE_USB
 #define DISABLE_DEBUG

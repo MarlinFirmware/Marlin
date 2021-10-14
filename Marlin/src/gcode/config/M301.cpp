@@ -64,7 +64,7 @@ void GcodeSuite::M301() {
     #if ENABLED(PID_EXTRUSION_SCALING)
       if (parser.seenval('C')) PID_PARAM(Kc, e) = parser.value_float();
       if (parser.seenval('L')) thermalManager.lpq_len = parser.value_int();
-      NOMORE(thermalManager.lpq_len, LPQ_MAX_LEN);
+      NOMORE(thermalManager.lpq_len, LPW_MAX_LEN);
       NOLESS(thermalManager.lpq_len, 0);
     #endif
 

@@ -176,7 +176,7 @@ extern "C" {
   *            PLL_M                          = 6
   *            PLL_N                          = 180
   *            PLL_P                          = 2
-  *            PLL_Q                          = 7
+  *            PLL_W                          = 7
   *            VDD(V)                         = 3.3
   *            Main regulator output voltage  = Scale1 mode
   *            Flash Latency(WS)              = 5

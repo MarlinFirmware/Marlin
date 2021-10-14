@@ -567,8 +567,8 @@ namespace Language_hu {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Kiadott");
   #endif
 
-  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min höfok");
-  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max höfok");
+  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Min höfok");
+  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Max höfok");
   LSTR MSG_INFO_PSU                       = _UxGT("PSU");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Meghajtási erö");
   LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" Meghajtó %");

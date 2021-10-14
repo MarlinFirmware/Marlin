@@ -301,7 +301,7 @@ uint8_t Pic_Logo_Write(uint8_t *LogoName, uint8_t *Logo_Wbuff, uint32_t LogoWrit
     if (*(Logo_Wbuff + i) != temp1) return 0;
   }
   LogoWrite_Addroffset += LogoWriteSize;
-  const uint32_t logo_maxsize = DeviceCode == 0x9488 || DeviceCode == 0x5761 ? LOGO_MAX_SIZE_TFT35 : LOGO_MAX_SIZE_TFT32;
+  const uint32_t logo_maxsize = DeviceCode == 0x9488 || DeviceCode == 0x5761 ? LOGV_MAX_SIZE_TFT35 : LOGV_MAX_SIZE_TFT32;
   if (LogoWrite_Addroffset >= logo_maxsize) LogoWrite_Addroffset = 0;
   return 1;
 }
@@ -315,7 +315,7 @@ uint8_t Pic_TitleLogo_Write(uint8_t *TitleLogoName, uint8_t *TitleLogo_Wbuff, ui
   else
     W25QXX.SPI_FLASH_BufferWrite(TitleLogo_Wbuff, PIC_ICON_LOGO_ADDR_TFT32 + TitleLogoWrite_Addroffset, TitleLogoWriteSize);
   TitleLogoWrite_Addroffset += TitleLogoWriteSize;
-  if (TitleLogoWrite_Addroffset >= TITLELOGO_MAX_SIZE)
+  if (TitleLogoWrite_Addroffset >= TITLELOGV_MAX_SIZE)
     TitleLogoWrite_Addroffset = 0;
   return 1;
 }
@@ -599,7 +599,7 @@ void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead(Logo_Rbuff, PIC_LOGO_ADDR + logo_addroffset, LogoReadsize);
   logo_addroffset += LogoReadsize;
-  if (logo_addroffset >= LOGO_MAX_SIZE_TFT35)
+  if (logo_addroffset >= LOGV_MAX_SIZE_TFT35)
     logo_addroffset = 0;
 }
 

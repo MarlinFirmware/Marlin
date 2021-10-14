@@ -714,8 +714,8 @@ namespace Language_uk {
     LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Найдовше");
   #endif
 
-  LSTR MSG_INFO_MIN_TEMP                    = _UxGT("Мін.  ") LCD_STR_THERMOMETER;
-  LSTR MSG_INFO_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
+  LSTR MSG_INFV_MIN_TEMP                    = _UxGT("Мін.  ") LCD_STR_THERMOMETER;
+  LSTR MSG_INFV_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_PSU                         = _UxGT("Блок жив-ня");
   LSTR MSG_DRIVE_STRENGTH                   = _UxGT("Сила мотору");
   LSTR MSG_DAC_PERCENT_A                    = _UxGT("Драйвер ") LCD_STR_A _UxGT(", %");

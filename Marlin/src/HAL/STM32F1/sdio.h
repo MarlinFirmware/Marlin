@@ -74,7 +74,7 @@
 #define SDMMC_CHECK_PATTERN                  0x000001AAU
 
 #define SDIO_TRANSFER_MODE_BLOCK             0x00000000U
-#define SDIO_DPSM_ENABLE                     0x00000001U
+#define SDIO_DPSU_ENABLE                     0x00000001U
 #define SDIO_TRANSFER_DIR_TO_CARD            0x00000000U
 #define SDIO_DATABLOCK_SIZE_512B             0x00000090U
 #define SDIO_TRANSFER_DIR_TO_SDIO            0x00000100U

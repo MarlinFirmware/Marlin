@@ -73,7 +73,7 @@ extern xyz_pos_t cartes;
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
+constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_U;
 FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
   float v = TERN0(HAS_Z_AXIS, homing_feedrate_mm_m.z);
   #if DISABLED(DELTA)
@@ -84,9 +84,9 @@ FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
       else if (a == I_AXIS) v = homing_feedrate_mm_m.i,
       else if (a == J_AXIS) v = homing_feedrate_mm_m.j,
       else if (a == K_AXIS) v = homing_feedrate_mm_m.k,
-      else if (a == M_AXIS) v = homing_feedrate_mm_m.m,
-      else if (a == O_AXIS) v = homing_feedrate_mm_m.o,
-      else if (a == Q_AXIS) v = homing_feedrate_mm_m.q
+      else if (a == U_AXIS) v = homing_feedrate_mm_m.u,
+      else if (a == V_AXIS) v = homing_feedrate_mm_m.v,
+      else if (a == W_AXIS) v = homing_feedrate_mm_m.w
     );
   #endif
   return MMM_TO_MMS(v);
@@ -202,21 +202,21 @@ inline float home_bump_mm(const AxisEnum axis) {
               break;
           #endif
           #if LINEAR_AXES >= 7
-            case M_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_M, amin = min.m);
-              TERN_(MIN_SOFTWARE_ENDSTOP_M, amax = max.m);
+            case U_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_U, amin = min.u);
+              TERN_(MIN_SOFTWARE_ENDSTOP_U, amax = max.u);
               break;
           #endif
           #if LINEAR_AXES >= 8
-            case O_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_O, amin = min.o);
-              TERN_(MIN_SOFTWARE_ENDSTOP_O, amax = max.o);
+            case V_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_V, amin = min.v);
+              TERN_(MIN_SOFTWARE_ENDSTOP_V, amax = max.v);
               break;
           #endif
           #if LINEAR_AXES >= 9
-            case Q_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_Q, amin = min.q);
-              TERN_(MIN_SOFTWARE_ENDSTOP_Q, amax = max.q);
+            case W_AXIS:
+              TERN_(MIN_SOFTWARE_ENDSTOP_W, amin = min.w);
+              TERN_(MIN_SOFTWARE_ENDSTOP_W, amax = max.w);
               break;
           #endif
           default: break;
@@ -367,16 +367,16 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s=0.0f);
 #endif
 #if LINEAR_AXES >= 7
-  void do_blocking_move_to_m(const_float_t rm, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijk_m(const xyze_pos_t &raw, const_float_t m, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_u(const_float_t ru, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s=0.0f);
 #endif
 #if LINEAR_AXES >= 8
-  void do_blocking_move_to_o(const_float_t ro, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijkm_o(const xyze_pos_t &raw, const_float_t o, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_v(const_float_t rv, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s=0.0f);
 #endif
 #if LINEAR_AXES >= 9
-  void do_blocking_move_to_q(const float rq, const feedRate_t &fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijkmo_q(const xyze_pos_t &raw, const float q, const feedRate_t &fr_mm_s=0.0f);
+  void do_blocking_move_to_w(const float rw, const feedRate_t &fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const float w, const feedRate_t &fr_mm_s=0.0f);
 #endif
 
 #if HAS_Y_AXIS
@@ -522,16 +522,16 @@ void home_if_needed(const bool keeplev=false);
   #define RAW_K_POSITION(POS)     LOGICAL_TO_NATIVE(POS, K_AXIS)
 #endif
 #if LINEAR_AXES >= 7
-  #define LOGICAL_M_POSITION(POS) NATIVE_TO_LOGICAL(POS, M_AXIS)
-  #define RAW_M_POSITION(POS)     LOGICAL_TO_NATIVE(POS, M_AXIS)
+  #define LOGICAL_U_POSITION(POS) NATIVE_TO_LOGICAL(POS, U_AXIS)
+  #define RAW_U_POSITION(POS)     LOGICAL_TO_NATIVE(POS, U_AXIS)
 #endif
 #if LINEAR_AXES >= 8
-  #define LOGICAL_O_POSITION(POS) NATIVE_TO_LOGICAL(POS, O_AXIS)
-  #define RAW_O_POSITION(POS)     LOGICAL_TO_NATIVE(POS, O_AXIS)
+  #define LOGICAL_V_POSITION(POS) NATIVE_TO_LOGICAL(POS, V_AXIS)
+  #define RAW_V_POSITION(POS)     LOGICAL_TO_NATIVE(POS, V_AXIS)
 #endif
 #if LINEAR_AXES >= 9
-  #define LOGICAL_Q_POSITION(POS) NATIVE_TO_LOGICAL(POS, Q_AXIS)
-  #define RAW_Q_POSITION(POS)     LOGICAL_TO_NATIVE(POS, Q_AXIS)
+  #define LOGICAL_W_POSITION(POS) NATIVE_TO_LOGICAL(POS, W_AXIS)
+  #define RAW_W_POSITION(POS)     LOGICAL_TO_NATIVE(POS, W_AXIS)
 #endif
 
 /**

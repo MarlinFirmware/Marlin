@@ -48,8 +48,8 @@
   #define MIN_ARC_SEGMENT_MM MAX_ARC_SEGMENT_MM
 #endif
 
-#define ARC_LIJKMOQ_CODE(L,I,J,K,M,O,Q)    CODE_N(SUB2(LINEAR_AXES),L,I,J,K,M,O,Q)
-#define ARC_LIJKMOQE_CODE(L,I,J,K,M,O,Q,E) ARC_LIJKMOQ_CODE(L,I,J,K,M,O,Q); CODE_ITEM_E(E)
+#define ARC_LIJKMOQ_CODE(L,I,J,K,U,V,W)    CODE_N(SUB2(LINEAR_AXES),L,I,J,K,U,V,W)
+#define ARC_LIJKMOQE_CODE(L,I,J,K,U,V,W,E) ARC_LIJKMOQ_CODE(L,I,J,K,U,V,W); CODE_ITEM_E(E)
 
 /**
  * Plan an arc in 2 dimensions, with linear motion in the other axes.
@@ -62,7 +62,7 @@ void plan_arc(
   const uint8_t circles     // Take the scenic route
 ) {
   #if ENABLED(CNC_WORKSPACE_PLANES)
-    AxisEnum axis_p, axis_q, axis_l; // axis_q is different from Q_AXIS
+    AxisEnum axis_p, axis_q, axis_l; // axis_q is different from W_AXIS
     switch (gcode.workspace_plane) {
       default:
       case GcodeSuite::PLANE_XY: axis_p = X_AXIS; axis_q = Y_AXIS; axis_l = Z_AXIS; break;
@@ -78,18 +78,18 @@ void plan_arc(
 
   const float radius = HYPOT(rvec.a, rvec.b),
               center_P = current_position[axis_p] - rvec.a,
-              center_Q = current_position[axis_q] - rvec.b,
+              center_W = current_position[axis_q] - rvec.b,
               rt_X = cart[axis_p] - center_P,
-              rt_Y = cart[axis_q] - center_Q;
+              rt_Y = cart[axis_q] - center_W;
 
-  ARC_LIJKMOQ_CODE(
+  ARC_LIJKUVW_CODE(
     const float start_L = current_position[axis_l],
     const float start_I = current_position.i,
     const float start_J = current_position.j,
     const float start_K = current_position.k,
-    const float start_M = current_position.m,
-    const float start_O = current_position.o,
-    const float start_Q = current_position.q
+    const float start_U = current_position.u,
+    const float start_V = current_position.v,
+    const float start_W = current_position.w
   );
 
   // Angle of rotation between position and target from the circle center.
@@ -125,14 +125,14 @@ void plan_arc(
     min_segments = CEIL((MIN_CIRCLE_SEGMENTS) * portion_of_circle);     // Minimum segments for the arc
   }
 
-  ARC_LIJKMOQE_CODE(
+  ARC_LIJKUVWE_CODE(
     float travel_L = cart[axis_l] - start_L,
     float travel_I = cart.i       - start_I,
     float travel_J = cart.j       - start_J,
     float travel_K = cart.k       - start_K,
-    float travel_M = cart.m       - start_M,
-    float travel_O = cart.o       - start_O,
-    float travel_Q = cart.q       - start_Q,
+    float travel_U = cart.u       - start_U,
+    float travel_V = cart.v       - start_V,
+    float travel_W = cart.w       - start_W,
     float travel_E = cart.e       - current_position.e
   );
 
@@ -141,39 +141,39 @@ void plan_arc(
     const float total_angular = abs_angular_travel + circles * RADIANS(360),    // Total rotation with all circles and remainder
               part_per_circle = RADIANS(360) / total_angular;                   // Each circle's part of the total
 
-    ARC_LIJKMOQE_CODE(
+    ARC_LIJKUVWE_CODE(
       const float per_circle_L = travel_L * part_per_circle,    // L movement per circle
       const float per_circle_I = travel_I * part_per_circle,
       const float per_circle_J = travel_J * part_per_circle,
       const float per_circle_K = travel_K * part_per_circle,
-      const float per_circle_M = travel_M * part_per_circle,
-      const float per_circle_O = travel_O * part_per_circle,
-      const float per_circle_Q = travel_Q * part_per_circle,
+      const float per_circle_U = travel_U * part_per_circle,
+      const float per_circle_V = travel_V * part_per_circle,
+      const float per_circle_W = travel_W * part_per_circle,
       const float per_circle_E = travel_E * part_per_circle     // E movement per circle
     );
 
     xyze_pos_t temp_position = current_position;
     for (uint16_t n = circles; n--;) {
-      ARC_LIJKMOQE_CODE(                                           // Destination Linear Axes
+      ARC_LIJKUVWE_CODE(                                           // Destination Linear Axes
         temp_position[axis_l] += per_circle_L,
         temp_position.i       += per_circle_I,
         temp_position.j       += per_circle_J,
         temp_position.k       += per_circle_K,
-        temp_position.m       += per_circle_M,
-        temp_position.o       += per_circle_O,
-        temp_position.q       += per_circle_Q,
+        temp_position.u       += per_circle_U,
+        temp_position.v       += per_circle_V,
+        temp_position.w       += per_circle_W,
         temp_position.e       += per_circle_E                   // Destination E axis
       );
       plan_arc(temp_position, offset, clockwise, 0);            // Plan a single whole circle
     }
-    ARC_LIJKMOQE_CODE(
+    ARC_LIJKUVWE_CODE(
       travel_L = cart[axis_l] - current_position[axis_l],
       travel_I = cart.i       - current_position.i,
       travel_J = cart.j       - current_position.j,
       travel_K = cart.k       - current_position.k,
-      travel_M = cart.m       - current_position.m,
-      travel_O = cart.o       - current_position.o,
-      travel_Q = cart.q       - current_position.q,
+      travel_U = cart.u       - current_position.u,
+      travel_V = cart.v       - current_position.v,
+      travel_W = cart.w       - current_position.w,
       travel_E = cart.e       - current_position.e
     );
   }
@@ -188,9 +188,9 @@ void plan_arc(
       && travel_I < 0.0001f,
       && travel_J < 0.0001f,
       && travel_K < 0.0001f,
-      && travel_M < 0.0001f,
-      && travel_O < 0.0001f,
-      && travel_Q < 0.0001f
+      && travel_U < 0.0001f,
+      && travel_V < 0.0001f,
+      && travel_W < 0.0001f
     )
   ) return;
 
@@ -259,9 +259,9 @@ void plan_arc(
       const float per_segment_I = proportion * travel_I / segments,
       const float per_segment_J = proportion * travel_J / segments,
       const float per_segment_K = proportion * travel_K / segments,
-      const float per_segment_M = proportion * travel_M / segments,
-      const float per_segment_O = proportion * travel_O / segments,
-      const float per_segment_Q = proportion * travel_Q / segments
+      const float per_segment_U = proportion * travel_U / segments,
+      const float per_segment_V = proportion * travel_V / segments,
+      const float per_segment_W = proportion * travel_W / segments
     );
   #endif
 
@@ -276,9 +276,9 @@ void plan_arc(
     raw.i       = current_position.i,
     raw.j       = current_position.j,
     raw.k       = current_position.k,
-    raw.m       = current_position.m,
-    raw.o       = current_position.o,
-    raw.q       = current_position.q,
+    raw.u       = current_position.u,
+    raw.v       = current_position.v,
+    raw.w       = current_position.w,
     raw.e       = current_position.e
   );
 
@@ -326,16 +326,16 @@ void plan_arc(
 
     // Update raw location
     raw[axis_p] = center_P + rvec.a;
-    raw[axis_q] = center_Q + rvec.b;
-    ARC_LIJKMOQE_CODE(
+    raw[axis_q] = center_W + rvec.b;
+    ARC_LIJKUVWE_CODE(
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         raw[axis_l] = start_L,
         raw.i = start_I, raw.j = start_J, raw.k = start_K,
-        raw.m = start_M, raw.o = start_O, raw.q = start_Q
+        raw.u = start_U, raw.v = start_V, raw.w = start_V
       #else
         raw[axis_l] += per_segment_L,
         raw.i += per_segment_I, raw.j += per_segment_J, raw.k += per_segment_K,
-        raw.m += per_segment_M, raw.o += per_segment_O, raw.q += per_segment_Q
+        raw.u += per_segment_U, raw.v += per_segment_V, raw.w += per_segment_W
       #endif
       , raw.e += extruder_per_segment
     );
@@ -353,10 +353,10 @@ void plan_arc(
   // Ensure last segment arrives at target location.
   raw = cart;
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    ARC_LIJKMOQ_CODE(
+    ARC_LIJKUVW_CODE(
       raw[axis_l] = start_L,
       raw.i = start_I, raw.j = start_J, raw.k = start_K,
-      raw.m = start_M, raw.o = start_O, raw.q = start_Q
+      raw.u = start_U, raw.v = start_V, raw.w = start_W
     );
   #endif
 
@@ -372,7 +372,7 @@ void plan_arc(
     ARC_LIJKMOQ_CODE(
       raw[axis_l] = start_L,
       raw.i = start_I, raw.j = start_J, raw.k = start_K,
-      raw.m = start_M, raw.o = start_O, raw.q = start_Q
+      raw.u = start_U, raw.v = start_V, raw.w = start_W
     );
   #endif
   current_position = raw;

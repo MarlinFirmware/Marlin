@@ -855,7 +855,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
    */
   void Probe::set_homing_current(const bool onoff) {
     #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-    #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z) || HAS_CURRENT_HOME(I) || HAS_CURRENT_HOME(J) || HAS_CURRENT_HOME(K) || HAS_CURRENT_HOME(M) || HAS_CURRENT_HOME(O) || HAS_CURRENT_HOME(Q)
+    #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Z) || HAS_CURRENT_HOME(I) || HAS_CURRENT_HOME(J) || HAS_CURRENT_HOME(K) || HAS_CURRENT_HOME(U) || HAS_CURRENT_HOME(V) || HAS_CURRENT_HOME(W)
       #if ENABLED(DELTA)
         static int16_t saved_current_X, saved_current_Y;
       #endif

@@ -971,9 +971,9 @@
 #define INVERT_I_STEP_PIN false
 #define INVERT_J_STEP_PIN false
 #define INVERT_K_STEP_PIN false
-#define INVERT_M_STEP_PIN false
-#define INVERT_O_STEP_PIN false
-#define INVERT_Q_STEP_PIN false
+#define INVERT_U_STEP_PIN false
+#define INVERT_V_STEP_PIN false
+#define INVERT_W_STEP_PIN false
 #define INVERT_E_STEP_PIN false
 
 /**
@@ -988,9 +988,9 @@
 #define DISABLE_INACTIVE_I true
 #define DISABLE_INACTIVE_J true
 #define DISABLE_INACTIVE_K true
-#define DISABLE_INACTIVE_M true
-#define DISABLE_INACTIVE_O true
-#define DISABLE_INACTIVE_Q true
+#define DISABLE_INACTIVE_U true
+#define DISABLE_INACTIVE_V true
+#define DISABLE_INACTIVE_W true
 #define DISABLE_INACTIVE_E true
 
 // Default Minimum Feedrates for printing and travel moves
@@ -1108,12 +1108,12 @@
   //#define CALIBRATION_MEASURE_JMAX
   //#define CALIBRATION_MEASURE_KMIN
   //#define CALIBRATION_MEASURE_KMAX
-  //#define CALIBRATION_MEASURE_MMIN
-  //#define CALIBRATION_MEASURE_MMAX
-  //#define CALIBRATION_MEASURE_QMIN
-  //#define CALIBRATION_MEASURE_OMAX
-  //#define CALIBRATION_MEASURE_QMIN
-  //#define CALIBRATION_MEASURE_QMAX
+  //#define CALIBRATION_MEASURE_UMIN
+  //#define CALIBRATION_MEASURE_UMAX
+  //#define CALIBRATION_MEASURE_VMIN
+  //#define CALIBRATION_MEASURE_VMAX
+  //#define CALIBRATION_MEASURE_WMIN
+  //#define CALIBRATION_MEASURE_WMAX
 
   // Probing at the exact top center only works if the center is flat. If
   // probing on a screwhead or hollow washer, probe near the edges.
@@ -2523,22 +2523,22 @@
     #define K_MICROSTEPS       16
   #endif
 
-  #if AXIS_DRIVER_TYPE_M(TMC26X)
-    #define M_MAX_CURRENT    1000
-    #define M_SENSE_RESISTOR   91
-    #define M_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_U(TMC26X)
+    #define U_MAX_CURRENT    1000
+    #define U_SENSE_RESISTOR   91
+    #define U_MICROSTEPS       16
   #endif
 
-  #if AXIS_DRIVER_TYPE_O(TMC26X)
-    #define O_MAX_CURRENT    1000
-    #define O_SENSE_RESISTOR   91
-    #define O_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_V(TMC26X)
+    #define V_MAX_CURRENT    1000
+    #define V_SENSE_RESISTOR   91
+    #define V_MICROSTEPS       16
   #endif
 
-  #if AXIS_DRIVER_TYPE_Q(TMC26X)
-    #define Q_MAX_CURRENT    1000
-    #define Q_SENSE_RESISTOR   91
-    #define Q_MICROSTEPS       16
+  #if AXIS_DRIVER_TYPE_W(TMC26X)
+    #define W_MAX_CURRENT    1000
+    #define W_SENSE_RESISTOR   91
+    #define W_MICROSTEPS       16
   #endif
 
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
@@ -2718,31 +2718,31 @@
     //#define K_INTERPOLATE  true
   #endif
 
-  #if AXIS_IS_TMC(M)
-    #define M_CURRENT      800
-    #define M_CURRENT_HOME M_CURRENT
-    #define M_MICROSTEPS     8
-    #define M_RSENSE         0.11
-    #define M_CHAIN_POS     -1
-    //#define K_INTERPOLATE  true
+  #if AXIS_IS_TMC(U)
+    #define U_CURRENT      800
+    #define U_CURRENT_HOME U_CURRENT
+    #define U_MICROSTEPS     8
+    #define U_RSENSE         0.11
+    #define U_CHAIN_POS     -1
+    //#define U_INTERPOLATE  true
   #endif
 
-  #if AXIS_IS_TMC(O)
-    #define O_CURRENT      800
-    #define O_CURRENT_HOME O_CURRENT
-    #define O_MICROSTEPS     8
-    #define O_RSENSE         0.11
-    #define O_CHAIN_POS     -1
-    //#define O_INTERPOLATE  true
+  #if AXIS_IS_TMC(V)
+    #define V_CURRENT      800
+    #define V_CURRENT_HOME V_CURRENT
+    #define V_MICROSTEPS     8
+    #define V_RSENSE         0.11
+    #define V_CHAIN_POS     -1
+    //#define V_INTERPOLATE  true
   #endif
 
-  #if AXIS_IS_TMC(Q)
-    #define Q_CURRENT      800
-    #define Q_CURRENT_HOME Q_CURRENT
-    #define Q_MICROSTEPS     8
-    #define Q_RSENSE         0.11
-    #define Q_CHAIN_POS     -1
-    //#define Q_INTERPOLATE  true
+  #if AXIS_IS_TMC(W)
+    #define W_CURRENT      800
+    #define W_CURRENT_HOME W_CURRENT
+    #define W_MICROSTEPS     8
+    #define W_RSENSE         0.11
+    #define W_CHAIN_POS     -1
+    //#define W_INTERPOLATE  true
   #endif
 
   #if AXIS_IS_TMC(E0)
@@ -2824,9 +2824,9 @@
   //#define I_CS_PIN          -1
   //#define J_CS_PIN          -1
   //#define K_CS_PIN          -1
-  //#define M_CS_PIN          -1
-  //#define O_CS_PIN          -1
-  //#define Q_CS_PIN          -1
+  //#define U_CS_PIN          -1
+  //#define V_CS_PIN          -1
+  //#define W_CS_PIN          -1
   //#define E0_CS_PIN         -1
   //#define E1_CS_PIN         -1
   //#define E2_CS_PIN         -1
@@ -2869,9 +2869,9 @@
   //#define  I_SLAVE_ADDRESS 0
   //#define  J_SLAVE_ADDRESS 0
   //#define  K_SLAVE_ADDRESS 0
-  //#define  M_SLAVE_ADDRESS 0
-  //#define  O_SLAVE_ADDRESS 0
-  //#define  Q_SLAVE_ADDRESS 0
+  //#define  U_SLAVE_ADDRESS 0
+  //#define  V_SLAVE_ADDRESS 0
+  //#define  W_SLAVE_ADDRESS 0
   //#define E0_SLAVE_ADDRESS 0
   //#define E1_SLAVE_ADDRESS 0
   //#define E2_SLAVE_ADDRESS 0
@@ -2899,9 +2899,9 @@
   #define STEALTHCHOP_I
   #define STEALTHCHOP_J
   #define STEALTHCHOP_K
-  #define STEALTHCHOP_M
-  #define STEALTHCHOP_O
-  #define STEALTHCHOP_Q
+  #define STEALTHCHOP_U
+  #define STEALTHCHOP_V
+  #define STEALTHCHOP_W
   #define STEALTHCHOP_E
 
   /**
@@ -2976,9 +2976,9 @@
   #define I_HYBRID_THRESHOLD       3
   #define J_HYBRID_THRESHOLD       3
   #define K_HYBRID_THRESHOLD       3
-  #define M_HYBRID_THRESHOLD       3
-  #define O_HYBRID_THRESHOLD       3
-  #define Q_HYBRID_THRESHOLD       3
+  #define U_HYBRID_THRESHOLD       3
+  #define V_HYBRID_THRESHOLD       3
+  #define W_HYBRID_THRESHOLD       3
   #define E0_HYBRID_THRESHOLD     30
   #define E1_HYBRID_THRESHOLD     30
   #define E2_HYBRID_THRESHOLD     30
@@ -3028,9 +3028,9 @@
     //#define I_STALL_SENSITIVITY  8
     //#define J_STALL_SENSITIVITY  8
     //#define K_STALL_SENSITIVITY  8
-    //#define M_STALL_SENSITIVITY  8
-    //#define O_STALL_SENSITIVITY  8
-    //#define Q_STALL_SENSITIVITY  8
+    //#define U_STALL_SENSITIVITY  8
+    //#define V_STALL_SENSITIVITY  8
+    //#define W_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
@@ -3198,31 +3198,31 @@
     #define K_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_M(L6470)
-    #define M_MICROSTEPS      128
-    #define M_OVERCURRENT    2000
-    #define M_STALLCURRENT   1500
-    #define M_MAX_VOLTAGE     127
-    #define M_CHAIN_POS        -1
-    #define M_SLEW_RATE         1
+  #if AXIS_DRIVER_TYPE_U(L6470)
+    #define U_MICROSTEPS      128
+    #define U_OVERCURRENT    2000
+    #define U_STALLCURRENT   1500
+    #define U_MAX_VOLTAGE     127
+    #define U_CHAIN_POS        -1
+    #define U_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_O(L6470)
-    #define O_MICROSTEPS      128
-    #define O_OVERCURRENT    2000
-    #define O_STALLCURRENT   1500
-    #define O_MAX_VOLTAGE     127
-    #define O_CHAIN_POS        -1
-    #define O_SLEW_RATE         1
+  #if AXIS_DRIVER_TYPE_V(L6470)
+    #define V_MICROSTEPS      128
+    #define V_OVERCURRENT    2000
+    #define V_STALLCURRENT   1500
+    #define V_MAX_VOLTAGE     127
+    #define V_CHAIN_POS        -1
+    #define V_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_Q(L6470)
-    #define Q_MICROSTEPS      128
-    #define Q_OVERCURRENT    2000
-    #define Q_STALLCURRENT   1500
-    #define Q_MAX_VOLTAGE     127
-    #define Q_CHAIN_POS        -1
-    #define Q_SLEW_RATE         1
+  #if AXIS_DRIVER_TYPE_W(L6470)
+    #define W_MICROSTEPS      128
+    #define W_OVERCURRENT    2000
+    #define W_STALLCURRENT   1500
+    #define W_MAX_VOLTAGE     127
+    #define W_CHAIN_POS        -1
+    #define W_SLEW_RATE         1
   #endif
 
   #if AXIS_IS_L64XX(E0)

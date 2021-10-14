@@ -319,63 +319,63 @@ void Endstops::init() {
     #endif
   #endif
 
-  #if HAS_M_MIN
+  #if HAS_U_MIN
     #if ENABLED(ENDSTOPPULLUP_MMIN)
-      SET_INPUT_PULLUP(M_MIN_PIN);
+      SET_INPUT_PULLUP(U_MIN_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_MMIN)
-      SET_INPUT_PULLDOWN(M_MIN_PIN);
+      SET_INPUT_PULLDOWN(U_MIN_PIN);
     #else
-      SET_INPUT(M_MIN_PIN);
+      SET_INPUT(U_MIN_PIN);
     #endif
   #endif
 
-  #if HAS_M_MAX
+  #if HAS_U_MAX
     #if ENABLED(ENDSTOPPULLUP_MMAX)
-      SET_INPUT_PULLUP(M_MAX_PIN);
+      SET_INPUT_PULLUP(U_MAX_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_MMIN)
-      SET_INPUT_PULLDOWN(M_MAX_PIN);
+      SET_INPUT_PULLDOWN(U_MAX_PIN);
     #else
-      SET_INPUT(M_MAX_PIN);
+      SET_INPUT(U_MAX_PIN);
     #endif
   #endif
 
-  #if HAS_O_MIN
+  #if HAS_V_MIN
     #if ENABLED(ENDSTOPPULLUP_OMIN)
-      SET_INPUT_PULLUP(O_MIN_PIN);
+      SET_INPUT_PULLUP(V_MIN_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_OMIN)
-      SET_INPUT_PULLDOWN(O_MIN_PIN);
+      SET_INPUT_PULLDOWN(V_MIN_PIN);
     #else
-      SET_INPUT(O_MIN_PIN);
+      SET_INPUT(V_MIN_PIN);
     #endif
   #endif
 
-  #if HAS_O_MAX
+  #if HAS_V_MAX
     #if ENABLED(ENDSTOPPULLUP_OMAX)
-      SET_INPUT_PULLUP(O_MAX_PIN);
+      SET_INPUT_PULLUP(V_MAX_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_OMIN)
-      SET_INPUT_PULLDOWN(O_MAX_PIN);
+      SET_INPUT_PULLDOWN(V_MAX_PIN);
     #else
-      SET_INPUT(O_MAX_PIN);
+      SET_INPUT(V_MAX_PIN);
     #endif
   #endif
 
-  #if HAS_Q_MIN
+  #if HAS_W_MIN
     #if ENABLED(ENDSTOPPULLUP_QMIN)
-      SET_INPUT_PULLUP(Q_MIN_PIN);
+      SET_INPUT_PULLUP(W_MIN_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_QMIN)
-      SET_INPUT_PULLDOWN(Q_MIN_PIN);
+      SET_INPUT_PULLDOWN(W_MIN_PIN);
     #else
-      SET_INPUT(Q_MIN_PIN);
+      SET_INPUT(W_MIN_PIN);
     #endif
   #endif
 
-  #if HAS_Q_MAX
+  #if HAS_W_MAX
     #if ENABLED(ENDSTOPPULLUP_QMAX)
-      SET_INPUT_PULLUP(Q_MAX_PIN);
+      SET_INPUT_PULLUP(W_MAX_PIN);
     #elif ENABLED(ENDSTOPPULLDOWN_QMIN)
-      SET_INPUT_PULLDOWN(Q_MAX_PIN);
+      SET_INPUT_PULLDOWN(W_MAX_PIN);
     #else
-      SET_INPUT(Q_MAX_PIN);
+      SET_INPUT(W_MAX_PIN);
     #endif
   #endif
 
@@ -501,9 +501,9 @@ void Endstops::event_handler() {
     #define ENDSTOP_HIT_TEST_I() _ENDSTOP_HIT_TEST(I,'I')
     #define ENDSTOP_HIT_TEST_J() _ENDSTOP_HIT_TEST(J,'J')
     #define ENDSTOP_HIT_TEST_K() _ENDSTOP_HIT_TEST(K,'K')
-    #define ENDSTOP_HIT_TEST_M() _ENDSTOP_HIT_TEST(M,'M')
-    #define ENDSTOP_HIT_TEST_O() _ENDSTOP_HIT_TEST(O,'O')
-    #define ENDSTOP_HIT_TEST_Q() _ENDSTOP_HIT_TEST(Q,'Q')
+    #define ENDSTOP_HIT_TEST_U() _ENDSTOP_HIT_TEST(U,'U')
+    #define ENDSTOP_HIT_TEST_V() _ENDSTOP_HIT_TEST(V,'V')
+    #define ENDSTOP_HIT_TEST_W() _ENDSTOP_HIT_TEST(W,'W')
 
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
@@ -514,9 +514,9 @@ void Endstops::event_handler() {
       _ENDSTOP_HIT_TEST(I,'I'),
       _ENDSTOP_HIT_TEST(J,'J'),
       _ENDSTOP_HIT_TEST(K,'K'),
-      _ENDSTOP_HIT_TEST(M,'M'),
-      _ENDSTOP_HIT_TEST(O,'O'),
-      _ENDSTOP_HIT_TEST(Q,'Q')
+      _ENDSTOP_HIT_TEST(U,'U'),
+      _ENDSTOP_HIT_TEST(V,'V'),
+      _ENDSTOP_HIT_TEST(W,'W')
     );
 
     #if USES_Z_MIN_PROBE_PIN
@@ -529,7 +529,7 @@ void Endstops::event_handler() {
       ui.status_printf(0,
         F(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
-        LINEAR_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK, chrM, chrO, chrQ), chrP
+        LINEAR_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW), chrP
       )
     );
 
@@ -629,23 +629,23 @@ void _O2 Endstops::report_states() {
   #if HAS_K_MAX
     ES_REPORT(K_MAX);
   #endif
-  #if HAS_M_MIN
-    ES_REPORT(M_MIN);
+  #if HAS_U_MIN
+    ES_REPORT(U_MIN);
   #endif
-  #if HAS_M_MAX
-    ES_REPORT(M_MAX);
+  #if HAS_U_MAX
+    ES_REPORT(U_MAX);
   #endif
-  #if HAS_O_MIN
-    ES_REPORT(O_MIN);
+  #if HAS_V_MIN
+    ES_REPORT(V_MIN);
   #endif
-  #if HAS_O_MAX
-    ES_REPORT(O_MAX);
+  #if HAS_V_MAX
+    ES_REPORT(V_MAX);
   #endif
-  #if HAS_Q_MIN
-    ES_REPORT(Q_MIN);
+  #if HAS_W_MIN
+    ES_REPORT(W_MIN);
   #endif
-  #if HAS_Q_MAX
-    ES_REPORT(Q_MAX);
+  #if HAS_W_MAX
+    ES_REPORT(W_MAX);
   #endif
   #if BOTH(MARLIN_DEV_MODE, PROBE_ACTIVATION_SWITCH)
     print_es_state(probe_switch_activated(), F(STR_PROBE_EN));
@@ -730,9 +730,9 @@ void Endstops::update() {
   #define I_AXIS_HEAD I_AXIS
   #define J_AXIS_HEAD J_AXIS
   #define K_AXIS_HEAD K_AXIS
-  #define M_AXIS_HEAD M_AXIS
-  #define O_AXIS_HEAD O_AXIS
-  #define Q_AXIS_HEAD Q_AXIS
+  #define M_AXIS_HEAD U_AXIS
+  #define O_AXIS_HEAD V_AXIS
+  #define Q_AXIS_HEAD W_AXIS
 
   /**
    * Check and update endstops
@@ -919,79 +919,79 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if HAS_M_MIN && !M_SPI_SENSORLESS
-    #if ENABLED(M_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(M, MIN);
-      #if HAS_M2_MIN
-        UPDATE_ENDSTOP_BIT(M2, MIN);
+  #if HAS_U_MIN && !U_SPI_SENSORLESS
+    #if ENABLED(U_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(U, MIN);
+      #if HAS_U2_MIN
+        UPDATE_ENDSTOP_BIT(U2, MIN);
       #else
-        COPY_LIVE_STATE(M_MIN, M2_MIN);
+        COPY_LIVE_STATE(U_MIN, U2_MIN);
       #endif
     #else
-      UPDATE_ENDSTOP_BIT(M, MIN);
+      UPDATE_ENDSTOP_BIT(U, MIN);
     #endif
   #endif
 
-  #if HAS_M_MAX && !M_SPI_SENSORLESS
-    #if ENABLED(M_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(M, MAX);
-      #if HAS_M2_MAX
-        UPDATE_ENDSTOP_BIT(M2, MAX);
+  #if HAS_U_MAX && !U_SPI_SENSORLESS
+    #if ENABLED(U_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(U, MAX);
+      #if HAS_U2_MAX
+        UPDATE_ENDSTOP_BIT(U2, MAX);
       #else
-        COPY_LIVE_STATE(M_MAX, M2_MAX);
+        COPY_LIVE_STATE(U_MAX, U2_MAX);
       #endif
     #else
-      UPDATE_ENDSTOP_BIT(M, MAX);
+      UPDATE_ENDSTOP_BIT(U, MAX);
     #endif
   #endif
 
-  #if HAS_O_MIN && !O_SPI_SENSORLESS
+  #if HAS_V_MIN && !V_SPI_SENSORLESS
+    #if ENABLED(V_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(V, MIN);
+      #if HAS_V2_MIN
+        UPDATE_ENDSTOP_BIT(V2, MIN);
+      #else
+        COPY_LIVE_STATE(V_MIN, V2_MIN);
+      #endif
+    #else
+      UPDATE_ENDSTOP_BIT(V, MIN);
+    #endif
+  #endif
+  #if HAS_V_MAX && !V_SPI_SENSORLESS
     #if ENABLED(O_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(O, MIN);
-      #if HAS_O2_MIN
-        UPDATE_ENDSTOP_BIT(O2, MIN);
+      UPDATE_ENDSTOP_BIT(V, MAX);
+      #if HAS_V2_MAX
+        UPDATE_ENDSTOP_BIT(V2, MAX);
       #else
-        COPY_LIVE_STATE(O_MIN, O2_MIN);
+        COPY_LIVE_STATE(V_MAX, V2_MAX);
       #endif
     #else
-      UPDATE_ENDSTOP_BIT(O, MIN);
-    #endif
-  #endif
-  #if HAS_O_MAX && !O_SPI_SENSORLESS
-    #if ENABLED(O_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(O, MAX);
-      #if HAS_O2_MAX
-        UPDATE_ENDSTOP_BIT(O2, MAX);
-      #else
-        COPY_LIVE_STATE(O_MAX, O2_MAX);
-      #endif
-    #else
-      UPDATE_ENDSTOP_BIT(O, MAX);
+      UPDATE_ENDSTOP_BIT(V, MAX);
     #endif
   #endif
 
-  #if HAS_Q_MIN && !Q_SPI_SENSORLESS
-    #if ENABLED(Q_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(Q, MIN);
-      #if HAS_Q2_MIN
-        UPDATE_ENDSTOP_BIT(Q2, MIN);
+  #if HAS_W_MIN && !W_SPI_SENSORLESS
+    #if ENABLED(W_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(W, MIN);
+      #if HAS_W2_MIN
+        UPDATE_ENDSTOP_BIT(W2, MIN);
       #else
-        COPY_LIVE_STATE(Q_MIN, Q2_MIN);
+        COPY_LIVE_STATE(W_MIN, W2_MIN);
       #endif
     #else
-      UPDATE_ENDSTOP_BIT(Q, MIN);
+      UPDATE_ENDSTOP_BIT(W, MIN);
     #endif
   #endif
-  #if HAS_Q_MAX && !Q_SPI_SENSORLESS
-    #if ENABLED(Q_DUAL_ENDSTOPS)
-      UPDATE_ENDSTOP_BIT(Q, MAX);
-      #if HAS_Q2_MAX
-        UPDATE_ENDSTOP_BIT(Q2, MAX);
+  #if HAS_W_MAX && !W_SPI_SENSORLESS
+    #if ENABLED(W_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(W, MAX);
+      #if HAS_W2_MAX
+        UPDATE_ENDSTOP_BIT(W2, MAX);
       #else
-        COPY_LIVE_STATE(Q_MAX, Q2_MAX);
+        COPY_LIVE_STATE(W_MAX, W2_MAX);
       #endif
     #else
-      UPDATE_ENDSTOP_BIT(Q, MAX);
+      UPDATE_ENDSTOP_BIT(W, MAX);
     #endif
   #endif
 
@@ -1267,45 +1267,45 @@ void Endstops::update() {
   #endif
 
   #if LINEAR_AXES >= 7
-    if (stepper.axis_is_moving(M_AXIS)) {
-      if (stepper.motor_direction(M_AXIS_HEAD)) { // -direction
-        #if HAS_M_MIN || (M_SPI_SENSORLESS && M_HOME_TO_MIN)
-          PROCESS_ENDSTOP(M, MIN);
+    if (stepper.axis_is_moving(U_AXIS)) {
+      if (stepper.motor_direction(U_AXIS_HEAD)) { // -direction
+        #if HAS_U_MIN || (U_SPI_SENSORLESS && U_HOME_TO_MIN)
+          PROCESS_ENDSTOP(U, MIN);
         #endif
       }
       else { // +direction
-        #if HAS_M_MAX || (M_SPI_SENSORLESS && M_HOME_TO_MAX)
-          PROCESS_ENDSTOP(M, MAX);
+        #if HAS_U_MAX || (U_SPI_SENSORLESS && U_HOME_TO_MAX)
+          PROCESS_ENDSTOP(U, MAX);
         #endif
       }
     }
   #endif
 
   #if LINEAR_AXES >= 8
-    if (stepper.axis_is_moving(O_AXIS)) {
-      if (stepper.motor_direction(O_AXIS_HEAD)) { // -direction
-        #if HAS_O_MIN || (O_SPI_SENSORLESS && O_HOME_TO_MIN)
-          PROCESS_ENDSTOP(O, MIN);
+    if (stepper.axis_is_moving(V_AXIS)) {
+      if (stepper.motor_direction(V_AXIS_HEAD)) { // -direction
+        #if HAS_V_MIN || (V_SPI_SENSORLESS && V_HOME_TO_MIN)
+          PROCESS_ENDSTOP(V, MIN);
         #endif
       }
       else { // +direction
-        #if HAS_O_MAX || (O_SPI_SENSORLESS && O_HOME_TO_MAX)
-          PROCESS_ENDSTOP(O, MAX);
+        #if HAS_V_MAX || (V_SPI_SENSORLESS && V_HOME_TO_MAX)
+          PROCESS_ENDSTOP(V, MAX);
         #endif
       }
     }
   #endif
 
   #if LINEAR_AXES >= 9
-    if (stepper.axis_is_moving(Q_AXIS)) {
-      if (stepper.motor_direction(Q_AXIS_HEAD)) { // -direction
-        #if HAS_Q_MIN || (Q_SPI_SENSORLESS && Q_HOME_TO_MIN)
-          PROCESS_ENDSTOP(Q, MIN);
+    if (stepper.axis_is_moving(W_AXIS)) {
+      if (stepper.motor_direction(W_AXIS_HEAD)) { // -direction
+        #if HAS_W_MIN || (W_SPI_SENSORLESS && W_HOME_TO_MIN)
+          PROCESS_ENDSTOP(W, MIN);
         #endif
       }
       else { // +direction
-        #if HAS_Q_MAX || (Q_SPI_SENSORLESS && Q_HOME_TO_MAX)
-          PROCESS_ENDSTOP(Q, MAX);
+        #if HAS_W_MAX || (W_SPI_SENSORLESS && W_HOME_TO_MAX)
+          PROCESS_ENDSTOP(W, MAX);
         #endif
       }
     }
@@ -1370,21 +1370,21 @@ void Endstops::update() {
         hit = true;
       }
     #endif
-    #if M_SPI_SENSORLESS
-      if (tmc_spi_homing.m && stepperM.test_stall_status()) {
-        SBI(live_state, M_ENDSTOP);
+    #if U_SPI_SENSORLESS
+      if (tmc_spi_homing.u && stepperU.test_stall_status()) {
+        SBI(live_state, U_ENDSTOP);
         hit = true;
       }
     #endif
-    #if O_SPI_SENSORLESS
-      if (tmc_spi_homing.o && stepperO.test_stall_status()) {
-        SBI(live_state, O_ENDSTOP);
+    #if V_SPI_SENSORLESS
+      if (tmc_spi_homing.v && stepperV.test_stall_status()) {
+        SBI(live_state, V_ENDSTOP);
         hit = true;
       }
     #endif
-    #if Q_SPI_SENSORLESS
-      if (tmc_spi_homing.q && stepperQ.test_stall_status()) {
-        SBI(live_state, Q_ENDSTOP);
+    #if W_SPI_SENSORLESS
+      if (tmc_spi_homing.w && stepperW.test_stall_status()) {
+        SBI(live_state, W_ENDSTOP);
         hit = true;
       }
     #endif
@@ -1401,9 +1401,9 @@ void Endstops::update() {
     TERN_(I_SPI_SENSORLESS, CBI(live_state, I_ENDSTOP));
     TERN_(J_SPI_SENSORLESS, CBI(live_state, J_ENDSTOP));
     TERN_(K_SPI_SENSORLESS, CBI(live_state, K_ENDSTOP));
-    TERN_(M_SPI_SENSORLESS, CBI(live_state, M_ENDSTOP));
-    TERN_(O_SPI_SENSORLESS, CBI(live_state, O_ENDSTOP));
-    TERN_(Q_SPI_SENSORLESS, CBI(live_state, Q_ENDSTOP));
+    TERN_(U_SPI_SENSORLESS, CBI(live_state, U_ENDSTOP));
+    TERN_(V_SPI_SENSORLESS, CBI(live_state, V_ENDSTOP));
+    TERN_(W_SPI_SENSORLESS, CBI(live_state, W_ENDSTOP));
   }
 
 #endif // SPI_ENDSTOPS
@@ -1498,23 +1498,23 @@ void Endstops::update() {
     #if HAS_K_MIN
       ES_GET_STATE(K_MIN);
     #endif
-    #if HAS_M_MAX
-      ES_GET_STATE(M_MAX);
+    #if HAS_U_MAX
+      ES_GET_STATE(U_MAX);
     #endif
-    #if HAS_M_MIN
-      ES_GET_STATE(M_MIN);
+    #if HAS_U_MIN
+      ES_GET_STATE(U_MIN);
     #endif
-    #if HAS_O_MAX
-      ES_GET_STATE(O_MAX);
+    #if HAS_V_MAX
+      ES_GET_STATE(V_MAX);
     #endif
-    #if HAS_O_MIN
-      ES_GET_STATE(O_MIN);
+    #if HAS_V_MIN
+      ES_GET_STATE(V_MIN);
     #endif
-    #if HAS_Q_MAX
-      ES_GET_STATE(Q_MAX);
+    #if HAS_W_MAX
+      ES_GET_STATE(W_MAX);
     #endif
-    #if HAS_Q_MIN
-      ES_GET_STATE(Q_MIN);
+    #if HAS_W_MIN
+      ES_GET_STATE(W_MIN);
     #endif
 
     uint16_t endstop_change = live_state_local ^ old_live_state_local;
@@ -1590,23 +1590,23 @@ void Endstops::update() {
       #if HAS_K_MAX
         ES_REPORT_CHANGE(K_MAX);
       #endif
-      #if HAS_M_MIN
-        ES_REPORT_CHANGE(M_MIN);
+      #if HAS_U_MIN
+        ES_REPORT_CHANGE(U_MIN);
       #endif
-      #if HAS_M_MAX
-        ES_REPORT_CHANGE(M_MAX);
+      #if HAS_U_MAX
+        ES_REPORT_CHANGE(U_MAX);
       #endif
-      #if HAS_O_MIN
-        ES_REPORT_CHANGE(O_MIN);
+      #if HAS_V_MIN
+        ES_REPORT_CHANGE(V_MIN);
       #endif
-      #if HAS_O_MAX
-        ES_REPORT_CHANGE(O_MAX);
+      #if HAS_V_MAX
+        ES_REPORT_CHANGE(V_MAX);
       #endif
-      #if HAS_Q_MIN
-        ES_REPORT_CHANGE(Q_MIN);
+      #if HAS_W_MIN
+        ES_REPORT_CHANGE(W_MIN);
       #endif
-      #if HAS_Q_MAX
-        ES_REPORT_CHANGE(Q_MAX);
+      #if HAS_W_MAX
+        ES_REPORT_CHANGE(W_MAX);
       #endif
 
       SERIAL_ECHOLNPGM("\n");

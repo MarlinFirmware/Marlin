@@ -429,17 +429,17 @@
         if (monitor_tmc_driver(stepperK, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperK);
       #endif
-      #if AXIS_IS_TMC(M)
-        if (monitor_tmc_driver(stepperM, need_update_error_counters, need_debug_reporting))
-          step_current_down(stepperM);
+      #if AXIS_IS_TMC(U)
+        if (monitor_tmc_driver(stepperU, need_update_error_counters, need_debug_reporting))
+          step_current_down(stepperU);
       #endif
-      #if AXIS_IS_TMC(O)
-        if (monitor_tmc_driver(stepperO, need_update_error_counters, need_debug_reporting))
-          step_current_down(stepperO);
+      #if AXIS_IS_TMC(V)
+        if (monitor_tmc_driver(stepperV, need_update_error_counters, need_debug_reporting))
+          step_current_down(stepperV);
       #endif
-      #if AXIS_IS_TMC(Q)
-        if (monitor_tmc_driver(stepperQ, need_update_error_counters, need_debug_reporting))
-          step_current_down(stepperQ);
+      #if AXIS_IS_TMC(W)
+        if (monitor_tmc_driver(stepperW, need_update_error_counters, need_debug_reporting))
+          step_current_down(stepperW);
       #endif
 
       #if AXIS_IS_TMC(E0)
@@ -825,14 +825,14 @@
     #if AXIS_IS_TMC(K)
       if (k) tmc_status(stepperK, n);
     #endif
-    #if AXIS_IS_TMC(M)
-      if (m) tmc_status(stepperM, n);
+    #if AXIS_IS_TMC(U)
+      if (u) tmc_status(stepperU, n);
     #endif
-    #if AXIS_IS_TMC(O)
-      if (o) tmc_status(stepperO, n);
+    #if AXIS_IS_TMC(V)
+      if (v) tmc_status(stepperV, n);
     #endif
-    #if AXIS_IS_TMC(Q)
-      if (q) tmc_status(stepperQ, n);
+    #if AXIS_IS_TMC(W)
+      if (w) tmc_status(stepperW, n);
     #endif
 
     if (TERN0(HAS_EXTRUDERS, e)) {
@@ -908,14 +908,14 @@
     #if AXIS_IS_TMC(K)
       if (k) tmc_parse_drv_status(stepperK, n);
     #endif
-    #if AXIS_IS_TMC(M)
-      if (m) tmc_parse_drv_status(stepperM, n);
+    #if AXIS_IS_TMC(U)
+      if (u) tmc_parse_drv_status(stepperU, n);
     #endif
-    #if AXIS_IS_TMC(O)
-      if (o) tmc_parse_drv_status(stepperO, n);
+    #if AXIS_IS_TMC(V)
+      if (v) tmc_parse_drv_status(stepperV, n);
     #endif
-    #if AXIS_IS_TMC(Q)
-      if (q) tmc_parse_drv_status(stepperQ, n);
+    #if AXIS_IS_TMC(W)
+      if (w) tmc_parse_drv_status(stepperW, n);
     #endif
 
     if (TERN0(HAS_EXTRUDERS, e)) {
@@ -1122,14 +1122,14 @@
     #if AXIS_IS_TMC(K)
       if (k) tmc_get_registers(stepperK, n);
     #endif
-    #if AXIS_IS_TMC(M)
-      if (m) tmc_get_registers(stepperM, n);
+    #if AXIS_IS_TMC(U)
+      if (u) tmc_get_registers(stepperU, n);
     #endif
-    #if AXIS_IS_TMC(O)
-      if (o) tmc_get_registers(stepperO, n);
+    #if AXIS_IS_TMC(V)
+      if (v) tmc_get_registers(stepperV, n);
     #endif
-    #if AXIS_IS_TMC(Q)
-      if (q) tmc_get_registers(stepperQ, n);
+    #if AXIS_IS_TMC(W)
+      if (w) tmc_get_registers(stepperW, n);
     #endif
 
     if (TERN0(HAS_EXTRUDERS, e)) {
@@ -1257,14 +1257,14 @@
     #if AXIS_HAS_SPI(K)
       SET_CS_PIN(K);
     #endif
-    #if AXIS_HAS_SPI(M)
-      SET_CS_PIN(M);
+    #if AXIS_HAS_SPI(U)
+      SET_CS_PIN(U);
     #endif
-    #if AXIS_HAS_SPI(O)
-      SET_CS_PIN(O);
+    #if AXIS_HAS_SPI(V)
+      SET_CS_PIN(V);
     #endif
-    #if AXIS_HAS_SPI(Q)
-      SET_CS_PIN(Q);
+    #if AXIS_HAS_SPI(W)
+      SET_CS_PIN(W);
     #endif
     #if AXIS_HAS_SPI(E0)
       SET_CS_PIN(E0);
@@ -1359,14 +1359,14 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
   #if AXIS_IS_TMC(K)
     if (k) axis_connection += test_connection(stepperK);
   #endif
-  #if AXIS_IS_TMC(M)
-    if (m) axis_connection += test_connection(stepperM);
+  #if AXIS_IS_TMC(U)
+    if (u) axis_connection += test_connection(stepperU);
   #endif
-  #if AXIS_IS_TMC(O)
-    if (o) axis_connection += test_connection(stepperO);
+  #if AXIS_IS_TMC(V)
+    if (v) axis_connection += test_connection(stepperV);
   #endif
-  #if AXIS_IS_TMC(Q)
-    if (q) axis_connection += test_connection(stepperQ);
+  #if AXIS_IS_TMC(W)
+    if (w) axis_connection += test_connection(stepperW);
   #endif
 
   if (TERN0(HAS_EXTRUDERS, e)) {

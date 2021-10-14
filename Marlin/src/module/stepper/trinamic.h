@@ -49,9 +49,9 @@
 #define TMC_I_LABEL 'I', '0'
 #define TMC_J_LABEL 'J', '0'
 #define TMC_K_LABEL 'K', '0'
-#define TMC_M_LABEL 'M', '0'
-#define TMC_O_LABEL 'O', '0'
-#define TMC_Q_LABEL 'Q', '0'
+#define TMC_U_LABEL 'U', '0'
+#define TMC_V_LABEL 'V', '0'
+#define TMC_W_LABEL 'W', '0'
 
 #define TMC_X2_LABEL 'X', '2'
 #define TMC_Y2_LABEL 'Y', '2'
@@ -101,14 +101,14 @@ typedef struct {
 #if LINEAR_AXES >= 6 && !defined(CHOPPER_TIMING_K)
   #define CHOPPER_TIMING_K CHOPPER_TIMING
 #endif
-#if LINEAR_AXES >= 7 && !defined(CHOPPER_TIMING_M)
-  #define CHOPPER_TIMING_M CHOPPER_TIMING
+#if LINEAR_AXES >= 7 && !defined(CHOPPER_TIMING_U)
+  #define CHOPPER_TIMING_U CHOPPER_TIMING
 #endif
-#if LINEAR_AXES >= 8 && !defined(CHOPPER_TIMING_O)
-  #define CHOPPER_TIMING_O CHOPPER_TIMING
+#if LINEAR_AXES >= 8 && !defined(CHOPPER_TIMING_V)
+  #define CHOPPER_TIMING_V CHOPPER_TIMING
 #endif
-#if LINEAR_AXES >= 9 && !defined(CHOPPER_TIMING_Q)
-  #define CHOPPER_TIMING_Q CHOPPER_TIMING
+#if LINEAR_AXES >= 9 && !defined(CHOPPER_TIMING_W)
+  #define CHOPPER_TIMING_W CHOPPER_TIMING
 #endif
 #if HAS_EXTRUDERS && !defined(CHOPPER_TIMING_E)
   #define CHOPPER_TIMING_E CHOPPER_TIMING
@@ -292,45 +292,45 @@ void reset_trinamic_drivers();
   #endif
 #endif
 
-// M Stepper
-#if AXIS_IS_TMC(M)
-  extern TMC_CLASS(M, M) stepperM;
-  static constexpr chopper_timing_t chopper_timing_M = CHOPPER_TIMING_M;
+// U Stepper
+#if AXIS_IS_TMC(U)
+  extern TMC_CLASS(U, U) stepperU;
+  static constexpr chopper_timing_t chopper_timing_U = CHOPPER_TIMING_U;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define M_ENABLE_INIT() NOOP
-    #define M_ENABLE_WRITE(STATE) stepperM.toff((STATE)==M_ENABLE_ON ? chopper_timing_M.toff : 0)
-    #define M_ENABLE_READ() stepperM.isEnabled()
+    #define U_ENABLE_INIT() NOOP
+    #define U_ENABLE_WRITE(STATE) stepperU.toff((STATE)==U_ENABLE_ON ? chopper_timing_U.toff : 0)
+    #define U_ENABLE_READ() stepperU.isEnabled()
   #endif
-  #if AXIS_HAS_SQUARE_WAVE(M)
-    #define M_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(M_STEP_PIN); }while(0)
+  #if AXIS_HAS_SQUARE_WAVE(U)
+    #define U_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(U_STEP_PIN); }while(0)
   #endif
 #endif
 
-// O Stepper
-#if AXIS_IS_TMC(O)
-  extern TMC_CLASS(O, O) stepperO;
-  static constexpr chopper_timing_t chopper_timing_O = CHOPPER_TIMING_O;
+// V Stepper
+#if AXIS_IS_TMC(V)
+  extern TMC_CLASS(V, V) stepperV;
+  static constexpr chopper_timing_t chopper_timing_V = CHOPPER_TIMING_V;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define O_ENABLE_INIT() NOOP
-    #define O_ENABLE_WRITE(STATE) stepperO.toff((STATE)==O_ENABLE_ON ? chopper_timing_O.toff : 0)
-    #define O_ENABLE_READ() stepperO.isEnabled()
+    #define V_ENABLE_INIT() NOOP
+    #define V_ENABLE_WRITE(STATE) stepperV.toff((STATE)==V_ENABLE_ON ? chopper_timing_V.toff : 0)
+    #define V_ENABLE_READ() stepperV.isEnabled()
   #endif
-  #if AXIS_HAS_SQUARE_WAVE(O)
-    #define O_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(O_STEP_PIN); }while(0)
+  #if AXIS_HAS_SQUARE_WAVE(V)
+    #define V_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(V_STEP_PIN); }while(0)
   #endif
 #endif
 
-// Q Stepper
-#if AXIS_IS_TMC(Q)
-  extern TMC_CLASS(Q, Q) stepperQ;
-  static constexpr chopper_timing_t chopper_timing_Q = CHOPPER_TIMING_Q;
+// W Stepper
+#if AXIS_IS_TMC(W)
+  extern TMC_CLASS(W, W) stepperW;
+  static constexpr chopper_timing_t chopper_timing_W = CHOPPER_TIMING_W;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    #define Q_ENABLE_INIT() NOOP
-    #define Q_ENABLE_WRITE(STATE) stepperQ.toff((STATE)==Q_ENABLE_ON ? chopper_timing_Q.toff : 0)
-    #define Q_ENABLE_READ() stepperQ.isEnabled()
+    #define W_ENABLE_INIT() NOOP
+    #define W_ENABLE_WRITE(STATE) stepperW.toff((STATE)==W_ENABLE_ON ? chopper_timing_W.toff : 0)
+    #define W_ENABLE_READ() stepperW.isEnabled()
   #endif
-  #if AXIS_HAS_SQUARE_WAVE(Q)
-    #define Q_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Q_STEP_PIN); }while(0)
+  #if AXIS_HAS_SQUARE_WAVE(W)
+    #define W_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(W_STEP_PIN); }while(0)
   #endif
 #endif
 

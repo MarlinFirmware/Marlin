@@ -155,37 +155,37 @@ void setup_endstop_interrupts() {
     #endif
     _ATTACH(K_MIN_PIN);
   #endif
-  #if HAS_M_MAX
-    #if !LPC1768_PIN_INTERRUPT_M(M_MAX_PIN)
-      #error "M_MAX_PIN is not INTERRUPT-capable."
+  #if HAS_U_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(U_MAX_PIN)
+      #error "U_MAX_PIN is not INTERRUPT-capable."
     #endif
-    _ATTACH(M_MAX_PIN);
-  #elif HAS_M_MIN
-    #if !LPC1768_PIN_INTERRUPT_M(M_MIN_PIN)
-      #error "M_MIN_PIN is not INTERRUPT-capable."
+    _ATTACH(U_MAX_PIN);
+  #elif HAS_U_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(U_MIN_PIN)
+      #error "U_MIN_PIN is not INTERRUPT-capable."
     #endif
-    _ATTACH(M_MIN_PIN);
+    _ATTACH(U_MIN_PIN);
   #endif
-  #if HAS_O_MAX
-    #if !LPC1768_PIN_INTERRUPT_M(O_MAX_PIN)
-      #error "O_MAX_PIN is not INTERRUPT-capable."
+  #if HAS_V_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(V_MAX_PIN)
+      #error "V_MAX_PIN is not INTERRUPT-capable."
     #endif
-    _ATTACH(O_MAX_PIN);
-  #elif HAS_O_MIN
-    #if !LPC1768_PIN_INTERRUPT_M(O_MIN_PIN)
-      #error "O_MIN_PIN is not INTERRUPT-capable."
+    _ATTACH(V_MAX_PIN);
+  #elif HAS_V_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(V_MIN_PIN)
+      #error "V_MIN_PIN is not INTERRUPT-capable."
     #endif
-    _ATTACH(O_MIN_PIN);
+    _ATTACH(V_MIN_PIN);
   #endif
-  #if HAS_Q_MAX
-    #if !LPC1768_PIN_INTERRUPT_M(Q_MAX_PIN)
-      #error "Q_MAX_PIN is not INTERRUPT-capable."
+  #if HAS_W_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(W_MAX_PIN)
+      #error "W_MAX_PIN is not INTERRUPT-capable."
     #endif
-    _ATTACH(Q_MAX_PIN);
-  #elif HAS_Q_MIN
-    #if !LPC1768_PIN_INTERRUPT_M(Q_MIN_PIN)
-      #error "Q_MIN_PIN is not INTERRUPT-capable."
+    _ATTACH(W_MAX_PIN);
+  #elif HAS_W_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(W_MIN_PIN)
+      #error "W_MIN_PIN is not INTERRUPT-capable."
     #endif
-    _ATTACH(Q_MIN_PIN);
+    _ATTACH(W_MIN_PIN);
   #endif
 }

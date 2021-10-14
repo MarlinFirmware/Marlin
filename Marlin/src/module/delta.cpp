@@ -226,9 +226,9 @@ void home_delta() {
     TERN_(I_SENSORLESS, sensorless_t stealth_states_i = start_sensorless_homing_per_axis(I_AXIS));
     TERN_(J_SENSORLESS, sensorless_t stealth_states_j = start_sensorless_homing_per_axis(J_AXIS));
     TERN_(K_SENSORLESS, sensorless_t stealth_states_k = start_sensorless_homing_per_axis(K_AXIS));
-    TERN_(M_SENSORLESS, sensorless_t stealth_states_m = start_sensorless_homing_per_axis(M_AXIS));
-    TERN_(O_SENSORLESS, sensorless_t stealth_states_o = start_sensorless_homing_per_axis(O_AXIS));
-    TERN_(Q_SENSORLESS, sensorless_t stealth_states_q = start_sensorless_homing_per_axis(Q_AXIS));
+    TERN_(U_SENSORLESS, sensorless_t stealth_states_u = start_sensorless_homing_per_axis(U_AXIS));
+    TERN_(V_SENSORLESS, sensorless_t stealth_states_v = start_sensorless_homing_per_axis(V_AXIS));
+    TERN_(W_SENSORLESS, sensorless_t stealth_states_w = start_sensorless_homing_per_axis(W_AXIS));
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
@@ -245,9 +245,9 @@ void home_delta() {
     TERN_(I_SENSORLESS, end_sensorless_homing_per_axis(I_AXIS, stealth_states_i));
     TERN_(J_SENSORLESS, end_sensorless_homing_per_axis(J_AXIS, stealth_states_j));
     TERN_(K_SENSORLESS, end_sensorless_homing_per_axis(K_AXIS, stealth_states_k));
-    TERN_(M_SENSORLESS, end_sensorless_homing_per_axis(M_AXIS, stealth_states_m));
-    TERN_(O_SENSORLESS, end_sensorless_homing_per_axis(O_AXIS, stealth_states_o));
-    TERN_(Q_SENSORLESS, end_sensorless_homing_per_axis(Q_AXIS, stealth_states_q));
+    TERN_(U_SENSORLESS, end_sensorless_homing_per_axis(U_AXIS, stealth_states_u));
+    TERN_(V_SENSORLESS, end_sensorless_homing_per_axis(V_AXIS, stealth_states_v));
+    TERN_(W_SENSORLESS, end_sensorless_homing_per_axis(W_AXIS, stealth_states_w));
   #endif
 
   endstops.validate_homing_move();

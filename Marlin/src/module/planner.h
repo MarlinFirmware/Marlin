@@ -81,7 +81,7 @@
            manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(_mf.e / 60.0f,
                                                      _mf.x / 60.0f, _mf.y / 60.0f, _mf.z / 60.0f,
                                                      _mf.i / 60.0f, _mf.j / 60.0f, _mf.k / 60.0f,
-                                                     _mf.m / 60.0f, _mf.o / 60.0f, _mf.q / 60.0f);
+                                                     _mf.u / 60.0f, _mf.v / 60.0f, _mf.w / 60.0f);
 #endif
 
 #if IS_KINEMATIC && HAS_JUNCTION_DEVIATION
@@ -840,7 +840,7 @@ class Planner {
         get_axis_position_mm(E_AXIS),
         get_axis_position_mm(A_AXIS), get_axis_position_mm(B_AXIS), get_axis_position_mm(C_AXIS),
         get_axis_position_mm(I_AXIS), get_axis_position_mm(J_AXIS), get_axis_position_mm(K_AXIS),
-        get_axis_position_mm(M_AXIS), get_axis_position_mm(O_AXIS), get_axis_position_mm(Q_AXIS)
+        get_axis_position_mm(U_AXIS), get_axis_position_mm(V_AXIS), get_axis_position_mm(W_AXIS)
       );
       return out;
     }

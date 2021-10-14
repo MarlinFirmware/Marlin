@@ -168,10 +168,10 @@
 
 #define _EN_ITEM(N) , E##N
 
-typedef struct { uint16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K, M, O, Q), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_stepper_current_t;
-typedef struct { uint32_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K, M, O, Q), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_hybrid_threshold_t;
-typedef struct {  int16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K, M, O, Q), X2, Y2, Z2, Z3, Z4;                              } tmc_sgt_t;
-typedef struct {     bool LINEAR_AXIS_LIST(X, Y, Z, I, J, K, M, O, Q), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_stealth_enabled_t;
+typedef struct { uint16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_stepper_current_t;
+typedef struct { uint32_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_hybrid_threshold_t;
+typedef struct {  int16_t LINEAR_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4;                              } tmc_sgt_t;
+typedef struct {     bool LINEAR_AXIS_LIST(X, Y, Z, I, J, K, U, V, W), X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } tmc_stealth_enabled_t;
 
 #undef _EN_ITEM
 
@@ -1124,14 +1124,14 @@ void MarlinSettings::postprocess() {
         #if AXIS_IS_TMC(K)
           tmc_stepper_current.K = stepperK.getMilliamps();
         #endif
-        #if AXIS_IS_TMC(M)
-          tmc_stepper_current.M = stepperM.getMilliamps();
+        #if AXIS_IS_TMC(U)
+          tmc_stepper_current.U = stepperU.getMilliamps();
         #endif
-        #if AXIS_IS_TMC(O)
-          tmc_stepper_current.O = stepperO.getMilliamps();
+        #if AXIS_IS_TMC(V)
+          tmc_stepper_current.V = stepperV.getMilliamps();
         #endif
-        #if AXIS_IS_TMC(Q)
-          tmc_stepper_current.Q = stepperQ.getMilliamps();
+        #if AXIS_IS_TMC(W)
+          tmc_stepper_current.W = stepperW.getMilliamps();
         #endif
         #if AXIS_IS_TMC(X2)
           tmc_stepper_current.X2 = stepperX2.getMilliamps();
@@ -1190,9 +1190,9 @@ void MarlinSettings::postprocess() {
         TERN_(I_HAS_STEALTHCHOP,  tmc_hybrid_threshold.I =  stepperI.get_pwm_thrs());
         TERN_(J_HAS_STEALTHCHOP,  tmc_hybrid_threshold.J =  stepperJ.get_pwm_thrs());
         TERN_(K_HAS_STEALTHCHOP,  tmc_hybrid_threshold.K =  stepperK.get_pwm_thrs());
-        TERN_(M_HAS_STEALTHCHOP,  tmc_hybrid_threshold.M =  stepperM.get_pwm_thrs());
-        TERN_(O_HAS_STEALTHCHOP,  tmc_hybrid_threshold.O =  stepperO.get_pwm_thrs());
-        TERN_(Q_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Q =  stepperQ.get_pwm_thrs());
+        TERN_(U_HAS_STEALTHCHOP,  tmc_hybrid_threshold.U =  stepperU.get_pwm_thrs());
+        TERN_(V_HAS_STEALTHCHOP,  tmc_hybrid_threshold.V =  stepperV.get_pwm_thrs());
+        TERN_(W_HAS_STEALTHCHOP,  tmc_hybrid_threshold.W =  stepperW.get_pwm_thrs());
         TERN_(X2_HAS_STEALTHCHOP, tmc_hybrid_threshold.X2 = stepperX2.get_pwm_thrs());
         TERN_(Y2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Y2 = stepperY2.get_pwm_thrs());
         TERN_(Z2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z2 = stepperZ2.get_pwm_thrs());
@@ -1209,7 +1209,7 @@ void MarlinSettings::postprocess() {
       #else
         #define _EN_ITEM(N) , .E##N =  30
         const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
-          LINEAR_AXIS_LIST(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3, .M = 3, .O = 3, .Q = 3),
+          LINEAR_AXIS_LIST(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3, .U = 3, .V = 3, .W = 3),
           .X2 = 100, .Y2 = 100, .Z2 = 3, .Z3 = 3, .Z4 = 3
           REPEAT(E_STEPPERS, _EN_ITEM)
         };
@@ -1231,9 +1231,9 @@ void MarlinSettings::postprocess() {
           TERN_(I_SENSORLESS, tmc_sgt.I = stepperI.homing_threshold()),
           TERN_(J_SENSORLESS, tmc_sgt.J = stepperJ.homing_threshold()),
           TERN_(K_SENSORLESS, tmc_sgt.K = stepperK.homing_threshold()),
-          TERN_(M_SENSORLESS, tmc_sgt.M = stepperM.homing_threshold()),
-          TERN_(O_SENSORLESS, tmc_sgt.O = stepperO.homing_threshold()),
-          TERN_(Q_SENSORLESS, tmc_sgt.Q = stepperQ.homing_threshold())
+          TERN_(U_SENSORLESS, tmc_sgt.U = stepperU.homing_threshold()),
+          TERN_(V_SENSORLESS, tmc_sgt.V = stepperV.homing_threshold()),
+          TERN_(W_SENSORLESS, tmc_sgt.W = stepperW.homing_threshold())
         );
         TERN_(X2_SENSORLESS, tmc_sgt.X2 = stepperX2.homing_threshold());
         TERN_(Y2_SENSORLESS, tmc_sgt.Y2 = stepperY2.homing_threshold());
@@ -1257,9 +1257,9 @@ void MarlinSettings::postprocess() {
       TERN_(I_HAS_STEALTHCHOP,  tmc_stealth_enabled.I  = stepperI.get_stored_stealthChop());
       TERN_(J_HAS_STEALTHCHOP,  tmc_stealth_enabled.J  = stepperJ.get_stored_stealthChop());
       TERN_(K_HAS_STEALTHCHOP,  tmc_stealth_enabled.K  = stepperK.get_stored_stealthChop());
-      TERN_(M_HAS_STEALTHCHOP,  tmc_stealth_enabled.M  = stepperM.get_stored_stealthChop());
-      TERN_(O_HAS_STEALTHCHOP,  tmc_stealth_enabled.O  = stepperO.get_stored_stealthChop());
-      TERN_(Q_HAS_STEALTHCHOP,  tmc_stealth_enabled.Q  = stepperQ.get_stored_stealthChop());
+      TERN_(U_HAS_STEALTHCHOP,  tmc_stealth_enabled.U  = stepperU.get_stored_stealthChop());
+      TERN_(V_HAS_STEALTHCHOP,  tmc_stealth_enabled.V  = stepperV.get_stored_stealthChop());
+      TERN_(W_HAS_STEALTHCHOP,  tmc_stealth_enabled.W  = stepperW.get_stored_stealthChop());
       TERN_(X2_HAS_STEALTHCHOP, tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop());
       TERN_(Y2_HAS_STEALTHCHOP, tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop());
       TERN_(Z2_HAS_STEALTHCHOP, tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop());
@@ -2039,14 +2039,14 @@ void MarlinSettings::postprocess() {
             #if AXIS_IS_TMC(K)
               SET_CURR(K);
             #endif
-            #if AXIS_IS_TMC(M)
-              SET_CURR(M);
+            #if AXIS_IS_TMC(U)
+              SET_CURR(U);
             #endif
-            #if AXIS_IS_TMC(O)
-              SET_CURR(O);
+            #if AXIS_IS_TMC(V)
+              SET_CURR(V);
             #endif
-            #if AXIS_IS_TMC(Q)
-              SET_CURR(Q);
+            #if AXIS_IS_TMC(W)
+              SET_CURR(W);
             #endif
             #if AXIS_IS_TMC(E0)
               SET_CURR(E0);
@@ -2095,9 +2095,9 @@ void MarlinSettings::postprocess() {
             TERN_(I_HAS_STEALTHCHOP,  stepperI.set_pwm_thrs(tmc_hybrid_threshold.I));
             TERN_(J_HAS_STEALTHCHOP,  stepperJ.set_pwm_thrs(tmc_hybrid_threshold.J));
             TERN_(K_HAS_STEALTHCHOP,  stepperK.set_pwm_thrs(tmc_hybrid_threshold.K));
-            TERN_(M_HAS_STEALTHCHOP,  stepperM.set_pwm_thrs(tmc_hybrid_threshold.M));
-            TERN_(O_HAS_STEALTHCHOP,  stepperO.set_pwm_thrs(tmc_hybrid_threshold.O));
-            TERN_(Q_HAS_STEALTHCHOP,  stepperQ.set_pwm_thrs(tmc_hybrid_threshold.Q));
+            TERN_(U_HAS_STEALTHCHOP,  stepperU.set_pwm_thrs(tmc_hybrid_threshold.U));
+            TERN_(V_HAS_STEALTHCHOP,  stepperV.set_pwm_thrs(tmc_hybrid_threshold.V));
+            TERN_(W_HAS_STEALTHCHOP,  stepperW.set_pwm_thrs(tmc_hybrid_threshold.W));
             TERN_(E0_HAS_STEALTHCHOP, stepperE0.set_pwm_thrs(tmc_hybrid_threshold.E0));
             TERN_(E1_HAS_STEALTHCHOP, stepperE1.set_pwm_thrs(tmc_hybrid_threshold.E1));
             TERN_(E2_HAS_STEALTHCHOP, stepperE2.set_pwm_thrs(tmc_hybrid_threshold.E2));
@@ -2126,9 +2126,9 @@ void MarlinSettings::postprocess() {
               TERN_(I_SENSORLESS, stepperI.homing_threshold(tmc_sgt.I)),
               TERN_(J_SENSORLESS, stepperJ.homing_threshold(tmc_sgt.J)),
               TERN_(K_SENSORLESS, stepperK.homing_threshold(tmc_sgt.K)),
-              TERN_(M_SENSORLESS, stepperM.homing_threshold(tmc_sgt.M)),
-              TERN_(O_SENSORLESS, stepperO.homing_threshold(tmc_sgt.O)),
-              TERN_(Q_SENSORLESS, stepperQ.homing_threshold(tmc_sgt.Q))
+              TERN_(U_SENSORLESS, stepperU.homing_threshold(tmc_sgt.U)),
+              TERN_(V_SENSORLESS, stepperV.homing_threshold(tmc_sgt.V)),
+              TERN_(W_SENSORLESS, stepperW.homing_threshold(tmc_sgt.W))
             );
             TERN_(X2_SENSORLESS, stepperX2.homing_threshold(tmc_sgt.X2));
             TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(tmc_sgt.Y2));
@@ -2156,9 +2156,9 @@ void MarlinSettings::postprocess() {
             TERN_(I_HAS_STEALTHCHOP,  SET_STEPPING_MODE(I));
             TERN_(J_HAS_STEALTHCHOP,  SET_STEPPING_MODE(J));
             TERN_(K_HAS_STEALTHCHOP,  SET_STEPPING_MODE(K));
-            TERN_(M_HAS_STEALTHCHOP,  SET_STEPPING_MODE(M));
-            TERN_(O_HAS_STEALTHCHOP,  SET_STEPPING_MODE(O));
-            TERN_(Q_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Q));
+            TERN_(U_HAS_STEALTHCHOP,  SET_STEPPING_MODE(U));
+            TERN_(V_HAS_STEALTHCHOP,  SET_STEPPING_MODE(V));
+            TERN_(W_HAS_STEALTHCHOP,  SET_STEPPING_MODE(W));
             TERN_(X2_HAS_STEALTHCHOP, SET_STEPPING_MODE(X2));
             TERN_(Y2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Y2));
             TERN_(Z2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z2));

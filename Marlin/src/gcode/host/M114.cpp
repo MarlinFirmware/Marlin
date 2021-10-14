@@ -134,14 +134,14 @@
       #if AXIS_IS_L64XX(K)
         REPORT_ABSOLUTE_POS(K);
       #endif
-      #if AXIS_IS_L64XX(M)
-        REPORT_ABSOLUTE_POS(M);
+      #if AXIS_IS_L64XX(U)
+        REPORT_ABSOLUTE_POS(U);
       #endif
-      #if AXIS_IS_L64XX(O)
-        REPORT_ABSOLUTE_POS(O);
+      #if AXIS_IS_L64XX(V)
+        REPORT_ABSOLUTE_POS(V);
       #endif
-      #if AXIS_IS_L64XX(Q)
-        REPORT_ABSOLUTE_POS(Q);
+      #if AXIS_IS_L64XX(W)
+        REPORT_ABSOLUTE_POS(W);
       #endif
       #if AXIS_IS_L64XX(E0)
         REPORT_ABSOLUTE_POS(E0);
@@ -194,9 +194,9 @@
       planner.get_axis_position_mm(I_AXIS),
       planner.get_axis_position_mm(J_AXIS),
       planner.get_axis_position_mm(K_AXIS),
-      planner.get_axis_position_mm(M_AXIS),
-      planner.get_axis_position_mm(O_AXIS),
-      planner.get_axis_position_mm(Q_AXIS)
+      planner.get_axis_position_mm(U_AXIS),
+      planner.get_axis_position_mm(V_AXIS),
+      planner.get_axis_position_mm(W_AXIS)
     );
     report_all_axis_pos(from_steppers);
 

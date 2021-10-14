@@ -45,7 +45,7 @@ static void set_stealth_status(const bool enable, const int8_t target_e_stepper)
 
   #if    X_HAS_STEALTHCHOP  || Y_HAS_STEALTHCHOP  || Z_HAS_STEALTHCHOP \
       || I_HAS_STEALTHCHOP  || J_HAS_STEALTHCHOP  || K_HAS_STEALTHCHOP \
-      || M_HAS_STEALTHCHOP  || O_HAS_STEALTHCHOP  || Q_HAS_STEALTHCHOP \
+      || U_HAS_STEALTHCHOP  || V_HAS_STEALTHCHOP  || W_HAS_STEALTHCHOP \
       || X2_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP || Z3_HAS_STEALTHCHOP || Z4_HAS_STEALTHCHOP
     const uint8_t index = parser.byteval('I');
   #endif
@@ -82,14 +82,14 @@ static void set_stealth_status(const bool enable, const int8_t target_e_stepper)
       #if K_HAS_STEALTHCHOP
         case K_AXIS: TMC_SET_STEALTH(K); break;
       #endif
-      #if M_HAS_STEALTHCHOP
-        case M_AXIS: TMC_SET_STEALTH(M); break;
+      #if U_HAS_STEALTHCHOP
+        case U_AXIS: TMC_SET_STEALTH(U); break;
       #endif
-      #if O_HAS_STEALTHCHOP
-        case O_AXIS: TMC_SET_STEALTH(O); break;
+      #if V_HAS_STEALTHCHOP
+        case V_AXIS: TMC_SET_STEALTH(V); break;
       #endif
-      #if Q_HAS_STEALTHCHOP
-        case Q_AXIS: TMC_SET_STEALTH(Q); break;
+      #if W_HAS_STEALTHCHOP
+        case W_AXIS: TMC_SET_STEALTH(W); break;
       #endif
 
       #if E_STEPPERS
@@ -124,9 +124,9 @@ static void say_stealth_status() {
   OPTCODE( I_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(I))
   OPTCODE( J_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(J))
   OPTCODE( K_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(K))
-  OPTCODE( M_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(M))
-  OPTCODE( O_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(O))
-  OPTCODE( Q_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(Q))
+  OPTCODE( U_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(U))
+  OPTCODE( V_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(V))
+  OPTCODE( W_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(W))
   OPTCODE(E0_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E0))
   OPTCODE(E1_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E1))
   OPTCODE(E2_HAS_STEALTHCHOP, TMC_SAY_STEALTH_STATUS(E2))
@@ -170,9 +170,9 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
              chop_i = TERN0(I_HAS_STEALTHCHOP, stepperI.get_stored_stealthChop()),
              chop_j = TERN0(J_HAS_STEALTHCHOP, stepperJ.get_stored_stealthChop()),
              chop_k = TERN0(K_HAS_STEALTHCHOP, stepperK.get_stored_stealthChop()),
-             chop_m = TERN0(M_HAS_STEALTHCHOP, stepperM.get_stored_stealthChop()),
-             chop_o = TERN0(O_HAS_STEALTHCHOP, stepperO.get_stored_stealthChop()),
-             chop_q = TERN0(Q_HAS_STEALTHCHOP, stepperQ.get_stored_stealthChop());
+             chop_u = TERN0(U_HAS_STEALTHCHOP, stepperU.get_stored_stealthChop()),
+             chop_v = TERN0(V_HAS_STEALTHCHOP, stepperV.get_stored_stealthChop()),
+             chop_w = TERN0(W_HAS_STEALTHCHOP, stepperW.get_stored_stealthChop());
 
   if (chop_x || chop_y || chop_z || chop_i || chop_j || chop_k || chop_m || chop_o || chop_q) {
     say_M569(forReplay);
@@ -183,9 +183,9 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
       if (chop_i) SERIAL_ECHOPGM_P(SP_I_STR),
       if (chop_j) SERIAL_ECHOPGM_P(SP_J_STR),
       if (chop_k) SERIAL_ECHOPGM_P(SP_K_STR),
-      if (chop_m) SERIAL_ECHOPGM_P(SP_M_STR),
-      if (chop_o) SERIAL_ECHOPGM_P(SP_O_STR),
-      if (chop_q) SERIAL_ECHOPGM_P(SP_Q_STR)
+      if (chop_u) SERIAL_ECHOPGM_P(SP_U_STR),
+      if (chop_v) SERIAL_ECHOPGM_P(SP_V_STR),
+      if (chop_w) SERIAL_ECHOPGM_P(SP_W_STR)
     );
     SERIAL_EOL();
   }
@@ -208,9 +208,9 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
   if (TERN0( I_HAS_STEALTHCHOP, stepperI.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_I_STR), true); }
   if (TERN0( J_HAS_STEALTHCHOP, stepperJ.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_J_STR), true); }
   if (TERN0( K_HAS_STEALTHCHOP, stepperK.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_K_STR), true); }
-  if (TERN0( M_HAS_STEALTHCHOP, stepperM.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_M_STR), true); }
-  if (TERN0( O_HAS_STEALTHCHOP, stepperO.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_O_STR), true); }
-  if (TERN0( Q_HAS_STEALTHCHOP, stepperQ.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_Q_STR), true); }
+  if (TERN0( U_HAS_STEALTHCHOP, stepperU.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_U_STR), true); }
+  if (TERN0( V_HAS_STEALTHCHOP, stepperV.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_V_STR), true); }
+  if (TERN0( W_HAS_STEALTHCHOP, stepperW.get_stored_stealthChop()))  { say_M569(forReplay, FPSTR(SP_W_STR), true); }
 
   if (TERN0(E0_HAS_STEALTHCHOP, stepperE0.get_stored_stealthChop())) { say_M569(forReplay, F("T0 E"), true); }
   if (TERN0(E1_HAS_STEALTHCHOP, stepperE1.get_stored_stealthChop())) { say_M569(forReplay, F("T1 E"), true); }

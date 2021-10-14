@@ -177,7 +177,7 @@ extern "C" {
   *            PLL_M                          = HSE_VALUE/1000000
   *            PLL_N                          = 336
   *            PLL_P                          = 2
-  *            PLL_Q                          = 7
+  *            PLL_W                          = 7
   *            VDD(V)                         = 3.3
   *            Main regulator output voltage  = Scale1 mode
   *            Flash Latency(WS)              = 5
@@ -194,7 +194,7 @@ extern "C" {
   *            PLL_M                          = 1
   *            PLL_N                          = 40
   *            PLL_P                          = 7
-  *            PLL_Q                          = 2
+  *            PLL_W                          = 2
   *            PLL_R                          = 2 <= This is the source for SysClk, not as on F4/7 PLL_P
   *            Flash Latency(WS)              = 4
   * @param  None

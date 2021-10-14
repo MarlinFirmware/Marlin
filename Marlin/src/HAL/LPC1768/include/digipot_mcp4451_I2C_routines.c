@@ -62,7 +62,7 @@ static void _I2C_Stop(LPC_I2C_TypeDef *I2Cx) {
   I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 }
 
-I2C_M_SETUP_Type transferMCfg;
+I2C_U_SETUP_Type transferMCfg;
 
 #define I2C_status (LPC_I2C1->I2STAT & I2C_STAT_CODE_BITMASK)
 
@@ -73,20 +73,20 @@ uint8_t digipot_mcp4451_start(uint8_t sla) {  // send slave address and write bi
   do {
     _I2C_Stop(I2CDEV_M); // output stop state on I2C bus
     _I2C_Start(I2CDEV_M); // output start state on I2C bus
-    while ((I2C_status != I2C_I2STAT_M_TX_START)
-        && (I2C_status != I2C_I2STAT_M_TX_RESTART)
-        && (I2C_status != I2C_I2STAT_M_TX_DAT_ACK)
-        && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK));  //wait for start to be asserted
+    while ((I2C_status != I2C_I2STAT_U_TX_START)
+        && (I2C_status != I2C_I2STAT_U_TX_RESTART)
+        && (I2C_status != I2C_I2STAT_U_TX_DAT_ACK)
+        && (I2C_status != I2C_I2STAT_U_TX_DAT_NACK));  //wait for start to be asserted
 
     LPC_I2C1->I2CONCLR = I2C_I2CONCLR_STAC; // clear start state before tansmitting slave address
     LPC_I2C1->I2DAT = (sla << 1) & I2C_I2DAT_BITMASK; // transmit slave address & write bit
     LPC_I2C1->I2CONSET = I2C_I2CONSET_AA;
     LPC_I2C1->I2CONCLR = I2C_I2CONCLR_SIC;
-    while ((I2C_status != I2C_I2STAT_M_TX_SLAW_ACK)
-        && (I2C_status != I2C_I2STAT_M_TX_SLAW_NACK)
-        && (I2C_status != I2C_I2STAT_M_TX_DAT_ACK)
-        && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK)) { /* wait for slaw to finish */ }
-  } while ( (I2C_status == I2C_I2STAT_M_TX_DAT_ACK) || (I2C_status == I2C_I2STAT_M_TX_DAT_NACK));
+    while ((I2C_status != I2C_I2STAT_U_TX_SLAW_ACK)
+        && (I2C_status != I2C_I2STAT_U_TX_SLAW_NACK)
+        && (I2C_status != I2C_I2STAT_U_TX_DAT_ACK)
+        && (I2C_status != I2C_I2STAT_U_TX_DAT_NACK)) { /* wait for slaw to finish */ }
+  } while ( (I2C_status == I2C_I2STAT_U_TX_DAT_ACK) || (I2C_status == I2C_I2STAT_U_TX_DAT_NACK));
   return 1;
 }
 
@@ -94,7 +94,7 @@ uint8_t digipot_mcp4451_send_byte(uint8_t data) {
   LPC_I2C1->I2DAT = data & I2C_I2DAT_BITMASK; // transmit data
   LPC_I2C1->I2CONSET = I2C_I2CONSET_AA;
   LPC_I2C1->I2CONCLR = I2C_I2CONCLR_SIC;
-  while (I2C_status != I2C_I2STAT_M_TX_DAT_ACK && I2C_status != I2C_I2STAT_M_TX_DAT_NACK);  // wait for xmit to finish
+  while (I2C_status != I2C_I2STAT_U_TX_DAT_ACK && I2C_status != I2C_I2STAT_U_TX_DAT_NACK);  // wait for xmit to finish
   return 1;
 }
 

@@ -294,122 +294,122 @@
 #endif
 
 #if LINEAR_AXES >= 7
-  #if PIN_EXISTS(M_MIN)
-    #define _M_MIN M_MIN_PIN,
+  #if PIN_EXISTS(U_MIN)
+    #define _U_MIN U_MIN_PIN,
   #else
-    #define _M_MIN
+    #define _U_MIN
   #endif
-  #if PIN_EXISTS(M_MAX)
-    #define _M_MAX M_MAX_PIN,
+  #if PIN_EXISTS(U_MAX)
+    #define _U_MAX U_MAX_PIN,
   #else
-    #define _M_MAX
+    #define _U_MAX
   #endif
-  #if PIN_EXISTS(M_CS) && AXIS_HAS_SPI(M)
-    #define _M_CS M_CS_PIN,
+  #if PIN_EXISTS(U_CS) && AXIS_HAS_SPI(U)
+    #define _U_CS U_CS_PIN,
   #else
-    #define _M_CS
+    #define _U_CS
   #endif
-  #if PIN_EXISTS(M_MS1)
-    #define _M_MS1 M_MS1_PIN,
+  #if PIN_EXISTS(U_MS1)
+    #define _U_MS1 U_MS1_PIN,
   #else
-    #define _M_MS1
+    #define _U_MS1
   #endif
-  #if PIN_EXISTS(M_MS2)
-    #define _M_MS2 M_MS2_PIN,
+  #if PIN_EXISTS(U_MS2)
+    #define _U_MS2 U_MS2_PIN,
   #else
-    #define _M_MS2
+    #define _U_MS2
   #endif
-  #if PIN_EXISTS(M_MS3)
-    #define _M_MS3 M_MS3_PIN,
+  #if PIN_EXISTS(U_MS3)
+    #define _U_MS3 U_MS3_PIN,
   #else
-    #define _M_MS3
+    #define _U_MS3
   #endif
 
-  #define _M_PINS M_STEP_PIN, M_DIR_PIN, M_ENABLE_PIN, _M_MIN _M_MAX _M_MS1 _M_MS2 _M_MS3 _M_CS
+  #define _U_PINS U_STEP_PIN, U_DIR_PIN, U_ENABLE_PIN, _U_MIN _U_MAX _U_MS1 _U_MS2 _U_MS3 _U_CS
 
 #else
 
-  #define _M_PINS
+  #define _U_PINS
 
 #endif
 
 #if LINEAR_AXES >= 8
-  #if PIN_EXISTS(O_MIN)
-    #define _O_MIN O_MIN_PIN,
+  #if PIN_EXISTS(V_MIN)
+    #define _V_MIN V_MIN_PIN,
   #else
-    #define _O_MIN
+    #define _V_MIN
   #endif
-  #if PIN_EXISTS(O_MAX)
-    #define _O_MAX O_MAX_PIN,
+  #if PIN_EXISTS(V_MAX)
+    #define _V_MAX V_MAX_PIN,
   #else
-    #define _O_MAX
+    #define _V_MAX
   #endif
-  #if PIN_EXISTS(O_CS) && AXIS_HAS_SPI(O)
-    #define _O_CS O_CS_PIN,
+  #if PIN_EXISTS(V_CS) && AXIS_HAS_SPI(V)
+    #define _V_CS V_CS_PIN,
   #else
-    #define _O_CS
+    #define _V_CS
   #endif
-  #if PIN_EXISTS(O_MS1)
-    #define _O_MS1 O_MS1_PIN,
+  #if PIN_EXISTS(V_MS1)
+    #define _V_MS1 V_MS1_PIN,
   #else
-    #define _O_MS1
+    #define _V_MS1
   #endif
-  #if PIN_EXISTS(O_MS2)
-    #define _O_MS2 O_MS2_PIN,
+  #if PIN_EXISTS(V_MS2)
+    #define _V_MS2 V_MS2_PIN,
   #else
-    #define _O_MS2
+    #define _V_MS2
   #endif
-  #if PIN_EXISTS(O_MS3)
-    #define _O_MS3 O_MS3_PIN,
+  #if PIN_EXISTS(V_MS3)
+    #define _V_MS3 V_MS3_PIN,
   #else
-    #define _O_MS3
+    #define _V_MS3
   #endif
 
-  #define _O_PINS O_STEP_PIN, O_DIR_PIN, O_ENABLE_PIN, _O_MIN _O_MAX _O_MS1 _O_MS2 _O_MS3 _O_CS
+  #define _V_PINS V_STEP_PIN, V_DIR_PIN, V_ENABLE_PIN, _V_MIN _V_MAX _V_MS1 _V_MS2 _V_MS3 _V_CS
 
 #else
 
-  #define _O_PINS
+  #define _V_PINS
 
 #endif
 
 #if LINEAR_AXES >= 9
-  #if PIN_EXISTS(Q_MIN)
-    #define _Q_MIN Q_MIN_PIN,
+  #if PIN_EXISTS(W_MIN)
+    #define _W_MIN W_MIN_PIN,
   #else
-    #define _Q_MIN
+    #define _W_MIN
   #endif
-  #if PIN_EXISTS(Q_MAX)
-    #define _Q_MAX Q_MAX_PIN,
+  #if PIN_EXISTS(W_MAX)
+    #define _W_MAX W_MAX_PIN,
   #else
-    #define _Q_MAX
+    #define _W_MAX
   #endif
-  #if PIN_EXISTS(Q_CS) && AXIS_HAS_SPI(Q)
-    #define _Q_CS Q_CS_PIN,
+  #if PIN_EXISTS(W_CS) && AXIS_HAS_SPI(W)
+    #define _W_CS W_CS_PIN,
   #else
-    #define _Q_CS
+    #define _W_CS
   #endif
-  #if PIN_EXISTS(Q_MS1)
-    #define _Q_MS1 Q_MS1_PIN,
+  #if PIN_EXISTS(W_MS1)
+    #define _W_MS1 W_MS1_PIN,
   #else
-    #define _Q_MS1
+    #define _W_MS1
   #endif
-  #if PIN_EXISTS(Q_MS2)
-    #define _Q_MS2 Q_MS2_PIN,
+  #if PIN_EXISTS(W_MS2)
+    #define _W_MS2 W_MS2_PIN,
   #else
-    #define _Q_MS2
+    #define _W_MS2
   #endif
-  #if PIN_EXISTS(Q_MS3)
-    #define _Q_MS3 Q_MS3_PIN,
+  #if PIN_EXISTS(W_MS3)
+    #define _W_MS3 W_MS3_PIN,
   #else
-    #define _Q_MS3
+    #define _W_MS3
   #endif
 
-  #define _Q_PINS Q_STEP_PIN, Q_DIR_PIN, Q_ENABLE_PIN, _Q_MIN _Q_MAX _Q_MS1 _Q_MS2 _Q_MS3 _Q_CS
+  #define _W_PINS W_STEP_PIN, W_DIR_PIN, W_ENABLE_PIN, _W_MIN _W_MAX _W_MS1 _W_MS2 _W_MS3 _W_CS
 
 #else
 
-  #define _Q_PINS
+  #define _W_PINS
 
 #endif
 
@@ -1006,7 +1006,7 @@
 #endif
 
 #define SENSITIVE_PINS \
-  _X_PINS _Y_PINS _Z_PINS _I_PINS _J_PINS _K_PINS _M_PINS _O_PINS _Q_PINS \
+  _X_PINS _Y_PINS _Z_PINS _I_PINS _J_PINS _K_PINS _U_PINS _V_PINS _W_PINS \
   _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS _Z4_PINS _Z_PROBE \
   _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS _E6_PINS _E7_PINS \
   _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS _H6_PINS _H7_PINS \

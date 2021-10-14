@@ -266,67 +266,67 @@
   #endif
 #endif
 
-// M Stepper
+// U Stepper
 #if LINEAR_AXES >= 7
-  #if AXIS_IS_L64XX(M)
-    extern L64XX_CLASS(M)         stepperM;
-    #define M_ENABLE_INIT()       NOOP
-    #define M_ENABLE_WRITE(STATE) (STATE ? stepperM.hardStop() : stepperM.free())
-    #define M_ENABLE_READ()       (stepperM.getStatus() & STATUS_HIZ)
-    #if AXIS_DRIVER_TYPE_M(L6474)
-      #define M_DIR_INIT()        SET_OUTPUT(M_DIR_PIN)
-      #define M_DIR_WRITE(STATE)  L6474_DIR_WRITE(M, STATE)
-      #define M_DIR_READ()        READ(M_DIR_PIN)
+  #if AXIS_IS_L64XX(U)
+    extern L64XX_CLASS(U)         stepperU;
+    #define U_ENABLE_INIT()       NOOP
+    #define U_ENABLE_WRITE(STATE) (STATE ? stepperU.hardStop() : stepperU.free())
+    #define U_ENABLE_READ()       (stepperU.getStatus() & STATUS_HIZ)
+    #if AXIS_DRIVER_TYPE_U(L6474)
+      #define U_DIR_INIT()        SET_OUTPUT(U_DIR_PIN)
+      #define U_DIR_WRITE(STATE)  L6474_DIR_WRITE(U, STATE)
+      #define U_DIR_READ()        READ(U_DIR_PIN)
     #else
-      #define M_DIR_INIT()        NOOP
-      #define M_DIR_WRITE(STATE)  L64XX_DIR_WRITE(M, STATE)
-      #define M_DIR_READ()        (stepper##M.getStatus() & STATUS_DIR);
-      #if AXIS_DRIVER_TYPE_M(L6470)
-        #define DISABLE_STEPPER_M() stepperM.free()
+      #define U_DIR_INIT()        NOOP
+      #define U_DIR_WRITE(STATE)  L64XX_DIR_WRITE(U, STATE)
+      #define U_DIR_READ()        (stepper##U.getStatus() & STATUS_DIR);
+      #if AXIS_DRIVER_TYPE_U(L6470)
+        #define DISABLE_STEPPER_U() stepperU.free()
       #endif
     #endif
   #endif
 #endif
 
-// O Stepper
+// V Stepper
 #if LINEAR_AXES >= 8
-  #if AXIS_IS_L64XX(O)
-    extern L64XX_CLASS(O)         stepperO;
-    #define O_ENABLE_INIT()       NOOP
-    #define O_ENABLE_WRITE(STATE) (STATE ? stepperO.hardStop() : stepperO.free())
-    #define O_ENABLE_READ()       (stepperO.getStatus() & STATUS_HIZ)
-    #if AXIS_DRIVER_TYPE_O(L6474)
-      #define O_DIR_INIT()        SET_OUTPUT(O_DIR_PIN)
-      #define O_DIR_WRITE(STATE)  L6474_DIR_WRITE(O, STATE)
-      #define O_DIR_READ()        READ(O_DIR_PIN)
+  #if AXIS_IS_L64XX(V)
+    extern L64XX_CLASS(V)         stepperV;
+    #define V_ENABLE_INIT()       NOOP
+    #define V_ENABLE_WRITE(STATE) (STATE ? stepperV.hardStop() : stepperV.free())
+    #define V_ENABLE_READ()       (stepperV.getStatus() & STATUS_HIZ)
+    #if AXIS_DRIVER_TYPE_V(L6474)
+      #define V_DIR_INIT()        SET_OUTPUT(V_DIR_PIN)
+      #define V_DIR_WRITE(STATE)  L6474_DIR_WRITE(V, STATE)
+      #define V_DIR_READ()        READ(V_DIR_PIN)
     #else
-      #define O_DIR_INIT()        NOOP
-      #define O_DIR_WRITE(STATE)  L64XX_DIR_WRITE(O, STATE)
-      #define O_DIR_READ()        (stepper##O.getStatus() & STATUS_DIR);
-      #if AXIS_DRIVER_TYPE_O(L6470)
-        #define DISABLE_STEPPER_O() stepperO.free()
+      #define V_DIR_INIT()        NOOP
+      #define V_DIR_WRITE(STATE)  L64XX_DIR_WRITE(V, STATE)
+      #define V_DIR_READ()        (stepper##V.getStatus() & STATUS_DIR);
+      #if AXIS_DRIVER_TYPE_V(L6470)
+        #define DISABLE_STEPPER_V() stepperV.free()
       #endif
     #endif
   #endif
 #endif
 
-// Q Stepper
+// W Stepper
 #if LINEAR_AXES >= 9
-  #if AXIS_IS_L64XX(Q)
-    extern L64XX_CLASS(Q)         stepperQ;
-    #define Q_ENABLE_INIT()       NOOP
-    #define Q_ENABLE_WRITE(STATE) (STATE ? stepperQ.hardStop() : stepperQ.free())
-    #define Q_ENABLE_READ()       (stepperQ.getStatus() & STATUS_HIZ)
-    #if AXIS_DRIVER_TYPE_Q(L6474)
-      #define Q_DIR_INIT()        SET_OUTPUT(Q_DIR_PIN)
-      #define Q_DIR_WRITE(STATE)  L6474_DIR_WRITE(Q, STATE)
-      #define Q_DIR_READ()        READ(Q_DIR_PIN)
+  #if AXIS_IS_L64XX(W)
+    extern L64XX_CLASS(w)         stepperW;
+    #define W_ENABLE_INIT()       NOOP
+    #define W_ENABLE_WRITE(STATE) (STATE ? stepperW.hardStop() : stepperW.free())
+    #define W_ENABLE_READ()       (stepperW.getStatus() & STATUS_HIZ)
+    #if AXIS_DRIVER_TYPE_W(L6474)
+      #define W_DIR_INIT()        SET_OUTPUT(W_DIR_PIN)
+      #define W_DIR_WRITE(STATE)  L6474_DIR_WRITE(W, STATE)
+      #define W_DIR_READ()        READ(W_DIR_PIN)
     #else
-      #define Q_DIR_INIT()        NOOP
-      #define Q_DIR_WRITE(STATE)  L64XX_DIR_WRITE(Q, STATE)
-      #define Q_DIR_READ()        (stepper##Q.getStatus() & STATUS_DIR);
-      #if AXIS_DRIVER_TYPE_Q(L6470)
-        #define DISABLE_STEPPER_Q() stepperQ.free()
+      #define W_DIR_INIT()        NOOP
+      #define W_DIR_WRITE(STATE)  L64XX_DIR_WRITE(W, STATE)
+      #define W_DIR_READ()        (stepper##W.getStatus() & STATUS_DIR);
+      #if AXIS_DRIVER_TYPE_W(L6470)
+        #define DISABLE_STEPPER_W() stepperW.free()
       #endif
     #endif
   #endif

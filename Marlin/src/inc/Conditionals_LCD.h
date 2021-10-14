@@ -948,20 +948,20 @@
 #elif K_HOME_DIR < 0
   #define K_HOME_TO_MIN 1
 #endif
-#if M_HOME_DIR > 0
-  #define M_HOME_TO_MAX 1
-#elif M_HOME_DIR < 0
-  #define M_HOME_TO_MIN 1
+#if U_HOME_DIR > 0
+  #define U_HOME_TO_MAX 1
+#elif U_HOME_DIR < 0
+  #define U_HOME_TO_MIN 1
 #endif
-#if O_HOME_DIR > 0
-  #define O_HOME_TO_MAX 1
-#elif O_HOME_DIR < 0
-  #define O_HOME_TO_MIN 1
+#if V_HOME_DIR > 0
+  #define V_HOME_TO_MAX 1
+#elif V_HOME_DIR < 0
+  #define V_HOME_TO_MIN 1
 #endif
-#if Q_HOME_DIR > 0
-  #define Q_HOME_TO_MAX 1
-#elif Q_HOME_DIR < 0
-  #define Q_HOME_TO_MIN 1
+#if W_HOME_DIR > 0
+  #define W_HOME_TO_MAX 1
+#elif W_HOME_DIR < 0
+  #define W_HOME_TO_MIN 1
 #endif
 
 /**
@@ -1236,14 +1236,14 @@
 #if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
   #define INVERT_K_DIR false
 #endif
-#if LINEAR_AXES >= 7 && !defined(INVERT_M_DIR)
-  #define INVERT_M_DIR false
+#if LINEAR_AXES >= 7 && !defined(INVERT_U_DIR)
+  #define INVERT_U_DIR false
 #endif
-#if LINEAR_AXES >= 8 && !defined(INVERT_O_DIR)
-  #define INVERT_O_DIR false
+#if LINEAR_AXES >= 8 && !defined(INVERT_V_DIR)
+  #define INVERT_V_DIR false
 #endif
-#if LINEAR_AXES >= 9 && !defined(INVERT_Q_DIR)
-  #define INVERT_Q_DIR false
+#if LINEAR_AXES >= 9 && !defined(INVERT_W_DIR)
+  #define INVERT_W_DIR false
 #endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
   #define INVERT_E_DIR false

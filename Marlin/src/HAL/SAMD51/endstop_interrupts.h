@@ -60,12 +60,12 @@
 #define MATCH_J_MIN_EILINE(P)   TERN0(HAS_J_MIN,  DEFER4(MATCH_EILINE)(P, J_MIN_PIN))
 #define MATCH_K_MAX_EILINE(P)   TERN0(HAS_K_MAX,  DEFER4(MATCH_EILINE)(P, K_MAX_PIN))
 #define MATCH_K_MIN_EILINE(P)   TERN0(HAS_K_MIN,  DEFER4(MATCH_EILINE)(P, K_MIN_PIN))
-#define MATCH_M_MAX_EILINE(P)   TERN0(HAS_M_MAX,  DEFER4(MATCH_EILINE)(P, M_MAX_PIN))
-#define MATCH_M_MIN_EILINE(P)   TERN0(HAS_M_MIN,  DEFER4(MATCH_EILINE)(P, M_MIN_PIN))
-#define MATCH_O_MAX_EILINE(P)   TERN0(HAS_O_MAX,  DEFER4(MATCH_EILINE)(P, O_MAX_PIN))
-#define MATCH_O_MIN_EILINE(P)   TERN0(HAS_O_MIN,  DEFER4(MATCH_EILINE)(P, O_MIN_PIN))
-#define MATCH_Q_MAX_EILINE(P)   TERN0(HAS_Q_MAX,  DEFER4(MATCH_EILINE)(P, Q_MAX_PIN))
-#define MATCH_Q_MIN_EILINE(P)   TERN0(HAS_Q_MIN,  DEFER4(MATCH_EILINE)(P, Q_MIN_PIN))
+#define MATCH_U_MAX_EILINE(P)   TERN0(HAS_U_MAX,  DEFER4(MATCH_EILINE)(P, U_MAX_PIN))
+#define MATCH_U_MIN_EILINE(P)   TERN0(HAS_U_MIN,  DEFER4(MATCH_EILINE)(P, U_MIN_PIN))
+#define MATCH_V_MAX_EILINE(P)   TERN0(HAS_V_MAX,  DEFER4(MATCH_EILINE)(P, V_MAX_PIN))
+#define MATCH_V_MIN_EILINE(P)   TERN0(HAS_V_MIN,  DEFER4(MATCH_EILINE)(P, V_MIN_PIN))
+#define MATCH_W_MAX_EILINE(P)   TERN0(HAS_W_MAX,  DEFER4(MATCH_EILINE)(P, W_MAX_PIN))
+#define MATCH_W_MIN_EILINE(P)   TERN0(HAS_W_MIN,  DEFER4(MATCH_EILINE)(P, W_MIN_PIN))
 #define MATCH_Z2_MAX_EILINE(P)  TERN0(HAS_Z2_MAX, DEFER4(MATCH_EILINE)(P, Z2_MAX_PIN))
 #define MATCH_Z2_MIN_EILINE(P)  TERN0(HAS_Z2_MIN, DEFER4(MATCH_EILINE)(P, Z2_MIN_PIN))
 #define MATCH_Z3_MAX_EILINE(P)  TERN0(HAS_Z3_MAX, DEFER4(MATCH_EILINE)(P, Z3_MAX_PIN))
@@ -81,9 +81,9 @@
   && !MATCH_I_MAX_EILINE(P) && !MATCH_I_MIN_EILINE(P)   \
   && !MATCH_J_MAX_EILINE(P) && !MATCH_J_MIN_EILINE(P)   \
   && !MATCH_K_MAX_EILINE(P) && !MATCH_K_MIN_EILINE(P)   \
-  && !MATCH_M_MAX_EILINE(P) && !MATCH_M_MIN_EILINE(P)   \
-  && !MATCH_O_MAX_EILINE(P) && !MATCH_O_MIN_EILINE(P)   \
-  && !MATCH_Q_MAX_EILINE(P) && !MATCH_Q_MIN_EILINE(P)   \
+  && !MATCH_U_MAX_EILINE(P) && !MATCH_U_MIN_EILINE(P)   \
+  && !MATCH_V_MAX_EILINE(P) && !MATCH_V_MIN_EILINE(P)   \
+  && !MATCH_W_MAX_EILINE(P) && !MATCH_W_MIN_EILINE(P)   \
   && !MATCH_Z2_MAX_EILINE(P) && !MATCH_Z2_MIN_EILINE(P) \
   && !MATCH_Z3_MAX_EILINE(P) && !MATCH_Z3_MIN_EILINE(P) \
   && !MATCH_Z4_MAX_EILINE(P) && !MATCH_Z4_MIN_EILINE(P) \
@@ -208,40 +208,40 @@ void setup_endstop_interrupts() {
     #endif
     attachInterrupt(K_MIN_PIN, endstop_ISR, CHANGE);
   #endif
-  #if HAS_M_MAX
-    #if !AVAILABLE_EILINE(M_MAX_PIN)
-      #error "M_MAX_PIN has no EXTINT line available."
+  #if HAS_U_MAX
+    #if !AVAILABLE_EILINE(U_MAX_PIN)
+      #error "U_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(M_MAX_PIN, endstop_ISR, CHANGE);
+    attachInterrupt(U_MAX_PIN, endstop_ISR, CHANGE);
   #endif
-  #if HAS_M_MIN
-    #if !AVAILABLE_EILINE(M_MIN_PIN)
-      #error "M_MIN_PIN has no EXTINT line available."
+  #if HAS_U_MIN
+    #if !AVAILABLE_EILINE(U_MIN_PIN)
+      #error "U_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(M_MIN_PIN, endstop_ISR, CHANGE);
+    attachInterrupt(U_MIN_PIN, endstop_ISR, CHANGE);
   #endif
-  #if HAS_O_MAX
-    #if !AVAILABLE_EILINE(O_MAX_PIN)
-      #error "O_MAX_PIN has no EXTINT line available."
+  #if HAS_V_MAX
+    #if !AVAILABLE_EILINE(V_MAX_PIN)
+      #error "V_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(O_MAX_PIN, endstop_ISR, CHANGE);
+    attachInterrupt(V_MAX_PIN, endstop_ISR, CHANGE);
   #endif
-  #if HAS_O_MIN
-    #if !AVAILABLE_EILINE(O_MIN_PIN)
-      #error "O_MIN_PIN has no EXTINT line available."
+  #if HAS_V_MIN
+    #if !AVAILABLE_EILINE(V_MIN_PIN)
+      #error "V_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(O_MIN_PIN, endstop_ISR, CHANGE);
+    attachInterrupt(V_MIN_PIN, endstop_ISR, CHANGE);
   #endif
-  #if HAS_Q_MAX
-    #if !AVAILABLE_EILINE(Q_MAX_PIN)
-      #error "Q_MAX_PIN has no EXTINT line available."
+  #if HAS_W_MAX
+    #if !AVAILABLE_EILINE(W_MAX_PIN)
+      #error "W_MAX_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Q_MAX_PIN, endstop_ISR, CHANGE);
+    attachInterrupt(W_MAX_PIN, endstop_ISR, CHANGE);
   #endif
-  #if HAS_Q_MIN
-    #if !AVAILABLE_EILINE(Q_MIN_PIN)
-      #error "Q_MIN_PIN has no EXTINT line available."
+  #if HAS_W_MIN
+    #if !AVAILABLE_EILINE(W_MIN_PIN)
+      #error "W_MIN_PIN has no EXTINT line available."
     #endif
-    attachInterrupt(Q_MIN_PIN, endstop_ISR, CHANGE);
+    attachInterrupt(W_MIN_PIN, endstop_ISR, CHANGE);
   #endif
 }

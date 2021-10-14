@@ -451,8 +451,8 @@ namespace Language_zh_TW {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("已擠出");     // "Extruded"
   #endif
 
-  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("最低溫度");     // "Min Temp"
-  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("最高溫度");     // "Max Temp"
+  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("最低溫度");     // "Min Temp"
+  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("最高溫度");     // "Max Temp"
   LSTR MSG_INFO_PSU                       = _UxGT("電源供應");     // "Power Supply"
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("驅動力度");     // "Drive Strength"
   LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" 驅動 %");    // X Driver %

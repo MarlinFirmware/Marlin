@@ -162,13 +162,13 @@
         homeaxis(K_AXIS);
       #endif
       #if LINEAR_AXIS >= 7
-        homeaxis(M_AXIS);
+        homeaxis(U_AXIS);
       #endif
       #if LINEAR_AXIS >= 8
-        homeaxis(O_AXIS);
+        homeaxis(V_AXIS);
       #endif
       #if LINEAR_AXIS >= 9
-        homeaxis(Q_AXIS);
+        homeaxis(W_AXIS);
       #endif
     }
     else {
@@ -328,20 +328,20 @@ void GcodeSuite::G28() {
       stepperK.rms_current(K_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS6_STR), tmc_save_current_K, K_CURRENT_HOME);
     #endif
-    #if HAS_CURRENT_HOME(M)
-      const int16_t tmc_save_current_M = stepperM.getMilliamps();
-      stepperM.rms_current(M_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS7_STR), tmc_save_current_M, M_CURRENT_HOME);
+    #if HAS_CURRENT_HOME(U)
+      const int16_t tmc_save_current_U = stepperU.getMilliamps();
+      stepperU.rms_current(U_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS7_STR), tmc_save_current_U, U_CURRENT_HOME);
     #endif
-    #if HAS_CURRENT_HOME(O)
-      const int16_t tmc_save_current_O = stepperO.getMilliamps();
-      stepperO.rms_current(O_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS8_STR), tmc_save_current_O, O_CURRENT_HOME);
+    #if HAS_CURRENT_HOME(V)
+      const int16_t tmc_save_current_V = stepperV.getMilliamps();
+      stepperV.rms_current(V_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS8_STR), tmc_save_current_V, V_CURRENT_HOME);
     #endif
-    #if HAS_CURRENT_HOME(Q)
-      const int16_t tmc_save_current_Q = stepperQ.getMilliamps();
-      stepperQ.rms_current(Q_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS9_STR), tmc_save_current_Q, Q_CURRENT_HOME);
+    #if HAS_CURRENT_HOME(W)
+      const int16_t tmc_save_current_W = stepperW.getMilliamps();
+      stepperW.rms_current(W_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR(AXIS9_STR), tmc_save_current_W, W_CURRENT_HOME);
     #endif
   #endif
 
@@ -389,25 +389,25 @@ void GcodeSuite::G28() {
                LINEAR_AXIS_LIST(              // Other axes should be homed before Z safe-homing
                  needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
                  needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
-                 needM = _UNSAFE(M), needO = _UNSAFE(O), needQ = _UNSAFE(Q)
+                 needU = _UNSAFE(U), needV = _UNSAFE(V), needW = _UNSAFE(W)
                ),
                LINEAR_AXIS_LIST(              // Home each axis if needed or flagged
                  homeX = needX || parser.seen_test('X'),
                  homeY = needY || parser.seen_test('Y'),
                  homeZZ = homeZ,
                  homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
-                 homeK = needK || parser.seen_test(AXIS6_NAME), homeM = needM || parser.seen_test(AXIS7_NAME),
-                 homeO = needO || parser.seen_test(AXIS8_NAME), homeQ = needQ || parser.seen_test(AXIS9_NAME),
+                 homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
+                 homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME),
                ),
                home_all = LINEAR_AXIS_GANG(   // Home-all if all or none are flagged
                     homeX == homeX, && homeY == homeX, && homeZ == homeX,
                  && homeI == homeX, && homeJ == homeX, && homeK == homeX,
-                 && homeM == homeX, && homeO == homeX, && homeQ == homeX
+                 && homeU == homeX, && homeV == homeX, && homeW == homeX
                ),
                LINEAR_AXIS_LIST(
                  doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ,
                  doI = home_all || homeI, doJ = home_all || homeJ, doK = home_all || homeK,
-                 doM = home_all || homeM, doO = home_all || homeO, doQ = home_all || homeQ
+                 doU = home_all || homeU, doV = home_all || homeV, doW = home_all || homeW
                );
 
     #if HAS_Z_AXIS
@@ -420,7 +420,7 @@ void GcodeSuite::G28() {
 
     const float z_homing_height = parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT;
 
-    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doM, || doO, || doQ))) {
+    if (z_homing_height && (LINEAR_AXIS_GANG(doX, || doY, || TERN0(Z_SAFE_HOMING, doZ), || doI, || doJ, || doK, || doU, || doV, || doW))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height);
@@ -489,13 +489,13 @@ void GcodeSuite::G28() {
       if (doK) homeaxis(K_AXIS);
     #endif
     #if LINEAR_AXES >= 7
-      if (doM) homeaxis(M_AXIS);
+      if (doU) homeaxis(U_AXIS);
     #endif
     #if LINEAR_AXES >= 8
-      if (doO) homeaxis(O_AXIS);
+      if (doV) homeaxis(V_AXIS);
     #endif
     #if LINEAR_AXES >= 9
-      if (doQ) homeaxis(Q_AXIS);
+      if (doW) homeaxis(W_AXIS);
     #endif
 
     sync_plan_position();
@@ -579,14 +579,14 @@ void GcodeSuite::G28() {
     #if HAS_CURRENT_HOME(K)
       stepperK.rms_current(tmc_save_current_K);
     #endif
-    #if HAS_CURRENT_HOME(M)
-      stepperM.rms_current(tmc_save_current_M);
+    #if HAS_CURRENT_HOME(U)
+      stepperU.rms_current(tmc_save_current_U);
     #endif
-    #if HAS_CURRENT_HOME(O)
-      stepperO.rms_current(tmc_save_current_O);
+    #if HAS_CURRENT_HOME(V)
+      stepperV.rms_current(tmc_save_current_V);
     #endif
-    #if HAS_CURRENT_HOME(Q)
-      stepperQ.rms_current(tmc_save_current_Q);
+    #if HAS_CURRENT_HOME(W)
+      stepperW.rms_current(tmc_save_current_W);
     #endif
   #endif // HAS_HOMING_CURRENT
 
@@ -608,7 +608,7 @@ void GcodeSuite::G28() {
     // If not, this will need a PROGMEM directive and an accessor.
     #define _EN_ITEM(N) , E_AXIS
     static constexpr AxisEnum L64XX_axis_xref[MAX_L64XX] = {
-      LINEAR_AXIS_LIST(X_AXIS, Y_AXIS, Z_AXIS, I_AXIS, J_AXIS, K_AXIS, M_AXIS, O_AXIS, Q_AXIS),
+      LINEAR_AXIS_LIST(X_AXIS, Y_AXIS, Z_AXIS, I_AXIS, J_AXIS, K_AXIS, U_AXIS, V_AXIS, W_AXIS),
       X_AXIS, Y_AXIS, Z_AXIS, Z_AXIS, Z_AXIS
       REPEAT(E_STEPPERS, _EN_ITEM)
     };
