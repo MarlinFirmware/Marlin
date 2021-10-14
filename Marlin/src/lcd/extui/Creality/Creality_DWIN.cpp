@@ -88,7 +88,7 @@ void onStartup()
   SetTouchScreenConfiguration();
   rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   delay_ms(400); // Delay to allow screen to configure
-  onStatusChanged_P(PSTR(CUSTOM_MACHINE_NAME " Ready"));
+  onStatusChanged(PSTR(CUSTOM_MACHINE_NAME " Ready"));
   //Set Eco Mode
 	if (PrintMode)
 		rtscheck.RTS_SndData(3, FanKeyIcon + 1); // saving mode
@@ -168,24 +168,24 @@ void onIdle()
   {
     switch(ExtUI::pauseModeStatus)
       {
-      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PAUSE_PRINT_PARKING)); break;
-      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INIT)); break;
-      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD)); break;
-      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING)); break;
-      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)); break;
-      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD)); break;
+      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired(GET_TEXT(MSG_PAUSE_PRINT_PARKING)); break;
+      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_INIT)); break;
+      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_UNLOAD)); break;
+      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING)); break;
+      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_INSERT)); break;
+      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD)); break;
       case PAUSE_MESSAGE_PURGE:
         #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_CONT_PURGE)); break;
+          ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_CONT_PURGE)); break;
         #else
-          ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE)); break;
+          ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE)); break;
         #endif
-      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME)); break;
-      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT)); break;
-      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
+      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME)); break;
+      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_HEAT)); break;
+      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_HEATING)); break;
+      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired(GET_TEXT(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
       case PAUSE_MESSAGE_STATUS: SERIAL_ECHOLNPGM_P(PSTR("PauseStatus")); break;
-      default: onUserConfirmRequired_P(PSTR("Confirm Continue")); break;
+      default: onUserConfirmRequired(PSTR("Confirm Continue")); break;
     }
 
   }
@@ -741,7 +741,7 @@ void RTSSHOW::RTS_HandleData()
     Checkkey = DisplayStandbyBrightness;
   if(recdat.addr == DisplayStandbySeconds)
     Checkkey = DisplayStandbySeconds;
-  if(recdat.addr >= AutolevelVal && recdat.addr <= (AutolevelVal+(GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y*2)))
+  if(recdat.addr >= AutolevelVal && recdat.addr <=  4400)  // ((int)AutolevelVal+(GRID_MAX_POINTS_X*GRID_MAX_POINTS_Y*2)) = 4400 with 5x5 mesh
     Checkkey = AutolevelVal;
 
 	if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
@@ -937,7 +937,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else
       {
-        onStatusChanged_P(PSTR("Requested Offset Beyond Limits"));
+        onStatusChanged(PSTR("Requested Offset Beyond Limits"));
         RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
       }
 
@@ -1218,8 +1218,8 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            onStatusChanged(zOffs);
             injectCommands_P(PSTR("M500"));
+            onStatusChanged(zOffs);
           }
           break;
         }
@@ -1234,8 +1234,8 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            onStatusChanged(zOffs);
             injectCommands_P(PSTR("M500"));
+            onStatusChanged(zOffs);
           }
           break;
         }
@@ -1330,31 +1330,31 @@ void RTSSHOW::RTS_HandleData()
         case 12:
         {
           injectCommands_P(PSTR("G26R255"));
-          onStatusChanged_P(PSTR("Beginning G26.. Heating"));
+          onStatusChanged(PSTR("Beginning G26.. Heating"));
           break;
         }
         case 13:
         {
           injectCommands_P(PSTR("G29S1"));
-          onStatusChanged_P(PSTR("Begin Manual Mesh"));
+          onStatusChanged(PSTR("Begin Manual Mesh"));
           break;
         }
         case 14:
         {
           injectCommands_P(PSTR("G29S2"));
-          onStatusChanged_P(PSTR("Moving to Next Mesh Point"));
+          onStatusChanged(PSTR("Moving to Next Mesh Point"));
           break;
         }
         case 15:
         {
           injectCommands_P(PSTR("M211S0\nG91\nG1Z-0.025\nG90\nM211S1"));
-          onStatusChanged_P(PSTR("Moved down 0.025"));
+          onStatusChanged(PSTR("Moved down 0.025"));
           break;
         }
         case 16:
         {
           injectCommands_P(PSTR("M211S0\nG91\nG1Z0.025\nG90\nM211S1"));
-          onStatusChanged_P(PSTR("Moved up 0.025"));
+          onStatusChanged(PSTR("Moved up 0.025"));
           break;
         }
         case 17:
@@ -1574,7 +1574,7 @@ void RTSSHOW::RTS_HandleData()
         }
         #if ENABLED(PIDTEMP)
           case 2: {
-            onStatusChanged_P(PSTR("Hotend PID Started"));
+            onStatusChanged(PSTR("Hotend PID Started"));
             startPIDTune(static_cast<celsius_t>(pid_hotendAutoTemp), getActiveTool());
             break;
           }
@@ -1592,7 +1592,7 @@ void RTSSHOW::RTS_HandleData()
 
         case 5: {
           #if ENABLED(PIDTEMPBED)
-            onStatusChanged_P(PSTR("Bed PID Started"));
+            onStatusChanged(PSTR("Bed PID Started"));
             startBedPIDTune(static_cast<celsius_t>(pid_bedAutoTemp));
           #else
             SERIAL_ECHOLNPGM_P(PSTR("Bed PID Disabled"));
@@ -1797,6 +1797,7 @@ void RTSSHOW::RTS_HandleData()
     case DisplayBrightness:
     {
       SERIAL_ECHOLN("DisplayBrightness");
+      SERIAL_ECHOLNPGM("DisplayBrightness LCD: ", recdat.data[0]);
       if(recdat.data[0]<10) {
         Settings.screen_brightness = 10;
       } else if (recdat.data[0] > 100) {
@@ -1804,6 +1805,7 @@ void RTSSHOW::RTS_HandleData()
       } else {
         Settings.screen_brightness = (uint8_t)recdat.data[0];
       }
+      SERIAL_ECHOLNPGM("DisplayBrightness Set: ", Settings.screen_brightness);
       SetTouchScreenConfiguration();
       break;
     }
@@ -1944,7 +1946,7 @@ void SetTouchScreenConfiguration() {
     rtscheck.RTS_SndData(2, DisplayStandbyEnableIndicator);
 }
 
-void onPrinterKilled(PGM_P killMsg, PGM_P component) {
+void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
   SERIAL_ECHOLNPGM_P(PSTR("***kill***"));
   //First we send screen available on old versions of software
 	rtscheck.RTS_SndData(ExchangePageBase + 15, ExchangepageAddr);
@@ -1952,12 +1954,14 @@ void onPrinterKilled(PGM_P killMsg, PGM_P component) {
 	rtscheck.RTS_SndData(ExchangePageBase + 88, ExchangepageAddr);
   int j = 0;
   char outmsg[40];
+  char killMsg[strlen_P(FTOP(error)) + strlen_P(FTOP(component)) + 3];
+  sprintf_P(killMsg, PSTR(S_FMT ": " S_FMT), FTOP(error), FTOP(component));
   while (j<4)
 	{
     outmsg[j] = '*';
     j++;
   }
-  while (const char c = pgm_read_byte(killMsg++)) {
+  while (const char c = pgm_read_byte(killMsg[j-4])) {
     outmsg[j] = c;
     j++;
   }
@@ -2094,19 +2098,19 @@ void onUserConfirmRequired(const char *const msg)
     case PAUSE_MESSAGE_WAITING:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Press Yes to Continue"));
+      onStatusChanged(PSTR("Press Yes to Continue"));
       break;
     }
     case PAUSE_MESSAGE_INSERT:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Load Filament to Continue"));
+      onStatusChanged(PSTR("Load Filament to Continue"));
       break;
     }
     case PAUSE_MESSAGE_HEAT:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Press Yes to Reheat"));
+      onStatusChanged(PSTR("Press Yes to Reheat"));
       break;
     }
     #if DISABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -2139,29 +2143,29 @@ void onUserConfirmRequired(const char *const msg)
     case PAUSE_MESSAGE_PARKING:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Parking..."));
+      onStatusChanged(PSTR("Parking..."));
       break;
     }
     case PAUSE_MESSAGE_CHANGING:{
       rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Beginning Filament Change"));
+      onStatusChanged(PSTR("Beginning Filament Change"));
       break;
     }
     case PAUSE_MESSAGE_UNLOAD:{
       rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Unloading..."));
+      onStatusChanged(PSTR("Unloading..."));
       break;
     }
     case PAUSE_MESSAGE_LOAD:{
       rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Reloading..."));
+      onStatusChanged(PSTR("Reloading..."));
       break;
     }
     case PAUSE_MESSAGE_RESUME:
     #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
       case PAUSE_MESSAGE_PURGE:{
         rtscheck.RTS_SndData(ExchangePageBase + 87, ExchangepageAddr);
-        onStatusChanged_P(PSTR("Press Yes to Stop Purge"));
+        onStatusChanged(PSTR("Press Yes to Stop Purge"));
         break;
       }
     #endif
@@ -2169,7 +2173,7 @@ void onUserConfirmRequired(const char *const msg)
     case PAUSE_MESSAGE_HEATING:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 68, ExchangepageAddr);
-      onStatusChanged_P(PSTR("Reheating"));
+      onStatusChanged(PSTR("Reheating"));
       break;
     }
 
@@ -2355,7 +2359,7 @@ void onConfigurationStoreRead(bool success)
       rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Ki() * 10), BedPID_I);
       rtscheck.RTS_SndData((unsigned int)(getBedPIDValues_Kd() * 10), BedPID_D);
     #endif
-    onStatusChanged_P(PSTR("PID Tune Finished"));
+    onStatusChanged(PSTR("PID Tune Finished"));
   }
 #endif
 void onMeshLevelingStart() {
