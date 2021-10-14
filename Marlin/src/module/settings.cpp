@@ -277,7 +277,7 @@ typedef struct SettingsDataStruct {
   // BLTOUCH
   //
   bool bltouch_last_written_mode;
-  bool high_speed_mode;
+  bool bltouch_high_speed_mode;
 
   //
   // Kinematic Settings
@@ -863,9 +863,9 @@ void MarlinSettings::postprocess() {
       const bool bltouch_last_written_mode = TERN(BLTOUCH, bltouch.last_written_mode, false);
       EEPROM_WRITE(bltouch_last_written_mode);
 
-      _FIELD_TEST(high_speed_mode);
-      const bool high_speed_mode = TERN(BLTOUCH, bltouch.high_speed_mode, false);
-      EEPROM_WRITE(high_speed_mode);
+      _FIELD_TEST(bltouch_high_speed_mode);
+      const bool bltouch_high_speed_mode = TERN(BLTOUCH, bltouch.high_speed_mode, false);
+      EEPROM_WRITE(bltouch_high_speed_mode);
     }
 
     //
@@ -1738,13 +1738,13 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_READ(bltouch_last_written_mode);
 
-        _FIELD_TEST(high_speed_mode);
+        _FIELD_TEST(bltouch_high_speed_mode);
         #if ENABLED(BLTOUCH)
-          const bool &high_speed_mode = bltouch.high_speed_mode;
+          const bool &bltouch_high_speed_mode = bltouch.high_speed_mode;
         #else
-          bool high_speed_mode;
+          bool bltouch_high_speed_mode;
         #endif
-        EEPROM_READ(high_speed_mode);
+        EEPROM_READ(bltouch_high_speed_mode);
       }
 
       //
@@ -2745,6 +2745,7 @@ void MarlinSettings::reset() {
   // BLTouch
   //
   TERN_(BLTOUCH_HS_MODE, bltouch.high_speed_mode = true);
+
   //
   // Kinematic settings
   //
