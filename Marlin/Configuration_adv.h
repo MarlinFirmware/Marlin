@@ -2314,6 +2314,8 @@
   //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0" // Extra G-code to run while executing tool-change command T0
   //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"       // Extra G-code to run while executing tool-change command T1
 
+  //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN        // Force Event Gcode sequences above to always be executed. Use with caution!
+
   /**
    * Tool Sensors detect when tools have been picked up or dropped.
    * Requires the pins TOOL_SENSOR1_PIN, TOOL_SENSOR2_PIN, etc.
