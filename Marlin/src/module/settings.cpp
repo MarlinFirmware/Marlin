@@ -1744,7 +1744,7 @@ void MarlinSettings::postprocess() {
         #else
           bool high_speed_mode;
         #endif
-        EEPROM_READ(bltouch_last_written_mode);
+        EEPROM_READ(high_speed_mode);
       }
 
       //
