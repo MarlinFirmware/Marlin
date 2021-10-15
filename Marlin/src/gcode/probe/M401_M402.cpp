@@ -33,8 +33,9 @@
 
 /**
  * M401: Deploy and activate the Z probe
- * BLTouch Only :
- *  S : Set High Speed Mode
+ *
+ * With BLTOUCH:
+ *  S<bool> Set High Speed (HS) Mode and exit without deploy
  */
 void GcodeSuite::M401() {
   #if ENABLED(BLTOUCH)
