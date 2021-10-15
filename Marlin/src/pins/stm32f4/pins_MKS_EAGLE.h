@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,22 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
 
-#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "MKS Eagle supports up to 2 hotends / E-steppers."
+#elif HAS_FSMC_TFT
+  #error "MKS Eagle doesn't support FSMC-based TFT displays."
+#endif
 
-#include "../../feature/host_actions.h"
-#include "../gcode.h"
-#include "../../MarlinCore.h"
+#define BOARD_INFO_NAME "MKS Eagle"
 
-/**
- * M876: Handle Prompt Response
- */
-void GcodeSuite::M876() {
-
-  if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_int());
-
-}
-
-#endif // HOST_PROMPT_SUPPORT && !EMERGENCY_PARSER
+#include "pins_MKS_ROBIN_NANO_V3_common.h"

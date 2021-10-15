@@ -301,7 +301,7 @@ void menu_main() {
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
-      ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+      ACTION_ITEM(MSG_HOST_START_PRINT, hostui.start);
     #endif
 
     #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)

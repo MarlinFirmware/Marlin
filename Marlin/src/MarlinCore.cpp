@@ -856,7 +856,7 @@ void shutdown_host() {
   thermalManager.disable_all_heaters();
   TERN_(HAS_CUTTER, cutter.kill());
   stepper.disable_all_steppers();
-  host_action_shutdown_host();
+  hostui.shutdown_host();
 }
 #endif
 
@@ -884,7 +884,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #ifdef ACTION_ON_KILL
-    host_action_kill();
+    hostui.kill();
   #endif
 
   minkill(steppers_off);
@@ -1537,7 +1537,7 @@ void setup() {
   #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    SETUP_RUN(host_action_prompt_end());
+    SETUP_RUN(hostui.prompt_end());
   #endif
 
   #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
