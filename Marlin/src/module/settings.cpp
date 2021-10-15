@@ -1477,7 +1477,7 @@ void MarlinSettings::postprocess() {
 
     if (!eeprom_error) {
       LCD_MESSAGE(MSG_SETTINGS_STORED);
-      TERN_(HOST_PROMPT_SUPPORT, host_action_notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
     }
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
@@ -1505,7 +1505,7 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
-      TERN_(HOST_PROMPT_SUPPORT, host_action_notify(GET_TEXT_F(MSG_ERR_EEPROM_VERSION)));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_VERSION)));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
@@ -2371,14 +2371,18 @@ void MarlinSettings::postprocess() {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_CRC));
-        TERN_(HOST_PROMPT_SUPPORT, host_action_notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
+        #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+          hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC));
+        #endif
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHO(version);
         DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
-        TERN_(HOST_PROMPT_SUPPORT, host_action_notify("Stored settings retrieved"));
+        #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+          hostui.notify(F("Stored settings retrieved"));
+        #endif
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -3038,7 +3042,9 @@ void MarlinSettings::reset() {
   postprocess();
 
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
-  TERN_(HOST_PROMPT_SUPPORT, host_action_notify("Hardcoded Default Settings Loaded"));
+  #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+    hostui.notify(F("Hardcoded Default Settings Loaded"));
+  #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
