@@ -172,13 +172,13 @@
 // Heaters / Fans
 //
 #ifndef MOSFET_A_PIN
-  #define MOSFET_A_PIN                     P2_05  // (10)
+  #define MOSFET_A_PIN                     P2_05
 #endif
 #ifndef MOSFET_B_PIN
-  #define MOSFET_B_PIN                     P2_04  // (9)
+  #define MOSFET_B_PIN                     P2_04
 #endif
 #ifndef MOSFET_C_PIN
-  #define MOSFET_C_PIN                     P2_07  // (8)
+  #define MOSFET_C_PIN                     P2_07
 #endif
 #ifndef MOSFET_D_PIN
   #define MOSFET_D_PIN                     -1

@@ -12,4 +12,3 @@ REGION_ALIAS("REGION_RODATA", rom);
 
 /* Let common.inc handle the real work. */
 INCLUDE common.inc
-

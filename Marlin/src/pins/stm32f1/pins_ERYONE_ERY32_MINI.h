@@ -178,9 +178,9 @@
     #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
   #endif
 
-  #define BOARD_ST7920_DELAY_1     50
-  #define BOARD_ST7920_DELAY_2     50
-  #define BOARD_ST7920_DELAY_3     50
+  #define BOARD_ST7920_DELAY_1                50
+  #define BOARD_ST7920_DELAY_2                50
+  #define BOARD_ST7920_DELAY_3                50
 
 #endif // HAS_WIRED_LCD
 
