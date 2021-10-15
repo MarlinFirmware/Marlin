@@ -35,6 +35,12 @@
  *   X[current]  - Set mA current for X driver(s)
  *   Y[current]  - Set mA current for Y driver(s)
  *   Z[current]  - Set mA current for Z driver(s)
+ *   A[current]  - Set mA current for A driver(s) (Requires AXIS*_NAME 'A')
+ *   B[current]  - Set mA current for B driver(s) (Requires AXIS*_NAME 'B')
+ *   C[current]  - Set mA current for C driver(s) (Requires AXIS*_NAME 'C')
+ *   U[current]  - Set mA current for U driver(s) (Requires AXIS*_NAME 'U')
+ *   V[current]  - Set mA current for V driver(s) (Requires AXIS*_NAME 'V')
+ *   W[current]  - Set mA current for W driver(s) (Requires AXIS*_NAME 'W')
  *   E[current]  - Set mA current for E driver(s)
  *
  *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z; 1 for X2, Y2, Z2; 2 for Z3; 3 for Z4.)

@@ -39,7 +39,7 @@
 #endif
 
 /**
- * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
+ * M907: Set digital trimpot motor current using axis codes X, Y, Z, (I, J, K, U, V, W,) E, B, S
  */
 void GcodeSuite::M907() {
   #if HAS_MOTOR_CURRENT_SPI
@@ -54,8 +54,8 @@ void GcodeSuite::M907() {
   #elif HAS_MOTOR_CURRENT_PWM
 
     if (!parser.seen(
-      #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY)
-        "XY"
+      #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
+        "XYIJKUVW"
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
         "Z"
@@ -65,8 +65,10 @@ void GcodeSuite::M907() {
       #endif
     )) return M907_report();
 
-    #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY)
-      if (parser.seenval('X') || parser.seenval('Y')) stepper.set_digipot_current(0, parser.value_int());
+    #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
+      if (parser.seenval('X') || parser.seenval('Y') || parser.seenval('I') || parser.seenval('J') || parser.seenval('K')
+        || parser.seenval('U') || parser.seenval('V') || parser.seenval('W')
+	  ) stepper.set_digipot_current(0, parser.value_int());
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
       if (parser.seenval('Z')) stepper.set_digipot_current(1, parser.value_int());
@@ -103,13 +105,13 @@ void GcodeSuite::M907() {
     report_heading_etc(forReplay, F(STR_STEPPER_MOTOR_CURRENTS));
     #if HAS_MOTOR_CURRENT_PWM
       SERIAL_ECHOLNPGM_P(                                    // PWM-based has 3 values:
-          PSTR("  M907 X"), stepper.motor_current_setting[0]  // X and Y
+          PSTR("  M907 X"), stepper.motor_current_setting[0]  // X, Y, (I, J, K, U, V, W)
         , SP_Z_STR,         stepper.motor_current_setting[1]  // Z
         , SP_E_STR,         stepper.motor_current_setting[2]  // E
       );
     #elif HAS_MOTOR_CURRENT_SPI
       SERIAL_ECHOPGM("  M907");                               // SPI-based has 5 values:
-      LOOP_LOGICAL_AXES(q) {                                  // X Y Z (I J K) E (map to X Y Z (I J K) E0 by default)
+      LOOP_LOGICAL_AXES(q) {                                  // X Y Z (I J K U V W) E (map to X Y Z (I J K U V W) E0 by default)
         SERIAL_CHAR(' ', axis_codes[q]);
         SERIAL_ECHO(stepper.motor_current_setting[q]);
       }

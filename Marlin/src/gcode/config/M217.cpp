@@ -50,6 +50,12 @@
  *  W[linear]   0/1 Enable park & Z Raise
  *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
+ *  I[linear]   Park I (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 4)
+ *  J[linear]   Park J (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 5)
+ *  K[linear]   Park K (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 6)
+ *  C[linear]   Park U (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 7)
+ *  D[linear]   Park V (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 8)
+ *  H[linear]   Park W (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 9)
  *  Z[linear]   Z Raise
  *  F[linear]   Fan Speed 0-255
  *  G[linear/s] Fan time
@@ -89,6 +95,24 @@ void GcodeSuite::M217() {  // TODO (DerAndere): Add support for LINEAR_AXES >= 4
     if (parser.seenval('W')) { toolchange_settings.enable_park = parser.value_linear_units(); }
     if (parser.seenval('X')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.x = constrain(v, X_MIN_POS, X_MAX_POS); }
     if (parser.seenval('Y')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.y = constrain(v, Y_MIN_POS, Y_MAX_POS); }
+    #if LINEAR_AXES >= 4
+      if (parser.seenval('I')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.i = constrain(v, I_MIN_POS, I_MAX_POS); }
+    #endif
+    #if LINEAR_AXES >= 5
+      if (parser.seenval('J')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.j = constrain(v, J_MIN_POS, J_MAX_POS); }
+    #endif
+    #if LINEAR_AXES >= 6
+      if (parser.seenval('K')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.k = constrain(v, K_MIN_POS, K_MAX_POS); }
+    #endif
+    #if LINEAR_AXES >= 7
+      if (parser.seenval('C')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.u = constrain(v, U_MIN_POS, U_MAX_POS); }
+    #endif
+    #if LINEAR_AXES >= 8
+      if (parser.seenval('D')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.v = constrain(v, V_MIN_POS, V_MAX_POS); }
+    #endif
+    #if LINEAR_AXES >= 9
+      if (parser.seenval('H')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.w = constrain(v, W_MIN_POS, W_MAX_POS); }
+    #endif
   #endif
 
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
@@ -154,6 +178,25 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
       SERIAL_ECHOPGM(" W", LINEAR_UNIT(toolchange_settings.enable_park));
       SERIAL_ECHOPGM_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
       SERIAL_ECHOPGM_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
+      #endif
+      #if LINEAR_AXES >= 4
+        SERIAL_ECHOPGM_P(" I", LINEAR_UNIT(toolchange_settings.change_point.i));
+      #endif
+      #if LINEAR_AXES >= 5
+        SERIAL_ECHOPGM_P(" J", LINEAR_UNIT(toolchange_settings.change_point.j));
+      #endif
+      #if LINEAR_AXES >= 6
+        SERIAL_ECHOPGM_P(" K", LINEAR_UNIT(toolchange_settings.change_point.k));
+      #endif
+      #if LINEAR_AXES >= 7
+        SERIAL_ECHOPGM_P(" C", LINEAR_UNIT(toolchange_settings.change_point.u));
+      #endif
+      #if LINEAR_AXES >= 8
+        SERIAL_ECHOPGM_P(" D", LINEAR_UNIT(toolchange_settings.change_point.v));
+      #endif
+      #if LINEAR_AXES >= 9
+        SERIAL_ECHOPGM_P(" H", LINEAR_UNIT(toolchange_settings.change_point.w));
+      #endif
     #endif
 
     #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)

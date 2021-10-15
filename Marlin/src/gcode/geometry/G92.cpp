@@ -29,7 +29,7 @@
 #endif
 
 /**
- * G92: Set the Current Position to the given X Y Z E values.
+ * G92: Set the Current Position to the given X Y Z A B C U V W E values.
  *
  * Behind the scenes the G92 command may modify the Current Position
  * or the Position Shift depending on settings and sub-commands.
@@ -37,14 +37,14 @@
  * Since E has no Workspace Offset, it is always set directly.
  *
  * Without Workspace Offsets (e.g., with NO_WORKSPACE_OFFSETS):
- *   G92   : Set NATIVE Current Position to the given X Y Z E.
+ *   G92   : Set NATIVE Current Position to the given X Y Z A B C U V W E.
  *
  * Using Workspace Offsets (default Marlin behavior):
- *   G92   : Modify Workspace Offsets so the reported position shows the given X Y Z E.
+ *   G92   : Modify Workspace Offsets so the reported position shows the given X Y Z A B C U V W E.
  *   G92.1 : Zero XYZ Workspace Offsets (so the reported position = the native position).
  *
  * With POWER_LOSS_RECOVERY:
- *   G92.9 : Set NATIVE Current Position to the given X Y Z E.
+ *   G92.9 : Set NATIVE Current Position to the given X Y Z A B C U V W E.
  */
 void GcodeSuite::G92() {
 

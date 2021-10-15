@@ -134,7 +134,7 @@
 
   /**
    * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
-   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4 and E[index].
+   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4, A, B, C, U, V, W, and E[index].
    *       If no axes are given, clear all.
    *
    * Examples:
@@ -151,12 +151,12 @@
                hasI = TERN0(M91x_USE_I,  parser.seen(axis_codes.i)),
                hasJ = TERN0(M91x_USE_J,  parser.seen(axis_codes.j)),
                hasK = TERN0(M91x_USE_K,  parser.seen(axis_codes.k)),
-               hasM = TERN0(M91x_USE_U,  parser.seen(axis_codes.u)),
-               hasO = TERN0(M91x_USE_V,  parser.seen(axis_codes.v)),
-               hasQ = TERN0(M91x_USE_W,  parser.seen(axis_codes.w)),
+               hasU = TERN0(M91x_USE_U,  parser.seen(axis_codes.u)),
+               hasV = TERN0(M91x_USE_V,  parser.seen(axis_codes.v)),
+               hasW = TERN0(M91x_USE_W,  parser.seen(axis_codes.w)),
                hasE = TERN0(M91x_SOME_E, parser.seen(axis_codes.e));
 
-    const bool hasNone = !hasE && !hasX && !hasY && !hasZ && !hasI && !hasJ && !hasK && !hasM && !hasO && !hasQ;
+    const bool hasNone = !hasE && !hasX && !hasY && !hasZ && !hasI && !hasJ && !hasK && !hasU && !hasV && !hasW;
 
     #if M91x_SOME_X
       const int8_t xval = int8_t(parser.byteval(axis_codes.x, 0xFF));
@@ -208,7 +208,7 @@
     #endif
     #if M91x_USE_U
       const int8_t mval = int8_t(parser.byteval(axis_codes.u, 0xFF));
-      if (hasNone || mval == 1 || (hasM && mval < 0)) tmc_clear_otpw(stepperU);
+      if (hasNone || mval == 1 || (hasU && mval < 0)) tmc_clear_otpw(stepperU);
     #endif
     #if M91x_USE_V
       const int8_t oval = int8_t(parser.byteval(axis_codes.v, 0xFF));

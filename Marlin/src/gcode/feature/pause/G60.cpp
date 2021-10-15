@@ -52,7 +52,8 @@ void GcodeSuite::G60() {
     DEBUG_ECHOLNPAIR_F_P(
       LIST_N(DOUBLE(LOGICAL_AXES), SP_E_STR, pos.e,
       PSTR(" : X"), pos.x, SP_Y_STR, pos.y, SP_Z_STR, pos.z,
-      SP_I_STR, pos.i, SP_J_STR, pos.j, SP_K_STR, pos.k)
+      SP_I_STR, pos.i, SP_J_STR, pos.j, SP_K_STR, pos.k,
+      SP_U_STR, pos.u, SP_V_STR, pos.v, SP_W_STR, pos.w)
     );
   #endif
 }

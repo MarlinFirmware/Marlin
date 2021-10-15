@@ -120,6 +120,24 @@ void GcodeSuite::M600() {
   // Move XY axes to filament change position or given position
   if (parser.seenval('X')) park_point.x = parser.linearval('X');
   if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
+  #if LINEAR_AXES >= 4
+    if (parser.seenval(AXIS4_NAME)) park_point.i = parser.linearval(AXIS4_NAME);
+  #endif
+  #if LINEAR_AXES >= 5
+    if (parser.seenval(AXIS5_NAME)) park_point.j = parser.linearval(AXIS5_NAME);
+  #endif
+  #if LINEAR_AXES >= 6
+    if (parser.seenval(AXIS6_NAME)) park_point.k = parser.linearval(AXIS6_NAME);
+  #endif
+  #if LINEAR_AXES >= 7
+    if (parser.seenval(AXIS7_NAME)) park_point.u = parser.linearval(AXIS7_NAME);
+  #endif
+  #if LINEAR_AXES >= 8
+    if (parser.seenval(AXIS8_NAME)) park_point.v = parser.linearval(AXIS8_NAME);
+  #endif
+  #if LINEAR_AXES >= 9
+    if (parser.seenval(AXIS9_NAME)) park_point.w = parser.linearval(AXIS9_NAME);
+  #endif
 
   #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
     park_point += hotend_offset[active_extruder];
