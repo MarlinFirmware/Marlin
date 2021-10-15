@@ -20,7 +20,7 @@
 
 // Touchscreens in development, not tested
 //#define MachineCR5
-//#define MachineSermoonD1
+//#define MachineSermoonD1 // Code complete and should work but no machine to test
 
 // Standard Display Atmega2560 machines (No bootloader required)
 //#define MachineEnder4
@@ -2310,7 +2310,18 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 
 
-#if(ANY(MachineEnder4, MachineEnder5))
+#if(ANY(MachineEnder4, MachineEnder5) && ANY(Creality422, Creality427))
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR false
+  #define INVERT_Z_DIR false
+  #if(ENABLED(E3DTitan))
+    #define INVERT_E0_DIR true
+    #define INVERT_E1_DIR false
+  #else
+    #define INVERT_E0_DIR false
+    #define INVERT_E1_DIR true
+  #endif
+#elif(ANY(MachineEnder4, MachineEnder5) && NONE(Creality422, Creality427))
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
