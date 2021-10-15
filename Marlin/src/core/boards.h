@@ -402,6 +402,7 @@
 #define BOARD_TH3D_EZBOARD_LITE_V2    4232  // TH3D EZBoard Lite v2.0
 #define BOARD_INDEX_REV03             4233  // Index PnP Controller REV03 (STM32F407VET6/VGT6)
 #define BOARD_MKS_ROBIN_NANO_V1_3_F4  4234  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VET6)
+#define BOARD_MKS_EAGLE               4235  // MKS Eagle (STM32F407VET6)
 
 //
 // ARM Cortex M7
@@ -422,6 +423,8 @@
 #define BOARD_MRR_ESPE                6002  // MRR ESPE based on ESP32 (with I2S stepper stream)
 #define BOARD_E4D_BOX                 6003  // E4d@BOX
 #define BOARD_FYSETC_E4               6004  // FYSETC E4
+#define BOARD_PANDA_ZHU               6005  // Panda_ZHU
+#define BOARD_PANDA_M4                6006  // Panda_M4
 
 //
 // SAMD51 ARM Cortex M4

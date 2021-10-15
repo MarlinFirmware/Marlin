@@ -99,7 +99,7 @@ void ChironTFT::Startup() {
 
   // Enable leveling and Disable end stops during print
   // as Z home places nozzle above the bed so we need to allow it past the end stops
-  injectCommands_P(AC_cmnd_enable_leveling);
+  injectCommands(AC_cmnd_enable_leveling);
 
   // Startup tunes are defined in Tunes.h
   PlayTune(BEEPER_PIN, TERN(AC_DEFAULT_STARTUP_TUNE, Anycubic_PowerOn, GB_PowerOn), 1);
@@ -126,7 +126,7 @@ void ChironTFT::IdleLoop()  {
   CheckHeaters();
 }
 
-void ChironTFT::PrinterKilled(PGM_P error,PGM_P component)  {
+void ChironTFT::PrinterKilled(FSTR_P const error, FSTR_P const component)  {
   SendtoTFTLN(AC_msg_kill_lcd);
   #if ACDEBUG(AC_MARLIN)
     SERIAL_ECHOLNPGM("PrinterKilled()\nerror: ", error , "\ncomponent: ", component);
@@ -244,7 +244,7 @@ void ChironTFT::StatusChange(const char * const msg)  {
       // If probing completes ok save the mesh and park
       // Ignore the custom machine name
       if (strcmp_P(msg + strlen(CUSTOM_MACHINE_NAME), MARLIN_msg_ready) == 0) {
-        injectCommands_P(PSTR("M500\nG27"));
+        injectCommands(F("M500\nG27"));
         SendtoTFTLN(AC_msg_probing_complete);
         printer_state = AC_printer_idle;
         msg_matched = true;
@@ -252,7 +252,7 @@ void ChironTFT::StatusChange(const char * const msg)  {
       // If probing fails don't save the mesh raise the probe above the bad point
       if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
         PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
-        injectCommands_P(PSTR("G1 Z50 F500"));
+        injectCommands(F("G1 Z50 F500"));
         SendtoTFTLN(AC_msg_probing_complete);
         printer_state = AC_printer_idle;
         msg_matched = true;
@@ -306,7 +306,7 @@ void ChironTFT::PowerLossRecovery()  {
   printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
   last_error = AC_error_powerloss;
   PlayTune(BEEPER_PIN, SOS, 1);
-  SERIAL_ECHOLNPGM_P(AC_msg_powerloss_recovery);
+  SERIAL_ECHOLNF(AC_msg_powerloss_recovery);
 }
 
 void ChironTFT::PrintComplete() {
@@ -315,19 +315,20 @@ void ChironTFT::PrintComplete() {
   setSoftEndstopState(true); // enable endstops
 }
 
-void ChironTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEM string to the panel
+void ChironTFT::SendtoTFT(FSTR_P const fstr/*=nullptr*/) {  // A helper to print PROGMEM string to the panel
   #if ACDEBUG(AC_SOME)
-    SERIAL_ECHOPGM_P(str);
+    SERIAL_ECHOF(fstr);
   #endif
+  PGM_P str = FTOP(fstr);
   while (const char c = pgm_read_byte(str++)) TFTSer.write(c);
 }
 
-void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
-  if (str) {
+void ChironTFT::SendtoTFTLN(FSTR_P const fstr/*=nullptr*/) {
+  if (fstr) {
     #if ACDEBUG(AC_SOME)
       SERIAL_ECHOPGM("> ");
     #endif
-    SendtoTFT(str);
+    SendtoTFT(fstr);
     #if ACDEBUG(AC_SOME)
       SERIAL_EOL();
     #endif
@@ -426,9 +427,9 @@ void ChironTFT::SendFileList(int8_t startindex) {
   #if ACDEBUG(AC_INFO)
     SERIAL_ECHOLNPGM("## SendFileList ## ", startindex);
   #endif
-  SendtoTFTLN(PSTR("FN "));
+  SendtoTFTLN(F("FN "));
   filenavigator.getFiles(startindex, panel_type, 4);
-  SendtoTFTLN(PSTR("END"));
+  SendtoTFTLN(F("END"));
 }
 
 void ChironTFT::SelectFile() {
@@ -488,7 +489,7 @@ void ChironTFT::ProcessPanelRequest() {
         if (tpos != -1) {
           if (panel_command[tpos+1]== 'X' && panel_command[tpos+2]=='Y') {
             panel_type = AC_panel_standard;
-            SERIAL_ECHOLNPGM_P(AC_msg_old_panel_detected);
+            SERIAL_ECHOLNF(AC_msg_old_panel_detected);
           }
         }
         else {
@@ -496,7 +497,7 @@ void ChironTFT::ProcessPanelRequest() {
           if (tpos != -1) {
             if (panel_command[tpos+1]== '0' && panel_command[tpos+2]==']') {
               panel_type = AC_panel_new;
-              SERIAL_ECHOLNPGM_P(AC_msg_new_panel_detected);
+              SERIAL_ECHOLNF(AC_msg_new_panel_detected);
             }
           }
         }
@@ -512,55 +513,55 @@ void ChironTFT::PanelInfo(uint8_t req) {
   // information requests A0-A8 and A33
   switch (req) {
     case 0:   // A0 Get HOTEND Temp
-      SendtoTFT(PSTR("A0V "));
+      SendtoTFT(F("A0V "));
       TFTSer.println(getActualTemp_celsius(E0));
       break;
 
     case 1:   // A1 Get HOTEND Target Temp
-      SendtoTFT(PSTR("A1V "));
+      SendtoTFT(F("A1V "));
       TFTSer.println(getTargetTemp_celsius(E0));
       break;
 
     case 2:   // A2 Get BED Temp
-      SendtoTFT(PSTR("A2V "));
+      SendtoTFT(F("A2V "));
       TFTSer.println(getActualTemp_celsius(BED));
       break;
 
     case 3:   // A3 Get BED Target Temp
-      SendtoTFT(PSTR("A3V "));
+      SendtoTFT(F("A3V "));
       TFTSer.println(getTargetTemp_celsius(BED));
       break;
 
     case 4:   // A4 Get FAN Speed
-      SendtoTFT(PSTR("A4V "));
+      SendtoTFT(F("A4V "));
       TFTSer.println(getActualFan_percent(FAN0));
       break;
 
     case 5:   // A5 Get Current Coordinates
-      SendtoTFT(PSTR("A5V X: "));
+      SendtoTFT(F("A5V X: "));
       TFTSer.print(getAxisPosition_mm(X));
-      SendtoTFT(PSTR(" Y: "));
+      SendtoTFT(F(" Y: "));
       TFTSer.print(getAxisPosition_mm(Y));
-      SendtoTFT(PSTR(" Z: "));
+      SendtoTFT(F(" Z: "));
       TFTSer.println(getAxisPosition_mm(Z));
       break;
 
     case 6:   // A6 Get printing progress
       if (isPrintingFromMedia()) {
-        SendtoTFT(PSTR("A6V "));
+        SendtoTFT(F("A6V "));
         TFTSer.println(ui8tostr2(getProgress_percent()));
       }
       else
-        SendtoTFTLN(PSTR("A6V ---"));
+        SendtoTFTLN(F("A6V ---"));
       break;
 
     case 7: { // A7 Get Printing Time
       uint32_t time = getProgress_seconds_elapsed() / 60;
-      SendtoTFT(PSTR("A7V "));
+      SendtoTFT(F("A7V "));
       TFTSer.print(ui8tostr2(time / 60));
-      SendtoTFT(PSTR(" H "));
+      SendtoTFT(F(" H "));
       TFTSer.print(ui8tostr2(time % 60));
-      SendtoTFT(PSTR(" M"));
+      SendtoTFT(F(" M"));
       #if ACDEBUG(AC_ALL)
         SERIAL_ECHOLNPGM("Print time ", ui8tostr2(time / 60), ":", ui8tostr2(time % 60));
       #endif
@@ -575,9 +576,9 @@ void ChironTFT::PanelInfo(uint8_t req) {
       break;
 
     case 33:   // A33 Get firmware info
-      SendtoTFT(PSTR("J33 "));
+      SendtoTFT(F("J33 "));
       // If there is an error recorded, show that instead of the FW version
-      if (!GetLastError()) SendtoTFTLN(PSTR(SHORT_BUILD_VERSION));
+      if (!GetLastError()) SendtoTFTLN(F(SHORT_BUILD_VERSION));
       break;
   }
 }
@@ -608,7 +609,7 @@ void ChironTFT::PanelAction(uint8_t req) {
       }
       else {
         if (printer_state == AC_printer_resuming_from_power_outage)
-          injectCommands_P(PSTR("M1000 C")); // Cancel recovery
+          injectCommands(F("M1000 C")); // Cancel recovery
         SendtoTFTLN(AC_msg_stop);
         printer_state = AC_printer_idle;
       }
@@ -625,7 +626,7 @@ void ChironTFT::PanelAction(uint8_t req) {
     case 14: { // A14 Start Printing
       // Allows printer to restart the job if we don't want to recover
       if (printer_state == AC_printer_resuming_from_power_outage) {
-        injectCommands_P(PSTR("M1000 C")); // Cancel recovery
+        injectCommands(F("M1000 C")); // Cancel recovery
         printer_state = AC_printer_idle;
       }
       #if ACDebugLevel >= 1
@@ -638,8 +639,8 @@ void ChironTFT::PanelAction(uint8_t req) {
     case 15:   // A15 Resuming from outage
       if (printer_state == AC_printer_resuming_from_power_outage) {
         // Need to home here to restore the Z position
-        injectCommands_P(AC_cmnd_power_loss_recovery);
-        injectCommands_P(PSTR("M1000"));  // home and start recovery
+        injectCommands(AC_cmnd_power_loss_recovery);
+        injectCommands(F("M1000"));  // home and start recovery
       }
       break;
 
@@ -675,7 +676,7 @@ void ChironTFT::PanelAction(uint8_t req) {
       if (panel_command[4] == 'S')
         setFeedrate_percent(atoi(&panel_command[5]));
       else {
-        SendtoTFT(PSTR("A20V "));
+        SendtoTFT(F("A20V "));
         TFTSer.println(getFeedrate_percent());
       }
       break;
@@ -683,9 +684,9 @@ void ChironTFT::PanelAction(uint8_t req) {
     case 21:   // A21 Home Axis  A21 X
       if (!isPrinting()) {
         switch ((char)panel_command[4]) {
-          case 'X': injectCommands_P(PSTR("G28X")); break;
-          case 'Y': injectCommands_P(PSTR("G28Y")); break;
-          case 'Z': injectCommands_P(PSTR("G28Z")); break;
+          case 'X': injectCommands(F("G28X")); break;
+          case 'Y': injectCommands(F("G28Y")); break;
+          case 'Z': injectCommands(F("G28Z")); break;
           case 'C': injectCommands_P(G28_STR); break;
         }
       }
@@ -771,7 +772,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
       pos.y = atoi(&panel_command[FindToken('Y')+1]);
       pos_z = getMeshPoint(pos);
 
-      SendtoTFT(PSTR("A29V "));
+      SendtoTFT(F("A29V "));
       TFTSer.println(pos_z * 100);
       if (!isPrinting()) {
         setSoftEndstopState(true);  // disable endstops
@@ -809,7 +810,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
 
 
           SendtoTFTLN(AC_msg_start_probing);
-          injectCommands_P(PSTR("G28\nG29"));
+          injectCommands(F("G28\nG29"));
           printer_state = AC_printer_probing;
         }
       }
@@ -823,23 +824,23 @@ void ChironTFT::PanelProcess(uint8_t req) {
 
       if (FindToken('C') != -1) { // Restore and apply original offsets
         if (!isPrinting()) {
-          injectCommands_P(PSTR("M501\nM420 S1"));
+          injectCommands(F("M501\nM420 S1"));
           selectedmeshpoint.x = selectedmeshpoint.y = 99;
-          SERIAL_ECHOLNPGM_P(AC_msg_mesh_changes_abandoned);
+          SERIAL_ECHOLNF(AC_msg_mesh_changes_abandoned);
         }
       }
 
       else if (FindToken('D') != -1) { // Save Z Offset tables and restore leveling state
         if (!isPrinting()) {
           setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
-          injectCommands_P(PSTR("M500"));
-          SERIAL_ECHOLNPGM_P(AC_msg_mesh_changes_saved);
+          injectCommands(F("M500"));
+          SERIAL_ECHOLNF(AC_msg_mesh_changes_saved);
           selectedmeshpoint.x = selectedmeshpoint.y = 99;
         }
       }
 
       else if (FindToken('G') != -1) { // Get current offset
-        SendtoTFT(PSTR("A31V "));
+        SendtoTFT(F("A31V "));
         // When printing use the live z Offset position
         // we will use babystepping to move the print head
         if (isPrinting())
@@ -874,7 +875,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
               babystepAxis_steps(steps, Z);
               live_Zoffset += Zshift;
             }
-            SendtoTFT(PSTR("A31V "));
+            SendtoTFT(F("A31V "));
             TFTSer.println(live_Zoffset);
           }
           else {
@@ -892,7 +893,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
             #endif
 
             setZOffset_mm(currZOffset + Zshift);
-            SendtoTFT(PSTR("A31V "));
+            SendtoTFT(F("A31V "));
             TFTSer.println(getZOffset_mm());
 
             if (isAxisPositionKnown(Z)) {
@@ -911,7 +912,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
     case 32: { // A32 clean leveling beep flag
       // Ignore request if printing
       //if (isPrinting()) break;
-      //injectCommands_P(PSTR("M500\nM420 S1\nG1 Z10 F240\nG1 X0 Y0 F6000"));
+      //injectCommands(F("M500\nM420 S1\nG1 Z10 F240\nG1 X0 Y0 F6000"));
       //TFTSer.println();
     } break;
 
@@ -919,7 +920,7 @@ void ChironTFT::PanelProcess(uint8_t req) {
 
     case 34: {  // A34 Adjust single mesh point A34 C/S X1 Y1 V123
       if (panel_command[3] == 'C') { // Restore original offsets
-        injectCommands_P(PSTR("M501\nM420 S1"));
+        injectCommands(F("M501\nM420 S1"));
         selectedmeshpoint.x = selectedmeshpoint.y = 99;
         //printer_state = AC_printer_idle;
       }

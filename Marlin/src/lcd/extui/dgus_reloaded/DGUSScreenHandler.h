@@ -37,7 +37,7 @@ public:
   static void Ready();
   static void Loop();
 
-  static void PrinterKilled(PGM_P error, PGM_P component);
+  static void PrinterKilled(FSTR_P const error, FSTR_P const component);
   static void UserConfirmRequired(const char * const msg);
   static void SettingsReset();
   static void StoreSettings(char *buff);
@@ -73,7 +73,7 @@ public:
   static void SetMessageLinePGM(PGM_P msg, uint8_t line);
 
   static void SetStatusMessage(const char* msg, const millis_t duration = DGUS_STATUS_EXPIRATION_MS);
-  static void SetStatusMessagePGM(PGM_P msg, const millis_t duration = DGUS_STATUS_EXPIRATION_MS);
+  static void SetStatusMessage(FSTR_P const msg, const millis_t duration = DGUS_STATUS_EXPIRATION_MS);
 
   static void ShowWaitScreen(DGUS_Screen return_screen, bool has_continue = false);
 

@@ -62,7 +62,7 @@
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, PSTR(STR_DELTA_SETTINGS));
+    report_heading_etc(forReplay, F(STR_DELTA_SETTINGS));
     SERIAL_ECHOLNPGM_P(
         PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
       , PSTR(" R"), LINEAR_UNIT(delta_radius)
@@ -132,7 +132,7 @@
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, PSTR(STR_SCARA_SETTINGS " (" STR_S_SEG_PER_SEC TERN_(HAS_SCARA_OFFSET, " " STR_SCARA_P_T_Z) ")"));
+    report_heading_etc(forReplay, F(STR_SCARA_SETTINGS " (" STR_S_SEG_PER_SEC TERN_(HAS_SCARA_OFFSET, " " STR_SCARA_P_T_Z) ")"));
     SERIAL_ECHOLNPGM_P(
       PSTR("  M665 S"), segments_per_second
       #if HAS_SCARA_OFFSET
@@ -162,7 +162,7 @@
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, PSTR(STR_POLARGRAPH_SETTINGS " (" STR_S_SEG_PER_SEC ")"));
+    report_heading_etc(forReplay, F(STR_POLARGRAPH_SETTINGS " (" STR_S_SEG_PER_SEC ")"));
     SERIAL_ECHOLNPGM("  M665 S", segments_per_second);
   }
 

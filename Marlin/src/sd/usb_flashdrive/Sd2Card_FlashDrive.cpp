@@ -126,7 +126,7 @@ bool DiskIODriver_USBFlash::usbStartup() {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
       SERIAL_ECHOLNPGM(" failed.");
-      LCD_MESSAGEPGM(MSG_MEDIA_USB_FAILED);
+      LCD_MESSAGE(MSG_MEDIA_USB_FAILED);
       return false;
     }
 
@@ -221,7 +221,7 @@ void DiskIODriver_USBFlash::idle() {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("Waiting for media");
           #endif
-          LCD_MESSAGEPGM(MSG_MEDIA_WAITING);
+          LCD_MESSAGE(MSG_MEDIA_WAITING);
           GOTO_STATE_AFTER_DELAY(state, 2000);
         }
         break;
@@ -236,7 +236,7 @@ void DiskIODriver_USBFlash::idle() {
         SERIAL_ECHOLNPGM("USB device removed");
       #endif
       if (state != MEDIA_READY)
-        LCD_MESSAGEPGM(MSG_MEDIA_USB_REMOVED);
+        LCD_MESSAGE(MSG_MEDIA_USB_REMOVED);
       GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
@@ -245,12 +245,12 @@ void DiskIODriver_USBFlash::idle() {
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("Media removed");
       #endif
-      LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
+      LCD_MESSAGE(MSG_MEDIA_REMOVED);
       GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
     else if (task_state == UHS_STATE(ERROR)) {
-      LCD_MESSAGEPGM(MSG_MEDIA_READ_ERROR);
+      LCD_MESSAGE(MSG_MEDIA_READ_ERROR);
       GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
     }
   }
