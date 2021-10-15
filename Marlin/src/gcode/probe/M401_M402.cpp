@@ -27,22 +27,20 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
-#if ENABLED(BLTOUCH)
+
+#ifdef BLTOUCH_HS_MODE
   #include "../../feature/bltouch.h"
 #endif
 
 /**
  * M401: Deploy and activate the Z probe
  *
- * With BLTOUCH:
+ * With BLTOUCH_HS_MODE:
  *  S<bool> Set High Speed (HS) Mode and exit without deploy
  */
 void GcodeSuite::M401() {
-  #if ENABLED(BLTOUCH)
-    if (parser.seen('S')) {
-      bltouch.high_speed_mode = parser.value_bool();
-      return;
-    }
+  #ifdef BLTOUCH_HS_MODE
+    if (parser.seen('S')) { bltouch.high_speed_mode = parser.value_bool(); return; }
   #endif
   probe.deploy();
   TERN_(PROBE_TARE, probe.tare());

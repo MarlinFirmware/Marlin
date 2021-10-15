@@ -68,10 +68,15 @@ class BLTouch {
 public:
 
   static void init(const bool set_voltage=false);
-  static bool od_5v_mode,       // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
-              high_speed_mode;  // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
+  static bool od_5v_mode;         // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
 
-  const float z_extra_clearance()   { return high_speed_mode ? 7 : 0; }
+  #ifdef BLTOUCH_HS_MODE
+    static bool high_speed_mode;  // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
+  #else
+    static constexpr bool high_speed_mode = false;
+  #endif
+
+  static inline float z_extra_clearance() { return high_speed_mode ? 7 : 0; }
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
   static bool deploy()              { return deploy_proc(); }

@@ -530,10 +530,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     if (probe.test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
     set_homing_current(false);
   #endif
+
   #if ENABLED(BLTOUCH)
-    if (!bltouch.high_speed_mode && probe_triggered && bltouch.stow())
+    if (probe_triggered && !bltouch.high_speed_mode && bltouch.stow())
       return true; // Stow in LOW SPEED MODE on every trigger
   #endif
+
   // Clear endstop flags
   endstops.hit_on_purpose();
 
@@ -762,9 +764,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     DEBUG_POS("", current_position);
   }
 
-  #if ENABLED(BLTOUCH)
-    if (bltouch.triggered() && bltouch.high_speed_mode) bltouch._reset();
-  #endif
+  TERN_(BLTOUCH, if (bltouch.high_speed_mode && bltouch.triggered()) bltouch._reset());
 
   // On delta keep Z below clip height or do_blocking_move_to will abort
   xyz_pos_t npos = { rx, ry, TERN(DELTA, _MIN(delta_clip_start_height, current_position.z), current_position.z) };
