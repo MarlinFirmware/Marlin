@@ -74,10 +74,10 @@ class HostUI {
 
   #if ENABLED(G29_RETRY_AND_RECOVER)
     #ifdef ACTION_ON_G29_RECOVER
-      void g29_recover();
+      static void g29_recover();
     #endif
     #ifdef ACTION_ON_G29_FAILURE
-      void g29_failure();
+      static void g29_failure();
     #endif
   #endif
 
