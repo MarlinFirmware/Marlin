@@ -268,9 +268,6 @@
 #define SDSS                                  53  // B0
 #define SD_DETECT_PIN                          9  // H6
 
-//
-// TMC 220x
-//
 #if HAS_TMC_UART
   /**
    * TMC220x stepper drivers
