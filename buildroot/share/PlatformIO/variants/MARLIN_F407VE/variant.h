@@ -135,7 +135,7 @@ extern "C" {
 // PWM resolution
 //#define PWM_RESOLUTION          8
 //#define PWM_FREQUENCY           20000
-//#define PWU_MAX_DUTY_CYCLE      255
+//#define PWM_MAX_DUTY_CYCLE      255
 
 // On-board LED pin number
 #define LED_D2                  PA6

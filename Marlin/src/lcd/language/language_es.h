@@ -477,8 +477,8 @@ namespace Language_es {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruido");
   #endif
 
-  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Temp. Mínima");
-  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Temp. Máxima");
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temp. Mínima");
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Temp. Máxima");
   LSTR MSG_INFO_PSU                       = _UxGT("F. Aliment.");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Fuerza de empuje");
   LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" Driver %");

@@ -574,8 +574,8 @@ namespace Language_it {
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Più lungo");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Estruso");
   #endif
-  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Temp min");
-  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Temp max");
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temp min");
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Temp max");
   LSTR MSG_INFO_PSU                       = _UxGT("Alimentatore");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Potenza Drive");
   LSTR MSG_DAC_PERCENT_A                  = _UxGT("Driver ") LCD_STR_A _UxGT(" %");

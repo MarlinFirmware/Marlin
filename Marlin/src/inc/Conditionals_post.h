@@ -171,10 +171,10 @@
   #define _K_HALF_KMAX ((K_BED_SIZE) / 2)
 #endif
 #if LINEAR_AXES >= 7
-  #define _U_HALF_MMAX ((U_BED_SIZE) / 2)
+  #define _U_HALF_UMAX ((U_BED_SIZE) / 2)
 #endif
 #if LINEAR_AXES >= 8
-  #define _V_HALF_OMAX ((V_BED_SIZE) / 2)
+  #define _V_HALF_VMAX ((V_BED_SIZE) / 2)
 #endif
 #if LINEAR_AXES >= 9
   #define _W_HALF_PMAX ((W_BED_SIZE) / 2)
@@ -1459,13 +1459,13 @@
     #define ENDSTOPPULLUP_KMAX
   #endif
   #if ENABLED(USE_UMAX_PLUG)
-    #define ENDSTOPPULLUP_MMAX
+    #define ENDSTOPPULLUP_UMAX
   #endif
   #if ENABLED(USE_VMAX_PLUG)
-    #define ENDSTOPPULLUP_OMAX
+    #define ENDSTOPPULLUP_VMAX
   #endif
   #if ENABLED(USE_WMAX_PLUG)
-    #define ENDSTOPPULLUP_QMAX
+    #define ENDSTOPPULLUP_WMAX
   #endif
   #if ENABLED(USE_XMIN_PLUG)
     #define ENDSTOPPULLUP_XMIN
@@ -1486,13 +1486,13 @@
     #define ENDSTOPPULLUP_KMIN
   #endif
   #if ENABLED(USE_UMIN_PLUG)
-    #define ENDSTOPPULLUP_MMIN
+    #define ENDSTOPPULLUP_UMIN
   #endif
   #if ENABLED(USE_VMIN_PLUG)
-    #define ENDSTOPPULLUP_OMIN
+    #define ENDSTOPPULLUP_VMIN
   #endif
   #if ENABLED(USE_WMIN_PLUG)
-    #define ENDSTOPPULLUP_QMIN
+    #define ENDSTOPPULLUP_WMIN
   #endif
 #endif
 
@@ -2167,14 +2167,14 @@
   #ifndef K_SLAVE_ADDRESS
     #define K_SLAVE_ADDRESS 0
   #endif
-  #ifndef M_SLAVE_ADDRESS
-    #define M_SLAVE_ADDRESS 0
+  #ifndef U_SLAVE_ADDRESS
+    #define U_SLAVE_ADDRESS 0
   #endif
-  #ifndef O_SLAVE_ADDRESS
-    #define O_SLAVE_ADDRESS 0
+  #ifndef V_SLAVE_ADDRESS
+    #define V_SLAVE_ADDRESS 0
   #endif
-  #ifndef Q_SLAVE_ADDRESS
-    #define Q_SLAVE_ADDRESS 0
+  #ifndef W_SLAVE_ADDRESS
+    #define W_SLAVE_ADDRESS 0
   #endif
   #ifndef X2_SLAVE_ADDRESS
     #define X2_SLAVE_ADDRESS 0

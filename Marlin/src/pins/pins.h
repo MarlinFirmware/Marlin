@@ -420,8 +420,8 @@
 
 #elif MB(DUE3DOM)
   #include "sam/pins_DUE3DOM.h"                 // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(DUE3DOU_MINI)
-  #include "sam/pins_DUE3DOU_MINI.h"            // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
+#elif MB(DUE3DOM_MINI)
+  #include "sam/pins_DUE3DOM_MINI.h"            // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
 #elif MB(RADDS)
   #include "sam/pins_RADDS.h"                   // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
 #elif MB(RURAMPS4D_11)
@@ -563,8 +563,8 @@
   #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeedv1
 #elif MB(BEAST)
   #include "stm32f1/pins_BEAST.h"               // STM32F103VE?                           env:STM32F103VE env:STM32F103RE_maple
-#elif MB(MINGDA_MPX_ARU_MINI)
-  #include "stm32f1/pins_MINGDA_MPX_ARU_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
+#elif MB(MINGDA_MPX_ARM_MINI)
+  #include "stm32f1/pins_MINGDA_MPX_ARM_MINI.h" // STM32F1                                env:mingda_mpx_arm_mini
 #elif MB(ZONESTAR_ZM3E2)
   #include "stm32f1/pins_ZM3E2_V1_0.h"          // STM32F1                                env:STM32F103RC_ZM3E2_USB env:STM32F103RC_ZM3E2_USB_maple
 #elif MB(ZONESTAR_ZM3E4)

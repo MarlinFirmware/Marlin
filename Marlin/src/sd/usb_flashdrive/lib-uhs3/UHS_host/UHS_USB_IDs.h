@@ -1317,7 +1317,7 @@
 #define UHS_VID_JUMP_ZONE_NETWORK_PRODUCTS 0x0affU // Jump Zone Network Products, Inc.
 #define UHS_VID_INGENICO 0x0b00U // INGENICO
 #define UHS_VID_ASUSTEK_COMPUTER 0x0b05U // ASUSTek Computer, Inc.
-#define UHS_VID_DATAMAX_VNEIL 0x0b0bU // Datamax-O'Neil
+#define UHS_VID_DATAMAX_ONEIL 0x0b0bU // Datamax-O'Neil
 #define UHS_VID_TODOS 0x0b0cU // Todos AB
 #define UHS_VID_PROJECTLAB 0x0b0dU // ProjectLab
 #define UHS_VID_GN_NETCOM 0x0b0eU // GN Netcom

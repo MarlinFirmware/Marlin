@@ -320,9 +320,9 @@ void Endstops::init() {
   #endif
 
   #if HAS_U_MIN
-    #if ENABLED(ENDSTOPPULLUP_MMIN)
+    #if ENABLED(ENDSTOPPULLUP_UMIN)
       SET_INPUT_PULLUP(U_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_MMIN)
+    #elif ENABLED(ENDSTOPPULLDOWN_UMIN)
       SET_INPUT_PULLDOWN(U_MIN_PIN);
     #else
       SET_INPUT(U_MIN_PIN);
@@ -330,9 +330,9 @@ void Endstops::init() {
   #endif
 
   #if HAS_U_MAX
-    #if ENABLED(ENDSTOPPULLUP_MMAX)
+    #if ENABLED(ENDSTOPPULLUP_UMAX)
       SET_INPUT_PULLUP(U_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_MMIN)
+    #elif ENABLED(ENDSTOPPULLDOWN_UMIN)
       SET_INPUT_PULLDOWN(U_MAX_PIN);
     #else
       SET_INPUT(U_MAX_PIN);
@@ -340,9 +340,9 @@ void Endstops::init() {
   #endif
 
   #if HAS_V_MIN
-    #if ENABLED(ENDSTOPPULLUP_OMIN)
+    #if ENABLED(ENDSTOPPULLUP_VMIN)
       SET_INPUT_PULLUP(V_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_OMIN)
+    #elif ENABLED(ENDSTOPPULLDOWN_VMIN)
       SET_INPUT_PULLDOWN(V_MIN_PIN);
     #else
       SET_INPUT(V_MIN_PIN);
@@ -350,9 +350,9 @@ void Endstops::init() {
   #endif
 
   #if HAS_V_MAX
-    #if ENABLED(ENDSTOPPULLUP_OMAX)
+    #if ENABLED(ENDSTOPPULLUP_VMAX)
       SET_INPUT_PULLUP(V_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_OMIN)
+    #elif ENABLED(ENDSTOPPULLDOWN_VMIN)
       SET_INPUT_PULLDOWN(V_MAX_PIN);
     #else
       SET_INPUT(V_MAX_PIN);
@@ -360,9 +360,9 @@ void Endstops::init() {
   #endif
 
   #if HAS_W_MIN
-    #if ENABLED(ENDSTOPPULLUP_QMIN)
+    #if ENABLED(ENDSTOPPULLUP_WMIN)
       SET_INPUT_PULLUP(W_MIN_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_QMIN)
+    #elif ENABLED(ENDSTOPPULLDOWN_WMIN)
       SET_INPUT_PULLDOWN(W_MIN_PIN);
     #else
       SET_INPUT(W_MIN_PIN);
@@ -370,9 +370,9 @@ void Endstops::init() {
   #endif
 
   #if HAS_W_MAX
-    #if ENABLED(ENDSTOPPULLUP_QMAX)
+    #if ENABLED(ENDSTOPPULLUP_WMAX)
       SET_INPUT_PULLUP(W_MAX_PIN);
-    #elif ENABLED(ENDSTOPPULLDOWN_QMIN)
+    #elif ENABLED(ENDSTOPPULLDOWN_WMIN)
       SET_INPUT_PULLDOWN(W_MAX_PIN);
     #else
       SET_INPUT(W_MAX_PIN);
@@ -481,7 +481,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
   if (hit_state) {
     #if HAS_STATUS_MESSAGE
-      char LINEAR_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrM = ' ', chrO = ' ', chrQ = ' '),
+      char LINEAR_AXIS_LIST(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' '),
            chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -730,9 +730,9 @@ void Endstops::update() {
   #define I_AXIS_HEAD I_AXIS
   #define J_AXIS_HEAD J_AXIS
   #define K_AXIS_HEAD K_AXIS
-  #define M_AXIS_HEAD U_AXIS
-  #define O_AXIS_HEAD V_AXIS
-  #define Q_AXIS_HEAD W_AXIS
+  #define U_AXIS_HEAD U_AXIS
+  #define V_AXIS_HEAD V_AXIS
+  #define W_AXIS_HEAD W_AXIS
 
   /**
    * Check and update endstops

@@ -493,8 +493,8 @@ namespace Language_gl {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruido");
   #endif
 
-  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Temp Mín");
-  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Temp Máx");
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temp Mín");
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Temp Máx");
   LSTR MSG_INFO_PSU                       = _UxGT("Fonte Alimentación");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Forza do Motor");
   LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" Driver %");

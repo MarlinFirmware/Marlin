@@ -477,7 +477,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     if (!IS_SD_PRINTING() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
       if (ELAPSED(ms, next_home_key_ms)) {
         next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
-        LCD_MESSAGE(MSG_AUTV_HOME);
+        LCD_MESSAGE(MSG_AUTO_HOME);
         queue.inject_P(G28_STR);
       }
     }
@@ -978,14 +978,14 @@ inline void tmc_standby_setup() {
   #if PIN_EXISTS(K_STDBY)
     SET_INPUT_PULLDOWN(K_STDBY_PIN);
   #endif
-  #if PIN_EXISTS(M_STDBY)
-    SET_INPUT_PULLDOWN(M_STDBY_PIN);
+  #if PIN_EXISTS(U_STDBY)
+    SET_INPUT_PULLDOWN(U_STDBY_PIN);
   #endif
-  #if PIN_EXISTS(O_STDBY)
-    SET_INPUT_PULLDOWN(O_STDBY_PIN);
+  #if PIN_EXISTS(V_STDBY)
+    SET_INPUT_PULLDOWN(V_STDBY_PIN);
   #endif
-  #if PIN_EXISTS(Q_STDBY)
-    SET_INPUT_PULLDOWN(Q_STDBY_PIN);
+  #if PIN_EXISTS(W_STDBY)
+    SET_INPUT_PULLDOWN(W_STDBY_PIN);
   #endif
   #if PIN_EXISTS(E0_STDBY)
     SET_INPUT_PULLDOWN(E0_STDBY_PIN);

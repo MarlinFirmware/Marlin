@@ -194,8 +194,8 @@ namespace Language_nl {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrud.");
   #endif
 
-  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Min Temp");
-  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Max Temp");
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("PSU");  // accepted English term in Dutch
 
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Motorstroom");

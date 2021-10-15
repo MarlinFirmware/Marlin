@@ -490,7 +490,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 volatile bool Temperature::raw_temps_ready = false;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
-  int32_t Temperature::last_e_position, Temperature::lpq[LPW_MAX_LEN];
+  int32_t Temperature::last_e_position, Temperature::lpq[LPQ_MAX_LEN];
   lpq_ptr_t Temperature::lpq_ptr = 0;
 #endif
 

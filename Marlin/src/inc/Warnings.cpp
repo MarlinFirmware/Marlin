@@ -510,16 +510,16 @@
 #if AUTO_ASSIGNED_V_STEPPER
   #warning "Auto-assigned V STEP/DIR/ENABLE_PINs to unused En_STEP/DIR/ENABLE_PINs."
 #endif
-#if AUTO_ASSIGNED_K_CS
+#if AUTO_ASSIGNED_V_CS
   #warning "Auto-assigned V_CS_PIN to an unused En_CS_PIN."
 #endif
-#if AUTO_ASSIGNED_K_MS1
+#if AUTO_ASSIGNED_V_MS1
   #warning "Auto-assigned V_MS1_PIN to an unused En_MS1_PIN."
 #endif
-#if AUTO_ASSIGNED_K_MS2
+#if AUTO_ASSIGNED_V_MS2
   #warning "Auto-assigned V_MS2_PIN to an unused En_MS2_PIN."
 #endif
-#if AUTO_ASSIGNED_K_MS3
+#if AUTO_ASSIGNED_V_MS3
   #warning "Auto-assigned V_MS3_PIN to an unused En_MS3_PIN."
 #endif
 #if AUTO_ASSIGNED_V_DIAG

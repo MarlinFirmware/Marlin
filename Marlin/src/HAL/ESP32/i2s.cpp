@@ -42,7 +42,7 @@
 typedef enum {
   I2S_NUM_0 = 0x0,  /*!< I2S 0*/
   I2S_NUM_1 = 0x1,  /*!< I2S 1*/
-  I2S_NUU_MAX,
+  I2S_NUM_MAX,
 } i2s_port_t;
 
 typedef struct {
@@ -53,8 +53,8 @@ typedef struct {
   xQueueHandle queue;
 } i2s_dma_t;
 
-static portMUX_TYPE i2s_spinlock[I2S_NUU_MAX] = {portMUX_INITIALIZER_UNLOCKED, portMUX_INITIALIZER_UNLOCKED};
-static i2s_dev_t* I2S[I2S_NUU_MAX] = {&I2S0, &I2S1};
+static portMUX_TYPE i2s_spinlock[I2S_NUM_MAX] = {portMUX_INITIALIZER_UNLOCKED, portMUX_INITIALIZER_UNLOCKED};
+static i2s_dev_t* I2S[I2S_NUM_MAX] = {&I2S0, &I2S1};
 static i2s_dma_t dma;
 
 // output value

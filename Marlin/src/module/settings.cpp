@@ -2645,17 +2645,17 @@ void MarlinSettings::reset() {
     #if LINEAR_AXES >= 6 && !defined(DEFAULT_KJERK)
       #define DEFAULT_KJERK 0
     #endif
-    #if LINEAR_AXES >= 7 && !defined(DEFAULT_MJERK)
-      #define DEFAULT_MJERK 0
+    #if LINEAR_AXES >= 7 && !defined(DEFAULT_UJERK)
+      #define DEFAULT_UJERK 0
     #endif
-    #if LINEAR_AXES >= 8 && !defined(DEFAULT_OJERK)
-      #define DEFAULT_OJERK 0
+    #if LINEAR_AXES >= 8 && !defined(DEFAULT_VJERK)
+      #define DEFAULT_VJERK 0
     #endif
-    #if LINEAR_AXES >= 9 && !defined(DEFAULT_QJERK)
-      #define DEFAULT_QJERK 0
+    #if LINEAR_AXES >= 9 && !defined(DEFAULT_WJERK)
+      #define DEFAULT_WJERK 0
     #endif
     planner.max_jerk.set(
-      LINEAR_AXIS_LIST(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_IJERK, DEFAULT_JJERK, DEFAULT_KJERK, DEFAULT_MJERK, DEFAULT_OJERK, DEFAULT_QJERK)
+      LINEAR_AXIS_LIST(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_IJERK, DEFAULT_JJERK, DEFAULT_KJERK, DEFAULT_UJERK, DEFAULT_VJERK, DEFAULT_WJERK)
     );
     TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK);
   #endif

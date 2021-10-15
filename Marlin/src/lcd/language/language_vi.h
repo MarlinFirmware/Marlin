@@ -396,8 +396,8 @@ namespace Language_vi {
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Dài nhất");                             // Longest
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Đã ép đùn");
   #endif
-  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Nhiệt độ tối thiểu");                   // Min Temp
-  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Nhiệt độ tối đa");                      // Max temp
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Nhiệt độ tối thiểu");                   // Min Temp
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Nhiệt độ tối đa");                      // Max temp
   LSTR MSG_INFO_PSU                       = _UxGT("Bộ nguồn");                             // PSU
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Sức mạnh ổ đĩa");                       // Drive Strength
   LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" % trình điều khiển");        // X Driver %

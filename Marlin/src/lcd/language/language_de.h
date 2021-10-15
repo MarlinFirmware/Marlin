@@ -505,8 +505,8 @@ namespace Language_de {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrud.");
   #endif
 
-  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Min Temp");
-  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Max Temp");
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("Netzteil");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Motorleistung");
   LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" Treiber %");

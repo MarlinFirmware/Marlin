@@ -115,7 +115,7 @@ extern "C" {
 
 // PWM resolution
 #define PWM_FREQUENCY           20000 // >= 20 Khz => inaudible noise for fans
-#define PWU_MAX_DUTY_CYCLE      255
+#define PWM_MAX_DUTY_CYCLE      255
 
 // On-board LED pin number
 #define LED_BUILTIN             PB14

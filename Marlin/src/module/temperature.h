@@ -74,7 +74,7 @@ typedef
 hotend_pid_t;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
-  typedef IF<(LPW_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
+  typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
 #define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0 & H)) // Always use 'H' to suppress warning
@@ -462,7 +462,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PID_EXTRUSION_SCALING)
-      static int32_t last_e_position, lpq[LPW_MAX_LEN];
+      static int32_t last_e_position, lpq[LPQ_MAX_LEN];
       static lpq_ptr_t lpq_ptr;
     #endif
 

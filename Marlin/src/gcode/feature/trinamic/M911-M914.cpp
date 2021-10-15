@@ -207,16 +207,16 @@
       if (hasNone || kval == 1 || (hasK && kval < 0)) tmc_clear_otpw(stepperK);
     #endif
     #if M91x_USE_U
-      const int8_t mval = int8_t(parser.byteval(axis_codes.u, 0xFF));
-      if (hasNone || mval == 1 || (hasU && mval < 0)) tmc_clear_otpw(stepperU);
+      const int8_t uval = int8_t(parser.byteval(axis_codes.u, 0xFF));
+      if (hasNone || uval == 1 || (hasU && uval < 0)) tmc_clear_otpw(stepperU);
     #endif
     #if M91x_USE_V
-      const int8_t oval = int8_t(parser.byteval(axis_codes.v, 0xFF));
-      if (hasNone || oval == 1 || (hasO && oval < 0)) tmc_clear_otpw(stepperV);
+      const int8_t vval = int8_t(parser.byteval(axis_codes.v, 0xFF));
+      if (hasNone || vval == 1 || (hasV && vval < 0)) tmc_clear_otpw(stepperV);
     #endif
     #if M91x_USE_W
-      const int8_t qval = int8_t(parser.byteval(axis_codes.w, 0xFF));
-      if (hasNone || qval == 1 || (hasQ && qval < 0)) tmc_clear_otpw(stepperW);
+      const int8_t wval = int8_t(parser.byteval(axis_codes.w, 0xFF));
+      if (hasNone || wval == 1 || (hasW && wval < 0)) tmc_clear_otpw(stepperW);
     #endif
 
     #if M91x_SOME_E

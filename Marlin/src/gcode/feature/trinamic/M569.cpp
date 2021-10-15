@@ -174,7 +174,7 @@ void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
              chop_v = TERN0(V_HAS_STEALTHCHOP, stepperV.get_stored_stealthChop()),
              chop_w = TERN0(W_HAS_STEALTHCHOP, stepperW.get_stored_stealthChop());
 
-  if (chop_x || chop_y || chop_z || chop_i || chop_j || chop_k || chop_m || chop_o || chop_q) {
+  if (chop_x || chop_y || chop_z || chop_i || chop_j || chop_k || chop_u || chop_v || chop_w) {
     say_M569(forReplay);
     LINEAR_AXIS_CODE(
       if (chop_x) SERIAL_ECHOPGM_P(SP_X_STR),

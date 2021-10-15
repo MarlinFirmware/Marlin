@@ -270,7 +270,7 @@ xyze_int8_t Stepper::count_direction{0};
 #define MINDIR(A) (count_direction[_AXIS(A)] < 0)
 #define MAXDIR(A) (count_direction[_AXIS(A)] > 0)
 
-#define STEPTEST(A,U,I) TERN0(HAS_ ##A## ##I## _ ##U, !(TEST(endstops.state(), A## ##I## _ ##U) && U## DIR(A)) && !locked_ ##A## ##I## _motor)
+#define STEPTEST(A,M,I) TERN0(HAS_ ##A## ##I## _ ##M, !(TEST(endstops.state(), A## ##I## _ ##M) && M## DIR(A)) && !locked_ ##A## ##I## _motor)
 
 #define DUAL_ENDSTOP_APPLY_STEP(A,V)             \
   if (separate_multi_axis) {                     \
@@ -448,16 +448,16 @@ xyze_int8_t Stepper::count_direction{0};
   #define K_APPLY_STEP(v,Q) K_STEP_WRITE(v)
 #endif
 #if LINEAR_AXES >= 7
-  #define M_APPLY_DIR(v,Q) U_DIR_WRITE(v)
-  #define M_APPLY_STEP(v,Q) U_STEP_WRITE(v)
+  #define U_APPLY_DIR(v,Q) U_DIR_WRITE(v)
+  #define U_APPLY_STEP(v,Q) U_STEP_WRITE(v)
 #endif
 #if LINEAR_AXES >= 8
-  #define O_APPLY_DIR(v,Q) V_DIR_WRITE(v)
-  #define O_APPLY_STEP(v,Q) V_STEP_WRITE(v)
+  #define V_APPLY_DIR(v,Q) V_DIR_WRITE(v)
+  #define V_APPLY_STEP(v,Q) V_STEP_WRITE(v)
 #endif
 #if LINEAR_AXES >= 9
-  #define Q_APPLY_DIR(v,Q) W_DIR_WRITE(v)
-  #define Q_APPLY_STEP(v,Q) W_STEP_WRITE(v)
+  #define W_APPLY_DIR(v,Q) W_DIR_WRITE(v)
+  #define W_APPLY_STEP(v,Q) W_STEP_WRITE(v)
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)
@@ -1836,10 +1836,10 @@ void Stepper::pulse_phase_isr() {
         PULSE_PREP(U);
       #endif
       #if HAS_V_STEP
-        PULSE_PREP(O);
+        PULSE_PREP(V);
       #endif
       #if HAS_W_STEP
-        PULSE_PREP(Q);
+        PULSE_PREP(W);
       #endif
 
       #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
@@ -3551,11 +3551,11 @@ void Stepper::report_positions() {
       #endif
     #endif
     #if LINEAR_AXES >= 6
-      #if HAS_J_MS_PINS
-        SET_OUTPUT(J_MS1_PIN);
-        SET_OUTPUT(J_MS2_PIN);
-        #if PIN_EXISTS(J_MS3)
-          SET_OUTPUT(J_MS3_PIN);
+      #if HAS_K_MS_PINS
+        SET_OUTPUT(K_MS1_PIN);
+        SET_OUTPUT(K_MS2_PIN);
+        #if PIN_EXISTS(K_MS3)
+          SET_OUTPUT(K_MS3_PIN);
         #endif
       #endif
     #endif

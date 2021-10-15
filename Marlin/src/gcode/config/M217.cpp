@@ -178,7 +178,6 @@ void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
       SERIAL_ECHOPGM(" W", LINEAR_UNIT(toolchange_settings.enable_park));
       SERIAL_ECHOPGM_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
       SERIAL_ECHOPGM_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
-      #endif
       #if LINEAR_AXES >= 4
         SERIAL_ECHOPGM_P(" I", LINEAR_UNIT(toolchange_settings.change_point.i));
       #endif

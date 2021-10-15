@@ -209,8 +209,8 @@ namespace Language_an {
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrusion");
   #endif
 
-  LSTR MSG_INFV_MIN_TEMP                  = _UxGT("Temperatura menima");
-  LSTR MSG_INFV_MAX_TEMP                  = _UxGT("Temperatura maxima");
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temperatura menima");
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Temperatura maxima");
   LSTR MSG_INFO_PSU                       = _UxGT("Fuente de aliment");
 
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Fuerza d'o driver");
