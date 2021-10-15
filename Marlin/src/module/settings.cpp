@@ -2744,7 +2744,7 @@ void MarlinSettings::reset() {
   //
   // BLTouch
   //
-  TERN_(BLTOUCH_HS_MODE, bltouch.high_speed_mode = true);
+  TERN_(BLTOUCH, bltouch.high_speed_mode = ENABLED(BLTOUCH_HS_MODE));
 
   //
   // Kinematic settings
