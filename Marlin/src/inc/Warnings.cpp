@@ -455,6 +455,162 @@
     #warning "Auto-assigned K_DIAG_PIN to E7_DIAG_PIN."
   #endif
 #endif
+#if AUTO_ASSIGNED_U_STEPPER
+  #warning "Auto-assigned U STEP/DIR/ENABLE_PINs to unused En_STEP/DIR/ENABLE_PINs."
+#endif
+#if AUTO_ASSIGNED_U_CS
+  #warning "Auto-assigned U_CS_PIN to an unused En_CS_PIN."
+#endif
+#if AUTO_ASSIGNED_U_MS1
+  #warning "Auto-assigned U_MS1_PIN to an unused En_MS1_PIN."
+#endif
+#if AUTO_ASSIGNED_U_MS2
+  #warning "Auto-assigned U_MS2_PIN to an unused En_MS2_PIN."
+#endif
+#if AUTO_ASSIGNED_U_MS3
+  #warning "Auto-assigned U_MS3_PIN to an unused En_MS3_PIN."
+#endif
+#if AUTO_ASSIGNED_U_DIAG
+  #if U_USE_ENDSTOP == _XMIN_
+    #warning "Auto-assigned U_DIAG_PIN to X_MIN_PIN."
+  #elif U_USE_ENDSTOP == _XMAX_
+    #warning "Auto-assigned U_DIAG_PIN to X_MAX_PIN."
+  #elif K_USE_ENDSTOP == _YMIN_
+    #warning "Auto-assigned U_DIAG_PIN to Y_MIN_PIN."
+  #elif U_USE_ENDSTOP == _YMAX_
+    #warning "Auto-assigned U_DIAG_PIN to Y_MAX_PIN."
+  #elif U_USE_ENDSTOP == _ZMIN_
+    #warning "Auto-assigned U_DIAG_PIN to Z_MIN_PIN."
+  #elif U_USE_ENDSTOP == _ZMAX_
+    #warning "Auto-assigned U_DIAG_PIN to Z_MAX_PIN."
+  #elif U_USE_ENDSTOP == _XDIAG_
+    #warning "Auto-assigned U_DIAG_PIN to X_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _YDIAG_
+    #warning "Auto-assigned U_DIAG_PIN to Y_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _ZDIAG_
+    #warning "Auto-assigned U_DIAG_PIN to Z_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E0DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E0_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E1DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E1_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E2DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E2_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E3DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E3_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E4DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E4_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E5DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E5_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E6DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E6_DIAG_PIN."
+  #elif U_USE_ENDSTOP == _E7DIAG_
+    #warning "Auto-assigned U_DIAG_PIN to E7_DIAG_PIN."
+  #endif
+#endif
+#if AUTO_ASSIGNED_V_STEPPER
+  #warning "Auto-assigned V STEP/DIR/ENABLE_PINs to unused En_STEP/DIR/ENABLE_PINs."
+#endif
+#if AUTO_ASSIGNED_K_CS
+  #warning "Auto-assigned V_CS_PIN to an unused En_CS_PIN."
+#endif
+#if AUTO_ASSIGNED_K_MS1
+  #warning "Auto-assigned V_MS1_PIN to an unused En_MS1_PIN."
+#endif
+#if AUTO_ASSIGNED_K_MS2
+  #warning "Auto-assigned V_MS2_PIN to an unused En_MS2_PIN."
+#endif
+#if AUTO_ASSIGNED_K_MS3
+  #warning "Auto-assigned V_MS3_PIN to an unused En_MS3_PIN."
+#endif
+#if AUTO_ASSIGNED_V_DIAG
+  #if V_USE_ENDSTOP == _XMIN_
+    #warning "Auto-assigned V_DIAG_PIN to X_MIN_PIN."
+  #elif V_USE_ENDSTOP == _XMAX_
+    #warning "Auto-assigned V_DIAG_PIN to X_MAX_PIN."
+  #elif V_USE_ENDSTOP == _YMIN_
+    #warning "Auto-assigned V_DIAG_PIN to Y_MIN_PIN."
+  #elif V_USE_ENDSTOP == _YMAX_
+    #warning "Auto-assigned V_DIAG_PIN to Y_MAX_PIN."
+  #elif V_USE_ENDSTOP == _ZMIN_
+    #warning "Auto-assigned V_DIAG_PIN to Z_MIN_PIN."
+  #elif V_USE_ENDSTOP == _ZMAX_
+    #warning "Auto-assigned V_DIAG_PIN to Z_MAX_PIN."
+  #elif V_USE_ENDSTOP == _XDIAG_
+    #warning "Auto-assigned V_DIAG_PIN to X_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _YDIAG_
+    #warning "Auto-assigned V_DIAG_PIN to Y_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _ZDIAG_
+    #warning "Auto-assigned V_DIAG_PIN to Z_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E0DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E0_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E1DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E1_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E2DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E2_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E3DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E3_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E4DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E4_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E5DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E5_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E6DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E6_DIAG_PIN."
+  #elif V_USE_ENDSTOP == _E7DIAG_
+    #warning "Auto-assigned V_DIAG_PIN to E7_DIAG_PIN."
+  #endif
+#endif
+#if AUTO_ASSIGNED_W_STEPPER
+  #warning "Auto-assigned W STEP/DIR/ENABLE_PINs to unused En_STEP/DIR/ENABLE_PINs."
+#endif
+#if AUTO_ASSIGNED_W_CS
+  #warning "Auto-assigned W_CS_PIN to an unused En_CS_PIN."
+#endif
+#if AUTO_ASSIGNED_W_MS1
+  #warning "Auto-assigned W_MS1_PIN to an unused En_MS1_PIN."
+#endif
+#if AUTO_ASSIGNED_W_MS2
+  #warning "Auto-assigned W_MS2_PIN to an unused En_MS2_PIN."
+#endif
+#if AUTO_ASSIGNED_W_MS3
+  #warning "Auto-assigned W_MS3_PIN to an unused En_MS3_PIN."
+#endif
+#if AUTO_ASSIGNED_W_DIAG
+  #if W_USE_ENDSTOP == _XMIN_
+    #warning "Auto-assigned W_DIAG_PIN to X_MIN_PIN."
+  #elif W_USE_ENDSTOP == _XMAX_
+    #warning "Auto-assigned W_DIAG_PIN to X_MAX_PIN."
+  #elif W_USE_ENDSTOP == _YMIN_
+    #warning "Auto-assigned W_DIAG_PIN to Y_MIN_PIN."
+  #elif W_USE_ENDSTOP == _YMAX_
+    #warning "Auto-assigned W_DIAG_PIN to Y_MAX_PIN."
+  #elif W_USE_ENDSTOP == _ZMIN_
+    #warning "Auto-assigned W_DIAG_PIN to Z_MIN_PIN."
+  #elif W_USE_ENDSTOP == _ZMAX_
+    #warning "Auto-assigned W_DIAG_PIN to Z_MAX_PIN."
+  #elif W_USE_ENDSTOP == _XDIAG_
+    #warning "Auto-assigned W_DIAG_PIN to X_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _YDIAG_
+    #warning "Auto-assigned W_DIAG_PIN to Y_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _ZDIAG_
+    #warning "Auto-assigned W_DIAG_PIN to Z_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E0DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E0_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E1DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E1_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E2DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E2_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E3DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E3_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E4DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E4_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E5DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E5_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E6DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E6_DIAG_PIN."
+  #elif W_USE_ENDSTOP == _E7DIAG_
+    #warning "Auto-assigned W_DIAG_PIN to E7_DIAG_PIN."
+  #endif
+#endif
 
 // Ender 3 Pro (but, apparently all Creality 4.2.2 boards)
 #if ENABLED(EMIT_CREALITY_422_WARNING) || MB(CREALITY_V4)
