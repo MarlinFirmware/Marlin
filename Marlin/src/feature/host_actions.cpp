@@ -91,25 +91,25 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
     extern bool wait_for_user;
   #endif
 
-  void HostUI::notify(const char * const message) {
+  void HostUI::notify(const char * const cstr) {
     if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("notification "), false);
-    SERIAL_ECHOLN(message);
+    SERIAL_ECHOLN(cstr);
   }
 
-  void HostUI::notify_P(PGM_P const message) {
+  void HostUI::notify_P(PGM_P const pstr) {
     if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("notification "), false);
-    SERIAL_ECHOLNPGM_P(message);
+    SERIAL_ECHOLNPGM_P(pstr);
   }
 
   void HostUI::prompt(FSTR_P const ptype, const bool eol/*=true*/) {
     if (!flag.bits) return;
     PORT_REDIRECT(SerialMask::All);
     action(F("prompt_"), false);
-    SERIAL_ECHOPGM_P(FTOP(ptype));
+    SERIAL_ECHOF(ptype);
     if (eol) SERIAL_EOL();
   }
 
@@ -118,7 +118,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
     prompt(ptype, false);
     PORT_REDIRECT(SerialMask::All);
     SERIAL_CHAR(' ');
-    SERIAL_ECHOPGM_P(FTOP(fstr));
+    SERIAL_ECHOF(fstr);
     if (extra_char != '\0') SERIAL_CHAR(extra_char);
     SERIAL_EOL();
   }
