@@ -33,6 +33,9 @@
 //#define MachineS5
 //#define MachineCR2020 // Industrial Series 2020
 
+// Belt Printer
+//#define MachineCR30
+
 // Atmega1284P machines Needs a bootloader flashed before installation
 // See video here : https://www.youtube.com/watch?v=fIl5X2ffdyo
 
@@ -495,6 +498,11 @@
   #endif
 #endif
 
+#if ENABLED(MachineCR30)
+  #define OrigLCD
+  #define RET6_12864_LCD
+#endif
+
 #if ENABLED(MachineCRX)
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
@@ -619,7 +627,7 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, SKRE3Turbo, SKR_CR6)
   #define SERIAL_PORT -1
- #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1)
+ #elif ANY(MachineEnder3V2, MachineEnder3Max, MachineEnder3Pro422, MachineEnder3Pro427, Creality422, Creality427, MachineEnder6, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -718,6 +726,8 @@
     #define MOTHERBOARD BOARD_BTT_SKR_CR6
   #elif ENABLED(CR6_452)
     #define MOTHERBOARD BOARD_CREALITY_V452
+  #elif ENABLED(MachineCR30)
+    #define MOTHERBOARD BOARD_CREALITY_V4210
   #elif ANY(MachineCR6, MachineCR6Max)
     #define MOTHERBOARD BOARD_CREALITY_V453
   #else
@@ -1460,7 +1470,7 @@
 
 // Enable one of the options below for CoreXY, CoreXZ, or CoreYZ kinematics,
 // either in the usual order or reversed
-#if ANY(MachineEnder4, MachineEnder6)
+#if ANY(MachineEnder4, MachineEnder6, MachineCR30)
   #define COREXY
 #endif
 //#define COREXZ
@@ -1471,7 +1481,9 @@
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
 
 // Enable for a belt style printer with endless "Z" motion
-//#define BELTPRINTER
+#if ENABLED(MachineCR30)
+  #define BELTPRINTER
+#endif
 
 // Enable for Polargraph Kinematics
 //#define POLARGRAPH
@@ -1547,12 +1559,12 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#if ANY(MachineEnder4, MachineCR2020)
+#if ANY(MachineEnder4, MachineCR2020, MachineCR30)
   #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #endif
-#if ENABLED(MachineCR2020)
+#if ENABLED(MachineCR2020, MachineCR30)
   #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -1593,7 +1605,7 @@
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineCR10SV2, CrealitySilentBoard, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max) && DISABLED(SKR_UART)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineCR10SV2, CrealitySilentBoard, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30) && DISABLED(SKR_UART)
   #if ENABLED(SKR_2209)
     #define X_DRIVER_TYPE  TMC2209_STANDALONE
     #define Y_DRIVER_TYPE  TMC2209_STANDALONE
@@ -1747,7 +1759,7 @@
   #define EStepsmm 409
 #elif ANY(EZRstruder, MachineCR10SV2)
   #define EStepsmm 93
-#elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6)
+#elif ANY(MachineCR10SPro, MachineCR10Max, MachineCRXPro, MachineEnder6, MachineCR30)
   #define EStepsmm 140
 #elif ENABLED(MachineCR2020)
   #define EStepsmm 113
@@ -1757,6 +1769,8 @@
 
 #if ENABLED(MachineEnder5Plus)
   #define ZStepsmm 800
+#elif ENABLED(MachineCR30)
+  #define ZStepsmm 1152.95
 #else
   #define ZStepsmm 400
 #endif
@@ -1786,7 +1800,7 @@
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
   #define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
   #define DEFAULT_TRAVEL_ACCELERATION   300    // X, Y, Z acceleration for travel (non printing) moves
-#elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max))
+#elif (ANY(MachineCR10SPro, MachineCR6, MachineCR6Max, MachineCR30))
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 70 }
   #define DEFAULT_MAX_ACCELERATION      { 750, 750, 100, 60 }
   #define DEFAULT_ACCELERATION          750    // X, Y, Z and E acceleration for printing moves
@@ -2321,7 +2335,7 @@
     #define INVERT_E0_DIR false
     #define INVERT_E1_DIR true
   #endif
-#elif(ANY(MachineEnder4, MachineEnder5) && NONE(Creality422, Creality427))
+#elif(ANY(MachineEnder4, MachineEnder5, MachineCR30) && NONE(Creality422, Creality427))
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
@@ -2513,6 +2527,13 @@
     #define X_MAX_POS 290
     #define Y_MAX_POS 270
     #define ClipClearance 10
+  #elif ENABLED(MachineCR30)
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 250
+    #define Z_MAX_POS 20000000
+    #define X_MAX_POS X_BED_SIZE
+    #define Y_MAX_POS Y_BED_SIZE
+    #define ClipClearance 2
   #elif ENABLED(MachineCR20)
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
@@ -2599,6 +2620,9 @@
 #elif ENABLED(MachineCR6Max)
   #define X_MIN_POS -10
   #define Y_MIN_POS -3
+#elif ENABLED(MachineCR30)
+  #define X_MIN_POS 0
+  #define Y_MIN_POS -5
 #else
   #define X_MIN_POS 0
   #define Y_MIN_POS 0
@@ -2792,7 +2816,7 @@
     #define AUTO_BED_LEVELING_UBL
   #elif BOTH(PROBE_MANUALLY, FORCE10SPRODISPLAY)
     #define MESH_BED_LEVELING
-  #elif !BOTH(OrigLA, MachineCR10Orig)
+  #elif !BOTH(OrigLA, MachineCR10Orig) && DISABLED(MachineCR30)
     #define AUTO_BED_LEVELING_BILINEAR
   #endif
 /**
@@ -2954,7 +2978,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
   #define LCD_BED_LEVELING
 #endif
 
