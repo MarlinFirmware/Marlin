@@ -166,7 +166,7 @@
 
 #endif // IS_ULTRA_LCD && IS_NEWPANEL
 
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2               188
   #define BOARD_ST7920_DELAY_3                 0

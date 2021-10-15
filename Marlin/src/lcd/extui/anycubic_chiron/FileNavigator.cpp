@@ -157,7 +157,7 @@ void FileNavigator::skiptofileindex(uint16_t skip) {
       // The new panel ignores entries that don't end in .GCO or .gcode so add and pad them.
       if (paneltype == AC_panel_new) {
         TFTSer.println("<<.GCO");
-        Chiron.SendtoTFTLN(PSTR("..                  .gcode"));
+        Chiron.SendtoTFTLN(F("..                  .gcode"));
       }
       else {
         TFTSer.println("<<");

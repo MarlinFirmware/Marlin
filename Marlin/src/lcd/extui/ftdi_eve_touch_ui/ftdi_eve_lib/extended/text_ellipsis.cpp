@@ -80,7 +80,7 @@ namespace FTDI {
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);
   }
 
-  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, progmem_str pstr, uint16_t options, uint8_t font) {
+  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P pstr, uint16_t options, uint8_t font) {
     char tmp[strlen_P((const char*)pstr) + 3];
     strcpy_P(tmp, (const char*)pstr);
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);

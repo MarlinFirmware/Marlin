@@ -57,10 +57,10 @@ public:
   static bool eject_filament(const uint8_t index, const bool recover);
 
 private:
-  static bool rx_str_P(const char *str);
-  static void tx_str_P(const char *str);
-  static void tx_printf_P(const char *format, const int argument);
-  static void tx_printf_P(const char *format, const int argument1, const int argument2);
+  static inline bool rx_str(FSTR_P fstr);
+  static inline void tx_str(FSTR_P fstr);
+  static inline void tx_printf(FSTR_P ffmt, const int argument);
+  static inline void tx_printf(FSTR_P ffmt, const int argument1, const int argument2);
   static void clear_rx_buffer();
 
   static bool rx_ok();

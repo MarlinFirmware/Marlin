@@ -32,7 +32,6 @@
 #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "../../../inc/MarlinConfig.h"
-#include "../../../core/macros.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
 
