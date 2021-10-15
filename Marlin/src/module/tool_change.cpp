@@ -1307,7 +1307,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     TERN_(HAS_FANMUX, fanmux_switch(active_extruder));
 
-    if (!no_move || TERN0(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN, true)) {
+    if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
       #ifdef EVENT_GCODE_TOOLCHANGE_T0
         if (new_tool == 0)
           gcode.process_subcommands_now(F(EVENT_GCODE_TOOLCHANGE_T0));
