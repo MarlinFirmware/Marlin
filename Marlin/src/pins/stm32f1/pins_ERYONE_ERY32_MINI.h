@@ -87,10 +87,40 @@
 // Heaters 0,1 / Fans / Bed
 //
 #define HEATER_0_PIN                        PD11
-//#define HEATER_1_PIN                      PD4
-#define FAN_PIN                             PB5
-//#define FAN1_PIN                          PB9
-#define HEATER_BED_PIN                      PD12
+
+#if ENABLED(FET_ORDER_EFB)                        // Hotend, Fan, Bed
+  #define HEATER_BED_PIN                    PD12
+#elif ENABLED(FET_ORDER_EEF)                      // Hotend, Hotend, Fan
+  #define HEATER_1_PIN                      PD4
+#elif ENABLED(FET_ORDER_EEB)                      // Hotend, Hotend, Bed
+  #define HEATER_1_PIN                      PD4
+  #define HEATER_BED_PIN                    PD12
+#elif ENABLED(FET_ORDER_EFF)                      // Hotend, Fan, Fan
+  #define FAN1_PIN                          PD12
+#elif DISABLED(FET_ORDER_SF)                      // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
+  #define HEATER_BED_PIN                    PD12
+  #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
+    #define HEATER_1_PIN                    PB9
+  #else
+    #define FAN1_PIN                        PB9
+  #endif
+#endif
+
+#ifndef FAN_PIN
+  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
+    #define FAN_PIN                         PB5
+  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
+    #define FAN_PIN                         PD12
+  #elif ENABLED(FET_ORDER_EEB)                    // Hotend, Hotend, Bed
+    #define FAN_PIN                         -1    // IO pin. Buffer needed
+  #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
+    #define FAN_PIN                         PB5
+  #endif
+#endif
+
+//
+// Misc. Functions
+//
 //#define PS_ON_PIN                         PB9
 
 #if HAS_TMC_UART
