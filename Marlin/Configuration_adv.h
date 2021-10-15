@@ -889,14 +889,14 @@
   //#define BLTOUCH_FORCE_MODE_SET
 
   /**
-   * Use "HIGH SPEED" mode for probing.
+   * Enable "HIGH SPEED" option for probing.
    * Danger: Disable if your probe sometimes fails. Only suitable for stable well-adjusted systems.
    * This feature was designed for Deltabots with very fast Z moves; however, higher speed Cartesians
    * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
+   *
+   * Set the default state here, change with 'M401 S' or UI, use M500 to save, M502 to reset.
    */
-  #if NONE(MachineCR10Orig, LowMemoryBoard, MachineCRXs)
-    #define BLTOUCH_HS_MODE
-  #endif
+  #define BLTOUCH_HS_MODE true
 
   // Safety: Enable voltage mode settings in the LCD menu.
   //#define BLTOUCH_LCD_VOLTAGE_MENU
