@@ -217,11 +217,14 @@ void menu_advanced_settings();
 
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
-      SERIAL_ECHOLNPGM("EEPROM Last BLTouch Mode - ", bltouch.last_written_mode);
-      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD"));
+      PGMSTR(mode0, "OD");
+      PGMSTR(mode1, "5V");
+      SERIAL_ECHOPGM("BLTouch Mode: ");
+      SERIAL_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
+      SERIAL_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
       char mess[21];
-      strcpy_P(mess, PSTR("BLTouch Mode - "));
-      strcpy_P(&mess[15], bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
+      strcpy_P(mess, PSTR("BLTouch Mode: "));
+      strcpy_P(&mess[15], bltouch.od_5v_mode ? mode1 : mode0);
       ui.set_status(mess);
       ui.return_to_status();
     }

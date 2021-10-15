@@ -28,8 +28,8 @@
 
 BLTouch bltouch;
 
-bool BLTouch::last_written_mode,  // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
-     BLTouch::high_speed_mode;    // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
+bool BLTouch::od_5v_mode,       // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+     BLTouch::high_speed_mode;  // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
 
 #include "../module/servo.h"
 #include "../module/probe.h"
@@ -65,17 +65,14 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
   #else
 
     if (DEBUGGING(LEVELING)) {
-      DEBUG_ECHOLNPGM("last_written_mode - ", last_written_mode);
-      DEBUG_ECHOLNPGM("config mode - "
-        #if ENABLED(BLTOUCH_SET_5V_MODE)
-          "BLTOUCH_SET_5V_MODE"
-        #else
-          "OD"
-        #endif
-      );
+      PGMSTR(mode0, "OD");
+      PGMSTR(mode1, "5V");
+      DEBUG_ECHOPGM("BLTouch Mode: ");
+      DEBUG_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
+      DEBUG_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
     }
 
-    const bool should_set = last_written_mode != ENABLED(BLTOUCH_SET_5V_MODE);
+    const bool should_set = od_5v_mode != ENABLED(BLTOUCH_SET_5V_MODE);
 
   #endif
 
@@ -194,7 +191,7 @@ void BLTouch::mode_conv_proc(const bool M5V) {
   _mode_store();
   if (M5V) _set_5V_mode(); else _set_OD_mode();
   _stow();
-  last_written_mode = M5V;
+  od_5v_mode = M5V;
 }
 
 #endif // BLTOUCH

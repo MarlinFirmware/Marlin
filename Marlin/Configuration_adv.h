@@ -858,7 +858,7 @@
    * This feature was designed for Deltabots with very fast Z moves; however, higher speed Cartesians
    * might be able to use it. If the machine can't raise Z fast enough the BLTouch may go into ALARM.
    *
-   * This sets the default state. Can be changed through the SCD
+   * This only sets the default state. Changed with 'M401 S' or UI, saved with M500.
    */
   //#define BLTOUCH_HS_MODE
 

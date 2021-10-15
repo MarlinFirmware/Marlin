@@ -68,8 +68,8 @@ class BLTouch {
 public:
 
   static void init(const bool set_voltage=false);
-  static bool last_written_mode,  // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
-              high_speed_mode;    // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
+  static bool od_5v_mode,       // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+              high_speed_mode;  // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
 
   const float z_extra_clearance()   { return high_speed_mode ? 7 : 0; }
 
