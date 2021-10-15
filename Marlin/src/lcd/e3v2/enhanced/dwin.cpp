@@ -1391,7 +1391,7 @@ void HMI_PauseOrStop() {
         card.abortFilePrintSoon();                     // Let the main loop handle SD abort
         dwin_abort_flag = true;                        // Reset feedrate, return to Home
         #ifdef ACTION_ON_CANCEL
-          host_action_cancel();
+          hostui.cancel();
         #endif
         DWIN_Draw_Popup(ICON_BLTouch, F("Stopping...") , F("Please wait until done."));
       }
