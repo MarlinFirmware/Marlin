@@ -4503,7 +4503,7 @@ void CrealityDWINClass::Print_Screen_Control() {
             #endif
           }
           else {
-            TERN_(HOST_ACTION_COMMANDS, host_action_resume());
+            TERN_(HOST_ACTION_COMMANDS, hostui.resume());
           }
           Draw_Print_Screen();
         }
@@ -4553,7 +4553,7 @@ void CrealityDWINClass::Popup_Control() {
             #endif
           }
           else {
-            TERN_(HOST_ACTION_COMMANDS, host_action_pause());
+            TERN_(HOST_ACTION_COMMANDS, hostui.pause());
           }
         }
         Draw_Print_Screen();
@@ -4566,7 +4566,7 @@ void CrealityDWINClass::Popup_Control() {
             thermalManager.disable_all_heaters();
           }
           else {
-            TERN_(HOST_ACTION_COMMANDS, host_action_cancel());
+            TERN_(HOST_ACTION_COMMANDS, hostui.cancel());
           }
         }
         else
