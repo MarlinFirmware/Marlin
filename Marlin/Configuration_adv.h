@@ -879,7 +879,7 @@
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
-  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
+  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, Creality422, Creality427)
     #define BLTOUCH_SET_5V_MODE
   #endif
   /**
