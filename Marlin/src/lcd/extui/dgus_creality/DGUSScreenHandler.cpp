@@ -1708,7 +1708,7 @@ bool DGUSScreenHandler::loop() {
     static bool booted = false;
 
     if (!booted) {
-      progmem_str message = GET_TEXT_F(WELCOME_MSG);
+      FSTR_P message = GET_TEXT_F(WELCOME_MSG);
       char buff[strlen_P((const char * const)message)+1];
       strcpy_P(buff, (const char * const) message);
       ExtUI::onStatusChanged((const char *)buff);
@@ -1750,7 +1750,7 @@ bool DGUSScreenHandler::loop() {
     // Catch pause / wait for user that bypassed events
     if (ScreenHandler.getCurrentScreen() != DGUSLCD_SCREEN_PRINT_PAUSED && ScreenHandler.getCurrentScreen() != DGUSLCD_SCREEN_POPUP && ExtUI::awaitingUserConfirm()) {
       SERIAL_ECHOLN("Catch1");
-      ExtUI::onUserConfirmRequired_P(PSTR("Paused"));
+      ExtUI::onUserConfirmRequired("Paused");
     }
 
   return IsScreenComplete();
