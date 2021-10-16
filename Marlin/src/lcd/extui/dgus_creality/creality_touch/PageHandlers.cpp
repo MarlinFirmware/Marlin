@@ -87,8 +87,8 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_BEDLEVELKEY:
             switch (buttonValue) {
                 case 1:
-                    queue.enqueue_one_P("G28 U0");
-                    queue.enqueue_one_P("G0 Z0");
+                    queue.enqueue_one("G28 U0");
+                    queue.enqueue_one("G0 Z0");
                 break;
 
                 case 2:
