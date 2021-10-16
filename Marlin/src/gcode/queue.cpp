@@ -68,6 +68,23 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 #endif
 
 /**
+ * Track buffer underruns
+ */
+#if ENABLED(BUFFER_MONITORING)
+  uint32_t GCodeQueue::command_buffer_underruns = 0,
+           GCodeQueue::planner_buffer_underruns = 0;
+  bool GCodeQueue::command_buffer_empty = false,
+       GCodeQueue::planner_buffer_empty = false;
+  millis_t GCodeQueue::max_command_buffer_empty_duration = 0,
+           GCodeQueue::max_planner_buffer_empty_duration = 0,
+           GCodeQueue::command_buffer_empty_at = 0,
+           GCodeQueue::planner_buffer_empty_at = 0;
+
+  uint8_t GCodeQueue::auto_buffer_report_interval;
+  millis_t GCodeQueue::next_buffer_report_ms;
+#endif
+
+/**
  * Serial command injection
  */
 
@@ -81,7 +98,6 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  * Injected SRAM Commands
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
-
 
 void GCodeQueue::RingBuffer::commit_command(bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
@@ -102,11 +118,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
   strcpy(commands[index_w].buffer, cmd);
-  commit_command(skip_ok
-    #if HAS_MULTI_SERIAL
-      , serial_ind
-    #endif
-  );
+  commit_command(skip_ok OPTARG(HAS_MULTI_SERIAL, serial_ind));
   return true;
 }
 
@@ -115,7 +127,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
  * Return true if the command was consumed
  */
 bool GCodeQueue::enqueue_one(const char *cmd) {
-  //SERIAL_ECHOLNPAIR("enqueue_one(\"", cmd, "\")");
+  //SERIAL_ECHOLNPGM("enqueue_one(\"", cmd, "\")");
 
   if (*cmd == 0 || ISEOL(*cmd)) return true;
 
@@ -248,8 +260,7 @@ void GCodeQueue::RingBuffer::ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_CHAR(*p++);
     }
-    SERIAL_ECHOPAIR_P(SP_P_STR, planner.moves_free(),
-                      SP_B_STR, BUFSIZE - length);
+    SERIAL_ECHOPGM_P(SP_P_STR, planner.moves_free(), SP_B_STR, BUFSIZE - length);
   #endif
   SERIAL_EOL();
 }
@@ -264,7 +275,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
     PORT_REDIRECT(SERIAL_PORTMASK(serial_ind));   // Reply to the serial port that sent the command
   #endif
   SERIAL_FLUSH();
-  SERIAL_ECHOLNPAIR(STR_RESEND, serial_state[serial_ind.index].last_N + 1);
+  SERIAL_ECHOLNPGM(STR_RESEND, serial_state[serial_ind.index].last_N + 1);
   SERIAL_ECHOLNPGM(STR_OK);
 }
 
@@ -294,7 +305,7 @@ inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(ind
 void GCodeQueue::gcode_line_error(PGM_P const err, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNPAIR_P(err, serial_state[serial_ind.index].last_N);
+  SERIAL_ECHOLNPGM_P(err, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
   serial_state[serial_ind.index].count = 0;
@@ -522,11 +533,7 @@ void GCodeQueue::get_serial_commands() {
         #endif
 
         // Add the command to the queue
-        ring_buffer.enqueue(serial.line_buffer, false
-          #if HAS_MULTI_SERIAL
-            , p
-          #endif
-        );
+        ring_buffer.enqueue(serial.line_buffer, false OPTARG(HAS_MULTI_SERIAL, p));
       }
       else
         process_stream_char(serial_char, serial.input_state, serial.line_buffer, serial.count);
@@ -621,7 +628,24 @@ void GCodeQueue::advance() {
   if (process_injected_command_P() || process_injected_command()) return;
 
   // Return if the G-code buffer is empty
-  if (ring_buffer.empty()) return;
+  if (ring_buffer.empty()) {
+    #if ENABLED(BUFFER_MONITORING)
+      if (!command_buffer_empty) {
+        command_buffer_empty = true;
+        command_buffer_underruns++;
+        command_buffer_empty_at = millis();
+      }
+    #endif
+    return;
+  }
+
+  #if ENABLED(BUFFER_MONITORING)
+    if (command_buffer_empty) {
+      command_buffer_empty = false;
+      const millis_t command_buffer_empty_duration = millis() - command_buffer_empty_at;
+      NOLESS(max_command_buffer_empty_duration, command_buffer_empty_duration);
+    }
+  #endif
 
   #if ENABLED(SDSUPPORT)
 
@@ -634,10 +658,10 @@ void GCodeQueue::advance() {
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
-            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL1.dropped());
+            SERIAL_ECHOLNPGM("Dropped bytes: ", MYSERIAL1.dropped());
           #endif
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
+            SERIAL_ECHOLNPGM("Max RX Queue Size: ", MYSERIAL1.rxMaxEnqueued());
           #endif
         #endif
 
@@ -664,3 +688,41 @@ void GCodeQueue::advance() {
   // The queue may be reset by a command handler or by code invoked by idle() within a handler
   ring_buffer.advance_pos(ring_buffer.index_r, -1);
 }
+
+#if ENABLED(BUFFER_MONITORING)
+
+  void GCodeQueue::report_buffer_statistics() {
+    SERIAL_ECHOLNPGM("D576"
+      " P:", planner.moves_free(),         " ", -queue.planner_buffer_underruns, " (", queue.max_planner_buffer_empty_duration, ")"
+      " B:", BUFSIZE - ring_buffer.length, " ", -queue.command_buffer_underruns, " (", queue.max_command_buffer_empty_duration, ")"
+    );
+    command_buffer_underruns = planner_buffer_underruns = 0;
+    max_command_buffer_empty_duration = max_planner_buffer_empty_duration = 0;
+  }
+
+  void GCodeQueue::auto_report_buffer_statistics() {
+    // Bit of a hack to try to catch planner buffer underruns without having logic
+    // running inside Stepper::block_phase_isr
+    const millis_t ms = millis();
+    if (planner.movesplanned() == 0) {
+      if (!planner_buffer_empty) { // the planner buffer wasn't empty, but now it is
+        planner_buffer_empty = true;
+        planner_buffer_underruns++;
+        planner_buffer_empty_at = ms;
+      }
+    }
+    else if (planner_buffer_empty) { // the planner buffer was empty, but now it's not
+      planner_buffer_empty = false;
+      const millis_t planner_buffer_empty_duration = ms - planner_buffer_empty_at;
+      NOLESS(max_planner_buffer_empty_duration, planner_buffer_empty_duration); // if it's longer than the currently tracked max duration, replace it
+    }
+
+    if (queue.auto_buffer_report_interval && ELAPSED(ms, queue.next_buffer_report_ms)) {
+      queue.next_buffer_report_ms = ms + 1000UL * queue.auto_buffer_report_interval;
+      PORT_REDIRECT(SERIAL_BOTH);
+      report_buffer_statistics();
+      PORT_RESTORE();
+    }
+  }
+
+#endif // BUFFER_MONITORING

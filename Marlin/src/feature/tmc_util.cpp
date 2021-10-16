@@ -208,7 +208,7 @@
   #if ENABLED(STOP_ON_ERROR)
     void report_driver_error(const TMC_driver_data &data) {
       SERIAL_ECHOPGM(" driver error detected: 0x");
-      SERIAL_PRINTLN(data.drv_status, HEX);
+      SERIAL_PRINTLN(data.drv_status, PrintBase::Hex);
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
@@ -226,7 +226,7 @@
     SERIAL_ECHO(timestamp);
     SERIAL_ECHOPGM(": ");
     st.printLabel();
-    SERIAL_ECHOLNPAIR(" driver overtemperature warning! (", st.getMilliamps(), "mA)");
+    SERIAL_ECHOLNPGM(" driver overtemperature warning! (", st.getMilliamps(), "mA)");
   }
 
   template<typename TMC>
@@ -271,7 +271,7 @@
           st.rms_current(I_rms);
           #if ENABLED(REPORT_CURRENT_CHANGE)
             st.printLabel();
-            SERIAL_ECHOLNPAIR(" current decreased to ", I_rms);
+            SERIAL_ECHOLNPGM(" current decreased to ", I_rms);
           #endif
         }
       }

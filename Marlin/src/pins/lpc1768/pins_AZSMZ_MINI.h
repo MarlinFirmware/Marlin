@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME "AZSMZ MINI"
+#define BOARD_INFO_NAME "AZSMZ Mini"
 
 //
 // Servos
@@ -76,6 +76,7 @@
 //
 // Heaters / Fans
 //
+
 // EFB
 #define HEATER_0_PIN                       P2_04
 #define HEATER_BED_PIN                     P2_05
@@ -85,7 +86,6 @@
 #define FAN1_PIN                           P0_26
 
 #define LCD_SDSS                           P0_16  // LCD SD chip select
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if ENABLED(AZSMZ_12864)
   #define BEEPER_PIN                       P1_30
@@ -109,6 +109,7 @@
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08
   #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
@@ -117,14 +118,14 @@
 //
 // Ethernet pins
 //
-#define ENET_MDIO                          P1_17
-#define ENET_RX_ER                         P1_14
-#define ENET_RXD1                          P1_10
-#define ENET_MOC                           P1_16
 #define REF_CLK                            P1_15
-#define ENET_RXD0                          P1_09
+#define ENET_MDIO                          P1_17
+#define ENET_MOC                           P1_16
 #define ENET_CRS                           P1_08
+#define ENET_RX_ER                         P1_14
 #define ENET_TX_EN                         P1_04
+#define ENET_RXD0                          P1_09
+#define ENET_RXD1                          P1_10
 #define ENET_TXD0                          P1_00
 #define ENET_TXD1                          P1_01
 

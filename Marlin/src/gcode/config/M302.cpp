@@ -56,7 +56,7 @@ void GcodeSuite::M302() {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Cold extrudes are ");
     SERIAL_ECHOPGM_P(thermalManager.allow_cold_extrude ? PSTR("en") : PSTR("dis"));
-    SERIAL_ECHOLNPAIR("abled (min temp ", thermalManager.extrude_min_temp, "C)");
+    SERIAL_ECHOLNPGM("abled (min temp ", thermalManager.extrude_min_temp, "C)");
   }
 }
 

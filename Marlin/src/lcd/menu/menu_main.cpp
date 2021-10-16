@@ -35,6 +35,10 @@
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
 
+#if ENABLED(PSU_CONTROL)
+  #include "../../feature/power.h"
+#endif
+
 #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
   #include "game/game.h"
 #endif
@@ -114,13 +118,8 @@ void menu_configuration();
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
-    #define CUSTOM_TEST_MAIN(N) do{ \
-      constexpr char c = MAIN_MENU_ITEM_##N##_GCODE[strlen(MAIN_MENU_ITEM_##N##_GCODE) - 1]; \
-      static_assert(c != '\n' && c != '\r', "MAIN_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
-    }while(0)
-
-    #ifdef MAIN_MENU_ITEM_SCRIPT_DONE
-      #define _DONE_SCRIPT "\n" MAIN_MENU_ITEM_SCRIPT_DONE
+    #ifdef CUSTOM_MENU_MAIN_SCRIPT_DONE
+      #define _DONE_SCRIPT "\n" CUSTOM_MENU_MAIN_SCRIPT_DONE
     #else
       #define _DONE_SCRIPT ""
     #endif
@@ -135,106 +134,88 @@ void menu_configuration();
           );                                         \
         })
 
-    #define CUSTOM_ITEM_MAIN(N) do{ if (ENABLED(MAIN_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_MAIN_CONFIRM(N); else _CUSTOM_ITEM_MAIN(N); }while(0)
+    #define CUSTOM_ITEM_MAIN(N) do{ \
+      constexpr char c = MAIN_MENU_ITEM_##N##_GCODE[strlen(MAIN_MENU_ITEM_##N##_GCODE) - 1]; \
+      static_assert(c != '\n' && c != '\r', "MAIN_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
+      if (ENABLED(MAIN_MENU_ITEM_##N##_CONFIRM)) \
+        _CUSTOM_ITEM_MAIN_CONFIRM(N); \
+      else \
+        _CUSTOM_ITEM_MAIN(N); \
+    }while(0)
 
     #if HAS_CUSTOM_ITEM_MAIN(1)
-      CUSTOM_TEST_MAIN(1);
       CUSTOM_ITEM_MAIN(1);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(2)
-      CUSTOM_TEST_MAIN(2);
       CUSTOM_ITEM_MAIN(2);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(3)
-      CUSTOM_TEST_MAIN(3);
       CUSTOM_ITEM_MAIN(3);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(4)
-      CUSTOM_TEST_MAIN(4);
       CUSTOM_ITEM_MAIN(4);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(5)
-      CUSTOM_TEST_MAIN(5);
       CUSTOM_ITEM_MAIN(5);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(6)
-      CUSTOM_TEST_MAIN(6);
       CUSTOM_ITEM_MAIN(6);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(7)
-      CUSTOM_TEST_MAIN(7);
       CUSTOM_ITEM_MAIN(7);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(8)
-      CUSTOM_TEST_MAIN(8);
       CUSTOM_ITEM_MAIN(8);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(9)
-      CUSTOM_TEST_MAIN(9);
       CUSTOM_ITEM_MAIN(9);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(10)
-      CUSTOM_TEST_MAIN(10);
       CUSTOM_ITEM_MAIN(10);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(11)
-      CUSTOM_TEST_MAIN(11);
       CUSTOM_ITEM_MAIN(11);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(12)
-      CUSTOM_TEST_MAIN(12);
       CUSTOM_ITEM_MAIN(12);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(13)
-      CUSTOM_TEST_MAIN(13);
       CUSTOM_ITEM_MAIN(13);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(14)
-      CUSTOM_TEST_MAIN(14);
       CUSTOM_ITEM_MAIN(14);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(15)
-      CUSTOM_TEST_MAIN(15);
       CUSTOM_ITEM_MAIN(15);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(16)
-      CUSTOM_TEST_MAIN(16);
       CUSTOM_ITEM_MAIN(16);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(17)
-      CUSTOM_TEST_MAIN(17);
       CUSTOM_ITEM_MAIN(17);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(18)
-      CUSTOM_TEST_MAIN(18);
       CUSTOM_ITEM_MAIN(18);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(19)
-      CUSTOM_TEST_MAIN(19);
       CUSTOM_ITEM_MAIN(19);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(20)
-      CUSTOM_TEST_MAIN(20);
       CUSTOM_ITEM_MAIN(20);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(21)
-      CUSTOM_TEST_MAIN(21);
       CUSTOM_ITEM_MAIN(21);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(22)
-      CUSTOM_TEST_MAIN(22);
       CUSTOM_ITEM_MAIN(22);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(23)
-      CUSTOM_TEST_MAIN(23);
       CUSTOM_ITEM_MAIN(23);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(24)
-      CUSTOM_TEST_MAIN(24);
       CUSTOM_ITEM_MAIN(24);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(25)
-      CUSTOM_TEST_MAIN(25);
       CUSTOM_ITEM_MAIN(25);
     #endif
     END_MENU();
@@ -385,8 +366,16 @@ void menu_main() {
   // Switch power on/off
   //
   #if ENABLED(PSU_CONTROL)
-    if (powersupply_on)
-      GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+    if (powerManager.psu_on)
+      #if ENABLED(PS_OFF_CONFIRM)
+        CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
+          MSG_YES, MSG_NO,
+          ui.poweroff, ui.goto_previous_screen,
+          GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
+        );
+      #else
+        GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+      #endif
     else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif

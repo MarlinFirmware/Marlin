@@ -135,7 +135,7 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
         _USER_ITEM(20)
        #endif
       .colors(action_btn)
-      .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+      .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 

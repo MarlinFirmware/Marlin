@@ -46,9 +46,13 @@
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
-  H_NONE = -6,
-  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+  H_REDUNDANT = HID_REDUNDANT,
+  H_COOLER = HID_COOLER,
+  H_PROBE = HID_PROBE,
+  H_BOARD = HID_BOARD,
+  H_CHAMBER = HID_CHAMBER,
+  H_BED = HID_BED,
+  H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
 
 // PID storage
@@ -104,6 +108,9 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_PROBE
     PrepareTemp_PROBE, MeasureTemp_PROBE,
+  #endif
+  #if HAS_TEMP_ADC_BOARD
+    PrepareTemp_BOARD, MeasureTemp_BOARD,
   #endif
   #if HAS_TEMP_ADC_REDUNDANT
     PrepareTemp_REDUNDANT, MeasureTemp_REDUNDANT,
@@ -192,7 +199,7 @@ typedef struct TempInfo {
   // A redundant temperature sensor
   typedef struct RedundantTempInfo : public TempInfo {
     temp_info_t* target;
-  } redundant_temp_info_t;
+  } redundant_info_t;
 #endif
 
 // A PWM heater with temperature sensor
@@ -230,6 +237,9 @@ struct PIDHeaterInfo : public HeaterInfo {
   #endif
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
+#endif
+#if HAS_TEMP_BOARD
+  typedef temp_info_t board_info_t;
 #endif
 #if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
   typedef heater_info_t cooler_info_t;
@@ -312,6 +322,9 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_COOLER_IS_CUSTOM
       CTI_COOLER,
     #endif
+    #if TEMP_SENSOR_BOARD_IS_CUSTOM
+      CTI_BOARD,
+    #endif
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       CTI_REDUNDANT,
     #endif
@@ -352,8 +365,11 @@ class Temperature {
     #if HAS_TEMP_COOLER
       static cooler_info_t temp_cooler;
     #endif
+    #if HAS_TEMP_BOARD
+      static board_info_t temp_board;
+    #endif
     #if HAS_TEMP_REDUNDANT
-      static redundant_temp_info_t temp_redundant;
+      static redundant_info_t temp_redundant;
     #endif
 
     #if ENABLED(AUTO_POWER_E_FANS)
@@ -478,6 +494,10 @@ class Temperature {
       static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
+    #if HAS_TEMP_BOARD && ENABLED(THERMAL_PROTECTION_BOARD)
+      static int16_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
+    #endif
+
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
@@ -507,7 +527,7 @@ class Temperature {
 
     #if HAS_USER_THERMISTORS
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
-      static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
+      static void M305_report(const uint8_t t_index, const bool forReplay=true);
       static void reset_user_thermistors();
       static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int16_t raw);
       static inline bool set_pull_up_res(int8_t t_index, float value) {
@@ -550,6 +570,9 @@ class Temperature {
     #endif
     #if HAS_TEMP_COOLER
       static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
+    #endif
+    #if HAS_TEMP_BOARD
+      static celsius_float_t analog_to_celsius_board(const int16_t raw);
     #endif
     #if HAS_TEMP_REDUNDANT
       static celsius_float_t analog_to_celsius_redundant(const int16_t raw);
@@ -785,6 +808,14 @@ class Temperature {
         static inline bool isLaserCooling()       { return temp_cooler.target < temp_cooler.celsius; }
         static bool wait_for_cooler(const bool no_wait_for_cooling=true);
       #endif
+    #endif
+
+    #if HAS_TEMP_BOARD
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        static inline int16_t rawBoardTemp()    { return temp_board.raw; }
+      #endif
+      static inline celsius_float_t degBoard()  { return temp_board.celsius; }
+      static inline celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_REDUNDANT

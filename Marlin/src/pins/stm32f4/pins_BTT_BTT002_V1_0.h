@@ -137,20 +137,17 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial  ##
-  //
   #define X_SERIAL_TX_PIN                   PE2
-  #define X_SERIAL_RX_PIN                   PE2
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PE4
-  #define Z_SERIAL_RX_PIN                   PE4
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD7
-  #define E0_SERIAL_RX_PIN                  PD7
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -161,6 +158,7 @@
 //
 #define TEMP_0_PIN                          PA2   // T0 <-> E0
 #define TEMP_1_PIN                          PA0   // T1 <-> E1
+#define TEMP_BOARD_PIN                      PC2   // Onboard thermistor, NTC100K
 #define TEMP_BED_PIN                        PA1   // T2 <-> Bed
 #define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
 
@@ -184,7 +182,6 @@
  *                EXP2                                            EXP1                   |
  * --------------------------------------------------------------------------------------
  */
-
 #define EXP1_03_PIN                         PE13
 #define EXP1_04_PIN                         PE12
 #define EXP1_05_PIN                         PE11
@@ -288,16 +285,10 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+  #if ENABLED(U8GLIB_ST7920)
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 
 #endif // HAS_WIRED_LCD
