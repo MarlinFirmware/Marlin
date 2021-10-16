@@ -5042,7 +5042,7 @@ void MarlinUI::init() {
   DWIN_UpdateLCD();     // Show bootscreen (first image)
   Encoder_Configuration();
   for (uint16_t t = 0; t <= 100; t += 2) {
-    DWIN_ICON_Show(ICON, ICON_Bar, 15, 260);
+    DWIN_ICON_Show(ICON, ICON_Bar, 15, 450);
     DWIN_Draw_Rectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 260, 257, 280);
     DWIN_UpdateLCD();
     delay(20);

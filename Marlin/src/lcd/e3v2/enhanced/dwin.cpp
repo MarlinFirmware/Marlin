@@ -1458,7 +1458,7 @@ void HMI_Init() {
   HMI_SDCardInit();
 
   for (uint16_t t = 0; t <= 100; t += 2) {
-    DWINUI::Draw_Icon(ICON_Bar, 15, 260);
+    DWINUI::Draw_Icon(ICON_Bar, 15, 450);
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 15 + t * 242 / 100, 260, 257, 280);
     DWIN_UpdateLCD();
     delay(20);
