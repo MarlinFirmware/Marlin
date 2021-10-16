@@ -1979,7 +1979,7 @@
   #endif
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
-    #if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI, SKRMiniE3V2, MachineEnder3V2, MachineCR6, MachineCR6Max) && (DISABLED(MachineEnder4) || ENABLED(GraphicLCD))
+    #if NONE(MachineCR10Orig, LowMemoryBoard, EXTENSIBLE_UI, SKRMiniE3V2, MachineEnder3V2, MachineCR6, MachineCR6Max, FORCEV2DISPLAY) && (DISABLED(MachineEnder4) || ENABLED(GraphicLCD))
       #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
     #endif
   #endif

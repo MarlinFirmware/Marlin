@@ -53,14 +53,14 @@ namespace ExtUI {
 
   void onIdle() { ScreenHandler.loop(); }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, GET_TEXT(MSG_PLEASE_RESET), GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
+    ScreenHandler.sendinfoscreen(GET_TEXT_F(MSG_HALTED), error, GET_TEXT_F(MSG_PLEASE_RESET), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
 
-    if (strcmp_P(error, GET_TEXT(MSG_ERR_MAXTEMP)) == 0 || strcmp_P(error, GET_TEXT(MSG_THERMAL_RUNAWAY)) == 0)     {
+    if (error == GET_TEXT_F(MSG_ERR_MAXTEMP) || error == GET_TEXT_F(MSG_THERMAL_RUNAWAY))     {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_THERMAL_RUNAWAY);
-    } else if (strcmp_P(error, GET_TEXT(MSG_HEATING_FAILED_LCD)) == 0) {
+    } else if ( error == GET_TEXT_F(MSG_HEATING_FAILED_LCD)) {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_HEATING_FAILED);
-    }else if (strcmp_P(error, GET_TEXT(MSG_ERR_MINTEMP)) == 0) {
+    }else if (error == GET_TEXT_F(MSG_ERR_MINTEMP)) {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_THERMISTOR_ERROR);
     } else {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
@@ -139,7 +139,7 @@ bool hasPrintTimer = false;
       }
 
       ScreenHandler.setstatusmessagePGM(msg);
-      ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, PSTR("Ok"), true, true, false, true);
+      ScreenHandler.sendinfoscreen("Confirmation required", msg, NUL_STR, "Ok", true, true, false, true);
 
       if (ExtUI::isPrinting()) {
         ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED);

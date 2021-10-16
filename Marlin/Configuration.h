@@ -129,7 +129,13 @@
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD // 12864 Full graphics LCD for Ender 4, CR-X, Ender 5 Plus, CR10SPro, or CR10Max
 //#define Big_UI // Lightweight status screen, saves CPU cycles
+
+// CR-6 or Ender touchscreen kit
 //#define MachineEnder3Touchscreen
+
+// Ender 3 V2 rotary Dial LCD
+//#define FORCEV2DISPLAY
+
 
 // Touchscreen options - only 32 bit boards have the open serial ports to use with graphics displays above
 //#define FORCE10SPRODISPLAY
@@ -615,7 +621,7 @@
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-  #if DISABLED(MachineEnder3V2, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
+  #if DISABLED(MachineEnder3V2, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, FORCEV2DISPLAY)
     #define SHOW_CUSTOM_BOOTSCREEN
     // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
     #define CUSTOM_STATUS_SCREEN_IMAGE
@@ -647,19 +653,19 @@
   #define LCD_SERIAL_PORT 0
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && DISABLED(MachineEnder3V2, MachineEnder3Touchscreen)
+#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo) && NONE(MachineEnder3V2, MachineEnder3Touchscreen, FORCEV2DISPLAY)
   #define SERIAL_PORT_2 0
 #elif ENABLED(SKRMiniE3V2)
   #define SERIAL_PORT_2 2
-#elif BOTH(MachineEnder3V2, SKRE3Turbo)
+#elif ENABLED(MachineEnder3V2) && ANY(FORCEV2DISPLAY, SKRE3Turbo)
   #define LCD_SERIAL_PORT 1
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL -1
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, OrigLCD, MachineEnder3V2, Creality422, Creality427, MachineEnder6)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && NONE(GraphicLCD, OrigLCD, MachineEnder3V2, Creality422, Creality427, MachineEnder6, FORCEV2DISPLAY)
   #define LCD_SERIAL_PORT 2
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 0
-#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, Creality422, Creality427, MachineSermoonD1) && NONE(GraphicLCD, OrigLCD)
+#elif ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, MachineEnder6, Creality422, Creality427, MachineSermoonD1, MachineEnder3Touchscreen, FORCEV2DISPLAY) && NONE(GraphicLCD, OrigLCD)
   #define LCD_SERIAL_PORT 3
   #define LCD_BAUDRATE 115200
   #define SERIAL_CATCHALL 1
@@ -678,7 +684,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen)
+#if ANY(MachineEnder3V2, CrealityViewerKit, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen, FORCEV2DISPLAY)
   #define BAUDRATE 115200
 #else
   #define BAUDRATE 250000
@@ -2983,7 +2989,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2, MachineEnder3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineSermoonD1, MachineCR30, FORCEV2DISPLAY) && (DISABLED(MachineCRX) || ANY(GraphicLCD, OrigLCD))
   #define LCD_BED_LEVELING
 #endif
 
@@ -3649,9 +3655,9 @@
   #define ENDER2_STOCKDISPLAY
 #elif ANY(MachineCR20, MachineCR2020)
   #define MKS_MINI_12864
-#elif ENABLED(MachineEnder3V2)
+#elif ANY(MachineEnder3V2, FORCEV2DISPLAY)
   #define DWIN_CREALITY_LCD_JYERSUI
-#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && DISABLED(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, MachineEnder3Max, SKRMiniE3V2, SKRE3Turbo) && NONE(GraphicLCD, MachineEnder3Touchscreen, FORCE10SPRODISPLAY)
   #define CR10_STOCKDISPLAY
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2, FORCE10SPRODISPLAY, MachineCR6, MachineCR6Max, MachineEnder3Touchscreen) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
