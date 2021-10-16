@@ -1032,7 +1032,7 @@
 // If the Nozzle or Bed falls when the Z stepper is disabled, set its resting position here.
 //#define Z_AFTER_DEACTIVATE Z_HOME_POS
 
-#if ANY(MachineEnder5, MachineEnder5Plus, MachineEnder6)
+#if ANY(MachineEnder5, MachineEnder5Plus, MachineEnder6, MachineCR30)
   #define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
 #endif
 
@@ -1047,7 +1047,7 @@
 // Increase the slowdown divisor for larger buffer sizes.
 #define SLOWDOWN
 #if ENABLED(SLOWDOWN)
-  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427)
+  #if ENABLED(MachineLargeROM)
     #define SLOWDOWN_DIVISOR 4
   #else
     #define SLOWDOWN_DIVISOR 2
@@ -1177,7 +1177,7 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineCR6, MachineCR6Max, MachineEnder6)
+#if ENABLED(MachineLargeROM)
   #define ADAPTIVE_STEP_SMOOTHING
 #endif
 
@@ -1718,14 +1718,14 @@
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
-  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+  #if ENABLED(MachineLargeROM)
     #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
   #else
     #define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
   #endif
   //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 
-  #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+  #if ENABLED(MachineLargeROM)
     // Frivolous Game Options
     #define MARLIN_BRICKOUT
     #define MARLIN_INVADERS
@@ -2253,7 +2253,7 @@
 
 // The number of linear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427) || DISABLED(EXTENSIBLE_UI)
+#if ENABLED(MachineLargeROM) || DISABLED(EXTENSIBLE_UI)
   #define BLOCK_BUFFER_SIZE 16
 #else
   #define BLOCK_BUFFER_SIZE 8
@@ -2263,10 +2263,8 @@
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#if ANY(MachineCR10Orig, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427) //melzi has more ram than a 2560
+#if ANY(MachineCR10Orig, SKRMiniE3V2, MachineLargeROM) //melzi has more ram than a 2560
   #define BUFSIZE 16
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
-  #define BUFSIZE 8
 #else
   #define BUFSIZE 4
 #endif
@@ -2390,7 +2388,7 @@
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  */
- #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineCR6, MachineCR6Max, MachineEnder6)
+ #if ENABLED(MachineLargeROM)
   #define FWRETRACT
 #endif
 #if ENABLED(FWRETRACT)
@@ -4365,7 +4363,7 @@
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineCR6, MachineCR6Max, MachineEnder6)
+#if ENABLED(MachineLargeROM)
   #define PINS_DEBUGGING
 #endif
 

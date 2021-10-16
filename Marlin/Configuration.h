@@ -501,6 +501,7 @@
 #if ENABLED(MachineCR30)
   #define OrigLCD
   #define RET6_12864_LCD
+  #define BedDC
 #endif
 
 #if ENABLED(MachineCRX)
@@ -604,6 +605,10 @@
   #ifndef Creality422
     #define Creality422
   #endif
+#endif
+
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCD30)
+  #define MachineLargeROM
 #endif
 
 #if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2, FORCE10SPRODISPLAY) || ENABLED(GraphicLCD)
@@ -1564,7 +1569,7 @@
 #else
   #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #endif
-#if ENABLED(MachineCR2020, MachineCR30)
+#if ANY(MachineCR2020, MachineCR30)
   #define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -2841,7 +2846,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of PROGMEM!
  */
-#if ANY(MachineCR6, MachineCR6Max, MachineEnder6, Creality422, Creality427, SKR13, SKR14, SKR14Turbo, SKRE3Turbo, SKRPRO11)
+#if ENABLED(MachineLargeROM)
   #define DEBUG_LEVELING_FEATURE
 #endif
 
