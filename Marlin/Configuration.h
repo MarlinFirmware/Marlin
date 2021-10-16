@@ -16,7 +16,6 @@
 //#define MachineCR6
 //#define MachineCR6Max
 //#define MachineEnder6
-//#define MachineEnder3Touchscreen
 
 // Touchscreens in development, not tested
 //#define MachineCR5
@@ -130,6 +129,7 @@
 //#define OrigLCD // Upgraded mainboard with single cable Ender LCD
 //#define GraphicLCD // 12864 Full graphics LCD for Ender 4, CR-X, Ender 5 Plus, CR10SPro, or CR10Max
 //#define Big_UI // Lightweight status screen, saves CPU cycles
+//#define MachineEnder3Touchscreen
 
 // Touchscreen options - only 32 bit boards have the open serial ports to use with graphics displays above
 //#define FORCE10SPRODISPLAY
@@ -607,7 +607,7 @@
   #endif
 #endif
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCD30)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCD30)
   #define MachineLargeROM
 #endif
 
