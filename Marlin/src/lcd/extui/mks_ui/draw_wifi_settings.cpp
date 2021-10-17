@@ -130,7 +130,7 @@ void lv_draw_wifi_settings() {
   lv_obj_t *buttonConfig = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_WIFI_CONFIG);
   lv_obj_t *labelConfig = lv_label_create_empty(buttonConfig);
 
-  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_WIFI_RETURN);
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, event_handler, ID_WIFI_RETURN);
   lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {

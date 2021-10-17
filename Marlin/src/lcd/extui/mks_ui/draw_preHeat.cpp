@@ -188,7 +188,7 @@ void disp_add_dec() {
 }
 
 void lv_draw_preHeat() {
-  scr = lv_screen_create(PRE_HEAT_UI);
+  scr = lv_screen_create(PREHEAT_UI);
 
   // Create image buttons
   disp_add_dec();
