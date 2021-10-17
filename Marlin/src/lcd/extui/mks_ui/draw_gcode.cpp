@@ -96,7 +96,7 @@ void lv_draw_gcode(bool clear) {
   outL = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, "Result:");
   outV = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, (const char*)public_buf);
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_GCODE_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_GCODE_RETURN, true);
 }
 
 void lv_clear_gcode() {
