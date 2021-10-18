@@ -954,7 +954,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             const float temp = destination.z;
             destination = current_position;
-            destination.z = temp.z;
+            destination.z = temp;
           #endif
           prepare_internal_move_to_destination(TERN(TOOLCHANGE_NO_RETURN, planner.settings.max_feedrate_mm_s[Z_AXIS], MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)));
         }
