@@ -467,6 +467,7 @@ void lv_eom_hook(void *);
 void GUI_RefreshPage();
 void clear_cur_ui();
 void draw_return_ui();
+void goto_previous_ui();
 void sd_detection();
 void gCfg_to_spiFlah();
 void print_time_count();

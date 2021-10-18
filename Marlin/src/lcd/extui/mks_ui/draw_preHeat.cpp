@@ -159,8 +159,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_desire_temp();
       break;
     case ID_P_RETURN:
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       break;
     case ID_P_ABS:
       if (uiCfg.curTempType == 0) {
