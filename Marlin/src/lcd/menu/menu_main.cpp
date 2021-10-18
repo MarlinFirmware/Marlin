@@ -58,7 +58,7 @@
   #include "../../feature/password/password.h"
 #endif
 
-#if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+#if (ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)) || (ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION))
   #include "../../feature/host_actions.h"
 #endif
 
@@ -442,8 +442,14 @@ void menu_main() {
     SUBMENU(LANGUAGE, menu_language);
   #endif
 
-  #if ENABLED(HOST_SHUTDOWN)
-    SUBMENU(SHUTDOWN_HOST, shutdown_host);
+  #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
+    SUBMENU(MSG_HOST_SHUTDOWN, []{
+      MenuItem_confirm::select_screen(
+        GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BUTTON_CANCEL),
+        hostui.shutdown, ui.goto_previous_screen,
+        GET_TEXT(MSG_HOST_SHUTDOWN), (const char *)nullptr, PSTR("?")
+      );
+    });
   #endif
 
   END_MENU();

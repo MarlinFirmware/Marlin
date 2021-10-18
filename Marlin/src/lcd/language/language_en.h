@@ -745,9 +745,7 @@ namespace Language_en {
   LSTR MSG_SD_CARD                        = _UxGT("SD Card");
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
 
-  #if ENABLED(HOST_SHUTDOWN)
-    PROGMEM Language_Str SHUTDOWN_HOST    = _UxGT("Shutdown Host");
-  #endif
+  LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host Shutdown");
 
   // These strings can be the same in all languages
   LSTR MSG_MARLIN                         = _UxGT("Marlin");

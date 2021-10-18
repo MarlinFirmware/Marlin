@@ -698,13 +698,11 @@
   #ifndef ACTION_ON_START
     #define ACTION_ON_START   "start"
   #endif
-  #if ENABLED(HOST_SHUTDOWN)
-  #ifndef ACTION_SHUTDOWN_HOST
-    #define ACTION_SHUTDOWN_HOST "shutdown_host"
-  #endif
-  #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
+  #endif
+  #ifndef SHUTDOWN_ACTION
+    #define SHUTDOWN_ACTION   "shutdown"
   #endif
   #if HAS_FILAMENT_SENSOR
     #ifndef ACTION_ON_FILAMENT_RUNOUT

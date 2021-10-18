@@ -79,8 +79,9 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
     void HostUI::g29_failure() { action(F(ACTION_ON_G29_FAILURE)); }
   #endif
 #endif
-#ifdef ACTION_SHUTDOWN_HOST
-  void HostUI::shutdown_host(){ action(F(ACTION_SHUTDOWN_HOST)); }
+
+#ifdef SHUTDOWN_ACTION
+  void HostUI::shutdown() { action(F(SHUTDOWN_ACTION)); }
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
