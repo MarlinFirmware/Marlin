@@ -2901,7 +2901,7 @@
 #if ENABLED(MeshFast)
   #define GRID_MAX_POINTS_X 3
 #elif ENABLED(MeshStd)
-  #if ENABLED(MachineCR6)
+  #if ANY(MachineCR6, MachineEnder3Touchscreen)
      #define GRID_MAX_POINTS_X 4
   #elif ENABLED(MachineCR6Max)
     #define GRID_MAX_POINTS_X 7
