@@ -216,6 +216,10 @@
   #include "feature/controllerfan.h"
 #endif
 
+#if HAS_PRUSA_MMU1
+  #include "feature/mmu/mmu.h"
+#endif
+
 #if HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
 #endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,28 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#define BOARD_INFO_NAME "BTT OCTOPUS PRO V1.0"
 
-#if HAS_PRUSA_MMU1
+//
+// Temperature Sensors
+//
+#if TEMP_SENSOR_0 == -5
+  #define TEMP_0_CS_PIN                     PF8   // Max31865 CS
+  #define TEMP_0_SCK_PIN                    PA5
+  #define TEMP_0_MISO_PIN                   PA6
+  #define TEMP_0_MOSI_PIN                   PA7
+  #define SOFTWARE_SPI                            // Max31865 and LCD SD share a set of SPIs, Set SD to softwareSPI for Max31865
+#else
+  #define TEMP_0_PIN                        PF4   // TH0
+#endif
 
-#include "../../MarlinCore.h"
-#include "../../module/planner.h"
-#include "../../module/stepper.h"
-
-void mmu_init() {
-  SET_OUTPUT(E_MUX0_PIN);
-  SET_OUTPUT(E_MUX1_PIN);
-  SET_OUTPUT(E_MUX2_PIN);
-}
-
-void select_multiplexed_stepper(const uint8_t e) {
-  planner.synchronize();
-  stepper.disable_e_steppers();
-  WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
-  WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
-  WRITE(E_MUX2_PIN, TEST(e, 2) ? HIGH : LOW);
-  safe_delay(100);
-}
-
-#endif // HAS_PRUSA_MMU1
+#include "pins_BTT_OCTOPUS_V1_common.h"
