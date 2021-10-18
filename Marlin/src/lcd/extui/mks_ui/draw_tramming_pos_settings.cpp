@@ -54,8 +54,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_MANUAL_POS_RETURN:
       uiCfg.para_ui_page = false;
-      lv_clear_tramming_pos_settings();
-      draw_return_ui();
+      goto_previous_ui();
       return;
     case ID_MANUAL_POS_X1:
       value = level_pos_x1;

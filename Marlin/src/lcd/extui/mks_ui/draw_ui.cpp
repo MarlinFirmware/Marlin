@@ -1082,6 +1082,11 @@ void draw_return_ui() {
   }
 }
 
+void goto_previous_ui() {
+  clear_cur_ui();
+  draw_return_ui();
+}
+
 // Set the same image for both Released and Pressed
 void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src) {
   lv_imgbtn_set_src(imgbtn, LV_BTN_STATE_REL, src);
