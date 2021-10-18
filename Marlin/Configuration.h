@@ -613,7 +613,7 @@
   #endif
 #endif
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCD30)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRE3Turbo, MachineEnder3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max)
   #define MachineLargeROM
 #endif
 

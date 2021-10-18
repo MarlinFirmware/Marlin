@@ -1638,10 +1638,10 @@ void RTSSHOW::RTS_HandleData()
       else if (recdat.data[0] == 0) // Filamet is out, Cancel Selected
       {
         SERIAL_ECHOLNPGM_P(PSTR(" Filament Response No"));
-        //RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-        setPauseMenuResponse(PAUSE_RESPONSE_EXTRUDE_MORE);
-        setUserConfirmed();
-        //reEntryPrevent = false;
+        if(ExtUI::pauseModeStatus == PAUSE_MESSAGE_PURGE || ExtUI::pauseModeStatus == PAUSE_MESSAGE_OPTION) {
+          setPauseMenuResponse(PAUSE_RESPONSE_EXTRUDE_MORE);
+          setUserConfirmed();
+        }
       }
       break;
 
@@ -2117,11 +2117,11 @@ void onUserConfirmRequired(const char *const msg)
       case PAUSE_MESSAGE_PURGE:
       {
         rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-        char newMsg[40] = "Yes to Continue            no to ";
+        char newMsg[40] = "Yes to Continue           No to ";
         if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
-          strcat(newMsg, "Disable sensor");
+          strcat(newMsg, "Disable");
         else
-          strcat(newMsg, "Purge More");
+          strcat(newMsg, "Purge");
         onStatusChanged(newMsg);
         break;
       }
@@ -2131,11 +2131,11 @@ void onUserConfirmRequired(const char *const msg)
     case PAUSE_MESSAGE_OPTION:
     {
       rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr);
-      char newMsg[40] = "Yes to Continue            no to ";
+      char newMsg[40] = "Yes to Continue           No to ";
       if(TERN0(FILAMENT_RUNOUT_SENSOR, ExtUI::getFilamentRunoutState()))
-        strcat(newMsg, "Disable sensor");
+        strcat(newMsg, "Disable");
       else
-        strcat(newMsg, "Purge More");
+        strcat(newMsg, "Purge");
       onStatusChanged(newMsg);
       break;
     }
