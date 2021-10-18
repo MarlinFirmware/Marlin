@@ -82,8 +82,6 @@ void lv_serial_capt_hook(void * userPointer, uint8_t c) {
 void lv_eom_hook(void *) {
   // Message is done, let's remove the hook now
   MYSERIAL1.setHook();
-  // We are back from the keyboard, so let's redraw ourselves
-  draw_return_ui();
 }
 
 void lv_draw_gcode(bool clear) {
