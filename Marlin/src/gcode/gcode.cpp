@@ -1101,7 +1101,10 @@ void GcodeSuite::process_next_command() {
  */
 
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#if !defined(__AVR__)
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+
 
 void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
   PGM_P pgcode = FTOP(fgcode);
