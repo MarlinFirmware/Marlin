@@ -2713,6 +2713,11 @@
 //#define BIQU_BX_TFT70
 
 //
+// 480x320, 3.5", SPI Stock Display from BIQU B1 SE Series
+//
+//#define BTT_TFT35_SPI_V1_0
+
+//
 // Generic TFT with detailed options
 //
 //#define TFT_GENERIC

@@ -176,6 +176,7 @@
 #define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
 #define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
 #define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
+#define _DO_16(W,C,A,V...) (_##W##_1(A) C _DO_15(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
@@ -251,6 +252,7 @@
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
+#define CODE_12( A,B,C,D,E,F,G,H,I,J,K,L,...) A; B; C; D; E; F; G; H; I; J; K; L
 #define CODE_11( A,B,C,D,E,F,G,H,I,J,K,...) A; B; C; D; E; F; G; H; I; J; K
 #define CODE_10( A,B,C,D,E,F,G,H,I,J,...) A; B; C; D; E; F; G; H; I; J
 #define CODE_9( A,B,C,D,E,F,G,H,I,...) A; B; C; D; E; F; G; H; I
