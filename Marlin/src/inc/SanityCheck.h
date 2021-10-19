@@ -595,6 +595,8 @@
   #error "ARC_SUPPORT now requires MIN_ARC_SEGMENT_MM and MAX_ARC_SEGMENT_MM."
 #elif defined(SPINDLE_LASER_PWM)
   #error "SPINDLE_LASER_PWM (true) is now set with SPINDLE_LASER_USE_PWM (enabled)."
+#elif ANY(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF)
+  #error "The IS_RAMPS_* conditionals (for heater/fan/bed pins) are now called FET_ORDER_*."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
