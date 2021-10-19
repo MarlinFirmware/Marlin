@@ -115,7 +115,7 @@
 //
 // Import RAMPS 1.3 pins
 //
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13.h" // ... RAMPS
 
 //
 // Used by the Hephestos 2 heated bed upgrade kit

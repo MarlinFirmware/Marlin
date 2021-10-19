@@ -41,16 +41,16 @@
 // PWM FETS
 //
 #if EITHER(FET_ORDER_EEF, FET_ORDER_EEB)
-  #define MOSFET_B_PIN                        45  // "HEATER1"
-#elif ENABLED(FET_ORDER_EFB)
-  #define MOSFET_B_PIN                         9  // "FAN0"
+  #define MOSFET_B_PIN                        45  // HEATER1
+#elif FET_ORDER_EFB
+  #define MOSFET_B_PIN                         9  // FAN0
 #else
-  #define MOSFET_B_PIN                         7  // "FAN1"
+  #define MOSFET_B_PIN                         7  // FAN1
 #endif
 
-#if ENABLED(FET_ORDER_EEB)
-  #define MOSFET_C_PIN                         8  // "BED"
-#elif ENABLED(FET_ORDER_EFB)
+#if FET_ORDER_EEB
+  #define MOSFET_C_PIN                         8  // BED
+#elif FET_ORDER_EFB
   #if DISABLED(ANYCUBIC_LCD_CHIRON)
     #define MOSFET_C_PIN                       8
   #else
@@ -60,7 +60,7 @@
   #define MOSFET_C_PIN                         9
 #endif
 
-#if ENABLED(FET_ORDER_EEB)
+#if FET_ORDER_EEB
   #define FAN_PIN                              9  // Override pin 4 in pins_RAMPS.h
 #endif
 

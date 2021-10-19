@@ -47,7 +47,7 @@
 #define E2_DIR_PIN                             5
 #define E2_ENABLE_PIN                         22
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS
 
 /*
   Available connectors on MKS BASE v1.4 (Basically same as ZRIB V5.2)

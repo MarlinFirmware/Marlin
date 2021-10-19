@@ -40,4 +40,4 @@
   #define E0_AUTO_FAN_PIN                     9
 #endif
 
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13.h" // ... RAMPS
