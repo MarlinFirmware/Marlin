@@ -1096,11 +1096,15 @@ void GcodeSuite::process_next_command() {
   process_parsed_command();
 }
 
+#pragma GCC diagnostic push
+#if GCC_VERSION >= 80000
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+
 /**
  * Run a series of commands, bypassing the command queue to allow
  * G-code "macros" to be called from within other G-code handlers.
  */
-
 void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
   PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
