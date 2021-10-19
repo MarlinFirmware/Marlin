@@ -2363,7 +2363,7 @@ void HMI_PauseOrStop() {
         card.abortFilePrintSoon();                     // Let the main loop handle SD abort
         dwin_abort_flag = true;                        // Reset feedrate, return to Home
         #ifdef ACTION_ON_CANCEL
-          host_action_cancel();
+          hostui.cancel();
         #endif
         Popup_Window_Home(true);
         if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!

@@ -82,8 +82,6 @@ void lv_serial_capt_hook(void * userPointer, uint8_t c) {
 void lv_eom_hook(void *) {
   // Message is done, let's remove the hook now
   MYSERIAL1.setHook();
-  // We are back from the keyboard, so let's redraw ourselves
-  draw_return_ui();
 }
 
 void lv_draw_gcode(bool clear) {
@@ -96,7 +94,7 @@ void lv_draw_gcode(bool clear) {
   outL = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, "Result:");
   outV = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, (const char*)public_buf);
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_GCODE_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_GCODE_RETURN, true);
 }
 
 void lv_clear_gcode() {
