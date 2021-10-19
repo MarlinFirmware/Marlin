@@ -5,10 +5,10 @@
 Import("env")
 
 cxxflags = [
-	#"-Wno-incompatible-pointer-types",
-	#"-Wno-unused-const-variable",
-	#"-Wno-maybe-uninitialized",
-	#"-Wno-sign-compare"
+  #"-Wno-incompatible-pointer-types",
+  #"-Wno-unused-const-variable",
+  #"-Wno-maybe-uninitialized",
+  #"-Wno-sign-compare"
 ]
 if "teensy" not in env['PIOENV']:
 	cxxflags += ["-Wno-register"]
