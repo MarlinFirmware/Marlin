@@ -548,8 +548,16 @@
 #endif
 
 #if (EITHER(Creality422, Creality427) && DISABLED(MachineEnder3V2)) || BOTH(OrigLCD, MachineEnder6)
-  #undef FORCE10SPRODISPLAY
-  #define RET6_12864_LCD
+  #ifndef FORCE10SPRODISPLAY
+    #ifndef MachineEnder3Touchscreen
+      #ifndef FORCEV2DISPLAY
+        #define RET6_12864_LCD
+        #ifndef OrigLCD
+          #define OrigLCD
+        #endif
+      #endif
+    #endif
+  #endif
 #endif
 
 #if NONE(HotendStock, HotendE3D)
