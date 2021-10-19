@@ -117,4 +117,4 @@
 // Other RAMPS 1.3 pins
 //
 #define IS_RAMPS_EFB                              // Override autodetection. Bed will be undefined.
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13.h" // ... RAMPS
