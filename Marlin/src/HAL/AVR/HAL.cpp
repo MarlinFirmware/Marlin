@@ -24,6 +24,8 @@
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
+MarlinHAL hal;
+
 #ifdef USBCON
   DefaultSerial1 MSerial0(false, Serial);
   #ifdef BLUETOOTH
@@ -32,33 +34,19 @@
 #endif
 
 // ------------------------
-// Public Variables
-// ------------------------
-
-//uint8_t MCUSR;
-
-// ------------------------
 // Public functions
 // ------------------------
 
-void HAL_init() {
+void MarlinHAL::init() {
   // Init Servo Pins
   #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
-  #if HAS_SERVO_0
-    INIT_SERVO(0);
-  #endif
-  #if HAS_SERVO_1
-    INIT_SERVO(1);
-  #endif
-  #if HAS_SERVO_2
-    INIT_SERVO(2);
-  #endif
-  #if HAS_SERVO_3
-    INIT_SERVO(3);
-  #endif
+  TERN_(HAS_SERVO_0, INIT_SERVO(0));
+  TERN_(HAS_SERVO_1, INIT_SERVO(1));
+  TERN_(HAS_SERVO_2, INIT_SERVO(2));
+  TERN_(HAS_SERVO_3, INIT_SERVO(3));
 }
 
-void HAL_reboot() {
+void MarlinHAL::reboot() {
   #if ENABLED(USE_WATCHDOG)
     while (1) { /* run out the watchdog */ }
   #else

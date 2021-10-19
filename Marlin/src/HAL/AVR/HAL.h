@@ -78,20 +78,22 @@
 #define ENABLE_ISRS()  sei()
 #define DISABLE_ISRS() cli()
 
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
 // ------------------------
 // Types
 // ------------------------
 
 typedef int8_t pin_t;
 
+class Servo;
+typedef Servo hal_servo_t;
+
 #define SHARED_SERVOS HAS_SERVOS
-#define HAL_SERVO_LIB Servo
 
 // ------------------------
 // Public Variables
 // ------------------------
-
-//extern uint8_t MCUSR;
 
 // Serial ports
 #ifdef USBCON
@@ -142,58 +144,99 @@ typedef int8_t pin_t;
   #endif
 #endif
 
-// ------------------------
-// Public functions
-// ------------------------
-
-void HAL_init();
-
-//void cli();
-
-//void _delay_ms(const int delay);
-
-inline void HAL_clear_reset_source() { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source() { return MCUSR; }
-
-void HAL_reboot();
-
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 extern "C" int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
-// ADC
-#ifdef DIDR2
-  #define HAL_ANALOG_SELECT(ind) do{ if (ind < 8) SBI(DIDR0, ind); else SBI(DIDR2, ind & 0x07); }while(0)
-#else
-  #define HAL_ANALOG_SELECT(ind) SBI(DIDR0, ind);
-#endif
+class MarlinHAL {
+public:
 
-inline void HAL_adc_init() {
-  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
-  DIDR0 = 0;
-  #ifdef DIDR2
-    DIDR2 = 0;
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  static void init();       // Called in setup()
+  static void reboot();     // Restart the firmware from 0x0
+
+  //static void cli();
+  //static void _delay_ms(const int delay);
+
+  // Tasks, called from idle()
+  static void idletask() {}
+
+  // Reset
+  static inline void clear_reset_source() { MCUSR = 0; }
+  static inline uint8_t get_reset_source() { return MCUSR; }
+
+  // Free SRAM
+  static inline int freeMemory() { return freeMemory(); }
+
+  //
+  // ADC Methods
+  //
+
+  // Called by Temperature::init once at startup
+  static inline void adc_init() {
+    ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
+    DIDR0 = 0;
+    #ifdef DIDR2
+      DIDR2 = 0;
+    #endif
+  }
+
+  // Called by Temperature::init for each sensor at startup
+  static inline void adc_enable(const int ch) {
+    #ifdef DIDR2
+      if (ch > 7) { SBI(DIDR2, ch & 0x07); return; }
+    #endif
+    SBI(DIDR0, ch);
+  }
+
+  // Begin ADC sampling on the given channel
+  static inline void adc_start(const uint8_t ch) {
+    #ifdef MUX5
+      if (ch > 7) { ADCSRB = _BV(MUX5); return; }
+    #endif
+    ADCSRB = 0;
+    ADMUX = _BV(REFS0) | (ch & 0x07); SBI(ADCSRA, ADSC);
+  }
+
+  // Is the ADC ready for reading?
+  static inline bool adc_ready() { return !TEST(ADCSRA, ADSC); }
+
+  // The current value of the ADC register
+  static inline __typeof__(ADC) adc_value() { return ADC; }
+
+  #ifdef HAL_CAN_SET_PWM_FREQ
+    /**
+     *  set_pwm_frequency
+     *  Sets the frequency of the timer corresponding to the provided pin
+     *  as close as possible to the provided desired frequency. Internally
+     *  calculates the required waveform generation mode, prescaler and
+     *  resolution values required and sets the timer registers accordingly.
+     *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
+     *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
+     */
+    static void set_pwm_frequency(const pin_t pin, int f_desired);
+
+    /**
+     * set_pwm_duty
+     *  Sets the PWM duty cycle of the provided pin to the provided value
+     *  Optionally allows inverting the duty cycle [default = false]
+     *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+     */
+    static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
   #endif
-}
+};
 
-#define SET_ADMUX_ADCSRA(ch) ADMUX = _BV(REFS0) | (ch & 0x07); SBI(ADCSRA, ADSC)
-#ifdef MUX5
-  #define HAL_START_ADC(ch) if (ch > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
-#else
-  #define HAL_START_ADC(ch) ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
-#endif
+extern MarlinHAL hal;
 
 #define HAL_ADC_VREF        5.0
 #define HAL_ADC_RESOLUTION 10
-#define HAL_READ_ADC()  ADC
-#define HAL_ADC_READY() !TEST(ADCSRA, ADSC)
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
@@ -207,24 +250,3 @@ inline void HAL_adc_init() {
 
 // AVR compatibility
 #define strtof strtod
-
-#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
-
-/**
- *  set_pwm_frequency
- *  Sets the frequency of the timer corresponding to the provided pin
- *  as close as possible to the provided desired frequency. Internally
- *  calculates the required waveform generation mode, prescaler and
- *  resolution values required and sets the timer registers accordingly.
- *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
- *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
- */
-void set_pwm_frequency(const pin_t pin, int f_desired);
-
-/**
- * set_pwm_duty
- *  Sets the PWM duty cycle of the provided pin to the provided value
- *  Optionally allows inverting the duty cycle [default = false]
- *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
- */
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

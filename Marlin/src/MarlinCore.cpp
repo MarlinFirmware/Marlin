@@ -911,7 +911,7 @@ void minkill(const bool steppers_off/*=false*/) {
       watchdog_refresh();
 
     // Reboot the board
-    HAL_reboot();
+    hal.reboot();
 
   #else
 
@@ -1159,23 +1159,20 @@ void setup() {
     JTAGSWD_RESET();
   #endif
 
-  #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
+  // Disable any hardware debug to free up pins for IO
+  #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
     delay(10);
-    // Disable any hardware debug to free up pins for IO
-    #if ENABLED(DISABLE_DEBUG) && defined(JTAGSWD_DISABLE)
-      SETUP_LOG("JTAGSWD_DISABLE");
-      JTAGSWD_DISABLE();
-    #elif defined(JTAG_DISABLE)
-      SETUP_LOG("JTAG_DISABLE");
-      JTAG_DISABLE();
-    #else
-      #error "DISABLE_(DEBUG|JTAG) is not supported for the selected MCU/Board."
-    #endif
+    SETUP_LOG("JTAGSWD_DISABLE");
+    JTAGSWD_DISABLE();
+  #elif ENABLED(DISABLE_JTAG) && defined(JTAG_DISABLE)
+    delay(10);
+    SETUP_LOG("JTAG_DISABLE");
+    JTAG_DISABLE();
   #endif
 
   TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
 
-  SETUP_RUN(HAL_init());
+  SETUP_RUN(hal.init());
 
   // Init and disable SPI thermocouples; this is still needed
   #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E0))
@@ -1229,13 +1226,13 @@ void setup() {
   SETUP_RUN(esp_wifi_init());
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
-  const byte mcu = HAL_get_reset_source();
+  const byte mcu = hal.get_reset_source();
   if (mcu & RST_POWER_ON) SERIAL_ECHOLNPGM(STR_POWERUP);
   if (mcu & RST_EXTERNAL) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
   if (mcu & RST_BROWN_OUT) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
   if (mcu & RST_WATCHDOG) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
-  HAL_clear_reset_source();
+  SETUP_RUN(hal.clear_reset_source());
 
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
@@ -1245,7 +1242,7 @@ void setup() {
     );
   #endif
   SERIAL_ECHO_MSG(" Compiled: " __DATE__);
-  SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
+  SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
   calibrate_delay_loop();
@@ -1512,7 +1509,7 @@ void setup() {
   #endif
 
   #if ENABLED(USE_WATCHDOG)
-    SETUP_RUN(watchdog_init());       // Reinit watchdog after HAL_get_reset_source call
+    SETUP_RUN(watchdog_init());       // Reinit watchdog after hal.get_reset_source call
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
