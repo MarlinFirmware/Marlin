@@ -68,9 +68,9 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN                          10
-#define RAMPS_D9_PIN                          12
-#define RAMPS_D10_PIN                          9
+#define MOSFET_A_PIN                           9
+#define MOSFET_B_PIN                          12
+#define MOSFET_C_PIN                          10
 #define MOSFET_D_PIN                           7
 
 //
