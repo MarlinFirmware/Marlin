@@ -21,32 +21,19 @@
  */
 #pragma once
 
-enum class DGUS_Screen : uint8_t {
-  BOOT                = 0,
-  HOME                = 1,
-  PRINT               = 2,
-  PRINT_STATUS        = 3,
-  PRINT_ADJUST        = 4,
-  PRINT_FINISHED      = 5,
-  TEMP_MENU           = 6,
-  TEMP_MANUAL         = 7,
-  FAN                 = 8,
-  SETTINGS_MENU       = 9,
-  LEVELING_MENU       = 10,
-  LEVELING_OFFSET     = 11,
-  LEVELING_MANUAL     = 12,
-  LEVELING_AUTOMATIC  = 13,
-  LEVELING_PROBING    = 14,
-  FILAMENT            = 15,
-  MOVE                = 16,
-  GCODE               = 17,
-  SETTINGS_MENU2      = 18,
-  PID                 = 19,
-  VOLUME              = 20,
-  BRIGHTNESS          = 21,
-  INFOS               = 22,
-  DEBUG               = 240,
-  POWERLOSS           = 248,
-  WAIT                = 249,
-  KILL                = 250
-};
+#define BOARD_INFO_NAME "BTT OCTOPUS PRO V1.0"
+
+//
+// Temperature Sensors
+//
+#if TEMP_SENSOR_0 == -5
+  #define TEMP_0_CS_PIN                     PF8   // Max31865 CS
+  #define TEMP_0_SCK_PIN                    PA5
+  #define TEMP_0_MISO_PIN                   PA6
+  #define TEMP_0_MOSI_PIN                   PA7
+  #define SOFTWARE_SPI                            // Max31865 and LCD SD share a set of SPIs, Set SD to softwareSPI for Max31865
+#else
+  #define TEMP_0_PIN                        PF4   // TH0
+#endif
+
+#include "pins_BTT_OCTOPUS_V1_common.h"

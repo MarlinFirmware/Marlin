@@ -1494,8 +1494,8 @@ void Temperature::manage_heater() {
           #elif CHAMBER_FAN_MODE == 3
             fan_chamber_pwm = CHAMBER_FAN_BASE + _MAX((CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target), 0);
           #endif
-          NOMORE(fan_chamber_pwm, 225);
-          set_fan_speed(CHAMBER_FAN_INDEX, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
+          NOMORE(fan_chamber_pwm, 255);
+          set_fan_speed(CHAMBER_FAN_INDEX, fan_chamber_pwm);
         #endif
 
         #if ENABLED(CHAMBER_VENT)
@@ -2207,22 +2207,22 @@ void Temperature::init() {
 
   // Thermistor activation by MCU pin
   #if PIN_EXISTS(TEMP_0_TR_ENABLE)
-    OUT_WRITE(TEMP_0_TR_ENABLE_PIN,
+    OUT_WRITE(TEMP_0_TR_ENABLE_PIN, (
       #if TEMP_SENSOR_IS_ANY_MAX_TC(0)
-        1
+        HIGH
       #else
-        0
+        LOW
       #endif
-    );
+    ));
   #endif
   #if PIN_EXISTS(TEMP_1_TR_ENABLE)
-    OUT_WRITE(TEMP_1_TR_ENABLE_PIN,
+    OUT_WRITE(TEMP_1_TR_ENABLE_PIN, (
       #if TEMP_SENSOR_IS_ANY_MAX_TC(1)
-        1
+        HIGH
       #else
-        0
+        LOW
       #endif
-    );
+    ));
   #endif
 
   #if HAS_HEATER_0

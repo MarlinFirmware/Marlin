@@ -35,6 +35,26 @@
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
 #endif
 
+// Safety Features
+#if DISABLED(USE_WATCHDOG)
+  #warning "Safety Alert! Enable USE_WATCHDOG for the final build!"
+#endif
+#if HAS_HOTEND && DISABLED(THERMAL_PROTECTION_HOTENDS)
+  #warning "Safety Alert! Enable THERMAL_PROTECTION_HOTENDS for the final build!"
+#endif
+#if HAS_HEATED_BED && DISABLED(THERMAL_PROTECTION_BED)
+  #warning "Safety Alert! Enable THERMAL_PROTECTION_BED for the final build!"
+#endif
+#if HAS_HEATED_CHAMBER && DISABLED(THERMAL_PROTECTION_CHAMBER)
+  #warning "Safety Alert! Enable THERMAL_PROTECTION_CHAMBER for the final build!"
+#endif
+#if HAS_COOLER && DISABLED(THERMAL_PROTECTION_COOLER)
+  #warning "Safety Alert! Enable THERMAL_PROTECTION_COOLER for the final build!"
+#endif
+#if ANY_THERMISTOR_IS(998) || ANY_THERMISTOR_IS(999)
+  #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
+#endif
+
 #if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
   #warning "Your Configuration provides no method to acquire user feedback!"
 #endif

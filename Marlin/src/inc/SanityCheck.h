@@ -595,6 +595,8 @@
   #error "ARC_SUPPORT now requires MIN_ARC_SEGMENT_MM and MAX_ARC_SEGMENT_MM."
 #elif defined(SPINDLE_LASER_PWM)
   #error "SPINDLE_LASER_PWM (true) is now set with SPINDLE_LASER_USE_PWM (enabled)."
+#elif ANY(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF)
+  #error "The IS_RAMPS_* conditionals (for heater/fan/bed pins) are now called FET_ORDER_*."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
@@ -2193,68 +2195,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
               #elif !PIN_EXISTS(TEMP_7) && !TEMP_SENSOR_7_IS_DUMMY
                 #error "TEMP_7_PIN not defined for this board."
               #endif
-            #elif TEMP_SENSOR_7 != 0
-              #error "TEMP_SENSOR_7 shouldn't be set with only 7 HOTENDS."
-            #endif
-          #elif TEMP_SENSOR_6 != 0
-            #error "TEMP_SENSOR_6 shouldn't be set with only 6 HOTENDS."
-          #elif TEMP_SENSOR_7 != 0
-            #error "TEMP_SENSOR_7 shouldn't be set with only 6 HOTENDS."
-          #endif
-        #elif TEMP_SENSOR_5 != 0
-          #error "TEMP_SENSOR_5 shouldn't be set with only 5 HOTENDS."
-        #elif TEMP_SENSOR_6 != 0
-          #error "TEMP_SENSOR_6 shouldn't be set with only 5 HOTENDS."
-        #elif TEMP_SENSOR_7 != 0
-          #error "TEMP_SENSOR_7 shouldn't be set with only 5 HOTENDS."
-        #endif
-      #elif TEMP_SENSOR_4 != 0
-        #error "TEMP_SENSOR_4 shouldn't be set with only 4 HOTENDS."
-      #elif TEMP_SENSOR_5 != 0
-        #error "TEMP_SENSOR_5 shouldn't be set with only 4 HOTENDS."
-      #elif TEMP_SENSOR_6 != 0
-        #error "TEMP_SENSOR_6 shouldn't be set with only 4 HOTENDS."
-      #elif TEMP_SENSOR_7 != 0
-        #error "TEMP_SENSOR_7 shouldn't be set with only 4 HOTENDS."
-      #endif
-    #elif TEMP_SENSOR_3 != 0
-      #error "TEMP_SENSOR_3 shouldn't be set with only 3 HOTENDS."
-    #elif TEMP_SENSOR_4 != 0
-      #error "TEMP_SENSOR_4 shouldn't be set with only 3 HOTENDS."
-    #elif TEMP_SENSOR_5 != 0
-      #error "TEMP_SENSOR_5 shouldn't be set with only 3 HOTENDS."
-    #elif TEMP_SENSOR_6 != 0
-      #error "TEMP_SENSOR_6 shouldn't be set with only 3 HOTENDS."
-    #elif TEMP_SENSOR_7 != 0
-      #error "TEMP_SENSOR_7 shouldn't be set with only 3 HOTENDS."
-    #endif
-  #elif TEMP_SENSOR_2 != 0
-    #error "TEMP_SENSOR_2 shouldn't be set with only 2 HOTENDS."
-  #elif TEMP_SENSOR_3 != 0
-    #error "TEMP_SENSOR_3 shouldn't be set with only 2 HOTENDS."
-  #elif TEMP_SENSOR_4 != 0
-    #error "TEMP_SENSOR_4 shouldn't be set with only 2 HOTENDS."
-  #elif TEMP_SENSOR_5 != 0
-    #error "TEMP_SENSOR_5 shouldn't be set with only 2 HOTENDS."
-  #elif TEMP_SENSOR_6 != 0
-    #error "TEMP_SENSOR_6 shouldn't be set with only 2 HOTENDS."
-  #elif TEMP_SENSOR_7 != 0
-    #error "TEMP_SENSOR_7 shouldn't be set with only 2 HOTENDS."
-  #endif
-#elif TEMP_SENSOR_1 != 0
-  #error "TEMP_SENSOR_1 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_2 != 0
-  #error "TEMP_SENSOR_2 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_3 != 0
-  #error "TEMP_SENSOR_3 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_4 != 0
-  #error "TEMP_SENSOR_4 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_5 != 0
-  #error "TEMP_SENSOR_5 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_6 != 0
-  #error "TEMP_SENSOR_6 shouldn't be set with only 1 HOTEND."
-#elif TEMP_SENSOR_7 != 0
-  #error "TEMP_SENSOR_7 shouldn't be set with only 1 HOTEND."
+            #endif // HOTENDS > 7
+          #endif // HOTENDS > 6
+        #endif // HOTENDS > 5
+      #endif // HOTENDS > 4
+    #endif // HOTENDS > 3
+  #endif // HOTENDS > 2
 #endif // HAS_MULTI_HOTEND
 
 /**
@@ -3292,7 +3238,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_MOTOR_CURRENT_I2C
   #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
     #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
-#elif !MB(MKS_SBASE, AZTEEG_X5_GT, AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI) \
+  #elif !MB(MKS_SBASE, AZTEEG_X5_GT, AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI) \
     && (!defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1))
       #error "DIGIPOT_MCP4018/4451 requires DIGIPOTS_I2C_SDA_* pins to be defined."
   #endif

@@ -478,8 +478,8 @@ void Endstops::event_handler() {
   }
 }
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
@@ -489,9 +489,7 @@ static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
   SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
 }
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 void _O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());

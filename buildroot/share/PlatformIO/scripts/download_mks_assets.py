@@ -3,10 +3,15 @@
 # Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
 #
 Import("env")
-import os,requests,zipfile,tempfile,shutil
+import os,requests,zipfile,tempfile,shutil,pioutil
 
-url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/master.zip"
-zip_path = os.path.join(env.Dictionary("PROJECT_LIBDEPS_DIR"), "mks-assets.zip")
+# Detect that 'vscode init' is running
+if pioutil.is_vscode_init():
+	env.Exit(0)
+
+url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/0263cdaccf.zip"
+deps_path = env.Dictionary("PROJECT_LIBDEPS_DIR")
+zip_path = os.path.join(deps_path, "mks-assets.zip")
 assets_path = os.path.join(env.Dictionary("PROJECT_BUILD_DIR"), env.Dictionary("PIOENV"), "assets")
 
 def download_mks_assets():
@@ -14,8 +19,8 @@ def download_mks_assets():
 	r = requests.get(url, stream=True)
 	# the user may have a very clean workspace,
 	# so create the PROJECT_LIBDEPS_DIR directory if not exits
-	if os.path.exists(env.Dictionary("PROJECT_LIBDEPS_DIR")) == False:
-		os.mkdir(env.Dictionary("PROJECT_LIBDEPS_DIR"))
+	if os.path.exists(deps_path) == False:
+		os.mkdir(deps_path)
 	with open(zip_path, 'wb') as fd:
 		for chunk in r.iter_content(chunk_size=128):
 			fd.write(chunk)
