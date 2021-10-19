@@ -36,6 +36,6 @@
 #if ENABLED(CASE_LIGHT_ENABLE)
   #undef FAN_PIN
   #ifndef CASE_LIGHT_PIN
-    #define CASE_LIGHT_PIN RAMPS_D9_PIN
+    #define CASE_LIGHT_PIN MOSFET_B_PIN
   #endif
 #endif

@@ -59,7 +59,6 @@
 //
 // Other RAMPS pins
 //
-#define IS_RAMPS_EFB                              // Override autodetection. Bed will be undefined.
 #include "pins_RAMPS.h"
 
 //
