@@ -2712,6 +2712,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "Please select only one of CHIRON_TFT_STANDARD or CHIRON_TFT_NEW."
 #endif
 
+#if EITHER(MKS_TS35_V2_0, BTT_TFT35_SPI_V1_0) && SD_CONNECTION_IS(LCD)
+  #error "SDCARD_CONNECTION cannot be set to LCD for the enabled TFT. No available SD card reader."
+#endif
+
 /**
  * Ender 3 V2 controller has some limitations
  */
