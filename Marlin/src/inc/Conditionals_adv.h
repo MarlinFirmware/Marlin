@@ -132,17 +132,15 @@
 #define HID_E6         6
 #define HID_E7         7
 
-#define ANY_TEMP_SENSOR_IS(n) (n == TEMP_SENSOR_0 || n == TEMP_SENSOR_1 || n == TEMP_SENSOR_2 || n == TEMP_SENSOR_3 \
-  || n == TEMP_SENSOR_4 || n == TEMP_SENSOR_5 || n == TEMP_SENSOR_6 || n == TEMP_SENSOR_7 \
-  || n == TEMP_SENSOR_BED \
-  || n == TEMP_SENSOR_PROBE \
-  || n == TEMP_SENSOR_CHAMBER \
-  || n == TEMP_SENSOR_COOLER \
-  || n == TEMP_SENSOR_REDUNDANT )
-#if ANY_TEMP_SENSOR_IS(1000)
+#define _SENSOR_IS(I,N) || (TEMP_SENSOR_##N == I)
+#define _E_SENSOR_IS(I,N) _SENSOR_IS(N,I)
+#define ANY_THERMISTOR_IS(N) (0 REPEAT2(HOTENDS, _E_SENSOR_IS, N) \
+  _SENSOR_IS(N,BED) _SENSOR_IS(N,PROBE) _SENSOR_IS(N,CHAMBER) \
+  _SENSOR_IS(N,COOLER) _SENSOR_IS(N,BOARD) _SENSOR_IS(N,REDUNDANT) )
+
+#if ANY_THERMISTOR_IS(1000)
   #define HAS_USER_THERMISTORS 1
 #endif
-#undef ANY_TEMP_SENSOR_IS
 
 #if TEMP_SENSOR_REDUNDANT
   #define _HEATER_ID(M) HID_##M
@@ -624,7 +622,9 @@
 #endif
 
 // Fallback Stepper Driver types that depend on Configuration_adv.h
-#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+  #define HAS_X2_STEPPER 1
+#else
   #undef X2_DRIVER_TYPE
 #endif
 #if DISABLED(Y_DUAL_STEPPER_DRIVERS)
