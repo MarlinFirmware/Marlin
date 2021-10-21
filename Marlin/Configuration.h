@@ -2642,8 +2642,8 @@
  */
 
 //
-// 480x320, 3.5", SPI Display From MKS
-// Normally used in MKS Robin Nano V2
+// 480x320, 3.5", SPI Display with Rotary Encoder from MKS
+// Normally used in MKS Robin Nano V2 & V3
 //
 //#define MKS_TS35_V2_0
 
@@ -2708,12 +2708,12 @@
 //#define ANET_ET5_TFT35
 
 //
-// 1024x600, 7", RGB Stock Display from BIQU-BX
+// 1024x600, 7", RGB Stock Display with Rotary Encoder from BIQU-BX
 //
 //#define BIQU_BX_TFT70
 
 //
-// 480x320, 3.5", SPI Stock Display from BIQU B1 SE Series
+// 480x320, 3.5", SPI Stock Display with Rotary Encoder from BIQU B1 SE Series
 //
 //#define BTT_TFT35_SPI_V1_0
 
