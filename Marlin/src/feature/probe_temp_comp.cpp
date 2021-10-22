@@ -162,33 +162,35 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
                     res_temp = cali_info[tsi].temp_res;
   const int16_t * const data = sensor_z_offsets[tsi];
 
-  auto point = [&](uint8_t i) -> xy_float_t {
+  // Given a data index, return { celsius, zoffset } in the form { x, y }
+  auto tpoint = [&](uint8_t i) -> xy_float_t {
     return xy_float_t({ static_cast<float>(start_temp) + i * res_temp, TERN(i == 0, 0.0f, static_cast<float>(data[i - 1])) });
   };
 
+  // Interpolate Z based on a temperature being within a given range
   auto linear_interp = [](const_float_t x, xy_float_t p1, xy_float_t p2) {
-    return (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x) + p1.y;
+    //   zoffs1 +      zoffset_per_toffset      *  toffset
+    return p1.y + (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x);
   };
 
   // offset in µm
   float offset = 0.0f;
 
-  #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0
+  #if PTC_LINEAR_EXTRAPOLATION
+    if (temp < start_temp)
+      offset = linear_interp(temp, tpoint(0), tpoint(PTC_LINEAR_EXTRAPOLATION));
+    else if (temp >= end_temp)
+      offset = linear_interp(temp, tpoint(measurements - PTC_LINEAR_EXTRAPOLATION), tpoint(measurements));
+  #else
     if (temp < start_temp)
       offset = 0.0f;
     else if (temp >= end_temp)
       offset = static_cast<float>(data[measurements - 1]);
-  #else
-    if (temp < start_temp)
-      offset = linear_interp(temp, point(0), point(PTC_LINEAR_EXTRAPOLATION));
-    else if (temp >= end_temp)
-      offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION), point(measurements));
   #endif
-    else
-    {
+    else {
       // Linear interpolation
-      int8_t idx = static_cast<int8_t>((temp - start_temp) / res_temp);
-      offset = linear_interp(temp, point(idx), point(idx + 1));
+      const int8_t idx = static_cast<int8_t>((temp - start_temp) / res_temp);
+      offset = linear_interp(temp, tpoint(idx), tpoint(idx + 1));
     }
 
   // convert offset to mm and apply it
