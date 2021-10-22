@@ -27,6 +27,10 @@
 #include "../../../inc/MarlinConfig.h"
 #include "SPIFlashStorage.h"
 
+#if !HAS_SPI_FLASH
+  #error "HAS_SPI_FLASH is required with TFT_LVGL_UI."
+#endif
+
 extern W25QXXFlash W25QXX;
 
 uint8_t SPIFlashStorage::m_pageData[SPI_FLASH_PageSize];
