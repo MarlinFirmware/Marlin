@@ -496,6 +496,9 @@
 #endif
 
 #if HAS_SPI_TFT
+  //
+  // e.g., BTT_TFT35_SPI_V1_0 (480x320, 3.5", SPI Stock Display with Rotary Encoder in BIQU B1 SE)
+  //
   #define TFT_CS_PIN                 EXP2_07_PIN
   #define TFT_A0_PIN                 EXP2_04_PIN
   #define TFT_SCK_PIN                EXP2_09_PIN
