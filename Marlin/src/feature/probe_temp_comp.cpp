@@ -24,6 +24,8 @@
 
 #if ENABLED(PROBE_TEMP_COMPENSATION)
 
+//#define DEBUG_PTC   // Print extra debug output with 'M871'
+
 #include "probe_temp_comp.h"
 #include <math.h>
 
@@ -79,9 +81,17 @@ void ProbeTempComp::print_offsets() {
         " temp: ", temp,
         "C; Offset: ", i < 0 ? 0.0f : sensor_z_offsets[s][i], " um"
       );
-      temp += cali_info[s].temp_res;
+      temp += cali_info[s].temp_resolution;
     }
   }
+  #if ENABLED(DEBUG_PTC)
+    float meas[4] = { 0, 0, 0, 0 };
+    compensate_measurement(TSI_PROBE, 27.5, meas[0]);
+    compensate_measurement(TSI_PROBE, 32.5, meas[1]);
+    compensate_measurement(TSI_PROBE, 77.5, meas[2]);
+    compensate_measurement(TSI_PROBE, 82.5, meas[3]);
+    SERIAL_ECHOLNPGM("DEBUG_PTC 27.5:", meas[0], " 32.5:", meas[1], " 77.5:", meas[2], " 82.5:", meas[3]);
+  #endif
 }
 
 void ProbeTempComp::prepare_new_calibration(const_float_t init_meas_z) {
@@ -111,7 +121,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
-                    res_temp = cali_info[tsi].temp_res;
+                    res_temp = cali_info[tsi].temp_resolution;
   int16_t * const data = sensor_z_offsets[tsi];
 
   // Extrapolate
@@ -159,7 +169,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
                     end_temp = cali_info[tsi].end_temp,
-                    res_temp = cali_info[tsi].temp_res;
+                    res_temp = cali_info[tsi].temp_resolution;
   const int16_t * const data = sensor_z_offsets[tsi];
 
   // Given a data index, return { celsius, zoffset } in the form { x, y }
@@ -203,7 +213,7 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
   if (!WITHIN(calib_idx, 2, cali_info[tsi].measurements)) return false;
 
   const celsius_t start_temp = cali_info[tsi].start_temp,
-                    res_temp = cali_info[tsi].temp_res;
+                    res_temp = cali_info[tsi].temp_resolution;
   const int16_t * const data = sensor_z_offsets[tsi];
 
   float sum_x = start_temp,
