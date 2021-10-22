@@ -166,7 +166,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
   };
 
   auto linear_interp = [](const_float_t x, xy_float_t p1, xy_float_t p2) {
-    return (p2.y - p1.y) / (p2.x - p2.y) * (x - p1.x) + p1.y;
+    return (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x) + p1.y;
   };
 
   // Linear interpolation
