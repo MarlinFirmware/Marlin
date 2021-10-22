@@ -23,11 +23,6 @@
 
 #if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
-#if ENABLED(DWIN_MARLINUI_LANDSCAPE)
-  #define DWIN_WIDTH  480
-  #define DWIN_HEIGHT 272
-#endif
-
 #include "dwin_api.h"
 #include "dwin_set.h"
 
