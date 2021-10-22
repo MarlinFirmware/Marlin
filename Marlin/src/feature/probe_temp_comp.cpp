@@ -174,7 +174,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
 
   // Given a data index, return { celsius, zoffset } in the form { x, y }
   auto tpoint = [&](uint8_t i) -> xy_float_t {
-    return xy_float_t({ static_cast<float>(start_temp) + i * res_temp, TERN(i == 0, 0.0f, static_cast<float>(data[i - 1])) });
+    return xy_float_t({ static_cast<float>(start_temp) + i * res_temp, i ? static_cast<float>(data[i - 1]) : 0.0f });
   };
 
   // Interpolate Z based on a temperature being within a given range
