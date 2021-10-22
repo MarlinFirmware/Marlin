@@ -42,7 +42,7 @@
   #define BOARD_ST7920_DELAY_3               125
 #endif
 
-#include "pins_MELZI.h"
+#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
 
 //
 // For the stock CR-10 enable CR10_STOCKDISPLAY in Configuration.h
