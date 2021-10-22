@@ -158,6 +158,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
+                    end_temp = cali_info[tsi].end_temp,
                     res_temp = cali_info[tsi].temp_res;
   const int16_t * const data = sensor_z_offsets[tsi];
 
@@ -169,25 +170,26 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
     return (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x) + p1.y;
   };
 
-  // Linear interpolation
-  uint8_t idx = static_cast<uint8_t>((temp - start_temp) / res_temp);
-
   // offset in µm
   float offset = 0.0f;
 
   #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0
-    if (idx < 0)
+    if (temp < start_temp)
       offset = 0.0f;
-    else if (idx > measurements - 1)
+    else if (temp >= end_temp)
       offset = static_cast<float>(data[measurements - 1]);
   #else
-    if (idx < 0)
+    if (temp < start_temp)
       offset = linear_interp(temp, point(0), point(PTC_LINEAR_EXTRAPOLATION));
-    else if (idx > measurements - 1)
+    else if (temp >= end_temp)
       offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION), point(measurements));
   #endif
     else
+    {
+      // Linear interpolation
+      int8_t idx = static_cast<int8_t>((temp - start_temp) / res_temp);
       offset = linear_interp(temp, point(idx), point(idx + 1));
+    }
 
   // convert offset to mm and apply it
   meas_z -= offset / 1000.0f;
