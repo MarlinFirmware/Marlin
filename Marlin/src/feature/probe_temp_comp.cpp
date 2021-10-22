@@ -162,7 +162,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
   const int16_t * const data = sensor_z_offsets[tsi];
 
   auto point = [&](uint8_t i) -> xy_float_t {
-    return xy_float_t({ static_cast<float>(start_temp) + i * res_temp, static_cast<float>(data[i]) });
+    return xy_float_t({ static_cast<float>(start_temp) + i * res_temp, TERN(i == 0, 0.0f, static_cast<float>(data[i - 1])) });
   };
 
   auto linear_interp = [](const_float_t x, xy_float_t p1, xy_float_t p2) {
@@ -178,13 +178,13 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
   #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0
     if (idx < 0)
       offset = 0.0f;
-    else if (idx > measurements - 2)
+    else if (idx > measurements - 1)
       offset = static_cast<float>(data[measurements - 1]);
   #else
     if (idx < 0)
       offset = linear_interp(temp, point(0), point(PTC_LINEAR_EXTRAPOLATION));
-    else if (idx > measurements - 2)
-      offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION - 1), point(measurements - 1));
+    else if (idx > measurements - 1)
+      offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION), point(measurements));
   #endif
     else
       offset = linear_interp(temp, point(idx), point(idx + 1));
