@@ -33,9 +33,9 @@ enum TempSensorID : uint8_t {
 };
 
 typedef struct {
-  uint8_t measurements; // Max. number of measurements to be stored (35 - 80°C)
-  celsius_t temp_res,   // Resolution in °C between measurements
-            start_temp, // Base measurement; z-offset == 0
+  uint8_t measurements;       // Max. number of measurements to be stored (35 - 80°C)
+  celsius_t temp_resolution,  // Resolution in °C between measurements
+            start_temp,       // Base measurement; z-offset == 0
             end_temp;
 } temp_calib_t;
 
@@ -134,8 +134,6 @@ class ProbeTempComp {
      * to this value, set at first probe.
      */
     static float init_measurement;
-
-    static float get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp);
 
     /**
      * Fit a linear function in measured temperature offsets

@@ -121,7 +121,7 @@ void GcodeSuite::G76() {
         temp_comp.prepare_new_calibration(measured_z);
       else
         temp_comp.push_back_new_measurement(sid, measured_z);
-      targ += cali_info_init[sid].temp_res;
+      targ += cali_info_init[sid].temp_resolution;
     }
     return measured_z;
   };
