@@ -135,8 +135,6 @@ class ProbeTempComp {
      */
     static float init_measurement;
 
-    static float get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp);
-
     /**
      * Fit a linear function in measured temperature offsets
      * to allow generating values of higher temperatures.

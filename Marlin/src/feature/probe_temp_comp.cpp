@@ -156,11 +156,6 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 }
 
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
-  if (WITHIN(temp, cali_info[tsi].start_temp, cali_info[tsi].end_temp))
-    meas_z -= get_offset_for_temperature(tsi, temp);
-}
-
-float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp) {
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
                     res_temp = cali_info[tsi].temp_res;
@@ -194,8 +189,8 @@ float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const ce
     else
       offset = linear_interp(temp, point(idx), point(idx + 1));
 
-  // return offset in mm
-  return offset / 1000.0f;
+  // convert offset to mm and apply it
+  meas_z -= offset / 1000.0f;
 }
 
 bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d) {
