@@ -1651,6 +1651,7 @@ void HMI_SaveProcessID(const uint8_t id) {
 void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
+  Title.ShowCaption(F("Axis Homing"));
   DWIN_Draw_Popup(ICON_BLTouch, F("Axis Homing"), F("Please wait until done."));
 }
 
@@ -1666,6 +1667,7 @@ void DWIN_CompletedHoming() {
 void DWIN_MeshLevelingStart() {
   #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
+    Title.ShowCaption(F("Bed Leveling"));
     DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), F("Please wait until done."));
   #elif ENABLED(MESH_BED_LEVELING)
     Draw_ManualMesh_Menu();
