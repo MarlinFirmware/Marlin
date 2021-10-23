@@ -26,6 +26,8 @@
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
+#define DEBUG_ECHOLNPAIR DEBUG_ECHOLNPGM
+
 #if HOTENDS > 2
   #error "More than 2 hotends not implemented on the Display UI design."
 #endif
@@ -312,7 +314,7 @@ void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_s
   if (enable_sound) cfg_bits |= 1UL << 3; // 3: audio
   if (enable_standby) cfg_bits |= 1UL << 2; // 2: backlight on standby
   cfg_bits |= 1UL << 1; // 1 & 0: 270 degrees orientation of display
-  cfg_bits |= 1UL << 0; 
+  cfg_bits |= 1UL << 0;
 
   DEBUG_ECHOLNPAIR("Update touch screen config - standby ", enable_standby);
   DEBUG_ECHOLNPAIR("Update touch screen config - sound ", enable_sound);
@@ -321,10 +323,10 @@ void DGUSDisplay::SetTouchScreenConfiguration(bool enable_standby, bool enable_s
   WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
   // Standby brightness (LED_Config)
-  uint16_t dwinStandbyTimeSeconds = 100 * standbyTimeSeconds;  /* milliseconds, but divided by 10 (not 5 like the docs say) */ 
-  const unsigned char brightness_set[] = { 
-    brightness /*% active*/, 
-    standby_brightness /*% standby*/, 
+  uint16_t dwinStandbyTimeSeconds = 100 * standbyTimeSeconds;  /* milliseconds, but divided by 10 (not 5 like the docs say) */
+  const unsigned char brightness_set[] = {
+    brightness /*% active*/,
+    standby_brightness /*% standby*/,
     static_cast<uint8_t>(dwinStandbyTimeSeconds >> 8),
     static_cast<uint8_t>(dwinStandbyTimeSeconds)
   };

@@ -45,7 +45,7 @@ void FilamentLoadUnloadHandler::HandleLoadUnloadButton(DGUS_VP_Variable &var, vo
         SetStatusMessage(PSTR("Please pause print first"));
         return;
     }
-   
+
     DGUSSynchronousOperation syncOperation;
     uint16_t button_value = uInt16Value(val_ptr);
     switch (button_value) {
@@ -89,9 +89,9 @@ void FilamentLoadUnloadHandler::ChangeFilamentWithTemperature(PGM_P command) {
 
     char cmd[64];
     sprintf_P(cmd, command, length);
-    
+
     // Handle commands
-    SERIAL_ECHOPAIR("Injecting command: ", cmd);
+    SERIAL_ECHOPGM("Injecting command: ", cmd);
     GcodeSuite::process_subcommands_now(cmd);
     SERIAL_ECHOPGM_P("- done");
 

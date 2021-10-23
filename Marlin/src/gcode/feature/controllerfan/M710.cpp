@@ -27,18 +27,6 @@
 #include "../../gcode.h"
 #include "../../../feature/controllerfan.h"
 
-void M710_report(const bool forReplay) {
-  if (!forReplay) { SERIAL_ECHOLNPGM("; Controller Fan"); SERIAL_ECHO_START(); }
-  SERIAL_ECHOLNPAIR("  M710"
-    " S", int(controllerFan.settings.active_speed),
-    " I", int(controllerFan.settings.idle_speed),
-    " A", int(controllerFan.settings.auto_mode),
-    " D", controllerFan.settings.duration,
-    " ; (", (int(controllerFan.settings.active_speed) * 100) / 255, "%"
-    " ", (int(controllerFan.settings.idle_speed) * 100) / 255, "%)"
-  );
-}
-
 /**
  * M710: Set controller fan settings
  *
@@ -75,7 +63,19 @@ void GcodeSuite::M710() {
   if (seenD) controllerFan.settings.duration = parser.value_ushort();
 
   if (!(seenR || seenS || seenI || seenA || seenD))
-    M710_report(false);
+    M710_report();
+}
+
+void GcodeSuite::M710_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, F(STR_CONTROLLER_FAN));
+  SERIAL_ECHOLNPGM("  M710"
+    " S", int(controllerFan.settings.active_speed),
+    " I", int(controllerFan.settings.idle_speed),
+    " A", int(controllerFan.settings.auto_mode),
+    " D", controllerFan.settings.duration,
+    " ; (", (int(controllerFan.settings.active_speed) * 100) / 255, "%"
+    " ", (int(controllerFan.settings.idle_speed) * 100) / 255, "%)"
+  );
 }
 
 #endif // CONTROLLER_FAN_EDITABLE

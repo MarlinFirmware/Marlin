@@ -120,20 +120,17 @@
   //#define Z_HARDWARE_SERIAL  MSerial1
   //#define E0_HARDWARE_SERIAL MSerial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC10
-  #define X_SERIAL_RX_PIN                   PC10
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PC11
-  #define Y_SERIAL_RX_PIN                   PC11
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PC12
-  #define Z_SERIAL_RX_PIN                   PC12
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD2
-  #define E0_SERIAL_RX_PIN                  PD2
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -159,7 +156,7 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *                 _____
+ *                 -----
  *             5V | 1 2 | GND
  *  (LCD_EN) PB7  | 3 4 | PB8  (LCD_RS)
  *  (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
@@ -198,7 +195,7 @@
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
-     *                   _____
+     *                   -----
      *               5V | 1 2 | GND
      *      (MOSI) PB7  | 3 4 | PB8  (LCD_RS)
      *    (LCD_A0) PB9  | 5 6   PA10 (BTN_EN2)
@@ -232,7 +229,7 @@
   /** FYSETC TFT TFT81050 display pinout
    *
    *               Board                                     Display
-   *               _____                                      _____
+   *               -----                                      -----
    *           5V | 1 2 | GND               (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
    * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)     (PA9)  MOD_RESET | 3 4 | SD_CS (PA10)
    * (FREE)   PB9 | 5 6   PA10 (SD_CS)      (PB8)     LCD_CS | 5 6   MOSI  (SPI1-MOSI)

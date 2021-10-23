@@ -65,7 +65,7 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
       }
     #endif
     cmd.colors(action_btn)
-       .tag(1) .button(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+       .tag(1) .button(BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
@@ -74,37 +74,37 @@ bool PreheatMenu::onTouchEnd(uint8_t tag) {
     case 1: GOTO_PREVIOUS();                   break;
     case 2:
       #ifdef COCOA_PRESS_PREHEAT_DARK_CHOCOLATE_INT_SCRIPT
-        injectCommands_P(PSTR(COCOA_PRESS_PREHEAT_DARK_CHOCOLATE_INT_SCRIPT));
+        injectCommands(F(COCOA_PRESS_PREHEAT_DARK_CHOCOLATE_INT_SCRIPT));
       #endif
       GOTO_SCREEN(PreheatTimerScreen);
       break;
     case 3:
       #ifdef COCOA_PRESS_PREHEAT_MILK_CHOCOLATE_INT_SCRIPT
-        injectCommands_P(PSTR(COCOA_PRESS_PREHEAT_MILK_CHOCOLATE_INT_SCRIPT));
+        injectCommands(F(COCOA_PRESS_PREHEAT_MILK_CHOCOLATE_INT_SCRIPT));
       #endif
       GOTO_SCREEN(PreheatTimerScreen);
       break;
     case 4:
       #ifdef COCOA_PRESS_PREHEAT_WHITE_CHOCOLATE_INT_SCRIPT
-        injectCommands_P(PSTR(COCOA_PRESS_PREHEAT_WHITE_CHOCOLATE_INT_SCRIPT));
+        injectCommands(F(COCOA_PRESS_PREHEAT_WHITE_CHOCOLATE_INT_SCRIPT));
       #endif
       GOTO_SCREEN(PreheatTimerScreen);
       break;
     case 5:
       #ifdef COCOA_PRESS_PREHEAT_DARK_CHOCOLATE_EXT_SCRIPT
-        injectCommands_P(PSTR(COCOA_PRESS_PREHEAT_DARK_CHOCOLATE_EXT_SCRIPT));
+        injectCommands(F(COCOA_PRESS_PREHEAT_DARK_CHOCOLATE_EXT_SCRIPT));
       #endif
       GOTO_SCREEN(PreheatTimerScreen);
       break;
     case 6:
       #ifdef COCOA_PRESS_PREHEAT_MILK_CHOCOLATE_EXT_SCRIPT
-        injectCommands_P(PSTR(COCOA_PRESS_PREHEAT_MILK_CHOCOLATE_EXT_SCRIPT));
+        injectCommands(F(COCOA_PRESS_PREHEAT_MILK_CHOCOLATE_EXT_SCRIPT));
       #endif
       GOTO_SCREEN(PreheatTimerScreen);
       break;
     case 7:
       #ifdef COCOA_PRESS_PREHEAT_WHITE_CHOCOLATE_EXT_SCRIPT
-        injectCommands_P(PSTR(COCOA_PRESS_PREHEAT_WHITE_CHOCOLATE_EXT_SCRIPT));
+        injectCommands(F(COCOA_PRESS_PREHEAT_WHITE_CHOCOLATE_EXT_SCRIPT));
       #endif
       GOTO_SCREEN(PreheatTimerScreen);
       break;

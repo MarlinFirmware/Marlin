@@ -79,6 +79,7 @@ namespace ExtUI {
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
   void injectCommands_P(PGM_P const);
+  inline void injectCommands(FSTR_P const fstr) { injectCommands_P(FTOP(fstr)); }
   void injectCommands(char * const);
   bool commandsInQueue();
 
@@ -194,7 +195,11 @@ namespace ExtUI {
     void setHostResponse(const uint8_t);
   #endif
 
-  inline void simulateUserClick() { ui.lcd_clicked = true; }
+  inline void simulateUserClick() {
+    #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
+      ui.lcd_clicked = true;
+    #endif
+  }
 
   #if ENABLED(PRINTCOUNTER)
     char* getFailedPrints_str(char buffer[21]);
@@ -230,6 +235,8 @@ namespace ExtUI {
 
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse);
+    extern PauseMessage pauseModeStatus;
+    PauseMode getPauseMode();
   #endif
 
   #if ENABLED(LIN_ADVANCE)
@@ -313,7 +320,7 @@ namespace ExtUI {
     float getPIDValues_Ki(const extruder_t);
     float getPIDValues_Kd(const extruder_t);
     void setPIDValues(const_float_t, const_float_t , const_float_t , extruder_t);
-    void startPIDTune(celsius_t, extruder_t);
+    void startPIDTune(const celsius_t, extruder_t);
   #endif
 
   #if ENABLED(PIDTEMPBED)
@@ -321,7 +328,7 @@ namespace ExtUI {
     float getBedPIDValues_Ki();
     float getBedPIDValues_Kd();
     void setBedPIDValues(const_float_t, const_float_t , const_float_t);
-    void startBedPIDTune(celsius_t);
+    void startBedPIDTune(const celsius_t);
   #endif
 
   /**
@@ -387,16 +394,16 @@ namespace ExtUI {
   void onMediaError();
   void onMediaRemoved();
   void onPlayTone(const uint16_t frequency, const uint16_t duration);
-  void onPrinterKilled(PGM_P const error, PGM_P const component);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component);
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
   void onPrintFinished();
   void onFilamentRunout(const extruder_t extruder);
   void onUserConfirmRequired(const char * const msg);
-  void onUserConfirmRequired_P(PGM_P const pstr);
+  void onUserConfirmRequired(FSTR_P const fstr);
   void onStatusChanged(const char * const msg);
-  void onStatusChanged_P(PGM_P const pstr);
+  void onStatusChanged(FSTR_P const fstr);
   void onHomingStart();
   void onHomingComplete();
   void onSteppersDisabled();

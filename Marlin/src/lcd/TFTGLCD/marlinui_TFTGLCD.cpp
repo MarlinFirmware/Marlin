@@ -57,6 +57,18 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if EITHER(HAS_COOLER, LASER_COOLANT_FLOW_METER)
+  #include "../../feature/cooler.h"
+#endif
+
+#if ENABLED(I2C_AMMETER)
+  #include "../../feature/ammeter.h"
+#endif
+
+#if HAS_CUTTER
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -64,12 +76,12 @@
 TFTGLCD lcd;
 
 #define ICON_LOGO       B00000001
-#define ICON_TEMP1      B00000010    //hotend 1
-#define ICON_TEMP2      B00000100    //hotend 2
-#define ICON_TEMP3      B00001000    //hotend 3
+#define ICON_TEMP1      B00000010    // Hotend 1
+#define ICON_TEMP2      B00000100    // Hotend 2
+#define ICON_TEMP3      B00001000    // Hotend 3
 #define ICON_BED        B00010000
 #define ICON_FAN        B00100000
-#define ICON_HOT        B01000000    //when any T > 50deg
+#define ICON_HOT        B01000000    // When any T > 50deg
 #define PIC_MASK        0x7F
 
 // LEDs not used, for compatibility with Smoothieware
@@ -86,7 +98,7 @@ TFTGLCD lcd;
 #define COLOR_EDIT      '#'
 #define COLOR_ERROR     '!'
 
-#ifdef CONVERT_TO_EXT_ASCII   //use standart pseudographic symbols in ASCII table
+#ifdef CONVERT_TO_EXT_ASCII   //use standard pseudographic symbols in ASCII table
   #define LR            179   //vertical line
   #define TRC           191   //top right corner
   #define BLC           192   //bottom left corner
@@ -364,12 +376,9 @@ void MarlinUI::clear_lcd() {
   lcd.clear_buffer();
 }
 
-int16_t MarlinUI::contrast; // Initialized by settings.load()
-
-void MarlinUI::set_contrast(const int16_t value) {
-  contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-  lcd.setContrast(contrast);
-}
+#if HAS_LCD_CONTRAST
+  void MarlinUI::_set_contrast() { lcd.setContrast(contrast); }
+#endif
 
 static void center_text_P(PGM_P pstart, uint8_t y) {
   uint8_t len = utf8_strlen_P(pstart);
@@ -389,10 +398,10 @@ static void center_text_P(PGM_P pstart, uint8_t y) {
     //
     uint8_t indent = (LCD_WIDTH - 8) / 2;
     // symbols 217 (bottom right corner) and 218 (top left corner) are using for letters in some languages
-    // and they should be moved to begining ASCII table as spetial symbols
-    lcd.setCursor(indent, 0); lcd.write(TLC); lcd_put_u8str_P(PSTR("------"));  lcd.write(TRC);
-    lcd.setCursor(indent, 1); lcd.write(LR);  lcd_put_u8str_P(PSTR("Marlin"));  lcd.write(LR);
-    lcd.setCursor(indent, 2); lcd.write(BLC); lcd_put_u8str_P(PSTR("------"));  lcd.write(BRC);
+    // and they should be moved to beginning ASCII table as special symbols
+    lcd.setCursor(indent, 0); lcd.write(TLC); lcd_put_u8str(F("------"));  lcd.write(TRC);
+    lcd.setCursor(indent, 1); lcd.write(LR);  lcd_put_u8str(F("Marlin"));  lcd.write(LR);
+    lcd.setCursor(indent, 2); lcd.write(BLC); lcd_put_u8str(F("------"));  lcd.write(BRC);
     center_text_P(PSTR(SHORT_BUILD_VERSION), 3);
     center_text_P(PSTR(MARLIN_WEBSITE_URL), 4);
     picBits = ICON_LOGO;
@@ -428,74 +437,166 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   else if (axis_should_home(axis))
     while (const char c = *value++) lcd.write(c <= '.' ? c : '?');
   else if (NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING) && !axis_is_trusted(axis))
-    lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
+    lcd_put_u8str(axis == Z_AXIS ? F("       ") : F("    "));
   else
     lcd_put_u8str(value);
 }
 
-FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
-  uint8_t pic_hot_bits;
-  #if HAS_HEATED_BED
-    const bool isBed = heater_id < 0;
-    const celsius_t t1 = (isBed ? thermalManager.wholeDegBed() : thermalManager.wholeDegHotend(heater_id)),
-                    t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
-  #else
-    const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
-  #endif
+#if HAS_HOTEND || HAS_HEATED_BED
 
-  #if HOTENDS < 2
-    if (heater_id == H_E0) {
-      lcd.setCursor(2, 5);  lcd.print(prefix); //HE
-      lcd.setCursor(1, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(1, 7);
-    }
-    else {
-      lcd.setCursor(6, 5);  lcd.print(prefix); //BED
-      lcd.setCursor(6, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(6, 7);
-    }
-  #else
-    if (heater_id > H_BED) {
-      lcd.setCursor(heater_id * 4, 5);  lcd.print(prefix); // HE1 or HE2 or HE3
-      lcd.setCursor(heater_id * 4, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(heater_id * 4, 7);
-    }
-    else {
-      lcd.setCursor(13, 5);  lcd.print(prefix); //BED
-      lcd.setCursor(13, 6);  lcd.print(i16tostr3rj(t1));
-      lcd.setCursor(13, 7);
-    }
-  #endif // HOTENDS <= 1
+  FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
+    uint8_t pic_hot_bits;
+    #if HAS_HEATED_BED
+      const bool isBed = heater_id < 0;
+      const celsius_t t1 = (isBed ? thermalManager.wholeDegBed() : thermalManager.wholeDegHotend(heater_id)),
+                      t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
+    #else
+      const celsius_t t1 = thermalManager.wholeDegHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
+    #endif
 
-  #if !HEATER_IDLE_HANDLER
-    UNUSED(blink);
-  #else
-    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
-      lcd.write(' ');
-      if (t2 >= 10) lcd.write(' ');
-      if (t2 >= 100) lcd.write(' ');
-    }
-    else
-  #endif // !HEATER_IDLE_HANDLER
-      lcd.print(i16tostr3rj(t2));
+    #if HOTENDS < 2
+      if (heater_id == H_E0) {
+        lcd.setCursor(2, 5);  lcd.print(prefix); //HE
+        lcd.setCursor(1, 6);  lcd.print(i16tostr3rj(t1));
+        lcd.setCursor(1, 7);
+      }
+      else {
+        lcd.setCursor(6, 5);  lcd.print(prefix); //BED
+        lcd.setCursor(6, 6);  lcd.print(i16tostr3rj(t1));
+        lcd.setCursor(6, 7);
+      }
+    #else
+      if (heater_id > H_BED) {
+        lcd.setCursor(heater_id * 4, 5);  lcd.print(prefix); // HE1 or HE2 or HE3
+        lcd.setCursor(heater_id * 4, 6);  lcd.print(i16tostr3rj(t1));
+        lcd.setCursor(heater_id * 4, 7);
+      }
+      else {
+        lcd.setCursor(13, 5);  lcd.print(prefix); //BED
+        lcd.setCursor(13, 6);  lcd.print(i16tostr3rj(t1));
+        lcd.setCursor(13, 7);
+      }
+    #endif // HOTENDS <= 1
 
-  switch (heater_id) {
-    case H_BED: pic_hot_bits = ICON_BED;   break;
-    case H_E0:  pic_hot_bits = ICON_TEMP1; break;
-    case H_E1:  pic_hot_bits = ICON_TEMP2; break;
-    case H_E2:  pic_hot_bits = ICON_TEMP3;
-    default:    break;
+    #if !HEATER_IDLE_HANDLER
+      UNUSED(blink);
+    #else
+      if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+        lcd.write(' ');
+        if (t2 >= 10) lcd.write(' ');
+        if (t2 >= 100) lcd.write(' ');
+      }
+      else
+    #endif // !HEATER_IDLE_HANDLER
+        lcd.print(i16tostr3rj(t2));
+
+    switch (heater_id) {
+      case H_BED: pic_hot_bits = ICON_BED;   break;
+      case H_E0:  pic_hot_bits = ICON_TEMP1; break;
+      case H_E1:  pic_hot_bits = ICON_TEMP2; break;
+      case H_E2:  pic_hot_bits = ICON_TEMP3;
+      default:    break;
+    }
+
+    if (t2) picBits |= pic_hot_bits;
+    else    picBits &= ~pic_hot_bits;
+
+    if (t1 > 50)  hotBits |= pic_hot_bits;
+    else          hotBits &= ~pic_hot_bits;
+
+    if (hotBits)  picBits |= ICON_HOT;
+    else          picBits &= ~ICON_HOT;
   }
 
-  if (t2) picBits |= pic_hot_bits;
-  else    picBits &= ~pic_hot_bits;
+#endif // HAS_HOTEND || HAS_HEATED_BED
 
-  if (t1 > 50)  hotBits |= pic_hot_bits;
-  else          hotBits &= ~pic_hot_bits;
+#if HAS_COOLER
 
-  if (hotBits)  picBits |= ICON_HOT;
-  else          picBits &= ~ICON_HOT;
-}
+  FORCE_INLINE void _draw_cooler_status(const bool blink) {
+    const celsius_t t2 = thermalManager.degTargetCooler();
+
+    lcd.setCursor(0, 5); lcd_put_u8str(F("COOL"));
+    lcd.setCursor(1, 6); lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
+    lcd.setCursor(1, 7);
+
+    #if !HEATER_IDLE_HANDLER
+      UNUSED(blink);
+    #else
+      if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
+        lcd_put_wchar(' ');
+        if (t2 >= 10) lcd_put_wchar(' ');
+        if (t2 >= 100) lcd_put_wchar(' ');
+      }
+      else
+    #endif
+        lcd_put_u8str(i16tostr3left(t2));
+
+    lcd_put_wchar(' ');
+    if (t2 < 10) lcd_put_wchar(' ');
+
+    if (t2) picBits |= ICON_TEMP1;
+    else    picBits &= ~ICON_TEMP1;
+  }
+
+#endif // HAS_COOLER
+
+#if ENABLED(LASER_COOLANT_FLOW_METER)
+
+  FORCE_INLINE void _draw_flowmeter_status() {
+    lcd.setCursor(5, 5); lcd_put_u8str(F("FLOW"));
+    lcd.setCursor(7, 6); lcd_put_wchar('L');
+    lcd.setCursor(6, 7); lcd_put_u8str(ftostr11ns(cooler.flowrate));
+
+    if (cooler.flowrate)  picBits |= ICON_FAN;
+    else                  picBits &= ~ICON_FAN;
+  }
+
+#endif
+
+#if ENABLED(I2C_AMMETER)
+
+  FORCE_INLINE void _draw_ammeter_status() {
+    lcd.setCursor(10, 5); lcd_put_u8str(F("ILAZ"));
+    ammeter.read();
+    lcd.setCursor(11, 6);
+    if (ammeter.current <= 0.999f)
+    {
+      lcd_put_u8str("mA");
+      lcd.setCursor(10, 7);
+      lcd_put_wchar(' '); lcd_put_u8str(ui16tostr3rj(uint16_t(ammeter.current * 1000 + 0.5f)));
+    }
+    else {
+      lcd_put_u8str(" A");
+      lcd.setCursor(10, 7);
+      lcd_put_u8str(ftostr12ns(ammeter.current));
+    }
+
+    if (ammeter.current)  picBits |= ICON_BED;
+    else                  picBits &= ~ICON_BED;
+  }
+
+#endif // I2C_AMMETER
+
+#if HAS_CUTTER
+
+  FORCE_INLINE void _draw_cutter_status() {
+    lcd.setCursor(15, 5);  lcd_put_u8str(F("CUTT"));
+    #if CUTTER_UNIT_IS(RPM)
+      lcd.setCursor(16, 6);  lcd_put_u8str(F("RPM"));
+      lcd.setCursor(15, 7);  lcd_put_u8str(ftostr31ns(float(cutter.unitPower) / 1000));
+      lcd_put_wchar('K');
+    #elif CUTTER_UNIT_IS(PERCENT)
+      lcd.setCursor(17, 6);  lcd_put_wchar('%');
+      lcd.setCursor(18, 7);  lcd_put_u8str(cutter_power2str(cutter.unitPower));
+    #else
+      lcd.setCursor(17, 7);  lcd_put_u8str(cutter_power2str(cutter.unitPower));
+    #endif
+
+    if (cutter.unitPower) picBits |= ICON_HOT;
+    else                  picBits &= ~ICON_HOT;
+  }
+
+#endif // HAS_CUTTER
 
 #if HAS_PRINT_PROGRESS
 
@@ -503,14 +604,14 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
     if (!PanelDetected) return;
     const uint8_t progress = ui._get_progress();
     #if ENABLED(SDSUPPORT)
-      lcd_put_u8str_P(PSTR("SD"));
+      lcd_put_u8str(F("SD"));
     #elif ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      lcd_put_u8str_P(PSTR("P:"));
+      lcd_put_u8str(F("P:"));
     #endif
     if (progress)
       lcd.print(ui8tostr3rj(progress));
     else
-      lcd_put_u8str_P(PSTR("---"));
+      lcd_put_u8str(F("---"));
     lcd.write('%');
   }
 
@@ -533,7 +634,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
     }
   }
 
-#endif
+#endif // LCD_PROGRESS_BAR
 
 void MarlinUI::draw_status_message(const bool blink) {
   if (!PanelDetected) return;
@@ -542,9 +643,9 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     // Alternate Status message and Filament display
     if (ELAPSED(millis(), next_filament_display)) {
-      lcd_put_u8str_P(PSTR("Dia "));
+      lcd_put_u8str(F("Dia "));
       lcd.print(ftostr12ns(filament_width_meas));
-      lcd_put_u8str_P(PSTR(" V"));
+      lcd_put_u8str(F(" V"));
       lcd.print(i16tostr3rj(100.0 * (
           parser.volumetric_enabled
             ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
@@ -629,7 +730,7 @@ Equal to 20x10 text LCD
 |                    |
 |  HE  BED  FAN      |
 | ttc  ttc   %       | ttc - current temperature
-| tts  tts  %%%      | tts - setted temperature, %%% - percent for FAN
+| tts  tts  %%%      | tts - set temperature, %%% - percent for FAN
 | ICO  ICO  ICO  ICO | ICO - icon 48x48, placed in 2 text lines
 | ICO  ICO  ICO  ICO | ICO
 
@@ -645,6 +746,19 @@ or
 |tts tts tts  tts %%%|
 |ICO ICO ICO  ICO ICO|
 |ICO ICO ICO  ICO ICO|
+
+or
+
+|X 000 Y 000 Z 000.00|
+|FR100% SD100% C--:--|
+| Progress bar line  |
+|Status message      |
+|                    |
+|COOL FLOW ILAZ CUTT |
+| ttc   L   mA   RPM |
+| tts  f.f  aaa rr.rK|
+| ICO  ICO  ICO  ICO |
+| ICO  ICO  ICO  ICO |
 
 or
 
@@ -674,9 +788,10 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 0);
-  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position.x)), blink); lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position.y)), blink); lcd.write(' ');
-  _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+  const xyz_pos_t lpos = current_position.asLogical();
+  _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink); lcd.write(' ');
+  _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink); lcd.write(' ');
+  _draw_axis_value(Z_AXIS, ftostr52sp(lpos.z), blink);
 
   #if HAS_LEVELING && !HAS_HEATED_BED
     lcd.write(planner.leveling_active || blink ? '_' : ' ');
@@ -687,7 +802,7 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 1);
-  lcd_put_u8str_P(PSTR("FR")); lcd.print(i16tostr3rj(feedrate_percentage)); lcd.write('%');
+  lcd_put_u8str(F("FR")); lcd.print(i16tostr3rj(feedrate_percentage)); lcd.write('%');
 
   #if BOTH(SDSUPPORT, HAS_PRINT_PROGRESS)
     lcd.setCursor(LCD_WIDTH / 2 - 3, 1);
@@ -745,50 +860,61 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   //
-  // Line 6..8 Temperatures, FAN
+  // Line 6..8 Temperatures, FAN for printer or Cooler, Flowmetter, Ampermeter, Cutter for laser/spindle
   //
 
-  #if HOTENDS < 2
-    _draw_heater_status(H_E0, "HE", blink);    // Hotend Temperature
-  #else
-    _draw_heater_status(H_E0, "HE1", blink);   // Hotend 1 Temperature
-    _draw_heater_status(H_E1, "HE2", blink);   // Hotend 2 Temperature
-    #if HOTENDS > 2
-      _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
-    #endif
-  #endif
-
-  #if HAS_HEATED_BED
-    #if HAS_LEVELING
-      _draw_heater_status(H_BED, (planner.leveling_active && blink ? "___" : "BED"), blink);
-    #else
-      _draw_heater_status(H_BED, "BED", blink);
-    #endif
-  #endif
-
-  #if HAS_FAN
-    uint16_t spd = thermalManager.fan_speed[0];
-    #if ENABLED(ADAPTIVE_FAN_SLOWING)
-      if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
-    #endif
-    uint16_t per = thermalManager.pwmToPercent(spd);
+  #if HAS_HOTEND
 
     #if HOTENDS < 2
-      #define FANX 11
+      _draw_heater_status(H_E0, "HE", blink);    // Hotend Temperature
     #else
-      #define FANX 17
+      _draw_heater_status(H_E0, "HE1", blink);   // Hotend 1 Temperature
+      _draw_heater_status(H_E1, "HE2", blink);   // Hotend 2 Temperature
+      #if HOTENDS > 2
+        _draw_heater_status(H_E2, "HE3", blink); // Hotend 3 Temperature
+      #endif
     #endif
-    lcd.setCursor(FANX, 5); lcd_put_u8str_P(PSTR("FAN"));
-    lcd.setCursor(FANX + 1, 6); lcd.write('%');
-    lcd.setCursor(FANX, 7);
-    lcd.print(i16tostr3rj(per));
 
-    if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
-      picBits |= ICON_FAN;
-    else
-      picBits &= ~ICON_FAN;
+    #if HAS_HEATED_BED
+      #if HAS_LEVELING
+        _draw_heater_status(H_BED, (planner.leveling_active && blink ? "___" : "BED"), blink);
+      #else
+        _draw_heater_status(H_BED, "BED", blink);
+      #endif
+    #endif
 
-  #endif // HAS_FAN
+    #if HAS_FAN
+      uint16_t spd = thermalManager.fan_speed[0];
+      #if ENABLED(ADAPTIVE_FAN_SLOWING)
+        if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
+      #endif
+      uint16_t per = thermalManager.pwmToPercent(spd);
+
+      #if HOTENDS < 2
+        #define FANX 11
+      #else
+        #define FANX 17
+      #endif
+      lcd.setCursor(FANX, 5); lcd_put_u8str(F("FAN"));
+      lcd.setCursor(FANX + 1, 6); lcd.write('%');
+      lcd.setCursor(FANX, 7);
+      lcd.print(i16tostr3rj(per));
+
+      if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
+        picBits |= ICON_FAN;
+      else
+        picBits &= ~ICON_FAN;
+
+    #endif // HAS_FAN
+
+  #else
+
+    TERN_(HAS_COOLER, _draw_cooler_status(blink));
+    TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
+    TERN_(I2C_AMMETER, _draw_ammeter_status());
+    TERN_(HAS_CUTTER, _draw_cutter_status());
+
+  #endif
 
   //
   // Line 9, 10 - icons
@@ -805,7 +931,7 @@ void MarlinUI::draw_status_screen() {
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (!PanelDetected) return;
       lcd.setCursor((LCD_WIDTH - 14) / 2, row + 1);
-      lcd.write(LCD_STR_THERMOMETER[0]); lcd_put_u8str_P(PSTR(" E")); lcd.write('1' + extruder); lcd.write(' ');
+      lcd.write(LCD_STR_THERMOMETER[0]); lcd_put_u8str(F(" E")); lcd.write('1' + extruder); lcd.write(' ');
       lcd.print(i16tostr3rj(thermalManager.wholeDegHotend(extruder))); lcd.write(LCD_STR_DEGREE[0]); lcd.write('/');
       lcd.print(i16tostr3rj(thermalManager.degTargetHotend(extruder))); lcd.write(LCD_STR_DEGREE[0]);
       lcd.print_line();
@@ -938,18 +1064,18 @@ void MarlinUI::draw_status_screen() {
       *fb++ = ',';  lcd.print(i16tostr3left(y_plot)); *fb = ')';
 
       // Show all values
-      lcd.setCursor(_LCD_W_POS, 1); lcd_put_u8str_P(PSTR("X:"));
+      lcd.setCursor(_LCD_W_POS, 1); lcd_put_u8str(F("X:"));
       lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
-      lcd.setCursor(_LCD_W_POS, 2); lcd_put_u8str_P(PSTR("Y:"));
+      lcd.setCursor(_LCD_W_POS, 2); lcd_put_u8str(F("Y:"));
       lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
 
       // Show the location value
-      lcd.setCursor(_LCD_W_POS, 3); lcd_put_u8str_P(PSTR("Z:"));
+      lcd.setCursor(_LCD_W_POS, 3); lcd_put_u8str(F("Z:"));
 
       if (!isnan(ubl.z_values[x_plot][y_plot]))
         lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
       else
-        lcd_put_u8str_P(PSTR(" -----"));
+        lcd_put_u8str(F(" -----"));
 
       center_text_P(GET_TEXT(MSG_UBL_FINE_TUNE_MESH), 8);
 

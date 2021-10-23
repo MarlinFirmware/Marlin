@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR E3 Turbo pin assignments
+ */
+
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -129,23 +133,20 @@
    * If undefined software serial is used according to the pins below
    */
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                  P1_01
-  #define X_SERIAL_RX_PIN                  P1_01
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                  P1_10
-  #define Y_SERIAL_RX_PIN                  P1_10
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                  P1_17
-  #define Z_SERIAL_RX_PIN                  P1_17
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                 P0_05
-  #define E0_SERIAL_RX_PIN                 P0_05
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                 P0_22
-  #define E1_SERIAL_RX_PIN                 P0_22
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -165,8 +166,8 @@
 //
 #define TEMP_0_PIN                         P0_24
 #define TEMP_1_PIN                         P0_23
-//#define TEMP_2_PIN                       P1_30  // Onboard thermistor
 #define TEMP_BED_PIN                       P0_25
+#define TEMP_BOARD_PIN                     P1_30  // Onboard thermistor, NTC100K
 
 //
 // Heaters / Fans
@@ -182,16 +183,15 @@
 #endif
 
 /**
- *                  _____
- *              5V | 1 2 | GND
- *  (LCD_EN) P0_18 | 3 4 | P0_17 (LCD_RS)
- *  (LCD_D4) P0_15 | 5 6   P0_20 (BTN_EN2)
- *           RESET | 7 8 | P0_19 (BTN_EN1)
- * (BTN_ENC) P0_16 | 9 10| P2_08 (BEEPER)
- *                  -----
+ *                  ------
+ *              5V | 1  2 | GND
+ *  (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)
+ *  (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
+ *           RESET | 7  8 | P0_19 (BTN_EN1)
+ * (BTN_ENC) P0_16 | 9 10 | P2_08 (BEEPER)
+ *                  ------
  *                   EXP
  */
-
 #define EXP1_03_PIN                        P0_18
 #define EXP1_04_PIN                        P0_17
 #define EXP1_05_PIN                        P0_15
@@ -201,7 +201,26 @@
 #define EXP1_09_PIN                        P0_16
 #define EXP1_10_PIN                        P2_08
 
-#if HAS_WIRED_LCD
+#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+  #error "Ender-3 V2 display requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
+
+ /**
+  *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo
+  *                ------                                     ------                                  RX  8 -->  5  P0_15
+  *            5V | 1  2 | GND                            5V | 1  2 | GND                             TX  7 -->  9  P0_16
+  *   (BTN_E1)  A | 3  4 | B   (BTN_E2)       (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)              BEEPER  5 --> 10  P2_08
+  *        BEEPER | 5  6   ENT (BTN_ENC)      (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
+  *  (SKR_RX1) TX | 7  8 | RX  (SKR_TX1)               Reset | 7  8 | P0_19 (BTN_EN1)
+  *            NC | 9 10 | NC                (BTN_ENC) P0_16 | 9 10 | P2_08 (BEEPER)
+  *                ------                                     ------
+  */
+
+  #define BEEPER_PIN                 EXP1_10_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_04_PIN
+  #define BTN_ENC                    EXP1_06_PIN
+
+#elif HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 

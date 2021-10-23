@@ -194,7 +194,7 @@ constexpr uint16_t VP_MARLIN_VERSION = 0x2222;
 constexpr uint8_t VP_MARLIN_VERSION_LEN = 32;
 
 constexpr uint16_t VP_MARLIN_WEBSITE = 0x2242;
-constexpr uint8_t VP_MARLIN_WEBSITE_LEN = 32;  
+constexpr uint8_t VP_MARLIN_WEBSITE_LEN = 32;
 
 constexpr uint16_t VP_STANDBY_BACKLIGHT_ICON = 0x2280;
 constexpr uint16_t VP_STANDBY_BACKLIGHT_TOGGLE = 0x2282;
@@ -217,10 +217,10 @@ constexpr uint16_t VP_PREHEAT_ABS_BED_TEMP = 0x110a;
 // Place for status messages.
 
 // ... We have memory space for scrolling messages
-constexpr uint16_t VP_M117 = 0x3000 + (3 * 1);  // Text Variable Pointer. First three VP must be reserved [a VP is two bytes red.]. Text is saved after the 3rd VP and ended with 0x00 or 0x0F. 
+constexpr uint16_t VP_M117 = 0x3000 + (3 * 1);  // Text Variable Pointer. First three VP must be reserved [a VP is two bytes red.]. Text is saved after the 3rd VP and ended with 0x00 or 0x0F.
 constexpr uint8_t VP_M117_LEN = 100;
 
-// ... And memory space for static (short) messages. Note this VPAddr is also the VP of the 5 beta and alpha 4 touch screens. 
+// ... And memory space for static (short) messages. Note this VPAddr is also the VP of the 5 beta and alpha 4 touch screens.
 constexpr uint8_t M117_STATIC_DISPLAY_LEN = 28; // Fits "TFT flashed incorrectly v0" exactly
 constexpr uint16_t VP_M117_STATIC = 0x21B3;
 constexpr uint8_t VP_M117_STATIC_LEN = 70;
@@ -335,15 +335,15 @@ constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_BUTTON = 0x22EB; // 2-by
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCSTEALTHCHOP_ICON = 0x22ED; // 2-byte
 constexpr uint16_t VP_AXIS_SETTINGS_AXIS_TMCHYBRIDTHRESHOLD = 0x22EF; // 4-byte (!)
 
-constexpr uint16_t VP_AXIS_TUNING_NAV_BUTTON = 0x22F5; 
-constexpr uint16_t VP_AXIS_TMC_NAV_BUTTON = 0x22F7; 
+constexpr uint16_t VP_AXIS_TUNING_NAV_BUTTON = 0x22F5;
+constexpr uint16_t VP_AXIS_TMC_NAV_BUTTON = 0x22F7;
 
 constexpr uint16_t VP_AXIS_TMC_NAV_ICON = 0x22F3; // 2-byte
 constexpr uint16_t AXIS_TMC_NAV_ICON_SHOWING = 10;
 constexpr uint16_t AXIS_TMC_NAV_ICON_HIDING = 11;
 
 // ... Advanced movement settings
-constexpr uint16_t VP_MOV_NAV_BUTTON = 0x2305; 
+constexpr uint16_t VP_MOV_NAV_BUTTON = 0x2305;
 
 constexpr uint16_t VP_MOV_MINIMUM_SEGMENT_TIME = 0x22F9; // uint 2-byte
 constexpr uint16_t VP_MOV_MINIMUM_FEEDRATE = 0x22FB; // float 2-byte
@@ -355,7 +355,7 @@ constexpr uint16_t VP_MOV_MINIMUM_TRAVEL_ACCELERATION = 0x2303; // float 2-byte
 constexpr uint16_t VP_MOV_RETRACT_ACCELERATION = 0x2307; // float 4-byte
 
 // Misc settings
-constexpr uint16_t VP_MISCSETTINGS_NAV_BUTTON = 0x2311; 
+constexpr uint16_t VP_MISCSETTINGS_NAV_BUTTON = 0x2311;
 
 constexpr uint16_t VP_FILAMENTRUNOUT_SENSOR_TOGGLE_BUTTON = 0x2309;
 constexpr uint16_t VP_FILAMENTRUNOUT_SENSOR_TOGGLE_ICON = 0x230b;

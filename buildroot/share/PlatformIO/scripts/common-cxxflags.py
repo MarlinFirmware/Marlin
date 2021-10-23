@@ -27,7 +27,7 @@ def add_cpu_freq():
 if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink']:
 	env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
 env_name = str(env["PIOENV"])
-env.Replace(PROGNAME="%s_DW7.4" % (env_name))
+env.Replace(PROGNAME="%s_DW7.4.3" % (env_name))
 print("Environment: %s" % (env_name))
 
 # On some platform, F_CPU is a runtime variable. Since it's used to convert from ns

@@ -163,7 +163,7 @@ float g26_random_deviation = 0.0;
    */
   bool user_canceled() {
     if (!ui.button_pressed()) return false; // Return if the button isn't pressed
-    ui.set_status_P(GET_TEXT(MSG_G26_CANCELED), 99);
+    ui.set_status(GET_TEXT_F(MSG_G26_CANCELED), 99);
     TERN_(HAS_LCD_MENU, ui.quick_feedback());
     ui.wait_for_release();
     return true;
@@ -291,7 +291,7 @@ typedef struct {
     if (p2.x < 0 || p2.x >= (GRID_MAX_POINTS_X)) return;
     if (p2.y < 0 || p2.y >= (GRID_MAX_POINTS_Y)) return;
 
-    if(circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
+    if (circle_flags.marked(p1.x, p1.y) && circle_flags.marked(p2.x, p2.y)) {
       xyz_pos_t s, e;
       s.x = _GET_MESH_X(p1.x) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
       e.x = _GET_MESH_X(p2.x) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)) * dx;
@@ -323,7 +323,7 @@ typedef struct {
 
       if (bed_temp > 25) {
         #if HAS_WIRED_LCD
-          ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
+          ui.set_status(GET_TEXT_F(MSG_G26_HEATING_BED), 99);
           ui.quick_feedback();
           TERN_(HAS_LCD_MENU, ui.capture());
         #endif
@@ -342,7 +342,7 @@ typedef struct {
 
     // Start heating the active nozzle
     #if HAS_WIRED_LCD
-      ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
+      ui.set_status(GET_TEXT_F(MSG_G26_HEATING_NOZZLE), 99);
       ui.quick_feedback();
     #endif
     thermalManager.setTargetHotend(hotend_temp, active_extruder);
@@ -372,7 +372,7 @@ typedef struct {
 
       if (prime_flag == -1) {  // The user wants to control how much filament gets purged
         ui.capture();
-        ui.set_status_P(GET_TEXT(MSG_G26_MANUAL_PRIME), 99);
+        ui.set_status(GET_TEXT_F(MSG_G26_MANUAL_PRIME), 99);
         ui.chirp();
 
         destination = current_position;
@@ -399,7 +399,7 @@ typedef struct {
 
         ui.wait_for_release();
 
-        ui.set_status_P(GET_TEXT(MSG_G26_PRIME_DONE), 99);
+        ui.set_status(GET_TEXT_F(MSG_G26_PRIME_DONE), 99);
         ui.quick_feedback();
         ui.release();
       }
@@ -407,7 +407,7 @@ typedef struct {
     #endif
     {
       #if HAS_WIRED_LCD
-        ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
+        ui.set_status(GET_TEXT_F(MSG_G26_FIXED_LENGTH), 99);
         ui.quick_feedback();
       #endif
       destination = current_position;
@@ -539,7 +539,7 @@ void GcodeSuite::G26() {
 
     if (bedtemp) {
       if (!WITHIN(bedtemp, 40, BED_MAX_TARGET)) {
-        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", BED_MAX_TARGET, "C).");
+        SERIAL_ECHOLNPGM("?Specified bed temperature not plausible (40-", BED_MAX_TARGET, "C).");
         return;
       }
       g26.bed_temp = bedtemp;
@@ -854,7 +854,7 @@ void GcodeSuite::G26() {
   } while (--g26_repeats && location.valid());
 
   LEAVE:
-  ui.set_status_P(GET_TEXT(MSG_G26_LEAVING), -1);
+  ui.set_status(GET_TEXT_F(MSG_G26_LEAVING), -1);
   TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location, ExtUI::G26_FINISH));
 
   g26.retract_filament(destination);

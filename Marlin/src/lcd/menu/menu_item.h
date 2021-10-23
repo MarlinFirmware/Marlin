@@ -23,7 +23,7 @@
 
 #include "menu.h"
 #include "../marlinui.h"
-#include "../../gcode/queue.h" // for inject_P
+#include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -39,7 +39,7 @@ class MenuItem_submenu : public MenuItemBase {
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
       _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
     }
-    static inline void action(PGM_P const, const screenFunc_t func) { ui.save_previous_screen(); ui.goto_screen(func); }
+    static inline void action(PGM_P const, const screenFunc_t func) { ui.push_current_screen(); ui.goto_screen(func); }
 };
 
 // Any menu item that invokes an immediate action
@@ -64,8 +64,8 @@ class MenuItem_gcode : public MenuItem_button {
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
       _draw(sel, row, pstr, '>', ' ');
     }
-    static void action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
-    static inline void action(PGM_P const pstr, const uint8_t, const char * const pgcode) { action(pstr, pgcode); }
+    static void action(PGM_P const, PGM_P const pgcode) { queue.inject(FPSTR(pgcode)); }
+    static inline void action(PGM_P const pstr, const uint8_t, PGM_P const pgcode) { action(pstr, pgcode); }
 };
 
 ////////////////////////////////////////////
@@ -106,9 +106,23 @@ class TMenuEditItem : MenuEditItemBase {
     }
 };
 
-// Provide a set of Edit Item Types which encompass a primitive
-// type, a string function, and a scale factor for edit and display.
-// These items call the Edit Item draw method passing the prepared string.
+/**
+ * DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
+ *
+ * Define struct types for use by EDIT_ITEM(...) macros, which encompass
+ * a primitive storage type, a string function, and a scale factor for edit / display.
+ * The EDIT_ITEM macros take care of calling action and draw methods as needed.
+ *
+ * For example, DEFINE_MENU_EDIT_ITEM_TYPE(percent, uint8_t, ui8tostr4pctrj, 100.f/255.f, +0.5f) expands into:
+ *
+ *   struct MenuEditItemInfo_percent {
+ *     typedef uint8_t type_t;
+ *     static inline float scale(const_float_t value)   { return value * (100.f/255.f) +0.5f; }
+ *     static inline float unscale(const_float_t value) { return value / (100.f/255.f) +0.5f; }
+ *     static inline const char* strfunc(const_float_t value) { return ui8tostr4pctrj(_DOFIX(uint8_t,value)); }
+ *   };
+ *   typedef TMenuEditItem<MenuEditItemInfo_percent> MenuItem_percent
+ */
 #define __DOFIXfloat PROBE()
 #define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
 #define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
@@ -406,7 +420,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define _CONFIRM_ITEM_INNER_P(PLABEL, V...) do {             \
   if (encoderLine == _thisItemNr && ui.use_click()) {        \
-    ui.save_previous_screen();                               \
+    ui.push_current_screen();                                \
     ui.goto_screen([]{MenuItem_confirm::select_screen(V);}); \
     return;                                                  \
   }                                                          \
@@ -434,23 +448,23 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 // Indexed items set a global index value
-#define _CONFIRM_ITEM_N_P(N, V...) _CONFIRM_ITEM_N_S_P(N, nullptr, V)
+#define _CONFIRM_ITEM_N_P(N, V...)              _CONFIRM_ITEM_N_S_P(N, nullptr, V)
 
-#define CONFIRM_ITEM_P(PLABEL,A,B,V...) _CONFIRM_ITEM_P(PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM(LABEL, V...)        CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
+#define CONFIRM_ITEM_P(PLABEL,A,B,V...)         _CONFIRM_ITEM_P(PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
+#define CONFIRM_ITEM(LABEL, V...)                CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
 
-#define YESNO_ITEM_P(PLABEL, V...)      _CONFIRM_ITEM_P(PLABEL, ##V)
-#define YESNO_ITEM(LABEL, V...)            YESNO_ITEM_P(GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_P(PLABEL, V...)               CONFIRM_ITEM_P(PLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM(LABEL, V...)                    YESNO_ITEM_P(GET_TEXT(LABEL), ##V)
 
 #define CONFIRM_ITEM_N_S_P(N,S,PLABEL,A,B,V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
 #define CONFIRM_ITEM_N_S(N,S,LABEL,V...)         CONFIRM_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
 #define CONFIRM_ITEM_N_P(N,PLABEL,A,B,V...)       _CONFIRM_ITEM_N_P(N, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
 #define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
 
-#define YESNO_ITEM_N_S_P(N,S,PLABEL, V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, ##V)
-#define YESNO_ITEM_N_S(N,S,LABEL, V...)       YESNO_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
-#define YESNO_ITEM_N_P(N,PLABEL, V...)       _CONFIRM_ITEM_N_P(N, PLABEL, ##V)
-#define YESNO_ITEM_N(N,LABEL, V...)             YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_N_S_P(N,S,PLABEL, V...)      _CONFIRM_ITEM_N_S_P(N, S, PLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N_S(N,S,LABEL, V...)            YESNO_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_N_P(N,PLABEL, V...)             CONFIRM_ITEM_N_P(N, PLABEL, MSG_YES, MSG_NO, ##V)
+#define YESNO_ITEM_N(N,LABEL, V...)                  YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
 
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();

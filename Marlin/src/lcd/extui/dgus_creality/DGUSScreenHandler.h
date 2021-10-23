@@ -69,9 +69,15 @@ public:
 
   static void RequestSaveSettings();
 
-  /// Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
-  /// The bools specifing whether the strings are in RAM or FLASH.
-  static void sendinfoscreen(const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
+  // Send all 4 strings that are displayed on the infoscreen, confirmation screen and kill screen
+  // The bools specifying whether the strings are in RAM or FLASH.
+  static void sendinfoscreen(const char *line1, const char *line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
+  static inline void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, const char *line3, const char *line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
+    sendinfoscreen(FTOP(line1), FTOP(line2), line3, line4, l1inflash, l2inflash, l3inflash, liinflash);
+  }
+  static inline void sendinfoscreen(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, FSTR_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash) {
+    sendinfoscreen(FTOP(line1), FTOP(line2), FTOP(line3), FTOP(line4), l1inflash, l2inflash, l3inflash, liinflash);
+  }
 
   static void HandleUserConfirmationPopUp(uint16_t ConfirmVP, const char* line1, const char* line2, const char* line3, const char* line4, bool l1inflash, bool l2inflash, bool l3inflash, bool liinflash);
 
@@ -336,7 +342,7 @@ public:
   // Toggle a boolean at the specified memory address
   static void DGUSLCD_ToggleBoolean(DGUS_VP_Variable &var, void *val_ptr) {
     if (var.memadr) {
-      SERIAL_ECHOLNPAIR("Toggle boolean - ", var.VP);
+      SERIAL_ECHOLNPGM("Toggle boolean - ", var.VP);
 
       bool* val = (bool *)var.memadr;
       *val = !*val;

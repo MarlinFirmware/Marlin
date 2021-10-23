@@ -64,13 +64,13 @@ typedef struct {
     Repeat stored_repeat;
   #endif
 
-  #if ENABLED(HAS_HOME_OFFSET)
+  #if HAS_HOME_OFFSET
     xyz_pos_t home_offset;
   #endif
-  #if ENABLED(HAS_POSITION_SHIFT)
+  #if HAS_POSITION_SHIFT
     xyz_pos_t position_shift;
   #endif
-  #if ENABLED(HAS_MULTI_EXTRUDER)
+  #if HAS_MULTI_EXTRUDER
     uint8_t active_extruder;
   #endif
 
@@ -78,13 +78,13 @@ typedef struct {
     float filament_size[EXTRUDERS];
   #endif
 
-  #if ENABLED(HAS_HOTEND)
+  #if HAS_HOTEND
     celsius_t target_temperature[HOTENDS];
   #endif
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     celsius_t target_temperature_bed;
   #endif
-  #if ENABLED(HAS_FAN)
+  #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
 
@@ -145,7 +145,7 @@ class PrintJobRecovery {
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
 
-    #if ENABLED(DWIN_CREALITY_LCD)
+    #if HAS_DWIN_E3V2_BASIC
       static bool dwin_flag;
     #endif
 
@@ -204,9 +204,9 @@ class PrintJobRecovery {
     static inline bool valid() { return info.valid() && interrupted_file_exists(); }
 
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      static void debug(PGM_P const prefix);
+      static void debug(FSTR_P const prefix);
     #else
-      static inline void debug(PGM_P const) {}
+      static inline void debug(FSTR_P const) {}
     #endif
 
   private:

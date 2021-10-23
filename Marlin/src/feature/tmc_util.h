@@ -300,7 +300,7 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
 template<typename TMC>
 void tmc_print_current(TMC &st) {
   st.printLabel();
-  SERIAL_ECHOLNPAIR(" driver current: ", st.getMilliamps());
+  SERIAL_ECHOLNPGM(" driver current: ", st.getMilliamps());
 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -322,7 +322,7 @@ void tmc_print_current(TMC &st) {
   template<typename TMC>
   void tmc_print_pwmthrs(TMC &st) {
     st.printLabel();
-    SERIAL_ECHOLNPAIR(" stealthChop max speed: ", st.get_pwm_thrs());
+    SERIAL_ECHOLNPGM(" stealthChop max speed: ", st.get_pwm_thrs());
   }
 #endif
 #if USE_SENSORLESS
@@ -330,7 +330,7 @@ void tmc_print_current(TMC &st) {
   void tmc_print_sgt(TMC &st) {
     st.printLabel();
     SERIAL_ECHOPGM(" homing sensitivity: ");
-    SERIAL_PRINTLN(st.homing_threshold(), DEC);
+    SERIAL_PRINTLN(st.homing_threshold(), PrintBase::Dec);
   }
 #endif
 
@@ -360,13 +360,6 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     extern millis_t sg_guard_period;
     constexpr uint16_t default_sg_guard_duration = 400;
-
-    struct slow_homing_t {
-      xy_ulong_t acceleration;
-      #if ENABLED(HAS_CLASSIC_JERK)
-        xy_float_t jerk_xy;
-      #endif
-    };
   #endif
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);

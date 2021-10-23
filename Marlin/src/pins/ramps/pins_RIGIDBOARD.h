@@ -30,6 +30,18 @@
 #endif
 
 //
+// Steppers
+// RigidBot swaps E0 / E1 plugs vs RAMPS 1.3
+//
+#define E0_STEP_PIN                           36
+#define E0_DIR_PIN                            34
+#define E0_ENABLE_PIN                         30
+
+#define E1_STEP_PIN                           26
+#define E1_DIR_PIN                            28
+#define E1_ENABLE_PIN                         24
+
+//
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
@@ -45,24 +57,6 @@
 
 #include "pins_RAMPS.h"
 
-//
-// Steppers
-//
-// RigidBot swaps E0 / E1 plugs vs RAMPS 1.3
-#undef E0_STEP_PIN
-#undef E0_DIR_PIN
-#undef E0_ENABLE_PIN
-#define E0_STEP_PIN                           36
-#define E0_DIR_PIN                            34
-#define E0_ENABLE_PIN                         30
-
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-#define E1_STEP_PIN                           26
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         24
-
 #define STEPPER_RESET_PIN                     41  // Stepper drivers have a reset on RigidBot
 
 //
@@ -75,12 +69,12 @@
 #define TEMP_1_PIN                            13  // Analog Input
 #define TEMP_BED_PIN                          15  // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
-#undef MAX6675_SS_PIN
+// SPI for MAX Thermocouple
+#undef TEMP_0_CS_PIN
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      53  // Don't use pin 53 if there is even the remote possibility of using Display/SD card
+  #define TEMP_0_CS_PIN                       53  // Don't use pin 53 if there is even the remote possibility of using Display/SD card
 #else
-  #define MAX6675_SS_PIN                      49  // Don't use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+  #define TEMP_0_CS_PIN                       49  // Don't use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
 //

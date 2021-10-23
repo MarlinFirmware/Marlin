@@ -47,7 +47,7 @@ namespace ExtUI {
 #define	FileNum	MaxFileNumber
 #define	FileNameLen	TEXTBYTELEN
 
-#define SizeofDatabuf		26
+#define SizeofDatabuf		46
 
 /*************Register and Variable addr*****************/
 #define	RegAddr_W	0x80

@@ -53,14 +53,14 @@ namespace ExtUI {
 
   void onIdle() { ScreenHandler.loop(); }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, GET_TEXT(MSG_PLEASE_RESET), GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
+    ScreenHandler.sendinfoscreen(GET_TEXT_F(MSG_HALTED), error, GET_TEXT_F(MSG_PLEASE_RESET), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
 
-    if (strcmp_P(error, GET_TEXT(MSG_ERR_MAXTEMP)) == 0 || strcmp_P(error, GET_TEXT(MSG_THERMAL_RUNAWAY)) == 0)     {
+    if (error == GET_TEXT_F(MSG_ERR_MAXTEMP) || error == GET_TEXT_F(MSG_THERMAL_RUNAWAY))     {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_THERMAL_RUNAWAY);
-    } else if (strcmp_P(error, GET_TEXT(MSG_HEATING_FAILED_LCD)) == 0) {
+    } else if ( error == GET_TEXT_F(MSG_HEATING_FAILED_LCD)) {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_HEATING_FAILED);
-    }else if (strcmp_P(error, GET_TEXT(MSG_ERR_MINTEMP)) == 0) {
+    }else if (error == GET_TEXT_F(MSG_ERR_MINTEMP)) {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_THERMISTOR_ERROR);
     } else {
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
@@ -114,20 +114,23 @@ bool hasPrintTimer = false;
 
   void onFilamentRunout(const extruder_t extruder) {
     // Only navigate to filament runout screen when we don't use M600 for changing the filament - otherwise it gets confusing for the user
+    #ifndef FILAMENT_RUNOUT_SCRIPT
+      #define FILAMENT_RUNOUT_SCRIPT "M25"
+    #endif
     if (strcmp_P(FILAMENT_RUNOUT_SCRIPT, PSTR("M600")) != 0) {
       ScreenHandler.FilamentRunout();
     }
   }
 
   void onUserConfirmed() {
-    DEBUG_ECHOLN("User confirmation invoked");
-
+    SERIAL_ECHOLN("User confirmation invoked");
+    setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
     ExtUI::setUserConfirmed();
   }
 
   void onUserConfirmRequired(const char * const msg) {
-    if (msg) {
-      DEBUG_ECHOLNPAIR("User confirmation requested: ", msg);
+    //if (msg) {
+      SERIAL_ECHOLNPGM("User confirmation requested: ", msg);
 
       if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_FEED) {
         // We're in the feed (load filament) workflow - immediately assume confirmed
@@ -136,20 +139,20 @@ bool hasPrintTimer = false;
       }
 
       ScreenHandler.setstatusmessagePGM(msg);
-      ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, PSTR("Ok"), true, true, false, true);
+      ScreenHandler.sendinfoscreen("Confirmation required", msg, NUL_STR, "Ok", true, true, false, true);
 
       if (ExtUI::isPrinting()) {
         ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
       } else {
         ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
       }
-    }
-    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
-      DEBUG_ECHOLNPAIR("User confirmation canceled");
+    //}
+    //else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
+    //  DEBUG_ECHOLNPAIR("User confirmation canceled");
 
-      ScreenHandler.setstatusmessagePGM(nullptr);
-      ScreenHandler.PopToOldScreen();
-    }
+    //  ScreenHandler.setstatusmessagePGM(nullptr);
+    //  ScreenHandler.PopToOldScreen();
+    //}
   }
 
   void onStatusChanged(const char * const msg) { ScreenHandler.setstatusmessage(msg); }

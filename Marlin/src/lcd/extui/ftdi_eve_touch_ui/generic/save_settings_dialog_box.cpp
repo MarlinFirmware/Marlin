@@ -38,7 +38,7 @@ bool SaveSettingsDialogBox::onTouchEnd(uint8_t tag) {
   needs_save = false;
   switch (tag) {
     case 1:
-      injectCommands_P(PSTR("M500"));
+      injectCommands(F("M500"));
       AlertDialogBox::show(GET_TEXT_F(MSG_EEPROM_SAVED));
       // Remove SaveSettingsDialogBox from the stack
       // so the alert box doesn't return to me.
@@ -58,6 +58,10 @@ void SaveSettingsDialogBox::promptToSaveSettings() {
    }
    else
      GOTO_PREVIOUS(); // No save needed.
+}
+
+void SaveSettingsDialogBox::promptToSaveAndStay() {
+   if (needs_save) GOTO_SCREEN(SaveSettingsDialogBox);
 }
 
 #endif // FTDI_SAVE_SETTINGS_DIALOG_BOX

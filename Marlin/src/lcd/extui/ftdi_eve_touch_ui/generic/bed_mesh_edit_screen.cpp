@@ -136,7 +136,7 @@ void BedMeshEditScreen::drawHighlightedPointValue() {
   if (mydata.highlight.x != NONE)
     draw_adjuster(cmd, Z_VALUE_POS, 3, getHighlightedValue(), GET_TEXT_F(MSG_UNITS_MM), 4, 3);
   cmd.colors(mydata.needSave ? normal_btn : action_btn)
-     .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_BACK))
+     .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE))
      .colors(mydata.needSave ? action_btn : normal_btn)
      .enabled(mydata.needSave)
      .tag(2).button(SAVE_POS, GET_TEXT_F(MSG_TOUCHMI_SAVE));
@@ -174,11 +174,11 @@ bool BedMeshEditScreen::onTouchEnd(uint8_t tag) {
     case 1:
       // On Cancel, reload saved mesh, discarding changes
       GOTO_PREVIOUS();
-      injectCommands_P(PSTR("G29 L1"));
+      injectCommands(F("G29 L1"));
       return true;
     case 2:
       saveAdjustedHighlightedValue();
-      injectCommands_P(PSTR("G29 S1"));
+      injectCommands(F("G29 S1"));
       mydata.needSave = false;
       return true;
     case 3:
@@ -190,17 +190,11 @@ bool BedMeshEditScreen::onTouchEnd(uint8_t tag) {
 }
 
 void BedMeshEditScreen::show() {
-  // On entry, home if needed and save current mesh
-  if (!ExtUI::isMachineHomed()) {
-    SpinnerDialogBox::enqueueAndWait_P(F("G28\nG29 S1"));
-    // After the spinner, go to this screen.
-    current_screen.forget();
-    PUSH_SCREEN(BedMeshEditScreen);
-  }
-  else {
-    injectCommands_P(PSTR("G29 S1"));
-    GOTO_SCREEN(BedMeshEditScreen);
-  }
+  // On entry, always home (to account for possible Z offset changes) and save current mesh
+  SpinnerDialogBox::enqueueAndWait(F("G28\nG29 S1"));
+  // After the spinner, go to this screen.
+  current_screen.forget();
+  PUSH_SCREEN(BedMeshEditScreen);
 }
 
 #endif // FTDI_BED_MESH_EDIT_SCREEN

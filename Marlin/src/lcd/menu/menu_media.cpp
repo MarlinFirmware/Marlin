@@ -48,6 +48,7 @@ void lcd_sd_updir() {
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
     defer_status_screen();
+    TERN_(HAS_TOUCH_SLEEP, ui.wakeup_screen());
   }
 
 #endif
@@ -126,7 +127,7 @@ void menu_media_filelist() {
     #endif
   }
   else if (card.isMounted())
-    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER ".."), lcd_sd_updir);
+    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {

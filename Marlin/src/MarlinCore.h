@@ -23,10 +23,6 @@
 
 #include "inc/MarlinConfig.h"
 
-#ifdef DEBUG_GCODE_PARSER
-  #include "gcode/parser.h"
-#endif
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,16 +38,7 @@ inline void idle_no_sleep() { idle(true); }
   extern bool G38_did_trigger;      // Flag from the ISR to indicate the endstop changed
 #endif
 
-/**
- * The axis order in all axis related arrays is X, Y, Z, E
- */
-void enable_e_steppers();
-void enable_all_steppers();
-void disable_e_stepper(const uint8_t e);
-void disable_e_steppers();
-void disable_all_steppers();
-
-void kill(PGM_P const lcd_error=nullptr, PGM_P const lcd_component=nullptr, const bool steppers_off=false);
+void kill(FSTR_P const lcd_error=nullptr, FSTR_P const lcd_component=nullptr, const bool steppers_off=false);
 void minkill(const bool steppers_off=false);
 
 // Global State of the firmware
@@ -81,25 +68,10 @@ extern bool wait_for_heatup;
   void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
 #endif
 
-#if ENABLED(PSU_CONTROL)
-  extern bool powersupply_on;
-  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
-  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
-  #if ENABLED(AUTO_POWER_CONTROL)
-    #define PSU_ON()       powerManager.power_on()
-    #define PSU_OFF()      powerManager.power_off()
-    #define PSU_OFF_SOON() powerManager.power_off_soon()
-  #else
-    #define PSU_ON()     PSU_PIN_ON()
-    #define PSU_OFF()    PSU_PIN_OFF()
-    #define PSU_OFF_SOON PSU_OFF
-  #endif
-#endif
-
 bool pin_is_protected(const pin_t pin);
 
 #if HAS_SUICIDE
-  inline void suicide() { OUT_WRITE(SUICIDE_PIN, SUICIDE_PIN_INVERTING); }
+  inline void suicide() { OUT_WRITE(SUICIDE_PIN, SUICIDE_PIN_STATE); }
 #endif
 
 #if HAS_KILL

@@ -28,7 +28,7 @@
 
 /* tiny_interval_t downsamples a 32-bit millis() value
    into a 8-bit value which can record periods of
-   a few seconds with a rougly 1/16th of second
+   a few seconds with a roughly 1/16th of second
    resolution. This allows us to measure small
    intervals without needing to use four-byte counters.
  */

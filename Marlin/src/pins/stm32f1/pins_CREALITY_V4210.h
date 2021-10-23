@@ -61,13 +61,13 @@
   // SPI
   //#define SPI_EEPROM                            // EEPROM on SPI-0
   //#define SPI_CHAN_EEPROM1  ?
-  //#define SPI_EEPROM1_CS    ?
+  //#define SPI_EEPROM1_CS_PIN    ?
 
   // 2K EEPROM
-  //#define SPI_EEPROM2_CS    ?
+  //#define SPI_EEPROM2_CS_PIN    ?
 
   // 32Mb FLASH
-  //#define SPI_FLASH_CS      ?
+  //#define SPI_FLASH_CS_PIN  ?
 #endif
 
 //
@@ -156,35 +156,67 @@
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
-#if ENABLED(CR10_STOCKDISPLAY) && NONE(RET6_12864_LCD, VET6_12864_LCD)
-  #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
-#endif
+#if ENABLED(CR10_STOCKDISPLAY)
 
-#if ENABLED(RET6_12864_LCD)
+  #if ENABLED(RET6_12864_LCD)
 
-  // RET6 12864 LCD
-  #define LCD_PINS_RS                       PB12
-  #define LCD_PINS_ENABLE                   PB15
-  #define LCD_PINS_D4                       PB13
+    /**
+     *    RET6 12864 LCD
+     *        ------
+     *  PC6  |10  9 | PB2
+     *  PB10 | 8  7 | PE8
+     *  PB14   6  5 | PB13
+     *  PB12 | 4  3 | PB15
+     *  GND  | 2  1 | 5V
+     *        ------
+     *         EXP1
+     */
+    #define EXP1_03_PIN                     PB15
+    #define EXP1_04_PIN                     PB12
+    #define EXP1_05_PIN                     PB13
+    #define EXP1_06_PIN                     PB14
+    #define EXP1_07_PIN                     PE8
+    #define EXP1_08_PIN                     PB10
+    #define EXP1_09_PIN                     PB2
+    #define EXP1_10_PIN                     PC6
 
-  #define BTN_ENC                           PB2
-  #define BTN_EN1                           PB10
-  #define BTN_EN2                           PB14
+    #define BEEPER_PIN               EXP1_10_PIN
 
-  #define BEEPER_PIN                        PC6
+  #elif ENABLED(VET6_12864_LCD)
 
-#elif ENABLED(VET6_12864_LCD)
+    /**
+     *    VET6 12864 LCD
+     *        ------
+     *  ?    |10  9 | PC5
+     *  PB10 | 8  7 | ?
+     *  PA6    6  5 | PA5
+     *  PA4  | 4  3 | PA7
+     *  GND  | 2  1 | 5V
+     *        ------
+     *         EXP1
+     */
+    #define EXP1_03_PIN                     PA7
+    #define EXP1_04_PIN                     PA4
+    #define EXP1_05_PIN                     PA5
+    #define EXP1_06_PIN                     PA6
+    #define EXP1_07_PIN                     -1
+    #define EXP1_08_PIN                     PB10
+    #define EXP1_09_PIN                     PC5
+    #define EXP1_10_PIN                     -1
 
-  // VET6 12864 LCD
-  #define LCD_PINS_RS                       PA4
-  #define LCD_PINS_ENABLE                   PA7
-  #define LCD_PINS_D4                       PA5
+  #else
+    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
+  #endif
 
-  #define BTN_ENC                           PC5
-  #define BTN_EN1                           PB10
-  #define BTN_EN2                           PA6
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
 
-#elif ENABLED(DWIN_CREALITY_LCD)
+  #define BTN_ENC                    EXP1_09_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_06_PIN
+
+#elif EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14
@@ -194,7 +226,6 @@
   //#define LCD_LED_PIN                     PB2
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                      PB13
-    #undef SPEAKER
   #endif
 
 #elif ENABLED(DWIN_VET6_CREALITY_LCD)

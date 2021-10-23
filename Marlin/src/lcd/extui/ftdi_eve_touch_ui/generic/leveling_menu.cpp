@@ -83,9 +83,10 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .font(font_medium).colors(normal_btn)
        .enabled(EITHER(Z_STEPPER_AUTO_ALIGN,MECHANICAL_GANTRY_CALIBRATION))
        .tag(2).button(LEVEL_AXIS_POS, GET_TEXT_F(MSG_LEVEL_X_AXIS))
+       .enabled(ENABLED(HAS_BED_PROBE))
        .tag(3).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
        .enabled(ENABLED(HAS_MESH))
-       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH))
+       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_MESH_VIEW))
        .enabled(ENABLED(HAS_MESH))
        .tag(5).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
        .enabled(ENABLED(G26_MESH_VALIDATION))
@@ -95,36 +96,41 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .tag(8).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST))
     #endif
        .colors(action_btn)
-       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
+       .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
 
 bool LevelingMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case 1: GOTO_PREVIOUS();                   break;
+    case 1: GOTO_PREVIOUS(); break;
     #if EITHER(Z_STEPPER_AUTO_ALIGN,MECHANICAL_GANTRY_CALIBRATION)
-    case 2: SpinnerDialogBox::enqueueAndWait_P(F("G34")); break;
+      case 2: SpinnerDialogBox::enqueueAndWait(F("G34")); break;
     #endif
-    case 3:
-    #ifndef BED_LEVELING_COMMANDS
-      #define BED_LEVELING_COMMANDS "G29"
+    #if HAS_BED_PROBE
+      case 3:
+        #ifndef BED_LEVELING_COMMANDS
+          #define BED_LEVELING_COMMANDS "G29"
+        #endif
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          BedMeshViewScreen::doProbe();
+        #else
+          SpinnerDialogBox::enqueueAndWait(F(BED_LEVELING_COMMANDS));
+        #endif
+        break;
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      BedMeshViewScreen::doProbe();
-    #else
-      SpinnerDialogBox::enqueueAndWait_P(F(BED_LEVELING_COMMANDS));
-    #endif
-    break;
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-    case 4: BedMeshViewScreen::show(); break;
-    case 5: BedMeshEditScreen::show(); break;
+      case 4: BedMeshViewScreen::show(); break;
+      case 5: BedMeshEditScreen::show(); break;
     #endif
     #if ENABLED(G26_MESH_VALIDATION)
-    case 6: BedMeshViewScreen::doMeshValidation(); break;
+      case 6:
+        GOTO_SCREEN(StatusScreen);
+        injectCommands(F("G28\nM117 Heating...\nG26 R X0 Y0\nG27"));
+        break;
     #endif
     #if ENABLED(BLTOUCH)
-    case 7: injectCommands_P(PSTR("M280 P0 S60")); break;
-    case 8: SpinnerDialogBox::enqueueAndWait_P(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
+      case 7: injectCommands(F("M280 P0 S60")); break;
+      case 8: SpinnerDialogBox::enqueueAndWait(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
     #endif
     default: return false;
   }
@@ -132,4 +138,3 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
 }
 
 #endif // FTDI_LEVELING_MENU
-

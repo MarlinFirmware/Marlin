@@ -67,7 +67,7 @@
 
 #define rCPUCTL     0x80    //16<<3
 /* CPUCTL Bits  */
-#define bmPUSLEWID1 0x80    //b7
+#define bmPULSEWID1 0x80    //b7
 #define bmPULSEWID0 0x40    //b6
 #define bmIE        0x01    //b0
 
