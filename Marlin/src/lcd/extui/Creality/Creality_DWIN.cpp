@@ -1901,8 +1901,11 @@ void SetTouchScreenConfiguration() {
   LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
   LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
 
+
   unsigned char cfg_bits = 0x0;
-  cfg_bits |= 1UL << 7; // 7: Enable Control
+  #if ENABLED(DWINOS_4)
+    cfg_bits |= 1UL << 7; // 7: Enable Control
+  #endif
   cfg_bits |= 1UL << 5; // 5: load 22 touch file
   cfg_bits |= 1UL << 4; // 4: auto-upload should always be enabled
   if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
@@ -1911,7 +1914,11 @@ void SetTouchScreenConfiguration() {
   //cfg_bits |= 1UL << 0; // Portrait Mode
 
 
-  const unsigned char config_set[] = { 0x5A, 0x00, 0xFF, cfg_bits };
+  #if ENABLED(DWINOS_4)
+    const unsigned char config_set[] = { 0x5A, 0x00, (unsigned char) (cfg_bits >> 8U), (unsigned char) (cfg_bits & 0xFFU) };
+  #else
+    const unsigned char config_set[] = { 0x5A, 0x00, 0xFF, cfg_bits };
+  #endif
   WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
   // Standby brightness (LED_Config)

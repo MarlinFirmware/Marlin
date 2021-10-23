@@ -40,6 +40,8 @@ namespace ExtUI {
 /*********************************/
 #define FHONE   (0x5A)
 #define FHTWO   (0xA5)
+#define FHLENG  (0x06)
+
 #define TEXTBYTELEN		18
 #define MaxFileNumber	20// 16
 
