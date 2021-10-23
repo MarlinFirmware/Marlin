@@ -53,6 +53,20 @@ support@tinymachines3d.com about purchasing support hours. Aside from this, we a
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
 
+## Primary Notes for DW7.4.3
+
+ - PID Messaging Fixed
+ - M600 / Advanced pause messaging improved
+ - Volume / Brightness numeric entry fixed
+ - Bump base to 2.0.9.2
+ -- Includes improved UI for the E3V2 with expanded menus submitted by Jyers
+ - Add Gcode configuration to disable BLTouch High Speed Mode to allow runtime config to support CRTouch
+ -- This one is pending upstream https://github.com/MarlinFirmware/Marlin/pull/22916
+ - Untested preliminary support for the Sermoon D1
+ -- Preliminary reports say it works aside from the LCD
+ -- I do not own one of these, however a local community member has offered to bring his down when im done with the Ender 7
+ - CR30 Support Added
+
 ## Primary Notes for DW7.4
 - Added Screen Calibration Options
 -- Standby Brightness
