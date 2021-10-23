@@ -648,6 +648,10 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
     static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
   #endif
+
+  #if ENABLED(USE_TEMP_EXT_COMPENSATION) && EXTRUDERS != 1
+    #error "USE_TEMP_EXT_COMPENSATION only works with a single extruder."
+  #endif
 #endif
 
 /**
