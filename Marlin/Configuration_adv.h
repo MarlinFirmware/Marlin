@@ -879,7 +879,7 @@
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
-  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, Creality422, Creality427, MachineEnder6, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max)
+  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2, Creality422, Creality427, MachineEnder6, MachineEnder7, MachineSermoonD1, MachineCR30, MachineCR6, MachineCR6Max)
     #define BLTOUCH_SET_5V_MODE
   #endif
   /**
@@ -4354,16 +4354,15 @@
 // M100 Free Memory Watcher to debug memory usage
 //
 //#define M100_FREE_MEMORY_WATCHER
-
-//
-// M42 - Set pin states
-//
-//#define DIRECT_PIN_CONTROL
-
-//
-// M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
-//
 #if ENABLED(MachineLargeROM)
+  //
+  // M42 - Set pin states
+  //
+  #define DIRECT_PIN_CONTROL
+
+  //
+  // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
+  //
   #define PINS_DEBUGGING
 #endif
 

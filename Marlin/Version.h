@@ -51,6 +51,8 @@
   #define VerChar1 "E5"
 #elif(ENABLED(MachineEnder6))
   #define VerChar1 "E6"
+#elif(ENABLED(MachineEnder7))
+  #define VerChar1 "E7"
 #elif(ENABLED(MachineSermoonD1))
   #define VerChar1 "D1"
 #elif(ENABLED(MachineEnder5Plus))
@@ -138,6 +140,8 @@
   #define CUSTOM_MACHINE_NAME "TM3D E3Max"
 #elif(ENABLED(MachineEnder6))
   #define CUSTOM_MACHINE_NAME "TM3D Ender6"
+#elif(ENABLED(MachineEnder7))
+  #define CUSTOM_MACHINE_NAME "TM3D Ender7"
 #elif(ENABLED(MachineEnder3V2))
   #define CUSTOM_MACHINE_NAME "TM3D Ender3V2"
 #elif(ENABLED(MachineEnder4))
