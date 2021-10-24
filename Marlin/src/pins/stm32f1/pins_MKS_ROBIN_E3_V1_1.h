@@ -33,4 +33,4 @@
   #define BOARD_INFO_NAME "MKS Robin E3 V1.1"
 #endif
 
-#include "pins_MKS_ROBIN_E3_V1_1_common.h"
+#include "pins_MKS_ROBIN_E3_V1_1_common.h" // ... MKS_ROBIN_E3_common

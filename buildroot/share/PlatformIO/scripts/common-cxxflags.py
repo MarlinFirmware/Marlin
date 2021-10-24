@@ -3,13 +3,16 @@
 # Convenience script to apply customizations to CPP flags
 #
 Import("env")
-env.Append(CXXFLAGS=[
-  "-Wno-register"
+
+cxxflags = [
   #"-Wno-incompatible-pointer-types",
   #"-Wno-unused-const-variable",
   #"-Wno-maybe-uninitialized",
   #"-Wno-sign-compare"
-])
+]
+if "teensy" not in env['PIOENV']:
+	cxxflags += ["-Wno-register"]
+env.Append(CXXFLAGS=cxxflags)
 
 #
 # Add CPU frequency as a compile time constant instead of a runtime variable

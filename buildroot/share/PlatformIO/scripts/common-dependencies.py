@@ -2,7 +2,12 @@
 # common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
-import subprocess,os,re
+import subprocess,os,re,pioutil
+Import("env")
+
+# Detect that 'vscode init' is running
+if pioutil.is_vscode_init():
+	env.Exit(0)
 
 PIO_VERSION_MIN = (5, 0, 3)
 try:
@@ -30,8 +35,6 @@ except:
 
 from platformio.package.meta import PackageSpec
 from platformio.project.config import ProjectConfig
-
-Import("env")
 
 #print(env.Dump())
 

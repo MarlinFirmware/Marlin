@@ -105,16 +105,14 @@ void HAL_reboot();
 
 void _delay_ms(int delay);
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 void analogWrite(pin_t pin, int value);
 
@@ -141,6 +139,10 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 void HAL_idletask();
 inline void HAL_init() {}
 void HAL_init_board();
+
+#if ENABLED(USE_ESP32_EXIO)
+  void Write_EXIO(uint8_t IO, uint8_t v);
+#endif
 
 //
 // Delay in cycles (used by DELAY_NS / DELAY_US)

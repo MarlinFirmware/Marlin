@@ -123,12 +123,20 @@ Stepper stepper; // Singleton
   bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
 #endif
 
+#if ENABLED(AUTO_POWER_CONTROL)
+  #include "../feature/power.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
 #endif
 
 #if HAS_CUTTER
   #include "../feature/spindle_laser.h"
+#endif
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 // public:
@@ -145,12 +153,14 @@ Stepper stepper; // Singleton
   #endif
 #endif
 
+axis_flags_t Stepper::axis_enabled; // {0}
+
 // private:
 
 block_t* Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
 
-uint8_t Stepper::last_direction_bits, // = 0
-        Stepper::axis_did_move; // = 0
+axis_bits_t Stepper::last_direction_bits, // = 0
+            Stepper::axis_did_move; // = 0
 
 bool Stepper::abort_current_block;
 
@@ -473,6 +483,89 @@ xyze_int8_t Stepper::count_direction{0};
   #define DIR_WAIT_AFTER()
 #endif
 
+void Stepper::enable_axis(const AxisEnum axis) {
+  #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); break;
+  switch (axis) {
+    LINEAR_AXIS_CODE(
+      _CASE_ENABLE(X), _CASE_ENABLE(Y), _CASE_ENABLE(Z),
+      _CASE_ENABLE(I), _CASE_ENABLE(J), _CASE_ENABLE(K)
+    );
+    default: break;
+  }
+  mark_axis_enabled(axis);
+}
+
+bool Stepper::disable_axis(const AxisEnum axis) {
+  mark_axis_disabled(axis);
+  // If all the axes that share the enabled bit are disabled
+  const bool can_disable = can_axis_disable(axis);
+  if (can_disable) {
+    #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
+    switch (axis) {
+      LINEAR_AXIS_CODE(
+        _CASE_DISABLE(X), _CASE_DISABLE(Y), _CASE_DISABLE(Z),
+        _CASE_DISABLE(I), _CASE_DISABLE(J), _CASE_DISABLE(K)
+      );
+      default: break;
+    }
+  }
+  return can_disable;
+}
+
+#if HAS_EXTRUDERS
+
+  void Stepper::enable_extruder(E_TERN_(const uint8_t eindex)) {
+    IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr uint8_t eindex = 0);
+    #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); mark_axis_enabled(E_AXIS E_OPTARG(eindex)); break;
+    switch (eindex) {
+      REPEAT(E_STEPPERS, _CASE_ENA_E)
+    }
+  }
+
+  bool Stepper::disable_extruder(E_TERN_(const uint8_t eindex)) {
+    IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr uint8_t eindex = 0);
+    mark_axis_disabled(E_AXIS E_OPTARG(eindex));
+    const bool can_disable = can_axis_disable(E_AXIS E_OPTARG(eindex));
+    if (can_disable) {
+      #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
+      switch (eindex) { REPEAT(E_STEPPERS, _CASE_DIS_E) }
+    }
+    return can_disable;
+  }
+
+  void Stepper::enable_e_steppers() {
+    #define _ENA_E(N) ENABLE_EXTRUDER(N);
+    REPEAT(EXTRUDERS, _ENA_E)
+  }
+
+  void Stepper::disable_e_steppers() {
+    #define _DIS_E(N) DISABLE_EXTRUDER(N);
+    REPEAT(EXTRUDERS, _DIS_E)
+  }
+
+#endif
+
+void Stepper::enable_all_steppers() {
+  TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+  LINEAR_AXIS_CODE(
+    enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
+    enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
+  );
+  enable_e_steppers();
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
+}
+
+void Stepper::disable_all_steppers() {
+  LINEAR_AXIS_CODE(
+    disable_axis(X_AXIS), disable_axis(Y_AXIS), disable_axis(Z_AXIS),
+    disable_axis(I_AXIS), disable_axis(J_AXIS), disable_axis(K_AXIS)
+  );
+  disable_e_steppers();
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
+}
+
 /**
  * Set the stepper direction of each axis
  *
@@ -494,27 +587,12 @@ void Stepper::set_directions() {
       count_direction[_AXIS(A)] = 1;            \
     }
 
-  #if HAS_X_DIR
-    SET_STEP_DIR(X); // A
-  #endif
-  #if HAS_Y_DIR
-    SET_STEP_DIR(Y); // B
-  #endif
-  #if HAS_Z_DIR
-    SET_STEP_DIR(Z); // C
-  #endif
-
-  #if HAS_I_DIR
-    SET_STEP_DIR(I); // I
-  #endif
-
-  #if HAS_J_DIR
-    SET_STEP_DIR(J); // J
-  #endif
-
-  #if HAS_K_DIR
-    SET_STEP_DIR(K); // K
-  #endif
+  TERN_(HAS_X_DIR, SET_STEP_DIR(X)); // A
+  TERN_(HAS_Y_DIR, SET_STEP_DIR(Y)); // B
+  TERN_(HAS_Z_DIR, SET_STEP_DIR(Z)); // C
+  TERN_(HAS_I_DIR, SET_STEP_DIR(I));
+  TERN_(HAS_J_DIR, SET_STEP_DIR(J));
+  TERN_(HAS_K_DIR, SET_STEP_DIR(K));
 
   #if DISABLED(LIN_ADVANCE)
     #if ENABLED(MIXING_EXTRUDER)
@@ -1635,7 +1713,7 @@ void Stepper::pulse_phase_isr() {
             case 0: {
               const uint8_t low = page_step_state.page[page_step_state.segment_idx],
                            high = page_step_state.page[page_step_state.segment_idx + 1];
-              uint8_t dm = last_direction_bits;
+              axis_bits_t dm = last_direction_bits;
 
               PAGE_SEGMENT_UPDATE(X, low >> 4);
               PAGE_SEGMENT_UPDATE(Y, low & 0xF);
@@ -2156,7 +2234,7 @@ uint32_t Stepper::block_phase_isr() {
         #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
-      uint8_t axis_bits = 0;
+      axis_bits_t axis_bits = 0;
       LINEAR_AXIS_CODE(
         if (X_MOVE_TEST)            SBI(axis_bits, A_AXIS),
         if (Y_MOVE_TEST)            SBI(axis_bits, B_AXIS),
@@ -2207,7 +2285,7 @@ uint32_t Stepper::block_phase_isr() {
 
       TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
-      TERN_(HAS_MULTI_EXTRUDER, stepper_extruder = current_block->extruder);
+      E_TERN_(stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
@@ -2230,7 +2308,7 @@ uint32_t Stepper::block_phase_isr() {
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
-        TERN_(HAS_MULTI_EXTRUDER, last_moved_extruder = stepper_extruder);
+        E_TERN_(last_moved_extruder = stepper_extruder);
         TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
         set_directions(current_block->direction_bits);
       }
@@ -2279,7 +2357,7 @@ uint32_t Stepper::block_phase_isr() {
         // If delayed Z enable, enable it now. This option will severely interfere with
         // timing between pulses when chaining motion between blocks, and it could lead
         // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps.z) ENABLE_AXIS_Z();
+        if (current_block->steps.z) enable_axis(Z_AXIS);
       #endif
 
       // Mark the time_nominal as not calculated yet
@@ -2536,7 +2614,7 @@ void Stepper::init() {
   #if HAS_X_ENABLE
     X_ENABLE_INIT();
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
-    #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && HAS_X2_ENABLE
+    #if BOTH(HAS_X2_STEPPER, HAS_X2_ENABLE)
       X2_ENABLE_INIT();
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
@@ -2875,7 +2953,7 @@ void Stepper::report_positions() {
 
 #if ENABLED(BABYSTEPPING)
 
-  #define _ENABLE_AXIS(AXIS) ENABLE_AXIS_## AXIS()
+  #define _ENABLE_AXIS(A) enable_axis(_AXIS(A))
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
@@ -3003,16 +3081,17 @@ void Stepper::report_positions() {
 
           const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          ENABLE_AXIS_X();
-          ENABLE_AXIS_Y();
-          ENABLE_AXIS_Z();
-          ENABLE_AXIS_I();
-          ENABLE_AXIS_J();
-          ENABLE_AXIS_K();
+          LINEAR_AXIS_CODE(
+            enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
+            enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
+          );
 
           DIR_WAIT_BEFORE();
 
-          const xyz_byte_t old_dir = LINEAR_AXIS_ARRAY(X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(), I_DIR_READ(), J_DIR_READ(), K_DIR_READ());
+          const xyz_byte_t old_dir = LINEAR_AXIS_ARRAY(
+            X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(),
+            I_DIR_READ(), J_DIR_READ(), K_DIR_READ()
+          );
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           #ifdef Y_DIR_WRITE

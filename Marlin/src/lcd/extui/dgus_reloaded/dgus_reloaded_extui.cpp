@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,7 +46,7 @@ namespace ExtUI {
     }
   }
 
-  void onPrinterKilled(PGM_P error, PGM_P component) {
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
     dgus_screen_handler.PrinterKilled(error, component);
   }
 

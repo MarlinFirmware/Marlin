@@ -37,12 +37,12 @@ class SpinnerDialogBox : public UIScreen {
     static void onRefresh();
     static void onIdle();
 
-    static void show(progmem_str);
+    static void show(FSTR_P);
     static void hide();
 
     template<typename T>
     static void enqueueAndWait(T commands) {enqueueAndWait(GET_TEXT_F(MSG_PLEASE_WAIT), commands);}
 
-    static void enqueueAndWait(progmem_str message, char *commands);
-    static void enqueueAndWait(progmem_str message, progmem_str commands);
+    static void enqueueAndWait(FSTR_P message, char *commands);
+    static void enqueueAndWait(FSTR_P message, FSTR_P commands);
 };

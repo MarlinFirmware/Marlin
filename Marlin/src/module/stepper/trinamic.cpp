@@ -164,6 +164,15 @@ enum StealthIndex : uint8_t {
 #ifndef TMC_Z4_BAUD_RATE
   #define TMC_Z4_BAUD_RATE TMC_BAUD_RATE
 #endif
+#ifndef TMC_I_BAUD_RATE
+  #define TMC_I_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_J_BAUD_RATE
+  #define TMC_J_BAUD_RATE TMC_BAUD_RATE
+#endif
+#ifndef TMC_K_BAUD_RATE
+  #define TMC_K_BAUD_RATE TMC_BAUD_RATE
+#endif
 #ifndef TMC_E0_BAUD_RATE
   #define TMC_E0_BAUD_RATE TMC_BAUD_RATE
 #endif
@@ -834,12 +843,8 @@ void restore_trinamic_drivers() {
 void reset_trinamic_drivers() {
   static constexpr bool stealthchop_by_axis[] = LOGICAL_AXIS_ARRAY(
     ENABLED(STEALTHCHOP_E),
-    ENABLED(STEALTHCHOP_XY),
-    ENABLED(STEALTHCHOP_XY),
-    ENABLED(STEALTHCHOP_Z),
-    ENABLED(STEALTHCHOP_I),
-    ENABLED(STEALTHCHOP_J),
-    ENABLED(STEALTHCHOP_K)
+    ENABLED(STEALTHCHOP_XY), ENABLED(STEALTHCHOP_XY), ENABLED(STEALTHCHOP_Z),
+    ENABLED(STEALTHCHOP_I), ENABLED(STEALTHCHOP_J), ENABLED(STEALTHCHOP_K)
   );
 
   #if AXIS_IS_TMC(X)

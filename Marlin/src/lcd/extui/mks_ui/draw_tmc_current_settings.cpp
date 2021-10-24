@@ -54,29 +54,19 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       draw_return_ui();
       return;
     #if AXIS_IS_TMC(X)
-      case ID_TMC_CURRENT_X:
-        value = Xcurrent;
-        break;
+      case ID_TMC_CURRENT_X:  value = Xcurrent;  break;
     #endif
     #if AXIS_IS_TMC(Y)
-      case ID_TMC_CURRENT_Y:
-        value = Ycurrent;
-        break;
+      case ID_TMC_CURRENT_Y:  value = Ycurrent;  break;
     #endif
     #if AXIS_IS_TMC(Z)
-      case ID_TMC_CURRENT_Z:
-        value = Zcurrent;
-        break;
+      case ID_TMC_CURRENT_Z:  value = Zcurrent;  break;
     #endif
     #if AXIS_IS_TMC(E0)
-      case ID_TMC_CURRENT_E0:
-        value = E0current;
-        break;
+      case ID_TMC_CURRENT_E0: value = E0current; break;
     #endif
     #if AXIS_IS_TMC(E1)
-      case ID_TMC_CURRENT_E1:
-        value = E1current;
-        break;
+      case ID_TMC_CURRENT_E1: value = E1current; break;
     #endif
 
     case ID_TMC_CURRENT_UP:
@@ -143,7 +133,7 @@ void lv_draw_tmc_current_settings() {
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_CURRENT_UP, true);
   }
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_TMC_CURRENT_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, event_handler, ID_TMC_CURRENT_RETURN, true);
 }
 
 void lv_clear_tmc_current_settings() {

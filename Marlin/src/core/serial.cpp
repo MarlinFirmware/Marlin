@@ -69,23 +69,23 @@ PGMSTR(SP_I_LBL, " " AXIS4_STR ":"); PGMSTR(SP_J_LBL, " " AXIS5_STR ":"); PGMSTR
 
 #endif
 
-void serialprintPGM(PGM_P str) {
+void serial_print_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
 
-void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serialprintPGM(echomagic); }
-void serial_error_start() { static PGMSTR(errormagic, "Error:"); serialprintPGM(errormagic); }
+void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serial_print_P(echomagic); }
+void serial_error_start() { static PGMSTR(errormagic, "Error:"); serial_print_P(errormagic); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
-void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=nullptr*/) {
-  if (pre) serialprintPGM(pre);
-  serialprintPGM(onoff ? on : off);
-  if (post) serialprintPGM(post);
+void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post/*=nullptr*/) {
+  if (pre) serial_print(pre);
+  serial_print(onoff ? on : off);
+  if (post) serial_print(post);
 }
-void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(STR_ON) : PSTR(STR_OFF)); }
+void serialprint_onoff(const bool onoff) { serial_print(onoff ? F(STR_ON) : F(STR_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
-void serialprint_truefalse(const bool tf) { serialprintPGM(tf ? PSTR("true") : PSTR("false")); }
+void serialprint_truefalse(const bool tf) { serial_print(tf ? F("true") : F("false")); }
 
 void print_bin(uint16_t val) {
   for (uint8_t i = 16; i--;) {
@@ -94,10 +94,10 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
-  if (prefix) serialprintPGM(prefix);
+void print_pos(LINEAR_AXIS_ARGS(const_float_t), FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
+  if (prefix) serial_print(prefix);
   SERIAL_ECHOPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k)
   );
-  if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
+  if (suffix) serial_print(suffix); else SERIAL_EOL();
 }

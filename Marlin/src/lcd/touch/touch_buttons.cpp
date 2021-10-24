@@ -122,7 +122,9 @@ uint8_t TouchButtons::read_buttons() {
   }
   void TouchButtons::wakeUp() {
     if (isSleeping()) {
-      #if PIN_EXISTS(TFT_BACKLIGHT)
+      #if HAS_LCD_BRIGHTNESS
+        ui._set_brightness();
+      #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }

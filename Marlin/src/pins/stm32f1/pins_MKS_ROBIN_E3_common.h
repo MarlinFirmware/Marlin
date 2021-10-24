@@ -221,7 +221,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1             125
   #endif

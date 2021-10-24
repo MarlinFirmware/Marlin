@@ -1061,8 +1061,8 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str, read_byte_ram, max_length);
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
-  return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, pixel_len_t max_length) {
+  return lcd_put_u8str_max_cb(utf8_pstr, read_byte_rom, max_length);
 }
 
 #if ENABLED(DEBUG_LCDPRINT)

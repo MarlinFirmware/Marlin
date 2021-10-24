@@ -58,7 +58,7 @@
   #define CASE_LIGHT_PIN                      11  // PB5 ** Pin24 ** PWM11
 #endif
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS
 
 /*
   Available connectors on MKS BASE v1.4

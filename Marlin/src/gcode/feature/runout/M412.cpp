@@ -67,8 +67,8 @@ void GcodeSuite::M412() {
 }
 
 void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
-  SERIAL_ECHOLNPGM(
+  report_heading_etc(forReplay, F(STR_FILAMENT_RUNOUT_SENSOR));
+  SERIAL_ECHOPGM(
     "  M412 S", runout.enabled
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       , " D", LINEAR_UNIT(runout.runout_distance())

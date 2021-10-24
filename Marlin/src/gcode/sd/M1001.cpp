@@ -27,6 +27,7 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 #include "../../module/printcounter.h"
+#include "../../module/temperature.h"
 #include "../../sd/cardreader.h"
 
 #ifdef SD_FINISHED_RELEASECOMMAND
@@ -77,10 +78,10 @@ void GcodeSuite::M1001() {
 
   // Report total print time
   const bool long_print = print_job_timer.duration() > 60;
-  if (long_print) gcode.process_subcommands_now_P(PSTR("M31"));
+  if (long_print) process_subcommands_now(F("M31"));
 
   // Stop the print job timer
-  gcode.process_subcommands_now_P(PSTR("M77"));
+  process_subcommands_now(F("M77"));
 
   // Set the progress bar "done" state
   TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress_done());
@@ -95,8 +96,8 @@ void GcodeSuite::M1001() {
   #if HAS_LEDS_OFF_FLAG
     if (long_print) {
       printerEventLEDs.onPrintCompleted();
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PRINT_DONE)));
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_PRINT_DONE), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PRINT_DONE)));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_PRINT_DONE), FPSTR(CONTINUE_STR)));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(SEC_TO_MS(TERN(HAS_LCD_MENU, PE_LEDS_COMPLETED_TIME, 30))));
       printerEventLEDs.onResumeAfterWait();
     }
@@ -104,7 +105,7 @@ void GcodeSuite::M1001() {
 
   // Inject SD_FINISHED_RELEASECOMMAND, if any
   #ifdef SD_FINISHED_RELEASECOMMAND
-    gcode.process_subcommands_now_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintFinished());

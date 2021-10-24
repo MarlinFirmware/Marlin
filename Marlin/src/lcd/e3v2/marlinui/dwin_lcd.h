@@ -26,10 +26,7 @@
  * @brief    DWIN screen control functions
  ********************************************************************************/
 
-#if ENABLED(DWIN_MARLINUI_LANDSCAPE)
-  #define DWIN_WIDTH  480
-  #define DWIN_HEIGHT 272
-#endif
+#include "../../../inc/MarlinConfigPre.h"
 
 #include "../common/dwin_api.h"
 

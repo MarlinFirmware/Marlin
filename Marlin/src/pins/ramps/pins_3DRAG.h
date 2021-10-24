@@ -38,10 +38,32 @@
 #endif
 
 //
+// Limit Switches
+//
+#define Z_STOP_PIN                            18
+
+//
+// Steppers
+//
+#if HAS_CUTTER
+  #define Z_DIR_PIN                           28
+  #define Z_ENABLE_PIN                        24
+  #define Z_STEP_PIN                          26
+#else
+  #define Z_ENABLE_PIN                        63
+#endif
+
+#if HAS_CUTTER && !HAS_EXTRUDERS
+  #define E0_DIR_PIN                          -1
+  #define E0_ENABLE_PIN                       -1
+  #define E0_STEP_PIN                         -1
+#endif
+
+//
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN                           9
-#define RAMPS_D9_PIN                           8
+#define MOSFET_B_PIN                           8
+#define MOSFET_C_PIN                           9
 #define MOSFET_D_PIN                          12
 
 //
@@ -53,18 +75,54 @@
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
 #endif
 
+/**
+ *  M3/M4/M5 - Spindle/Laser Control
+ *
+ *  If you want to control the speed of your spindle then you'll have
+ *  have to sacrifce the Extruder and pull some signals off the Z stepper
+ *  driver socket.
+ *
+ *  The following assumes:
+ *   - the Z stepper driver socket is empty
+ *   - the extruder driver socket has a driver board plugged into it
+ *   - the Z stepper wires are attached the the extruder connector
+ *
+ *  If you want to keep the extruder AND don't have a LCD display then
+ *  you can still control the power on/off and spindle direction.
+ *
+ *  Where to get spindle signals
+ *
+ *      stepper signal           socket name       socket name
+ *                                          -------
+ *       SPINDLE_LASER_ENA_PIN    /ENABLE  O|     |O  VMOT
+ *                                    MS1  O|     |O  GND
+ *                                    MS2  O|     |O  2B
+ *                                    MS3  O|     |O  2A
+ *                                 /RESET  O|     |O  1A
+ *                                 /SLEEP  O|     |O  1B
+ *          SPINDLE_LASER_PWM_PIN    STEP  O|     |O  VDD
+ *                SPINDLE_DIR_PIN     DIR  O|     |O  GND
+ *                                          -------
+ *
+ *  Note: Socket names vary from vendor to vendor
+ */
+#if HAS_CUTTER
+  #if !HAS_EXTRUDERS
+    #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
+    #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
+    #define SPINDLE_DIR_PIN                   48
+  #elif !BOTH(IS_ULTRA_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
+    #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
+    #define SPINDLE_DIR_PIN                   17
+    #if !NUM_SERVOS                               // Use servo connector if possible
+      #define SPINDLE_LASER_PWM_PIN            6  // Hardware PWM
+    #elif HAS_FREE_AUX2_PINS
+      #define SPINDLE_LASER_PWM_PIN           44  // Hardware PWM
+    #endif
+  #endif
+#endif
+
 #include "pins_RAMPS.h"
-
-//
-// Limit Switches
-//
-#undef Z_MAX_PIN
-
-//
-// Steppers
-//
-#undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN                          63
 
 //
 // Heaters / Fans
@@ -108,63 +166,8 @@
 
 #endif // IS_ULTRA_LCD && IS_NEWPANEL
 
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2               188
   #define BOARD_ST7920_DELAY_3                 0
-#endif
-
-/**
- *  M3/M4/M5 - Spindle/Laser Control
- *
- *  If you want to control the speed of your spindle then you'll have
- *  have to sacrifce the Extruder and pull some signals off the Z stepper
- *  driver socket.
- *
- *  The following assumes:
- *   - the Z stepper driver socket is empty
- *   - the extruder driver socket has a driver board plugged into it
- *   - the Z stepper wires are attached the the extruder connector
- *
- *  If you want to keep the extruder AND don't have a LCD display then
- *  you can still control the power on/off and spindle direction.
- *
- *  Where to get spindle signals
- *
- *      stepper signal           socket name       socket name
- *                                          -------
- *       SPINDLE_LASER_ENA_PIN    /ENABLE  O|     |O  VMOT
- *                                    MS1  O|     |O  GND
- *                                    MS2  O|     |O  2B
- *                                    MS3  O|     |O  2A
- *                                 /RESET  O|     |O  1A
- *                                 /SLEEP  O|     |O  1B
- *          SPINDLE_LASER_PWM_PIN    STEP  O|     |O  VDD
- *                SPINDLE_DIR_PIN     DIR  O|     |O  GND
- *                                          -------
- *
- *  Note: Socket names vary from vendor to vendor
- */
-#undef SPINDLE_LASER_PWM_PIN                      // Definitions in pins_RAMPS.h are not good with 3DRAG
-#undef SPINDLE_LASER_ENA_PIN
-#undef SPINDLE_DIR_PIN
-
-#if HAS_CUTTER
-  #if !HAS_EXTRUDERS
-    #undef E0_DIR_PIN
-    #undef E0_ENABLE_PIN
-    #undef E0_STEP_PIN
-    #undef Z_DIR_PIN
-    #undef Z_ENABLE_PIN
-    #undef Z_STEP_PIN
-    #define Z_DIR_PIN                         28
-    #define Z_ENABLE_PIN                      24
-    #define Z_STEP_PIN                        26
-    #define SPINDLE_LASER_PWM_PIN             46  // Hardware PWM
-    #define SPINDLE_LASER_ENA_PIN             62  // Pullup!
-    #define SPINDLE_DIR_PIN                   48
-  #elif !BOTH(IS_ULTRA_LCD, IS_NEWPANEL)          // Use expansion header if no LCD in use
-    #define SPINDLE_LASER_ENA_PIN             16  // Pullup or pulldown!
-    #define SPINDLE_DIR_PIN                   17
-  #endif
 #endif

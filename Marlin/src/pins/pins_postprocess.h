@@ -464,11 +464,19 @@
   #ifdef I_STOP_PIN
     #if I_HOME_TO_MIN
       #define I_MIN_PIN I_STOP_PIN
-      #define I_MAX_PIN -1
+      #ifndef I_MAX_PIN
+        #define I_MAX_PIN -1
+      #endif
     #else
-      #define I_MIN_PIN -1
       #define I_MAX_PIN I_STOP_PIN
+      #ifndef I_MIN_PIN
+        #define I_MIN_PIN -1
+      #endif
     #endif
+  #elif I_HOME_TO_MIN
+    #define I_STOP_PIN I_MIN_PIN
+  #else
+    #define I_STOP_PIN I_MAX_PIN
   #endif
 #else
   #undef I_MIN_PIN
@@ -479,11 +487,19 @@
   #ifdef J_STOP_PIN
     #if J_HOME_TO_MIN
       #define J_MIN_PIN J_STOP_PIN
-      #define J_MAX_PIN -1
+      #ifndef J_MAX_PIN
+        #define J_MAX_PIN -1
+      #endif
     #else
-      #define J_MIN_PIN -1
       #define J_MAX_PIN J_STOP_PIN
+      #ifndef J_MIN_PIN
+        #define J_MIN_PIN -1
+      #endif
     #endif
+  #elif J_HOME_TO_MIN
+    #define J_STOP_PIN J_MIN_PIN
+  #else
+    #define J_STOP_PIN J_MAX_PIN
   #endif
 #else
   #undef J_MIN_PIN
@@ -494,11 +510,19 @@
   #ifdef K_STOP_PIN
     #if K_HOME_TO_MIN
       #define K_MIN_PIN K_STOP_PIN
-      #define K_MAX_PIN -1
+      #ifndef K_MAX_PIN
+        #define K_MAX_PIN -1
+      #endif
     #else
-      #define K_MIN_PIN -1
       #define K_MAX_PIN K_STOP_PIN
+      #ifndef K_MIN_PIN
+        #define K_MIN_PIN -1
+      #endif
     #endif
+  #elif K_HOME_TO_MIN
+    #define K_STOP_PIN K_MIN_PIN
+  #else
+    #define K_STOP_PIN K_MAX_PIN
   #endif
 #else
   #undef K_MIN_PIN
@@ -555,12 +579,12 @@
 #endif
 
 // The X2 axis, if any, should be the next open extruder port
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && !defined(X2_DIAG_PIN) && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS_PIN)
+#if HAS_X2_STEPPER && !defined(X2_DIAG_PIN) && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS_PIN)
   #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
 #else
   #define Y2_E_INDEX X2_E_INDEX
 #endif
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+#if HAS_X2_STEPPER
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
     #define X2_DIR_PIN    _EPIN(X2_E_INDEX, DIR)
@@ -1342,7 +1366,7 @@
 //
 // Default DOGLCD SPI delays
 //
-#if DISABLED(U8GLIB_ST7920)
+#if !IS_U8GLIB_ST7920
   #undef ST7920_DELAY_1
   #undef ST7920_DELAY_2
   #undef ST7920_DELAY_3

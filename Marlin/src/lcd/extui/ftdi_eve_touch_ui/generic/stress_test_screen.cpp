@@ -59,7 +59,7 @@ void StressTestScreen::onRedraw(draw_mode_t) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
      .font(font_medium)
-     .text(BTN_POS(1,1), BTN_SIZE(4,1), progmem_str(mydata.message));
+     .text(BTN_POS(1,1), BTN_SIZE(4,1), FPSTR(mydata.message));
 
   drawDots(BTN_POS(1,3), BTN_SIZE(4,4));
 
@@ -84,7 +84,7 @@ void StressTestScreen::runTestOnBootup(bool enable) {
   // whether or not we need to re-run the test
   // at startup.
   LockScreen::set_hash(enable ? 0xDEAD : 0);
-  injectCommands_P(PSTR("M500"));
+  injectCommands(F("M500"));
 }
 
 void StressTestScreen::startupCheck() {
@@ -122,10 +122,10 @@ void StressTestScreen::onIdle() {
       injectCommands_P(G28_STR);
     }
     else {
-      injectCommands_P(PSTR(
+      injectCommands(F(
         "G0 X100 Y100 Z100 F6000\n"
         "T0\nG4 S1"
-        TERN_(HAS_MULTI_EXTRUDER, "\nT1\nG4 S1")
+        E_TERN_("\nT1\nG4 S1")
         "\nG0 X150 Y150 Z150"
       ));
     }

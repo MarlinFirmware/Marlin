@@ -24,33 +24,12 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../HAL/shared/Marduino.h"
 
-void host_action(PGM_P const pstr, const bool eol=true);
-
-#ifdef ACTION_ON_KILL
-  void host_action_kill();
-#endif
-#ifdef ACTION_ON_PAUSE
-  void host_action_pause(const bool eol=true);
-#endif
-#ifdef ACTION_ON_PAUSED
-  void host_action_paused(const bool eol=true);
-#endif
-#ifdef ACTION_ON_RESUME
-  void host_action_resume();
-#endif
-#ifdef ACTION_ON_RESUMED
-  void host_action_resumed();
-#endif
-#ifdef ACTION_ON_CANCEL
-  void host_action_cancel();
-#endif
-#ifdef ACTION_ON_START
-  void host_action_start();
-#endif
+typedef union {
+  uint8_t bits;
+  struct { bool info:1, errors:1, debug:1; };
+} flag_t;
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
-
-  extern const char CONTINUE_STR[], DISMISS_STR[];
 
   enum PromptReason : uint8_t {
     PROMPT_NOT_DEFINED,
@@ -61,21 +40,80 @@ void host_action(PGM_P const pstr, const bool eol=true);
     PROMPT_INFO
   };
 
-  extern PromptReason host_prompt_reason;
-
-  void host_response_handler(const uint8_t response);
-  void host_action_notify(const char * const message);
-  void host_action_notify_P(PGM_P const message);
-  void host_action_prompt_begin(const PromptReason reason, PGM_P const pstr, const char extra_char='\0');
-  void host_action_prompt_button(PGM_P const pstr);
-  void host_action_prompt_end();
-  void host_action_prompt_show();
-  void host_prompt_do(const PromptReason reason, PGM_P const pstr, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr);
-  void host_prompt_do(const PromptReason reason, PGM_P const pstr, const char extra_char, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr);
-  inline void host_prompt_open(const PromptReason reason, PGM_P const pstr, PGM_P const btn1=nullptr, PGM_P const btn2=nullptr) {
-    if (host_prompt_reason == PROMPT_NOT_DEFINED) host_prompt_do(reason, pstr, btn1, btn2);
-  }
-
-  void filament_load_host_prompt();
-
 #endif
+
+class HostUI {
+  public:
+
+  static flag_t flag;
+  HostUI() { flag.bits = 0xFF; }
+
+  static void action(FSTR_P const fstr, const bool eol=true);
+
+  #ifdef ACTION_ON_KILL
+    static void kill();
+  #endif
+  #ifdef ACTION_ON_PAUSE
+    static void pause(const bool eol=true);
+  #endif
+  #ifdef ACTION_ON_PAUSED
+    static void paused(const bool eol=true);
+  #endif
+  #ifdef ACTION_ON_RESUME
+    static void resume();
+  #endif
+  #ifdef ACTION_ON_RESUMED
+    static void resumed();
+  #endif
+  #ifdef ACTION_ON_CANCEL
+    static void cancel();
+  #endif
+  #ifdef ACTION_ON_START
+    static void start();
+  #endif
+
+  #if ENABLED(G29_RETRY_AND_RECOVER)
+    #ifdef ACTION_ON_G29_RECOVER
+      static void g29_recover();
+    #endif
+    #ifdef ACTION_ON_G29_FAILURE
+      static void g29_failure();
+    #endif
+  #endif
+
+  #if ENABLED(HOST_PROMPT_SUPPORT)
+    private:
+    static void prompt(FSTR_P const ptype, const bool eol=true);
+    static void prompt_plus(FSTR_P const ptype, FSTR_P const fstr, const char extra_char='\0');
+    static void prompt_show();
+    static void _prompt_show(FSTR_P const btn1, FSTR_P const btn2);
+
+    public:
+    static PromptReason host_prompt_reason;
+
+    static void handle_response(const uint8_t response);
+
+    static void notify_P(PGM_P const message);
+    static inline void notify(FSTR_P const fmsg) { notify_P(FTOP(fmsg)); }
+    static void notify(const char * const message);
+
+    static void prompt_begin(const PromptReason reason, FSTR_P const fstr, const char extra_char='\0');
+    static void prompt_button(FSTR_P const fstr);
+    static void prompt_end();
+    static void prompt_do(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
+    static void prompt_do(const PromptReason reason, FSTR_P const pstr, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
+    static inline void prompt_open(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr) {
+      if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
+    }
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      static void filament_load_prompt();
+    #endif
+
+  #endif
+
+};
+
+extern HostUI hostui;
+
+extern const char CONTINUE_STR[], DISMISS_STR[];
