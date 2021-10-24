@@ -3103,7 +3103,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
     case HostSettings:
 
       #define HOSTSETTINGS_BACK 0
-      #define HOSTSETTINGS_ACTIONCOMMANDS (HOSTSETTINGS_BACK + 1)
+      #define HOSTSETTINGS_ACTIONCOMMANDS (HOSTSETTINGS_BACK + ENABLED(HOST_ACTION_COMMANDS))
       #define HOSTSETTINGS_TOTAL HOSTSETTINGS_ACTIONCOMMANDS
 
       switch (item) {
@@ -3115,16 +3115,19 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu(Control, CONTROL_HOSTSETTINGS);
           }
           break;
-        case HOSTSETTINGS_ACTIONCOMMANDS:
-          if (draw) {
-            Draw_Menu_Item(row, ICON_File, F("Action Commands"));
-          }
-          else {
-            Draw_Menu(ActionCommands);
-          }
-          break;
+        #if ENABLED(HOST_ACTION_COMMANDS)
+          case HOSTSETTINGS_ACTIONCOMMANDS:
+            if (draw) {
+              Draw_Menu_Item(row, ICON_File, F("Action Commands"));
+            }
+            else {
+              Draw_Menu(ActionCommands);
+            }
+            break;
+        #endif
       }
       break;
+    #if ENABLED(HOST_ACTION_COMMANDS)
     case ActionCommands:
 
       #define ACTIONCOMMANDS_BACK 0
@@ -3171,6 +3174,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
           break;
       }
       break;
+    #endif
 
     case Advanced:
 
@@ -4347,7 +4351,9 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:  return F("Change Filament");
     #endif
-    case HostActions:       return F("Host Action Commands");
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      case HostActions:       return F("Host Action Commands");
+    #endif
     case Control:           return F("Control");
     case TempMenu:          return F("Temperature");
     #if HAS_HOTEND || HAS_HEATED_BED
@@ -4384,7 +4390,9 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     case Steps:             return F("Steps/mm");
     case Visual:            return F("Visual Settings");
     case HostSettings:      return F("Host Settings");
-    case ActionCommands:    return F("Host Action Settings");
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      case ActionCommands:    return F("Host Action Settings");
+    #endif
     case Advanced:          return F("Advanced Settings");
     #if HAS_BED_PROBE
       case ProbeMenu:       return F("Probe Menu");
@@ -4426,8 +4434,9 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:  return CHANGEFIL_TOTAL;
     #endif
-    case HostActions:
-      return HOSTACTIONS_TOTAL;
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      case HostActions:       return HOSTACTIONS_TOTAL;
+    #endif
     case Control:           return CONTROL_TOTAL;
     case TempMenu:          return TEMP_TOTAL;
     #if HAS_HOTEND || HAS_HEATED_BED
@@ -4464,7 +4473,9 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     case Steps:             return STEPS_TOTAL;
     case Visual:            return VISUAL_TOTAL;
     case HostSettings:      return HOSTSETTINGS_TOTAL;
-    case ActionCommands:    return ACTIONCOMMANDS_TOTAL;
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      case ActionCommands:    return ACTIONCOMMANDS_TOTAL;
+    #endif
     case Advanced:          return ADVANCED_TOTAL;
     #if HAS_BED_PROBE
       case ProbeMenu:       return PROBE_TOTAL;
