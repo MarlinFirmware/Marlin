@@ -537,7 +537,7 @@ void _Decorate_Menu_Item(uint8_t row, uint8_t icon, bool more) {
 }
 
 void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, const char * label1, const char * label2, bool more/*=false*/, bool centered/*=false*/) {
-  const uint8_t label_offset_y = (label1 || label2) ? MENU_CHR_H * 3 / 5 : 0,
+  const uint8_t label_offset_y = (label1 && label2) ? MENU_CHR_H * 3 / 5 : 0,
                 label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2),
                 label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
   if (label1) DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, label1); // Draw Label
@@ -546,7 +546,7 @@ void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, const ch
 }
 
 void CrealityDWINClass::Draw_Menu_Item(uint8_t row, uint8_t icon/*=0*/, FSTR_P const flabel1, FSTR_P const flabel2, bool more/*=false*/, bool centered/*=false*/) {
-  const uint8_t label_offset_y = (flabel1 || flabel2) ? MENU_CHR_H * 3 / 5 : 0,
+  const uint8_t label_offset_y = (flabel1 && flabel2) ? MENU_CHR_H * 3 / 5 : 0,
                 label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (flabel1 ? strlen_P(FTOP(flabel1)) : 0) * MENU_CHR_W) / 2),
                 label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (flabel2 ? strlen_P(FTOP(flabel2)) : 0) * MENU_CHR_W) / 2);
   if (flabel1) DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, label1_offset_x, MBASE(row) - 1 - label_offset_y, flabel1); // Draw Label
@@ -1279,7 +1279,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #if ENABLED(HOST_ACTION_COMMANDS)
           case PREPARE_ACTIONCOMMANDS:
           if (draw) {
-            Draw_Menu_Item(row, ICON_SetHome, "Host Actions", NULL, true);
+            Draw_Menu_Item(row, ICON_SetHome, F("Host Actions"), nullptr, true);
           }
           else {
             Draw_Menu(HostActions);
@@ -1967,14 +1967,12 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define HOSTACTIONS_1 (HOSTACTIONS_BACK + 1)
         #define HOSTACTIONS_2 (HOSTACTIONS_1 + 1)
         #define HOSTACTIONS_3 (HOSTACTIONS_2 + 1)
-        #define HOSTACTIONS_4 (HOSTACTIONS_3 + 1)
-        #define HOSTACTIONS_5 (HOSTACTIONS_4 + 1)
-        #define HOSTACTIONS_TOTAL HOSTACTIONS_5
+        #define HOSTACTIONS_TOTAL HOSTACTIONS_3
 
         switch(item) {
           case HOSTACTIONS_BACK:
             if (draw) {
-              Draw_Menu_Item(row, ICON_Back, "Back");
+              Draw_Menu_Item(row, ICON_Back, F("Back"));
             }
             else {
               Draw_Menu(Prepare, PREPARE_ACTIONCOMMANDS);
@@ -1985,7 +1983,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_File, action1);
             }
             else {
-              if (!strcmp(action1, "-") == 0) host_action(PSTR(action1));
+              if (!strcmp(action1, "-") == 0) hostui.action(F(action1));
             }
             break;
           case HOSTACTIONS_2:
@@ -1993,7 +1991,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_File, action2);
             }
             else {
-              if (!strcmp(action2, "-") == 0) host_action(PSTR(action2));
+              if (!strcmp(action2, "-") == 0) hostui.action(F(action2));
             }
             break;
           case HOSTACTIONS_3:
@@ -2001,7 +1999,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
               Draw_Menu_Item(row, ICON_File, action3);
             }
             else {
-              if (!strcmp(action3, "-") == 0) host_action(PSTR(action3));
+              if (!strcmp(action3, "-") == 0) hostui.action(F(action3));
             }
             break;
         }
@@ -2014,7 +2012,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define CONTROL_TEMP (CONTROL_BACK + 1)
       #define CONTROL_MOTION (CONTROL_TEMP + 1)
       #define CONTROL_VISUAL (CONTROL_MOTION + 1)
-      #define CONTROL_ADVANCED (CONTROL_VISUAL + 1)
+      #define CONTROL_HOSTSETTINGS (CONTROL_VISUAL + 1)
+      #define CONTROL_ADVANCED (CONTROL_HOSTSETTINGS + 1)
       #define CONTROL_SAVE (CONTROL_ADVANCED + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESTORE (CONTROL_SAVE + ENABLED(EEPROM_SETTINGS))
       #define CONTROL_RESET (CONTROL_RESTORE + ENABLED(EEPROM_SETTINGS))
@@ -2045,6 +2044,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Draw_Menu_Item(row, ICON_PrintSize, F("Visual"), nullptr, true);
           else
             Draw_Menu(Visual);
+          break;
+        case CONTROL_HOSTSETTINGS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Contact, F("Host Settings"), nullptr, true);
+          }
+          else {
+            Draw_Menu(HostSettings);
+          }
           break;
         case CONTROL_ADVANCED:
           if (draw)
@@ -3091,6 +3098,78 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             Modify_Option(eeprom_settings.coordinates_split_line, color_names, Custom_Colors);
           break;
       } // switch (item)
+      break;
+
+    case HostSettings:
+
+      #define HOSTSETTINGS_BACK 0
+      #define HOSTSETTINGS_ACTIONCOMMANDS (HOSTSETTINGS_BACK + 1)
+      #define HOSTSETTINGS_TOTAL HOSTSETTINGS_ACTIONCOMMANDS
+
+      switch (item) {
+        case HOSTSETTINGS_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, F("Back"));
+          }
+          else {
+            Draw_Menu(Control, CONTROL_HOSTSETTINGS);
+          }
+          break;
+        case HOSTSETTINGS_ACTIONCOMMANDS:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, F("Action Commands"));
+          }
+          else {
+            Draw_Menu(ActionCommands);
+          }
+          break;
+      }
+      break;
+    case ActionCommands:
+
+      #define ACTIONCOMMANDS_BACK 0
+      #define ACTIONCOMMANDS_1 (ACTIONCOMMANDS_BACK + 1)
+      #define ACTIONCOMMANDS_2 (ACTIONCOMMANDS_1 + 1)
+      #define ACTIONCOMMANDS_3 (ACTIONCOMMANDS_2 + 1)
+      #define ACTIONCOMMANDS_TOTAL ACTIONCOMMANDS_3
+
+      switch (item) {
+        case ACTIONCOMMANDS_BACK:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_Back, F("Back"));
+          }
+          else {
+            Draw_Menu(HostSettings, HOSTSETTINGS_ACTIONCOMMANDS);
+          }
+          break;
+        case ACTIONCOMMANDS_1:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, F("Action #1"));
+            Draw_String(action1, row);
+          }
+          else {
+            Modify_String(action1, 8, true);
+          }
+          break;
+        case ACTIONCOMMANDS_2:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, F("Action #2"));
+            Draw_String(action2, row);
+          }
+          else {
+            Modify_String(action2, 8, true);
+          }
+          break;
+        case ACTIONCOMMANDS_3:
+          if (draw) {
+            Draw_Menu_Item(row, ICON_File, F("Action #3"));
+            Draw_String(action3, row);
+          }
+          else {
+            Modify_String(action3, 8, true);
+          }
+          break;
+      }
       break;
 
     case Advanced:
@@ -4268,6 +4347,7 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:  return F("Change Filament");
     #endif
+    case HostActions:       return F("Host Action Commands");
     case Control:           return F("Control");
     case TempMenu:          return F("Temperature");
     #if HAS_HOTEND || HAS_HEATED_BED
@@ -4303,6 +4383,8 @@ FSTR_P CrealityDWINClass::Get_Menu_Title(uint8_t menu) {
     #endif
     case Steps:             return F("Steps/mm");
     case Visual:            return F("Visual Settings");
+    case HostSettings:      return F("Host Settings");
+    case ActionCommands:    return F("Host Action Settings");
     case Advanced:          return F("Advanced Settings");
     #if HAS_BED_PROBE
       case ProbeMenu:       return F("Probe Menu");
@@ -4344,6 +4426,8 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:  return CHANGEFIL_TOTAL;
     #endif
+    case HostActions:
+      return HOSTACTIONS_TOTAL;
     case Control:           return CONTROL_TOTAL;
     case TempMenu:          return TEMP_TOTAL;
     #if HAS_HOTEND || HAS_HEATED_BED
@@ -4379,6 +4463,8 @@ uint8_t CrealityDWINClass::Get_Menu_Size(uint8_t menu) {
     #endif
     case Steps:             return STEPS_TOTAL;
     case Visual:            return VISUAL_TOTAL;
+    case HostSettings:      return HOSTSETTINGS_TOTAL;
+    case ActionCommands:    return ACTIONCOMMANDS_TOTAL;
     case Advanced:          return ADVANCED_TOTAL;
     #if HAS_BED_PROBE
       case ProbeMenu:       return PROBE_TOTAL;
@@ -5205,12 +5291,12 @@ void CrealityDWINClass::Screen_Update() {
   static millis_t scrltime = 0;
   if (ELAPSED(millis(), scrltime)) {
     scrltime = millis() + 200;
-    Update_Status_Bar();
+    if (process != Keyboard) Update_Status_Bar();
     if (process == Print) Draw_Print_Filename();
   }
 
   static millis_t statustime = 0;
-  if (ELAPSED(millis(), statustime)) {
+  if (ELAPSED(millis(), statustime) && process != Keyboard) {
     statustime = millis() + 500;
     Draw_Status_Area();
   }
@@ -5391,6 +5477,7 @@ void CrealityDWINClass::Reset_Settings() {
     eeprom_settings.host_action_label_1 = 0;
     eeprom_settings.host_action_label_2 = 0;
     eeprom_settings.host_action_label_3 = 0;
+    action1[0] = action2[0] = action3[0] = '-';
   #endif
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   corner_pos = eeprom_settings.corner_pos / 10.0f;
