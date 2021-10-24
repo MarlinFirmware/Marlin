@@ -25,7 +25,7 @@
 #define Language_English    1
 #define Language_Chinese    2
 
-#define ICON                7 // Icon set file 7.ICO
+#define ICON                9 // Icon set file 7.ICO
 
 #define ICON_LOGO                0
 #define ICON_Print_0             1
