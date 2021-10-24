@@ -648,6 +648,18 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
     static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
   #endif
+  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+    #ifdef ETC_SAMPLE_START
+      constexpr auto _etc_sample_start = ETC_SAMPLE_START;
+      constexpr decltype(_etc_sample_start) _test_etc_sample_start = 12.3f;
+      static_assert(_test_etc_sample_start != 12.3f, "ETC_SAMPLE_START must be a whole number.");
+    #endif
+    #ifdef ETC_SAMPLE_RES
+      constexpr auto _etc_sample_res = ETC_SAMPLE_RES;
+      constexpr decltype(_etc_sample_res) _test_etc_sample_res = 12.3f;
+      static_assert(_test_etc_sample_res != 12.3f, "ETC_SAMPLE_RES must be a whole number.");
+    #endif
+  #endif
 
   #if ENABLED(USE_TEMP_EXT_COMPENSATION) && EXTRUDERS != 1
     #error "USE_TEMP_EXT_COMPENSATION only works with a single extruder."
