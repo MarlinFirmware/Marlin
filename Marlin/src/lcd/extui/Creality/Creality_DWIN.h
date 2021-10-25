@@ -61,7 +61,7 @@ namespace ExtUI {
 #define	FONT_EEPROM	90
 #define	AutoLeve_EEPROM	100
 #define	FanOn	255
-#define 	FanOff	0
+#define FanOff	0
 
 /*variable addr*/
 #define	ExchangepageAddr	0x0084
@@ -98,6 +98,22 @@ namespace ExtUI {
 #define BedPID_P 0x1262
 #define BedPID_I 0x1266
 #define BedPID_D 0x126A
+
+#define Jerk_X 0x1270
+#define Jerk_Y 0x1272
+#define Jerk_Z 0x1274
+#define Jerk_E 0x1276
+
+#define Feed_X 0x1278
+#define Feed_Y 0x127A
+#define Feed_Z 0x127C
+#define Feed_E 0x127E
+
+#define Accel_X 0x1280
+#define Accel_Y 0x1282
+#define Accel_Z 0x1284
+#define Accel_E 0x1286
+
 
 #define	HeatPercentIcon		0x1024
 
@@ -161,6 +177,14 @@ namespace ExtUI {
 
 /************struct**************/
 
+typedef enum : uint8_t {
+  DGUS_IDLE,           //< waiting for DGUS_HEADER1.
+  DGUS_HEADER1_SEEN,   //< DGUS_HEADER1 received
+  DGUS_HEADER2_SEEN,   //< DGUS_HEADER2 received
+  DGUS_WAIT_TELEGRAM,  //< LEN received, Waiting for to receive all bytes.
+} rx_datagram_state_t;
+
+
 typedef struct DataBuf
 {
     unsigned char len;
@@ -185,6 +209,8 @@ struct creality_dwin_settings_t {
   int16_t standby_time_seconds;
 
 };
+
+
 
 void SetTouchScreenConfiguration();
 
@@ -212,6 +238,10 @@ class RTSSHOW {
     DB recdat;
     DB snddat;
     unsigned char databuf[SizeofDatabuf];
+
+  static rx_datagram_state_t rx_datagram_state;
+  static uint8_t rx_datagram_len;
+  static bool Initialized;
   };
 
 static RTSSHOW rtscheck;
