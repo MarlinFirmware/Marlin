@@ -34,18 +34,28 @@
   #include "../module/tool_change.h"
 #endif
 
+#define HAS_SOLENOID(N) (HAS_SOLENOID_##N && (ENABLED(MANUAL_SOLENOID_CONTROL) || N < EXTRUDERS))
+
 // Used primarily with MANUAL_SOLENOID_CONTROL
 static void set_solenoid(const uint8_t num, const bool active) {
   const uint8_t value = active ? PE_MAGNET_ON_STATE : !PE_MAGNET_ON_STATE;
   switch (num) {
-    case 0: TERN_(HAS_SOLENOID_0, OUT_WRITE(SOL0_PIN, value)); break;
-    case 1: TERN_(HAS_SOLENOID_1, OUT_WRITE(SOL1_PIN, value)); break;
-    case 2: TERN_(HAS_SOLENOID_2, OUT_WRITE(SOL2_PIN, value)); break;
-    case 3: TERN_(HAS_SOLENOID_3, OUT_WRITE(SOL3_PIN, value)); break;
-    case 4: TERN_(HAS_SOLENOID_4, OUT_WRITE(SOL4_PIN, value)); break;
-    case 5: TERN_(HAS_SOLENOID_5, OUT_WRITE(SOL5_PIN, value)); break;
-    case 6: TERN_(HAS_SOLENOID_6, OUT_WRITE(SOL6_PIN, value)); break;
-    case 7: TERN_(HAS_SOLENOID_7, OUT_WRITE(SOL7_PIN, value)); break;
+    case 0: OUT_WRITE(SOL0_PIN, value); break;
+    #if HAS_SOLENOID(1)
+      case 1: OUT_WRITE(SOL1_PIN, value); break;
+    #endif
+    #if HAS_SOLENOID(2)
+      case 2: OUT_WRITE(SOL2_PIN, value); break;
+    #endif
+    #if HAS_SOLENOID(3)
+      case 3: OUT_WRITE(SOL3_PIN, value); break;
+    #endif
+    #if HAS_SOLENOID(4)
+      case 4: OUT_WRITE(SOL4_PIN, value); break;
+    #endif
+    #if HAS_SOLENOID(5)
+      case 5: OUT_WRITE(SOL5_PIN, value); break;
+    #endif
     default: SERIAL_ECHO_MSG(STR_INVALID_SOLENOID); break;
   }
 
@@ -57,17 +67,25 @@ static void set_solenoid(const uint8_t num, const bool active) {
 
 void enable_solenoid(const uint8_t num) { set_solenoid(num, true); }
 void disable_solenoid(const uint8_t num) { set_solenoid(num, false); }
-void enable_solenoid_on_active_extruder() {  }
+void enable_solenoid_on_active_extruder() { enable_solenoid(active_extruder); }
 
 void disable_all_solenoids() {
-  TERN_(HAS_SOLENOID_0, disable_solenoid(0));
-  TERN_(HAS_SOLENOID_1, disable_solenoid(1));
-  TERN_(HAS_SOLENOID_2, disable_solenoid(2));
-  TERN_(HAS_SOLENOID_3, disable_solenoid(3));
-  TERN_(HAS_SOLENOID_4, disable_solenoid(4));
-  TERN_(HAS_SOLENOID_5, disable_solenoid(5));
-  TERN_(HAS_SOLENOID_6, disable_solenoid(6));
-  TERN_(HAS_SOLENOID_7, disable_solenoid(7));
+  disable_solenoid(0);
+  #if HAS_SOLENOID(1)
+    disable_solenoid(1);
+  #endif
+  #if HAS_SOLENOID(2)
+    disable_solenoid(2);
+  #endif
+  #if HAS_SOLENOID(3)
+    disable_solenoid(3);
+  #endif
+  #if HAS_SOLENOID(4)
+    disable_solenoid(4);
+  #endif
+  #if HAS_SOLENOID(5)
+    disable_solenoid(5);
+  #endif
 }
 
 #endif // EXT_SOLENOID || MANUAL_SOLENOID_CONTROL
