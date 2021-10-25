@@ -1239,7 +1239,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * (Magnetic) Parking Extruder requirements
  */
-#if ANY(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+#if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
   #if ENABLED(EXT_SOLENOID)
     #error "(MAGNETIC_)PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
   #elif EXTRUDERS != 2
