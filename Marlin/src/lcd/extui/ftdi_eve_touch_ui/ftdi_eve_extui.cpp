@@ -38,9 +38,9 @@ namespace ExtUI {
 
   void onIdle() { EventLoop::loop(); }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    char str[strlen_P(error) + strlen_P(component) + 3];
-    sprintf_P(str, PSTR(S_FMT ": " S_FMT), error, component);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
+    char str[strlen_P(FTOP(error)) + strlen_P(FTOP(component)) + 3];
+    sprintf_P(str, PSTR(S_FMT ": " S_FMT), FTOP(error), FTOP(component));
     KillScreen::show(str);
   }
 

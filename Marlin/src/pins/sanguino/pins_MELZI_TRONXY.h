@@ -34,7 +34,7 @@
   #define BOARD_ST7920_DELAY_3                 0
 #endif
 
-#include "pins_MELZI.h"
+#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
 
 #undef Z_ENABLE_PIN
 #undef LCD_PINS_RS

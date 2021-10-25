@@ -1471,7 +1471,7 @@ void MarlinSettings::postprocess() {
         store_mesh(ubl.storage_slot);
     #endif
 
-    if (!eeprom_error) LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
+    if (!eeprom_error) LCD_MESSAGE(MSG_SETTINGS_STORED);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
 
@@ -1497,7 +1497,7 @@ void MarlinSettings::postprocess() {
         stored_ver[1] = '\0';
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_VERSION)));
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
@@ -2362,7 +2362,7 @@ void MarlinSettings::postprocess() {
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_CRC)));
+        TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_CRC));
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
@@ -3037,7 +3037,7 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_START()       gcode.report_echo_start(forReplay)
   #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
   #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
-  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, PSTR(STR))
+  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, F(STR))
 
   void M92_report(const bool echo=true, const int8_t e=-1);
 

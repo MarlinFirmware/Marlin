@@ -24,6 +24,8 @@
 
 #if ENABLED(PROBE_TEMP_COMPENSATION)
 
+//#define DEBUG_PTC   // Print extra debug output with 'M871'
+
 #include "probe_temp_comp.h"
 #include <math.h>
 
@@ -69,19 +71,27 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
+      SERIAL_ECHOF(s == TSI_BED ? F("Bed") :
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          s == TSI_EXT ? PSTR("Extruder") :
+          s == TSI_EXT ? F("Extruder") :
         #endif
-        PSTR("Probe")
+        F("Probe")
       );
       SERIAL_ECHOLNPGM(
         " temp: ", temp,
         "C; Offset: ", i < 0 ? 0.0f : sensor_z_offsets[s][i], " um"
       );
-      temp += cali_info[s].temp_res;
+      temp += cali_info[s].temp_resolution;
     }
   }
+  #if ENABLED(DEBUG_PTC)
+    float meas[4] = { 0, 0, 0, 0 };
+    compensate_measurement(TSI_PROBE, 27.5, meas[0]);
+    compensate_measurement(TSI_PROBE, 32.5, meas[1]);
+    compensate_measurement(TSI_PROBE, 77.5, meas[2]);
+    compensate_measurement(TSI_PROBE, 82.5, meas[3]);
+    SERIAL_ECHOLNPGM("DEBUG_PTC 27.5:", meas[0], " 32.5:", meas[1], " 77.5:", meas[2], " 82.5:", meas[3]);
+  #endif
 }
 
 void ProbeTempComp::prepare_new_calibration(const_float_t init_meas_z) {
@@ -111,7 +121,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
-                    res_temp = cali_info[tsi].temp_res;
+                    res_temp = cali_info[tsi].temp_resolution;
   int16_t * const data = sensor_z_offsets[tsi];
 
   // Extrapolate
@@ -156,46 +166,45 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 }
 
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
-  if (WITHIN(temp, cali_info[tsi].start_temp, cali_info[tsi].end_temp))
-    meas_z -= get_offset_for_temperature(tsi, temp);
-}
-
-float ProbeTempComp::get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp) {
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
-                    res_temp = cali_info[tsi].temp_res;
+                    end_temp = cali_info[tsi].end_temp,
+                    res_temp = cali_info[tsi].temp_resolution;
   const int16_t * const data = sensor_z_offsets[tsi];
 
-  auto point = [&](uint8_t i) -> xy_float_t {
-    return xy_float_t({ static_cast<float>(start_temp) + i * res_temp, static_cast<float>(data[i]) });
+  // Given a data index, return { celsius, zoffset } in the form { x, y }
+  auto tpoint = [&](uint8_t i) -> xy_float_t {
+    return xy_float_t({ static_cast<float>(start_temp) + i * res_temp, i ? static_cast<float>(data[i - 1]) : 0.0f });
   };
 
+  // Interpolate Z based on a temperature being within a given range
   auto linear_interp = [](const_float_t x, xy_float_t p1, xy_float_t p2) {
-    return (p2.y - p1.y) / (p2.x - p2.y) * (x - p1.x) + p1.y;
+    //   zoffs1 +      zoffset_per_toffset      *  toffset
+    return p1.y + (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x);
   };
-
-  // Linear interpolation
-  uint8_t idx = static_cast<uint8_t>((temp - start_temp) / res_temp);
 
   // offset in µm
   float offset = 0.0f;
 
-  #if !defined(PTC_LINEAR_EXTRAPOLATION) || PTC_LINEAR_EXTRAPOLATION <= 0
-    if (idx < 0)
-      offset = 0.0f;
-    else if (idx > measurements - 2)
-      offset = static_cast<float>(data[measurements - 1]);
+  #if PTC_LINEAR_EXTRAPOLATION
+    if (temp < start_temp)
+      offset = linear_interp(temp, tpoint(0), tpoint(PTC_LINEAR_EXTRAPOLATION));
+    else if (temp >= end_temp)
+      offset = linear_interp(temp, tpoint(measurements - PTC_LINEAR_EXTRAPOLATION), tpoint(measurements));
   #else
-    if (idx < 0)
-      offset = linear_interp(temp, point(0), point(PTC_LINEAR_EXTRAPOLATION));
-    else if (idx > measurements - 2)
-      offset = linear_interp(temp, point(measurements - PTC_LINEAR_EXTRAPOLATION - 1), point(measurements - 1));
+    if (temp < start_temp)
+      offset = 0.0f;
+    else if (temp >= end_temp)
+      offset = static_cast<float>(data[measurements - 1]);
   #endif
-    else
-      offset = linear_interp(temp, point(idx), point(idx + 1));
+    else {
+      // Linear interpolation
+      const int8_t idx = static_cast<int8_t>((temp - start_temp) / res_temp);
+      offset = linear_interp(temp, tpoint(idx), tpoint(idx + 1));
+    }
 
-  // return offset in mm
-  return offset / 1000.0f;
+  // convert offset to mm and apply it
+  meas_z -= offset / 1000.0f;
 }
 
 bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d) {
@@ -204,7 +213,7 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
   if (!WITHIN(calib_idx, 2, cali_info[tsi].measurements)) return false;
 
   const celsius_t start_temp = cali_info[tsi].start_temp,
-                    res_temp = cali_info[tsi].temp_res;
+                    res_temp = cali_info[tsi].temp_resolution;
   const int16_t * const data = sensor_z_offsets[tsi];
 
   float sum_x = start_temp,

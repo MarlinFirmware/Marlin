@@ -609,7 +609,7 @@ class Stepper {
       static void disable_e_steppers();
     #else
       static inline void enable_extruder() {}
-      static inline bool disable_extruder() {}
+      static inline bool disable_extruder() { return true; }
       static inline void enable_e_steppers() {}
       static inline void disable_e_steppers() {}
     #endif

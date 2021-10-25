@@ -178,7 +178,7 @@ static void print_input_or_output(const bool isout) {
 }
 
 // pretty report with PWM info
-inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool extended=false, PGM_P const start_string=nullptr) {
+inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool extended=false, FSTR_P const start_string=nullptr) {
   char buffer[MAX_NAME_LENGTH + 1];   // for the sprintf statements
   bool found = false, multi_name_pin = false;
 
@@ -202,7 +202,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
   LOOP_L_N(x, COUNT(pin_array))  {    // scan entire array and report all instances of this pin
     if (GET_ARRAY_PIN(x) == pin) {
       if (!found) {    // report digital and analog pin number only on the first time through
-        if (start_string) SERIAL_ECHOPGM_P(start_string);
+        if (start_string) SERIAL_ECHOF(start_string);
         SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
         PRINT_PORT(pin);
@@ -211,7 +211,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
       }
       else {
         SERIAL_CHAR('.');
-        SERIAL_ECHO_SP(MULTI_NAME_PAD + (start_string ? strlen_P(start_string) : 0));  // add padding if not the first instance found
+        SERIAL_ECHO_SP(MULTI_NAME_PAD + (start_string ? strlen_P(FTOP(start_string)) : 0));  // add padding if not the first instance found
       }
       PRINT_ARRAY_NAME(x);
       if (extended) {
@@ -250,7 +250,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
   } // end of for loop
 
   if (!found) {
-    if (start_string) SERIAL_ECHOPGM_P(start_string);
+    if (start_string) SERIAL_ECHOF(start_string);
     SERIAL_ECHOPGM("PIN: ");
     PRINT_PIN(pin);
     PRINT_PORT(pin);

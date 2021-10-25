@@ -42,6 +42,8 @@
  * a Max7219_Set_Row().    The opposite is true for rotations of 0 or 180 degrees.
  */
 
+#include "../inc/MarlinConfig.h"
+
 #ifndef MAX7219_ROTATE
   #define MAX7219_ROTATE 0
 #endif
@@ -140,7 +142,7 @@ public:
 
 private:
   static uint8_t suspended;
-  static void error(const char * const func, const int32_t v1, const int32_t v2=-1);
+  static void error(FSTR_P const func, const int32_t v1, const int32_t v2=-1);
   static void noop();
   static void set(const uint8_t line, const uint8_t bits);
   static void send_row(const uint8_t row);

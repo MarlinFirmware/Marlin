@@ -23,10 +23,11 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#ifndef DWIN_WIDTH
+#if ENABLED(DWIN_MARLINUI_LANDSCAPE)
+  #define DWIN_WIDTH  480
+  #define DWIN_HEIGHT 272
+#else
   #define DWIN_WIDTH  272
-#endif
-#ifndef DWIN_HEIGHT
   #define DWIN_HEIGHT 480
 #endif
 
@@ -174,9 +175,10 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  rlimit: For draw less chars than string length use rlimit
 void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit=0xFFFF);
 
-inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, FSTR_P title) {
-  // Note that this won't work on AVR, only 32-bit systems!
-  DWIN_Draw_String(bShow, size, color, bColor, x, y, FTOP(title));
+inline void DWIN_Draw_String(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, FSTR_P const ftitle) {
+  char ctitle[strlen_P(FTOP(ftitle)) + 1];
+  strcpy_P(ctitle, FTOP(ftitle));
+  DWIN_Draw_String(bShow, size, color, bColor, x, y, ctitle);
 }
 
 // Draw a positive integer

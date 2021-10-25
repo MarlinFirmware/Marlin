@@ -244,8 +244,8 @@ void HMI_Init();
 void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
-void DWIN_StatusChanged(const char *text);
-void DWIN_StatusChanged_P(PGM_P const pstr);
+void DWIN_StatusChanged(const char * const cstr=nullptr);
+void DWIN_StatusChanged(FSTR_P const fstr);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 

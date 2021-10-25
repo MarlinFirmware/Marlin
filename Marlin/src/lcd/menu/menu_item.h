@@ -23,7 +23,7 @@
 
 #include "menu.h"
 #include "../marlinui.h"
-#include "../../gcode/queue.h" // for inject_P
+#include "../../gcode/queue.h" // for inject
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -64,8 +64,8 @@ class MenuItem_gcode : public MenuItem_button {
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
       _draw(sel, row, pstr, '>', ' ');
     }
-    static void action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
-    static inline void action(PGM_P const pstr, const uint8_t, const char * const pgcode) { action(pstr, pgcode); }
+    static void action(PGM_P const, PGM_P const pgcode) { queue.inject(FPSTR(pgcode)); }
+    static inline void action(PGM_P const pstr, const uint8_t, PGM_P const pgcode) { action(pstr, pgcode); }
 };
 
 ////////////////////////////////////////////
@@ -106,9 +106,23 @@ class TMenuEditItem : MenuEditItemBase {
     }
 };
 
-// Provide a set of Edit Item Types which encompass a primitive
-// type, a string function, and a scale factor for edit and display.
-// These items call the Edit Item draw method passing the prepared string.
+/**
+ * DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
+ *
+ * Define struct types for use by EDIT_ITEM(...) macros, which encompass
+ * a primitive storage type, a string function, and a scale factor for edit / display.
+ * The EDIT_ITEM macros take care of calling action and draw methods as needed.
+ *
+ * For example, DEFINE_MENU_EDIT_ITEM_TYPE(percent, uint8_t, ui8tostr4pctrj, 100.f/255.f, +0.5f) expands into:
+ *
+ *   struct MenuEditItemInfo_percent {
+ *     typedef uint8_t type_t;
+ *     static inline float scale(const_float_t value)   { return value * (100.f/255.f) +0.5f; }
+ *     static inline float unscale(const_float_t value) { return value / (100.f/255.f) +0.5f; }
+ *     static inline const char* strfunc(const_float_t value) { return ui8tostr4pctrj(_DOFIX(uint8_t,value)); }
+ *   };
+ *   typedef TMenuEditItem<MenuEditItemInfo_percent> MenuItem_percent
+ */
 #define __DOFIXfloat PROBE()
 #define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
 #define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
