@@ -383,7 +383,7 @@ template<typename T>
 struct XYZval {
   union {
     struct { T LINEAR_AXIS_ARGS(); };
-    struct { T LINEAR_AXIS_LIST(a, b, c, u, v, w, ax7, ax8, ax9); };
+    struct { T LINEAR_AXIS_LIST(a, b, c, ax4, ax5, ax6, ax7, ax8, ax9); };
     T pos[LINEAR_AXES];
   };
 
@@ -398,11 +398,11 @@ struct XYZval {
   FI void set(const T (&arr)[XY])                      { x = arr[0]; y = arr[1]; }
   #if HAS_Z_AXIS
     FI void set(const T (&arr)[LINEAR_AXES])           { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
-    FI void set(LINEAR_AXIS_ARGS(const T))             { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      u = i,      v = j,      w = k,      ax7 = u,      ax8 = v,      ax9 = w); }
+    FI void set(LINEAR_AXIS_ARGS(const T))             { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      ax4 = i,      ax5 = j,      ax6 = k,      ax7 = u,      ax8 = v,      ax9 = w); }
   #endif
   #if LOGICAL_AXES > LINEAR_AXES
     FI void set(const T (&arr)[LOGICAL_AXES])          { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
-    FI void set(LOGICAL_AXIS_ARGS(const T))            { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      u = i,      v = j,      w = k,      ax7 = u,      ax8 = v,      ax9 = w    ); }
+    FI void set(LOGICAL_AXIS_ARGS(const T))            { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      ax4 = i,      ax5 = j,      ax6 = k,      ax7 = u,      ax8 = v,      ax9 = w    ); }
     #if DISTINCT_AXES > LOGICAL_AXES
       FI void set(const T (&arr)[DISTINCT_AXES])       { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
     #endif
@@ -538,7 +538,7 @@ template<typename T>
 struct XYZEval {
   union {
     struct { T LOGICAL_AXIS_ARGS(); };
-    struct { T LOGICAL_AXIS_LIST(_e, a, b, c, u, v, w, ax7, ax8, ax9); };
+    struct { T LOGICAL_AXIS_LIST(_e, a, b, c, ax4, ax5, ax6, ax7, ax8, ax9); };
     T pos[LOGICAL_AXES];
   };
   // Reset all to 0
@@ -550,12 +550,12 @@ struct XYZEval {
   FI void set(const XYval<T> pxy)     { x = pxy.x; y = pxy.y; }
   FI void set(const XYZval<T> pxyz)   { set(LINEAR_AXIS_ELEM(pxyz)); }
   #if HAS_Z_AXIS
-    FI void set(LINEAR_AXIS_ARGS(const T))         { LINEAR_AXIS_CODE(a = x, b = y, c = z, u = i, v = j, w = k, ax7 = u, ax8 = v, ax9 = w); }
+    FI void set(LINEAR_AXIS_ARGS(const T))         { LINEAR_AXIS_CODE(a = x, b = y, c = z, ax4 = i, ax5 = j, ax6 = k, ax7 = u, ax8 = v, ax9 = w); }
   #endif
   #if LOGICAL_AXES > LINEAR_AXES
     FI void set(const XYval<T> pxy, const T pe)    { set(pxy); e = pe; }
     FI void set(const XYZval<T> pxyz, const T pe)  { set(pxyz); e = pe; }
-    FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, u = i, v = j, w = k, ax7 = u, ax8 = v, ax9 = w); }
+    FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, ax4 = i, ax5 = j, ax6 = k, ax7 = u, ax8 = v, ax9 = w); }
   #endif
   #if LINEAR_AXES >= 4
     FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
