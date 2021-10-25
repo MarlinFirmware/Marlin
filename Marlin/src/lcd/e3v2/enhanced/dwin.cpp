@@ -1104,9 +1104,8 @@ void Draw_Info_Menu() {
   DWINUI::Draw_CenteredString(268, F(CORP_WEBSITE));
 
   LOOP_L_N(i, 3) {
-    uint16_t yPOS = 156 + i * 73;
     DWINUI::Draw_Icon(ICON_PrintSize + i, 26, 99 + i * 73);
-    DWIN_Draw_Line(HMI_data.SplitLine_Color, 16, yPOS, 256, yPOS);
+    DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MBASE(2) + i * 73, 240);
   }
 
   DWIN_UpdateLCD();
