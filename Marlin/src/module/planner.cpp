@@ -1457,7 +1457,7 @@ void Planner::check_axes_activity() {
 
     float t = autotemp_min + high * autotemp_factor;
     LIMIT(t, autotemp_min, autotemp_max);
-    if (t < oldt) t *= (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
+    if (t < oldt) t = t * (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, active_extruder);
   }
