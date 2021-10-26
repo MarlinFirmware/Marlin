@@ -31,7 +31,7 @@
   #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY 1
   #else
-    #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
+    #error "You can't use a LCD that requires EXP1 and EXP2 and a Motor Expansion Module simultaneously."
   #endif
 #endif
 
