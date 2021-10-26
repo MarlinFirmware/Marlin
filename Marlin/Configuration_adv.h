@@ -1995,9 +1995,6 @@
 #if HAS_BED_PROBE && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
   // Enable thermal first layer compensation using bed and probe temperatures
   #define PROBE_TEMP_COMPENSATION
-
-  // Add additional compensation depending on hotend temperature
-  // Note: this values cannot be calibrated and have to be set manually
   #if ENABLED(PROBE_TEMP_COMPENSATION)
     // Enable additional compensation using hotend temperature
     // Note: this values cannot be calibrated automatically but have to be set manually via M871.
