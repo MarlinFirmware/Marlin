@@ -55,12 +55,6 @@ class ProbeTempComp {
       #endif
     };
 
-    // Where to park nozzle to wait for probe cooldown
-    static constexpr xyz_pos_t park_point = PTC_PARK_POS;
-
-    // XY coordinates of nozzle for probing the bed
-    static constexpr xy_pos_t measure_point    = PTC_PROBE_POS;     // Coordinates to probe
-
     static int16_t *sensor_z_offsets[TSI_COUNT],
                    z_offsets_probe[PTC_SAMPLE_COUNT], // (µm)
                    z_offsets_bed[BTC_SAMPLE_COUNT];     // (µm)
