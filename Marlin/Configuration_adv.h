@@ -1999,12 +1999,6 @@
   // Add additional compensation depending on hotend temperature
   // Note: this values cannot be calibrated and have to be set manually
   #if ENABLED(PROBE_TEMP_COMPENSATION)
-    // Park position to wait for probe cooldown
-    #define PTC_PARK_POS   { 0, 0, 100 }
-
-    // Probe position to probe and wait for probe to reach target temperature
-    #define PTC_PROBE_POS  { 90, 100 }
-
     // Enable additional compensation using hotend temperature
     // Note: this values cannot be calibrated automatically but have to be set manually via M871.
     //#define USE_TEMP_EXT_COMPENSATION
@@ -2028,6 +2022,12 @@
       //#define ETC_SAMPLE_COUNT  20
     #endif
 
+    // Park position to wait for probe cooldown
+    #define PTC_PARK_POS   { 0, 0, 100 }
+
+    // Probe position to probe and wait for probe to reach target temperature
+    #define PTC_PROBE_POS  { 90, 100 }
+
     // The temperature the probe should be at while taking measurements during bed temperature
     // calibration.
     //#define BTC_PROBE_TEMP    30  // (°C)
@@ -2035,11 +2035,6 @@
     // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
     // Note: the Z=0.0 offset is determined by the probe offset which can be set using M851.
     //#define PTC_PROBE_HEATING_OFFSET 0.5
-
-    // Height to raise the Z-probe between heating and taking the next measurement. Some probes
-    // may fail to untrigger if they have been triggered for a long time, which can be solved by
-    // increasing the height the probe is raised to.
-    //#define PTC_PROBE_RAISE 15
 
     // If the probe is outside of the defined range, use linear extrapolation using the closest
     // point and the PTC_LINEAR_EXTRAPOLATION'th next point. E.g. if set to 4 it will use data[0]
