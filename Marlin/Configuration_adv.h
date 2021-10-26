@@ -2008,6 +2008,8 @@
         #define PTC_SAMPLE_START  30  // (°C)
         #define PTC_SAMPLE_RES     5  // (°C)
         #define PTC_SAMPLE_COUNT  10
+        // Z offsets in µm. +ve means the probe triggers further from the bed than at temperature PTC_SAMPLE_START.
+        #define PTC_SAMPLE_VALUES {0}
       #endif
     #endif
 
@@ -2019,6 +2021,8 @@
         #define BTC_SAMPLE_START  60  // (°C)
         #define BTC_SAMPLE_RES     5  // (°C)
         #define BTC_SAMPLE_COUNT  10
+        // Z offsets in µm. +ve means the probe triggers further from the bed than at temperature BTC_SAMPLE_START.
+        #define BTC_SAMPLE_VALUES {0}
       #endif
     #endif
 
@@ -2030,6 +2034,8 @@
         #define ETC_SAMPLE_START 180  // (°C)
         #define ETC_SAMPLE_RES     5  // (°C)
         #define ETC_SAMPLE_COUNT  20
+        // Z offsets in µm. +ve means the probe triggers when extruder is further from the bed than at temperature ETC_SAMPLE_START.
+        #define ETC_SAMPLE_VALUES {0}
       #endif
     #endif
 

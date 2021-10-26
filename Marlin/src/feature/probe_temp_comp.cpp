@@ -31,9 +31,9 @@
 
 ProbeTempComp temp_comp;
 
-OPTCODE(USE_TEMP_PROBE_COMPENSATION, int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_COUNT]);  // = {0}
-OPTCODE(USE_TEMP_BED_COMPENSATION, int16_t ProbeTempComp::z_offsets_bed[BTC_SAMPLE_COUNT]);      // = {0}
-OPTCODE(USE_TEMP_EXT_COMPENSATION, int16_t ProbeTempComp::z_offsets_ext[ETC_SAMPLE_COUNT]);      // = {0}
+OPTCODE(USE_TEMP_PROBE_COMPENSATION, int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_COUNT] = PTC_SAMPLE_VALUES);
+OPTCODE(USE_TEMP_BED_COMPENSATION, int16_t ProbeTempComp::z_offsets_bed[BTC_SAMPLE_COUNT] = BTC_SAMPLE_VALUES);
+OPTCODE(USE_TEMP_EXT_COMPENSATION, int16_t ProbeTempComp::z_offsets_ext[ETC_SAMPLE_COUNT] = ETC_SAMPLE_VALUES);
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
   #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
