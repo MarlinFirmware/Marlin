@@ -24,8 +24,12 @@
 #include "../inc/MarlinConfig.h"
 
 enum TempSensorID : uint8_t {
-  TSI_PROBE,
-  TSI_BED,
+  #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+    TSI_PROBE,
+  #endif
+  #if ENABLED(USE_TEMP_BED_COMPENSATION)
+    TSI_BED,
+  #endif
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
     TSI_EXT,
   #endif
@@ -48,17 +52,24 @@ class ProbeTempComp {
   public:
 
     static constexpr temp_calib_t cali_info[TSI_COUNT] = {
-      { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START },   // Probe
-      { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START },   // Bed
+      #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+        { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START },   // Probe
+      #endif
+      #if ENABLED(USE_TEMP_BED_COMPENSATION)
+        { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START },   // Bed
+      #endif
       #if ENABLED(USE_TEMP_EXT_COMPENSATION)
         { ETC_SAMPLE_COUNT, ETC_SAMPLE_RES, ETC_SAMPLE_START }, // Extruder
       #endif
     };
 
-    static int16_t *sensor_z_offsets[TSI_COUNT],
-                   z_offsets_probe[PTC_SAMPLE_COUNT], // (µm)
-                   z_offsets_bed[BTC_SAMPLE_COUNT];     // (µm)
-
+    static int16_t *sensor_z_offsets[TSI_COUNT];
+    #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+      static int16_t z_offsets_probe[PTC_SAMPLE_COUNT]; // (µm)
+    #endif
+    #if ENABLED(USE_TEMP_BED_COMPENSATION)
+      static int16_t z_offsets_bed[BTC_SAMPLE_COUNT];   // (µm)
+    #endif
     #if ENABLED(USE_TEMP_EXT_COMPENSATION)
       static int16_t z_offsets_ext[ETC_SAMPLE_COUNT];   // (µm)
     #endif
@@ -67,8 +78,8 @@ class ProbeTempComp {
     static inline uint8_t get_index() { return calib_idx; }
     static void clear_offsets(const TempSensorID tsi);
     static inline void clear_all_offsets() {
-      clear_offsets(TSI_BED);
-      clear_offsets(TSI_PROBE);
+      TERN_(USE_TEMP_PROBE_COMPENSATION, clear_offsets(TSI_PROBE));
+      TERN_(USE_TEMP_BED_COMPENSATION, clear_offsets(TSI_BED));
       TERN_(USE_TEMP_EXT_COMPENSATION, clear_offsets(TSI_EXT));
     }
     static bool set_offset(const TempSensorID tsi, const uint8_t idx, const int16_t offset);

@@ -31,16 +31,20 @@
 
 ProbeTempComp temp_comp;
 
-int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_COUNT],    // = {0}
-        ProbeTempComp::z_offsets_bed[BTC_SAMPLE_COUNT];      // = {0}
-
-#if ENABLED(USE_TEMP_EXT_COMPENSATION)
-  int16_t ProbeTempComp::z_offsets_ext[ETC_SAMPLE_COUNT];    // = {0}
-#endif
+OPTCODE(USE_TEMP_PROBE_COMPENSATION, int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_COUNT]);  // = {0}
+OPTCODE(USE_TEMP_BED_COMPENSATION, int16_t ProbeTempComp::z_offsets_bed[BTC_SAMPLE_COUNT]);      // = {0}
+OPTCODE(USE_TEMP_EXT_COMPENSATION, int16_t ProbeTempComp::z_offsets_ext[ETC_SAMPLE_COUNT]);      // = {0}
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
-  ProbeTempComp::z_offsets_probe, ProbeTempComp::z_offsets_bed
-  OPTARG(USE_TEMP_EXT_COMPENSATION, ProbeTempComp::z_offsets_ext)
+  #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+    ProbeTempComp::z_offsets_probe,
+  #endif
+  #if ENABLED(USE_TEMP_BED_COMPENSATION)
+    ProbeTempComp::z_offsets_bed,
+  #endif
+  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+    ProbeTempComp::z_offsets_ext,
+  #endif
 };
 
 constexpr temp_calib_t ProbeTempComp::cali_info[TSI_COUNT];
@@ -64,10 +68,9 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      SERIAL_ECHOF(s == TSI_BED ? F("Bed") :
-        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          s == TSI_EXT ? F("Extruder") :
-        #endif
+      SERIAL_ECHOF(
+        TERN_(USE_TEMP_BED_COMPENSATION, s == TSI_BED ? F("Bed") :)
+        TERN_(USE_TEMP_EXT_COMPENSATION, s == TSI_EXT ? F("Extruder") :)
         F("Probe")
       );
       SERIAL_ECHOLNPGM(
@@ -93,19 +96,11 @@ void ProbeTempComp::prepare_new_calibration(const_float_t init_meas_z) {
 }
 
 void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z) {
-  switch (tsi) {
-    case TSI_PROBE:
-    case TSI_BED:
-    //case TSI_EXT:
-      if (calib_idx >= cali_info[tsi].measurements) return;
-      sensor_z_offsets[tsi][calib_idx++] = static_cast<int16_t>(meas_z * 1000.0f - init_measurement * 1000.0f);
-    default: break;
-  }
+  if (calib_idx >= cali_info[tsi].measurements) return;
+  sensor_z_offsets[tsi][calib_idx++] = static_cast<int16_t>(meas_z * 1000.0f - init_measurement * 1000.0f);
 }
 
 bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
-  if (tsi != TSI_PROBE && tsi != TSI_BED) return false;
-
   if (calib_idx < 3) {
     SERIAL_ECHOLNPGM("!Insufficient measurements (min. 3).");
     clear_offsets(tsi);
@@ -201,8 +196,6 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
 }
 
 bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d) {
-  if (tsi != TSI_PROBE && tsi != TSI_BED) return false;
-
   if (!WITHIN(calib_idx, 2, cali_info[tsi].measurements)) return false;
 
   const celsius_t start_temp = cali_info[tsi].start_temp,

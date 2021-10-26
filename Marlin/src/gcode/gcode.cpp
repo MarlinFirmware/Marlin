@@ -424,7 +424,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
+      #if ENABLED(PROBE_TEMP_COMPENSATION) && ENABLED(USE_TEMP_PROBE_COMPENSATION) && ENABLED(USE_TEMP_BED_COMPENSATION)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 

@@ -646,8 +646,8 @@ G29_TYPE GcodeSuite::G29() {
           }
 
           #if ENABLED(PROBE_TEMP_COMPENSATION)
-            temp_comp.compensate_measurement(TSI_BED, thermalManager.degBed(), abl.measured_z);
-            temp_comp.compensate_measurement(TSI_PROBE, thermalManager.degProbe(), abl.measured_z);
+            TERN_(USE_TEMP_BED_COMPENSATION, temp_comp.compensate_measurement(TSI_BED, thermalManager.degBed(), abl.measured_z));
+            TERN_(USE_TEMP_PROBE_COMPENSATION, temp_comp.compensate_measurement(TSI_PROBE, thermalManager.degProbe(), abl.measured_z));
             TERN_(USE_TEMP_EXT_COMPENSATION, temp_comp.compensate_measurement(TSI_EXT, thermalManager.degHotend(0), abl.measured_z));
           #endif
 

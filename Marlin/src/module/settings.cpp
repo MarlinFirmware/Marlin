@@ -265,12 +265,15 @@ typedef struct SettingsDataStruct {
   // Temperature first layer compensation values
   //
   #if ENABLED(PROBE_TEMP_COMPENSATION)
-    int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)], // M871 P I V
-            z_offsets_bed[COUNT(temp_comp.z_offsets_bed)]      // M871 B I V
-            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
-            #endif
-            ;
+    #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+      int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)]; // M871 P I V
+    #endif
+    #if ENABLED(USE_TEMP_BED_COMPENSATION)
+      int16_t z_offsets_bed[COUNT(temp_comp.z_offsets_bed)];     // M871 B I V
+    #endif
+    #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+      int16_t z_offsets_ext[COUNT(temp_comp.z_offsets_ext)];     // M871 E I V
+    #endif
   #endif
 
   //
@@ -845,8 +848,12 @@ void MarlinSettings::postprocess() {
     // Thermal first layer compensation values
     //
     #if ENABLED(PROBE_TEMP_COMPENSATION)
-      EEPROM_WRITE(temp_comp.z_offsets_probe);
-      EEPROM_WRITE(temp_comp.z_offsets_bed);
+      #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+        EEPROM_WRITE(temp_comp.z_offsets_probe);
+      #endif
+      #if ENABLED(USE_TEMP_BED_COMPENSATION)
+        EEPROM_WRITE(temp_comp.z_offsets_bed);
+      #endif
       #if ENABLED(USE_TEMP_EXT_COMPENSATION)
         EEPROM_WRITE(temp_comp.z_offsets_ext);
       #endif
@@ -1711,8 +1718,12 @@ void MarlinSettings::postprocess() {
       // Thermal first layer compensation values
       //
       #if ENABLED(PROBE_TEMP_COMPENSATION)
-        EEPROM_READ(temp_comp.z_offsets_probe);
-        EEPROM_READ(temp_comp.z_offsets_bed);
+        #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+          EEPROM_READ(temp_comp.z_offsets_probe);
+        #endif
+        # if ENABLED(USE_TEMP_BED_COMPENSATION)
+          EEPROM_READ(temp_comp.z_offsets_bed);
+        #endif
         #if ENABLED(USE_TEMP_EXT_COMPENSATION)
           EEPROM_READ(temp_comp.z_offsets_ext);
         #endif

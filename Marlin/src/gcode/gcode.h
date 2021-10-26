@@ -66,7 +66,7 @@
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
  * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
- * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION)
+ * G76  - Calibrate first layer temperature offsets. (Requires PROBE_TEMP_COMPENSATION, USE_TEMP_PROBE_COMPENSATION and USE_BED_PROBE_COMPENSATION)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
@@ -551,7 +551,7 @@ private:
     static void G59();
   #endif
 
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
+  #if ENABLED(PROBE_TEMP_COMPENSATION) && ENABLED(USE_TEMP_PROBE_COMPENSATION) && ENABLED(USE_TEMP_BED_COMPENSATION)
     static void G76();
   #endif
 
