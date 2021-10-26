@@ -150,7 +150,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
     // Restrict the max. offset difference between two probings
     if (calib_idx > 0 && ABS(data[calib_idx - 1] - data[calib_idx]) > 800) {
       SERIAL_ECHOLNPGM("!Invalid Z-offset between two probings detected (0-0.8).");
-      clear_offsets(TSI_PROBE);
+      clear_offsets(tsi);
       return false;
     }
   }
