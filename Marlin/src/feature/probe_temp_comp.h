@@ -33,9 +33,9 @@ enum TempSensorID : uint8_t {
 };
 
 typedef struct {
-  uint8_t measurements; // Max. number of measurements to be stored (35 - 80°C)
-  celsius_t temp_res,   // Resolution in °C between measurements
-            start_temp, // Base measurement; z-offset == 0
+  uint8_t measurements;       // Max. number of measurements to be stored (35 - 80°C)
+  celsius_t temp_resolution,  // Resolution in °C between measurements
+            start_temp,       // Base measurement; z-offset == 0
             end_temp;
 } temp_calib_t;
 
@@ -72,6 +72,20 @@ typedef struct {
 #endif
 #define BTC_SAMPLE_END (BTC_SAMPLE_START + (BTC_SAMPLE_COUNT) * BTC_SAMPLE_RES)
 
+// Extruder temperature calibration constants
+#if ENABLED(USE_TEMP_EXT_COMPENSATION)
+  #ifndef ETC_SAMPLE_COUNT
+    #define ETC_SAMPLE_COUNT 20
+  #endif
+  #ifndef ETC_SAMPLE_RES
+    #define ETC_SAMPLE_RES 5
+  #endif
+  #ifndef ETC_SAMPLE_START
+    #define ETC_SAMPLE_START 180
+  #endif
+  #define ETC_SAMPLE_END (ETC_SAMPLE_START + (ETC_SAMPLE_COUNT) * ETC_SAMPLE_RES)
+#endif
+
 #ifndef PTC_PROBE_HEATING_OFFSET
   #define PTC_PROBE_HEATING_OFFSET 0.5f
 #endif
@@ -81,10 +95,10 @@ typedef struct {
 #endif
 
 static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-  { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END }, // Probe
-  { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END }, // Bed
+  { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END },   // Probe
+  { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END },   // Bed
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    { 20,  5, 180, 180 +  5 * 20 }                                        // Extruder
+    { ETC_SAMPLE_COUNT, ETC_SAMPLE_RES, ETC_SAMPLE_START, ETC_SAMPLE_END }, // Extruder
   #endif
 };
 
@@ -134,8 +148,6 @@ class ProbeTempComp {
      * to this value, set at first probe.
      */
     static float init_measurement;
-
-    static float get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp);
 
     /**
      * Fit a linear function in measured temperature offsets
