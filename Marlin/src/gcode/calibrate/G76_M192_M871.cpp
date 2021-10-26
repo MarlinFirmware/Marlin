@@ -176,8 +176,8 @@ void GcodeSuite::G76() {
 
   if (do_bed_cal) {
 
-    celsius_t target_bed = ProbeTempComp::cali_info[TSI_BED].start_temp,
-              target_probe = temp_comp.bed_calib_probe_temp;
+    celsius_t target_bed = BTC_SAMPLE_START,
+              target_probe = BTC_PROBE_TEMP;
 
     say_waiting_for(); SERIAL_ECHOLNPGM(" cooling.");
     while (thermalManager.wholeDegBed() > target_bed || thermalManager.wholeDegProbe() > target_probe)
@@ -236,10 +236,10 @@ void GcodeSuite::G76() {
     do_blocking_move_to(parkpos);
 
     // Initialize temperatures
-    const celsius_t target_bed = temp_comp.probe_calib_bed_temp;
+    const celsius_t target_bed = BED_MAX_TARGET;
     thermalManager.setTargetBed(target_bed);
 
-    celsius_t target_probe = ProbeTempComp::cali_info[TSI_PROBE].start_temp;
+    celsius_t target_probe = PTC_SAMPLE_START;
 
     report_targets(target_bed, target_probe);
 
