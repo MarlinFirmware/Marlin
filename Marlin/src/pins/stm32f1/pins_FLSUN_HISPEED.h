@@ -70,6 +70,17 @@
 #define SD_MOSI_PIN                         PB15  // SPI2
 #define SPI_DEVICE                             2
 
+// SPI Flash
+#define HAS_SPI_FLASH                          1
+#if HAS_SPI_FLASH
+  // SPI 2
+  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
+#endif
+
 //
 // Servos
 //
@@ -360,15 +371,4 @@
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
   #define TFT_BUFFER_SIZE                  14400
-#endif
-
-// SPI Flash
-#define HAS_SPI_FLASH                          1
-#if HAS_SPI_FLASH
-  // SPI 2
-  #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
-  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
