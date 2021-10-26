@@ -954,7 +954,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
           #if ENABLED(TOOLCHANGE_NO_RETURN)
             const float temp = destination.z;
             destination = current_position;
-            destination.z = temp.z;
+            destination.z = temp;
           #endif
           prepare_internal_move_to_destination(TERN(TOOLCHANGE_NO_RETURN, planner.settings.max_feedrate_mm_s[Z_AXIS], MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)));
         }
@@ -1307,7 +1307,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     TERN_(HAS_FANMUX, fanmux_switch(active_extruder));
 
-    if (!no_move) {
+    if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
       #ifdef EVENT_GCODE_TOOLCHANGE_T0
         if (new_tool == 0)
           gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_TOOLCHANGE_T0));

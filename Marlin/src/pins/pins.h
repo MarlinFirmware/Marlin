@@ -571,6 +571,8 @@
   #include "stm32f1/pins_ZM3E4_V1_0.h"          // STM32F1                                env:STM32F103VC_ZM3E4_USB env:STM32F103VC_ZM3E4_USB_maple
 #elif MB(ZONESTAR_ZM3E4V2)
   #include "stm32f1/pins_ZM3E4_V2_0.h"          // STM32F1                                env:STM32F103VE_ZM3E4V2_USB env:STM32F103VE_ZM3E4V2_USB_maple
+#elif MB(ERYONE_ERY32_MINI)
+  #include "stm32f1/pins_ERYONE_ERY32_MINI.h"   // STM32F103VET6                          env:ERYONE_ERY32_MINI_maple
 
 //
 // ARM Cortex-M4F
@@ -651,6 +653,8 @@
   #include "stm32f4/pins_INDEX_REV03.h"         // STM32F4                                env:Index_Mobo_Rev03
 #elif MB(MKS_ROBIN_NANO_V1_3_F4)
   #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h" // STM32F4                             env:mks_robin_nano_v1_3_f4
+#elif MB(MKS_EAGLE)
+  #include "stm32f4/pins_MKS_EAGLE.h"           // STM32F4                                env:mks_eagle
 
 //
 // ARM Cortex M7
@@ -681,6 +685,10 @@
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
 #elif MB(FYSETC_E4)
   #include "esp32/pins_FYSETC_E4.h"             // ESP32                                  env:FYSETC_E4
+#elif MB(PANDA_ZHU)
+  #include "esp32/pins_PANDA_ZHU.h"             // ESP32                                  env:PANDA
+#elif MB(PANDA_M4)
+  #include "esp32/pins_PANDA_M4.h"              // ESP32                                  env:PANDA
 
 //
 // Adafruit Grand Central M4 (SAMD51 ARM Cortex-M4)

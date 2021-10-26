@@ -83,7 +83,7 @@
 #endif
 
 #ifndef FORCE_INLINE
-  #define FORCE_INLINE inline __attribute__((always_inline))
+  #define FORCE_INLINE __attribute__((always_inline)) inline
 #endif
 
 #include "progmem.h"

@@ -27,7 +27,7 @@
 
 #define BOARD_INFO_NAME "RigidBoard V2"
 
-#include "pins_RIGIDBOARD.h"
+#include "pins_RIGIDBOARD.h" // ... RAMPS
 
 //
 // Steppers

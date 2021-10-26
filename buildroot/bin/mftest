@@ -155,7 +155,7 @@ if ((AUTO_BUILD)); then
   BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
   BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
   BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
-  [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
+  [[ -z $BNUM ]] && { echo "Error - Can't find BOARD_$MB in core/boards.h." ; exit 1 ; }
   ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E "#include.+//.+(env|$SYS):[^ ]+" | grep -oE "(env|$SYS):[^ ]+" | $SED -E "s/(env|$SYS)://" ) )
   [[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
   ECOUNT=${#ENVS[*]}
