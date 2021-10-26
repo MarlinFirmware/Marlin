@@ -31,11 +31,11 @@
 
 ProbeTempComp temp_comp;
 
-int16_t ProbeTempComp::z_offsets_probe[cali_info_init[TSI_PROBE].measurements],  // = {0}
-        ProbeTempComp::z_offsets_bed[cali_info_init[TSI_BED].measurements];      // = {0}
+int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_COUNT],    // = {0}
+        ProbeTempComp::z_offsets_bed[BTC_SAMPLE_COUNT];      // = {0}
 
 #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-  int16_t ProbeTempComp::z_offsets_ext[cali_info_init[TSI_EXT].measurements];    // = {0}
+  int16_t ProbeTempComp::z_offsets_ext[ETC_SAMPLE_COUNT];    // = {0}
 #endif
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
@@ -43,10 +43,7 @@ int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
   OPTARG(USE_TEMP_EXT_COMPENSATION, ProbeTempComp::z_offsets_ext)
 };
 
-const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
-  cali_info_init[TSI_PROBE], cali_info_init[TSI_BED]
-  OPTARG(USE_TEMP_EXT_COMPENSATION, cali_info_init[TSI_EXT])
-};
+constexpr temp_calib_t ProbeTempComp::cali_info[TSI_COUNT];
 
 constexpr xyz_pos_t ProbeTempComp::park_point;
 constexpr xy_pos_t ProbeTempComp::measure_point;

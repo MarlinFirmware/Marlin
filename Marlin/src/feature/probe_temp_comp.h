@@ -90,18 +90,16 @@ typedef struct {
   #define PTC_PROBE_HEATING_OFFSET 0.5f
 #endif
 
-static constexpr temp_calib_t cali_info_init[TSI_COUNT] = {
-  { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END },   // Probe
-  { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END },   // Bed
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    { ETC_SAMPLE_COUNT, ETC_SAMPLE_RES, ETC_SAMPLE_START, ETC_SAMPLE_END }, // Extruder
-  #endif
-};
-
 class ProbeTempComp {
   public:
 
-    static const temp_calib_t cali_info[TSI_COUNT];
+    static constexpr temp_calib_t cali_info[TSI_COUNT] = {
+      { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START, PTC_SAMPLE_END },   // Probe
+      { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START, BTC_SAMPLE_END },   // Bed
+      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+        { ETC_SAMPLE_COUNT, ETC_SAMPLE_RES, ETC_SAMPLE_START, ETC_SAMPLE_END }, // Extruder
+      #endif
+    };
 
     // Where to park nozzle to wait for probe cooldown
     static constexpr xyz_pos_t park_point = PTC_PARK_POS;
@@ -113,11 +111,11 @@ class ProbeTempComp {
                                bed_calib_probe_temp = BTC_PROBE_TEMP;  // Probe temperature while calibrating bed
 
     static int16_t *sensor_z_offsets[TSI_COUNT],
-                   z_offsets_probe[cali_info_init[TSI_PROBE].measurements], // (µm)
-                   z_offsets_bed[cali_info_init[TSI_BED].measurements];     // (µm)
+                   z_offsets_probe[PTC_SAMPLE_COUNT], // (µm)
+                   z_offsets_bed[BTC_SAMPLE_COUNT];     // (µm)
 
     #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-      static int16_t z_offsets_ext[cali_info_init[TSI_EXT].measurements];   // (µm)
+      static int16_t z_offsets_ext[ETC_SAMPLE_COUNT];   // (µm)
     #endif
 
     static inline void reset_index() { calib_idx = 0; };

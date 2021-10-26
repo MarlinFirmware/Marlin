@@ -117,11 +117,11 @@ void GcodeSuite::G76() {
       SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
     else {
       SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
-      if (targ == cali_info_init[sid].start_temp)
+      if (targ == ProbeTempComp::cali_info[sid].start_temp)
         temp_comp.prepare_new_calibration(measured_z);
       else
         temp_comp.push_back_new_measurement(sid, measured_z);
-      targ += cali_info_init[sid].temp_resolution;
+      targ += ProbeTempComp::cali_info[sid].temp_resolution;
     }
     return measured_z;
   };
@@ -176,8 +176,8 @@ void GcodeSuite::G76() {
 
   if (do_bed_cal) {
 
-    celsius_t target_bed = cali_info_init[TSI_BED].start_temp,
-            target_probe = temp_comp.bed_calib_probe_temp;
+    celsius_t target_bed = ProbeTempComp::cali_info[TSI_BED].start_temp,
+              target_probe = temp_comp.bed_calib_probe_temp;
 
     say_waiting_for(); SERIAL_ECHOLNPGM(" cooling.");
     while (thermalManager.wholeDegBed() > target_bed || thermalManager.wholeDegProbe() > target_probe)
@@ -239,7 +239,7 @@ void GcodeSuite::G76() {
     const celsius_t target_bed = temp_comp.probe_calib_bed_temp;
     thermalManager.setTargetBed(target_bed);
 
-    celsius_t target_probe = cali_info_init[TSI_PROBE].start_temp;
+    celsius_t target_probe = ProbeTempComp::cali_info[TSI_PROBE].start_temp;
 
     report_targets(target_bed, target_probe);
 
@@ -267,7 +267,7 @@ void GcodeSuite::G76() {
       if (timeout) break;
 
       const float measured_z = g76_probe(TSI_PROBE, target_probe, noz_pos_xyz);
-      if (isnan(measured_z) || target_probe > cali_info_init[TSI_PROBE].end_temp) break;
+      if (isnan(measured_z) || target_probe > ProbeTempComp::cali_info[TSI_PROBE].end_temp) break;
     }
 
     SERIAL_ECHOLNPGM("Retrieved measurements: ", temp_comp.get_index());
