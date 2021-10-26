@@ -731,6 +731,9 @@ namespace Language_en {
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Probing Z Reference");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Moving to Probing Pos");
 
+  LSTR MSG_PROBE_MESH                     = _UxGT("Probe Offset Mesh Wizard");
+  LSTR MSG_PROBE_MESH_DONE                = _UxGT("Offset Mesh Created!");
+
   LSTR MSG_SOUND                          = _UxGT("Sound");
 
   LSTR MSG_TOP_LEFT                       = _UxGT("Top Left");
