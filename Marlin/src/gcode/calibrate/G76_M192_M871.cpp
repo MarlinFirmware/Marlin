@@ -335,6 +335,8 @@ void GcodeSuite::M871() {
     temp_comp.print_offsets();
 }
 
+#endif // PROBE_TEMP_COMPENSATION
+
 /**
  * M192: Wait for probe temperature sensor to reach a target
  *
@@ -342,18 +344,18 @@ void GcodeSuite::M871() {
  *    R - Wait for heating or cooling
  *    S - Wait only for heating
  */
-void GcodeSuite::M192() {
-  if (DEBUGGING(DRYRUN)) return;
+#if HAS_TEMP_PROBE
+  void GcodeSuite::M192() {
+    if (DEBUGGING(DRYRUN)) return;
 
-  const bool no_wait_for_cooling = parser.seenval('S');
-  if (!no_wait_for_cooling && ! parser.seenval('R')) {
-    SERIAL_ERROR_MSG("No target temperature set.");
-    return;
+    const bool no_wait_for_cooling = parser.seenval('S');
+    if (!no_wait_for_cooling && ! parser.seenval('R')) {
+      SERIAL_ERROR_MSG("No target temperature set.");
+      return;
+    }
+
+    const celsius_t target_temp = parser.value_celsius();
+    ui.set_status(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT_F(MSG_PROBE_HEATING) : GET_TEXT_F(MSG_PROBE_COOLING));
+    thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
   }
-
-  const celsius_t target_temp = parser.value_celsius();
-  ui.set_status(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT_F(MSG_PROBE_HEATING) : GET_TEXT_F(MSG_PROBE_COOLING));
-  thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
-}
-
-#endif // PROBE_TEMP_COMPENSATION
+#endif
