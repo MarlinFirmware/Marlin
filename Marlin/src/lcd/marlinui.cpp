@@ -1355,7 +1355,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::set_status(const char * const cstr, const bool persist) {
     if (alert_level) return;
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_notify(cstr));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.notify(cstr));
 
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure
@@ -1427,7 +1427,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     if (level < alert_level) return;
     alert_level = level;
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_notify(fstr));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.notify(fstr));
 
     // Since the message is encoded in UTF8 it must
     // only be cut on a character boundary.
@@ -1533,10 +1533,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       card.abortFilePrintSoon();
     #endif
     #ifdef ACTION_ON_CANCEL
-      host_action_cancel();
+      hostui.cancel();
     #endif
     IF_DISABLED(SDSUPPORT, print_job_timer.stop());
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, F("UI Aborted"), FPSTR(DISMISS_STR)));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("UI Aborted"), FPSTR(DISMISS_STR)));
     LCD_MESSAGE(MSG_PRINT_ABORTED);
     TERN_(HAS_LCD_MENU, return_to_status());
   }
@@ -1565,7 +1565,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #endif
 
     TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_PAUSE_RESUME, F("UI Pause"), F("Resume")));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("UI Pause"), F("Resume")));
 
     LCD_MESSAGE(MSG_PRINT_PAUSED);
 
@@ -1575,7 +1575,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #elif ENABLED(SDSUPPORT)
       queue.inject(F("M25"));
     #elif defined(ACTION_ON_PAUSE)
-      host_action_pause();
+      hostui.pause();
     #endif
   }
 
@@ -1584,7 +1584,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
     TERN_(SDSUPPORT, if (IS_SD_PAUSED()) queue.inject_P(M24_STR));
     #ifdef ACTION_ON_RESUME
-      host_action_resume();
+      hostui.resume();
     #endif
     print_job_timer.start(); // Also called by M24
   }
@@ -1639,13 +1639,13 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   // Send the status line as a host notification
   //
   void MarlinUI::set_status(const char * const cstr, const bool) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify(cstr), UNUSED(cstr));
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify(cstr), UNUSED(cstr));
   }
   void MarlinUI::set_status(FSTR_P const fstr, const int8_t) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify(fstr), UNUSED(fstr));
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
   }
   void MarlinUI::status_printf(const uint8_t, FSTR_P const fstr, ...) {
-    TERN(HOST_PROMPT_SUPPORT, host_action_notify(fstr), UNUSED(fstr));
+    TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
   }
 
 #endif // !HAS_DISPLAY && !HAS_STATUS_MESSAGE

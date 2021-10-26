@@ -346,15 +346,17 @@
 #define BOARD_CREALITY_V431_D         4046  // Creality v4.3.1d (STM32F103RE)
 #define BOARD_CREALITY_V452           4047  // Creality v4.5.2 (STM32F103RE)
 #define BOARD_CREALITY_V453           4048  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4049  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4050  // FLYmaker FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4051  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4052  // STM32F103RET6 Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4053  // STM32F103ZET6 Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4054  // STM32F103VET6 controller
-#define BOARD_ZONESTAR_ZM3E2          4055  // Zonestar ZM3E2    (STM32F103RCT6)
-#define BOARD_ZONESTAR_ZM3E4          4056  // Zonestar ZM3E4 V1 (STM32F103VCT6)
-#define BOARD_ZONESTAR_ZM3E4V2        4057  // Zonestar ZM3E4 V2 (STM32F103VCT6)
+#define BOARD_CREALITY_V24S1          4049  // Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7
+#define BOARD_TRIGORILLA_PRO          4050  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4051  // FLYmaker FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4052  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4053  // STM32F103RET6 Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4054  // STM32F103ZET6 Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4055  // STM32F103VET6 controller
+#define BOARD_ZONESTAR_ZM3E2          4056  // Zonestar ZM3E2    (STM32F103RCT6)
+#define BOARD_ZONESTAR_ZM3E4          4057  // Zonestar ZM3E4 V1 (STM32F103VCT6)
+#define BOARD_ZONESTAR_ZM3E4V2        4058  // Zonestar ZM3E4 V2 (STM32F103VCT6)
+#define BOARD_ERYONE_ERY32_MINI       4059  // Eryone Ery32 mini (STM32F103VET6)
 
 //
 // ARM Cortex-M4F
@@ -384,25 +386,26 @@
 #define BOARD_BTT_GTR_V1_0            4214  // BigTreeTech GTR v1.0 (STM32F407IGT)
 #define BOARD_BTT_OCTOPUS_V1_0        4215  // BigTreeTech Octopus v1.0 (STM32F446ZET6)
 #define BOARD_BTT_OCTOPUS_V1_1        4216  // BigTreeTech Octopus v1.1 (STM32F446ZET6)
-#define BOARD_LERDGE_K                4217  // Lerdge K (STM32F407ZG)
-#define BOARD_LERDGE_S                4218  // Lerdge S (STM32F407VE)
-#define BOARD_LERDGE_X                4219  // Lerdge X (STM32F407VE)
-#define BOARD_VAKE403D                4220  // VAkE 403D (STM32F446VET6)
-#define BOARD_FYSETC_S6               4221  // FYSETC S6 (STM32F446VET6)
-#define BOARD_FYSETC_S6_V2_0          4222  // FYSETC S6 v2.0 (STM32F446VET6)
-#define BOARD_FYSETC_SPIDER           4223  // FYSETC Spider (STM32F446VET6)
-#define BOARD_FLYF407ZG               4224  // FLYmaker FLYF407ZG (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              4225  // MKS_ROBIN2 (STM32F407ZE)
-#define BOARD_MKS_ROBIN_PRO_V2        4226  // MKS Robin Pro V2 (STM32F407VE)
-#define BOARD_MKS_ROBIN_NANO_V3       4227  // MKS Robin Nano V3 (STM32F407VG)
-#define BOARD_MKS_MONSTER8            4228  // MKS Monster8 (STM32F407VGT6)
-#define BOARD_ANET_ET4                4229  // ANET ET4 V1.x (STM32F407VGT6)
-#define BOARD_ANET_ET4P               4230  // ANET ET4P V1.x (STM32F407VGT6)
-#define BOARD_FYSETC_CHEETAH_V20      4231  // FYSETC Cheetah V2.0
-#define BOARD_TH3D_EZBOARD_LITE_V2    4232  // TH3D EZBoard Lite v2.0
-#define BOARD_INDEX_REV03             4233  // Index PnP Controller REV03 (STM32F407VET6/VGT6)
-#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4234  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VET6)
-#define BOARD_MKS_EAGLE               4235  // MKS Eagle (STM32F407VET6)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0    4217  // BigTreeTech Octopus Pro v1.0 (STM32F446ZET6/STM32F429ZGT6)
+#define BOARD_LERDGE_K                4218  // Lerdge K (STM32F407ZG)
+#define BOARD_LERDGE_S                4219  // Lerdge S (STM32F407VE)
+#define BOARD_LERDGE_X                4220  // Lerdge X (STM32F407VE)
+#define BOARD_VAKE403D                4221  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4222  // FYSETC S6 (STM32F446VET6)
+#define BOARD_FYSETC_S6_V2_0          4223  // FYSETC S6 v2.0 (STM32F446VET6)
+#define BOARD_FYSETC_SPIDER           4224  // FYSETC Spider (STM32F446VET6)
+#define BOARD_FLYF407ZG               4225  // FLYmaker FLYF407ZG (STM32F407ZG)
+#define BOARD_MKS_ROBIN2              4226  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_MKS_ROBIN_PRO_V2        4227  // MKS Robin Pro V2 (STM32F407VE)
+#define BOARD_MKS_ROBIN_NANO_V3       4228  // MKS Robin Nano V3 (STM32F407VG)
+#define BOARD_MKS_MONSTER8            4229  // MKS Monster8 (STM32F407VGT6)
+#define BOARD_ANET_ET4                4230  // ANET ET4 V1.x (STM32F407VGT6)
+#define BOARD_ANET_ET4P               4231  // ANET ET4P V1.x (STM32F407VGT6)
+#define BOARD_FYSETC_CHEETAH_V20      4232  // FYSETC Cheetah V2.0
+#define BOARD_TH3D_EZBOARD_LITE_V2    4233  // TH3D EZBoard Lite v2.0
+#define BOARD_INDEX_REV03             4234  // Index PnP Controller REV03 (STM32F407VET6/VGT6)
+#define BOARD_MKS_ROBIN_NANO_V1_3_F4  4235  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VET6)
+#define BOARD_MKS_EAGLE               4236  // MKS Eagle (STM32F407VET6)
 
 //
 // ARM Cortex M7
