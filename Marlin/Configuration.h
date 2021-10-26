@@ -2434,7 +2434,7 @@
   #else
     #define INVERT_Z_DIR true
   #endif
-  #if ANY(E3DTitan, MachineCR2020, MachineEnder6)
+  #if ANY(E3DTitan, MachineCR2020, MachineEnder6, MachineEnder7)
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #else
