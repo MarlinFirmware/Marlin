@@ -267,7 +267,8 @@ void GcodeSuite::G76() {
       if (timeout) break;
 
       const float measured_z = g76_probe(TSI_PROBE, target_probe, noz_pos_xyz);
-      if (isnan(measured_z) || target_probe > ProbeTempComp::cali_info[TSI_PROBE].end_temp) break;
+      constexpr celsius_t probe_end_temp = PTC_SAMPLE_START + PTC_SAMPLE_COUNT * PTC_SAMPLE_RES;
+      if (isnan(measured_z) || target_probe > probe_end_temp) break;
     }
 
     SERIAL_ECHOLNPGM("Retrieved measurements: ", temp_comp.get_index());

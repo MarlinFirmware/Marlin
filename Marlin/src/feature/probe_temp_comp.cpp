@@ -164,8 +164,8 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
-                    end_temp = cali_info[tsi].end_temp,
-                    res_temp = cali_info[tsi].temp_resolution;
+                  res_temp = cali_info[tsi].temp_resolution,
+                  end_temp = start_temp + measurements * res_temp;
   const int16_t * const data = sensor_z_offsets[tsi];
 
   // Given a data index, return { celsius, zoffset } in the form { x, y }
