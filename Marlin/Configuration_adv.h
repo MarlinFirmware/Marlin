@@ -2006,20 +2006,20 @@
     // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_START
     // (e.g., 30), in steps of PTC_SAMPLE_RES (e.g., 5) with PTC_SAMPLE_COUNT (e.g., 10) samples.
 
-    //#define PTC_SAMPLE_START  30  // (°C)
-    //#define PTC_SAMPLE_RES     5  // (°C)
-    //#define PTC_SAMPLE_COUNT  10
+    #define PTC_SAMPLE_START  30  // (°C)
+    #define PTC_SAMPLE_RES     5  // (°C)
+    #define PTC_SAMPLE_COUNT  10
 
     // Bed temperature calibration builds a similar table.
 
-    //#define BTC_SAMPLE_START  60  // (°C)
-    //#define BTC_SAMPLE_RES     5  // (°C)
-    //#define BTC_SAMPLE_COUNT  10
+    #define BTC_SAMPLE_START  60  // (°C)
+    #define BTC_SAMPLE_RES     5  // (°C)
+    #define BTC_SAMPLE_COUNT  10
 
     #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-      //#define ETC_SAMPLE_START 180  // (°C)
-      //#define ETC_SAMPLE_RES     5  // (°C)
-      //#define ETC_SAMPLE_COUNT  20
+      #define ETC_SAMPLE_START 180  // (°C)
+      #define ETC_SAMPLE_RES     5  // (°C)
+      #define ETC_SAMPLE_COUNT  20
     #endif
 
     // Park position to wait for probe cooldown
@@ -2031,11 +2031,11 @@
 
     // The temperature the probe should be at while taking measurements during bed temperature
     // calibration.
-    //#define BTC_PROBE_TEMP    30  // (°C)
+    #define BTC_PROBE_TEMP    30  // (°C)
 
     // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
     // Note: the Z=0.0 offset is determined by the probe offset which can be set using M851.
-    //#define PTC_PROBE_HEATING_OFFSET 0.5
+    #define PTC_PROBE_HEATING_OFFSET 0.5
 
     // If the probe is outside of the defined range, use linear extrapolation using the closest
     // point and the PTC_LINEAR_EXTRAPOLATION'th next point. E.g. if set to 4 it will use data[0]
