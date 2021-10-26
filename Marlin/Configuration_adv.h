@@ -2026,6 +2026,7 @@
     #define PTC_PARK_POS   { 0, 0, 100 }
 
     // Probe position to probe and wait for probe to reach target temperature
+    //#define PTC_PROBE_POS  { 12.0f, 7.3f };   // Coordinates for the MK52 magnetic heatbed
     #define PTC_PROBE_POS  { 90, 100 }
 
     // The temperature the probe should be at while taking measurements during bed temperature
