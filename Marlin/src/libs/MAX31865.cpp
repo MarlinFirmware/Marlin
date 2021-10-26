@@ -405,6 +405,11 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
     WRITE(_sclk, LOW);
 
   WRITE(_cs, LOW);
+
+  #ifdef TARGET_LPC1768
+    DELAY_CYCLES(_spi_speed);
+  #endif
+
   spiTransfer(addr);
 
   while (n--) {
@@ -434,6 +439,10 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
     WRITE(_sclk, LOW);
 
   WRITE(_cs, LOW);
+
+  #ifdef TARGET_LPC1768
+    DELAY_CYCLES(_spi_speed);
+  #endif
 
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data);
