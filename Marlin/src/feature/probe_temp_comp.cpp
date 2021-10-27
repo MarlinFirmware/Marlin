@@ -102,7 +102,7 @@ void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const_floa
 
 bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
   if (calib_idx < 1) {
-    SERIAL_ECHOLNPGM("!Insufficient measurements (min. 2).");
+    SERIAL_ECHOLNPGM("!Insufficient measurements (min. 1).");
     clear_offsets(tsi);
     return false;
   }
