@@ -27,7 +27,11 @@
 #include "../inc/MarlinConfigPre.h"
 
 class __FlashStringHelper;
-typedef const __FlashStringHelper *progmem_str;
+typedef const __FlashStringHelper* FSTR_P;
+#ifndef FPSTR
+  #define FPSTR(S) (reinterpret_cast<FSTR_P>(S))
+#endif
+#define FTOP(S) (reinterpret_cast<const char*>(S))
 
 //
 // Conditional type assignment magic. For example...
@@ -54,6 +58,8 @@ struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_ARGS(T...) LOGICAL_AXIS_LIST(T e, T x, T y, T z, T i, T j, T k)
 #define LOGICAL_AXIS_ELEM(O)    LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k)
 #define LOGICAL_AXIS_DECL(T,V)  LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V)
+
+#define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR)
 
 #if HAS_EXTRUDERS
   #define LIST_ITEM_E(N) , N

@@ -33,68 +33,64 @@
 
 #include "ultralcd_st7920_u8glib_rrd_AVR.h"
 
-#if F_CPU >= 20000000
-  #define CPU_ST7920_DELAY_1 DELAY_NS(150)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(150)
-#elif MB(3DRAG, K8200, K8400)
-  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(188)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
-#elif MB(MINIRAMBO, EINSY_RAMBO, EINSY_RETRO, SILVER_GATE)
-  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(250)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
-#elif MB(RAMBO)
-  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
-#elif MB(BQ_ZUM_MEGA_3D)
-  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(189)
-#elif defined(ARDUINO_ARCH_STM32)
-  #define CPU_ST7920_DELAY_1 DELAY_NS(300)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(40)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(340)
-#elif F_CPU == 16000000
-  #define CPU_ST7920_DELAY_1 DELAY_NS(125)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(188)
-#else
-  #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd_AVR.h'"
-#endif
+// Optimize this code with -O3
+#pragma GCC optimize (3)
 
 #ifndef ST7920_DELAY_1
-  #ifdef BOARD_ST7920_DELAY_1
-    #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
+  #ifndef LCD_ST7920_DELAY_1
+    #define LCD_ST7920_DELAY_1 0
+  #endif
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1 0
+  #endif
+  #ifndef CPU_ST7920_DELAY_1
+    #define CPU_ST7920_DELAY_1 0
+  #endif
+  #if LCD_ST7920_DELAY_1 || BOARD_ST7920_DELAY_1 || CPU_ST7920_DELAY_1
+    #define ST7920_DELAY_1 DELAY_NS(_MAX(LCD_ST7920_DELAY_1, BOARD_ST7920_DELAY_1, CPU_ST7920_DELAY_1))
   #else
-    #define ST7920_DELAY_1 CPU_ST7920_DELAY_1
+    #define ST7920_DELAY_1
   #endif
 #endif
 #ifndef ST7920_DELAY_2
-  #ifdef BOARD_ST7920_DELAY_2
-    #define ST7920_DELAY_2 BOARD_ST7920_DELAY_2
+  #ifndef LCD_ST7920_DELAY_2
+    #define LCD_ST7920_DELAY_2 0
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2 0
+  #endif
+  #ifndef CPU_ST7920_DELAY_2
+    #define CPU_ST7920_DELAY_2 0
+  #endif
+  #if LCD_ST7920_DELAY_2 || BOARD_ST7920_DELAY_2 || CPU_ST7920_DELAY_2
+    #define ST7920_DELAY_2 DELAY_NS(_MAX(LCD_ST7920_DELAY_2, BOARD_ST7920_DELAY_2, CPU_ST7920_DELAY_2))
   #else
-    #define ST7920_DELAY_2 CPU_ST7920_DELAY_2
+    #define ST7920_DELAY_2
   #endif
 #endif
 #ifndef ST7920_DELAY_3
-  #ifdef BOARD_ST7920_DELAY_3
-    #define ST7920_DELAY_3 BOARD_ST7920_DELAY_3
+  #ifndef LCD_ST7920_DELAY_3
+    #define LCD_ST7920_DELAY_3 0
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 0
+  #endif
+  #ifndef CPU_ST7920_DELAY_3
+    #define CPU_ST7920_DELAY_3 0
+  #endif
+  #if LCD_ST7920_DELAY_3 || BOARD_ST7920_DELAY_3 || CPU_ST7920_DELAY_3
+    #define ST7920_DELAY_3 DELAY_NS(_MAX(LCD_ST7920_DELAY_3, BOARD_ST7920_DELAY_3, CPU_ST7920_DELAY_3))
   #else
-    #define ST7920_DELAY_3 CPU_ST7920_DELAY_3
+    #define ST7920_DELAY_3
   #endif
 #endif
-
-// Optimize this code with -O3
-#pragma GCC optimize (3)
 
 #ifdef ARDUINO_ARCH_STM32F1
   #define ST7920_DAT(V) !!((V) & 0x80)
 #else
   #define ST7920_DAT(V) ((V) & 0x80)
 #endif
+
 #define ST7920_SND_BIT do{ \
   WRITE(ST7920_CLK_PIN, LOW);             ST7920_DELAY_1; \
   WRITE(ST7920_DAT_PIN, ST7920_DAT(val)); ST7920_DELAY_2; \

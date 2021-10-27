@@ -48,7 +48,7 @@ void disp_language_init();
 #define MULTI_LANGUAGE_ENABLE   1
 #define MULTI_LANGUAGE_DISABLE  0
 
-typedef struct machine_common_disp{
+typedef struct machine_common_disp {
   const char *default_value;
 
   const char *next;
@@ -742,7 +742,7 @@ typedef struct pause_msg_disp {
 
 extern pause_msg_def pause_msg_menu;
 
-typedef struct eeprom_disp{
+typedef struct eeprom_disp {
   const char *title;
   const char *store;
   const char *read;

@@ -51,7 +51,7 @@ void unified_bed_leveling::report_current_mesh() {
   GRID_LOOP(x, y)
     if (!isnan(z_values[x][y])) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR("  M421 I", x, " J", y);
+      SERIAL_ECHOPGM("  M421 I", x, " J", y);
       SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
       serial_delay(75); // Prevent Printrun from exploding
     }

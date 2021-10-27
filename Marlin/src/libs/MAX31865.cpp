@@ -44,12 +44,11 @@
 //#define MAX31865_DEBUG
 //#define MAX31865_DEBUG_SPI
 
-//TODO: switch to SPIclass/SoftSPI
-
 #include "../inc/MarlinConfig.h"
 
-#if HAS_MAX31865 && !LIB_USR_MAX31865
+#if HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
 
+//#include <SoftwareSPI.h> // TODO: switch to SPIclass/SoftSPI
 #include "MAX31865.h"
 
 // The maximum speed the MAX31865 can do is 5 MHz
@@ -153,7 +152,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   OUT_WRITE(_cs, HIGH);
 
   if (_sclk != TERN(LARGE_PINMAP, -1UL, -1)) {
-    // define pin modes for Software SPI
+    // Define pin modes for Software SPI
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLN("Initializing MAX31865 Software SPI");
     #endif
@@ -161,8 +160,9 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
     OUT_WRITE(_sclk, LOW);
     SET_OUTPUT(_mosi);
     SET_INPUT(_miso);
-  } else {
-    // start and configure hardware SPI
+  }
+  else {
+    // Start and configure hardware SPI
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLN("Initializing MAX31865 Hardware SPI");
     #endif
@@ -177,14 +177,14 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
 
   #ifdef MAX31865_DEBUG_SPI
     #ifndef LARGE_PINMAP
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHOLNPGM(
         "Regular begin call with _cs: ", _cs,
         " _miso: ", _miso,
         " _sclk: ", _sclk,
         " _mosi: ", _mosi
       );
     #else
-      SERIAL_ECHOLNPAIR(
+      SERIAL_ECHOLNPGM(
         "LARGE_PINMAP begin call with _cs: ", _cs,
         " _miso: ", _miso,
         " _sclk: ", _sclk,
@@ -192,7 +192,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
       );
     #endif // LARGE_PINMAP
 
-    SERIAL_ECHOLNPAIR("config: ", readRegister8(MAX31856_CONFIG_REG));
+    SERIAL_ECHOLNPGM("config: ", readRegister8(MAX31856_CONFIG_REG));
     SERIAL_EOL();
   #endif // MAX31865_DEBUG_SPI
 }
@@ -290,7 +290,7 @@ uint16_t MAX31865::readRaw() {
   uint16_t rtd = readRegister16(MAX31856_RTDMSB_REG);
 
   #ifdef MAX31865_DEBUG
-    SERIAL_ECHOLNPAIR("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
+    SERIAL_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
   #endif
 
   // Disable the bias to lower power dissipation between reads.
@@ -437,7 +437,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   while (n--) {
     buffer[0] = spixfer(0xFF);
     #ifdef MAX31865_DEBUG_SPI
-      SERIAL_ECHOLNPAIR("buffer read ", n, " data: ", buffer[0]);
+      SERIAL_ECHOLNPGM("buffer read ", n, " data: ", buffer[0]);
     #endif
     buffer++;
   }
@@ -497,4 +497,4 @@ uint8_t MAX31865::spixfer(uint8_t x) {
   return reply;
 }
 
-#endif // HAS_MAX31865 && !LIB_USR_MAX31865
+#endif // HAS_MAX31865 && !USE_ADAFRUIT_MAX31865

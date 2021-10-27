@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -233,7 +234,7 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
   currentFlashPage = 0;
 
   #if ENABLED(MARLIN_DEV_MODE)
-    SERIAL_ECHOLNPAIR("Getting picture SPI Flash Address: ", (const char*)Pname);
+    SERIAL_ECHOLNPGM("Getting picture SPI Flash Address: ", (const char*)Pname);
   #endif
 
   W25QXX.init(SPI_QUARTER_SPEED);
@@ -264,12 +265,12 @@ const char *bakPath = "_assets";
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
-  //erase 0x001000 -64K
+  // erase 0x001000 -64K
   for (pic_sectorcnt = 0; pic_sectorcnt < (64 - 4) / 4; pic_sectorcnt++) {
     watchdog_refresh();
     W25QXX.SPI_FLASH_SectorErase(PICINFOADDR + pic_sectorcnt * 4 * 1024);
   }
-  //erase 64K -- 6M
+  // erase 64K -- 6M
   for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++) {
     watchdog_refresh();
     W25QXX.SPI_FLASH_BlockErase((pic_sectorcnt + 1) * 64 * 1024);
@@ -280,7 +281,7 @@ void spiFlashErase_PIC() {
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
-    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++) {
+    for (Font_sectorcnt = 0; Font_sectorcnt < 32 - 1; Font_sectorcnt++) {
       watchdog_refresh();
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
     }
@@ -408,7 +409,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     createFilename(dosFilename, entry);
     if (!file.open(&dir, dosFilename, O_READ)) {
       #if ENABLED(MARLIN_DEV_MODE)
-        SERIAL_ECHOLNPAIR("Error opening Asset: ", fn);
+        SERIAL_ECHOLNPGM("Error opening Asset: ", fn);
       #endif
       return;
     }
@@ -463,7 +464,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
         } while (pbr >= BMP_WRITE_BUF_LEN);
       #endif
       #if ENABLED(MARLIN_DEV_MODE)
-        SERIAL_ECHOLNPAIR("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
+        SERIAL_ECHOLNPGM("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
         totalCompressed += (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize;
       #endif
       SPIFlash.endWrite();
@@ -481,7 +482,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     file.close();
 
     #if ENABLED(MARLIN_DEV_MODE)
-      SERIAL_ECHOLNPAIR("Asset added: ", fn);
+      SERIAL_ECHOLNPGM("Asset added: ", fn);
     #endif
   }
 
@@ -537,8 +538,8 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
     #if ENABLED(MARLIN_DEV_MODE)
       uint8_t pic_counter = 0;
       W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
-      SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter);
-      SERIAL_ECHOLNPAIR("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
+      SERIAL_ECHOLNPGM("Total assets loaded: ", pic_counter);
+      SERIAL_ECHOLNPGM("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
     #endif
   }
 
@@ -564,7 +565,7 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
       W25QXX.SPI_FLASH_BufferRead(&PIC.name[j], PIC_NAME_ADDR + tmp_cnt, 1);
       tmp_cnt++;
     } while (PIC.name[j++] != '\0');
-    //pic size
+    // pic size
     W25QXX.SPI_FLASH_BufferRead(PIC.size.bytes, PIC_SIZE_ADDR + i * 4, 4);
 
     if ((strcmp((char*)Pname, (char*)PIC.name)) == 0) {

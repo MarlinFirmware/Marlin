@@ -48,7 +48,7 @@
 #define E2_ENABLE_PIN                         22
 #define HEATER_1_PIN                           7
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS
 
 /*
   Available connectors on MKS BASE v1.4 (Basically same as ZRIB V5.2)

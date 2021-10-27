@@ -64,17 +64,7 @@ void ip_report(const uint16_t cmd, PGM_P const post, const IPAddress &ipo) {
     if (i < 3) SERIAL_CHAR('.');
   }
   SERIAL_ECHOPGM(" ; ");
-  SERIAL_ECHOPGM_P(post);
-  SERIAL_EOL();
-}
-void M552_report() {
-  ip_report(552, PSTR("ip address"), Ethernet.linkStatus() == LinkON ? Ethernet.localIP() : ethernet.ip);
-}
-void M553_report() {
-  ip_report(553, PSTR("subnet mask"), Ethernet.linkStatus() == LinkON ? Ethernet.subnetMask() : ethernet.subnet);
-}
-void M554_report() {
-  ip_report(554, PSTR("gateway"), Ethernet.linkStatus() == LinkON ? Ethernet.gatewayIP() : ethernet.gateway);
+  SERIAL_ECHOLNPGM_P(post);
 }
 
 /**
@@ -107,20 +97,36 @@ void GcodeSuite::M552() {
   if (nopar || seenP) M552_report();
 }
 
+void GcodeSuite::M552_report() {
+  ip_report(552, PSTR("ip address"), Ethernet.linkStatus() == LinkON ? Ethernet.localIP() : ethernet.ip);
+}
+
 /**
  * M553 Pnnn - Set netmask
  */
 void GcodeSuite::M553() {
-  if (parser.seenval('P')) ethernet.subnet.fromString(parser.value_string());
-  M553_report();
+  if (parser.seenval('P'))
+    ethernet.subnet.fromString(parser.value_string());
+  else
+    M553_report();
+}
+
+void GcodeSuite::M553_report() {
+  ip_report(553, PSTR("subnet mask"), Ethernet.linkStatus() == LinkON ? Ethernet.subnetMask() : ethernet.subnet);
 }
 
 /**
  * M554 Pnnn - Set Gateway
  */
 void GcodeSuite::M554() {
-  if (parser.seenval('P')) ethernet.gateway.fromString(parser.value_string());
-  M554_report();
+  if (parser.seenval('P'))
+    ethernet.gateway.fromString(parser.value_string());
+  else
+    M554_report();
+}
+
+void GcodeSuite::M554_report() {
+  ip_report(554, PSTR("gateway"), Ethernet.linkStatus() == LinkON ? Ethernet.gatewayIP() : ethernet.gateway);
 }
 
 #endif // HAS_ETHERNET

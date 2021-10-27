@@ -47,7 +47,9 @@ static SPISettings spiConfig;
   #include "../shared/Delay.h"
 
   void spiBegin(void) {
-    OUT_WRITE(SD_SS_PIN, HIGH);
+    #if PIN_EXISTS(SD_SS)
+      OUT_WRITE(SD_SS_PIN, HIGH);
+    #endif
     OUT_WRITE(SD_SCK_PIN, HIGH);
     SET_INPUT(SD_MISO_PIN);
     OUT_WRITE(SD_MOSI_PIN, HIGH);

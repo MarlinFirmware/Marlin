@@ -83,8 +83,8 @@ void DGUSScreenHandler::sendinfoscreen_mks(const void *line1, const void *line2,
 
 void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
-    //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
-    //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
+    //DEBUG_ECHOPGM(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
+    //DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
     uint16_t tmp = *(uint8_t *) var.memadr; // +1 -> avoid rounding issues for the display.
     // tmp = map(tmp, 0, 255, 0, 100);
     dgusdisplay.WriteVariable(var.VP, tmp);
@@ -109,14 +109,14 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay_MKS(DGUS_VP_Variable &var
 void DGUSScreenHandler::DGUSLCD_SetUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
     const uint16_t value = swap16(*(uint16_t*)val_ptr);
-    DEBUG_ECHOLNPAIR("FAN value get:", value);
+    DEBUG_ECHOLNPGM("FAN value get:", value);
     *(uint8_t*)var.memadr = map(constrain(value, 0, 255), 0, 255, 0, 255);
-    DEBUG_ECHOLNPAIR("FAN value change:", *(uint8_t*)var.memadr);
+    DEBUG_ECHOLNPGM("FAN value change:", *(uint8_t*)var.memadr);
   }
 }
 
 void DGUSScreenHandler::DGUSLCD_SendGbkToDisplay(DGUS_VP_Variable &var) {
-  DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
+  DEBUG_ECHOLNPGM(" data ", *(uint16_t *)var.memadr);
   uint16_t *tmp = (uint16_t*) var.memadr;
   dgusdisplay.WriteVariable(var.VP, tmp, var.size, true);
 }
@@ -282,7 +282,7 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // meaning "return to previous screen"
   DGUSLCD_Screens target = (DGUSLCD_Screens)tmp[1];
 
-  DEBUG_ECHOLNPAIR("\n DEBUG target", target);
+  DEBUG_ECHOLNPGM("\n DEBUG target", target);
 
   // when the dgus had reboot, it will enter the DGUSLCD_SCREEN_MAIN page,
   // so user can change any page to use this function, an it will check
@@ -311,13 +311,13 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   UpdateNewScreen(target);
 
   #ifdef DEBUG_DGUSLCD
-    if (!DGUSLCD_FindScreenVPMapList(target)) DEBUG_ECHOLNPAIR("WARNING: No screen Mapping found for ", target);
+    if (!DGUSLCD_FindScreenVPMapList(target)) DEBUG_ECHOLNPGM("WARNING: No screen Mapping found for ", target);
   #endif
 }
 
 void DGUSScreenHandler::ScreenBackChange(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t target = swap16(*(uint16_t *)val_ptr);
-  DEBUG_ECHOLNPAIR(" back = 0x%x", target);
+  DEBUG_ECHOLNPGM(" back = 0x%x", target);
   switch (target) {
   }
 }
@@ -756,7 +756,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (manualMoveStep == 0x02) manualMoveStep =  100;
   else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
-  DEBUG_ECHOLNPAIR("QUEUE LEN:", queue.length);
+  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.length);
 
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
@@ -818,7 +818,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
       break;
   }
 
-  DEBUG_ECHOPAIR("movevalue = ", movevalue);
+  DEBUG_ECHOPGM("movevalue = ", movevalue);
   if (movevalue != 0 && movevalue != 5) { // get move distance
     switch (movevalue) {
       case 0x0001: movevalue =  manualMoveStep; break;
@@ -829,20 +829,20 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPAIR(" homing ", AS_CHAR(axiscode));
+    DEBUG_ECHOPGM(" homing ", AS_CHAR(axiscode));
     // char buf[6] = "G28 X";
     // buf[4] = axiscode;
 
     char buf[6];
     sprintf(buf, "G28 %c", axiscode);
-    //DEBUG_ECHOPAIR(" ", buf);
+    //DEBUG_ECHOPGM(" ", buf);
     queue.enqueue_one_now(buf);
     //DEBUG_ECHOLNPGM(" ✓");
     ForceCompleteUpdate();
     return;
   }
   else if (movevalue == 5) {
-    DEBUG_ECHOPAIR("send M84");
+    DEBUG_ECHOPGM("send M84");
     char buf[6];
     snprintf_P(buf,6,PSTR("M84 %c"), axiscode);
     queue.enqueue_one_now(buf);
@@ -851,7 +851,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
   else {
     // movement
-    DEBUG_ECHOPAIR(" move ", AS_CHAR(axiscode));
+    DEBUG_ECHOPGM(" move ", AS_CHAR(axiscode));
     bool old_relative_mode = relative_mode;
 
     if (!relative_mode) {
@@ -871,7 +871,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     //if (backup_speed != speed) {
     //  snprintf_P(buf, 32, PSTR("G0 F%d"), backup_speed);
     //  queue.enqueue_one_now(buf);
-    //  //DEBUG_ECHOPAIR(" ", buf);
+    //  //DEBUG_ECHOPGM(" ", buf);
     //}
 
     //while (!enqueue_and_echo_command(buf)) idle();
@@ -889,7 +889,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
-    DEBUG_ECHOLNPAIR(" cannot move ", AS_CHAR(axiscode));
+    DEBUG_ECHOLNPGM(" cannot move ", AS_CHAR(axiscode));
     return;
 }
 
@@ -923,7 +923,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::axis_t axis;
@@ -945,7 +945,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::extruder_t extruder;
@@ -970,7 +970,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::axis_t axis;
@@ -992,7 +992,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::extruder_t extruder;
@@ -1017,7 +1017,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
   const uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
   const float value = (float)value_raw;
 
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
   DEBUG_ECHOLNPAIR_F("value:", value);
 
   ExtUI::axis_t axis;
@@ -1037,7 +1037,7 @@ void DGUSScreenHandler::HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void 
   DEBUG_ECHOLNPGM("HandleExtruderAccChange_MKS");
 
   uint16_t value_raw = swap16(*(uint16_t*)val_ptr);
-  DEBUG_ECHOLNPAIR("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
   float value = (float)value_raw;
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -1091,9 +1091,9 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
 #if HAS_PID_HEATING
   void DGUSScreenHandler::HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr) {
     const uint16_t rawvalue = swap16(*(uint16_t*)val_ptr);
-    DEBUG_ECHOLNPAIR("V1:", rawvalue);
+    DEBUG_ECHOLNPGM("V1:", rawvalue);
     const float value = 1.0f * rawvalue;
-    DEBUG_ECHOLNPAIR("V2:", value);
+    DEBUG_ECHOLNPGM("V2:", value);
     float newvalue = 0;
 
     switch (var.VP) {
@@ -1495,17 +1495,17 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
         break;
 
       case UNRUNOUT_STATUS:
-        if (READ(MT_DET_1_PIN) == LOW)
+        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_STATUS;
         break;
 
       case RUNOUT_BEGIN_STATUS:
-        if (READ(MT_DET_1_PIN) == HIGH)
+        if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
         break;
 
       case RUNOUT_WAITTING_STATUS:
-        if (READ(MT_DET_1_PIN) == LOW)
+        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;
 

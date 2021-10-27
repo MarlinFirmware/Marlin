@@ -112,7 +112,7 @@ inline void toggle_pins() {
     }
     SERIAL_EOL();
   }
-  SERIAL_ECHOLNPGM("Done.");
+  SERIAL_ECHOLNPGM(STR_DONE);
 
 } // toggle_pins
 
@@ -130,7 +130,7 @@ inline void servo_probe_test() {
 
     const uint8_t probe_index = parser.byteval('P', Z_PROBE_SERVO_NR);
 
-    SERIAL_ECHOLNPAIR("Servo probe test\n"
+    SERIAL_ECHOLNPGM("Servo probe test\n"
                       ". using index:  ", probe_index,
                       ", deploy angle: ", servo_angles[probe_index][0],
                       ", stow angle:   ", servo_angles[probe_index][1]
@@ -143,7 +143,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PIN
       constexpr bool probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PIN: ", PROBE_TEST_PIN);
+      SERIAL_ECHOLNPGM(". Probe Z_MIN_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(". Z_MIN_ENDSTOP_INVERTING: ");
 
     #else
@@ -151,7 +151,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       constexpr bool probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
+      SERIAL_ECHOLNPGM(". Probe Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(   ". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
 
     #endif
@@ -211,11 +211,11 @@ inline void servo_probe_test() {
       if (deploy_state != stow_state) {
         SERIAL_ECHOLNPGM("= Mechanical Switch detected");
         if (deploy_state) {
-          SERIAL_ECHOLNPAIR("  DEPLOYED state: HIGH (logic 1)",
+          SERIAL_ECHOLNPGM("  DEPLOYED state: HIGH (logic 1)",
                             "  STOWED (triggered) state: LOW (logic 0)");
         }
         else {
-          SERIAL_ECHOLNPAIR("  DEPLOYED state: LOW (logic 0)",
+          SERIAL_ECHOLNPGM("  DEPLOYED state: LOW (logic 0)",
                             "  STOWED (triggered) state: HIGH (logic 1)");
         }
         #if ENABLED(BLTOUCH)
@@ -244,7 +244,7 @@ inline void servo_probe_test() {
         if (probe_counter == 15)
           SERIAL_ECHOLNPGM(": 30ms or more");
         else
-          SERIAL_ECHOLNPAIR(" (+/- 4ms): ", probe_counter * 2);
+          SERIAL_ECHOLNPGM(" (+/- 4ms): ", probe_counter * 2);
 
         if (probe_counter >= 4) {
           if (probe_counter == 15) {

@@ -133,7 +133,7 @@ bool PersistentStore::access_start() {
         // load current settings
         uint8_t *eeprom_data = (uint8_t *)SLOT_ADDRESS(current_slot);
         for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
-        DEBUG_ECHOLNPAIR("EEPROM loaded from slot ", current_slot, ".");
+        DEBUG_ECHOLNPGM("EEPROM loaded from slot ", current_slot, ".");
       }
       eeprom_data_written = false;
     }
@@ -179,9 +179,9 @@ bool PersistentStore::access_finish() {
         ENABLE_ISRS();
         TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
         if (status != HAL_OK) {
-          DEBUG_ECHOLNPAIR("HAL_FLASHEx_Erase=", status);
-          DEBUG_ECHOLNPAIR("GetError=", HAL_FLASH_GetError());
-          DEBUG_ECHOLNPAIR("SectorError=", SectorError);
+          DEBUG_ECHOLNPGM("HAL_FLASHEx_Erase=", status);
+          DEBUG_ECHOLNPGM("GetError=", HAL_FLASH_GetError());
+          DEBUG_ECHOLNPGM("SectorError=", SectorError);
           LOCK_FLASH();
           return false;
         }
@@ -204,9 +204,9 @@ bool PersistentStore::access_finish() {
           offset += sizeof(uint32_t);
         }
         else {
-          DEBUG_ECHOLNPAIR("HAL_FLASH_Program=", status);
-          DEBUG_ECHOLNPAIR("GetError=", HAL_FLASH_GetError());
-          DEBUG_ECHOLNPAIR("address=", address);
+          DEBUG_ECHOLNPGM("HAL_FLASH_Program=", status);
+          DEBUG_ECHOLNPGM("GetError=", HAL_FLASH_GetError());
+          DEBUG_ECHOLNPGM("address=", address);
           success = false;
           break;
         }
@@ -216,7 +216,7 @@ bool PersistentStore::access_finish() {
 
       if (success) {
         eeprom_data_written = false;
-        DEBUG_ECHOLNPAIR("EEPROM saved to slot ", current_slot, ".");
+        DEBUG_ECHOLNPGM("EEPROM saved to slot ", current_slot, ".");
       }
 
       return success;
