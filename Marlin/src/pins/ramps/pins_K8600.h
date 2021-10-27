@@ -25,7 +25,7 @@
  * VERTEX NANO Arduino Mega with RAMPS EFB v1.4 pin assignments.
  */
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #error "Only 1 hotend is supported for Vertex Nano."
 #endif
 
