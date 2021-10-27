@@ -101,8 +101,8 @@ void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const_floa
 }
 
 bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
-  if (calib_idx < 3) {
-    SERIAL_ECHOLNPGM("!Insufficient measurements (min. 3).");
+  if (calib_idx < 1) {
+    SERIAL_ECHOLNPGM("!Insufficient measurements (min. 2).");
     clear_offsets(tsi);
     return false;
   }
@@ -196,7 +196,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
 }
 
 bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d) {
-  if (!WITHIN(calib_idx, 2, cali_info[tsi].measurements)) return false;
+  if (!WITHIN(calib_idx, 1, cali_info[tsi].measurements)) return false;
 
   const celsius_t start_temp = cali_info[tsi].start_temp,
                     res_temp = cali_info[tsi].temp_resolution;
