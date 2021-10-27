@@ -613,14 +613,16 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 
 #if ENABLED(PROBE_TEMP_COMPENSATION)
-  #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
-    #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
-  #elif !defined(PTC_PARK_POS)
-    #error "PROBE_TEMP_COMPENSATION requires PTC_PARK_POS."
-  #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
-    #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
-  #elif !defined(PTC_PROBE_POS)
-    #error "PROBE_TEMP_COMPENSATION requires PTC_PROBE_POS."
+  #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+    #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
+      #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
+    #elif !defined(PTC_PARK_POS)
+      #error "PROBE_TEMP_COMPENSATION requires PTC_PARK_POS."
+    #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
+      #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
+    #elif !defined(PTC_PROBE_POS)
+      #error "PROBE_TEMP_COMPENSATION requires PTC_PROBE_POS."
+    #endif
   #endif
 
   #ifdef PTC_SAMPLE_START
