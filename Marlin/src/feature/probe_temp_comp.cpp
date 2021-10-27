@@ -118,16 +118,15 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
     SERIAL_ECHOLNPGM("Got ", calib_idx, " measurements. ");
     if (linear_regression(tsi, k, d)) {
       SERIAL_ECHOPGM("Applying linear extrapolation");
-      calib_idx--;
       for (; calib_idx < measurements; ++calib_idx) {
-        const celsius_float_t temp = start_temp + float(calib_idx) * res_temp;
+        const celsius_float_t temp = start_temp + float(calib_idx + 1) * res_temp;
         data[calib_idx] = static_cast<int16_t>(k * temp + d);
       }
     }
     else {
       // Simply use the last measured value for higher temperatures
       SERIAL_ECHOPGM("Failed to extrapolate");
-      const int16_t last_val = data[calib_idx];
+      const int16_t last_val = data[calib_idx-1];
       for (; calib_idx < measurements; ++calib_idx)
         data[calib_idx] = last_val;
     }
