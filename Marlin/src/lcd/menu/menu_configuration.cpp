@@ -64,9 +64,7 @@ void menu_advanced_settings();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      #if HAS_MARLINUI_HD44780
-        ui.set_custom_characters(CHARSET_MENU);
-      #endif
+      TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_MENU));
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
@@ -79,9 +77,7 @@ void menu_advanced_settings();
 
   void _progress_bar_test() {
     ui.goto_screen(progress_bar_test);
-    #if HAS_MARLINUI_HD44780
-      ui.set_custom_characters(CHARSET_INFO);
-    #endif
+    TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_INFO));
   }
 
 #endif // LCD_PROGRESS_BAR_TEST
@@ -363,8 +359,7 @@ void menu_advanced_settings();
     #define _CUSTOM_ITEM_CONF_CONFIRM(N)               \
       SUBMENU_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), []{ \
           MenuItem_confirm::confirm_screen(            \
-            GCODE_LAMBDA_CONF(N),                      \
-            ui.goto_previous_screen,                   \
+            GCODE_LAMBDA_CONF(N), nullptr,             \
             PSTR(CONFIG_MENU_ITEM_##N##_DESC "?")      \
           );                                           \
         })
