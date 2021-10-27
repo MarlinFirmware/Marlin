@@ -185,7 +185,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
         case VP_E0_PID_I: valuesend = unscalePID_i(value); break;
         case VP_E0_PID_D: valuesend = unscalePID_d(value); break;
       #endif
-      #if HOTENDS >= 2
+      #if HAS_MULTI_HOTEND
         case VP_E1_PID_P: valuesend = value; break;
         case VP_E1_PID_I: valuesend = unscalePID_i(value); break;
         case VP_E1_PID_D: valuesend = unscalePID_d(value); break;
@@ -400,7 +400,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
         acceptedvalue = thermalManager.degTargetHotend(0);
         break;
     #endif
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       case VP_T_E1_Set:
         NOMORE(newvalue, HEATER_1_MAXTEMP);
         thermalManager.setTargetHotend(newvalue, 1);
@@ -551,7 +551,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E0);
               break;
           #endif
-          #if HOTENDS >= 2
+          #if HAS_MULTI_HOTEND
             case VP_PID_AUTOTUNE_E1:
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E1);
               break;
@@ -598,7 +598,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   switch (var.VP) {
     #if HAS_HOTEND
       case VP_E0_CONTROL:
-      #if HOTENDS >= 2
+      #if HAS_MULTI_HOTEND
         case VP_E1_CONTROL:
         #if HOTENDS >= 3
           case VP_E2_CONTROL:

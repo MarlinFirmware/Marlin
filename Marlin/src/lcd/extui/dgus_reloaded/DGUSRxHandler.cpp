@@ -327,7 +327,7 @@ void DGUSRxHandler::TempTarget(DGUS_VP &vp, void *data_ptr) {
     case DGUS_Addr::TEMP_SetTarget_H0:
       ExtUI::setTargetTemp_celsius(temp, ExtUI::H0);
       break;
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       case DGUS_Addr::TEMP_SetTarget_H1:
         ExtUI::setTargetTemp_celsius(temp, ExtUI::H1);
         break;
@@ -347,7 +347,7 @@ void DGUSRxHandler::TempCool(DGUS_VP &vp, void *data_ptr) {
     case DGUS_Data::Heater::ALL:
       ExtUI::setTargetTemp_celsius(0, ExtUI::BED);
       ExtUI::setTargetTemp_celsius(0, ExtUI::H0);
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         ExtUI::setTargetTemp_celsius(0, ExtUI::H1);
       #endif
       break;
@@ -357,7 +357,7 @@ void DGUSRxHandler::TempCool(DGUS_VP &vp, void *data_ptr) {
     case DGUS_Data::Heater::H0:
       ExtUI::setTargetTemp_celsius(0, ExtUI::H0);
       break;
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       case DGUS_Data::Heater::H1:
         ExtUI::setTargetTemp_celsius(0, ExtUI::H1);
         break;
@@ -827,7 +827,7 @@ void DGUSRxHandler::PIDSelect(DGUS_VP &vp, void *data_ptr) {
       dgus_screen_handler.pid_heater = heater;
       break;
     case DGUS_Data::Heater::H0:
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       case DGUS_Data::Heater::H1:
     #endif
       dgus_screen_handler.pid_temp = DGUS_PLA_TEMP_HOTEND;
@@ -858,7 +858,7 @@ void DGUSRxHandler::PIDSetTemp(DGUS_VP &vp, void *data_ptr) {
     case DGUS_Data::Heater::H0:
       temp = constrain(temp, HEATER_0_MINTEMP, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
       break;
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       case DGUS_Data::Heater::H1:
         temp = constrain(temp, HEATER_1_MINTEMP, (HEATER_1_MAXTEMP - HOTEND_OVERSHOOT));
         break;
@@ -900,7 +900,7 @@ void DGUSRxHandler::PIDRun(DGUS_VP &vp, void *data_ptr) {
         dgus_screen_handler.SetStatusMessage(F("PID disabled"));
         return;
       #endif
-    #if HOTENDS > 1
+    #if HAS_MULTI_HOTEND
       case DGUS_Data::Heater::H1:
         #if ENABLED(PIDTEMP)
           heater = H_E1;
