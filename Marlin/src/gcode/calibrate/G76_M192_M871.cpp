@@ -182,7 +182,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       // Disable leveling so it won't mess with us
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
-      for (;;) {
+      for (uint8_t idx = 0; idx <= BTC_SAMPLE_COUNT; idx++) {
         thermalManager.setTargetBed(target_bed);
 
         report_targets(target_bed, target_probe);
@@ -246,7 +246,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
       bool timeout = false;
-      for (;;) {
+      for (uint8_t idx = 0; idx <= PTC_SAMPLE_COUNT; idx++) {
         // Move probe to probing point and wait for it to reach target temperature
         do_blocking_move_to(noz_pos_xyz);
 
@@ -263,8 +263,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
         if (timeout) break;
 
         const float measured_z = g76_probe(TSI_PROBE, target_probe, noz_pos_xyz);
-        constexpr celsius_t probe_end_temp = PTC_SAMPLE_START + PTC_SAMPLE_COUNT * PTC_SAMPLE_RES;
-        if (isnan(measured_z) || target_probe > probe_end_temp) break;
+        if (isnan(measured_z)) break;
       }
 
       SERIAL_ECHOLNPGM("Retrieved measurements: ", temp_comp.get_index());
