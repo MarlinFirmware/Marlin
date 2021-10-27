@@ -65,7 +65,7 @@
   #define TEMP_BED_PIN                  P0_23_A0  // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
 
-#if HOTENDS == 1 && TEMP_SENSOR_REDUNDANT_SOURCE != 1
+#if HOTENDS == 1 && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
@@ -126,8 +126,6 @@
   #endif
 #endif
 
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
   #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
 #endif
@@ -145,13 +143,14 @@
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08
   #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**       ______                       ______
+  /**       ------                       ------
    *    NC | 1  2 | GND              NC | 1  2 | GND
    *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
    * M1STP | 5  6   M1DIR          M1RX | 5  6   M1DIAG
@@ -172,7 +171,7 @@
     #define E2_CS_PIN                EXP1_05_PIN
     #if HAS_TMC_UART
       #define E2_SERIAL_TX_PIN       EXP1_05_PIN
-      #define E2_SERIAL_RX_PIN       EXP1_05_PIN
+      #define E2_SERIAL_RX_PIN  E2_SERIAL_TX_PIN
     #endif
   #endif
 
@@ -185,7 +184,7 @@
     #define E3_CS_PIN                EXP1_07_PIN
     #if HAS_TMC_UART
       #define E3_SERIAL_TX_PIN       EXP1_07_PIN
-      #define E3_SERIAL_RX_PIN       EXP1_07_PIN
+      #define E3_SERIAL_RX_PIN  E3_SERIAL_TX_PIN
     #endif
   #else
     #define E3_ENABLE_PIN            EXP2_04_PIN
@@ -200,7 +199,7 @@
     #define E4_CS_PIN                EXP1_09_PIN
     #if HAS_TMC_UART
       #define E4_SERIAL_TX_PIN       EXP1_09_PIN
-      #define E4_SERIAL_RX_PIN       EXP1_09_PIN
+      #define E4_SERIAL_RX_PIN  E4_SERIAL_TX_PIN
     #endif
   #else
     #define E4_ENABLE_PIN            EXP2_04_PIN

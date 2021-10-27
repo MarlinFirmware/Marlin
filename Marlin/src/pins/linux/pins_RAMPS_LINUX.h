@@ -416,10 +416,10 @@
   #if HAS_SPI_FLASH
     #define SPI_DEVICE                         1
     #define SPI_FLASH_SIZE             0x1000000  // 16MB
-    #define W25QXX_CS_PIN                     31
-    #define W25QXX_MOSI_PIN          SD_MOSI_PIN
-    #define W25QXX_MISO_PIN          SD_MISO_PIN
-    #define W25QXX_SCK_PIN            SD_SCK_PIN
+    #define SPI_FLASH_CS_PIN                  31
+    #define SPI_FLASH_MOSI_PIN       SD_MOSI_PIN
+    #define SPI_FLASH_MISO_PIN       SD_MISO_PIN
+    #define SPI_FLASH_SCK_PIN         SD_SCK_PIN
   #endif
 
   #define TFT_BUFFER_SIZE                 0xFFFF
@@ -427,10 +427,10 @@
     #define TFT_DRIVER                    ST7796
   #endif
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION            63934
+    #define XPT2046_X_CALIBRATION          63934
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION            63598
+    #define XPT2046_Y_CALIBRATION          63598
   #endif
   #ifndef XPT2046_X_OFFSET
     #define XPT2046_X_OFFSET                  -1

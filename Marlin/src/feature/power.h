@@ -31,7 +31,9 @@
 
 class Power {
   public:
-    static void check(const bool pause);
+    static bool psu_on;
+
+    static void init();
     static void power_on();
     static void power_off();
 

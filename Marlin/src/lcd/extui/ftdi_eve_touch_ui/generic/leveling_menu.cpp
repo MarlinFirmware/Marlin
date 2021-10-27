@@ -86,7 +86,7 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
        .enabled(ENABLED(HAS_BED_PROBE))
        .tag(3).button(PROBE_BED_POS, GET_TEXT_F(MSG_PROBE_BED))
        .enabled(ENABLED(HAS_MESH))
-       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH))
+       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_MESH_VIEW))
        .enabled(ENABLED(HAS_MESH))
        .tag(5).button(EDIT_MESH_POS, GET_TEXT_F(MSG_EDIT_MESH))
        .enabled(ENABLED(G26_MESH_VALIDATION))
@@ -123,7 +123,10 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
       case 5: BedMeshEditScreen::show(); break;
     #endif
     #if ENABLED(G26_MESH_VALIDATION)
-      case 6: BedMeshViewScreen::doMeshValidation(); break;
+      case 6:
+        GOTO_SCREEN(StatusScreen);
+        injectCommands_P(PSTR("G28\nM117 Heating...\nG26 R X0 Y0\nG27"));
+        break;
     #endif
     #if ENABLED(BLTOUCH)
       case 7: injectCommands_P(PSTR("M280 P0 S60")); break;

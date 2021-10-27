@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS SBASE pin assignments
+ * Makerbase MKS SBASE pin assignments
  */
 
 #include "env_validate.h"
@@ -138,14 +138,10 @@
 //
 // Power Supply Control
 //
-#if ENABLED(PSU_CONTROL)                          // MKSPWC
-  #ifndef PS_ON_PIN
-    #define PS_ON_PIN                      P0_25  // SERVO
-  #endif
-  #ifndef KILL_PIN
-    #define KILL_PIN                       P1_29  // Z+
-    #define KILL_PIN_STATE                  HIGH
-  #endif
+#if ENABLED(MKS_PWC)
+  #define PS_ON_PIN                        P0_25  // SERVO
+  #define KILL_PIN                         P1_29  // Z+
+  #define KILL_PIN_STATE                    HIGH
 #endif
 
 //
@@ -168,8 +164,6 @@
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
-
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
 
 #if SD_CONNECTION_IS(CUSTOM_CABLE)
 
@@ -203,6 +197,7 @@
     #define SD_SS_PIN                      P0_28
   #else
     #define SD_DETECT_PIN                  P0_27
+    #define ONBOARD_SD_CS_PIN              P0_06  // Chip select for "System" SD card
     #define SD_SS_PIN          ONBOARD_SD_CS_PIN
   #endif
 #endif
@@ -220,6 +215,9 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
+//
+// LCD / Controller
+//
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -331,10 +329,13 @@
    */
   #define X_SERIAL_TX_PIN                  P1_22  // J8-2
   #define X_SERIAL_RX_PIN                  P2_12  // J8-4 Interrupt Capable
+
   #define Y_SERIAL_TX_PIN                  P1_23  // J8-3
   #define Y_SERIAL_RX_PIN                  P2_11  // J8-5 Interrupt Capable
+
   #define Z_SERIAL_TX_PIN                  P2_12  // J8-4
   #define Z_SERIAL_RX_PIN                  P0_25  // TH3
+
   #define E0_SERIAL_TX_PIN                 P4_28  // J8-6
   #define E0_SERIAL_RX_PIN                 P0_26  // TH4
 
@@ -343,10 +344,8 @@
 #endif
 
 // UNUSED
-#define PIN_P0_27                          P0_27  // EXP2/Onboard SD
-#define PIN_P0_28                          P0_28  // EXP2
-#define PIN_P0_02                          P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-#define PIN_P0_03                          P0_03  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PIN_P0_02                        P0_02  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+//#define PIN_P0_03                        P0_03  // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 
 /**
  *  PWMs

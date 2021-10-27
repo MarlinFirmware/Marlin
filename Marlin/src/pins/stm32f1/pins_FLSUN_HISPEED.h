@@ -73,10 +73,10 @@
 
 #if HAS_SPI_FLASH
   // SPI 2
-  #define W25QXX_CS_PIN                     PB12  // SPI2_NSS / Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // SPI2_NSS / Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
 
 //
@@ -124,11 +124,11 @@
   // SoftwareSerial with one pin per driver
   // Compatible with TMC2208 and TMC2209 drivers
   #define X_SERIAL_TX_PIN                   PA10  // RXD1
-  #define X_SERIAL_RX_PIN                   PA10  // RXD1
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
   #define Y_SERIAL_TX_PIN                   PA9   // TXD1
-  #define Y_SERIAL_RX_PIN                   PA9   // TXD1
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
   #define Z_SERIAL_TX_PIN                   PC7   // IO1
-  #define Z_SERIAL_RX_PIN                   PC7   // IO1
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
   #define TMC_BAUD_RATE                    19200
 #else
   // Motor current PWM pins
@@ -222,9 +222,11 @@
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
-#define MT_DET_1_PIN                        PA4   // MT_DET
-#define MT_DET_2_PIN                        PE6   // FALA_CRTL
-#define MT_DET_PIN_INVERTING               false
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_2_PIN                      PE6
+  #define MT_DET_PIN_STATE                  LOW
+#endif
 
 //
 // LED / NEOPixel
@@ -292,13 +294,14 @@
   #define TFT_BACKLIGHT_PIN                 PD13
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_CS_PIN                  TFT_CS_PIN
-  #define TFT_RS_PIN                  TFT_RS_PIN
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #ifdef TFT_CLASSIC_UI
     #define TFT_MARLINBG_COLOR            0x3186  // Grey
@@ -307,11 +310,14 @@
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
   #define TFT_BUFFER_SIZE                  14400
+
 #elif HAS_GRAPHICAL_TFT
+
   #define TFT_RESET_PIN                     PC6
   #define TFT_BACKLIGHT_PIN                 PD13
   #define TFT_CS_PIN                        PD7   // NE4
   #define TFT_RS_PIN                        PD11  // A0
+
 #endif
 
 #if NEED_TOUCH_PINS

@@ -423,6 +423,12 @@ namespace ExtUI {
         #if AXIS_IS_TMC(Z2)
           case Z2: return stepperZ2.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(Z3)
+          case Z3: return stepperZ3.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z4)
+          case Z4: return stepperZ4.getMilliamps();
+        #endif
         default: return NAN;
       };
     }
@@ -485,6 +491,12 @@ namespace ExtUI {
         #endif
         #if AXIS_IS_TMC(Z2)
           case Z2: stepperZ2.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z3)
+          case Z3: stepperZ3.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z4)
+          case Z4: stepperZ4.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };
@@ -743,7 +755,7 @@ namespace ExtUI {
      * what nozzle is printing.
      */
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
-      const float mm = steps * planner.steps_to_mm[axis];
+      const float mm = steps * planner.mm_per_step[axis];
       UNUSED(mm);
 
       if (!babystepAxis_steps(steps, axis)) return;
@@ -779,12 +791,12 @@ namespace ExtUI {
      * steps that is at least mm long.
      */
     int16_t mmToWholeSteps(const_float_t mm, const axis_t axis) {
-      const float steps = mm / planner.steps_to_mm[axis];
+      const float steps = mm / planner.mm_per_step[axis];
       return steps > 0 ? CEIL(steps) : FLOOR(steps);
     }
 
     float mmFromWholeSteps(int16_t steps, const axis_t axis) {
-      return steps * planner.steps_to_mm[axis];
+      return steps * planner.mm_per_step[axis];
     }
 
   #endif // BABYSTEPPING
@@ -794,7 +806,7 @@ namespace ExtUI {
       #if HAS_BED_PROBE
         + probe.offset.z
       #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        + planner.steps_to_mm[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+        + planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
       #endif
     );
   }
@@ -1037,6 +1049,8 @@ namespace ExtUI {
 
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
+    PauseMessage pauseModeStatus = PAUSE_MESSAGE_STATUS;
+    PauseMode getPauseMode() { return pause_mode;}
   #endif
 
   void printFile(const char *filename) {

@@ -30,8 +30,15 @@
  * M256: Set the LCD brightness
  */
 void GcodeSuite::M256() {
-  if (parser.seenval('B')) ui.set_brightness(parser.value_int());
-  SERIAL_ECHOLNPAIR("LCD Brightness: ", ui.brightness);
+  if (parser.seenval('B'))
+    ui.set_brightness(parser.value_int());
+  else
+    M256_report();
+}
+
+void GcodeSuite::M256_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_LCD_BRIGHTNESS));
+  SERIAL_ECHOLNPGM("  M256 B", ui.brightness);
 }
 
 #endif // HAS_LCD_BRIGHTNESS

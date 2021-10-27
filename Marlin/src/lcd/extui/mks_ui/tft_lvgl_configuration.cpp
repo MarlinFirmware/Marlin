@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -192,9 +193,7 @@ void tft_lvgl_init() {
 
   systick_attach_callback(SysTick_Callback);
 
-  #if HAS_SPI_FLASH_FONT
-    init_gb2312_font();
-  #endif
+  TERN_(HAS_SPI_FLASH_FONT, init_gb2312_font());
 
   tft_style_init();
   filament_pin_setup();
@@ -242,8 +241,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
-  for (uint16_t i = 0; i < height; i++)
-    SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
+  SPI_TFT.tftio.WriteSequence((uint16_t*)color_p, width * height);
 
   lv_disp_flush_ready(disp); // Indicate you are ready with the flushing
 
@@ -266,9 +264,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 }
 
 static bool get_point(int16_t *x, int16_t *y) {
-  bool is_touched = touch.getRawPoint(x, y);
-
-  if (!is_touched) return false;
+  if (!touch.getRawPoint(x, y)) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
@@ -288,34 +284,26 @@ static bool get_point(int16_t *x, int16_t *y) {
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   static int16_t last_x = 0, last_y = 0;
-  static uint8_t last_touch_state = LV_INDEV_STATE_REL;
-  static int32_t touch_time1 = 0;
-  uint32_t tmpTime, diffTime = 0;
-
-  tmpTime = millis();
-  diffTime = getTickDiff(tmpTime, touch_time1);
-  if (diffTime > 20) {
-    if (get_point(&last_x, &last_y)) {
-
-      if (last_touch_state == LV_INDEV_STATE_PR) return false;
-      data->state = LV_INDEV_STATE_PR;
-
-      // Set the coordinates (if released use the last-pressed coordinates)
+  if (get_point(&last_x, &last_y)) {
+    #if TFT_ROTATION == TFT_ROTATE_180
+      data->point.x = TFT_WIDTH - last_x;
+      data->point.y = TFT_HEIGHT - last_y;
+    #else
       data->point.x = last_x;
       data->point.y = last_y;
-
-      last_x = last_y = 0;
-      last_touch_state = LV_INDEV_STATE_PR;
-    }
-    else {
-      if (last_touch_state == LV_INDEV_STATE_PR)
-        data->state = LV_INDEV_STATE_REL;
-      last_touch_state = LV_INDEV_STATE_REL;
-    }
-
-    touch_time1 = tmpTime;
+    #endif
+    data->state = LV_INDEV_STATE_PR;
   }
-
+  else {
+    #if TFT_ROTATION == TFT_ROTATE_180
+      data->point.x = TFT_WIDTH - last_x;
+      data->point.y = TFT_HEIGHT - last_y;
+    #else
+      data->point.x = last_x;
+      data->point.y = last_y;
+    #endif
+    data->state = LV_INDEV_STATE_REL;
+  }
   return false; // Return `false` since no data is buffering or left to read
 }
 
@@ -334,7 +322,7 @@ bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
 
 extern uint8_t currentFlashPage;
 
-//spi_flash
+// spi_flash
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
@@ -383,7 +371,7 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
   return LV_FS_RES_OK;
 }
 
-//sd
+// sd
 char *cur_namefff;
 uint32_t sd_read_base_addr = 0, sd_read_addr_offset = 0, small_image_size = 409;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {

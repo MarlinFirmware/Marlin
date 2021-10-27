@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(CANCEL_OBJECTS)

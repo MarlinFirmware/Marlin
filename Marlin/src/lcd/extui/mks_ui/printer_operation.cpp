@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -54,7 +55,7 @@ void printer_state_polling() {
 
         gcode.process_subcommands_now_P(PSTR("M25"));
 
-        //save the position
+        // save the position
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
         uiCfg.current_z_position_bak = current_position.z;
@@ -163,7 +164,7 @@ void filament_check() {
   #endif
   #if PIN_EXISTS(MT_DET_1)
     static int fil_det_count_1 = 0;
-    if (READ(MT_DET_1_PIN) == MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
       fil_det_count_1++;
     else if (fil_det_count_1 > 0)
       fil_det_count_1--;
@@ -171,7 +172,7 @@ void filament_check() {
 
   #if PIN_EXISTS(MT_DET_2)
     static int fil_det_count_2 = 0;
-    if (READ(MT_DET_2_PIN) == MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_2_PIN) == MT_DET_PIN_STATE)
       fil_det_count_2++;
     else if (fil_det_count_2 > 0)
       fil_det_count_2--;
@@ -179,7 +180,7 @@ void filament_check() {
 
   #if PIN_EXISTS(MT_DET_3)
     static int fil_det_count_3 = 0;
-    if (READ(MT_DET_3_PIN) == MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_3_PIN) == MT_DET_PIN_STATE)
       fil_det_count_3++;
     else if (fil_det_count_3 > 0)
       fil_det_count_3--;

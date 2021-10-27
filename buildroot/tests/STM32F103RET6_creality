@@ -10,14 +10,22 @@ set -e
 # Build with configs included in the PR
 #
 use_example_configs "Creality/Ender-3 V2/CrealityUI"
-opt_enable MARLIN_DEV_MODE
-exec_test $1 $2 "Ender 3 v2" "$3"
+opt_enable MARLIN_DEV_MODE BUFFER_MONITORING BLTOUCH AUTO_BED_LEVELING_BILINEAR Z_SAFE_HOMING
+exec_test $1 $2 "Ender 3 v2 with CrealityUI" "$3"
 
 use_example_configs "Creality/Ender-3 V2/CrealityUI"
-opt_disable CLASSIC_JERK
-opt_add SDCARD_EEPROM_EMULATION
-opt_set TEMP_SENSOR_BED 0
-exec_test $1 $2 "Ender 3 v2, SD EEPROM, no CLASSIC_JERK, no Bed" "$3"
+opt_disable DWIN_CREALITY_LCD
+opt_enable DWIN_CREALITY_LCD_ENHANCED BLTOUCH AUTO_BED_LEVELING_UBL Z_SAFE_HOMING
+exec_test $1 $2 "Ender 3 v2 with Enhanced UI" "$3"
+
+use_example_configs "Creality/Ender-3 V2/CrealityUI"
+opt_disable DWIN_CREALITY_LCD
+opt_enable DWIN_CREALITY_LCD_JYERSUI AUTO_BED_LEVELING_BILINEAR PROBE_MANUALLY
+exec_test $1 $2 "Ender 3 v2 with JyersUI" "$3"
+
+use_example_configs "Creality/Ender-3 V2/MarlinUI"
+opt_add SDCARD_EEPROM_EMULATION AUTO_BED_LEVELING_BILINEAR Z_SAFE_HOMING
+exec_test $1 $2 "Ender 3 v2 with MarlinUI" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_CREALITY_V452 SERIAL_PORT 1

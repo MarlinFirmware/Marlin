@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -41,7 +44,7 @@
 #define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
-#line 45
+#line 48
 
 // manually add pins that have names that are macros which don't play well with these macros
 #if ANY(AVR_ATmega2560_FAMILY, AVR_ATmega1284_FAMILY, ARDUINO_ARCH_SAM, TARGET_LPC1768)
@@ -160,7 +163,7 @@ const PinInfo pin_array[] PROGMEM = {
   #endif
 
   #include "pinsDebug_list.h"
-  #line 164
+  #line 167
 
 };
 
@@ -203,11 +206,8 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
         SERIAL_ECHOPGM("PIN: ");
         PRINT_PIN(pin);
         PRINT_PORT(pin);
-        if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
-          sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
-          SERIAL_ECHO(buffer);
-        }
-        else SERIAL_ECHO_SP(8);   // add padding if not an analog pin
+        if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
+        else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
       }
       else {
         SERIAL_CHAR('.');
@@ -254,12 +254,8 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
     SERIAL_ECHOPGM("PIN: ");
     PRINT_PIN(pin);
     PRINT_PORT(pin);
-    if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) {
-      sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin));    // analog pin number
-      SERIAL_ECHO(buffer);
-    }
-    else
-      SERIAL_ECHO_SP(8);   // add padding if not an analog pin
+    if (int8_t(DIGITAL_PIN_TO_ANALOG_PIN(pin)) >= 0) PRINT_PIN_ANALOG(pin); // analog pin number
+    else SERIAL_ECHO_SP(8);                                                 // add padding if not an analog pin
     SERIAL_ECHOPGM("<unused/unknown>");
     if (extended) {
 

@@ -26,7 +26,7 @@
  */
 
 #include "dwin_lcd.h"
-#include "rotary_encoder.h"
+#include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -144,36 +144,21 @@ typedef struct {
 
 typedef struct {
   uint8_t language;
-  bool pause_flag:1;
-  bool pause_action:1;
-  bool print_finish:1;
+  bool pause_flag:1;    // printing is paused
+  bool pause_action:1;  // flag a pause action
+  bool print_finish:1;  // print was finished
+  bool select_flag:1;   // Popup button selected
+  bool home_flag:1;     // homing in course
+  bool heat_flag:1;     // 0: heating done  1: during heating
   bool done_confirm_flag:1;
-  bool select_flag:1;
-  bool home_flag:1;
-  bool heat_flag:1;  // 0: heating done  1: during heating
   #if ENABLED(PREVENT_COLD_EXTRUSION)
-    bool ETempTooLow_flag:1;
-  #endif
-  #if HAS_LEVELING
-    bool leveling_offset_flag:1;
+    bool cold_flag:1;
   #endif
   AxisEnum feedspeed_axis, acc_axis, jerk_axis, step_axis;
-} HMI_Flag_t;
+} HMI_flag_t;
 
 extern HMI_value_t HMI_ValueStruct;
-extern HMI_Flag_t HMI_flag;
-
-// Show ICO
-void ICON_Print(bool show);
-void ICON_Prepare(bool show);
-void ICON_Control(bool show);
-void ICON_Leveling(bool show);
-void ICON_StartInfo(bool show);
-
-void ICON_Setting(bool show);
-void ICON_Pause(bool show);
-void ICON_Continue(bool show);
-void ICON_Stop(bool show);
+extern HMI_flag_t HMI_flag;
 
 #if HAS_HOTEND || HAS_HEATED_BED
   // Popup message window
@@ -261,7 +246,6 @@ void EachMomentUpdate();
 void DWIN_HandleScreen();
 void DWIN_StatusChanged(const char *text);
 void DWIN_StatusChanged_P(PGM_P const pstr);
-void DWIN_Draw_Checkbox(uint16_t color, uint16_t bcolor, uint16_t x, uint16_t y, bool mode /* = false*/);
 
 inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
 
