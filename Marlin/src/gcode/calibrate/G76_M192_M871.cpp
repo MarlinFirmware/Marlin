@@ -89,11 +89,6 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
 
 #if ENABLED(USE_TEMP_PROBE_COMPENSATION) && ENABLED(USE_TEMP_BED_COMPENSATION)
   void GcodeSuite::G76() {
-    // Check if heated bed is available and z-homing is done with probe
-    #if TEMP_SENSOR_BED == 0 || !(HOMING_Z_WITH_PROBE)
-      return;
-    #endif
-
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
       idle_no_sleep();
       const millis_t ms = millis();
