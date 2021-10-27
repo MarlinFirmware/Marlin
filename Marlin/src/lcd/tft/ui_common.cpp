@@ -167,8 +167,7 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr,
 void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
   menu_item(row);
   tft_string.set(pstr, itemIndex, itemString);
-  if (vstr)
-    tft_string.add(vstr);
+  if (vstr) tft_string.add(vstr);
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
 }
 
@@ -176,9 +175,8 @@ void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t st
 
   void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
     menu_item(row, sel);
-    uint8_t maxlen = MENU_ITEM_HEIGHT - MENU_TEXT_Y_OFFSET + 1;
-    if (isDir)
-      tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
+    if (isDir) tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
+    constexpr uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y_OFFSET) + 1;
     tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, row, sel));
   }
 
