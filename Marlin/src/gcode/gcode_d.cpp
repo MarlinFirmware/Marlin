@@ -248,7 +248,6 @@ void GcodeSuite::D(const int16_t dcode) {
         SERIAL_ECHOLNPGM(" done");
         card.closefile();
       } break;
-    #endif
 
     #endif // SDSUPPORT
 
