@@ -1994,7 +1994,7 @@
  * (both probe and bed sensors must be present).
  * Extruder temperatures must be calibrated manually (use the Z Probe Offset Wizard).
  * Use M871 to set values manually.
- * For a more detailed explanation of the process see G76_M192_M871.cpp.
+ * For a more detailed explanation of the process see https://marlinfw.org/docs/features/probe_temp_compensation.html.
  */
 #if HAS_BED_PROBE
   #define PROBE_TEMP_COMPENSATION
