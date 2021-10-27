@@ -76,6 +76,7 @@ class ProbeTempComp {
 
     static inline void reset_index() { calib_idx = 0; };
     static inline uint8_t get_index() { return calib_idx; }
+    static void reset_to_default();
     static void clear_offsets(const TempSensorID tsi);
     static inline void clear_all_offsets() {
       TERN_(USE_TEMP_PROBE_COMPENSATION, clear_offsets(TSI_PROBE));

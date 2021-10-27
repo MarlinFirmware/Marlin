@@ -2739,6 +2739,8 @@ void MarlinSettings::reset() {
   //
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
+  TERN_(PROBE_TEMP_COMPENSATION, temp_comp.reset_to_default());
+
   //
   // BLTOUCH
   //
