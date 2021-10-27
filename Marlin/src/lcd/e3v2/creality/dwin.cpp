@@ -1659,7 +1659,7 @@ void _update_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y,
     else if (blink && draw_empty)
       DWIN_Draw_String(true, font8x16, Color_White, Color_Bg_Black, x, y, F("     "));
     else
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, x, y, p * 10);
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, x, y, p);
   }
 }
 
@@ -1769,11 +1769,11 @@ void update_variable() {
   if (BABY_Z_VAR != _offset) {
     _offset = BABY_Z_VAR;
     if (BABY_Z_VAR < 0) {
-      Draw_Stat_Float(207, 417, -_offset * 100);
+      Draw_Stat_Float(207, 417, -_offset);
       DWIN_Draw_String(true, font8x16, Color_White, Color_Bg_Black, 205, 419, F("-"));
     }
     else {
-      Draw_Stat_Float(207, 417, _offset * 100);
+      Draw_Stat_Float(207, 417, _offset);
       DWIN_Draw_String(true, font8x16, Color_White, Color_Bg_Black, 205, 419, F(" "));
     }
   }
