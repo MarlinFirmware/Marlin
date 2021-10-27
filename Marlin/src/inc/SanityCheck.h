@@ -648,6 +648,22 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
     static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
   #endif
+  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+    #ifdef ETC_SAMPLE_START
+      constexpr auto _etc_sample_start = ETC_SAMPLE_START;
+      constexpr decltype(_etc_sample_start) _test_etc_sample_start = 12.3f;
+      static_assert(_test_etc_sample_start != 12.3f, "ETC_SAMPLE_START must be a whole number.");
+    #endif
+    #ifdef ETC_SAMPLE_RES
+      constexpr auto _etc_sample_res = ETC_SAMPLE_RES;
+      constexpr decltype(_etc_sample_res) _test_etc_sample_res = 12.3f;
+      static_assert(_test_etc_sample_res != 12.3f, "ETC_SAMPLE_RES must be a whole number.");
+    #endif
+  #endif
+
+  #if ENABLED(USE_TEMP_EXT_COMPENSATION) && EXTRUDERS != 1
+    #error "USE_TEMP_EXT_COMPENSATION only works with a single extruder."
+  #endif
 #endif
 
 /**
@@ -1241,7 +1257,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * (Magnetic) Parking Extruder requirements
  */
-#if ANY(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+#if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
   #if ENABLED(EXT_SOLENOID)
     #error "(MAGNETIC_)PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
   #elif EXTRUDERS != 2
@@ -1658,10 +1674,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
   #if Z_PROBE_LOW_POINT > 0
     #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
-  #endif
-
-  #if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
-    #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable it or comment out this line to continue."
   #endif
 
   #if ENABLED(PROBE_ACTIVATION_SWITCH)

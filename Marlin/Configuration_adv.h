@@ -414,7 +414,7 @@
  */
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
-  #define AUTOTEMP_OLDWEIGHT    0.98
+  #define AUTOTEMP_OLDWEIGHT    0.98  // Factor used to weight previous readings (0.0 < value < 1.0)
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
@@ -2006,7 +2006,7 @@
     #define PTC_PROBE_POS  { 90, 100 }
 
     // Enable additional compensation using hotend temperature
-    // Note: this values cannot be calibrated automatically but have to be set manually
+    // Note: this values cannot be calibrated automatically but have to be set manually via M871.
     //#define USE_TEMP_EXT_COMPENSATION
 
     // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_START
@@ -2021,6 +2021,12 @@
     //#define BTC_SAMPLE_START  60  // (°C)
     //#define BTC_SAMPLE_RES     5  // (°C)
     //#define BTC_SAMPLE_COUNT  10
+
+    #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+      //#define ETC_SAMPLE_START 180  // (°C)
+      //#define ETC_SAMPLE_RES     5  // (°C)
+      //#define ETC_SAMPLE_COUNT  20
+    #endif
 
     // The temperature the probe should be at while taking measurements during bed temperature
     // calibration.

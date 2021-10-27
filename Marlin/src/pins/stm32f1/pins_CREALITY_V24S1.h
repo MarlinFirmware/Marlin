@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,30 +21,16 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
+/**
+ * Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7 board pin assignments
+ */
 
-template <typename Helper>
-struct AutoReporter {
-  millis_t next_report_ms;
-  uint8_t report_interval;
-  #if HAS_MULTI_SERIAL
-    SerialMask report_port_mask;
-    AutoReporter() : report_port_mask(SerialMask::All) {}
-  #endif
+#define BOARD_INFO_NAME      "Creality v2.4.S1 V101"
+#define DEFAULT_MACHINE_NAME "Creality3D"
 
-  inline void set_interval(uint8_t seconds, const uint8_t limit=60) {
-    report_interval = _MIN(seconds, limit);
-    next_report_ms = millis() + SEC_TO_MS(seconds);
-  }
+//
+// Heaters
+//
+#define HEATER_BED_PIN                      PA15  // HOT BED
 
-  inline void tick() {
-    if (!report_interval) return;
-    const millis_t ms = millis();
-    if (ELAPSED(ms, next_report_ms)) {
-      next_report_ms = ms + SEC_TO_MS(report_interval);
-      PORT_REDIRECT(report_port_mask);
-      Helper::report();
-      PORT_RESTORE();
-    }
-  }
-};
+#include "pins_CREALITY_V4.h"
