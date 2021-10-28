@@ -1035,10 +1035,7 @@ namespace ExtUI {
   void setFeedrate_percent(const_float_t value) { feedrate_percentage = constrain(value, 10, 500); }
 
   void coolDown() {
-    #if HAS_HOTEND
-      HOTEND_LOOP() thermalManager.setTargetHotend(0, e);
-    #endif
-    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
+    thermalManager.disable_all_heaters();
     TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
   }
 
