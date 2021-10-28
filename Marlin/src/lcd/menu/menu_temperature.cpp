@@ -122,7 +122,8 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
 
         HOTEND_LOOP() PREHEAT_ITEMS(editable.int8, e);
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, []() {
-          HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[editable.int8].hotend_temp, e);
+          const celsius_t t = ui.material_preset[editable.int8].hotend_temp;
+          HOTEND_LOOP() thermalManager.setTargetHotend(t, e);
           TERN(HAS_HEATED_BED, _preheat_bed(editable.int8), ui.return_to_status());
         });
 
@@ -268,7 +269,7 @@ void menu_temperature() {
     //
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
-      #if HOTENDS > 1 || HAS_HEATED_BED
+      #if HAS_MULTI_HOTEND || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
       #elif HAS_HOTEND
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
@@ -295,7 +296,7 @@ void menu_temperature() {
 
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
-      #if HOTENDS > 1 || HAS_HEATED_BED
+      #if HAS_MULTI_HOTEND || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
       #else
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);

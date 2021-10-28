@@ -87,7 +87,7 @@ extern uint8_t marlin_debug_flags;
 //         interface with the ability to output to multiple serial ports.
 #if HAS_MULTI_SERIAL
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
-  #define _PORT_RESTORE(n,p)  RESTORE(n)
+  #define _PORT_RESTORE(n)    RESTORE(n)
   #define SERIAL_ASSERT(P)    if (multiSerial.portMask!=(P)) { debugger(); }
   // If we have a catchall, use that directly
   #ifdef SERIAL_CATCHALL
