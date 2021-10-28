@@ -1237,7 +1237,7 @@
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      //Enable to use a mesh for the Z-offset to probe instead of a fixed Z-offset
+      //Enable to use a mesh for the Z-offset instead of a fixed Z-offset
       #define PROBE_OFFSET_MESH
     #endif
   #endif

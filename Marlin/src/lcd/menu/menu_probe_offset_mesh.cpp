@@ -29,13 +29,13 @@
 #if ENABLED(PROBE_OFFSET_MESH)
 
 #include "menu_item.h"
+#include "menu_addon.h"
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
+#include "../../feature/bedlevel/abl/probe_offset_mesh.h"
 #include "../../module/motion.h"
 #include "../../gcode/queue.h"
 #include "../../module/probe.h"
-
-bed_mesh_t z_offset_values;
 
 //
 // Motion > Level Bed handlers
@@ -46,6 +46,9 @@ static xy_int8_t meshCount;
 xy_pos_t probePos;
 static constexpr xy_uint8_t grid_points = {GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y};
 bool zig;
+int8_t inStart, inStop, inInc;
+float measured_z;
+bool was_leveling_active;
 
 #if ABL_USES_GRID
 #if ENABLED(PROBE_Y_FIRST)
@@ -75,72 +78,75 @@ constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MA
 //
 // ** This blocks the command queue! **
 //
+
 void _lcd_probe_offset_mesh_done()
 {
   if (!ui.wait_for_move)
   {
-    ui.goto_previous_screen_no_defer();
-    ui.completion_feedback();
+    print_z_offset_grid();
+    set_bed_leveling_enabled(was_leveling_active);
+    SET_SOFT_ENDSTOP_LOOSE(false);
+    ui.goto_screen(menu_advanced_settings);
   }
   if (ui.should_draw())
     MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT(MSG_PROBE_MESH_DONE));
   ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
 }
 
-void _lcd_level_goto_next_point();
+void _lcd_level_goto_next_point_inner();
+void _lcd_level_goto_next_point_outer();
 
-//
-// Step 7: Get the Z coordinate, click goes to the next point or exits
-//
-void _lcd_probe_offset_mesh_get_z()
-{
-
-  if (ui.use_click())
-  {
-
-    //
-    // Save the current Z position and move
-    //
-
-    // If done...
-    if (++manual_probe_index >= total_probe_points)
-    {
-      //
-      // The last G29 records the point and enables bed leveling
-      //
-      ui.wait_for_move = true;
-      ui.goto_screen(_lcd_probe_offset_mesh_done);
-#if ENABLED(MESH_BED_LEVELING)
-      queue.inject_P(PSTR("G29S2"));
-#elif ENABLED(PROBE_MANUALLY)
-      queue.inject_P(PSTR("G29V1"));
+#if ENABLED(PROBE_OFFSET_WIZARD)
+  void _goto_manual_move_z(const_float_t);
+#else
+  void _goto_manual_move_z(const_float_t scale) {
+    ui.manual_move.menu_scale = scale;
+    ui.goto_screen(lcd_move_z);
+  }
 #endif
-    }
-    else
-      _lcd_level_goto_next_point();
 
-    return;
+void set_offset_and_go_to_next_point() {
+  //Set Z offset at probed point
+  z_offset_mesh[meshCount.x][meshCount.y] = current_position.z - measured_z;
+
+  //Go to next point
+  PR_INNER_VAR += inInc;
+  manual_probe_index++;
+  ui.goto_screen(_lcd_level_goto_next_point_inner);
+}
+
+void probe_offset_mesh_wizard_menu() {
+  START_MENU();
+  float calculated_z_offset = current_position.z - measured_z;
+
+  if (LCD_HEIGHT >= 4)
+    STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
+
+  STATIC_ITEM_P(PSTR("Z="), SS_CENTER, ftostr42_52(current_position.z));
+  STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
+
+  SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });
+  SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
+
+  if ((FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f) {
+    char tmp[20], numstr[10];
+    // Determine digits needed right of decimal
+    const uint8_t digs = !UNEAR_ZERO((FINE_MANUAL_MOVE) * 1000 - int((FINE_MANUAL_MOVE) * 1000)) ? 4 :
+                         !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
+    sprintf_P(tmp, GET_TEXT(MSG_MOVE_N_MM), dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
+    #if DISABLED(HAS_GRAPHICAL_TFT)
+      SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
+      MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
+      lcd_put_u8str(tmp);
+      MENU_ITEM_ADDON_END();
+    #else
+      SUBMENU_P(tmp, []{ _goto_manual_move_z(float(FINE_MANUAL_MOVE)); });
+    #endif
   }
 
-  //
-  // Encoder knob or keypad buttons adjust the Z position
-  //
-  if (ui.encoderPosition)
-  {
-    const float z = current_position.z + float(int32_t(ui.encoderPosition)) * (MESH_EDIT_Z_STEP);
-    line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE)*0.5f, (LCD_PROBE_Z_RANGE)*0.5f));
-    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    ui.encoderPosition = 0;
-  }
+  ACTION_ITEM(MSG_BUTTON_DONE, set_offset_and_go_to_next_point);
 
-  //
-  // Draw on first display, then only on Z change
-  //
-  if (ui.should_draw())
-  {
-    const float v = current_position.z;
-    MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
-  }
+  END_MENU();
 }
 
 //
@@ -155,45 +161,64 @@ void _lcd_probe_offset_mesh_moving()
     MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
   }
   ui.refresh(LCDVIEW_CALL_NO_REDRAW);
-  if (!ui.wait_for_move)
-    ui.goto_screen(_lcd_probe_offset_mesh_get_z);
+  if (!ui.wait_for_move){
+    ui.goto_screen(probe_offset_mesh_wizard_menu);
+  }
 }
 
 //
 // Step 5: Initiate a move to the next point
 //
-void _lcd_level_goto_next_point()
+void _lcd_level_goto_next_point_inner()
 {
-  ui.goto_screen(_lcd_probe_offset_mesh_moving);
 
-  if (manual_probe_index < total_probe_points)
+  if (PR_INNER_VAR != inStop)
   {
+    ui.wait_for_move = true;
+    ui.goto_screen(_lcd_probe_offset_mesh_moving);
 
-    // Set meshCount.x, meshCount.y based on manual_probe_index, with zig-zag
-    PR_OUTER_VAR = manual_probe_index / PR_INNER_SIZE;
-    PR_INNER_VAR = manual_probe_index - (PR_OUTER_VAR * PR_INNER_SIZE);
-
-    // Probe in reverse order for every other row/column
-    const bool zig = (PR_OUTER_VAR & 1); // != ((PR_OUTER_SIZE) & 1);
-    if (zig)
-      PR_INNER_VAR = (PR_INNER_SIZE - 1) - PR_INNER_VAR;
+    // Deploy certain probes before starting probing
+    #if HAS_BED_PROBE
+      if (ENABLED(BLTOUCH))
+        do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
+    #endif
 
     probePos = bilinear_start + bilinear_grid_spacing * meshCount.asFloat();
-
-    // Move Nozzle to Probing/Homing Position
-    ui.wait_for_move = true;
-    current_position = probePos;
+    measured_z = probe.probe_at_point(probePos, PROBE_PT_STOW);
+    current_position += probe.offset_xy;
     line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
-    probe.probe_at_point(probePos, PROBE_PT_RAISE);
-    //ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
     ui.wait_for_move = false;
+  } else {
+    PR_OUTER_VAR++;
+    ui.goto_screen(_lcd_level_goto_next_point_outer);
   }
+}
 
-#if ENABLED(MESH_BED_LEVELING)
-  queue.inject_P(manual_probe_index ? PSTR("G29S2") : PSTR("G29S1"));
-#elif ENABLED(PROBE_MANUALLY)
-  queue.inject_P(PSTR("G29V1"));
-#endif
+//
+// Step 5: Initiate a move to the next point
+//
+void _lcd_level_goto_next_point_outer()
+{
+  if (PR_OUTER_VAR < PR_OUTER_SIZE) {
+
+    if (zig) {                      // Zig away from origin
+        inStart = 0;                  // Left or front
+        inStop = PR_INNER_SIZE;       // Right or back
+        inInc = 1;                    // Zig right
+      }
+      else {                          // Zag towards origin
+        inStart = PR_INNER_SIZE - 1;  // Right or back
+        inStop = -1;                  // Left or front
+        inInc = -1;                   // Zag left
+      }
+
+      zig ^= true; // zag
+
+      PR_INNER_VAR = inStart;
+      ui.goto_screen(_lcd_level_goto_next_point_inner);
+  } else {
+    ui.goto_screen(_lcd_probe_offset_mesh_done);
+  }
 }
 
 //
@@ -221,16 +246,19 @@ void _lcd_probe_offset_mesh_homing_done()
     }
 
     zig = PR_OUTER_SIZE & 1; // Always end at RIGHT and BACK_PROBE_BED_POSITION
+    PR_OUTER_VAR = 0;
     manual_probe_index = 0;
-    _lcd_level_goto_next_point();
+
+    SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
+
+    ui.goto_screen(_lcd_level_goto_next_point_outer);
   }
 }
 
 //
 // Step 3: Display "Homing XYZ" - Wait for homing to finish
 //
-void _lcd_probe_offset_mesh_homing()
-{
+void _lcd_probe_offset_mesh_homing() {
   _lcd_draw_homing();
   if (all_axes_homed())
     ui.goto_screen(_lcd_probe_offset_mesh_homing_done);
@@ -239,8 +267,15 @@ void _lcd_probe_offset_mesh_homing()
 //
 // Step 2: Continue Z-Offset Mesh Creation...
 //
-void _lcd_probe_offset_mesh_continue()
-{
+void _lcd_probe_offset_mesh_continue() {
+
+  // Store Bed-Leveling-State and disable
+  #if HAS_LEVELING
+    was_leveling_active = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
+
+  // Home all axes
   ui.defer_status_screen();
   set_all_unhomed();
   ui.goto_screen(_lcd_probe_offset_mesh_homing);

@@ -220,6 +220,7 @@ void _lcd_draw_homing();
 
 #if ENABLED(PROBE_OFFSET_MESH)
   void _lcd_probe_offset_mesh_continue();
+  void menu_advanced_settings();
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))

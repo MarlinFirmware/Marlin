@@ -508,7 +508,7 @@ void menu_backlash();
         SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
       #endif
 
-      #if ENABLED(PROBE_OFFSET_WIZARD)
+      #if ENABLED(PROBE_OFFSET_MESH)
         SUBMENU(MSG_PROBE_MESH, _lcd_probe_offset_mesh_continue);
       #endif
 
