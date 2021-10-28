@@ -69,7 +69,7 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
   ui.return_to_status();
 }
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
 
   #if HAS_TEMP_HOTEND
     inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
@@ -138,7 +138,7 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
 
   #endif // HAS_MULTI_HOTEND || HAS_HEATED_BED
 
-#endif // PREHEAT_COUNT
+#endif // HAS_PREHEAT
 
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
@@ -263,7 +263,7 @@ void menu_temperature() {
 
   #endif // HAS_FAN
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     //
     // Preheat for all Materials
     //

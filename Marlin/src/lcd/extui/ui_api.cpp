@@ -705,7 +705,7 @@ namespace ExtUI {
     uint8_t getIDEX_Mode() { return dual_x_carriage_mode; }
   #endif
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     uint16_t getMaterial_preset_E(const uint16_t index) { return ui.material_preset[index].hotend_temp; }
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }

@@ -3124,12 +3124,14 @@ void Draw_Prepare_Menu() {
         ADDMENUITEM(ICON_SetHome, GET_TEXT_F(MSG_SET_HOME_OFFSETS), onDrawHomeOffset, SetHome);
       #endif
     #endif
-    #if HAS_HOTEND
-      ADDMENUITEM(ICON_PLAPreheat, GET_TEXT_F(MSG_PREHEAT_1), onDrawPreheat1, SetPreheat0);
-      ADDMENUITEM(ICON_ABSPreheat, PSTR("Preheat " PREHEAT_2_LABEL), onDrawPreheat2, SetPreheat1);
-      ADDMENUITEM(ICON_CustomPreheat, GET_TEXT_F(MSG_PREHEAT_CUSTOM), onDrawMenuItem, SetPreheat2);
-    #endif
     #if HAS_PREHEAT
+      ADDMENUITEM(ICON_PLAPreheat, GET_TEXT_F(MSG_PREHEAT_1), onDrawPreheat1, SetPreheat0);
+      #if PREHEAT_COUNT > 1
+        ADDMENUITEM(ICON_ABSPreheat, PSTR("Preheat " PREHEAT_2_LABEL), onDrawPreheat2, SetPreheat1);
+      #endif
+      #if PREHEAT_COUNT > 2
+        ADDMENUITEM(ICON_CustomPreheat, GET_TEXT_F(MSG_PREHEAT_CUSTOM), onDrawMenuItem, SetPreheat2);
+      #endif
       ADDMENUITEM(ICON_Cool, GET_TEXT_F(MSG_COOLDOWN), onDrawCooldown, SetCoolDown);
     #endif
     ADDMENUITEM(ICON_Language, PSTR("UI Language"), onDrawLanguage, SetLanguage);

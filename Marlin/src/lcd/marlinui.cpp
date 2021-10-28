@@ -134,7 +134,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
   preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
   PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
     #define _PDEF(N) static PGMSTR(preheat_##N##_label, PREHEAT_##N##_LABEL);

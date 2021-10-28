@@ -2876,10 +2876,14 @@
   #elif defined(PREHEAT_1_LABEL)
     #define PREHEAT_COUNT 1
   #endif
+  #if PREHEAT_COUNT && ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN)
+    #define HAS_PREHEAT 1
+  #endif
 #endif
 
-#if !PREHEAT_COUNT
+#if !HAS_PREHEAT
   #undef PREHEAT_SHORTCUT_MENU_ITEM
+  #undef DGUS_PREHEAT_UI
 #endif
 
 /**

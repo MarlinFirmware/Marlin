@@ -165,14 +165,9 @@ typedef struct {
 } select_t;
 
 select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
-         , select_control{0}, select_axis{0}, select_temp{0}, select_motion{0}, select_tune{0}
-         , select_advset{0}, select_PLA{0}, select_ABS{0}
-         , select_speed{0}
-         , select_acc{0}
-         , select_jerk{0}
-         , select_step{0}
-         , select_item{0}
-         ;
+       , select_control{0}, select_axis{0}, select_temp{0}, select_motion{0}, select_tune{0}
+       , select_advset{0}, select_PLA{0}, select_ABS{0}
+       , select_speed{0}, select_acc{0}, select_jerk{0}, select_step{0}, select_item{0};
 
 uint8_t index_file     = MROWS,
         index_prepare  = MROWS,
@@ -700,7 +695,7 @@ void Item_Prepare_Home(const uint8_t row) {
 
 #endif
 
-#if HAS_HOTEND
+#if HAS_PREHEAT
   void Item_Prepare_PLA(const uint8_t row) {
     if (HMI_IsChinese())
       Item_AreaCopy(100, 89, 151, 101, row);
@@ -715,22 +710,22 @@ void Item_Prepare_Home(const uint8_t row) {
     Draw_Menu_Line(row, ICON_PLAPreheat);
   }
 
-  void Item_Prepare_ABS(const uint8_t row) {
-    if (HMI_IsChinese())
-      Item_AreaCopy(180,  89, 233, 100, row);
-    else {
-      #ifdef USE_STRING_TITLES
-        DWIN_Draw_Label(row, F("Preheat " PREHEAT_2_LABEL));
-      #else
-        Item_AreaCopy(108,  76, 155,  87, row); // "Preheat"
-        say_abs_en(52, row);                    // "ABS"
-      #endif
+  #if PREHEAT_COUNT > 1
+    void Item_Prepare_ABS(const uint8_t row) {
+      if (HMI_IsChinese())
+        Item_AreaCopy(180,  89, 233, 100, row);
+      else {
+        #ifdef USE_STRING_TITLES
+          DWIN_Draw_Label(row, F("Preheat " PREHEAT_2_LABEL));
+        #else
+          Item_AreaCopy(108,  76, 155,  87, row); // "Preheat"
+          say_abs_en(52, row);                    // "ABS"
+        #endif
+      }
+      Draw_Menu_Line(row, ICON_ABSPreheat);
     }
-    Draw_Menu_Line(row, ICON_ABSPreheat);
-  }
-#endif
+  #endif
 
-#if HAS_PREHEAT
   void Item_Prepare_Cool(const uint8_t row) {
     if (HMI_IsChinese())
       Item_AreaCopy(1, 104,  56, 117, row);
@@ -785,11 +780,11 @@ void Draw_Prepare_Menu() {
   #if HAS_ZOFFSET_ITEM
     if (PVISI(PREPARE_CASE_ZOFF)) Item_Prepare_Offset(PSCROL(PREPARE_CASE_ZOFF)); // Edit Z-Offset / Babystep / Set Home Offset
   #endif
-  #if HAS_HOTEND
-    if (PVISI(PREPARE_CASE_PLA)) Item_Prepare_PLA(PSCROL(PREPARE_CASE_PLA));      // Preheat PLA
-    if (PVISI(PREPARE_CASE_ABS)) Item_Prepare_ABS(PSCROL(PREPARE_CASE_ABS));      // Preheat ABS
-  #endif
   #if HAS_PREHEAT
+    if (PVISI(PREPARE_CASE_PLA)) Item_Prepare_PLA(PSCROL(PREPARE_CASE_PLA));      // Preheat PLA
+    #if PREHEAT_COUNT > 1
+      if (PVISI(PREPARE_CASE_ABS)) Item_Prepare_ABS(PSCROL(PREPARE_CASE_ABS));    // Preheat ABS
+    #endif
     if (PVISI(PREPARE_CASE_COOL)) Item_Prepare_Cool(PSCROL(PREPARE_CASE_COOL));   // Cooldown
   #endif
   if (PVISI(PREPARE_CASE_LANG)) Item_Prepare_Lang(PSCROL(PREPARE_CASE_LANG));     // Language CN/EN
@@ -1425,25 +1420,34 @@ void HMI_Move_Z() {
     uint8_t temp_line;
     switch (HMI_ValueStruct.show_mode) {
       case -1: temp_line = TEMP_CASE_TEMP; break;
-      case -2: temp_line = PREHEAT_CASE_TEMP; break;
-      case -3: temp_line = PREHEAT_CASE_TEMP; break;
+      #if HAS_PREHEAT
+        case -2: temp_line = PREHEAT_CASE_TEMP; break;
+        #if PREHEAT_COUNT > 1
+          case -3: temp_line = PREHEAT_CASE_TEMP; break;
+        #endif
+      #endif
       default: temp_line = TUNE_CASE_TEMP + MROWS - index_tune;
     }
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.E_Temp)) {
       EncoderRate.enabled = false;
-      if (HMI_ValueStruct.show_mode == -2) {
-        checkkey = PLAPreheat;
-        ui.material_preset[0].hotend_temp = HMI_ValueStruct.E_Temp;
-        Draw_Edit_Integer3(temp_line, ui.material_preset[0].hotend_temp);
-        return;
-      }
-      else if (HMI_ValueStruct.show_mode == -3) {
-        checkkey = ABSPreheat;
-        ui.material_preset[1].hotend_temp = HMI_ValueStruct.E_Temp;
-        Draw_Edit_Integer3(temp_line, ui.material_preset[1].hotend_temp);
-        return;
-      }
-      else if (HMI_ValueStruct.show_mode == -1) // Temperature
+      #if HAS_PREHEAT
+        if (HMI_ValueStruct.show_mode == -2) {
+          checkkey = PLAPreheat;
+          ui.material_preset[0].hotend_temp = HMI_ValueStruct.E_Temp;
+          Draw_Edit_Integer3(temp_line, ui.material_preset[0].hotend_temp);
+          return;
+        }
+        #if PREHEAT_COUNT > 1
+          if (HMI_ValueStruct.show_mode == -3) {
+            checkkey = ABSPreheat;
+            ui.material_preset[1].hotend_temp = HMI_ValueStruct.E_Temp;
+            Draw_Edit_Integer3(temp_line, ui.material_preset[1].hotend_temp);
+            return;
+          }
+        #endif
+      #endif
+
+      if (HMI_ValueStruct.show_mode == -1) // Temperature
         checkkey = TemperatureID;
       else
         checkkey = Tune;
@@ -1467,28 +1471,33 @@ void HMI_Move_Z() {
     uint8_t bed_line;
     switch (HMI_ValueStruct.show_mode) {
       case -1: bed_line = TEMP_CASE_BED; break;
-      case -2: bed_line = PREHEAT_CASE_BED; break;
-      case -3: bed_line = PREHEAT_CASE_BED; break;
+      #if HAS_PREHEAT
+        case -2: bed_line = PREHEAT_CASE_BED; break;
+        #if PREHEAT_COUNT > 1
+          case -3: bed_line = PREHEAT_CASE_BED; break;
+        #endif
+      #endif
       default: bed_line = TUNE_CASE_BED + MROWS - index_tune;
     }
     if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Bed_Temp)) {
       EncoderRate.enabled = false;
-      if (HMI_ValueStruct.show_mode == -2) {
-        checkkey = PLAPreheat;
-        ui.material_preset[0].bed_temp = HMI_ValueStruct.Bed_Temp;
-        Draw_Edit_Integer3(bed_line, ui.material_preset[0].bed_temp);
-        return;
-      }
-      else if (HMI_ValueStruct.show_mode == -3) {
-        checkkey = ABSPreheat;
-        ui.material_preset[1].bed_temp = HMI_ValueStruct.Bed_Temp;
-        Draw_Edit_Integer3(bed_line, ui.material_preset[1].bed_temp);
-        return;
-      }
-      else if (HMI_ValueStruct.show_mode == -1)
-        checkkey = TemperatureID;
-      else
-        checkkey = Tune;
+      #if HAS_PREHEAT
+        if (HMI_ValueStruct.show_mode == -2) {
+          checkkey = PLAPreheat;
+          ui.material_preset[0].bed_temp = HMI_ValueStruct.Bed_Temp;
+          Draw_Edit_Integer3(bed_line, ui.material_preset[0].bed_temp);
+          return;
+        }
+        #if PREHEAT_COUNT > 1
+          if (HMI_ValueStruct.show_mode == -3) {
+            checkkey = ABSPreheat;
+            ui.material_preset[1].bed_temp = HMI_ValueStruct.Bed_Temp;
+            Draw_Edit_Integer3(bed_line, ui.material_preset[1].bed_temp);
+            return;
+          }
+        #endif
+      #endif
+      checkkey = HMI_ValueStruct.show_mode == -1 ? TemperatureID : Tune;
       Draw_Edit_Integer3(bed_line, HMI_ValueStruct.Bed_Temp);
       thermalManager.setTargetBed(HMI_ValueStruct.Bed_Temp);
       return;
@@ -1522,16 +1531,15 @@ void HMI_Move_Z() {
         Draw_Edit_Integer3(fan_line, ui.material_preset[0].fan_speed);
         return;
       }
-      else if (HMI_ValueStruct.show_mode == -3) {
-        checkkey = ABSPreheat;
-        ui.material_preset[1].fan_speed = HMI_ValueStruct.Fan_speed;
-        Draw_Edit_Integer3(fan_line, ui.material_preset[1].fan_speed);
-        return;
-      }
-      else if (HMI_ValueStruct.show_mode == -1)
-        checkkey = TemperatureID;
-      else
-        checkkey = Tune;
+      #if PREHEAT_COUNT > 1
+        if (HMI_ValueStruct.show_mode == -3) {
+          checkkey = ABSPreheat;
+          ui.material_preset[1].fan_speed = HMI_ValueStruct.Fan_speed;
+          Draw_Edit_Integer3(fan_line, ui.material_preset[1].fan_speed);
+          return;
+        }
+      #endif
+      checkkey = HMI_ValueStruct.show_mode == -1 ? TemperatureID : Tune;
       Draw_Edit_Integer3(fan_line, HMI_ValueStruct.Fan_speed);
       thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed);
       return;
@@ -3068,7 +3076,7 @@ void HMI_Temperature() {
           EncoderRate.enabled = true;
           break;
       #endif
-      #if HAS_HOTEND
+      #if HAS_PREHEAT
         case TEMP_CASE_PLA: {
           checkkey = PLAPreheat;
           select_PLA.reset();
@@ -3145,7 +3153,8 @@ void HMI_Temperature() {
             Draw_Menu_Line(++i, ICON_WriteEEPROM);
           #endif
         } break;
-
+      #endif
+      #if PREHEAT_COUNT > 1
         case TEMP_CASE_ABS: { // ABS preheat setting
           checkkey = ABSPreheat;
           select_ABS.reset();

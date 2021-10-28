@@ -116,7 +116,7 @@
   };
 #endif
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
   typedef struct {
     #if HAS_HOTEND
       celsius_t hotend_temp;
@@ -497,7 +497,7 @@ public:
     static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
   #endif
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     static preheat_t material_preset[PREHEAT_COUNT];
     static PGM_P get_preheat_label(const uint8_t m);
   #endif
