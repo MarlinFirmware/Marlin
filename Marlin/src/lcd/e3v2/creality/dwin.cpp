@@ -694,7 +694,7 @@ void Item_Prepare_Home(const uint8_t row) {
         #endif
       #endif
     }
-    Draw_Edit_Signed_Float2(row, BABY_Z_VAR * 100);
+    DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
     Draw_Menu_Line(row, ICON_SetHome);
   }
 
@@ -1016,7 +1016,7 @@ void Draw_Tune_Menu() {
   #endif
   #if HAS_ZOFFSET_ITEM
     Draw_Menu_Line(TUNE_CASE_ZOFF, ICON_Zoffset);
-    Draw_Edit_Signed_Float2(TUNE_CASE_ZOFF, BABY_Z_VAR * 100);
+    DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(TUNE_CASE_ZOFF), BABY_Z_VAR * 100);
   #endif
 }
 
@@ -1401,7 +1401,7 @@ void HMI_Move_Z() {
         TERN_(EEPROM_SETTINGS, settings.save());
       #endif
       checkkey = HMI_ValueStruct.show_mode == -4 ? Prepare : Tune;
-      Draw_Edit_Signed_Float2(zoff_line, TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
+       DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
       DWIN_UpdateLCD();
       return;
     }
@@ -1411,7 +1411,7 @@ void HMI_Move_Z() {
     #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
     #endif
-    Draw_Edit_Signed_Float2(zoff_line, HMI_ValueStruct.offset_value, true);
+     DWIN_Draw_Signed_Float(font8x16, Select_Color, 2, 2, 202, MBASE(zoff_line), HMI_ValueStruct.offset_value);
     DWIN_UpdateLCD();
   }
 
