@@ -597,6 +597,8 @@
   #error "SPINDLE_LASER_PWM (true) is now set with SPINDLE_LASER_USE_PWM (enabled)."
 #elif ANY(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF)
   #error "The IS_RAMPS_* conditionals (for heater/fan/bed pins) are now called FET_ORDER_*."
+#elif defined(PROBE_TEMP_COMPENSATION)
+  #error "PROBE_TEMP_COMPENSATION is now set using one or more USE_TEMP_*_COMPENSATION options."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
@@ -611,17 +613,16 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Probe temp compensation requirements
  */
-
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
     #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
       #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
     #elif !defined(PTC_PARK_POS)
-      #error "PROBE_TEMP_COMPENSATION requires PTC_PARK_POS."
+      #error "PTC_PARK_POS is required for Probe Temperature Compensation."
     #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
       #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
     #elif !defined(PTC_PROBE_POS)
-      #error "PROBE_TEMP_COMPENSATION requires PTC_PROBE_POS."
+      #error "PTC_PROBE_POS is required for Probe Temperature Compensation."
     #endif
   #endif
 
@@ -651,6 +652,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
   #endif
   #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+    #if EXTRUDERS != 1
+      #error "USE_TEMP_EXT_COMPENSATION only works with a single extruder."
+    #endif
     #ifdef ETC_SAMPLE_START
       constexpr auto _etc_sample_start = ETC_SAMPLE_START;
       constexpr decltype(_etc_sample_start) _test_etc_sample_start = 12.3f;
@@ -662,11 +666,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       static_assert(_test_etc_sample_res != 12.3f, "ETC_SAMPLE_RES must be a whole number.");
     #endif
   #endif
-
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION) && EXTRUDERS != 1
-    #error "USE_TEMP_EXT_COMPENSATION only works with a single extruder."
-  #endif
-#endif
+#endif // HAS_PTC
 
 /**
  * Marlin release, version and default string

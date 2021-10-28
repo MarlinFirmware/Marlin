@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -87,7 +87,8 @@ static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPG
 static void say_successfully_calibrated()   { SERIAL_ECHOPGM("Successfully calibrated"); }
 static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
 
-#if ENABLED(USE_TEMP_PROBE_COMPENSATION) && ENABLED(USE_TEMP_BED_COMPENSATION)
+#if BOTH(USE_TEMP_PROBE_COMPENSATION, USE_TEMP_BED_COMPENSATION)
+
   void GcodeSuite::G76() {
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
       idle_no_sleep();
@@ -283,7 +284,8 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
 
     restore_feedrate_and_scaling();
   }
-#endif // ENABLED(USE_TEMP_PROBE_COMPENSATION) && ENABLED(USE_TEMP_BED_COMPENSATION)
+
+#endif // USE_TEMP_PROBE_COMPENSATION && USE_TEMP_BED_COMPENSATION
 
 /**
  * M871: Report / reset temperature compensation offsets.
@@ -330,27 +332,4 @@ void GcodeSuite::M871() {
     temp_comp.print_offsets();
 }
 
-#endif // PROBE_TEMP_COMPENSATION
-
-/**
- * M192: Wait for probe temperature sensor to reach a target
- *
- * Select only one of these flags:
- *    R - Wait for heating or cooling
- *    S - Wait only for heating
- */
-#if HAS_TEMP_PROBE
-  void GcodeSuite::M192() {
-    if (DEBUGGING(DRYRUN)) return;
-
-    const bool no_wait_for_cooling = parser.seenval('S');
-    if (!no_wait_for_cooling && ! parser.seenval('R')) {
-      SERIAL_ERROR_MSG("No target temperature set.");
-      return;
-    }
-
-    const celsius_t target_temp = parser.value_celsius();
-    ui.set_status(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT_F(MSG_PROBE_HEATING) : GET_TEXT_F(MSG_PROBE_COOLING));
-    thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
-  }
-#endif
+#endif // HAS_PTC

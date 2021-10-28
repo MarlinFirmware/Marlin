@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
 
 //#define DEBUG_PTC   // Print extra debug output with 'M871'
 
@@ -246,4 +246,4 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
   return true;
 }
 
-#endif // PROBE_TEMP_COMPENSATION
+#endif // HAS_PTC

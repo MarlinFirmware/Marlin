@@ -128,7 +128,7 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../feature/probe_temp_comp.h"
 #endif
 
@@ -264,7 +264,7 @@ typedef struct SettingsDataStruct {
   //
   // Temperature first layer compensation values
   //
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
+  #if HAS_PTC
     #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
       int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)]; // M871 P I V
     #endif
@@ -847,7 +847,7 @@ void MarlinSettings::postprocess() {
     //
     // Thermal first layer compensation values
     //
-    #if ENABLED(PROBE_TEMP_COMPENSATION)
+    #if HAS_PTC
       #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
         EEPROM_WRITE(temp_comp.z_offsets_probe);
       #endif
@@ -1717,7 +1717,7 @@ void MarlinSettings::postprocess() {
       //
       // Thermal first layer compensation values
       //
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
+      #if HAS_PTC
         #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
           EEPROM_READ(temp_comp.z_offsets_probe);
         #endif
@@ -2739,7 +2739,7 @@ void MarlinSettings::reset() {
   //
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
-  TERN_(PROBE_TEMP_COMPENSATION, temp_comp.reset_to_default());
+  TERN_(HAS_PTC, temp_comp.reset_to_default());
 
   //
   // BLTOUCH
