@@ -1584,9 +1584,9 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         }
         break;
     #endif
-    #if HAS_PREHEAT
-      case Preheat:
 
+    #if HAS_PREHEAT
+      case Preheat: {
         #define PREHEAT_BACK 0
         #define PREHEAT_MODE (PREHEAT_BACK + 1)
         #define PREHEAT_1 (PREHEAT_MODE + 1)
@@ -1595,6 +1595,13 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         #define PREHEAT_4 (PREHEAT_3 + (PREHEAT_COUNT >= 4))
         #define PREHEAT_5 (PREHEAT_4 + (PREHEAT_COUNT >= 5))
         #define PREHEAT_TOTAL PREHEAT_5
+
+        auto do_preheat = [](const uint8_t m) {
+          thermalManager.disable_all_heaters();
+          TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
+          if (preheatmode == 0 || preheatmode == 1) { ui.preheat_hotend_and_fan(m); }
+          if (preheatmode == 0 || preheatmode == 2) ui.preheat_bed(m);
+        };
 
         switch (item) {
           case PREHEAT_BACK:
@@ -1616,17 +1623,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_1:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_1_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(0);
               break;
           #endif
 
@@ -1634,17 +1632,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_2:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_2_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(1);
               break;
           #endif
 
@@ -1652,17 +1641,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_3:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_3_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(2);
               break;
           #endif
 
@@ -1670,17 +1650,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_4:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_4_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[3].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(3);
               break;
           #endif
 
@@ -1688,22 +1659,13 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_5:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_5_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[4].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(4);
               break;
           #endif
         }
-        break;
-    #endif
+      } break;
+    #endif // HAS_PREHEAT
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:
@@ -3964,50 +3926,40 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEATHOTEND_1:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_1_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(0);
               break;
           #endif
           #if PREHEAT_COUNT >= 2
             case PREHEATHOTEND_2:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_2_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(1);
               break;
           #endif
           #if PREHEAT_COUNT >= 3
             case PREHEATHOTEND_3:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_3_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(2);
               break;
           #endif
           #if PREHEAT_COUNT >= 4
             case PREHEATHOTEND_4:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_4_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(3);
               break;
           #endif
           #if PREHEAT_COUNT >= 5
             case PREHEATHOTEND_5:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_5_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(4);
               break;
           #endif
           case PREHEATHOTEND_CUSTOM:
