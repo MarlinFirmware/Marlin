@@ -749,7 +749,7 @@ private:
     static void M193();
   #endif
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     static void M145();
     static void M145_report(const bool forReplay=true);
   #endif
