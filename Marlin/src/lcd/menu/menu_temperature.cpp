@@ -143,8 +143,7 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   void lcd_cooldown() {
-    thermalManager.zero_fan_speeds();
-    thermalManager.disable_all_heaters();
+    thermalManager.cooldown();
     ui.return_to_status();
   }
 

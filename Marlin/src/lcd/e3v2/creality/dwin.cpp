@@ -2735,6 +2735,7 @@ void HMI_Prepare() {
         queue.inject_P(G28_STR); // G28 will set home_flag
         Popup_Window_Home();
         break;
+
       #if HAS_ZOFFSET_ITEM
         case PREPARE_CASE_ZOFF:
           #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
@@ -2750,6 +2751,7 @@ void HMI_Prepare() {
           #endif
           break;
       #endif
+
       #if HAS_PREHEAT
         case PREPARE_CASE_PLA: ui.preheat_all(0); break;
         #if PREHEAT_COUNT > 1
@@ -2758,18 +2760,14 @@ void HMI_Prepare() {
       #endif
 
       #if HAS_HOTEND || HAS_HEATED_BED
-        case PREPARE_CASE_COOL:
-          TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-          #if HAS_HOTEND || HAS_HEATED_BED
-            thermalManager.disable_all_heaters();
-          #endif
-          break;
+        case PREPARE_CASE_COOL: thermalManager.cooldown(); break;
       #endif
 
       case PREPARE_CASE_LANG:
         HMI_ToggleLanguage();
         Draw_Prepare_Menu();
         break;
+
       default: break;
     }
   }

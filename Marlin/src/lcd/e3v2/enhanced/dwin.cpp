@@ -1787,8 +1787,7 @@ void DWIN_Print_Started(const bool sd) {
 // Ended print job
 void DWIN_Print_Finished() {
   if (checkkey == PrintProcess || printingIsActive()) {
-    thermalManager.disable_all_heaters();
-    thermalManager.zero_fan_speeds();
+    thermalManager.cooldown();
     HMI_flag.print_finish = true;
   }
 }
@@ -2116,16 +2115,12 @@ void SetHome() {
 #endif
 
 #if HAS_PREHEAT
-  void SetCoolDown() {
-    TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-    #if HAS_HOTEND || HAS_HEATED_BED
-      thermalManager.disable_all_heaters();
-    #endif
-  }
   void DoPreheat0() { ui.preheat_all(0); }
   void DoPreheat1() { ui.preheat_all(1); }
   void DoPreheat2() { ui.preheat_all(2); }
 #endif
+
+void DoCoolDown() { thermalManager.cooldown(); }
 
 void SetLanguage() {
   HMI_ToggleLanguage();
@@ -3126,8 +3121,8 @@ void Draw_Prepare_Menu() {
       #if PREHEAT_COUNT > 2
         ADDMENUITEM(ICON_CustomPreheat, GET_TEXT_F(MSG_PREHEAT_CUSTOM), onDrawMenuItem, DoPreheat2);
       #endif
-      ADDMENUITEM(ICON_Cool, GET_TEXT_F(MSG_COOLDOWN), onDrawCooldown, SetCoolDown);
     #endif
+    ADDMENUITEM(ICON_Cool, GET_TEXT_F(MSG_COOLDOWN), onDrawCooldown, DoCoolDown);
     ADDMENUITEM(ICON_Language, PSTR("UI Language"), onDrawLanguage, SetLanguage);
   }
   CurrentMenu->draw();

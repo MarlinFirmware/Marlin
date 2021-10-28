@@ -848,6 +848,14 @@ class Temperature {
      */
     static void disable_all_heaters();
 
+    /**
+     * Cooldown, as from the LCD. Disables all heaters and fans.
+     */
+    static inline void cooldown() {
+      zero_fan_speeds();
+      disable_all_heaters();
+    }
+
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
        * Methods to check if heaters are enabled, indicating an active job
