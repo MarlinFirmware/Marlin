@@ -54,8 +54,14 @@
 //
 #define X_STOP_PIN                          PA12
 #define Y_STOP_PIN                          PA11
-#define Z_MIN_PIN                           PC6
-#define Z_MAX_PIN                           PB1
+#define Z_STOP_PIN                          PC6
+
+//
+// Z Probe
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1
+#endif
 
 //
 // Steppers
