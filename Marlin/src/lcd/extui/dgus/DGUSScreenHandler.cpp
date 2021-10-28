@@ -626,14 +626,11 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       default:
       switch (var.VP) {
         default: return;
-        case VP_E0_BED_PREHEAT: TERN_(HAS_HOTEND, ui.preheat_all(0)); break;
+        case VP_E0_BED_PREHEAT: TERN_(HAS_HOTEND,       ui.preheat_all(0)); break;
         case VP_E1_BED_PREHEAT: TERN_(HAS_MULTI_HOTEND, ui.preheat_all(1)); break;
       }
       case 7: break; // Custom preheat
-      case 9: // Cool down
-        thermalManager.zero_fan_speeds();
-        thermalManager.disable_all_heaters();
-        break;
+      case 9: thermalManager.cooldown(); break; // Cool down
     }
 
     // Go to the preheat screen to show the heating progress
