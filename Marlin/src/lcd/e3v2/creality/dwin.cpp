@@ -166,8 +166,14 @@ typedef struct {
 
 select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
        , select_control{0}, select_axis{0}, select_temp{0}, select_motion{0}, select_tune{0}
-       , select_advset{0}, select_PLA{0}, select_ABS{0}
-       , select_speed{0}, select_acc{0}, select_jerk{0}, select_step{0}, select_item{0};
+       , select_advset{0}, select_speed{0}, select_acc{0}, select_jerk{0}, select_step{0}, select_item{0};
+
+#if HAS_PREHEAT
+  select_t select_PLA{0};
+  #if PREHEAT_COUNT > 1
+    select_t select_ABS{0};
+  #endif
+#endif
 
 uint8_t index_file     = MROWS,
         index_prepare  = MROWS,
@@ -492,8 +498,8 @@ inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
 #define PREPARE_CASE_DISA  2
 #define PREPARE_CASE_HOME  3
 #define PREPARE_CASE_ZOFF (PREPARE_CASE_HOME + ENABLED(HAS_ZOFFSET_ITEM))
-#define PREPARE_CASE_PLA  (PREPARE_CASE_ZOFF + ENABLED(HAS_HOTEND))
-#define PREPARE_CASE_ABS  (PREPARE_CASE_PLA + ENABLED(HAS_HOTEND))
+#define PREPARE_CASE_PLA  (PREPARE_CASE_ZOFF + ENABLED(HAS_PREHEAT))
+#define PREPARE_CASE_ABS  (PREPARE_CASE_PLA + (TERN0(HAS_PREHEAT, PREHEAT_COUNT > 1)))
 #define PREPARE_CASE_COOL (PREPARE_CASE_ABS + EITHER(HAS_HOTEND, HAS_HEATED_BED))
 #define PREPARE_CASE_LANG (PREPARE_CASE_COOL + 1)
 #define PREPARE_CASE_TOTAL PREPARE_CASE_LANG
@@ -517,8 +523,8 @@ inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
 #define TEMP_CASE_TEMP (0 + ENABLED(HAS_HOTEND))
 #define TEMP_CASE_BED  (TEMP_CASE_TEMP + ENABLED(HAS_HEATED_BED))
 #define TEMP_CASE_FAN  (TEMP_CASE_BED + ENABLED(HAS_FAN))
-#define TEMP_CASE_PLA  (TEMP_CASE_FAN + ENABLED(HAS_HOTEND))
-#define TEMP_CASE_ABS  (TEMP_CASE_PLA + ENABLED(HAS_HOTEND))
+#define TEMP_CASE_PLA  (TEMP_CASE_FAN + ENABLED(HAS_PREHEAT))
+#define TEMP_CASE_ABS  (TEMP_CASE_PLA + (TERN0(HAS_PREHEAT, PREHEAT_COUNT > 1)))
 #define TEMP_CASE_TOTAL TEMP_CASE_ABS
 
 #define PREHEAT_CASE_TEMP (0 + ENABLED(HAS_HOTEND))
@@ -785,6 +791,8 @@ void Draw_Prepare_Menu() {
     #if PREHEAT_COUNT > 1
       if (PVISI(PREPARE_CASE_ABS)) Item_Prepare_ABS(PSCROL(PREPARE_CASE_ABS));    // Preheat ABS
     #endif
+  #endif
+  #if HAS_HOTEND || HAS_HEATED_BED
     if (PVISI(PREPARE_CASE_COOL)) Item_Prepare_Cool(PSCROL(PREPARE_CASE_COOL));   // Cooldown
   #endif
   if (PVISI(PREPARE_CASE_LANG)) Item_Prepare_Lang(PSCROL(PREPARE_CASE_LANG));     // Language CN/EN
@@ -2664,10 +2672,10 @@ void HMI_Prepare() {
         // Draw "More" icon for sub-menus
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
-        #if HAS_HOTEND
+        #if PREHEAT_COUNT > 1
           if (index_prepare == PREPARE_CASE_ABS) Item_Prepare_ABS(MROWS);
         #endif
-        #if HAS_PREHEAT
+        #if HAS_HOTEND || HAS_HEATED_BED
           if (index_prepare == PREPARE_CASE_COOL) Item_Prepare_Cool(MROWS);
         #endif
         if (index_prepare == PREPARE_CASE_LANG) Item_Prepare_Lang(MROWS);
@@ -2743,16 +2751,13 @@ void HMI_Prepare() {
           break;
       #endif
       #if HAS_PREHEAT
-        case PREPARE_CASE_PLA:
-          TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0));
-          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(ui.material_preset[0].bed_temp));
-          TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed));
-          break;
-        case PREPARE_CASE_ABS:
-          TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0));
-          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(ui.material_preset[1].bed_temp));
-          TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed));
-          break;
+        case PREPARE_CASE_PLA: ui.preheat_all(0); break;
+        #if PREHEAT_COUNT > 1
+          case PREPARE_CASE_ABS: ui.preheat_all(1); break;
+        #endif
+      #endif
+
+      #if HAS_HOTEND || HAS_HEATED_BED
         case PREPARE_CASE_COOL:
           TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
           #if HAS_HOTEND || HAS_HEATED_BED
@@ -2760,6 +2765,7 @@ void HMI_Prepare() {
           #endif
           break;
       #endif
+
       case PREPARE_CASE_LANG:
         HMI_ToggleLanguage();
         Draw_Prepare_Menu();
@@ -2784,9 +2790,11 @@ void Draw_Temperature_Menu() {
     #if HAS_FAN
       Item_AreaCopy(115, 134, 170, 146, TEMP_CASE_FAN);
     #endif
-    #if HAS_HOTEND
+    #if HAS_PREHEAT
       Item_AreaCopy(100, 89, 178, 101, TEMP_CASE_PLA);
-      Item_AreaCopy(180, 89, 260, 100, TEMP_CASE_ABS);
+      #if PREHEAT_COUNT > 1
+        Item_AreaCopy(180, 89, 260, 100, TEMP_CASE_ABS);
+      #endif
     #endif
   }
   else {
@@ -2805,30 +2813,33 @@ void Draw_Temperature_Menu() {
       #if HAS_FAN
         DWIN_Draw_Label(TEMP_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
       #endif
-      #if HAS_HOTEND
+      #if HAS_PREHEAT
         DWIN_Draw_Label(TEMP_CASE_PLA, F(PREHEAT_1_LABEL " Preheat Settings"));
-        DWIN_Draw_Label(TEMP_CASE_ABS, F(PREHEAT_2_LABEL " Preheat Settings"));
+        #if PREHEAT_COUNT > 1
+          DWIN_Draw_Label(TEMP_CASE_ABS, F(PREHEAT_2_LABEL " Preheat Settings"));
+        #endif
       #endif
     #else
       #if HAS_HOTEND
-        Item_AreaCopy(197, 104, 238, 114, TEMP_CASE_TEMP);    // "Nozzle"
-        Item_AreaCopy(1,  89,  83, 101, TEMP_CASE_TEMP, 44);  // "Temperature"
+        Item_AreaCopy(197, 104, 238, 114, TEMP_CASE_TEMP);      // "Nozzle"
+        Item_AreaCopy(1,  89,  83, 101, TEMP_CASE_TEMP, 44);    // "Temperature"
       #endif
       #if HAS_HEATED_BED
-        Item_AreaCopy(240, 104, 264, 114, TEMP_CASE_BED);     // "Bed"
-        Item_AreaCopy(1,  89,  83, 101, TEMP_CASE_BED, 27);   // "Temperature"
+        Item_AreaCopy(240, 104, 264, 114, TEMP_CASE_BED);       // "Bed"
+        Item_AreaCopy(1,  89,  83, 101, TEMP_CASE_BED, 27);     // "Temperature"
       #endif
       #if HAS_FAN
-        Item_AreaCopy(  1, 119,  61, 132, TEMP_CASE_FAN);     // "Fan speed"
+        Item_AreaCopy(  1, 119,  61, 132, TEMP_CASE_FAN);       // "Fan speed"
       #endif
-      #if HAS_HOTEND
-        Item_AreaCopy(107,  76, 156,  86, TEMP_CASE_PLA);     // "Preheat"
-        say_pla_en(52, TEMP_CASE_PLA);                        // "PLA"
-        Item_AreaCopy(150, 135, 202, 148, TEMP_CASE_PLA, 79); // "Settings"
-
-        Item_AreaCopy(107,  76, 156,  86, TEMP_CASE_ABS);     // "Preheat"
-        say_abs_en(52, TEMP_CASE_ABS);                        // "ABS"
-        Item_AreaCopy(150, 135, 202, 148, TEMP_CASE_ABS, 81); // "Settings"
+      #if HAS_PREHEAT
+        Item_AreaCopy(107,  76, 156,  86, TEMP_CASE_PLA);       // "Preheat"
+        say_pla_en(52, TEMP_CASE_PLA);                          // "PLA"
+        Item_AreaCopy(150, 135, 202, 148, TEMP_CASE_PLA, 79);   // "Settings"
+        #if PREHEAT_COUNT > 1
+          Item_AreaCopy(107,  76, 156,  86, TEMP_CASE_ABS);     // "Preheat"
+          say_abs_en(52, TEMP_CASE_ABS);                        // "ABS"
+          Item_AreaCopy(150, 135, 202, 148, TEMP_CASE_ABS, 81); // "Settings"
+        #endif
       #endif
     #endif
   }
@@ -2851,12 +2862,12 @@ void Draw_Temperature_Menu() {
     _TMENU_ICON(TEMP_CASE_FAN);
     Draw_Edit_Integer3(i, thermalManager.fan_speed[0]);
   #endif
-  #if HAS_HOTEND
+  #if HAS_PREHEAT
     // PLA/ABS items have submenus
-    _TMENU_ICON(TEMP_CASE_PLA);
-    Draw_More_Icon(i);
-    _TMENU_ICON(TEMP_CASE_ABS);
-    Draw_More_Icon(i);
+    _TMENU_ICON(TEMP_CASE_PLA); Draw_More_Icon(i);
+    #if PREHEAT_COUNT > 1
+      _TMENU_ICON(TEMP_CASE_ABS); Draw_More_Icon(i);
+    #endif
   #endif
 }
 
@@ -3076,6 +3087,7 @@ void HMI_Temperature() {
           EncoderRate.enabled = true;
           break;
       #endif
+
       #if HAS_PREHEAT
         case TEMP_CASE_PLA: {
           checkkey = PLAPreheat;
@@ -3153,7 +3165,8 @@ void HMI_Temperature() {
             Draw_Menu_Line(++i, ICON_WriteEEPROM);
           #endif
         } break;
-      #endif
+      #endif // HAS_PREHEAT
+
       #if PREHEAT_COUNT > 1
         case TEMP_CASE_ABS: { // ABS preheat setting
           checkkey = ABSPreheat;
@@ -3236,7 +3249,7 @@ void HMI_Temperature() {
 
         } break;
 
-      #endif // HAS_HOTEND
+      #endif // PREHEAT_COUNT > 1
     }
   }
   DWIN_UpdateLCD();
@@ -3579,14 +3592,12 @@ void HMI_AdvSet() {
 
       #if HAS_HOTEND
         case ADVSET_CASE_HEPID:
-          thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
           thermalManager.PID_autotune(ui.material_preset[0].hotend_temp, H_E0, 10, true);
           break;
       #endif
 
       #if HAS_HEATED_BED
         case ADVSET_CASE_BEDPID:
-          thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
           thermalManager.PID_autotune(ui.material_preset[0].bed_temp, H_BED, 10, true);
           break;
       #endif
@@ -3881,63 +3892,65 @@ void HMI_Tune() {
     DWIN_UpdateLCD();
   }
 
-  // ABS Preheat
-  void HMI_ABSPreheatSetting() {
-    EncoderState encoder_diffState = get_encoder_state();
-    if (encoder_diffState == ENCODER_DIFF_NO) return;
+  #if PREHEAT_COUNT > 1
+    // ABS Preheat
+    void HMI_ABSPreheatSetting() {
+      EncoderState encoder_diffState = get_encoder_state();
+      if (encoder_diffState == ENCODER_DIFF_NO) return;
 
-    // Avoid flicker by updating only the previous menu
-    if (encoder_diffState == ENCODER_DIFF_CW) {
-      if (select_ABS.inc(1 + PREHEAT_CASE_TOTAL)) Move_Highlight(1, select_ABS.now);
-    }
-    else if (encoder_diffState == ENCODER_DIFF_CCW) {
-      if (select_ABS.dec()) Move_Highlight(-1, select_ABS.now);
-    }
-    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-      switch (select_ABS.now) {
-        case CASE_BACK:
-          checkkey = TemperatureID;
-          select_temp.now = TEMP_CASE_ABS;
-          HMI_ValueStruct.show_mode = -1;
-          Draw_Temperature_Menu();
-          break;
-        #if HAS_HOTEND
-          case PREHEAT_CASE_TEMP:
-            checkkey = ETemp;
-            HMI_ValueStruct.E_Temp = ui.material_preset[1].hotend_temp;
-            Draw_Edit_Integer3(PREHEAT_CASE_TEMP, ui.material_preset[1].hotend_temp, true);
-            EncoderRate.enabled = true;
-            break;
-        #endif
-        #if HAS_HEATED_BED
-          case PREHEAT_CASE_BED:
-            checkkey = BedTemp;
-            HMI_ValueStruct.Bed_Temp = ui.material_preset[1].bed_temp;
-            Draw_Edit_Integer3(PREHEAT_CASE_BED, ui.material_preset[1].bed_temp, true);
-            EncoderRate.enabled = true;
-            break;
-        #endif
-        #if HAS_FAN
-          case PREHEAT_CASE_FAN:
-            checkkey = FanSpeed;
-            HMI_ValueStruct.Fan_speed = ui.material_preset[1].fan_speed;
-            Draw_Edit_Integer3(PREHEAT_CASE_FAN, ui.material_preset[1].fan_speed, true);
-            EncoderRate.enabled = true;
-            break;
-        #endif
-        #if ENABLED(EEPROM_SETTINGS)
-          case PREHEAT_CASE_SAVE: {
-            const bool success = settings.save();
-            HMI_AudioFeedback(success);
-          } break;
-        #endif
-        default: break;
+      // Avoid flicker by updating only the previous menu
+      if (encoder_diffState == ENCODER_DIFF_CW) {
+        if (select_ABS.inc(1 + PREHEAT_CASE_TOTAL)) Move_Highlight(1, select_ABS.now);
       }
+      else if (encoder_diffState == ENCODER_DIFF_CCW) {
+        if (select_ABS.dec()) Move_Highlight(-1, select_ABS.now);
+      }
+      else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+        switch (select_ABS.now) {
+          case CASE_BACK:
+            checkkey = TemperatureID;
+            select_temp.now = TEMP_CASE_ABS;
+            HMI_ValueStruct.show_mode = -1;
+            Draw_Temperature_Menu();
+            break;
+          #if HAS_HOTEND
+            case PREHEAT_CASE_TEMP:
+              checkkey = ETemp;
+              HMI_ValueStruct.E_Temp = ui.material_preset[1].hotend_temp;
+              Draw_Edit_Integer3(PREHEAT_CASE_TEMP, ui.material_preset[1].hotend_temp, true);
+              EncoderRate.enabled = true;
+              break;
+          #endif
+          #if HAS_HEATED_BED
+            case PREHEAT_CASE_BED:
+              checkkey = BedTemp;
+              HMI_ValueStruct.Bed_Temp = ui.material_preset[1].bed_temp;
+              Draw_Edit_Integer3(PREHEAT_CASE_BED, ui.material_preset[1].bed_temp, true);
+              EncoderRate.enabled = true;
+              break;
+          #endif
+          #if HAS_FAN
+            case PREHEAT_CASE_FAN:
+              checkkey = FanSpeed;
+              HMI_ValueStruct.Fan_speed = ui.material_preset[1].fan_speed;
+              Draw_Edit_Integer3(PREHEAT_CASE_FAN, ui.material_preset[1].fan_speed, true);
+              EncoderRate.enabled = true;
+              break;
+          #endif
+          #if ENABLED(EEPROM_SETTINGS)
+            case PREHEAT_CASE_SAVE: {
+              const bool success = settings.save();
+              HMI_AudioFeedback(success);
+            } break;
+          #endif
+          default: break;
+        }
+      }
+      DWIN_UpdateLCD();
     }
-    DWIN_UpdateLCD();
-  }
+  #endif // PREHEAT_COUNT > 1
 
-#endif
+#endif // HAS_PREHEAT
 
 // Max Speed
 void HMI_MaxSpeed() {
@@ -4241,7 +4254,9 @@ void DWIN_HandleScreen() {
     case Tune:            HMI_Tune(); break;
     #if HAS_PREHEAT
       case PLAPreheat:    HMI_PLAPreheatSetting(); break;
-      case ABSPreheat:    HMI_ABSPreheatSetting(); break;
+      #if PREHEAT_COUNT > 1
+        case ABSPreheat:  HMI_ABSPreheatSetting(); break;
+      #endif
     #endif
     case MaxSpeed:        HMI_MaxSpeed(); break;
     case MaxAcceleration: HMI_MaxAcceleration(); break;
