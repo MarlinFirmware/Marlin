@@ -402,7 +402,7 @@
 #define BOARD_ANET_ET4                4230  // ANET ET4 V1.x (STM32F407VGT6)
 #define BOARD_ANET_ET4P               4231  // ANET ET4P V1.x (STM32F407VGT6)
 #define BOARD_FYSETC_CHEETAH_V20      4232  // FYSETC Cheetah V2.0
-#define BOARD_TH3D_EZBOARD_LITE_V2    4233  // TH3D EZBoard Lite v2.0
+#define BOARD_TH3D_EZBOARD_V2         4233  // TH3D EZBoard v2.0
 #define BOARD_INDEX_REV03             4234  // Index PnP Controller REV03 (STM32F407VET6/VGT6)
 #define BOARD_MKS_ROBIN_NANO_V1_3_F4  4235  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VET6)
 #define BOARD_MKS_EAGLE               4236  // MKS Eagle (STM32F407VET6)
