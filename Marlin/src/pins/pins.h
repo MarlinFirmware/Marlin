@@ -659,8 +659,8 @@
   #include "stm32f4/pins_FYSETC_CHEETAH_V20.h"  // STM32F4                                env:FYSETC_CHEETAH_V20
 #elif MB(MKS_MONSTER8)
   #include "stm32f4/pins_MKS_MONSTER8.h"        // STM32F4                                env:mks_monster8 env:mks_monster8_usb_flash_drive env:mks_monster8_usb_flash_drive_msc
-#elif MB(TH3D_EZBOARD_LITE_V2)
-  #include "stm32f4/pins_TH3D_EZBOARD_LITE_V2.h" // STM32F4                               env:TH3D_EZBoard_Lite_V2
+#elif MB(TH3D_EZBOARD_V2)
+  #include "stm32f4/pins_TH3D_EZBOARD_V2.h"     // STM32F4                                env:TH3D_EZBoard_V2
 #elif MB(INDEX_REV03)
   #include "stm32f4/pins_INDEX_REV03.h"         // STM32F4                                env:Index_Mobo_Rev03
 #elif MB(MKS_ROBIN_NANO_V1_3_F4)
@@ -752,6 +752,7 @@
   #define BOARD_RAMPS_DAGOMA            -1020
   #define BOARD_RAMPS_LONGER3D_LK4PRO   -1021
   #define BOARD_BTT_SKR_V2_0            -1022
+  #define BOARD_TH3D_EZBOARD_LITE_V2    -1023
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -801,6 +802,8 @@
     #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #elif MB(BTT_SKR_V2_0)
     #error "BTT_SKR_V2_0 is now BTT_SKR_V2_0_REV_A or BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
+  #elif MB(BOARD_TH3D_EZBOARD_LITE_V2)
+    #error "BOARD_TH3D_EZBOARD_LITE_V2 is now BOARD_TH3D_EZBOARD_V2. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
