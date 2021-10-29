@@ -1930,6 +1930,21 @@
 // @section leveling
 
 /**
+ * safe bed leveling start coordinates. If enabled, the respective axis is moved to the specified position at the beginning of the bed leveling procedure.
+ * Required e.g. with LINEAR_AXES >= 4, if z-probe is not perpendicular to the bed after homing.
+ * Values must be chosen so that the bed is oriented horizontally and so that the Z-probe is oriented vertically.
+ */
+//#define SAFE_BED_LEVELING_START_X 0.0
+//#define SAFE_BED_LEVELING_START_Y 0.0
+//#define SAFE_BED_LEVELING_START_Z 0.0
+//#define SAFE_BED_LEVELING_START_I 0.0
+//#define SAFE_BED_LEVELING_START_J 0.0
+//#define SAFE_BED_LEVELING_START_K 0.0
+//#define SAFE_BED_LEVELING_START_U 0.0
+//#define SAFE_BED_LEVELING_START_V 0.0
+//#define SAFE_BED_LEVELING_START_W 0.0
+
+/**
  * Points to probe for all 3-point Leveling procedures.
  * Override if the automatically selected points are inadequate.
  */

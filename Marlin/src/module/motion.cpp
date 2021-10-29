@@ -481,7 +481,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 
 /**
  * Plan a move to (X, Y, Z, [I, [J, [K...]]]) and set the current_position
- * Plan a move to (X, Y, Z) with separation of Z from other components.
+ * Plan a move to (X, Y, Z, [I, [J, [K...]]]) with separation of Z from other components.
  *
  * - If Z is moving up, the Z move is done before XY, etc.
  * - If Z is moving down, the Z move is done after XY, etc.
@@ -496,6 +496,24 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
 
   #if HAS_Z_AXIS
     const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS);
+  #endif
+  #if LINEAR_AXES >= 4
+    const feedRate_t i_feedrate = fr_mm_s ?: homing_feedrate(I_AXIS);
+  #endif
+  #if LINEAR_AXES >= 5
+    const feedRate_t j_feedrate = fr_mm_s ?: homing_feedrate(J_AXIS);
+  #endif
+  #if LINEAR_AXES >= 6
+    const feedRate_t k_feedrate = fr_mm_s ?: homing_feedrate(K_AXIS);
+  #endif
+  #if LINEAR_AXES >= 7
+    const feedRate_t u_feedrate = fr_mm_s ?: homing_feedrate(U_AXIS);
+  #endif
+  #if LINEAR_AXES >= 8
+    const feedRate_t v_feedrate = fr_mm_s ?: homing_feedrate(V_AXIS);
+  #endif
+  #if LINEAR_AXES >= 9
+    const feedRate_t w_feedrate = fr_mm_s ?: homing_feedrate(W_AXIS);
   #endif
 
   #if IS_KINEMATIC
@@ -567,6 +585,31 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
 
     current_position.set(x, y);
     line_to_current_position(xy_feedrate);
+    
+    #if LINEAR_AXES >= 4
+      current_position.i = i;
+      line_to_current_position(i_feedrate);
+    #endif
+    #if LINEAR_AXES >= 5
+      current_position.j = j;
+      line_to_current_position(j_feedrate);
+    #endif
+    #if LINEAR_AXES >= 6
+      current_position.k = k;
+      line_to_current_position(k_feedrate);
+    #endif
+    #if LINEAR_AXES >= 7
+      current_position.u = u;
+      line_to_current_position(u_feedrate);
+    #endif
+    #if LINEAR_AXES >= 8
+      current_position.v = v;
+      line_to_current_position(v_feedrate);
+    #endif
+    #if LINEAR_AXES >= 9
+      current_position.w = w;
+      line_to_current_position(w_feedrate);
+    #endif
 
     #if HAS_Z_AXIS
       // If Z needs to lower, do it after moving XY
