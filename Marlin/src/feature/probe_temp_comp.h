@@ -24,13 +24,13 @@
 #include "../inc/MarlinConfig.h"
 
 enum TempSensorID : uint8_t {
-  #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+  #if ENABLED(PTC_PROBE)
     TSI_PROBE,
   #endif
-  #if ENABLED(USE_TEMP_BED_COMPENSATION)
+  #if ENABLED(PTC_BED)
     TSI_BED,
   #endif
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+  #if ENABLED(PTC_HOTEND)
     TSI_EXT,
   #endif
   TSI_COUNT
@@ -52,26 +52,26 @@ class ProbeTempComp {
   public:
 
     static constexpr temp_calib_t cali_info[TSI_COUNT] = {
-      #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
-        { PTC_SAMPLE_COUNT, PTC_SAMPLE_RES, PTC_SAMPLE_START },   // Probe
+      #if ENABLED(PTC_PROBE)
+        { PTC_SAMPLE_PROBE_COUNT, PTC_SAMPLE_PROBE_RES, PTC_SAMPLE_PROBE_START },   // Probe
       #endif
-      #if ENABLED(USE_TEMP_BED_COMPENSATION)
-        { BTC_SAMPLE_COUNT, BTC_SAMPLE_RES, BTC_SAMPLE_START },   // Bed
+      #if ENABLED(PTC_BED)
+        { PTC_SAMPLE_BED_COUNT, PTC_SAMPLE_BED_RES, PTC_SAMPLE_BED_START },   // Bed
       #endif
-      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        { ETC_SAMPLE_COUNT, ETC_SAMPLE_RES, ETC_SAMPLE_START }, // Extruder
+      #if ENABLED(PTC_HOTEND)
+        { PTC_SAMPLE_HOTEND_COUNT, PTC_SAMPLE_HOTEND_RES, PTC_SAMPLE_HOTEND_START }, // Extruder
       #endif
     };
 
     static int16_t *sensor_z_offsets[TSI_COUNT];
-    #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
-      static int16_t z_offsets_probe[PTC_SAMPLE_COUNT]; // (µm)
+    #if ENABLED(PTC_PROBE)
+      static int16_t z_offsets_probe[PTC_SAMPLE_PROBE_COUNT]; // (µm)
     #endif
-    #if ENABLED(USE_TEMP_BED_COMPENSATION)
-      static int16_t z_offsets_bed[BTC_SAMPLE_COUNT];   // (µm)
+    #if ENABLED(PTC_BED)
+      static int16_t z_offsets_bed[PTC_SAMPLE_BED_COUNT];   // (µm)
     #endif
-    #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-      static int16_t z_offsets_ext[ETC_SAMPLE_COUNT];   // (µm)
+    #if ENABLED(PTC_HOTEND)
+      static int16_t z_offsets_ext[PTC_SAMPLE_HOTEND_COUNT];   // (µm)
     #endif
 
     static inline void reset_index() { calib_idx = 0; };
@@ -79,9 +79,9 @@ class ProbeTempComp {
     static void reset_to_default();
     static void clear_offsets(const TempSensorID tsi);
     static inline void clear_all_offsets() {
-      TERN_(USE_TEMP_PROBE_COMPENSATION, clear_offsets(TSI_PROBE));
-      TERN_(USE_TEMP_BED_COMPENSATION, clear_offsets(TSI_BED));
-      TERN_(USE_TEMP_EXT_COMPENSATION, clear_offsets(TSI_EXT));
+      TERN_(PTC_PROBE, clear_offsets(TSI_PROBE));
+      TERN_(PTC_BED, clear_offsets(TSI_BED));
+      TERN_(PTC_HOTEND, clear_offsets(TSI_EXT));
     }
     static bool set_offset(const TempSensorID tsi, const uint8_t idx, const int16_t offset);
     static void print_offsets();
@@ -106,4 +106,4 @@ class ProbeTempComp {
     static bool linear_regression(const TempSensorID tsi, float &k, float &d);
 };
 
-extern ProbeTempComp temp_comp;
+extern ProbeTempComp ptc;

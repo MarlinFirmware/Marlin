@@ -29,31 +29,31 @@
 #include "probe_temp_comp.h"
 #include <math.h>
 
-ProbeTempComp temp_comp;
+ProbeTempComp ptc;
 
-#if ENABLED(USE_TEMP_PROBE_COMPENSATION)
-  constexpr int16_t z_offsets_probe_default[PTC_SAMPLE_COUNT] = PTC_SAMPLE_VALUES;
-  int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_COUNT] = PTC_SAMPLE_VALUES;
+#if ENABLED(PTC_PROBE)
+  constexpr int16_t z_offsets_probe_default[PTC_SAMPLE_PROBE_COUNT] = PTC_SAMPLE_PROBE_VALUES;
+  int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_PROBE_COUNT] = PTC_SAMPLE_PROBE_VALUES;
 #endif
 
-#if ENABLED(USE_TEMP_BED_COMPENSATION)
-  constexpr int16_t z_offsets_bed_default[BTC_SAMPLE_COUNT] = BTC_SAMPLE_VALUES;
-  int16_t ProbeTempComp::z_offsets_bed[BTC_SAMPLE_COUNT] = BTC_SAMPLE_VALUES;
+#if ENABLED(PTC_BED)
+  constexpr int16_t z_offsets_bed_default[PTC_SAMPLE_BED_COUNT] = PTC_SAMPLE_BED_VALUES;
+  int16_t ProbeTempComp::z_offsets_bed[PTC_SAMPLE_BED_COUNT] = PTC_SAMPLE_BED_VALUES;
 #endif
 
-#if ENABLED(USE_TEMP_EXT_COMPENSATION)
-  constexpr int16_t z_offsets_ext_default[ETC_SAMPLE_COUNT] = ETC_SAMPLE_VALUES;
-  int16_t ProbeTempComp::z_offsets_ext[ETC_SAMPLE_COUNT] = ETC_SAMPLE_VALUES;
+#if ENABLED(PTC_HOTEND)
+  constexpr int16_t z_offsets_ext_default[PTC_SAMPLE_HOTEND_COUNT] = PTC_SAMPLE_HOTEND_VALUES;
+  int16_t ProbeTempComp::z_offsets_ext[PTC_SAMPLE_HOTEND_COUNT] = PTC_SAMPLE_HOTEND_VALUES;
 #endif
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
-  #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
+  #if ENABLED(PTC_PROBE)
     ProbeTempComp::z_offsets_probe,
   #endif
-  #if ENABLED(USE_TEMP_BED_COMPENSATION)
+  #if ENABLED(PTC_BED)
     ProbeTempComp::z_offsets_bed,
   #endif
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+  #if ENABLED(PTC_HOTEND)
     ProbeTempComp::z_offsets_ext,
   #endif
 };
@@ -65,9 +65,9 @@ float ProbeTempComp::init_measurement; // = 0.0
 
 void ProbeTempComp::reset_to_default()
 {
-  TERN_(USE_TEMP_PROBE_COMPENSATION, LOOP_L_N(i, PTC_SAMPLE_COUNT) z_offsets_probe[i] = z_offsets_probe_default[i]);
-  TERN_(USE_TEMP_BED_COMPENSATION, LOOP_L_N(i, BTC_SAMPLE_COUNT) z_offsets_bed[i] = z_offsets_bed_default[i]);
-  TERN_(USE_TEMP_EXT_COMPENSATION, LOOP_L_N(i, ETC_SAMPLE_COUNT) z_offsets_ext[i] = z_offsets_ext_default[i]);
+  TERN_(PTC_PROBE, LOOP_L_N(i, PTC_SAMPLE_PROBE_COUNT) z_offsets_probe[i] = z_offsets_probe_default[i]);
+  TERN_(PTC_BED, LOOP_L_N(i, PTC_SAMPLE_BED_COUNT) z_offsets_bed[i] = z_offsets_bed_default[i]);
+  TERN_(PTC_HOTEND, LOOP_L_N(i, PTC_SAMPLE_HOTEND_COUNT) z_offsets_ext[i] = z_offsets_ext_default[i]);
 }
 
 void ProbeTempComp::clear_offsets(const TempSensorID tsi) {
@@ -87,8 +87,8 @@ void ProbeTempComp::print_offsets() {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
       SERIAL_ECHOF(
-        TERN_(USE_TEMP_BED_COMPENSATION, s == TSI_BED ? F("Bed") :)
-        TERN_(USE_TEMP_EXT_COMPENSATION, s == TSI_EXT ? F("Extruder") :)
+        TERN_(PTC_BED, s == TSI_BED ? F("Bed") :)
+        TERN_(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :)
         F("Probe")
       );
       SERIAL_ECHOLNPGM(
@@ -115,7 +115,7 @@ void ProbeTempComp::prepare_new_calibration(const_float_t init_meas_z) {
 
 void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z) {
   if (calib_idx >= cali_info[tsi].measurements) return;
-  sensor_z_offsets[tsi][calib_idx++] = static_cast<int16_t>(meas_z * 1000.0f - init_measurement * 1000.0f);
+  sensor_z_offsets[tsi][calib_idx++] = static_cast<int16_t>((meas_z - init_measurement) * 1000.0f);
 }
 
 bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {

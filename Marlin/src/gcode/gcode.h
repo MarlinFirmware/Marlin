@@ -66,7 +66,7 @@
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
  * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
- * G76  - Calibrate first layer temperature offsets. (Requires USE_TEMP_PROBE_COMPENSATION and USE_BED_PROBE_COMPENSATION)
+ * G76  - Calibrate first layer temperature offsets. (Requires PTC_PROBE and PTC_BED)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
@@ -280,7 +280,7 @@
  * M868 - Report or set position encoder module error correction threshold.
  * M869 - Report position encoder module error.
  *
- * M871 - Print/reset/clear first layer temperature offset values. (Requires USE_TEMP_PROBE_COMPENSATION, USE_BED_PROBE_COMPENSATION, or USE_TEMP_EXT_COMPENSATION)
+ * M871 - Print/reset/clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
@@ -569,7 +569,7 @@ private:
     static void G59();
   #endif
 
-  #if BOTH(USE_TEMP_PROBE_COMPENSATION, USE_TEMP_BED_COMPENSATION)
+  #if BOTH(PTC_PROBE, PTC_BED)
     static void G76();
   #endif
 

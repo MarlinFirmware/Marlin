@@ -1996,53 +1996,45 @@
  * Use M871 to set temperature/offset values manually.
  * For more details see https://marlinfw.org/docs/features/probe_temp_compensation.html
  */
-#if TEMP_SENSOR_PROBE
-  // Enable compensation using probe temperature
-  //#define USE_TEMP_PROBE_COMPENSATION
-  #if ENABLED(USE_TEMP_PROBE_COMPENSATION)
-    // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_START
-    // (e.g., 30), in steps of PTC_SAMPLE_RES (e.g., 5) with PTC_SAMPLE_COUNT (e.g., 10) samples.
-    #define PTC_SAMPLE_START  30    // (°C)
-    #define PTC_SAMPLE_RES     5    // (°C)
-    #define PTC_SAMPLE_COUNT  10
-    #define PTC_SAMPLE_VALUES { 0 } // (µm) Z adjustments per sample
-  #endif
-#endif
+//#define PTC_PROBE    // Compensate based on probe temperature
+//#define PTC_BED      // Compensate based on bed temperature
+//#define PTC_HOTEND   // Compensate based on hotend temperature
 
-#if TEMP_SENSOR_BED
-  // Enable compensation using bed temperature
-  //#define USE_TEMP_BED_COMPENSATION
-  #if ENABLED(USE_TEMP_BED_COMPENSATION)
-    // Bed temperature calibration builds a similar table.
-    #define BTC_SAMPLE_START  60    // (°C)
-    #define BTC_SAMPLE_RES     5    // (°C)
-    #define BTC_SAMPLE_COUNT  10
-    #define BTC_SAMPLE_VALUES { 0 } // (µm) Z adjustments per sample
-  #endif
-#endif
-
-#if HAS_EXTRUDERS
-  // Enable additional compensation using hotend temperature
-  // Note: these values cannot be calibrated automatically but must be set manually with M871.
-  //#define USE_TEMP_EXT_COMPENSATION
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    #define ETC_SAMPLE_START 180    // (°C)
-    #define ETC_SAMPLE_RES     5    // (°C)
-    #define ETC_SAMPLE_COUNT  20
-    #define ETC_SAMPLE_VALUES { 0 } // (µm) Z adjustments per sample
-  #endif
-#endif
-
-#if ANY(USE_TEMP_PROBE_COMPENSATION, USE_TEMP_BED_COMPENSATION, USE_TEMP_EXT_COMPENSATION)
+#if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
   /**
-   * If the probe is outside of the defined range, use linear extrapolation using the closest
-   * point and the PTC_LINEAR_EXTRAPOLATION'th next point. e.g., If set to 4 it will use data[0]
-   * and data[4] to perform linear extrapolation for any values below PTC_SAMPLE_START.
+   * If the probe is outside the defined range, use linear extrapolation with the closest
+   * point and the point with index PTC_LINEAR_EXTRAPOLATION. e.g., If set to 4 it will use the
+   * linear extrapolation between data[0] and data[4] for values below PTC_SAMPLE_PROBE_START.
    */
   //#define PTC_LINEAR_EXTRAPOLATION 4
 
+  #if ENABLED(PTC_PROBE)
+    // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_PROBE_START
+    // (e.g., 30), in steps of PTC_SAMPLE_PROBE_RES (e.g., 5) with PTC_SAMPLE_PROBE_COUNT (e.g., 10) samples.
+    #define PTC_SAMPLE_PROBE_START   30    // (°C)
+    #define PTC_SAMPLE_PROBE_RES      5    // (°C)
+    #define PTC_SAMPLE_PROBE_COUNT   10
+    #define PTC_SAMPLE_PROBE_VALUES  { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  #if ENABLED(PTC_BED)
+    // Bed temperature calibration builds a similar table.
+    #define PTC_SAMPLE_BED_START     60    // (°C)
+    #define PTC_SAMPLE_BED_RES        5    // (°C)
+    #define PTC_SAMPLE_BED_COUNT     10
+    #define PTC_SAMPLE_BED_VALUES    { 0 } // (µm) Z adjustments per sample
+  #endif
+
+  #if ENABLED(PTC_HOTEND)
+    // Note: There is no automatic calibration for the hotend. Use M871.
+    #define PTC_SAMPLE_HOTEND_START 180    // (°C)
+    #define PTC_SAMPLE_HOTEND_RES     5    // (°C)
+    #define PTC_SAMPLE_HOTEND_COUNT  20
+    #define PTC_SAMPLE_HOTEND_VALUES { 0 } // (µm) Z adjustments per sample
+  #endif
+
   // G76 options
-  #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+  #if BOTH(PTC_PROBE, PTC_BED)
     // Park position to wait for probe cooldown
     #define PTC_PARK_POS   { 0, 0, 100 }
 
@@ -2050,15 +2042,15 @@
     //#define PTC_PROBE_POS  { 12.0f, 7.3f } // Example: MK52 magnetic heatbed
     #define PTC_PROBE_POS  { 90, 100 }
 
-    // The temperature the probe should be at while taking measurements during bed temperature
-    // calibration.
-    #define BTC_PROBE_TEMP    30  // (°C)
+    // The temperature the probe should be at while taking measurements during
+    // bed temperature calibration.
+    #define PTC_PROBE_TEMP    30  // (°C)
 
     // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
-    // Note: the Z=0.0 offset is determined by the probe offset which can be set using M851.
+    // Note: The Z=0.0 offset is determined by the probe Z offset (e.g., as set with M851 Z).
     #define PTC_PROBE_HEATING_OFFSET 0.5
   #endif
-#endif
+#endif // PTC_PROBE || PTC_BED || PTC_HOTEND
 
 // @section extras
 

@@ -599,6 +599,8 @@
   #error "The IS_RAMPS_* conditionals (for heater/fan/bed pins) are now called FET_ORDER_*."
 #elif defined(PROBE_TEMP_COMPENSATION)
   #error "PROBE_TEMP_COMPENSATION is now set using one or more USE_TEMP_*_COMPENSATION options."
+#elif defined(BTC_PROBE_TEMP)
+  #error "BTC_PROBE_TEMP is now PTC_PROBE_TEMP."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
@@ -626,44 +628,44 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #endif
   #endif
 
-  #ifdef PTC_SAMPLE_START
-    constexpr auto _ptc_sample_start = PTC_SAMPLE_START;
+  #ifdef PTC_SAMPLE_PROBE_START
+    constexpr auto _ptc_sample_start = PTC_SAMPLE_PROBE_START;
     constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
-    static_assert(_test_ptc_sample_start != 12.3f, "PTC_SAMPLE_START must be a whole number.");
+    static_assert(_test_ptc_sample_start != 12.3f, "PTC_SAMPLE_PROBE_START must be a whole number.");
   #endif
-  #ifdef PTC_SAMPLE_RES
-    constexpr auto _ptc_sample_res = PTC_SAMPLE_RES;
+  #ifdef PTC_SAMPLE_PROBE_RES
+    constexpr auto _ptc_sample_res = PTC_SAMPLE_PROBE_RES;
     constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
-    static_assert(_test_ptc_sample_res != 12.3f, "PTC_SAMPLE_RES must be a whole number.");
+    static_assert(_test_ptc_sample_res != 12.3f, "PTC_SAMPLE_PROBE_RES must be a whole number.");
   #endif
-  #ifdef BTC_SAMPLE_START
-    constexpr auto _btc_sample_start = BTC_SAMPLE_START;
+  #ifdef PTC_SAMPLE_BED_START
+    constexpr auto _btc_sample_start = PTC_SAMPLE_BED_START;
     constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
-    static_assert(_test_btc_sample_start != 12.3f, "BTC_SAMPLE_START must be a whole number.");
+    static_assert(_test_btc_sample_start != 12.3f, "PTC_SAMPLE_BED_START must be a whole number.");
   #endif
-  #ifdef BTC_SAMPLE_RES
-    constexpr auto _btc_sample_res = BTC_SAMPLE_RES;
+  #ifdef PTC_SAMPLE_BED_RES
+    constexpr auto _btc_sample_res = PTC_SAMPLE_BED_RES;
     constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
-    static_assert(_test_btc_sample_res != 12.3f, "BTC_SAMPLE_RES must be a whole number.");
+    static_assert(_test_btc_sample_res != 12.3f, "PTC_SAMPLE_BED_RES must be a whole number.");
   #endif
-  #ifdef BTC_PROBE_TEMP
-    constexpr auto _btc_probe_temp = BTC_PROBE_TEMP;
+  #ifdef PTC_PROBE_TEMP
+    constexpr auto _btc_probe_temp = PTC_PROBE_TEMP;
     constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
-    static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
+    static_assert(_test_btc_probe_temp != 12.3f, "PTC_PROBE_TEMP must be a whole number.");
   #endif
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+  #if ENABLED(PTC_HOTEND)
     #if EXTRUDERS != 1
-      #error "USE_TEMP_EXT_COMPENSATION only works with a single extruder."
+      #error "PTC_HOTEND only works with a single extruder."
     #endif
-    #ifdef ETC_SAMPLE_START
-      constexpr auto _etc_sample_start = ETC_SAMPLE_START;
+    #ifdef PTC_SAMPLE_HOTEND_START
+      constexpr auto _etc_sample_start = PTC_SAMPLE_HOTEND_START;
       constexpr decltype(_etc_sample_start) _test_etc_sample_start = 12.3f;
-      static_assert(_test_etc_sample_start != 12.3f, "ETC_SAMPLE_START must be a whole number.");
+      static_assert(_test_etc_sample_start != 12.3f, "PTC_SAMPLE_HOTEND_START must be a whole number.");
     #endif
-    #ifdef ETC_SAMPLE_RES
-      constexpr auto _etc_sample_res = ETC_SAMPLE_RES;
+    #ifdef PTC_SAMPLE_HOTEND_RES
+      constexpr auto _etc_sample_res = PTC_SAMPLE_HOTEND_RES;
       constexpr decltype(_etc_sample_res) _test_etc_sample_res = 12.3f;
-      static_assert(_test_etc_sample_res != 12.3f, "ETC_SAMPLE_RES must be a whole number.");
+      static_assert(_test_etc_sample_res != 12.3f, "PTC_SAMPLE_HOTEND_RES must be a whole number.");
     #endif
   #endif
 #endif // HAS_PTC

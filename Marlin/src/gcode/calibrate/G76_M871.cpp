@@ -87,7 +87,7 @@ static void say_waiting_for_probe_heating() { say_waiting_for(); SERIAL_ECHOLNPG
 static void say_successfully_calibrated()   { SERIAL_ECHOPGM("Successfully calibrated"); }
 static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
 
-#if BOTH(USE_TEMP_PROBE_COMPENSATION, USE_TEMP_BED_COMPENSATION)
+#if BOTH(PTC_PROBE, PTC_BED)
 
   void GcodeSuite::G76() {
     auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
@@ -115,9 +115,9 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       else {
         SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
         if (targ == ProbeTempComp::cali_info[sid].start_temp)
-          temp_comp.prepare_new_calibration(measured_z);
+          ptc.prepare_new_calibration(measured_z);
         else
-          temp_comp.push_back_new_measurement(sid, measured_z);
+          ptc.push_back_new_measurement(sid, measured_z);
         targ += ProbeTempComp::cali_info[sid].temp_resolution;
       }
       return measured_z;
@@ -135,6 +135,9 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
     // Synchronize with planner
     planner.synchronize();
 
+    #ifndef PTC_PROBE_HEATING_OFFSET
+      #define PTC_PROBE_HEATING_OFFSET 0
+    #endif
     const xyz_pos_t parkpos = PTC_PARK_POS,
               probe_pos_xyz = xyz_pos_t(PTC_PROBE_POS) + xyz_pos_t({ 0.0f, 0.0f, PTC_PROBE_HEATING_OFFSET }),
                 noz_pos_xyz = probe_pos_xyz - probe.offset_xy;  // Nozzle position based on probe position
@@ -173,8 +176,8 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
 
     if (do_bed_cal) {
 
-      celsius_t target_bed = BTC_SAMPLE_START,
-                target_probe = BTC_PROBE_TEMP;
+      celsius_t target_bed = PTC_SAMPLE_BED_START,
+                target_probe = PTC_PROBE_TEMP;
 
       say_waiting_for(); SERIAL_ECHOLNPGM(" cooling.");
       while (thermalManager.wholeDegBed() > target_bed || thermalManager.wholeDegProbe() > target_probe)
@@ -183,7 +186,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       // Disable leveling so it won't mess with us
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
-      for (uint8_t idx = 0; idx <= BTC_SAMPLE_COUNT; idx++) {
+      for (uint8_t idx = 0; idx <= PTC_SAMPLE_BED_COUNT; idx++) {
         thermalManager.setTargetBed(target_bed);
 
         report_targets(target_bed, target_probe);
@@ -208,8 +211,8 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
         if (isnan(measured_z) || target_bed > (BED_MAX_TARGET)) break;
       }
 
-      SERIAL_ECHOLNPGM("Retrieved measurements: ", temp_comp.get_index());
-      if (temp_comp.finish_calibration(TSI_BED)) {
+      SERIAL_ECHOLNPGM("Retrieved measurements: ", ptc.get_index());
+      if (ptc.finish_calibration(TSI_BED)) {
         say_successfully_calibrated();
         SERIAL_ECHOLNPGM(" bed.");
       }
@@ -236,7 +239,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       const celsius_t target_bed = BED_MAX_TARGET;
       thermalManager.setTargetBed(target_bed);
 
-      celsius_t target_probe = PTC_SAMPLE_START;
+      celsius_t target_probe = PTC_SAMPLE_PROBE_START;
 
       report_targets(target_bed, target_probe);
 
@@ -247,7 +250,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
       bool timeout = false;
-      for (uint8_t idx = 0; idx <= PTC_SAMPLE_COUNT; idx++) {
+      for (uint8_t idx = 0; idx <= PTC_SAMPLE_PROBE_COUNT; idx++) {
         // Move probe to probing point and wait for it to reach target temperature
         do_blocking_move_to(noz_pos_xyz);
 
@@ -267,8 +270,8 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
         if (isnan(measured_z)) break;
       }
 
-      SERIAL_ECHOLNPGM("Retrieved measurements: ", temp_comp.get_index());
-      if (temp_comp.finish_calibration(TSI_PROBE))
+      SERIAL_ECHOLNPGM("Retrieved measurements: ", ptc.get_index());
+      if (ptc.finish_calibration(TSI_PROBE))
         say_successfully_calibrated();
       else
         say_failed_to_calibrate();
@@ -279,13 +282,13 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(true));
 
       SERIAL_ECHOLNPGM("Final compensation values:");
-      temp_comp.print_offsets();
+      ptc.print_offsets();
     } // do_probe_cal
 
     restore_feedrate_and_scaling();
   }
 
-#endif // USE_TEMP_PROBE_COMPENSATION && USE_TEMP_BED_COMPENSATION
+#endif // PTC_PROBE && PTC_BED
 
 /**
  * M871: Report / reset temperature compensation offsets.
@@ -309,7 +312,7 @@ void GcodeSuite::M871() {
 
   if (parser.seen('R')) {
     // Reset z-probe offsets to factory defaults
-    temp_comp.clear_all_offsets();
+    ptc.clear_all_offsets();
     SERIAL_ECHOLNPGM("Offsets reset to default.");
   }
   else if (parser.seen("BPE")) {
@@ -317,19 +320,19 @@ void GcodeSuite::M871() {
     const int16_t offset_val = parser.value_int();
     if (!parser.seenval('I')) return;
     const int16_t idx = parser.value_int();
-    const TempSensorID mod = TERN_(USE_TEMP_BED_COMPENSATION, parser.seen('B') ? TSI_BED :)
-                             TERN_(USE_TEMP_EXT_COMPENSATION, parser.seen('E') ? TSI_EXT :)
-                             TERN_(USE_TEMP_PROBE_COMPENSATION, parser.seen('P') ? TSI_PROBE :)
+    const TempSensorID mod = TERN_(PTC_BED, parser.seen('B') ? TSI_BED :)
+                             TERN_(PTC_HOTEND, parser.seen('E') ? TSI_EXT :)
+                             TERN_(PTC_PROBE, parser.seen('P') ? TSI_PROBE :)
                              TSI_COUNT;
     if (mod == TSI_COUNT)
       SERIAL_ECHOLNPGM("!Invalid sensor.");
-    else if (idx > 0 && temp_comp.set_offset(mod, idx - 1, offset_val))
+    else if (idx > 0 && ptc.set_offset(mod, idx - 1, offset_val))
       SERIAL_ECHOLNPGM("Set value: ", offset_val);
     else
       SERIAL_ECHOLNPGM("!Invalid index. Failed to set value (note: value at index 0 is constant).");
   }
   else // Print current Z-probe adjustments. Note: Values in EEPROM might differ.
-    temp_comp.print_offsets();
+    ptc.print_offsets();
 }
 
 #endif // HAS_PTC
