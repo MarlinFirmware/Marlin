@@ -272,7 +272,7 @@ typedef struct SettingsDataStruct {
       int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
     #endif
     #if ENABLED(PTC_HOTEND)
-      int16_t z_offsets_ext[COUNT(ptc.z_offsets_ext)];     // M871 E I V
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
     #endif
   #endif
 
@@ -855,7 +855,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(ptc.z_offsets_bed);
       #endif
       #if ENABLED(PTC_HOTEND)
-        EEPROM_WRITE(ptc.z_offsets_ext);
+        EEPROM_WRITE(ptc.z_offsets_hotend);
       #endif
     #else
       // No placeholder data for this feature
@@ -1725,7 +1725,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(ptc.z_offsets_bed);
         #endif
         #if ENABLED(PTC_HOTEND)
-          EEPROM_READ(ptc.z_offsets_ext);
+          EEPROM_READ(ptc.z_offsets_hotend);
         #endif
         ptc.reset_index();
       #else
@@ -2739,7 +2739,10 @@ void MarlinSettings::reset() {
   //
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
-  TERN_(HAS_PTC, ptc.reset_to_default());
+  //
+  // Probe Temperature Compensation
+  //
+  TERN_(HAS_PTC, ptc.reset());
 
   //
   // BLTOUCH
