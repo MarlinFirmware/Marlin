@@ -639,15 +639,17 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     }
   #endif
 
-  if (!axes_should_home()) {
-    // Move XY back to saved position
-    destination.set(resume_position.x, resume_position.y, current_position.z, current_position.e);
-    prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
+  #if DISABLED(MANUAL_SWITCHING_TOOLHEAD)
+    if (!axes_should_home()) {
+      // Move XY back to saved position
+      destination.set(resume_position.x, resume_position.y, current_position.z, current_position.e);
+      prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
 
-    // Move Z back to saved position
-    destination.z = resume_position.z;
-    prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
-  }
+      // Move Z back to saved position
+      destination.z = resume_position.z;
+      prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+    }
+  #endif
 
   // Unretract
   if (targetTemp > 0) {
