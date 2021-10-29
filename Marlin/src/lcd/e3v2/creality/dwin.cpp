@@ -615,7 +615,7 @@ void Draw_Edit_Float3(const uint8_t row, const uint16_t value, const bool active
 }
 
 void Draw_Edit_Signed_Float2(const uint8_t row, const float value, const bool active=false) {
-  DWIN_Draw_Signed_Float(font8x16, active ? Select_Color : Color_Bg_Black, 2, UNITFDIGITS, 220 + 8 - UNITFDIGITS * 8, EBASE(row), value);
+  DWIN_Draw_Signed_Float(font8x16, active ? Select_Color : Color_Bg_Black, 2, UNITFDIGITS + 1, 220 + 8 - UNITFDIGITS * 8, EBASE(row), value);
 }
 
 void Draw_Edit_Signed_Float3(const uint8_t row, const float value, const bool active=false) {
