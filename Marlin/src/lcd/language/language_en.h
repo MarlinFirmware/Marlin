@@ -745,6 +745,8 @@ namespace Language_en {
   LSTR MSG_SD_CARD                        = _UxGT("SD Card");
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
 
+  LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host Shutdown");
+
   // These strings can be the same in all languages
   LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
