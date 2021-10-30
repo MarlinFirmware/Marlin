@@ -1699,6 +1699,7 @@ void RTSSHOW::RTS_HandleData()
         #else
           getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE
         #endif
+         || (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION)
         ) {
           SERIAL_ECHOLNPGM_P(PSTR("Resume Yes during print"));
           //setHostResponse(1); //Send Resume host prompt command
