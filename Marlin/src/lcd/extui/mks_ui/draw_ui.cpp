@@ -475,7 +475,7 @@ char *getDispText(int index) {
     case EXTRUSION_UI:        strcpy(public_buf_l, extrude_menu.title); break;
     case CHANGE_SPEED_UI:     strcpy(public_buf_l, speed_menu.title); break;
     case FAN_UI:              strcpy(public_buf_l, fan_menu.title); break;
-    case PRE_HEAT_UI:
+    case PREHEAT_UI:
       switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
         case OPERATE_UI:      strcpy(public_buf_l, preheat_menu.adjust_title);
         default:              strcpy(public_buf_l, preheat_menu.title); break;
@@ -500,7 +500,7 @@ char *getDispText(int index) {
     case TOOL_UI:             strcpy(public_buf_l, tool_menu.title); break;
     case WIFI_LIST_UI:        TERN_(MKS_WIFI_MODULE, strcpy(public_buf_l, list_menu.title)); break;
     case MACHINE_PARA_UI:     strcpy(public_buf_l, MachinePara_menu.title); break;
-    case BABY_STEP_UI:        strcpy(public_buf_l, operation_menu.babystep); break;
+    case BABYSTEP_UI:         strcpy(public_buf_l, operation_menu.babystep); break;
     case EEPROM_SETTINGS_UI:  strcpy(public_buf_l, eeprom_menu.title); break;
     case MEDIA_SELECT_UI:     strcpy(public_buf_l, media_select_menu.title); break;
     default: break;
@@ -742,7 +742,7 @@ void GUI_RefreshPage() {
         disp_hotend_temp();
       }
       break;
-    case PRE_HEAT_UI:
+    case PREHEAT_UI:
       if (temps_update_flag) {
         temps_update_flag = false;
         disp_desire_temp();
@@ -822,7 +822,7 @@ void GUI_RefreshPage() {
       case WIFI_TIPS_UI:
         switch (wifi_tips_type) {
           case TIPS_TYPE_JOINING:
-            if (wifi_link_state == WIFI_CONNECTED && strcmp((const char *)wifi_list.wifiConnectedName,(const char *)wifi_list.wifiName[wifi_list.nameIndex]) == 0) {
+            if (wifi_link_state == WIFI_CONNECTED && strcmp((const char *)wifi_list.wifiConnectedName, (const char *)wifi_list.wifiName[wifi_list.nameIndex]) == 0) {
               tips_disp.timer = TIPS_TIMER_STOP;
               tips_disp.timer_count = 0;
 
@@ -864,7 +864,7 @@ void GUI_RefreshPage() {
         break;
     #endif
 
-    case BABY_STEP_UI:
+    case BABYSTEP_UI:
       if (temps_update_flag) {
         temps_update_flag = false;
         disp_z_offset_value();
@@ -888,7 +888,7 @@ void clear_cur_ui() {
     case OPERATE_UI:                  lv_clear_operation(); break;
     case PAUSE_UI:                    break;
     case EXTRUSION_UI:                lv_clear_extrusion(); break;
-    case PRE_HEAT_UI:                 lv_clear_preHeat(); break;
+    case PREHEAT_UI:                  lv_clear_preHeat(); break;
     case CHANGE_SPEED_UI:             lv_clear_change_speed(); break;
     case FAN_UI:                      lv_clear_fan(); break;
     case SET_UI:                      lv_clear_set(); break;
@@ -929,15 +929,14 @@ void clear_cur_ui() {
     case MACHINE_SETTINGS_UI:         lv_clear_machine_settings(); break;
     case TEMPERATURE_SETTINGS_UI:     break;
     case MOTOR_SETTINGS_UI:           lv_clear_motor_settings(); break;
-    case MACHINETYPE_UI:              break;
+    case MACHINE_TYPE_UI:             break;
     case STROKE_UI:                   break;
     case HOME_DIR_UI:                 break;
     case ENDSTOP_TYPE_UI:             break;
     case FILAMENT_SETTINGS_UI:        break;
-    case LEVELING_SETTIGNS_UI:        break;
     case LEVELING_PARA_UI:            lv_clear_level_settings(); break;
     case DELTA_LEVELING_PARA_UI:      break;
-    case MANUAL_LEVELING_POSIGION_UI: lv_clear_tramming_pos_settings(); break;
+    case MANUAL_LEVELING_POSITION_UI: lv_clear_tramming_pos_settings(); break;
     case MAXFEEDRATE_UI:              lv_clear_max_feedrate_settings(); break;
     case STEPS_UI:                    lv_clear_step_settings(); break;
     case ACCELERATION_UI:             lv_clear_acceleration_settings(); break;
@@ -950,7 +949,7 @@ void clear_cur_ui() {
     case DOUBLE_Z_UI:                 break;
     case ENABLE_INVERT_UI:            break;
     case NUMBER_KEY_UI:               lv_clear_number_key(); break;
-    case BABY_STEP_UI:                lv_clear_baby_stepping(); break;
+    case BABYSTEP_UI:                 lv_clear_baby_stepping(); break;
     case PAUSE_POS_UI:                lv_clear_pause_position(); break;
     #if HAS_TRINAMIC_CONFIG
       case TMC_CURRENT_UI:            lv_clear_tmc_current_settings(); break;
@@ -997,7 +996,7 @@ void draw_return_ui() {
       case OPERATE_UI:                  lv_draw_operation(); break;
       case PAUSE_UI:                    break;
       case EXTRUSION_UI:                lv_draw_extrusion(); break;
-      case PRE_HEAT_UI:                 lv_draw_preHeat(); break;
+      case PREHEAT_UI:                  lv_draw_preHeat(); break;
       case CHANGE_SPEED_UI:             lv_draw_change_speed(); break;
       case FAN_UI:                      lv_draw_fan(); break;
       case SET_UI:                      lv_draw_set(); break;
@@ -1037,15 +1036,14 @@ void draw_return_ui() {
       case MACHINE_SETTINGS_UI:         lv_draw_machine_settings(); break;
       case TEMPERATURE_SETTINGS_UI:     break;
       case MOTOR_SETTINGS_UI:           lv_draw_motor_settings(); break;
-      case MACHINETYPE_UI:              break;
+      case MACHINE_TYPE_UI:             break;
       case STROKE_UI:                   break;
       case HOME_DIR_UI:                 break;
       case ENDSTOP_TYPE_UI:             break;
       case FILAMENT_SETTINGS_UI:        lv_draw_filament_settings(); break;
-      case LEVELING_SETTIGNS_UI:        break;
       case LEVELING_PARA_UI:            lv_draw_level_settings(); break;
       case DELTA_LEVELING_PARA_UI:      break;
-      case MANUAL_LEVELING_POSIGION_UI: lv_draw_tramming_pos_settings(); break;
+      case MANUAL_LEVELING_POSITION_UI: lv_draw_tramming_pos_settings(); break;
       case MAXFEEDRATE_UI:              lv_draw_max_feedrate_settings(); break;
       case STEPS_UI:                    lv_draw_step_settings(); break;
       case ACCELERATION_UI:             lv_draw_acceleration_settings(); break;
@@ -1061,7 +1059,7 @@ void draw_return_ui() {
       case ENABLE_INVERT_UI:            break;
       case NUMBER_KEY_UI:               lv_draw_number_key(); break;
       case DIALOG_UI:                   break;
-      case BABY_STEP_UI:                lv_draw_baby_stepping(); break;
+      case BABYSTEP_UI:                 lv_draw_baby_stepping(); break;
       case PAUSE_POS_UI:                lv_draw_pause_position(); break;
       #if HAS_TRINAMIC_CONFIG
         case TMC_CURRENT_UI:            lv_draw_tmc_current_settings(); break;
@@ -1082,6 +1080,11 @@ void draw_return_ui() {
       default: break;
     }
   }
+}
+
+void goto_previous_ui() {
+  clear_cur_ui();
+  draw_return_ui();
 }
 
 // Set the same image for both Released and Pressed

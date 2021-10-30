@@ -133,7 +133,7 @@ public:
    * Enqueue command(s) to run from SRAM. Drained by process_injected_command().
    * Aborts the current SRAM queue so only use for one or two commands.
    */
-  static inline void inject(char * const gcode) {
+  static inline void inject(const char * const gcode) {
     strncpy(injected_commands, gcode, sizeof(injected_commands) - 1);
   }
 
@@ -147,6 +147,12 @@ public:
    * and return 'true' if successful.
    */
   static bool enqueue_one(FSTR_P const fgcode);
+
+  /**
+   * Enqueue with Serial Echo
+   * Return true on success
+   */
+  static bool enqueue_one(const char *cmd);
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued
@@ -252,12 +258,6 @@ private:
 
   // Process the next "immediate" command (SRAM)
   static bool process_injected_command();
-
-  /**
-   * Enqueue with Serial Echo
-   * Return true on success
-   */
-  static bool enqueue_one(const char *cmd);
 
   static void gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind);
 

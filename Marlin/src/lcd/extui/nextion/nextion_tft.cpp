@@ -110,7 +110,7 @@ void NextionTFT::StatusChange(const char * const msg) {
   SEND_VALasTXT("tmppage.M117", msg);
 }
 
-void NextionTFT::SendtoTFT(FSTR_P fstr) { // A helper to print PROGMEM string to the panel
+void NextionTFT::SendtoTFT(FSTR_P const fstr/*=nullptr*/) { // A helper to print PROGMEM string to the panel
   #if NEXDEBUG(N_SOME)
     DEBUG_ECHOF(fstr);
   #endif
@@ -335,7 +335,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
     break;
 
   case 29: // Preheat
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       if (!isPrinting()) {
         // Preheat PLA
         if (nextion_command[4] == 'P') {
@@ -560,7 +560,7 @@ void NextionTFT::PanelAction(uint8_t req) {
       break;
 
     case 63: // Preheat // Temps defined in configuration.h
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         if (!isPrinting()) switch (nextion_command[4]) {
           // Preheat PLA
           case 'P':

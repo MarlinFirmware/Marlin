@@ -32,7 +32,7 @@
 
 #if EXTRUDERS > 1 || E_STEPPERS > 1
   #error "FYSETC E4 only supports one E Stepper. Comment out this line to continue."
-#elif HOTENDS > 1
+#elif HAS_MULTI_HOTEND
   #error "FYSETC E4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 

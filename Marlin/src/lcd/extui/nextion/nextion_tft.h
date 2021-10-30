@@ -42,10 +42,11 @@ class NextionTFT {
     NextionTFT();
     static void Startup();
     static void IdleLoop();
-    static void PrinterKilled(PGM_P, PGM_P);
+    static void PrinterKilled(FSTR_P const, FSTR_P const);
     static void ConfirmationRequest(const char * const);
     static void StatusChange(const char * const);
-    static void SendtoTFT(FSTR_P const);
+    static void SendtoTFT(FSTR_P const=nullptr);
+    //static void SendtoTFTLN(FSTR_P const=nullptr);
     static void UpdateOnChange();
     static void PrintFinished();
     static void PanelInfo(uint8_t);
