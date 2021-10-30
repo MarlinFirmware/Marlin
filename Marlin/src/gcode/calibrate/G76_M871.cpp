@@ -176,7 +176,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
 
     if (do_bed_cal) {
 
-      celsius_t target_bed = PTC_SAMPLE_BED_START,
+      celsius_t target_bed = PTC_BED_START,
                 target_probe = PTC_PROBE_TEMP;
 
       say_waiting_for(); SERIAL_ECHOLNPGM(" cooling.");
@@ -186,7 +186,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       // Disable leveling so it won't mess with us
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
-      for (uint8_t idx = 0; idx <= PTC_SAMPLE_BED_COUNT; idx++) {
+      for (uint8_t idx = 0; idx <= PTC_BED_COUNT; idx++) {
         thermalManager.setTargetBed(target_bed);
 
         report_targets(target_bed, target_probe);
@@ -239,7 +239,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       const celsius_t target_bed = BED_MAX_TARGET;
       thermalManager.setTargetBed(target_bed);
 
-      celsius_t target_probe = PTC_SAMPLE_PROBE_START;
+      celsius_t target_probe = PTC_PROBE_START;
 
       report_targets(target_bed, target_probe);
 
@@ -250,7 +250,7 @@ static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibra
       TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
       bool timeout = false;
-      for (uint8_t idx = 0; idx <= PTC_SAMPLE_PROBE_COUNT; idx++) {
+      for (uint8_t idx = 0; idx <= PTC_PROBE_COUNT; idx++) {
         // Move probe to probing point and wait for it to reach target temperature
         do_blocking_move_to(noz_pos_xyz);
 

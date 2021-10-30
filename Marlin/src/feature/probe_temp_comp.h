@@ -53,25 +53,25 @@ class ProbeTempComp {
 
     static constexpr temp_calib_t cali_info[TSI_COUNT] = {
       #if ENABLED(PTC_PROBE)
-        { PTC_SAMPLE_PROBE_COUNT, PTC_SAMPLE_PROBE_RES, PTC_SAMPLE_PROBE_START },   // Probe
+        { PTC_PROBE_COUNT, PTC_PROBE_RES, PTC_PROBE_START },   // Probe
       #endif
       #if ENABLED(PTC_BED)
-        { PTC_SAMPLE_BED_COUNT, PTC_SAMPLE_BED_RES, PTC_SAMPLE_BED_START },   // Bed
+        { PTC_BED_COUNT, PTC_BED_RES, PTC_BED_START },   // Bed
       #endif
       #if ENABLED(PTC_HOTEND)
-        { PTC_SAMPLE_HOTEND_COUNT, PTC_SAMPLE_HOTEND_RES, PTC_SAMPLE_HOTEND_START }, // Extruder
+        { PTC_HOTEND_COUNT, PTC_HOTEND_RES, PTC_HOTEND_START }, // Extruder
       #endif
     };
 
     static int16_t *sensor_z_offsets[TSI_COUNT];
     #if ENABLED(PTC_PROBE)
-      static int16_t z_offsets_probe[PTC_SAMPLE_PROBE_COUNT]; // (µm)
+      static int16_t z_offsets_probe[PTC_PROBE_COUNT]; // (µm)
     #endif
     #if ENABLED(PTC_BED)
-      static int16_t z_offsets_bed[PTC_SAMPLE_BED_COUNT];   // (µm)
+      static int16_t z_offsets_bed[PTC_BED_COUNT];   // (µm)
     #endif
     #if ENABLED(PTC_HOTEND)
-      static int16_t z_offsets_hotend[PTC_SAMPLE_HOTEND_COUNT];   // (µm)
+      static int16_t z_offsets_hotend[PTC_HOTEND_COUNT];   // (µm)
     #endif
 
     static inline void reset_index() { calib_idx = 0; };

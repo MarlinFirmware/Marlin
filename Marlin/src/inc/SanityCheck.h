@@ -628,25 +628,25 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #endif
   #endif
 
-  #ifdef PTC_SAMPLE_PROBE_START
-    constexpr auto _ptc_sample_start = PTC_SAMPLE_PROBE_START;
+  #ifdef PTC_PROBE_START
+    constexpr auto _ptc_sample_start = PTC_PROBE_START;
     constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
-    static_assert(_test_ptc_sample_start != 12.3f, "PTC_SAMPLE_PROBE_START must be a whole number.");
+    static_assert(_test_ptc_sample_start != 12.3f, "PTC_PROBE_START must be a whole number.");
   #endif
-  #ifdef PTC_SAMPLE_PROBE_RES
-    constexpr auto _ptc_sample_res = PTC_SAMPLE_PROBE_RES;
+  #ifdef PTC_PROBE_RES
+    constexpr auto _ptc_sample_res = PTC_PROBE_RES;
     constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
-    static_assert(_test_ptc_sample_res != 12.3f, "PTC_SAMPLE_PROBE_RES must be a whole number.");
+    static_assert(_test_ptc_sample_res != 12.3f, "PTC_PROBE_RES must be a whole number.");
   #endif
-  #ifdef PTC_SAMPLE_BED_START
-    constexpr auto _btc_sample_start = PTC_SAMPLE_BED_START;
+  #ifdef PTC_BED_START
+    constexpr auto _btc_sample_start = PTC_BED_START;
     constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
-    static_assert(_test_btc_sample_start != 12.3f, "PTC_SAMPLE_BED_START must be a whole number.");
+    static_assert(_test_btc_sample_start != 12.3f, "PTC_BED_START must be a whole number.");
   #endif
-  #ifdef PTC_SAMPLE_BED_RES
-    constexpr auto _btc_sample_res = PTC_SAMPLE_BED_RES;
+  #ifdef PTC_BED_RES
+    constexpr auto _btc_sample_res = PTC_BED_RES;
     constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
-    static_assert(_test_btc_sample_res != 12.3f, "PTC_SAMPLE_BED_RES must be a whole number.");
+    static_assert(_test_btc_sample_res != 12.3f, "PTC_BED_RES must be a whole number.");
   #endif
   #ifdef PTC_PROBE_TEMP
     constexpr auto _btc_probe_temp = PTC_PROBE_TEMP;
@@ -657,15 +657,15 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #if EXTRUDERS != 1
       #error "PTC_HOTEND only works with a single extruder."
     #endif
-    #ifdef PTC_SAMPLE_HOTEND_START
-      constexpr auto _etc_sample_start = PTC_SAMPLE_HOTEND_START;
+    #ifdef PTC_HOTEND_START
+      constexpr auto _etc_sample_start = PTC_HOTEND_START;
       constexpr decltype(_etc_sample_start) _test_etc_sample_start = 12.3f;
-      static_assert(_test_etc_sample_start != 12.3f, "PTC_SAMPLE_HOTEND_START must be a whole number.");
+      static_assert(_test_etc_sample_start != 12.3f, "PTC_HOTEND_START must be a whole number.");
     #endif
-    #ifdef PTC_SAMPLE_HOTEND_RES
-      constexpr auto _etc_sample_res = PTC_SAMPLE_HOTEND_RES;
+    #ifdef PTC_HOTEND_RES
+      constexpr auto _etc_sample_res = PTC_HOTEND_RES;
       constexpr decltype(_etc_sample_res) _test_etc_sample_res = 12.3f;
-      static_assert(_test_etc_sample_res != 12.3f, "PTC_SAMPLE_HOTEND_RES must be a whole number.");
+      static_assert(_test_etc_sample_res != 12.3f, "PTC_HOTEND_RES must be a whole number.");
     #endif
   #endif
 #endif // HAS_PTC

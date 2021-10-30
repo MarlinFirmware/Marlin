@@ -32,18 +32,18 @@
 ProbeTempComp ptc;
 
 #if ENABLED(PTC_PROBE)
-  constexpr int16_t z_offsets_probe_default[PTC_SAMPLE_PROBE_COUNT] = PTC_SAMPLE_PROBE_VALUES;
-  int16_t ProbeTempComp::z_offsets_probe[PTC_SAMPLE_PROBE_COUNT] = PTC_SAMPLE_PROBE_VALUES;
+  constexpr int16_t z_offsets_probe_default[PTC_PROBE_COUNT] = PTC_PROBE_ZOFFS;
+  int16_t ProbeTempComp::z_offsets_probe[PTC_PROBE_COUNT] = PTC_PROBE_ZOFFS;
 #endif
 
 #if ENABLED(PTC_BED)
-  constexpr int16_t z_offsets_bed_default[PTC_SAMPLE_BED_COUNT] = PTC_SAMPLE_BED_VALUES;
-  int16_t ProbeTempComp::z_offsets_bed[PTC_SAMPLE_BED_COUNT] = PTC_SAMPLE_BED_VALUES;
+  constexpr int16_t z_offsets_bed_default[PTC_BED_COUNT] = PTC_BED_ZOFFS;
+  int16_t ProbeTempComp::z_offsets_bed[PTC_BED_COUNT] = PTC_BED_ZOFFS;
 #endif
 
 #if ENABLED(PTC_HOTEND)
-  constexpr int16_t z_offsets_hotend_default[PTC_SAMPLE_HOTEND_COUNT] = PTC_SAMPLE_HOTEND_VALUES;
-  int16_t ProbeTempComp::z_offsets_hotend[PTC_SAMPLE_HOTEND_COUNT] = PTC_SAMPLE_HOTEND_VALUES;
+  constexpr int16_t z_offsets_hotend_default[PTC_HOTEND_COUNT] = PTC_HOTEND_ZOFFS;
+  int16_t ProbeTempComp::z_offsets_hotend[PTC_HOTEND_COUNT] = PTC_HOTEND_ZOFFS;
 #endif
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
@@ -64,9 +64,9 @@ uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
 
 void ProbeTempComp::reset() {
-  TERN_(PTC_PROBE, LOOP_L_N(i, PTC_SAMPLE_PROBE_COUNT) z_offsets_probe[i] = z_offsets_probe_default[i]);
-  TERN_(PTC_BED, LOOP_L_N(i, PTC_SAMPLE_BED_COUNT) z_offsets_bed[i] = z_offsets_bed_default[i]);
-  TERN_(PTC_HOTEND, LOOP_L_N(i, PTC_SAMPLE_HOTEND_COUNT) z_offsets_hotend[i] = z_offsets_hotend_default[i]);
+  TERN_(PTC_PROBE, LOOP_L_N(i, PTC_PROBE_COUNT) z_offsets_probe[i] = z_offsets_probe_default[i]);
+  TERN_(PTC_BED, LOOP_L_N(i, PTC_BED_COUNT) z_offsets_bed[i] = z_offsets_bed_default[i]);
+  TERN_(PTC_HOTEND, LOOP_L_N(i, PTC_HOTEND_COUNT) z_offsets_hotend[i] = z_offsets_hotend_default[i]);
 }
 
 void ProbeTempComp::clear_offsets(const TempSensorID tsi) {

@@ -2004,33 +2004,33 @@
   /**
    * If the probe is outside the defined range, use linear extrapolation with the closest
    * point and the point with index PTC_LINEAR_EXTRAPOLATION. e.g., If set to 4 it will use the
-   * linear extrapolation between data[0] and data[4] for values below PTC_SAMPLE_PROBE_START.
+   * linear extrapolation between data[0] and data[4] for values below PTC_PROBE_START.
    */
   //#define PTC_LINEAR_EXTRAPOLATION 4
 
   #if ENABLED(PTC_PROBE)
-    // Probe temperature calibration generates a table of values starting at PTC_SAMPLE_PROBE_START
-    // (e.g., 30), in steps of PTC_SAMPLE_PROBE_RES (e.g., 5) with PTC_SAMPLE_PROBE_COUNT (e.g., 10) samples.
-    #define PTC_SAMPLE_PROBE_START   30    // (°C)
-    #define PTC_SAMPLE_PROBE_RES      5    // (°C)
-    #define PTC_SAMPLE_PROBE_COUNT   10
-    #define PTC_SAMPLE_PROBE_VALUES  { 0 } // (µm) Z adjustments per sample
+    // Probe temperature calibration generates a table of values starting at PTC_PROBE_START
+    // (e.g., 30), in steps of PTC_PROBE_RES (e.g., 5) with PTC_PROBE_COUNT (e.g., 10) samples.
+    #define PTC_PROBE_START   30    // (°C)
+    #define PTC_PROBE_RES      5    // (°C)
+    #define PTC_PROBE_COUNT   10
+    #define PTC_PROBE_ZOFFS   { 0 } // (µm) Z adjustments per sample
   #endif
 
   #if ENABLED(PTC_BED)
     // Bed temperature calibration builds a similar table.
-    #define PTC_SAMPLE_BED_START     60    // (°C)
-    #define PTC_SAMPLE_BED_RES        5    // (°C)
-    #define PTC_SAMPLE_BED_COUNT     10
-    #define PTC_SAMPLE_BED_VALUES    { 0 } // (µm) Z adjustments per sample
+    #define PTC_BED_START     60    // (°C)
+    #define PTC_BED_RES        5    // (°C)
+    #define PTC_BED_COUNT     10
+    #define PTC_BED_ZOFFS     { 0 } // (µm) Z adjustments per sample
   #endif
 
   #if ENABLED(PTC_HOTEND)
     // Note: There is no automatic calibration for the hotend. Use M871.
-    #define PTC_SAMPLE_HOTEND_START 180    // (°C)
-    #define PTC_SAMPLE_HOTEND_RES     5    // (°C)
-    #define PTC_SAMPLE_HOTEND_COUNT  20
-    #define PTC_SAMPLE_HOTEND_VALUES { 0 } // (µm) Z adjustments per sample
+    #define PTC_HOTEND_START 180    // (°C)
+    #define PTC_HOTEND_RES     5    // (°C)
+    #define PTC_HOTEND_COUNT  20
+    #define PTC_HOTEND_ZOFFS  { 0 } // (µm) Z adjustments per sample
   #endif
 
   // G76 options
