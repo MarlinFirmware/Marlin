@@ -320,10 +320,9 @@ void GcodeSuite::M871() {
     const int16_t offset_val = parser.value_int();
     if (!parser.seenval('I')) return;
     const int16_t idx = parser.value_int();
-    const TempSensorID mod = TERN_(PTC_BED, parser.seen('B') ? TSI_BED :)
-                             TERN_(PTC_HOTEND, parser.seen('E') ? TSI_EXT :)
-                             TERN_(PTC_PROBE, parser.seen('P') ? TSI_PROBE :)
-                             TSI_COUNT;
+    const TempSensorID mod = TERN_(PTC_BED,    parser.seen_test('B') ? TSI_BED   :)
+                             TERN_(PTC_HOTEND, parser.seen_test('E') ? TSI_EXT   :)
+                             TERN_(PTC_PROBE,  parser.seen_test('P') ? TSI_PROBE :) TSI_COUNT;
     if (mod == TSI_COUNT)
       SERIAL_ECHOLNPGM("!Invalid sensor.");
     else if (idx > 0 && ptc.set_offset(mod, idx - 1, offset_val))
