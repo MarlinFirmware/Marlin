@@ -92,12 +92,21 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PC9
-#define HEATER_BED_PIN                      PA8
-
-#define FAN_PIN                             PC8
-#define FAN1_PIN                            PC7
-#define FAN2_PIN                            PC6
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                      PC9   // Heater0
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                    PA8   // Hotbed
+#endif
+#ifndef FAN_PIN
+  #define FAN_PIN                           PC8   // Fan0
+#endif
+#ifndef FAN1_PIN
+  #define FAN1_PIN                          PC7   // Fan1
+#endif
+#ifndef FAN2_PIN
+  #define FAN2_PIN                          PC6   // Fan2
+#endif
 
 //
 // Servos
