@@ -39,12 +39,16 @@
  *  S<bool> Set High Speed (HS) Mode and exit without deploy
  */
 void GcodeSuite::M401() {
-  #ifdef BLTOUCH_HS_MODE
-    if (parser.seen('S')) { bltouch.high_speed_mode = parser.value_bool(); return; }
-  #endif
-  probe.deploy();
-  TERN_(PROBE_TARE, probe.tare());
-  report_current_position();
+  if (parser.seen('S')) {
+    #ifdef BLTOUCH_HS_MODE
+      bltouch.high_speed_mode = parser.value_bool();
+    #endif
+  }
+  else {
+    probe.deploy();
+    TERN_(PROBE_TARE, probe.tare());
+    report_current_position();
+  }
 }
 
 /**
