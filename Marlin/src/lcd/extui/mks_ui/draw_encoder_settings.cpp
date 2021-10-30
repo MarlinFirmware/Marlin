@@ -58,7 +58,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_encoder_settings() {
   scr = lv_screen_create(ENCODER_SETTINGS_UI, machine_menu.EncoderConfTitle);
   buttonEncoderState = lv_screen_menu_item_onoff(scr, machine_menu.EncoderConfText, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_ENCODER_STATE, 0, gCfgItems.encoder_enable);
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_ENCODER_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, event_handler, ID_ENCODER_RETURN, true);
 }
 
 void lv_clear_encoder_settings() {

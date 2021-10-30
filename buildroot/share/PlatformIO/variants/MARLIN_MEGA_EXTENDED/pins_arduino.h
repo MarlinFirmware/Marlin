@@ -85,19 +85,23 @@ static const uint8_t A15 = PIN_A15;
 // A majority of the pins are NOT PCINTs, SO BE WARNED (i.e. you cannot use them as receive pins)
 // Only pins available for RECEIVE (TRANSMIT can be on any pin):
 // (I've deliberately left out pin mapping to the Hardware USARTs - seems senseless to me)
-// Pins: 10, 11, 12, 13,  50, 51, 52, 53,  62, 63, 64, 65, 66, 67, 68, 69
+// Pins: 10, 11, 12, 13,  50, 51, 52, 53,  62, 63, 64, 65, 66, 67, 68, 69, 72, 73, 75, 76, 77
 
 #define digitalPinToPCICR(p)    ( (((p) >= 10) && ((p) <= 13)) || \
                                   (((p) >= 50) && ((p) <= 53)) || \
-                                  (((p) >= 62) && ((p) <= 69)) ? (&PCICR) : nullptr )
+                                  (((p) >= 62) && ((p) <= 69)) || \
+                                  (((p) >= 72) && ((p) <= 73)) || \
+                                  (((p) >= 75) && ((p) <= 77)) ? (&PCICR) : nullptr )
 
 #define digitalPinToPCICRbit(p) ( (((p) >= 10) && ((p) <= 13)) || (((p) >= 50) && ((p) <= 53)) ? 0 : \
                                 ( (((p) >= 62) && ((p) <= 69)) ? 2 : \
-                                0 ) )
+                                ( (((p) >= 72) && ((p) <= 73)) || (((p) >= 75) && ((p) <= 77)) ? 1 : \
+                                0 ) ) )
 
 #define digitalPinToPCMSK(p)    ( (((p) >= 10) && ((p) <= 13)) || (((p) >= 50) && ((p) <= 53)) ? (&PCMSK0) : \
                                 ( (((p) >= 62) && ((p) <= 69)) ? (&PCMSK2) : \
-                                nullptr ) )
+                                ( (((p) >= 72) && ((p) <= 73)) || (((p) >= 75) && ((p) <= 77)) ? (&PCMSK1) : \
+                                nullptr ) ) )
 
 #define digitalPinToPCMSKbit(p) ( (((p) >= 10) && ((p) <= 13)) ? ((p) - 6) : \
                                 ( ((p) == 50) ? 3 : \
@@ -105,7 +109,9 @@ static const uint8_t A15 = PIN_A15;
                                 ( ((p) == 52) ? 1 : \
                                 ( ((p) == 53) ? 0 : \
                                 ( (((p) >= 62) && ((p) <= 69)) ? ((p) - 62) : \
-                                0 ) ) ) ) ) )
+                                ( (((p) >= 72) && ((p) <= 73)) ? ((p) - 69) : \
+                                ( (((p) >= 75) && ((p) <= 77)) ? ((p) - 70) : \
+                                0 ) ) ) ) ) ) ) )
 
 #define digitalPinToInterrupt(p) ((p) == 2 ? 0 : ((p) == 3 ? 1 : ((p) >= 18 && (p) <= 21 ? 23 - (p) : NOT_AN_INTERRUPT)))
 

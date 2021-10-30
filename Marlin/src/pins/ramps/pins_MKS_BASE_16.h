@@ -56,4 +56,4 @@
   #define PS_ON_PIN                           -1
 #endif
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS

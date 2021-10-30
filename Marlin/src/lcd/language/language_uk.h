@@ -108,7 +108,7 @@ namespace Language_uk {
   #else
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє знач. ");
   #endif
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                      = _UxGT("Нагрів ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                    = _UxGT("Нагрів ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                  = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло");
