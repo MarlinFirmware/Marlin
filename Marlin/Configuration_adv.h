@@ -1930,8 +1930,8 @@
 // @section leveling
 
 /**
- * safe bed leveling start coordinates. If enabled, the respective axis is moved to the specified position at the beginning of the bed leveling procedure.
- * Required e.g. with LINEAR_AXES >= 4, if z-probe is not perpendicular to the bed after homing.
+ * Safe bed leveling start coordinates. If enabled, the respective axis is moved to the specified position at the beginning of the bed leveling procedure.
+ * Required e.g. with LINEAR_AXES >= 4, if Z probe is not perpendicular to the bed after homing.
  * Values must be chosen so that the bed is oriented horizontally and so that the Z-probe is oriented vertically.
  */
 //#define SAFE_BED_LEVELING_START_X 0.0
@@ -2943,6 +2943,12 @@
   //#define CHOPPER_TIMING_Z2 CHOPPER_TIMING_Z
   //#define CHOPPER_TIMING_Z3 CHOPPER_TIMING_Z
   //#define CHOPPER_TIMING_Z4 CHOPPER_TIMING_Z
+  //#define CHOPPER_TIMING_I  CHOPPER_TIMING        // For I Axis
+  //#define CHOPPER_TIMING_J  CHOPPER_TIMING        // For J Axis
+  //#define CHOPPER_TIMING_K  CHOPPER_TIMING        // For K Axis
+  //#define CHOPPER_TIMING_U  CHOPPER_TIMING        // For U Axis
+  //#define CHOPPER_TIMING_V  CHOPPER_TIMING        // For V Axis
+  //#define CHOPPER_TIMING_W  CHOPPER_TIMING        // For W Axis
   //#define CHOPPER_TIMING_E  CHOPPER_TIMING        // For Extruders (override below)
   //#define CHOPPER_TIMING_E1 CHOPPER_TIMING_E
   //#define CHOPPER_TIMING_E2 CHOPPER_TIMING_E
@@ -3186,7 +3192,7 @@
     #define Z4_SLEW_RATE                 1
   #endif
 
-  #if AXIS_DRIVER_TYPE_I(L6470)
+  #if AXIS_IS_L64XX(I)
     #define I_MICROSTEPS      128
     #define I_OVERCURRENT    2000
     #define I_STALLCURRENT   1500
@@ -3195,7 +3201,7 @@
     #define I_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_J(L6470)
+  #if AXIS_IS_L64XX(J)
     #define J_MICROSTEPS      128
     #define J_OVERCURRENT    2000
     #define J_STALLCURRENT   1500
@@ -3204,7 +3210,7 @@
     #define J_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_K(L6470)
+  #if AXIS_IS_L64XX(K)
     #define K_MICROSTEPS      128
     #define K_OVERCURRENT    2000
     #define K_STALLCURRENT   1500
@@ -3213,7 +3219,7 @@
     #define K_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_U(L6470)
+  #if AXIS_IS_L64XX(U)
     #define U_MICROSTEPS      128
     #define U_OVERCURRENT    2000
     #define U_STALLCURRENT   1500
@@ -3222,7 +3228,7 @@
     #define U_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_V(L6470)
+  #if AXIS_IS_L64XX(V)
     #define V_MICROSTEPS      128
     #define V_OVERCURRENT    2000
     #define V_STALLCURRENT   1500
@@ -3231,7 +3237,7 @@
     #define V_SLEW_RATE         1
   #endif
 
-  #if AXIS_DRIVER_TYPE_W(L6470)
+  #if AXIS_IS_L64XX(W)
     #define W_MICROSTEPS      128
     #define W_OVERCURRENT    2000
     #define W_STALLCURRENT   1500

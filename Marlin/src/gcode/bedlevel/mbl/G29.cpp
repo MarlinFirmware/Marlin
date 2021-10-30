@@ -106,7 +106,7 @@ void GcodeSuite::G29() {
         queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
 
-        // position bed horizontal and z probe perpendicular to bed.
+        // Position bed horizontally and Z probe vertically.
         #if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
             || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
             || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)

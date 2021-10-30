@@ -161,47 +161,11 @@
 #if HAS_Y_AXIS
   #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 4
-  #define _I_HALF_IMAX ((I_BED_SIZE) / 2)
-#endif
-#if LINEAR_AXES >= 5
-  #define _J_HALF_JMAX ((J_BED_SIZE) / 2)
-#endif
-#if LINEAR_AXES >= 6
-  #define _K_HALF_KMAX ((K_BED_SIZE) / 2)
-#endif
-#if LINEAR_AXES >= 7
-  #define _U_HALF_UMAX ((U_BED_SIZE) / 2)
-#endif
-#if LINEAR_AXES >= 8
-  #define _V_HALF_VMAX ((V_BED_SIZE) / 2)
-#endif
-#if LINEAR_AXES >= 9
-  #define _W_HALF_PMAX ((W_BED_SIZE) / 2)
-#endif
 
 #define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
 #if HAS_Y_AXIS
   #define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
   #define XY_CENTER { X_CENTER, Y_CENTER }
-#endif
-#if LINEAR_AXES >= 4
-  #define I_CENTER TERN(BED_CENTER_AT_0_0, 0, _I_HALF_BED)
-#endif
-#if LINEAR_AXES >= 5
-  #define J_CENTER TERN(BED_CENTER_AT_0_0, 0, _J_HALF_BED)
-#endif
-#if LINEAR_AXES >= 6
-  #define K_CENTER TERN(BED_CENTER_AT_0_0, 0, _K_HALF_BED)
-#endif
-#if LINEAR_AXES >= 7
-  #define U_CENTER TERN(BED_CENTER_AT_0_0, 0, _U_HALF_BED)
-#endif
-#if LINEAR_AXES >= 8
-  #define V_CENTER TERN(BED_CENTER_AT_0_0, 0, _V_HALF_BED)
-#endif
-#if LINEAR_AXES >= 9
-  #define W_CENTER TERN(BED_CENTER_AT_0_0, 0, _W_HALF_BED)
 #endif
 
 // Get the linear boundaries of the bed
@@ -210,30 +174,6 @@
 #if HAS_Y_AXIS
   #define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
   #define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
-#endif
-#if LINEAR_AXES >= 4
-  #define I_MINIM (I_CENTER - _I_HALF_BED_SIZE)
-  #define I_MAXIM (I_MINIM + I_BED_SIZE)
-#endif
-#if LINEAR_AXES >= 5
-  #define J_MINIM (J_CENTER - _J_HALF_BED_SIZE)
-  #define J_MAXIM (J_MINIM + J_BED_SIZE)
-#endif
-#if LINEAR_AXES >= 6
-  #define K_MINIM (K_CENTER - _K_HALF_BED_SIZE)
-  #define K_MAXIM (K_MINIM + K_BED_SIZE)
-#endif
-#if LINEAR_AXES >= 7
-  #define U_MINIM (U_CENTER - _U_HALF_BED_SIZE)
-  #define U_MAXIM (U_MINIM + U_BED_SIZE)
-#endif
-#if LINEAR_AXES >= 8
-  #define V_MINIM (V_CENTER - _V_HALF_BED_SIZE)
-  #define V_MAXIM (V_MINIM + V_BED_SIZE)
-#endif
-#if LINEAR_AXES >= 9
-  #define W_MINIM (W_CENTER - _W_HALF_BED_SIZE)
-  #define W_MAXIM (W_MINIM + W_BED_SIZE)
 #endif
 
 /**

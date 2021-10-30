@@ -434,7 +434,7 @@ struct XYZval {
   FI operator bool()                                   { return LINEAR_AXIS_GANG(x, || y, || z, || i, || j, || k, || u, || v, || w); }
 
   // Explicit copy and copies with conversion
-  FI XYZval<T>          copy()                   const { XYZval<T> obj = *this; return obj; }
+  FI XYZval<T>          copy()                   const { XYZval<T> o = *this; return o; }
   FI XYZval<T>           ABS()                   const { return LINEAR_AXIS_ARRAY(T(_ABS(x)), T(_ABS(y)), T(_ABS(z)), T(_ABS(i)), T(_ABS(j)), T(_ABS(k)), T(_ABS(u)),  T(_ABS(v)),  T(_ABS(w))); }
   FI XYZval<int16_t>   asInt()                         { return LINEAR_AXIS_ARRAY(int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(u),  int16_t(v),  int16_t(w)); }
   FI XYZval<int16_t>   asInt()                   const { return LINEAR_AXIS_ARRAY(int16_t(x), int16_t(y), int16_t(z), int16_t(i), int16_t(j), int16_t(k), int16_t(u),  int16_t(v),  int16_t(w)); }
@@ -447,8 +447,8 @@ struct XYZval {
   FI XYZval<float> reciprocal()                  const { return LINEAR_AXIS_ARRAY(_RECIP(x),  _RECIP(y),  _RECIP(z),  _RECIP(i),  _RECIP(j),  _RECIP(k),  _RECIP(u),  _RECIP(v),  _RECIP(w)); }
 
   // Marlin workspace shifting is done with G92 and M206
-  FI XYZval<float> asLogical()                   const { XYZval<float> obj = asFloat(); toLogical(obj); return obj; }
-  FI XYZval<float>  asNative()                   const { XYZval<float> obj = asFloat(); toNative(obj);  return obj; }
+  FI XYZval<float> asLogical()                   const { XYZval<float> o = asFloat(); toLogical(o); return o; }
+  FI XYZval<float>  asNative()                   const { XYZval<float> o = asFloat(); toNative(o);  return o; }
 
   // In-place cast to types having fewer fields
   FI operator       XYval<T>&()                        { return *(XYval<T>*)this; }
@@ -503,8 +503,8 @@ struct XYZval {
   FI XYZval<T>  operator>>(const int &v)               { XYZval<T> ls = *this; LINEAR_AXIS_CODE(_RS(ls.x),    _RS(ls.y),    _RS(ls.z),    _RS(ls.i),    _RS(ls.j),    _RS(ls.k),    _RS(ls.u),    _RS(ls.v),    _RS(ls.w)   ); return ls; }
   FI XYZval<T>  operator<<(const int &v)         const { XYZval<T> ls = *this; LINEAR_AXIS_CODE(_LS(ls.x),    _LS(ls.y),    _LS(ls.z),    _LS(ls.i),    _LS(ls.j),    _LS(ls.k),    _LS(ls.u),    _LS(ls.v),    _LS(ls.w)   ); return ls; }
   FI XYZval<T>  operator<<(const int &v)               { XYZval<T> ls = *this; LINEAR_AXIS_CODE(_LS(ls.x),    _LS(ls.y),    _LS(ls.z),    _LS(ls.i),    _LS(ls.j),    _LS(ls.k),    _LS(ls.u),    _LS(ls.v),    _LS(ls.w)   ); return ls; }
-  FI const XYZval<T> operator-()                 const { XYZval<T> obj = *this; LINEAR_AXIS_CODE(obj.x = -x, obj.y = -y, obj.z = -z, obj.i = -i, obj.j = -j, obj.k = -k, obj.u = -u, obj.v = -v, obj.w = -w); return obj; }
-  FI XYZval<T>       operator-()                       { XYZval<T> obj = *this; LINEAR_AXIS_CODE(obj.x = -x, obj.y = -y, obj.z = -z, obj.i = -i, obj.j = -j, obj.k = -k, obj.u = -u, obj.v = -v, obj.w = -w); return obj; }
+  FI const XYZval<T> operator-()                 const { XYZval<T> o = *this; LINEAR_AXIS_CODE(o.x = -x, o.y = -y, o.z = -z, o.i = -i, o.j = -j, o.k = -k, o.u = -u, o.v = -v, o.w = -w); return o; }
+  FI XYZval<T>       operator-()                       { XYZval<T> o = *this; LINEAR_AXIS_CODE(o.x = -x, o.y = -y, o.z = -z, o.i = -i, o.j = -j, o.k = -k, o.u = -u, o.v = -v, o.w = -w); return o; }
 
   // Modifier operators
   FI XYZval<T>& operator+=(const XYval<T>   &rs)       { LINEAR_AXIS_CODE(x += rs.x, y += rs.y, NOOP,      NOOP,      NOOP,      NOOP,      NOOP,      NOOP,      NOOP     ); return *this; }
@@ -597,8 +597,8 @@ struct XYZEval {
   FI XYZEval<float> reciprocal() const { return LOGICAL_AXIS_ARRAY(_RECIP(e),  _RECIP(x),  _RECIP(y),  _RECIP(z),  _RECIP(i),  _RECIP(j),  _RECIP(k),  _RECIP(u),  _RECIP(v),  _RECIP(w)); }
 
   // Marlin workspace shifting is done with G92 and M206
-  FI XYZEval<float> asLogical()  const { XYZEval<float> obj = asFloat(); toLogical(obj); return obj; }
-  FI XYZEval<float>  asNative()  const { XYZEval<float> obj = asFloat(); toNative(obj);  return obj; }
+  FI XYZEval<float> asLogical()  const { XYZEval<float> o = asFloat(); toLogical(o); return o; }
+  FI XYZEval<float>  asNative()  const { XYZEval<float> o = asFloat(); toNative(o);  return o; }
 
   // In-place cast to types having fewer fields
   FI operator       XYval<T>&()        { return *(XYval<T>*)this; }

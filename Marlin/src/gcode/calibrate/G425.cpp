@@ -576,7 +576,16 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
       SERIAL_ECHOLNPGM_P(SP_J_STR, m.pos_error.j);
     #endif
     #if HAS_K_CENTER && AXIS_CAN_CALIBRATE(K)
-      SERIAL_ECHOLNPGM_P(SP_Z_STR, m.pos_error.z);
+      SERIAL_ECHOLNPGM_P(SP_K_STR, m.pos_error.k);
+    #endif
+    #if HAS_U_CENTER && AXIS_CAN_CALIBRATE(U)
+      SERIAL_ECHOLNPGM_P(SP_U_STR, m.pos_error.u);
+    #endif
+    #if HAS_V_CENTER && AXIS_CAN_CALIBRATE(V)
+      SERIAL_ECHOLNPGM_P(SP_V_STR, m.pos_error.v);
+    #endif
+    #if HAS_W_CENTER && AXIS_CAN_CALIBRATE(W)
+      SERIAL_ECHOLNPGM_P(SP_W_STR, m.pos_error.w);
     #endif
     SERIAL_EOL();
   }
