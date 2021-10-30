@@ -695,6 +695,8 @@
   #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
 #elif MB(E4D_BOX)
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
+#elif MB(RESP32_CUSTOM)
+  #include "esp32/pins_RESP32_CUSTOM.h"         // ESP32                                  env:esp32
 #elif MB(FYSETC_E4)
   #include "esp32/pins_FYSETC_E4.h"             // ESP32                                  env:FYSETC_E4
 #elif MB(PANDA_ZHU)

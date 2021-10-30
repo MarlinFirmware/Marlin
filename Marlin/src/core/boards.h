@@ -425,9 +425,10 @@
 #define BOARD_MRR_ESPA                6001  // MRR ESPA based on ESP32 (native pins only)
 #define BOARD_MRR_ESPE                6002  // MRR ESPE based on ESP32 (with I2S stepper stream)
 #define BOARD_E4D_BOX                 6003  // E4d@BOX
-#define BOARD_FYSETC_E4               6004  // FYSETC E4
-#define BOARD_PANDA_ZHU               6005  // Panda_ZHU
-#define BOARD_PANDA_M4                6006  // Panda_M4
+#define BOARD_RESP32_CUSTOM           6004  // Rutilea ESP32 custom board
+#define BOARD_FYSETC_E4               6005  // FYSETC E4
+#define BOARD_PANDA_ZHU               6006  // Panda_ZHU
+#define BOARD_PANDA_M4                6007  // Panda_M4
 
 //
 // SAMD51 ARM Cortex M4
