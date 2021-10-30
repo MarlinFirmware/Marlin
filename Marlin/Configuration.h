@@ -548,7 +548,7 @@
   #endif
 #endif
 
-#if ANY(MachineEnder3Max, MachineEnder6, MachineEnder7)
+#if ANY(MachineEnder3Max, MachineEnder6)
   #define lerdgeFilSensor
 #endif
 
@@ -1914,8 +1914,16 @@
  */
 #define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 5.0
+  #if ANY(MachineEnder6, MachineEnder5, MachineEnder5Plus, MachineSermoonD1)
+    #define DEFAULT_XJERK 20.0
+    #define DEFAULT_YJERK 20.0
+  #elif ENABLED(MachineEnder7)
+    #define DEFAULT_XJERK 30.0
+    #define DEFAULT_YJERK 30.0
+  #else
+    #define DEFAULT_XJERK 10.0
+    #define DEFAULT_YJERK 5.0
+  #endif
   #define DEFAULT_ZJERK  0.3
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
