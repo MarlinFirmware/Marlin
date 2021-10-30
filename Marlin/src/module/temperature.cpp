@@ -889,7 +889,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
     #define _UPDATE_AUTO_FAN(P,D,A) do{                  \
       if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)          \
-        analogWrite(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
+        set_pwm_duty(pin_t(P##_AUTO_FAN_PIN), D ? A : 0);\
       else                                               \
         WRITE(P##_AUTO_FAN_PIN, D);                      \
     }while(0)
