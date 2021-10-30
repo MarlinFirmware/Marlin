@@ -68,7 +68,7 @@ namespace Language_zh_CN {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("设置原点偏移");     // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("偏移已启用");     // "Offsets applied"
   LSTR MSG_SET_ORIGIN                     = _UxGT("设置原点");     // "Set origin"
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("预热 ") PREHEAT_1_LABEL;     // "Preheat PREHEAT_2_LABEL"
     LSTR MSG_PREHEAT_1_H                  = _UxGT("预热 ") PREHEAT_1_LABEL " ~";     // "Preheat PREHEAT_2_LABEL"
     LSTR MSG_PREHEAT_1_END                = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_1 " "
@@ -142,7 +142,7 @@ namespace Language_zh_CN {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("完成编辑网格");     // "Done Editing Mesh"
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("创设客户网格");     // "Build Custom Mesh"
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("创设网格");     // "Build Mesh"
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("创设 $ 网格");     // "Build PREHEAT_1_LABEL Mesh"
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("批准 $ 网格");     // "Validate PREHEAT_1_LABEL Mesh"
   #endif
