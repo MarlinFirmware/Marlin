@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,21 +21,17 @@
  */
 #pragma once
 
-#if HAS_MULTI_HOTEND || E_STEPPERS > 1
-  #error "Ender-4 only supports one hotend / E-stepper. Comment out this line to continue."
-#endif
+/**
+ * Rutilea ESP32 (Tensilica Xtensa LX6) pin assignments
+ */
 
-#define BOARD_INFO_NAME "Ender-4"
+#include "env_validate.h"
 
-#include "pins_RAMPS.h"
+#define BOARD_INFO_NAME "Rutilea ESP32"
 
-// The board only has one PWM fan connector. The others are 12V always-on.
-// The default config uses this pin to control the brightness of the LED
-// band (case light). Thus the hotend and controller fans are always-on.
+#include "pins_ESPA_common.h"
 
-#if ENABLED(CASE_LIGHT_ENABLE)
-  #undef FAN_PIN
-  #ifndef CASE_LIGHT_PIN
-    #define CASE_LIGHT_PIN MOSFET_B_PIN
-  #endif
-#endif
+//
+// I2S (steppers & other output-only pins)
+//
+#define I2S_STEPPER_STREAM
