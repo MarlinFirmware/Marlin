@@ -104,7 +104,7 @@ void GcodeSuite::M906() {
 
       #if E_STEPPERS
         case E_AXIS: {
-          const int8_t target_e_stepper = get_target_e_stepper_from_command();
+          const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
           if (target_e_stepper < 0) return;
           switch (target_e_stepper) {
             #if AXIS_IS_TMC(E0)

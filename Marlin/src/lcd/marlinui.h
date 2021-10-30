@@ -56,7 +56,6 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
   #include "../feature/pause.h"
-  #include "../module/motion.h" // for active_extruder
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -116,7 +115,7 @@
   };
 #endif
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
   typedef struct {
     #if HAS_HOTEND
       celsius_t hotend_temp;
@@ -497,9 +496,16 @@ public:
     static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
   #endif
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
+    enum PreheatMask : uint8_t { PM_HOTEND = _BV(0), PM_BED = _BV(1), PM_FAN = _BV(2), PM_CHAMBER = _BV(3) };
     static preheat_t material_preset[PREHEAT_COUNT];
     static PGM_P get_preheat_label(const uint8_t m);
+    static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
+    static inline void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, PM_FAN)); }
+    static inline void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, PM_HOTEND)); }
+    static inline void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
+    static inline void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, PM_BED)); }
+    static inline void preheat_all(const uint8_t m) { apply_preheat(m, 0xFF); }
   #endif
 
   #if SCREENS_CAN_TIME_OUT

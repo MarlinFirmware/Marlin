@@ -29,9 +29,6 @@
  * @brief    迪文屏控制操作函数
  ********************************************************************************/
 
-#define DWIN_WIDTH  272
-#define DWIN_HEIGHT 480
-
 #include "../common/dwin_api.h"
 #include "../common/dwin_set.h"
 #include "../common/dwin_font.h"

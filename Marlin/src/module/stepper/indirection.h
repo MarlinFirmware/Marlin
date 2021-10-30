@@ -751,14 +751,14 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #ifndef ENABLE_STEPPER_E1
-  #if E_STEPPERS > 1 && HAS_E1_ENABLE
+  #if (E_STEPPERS > 1 || ENABLED(E_DUAL_STEPPER_DRIVERS)) && HAS_E1_ENABLE
     #define  ENABLE_STEPPER_E1() E1_ENABLE_WRITE( E_ENABLE_ON)
   #else
     #define  ENABLE_STEPPER_E1() NOOP
   #endif
 #endif
 #ifndef DISABLE_STEPPER_E1
-  #if E_STEPPERS > 1 && HAS_E1_ENABLE
+  #if (E_STEPPERS > 1 || ENABLED(E_DUAL_STEPPER_DRIVERS)) && HAS_E1_ENABLE
     #define DISABLE_STEPPER_E1() E1_ENABLE_WRITE(!E_ENABLE_ON)
   #else
     #define DISABLE_STEPPER_E1() NOOP
