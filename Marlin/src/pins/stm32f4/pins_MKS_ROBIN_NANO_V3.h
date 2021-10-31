@@ -24,6 +24,8 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
+#define USES_DIAG_JUMPERS 1
+
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Nano V3 supports up to 2 hotends / E-steppers."
 #elif HAS_FSMC_TFT

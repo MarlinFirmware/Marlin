@@ -23,6 +23,8 @@
 
 #include "env_validate.h"
 
+#define USES_DIAG_JUMPERS 1
+
 #if E_STEPPERS > MAX_E_STEPPERS
   #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
 #elif HOTENDS > 8 || E_STEPPERS > 8

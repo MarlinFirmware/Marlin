@@ -27,6 +27,8 @@
 
 #include "env_validate.h"
 
+#define USES_DIAG_PINS 1
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT SKR V1.4"
 #endif

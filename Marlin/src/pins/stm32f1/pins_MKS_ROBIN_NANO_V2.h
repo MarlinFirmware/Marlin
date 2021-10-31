@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define USES_DIAG_PINS 1
+
 /**
  * MKS Robin nano (STM32F103VET6) board pin assignments
  */

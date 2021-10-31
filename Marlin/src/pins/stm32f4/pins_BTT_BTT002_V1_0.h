@@ -23,6 +23,8 @@
 
 #include "env_validate.h"
 
+#define USES_DIAG_PINS 1
+
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "BIGTREE BTT002 V1.0 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif

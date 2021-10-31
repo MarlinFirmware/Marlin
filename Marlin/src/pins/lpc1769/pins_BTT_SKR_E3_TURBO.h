@@ -27,6 +27,8 @@
 
 #include "env_validate.h"
 
+#define USES_DIAG_JUMPERS 1
+
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT SKR E3 Turbo"
 #endif

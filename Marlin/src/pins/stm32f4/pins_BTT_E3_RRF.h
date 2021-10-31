@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define USES_DIAG_JUMPERS 1
+
 #if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif

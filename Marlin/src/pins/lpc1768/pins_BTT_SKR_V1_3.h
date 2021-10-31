@@ -28,6 +28,8 @@
 #define BOARD_INFO_NAME "BTT SKR V1.3"
 #define LPC1768_IS_SKRV1_3 1
 
+#define USES_DIAG_JUMPERS 1
+
 //
 // Trinamic Stallguard pins
 //
