@@ -26,9 +26,10 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#include "HAL.h"
+
 #if NEEDS_HARDWARE_PWM
 
-#include "HAL.h"
 #include "timers.h"
 
 void set_pwm_frequency(const pin_t pin, int f_desired) {
@@ -44,6 +45,8 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   pwm_start(pin_name, f_desired, 0, RESOLUTION_8B_COMPARE_FORMAT);
 }
 
+#endif // NEEDS_HARDWARE_PWM
+
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
@@ -58,5 +61,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-#endif // NEEDS_HARDWARE_PWM
 #endif // HAL_STM32
