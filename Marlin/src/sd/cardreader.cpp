@@ -72,8 +72,8 @@ char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENA
 
 IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
 
-#if BOTH(HAS_MULTI_SERIAL, BINARY_FILE_TRANSFER)
-  serial_index_t CardReader::transfer_port_index;
+#if ENABLED(BINARY_FILE_TRANSFER)
+  serial_index_t IF_DISABLED(HAS_MULTI_SERIAL, constexpr) CardReader::transfer_port_index;
 #endif
 
 // private:
