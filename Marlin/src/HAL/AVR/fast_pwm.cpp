@@ -153,7 +153,7 @@ Timer get_pwm_timer(const pin_t pin) {
 
 void set_pwm_frequency(const pin_t pin, int f_desired) {
   Timer timer = get_pwm_timer(pin);
-  if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
+  if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
   uint16_t size;
   if (timer.n == 2) size = 255; else size = 65535;
 
@@ -252,7 +252,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     digitalWrite(pin, !invert);
   else {
     Timer timer = get_pwm_timer(pin);
-    if (timer.n == 0) return; // Don't proceed if protected timer or not recognised
+    if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
     // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
     _SET_COMnQ(timer.TCCRnQ, (timer.q
         #ifdef TCCR2
@@ -261,20 +261,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       ), COM_CLEAR_SET + invert
     );
 
-    uint16_t top;
-    if (timer.n == 2) { // if TIMER2
-      top = (
-        #if ENABLED(USE_OCR2A_AS_TOP)
-          *timer.OCRnQ[0] // top = OCR2A
-        #else
-          255 // top = 0xFF (max)
-        #endif
-      );
-    }
-    else
-      top = *timer.ICRn; // top = ICRn
-
-    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top) / float(v_size)); // Scale 8/16-bit v to top value
+    uint16_t top = (timer.n == 2) ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
+    _SET_OCRnQ(timer.OCRnQ, timer.q, (v * top + v_size / 2) / v_size); // Scale 8/16-bit v to top value
   }
 }
 
