@@ -22,10 +22,9 @@
 #ifdef __AVR__
 
 #include "../../inc/MarlinConfigPre.h"
+#include "HAL.h"
 
 #if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
-
-#include "HAL.h"
 
 struct Timer {
   volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
@@ -243,28 +242,39 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
 }
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
-  // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
-  if (v == 0)
-    digitalWrite(pin, invert);
-  else if (v == v_size)
-    digitalWrite(pin, !invert);
-  else {
-    Timer timer = get_pwm_timer(pin);
-    if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
-    // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
-    _SET_COMnQ(timer.TCCRnQ, (timer.q
-        #ifdef TCCR2
-          + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
-        #endif
-      ), COM_CLEAR_SET + invert
-    );
+#endif // NEEDS_HARDWARE_PWM
 
-    uint16_t top = (timer.n == 2) ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
-    _SET_OCRnQ(timer.OCRnQ, timer.q, (v * top + v_size / 2) / v_size); // Scale 8/16-bit v to top value
-  }
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+  #if NEEDS_HARDWARE_PWM
+
+    // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
+    // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
+    if (v == 0)
+      digitalWrite(pin, invert);
+    else if (v == v_size)
+      digitalWrite(pin, !invert);
+    else {
+      Timer timer = get_pwm_timer(pin);
+      if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
+      // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
+      _SET_COMnQ(timer.TCCRnQ, (timer.q
+          #ifdef TCCR2
+            + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
+          #endif
+        ), COM_CLEAR_SET + invert
+      );
+
+      uint16_t top = (timer.n == 2) ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
+      _SET_OCRnQ(timer.OCRnQ, timer.q, (v * top + v_size / 2) / v_size); // Scale 8/16-bit v to top value
+    }
+
+  #else
+
+    analogWrite(pin, v);
+    UNUSED(v_size);
+    UNUSED(invert);
+
+  #endif
 }
 
-#endif // NEEDS_HARDWARE_PWM
 #endif // __AVR__
