@@ -6,8 +6,8 @@ import subprocess,os,re,pioutil
 Import("env")
 
 # Detect that 'vscode init' is running
-if pioutil.is_vscode_init():
-	env.Exit(0)
+#if pioutil.is_vscode_init():
+#	env.Exit(0)
 
 PIO_VERSION_MIN = (5, 0, 3)
 try:

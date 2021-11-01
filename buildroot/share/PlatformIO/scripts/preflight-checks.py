@@ -6,8 +6,8 @@ import os,re,sys,pioutil
 Import("env")
 
 # Detect that 'vscode init' is running
-if pioutil.is_vscode_init():
-	env.Exit(0)
+#if pioutil.is_vscode_init():
+#	env.Exit(0)
 
 def get_envs_for_board(board):
 	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as file:
