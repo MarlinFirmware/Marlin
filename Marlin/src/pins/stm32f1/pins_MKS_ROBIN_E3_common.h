@@ -63,6 +63,11 @@
   #define Z_MIN_PROBE_PIN                   PB1
 #endif
 
+// LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA2
+#endif
+
 //
 // Steppers
 //
