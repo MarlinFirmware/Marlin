@@ -1242,7 +1242,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
   #elif ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
-  #elif !HAS_JUNCTION_DEVIATION && defined(DEFAULT_EJERK)
+  #elif !HAS_JUNCTION_DEVIATION && defined(DEFAULT_EJERK) && DISABLED(ALLOW_LOW_EJERK)
     static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE.");
   #endif
 #endif
