@@ -550,6 +550,20 @@
   #endif
 #endif
 
+// Probe Temperature Compensation
+#if !TEMP_SENSOR_PROBE
+  #undef PTC_PROBE
+#endif
+#if !TEMP_SENSOR_BED
+  #undef PTC_BED
+#endif
+#if !HAS_EXTRUDERS
+  #undef PTC_HOTEND
+#endif
+#if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
+  #define HAS_PTC 1
+#endif
+
 // Let SD_FINISHED_RELEASECOMMAND stand in for SD_FINISHED_STEPPERRELEASE
 #if ENABLED(SD_FINISHED_STEPPERRELEASE)
   #ifndef SD_FINISHED_RELEASECOMMAND
