@@ -620,9 +620,9 @@
 #elif MB(BTT_E3_RRF)
   #include "stm32f4/pins_BTT_E3_RRF.h"          // STM32F4                                env:BIGTREE_E3_RRF
 #elif MB(BTT_SKR_V2_0_REV_A)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug
 #elif MB(BTT_SKR_V2_0_REV_B)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug
 #elif MB(BTT_OCTOPUS_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
 #elif MB(BTT_OCTOPUS_V1_1)
@@ -695,6 +695,8 @@
   #include "esp32/pins_MRR_ESPE.h"              // ESP32                                  env:esp32
 #elif MB(E4D_BOX)
   #include "esp32/pins_E4D.h"                   // ESP32                                  env:esp32
+#elif MB(RESP32_CUSTOM)
+  #include "esp32/pins_RESP32_CUSTOM.h"         // ESP32                                  env:esp32
 #elif MB(FYSETC_E4)
   #include "esp32/pins_FYSETC_E4.h"             // ESP32                                  env:FYSETC_E4
 #elif MB(PANDA_ZHU)

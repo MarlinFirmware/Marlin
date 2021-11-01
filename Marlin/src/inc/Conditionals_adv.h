@@ -701,6 +701,9 @@
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
   #endif
+  #ifndef SHUTDOWN_ACTION
+    #define SHUTDOWN_ACTION   "shutdown"
+  #endif
   #if HAS_FILAMENT_SENSOR
     #ifndef ACTION_ON_FILAMENT_RUNOUT
       #define ACTION_ON_FILAMENT_RUNOUT "filament_runout"

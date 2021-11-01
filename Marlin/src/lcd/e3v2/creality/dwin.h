@@ -31,13 +31,6 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
-  #define HAS_PREHEAT 1
-  #if PREHEAT_COUNT < 2
-    #error "Creality DWIN requires two material preheat presets."
-  #endif
-#endif
-
 enum processID : uint8_t {
   // Process ID
   MainMenu,
@@ -53,7 +46,9 @@ enum processID : uint8_t {
   Tune,
   #if HAS_PREHEAT
     PLAPreheat,
-    ABSPreheat,
+    #if PREHEAT_COUNT > 1
+      ABSPreheat,
+    #endif
   #endif
   MaxSpeed,
   MaxSpeed_value,

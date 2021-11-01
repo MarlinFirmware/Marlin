@@ -27,7 +27,7 @@ bdf2u8g
 # OS
 #
 applet/
-*.DS_Store
+.DS_Store
 
 #
 # Misc
@@ -168,7 +168,3 @@ __pycache__
 
 # IOLogger logs
 *_log.csv
-
-# Simulation / Native
-eeprom.dat
-imgui.ini
