@@ -33,6 +33,15 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   uint16_t adj_val = Instance->ARR * v / v_size;
   if (invert) adj_val = Instance->ARR - adj_val;
 
+  uint32_t func = pinmap_function(pin_name, PinMap_PWM);
+  if (func != uint32_t(NC)) {
+    uint16_t afio = STM_PIN_AFNUM(func);
+    if (afio != AFIO_NONE) {
+      // Req. once to set pin alt function
+      analogWrite(pin, v);
+    }
+  }
+
   switch (get_pwm_channel(pin_name)) {
     case TIM_CHANNEL_1: LL_TIM_OC_SetCompareCH1(Instance, adj_val); break;
     case TIM_CHANNEL_2: LL_TIM_OC_SetCompareCH2(Instance, adj_val); break;
