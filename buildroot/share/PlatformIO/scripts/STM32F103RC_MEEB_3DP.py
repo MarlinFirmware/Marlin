@@ -8,36 +8,18 @@ except ImportError:
 
 import os
 Import("env", "projenv")
-# access to global build environment
-print(env)
-# access to project build environment (is used source files in "src" folder)
-print(projenv)
 
 config = configparser.ConfigParser()
 config.read("platformio.ini")
 
-#com_port = config.get("env:STM32F103RC_meeb", "upload_port")
-#print('Use the {0:s} to reboot the board to dfu mode.'.format(com_port))
-
 #
 # Upload actions
 #
-
 def before_upload(source, target, env):
-    print("before_upload")
-    # do some actions
-    # use com_port
-    #
     env.Execute("pwd")
 
 def after_upload(source, target, env):
-    print("after_upload")
-    # do some actions
-    #
-    #
     env.Execute("pwd")
-
-print("Current build targets", map(str, BUILD_TARGETS))
 
 env.AddPreAction("upload", before_upload)
 env.AddPostAction("upload", after_upload)
