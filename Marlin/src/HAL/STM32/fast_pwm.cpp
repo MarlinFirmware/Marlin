@@ -24,9 +24,7 @@
 
 #ifdef HAL_STM32
 
-#include "../../inc/MarlinConfigPre.h"
-
-#include "HAL.h"
+#include "../../inc/MarlinConfig.h"
 #include "timers.h"
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
