@@ -27,6 +27,11 @@
 #include "../../inc/MarlinConfig.h"
 #include "timers.h"
 
+#ifndef AFIO_NONE
+  // F1 only (first enum), F4 use 0
+  #define AFIO_NONE 0
+#endif
+
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
