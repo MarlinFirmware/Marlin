@@ -597,6 +597,10 @@
   #error "SPINDLE_LASER_PWM (true) is now set with SPINDLE_LASER_USE_PWM (enabled)."
 #elif ANY(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF)
   #error "The IS_RAMPS_* conditionals (for heater/fan/bed pins) are now called FET_ORDER_*."
+#elif defined(PROBE_TEMP_COMPENSATION)
+  #error "PROBE_TEMP_COMPENSATION is now set using the PTC_PROBE, PTC_BED, PTC_HOTEND options."
+#elif defined(BTC_PROBE_TEMP)
+  #error "BTC_PROBE_TEMP is now PTC_PROBE_TEMP."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
@@ -611,60 +615,60 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Probe temp compensation requirements
  */
-
-#if ENABLED(PROBE_TEMP_COMPENSATION)
-  #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
-    #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
-  #elif !defined(PTC_PARK_POS)
-    #error "PROBE_TEMP_COMPENSATION requires PTC_PARK_POS."
-  #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
-    #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
-  #elif !defined(PTC_PROBE_POS)
-    #error "PROBE_TEMP_COMPENSATION requires PTC_PROBE_POS."
+#if HAS_PTC
+  #if TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+    #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
+      #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
+    #elif !defined(PTC_PARK_POS)
+      #error "PTC_PARK_POS is required for Probe Temperature Compensation."
+    #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
+      #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
+    #elif !defined(PTC_PROBE_POS)
+      #error "PTC_PROBE_POS is required for Probe Temperature Compensation."
+    #endif
   #endif
 
-  #ifdef PTC_SAMPLE_START
-    constexpr auto _ptc_sample_start = PTC_SAMPLE_START;
+  #ifdef PTC_PROBE_START
+    constexpr auto _ptc_sample_start = PTC_PROBE_START;
     constexpr decltype(_ptc_sample_start) _test_ptc_sample_start = 12.3f;
-    static_assert(_test_ptc_sample_start != 12.3f, "PTC_SAMPLE_START must be a whole number.");
+    static_assert(_test_ptc_sample_start != 12.3f, "PTC_PROBE_START must be a whole number.");
   #endif
-  #ifdef PTC_SAMPLE_RES
-    constexpr auto _ptc_sample_res = PTC_SAMPLE_RES;
+  #ifdef PTC_PROBE_RES
+    constexpr auto _ptc_sample_res = PTC_PROBE_RES;
     constexpr decltype(_ptc_sample_res) _test_ptc_sample_res = 12.3f;
-    static_assert(_test_ptc_sample_res != 12.3f, "PTC_SAMPLE_RES must be a whole number.");
+    static_assert(_test_ptc_sample_res != 12.3f, "PTC_PROBE_RES must be a whole number.");
   #endif
-  #ifdef BTC_SAMPLE_START
-    constexpr auto _btc_sample_start = BTC_SAMPLE_START;
+  #ifdef PTC_BED_START
+    constexpr auto _btc_sample_start = PTC_BED_START;
     constexpr decltype(_btc_sample_start) _test_btc_sample_start = 12.3f;
-    static_assert(_test_btc_sample_start != 12.3f, "BTC_SAMPLE_START must be a whole number.");
+    static_assert(_test_btc_sample_start != 12.3f, "PTC_BED_START must be a whole number.");
   #endif
-  #ifdef BTC_SAMPLE_RES
-    constexpr auto _btc_sample_res = BTC_SAMPLE_RES;
+  #ifdef PTC_BED_RES
+    constexpr auto _btc_sample_res = PTC_BED_RES;
     constexpr decltype(_btc_sample_res) _test_btc_sample_res = 12.3f;
-    static_assert(_test_btc_sample_res != 12.3f, "BTC_SAMPLE_RES must be a whole number.");
+    static_assert(_test_btc_sample_res != 12.3f, "PTC_BED_RES must be a whole number.");
   #endif
-  #ifdef BTC_PROBE_TEMP
-    constexpr auto _btc_probe_temp = BTC_PROBE_TEMP;
+  #ifdef PTC_PROBE_TEMP
+    constexpr auto _btc_probe_temp = PTC_PROBE_TEMP;
     constexpr decltype(_btc_probe_temp) _test_btc_probe_temp = 12.3f;
-    static_assert(_test_btc_probe_temp != 12.3f, "BTC_PROBE_TEMP must be a whole number.");
+    static_assert(_test_btc_probe_temp != 12.3f, "PTC_PROBE_TEMP must be a whole number.");
   #endif
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-    #ifdef ETC_SAMPLE_START
-      constexpr auto _etc_sample_start = ETC_SAMPLE_START;
+  #if ENABLED(PTC_HOTEND)
+    #if EXTRUDERS != 1
+      #error "PTC_HOTEND only works with a single extruder."
+    #endif
+    #ifdef PTC_HOTEND_START
+      constexpr auto _etc_sample_start = PTC_HOTEND_START;
       constexpr decltype(_etc_sample_start) _test_etc_sample_start = 12.3f;
-      static_assert(_test_etc_sample_start != 12.3f, "ETC_SAMPLE_START must be a whole number.");
+      static_assert(_test_etc_sample_start != 12.3f, "PTC_HOTEND_START must be a whole number.");
     #endif
-    #ifdef ETC_SAMPLE_RES
-      constexpr auto _etc_sample_res = ETC_SAMPLE_RES;
+    #ifdef PTC_HOTEND_RES
+      constexpr auto _etc_sample_res = PTC_HOTEND_RES;
       constexpr decltype(_etc_sample_res) _test_etc_sample_res = 12.3f;
-      static_assert(_test_etc_sample_res != 12.3f, "ETC_SAMPLE_RES must be a whole number.");
+      static_assert(_test_etc_sample_res != 12.3f, "PTC_HOTEND_RES must be a whole number.");
     #endif
   #endif
-
-  #if ENABLED(USE_TEMP_EXT_COMPENSATION) && EXTRUDERS != 1
-    #error "USE_TEMP_EXT_COMPENSATION only works with a single extruder."
-  #endif
-#endif
+#endif // HAS_PTC
 
 /**
  * Marlin release, version and default string
@@ -1242,8 +1246,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "LIN_ADVANCE and S_CURVE_ACCELERATION may not play well together! Enable EXPERIMENTAL_SCURVE to continue."
   #elif ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
-  #elif !HAS_JUNCTION_DEVIATION && defined(DEFAULT_EJERK)
-    static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE.");
+  #elif NONE(HAS_JUNCTION_DEVIATION, ALLOW_LOW_EJERK) && defined(DEFAULT_EJERK)
+    static_assert(DEFAULT_EJERK >= 10, "It is strongly recommended to set DEFAULT_EJERK >= 10 when using LIN_ADVANCE. Enable ALLOW_LOW_EJERK to bypass this alert (e.g., for direct drive).");
   #endif
 #endif
 

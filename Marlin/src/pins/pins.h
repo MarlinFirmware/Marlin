@@ -620,9 +620,9 @@
 #elif MB(BTT_E3_RRF)
   #include "stm32f4/pins_BTT_E3_RRF.h"          // STM32F4                                env:BIGTREE_E3_RRF
 #elif MB(BTT_SKR_V2_0_REV_A)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug
 #elif MB(BTT_SKR_V2_0_REV_B)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"  // STM32F4                                env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug
 #elif MB(BTT_OCTOPUS_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"    // STM32F4                                env:BIGTREE_OCTOPUS_V1 env:BIGTREE_OCTOPUS_V1_USB
 #elif MB(BTT_OCTOPUS_V1_1)
@@ -667,6 +667,8 @@
   #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h" // STM32F4                             env:mks_robin_nano_v1_3_f4
 #elif MB(MKS_EAGLE)
   #include "stm32f4/pins_MKS_EAGLE.h"           // STM32F4                                env:mks_eagle
+#elif MB(ARTILLERY_RUBY)
+  #include "stm32f4/pins_ARTILLERY_RUBY.h"      // STM32F4                                env:Artillery_Ruby
 
 //
 // ARM Cortex M7

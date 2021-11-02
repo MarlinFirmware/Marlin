@@ -3253,7 +3253,7 @@ void Stepper::report_positions() {
 
       #elif HAS_MOTOR_CURRENT_PWM
 
-        #define _WRITE_CURRENT_PWM(P) analogWrite(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        #define _WRITE_CURRENT_PWM(P) set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)

@@ -70,7 +70,7 @@ void CaseLight::update(const bool sflag) {
 
     #if CASELIGHT_USES_BRIGHTNESS
       if (pin_is_pwm())
-        analogWrite(pin_t(CASE_LIGHT_PIN), (
+        set_pwm_duty(pin_t(CASE_LIGHT_PIN), (
           #if CASE_LIGHT_MAX_PWM == 255
             n10ct
           #else
