@@ -128,7 +128,7 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../feature/probe_temp_comp.h"
 #endif
 
@@ -264,13 +264,16 @@ typedef struct SettingsDataStruct {
   //
   // Temperature first layer compensation values
   //
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
-    int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)], // M871 P I V
-            z_offsets_bed[COUNT(temp_comp.z_offsets_bed)]      // M871 B I V
-            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
-            #endif
-            ;
+  #if HAS_PTC
+    #if ENABLED(PTC_PROBE)
+      int16_t z_offsets_probe[COUNT(ptc.z_offsets_probe)]; // M871 P I V
+    #endif
+    #if ENABLED(PTC_BED)
+      int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
+    #endif
+    #if ENABLED(PTC_HOTEND)
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
+    #endif
   #endif
 
   //
@@ -844,11 +847,15 @@ void MarlinSettings::postprocess() {
     //
     // Thermal first layer compensation values
     //
-    #if ENABLED(PROBE_TEMP_COMPENSATION)
-      EEPROM_WRITE(temp_comp.z_offsets_probe);
-      EEPROM_WRITE(temp_comp.z_offsets_bed);
-      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        EEPROM_WRITE(temp_comp.z_offsets_ext);
+    #if HAS_PTC
+      #if ENABLED(PTC_PROBE)
+        EEPROM_WRITE(ptc.z_offsets_probe);
+      #endif
+      #if ENABLED(PTC_BED)
+        EEPROM_WRITE(ptc.z_offsets_bed);
+      #endif
+      #if ENABLED(PTC_HOTEND)
+        EEPROM_WRITE(ptc.z_offsets_hotend);
       #endif
     #else
       // No placeholder data for this feature
@@ -1710,13 +1717,17 @@ void MarlinSettings::postprocess() {
       //
       // Thermal first layer compensation values
       //
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        EEPROM_READ(temp_comp.z_offsets_probe);
-        EEPROM_READ(temp_comp.z_offsets_bed);
-        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          EEPROM_READ(temp_comp.z_offsets_ext);
+      #if HAS_PTC
+        #if ENABLED(PTC_PROBE)
+          EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        temp_comp.reset_index();
+        # if ENABLED(PTC_BED)
+          EEPROM_READ(ptc.z_offsets_bed);
+        #endif
+        #if ENABLED(PTC_HOTEND)
+          EEPROM_READ(ptc.z_offsets_hotend);
+        #endif
+        ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -2727,6 +2738,11 @@ void MarlinSettings::reset() {
   // Servo Angles
   //
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
+
+  //
+  // Probe Temperature Compensation
+  //
+  TERN_(HAS_PTC, ptc.reset());
 
   //
   // BLTOUCH

@@ -667,6 +667,8 @@
   #include "stm32f4/pins_MKS_ROBIN_NANO_V1_3_F4.h" // STM32F4                             env:mks_robin_nano_v1_3_f4
 #elif MB(MKS_EAGLE)
   #include "stm32f4/pins_MKS_EAGLE.h"           // STM32F4                                env:mks_eagle
+#elif MB(ARTILLERY_RUBY)
+  #include "stm32f4/pins_ARTILLERY_RUBY.h"      // STM32F4                                env:Artillery_Ruby
 
 //
 // ARM Cortex M7
