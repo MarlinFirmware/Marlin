@@ -21,8 +21,6 @@
  */
 #pragma once
 
-#define USES_DIAG_JUMPERS 1
-
 #if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
@@ -30,6 +28,8 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT E3 RRF"
 #endif
+
+#define USES_DIAG_JUMPERS
 
 // Add-on board for IDEX conversion
 //#define BTT_E3_RRF_IDEX_BOARD

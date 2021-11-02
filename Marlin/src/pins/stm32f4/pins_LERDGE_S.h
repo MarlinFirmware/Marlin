@@ -34,8 +34,7 @@
 #define STEP_TIMER                             4
 #define TEMP_TIMER                             2
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos

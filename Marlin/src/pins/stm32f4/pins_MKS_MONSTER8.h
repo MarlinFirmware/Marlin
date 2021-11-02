@@ -24,8 +24,6 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#define USES_DIAG_JUMPERS 1
-
 #if HOTENDS > 3 || E_STEPPERS > 5
   #error "MKS Monster supports up to 3 hotends and 5 E-steppers."
 #elif HAS_FSMC_TFT
@@ -34,8 +32,8 @@
 
 #define BOARD_INFO_NAME "MKS Monster8 V1.x"
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+#define USES_DIAG_JUMPERS
 
 //#define DISABLE_DEBUG
 

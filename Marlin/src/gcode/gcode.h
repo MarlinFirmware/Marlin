@@ -1109,7 +1109,7 @@ private:
       static void M913();
       static void M913_report(const bool forReplay=true);
     #endif
-    #if ENABLED(USE_SENSORLESS)
+    #if USE_SENSORLESS
       static void M914();
       static void M914_report(const bool forReplay=true);
     #endif

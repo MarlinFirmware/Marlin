@@ -23,10 +23,10 @@
 
 #include "env_validate.h"
 
-#define USES_DIAG_JUMPERS 1
-
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
+
+#define USES_DIAG_JUMPERS
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
