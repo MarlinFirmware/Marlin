@@ -1260,22 +1260,22 @@
 // Disable unused endstop / probe pins
 //
 #define _STOP_IN_USE(N) (X2_USE_ENDSTOP == N || Y2_USE_ENDSTOP == N || Z2_USE_ENDSTOP == N || Z3_USE_ENDSTOP == N || Z4_USE_ENDSTOP == N)
-#if _STOP_IN_USE(_XMAX_)
+#if !defined(USE_XMAX_PLUG) && _STOP_IN_USE(_XMAX_)
   #define USE_XMAX_PLUG
 #endif
-#if _STOP_IN_USE(_YMAX_)
+#if !defined(USE_YMAX_PLUG) && _STOP_IN_USE(_YMAX_)
   #define USE_YMAX_PLUG
 #endif
-#if _STOP_IN_USE(_ZMAX_)
+#if !defined(USE_ZMAX_PLUG) && _STOP_IN_USE(_ZMAX_)
   #define USE_ZMAX_PLUG
 #endif
-#if _STOP_IN_USE(_XMIN_)
+#if !defined(USE_XMIN_PLUG) && _STOP_IN_USE(_XMIN_)
   #define USE_XMIN_PLUG
 #endif
-#if _STOP_IN_USE(_YMIN_)
+#if !defined(USE_YMIN_PLUG) && _STOP_IN_USE(_YMIN_)
   #define USE_YMIN_PLUG
 #endif
-#if _STOP_IN_USE(_ZMIN_)
+#if !defined(USE_ZMIN_PLUG) && _STOP_IN_USE(_ZMIN_)
   #define USE_ZMIN_PLUG
 #endif
 #undef _STOP_IN_USE
