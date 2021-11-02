@@ -27,25 +27,15 @@
 #include "../../inc/MarlinConfig.h"
 #include "timers.h"
 
-#ifndef AFIO_NONE
-  // F1 only (first enum), F4 use 0
-  #define AFIO_NONE 0
-#endif
-
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
+  #if HAS_LCD_BRIGHTNESS && PIN_EXISTS(TFT_BACKLIGHT)
+    if (pin == TFT_BACKLIGHT_PIN) analogWrite(pin, v); // pwm_start
+  #endif
+  if (!PWM_PIN(pin)) return; // no timer instance
   uint16_t adj_val = Instance->ARR * v / v_size;
   if (invert) adj_val = Instance->ARR - adj_val;
-
-  uint32_t func = pinmap_function(pin_name, PinMap_PWM);
-  if (func != uint32_t(NC)) {
-    uint16_t afio = STM_PIN_AFNUM(func);
-    if (afio != AFIO_NONE) {
-      // Req. once to set pin alt function
-      analogWrite(pin, v);
-    }
-  }
 
   switch (get_pwm_channel(pin_name)) {
     case TIM_CHANNEL_1: LL_TIM_OC_SetCompareCH1(Instance, adj_val); break;
