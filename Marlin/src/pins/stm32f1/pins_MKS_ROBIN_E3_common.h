@@ -27,9 +27,10 @@
 
 #include "env_validate.h"
 
-#define BOARD_NO_NATIVE_USB
-
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
+
+#define BOARD_NO_NATIVE_USB
+#define USES_DIAG_JUMPERS
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG

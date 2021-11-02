@@ -488,3 +488,12 @@
 #if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
   #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
 #endif
+
+//
+// Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
+//
+#if !USE_SENSORLESS && ENABLED(USES_DIAG_JUMPERS)
+  #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled."
+#elif !USE_SENSORLESS && ENABLED(USES_DIAG_PINS)
+  #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0)"
+#endif

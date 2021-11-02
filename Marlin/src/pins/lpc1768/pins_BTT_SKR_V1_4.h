@@ -35,6 +35,8 @@
   #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
 #endif
 
+#define USES_DIAG_PINS
+
 //
 // EEPROM
 //
