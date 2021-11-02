@@ -1261,22 +1261,34 @@
 //
 #define _STOP_IN_USE(N) (X2_USE_ENDSTOP == N || Y2_USE_ENDSTOP == N || Z2_USE_ENDSTOP == N || Z3_USE_ENDSTOP == N || Z4_USE_ENDSTOP == N)
 #if _STOP_IN_USE(_XMAX_)
-  #define USE_XMAX_PLUG
+  #ifndef USE_XMAX_PLUG
+    #define USE_XMAX_PLUG
+  #endif
 #endif
 #if _STOP_IN_USE(_YMAX_)
-  #define USE_YMAX_PLUG
+  #ifndef USE_YMAX_PLUG
+    #define USE_YMAX_PLUG
+  #endif
 #endif
 #if _STOP_IN_USE(_ZMAX_)
-  #define USE_ZMAX_PLUG
+  #ifndef USE_ZMAX_PLUG
+    #define USE_ZMAX_PLUG
+  #endif
 #endif
 #if _STOP_IN_USE(_XMIN_)
-  #define USE_XMIN_PLUG
+  #ifndef USE_XMIN_PLUG
+    #define USE_XMIN_PLUG
+  #endif
 #endif
 #if _STOP_IN_USE(_YMIN_)
-  #define USE_YMIN_PLUG
+  #ifndef USE_YMIN_PLUG
+    #define USE_YMIN_PLUG
+  #endif
 #endif
 #if _STOP_IN_USE(_ZMIN_)
-  #define USE_ZMIN_PLUG
+  #ifndef USE_ZMIN_PLUG
+    #define USE_ZMIN_PLUG
+  #endif
 #endif
 #undef _STOP_IN_USE
 #if !USES_Z_MIN_PROBE_PIN
