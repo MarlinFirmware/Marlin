@@ -29,6 +29,11 @@
 
 #define BOARD_INFO_NAME "BTT BTT002 V1.0"
 
+#define USES_DIAG_PINS
+
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
@@ -40,9 +45,6 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #endif
-
-// Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Limit Switches

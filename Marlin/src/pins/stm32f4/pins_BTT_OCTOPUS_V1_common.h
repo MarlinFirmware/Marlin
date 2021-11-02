@@ -23,14 +23,14 @@
 
 #include "env_validate.h"
 
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+#define USES_DIAG_JUMPERS
+
 // Onboard I2C EEPROM
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x8000  // 32KB (24C32A)
 #define I2C_SCL_PIN                         PB8
 #define I2C_SDA_PIN                         PB9
-
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
 
 // Avoid conflict with TIMER_TONE
 #define STEP_TIMER                            10

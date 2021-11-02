@@ -47,8 +47,7 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 // Avoid conflict with TIMER_TONE
 #define STEP_TIMER                            10

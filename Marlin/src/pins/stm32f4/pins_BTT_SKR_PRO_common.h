@@ -23,6 +23,8 @@
 
 #include "env_validate.h"
 
+#define USES_DIAG_JUMPERS
+
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define BTT_MOTOR_EXPANSION
@@ -47,8 +49,7 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos
