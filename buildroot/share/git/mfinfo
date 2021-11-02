@@ -52,6 +52,7 @@ case "$REPO" in
   Marlin              ) TARG=bugfix-2.0.x ; [[ $INDEX == 1 ]] && TARG=bugfix-1.1.x ; [[ $INDEX == 3 ]] && TARG=dev-2.1.x ;;
   Configurations      ) TARG=import-2.0.x ;;
   MarlinDocumentation ) TARG=master ;;
+  AutoBuildMarlin     ) TARG=master ;;
 esac
 
 [[ $BRANCH =~ ^[123]$ ]] && USAGE=1
