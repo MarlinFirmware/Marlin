@@ -24,25 +24,8 @@
 
 #ifdef HAL_STM32
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if NEEDS_HARDWARE_PWM
-
-#include "HAL.h"
+#include "../../inc/MarlinConfig.h"
 #include "timers.h"
-
-void set_pwm_frequency(const pin_t pin, int f_desired) {
-  if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
-
-  PinName pin_name = digitalPinToPinName(pin);
-  TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
-
-  LOOP_S_L_N(i, 0, NUM_HARDWARE_TIMERS) // Protect used timers
-    if (timer_instance[i] && timer_instance[i]->getHandle()->Instance == Instance)
-      return;
-
-  pwm_start(pin_name, f_desired, 0, RESOLUTION_8B_COMPARE_FORMAT);
-}
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   PinName pin_name = digitalPinToPinName(pin);
@@ -58,5 +41,21 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-#endif // NEEDS_HARDWARE_PWM
+#if NEEDS_HARDWARE_PWM
+
+  void set_pwm_frequency(const pin_t pin, int f_desired) {
+    if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
+
+    PinName pin_name = digitalPinToPinName(pin);
+    TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
+
+    LOOP_S_L_N(i, 0, NUM_HARDWARE_TIMERS) // Protect used timers
+      if (timer_instance[i] && timer_instance[i]->getHandle()->Instance == Instance)
+        return;
+
+    pwm_start(pin_name, f_desired, 0, RESOLUTION_8B_COMPARE_FORMAT);
+  }
+
+#endif
+
 #endif // HAL_STM32

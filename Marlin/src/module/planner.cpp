@@ -1270,7 +1270,7 @@ void Planner::recalculate() {
     #elif ENABLED(FAST_PWM_FAN)
       #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
     #else
-      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
+      #define _FAN_SET(F) set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
@@ -1393,8 +1393,8 @@ void Planner::check_axes_activity() {
   TERN_(AUTOTEMP, autotemp_task());
 
   #if ENABLED(BARICUDA)
-    TERN_(HAS_HEATER_1, analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure));
-    TERN_(HAS_HEATER_2, analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
+    TERN_(HAS_HEATER_1, set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
+    TERN_(HAS_HEATER_2, set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 }
 

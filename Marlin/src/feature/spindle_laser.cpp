@@ -66,7 +66,7 @@ void SpindleLaser::init() {
   #endif
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     SET_PWM(SPINDLE_LASER_PWM_PIN);
-    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
+    set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
   #endif
   #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
@@ -92,10 +92,8 @@ void SpindleLaser::init() {
   void SpindleLaser::_set_ocr(const uint8_t ocr) {
     #if NEEDS_HARDWARE_PWM && SPINDLE_LASER_FREQUENCY
       set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), TERN(MARLIN_DEV_MODE, frequency, SPINDLE_LASER_FREQUENCY));
-      set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
-    #else
-      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
     #endif
+    set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
   }
 
   void SpindleLaser::set_ocr(const uint8_t ocr) {
