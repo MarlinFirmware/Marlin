@@ -5,10 +5,6 @@
 import os,re,sys,pioutil
 Import("env")
 
-# Detect that 'vscode init' is running
-#if pioutil.is_vscode_init():
-#	env.Exit(0)
-
 def get_envs_for_board(board):
 	with open(os.path.join("Marlin", "src", "pins", "pins.h"), "r") as file:
 
@@ -98,4 +94,5 @@ def sanity_check_target():
 		err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
 		raise SystemExit(err)
 
-sanity_check_target()
+if not pioutil.is_vscode_init():
+	sanity_check_target()

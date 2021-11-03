@@ -13,4 +13,6 @@ def apply_board_build_flags():
 
 # We need to add the board build flags in a post script
 # so the platform build script doesn't overwrite the custom CCFLAGS
-apply_board_build_flags()
+import pioutil
+if not pioutil.is_vscode_init():
+	apply_board_build_flags()

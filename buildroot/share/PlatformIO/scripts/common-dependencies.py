@@ -5,49 +5,40 @@
 import subprocess,os,re,pioutil
 Import("env")
 
-# Detect that 'vscode init' is running
-#if pioutil.is_vscode_init():
-#	env.Exit(0)
-
-PIO_VERSION_MIN = (5, 0, 3)
-try:
-	from platformio import VERSION as PIO_VERSION
-	weights = (1000, 100, 1)
-	version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
-	version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
-	if version_cur < version_min:
-		print()
-		print("**************************************************")
-		print("******      An update to PlatformIO is      ******")
-		print("******  required to build Marlin Firmware.  ******")
-		print("******                                      ******")
-		print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
-		print("******      Current Version: ", PIO_VERSION, "    ******")
-		print("******                                      ******")
-		print("******   Update PlatformIO and try again.   ******")
-		print("**************************************************")
-		print()
-		exit(1)
-except SystemExit:
-	exit(1)
-except:
-	print("Can't detect PlatformIO Version")
-
 from platformio.package.meta import PackageSpec
 from platformio.project.config import ProjectConfig
 
-#print(env.Dump())
+verbose = 0
+FEATURE_CONFIG = {}
 
-try:
-	verbose = int(env.GetProjectOption('custom_verbose'))
-except:
-	verbose = 0
+def validate_pio():
+	PIO_VERSION_MIN = (5, 0, 3)
+	try:
+		from platformio import VERSION as PIO_VERSION
+		weights = (1000, 100, 1)
+		version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
+		version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
+		if version_cur < version_min:
+			print()
+			print("**************************************************")
+			print("******      An update to PlatformIO is      ******")
+			print("******  required to build Marlin Firmware.  ******")
+			print("******                                      ******")
+			print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
+			print("******      Current Version: ", PIO_VERSION, "    ******")
+			print("******                                      ******")
+			print("******   Update PlatformIO and try again.   ******")
+			print("**************************************************")
+			print()
+			exit(1)
+	except SystemExit:
+		exit(1)
+	except:
+		print("Can't detect PlatformIO Version")
 
 def blab(str,level=1):
 	if verbose >= level:
 		print("[deps] %s" % str)
-
-FEATURE_CONFIG = {}
 
 def add_to_feat_cnf(feature, flines):
 
@@ -309,13 +300,17 @@ def MarlinFeatureIsEnabled(env, feature):
 
 	return some_on
 
-#
-# Add a method for other PIO scripts to query enabled features
-#
-env.AddMethod(MarlinFeatureIsEnabled)
+if not pioutil.is_vscode_init():
+	validate_pio()
 
-#
-# Add dependencies for enabled Marlin features
-#
-apply_features_config()
-force_ignore_unused_libs()
+	try:
+		verbose = int(env.GetProjectOption('custom_verbose'))
+	except:
+		pass
+
+	# Add a method for other PIO scripts to query enabled features
+	env.AddMethod(MarlinFeatureIsEnabled)
+
+	# Add dependencies for enabled Marlin features
+	apply_features_config()
+	force_ignore_unused_libs()
