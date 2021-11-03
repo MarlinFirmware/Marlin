@@ -740,7 +740,7 @@ void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
     int8_t pos = len;
     if (pos > STATUS_CHAR_LIMIT) {
       pos -= namescrl;
-      len = _MIN((size_t)pos, STATUS_CHAR_LIMIT);
+      len = _MIN((size_t)pos, (size_t)STATUS_CHAR_LIMIT);
       char dispname[len + 1];
       if (pos >= 0) {
         LOOP_L_N(i, len) dispname[i] = filename[i + namescrl];
@@ -1029,7 +1029,7 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
   int8_t pos = len;
   if (pos > STATUS_CHAR_LIMIT) {
     pos -= msgscrl;
-    len = _MIN((size_t)pos, STATUS_CHAR_LIMIT);
+    len = _MIN((size_t)pos, (size_t)STATUS_CHAR_LIMIT);
     char dispmsg[len + 1];
     if (pos >= 0) {
       LOOP_L_N(i, len) dispmsg[i] = statusmsg[i + msgscrl];
@@ -4712,7 +4712,7 @@ void CrealityDWINClass::File_Control() {
         if (PENDING(millis(), time)) return;
         time = millis() + 200;
         pos -= filescrl;
-        len = _MIN((size_t)pos, MENU_CHAR_LIMIT);
+        len = _MIN((size_t)pos, (size_t)MENU_CHAR_LIMIT);
         char name[len + 1];
         if (pos >= 0) {
           LOOP_L_N(i, len) name[i] = filename[i + filescrl];
@@ -5516,7 +5516,10 @@ void MarlinUI::init() {
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     switch (message) {
       case PAUSE_MESSAGE_INSERT:  CrealityDWIN.Confirm_Handler(FilInsert);  break;
-      case PAUSE_MESSAGE_OPTION:  CrealityDWIN.Popup_Handler(PurgeMore);    break;
+      case PAUSE_MESSAGE_OPTION:
+        pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
+        CrealityDWIN.Popup_Handler(PurgeMore);
+        break;
       case PAUSE_MESSAGE_HEAT:    CrealityDWIN.Confirm_Handler(HeaterTime); break;
       case PAUSE_MESSAGE_WAITING: CrealityDWIN.Draw_Print_Screen();         break;
       default: break;
