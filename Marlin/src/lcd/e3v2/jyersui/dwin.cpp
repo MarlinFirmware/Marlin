@@ -95,6 +95,7 @@
 #define DWIN_FONT_HEAD font10x20
 
 #define MENU_CHAR_LIMIT  24
+#define STATUS_CHAR_LIMIT  30
 #define STATUS_Y 352
 
 #define MAX_PRINT_SPEED   500
@@ -737,22 +738,22 @@ void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
   if (process == Print) {
     size_t len = strlen(filename);
     int8_t pos = len;
-    if (pos > 30) {
+    if (pos > STATUS_CHAR_LIMIT) {
       pos -= namescrl;
-      len = _MIN(pos, 30);
+      len = _MIN((size_t)pos, STATUS_CHAR_LIMIT);
       char dispname[len + 1];
       if (pos >= 0) {
         LOOP_L_N(i, len) dispname[i] = filename[i + namescrl];
       }
       else {
-        LOOP_L_N(i, 30 + pos) dispname[i] = ' ';
-        LOOP_S_L_N(i, 30 + pos, 30) dispname[i] = filename[i - (30 + pos)];
+        LOOP_L_N(i, STATUS_CHAR_LIMIT + pos) dispname[i] = ' ';
+        LOOP_S_L_N(i, STATUS_CHAR_LIMIT + pos, STATUS_CHAR_LIMIT) dispname[i] = filename[i - (STATUS_CHAR_LIMIT + pos)];
       }
       dispname[len] = '\0';
       DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH - 8, 80);
-      const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
+      const int8_t npos = (DWIN_WIDTH - STATUS_CHAR_LIMIT * MENU_CHR_W) / 2;
       DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, dispname);
-      if (-pos >= 30) namescrl = 0;
+      if (-pos >= STATUS_CHAR_LIMIT) namescrl = 0;
       namescrl++;
     }
     else {
@@ -1026,31 +1027,29 @@ void CrealityDWINClass::Update_Status_Bar(bool refresh/*=false*/) {
   }
   size_t len = strlen(statusmsg);
   int8_t pos = len;
-  if (pos > 30) {
+  if (pos > STATUS_CHAR_LIMIT) {
     pos -= msgscrl;
-    len = pos;
-    if (len > 30)
-      len = 30;
+    len = _MIN((size_t)pos, STATUS_CHAR_LIMIT);
     char dispmsg[len + 1];
     if (pos >= 0) {
       LOOP_L_N(i, len) dispmsg[i] = statusmsg[i + msgscrl];
     }
     else {
-      LOOP_L_N(i, 30 + pos) dispmsg[i] = ' ';
-      LOOP_S_L_N(i, 30 + pos, 30) dispmsg[i] = statusmsg[i - (30 + pos)];
+      LOOP_L_N(i, STATUS_CHAR_LIMIT + pos) dispmsg[i] = ' ';
+      LOOP_S_L_N(i, STATUS_CHAR_LIMIT + pos, STATUS_CHAR_LIMIT) dispmsg[i] = statusmsg[i - (STATUS_CHAR_LIMIT + pos)];
     }
     dispmsg[len] = '\0';
     if (process == Print) {
       DWIN_Draw_Rectangle(1, Color_Grey, 8, 214, DWIN_WIDTH - 8, 238);
-      const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
+      const int8_t npos = (DWIN_WIDTH - STATUS_CHAR_LIMIT * MENU_CHR_W) / 2;
       DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Color_White), Color_Bg_Black, npos, 219, dispmsg);
     }
     else {
       DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 352, DWIN_WIDTH - 8, 376);
-      const int8_t npos = (DWIN_WIDTH - 30 * MENU_CHR_W) / 2;
+      const int8_t npos = (DWIN_WIDTH - STATUS_CHAR_LIMIT * MENU_CHR_W) / 2;
       DWIN_Draw_String(false, DWIN_FONT_MENU, GetColor(eeprom_settings.status_bar_text, Color_White), Color_Bg_Black, npos, 357, dispmsg);
     }
-    if (-pos >= 30) msgscrl = 0;
+    if (-pos >= STATUS_CHAR_LIMIT) msgscrl = 0;
     msgscrl++;
   }
   else {
@@ -4713,7 +4712,7 @@ void CrealityDWINClass::File_Control() {
         if (PENDING(millis(), time)) return;
         time = millis() + 200;
         pos -= filescrl;
-        len = _MIN(pos, MENU_CHAR_LIMIT);
+        len = _MIN((size_t)pos, MENU_CHAR_LIMIT);
         char name[len + 1];
         if (pos >= 0) {
           LOOP_L_N(i, len) name[i] = filename[i + filescrl];
