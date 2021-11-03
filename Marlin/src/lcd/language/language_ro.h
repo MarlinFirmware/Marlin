@@ -69,7 +69,7 @@ namespace Language_ro {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Seteaza Offseturile Acasa");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offseturi Aplicate");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Seteaza Originea");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul");
@@ -120,9 +120,8 @@ namespace Language_ro {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplication");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2nd Nozzle X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2nd Nozzle Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Doing G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tools");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
@@ -144,7 +143,7 @@ namespace Language_ro {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Done Editing Mesh");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Build Custom Mesh");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Build Mesh");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Build Mesh ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Validate Mesh ($)");
   #endif

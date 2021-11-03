@@ -848,6 +848,14 @@ class Temperature {
      */
     static void disable_all_heaters();
 
+    /**
+     * Cooldown, as from the LCD. Disables all heaters and fans.
+     */
+    static inline void cooldown() {
+      zero_fan_speeds();
+      disable_all_heaters();
+    }
+
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
        * Methods to check if heaters are enabled, indicating an active job
@@ -961,7 +969,7 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
+    static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 

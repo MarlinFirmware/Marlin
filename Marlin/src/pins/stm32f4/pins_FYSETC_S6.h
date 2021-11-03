@@ -128,7 +128,7 @@
     #define Y_SERIAL_TX_PIN                 PE14
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN                 PE13
+    #define Y_SERIAL_RX_PIN                 PC4
   #endif
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                 PD11
@@ -314,7 +314,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                96
   #define BOARD_ST7920_DELAY_2                48
   #define BOARD_ST7920_DELAY_3               640

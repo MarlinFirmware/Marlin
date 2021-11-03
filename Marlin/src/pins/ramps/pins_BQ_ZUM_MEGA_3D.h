@@ -68,9 +68,9 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN                          10
-#define RAMPS_D9_PIN                          12
-#define RAMPS_D10_PIN                          9
+#define MOSFET_A_PIN                           9
+#define MOSFET_B_PIN                          12
+#define MOSFET_C_PIN                          10
 #define MOSFET_D_PIN                           7
 
 //
@@ -106,7 +106,7 @@
 #endif
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2                 0
   #define BOARD_ST7920_DELAY_3               189
@@ -115,7 +115,7 @@
 //
 // Import RAMPS 1.3 pins
 //
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13.h" // ... RAMPS
 
 //
 // Used by the Hephestos 2 heated bed upgrade kit

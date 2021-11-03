@@ -43,7 +43,7 @@
     #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS
   #endif
 
-#elif ENABLED(U8GLIB_ST7920)
+#elif IS_U8GLIB_ST7920
 
   // RepRap Discount Full Graphics Smart Controller
   // and other variant LCDs using ST7920
@@ -72,7 +72,7 @@
     #define U8G_CLASS U8GLIB_DOGM128_2X                         // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_LM6059_AF)
+#elif IS_U8GLIB_LM6059_AF
 
   // Based on the Adafruit ST7565 (https://www.adafruit.com/products/250)
 
@@ -82,7 +82,7 @@
     #define U8G_CLASS U8GLIB_LM6059_2X                          // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_ST7565_64128N)
+#elif IS_U8GLIB_ST7565_64128N
 
   // MaKrPanel, Mini Viki, Viki 2.0, AZSMZ 12864 ST7565 controller
 

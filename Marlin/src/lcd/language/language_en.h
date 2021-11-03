@@ -30,9 +30,11 @@
  * Substitutions are applied for the following characters when used
  * in menu items that call lcd_put_u8str_ind_P with an index:
  *
+ *   $ displays an inserted C-string
  *   = displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 #define en 1234
@@ -72,12 +74,7 @@ namespace Language_en {
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Progress Bar Test");
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
-  LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
-  LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
-  LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
-  LSTR MSG_AUTO_HOME_I                    = _UxGT("Home ") LCD_STR_I;
-  LSTR MSG_AUTO_HOME_J                    = _UxGT("Home ") LCD_STR_J;
-  LSTR MSG_AUTO_HOME_K                    = _UxGT("Home ") LCD_STR_K;
+  LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
   LSTR MSG_FILAMENT_SET                   = _UxGT("Filament Settings");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Management");
   LSTR MSG_LEVBED_FL                      = _UxGT("Front Left");
@@ -107,7 +104,7 @@ namespace Language_en {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Wizard");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Select Origin");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Last value ");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Preheat ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Preheat ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End");
@@ -175,9 +172,8 @@ namespace Language_en {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicate X-Gap");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2nd Nozzle X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2nd Nozzle Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Doing G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tools");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
@@ -279,7 +275,7 @@ namespace Language_en {
 
   LSTR MSG_MOVING                         = _UxGT("Moving...");
   LSTR MSG_FREE_XY                        = _UxGT("Free XY");
-  LSTR MSG_MOVE_X                         = _UxGT("Move X");
+  LSTR MSG_MOVE_X                         = _UxGT("Move X"); // Used by draw_edit_screen
   LSTR MSG_MOVE_Y                         = _UxGT("Move Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Move Z");
   LSTR MSG_MOVE_I                         = _UxGT("Move ") LCD_STR_I;
@@ -303,6 +299,7 @@ namespace Language_en {
   LSTR MSG_MAXSPEED_Y                     = _UxGT("Max ") LCD_STR_B _UxGT(" Speed");
   LSTR MSG_MAXSPEED_Z                     = _UxGT("Max ") LCD_STR_C _UxGT(" Speed");
   LSTR MSG_MAXSPEED_E                     = _UxGT("Max ") LCD_STR_E _UxGT(" Speed");
+  LSTR MSG_MAXSPEED_A                     = _UxGT("Max @ Speed");
   LSTR MSG_BED_Z                          = _UxGT("Bed Z");
   LSTR MSG_NOZZLE                         = _UxGT("Nozzle");
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");
@@ -747,6 +744,8 @@ namespace Language_en {
 
   LSTR MSG_SD_CARD                        = _UxGT("SD Card");
   LSTR MSG_USB_DISK                       = _UxGT("USB Disk");
+
+  LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host Shutdown");
 
   // These strings can be the same in all languages
   LSTR MSG_MARLIN                         = _UxGT("Marlin");

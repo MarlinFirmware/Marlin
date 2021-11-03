@@ -27,13 +27,6 @@
 #include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
-  #define HAS_PREHEAT 1
-  #if PREHEAT_COUNT < 2
-    #error "Creality DWIN requires two material preheat presets."
-  #endif
-#endif
-
 #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
   #define HAS_ONESTEP_LEVELING 1
 #endif
@@ -117,12 +110,14 @@ typedef struct {
   uint16_t Barfill_Color    = Def_Barfill_Color;
   uint16_t Indicator_Color  = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
-  #if HAS_HOTEND
-    int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
-    int16_t PidCycles = 10;
-  #endif
-  #ifdef PREHEAT_1_TEMP_BED
-    int16_t BedPidT = PREHEAT_1_TEMP_BED;
+  #if HAS_PREHEAT
+    #ifdef PREHEAT_1_TEMP_HOTEND
+      int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
+      int16_t PidCycles = 10;
+    #endif
+    #ifdef PREHEAT_1_TEMP_BED
+      int16_t BedPidT = PREHEAT_1_TEMP_BED;
+    #endif
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
@@ -145,16 +140,6 @@ extern HMI_flag_t HMI_flag;
 extern HMI_data_t HMI_data;
 extern uint8_t checkkey;
 extern millis_t dwin_heat_time;
-
-// Popup windows
-void DWIN_Popup_Confirm(uint8_t icon, const char * const msg1, const char * const msg2);
-#if HAS_HOTEND || HAS_HEATED_BED
-  void DWIN_Popup_Temperature(const bool toohigh);
-#endif
-#if HAS_HOTEND
-  void Popup_Window_ETempTooLow();
-#endif
-void Popup_Window_Resume();
 
 // SD Card
 void HMI_SDCardInit();
@@ -185,9 +170,9 @@ void EachMomentUpdate();
 void update_variable();
 void DWIN_HandleScreen();
 void DWIN_Update();
-void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
-void DWIN_StatusChanged(const char * const text);
-void DWIN_StatusChanged_P(PGM_P const text);
+void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text=nullptr);
+void DWIN_StatusChanged(const char * const cstr=nullptr);
+void DWIN_StatusChanged(FSTR_P const fstr);
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if HAS_MESH
@@ -274,3 +259,23 @@ void Draw_Steps_Menu();
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
   void Draw_ZOffsetWiz_Menu();
 #endif
+
+// Popup windows
+
+void DWIN_Draw_Popup(const uint8_t icon, const char * const cmsg1, FSTR_P const fmsg2, uint8_t button=0);
+void DWIN_Draw_Popup(const uint8_t icon, FSTR_P const fmsg1=nullptr, FSTR_P const fmsg2=nullptr, uint8_t button=0);
+
+template<typename T, typename U>
+void DWIN_Popup_Confirm(const uint8_t icon, T amsg1, U amsg2) {
+  HMI_SaveProcessID(WaitResponse);
+  DWIN_Draw_Popup(icon, amsg1, amsg2, ICON_Confirm_E);  // Button Confirm
+  DWIN_UpdateLCD();
+}
+
+#if HAS_HOTEND || HAS_HEATED_BED
+  void DWIN_Popup_Temperature(const bool toohigh);
+#endif
+#if HAS_HOTEND
+  void Popup_Window_ETempTooLow();
+#endif
+void Popup_Window_Resume();

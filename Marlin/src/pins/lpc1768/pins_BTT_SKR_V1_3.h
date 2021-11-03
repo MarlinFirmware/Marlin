@@ -26,7 +26,9 @@
  */
 
 #define BOARD_INFO_NAME "BTT SKR V1.3"
-#define LPC1768_IS_SKRV1_3 1
+
+#define LPC1768_IS_SKRV1_3
+#define USES_DIAG_JUMPERS
 
 //
 // Trinamic Stallguard pins
@@ -220,12 +222,13 @@
     #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
+
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
 
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because this pin is open drain.)
+    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because it is open drain.)
     * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
     *
     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
@@ -251,6 +254,38 @@
 
     #define LCD_PINS_ENABLE          EXP1_05_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
+
+  #elif ENABLED(WYH_L12864)
+
+    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+
+    /**
+     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+     * 3. Swap the LCD's MOSI (Pin9) and empty (Pin10) wires because Pin9 is open drain.
+     *
+     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+     *
+     * The WYH_L12864 connector plug:
+     *
+     *                  BEFORE                      AFTER
+     *                  ______                     ______
+     *             GND | 1  2 | 5V             5V | 1  2 | GND
+     *              CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+     *             SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+     *             SCK | 7  8 | BTN_ENC       SCK | 7  8 | BTN_ENC
+     *            MOSI | 9 10 |              open | 9 10 | MOSI
+     *                  ------                     ------
+     *                   LCD                        LCD
+     */
+    #define BTN_EN1                  EXP1_06_PIN
+    #define BTN_EN2                  EXP1_04_PIN
+    #define BTN_ENC                  EXP1_08_PIN
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP1_07_PIN
+    #define DOGLCD_MOSI              EXP1_10_PIN
+    #define LCD_BACKLIGHT_PIN            -1
 
   #elif ENABLED(CR10_STOCKDISPLAY)
 

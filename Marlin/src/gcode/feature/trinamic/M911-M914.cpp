@@ -268,7 +268,7 @@
           break;
         #if E_STEPPERS
           case E_AXIS: {
-            const int8_t target_e_stepper = get_target_e_stepper_from_command();
+            const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
             if (target_e_stepper < 0) return;
             switch (target_e_stepper) {
               TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_PWMTHRS_E(0); break;)
@@ -311,7 +311,7 @@
   }
 
   void GcodeSuite::M913_report(const bool forReplay/*=true*/) {
-    report_heading(forReplay, PSTR(STR_HYBRID_THRESHOLD));
+    report_heading(forReplay, F(STR_HYBRID_THRESHOLD));
 
     auto say_M913 = [](const bool forReplay) {
       report_echo_start(forReplay);
@@ -512,7 +512,7 @@
   }
 
   void GcodeSuite::M914_report(const bool forReplay/*=true*/) {
-    report_heading(forReplay, PSTR(STR_STALLGUARD_THRESHOLD));
+    report_heading(forReplay, F(STR_STALLGUARD_THRESHOLD));
 
     auto say_M914 = [](const bool forReplay) {
       report_echo_start(forReplay);

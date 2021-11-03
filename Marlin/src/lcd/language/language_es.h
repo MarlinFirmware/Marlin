@@ -73,7 +73,7 @@ namespace Language_es {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ajustar desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicada");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Establecer origen");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Precal. ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
@@ -124,9 +124,8 @@ namespace Language_es {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplicar");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Copia Reflejada");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Control Total");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2ª Fusor X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2ª Fusor Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2ª Fusor Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2ª Fusor @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Hacer G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Herramientas UBL");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Nivelado UBL");
@@ -148,7 +147,7 @@ namespace Language_es {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Term. edici. Mallado");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Crear Mallado Pers.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Crear Mallado");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Crear Mallado ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Valid. Mall. ($)");
   #endif

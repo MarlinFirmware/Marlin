@@ -25,7 +25,7 @@
 #include "../../module/temperature.h"
 #include "../../module/planner.h"       // for planner.finish_and_disable
 #include "../../module/printcounter.h"  // for print_job_timer.stop
-#include "../../lcd/marlinui.h"         // for LCD_MESSAGEPGM_P
+#include "../../lcd/marlinui.h"         // for LCD_MESSAGE_F
 
 #include "../../inc/MarlinConfig.h"
 
@@ -48,7 +48,7 @@
 
     // S: Report the current power supply state and exit
     if (parser.seen('S')) {
-      SERIAL_ECHOPGM_P(powerManager.psu_on ? PSTR("PS:1\n") : PSTR("PS:0\n"));
+      SERIAL_ECHOF(powerManager.psu_on ? F("PS:1\n") : F("PS:0\n"));
       return;
     }
 
@@ -74,13 +74,12 @@
  *      This code should ALWAYS be available for FULL SHUTDOWN!
  */
 void GcodeSuite::M81() {
-  thermalManager.disable_all_heaters();
   planner.finish_and_disable();
+  thermalManager.cooldown();
 
   print_job_timer.stop();
 
   #if HAS_FAN
-    thermalManager.zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
       thermalManager.fans_paused = false;
       ZERO(thermalManager.saved_fan_speed);
@@ -95,5 +94,5 @@ void GcodeSuite::M81() {
     powerManager.power_off_soon();
   #endif
 
-  LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
+  LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
 }

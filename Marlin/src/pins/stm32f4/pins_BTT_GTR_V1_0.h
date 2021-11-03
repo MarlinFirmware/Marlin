@@ -31,14 +31,13 @@
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
 
+#define USES_DIAG_JUMPERS
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+#define M5_EXTENDER                               // The M5 extender is attached
+
 // Onboard I2C EEPROM
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x2000  // 8KB (24C64 ... 64Kb = 8KB)
-
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
-
-#define M5_EXTENDER                               // The M5 extender is attached
 
 //
 // Servos
@@ -483,9 +482,9 @@
   #endif
 
   // Alter timing for graphical display
-  #if ENABLED(U8GLIB_ST7920)
-    #define BOARD_ST7920_DELAY_1              96
-    #define BOARD_ST7920_DELAY_2              48
+  #if IS_U8GLIB_ST7920
+    #define BOARD_ST7920_DELAY_1             125
+    #define BOARD_ST7920_DELAY_2              90
     #define BOARD_ST7920_DELAY_3             600
   #endif
 

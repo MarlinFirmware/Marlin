@@ -103,12 +103,12 @@ axis_bits_t GcodeSuite::axis_relative = 0 LOGICAL_AXIS_GANG(
 #endif
 
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
-void GcodeSuite::report_heading(const bool forReplay, PGM_P const pstr, const bool eol/*=true*/) {
+void GcodeSuite::report_heading(const bool forReplay, FSTR_P const fstr, const bool eol/*=true*/) {
   if (forReplay) return;
-  if (pstr) {
+  if (fstr) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("; ");
-    SERIAL_ECHOPGM_P(pstr);
+    SERIAL_ECHOF(fstr);
   }
   if (eol) { SERIAL_CHAR(':'); SERIAL_EOL(); }
 }
@@ -137,11 +137,12 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
 }
 
 /**
- * Get the target e stepper from the T parameter
- * Return -1 if the T parameter is out of range or unspecified
+ * Get the target E stepper from the 'T' parameter.
+ * If there is no 'T' parameter then dval will be substituted.
+ * Returns -1 if the resulting E stepper index is out of range.
  */
-int8_t GcodeSuite::get_target_e_stepper_from_command() {
-  const int8_t e = parser.intval('T', -1);
+int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
+  const int8_t e = parser.intval('T', dval);
   if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
 
   SERIAL_ECHO_START();
@@ -237,12 +238,12 @@ void GcodeSuite::dwell(millis_t time) {
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, PSTR("G29 Retrying"), DISMISS_STR));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
     #ifdef ACTION_ON_G29_RECOVER
-      host_action(PSTR(ACTION_ON_G29_RECOVER));
+      hostui.g29_recover();
     #endif
     #ifdef G29_RECOVER_COMMANDS
-      process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+      process_subcommands_now(F(G29_RECOVER_COMMANDS));
     #endif
   }
 
@@ -252,16 +253,16 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
-      host_action(PSTR(ACTION_ON_G29_FAILURE));
+      hostui.g29_failure();
     #endif
     #ifdef G29_FAILURE_COMMANDS
-      process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+      process_subcommands_now(F(G29_FAILURE_COMMANDS));
     #endif
     #if ENABLED(G29_HALT_ON_FAILURE)
       #ifdef ACTION_ON_CANCEL
-        host_action_cancel();
+        hostui.cancel();
       #endif
-      kill(GET_TEXT(MSG_LCD_PROBING_FAILED));
+      kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
   }
 
@@ -282,10 +283,10 @@ void GcodeSuite::dwell(millis_t time) {
       }
     }
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
 
     #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
+      process_subcommands_now(F(G29_SUCCESS_COMMANDS));
     #endif
   }
 
@@ -423,7 +424,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
+      #if BOTH(PTC_PROBE, PTC_BED)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 
@@ -586,6 +587,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
 
+      #if HAS_TEMP_PROBE
+        case 192: M192(); break;                                  // M192: Wait for probe temp
+      #endif
+
       #if HAS_COOLER
         case 143: M143(); break;                                  // M143: Set cooler temperature
         case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
@@ -639,7 +644,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 
@@ -920,8 +925,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        case 192: M192(); break;                                  // M192: Wait for probe temp
+      #if HAS_PTC
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
@@ -1067,7 +1071,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 }
 
 #if ENABLED(M100_FREE_MEMORY_DUMPER)
-  void M100_dump_routine(PGM_P const title, const char * const start, const uintptr_t size);
+  void M100_dump_routine(FSTR_P const title, const char * const start, const uintptr_t size);
 #endif
 
 /**
@@ -1086,7 +1090,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHOLN(command.buffer);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
       SERIAL_ECHOPGM("slot:", queue.ring_buffer.index_r);
-      M100_dump_routine(PSTR("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
+      M100_dump_routine(F("   Command Queue:"), (const char*)&queue.ring_buffer, sizeof(queue.ring_buffer));
     #endif
   }
 
@@ -1095,12 +1099,17 @@ void GcodeSuite::process_next_command() {
   process_parsed_command();
 }
 
+#pragma GCC diagnostic push
+#if GCC_VERSION >= 80000
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+
 /**
  * Run a series of commands, bypassing the command queue to allow
  * G-code "macros" to be called from within other G-code handlers.
  */
-
-void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
+void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
+  PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state
   for (;;) {
     PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
@@ -1115,6 +1124,8 @@ void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
   }
   parser.parse(saved_cmd);                            // Restore the parser state
 }
+
+#pragma GCC diagnostic pop
 
 void GcodeSuite::process_subcommands_now(char * gcode) {
   char * const saved_cmd = parser.command_ptr;        // Save the parser state

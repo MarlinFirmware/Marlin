@@ -36,6 +36,7 @@
 #define BOARD_INFO_NAME "MKS Robin nano V2.0"
 
 #define BOARD_NO_NATIVE_USB
+#define USES_DIAG_PINS
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
 #define TEMP_TIMER                             5
@@ -365,7 +366,7 @@
 
     #endif
 
-    #if ENABLED(U8GLIB_ST7920)
+    #if IS_U8GLIB_ST7920
       #define BOARD_ST7920_DELAY_1           125
       #define BOARD_ST7920_DELAY_2           125
       #define BOARD_ST7920_DELAY_3           125

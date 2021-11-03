@@ -51,7 +51,7 @@ void MeshViewerClass::Draw() {
     NOLESS(maxz, v);
     NOMORE(minz, v);
   }
-  Title.ShowCaption(F("Mesh viewer"));
+  Title.ShowCaption(F("Mesh Viewer"));
   DWINUI::ClearMenuArea();
   DWINUI::Draw_Icon(ICON_Continue_E, 86, 305);
   DWIN_Draw_Rectangle(0, HMI_data.SplitLine_Color, px(0), py(0), px(GRID_MAX_POINTS_X - 1), py(GRID_MAX_POINTS_Y - 1));
@@ -66,7 +66,7 @@ void MeshViewerClass::Draw() {
     }
   }
   char str_1[6], str_2[6] = "";
-  ui.status_printf_P(0, PSTR("Mesh minZ: %s, maxZ: %s"),
+  ui.status_printf(0, F("Mesh minZ: %s, maxZ: %s"),
     dtostrf((float)minz / 100, 1, 2, str_1),
     dtostrf((float)maxz / 100, 1, 2, str_2)
   );

@@ -1270,7 +1270,7 @@ void Planner::recalculate() {
     #elif ENABLED(FAST_PWM_FAN)
       #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
     #else
-      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
+      #define _FAN_SET(F) set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
@@ -1393,8 +1393,8 @@ void Planner::check_axes_activity() {
   TERN_(AUTOTEMP, autotemp_task());
 
   #if ENABLED(BARICUDA)
-    TERN_(HAS_HEATER_1, analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure));
-    TERN_(HAS_HEATER_2, analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
+    TERN_(HAS_HEATER_1, set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
+    TERN_(HAS_HEATER_2, set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 }
 
@@ -1457,7 +1457,7 @@ void Planner::check_axes_activity() {
 
     float t = autotemp_min + high * autotemp_factor;
     LIMIT(t, autotemp_min, autotemp_max);
-    if (t < oldt) t *= (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
+    if (t < oldt) t = t * (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, active_extruder);
   }
@@ -2207,23 +2207,23 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
+        // Count down all steppers that were recently moved
         LOOP_L_N(i, E_STEPPERS)
           if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
 
+        // Switching Extruder uses one E stepper motor per two nozzles
         #define E_STEPPER_INDEX(E) TERN(SWITCHING_EXTRUDER, (E) / 2, E)
 
+        // Enable all (i.e., both) E steppers for IDEX-style duplication, but only active E steppers for multi-nozzle (i.e., single wide X carriage) duplication
+        #define _IS_DUPE(N) TERN0(HAS_DUPLICATION_MODE, (extruder_duplication_enabled && TERN1(MULTI_NOZZLE_DUPLICATION, TEST(duplication_e_mask, N))))
+
         #define ENABLE_ONE_E(N) do{ \
-          if (E_STEPPER_INDEX(extruder) == N) { \
-            stepper.ENABLE_EXTRUDER(N); \
-            g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
-            if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.ENABLE_EXTRUDER(1); \
+          if (N == E_STEPPER_INDEX(extruder) || _IS_DUPE(N)) {    /* N is 'extruder', or N is duplicating */ \
+            stepper.ENABLE_EXTRUDER(N);                           /* Enable the relevant E stepper... */ \
+            g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; /* ...and reset its counter */ \
           } \
-          else if (!g_uc_extruder_last_move[N]) { \
-            stepper.DISABLE_EXTRUDER(N); \
-            if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              stepper.DISABLE_EXTRUDER(1); \
-          } \
+          else if (!g_uc_extruder_last_move[N])                   /* Counter expired since last E stepper enable */ \
+            stepper.DISABLE_EXTRUDER(N);                          /* Disable the E stepper */ \
         }while(0);
 
       #else
@@ -3036,7 +3036,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s, cons
 
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
     if (!last_page_step_rate) {
-      kill(GET_TEXT(MSG_BAD_PAGE_SPEED));
+      kill(GET_TEXT_F(MSG_BAD_PAGE_SPEED));
       return;
     }
 

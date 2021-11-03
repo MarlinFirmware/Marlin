@@ -27,9 +27,10 @@
 
 #include "env_validate.h"
 
-#define BOARD_NO_NATIVE_USB
-
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
+
+#define BOARD_NO_NATIVE_USB
+#define USES_DIAG_JUMPERS
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -54,8 +55,19 @@
 //
 #define X_STOP_PIN                          PA12
 #define Y_STOP_PIN                          PA11
-#define Z_MIN_PIN                           PC6
-#define Z_MAX_PIN                           PB1
+#define Z_STOP_PIN                          PC6
+
+//
+// Z Probe
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1
+#endif
+
+// LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA2
+#endif
 
 //
 // Steppers
@@ -221,7 +233,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1             125
   #endif

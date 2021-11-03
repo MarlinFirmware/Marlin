@@ -108,7 +108,7 @@ namespace Language_uk {
   #else
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє знач. ");
   #endif
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                      = _UxGT("Нагрів ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                    = _UxGT("Нагрів ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                  = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" сопло");
@@ -198,9 +198,8 @@ namespace Language_uk {
   LSTR MSG_IDEX_MODE_FULL_CTRL              = _UxGT("Повний контроль");
   LSTR MSG_IDEX_DUPE_GAP                    = _UxGT("Дублюв. X-проміжок");
 
-  LSTR MSG_HOTEND_OFFSET_X                  = _UxGT("Друге сопло X");
-  LSTR MSG_HOTEND_OFFSET_Y                  = _UxGT("Друге сопло Y");
   LSTR MSG_HOTEND_OFFSET_Z                  = _UxGT("Друге сопло Z");
+  LSTR MSG_HOTEND_OFFSET_A                  = _UxGT("Друге сопло @");
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Виконується G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Інструменти UBL");

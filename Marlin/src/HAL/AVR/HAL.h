@@ -157,16 +157,14 @@ inline uint8_t HAL_get_reset_source() { return MCUSR; }
 
 void HAL_reboot();
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 extern "C" int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 // ADC
 #ifdef DIDR2
@@ -223,7 +221,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired);
 
 /**
  * set_pwm_duty
- *  Sets the PWM duty cycle of the provided pin to the provided value
+ *  Set the PWM duty cycle of the provided pin to the provided value
  *  Optionally allows inverting the duty cycle [default = false]
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
  */

@@ -579,12 +579,12 @@
 #endif
 
 // The X2 axis, if any, should be the next open extruder port
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && !defined(X2_DIAG_PIN) && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS_PIN)
+#if HAS_X2_STEPPER && !defined(X2_DIAG_PIN) && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS_PIN)
   #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
 #else
   #define Y2_E_INDEX X2_E_INDEX
 #endif
-#if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+#if HAS_X2_STEPPER
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
     #define X2_DIR_PIN    _EPIN(X2_E_INDEX, DIR)
@@ -1260,22 +1260,22 @@
 // Disable unused endstop / probe pins
 //
 #define _STOP_IN_USE(N) (X2_USE_ENDSTOP == N || Y2_USE_ENDSTOP == N || Z2_USE_ENDSTOP == N || Z3_USE_ENDSTOP == N || Z4_USE_ENDSTOP == N)
-#if _STOP_IN_USE(_XMAX_)
+#if !defined(USE_XMAX_PLUG) && _STOP_IN_USE(_XMAX_)
   #define USE_XMAX_PLUG
 #endif
-#if _STOP_IN_USE(_YMAX_)
+#if !defined(USE_YMAX_PLUG) && _STOP_IN_USE(_YMAX_)
   #define USE_YMAX_PLUG
 #endif
-#if _STOP_IN_USE(_ZMAX_)
+#if !defined(USE_ZMAX_PLUG) && _STOP_IN_USE(_ZMAX_)
   #define USE_ZMAX_PLUG
 #endif
-#if _STOP_IN_USE(_XMIN_)
+#if !defined(USE_XMIN_PLUG) && _STOP_IN_USE(_XMIN_)
   #define USE_XMIN_PLUG
 #endif
-#if _STOP_IN_USE(_YMIN_)
+#if !defined(USE_YMIN_PLUG) && _STOP_IN_USE(_YMIN_)
   #define USE_YMIN_PLUG
 #endif
-#if _STOP_IN_USE(_ZMIN_)
+#if !defined(USE_ZMIN_PLUG) && _STOP_IN_USE(_ZMIN_)
   #define USE_ZMIN_PLUG
 #endif
 #undef _STOP_IN_USE
@@ -1366,7 +1366,7 @@
 //
 // Default DOGLCD SPI delays
 //
-#if DISABLED(U8GLIB_ST7920)
+#if !IS_U8GLIB_ST7920
   #undef ST7920_DELAY_1
   #undef ST7920_DELAY_2
   #undef ST7920_DELAY_3

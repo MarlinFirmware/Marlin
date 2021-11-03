@@ -66,7 +66,7 @@ static void _menu_single_probe() {
   STATIC_ITEM(MSG_BED_TRAMMING, SS_LEFT);
   STATIC_ITEM(MSG_LAST_VALUE_SP, SS_LEFT, z_isvalid[tram_index] ? ftostr42_52(z_measured[reference_index] - z_measured[tram_index]) : "---");
   ACTION_ITEM(MSG_UBL_BC_INSERT2, []{ if (probe_single_point()) ui.refresh(); });
-  ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen(); });
+  ACTION_ITEM(MSG_BUTTON_DONE, ui.goto_previous_screen);
   END_MENU();
 }
 
@@ -96,7 +96,7 @@ void goto_tramming_wizard() {
 
   // Inject G28, wait for homing to complete,
   set_all_unhomed();
-  queue.inject_P(TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+  queue.inject(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
 
   ui.goto_screen([]{
     _lcd_draw_homing();

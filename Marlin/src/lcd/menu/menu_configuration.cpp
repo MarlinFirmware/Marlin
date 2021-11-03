@@ -64,9 +64,7 @@ void menu_advanced_settings();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      #if HAS_MARLINUI_HD44780
-        ui.set_custom_characters(CHARSET_MENU);
-      #endif
+      TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_MENU));
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
@@ -79,9 +77,7 @@ void menu_advanced_settings();
 
   void _progress_bar_test() {
     ui.goto_screen(progress_bar_test);
-    #if HAS_MARLINUI_HD44780
-      ui.set_custom_characters(CHARSET_INFO);
-    #endif
+    TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_INFO));
   }
 
 #endif // LCD_PROGRESS_BAR_TEST
@@ -174,12 +170,12 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(DUAL_X_CARRIAGE)
-      EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_X, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_X, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Y, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
-    EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Z, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
@@ -310,7 +306,7 @@ void menu_advanced_settings();
 
 #endif
 
-#if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
+#if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
 
   void _menu_configuration_preheat_settings() {
     #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
@@ -341,8 +337,8 @@ void menu_advanced_settings();
 
 #if ENABLED(CUSTOM_MENU_CONFIG)
 
-  void _lcd_custom_menus_configuration_gcode(PGM_P const cmd) {
-    queue.inject_P(cmd);
+  void _lcd_custom_menus_configuration_gcode(FSTR_P const fstr) {
+    queue.inject(fstr);
     TERN_(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
     TERN_(CUSTOM_MENU_CONFIG_SCRIPT_RETURN, ui.return_to_status());
   }
@@ -358,13 +354,12 @@ void menu_advanced_settings();
     #else
       #define _DONE_SCRIPT ""
     #endif
-    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(PSTR(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(F(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
     #define _CUSTOM_ITEM_CONF_CONFIRM(N)               \
       SUBMENU_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), []{ \
           MenuItem_confirm::confirm_screen(            \
-            GCODE_LAMBDA_CONF(N),                      \
-            ui.goto_previous_screen,                   \
+            GCODE_LAMBDA_CONF(N), nullptr,             \
             PSTR(CONFIG_MENU_ITEM_##N##_DESC "?")      \
           );                                           \
         })
@@ -547,7 +542,7 @@ void menu_configuration() {
   #endif
 
   // Preheat configurations
-  #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
+  #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
     LOOP_L_N(m, PREHEAT_COUNT)
       SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
