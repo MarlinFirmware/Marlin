@@ -108,7 +108,11 @@ const XrefInfo pin_xref[] PROGMEM = {
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + NUM_ANALOG_INPUTS
+
+#if PA0 > NUM_DIGITAL_PINS
+   #define HAS_HIGH_ANALOG_PINS 1
+#endif
+#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS,NUM_ANALOG_INPUTS)
 #define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
