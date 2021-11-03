@@ -3,7 +3,7 @@
 # Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
 #
 Import("env")
-import os,requests,zipfile,tempfile,shutil,pioutil
+import os,requests,zipfile,tempfile,shutil
 
 url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/0263cdaccf.zip"
 deps_path = env.Dictionary("PROJECT_LIBDEPS_DIR")
