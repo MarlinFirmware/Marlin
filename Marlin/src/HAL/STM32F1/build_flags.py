@@ -1,6 +1,8 @@
 from __future__ import print_function
 import sys
 
+print("Executing build_flags.py")
+
 #dynamic build flags for generic compile options
 if __name__ == "__main__":
   args = " ".join([ "-std=gnu++14",
@@ -30,25 +32,27 @@ if __name__ == "__main__":
 
 # extra script for linker options
 else:
-  from SCons.Script import DefaultEnvironment
-  env = DefaultEnvironment()
-  env.Append(
+  import pioutil
+  if not pioutil.is_vscode_init():
+    from SCons.Script import DefaultEnvironment
+    env = DefaultEnvironment()
+    env.Append(
       ARFLAGS=["rcs"],
 
       ASFLAGS=["-x", "assembler-with-cpp"],
 
       CXXFLAGS=[
-          "-fabi-version=0",
-          "-fno-use-cxa-atexit",
-          "-fno-threadsafe-statics"
+        "-fabi-version=0",
+        "-fno-use-cxa-atexit",
+        "-fno-threadsafe-statics"
       ],
       LINKFLAGS=[
-          "-Os",
-          "-mcpu=cortex-m3",
-          "-ffreestanding",
-          "-mthumb",
-          "--specs=nano.specs",
-          "--specs=nosys.specs",
-          "-u_printf_float",
+        "-Os",
+        "-mcpu=cortex-m3",
+        "-ffreestanding",
+        "-mthumb",
+        "--specs=nano.specs",
+        "--specs=nosys.specs",
+        "-u_printf_float",
       ],
-  )
+    )

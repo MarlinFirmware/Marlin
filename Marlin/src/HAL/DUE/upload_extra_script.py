@@ -4,15 +4,18 @@
 #  Windows: bossac.exe
 #  Other: leave unchanged
 #
+print("Executing upload_extra_script.py")
 
-import platform
-current_OS = platform.system()
+import pioutil
+if not pioutil.is_vscode_init():
+	import platform
+	current_OS = platform.system()
 
-if current_OS == 'Windows':
+	if current_OS == 'Windows':
 
-	Import("env")
+		Import("env")
 
-	# Use bossac.exe on Windows
-	env.Replace(
-	    UPLOADCMD="bossac --info --unlock --write --verify --reset --erase -U false --boot $SOURCE"
-	)
+		# Use bossac.exe on Windows
+		env.Replace(
+			UPLOADCMD="bossac --info --unlock --write --verify --reset --erase -U false --boot $SOURCE"
+		)
