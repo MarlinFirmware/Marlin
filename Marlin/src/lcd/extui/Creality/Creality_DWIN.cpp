@@ -66,6 +66,8 @@ namespace ExtUI
   bool AutohomeKey = false;
   unsigned char AutoHomeIconNum;
 
+  uint8_t lastPauseMsgState = 0;
+
   creality_dwin_settings_t Settings;
   uint8_t dwin_settings_version = 1;
 
@@ -155,6 +157,10 @@ void onIdle()
 {
   if (reEntryPrevent)
     return;
+
+  if (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
+		rtscheck.RTS_HandleData();
+
   if(idleThrottling++ < 750){
     return;
   }
@@ -165,7 +171,7 @@ void onIdle()
   rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
-  if(awaitingUserConfirm())
+  if(awaitingUserConfirm() && lastPauseMsgState!=ExtUI::pauseModeStatus)
   {
     switch(ExtUI::pauseModeStatus)
       {
@@ -233,7 +239,7 @@ void onIdle()
 			if (AutohomeKey && isPositionKnown() && !commandsInQueue())
 			{ //Manual Move Home Done
         SERIAL_ECHOLNPGM_P(PSTR("==waitway 4=="));
-				rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
+				//rtscheck.RTS_SndData(ExchangePageBase + 21 + AxisPagenum, ExchangepageAddr);
 				AutohomeKey = false;
 				waitway = 0;
 			}
@@ -353,6 +359,22 @@ void onIdle()
   rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
   rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
 
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(X)/100), Accel_X);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Y)/100), Accel_Y);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Z)/100), Accel_Z);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(E0)/100), Accel_E);
+
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(X)), Feed_X);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Z)), Feed_Z);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(E0)), Feed_E);
+
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(X)*100), Jerk_X);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Y)*100), Jerk_Y);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Z)*100), Jerk_Z);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
+
+
   #if HAS_BED_PROBE
     rtscheck.RTS_SndData(getProbeOffset_mm(X) * 100, ProbeOffset_X);
     rtscheck.RTS_SndData(getProbeOffset_mm(Y) * 100, ProbeOffset_Y);
@@ -432,8 +454,6 @@ void onIdle()
   }
 
   void yield();
-	if (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
-		rtscheck.RTS_HandleData();
 
   if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
 		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
@@ -755,6 +775,18 @@ void RTSSHOW::RTS_HandleData()
     case BedPID_P :
     case BedPID_I :
     case BedPID_D :
+    case Accel_X:
+    case Accel_Y:
+    case Accel_Z:
+    case Accel_E:
+    case Feed_X:
+    case Feed_Y:
+    case Feed_Z:
+    case Feed_E:
+    case Jerk_X:
+    case Jerk_Y:
+    case Jerk_Z:
+    case Jerk_E:
       Checkkey = ManualSetTemp;
     break;
   }
@@ -1079,18 +1111,33 @@ void RTSSHOW::RTS_HandleData()
       #endif
 
       else if (recdat.addr == Accel_X) {
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], X);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, X);
       }
       else if (recdat.addr == Accel_Y) {
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], Y);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, Y);
       }
       else if (recdat.addr == Accel_Z) {
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], Z);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, Z);
       }
       else if (recdat.addr == Accel_E) {
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E0);
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E1);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, E0);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, E1);
       }
+
+      else if (recdat.addr == Feed_X) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], X);
+        }
+        else if (recdat.addr == Feed_Y) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], Y);
+        }
+        else if (recdat.addr == Feed_Z) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], Z);
+        }
+        else if (recdat.addr == Feed_E) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], E0);
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], E1);
+        }
+
 
       else {
         float tmp_float_handling;
@@ -1142,20 +1189,6 @@ void RTSSHOW::RTS_HandleData()
             setAxisMaxJerk_mm_s(tmp_float_handling, E1);
           }
         #endif
-
-        else if (recdat.addr == Feed_X) {
-          setAxisMaxFeedrate_mm_s(tmp_float_handling, X);
-        }
-        else if (recdat.addr == Feed_Y) {
-          setAxisMaxFeedrate_mm_s(tmp_float_handling, Y);
-        }
-        else if (recdat.addr == Feed_Z) {
-          setAxisMaxFeedrate_mm_s(tmp_float_handling, Z);
-        }
-        else if (recdat.addr == Feed_E) {
-          setAxisMaxFeedrate_mm_s(tmp_float_handling, E0);
-          setAxisMaxFeedrate_mm_s(tmp_float_handling, E1);
-        }
 
         #if HAS_PID_HEATING
           else if (recdat.addr == HotendPID_P) {
@@ -1238,7 +1271,7 @@ void RTSSHOW::RTS_HandleData()
       else if (recdat.data[0] == 3) //Move
       {
         AxisPagenum = 0;
-        RTS_SndData(ExchangePageBase + 71, ExchangepageAddr);
+        RTS_SndData(ExchangePageBase + 21, ExchangepageAddr);
       }
       else if (recdat.data[0] == 4) //Language
       {
@@ -1293,7 +1326,6 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            injectCommands_P(PSTR("M500"));
             onStatusChanged(zOffs);
           }
           break;
@@ -1309,7 +1341,6 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            injectCommands_P(PSTR("M500"));
             onStatusChanged(zOffs);
           }
           break;
@@ -1521,7 +1552,7 @@ void RTSSHOW::RTS_HandleData()
           injectCommands_P((PSTR("G28\nG1 F1000 Z10")));
           InforShowStatus = AutohomeKey = true;
           AutoHomeIconNum = 0;
-          RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
+          //RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
           RTS_SndData(10, FilenameIcon);
         }
         else
@@ -1697,7 +1728,7 @@ void RTSSHOW::RTS_HandleData()
         #elif NUM_RUNOUT_SENSORS > 1
           (getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT2_STATE)
         #else
-          getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE
+          (getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
         #endif
          || (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION)
         ) {
@@ -2176,6 +2207,9 @@ void onUserConfirmRequired(const char *const msg)
 {
   PrinterStatusKey[1] = 4;
   TPShowStatus = false;
+  if(lastPauseMsgState==ExtUI::pauseModeStatus && msg == (const char*)GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD))
+    return;
+
   switch(ExtUI::pauseModeStatus)
   {
     case PAUSE_MESSAGE_WAITING:
@@ -2269,6 +2303,7 @@ void onUserConfirmRequired(const char *const msg)
         break;
       }
   }
+  lastPauseMsgState = ExtUI::pauseModeStatus;
 	SERIAL_ECHOLNPGM_P(PSTR("==onUserConfirmRequired=="), pauseModeStatus);
 }
 

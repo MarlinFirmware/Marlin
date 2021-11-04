@@ -1048,7 +1048,7 @@
 #define SLOWDOWN
 #if ENABLED(SLOWDOWN)
   #if ENABLED(MachineLargeROM)
-    #define SLOWDOWN_DIVISOR 4
+    #define SLOWDOWN_DIVISOR 8
   #else
     #define SLOWDOWN_DIVISOR 2
   #endif
@@ -2210,9 +2210,12 @@
  *
  * Override the default value based on the driver type set in Configuration.h.
  */
-//#define MINIMUM_STEPPER_POST_DIR_DELAY 650
-//#define MINIMUM_STEPPER_PRE_DIR_DELAY 650
-
+#if ENABLED(MachineEnder7)
+  #define MINIMUM_STEPPER_POST_DIR_DELAY 10
+  #define MINIMUM_STEPPER_PRE_DIR_DELAY 10
+  #define MINIMUM_STEPPER_PULSE 0
+  #define MAXIMUM_STEPPER_RATE 5000000
+#endif
 /**
  * Minimum stepper driver pulse width (in µs)
  *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
@@ -2254,7 +2257,7 @@
 // The number of linear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
 #if ENABLED(MachineLargeROM) || DISABLED(EXTENSIBLE_UI)
-  #define BLOCK_BUFFER_SIZE 16
+  #define BLOCK_BUFFER_SIZE 32
 #else
   #define BLOCK_BUFFER_SIZE 8
 #endif

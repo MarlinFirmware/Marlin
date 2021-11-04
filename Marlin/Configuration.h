@@ -2166,7 +2166,7 @@
       #define NOZZLE_TO_PROBE_OFFSET { -27.625, 0.0, 0 }
     #endif
   #endif
-#elif EITHER(MachineCRXPro, MachineEnder3Max) && ALL(HotendStock, ABL_BLTOUCH)
+#elif ANY(MachineCRXPro, MachineEnder3Max, MachineSermoonD1, MachineEnder7) && ALL(HotendStock, ABL_BLTOUCH)
   #define NOZZLE_TO_PROBE_OFFSET { 48, 3, 0 }
 #elif ANY(MachineCR6, MachineCR6Max)
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0.2 }
@@ -2589,8 +2589,8 @@
     #define X_BED_SIZE 250
     #define Y_BED_SIZE 250
     #define Z_MAX_POS 350
-    #define X_MAX_POS 260
-    #define Y_MAX_POS 260
+    #define X_MAX_POS 255
+    #define Y_MAX_POS 255
     #define ClipClearance 10
   #elif ENABLED(MachineCR30)
     #define X_BED_SIZE 220
@@ -2679,9 +2679,6 @@
 #elif ENABLED(MachineCR6)
   #define X_MIN_POS -5
   #define Y_MIN_POS -2
-#elif ANY(MachineSermoonD1, MachineEnder7)
-  #define X_MIN_POS -10
-  #define Y_MIN_POS -10
 #elif ENABLED(MachineCR6Max)
   #define X_MIN_POS -10
   #define Y_MIN_POS -3

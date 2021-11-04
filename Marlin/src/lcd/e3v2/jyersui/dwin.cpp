@@ -4629,7 +4629,7 @@ void CrealityDWINClass::Popup_Control() {
         case PurgeMore:
           if (selection == 0) {
             pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
-            Popup_Handler(FilChange);
+            Popup_Handler(FilInsert);
           }
           else {
             pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
@@ -5043,7 +5043,7 @@ void MarlinUI::init() {
   Encoder_Configuration();
   for (uint16_t t = 0; t <= 100; t += 2) {
     DWIN_ICON_Show(ICON, ICON_Bar, 15, 450);
-    DWIN_Draw_Rectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 260, 257, 280);
+    DWIN_Draw_Rectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 450, 257, 470);
     DWIN_UpdateLCD();
     delay(20);
   }
@@ -5059,7 +5059,9 @@ void MarlinUI::init() {
       case PAUSE_MESSAGE_PURGE:   CrealityDWIN.Popup_Handler(PurgeMore);    break;
       case PAUSE_MESSAGE_HEAT:    CrealityDWIN.Confirm_Handler(HeaterTime); break;
       case PAUSE_MESSAGE_WAITING: CrealityDWIN.Draw_Print_Screen();         break;
-      default: break;
+      default:
+      SERIAL_ECHOLNPGM("PauseState: ", PAUSE_MESSAGE_WAITING);
+      break;
     }
   }
 #endif
