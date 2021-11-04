@@ -36,7 +36,7 @@
  * Advanced settings can be found in Configuration_adv.h
  */
 #define CONFIGURATION_H_VERSION 02000902
-#define ARTIST_D_PRO_VERSION "Version:Artist-D Pro BiquH2 M2092 ImpV2021.10.15"
+#define ARTIST_D_PRO_VERSION "Version:Artist-D Pro BiquH2 M2092 ImpV2021.10.19"
 
 /**IMP-Begin JG changes
 #define TFT_LITTLE_VGL_UI
@@ -514,8 +514,8 @@
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  *
  */
-#define TEMP_SENSOR_0 5 //**IMP-H2 change from 1
-#define TEMP_SENSOR_1 5 //**IMP-H2 change from 1
+#define TEMP_SENSOR_0 11 //**IMP-H2 change from 1
+#define TEMP_SENSOR_1 11 //**IMP-H2 change from 1
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -627,9 +627,9 @@
     //#define DEFAULT_Kp_LIST {  22.20,  22.20 } //**IMP-H2 - Original values
     //#define DEFAULT_Ki_LIST {   1.08,   1.08 } //**IMP-H2 - Original values
     //#define DEFAULT_Kd_LIST { 114.00, 114.00 } //**IMP-H2 - Original values
-    #define DEFAULT_Kp_LIST { 13.19, 12.94 }     //**IMP-H2 - New PID Tune values
-    #define DEFAULT_Ki_LIST {  0.74,  0.70 }     //**IMP-H2 - New PID Tune values
-    #define DEFAULT_Kd_LIST { 58.98, 60.17 }     //**IMP-H2 - New PID Tune values
+    #define DEFAULT_Kp_LIST { 09.23, 12.94 }     //**IMP-H2 - New PID Tune values
+    #define DEFAULT_Ki_LIST {  0.46,  0.70 }     //**IMP-H2 - New PID Tune values
+    #define DEFAULT_Kd_LIST { 46.16, 60.17 }     //**IMP-H2 - New PID Tune values
   #else
     #define DEFAULT_Kp  22.20
     #define DEFAULT_Ki   1.08
