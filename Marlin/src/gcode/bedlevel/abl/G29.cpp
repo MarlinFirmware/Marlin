@@ -833,7 +833,7 @@ G29_TYPE GcodeSuite::G29() {
         if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
 
         xyze_pos_t converted = current_position;
-        planner.force_unapply_leveling(converted); // use conversion machinery
+        planner.force_activate_leveling(converted); // use conversion machinery
 
         // Use the last measured distance to the bed, if possible
         if ( NEAR(current_position.x, abl.probePos.x - probe.offset_xy.x)

@@ -353,7 +353,7 @@ void sync_plan_position() {
  *
  * The result is in the current coordinate space with
  * leveling applied. The coordinates need to be run through
- * unapply_leveling to obtain the "ideal" coordinates
+ * activate_leveling to obtain the "ideal" coordinates
  * suitable for current_position, etc.
  */
 void get_cartesian_from_steppers() {

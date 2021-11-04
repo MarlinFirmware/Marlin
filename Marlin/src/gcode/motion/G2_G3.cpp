@@ -315,7 +315,7 @@ void plan_arc(
     apply_motion_limits(raw);
 
     #if HAS_LEVELING && !PLANNER_LEVELING
-      planner.apply_leveling(raw);
+      planner.deactivate_leveling(raw);
     #endif
 
     if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration)))
@@ -331,7 +331,7 @@ void plan_arc(
   apply_motion_limits(raw);
 
   #if HAS_LEVELING && !PLANNER_LEVELING
-    planner.apply_leveling(raw);
+    planner.deactivate_leveling(raw);
   #endif
 
   planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0 OPTARG(SCARA_FEEDRATE_SCALING, inv_duration));

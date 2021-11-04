@@ -1564,7 +1564,7 @@ void Planner::check_axes_activity() {
    * rx, ry, rz - Cartesian positions in mm
    *              Leveled XYZ on completion
    */
-  void Planner::apply_leveling(xyz_pos_t &raw) {
+  void Planner::deactivate_leveling(xyz_pos_t &raw) {
     if (!leveling_active) return;
 
     #if ABL_PLANAR
@@ -1594,7 +1594,7 @@ void Planner::check_axes_activity() {
     #endif
   }
 
-  void Planner::unapply_leveling(xyz_pos_t &raw) {
+  void Planner::activate_leveling(xyz_pos_t &raw) {
 
     if (leveling_active) {
 
