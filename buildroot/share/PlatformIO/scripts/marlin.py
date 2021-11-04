@@ -1,5 +1,5 @@
 #
-# buildroot/share/PlatformIO/scripts/marlin.py
+# marlin.py
 # Helper module with some commonly-used functions
 #
 import os,shutil
@@ -10,13 +10,13 @@ env = DefaultEnvironment()
 from os.path import join
 
 def copytree(src, dst, symlinks=False, ignore=None):
-   for item in os.listdir(src):
-        s = join(src, item)
-        d = join(dst, item)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, symlinks, ignore)
-        else:
-            shutil.copy2(s, d)
+	for item in os.listdir(src):
+		s = join(src, item)
+		d = join(dst, item)
+		if os.path.isdir(s):
+			shutil.copytree(s, d, symlinks, ignore)
+		else:
+			shutil.copy2(s, d)
 
 def replace_define(field, value):
 	for define in env['CPPDEFINES']:
