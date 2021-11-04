@@ -89,9 +89,17 @@
 #define HEATER_BED_PIN                      PA8   // pin 67 (Hot Bed Mosfet)
 
 #define FAN_PIN                             PA15  // pin 77 (4cm Fan)
-#define FAN_SOFT_PWM                              // Required to avoid issues with heating or STLink
-#define FAN_MIN_PWM                           35  // Fan will not start in 1-30 range
-#define FAN_MAX_PWM                          255
+#ifdef MAPLE_STM32F1
+  #define FAN_SOFT_PWM                            // Required to avoid issues with heating or STLink
+  #define FAN_MIN_PWM                         35  // Fan will not start in 1-30 range
+  #define FAN_MAX_PWM                        255
+#else
+  #define FAST_PWM_FAN                            // STM32 Variant allow TIMER2 Hardware PWM
+  #define FAST_PWM_FAN_FREQUENCY           31400  // This frequency allow a good range, fan starts at 3%, half noise at 50%
+  #define NEEDS_HARDWARE_PWM                   1
+  #define FAN_MIN_PWM                          5
+  #define FAN_MAX_PWM                        255
+#endif
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
                                                   // Can drive a PC Buzzer, if connected between PWM and 5V pins
