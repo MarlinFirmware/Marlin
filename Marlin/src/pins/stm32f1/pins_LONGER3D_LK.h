@@ -95,8 +95,9 @@
   #define FAN_MAX_PWM                        255
 #else
   #define FAST_PWM_FAN                            // STM32 Variant allow TIMER2 Hardware PWM
-  #define FAN_MIN_PWM                         10
-  #define FAN_MAX_PWM                        170  // All over 150 do 100%
+  #define FAST_PWM_FAN_FREQUENCY           31400  // This frequency allow a good range, fan starts at 3%, half noise at 50%
+  #define FAN_MIN_PWM                          5
+  #define FAN_MAX_PWM                        255
 #endif
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
