@@ -91,7 +91,7 @@ typedef int8_t pin_t;
 // Public Variables
 // ------------------------
 
-//extern uint8_t MCUSR;
+extern uint8_t reset_reason;
 
 // Serial ports
 #ifdef USBCON
@@ -152,8 +152,8 @@ void HAL_init();
 
 //void _delay_ms(const int delay);
 
-inline void HAL_clear_reset_source() { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source() { return MCUSR; }
+inline void HAL_clear_reset_source() { }
+inline uint8_t HAL_get_reset_source() { return reset_reason; }
 
 void HAL_reboot();
 
