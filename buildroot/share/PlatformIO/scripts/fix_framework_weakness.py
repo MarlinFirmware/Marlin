@@ -1,8 +1,6 @@
 #
 # fix_framework_weakness.py
 #
-print("Executing fix_framework_weakness.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 

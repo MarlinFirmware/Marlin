@@ -5,8 +5,6 @@
 #   env:LERDGES  env:LERDGES_usb_flash_drive
 #   env:LERDGEK  env:LERDGEK_usb_flash_drive
 #
-print("Executing lerdge.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os,marlin

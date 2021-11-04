@@ -2,8 +2,6 @@
 # common-cxxflags.py
 # Convenience script to apply customizations to CPP flags
 #
-print("Executing common-cxxflags.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	Import("env")

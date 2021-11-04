@@ -2,8 +2,6 @@
 # jgaurora_a5s_a1_with_bootloader.py
 # Customizations for env:jgaurora_a5s_a1
 #
-print("Executing jgaurora_a5s_a1_with_bootloader.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os,marlin

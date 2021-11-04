@@ -2,8 +2,6 @@
 # preflight-checks.py
 # Check for common issues prior to compiling
 #
-print("Executing preflight-checks.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 

@@ -8,8 +8,6 @@
 #
 # - For 'board_build.rename' add a post-action to rename the firmware file.
 #
-print("Executing offset_and_rename.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os,sys,marlin

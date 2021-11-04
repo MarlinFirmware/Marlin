@@ -4,8 +4,6 @@
 #  Windows: bossac.exe
 #  Other: leave unchanged
 #
-print("Executing upload_extra_script.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import platform

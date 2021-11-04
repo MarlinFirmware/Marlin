@@ -2,8 +2,6 @@
 # random-bin.py
 # Set a unique firmware name based on current date and time
 #
-print("Executing random-bin.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	from datetime import datetime

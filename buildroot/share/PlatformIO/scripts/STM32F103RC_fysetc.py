@@ -1,8 +1,6 @@
 #
 # STM32F103RC_fysetc.py
 #
-print("Executing STM32F103RC_fysetc.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os

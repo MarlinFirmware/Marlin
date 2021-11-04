@@ -6,8 +6,6 @@
 #
 from __future__ import print_function
 
-print("Executing upload_extra_script.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 

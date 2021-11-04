@@ -5,8 +5,6 @@
 # the appropriate framework variants folder, so that its contents
 # will be picked up by PlatformIO just like any other variant.
 #
-print("Executing generic_create_variant.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os,shutil,marlin

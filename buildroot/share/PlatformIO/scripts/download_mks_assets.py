@@ -2,8 +2,6 @@
 # download_mks_assets.py
 # Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
 #
-print("Executing download_mks_assets.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	Import("env")

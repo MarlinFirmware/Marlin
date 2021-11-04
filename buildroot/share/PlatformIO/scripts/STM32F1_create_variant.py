@@ -1,8 +1,6 @@
 #
 # STM32F1_create_variant.py
 #
-print("Executing STM32F1_create_variant.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os,shutil,marlin

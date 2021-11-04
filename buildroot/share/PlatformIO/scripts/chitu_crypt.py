@@ -2,8 +2,6 @@
 # chitu_crypt.py
 # Customizations for Chitu boards
 #
-print("Executing chitu_crypt.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os,random,struct,uuid,marlin

@@ -1,8 +1,6 @@
 #
 # Convert the ELF to an SREC file suitable for some bootloaders
 #
-print("Executing openblt.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	import os,sys

@@ -2,8 +2,6 @@
 # post:common-dependencies-post.py
 # Convenience script to add build flags for Marlin Enabled Features
 #
-print("Executing common-dependencies-post.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	Import("env", "projenv")

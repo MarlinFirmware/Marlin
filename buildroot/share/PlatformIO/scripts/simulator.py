@@ -2,8 +2,6 @@
 # simulator.py
 # PlatformIO pre: script for simulator builds
 #
-print("Executing simulator.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	# Get the environment thus far for the build

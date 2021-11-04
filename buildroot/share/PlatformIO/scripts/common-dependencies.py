@@ -2,8 +2,6 @@
 # common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
-print("Executing common-dependencies.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 

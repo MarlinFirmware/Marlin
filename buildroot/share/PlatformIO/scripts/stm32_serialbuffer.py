@@ -1,8 +1,6 @@
 #
 # stm32_serialbuffer.py
 #
-print("Executing stm32_serialbuffer.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	Import("env")

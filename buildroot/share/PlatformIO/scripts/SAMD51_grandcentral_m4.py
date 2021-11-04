@@ -2,8 +2,6 @@
 # SAMD51_grandcentral_m4.py
 # Customizations for env:SAMD51_grandcentral_m4
 #
-print("Executing SAMD51_grandcentral_m4.py")
-
 import pioutil
 if not pioutil.is_vscode_init():
 	from os.path import join, isfile
