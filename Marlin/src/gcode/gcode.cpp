@@ -137,11 +137,12 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
 }
 
 /**
- * Get the target e stepper from the T parameter
- * Return -1 if the T parameter is out of range or unspecified
+ * Get the target E stepper from the 'T' parameter.
+ * If there is no 'T' parameter then dval will be substituted.
+ * Returns -1 if the resulting E stepper index is out of range.
  */
-int8_t GcodeSuite::get_target_e_stepper_from_command() {
-  const int8_t e = parser.intval('T', -1);
+int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
+  const int8_t e = parser.intval('T', dval);
   if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
 
   SERIAL_ECHO_START();
@@ -423,7 +424,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
+      #if BOTH(PTC_PROBE, PTC_BED)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 
@@ -586,6 +587,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
       #endif
 
+      #if HAS_TEMP_PROBE
+        case 192: M192(); break;                                  // M192: Wait for probe temp
+      #endif
+
       #if HAS_COOLER
         case 143: M143(); break;                                  // M143: Set cooler temperature
         case 193: M193(); break;                                  // M193: Wait for cooler temperature to reach target
@@ -639,7 +644,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 
@@ -920,8 +925,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        case 192: M192(); break;                                  // M192: Wait for probe temp
+      #if HAS_PTC
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 

@@ -76,10 +76,6 @@
   #include "../../../module/probe.h"
 #endif
 
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
-  #define HAS_PREHEAT 1
-#endif
-
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif
@@ -1034,7 +1030,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
       #define PREPARE_MANUALLEVEL (PREPARE_HOME + 1)
       #define PREPARE_ZOFFSET (PREPARE_MANUALLEVEL + ENABLED(HAS_ZOFFSET_ITEM))
       #define PREPARE_PREHEAT (PREPARE_ZOFFSET + ENABLED(HAS_PREHEAT))
-      #define PREPARE_COOLDOWN (PREPARE_PREHEAT + ENABLED(HAS_PREHEAT))
+      #define PREPARE_COOLDOWN (PREPARE_PREHEAT + EITHER(HAS_HOTEND, HAS_HEATED_BED))
       #define PREPARE_CHANGEFIL (PREPARE_COOLDOWN + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define PREPARE_TOTAL PREPARE_CHANGEFIL
 
@@ -1100,13 +1096,14 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             else
               Draw_Menu(Preheat);
             break;
+        #endif
+
+        #if HAS_HOTEND || HAS_HEATED_BED
           case PREPARE_COOLDOWN:
             if (draw)
               Draw_Menu_Item(row, ICON_Cool, F("Cooldown"));
-            else {
-              TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-              thermalManager.disable_all_heaters();
-            }
+            else
+              thermalManager.cooldown();
             break;
         #endif
 
@@ -1588,17 +1585,23 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
         }
         break;
     #endif
-    #if HAS_PREHEAT
-      case Preheat:
 
+    #if HAS_PREHEAT
+      case Preheat: {
         #define PREHEAT_BACK 0
         #define PREHEAT_MODE (PREHEAT_BACK + 1)
-        #define PREHEAT_1 (PREHEAT_MODE + (PREHEAT_COUNT >= 1))
+        #define PREHEAT_1 (PREHEAT_MODE + 1)
         #define PREHEAT_2 (PREHEAT_1 + (PREHEAT_COUNT >= 2))
         #define PREHEAT_3 (PREHEAT_2 + (PREHEAT_COUNT >= 3))
         #define PREHEAT_4 (PREHEAT_3 + (PREHEAT_COUNT >= 4))
         #define PREHEAT_5 (PREHEAT_4 + (PREHEAT_COUNT >= 5))
         #define PREHEAT_TOTAL PREHEAT_5
+
+        auto do_preheat = [](const uint8_t m) {
+          thermalManager.cooldown();
+          if (preheatmode == 0 || preheatmode == 1) { ui.preheat_hotend_and_fan(m); }
+          if (preheatmode == 0 || preheatmode == 2) ui.preheat_bed(m);
+        };
 
         switch (item) {
           case PREHEAT_BACK:
@@ -1620,17 +1623,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_1:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_1_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(0);
               break;
           #endif
 
@@ -1638,17 +1632,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_2:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_2_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(1);
               break;
           #endif
 
@@ -1656,17 +1641,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_3:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_3_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[2].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(2);
               break;
           #endif
 
@@ -1674,17 +1650,8 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_4:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_4_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[3].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(3);
               break;
           #endif
 
@@ -1692,22 +1659,13 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEAT_5:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_5_LABEL));
-              else {
-                thermalManager.disable_all_heaters();
-                TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-                if (preheatmode == 0 || preheatmode == 1) {
-                  TERN_(HAS_HOTEND, thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0));
-                  TERN_(HAS_FAN, thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed));
-                }
-                #if HAS_HEATED_BED
-                  if (preheatmode == 0 || preheatmode == 2) thermalManager.setTargetBed(ui.material_preset[4].bed_temp);
-                #endif
-              }
+              else
+                do_preheat(4);
               break;
           #endif
         }
-        break;
-    #endif
+      } break;
+    #endif // HAS_PREHEAT
 
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ChangeFilament:
@@ -3968,50 +3926,40 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             case PREHEATHOTEND_1:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_1_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[0].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(0);
               break;
           #endif
           #if PREHEAT_COUNT >= 2
             case PREHEATHOTEND_2:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_2_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[1].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(1);
               break;
           #endif
           #if PREHEAT_COUNT >= 3
             case PREHEATHOTEND_3:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_3_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[2].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[2].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(2);
               break;
           #endif
           #if PREHEAT_COUNT >= 4
             case PREHEATHOTEND_4:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_4_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[3].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[3].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(3);
               break;
           #endif
           #if PREHEAT_COUNT >= 5
             case PREHEATHOTEND_5:
               if (draw)
                 Draw_Menu_Item(row, ICON_Temperature, F(PREHEAT_5_LABEL));
-              else {
-                thermalManager.setTargetHotend(ui.material_preset[4].hotend_temp, 0);
-                thermalManager.set_fan_speed(0, ui.material_preset[4].fan_speed);
-              }
+              else
+                ui.preheat_hotend_and_fan(4);
               break;
           #endif
           case PREHEATHOTEND_CUSTOM:
@@ -4548,8 +4496,7 @@ void CrealityDWINClass::Popup_Control() {
               TERN_(HAS_HOTEND, pausetemp = thermalManager.temp_hotend[0].target);
               TERN_(HAS_HEATED_BED, pausebed = thermalManager.temp_bed.target);
               TERN_(HAS_FAN, pausefan = thermalManager.fan_speed[0]);
-              thermalManager.disable_all_heaters();
-              TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
+              thermalManager.cooldown();
             #endif
           }
           else {
@@ -4562,8 +4509,7 @@ void CrealityDWINClass::Popup_Control() {
         if (selection == 0) {
           if (sdprint) {
             ui.abort_print();
-            TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-            thermalManager.disable_all_heaters();
+            thermalManager.cooldown();
           }
           else {
             TERN_(HOST_ACTION_COMMANDS, hostui.cancel());
@@ -4793,8 +4739,7 @@ void CrealityDWINClass::Start_Print(bool sd) {
 void CrealityDWINClass::Stop_Print() {
   printing = false;
   sdprint = false;
-  TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-  thermalManager.disable_all_heaters();
+  thermalManager.cooldown();
   TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(100 * (PROGRESS_SCALE)));
   TERN_(USE_M73_REMAINING_TIME, ui.set_remaining_time(0));
   Draw_Print_confirm();

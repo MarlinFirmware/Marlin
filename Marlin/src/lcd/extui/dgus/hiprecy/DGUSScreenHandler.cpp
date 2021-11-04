@@ -256,7 +256,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
           case VP_E0_PID_I: newvalue = scalePID_i(value); break;
           case VP_E0_PID_D: newvalue = scalePID_d(value); break;
         #endif
-        #if HOTENDS >= 2
+        #if HAS_MULTI_HOTEND
           case VP_E1_PID_P: newvalue = value; break;
           case VP_E1_PID_I: newvalue = scalePID_i(value); break;
           case VP_E1_PID_D: newvalue = scalePID_d(value); break;
@@ -333,7 +333,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     if (filament_data.action == 0) { // Go back to utility screen
       #if HAS_HOTEND
         thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E0);
-        #if HOTENDS >= 2
+        #if HAS_MULTI_HOTEND
           thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E1);
         #endif
       #endif
@@ -348,7 +348,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
               thermalManager.setTargetHotend(e_temp, filament_data.extruder);
               break;
           #endif
-          #if HOTENDS >= 2
+          #if HAS_MULTI_HOTEND
             case VP_E1_FILAMENT_LOAD_UNLOAD:
               filament_data.extruder = ExtUI::extruder_t::E1;
               thermalManager.setTargetHotend(e_temp, filament_data.extruder);

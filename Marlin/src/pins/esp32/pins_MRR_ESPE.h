@@ -33,7 +33,7 @@
 
 #if EXTRUDERS > 2 || E_STEPPERS > 2
   #error "MRR ESPE only supports two E Steppers. Comment out this line to continue."
-#elif HOTENDS > 1
+#elif HAS_MULTI_HOTEND
   #error "MRR ESPE only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -51,7 +51,6 @@
 //
 // Enable I2S stepper stream
 //
-#undef I2S_STEPPER_STREAM
 #define I2S_STEPPER_STREAM
 #define I2S_WS                                26
 #define I2S_BCK                               25

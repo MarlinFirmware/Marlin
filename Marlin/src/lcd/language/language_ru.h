@@ -106,7 +106,7 @@ namespace Language_ru {
   #else
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Послед. знач. ");
   #endif
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                      = _UxGT("Преднагрев ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                    = _UxGT("Нагрев ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                  = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло");
