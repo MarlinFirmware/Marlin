@@ -213,7 +213,7 @@ void MarlinUI::clear_lcd() {
   void MarlinUI::_set_brightness() {
     #if PIN_EXISTS(TFT_BACKLIGHT)
       if (PWM_PIN(TFT_BACKLIGHT_PIN))
-        analogWrite(pin_t(TFT_BACKLIGHT_PIN), brightness);
+        set_pwm_duty(pin_t(TFT_BACKLIGHT_PIN), brightness);
     #endif
   }
 #endif

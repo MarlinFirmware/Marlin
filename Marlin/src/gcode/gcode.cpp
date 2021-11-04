@@ -424,7 +424,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
+      #if BOTH(PTC_PROBE, PTC_BED)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 
@@ -585,6 +585,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if HAS_HEATED_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
+      #endif
+
+      #if HAS_TEMP_PROBE
+        case 192: M192(); break;                                  // M192: Wait for probe temp
       #endif
 
       #if HAS_COOLER
@@ -921,8 +925,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        case 192: M192(); break;                                  // M192: Wait for probe temp
+      #if HAS_PTC
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
