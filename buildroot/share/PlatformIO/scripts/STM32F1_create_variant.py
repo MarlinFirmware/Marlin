@@ -2,7 +2,7 @@
 # STM32F1_create_variant.py
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	import os,shutil,marlin
 	from SCons.Script import DefaultEnvironment
 	from platformio import util

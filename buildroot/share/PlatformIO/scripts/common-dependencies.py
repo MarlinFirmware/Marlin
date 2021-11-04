@@ -3,7 +3,7 @@
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 
 	import subprocess,os,re
 	Import("env")

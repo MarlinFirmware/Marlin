@@ -31,7 +31,7 @@ if __name__ == "__main__":
 # extra script for linker options
 else:
   import pioutil
-  if not pioutil.is_vscode_init():
+  if pioutil.is_pio_build():
     from SCons.Script import DefaultEnvironment
     env = DefaultEnvironment()
     env.Append(

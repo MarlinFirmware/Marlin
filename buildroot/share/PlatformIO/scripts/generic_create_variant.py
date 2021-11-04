@@ -6,7 +6,7 @@
 # will be picked up by PlatformIO just like any other variant.
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	import os,shutil,marlin
 	from SCons.Script import DefaultEnvironment
 	from platformio import util

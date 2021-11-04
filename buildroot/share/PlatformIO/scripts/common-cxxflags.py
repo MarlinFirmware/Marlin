@@ -3,7 +3,7 @@
 # Convenience script to apply customizations to CPP flags
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	Import("env")
 
 	cxxflags = [

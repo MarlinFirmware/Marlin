@@ -3,7 +3,7 @@
 # Customizations for env:SAMD51_grandcentral_m4
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	from os.path import join, isfile
 	import shutil
 	from pprint import pprint

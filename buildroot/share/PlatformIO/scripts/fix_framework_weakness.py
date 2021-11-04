@@ -2,7 +2,7 @@
 # fix_framework_weakness.py
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 
 	import shutil
 	from os.path import join, isfile

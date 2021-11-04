@@ -2,7 +2,7 @@
 # stm32_serialbuffer.py
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	Import("env")
 
 	# Get a build flag's value or None

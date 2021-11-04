@@ -3,7 +3,7 @@
 # Customizations for env:jgaurora_a5s_a1
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	import os,marlin
 	# Append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
 	def addboot(source, target, env):

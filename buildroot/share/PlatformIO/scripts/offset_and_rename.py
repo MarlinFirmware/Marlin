@@ -9,7 +9,7 @@
 # - For 'board_build.rename' add a post-action to rename the firmware file.
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	import os,sys,marlin
 	Import("env")
 

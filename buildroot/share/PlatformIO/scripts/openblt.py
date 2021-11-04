@@ -2,7 +2,7 @@
 # Convert the ELF to an SREC file suitable for some bootloaders
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	import os,sys
 	from os.path import join
 

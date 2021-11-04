@@ -3,7 +3,7 @@
 # PlatformIO pre: script for simulator builds
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	# Get the environment thus far for the build
 	Import("env")
 

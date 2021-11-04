@@ -6,7 +6,7 @@
 #   env:LERDGEK  env:LERDGEK_usb_flash_drive
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	import os,marlin
 	Import("env")
 

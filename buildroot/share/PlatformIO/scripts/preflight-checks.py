@@ -3,7 +3,7 @@
 # Check for common issues prior to compiling
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 
 	import os,re,sys
 	Import("env")

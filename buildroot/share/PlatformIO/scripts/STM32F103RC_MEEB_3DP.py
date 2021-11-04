@@ -2,7 +2,7 @@
 # STM32F103RC_MEEB_3DP.py
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 
 	try:
 		import configparser

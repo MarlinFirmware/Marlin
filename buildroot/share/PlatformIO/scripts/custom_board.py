@@ -5,7 +5,7 @@
 # - For build.ldscript use one of the linker scripts in buildroot/share/PlatformIO/ldscripts
 #
 import pioutil
-if not pioutil.is_vscode_init():
+if pioutil.is_pio_build():
 	import marlin
 	board = marlin.env.BoardConfig()
 
