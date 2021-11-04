@@ -2489,6 +2489,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "An encoder button is required or SOFT_RESET_ON_KILL will reset the printer without notice!"
 #endif
 
+// Reset reason for AVR
+#if ENABLED(OPTIBOOT_RESET_REASON) && !defined(__AVR__)
+  #error "OPTIBOOT_RESET_REASON only applies to AVR."
+#endif
+
 /**
  * I2C bus
  */
