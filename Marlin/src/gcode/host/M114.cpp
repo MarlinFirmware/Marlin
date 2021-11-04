@@ -67,12 +67,12 @@
 
     #if HAS_LEVELING
       // Current position with leveling applied
-      SERIAL_ECHOPGM("Leveled:");
+      SERIAL_ECHOPGM("Remove Leveling:");
       planner.deactivate_leveling(leveled);
       report_linear_axis_pos(leveled);
 
       // Test planner un-leveling. This should match the Raw result.
-      SERIAL_ECHOPGM("UnLevel:");
+      SERIAL_ECHOPGM("Reapply Leveling:");
       xyze_pos_t unleveled = leveled;
       planner.activate_leveling(unleveled);
       report_linear_axis_pos(unleveled);
