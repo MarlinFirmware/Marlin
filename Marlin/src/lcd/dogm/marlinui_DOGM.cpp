@@ -339,12 +339,14 @@ void MarlinUI::draw_kill_screen() {
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_LCD_BRIGHTNESS
+
   void MarlinUI::_set_brightness() {
     #if PIN_EXISTS(TFT_BACKLIGHT)
       if (PWM_PIN(TFT_BACKLIGHT_PIN))
-        set_pwm_duty(pin_t(TFT_BACKLIGHT_PIN), brightness);
+        analogWrite(pin_t(TFT_BACKLIGHT_PIN), backlight ? brightness : 0);
     #endif
   }
+
 #endif
 
 #if HAS_LCD_MENU
