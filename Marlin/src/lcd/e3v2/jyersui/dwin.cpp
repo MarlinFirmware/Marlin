@@ -682,7 +682,7 @@ void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
     int8_t pos = len;
     if (pos > 30) {
       pos -= namescrl;
-      len = _MIN(pos, 30);
+      len = pos >= 0 ? _MIN(pos, 30) : 30;
       char dispname[len + 1];
       if (pos >= 0) {
         LOOP_L_N(i, len) dispname[i] = filename[i + namescrl];
