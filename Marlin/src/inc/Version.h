@@ -25,7 +25,7 @@
  * Release version. Leave the Marlin version or apply a custom scheme.
  */
 #ifndef SHORT_BUILD_VERSION
-  #define SHORT_BUILD_VERSION "bugfix-JyersUI v2.0.0"
+  #define SHORT_BUILD_VERSION "bugfix-JyersUI v2.0.1"
 #endif
 
 /**
