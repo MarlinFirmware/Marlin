@@ -112,11 +112,16 @@
 
   #endif // !MKS_MINI_12864
 
-  // Alter timing for graphical display
-  #if ENABLED(U8GLIB_ST7920)
-    #define BOARD_ST7920_DELAY_1             125
-    #define BOARD_ST7920_DELAY_2             125
-    #define BOARD_ST7920_DELAY_3             125
+  #if HAS_MARLINUI_U8GLIB
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+    #endif
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -141,3 +146,16 @@
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15
 #define SD_SS_PIN                           PA15
+
+
+//EXP1 replace lcd to keys for EasyThreeD ET4000+ Mainboard
+#if ENABLED(EASYTHREED_ET4000PLUS)
+  #define PRINT_HOME_PIN PC3
+  #define HOME_GND_PIN PC2
+  #define FEED_PIN PB3
+  #define RETRACT_PIN PB5
+  #define FEED_GND_PIN PB4
+  #define RETRACT_GND_PIN PC1
+  #define PRINTER_PIN PA11
+  #define PRINT_LED_PIN PD2
+#endif
