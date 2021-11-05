@@ -141,3 +141,15 @@
 #define SD_MISO_PIN                         PB14
 #define SD_MOSI_PIN                         PB15
 #define SD_SS_PIN                           PA15
+
+//EXP1 replace lcd to keys for EasyThreeD ET4000+ Mainboard
+#if ENABLED(EASYTHREED_ET4000PLUS)
+  #define PRINT_HOME_PIN PC3
+  #define HOME_GND_PIN PC2
+  #define FEED_PIN PB3
+  #define RETRACT_PIN PB5
+  #define FEED_GND_PIN PB4
+  #define RETRACT_GND_PIN PC1
+  #define PRINTER_PIN PA11
+  #define PRINT_LED_PIN PD2
+#endif
