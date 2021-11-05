@@ -46,7 +46,7 @@ jobs:
         sed -i "s/#define MOTHERBOARD.*/#define MOTHERBOARD BOARD_CREALITY_$BOARD/g" Marlin/Configuration.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_creality_maple/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
         VERSION: ${{ env.RELEASE_VERSION }}
@@ -109,7 +109,7 @@ jobs:
         sed -i "s/[^ ]*#define BLTOUCH_HS_MODE/$TEMP#define BLTOUCH_HS_MODE/g" Marlin/Configuration_adv.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_creality_maple/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
@@ -170,7 +170,7 @@ jobs:
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_creality_maple/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
@@ -234,7 +234,7 @@ jobs:
         sed -i "s/[^ ]*#define BLTOUCH_HS_MODE/$TEMP#define BLTOUCH_HS_MODE/g" Marlin/Configuration_adv.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_creality_maple/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
@@ -295,7 +295,7 @@ jobs:
         sed -i "s/#define GRID_MAX_POINTS_X.*/#define GRID_MAX_POINTS_X $GRID/g" Marlin/Configuration.h
         pio run
         mkdir temp
-        mv .pio/build/STM32F103RET6_creality/*.bin temp/build.bin
+        mv .pio/build/STM32F103RET6_creality_maple/*.bin temp/build.bin
       env:
         BOARD: ${{ matrix.board }}
         GRID: ${{ matrix.grid }}
