@@ -3067,6 +3067,7 @@ void MarlinSettings::reset() {
     // Announce current units, in case inches are being displayed
     //
     CONFIG_ECHO_HEADING("Linear Units");
+    CONFIG_ECHO_START();
     #if ENABLED(INCH_MODE_SUPPORT)
       SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
