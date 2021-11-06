@@ -28,6 +28,7 @@
 #include "timers.h"
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+  if (!PWM_PIN(pin)) return;
   timer_dev *timer = PIN_MAP[pin].timer_device;
   uint16_t max_val = timer->regs.bas->ARR * v / v_size;
   if (invert) max_val = v_size - max_val;

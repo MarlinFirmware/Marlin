@@ -152,8 +152,7 @@ if (lcd_id != 0xFFFFFFFF) return;
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    WRITE(TFT_BACKLIGHT_PIN, HIGH);
-    TERN_(HAS_LCD_BRIGHTNESS, ui._set_brightness());
+    TERN(HAS_LCD_BRIGHTNESS, ui._set_brightness(), WRITE(TFT_BACKLIGHT_PIN, HIGH));
   #endif
 }
 

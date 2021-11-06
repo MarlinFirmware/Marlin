@@ -28,11 +28,13 @@
 #include "timers.h"
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+  if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
+
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
+
   uint16_t adj_val = Instance->ARR * v / v_size;
   if (invert) adj_val = Instance->ARR - adj_val;
-
   switch (get_pwm_channel(pin_name)) {
     case TIM_CHANNEL_1: LL_TIM_OC_SetCompareCH1(Instance, adj_val); break;
     case TIM_CHANNEL_2: LL_TIM_OC_SetCompareCH2(Instance, adj_val); break;
