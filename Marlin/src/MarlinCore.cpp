@@ -637,9 +637,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #endif
   #endif
 
-  #if ENABLED(EASYTHREED_UI)
-    easythreed_ui.UICheck();
-  #endif
+  TERN_(EASYTHREED_UI, easythreed_ui.UICheck());
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
@@ -1605,7 +1603,7 @@ void setup() {
   #endif
 
   #if ENABLED(EASYTHREED_UI)
-    easythreed_ui.setPins();
+    SETUP_RUN(easythreed_ui.setPins());
   #endif
 
   marlin_state = MF_RUNNING;

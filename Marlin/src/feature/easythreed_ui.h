@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,17 +21,15 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfigPre.h"
-
 class EasythreedUI {
-public:
-  static void setPins(void);
-  static void UICheck(void);
+  public:
+    static void setPins();
+    static void UICheck();
 
-private:
-  static void NanoBlinkLed(void);
-  static void NanoLoadFilament(void);
-  static void NanoPrintOneKey(void);
+  private:
+    static void NanoBlinkLED();
+    static void NanoLoadFilament();
+    static void NanoPrintOneKey();
 };
 
 extern EasythreedUI easythreed_ui;
