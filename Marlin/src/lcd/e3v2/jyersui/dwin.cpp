@@ -732,31 +732,31 @@ void CrealityDWINClass::Draw_Print_Filename(const bool reset/*=false*/) {
   static uint8_t namescrl = 0;
   if (reset) namescrl = 0;
   if (process == Print) {
-    size_t len = strlen(filename);
-    int8_t pos = len;
-    if (pos > STATUS_CHAR_LIMIT) {
-      pos -= namescrl;
-      len = _MIN((size_t)pos, (size_t)STATUS_CHAR_LIMIT);
-      char dispname[len + 1];
+    constexpr int8_t maxlen = 30;
+    char *outstr = filename;
+    size_t slen = strlen(filename);
+    int8_t outlen = slen;
+    if (slen > maxlen) {
+      char dispname[maxlen + 1];
+      int8_t pos = slen - namescrl, len = maxlen;
       if (pos >= 0) {
+        NOMORE(len, pos);
         LOOP_L_N(i, len) dispname[i] = filename[i + namescrl];
       }
       else {
-        LOOP_L_N(i, STATUS_CHAR_LIMIT + pos) dispname[i] = ' ';
-        LOOP_S_L_N(i, STATUS_CHAR_LIMIT + pos, STATUS_CHAR_LIMIT) dispname[i] = filename[i - (STATUS_CHAR_LIMIT + pos)];
+        const int8_t mp = maxlen + pos;
+        LOOP_L_N(i, mp) dispname[i] = ' ';
+        LOOP_S_L_N(i, mp, maxlen) dispname[i] = filename[i - mp];
+        if (mp <= 0) namescrl = 0;
       }
       dispname[len] = '\0';
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH - 8, 80);
-      const int8_t npos = (DWIN_WIDTH - STATUS_CHAR_LIMIT * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, dispname);
-      if (-pos >= STATUS_CHAR_LIMIT) namescrl = 0;
+      outstr = dispname;
+      outlen = maxlen;
       namescrl++;
     }
-    else {
-      DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH - 8, 80);
-      const int8_t npos = (DWIN_WIDTH - strlen(filename) * MENU_CHR_W) / 2;
-      DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, filename);
-    }
+    DWIN_Draw_Rectangle(1, Color_Bg_Black, 8, 50, DWIN_WIDTH - 8, 80);
+    const int8_t npos = (DWIN_WIDTH - outlen * MENU_CHR_W) / 2;
+    DWIN_Draw_String(false, DWIN_FONT_MENU, Color_White, Color_Bg_Black, npos, 60, outstr);
   }
 }
 
@@ -5146,7 +5146,7 @@ void CrealityDWINClass::Update_Status(const char * const text) {
   char header[4];
   LOOP_L_N(i, 3) header[i] = text[i];
   header[3] = '\0';
-  if (strcmp_P(header,"<F>") == 0) {
+  if (strcmp_P(header, PSTR("<F>")) == 0) {
     LOOP_L_N(i, _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text))) filename[i] = text[i + 3];
     filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
     Draw_Print_Filename(true);
@@ -5243,22 +5243,23 @@ void CrealityDWINClass::State_Update() {
 }
 
 void CrealityDWINClass::Screen_Update() {
+  const millis_t ms = millis();
   static millis_t scrltime = 0;
-  if (ELAPSED(millis(), scrltime)) {
-    scrltime = millis() + 200;
+  if (ELAPSED(ms, scrltime)) {
+    scrltime = ms + 200;
     if (process != Keyboard) Update_Status_Bar();
     if (process == Print) Draw_Print_Filename();
   }
 
   static millis_t statustime = 0;
-  if (ELAPSED(millis(), statustime) && process != Keyboard) {
-    statustime = millis() + 500;
+  if (ELAPSED(ms, statustime)) {
+    statustime = ms + 500;
     Draw_Status_Area();
   }
 
   static millis_t printtime = 0;
-  if (ELAPSED(millis(), printtime)) {
-    printtime = millis() + 1000;
+  if (ELAPSED(ms, printtime)) {
+    printtime = ms + 1000;
     if (process == Print) {
       Draw_Print_ProgressBar();
       Draw_Print_ProgressElapsed();
@@ -5461,6 +5462,7 @@ void MarlinUI::init() {
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     switch (message) {
       case PAUSE_MESSAGE_INSERT:  CrealityDWIN.Confirm_Handler(FilInsert);  break;
+      case PAUSE_MESSAGE_PURGE:
       case PAUSE_MESSAGE_OPTION:
         pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
         CrealityDWIN.Popup_Handler(PurgeMore);
