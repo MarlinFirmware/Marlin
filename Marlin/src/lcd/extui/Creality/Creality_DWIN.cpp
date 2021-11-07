@@ -361,8 +361,8 @@ void onIdle()
 
   rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(X)/100), Accel_X);
   rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Y)/100), Accel_Y);
-  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Z)/100), Accel_Z);
-  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(E0)/100), Accel_E);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Z)/10), Accel_Z);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(E0)), Accel_E);
 
   rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(X)), Feed_X);
   rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
@@ -1117,11 +1117,11 @@ void RTSSHOW::RTS_HandleData()
         setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, Y);
       }
       else if (recdat.addr == Accel_Z) {
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, Z);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*10, Z);
       }
       else if (recdat.addr == Accel_E) {
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, E0);
-        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, E1);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E0);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E1);
       }
 
       else if (recdat.addr == Feed_X) {
