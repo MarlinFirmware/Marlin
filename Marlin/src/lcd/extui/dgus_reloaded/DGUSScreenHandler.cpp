@@ -409,7 +409,7 @@ void DGUSScreenHandler::SetStatusMessage(const char* msg, const millis_t duratio
 }
 
 void DGUSScreenHandler::SetStatusMessage(FSTR_P const fmsg, const millis_t duration) {
-  dgus_display.WriteStringPGM((uint16_t)DGUS_Addr::MESSAGE_Status, FTOP(msg), DGUS_STATUS_LEN, false, true);
+  dgus_display.WriteStringPGM((uint16_t)DGUS_Addr::MESSAGE_Status, FTOP(fmsg), DGUS_STATUS_LEN, false, true);
 
   status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
 }
