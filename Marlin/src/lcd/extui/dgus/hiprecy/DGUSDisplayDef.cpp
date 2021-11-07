@@ -50,7 +50,7 @@ const uint16_t VPList_Main[] PROGMEM = {
   // VP_M117, for completeness, but it cannot be auto-uploaded.
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set, VP_E0_STATUS,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -72,7 +72,7 @@ const uint16_t VPList_Main[] PROGMEM = {
 const uint16_t VPList_Temp[] PROGMEM = {
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -86,7 +86,7 @@ const uint16_t VPList_Status[] PROGMEM = {
   // VP_M117, for completeness, but it cannot be auto-uploaded
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -107,7 +107,7 @@ const uint16_t VPList_Status2[] PROGMEM = {
   // VP_M117, for completeness, but it cannot be auto-uploaded
   #if HAS_HOTEND
     VP_Flowrate_E0,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_Flowrate_E1,
     #endif
   #endif
@@ -119,7 +119,7 @@ const uint16_t VPList_Status2[] PROGMEM = {
 const uint16_t VPList_Preheat[] PROGMEM = {
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -137,7 +137,7 @@ const uint16_t VPList_ManualMove[] PROGMEM = {
 const uint16_t VPList_ManualExtrude[] PROGMEM = {
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -159,7 +159,7 @@ const uint16_t VPList_Filament_heating[] PROGMEM = {
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
     VP_E0_FILAMENT_LOAD_UNLOAD,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -169,7 +169,7 @@ const uint16_t VPList_Filament_heating[] PROGMEM = {
 const uint16_t VPList_Filament_load_unload[] PROGMEM = {
   #if HAS_HOTEND
     VP_E0_FILAMENT_LOAD_UNLOAD,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_E1_FILAMENT_LOAD_UNLOAD,
     #endif
   #endif
@@ -185,7 +185,7 @@ const uint16_t VPList_SD_PrintManipulation[] PROGMEM = {
   VP_PrintProgress_Percentage, VP_PrintTime,
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -205,7 +205,7 @@ const uint16_t VPList_SD_PrintManipulation[] PROGMEM = {
 const uint16_t VPList_SDPrintTune[] PROGMEM = {
   #if HAS_HOTEND
     VP_T_E0_Is, VP_T_E0_Set,
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VP_T_E1_Is, VP_T_E1_Set,
     #endif
   #endif
@@ -222,23 +222,17 @@ const uint16_t VPList_SDPrintTune[] PROGMEM = {
 };
 
 const uint16_t VPList_StepPerMM[] PROGMEM = {
-  VP_X_STEP_PER_MM,
-  VP_Y_STEP_PER_MM,
-  VP_Z_STEP_PER_MM,
-  #if HAS_HOTEND
-    VP_E0_STEP_PER_MM,
-    #if HOTENDS >= 2
-      VP_E1_STEP_PER_MM,
-    #endif
-  #endif
-  0x0000
+  VP_X_STEP_PER_MM
+  , VP_Y_STEP_PER_MM
+  , VP_Z_STEP_PER_MM
+  OPTARG(HAS_HOTEND,       VP_E0_STEP_PER_MM)
+  OPTARG(HAS_MULTI_HOTEND, VP_E1_STEP_PER_MM)
+  , 0x0000
 };
 
 const uint16_t VPList_PIDE0[] PROGMEM = {
   #if ENABLED(PIDTEMP)
-    VP_E0_PID_P,
-    VP_E0_PID_I,
-    VP_E0_PID_D,
+    VP_E0_PID_P, VP_E0_PID_I, VP_E0_PID_D,
   #endif
   0x0000
 };
@@ -382,7 +376,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
       VPHELPER(VP_PID_AUTOTUNE_E0, nullptr, ScreenHandler.HandlePIDAutotune, nullptr),
     #endif
   #endif
-  #if HOTENDS >= 2
+  #if HAS_MULTI_HOTEND
     VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, ScreenHandler.HandleTemperatureChanged, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_Flowrate_E1, nullptr, ScreenHandler.HandleFlowRateChanged, ScreenHandler.DGUSLCD_SendWordValueToDisplay),
@@ -435,7 +429,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], ScreenHandler.HandleStepPerMMChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
   #if HAS_HOTEND
     VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], ScreenHandler.HandleStepPerMMExtruderChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], ScreenHandler.HandleStepPerMMExtruderChanged, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<1>),
     #endif
   #endif

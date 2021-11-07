@@ -346,13 +346,14 @@ void unified_bed_leveling::G29() {
 
   if (parser.seen('Q')) {
     const int16_t test_pattern = parser.has_value() ? parser.value_int() : -99;
-    if (!WITHIN(test_pattern, -1, 2)) {
-      SERIAL_ECHOLNPGM("Invalid test_pattern value. (-1 to 2)\n");
+    if (!WITHIN(test_pattern, TERN0(UBL_DEVEL_DEBUGGING, -1), 2)) {
+      SERIAL_ECHOLNPGM("?Invalid (Q) test pattern. (" TERN(UBL_DEVEL_DEBUGGING, "-1", "0") " to 2)\n");
       return;
     }
-    SERIAL_ECHOLNPGM("Loading test_pattern values.\n");
+    SERIAL_ECHOLNPGM("Applying test pattern.\n");
     switch (test_pattern) {
 
+      default:
       case -1: TERN_(UBL_DEVEL_DEBUGGING, g29_eeprom_dump()); break;
 
       case 0:

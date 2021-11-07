@@ -1105,7 +1105,7 @@ void Draw_Info_Menu() {
 
   LOOP_L_N(i, 3) {
     DWINUI::Draw_Icon(ICON_PrintSize + i, 26, 99 + i * 73);
-    DWIN_Draw_Line(HMI_data.SplitLine_Color, 16, MBASE(2) + i * 73, 256, 156 + i * 73);
+    DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MBASE(2) + i * 73, 240);
   }
 
   DWIN_UpdateLCD();
@@ -1651,6 +1651,7 @@ void HMI_SaveProcessID(const uint8_t id) {
 void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
+  Title.ShowCaption(F("Axis Homing"));
   DWIN_Draw_Popup(ICON_BLTouch, F("Axis Homing"), F("Please wait until done."));
 }
 
@@ -1666,6 +1667,7 @@ void DWIN_CompletedHoming() {
 void DWIN_MeshLevelingStart() {
   #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
+    Title.ShowCaption(F("Bed Leveling"));
     DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), F("Please wait until done."));
   #elif ENABLED(MESH_BED_LEVELING)
     Draw_ManualMesh_Menu();
@@ -1785,8 +1787,7 @@ void DWIN_Print_Started(const bool sd) {
 // Ended print job
 void DWIN_Print_Finished() {
   if (checkkey == PrintProcess || printingIsActive()) {
-    thermalManager.disable_all_heaters();
-    thermalManager.zero_fan_speeds();
+    thermalManager.cooldown();
     HMI_flag.print_finish = true;
   }
 }
@@ -2114,22 +2115,12 @@ void SetHome() {
 #endif
 
 #if HAS_PREHEAT
-  void SetPreheat(const uint8_t i) {
-    TERN_(HAS_HOTEND,     thermalManager.setTargetHotend(ui.material_preset[i].hotend_temp, 0));
-    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(ui.material_preset[i].bed_temp));
-    TERN_(HAS_FAN,        thermalManager.set_fan_speed(0, ui.material_preset[i].fan_speed));
-  }
-  void SetPreheat0() { SetPreheat(0); }
-  void SetPreheat1() { SetPreheat(1); }
-  void SetPreheat2() { SetPreheat(2); }
-
-  void SetCoolDown() {
-    TERN_(HAS_FAN, thermalManager.zero_fan_speeds());
-    #if HAS_HOTEND || HAS_HEATED_BED
-      thermalManager.disable_all_heaters();
-    #endif
-  }
+  void DoPreheat0() { ui.preheat_all(0); }
+  void DoPreheat1() { ui.preheat_all(1); }
+  void DoPreheat2() { ui.preheat_all(2); }
 #endif
+
+void DoCoolDown() { thermalManager.cooldown(); }
 
 void SetLanguage() {
   HMI_ToggleLanguage();
@@ -2341,7 +2332,8 @@ void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
 
 #endif // ADVANCED_PAUSE_FEATURE
 
-void SetFlow() { SetPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW); }
+void ApplyFlow() { planner.refresh_e_factor(0); }
+void SetFlow() { SetPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, ApplyFlow); }
 
 // Leveling Bed Corners
 void LevBed(uint8_t point) {
@@ -3121,14 +3113,16 @@ void Draw_Prepare_Menu() {
         ADDMENUITEM(ICON_SetHome, GET_TEXT_F(MSG_SET_HOME_OFFSETS), onDrawHomeOffset, SetHome);
       #endif
     #endif
-    #if HAS_HOTEND
-      ADDMENUITEM(ICON_PLAPreheat, GET_TEXT_F(MSG_PREHEAT_1), onDrawPreheat1, SetPreheat0);
-      ADDMENUITEM(ICON_ABSPreheat, PSTR("Preheat " PREHEAT_2_LABEL), onDrawPreheat2, SetPreheat1);
-      ADDMENUITEM(ICON_CustomPreheat, GET_TEXT_F(MSG_PREHEAT_CUSTOM), onDrawMenuItem, SetPreheat2);
-    #endif
     #if HAS_PREHEAT
-      ADDMENUITEM(ICON_Cool, GET_TEXT_F(MSG_COOLDOWN), onDrawCooldown, SetCoolDown);
+      ADDMENUITEM(ICON_PLAPreheat, GET_TEXT_F(MSG_PREHEAT_1), onDrawPreheat1, DoPreheat0);
+      #if PREHEAT_COUNT > 1
+        ADDMENUITEM(ICON_ABSPreheat, PSTR("Preheat " PREHEAT_2_LABEL), onDrawPreheat2, DoPreheat1);
+      #endif
+      #if PREHEAT_COUNT > 2
+        ADDMENUITEM(ICON_CustomPreheat, GET_TEXT_F(MSG_PREHEAT_CUSTOM), onDrawMenuItem, DoPreheat2);
+      #endif
     #endif
+    ADDMENUITEM(ICON_Cool, GET_TEXT_F(MSG_COOLDOWN), onDrawCooldown, DoCoolDown);
     ADDMENUITEM(ICON_Language, PSTR("UI Language"), onDrawLanguage, SetLanguage);
   }
   CurrentMenu->draw();

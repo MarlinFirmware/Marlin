@@ -132,20 +132,19 @@ FORCE_INLINE void _draw_fan_status(const uint16_t x, const uint16_t y) {
   }
 }
 
-#if HOTENDS > 2
-  #define HOTEND_STATS 3
-#elif HOTENDS > 1
-  #define HOTEND_STATS 2
-#elif HAS_HOTEND
-  #define HOTEND_STATS 1
-#endif
-
 /**
  * Draw a single heater icon with current and target temperature, at the given XY
  */
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x, const uint16_t y) {
 
   #if HAS_HOTEND
+    #if HOTENDS > 2
+      #define HOTEND_STATS 3
+    #elif HOTENDS > 1
+      #define HOTEND_STATS 2
+    #elif HAS_HOTEND
+      #define HOTEND_STATS 1
+    #endif
     static celsius_t old_temp[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500),
                      old_target[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, 500);
     static bool old_on[HOTEND_STATS] = ARRAY_N_1(HOTEND_STATS, false);
