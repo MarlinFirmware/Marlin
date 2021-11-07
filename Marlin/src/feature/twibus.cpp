@@ -98,7 +98,7 @@ void TWIBus::echodata(uint8_t bytes, FSTR_P const pref, uint8_t adr, const uint8
   union TwoBytesToInt16 { uint8_t bytes[2]; int16_t integervalue; };
   TwoBytesToInt16 ConversionUnion;
 
-  echoprefix(bytes, pref, adr);  
+  echoprefix(bytes, pref, adr);
 
   while (bytes-- && Wire.available()) {
     int value = Wire.read();
