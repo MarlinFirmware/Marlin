@@ -416,7 +416,7 @@ void DGUSScreenHandler::SetStatusMessage(FSTR_P const fmsg, const millis_t durat
 
 void DGUSScreenHandler::ShowWaitScreen(DGUS_Screen return_screen, bool has_continue) {
   if (return_screen != DGUS_Screen::WAIT) {
-    wait_return_screen = return_screen;f
+    wait_return_screen = return_screen;
   }
   wait_continue = has_continue;
 
