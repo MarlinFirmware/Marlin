@@ -362,6 +362,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       #define WAIT_FOR_BED_HEAT
     #endif
 
+    LCD_MESSAGE(MSG_PREHEATING);
+
     DEBUG_ECHOPGM("Preheating ");
 
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
