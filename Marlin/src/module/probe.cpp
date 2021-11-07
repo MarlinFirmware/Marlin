@@ -362,11 +362,9 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       #define WAIT_FOR_BED_HEAT
     #endif
 
-    DEBUG_ECHOPGM("Preheating ");
+    LCD_MESSAGE(MSG_PREHEATING);
 
-    #if EITHER(VERBOSE_PREHEAT_BEFORE_PROBING, VERBOSE_PREHEAT_BEFORE_LEVELING)
-      LCD_MESSAGE(MSG_PREHEATING);
-    #endif
+    DEBUG_ECHOPGM("Preheating ");
 
     #if ENABLED(WAIT_FOR_NOZZLE_HEAT)
       const celsius_t hotendPreheat = hotend_temp > thermalManager.degTargetHotend(0) ? hotend_temp : 0;
