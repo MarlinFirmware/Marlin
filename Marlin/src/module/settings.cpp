@@ -3068,9 +3068,9 @@ void MarlinSettings::reset() {
     //
     CONFIG_ECHO_HEADING("Linear Units");
     #if ENABLED(INCH_MODE_SUPPORT)
-      SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
+      SERIAL_ECHO_MSG("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
-      SERIAL_ECHOPGM("  G21 ;");
+      SERIAL_ECHO_MSG("  G21 ;");
     #endif
     gcode.say_units();
 
