@@ -53,6 +53,8 @@ namespace Language_en {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Ready.");
   LSTR MSG_YES                            = _UxGT("YES");
   LSTR MSG_NO                             = _UxGT("NO");
+  LSTR MSG_HIGH                           = _UxGT("HIGH");
+  LSTR MSG_LOW                            = _UxGT("LOW");
   LSTR MSG_BACK                           = _UxGT("Back");
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Aborting...");
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_EN _UxGT(" Inserted");
@@ -75,8 +77,12 @@ namespace Language_en {
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
   LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
+  LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
+  LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
   LSTR MSG_FILAMENT_SET                   = _UxGT("Filament Settings");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Management");
+  LSTR MSG_MANUAL_LEVELING                = _UxGT("Manual Leveling");
   LSTR MSG_LEVBED_FL                      = _UxGT("Front Left");
   LSTR MSG_LEVBED_FR                      = _UxGT("Front Right");
   LSTR MSG_LEVBED_C                       = _UxGT("Center");
@@ -160,6 +166,7 @@ namespace Language_en {
   LSTR MSG_MESH_X                         = _UxGT("Index X");
   LSTR MSG_MESH_Y                         = _UxGT("Index Y");
   LSTR MSG_MESH_EDIT_Z                    = _UxGT("Z Value");
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancelled");
   LSTR MSG_CUSTOM_COMMANDS                = _UxGT("Custom Commands");
   LSTR MSG_M48_TEST                       = _UxGT("M48 Probe Test");
   LSTR MSG_M48_POINT                      = _UxGT("M48 Point");
@@ -464,6 +471,15 @@ namespace Language_en {
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Prime Speed");
   LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Retract Speed");
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Park Head");
+  LSTR MSG_PARK_XPOSITION                 = _UxGT("Park X Position");
+  LSTR MSG_PARK_YPOSITION                 = _UxGT("Park Y Position");
+  LSTR MSG_PARK_ZRAISE                    = _UxGT("Park Z Raise");
+  LSTR MSG_PHY_SET                        = _UxGT("Physical settings");
+  LSTR MSG_PHY_XBEDSIZE                   = _UxGT("X bed size");
+  LSTR MSG_PHY_YBEDSIZE                   = _UxGT("Y bed size");
+  LSTR MSG_PHY_XMAXPOS                    = _UxGT("X max position");
+  LSTR MSG_PHY_YMAXPOS                    = _UxGT("Y max position");
+  LSTR MSG_PHY_ZMAXPOS                    = _UxGT("Z max position");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Recover Speed");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Fan Speed");
   LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Fan Time");
@@ -511,6 +527,7 @@ namespace Language_en {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Probe X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Probe Y Offset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Probe Z Offset");
+  LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Probe Margin");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Move Nozzle to Bed");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
@@ -560,6 +577,7 @@ namespace Language_en {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Unified Bed Leveling");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mesh Leveling");
   LSTR MSG_MESH_DONE                      = _UxGT("Mesh probing done");
+  LSTR MSG_MESH_POINTS                    = _UxGT("Mesh Points");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Printer Stats");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Board Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistors");

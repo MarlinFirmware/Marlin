@@ -3731,8 +3731,9 @@ void Temperature::isr() {
           HMI_flag.heat_flag = 0;
           duration_t elapsed = print_job_timer.duration();  // print timer
           dwin_heat_time = elapsed.value;
+        #else
+          ui.reset_status();
         #endif
-        ui.reset_status();
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onHeatingDone());
         return true;
       }

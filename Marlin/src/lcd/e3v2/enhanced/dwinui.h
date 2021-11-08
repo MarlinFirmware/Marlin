@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/08/09
+ * Version: 3.8.1
+ * Date: 2021/11/06
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,7 +20,6 @@
  */
 #pragma once
 
-#include "../../../core/types.h"
 #include "dwin_lcd.h"
 #include "../common/dwin_set.h"
 #include "../common/dwin_font.h"
@@ -49,10 +48,14 @@
 #define ICON_FilSet               ICON_ResumeEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
+#define ICON_HomeX                ICON_MoveX
+#define ICON_HomeY                ICON_MoveY
+#define ICON_HomeZ                ICON_MoveZ
 #define ICON_HomeOffset           ICON_AdvSet
 #define ICON_HomeOffsetX          ICON_StepX
 #define ICON_HomeOffsetY          ICON_StepY
 #define ICON_HomeOffsetZ          ICON_StepZ
+#define ICON_HSMode               ICON_StockConfiguration
 #define ICON_InvertE0             ICON_StepE
 #define ICON_LevBed               ICON_SetEndTemp
 #define ICON_Lock                 ICON_Cool
@@ -74,20 +77,29 @@
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_PIDcycles            ICON_ResumeEEPROM
 #define ICON_PIDValue             ICON_Contact
+#define ICON_ProbeDeploy          ICON_SetEndTemp
 #define ICON_ProbeMargin          ICON_PrintSize
 #define ICON_ProbeOffsetX         ICON_StepX
 #define ICON_ProbeOffsetY         ICON_StepY
 #define ICON_ProbeOffsetZ         ICON_StepZ
 #define ICON_ProbeSet             ICON_SetEndTemp
+#define ICON_ProbeStow            ICON_SetEndTemp
 #define ICON_ProbeTest            ICON_SetEndTemp
+#define ICON_ProbeZSpeed          ICON_MaxSpeedZ
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Reboot               ICON_ResumeEEPROM
 #define ICON_Runout               ICON_MaxAccE
 #define ICON_Scolor               ICON_MaxSpeed
+#define ICON_SetBaudRate          ICON_Setspeed
 #define ICON_SetCustomPreheat     ICON_SetEndTemp
 #define ICON_Sound                ICON_Cool
 
-// Default UI Colors
+// Extended and default UI Colors
+#define Color_Black           0
+#define Color_Green           RGB(0,63,0)
+#define Color_Aqua            RGB(0,63,31)
+#define Color_Blue            RGB(0,0,31)
+
 #define Def_Background_Color  RGB( 1, 12,  8)
 #define Def_Cursor_color      RGB(20, 49, 31)
 #define Def_TitleBg_color     RGB( 0, 23, 16)
@@ -376,25 +388,25 @@ namespace DWINUI {
     DWIN_Draw_String(false, font, textcolor, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, (char *)title);
+    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, FTOP(title));
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(false, font, color, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, font, color, backcolor, x, y, (char *)title);
+    DWIN_Draw_String(false, font, color, backcolor, x, y, title);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(true, font, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, font, color, bgcolor, x, y, (char *)title);
+    DWIN_Draw_String(true, font, color, bgcolor, x, y, title);
   }
   inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(true, size, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, size, color, bgcolor, x, y, (char *)title);
+    DWIN_Draw_String(true, size, color, bgcolor, x, y, title);
   }
 
   // Draw a centered string using DWIN_WIDTH
@@ -405,8 +417,8 @@ namespace DWINUI {
   //  y: Upper coordinate of the string
   //  *string: The string
   void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string);
-  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(bShow, size, color, bColor, y, (char *)title);
+  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P string) {
+    Draw_CenteredString(bShow, size, color, bColor, y, FTOP(string));
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t bcolor, uint16_t y, const char * const string) {
     Draw_CenteredString(true, font, color, bcolor, y, string);
@@ -415,19 +427,19 @@ namespace DWINUI {
     Draw_CenteredString(false, size, color, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, size, color, backcolor, y, (char *)title);
+    Draw_CenteredString(false, size, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, const char * const string) {
     Draw_CenteredString(false, font, color, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, font, color, backcolor, y, (char *)title);
+    Draw_CenteredString(false, font, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t y, const char * const string) {
     Draw_CenteredString(false, font, textcolor, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, font, textcolor, backcolor, y, (char *)title);
+    Draw_CenteredString(false, font, textcolor, backcolor, y, title);
   }
 
   // Draw a circle
