@@ -71,7 +71,7 @@
   #define E0_DIAG_PIN                         78  // PB23
   #define E1_DIAG_PIN                         25  // PD0
 
-  #if X_HOME_DIR < 0
+  #if X_HOME_TO_MIN
     #define X_MIN_PIN                 X_DIAG_PIN
     #define X_MAX_PIN                         32
   #else
@@ -79,7 +79,7 @@
     #define X_MAX_PIN                 X_DIAG_PIN
   #endif
 
-  #if Y_HOME_DIR < 0
+  #if Y_HOME_TO_MIN
     #define Y_MIN_PIN                 Y_DIAG_PIN
     #define Y_MAX_PIN                         15
   #else
@@ -192,9 +192,9 @@
 #define INT_SDSS                              55  // D55 PA24/MCDA3
 
 // External SD card reader on SC2
-#define SCK_PIN                               76  // D76 PA27
-#define MISO_PIN                              74  // D74 PA25
-#define MOSI_PIN                              75  // D75 PA26
+#define SD_SCK_PIN                            76  // D76 PA27
+#define SD_MISO_PIN                           74  // D74 PA25
+#define SD_MOSI_PIN                           75  // D75 PA26
 #define SDSS                                  87  // D87 PA29
 
 // Unused Digital GPIO J20 Pins

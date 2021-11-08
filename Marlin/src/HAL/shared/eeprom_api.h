@@ -45,11 +45,11 @@ public:
 
   // Read one or more bytes of data and update the CRC
   // Return 'true' on read error
-  static bool read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing=true);
+  static bool read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing=true);
 
   // Write one or more bytes of data
   // Return 'true' on write error
-  static inline bool write_data(const int pos, const uint8_t* value, const size_t size=sizeof(uint8_t)) {
+  static inline bool write_data(const int pos, const uint8_t *value, const size_t size=sizeof(uint8_t)) {
     int data_pos = pos;
     uint16_t crc = 0;
     return write_data(data_pos, value, size, &crc);
@@ -61,7 +61,7 @@ public:
 
   // Read one or more bytes of data
   // Return 'true' on read error
-  static inline bool read_data(const int pos, uint8_t* value, const size_t size=1) {
+  static inline bool read_data(const int pos, uint8_t *value, const size_t size=1) {
     int data_pos = pos;
     uint16_t crc = 0;
     return read_data(data_pos, value, size, &crc);

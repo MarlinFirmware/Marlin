@@ -26,28 +26,13 @@
 #include <WString.h>
 
 #include "../../inc/MarlinConfigPre.h"
-#if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/e_parser.h"
-#endif
+#include "../../core/serial_hook.h"
 
 // Increase priority of serial interrupts, to reduce overflow errors
 #define UART_IRQ_PRIO 1
 
-class MarlinSerial : public HardwareSerial {
-public:
-  #if ENABLED(EMERGENCY_PARSER)
-    const bool ep_enabled;
-    EmergencyParser::State emergency_state;
-    inline bool emergency_parser_enabled() { return ep_enabled; }
-  #endif
-
-  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin, bool TERN_(EMERGENCY_PARSER, ep_capable)) :
-    HardwareSerial(usart_device, tx_pin, rx_pin)
-    #if ENABLED(EMERGENCY_PARSER)
-      , ep_enabled(ep_capable)
-      , emergency_state(EmergencyParser::State::EP_RESET)
-    #endif
-    { }
+struct MarlinSerial : public HardwareSerial {
+  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) : HardwareSerial(usart_device, tx_pin, rx_pin) { }
 
   #ifdef UART_IRQ_PRIO
     // Shadow the parent methods to set IRQ priority after begin()
@@ -62,10 +47,12 @@ public:
   #endif
 };
 
-extern MarlinSerial MSerial1;
-extern MarlinSerial MSerial2;
-extern MarlinSerial MSerial3;
+typedef Serial1Class<MarlinSerial> MSerialT;
+
+extern MSerialT MSerial1;
+extern MSerialT MSerial2;
+extern MSerialT MSerial3;
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
-  extern MarlinSerial MSerial4;
-  extern MarlinSerial MSerial5;
+  extern MSerialT MSerial4;
+  extern MSerialT MSerial5;
 #endif

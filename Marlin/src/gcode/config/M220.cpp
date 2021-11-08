@@ -37,16 +37,14 @@
  */
 void GcodeSuite::M220() {
 
-  #if HAS_PRUSA_MMU2
-    static int16_t backup_feedrate_percentage = 100;
-    if (parser.seen('B')) backup_feedrate_percentage = feedrate_percentage;
-    if (parser.seen('R')) feedrate_percentage = backup_feedrate_percentage;
-  #endif
+  static int16_t backup_feedrate_percentage = 100;
+  if (parser.seen('B')) backup_feedrate_percentage = feedrate_percentage;
+  if (parser.seen('R')) feedrate_percentage = backup_feedrate_percentage;
 
   if (parser.seenval('S')) feedrate_percentage = parser.value_int();
 
   if (!parser.seen_any()) {
-    SERIAL_ECHOPAIR("FR:", feedrate_percentage);
+    SERIAL_ECHOPGM("FR:", feedrate_percentage);
     SERIAL_CHAR('%');
     SERIAL_EOL();
   }

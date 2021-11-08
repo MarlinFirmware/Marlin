@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,7 +41,7 @@
   // portModeRegister takes a different argument
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
-  #define digitalPinToPort_DEBUG(p) digitalPinToPort_Teensy(p)
+  #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
   #define GET_PINMODE(pin) (*portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin))
 
 #elif AVR_ATmega2560_FAMILY_PLUS_70   // So we can access/display all the pins on boards using more than 70
@@ -235,9 +238,9 @@ static void print_is_also_tied() { SERIAL_ECHOPGM(" is also tied to this pin"); 
 
 inline void com_print(const uint8_t N, const uint8_t Z) {
   const uint8_t *TCCRA = (uint8_t*)TCCR_A(N);
-  SERIAL_ECHOPGM("    COM");
-  SERIAL_CHAR('0' + N, Z);
-  SERIAL_ECHOPAIR(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
+  SERIAL_ECHOPGM("    COM", AS_DIGIT(N));
+  SERIAL_CHAR(Z);
+  SERIAL_ECHOPGM(": ", int((*TCCRA >> (6 - Z * 2)) & 0x03));
 }
 
 void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - WGM bit layout
@@ -247,8 +250,8 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   uint8_t WGM = (((*TCCRB & _BV(WGM_2)) >> 1) | (*TCCRA & (_BV(WGM_0) | _BV(WGM_1))));
   if (N == 4) WGM |= ((*TCCRB & _BV(WGM_3)) >> 1);
 
-  SERIAL_ECHOPGM("    TIMER");
-  SERIAL_CHAR(T + '0', L);
+  SERIAL_ECHOPGM("    TIMER", AS_DIGIT(T));
+  SERIAL_CHAR(L);
   SERIAL_ECHO_SP(3);
 
   if (N == 3) {
@@ -259,22 +262,14 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
     const uint16_t *OCRVAL16 = (uint16_t*)OCR_VAL(T, L - 'A');
     PWM_PRINT(*OCRVAL16);
   }
-  SERIAL_ECHOPAIR("    WGM: ", WGM);
+  SERIAL_ECHOPGM("    WGM: ", WGM);
   com_print(T,L);
-  SERIAL_ECHOPAIR("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
-
-  SERIAL_ECHOPGM("    TCCR");
-  SERIAL_CHAR(T + '0');
-  SERIAL_ECHOPAIR("A: ", *TCCRA);
-
-  SERIAL_ECHOPGM("    TCCR");
-  SERIAL_CHAR(T + '0');
-  SERIAL_ECHOPAIR("B: ", *TCCRB);
+  SERIAL_ECHOPGM("    CS: ", (*TCCRB & (_BV(CS_0) | _BV(CS_1) | _BV(CS_2)) ));
+  SERIAL_ECHOPGM("    TCCR", AS_DIGIT(T), "A: ", *TCCRA);
+  SERIAL_ECHOPGM("    TCCR", AS_DIGIT(T), "B: ", *TCCRB);
 
   const uint8_t *TMSK = (uint8_t*)TIMSK(T);
-  SERIAL_ECHOPGM("    TIMSK");
-  SERIAL_CHAR(T + '0');
-  SERIAL_ECHOPAIR(": ", *TMSK);
+  SERIAL_ECHOPGM("    TIMSK", AS_DIGIT(T), ": ", *TMSK);
 
   const uint8_t OCIE = L - 'A' + 1;
   if (N == 3) { if (WGM == 0 || WGM == 2 || WGM ==  4 || WGM ==  6) err_is_counter(); }
@@ -401,3 +396,4 @@ static void pwm_details(uint8_t pin) {
 #endif
 
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)

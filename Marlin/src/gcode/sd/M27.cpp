@@ -33,18 +33,20 @@
  *      OR, with 'C' get the current filename.
  */
 void GcodeSuite::M27() {
-  if (parser.seen('C')) {
+  if (parser.seen_test('C')) {
     SERIAL_ECHOPGM("Current file: ");
-    card.printFilename();
+    card.printSelectedFilename();
+    return;
   }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
-    else if (parser.seenval('S'))
-      card.set_auto_report_interval(parser.value_byte());
+    if (parser.seenval('S')) {
+      card.auto_reporter.set_interval(parser.value_byte());
+      return;
+    }
   #endif
 
-  else
-    card.report_status();
+  card.report_status();
 }
 
 #endif // SDSUPPORT

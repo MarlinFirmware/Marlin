@@ -25,9 +25,7 @@
  * RADDS
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RADDS"
 
@@ -181,11 +179,11 @@
 #define TEMP_4_PIN                             5  // dummy so will compile when PINS_DEBUGGING is enabled
 #define TEMP_BED_PIN                           4  // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      53
+  #define TEMP_0_CS_PIN                       53
 #else
-  #define MAX6675_SS_PIN                      49
+  #define TEMP_0_CS_PIN                       49
 #endif
 
 //

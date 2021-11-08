@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR 1.1 pin assignments
+ */
+
 #define BOARD_INFO_NAME "BTT SKR V1.1"
 
 //
@@ -52,6 +56,34 @@
 #define E0_DIR_PIN                         P2_13
 #define E0_ENABLE_PIN                      P2_12
 
+
+/**        ------                  ------
+ *   1.30 |10  9 | 2.11      0.17 |10  9 | 0.15
+ *   0.18 | 8  7 | 0.16      3.26 | 8  7 | 1.23
+ *   0.15   6  5 | NC        3.25   6  5 | 0.18
+ *     NC | 4  3 | NC        1.31 | 4  3 | RESET
+ *    GND | 2  1 | 5V         GND | 2  1 | NC
+ *         ------                  ------
+ *          EXP1                    EXP2
+ */
+#define EXP1_03_PIN                        -1     // NC
+#define EXP1_04_PIN                        -1     // NC
+#define EXP1_05_PIN                        -1     // NC
+#define EXP1_06_PIN                        P0_15
+#define EXP1_07_PIN                        P0_16
+#define EXP1_08_PIN                        P0_18
+#define EXP1_09_PIN                        P2_11
+#define EXP1_10_PIN                        P1_30
+
+#define EXP2_03_PIN                        -1     // RESET
+#define EXP2_04_PIN                        P1_31
+#define EXP2_05_PIN                        P0_18
+#define EXP2_06_PIN                        P3_25
+#define EXP2_07_PIN                        P1_23
+#define EXP2_08_PIN                        P3_26
+#define EXP2_09_PIN                        P0_15
+#define EXP2_10_PIN                        P0_17
+
 /**
  * LCD / Controller
  *
@@ -68,26 +100,23 @@
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS                     P3_26
+    #define TFTGLCD_CS               EXP2_08_PIN
   #endif
-
-  #define SD_DETECT_PIN                    P1_31
 
 #elif HAS_WIRED_LCD
 
-  #define BTN_EN1                          P3_26
-  #define BTN_EN2                          P3_25
-  #define BTN_ENC                          P2_11
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
+  #define BTN_ENC                    EXP1_09_PIN
 
-  #define SD_DETECT_PIN                    P1_31
-  #define LCD_SDSS                         P1_23
-  #define LCD_PINS_RS                      P0_16
-  #define LCD_PINS_ENABLE                  P0_18
-  #define LCD_PINS_D4                      P0_15
+  #define LCD_SDSS                   EXP2_07_PIN
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_ENABLE            EXP2_05_PIN
+  #define LCD_PINS_D4                EXP2_09_PIN
 
   #if ENABLED(MKS_MINI_12864)
     #define DOGLCD_CS                      P2_06
-    #define DOGLCD_A0                      P0_16
+    #define DOGLCD_A0                EXP1_07_PIN
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -106,17 +135,13 @@
   #endif
 #endif
 
-#if SD_CONNECTION_IS(LCD)
-  #define SS_PIN                           P1_23
-#endif
-
 // Trinamic driver support
 
 #if HAS_TRINAMIC_CONFIG
   // Using TMC devices in intelligent mode requires extra connections to each device. Unfortunately
   // the SKR does not have many free pins (especially if a display is in use). The SPI-based devices
   // will require 3 connections (clock, mosi, miso), plus a chip select line (CS) for each driver.
-  // The UART-based devices require 2 pis per deriver (one of which must be interrupt capable).
+  // The UART-based devices require 2 pis per driver (one of which must be interrupt capable).
   // The same SPI pins can be shared with the display/SD card reader, meaning SPI-based devices are
   // probably a good choice for this board.
   //
@@ -140,10 +165,10 @@
   // When using any TMC SPI-based drivers, software SPI is used
   // because pins may be shared with the display or SD card.
   #define TMC_USE_SW_SPI
-  #define TMC_SW_MOSI                      P0_18
-  #define TMC_SW_MISO                      P0_17
+  #define TMC_SW_MOSI                EXP2_05_PIN
+  #define TMC_SW_MISO                EXP2_10_PIN
   // To minimize pin usage use the same clock pin as the display/SD card reader. (May generate LCD noise.)
-  #define TMC_SW_SCK                       P0_15
+  #define TMC_SW_SCK                 EXP2_09_PIN
   // If pin 2_06 is unused, it can be used for the clock to avoid the LCD noise.
   //#define TMC_SW_SCK                     P2_06
 
@@ -186,14 +211,11 @@
     //            SDCARD_CONNECTION must not be 'LCD'. Nothing should be connected to EXP1/EXP2.
     //#define SKR_USE_LCD_PINS_FOR_CS
     #if ENABLED(SKR_USE_LCD_PINS_FOR_CS)
-      #if SD_CONNECTION_IS(LCD)
-        #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
-      #endif
-      #define X_CS_PIN                     P1_23
-      #define Y_CS_PIN                     P3_26
-      #define Z_CS_PIN                     P2_11
-      #define E0_CS_PIN                    P3_25
-      #define E1_CS_PIN                    P1_31
+      #define X_CS_PIN               EXP2_07_PIN
+      #define Y_CS_PIN               EXP2_08_PIN
+      #define Z_CS_PIN               EXP1_09_PIN
+      #define E0_CS_PIN              EXP2_06_PIN
+      #define E1_CS_PIN              EXP2_04_PIN
     #endif
 
     // Example 2: A REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
@@ -201,19 +223,16 @@
     //            the pins will be in use. So SDCARD_CONNECTION must not be 'LCD'.
     //#define SKR_USE_LCD_SD_CARD_PINS_FOR_CS
     #if ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
-      #if SD_CONNECTION_IS(LCD)
-        #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
-      #endif
       #define X_CS_PIN                     P0_02
       #define Y_CS_PIN                     P0_03
       #define Z_CS_PIN                     P2_06
       // We use SD_DETECT_PIN for E0
       #undef SD_DETECT_PIN
-      #define E0_CS_PIN                    P1_31
+      #define E0_CS_PIN              EXP2_04_PIN
       // We use LCD_SDSS pin for E1
       #undef LCD_SDSS
       #define LCD_SDSS                     -1
-      #define E1_CS_PIN                    P1_23
+      #define E1_CS_PIN              EXP2_07_PIN
     #endif
 
     // Example 3: Use the driver enable pins for chip-select.

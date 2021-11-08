@@ -21,18 +21,19 @@
  */
 #pragma once
 
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+/**
+ * FLYmaker FLY-CDY pin assignments
+ */
+
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME   "FLY-CDY"
-#define BOARD_WEBSITE_URL "https://github.com/FLYmaker/FLY-CDY"
+#define BOARD_WEBSITE_URL "github.com/FLYmaker/FLY-CDY"
 
 //
 // Servos
 //
 #define SERVO0_PIN                         P1_26
-
 
 //
 // Limit Switches
@@ -44,7 +45,6 @@
 #define Y_MAX_PIN                          P1_25  // Y+
 #define Z_MIN_PIN                          P1_22  // Z-
 #define Z_MAX_PIN                          P0_27  // Z+
-
 
 //
 // Steppers
@@ -106,31 +106,28 @@
   #endif
 #endif
 
-
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                  P1_04
-  #define X_SERIAL_RX_PIN                  P1_04
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                  P1_10
-  #define Y_SERIAL_RX_PIN                  P1_10
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                  P1_16
-  #define Z_SERIAL_RX_PIN                  P1_16
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                 P4_28
-  #define E0_SERIAL_RX_PIN                 P4_28
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                 P2_12
-  #define E1_SERIAL_RX_PIN                 P2_12
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   #define E2_SERIAL_TX_PIN                 P0_10
-  #define E2_SERIAL_RX_PIN                 P0_10
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif
-
-
 
 //
 // Temperature Sensors
@@ -153,7 +150,6 @@
 #define FAN1_PIN                           P1_21
 #define FAN2_PIN                           P1_24
 
-
 //
 // LCD / Controller
 //
@@ -168,21 +164,20 @@
 #define BTN_EN2                            P0_01
 #define BTN_ENC                            P0_28
 
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-    #define SS_PIN                         P0_06
-    #define SCK_PIN                        P0_07
-    #define MISO_PIN                       P0_08
-    #define MOSI_PIN                       P0_09
+    #define SD_SS_PIN                      P0_06
+    #define SD_SCK_PIN                     P0_07
+    #define SD_MISO_PIN                    P0_08
+    #define SD_MOSI_PIN                    P0_09
     #define SD_DETECT_PIN                  P0_05
 #elif SD_CONNECTION_IS(LCD)
-  #define SCK_PIN                          P0_15
-  #define MISO_PIN                         P0_17
-  #define MOSI_PIN                         P0_18
-  #define SS_PIN                           P0_16
+  #define SD_SCK_PIN                       P0_15
+  #define SD_MISO_PIN                      P0_17
+  #define SD_MOSI_PIN                      P0_18
+  #define SD_SS_PIN                        P0_16
   #define SD_DETECT_PIN                    P2_06
 #endif

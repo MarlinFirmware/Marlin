@@ -241,7 +241,7 @@ uint8_t extDigitalRead(const int8_t pin) {
  *
  * DC values -1.0 to 1.0. Negative duty cycle inverts the pulse.
  */
-uint16_t set_pwm_frequency_hz(const float &hz, const float dca, const float dcb, const float dcc) {
+uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb, const float dcc) {
   float count = 0;
   if (hz > 0 && (dca || dcb || dcc)) {
     count = float(F_CPU) / hz;            // 1x prescaler, TOP for 16MHz base freq.
@@ -267,11 +267,11 @@ uint16_t set_pwm_frequency_hz(const float &hz, const float dca, const float dcb,
     SET_WGM(5, FAST_PWM_ICRn);            // Fast PWM with ICR5 as TOP
 
     //SERIAL_ECHOLNPGM("Timer 5 Settings:");
-    //SERIAL_ECHOLNPAIR("  Prescaler=", prescaler);
-    //SERIAL_ECHOLNPAIR("        TOP=", ICR5);
-    //SERIAL_ECHOLNPAIR("      OCR5A=", OCR5A);
-    //SERIAL_ECHOLNPAIR("      OCR5B=", OCR5B);
-    //SERIAL_ECHOLNPAIR("      OCR5C=", OCR5C);
+    //SERIAL_ECHOLNPGM("  Prescaler=", prescaler);
+    //SERIAL_ECHOLNPGM("        TOP=", ICR5);
+    //SERIAL_ECHOLNPGM("      OCR5A=", OCR5A);
+    //SERIAL_ECHOLNPGM("      OCR5B=", OCR5B);
+    //SERIAL_ECHOLNPGM("      OCR5C=", OCR5C);
   }
   else {
     // Restore the default for Timer 5

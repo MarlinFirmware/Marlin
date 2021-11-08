@@ -170,9 +170,9 @@
 #define INT_SDSS                              55  // D55 PA24/MCDA3
 
 // External SD card reader on SC2
-#define SCK_PIN                               76  // D76 PA27
-#define MISO_PIN                              74  // D74 PA25
-#define MOSI_PIN                              75  // D75 PA26
+#define SD_SCK_PIN                            76  // D76 PA27
+#define SD_MISO_PIN                           74  // D74 PA25
+#define SD_MOSI_PIN                           75  // D75 PA26
 #define SDSS                                  87  // D87 PA29
 
 // 2MB SPI Flash

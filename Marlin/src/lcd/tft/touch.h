@@ -30,8 +30,15 @@
   #include "../tft_io/touch_calibration.h"
 #endif
 
-#include HAL_PATH(../../HAL, tft/xpt2046.h)
-#define TOUCH_DRIVER XPT2046
+#if ENABLED(TFT_TOUCH_DEVICE_GT911)
+  #include HAL_PATH(../../HAL, tft/gt911.h)
+  #define TOUCH_DRIVER_CLASS GT911
+#elif ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+  #include HAL_PATH(../../HAL, tft/xpt2046.h)
+  #define TOUCH_DRIVER_CLASS XPT2046
+#else
+  #error "Unknown Touch Screen Type."
+#endif
 
 // Menu Navigation
 extern int8_t encoderTopLine, encoderLine, screen_items;
@@ -83,9 +90,12 @@ typedef struct __attribute__((__packed__)) {
 #define UBL_REPEAT_DELAY    125
 #define FREE_MOVE_RANGE     32
 
+#define TSLP_PREINIT  0
+#define TSLP_SLEEPING 1
+
 class Touch {
   private:
-    static TOUCH_DRIVER io;
+    static TOUCH_DRIVER_CLASS io;
     static int16_t x, y;
     static bool enabled;
 
@@ -102,7 +112,7 @@ class Touch {
 
   public:
     static void init();
-    static void reset() { controls_count = 0; touch_time = 0; current_control = NULL; }
+    static void reset() { controls_count = 0; touch_time = 0; current_control = nullptr; }
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() {
@@ -114,7 +124,12 @@ class Touch {
     }
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
-
+    #if HAS_TOUCH_SLEEP
+      static millis_t next_sleep_ms;
+      static inline bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
+      static void sleepTimeout();
+      static void wakeUp();
+    #endif
     static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0);
 };
 

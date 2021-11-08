@@ -22,20 +22,21 @@
 #pragma once
 
 /**
- * E4d@Box  pin assignments
- * E4d@Box is a small factor 3D printer control board based on the ESP32 microcontroller for Laser, CNC and 3d printers
- * for more info check https://atbox.tech/ and join to Facebook page E4d@box.
+ * E4d@box pin assignments
+ *
+ * Small factor 3D printer control board based on the ESP32 microcontroller for Laser, CNC and 3D printers.
+ * More info at https://atbox.tech/ and the E4d@box Facebook page.
  */
 
-#if NOT_TARGET(ARDUINO_ARCH_ESP32)
-  #error "Oops! Select an ESP32 board in 'Tools > Board.'"
-#elif EXTRUDERS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if EXTRUDERS > 1 || E_STEPPERS > 1
   #error "E4d@box only supports one E Stepper. Comment out this line to continue."
-#elif HOTENDS > 1
+#elif HAS_MULTI_HOTEND
   #error "E4d@box only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME       "E4D@BOX"
+#define BOARD_INFO_NAME       "E4d@box"
 #define BOARD_WEBSITE_URL     "github.com/Exilaus/E4d@box"
 #define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
 
@@ -100,8 +101,8 @@
 //
 // MicroSD card on SPI
 //
-#define MOSI_PIN                              23
-#define MISO_PIN                              19
-#define SCK_PIN                               18
+#define SD_MOSI_PIN                           23
+#define SD_MISO_PIN                           19
+#define SD_SCK_PIN                            18
 #define SDSS                                   5
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
