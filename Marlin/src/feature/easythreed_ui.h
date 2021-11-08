@@ -23,7 +23,7 @@
 
 class EasythreedUI {
   public:
-    static void setPins();
+    static void init();
     static void UICheck();
 
   private:

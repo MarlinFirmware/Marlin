@@ -1603,7 +1603,7 @@ void setup() {
   #endif
 
   #if ENABLED(EASYTHREED_UI)
-    SETUP_RUN(easythreed_ui.setPins());
+    SETUP_RUN(easythreed_ui.init());
   #endif
 
   marlin_state = MF_RUNNING;

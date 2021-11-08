@@ -36,7 +36,7 @@
 
 EasythreedUI easythreed_ui;
 
-void EasythreedUI::setPins() {
+void EasythreedUI::init() {
   SET_INPUT_PULLUP(PRINT_HOME_PIN);
   SET_OUTPUT(HOME_GND_PIN);
   SET_INPUT_PULLUP(FEED_PIN);
