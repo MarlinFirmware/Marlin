@@ -104,6 +104,7 @@ void EasythreedUI::NanoLoadFilament(void) {
         filament_time = millis();
       }
       break;
+
     case 1:
       if (ELAPSED(millis(), filament_time + 20)) {
         if (READ(RETRACT_PIN) == LOW || READ(FEED_PIN) == LOW) {
@@ -115,6 +116,7 @@ void EasythreedUI::NanoLoadFilament(void) {
           filament_status = 0;
       }
       break;
+
     case 2:
       if (thermalManager.degHotend(0) >= 180.0f) {
         filament_status++;
@@ -126,21 +128,18 @@ void EasythreedUI::NanoLoadFilament(void) {
         thermalManager.disable_all_heaters();
       }
       break;
+
     case 3: {
       static bool flag = false;
-      if (READ(RETRACT_PIN) == LOW) {
-        if (!flag) {
-          queue.inject(F("G91\nG0 E10 F180\nG0 E-120 F180\nM104 S0"));
-          blink_time = LED_BLINK_5;
-          flag = true;
-        }
+      if (!flag && READ(RETRACT_PIN) == LOW) {
+        flag = true;
+        queue.inject(F("G91\nG0 E10 F180\nG0 E-120 F180\nM104 S0"));
+        blink_time = LED_BLINK_5;
       }
-      if (READ(FEED_PIN) == LOW) {
-        if (!flag) {
-          queue.inject(F("G91\nG0 E+100 F120\nM104 S0"));
-          blink_time = LED_BLINK_5;
-          flag = true;
-        }
+      if (!flag && READ(FEED_PIN) == LOW) {
+        flag = true;
+        queue.inject(F("G91\nG0 E100 F120\nM104 S0"));
+        blink_time = LED_BLINK_5;
       }
       if (READ(RETRACT_PIN) == HIGH && READ(FEED_PIN) == HIGH) {
         flag = false;
@@ -182,7 +181,7 @@ void EasythreedUI::NanoPrintOneKey(void) {
       break;
 
     case 1:
-      if (ms > key_time + 30) {
+      if (ELAPSED(ms, key_time + 30)) {
         if (READ(PRINTER_PIN) == LOW) {
           key_time = ms;
           key_status = 2;

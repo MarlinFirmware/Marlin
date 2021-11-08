@@ -79,31 +79,51 @@
 
 #define FIL_RUNOUT_PIN                      PB8   // MT_DET
 
+/**                ------
+ *   (BEEPER) PD2 |10  9 | PB3  (BTN_ENC)
+ *  (BTN_EN1) PB5 | 8  7 | PA11 (RESET?)
+ *  (BTN_EN2) PB4   6  5 | PC1  (LCD_D4)
+ *   (LCD_RS) PC3 | 4  3 | PC2  (LCD_EN)
+ *            GND | 2  1 | 5V
+ *                 ------
+ *               "E3" EXP1
+ */
+#define E3_EXP1_01_PIN                      -1    // 5V
+#define E3_EXP1_02_PIN                      -1    // GND
+#define E3_EXP1_03_PIN                      PC2
+#define E3_EXP1_04_PIN                      PC3
+#define E3_EXP1_05_PIN                      PC1
+#define E3_EXP1_06_PIN                      PB4
+#define E3_EXP1_07_PIN                      PA11  // RESET?
+#define E3_EXP1_08_PIN                      PB5
+#define E3_EXP1_09_PIN                      PB3
+#define E3_EXP1_10_PIN                      PD2
+
 //
 // LCD Pins
 //
 #if HAS_WIRED_LCD
-  #define BEEPER_PIN                        PD2
-  #define BTN_ENC                           PB3
-  #define LCD_PINS_RS                       PC3
+  #define BEEPER_PIN              E3_EXP1_10_PIN
+  #define BTN_ENC                 E3_EXP1_09_PIN
+  #define LCD_PINS_RS             E3_EXP1_04_PIN
 
-  #define BTN_EN1                           PB5
-  #define BTN_EN2                           PB4
+  #define BTN_EN1                 E3_EXP1_08_PIN
+  #define BTN_EN2                 E3_EXP1_06_PIN
 
-  #define LCD_PINS_ENABLE                   PC2
+  #define LCD_PINS_ENABLE         E3_EXP1_03_PIN
 
   #if ENABLED(MKS_MINI_12864)
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
-    #define DOGLCD_A0                       PC1
-    #define DOGLCD_CS                       PC2
+    #define DOGLCD_A0             E3_EXP1_05_PIN
+    #define DOGLCD_CS             E3_EXP1_03_PIN
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
   #else                                           // !MKS_MINI_12864
 
-    #define LCD_PINS_D4                     PC1
+    #define LCD_PINS_D4           E3_EXP1_05_PIN
     #if IS_ULTIPANEL
       #define LCD_PINS_D5                   -1
       #define LCD_PINS_D6                   -1
@@ -144,12 +164,12 @@
 
 // EXP1 replace LCD with keys for EasyThreeD ET4000+ Mainboard
 #if ENABLED(EASYTHREED_UI)
-  #define PRINT_HOME_PIN                    PC3
-  #define HOME_GND_PIN                      PC2
-  #define FEED_PIN                          PB3
-  #define RETRACT_PIN                       PB5
-  #define FEED_GND_PIN                      PB4
-  #define RETRACT_GND_PIN                   PC1
-  #define PRINTER_PIN                       PA11
-  #define PRINT_LED_PIN                     PD2
+  #define PRINT_HOME_PIN          E3_EXP1_04_PIN  // INPUT_PULLUP (unused)
+  #define HOME_GND_PIN            E3_EXP1_03_PIN  // OUTPUT (unused)
+  #define FEED_PIN                E3_EXP1_09_PIN  // Run E Forward
+  #define RETRACT_PIN             E3_EXP1_08_PIN  // Run E Backward
+  #define FEED_GND_PIN            E3_EXP1_06_PIN  // OUTPUT (unused)
+  #define RETRACT_GND_PIN         E3_EXP1_05_PIN  // OUTPUT (unused)
+  #define PRINTER_PIN             E3_EXP1_07_PIN  // Start File Print
+  #define PRINT_LED_PIN           E3_EXP1_10_PIN  // Indicator LED
 #endif
