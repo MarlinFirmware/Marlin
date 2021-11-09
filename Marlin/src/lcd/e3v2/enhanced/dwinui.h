@@ -42,6 +42,7 @@
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_SetEndTemp
 #define ICON_Error                ICON_TempTooHigh
+#define ICON_ESDiag               ICON_Info
 #define ICON_ExtrudeMinT          ICON_HotendTemp
 #define ICON_FilLoad              ICON_WriteEEPROM
 #define ICON_FilMan               ICON_ResumeEEPROM
@@ -377,6 +378,13 @@ namespace DWINUI {
   //  rlimit: For draw less chars than string length use rlimit
   void Draw_String(const char * const string, uint16_t rlimit = 0xFFFF);
   void Draw_String(uint16_t color, const char * const string, uint16_t rlimit = 0xFFFF);
+  inline void Draw_String(FSTR_P  string, uint16_t rlimit = 0xFFFF) {
+    Draw_String(FTOP(string), rlimit);
+  }
+  inline void Draw_String(uint16_t color, FSTR_P string, uint16_t rlimit = 0xFFFF) {
+    Draw_String(color, FTOP(string), rlimit);
+  }
+  
 
   // Draw a string
   //  size: Font size

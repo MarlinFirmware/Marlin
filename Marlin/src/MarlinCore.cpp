@@ -1559,7 +1559,6 @@ void setup() {
     HMI_Init();
     HMI_SetLanguageCache();
     HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT_F(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
