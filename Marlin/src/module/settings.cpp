@@ -3046,6 +3046,7 @@ void MarlinSettings::reset() {
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
+  TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_SetDataDefaults());
 }
 
 #if DISABLED(DISABLE_M503)
