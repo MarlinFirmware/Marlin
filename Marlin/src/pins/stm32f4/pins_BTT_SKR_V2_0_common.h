@@ -58,6 +58,11 @@
 #define SERVO0_PIN                          PE5
 
 //
+// Strain gauge
+//
+#define STRAIN_GAUGE_EN_PIN                 PE5
+
+//
 // Trinamic Stallguard pins
 //
 #define X_DIAG_PIN                          PC1   // X-STOP

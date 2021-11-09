@@ -315,6 +315,10 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
+  #elif ENABLED(STRAIN_GAUGE_PROBE)
+
+    WRITE(STRAIN_GAUGE_EN_PIN, deploy);
+
   #elif ENABLED(BLTOUCH)
 
     deploy ? bltouch.deploy() : bltouch.stow();
@@ -408,7 +412,7 @@ bool Probe::set_deployed(const bool deploy) {
   // Make room for probe to deploy (or stow)
   // Fix-mounted probe should only raise for deploy
   // unless PAUSE_BEFORE_DEPLOY_STOW is enabled
-  #if EITHER(FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
+  #if ANY(FIX_MOUNTED_PROBE, STRAIN_GAUGE_PROBE, NOZZLE_AS_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
     const bool z_raise_wanted = deploy;
   #else
     constexpr bool z_raise_wanted = true;

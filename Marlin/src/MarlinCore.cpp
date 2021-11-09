@@ -1372,6 +1372,10 @@ void setup() {
     OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
+  #if ENABLED(STRAIN_GAUGE_PROBE)
+    OUT_WRITE(STRAIN_GAUGE_EN_PIN, LOW); // Disable
+  #endif
+
   #if HAS_HOME
     SET_INPUT_PULLUP(HOME_PIN);
   #endif
