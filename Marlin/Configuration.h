@@ -1072,10 +1072,10 @@
 //#define FIX_MOUNTED_PROBE
 
 /**
- * Detect the slight deformation caused by pressure after the probe touched the bed
- * The logic is almost the same as 'FIX_MOUNTED_PROBE', But the strain gauge is high sensitivity
- * In order to avoid false triggering during XY movement, an enable signal is required
- * Which only enable the output signal of the probe during z-axis probing
+ * A Strain Gauge detects the slight deformation caused by pressure when the probe hits the bed.
+ * The logic is similar to 'FIX_MOUNTED_PROBE'. The strain gauge has high sensitivity, so in
+ * order to avoid false triggering during XY movement, an enable signal pin is required which
+ * enables the output signal of the probe only while in use.
  */
 //#define STRAIN_GAUGE_PROBE
 
