@@ -136,7 +136,9 @@
 // Probe enable
 //
 #if ENABLED(PROBE_ENABLE_DISABLE)
-  #define PROBE_ENABLE_PIN            SERVO0_PIN
+  #ifndef PROBE_ENABLE_PIN
+    #define PROBE_ENABLE_PIN          SERVO0_PIN
+  #endif
 #endif
 
 //
