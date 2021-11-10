@@ -24,8 +24,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/09/08
+ * Version: 3.7.1
+ * Date: 2021/11/09
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -154,6 +154,7 @@ void HMI_SDCardUpdate();
 // Other
 void Goto_PrintProcess();
 void Goto_Main_Menu();
+void Goto_InfoMenu();
 void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area;
