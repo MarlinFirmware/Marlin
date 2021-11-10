@@ -258,14 +258,20 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
       // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
       _SET_COMnQ(timer.TCCRnQ, (timer.q
-          #ifdef TCCR2
-            + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
-          #endif
+        #ifdef TCCR2
+          + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
+        #endif
         ), COM_CLEAR_SET + invert
       );
 
-      uint16_t top = (timer.n == 2) ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
-      _SET_OCRnQ(timer.OCRnQ, timer.q, (v * top + v_size / 2) / v_size); // Scale 8/16-bit v to top value
+      uint16_t top;
+      if (timer.n == 2) { // if TIMER2
+        top = TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0],255);
+      }
+      else {
+        top = *timer.ICRn; // top = ICRn
+        _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top) / float(v_size)); // Scale 8/16-bit v to top value
+      }
     }
 
   #else
