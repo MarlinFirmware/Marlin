@@ -913,18 +913,13 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
             chamberfan_speed = fan_on ? CHAMBER_AUTO_FAN_SPEED : 0;
             break;
         #endif
-        #if ENABLED(AUTO_POWER_COOLER_FAN)
-          case COOLER_FAN_INDEX:
-            coolerfan_speed = fan_on ? COOLER_AUTO_FAN_SPEED : 0;
-            break;
-        #endif  
         default:
           #if ENABLED(AUTO_POWER_E_FANS)
             autofan_speed[realFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
           #endif
           break;
       }
-
+      
       switch (f) {
         #if HAS_AUTO_FAN_0
           case 0: _UPDATE_AUTO_FAN(E0, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
