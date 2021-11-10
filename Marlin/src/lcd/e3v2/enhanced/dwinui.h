@@ -347,7 +347,6 @@ namespace DWINUI {
   inline void Draw_String(uint16_t color, FSTR_P string, uint16_t rlimit = 0xFFFF) {
     Draw_String(color, FTOP(string), rlimit);
   }
-  
 
   // Draw a string
   //  size: Font size

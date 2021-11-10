@@ -2162,7 +2162,7 @@ void SetMoveZ() { HMI_value.axis = Z_AXIS; SetPFloatOnClick(Z_MIN_POS, Z_MAX_POS
 void SetMoveZto0() {
   char cmd[48] = "";
   char str_1[5] = "", str_2[5] = "";
-  sprintf_P(cmd, PSTR("G28Z\nG0X%sY%sF5000\nM420S0\nG0Z0F300"), 
+  sprintf_P(cmd, PSTR("G28Z\nG0X%sY%sF5000\nM420S0\nG0Z0F300"),
     #if ENABLED(MESH_BED_LEVELING)
       dtostrf(0, 1, 1, str_1),
       dtostrf(0, 1, 1, str_2)
