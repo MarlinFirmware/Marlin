@@ -34,6 +34,9 @@
 #define HEATER_0_PIN                        PB14  // HEATER1
 #define HEATER_BED_PIN                      PB13  // HOT BED
 #define FAN_PIN                             PB15  // FAN
-#define PROBE_ACTIVATION_SWITCH_PIN         PB2   // Optoswitch to Enable Z Probe
+
+#if ENABLED(PROBE_ACTIVATION_SWITCH)
+  #define PROBE_ACTIVATION_SWITCH_PIN       PB2   // Optoswitch to Enable Z Probe
+#endif
 
 #include "pins_CREALITY_V45x.h"

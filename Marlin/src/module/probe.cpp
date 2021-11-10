@@ -315,10 +315,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     dock_sled(!deploy);
 
-  #elif ENABLED(STRAIN_GAUGE_PROBE)
-
-    WRITE(STRAIN_GAUGE_EN_PIN, deploy);
-
   #elif ENABLED(BLTOUCH)
 
     deploy ? bltouch.deploy() : bltouch.stow();
