@@ -288,8 +288,8 @@ struct XYval {
   FI XYval<float> reciprocal()                    const { return {  _RECIP(x),  _RECIP(y) }; }
 
   // Marlin workspace shifting is done with G92 and M206
-  FI XYval<float>  asLogical()                    const { XYval<float> v = asFloat(); toLogical(v); return v; }
-  FI XYval<float>   asNative()                    const { XYval<float> v = asFloat(); toNative(v);  return v; }
+  FI XYval<float>  asLogical()                    const { XYval<float> o = asFloat(); toLogical(o); return o; }
+  FI XYval<float>   asNative()                    const { XYval<float> o = asFloat(); toNative(o);  return o; }
 
   // Cast to a type with more fields by making a new object
   FI operator XYZval<T>()                               { return { x, y }; }
@@ -343,8 +343,8 @@ struct XYval {
   FI XYval<T>  operator>>(const int &v)                 { XYval<T> ls = *this; _RS(ls.x);    _RS(ls.y);    return ls; }
   FI XYval<T>  operator<<(const int &v)           const { XYval<T> ls = *this; _LS(ls.x);    _LS(ls.y);    return ls; }
   FI XYval<T>  operator<<(const int &v)                 { XYval<T> ls = *this; _LS(ls.x);    _LS(ls.y);    return ls; }
-  FI const XYval<T> operator-()                   const { XYval<T> v = *this; v.x = -x; v.y = -y; return v; }
-  FI XYval<T>       operator-()                         { XYval<T> v = *this; v.x = -x; v.y = -y; return v; }
+  FI const XYval<T> operator-()                   const { XYval<T> o = *this; o.x = -x; o.y = -y; return o; }
+  FI XYval<T>       operator-()                         { XYval<T> o = *this; o.x = -x; o.y = -y; return o; }
 
   // Modifier operators
   FI XYval<T>& operator+=(const XYval<T>   &rs)         { x += rs.x; y += rs.y; return *this; }
@@ -398,11 +398,11 @@ struct XYZval {
   FI void set(const T (&arr)[XY])                      { x = arr[0]; y = arr[1]; }
   #if HAS_Z_AXIS
     FI void set(const T (&arr)[LINEAR_AXES])           { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
-    FI void set(LINEAR_AXIS_ARGS(const T))             { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      ax4 = i,      ax5 = j,      ax6 = k,      ax7 = u,      ax8 = v,      ax9 = w); }
+    FI void set(LINEAR_AXIS_ARGS(const T))             { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      ax4 = i,    ax5 = j,    ax6 = k,    ax7 = u,    ax8 = v,    ax9 = w   ); }
   #endif
   #if LOGICAL_AXES > LINEAR_AXES
     FI void set(const T (&arr)[LOGICAL_AXES])          { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
-    FI void set(LOGICAL_AXIS_ARGS(const T))            { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      ax4 = i,      ax5 = j,      ax6 = k,      ax7 = u,      ax8 = v,      ax9 = w    ); }
+    FI void set(LOGICAL_AXIS_ARGS(const T))            { LINEAR_AXIS_CODE(a = x,      b = y,      c = z,      ax4 = i,    ax5 = j,    ax6 = k,    ax7 = u,    ax8 = v,    ax9 = w   ); }
     #if DISTINCT_AXES > LOGICAL_AXES
       FI void set(const T (&arr)[DISTINCT_AXES])       { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
     #endif
