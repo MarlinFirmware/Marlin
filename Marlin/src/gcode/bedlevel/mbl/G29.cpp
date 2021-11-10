@@ -152,8 +152,8 @@ void GcodeSuite::G29() {
         return;
       }
       // For each G29 S2...
-        if (mbl_probe_index == 0) {
-          // Move close to the bed before the first point
+      if (mbl_probe_index == 0) {
+        // Move close to the bed before the first point
         do_blocking_move_to_z(0.4f
           #ifdef MANUAL_PROBE_START_Z
             + (MANUAL_PROBE_START_Z) - 0.4f
