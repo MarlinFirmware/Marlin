@@ -29,6 +29,8 @@
 
 #define BOARD_INFO_NAME "BTT BTT002 V1.0"
 
+//#define MK3_FAN_PINS
+
 #define USES_DIAG_PINS
 
 // Ignore temp readings during development.
@@ -169,8 +171,22 @@
 //
 #define HEATER_0_PIN                        PE6   // Heater0
 #define HEATER_BED_PIN                      PE5   // Hotbed
-#define FAN_PIN                             PB8   // Fan1
-#define FAN1_PIN                            PB9   // Fan0
+
+#ifndef FAN_PIN
+  #ifdef MK3_FAN_PINS
+    #define FAN_PIN                         PB8   // Fan1
+  #else
+    #define FAN_PIN                         PB9   // Fan0
+  #endif
+#endif
+
+#ifndef FAN1_PIN
+  #ifdef MK3_FAN_PINS
+    #define FAN1_PIN                        PB9   // Fan0
+  #else
+    #define FAN1_PIN                        PB8   // Fan1
+  #endif
+#endif
 
 /**
  * -----------------------------------BTT002 V1.0----------------------------------------

@@ -26,7 +26,9 @@
 #include "../common/dwin_color.h"
 
 // ICON ID
-#ifndef USE_UNIFIED_DWIN_SET            // Official Marlin DWIN_SET
+
+//#define USE_UNIFIED_DWIN_SET            // Official Marlin DWIN_SET
+#ifndef USE_UNIFIED_DWIN_SET
   #ifdef ICON
     #undef ICON
   #endif
@@ -385,7 +387,6 @@ namespace DWINUI {
     Draw_String(color, FTOP(string), rlimit);
   }
   
-
   // Draw a string
   //  size: Font size
   //  color: Character color

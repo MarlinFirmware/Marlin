@@ -688,6 +688,7 @@ void DWIN_DrawStatusMessage() {
   const uint8_t max_status_chars = DWIN_WIDTH / DWINUI::fontWidth(DWINUI::font);
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
+
     // Get the UTF8 character count of the string
     uint8_t slen = utf8_strlen(ui.status_message);
 
@@ -721,12 +722,15 @@ void DWIN_DrawStatusMessage() {
       }
       MarlinUI::advance_status_scroll();
     }
+
   #else
+
     if (hash_changed) {
       ui.status_message[max_status_chars] = 0;
       DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, ui.status_message);
       hash_changed = false;
     }
+
   #endif
 }
 
