@@ -31,6 +31,8 @@
   #define BOARD_INFO_NAME "BTT SKR E3 Turbo"
 #endif
 
+#define USES_DIAG_JUMPERS
+
 // Onboard I2C EEPROM
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000  // 4KB (AT24C32)

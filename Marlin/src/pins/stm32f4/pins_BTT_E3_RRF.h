@@ -29,6 +29,8 @@
   #define BOARD_INFO_NAME "BTT E3 RRF"
 #endif
 
+#define USES_DIAG_JUMPERS
+
 // Add-on board for IDEX conversion
 //#define BTT_E3_RRF_IDEX_BOARD
 
