@@ -356,6 +356,9 @@ public:
 
   #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
   #else
     static inline void kill_screen(FSTR_P const, FSTR_P const) {}
   #endif
@@ -442,10 +445,6 @@ public:
         static void completion_feedback(const bool good=true);
       #else
         static inline void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
-      #endif
-
-      #if DISABLED(LIGHTWEIGHT_UI)
-        static void draw_status_message(const bool blink);
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)

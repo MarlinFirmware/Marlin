@@ -170,6 +170,7 @@ select_t select_page{0}, select_file{0}, select_print{0};
 uint8_t index_file     = MROWS;
 
 bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
+bool hash_changed = true; // Flag to know if message status was changed
 
 constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
 constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
@@ -610,6 +611,86 @@ void Popup_window_PauseOrStop() {
   }
 #endif
 
+// Draw status line
+void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text, const bool center = true) {
+  DWIN_Draw_Rectangle(1, bgcolor, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
+  if (text) {
+    if (center) DWINUI::Draw_CenteredString(color, STATUS_Y + 2, text);
+    else        DWINUI::Draw_String(color, 0, STATUS_Y + 2, text);
+  }
+  DWIN_UpdateLCD();
+}
+void DWIN_DrawStatusLine(const char *text, const bool center = true) {
+  DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, text, center);
+}
+
+// Clear & reset status line
+void DWIN_ResetStatusLine() {
+  ui.status_message[0] = 0;
+  DWIN_CheckStatusMessage();
+}
+
+// Djb2 hash algorithm
+void DWIN_CheckStatusMessage() {
+  static uint32_t old_hash = 0;
+  char * str = &ui.status_message[0];
+  uint32_t hash = 5381;
+  char c;
+  while ((c = *str++)) hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  hash_changed = hash != old_hash;
+  old_hash = hash;
+};
+
+void DWIN_DrawStatusMessage() {
+  const uint8_t max_status_chars = DWIN_WIDTH / DWINUI::fontWidth(DWINUI::font);
+
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = utf8_strlen(ui.status_message);
+
+    // If the string fits the status line do not scroll it
+    if (slen <= max_status_chars) {
+       if (hash_changed) {
+         DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, ui.status_message);
+         hash_changed = false;
+       }
+    }
+    else {
+      // String is larger than the available line space
+
+      // Get a pointer to the next valid UTF8 character
+      // and the string remaining length
+      uint8_t rlen;
+      const char *stat = MarlinUI::status_and_len(rlen);
+      DWIN_Draw_Rectangle(1, HMI_data.StatusBg_Color, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
+      DWINUI::MoveTo(0, STATUS_Y + 2);
+      DWINUI::Draw_String(stat, max_status_chars);
+
+      // If the string doesn't completely fill the line...
+      if (rlen < max_status_chars) {
+        DWINUI::Draw_Char('.');                   // Always at 1+ spaces left, draw a dot
+        uint8_t chars = max_status_chars - rlen;  // Amount of space left in characters
+        if (--chars) {                            // Draw a second dot if there's space
+          DWINUI::Draw_Char('.');
+          if (--chars)
+            DWINUI::Draw_String(ui.status_message, chars); // Print a second copy of the message
+        }
+      }
+      MarlinUI::advance_status_scroll();
+    }
+
+  #else
+
+    if (hash_changed) {
+      ui.status_message[max_status_chars] = 0;
+      DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, ui.status_message);
+      hash_changed = false;
+    }
+
+  #endif
+}
+
 void Draw_Print_Labels() {
   if (HMI_IsChinese()) {
     Title.FrameCopy(30, 1, 42, 14);                     // "Printing"
@@ -715,7 +796,7 @@ void Draw_Main_Menu() {
 void Goto_Main_Menu() {
   if (checkkey == MainMenu) return;
   checkkey = MainMenu;
-  DWIN_StatusChanged();
+  ui.reset_status(true);
   Draw_Main_Menu();
 }
 
@@ -1079,6 +1160,7 @@ void Draw_Status_Area(const bool with_update) {
 
 void HMI_StartFrame(const bool with_update) {
   Goto_Main_Menu();
+  DWIN_DrawStatusLine(nullptr);
   Draw_Status_Area(with_update);
 }
 
@@ -1475,12 +1557,17 @@ void DWIN_Update() {
 }
 
 void EachMomentUpdate() {
-  static millis_t next_var_update_ms = 0, next_rts_update_ms = 0;
+  static millis_t next_var_update_ms = 0, next_rts_update_ms = 0, next_status_update_ms = 0;
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_var_update_ms)) {
     next_var_update_ms = ms + DWIN_VAR_UPDATE_INTERVAL;
     update_variable();
+  }
+
+  if (ELAPSED(ms, next_status_update_ms)) {
+    next_status_update_ms = ms + 500;
+    DWIN_DrawStatusMessage();
   }
 
   if (PENDING(ms, next_rts_update_ms)) return;
@@ -1746,7 +1833,7 @@ void Draw_Title(TitleClass* title) {
 void Draw_Menu(MenuClass* menu) {
   DWINUI::SetColors(HMI_data.Text_Color, HMI_data.Background_Color);
   DWIN_Draw_Rectangle(1, DWINUI::backcolor, 0, TITLE_HEIGHT, DWIN_WIDTH - 1, STATUS_Y - 1);
-  ui.set_status("");
+  DWIN_ResetStatusLine();
 }
 
 // Startup routines
@@ -1757,23 +1844,6 @@ void DWIN_Startup() {
   DWINUI::onTitleDraw = Draw_Title;
   DWINUI::onMenuDraw = Draw_Menu;
   HMI_SetLanguage();
-}
-
-void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char * const text/*=nullptr*/) {
-  DWIN_Draw_Rectangle(1, bgcolor, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
-  if (text) DWINUI::Draw_CenteredString(color, STATUS_Y + 2, text);
-  DWIN_UpdateLCD();
-}
-
-// Update Status line
-void DWIN_StatusChanged(const char * const cstr/*=nullptr*/) {
-  DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, cstr);
-}
-
-void DWIN_StatusChanged(FSTR_P const fstr) {
-  char str[strlen_P(FTOP(fstr)) + 1];
-  strcpy_P(str, FTOP(fstr));
-  DWIN_StatusChanged(str);
 }
 
 // Started a Print Job
@@ -1867,7 +1937,6 @@ void DWIN_RebootScreen() {
 
 void DWIN_Redraw_screen() {
   Draw_Main_Area();
-  DWIN_StatusChanged(ui.status_message);
   Draw_Status_Area(false);
 }
 

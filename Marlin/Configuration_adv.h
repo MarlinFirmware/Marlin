@@ -1280,7 +1280,7 @@
 
 #endif // HAS_LCD_MENU
 
-#if HAS_DISPLAY
+#if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
   // The timeout (in ms) to return to the status screen from sub-menus
   //#define LCD_TIMEOUT_TO_STATUS 15000
 
