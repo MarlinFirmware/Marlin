@@ -645,6 +645,7 @@ void DWIN_DrawStatusMessage() {
   const uint8_t max_status_chars = DWIN_WIDTH / DWINUI::fontWidth(DWINUI::font);
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
+
     // Get the UTF8 character count of the string
     uint8_t slen = utf8_strlen(ui.status_message);
 
@@ -670,20 +671,23 @@ void DWIN_DrawStatusMessage() {
       if (rlen < max_status_chars) {
         DWINUI::Draw_Char('.');                   // Always at 1+ spaces left, draw a dot
         uint8_t chars = max_status_chars - rlen;  // Amount of space left in characters
-        if (--chars) {                        // Draw a second dot if there's space
+        if (--chars) {                            // Draw a second dot if there's space
           DWINUI::Draw_Char('.');
           if (--chars)
-           DWINUI::Draw_String(ui.status_message, chars); // Print a second copy of the message
+            DWINUI::Draw_String(ui.status_message, chars); // Print a second copy of the message
         }
       }
       MarlinUI::advance_status_scroll();
     }
+
   #else
+
     if (hash_changed) {
       ui.status_message[max_status_chars] = 0;
       DWIN_DrawStatusLine(HMI_data.StatusTxt_Color, HMI_data.StatusBg_Color, ui.status_message);
       hash_changed = false;
     }
+
   #endif
 }
 
