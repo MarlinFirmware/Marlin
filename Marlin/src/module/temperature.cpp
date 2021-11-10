@@ -919,7 +919,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
           #endif
           break;
       }
-      
+
       switch (f) {
         #if HAS_AUTO_FAN_0
           case 0: _UPDATE_AUTO_FAN(E0, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
@@ -3067,11 +3067,11 @@ void Temperature::isr() {
       #if HAS_COOLER
         _PWM_MOD(COOLER, soft_pwm_cooler, temp_cooler);
       #endif
-      
+
       #if BOTH(USE_CONTROLLER_FAN, FAN_SOFT_PWM)
         WRITE(CONTROLLER_FAN_PIN, soft_pwm_controller.add(pwm_mask, soft_pwm_controller_speed));
-      #endif  
-          
+      #endif
+
       #if ENABLED(FAN_SOFT_PWM)
         #define _FAN_PWM(N) do{                                     \
           uint8_t &spcf = soft_pwm_count_fan[N];                    \
