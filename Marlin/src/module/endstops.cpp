@@ -392,6 +392,9 @@ void Endstops::not_homing() {
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
+    #if PIN_EXISTS(PROBE_ENABLE)
+      WRITE(PROBE_ENABLE_PIN, onoff);
+    #endif
     resync();
   }
 #endif
