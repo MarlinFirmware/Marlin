@@ -1072,14 +1072,6 @@
 //#define FIX_MOUNTED_PROBE
 
 /**
- * A Strain Gauge detects the slight deformation caused by pressure when the probe hits the bed.
- * The logic is similar to 'FIX_MOUNTED_PROBE'. The strain gauge has high sensitivity, so in
- * order to avoid false triggering during XY movement, an enable signal pin is required which
- * enables the output signal of the probe only while in use.
- */
-//#define STRAIN_GAUGE_PROBE
-
-/**
  * Use the nozzle as the probe, as with a conductive
  * nozzle system or a piezo-electric smart effector.
  */
@@ -1226,6 +1218,15 @@
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
   #endif
+#endif
+
+/**
+ * Probe Enable / Disable
+ * The probe only provides a triggered signal when enabled.
+ */
+//#define PROBE_ENABLE_DISABLE
+#if ENABLED(PROBE_ENABLE_DISABLE)
+  //#define PROBE_ENABLE_PIN -1   // Override the default pin here
 #endif
 
 /**

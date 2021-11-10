@@ -133,9 +133,9 @@
 #endif
 
 //
-// Strain gauge probe
+// Probe enable
 //
-#if ENABLED(STRAIN_GAUGE_PROBE)
+#if ENABLED(PROBE_ENABLE_DISABLE)
   #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
