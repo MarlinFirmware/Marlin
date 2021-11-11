@@ -27,8 +27,8 @@
 
 #if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#elif HOTENDS > 1 || E_STEPPERS > 1
+  #error "This MPX board only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "Mingda MPX_ARM_MINI"
@@ -64,9 +64,9 @@
 // Limit Switches
 //
 #define X_MIN_PIN                           PD6
-#define X_MAX_PIN                           PG15
+#define X_MAX_PIN                           PG15 // To double check
 #define Y_MIN_PIN                           PG9
-#define Y_MAX_PIN                           PG14
+#define Y_MAX_PIN                           PG14 // To double check
 #define Z_MIN_PIN                           PG10
 #define Z_MAX_PIN                           PG13
 
