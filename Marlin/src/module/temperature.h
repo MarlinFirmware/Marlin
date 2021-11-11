@@ -372,7 +372,7 @@ class Temperature {
       static redundant_info_t temp_redundant;
     #endif
 
-    #if ENABLED(AUTO_POWER_E_FANS)
+    #if ENABLED(AUTO_POWER_E_FANS) || HAS_FANCHECK
       static uint8_t autofan_speed[HOTENDS];
     #endif
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)
@@ -455,6 +455,10 @@ class Temperature {
       static int16_t lpq_len;
     #endif
 
+    #if HAS_AUTO_FAN || HAS_FANCHECK
+      static constexpr millis_t fan_autocheck_interval_ms = TERN(HAS_FANCHECK, 1000, 2500);
+    #endif
+
   private:
 
     #if ENABLED(WATCH_HOTENDS)
@@ -506,7 +510,7 @@ class Temperature {
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
-    #if HAS_AUTO_FAN
+    #if HAS_AUTO_FAN || HAS_FANCHECK
       static millis_t next_auto_fan_check_ms;
     #endif
 
@@ -957,7 +961,7 @@ class Temperature {
       static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
-    static void checkExtruderAutoFans();
+    static void update_autofans();
 
     #if HAS_HOTEND
       static float get_pid_output_hotend(const uint8_t e);

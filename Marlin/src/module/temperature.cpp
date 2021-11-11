@@ -59,6 +59,10 @@
   #include "../feature/host_actions.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "fancheck.h"
+#endif
+
 #if HAS_TEMP_SENSOR
   #include "../gcode/gcode.h"
 #endif
@@ -290,7 +294,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   redundant_info_t Temperature::temp_redundant;
 #endif
 
-#if ENABLED(AUTO_POWER_E_FANS)
+#if ENABLED(AUTO_POWER_E_FANS) || HAS_FANCHECK
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
 
@@ -518,7 +522,8 @@ volatile bool Temperature::raw_temps_ready = false;
   millis_t Temperature::preheat_end_time[HOTENDS] = { 0 };
 #endif
 
-#if HAS_AUTO_FAN
+#if HAS_AUTO_FAN || HAS_FANCHECK
+  constexpr millis_t Temperature::fan_autocheck_interval_ms;
   millis_t Temperature::next_auto_fan_check_ms = 0;
 #endif
 
@@ -606,7 +611,9 @@ volatile bool Temperature::raw_temps_ready = false;
       bool heated = false;
     #endif
 
-    TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
+    #if HAS_AUTO_FAN || HAS_FANCHECK
+      next_auto_fan_check_ms = next_temp_ms + fan_autocheck_interval_ms;
+    #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED));
     TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_PidTuning(isbed ? PID_BED_START : PID_EXTR_START));
@@ -651,10 +658,12 @@ volatile bool Temperature::raw_temps_ready = false;
           ONHEATING(start_temp, current_temp, target);
         #endif
 
-        #if HAS_AUTO_FAN
+        #if HAS_AUTO_FAN || HAS_FANCHECK
           if (ELAPSED(ms, next_auto_fan_check_ms)) {
-            checkExtruderAutoFans();
-            next_auto_fan_check_ms = ms + 2500UL;
+            const millis_t next_ms = ms + fan_autocheck_interval_ms;
+            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - next_auto_fan_check_ms));
+            TERN_(HAS_AUTO_FAN, update_autofans());
+            next_auto_fan_check_ms = next_ms;
           }
         #endif
 
@@ -845,6 +854,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 #define _EFANOVERLAP(A,B) _FANOVERLAP(E##A,B)
 
 #if HAS_AUTO_FAN
+
   #if EXTRUDER_AUTO_FAN_SPEED != 255
     #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
   #else
@@ -858,7 +868,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
   #define CHAMBER_FAN_INDEX HOTENDS
 
-  void Temperature::checkExtruderAutoFans() {
+  void Temperature::update_autofans() {
     #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
     static const uint8_t fanBit[] PROGMEM = {
       0
@@ -906,7 +916,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
             break;
         #endif
         default:
-          #if ENABLED(AUTO_POWER_E_FANS)
+          #if ENABLED(AUTO_POWER_E_FANS) || HAS_FANCHECK
             autofan_speed[realFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
           #endif
           break;
@@ -1359,20 +1369,20 @@ void Temperature::manage_heater() {
       _temp_error((heater_id_t)HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET), F(STR_REDUNDANCY), GET_TEXT_F(MSG_ERR_REDUNDANT_TEMP));
   #endif
 
-  #if HAS_AUTO_FAN
+  #if HAS_AUTO_FAN || HAS_FANCHECK
     if (ELAPSED(ms, next_auto_fan_check_ms)) { // only need to check fan state very infrequently
-      checkExtruderAutoFans();
-      next_auto_fan_check_ms = ms + 2500UL;
+      const millis_t next_ms = ms + fan_autocheck_interval_ms;
+      TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - next_auto_fan_check_ms));
+      TERN_(HAS_AUTO_FAN, update_autofans());
+      next_auto_fan_check_ms = next_ms;
     }
   #endif
 
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    /**
-     * Dynamically set the volumetric multiplier based
-     * on the delayed Filament Width measurement.
-     */
-    filwidth.update_volumetric();
-  #endif
+  /**
+   * Dynamically set the volumetric multiplier based
+   * on the delayed Filament Width measurement.
+   */
+  TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_volumetric());
 
   #if HAS_HEATED_BED
 
@@ -3481,6 +3491,9 @@ void Temperature::isr() {
   #if ENABLED(BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
     babystep.task();
   #endif
+
+  // Check fan tachometers
+  TERN_(HAS_FANCHECK, fan_check.update_tachometers());
 
   // Poll endstops state, if required
   endstops.poll();
