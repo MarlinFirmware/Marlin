@@ -523,8 +523,8 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if HAS_AUTO_FAN || HAS_FANCHECK
-  constexpr millis_t Temperature::fan_autocheck_interval_ms;
-  millis_t Temperature::next_auto_fan_check_ms = 0;
+  constexpr millis_t Temperature::autofan_update_interval_ms;
+  millis_t Temperature::autofan_update_ms = 0;
 #endif
 
 #if ENABLED(FAN_SOFT_PWM)
@@ -612,7 +612,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
 
     #if HAS_AUTO_FAN || HAS_FANCHECK
-      next_auto_fan_check_ms = next_temp_ms + fan_autocheck_interval_ms;
+      autofan_update_ms = next_temp_ms + autofan_update_interval_ms;
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED));
@@ -659,11 +659,11 @@ volatile bool Temperature::raw_temps_ready = false;
         #endif
 
         #if HAS_AUTO_FAN || HAS_FANCHECK
-          if (ELAPSED(ms, next_auto_fan_check_ms)) {
-            const millis_t next_ms = ms + fan_autocheck_interval_ms;
-            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - next_auto_fan_check_ms));
+          if (ELAPSED(ms, autofan_update_ms)) {
+            const millis_t next_ms = ms + autofan_update_interval_ms;
+            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
             TERN_(HAS_AUTO_FAN, update_autofans());
-            next_auto_fan_check_ms = next_ms;
+            autofan_update_ms = next_ms;
           }
         #endif
 
@@ -1370,11 +1370,11 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_AUTO_FAN || HAS_FANCHECK
-    if (ELAPSED(ms, next_auto_fan_check_ms)) { // only need to check fan state very infrequently
-      const millis_t next_ms = ms + fan_autocheck_interval_ms;
-      TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - next_auto_fan_check_ms));
+    if (ELAPSED(ms, autofan_update_ms)) { // only need to check fan state very infrequently
+      const millis_t next_ms = ms + autofan_update_interval_ms;
+      TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
       TERN_(HAS_AUTO_FAN, update_autofans());
-      next_auto_fan_check_ms = next_ms;
+      autofan_update_ms = next_ms;
     }
   #endif
 

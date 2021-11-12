@@ -129,7 +129,7 @@ void FanCheck::compute_speed(int elapsedTime) {
         edge_counter[f] = 0;
 
         // Check fan speed
-        constexpr int8_t max_extruder_fan_errors = 4000 / Temperature::fan_autocheck_interval_ms;
+        constexpr int8_t max_extruder_fan_errors = 4000 / Temperature::autofan_update_interval_ms;
 
         if (rps[f] >= 20 || TERN0(HAS_AUTO_FAN, thermalManager.autofan_speed[f] == 0))
           errors_count[f] = 0;
