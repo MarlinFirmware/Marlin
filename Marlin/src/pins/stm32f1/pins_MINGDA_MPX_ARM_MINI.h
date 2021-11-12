@@ -28,10 +28,10 @@
 #if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "This MPX board only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "MPX ARM Mini only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "Mingda MPX_ARM_MINI"
+#define BOARD_INFO_NAME "Mingda MPX ARM Mini"
 
 #define BOARD_NO_NATIVE_USB
 #define DISABLE_DEBUG
