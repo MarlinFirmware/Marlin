@@ -54,8 +54,8 @@ Timer get_pwm_timer(const pin_t pin) {
       case TIMER1A: case TIMER1B:
     #endif
                                         break;
-    #if defined(TCCR2) || defined(TCCR2A)
-      #ifdef TCCR2
+    #if HAS_TCCR2 || defined(TCCR2A)
+      #if HAS_TCCR2
         case TIMER2: {
           Timer timer = {
             /*TCCRnQ*/  { &TCCR2, nullptr, nullptr },
@@ -237,14 +237,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       Timer timer = get_pwm_timer(pin);
       if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
       // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
-      _SET_COMnQ(timer.TCCRnQ,
-        ( timer.q
-          #ifdef TCCR2
-            + (timer.q == 2) // COM20 is on bit 4 of TCCR2, thus requires q + 1 in the macro
-          #endif
-        ), COM_CLEAR_SET + invert
-      );
-
+      _SET_COMnQ(timer.TCCRnQ, timer.q TERN_(HAS_TCCR2, + (timer.q == 2)), COM_CLEAR_SET + invert); // COM20 is on bit 4 of TCCR2, so +1 for q==2
       const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
       _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
     }
