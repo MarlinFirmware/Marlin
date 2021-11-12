@@ -36,6 +36,7 @@
 
 EasythreedUI easythreed_ui;
 
+
 void EasythreedUI::init() {
   SET_INPUT_PULLUP(PRINT_HOME_PIN);
   SET_OUTPUT(HOME_GND_PIN);
@@ -56,9 +57,8 @@ void EasythreedUI::UICheck(void) {
 //
 // EasyThreeD ET4000+ Mainboard for Nano / K7
 //
-
+uint16_t blink_time = 4000;
 // Status LED on Start button
-uint16_t blink_time = 0;
 enum LEDStatus : uint16_t {
   LED_OFF      =    0,
   LED_ON       = 4000,
@@ -159,11 +159,13 @@ void EasythreedUI::NanoLoadFilament(void) {
   void disableStepperDrivers();
 #endif
 
+uint8_t print_key_flag = 0; 
+
 // Start Button
 void EasythreedUI::NanoPrintOneKey(void) {
   static uint8_t key_status = 0;
   static millis_t key_time = 0;
-  static bool print_flag = false, print_key_flag = false;
+  static bool print_flag = false;
 
   const millis_t ms = millis();
 
@@ -174,10 +176,10 @@ void EasythreedUI::NanoPrintOneKey(void) {
         key_status = 1;
       }
       if (print_flag && !printingIsActive()) {
-        print_key_flag = print_flag = false;
+        print_flag = false;
+        print_key_flag = 0;
         blink_time = LED_ON;
       }
-      if (print_flag) blink_time = LED_BLINK_5;
       break;
 
     case 1:
@@ -193,45 +195,59 @@ void EasythreedUI::NanoPrintOneKey(void) {
 
     case 2:
       if (READ(PRINTER_PIN) == HIGH) {
-        if (PENDING(ms, key_time + 1200)) { // short press print
-          blink_time = LED_BLINK_5;
-          if (!print_key_flag) {
-            if (!printingIsActive()) {
-              print_flag = true;
-              card.mount();
-              if (!card.isMounted) {
-                blink_time = LED_OFF;
-                key_status = 0;
-                key_time = 0;
-                print_flag = false;
-                return;
+        if (PENDING(ms, key_time + 1200)) { // Register a press < 1200ms
+          switch(print_key_flag) {
+            case 0:                         //    Print from SD card
+              if (!printingIsActive()) {
+                print_flag = true;
+                card.mount();
+                if (!card.isMounted) {
+                  blink_time = LED_OFF;
+                  key_status = 0;
+                  key_time = 0;
+                  print_flag = false;
+                  return;
+                }
+                card.ls();
+                uint16_t filecnt = card.countFilesInWorkDir();
+                if (filecnt == 0) return;
+                card.selectFileByIndex(filecnt);
+                card.openAndPrintFile(card.filename);
+                blink_time= LED_BLINK_2; 
+                print_key_flag = 1;     
               }
-              print_key_flag = true;
-              card.ls();
-              uint16_t filecnt = card.countFilesInWorkDir();
-              if (filecnt == 0) return;
-              card.selectFileByIndex(filecnt);
-              card.openAndPrintFile(card.filename);
-            }
+              break;
+            case 1:                           //    Pause printing (not currently firing)
+              blink_time= LED_ON;
+              card.pauseSDPrint();
+              print_key_flag = 2;
+              break;
+            case 2:                           //    Resume printing (not currently firing)
+              blink_time= LED_BLINK_2;
+              card.startOrResumeFilePrinting();
+              print_key_flag = 1;
+              break;
+            default:
+              print_key_flag = 0;
+              break;
           }
-          else
-            print_key_flag = false;
         }
-        else {
-          blink_time = LED_BLINK_5;
-          if (!print_key_flag)  // long press Z up 10mm
+        else {                              // Register a 1200ms+ press
+          if (print_key_flag == 0) {        //    While not printing to move Z up 10mm
+            blink_time = LED_ON;
             queue.inject(F("G91\nG0 Z10 F600\nG90"));
-          else {
+          }
+          else {                            //     While printing to cancel print
             wait_for_heatup = false;
             quickstop_stepper();
             //planner.cleaning_buffer_counter = 2;
             thermalManager.disable_all_heaters();
             print_flag = false;
-            blink_time = LED_ON;
+            blink_time = LED_OFF;
           }
           planner.synchronize();
           TERN_(HAS_STEPPER_RESET, disableStepperDrivers());
-          print_key_flag = false;
+          print_key_flag = 0;
         }
         key_status = 0;
         key_time = 0;
