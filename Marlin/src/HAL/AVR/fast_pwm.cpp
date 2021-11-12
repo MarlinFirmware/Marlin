@@ -200,16 +200,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
         res = res_temp_fast;
         j = i;
         // Set the Wave Generation Mode to FAST PWM
-        if (timer.n == 2) {
-          wgm = (
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              WGM2_FAST_PWM_OCR2A
-            #else
-              WGM2_FAST_PWM
-            #endif
-          );
-        }
-        else wgm = WGM_FAST_PWM_ICRn;
+        wgm = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, WGM2_FAST_PWM_OCR2A, WGM2_FAST_PWM) : WGM_FAST_PWM_ICRn;
       }
       // If PHASE CORRECT values are closes to desired f
       else if (f_phase_diff < f_diff) {
@@ -217,16 +208,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
         res = res_temp_phase_correct;
         j = i;
         // Set the Wave Generation Mode to PWM PHASE CORRECT
-        if (timer.n == 2) {
-          wgm = (
-            #if ENABLED(USE_OCR2A_AS_TOP)
-              WGM2_PWM_PC_OCR2A
-            #else
-              WGM2_PWM_PC
-            #endif
-          );
-        }
-        else wgm = WGM_PWM_PC_ICRn;
+        wgm = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_PWM_PC) : WGM_PWM_PC_ICRn;
       }
     }
   }
@@ -234,9 +216,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   _SET_CSn(timer.TCCRnQ, j);
 
   if (timer.n == 2) {
-    #if ENABLED(USE_OCR2A_AS_TOP)
-      _SET_OCRnQ(timer.OCRnQ, 0, res);  // Set OCR2A value (TOP) = res
-    #endif
+    TERN_(USE_OCR2A_AS_TOP, _SET_OCRnQ(timer.OCRnQ, 0, res));  // Set OCR2A value (TOP) = res
   }
   else
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
