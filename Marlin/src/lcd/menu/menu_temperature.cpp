@@ -69,7 +69,7 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
   ui.return_to_status();
 }
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
 
   #if HAS_TEMP_HOTEND
     inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
@@ -122,7 +122,8 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
 
         HOTEND_LOOP() PREHEAT_ITEMS(editable.int8, e);
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, []() {
-          HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[editable.int8].hotend_temp, e);
+          const celsius_t t = ui.material_preset[editable.int8].hotend_temp;
+          HOTEND_LOOP() thermalManager.setTargetHotend(t, e);
           TERN(HAS_HEATED_BED, _preheat_bed(editable.int8), ui.return_to_status());
         });
 
@@ -137,13 +138,12 @@ void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t i
 
   #endif // HAS_MULTI_HOTEND || HAS_HEATED_BED
 
-#endif // PREHEAT_COUNT
+#endif // HAS_PREHEAT
 
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   void lcd_cooldown() {
-    thermalManager.zero_fan_speeds();
-    thermalManager.disable_all_heaters();
+    thermalManager.cooldown();
     ui.return_to_status();
   }
 
@@ -262,13 +262,13 @@ void menu_temperature() {
 
   #endif // HAS_FAN
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     //
     // Preheat for all Materials
     //
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
-      #if HOTENDS > 1 || HAS_HEATED_BED
+      #if HAS_MULTI_HOTEND || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
       #elif HAS_HOTEND
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
@@ -295,7 +295,7 @@ void menu_temperature() {
 
     LOOP_L_N(m, PREHEAT_COUNT) {
       editable.int8 = m;
-      #if HOTENDS > 1 || HAS_HEATED_BED
+      #if HAS_MULTI_HOTEND || HAS_HEATED_BED
         SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
       #else
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);

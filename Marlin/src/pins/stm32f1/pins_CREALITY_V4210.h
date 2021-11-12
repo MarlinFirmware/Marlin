@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "CREALITY supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 

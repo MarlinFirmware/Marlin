@@ -392,6 +392,9 @@ void Endstops::not_homing() {
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
+    #if PIN_EXISTS(PROBE_ENABLE)
+      WRITE(PROBE_ENABLE_PIN, onoff);
+    #endif
     resync();
   }
 #endif
@@ -478,8 +481,8 @@ void Endstops::event_handler() {
   }
 }
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
@@ -489,9 +492,7 @@ static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
   SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
 }
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 void _O2 Endstops::report_states() {
   TERN_(BLTOUCH, bltouch._set_SW_mode());
@@ -1344,7 +1345,7 @@ void Endstops::update() {
         ES_REPORT_CHANGE(K_MAX);
       #endif
       SERIAL_ECHOLNPGM("\n");
-      analogWrite(pin_t(LED_PIN), local_LED_status);
+      set_pwm_duty(pin_t(LED_PIN), local_LED_status);
       local_LED_status ^= 255;
       old_live_state_local = live_state_local;
     }
