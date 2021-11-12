@@ -28,8 +28,6 @@
 
 #if HAS_FANCHECK
 
-#include "../lcd/marlinui.h"  // for ui.reset_alert_level
-#include "../MarlinCore.h"
 #include "fancheck.h"
 #include "temperature.h"
 

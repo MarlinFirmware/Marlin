@@ -25,12 +25,11 @@
 
 #if HAS_FANCHECK
 
+#include "../MarlinCore.h"
+#include "../lcd/marlinui.h"
+
 #if ENABLED(AUTO_REPORT_FANS)
   #include "../libs/autoreport.h"
-#endif
-
-#if HAS_DISPLAY
-  #include "../lcd/marlinui.h"
 #endif
 
 /**
