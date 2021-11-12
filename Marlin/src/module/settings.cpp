@@ -3044,8 +3044,6 @@ void MarlinSettings::reset() {
   postprocess();
 
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)
