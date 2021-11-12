@@ -246,7 +246,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       );
 
       const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
-      _SET_OCRnQ(timer.OCRnQ, timer.q, v * (top / v_size)); // Scale 8/16-bit v to top value
+      _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
     }
 
   #else
