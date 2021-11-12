@@ -137,8 +137,8 @@ void FanCheck::compute_speed(int elapsedTime) {
           ++errors_count[f];
         else if (enabled)
           SBI(fan_error_msk, f);
-        }
-      break;
+        break;
+      }
     }
 
   // Drop the error when all fans are ok
@@ -146,30 +146,27 @@ void FanCheck::compute_speed(int elapsedTime) {
 
   if (error == TachoError::FIXED && !printJobOngoing()) {
     error = TachoError::NONE; // if the issue has been fixed while the printer is idle, reenable immediately
-    TERN_(HAS_DISPLAY, ui.reset_alert_level());
+    ui.reset_alert_level();
   }
-  LOOP_L_N(f, TACHO_COUNT) {
-    if (TEST(fan_error_msk, f)) {
-      if (report_speed_error(f)) errors_count[f] = 0;
-    }
-  }
+
+  LOOP_L_N(f, TACHO_COUNT) if (TEST(fan_error_msk, f) && report_speed_error(f)) errors_count[f] = 0;
 }
 
 bool FanCheck::report_speed_error(uint8_t fan) {
-	if (printJobOngoing()) {
+  if (printJobOngoing()) {
     if (error != TachoError::NONE) return false;  // Keep error pending (another fan fault message is already signaled)
-		if (thermalManager.degTargetHotend(fan) != 0) {
-      TERN(HAS_DISPLAY, ui.abort_print(), whathere);
+    if (thermalManager.degTargetHotend(fan) != 0) {
+      TERN_(HAS_DISPLAY, ui.abort_print());
     }
-		else
+    else
       error = TachoError::DETECTED;   // Plans error for next processed command
-	}
-	else {
-		thermalManager.setTargetHotend(0, fan); // Always disable heating
+  }
+  else {
+    thermalManager.setTargetHotend(0, fan); // Always disable heating
     if (error != TachoError::NONE) return false;  // Keep error pending (another fan fault message is already signaled)
     error = TachoError::REPORTED;
-	}
-	// TODO display error and send it also to serial...maybe some beep?
+  }
+  // TODO display error and send it also to serial...maybe some beep?
 
   return true;
 }
@@ -186,16 +183,11 @@ void FanCheck::print_fan_states() {
         TERN_(HAS_E5_FAN_TACHO, case 5:)
         TERN_(HAS_E6_FAN_TACHO, case 6:)
         TERN_(HAS_E7_FAN_TACHO, case 7:)
+          SERIAL_ECHOPGM("E", f);
           if (s == 0)
-            SERIAL_ECHOPGM("E", f, ":", 60 * rps[f], " RPM ");
-          else {
-            #if HAS_AUTO_FAN
-              uint8_t pwmValue = thermalManager.autofan_speed[f];
-            #else
-              constexpr uint8_t pwmValue = 255;
-            #endif
-            SERIAL_ECHOPGM("E", f, "@:", pwmValue, " ");
-          }
+            SERIAL_ECHOPGM(":", 60 * rps[f], " RPM ");
+          else
+            SERIAL_ECHOPGM("@:", TERN(HAS_AUTO_FAN, thermalManager.autofan_speed[f], 255), " ");
           break;
       }
     }

@@ -372,7 +372,7 @@ class Temperature {
       static redundant_info_t temp_redundant;
     #endif
 
-    #if ENABLED(AUTO_POWER_E_FANS) || HAS_FANCHECK
+    #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
       static uint8_t autofan_speed[HOTENDS];
     #endif
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)

@@ -294,7 +294,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   redundant_info_t Temperature::temp_redundant;
 #endif
 
-#if ENABLED(AUTO_POWER_E_FANS) || HAS_FANCHECK
+#if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
 
@@ -916,7 +916,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
             break;
         #endif
         default:
-          #if ENABLED(AUTO_POWER_E_FANS) || HAS_FANCHECK
+          #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
             autofan_speed[realFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
           #endif
           break;

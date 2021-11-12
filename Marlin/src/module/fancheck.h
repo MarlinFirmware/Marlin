@@ -64,10 +64,10 @@ class FanCheck {
     static void compute_speed(int elapsedTime);
     static void print_fan_states();
 
-    static inline void check_defered_error() {
+    static inline void check_deferred_error() {
       if (error == TachoError::DETECTED) {
         error = TachoError::REPORTED;
-        TERN(HAS_DISPLAY, ui.pause_print(), whathere);
+        TERN_(HAS_DISPLAY, ui.pause_print());
       }
     };
 

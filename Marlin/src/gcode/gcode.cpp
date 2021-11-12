@@ -65,7 +65,7 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
-#ifdef HAS_FANCHECK
+#if HAS_FANCHECK
   #include "../module/fancheck.h"
 #endif
 
@@ -300,9 +300,7 @@ void GcodeSuite::dwell(millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
-  #ifdef HAS_FANCHECK
-    fan_check.check_defered_error();
-  #endif
+  TERN_(HAS_FANCHECK, fan_check.check_deferred_error());
 
   KEEPALIVE_STATE(IN_HANDLER);
 
