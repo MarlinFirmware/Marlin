@@ -112,6 +112,7 @@ void FanCheck::update_tachometers() {
 
 void FanCheck::compute_speed(int elapsedTime) {
   static uint8_t errors_count[TACHO_COUNT];
+  static uint8_t fan_reported_errors_msk = 0;
 
   uint8_t fan_error_msk = 0;
   LOOP_L_N(f, TACHO_COUNT) {
@@ -144,31 +145,38 @@ void FanCheck::compute_speed(int elapsedTime) {
   // Drop the error when all fans are ok
   if (!fan_error_msk && error == TachoError::REPORTED) error = TachoError::FIXED;
 
-  if (error == TachoError::FIXED && !printJobOngoing()) {
+  if (error == TachoError::FIXED && !printJobOngoing() && !printingIsPaused()) {
     error = TachoError::NONE; // if the issue has been fixed while the printer is idle, reenable immediately
     ui.reset_alert_level();
   }
 
-  LOOP_L_N(f, TACHO_COUNT) if (TEST(fan_error_msk, f) && report_speed_error(f)) errors_count[f] = 0;
+  if (!enabled) return;
+
+  if (fan_error_msk & ~fan_reported_errors_msk) {
+    // Handle new faults only
+    LOOP_L_N(f, TACHO_COUNT) if (TEST(fan_error_msk, f)) report_speed_error(f);
+  }
+  fan_reported_errors_msk = fan_error_msk;
 }
 
-bool FanCheck::report_speed_error(uint8_t fan) {
+void FanCheck::report_speed_error(uint8_t fan) {
   if (printJobOngoing()) {
-    if (error != TachoError::NONE) return false;  // Keep error pending (another fan fault message is already signaled)
-    if (thermalManager.degTargetHotend(fan) != 0) {
-      TERN_(HAS_DISPLAY, ui.abort_print());
+    if (error == TachoError::NONE) {
+      if (thermalManager.degTargetHotend(fan) != 0) {
+        TERN(HAS_DISPLAY, ui.abort_print(), kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT)));
+        error = TachoError::REPORTED;
+      }
+      else
+        error = TachoError::DETECTED;   // Plans error for next processed command
     }
-    else
-      error = TachoError::DETECTED;   // Plans error for next processed command
   }
-  else {
+  else if (!printingIsPaused()) {
     thermalManager.setTargetHotend(0, fan); // Always disable heating
-    if (error != TachoError::NONE) return false;  // Keep error pending (another fan fault message is already signaled)
-    error = TachoError::REPORTED;
+    if (error == TachoError::NONE) error = TachoError::REPORTED;
   }
-  // TODO display error and send it also to serial...maybe some beep?
 
-  return true;
+  SERIAL_ERROR_MSG(STR_ERR_FANSPEED, fan);
+  LCD_ALERTMESSAGE(MSG_FAN_SPEED_FAULT);
 }
 
 void FanCheck::print_fan_states() {

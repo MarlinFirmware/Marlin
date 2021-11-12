@@ -661,8 +661,8 @@ volatile bool Temperature::raw_temps_ready = false;
         #if HAS_AUTO_FAN || HAS_FANCHECK
           if (ELAPSED(ms, autofan_update_ms)) {
             const millis_t next_ms = ms + autofan_update_interval_ms;
-            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
             TERN_(HAS_AUTO_FAN, update_autofans());
+            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
             autofan_update_ms = next_ms;
           }
         #endif
@@ -1372,8 +1372,8 @@ void Temperature::manage_heater() {
   #if HAS_AUTO_FAN || HAS_FANCHECK
     if (ELAPSED(ms, autofan_update_ms)) { // only need to check fan state very infrequently
       const millis_t next_ms = ms + autofan_update_interval_ms;
-      TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
       TERN_(HAS_AUTO_FAN, update_autofans());
+      TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
       autofan_update_ms = next_ms;
     }
   #endif

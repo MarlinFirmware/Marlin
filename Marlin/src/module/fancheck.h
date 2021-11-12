@@ -53,7 +53,7 @@ class FanCheck {
     static uint8_t rps[TACHO_COUNT];
     static TachoError error;
 
-    static inline bool report_speed_error(uint8_t fan);
+    static inline void report_speed_error(uint8_t fan);
 
   public:
 
@@ -67,7 +67,7 @@ class FanCheck {
     static inline void check_deferred_error() {
       if (error == TachoError::DETECTED) {
         error = TachoError::REPORTED;
-        TERN_(HAS_DISPLAY, ui.pause_print());
+        TERN(HAS_DISPLAY, ui.pause_print(), kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT)));
       }
     };
 

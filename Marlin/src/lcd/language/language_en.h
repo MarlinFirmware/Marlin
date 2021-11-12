@@ -570,6 +570,7 @@ namespace Language_en {
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Runaway Watch: OFF");
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Runaway Watch: ON");
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Hotend Idle Timeout");
+  LSTR MSG_FAN_SPEED_FAULT                = _UxGT("Fan speed fault");
 
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case Light");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");

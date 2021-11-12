@@ -556,6 +556,7 @@ namespace Language_it {
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Controllo fuga: OFF");
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Controllo fuga: ON");
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Timeout inatt.ugello");
+  LSTR MSG_FAN_SPEED_FAULT                = _UxGT("Err.vel.della ventola");
 
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luci Case");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Luminosità Luci");
