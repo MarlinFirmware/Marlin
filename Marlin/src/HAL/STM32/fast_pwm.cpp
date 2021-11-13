@@ -28,7 +28,7 @@
 #include "timers.h"
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-   if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
+  if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
 
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
