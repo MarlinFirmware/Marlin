@@ -28,6 +28,10 @@
 #include "../../sd/cardreader.h"
 #include "../../lcd/marlinui.h"
 
+#if HAS_LCD_MENU
+  #include "../../lcd/menu/menu.h" // encoderTopLine
+#endif
+
 /**
  * M21: Init SD Card
  */
@@ -38,7 +42,13 @@ void GcodeSuite::M21() { card.mount(); }
  */
 void GcodeSuite::M22() {
   if (!IS_SD_PRINTING()) card.release();
-  IF_ENABLED(TFT_COLOR_UI, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
+  #if ENABLED(TFT_COLOR_UI)
+    // Menu display issue on item removal with multi language selection menu
+    #if !PIN_EXISTS(SD_DETECT)
+      if (encoderTopLine > 0 && ui.currentScreen == menu_main) encoderTopLine--;
+    #endif
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+  #endif
 }
 
 #endif // SDSUPPORT
