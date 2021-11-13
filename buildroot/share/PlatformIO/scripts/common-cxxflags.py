@@ -6,6 +6,8 @@ import pioutil
 if pioutil.is_pio_build():
 	Import("env")
 
+	env.Replace(PROGNAME="%s_DW7.4.3" % (str(env["PIOENV"])))
+
 	cxxflags = [
 		#"-Wno-incompatible-pointer-types",
 		#"-Wno-unused-const-variable",
@@ -20,8 +22,8 @@ if pioutil.is_pio_build():
 	# Add CPU frequency as a compile time constant instead of a runtime variable
 	#
 	def add_cpu_freq():
-		if 'BOARD_F_CPU' in env:
-			env['BUILD_FLAGS'].append('-DBOARD_F_CPU=' + env['BOARD_F_CPU'])
+	  if 'BOARD_F_CPU' in env:
+		  env['BUILD_FLAGS'].append('-DBOARD_F_CPU=' + env['BOARD_F_CPU'])
 
 	# Useful for JTAG debugging
 	#
@@ -30,10 +32,11 @@ if pioutil.is_pio_build():
 	# release, for flashing when upload is not done automatically by jlink/stlink.
 	# Without this, PIO needs to recompile everything twice for any small change.
 	if env.GetBuildType() == "debug" and env.get('UPLOAD_PROTOCOL') not in ['jlink', 'stlink']:
-		env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
-    env_name = str(env["PIOENV"])
-    env.Replace(PROGNAME="%s_DW7.4.3" % (env_name))
-    print("Environment: %s" % (env_name))
+	  env['BUILD_DIR'] = '$PROJECT_BUILD_DIR/$PIOENV/debug'
+
+  # Setup file naming
+      #env_name = str(env["PIOENV"])
+  #print("Environment: %s" % (env_name))
 
 	# On some platform, F_CPU is a runtime variable. Since it's used to convert from ns
 	# to CPU cycles, this adds overhead preventing small delay (in the order of less than
