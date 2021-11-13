@@ -391,6 +391,7 @@
   #define BEEPER_PIN                          42
 
   #define TOUCH_CS_PIN                        33
+
   #define SD_DETECT_PIN                       41
 
   #define HAS_SPI_FLASH                        1
@@ -407,17 +408,23 @@
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          63934
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          63598
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                  -1
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -20
+  #ifndef TOUCH_SCREEN_CALIBRATION
+    #if ENABLED(TFT_RES_320x240)
+      #define TOUCH_CALIBRATION_X          20525
+      #define TOUCH_CALIBRATION_Y          15335
+      #define TOUCH_OFFSET_X                  -1
+      #define TOUCH_OFFSET_Y                   0
+    #elif ENABLED(TFT_RES_480x272)
+      #define TOUCH_CALIBRATION_X          30715
+      #define TOUCH_CALIBRATION_Y          17415
+      #define TOUCH_OFFSET_X                   0
+      #define TOUCH_OFFSET_Y                  -1
+    #elif ENABLED(TFT_RES_480x320)
+      #define TOUCH_CALIBRATION_X          30595
+      #define TOUCH_CALIBRATION_Y          20415
+      #define TOUCH_OFFSET_X                   2
+      #define TOUCH_OFFSET_Y                   1
+    #endif
   #endif
 
   #define BTN_BACK                            70
