@@ -1302,6 +1302,9 @@
 
   // Show the E position (filament used) during printing
   //#define LCD_SHOW_E_TOTAL
+
+  // Display flow rate instead of feedrate (DOGM, Classic UI)
+  //#define STATUS_FLOW_INSTEAD_OF_FEEDRATE true
 #endif
 
 // LCD Print Progress options
