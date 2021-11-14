@@ -32,7 +32,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
-  if (!TEST(Instance->CR1, 0))   // If timer TIMx_CR1 CEN bit (0) is zero...
+  if (TEST(Instance->CR1, 0))   // If timer TIMx_CR1 CEN bit (0) is set...
     set_pwm_frequency(pin, PWM_FREQUENCY);
   uint16_t adj_val = Instance->ARR * v / v_size;
   if (invert) adj_val = Instance->ARR - adj_val;
