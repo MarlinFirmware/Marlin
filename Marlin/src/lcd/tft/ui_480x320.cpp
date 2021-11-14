@@ -259,14 +259,7 @@ void MarlinUI::draw_status_screen() {
   tft.add_rectangle(0, 0, TFT_WIDTH - 8, FONT_LINE_HEIGHT, COLOR_AXIS_HOMED);
 
   bool not_homed;
-  if (TERN1(LCD_SHOW_E_TOTAL, printingIsActive())) {
-    tft.add_text( 16, 3, COLOR_AXIS_HOMED , "E");
-    const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
-    tft_string.set(ftostr4sign(e_move_accumulator / escale));
-    tft_string.add(escale == 10 ? 'c' : 'm');
-    tft_string.add('m');
-    tft.add_text(192 - tft_string.width(), 3, COLOR_AXIS_HOMED, tft_string);
-  } else {
+  if (!TERN1(LCD_SHOW_E_TOTAL, !printingIsActive())) {
     tft.add_text( 16, 3, COLOR_AXIS_HOMED , "X");
     not_homed = axis_should_home(X_AXIS);
     tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
@@ -276,6 +269,16 @@ void MarlinUI::draw_status_screen() {
     not_homed = axis_should_home(Y_AXIS);
     tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
     tft.add_text(280 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
+  }
+  else {
+    #if ENABLED(LCD_SHOW_E_TOTAL)
+      tft.add_text( 16, 3, COLOR_AXIS_HOMED , "E");
+      const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
+      tft_string.set(ftostr4sign(e_move_accumulator / escale));
+      tft_string.add(escale == 10 ? 'c' : 'm');
+      tft_string.add('m');
+      tft.add_text(192 - tft_string.width(), 3, COLOR_AXIS_HOMED, tft_string);
+    #endif
   }
   tft.add_text(330, 3, COLOR_AXIS_HOMED , "Z");
   uint16_t offset = 32;
