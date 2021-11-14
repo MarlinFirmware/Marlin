@@ -72,10 +72,14 @@ void ControllerFan::update() {
       ? settings.active_speed : settings.idle_speed
     );
 
-    if (PWM_PIN(CONTROLLER_FAN_PIN))
-      set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);
-    else
-      WRITE(CONTROLLER_FAN_PIN, speed);
+    #if ENABLED(FAN_SOFT_PWM)
+      thermalManager.soft_pwm_controller_speed = speed;
+    #else
+      if (PWM_PIN(CONTROLLER_FAN_PIN))
+        set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);
+      else
+        WRITE(CONTROLLER_FAN_PIN, speed > 0);
+    #endif
   }
 }
 
