@@ -36,7 +36,6 @@
 
 EasythreedUI easythreed_ui;
 
-
 void EasythreedUI::init() {
   SET_INPUT_PULLUP(PRINT_HOME_PIN);
   SET_OUTPUT(HOME_GND_PIN);
@@ -60,23 +59,23 @@ void EasythreedUI::UICheck(void) {
 uint16_t blink_time = 4000;
 // Status LED on Start button
 enum LEDStatus : uint16_t {
-  LED_OFF      =    0,
-  LED_ON       = 4000,
-  LED_BLINK_0  = 2500,
-  LED_BLINK_1  = 1500,
-  LED_BLINK_2  = 1000,
-  LED_BLINK_3  =  800,
-  LED_BLINK_4  =  500,
-  LED_BLINK_5  =  300,
-  LED_BLINK_6  =  150,
-  LED_BLINK_7  =   50
+  LED_OFF     =    0,
+  LED_ON      = 4000,
+  LED_BLINK_0 = 2500,
+  LED_BLINK_1 = 1500,
+  LED_BLINK_2 = 1000,
+  LED_BLINK_3 =  800,
+  LED_BLINK_4 =  500,
+  LED_BLINK_5 =  300,
+  LED_BLINK_6 =  150,
+  LED_BLINK_7 =   50
 };
 
 void EasythreedUI::NanoBlinkLED(void) {
   static millis_t blink_previous_ms = 0, blink_start_ms = 0;
 
-  if (blink_time == LED_OFF) { WRITE(PRINT_LED_PIN, HIGH); return; }  // OFF
-  if (blink_time > 3000)     { WRITE(PRINT_LED_PIN,  LOW); return; }  // ON
+  if (blink_time == LED_OFF) { WRITE(PRINT_LED_PIN, HIGH); return; } // OFF
+  if (blink_time > 3000)     { WRITE(PRINT_LED_PIN,  LOW); return; } // ON
 
   const millis_t ms = millis();
   if (blink_previous_ms != blink_time) {
@@ -159,7 +158,7 @@ void EasythreedUI::NanoLoadFilament(void) {
   void disableStepperDrivers();
 #endif
 
-uint8_t print_key_flag = 0; 
+uint8_t print_key_flag = 0;
 
 // Start Button
 void EasythreedUI::NanoPrintOneKey(void) {
@@ -196,7 +195,7 @@ void EasythreedUI::NanoPrintOneKey(void) {
     case 2:
       if (READ(PRINTER_PIN) == HIGH) {
         if (PENDING(ms, key_time + 1200)) { // Register a press < 1200ms
-          switch(print_key_flag) {
+          switch (print_key_flag) {
             case 0:                         //    Print from SD card
               if (!printingIsActive()) {
                 print_flag = true;
@@ -213,17 +212,17 @@ void EasythreedUI::NanoPrintOneKey(void) {
                 if (filecnt == 0) return;
                 card.selectFileByIndex(filecnt);
                 card.openAndPrintFile(card.filename);
-                blink_time= LED_BLINK_2; 
-                print_key_flag = 1;     
+                blink_time= LED_BLINK_2;
+                print_key_flag = 1;
               }
               break;
-            case 1:                           //    Pause printing (not currently firing)
-              blink_time= LED_ON;
+            case 1:                         //    Pause printing (not currently firing)
+              blink_time = LED_ON;
               card.pauseSDPrint();
               print_key_flag = 2;
               break;
-            case 2:                           //    Resume printing (not currently firing)
-              blink_time= LED_BLINK_2;
+            case 2:                         //    Resume printing (not currently firing)
+              blink_time = LED_BLINK_2;
               card.startOrResumeFilePrinting();
               print_key_flag = 1;
               break;
