@@ -280,8 +280,6 @@ void MarlinUI::draw_status_screen() {
       tft.add_text(500 - tft_string.width(), 3, COLOR_AXIS_HOMED, tft_string);
     #endif
   }
-
-  }
   tft.add_text(800, 3, COLOR_AXIS_HOMED , "Z");
   uint16_t offset = 32;
   not_homed = axis_should_home(Z_AXIS);
