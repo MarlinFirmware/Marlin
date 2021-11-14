@@ -518,9 +518,9 @@ volatile bool Temperature::raw_temps_ready = false;
   millis_t Temperature::preheat_end_time[HOTENDS] = { 0 };
 #endif
 
-#if HAS_AUTO_FAN || HAS_FANCHECK
-  constexpr millis_t Temperature::autofan_update_interval_ms;
-  millis_t Temperature::autofan_update_ms = 0;
+#if HAS_FAN_LOGIC
+  constexpr millis_t Temperature::fan_update_interval_ms;
+  millis_t Temperature::fan_update_ms = 0;
 #endif
 
 #if ENABLED(FAN_SOFT_PWM)
@@ -607,9 +607,7 @@ volatile bool Temperature::raw_temps_ready = false;
       bool heated = false;
     #endif
 
-    #if HAS_AUTO_FAN || HAS_FANCHECK
-      autofan_update_ms = next_temp_ms + autofan_update_interval_ms;
-    #endif
+    TERN_(HAS_FAN_LOGIC, fan_update_ms = next_temp_ms + fan_update_interval_ms);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED));
     TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_PidTuning(isbed ? PID_BED_START : PID_EXTR_START));
@@ -654,9 +652,7 @@ volatile bool Temperature::raw_temps_ready = false;
           ONHEATING(start_temp, current_temp, target);
         #endif
 
-        #if HAS_AUTO_FAN || HAS_FANCHECK
-          extruders_fans_handling(ms);
-        #endif
+        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
 
         if (heating && current_temp > target && ELAPSED(ms, t2 + 5000UL)) {
           heating = false;
@@ -1367,9 +1363,8 @@ void Temperature::manage_heater() {
       _temp_error((heater_id_t)HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET), F(STR_REDUNDANCY), GET_TEXT_F(MSG_ERR_REDUNDANT_TEMP));
   #endif
 
-  #if HAS_AUTO_FAN || HAS_FANCHECK
-    extruders_fans_handling(ms);
-  #endif
+  // Manage extruder auto fans and/or read fan tachometers
+  TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
 
   /**
    * Dynamically set the volumetric multiplier based
