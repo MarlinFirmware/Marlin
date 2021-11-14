@@ -37,6 +37,10 @@
   #include "../libs/autoreport.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "fancheck.h"
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -512,6 +516,26 @@ class Temperature {
 
     #if HAS_AUTO_FAN || HAS_FANCHECK
       static millis_t autofan_update_ms;
+
+      static inline void extruders_fans_handling(millis_t ms) {
+        if (ELAPSED(ms, autofan_update_ms)) { // only need to check fan state very infrequently
+          const millis_t next_ms = ms + autofan_update_interval_ms;
+          #if HAS_PWMFANCHECK
+            #define FAN_CHECK_DURATION 100
+            if (fan_check.is_measuring()) {
+              fan_check.compute_speed(ms + FAN_CHECK_DURATION - autofan_update_ms);
+              autofan_update_ms = next_ms;
+            }
+            else
+              autofan_update_ms = ms + FAN_CHECK_DURATION;
+            fan_check.toggle_measuring();
+          #else
+            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
+            autofan_update_ms = next_ms;
+          #endif
+          TERN_(HAS_AUTO_FAN, update_autofans()); // Needed as last when HAS_PWMFANCHECK to properly force fan speed
+        }
+      }
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)

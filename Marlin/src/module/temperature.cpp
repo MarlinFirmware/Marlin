@@ -59,10 +59,6 @@
   #include "../feature/host_actions.h"
 #endif
 
-#if HAS_FANCHECK
-  #include "fancheck.h"
-#endif
-
 #if HAS_TEMP_SENSOR
   #include "../gcode/gcode.h"
 #endif
@@ -659,12 +655,7 @@ volatile bool Temperature::raw_temps_ready = false;
         #endif
 
         #if HAS_AUTO_FAN || HAS_FANCHECK
-          if (ELAPSED(ms, autofan_update_ms)) {
-            const millis_t next_ms = ms + autofan_update_interval_ms;
-            TERN_(HAS_AUTO_FAN, update_autofans());
-            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
-            autofan_update_ms = next_ms;
-          }
+          extruders_fans_handling(ms);
         #endif
 
         if (heating && current_temp > target && ELAPSED(ms, t2 + 5000UL)) {
@@ -1377,23 +1368,7 @@ void Temperature::manage_heater() {
   #endif
 
   #if HAS_AUTO_FAN || HAS_FANCHECK
-    if (ELAPSED(ms, autofan_update_ms)) { // only need to check fan state very infrequently
-      const millis_t next_ms = ms + autofan_update_interval_ms;
-      #if HAS_PWMFANCHECK
-        #define FAN_CHECK_DURATION 100
-        if (fan_check.is_measuring()) {
-          fan_check.compute_speed(ms + FAN_CHECK_DURATION - autofan_update_ms);
-          autofan_update_ms = next_ms;
-        }
-        else
-          autofan_update_ms = ms + FAN_CHECK_DURATION;
-        fan_check.toggle_measuring();
-      #else
-        TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
-        autofan_update_ms = next_ms;
-      #endif
-      TERN_(HAS_AUTO_FAN, update_autofans());
-    }
+    extruders_fans_handling(ms);
   #endif
 
   /**

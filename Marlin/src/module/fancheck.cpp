@@ -148,8 +148,6 @@ void FanCheck::compute_speed(uint16_t elapsedTime) {
     ui.reset_alert_level();
   }
 
-  if (!enabled) return;
-
   if (fan_error_msk & ~fan_reported_errors_msk) {
     // Handle new faults only
     LOOP_L_N(f, TACHO_COUNT) if (TEST(fan_error_msk, f)) report_speed_error(f);
