@@ -599,7 +599,7 @@ namespace Language_it {
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin.");  // Max 17 characters
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist mm filo term.");
   LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Abil.filo termin.");
-  LSTR MSG_FANCHECK                       = _UxGT("Fan Tacho Check");
+  LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent.");  // Max 17 characters
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Home fallito");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Sondaggio fallito");
 
