@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -608,6 +608,8 @@
  *
  * Define one or more tachometer pins to enable fan speed
  * monitoring, and reporting of fan speeds with M123.
+ * 
+ * NOTE: this works only with fans <= 7000 RPM
  */
 //#define FOURWIRES_FANS      // Needed with AUTO_FAN when 4-wire PWM fans are installed
 //#define E0_FAN_TACHO_PIN -1

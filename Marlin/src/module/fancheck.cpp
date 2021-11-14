@@ -108,7 +108,7 @@ void FanCheck::update_tachometers() {
   }
 }
 
-void FanCheck::compute_speed(int elapsedTime) {
+void FanCheck::compute_speed(uint16_t elapsedTime) {
   static uint8_t errors_count[TACHO_COUNT];
   static uint8_t fan_reported_errors_msk = 0;
 
@@ -128,7 +128,7 @@ void FanCheck::compute_speed(int elapsedTime) {
         edge_counter[f] = 0;
 
         // Check fan speed
-        constexpr int8_t max_extruder_fan_errors = 4000 / Temperature::autofan_update_interval_ms;
+        constexpr int8_t max_extruder_fan_errors = TERN(HAS_PWMFANCHECK, 10000, 5000) / Temperature::autofan_update_interval_ms;
 
         if (rps[f] >= 20 || TERN0(HAS_AUTO_FAN, thermalManager.autofan_speed[f] == 0))
           errors_count[f] = 0;
@@ -161,7 +161,7 @@ void FanCheck::report_speed_error(uint8_t fan) {
   if (printJobOngoing()) {
     if (error == TachoError::NONE) {
       if (thermalManager.degTargetHotend(fan) != 0) {
-        TERN(HAS_DISPLAY, ui.abort_print(), kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT)));
+        kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT));
         error = TachoError::REPORTED;
       }
       else

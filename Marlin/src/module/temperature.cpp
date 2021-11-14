@@ -922,30 +922,36 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
           break;
       }
 
+      #if BOTH(HAS_FANCHECK, HAS_PWMFANCHECK)
+        #define IS_MEASURING   fan_check.is_measuring()
+      #else
+        #define IS_MEASURING   false
+      #endif
+
       switch (f) {
         #if HAS_AUTO_FAN_0
-          case 0: _UPDATE_AUTO_FAN(E0, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 0: _UPDATE_AUTO_FAN(E0, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_1
-          case 1: _UPDATE_AUTO_FAN(E1, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 1: _UPDATE_AUTO_FAN(E1, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_2
-          case 2: _UPDATE_AUTO_FAN(E2, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 2: _UPDATE_AUTO_FAN(E2, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_3
-          case 3: _UPDATE_AUTO_FAN(E3, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 3: _UPDATE_AUTO_FAN(E3, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_4
-          case 4: _UPDATE_AUTO_FAN(E4, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 4: _UPDATE_AUTO_FAN(E4, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_5
-          case 5: _UPDATE_AUTO_FAN(E5, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 5: _UPDATE_AUTO_FAN(E5, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_6
-          case 6: _UPDATE_AUTO_FAN(E6, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 6: _UPDATE_AUTO_FAN(E6, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_FAN_7
-          case 7: _UPDATE_AUTO_FAN(E7, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          case 7: _UPDATE_AUTO_FAN(E7, fan_on, IS_MEASURING ? 255 : EXTRUDER_AUTO_FAN_SPEED); break;
         #endif
         #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
           case CHAMBER_FAN_INDEX: _UPDATE_AUTO_FAN(CHAMBER, fan_on, CHAMBER_AUTO_FAN_SPEED); break;
@@ -1372,9 +1378,21 @@ void Temperature::manage_heater() {
   #if HAS_AUTO_FAN || HAS_FANCHECK
     if (ELAPSED(ms, autofan_update_ms)) { // only need to check fan state very infrequently
       const millis_t next_ms = ms + autofan_update_interval_ms;
+      #if HAS_PWMFANCHECK
+        #define FAN_CHECK_DURATION  100
+
+        if (fan_check.is_measuring()) {
+          fan_check.compute_speed(ms + FAN_CHECK_DURATION - autofan_update_ms));
+          autofan_update_ms = next_ms;
+          }
+        else
+          autofan_update_ms = ms + FAN_CHECK_DURATION;
+        fan_check.toggle_measuring();
+      #else
+        TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
+        autofan_update_ms = next_ms;
+      #endif
       TERN_(HAS_AUTO_FAN, update_autofans());
-      TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - autofan_update_ms));
-      autofan_update_ms = next_ms;
     }
   #endif
 

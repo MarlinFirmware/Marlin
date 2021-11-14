@@ -456,7 +456,7 @@ class Temperature {
     #endif
 
     #if HAS_AUTO_FAN || HAS_FANCHECK
-      static constexpr millis_t autofan_update_interval_ms = TERN(HAS_FANCHECK, 1000, 2500);
+      static constexpr millis_t autofan_update_interval_ms = TERN(HAS_PWMFANCHECK, 5000, TERN(HAS_FANCHECK, 1000, 2500));
     #endif
 
   private:

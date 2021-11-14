@@ -32,6 +32,10 @@
   #include "../libs/autoreport.h"
 #endif
 
+#if ENABLED(PARK_HEAD_ON_PAUSE)
+  #include "../gcode/queue.h"
+#endif
+
 /**
  * fancheck.h
  */
@@ -42,7 +46,7 @@ class FanCheck {
 
     enum class TachoError : uint8_t { NONE, DETECTED, REPORTED, FIXED };
 
-    #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255 && DISABLED(FOURWIRES_FANS)
+    #if HAS_PWMFANCHECK
       static bool measuring;  // For future use (3 wires PWM controlled fans)
     #else
       static constexpr bool measuring = true;
@@ -60,21 +64,24 @@ class FanCheck {
 
     static void init();
     static void update_tachometers();
-    static void compute_speed(int elapsedTime);
+    static void compute_speed(uint16_t elapsedTime);
     static void print_fan_states();
+    #if HAS_PWMFANCHECK
+      static inline void toggle_measuring() { measuring = !measuring; }
+      static inline bool is_measuring() { return measuring; }
+    #endif
 
     static inline void check_deferred_error() {
       if (error == TachoError::DETECTED) {
         error = TachoError::REPORTED;
-        TERN(HAS_DISPLAY, ui.pause_print(), kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT)));
+        TERN(PARK_HEAD_ON_PAUSE, queue.inject(F("M125")), kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT)));
       }
-    };
+    }
 
     #if ENABLED(AUTO_REPORT_FANS)
       struct AutoReportFan { static void report(); };
       static AutoReporter<AutoReportFan> auto_reporter;
     #endif
-
 };
 
 extern FanCheck fan_check;
