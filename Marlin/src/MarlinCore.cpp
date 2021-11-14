@@ -637,7 +637,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #endif
   #endif
 
-  TERN_(EASYTHREED_UI, easythreed_ui.UICheck());
+  TERN_(EASYTHREED_UI, easythreed_ui.run());
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 

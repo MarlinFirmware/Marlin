@@ -36,29 +36,23 @@
 
 EasythreedUI easythreed_ui;
 
+#define BTN_DEBOUNCE_MS 20
+
 void EasythreedUI::init() {
-  SET_INPUT_PULLUP(PRINT_HOME_PIN);
-  SET_OUTPUT(HOME_GND_PIN);
-  SET_INPUT_PULLUP(FEED_PIN);
-  SET_INPUT_PULLUP(RETRACT_PIN);
-  SET_OUTPUT(FEED_GND_PIN);
-  SET_OUTPUT(RETRACT_GND_PIN);
-  SET_INPUT_PULLUP(PRINTER_PIN);
-  SET_OUTPUT(PRINT_LED_PIN);
+  SET_INPUT_PULLUP(BTN_HOME);     SET_OUTPUT(BTN_HOME_GND);
+  SET_INPUT_PULLUP(BTN_FEED);     SET_OUTPUT(BTN_FEED_GND);
+  SET_INPUT_PULLUP(BTN_RETRACT);  SET_OUTPUT(BTN_RETRACT_GND);
+  SET_INPUT_PULLUP(BTN_PRINT);
+  SET_OUTPUT(EASYTHREED_LED_PIN);
 }
 
-void EasythreedUI::UICheck(void) {
-  NanoBlinkLED();
-  NanoLoadFilament();
-  NanoPrintOneKey();
+void EasythreedUI::run() {
+  blinkLED();
+  loadButton();
+  printButton();
 }
 
-//
-// EasyThreeD ET4000+ Mainboard for Nano / K7
-//
-uint16_t blink_time = 4000;
-// Status LED on Start button
-enum LEDStatus : uint16_t {
+enum LEDInterval : uint16_t {
   LED_OFF     =    0,
   LED_ON      = 4000,
   LED_BLINK_0 = 2500,
@@ -71,85 +65,85 @@ enum LEDStatus : uint16_t {
   LED_BLINK_7 =   50
 };
 
-void EasythreedUI::NanoBlinkLED(void) {
-  static millis_t blink_previous_ms = 0, blink_start_ms = 0;
+uint16_t blink_interval_ms = LED_ON;   // Status LED on Start button
 
-  if (blink_time == LED_OFF) { WRITE(PRINT_LED_PIN, HIGH); return; } // OFF
-  if (blink_time > 3000)     { WRITE(PRINT_LED_PIN,  LOW); return; } // ON
+void EasythreedUI::blinkLED() {
+  static millis_t prev_blink_interval_ms = 0, blink_start_ms = 0;
+
+  if (blink_interval_ms == LED_OFF) { WRITE(EASYTHREED_LED_PIN, HIGH); return; } // OFF
+  if (blink_interval_ms >= LED_ON)  { WRITE(EASYTHREED_LED_PIN,  LOW); return; } // ON
 
   const millis_t ms = millis();
-  if (blink_previous_ms != blink_time) {
-    blink_previous_ms = blink_time;
+  if (prev_blink_interval_ms != blink_interval_ms) {
+    prev_blink_interval_ms = blink_interval_ms;
     blink_start_ms = ms;
   }
-  if (PENDING(ms, blink_start_ms + blink_time))
-    WRITE(PRINT_LED_PIN, LOW);
-  else if (PENDING(ms, blink_start_ms + 2 * blink_time))
-    WRITE(PRINT_LED_PIN, HIGH);
+  if (PENDING(ms, blink_start_ms + blink_interval_ms))
+    WRITE(EASYTHREED_LED_PIN, LOW);
+  else if (PENDING(ms, blink_start_ms + 2 * blink_interval_ms))
+    WRITE(EASYTHREED_LED_PIN, HIGH);
   else
     blink_start_ms = ms;
 }
 
-// Filament Load/Unload Switch
-void EasythreedUI::NanoLoadFilament(void) {
+//
+// Filament Load/Unload Button
+//
+void EasythreedUI::loadButton() {
   if (printingIsActive()) return;
 
+  enum FilamentStatus : uint8_t { FS_IDLE, FS_PRESS, FS_CHECK, FS_PROCEED };
+  static uint8_t filament_status = FS_IDLE;
   static millis_t filament_time = 0;
-  static uint8_t filament_status = 0;
+
   switch (filament_status) {
-    case 0:
-      if (READ(RETRACT_PIN) == LOW || READ(FEED_PIN) == LOW) {
-        filament_status++;
+
+    case FS_IDLE:
+      if (!READ(BTN_RETRACT) || !READ(BTN_FEED)) {                  // If feed or retract button is pressed...
+        filament_status++;                                          // ...proceed to next test.
         filament_time = millis();
       }
       break;
 
-    case 1:
-      if (ELAPSED(millis(), filament_time + 20)) {
-        if (READ(RETRACT_PIN) == LOW || READ(FEED_PIN) == LOW) {
-          thermalManager.setTargetHotend(210, 0);
-          blink_time = LED_BLINK_7;
+    case FS_PRESS:
+      if (ELAPSED(millis(), filament_time + BTN_DEBOUNCE_MS)) {     // After a short debounce delay...
+        if (!READ(BTN_RETRACT) || !READ(BTN_FEED)) {                // ...if button(s) still pressed...
+          thermalManager.setTargetHotend(EXTRUDE_MINTEMP + 10, 0);  // Start heating up
+          blink_interval_ms = LED_BLINK_7;                          // Set the LED to blink fast
           filament_status++;
         }
         else
-          filament_status = 0;
+          filament_status = FS_IDLE;                                // Button(s) not pressed long enough
       }
       break;
 
-    case 2:
-      if (thermalManager.degHotend(0) >= 180.0f) {
-        filament_status++;
-        blink_time = LED_BLINK_5;
-      }
-      if (READ(RETRACT_PIN) == HIGH && READ(FEED_PIN) == HIGH) {
-        blink_time = LED_ON;
-        filament_status = 0;
+    case FS_CHECK:
+      if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Buttons are both released?
+        blink_interval_ms = LED_ON;                                 // LED on steady
+        filament_status = FS_IDLE;
         thermalManager.disable_all_heaters();
       }
+      else if (thermalManager.hotEnoughToExtrude(0)) {              // Is the hotend hot enough to move material?
+        filament_status++;                                          // Proceed to feed / retract.
+        blink_interval_ms = LED_BLINK_5;                            // Blink ~3 times per second
+      }
       break;
 
-    case 3: {
+    case FS_PROCEED: {
+      // Feed or Retract just once. Hard abort all moves and return to idle on button release.
       static bool flag = false;
-      if (!flag && READ(RETRACT_PIN) == LOW) {
-        flag = true;
-        queue.inject(F("G91\nG0 E10 F180\nG0 E-120 F180\nM104 S0"));
-        blink_time = LED_BLINK_5;
+      if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Feed / retract button released?
+        flag = false;                                               // Restore flag to false
+        filament_status = FS_IDLE;                                  // Go back to idle state
+        quickstop_stepper();                                        // Hard-stop all the steppers ... now!
+        thermalManager.disable_all_heaters();                       // And disable all the heaters
       }
-      if (!flag && READ(FEED_PIN) == LOW) {
+      else if (!flag) {
         flag = true;
-        queue.inject(F("G91\nG0 E100 F120\nM104 S0"));
-        blink_time = LED_BLINK_5;
-      }
-      if (READ(RETRACT_PIN) == HIGH && READ(FEED_PIN) == HIGH) {
-        flag = false;
-        filament_status = 0;
-        quickstop_stepper();
-        //planner.cleaning_buffer_counter = 2;
-        thermalManager.disable_all_heaters();
+        //blink_interval_ms = LED_BLINK_5;                          // Keep blinking at the same rate set above
+        queue.inject(!READ(BTN_RETRACT) ? F("G91\nG0 E10 F180\nG0 E-120 F180\nM104 S0") : F("G91\nG0 E100 F120\nM104 S0"));
       }
     } break;
-
-    default: filament_status = 0;
   }
 
 }
@@ -158,107 +152,91 @@ void EasythreedUI::NanoLoadFilament(void) {
   void disableStepperDrivers();
 #endif
 
-uint8_t print_key_flag = 0;
-
-// Start Button
-void EasythreedUI::NanoPrintOneKey(void) {
-  static uint8_t key_status = 0;
+//
+// Print Start/Pause/Resume Button
+//
+void EasythreedUI::printButton() {
+  enum KeyStatus : uint8_t { KS_IDLE, KS_PRESS, KS_PROCEED };
+  static uint8_t key_status = KS_IDLE;
   static millis_t key_time = 0;
   static bool print_flag = false;
+
+  enum PrintFlag : uint8_t { PF_START, PF_PAUSE, PF_RESUME };
+  static PrintFlag print_key_flag = PF_START;
 
   const millis_t ms = millis();
 
   switch (key_status) {
-    case 0:
-      if (READ(PRINTER_PIN) == LOW) {
-        key_time = ms;
-        key_status = 1;
-      }
-      if (print_flag && !printingIsActive()) {
+    case KS_IDLE:
+      if (print_flag && !printingIsActive()) {                      // Reset states if printing state went to inactive
         print_flag = false;
-        print_key_flag = 0;
-        blink_time = LED_ON;
+        print_key_flag = PF_START;
+        blink_interval_ms = LED_ON;
+      }
+      if (!READ(BTN_PRINT)) {                                       // Print/Pause/Resume button pressed?
+        key_time = ms;                                              // Save start time
+        key_status++;                                               // Go to debounce test
       }
       break;
 
-    case 1:
-      if (ELAPSED(ms, key_time + 30)) {
-        if (READ(PRINTER_PIN) == LOW) {
-          key_time = ms;
-          key_status = 2;
-        }
-        else
-          key_status = 0;
-      }
+    case KS_PRESS:
+      if (ELAPSED(ms, key_time + BTN_DEBOUNCE_MS))                  // Wait for debounce interval to expire
+        key_status = READ(BTN_PRINT) ? KS_IDLE : KS_PROCEED;        // Proceed if still pressed
       break;
 
-    case 2:
-      if (READ(PRINTER_PIN) == HIGH) {
-        if (PENDING(ms, key_time + 1200)) { // Register a press < 1200ms
-          switch (print_key_flag) {
-            case 0:                         //    Print from SD card
-              if (!printingIsActive()) {
-                print_flag = true;
-                card.mount();
-                if (!card.isMounted) {
-                  blink_time = LED_OFF;
-                  key_status = 0;
-                  key_time = 0;
-                  print_flag = false;
-                  return;
-                }
-                card.ls();
-                uint16_t filecnt = card.countFilesInWorkDir();
-                if (filecnt == 0) return;
-                card.selectFileByIndex(filecnt);
-                card.openAndPrintFile(card.filename);
-                blink_time= LED_BLINK_2;
-                print_key_flag = 1;
+    case KS_PROCEED:
+      if (!READ(BTN_PRINT)) break;                                  // Wait for the button to be released
+      key_status = KS_IDLE;                                         // Ready for the next press
+      if (PENDING(ms, key_time + 1200 - BTN_DEBOUNCE_MS)) {         // Register a press < 1.2 seconds
+        switch (print_key_flag) {
+          case PF_START:                                            // The "Print" button starts an SD card print
+            if (!printingIsActive()) {                              // Not already printing?
+              card.mount();                                         // Force SD card to mount - now!
+              if (!card.isMounted) {                                // Failed to mount?
+                blink_interval_ms = LED_OFF;                        // Turn off LED
+                print_flag = false;                                 // Clear previous print flag
+                return;                                             // Bail out
               }
-              break;
-            case 1:                         //    Pause printing (not currently firing)
-              blink_time = LED_ON;
-              card.pauseSDPrint();
-              print_key_flag = 2;
-              break;
-            case 2:                         //    Resume printing (not currently firing)
-              blink_time = LED_BLINK_2;
-              card.startOrResumeFilePrinting();
-              print_key_flag = 1;
-              break;
-            default:
-              print_key_flag = 0;
-              break;
-          }
+              card.ls();                                            // List all files to serial output
+              const uint16_t filecnt = card.countFilesInWorkDir();  // Count printable files in cwd
+              if (filecnt == 0) return;                             // None are printable?
+              card.selectFileByIndex(filecnt);                      // Select the last file according to current sort options
+              card.openAndPrintFile(card.filename);                 // Start printing it
+              blink_interval_ms = LED_BLINK_2;                      // Blink the indicator LED at 1 second intervals
+              print_flag = true;                                    // Tell EasythreedUI printing should be active
+              print_key_flag = PF_PAUSE;                            // The "Print" button now pauses the print
+            }
+            break;
+          case PF_PAUSE:                                            // Pause printing (not currently firing)
+            blink_interval_ms = LED_ON;                             // Set indicator to steady ON
+            card.pauseSDPrint();                                    // Unceremoniously pause the SD print in progress
+            print_key_flag = PF_RESUME;                             // The "Print" button now resumes the print
+            break;
+          case PF_RESUME:                                           // Resume printing (not currently firing)
+            blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
+            card.startOrResumeFilePrinting();                       // Unceremoniously resume the SD print in progress
+            print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
+            break;
         }
-        else {                              // Register a 1200ms+ press
-          if (print_key_flag == 0) {        //    While not printing to move Z up 10mm
-            blink_time = LED_ON;
-            queue.inject(F("G91\nG0 Z10 F600\nG90"));
-          }
-          else {                            //     While printing to cancel print
-            wait_for_heatup = false;
-            quickstop_stepper();
-            //planner.cleaning_buffer_counter = 2;
-            thermalManager.disable_all_heaters();
-            print_flag = false;
-            blink_time = LED_OFF;
-          }
-          planner.synchronize();
-          TERN_(HAS_STEPPER_RESET, disableStepperDrivers());
-          print_key_flag = 0;
-        }
-        key_status = 0;
-        key_time = 0;
       }
-      break;
-
-    default:
-      key_status = 0;
-      key_time = 0;
+      else {                                                        // Register a longer press
+        if (print_key_flag == PF_START) {                           // While not printing, this moves Z up 10mm
+          blink_interval_ms = LED_ON;
+          queue.inject(F("G91\nG0 Z10 F600\nG90"));                 // Raise Z soon after returning to main loop
+        }
+        else {                                                      // While printing, cancel print
+          wait_for_heatup = false;                                  // Break out of any wait-for-heating loop
+          quickstop_stepper();                                      // Hard-stop all steppers
+          thermalManager.disable_all_heaters();                     // Turn off all heaters
+          print_flag = false;
+          blink_interval_ms = LED_OFF;                              // Turn off LED
+        }
+        planner.synchronize();                                      // Wait for commands already in the planner to finish
+        TERN_(HAS_STEPPER_RESET, disableStepperDrivers());          // Disable all steppers - now!
+        print_key_flag = PF_START;                                  // The "Print" button now starts a new print
+      }
       break;
   }
-
 }
 
 #endif // EASYTHREED_UI

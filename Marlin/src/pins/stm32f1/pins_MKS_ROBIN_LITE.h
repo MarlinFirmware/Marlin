@@ -164,12 +164,12 @@
 
 // EXP1 replace LCD with keys for EasyThreeD ET4000+ Mainboard
 #if ENABLED(EASYTHREED_UI)
-  #define PRINT_HOME_PIN          E3_EXP1_04_PIN  // INPUT_PULLUP (unused)
-  #define HOME_GND_PIN            E3_EXP1_03_PIN  // OUTPUT (unused)
-  #define FEED_PIN                E3_EXP1_09_PIN  // Run E Forward
-  #define RETRACT_PIN             E3_EXP1_08_PIN  // Run E Backward
-  #define FEED_GND_PIN            E3_EXP1_06_PIN  // OUTPUT (unused)
-  #define RETRACT_GND_PIN         E3_EXP1_05_PIN  // OUTPUT (unused)
-  #define PRINTER_PIN             E3_EXP1_07_PIN  // Start File Print
-  #define PRINT_LED_PIN           E3_EXP1_10_PIN  // Indicator LED
+  #define BTN_HOME                E3_EXP1_04_PIN  // INPUT_PULLUP (unused)
+  #define BTN_FEED                E3_EXP1_09_PIN  // Run E Forward
+  #define BTN_RETRACT             E3_EXP1_08_PIN  // Run E Backward
+  #define BTN_PRINT               E3_EXP1_07_PIN  // Start File Print
+  #define BTN_HOME_GND            E3_EXP1_03_PIN  // OUTPUT (LOW)
+  #define BTN_FEED_GND            E3_EXP1_06_PIN  // OUTPUT (LOW)
+  #define BTN_RETRACT_GND         E3_EXP1_05_PIN  // OUTPUT (LOW)
+  #define EASYTHREED_LED_PIN      E3_EXP1_10_PIN  // Indicator LED
 #endif

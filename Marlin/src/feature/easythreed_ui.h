@@ -24,12 +24,12 @@
 class EasythreedUI {
   public:
     static void init();
-    static void UICheck();
+    static void run();
 
   private:
-    static void NanoBlinkLED();
-    static void NanoLoadFilament();
-    static void NanoPrintOneKey();
+    static void blinkLED();
+    static void loadButton();
+    static void printButton();
 };
 
 extern EasythreedUI easythreed_ui;
