@@ -211,32 +211,32 @@ enum ClockSource2 : char {
 
 // Set Clock Select bits
 // Ex: SET_CS3(PRESCALER_64);
+#ifdef TCCR2
+  #define HAS_TCCR2 1
+#endif
 #define _SET_CS(T,V) (TCCR##T##B = (TCCR##T##B & ~(0x7 << CS##T##0)) | ((int(V) & 0x7) << CS##T##0))
 #define _SET_CS0(V) _SET_CS(0,V)
 #define _SET_CS1(V) _SET_CS(1,V)
-#ifdef TCCR2
-  #define _SET_CS2(V) (TCCR2 = (TCCR2 & ~(0x7 << CS20)) | (int(V) << CS20))
-#else
-  #define _SET_CS2(V) _SET_CS(2,V)
-#endif
 #define _SET_CS3(V) _SET_CS(3,V)
 #define _SET_CS4(V) _SET_CS(4,V)
 #define _SET_CS5(V) _SET_CS(5,V)
 #define SET_CS0(V) _SET_CS0(CS_##V)
 #define SET_CS1(V) _SET_CS1(CS_##V)
-#ifdef TCCR2
+
+#if HAS_TCCR2
+  #define _SET_CS2(V) (TCCR2 = (TCCR2 & ~(0x7 << CS20)) | (int(V) << CS20))
   #define SET_CS2(V) _SET_CS2(CS2_##V)
 #else
+  #define _SET_CS2(V) _SET_CS(2,V)
   #define SET_CS2(V) _SET_CS2(CS_##V)
 #endif
+
 #define SET_CS3(V) _SET_CS3(CS_##V)
 #define SET_CS4(V) _SET_CS4(CS_##V)
 #define SET_CS5(V) _SET_CS5(CS_##V)
 #define SET_CS(T,V) SET_CS##T(V)
 // Runtime (see set_pwm_frequency)
-#define _SET_CSn(TCCRnQ, V) do{ \
-    (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0)); \
-  }while(0)
+#define _SET_CSn(TCCRnQ, V) (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0))
 
 // Set Compare Mode bits
 // Ex: SET_COMS(4,CLEAR_SET,CLEAR_SET,CLEAR_SET);
@@ -247,21 +247,15 @@ enum ClockSource2 : char {
 #define SET_COMC(T,V) SET_COM(T,C,V)
 #define SET_COMS(T,V1,V2,V3) do{ SET_COMA(T,V1); SET_COMB(T,V2); SET_COMC(T,V3); }while(0)
 // Runtime (see set_pwm_duty)
-#define _SET_COMnQ(TCCRnQ, Q, V) do{ \
-    (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q)))); \
-  }while(0)
+#define _SET_COMnQ(TCCRnQ, Q, V) (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q))))
 
 // Set OCRnQ register
 // Runtime (see set_pwm_duty):
-#define _SET_OCRnQ(OCRnQ, Q, V) do{ \
-    (*(OCRnQ)[(Q)] = (0x0000) | (int(V) & 0xFFFF)); \
-  }while(0)
+#define _SET_OCRnQ(OCRnQ, Q, V) (*(OCRnQ)[Q] = int(V) & 0xFFFF)
 
 // Set ICRn register (one per timer)
 // Runtime (see set_pwm_frequency)
-#define _SET_ICRn(ICRn, V) do{ \
-    (*(ICRn) = (0x0000) | (int(V) & 0xFFFF)); \
-  }while(0)
+#define _SET_ICRn(ICRn, V) (*(ICRn) = int(V) & 0xFFFF)
 
 // Set Noise Canceler bit
 // Ex: SET_ICNC(2,1)

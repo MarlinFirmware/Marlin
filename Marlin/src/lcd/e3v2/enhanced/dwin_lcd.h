@@ -24,8 +24,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/09/08
+ * Version: 3.7.1
+ * Date: 2021/11/09
  */
 
 #include "../common/dwin_api.h"
@@ -40,13 +40,6 @@ void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, char *string);
 inline void DWIN_Draw_QR(uint8_t QR_Pixel, uint16_t x, uint16_t y, FSTR_P title) {
   DWIN_Draw_QR(QR_Pixel, x, y, (char *)title);
 }
-
-// Copy area from virtual display area to current screen
-//  cacheID: virtual area number
-//  xStart/yStart: Upper-left of virtual area
-//  xEnd/yEnd: Lower-right of virtual area
-//  x/y: Screen paste point
-void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
 
 // Copy area from virtual display area to current screen
 //  cacheID: virtual area number

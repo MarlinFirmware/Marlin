@@ -387,6 +387,10 @@ class Temperature {
                      soft_pwm_count_fan[FAN_COUNT];
     #endif
 
+    #if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
+      static uint8_t soft_pwm_controller_speed;
+    #endif
+
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       static bool allow_cold_extrude;
       static celsius_t extrude_min_temp;
