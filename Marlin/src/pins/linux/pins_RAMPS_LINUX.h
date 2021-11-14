@@ -410,20 +410,44 @@
   #endif
   #ifndef TOUCH_SCREEN_CALIBRATION
     #if ENABLED(TFT_RES_320x240)
-      #define TOUCH_CALIBRATION_X          20525
-      #define TOUCH_CALIBRATION_Y          15335
-      #define TOUCH_OFFSET_X                  -1
-      #define TOUCH_OFFSET_Y                   0
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        20525
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        15335
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                -1
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                 0
+      #endif
     #elif ENABLED(TFT_RES_480x272)
-      #define TOUCH_CALIBRATION_X          30715
-      #define TOUCH_CALIBRATION_Y          17415
-      #define TOUCH_OFFSET_X                   0
-      #define TOUCH_OFFSET_Y                  -1
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        30715
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        17415
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                 0
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                -1
+      #endif
     #elif ENABLED(TFT_RES_480x320)
-      #define TOUCH_CALIBRATION_X          30595
-      #define TOUCH_CALIBRATION_Y          20415
-      #define TOUCH_OFFSET_X                   2
-      #define TOUCH_OFFSET_Y                   1
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        30595
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        20415
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                 2
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                 1
+      #endif
     #endif
   #endif
 
