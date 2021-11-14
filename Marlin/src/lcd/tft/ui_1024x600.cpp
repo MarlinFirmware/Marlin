@@ -272,7 +272,7 @@ void MarlinUI::draw_status_screen() {
   }
   else {
     #if ENABLED(LCD_SHOW_E_TOTAL)
-      tft.add_text( 200, 3, COLOR_AXIS_HOMED , "E");
+      tft.add_text(200, 3, COLOR_AXIS_HOMED , "E");
       const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
       tft_string.set(ftostr4sign(e_move_accumulator / escale));
       tft_string.add(escale == 10 ? 'c' : 'm');
