@@ -157,7 +157,7 @@
 #if HAS_FANCHECK
   #include "../module/fancheck.h"
 #endif
-  
+
 #if ENABLED(DGUS_LCD_UI_MKS)
   #include "../lcd/extui/dgus/DGUSScreenHandler.h"
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
