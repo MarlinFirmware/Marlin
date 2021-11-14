@@ -41,6 +41,10 @@
   #include "../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(USE_CONTROLLER_FAN)
+  #include "../feature/controllerfan.h"
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "motion.h"
 #endif
@@ -300,6 +304,10 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 #if ENABLED(AUTO_POWER_COOLER_FAN)
   uint8_t Temperature::coolerfan_speed; // = 0
+#endif
+
+#if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
+  uint8_t Temperature::soft_pwm_controller_speed;
 #endif
 
 // Init fans according to whether they're native PWM or Software PWM
@@ -3021,6 +3029,10 @@ void Temperature::isr() {
     static SoftPWM soft_pwm_cooler;
   #endif
 
+  #if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
+    static SoftPWM soft_pwm_controller;
+  #endif
+
   #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 
   #if DISABLED(SLOW_PWM_HEATERS)
@@ -3054,6 +3066,10 @@ void Temperature::isr() {
 
       #if HAS_COOLER
         _PWM_MOD(COOLER, soft_pwm_cooler, temp_cooler);
+      #endif
+
+      #if BOTH(USE_CONTROLLER_FAN, FAN_SOFT_PWM)
+        WRITE(CONTROLLER_FAN_PIN, soft_pwm_controller.add(pwm_mask, soft_pwm_controller_speed));
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)
@@ -3131,6 +3147,9 @@ void Temperature::isr() {
         #endif
         #if HAS_FAN7
           if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
+        #endif
+        #if ENABLED(USE_CONTROLLER_FAN)
+          if (soft_pwm_controller.count <= pwm_count_tmp) WRITE(CONTROLLER_FAN_PIN, LOW);
         #endif
       #endif
     }
