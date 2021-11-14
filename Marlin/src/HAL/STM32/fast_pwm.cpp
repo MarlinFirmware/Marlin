@@ -32,7 +32,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
-  if (!(Instance->CR1 && 1))   // Ensure the timer TIMx_CR1 CEN bit 0 is enabled
+  if (!TEST(Instance->CR1, 0))   // If timer TIMx_CR1 CEN bit (0) is zero...
     set_pwm_frequency(pin, PWM_FREQUENCY);
   uint16_t adj_val = Instance->ARR * v / v_size;
   if (invert) adj_val = Instance->ARR - adj_val;
@@ -47,8 +47,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 void set_pwm_frequency(const pin_t pin, int f_desired) {
   if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
 
-  PinName pin_name = digitalPinToPinName(pin);
-  TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
+  const PinName pin_name = digitalPinToPinName(pin);
+  TIM_TypeDef* const Instance = (TIM_TypeDef*)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
 
   LOOP_S_L_N(i, 0, NUM_HARDWARE_TIMERS) // Protect used timers
     if (timer_instance[i] && timer_instance[i]->getHandle()->Instance == Instance)
