@@ -155,7 +155,7 @@
 #endif
 
 #if HAS_FANCHECK
-  #include "../module/fancheck.h"
+  #include "../feature/fancheck.h"
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)

@@ -25,7 +25,7 @@
 #if HAS_FANCHECK
 
 #include "../gcode.h"
-#include "../../module/fancheck.h"
+#include "../../feature/fancheck.h"
 
 /**
  * M123: Report fan states -or- set interval for auto-report

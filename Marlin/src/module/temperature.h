@@ -38,7 +38,7 @@
 #endif
 
 #if HAS_FANCHECK
-  #include "fancheck.h"
+  #include "../feature/fancheck.h"
 #endif
 
 #ifndef SOFT_PWM_SCALE

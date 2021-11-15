@@ -213,7 +213,7 @@
 #include "module/tool_change.h"
 
 #if HAS_FANCHECK
-  #include "module/fancheck.h"
+  #include "feature/fancheck.h"
 #endif
 
 #if ENABLED(USE_CONTROLLER_FAN)

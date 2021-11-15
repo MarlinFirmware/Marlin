@@ -66,7 +66,7 @@ GcodeSuite gcode;
 #endif
 
 #if HAS_FANCHECK
-  #include "../module/fancheck.h"
+  #include "../feature/fancheck.h"
 #endif
 
 #include "../MarlinCore.h" // for idle, kill
