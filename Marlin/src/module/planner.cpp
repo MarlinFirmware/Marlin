@@ -1976,9 +1976,10 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Set direction bits
   block->direction_bits = dm;
 
+  TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
+
   // Update block laser power
   #if ENABLED(LASER_POWER_INLINE)
-    laser_inline.status.isPlanned = true;
     block->laser.status = laser_inline.status;
     block->laser.power = laser_inline.power;
   #endif
@@ -2132,8 +2133,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
   TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
-
-  TERN_(HAS_CUTTER, block->cutter_power = cutter.power);
 
   #if HAS_FAN
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];

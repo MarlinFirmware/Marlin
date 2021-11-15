@@ -3338,6 +3338,8 @@
 //#define LASER_FEATURE
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define SPINDLE_LASER_ACTIVE_STATE    LOW    // Set to "HIGH" if SPINDLE_LASER_ENA_PIN is active HIGH
+  #define SPINDLE_LASER_USE_PWM         true   // Set to "true" if your controller supports setting the speed/power
+  #define SPINDLE_LASER_PWM_INVERT      false  // Set to "true" if the speed/power goes up when you want it to go slower
 
   #define SPINDLE_LASER_USE_PWM                // Enable if your controller supports setting the speed/power
   #if ENABLED(SPINDLE_LASER_USE_PWM)
@@ -3430,6 +3432,9 @@
     //#define LASER_POWER_INLINE
 
     #if ENABLED(LASER_POWER_INLINE)
+
+      #define LASER_PULSE         100            // Slight delay for laser (M3 without I)
+
       /**
        * Scale the laser's power in proportion to the movement rate.
        *
@@ -3458,7 +3463,7 @@
       //#define LASER_POWER_INLINE_TRAPEZOID_CONT_PER 10
 
       /**
-       * Include laser power in G0/G1/G2/G3/G5 commands with the 'S' parameter
+       * Include laser power in G1/G2/G3/G5 commands with the 'S' parameter
        */
       //#define LASER_MOVE_POWER
 

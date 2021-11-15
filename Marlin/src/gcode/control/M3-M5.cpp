@@ -85,56 +85,51 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   #if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       // Laser power in inline mode
+      planner.laser_inline.status.isInline = true;
+      planner.laser_inline.status.alwaysOn = false;
       cutter.inline_direction(is_M4); // Should always be unused
       #if ENABLED(SPINDLE_LASER_USE_PWM)
         if (parser.seen('O')) {
           cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
-          cutter.inline_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+          cutter.inline_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
         }
         else
           cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
       #else
-        cutter.set_inline_enabled(true);
+        cutter.inline_power(255);
+        cutter.unitpower = 255;
       #endif
       return;
     }
-    // Non-inline, standard case
-    cutter.inline_disable(); // Prevent future blocks re-setting the power
   #endif
 
-  planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
+  planner.synchronize();   // Wait for previous movement commands (G0/G1/G2/G3) to complete before changing power
   cutter.set_reverse(is_M4);
 
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     if (parser.seenval('O')) {
       cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
-      cutter.ocr_set_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+      cutter.set_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+      TERN_(LASER_POWER_INLINE, if (planner.laser_inline.status.isInline) cutter.inline_ocr_power(cutter.unitPower))
     }
-    else
-      cutter.set_power(cutter.upower_to_ocr(get_s_power()));
+    else {
+      cutter.set_ocr_power(cutter.upower_to_ocr(get_s_power()));
+      TERN_(LASER_POWER_INLINE, if (planner.laser_inline.status.isInline) cutter.inline_ocr_power(cutter.unitPower))
+    }
   #elif ENABLED(SPINDLE_SERVO)
     cutter.set_power(get_s_power());
   #else
     cutter.set_enabled(true);
   #endif
-  cutter.menuPower = cutter.unitPower;
+  TERN_(HAS_LCD_MENU, cutter.menuPower = cutter.unitPower);
 }
 
 /**
  * M5 - Cutter OFF (when moves are complete)
  */
 void GcodeSuite::M5() {
-  #if ENABLED(LASER_POWER_INLINE)
-    if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
-      cutter.set_inline_enabled(false); // Laser power in inline mode
-      return;
-    }
-    // Non-inline, standard case
-    cutter.inline_disable(); // Prevent future blocks re-setting the power
-  #endif
+  cutter.kill();
   planner.synchronize();
-  cutter.set_enabled(false);
-  cutter.menuPower = cutter.unitPower;
 }
 
 #endif // HAS_CUTTER
