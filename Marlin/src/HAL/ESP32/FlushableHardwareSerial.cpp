@@ -20,14 +20,10 @@
  *
  */
 
-#include "FlushableHardwareSerial.h"
-
 #ifdef ARDUINO_ARCH_ESP32
 
-FlushableHardwareSerial::FlushableHardwareSerial(int uart_nr)
-    : HardwareSerial(uart_nr)
-{}
+#include "FlushableHardwareSerial.h"
 
-FlushableHardwareSerial flushableSerial(0);
+Serial1Class<FlushableHardwareSerial> flushableSerial(false, 0);
 
-#endif // ARDUINO_ARCH_ESP32
+#endif

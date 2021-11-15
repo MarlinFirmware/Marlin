@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 #include "HAL_LCD_class_defines.h"
 
 //#define ALTERNATIVE_LCD
@@ -37,18 +37,18 @@
   // RepRapWorld Graphical LCD
 
   #define U8G_CLASS U8GLIB_ST7920_128X64_4X
-  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
+  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_ENABLE == SD_MOSI_PIN)
     #define U8G_PARAM LCD_PINS_RS
   #else
     #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS
   #endif
 
-#elif ENABLED(U8GLIB_ST7920)
+#elif IS_U8GLIB_ST7920
 
   // RepRap Discount Full Graphics Smart Controller
   // and other variant LCDs using ST7920
 
-  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
+  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_ENABLE == SD_MOSI_PIN)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #define U8G_PARAM LCD_PINS_RS
   #else
@@ -72,7 +72,7 @@
     #define U8G_CLASS U8GLIB_DOGM128_2X                         // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_LM6059_AF)
+#elif IS_U8GLIB_LM6059_AF
 
   // Based on the Adafruit ST7565 (https://www.adafruit.com/products/250)
 
@@ -82,13 +82,14 @@
     #define U8G_CLASS U8GLIB_LM6059_2X                          // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_ST7565_64128N)
+#elif IS_U8GLIB_ST7565_64128N
 
   // MaKrPanel, Mini Viki, Viki 2.0, AZSMZ 12864 ST7565 controller
 
   #define SMART_RAMPS MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
-  #if SMART_RAMPS || DOGLCD_SCK != SCK_PIN || DOGLCD_MOSI != MOSI_PIN
+
+  #if (SMART_RAMPS && defined(__SAM3X8E__)) || DOGLCD_SCK != SD_SCK_PIN || DOGLCD_MOSI != SD_MOSI_PIN
     #define FORCE_SOFT_SPI                                      // SW-SPI
   #endif
 
@@ -110,11 +111,9 @@
     #define U8G_CLASS U8GLIB_MINI12864_2X                       // 8 stripes (HW-SPI)
   #endif
 
-#elif EITHER(MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864)
+#elif ENABLED(MKS_12864OLED_SSD1306)
 
   // MKS 128x64 (SSD1306) OLED I2C LCD
-  // - or -
-  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
 
   #define FORCE_SOFT_SPI                                        // SW-SPI
 
@@ -122,6 +121,19 @@
     #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
   #else
     #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
+  #endif
+
+#elif EITHER(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
+
+  // FYSETC OLED 2.42" 128 × 64 Full Graphics Controller
+  // or K3D OLED 2.42" 128 × 64 Full Graphics Controller
+
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SSD1309_128X64_HAL
   #endif
 
 #elif ENABLED(ZONESTAR_12864OLED_SSD1306)

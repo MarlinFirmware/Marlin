@@ -9,8 +9,7 @@
 #  Will continue on if a COM port isn't found so that the compilation can be done.
 #
 
-import os
-import sys
+import os,sys
 from SCons.Script import DefaultEnvironment
 import platform
 current_OS = platform.system()

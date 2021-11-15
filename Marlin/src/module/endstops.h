@@ -28,44 +28,96 @@
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
 
+#define __ES_ITEM(N) N,
+#define _ES_ITEM(K,N) TERN_(K,DEFER4(__ES_ITEM)(N))
+
 enum EndstopEnum : char {
-  X_MIN,  Y_MIN,  Z_MIN,  Z_MIN_PROBE,
-  X_MAX,  Y_MAX,  Z_MAX,
-  X2_MIN, X2_MAX,
-  Y2_MIN, Y2_MAX,
-  Z2_MIN, Z2_MAX,
-  Z3_MIN, Z3_MAX,
-  Z4_MIN, Z4_MAX
+  // Common XYZ (ABC) endstops. Defined according to USE_[XYZ](MIN|MAX)_PLUG settings.
+  _ES_ITEM(HAS_X_MIN, X_MIN)
+  _ES_ITEM(HAS_X_MAX, X_MAX)
+  _ES_ITEM(HAS_Y_MIN, Y_MIN)
+  _ES_ITEM(HAS_Y_MAX, Y_MAX)
+  _ES_ITEM(HAS_Z_MIN, Z_MIN)
+  _ES_ITEM(HAS_Z_MAX, Z_MAX)
+  _ES_ITEM(HAS_I_MIN, I_MIN)
+  _ES_ITEM(HAS_I_MAX, I_MAX)
+  _ES_ITEM(HAS_J_MIN, J_MIN)
+  _ES_ITEM(HAS_J_MAX, J_MAX)
+  _ES_ITEM(HAS_K_MIN, K_MIN)
+  _ES_ITEM(HAS_K_MAX, K_MAX)
+
+  // Extra Endstops for XYZ
+  _ES_ITEM(HAS_X2_MIN, X2_MIN)
+  _ES_ITEM(HAS_X2_MAX, X2_MAX)
+  _ES_ITEM(HAS_Y2_MIN, Y2_MIN)
+  _ES_ITEM(HAS_Y2_MAX, Y2_MAX)
+  _ES_ITEM(HAS_Z2_MIN, Z2_MIN)
+  _ES_ITEM(HAS_Z2_MAX, Z2_MAX)
+  _ES_ITEM(HAS_Z3_MIN, Z3_MIN)
+  _ES_ITEM(HAS_Z3_MAX, Z3_MAX)
+  _ES_ITEM(HAS_Z4_MIN, Z4_MIN)
+  _ES_ITEM(HAS_Z4_MAX, Z4_MAX)
+
+  // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
+  #if !HAS_DELTA_SENSORLESS_PROBING
+    _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(USES_Z_MIN_PROBE_PIN, = Z_MIN))
+  #endif
+
+  // The total number of states
+  NUM_ENDSTOP_STATES
+
+  // Endstops can be either MIN or MAX but not both
+  #if HAS_X_MIN || HAS_X_MAX
+    , X_ENDSTOP = TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
+  #endif
+  #if HAS_Y_MIN || HAS_Y_MAX
+    , Y_ENDSTOP = TERN(Y_HOME_TO_MAX, Y_MAX, Y_MIN)
+  #endif
+  #if HAS_Z_MIN || HAS_Z_MAX || HOMING_Z_WITH_PROBE
+    , Z_ENDSTOP = TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, Z_MIN))
+  #endif
+  #if HAS_I_MIN || HAS_I_MAX
+    , I_ENDSTOP = TERN(I_HOME_TO_MAX, I_MAX, I_MIN)
+  #endif
+  #if HAS_J_MIN || HAS_J_MAX
+    , J_ENDSTOP = TERN(J_HOME_TO_MAX, J_MAX, J_MIN)
+  #endif
+  #if HAS_K_MIN || HAS_K_MAX
+    , K_ENDSTOP = TERN(K_HOME_TO_MAX, K_MAX, K_MIN)
+  #endif
 };
 
-#define X_ENDSTOP (X_HOME_DIR < 0 ? X_MIN : X_MAX)
-#define Y_ENDSTOP (Y_HOME_DIR < 0 ? Y_MIN : Y_MAX)
-#define Z_ENDSTOP (Z_HOME_DIR < 0 ? TERN(HOMING_Z_WITH_PROBE, Z_MIN, Z_MIN_PROBE) : Z_MAX)
+#undef __ES_ITEM
+#undef _ES_ITEM
 
 class Endstops {
   public:
-    #if HAS_EXTRA_ENDSTOPS
-      typedef uint16_t esbits_t;
-      TERN_(X_DUAL_ENDSTOPS, static float x2_endstop_adj);
-      TERN_(Y_DUAL_ENDSTOPS, static float y2_endstop_adj);
-      TERN_(Z_MULTI_ENDSTOPS, static float z2_endstop_adj);
-      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
-        static float z3_endstop_adj;
-      #endif
-      #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
-        static float z4_endstop_adj;
-      #endif
-    #else
-      typedef uint8_t esbits_t;
+
+    typedef IF<(NUM_ENDSTOP_STATES > 8), uint16_t, uint8_t>::type endstop_mask_t;
+
+    #if ENABLED(X_DUAL_ENDSTOPS)
+      static float x2_endstop_adj;
+    #endif
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      static float y2_endstop_adj;
+    #endif
+    #if ENABLED(Z_MULTI_ENDSTOPS)
+      static float z2_endstop_adj;
+    #endif
+    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3
+      static float z3_endstop_adj;
+    #endif
+    #if ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4
+      static float z4_endstop_adj;
     #endif
 
   private:
     static bool enabled, enabled_globally;
-    static esbits_t live_state;
-    static volatile uint8_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
+    static endstop_mask_t live_state;
+    static volatile endstop_mask_t hit_state; // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
 
     #if ENDSTOP_NOISE_THRESHOLD
-      static esbits_t validated_live_state;
+      static endstop_mask_t validated_live_state;
       static uint8_t endstop_poll_count;    // Countdown from threshold for polling
     #endif
 
@@ -101,12 +153,12 @@ class Endstops {
     /**
      * Get Endstop hit state.
      */
-    FORCE_INLINE static uint8_t trigger_state() { return hit_state; }
+    FORCE_INLINE static endstop_mask_t trigger_state() { return hit_state; }
 
     /**
      * Get current endstops state
      */
-    FORCE_INLINE static esbits_t state() {
+    FORCE_INLINE static endstop_mask_t state() {
       return
         #if ENDSTOP_NOISE_THRESHOLD
           validated_live_state
@@ -114,6 +166,14 @@ class Endstops {
           live_state
         #endif
       ;
+    }
+
+    static inline bool probe_switch_activated() {
+      return (true
+        #if ENABLED(PROBE_ACTIVATION_SWITCH)
+          && READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE
+        #endif
+      );
     }
 
     /**
@@ -164,7 +224,7 @@ class Endstops {
       typedef struct {
         union {
           bool any;
-          struct { bool x:1, y:1, z:1; };
+          struct { bool LINEAR_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1); };
         };
       } tmc_spi_homing_t;
       static tmc_spi_homing_t tmc_spi_homing;

@@ -22,16 +22,10 @@
 #pragma once
 
 /**
- * BIQU BQ111-A4
- *
- * Applies to the following boards:
- *
- *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
+ * BIQU BQ111-A4 pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1768)
-  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "BIQU BQ111-A4"
 
@@ -127,11 +121,11 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  #define SCK_PIN                          P0_15  // EXP1-5
-  #define MISO_PIN                         P0_16  // EXP1-4
-  #define MOSI_PIN                         P0_18  // EXP1-3
-  #define SS_PIN                           P1_30  // EXP1-2
-  #define SDSS                            SS_PIN
+  #define SD_SCK_PIN                       P0_15  // EXP1-5
+  #define SD_MISO_PIN                      P0_16  // EXP1-4
+  #define SD_MOSI_PIN                      P0_18  // EXP1-3
+  #define SD_SS_PIN                        P1_30  // EXP1-2
+  #define SDSS                         SD_SS_PIN
 
 #endif // SDSUPPORT
 

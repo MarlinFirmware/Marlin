@@ -32,8 +32,20 @@
 
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
+  typedef struct {
+    const unsigned char *bitmap;
+    const unsigned short duration;
+  } boot_frame_t;
+
   #include "../../../_Bootscreen.h"
 
+  #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED) && DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME) && !defined(CUSTOM_BOOTSCREEN_FRAME_TIME)
+    #define CUSTOM_BOOTSCREEN_FRAME_TIME 500 // (ms)
+  #endif
+
+  #ifndef CUSTOM_BOOTSCREEN_BMPWIDTH
+    #define CUSTOM_BOOTSCREEN_BMPWIDTH 128
+  #endif
   #ifndef CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH
     #define CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8)
   #endif
@@ -41,6 +53,13 @@
     #define CUSTOM_BOOTSCREEN_BMPHEIGHT (sizeof(custom_start_bmp) / (CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH))
   #endif
 
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #if ENABLED(CUSTOM_BOOTSCREEN_BOTTOM_JUSTIFY)
+      #define CUSTOM_BOOTSCREEN_Y (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT))
+    #else
+      #define CUSTOM_BOOTSCREEN_Y ((LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2)
+    #endif
+  #endif
 #endif
 
 #if ENABLED(BOOT_MARLIN_LOGO_SMALL)

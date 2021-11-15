@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+#
+# Build tests for AVR ATmega1280
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+#restore_configs
+#exec_test $1 $2 "Default Configuration" "$3"
+
+#
+# Test MESH_BED_LEVELING feature, with LCD
+#
+restore_configs
+opt_set LCD_LANGUAGE an \
+        POWER_MONITOR_CURRENT_PIN 14 POWER_MONITOR_VOLTAGE_PIN 15 \
+        CLOSED_LOOP_ENABLE_PIN 44 CLOSED_LOOP_MOVE_COMPLETE_PIN 45
+opt_enable SPINDLE_FEATURE ULTIMAKERCONTROLLER LCD_BED_LEVELING \
+           EEPROM_SETTINGS EEPROM_BOOT_SILENT EEPROM_AUTO_INIT \
+           SENSORLESS_BACKOFF_MM HOMING_BACKOFF_POST_MM HOME_Y_BEFORE_X CODEPENDENT_XY_HOMING \
+           MESH_BED_LEVELING ENABLE_LEVELING_FADE_HEIGHT MESH_G28_REST_ORIGIN \
+           G26_MESH_VALIDATION MESH_EDIT_MENU GCODE_QUOTED_STRINGS \
+           EXTERNAL_CLOSED_LOOP_CONTROLLER POWER_MONITOR_CURRENT POWER_MONITOR_VOLTAGE
+exec_test $1 $2 "Spindle, MESH_BED_LEVELING, closed loop, Power Monitor, and LCD" "$3"
+
+#
+# Test DUAL_X_CARRIAGE
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_ZRIB_V52 \
+        LCD_LANGUAGE pt REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 \
+        EXTRUDERS 2 TEMP_SENSOR_1 1
+opt_enable USE_XMAX_PLUG DUAL_X_CARRIAGE REPRAPWORLD_KEYPAD
+exec_test $1 $2 "ZRIB_V52 | DUAL_X_CARRIAGE" "$3"
+
+#
+# Delta Config (generic) + Probeless
+#
+use_example_configs delta/generic
+opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_AUTO_CALIBRATION DELTA_CALIBRATION_MENU
+exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBRATION_MENU" "$3"
+
+#
+# Delta Config (generic) + ABL bilinear + BLTOUCH
+#
+use_example_configs delta/generic
+opt_set LCD_LANGUAGE cz \
+        Z_MIN_PROBE_ENDSTOP_INVERTING false \
+        Z_MIN_ENDSTOP_INVERTING false
+opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR BLTOUCH
+exec_test $1 $2 "DELTA | RRD LCD | ABL Bilinear | BLTOUCH" "$3"
+
+# clean up
+restore_configs

@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
@@ -41,7 +40,7 @@
 //
 // SD CARD SPI
 //
-#define SDSS                              SS_PIN
+#define SDSS                           SD_SS_PIN
 
 //
 // Timers

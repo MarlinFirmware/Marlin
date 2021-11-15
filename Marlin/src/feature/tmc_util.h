@@ -70,9 +70,9 @@ class TMCStorage {
     }
 
     struct {
-      TERN_(HAS_STEALTHCHOP, bool stealthChop_enabled = false);
-      TERN_(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0);
-      TERN_(USE_SENSORLESS, int16_t homing_thrs = 0);
+      OPTCODE(HAS_STEALTHCHOP,  bool stealthChop_enabled = false)
+      OPTCODE(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0)
+      OPTCODE(USE_SENSORLESS,   int16_t homing_thrs = 0)
     } stored;
 };
 
@@ -300,7 +300,7 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
 template<typename TMC>
 void tmc_print_current(TMC &st) {
   st.printLabel();
-  SERIAL_ECHOLNPAIR(" driver current: ", st.getMilliamps());
+  SERIAL_ECHOLNPGM(" driver current: ", st.getMilliamps());
 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -322,7 +322,7 @@ void tmc_print_current(TMC &st) {
   template<typename TMC>
   void tmc_print_pwmthrs(TMC &st) {
     st.printLabel();
-    SERIAL_ECHOLNPAIR(" stealthChop max speed: ", st.get_pwm_thrs());
+    SERIAL_ECHOLNPGM(" stealthChop max speed: ", st.get_pwm_thrs());
   }
 #endif
 #if USE_SENSORLESS
@@ -330,19 +330,19 @@ void tmc_print_current(TMC &st) {
   void tmc_print_sgt(TMC &st) {
     st.printLabel();
     SERIAL_ECHOPGM(" homing sensitivity: ");
-    SERIAL_PRINTLN(st.homing_threshold(), DEC);
+    SERIAL_PRINTLN(st.homing_threshold(), PrintBase::Dec);
   }
 #endif
 
 void monitor_tmc_drivers();
-void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z, const bool test_e);
+void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_interval(const uint16_t update_interval);
   #endif
-  void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
-  void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
+  void tmc_report_all(LOGICAL_AXIS_DECL(const bool, true));
+  void tmc_get_registers(LOGICAL_AXIS_ARGS(const bool));
 #endif
 
 /**
@@ -355,16 +355,11 @@ void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z
 #if USE_SENSORLESS
 
   // Track enabled status of stealthChop and only re-enable where applicable
-  struct sensorless_t { bool x, y, z, x2, y2, z2, z3, z4; };
+  struct sensorless_t { bool LINEAR_AXIS_ARGS(), x2, y2, z2, z3, z4; };
 
   #if ENABLED(IMPROVE_HOMING_RELIABILITY)
     extern millis_t sg_guard_period;
     constexpr uint16_t default_sg_guard_duration = 400;
-
-    struct slow_homing_t {
-      xy_ulong_t acceleration;
-      TERN_(HAS_CLASSIC_JERK, xy_float_t jerk_xy);
-    };
   #endif
 
   bool tmc_enable_stallguard(TMC2130Stepper &st);

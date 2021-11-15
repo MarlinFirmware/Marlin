@@ -25,9 +25,7 @@
  * Mini-RAMBo pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'RAMBo' in 'Tools > Board' or the Mega2560 environment in PlatformIO."
-#endif
+#include "env_validate.h"
 
 #if MB(MINIRAMBO_10A)
   #define BOARD_INFO_NAME "Mini RAMBo 1.0a"
@@ -71,7 +69,7 @@
 #define E0_DIR_PIN                            43
 #define E0_ENABLE_PIN                         26
 
-// Microstepping pins - Mapping not from fastio.h (?)
+// Microstepping pins
 #define X_MS1_PIN                             40
 #define X_MS2_PIN                             41
 #define Y_MS1_PIN                             69
@@ -194,3 +192,9 @@
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
 #endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
+
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2               250
+  #define BOARD_ST7920_DELAY_3                 0
+#endif

@@ -31,7 +31,8 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-#if defined(MAX6675_SCK_PIN) && defined(MAX6675_DO_PIN) && (MAX6675_SCK_PIN == SCK1 || MAX6675_DO_PIN == MISO1)
+#if (defined(TEMP_0_SCK_PIN) && defined(TEMP_0_MISO_PIN) && (TEMP_0_SCK_PIN == SCK1 || TEMP_0_MISO_PIN == MISO1)) || \
+    (defined(TEMP_1_SCK_PIN) && defined(TEMP_1_MISO_PIN) && (TEMP_1_SCK_PIN == SCK1 || TEMP_1_MISO_PIN == MISO1))
   #error "OnBoard SPI BUS can't be shared with other devices."
 #endif
 
@@ -49,4 +50,8 @@
 
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
   #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on SAMD51."
+#endif
+
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  #error "POSTMORTEM_DEBUGGING is not yet supported on AGCM4."
 #endif
