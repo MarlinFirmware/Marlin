@@ -368,9 +368,17 @@
 #endif
 
 // Color UI
-#if ENABLED(TFT_COLOR_UI)
+#if EITHER(TFT_COLOR_UI, TFT_NEWCOLOR_UI)
   #define HAS_GRAPHICAL_TFT 1
   #define IS_ULTIPANEL 1
+#endif
+
+#if ENABLED(TFT_COLOR_UI)
+  #define HAS_COLOR_UI 1
+#endif
+
+#if ENABLED(TFT_NEWCOLOR_UI)
+  #define HAS_NEWCOLOR_UI 1
 #endif
 
 /**
@@ -1334,7 +1342,7 @@
   #endif
 #endif
 
-#if ENABLED(TFT_COLOR_UI)
+#if EITHER(TFT_COLOR_UI, TFT_NEWCOLOR_UI)
   #if TFT_HEIGHT == 240
     #if ENABLED(TFT_INTERFACE_SPI)
       #define TFT_320x240_SPI

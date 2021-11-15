@@ -375,7 +375,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
+#if ANY(TFT_COLOR_UI, TFT_NEWCOLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
   #define TFT_A0_PIN                          43
   #define TFT_CS_PIN                          49
