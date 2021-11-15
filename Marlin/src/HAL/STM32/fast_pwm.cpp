@@ -19,34 +19,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../platforms.h"
 
-#if NEEDS_HARDWARE_PWM
+#ifdef HAL_STM32
 
-#include "HAL.h"
+#include "../../inc/MarlinConfig.h"
 #include "timers.h"
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
 
   PinName pin_name = digitalPinToPinName(pin);
-  TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
-
-  LOOP_S_L_N(i, 0, NUM_HARDWARE_TIMERS) // Protect used timers
-    if (timer_instance[i] && timer_instance[i]->getHandle()->Instance == Instance)
-      return;
-
-  pwm_start(pin_name, f_desired, 0, RESOLUTION_8B_COMPARE_FORMAT);
-}
-
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
+
   uint16_t adj_val = Instance->ARR * v / v_size;
   if (invert) adj_val = Instance->ARR - adj_val;
-
   switch (get_pwm_channel(pin_name)) {
     case TIM_CHANNEL_1: LL_TIM_OC_SetCompareCH1(Instance, adj_val); break;
     case TIM_CHANNEL_2: LL_TIM_OC_SetCompareCH2(Instance, adj_val); break;
@@ -55,5 +43,21 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-#endif // NEEDS_HARDWARE_PWM
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#if NEEDS_HARDWARE_PWM
+
+  void set_pwm_frequency(const pin_t pin, int f_desired) {
+    if (!PWM_PIN(pin)) return;            // Don't proceed if no hardware timer
+
+    PinName pin_name = digitalPinToPinName(pin);
+    TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
+
+    LOOP_S_L_N(i, 0, NUM_HARDWARE_TIMERS) // Protect used timers
+      if (timer_instance[i] && timer_instance[i]->getHandle()->Instance == Instance)
+        return;
+
+    pwm_start(pin_name, f_desired, 0, RESOLUTION_8B_COMPARE_FORMAT);
+  }
+
+#endif
+
+#endif // HAL_STM32

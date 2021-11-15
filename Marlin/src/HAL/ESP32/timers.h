@@ -44,6 +44,9 @@ typedef uint64_t hal_timer_t;
 #ifndef PWM_TIMER_NUM
   #define PWM_TIMER_NUM         2  // index of timer to use for PWM outputs
 #endif
+#ifndef TONE_TIMER_NUM
+  #define TONE_TIMER_NUM        3  // index of timer for beeper tones
+#endif
 
 #define HAL_TIMER_RATE APB_CLK_FREQ // frequency of timer peripherals
 
@@ -58,6 +61,8 @@ typedef uint64_t hal_timer_t;
 #endif
 
 #define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
+
+#define TONE_TIMER_PRESCALE    1000 // Arbitrary value, no idea what i'm doing here
 
 #define TEMP_TIMER_PRESCALE    1000 // prescaler for setting Temp timer, 72Khz
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
@@ -90,11 +95,15 @@ typedef uint64_t hal_timer_t;
 #ifndef HAL_PWM_TIMER_ISR
   #define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler()
 #endif
+#ifndef HAL_TONE_TIMER_ISR
+  #define HAL_TONE_TIMER_ISR() extern "C" void toneTC_Handler()
+#endif
 
 extern "C" {
   void tempTC_Handler();
   void stepTC_Handler();
   void pwmTC_Handler();
+  void toneTC_Handler();
 }
 
 // ------------------------

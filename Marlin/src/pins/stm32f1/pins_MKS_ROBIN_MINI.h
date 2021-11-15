@@ -22,12 +22,12 @@
 #pragma once
 
 /**
- * MKS Robin mini (STM32F130VET6) board pin assignments
+ * MKS Robin mini (STM32F103VET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "MKS Robin mini only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -51,6 +51,13 @@
 #endif
 
 #define SPI_DEVICE                             2
+
+//
+// Servos
+//
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                        PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#endif
 
 //
 // Limit Switches
@@ -91,6 +98,7 @@
 #ifndef DEFAULT_PWM_MOTOR_CURRENT
   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
 #endif
+
 //
 // Temperature Sensors
 //
@@ -111,12 +119,10 @@
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PA3   // PW_OFF
 
-#ifndef SERVO0_PIN
-  #define SERVO0_PIN                        PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_PIN_STATE                  LOW
 #endif
-
-#define MT_DET_1_PIN                        PA4
-#define MT_DET_PIN_INVERTING               false
 
 #define WIFI_IO0_PIN                        PC13
 
@@ -190,8 +196,8 @@
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12  // Flash chip-select
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12  // Flash chip-select
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif

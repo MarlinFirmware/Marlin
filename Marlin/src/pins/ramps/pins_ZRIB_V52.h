@@ -32,11 +32,11 @@
 #define BOARD_INFO_NAME "ZRIB V5.2"
 
 #define MKS_BASE_VERSION                      14
-#define IS_RAMPS_EFB
 
 //
 // Heaters / Fans
 //
+#define HEATER_1_PIN                           7
 #define FAN_PIN                                9  // PH6 ** Pin18 ** PWM9
 #define FAN1_PIN                               6
 
@@ -47,7 +47,7 @@
 #define E2_DIR_PIN                             5
 #define E2_ENABLE_PIN                         22
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS
 
 /*
   Available connectors on MKS BASE v1.4 (Basically same as ZRIB V5.2)

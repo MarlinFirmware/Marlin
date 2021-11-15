@@ -48,8 +48,8 @@
 // cz         Czech
 // da         Danish
 // de         German
-// el         Greek
-// el_gr      Greek (Greece)
+// el         Greek (Greece)
+// el_CY      Greek (Cyprus)
 // en         English
 // es         Spanish
 // eu         Basque-Euskera
@@ -68,6 +68,7 @@
 // ro         Romanian
 // ru         Russian
 // sk         Slovak
+// sv         Swedish
 // tr         Turkish
 // uk         Ukrainian
 // vi         Vietnamese
@@ -91,7 +92,7 @@
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#define MARLIN_WEBSITE_URL "https://marlinfw.org"
+#define MARLIN_WEBSITE_URL "marlinfw.org"
 
 //#if !defined(STRING_SPLASH_LINE3) && defined(WEBSITE_URL)
 //  #define STRING_SPLASH_LINE3 WEBSITE_URL
@@ -129,7 +130,9 @@
 #define STR_COUNT_A                         " Count A:"
 #define STR_WATCHDOG_FIRED                  "Watchdog timeout. Reset required."
 #define STR_ERR_KILLED                      "Printer halted. kill() called!"
+#define STR_FLOWMETER_FAULT                 "Coolant flow fault. Flowmeter safety is active. Attention required."
 #define STR_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
+#define STR_ERR_SERIAL_MISMATCH             "Serial status mismatch"
 #define STR_BUSY_PROCESSING                 "busy: processing"
 #define STR_BUSY_PAUSED_FOR_USER            "busy: paused for user"
 #define STR_BUSY_PAUSED_FOR_INPUT           "busy: paused for input"
@@ -137,25 +140,7 @@
 #define STR_RESEND                          "Resend: "
 #define STR_UNKNOWN_COMMAND                 "Unknown command: \""
 #define STR_ACTIVE_EXTRUDER                 "Active Extruder: "
-#define STR_X_MIN                           "x_min"
-#define STR_X_MAX                           "x_max"
-#define STR_X2_MIN                          "x2_min"
-#define STR_X2_MAX                          "x2_max"
-#define STR_Y_MIN                           "y_min"
-#define STR_Y_MAX                           "y_max"
-#define STR_Y2_MIN                          "y2_min"
-#define STR_Y2_MAX                          "y2_max"
-#define STR_Z_MIN                           "z_min"
-#define STR_Z_MAX                           "z_max"
-#define STR_Z2_MIN                          "z2_min"
-#define STR_Z2_MAX                          "z2_max"
-#define STR_Z3_MIN                          "z3_min"
-#define STR_Z3_MAX                          "z3_max"
-#define STR_Z4_MIN                          "z4_min"
-#define STR_Z4_MAX                          "z4_max"
-#define STR_Z_PROBE                         "z_probe"
-#define STR_PROBE_EN                        "probe_en"
-#define STR_FILAMENT_RUNOUT_SENSOR          "filament"
+
 #define STR_PROBE_OFFSET                    "Probe Offset"
 #define STR_SKEW_MIN                        "min_skew_factor: "
 #define STR_SKEW_MAX                        "max_skew_factor: "
@@ -173,15 +158,14 @@
 #define STR_OFF                             "OFF"
 #define STR_ENDSTOP_HIT                     "TRIGGERED"
 #define STR_ENDSTOP_OPEN                    "open"
-#define STR_HOTEND_OFFSET                   "Hotend offsets:"
 #define STR_DUPLICATION_MODE                "Duplication mode: "
-#define STR_SOFT_ENDSTOPS                   "Soft endstops: "
 #define STR_SOFT_MIN                        "  Min: "
 #define STR_SOFT_MAX                        "  Max: "
 
 #define STR_SAVED_POS                       "Position saved"
 #define STR_RESTORING_POS                   "Restoring position"
 #define STR_INVALID_POS_SLOT                "Invalid slot. Total: "
+#define STR_DONE                            "Done."
 
 #define STR_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define STR_SD_INIT_FAIL                    "No SD card"
@@ -220,7 +204,7 @@
 
 // temperature.cpp strings
 #define STR_PID_AUTOTUNE_START              "PID Autotune start"
-#define STR_PID_BAD_EXTRUDER_NUM            "PID Autotune failed! Bad extruder number"
+#define STR_PID_BAD_HEATER_ID               "PID Autotune failed! Bad heater id"
 #define STR_PID_TEMP_TOO_HIGH               "PID Autotune failed! Temperature too high"
 #define STR_PID_TIMEOUT                     "PID Autotune failed! timeout"
 #define STR_BIAS                            " bias: "
@@ -245,6 +229,11 @@
 
 #define STR_HEATER_BED                      "bed"
 #define STR_HEATER_CHAMBER                  "chamber"
+#define STR_COOLER                          "cooler"
+#define STR_MOTHERBOARD                     "motherboard"
+#define STR_PROBE                           "probe"
+#define STR_REDUNDANT                       "redundant "
+#define STR_LASER_TEMP                      "laser temperature"
 
 #define STR_STOPPED_HEATER                  ", system stopped! Heater_ID: "
 #define STR_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
@@ -272,17 +261,87 @@
 #define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
 #define STR_PASSWORD_SET                    "Password is "
 
-// LCD Menu Messages
+// Settings Report Strings
+#define STR_Z_AUTO_ALIGN                    "Z Auto-Align"
+#define STR_BACKLASH_COMPENSATION           "Backlash compensation"
+#define STR_S_SEG_PER_SEC                   "S<seg-per-sec>"
+#define STR_DELTA_SETTINGS                  "Delta (L<diagonal-rod> R<radius> H<height> S<seg-per-sec> XYZ<tower-angle-trim> ABC<rod-trim>)"
+#define STR_SCARA_SETTINGS                  "SCARA"
+#define STR_POLARGRAPH_SETTINGS             "Polargraph"
+#define STR_SCARA_P_T_Z                     "P<theta-psi-offset> T<theta-offset> Z<home-offset>"
+#define STR_ENDSTOP_ADJUSTMENT              "Endstop adjustment"
+#define STR_SKEW_FACTOR                     "Skew Factor"
+#define STR_FILAMENT_SETTINGS               "Filament settings"
+#define STR_MAX_ACCELERATION                "Max Acceleration (units/s2)"
+#define STR_MAX_FEEDRATES                   "Max feedrates (units/s)"
+#define STR_ACCELERATION_P_R_T              "Acceleration (units/s2) (P<print-accel> R<retract-accel> T<travel-accel>)"
+#define STR_TOOL_CHANGING                   "Tool-changing"
+#define STR_HOTEND_OFFSETS                  "Hotend offsets"
+#define STR_SERVO_ANGLES                    "Servo Angles"
+#define STR_HOTEND_PID                      "Hotend PID"
+#define STR_BED_PID                         "Bed PID"
+#define STR_CHAMBER_PID                     "Chamber PID"
+#define STR_STEPS_PER_UNIT                  "Steps per unit"
+#define STR_LINEAR_ADVANCE                  "Linear Advance"
+#define STR_CONTROLLER_FAN                  "Controller Fan"
+#define STR_STEPPER_MOTOR_CURRENTS          "Stepper motor currents"
+#define STR_RETRACT_S_F_Z                   "Retract (S<length> F<feedrate> Z<lift>)"
+#define STR_RECOVER_S_F                     "Recover (S<length> F<feedrate>)"
+#define STR_AUTO_RETRACT_S                  "Auto-Retract (S<enable>)"
+#define STR_FILAMENT_LOAD_UNLOAD            "Filament load/unload"
+#define STR_POWER_LOSS_RECOVERY             "Power-loss recovery"
+#define STR_FILAMENT_RUNOUT_SENSOR          "Filament runout sensor"
+#define STR_DRIVER_STEPPING_MODE            "Driver stepping mode"
+#define STR_STEPPER_DRIVER_CURRENT          "Stepper driver current"
+#define STR_HYBRID_THRESHOLD                "Hybrid Threshold"
+#define STR_STALLGUARD_THRESHOLD            "StallGuard threshold"
+#define STR_HOME_OFFSET                     "Home offset"
+#define STR_SOFT_ENDSTOPS                   "Soft endstops"
+#define STR_MATERIAL_HEATUP                 "Material heatup parameters"
+#define STR_LCD_CONTRAST                    "LCD Contrast"
+#define STR_LCD_BRIGHTNESS                  "LCD Brightness"
+#define STR_UI_LANGUAGE                     "UI Language"
+#define STR_Z_PROBE_OFFSET                  "Z-Probe Offset"
+#define STR_TEMPERATURE_UNITS               "Temperature Units"
+#define STR_USER_THERMISTORS                "User thermistors"
 
-#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
-#define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
+//
+// Endstop Names used by Endstops::report_states
+//
+#define STR_X_MIN                           "x_min"
+#define STR_X_MAX                           "x_max"
+#define STR_X2_MIN                          "x2_min"
+#define STR_X2_MAX                          "x2_max"
 
-#define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
-#define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
+#if HAS_Y_AXIS
+  #define STR_Y_MIN                         "y_min"
+  #define STR_Y_MAX                         "y_max"
+  #define STR_Y2_MIN                        "y2_min"
+  #define STR_Y2_MAX                        "y2_max"
+#endif
 
+#if HAS_Z_AXIS
+  #define STR_Z_MIN                         "z_min"
+  #define STR_Z_MAX                         "z_max"
+  #define STR_Z2_MIN                        "z2_min"
+  #define STR_Z2_MAX                        "z2_max"
+  #define STR_Z3_MIN                        "z3_min"
+  #define STR_Z3_MAX                        "z3_max"
+  #define STR_Z4_MIN                        "z4_min"
+  #define STR_Z4_MAX                        "z4_max"
+#endif
+
+#define STR_Z_PROBE                         "z_probe"
+#define STR_PROBE_EN                        "probe_en"
+#define STR_FILAMENT                        "filament"
+
+// General axis names
 #define STR_X "X"
 #define STR_Y "Y"
 #define STR_Z "Z"
+#define STR_I AXIS4_STR
+#define STR_J AXIS5_STR
+#define STR_K AXIS6_STR
 #define STR_E "E"
 #if IS_KINEMATIC
   #define STR_A "A"
@@ -302,7 +361,113 @@
 #define LCD_STR_A STR_A
 #define LCD_STR_B STR_B
 #define LCD_STR_C STR_C
+#define LCD_STR_I STR_I
+#define LCD_STR_J STR_J
+#define LCD_STR_K STR_K
 #define LCD_STR_E STR_E
+
+// Extra Axis and Endstop Names
+#if LINEAR_AXES >= 4
+  #if AXIS4_NAME == 'A'
+    #define AXIS4_STR "A"
+    #define STR_I_MIN "a_min"
+    #define STR_I_MAX "a_max"
+  #elif AXIS4_NAME == 'B'
+    #define AXIS4_STR "B"
+    #define STR_I_MIN "b_min"
+    #define STR_I_MAX "b_max"
+  #elif AXIS4_NAME == 'C'
+    #define AXIS4_STR "C"
+    #define STR_I_MIN "c_min"
+    #define STR_I_MAX "c_max"
+  #elif AXIS4_NAME == 'U'
+    #define AXIS4_STR "U"
+    #define STR_I_MIN "u_min"
+    #define STR_I_MAX "u_max"
+  #elif AXIS4_NAME == 'V'
+    #define AXIS4_STR "V"
+    #define STR_I_MIN "v_min"
+    #define STR_I_MAX "v_max"
+  #elif AXIS4_NAME == 'W'
+    #define AXIS4_STR "W"
+    #define STR_I_MIN "w_min"
+    #define STR_I_MAX "w_max"
+  #else
+    #define AXIS4_STR "A"
+    #define STR_I_MIN "a_min"
+    #define STR_I_MAX "a_max"
+  #endif
+#else
+  #define AXIS4_STR   ""
+#endif
+
+#if LINEAR_AXES >= 5
+  #if AXIS5_NAME == 'A'
+    #define AXIS5_STR "A"
+    #define STR_J_MIN "a_min"
+    #define STR_J_MAX "a_max"
+  #elif AXIS5_NAME == 'B'
+    #define AXIS5_STR "B"
+    #define STR_J_MIN "b_min"
+    #define STR_J_MAX "b_max"
+  #elif AXIS5_NAME == 'C'
+    #define AXIS5_STR "C"
+    #define STR_J_MIN "c_min"
+    #define STR_J_MAX "c_max"
+  #elif AXIS5_NAME == 'U'
+    #define AXIS5_STR "U"
+    #define STR_J_MIN "u_min"
+    #define STR_J_MAX "u_max"
+  #elif AXIS5_NAME == 'V'
+    #define AXIS5_STR "V"
+    #define STR_J_MIN "v_min"
+    #define STR_J_MAX "v_max"
+  #elif AXIS5_NAME == 'W'
+    #define AXIS5_STR "W"
+    #define STR_J_MIN "w_min"
+    #define STR_J_MAX "w_max"
+  #else
+    #define AXIS5_STR "B"
+    #define STR_J_MIN "b_min"
+    #define STR_J_MAX "b_max"
+  #endif
+#else
+  #define AXIS5_STR   ""
+#endif
+
+#if LINEAR_AXES >= 6
+  #if AXIS6_NAME == 'A'
+    #define AXIS6_STR "A"
+    #define STR_K_MIN "a_min"
+    #define STR_K_MAX "a_max"
+  #elif AXIS6_NAME == 'B'
+    #define AXIS6_STR "B"
+    #define STR_K_MIN "b_min"
+    #define STR_K_MAX "b_max"
+  #elif AXIS6_NAME == 'C'
+    #define AXIS6_STR "C"
+    #define STR_K_MIN "c_min"
+    #define STR_K_MAX "c_max"
+  #elif AXIS6_NAME == 'U'
+    #define AXIS6_STR "U"
+    #define STR_K_MIN "u_min"
+    #define STR_K_MAX "u_max"
+  #elif AXIS6_NAME == 'V'
+    #define AXIS6_STR "V"
+    #define STR_K_MIN "v_min"
+    #define STR_K_MAX "v_max"
+  #elif AXIS6_NAME == 'W'
+    #define AXIS6_STR "W"
+    #define STR_K_MIN "w_min"
+    #define STR_K_MAX "w_max"
+  #else
+    #define AXIS6_STR "C"
+    #define STR_K_MIN "c_min"
+    #define STR_K_MAX "c_max"
+  #endif
+#else
+  #define AXIS6_STR   ""
+#endif
 
 #if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
@@ -380,6 +545,14 @@
 #define LCD_STR_E5 "E" LCD_STR_N5
 #define LCD_STR_E6 "E" LCD_STR_N6
 #define LCD_STR_E7 "E" LCD_STR_N7
+
+// Include localized LCD Menu Messages
+
+#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
+#define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
+
+#define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
+#define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
 
 // Use superscripts, if possible. Evaluated at point of use.
 #define SUPERSCRIPT_TWO   TERN(NOT_EXTENDED_ISO10646_1_5X7, "^2", "²")

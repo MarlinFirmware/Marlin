@@ -1,0 +1,53 @@
+{
+  "build": {
+    "core": "maple",
+    "cpu": "cortex-m3",
+    "extra_flags": "-DSTM32F103xE -DSTM32F1",
+    "f_cpu": "72000000L",
+    "hwids": [
+      [
+        "0x1EAF",
+        "0x0003"
+      ],
+      [
+        "0x1EAF",
+        "0x0004"
+      ]
+    ],
+    "libopencm3": {
+      "ldscript": "stm32f103xc.ld"
+    },
+    "mcu": "stm32f103rct6",
+    "variant": "marlin_MEEB_3DP"
+  },
+  "debug": {
+    "jlink_device": "STM32F103RC",
+    "openocd_target": "stm32f1x",
+    "svd_path": "STM32F103xx.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "cmsis",
+    "libopencm3",
+    "stm32cube"
+  ],
+  "name": "3D Printer control board for MEEB with 512k flash/rs422 bus/tmc2208 drivers",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 49152,
+    "maximum_size": 524288,
+    "protocol": "dfu",
+    "protocols": [
+      "jlink",
+      "stlink",
+      "blackmagic",
+      "serial",
+      "dfu"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://github.com/ccrobot-online/MEEB_3DP",
+  "vendor": "CCROBOT-ONLINE"
+}
