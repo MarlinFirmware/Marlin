@@ -620,7 +620,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(SP_Y_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Y_AXIS>),
   VPHELPER(SP_Z_POSITION, nullptr, nullptr, ScreenHandler.SendAxisTrustValue<Z_AXIS>),
 
-#if ENABLED(HAS_PROBE)
+#if ENABLED(HAS_BED_PROBE)
   VPHELPER(VP_Z_OFFSET, &probe.offset.z, ScreenHandler.HandleZoffsetChange<2>, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
 #elif ENABLED(BABYSTEPPING)
   VPHELPER(VP_Z_OFFSET, nullptr, ScreenHandler.HandleZoffsetChange<2>, ScreenHandler.DGUSLCD_SendZOffsetToDisplay<2>),
@@ -639,7 +639,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_SCREENCHANGE, nullptr, ScreenHandler.ScreenChangeHook, nullptr),
   VPHELPER(VP_CONFIRMED, nullptr, ScreenHandler.ScreenConfirmedOK, nullptr),
 
-#if ALL(HAS_PROBE_SETTINGS, HAS_PROBE)
+#if ALL(HAS_BED_PROBE_SETTINGS, HAS_BED_PROBE)
   VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_BUTTON, nullptr, ScreenHandler.HandleToggleProbeHeaters, nullptr),
   VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_ICON, &probe.settings.turn_heaters_off, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_ACCURACY_TOGGLE_ON, ICON_ACCURACY_TOGGLE_OFF>)),
 

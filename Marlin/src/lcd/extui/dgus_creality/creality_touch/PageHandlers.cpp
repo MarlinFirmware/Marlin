@@ -368,7 +368,7 @@ void MoveHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             break;
         case 4:
             // Temporary copy probe settings so we home without preheating, then restore setings afterward
-#if ALL(HAS_PROBE, HAS_PROBE_SETTINGS)
+#if ALL(HAS_BED_PROBE, HAS_PROBE_SETTINGS)
             auto prev_probe_settings = probe.settings;
 
             probe.settings.preheat_bed_temp = 0;
@@ -376,7 +376,7 @@ void MoveHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             probe.settings.stabilize_temperatures_after_probing = false;
 #endif
             ExtUI::injectCommands_P("G28");
-#if ALL(HAS_PROBE, HAS_PROBE_SETTINGS)
+#if ALL(HAS_BED_PROBE, HAS_PROBE_SETTINGS)
             while (queue.has_commands_queued()) queue.advance();
 
             // ... Restore settings

@@ -1434,7 +1434,7 @@ void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr, 
   int16_t steps = ExtUI::mmToWholeSteps(difference, ExtUI::axis_t::Z);
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
-#if ENABLED(HAS_PROBE) //  Without a probe the Z offset is applied using baby offsets, which aren't saved anyway.
+#if ENABLED(HAS_BED_PROBE) //  Without a probe the Z offset is applied using baby offsets, which aren't saved anyway.
   RequestSaveSettings();
 #endif
   ScreenHandler.ForceCompleteUpdate();
@@ -1492,7 +1492,7 @@ void DGUSScreenHandler::HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void 
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
-#if ALL(HAS_PROBE_SETTINGS, HAS_PROBE)
+#if ALL(HAS_PROBE_SETTINGS, HAS_BED_PROBE)
 void DGUSScreenHandler::HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *val_ptr) {
   probe.settings.turn_heaters_off = !probe.settings.turn_heaters_off;
 
