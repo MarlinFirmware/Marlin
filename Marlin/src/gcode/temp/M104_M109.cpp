@@ -125,7 +125,7 @@ void GcodeSuite::M104_M109(const bool isM109) {
       thermalManager.auto_job_check_timer(isM109, true);
     #endif
 
-    if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
+    if (isM109 && (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling))
       thermalManager.set_heating_message(target_extruder);
   }
 
