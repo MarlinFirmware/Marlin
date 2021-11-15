@@ -29,7 +29,7 @@
 #if HAS_FANCHECK
 
 #include "fancheck.h"
-#include "temperature.h"
+#include "../module/temperature.h"
 
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255 && DISABLED(FOURWIRES_FANS)
   bool FanCheck::measuring = false;
