@@ -254,12 +254,20 @@ Nozzle nozzle;
         break;
     }
 
-    do_blocking_move_to_xy(
-      TERN(NOZZLE_PARK_Y_ONLY, current_position, park).x,
-      TERN(NOZZLE_PARK_X_ONLY, current_position, park).y,
-      fr_xy
-    );
-
+	#if NOZZLE_PARK_MOVE == 0
+	  do_blocking_move_to_xy(park.x, park.y, fr_xy);
+	#elif NOZZLE_PARK_MOVE == 1
+	  do_blocking_move_to_x(park.x, fr_xy);
+	#elif NOZZLE_PARK_MOVE == 2
+	  do_blocking_move_to_y(park.y, fr_xy);
+	#elif NOZZLE_PARK_MOVE == 3
+	  do_blocking_move_to_x(park.x, fr_xy);
+	  do_blocking_move_to_y(park.y, fr_xy);
+	#elif NOZZLE_PARK_MOVE == 4
+	  do_blocking_move_to_y(park.y, fr_xy);
+	  do_blocking_move_to_x(park.x, fr_xy);
+	#endif
+ 
     report_current_position();
   }
 
