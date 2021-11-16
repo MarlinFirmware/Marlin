@@ -88,6 +88,7 @@ void EasythreedUI::blinkLED() {
 
 //
 // Filament Load/Unload Button
+// Load/Unload buttons are a 3 position switch with a common center ground. 
 //
 void EasythreedUI::loadButton() {
   if (printingIsActive()) return;
@@ -99,7 +100,7 @@ void EasythreedUI::loadButton() {
   switch (filament_status) {
 
     case FS_IDLE:
-      if (!READ(BTN_RETRACT) || !READ(BTN_FEED)) {                  // If feed or retract button is pressed...
+      if (!READ(BTN_RETRACT) || !READ(BTN_FEED)) {                  // If feed/retract switch is toggled...
         filament_status++;                                          // ...proceed to next test.
         filament_time = millis();
       }
@@ -107,18 +108,18 @@ void EasythreedUI::loadButton() {
 
     case FS_PRESS:
       if (ELAPSED(millis(), filament_time + BTN_DEBOUNCE_MS)) {     // After a short debounce delay...
-        if (!READ(BTN_RETRACT) || !READ(BTN_FEED)) {                // ...if button(s) still pressed...
+        if (!READ(BTN_RETRACT) || !READ(BTN_FEED)) {                // ...if switch still toggled...
           thermalManager.setTargetHotend(EXTRUDE_MINTEMP + 10, 0);  // Start heating up
           blink_interval_ms = LED_BLINK_7;                          // Set the LED to blink fast
           filament_status++;
         }
         else
-          filament_status = FS_IDLE;                                // Button(s) not pressed long enough
+          filament_status = FS_IDLE;                                // Switch not toggled long enough
       }
       break;
 
     case FS_CHECK:
-      if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Buttons are both released?
+      if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Switch in center position (stop)
         blink_interval_ms = LED_ON;                                 // LED on steady
         filament_status = FS_IDLE;
         thermalManager.disable_all_heaters();
@@ -130,17 +131,17 @@ void EasythreedUI::loadButton() {
       break;
 
     case FS_PROCEED: {
-      // Feed or Retract just once. Hard abort all moves and return to idle on button release.
+      // Feed or Retract just once. Hard abort all moves and return to idle on swicth release.
       static bool flag = false;
-      if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Feed / retract button released?
+      if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Switch in center position (stop)
         flag = false;                                               // Restore flag to false
         filament_status = FS_IDLE;                                  // Go back to idle state
         quickstop_stepper();                                        // Hard-stop all the steppers ... now!
         thermalManager.disable_all_heaters();                       // And disable all the heaters
+        blink_interval_ms = LED_ON;
       }
       else if (!flag) {
         flag = true;
-        //blink_interval_ms = LED_BLINK_5;                          // Keep blinking at the same rate set above
         queue.inject(!READ(BTN_RETRACT) ? F("G91\nG0 E10 F180\nG0 E-120 F180\nM104 S0") : F("G91\nG0 E100 F120\nM104 S0"));
       }
     } break;
@@ -189,47 +190,52 @@ void EasythreedUI::printButton() {
       key_status = KS_IDLE;                                         // Ready for the next press
       if (PENDING(ms, key_time + 1200 - BTN_DEBOUNCE_MS)) {         // Register a press < 1.2 seconds
         switch (print_key_flag) {
-          case PF_START:                                            // The "Print" button starts an SD card print
-            if (!printingIsActive()) {                              // Not already printing?
-              card.mount();                                         // Force SD card to mount - now!
-              if (!card.isMounted) {                                // Failed to mount?
+          case PF_START: {                                          // The "Print" button starts an SD card print
+            if (printingIsActive()) return;                         // Already printing? (find another line that checks for 'is planner doing anything else right now?')
+            card.mount();                                           // Force SD card to mount - now!
+            if (!card.isMounted) {                                  // Failed to mount?
                 blink_interval_ms = LED_OFF;                        // Turn off LED
                 print_flag = false;                                 // Clear previous print flag
+                print_key_flag = PF_START;
                 return;                                             // Bail out
-              }
-              card.ls();                                            // List all files to serial output
-              const uint16_t filecnt = card.countFilesInWorkDir();  // Count printable files in cwd
-              if (filecnt == 0) return;                             // None are printable?
-              card.selectFileByIndex(filecnt);                      // Select the last file according to current sort options
-              card.openAndPrintFile(card.filename);                 // Start printing it
-              blink_interval_ms = LED_BLINK_2;                      // Blink the indicator LED at 1 second intervals
-              print_flag = true;                                    // Tell EasythreedUI printing should be active
-              print_key_flag = PF_PAUSE;                            // The "Print" button now pauses the print
             }
+            card.ls();                                            // List all files to serial output
+            const uint16_t filecnt = card.countFilesInWorkDir();  // Count printable files in cwd
+            if (filecnt == 0) return;                             // None are printable?
+            card.selectFileByIndex(filecnt);                      // Select the last file according to current sort options
+            card.openAndPrintFile(card.filename);                 // Start printing it
+                                                                  // these lines doesn't seem to fire, as print_key_flag remains at PF_START, and LED does not change. This explains why Pause function does not work
+            blink_interval_ms = LED_BLINK_2;                      // Blink the indicator LED at 1 second intervals
+            print_flag = true;                                    // Tell EasythreedUI printing should be active
+            print_key_flag = PF_PAUSE;                            // The "Print" button now pauses the print
             break;
+          }
           case PF_PAUSE:                                            // Pause printing (not currently firing)
             blink_interval_ms = LED_ON;                             // Set indicator to steady ON
-            card.pauseSDPrint();                                    // Unceremoniously pause the SD print in progress
+            if (IS_SD_PRINTING()) card.pauseSDPrint();              // Unceremoniously pause the SD print in progress
+            //queue.inject(F("M25"));                               // queued commands take a while to run
             print_key_flag = PF_RESUME;                             // The "Print" button now resumes the print
             break;
-          case PF_RESUME:                                           // Resume printing (not currently firing)
+          case PF_RESUME:                                           // Resume printing 
             blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
             card.startOrResumeFilePrinting();                       // Unceremoniously resume the SD print in progress
+            //queue.inject(F("M24"));
             print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
             break;
         }
       }
+          // Issue: print_key_flag flag is never set tp pf start
       else {                                                        // Register a longer press
-        if (print_key_flag == PF_START) {                           // While not printing, this moves Z up 10mm
+        if (print_key_flag == PF_START && !printingIsActive())  {   // While not printing, this moves Z up 10mm
           blink_interval_ms = LED_ON;
           queue.inject(F("G91\nG0 Z10 F600\nG90"));                 // Raise Z soon after returning to main loop
         }
+
         else {                                                      // While printing, cancel print
-          wait_for_heatup = false;                                  // Break out of any wait-for-heating loop
-          quickstop_stepper();                                      // Hard-stop all steppers
-          thermalManager.disable_all_heaters();                     // Turn off all heaters
+          card.abortFilePrintSoon();                                // There is a delay while the current steps play out
           print_flag = false;
           blink_interval_ms = LED_OFF;                              // Turn off LED
+          
         }
         planner.synchronize();                                      // Wait for commands already in the planner to finish
         TERN_(HAS_STEPPER_RESET, disableStepperDrivers());          // Disable all steppers - now!
