@@ -1716,13 +1716,18 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
   return axis_steps * steps_to_mm[axis];
 }
 
+bool Planner::busy() {
+  return has_blocks_queued() || cleaning_buffer_counter
+      || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
+  );
+}
+
 /**
  * Block until all buffered steps are executed / cleaned
  */
 void Planner::synchronize() {
-  while (has_blocks_queued() || cleaning_buffer_counter
-      || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-  ) idle();
+  while (busy())
+    idle();
 }
 
 /**

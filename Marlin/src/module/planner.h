@@ -879,6 +879,9 @@ class Planner {
     // Triggered position of an axis in mm (not core-savvy)
     static float triggered_position_mm(const AxisEnum axis);
 
+    // Some buffered steps to be executed / cleaned
+    static bool busy();
+    
     // Block until all buffered steps are executed / cleaned
     static void synchronize();
 
