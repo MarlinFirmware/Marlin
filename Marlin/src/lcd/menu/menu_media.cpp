@@ -79,7 +79,7 @@ class MenuItem_sdfile : public MenuItem_sdbase {
           strcpy(buffer + 1, longest);
           MenuItem_confirm::select_screen(
             GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
-            sdcard_start_selected_file, ui.goto_previous_screen,
+            sdcard_start_selected_file, nullptr,
             GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
           );
         });

@@ -43,7 +43,7 @@ void GcodeSuite::M304() {
 
 void GcodeSuite::M304_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_BED_PID));
-  SERIAL_ECHO_MSG(
+  SERIAL_ECHOLNPGM(
       "  M304 P", thermalManager.temp_bed.pid.Kp
     , " I", unscalePID_i(thermalManager.temp_bed.pid.Ki)
     , " D", unscalePID_d(thermalManager.temp_bed.pid.Kd)

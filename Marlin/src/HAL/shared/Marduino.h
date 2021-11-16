@@ -39,7 +39,7 @@
 #define DISABLED(V...) DO(DIS,&&,V)
 
 #undef _BV
-#define _BV(b) (1UL << (b))
+#define _BV(b) (1 << (b))
 #ifndef SBI
   #define SBI(A,B) (A |= _BV(B))
 #endif
@@ -83,7 +83,7 @@
 #endif
 
 #ifndef FORCE_INLINE
-  #define FORCE_INLINE inline __attribute__((always_inline))
+  #define FORCE_INLINE __attribute__((always_inline)) inline
 #endif
 
 #include "progmem.h"

@@ -133,7 +133,7 @@ static void say_stealth_status() {
  */
 void GcodeSuite::M569() {
   if (parser.seen('S'))
-    set_stealth_status(parser.value_bool(), get_target_e_stepper_from_command());
+    set_stealth_status(parser.value_bool(), get_target_e_stepper_from_command(0));
   else
     say_stealth_status();
 }

@@ -93,7 +93,7 @@ void GcodeSuite::M360() {
   //
   #if HAS_CLASSIC_JERK
     if (planner.max_jerk.x == planner.max_jerk.y)
-      config_line(F("XY"), planner.max_jerk.x, JERK_STR);
+      config_line(F("XY"), planner.max_jerk.x, FPSTR(JERK_STR));
     else {
       config_line(X_STR, planner.max_jerk.x, JERK_STR);
       config_line(Y_STR, planner.max_jerk.y, JERK_STR);
@@ -110,15 +110,15 @@ void GcodeSuite::M360() {
     PGMSTR(UNRET_STR, "RetractionUndo");
     PGMSTR(SPEED_STR, "Speed");
     // M10 Retract with swap (long) moves
-    config_line(F("Length"),     fwretract.settings.retract_length, RET_STR);
-    config_line(SPEED_STR,          fwretract.settings.retract_feedrate_mm_s, RET_STR);
-    config_line(F("ZLift"),      fwretract.settings.retract_zraise, RET_STR);
-    config_line(F("LongLength"), fwretract.settings.swap_retract_length, RET_STR);
+    config_line(F("Length"),     fwretract.settings.retract_length, FPSTR(RET_STR));
+    config_line(SPEED_STR,       fwretract.settings.retract_feedrate_mm_s, RET_STR);
+    config_line(F("ZLift"),      fwretract.settings.retract_zraise, FPSTR(RET_STR));
+    config_line(F("LongLength"), fwretract.settings.swap_retract_length, FPSTR(RET_STR));
     // M11 Recover (undo) with swap (long) moves
-    config_line(SPEED_STR,               fwretract.settings.retract_recover_feedrate_mm_s, UNRET_STR);
-    config_line(F("ExtraLength"),     fwretract.settings.retract_recover_extra, UNRET_STR);
-    config_line(F("ExtraLongLength"), fwretract.settings.swap_retract_recover_extra, UNRET_STR);
-    config_line(F("LongSpeed"),       fwretract.settings.swap_retract_recover_feedrate_mm_s, UNRET_STR);
+    config_line(SPEED_STR,            fwretract.settings.retract_recover_feedrate_mm_s, UNRET_STR);
+    config_line(F("ExtraLength"),     fwretract.settings.retract_recover_extra, FPSTR(UNRET_STR));
+    config_line(F("ExtraLongLength"), fwretract.settings.swap_retract_recover_extra, FPSTR(UNRET_STR));
+    config_line(F("LongSpeed"),       fwretract.settings.swap_retract_recover_feedrate_mm_s, FPSTR(UNRET_STR));
   #endif
 
   //

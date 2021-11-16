@@ -32,7 +32,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "JGAurora A5S A1 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 

@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -134,9 +134,12 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA1   // HEATER1
-#define HEATER_BED_PIN                      PA2   // HOT BED
-
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                      PA1   // HEATER1
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                    PA2   // HOT BED
+#endif
 #ifndef FAN_PIN
   #define FAN_PIN                           PA0   // FAN
 #endif

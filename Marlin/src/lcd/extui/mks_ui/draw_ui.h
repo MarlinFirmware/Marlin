@@ -143,8 +143,8 @@
 
   #define PARA_UI_ARROW_V          12
 
-  #define PARA_UI_BACL_POS_X        400
-  #define PARA_UI_BACL_POS_Y        270
+  #define PARA_UI_BACK_POS_X        400
+  #define PARA_UI_BACK_POS_Y        270
 
   #define PARA_UI_TURN_PAGE_POS_X   320
   #define PARA_UI_TURN_PAGE_POS_Y   270
@@ -270,7 +270,7 @@ typedef enum {
   PAUSE_UI,
   EXTRUSION_UI,
   FAN_UI,
-  PRE_HEAT_UI,
+  PREHEAT_UI,
   CHANGE_SPEED_UI,
   TEMP_UI,
   SET_UI,
@@ -304,15 +304,14 @@ typedef enum {
   MACHINE_SETTINGS_UI,
   TEMPERATURE_SETTINGS_UI,
   MOTOR_SETTINGS_UI,
-  MACHINETYPE_UI,
+  MACHINE_TYPE_UI,
   STROKE_UI,
   HOME_DIR_UI,
   ENDSTOP_TYPE_UI,
   FILAMENT_SETTINGS_UI,
-  LEVELING_SETTIGNS_UI,
   LEVELING_PARA_UI,
   DELTA_LEVELING_PARA_UI,
-  MANUAL_LEVELING_POSIGION_UI,
+  MANUAL_LEVELING_POSITION_UI,
   MAXFEEDRATE_UI,
   STEPS_UI,
   ACCELERATION_UI,
@@ -325,7 +324,7 @@ typedef enum {
   DOUBLE_Z_UI,
   ENABLE_INVERT_UI,
   NUMBER_KEY_UI,
-  BABY_STEP_UI,
+  BABYSTEP_UI,
   ERROR_MESSAGE_UI,
   PAUSE_POS_UI,
   TMC_CURRENT_UI,
@@ -336,7 +335,7 @@ typedef enum {
   ENCODER_SETTINGS_UI,
   TOUCH_CALIBRATION_UI,
   GCODE_UI,
-  MEDIA_SELECT_UI,
+  MEDIA_SELECT_UI
 } DISP_STATE;
 
 typedef struct {
@@ -468,6 +467,7 @@ void lv_eom_hook(void *);
 void GUI_RefreshPage();
 void clear_cur_ui();
 void draw_return_ui();
+void goto_previous_ui();
 void sd_detection();
 void gCfg_to_spiFlah();
 void print_time_count();

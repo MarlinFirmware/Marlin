@@ -54,7 +54,7 @@ namespace Language_hr {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Postavi home offsete");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsets postavljeni");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Postavi ishodište");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Predgrij ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");
