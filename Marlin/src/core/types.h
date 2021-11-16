@@ -82,7 +82,7 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+  #if EITHER(IS_CORE, MARKFORGED_XY)
     , X_HEAD, Y_HEAD, Z_HEAD
   #endif
 
