@@ -84,11 +84,11 @@ public:
           }
           else {
             return position_is_reachable(rx, ry)
-              && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
+                && position_is_reachable(rx + offset_xy.x, ry + offset_xy.y, PROBING_MARGIN);
           }
         }
       #else
-        static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
+        static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) {
           return position_is_reachable(rx, ry)
               && position_is_reachable(rx, ry, PROBING_MARGIN);
         }
@@ -134,7 +134,7 @@ public:
 
     static bool set_deployed(const bool) { return false; }
 
-    static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) { return position_is_reachable(rx, ry); }
+    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(rx, ry); }
 
   #endif
 
