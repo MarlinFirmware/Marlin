@@ -146,6 +146,7 @@ vc-fileutils.settings
 #Simulation
 imgui.ini
 eeprom.dat
+spi_flash.bin
 
 #cmake
 CMakeLists.txt
