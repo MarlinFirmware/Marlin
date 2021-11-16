@@ -175,30 +175,30 @@ public:
         TERN_(DELTA, DELTA_PRINTABLE_RADIUS)
         TERN_(IS_SCARA, SCARA_PRINTABLE_RADIUS)
       );
-      static constexpr float probe_radius(const xy_pos_t &probe_offset_xy = offset_xy) {
+      static constexpr float probe_radius(const xy_pos_t &probe_offset_xy=offset_xy) {
         return printable_radius - _MAX(PROBING_MARGIN, HYPOT(probe_offset_xy.x, probe_offset_xy.y));
       }
     #endif
 
-    static constexpr float _min_x(const xy_pos_t &probe_offset_xy = offset_xy) {
+    static constexpr float _min_x(const xy_pos_t &probe_offset_xy=offset_xy) {
       return TERN(IS_KINEMATIC,
         (X_CENTER) - probe_radius(probe_offset_xy),
         _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + probe_offset_xy.x)
       );
     }
-    static constexpr float _max_x(const xy_pos_t &probe_offset_xy = offset_xy) {
+    static constexpr float _max_x(const xy_pos_t &probe_offset_xy=offset_xy) {
       return TERN(IS_KINEMATIC,
         (X_CENTER) + probe_radius(probe_offset_xy),
         _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + probe_offset_xy.x)
       );
     }
-    static constexpr float _min_y(const xy_pos_t &probe_offset_xy = offset_xy) {
+    static constexpr float _min_y(const xy_pos_t &probe_offset_xy=offset_xy) {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) - probe_radius(probe_offset_xy),
         _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + probe_offset_xy.y)
       );
     }
-    static constexpr float _max_y(const xy_pos_t &probe_offset_xy = offset_xy) {
+    static constexpr float _max_y(const xy_pos_t &probe_offset_xy=offset_xy) {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) + probe_radius(probe_offset_xy),
         _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + probe_offset_xy.y)
