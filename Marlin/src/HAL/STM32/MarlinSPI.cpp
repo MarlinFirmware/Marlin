@@ -114,6 +114,9 @@ byte MarlinSPI::transfer(uint8_t _data) {
   return rxData;
 }
 
+__STATIC_INLINE void LL_SPI_EnableDMAReq_RX(SPI_TypeDef *SPIx) { SET_BIT(SPIx->CR2, SPI_CR2_RXDMAEN); }
+__STATIC_INLINE void LL_SPI_EnableDMAReq_TX(SPI_TypeDef *SPIx) { SET_BIT(SPIx->CR2, SPI_CR2_TXDMAEN); }
+
 uint8_t MarlinSPI::dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16_t length) {
   const uint8_t ff = 0xFF;
 
