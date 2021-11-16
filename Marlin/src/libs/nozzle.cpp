@@ -254,21 +254,11 @@ Nozzle nozzle;
         break;
     }
 
-  #if ENABLED(NOZZLE_PARK_MOVE)
-	#if (NOZZLE_PARK_MOVE == 'X')
-	  do_blocking_move_to_x(park.x, fr_xy);
-	#elif (NOZZLE_PARK_MOVE == 'Y')
-	  do_blocking_move_to_y(park.y, fr_xy);
-	#elif (NOZZLE_PARK_MOVE == "XY")
-	  do_blocking_move_to_x(park.x, fr_xy);
-	  do_blocking_move_to_y(park.y, fr_xy);
-	#elif (NOZZLE_PARK_MOVE == "YX")
-	  do_blocking_move_to_y(park.y, fr_xy);
-	  do_blocking_move_to_x(park.x, fr_xy);
-	#endif
-  #else // move both XY at same time
-	do_blocking_move_to_xy(park.x, park.y, fr_xy);
-   #endif
+    do_blocking_move_to_xy(
+      TERN(NOZZLE_PARK_Y_ONLY, current_position, park).x,
+      TERN(NOZZLE_PARK_X_ONLY, current_position, park).y,
+      fr_xy
+    );
 
     report_current_position();
   }
