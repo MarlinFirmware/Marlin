@@ -91,10 +91,6 @@
   #include "../feature/power.h"
 #endif
 
-#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-  #include "../feature/closedloop.h"
-#endif
-
 #if ENABLED(BACKLASH_COMPENSATION)
   #include "../feature/backlash.h"
 #endif
@@ -1716,19 +1712,10 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
   return axis_steps * steps_to_mm[axis];
 }
 
-bool Planner::busy() {
-  return (has_blocks_queued() || cleaning_buffer_counter
-      || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-  );
-}
-
 /**
- * Block until all buffered steps are executed / cleaned
+ * Block until the planner is finished processing
  */
-void Planner::synchronize() {
-  while (busy())
-    idle();
-}
+void Planner::synchronize() { while (busy()) idle(); }
 
 /**
  * Planner::_buffer_steps
