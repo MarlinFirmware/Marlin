@@ -198,13 +198,13 @@ namespace DWINUI {
   // Get font character width
   uint8_t fontWidth(uint8_t cfont);
 
-  // Get font character heigh
+  // Get font character height
   uint8_t fontHeight(uint8_t cfont);
 
-  // Get screen x coodinates from text column
+  // Get screen x coordinates from text column
   uint16_t ColToX(uint8_t col);
 
-  // Get screen y coodinates from text row
+  // Get screen y coordinates from text row
   uint16_t RowToY(uint8_t row);
 
   // Set text/number color

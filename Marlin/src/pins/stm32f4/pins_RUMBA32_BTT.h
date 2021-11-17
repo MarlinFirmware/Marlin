@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * No offical schematics have been found.
+ * No official schematics have been found.
  * But these differences where noted in https://github.com/bigtreetech/Rumba32/issues/1
  */
 
