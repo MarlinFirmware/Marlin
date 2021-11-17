@@ -1921,7 +1921,7 @@
 #define UHS_VID_AACOM 0x0fb9U // AACom Corp.
 #define UHS_VID_SAN_SHING_ELECTRONICS 0x0fbaU // San Shing Electronics Co., Ltd
 #define UHS_VID_BITWISE_SYSTEMS 0x0fbbU // Bitwise Systems, Inc.
-#define UHS_VID_MITAC_INTERNATINAL 0x0fc1U // Mitac Internatinal Corp.
+#define UHS_VID_MITAC_INTERNATIONAL 0x0fc1U // Mitac International Corp.
 #define UHS_VID_PLUG_AND_JACK_INDUSTRIAL 0x0fc2U // Plug and Jack Industrial, Inc.
 #define UHS_VID_DELCOM_ENGINEERING 0x0fc5U // Delcom Engineering
 #define UHS_VID_DATAPLUS_SUPPLIES 0x0fc6U // Dataplus Supplies, Inc.
