@@ -1453,10 +1453,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       status_message_reset_ms = 0;
       level = alert_level = 0;
     }
+    else if (level < alert_level)
+      return;
     else
       status_message_reset_ms = millis() + 2000;
 
-    if (level < alert_level) return;
     alert_level = level;
 
     TERN_(HOST_PROMPT_SUPPORT, hostui.notify(fstr));
@@ -1490,16 +1491,17 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   #include <stdarg.h>
 
-  void MarlinUI::status_printf(uint8_t level, FSTR_P const fmt, ...) {
+  void MarlinUI::status_printf(int8_t level, FSTR_P const fmt, ...) {
 
     if (level < 0) {
       status_message_reset_ms = 0;
       level = alert_level = 0;
     }
+    else if (level < alert_level)
+      return;
     else
       status_message_reset_ms = millis() + 2000;
 
-    if (level < alert_level) return;
     alert_level = level;
     va_list args;
     va_start(args, FTOP(fmt));
@@ -1685,7 +1687,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::set_status(FSTR_P const fstr, const int8_t) {
     TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
   }
-  void MarlinUI::status_printf(const uint8_t, FSTR_P const fstr, ...) {
+  void MarlinUI::status_printf(const int8_t, FSTR_P const fstr, ...) {
     TERN(HOST_PROMPT_SUPPORT, hostui.notify(fstr), UNUSED(fstr));
   }
 

@@ -353,7 +353,7 @@ public:
 
   static void set_status(const char * const cstr, const bool persist=false);
   static void set_status(FSTR_P const fstr, const int8_t level=0);
-  static void status_printf(const uint8_t level, FSTR_P const fmt, ...);
+  static void status_printf(const int8_t level, FSTR_P const fmt, ...);
 
   #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
