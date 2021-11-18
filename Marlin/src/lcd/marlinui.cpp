@@ -1398,6 +1398,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     strncpy(status_message, cstr, maxLen);
     status_message[maxLen] = '\0';
 
+    status_message_reset_ms = (persist ? 0 : millis() + 2000);
+
     finish_status(persist);
   }
 
@@ -1415,6 +1417,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #if SERVICE_INTERVAL_3 > 0
       static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
     #endif
+
     FSTR_P msg;
     if (printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
@@ -1445,7 +1448,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   void MarlinUI::set_status(FSTR_P const fstr, int8_t level) {
     PGM_P const pstr = FTOP(fstr);
-    if (level < 0) level = alert_level = 0;
+
+    if (level < 0) {
+      status_message_reset_ms = 0;
+      level = alert_level = 0;
+    }
+    else
+      status_message_reset_ms = millis() + 2000;
+
     if (level < alert_level) return;
     alert_level = level;
 
@@ -1480,13 +1490,22 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   #include <stdarg.h>
 
-  void MarlinUI::status_printf(const uint8_t level, FSTR_P const fmt, ...) {
+  void MarlinUI::status_printf(uint8_t level, FSTR_P const fmt, ...) {
+
+    if (level < 0) {
+      status_message_reset_ms = 0;
+      level = alert_level = 0;
+    }
+    else
+      status_message_reset_ms = millis() + 2000;
+
     if (level < alert_level) return;
     alert_level = level;
     va_list args;
     va_start(args, FTOP(fmt));
     vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, FTOP(fmt), args);
     va_end(args);
+
     finish_status(level > 0);
   }
 
