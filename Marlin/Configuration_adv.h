@@ -1201,7 +1201,11 @@
   #define FINE_MANUAL_MOVE 0.025    // (mm) Smallest manual move (< 0.1mm) applying to Z on most machines
   #if IS_ULTIPANEL
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
-    #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
+    #if ENABLED(STATUS_FLOW_INSTEAD_OF_FEEDRATE)
+      #define ULTIPANEL_FLOWMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
+    #else
+      #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
+    #endif
   #endif
 #endif
 
@@ -1217,6 +1221,13 @@
 #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
   #define FEEDRATE_CHANGE_BEEP_DURATION   10
   #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
+#endif
+
+// Play a beep when the flowrate is changed from the Status Screen
+//#define BEEP_ON_FLOWRATE_CHANGE
+#if ENABLED(BEEP_ON_FLOWRATE_CHANGE)
+  #define FLOWRATE_CHANGE_BEEP_DURATION   10
+  #define FLOWRATE_CHANGE_BEEP_FREQUENCY 880
 #endif
 
 #if HAS_LCD_MENU

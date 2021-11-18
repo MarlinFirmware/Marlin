@@ -636,11 +636,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
     #endif
 
-    #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
+    #if EITHER(ULTIPANEL_FEEDMULTIPLY, ULTIPANEL_FLOWMULTIPLY)
 
-      const int16_t old_frm = feedrate_percentage;
-            int16_t new_frm = old_frm + int16_t(encoderPosition);
-
+      #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
+        const int16_t old_frm = feedrate_percentage;
+      #endif
+      #if ENABLED(ULTIPANEL_FLOWMULTIPLY)
+        const int16_t old_frm = planner.flow_percentage[active_extruder];
+      #endif
+      int16_t new_frm = old_frm + int16_t(encoderPosition);
       // Dead zone at 100% feedrate
       if (old_frm == 100) {
         if (int16_t(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
@@ -656,21 +660,38 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       LIMIT(new_frm, 10, 999);
 
       if (old_frm != new_frm) {
-        feedrate_percentage = new_frm;
-        encoderPosition = 0;
-        #if BOTH(HAS_BUZZER, BEEP_ON_FEEDRATE_CHANGE)
-          static millis_t next_beep;
-          #ifndef GOT_MS
-            const millis_t ms = millis();
-          #endif
-          if (ELAPSED(ms, next_beep)) {
-            buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
-            next_beep = ms + 500UL;
-          }
+        #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
+          planner. = new_frm;
         #endif
+        #if ENABLED(ULTIPANEL_FLOWMULTIPLY)
+          planner.flow_percentage[active_extruder] = new_frm;
+        #endif
+        encoderPosition = 0;
+        #if ENABLED(HAS_BUZZER)
+          #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+            static millis_t next_beep;
+            #ifndef GOT_MS
+              const millis_t ms = millis();
+            #endif
+            if (ELAPSED(ms, next_beep)) {
+              buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+              next_beep = ms + 500UL;
+            }
+          #endif //BEEP_ON_FEEDRATE_CHANGE
+          #if ENABLED(BEEP_ON_FLOWRATE_CHANGE)
+            static millis_t next_beep;
+            #ifndef GOT_MS
+              const millis_t ms = millis();
+            #endif
+            if (ELAPSED(ms, next_beep)) {
+              buzz(FLOWRATE_CHANGE_BEEP_DURATION, FLOWRATE_CHANGE_BEEP_FREQUENCY);
+              next_beep = ms + 500UL;
+            }
+          #endif //BEEP_ON_FLOWRATE_CHANGE
+        #endif //HAS_BUZZER
       }
 
-    #endif // ULTIPANEL_FEEDMULTIPLY
+    #endif // ULTIPANEL_FEEDMULTIPLY or ULTIPANEL_FLOWMULTIPLY
 
     draw_status_screen();
   }
