@@ -661,7 +661,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
       if (old_frm != new_frm) {
         #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
-          planner. = new_frm;
+          feedrate_percentage = new_frm;
         #endif
         #if ENABLED(ULTIPANEL_FLOWMULTIPLY)
           planner.flow_percentage[active_extruder] = new_frm;
