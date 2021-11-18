@@ -1398,7 +1398,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     strncpy(status_message, cstr, maxLen);
     status_message[maxLen] = '\0';
 
-    status_message_reset_ms = (persist ? 0 : millis() + 2000);
+    status_message_reset_ms = (persist ? 0 : millis() + STATUS_MESSAGE_TIMEOUT);
 
     finish_status(persist);
   }
@@ -1456,7 +1456,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     else if (level < alert_level)
       return;
     else
-      status_message_reset_ms = millis() + 2000;
+      status_message_reset_ms = millis() + STATUS_MESSAGE_TIMEOUT;
 
     alert_level = level;
 
@@ -1500,7 +1500,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     else if (level < alert_level)
       return;
     else
-      status_message_reset_ms = millis() + 2000;
+      status_message_reset_ms = millis() + STATUS_MESSAGE_TIMEOUT ;
 
     alert_level = level;
     va_list args;
