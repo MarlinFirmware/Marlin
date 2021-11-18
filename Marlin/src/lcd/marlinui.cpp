@@ -75,6 +75,8 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
   uint8_t MarlinUI::alert_level; // = 0
+  millis_t MarlinUI::status_message_reset_ms; // will reset message if the expired time reached.
+
 #endif
 
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -621,6 +623,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       #endif // PROGRESS_MSG_EXPIRE
 
     #endif // BASIC_PROGRESS_BAR
+
+    #if HAS_STATUS_MESSAGE
+      #ifndef GOT_MS
+        const millis_t ms = millis();
+      #endif
+      if (status_message_reset_ms && ELAPSED(ms, status_message_reset_ms))
+        reset_status();
+    #endif
 
     #if HAS_LCD_MENU
       if (use_click()) {
