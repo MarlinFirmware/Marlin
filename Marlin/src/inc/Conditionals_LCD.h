@@ -538,6 +538,13 @@
   #define HAS_STATUS_MESSAGE 1
 #endif
 
+#if HAS_STATUS_MESSAGE
+  // The timeout (in ms) to reset status message
+  #ifndef STATUS_MESSAGE_TIMEOUT
+    #define STATUS_MESSAGE_TIMEOUT           15000
+  #endif
+#endif
+
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
   #define HAS_LCD_MENU 1
 #endif

@@ -1304,11 +1304,6 @@
   //#define LCD_SHOW_E_TOTAL
 #endif
 
-#if HAS_STATUS_MESSAGE
-  // The timeout (in ms) to reset status message
-  #define STATUS_MESSAGE_TIMEOUT           15000
-#endif
-
 // LCD Print Progress options
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
   #if CAN_SHOW_REMAINING_TIME
