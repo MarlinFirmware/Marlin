@@ -160,7 +160,6 @@ void EasythreedUI::printButton() {
   enum KeyStatus : uint8_t { KS_IDLE, KS_PRESS, KS_PROCEED };
   static uint8_t key_status = KS_IDLE;
   static millis_t key_time = 0;
-  static bool print_flag = false;
 
   enum PrintFlag : uint8_t { PF_START, PF_PAUSE, PF_RESUME };
   static PrintFlag print_key_flag = PF_START;
@@ -169,11 +168,6 @@ void EasythreedUI::printButton() {
 
   switch (key_status) {
     case KS_IDLE:
-      if (print_flag && !printingIsActive()) {                      // Reset states if printing state went to inactive
-        print_flag = false;
-        print_key_flag = PF_START;
-        blink_interval_ms = LED_ON;
-      }
       if (!READ(BTN_PRINT)) {                                       // Print/Pause/Resume button pressed?
         key_time = ms;                                              // Save start time
         key_status++;                                               // Go to debounce test
@@ -191,11 +185,12 @@ void EasythreedUI::printButton() {
       if (PENDING(ms, key_time + 1200 - BTN_DEBOUNCE_MS)) {         // Register a press < 1.2 seconds
         switch (print_key_flag) {
           case PF_START: {                                          // The "Print" button starts an SD card print
-            if (printingIsActive()) return;                         // Already printing? (find another line that checks for 'is planner doing anything else right now?')
+            if (printingIsActive()) break;                          // Already printing? (find another line that checks for 'is planner doing anything else right now?')
+            blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
+            print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
             card.mount();                                           // Force SD card to mount - now!
             if (!card.isMounted) {                                  // Failed to mount?
                 blink_interval_ms = LED_OFF;                        // Turn off LED
-                print_flag = false;                                 // Clear previous print flag
                 print_key_flag = PF_START;
                 return;                                             // Bail out
             }
@@ -204,36 +199,31 @@ void EasythreedUI::printButton() {
             if (filecnt == 0) return;                             // None are printable?
             card.selectFileByIndex(filecnt);                      // Select the last file according to current sort options
             card.openAndPrintFile(card.filename);                 // Start printing it
-                                                                  // these lines doesn't seem to fire, as print_key_flag remains at PF_START, and LED does not change. This explains why Pause function does not work
-            blink_interval_ms = LED_BLINK_2;                      // Blink the indicator LED at 1 second intervals
-            print_flag = true;                                    // Tell EasythreedUI printing should be active
-            print_key_flag = PF_PAUSE;                            // The "Print" button now pauses the print
             break;
           }
-          case PF_PAUSE:                                            // Pause printing (not currently firing)
+          case PF_PAUSE: {                                          // Pause printing (not currently firing)
+            if (!printingIsActive()) break;
             blink_interval_ms = LED_ON;                             // Set indicator to steady ON
-            if (IS_SD_PRINTING()) card.pauseSDPrint();              // Unceremoniously pause the SD print in progress
-            //queue.inject(F("M25"));                               // queued commands take a while to run
+            queue.inject(F("M25"));                                 // Queue Pause
             print_key_flag = PF_RESUME;                             // The "Print" button now resumes the print
             break;
-          case PF_RESUME:                                           // Resume printing 
+            }
+          case PF_RESUME: {                                         // Resume printing 
+            if (printingIsActive()) break;
             blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
-            card.startOrResumeFilePrinting();                       // Unceremoniously resume the SD print in progress
-            //queue.inject(F("M24"));
+            queue.inject(F("M24"));                                 // Queue resume
             print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
             break;
+          }
         }
       }
-          // Issue: print_key_flag flag is never set tp pf start
       else {                                                        // Register a longer press
         if (print_key_flag == PF_START && !printingIsActive())  {   // While not printing, this moves Z up 10mm
           blink_interval_ms = LED_ON;
           queue.inject(F("G91\nG0 Z10 F600\nG90"));                 // Raise Z soon after returning to main loop
         }
-
         else {                                                      // While printing, cancel print
           card.abortFilePrintSoon();                                // There is a delay while the current steps play out
-          print_flag = false;
           blink_interval_ms = LED_OFF;                              // Turn off LED
           
         }
@@ -244,5 +234,4 @@ void EasythreedUI::printButton() {
       break;
   }
 }
-
 #endif // EASYTHREED_UI
