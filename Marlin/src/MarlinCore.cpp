@@ -1353,6 +1353,9 @@ void setup() {
   #endif
 
   #if HAS_BED_PROBE
+    #if PIN_EXISTS(PROBE_ENABLE)
+      OUT_WRITE(PROBE_ENABLE_PIN, LOW); // Disable
+    #endif
     SETUP_RUN(endstops.enable_z_probe(false));
   #endif
 
