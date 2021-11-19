@@ -287,15 +287,19 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
 #if HAS_TOUCH_SLEEP
 
   void Touch::sleepTimeout() {
-    #if PIN_EXISTS(TFT_BACKLIGHT)
-      TERN(HAS_LCD_BRIGHTNESS, ui.set_brightness(0), OUT_WRITE(TFT_BACKLIGHT_PIN, LOW));
+    #if HAS_LCD_BRIGHTNESS
+      ui.set_brightness(0);
+    #elif PIN_EXISTS(TFT_BACKLIGHT)
+      WRITE(TFT_BACKLIGHT_PIN, LOW);
     #endif
     next_sleep_ms = TSLP_SLEEPING;
   }
   void Touch::wakeUp() {
     if (isSleeping()) {
-      #if PIN_EXISTS(TFT_BACKLIGHT)
-        TERN(HAS_LCD_BRIGHTNESS, ui.set_brightness(ui.brightness), WRITE(TFT_BACKLIGHT_PIN, HIGH));
+      #if HAS_LCD_BRIGHTNESS
+        ui.set_brightness(ui.brightness);
+      #elif PIN_EXISTS(TFT_BACKLIGHT)
+        WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
     next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
