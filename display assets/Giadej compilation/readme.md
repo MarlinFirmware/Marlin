@@ -8,7 +8,7 @@
 [**Click to Download**](https://downgit.github.io/#/home?url=https://github.com/mriscoc/Marlin_Ender3v2/tree/Ender3v2-Released/display%20assets/Giadej%20compilation/DWIN_SET)  
   
 1. Get an µSD card of 8GB or less.
-1. Format the µSD card with a 4 KB sector size
+1. Format the µSD card MBR, FAT32 and with a 4 KB sector size
 1. Copy the `DWIN_SET` directory in the Root of SD
 1. Turn off your printer
 1. Disconnect and dissasembly the screen unit
@@ -24,7 +24,7 @@
 inside of the DWIN_SET folder.  
 
 If you wasn't able to update the display, verify the format of the µSD Card
-(FAT32 and allocation unit of 4096 bytes) and the CRC of the files.  
+(MBR, FAT32 and allocation unit of 4096 bytes) and the CRC of the files.  
   
 
 <img src="../DWIN_SET-folder.jpg"  height="350" />
