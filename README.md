@@ -33,6 +33,22 @@ Download earlier versions of Marlin on the [Releases page](https://github.com/Ma
 2. Neopixel LEDs: hier die Zwischenbeschaltung 5VDC Board <-> Neopixel durchdenken (Inrush-Current!)
 3. V6 Metall Druckkopf mit Bowden-Extruder
 
+## Steinerbrd: Uebernaechstes Level: Rahmenupgrade
+[Sachen zu drucken](https://www.thingiverse.com/thing:2263216)
+
+
+Sachen zu kaufen:
+Groesse des neuen Druckers bzw. Bettsize muss noch geklaert werden!!!
+1. Item-Rahmen
+2. Pulleys mit Lager (2 Stk.)
+3. Pulleys fuer Schrittmotoren (2 Stk.)
+4. Zahnriemen (Meterware)
+5. Linearlager (X-Achse: 4, Y-Achse: 4, Z-Achse: 2 ==> wenn alle lager ersetzt werden sollen)
+6. Linearfuehrungen (X-Achse: 2, Y-Achse: 2, Z-Achse: 2 ==> y Linearfuerhungen koennen evtl. behalten werden)
+7. Z Axis Coupling (2 Stk.)
+8. Teil, das unter das Bett kommt (==> damit mit der neuen y-Motorhalterung keine Kollision auftritt)
+
+
 ## Building Marlin 2.0
 
 To build Marlin 2.0 you'll need [Arduino IDE 1.8.8 or newer](https://www.arduino.cc/en/main/software) or [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
