@@ -914,7 +914,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(BABYSTEPPING)
   #if ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
-  #elif BOTH(EITHER(MARKFORGED_XY, MARKFORGED_YX), BABYSTEP_XY)
+  #elif EITHER(MARKFORGED_XY, MARKFORGED_YX) && ENABLED(BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on MarkForged."
   #elif BOTH(DELTA, BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
