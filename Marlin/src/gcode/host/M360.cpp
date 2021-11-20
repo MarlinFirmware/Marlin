@@ -162,7 +162,8 @@ void GcodeSuite::M360() {
     TERN_(DELTA,         "Delta")
     TERN_(IS_SCARA,      "SCARA")
     TERN_(IS_CORE,       "Core")
-	TERN_(EITHER(MARKFORGED_XY, MARKFORGED_YX), "MarkForged")
+	TERN_(MARKFORGED_XY, "MarkForgedXY")
+    TERN_(MARKFORGED_YX, "MarkForgedYX")
     TERN_(IS_CARTESIAN,  "Cartesian")
   );
 
