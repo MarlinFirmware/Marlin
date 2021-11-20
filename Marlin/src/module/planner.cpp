@@ -1745,7 +1745,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     else
       axis_steps = stepper.position(axis);
 
-  #elif ENABLED(MARKFORGED_XY)
+  #elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
 
     // Requesting one of the joined axes?
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
@@ -1943,6 +1943,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     if (dc < 0) SBI(dm, Z_AXIS);
     if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
     if (db < 0) SBI(dm, B_AXIS);                // Motor B direction
+  #elif ENABLED(MARKFORGED_YX)
+    if (da < 0) SBI(dm, X_HEAD);                // Save the toolhead's true direction in X
+    if (db < 0) SBI(dm, Y_HEAD);                // ...and Y
+    if (dc < 0) SBI(dm, Z_AXIS);
+    if (da < 0) SBI(dm, A_AXIS);           		// Motor A direction
+    if (db + da < 0) SBI(dm, B_AXIS);           // Motor B direction
   #else
     LINEAR_AXIS_CODE(
       if (da < 0) SBI(dm, X_AXIS),
@@ -1998,6 +2004,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db + dc), ABS(db - dc), ABS(di), ABS(dj), ABS(dk)));
   #elif ENABLED(MARKFORGED_XY)
     block->steps.set(LINEAR_AXIS_LIST(ABS(da + db), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
+  #elif ENABLED(MARKFORGED_YX)
+    block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db + da), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #elif IS_SCARA
     block->steps.set(LINEAR_AXIS_LIST(ABS(da), ABS(db), ABS(dc), ABS(di), ABS(dj), ABS(dk)));
   #else
@@ -2014,7 +2022,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
    * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
    */
   struct DistanceMM : abce_float_t {
-    #if EITHER(IS_CORE, MARKFORGED_XY)
+    #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
       struct { float x, y, z; } head;
     #endif
   } steps_dist_mm;
@@ -2053,6 +2061,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     steps_dist_mm.z      = dc * mm_per_step[Z_AXIS];
     steps_dist_mm.a      = (da - db) * mm_per_step[A_AXIS];
     steps_dist_mm.b      = db * mm_per_step[B_AXIS];
+  #elif ENABLED(MARKFORGED_YX)
+    steps_dist_mm.head.x = da * mm_per_step[A_AXIS];
+    steps_dist_mm.head.y = db * mm_per_step[B_AXIS];
+    steps_dist_mm.z      = dc * mm_per_step[Z_AXIS];
+    steps_dist_mm.a      = da * mm_per_step[A_AXIS];
+    steps_dist_mm.b      = (db - da) * mm_per_step[B_AXIS];
   #else
     LINEAR_AXIS_CODE(
       steps_dist_mm.a = da * mm_per_step[A_AXIS],
@@ -2084,7 +2098,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       block->millimeters = millimeters;
     else {
       block->millimeters = SQRT(
-        #if EITHER(CORE_IS_XY, MARKFORGED_XY)
+        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
           LINEAR_AXIS_GANG(
               sq(steps_dist_mm.head.x), + sq(steps_dist_mm.head.y), + sq(steps_dist_mm.z),
             + sq(steps_dist_mm.i),      + sq(steps_dist_mm.j),      + sq(steps_dist_mm.k)
@@ -2163,7 +2177,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   // Enable active axes
-  #if EITHER(CORE_IS_XY, MARKFORGED_XY)
+  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     if (block->steps.a || block->steps.b) {
       stepper.enable_axis(X_AXIS);
       stepper.enable_axis(Y_AXIS);
@@ -2193,7 +2207,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (block->steps.k) stepper.enable_axis(K_AXIS)
     );
   #endif
-  #if EITHER(IS_CORE, MARKFORGED_XY)
+  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     #if LINEAR_AXES >= 4
       if (block->steps.i) stepper.enable_axis(I_AXIS);
     #endif
@@ -2551,7 +2565,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
      * => normalize the complete junction vector.
      * Elsewise, when needed JD will factor-in the E component
      */
-    if (EITHER(IS_CORE, MARKFORGED_XY) || esteps > 0)
+    if (ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX) || esteps > 0)
       normalize_junction_vector(unit_vec);  // Normalize with XYZE components
     else
       unit_vec *= inverse_millimeters;      // Use pre-calculated (1 / SQRT(x^2 + y^2 + z^2))

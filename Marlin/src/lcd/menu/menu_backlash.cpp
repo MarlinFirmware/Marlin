@@ -38,7 +38,7 @@ void menu_backlash() {
 
   EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
 
-  #if DISABLED(CORE_BACKLASH) || ENABLED(MARKFORGED_XY)
+  #if DISABLED(CORE_BACKLASH) || EITHER(MARKFORGED_XY, MARKFORGED_YX)
     #define _CAN_CALI AXIS_CAN_CALIBRATE
   #else
     #define _CAN_CALI(A) true
