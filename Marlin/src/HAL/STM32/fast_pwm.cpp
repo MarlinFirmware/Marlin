@@ -79,6 +79,12 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
 
   uint32_t index = get_timer_index(Instance);
 
+  // Protect used timers
+  if (index == TEMP_TIMER_NUM || index == STEP_TIMER_NUM) return;
+  #if PULSE_TIMER_NUM != STEP_TIMER_NUM
+    if (index == PULSE_TIMER_NUM) return;
+  #endif
+
   if (HardwareTimer_Handle[index] == NULL) // If frequency is set before duty we need to create a handle here. 
   HardwareTimer_Handle[index]->__this = new HardwareTimer((TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM));
   HT = (HardwareTimer *)(HardwareTimer_Handle[index]->__this);
