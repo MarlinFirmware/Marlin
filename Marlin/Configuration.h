@@ -2557,7 +2557,7 @@
     #define X_BED_SIZE 230
     #define Y_BED_SIZE 230
     #define Z_MAX_POS 250
-    #define X_MAX_POS 250
+    #define X_MAX_POS 245
     #define Y_MAX_POS 250
     #define ClipClearance 15
   #elif(ANY(MachineEnder4, MachineEnder5))
