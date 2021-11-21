@@ -41,10 +41,8 @@
 // Motion > Level Bed handlers
 //
 
-static uint8_t manual_probe_index;
 static xy_int8_t meshCount;
 xy_pos_t probePos;
-static constexpr xy_uint8_t grid_points = {GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y};
 bool zig;
 int8_t inStart, inStop, inInc;
 float measured_z;
@@ -53,19 +51,18 @@ bool was_leveling_active;
 #if ABL_USES_GRID
 #if ENABLED(PROBE_Y_FIRST)
 #define PR_OUTER_VAR meshCount.x
-#define PR_OUTER_SIZE grid_points.x
+#define PR_OUTER_SIZE PROBE_OFFSET_MESH_GRID_MAX_POINTS_X
 #define PR_INNER_VAR meshCount.y
-#define PR_INNER_SIZE grid_points.y
+#define PR_INNER_SIZE PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y
 #else
 #define PR_OUTER_VAR meshCount.y
-#define PR_OUTER_SIZE grid_points.y
+#define PR_OUTER_SIZE PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y
 #define PR_INNER_VAR meshCount.x
-#define PR_INNER_SIZE grid_points.x
+#define PR_INNER_SIZE PROBE_OFFSET_MESH_GRID_MAX_POINTS_X
 #endif
 #endif
 
-// LCD probed points are from defaults
-constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
+constexpr uint8_t total_probe_points = PROBE_OFFSET_MESH_GRID_MAX_POINTS_X * PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y;
 
 //
 // Bed leveling is done. Wait for G29 to complete.
@@ -107,11 +104,10 @@ void _lcd_level_goto_next_point_outer();
 
 void set_offset_and_go_to_next_point() {
   //Set Z offset at probed point
-  z_offset_mesh[meshCount.x][meshCount.y] = current_position.z - measured_z;
+  z_offset_mesh[meshCount.x][meshCount.y] = probe.offset.z + current_position.z - measured_z;
 
   //Go to next point
   PR_INNER_VAR += inInc;
-  manual_probe_index++;
   ui.goto_screen(_lcd_level_goto_next_point_inner);
 }
 
@@ -157,7 +153,13 @@ void _lcd_probe_offset_mesh_moving()
   if (ui.should_draw())
   {
     char msg[10];
-    sprintf_P(msg, PSTR("%i / %u"), int(manual_probe_index + 1), total_probe_points);
+    int probe_index =
+      #if ENABLED(PROBE_Y_FIRST)
+        meshCount.y + 1 + PROBE_OFFSET_MESH_GRID_MAX_POINTS_X * meshCount.x;
+      #else
+        meshCount.x + 1 + PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y * meshCount.y;
+      #endif
+    sprintf_P(msg, PSTR("%i / %u"), probe_index, total_probe_points);
     MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_LEVEL_BED_NEXT_POINT), msg);
   }
   ui.refresh(LCDVIEW_CALL_NO_REDRAW);
@@ -184,15 +186,18 @@ void _lcd_level_goto_next_point_inner()
           do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
       #endif
 
-      probePos = bilinear_start + bilinear_grid_spacing * meshCount.asFloat();
+      xy_pos_t start;
+      start.set(probe.min_x(), probe.min_y());
+
+      probePos = start + z_offset_mesh_grid_spacing * meshCount.asFloat();
       measured_z = probe.probe_at_point(probePos, PROBE_PT_STOW);
       current_position += probe.offset_xy;
+      current_position.z = PROBE_OFFSET_MESH_START_Z - probe.offset.z + measured_z;
       line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
       ui.wait_for_move = false;
     } else {
       //Go to next point
       PR_INNER_VAR += inInc;
-      manual_probe_index++;
       //ui.goto_screen(_lcd_level_goto_next_point_inner);
     }
   } else {
@@ -245,17 +250,15 @@ void _lcd_probe_offset_mesh_homing_done() {
 
   if (ui.use_click())
   {
-    
     // Initialize grid variables in case they are not initialized yet
-    if (bilinear_grid_spacing.x == 0 && bilinear_grid_spacing.y == 0){
-      bilinear_grid_spacing.set((probe.max_x() - probe.min_x()) / (grid_points.x - 1),
-                                (probe.max_y() - probe.min_y()) / (grid_points.y - 1));
-      bilinear_start.set(probe.min_x(), probe.min_y());
+    if (z_offset_mesh_grid_spacing.x == 0 && z_offset_mesh_grid_spacing.y == 0){
+      z_offset_mesh_grid_spacing.set( (probe.max_x() - probe.min_x()) / (PROBE_OFFSET_MESH_GRID_MAX_POINTS_X - 1),
+                                      (probe.max_y() - probe.min_y()) / (PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y - 1));
+      z_offset_mesh_grid_factor = z_offset_mesh_grid_spacing.reciprocal();                               
     }
 
     zig = PR_OUTER_SIZE & 1; // Always end at RIGHT and BACK_PROBE_BED_POSITION
     PR_OUTER_VAR = 0;
-    manual_probe_index = 0;
 
     SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 

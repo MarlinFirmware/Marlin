@@ -1237,8 +1237,19 @@
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      //Enable to use a mesh for the Z-offset instead of a fixed Z-offset
+      // Enable to use a mesh for the Z-offset instead of a fixed Z-offset. 
       #define PROBE_OFFSET_MESH
+      #if ENABLED(PROBE_OFFSET_MESH)
+        //
+        // Enable to init the Probe Z-Offset when starting the Wizard.
+        // Use a height slightly above the estimated nozzle-to-probe Z offset.
+        // For example, with an offset of -5, consider a starting height of -4.
+        //
+        #define PROBE_OFFSET_MESH_START_Z 0.0
+        // Set the number of grid points per dimension.
+        #define PROBE_OFFSET_MESH_GRID_MAX_POINTS_X 3
+        #define PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y PROBE_OFFSET_MESH_GRID_MAX_POINTS_X
+      #endif
     #endif
   #endif
 

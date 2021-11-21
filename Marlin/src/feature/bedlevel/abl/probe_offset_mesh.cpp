@@ -4,28 +4,28 @@
 #include "../bedlevel.h"
 #include "probe_offset_mesh.h"
 
-bed_mesh_t z_offset_mesh;
+probe_offset_mesh_t z_offset_mesh;
+xy_pos_t z_offset_mesh_grid_spacing;
+xy_float_t z_offset_mesh_grid_factor;
 
 void print_z_offset_grid() {
   SERIAL_ECHOLNPGM("Z-Offset Grid:");
-  print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3,
+  print_2d_array(PROBE_OFFSET_MESH_GRID_MAX_POINTS_X, PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y, 3,
     [](const uint8_t ix, const uint8_t iy) { return z_offset_mesh[ix][iy]; }
   );
 }
 
-#if ENABLED(ABL_BILINEAR_SUBDIVISION)
-  #define ABL_BG_SPACING(A) bilinear_grid_spacing_virt.A
-  #define ABL_BG_FACTOR(A)  bilinear_grid_factor_virt.A
-  #define ABL_BG_POINTS_X   ABL_GRID_POINTS_VIRT_X
-  #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_VIRT_Y
-  #define ABL_BG_GRID(X,Y)  z_values_virt[X][Y]
-#else
-  #define ABL_BG_SPACING(A) bilinear_grid_spacing.A
-  #define ABL_BG_FACTOR(A)  bilinear_grid_factor.A
-  #define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
-  #define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
-  #define ABL_BG_GRID(X,Y)  z_offset_mesh[X][Y]
-#endif
+
+#define ABL_BG_SPACING(A) z_offset_mesh_grid_spacing.A
+#define ABL_BG_FACTOR(A)  z_offset_mesh_grid_factor.A
+#define ABL_BG_POINTS_X   GRID_MAX_POINTS_X
+#define ABL_BG_POINTS_Y   GRID_MAX_POINTS_Y
+#define ABL_BG_GRID(X,Y)  z_offset_mesh[X][Y]
+
+// Refresh after other values have been updated
+void refresh_probe_offset_mesh() {
+  z_offset_mesh_grid_factor = z_offset_mesh_grid_spacing.reciprocal();
+}
 
 // Get the Z adjustment for non-linear bed leveling
 float z_offset_mesh_from_raw_position(const xy_pos_t &raw) {
