@@ -297,7 +297,7 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   void Touch::wakeUp() {
     if (isSleeping()) {
       #if HAS_LCD_BRIGHTNESS
-        ui._set_brightness();
+        ui.set_brightness(ui.brightness);
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
