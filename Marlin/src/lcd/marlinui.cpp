@@ -49,6 +49,7 @@ MarlinUI ui;
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "fontutils.h"
   #include "e3v2/enhanced/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
@@ -69,7 +70,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-  #if BOTH(HAS_WIRED_LCD, STATUS_MESSAGE_SCROLLING)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
@@ -134,14 +135,25 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
-#if PREHEAT_COUNT
+#if HAS_PREHEAT
+  #include "../module/temperature.h"
+
   preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
+
   PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
     #define _PDEF(N) static PGMSTR(preheat_##N##_label, PREHEAT_##N##_LABEL);
     #define _PLBL(N) preheat_##N##_label,
     REPEAT_1(PREHEAT_COUNT, _PDEF);
     static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT_1(PREHEAT_COUNT, _PLBL) };
     return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
+  }
+
+  void MarlinUI::apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e/*=active_extruder*/) {
+    const preheat_t &pre = material_preset[m];
+    TERN_(HAS_HOTEND,           if (TEST(pmask, PM_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
+    TERN_(HAS_HEATED_BED,       if (TEST(pmask, PM_BED))     thermalManager.setTargetBed(pre.bed_temp));
+    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PM_CHAMBER)) thermalManager.setTargetBed(pre.chamber_temp));
+    TERN_(HAS_FAN,              if (TEST(pmask, PM_FAN))     thermalManager.set_fan_speed(0, pre.fan_speed));
   }
 #endif
 
@@ -1470,11 +1482,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   void MarlinUI::finish_status(const bool persist) {
 
-    #if HAS_WIRED_LCD
+    UNUSED(persist);
 
-      #if !(BASIC_PROGRESS_BAR && (PROGRESS_MSG_EXPIRE) > 0)
-        UNUSED(persist);
-      #endif
+    #if HAS_WIRED_LCD
 
       #if BASIC_PROGRESS_BAR || BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         const millis_t ms = millis();
@@ -1491,13 +1501,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         next_filament_display = ms + 5000UL; // Show status message for 5s
       #endif
 
-      TERN_(STATUS_MESSAGE_SCROLLING, status_scroll_offset = 0);
-    #else // HAS_WIRED_LCD
-      UNUSED(persist);
+    #endif
+
+    #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
+      status_scroll_offset = 0;
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
-    TERN_(HAS_DWIN_E3V2_BASIC, DWIN_StatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_CheckStatusMessage());
     TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
   }
 

@@ -128,7 +128,7 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../feature/probe_temp_comp.h"
 #endif
 
@@ -267,13 +267,16 @@ typedef struct SettingsDataStruct {
   //
   // Temperature first layer compensation values
   //
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
-    int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)], // M871 P I V
-            z_offsets_bed[COUNT(temp_comp.z_offsets_bed)]      // M871 B I V
-            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
-            #endif
-            ;
+  #if HAS_PTC
+    #if ENABLED(PTC_PROBE)
+      int16_t z_offsets_probe[COUNT(ptc.z_offsets_probe)]; // M871 P I V
+    #endif
+    #if ENABLED(PTC_BED)
+      int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
+    #endif
+    #if ENABLED(PTC_HOTEND)
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
+    #endif
   #endif
 
   //
@@ -320,7 +323,7 @@ typedef struct SettingsDataStruct {
   //
   // Material Presets
   //
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     preheat_t ui_material_preset[PREHEAT_COUNT];        // M145 S0 H B F
   #endif
 
@@ -856,11 +859,15 @@ void MarlinSettings::postprocess() {
     //
     // Thermal first layer compensation values
     //
-    #if ENABLED(PROBE_TEMP_COMPENSATION)
-      EEPROM_WRITE(temp_comp.z_offsets_probe);
-      EEPROM_WRITE(temp_comp.z_offsets_bed);
-      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        EEPROM_WRITE(temp_comp.z_offsets_ext);
+    #if HAS_PTC
+      #if ENABLED(PTC_PROBE)
+        EEPROM_WRITE(ptc.z_offsets_probe);
+      #endif
+      #if ENABLED(PTC_BED)
+        EEPROM_WRITE(ptc.z_offsets_bed);
+      #endif
+      #if ENABLED(PTC_HOTEND)
+        EEPROM_WRITE(ptc.z_offsets_hotend);
       #endif
     #else
       // No placeholder data for this feature
@@ -930,7 +937,7 @@ void MarlinSettings::postprocess() {
     //
     // LCD Preheat settings
     //
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       _FIELD_TEST(ui_material_preset);
       EEPROM_WRITE(ui.material_preset);
     #endif
@@ -1726,13 +1733,17 @@ void MarlinSettings::postprocess() {
       //
       // Thermal first layer compensation values
       //
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        EEPROM_READ(temp_comp.z_offsets_probe);
-        EEPROM_READ(temp_comp.z_offsets_bed);
-        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          EEPROM_READ(temp_comp.z_offsets_ext);
+      #if HAS_PTC
+        #if ENABLED(PTC_PROBE)
+          EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        temp_comp.reset_index();
+        # if ENABLED(PTC_BED)
+          EEPROM_READ(ptc.z_offsets_bed);
+        #endif
+        #if ENABLED(PTC_HOTEND)
+          EEPROM_READ(ptc.z_offsets_hotend);
+        #endif
+        ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -1802,7 +1813,7 @@ void MarlinSettings::postprocess() {
       //
       // LCD Preheat settings
       //
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         _FIELD_TEST(ui_material_preset);
         EEPROM_READ(ui.material_preset);
       #endif
@@ -2745,6 +2756,11 @@ void MarlinSettings::reset() {
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
   //
+  // Probe Temperature Compensation
+  //
+  TERN_(HAS_PTC, ptc.reset());
+
+  //
   // BLTOUCH
   //
   //#if ENABLED(BLTOUCH)
@@ -2812,7 +2828,7 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     #define _PITEM(N,T) PREHEAT_##N##_##T,
     #if HAS_HOTEND
       constexpr uint16_t hpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_HOTEND) };
@@ -3044,8 +3060,6 @@ void MarlinSettings::reset() {
   postprocess();
 
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)
@@ -3068,9 +3082,9 @@ void MarlinSettings::reset() {
     //
     CONFIG_ECHO_HEADING("Linear Units");
     #if ENABLED(INCH_MODE_SUPPORT)
-      SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
+      SERIAL_ECHO_MSG("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
-      SERIAL_ECHOPGM("  G21 ;");
+      SERIAL_ECHO_MSG("  G21 ;");
     #endif
     gcode.say_units();
 
@@ -3197,7 +3211,7 @@ void MarlinSettings::reset() {
     //
     // LCD Preheat Settings
     //
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       gcode.M145_report(forReplay);
     #endif
 

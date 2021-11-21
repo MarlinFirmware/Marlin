@@ -78,7 +78,7 @@ namespace Language_sv {
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Välj Origo");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Senaste värde ");
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa");

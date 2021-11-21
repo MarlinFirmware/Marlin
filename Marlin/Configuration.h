@@ -35,7 +35,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 02000902
+#define CONFIGURATION_H_VERSION 02000903
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -1220,6 +1220,15 @@
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
   #endif
+#endif
+
+/**
+ * Probe Enable / Disable
+ * The probe only provides a triggered signal when enabled.
+ */
+//#define PROBE_ENABLE_DISABLE
+#if ENABLED(PROBE_ENABLE_DISABLE)
+  //#define PROBE_ENABLE_PIN -1   // Override the default pin here
 #endif
 
 /**
@@ -2762,23 +2771,11 @@
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
-//#define DWIN_CREALITY_LCD
-
-//
-// Ender-3 v2 OEM display, enhanced.
-//
-//#define DWIN_CREALITY_LCD_ENHANCED
-
-//
-// Ender-3 v2 OEM display with enhancements by Jacob Myers
-//
-//#define DWIN_CREALITY_LCD_JYERSUI
-
-//
-// MarlinUI for Creality's DWIN display (and others)
-//
-//#define DWIN_MARLINUI_PORTRAIT
-//#define DWIN_MARLINUI_LANDSCAPE
+//#define DWIN_CREALITY_LCD           // Creality UI
+//#define DWIN_CREALITY_LCD_ENHANCED  // Enhanced UI
+//#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
+//#define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
+//#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
 
 //
 // Touch Screen Settings

@@ -73,7 +73,7 @@ namespace Language_tr {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ofset Ayarla");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofset Tamam");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Sıfır Belirle");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
@@ -146,7 +146,7 @@ namespace Language_tr {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Mesh Düzenleme Tamam");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Özel Mesh Oluştur");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Mesh Oluştur");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Mesh Oluştur ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Doğrulama Mesh ($)");
   #endif

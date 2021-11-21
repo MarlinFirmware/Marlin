@@ -36,9 +36,15 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
+<<<<<<< HEAD
 #if ENABLED(PROBE_TEMP_COMPENSATION)
 #include "../../../feature/probe_temp_comp.h"
 #include "../../../module/temperature.h"
+=======
+#if HAS_PTC
+  #include "../../../feature/probe_temp_comp.h"
+  #include "../../../module/temperature.h"
+>>>>>>> bugfix-2.0.x
 #endif
 
 #if HAS_STATUS_MESSAGE
@@ -696,11 +702,17 @@ G29_TYPE GcodeSuite::G29()
           break; // Breaks out of both loops
         }
 
+<<<<<<< HEAD
 #if ENABLED(PROBE_TEMP_COMPENSATION)
         temp_comp.compensate_measurement(TSI_BED, thermalManager.degBed(), abl.measured_z);
         temp_comp.compensate_measurement(TSI_PROBE, thermalManager.degProbe(), abl.measured_z);
         TERN_(USE_TEMP_EXT_COMPENSATION, temp_comp.compensate_measurement(TSI_EXT, thermalManager.degHotend(0), abl.measured_z));
 #endif
+=======
+          TERN_(PTC_BED,    ptc.compensate_measurement(TSI_BED,   thermalManager.degBed(),     abl.measured_z));
+          TERN_(PTC_PROBE,  ptc.compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   abl.measured_z));
+          TERN_(PTC_HOTEND, ptc.compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), abl.measured_z));
+>>>>>>> bugfix-2.0.x
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 

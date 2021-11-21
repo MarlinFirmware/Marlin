@@ -92,10 +92,6 @@
   #include "../feature/power.h"
 #endif
 
-#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-  #include "../feature/closedloop.h"
-#endif
-
 #if ENABLED(BACKLASH_COMPENSATION)
   #include "../feature/backlash.h"
 #endif
@@ -1271,7 +1267,7 @@ void Planner::recalculate() {
     #elif ENABLED(FAST_PWM_FAN)
       #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
     #else
-      #define _FAN_SET(F) analogWrite(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
+      #define _FAN_SET(F) set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
@@ -1316,7 +1312,8 @@ void Planner::check_axes_activity() {
   #endif
 
   #if HAS_TAIL_FAN_SPEED
-    uint8_t tail_fan_speed[FAN_COUNT];
+    static uint8_t tail_fan_speed[FAN_COUNT];
+    bool fans_need_update = false;
   #endif
 
   #if ENABLED(BARICUDA)
@@ -1335,7 +1332,13 @@ void Planner::check_axes_activity() {
     #endif
 
     #if HAS_TAIL_FAN_SPEED
-      FANS_LOOP(i) tail_fan_speed[i] = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
+      FANS_LOOP(i) {
+        const uint8_t spd = thermalManager.scaledFanSpeed(i, block->fan_speed[i]);
+        if (tail_fan_speed[i] != spd) {
+          fans_need_update = true;
+          tail_fan_speed[i] = spd;
+        }
+      }
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1363,7 +1366,13 @@ void Planner::check_axes_activity() {
     TERN_(HAS_CUTTER, cutter.refresh());
 
     #if HAS_TAIL_FAN_SPEED
-      FANS_LOOP(i) tail_fan_speed[i] = thermalManager.scaledFanSpeed(i);
+      FANS_LOOP(i) {
+        const uint8_t spd = thermalManager.scaledFanSpeed(i);
+        if (tail_fan_speed[i] != spd) {
+          fans_need_update = true;
+          tail_fan_speed[i] = spd;
+        }
+      }
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1389,13 +1398,13 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  TERN_(HAS_TAIL_FAN_SPEED, sync_fan_speeds(tail_fan_speed));
+  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) sync_fan_speeds(tail_fan_speed));
 
   TERN_(AUTOTEMP, autotemp_task());
 
   #if ENABLED(BARICUDA)
-    TERN_(HAS_HEATER_1, analogWrite(pin_t(HEATER_1_PIN), tail_valve_pressure));
-    TERN_(HAS_HEATER_2, analogWrite(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
+    TERN_(HAS_HEATER_1, set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
+    TERN_(HAS_HEATER_2, set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 }
 
@@ -1458,7 +1467,7 @@ void Planner::check_axes_activity() {
 
     float t = autotemp_min + high * autotemp_factor;
     LIMIT(t, autotemp_min, autotemp_max);
-    if (t < oldt) t *= (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
+    if (t < oldt) t = t * (1.0f - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, active_extruder);
   }
@@ -1770,13 +1779,9 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
 }
 
 /**
- * Block until all buffered steps are executed / cleaned
+ * Block until the planner is finished processing
  */
-void Planner::synchronize() {
-  while (has_blocks_queued() || cleaning_buffer_counter
-      || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-  ) idle();
-}
+void Planner::synchronize() { while (busy()) idle(); }
 
 /**
  * Planner::_buffer_steps

@@ -167,8 +167,7 @@ void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr,
 void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
   menu_item(row);
   tft_string.set(pstr, itemIndex, itemString);
-  if (vstr)
-    tft_string.add(vstr);
+  if (vstr) tft_string.add(vstr);
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
 }
 
@@ -176,9 +175,9 @@ void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t st
 
   void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
     menu_item(row, sel);
-    if (isDir)
-      tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-    tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, theCard.longest_filename());
+    if (isDir) tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
+    constexpr uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y_OFFSET) + 1;
+    tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, row, sel));
   }
 
 #endif
@@ -211,12 +210,14 @@ void MarlinUI::clear_lcd() {
 }
 
 #if HAS_LCD_BRIGHTNESS
+
   void MarlinUI::_set_brightness() {
     #if PIN_EXISTS(TFT_BACKLIGHT)
       if (PWM_PIN(TFT_BACKLIGHT_PIN))
-        analogWrite(pin_t(TFT_BACKLIGHT_PIN), brightness);
+        analogWrite(pin_t(TFT_BACKLIGHT_PIN), backlight ? brightness : 0);
     #endif
   }
+
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
