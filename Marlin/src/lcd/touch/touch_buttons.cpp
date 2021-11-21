@@ -115,15 +115,17 @@ uint8_t TouchButtons::read_buttons() {
 #if HAS_TOUCH_SLEEP
 
   void TouchButtons::sleepTimeout() {
-    #if PIN_EXISTS(TFT_BACKLIGHT)
-      OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
+    #if HAS_LCD_BRIGHTNESS
+      ui.set_brightness(0);
+    #elif PIN_EXISTS(TFT_BACKLIGHT)
+      WRITE(TFT_BACKLIGHT_PIN, LOW);
     #endif
     next_sleep_ms = TSLP_SLEEPING;
   }
   void TouchButtons::wakeUp() {
     if (isSleeping()) {
       #if HAS_LCD_BRIGHTNESS
-        ui._set_brightness();
+        ui.set_brightness(ui.brightness);
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
