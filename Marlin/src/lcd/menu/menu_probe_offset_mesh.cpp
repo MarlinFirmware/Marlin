@@ -117,7 +117,7 @@ void set_offset_and_go_to_next_point() {
 
 void probe_offset_mesh_wizard_menu() {
   START_MENU();
-  float calculated_z_offset = current_position.z - measured_z;
+  float calculated_z_offset = probe.offset.z + current_position.z - measured_z;
 
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
@@ -172,22 +172,29 @@ void _lcd_probe_offset_mesh_moving()
 void _lcd_level_goto_next_point_inner()
 {
 
-  if (PR_INNER_VAR != inStop)
-  {
-    ui.wait_for_move = true;
-    ui.goto_screen(_lcd_probe_offset_mesh_moving);
+  if (PR_INNER_VAR != inStop) {
+    // Avoid probing outside the round or hexagonal area
+    if (!TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))){
+      ui.wait_for_move = true;
+      ui.goto_screen(_lcd_probe_offset_mesh_moving);
 
-    // Deploy certain probes before starting probing
-    #if HAS_BED_PROBE
-      if (ENABLED(BLTOUCH))
-        do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
-    #endif
+      // Deploy certain probes before starting probing
+      #if HAS_BED_PROBE
+        if (ENABLED(BLTOUCH))
+          do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
+      #endif
 
-    probePos = bilinear_start + bilinear_grid_spacing * meshCount.asFloat();
-    measured_z = probe.probe_at_point(probePos, PROBE_PT_STOW);
-    current_position += probe.offset_xy;
-    line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
-    ui.wait_for_move = false;
+      probePos = bilinear_start + bilinear_grid_spacing * meshCount.asFloat();
+      measured_z = probe.probe_at_point(probePos, PROBE_PT_STOW);
+      current_position += probe.offset_xy;
+      line_to_current_position(MMM_TO_MMS(XY_PROBE_FEEDRATE));
+      ui.wait_for_move = false;
+    } else {
+      //Go to next point
+      PR_INNER_VAR += inInc;
+      manual_probe_index++;
+      //ui.goto_screen(_lcd_level_goto_next_point_inner);
+    }
   } else {
     PR_OUTER_VAR++;
     ui.goto_screen(_lcd_level_goto_next_point_outer);
@@ -225,16 +232,17 @@ void _lcd_level_goto_next_point_outer()
 // Step 4: Display "Click to Begin", wait for click
 //         Move to the first probe position
 //
-void _lcd_probe_offset_mesh_homing_done()
-{
+void _lcd_probe_offset_mesh_homing_done() {
   if (ui.should_draw())
   {
     MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
-// Color UI needs a control to detect a touch
-#if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
-    touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
-#endif
+
+  // Color UI needs a control to detect a touch
+  #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+      touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
+  #endif
   }
+
   if (ui.use_click())
   {
     
