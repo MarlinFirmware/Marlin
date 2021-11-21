@@ -2010,9 +2010,9 @@ void SetTouchScreenConfiguration() {
 
 
   unsigned char cfg_bits = 0x0;
-  #if ENABLED(DWINOS_4)
+  //#if ENABLED(DWINOS_4)
     cfg_bits |= 1UL << 7; // 7: Enable Control
-  #endif
+  //#endif
   cfg_bits |= 1UL << 5; // 5: load 22 touch file
   cfg_bits |= 1UL << 4; // 4: auto-upload should always be enabled
   if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
