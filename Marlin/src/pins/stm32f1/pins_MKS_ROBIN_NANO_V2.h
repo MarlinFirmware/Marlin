@@ -338,7 +338,7 @@
       #define BEEPER_PIN                    -1
     #endif
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define DOGLCD_CS                       PD13
     #define DOGLCD_A0                       PC6
     #define LCD_PINS_DC                DOGLCD_A0
