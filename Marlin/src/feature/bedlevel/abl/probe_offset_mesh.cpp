@@ -22,6 +22,8 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
+#if ENABLED(PROBE_OFFSET_MESH)
+
 #include "../../../module/planner.h"
 #include "../bedlevel.h"
 #include "probe_offset_mesh.h"
@@ -132,3 +134,5 @@ float z_offset_mesh_from_raw_position(const xy_pos_t &raw) {
 
   return offset;
 }
+
+#endif //PROBE_OFFSET_MESH
