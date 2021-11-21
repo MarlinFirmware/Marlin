@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V85"
+#define EEPROM_VERSION "V86"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -246,6 +246,10 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
+    #if ENABLED(PROBE_OFFSET_MESH)
+      probe_offset_mesh_t z_offset_mesh;
+      xy_pos_t z_offset_mesh_grid_spacing;
+    #endif
   #else
     float z_values[3][3];
   #endif
@@ -550,6 +554,8 @@ void MarlinSettings::postprocess() {
 
   TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
 
+  TERN_(PROBE_OFFSET_MESH, refresh_probe_offset_mesh());
+
   TERN_(HAS_MOTOR_CURRENT_PWM, stepper.refresh_motor_power());
 
   TERN_(FWRETRACT, fwretract.refresh_autoretract());
@@ -803,6 +809,12 @@ void MarlinSettings::postprocess() {
           sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
+        #if ENABLED(PROBE_OFFSET_MESH)
+          static_assert(
+          sizeof(z_offset_mesh) == (PROBE_OFFSET_MESH_GRID_MAX_POINTS_X * PROBE_OFFSET_MESH_GRID_MAX_POINTS_Y) * sizeof(z_values[0][0]),
+          "Z-offset mesh is the wrong size."
+        );
+        #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
       #endif
@@ -816,6 +828,10 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
+        #if ENABLED(PROBE_OFFSET_MESH)
+          EEPROM_WRITE(z_offset_mesh);
+          EEPROM_WRITE(z_offset_mesh_grid_spacing);
+        #endif
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
@@ -1673,6 +1689,11 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
+            #if ENABLED(PROBE_OFFSET_MESH)
+              EEPROM_READ(z_offset_mesh);
+              EEPROM_READ(z_offset_mesh_grid_spacing);
+              print_z_offset_grid();
+            #endif
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR

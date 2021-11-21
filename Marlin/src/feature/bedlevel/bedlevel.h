@@ -63,6 +63,9 @@ class TemporaryBedLevelingState {
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #include "abl/abl.h"
+    #if ENABLED(PROBE_OFFSET_MESH)
+      #include "abl/probe_offset_mesh.h"
+    #endif
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
     #include "ubl/ubl.h"
   #elif ENABLED(MESH_BED_LEVELING)
