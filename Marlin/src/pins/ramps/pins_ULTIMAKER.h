@@ -42,15 +42,15 @@
 //
 // Servos
 //
-#define SERVO0_PIN                            11
+#define SERVO0_PIN                            13//11
 
 //
 // Limit Switches
 //
 #define X_MIN_PIN                             22
-#define X_MAX_PIN                             24
+#define X_MAX_PIN                             -1//24
 #define Y_MIN_PIN                             26
-#define Y_MAX_PIN                             28
+#define Y_MAX_PIN                             -1//28
 #define Z_MIN_PIN                             30
 #define Z_MAX_PIN                             32
 
@@ -94,12 +94,12 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           2
-#define HEATER_1_PIN                           3
+#define HEATER_0_PIN                           5//2
+#define HEATER_1_PIN                           -1//3
 #define HEATER_BED_PIN                         4
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              7
+  #define FAN_PIN                              21//7
 #endif
 
 //
@@ -119,23 +119,23 @@
 //
 #if HAS_WIRED_LCD
 
-  #define BEEPER_PIN                          18
+  #define BEEPER_PIN                          44//18
 
   #if IS_NEWPANEL
 
-    #define LCD_PINS_RS                       20
-    #define LCD_PINS_ENABLE                   17
-    #define LCD_PINS_D4                       16
-    #define LCD_PINS_D5                       21
-    #define LCD_PINS_D6                        5
-    #define LCD_PINS_D7                        6
+    #define LCD_PINS_RS                       3//20
+    #define LCD_PINS_ENABLE                   4//17
+    #define LCD_PINS_D4                       2//16
+    #define LCD_PINS_D5                       -1//21
+    #define LCD_PINS_D6                       -1//5
+    #define LCD_PINS_D7                       -1//6
 
     // Buttons directly attached
-    #define BTN_EN1                           40
-    #define BTN_EN2                           42
-    #define BTN_ENC                           19
+    #define BTN_EN1                           42//40
+    #define BTN_EN2                           40//42
+    #define BTN_ENC                           38//19
 
-    #define SD_DETECT_PIN                     38
+    #define SD_DETECT_PIN                     -1//
 
   #else                                           // !IS_NEWPANEL - Old style panel with shift register
 

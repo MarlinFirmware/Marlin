@@ -56,7 +56,7 @@
  *      and repeat steps 2 - 5
  */
 
-#define BOARD_REV_1_1_TO_1_3
+//#define BOARD_REV_1_1_TO_1_3
 //#define BOARD_REV_1_0
 //#define BOARD_REV_1_5
 
@@ -151,12 +151,12 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN                             8  // Analog Input
-#define TEMP_1_PIN                             1  // Analog Input
+#define TEMP_1_PIN                             9  //1  // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                           2
+#define HEATER_0_PIN                           5//2
 //#define HEATER_1_PIN                         3  // used for case light   Rev A said "1"
 #define HEATER_BED_PIN                         4
 
@@ -178,19 +178,19 @@
 
   #if IS_NEWPANEL
 
-    #define LCD_PINS_RS                       20
-    #define LCD_PINS_ENABLE                   17
-    #define LCD_PINS_D4                       16
-    #define LCD_PINS_D5                       21
-    #define LCD_PINS_D6                        5
-    #define LCD_PINS_D7                        6
+    #define LCD_PINS_RS                       3//20
+    #define LCD_PINS_ENABLE                   4//17
+    #define LCD_PINS_D4                       2//16
+    #define LCD_PINS_D5                       -1//21
+    #define LCD_PINS_D6                       -1//5
+    #define LCD_PINS_D7                       -1//6
 
     // Buttons directly attached
     #define BTN_EN1                           40
     #define BTN_EN2                           42
-    #define BTN_ENC                           19
+    #define BTN_ENC                           38//19
 
-    #define SD_DETECT_PIN                     38
+    #define SD_DETECT_PIN                     46//38
 
   #else                                           // !IS_NEWPANEL - Old style panel with shift register
 
