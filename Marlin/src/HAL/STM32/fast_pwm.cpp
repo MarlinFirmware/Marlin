@@ -85,8 +85,8 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
     if (index == PULSE_TIMER_NUM) return;
   #endif
 
-  if (HardwareTimer_Handle[index] == NULL) // If frequency is set before duty we need to create a handle here. 
-  HardwareTimer_Handle[index]->__this = new HardwareTimer((TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM));
+  if (HardwareTimer_Handle[index] == nullptr) // If frequency is set before duty we need to create a handle here. 
+    HardwareTimer_Handle[index]->__this = new HardwareTimer((TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM));
   HT = (HardwareTimer *)(HardwareTimer_Handle[index]->__this);
   timer_freq[index] = f_desired; // Save the last frequency so duty will not set the default for this timer number.
   HT->setOverflow(f_desired, HERTZ_FORMAT);   
