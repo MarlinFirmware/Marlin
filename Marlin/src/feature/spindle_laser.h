@@ -49,10 +49,6 @@
 
 class SpindleLaser {
 public:
-  static constexpr float
-    min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
-    max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
-
   static const inline uint8_t pct_to_ocr(const_float_t pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
   // cpower = configured values (e.g., SPEED_POWER_MAX)
@@ -158,6 +154,9 @@ public:
     }
 
     static inline cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
+      static constexpr float
+        min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
+        max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
       if (pwr <= 0) return 0;
       cutter_power_t upwr;
       switch (pwrUnit) {
@@ -186,6 +185,7 @@ public:
       }
       return upwr;
     }
+
   #endif // SPINDLE_LASER_USE_PWM
 
   /**
