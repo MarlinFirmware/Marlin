@@ -225,7 +225,6 @@ void EasythreedUI::printButton() {
         else {                                                      // While printing, cancel print
           card.abortFilePrintSoon();                                // There is a delay while the current steps play out
           blink_interval_ms = LED_OFF;                              // Turn off LED
-          
         }
         planner.synchronize();                                      // Wait for commands already in the planner to finish
         TERN_(HAS_STEPPER_RESET, disableStepperDrivers());          // Disable all steppers - now!
