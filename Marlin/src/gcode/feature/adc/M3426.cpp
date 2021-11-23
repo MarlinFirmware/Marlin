@@ -77,8 +77,8 @@ void GcodeSuite::M3426()
         result = INT16_MAX - result;
       }
 
-      SERIAL_ECHOPGM(STR_OK);
-      SERIAL_ECHOPGM(" V:");
+      //SERIAL_ECHOPGM(STR_OK);
+      SERIAL_ECHOPGM("V:");
       SERIAL_ECHO(result);
       SERIAL_ECHOPGM(" C:");
       SERIAL_ECHO(channel);
