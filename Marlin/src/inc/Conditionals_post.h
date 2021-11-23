@@ -1633,11 +1633,8 @@
   #if PIN_EXISTS(E0_MS1)
     #define HAS_E0_MS_PINS 1
   #endif
-  #if PIN_EXISTS(SOL0)
-    #define HAS_SOLENOID_0 1
-  #endif
 
-  #if E_STEPPERS > 1
+  #if E_STEPPERS > 1 || ENABLED(E_DUAL_STEPPER_DRIVERS)
     #if PIN_EXISTS(E1_ENABLE) || AXIS_IS_L64XX(E1) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1))
       #define HAS_E1_ENABLE 1
     #endif
@@ -1649,9 +1646,6 @@
     #endif
     #if PIN_EXISTS(E1_MS1)
       #define HAS_E1_MS_PINS 1
-    #endif
-    #if PIN_EXISTS(SOL1)
-      #define HAS_SOLENOID_1 1
     #endif
   #endif
 
@@ -1668,9 +1662,6 @@
     #if PIN_EXISTS(E2_MS1)
       #define HAS_E2_MS_PINS 1
     #endif
-    #if PIN_EXISTS(SOL2)
-      #define HAS_SOLENOID_2 1
-    #endif
   #endif
 
   #if E_STEPPERS > 3
@@ -1685,9 +1676,6 @@
     #endif
     #if PIN_EXISTS(E3_MS1)
       #define HAS_E3_MS_PINS 1
-    #endif
-    #if PIN_EXISTS(SOL3)
-      #define HAS_SOLENOID_3 1
     #endif
   #endif
 
@@ -1704,9 +1692,6 @@
     #if PIN_EXISTS(E4_MS1)
       #define HAS_E4_MS_PINS 1
     #endif
-    #if PIN_EXISTS(SOL4)
-      #define HAS_SOLENOID_4 1
-    #endif
   #endif
 
   #if E_STEPPERS > 5
@@ -1721,9 +1706,6 @@
     #endif
     #if PIN_EXISTS(E5_MS1)
       #define HAS_E5_MS_PINS 1
-    #endif
-    #if PIN_EXISTS(SOL5)
-      #define HAS_SOLENOID_5 1
     #endif
   #endif
 
@@ -1740,9 +1722,6 @@
     #if PIN_EXISTS(E6_MS1)
       #define HAS_E6_MS_PINS 1
     #endif
-    #if PIN_EXISTS(SOL6)
-      #define HAS_SOLENOID_6 1
-    #endif
   #endif
 
   #if E_STEPPERS > 7
@@ -1758,9 +1737,6 @@
     #if PIN_EXISTS(E7_MS1)
       #define HAS_E7_MS_PINS 1
     #endif
-    #if PIN_EXISTS(SOL7)
-      #define HAS_SOLENOID_7 1
-    #endif
   #endif
 
   #if !defined(DISABLE_INACTIVE_E) && ENABLED(DISABLE_E)
@@ -1769,6 +1745,41 @@
 #else
   #undef DISABLE_INACTIVE_E
 #endif // HAS_EXTRUDERS
+
+/**
+ * Set solenoid flags if any features use solenoids
+ *   - EXT_SOLENOID (M380, M381) to enable/disable the extruder solenoid
+ *   - MANUAL_SOLENOID_CONTROL (M380, M381) to enable/disable solenoids by index
+ *   - PARKING_EXTRUDER uses SOL0_PIN and SOL1_PIN
+ *   - SOLENOID_PROBE uses SOL1_PIN
+ *   - Z_PROBE_SLED uses SOL1_PIN, when defined (unless EXT_SOLENOID is enabled)
+ */
+#if ANY(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER, SOLENOID_PROBE, Z_PROBE_SLED)
+  #if PIN_EXISTS(SOL0) && (EITHER(MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER) || BOTH(EXT_SOLENOID, HAS_EXTRUDERS))
+    #define HAS_SOLENOID_0 1
+  #endif
+  #if PIN_EXISTS(SOL1) && (ANY(MANUAL_SOLENOID_CONTROL, PARKING_EXTRUDER, SOLENOID_PROBE, Z_PROBE_SLED) || TERN0(EXT_SOLENOID, E_STEPPERS > 1))
+    #define HAS_SOLENOID_1 1
+  #endif
+  #if PIN_EXISTS(SOL2) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 2))
+    #define HAS_SOLENOID_2 2
+  #endif
+  #if PIN_EXISTS(SOL3) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 3))
+    #define HAS_SOLENOID_3 3
+  #endif
+  #if PIN_EXISTS(SOL4) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 4))
+    #define HAS_SOLENOID_4 4
+  #endif
+  #if PIN_EXISTS(SOL5) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 5))
+    #define HAS_SOLENOID_5 5
+  #endif
+  #if PIN_EXISTS(SOL6) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 6))
+    #define HAS_SOLENOID_6 6
+  #endif
+  #if PIN_EXISTS(SOL7) && (ENABLED(MANUAL_SOLENOID_CONTROL) || TERN0(EXT_SOLENOID, E_STEPPERS > 7))
+    #define HAS_SOLENOID_7 7
+  #endif
+#endif
 
 //
 // Trinamic Stepper Drivers

@@ -268,7 +268,7 @@
           break;
         #if E_STEPPERS
           case E_AXIS: {
-            const int8_t target_e_stepper = get_target_e_stepper_from_command();
+            const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
             if (target_e_stepper < 0) return;
             switch (target_e_stepper) {
               TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_PWMTHRS_E(0); break;)

@@ -21,15 +21,16 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BTT OCTOPUS V1.0"
+/**
+ * Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7 board pin assignments
+ */
+
+#define BOARD_INFO_NAME      "Creality v2.4.S1 V101"
+#define DEFAULT_MACHINE_NAME "Creality3D"
 
 //
-// Temperature Sensors
+// Heaters
 //
-#if TEMP_SENSOR_0 == 20
-  #define TEMP_0_PIN                        PF8   // PT100 Connector
-#else
-  #define TEMP_0_PIN                        PF4   // TH0
-#endif
+#define HEATER_BED_PIN                      PA15  // HOT BED
 
-#include "pins_BTT_OCTOPUS_V1_common.h"
+#include "pins_CREALITY_V4.h"

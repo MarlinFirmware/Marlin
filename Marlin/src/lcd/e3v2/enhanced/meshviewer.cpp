@@ -51,7 +51,7 @@ void MeshViewerClass::Draw() {
     NOLESS(maxz, v);
     NOMORE(minz, v);
   }
-  Title.ShowCaption(F("Mesh viewer"));
+  Title.ShowCaption(F("Mesh Viewer"));
   DWINUI::ClearMenuArea();
   DWINUI::Draw_Icon(ICON_Continue_E, 86, 305);
   DWIN_Draw_Rectangle(0, HMI_data.SplitLine_Color, px(0), py(0), px(GRID_MAX_POINTS_X - 1), py(GRID_MAX_POINTS_Y - 1));

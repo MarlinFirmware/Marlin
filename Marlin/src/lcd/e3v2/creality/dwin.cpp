@@ -359,12 +359,8 @@ inline void Clear_Title_Bar() {
   DWIN_Draw_Box(1, Color_Bg_Blue, 0, 0, DWIN_WIDTH, TITLE_HEIGHT);
 }
 
-void Draw_Title(const char * const title) {
-  DWIN_Draw_String(false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char*)title);
-}
-
-void Draw_Title(FSTR_P title) {
-  DWIN_Draw_String(false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char*)title);
+void Draw_Title(FSTR_P ftitle) {
+  DWIN_Draw_String(false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, ftitle);
 }
 
 inline void Clear_Menu_Area() {
@@ -420,18 +416,25 @@ inline uint16_t nr_sd_menu_items() {
   return card.get_num_Files() + !card.flag.workDirIsRoot;
 }
 
-void Draw_Menu_Icon(const uint8_t line, const uint8_t icon) {
-  DWIN_ICON_Show(ICON, icon, 26, MBASE(line) - 3);
-}
-
 void Erase_Menu_Text(const uint8_t line) {
   DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(line) - 14, 271, MBASE(line) + 28);
 }
 
-void Draw_Menu_Item(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
-  if (label) DWIN_Draw_String(false, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(line) - 1, (char*)label);
+void Draw_Menu_Icon(const uint8_t line, const uint8_t icon) {
+  DWIN_ICON_Show(ICON, icon, 26, MBASE(line) - 3);
+}
+
+void _Decorate_Menu_Item(const uint8_t line, const uint8_t icon, bool more) {
   if (icon) Draw_Menu_Icon(line, icon);
   if (more) Draw_More_Icon(line);
+}
+void Draw_Menu_Item(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
+  if (label) DWIN_Draw_String(false, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(line) - 1, (char*)label);
+  _Decorate_Menu_Item(line, icon, more);
+}
+void Draw_Menu_Item(const uint8_t line, const uint8_t icon=0, FSTR_P const flabel=nullptr, bool more=false) {
+  if (flabel) DWIN_Draw_String(false, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(line) - 1, flabel);
+  _Decorate_Menu_Item(line, icon, more);
 }
 
 void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
@@ -439,13 +442,14 @@ void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const
   DWIN_Draw_Line(Line_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
 
-void Draw_Menu_LineF(const uint8_t line, const uint8_t icon=0, FSTR_P label=nullptr, bool more=false) {
-  Draw_Menu_Line(line, icon, (char*)label, more);
+void Draw_Menu_Line(const uint8_t line, const uint8_t icon, FSTR_P const flabel, bool more=false) {
+  Draw_Menu_Item(line, icon, flabel, more);
+  DWIN_Draw_Line(Line_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
 
 void Draw_Checkbox_Line(const uint8_t line, const bool ison) {
   const uint16_t x = 225, y = EBASE(line) - 2;
-  DWIN_Draw_String(true, font8x16, Color_White, Color_Bg_Black, x + 5, y, F(ison ? "X" : " "));
+  DWIN_Draw_String(true, font8x16, Color_White, Color_Bg_Black, x + 5, y, ison ? F("X") : F(" "));
   DWIN_Draw_Rectangle(0, Color_White, x + 2, y + 2, x + 16, y + 16);
 }
 
@@ -1853,7 +1857,7 @@ void Draw_SDItem(const uint16_t item, int16_t row=-1) {
   if (row < 0) row = item + 1 + MROWS - index_file;
   const bool is_subdir = !card.flag.workDirIsRoot;
   if (is_subdir && item == 0) {
-    Draw_Menu_Line(row, ICON_Folder, "..");
+    Draw_Menu_Line(row, ICON_Folder, F(".."));
     return;
   }
 
@@ -2531,7 +2535,7 @@ void Item_HomeOffs_X(const uint8_t row) {
   }
   else {
     #ifdef USE_STRING_TITLES
-      Draw_Menu_LineF(row, ICON_HomeOffsetX, GET_TEXT_F(MSG_HOME_OFFSET_X));
+      Draw_Menu_Line(row, ICON_HomeOffsetX, GET_TEXT_F(MSG_HOME_OFFSET_X));
     #else
       say_home_offs_en(row); say_x_en(75, row);   // "Home Offset X"
     #endif
@@ -2546,7 +2550,7 @@ void Item_HomeOffs_Y(const uint8_t row) {
   }
   else {
     #ifdef USE_STRING_TITLES
-      Draw_Menu_LineF(row, ICON_HomeOffsetY, GET_TEXT_F(MSG_HOME_OFFSET_Y));
+      Draw_Menu_Line(row, ICON_HomeOffsetY, GET_TEXT_F(MSG_HOME_OFFSET_Y));
     #else
       say_home_offs_en(row); say_y_en(75, row);   // "Home Offset X"
     #endif
@@ -2561,7 +2565,7 @@ void Item_HomeOffs_Z(const uint8_t row) {
   }
   else {
     #ifdef USE_STRING_TITLES
-      Draw_Menu_LineF(row, ICON_HomeOffsetZ, GET_TEXT_F(MSG_HOME_OFFSET_Z));
+      Draw_Menu_Line(row, ICON_HomeOffsetZ, GET_TEXT_F(MSG_HOME_OFFSET_Z));
     #else
       say_home_offs_en(row); say_z_en(75, row);   // "Home Offset Z"
     #endif
@@ -2604,8 +2608,8 @@ void Draw_HomeOff_Menu() {
         DWIN_Frame_TitleCopy(124, 431, 91, 12);                             // "Probe Offsets"
       #endif
       #ifdef USE_STRING_TITLES
-        Draw_Menu_LineF(1, ICON_ProbeOffsetX, GET_TEXT_F(MSG_ZPROBE_XOFFSET));  // Probe X Offset
-        Draw_Menu_LineF(2, ICON_ProbeOffsetY, GET_TEXT_F(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
+        Draw_Menu_Line(1, ICON_ProbeOffsetX, GET_TEXT_F(MSG_ZPROBE_XOFFSET));  // Probe X Offset
+        Draw_Menu_Line(2, ICON_ProbeOffsetY, GET_TEXT_F(MSG_ZPROBE_YOFFSET));  // Probe Y Offset
       #else
         say_probe_offs_en(1); say_x_en(75, 1);  // "Probe Offset X"
         say_probe_offs_en(2); say_y_en(75, 2);  // "Probe Offset Y"
@@ -3090,7 +3094,7 @@ void HMI_Temperature() {
           }
           else {
             #ifdef USE_STRING_HEADINGS
-              Draw_Title(PREHEAT_1_LABEL " Settings"); // TODO: GET_TEXT_F
+              Draw_Title(F(PREHEAT_1_LABEL " Settings")); // TODO: GET_TEXT_F
             #else
               DWIN_Frame_TitleCopy(56, 15, 85, 14);                       // "Temperature"  TODO: "PLA Settings"
             #endif
@@ -3169,7 +3173,7 @@ void HMI_Temperature() {
           }
           else {
             #ifdef USE_STRING_HEADINGS
-              Draw_Title("ABS Settings"); // TODO: GET_TEXT_F
+              Draw_Title(F("ABS Settings")); // TODO: GET_TEXT_F
             #else
               DWIN_Frame_TitleCopy(56, 15, 85, 14);                       // "Temperature"  TODO: "ABS Settings"
             #endif
@@ -3252,7 +3256,7 @@ void Draw_Max_Speed_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Max Speed (mm/s)"); // TODO: GET_TEXT_F
+      Draw_Title(F("Max Speed (mm/s)")); // TODO: GET_TEXT_F
     #else
       DWIN_Frame_TitleCopy(144, 16, 46, 11);                  // "Max Speed (mm/s)"
     #endif
