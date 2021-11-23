@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,26 +20,29 @@
  *
  */
 
-#include "../gcode.h"
+#include "../../inc/MarlinConfig.h"
 
-#include "../../lcd/marlinui.h" // for ui.reset_alert_level
-#include "../../MarlinCore.h"   // for marlin_state
-#include "../queue.h"           // for flush_and_request_resend
+#if HAS_FANCHECK
+
+#include "../gcode.h"
+#include "../../feature/fancheck.h"
 
 /**
- * M999: Restart after being stopped
+ * M123: Report fan states -or- set interval for auto-report
  *
- * Default behavior is to flush the serial buffer and request
- * a resend to the host starting on the last N line received.
- *
- * Sending "M999 S1" will resume printing without flushing the
- * existing command buffer.
+ *   S<seconds> : Set auto-report interval
  */
-void GcodeSuite::M999() {
-  marlin_state = MF_RUNNING;
-  ui.reset_alert_level();
+void GcodeSuite::M123() {
 
-  if (parser.boolval('S')) return;
+  #if ENABLED(AUTO_REPORT_FANS)
+    if (parser.seenval('S')) {
+      fan_check.auto_reporter.set_interval(parser.value_byte());
+      return;
+    }
+  #endif
 
-  queue.flush_and_request_resend(queue.ring_buffer.command_port());
+  fan_check.print_fan_states();
+
 }
+
+#endif // HAS_FANCHECK

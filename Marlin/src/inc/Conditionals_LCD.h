@@ -31,8 +31,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 is simply identical to FYSETC_MINI_12864_2_1
-#if ENABLED(MKS_MINI_12864_V3)
+// MKS_MINI_12864_V3 and BTT_MINI_12864_V1 are identical to FYSETC_MINI_12864_2_1
+#if EITHER(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
   #define FYSETC_MINI_12864_2_1
 #endif
 
@@ -1079,7 +1079,7 @@
     #define CORE_AXIS_2 C_AXIS
   #endif
   #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
-#elif ENABLED(MARKFORGED_XY)
+#elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
   // Markforged kinematics
   #define CORE_AXIS_1 A_AXIS
   #define CORE_AXIS_2 B_AXIS
