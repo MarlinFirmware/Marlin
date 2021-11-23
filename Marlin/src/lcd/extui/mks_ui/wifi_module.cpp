@@ -345,7 +345,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
           hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
 
           SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);       // Update error code
-          hdma->State= HAL_DMA_STATE_READY;                 // Change the DMA state
+          hdma->State = HAL_DMA_STATE_READY;                // Change the DMA state
           __HAL_UNLOCK(hdma);                               // Process Unlocked
           return HAL_ERROR;
         }
