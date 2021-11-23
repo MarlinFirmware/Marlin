@@ -297,6 +297,7 @@
  * M918 - L6470 tuning: Increase speed until max or error. (Requires at least one _DRIVER_TYPE L6470)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
+ * M3426 - Read MCP3426 ADC (over i2c)
  *
  *** SCARA ***
  * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
@@ -1201,6 +1202,10 @@ private:
 
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
+  #endif
+
+  #if ENABLED(HAS_MCP3426_ADC)
+    static void M3426();
   #endif
 
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
