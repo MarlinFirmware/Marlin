@@ -248,6 +248,10 @@
   #include "feature/power.h"
 #endif
 
+#if ENABLED(EASYTHREED_UI)
+  #include "feature/easythreed_ui.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 MarlinState marlin_state = MF_INITIALIZING;
@@ -636,6 +640,8 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
       CHECK_CUSTOM_USER_BUTTON(25);
     #endif
   #endif
+
+  TERN_(EASYTHREED_UI, easythreed_ui.run());
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
@@ -1604,6 +1610,10 @@ void setup() {
 
   #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
     SETUP_RUN(ui.check_touch_calibration());
+  #endif
+
+  #if ENABLED(EASYTHREED_UI)
+    SETUP_RUN(easythreed_ui.init());
   #endif
 
   marlin_state = MF_RUNNING;
