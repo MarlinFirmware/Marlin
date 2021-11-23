@@ -1566,10 +1566,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
-  #if ANY(PARK_HEAD_ON_PAUSE, SDSUPPORT)
-    #include "../gcode/queue.h"
-  #endif
-
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU
       synchronize(GET_TEXT(MSG_PAUSING));
