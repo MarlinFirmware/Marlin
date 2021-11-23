@@ -914,7 +914,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(BABYSTEPPING)
   #if ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
-  #elif EITHER(MARKFORGED_XY, MARKFORGED_YX) && ENABLED(BABYSTEP_XY)
+  #elif ENABLED(BABYSTEP_XY) && EITHER(MARKFORGED_XY, MARKFORGED_YX)
     #error "BABYSTEPPING only implemented for Z axis on MarkForged."
   #elif BOTH(DELTA, BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
@@ -1460,7 +1460,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Allow only one kinematic type to be defined
  */
 #if MANY(DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, FOAMCUTTER_XYUV)
-  #error "Please enable only one of DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX or FOAMCUTTER_XYUV."
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MP_SCARA, AXEL_TPARA, COREXY, COREXZ, COREYZ, COREYX, COREZX, COREZY, MARKFORGED_XY, MARKFORGED_YX, or FOAMCUTTER_XYUV."
 #endif
 
 /**
@@ -1959,7 +1959,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
   #elif ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-    #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, COREZX, MARKFORGED_YX or MARKFORGED_XY."
+    #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, COREZX, MARKFORGED_YX, or MARKFORGED_XY."
   #elif !GOOD_AXIS_PINS(X2)
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
   #elif !HAS_X_MAX
