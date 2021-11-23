@@ -28,7 +28,7 @@
 #include "timers.h"
 
 // Array to support sticky frequency sets per timer
-static uint16_t timer_freq[TIMER_NUM] = { nullptr };
+static uint16_t timer_freq[TIMER_NUM];
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   if (!PWM_PIN(pin)) return; // Don't proceed if no hardware timer
