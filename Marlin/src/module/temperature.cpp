@@ -976,9 +976,10 @@ inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
     WRITE(BEEPER_PIN, HIGH);
   #endif
   #if ENABLED(NOZZLE_PARK_ON_TEMP_ERROR)
-    if (homing_needed_error()) return;
-    nozzle.park(parser.ushortval('P'));
-    planner.synchronize();
+    if (!homing_needed_error()) {
+      nozzle.park(parser.ushortval('P'));
+      planner.synchronize();
+    }
   #endif
   kill(lcd_msg, HEATER_FSTR(heater_id));
 }
