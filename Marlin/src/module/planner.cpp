@@ -1312,7 +1312,7 @@ void Planner::check_axes_activity() {
 
   #if HAS_TAIL_FAN_SPEED
     static uint8_t tail_fan_speed[FAN_COUNT];
-    bool fans_need_update = false;
+    bool fans_need_update = true;
   #endif
 
   #if ENABLED(BARICUDA)
