@@ -1105,6 +1105,23 @@
   //#define TOUCH_MI_MANUAL_DEPLOY                // For manual deploy (LCD menu)
 #endif
 
+/**
+ * MagLev V4 probe by MDD
+ * 
+ * This probe is deployed and activated by using built-in electomagnet. Once electromagnet
+ * is powered on the probing needle drops. MAGLEV_TRIGGER_PIN has to be set as unused digital
+ * output on mainboard. It could be servo pin or unused endstop pin. MAGLEV_TRIGGER_DELAY by
+ * default is set to 15ms and should not be changed due to risk of overheating the coil.
+ * Z_SAFE_HOMING is crucial for the sensor to work so it is enabled by default.
+ */
+
+//#define MAGLEV4
+#if ENABLED(MAGLEV4)
+  #define MAGLEV_TRIGGER_PIN PA1
+  #define MAGLEV_TRIGGER_DELAY 15
+  #define Z_SAFE_HOMING
+#endif
+
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
 
