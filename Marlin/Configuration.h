@@ -1099,7 +1099,7 @@
  * Z_SAFE_HOMING is crucial for sensor to work correctly.
  */
 
-#define MAGLEV4
+//#define MAGLEV4
 #if ENABLED(MAGLEV4)
   #define MAGLEV_TRIGGER_PIN 11
   #define MAGLEV_TRIGGER_DELAY 15
