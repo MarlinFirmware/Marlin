@@ -617,7 +617,7 @@ void Endstops::update() {
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
   #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
-  #if ENABLED(G38_PROBE_TARGET) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
+  #if ENABLED(G38_PROBE_TARGET) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_XY)
     #define HAS_G38_PROBE 1
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move) UPDATE_ENDSTOP_BIT(Z, TERN(USES_Z_MIN_PROBE_PIN, MIN_PROBE, MIN));
@@ -628,12 +628,12 @@ void Endstops::update() {
   #define X_MAX_TEST() TERN1(DUAL_X_CARRIAGE, TERN0(X_HOME_TO_MAX, stepper.last_moved_extruder == 0) || TERN0(X2_HOME_TO_MAX, stepper.last_moved_extruder != 0))
 
   // Use HEAD for core axes, AXIS for others
-  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
+  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_XY)
     #define X_AXIS_HEAD X_HEAD
   #else
     #define X_AXIS_HEAD X_AXIS
   #endif
-  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY)
+  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
     #define Y_AXIS_HEAD Y_HEAD
   #else
     #define Y_AXIS_HEAD Y_AXIS
@@ -1111,7 +1111,7 @@ void Endstops::update() {
     bool hit = false;
     #if X_SPI_SENSORLESS
       if (tmc_spi_homing.x && (stepperX.test_stall_status()
-        #if ANY(CORE_IS_XY, MARKFORGED_XY) && Y_SPI_SENSORLESS
+        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SPI_SENSORLESS
           || stepperY.test_stall_status()
         #elif CORE_IS_XZ && Z_SPI_SENSORLESS
           || stepperZ.test_stall_status()
@@ -1123,7 +1123,7 @@ void Endstops::update() {
     #endif
     #if Y_SPI_SENSORLESS
       if (tmc_spi_homing.y && (stepperY.test_stall_status()
-        #if ANY(CORE_IS_XY, MARKFORGED_XY) && X_SPI_SENSORLESS
+        #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SPI_SENSORLESS
           || stepperX.test_stall_status()
         #elif CORE_IS_YZ && Z_SPI_SENSORLESS
           || stepperZ.test_stall_status()

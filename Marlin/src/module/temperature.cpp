@@ -294,7 +294,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   redundant_info_t Temperature::temp_redundant;
 #endif
 
-#if ENABLED(AUTO_POWER_E_FANS)
+#if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
   uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
 
@@ -526,8 +526,9 @@ volatile bool Temperature::raw_temps_ready = false;
   millis_t Temperature::preheat_end_time[HOTENDS] = { 0 };
 #endif
 
-#if HAS_AUTO_FAN
-  millis_t Temperature::next_auto_fan_check_ms = 0;
+#if HAS_FAN_LOGIC
+  constexpr millis_t Temperature::fan_update_interval_ms;
+  millis_t Temperature::fan_update_ms = 0;
 #endif
 
 #if ENABLED(FAN_SOFT_PWM)
@@ -614,7 +615,7 @@ volatile bool Temperature::raw_temps_ready = false;
       bool heated = false;
     #endif
 
-    TERN_(HAS_AUTO_FAN, next_auto_fan_check_ms = next_temp_ms + 2500UL);
+    TERN_(HAS_FAN_LOGIC, fan_update_ms = next_temp_ms + fan_update_interval_ms);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED));
     TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_PidTuning(isbed ? PID_BED_START : PID_EXTR_START));
@@ -659,12 +660,7 @@ volatile bool Temperature::raw_temps_ready = false;
           ONHEATING(start_temp, current_temp, target);
         #endif
 
-        #if HAS_AUTO_FAN
-          if (ELAPSED(ms, next_auto_fan_check_ms)) {
-            checkExtruderAutoFans();
-            next_auto_fan_check_ms = ms + 2500UL;
-          }
-        #endif
+        TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
 
         if (heating && current_temp > target && ELAPSED(ms, t2 + 5000UL)) {
           heating = false;
@@ -853,6 +849,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 #define _EFANOVERLAP(A,B) _FANOVERLAP(E##A,B)
 
 #if HAS_AUTO_FAN
+
   #if EXTRUDER_AUTO_FAN_SPEED != 255
     #define INIT_E_AUTO_FAN_PIN(P) do{ if (P == FAN1_PIN || P == FAN2_PIN) { SET_PWM(P); SET_FAST_PWM_FREQ(P); } else SET_OUTPUT(P); }while(0)
   #else
@@ -866,7 +863,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
   #define CHAMBER_FAN_INDEX HOTENDS
 
-  void Temperature::checkExtruderAutoFans() {
+  void Temperature::update_autofans() {
     #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
     static const uint8_t fanBit[] PROGMEM = {
       0
@@ -914,36 +911,43 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
             break;
         #endif
         default:
-          #if ENABLED(AUTO_POWER_E_FANS)
+          #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
             autofan_speed[realFan] = fan_on ? EXTRUDER_AUTO_FAN_SPEED : 0;
           #endif
           break;
       }
 
+      #if BOTH(HAS_FANCHECK, HAS_PWMFANCHECK)
+        #define _AUTOFAN_SPEED() fan_check.is_measuring() ? 255 : EXTRUDER_AUTO_FAN_SPEED
+      #else
+        #define _AUTOFAN_SPEED() 255
+      #endif
+      #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break
+
       switch (f) {
         #if HAS_AUTO_FAN_0
-          case 0: _UPDATE_AUTO_FAN(E0, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(0);
         #endif
         #if HAS_AUTO_FAN_1
-          case 1: _UPDATE_AUTO_FAN(E1, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(1);
         #endif
         #if HAS_AUTO_FAN_2
-          case 2: _UPDATE_AUTO_FAN(E2, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(2);
         #endif
         #if HAS_AUTO_FAN_3
-          case 3: _UPDATE_AUTO_FAN(E3, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(3);
         #endif
         #if HAS_AUTO_FAN_4
-          case 4: _UPDATE_AUTO_FAN(E4, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(4);
         #endif
         #if HAS_AUTO_FAN_5
-          case 5: _UPDATE_AUTO_FAN(E5, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(5);
         #endif
         #if HAS_AUTO_FAN_6
-          case 6: _UPDATE_AUTO_FAN(E6, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(6);
         #endif
         #if HAS_AUTO_FAN_7
-          case 7: _UPDATE_AUTO_FAN(E7, fan_on, EXTRUDER_AUTO_FAN_SPEED); break;
+          _AUTOFAN_CASE(7);
         #endif
         #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
           case CHAMBER_FAN_INDEX: _UPDATE_AUTO_FAN(CHAMBER, fan_on, CHAMBER_AUTO_FAN_SPEED); break;
@@ -1367,20 +1371,14 @@ void Temperature::manage_heater() {
       _temp_error((heater_id_t)HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET), F(STR_REDUNDANCY), GET_TEXT_F(MSG_ERR_REDUNDANT_TEMP));
   #endif
 
-  #if HAS_AUTO_FAN
-    if (ELAPSED(ms, next_auto_fan_check_ms)) { // only need to check fan state very infrequently
-      checkExtruderAutoFans();
-      next_auto_fan_check_ms = ms + 2500UL;
-    }
-  #endif
+  // Manage extruder auto fans and/or read fan tachometers
+  TERN_(HAS_FAN_LOGIC, manage_extruder_fans(ms));
 
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    /**
-     * Dynamically set the volumetric multiplier based
-     * on the delayed Filament Width measurement.
-     */
-    filwidth.update_volumetric();
-  #endif
+  /**
+   * Dynamically set the volumetric multiplier based
+   * on the delayed Filament Width measurement.
+   */
+  TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_volumetric());
 
   #if HAS_HEATED_BED
 
@@ -3500,6 +3498,9 @@ void Temperature::isr() {
   #if ENABLED(BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
     babystep.task();
   #endif
+
+  // Check fan tachometers
+  TERN_(HAS_FANCHECK, fan_check.update_tachometers());
 
   // Poll endstops state, if required
   endstops.poll();
