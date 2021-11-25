@@ -256,7 +256,7 @@ void menu_main() {
       }
       else {
         #if PIN_EXISTS(SD_DETECT)
-          ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // "No Media"
+          ACTION_ITEM(MSG_NO_MEDIA, []{} );                   // "No Media"
         #else
           GCODES_ITEM(MSG_ATTACH_MEDIA, PSTR("M21"));         // M21 Attach Media
         #endif
