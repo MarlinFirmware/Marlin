@@ -29,13 +29,17 @@
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   if (!PWM_PIN(pin)) return;
+  uint16_t duty = v;
+  if (invert) duty = v_size - duty;
   timer_dev *timer = PIN_MAP[pin].timer_device;
-  if (!(timer->regs.bas->SR & TIMER_CR1_CEN))   // Ensure the timer is enabled
-    set_pwm_frequency(pin, PWM_FREQUENCY);
-  uint16_t max_val = timer->regs.bas->ARR * v / v_size;
-  if (invert) max_val = v_size - max_val;
-  pwmWrite(pin, max_val);
-
+  if (!(timer->regs.bas->SR & TIMER_CR1_CEN)) set_pwm_frequency(pin, PWM_FREQUENCY); // Not set? config default freq.
+  uint8_t channel = PIN_MAP[pin].timer_channel;
+  timer_pause(timer);
+  timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
+  timer_set_count(timer, 0);
+  timer_set_reload(timer, v_size ); // Set the resolution bits to v_size default is 255              
+  timer_set_compare(timer, channel, duty);
+  timer_resume(timer);
 }
 
 void set_pwm_frequency(const pin_t pin, int f_desired) {
@@ -45,13 +49,13 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   uint8_t channel = PIN_MAP[pin].timer_channel;
 
   // Protect used timers
-  if (timer == get_timer_dev(TEMP_TIMER_NUM)) return;
-  if (timer == get_timer_dev(STEP_TIMER_NUM)) return;
+  if (timer == TEMP_TIMER_DEV) return;
+  if (timer == STEP_TIMER_DEV) return;
   #if PULSE_TIMER_NUM != STEP_TIMER_NUM
-    if (timer == get_timer_dev(PULSE_TIMER_NUM)) return;
+    if (timer == PULSE_TIMER_DEV) return;
   #endif
 
-  if (!(timer->regs.bas->SR & TIMER_CR1_CEN))   // Ensure the timer is enabled
+  if b`   // Ensure the timer is enabled
     timer_init(timer);
 
   timer_set_mode(timer, channel, TIMER_PWM);
