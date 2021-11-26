@@ -53,6 +53,16 @@ support@tinymachines3d.com about purchasing support hours. Aside from this, we a
 3D Printing Discord - https://discord.gg/MZrsgVU
 Marlin Discord - https://discord.gg/n5NJ59y
 
+## Primary Notes for DW7.4.4
+  - Added Feedrate / Accel / Jerk Screens
+  - Touchscreen DGUS tools bumped to 8.2
+  -- All Portrait displays operate with the same build
+  -- Older screens (10S Pro) audio file selection is a bit off, havnt found a way to properly enforce wav file used yet
+  - Ender 7 support
+  - Sermoon D1 Support
+  -- Some users have reported Z clicking that the scripts run in the Leveling screen resolves, so if you hear clicking from the Z stepper when printing, run measuring from the leveling screen after powerup before printing.
+  - E3V2 Screens Icon issue fixed thanks to note from Jyers on icon file size limit
+
 ## Primary Notes for DW7.4.3
 
  - PID Messaging Fixed
