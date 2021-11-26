@@ -26,7 +26,7 @@
  * M111: Set the debug level
  */
 void GcodeSuite::M111() {
-  if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
+  if (parser.seenval('S')) marlin_debug_flags = parser.value_byte();
 
   static PGMSTR(str_debug_1, STR_DEBUG_ECHO);
   static PGMSTR(str_debug_2, STR_DEBUG_INFO);

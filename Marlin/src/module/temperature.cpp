@@ -887,11 +887,11 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
         SBI(fanState, pgm_read_byte(&fanBit[COOLER_FAN_INDEX]));
     #endif
 
-    #define _UPDATE_AUTO_FAN(P,D,A) do{                  \
-      if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)          \
-        analogWrite(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
-      else                                               \
-        WRITE(P##_AUTO_FAN_PIN, D);                      \
+    #define _UPDATE_AUTO_FAN(P,D,A) do{                   \
+      if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)           \
+        set_pwm_duty(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
+      else                                                \
+        WRITE(P##_AUTO_FAN_PIN, D);                       \
     }while(0)
 
     uint8_t fanDone = 0;
@@ -1494,8 +1494,8 @@ void Temperature::manage_heater() {
           #elif CHAMBER_FAN_MODE == 3
             fan_chamber_pwm = CHAMBER_FAN_BASE + _MAX((CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target), 0);
           #endif
-          NOMORE(fan_chamber_pwm, 225);
-          set_fan_speed(CHAMBER_FAN_INDEX, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
+          NOMORE(fan_chamber_pwm, 255);
+          set_fan_speed(CHAMBER_FAN_INDEX, fan_chamber_pwm);
         #endif
 
         #if ENABLED(CHAMBER_VENT)
@@ -2207,22 +2207,22 @@ void Temperature::init() {
 
   // Thermistor activation by MCU pin
   #if PIN_EXISTS(TEMP_0_TR_ENABLE)
-    OUT_WRITE(TEMP_0_TR_ENABLE_PIN,
+    OUT_WRITE(TEMP_0_TR_ENABLE_PIN, (
       #if TEMP_SENSOR_IS_ANY_MAX_TC(0)
-        1
+        HIGH
       #else
-        0
+        LOW
       #endif
-    );
+    ));
   #endif
   #if PIN_EXISTS(TEMP_1_TR_ENABLE)
-    OUT_WRITE(TEMP_1_TR_ENABLE_PIN,
+    OUT_WRITE(TEMP_1_TR_ENABLE_PIN, (
       #if TEMP_SENSOR_IS_ANY_MAX_TC(1)
-        1
+        HIGH
       #else
-        0
+        LOW
       #endif
-    );
+    ));
   #endif
 
   #if HAS_HEATER_0
@@ -3731,8 +3731,9 @@ void Temperature::isr() {
           HMI_flag.heat_flag = 0;
           duration_t elapsed = print_job_timer.duration();  // print timer
           dwin_heat_time = elapsed.value;
+        #else
+          ui.reset_status();
         #endif
-        ui.reset_status();
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onHeatingDone());
         return true;
       }

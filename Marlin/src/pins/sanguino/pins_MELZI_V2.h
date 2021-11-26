@@ -34,4 +34,4 @@
   #define BOARD_ST7920_DELAY_3                 0
 #endif
 
-#include "pins_MELZI.h"
+#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11

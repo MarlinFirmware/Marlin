@@ -66,11 +66,14 @@ namespace ExtUI
   bool AutohomeKey = false;
   unsigned char AutoHomeIconNum;
 
+  uint8_t lastPauseMsgState = 0;
+
   creality_dwin_settings_t Settings;
   uint8_t dwin_settings_version = 1;
 
   bool reEntryPrevent = false;
   uint16_t idleThrottling = 0;
+
 
   #if HAS_PID_HEATING
     uint16_t pid_hotendAutoTemp = 150;
@@ -154,6 +157,10 @@ void onIdle()
 {
   if (reEntryPrevent)
     return;
+
+  if (rtscheck.RTS_RecData() > 0 && (rtscheck.recdat.data[0]!=0 || rtscheck.recdat.addr!=0))
+		rtscheck.RTS_HandleData();
+
   if(idleThrottling++ < 750){
     return;
   }
@@ -164,7 +171,7 @@ void onIdle()
   rtscheck.RTS_SndData(getTargetTemp_celsius(H0), NozzlePreheat);
 	rtscheck.RTS_SndData(getTargetTemp_celsius(BED), BedPreheat);
 
-  if(awaitingUserConfirm())
+  if(awaitingUserConfirm() && lastPauseMsgState!=ExtUI::pauseModeStatus)
   {
     switch(ExtUI::pauseModeStatus)
       {
@@ -232,7 +239,7 @@ void onIdle()
 			if (AutohomeKey && isPositionKnown() && !commandsInQueue())
 			{ //Manual Move Home Done
         SERIAL_ECHOLNPGM_P(PSTR("==waitway 4=="));
-				rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
+				//rtscheck.RTS_SndData(ExchangePageBase + 21 + AxisPagenum, ExchangepageAddr);
 				AutohomeKey = false;
 				waitway = 0;
 			}
@@ -352,6 +359,22 @@ void onIdle()
   rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(Z) * 10), StepMM_Z);
   rtscheck.RTS_SndData((unsigned int)(getAxisSteps_per_mm(E0) * 10), StepMM_E);
 
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(X)/100), Accel_X);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Y)/100), Accel_Y);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(Z)/10), Accel_Z);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxAcceleration_mm_s2(E0)), Accel_E);
+
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(X)), Feed_X);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Y)), Feed_Y);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(Z)), Feed_Z);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxFeedrate_mm_s(E0)), Feed_E);
+
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(X)*100), Jerk_X);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Y)*100), Jerk_Y);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(Z)*100), Jerk_Z);
+  rtscheck.RTS_SndData(((unsigned int)getAxisMaxJerk_mm_s(E0)*100), Jerk_E);
+
+
   #if HAS_BED_PROBE
     rtscheck.RTS_SndData(getProbeOffset_mm(X) * 100, ProbeOffset_X);
     rtscheck.RTS_SndData(getProbeOffset_mm(Y) * 100, ProbeOffset_Y);
@@ -431,8 +454,6 @@ void onIdle()
   }
 
   void yield();
-	if (rtscheck.RTS_RecData() > 0)
-		rtscheck.RTS_HandleData();
 
   if(rtscheck.recdat.addr != DisplayZaxis && rtscheck.recdat.addr != DisplayYaxis && rtscheck.recdat.addr != DisplayZaxis) {
 		rtscheck.RTS_SndData(10 * getAxisPosition_mm((axis_t)X), DisplayXaxis);
@@ -442,6 +463,10 @@ void onIdle()
   reEntryPrevent = false;
 }
 
+
+rx_datagram_state_t RTSSHOW::rx_datagram_state = DGUS_IDLE;
+uint8_t RTSSHOW::rx_datagram_len = 0;
+bool RTSSHOW::Initialized = false;
 RTSSHOW::RTSSHOW()
 {
 	recdat.head[0] = snddat.head[0] = FHONE;
@@ -451,68 +476,89 @@ RTSSHOW::RTSSHOW()
 
 int RTSSHOW::RTS_RecData()
 {
-	while (DWIN_SERIAL.available() > 0 && (recnum < SizeofDatabuf))
-	{
-		databuf[recnum] = DWIN_SERIAL.read();
-		if (databuf[0] != FHONE) //ignore the invalid data
-		{
-			if (recnum > 0) // prevent the program from running.
-			{
-				memset(databuf, 0, sizeof(databuf));
-				recnum = 0;
-			}
-			continue;
-		}
-		delay_ms(2);
-		recnum++;
-	}
+  uint8_t receivedbyte;
+  while (DWIN_SERIAL.available()) {
+    switch (rx_datagram_state) {
 
-	if (recnum < 1) //receive nothing
-		return -1;
-	else if ((recdat.head[0] == databuf[0]) && (recdat.head[1] == databuf[1]) && recnum > 2)
-	{
-		//  SERIAL_ECHOLN(" *** RTS_RecData1*** ");
+      case DGUS_IDLE: // Waiting for the first header byte
+        receivedbyte = DWIN_SERIAL.read();
+        //SERIAL_ECHOLNPGM("< ",receivedbyte);
+        if (FHONE == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
+        break;
 
-		recdat.len = databuf[2];
-		recdat.command = databuf[3];
-		if (recdat.len == 0x03 && (recdat.command == 0x82 || recdat.command == 0x80) && (databuf[4] == 0x4F) && (databuf[5] == 0x4B)) //response for writing byte
-		{
-			memset(databuf, 0, sizeof(databuf));
-			recnum = 0;
-			//SERIAL_ECHOLN(" *** RTS_RecData1*** ");
-			return -1;
-		}
-		else if (recdat.command == 0x83) //response for reading the data from the variate
-		{
-			recdat.addr = databuf[4];
-			recdat.addr = (recdat.addr << 8) | databuf[5];
-			recdat.bytelen = databuf[6];
-			for (unsigned long i = 0; i < recdat.bytelen; i += 2)
-			{
-				recdat.data[i / 2] = databuf[7 + i];
-				recdat.data[i / 2] = (recdat.data[i / 2] << 8) | databuf[8 + i];
-			}
-		}
-		else if (recdat.command == 0x81) //response for reading the page from the register
-		{
-			recdat.addr = databuf[4];
-			recdat.bytelen = databuf[5];
-			for (unsigned long i = 0; i < recdat.bytelen; i++)
-			{
-				recdat.data[i] = databuf[6 + i];
-				//recdat.data[i]= (recdat.data[i] << 8 )| databuf[7+i];
-			}
-		}
-	}
-	else
-	{
-		memset(databuf, 0, sizeof(databuf));
-		recnum = 0;
-		return -1; //receive the wrong data
-	}
-	memset(databuf, 0, sizeof(databuf));
-	recnum = 0;
-	return 2;
+      case DGUS_HEADER1_SEEN: // Waiting for the second header byte
+        receivedbyte = DWIN_SERIAL.read();
+        //SERIAL_ECHOLNPGM(" ", receivedbyte);
+        rx_datagram_state = (FHTWO == receivedbyte) ? DGUS_HEADER2_SEEN : DGUS_IDLE;
+        break;
+
+      case DGUS_HEADER2_SEEN: // Waiting for the length byte
+        rx_datagram_len = DWIN_SERIAL.read();
+        //DEBUGLCDCOMM_ECHOPAIR(" (", rx_datagram_len, ") ");
+
+        // Telegram min len is 3 (command and one word of payload)
+        rx_datagram_state = WITHIN(rx_datagram_len, 3, DGUS_RX_BUFFER_SIZE) ? DGUS_WAIT_TELEGRAM : DGUS_IDLE;
+        break;
+
+      case DGUS_WAIT_TELEGRAM: // wait for complete datagram to arrive.
+        if (DWIN_SERIAL.available() < rx_datagram_len) return -1;
+
+        Initialized = true; // We've talked to it, so we defined it as initialized.
+        uint8_t command = DWIN_SERIAL.read();
+
+       // DEBUGLCDCOMM_ECHOPAIR("# ", command);
+
+        uint8_t readlen = rx_datagram_len - 1;  // command is part of len.
+        unsigned char tmp[rx_datagram_len - 1];
+        unsigned char *ptmp = tmp;
+        while (readlen--) {
+          receivedbyte = DWIN_SERIAL.read();
+          //DEBUGLCDCOMM_ECHOPAIR(" ", receivedbyte);
+          *ptmp++ = receivedbyte;
+        }
+        //DEBUGLCDCOMM_ECHOPGM(" # ");
+        // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
+        if (command == VarAddr_W && 'O' == tmp[0] && 'K' == tmp[1]) {
+          //DEBUG_ECHOLNPGM(">");
+          rx_datagram_state = DGUS_IDLE;
+          break;
+        }
+
+        /* AutoUpload, (and answer to) Command 0x83 :
+        |      tmp[0  1  2  3  4 ... ]
+        | Example 5A A5 06 83 20 01 01 78 01 ……
+        |          / /  |  |   \ /   |  \     \
+        |        Header |  |    |    |   \_____\_ DATA (Words!)
+        |     DatagramLen  /  VPAdr  |
+        |           Command          DataLen (in Words) */
+        if (command == VarAddr_R) {
+          const uint16_t vp = tmp[0] << 8 | tmp[1];
+
+         const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
+          //SERIAL_ECHOLNPGM(" vp=", vp, " dlen=", dlen);
+          recdat.addr = vp;
+          recdat.len = tmp[2];
+          for(unsigned int i = 0;i < dlen; i+=2)
+        {
+          recdat.data[i/2]= tmp[3+i];
+          recdat.data[i/2]= (recdat.data[i/2] << 8 )| tmp[4+i];
+        }
+
+          SERIAL_ECHOLNPGM("VP received: ", vp , " - len ", tmp[2]);
+
+          SERIAL_ECHOLNPGM("d1: ", tmp[3] , " - d2 ", tmp[4]);
+          SERIAL_ECHOLNPGM("d3: ", tmp[5] , " - d4 ", tmp[6]);
+
+          rx_datagram_state = DGUS_IDLE;
+          return 2;
+          break;
+        }
+
+      // discard anything else
+      rx_datagram_state = DGUS_IDLE;
+    }
+  }
+  return -1;
 }
 
 void RTSSHOW::RTS_SndData(void)
@@ -729,6 +775,18 @@ void RTSSHOW::RTS_HandleData()
     case BedPID_P :
     case BedPID_I :
     case BedPID_D :
+    case Accel_X:
+    case Accel_Y:
+    case Accel_Z:
+    case Accel_E:
+    case Feed_X:
+    case Feed_Y:
+    case Feed_Z:
+    case Feed_E:
+    case Jerk_X:
+    case Jerk_Y:
+    case Jerk_Z:
+    case Jerk_E:
       Checkkey = ManualSetTemp;
     break;
   }
@@ -747,15 +805,18 @@ void RTSSHOW::RTS_HandleData()
 	if (recdat.addr >= SDFILE_ADDR && recdat.addr <= (SDFILE_ADDR + 10 * (FileNum + 1)))
 		Checkkey = Filename;
 
+  SERIAL_ECHOLNPGM_P(PSTR("== Checkkey=="));
+	SERIAL_ECHOLN(Checkkey);
+
 	if (Checkkey < 0)
 	{
 		memset(&recdat, 0, sizeof(recdat));
 		recdat.head[0] = FHONE;
 		recdat.head[1] = FHTWO;
 		return;
-	}
-	SERIAL_ECHOLNPGM_P(PSTR("== Checkkey=="));
-	SERIAL_ECHOLN(Checkkey);
+  }
+
+
 
   constexpr float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
   SERIAL_ECHOLNPGM_P(PSTR("BeginSwitch"));
@@ -1048,6 +1109,36 @@ void RTSSHOW::RTS_HandleData()
         else if (recdat.addr == BedPID_AutoTmp)
           pid_bedAutoTemp = (uint16_t)recdat.data[0];
       #endif
+
+      else if (recdat.addr == Accel_X) {
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, X);
+      }
+      else if (recdat.addr == Accel_Y) {
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*100, Y);
+      }
+      else if (recdat.addr == Accel_Z) {
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0]*10, Z);
+      }
+      else if (recdat.addr == Accel_E) {
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E0);
+        setAxisMaxAcceleration_mm_s2((uint16_t)recdat.data[0], E1);
+      }
+
+      else if (recdat.addr == Feed_X) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], X);
+        }
+        else if (recdat.addr == Feed_Y) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], Y);
+        }
+        else if (recdat.addr == Feed_Z) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], Z);
+        }
+        else if (recdat.addr == Feed_E) {
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], E0);
+          setAxisMaxFeedrate_mm_s((uint16_t)recdat.data[0], E1);
+        }
+
+
       else {
         float tmp_float_handling;
         if (recdat.data[0] >= 32768)
@@ -1082,6 +1173,23 @@ void RTSSHOW::RTS_HandleData()
             setProbeOffset_mm(tmp_float_handling, Z);
           }
         #endif
+
+        #if ENABLED(CLASSIC_JERK)
+          else if (recdat.addr == Jerk_X) {
+            setAxisMaxJerk_mm_s(tmp_float_handling, X);
+          }
+          else if (recdat.addr == Jerk_Y) {
+            setAxisMaxJerk_mm_s(tmp_float_handling, Y);
+          }
+          else if (recdat.addr == Jerk_Z) {
+            setAxisMaxJerk_mm_s(tmp_float_handling, Z);
+          }
+          else if (recdat.addr == Jerk_E) {
+            setAxisMaxJerk_mm_s(tmp_float_handling, E0);
+            setAxisMaxJerk_mm_s(tmp_float_handling, E1);
+          }
+        #endif
+
         #if HAS_PID_HEATING
           else if (recdat.addr == HotendPID_P) {
             setPIDValues(tmp_float_handling*10, getPIDValues_Ki(getActiveTool()), getPIDValues_Kd(getActiveTool()), getActiveTool());
@@ -1163,7 +1271,7 @@ void RTSSHOW::RTS_HandleData()
       else if (recdat.data[0] == 3) //Move
       {
         AxisPagenum = 0;
-        RTS_SndData(ExchangePageBase + 71, ExchangepageAddr);
+        RTS_SndData(ExchangePageBase + 21, ExchangepageAddr);
       }
       else if (recdat.data[0] == 4) //Language
       {
@@ -1218,7 +1326,6 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            injectCommands_P(PSTR("M500"));
             onStatusChanged(zOffs);
           }
           break;
@@ -1234,7 +1341,6 @@ void RTSSHOW::RTS_HandleData()
             RTS_SndData(getZOffset_mm() * 100, ProbeOffset_Z);
             char zOffs[20], tmp1[11];
             sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
-            injectCommands_P(PSTR("M500"));
             onStatusChanged(zOffs);
           }
           break;
@@ -1418,7 +1524,7 @@ void RTSSHOW::RTS_HandleData()
     case XYZEaxis:
     {
       axis_t axis = X;
-      float min, max = 0;
+      float min = 0.0f, max = 0.0f;
       waitway = 4;
       if (recdat.addr == DisplayXaxis)
       {
@@ -1446,7 +1552,7 @@ void RTSSHOW::RTS_HandleData()
           injectCommands_P((PSTR("G28\nG1 F1000 Z10")));
           InforShowStatus = AutohomeKey = true;
           AutoHomeIconNum = 0;
-          RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
+          //RTS_SndData(ExchangePageBase + 74, ExchangepageAddr);
           RTS_SndData(10, FilenameIcon);
         }
         else
@@ -1622,8 +1728,9 @@ void RTSSHOW::RTS_HandleData()
         #elif NUM_RUNOUT_SENSORS > 1
           (getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE) || (getActiveTool() == E1 && READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT2_STATE)
         #else
-          getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE
+          (getActiveTool() == E0 && READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
         #endif
+         || (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION)
         ) {
           SERIAL_ECHOLNPGM_P(PSTR("Resume Yes during print"));
           //setHostResponse(1); //Send Resume host prompt command
@@ -1901,8 +2008,11 @@ void SetTouchScreenConfiguration() {
   LIMIT(Settings.screen_brightness, 10, 100); // Prevent a possible all-dark screen
   LIMIT(Settings.standby_time_seconds, 10, 655); // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
 
+
   unsigned char cfg_bits = 0x0;
-  cfg_bits |= 1UL << 7; // 7: Enable Control
+  //#if ENABLED(DWINOS_4)
+    cfg_bits |= 1UL << 7; // 7: Enable Control
+  //#endif
   cfg_bits |= 1UL << 5; // 5: load 22 touch file
   cfg_bits |= 1UL << 4; // 4: auto-upload should always be enabled
   if (Settings.display_sound) cfg_bits |= 1UL << 3; // 3: audio
@@ -1911,7 +2021,11 @@ void SetTouchScreenConfiguration() {
   //cfg_bits |= 1UL << 0; // Portrait Mode
 
 
-  const unsigned char config_set[] = { 0x5A, 0x00, 0xFF, cfg_bits };
+  #if ENABLED(DWINOS_4)
+    const unsigned char config_set[] = { 0x5A, 0x00, (unsigned char) (cfg_bits >> 8U), (unsigned char) (cfg_bits & 0xFFU) };
+  #else
+    const unsigned char config_set[] = { 0x5A, 0x00, 0xFF, cfg_bits };
+  #endif
   WriteVariable(0x80 /*System_Config*/, config_set, sizeof(config_set));
 
   // Standby brightness (LED_Config)
@@ -1961,7 +2075,7 @@ void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
     outmsg[j] = '*';
     j++;
   }
-  while (const char c = pgm_read_byte(killMsg[j-4])) {
+  while (const char c = killMsg[j-4]) {
     outmsg[j] = c;
     j++;
   }
@@ -2093,6 +2207,9 @@ void onUserConfirmRequired(const char *const msg)
 {
   PrinterStatusKey[1] = 4;
   TPShowStatus = false;
+  if(lastPauseMsgState==ExtUI::pauseModeStatus && msg == (const char*)GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD))
+    return;
+
   switch(ExtUI::pauseModeStatus)
   {
     case PAUSE_MESSAGE_WAITING:
@@ -2186,6 +2303,7 @@ void onUserConfirmRequired(const char *const msg)
         break;
       }
   }
+  lastPauseMsgState = ExtUI::pauseModeStatus;
 	SERIAL_ECHOLNPGM_P(PSTR("==onUserConfirmRequired=="), pauseModeStatus);
 }
 

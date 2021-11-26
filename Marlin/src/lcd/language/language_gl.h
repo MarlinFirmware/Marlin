@@ -70,7 +70,7 @@ namespace Language_gl {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Axustar Desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfases aplicados");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Fixar orixe");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Prequentar ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Prequentar ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preque. ") PREHEAT_1_LABEL _UxGT(" Bico");
@@ -144,7 +144,7 @@ namespace Language_gl {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Fin Edición da Malla");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Crear Malla Person.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Crear Malla");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Crear Malla ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Validar Malla ($)");
   #endif

@@ -23,14 +23,14 @@
 
 #include "env_validate.h"
 
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+#define USES_DIAG_JUMPERS
+
 // Onboard I2C EEPROM
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x8000  // 32KB (24C32A)
 #define I2C_SCL_PIN                         PB8
 #define I2C_SDA_PIN                         PB9
-
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
 
 // Avoid conflict with TIMER_TONE
 #define STEP_TIMER                            10
@@ -61,7 +61,11 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB7
+  #if ENABLED(BLTOUCH)
+    #define Z_MIN_PROBE_PIN                 PB7
+  #else
+    #define Z_MIN_PROBE_PIN                 PC5   // Probe (Proximity switch) port
+  #endif
 #endif
 
 //
@@ -165,13 +169,6 @@
 #endif
 
 //
-// NeoPixel LED
-//
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PB0
-#endif
-
-//
 // Steppers
 //
 #define X_STEP_PIN                          PF13  // MOTOR 0
@@ -235,11 +232,6 @@
 // Temperature Sensors
 //
 #define TEMP_BED_PIN                        PF3   // TB
-#if TEMP_SENSOR_0 == 20
-  #define TEMP_0_PIN                        PF8   // PT100 Connector
-#else
-  #define TEMP_0_PIN                        PF4   // TH0
-#endif
 #define TEMP_1_PIN                          PF5   // TH1
 #define TEMP_2_PIN                          PF6   // TH2
 #define TEMP_3_PIN                          PF7   // TH3
@@ -523,6 +515,13 @@
   #define BTN_EN1                    EXP2_08_PIN
   #define BTN_EN2                    EXP2_06_PIN
   #define BTN_ENC                    EXP1_09_PIN
+#endif
+
+//
+// NeoPixel LED
+//
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PB0
 #endif
 
 //

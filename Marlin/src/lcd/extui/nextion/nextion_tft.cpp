@@ -335,7 +335,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
     break;
 
   case 29: // Preheat
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       if (!isPrinting()) {
         // Preheat PLA
         if (nextion_command[4] == 'P') {
@@ -560,7 +560,7 @@ void NextionTFT::PanelAction(uint8_t req) {
       break;
 
     case 63: // Preheat // Temps defined in configuration.h
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         if (!isPrinting()) switch (nextion_command[4]) {
           // Preheat PLA
           case 'P':

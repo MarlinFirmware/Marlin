@@ -30,6 +30,8 @@
 #define BOARD_INFO_NAME   "MKS SGEN_L V2"
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
+#define USES_DIAG_JUMPERS
+
 //
 // EEPROM, MKS SGEN_L V2.0 hardware has 4K EEPROM on the board
 //

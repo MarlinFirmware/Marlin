@@ -216,6 +216,10 @@
   #include "feature/controllerfan.h"
 #endif
 
+#if HAS_PRUSA_MMU1
+  #include "feature/mmu/mmu.h"
+#endif
+
 #if HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
 #endif
@@ -872,7 +876,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
 
   #ifdef ACTION_ON_KILL
-    host_action_kill();
+    hostui.kill();
   #endif
 
   minkill(steppers_off);
@@ -1100,6 +1104,10 @@ void setup() {
 
   tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 
+  // Check startup - does nothing if bootloader sets MCUSR to 0
+  const byte mcu = HAL_get_reset_source();
+  HAL_clear_reset_source();
+
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
@@ -1228,15 +1236,14 @@ void setup() {
 
   SETUP_RUN(esp_wifi_init());
 
-  // Check startup - does nothing if bootloader sets MCUSR to 0
-  const byte mcu = HAL_get_reset_source();
+  // Report Reset Reason
   if (mcu & RST_POWER_ON) SERIAL_ECHOLNPGM(STR_POWERUP);
   if (mcu & RST_EXTERNAL) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
   if (mcu & RST_BROWN_OUT) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
   if (mcu & RST_WATCHDOG) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
-  HAL_clear_reset_source();
 
+  // Identify myself as Marlin x.x.x
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
@@ -1525,7 +1532,7 @@ void setup() {
   #endif
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    SETUP_RUN(host_action_prompt_end());
+    SETUP_RUN(hostui.prompt_end());
   #endif
 
   #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
@@ -1547,15 +1554,15 @@ void setup() {
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
+    SETUP_LOG("E3V2 Init");
     Encoder_Configuration();
     HMI_Init();
     HMI_SetLanguageCache();
     HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT_F(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
-    ui.reset_status(true);  // Show service messages or keep current status
+    SETUP_RUN(ui.reset_status(true));  // Show service messages or keep current status
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
@@ -1586,7 +1593,7 @@ void setup() {
   #endif
 
   #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
-    ui.check_touch_calibration();
+    SETUP_RUN(ui.check_touch_calibration());
   #endif
 
   marlin_state = MF_RUNNING;

@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "2.0.9_DW7.4.3"
+#define SHORT_BUILD_VERSION "2.0.9_DW7.4.4"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -51,6 +51,8 @@
   #define VerChar1 "E5"
 #elif(ENABLED(MachineEnder6))
   #define VerChar1 "E6"
+#elif(ENABLED(MachineEnder7))
+  #define VerChar1 "E7"
 #elif(ENABLED(MachineSermoonD1))
   #define VerChar1 "D1"
 #elif(ENABLED(MachineEnder5Plus))
@@ -123,7 +125,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2021-10-15"
+#define STRING_DISTRIBUTION_DATE "2021-11-12"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -138,6 +140,8 @@
   #define CUSTOM_MACHINE_NAME "TM3D E3Max"
 #elif(ENABLED(MachineEnder6))
   #define CUSTOM_MACHINE_NAME "TM3D Ender6"
+#elif(ENABLED(MachineEnder7))
+  #define CUSTOM_MACHINE_NAME "TM3D Ender7"
 #elif(ENABLED(MachineEnder3V2))
   #define CUSTOM_MACHINE_NAME "TM3D Ender3V2"
 #elif(ENABLED(MachineEnder4))
