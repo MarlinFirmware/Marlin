@@ -55,7 +55,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
     if (timer == PULSE_TIMER_DEV) return;
   #endif
 
-  if b`   // Ensure the timer is enabled
+  if (!(timer->regs.bas->SR & TIMER_CR1_CEN))   // Ensure the timer is enabled
     timer_init(timer);
 
   timer_set_mode(timer, channel, TIMER_PWM);
