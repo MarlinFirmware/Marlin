@@ -67,10 +67,10 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   timer_set_mode(timer, channel, TIMER_PWM);
   // Preload (resolution) cannot be equal to duty of 255 otherwise it may not result in digital off or on.
   uint16_t preload = 254;
-  int32_t prescaler = (HAL_TIMER_RATE) / (preload + 1) / f_desired - 1 ;
+  int32_t prescaler = (HAL_TIMER_RATE) / (preload + 1) / f_desired - 1;
   if (prescaler > 65535) {                      // For low frequencies increase prescaler
     prescaler = 65535;
-    preload = (HAL_TIMER_RATE) / (prescaler + 1) / f_desired;
+    preload = (HAL_TIMER_RATE) / (prescaler + 1) / f_desired - 1;
   }
   if (prescaler < 0) return;                    // Too high frequency
   timer_set_reload(timer, preload);
