@@ -878,23 +878,21 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     };
 
     uint8_t fanState = 0;
-    HOTEND_LOOP()
+    HOTEND_LOOP() {
       if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE) {
         SBI(fanState, pgm_read_byte(&fanBit[e]));
-      #if MOTHERBOARD == BOARD_ULTIMAIN_2
-        //For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
-        //https://github.com/Ultimaker/Ultimaker2Marlin/blob/master/Marlin/temperature.cpp#L553
-        DDRJ |= _BV(6);
-        PORTJ |= _BV(6);
-      #endif
-      } else {
-      #if MOTHERBOARD == BOARD_ULTIMAIN_2
-        //For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
-        //https://github.com/Ultimaker/Ultimaker2Marlin/blob/master/Marlin/temperature.cpp#L553
-        DDRJ |= _BV(6);
-        PORTJ &=~_BV(6);
-      #endif
+        #if MOTHERBOARD == BOARD_ULTIMAIN_2
+          // For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
+          // https://github.com/Ultimaker/Ultimaker2Marlin/blob/master/Marlin/temperature.cpp#L553
+          SBI(DDRJ, 6); SBI(PORTJ, 6);
+        #endif
       }
+      else {
+        #if MOTHERBOARD == BOARD_ULTIMAIN_2
+          SBI(DDRJ, 6); CBI(PORTJ, 6);
+        #endif
+      }
+    }
 
     #if HAS_AUTO_CHAMBER_FAN
       if (temp_chamber.celsius >= CHAMBER_AUTO_FAN_TEMPERATURE)
