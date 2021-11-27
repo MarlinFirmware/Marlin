@@ -407,6 +407,7 @@
 #define BOARD_MKS_ROBIN_NANO_V1_3_F4  4235  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VET6)
 #define BOARD_MKS_EAGLE               4236  // MKS Eagle (STM32F407VET6)
 #define BOARD_ARTILLERY_RUBY          4237  // Artillery Ruby (STM32F401RCT6)
+#define BOARD_FYSETC_SPIDER_V2_2      4238  // FYSETC Spider V2.2 (STM32F446VET6)
 
 //
 // ARM Cortex M7
