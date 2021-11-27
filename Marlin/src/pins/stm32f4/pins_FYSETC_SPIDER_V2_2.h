@@ -21,12 +21,8 @@
  */
 #pragma once
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "FYSETC SPIDER V22"
-#endif
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
-#endif
+#define BOARD_INFO_NAME "FYSETC SPIDER V22"
+#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #define TEMP_3_PIN                          PC3
 #define TEMP_4_PIN                          PB1
@@ -34,6 +30,5 @@
 
 #define FAN_PIN                             PA13
 #define FAN1_PIN                            PA14
-
 
 #include "pins_FYSETC_SPIDER.h"
