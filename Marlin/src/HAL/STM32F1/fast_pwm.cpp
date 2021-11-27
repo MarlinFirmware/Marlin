@@ -27,19 +27,20 @@
 #include "HAL.h"
 #include "timers.h"
 
+static uint16_t timer_freq[TIMER_NUM];
+
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   if (!PWM_PIN(pin)) return;
-  uint16_t duty = v;
-  if (invert) duty = v_size - duty;
-  timer_dev *timer = PIN_MAP[pin].timer_device;
-  if (!(timer->regs.bas->SR & TIMER_CR1_CEN)) set_pwm_frequency(pin, PWM_FREQUENCY); // Not set? config default freq.
-  uint8_t channel = PIN_MAP[pin].timer_channel;
-  timer_pause(timer);
-  timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
-  timer_set_count(timer, 0);
-  timer_set_reload(timer, v_size ); // Set the resolution bits to v_size default is 255              
-  timer_set_compare(timer, channel, duty);
-  timer_resume(timer);
+    uint16_t duty = v;
+   if (invert) duty = v_size - duty;
+    timer_dev *timer = PIN_MAP[pin].timer_device;
+    uint8_t channel = PIN_MAP[pin].timer_channel;
+    uint8_t timer_index = 0;
+    for (uint8_t i = 0; i < TIMER_NUM; i++) if (timer == get_timer_dev(i)) { timer_index = i; break; }
+    if (timer_freq[timer_index] == 0) set_pwm_frequency(pin, PWM_FREQUENCY);
+
+    timer_set_compare(timer, channel, duty);
+    timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
 }
 
 void set_pwm_frequency(const pin_t pin, int f_desired) {
@@ -47,8 +48,13 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
 
   timer_dev *timer = PIN_MAP[pin].timer_device;
   uint8_t channel = PIN_MAP[pin].timer_channel;
+  
+  uint8_t timer_index = 0;
+  for (uint8_t i = 0; i < TIMER_NUM; i++) if (timer == get_timer_dev(i)) timer_index = i;
 
-  // Protect used timers
+  timer_freq[timer_index] = f_desired;
+  
+  //Protect used timers
   if (timer == TEMP_TIMER_DEV) return;
   if (timer == STEP_TIMER_DEV) return;
   #if PULSE_TIMER_NUM != STEP_TIMER_NUM
@@ -59,11 +65,12 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
     timer_init(timer);
 
   timer_set_mode(timer, channel, TIMER_PWM);
-  uint16_t preload = 255;                       // Lock 255 PWM resolution for high frequencies
-  int32_t prescaler = (HAL_TIMER_RATE) / (preload + 1) / f_desired - 1;
+  // Preload (resolution) cannot be equal to duty of 255 otherwise it may not result in digital off or on.
+  uint16_t preload = 254;
+  int32_t prescaler = (HAL_TIMER_RATE) / (preload + 1) / f_desired - 1 ;
   if (prescaler > 65535) {                      // For low frequencies increase prescaler
     prescaler = 65535;
-    preload = (HAL_TIMER_RATE) / (prescaler + 1) / f_desired - 1;
+    preload = (HAL_TIMER_RATE) / (prescaler + 1) / f_desired;
   }
   if (prescaler < 0) return;                    // Too high frequency
   timer_set_reload(timer, preload);
