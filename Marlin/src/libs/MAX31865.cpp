@@ -149,15 +149,17 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref, float wir
   Rref = ref;
   RwireRes = wireRes;
 
-  OUT_WRITE(_cs, HIGH);
+  if (_sclk != TERN(LARGE_PINMAP, -1UL, 255)) {
+    OUT_WRITE(_cs, HIGH);
 
-  if (_sclk != TERN(LARGE_PINMAP, -1UL, -1)) {
     softSpiBegin(SPI_QUARTER_SPEED); // Define pin modes for Software SPI
   }
   else {
     #ifdef MAX31865_DEBUG
       SERIAL_ECHOLNPGM("Initializing MAX31865 Hardware SPI");
     #endif
+    
+    digitalWrite(_cs, HIGH);
     SPI.begin();    // Start and configure hardware SPI
   }
 
@@ -200,7 +202,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref, float wir
       " _miso: ", _miso,
       " _sclk: ", _sclk,
       " _mosi: ", _mosi,
-      " config: ", readRegister8(MAX31856_CONFIG_REG)
+      " config: ", readRegister8(MAX31865_CONFIG_REG)
     );
   #endif
 }
@@ -472,12 +474,14 @@ uint16_t MAX31865::readRegister16(uint8_t addr) {
  */
 void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   addr &= 0x7F; // make sure top bit is not set
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (_sclk == TERN(LARGE_PINMAP, -1UL, 255)) {
     SPI.beginTransaction(spiConfig);
-  else
+    digitalWrite(_cs, LOW);
+  }
+  else {
     WRITE(_sclk, LOW);
-
-  WRITE(_cs, LOW);
+    WRITE(_cs, LOW);
+  }
 
   #ifdef TARGET_LPC1768
     DELAY_CYCLES(_spi_speed);
@@ -493,10 +497,13 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
     buffer++;
   }
 
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (_sclk == TERN(LARGE_PINMAP, -1UL, 255)) {
     SPI.endTransaction();
-
-  WRITE(_cs, HIGH);
+    digitalWrite(_cs, HIGH);  
+  }
+  else {
+    WRITE(_cs, HIGH);
+  }
 }
 
 /**
@@ -506,12 +513,14 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
  * @param data  the data to write
  */
 void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (_sclk == TERN(LARGE_PINMAP, -1UL, 255)) {
     SPI.beginTransaction(spiConfig);
-  else
+    digitalWrite(_cs, LOW);
+  }
+  else {
     WRITE(_sclk, LOW);
-
-  WRITE(_cs, LOW);
+    WRITE(_cs, LOW);
+  }
 
   #ifdef TARGET_LPC1768
     DELAY_CYCLES(_spi_speed);
@@ -520,10 +529,13 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data);
 
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (_sclk == TERN(LARGE_PINMAP, -1UL, 255)) {
     SPI.endTransaction();
-
-  WRITE(_cs, HIGH);
+    digitalWrite(_cs, HIGH);  
+  }
+  else {
+    WRITE(_cs, HIGH);
+  }
 }
 
 /**
@@ -536,7 +548,7 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
  * @return    the 8-bit response
  */
 uint8_t MAX31865::spiTransfer(uint8_t x) {
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (_sclk == TERN(LARGE_PINMAP, -1UL, 255))
     return SPI.transfer(x);
 
   #ifdef TARGET_LPC1768
