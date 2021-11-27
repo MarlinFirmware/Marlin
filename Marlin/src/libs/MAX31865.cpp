@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  */
 
 /**
@@ -49,6 +49,10 @@
 #if HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
 
 #include "MAX31865.h"
+
+#ifndef MAX31865_MIN_SAMPLING_TIME_MSEC
+  #define MAX31865_MIN_SAMPLING_TIME_MSEC 0
+#endif
 
 #ifdef TARGET_LPC1768
   #include <SoftwareSPI.h>
@@ -125,6 +129,7 @@ SPISettings MAX31865::spiConfig = SPISettings(
 
 #endif // LARGE_PINMAP
 
+
 /**
  *
  * Instance & Class methods
@@ -137,10 +142,12 @@ SPISettings MAX31865::spiConfig = SPISettings(
  * @param wires  The number of wires in enum format. Can be MAX31865_2WIRE, MAX31865_3WIRE, or MAX31865_4WIRE.
  * @param zero   The resistance of the RTD at 0 degC, in ohms.
  * @param ref    The resistance of the reference resistor, in ohms.
+ * @param wireRes The resistance of the wire connecting the sensor to the RTD, in ohms.
  */
-void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
+void MAX31865::begin(max31865_numwires_t wires, float zero, float ref, float wireRes) {
   Rzero = zero;
   Rref = ref;
+  RwireRes = wireRes;
 
   OUT_WRITE(_cs, HIGH);
 
@@ -154,10 +161,37 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
     SPI.begin();    // Start and configure hardware SPI
   }
 
-  setWires(wires);
-  enableBias(false);
-  autoConvert(false);
-  clearFault();
+  initFixedFlags(wires);
+  
+  clearFault(); // resets fault and initializes flags
+
+  #ifndef MAX31865_USE_AUTO_MODE // make a proper first 1 shot read to initialize _lastRead
+
+    enableBias();
+    DELAY_US(11500);
+    oneShot();
+    DELAY_US(65000);
+    uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+
+    if (rtd & 1) { 
+      _lastRead = 0xFFFF; // some invalid value
+      _lastFault = readRegister8(MAX31865_FAULTSTAT_REG); // keep the fault in a variable and reset flag
+      clearFault(); // also clears the bias voltage flag, so no further action is required
+
+    #ifdef MAX31865_DEBUG
+      SERIAL_ECHOLNPGM("MAX31865 read fault: ", rtd);
+    #endif
+    }
+    else {
+    #ifdef MAX31865_DEBUG
+      SERIAL_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
+    #endif
+      resetFlags();
+      _lastRead = rtd;
+      _lastReadStamp = millis();
+    }
+
+  #endif
 
   #ifdef MAX31865_DEBUG_SPI
     SERIAL_ECHOLNPGM(
@@ -172,82 +206,59 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
 }
 
 /**
- * Read the raw 8-bit FAULTSTAT register
+ * Return and clear the last fault value
  *
- * @return The raw unsigned 8-bit FAULT status register
+ * @return The raw unsigned 8-bit FAULT status register or spike fault
  */
 uint8_t MAX31865::readFault() {
-  return readRegister8(MAX31856_FAULTSTAT_REG);
+  uint8_t r = _lastFault;
+  _lastFault = 0;
+  return r;
 }
 
 /**
- * Clear all faults in FAULTSTAT.
+ * Clear last fault
  */
 void MAX31865::clearFault() {
-  setConfig(MAX31856_CONFIG_FAULTSTAT, 1);
+  setConfig(MAX31865_CONFIG_FAULTSTAT, 1);
 }
 
 /**
- * Whether we want to have continuous conversions (50/60 Hz)
- *
- * @param b  If true, auto conversion is enabled
+ * Reset flags
  */
-void MAX31865::autoConvert(bool b) {
-  setConfig(MAX31856_CONFIG_MODEAUTO, b);
-}
-
-/**
- * Whether we want filter out 50Hz noise or 60Hz noise
- *
- * @param b  If true, 50Hz noise is filtered, else 60Hz(default)
- */
-void MAX31865::enable50HzFilter(bool b) {
-  setConfig(MAX31856_CONFIG_FILT50HZ, b);
+void MAX31865::resetFlags() {
+  writeRegister8(MAX31865_CONFIG_REG, _stdFlags);
 }
 
 /**
  * Enable the bias voltage on the RTD sensor
- *
- * @param b  If true bias is enabled, else disabled
  */
-void MAX31865::enableBias(bool b) {
-  setConfig(MAX31856_CONFIG_BIAS, b);
-
-  // From the datasheet:
-  // Note that if VBIAS is off (to reduce supply current between conversions), any filter
-  // capacitors at the RTDIN inputs need to charge before an accurate conversion can be
-  // performed. Therefore, enable VBIAS and wait at least 10.5 time constants of the input
-  // RC network plus an additional 1ms before initiating the conversion.
-  if (b)
-    DELAY_US(11500); //11.5ms
+void MAX31865::enableBias() {
+  setConfig(MAX31865_CONFIG_BIAS, 1);
 }
 
 /**
  * Start a one-shot temperature reading.
  */
 void MAX31865::oneShot() {
-  setConfig(MAX31856_CONFIG_1SHOT, 1);
-
-  // From the datasheet:
-  // Note that a single conversion requires approximately 52ms in 60Hz filter
-  // mode or 62.5ms in 50Hz filter mode to complete. 1-Shot is a self-clearing bit.
-  // TODO: switch this out depending on the filter mode.
-  DELAY_US(65000); // 65ms
+  setConfig(MAX31865_CONFIG_1SHOT | MAX31865_CONFIG_BIAS, 1);
 }
 
 /**
- * How many wires we have in our RTD setup, can be MAX31865_2WIRE,
- * MAX31865_3WIRE, or MAX31865_4WIRE
+ * Initialize standard flags with flags that will not change during operation (Hz, polling mode and no. of wires)
  *
  * @param wires The number of wires in enum format
  */
-void MAX31865::setWires(max31865_numwires_t wires) {
-  uint8_t t = readRegister8(MAX31856_CONFIG_REG);
+void MAX31865::initFixedFlags(max31865_numwires_t wires) {
+  
+  // set config-defined flags (same for all sensors)
+  _stdFlags = TERN(MAX31865_50HZ_FILTER, MAX31865_CONFIG_FILT50HZ, MAX31865_CONFIG_FILT60HZ) | 
+              TERN(MAX31865_USE_AUTO_MODE, MAX31865_CONFIG_MODEAUTO | MAX31865_CONFIG_BIAS, MAX31865_CONFIG_MODEOFF);
+  
   if (wires == MAX31865_3WIRE)
-    t |= MAX31856_CONFIG_3WIRE;
+    _stdFlags |= MAX31865_CONFIG_3WIRE;
   else // 2 or 4 wire
-    t &= ~MAX31856_CONFIG_3WIRE;
-  writeRegister8(MAX31856_CONFIG_REG, t);
+    _stdFlags &= ~MAX31865_CONFIG_3WIRE;
 }
 
 /**
@@ -257,21 +268,82 @@ void MAX31865::setWires(max31865_numwires_t wires) {
  * @return The raw unsigned 16-bit register value with ERROR bit attached, NOT temperature!
  */
 uint16_t MAX31865::readRaw() {
-  clearFault();
-  enableBias(true);
 
-  oneShot();
-  uint16_t rtd = readRegister16(MAX31856_RTDMSB_REG);
+  uint16_t _rtd = _lastRead;
 
-  #ifdef MAX31865_DEBUG
-    SERIAL_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
+ #ifndef MAX31865_USE_AUTO_MODE
+
+  switch (_lastStep) {
+  case 0: // first step sets up bias voltage
+    if (millis() - _lastStamp < MAX31865_MIN_SAMPLING_TIME_MSEC) // first step waits for at least MIN_SAMPLING msec before enabling bias
+      return _lastRead;
+
+    enableBias();
+
+    _lastStamp = millis();
+    _lastStep = 1;
+    break;
+  
+  case 1: // second step waits for at least 11msec before enabling 1shot
+    if (millis() - _lastStamp < 11)
+      return _lastRead;
+
+    oneShot();
+
+    _lastStamp = millis();
+    _lastStep = 2;
+    break;
+
+  case 2: // second step waits for at least 65msec before making a read
+    if (millis() - _lastStamp < 65)
+      return _lastRead;
+#endif
+
+    _rtd = readRegister16(MAX31865_RTDMSB_REG);
+
+    if (_rtd & 1) { 
+      _lastFault = readRegister8(MAX31865_FAULTSTAT_REG); // keep the fault in a variable and reset flag
+      _lastRead = 0xFFFF;
+      clearFault(); // also clears the bias voltage flag, so no further action is required
+
+    #ifdef MAX31865_DEBUG
+      SERIAL_ECHOLNPGM("MAX31865 read fault: ", _rtd);
+    #endif
+    } 
+  #ifdef MAX31865_USE_READ_ERROR_DETECTION
+    else if (abs(_lastRead - _rtd) > 500 && millis() - _lastReadStamp < 1000) { // if two readings within a second differ too much (~20°C), consider it a read error.
+      _lastFault = 0x01;
+      _lastRead = 0xFFFF;
+      _rtd |= 1; // make it an error
+
+    #ifdef MAX31865_DEBUG
+      SERIAL_ECHOLNPGM("MAX31865 read error: ", _rtd);
+    #endif
+    }
+  #endif    
+    else {
+      _lastRead = _rtd;
+      _lastReadStamp = millis();
+    }
+
+#ifndef MAX31865_USE_AUTO_MODE
+    _lastStep = 0;
+    break;
+  }
+#endif
+
+#ifdef MAX31865_DEBUG
+  #ifndef MAX31865_USE_AUTO_MODE
+    if (_lastStep == 0) {
+  #endif
+      SERIAL_ECHOLNPGM("RTD MSB:", (_rtd >> 8), "  RTD LSB:", (_rtd & 0x00FF));
+  #ifndef MAX31865_USE_AUTO_MODE
+    }
   #endif
 
-  // Disable the bias to lower power dissipation between reads.
-  // If the ref resistor heats up, the temperature reading will be skewed.
-  enableBias(false);
+#endif
 
-  return rtd;
+  return _lastRead;
 }
 
 /**
@@ -283,7 +355,7 @@ uint16_t MAX31865::readRaw() {
 float MAX31865::readResistance() {
   // Strip the error bit (D0) and convert to a float ratio.
   // less precise method: (readRaw() * Rref) >> 16
-  return (((readRaw() >> 1) / 32768.0f) * Rref);
+  return ((readRaw() / 65536.0f) * Rref - RwireRes);
 }
 
 /**
@@ -301,7 +373,7 @@ float MAX31865::temperature() {
  * @return  Temperature in C
  */
 float MAX31865::temperature(uint16_t adcVal) {
-  return temperature(((adcVal) / 32768.0f) * Rref);
+  return temperature(((adcVal) / 32768.0f) * Rref - RwireRes);
 }
 
 /**
@@ -345,6 +417,7 @@ float MAX31865::temperature(float Rrtd) {
 // private:
 //
 
+
 /**
  * Set a value in the configuration register.
  *
@@ -352,12 +425,12 @@ float MAX31865::temperature(float Rrtd) {
  * @param enable  whether to enable or disable the value
  */
 void MAX31865::setConfig(uint8_t config, bool enable) {
-  uint8_t t = readRegister8(MAX31856_CONFIG_REG);
+  uint8_t t = _stdFlags;
   if (enable)
     t |= config;
   else
     t &= ~config; // disable
-  writeRegister8(MAX31856_CONFIG_REG, t);
+  writeRegister8(MAX31865_CONFIG_REG, t);
 }
 
 /**

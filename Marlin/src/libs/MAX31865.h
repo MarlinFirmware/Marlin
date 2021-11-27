@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  */
 
 /**
@@ -45,24 +45,24 @@
 #include "../HAL/shared/Delay.h"
 #include HAL_PATH(../HAL, MarlinSPI.h)
 
-#define MAX31856_CONFIG_REG 0x00
-#define MAX31856_CONFIG_BIAS 0x80
-#define MAX31856_CONFIG_MODEAUTO 0x40
-#define MAX31856_CONFIG_MODEOFF 0x00
-#define MAX31856_CONFIG_1SHOT 0x20
-#define MAX31856_CONFIG_3WIRE 0x10
-#define MAX31856_CONFIG_24WIRE 0x00
-#define MAX31856_CONFIG_FAULTSTAT 0x02
-#define MAX31856_CONFIG_FILT50HZ 0x01
-#define MAX31856_CONFIG_FILT60HZ 0x00
+#define MAX31865_CONFIG_REG 0x00
+#define MAX31865_CONFIG_BIAS 0x80
+#define MAX31865_CONFIG_MODEAUTO 0x40
+#define MAX31865_CONFIG_MODEOFF 0x00
+#define MAX31865_CONFIG_1SHOT 0x20
+#define MAX31865_CONFIG_3WIRE 0x10
+#define MAX31865_CONFIG_24WIRE 0x00
+#define MAX31865_CONFIG_FAULTSTAT 0x02
+#define MAX31865_CONFIG_FILT50HZ 0x01
+#define MAX31865_CONFIG_FILT60HZ 0x00
 
-#define MAX31856_RTDMSB_REG 0x01
-#define MAX31856_RTDLSB_REG 0x02
-#define MAX31856_HFAULTMSB_REG 0x03
-#define MAX31856_HFAULTLSB_REG 0x04
-#define MAX31856_LFAULTMSB_REG 0x05
-#define MAX31856_LFAULTLSB_REG 0x06
-#define MAX31856_FAULTSTAT_REG 0x07
+#define MAX31865_RTDMSB_REG 0x01
+#define MAX31865_RTDLSB_REG 0x02
+#define MAX31865_HFAULTMSB_REG 0x03
+#define MAX31865_HFAULTLSB_REG 0x04
+#define MAX31865_LFAULTMSB_REG 0x05
+#define MAX31865_LFAULTLSB_REG 0x06
+#define MAX31865_FAULTSTAT_REG 0x07
 
 #define MAX31865_FAULT_HIGHTHRESH 0x80  // D7
 #define MAX31865_FAULT_LOWTHRESH 0x40   // D6
@@ -90,14 +90,24 @@ private:
   static SPISettings spiConfig;
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) _sclk, _miso, _mosi, _cs;
-
+  
   #ifdef TARGET_LPC1768
     uint8_t _spi_speed;
   #else
     uint16_t _spi_delay;
   #endif
+  
+  float Rzero, Rref, RwireRes;
+  uint32_t _lastReadStamp = 0;
+  uint16_t _lastRead = 0;
+  uint8_t _lastFault = 0;
 
-  float Rzero, Rref;
+#ifndef MAX31865_USE_AUTO_MODE
+  uint32_t _lastStamp = 0;
+  uint16_t _lastStep = 0;
+#endif
+
+  uint8_t _stdFlags = 0;
 
   void setConfig(uint8_t config, bool enable);
 
@@ -109,6 +119,13 @@ private:
   uint8_t spiTransfer(uint8_t addr);
 
   void softSpiBegin(const uint8_t spi_speed);
+  
+  void initFixedFlags(max31865_numwires_t wires);
+
+  void enable50HzFilter(bool b);
+  void enableBias();
+  void oneShot();
+  void resetFlags();
 
 public:
   #ifdef LARGE_PINMAP
@@ -121,16 +138,10 @@ public:
              int8_t spi_clk);
   #endif
 
-  void begin(max31865_numwires_t wires, float zero, float ref);
+  void begin(max31865_numwires_t wires, float zero, float ref, float wireRes);
 
   uint8_t readFault();
   void clearFault();
-
-  void setWires(max31865_numwires_t wires);
-  void autoConvert(bool b);
-  void enable50HzFilter(bool b);
-  void enableBias(bool b);
-  void oneShot();
 
   uint16_t readRaw();
   float readResistance();
