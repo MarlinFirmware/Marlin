@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -26,18 +26,16 @@
  * https://www.microchip.com/en-us/product/MCP3426
  */
 
-#include "../../core/types.h"
-
+#include <stdint.h>
 #include <Wire.h>
 
 // Address of MCP342X chip
 #define MCP342X_ADC_I2C_ADDRESS 104
 
-class MCP3426
-{
-public:
-  int16_t ReadValue(uint8_t channel, uint8_t gain);
-  bool Error;
+class MCP3426 {
+  public:
+    int16_t ReadValue(uint8_t channel, uint8_t gain);
+    bool Error;
 };
 
 extern MCP3426 mcp3426;

@@ -41,9 +41,8 @@
 
 #define SRAM_EEPROM_EMULATION
 #define MARLIN_EEPROM_SIZE                0x2000  // 8KB
-#define FAN_SOFT_PWM
 
-//i2c mcp3426 (16-Bit, 240SPS, Dual Channel ADC)
+// I2C MCP3426 (16-Bit, 240SPS, dual-channel ADC)
 #define HAS_MCP3426_ADC
 
 //
@@ -119,6 +118,8 @@
 #define FAN1_PIN                            PE3
 #define FAN2_PIN                            PE4
 #define FAN3_PIN                            PE5
+
+#define FAN_SOFT_PWM
 
 // Neopixel Rings
 #define NEOPIXEL_PIN                        PC7
