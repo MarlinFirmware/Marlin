@@ -1269,6 +1269,22 @@
       // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
       //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
     #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      // Add a calibration procedure to compensate for the X-axis twist
+      // in the probe offsets menu 
+      #define X_AXIS_TWIST_COMPENSATION
+      #if ENABLED(PROBE_OFFSET_MESH)
+        //
+        // Enable to init the Probe Z-Offset when starting the Wizard.
+        // Use a height slightly above the estimated nozzle-to-probe Z offset.
+        // For example, with an offset of -5, consider a starting height of -4.
+        //
+        #define X_AXIS_TWIST_COMPENSATION_START_Z 0.0
+        // Set the number of points to probe in the procedure.
+        #define X_AXIS_TWIST_COMPENSATION_POINTS 3
+      #endif
+    #endif
   #endif
 
   // Include a page of printer information in the LCD Main Menu
@@ -1895,7 +1911,7 @@
  *
  * Warning: Does not respect endstops!
  */
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define INTEGRATED_BABYSTEPPING         // EXPERIMENTAL integration of babystepping into the Stepper ISR
   //#define BABYSTEP_WITHOUT_HOMING
@@ -1918,7 +1934,7 @@
 
   //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
 
-  //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
+  #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
