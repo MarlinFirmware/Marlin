@@ -70,9 +70,6 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 
 void set_pwm_frequency(const pin_t pin, int f_desired) {
   if (!PWM_PIN(pin)) return; // Don't proceed if no hardware timer
-  HardwareTimer *HT;
-  PinName pin_name = digitalPinToPinName(pin);
-  TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
 
   uint32_t index = get_timer_index(Instance);
 
@@ -83,11 +80,13 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
     #endif
   ) return;
 
-  if (HardwareTimer_Handle[index] == nullptr) // If frequency is set before duty we need to create a handle here. 
+  const PinName pin_name = digitalPinToPinName(pin);
+  TIM_TypeDef * const Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
+  if (HardwareTimer_Handle[index] == nullptr) // If frequency is set before duty we need to create a handle here.
     HardwareTimer_Handle[index]->__this = new HardwareTimer((TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM));
-  HT = (HardwareTimer *)(HardwareTimer_Handle[index]->__this);
+  HardwareTimer * const HT = (HardwareTimer *)(HardwareTimer_Handle[index]->__this);
   timer_freq[index] = f_desired; // Save the last frequency so duty will not set the default for this timer number.
-  HT->setOverflow(f_desired, HERTZ_FORMAT);   
+  HT->setOverflow(f_desired, HERTZ_FORMAT);
 }
 
 #endif // HAL_STM32
