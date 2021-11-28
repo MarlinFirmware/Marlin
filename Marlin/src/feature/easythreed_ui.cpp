@@ -88,7 +88,7 @@ void EasythreedUI::blinkLED() {
 
 //
 // Filament Load/Unload Button
-// Load/Unload buttons are a 3 position switch with a common center ground. 
+// Load/Unload buttons are a 3 position switch with a common center ground.
 //
 void EasythreedUI::loadButton() {
   if (printingIsActive()) return;
@@ -208,7 +208,7 @@ void EasythreedUI::printButton() {
             print_key_flag = PF_RESUME;                             // The "Print" button now resumes the print
             break;
             }
-          case PF_RESUME: {                                         // Resume printing 
+          case PF_RESUME: {                                         // Resume printing
             if (printingIsActive()) break;
             blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
             queue.inject(F("M24"));                                 // Queue resume

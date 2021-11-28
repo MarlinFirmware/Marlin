@@ -39,7 +39,7 @@
 #define USES_DIAG_PINS
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER                             5
+#define TEMP_TIMER  5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
