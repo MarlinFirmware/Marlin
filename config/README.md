@@ -21,6 +21,7 @@ The following examples are available:
 **Other printers:**
 - [Ender 3 Pro with v4.2.7 board and BLTouch](./ender-3-pro-v427-board-bltouch)
 - [Sovol SV-01 with touch screen and BLTouch](./sovol-sv-01)
+- [CR200b with v4.2.5 board and stock TFT](./cr200b-stock-mb)
 
 ## Helper scripts
 

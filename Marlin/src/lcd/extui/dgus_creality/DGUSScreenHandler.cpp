@@ -758,10 +758,7 @@ void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) 
   if (ramcopy.set_by_display_handler) ramcopy.set_by_display_handler(ramcopy, val_ptr);
 }
 
-void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr) {
-  HandleLiveAdjustZ(var, val_ptr);
-}
-
+#if HAS_MESH
 void DGUSScreenHandler::OnMeshLevelingStart() {
   GotoScreen(DGUSLCD_SCREEN_LEVELING);
   dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_LEVELING));
@@ -816,11 +813,11 @@ void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t x, const int8_t y, con
     // We've already updated the icon, so nothing left
   }
 }
-
+#endif
 void DGUSScreenHandler::SetViewMeshLevelState() {
   dgusdisplay.WriteVariable(VP_MESH_SCREEN_MESSAGE_ICON, static_cast<uint16_t>(MESH_SCREEN_MESSAGE_ICON_VIEWING));
 }
-
+#if HAS_MESH
 void DGUSScreenHandler::InitMeshValues() {
   if (ExtUI::getMeshValid()) {
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
@@ -849,7 +846,7 @@ void DGUSScreenHandler::ResetMeshValues() {
 
   dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(DGUS_GRID_VISUALIZATION_START_ID));
 }
-
+#endif
 uint16_t CreateRgb(double h, double s, double v) {
     struct {
       double h;       // angle in degrees
@@ -919,7 +916,7 @@ uint16_t CreateRgb(double h, double s, double v) {
   return (((static_cast<uint8_t>(out.r * 255) & 0xf8)<<8) + ((static_cast<uint8_t>(out.g * 255) & 0xfc)<<3) + (static_cast<uint8_t>(out.b * 255)>>3));
 }
 
-
+#if HAS_MESH
 void DGUSScreenHandler::UpdateMeshValue(const int8_t x, const int8_t y, const float z) {
   SERIAL_ECHOPAIR("X", x);
   SERIAL_ECHOPAIR(" Y", y);
@@ -1010,7 +1007,7 @@ void DGUSScreenHandler::HandleMeshPoint(DGUS_VP_Variable &var, void *val_ptr) {
 
   RequestSaveSettings();
 }
-
+#endif
 #if HAS_COLOR_LEDS
 void DGUSScreenHandler::HandleLED(DGUS_VP_Variable &var, void *val_ptr) {
   // The display returns a 16-bit integer
@@ -1427,22 +1424,27 @@ void DGUSScreenHandler::HandlePositionChange(DGUS_VP_Variable &var, void *val_pt
   DEBUG_ECHOLNPGM("poschg done.");
 }
 
-void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
+void DGUSScreenHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr, const_float_t scalingFactor) {
   DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
 
-  float absoluteAmount = float(swap16(*(int16_t*)val_ptr))  / 100.0f;
+  float absoluteAmount = float(swap16(*(int16_t*)val_ptr))  / scalingFactor;
   float existingAmount = ExtUI::getZOffset_mm();
   float difference = (absoluteAmount - existingAmount) < 0 ? -0.01 : 0.01;
 
   int16_t steps = ExtUI::mmToWholeSteps(difference, ExtUI::axis_t::Z);
 
   ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
-
+#if ENABLED(HAS_BED_PROBE) //  Without a probe the Z offset is applied using baby offsets, which aren't saved anyway.
   RequestSaveSettings();
-  
+#endif
   ScreenHandler.ForceCompleteUpdate();
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   return;
+}
+
+// This wrapper function is needed to avoid pulling in ExtUI in DGUSScreenHandler.h
+float DGUSScreenHandler::GetCurrentLifeAdjustZ() {
+  return ExtUI::getZOffset_mm();
 }
 
 void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr) {
@@ -1490,7 +1492,7 @@ void DGUSScreenHandler::HandleToggleTouchScreenMute(DGUS_VP_Variable &var, void 
   ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
-#if HAS_PROBE_SETTINGS
+#if ALL(HAS_PROBE_SETTINGS, HAS_BED_PROBE)
 void DGUSScreenHandler::HandleToggleProbeHeaters(DGUS_VP_Variable &var, void *val_ptr) {
   probe.settings.turn_heaters_off = !probe.settings.turn_heaters_off;
 
@@ -1718,8 +1720,10 @@ bool DGUSScreenHandler::loop() {
       // Ensure to pick up the settings
       SetTouchScreenConfiguration();
 
+#if HAS_MESH
       // Set initial leveling status
       InitMeshValues();
+#endif
 
       // No disabled back button
       ScreenHandler.SetSynchronousOperationFinish();
