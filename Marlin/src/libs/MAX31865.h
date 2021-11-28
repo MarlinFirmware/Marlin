@@ -98,7 +98,11 @@ private:
   #endif
   
   float Rzero, Rref, RwireRes;
+
+  #ifdef MAX31865_USE_READ_ERROR_DETECTION
   uint32_t _lastReadStamp = 0;
+  #endif
+  
   uint16_t _lastRead = 0;
   uint8_t _lastFault = 0;
 
@@ -119,7 +123,7 @@ private:
   uint8_t spiTransfer(uint8_t addr);
 
   void softSpiBegin(const uint8_t spi_speed);
-  
+
   void initFixedFlags(max31865_numwires_t wires);
 
   void enable50HzFilter(bool b);

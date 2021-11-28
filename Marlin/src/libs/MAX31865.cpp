@@ -271,7 +271,7 @@ void MAX31865::initFixedFlags(max31865_numwires_t wires) {
  */
 uint16_t MAX31865::readRaw() {
 
-  uint16_t _rtd = _lastRead;
+  uint16_t rtd = _lastRead;
 
  #ifndef MAX31865_USE_AUTO_MODE
 
@@ -301,31 +301,32 @@ uint16_t MAX31865::readRaw() {
       return _lastRead;
 #endif
 
-    _rtd = readRegister16(MAX31865_RTDMSB_REG);
+    rtd = readRegister16(MAX31865_RTDMSB_REG);
 
-    if (_rtd & 1) { 
+    if (rtd & 1) { 
       _lastFault = readRegister8(MAX31865_FAULTSTAT_REG); // keep the fault in a variable and reset flag
-      _lastRead = 0xFFFF;
+      _lastRead |= 1;
       clearFault(); // also clears the bias voltage flag, so no further action is required
 
     #ifdef MAX31865_DEBUG
-      SERIAL_ECHOLNPGM("MAX31865 read fault: ", _rtd);
+      SERIAL_ECHOLNPGM("MAX31865 read fault: ", rtd);
     #endif
     } 
   #ifdef MAX31865_USE_READ_ERROR_DETECTION
-    else if (abs(_lastRead - _rtd) > 500 && millis() - _lastReadStamp < 1000) { // if two readings within a second differ too much (~20°C), consider it a read error.
+    else if (abs(_lastRead - rtd) > 500 && millis() - _lastReadStamp < 1000) { // if two readings within a second differ too much (~20°C), consider it a read error.
       _lastFault = 0x01;
-      _lastRead = 0xFFFF;
-      _rtd |= 1; // make it an error
+      _lastRead |= 1; // make it an error
 
     #ifdef MAX31865_DEBUG
-      SERIAL_ECHOLNPGM("MAX31865 read error: ", _rtd);
+      SERIAL_ECHOLNPGM("MAX31865 read error: ", rtd);
     #endif
     }
   #endif    
     else {
-      _lastRead = _rtd;
+      _lastRead = rtd;
+    #ifdef MAX31865_USE_READ_ERROR_DETECTION
       _lastReadStamp = millis();
+    #endif
     }
 
 #ifndef MAX31865_USE_AUTO_MODE
@@ -338,7 +339,7 @@ uint16_t MAX31865::readRaw() {
   #ifndef MAX31865_USE_AUTO_MODE
     if (_lastStep == 0) {
   #endif
-      SERIAL_ECHOLNPGM("RTD MSB:", (_rtd >> 8), "  RTD LSB:", (_rtd & 0x00FF));
+      SERIAL_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
   #ifndef MAX31865_USE_AUTO_MODE
     }
   #endif
