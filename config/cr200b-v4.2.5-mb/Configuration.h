@@ -2565,6 +2565,7 @@
 //
 
 #define DGUS_LCD_UI_CREALITY_TOUCH
+#define DGUS_LCD_UI_CREALITY_TOUCH_ORIENTATION 0 // Orientation: 0, 1, 2, 3 for 0,90,180,270 degrees respectively
 
 //
 // Touch-screen LCD for Malyan M200/M300 printers

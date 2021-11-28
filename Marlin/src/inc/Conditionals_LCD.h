@@ -481,6 +481,10 @@
   #define EXTENSIBLE_UI
 #endif
 
+#ifndef DGUS_LCD_UI_CREALITY_TOUCH_ORIENTATION
+#define DGUS_LCD_UI_CREALITY_TOUCH_ORIENTATION 1
+#endif
+
 // Aliases for LCD features
 #if IS_ULTRA_LCD
   #define HAS_WIRED_LCD 1
