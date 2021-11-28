@@ -46,9 +46,9 @@ int16_t MCP3426::ReadValue(uint8_t channel, uint8_t gain) {
 
   Wire.beginTransmission(I2C_ADDRESS(MCP342X_ADC_I2C_ADDRESS));
 
-  //Continuous Conversion Mode, 16 bit, Channel 1, Gain x4
-  //26 = 0b00011000
-  //       RXXCSSGG
+  // Continuous Conversion Mode, 16 bit, Channel 1, Gain x4
+  // 26 = 0b00011000
+  //        RXXCSSGG
   //  R = Ready Bit
   // XX = Channel (00=1, 01=2, 10=3 (MCP3428), 11=4 (MCP3428))
   //  C = Conversion Mode Bit (1=  Continuous Conversion Mode (Default))
