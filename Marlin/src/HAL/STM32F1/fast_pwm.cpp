@@ -35,7 +35,6 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   uint16_t max_val = timer->regs.bas->ARR * v / v_size;
   if (invert) max_val = v_size - max_val;
   pwmWrite(pin, max_val);
-
 }
 
 void set_pwm_frequency(const pin_t pin, int f_desired) {
@@ -45,10 +44,10 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   uint8_t channel = PIN_MAP[pin].timer_channel;
 
   // Protect used timers
-  if (timer == get_timer_dev(TEMP_TIMER_NUM)) return;
-  if (timer == get_timer_dev(STEP_TIMER_NUM)) return;
-  #if PULSE_TIMER_NUM != STEP_TIMER_NUM
-    if (timer == get_timer_dev(PULSE_TIMER_NUM)) return;
+  if (timer == HAL_get_timer_dev(MF_TIMER_TEMP)) return;
+  if (timer == HAL_get_timer_dev(MF_TIMER_STEP)) return;
+  #if MF_TIMER_PULSE != MF_TIMER_STEP
+    if (timer == HAL_get_timer_dev(MF_TIMER_PULSE)) return;
   #endif
 
   if (!(timer->regs.bas->SR & TIMER_CR1_CEN))   // Ensure the timer is enabled
