@@ -139,8 +139,8 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ULTIMAKER
-#endif
+  #define MOTHERBOARD BOARD_WANHAO_D5S
+  #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
 #define CUSTOM_MACHINE_NAME "Duplicator5s mini "
@@ -1368,8 +1368,8 @@
 // @section machine
 
 // The size of the printable area
-#define X_BED_SIZE 310
-#define Y_BED_SIZE 210
+#define X_BED_SIZE 305
+#define Y_BED_SIZE 205
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0

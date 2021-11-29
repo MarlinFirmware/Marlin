@@ -306,6 +306,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1153)
 else ifeq ($(HARDWARE_MOTHERBOARD),1154)
 # Tenlog D3 Hero
 else ifeq ($(HARDWARE_MOTHERBOARD),1155)
+# WANHAO D5S
+else ifeq ($(HARDWARE_MOTHERBOARD),1162)
 
 #
 # RAMBo and derivatives
