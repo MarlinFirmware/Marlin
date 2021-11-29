@@ -33,8 +33,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   if (!PWM_PIN(pin)) return;
   uint16_t duty = v;
   if (invert) duty = v_size - duty;
-  timer_dev *timer = PIN_MAP[pin].timer_device;
-  uint8_t channel = PIN_MAP[pin].timer_channel;
+  timer_dev * const timer = PIN_MAP[pin].timer_device;
+  const uint8_t channel = PIN_MAP[pin].timer_channel;
   uint8_t timer_index = 0;
   for (uint8_t i = 0; i < TIMER_NUM; i++) if (timer == get_timer_dev(i)) { timer_index = i; break; }
   if (timer_freq[timer_index] == 0) set_pwm_frequency(pin, PWM_FREQUENCY);
@@ -48,17 +48,16 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
 
   timer_dev *timer = PIN_MAP[pin].timer_device;
   uint8_t channel = PIN_MAP[pin].timer_channel;
-  
-  uint8_t timer_index = 0;
-  for (uint8_t i = 0; i < TIMER_NUM; i++) if (timer == get_timer_dev(i)) timer_index = i;
 
+  uint8_t timer_index = 0;
+  for (uint8_t i = 0; i < TIMER_NUM; i++) if (timer == get_timer_dev(i)) { timer_index = i; break; }
   timer_freq[timer_index] = f_desired;
-  
-  //Protect used timers
-  if (timer == TEMP_TIMER_DEV) return;
-  if (timer == STEP_TIMER_DEV) return;
-  #if PULSE_TIMER_NUM != STEP_TIMER_NUM
-    if (timer == PULSE_TIMER_DEV) return;
+
+  // Protect used timers
+  if (timer == HAL_get_timer_dev(MF_TIMER_TEMP)) return;
+  if (timer == HAL_get_timer_dev(MF_TIMER_STEP)) return;
+  #if MF_TIMER_PULSE != MF_TIMER_STEP
+    if (timer == HAL_get_timer_dev(MF_TIMER_PULSE)) return;
   #endif
 
   if (!(timer->regs.bas->SR & TIMER_CR1_CEN))   // Ensure the timer is enabled

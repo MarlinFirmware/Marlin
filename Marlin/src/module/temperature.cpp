@@ -878,9 +878,21 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     };
 
     uint8_t fanState = 0;
-    HOTEND_LOOP()
-      if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE)
+    HOTEND_LOOP() {
+      if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE) {
         SBI(fanState, pgm_read_byte(&fanBit[e]));
+        #if MOTHERBOARD == BOARD_ULTIMAIN_2
+          // For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
+          // https://github.com/Ultimaker/Ultimaker2Marlin/blob/master/Marlin/temperature.cpp#L553
+          SBI(DDRJ, 6); SBI(PORTJ, 6);
+        #endif
+      }
+      else {
+        #if MOTHERBOARD == BOARD_ULTIMAIN_2
+          SBI(DDRJ, 6); CBI(PORTJ, 6);
+        #endif
+      }
+    }
 
     #if HAS_AUTO_CHAMBER_FAN
       if (temp_chamber.celsius >= CHAMBER_AUTO_FAN_TEMPERATURE)
@@ -2375,7 +2387,7 @@ void Temperature::init() {
     HAL_ANALOG_SELECT(POWER_MONITOR_VOLTAGE_PIN);
   #endif
 
-  HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
+  HAL_timer_start(MF_TIMER_TEMP, TEMP_TIMER_FREQUENCY);
   ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
@@ -2956,11 +2968,11 @@ void Temperature::readings_ready() {
  *  - Call planner.isr to count down its "ignore" time
  */
 HAL_TEMP_TIMER_ISR() {
-  HAL_timer_isr_prologue(TEMP_TIMER_NUM);
+  HAL_timer_isr_prologue(MF_TIMER_TEMP);
 
   Temperature::isr();
 
-  HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
+  HAL_timer_isr_epilogue(MF_TIMER_TEMP);
 }
 
 #if ENABLED(SLOW_PWM_HEATERS) && !defined(MIN_STATE_TIME)

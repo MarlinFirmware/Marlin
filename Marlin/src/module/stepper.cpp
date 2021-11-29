@@ -464,8 +464,8 @@ xyze_int8_t Stepper::count_direction{0};
 #define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
 
 #define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
-#define START_TIMED_PULSE(DIR) (start_pulse_count = HAL_timer_get_count(PULSE_TIMER_NUM))
-#define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count) { }
+#define START_TIMED_PULSE(DIR) (start_pulse_count = HAL_timer_get_count(MF_TIMER_PULSE))
+#define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) { }
 #define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
 #define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE(HIGH)
 #define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
@@ -1454,11 +1454,11 @@ void Stepper::set_directions() {
  */
 
 HAL_STEP_TIMER_ISR() {
-  HAL_timer_isr_prologue(STEP_TIMER_NUM);
+  HAL_timer_isr_prologue(MF_TIMER_STEP);
 
   Stepper::isr();
 
-  HAL_timer_isr_epilogue(STEP_TIMER_NUM);
+  HAL_timer_isr_epilogue(MF_TIMER_STEP);
 }
 
 #ifdef CPU_32_BIT
@@ -1480,7 +1480,7 @@ void Stepper::isr() {
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
   // periods to big periods are respected and the timer does not reset to 0
-  HAL_timer_set_compare(STEP_TIMER_NUM, hal_timer_t(HAL_TIMER_TYPE_MAX));
+  HAL_timer_set_compare(MF_TIMER_STEP, hal_timer_t(HAL_TIMER_TYPE_MAX));
 
   // Count of ticks for the next ISR
   hal_timer_t next_isr_ticks = 0;
@@ -1584,7 +1584,7 @@ void Stepper::isr() {
      * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
      * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
      */
-    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t(
+    min_ticks = HAL_timer_get_count(MF_TIMER_STEP) + hal_timer_t(
       #ifdef __AVR__
         8
       #else
@@ -1608,7 +1608,7 @@ void Stepper::isr() {
   // sure that the time has not arrived yet - Warrantied by the scheduler
 
   // Set the next ISR to fire at the proper time
-  HAL_timer_set_compare(STEP_TIMER_NUM, hal_timer_t(next_isr_ticks));
+  HAL_timer_set_compare(MF_TIMER_STEP, hal_timer_t(next_isr_ticks));
 
   // Don't forget to finally reenable interrupts
   ENABLE_ISRS();
@@ -2769,7 +2769,7 @@ void Stepper::init() {
   #endif
 
   #if DISABLED(I2S_STEPPER_STREAM)
-    HAL_timer_start(STEP_TIMER_NUM, 122); // Init Stepper ISR to 122 Hz for quick starting
+    HAL_timer_start(MF_TIMER_STEP, 122); // Init Stepper ISR to 122 Hz for quick starting
     wake_up();
     sei();
   #endif
@@ -2980,8 +2980,8 @@ void Stepper::report_positions() {
   #define EXTRA_CYCLES_BABYSTEP (STEP_PULSE_CYCLES - (CYCLES_EATEN_BABYSTEP))
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START() const hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM)
-    #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
+    #define _SAVE_START() const hal_timer_t pulse_start = HAL_timer_get_count(MF_TIMER_PULSE)
+    #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(MF_TIMER_PULSE) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
     #define _SAVE_START() NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
