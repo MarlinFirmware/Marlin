@@ -74,9 +74,9 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   uint32_t index = get_timer_index(Instance);
 
   // Protect used timers
-  if (index == TEMP_TIMER_NUM || index == STEP_TIMER_NUM
-    #if PULSE_TIMER_NUM != STEP_TIMER_NUM
-      || index == PULSE_TIMER_NUM
+  if (index == MF_TIMER_TEMP || index == MF_TIMER_STEP
+    #if MF_TIMER_PULSE != MF_TIMER_STEP
+      || index == MF_TIMER_PULSE
     #endif
   ) return;
 
