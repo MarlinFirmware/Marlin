@@ -27,7 +27,7 @@
 #include "HAL.h"
 #include "timers.h"
 
-static uint16_t timer_freq[TIMER_NUM];
+static uint16_t timer_freq[NR_TIMERS];
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   if (!PWM_PIN(pin)) return;
@@ -36,7 +36,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   timer_dev * const timer = PIN_MAP[pin].timer_device;
   const uint8_t channel = PIN_MAP[pin].timer_channel;
   uint8_t timer_index = 0;
-  for (uint8_t i = 0; i < TIMER_NUM; i++) if (timer == get_timer_dev(i)) { timer_index = i; break; }
+  for (uint8_t i = 0; i < NR_TIMERS; i++) if (timer == HAL_get_timer_dev(i)) { timer_index = i; break; }
   if (timer_freq[timer_index] == 0) set_pwm_frequency(pin, PWM_FREQUENCY);
 
   timer_set_compare(timer, channel, duty);
@@ -50,7 +50,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   uint8_t channel = PIN_MAP[pin].timer_channel;
 
   uint8_t timer_index = 0;
-  for (uint8_t i = 0; i < TIMER_NUM; i++) if (timer == get_timer_dev(i)) { timer_index = i; break; }
+  for (uint8_t i = 0; i < NR_TIMERS; i++) if (timer == HAL_get_timer_dev(i)) { timer_index = i; break; }
   timer_freq[timer_index] = f_desired;
 
   // Protect used timers
