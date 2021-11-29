@@ -107,12 +107,12 @@
 // Misc. Functions
 //
 #define SDSS                                  53
-#define LED_PIN                               13
+#define LED_PIN                               -1//13
 #define PS_ON_PIN                             12
 #define SUICIDE_PIN                           54  // PIN that has to be turned on right after start, to keep power flowing.
 
 #ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                       8
+  #define CASE_LIGHT_PIN                       8//8
 #endif
 
 //
@@ -136,22 +136,22 @@
     #define BTN_EN2                           40//42
     #define BTN_ENC                           38//19
 
-    #define SD_DETECT_PIN                     -1//
+    #define SD_DETECT_PIN                     46//
 
   #else                                           // !IS_NEWPANEL - Old style panel with shift register
 
     // Buttons attached to a shift register
-    #define SHIFT_CLK_PIN                     38
-    #define SHIFT_LD_PIN                      42
-    #define SHIFT_OUT_PIN                     40
-    #define SHIFT_EN_PIN                      17
+    //#define SHIFT_CLK_PIN                     38
+    //#define SHIFT_LD_PIN                      42
+    //#define SHIFT_OUT_PIN                     40
+    //#define SHIFT_EN_PIN                      17
 
-    #define LCD_PINS_RS                       16
-    #define LCD_PINS_ENABLE                    5
-    #define LCD_PINS_D4                        6
-    #define LCD_PINS_D5                       21
-    #define LCD_PINS_D6                       20
-    #define LCD_PINS_D7                       19
+    //#define LCD_PINS_RS                       16
+    //#define LCD_PINS_ENABLE                    5
+    //#define LCD_PINS_D4                        6
+    ////#define LCD_PINS_D5                       21
+    //#define LCD_PINS_D6                       20
+    //#define LCD_PINS_D7                       19
 
     #define SD_DETECT_PIN                     -1
 
