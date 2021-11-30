@@ -1,8 +1,8 @@
 /**
- * Lock screen implementation for DWIN display
+ * DWIN End Stops diagnostic page
  * Author: Miguel A. Risco-Castillo
- * version: 2.1
- * Date: 2021/11/09
+ * Version: 1.0
+ * Date: 2021/11/06
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,19 +20,10 @@
  */
 #pragma once
 
-#include "../common/encoder.h"
-#include <stdint.h>
-
-class LockScreenClass {
-private:
-  static bool unlocked;
-  static uint8_t lock_pos;
+class ESDiagClass {
 public:
-  static uint8_t rprocess;
-  static void init();
-  static void onEncoder(EncoderState encoder_diffState);
-  static void draw();
-  static inline bool isUnlocked() { return unlocked; }
+  void Draw();
+  void Update();
 };
 
-extern LockScreenClass lockScreen;
+extern ESDiagClass ESDiag;

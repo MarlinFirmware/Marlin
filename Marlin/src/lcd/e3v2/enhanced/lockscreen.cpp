@@ -1,8 +1,8 @@
 /**
  * Lock screen implementation for DWIN display
  * Author: Miguel A. Risco-Castillo
- * version: 1.2
- * Date: 2021/09/27
+ * version: 2.1
+ * Date: 2021/11/09
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -33,6 +33,7 @@ LockScreenClass lockScreen;
 
 uint8_t LockScreenClass::lock_pos = 0;
 bool LockScreenClass::unlocked = false;
+uint8_t LockScreenClass::rprocess = 0;
 
 void LockScreenClass::init() {
   lock_pos = 0;

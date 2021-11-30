@@ -81,6 +81,13 @@ void GcodeSuite::M303() {
   const int c = parser.intval('C', 5);
   const bool u = parser.boolval('U');
 
+  #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+    if (parser.seen('S')) {
+      if (hid==H_BED) HMI_data.BedPidT = temp; else HMI_data.HotendPidT = temp;
+    }
+    if (parser.seen('C')) HMI_data.PidCycles = c;  
+  #endif
+
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(NOT_BUSY);
   #endif

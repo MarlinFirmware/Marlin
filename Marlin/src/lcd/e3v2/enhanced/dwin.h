@@ -1,8 +1,8 @@
 /**
  * Enhanced DWIN implementation
  * authors: Miguel A. Risco-Castillo (MRISCOC)
- * version: 3.7.1
- * date: 2021/09/08
+ * version: 3.9.2
+ * date: 2021/11/21
  *
  * Based on the original code provided by Creality
  *
@@ -53,11 +53,17 @@ enum processID : uint8_t {
   SelectFile,
   PrintProcess,
   PrintDone,
+  PwrlossRec,
+  Reboot,
   Info,
+  ConfirmToPrint,
 
   // Popup Windows
   Homing,
   Leveling,
+  PidProcess,
+  ESDiagProcess,
+  PrintStatsProcess,
   PauseOrStop,
   FilamentPurge,
   WaitResponse,
@@ -79,6 +85,8 @@ enum pidresult_t : uint8_t {
 
 typedef struct {
   int8_t Color[3];                    // Color components
+  uint16_t pidgrphpoints  = 0;
+  pidresult_t pidresult   = PID_DONE;
   int8_t Preheat          = 0;        // Material Select 0: PLA, 1: ABS, 2: Custom
   AxisEnum axis           = X_AXIS;   // Axis Select
   int32_t MaxValue        = 0;        // Auxiliar max integer/scaled float value
@@ -132,7 +140,6 @@ typedef struct {
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
   bool heat_flag:1;     // 0: heating done  1: during heating
-  bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune
 } HMI_flag_t;
 
 extern HMI_value_t HMI_value;
@@ -148,8 +155,9 @@ void HMI_SDCardUpdate();
 // Other
 void Goto_PrintProcess();
 void Goto_Main_Menu();
-void Goto_InfoMenu();
+void Goto_Info_Menu();
 void Draw_Select_Highlight(const bool sel);
+void Goto_ConfirmToPrint();
 void Draw_Status_Area(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area;
 void DWIN_Redraw_screen();  // Redraw all screen elements
@@ -198,10 +206,20 @@ void DWIN_RebootScreen();
 #endif
 
 // Utility and extensions
+void DWIN_LockScreen();
+void DWIN_UnLockScreen();
 void HMI_LockScreen();
-void DWIN_LockScreen(const bool flag = true);
 #if HAS_MESH
   void DWIN_MeshViewer();
+#endif
+#if HAS_GCODE_PREVIEW
+  void HMI_ConfirmToPrint();
+#endif
+#if HAS_ESDIAG
+  void Draw_EndStopDiag();
+#endif
+#if ENABLED(PRINTCOUNTER)
+  void Draw_PrintStats();
 #endif
 
 // HMI user control functions
@@ -227,6 +245,10 @@ void Draw_LevBedCorners_Menu();
 #if HAS_FILAMENT_SENSOR
   void Draw_FilSet_Menu();
 #endif
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  void Draw_ParkPos_Menu();
+#endif
+void Draw_PhySet_Menu();
 void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
 void Draw_Tune_Menu();
@@ -255,6 +277,9 @@ void Draw_Steps_Menu();
 #endif
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
   void Draw_ZOffsetWiz_Menu();
+#endif
+#if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
+  void Draw_Homing_Menu();
 #endif
 
 // Popup windows

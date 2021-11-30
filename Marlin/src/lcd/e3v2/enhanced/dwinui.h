@@ -51,6 +51,10 @@
 #define ICON_FilSet               ICON_ResumeEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
+#define ICON_FWRetLength          ICON_StepE
+#define ICON_FWRetSpeed           ICON_Setspeed
+#define ICON_FWRetZRaise          ICON_MoveZ
+#define ICON_FWRecSpeed           ICON_Setspeed
 #define ICON_HomeX                ICON_MoveX
 #define ICON_HomeY                ICON_MoveY
 #define ICON_HomeZ                ICON_MoveZ
@@ -123,7 +127,7 @@
 #define Def_PercentTxt_Color  Percent_Color
 #define Def_Barfill_Color     BarFill_Color
 #define Def_Indicator_Color   Color_White
-#define Def_Coordinate_Color   Color_White
+#define Def_Coordinate_Color  Color_White
 
 // UI element defines and constants
 #define DWIN_FONT_MENU font8x16
