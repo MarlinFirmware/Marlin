@@ -29,9 +29,9 @@
 
 static uint16_t timer_freq[NR_TIMERS];
 
-inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_dev_ptr) {
-  *timer = PIN_MAP[pin].timer_device;
-  for (uint8_t i = 0; i < NR_TIMERS; i++) if (timer == HAL_get_timer_dev(i))
+inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
+  *timer_ptr = PIN_MAP[pin].timer_device;
+  for (uint8_t i = 0; i < NR_TIMERS; i++) if (*timer_ptr == HAL_get_timer_dev(i))
     return i;
   return 0;
 }
