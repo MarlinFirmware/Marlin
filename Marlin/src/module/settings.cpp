@@ -250,6 +250,11 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
+    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      xatc_points xatc_z_values;
+      float xatc_spacing;
+      float xatc_start;
+    #endif
   #else
     float z_values[3][3];
   #endif
@@ -814,6 +819,12 @@ void MarlinSettings::postprocess() {
           sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          static_assert(
+          sizeof(xatc_z_values) == XATC_MAX_POINTS * sizeof(xatc_z_values[0]),
+          "Z-offset mesh is the wrong size."
+        );
+        #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
       #endif
@@ -827,6 +838,11 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          EEPROM_WRITE(xatc_z_values);
+          EEPROM_WRITE(xatc_spacing);
+          EEPROM_WRITE(xatc_start);
+        #endif
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
@@ -1691,6 +1707,11 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
+            #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+              EEPROM_READ(xatc_z_values);
+              EEPROM_READ(xatc_spacing);
+              EEPROM_READ(xatc_start);
+            #endif
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
@@ -3196,6 +3217,11 @@ void MarlinSettings::reset() {
             }
           }
         }
+
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          CONFIG_ECHO_START();
+          print_xatc_points();
+        #endif
 
       #endif
 

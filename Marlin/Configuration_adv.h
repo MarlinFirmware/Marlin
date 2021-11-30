@@ -1271,18 +1271,20 @@
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Add a calibration procedure to compensate for the X-axis twist
-      // in the probe offsets menu 
+      // Add a calibration procedure in the probe offsets menu  to compensate
+      // for the X-axis twist
       #define X_AXIS_TWIST_COMPENSATION
-      #if ENABLED(PROBE_OFFSET_MESH)
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
         //
         // Enable to init the Probe Z-Offset when starting the Wizard.
         // Use a height slightly above the estimated nozzle-to-probe Z offset.
         // For example, with an offset of -5, consider a starting height of -4.
         //
-        #define X_AXIS_TWIST_COMPENSATION_START_Z 0.0
-        // Set the number of points to probe in the procedure.
-        #define X_AXIS_TWIST_COMPENSATION_POINTS 3
+        #define XATC_START_Z 0.0
+        // Number of points to probe in the wizard.
+        #define XATC_MAX_POINTS 3
+        // Y position to probe
+        #define XATC_Y_POSITION Y_CENTER
       #endif
     #endif
   #endif
