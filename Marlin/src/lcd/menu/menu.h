@@ -218,6 +218,11 @@ void _lcd_draw_homing();
   void goto_probe_offset_wizard();
 #endif
 
+#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+  void xatc_wizard_continue();
+  void menu_advanced_settings();
+#endif
+
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
   void _lcd_toggle_bed_leveling();
 #endif

@@ -1269,6 +1269,24 @@
       // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
       //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
     #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      // Add a calibration procedure in the probe offsets menu  to compensate
+      // for the X-axis twist
+      #define X_AXIS_TWIST_COMPENSATION
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        //
+        // Enable to init the Probe Z-Offset when starting the Wizard.
+        // Use a height slightly above the estimated nozzle-to-probe Z offset.
+        // For example, with an offset of -5, consider a starting height of -4.
+        //
+        #define XATC_START_Z 0.0
+        // Number of points to probe in the wizard.
+        #define XATC_MAX_POINTS 3
+        // Y position to probe
+        #define XATC_Y_POSITION Y_CENTER
+      #endif
+    #endif
   #endif
 
   // Include a page of printer information in the LCD Main Menu
