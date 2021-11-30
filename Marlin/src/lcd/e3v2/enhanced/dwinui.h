@@ -1,8 +1,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
- * Date: 2021/11/06
+ * Version: 3.9.1
+ * Date: 2021/11/21
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -61,6 +61,7 @@
 #define ICON_HSMode               ICON_StockConfiguration
 #define ICON_InvertE0             ICON_StepE
 #define ICON_LevBed               ICON_SetEndTemp
+#define ICON_Level                ICON_HotendTemp
 #define ICON_Lock                 ICON_Cool
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MaxPosX              ICON_MoveX
@@ -80,6 +81,8 @@
 #define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_PIDcycles            ICON_ResumeEEPROM
 #define ICON_PIDValue             ICON_Contact
+#define ICON_PrintStats           ICON_PrintTime
+#define ICON_PrintStatsReset      ICON_RemainTime
 #define ICON_ProbeDeploy          ICON_SetEndTemp
 #define ICON_ProbeMargin          ICON_PrintSize
 #define ICON_ProbeOffsetX         ICON_StepX
@@ -236,9 +239,11 @@ namespace DWINUI {
 
   // Get font character width
   uint8_t fontWidth(uint8_t cfont);
+  inline uint8_t fontWidth() { return fontWidth(font); };
 
   // Get font character heigh
   uint8_t fontHeight(uint8_t cfont);
+  inline uint8_t fontHeight() { return fontHeight(font); };
 
   // Get screen x coodinates from text column
   uint16_t ColToX(uint8_t col);
@@ -449,6 +454,14 @@ namespace DWINUI {
   }
   inline void Draw_CenteredString(uint16_t y, FSTR_P title) {
     Draw_CenteredString(false, font, textcolor, backcolor, y, title);
+  }
+
+  // Draw a box
+  //  mode: 0=frame, 1=fill, 2=XOR fill
+  //  color: Rectangle color
+  //  frame: Box coordinates and size
+  inline void Draw_Box(uint8_t mode, uint16_t color, frame_rect_t frame) {
+    DWIN_Draw_Box(mode, color, frame.x, frame.y, frame.w, frame.h);
   }
 
   // Draw a circle

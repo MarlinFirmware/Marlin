@@ -1,8 +1,8 @@
 /**
  * Enhanced DWIN implementation
  * Author: Miguel A. Risco-Castillo (MRISCOC)
- * version: 3.7.1
- * date: 2021/11/06
+ * version: 3.9.2
+ * date: 2021/11/21
  *
  * Based on the original code provided by Creality
  *
@@ -37,7 +37,6 @@
 #include "../../../core/macros.h"
 
 #include "../../../module/temperature.h"
-#include "../../../module/printcounter.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
 
@@ -74,6 +73,10 @@
 
 #if HAS_MESH
   #include "meshviewer.h"
+#endif
+
+#if ENABLED(PRINTCOUNTER)
+  #include "printstats.h"
 #endif
 
 #include <WString.h>
@@ -142,7 +145,7 @@ enum SelectItem : uint8_t {
   PAGE_PRINT = 0,
   PAGE_PREPARE,
   PAGE_CONTROL,
-  PAGE_INFO_LEVELING,
+  PAGE_INFO_LEV_ADV,
   PAGE_COUNT,
 
   PRINT_SETUP = 0,
@@ -230,8 +233,11 @@ MenuClass *MaxJerkMenu = nullptr;
 MenuClass *StepsMenu = nullptr;
 MenuClass *HotendPIDMenu = nullptr;
 MenuClass *BedPIDMenu = nullptr;
-#if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+#if HAS_BED_PROBE
   MenuClass *ZOffsetWizMenu = nullptr;
+#endif
+#if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
+  MenuClass *HomingMenu = nullptr;
 #endif
 
 // Updatable menuitems pointers
@@ -264,13 +270,20 @@ void HMI_ToggleLanguage() {
   #endif
 }
 
+//-----------------------------------------------------------------------------
+// Main Buttons
+//-----------------------------------------------------------------------------
+
 typedef struct { uint16_t x, y[2], w, h; } text_info_t;
 
-void ICON_Button(const bool here, const int iconid, const frame_rect_t &ico, const text_info_t (&txt)[2]) {
+void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico, const text_info_t (&txt)[2], FSTR_P caption) {
   const bool cn = HMI_IsChinese();
-  DWIN_ICON_Show(true, false, false, ICON, iconid + here, ico.x, ico.y);
-  if (here) DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, ico.x, ico.y, ico.x + ico.w - 1, ico.y + ico.h - 1);
+  DWIN_ICON_Show(true, false, false, ICON, iconid + selected, ico.x, ico.y);
+  if (selected) DWINUI::Draw_Box(0, HMI_data.Highlight_Color, ico);
   DWIN_Frame_AreaCopy(1, txt[cn].x, txt[cn].y[here], txt[cn].x + txt[cn].w - 1, txt[cn].y[here] + txt[cn].h - 1, ico.x + (ico.w - txt[cn].w) / 2, (ico.y + ico.h - 28) - txt[cn].h/2);
+  const uint16_t x = ico.x + (ico.w - strlen_P(caption)*DWINUI::fontWidth()) / 2;
+  const uint16_t y = (ico.y + ico.h - 28) - DWINUI::fontHeight()/2;
+  DWINUI::Draw_String(x, y, caption);
 }
 
 //
