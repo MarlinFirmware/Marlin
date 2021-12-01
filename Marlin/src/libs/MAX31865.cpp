@@ -332,6 +332,9 @@ uint16_t MAX31865::readRaw() {
     }
 
 #ifndef MAX31865_USE_AUTO_MODE
+    if (!(rtd & 1)) // if clearFault() was not invoked...
+      resetFlags(); // clear the bias voltage and 1-shot flags
+
     _lastStep = 0;
     break;
   }
