@@ -190,7 +190,9 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref, float wir
     #endif
       resetFlags();
       _lastRead = rtd;
+    #ifdef MAX31865_USE_READ_ERROR_DETECTION
       _lastReadStamp = millis();
+    #endif
     }
 
   #endif
