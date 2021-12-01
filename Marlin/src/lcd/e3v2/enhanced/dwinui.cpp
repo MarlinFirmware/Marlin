@@ -23,7 +23,7 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.7.1
+ * Version: 3.8.1
  * Date: 2021/11/09
  */
 
@@ -34,6 +34,7 @@
 #include "../../../inc/MarlinConfig.h"
 #include "dwin_lcd.h"
 #include "dwinui.h"
+#include "dwin_defines.h"
 
 //#define DEBUG_OUT 1
 #include "../../../core/debug_out.h"
