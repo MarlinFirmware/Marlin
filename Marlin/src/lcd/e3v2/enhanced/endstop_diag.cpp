@@ -20,6 +20,7 @@
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+#include "dwin_defines.h"
 
 #if BOTH(DWIN_CREALITY_LCD_ENHANCED, HAS_ESDIAG)
 

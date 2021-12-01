@@ -1250,9 +1250,6 @@
   // BACK menu items keep the highlight at the top
   //#define TURBO_BACK_MENU_ITEM
 
-  // Add a mute option to the LCD menu
-  //#define SOUND_MENU_ITEM
-
   /**
    * LED Control Menu
    * Add LED Control to the LCD menu
@@ -1284,6 +1281,10 @@
 
 #endif // HAS_LCD_MENU
 
+#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+  #define SOUND_MENU_ITEM   // Add a mute option to the LCD menu  // MRiscoC Enable Sound Menu Item
+#endif
+
 #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
   // The timeout (in ms) to return to the status screen from sub-menus
   //#define LCD_TIMEOUT_TO_STATUS 15000
@@ -1296,13 +1297,13 @@
   #endif
 
   // Scroll a longer status message into view
-  #define STATUS_MESSAGE_SCROLLING
+  #define STATUS_MESSAGE_SCROLLING  // MRiscoC Allow scrolling of large status messages
 
   // On the Info Screen, display XY with one decimal place when possible
   //#define LCD_DECIMAL_SMALL_XY
 
   // Add an 'M73' G-code to set the current percentage
-  #define LCD_SET_PROGRESS_MANUALLY
+  #define LCD_SET_PROGRESS_MANUALLY  // MRiscoC Allow display feedback of host printing through GCode M73
 
   // Show the E position (filament used) during printing
   //#define LCD_SHOW_E_TOTAL

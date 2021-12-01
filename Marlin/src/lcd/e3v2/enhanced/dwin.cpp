@@ -26,6 +26,7 @@
 #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "dwin.h"
+#include "dwin_popup.h"
 
 #include "../../fontutils.h"
 #include "../../marlinui.h"
@@ -527,50 +528,21 @@ inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
   return encoder_diffState == ENCODER_DIFF_ENTER;
 }
 
-//
-// Draw Popup Windows
-//
-
-inline void Draw_Popup_Bkgd_60() {
-  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_color,   14, 60, 258, 330);
-  DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 14, 60, 258, 330);
-}
-
-inline void Draw_Popup_Bkgd_105() {
-  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_color,   14, 105, 258, 374);
-  DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 14, 105, 258, 374);
-}
-
-void Clear_Popup_Area() {
-  DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
-}
-
-void DWIN_Draw_Popup1(const uint8_t icon) {
-  DWINUI::ClearMenuArea();
-  Draw_Popup_Bkgd_60();
-  if (icon) DWINUI::Draw_Icon(icon, 101, 105);
-}
-void DWIN_Draw_Popup2(FSTR_P const fmsg2, uint8_t button) {
-  if (fmsg2) DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 240, fmsg2);
-  if (button) DWINUI::Draw_Icon(button, 86, 280);
-}
-
-void DWIN_Draw_Popup(const uint8_t icon, const char * const cmsg1, FSTR_P const fmsg2, uint8_t button) {
-  DWIN_Draw_Popup1(icon);
-  if (cmsg1) DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 210, cmsg1);
-  DWIN_Draw_Popup2(fmsg2, button);
-}
-
-void DWIN_Draw_Popup(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2, uint8_t button) {
-  DWIN_Draw_Popup1(icon);
-  if (fmsg1) DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 210, fmsg1);
-  DWIN_Draw_Popup2(fmsg2, button);
-}
-
-void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2) {
-  HMI_SaveProcessID(WaitResponse);
-  DWIN_Draw_Popup(icon, fmsg1, fmsg2, ICON_Continue_E);  // Button Continue
-  DWIN_UpdateLCD();
+//PopUps
+void Popup_window_PauseOrStop() {
+  if (HMI_IsChinese()) {
+    DWINUI::ClearMenuArea();
+    Draw_Popup_Bkgd();
+         if (select_print.now == PRINT_PAUSE_RESUME) DWIN_Frame_AreaCopy(1, 237, 338, 269, 356, 98, 150);
+    else if (select_print.now == PRINT_STOP) DWIN_Frame_AreaCopy(1, 221, 320, 253, 336, 98, 150);
+    DWIN_Frame_AreaCopy(1, 220, 304, 264, 319, 130, 150);
+    DWINUI::Draw_Icon(ICON_Confirm_C, 26, 280);
+    DWINUI::Draw_Icon(ICON_Cancel_C, 146, 280);
+    Draw_Select_Highlight(true);
+    DWIN_UpdateLCD();
+  }
+  else 
+    DWIN_Popup_ConfirmCancel(ICON_BLTouch, select_print.now == PRINT_PAUSE_RESUME ? GET_TEXT_F(MSG_PAUSE_PRINT) : GET_TEXT_F(MSG_STOP_PRINT));
 }
 
 #if HAS_HOTEND
@@ -579,7 +551,7 @@ void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fm
     if (HMI_IsChinese()) {
       HMI_SaveProcessID(WaitResponse);
       DWINUI::ClearMenuArea();
-      Draw_Popup_Bkgd_60();
+      Draw_Popup_Bkgd();
       DWINUI::Draw_Icon(ICON_TempTooLow, 102, 105);
       DWIN_Frame_AreaCopy(1, 103, 371, 136, 386,  69, 240);
       DWIN_Frame_AreaCopy(1, 170, 371, 270, 386, 102, 240);
@@ -592,79 +564,25 @@ void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fm
 
 #endif
 
-void Popup_Window_Resume() {
-  Clear_Popup_Area();
-  Draw_Popup_Bkgd_105();
-  if (HMI_IsChinese()) {
-    DWIN_Frame_AreaCopy(1, 160, 338, 235, 354, 98, 135);
-    DWIN_Frame_AreaCopy(1, 103, 321, 271, 335, 52, 192);
-    DWINUI::Draw_Icon(ICON_Cancel_C,    26, 307);
-    DWINUI::Draw_Icon(ICON_Continue_C, 146, 307);
-  }
-  else {
-    DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 115, F("Continue Print"));
-    DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 192, F("It looks like the last"));
-    DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 212, F("file was interrupted."));
-    DWINUI::Draw_Icon(ICON_Cancel_E,    26, 307);
-    DWINUI::Draw_Icon(ICON_Continue_E, 146, 307);
-  }
-}
-
-void Draw_Select_Highlight(const bool sel) {
-  HMI_flag.select_flag = sel;
-  const uint16_t c1 = sel ? HMI_data.Highlight_Color : HMI_data.PopupBg_color,
-                 c2 = sel ? HMI_data.PopupBg_color : HMI_data.Highlight_Color;
-  DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
-  DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
-  DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);
-  DWIN_Draw_Rectangle(0, c2, 144, 278, 247, 319);
-}
-
-void Popup_window_PauseOrStop() {
-  if (HMI_IsChinese()) {
-    DWINUI::ClearMenuArea();
-    Draw_Popup_Bkgd_60();
-         if (select_print.now == PRINT_PAUSE_RESUME) DWIN_Frame_AreaCopy(1, 237, 338, 269, 356, 98, 150);
-    else if (select_print.now == PRINT_STOP) DWIN_Frame_AreaCopy(1, 221, 320, 253, 336, 98, 150);
-    DWIN_Frame_AreaCopy(1, 220, 304, 264, 319, 130, 150);
-    DWINUI::Draw_Icon(ICON_Confirm_C, 26, 280);
-    DWINUI::Draw_Icon(ICON_Cancel_C, 146, 280);
-  }
-  else {
-    DWIN_Draw_Popup(ICON_BLTouch, F("Please confirm"), select_print.now == PRINT_PAUSE_RESUME ? GET_TEXT_F(MSG_PAUSE_PRINT) : GET_TEXT_F(MSG_STOP_PRINT));
-    DWINUI::Draw_Icon(ICON_Confirm_E, 26, 280);
-    DWINUI::Draw_Icon(ICON_Cancel_E, 146, 280);
-  }
-  Draw_Select_Highlight(true);
-  DWIN_UpdateLCD();
-}
-
 #if HAS_HOTEND || HAS_HEATED_BED
   void DWIN_Popup_Temperature(const bool toohigh) {
-    Clear_Popup_Area();
-    Draw_Popup_Bkgd_105();
-    if (toohigh) {
-      DWINUI::Draw_Icon(ICON_TempTooHigh, 102, 165);
-      if (HMI_IsChinese()) {
+    DWINUI::ClearMenuArea();
+    Draw_Popup_Bkgd();
+    if (HMI_IsChinese()) {
+      if (toohigh) {
+        DWINUI::Draw_Icon(ICON_TempTooHigh, 102, 165);
         DWIN_Frame_AreaCopy(1, 103, 371, 237, 386, 52, 285);
         DWIN_Frame_AreaCopy(1, 151, 389, 185, 402, 187, 285);
         DWIN_Frame_AreaCopy(1, 189, 389, 271, 402, 95, 310);
       }
       else {
-        DWINUI::Draw_String(HMI_data.PopupTxt_Color, 36, 300, F("Nozzle or Bed temperature"));
-        DWINUI::Draw_String(HMI_data.PopupTxt_Color, 92, 300, F("is too high"));
-      }
-    }
-    else {
-      DWINUI::Draw_Icon(ICON_TempTooLow, 102, 165);
-      if (HMI_IsChinese()) {
+        DWINUI::Draw_Icon(ICON_TempTooLow, 102, 165);
         DWIN_Frame_AreaCopy(1, 103, 371, 270, 386, 52, 285);
         DWIN_Frame_AreaCopy(1, 189, 389, 271, 402, 95, 310);
       }
-      else {
-        DWINUI::Draw_String(HMI_data.PopupTxt_Color, 36, 300, F("Nozzle or Bed temperature"));
-        DWINUI::Draw_String(HMI_data.PopupTxt_Color, 92, 300, F("is too low"));
-      }
+    }
+    else {
+      DWIN_Draw_Popup(toohigh ? ICON_TempTooHigh : ICON_TempTooLow, F("Nozzle or Bed temperature"), toohigh ? F("is too high") : F("is too low"));
     }
   }
 #endif
@@ -751,12 +669,10 @@ void DWIN_DrawStatusMessage() {
 
 void Draw_Print_Labels() {
   if (HMI_IsChinese()) {
-    Title.FrameCopy(30, 1, 42, 14);                     // "Printing"
     DWIN_Frame_AreaCopy(1,  0, 72,  63, 86,  41, 173);  // Printing Time
     DWIN_Frame_AreaCopy(1, 65, 72, 128, 86, 176, 173);  // Remain
   }
   else {
-      Title.ShowCaption(GET_TEXT(MSG_PRINTING));
       DWINUI::Draw_String( 46, 173, F("Print Time"));
       DWINUI::Draw_String(181, 173, F("Remain"));
   }
@@ -790,6 +706,10 @@ void ICON_ResumeOrPause() {
 }
 
 void Draw_PrintProcess() {
+  if (HMI_IsChinese())
+    Title.FrameCopy(30, 1, 42, 14);                     // "Printing"
+  else
+    Title.ShowCaption(GET_TEXT_F(MSG_PRINTING));
   DWINUI::ClearMenuArea();
   DWIN_Print_Header(sdprint ? card.longest_filename() : nullptr);
   Draw_Print_Labels();
@@ -828,7 +748,6 @@ void Draw_PrintDone() {
   DWINUI::Draw_Icon(ICON_RemainTime, 150, 171);
   Draw_Print_ProgressElapsed();
   Draw_Print_ProgressRemain();
-
   // show print done confirm
   DWINUI::Draw_Icon(HMI_IsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 273);
   DWIN_UpdateLCD();
@@ -836,12 +755,10 @@ void Draw_PrintDone() {
 
 void Draw_Main_Menu() {
   DWINUI::ClearMenuArea();
-
   if (HMI_IsChinese())
     Title.FrameCopy(2, 2, 26, 13);   // "Home" etc
   else
     Title.ShowCaption(MACHINE_NAME);
-
   DWINUI::Draw_Icon(ICON_LOGO, 71, 52);  // CREALITY logo
   ICON_Print();
   ICON_Prepare();
@@ -1260,7 +1177,7 @@ void Draw_Info_Menu() {
   DWINUI::Draw_CenteredString(268, F(CORP_WEBSITE));
 
   LOOP_L_N(i, 3) {
-    DWINUI::Draw_Icon(ICON_PrintSize + i, 26, 99 + i * 73);
+    DWINUI::Draw_Icon(ICON_PrintSize + i, ICOX, 99 + i * 73);
     DWIN_Draw_HLine(HMI_data.SplitLine_Color, 16, MBASE(2) + i * 73, 240);
   }
 
@@ -1542,7 +1459,7 @@ void HMI_PauseOrStop() {
         #ifdef ACTION_ON_CANCEL
           hostui.cancel();
         #endif
-        DWIN_Draw_Popup(ICON_BLTouch, F("Stopping...") , F("Please wait until done."));
+        DWIN_Draw_Popup(ICON_BLTouch, F("Stopping..."), F("Please wait until done."));
       }
       else
         Goto_PrintProcess(); // cancel stop
@@ -1726,60 +1643,68 @@ void EachMomentUpdate() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // resume print before power off
-      static bool recovery_flag = false;
-
-      recovery.dwin_flag = false;
-      recovery_flag = true;
-
-      auto update_selection = [&](const bool sel) {
-        HMI_flag.select_flag = sel;
-        const uint16_t c1 = sel ? HMI_data.PopupBg_color : HMI_data.Highlight_Color;
-        DWIN_Draw_Rectangle(0, c1, 25, 306, 126, 345);
-        DWIN_Draw_Rectangle(0, c1, 24, 305, 127, 346);
-        const uint16_t c2 = sel ? HMI_data.Highlight_Color : HMI_data.PopupBg_color;
-        DWIN_Draw_Rectangle(0, c2, 145, 306, 246, 345);
-        DWIN_Draw_Rectangle(0, c2, 144, 305, 247, 346);
-      };
-
-      Popup_Window_Resume();
-      update_selection(true);
-
-      // TODO: Get the name of the current file from someplace
-      //
-      //(void)recovery.interrupted_file_exists();
-      SdFile *dir = nullptr;
-      const char * const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
-      card.selectFileByName(filename);
-      DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 252, card.longest_filename());
-      DWIN_UpdateLCD();
-
-      while (recovery_flag) {
-        EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
-        if (encoder_diffState != ENCODER_DIFF_NO) {
-          if (encoder_diffState == ENCODER_DIFF_ENTER) {
-            recovery_flag = false;
-            if (HMI_flag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
-            return HMI_StartFrame(true);
-          }
-          else
-            update_selection(encoder_diffState == ENCODER_DIFF_CW);
-
-          DWIN_UpdateLCD();
-        }
-        watchdog_refresh();
-      }
-
-      select_print.set(PRINT_SETUP);
-      queue.inject(F("M1000"));
-      sdprint = true;
-      Goto_PrintProcess();
-      Draw_Status_Area(true);
+      Goto_PowerLossRecovery();
     }
   #endif // POWER_LOSS_RECOVERY
 
   DWIN_UpdateLCD();
 }
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  void Popup_PowerLossRecovery() {
+    DWINUI::ClearMenuArea();
+    Draw_Popup_Bkgd();
+    if (HMI_IsChinese()) {
+      DWIN_Frame_AreaCopy(1, 160, 338, 235, 354, 98, 115);
+      DWIN_Frame_AreaCopy(1, 103, 321, 271, 335, 52, 167);
+      DWINUI::Draw_Icon(ICON_Cancel_C,    26, 280);
+      DWINUI::Draw_Icon(ICON_Continue_C, 146, 280);
+    }
+    else {
+      DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 70, GET_TEXT_F(MSG_OUTAGE_RECOVERY));
+      DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 147, F("It looks like the last"));
+      DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 167, F("file was interrupted."));
+      DWINUI::Draw_Icon(ICON_Cancel_E,    26, 280);
+      DWINUI::Draw_Icon(ICON_Continue_E, 146, 280);
+    }
+    SdFile *dir = nullptr;
+    const char * const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
+    card.selectFileByName(filename);
+    DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 207, card.longest_filename());
+    Draw_Select_Highlight(HMI_flag.select_flag);
+    DWIN_UpdateLCD();
+  }
+
+  void Goto_PowerLossRecovery() {
+    recovery.dwin_flag = false;
+    LCD_MESSAGE_F("Recovery from power loss");
+    HMI_flag.select_flag = false;
+    Popup_PowerLossRecovery();
+    last_checkkey = MainMenu;
+    checkkey = PwrlossRec;
+  }
+
+  void HMI_PowerlossRecovery() {
+    EncoderState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+    if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      if (HMI_flag.select_flag) {
+        queue.inject(F("M1000C"));
+        select_page.reset();
+        Goto_Main_Menu();
+      } else {
+        select_print.set(PRINT_SETUP);
+        queue.inject(F("M1000"));
+        sdprint = true;
+        Goto_PrintProcess();
+      }
+    }
+    else
+      Draw_Select_Highlight(encoder_diffState != ENCODER_DIFF_CW);
+    DWIN_UpdateLCD();
+  }
+#endif // POWER_LOSS_RECOVERY
+
 
 void DWIN_HandleScreen() {
   switch (checkkey) {
@@ -1807,10 +1732,10 @@ void DWIN_HandleScreen() {
       case ConfirmToPrint:HMI_ConfirmToPrint(); break;
     #endif
     #if HAS_ESDIAG
-      case ESDiagProcess: HMI_WaitForUser(); break;
+      case ESDiagProcess: HMI_Popup(); break;
     #endif
     #if ENABLED(PRINTCOUNTER)
-      case PrintStatsProcess: HMI_WaitForUser(); break;
+      case PrintStatsProcess: HMI_Popup(); break;
     #endif
     default: break;
   }
