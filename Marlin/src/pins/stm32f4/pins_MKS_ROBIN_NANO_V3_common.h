@@ -29,7 +29,7 @@
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
@@ -335,7 +335,7 @@
     //#define MKS_LCD12864B
     //#undef SHOW_BOOTSCREEN
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define DOGLCD_CS                EXP1_08_PIN
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_PINS_DC                DOGLCD_A0

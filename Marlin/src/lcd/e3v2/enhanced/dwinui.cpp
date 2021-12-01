@@ -2,7 +2,7 @@
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
  * Version: 3.8.1
- * Date: 2021/11/06
+ * Date: 2021/11/09
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -87,7 +87,7 @@ uint8_t DWINUI::fontWidth(uint8_t cfont) {
   }
 }
 
-// Get font character heigh
+// Get font character height
 uint8_t DWINUI::fontHeight(uint8_t cfont) {
   switch (cfont) {
     case font6x12 : return 12;
@@ -104,12 +104,12 @@ uint8_t DWINUI::fontHeight(uint8_t cfont) {
   }
 }
 
-// Get screen x coodinates from text column
+// Get screen x coordinates from text column
 uint16_t DWINUI::ColToX(uint8_t col) {
   return col * fontWidth(font);
 }
 
-// Get screen y coodinates from text row
+// Get screen y coordinates from text row
 uint16_t DWINUI::RowToY(uint8_t row) {
   return row * fontHeight(font);
 }

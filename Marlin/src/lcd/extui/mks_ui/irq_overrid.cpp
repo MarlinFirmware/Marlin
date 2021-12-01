@@ -39,7 +39,7 @@
 #include "../../../inc/MarlinConfig.h"
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+  extern "C" {
 #endif
 
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);

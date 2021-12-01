@@ -39,7 +39,7 @@
 #define USES_DIAG_PINS
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER                             5
+#define TEMP_TIMER  5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -338,7 +338,7 @@
       #define BEEPER_PIN                    -1
     #endif
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define DOGLCD_CS                       PD13
     #define DOGLCD_A0                       PC6
     #define LCD_PINS_DC                DOGLCD_A0

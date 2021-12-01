@@ -62,7 +62,7 @@ void SpindleLaser::init() {
     OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
   #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
-    OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);         // Init rotation to clockwise (M3)
+    OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR);                   // Init rotation to clockwise (M3)
   #endif
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     SET_PWM(SPINDLE_LASER_PWM_PIN);

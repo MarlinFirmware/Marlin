@@ -50,7 +50,7 @@
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 //
 // Servos
@@ -136,7 +136,9 @@
 // Probe enable
 //
 #if ENABLED(PROBE_ENABLE_DISABLE)
-  #define PROBE_ENABLE_PIN            SERVO0_PIN
+  #ifndef PROBE_ENABLE_PIN
+    #define PROBE_ENABLE_PIN          SERVO0_PIN
+  #endif
 #endif
 
 //

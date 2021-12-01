@@ -34,6 +34,10 @@
   #include "../../feature/runout.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../../feature/fancheck.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/powerloss.h"
 #endif
@@ -266,10 +270,10 @@ void menu_advanced_settings();
   void menu_controller_fan() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255);
+    EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_IDLE_SPEED, &controllerFan.settings.idle_speed, CONTROLLERFAN_SPEED_MIN, 255);
     EDIT_ITEM(bool, MSG_CONTROLLER_FAN_AUTO_ON, &controllerFan.settings.auto_mode);
     if (controllerFan.settings.auto_mode) {
-      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, _MAX(1, CONTROLLERFAN_SPEED_MIN) - 1, 255);
+      EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, CONTROLLERFAN_SPEED_MIN, 255);
       EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800);
     }
     END_MENU();
@@ -535,6 +539,10 @@ void menu_configuration() {
 
   #if HAS_FILAMENT_SENSOR
     EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+  #endif
+
+  #if HAS_FANCHECK
+    EDIT_ITEM(bool, MSG_FANCHECK, &fan_check.enabled);
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

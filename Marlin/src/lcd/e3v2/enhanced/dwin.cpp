@@ -3422,7 +3422,7 @@ void Draw_Move_Menu() {
     #endif
   }
   CurrentMenu->draw();
-  if (!all_axes_trusted()) LCD_MESSAGE_F("WARNING: current position is unknow, home axis");
+  if (!all_axes_trusted()) LCD_MESSAGE_F("WARNING: current position is unknown, home axes");
 }
 
 #if HAS_HOME_OFFSET
