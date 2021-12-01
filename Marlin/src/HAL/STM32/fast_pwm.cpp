@@ -35,14 +35,13 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   TIM_TypeDef * const Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM);
 
   const timer_index_t index = get_timer_index(Instance);
-  const bool needs_freq = HardwareTimer_Handle[index] == nullptr; // A new instance must be set to default frequency PWM_FREQUENCY
-  if (needs_freq)
+  const bool needs_freq = (HardwareTimer_Handle[index] == nullptr);
+  if (needs_freq) // A new instance must be set to the default frequency of PWM_FREQUENCY
     HardwareTimer_Handle[index]->__this = new HardwareTimer((TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM));
 
   HardwareTimer * const HT = (HardwareTimer *)(HardwareTimer_Handle[index]->__this);
   const uint32_t channel = STM_PIN_CHANNEL(pinmap_function(pin_name, PinMap_PWM));
   const TimerModes_t previousMode = HT->getMode(channel);
-
   if (previousMode != TIMER_OUTPUT_COMPARE_PWM1)
     HT->setMode(channel, TIMER_OUTPUT_COMPARE_PWM1, pin);
 
