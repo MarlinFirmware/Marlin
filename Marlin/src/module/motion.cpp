@@ -1536,7 +1536,7 @@ void prepare_line_to_destination() {
     #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
       // static value stores known coordinates after homing routine sets to 0 
       static float expected_distance = 0;
-      const int32_t time_to_stop = static_cast<int32_t>(((expected_distance / home_fr_mm_s) * 1000.0f) + 200.0f);
+      const uint32_t time_to_stop = static_cast<uint32_t>(((expected_distance / home_fr_mm_s) * 1000.0f) + 200.0f);
       const uint32_t expected_stop_time = millis() + time_to_stop;
       if (is_home_dir) {
         // sensorless homing moves by a backoff, this accounts for that distance
@@ -1600,7 +1600,7 @@ void prepare_line_to_destination() {
     if (is_home_dir) {
 
         #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
-            const int32_t time_delta = millis() - expected_stop_time;
+            const int32_t time_delta = static_cast<int32_t>(millis() - expected_stop_time);
             const bool bad_home = (time_delta > 50 || time_delta < -50);
             if (DEBUGGING(INFO)) 
               SERIAL_ECHOLNPAIR("axis:", AS_CHAR(AXIS_CHAR(axis))," distance:",expected_distance," feedrate:",home_fr_mm_s," calculated time:", time_to_stop, " actual time:", time_delta);
