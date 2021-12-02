@@ -89,7 +89,7 @@ void EasythreedUI::blinkLED() {
 
 //
 // Filament Load/Unload Button
-// Load/Unload buttons are a 3 position switch with a common center ground. 
+// Load/Unload buttons are a 3 position switch with a common center ground.
 //
 enum FilamentStatus : uint8_t { FS_IDLE, FS_PRESS, FS_CHECK, FS_PROCEED };
 static uint8_t filament_status = FS_IDLE;
@@ -224,9 +224,9 @@ void EasythreedUI::printButton() {
             }
           case PF_RESUME: {                                         // Resume printing 
             if (IS_SD_PAUSED()) {
-             card.flag.sdprinting = true;                           // Direct manipulation is more relaible than queueing M24
-            blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
-            print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
+              card.flag.sdprinting = true;                           // Direct manipulation is more relaible than queueing M24
+              blink_interval_ms = LED_BLINK_2;                        // Blink the indicator LED at 1 second intervals
+              print_key_flag = PF_PAUSE;                              // The "Print" button now pauses the print
             }
             break;
           }

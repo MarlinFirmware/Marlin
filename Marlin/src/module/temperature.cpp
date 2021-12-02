@@ -593,7 +593,7 @@ volatile bool Temperature::raw_temps_ready = false;
     #define ONHEATINGSTART() C_TERN(ischamber, printerEventLEDs.onChamberHeatingStart(), B_TERN(isbed, printerEventLEDs.onBedHeatingStart(), printerEventLEDs.onHotendHeatingStart()))
     #define ONHEATING(S,C,T) C_TERN(ischamber, printerEventLEDs.onChamberHeating(S,C,T), B_TERN(isbed, printerEventLEDs.onBedHeating(S,C,T), printerEventLEDs.onHotendHeating(S,C,T)))
 
-    #define WATCH_PID BOTH(WATCH_CHAMBER, PIDTEMPCHAMBER) || BOTH(WATCH_BED, PIDTEMPBED) || BOTH(WATCH_HOTENDS, PIDTEMP)
+    #define WATCH_PID DISABLED(NO_WATCH_PID_TUNING) && (BOTH(WATCH_CHAMBER, PIDTEMPCHAMBER) || BOTH(WATCH_BED, PIDTEMPBED) || BOTH(WATCH_HOTENDS, PIDTEMP))
 
     #if WATCH_PID
       #if BOTH(THERMAL_PROTECTION_CHAMBER, PIDTEMPCHAMBER)
@@ -684,8 +684,8 @@ volatile bool Temperature::raw_temps_ready = false;
             if (cycles > 2) {
               const float Ku = (4.0f * d) / (float(M_PI) * (maxT - minT) * 0.5f),
                           Tu = float(t_low + t_high) * 0.001f,
-                          pf = ischamber ? 0.2f : (isbed ? 0.2f : 0.6f),
-                          df = ischamber ? 1.0f / 3.0f : (isbed ? 1.0f / 3.0f : 1.0f / 8.0f);
+                          pf = (ischamber || isbed) ? 0.2f : 0.6f,
+                          df = (ischamber || isbed) ? 1.0f / 3.0f : 1.0f / 8.0f;
 
               tune_pid.Kp = Ku * pf;
               tune_pid.Ki = tune_pid.Kp * 2.0f / Tu;
@@ -731,7 +731,7 @@ volatile bool Temperature::raw_temps_ready = false;
             if (!heated) {                                            // If not yet reached target...
               if (current_temp > next_watch_temp) {                   // Over the watch temp?
                 next_watch_temp = current_temp + watch_temp_increase; // - set the next temp to watch for
-                temp_change_ms = ms + SEC_TO_MS(watch_temp_period);     // - move the expiration timer up
+                temp_change_ms = ms + SEC_TO_MS(watch_temp_period);   // - move the expiration timer up
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
               else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
@@ -878,9 +878,21 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     };
 
     uint8_t fanState = 0;
-    HOTEND_LOOP()
-      if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE)
+    HOTEND_LOOP() {
+      if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE) {
         SBI(fanState, pgm_read_byte(&fanBit[e]));
+        #if MOTHERBOARD == BOARD_ULTIMAIN_2
+          // For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
+          // https://github.com/Ultimaker/Ultimaker2Marlin/blob/master/Marlin/temperature.cpp#L553
+          SBI(DDRJ, 6); SBI(PORTJ, 6);
+        #endif
+      }
+      else {
+        #if MOTHERBOARD == BOARD_ULTIMAIN_2
+          SBI(DDRJ, 6); CBI(PORTJ, 6);
+        #endif
+      }
+    }
 
     #if HAS_AUTO_CHAMBER_FAN
       if (temp_chamber.celsius >= CHAMBER_AUTO_FAN_TEMPERATURE)
@@ -2375,7 +2387,7 @@ void Temperature::init() {
     HAL_ANALOG_SELECT(POWER_MONITOR_VOLTAGE_PIN);
   #endif
 
-  HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
+  HAL_timer_start(MF_TIMER_TEMP, TEMP_TIMER_FREQUENCY);
   ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
@@ -2956,11 +2968,11 @@ void Temperature::readings_ready() {
  *  - Call planner.isr to count down its "ignore" time
  */
 HAL_TEMP_TIMER_ISR() {
-  HAL_timer_isr_prologue(TEMP_TIMER_NUM);
+  HAL_timer_isr_prologue(MF_TIMER_TEMP);
 
   Temperature::isr();
 
-  HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
+  HAL_timer_isr_epilogue(MF_TIMER_TEMP);
 }
 
 #if ENABLED(SLOW_PWM_HEATERS) && !defined(MIN_STATE_TIME)

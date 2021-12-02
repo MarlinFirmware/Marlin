@@ -875,7 +875,7 @@ class Planner {
           || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
       );
     }
-    
+
     // Block until all buffered steps are executed / cleaned
     static void synchronize();
 
