@@ -1536,8 +1536,8 @@ void prepare_line_to_destination() {
     #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
       // static value stores known coordinates after homing routine sets to 0 
       static float expected_distance = 0;
-      const uint32_t time_to_stop = static_cast<uint32_t>(((expected_distance / home_fr_mm_s) * 1000.0f) + 200.0f);
-      const uint32_t expected_stop_time = millis() + time_to_stop;
+      const uint32_t time_to_stop = static_cast<uint32_t>((expected_distance / home_fr_mm_s) * 1000.0f);
+      const uint32_t expected_stop_time = millis() + time_to_stop + HOME_SANITY_CHECKING_STARTUP_COMPENSATION;
       if (is_home_dir) {
         // sensorless homing moves by a backoff, this accounts for that distance
         expected_distance += planner.get_axis_position_mm(axis);
@@ -1601,11 +1601,12 @@ void prepare_line_to_destination() {
 
         #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
             const int32_t time_delta = static_cast<int32_t>(millis() - expected_stop_time);
-            const bool bad_home = (time_delta > 50 || time_delta < -50);
+            const bool bad_home = (time_delta > HOME_SANITY_CHECKING_ERROR_MARGIN || 
+                                   time_delta < -HOME_SANITY_CHECKING_ERROR_MARGIN);
             if (DEBUGGING(INFO)) 
-              SERIAL_ECHOLNPAIR("axis:", AS_CHAR(AXIS_CHAR(axis))," distance:",expected_distance," feedrate:",home_fr_mm_s," calculated time:", time_to_stop, " actual time:", time_delta);
+              SERIAL_ECHOLNPAIR("axis:", AS_CHAR(AXIS_CHAR(axis))," distance:",expected_distance," feedrate:",home_fr_mm_s," expected stop time:", time_to_stop, " difference from expected:", time_delta);
             if (DEBUGGING(ERRORS) && bad_home) 
-              SERIAL_ECHOLNPAIR("homing fault! ms difference from expected: ", difference_from_expected, ", axis: ", AS_CHAR(AXIS_CHAR(axis)));
+              SERIAL_ECHOLNPAIR("homing fault! ms difference from expected: ", time_delta, ", axis: ", AS_CHAR(AXIS_CHAR(axis)));
         #endif
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
