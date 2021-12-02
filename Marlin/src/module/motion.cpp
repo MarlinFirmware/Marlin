@@ -1532,6 +1532,23 @@ void prepare_line_to_destination() {
                   ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
     const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
+
+    #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
+      // static value stores known coordinates after homing routine sets to 0 
+      static float expected_distance = 0;
+      if (is_home_dir) {
+        // sensorless homing moves by a backoff, this accounts for that distance
+        expected_distance += planner.get_axis_position_mm(axis);
+        const int32_t time_to_stop = static_cast<int32_t>(((expected_distance / home_fr_mm_s) * 1000.0f) + 200.0f);
+        const uint32_t start_time = millis();
+        }
+      else {
+        // in stallguard context, a backoff distance is done first,
+        // so this is where the expected printer position is captured
+        expected_distance = planner.get_axis_position_mm(axis);
+        }
+    #endif
+
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states;
     #endif
@@ -1580,7 +1597,19 @@ void prepare_line_to_destination() {
 
     planner.synchronize();
 
+
+
     if (is_home_dir) {
+
+        #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
+            const int32_t time_delta = millis() - start_time;
+            const int32_t difference_from_expected = time_delta - time_to_stop;
+            const bool bad_home = (difference_from_expected > 50 || difference_from_expected < -50);
+            if (DEBUGGING(INFO)) 
+              SERIAL_ECHOLNPAIR("axis:", AS_CHAR(AXIS_CHAR(axis))," distance:",expected_distance," feedrate:",home_fr_mm_s," calculated time:", time_to_stop, " actual time:", time_delta);
+            if (DEBUGGING(ERRORS) && bad_home) 
+              SERIAL_ECHOLNPAIR("homing fault! ms difference from expected: ", difference_from_expected, ", axis: ", AS_CHAR(AXIS_CHAR(axis)));
+        #endif
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
         if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
