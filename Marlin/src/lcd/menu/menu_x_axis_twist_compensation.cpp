@@ -62,7 +62,7 @@ void xatc_wizard_update_z_offset(){
             ui.goto_screen(xatc_wizard_done);
           }
         , GET_TEXT(MSG_XATC_UPDATE_Z_OFFSET)
-        , ftostr31sign(z_offset), PSTR("?")
+        , ftostr42_52(z_offset), PSTR("?")
       );
 }
 
