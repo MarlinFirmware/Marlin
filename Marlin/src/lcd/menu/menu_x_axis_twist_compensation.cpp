@@ -11,7 +11,7 @@
 #include "../../module/probe.h"
 
 #ifndef XATC_Y_POSITION
-  #define XATC_Y_POSITION ((probe.max_x() - probe.min_x())/2)
+  #define XATC_Y_POSITION ((probe.max_y() - probe.min_y())/2)
 #endif
 
 static uint8_t manual_probe_index;
