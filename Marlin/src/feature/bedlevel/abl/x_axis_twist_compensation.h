@@ -23,10 +23,15 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-typedef float xatc_points[XATC_MAX_POINTS];
-extern xatc_points xatc_z_values;
-extern float xatc_spacing;
-extern float xatc_start;
+typedef float xatc_points_t[XATC_MAX_POINTS];
 
-float x_axis_twist_compensation(const xy_pos_t &raw);
-void print_xatc_points();
+class XATC {
+public:
+  static xatc_points_t z_values;
+  static float spacing, start;
+
+  static float compensation(const xy_pos_t &raw);
+  static void print_points();
+};
+
+extern XATC xatc;

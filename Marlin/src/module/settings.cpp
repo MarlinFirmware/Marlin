@@ -251,9 +251,8 @@ typedef struct SettingsDataStruct {
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-      xatc_points xatc_z_values;                        // TBD
-      float xatc_spacing;                               // TBD
-      float xatc_start;                                 // TBD
+      xatc_points_t xatc_z_values;                      // TBD
+      float xatc_spacing, xatc_start;                   // TBD
     #endif
   #else
     float z_values[3][3];
@@ -821,7 +820,7 @@ void MarlinSettings::postprocess() {
         );
         #if ENABLED(X_AXIS_TWIST_COMPENSATION)
           static_assert(
-            sizeof(xatc_z_values) == (XATC_MAX_POINTS) * sizeof(xatc_z_values[0]),
+            sizeof(xatc.z_values) == (XATC_MAX_POINTS) * sizeof(xatc.z_values[0]),
             "Z-offset mesh is the wrong size."
           );
         #endif
@@ -839,9 +838,9 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
         #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          EEPROM_WRITE(xatc_z_values);
-          EEPROM_WRITE(xatc_spacing);
-          EEPROM_WRITE(xatc_start);
+          EEPROM_WRITE(xatc.z_values);
+          EEPROM_WRITE(xatc.spacing);
+          EEPROM_WRITE(xatc.start);
         #endif
       #else
         dummyf = 0;
@@ -1708,9 +1707,9 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
             #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-              EEPROM_READ(xatc_z_values);
-              EEPROM_READ(xatc_spacing);
-              EEPROM_READ(xatc_start);
+              EEPROM_READ(xatc.z_values);
+              EEPROM_READ(xatc.spacing);
+              EEPROM_READ(xatc.start);
             #endif
           }
           else // EEPROM data is stale
@@ -3221,7 +3220,7 @@ void MarlinSettings::reset() {
         // TODO: Create G-code for settings
         //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
         //  CONFIG_ECHO_START();
-        //  print_xatc_points();
+        //  xatc.print_points();
         //#endif
 
       #endif
