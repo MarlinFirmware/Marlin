@@ -40,7 +40,6 @@
  */
 
 typedef uint16_t hal_timer_t;
-#define NR_TIMERS TERN(STM32_XL_DENSITY, 14, 8) // Maple timers, 14 for STM32_XL_DENSITY (F/G chips), 8 for HIGH density (C D E)
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
 #define HAL_TIMER_RATE uint32_t(F_CPU)  // frequency of timers peripherals

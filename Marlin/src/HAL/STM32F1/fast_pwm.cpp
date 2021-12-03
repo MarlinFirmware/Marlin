@@ -27,6 +27,8 @@
 #include "HAL.h"
 #include "timers.h"
 
+#define NR_TIMERS TERN(STM32_XL_DENSITY, 14, 8) // Maple timers, 14 for STM32_XL_DENSITY (F/G chips), 8 for HIGH density (C D E)
+
 static uint16_t timer_freq[NR_TIMERS];
 
 inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
