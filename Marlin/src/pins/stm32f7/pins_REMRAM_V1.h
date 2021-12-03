@@ -134,4 +134,4 @@
 // Timers
 //
 
-#define STEP_TIMER                             2
+#define STEP_TIMER  2

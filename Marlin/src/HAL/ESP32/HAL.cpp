@@ -276,7 +276,7 @@ void analogWrite(pin_t pin, int value) {
     idx = numPWMUsed;
     pwmPins[idx] = pin;
     // Start timer on first use
-    if (idx == 0) HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
+    if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
 
     ++numPWMUsed;
   }
@@ -287,7 +287,7 @@ void analogWrite(pin_t pin, int value) {
 
 // Handle PWM timer interrupt
 HAL_PWM_TIMER_ISR() {
-  HAL_timer_isr_prologue(PWM_TIMER_NUM);
+  HAL_timer_isr_prologue(MF_TIMER_PWM);
 
   static uint8_t count = 0;
 
@@ -301,7 +301,7 @@ HAL_PWM_TIMER_ISR() {
   // 128 for 7 Bit resolution
   count = (count + 1) & 0x7F;
 
-  HAL_timer_isr_epilogue(PWM_TIMER_NUM);
+  HAL_timer_isr_epilogue(MF_TIMER_PWM);
 }
 
 #endif // ARDUINO_ARCH_ESP32

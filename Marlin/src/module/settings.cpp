@@ -154,6 +154,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
+#endif
+
 #if ENABLED(DGUS_LCD_UI_MKS)
   #include "../lcd/extui/dgus/DGUSScreenHandler.h"
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
@@ -489,6 +493,13 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
+  #endif
+
+  //
+  // Fan tachometer check
+  //
+  #if HAS_FANCHECK
+    bool fan_check_enabled;
   #endif
 
   //
@@ -1434,6 +1445,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Fan tachometer check
+    //
+    #if HAS_FANCHECK
+      EEPROM_WRITE(fan_check.enabled);
+    #endif
+
+    //
     // MKS UI controller
     //
     #if ENABLED(DGUS_LCD_UI_MKS)
@@ -2340,6 +2358,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Fan tachometer check
+      //
+      #if HAS_FANCHECK
+        _FIELD_TEST(fan_check_enabled);
+        EEPROM_READ(fan_check.enabled);
+      #endif
+
+      //
       // MKS UI controller
       //
       #if ENABLED(DGUS_LCD_UI_MKS)
@@ -3035,6 +3061,11 @@ void MarlinSettings::reset() {
       password.is_set = false;
     #endif
   #endif
+
+  //
+  // Fan tachometer check
+  //
+  TERN_(HAS_FANCHECK, fan_check.enabled = true);
 
   //
   // MKS UI controller
