@@ -41,7 +41,6 @@
 #define HAL_TIMER_TYPE_MAX UINT16_MAX
 
 // Marlin timer_instance[] content (unrelated to timer selection)
-#define NUM_HARDWARE_TIMERS 2
 #define MF_TIMER_STEP       0  // Timer Index for Stepper
 #define MF_TIMER_TEMP       1  // Timer Index for Temperature
 #define MF_TIMER_PULSE      MF_TIMER_STEP
