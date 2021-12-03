@@ -39,7 +39,7 @@ inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   if (!PWM_PIN(pin)) return;
 
-  timer_dev *timer;
+  timer_dev *timer; UNUSED(timer);
   if (timer_freq[timer_and_index_for_pin(pin, &timer)] == 0)
     set_pwm_frequency(pin, PWM_FREQUENCY);
 
@@ -52,7 +52,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 void set_pwm_frequency(const pin_t pin, int f_desired) {
   if (!PWM_PIN(pin)) return;                    // Don't proceed if no hardware timer
 
-  timer_dev *timer;
+  timer_dev *timer; UNUSED(timer);
   timer_freq[timer_and_index_for_pin(pin, &timer)] = f_desired;
 
   // Protect used timers
