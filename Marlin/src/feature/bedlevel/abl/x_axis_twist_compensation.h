@@ -27,8 +27,8 @@ typedef float xatc_points_t[XATC_MAX_POINTS];
 
 class XATC {
 public:
-  static xatc_points_t z_values;
   static float spacing, start;
+  static xatc_points_t z_values;
 
   static float compensation(const xy_pos_t &raw);
   static void print_points();

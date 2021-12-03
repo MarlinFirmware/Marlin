@@ -27,8 +27,8 @@
 
 XATC xatc;
 
-xatc_points_t XATC::z_values;
 float XATC::spacing, XATC::start;
+xatc_points_t XATC::z_values;
 
 void XATC::print_points() {
   SERIAL_ECHOLNPGM(" X-Twist Correction:");
@@ -46,7 +46,7 @@ void XATC::print_points() {
   SERIAL_EOL();
 }
 
-float lerp(const_float_t t, const_float_t a, const_float_t b) { return  a + t * (b - a); }
+float lerp(const_float_t t, const_float_t a, const_float_t b) { return a + t * (b - a); }
 
 float XATC::compensation(const xy_pos_t &raw) {
   float t = (raw.x - start) / spacing;

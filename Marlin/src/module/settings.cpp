@@ -63,6 +63,9 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #include "../feature/bedlevel/abl/x_axis_twist_compensation.h"
+  #endif
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -251,8 +254,7 @@ typedef struct SettingsDataStruct {
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-      xatc_points_t xatc_z_values;                      // TBD
-      float xatc_spacing, xatc_start;                   // TBD
+      XATC xatc;                                        // TBD
     #endif
   #else
     float z_values[3][3];
@@ -838,9 +840,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
         #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          EEPROM_WRITE(xatc.z_values);
-          EEPROM_WRITE(xatc.spacing);
-          EEPROM_WRITE(xatc.start);
+          EEPROM_WRITE(xatc);
         #endif
       #else
         dummyf = 0;
@@ -1707,9 +1707,7 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
             #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-              EEPROM_READ(xatc.z_values);
-              EEPROM_READ(xatc.spacing);
-              EEPROM_READ(xatc.start);
+              EEPROM_READ(xatc);
             #endif
           }
           else // EEPROM data is stale
