@@ -251,9 +251,9 @@ typedef struct SettingsDataStruct {
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-      xatc_points xatc_z_values;
-      float xatc_spacing;
-      float xatc_start;
+      xatc_points xatc_z_values;                        // TBD
+      float xatc_spacing;                               // TBD
+      float xatc_start;                                 // TBD
     #endif
   #else
     float z_values[3][3];
@@ -821,9 +821,9 @@ void MarlinSettings::postprocess() {
         );
         #if ENABLED(X_AXIS_TWIST_COMPENSATION)
           static_assert(
-          sizeof(xatc_z_values) == XATC_MAX_POINTS * sizeof(xatc_z_values[0]),
-          "Z-offset mesh is the wrong size."
-        );
+            sizeof(xatc_z_values) == (XATC_MAX_POINTS) * sizeof(xatc_z_values[0]),
+            "Z-offset mesh is the wrong size."
+          );
         #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
@@ -3218,10 +3218,11 @@ void MarlinSettings::reset() {
           }
         }
 
-        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-          CONFIG_ECHO_START();
-          print_xatc_points();
-        #endif
+        // TODO: Create G-code for settings
+        //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        //  CONFIG_ECHO_START();
+        //  print_xatc_points();
+        //#endif
 
       #endif
 
