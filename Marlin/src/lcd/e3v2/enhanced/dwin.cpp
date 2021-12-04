@@ -38,6 +38,7 @@
 #include "../../../core/macros.h"
 
 #include "../../../module/temperature.h"
+#include "../../../module/printcounter.h"
 #include "../../../module/motion.h"
 #include "../../../module/planner.h"
 
@@ -2388,7 +2389,6 @@ void SetPID(celsius_t t, heater_id_t h) {
   void SetProbeOffsetX() { SetPFloatOnClick(-60, 60, UNITFDIGITS); }
   void SetProbeOffsetY() { SetPFloatOnClick(-60, 60, UNITFDIGITS); }
   void SetProbeOffsetZ() { SetPFloatOnClick(-10, 10, 2); }
-  void SetProbeMargin()  { SetPFloatOnClick(MIN_PROBE_MARGIN, MAX_PROBE_MARGIN, UNITFDIGITS); }
   void ProbeTest() {
     LCD_MESSAGE(MSG_M48_TEST);
     queue.inject(F("G28O\nM48 P10"));
