@@ -64,7 +64,7 @@
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
   #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    #include "../feature/bedlevel/abl/x_axis_twist_compensation.h"
+    #include "../feature/bedlevel/abl/x_twist.h"
   #endif
 #endif
 

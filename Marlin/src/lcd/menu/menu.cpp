@@ -38,7 +38,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if EITHER(ENABLE_LEVELING_FADE_HEIGHT, AUTO_BED_LEVELING_UBL)
+#if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -345,8 +345,7 @@ void _lcd_draw_homing() {
   }
 }
 
-#if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
-  #include "../../feature/bedlevel/bedlevel.h"
+#if HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 
