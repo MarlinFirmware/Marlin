@@ -125,4 +125,4 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_SR;
 }
 
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+#define HAL_timer_isr_epilogue(T)

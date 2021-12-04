@@ -109,8 +109,8 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
  * (otherwise, characters will be lost due to UART overflow).
  * Then: Stepper, Endstops, Temperature, and -finally- all others.
  */
-#define HAL_timer_isr_prologue(TIMER_NUM)
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+#define HAL_timer_isr_prologue(T)
+#define HAL_timer_isr_epilogue(T)
 
 /* 18 cycles maximum latency */
 #ifndef HAL_STEP_TIMER_ISR
