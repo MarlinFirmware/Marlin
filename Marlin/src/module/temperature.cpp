@@ -865,7 +865,9 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     #define INIT_CHAMBER_AUTO_FAN_PIN(P) SET_OUTPUT(P)
   #endif
 
-  #define CHAMBER_FAN_INDEX HOTENDS
+  #ifndef CHAMBER_FAN_INDEX
+    #define CHAMBER_FAN_INDEX HOTENDS
+  #endif
 
   void Temperature::update_autofans() {
     #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
