@@ -140,6 +140,8 @@ inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, 
 inline void HAL_clear_reset_source(void) {}
 inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
 
+void HAL_reboot();
+
 /* ---------------- Delay in cycles */
 
 #define DELAY_CYCLES(x) Kernel::delayCycles(x)
