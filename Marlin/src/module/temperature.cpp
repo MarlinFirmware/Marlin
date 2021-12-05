@@ -67,6 +67,10 @@
   #include "../gcode/gcode.h"
 #endif
 
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  #include "../libs/nozzle.h"
+#endif
+
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 #define TEMP_SENSOR_IS_ANY_MAX_TC(n) (ENABLED(TEMP_SENSOR_##n##_IS_MAX_TC) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX_TC) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
@@ -990,6 +994,12 @@ inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
       watchdog_refresh();
     }
     WRITE(BEEPER_PIN, HIGH);
+  #endif
+  #if ENABLED(NOZZLE_PARK_FEATURE)
+    if (!homing_needed_error()) {
+      nozzle.park(0);
+      planner.synchronize();
+    }
   #endif
   kill(lcd_msg, HEATER_FSTR(heater_id));
 }
