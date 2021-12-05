@@ -38,7 +38,7 @@
 #if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || SERIAL_PORT_3 == 2 || LCD_SERIAL_PORT == 2
   #warning "Serial 2 has no connector. Hardware changes may be required to use it."
 #endif
-#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || SERIAl_PORT_3 == 3 || LCD_SERIAL_PORT == 3
+#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || SERIAL_PORT_3 == 3 || LCD_SERIAL_PORT == 3
   #define CHANGE_Y_LIMIT_PINS
   #warning "Serial 3 is originally reserved to Y limit switches. Hardware changes are required to use it."
 #endif
