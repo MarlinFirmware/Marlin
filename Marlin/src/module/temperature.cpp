@@ -1510,6 +1510,9 @@ void Temperature::manage_heater() {
         flag_chamber_off = false;
 
         #if ENABLED(CHAMBER_FAN)
+          #ifndef CHAMBER_FAN_INDEX
+            #define CHAMBER_FAN_INDEX CHAMBER_FAN_N
+          #endif
           int16_t fan_chamber_pwm;
           #if CHAMBER_FAN_MODE == 0
             fan_chamber_pwm = CHAMBER_FAN_BASE;
