@@ -1523,7 +1523,7 @@ void Temperature::manage_heater() {
             fan_chamber_pwm = CHAMBER_FAN_BASE + _MAX((CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target), 0);
           #endif
           NOMORE(fan_chamber_pwm, 255);
-          set_fan_speed(CHAMBER_FAN_N, fan_chamber_pwm);
+          set_fan_speed(CHAMBER_FAN_INDEX, fan_chamber_pwm);
         #endif
 
         #if ENABLED(CHAMBER_VENT)
@@ -1554,7 +1554,7 @@ void Temperature::manage_heater() {
       else if (!flag_chamber_off) {
         #if ENABLED(CHAMBER_FAN)
           flag_chamber_off = true;
-          set_fan_speed(CHAMBER_FAN_N, 0);
+          set_fan_speed(CHAMBER_FAN_INDEX, 0);
         #endif
         #if ENABLED(CHAMBER_VENT)
           flag_chamber_excess_heat = false;
