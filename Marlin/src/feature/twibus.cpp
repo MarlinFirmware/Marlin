@@ -41,7 +41,7 @@ TWIBus::TWIBus() {
     #endif
 
     Wire.begin();                   // No address joins the BUS as the master
-    
+
   #else
 
     Wire.begin(I2C_SLAVE_ADDRESS);  // Join the bus as a slave
