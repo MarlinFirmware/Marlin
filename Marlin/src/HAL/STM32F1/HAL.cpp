@@ -449,8 +449,7 @@ uint16_t analogRead(pin_t pin) {
 
 // Wrapper to maple unprotected analogWrite
 void analogWrite(pin_t pin, int pwm_val8) {
-  if (PWM_PIN(pin))
-    analogWrite(uint8_t(pin), pwm_val8);
+  if (PWM_PIN(pin)) analogWrite(uint8_t(pin), pwm_val8);
 }
 
 void HAL_reboot() { nvic_sys_reset(); }

@@ -57,8 +57,8 @@
  * TIM14 - TEMP_TIMER (Marlin)
  *
  */
-#define STEP_TIMER                             4
-#define TEMP_TIMER                            14
+#define STEP_TIMER  4
+#define TEMP_TIMER 14
 
 /**
  * These pin assignments are arbitrary and intending for testing purposes.

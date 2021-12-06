@@ -145,6 +145,11 @@ void HAL_adc_start_conversion(const uint8_t ch);
 uint16_t HAL_adc_get_result();
 
 //
+// PWM
+//
+inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
+
+//
 // Pin Map
 //
 #define GET_PIN_MAP_PIN(index) index

@@ -281,7 +281,7 @@ void GCodeQueue::flush_and_request_resend(const serial_index_t serial_ind) {
 
 static bool serial_data_available(serial_index_t index) {
   const int a = SERIAL_IMPL.available(index);
-  #if BOTH(RX_BUFFER_MONITOR, RX_BUFFER_SIZE)
+  #if ENABLED(RX_BUFFER_MONITOR) && RX_BUFFER_SIZE
     if (a > RX_BUFFER_SIZE - 2) {
       PORT_REDIRECT(SERIAL_PORTMASK(index));
       SERIAL_ERROR_MSG("RX BUF overflow, increase RX_BUFFER_SIZE: ", a);
@@ -719,7 +719,7 @@ void GCodeQueue::advance() {
 
     if (auto_buffer_report_interval && ELAPSED(ms, next_buffer_report_ms)) {
       next_buffer_report_ms = ms + 1000UL * auto_buffer_report_interval;
-      PORT_REDIRECT(SERIAL_BOTH);
+      PORT_REDIRECT(SerialMask::All);
       report_buffer_statistics();
       PORT_RESTORE();
     }

@@ -71,6 +71,9 @@ class HostUI {
   #ifdef ACTION_ON_START
     static void start();
   #endif
+  #ifdef SHUTDOWN_ACTION
+    static void shutdown();
+  #endif
 
   #if ENABLED(G29_RETRY_AND_RECOVER)
     #ifdef ACTION_ON_G29_RECOVER

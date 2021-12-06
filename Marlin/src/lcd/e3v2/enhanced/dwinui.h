@@ -24,11 +24,10 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/09/08
+ * Version: 3.7.1
+ * Date: 2021/11/09
  */
 
-#include "../../../core/types.h"
 #include "dwin_lcd.h"
 #include "../common/dwin_set.h"
 #include "../common/dwin_font.h"
@@ -138,7 +137,7 @@ extern TitleClass Title;
 class MenuItemClass {
 protected:
 public:
-  uint8_t pos = 0;
+  int8_t pos = 0;
   uint8_t icon = 0;
   char caption[32] = "";
   uint8_t frameid = 0;
@@ -185,8 +184,8 @@ namespace DWINUI {
   extern uint16_t backcolor;
   extern uint8_t  font;
 
-  extern void (*onCursorErase)(uint8_t line);
-  extern void (*onCursorDraw)(uint8_t line);
+  extern void (*onCursorErase)(const int8_t line);
+  extern void (*onCursorDraw)(const int8_t line);
   extern void (*onTitleDraw)(TitleClass* title);
   extern void (*onMenuDraw)(MenuClass* menu);
 
@@ -199,13 +198,13 @@ namespace DWINUI {
   // Get font character width
   uint8_t fontWidth(uint8_t cfont);
 
-  // Get font character heigh
+  // Get font character height
   uint8_t fontHeight(uint8_t cfont);
 
-  // Get screen x coodinates from text column
+  // Get screen x coordinates from text column
   uint16_t ColToX(uint8_t col);
 
-  // Get screen y coodinates from text row
+  // Get screen y coordinates from text row
   uint16_t RowToY(uint8_t row);
 
   // Set text/number color
@@ -342,6 +341,12 @@ namespace DWINUI {
   //  rlimit: For draw less chars than string length use rlimit
   void Draw_String(const char * const string, uint16_t rlimit = 0xFFFF);
   void Draw_String(uint16_t color, const char * const string, uint16_t rlimit = 0xFFFF);
+  inline void Draw_String(FSTR_P  string, uint16_t rlimit = 0xFFFF) {
+    Draw_String(FTOP(string), rlimit);
+  }
+  inline void Draw_String(uint16_t color, FSTR_P string, uint16_t rlimit = 0xFFFF) {
+    Draw_String(color, FTOP(string), rlimit);
+  }
 
   // Draw a string
   //  size: Font size
@@ -353,25 +358,25 @@ namespace DWINUI {
     DWIN_Draw_String(false, font, textcolor, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, (char *)title);
+    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, FTOP(title));
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(false, font, color, backcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(false, font, color, backcolor, x, y, (char *)title);
+    DWIN_Draw_String(false, font, color, backcolor, x, y, title);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(true, font, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, font, color, bgcolor, x, y, (char *)title);
+    DWIN_Draw_String(true, font, color, bgcolor, x, y, title);
   }
   inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(true, size, color, bgcolor, x, y, string);
   }
   inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
-    DWIN_Draw_String(true, size, color, bgcolor, x, y, (char *)title);
+    DWIN_Draw_String(true, size, color, bgcolor, x, y, title);
   }
 
   // Draw a centered string using DWIN_WIDTH
@@ -382,8 +387,8 @@ namespace DWINUI {
   //  y: Upper coordinate of the string
   //  *string: The string
   void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string);
-  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(bShow, size, color, bColor, y, (char *)title);
+  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P string) {
+    Draw_CenteredString(bShow, size, color, bColor, y, FTOP(string));
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t bcolor, uint16_t y, const char * const string) {
     Draw_CenteredString(true, font, color, bcolor, y, string);
@@ -392,19 +397,19 @@ namespace DWINUI {
     Draw_CenteredString(false, size, color, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, size, color, backcolor, y, (char *)title);
+    Draw_CenteredString(false, size, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, const char * const string) {
     Draw_CenteredString(false, font, color, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, font, color, backcolor, y, (char *)title);
+    Draw_CenteredString(false, font, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t y, const char * const string) {
     Draw_CenteredString(false, font, textcolor, backcolor, y, string);
   }
   inline void Draw_CenteredString(uint16_t y, FSTR_P title) {
-    Draw_CenteredString(false, font, textcolor, backcolor, y, (char *)title);
+    Draw_CenteredString(false, font, textcolor, backcolor, y, title);
   }
 
   // Draw a circle
@@ -477,7 +482,7 @@ namespace DWINUI {
   void MenuItemsClear();
 
   // Prepare MenuItems array
-  void MenuItemsPrepare(uint8_t totalitems);
+  void MenuItemsPrepare(int8_t totalitems);
 
   // Add elements to the MenuItems array
   MenuItemClass* MenuItemsAdd(MenuItemClass* menuitem);

@@ -78,7 +78,7 @@ namespace Language_cz {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Nastavit ofsety");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastaveny");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Nastavit počátek");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Zahřát ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
@@ -153,7 +153,7 @@ namespace Language_cz {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Konec úprav sítě");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Vlastní síť");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Vytvořit síť");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Síť bodů $");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Kontrola sítě $");
   #endif

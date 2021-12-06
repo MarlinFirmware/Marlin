@@ -80,6 +80,10 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
   #endif
 #endif
 
+#ifdef SHUTDOWN_ACTION
+  void HostUI::shutdown() { action(F(SHUTDOWN_ACTION)); }
+#endif
+
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
   PromptReason HostUI::host_prompt_reason = PROMPT_NOT_DEFINED;

@@ -212,6 +212,10 @@
 
 #include "module/tool_change.h"
 
+#if HAS_FANCHECK
+  #include "feature/fancheck.h"
+#endif
+
 #if ENABLED(USE_CONTROLLER_FAN)
   #include "feature/controllerfan.h"
 #endif
@@ -242,6 +246,10 @@
 
 #if ENABLED(PSU_CONTROL)
   #include "feature/power.h"
+#endif
+
+#if ENABLED(EASYTHREED_UI)
+  #include "feature/easythreed_ui.h"
 #endif
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
@@ -633,6 +641,8 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #endif
   #endif
 
+  TERN_(EASYTHREED_UI, easythreed_ui.run());
+
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
   TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
@@ -829,6 +839,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
+      TERN_(AUTO_REPORT_FANS, fan_check.auto_reporter.tick());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
       TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
       TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
@@ -1104,6 +1115,10 @@ void setup() {
 
   tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 
+  // Check startup - does nothing if bootloader sets MCUSR to 0
+  const byte mcu = HAL_get_reset_source();
+  HAL_clear_reset_source();
+
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
@@ -1232,15 +1247,14 @@ void setup() {
 
   SETUP_RUN(esp_wifi_init());
 
-  // Check startup - does nothing if bootloader sets MCUSR to 0
-  const byte mcu = HAL_get_reset_source();
+  // Report Reset Reason
   if (mcu & RST_POWER_ON) SERIAL_ECHOLNPGM(STR_POWERUP);
   if (mcu & RST_EXTERNAL) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
   if (mcu & RST_BROWN_OUT) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
   if (mcu & RST_WATCHDOG) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
-  HAL_clear_reset_source();
 
+  // Identify myself as Marlin x.x.x
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
@@ -1271,6 +1285,8 @@ void setup() {
   #if ENABLED(USE_CONTROLLER_FAN)     // Set up fan controller to initialize also the default configurations.
     SETUP_RUN(controllerFan.setup());
   #endif
+
+  TERN_(HAS_FANCHECK, fan_check.init());
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
@@ -1350,6 +1366,9 @@ void setup() {
   #endif
 
   #if HAS_BED_PROBE
+    #if PIN_EXISTS(PROBE_ENABLE)
+      OUT_WRITE(PROBE_ENABLE_PIN, LOW); // Disable
+    #endif
     SETUP_RUN(endstops.enable_z_probe(false));
   #endif
 
@@ -1551,15 +1570,15 @@ void setup() {
   #endif
 
   #if HAS_DWIN_E3V2_BASIC
+    SETUP_LOG("E3V2 Init");
     Encoder_Configuration();
     HMI_Init();
     HMI_SetLanguageCache();
     HMI_StartFrame(true);
-    DWIN_StatusChanged(GET_TEXT_F(WELCOME_MSG));
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
-    ui.reset_status(true);  // Show service messages or keep current status
+    SETUP_RUN(ui.reset_status(true));  // Show service messages or keep current status
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
@@ -1590,7 +1609,11 @@ void setup() {
   #endif
 
   #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
-    ui.check_touch_calibration();
+    SETUP_RUN(ui.check_touch_calibration());
+  #endif
+
+  #if ENABLED(EASYTHREED_UI)
+    SETUP_RUN(easythreed_ui.init());
   #endif
 
   marlin_state = MF_RUNNING;
