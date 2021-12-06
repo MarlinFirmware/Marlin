@@ -1536,17 +1536,25 @@ void prepare_line_to_destination() {
     #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
       // static value stores known coordinates after homing routine sets to 0 
       static float expected_distance = 0;
-      const uint32_t time_to_stop = static_cast<uint32_t>((expected_distance / home_fr_mm_s) * 1000.0f);
-      const uint32_t expected_stop_time = millis() + time_to_stop + HOME_SANITY_CHECKING_STARTUP_COMPENSATION;
       if (is_home_dir) {
         // sensorless homing moves by a backoff, this accounts for that distance
-        expected_distance += planner.get_axis_position_mm(axis);
+        const float axis_offset = -axis_home_dir * planner.get_axis_position_mm(axis);
+        expected_distance += axis_offset;
         }
       else {
         // in stallguard context, a backoff distance is done first,
         // so this is where the expected printer position is captured
-        expected_distance = planner.get_axis_position_mm(axis);
+        const float current_axis_position = planner.get_axis_position_mm(axis);
+        const float current_position_distance_to_home = (
+            (axis_home_dir > 0) 
+            ? (base_max_pos(axis) - current_axis_position) 
+            : (base_min_pos(axis) + current_axis_position)
+            );
+        expected_distance = current_position_distance_to_home;
         }
+        
+      const uint32_t time_to_stop = static_cast<uint32_t>((expected_distance / home_fr_mm_s) * 1000.0f);
+      const uint32_t expected_stop_time = millis() + time_to_stop + HOME_SANITY_CHECKING_STARTUP_COMPENSATION;
     #endif
 
     #if ENABLED(SENSORLESS_HOMING)
