@@ -35,7 +35,6 @@
 
 PrintStatsClass PrintStats;
 
-
 void PrintStatsClass::Draw() {
   char buf[50] = "";
   char str[30] = "";
