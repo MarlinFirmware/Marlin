@@ -40,11 +40,11 @@ TWIBus::TWIBus() {
       Wire.setSCL(pin_t(I2C_SCL_PIN));
     #endif
 
-    Wire.begin();                    // No address joins the BUS as the master
+    Wire.begin();                   // No address joins the BUS as the master
 
   #else
 
-    Wire.begin(I2C_SLAVE_ADDRESS); // Join the bus as a slave
+    Wire.begin(I2C_SLAVE_ADDRESS);  // Join the bus as a slave
 
   #endif
   reset();
@@ -56,9 +56,8 @@ void TWIBus::reset() {
 }
 
 void TWIBus::address(const uint8_t adr) {
-  if (!WITHIN(adr, 8, 127)) {
+  if (!WITHIN(adr, 8, 127))
     SERIAL_ECHO_MSG("Bad I2C address (8-127)");
-  }
 
   addr = adr;
 
