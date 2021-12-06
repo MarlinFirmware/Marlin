@@ -359,7 +359,7 @@ void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=fa
   //
   void CardReader::printLongPath(char * const path) {
 
-    int i, pathLen = strlen(path);
+    int i, pathLen = path ? strlen(path) : 0;
 
     // SERIAL_ECHOPGM("Full Path: "); SERIAL_ECHOLN(path);
 

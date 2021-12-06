@@ -156,6 +156,7 @@
  * M121 - Disable endstops detection.
  *
  * M122 - Debug stepper (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
+ * M123 - Report fan tachometers. (Requires En_FAN_TACHO_PIN) Optionally set auto-report interval. (Requires AUTO_REPORT_FANS)
  * M125 - Save current position and move to filament change position. (Requires PARK_HEAD_ON_PAUSE)
  *
  * M126 - Solenoid Air Valve Open. (Requires BARICUDA)
@@ -296,6 +297,7 @@
  * M917 - L6470 tuning: Find minimum current thresholds. (Requires at least one _DRIVER_TYPE L6470)
  * M918 - L6470 tuning: Increase speed until max or error. (Requires at least one _DRIVER_TYPE L6470)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
+ * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
  *
  *** SCARA ***
@@ -735,6 +737,10 @@ private:
   static void M119();
   static void M120();
   static void M121();
+
+  #if HAS_FANCHECK
+    static void M123();
+  #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
     static void M125();
@@ -1197,6 +1203,10 @@ private:
 
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
+  #endif
+
+  #if ENABLED(HAS_MCP3426_ADC)
+    static void M3426();
   #endif
 
   #if ENABLED(MAX7219_GCODE)

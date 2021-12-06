@@ -382,7 +382,7 @@
 #define BOARD_BTT_BTT002_V1_0         4210  // BigTreeTech BTT002 v1.0 (STM32F407VGT6)
 #define BOARD_BTT_E3_RRF              4211  // BigTreeTech E3 RRF (STM32F407VGT6)
 #define BOARD_BTT_SKR_V2_0_REV_A      4212  // BigTreeTech SKR v2.0 Rev A (STM32F407VGT6)
-#define BOARD_BTT_SKR_V2_0_REV_B      4213  // BigTreeTech SKR v2.0 Rev B (STM32F407VGT6)
+#define BOARD_BTT_SKR_V2_0_REV_B      4213  // BigTreeTech SKR v2.0 Rev B (STM32F407VGT6/STM32F429VGT6)
 #define BOARD_BTT_GTR_V1_0            4214  // BigTreeTech GTR v1.0 (STM32F407IGT)
 #define BOARD_BTT_OCTOPUS_V1_0        4215  // BigTreeTech Octopus v1.0 (STM32F446ZET6)
 #define BOARD_BTT_OCTOPUS_V1_1        4216  // BigTreeTech Octopus v1.1 (STM32F446ZET6)
@@ -407,6 +407,7 @@
 #define BOARD_MKS_ROBIN_NANO_V1_3_F4  4235  // MKS Robin Nano V1.3 and MKS Robin Nano-S V1.3 (STM32F407VET6)
 #define BOARD_MKS_EAGLE               4236  // MKS Eagle (STM32F407VET6)
 #define BOARD_ARTILLERY_RUBY          4237  // Artillery Ruby (STM32F401RCT6)
+#define BOARD_FYSETC_SPIDER_V2_2      4238  // FYSETC Spider V2.2 (STM32F446VET6)
 
 //
 // ARM Cortex M7

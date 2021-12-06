@@ -188,6 +188,14 @@
   #endif
 #endif
 
+#ifndef E0_FAN_TACHO_PIN
+  #ifdef MK3_FAN_PINS
+    #define E0_FAN_TACHO_PIN                PE1   // Fan1
+  #else
+    #define E0_FAN_TACHO_PIN                PE0   // Fan0
+  #endif
+#endif
+
 /**
  * -----------------------------------BTT002 V1.0----------------------------------------
  *               ------                                          ------                  |
