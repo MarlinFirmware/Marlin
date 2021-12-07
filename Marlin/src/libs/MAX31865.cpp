@@ -166,7 +166,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
       " _miso: ", _miso,
       " _sclk: ", _sclk,
       " _mosi: ", _mosi,
-      " config: ", readRegister8(MAX31856_CONFIG_REG)
+      " config: ", readRegister8(MAX31865_CONFIG_REG)
     );
   #endif
 }
@@ -177,14 +177,14 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
  * @return The raw unsigned 8-bit FAULT status register
  */
 uint8_t MAX31865::readFault() {
-  return readRegister8(MAX31856_FAULTSTAT_REG);
+  return readRegister8(MAX31865_FAULTSTAT_REG);
 }
 
 /**
  * Clear all faults in FAULTSTAT.
  */
 void MAX31865::clearFault() {
-  setConfig(MAX31856_CONFIG_FAULTSTAT, 1);
+  setConfig(MAX31865_CONFIG_FAULTSTAT, 1);
 }
 
 /**
@@ -193,7 +193,7 @@ void MAX31865::clearFault() {
  * @param b  If true, auto conversion is enabled
  */
 void MAX31865::autoConvert(bool b) {
-  setConfig(MAX31856_CONFIG_MODEAUTO, b);
+  setConfig(MAX31865_CONFIG_MODEAUTO, b);
 }
 
 /**
@@ -202,7 +202,7 @@ void MAX31865::autoConvert(bool b) {
  * @param b  If true, 50Hz noise is filtered, else 60Hz(default)
  */
 void MAX31865::enable50HzFilter(bool b) {
-  setConfig(MAX31856_CONFIG_FILT50HZ, b);
+  setConfig(MAX31865_CONFIG_FILT50HZ, b);
 }
 
 /**
@@ -211,7 +211,7 @@ void MAX31865::enable50HzFilter(bool b) {
  * @param b  If true bias is enabled, else disabled
  */
 void MAX31865::enableBias(bool b) {
-  setConfig(MAX31856_CONFIG_BIAS, b);
+  setConfig(MAX31865_CONFIG_BIAS, b);
 
   // From the datasheet:
   // Note that if VBIAS is off (to reduce supply current between conversions), any filter
@@ -226,7 +226,7 @@ void MAX31865::enableBias(bool b) {
  * Start a one-shot temperature reading.
  */
 void MAX31865::oneShot() {
-  setConfig(MAX31856_CONFIG_1SHOT, 1);
+  setConfig(MAX31865_CONFIG_1SHOT, 1);
 
   // From the datasheet:
   // Note that a single conversion requires approximately 52ms in 60Hz filter
@@ -242,12 +242,12 @@ void MAX31865::oneShot() {
  * @param wires The number of wires in enum format
  */
 void MAX31865::setWires(max31865_numwires_t wires) {
-  uint8_t t = readRegister8(MAX31856_CONFIG_REG);
+  uint8_t t = readRegister8(MAX31865_CONFIG_REG);
   if (wires == MAX31865_3WIRE)
-    t |= MAX31856_CONFIG_3WIRE;
+    t |= MAX31865_CONFIG_3WIRE;
   else // 2 or 4 wire
-    t &= ~MAX31856_CONFIG_3WIRE;
-  writeRegister8(MAX31856_CONFIG_REG, t);
+    t &= ~MAX31865_CONFIG_3WIRE;
+  writeRegister8(MAX31865_CONFIG_REG, t);
 }
 
 /**
@@ -261,7 +261,7 @@ uint16_t MAX31865::readRaw() {
   enableBias(true);
 
   oneShot();
-  uint16_t rtd = readRegister16(MAX31856_RTDMSB_REG);
+  uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
   #ifdef MAX31865_DEBUG
     SERIAL_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
@@ -352,12 +352,12 @@ float MAX31865::temperature(float Rrtd) {
  * @param enable  whether to enable or disable the value
  */
 void MAX31865::setConfig(uint8_t config, bool enable) {
-  uint8_t t = readRegister8(MAX31856_CONFIG_REG);
+  uint8_t t = readRegister8(MAX31865_CONFIG_REG);
   if (enable)
     t |= config;
   else
     t &= ~config; // disable
-  writeRegister8(MAX31856_CONFIG_REG, t);
+  writeRegister8(MAX31865_CONFIG_REG, t);
 }
 
 /**
