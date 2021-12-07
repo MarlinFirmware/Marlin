@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 /**
@@ -92,7 +92,7 @@ typedef enum max31865_numwires {
     SETUP_1_SHOT_MODE,
     READ_RTD_REG
   } one_shot_event_t;
-#endif 
+#endif
 
 /* Interface class for the MAX31865 RTD Sensor reader */
 class MAX31865 {
@@ -100,19 +100,19 @@ private:
   static SPISettings spiConfig;
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
-  
+
   #if ENABLED(TARGET_LPC1768)
     uint8_t spiSpeed;
   #else
     uint16_t spiDelay;
   #endif
-  
+
   float zeroRes, refRes, wireRes;
 
   #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
   millis_t lastReadStamp = 0;
   #endif
-  
+
   uint16_t lastRead = 0;
   uint8_t lastFault = 0;
 

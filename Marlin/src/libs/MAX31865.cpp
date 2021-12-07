@@ -159,7 +159,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   }
 
   initFixedFlags(wires);
-  
+
   clearFault(); // also initializes flags
 
 #if DISABLED(MAX31865_USE_AUTO_MODE) // make a proper first 1 shot read to initialize _lastRead
@@ -170,9 +170,9 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   DELAY_US(65000);
   uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
-  if (rtd & 1) { 
+  if (rtd & 1) {
     lastRead = 0xFFFF; // some invalid value
-    lastFault = readRegister8(MAX31865_FAULTSTAT_REG); 
+    lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
     clearFault(); // also clears the bias voltage flag, so no further action is required
 
     DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
@@ -181,12 +181,12 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
     DEBUG_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
 
     resetFlags();
-  
+
     lastRead = rtd;
     nextEvent = SETUP_BIAS_VOLTAGE;
     millis_t now = millis();
     nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC;
-  
+
   #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
     lastReadStamp = now;
   #endif
@@ -249,11 +249,11 @@ void MAX31865::oneShot() {
  * @param wires The number of wires in enum format
  */
 void MAX31865::initFixedFlags(max31865_numwires_t wires) {
-  
+
   // set config-defined flags (same for all sensors)
-  stdFlags = TERN(MAX31865_50HZ_FILTER, MAX31865_CONFIG_FILT50HZ, MAX31865_CONFIG_FILT60HZ) | 
+  stdFlags = TERN(MAX31865_50HZ_FILTER, MAX31865_CONFIG_FILT50HZ, MAX31865_CONFIG_FILT60HZ) |
               TERN(MAX31865_USE_AUTO_MODE, MAX31865_CONFIG_MODEAUTO | MAX31865_CONFIG_BIAS, MAX31865_CONFIG_MODEOFF);
-  
+
   if (wires == MAX31865_3WIRE) {
     stdFlags |= MAX31865_CONFIG_3WIRE;
   }
@@ -274,13 +274,13 @@ uint16_t MAX31865::readRaw() {
 
 #if DISABLED(MAX31865_USE_AUTO_MODE)
 
-  if (PENDING(millis(), nextEventStamp)) { 
+  if (PENDING(millis(), nextEventStamp)) {
     DEBUG_ECHOLNPGM("MAX31865 waiting for event ", nextEvent);
     return lastRead;
   }
 
   switch (nextEvent) {
-    case SETUP_BIAS_VOLTAGE: 
+    case SETUP_BIAS_VOLTAGE:
 
       enableBias();
 
@@ -290,19 +290,19 @@ uint16_t MAX31865::readRaw() {
       DEBUG_ECHOLN("MAX31865 bias voltage enabled");
 
       break;
-    
-    case SETUP_1_SHOT_MODE: 
+
+    case SETUP_1_SHOT_MODE:
 
       oneShot();
 
       nextEventStamp = millis() + 65; // wait at least 65msec before reading RTD register
       nextEvent = READ_RTD_REG;
-    
+
       DEBUG_ECHOLN("MAX31865 1 shot mode enabled");
-    
+
       break;
 
-    case READ_RTD_REG: 
+    case READ_RTD_REG:
 
 #endif // DISABLED(MAX31865_USE_AUTO_MODE)
 
@@ -314,13 +314,13 @@ uint16_t MAX31865::readRaw() {
       millis_t now = millis();
     #endif
 
-      if (rtd & 1) { 
-        lastFault = readRegister8(MAX31865_FAULTSTAT_REG); 
+      if (rtd & 1) {
+        lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
         lastRead |= 1;
         clearFault(); // also clears the bias voltage flag, so no further action is required
-     
+
         DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
-      } 
+      }
     #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
       else if (ABS(lastRead - rtd) > 500 && PENDING(now, lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
         lastFault = 0x01;
@@ -328,7 +328,7 @@ uint16_t MAX31865::readRaw() {
 
         DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
       }
-    #endif    
+    #endif
       else {
         lastRead = rtd;
       #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
@@ -511,7 +511,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
  * @param data  the data to write
  */
 void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
-  
+
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
     SPI.beginTransaction(spiConfig);
   }

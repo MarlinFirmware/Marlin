@@ -160,7 +160,7 @@
       #define MAX31865_SENSOR_WIRES_0 2
     #endif
     #ifndef MAX31865_WIRE_OHMS_0
-      #define MAX31865_WIRE_OHMS_0 0.0f 
+      #define MAX31865_WIRE_OHMS_0 0.0f
     #endif
   #elif TEMP_SENSOR_0 == -3
     #define TEMP_SENSOR_0_IS_MAX31855 1
@@ -197,7 +197,7 @@
       #define MAX31865_SENSOR_WIRES_1 2
     #endif
     #ifndef MAX31865_WIRE_OHMS_1
-      #define MAX31865_WIRE_OHMS_1 0.0f 
+      #define MAX31865_WIRE_OHMS_1 0.0f
     #endif
   #elif TEMP_SENSOR_1 == -3
     #define TEMP_SENSOR_1_IS_MAX31855 1

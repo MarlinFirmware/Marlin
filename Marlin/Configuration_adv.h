@@ -155,7 +155,7 @@
 //#define MAX31865_USE_AUTO_MODE
 //#define MAX31865_MIN_SAMPLING_TIME_MSEC 100
 //#define MAX31865_WIRE_OHMS_0 0.0f
-//#define MAX31865_WIRE_OHMS_1 0.0f 
+//#define MAX31865_WIRE_OHMS_1 0.0f
 
 /**
  * Hephestos 2 24V heated bed upgrade kit.
