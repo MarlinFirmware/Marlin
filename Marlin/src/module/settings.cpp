@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V85"
+#define EEPROM_VERSION "V86"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -159,6 +159,10 @@
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
+#ifdef EEPROM_CHECK_BUILD_COUNT
+  #include "../../Build_Count.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -191,6 +195,9 @@ static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
  */
 typedef struct SettingsDataStruct {
   char      version[4];                                 // Vnn\0
+  #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
+    uint8_t build_count;
+  #endif
   uint16_t  crc;                                        // Data Checksum
 
   //
@@ -631,6 +638,9 @@ void MarlinSettings::postprocess() {
   #endif
 
   const char version[4] = EEPROM_VERSION;
+  #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
+    const uint8_t build_count = BUILD_COUNT;
+  #endif
 
   bool MarlinSettings::eeprom_error, MarlinSettings::validating;
   int MarlinSettings::eeprom_index;
@@ -638,7 +648,7 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
-      DEBUG_ERROR_MSG("EEPROM datasize error.");
+      DEBUG_ERROR_MSG("EEPROM datasize error. Size ",size," datasize ",datasize());
       return true;
     }
     return false;
@@ -650,7 +660,9 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::save() {
     float dummyf = 0;
     char ver[4] = "ERR";
-
+    #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
+      uint8_t build_count;
+    #endif
     if (!EEPROM_START(EEPROM_OFFSET)) return false;
 
     eeprom_error = false;
@@ -658,6 +670,9 @@ void MarlinSettings::postprocess() {
     // Write or Skip version. (Flash doesn't allow rewrite without erase.)
     TERN(FLASH_EEPROM_EMULATION, EEPROM_SKIP, EEPROM_WRITE)(ver);
 
+    #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
+      EEPROM_SKIP(build_count); // Skip the build_count slot
+    #endif
     EEPROM_SKIP(working_crc); // Skip the checksum slot
 
     working_crc = 0; // clear before first "real data"
@@ -1461,6 +1476,9 @@ void MarlinSettings::postprocess() {
       eeprom_index = EEPROM_OFFSET;
 
       EEPROM_WRITE(version);
+      #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
+        EEPROM_WRITE(BUILD_COUNT);
+      #endif
       EEPROM_WRITE(final_crc);
 
       // Report storage size
@@ -1493,17 +1511,27 @@ void MarlinSettings::postprocess() {
 
     char stored_ver[4];
     EEPROM_READ_ALWAYS(stored_ver);
+    #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
+      uint8_t stored_build_count;
+      EEPROM_READ_ALWAYS(stored_build_count);
+    #endif
+
 
     uint16_t stored_crc;
     EEPROM_READ_ALWAYS(stored_crc);
 
     // Version has to match or defaults are used
-    if (strncmp(version, stored_ver, 3) != 0) {
+    if ((strncmp(version, stored_ver, 3) != 0) || TERN0(EEPROM_CHECK_BUILD_COUNT,(stored_build_count != BUILD_COUNT))) {
       if (stored_ver[3] != '\0') {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+
+      #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
+        DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, ".",stored_build_count , " Marlin=" EEPROM_VERSION ".", BUILD_COUNT,")");
+      #else
+        DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
+      #endif
       TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());

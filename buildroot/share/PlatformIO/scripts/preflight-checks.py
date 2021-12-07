@@ -86,6 +86,19 @@ if pioutil.is_pio_build():
 			os.remove(warnfile)
 
 		#
+		# Maintain build count
+		#
+		if 'EEPROM_CHECK_BUILD_COUNT' in env['MARLIN_FEATURES']:
+			build_count = 0
+			buildcountfile = os.path.join("Marlin", "Build_Count.h")
+			if os.path.exists(buildcountfile):
+				con_adv_file = open(buildcountfile, "r")
+				build_count = (int(con_adv_file.read()[20:].strip())+1)%256
+			con_adv_file = open(buildcountfile, "w")
+			con_adv_file.write("#define BUILD_COUNT " + str(build_count))
+			con_adv_file.close
+
+		#
 		# Check for old files indicating an entangled Marlin (mixing old and new code)
 		#
 		mixedin = []

@@ -1836,6 +1836,7 @@
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
   //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
+  #define EEPROM_CHECK_BUILD_COUNT // Use and check build count, Defaults loaded on mismatach.
 #endif
 
 //
