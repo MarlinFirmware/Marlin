@@ -38,13 +38,20 @@
   #include "../../module/probe.h"
 #endif
 
-#if EITHER(ENABLE_LEVELING_FADE_HEIGHT, AUTO_BED_LEVELING_UBL)
+#if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 ////////////////////////////////////////////
 ///////////// Global Variables /////////////
 ////////////////////////////////////////////
+
+#if HAS_LEVELING && ANY(LEVEL_BED_CORNERS, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+  bool leveling_was_active; // = false
+#endif
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
+  uint8_t manual_probe_index; // = 0
+#endif
 
 // Menu Navigation
 int8_t encoderTopLine, encoderLine, screen_items;
