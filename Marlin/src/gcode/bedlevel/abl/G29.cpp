@@ -662,7 +662,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             const float z = abl.measured_z + abl.Z_offset;
-            z_values[abl.meshCount.x][abl.meshCount.y] = z;
+            z_values[abl.meshCount.x][abl.meshCount.y] = z PLUS_TERN0(X_AXIS_TWIST_COMPENSATION, xatc.compensation(abl.probePos));
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
           #endif
