@@ -128,7 +128,6 @@ MAX31865::MAX31865(uint32_t spi_cs, uint8_t pin_mapping) {
 
 #endif // LARGE_PINMAP
 
-
 /**
  *
  * Instance & Class methods
@@ -161,35 +160,35 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
 
   clearFault(); // also initializes flags
 
-#if DISABLED(MAX31865_USE_AUTO_MODE) // make a proper first 1 shot read to initialize _lastRead
+  #if DISABLED(MAX31865_USE_AUTO_MODE) // make a proper first 1 shot read to initialize _lastRead
 
-  enableBias();
-  DELAY_US(11500);
-  oneShot();
-  DELAY_US(65000);
-  uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+    enableBias();
+    DELAY_US(11500);
+    oneShot();
+    DELAY_US(65000);
+    uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
-  if (rtd & 1) {
-    lastRead = 0xFFFF; // some invalid value
-    lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
-    clearFault(); // also clears the bias voltage flag, so no further action is required
+    if (rtd & 1) {
+      lastRead = 0xFFFF; // some invalid value
+      lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
+      clearFault(); // also clears the bias voltage flag, so no further action is required
 
-    DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
-  }
-  else {
-    DEBUG_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
+      DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
+    }
+    else {
+      DEBUG_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
 
-    resetFlags();
+      resetFlags();
 
-    lastRead = rtd;
-    nextEvent = SETUP_BIAS_VOLTAGE;
-    millis_t now = millis();
-    nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC;
+      lastRead = rtd;
+      nextEvent = SETUP_BIAS_VOLTAGE;
+      millis_t now = millis();
+      nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC;
 
-    TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
-  }
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
+    }
 
-#endif // DISABLED(MAX31865_USE_AUTO_MODE)
+  #endif // !MAX31865_USE_AUTO_MODE
 
   DEBUG_ECHOLNPGM(
     TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular")

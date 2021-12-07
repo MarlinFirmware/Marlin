@@ -110,16 +110,16 @@ private:
   float zeroRes, refRes, wireRes;
 
   #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-  millis_t lastReadStamp = 0;
+    millis_t lastReadStamp = 0;
   #endif
 
   uint16_t lastRead = 0;
   uint8_t lastFault = 0;
 
-#if DISABLED(MAX31865_USE_AUTO_MODE)
-  millis_t nextEventStamp;
-  one_shot_event_t nextEvent;
-#endif
+  #if DISABLED(MAX31865_USE_AUTO_MODE)
+    millis_t nextEventStamp;
+    one_shot_event_t nextEvent;
+  #endif
 
   uint8_t stdFlags = 0;
 
