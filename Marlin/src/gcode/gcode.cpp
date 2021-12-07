@@ -1054,6 +1054,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
+      #if ENABLED(HAS_MCP3426_ADC)
+        case 3426: M3426(); break;                                // M3426: Read MCP3426 ADC (over i2c)
+      #endif
+
       default: parser.unknown_command_warning(); break;
     }
     break;

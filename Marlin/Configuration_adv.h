@@ -195,7 +195,8 @@
 
   //#define CHAMBER_FAN               // Enable a fan on the chamber
   #if ENABLED(CHAMBER_FAN)
-    #define CHAMBER_FAN_MODE 2        // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve; 3=similar to 1 but fan is always on.
+    //#define CHAMBER_FAN_INDEX   2   // Index of a fan to repurpose as the chamber fan. (Default: first unused fan)
+    #define CHAMBER_FAN_MODE      2   // Fan control mode: 0=Static; 1=Linear increase when temp is higher than target; 2=V-shaped curve; 3=similar to 1 but fan is always on.
     #if CHAMBER_FAN_MODE == 0
       #define CHAMBER_FAN_BASE  255   // Chamber fan PWM (0-255)
     #elif CHAMBER_FAN_MODE == 1
@@ -1277,6 +1278,22 @@
 
       // Set a convenient position to do the calibration (probing point and nozzle/bed-distance)
       //#define PROBE_OFFSET_WIZARD_XY_POS { X_CENTER, Y_CENTER }
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      // Add a calibration procedure in the Probe Offsets menu
+      // to compensate for twist in the X-axis.
+      //#define X_AXIS_TWIST_COMPENSATION
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        /**
+         * Enable to init the Probe Z-Offset when starting the Wizard.
+         * Use a height slightly above the estimated nozzle-to-probe Z offset.
+         * For example, with an offset of -5, consider a starting height of -4.
+         */
+        #define XATC_START_Z 0.0
+        #define XATC_MAX_POINTS 3             // Number of points to probe in the wizard
+        #define XATC_Y_POSITION Y_CENTER      // (mm) Y position to probe
+      #endif
     #endif
   #endif
 
