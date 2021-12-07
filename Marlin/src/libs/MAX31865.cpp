@@ -150,9 +150,8 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
 
   digitalWrite(cselPin, HIGH);
 
-  if (sclkPin != TERN(LARGE_PINMAP, -1UL, 255)) {
+  if (sclkPin != TERN(LARGE_PINMAP, -1UL, 255))
     softSpiBegin(SPI_QUARTER_SPEED); // Define pin modes for Software SPI
-  }
   else {
     DEBUG_ECHOLNPGM("Initializing MAX31865 Hardware SPI");
     SPI.begin();    // Start and configure hardware SPI
@@ -187,9 +186,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
     millis_t now = millis();
     nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC;
 
-  #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-    lastReadStamp = now;
-  #endif
+    TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
   }
 
 #endif // DISABLED(MAX31865_USE_AUTO_MODE)
@@ -254,12 +251,10 @@ void MAX31865::initFixedFlags(max31865_numwires_t wires) {
   stdFlags = TERN(MAX31865_50HZ_FILTER, MAX31865_CONFIG_FILT50HZ, MAX31865_CONFIG_FILT60HZ) |
               TERN(MAX31865_USE_AUTO_MODE, MAX31865_CONFIG_MODEAUTO | MAX31865_CONFIG_BIAS, MAX31865_CONFIG_MODEOFF);
 
-  if (wires == MAX31865_3WIRE) {
+  if (wires == MAX31865_3WIRE)
     stdFlags |= MAX31865_CONFIG_3WIRE;
-  }
-  else { // 2 or 4 wire
+  else  // 2 or 4 wire
     stdFlags &= ~MAX31865_CONFIG_3WIRE;
-  }
 }
 
 /**
@@ -270,82 +265,84 @@ void MAX31865::initFixedFlags(max31865_numwires_t wires) {
  */
 uint16_t MAX31865::readRaw() {
 
-  uint16_t rtd;
+  const millis_t now = millis();
 
-#if DISABLED(MAX31865_USE_AUTO_MODE)
+  #if ENABLED(MAX31865_USE_AUTO_MODE)
 
-  if (PENDING(millis(), nextEventStamp)) {
-    DEBUG_ECHOLNPGM("MAX31865 waiting for event ", nextEvent);
-    return lastRead;
-  }
+    const uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+    DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
 
-  switch (nextEvent) {
-    case SETUP_BIAS_VOLTAGE:
-
-      enableBias();
-
-      nextEventStamp = millis() + 11; // wait at least 11msec before enabling 1shot
-      nextEvent = SETUP_1_SHOT_MODE;
-
-      DEBUG_ECHOLN("MAX31865 bias voltage enabled");
-
-      break;
-
-    case SETUP_1_SHOT_MODE:
-
-      oneShot();
-
-      nextEventStamp = millis() + 65; // wait at least 65msec before reading RTD register
-      nextEvent = READ_RTD_REG;
-
-      DEBUG_ECHOLN("MAX31865 1 shot mode enabled");
-
-      break;
-
-    case READ_RTD_REG:
-
-#endif // DISABLED(MAX31865_USE_AUTO_MODE)
-
-      rtd = readRegister16(MAX31865_RTDMSB_REG);
-
-      DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
-
-    #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION) || DISABLED(MAX31865_USE_AUTO_MODE)
-      millis_t now = millis();
-    #endif
-
-      if (rtd & 1) {
-        lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
-        lastRead |= 1;
-        clearFault(); // also clears the bias voltage flag, so no further action is required
-
-        DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
-      }
+    if (rtd & 1) {
+      lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
+      lastRead |= 1;
+      clearFault(); // also clears the bias voltage flag, so no further action is required
+      DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
+    }
     #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
       else if (ABS(lastRead - rtd) > 500 && PENDING(now, lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
         lastFault = 0x01;
         lastRead |= 1;
-
         DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
       }
     #endif
-      else {
-        lastRead = rtd;
-      #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-        lastReadStamp = now;
-      #endif
-      }
+    else {
+      lastRead = rtd;
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
+    }
 
-#if DISABLED(MAX31865_USE_AUTO_MODE)
-      if (!(rtd & 1)) { // if clearFault() was not invoked, need to clear the bias voltage and 1-shot flags
-        resetFlags();
-      }
+  #else
 
-      nextEvent = SETUP_BIAS_VOLTAGE;
-      nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC; // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
-      break;
-  }
-#endif //DISABLED(MAX31865_USE_AUTO_MODE)
+    if (PENDING(now, nextEventStamp)) {
+      DEBUG_ECHOLNPGM("MAX31865 waiting for event ", nextEvent);
+      return lastRead;
+    }
+
+    switch (nextEvent) {
+      case SETUP_BIAS_VOLTAGE:
+        enableBias();
+        nextEventStamp = now + 11; // wait at least 11msec before enabling 1shot
+        nextEvent = SETUP_1_SHOT_MODE;
+        DEBUG_ECHOLN("MAX31865 bias voltage enabled");
+        break;
+
+      case SETUP_1_SHOT_MODE:
+        oneShot();
+        nextEventStamp = now + 65; // wait at least 65msec before reading RTD register
+        nextEvent = READ_RTD_REG;
+        DEBUG_ECHOLN("MAX31865 1 shot mode enabled");
+        break;
+
+      case READ_RTD_REG: {
+        const uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+        DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
+
+        if (rtd & 1) {
+          lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
+          lastRead |= 1;
+          clearFault(); // also clears the bias voltage flag, so no further action is required
+          DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
+        }
+        #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
+          else if (ABS(lastRead - rtd) > 500 && PENDING(now, lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
+            lastFault = 0x01;
+            lastRead |= 1;
+            DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
+          }
+        #endif
+        else {
+          lastRead = rtd;
+          TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
+        }
+
+        if (!(rtd & 1))   // if clearFault() was not invoked, need to clear the bias voltage and 1-shot flags
+          resetFlags();
+
+        nextEvent = SETUP_BIAS_VOLTAGE;
+        nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC; // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
+      } break;
+    }
+
+  #endif
 
   return lastRead;
 }
@@ -420,7 +417,6 @@ float MAX31865::temperature(float rtd_res) {
 // private:
 //
 
-
 /**
  * Set a value in the configuration register.
  *
@@ -429,12 +425,7 @@ float MAX31865::temperature(float rtd_res) {
  */
 void MAX31865::setConfig(uint8_t config, bool enable) {
   uint8_t t = stdFlags;
-  if (enable) {
-    t |= config;
-  }
-  else {
-    t &= ~config; // disable
-  }
+  if (enable) t |= config; else t &= ~config;
   writeRegister8(MAX31865_CONFIG_REG, t);
 }
 
@@ -447,7 +438,6 @@ void MAX31865::setConfig(uint8_t config, bool enable) {
 uint8_t MAX31865::readRegister8(uint8_t addr) {
   uint8_t ret = 0;
   readRegisterN(addr, &ret, 1);
-
   return ret;
 }
 
@@ -458,14 +448,9 @@ uint8_t MAX31865::readRegister8(uint8_t addr) {
  * @return       both register contents as a single 16-bit int
  */
 uint16_t MAX31865::readRegister16(uint8_t addr) {
-  uint8_t buffer[2] = {0, 0};
+  uint8_t buffer[2] = { 0 };
   readRegisterN(addr, buffer, 2);
-
-  uint16_t ret = buffer[0];
-  ret <<= 8;
-  ret |= buffer[1];
-
-  return ret;
+  return uint16_t(buffer[0]) << 8 | buffer[1];
 }
 
 /**
@@ -477,18 +462,16 @@ uint16_t MAX31865::readRegister16(uint8_t addr) {
  */
 void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   addr &= 0x7F; // make sure top bit is not set
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.beginTransaction(spiConfig);
-  }
-  else {
+  else
     WRITE(sclkPin, LOW);
-  }
 
   WRITE(cselPin, LOW);
 
-#if ENABLED(TARGET_LPC1768)
-  DELAY_CYCLES(spiSpeed);
-#endif
+  #if ENABLED(TARGET_LPC1768)
+    DELAY_CYCLES(spiSpeed);
+  #endif
 
   spiTransfer(addr);
 
@@ -497,9 +480,8 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
     buffer++;
   }
 
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.endTransaction();
-  }
 
   WRITE(cselPin, HIGH);
 }
@@ -511,26 +493,22 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
  * @param data  the data to write
  */
 void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
-
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.beginTransaction(spiConfig);
-  }
-  else {
+  else
     WRITE(sclkPin, LOW);
-  }
 
   WRITE(cselPin, LOW);
 
-#if ENABLED(TARGET_LPC1768)
-  DELAY_CYCLES(spiSpeed);
-#endif
+  #if ENABLED(TARGET_LPC1768)
+    DELAY_CYCLES(spiSpeed);
+  #endif
 
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data);
 
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.endTransaction();
-  }
 
   WRITE(cselPin, HIGH);
 }
@@ -546,37 +524,40 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
  */
 uint8_t MAX31865::spiTransfer(uint8_t x) {
 
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255)) {
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     return SPI.transfer(x);
-  }
 
-#if ENABLED(TARGET_LPC1768)
-  return swSpiTransfer(x, spiSpeed, sclkPin, misoPin, mosiPin);
-#else
-  uint8_t reply = 0;
-  for (int i = 7; i >= 0; i--) {
-    WRITE(sclkPin, HIGH);           DELAY_NS_VAR(spiDelay);
-    reply <<= 1;
-    WRITE(mosiPin, x & _BV(i));     DELAY_NS_VAR(spiDelay);
-    if (READ(misoPin)) reply |= 1;
-    WRITE(sclkPin, LOW);            DELAY_NS_VAR(spiDelay);
-  }
-  return reply;
-#endif
+  #if ENABLED(TARGET_LPC1768)
+
+    return swSpiTransfer(x, spiSpeed, sclkPin, misoPin, mosiPin);
+
+  #else
+
+    uint8_t reply = 0;
+    for (int i = 7; i >= 0; i--) {
+      WRITE(sclkPin, HIGH);           DELAY_NS_VAR(spiDelay);
+      reply <<= 1;
+      WRITE(mosiPin, x & _BV(i));     DELAY_NS_VAR(spiDelay);
+      if (READ(misoPin)) reply |= 1;
+      WRITE(sclkPin, LOW);            DELAY_NS_VAR(spiDelay);
+    }
+    return reply;
+
+  #endif
 }
 
 void MAX31865::softSpiBegin(const uint8_t spi_speed) {
   DEBUG_ECHOLNPGM("Initializing MAX31865 Software SPI");
 
-#if ENABLED(TARGET_LPC1768)
-  swSpiBegin(sclkPin, misoPin, mosiPin);
-  spiSpeed = swSpiInit(spi_speed, sclkPin, mosiPin);
-#else
-  spiDelay = (100UL << spi_speed) / 3; // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
-  OUT_WRITE(sclkPin, LOW);
-  SET_OUTPUT(mosiPin);
-  SET_INPUT(misoPin);
-#endif
+  #if ENABLED(TARGET_LPC1768)
+    swSpiBegin(sclkPin, misoPin, mosiPin);
+    spiSpeed = swSpiInit(spi_speed, sclkPin, mosiPin);
+  #else
+    spiDelay = (100UL << spi_speed) / 3; // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
+    OUT_WRITE(sclkPin, LOW);
+    SET_OUTPUT(mosiPin);
+    SET_INPUT(misoPin);
+  #endif
 }
 
 #endif // HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
