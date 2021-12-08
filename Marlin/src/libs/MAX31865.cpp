@@ -147,6 +147,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   refRes = ref_res;
   wireRes = wire_res;
 
+  pinMode(cselPin, OUTPUT);
   digitalWrite(cselPin, HIGH);
 
   if (sclkPin != TERN(LARGE_PINMAP, -1UL, 255))
@@ -462,9 +463,9 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.beginTransaction(spiConfig);
   else
-    WRITE(sclkPin, LOW);
+    digitalWrite(sclkPin, LOW);
 
-  WRITE(cselPin, LOW);
+  digitalWrite(cselPin, LOW);
 
   #ifdef TARGET_LPC1768
     DELAY_CYCLES(spiSpeed);
@@ -480,7 +481,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.endTransaction();
 
-  WRITE(cselPin, HIGH);
+  digitalWrite(cselPin, HIGH);
 }
 
 /**
@@ -493,9 +494,9 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.beginTransaction(spiConfig);
   else
-    WRITE(sclkPin, LOW);
+    digitalWrite(sclkPin, LOW);
 
-  WRITE(cselPin, LOW);
+  digitalWrite(cselPin, LOW);
 
   #ifdef TARGET_LPC1768
     DELAY_CYCLES(spiSpeed);
@@ -507,7 +508,7 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.endTransaction();
 
-  WRITE(cselPin, HIGH);
+  digitalWrite(cselPin, HIGH);
 }
 
 /**
@@ -532,11 +533,11 @@ uint8_t MAX31865::spiTransfer(uint8_t x) {
 
     uint8_t reply = 0;
     for (int i = 7; i >= 0; i--) {
-      WRITE(sclkPin, HIGH);         DELAY_NS_VAR(spiDelay);
+      digitalWrite(sclkPin, HIGH);       DELAY_NS_VAR(spiDelay);
       reply <<= 1;
-      WRITE(mosiPin, x & _BV(i));   DELAY_NS_VAR(spiDelay);
-      if (READ(misoPin)) reply |= 1;
-      WRITE(sclkPin, LOW);          DELAY_NS_VAR(spiDelay);
+      digitalWrite(mosiPin, x & _BV(i)); DELAY_NS_VAR(spiDelay);
+      if (digitalRead(misoPin)) reply |= 1;
+      digitalWrite(sclkPin, LOW);        DELAY_NS_VAR(spiDelay);
     }
     return reply;
 
@@ -551,9 +552,10 @@ void MAX31865::softSpiBegin(const uint8_t spi_speed) {
     spiSpeed = swSpiInit(spi_speed, sclkPin, mosiPin);
   #else
     spiDelay = (100UL << spi_speed) / 3; // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
-    OUT_WRITE(sclkPin, LOW);
-    SET_OUTPUT(mosiPin);
-    SET_INPUT(misoPin);
+    pinMode(sclkPin, OUTPUT);
+    digitalWrite(sclkPin, LOW);
+    pinMode(mosiPin, OUTPUT);
+    pinMode(misoPin, INPUT);
   #endif
 }
 
