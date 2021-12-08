@@ -532,11 +532,11 @@ uint8_t MAX31865::spiTransfer(uint8_t x) {
 
     uint8_t reply = 0;
     for (int i = 7; i >= 0; i--) {
-      WRITE(sclkPin, HIGH);           DELAY_NS_VAR(spiDelay);
+      WRITE(sclkPin, HIGH);         DELAY_NS_VAR(spiDelay);
       reply <<= 1;
-      WRITE(mosiPin, x & _BV(i));     DELAY_NS_VAR(spiDelay);
+      WRITE(mosiPin, x & _BV(i));   DELAY_NS_VAR(spiDelay);
       if (READ(misoPin)) reply |= 1;
-      WRITE(sclkPin, LOW);            DELAY_NS_VAR(spiDelay);
+      WRITE(sclkPin, LOW);          DELAY_NS_VAR(spiDelay);
     }
     return reply;
 
