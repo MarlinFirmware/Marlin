@@ -101,7 +101,7 @@ private:
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
 
-  #if ENABLED(TARGET_LPC1768)
+  #ifdef TARGET_LPC1768
     uint8_t spiSpeed;
   #else
     uint16_t spiDelay;

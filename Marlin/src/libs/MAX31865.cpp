@@ -50,7 +50,7 @@
   #define MAX31865_MIN_SAMPLING_TIME_MSEC 0
 #endif
 
-#if ENABLED(TARGET_LPC1768)
+#ifdef TARGET_LPC1768
   #include <SoftwareSPI.h>
 #endif
 
@@ -466,7 +466,7 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
 
   WRITE(cselPin, LOW);
 
-  #if ENABLED(TARGET_LPC1768)
+  #ifdef TARGET_LPC1768
     DELAY_CYCLES(spiSpeed);
   #endif
 
@@ -497,7 +497,7 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
 
   WRITE(cselPin, LOW);
 
-  #if ENABLED(TARGET_LPC1768)
+  #ifdef TARGET_LPC1768
     DELAY_CYCLES(spiSpeed);
   #endif
 
@@ -524,7 +524,7 @@ uint8_t MAX31865::spiTransfer(uint8_t x) {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     return SPI.transfer(x);
 
-  #if ENABLED(TARGET_LPC1768)
+  #ifdef TARGET_LPC1768
 
     return swSpiTransfer(x, spiSpeed, sclkPin, misoPin, mosiPin);
 
@@ -546,7 +546,7 @@ uint8_t MAX31865::spiTransfer(uint8_t x) {
 void MAX31865::softSpiBegin(const uint8_t spi_speed) {
   DEBUG_ECHOLNPGM("Initializing MAX31865 Software SPI");
 
-  #if ENABLED(TARGET_LPC1768)
+  #ifdef TARGET_LPC1768
     swSpiBegin(sclkPin, misoPin, mosiPin);
     spiSpeed = swSpiInit(spi_speed, sclkPin, mosiPin);
   #else
