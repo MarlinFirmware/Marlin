@@ -1263,8 +1263,6 @@ void Planner::recalculate() {
 
     #if ENABLED(FAN_SOFT_PWM)
       #define _FAN_SET(F) thermalManager.soft_pwm_amount_fan[F] = CALC_FAN_SPEED(F);
-    #elif ENABLED(FAST_PWM_FAN)
-      #define _FAN_SET(F) set_pwm_duty(FAN##F##_PIN, CALC_FAN_SPEED(F));
     #else
       #define _FAN_SET(F) set_pwm_duty(pin_t(FAN##F##_PIN), CALC_FAN_SPEED(F));
     #endif
