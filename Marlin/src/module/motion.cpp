@@ -1532,29 +1532,27 @@ void prepare_line_to_destination() {
                   ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
     const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
-
     #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
-      // static value stores known coordinates after homing routine sets to 0 
+      // static value stores known coordinates after homing routine sets to 0
       static float expected_distance = 0;
       if (is_home_dir) {
         // sensorless homing moves by a backoff, this accounts for that distance
         const float axis_offset = -axis_home_dir * planner.get_axis_position_mm(axis);
         expected_distance += axis_offset;
-        }
+      }
       else {
         // in stallguard context, a backoff distance is done first,
         // so this is where the expected printer position is captured
-        const float current_axis_position = planner.get_axis_position_mm(axis);
-        const float current_position_distance_to_home = (
-            (axis_home_dir > 0) 
-            ? (base_max_pos(axis) - current_axis_position) 
-            : (base_min_pos(axis) + current_axis_position)
-            );
+        const float current_axis_position = planner.get_axis_position_mm(axis),
+                    current_position_distance_to_home = (axis_home_dir > 0
+                      ? (base_max_pos(axis) - current_axis_position)
+                      : (base_min_pos(axis) + current_axis_position)
+                    );
         expected_distance = current_position_distance_to_home;
-        }
-        
-      const uint32_t time_to_stop = static_cast<uint32_t>((expected_distance / home_fr_mm_s) * 1000.0f);
-      const uint32_t expected_stop_time = millis() + time_to_stop + HOME_SANITY_CHECKING_STARTUP_COMPENSATION;
+      }
+
+      const millis_t time_to_stop = static_cast<millis_t>((expected_distance / home_fr_mm_s) * 1000.0f),
+               expected_stop_time = millis() + time_to_stop + HOME_SANITY_CHECKING_STARTUP_COMPENSATION;
     #endif
 
     #if ENABLED(SENSORLESS_HOMING)
@@ -1607,15 +1605,14 @@ void prepare_line_to_destination() {
 
     if (is_home_dir) {
 
-        #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
-            const int32_t time_delta = static_cast<int32_t>(millis() - expected_stop_time);
-            const bool bad_home = (time_delta > HOME_SANITY_CHECKING_ERROR_MARGIN || 
-                                   time_delta < -HOME_SANITY_CHECKING_ERROR_MARGIN);
-            if (DEBUGGING(INFO)) 
-              SERIAL_ECHOLNPAIR("axis:", AS_CHAR(AXIS_CHAR(axis))," distance:",expected_distance," feedrate:",home_fr_mm_s," expected stop time:", time_to_stop, " difference from expected:", time_delta);
-            if (DEBUGGING(ERRORS) && bad_home) 
-              SERIAL_ECHOLNPAIR("homing fault! ms difference from expected: ", time_delta, ", axis: ", AS_CHAR(AXIS_CHAR(axis)));
-        #endif
+      #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
+        const int32_t time_delta = static_cast<int32_t>(millis() - expected_stop_time);
+        const bool bad_home = !WITHIN(time_delta, -HOME_SANITY_CHECKING_ERROR_MARGIN, HOME_SANITY_CHECKING_ERROR_MARGIN);
+        if (DEBUGGING(INFO))
+          SERIAL_ECHOLNPAIR("axis:", AS_CHAR(AXIS_CHAR(axis))," distance:",expected_distance," feedrate:",home_fr_mm_s," expected stop time:", time_to_stop, " difference from expected:", time_delta);
+        if (DEBUGGING(ERRORS) && bad_home)
+          SERIAL_ECHOLNPAIR("homing fault! ms difference from expected: ", time_delta, ", axis: ", AS_CHAR(AXIS_CHAR(axis)));
+      #endif
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
         if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
