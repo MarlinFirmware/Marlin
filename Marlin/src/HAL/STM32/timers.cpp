@@ -67,7 +67,7 @@
   #endif
 #endif
 
-#ifdef STM32F0xx
+#if defined(STM32F0xx) || defined(STM32G0xx)
   #define MCU_STEP_TIMER 16
   #define MCU_TEMP_TIMER 17
 #elif defined(STM32F1xx)

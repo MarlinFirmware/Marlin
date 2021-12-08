@@ -130,7 +130,7 @@
 // Types
 // ------------------------
 
-typedef int16_t pin_t;
+typedef int32_t pin_t;
 
 #define HAL_SERVO_LIB libServo
 #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
