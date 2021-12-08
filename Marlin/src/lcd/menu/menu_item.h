@@ -55,7 +55,7 @@ class MenuItem_button : public MenuItemBase {
 class MenuItem_function : public MenuItem_button {
   public:
     //static inline void action(PGM_P const, const uint8_t, const menuAction_t func) { (*func)(); };
-    static inline void action(PGM_P const, const menuAction_t func) { (*func)(); };
+    static inline void action(PGM_P const, const menuAction_t func) { if (func) (*func)(); };
 };
 
 // GCODES_ITEM(LABEL, GCODES)
