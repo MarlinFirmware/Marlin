@@ -264,8 +264,6 @@ void MAX31865::initFixedFlags(max31865_numwires_t wires) {
  */
 uint16_t MAX31865::readRaw() {
 
-  const millis_t now = millis();
-
   #if ENABLED(MAX31865_USE_AUTO_MODE)
 
     const uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
@@ -278,7 +276,7 @@ uint16_t MAX31865::readRaw() {
       DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
     }
     #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-      else if (ABS(lastRead - rtd) > 500 && PENDING(now, lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
+      else if (ABS(lastRead - rtd) > 500 && PENDING(millis(), lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
         lastFault = 0x01;
         lastRead |= 1;
         DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
@@ -286,12 +284,12 @@ uint16_t MAX31865::readRaw() {
     #endif
     else {
       lastRead = rtd;
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
     }
 
   #else
 
-    if (PENDING(now, nextEventStamp)) {
+    if (PENDING(millis(), nextEventStamp)) {
       DEBUG_ECHOLNPGM("MAX31865 waiting for event ", nextEvent);
       return lastRead;
     }
@@ -299,14 +297,14 @@ uint16_t MAX31865::readRaw() {
     switch (nextEvent) {
       case SETUP_BIAS_VOLTAGE:
         enableBias();
-        nextEventStamp = now + 11; // wait at least 11msec before enabling 1shot
+        nextEventStamp = millis() + 11; // wait at least 11msec before enabling 1shot
         nextEvent = SETUP_1_SHOT_MODE;
         DEBUG_ECHOLN("MAX31865 bias voltage enabled");
         break;
 
       case SETUP_1_SHOT_MODE:
         oneShot();
-        nextEventStamp = now + 65; // wait at least 65msec before reading RTD register
+        nextEventStamp = millis() + 65; // wait at least 65msec before reading RTD register
         nextEvent = READ_RTD_REG;
         DEBUG_ECHOLN("MAX31865 1 shot mode enabled");
         break;
@@ -322,7 +320,7 @@ uint16_t MAX31865::readRaw() {
           DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
         }
         #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-          else if (ABS(lastRead - rtd) > 500 && PENDING(now, lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
+          else if (ABS(lastRead - rtd) > 500 && PENDING(millis(), lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
             lastFault = 0x01;
             lastRead |= 1;
             DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
@@ -330,14 +328,14 @@ uint16_t MAX31865::readRaw() {
         #endif
         else {
           lastRead = rtd;
-          TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
+          TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
         }
 
         if (!(rtd & 1))   // if clearFault() was not invoked, need to clear the bias voltage and 1-shot flags
           resetFlags();
 
         nextEvent = SETUP_BIAS_VOLTAGE;
-        nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC; // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
+        nextEventStamp = millis() + MAX31865_MIN_SAMPLING_TIME_MSEC; // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
       } break;
     }
 
