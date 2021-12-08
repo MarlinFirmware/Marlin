@@ -89,15 +89,15 @@ class MAX31865 {
 private:
   static SPISettings spiConfig;
 
-  TERN(LARGE_PINMAP, uint32_t, uint8_t) _sclk, _miso, _mosi, _cs;
+  TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
 
   #ifdef TARGET_LPC1768
-    uint8_t _spi_speed;
+    uint8_t spiSpeed;
   #else
-    uint16_t _spi_delay;
+    uint16_t spiDelay;
   #endif
 
-  float Rzero, Rref;
+  float zeroRes, refRes;
 
   void setConfig(uint8_t config, bool enable);
 
@@ -135,6 +135,6 @@ public:
   uint16_t readRaw();
   float readResistance();
   float temperature();
-  float temperature(uint16_t adcVal);
-  float temperature(float Rrtd);
+  float temperature(uint16_t adc_val);
+  float temperature(float rtd_res);
 };

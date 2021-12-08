@@ -73,10 +73,10 @@ SPISettings MAX31865::spiConfig = SPISettings(
    * @param spi_clk   the SPI clock pin to use
   */
   MAX31865::MAX31865(int8_t spi_cs, int8_t spi_mosi, int8_t spi_miso, int8_t spi_clk) {
-    _cs = spi_cs;
-    _mosi = spi_mosi;
-    _miso = spi_miso;
-    _sclk = spi_clk;
+    cselPin = spi_cs;
+    mosiPin = spi_mosi;
+    misoPin = spi_miso;
+    sclkPin = spi_clk;
   }
 
   /**
@@ -86,8 +86,8 @@ SPISettings MAX31865::spiConfig = SPISettings(
    * @param spi_cs  the SPI CS pin to use along with the default SPI device
    */
   MAX31865::MAX31865(int8_t spi_cs) {
-    _cs = spi_cs;
-    _sclk = _miso = _mosi = -1;
+    cselPin = spi_cs;
+    sclkPin = misoPin = mosiPin = -1;
   }
 
 #else // LARGE_PINMAP
@@ -104,10 +104,10 @@ SPISettings MAX31865::spiConfig = SPISettings(
    * @param pin_mapping  set to 1 for positive pin values
    */
   MAX31865::MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso, uint32_t spi_clk, uint8_t pin_mapping) {
-    _cs = spi_cs;
-    _mosi = spi_mosi;
-    _miso = spi_miso;
-    _sclk = spi_clk;
+    cselPin = spi_cs;
+    mosiPin = spi_mosi;
+    misoPin = spi_miso;
+    sclkPin = spi_clk;
   }
 
   /**
@@ -119,8 +119,8 @@ SPISettings MAX31865::spiConfig = SPISettings(
    * @param pin_mapping  set to 1 for positive pin values
    */
   MAX31865::MAX31865(uint32_t spi_cs, uint8_t pin_mapping) {
-    _cs = spi_cs;
-    _sclk = _miso = _mosi = -1UL;  //-1UL or 0xFFFFFFFF or 4294967295
+    cselPin = spi_cs;
+    sclkPin = misoPin = mosiPin = -1UL;  //-1UL or 0xFFFFFFFF or 4294967295
   }
 
 #endif // LARGE_PINMAP
@@ -139,12 +139,12 @@ SPISettings MAX31865::spiConfig = SPISettings(
  * @param ref    The resistance of the reference resistor, in ohms.
  */
 void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
-  Rzero = zero;
-  Rref = ref;
+  zeroRes = zero;
+  refRes = ref;
 
-  OUT_WRITE(_cs, HIGH);
+  OUT_WRITE(cselPin, HIGH);
 
-  if (_sclk != TERN(LARGE_PINMAP, -1UL, -1)) {
+  if (sclkPin != TERN(LARGE_PINMAP, -1UL, -1)) {
     softSpiBegin(SPI_QUARTER_SPEED); // Define pin modes for Software SPI
   }
   else {
@@ -162,10 +162,10 @@ void MAX31865::begin(max31865_numwires_t wires, float zero, float ref) {
   #ifdef MAX31865_DEBUG_SPI
     SERIAL_ECHOLNPGM(
       TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular")
-      " begin call with _cs: ", _cs,
-      " _miso: ", _miso,
-      " _sclk: ", _sclk,
-      " _mosi: ", _mosi,
+      " begin call with cselPin: ", cselPin,
+      " misoPin: ", misoPin,
+      " sclkPin: ", sclkPin,
+      " mosiPin: ", mosiPin,
       " config: ", readRegister8(MAX31865_CONFIG_REG)
     );
   #endif
@@ -282,8 +282,8 @@ uint16_t MAX31865::readRaw() {
  */
 float MAX31865::readResistance() {
   // Strip the error bit (D0) and convert to a float ratio.
-  // less precise method: (readRaw() * Rref) >> 16
-  return (((readRaw() >> 1) / 32768.0f) * Rref);
+  // less precise method: (readRaw() * refRes) >> 16
+  return (((readRaw() >> 1) / 32768.0f) * refRes);
 }
 
 /**
@@ -300,8 +300,8 @@ float MAX31865::temperature() {
  *
  * @return  Temperature in C
  */
-float MAX31865::temperature(uint16_t adcVal) {
-  return temperature(((adcVal) / 32768.0f) * Rref);
+float MAX31865::temperature(uint16_t adc_val) {
+  return temperature(((adc_val) / 32768.0f) * refRes);
 }
 
 /**
@@ -309,11 +309,11 @@ float MAX31865::temperature(uint16_t adcVal) {
  * Uses the technique outlined in this PDF:
  * http://www.analog.com/media/en/technical-documentation/application-notes/AN709_0.pdf
  *
- * @param    Rrtd  the resistance value in ohms
- * @return         the temperature in degC
+ * @param    rtd_res  the resistance value in ohms
+ * @return            the temperature in degC
  */
-float MAX31865::temperature(float Rrtd) {
-  float temp = (RTD_Z1 + sqrt(RTD_Z2 + (RTD_Z3 * Rrtd))) / RTD_Z4;
+float MAX31865::temperature(float rtd_res) {
+  float temp = (RTD_Z1 + sqrt(RTD_Z2 + (RTD_Z3 * rtd_res))) * RECIPROCAL(RTD_Z4);
 
   // From the PDF...
   //
@@ -324,17 +324,17 @@ float MAX31865::temperature(float Rrtd) {
   // of resistance.
   //
   if (temp < 0) {
-    Rrtd = (Rrtd / Rzero) * 100; // normalize to 100 ohm
-    float rpoly = Rrtd;
+    rtd_res = (rtd_res / zeroRes) * 100; // normalize to 100 ohm
+    float rpoly = rtd_res;
 
     temp = -242.02 + (2.2228 * rpoly);
-    rpoly *= Rrtd; // square
+    rpoly *= rtd_res; // square
     temp += 2.5859e-3 * rpoly;
-    rpoly *= Rrtd; // ^3
+    rpoly *= rtd_res; // ^3
     temp -= 4.8260e-6 * rpoly;
-    rpoly *= Rrtd; // ^4
+    rpoly *= rtd_res; // ^4
     temp -= 2.8183e-8 * rpoly;
-    rpoly *= Rrtd; // ^5
+    rpoly *= rtd_res; // ^5
     temp += 1.5243e-10 * rpoly;
   }
 
@@ -399,15 +399,15 @@ uint16_t MAX31865::readRegister16(uint8_t addr) {
  */
 void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   addr &= 0x7F; // make sure top bit is not set
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.beginTransaction(spiConfig);
   else
-    WRITE(_sclk, LOW);
+    WRITE(sclkPin, LOW);
 
-  WRITE(_cs, LOW);
+  WRITE(cselPin, LOW);
 
   #ifdef TARGET_LPC1768
-    DELAY_CYCLES(_spi_speed);
+    DELAY_CYCLES(spiSpeed);
   #endif
 
   spiTransfer(addr);
@@ -420,10 +420,10 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
     buffer++;
   }
 
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.endTransaction();
 
-  WRITE(_cs, HIGH);
+  WRITE(cselPin, HIGH);
 }
 
 /**
@@ -433,24 +433,24 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
  * @param data  the data to write
  */
 void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.beginTransaction(spiConfig);
   else
-    WRITE(_sclk, LOW);
+    WRITE(sclkPin, LOW);
 
-  WRITE(_cs, LOW);
+  WRITE(cselPin, LOW);
 
   #ifdef TARGET_LPC1768
-    DELAY_CYCLES(_spi_speed);
+    DELAY_CYCLES(spiSpeed);
   #endif
 
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data);
 
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, -1))
     SPI.endTransaction();
 
-  WRITE(_cs, HIGH);
+  WRITE(cselPin, HIGH);
 }
 
 /**
@@ -463,19 +463,19 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
  * @return    the 8-bit response
  */
 uint8_t MAX31865::spiTransfer(uint8_t x) {
-  if (_sclk == TERN(LARGE_PINMAP, -1UL, -1))
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, -1))
     return SPI.transfer(x);
 
   #ifdef TARGET_LPC1768
-    return swSpiTransfer(x, _spi_speed, _sclk, _miso, _mosi);
+    return swSpiTransfer(x, spiSpeed, sclkPin, misoPin, mosiPin);
   #else
     uint8_t reply = 0;
     for (int i = 7; i >= 0; i--) {
-      WRITE(_sclk, HIGH);           DELAY_NS_VAR(_spi_delay);
+      WRITE(sclkPin, HIGH);         DELAY_NS_VAR(spiDelay);
       reply <<= 1;
-      WRITE(_mosi, x & _BV(i));     DELAY_NS_VAR(_spi_delay);
-      if (READ(_miso)) reply |= 1;
-      WRITE(_sclk, LOW);            DELAY_NS_VAR(_spi_delay);
+      WRITE(mosiPin, x & _BV(i));   DELAY_NS_VAR(spiDelay);
+      if (READ(misoPin)) reply |= 1;
+      WRITE(sclkPin, LOW);          DELAY_NS_VAR(spiDelay);
     }
     return reply;
   #endif
@@ -486,13 +486,13 @@ void MAX31865::softSpiBegin(const uint8_t spi_speed) {
     SERIAL_ECHOLNPGM("Initializing MAX31865 Software SPI");
   #endif
   #ifdef TARGET_LPC1768
-    swSpiBegin(_sclk, _miso, _mosi);
-    _spi_speed = swSpiInit(spi_speed, _sclk, _mosi);
+    swSpiBegin(sclkPin, misoPin, mosiPin);
+    spiSpeed = swSpiInit(spi_speed, sclkPin, mosiPin);
   #else
-    _spi_delay = (100UL << spi_speed) / 3; // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
-    OUT_WRITE(_sclk, LOW);
-    SET_OUTPUT(_mosi);
-    SET_INPUT(_miso);
+    spiDelay = (100UL << spi_speed) / 3; // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
+    OUT_WRITE(sclkPin, LOW);
+    SET_OUTPUT(mosiPin);
+    SET_INPUT(misoPin);
   #endif
 }
 
