@@ -57,7 +57,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_E_ADD:
       if (thermalManager.degHotend(uiCfg.extruderIndex) >= EXTRUDE_MINTEMP) {
         sprintf_P((char *)public_buf_l, PSTR("G91\nG1 E%d F%d\nG90"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-        //queue.enqueue_one_now(public_buf_l);  // If this is used, the material cannot be returned!
+        //queue.enqueue_one_now(public_buf_l);  // If this is used, the material cannot be retracted.
         queue.inject(public_buf_l);
         extrudeAmount -= uiCfg.extruStep;
         disp_extru_amount();
