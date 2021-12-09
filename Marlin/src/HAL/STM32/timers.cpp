@@ -79,6 +79,9 @@
 #elif defined(STM32F4xx) || defined(STM32F7xx) || defined(STM32H7xx)
   #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
+#elif defined(STM32G0xx)
+  #define MCU_STEP_TIMER 16
+  #define MCU_TEMP_TIMER 17
 #endif
 
 #ifndef HAL_TIMER_RATE
