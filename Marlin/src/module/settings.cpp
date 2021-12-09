@@ -63,6 +63,9 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #include "../feature/bedlevel/abl/x_twist.h"
+  #endif
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -152,6 +155,10 @@
 
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../libs/buzzer.h"
+#endif
+
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
@@ -246,6 +253,9 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
+    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      XATC xatc;                                        // TBD
+    #endif
   #else
     float z_values[3][3];
   #endif
@@ -489,6 +499,13 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
+  #endif
+
+  //
+  // Fan tachometer check
+  //
+  #if HAS_FANCHECK
+    bool fan_check_enabled;
   #endif
 
   //
@@ -803,6 +820,12 @@ void MarlinSettings::postprocess() {
           sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          static_assert(
+            sizeof(xatc.z_values) == (XATC_MAX_POINTS) * sizeof(xatc.z_values[0]),
+            "Z-offset mesh is the wrong size."
+          );
+        #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
       #endif
@@ -816,6 +839,9 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          EEPROM_WRITE(xatc);
+        #endif
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
@@ -1434,6 +1460,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Fan tachometer check
+    //
+    #if HAS_FANCHECK
+      EEPROM_WRITE(fan_check.enabled);
+    #endif
+
+    //
     // MKS UI controller
     //
     #if ENABLED(DGUS_LCD_UI_MKS)
@@ -1673,6 +1706,9 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
+            #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+              EEPROM_READ(xatc);
+            #endif
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
@@ -2337,6 +2373,14 @@ void MarlinSettings::postprocess() {
       #if ENABLED(SOUND_MENU_ITEM)
         _FIELD_TEST(buzzer_enabled);
         EEPROM_READ(ui.buzzer_enabled);
+      #endif
+
+      //
+      // Fan tachometer check
+      //
+      #if HAS_FANCHECK
+        _FIELD_TEST(fan_check_enabled);
+        EEPROM_READ(fan_check.enabled);
       #endif
 
       //
@@ -3037,6 +3081,11 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Fan tachometer check
+  //
+  TERN_(HAS_FANCHECK, fan_check.enabled = true);
+
+  //
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
@@ -3165,6 +3214,12 @@ void MarlinSettings::reset() {
             }
           }
         }
+
+        // TODO: Create G-code for settings
+        //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        //  CONFIG_ECHO_START();
+        //  xatc.print_points();
+        //#endif
 
       #endif
 
