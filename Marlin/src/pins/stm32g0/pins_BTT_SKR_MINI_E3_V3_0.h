@@ -35,13 +35,13 @@
 #define LED_PIN                             PD8
 
 // Onboard I2C EEPROM
-#if NO_EEPROM_SELECTED
+#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+  #undef NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
-  #undef NO_EEPROM_SELECTED
 #endif
 
 //
