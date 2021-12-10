@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,7 +21,7 @@
  */
 #pragma once
 
-// #define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
+//#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT SKR Mini E3 V3.0"
@@ -37,10 +37,10 @@
 // Onboard I2C EEPROM
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define SOFT_I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
-  #define I2C_SDA_PIN                      PB7
-  #define I2C_SCL_PIN                      PB6
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PB6
+  #define I2C_SDA_PIN                       PB7
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
   #undef NO_EEPROM_SELECTED
 #endif
 
@@ -151,11 +151,10 @@
  *          RESET | 7  8 | PA9  (BTN_EN1)
  * (BTN_ENC) PA15 | 9 10 | PB5  (BEEPER)
  *                 ------ 
- *                 EXP1
+ *                  EXP1
  */
-#define EXP1_9                              PA15
-#define EXP1_3                              PD6
-
+#define EXP1_09_PIN                         PA15
+#define EXP1_03_PIN                         PD6
 
 #if EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
   /**
@@ -173,8 +172,8 @@
 
   #error "DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. Comment out this line to continue."
 
-  #define BEEPER_PIN                      EXP1_9
-  #define BTN_EN1                         EXP1_3
+  #define BEEPER_PIN                 EXP1_09_PIN
+  #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                           PB8
   #define BTN_ENC                           PB5
 
@@ -183,13 +182,13 @@
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define BEEPER_PIN                      PB5
-    #define BTN_ENC                       EXP1_9
+    #define BTN_ENC                  EXP1_09_PIN
 
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE               EXP1_3
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4                     PB9
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -197,7 +196,7 @@
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
 
     #define LCD_PINS_RS                     PB9
-    #define LCD_PINS_ENABLE               EXP1_9
+    #define LCD_PINS_ENABLE          EXP1_09_PIN
     #define LCD_PINS_D4                     PB8
     #define LCD_PINS_D5                     PA10
     #define LCD_PINS_D6                     PA9
@@ -206,14 +205,14 @@
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-    #define BTN_ENC                       EXP1_9
+    #define BTN_ENC                  EXP1_09_PIN
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define DOGLCD_CS                       PB8
     #define DOGLCD_A0                       PB9
     #define DOGLCD_SCK                      PB5
-    #define DOGLCD_MOSI                   EXP1_3
+    #define DOGLCD_MOSI              EXP1_03_PIN
 
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
@@ -298,7 +297,7 @@
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
 
-  #define BEEPER_PIN                      EXP1_9
+  #define BEEPER_PIN                 EXP1_09_PIN
 
   #define CLCD_MOD_RESET                    PA9
   #define CLCD_SPI_CS                       PB8
