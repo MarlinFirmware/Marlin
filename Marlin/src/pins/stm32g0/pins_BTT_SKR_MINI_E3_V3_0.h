@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,21 +21,27 @@
  */
 #pragma once
 
-#include "env_validate.h"
+//#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
 
-// Release PB3/PB4 (E0 STP/DIR) from JTAG pins
-#define DISABLE_JTAG
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BTT SKR Mini E3 V3.0"
+#endif
 
 #define USES_DIAG_JUMPERS
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
-  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+#define LED_PIN                             PD8
+
+// Onboard I2C EEPROM
+#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+  #undef NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SCL_PIN                       PB6
+  #define I2C_SDA_PIN                       PB7
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //
@@ -69,6 +75,14 @@
   #define POWER_LOSS_PIN                    PC12  // Power Loss Detection: PWR-DET
 #endif
 
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA8   // LED driving pin
+#endif
+
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN                         PC13  // Power Supply Control
+#endif
+
 //
 // Steppers
 //
@@ -84,59 +98,65 @@
 #define Z_STEP_PIN                          PB0
 #define Z_DIR_PIN                           PC5
 
-#define E0_ENABLE_PIN                       PD2
+#define E0_ENABLE_PIN                       PD1
 #define E0_STEP_PIN                         PB3
 #define E0_DIR_PIN                          PB4
+
+#if HAS_TMC_UART
+  /**
+   * TMC220x stepper drivers
+   * Hardware serial communication ports
+   */
+  #define X_HARDWARE_SERIAL  MSerial4
+  #define Y_HARDWARE_SERIAL  MSerial4
+  #define Z_HARDWARE_SERIAL  MSerial4
+  #define E0_HARDWARE_SERIAL MSerial4
+
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS  2
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS  1
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS 3
+  #endif
+#endif
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PA0   // Analog Input "TH0"
-#define TEMP_BED_PIN                        PC3   // Analog Input "TB0"
+#define TEMP_BED_PIN                        PC4   // Analog Input "TB0"
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
-
-#ifdef SKR_MINI_E3_V2
-  #define FAN_PIN                           PC6
-#else
-  #define FAN_PIN                           PA8   // "FAN0"
-#endif
-
-//
-// USB connect control
-//
-#ifdef SKR_MINI_E3_V2
-  #define USB_CONNECT_PIN                   PA14
-#else
-  #define USB_CONNECT_PIN                   PC13
-#endif
-
-#define USB_CONNECT_INVERTING              false
+#define FAN_PIN                             PC6   // "FAN0"
+#define FAN1_PIN                            PC7   // "FAN1"
+#define FAN2_PIN                            PB15  // "FAN2"
 
 /**
- *        SKR Mini E3 V1.0, V1.2                      SKR Mini E3 V2.0
- *                ------                                    ------
- *            5V | 1  2 | GND                           5V | 1  2 | GND
- *  (LCD_EN) PB7 | 3  4 | PB8  (LCD_RS)      (LCD_EN) PB15 | 3  4 | PB8  (LCD_RS)
- *  (LCD_D4) PB9 | 5  6   PA10 (BTN_EN2)     (LCD_D4) PB9  | 5  6   PA10 (BTN_EN2)
- *         RESET | 7  8 | PA9  (BTN_EN1)             RESET | 7  8 | PA9  (BTN_EN1)
- * (BTN_ENC) PB6 | 9 10 | PB5  (BEEPER)     (BTN_ENC) PA15 | 9 10 | PB5  (BEEPER)
- *                ------                                    ------
- *                 EXP1                                      EXP1
+ *              SKR Mini E3 V3.0
+ *                 ------
+ *             5V | 1  2 | GND
+ *  (LCD_EN) PD6  | 3  4 | PB8  (LCD_RS)
+ *  (LCD_D4) PB9  | 5  6   PA10 (BTN_EN2)
+ *          RESET | 7  8 | PA9  (BTN_EN1)
+ * (BTN_ENC) PA15 | 9 10 | PB5  (BEEPER)
+ *                 ------ 
+ *                  EXP1
  */
-#ifdef SKR_MINI_E3_V2
-  #define EXP1_9                            PA15
-  #define EXP1_3                            PB15
-#else
-  #define EXP1_9                            PB6
-  #define EXP1_3                            PB7
-#endif
+#define EXP1_09_PIN                         PA15
+#define EXP1_03_PIN                         PD6
 
-#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#if EITHER(DWIN_CREALITY_LCD, IS_DWIN_MARLINUI)
   /**
    *        ------              ------              ------
    *   VCC | 1  2 | GND    VCC | 1  2 | GND    GND |  2 1 | VCC
@@ -150,10 +170,10 @@
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
 
-  #error "Ender-3 V2 display requires a custom cable, see diagram above this line. Comment out this line to continue."
+  #error "DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. Comment out this line to continue."
 
-  #define BEEPER_PIN                      EXP1_9
-  #define BTN_EN1                         EXP1_3
+  #define BEEPER_PIN                 EXP1_09_PIN
+  #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                           PB8
   #define BTN_ENC                           PB5
 
@@ -162,13 +182,13 @@
   #if ENABLED(CR10_STOCKDISPLAY)
 
     #define BEEPER_PIN                      PB5
-    #define BTN_ENC                       EXP1_9
+    #define BTN_ENC                  EXP1_09_PIN
 
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define LCD_PINS_RS                     PB8
-    #define LCD_PINS_ENABLE               EXP1_3
+    #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4                     PB9
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -176,7 +196,7 @@
     #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
 
     #define LCD_PINS_RS                     PB9
-    #define LCD_PINS_ENABLE               EXP1_9
+    #define LCD_PINS_ENABLE          EXP1_09_PIN
     #define LCD_PINS_D4                     PB8
     #define LCD_PINS_D5                     PA10
     #define LCD_PINS_D6                     PA9
@@ -185,14 +205,14 @@
 
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-    #define BTN_ENC                       EXP1_9
+    #define BTN_ENC                  EXP1_09_PIN
     #define BTN_EN1                         PA9
     #define BTN_EN2                         PA10
 
     #define DOGLCD_CS                       PB8
     #define DOGLCD_A0                       PB9
     #define DOGLCD_SCK                      PB5
-    #define DOGLCD_MOSI                   EXP1_3
+    #define DOGLCD_MOSI              EXP1_03_PIN
 
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
@@ -277,7 +297,7 @@
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
 
-  #define BEEPER_PIN                      EXP1_9
+  #define BEEPER_PIN                 EXP1_09_PIN
 
   #define CLCD_MOD_RESET                    PA9
   #define CLCD_SPI_CS                       PB8
@@ -293,7 +313,7 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SD_DETECT_PIN                     PC4
+  #define SD_DETECT_PIN                     PC3
 #elif SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_DETECT_PIN                     PB5
   #define SD_SS_PIN                         PA10
@@ -306,6 +326,7 @@
 
 #define ENABLE_SPI1
 #define SDSS                   ONBOARD_SD_CS_PIN
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7
