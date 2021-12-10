@@ -41,6 +41,8 @@
  */
 #pragma once
 
+//#define DEBUG_MAX31865
+
 #include "../inc/MarlinConfig.h"
 #include "../HAL/shared/Delay.h"
 #include HAL_PATH(../HAL, MarlinSPI.h)
@@ -84,20 +86,42 @@ typedef enum max31865_numwires {
   MAX31865_4WIRE = 0
 } max31865_numwires_t;
 
+#if DISABLED(MAX31865_USE_AUTO_MODE)
+  typedef enum one_shot_event : uint8_t {
+    SETUP_BIAS_VOLTAGE,
+    SETUP_1_SHOT_MODE,
+    READ_RTD_REG
+  } one_shot_event_t;
+#endif
+
 /* Interface class for the MAX31865 RTD Sensor reader */
 class MAX31865 {
 private:
   static SPISettings spiConfig;
 
-  TERN(LARGE_PINMAP, uint32_t, uint8_t) _sclk, _miso, _mosi, _cs;
+  TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
 
   #ifdef TARGET_LPC1768
-    uint8_t _spi_speed;
+    uint8_t spiSpeed;
   #else
-    uint16_t _spi_delay;
+    uint16_t spiDelay;
   #endif
 
-  float Rzero, Rref;
+  float zeroRes, refRes, wireRes;
+
+  #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
+    millis_t lastReadStamp = 0;
+  #endif
+
+  uint16_t lastRead = 0;
+  uint8_t lastFault = 0;
+
+  #if DISABLED(MAX31865_USE_AUTO_MODE)
+    millis_t nextEventStamp;
+    one_shot_event_t nextEvent;
+  #endif
+
+  uint8_t stdFlags = 0;
 
   void setConfig(uint8_t config, bool enable);
 
@@ -110,8 +134,15 @@ private:
 
   void softSpiBegin(const uint8_t spi_speed);
 
+  void initFixedFlags(max31865_numwires_t wires);
+
+  void enable50HzFilter(bool b);
+  void enableBias();
+  void oneShot();
+  void resetFlags();
+
 public:
-  #ifdef LARGE_PINMAP
+  #if ENABLED(LARGE_PINMAP)
     MAX31865(uint32_t spi_cs, uint8_t pin_mapping);
     MAX31865(uint32_t spi_cs, uint32_t spi_mosi, uint32_t spi_miso,
              uint32_t spi_clk, uint8_t pin_mapping);
@@ -121,20 +152,14 @@ public:
              int8_t spi_clk);
   #endif
 
-  void begin(max31865_numwires_t wires, float zero, float ref);
+  void begin(max31865_numwires_t wires, float zero_res, float ref_res, float wire_res);
 
   uint8_t readFault();
   void clearFault();
 
-  void setWires(max31865_numwires_t wires);
-  void autoConvert(bool b);
-  void enable50HzFilter(bool b);
-  void enableBias(bool b);
-  void oneShot();
-
   uint16_t readRaw();
   float readResistance();
   float temperature();
-  float temperature(uint16_t adcVal);
-  float temperature(float Rrtd);
+  float temperature(uint16_t adc_val);
+  float temperature(float rtd_res);
 };
