@@ -345,7 +345,7 @@ static bool longName2DosName(const char *longName, char *dosName) {
           hdma->DmaBaseAddress->IFCR = (DMA_ISR_GIF1 << hdma->ChannelIndex);
 
           SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);       // Update error code
-          hdma->State= HAL_DMA_STATE_READY;                 // Change the DMA state
+          hdma->State = HAL_DMA_STATE_READY;                // Change the DMA state
           __HAL_UNLOCK(hdma);                               // Process Unlocked
           return HAL_ERROR;
         }
@@ -2026,12 +2026,12 @@ void get_wifi_commands() {
 
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
-          if (strcmp(command, "M108") == 0) {
+          if (strcmp_P(command, PSTR("M108")) == 0) {
             wait_for_heatup = false;
             TERN_(HAS_LCD_MENU, wait_for_user = false);
           }
-          if (strcmp(command, "M112") == 0) kill(FPSTR(M112_KILL_STR), nullptr, true);
-          if (strcmp(command, "M410") == 0) quickstop_stepper();
+          if (strcmp_P(command, PSTR("M112")) == 0) kill(FPSTR(M112_KILL_STR), nullptr, true);
+          if (strcmp_P(command, PSTR("M410")) == 0) quickstop_stepper();
         #endif
 
         // Add the command to the queue

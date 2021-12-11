@@ -65,6 +65,10 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
+#endif
+
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
@@ -137,11 +141,12 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
 }
 
 /**
- * Get the target e stepper from the T parameter
- * Return -1 if the T parameter is out of range or unspecified
+ * Get the target E stepper from the 'T' parameter.
+ * If there is no 'T' parameter then dval will be substituted.
+ * Returns -1 if the resulting E stepper index is out of range.
  */
-int8_t GcodeSuite::get_target_e_stepper_from_command() {
-  const int8_t e = parser.intval('T', -1);
+int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
+  const int8_t e = parser.intval('T', dval);
   if (WITHIN(e, 0, E_STEPPERS - 1)) return e;
 
   SERIAL_ECHO_START();
@@ -237,9 +242,9 @@ void GcodeSuite::dwell(millis_t time) {
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
     #ifdef ACTION_ON_G29_RECOVER
-      host_action(F(ACTION_ON_G29_RECOVER));
+      hostui.g29_recover();
     #endif
     #ifdef G29_RECOVER_COMMANDS
       process_subcommands_now(F(G29_RECOVER_COMMANDS));
@@ -252,14 +257,14 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::event_probe_failure() {
     #ifdef ACTION_ON_G29_FAILURE
-      host_action(F(ACTION_ON_G29_FAILURE));
+      hostui.g29_failure();
     #endif
     #ifdef G29_FAILURE_COMMANDS
       process_subcommands_now(F(G29_FAILURE_COMMANDS));
     #endif
     #if ENABLED(G29_HALT_ON_FAILURE)
       #ifdef ACTION_ON_CANCEL
-        host_action_cancel();
+        hostui.cancel();
       #endif
       kill(GET_TEXT_F(MSG_LCD_PROBING_FAILED));
     #endif
@@ -282,7 +287,7 @@ void GcodeSuite::dwell(millis_t time) {
       }
     }
 
-    TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
 
     #ifdef G29_SUCCESS_COMMANDS
       process_subcommands_now(F(G29_SUCCESS_COMMANDS));
@@ -295,6 +300,8 @@ void GcodeSuite::dwell(millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
+  TERN_(HAS_FANCHECK, fan_check.check_deferred_error());
+
   KEEPALIVE_STATE(IN_HANDLER);
 
  /**
@@ -423,7 +430,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
+      #if BOTH(PTC_PROBE, PTC_BED)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 
@@ -576,6 +583,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 113: M113(); break;                                  // M113: Set Host Keepalive interval
       #endif
 
+      #if HAS_FANCHECK
+        case 123: M123(); break;                                  // M123: Report fan states or set fans auto-report interval
+      #endif
+
       #if HAS_HEATED_BED
         case 140: M140(); break;                                  // M140: Set bed temperature
         case 190: M190(); break;                                  // M190: Wait for bed temperature to reach target
@@ -584,6 +595,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if HAS_HEATED_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
+      #endif
+
+      #if HAS_TEMP_PROBE
+        case 192: M192(); break;                                  // M192: Wait for probe temp
       #endif
 
       #if HAS_COOLER
@@ -639,7 +654,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 
@@ -920,8 +935,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        case 192: M192(); break;                                  // M192: Wait for probe temp
+      #if HAS_PTC
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
@@ -1040,6 +1054,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
+      #if ENABLED(HAS_MCP3426_ADC)
+        case 3426: M3426(); break;                                // M3426: Read MCP3426 ADC (over i2c)
+      #endif
+
       default: parser.unknown_command_warning(); break;
     }
     break;
@@ -1095,14 +1113,15 @@ void GcodeSuite::process_next_command() {
   process_parsed_command();
 }
 
+#pragma GCC diagnostic push
+#if GCC_VERSION >= 80000
+  #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif
+
 /**
  * Run a series of commands, bypassing the command queue to allow
  * G-code "macros" to be called from within other G-code handlers.
  */
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-
 void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
   PGM_P pgcode = FTOP(fgcode);
   char * const saved_cmd = parser.command_ptr;        // Save the parser state

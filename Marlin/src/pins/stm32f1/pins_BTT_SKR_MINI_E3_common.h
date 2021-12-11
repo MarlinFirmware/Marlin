@@ -26,6 +26,8 @@
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
 
+#define USES_DIAG_JUMPERS
+
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
@@ -204,7 +206,7 @@
       /**
        * TFTGLCD_PANEL_SPI display pinout
        *
-       *               Board                                      Display
+       *               Board                                        Display
        *               ------                                       ------
        *           5V | 1  2 | GND                (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
        * (FREE)   PB7 | 3  4 | PB8  (LCD_CS)      (PA9)     LCD_CS | 3  4 | SD_CS (PA10)
@@ -247,7 +249,7 @@
   /**
    * FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                      Display
+   *               Board                                        Display
    *               ------                                       ------
    *           5V | 1  2 | GND                (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
    * (FREE)   PB7 | 3  4 | PB8  (LCD_CS)      (PA9)  MOD_RESET | 3  4 | SD_CS (PA10)

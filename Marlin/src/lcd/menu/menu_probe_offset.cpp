@@ -39,12 +39,10 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+void _goto_manual_move_z(const_float_t);
+
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
-
-#if HAS_LEVELING
-  bool leveling_was_active;
-#endif
 
 inline void z_clearance_move() {
   do_z_clearance(
@@ -63,11 +61,6 @@ void set_offset_and_go_back(const_float_t z) {
   SET_SOFT_ENDSTOP_LOOSE(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
   ui.goto_previous_screen_no_defer();
-}
-
-void _goto_manual_move_z(const_float_t scale) {
-  ui.manual_move.menu_scale = scale;
-  ui.goto_screen(lcd_move_z);
 }
 
 void probe_offset_wizard_menu() {

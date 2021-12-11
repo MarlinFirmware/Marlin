@@ -70,8 +70,15 @@
 //
 // Probe
 //
-#define PROBE_TARE_PIN                      PA1
-#define PROBE_ACTIVATION_SWITCH_PIN         PC2   // Optoswitch to Enable Z Probe
+#ifndef PROBE_TARE_PIN
+  #define PROBE_TARE_PIN                    PA1
+#endif
+
+#if ENABLED(PROBE_ACTIVATION_SWITCH)
+  #ifndef PROBE_ACTIVATION_SWITCH_PIN
+    #define PROBE_ACTIVATION_SWITCH_PIN     PC2   // Optoswitch to Enable Z Probe
+  #endif
+#endif
 
 //
 // Steppers

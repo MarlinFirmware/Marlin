@@ -208,7 +208,7 @@ void _lcd_ubl_edit_mesh() {
   void _lcd_ubl_validate_mesh() {
     START_MENU();
     BACK_ITEM(MSG_UBL_TOOLS);
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       #if HAS_HEATED_BED
         #define VALIDATE_MESH_GCODE_ITEM(M) \
           GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPI" STRINGIFY(M)))
@@ -230,7 +230,7 @@ void _lcd_ubl_edit_mesh() {
           #endif
         #endif
       #endif
-    #endif // PREHEAT_COUNT
+    #endif // HAS_PREHEAT
     ACTION_ITEM(MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
     ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
     END_MENU();
@@ -324,7 +324,7 @@ void _lcd_ubl_invalidate() {
 void _lcd_ubl_build_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     #if HAS_HEATED_BED
       #define PREHEAT_BED_GCODE(M) "M190I" STRINGIFY(M) "\n"
     #else
@@ -352,7 +352,7 @@ void _lcd_ubl_build_mesh() {
         #endif
       #endif
     #endif
-  #endif // PREHEAT_COUNT
+  #endif // HAS_PREHEAT
 
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
   GCODES_ITEM(MSG_UBL_BUILD_COLD_MESH, PSTR("G29NP1"));

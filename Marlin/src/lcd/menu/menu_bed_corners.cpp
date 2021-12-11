@@ -66,10 +66,6 @@
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
 
-#if HAS_LEVELING
-  static bool leveling_was_active = false;
-#endif
-
 #ifndef LEVEL_CORNERS_LEVELING_ORDER
   #define LEVEL_CORNERS_LEVELING_ORDER { LF, RF, LB, RB } // Default
   //#define LEVEL_CORNERS_LEVELING_ORDER { LF, LB, RF  }  // 3 hard-coded points
@@ -213,7 +209,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     if (!ui.should_draw()) return;
     MenuItem_confirm::confirm_screen(
         []{ queue.inject(TERN(HAS_LEVELING, F("G29N"), FPSTR(G28_STR))); ui.return_to_status(); }
-      , []{ ui.goto_previous_screen_no_defer(); }
+      , ui.goto_previous_screen_no_defer
       , GET_TEXT(MSG_BED_TRAMMING_IN_RANGE)
       , (const char*)nullptr, PSTR("?")
     );

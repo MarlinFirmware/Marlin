@@ -140,7 +140,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       LCD_MESSAGE(MSG_MANUAL_DEPLOY_TOUCHMI);
       ui.return_to_status();
 
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, F("Deploy TouchMI"), FPSTR(CONTINUE_STR)));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Deploy TouchMI"), FPSTR(CONTINUE_STR)));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
@@ -295,7 +295,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       ui.set_status(ds_str, 99);
       SERIAL_ECHOLNF(ds_str);
 
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, F("Stow Probe"), FPSTR(CONTINUE_STR)));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Stow Probe"), FPSTR(CONTINUE_STR)));
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Stow Probe")));
       TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, F("Stow Probe"), FPSTR(CONTINUE_STR)));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
@@ -361,6 +361,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #if HAS_HEATED_BED && (PROBING_BED_TEMP || LEVELING_BED_TEMP)
       #define WAIT_FOR_BED_HEAT
     #endif
+
+    LCD_MESSAGE(MSG_PREHEATING);
 
     DEBUG_ECHOPGM("Preheating ");
 
@@ -494,10 +496,10 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ENABLED(SENSORLESS_PROBING)
     sensorless_t stealth_states { false };
     #if HAS_DELTA_SENSORLESS_PROBING
-      if (probe.test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
-      if (probe.test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
+      if (test_sensitivity.x) stealth_states.x = tmc_enable_stallguard(stepperX);  // Delta watches all DIAG pins for a stall
+      if (test_sensitivity.y) stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
-    if (probe.test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);    // All machines will check Z-DIAG for stall
+    if (test_sensitivity.z) stealth_states.z = tmc_enable_stallguard(stepperZ);    // All machines will check Z-DIAG for stall
     endstops.enable(true);
     set_homing_current(true);                                 // The "homing" current also applies to probing
   #endif
@@ -522,10 +524,10 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ENABLED(SENSORLESS_PROBING)
     endstops.not_homing();
     #if HAS_DELTA_SENSORLESS_PROBING
-      if (probe.test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
-      if (probe.test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
+      if (test_sensitivity.x) tmc_disable_stallguard(stepperX, stealth_states.x);
+      if (test_sensitivity.y) tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
-    if (probe.test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
+    if (test_sensitivity.z) tmc_disable_stallguard(stepperZ, stealth_states.z);
     set_homing_current(false);
   #endif
 
@@ -766,14 +768,11 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   // On delta keep Z below clip height or do_blocking_move_to will abort
   xyz_pos_t npos = { rx, ry, TERN(DELTA, _MIN(delta_clip_start_height, current_position.z), current_position.z) };
-  if (probe_relative) {                                     // The given position is in terms of the probe
-    if (!can_reach(npos)) {
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
-      return NAN;
-    }
-    npos -= offset_xy;                                      // Get the nozzle position
+  if (!can_reach(npos, probe_relative)) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
+    return NAN;
   }
-  else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
+  if (probe_relative) npos -= offset_xy;  // Get the nozzle position
 
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));

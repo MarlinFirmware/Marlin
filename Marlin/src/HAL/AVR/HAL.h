@@ -91,7 +91,7 @@ typedef int8_t pin_t;
 // Public Variables
 // ------------------------
 
-//extern uint8_t MCUSR;
+extern uint8_t reset_reason;
 
 // Serial ports
 #ifdef USBCON
@@ -152,21 +152,19 @@ void HAL_init();
 
 //void _delay_ms(const int delay);
 
-inline void HAL_clear_reset_source() { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source() { return MCUSR; }
+inline void HAL_clear_reset_source() { }
+inline uint8_t HAL_get_reset_source() { return reset_reason; }
 
 void HAL_reboot();
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 extern "C" int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 // ADC
 #ifdef DIDR2
@@ -223,7 +221,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired);
 
 /**
  * set_pwm_duty
- *  Sets the PWM duty cycle of the provided pin to the provided value
+ *  Set the PWM duty cycle of the provided pin to the provided value
  *  Optionally allows inverting the duty cycle [default = false]
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
  */

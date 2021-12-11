@@ -74,13 +74,12 @@
  *      This code should ALWAYS be available for FULL SHUTDOWN!
  */
 void GcodeSuite::M81() {
-  thermalManager.disable_all_heaters();
   planner.finish_and_disable();
+  thermalManager.cooldown();
 
   print_job_timer.stop();
 
   #if HAS_FAN
-    thermalManager.zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
       thermalManager.fans_paused = false;
       ZERO(thermalManager.saved_fan_speed);

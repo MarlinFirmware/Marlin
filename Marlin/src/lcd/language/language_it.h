@@ -95,7 +95,7 @@ namespace Language_it {
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Wizard Tramming");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Selez. origine");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Ultimo valore ");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
@@ -186,7 +186,7 @@ namespace Language_it {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Modif.Mesh fatta");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Crea Mesh personal.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Crea Mesh");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Crea Mesh ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Valida Mesh ($)");
   #endif
@@ -556,6 +556,7 @@ namespace Language_it {
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Controllo fuga: OFF");
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Controllo fuga: ON");
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Timeout inatt.ugello");
+  LSTR MSG_FAN_SPEED_FAULT                = _UxGT("Err.vel.della ventola");
 
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luci Case");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Luminosità Luci");
@@ -597,6 +598,8 @@ namespace Language_it {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Ugello: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin.");  // Max 17 characters
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist mm filo term.");
+  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Abil.filo termin.");
+  LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent.");  // Max 17 characters
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Home fallito");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Sondaggio fallito");
 

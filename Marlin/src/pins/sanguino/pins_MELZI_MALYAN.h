@@ -27,7 +27,7 @@
 
 #define BOARD_INFO_NAME "Melzi (Malyan)"
 
-#include "pins_MELZI.h"
+#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
 
 #undef LCD_SDSS
 #undef LCD_PINS_RS

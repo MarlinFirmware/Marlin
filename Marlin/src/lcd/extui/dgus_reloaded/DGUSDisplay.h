@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -96,7 +96,7 @@ public:
   static size_t GetFreeTxBuffer();
   static void FlushTx();
 
-  // Checks two things: Can we confirm the presence of the display and has we initiliazed it.
+  // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
   static inline bool IsInitialized() {
     return initialized;

@@ -63,6 +63,9 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #include "../feature/bedlevel/abl/x_twist.h"
+  #endif
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -128,7 +131,7 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../feature/probe_temp_comp.h"
 #endif
 
@@ -152,6 +155,10 @@
 
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../libs/buzzer.h"
+#endif
+
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
@@ -246,6 +253,9 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
+    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      XATC xatc;                                        // TBD
+    #endif
   #else
     float z_values[3][3];
   #endif
@@ -264,13 +274,16 @@ typedef struct SettingsDataStruct {
   //
   // Temperature first layer compensation values
   //
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
-    int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)], // M871 P I V
-            z_offsets_bed[COUNT(temp_comp.z_offsets_bed)]      // M871 B I V
-            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
-            #endif
-            ;
+  #if HAS_PTC
+    #if ENABLED(PTC_PROBE)
+      int16_t z_offsets_probe[COUNT(ptc.z_offsets_probe)]; // M871 P I V
+    #endif
+    #if ENABLED(PTC_BED)
+      int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
+    #endif
+    #if ENABLED(PTC_HOTEND)
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
+    #endif
   #endif
 
   //
@@ -317,7 +330,7 @@ typedef struct SettingsDataStruct {
   //
   // Material Presets
   //
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     preheat_t ui_material_preset[PREHEAT_COUNT];        // M145 S0 H B F
   #endif
 
@@ -486,6 +499,13 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
+  #endif
+
+  //
+  // Fan tachometer check
+  //
+  #if HAS_FANCHECK
+    bool fan_check_enabled;
   #endif
 
   //
@@ -800,6 +820,12 @@ void MarlinSettings::postprocess() {
           sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          static_assert(
+            sizeof(xatc.z_values) == (XATC_MAX_POINTS) * sizeof(xatc.z_values[0]),
+            "Z-offset mesh is the wrong size."
+          );
+        #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
       #endif
@@ -813,6 +839,9 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          EEPROM_WRITE(xatc);
+        #endif
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
@@ -844,11 +873,15 @@ void MarlinSettings::postprocess() {
     //
     // Thermal first layer compensation values
     //
-    #if ENABLED(PROBE_TEMP_COMPENSATION)
-      EEPROM_WRITE(temp_comp.z_offsets_probe);
-      EEPROM_WRITE(temp_comp.z_offsets_bed);
-      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        EEPROM_WRITE(temp_comp.z_offsets_ext);
+    #if HAS_PTC
+      #if ENABLED(PTC_PROBE)
+        EEPROM_WRITE(ptc.z_offsets_probe);
+      #endif
+      #if ENABLED(PTC_BED)
+        EEPROM_WRITE(ptc.z_offsets_bed);
+      #endif
+      #if ENABLED(PTC_HOTEND)
+        EEPROM_WRITE(ptc.z_offsets_hotend);
       #endif
     #else
       // No placeholder data for this feature
@@ -918,7 +951,7 @@ void MarlinSettings::postprocess() {
     //
     // LCD Preheat settings
     //
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       _FIELD_TEST(ui_material_preset);
       EEPROM_WRITE(ui.material_preset);
     #endif
@@ -1427,6 +1460,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Fan tachometer check
+    //
+    #if HAS_FANCHECK
+      EEPROM_WRITE(fan_check.enabled);
+    #endif
+
+    //
     // MKS UI controller
     //
     #if ENABLED(DGUS_LCD_UI_MKS)
@@ -1666,6 +1706,9 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
+            #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+              EEPROM_READ(xatc);
+            #endif
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
@@ -1710,13 +1753,17 @@ void MarlinSettings::postprocess() {
       //
       // Thermal first layer compensation values
       //
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        EEPROM_READ(temp_comp.z_offsets_probe);
-        EEPROM_READ(temp_comp.z_offsets_bed);
-        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          EEPROM_READ(temp_comp.z_offsets_ext);
+      #if HAS_PTC
+        #if ENABLED(PTC_PROBE)
+          EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        temp_comp.reset_index();
+        # if ENABLED(PTC_BED)
+          EEPROM_READ(ptc.z_offsets_bed);
+        #endif
+        #if ENABLED(PTC_HOTEND)
+          EEPROM_READ(ptc.z_offsets_hotend);
+        #endif
+        ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -1786,7 +1833,7 @@ void MarlinSettings::postprocess() {
       //
       // LCD Preheat settings
       //
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         _FIELD_TEST(ui_material_preset);
         EEPROM_READ(ui.material_preset);
       #endif
@@ -2329,6 +2376,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Fan tachometer check
+      //
+      #if HAS_FANCHECK
+        _FIELD_TEST(fan_check_enabled);
+        EEPROM_READ(fan_check.enabled);
+      #endif
+
+      //
       // MKS UI controller
       //
       #if ENABLED(DGUS_LCD_UI_MKS)
@@ -2729,6 +2784,11 @@ void MarlinSettings::reset() {
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
   //
+  // Probe Temperature Compensation
+  //
+  TERN_(HAS_PTC, ptc.reset());
+
+  //
   // BLTOUCH
   //
   //#if ENABLED(BLTOUCH)
@@ -2796,7 +2856,7 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     #define _PITEM(N,T) PREHEAT_##N##_##T,
     #if HAS_HOTEND
       constexpr uint16_t hpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_HOTEND) };
@@ -3021,6 +3081,11 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Fan tachometer check
+  //
+  TERN_(HAS_FANCHECK, fan_check.enabled = true);
+
+  //
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
@@ -3028,8 +3093,6 @@ void MarlinSettings::reset() {
   postprocess();
 
   DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)
@@ -3052,9 +3115,9 @@ void MarlinSettings::reset() {
     //
     CONFIG_ECHO_HEADING("Linear Units");
     #if ENABLED(INCH_MODE_SUPPORT)
-      SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
+      SERIAL_ECHO_MSG("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
-      SERIAL_ECHOPGM("  G21 ;");
+      SERIAL_ECHO_MSG("  G21 ;");
     #endif
     gcode.say_units();
 
@@ -3152,6 +3215,12 @@ void MarlinSettings::reset() {
           }
         }
 
+        // TODO: Create G-code for settings
+        //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        //  CONFIG_ECHO_START();
+        //  xatc.print_points();
+        //#endif
+
       #endif
 
     #endif // HAS_LEVELING
@@ -3181,7 +3250,7 @@ void MarlinSettings::reset() {
     //
     // LCD Preheat Settings
     //
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       gcode.M145_report(forReplay);
     #endif
 

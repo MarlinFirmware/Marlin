@@ -134,6 +134,15 @@ void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
 
 #endif // E_MANUAL
 
+#if EITHER(PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+
+  void _goto_manual_move_z(const_float_t scale) {
+    ui.manual_move.menu_scale = scale;
+    ui.goto_screen(lcd_move_z);
+  }
+
+#endif
+
 //
 // "Motion" > "Move Xmm" > "Move XYZ" submenu
 //
@@ -210,7 +219,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
         ui.goto_screen([]{
           MenuItem_confirm::select_screen(
             GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BACK),
-            _goto_menu_move_distance_e, ui.goto_previous_screen,
+            _goto_menu_move_distance_e, nullptr,
             GET_TEXT(MSG_HOTEND_TOO_COLD), (const char *)nullptr, PSTR("!")
           );
         });
