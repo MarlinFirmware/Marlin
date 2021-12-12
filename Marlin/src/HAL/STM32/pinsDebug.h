@@ -112,7 +112,7 @@ const XrefInfo pin_xref[] PROGMEM = {
 #if PA0 > NUM_DIGITAL_PINS
    #define HAS_HIGH_ANALOG_PINS 1
 #endif
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS,NUM_ANALOG_INPUTS)
+#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS)
 #define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
@@ -176,8 +176,8 @@ bool IS_ANALOG(const pin_t Ard_num) {
   return get_pin_mode(Ard_num) == MODE_PIN_ANALOG;
 }
 
-bool is_digital(const pin_t x) {
-  const uint8_t pin_mode = get_pin_mode(pin_array[x].pin);
+bool is_digital(const pin_t Ard_num) {
+  const uint8_t pin_mode = get_pin_mode(pin_array[Ard_num].pin);
   return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
 }
 
