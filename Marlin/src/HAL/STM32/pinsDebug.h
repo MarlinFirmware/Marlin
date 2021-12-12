@@ -164,9 +164,12 @@ bool GET_PINMODE(const pin_t Ard_num) {
   return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
 }
 
-int8_t digital_pin_to_analog_pin(pin_t Ard_num) {
-  Ard_num -= NUM_ANALOG_FIRST;
-  return (Ard_num >= 0 && Ard_num < NUM_ANALOG_INPUTS) ? Ard_num : -1;
+int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
+  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_FIRST + NUM_ANALOG_INPUTS - 1))
+    return Ard_num - NUM_ANALOG_FIRST;
+
+  const uint32_t ind = digitalPinToAnalogInput(Ard_num);
+  return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
 }
 
 bool IS_ANALOG(const pin_t Ard_num) {
