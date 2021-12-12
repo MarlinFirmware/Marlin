@@ -36,10 +36,9 @@ static SPISettings spiConfig;
 
 // Initialize SPI bus
 void spiBegin() {
-  #if !PIN_EXISTS(SD_SS)
-    #error "SD_SS_PIN not defined!"
+  #if PIN_EXISTS(SD_SS)
+    OUT_WRITE(SD_SS_PIN, HIGH);
   #endif
-  OUT_WRITE(SD_SS_PIN, HIGH);
   SET_OUTPUT(SD_SCK_PIN);
   SET_INPUT(SD_MISO_PIN);
   SET_OUTPUT(SD_MOSI_PIN);
@@ -65,7 +64,7 @@ void spiInit(uint8_t spiRate) {
     case SPI_EIGHTH_SPEED:  clock =  1250000; break;
     case SPI_SPEED_5:       clock =   625000; break;
     case SPI_SPEED_6:       clock =   312500; break;
-    default:                clock = 4000000; // Default from the SPI libarary
+    default:                clock = 4000000; // Default from the SPI library
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
   SPI.begin();

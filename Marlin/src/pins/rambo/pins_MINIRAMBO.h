@@ -69,7 +69,7 @@
 #define E0_DIR_PIN                            43
 #define E0_ENABLE_PIN                         26
 
-// Microstepping pins - Mapping not from fastio.h (?)
+// Microstepping pins
 #define X_MS1_PIN                             40
 #define X_MS2_PIN                             41
 #define Y_MS1_PIN                             69
@@ -192,3 +192,9 @@
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
 #endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
+
+#if ENABLED(U8GLIB_ST7920)
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2               250
+  #define BOARD_ST7920_DELAY_3                 0
+#endif

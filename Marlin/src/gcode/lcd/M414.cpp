@@ -38,7 +38,14 @@ void GcodeSuite::M414() {
 
   if (parser.seenval('S'))
     ui.set_language(parser.value_byte());
+  else
+    M414_report();
 
+}
+
+void GcodeSuite::M414_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, PSTR(STR_UI_LANGUAGE));
+  SERIAL_ECHOLNPGM("  M414 S", ui.language);
 }
 
 #endif // HAS_MULTI_LANGUAGE

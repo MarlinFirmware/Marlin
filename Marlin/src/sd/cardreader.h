@@ -27,8 +27,13 @@
 
 extern const char M23_STR[], M24_STR[];
 
-#if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
-  #define SD_RESORT 1
+#if ENABLED(SDCARD_SORT_ALPHA)
+  #if ENABLED(SDSORT_DYNAMIC_RAM)
+    #define SD_RESORT 1
+  #endif
+  #if FOLDER_SORTING || ENABLED(SDSORT_GCODE)
+    #define HAS_FOLDER_SORTING 1
+  #endif
 #endif
 
 #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
@@ -199,7 +204,7 @@ public:
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
 
-  static void ls();
+  static void ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames=false));
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -235,12 +240,13 @@ public:
   #endif
 
   #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    static DiskIODriver_USBFlash media_usbFlashDrive;
+    #define HAS_USB_FLASH_DRIVE 1
+    static DiskIODriver_USBFlash media_driver_usbFlash;
   #endif
-  #if NEED_SD2CARD_SDIO
-    static DiskIODriver_SDIO media_sdio;
-  #elif NEED_SD2CARD_SPI
-    static DiskIODriver_SPI_SD media_sd_spi;
+
+  #if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
+    typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
+    static sdcard_driver_t media_driver_sdcard;
   #endif
 
 private:
@@ -329,7 +335,12 @@ private:
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
   static void selectByName(SdFile dir, const char * const match);
-  static void printListing(SdFile parent, const char * const prepend=nullptr);
+  static void printListing(
+    SdFile parent
+    OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
+    , const char * const prepend=nullptr
+    OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
+  );
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void flush_presort();

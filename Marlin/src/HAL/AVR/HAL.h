@@ -39,6 +39,19 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
+//
+// Default graphical display delays
+//
+#if F_CPU >= 20000000
+  #define CPU_ST7920_DELAY_1 150
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 150
+#elif F_CPU == 16000000
+  #define CPU_ST7920_DELAY_1 125
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 188
+#endif
+
 #ifndef pgm_read_ptr
   // Compatibility for avr-libc 1.8.0-4.1 included with Ubuntu for
   // Windows Subsystem for Linux on Windows 10 as of 10/18/2019
@@ -186,7 +199,7 @@ inline void HAL_adc_init() {
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define HAL_SENSITIVE_PINS 0, 1
+#define HAL_SENSITIVE_PINS 0, 1,
 
 #ifdef __AVR_AT90USB1286__
   #define JTAG_DISABLE() do{ MCUCR = 0x80; MCUCR = 0x80; }while(0)

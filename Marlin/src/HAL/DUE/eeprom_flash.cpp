@@ -200,9 +200,9 @@ static bool ee_PageWrite(uint16_t page, const void *data) {
     pageContents[i] = (((uint32_t*)data)[i]) | (~(pageContents[i] ^ ((uint32_t*)data)[i]));
 
   DEBUG_ECHO_START();
-  DEBUG_ECHOLNPAIR("EEPROM PageWrite   ", page);
-  DEBUG_ECHOLNPAIR(" in FLASH address ", (uint32_t)addrflash);
-  DEBUG_ECHOLNPAIR(" base address     ", (uint32_t)getFlashStorage(0));
+  DEBUG_ECHOLNPGM("EEPROM PageWrite   ", page);
+  DEBUG_ECHOLNPGM(" in FLASH address ", (uint32_t)addrflash);
+  DEBUG_ECHOLNPGM(" base address     ", (uint32_t)getFlashStorage(0));
   DEBUG_FLUSH();
 
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
@@ -246,7 +246,7 @@ static bool ee_PageWrite(uint16_t page, const void *data) {
     __enable_irq();
 
     DEBUG_ECHO_START();
-    DEBUG_ECHOLNPAIR("EEPROM Unlock failure for page ", page);
+    DEBUG_ECHOLNPGM("EEPROM Unlock failure for page ", page);
     return false;
   }
 
@@ -271,7 +271,7 @@ static bool ee_PageWrite(uint16_t page, const void *data) {
     __enable_irq();
 
     DEBUG_ECHO_START();
-    DEBUG_ECHOLNPAIR("EEPROM Write failure for page ", page);
+    DEBUG_ECHOLNPGM("EEPROM Write failure for page ", page);
 
     return false;
   }
@@ -287,7 +287,7 @@ static bool ee_PageWrite(uint16_t page, const void *data) {
 
     #ifdef EE_EMU_DEBUG
       DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("EEPROM Verify Write failure for page ", page);
+      DEBUG_ECHOLNPGM("EEPROM Verify Write failure for page ", page);
 
       ee_Dump( page, (uint32_t *)addrflash);
       ee_Dump(-page, data);
@@ -306,7 +306,7 @@ static bool ee_PageWrite(uint16_t page, const void *data) {
           }
         }
       }
-      DEBUG_ECHOLNPAIR("--> Differing bits: ", count);
+      DEBUG_ECHOLNPGM("--> Differing bits: ", count);
     #endif
 
     return false;
@@ -326,9 +326,9 @@ static bool ee_PageErase(uint16_t page) {
   uint32_t addrflash = uint32_t(getFlashStorage(page));
 
   DEBUG_ECHO_START();
-  DEBUG_ECHOLNPAIR("EEPROM PageErase  ", page);
-  DEBUG_ECHOLNPAIR(" in FLASH address ", (uint32_t)addrflash);
-  DEBUG_ECHOLNPAIR(" base address     ", (uint32_t)getFlashStorage(0));
+  DEBUG_ECHOLNPGM("EEPROM PageErase  ", page);
+  DEBUG_ECHOLNPGM(" in FLASH address ", (uint32_t)addrflash);
+  DEBUG_ECHOLNPGM(" base address     ", (uint32_t)getFlashStorage(0));
   DEBUG_FLUSH();
 
   // Get the page relative to the start of the EFC controller, and the EFC controller to use
@@ -371,7 +371,7 @@ static bool ee_PageErase(uint16_t page) {
     __enable_irq();
 
     DEBUG_ECHO_START();
-    DEBUG_ECHOLNPAIR("EEPROM Unlock failure for page ",page);
+    DEBUG_ECHOLNPGM("EEPROM Unlock failure for page ",page);
 
     return false;
   }
@@ -395,7 +395,7 @@ static bool ee_PageErase(uint16_t page) {
     __enable_irq();
 
     DEBUG_ECHO_START();
-    DEBUG_ECHOLNPAIR("EEPROM Erase failure for page ",page);
+    DEBUG_ECHOLNPGM("EEPROM Erase failure for page ",page);
 
     return false;
   }
@@ -411,7 +411,7 @@ static bool ee_PageErase(uint16_t page) {
   for (i = 0; i < PageSize >> 2; i++) {
     if (*aligned_src++ != 0xFFFFFFFF) {
       DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("EEPROM Verify Erase failure for page ",page);
+      DEBUG_ECHOLNPGM("EEPROM Verify Erase failure for page ",page);
       ee_Dump(page, (uint32_t *)addrflash);
       return false;
     }
@@ -922,7 +922,7 @@ static void ee_Init() {
   if (curGroup >= GroupCount) curGroup = 0;
 
   DEBUG_ECHO_START();
-  DEBUG_ECHOLNPAIR("EEPROM Current Group: ",curGroup);
+  DEBUG_ECHOLNPGM("EEPROM Current Group: ",curGroup);
   DEBUG_FLUSH();
 
   // Now, validate that all the other group pages are empty
@@ -932,7 +932,7 @@ static void ee_Init() {
     for (int page = 0; page < PagesPerGroup; page++) {
       if (!ee_IsPageClean(grp * PagesPerGroup + page)) {
         DEBUG_ECHO_START();
-        DEBUG_ECHOLNPAIR("EEPROM Page ", page, " not clean on group ", grp);
+        DEBUG_ECHOLNPGM("EEPROM Page ", page, " not clean on group ", grp);
         DEBUG_FLUSH();
         ee_PageErase(grp * PagesPerGroup + page);
       }
@@ -949,14 +949,14 @@ static void ee_Init() {
   }
 
   DEBUG_ECHO_START();
-  DEBUG_ECHOLNPAIR("EEPROM Active page: ", curPage);
+  DEBUG_ECHOLNPGM("EEPROM Active page: ", curPage);
   DEBUG_FLUSH();
 
   // Make sure the pages following the first clean one are also clean
   for (int page = curPage + 1; page < PagesPerGroup; page++) {
     if (!ee_IsPageClean(curGroup * PagesPerGroup + page)) {
       DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("EEPROM Page ", page, " not clean on active group ", curGroup);
+      DEBUG_ECHOLNPGM("EEPROM Page ", page, " not clean on active group ", curGroup);
       DEBUG_FLUSH();
       ee_Dump(curGroup * PagesPerGroup + page, getFlashStorage(curGroup * PagesPerGroup + page));
       ee_PageErase(curGroup * PagesPerGroup + page);

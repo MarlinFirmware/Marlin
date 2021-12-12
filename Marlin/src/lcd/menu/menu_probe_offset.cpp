@@ -42,7 +42,7 @@
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
-#if ENABLED(HAS_LEVELING)
+#if HAS_LEVELING
   bool leveling_was_active;
 #endif
 

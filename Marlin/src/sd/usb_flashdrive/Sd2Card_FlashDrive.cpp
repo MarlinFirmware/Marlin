@@ -34,9 +34,9 @@
 #define USB_STARTUP_DELAY 0
 
 // uncomment to get 'printf' console debugging. NOT FOR UNO!
-//#define HOST_DEBUG(...)     {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
-//#define BS_HOST_DEBUG(...)  {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
-//#define MAX_HOST_DEBUG(...) {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
+//#define HOST_DEBUG(...)     {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
+//#define BS_HOST_DEBUG(...)  {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
+//#define MAX_HOST_DEBUG(...) {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
 
@@ -170,7 +170,7 @@ void DiskIODriver_USBFlash::idle() {
           UHS_USB_DEBUG(CONFIGURING_DONE);
           UHS_USB_DEBUG(RUNNING);
           default:
-            SERIAL_ECHOLNPAIR("UHS_USB_HOST_STATE: ", task_state);
+            SERIAL_ECHOLNPGM("UHS_USB_HOST_STATE: ", task_state);
             break;
         }
       }
@@ -273,14 +273,14 @@ bool DiskIODriver_USBFlash::init(const uint8_t, const pin_t) {
   #if USB_DEBUG >= 1
   const uint32_t sectorSize = bulk.GetSectorSize(0);
   if (sectorSize != 512) {
-    SERIAL_ECHOLNPAIR("Expecting sector size of 512. Got: ", sectorSize);
+    SERIAL_ECHOLNPGM("Expecting sector size of 512. Got: ", sectorSize);
     return false;
   }
   #endif
 
   #if USB_DEBUG >= 3
     lun0_capacity = bulk.GetCapacity(0);
-    SERIAL_ECHOLNPAIR("LUN Capacity (in blocks): ", lun0_capacity);
+    SERIAL_ECHOLNPGM("LUN Capacity (in blocks): ", lun0_capacity);
   #endif
   return true;
 }
@@ -299,11 +299,11 @@ bool DiskIODriver_USBFlash::readBlock(uint32_t block, uint8_t *dst) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
-      SERIAL_ECHOLNPAIR("Attempt to read past end of LUN: ", block);
+      SERIAL_ECHOLNPGM("Attempt to read past end of LUN: ", block);
       return false;
     }
     #if USB_DEBUG >= 4
-      SERIAL_ECHOLNPAIR("Read block ", block);
+      SERIAL_ECHOLNPGM("Read block ", block);
     #endif
   #endif
   return bulk.Read(0, block, 512, 1, dst) == 0;
@@ -313,11 +313,11 @@ bool DiskIODriver_USBFlash::writeBlock(uint32_t block, const uint8_t *src) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
-      SERIAL_ECHOLNPAIR("Attempt to write past end of LUN: ", block);
+      SERIAL_ECHOLNPGM("Attempt to write past end of LUN: ", block);
       return false;
     }
     #if USB_DEBUG >= 4
-      SERIAL_ECHOLNPAIR("Write block ", block);
+      SERIAL_ECHOLNPGM("Write block ", block);
     #endif
   #endif
   return bulk.Write(0, block, 512, 1, src) == 0;

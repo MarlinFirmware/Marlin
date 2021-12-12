@@ -33,9 +33,9 @@ enum TempSensorID : uint8_t {
 };
 
 typedef struct {
-  uint8_t measurements; // Max. number of measurements to be stored (35 - 80°C)
-  celsius_t temp_res,   // Resolution in °C between measurements
-            start_temp, // Base measurement; z-offset == 0
+  uint8_t measurements;       // Max. number of measurements to be stored (35 - 80°C)
+  celsius_t temp_resolution,  // Resolution in °C between measurements
+            start_temp,       // Base measurement; z-offset == 0
             end_temp;
 } temp_calib_t;
 
@@ -47,7 +47,7 @@ typedef struct {
 
 // Probe temperature calibration constants
 #ifndef PTC_SAMPLE_COUNT
-  #define PTC_SAMPLE_COUNT 10U
+  #define PTC_SAMPLE_COUNT 10
 #endif
 #ifndef PTC_SAMPLE_RES
   #define PTC_SAMPLE_RES 5
@@ -55,22 +55,22 @@ typedef struct {
 #ifndef PTC_SAMPLE_START
   #define PTC_SAMPLE_START 30
 #endif
-#define PTC_SAMPLE_END ((PTC_SAMPLE_START) + (PTC_SAMPLE_COUNT) * (PTC_SAMPLE_RES))
+#define PTC_SAMPLE_END (PTC_SAMPLE_START + (PTC_SAMPLE_COUNT) * PTC_SAMPLE_RES)
 
 // Bed temperature calibration constants
 #ifndef BTC_PROBE_TEMP
   #define BTC_PROBE_TEMP 30
 #endif
 #ifndef BTC_SAMPLE_COUNT
-  #define BTC_SAMPLE_COUNT 10U
+  #define BTC_SAMPLE_COUNT 10
 #endif
-#ifndef BTC_SAMPLE_STEP
+#ifndef BTC_SAMPLE_RES
   #define BTC_SAMPLE_RES 5
 #endif
 #ifndef BTC_SAMPLE_START
   #define BTC_SAMPLE_START 60
 #endif
-#define BTC_SAMPLE_END ((BTC_SAMPLE_START) + (BTC_SAMPLE_COUNT) * (BTC_SAMPLE_RES))
+#define BTC_SAMPLE_END (BTC_SAMPLE_START + (BTC_SAMPLE_COUNT) * BTC_SAMPLE_RES)
 
 #ifndef PTC_PROBE_HEATING_OFFSET
   #define PTC_PROBE_HEATING_OFFSET 0.5f
@@ -134,8 +134,6 @@ class ProbeTempComp {
      * to this value, set at first probe.
      */
     static float init_measurement;
-
-    static float get_offset_for_temperature(const TempSensorID tsi, const celsius_t temp);
 
     /**
      * Fit a linear function in measured temperature offsets

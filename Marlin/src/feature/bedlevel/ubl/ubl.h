@@ -47,10 +47,10 @@ struct mesh_index_pair;
 
 typedef struct {
   bool      C_seen;
-  int8_t    V_verbosity,
+  int8_t    KLS_storage_slot;
+  uint8_t   R_repetition,
+            V_verbosity,
             P_phase,
-            R_repetition,
-            KLS_storage_slot,
             T_map_type;
   float     B_shim_thickness,
             C_constant;
@@ -98,7 +98,7 @@ public:
   static void report_state();
   static void save_ubl_active_state_and_disable();
   static void restore_ubl_active_state_and_leave();
-  static void display_map(const int) _O0;
+  static void display_map(const uint8_t) _O0;
   static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) _O0;
   static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
   static void reset();
@@ -208,7 +208,7 @@ public:
 
       if (DEBUGGING(LEVELING)) {
         if (WITHIN(x1_i, 0, (GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
-        DEBUG_ECHOLNPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
+        DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
       }
 
       // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
@@ -231,7 +231,7 @@ public:
 
       if (DEBUGGING(LEVELING)) {
         if (WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
-        DEBUG_ECHOLNPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
+        DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
       }
 
       // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
@@ -275,11 +275,11 @@ public:
                      // because part of the Mesh is undefined and we don't have the
                      // information we need to complete the height correction.
 
-      if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPAIR("??? Yikes! NAN in ");
+      if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }
 
     if (DEBUGGING(MESH_ADJUST)) {
-      DEBUG_ECHOPAIR("get_z_correction(", rx0, ", ", ry0);
+      DEBUG_ECHOPGM("get_z_correction(", rx0, ", ", ry0);
       DEBUG_ECHOLNPAIR_F(") => ", z0, 6);
     }
 

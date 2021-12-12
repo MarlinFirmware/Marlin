@@ -20,7 +20,7 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#include "../compat.h"
+#include "../config.h"
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
 
@@ -178,9 +178,9 @@ bool UIFlashStorage::is_present = false;
 
     if (!is_known) {
       SERIAL_ECHO_MSG("Unable to locate supported SPI Flash Memory.");
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Manufacturer ID, got: ", manufacturer_id);
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Device Type    , got: ", device_type);
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("  Capacity       , got: ", capacity);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("  Manufacturer ID, got: ", manufacturer_id);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("  Device Type    , got: ", device_type);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("  Capacity       , got: ", capacity);
     }
 
     return is_known;
@@ -206,7 +206,7 @@ bool UIFlashStorage::is_present = false;
 
   /* In order to provide some degree of wear leveling, each data write to the
    * SPI Flash chip is appended to data that was already written before, until
-   * the data storage area is completely filled. New data is written preceeded
+   * the data storage area is completely filled. New data is written preceded
    * with a 32-bit delimiter 'LULZ', so that we can distinguish written and
    * unwritten data:
    *
@@ -247,7 +247,7 @@ bool UIFlashStorage::is_present = false;
         case 0xFFFFFFFFul: return read_offset;
         case delimiter:    read_offset = offset; break;
         default:
-          SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("Invalid delimiter in Flash: ", delim);
+          SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Invalid delimiter in Flash: ", delim);
           return -1;
       }
     }
@@ -325,7 +325,7 @@ bool UIFlashStorage::is_present = false;
     }
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("Writing UI settings to SPI Flash (offset ", write_addr);
+    SERIAL_ECHOPGM("Writing UI settings to SPI Flash (offset ", write_addr);
     SERIAL_ECHOPGM(")...");
 
     const uint32_t delim = delimiter;
@@ -416,7 +416,7 @@ bool UIFlashStorage::is_present = false;
   /* Writes a media file from the SD card/USB flash drive into a slot on the SPI Flash. Media
    * files must be written sequentially following by a chip erase and it is not possible to
    * overwrite files. */
-  UIFlashStorage::error_t UIFlashStorage::write_media_file(progmem_str filename, uint8_t slot) {
+  UIFlashStorage::error_t UIFlashStorage::write_media_file(FSTR_P filename, uint8_t slot) {
     #if ENABLED(SDSUPPORT)
       uint32_t addr;
       uint8_t buff[write_page_size];
@@ -509,7 +509,7 @@ bool UIFlashStorage::is_present = false;
 
     bytes_remaining = get_media_file_size(slot);
     if (bytes_remaining != 0xFFFFFFFFUL) {
-      SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR("Boot media file size:", bytes_remaining);
+      SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("Boot media file size:", bytes_remaining);
       addr = get_media_file_start(slot);
       return true;
     }
@@ -543,7 +543,7 @@ bool UIFlashStorage::is_present = false;
   void UIFlashStorage::write_config_data(const void *, size_t)                {}
   bool UIFlashStorage::verify_config_data(const void *, size_t)               {return false;}
   bool UIFlashStorage::read_config_data(void *, size_t )                      {return false;}
-  UIFlashStorage::error_t UIFlashStorage::write_media_file(progmem_str, uint8_t) {return FILE_NOT_FOUND;}
+  UIFlashStorage::error_t UIFlashStorage::write_media_file(FSTR_P, uint8_t)   {return FILE_NOT_FOUND;}
   void UIFlashStorage::format_flash()                                         {}
 
   bool UIFlashStorage::BootMediaReader::isAvailable(uint32_t)                 {return false;}

@@ -58,10 +58,10 @@ The following macros are defined (in `serial.h`) to output data to the serial po
 | `SERIAL_ECHO` | Any basic type is supported (`char`, `uint8_t`, `int16_t`, `int32_t`, `float`, `long`, `const char*`, ...). | For a numeric type it prints the number in decimal. A string is output as a string. | `uint8_t a = 123; SERIAL_ECHO(a); SERIAL_CHAR(' '); SERIAL_ECHO(' '); ` | `123 32` |
 | `SERIAL_ECHOLN` | Same as `SERIAL_ECHO` | Do `SERIAL_ECHO`, adding a newline | `int a = 456; SERIAL_ECHOLN(a);` | `456\n` |
 | `SERIAL_ECHO_F` | `float` or `double` | Print a decimal value with a given precision (default 2) | `float a = 3.1415; SERIAL_ECHO_F(a); SERIAL_CHAR(' '); SERIAL_ECHO_F(a, 4);` | `3.14 3.1415`|
-| `SERIAL_ECHOPAIR` | String / Value pairs | Print a series of string literals and values alternately | `SERIAL_ECHOPAIR("Bob", 34);` | `Bob34` |
-| `SERIAL_ECHOLNPAIR` | Same as `SERIAL_ECHOPAIR` | Do `SERIAL_ECHOPAIR`, adding a newline | `SERIAL_ECHOPAIR("Alice", 56);` | `alice56` |
-| `SERIAL_ECHOPAIR_P` | Like `SERIAL_ECHOPAIR` but takes PGM strings | Print a series of PGM strings and values alternately | `SERIAL_ECHOPAIR_P(GET_TEXT(MSG_HELLO), 123);` | `Hello123` |
-| `SERIAL_ECHOLNPAIR_P` | Same as `SERIAL_ECHOPAIR_P` | Do `SERIAL_ECHOPAIR_P`, adding a newline | `SERIAL_ECHOLNPAIR_P(PSTR("Alice"), 78);` | `alice78\n` |
+| `SERIAL_ECHOPGM` | String / Value pairs | Print a series of string literals and values alternately | `SERIAL_ECHOPGM("Bob", 34);` | `Bob34` |
+| `SERIAL_ECHOLNPGM` | Same as `SERIAL_ECHOPGM` | Do `SERIAL_ECHOPGM`, adding a newline | `SERIAL_ECHOPGM("Alice", 56);` | `alice56` |
+| `SERIAL_ECHOPGM_P` | Like `SERIAL_ECHOPGM` but takes PGM strings | Print a series of PGM strings and values alternately | `SERIAL_ECHOPGM_P(GET_TEXT(MSG_HELLO), 123);` | `Hello123` |
+| `SERIAL_ECHOLNPGM_P` | Same as `SERIAL_ECHOPGM_P` | Do `SERIAL_ECHOPGM_P`, adding a newline | `SERIAL_ECHOLNPGM_P(PSTR("Alice"), 78);` | `alice78\n` |
 | `SERIAL_ECHOLIST` | String literal, values | Print a string literal and a list of values | `SERIAL_ECHOLIST("Key ", 1, 2, 3);` | `Key 1, 2, 3` |
 | `SERIAL_ECHO_START` | None | Prefix an echo line | `SERIAL_ECHO_START();` | `echo:` |
 | `SERIAL_ECHO_MSG` | Same as `SERIAL_ECHOLN_PAIR` | Print a full echo line | `SERIAL_ECHO_MSG("Count is ", count);` | `echo:Count is 3` |

@@ -65,12 +65,25 @@
   #define TEMP_BED_PIN                  P0_23_A0  // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
 
-#if HOTENDS == 1
+#if HOTENDS == 1 && !REDUNDANT_TEMP_MATCH(SOURCE, E1)
   #if TEMP_SENSOR_PROBE
     #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
     #define TEMP_CHAMBER_PIN          TEMP_1_PIN
   #endif
+#endif
+
+// CS, MISO, MOSI, and SCK for MAX Thermocouple SPI
+#if HAS_MAX_TC
+  //#define TEMP_0_CS_PIN   P...
+  //#define TEMP_0_MISO_PIN P...
+  //#define TEMP_0_MOSI_PIN P...
+  //#define TEMP_0_SCK_PIN  P...
+
+  //#define TEMP_1_CS_PIN   P...
+  //#define TEMP_1_MISO_PIN P...
+  //#define TEMP_1_MOSI_PIN P...
+  //#define TEMP_1_SCK_PIN  P...
 #endif
 
 //
@@ -79,7 +92,7 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                     P2_07
 #endif
-#if HOTENDS == 1
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #ifndef FAN1_PIN
     #define FAN1_PIN                       P2_04
   #endif
@@ -113,11 +126,8 @@
   #endif
 #endif
 
-
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(LCD) && ENABLED(SKR_USE_LCD_SD_CARD_PINS_FOR_CS)
-  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_PINS_FOR_CS."
+  #error "SDCARD_CONNECTION must not be 'LCD' with SKR_USE_LCD_SD_CARD_PINS_FOR_CS."
 #endif
 
 #if SD_CONNECTION_IS(LCD)
@@ -133,20 +143,21 @@
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08
   #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
-  /**       _____                        _____
-   *    NC | . . | GND               NC | . . | GND
-   *    NC | . . | M1EN            M2EN | . . | M3EN
-   * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
-   * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
-   * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
-   *        -----                        -----
-   *        EXP2                         EXP1
+  /**       ------                       ------
+   *    NC | 1  2 | GND              NC | 1  2 | GND
+   *    NC | 3  4 | M1EN           M2EN | 3  4 | M3EN
+   * M1STP | 5  6   M1DIR          M1RX | 5  6   M1DIAG
+   * M2DIR | 7  8 | M2STP          M2RX | 7  8 | M2DIAG
+   * M3DIR | 9 10 | M3STP          M3RX | 9 10 | M3DIAG
+   *        ------                       ------
+   *         EXP2                         EXP1
    *
    * NB In EXP_MOT_USE_EXP2_ONLY mode EXP1 is not used and M2EN and M3EN need to be jumpered to M1EN
    */
@@ -160,7 +171,7 @@
     #define E2_CS_PIN                EXP1_05_PIN
     #if HAS_TMC_UART
       #define E2_SERIAL_TX_PIN       EXP1_05_PIN
-      #define E2_SERIAL_RX_PIN       EXP1_05_PIN
+      #define E2_SERIAL_RX_PIN  E2_SERIAL_TX_PIN
     #endif
   #endif
 
@@ -173,7 +184,7 @@
     #define E3_CS_PIN                EXP1_07_PIN
     #if HAS_TMC_UART
       #define E3_SERIAL_TX_PIN       EXP1_07_PIN
-      #define E3_SERIAL_RX_PIN       EXP1_07_PIN
+      #define E3_SERIAL_RX_PIN  E3_SERIAL_TX_PIN
     #endif
   #else
     #define E3_ENABLE_PIN            EXP2_04_PIN
@@ -188,7 +199,7 @@
     #define E4_CS_PIN                EXP1_09_PIN
     #if HAS_TMC_UART
       #define E4_SERIAL_TX_PIN       EXP1_09_PIN
-      #define E4_SERIAL_RX_PIN       EXP1_09_PIN
+      #define E4_SERIAL_RX_PIN  E4_SERIAL_TX_PIN
     #endif
   #else
     #define E4_ENABLE_PIN            EXP2_04_PIN

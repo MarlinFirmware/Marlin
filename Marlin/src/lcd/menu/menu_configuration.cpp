@@ -217,7 +217,7 @@ void menu_advanced_settings();
 
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
-      SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", bltouch.last_written_mode);
+      SERIAL_ECHOLNPGM("EEPROM Last BLTouch Mode - ", bltouch.last_written_mode);
       SERIAL_ECHOLNPGM("Configuration BLTouch Mode - " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD"));
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode - "));
@@ -353,11 +353,6 @@ void menu_advanced_settings();
 
     #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONFIG_MENU_ITEM_##N##_DESC) && defined(CONFIG_MENU_ITEM_##N##_GCODE))
 
-    #define CUSTOM_TEST_CONF(N) do{ \
-      constexpr char c = CONFIG_MENU_ITEM_##N##_GCODE[strlen(CONFIG_MENU_ITEM_##N##_GCODE) - 1]; \
-      static_assert(c != '\n' && c != '\r', "CONFIG_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
-    }while(0)
-
     #ifdef CUSTOM_MENU_CONFIG_SCRIPT_DONE
       #define _DONE_SCRIPT "\n" CUSTOM_MENU_CONFIG_SCRIPT_DONE
     #else
@@ -365,115 +360,97 @@ void menu_advanced_settings();
     #endif
     #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(PSTR(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
-    #define _CUSTOM_ITEM_CONF_CONFIRM(N)             \
+    #define _CUSTOM_ITEM_CONF_CONFIRM(N)               \
       SUBMENU_P(PSTR(CONFIG_MENU_ITEM_##N##_DESC), []{ \
-          MenuItem_confirm::confirm_screen(          \
-            GCODE_LAMBDA_CONF(N),                    \
-            ui.goto_previous_screen,                 \
+          MenuItem_confirm::confirm_screen(            \
+            GCODE_LAMBDA_CONF(N),                      \
+            ui.goto_previous_screen,                   \
             PSTR(CONFIG_MENU_ITEM_##N##_DESC "?")      \
-          );                                         \
+          );                                           \
         })
 
-    #define CUSTOM_ITEM_CONF(N) do{ if (ENABLED(CONFIG_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_CONF_CONFIRM(N); else _CUSTOM_ITEM_CONF(N); }while(0)
+    #define CUSTOM_ITEM_CONF(N) do{ \
+      constexpr char c = CONFIG_MENU_ITEM_##N##_GCODE[strlen(CONFIG_MENU_ITEM_##N##_GCODE) - 1]; \
+      static_assert(c != '\n' && c != '\r', "CONFIG_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
+      if (ENABLED(CONFIG_MENU_ITEM_##N##_CONFIRM)) \
+        _CUSTOM_ITEM_CONF_CONFIRM(N); \
+      else \
+        _CUSTOM_ITEM_CONF(N); \
+    }while(0)
 
     #if HAS_CUSTOM_ITEM_CONF(1)
-      CUSTOM_TEST_CONF(1);
       CUSTOM_ITEM_CONF(1);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(2)
-      CUSTOM_TEST_CONF(2);
       CUSTOM_ITEM_CONF(2);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(3)
-      CUSTOM_TEST_CONF(3);
       CUSTOM_ITEM_CONF(3);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(4)
-      CUSTOM_TEST_CONF(4);
       CUSTOM_ITEM_CONF(4);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(5)
-      CUSTOM_TEST_CONF(5);
       CUSTOM_ITEM_CONF(5);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(6)
-      CUSTOM_TEST_CONF(6);
       CUSTOM_ITEM_CONF(6);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(7)
-      CUSTOM_TEST_CONF(7);
       CUSTOM_ITEM_CONF(7);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(8)
-      CUSTOM_TEST_CONF(8);
       CUSTOM_ITEM_CONF(8);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(9)
-      CUSTOM_TEST_CONF(9);
       CUSTOM_ITEM_CONF(9);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(10)
-      CUSTOM_TEST_CONF(10);
       CUSTOM_ITEM_CONF(10);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(11)
-      CUSTOM_TEST_CONF(11);
       CUSTOM_ITEM_CONF(11);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(12)
-      CUSTOM_TEST_CONF(12);
       CUSTOM_ITEM_CONF(12);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(13)
-      CUSTOM_TEST_CONF(13);
       CUSTOM_ITEM_CONF(13);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(14)
-      CUSTOM_TEST_CONF(14);
       CUSTOM_ITEM_CONF(14);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(15)
-      CUSTOM_TEST_CONF(15);
       CUSTOM_ITEM_CONF(15);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(16)
-      CUSTOM_TEST_CONF(16);
       CUSTOM_ITEM_CONF(16);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(17)
-      CUSTOM_TEST_CONF(17);
       CUSTOM_ITEM_CONF(17);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(18)
-      CUSTOM_TEST_CONF(18);
       CUSTOM_ITEM_CONF(18);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(19)
-      CUSTOM_TEST_CONF(19);
       CUSTOM_ITEM_CONF(19);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(20)
-      CUSTOM_TEST_CONF(20);
       CUSTOM_ITEM_CONF(20);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(21)
-      CUSTOM_TEST_CONF(21);
       CUSTOM_ITEM_CONF(21);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(22)
-      CUSTOM_TEST_CONF(22);
       CUSTOM_ITEM_CONF(22);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(23)
-      CUSTOM_TEST_CONF(23);
       CUSTOM_ITEM_CONF(23);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(24)
-      CUSTOM_TEST_CONF(24);
       CUSTOM_ITEM_CONF(24);
     #endif
     #if HAS_CUSTOM_ITEM_CONF(25)
-      CUSTOM_TEST_CONF(25);
       CUSTOM_ITEM_CONF(25);
     #endif
     END_MENU();
@@ -551,8 +528,11 @@ void menu_configuration() {
     #endif
   #endif
 
+  #if HAS_LCD_BRIGHTNESS
+    EDIT_ITEM_FAST(uint8, MSG_BRIGHTNESS, &ui.brightness, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.refresh_brightness, true);
+  #endif
   #if HAS_LCD_CONTRAST
-    EDIT_ITEM(int3, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
+    EDIT_ITEM_FAST(uint8, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
   #endif
   #if ENABLED(FWRETRACT)
     SUBMENU(MSG_RETRACT, menu_config_retract);
