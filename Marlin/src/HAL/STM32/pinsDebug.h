@@ -79,7 +79,6 @@
 // make a list of the Arduino pin numbers in the Port/Pin order
 //
 
-#define _PIN_ADD_2(NAME_ALPHA, ARDUINO_NUM) { {NAME_ALPHA}, ARDUINO_NUM },
 #define _PIN_ADD(NAME_ALPHA, ARDUINO_NUM) { NAME_ALPHA, ARDUINO_NUM },
 #define PIN_ADD(NAME) _PIN_ADD(#NAME, NAME)
 
@@ -109,8 +108,8 @@ const XrefInfo pin_xref[] PROGMEM = {
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#if PA0 > NUM_DIGITAL_PINS
-   #define HAS_HIGH_ANALOG_PINS 1
+#if PA0 >= NUM_DIGITAL_PINS
+  #define HAS_HIGH_ANALOG_PINS 1
 #endif
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS)
 #define VALID_PIN(ANUM) ((ANUM) >= 0 && (ANUM) < NUMBER_PINS_TOTAL)
@@ -207,8 +206,11 @@ void port_print(const pin_t Ard_num) {
   if (Ard_num > NUM_DIGITAL_PINS && calc_p > 7) calc_p += 8;
   SERIAL_ECHOPGM(" M42 P", calc_p);
   SERIAL_CHAR(' ');
-  if (calc_p <  10) SERIAL_CHAR(' ');
-  if (calc_p < 100) SERIAL_CHAR(' ');
+  if (calc_p < 100) {
+    SERIAL_CHAR(' ');
+    if (calc_p <  10)
+      SERIAL_CHAR(' ');
+  }
 }
 
 bool pwm_status(const pin_t Ard_num) {
@@ -230,19 +232,19 @@ void pwm_details(const pin_t Ard_num) {
         case 'D' : alt_all = GPIOD->AFR[ind]; break;
         #ifdef PE_0
           case 'E' : alt_all = GPIOE->AFR[ind]; break;
-        #elif defined (PF_0)
+        #elif defined(PF_0)
           case 'F' : alt_all = GPIOF->AFR[ind]; break;
-        #elif defined (PG_0)
+        #elif defined(PG_0)
           case 'G' : alt_all = GPIOG->AFR[ind]; break;
-        #elif defined (PH_0)
+        #elif defined(PH_0)
           case 'H' : alt_all = GPIOH->AFR[ind]; break;
-        #elif defined (PI_0)
+        #elif defined(PI_0)
           case 'I' : alt_all = GPIOI->AFR[ind]; break;
-        #elif defined (PJ_0)
+        #elif defined(PJ_0)
           case 'J' : alt_all = GPIOJ->AFR[ind]; break;
-        #elif defined (PK_0)
+        #elif defined(PK_0)
           case 'K' : alt_all = GPIOK->AFR[ind]; break;
-        #elif defined (PL_0)
+        #elif defined(PL_0)
           case 'L' : alt_all = GPIOL->AFR[ind]; break;
         #endif
       }
