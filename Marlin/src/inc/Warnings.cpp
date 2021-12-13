@@ -524,6 +524,10 @@
   #endif
 #endif
 
+#if ENABLED(CHAMBER_FAN) && !defined(CHAMBER_FAN_INDEX)
+  #warning "Auto-assigned CHAMBER_FAN_INDEX to the first free FAN pin."
+#endif
+
 #if IS_LEGACY_TFT
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
