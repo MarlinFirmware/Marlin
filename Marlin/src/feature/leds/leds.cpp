@@ -123,7 +123,7 @@ void LEDLights::set_color(const LEDColor &incol
     // If the pins can do PWM then their intensity will be set.
     #define _UPDATE_RGBW(C,c) do {                 \
       if (PWM_PIN(RGB_LED_##C##_PIN))              \
-        set_pwm_duty(pin_t(RGB_LED_##C##_PIN), c); \
+        hal.set_pwm_duty(pin_t(RGB_LED_##C##_PIN), c); \
       else                                         \
         WRITE(RGB_LED_##C##_PIN, c ? HIGH : LOW);  \
     }while(0)

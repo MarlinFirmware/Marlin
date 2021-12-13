@@ -2149,7 +2149,7 @@ void RebootPrinter() {
   thermalManager.disable_all_heaters();
   planner.finish_and_disable();
   DWIN_RebootScreen();
-  HAL_reboot();
+  hal.reboot();
 }
 
 void Goto_InfoMenu(){
