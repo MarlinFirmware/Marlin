@@ -601,6 +601,10 @@
   #error "PROBE_TEMP_COMPENSATION is now set using the PTC_PROBE, PTC_BED, PTC_HOTEND options."
 #elif defined(BTC_PROBE_TEMP)
   #error "BTC_PROBE_TEMP is now PTC_PROBE_TEMP."
+#elif defined(MPE_FAST_SPEED)
+  #error "MPE_FAST_SPEED is now MPE_FAST_FEEDRATE."
+#elif defined(MPE_SLOW_SPEED)
+  #error "MPE_SLOW_SPEED is now MPE_SLOW_FEEDRATE."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
