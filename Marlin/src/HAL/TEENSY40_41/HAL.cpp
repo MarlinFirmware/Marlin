@@ -106,17 +106,17 @@ void HAL_adc_init() {
 void HAL_clear_reset_source() {
   uint32_t reset_source = SRC_SRSR;
   SRC_SRSR = reset_source;
- }
+}
 
 uint8_t HAL_get_reset_source() {
   switch (SRC_SRSR & 0xFF) {
     case 1: return RST_POWER_ON; break;
     case 2: return RST_SOFTWARE; break;
     case 4: return RST_EXTERNAL; break;
-    // case 8: return RST_BROWN_OUT; break;
+    //case 8: return RST_BROWN_OUT; break;
     case 16: return RST_WATCHDOG; break;
-     case 64: return RST_JTAG; break;
-    // case 128: return RST_OVERTEMP; break;
+    case 64: return RST_JTAG; break;
+    //case 128: return RST_OVERTEMP; break;
   }
   return 0;
 }
@@ -168,7 +168,7 @@ uint16_t HAL_adc_get_result() {
   return 0;
 }
 
-bool is_output(uint8_t pin) {
+bool is_output(pin_t pin) {
   const struct digital_pin_bitband_and_config_table_struct *p;
   p = digital_pin_to_info_PGM + pin;
   return (*(p->reg + 1) & p->mask);

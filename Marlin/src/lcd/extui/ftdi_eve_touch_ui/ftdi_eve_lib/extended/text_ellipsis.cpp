@@ -34,7 +34,6 @@ namespace FTDI {
       #define CHAR_WIDTH(c) use_utf8 ? utf8_fm.get_char_width(c) : clcd_fm.char_widths[(uint8_t)c]
     #else
       #define CHAR_WIDTH(c) utf8_fm.get_char_width(c)
-      constexpr bool use_utf8 = false;
     #endif
     FontMetrics utf8_fm(font);
     CLCD::FontMetrics clcd_fm;
@@ -46,12 +45,12 @@ namespace FTDI {
     // split and still allow the ellipsis to fit.
     int16_t lineWidth = 0;
     char *breakPoint = str;
-    char *next = str;
+    const char *next = str;
     while (*next) {
       const utf8_char_t c = get_utf8_char_and_inc(next);
       lineWidth += CHAR_WIDTH(c);
       if (lineWidth + ellipsisWidth < w)
-        breakPoint = next;
+        breakPoint = (char*)next;
     }
 
     if (lineWidth > w) {
@@ -81,7 +80,7 @@ namespace FTDI {
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);
   }
 
-  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, progmem_str pstr, uint16_t options, uint8_t font) {
+  void draw_text_with_ellipsis(CommandProcessor& cmd, int x, int y, int w, int h, FSTR_P pstr, uint16_t options, uint8_t font) {
     char tmp[strlen_P((const char*)pstr) + 3];
     strcpy_P(tmp, (const char*)pstr);
     _draw_text_with_ellipsis(cmd, x, y, w, h, tmp, options, font);

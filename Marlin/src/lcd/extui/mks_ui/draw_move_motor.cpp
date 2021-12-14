@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -82,8 +83,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_move_dist();
       break;
     case ID_M_RETURN:
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       return;
   }
   disp_cur_pos();

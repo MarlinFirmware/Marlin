@@ -48,6 +48,8 @@
 
 #if ENABLED(DELTA)
   #include "delta.h"
+#elif ENABLED(POLARGRAPH)
+  #include "polargraph.h"
 #endif
 
 #if ABL_PLANAR
@@ -71,6 +73,10 @@
   #define IS_PAGE(B) TEST(B->flag, BLOCK_BIT_IS_PAGE)
 #else
   #define IS_PAGE(B) false
+#endif
+
+#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+  #include "../feature/closedloop.h"
 #endif
 
 // Feedrate for manual moves
@@ -200,7 +206,7 @@ typedef struct block_t {
     uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
   #endif
 
-  uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+  axis_bits_t direction_bits;               // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
@@ -372,7 +378,7 @@ class Planner {
     #endif
 
     static uint32_t max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-    static float steps_to_mm[DISTINCT_AXES];          // Millimeters per step
+    static float mm_per_step[DISTINCT_AXES];          // Millimeters per step
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;             // (mm) M205 J
@@ -487,7 +493,7 @@ class Planner {
     static void reset_acceleration_rates();
 
     /**
-     * Recalculate 'position' and 'steps_to_mm'.
+     * Recalculate 'position' and 'mm_per_step'.
      * Must be called whenever settings.axis_steps_per_mm changes!
      */
     static void refresh_positioning();
@@ -862,6 +868,13 @@ class Planner {
 
     // Triggered position of an axis in mm (not core-savvy)
     static float triggered_position_mm(const AxisEnum axis);
+
+    // Blocks are queued, or we're running out moves, or the closed loop controller is waiting
+    static inline bool busy() {
+      return (has_blocks_queued() || cleaning_buffer_counter
+          || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
+      );
+    }
 
     // Block until all buffered steps are executed / cleaned
     static void synchronize();

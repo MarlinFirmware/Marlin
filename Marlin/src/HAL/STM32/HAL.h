@@ -38,6 +38,13 @@
 #include <stdint.h>
 
 //
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
+
+//
 // Serial Ports
 //
 #ifdef USBCON
@@ -123,7 +130,11 @@
 // Types
 // ------------------------
 
-typedef int16_t pin_t;
+#ifdef STM32G0B1xx
+  typedef int32_t pin_t;
+#else
+  typedef int16_t pin_t;
+#endif
 
 #define HAL_SERVO_LIB libServo
 #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
@@ -176,8 +187,13 @@ static inline int freeMemory() {
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
+#ifdef ADC_RESOLUTION
+  #define HAL_ADC_RESOLUTION ADC_RESOLUTION
+#else
+  #define HAL_ADC_RESOLUTION 12
+#endif
+
 #define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  ADC_RESOLUTION // 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true

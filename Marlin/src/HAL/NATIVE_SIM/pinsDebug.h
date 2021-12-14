@@ -20,7 +20,6 @@
 /**
  * Support routines for X86_64
  */
-
 #pragma once
 
 /**
@@ -36,6 +35,7 @@
 #define GET_ARRAY_PIN(p) pin_array[p].pin
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 // active ADC function/mode/code values for PINSEL registers

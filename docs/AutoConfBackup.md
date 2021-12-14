@@ -1,6 +1,6 @@
 # Automatic configuration saving in built firmware
 
-Starting with version 2.0.9.2, Marlin automatically extracts and saves the configuration used to generate the firmware into the firmware itself.
+Starting with version 2.0.9.3, Marlin automatically extracts and saves the configuration used to generate the firmware into the firmware itself.
 This is can be avoided by defining `CONFIG_SKIP_EMBED_AND_SAVE_TO_SD` in `Configuration_adv.h` file.
 
 ## How is it made
@@ -25,7 +25,3 @@ $ python buildroot/share/PlatformIO/scripts/create_config_from_dict.py
 
 This will update the configuration file in the repository to match what was used at build time. It'll also dump the Git's reference used to build the code (that might be accessible if the 
 firmware was built from official repository, or, as a fallback, it'll also dump the `STRING_DISTRIBUTION_DATE` which is unlikely to be modified in a fork). 
-
-
- 
- 

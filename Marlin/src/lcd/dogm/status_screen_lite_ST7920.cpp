@@ -99,9 +99,9 @@ void ST7920_Lite_Status_Screen::write_str(const char *str, uint8_t len) {
   while (*str && len--) write_byte(*str++);
 }
 
-void ST7920_Lite_Status_Screen::write_str_P(PGM_P const str) {
-  PGM_P p_str = (PGM_P)str;
-  while (char c = pgm_read_byte(p_str++)) write_byte(c);
+void ST7920_Lite_Status_Screen::write_str(FSTR_P const fstr) {
+  PGM_P pstr = FTOP(fstr);
+  while (char c = pgm_read_byte(pstr++)) write_byte(c);
 }
 
 void ST7920_Lite_Status_Screen::write_number(const int16_t value, const uint8_t digits/*=3*/) {
@@ -500,11 +500,11 @@ void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
   // Draw centered
   if (value > 9) {
     write_number(value, 4);
-    write_str_P(PSTR("% "));
+    write_str(F("% "));
   }
   else {
     write_number(value, 3);
-    write_str_P(PSTR("%  "));
+    write_str(F("%  "));
   }
 }
 
@@ -559,7 +559,7 @@ void ST7920_Lite_Status_Screen::draw_temps(uint8_t line, const int16_t temp, con
   };
 
   if (targetStateChange) {
-    if (!showTarget) write_str_P(PSTR("    "));
+    if (!showTarget) write_str(F("    "));
     draw_degree_symbol(5, line, !showTarget);
     draw_degree_symbol(9, line,  showTarget);
   }
@@ -672,20 +672,20 @@ void ST7920_Lite_Status_Screen::draw_position(const xyze_pos_t &pos, const bool 
   // If position is unknown, flash the labels.
   const unsigned char alt_label = position_trusted ? 0 : (ui.get_blink() ? ' ' : 0);
 
-  if (TERN1(LCD_SHOW_E_TOTAL, !printingIsActive())) {
-    write_byte(alt_label ? alt_label : 'X');
-    write_str(dtostrf(pos.x, -4, 0, str), 4);
-
-    write_byte(alt_label ? alt_label : 'Y');
-    write_str(dtostrf(pos.y, -4, 0, str), 4);
-  }
-  else {
+  if (TERN0(LCD_SHOW_E_TOTAL, printingIsActive())) {
     #if ENABLED(LCD_SHOW_E_TOTAL)
       char tmp[15];
       const uint8_t escale = e_move_accumulator >= 100000.0f ? 10 : 1; // After 100m switch to cm
       sprintf_P(tmp, PSTR("E%-7ld%cm "), uint32_t(_MAX(e_move_accumulator, 0.0f)) / escale, escale == 10 ? 'c' : 'm'); // 1234567mm
       write_str(tmp);
     #endif
+  }
+  else {
+    write_byte(alt_label ? alt_label : 'X');
+    write_str(dtostrf(pos.x, -4, 0, str), 4);
+
+    write_byte(alt_label ? alt_label : 'Y');
+    write_str(dtostrf(pos.y, -4, 0, str), 4);
   }
 
   write_byte(alt_label ? alt_label : 'Z');

@@ -300,7 +300,7 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
 template<typename TMC>
 void tmc_print_current(TMC &st) {
   st.printLabel();
-  SERIAL_ECHOLNPAIR(" driver current: ", st.getMilliamps());
+  SERIAL_ECHOLNPGM(" driver current: ", st.getMilliamps());
 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -322,7 +322,7 @@ void tmc_print_current(TMC &st) {
   template<typename TMC>
   void tmc_print_pwmthrs(TMC &st) {
     st.printLabel();
-    SERIAL_ECHOLNPAIR(" stealthChop max speed: ", st.get_pwm_thrs());
+    SERIAL_ECHOLNPGM(" stealthChop max speed: ", st.get_pwm_thrs());
   }
 #endif
 #if USE_SENSORLESS

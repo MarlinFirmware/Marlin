@@ -154,11 +154,11 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
     cmax = _MAX(cmax, v);
     csum += v;
   }
-  //SERIAL_ECHOPAIR("Mixer::refresh_collector(", proportion, ", ", t, ") cmax=", cmax, "  csum=", csum, "  color");
+  //SERIAL_ECHOPGM("Mixer::refresh_collector(", proportion, ", ", t, ") cmax=", cmax, "  csum=", csum, "  color");
   const float inv_prop = proportion / csum;
   MIXER_STEPPER_LOOP(i) {
     c[i] = color[t][i] * inv_prop;
-    //SERIAL_ECHOPAIR(" [", t, "][", i, "] = ", color[t][i], " (", c[i], ")  ");
+    //SERIAL_ECHOPGM(" [", t, "][", i, "] = ", color[t][i], " (", c[i], ")  ");
   }
   //SERIAL_EOL();
 }
@@ -169,14 +169,12 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
   #include "../module/planner.h"
 
   gradient_t Mixer::gradient = {
-    false,    // enabled
-    {0},      // color (array)
-    0, 0,     // start_z, end_z
-    0, 1,     // start_vtool, end_vtool
-    {0}, {0}  // start_mix[], end_mix[]
-    #if ENABLED(GRADIENT_VTOOL)
-      , -1    // vtool_index
-    #endif
+    false,                      // enabled
+    {0},                        // color (array)
+    0, 0,                       // start_z, end_z
+    0, 1,                       // start_vtool, end_vtool
+    {0}, {0}                    // start_mix[], end_mix[]
+    OPTARG(GRADIENT_VTOOL, -1)  // vtool_index
   };
 
   float Mixer::prev_z; // = 0

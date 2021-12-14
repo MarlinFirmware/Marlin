@@ -27,8 +27,13 @@
 
 extern const char M23_STR[], M24_STR[];
 
-#if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
-  #define SD_RESORT 1
+#if ENABLED(SDCARD_SORT_ALPHA)
+  #if ENABLED(SDSORT_DYNAMIC_RAM)
+    #define SD_RESORT 1
+  #endif
+  #if FOLDER_SORTING || ENABLED(SDSORT_GCODE)
+    #define HAS_FOLDER_SORTING 1
+  #endif
 #endif
 
 #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
@@ -158,7 +163,7 @@ public:
   static void endFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
   static void abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
   static void fileHasFinished();
-  static inline void abortFilePrintSoon() { flag.abort_sd_printing = true; }
+  static inline void abortFilePrintSoon() { flag.abort_sd_printing = isFileOpen(); }
   static inline void pauseSDPrint()       { flag.sdprinting = false; }
   static inline bool isPrinting()         { return flag.sdprinting; }
   static inline bool isPaused()           { return isFileOpen() && !isPrinting(); }

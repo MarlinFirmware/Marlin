@@ -27,7 +27,7 @@ bdf2u8g
 # OS
 #
 applet/
-*.DS_Store
+.DS_Store
 
 #
 # Misc
@@ -122,10 +122,6 @@ tags
 .gcc-flags.json
 /lib/
 
-
-
-
-
 # Secure Credentials
 Configuration_Secure.h
 
@@ -151,6 +147,7 @@ marlin_config.json
 #Simulation
 imgui.ini
 eeprom.dat
+spi_flash.bin
 
 #cmake
 CMakeLists.txt
@@ -172,7 +169,3 @@ __pycache__
 
 # IOLogger logs
 *_log.csv
-
-# Simulation / Native
-eeprom.dat
-imgui.ini
