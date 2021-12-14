@@ -253,7 +253,7 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   reg_value &= ~(SCB_AIRCR_VECTKEY_Msk | SCB_AIRCR_PRIGROUP_Msk);             /* clear bits to change               */
   reg_value  =  (reg_value                                 |
                 ((uint32_t)0x5FA << SCB_AIRCR_VECTKEY_Pos) |
-                (PriorityGroupTmp << 8));                                     /* Insert write key and priorty group */
+                (PriorityGroupTmp << 8));                                     /* Insert write key & priority group  */
   SCB->AIRCR =  reg_value;
 }
 
@@ -437,7 +437,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
       case POWER_MONITOR_VOLTAGE_PIN: pin_index = POWERMON_VOLTS; break;
     #endif
   }
-  HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.
+  HAL_adc_result = HAL_adc_results[(int)pin_index] >> (12 - HAL_ADC_RESOLUTION); // shift out unused bits
 }
 
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
@@ -449,8 +449,7 @@ uint16_t analogRead(pin_t pin) {
 
 // Wrapper to maple unprotected analogWrite
 void analogWrite(pin_t pin, int pwm_val8) {
-  if (PWM_PIN(pin))
-    analogWrite(uint8_t(pin), pwm_val8);
+  if (PWM_PIN(pin)) analogWrite(uint8_t(pin), pwm_val8);
 }
 
 void HAL_reboot() { nvic_sys_reset(); }

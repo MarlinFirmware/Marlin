@@ -39,6 +39,19 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
+//
+// Default graphical display delays
+//
+#if F_CPU >= 20000000
+  #define CPU_ST7920_DELAY_1 150
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 150
+#elif F_CPU == 16000000
+  #define CPU_ST7920_DELAY_1 125
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 188
+#endif
+
 #ifndef pgm_read_ptr
   // Compatibility for avr-libc 1.8.0-4.1 included with Ubuntu for
   // Windows Subsystem for Linux on Windows 10 as of 10/18/2019
@@ -78,7 +91,7 @@ typedef int8_t pin_t;
 // Public Variables
 // ------------------------
 
-//extern uint8_t MCUSR;
+extern uint8_t reset_reason;
 
 // Serial ports
 #ifdef USBCON
@@ -139,21 +152,19 @@ void HAL_init();
 
 //void _delay_ms(const int delay);
 
-inline void HAL_clear_reset_source() { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source() { return MCUSR; }
+inline void HAL_clear_reset_source() { }
+inline uint8_t HAL_get_reset_source() { return reset_reason; }
 
 void HAL_reboot();
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 extern "C" int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 // ADC
 #ifdef DIDR2
@@ -210,7 +221,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired);
 
 /**
  * set_pwm_duty
- *  Sets the PWM duty cycle of the provided pin to the provided value
+ *  Set the PWM duty cycle of the provided pin to the provided value
  *  Optionally allows inverting the duty cycle [default = false]
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
  */

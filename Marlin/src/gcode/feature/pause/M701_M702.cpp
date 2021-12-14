@@ -85,7 +85,7 @@ void GcodeSuite::M701() {
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
-      tool_change(target_extruder, false);
+      tool_change(target_extruder);
   #endif
 
   auto move_z_by = [](const_float_t zdist) {
@@ -114,9 +114,7 @@ void GcodeSuite::M701() {
       true,                                           // show_lcd
       thermalManager.still_heating(target_extruder),  // pause_for_user
       PAUSE_MODE_LOAD_FILAMENT                        // pause_mode
-      #if ENABLED(DUAL_X_CARRIAGE)
-        , target_extruder                             // Dual X target
-      #endif
+      OPTARG(DUAL_X_CARRIAGE, target_extruder)        // Dual X target
     );
   #endif
 
@@ -126,7 +124,7 @@ void GcodeSuite::M701() {
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
-      tool_change(active_extruder_before_filament_change, false);
+      tool_change(active_extruder_before_filament_change);
   #endif
 
   TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
@@ -190,7 +188,7 @@ void GcodeSuite::M702() {
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
-      tool_change(target_extruder, false);
+      tool_change(target_extruder);
   #endif
 
   // Lift Z axis
@@ -204,7 +202,7 @@ void GcodeSuite::M702() {
     #if BOTH(HAS_MULTI_EXTRUDER, FILAMENT_UNLOAD_ALL_EXTRUDERS)
       if (!parser.seenval('T')) {
         HOTEND_LOOP() {
-          if (e != active_extruder) tool_change(e, false);
+          if (e != active_extruder) tool_change(e);
           unload_filament(-fc_settings[e].unload_length, true, PAUSE_MODE_UNLOAD_FILAMENT);
         }
       }
@@ -230,7 +228,7 @@ void GcodeSuite::M702() {
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
-      tool_change(active_extruder_before_filament_change, false);
+      tool_change(active_extruder_before_filament_change);
   #endif
 
   TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool

@@ -26,6 +26,8 @@
 // Release PB3/PB4 (E0 STP/DIR) from JTAG pins
 #define DISABLE_JTAG
 
+#define USES_DIAG_JUMPERS
+
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
@@ -117,7 +119,7 @@
 
 /**
  *        SKR Mini E3 V1.0, V1.2                      SKR Mini E3 V2.0
- *                ______                                    ______
+ *                ------                                    ------
  *            5V | 1  2 | GND                           5V | 1  2 | GND
  *  (LCD_EN) PB7 | 3  4 | PB8  (LCD_RS)      (LCD_EN) PB15 | 3  4 | PB8  (LCD_RS)
  *  (LCD_D4) PB9 | 5  6   PA10 (BTN_EN2)     (LCD_D4) PB9  | 5  6   PA10 (BTN_EN2)
@@ -134,7 +136,7 @@
   #define EXP1_3                            PB7
 #endif
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
   /**
    *        ------              ------              ------
    *   VCC | 1  2 | GND    VCC | 1  2 | GND    GND |  2 1 | VCC
@@ -148,7 +150,7 @@
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
 
-  #error "DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. Comment out this line to continue."
+  #error "Ender-3 V2 display requires a custom cable, see diagram above this line. Comment out this line to continue."
 
   #define BEEPER_PIN                      EXP1_9
   #define BTN_EN1                         EXP1_3
@@ -204,8 +206,8 @@
       /**
        * TFTGLCD_PANEL_SPI display pinout
        *
-       *               Board                                      Display
-       *               ______                                       ______
+       *               Board                                        Display
+       *               ------                                       ------
        *           5V | 1  2 | GND                (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
        * (FREE)   PB7 | 3  4 | PB8  (LCD_CS)      (PA9)     LCD_CS | 3  4 | SD_CS (PA10)
        * (FREE)   PB9 | 5  6 | PA10 (SD_CS)                 (FREE) | 5  6 | MOSI  (SPI1-MOSI)
@@ -247,8 +249,8 @@
   /**
    * FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                      Display
-   *               ______                                       ______
+   *               Board                                        Display
+   *               ------                                       ------
    *           5V | 1  2 | GND                (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
    * (FREE)   PB7 | 3  4 | PB8  (LCD_CS)      (PA9)  MOD_RESET | 3  4 | SD_CS (PA10)
    * (FREE)   PB9 | 5  6 | PA10 (SD_CS)       (PB8)     LCD_CS | 5  6 | MOSI  (SPI1-MOSI)

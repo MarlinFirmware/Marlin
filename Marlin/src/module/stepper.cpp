@@ -123,12 +123,20 @@ Stepper stepper; // Singleton
   bool L64XX_OK_to_power_up = false;  // flag to keep L64xx steppers powered down after a reset or power up
 #endif
 
+#if ENABLED(AUTO_POWER_CONTROL)
+  #include "../feature/power.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
 #endif
 
 #if HAS_CUTTER
   #include "../feature/spindle_laser.h"
+#endif
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 // public:
@@ -145,12 +153,14 @@ Stepper stepper; // Singleton
   #endif
 #endif
 
+axis_flags_t Stepper::axis_enabled; // {0}
+
 // private:
 
 block_t* Stepper::current_block; // (= nullptr) A pointer to the block currently being traced
 
-uint8_t Stepper::last_direction_bits, // = 0
-        Stepper::axis_did_move; // = 0
+axis_bits_t Stepper::last_direction_bits, // = 0
+            Stepper::axis_did_move; // = 0
 
 bool Stepper::abort_current_block;
 
@@ -257,25 +267,30 @@ xyze_int8_t Stepper::count_direction{0};
   };
 #endif
 
-#define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
-  if (separate_multi_axis) {                                                                                                \
-    if (ENABLED(A##_HOME_TO_MIN)) {                                                                                         \
-      if (TERN0(HAS_##A##_MIN, !(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor)) A##_STEP_WRITE(V);     \
-      if (TERN0(HAS_##A##2_MIN, !(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor)) A##2_STEP_WRITE(V); \
-    }                                                                                                                       \
-    else {                                                                                                                  \
-      if (TERN0(HAS_##A##_MAX, !(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##_motor)) A##_STEP_WRITE(V);     \
-      if (TERN0(HAS_##A##2_MAX, !(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##2_motor)) A##2_STEP_WRITE(V); \
-    }                                                                                                                       \
-  }                                                                                                                         \
-  else {                                                                                                                    \
-    A##_STEP_WRITE(V);                                                                                                      \
-    A##2_STEP_WRITE(V);                                                                                                     \
+#define MINDIR(A) (count_direction[_AXIS(A)] < 0)
+#define MAXDIR(A) (count_direction[_AXIS(A)] > 0)
+
+#define STEPTEST(A,M,I) TERN0(HAS_ ##A## ##I## _ ##M, !(TEST(endstops.state(), A## ##I## _ ##M) && M## DIR(A)) && !locked_ ##A## ##I## _motor)
+
+#define DUAL_ENDSTOP_APPLY_STEP(A,V)             \
+  if (separate_multi_axis) {                     \
+    if (ENABLED(A##_HOME_TO_MIN)) {              \
+      if (STEPTEST(A,MIN, )) A## _STEP_WRITE(V); \
+      if (STEPTEST(A,MIN,2)) A##2_STEP_WRITE(V); \
+    }                                            \
+    else if (ENABLED(A##_HOME_TO_MAX)) {         \
+      if (STEPTEST(A,MAX, )) A## _STEP_WRITE(V); \
+      if (STEPTEST(A,MAX,2)) A##2_STEP_WRITE(V); \
+    }                                            \
+  }                                              \
+  else {                                         \
+    A##_STEP_WRITE(V);                           \
+    A##2_STEP_WRITE(V);                          \
   }
 
 #define DUAL_SEPARATE_APPLY_STEP(A,V)             \
   if (separate_multi_axis) {                      \
-    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A## _motor) A## _STEP_WRITE(V); \
     if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
   }                                               \
   else {                                          \
@@ -283,60 +298,68 @@ xyze_int8_t Stepper::count_direction{0};
     A##2_STEP_WRITE(V);                           \
   }
 
-#define TRIPLE_ENDSTOP_APPLY_STEP(A,V)                                                                                      \
-  if (separate_multi_axis) {                                                                                                \
-    if (ENABLED(A##_HOME_TO_MIN)) {                                                                                         \
-      if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
-      if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##3_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
-    }                                                                                                                       \
-    else {                                                                                                                  \
-      if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
-      if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
-      if (!(TEST(endstops.state(), A##3_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
-    }                                                                                                                       \
-  }                                                                                                                         \
-  else {                                                                                                                    \
-    A##_STEP_WRITE(V);                                                                                                      \
-    A##2_STEP_WRITE(V);                                                                                                     \
-    A##3_STEP_WRITE(V);                                                                                                     \
+#define TRIPLE_ENDSTOP_APPLY_STEP(A,V)           \
+  if (separate_multi_axis) {                     \
+    if (ENABLED(A##_HOME_TO_MIN)) {              \
+      if (STEPTEST(A,MIN, )) A## _STEP_WRITE(V); \
+      if (STEPTEST(A,MIN,2)) A##2_STEP_WRITE(V); \
+      if (STEPTEST(A,MIN,3)) A##3_STEP_WRITE(V); \
+    }                                            \
+    else if (ENABLED(A##_HOME_TO_MAX)) {         \
+      if (STEPTEST(A,MAX, )) A## _STEP_WRITE(V); \
+      if (STEPTEST(A,MAX,2)) A##2_STEP_WRITE(V); \
+      if (STEPTEST(A,MAX,3)) A##3_STEP_WRITE(V); \
+    }                                            \
+  }                                              \
+  else {                                         \
+    A##_STEP_WRITE(V);                           \
+    A##2_STEP_WRITE(V);                          \
+    A##3_STEP_WRITE(V);                          \
   }
 
 #define TRIPLE_SEPARATE_APPLY_STEP(A,V)           \
   if (separate_multi_axis) {                      \
-    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A## _motor) A## _STEP_WRITE(V); \
     if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
     if (!locked_##A##3_motor) A##3_STEP_WRITE(V); \
   }                                               \
   else {                                          \
-    A##_STEP_WRITE(V);                            \
+    A## _STEP_WRITE(V);                           \
     A##2_STEP_WRITE(V);                           \
     A##3_STEP_WRITE(V);                           \
   }
 
-#define QUAD_ENDSTOP_APPLY_STEP(A,V) \
-  if (separate_multi_axis) {         \
-    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##_MIN,  A##_MAX)))  && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor)  A##_STEP_WRITE(V);  \
-    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##2_MIN, A##2_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
-    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##3_MIN, A##3_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##3_motor) A##3_STEP_WRITE(V); \
-    if (!(TEST(endstops.state(), (TERN(A##_HOME_TO_MIN, A##4_MIN, A##4_MAX))) && count_direction[_AXIS(A)] < 0) && !locked_##A##4_motor) A##4_STEP_WRITE(V); \
-  }       \
-  else {  \
-    A##_STEP_WRITE(V);  \
-    A##2_STEP_WRITE(V); \
-    A##3_STEP_WRITE(V); \
-    A##4_STEP_WRITE(V); \
+#define QUAD_ENDSTOP_APPLY_STEP(A,V)             \
+  if (separate_multi_axis) {                     \
+    if (ENABLED(A##_HOME_TO_MIN)) {              \
+      if (STEPTEST(A,MIN, )) A## _STEP_WRITE(V); \
+      if (STEPTEST(A,MIN,2)) A##2_STEP_WRITE(V); \
+      if (STEPTEST(A,MIN,3)) A##3_STEP_WRITE(V); \
+      if (STEPTEST(A,MIN,4)) A##4_STEP_WRITE(V); \
+    }                                            \
+    else if (ENABLED(A##_HOME_TO_MAX)) {         \
+      if (STEPTEST(A,MAX, )) A## _STEP_WRITE(V); \
+      if (STEPTEST(A,MAX,2)) A##2_STEP_WRITE(V); \
+      if (STEPTEST(A,MAX,3)) A##3_STEP_WRITE(V); \
+      if (STEPTEST(A,MAX,4)) A##4_STEP_WRITE(V); \
+    }                                            \
+  }                                              \
+  else {                                         \
+    A## _STEP_WRITE(V);                          \
+    A##2_STEP_WRITE(V);                          \
+    A##3_STEP_WRITE(V);                          \
+    A##4_STEP_WRITE(V);                          \
   }
 
 #define QUAD_SEPARATE_APPLY_STEP(A,V)             \
   if (separate_multi_axis) {                      \
-    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A## _motor) A## _STEP_WRITE(V); \
     if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
     if (!locked_##A##3_motor) A##3_STEP_WRITE(V); \
     if (!locked_##A##4_motor) A##4_STEP_WRITE(V); \
   }                                               \
   else {                                          \
-    A##_STEP_WRITE(V);                            \
+    A## _STEP_WRITE(V);                           \
     A##2_STEP_WRITE(V);                           \
     A##3_STEP_WRITE(V);                           \
     A##4_STEP_WRITE(V);                           \
@@ -441,8 +464,8 @@ xyze_int8_t Stepper::count_direction{0};
 #define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
 
 #define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
-#define START_TIMED_PULSE(DIR) (start_pulse_count = HAL_timer_get_count(PULSE_TIMER_NUM))
-#define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(PULSE_TIMER_NUM) - start_pulse_count) { }
+#define START_TIMED_PULSE(DIR) (start_pulse_count = HAL_timer_get_count(MF_TIMER_PULSE))
+#define AWAIT_TIMED_PULSE(DIR) while (PULSE_##DIR##_TICK_COUNT > HAL_timer_get_count(MF_TIMER_PULSE) - start_pulse_count) { }
 #define START_HIGH_PULSE()  START_TIMED_PULSE(HIGH)
 #define AWAIT_HIGH_PULSE()  AWAIT_TIMED_PULSE(HIGH)
 #define START_LOW_PULSE()   START_TIMED_PULSE(LOW)
@@ -459,6 +482,89 @@ xyze_int8_t Stepper::count_direction{0};
 #else
   #define DIR_WAIT_AFTER()
 #endif
+
+void Stepper::enable_axis(const AxisEnum axis) {
+  #define _CASE_ENABLE(N) case N##_AXIS: ENABLE_AXIS_##N(); break;
+  switch (axis) {
+    LINEAR_AXIS_CODE(
+      _CASE_ENABLE(X), _CASE_ENABLE(Y), _CASE_ENABLE(Z),
+      _CASE_ENABLE(I), _CASE_ENABLE(J), _CASE_ENABLE(K)
+    );
+    default: break;
+  }
+  mark_axis_enabled(axis);
+}
+
+bool Stepper::disable_axis(const AxisEnum axis) {
+  mark_axis_disabled(axis);
+  // If all the axes that share the enabled bit are disabled
+  const bool can_disable = can_axis_disable(axis);
+  if (can_disable) {
+    #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
+    switch (axis) {
+      LINEAR_AXIS_CODE(
+        _CASE_DISABLE(X), _CASE_DISABLE(Y), _CASE_DISABLE(Z),
+        _CASE_DISABLE(I), _CASE_DISABLE(J), _CASE_DISABLE(K)
+      );
+      default: break;
+    }
+  }
+  return can_disable;
+}
+
+#if HAS_EXTRUDERS
+
+  void Stepper::enable_extruder(E_TERN_(const uint8_t eindex)) {
+    IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr uint8_t eindex = 0);
+    #define _CASE_ENA_E(N) case N: ENABLE_AXIS_E##N(); mark_axis_enabled(E_AXIS E_OPTARG(eindex)); break;
+    switch (eindex) {
+      REPEAT(E_STEPPERS, _CASE_ENA_E)
+    }
+  }
+
+  bool Stepper::disable_extruder(E_TERN_(const uint8_t eindex)) {
+    IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr uint8_t eindex = 0);
+    mark_axis_disabled(E_AXIS E_OPTARG(eindex));
+    const bool can_disable = can_axis_disable(E_AXIS E_OPTARG(eindex));
+    if (can_disable) {
+      #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
+      switch (eindex) { REPEAT(E_STEPPERS, _CASE_DIS_E) }
+    }
+    return can_disable;
+  }
+
+  void Stepper::enable_e_steppers() {
+    #define _ENA_E(N) ENABLE_EXTRUDER(N);
+    REPEAT(EXTRUDERS, _ENA_E)
+  }
+
+  void Stepper::disable_e_steppers() {
+    #define _DIS_E(N) DISABLE_EXTRUDER(N);
+    REPEAT(EXTRUDERS, _DIS_E)
+  }
+
+#endif
+
+void Stepper::enable_all_steppers() {
+  TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+  LINEAR_AXIS_CODE(
+    enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
+    enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
+  );
+  enable_e_steppers();
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
+}
+
+void Stepper::disable_all_steppers() {
+  LINEAR_AXIS_CODE(
+    disable_axis(X_AXIS), disable_axis(Y_AXIS), disable_axis(Z_AXIS),
+    disable_axis(I_AXIS), disable_axis(J_AXIS), disable_axis(K_AXIS)
+  );
+  disable_e_steppers();
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
+}
 
 /**
  * Set the stepper direction of each axis
@@ -481,27 +587,12 @@ void Stepper::set_directions() {
       count_direction[_AXIS(A)] = 1;            \
     }
 
-  #if HAS_X_DIR
-    SET_STEP_DIR(X); // A
-  #endif
-  #if HAS_Y_DIR
-    SET_STEP_DIR(Y); // B
-  #endif
-  #if HAS_Z_DIR
-    SET_STEP_DIR(Z); // C
-  #endif
-
-  #if HAS_I_DIR
-    SET_STEP_DIR(I); // I
-  #endif
-
-  #if HAS_J_DIR
-    SET_STEP_DIR(J); // J
-  #endif
-
-  #if HAS_K_DIR
-    SET_STEP_DIR(K); // K
-  #endif
+  TERN_(HAS_X_DIR, SET_STEP_DIR(X)); // A
+  TERN_(HAS_Y_DIR, SET_STEP_DIR(Y)); // B
+  TERN_(HAS_Z_DIR, SET_STEP_DIR(Z)); // C
+  TERN_(HAS_I_DIR, SET_STEP_DIR(I));
+  TERN_(HAS_J_DIR, SET_STEP_DIR(J));
+  TERN_(HAS_K_DIR, SET_STEP_DIR(K));
 
   #if DISABLED(LIN_ADVANCE)
     #if ENABLED(MIXING_EXTRUDER)
@@ -1289,7 +1380,7 @@ void Stepper::set_directions() {
     }
 
     FORCE_INLINE int32_t Stepper::_eval_bezier_curve(const uint32_t curr_step) {
-      #if defined(__arm__) || defined(__thumb__)
+      #if (defined(__arm__) || defined(__thumb__)) && !defined(STM32G0B1xx) // TODO: Test define STM32G0xx versus STM32G0B1xx
 
         // For ARM Cortex M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
         uint32_t flo = 0;
@@ -1363,11 +1454,11 @@ void Stepper::set_directions() {
  */
 
 HAL_STEP_TIMER_ISR() {
-  HAL_timer_isr_prologue(STEP_TIMER_NUM);
+  HAL_timer_isr_prologue(MF_TIMER_STEP);
 
   Stepper::isr();
 
-  HAL_timer_isr_epilogue(STEP_TIMER_NUM);
+  HAL_timer_isr_epilogue(MF_TIMER_STEP);
 }
 
 #ifdef CPU_32_BIT
@@ -1389,7 +1480,7 @@ void Stepper::isr() {
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
   // periods to big periods are respected and the timer does not reset to 0
-  HAL_timer_set_compare(STEP_TIMER_NUM, hal_timer_t(HAL_TIMER_TYPE_MAX));
+  HAL_timer_set_compare(MF_TIMER_STEP, hal_timer_t(HAL_TIMER_TYPE_MAX));
 
   // Count of ticks for the next ISR
   hal_timer_t next_isr_ticks = 0;
@@ -1428,14 +1519,10 @@ void Stepper::isr() {
 
     // Get the interval to the next ISR call
     const uint32_t interval = _MIN(
+      uint32_t(HAL_TIMER_TYPE_MAX),                     // Come back in a very long time
       nextMainISR                                       // Time until the next Pulse / Block phase
-      #if ENABLED(LIN_ADVANCE)
-        , nextAdvanceISR                                // Come back early for Linear Advance?
-      #endif
-      #if ENABLED(INTEGRATED_BABYSTEPPING)
-        , nextBabystepISR                               // Come back early for Babystepping?
-      #endif
-      , uint32_t(HAL_TIMER_TYPE_MAX)                    // Come back in a very long time
+      OPTARG(LIN_ADVANCE, nextAdvanceISR)               // Come back early for Linear Advance?
+      OPTARG(INTEGRATED_BABYSTEPPING, nextBabystepISR)  // Come back early for Babystepping?
     );
 
     //
@@ -1497,7 +1584,7 @@ void Stepper::isr() {
      * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
      * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
      */
-    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t(
+    min_ticks = HAL_timer_get_count(MF_TIMER_STEP) + hal_timer_t(
       #ifdef __AVR__
         8
       #else
@@ -1521,7 +1608,7 @@ void Stepper::isr() {
   // sure that the time has not arrived yet - Warrantied by the scheduler
 
   // Set the next ISR to fire at the proper time
-  HAL_timer_set_compare(STEP_TIMER_NUM, hal_timer_t(next_isr_ticks));
+  HAL_timer_set_compare(MF_TIMER_STEP, hal_timer_t(next_isr_ticks));
 
   // Don't forget to finally reenable interrupts
   ENABLE_ISRS();
@@ -1626,7 +1713,7 @@ void Stepper::pulse_phase_isr() {
             case 0: {
               const uint8_t low = page_step_state.page[page_step_state.segment_idx],
                            high = page_step_state.page[page_step_state.segment_idx + 1];
-              uint8_t dm = last_direction_bits;
+              axis_bits_t dm = last_direction_bits;
 
               PAGE_SEGMENT_UPDATE(X, low >> 4);
               PAGE_SEGMENT_UPDATE(Y, low & 0xF);
@@ -1905,7 +1992,7 @@ uint32_t Stepper::block_phase_isr() {
                     laser_trap.acc_step_count += current_block->laser.entry_per;
                     if (laser_trap.cur_power < current_block->laser.power) laser_trap.cur_power++;
                   }
-                  cutter.set_ocr_power(laser_trap.cur_power);
+                  cutter.ocr_set_power(laser_trap.cur_power);
                 }
               }
             #else
@@ -1914,7 +2001,7 @@ uint32_t Stepper::block_phase_isr() {
               else {
                 laser_trap.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
                 laser_trap.cur_power = (current_block->laser.power * acc_step_rate) / current_block->nominal_rate;
-                cutter.set_ocr_power(laser_trap.cur_power); // Cycle efficiency is irrelevant it the last line was many cycles
+                cutter.ocr_set_power(laser_trap.cur_power); // Cycle efficiency is irrelevant it the last line was many cycles
               }
             #endif
           }
@@ -1982,7 +2069,7 @@ uint32_t Stepper::block_phase_isr() {
                     laser_trap.acc_step_count += current_block->laser.exit_per;
                     if (laser_trap.cur_power > current_block->laser.power_exit) laser_trap.cur_power--;
                   }
-                  cutter.set_ocr_power(laser_trap.cur_power);
+                  cutter.ocr_set_power(laser_trap.cur_power);
                 }
               }
             #else
@@ -1991,7 +2078,7 @@ uint32_t Stepper::block_phase_isr() {
               else {
                 laser_trap.till_update = LASER_POWER_INLINE_TRAPEZOID_CONT_PER;
                 laser_trap.cur_power = (current_block->laser.power * step_rate) / current_block->nominal_rate;
-                cutter.set_ocr_power(laser_trap.cur_power); // Cycle efficiency isn't relevant when the last line was many cycles
+                cutter.ocr_set_power(laser_trap.cur_power); // Cycle efficiency isn't relevant when the last line was many cycles
               }
             #endif
           }
@@ -2019,7 +2106,7 @@ uint32_t Stepper::block_phase_isr() {
           if (laser_trap.enabled) {
             if (!laser_trap.cruise_set) {
               laser_trap.cur_power = current_block->laser.power;
-              cutter.set_ocr_power(laser_trap.cur_power);
+              cutter.ocr_set_power(laser_trap.cur_power);
               laser_trap.cruise_set = true;
             }
             #if ENABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
@@ -2125,6 +2212,8 @@ uint32_t Stepper::block_phase_isr() {
           #define Y_CMP(A,B) ((A)!=(B))
         #endif
         #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && Y_CMP(D_(1),D_(2))) )
+      #elif ENABLED(MARKFORGED_YX)
+        #define Y_MOVE_TEST (current_block->steps.a != current_block->steps.b)
       #else
         #define Y_MOVE_TEST !!current_block->steps.b
       #endif
@@ -2147,7 +2236,7 @@ uint32_t Stepper::block_phase_isr() {
         #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
-      uint8_t axis_bits = 0;
+      axis_bits_t axis_bits = 0;
       LINEAR_AXIS_CODE(
         if (X_MOVE_TEST)            SBI(axis_bits, A_AXIS),
         if (Y_MOVE_TEST)            SBI(axis_bits, B_AXIS),
@@ -2196,9 +2285,9 @@ uint32_t Stepper::block_phase_isr() {
       accelerate_until = current_block->accelerate_until << oversampling;
       decelerate_after = current_block->decelerate_after << oversampling;
 
-      TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color))
+      TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
-      TERN_(HAS_MULTI_EXTRUDER, stepper_extruder = current_block->extruder);
+      E_TERN_(stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
@@ -2221,7 +2310,7 @@ uint32_t Stepper::block_phase_isr() {
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
-        TERN_(HAS_MULTI_EXTRUDER, last_moved_extruder = stepper_extruder);
+        E_TERN_(last_moved_extruder = stepper_extruder);
         TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
         set_directions(current_block->direction_bits);
       }
@@ -2240,14 +2329,14 @@ uint32_t Stepper::block_phase_isr() {
           #endif
           // Always have PWM in this case
           if (stat.isPlanned) {                        // Planner controls the laser
-            cutter.set_ocr_power(
+            cutter.ocr_set_power(
               stat.isEnabled ? laser_trap.cur_power : 0 // ON with power or OFF
             );
           }
         #else
           if (stat.isPlanned) {                        // Planner controls the laser
-            #if ENABLED(SPINDLE_LASER_PWM)
-              cutter.set_ocr_power(
+            #if ENABLED(SPINDLE_LASER_USE_PWM)
+              cutter.ocr_set_power(
                 stat.isEnabled ? current_block->laser.power : 0 // ON with power or OFF
               );
             #else
@@ -2270,7 +2359,7 @@ uint32_t Stepper::block_phase_isr() {
         // If delayed Z enable, enable it now. This option will severely interfere with
         // timing between pulses when chaining motion between blocks, and it could lead
         // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps.z) ENABLE_AXIS_Z();
+        if (current_block->steps.z) enable_axis(Z_AXIS);
       #endif
 
       // Mark the time_nominal as not calculated yet
@@ -2294,8 +2383,8 @@ uint32_t Stepper::block_phase_isr() {
         // This should mean ending file with 'M5 I' will stop the laser; thus the inline flag isn't needed
         const power_status_t stat = planner.laser_inline.status;
         if (stat.isPlanned) {             // Planner controls the laser
-          #if ENABLED(SPINDLE_LASER_PWM)
-            cutter.set_ocr_power(
+          #if ENABLED(SPINDLE_LASER_USE_PWM)
+            cutter.ocr_set_power(
               stat.isEnabled ? planner.laser_inline.power : 0 // ON with power or OFF
             );
           #else
@@ -2527,7 +2616,7 @@ void Stepper::init() {
   #if HAS_X_ENABLE
     X_ENABLE_INIT();
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
-    #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS) && HAS_X2_ENABLE
+    #if BOTH(HAS_X2_STEPPER, HAS_X2_ENABLE)
       X2_ENABLE_INIT();
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
@@ -2657,7 +2746,7 @@ void Stepper::init() {
   #if E_STEPPERS && HAS_E0_STEP
     E_AXIS_INIT(0);
   #endif
-  #if E_STEPPERS > 1 && HAS_E1_STEP
+  #if (E_STEPPERS > 1 || ENABLED(E_DUAL_STEPPER_DRIVERS)) && HAS_E1_STEP
     E_AXIS_INIT(1);
   #endif
   #if E_STEPPERS > 2 && HAS_E2_STEP
@@ -2680,7 +2769,7 @@ void Stepper::init() {
   #endif
 
   #if DISABLED(I2S_STEPPER_STREAM)
-    HAL_timer_start(STEP_TIMER_NUM, 122); // Init Stepper ISR to 122 Hz for quick starting
+    HAL_timer_start(MF_TIMER_STEP, 122); // Init Stepper ISR to 122 Hz for quick starting
     wake_up();
     sei();
   #endif
@@ -2713,7 +2802,7 @@ void Stepper::init() {
  * derive the current XYZE position later on.
  */
 void Stepper::_set_position(const abce_long_t &spos) {
-  #if EITHER(IS_CORE, MARKFORGED_XY)
+  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
     #if CORE_IS_XY
       // corexy positioning
       // these equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
@@ -2726,6 +2815,8 @@ void Stepper::_set_position(const abce_long_t &spos) {
       count_position.set(spos.a, spos.b + spos.c, CORESIGN(spos.b - spos.c));
     #elif ENABLED(MARKFORGED_XY)
       count_position.set(spos.a - spos.b, spos.b, spos.c);
+    #elif ENABLED(MARKFORGED_YX)
+      count_position.set(spos.a, spos.b - spos.a, spos.c);
     #endif
     TERN_(HAS_EXTRUDERS, count_position.e = spos.e);
   #else
@@ -2797,6 +2888,10 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
       axis == CORE_AXIS_1
         ? count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2]
         : count_position[CORE_AXIS_2]
+    #elif ENABLED(MARKFORGED_YX)
+      axis == CORE_AXIS_1
+        ? count_position[CORE_AXIS_1]
+        : count_position[CORE_AXIS_2] - count_position[CORE_AXIS_1]
     #else // !IS_CORE
       count_position[axis]
     #endif
@@ -2825,19 +2920,22 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
-#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
-  #define USES_ABC 1
+#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
+  #define SAYS_A 1
 #endif
-#if ANY(USES_ABC, MARKFORGED_XY, IS_SCARA)
-  #define USES_AB 1
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX, IS_SCARA, DELTA)
+  #define SAYS_B 1
+#endif
+#if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
+  #define SAYS_C 1
 #endif
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
-  SERIAL_ECHOLNPAIR_P(
+  SERIAL_ECHOLNPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES),
-      TERN(USES_AB,  PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-      TERN(USES_AB,  PSTR("B:"), SP_Y_LBL), pos.y,
-      TERN(USES_ABC, PSTR("C:"), SP_Z_LBL), pos.z,
+      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
       SP_I_LBL, pos.i,
       SP_J_LBL, pos.j,
       SP_K_LBL, pos.k
@@ -2863,7 +2961,7 @@ void Stepper::report_positions() {
 
 #if ENABLED(BABYSTEPPING)
 
-  #define _ENABLE_AXIS(AXIS) ENABLE_AXIS_## AXIS()
+  #define _ENABLE_AXIS(A) enable_axis(_AXIS(A))
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
@@ -2882,8 +2980,8 @@ void Stepper::report_positions() {
   #define EXTRA_CYCLES_BABYSTEP (STEP_PULSE_CYCLES - (CYCLES_EATEN_BABYSTEP))
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START() const hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM)
-    #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
+    #define _SAVE_START() const hal_timer_t pulse_start = HAL_timer_get_count(MF_TIMER_PULSE)
+    #define _PULSE_WAIT() while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(MF_TIMER_PULSE) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
     #define _SAVE_START() NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
@@ -2991,16 +3089,17 @@ void Stepper::report_positions() {
 
           const bool z_direction = direction ^ BABYSTEP_INVERT_Z;
 
-          ENABLE_AXIS_X();
-          ENABLE_AXIS_Y();
-          ENABLE_AXIS_Z();
-          ENABLE_AXIS_I();
-          ENABLE_AXIS_J();
-          ENABLE_AXIS_K();
+          LINEAR_AXIS_CODE(
+            enable_axis(X_AXIS), enable_axis(Y_AXIS), enable_axis(Z_AXIS),
+            enable_axis(I_AXIS), enable_axis(J_AXIS), enable_axis(K_AXIS)
+          );
 
           DIR_WAIT_BEFORE();
 
-          const xyz_byte_t old_dir = LINEAR_AXIS_ARRAY(X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(), I_DIR_READ(), J_DIR_READ(), K_DIR_READ());
+          const xyz_byte_t old_dir = LINEAR_AXIS_ARRAY(
+            X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(),
+            I_DIR_READ(), J_DIR_READ(), K_DIR_READ()
+          );
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           #ifdef Y_DIR_WRITE
@@ -3155,14 +3254,14 @@ void Stepper::report_positions() {
 
       #if HAS_MOTOR_CURRENT_SPI
 
-        //SERIAL_ECHOLNPAIR("Digipotss current ", current);
+        //SERIAL_ECHOLNPGM("Digipotss current ", current);
 
         const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
         set_digipot_value_spi(digipot_ch[driver], current);
 
       #elif HAS_MOTOR_CURRENT_PWM
 
-        #define _WRITE_CURRENT_PWM(P) analogWrite(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        #define _WRITE_CURRENT_PWM(P) set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)

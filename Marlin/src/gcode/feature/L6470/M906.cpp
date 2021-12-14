@@ -63,7 +63,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
     #if ENABLED(L6470_CHITCHAT)
       char tmp[10];
       sprintf_P(tmp, PSTR("%4x   "), status);
-      DEBUG_ECHOPAIR("   status: ", tmp);
+      DEBUG_ECHOPGM("   status: ", tmp);
       print_bin(status);
     #else
       UNUSED(status);
@@ -104,13 +104,13 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       }
       SERIAL_EOL();
 
-      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
+      SERIAL_ECHOPGM("...MicroSteps: ", MicroSteps,
                       "   ADC_OUT: ", L6470_ADC_out);
       SERIAL_ECHOPGM("   Vs_compensation: ");
-      SERIAL_ECHOPGM_P((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? PSTR("ENABLED ") : PSTR("DISABLED"));
-      SERIAL_ECHOLNPAIR("   Compensation coefficient: ~", comp_coef * 0.01f);
+      SERIAL_ECHOF((motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_EN_VSCOMP) ? F("ENABLED ") : F("DISABLED"));
+      SERIAL_ECHOLNPGM("   Compensation coefficient: ~", comp_coef * 0.01f);
 
-      SERIAL_ECHOPAIR("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD),
+      SERIAL_ECHOPGM("...KVAL_HOLD: ", motor.GetParam(L6470_KVAL_HOLD),
                       "   KVAL_RUN : ", motor.GetParam(L6470_KVAL_RUN),
                       "   KVAL_ACC: ", motor.GetParam(L6470_KVAL_ACC),
                       "   KVAL_DEC: ", motor.GetParam(L6470_KVAL_DEC),
@@ -168,7 +168,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
       SERIAL_ECHOLNPGM(" mA)   Motor Status: NA");
 
       const uint16_t MicroSteps = _BV(motor.GetParam(L6470_STEP_MODE) & 0x07); //NOMORE(MicroSteps, 16);
-      SERIAL_ECHOPAIR("...MicroSteps: ", MicroSteps,
+      SERIAL_ECHOPGM("...MicroSteps: ", MicroSteps,
                       "   ADC_OUT: ", L6470_ADC_out);
 
       SERIAL_ECHOLNPGM("   Vs_compensation: NA\n");
@@ -185,7 +185,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
           case 1:  DEBUG_ECHOLNPGM("75V/uS")  ; break;
           case 2:  DEBUG_ECHOLNPGM("110V/uS") ; break;
           case 3:  DEBUG_ECHOLNPGM("260V/uS") ; break;
-          default: DEBUG_ECHOLNPAIR("slew rate: ", (motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT); break;
+          default: DEBUG_ECHOLNPGM("slew rate: ", (motor.GetParam(sh.L6470_AXIS_CONFIG) & CONFIG_POW_SR) >> CONFIG_POW_SR_BIT); break;
         }
       #endif
       SERIAL_EOL();
@@ -212,7 +212,7 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
  *     L6474 - current in mA (4A max)
  *     All others - 0-255
  *
- * Sets KVAL_HOLD wich affects the current being driven through the stepper.
+ * Sets KVAL_HOLD which affects the current being driven through the stepper.
  *
  * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
  * that affects the effective voltage seen by the stepper.
@@ -280,7 +280,7 @@ void GcodeSuite::M906() {
 
       #if E_STEPPERS
         case E_AXIS: {
-          const int8_t target_e_stepper = get_target_e_stepper_from_command();
+          const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
           if (target_e_stepper < 0) return;
           switch (target_e_stepper) {
             #if AXIS_IS_L64XX(E0)

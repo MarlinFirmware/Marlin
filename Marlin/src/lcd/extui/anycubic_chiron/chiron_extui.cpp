@@ -41,8 +41,8 @@ namespace ExtUI {
 
   void onIdle() { Chiron.IdleLoop(); }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    Chiron.PrinterKilled(error,component);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
+    Chiron.PrinterKilled(error, component);
   }
 
   void onMediaInserted() { Chiron.MediaEvent(AC_media_inserted); }
@@ -107,12 +107,12 @@ namespace ExtUI {
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
-      //SERIAL_ECHOLNPAIR("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
+      //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
       // Called to indicate a special condition
-      //SERIAL_ECHOLNPAIR("onMeshUpdate() x:", xpos, " y:", ypos, " state:", state);
+      //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " state:", state);
     }
   #endif
 

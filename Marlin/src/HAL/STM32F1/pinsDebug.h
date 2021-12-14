@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -19,15 +22,15 @@
 #pragma once
 
 /**
- * Support routines for STM32GENERIC (Maple)
+ * Support routines for MAPLE_STM32F1
  */
 
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#ifndef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
-   #error "Expected BOARD_NR_GPIO_PINS not found"
+#ifndef BOARD_NR_GPIO_PINS // Only in MAPLE_STM32F1
+  #error "Expected BOARD_NR_GPIO_PINS not found"
 #endif
 
 #include "fastio.h"
@@ -41,6 +44,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 #define pwm_status(pin) PWM_PIN(pin)
 #define digitalRead_mod(p) extDigitalRead(p)
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(p) print_port(p)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 21 // space needed to be pretty if not first name assigned to a pin

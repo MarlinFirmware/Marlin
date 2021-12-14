@@ -57,8 +57,8 @@
  * TIM14 - TEMP_TIMER (Marlin)
  *
  */
-#define STEP_TIMER                             4
-#define TEMP_TIMER                            14
+#define STEP_TIMER  4
+#define TEMP_TIMER 14
 
 /**
  * These pin assignments are arbitrary and intending for testing purposes.
@@ -130,16 +130,16 @@
 
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PB9
-  #define X_SERIAL_RX_PIN                   PB9
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PE12
-  #define Z_SERIAL_RX_PIN                   PE12
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
-  #define E_SERIAL_TX_PIN                   PG9
-  #define E_SERIAL_RX_PIN                   PG9
+  #define E0_SERIAL_TX_PIN                  PG9
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 #endif
 
 //
@@ -191,7 +191,7 @@
   #define BTN_EN1                           PF13  // BTN_EN1
   #define BTN_EN2                           PE9   // BTN_EN2
 
-  #define BOARD_ST7920_DELAY_1  DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2  DELAY_NS(63)
-  #define BOARD_ST7920_DELAY_3  DELAY_NS(780)
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2                63
+  #define BOARD_ST7920_DELAY_3               780
 #endif

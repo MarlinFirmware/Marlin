@@ -121,7 +121,7 @@ bool MAX3421e::start() {
 
   const uint8_t revision = regRd(rREVISION);
   if (revision == 0x00 || revision == 0xFF) {
-    SERIAL_ECHOLNPAIR("Revision register appears incorrect on MAX3421e initialization. Got ", revision);
+    SERIAL_ECHOLNPGM("Revision register appears incorrect on MAX3421e initialization. Got ", revision);
     return false;
   }
 

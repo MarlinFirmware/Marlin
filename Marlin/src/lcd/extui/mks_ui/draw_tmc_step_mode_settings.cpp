@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, HAS_STEALTHCHOP)
@@ -103,16 +104,16 @@ void lv_draw_tmc_step_mode_settings() {
   scr = lv_screen_create(TMC_MODE_UI, machine_menu.TmcStepModeConfTitle);
 
   bool stealth_X = false, stealth_Y = false, stealth_Z = false, stealth_E0 = false, stealth_E1 = false;
-  TERN_(X_HAS_STEALTHCHOP,  stealth_X = stepperX.get_stealthChop());
-  TERN_(Y_HAS_STEALTHCHOP,  stealth_Y = stepperY.get_stealthChop());
-  TERN_(Z_HAS_STEALTHCHOP,  stealth_Z = stepperZ.get_stealthChop());
+  TERN_(X_HAS_STEALTHCHOP,  stealth_X  = stepperX.get_stealthChop());
+  TERN_(Y_HAS_STEALTHCHOP,  stealth_Y  = stepperY.get_stealthChop());
+  TERN_(Z_HAS_STEALTHCHOP,  stealth_Z  = stepperZ.get_stealthChop());
   TERN_(E0_HAS_STEALTHCHOP, stealth_E0 = stepperE0.get_stealthChop());
   TERN_(E1_HAS_STEALTHCHOP, stealth_E1 = stepperE1.get_stealthChop());
 
   if (!uiCfg.para_ui_page) {
-    buttonXState = lv_screen_menu_item_onoff(scr, machine_menu.X_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_MODE_X, 0, stealth_X);
-    buttonYState = lv_screen_menu_item_onoff(scr, machine_menu.Y_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_TMC_MODE_Y, 1, stealth_Y);
-    buttonZState = lv_screen_menu_item_onoff(scr, machine_menu.Z_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_TMC_MODE_Z, 2, stealth_Z);
+    buttonXState  = lv_screen_menu_item_onoff(scr, machine_menu.X_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_MODE_X, 0, stealth_X);
+    buttonYState  = lv_screen_menu_item_onoff(scr, machine_menu.Y_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_TMC_MODE_Y, 1, stealth_Y);
+    buttonZState  = lv_screen_menu_item_onoff(scr, machine_menu.Z_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_TMC_MODE_Z, 2, stealth_Z);
     buttonE0State = lv_screen_menu_item_onoff(scr, machine_menu.E0_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_TMC_MODE_E0, 2, stealth_E0);
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_MODE_DOWN, true);
   }
@@ -121,7 +122,7 @@ void lv_draw_tmc_step_mode_settings() {
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_MODE_UP, true);
   }
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_TMC_MODE_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, event_handler, ID_TMC_MODE_RETURN, true);
 }
 
 void lv_clear_tmc_step_mode_settings() {

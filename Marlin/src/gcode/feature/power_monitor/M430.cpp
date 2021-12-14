@@ -50,7 +50,7 @@ void GcodeSuite::M430() {
     #endif
   #endif
   if (do_report) {
-    SERIAL_ECHOLNPAIR(
+    SERIAL_ECHOLNPGM(
       #if ENABLED(POWER_MONITOR_CURRENT)
         "Current: ", power_monitor.getAmps(), "A"
         #if ENABLED(POWER_MONITOR_VOLTAGE)

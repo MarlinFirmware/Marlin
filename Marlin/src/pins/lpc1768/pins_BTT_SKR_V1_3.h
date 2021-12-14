@@ -21,8 +21,14 @@
  */
 #pragma once
 
+/**
+ * BigTreeTech SKR 1.3 pin assignments
+ */
+
 #define BOARD_INFO_NAME "BTT SKR V1.3"
-#define LPC1768_IS_SKRV1_3 1
+
+#define LPC1768_IS_SKRV1_3
+#define USES_DIAG_JUMPERS
 
 //
 // Trinamic Stallguard pins
@@ -164,9 +170,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                  P4_29
   #define X_SERIAL_RX_PIN                  P1_17
 
@@ -187,16 +190,15 @@
 #endif
 
 /**
- *               ______                                             ______
- *           NC | 1  2 | GND                                    5V | 1  2 | GND
- *        RESET | 3  4 | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | 3  4 | 1.22 (LCD_D6)
- *  (MOSI) 0.18 | 5  6   3.25 (BTN_EN2)              (LCD_D5) 1.21 | 5  6   1.20 (LCD_D4)
- * (SD_SS) 0.16 | 7  8 | 3.26 (BTN_EN1)              (LCD_RS) 1.19 | 7  8 | 1.18 (LCD_EN)
- *   (SCK) 0.15 | 9 10 | 0.17 (MISO)                (BTN_ENC) 0.28 | 9 10 | 1.30 (BEEPER)
- *               ------                                             ------
- *               EXP2                                               EXP1
+ *                 ------                                     ------
+ *  (BEEPER) 1.30 |10  9 | 0.28 (BTN_ENC)        (MISO) 0.17 |10  9 | 0.15 (SCK)
+ *  (LCD_EN) 1.18 | 8  7 | 1.19  (LCD_RS)     (BTN_EN1) 3.26 | 8  7 | 0.16 (SD_SS)
+ *  (LCD_D4) 1.20   6  5 | 1.21  (LCD_D5)     (BTN_EN2) 3.25   6  5 | 0.18 (MOSI)
+ *  (LCD_D6) 1.22 | 4  3 | 1.23  (LCD_D7)   (SD_DETECT) 1.31 | 4  3 | RESET
+ *            GND | 2  1 | 5V                            GND | 2  1 | NC
+ *                 ------                                     ------
+ *                  EXP1                                       EXP2
  */
-
 #define EXP1_03_PIN                        P1_23
 #define EXP1_04_PIN                        P1_22
 #define EXP1_05_PIN                        P1_21
@@ -220,12 +222,13 @@
     #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
+
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
 
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because this pin is open drain.)
+    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because it is open drain.)
     * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
     *
     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
@@ -233,7 +236,7 @@
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
     *                  BEFORE                          AFTER
-    *                  ______                          ______
+    *                  ------                          ------
     *           GND 1 | 1  2 |  2 5V             5V 1 | 1  2 |  2 GND
     *            CS 3 | 3  4 |  4 BTN_EN2        CS 3 | 3  4 |  4 BTN_EN2
     *           SID 5 | 5  6    6 BTN_EN1       SID 5 | 5  6    6 BTN_EN1
@@ -252,6 +255,38 @@
     #define LCD_PINS_ENABLE          EXP1_05_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
 
+  #elif ENABLED(WYH_L12864)
+
+    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+
+    /**
+     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+     * 3. Swap the LCD's MOSI (Pin9) and empty (Pin10) wires because Pin9 is open drain.
+     *
+     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+     *
+     * The WYH_L12864 connector plug:
+     *
+     *                  BEFORE                      AFTER
+     *                  ______                     ______
+     *             GND | 1  2 | 5V             5V | 1  2 | GND
+     *              CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
+     *             SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
+     *             SCK | 7  8 | BTN_ENC       SCK | 7  8 | BTN_ENC
+     *            MOSI | 9 10 |              open | 9 10 | MOSI
+     *                  ------                     ------
+     *                   LCD                        LCD
+     */
+    #define BTN_EN1                  EXP1_06_PIN
+    #define BTN_EN2                  EXP1_04_PIN
+    #define BTN_ENC                  EXP1_08_PIN
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP1_07_PIN
+    #define DOGLCD_MOSI              EXP1_10_PIN
+    #define LCD_BACKLIGHT_PIN            -1
+
   #elif ENABLED(CR10_STOCKDISPLAY)
 
     #define LCD_PINS_RS              EXP1_04_PIN
@@ -265,7 +300,7 @@
 
   #elif HAS_ADC_BUTTONS
 
-    #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
+    #error "ADC BUTTONS do not work unmodified on SKR 1.3, The ADC ports cannot take more than 3.3v."
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
 
@@ -389,11 +424,11 @@
 
         /**
          * Creality Ender-2 display pinout
-         *                   _____
+         *                   -----
          *               5V | 1 2 | GND
          *     (MOSI) P1_23 | 3 4 | P1_22 (LCD_CS)
          *   (LCD_A0) P1_21 | 5 6   P1_20 (BTN_EN2)
-         *      RESET P1_19 | 7 8 | P1_18 (BTN_EN1)
+         *    (RESET) P1_19 | 7 8 | P1_18 (BTN_EN1)
          *  (BTN_ENC) P0_28 | 9 10| P1_30 (SCK)
          *                   -----
          *                    EXP1

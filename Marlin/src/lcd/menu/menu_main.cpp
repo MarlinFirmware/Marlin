@@ -58,7 +58,7 @@
   #include "../../feature/password/password.h"
 #endif
 
-#if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+#if (ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)) || (ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION))
   #include "../../feature/host_actions.h"
 #endif
 
@@ -106,8 +106,8 @@ void menu_configuration();
 
 #if ENABLED(CUSTOM_MENU_MAIN)
 
-  void _lcd_custom_menu_main_gcode(PGM_P const cmd) {
-    queue.inject_P(cmd);
+  void _lcd_custom_menu_main_gcode(FSTR_P const fstr) {
+    queue.inject(fstr);
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
     TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
   }
@@ -118,127 +118,103 @@ void menu_configuration();
 
     #define HAS_CUSTOM_ITEM_MAIN(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
 
-    #define CUSTOM_TEST_MAIN(N) do{ \
-      constexpr char c = MAIN_MENU_ITEM_##N##_GCODE[strlen(MAIN_MENU_ITEM_##N##_GCODE) - 1]; \
-      static_assert(c != '\n' && c != '\r', "MAIN_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
-    }while(0)
-
-    #ifdef MAIN_MENU_ITEM_SCRIPT_DONE
-      #define _DONE_SCRIPT "\n" MAIN_MENU_ITEM_SCRIPT_DONE
+    #ifdef CUSTOM_MENU_MAIN_SCRIPT_DONE
+      #define _DONE_SCRIPT "\n" CUSTOM_MENU_MAIN_SCRIPT_DONE
     #else
       #define _DONE_SCRIPT ""
     #endif
-    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(PSTR(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define GCODE_LAMBDA_MAIN(N) []{ _lcd_custom_menu_main_gcode(F(MAIN_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_MAIN(N) ACTION_ITEM_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_MAIN(N));
     #define _CUSTOM_ITEM_MAIN_CONFIRM(N)             \
       SUBMENU_P(PSTR(MAIN_MENU_ITEM_##N##_DESC), []{ \
           MenuItem_confirm::confirm_screen(          \
-            GCODE_LAMBDA_MAIN(N),                    \
-            ui.goto_previous_screen,                 \
+            GCODE_LAMBDA_MAIN(N), nullptr,           \
             PSTR(MAIN_MENU_ITEM_##N##_DESC "?")      \
           );                                         \
         })
 
-    #define CUSTOM_ITEM_MAIN(N) do{ if (ENABLED(MAIN_MENU_ITEM_##N##_CONFIRM)) _CUSTOM_ITEM_MAIN_CONFIRM(N); else _CUSTOM_ITEM_MAIN(N); }while(0)
+    #define CUSTOM_ITEM_MAIN(N) do{ \
+      constexpr char c = MAIN_MENU_ITEM_##N##_GCODE[strlen(MAIN_MENU_ITEM_##N##_GCODE) - 1]; \
+      static_assert(c != '\n' && c != '\r', "MAIN_MENU_ITEM_" STRINGIFY(N) "_GCODE cannot have a newline at the end. Please remove it."); \
+      if (ENABLED(MAIN_MENU_ITEM_##N##_CONFIRM)) \
+        _CUSTOM_ITEM_MAIN_CONFIRM(N); \
+      else \
+        _CUSTOM_ITEM_MAIN(N); \
+    }while(0)
 
     #if HAS_CUSTOM_ITEM_MAIN(1)
-      CUSTOM_TEST_MAIN(1);
       CUSTOM_ITEM_MAIN(1);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(2)
-      CUSTOM_TEST_MAIN(2);
       CUSTOM_ITEM_MAIN(2);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(3)
-      CUSTOM_TEST_MAIN(3);
       CUSTOM_ITEM_MAIN(3);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(4)
-      CUSTOM_TEST_MAIN(4);
       CUSTOM_ITEM_MAIN(4);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(5)
-      CUSTOM_TEST_MAIN(5);
       CUSTOM_ITEM_MAIN(5);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(6)
-      CUSTOM_TEST_MAIN(6);
       CUSTOM_ITEM_MAIN(6);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(7)
-      CUSTOM_TEST_MAIN(7);
       CUSTOM_ITEM_MAIN(7);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(8)
-      CUSTOM_TEST_MAIN(8);
       CUSTOM_ITEM_MAIN(8);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(9)
-      CUSTOM_TEST_MAIN(9);
       CUSTOM_ITEM_MAIN(9);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(10)
-      CUSTOM_TEST_MAIN(10);
       CUSTOM_ITEM_MAIN(10);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(11)
-      CUSTOM_TEST_MAIN(11);
       CUSTOM_ITEM_MAIN(11);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(12)
-      CUSTOM_TEST_MAIN(12);
       CUSTOM_ITEM_MAIN(12);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(13)
-      CUSTOM_TEST_MAIN(13);
       CUSTOM_ITEM_MAIN(13);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(14)
-      CUSTOM_TEST_MAIN(14);
       CUSTOM_ITEM_MAIN(14);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(15)
-      CUSTOM_TEST_MAIN(15);
       CUSTOM_ITEM_MAIN(15);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(16)
-      CUSTOM_TEST_MAIN(16);
       CUSTOM_ITEM_MAIN(16);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(17)
-      CUSTOM_TEST_MAIN(17);
       CUSTOM_ITEM_MAIN(17);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(18)
-      CUSTOM_TEST_MAIN(18);
       CUSTOM_ITEM_MAIN(18);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(19)
-      CUSTOM_TEST_MAIN(19);
       CUSTOM_ITEM_MAIN(19);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(20)
-      CUSTOM_TEST_MAIN(20);
       CUSTOM_ITEM_MAIN(20);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(21)
-      CUSTOM_TEST_MAIN(21);
       CUSTOM_ITEM_MAIN(21);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(22)
-      CUSTOM_TEST_MAIN(22);
       CUSTOM_ITEM_MAIN(22);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(23)
-      CUSTOM_TEST_MAIN(23);
       CUSTOM_ITEM_MAIN(23);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(24)
-      CUSTOM_TEST_MAIN(24);
       CUSTOM_ITEM_MAIN(24);
     #endif
     #if HAS_CUSTOM_ITEM_MAIN(25)
-      CUSTOM_TEST_MAIN(25);
       CUSTOM_ITEM_MAIN(25);
     #endif
     END_MENU();
@@ -273,7 +249,14 @@ void menu_main() {
           #if PIN_EXISTS(SD_DETECT)
             GCODES_ITEM(MSG_CHANGE_MEDIA, PSTR("M21"));       // M21 Change Media
           #else                                               // - or -
-            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));      // M22 Release Media
+            ACTION_ITEM(MSG_RELEASE_MEDIA, []{                // M22 Release Media
+              queue.inject(PSTR("M22"));
+              #if ENABLED(TFT_COLOR_UI)
+                // Menu display issue on item removal with multi language selection menu
+                if (encoderTopLine > 0) encoderTopLine--;
+                ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+              #endif
+            });
           #endif
           SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);        // Media Menu (or Password First)
         }
@@ -297,7 +280,7 @@ void menu_main() {
       SUBMENU(MSG_STOP_PRINT, []{
         MenuItem_confirm::select_screen(
           GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
-          ui.abort_print, ui.goto_previous_screen,
+          ui.abort_print, nullptr,
           GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
         );
       });
@@ -324,7 +307,7 @@ void menu_main() {
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
-      ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+      ACTION_ITEM(MSG_HOST_START_PRINT, hostui.start);
     #endif
 
     #if ENABLED(PREHEAT_SHORTCUT_MENU_ITEM)
@@ -369,7 +352,7 @@ void menu_main() {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       YESNO_ITEM(MSG_FILAMENTCHANGE,
-        menu_change_filament, ui.goto_previous_screen,
+        menu_change_filament, nullptr,
         GET_TEXT(MSG_FILAMENTCHANGE), (const char *)nullptr, PSTR("?")
       );
     #else
@@ -393,7 +376,7 @@ void menu_main() {
       #if ENABLED(PS_OFF_CONFIRM)
         CONFIRM_ITEM(MSG_SWITCH_PS_OFF,
           MSG_YES, MSG_NO,
-          ui.poweroff, ui.goto_previous_screen,
+          ui.poweroff, nullptr,
           GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
         );
       #else
@@ -417,21 +400,21 @@ void menu_main() {
     #if SERVICE_INTERVAL_1 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_1),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(1); }, ui.goto_previous_screen,
+        []{ _service_reset(1); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_1), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_2 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_2),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(2); }, ui.goto_previous_screen,
+        []{ _service_reset(2); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_2), PSTR("?")
       );
     #endif
     #if SERVICE_INTERVAL_3 > 0
       CONFIRM_ITEM_P(PSTR(SERVICE_NAME_3),
         MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-        []{ _service_reset(3); }, ui.goto_previous_screen,
+        []{ _service_reset(3); }, nullptr,
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
       );
     #endif
@@ -463,6 +446,16 @@ void menu_main() {
 
   #if HAS_MULTI_LANGUAGE
     SUBMENU(LANGUAGE, menu_language);
+  #endif
+
+  #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
+    SUBMENU(MSG_HOST_SHUTDOWN, []{
+      MenuItem_confirm::select_screen(
+        GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BUTTON_CANCEL),
+        []{ ui.return_to_status(); hostui.shutdown(); }, nullptr,
+        GET_TEXT(MSG_HOST_SHUTDOWN), (const char *)nullptr, PSTR("?")
+      );
+    });
   #endif
 
   END_MENU();

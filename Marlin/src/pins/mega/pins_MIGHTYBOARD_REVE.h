@@ -151,54 +151,43 @@
 // With no heated bed, an additional 24V fan is possible.
 //
 
-// Labels from the schematic:
-#define EX1_HEAT_PIN                           6  // H3
-#define EX1_FAN_PIN                            7  // H4
-#define EX2_HEAT_PIN                          11  // B5
-#define EX2_FAN_PIN                           12  // B6
-#define HBP_PIN                               45  // L4
-#define EXTRA_FET_PIN                         44  // L5
-
-#if HAS_MULTI_HOTEND
-  #if TEMP_SENSOR_BED
-    #define IS_EEB
-  #else
-    #define IS_EEF
-  #endif
-#elif TEMP_SENSOR_BED
-  #define IS_EFB
-#else
-  #define IS_EFF
-#endif
+#define MOSFET_A_PIN                           6  // H3 EX1_HEAT_PIN
+#define MOSFET_B_PIN                          11  // B5 EX2_HEAT_PIN
+#define MOSFET_C_PIN                          45  // L4 HBP_PIN
+#define MOSFET_D_PIN                          44  // L5 EXTRA_FET_PIN
 
 //
 // Heaters / Fans (24V)
 //
-#define HEATER_0_PIN                EX1_HEAT_PIN
+#define HEATER_0_PIN                MOSFET_A_PIN
 
-#if ENABLED(IS_EFB)                               // Hotend, Fan, Bed
-  #define HEATER_BED_PIN                 HBP_PIN
-#elif ENABLED(IS_EEF)                             // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              EX2_HEAT_PIN
-#elif ENABLED(IS_EEB)                             // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              EX2_HEAT_PIN
-  #define HEATER_BED_PIN                 HBP_PIN
-#elif ENABLED(IS_EFF)                             // Hotend, Fan, Fan
-  #define FAN1_PIN                       HBP_PIN
+#if FET_ORDER_EFB                                 // Hotend, Fan, Bed
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
+  #define HEATER_1_PIN              MOSFET_B_PIN
+#elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
+  #define HEATER_1_PIN              MOSFET_B_PIN
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EFF                               // Hotend, Fan, Fan
+  #define FAN1_PIN                  MOSFET_C_PIN
 #endif
 
 #ifndef FAN_PIN
-  #if EITHER(IS_EFB, IS_EFF)                      // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN                 EX2_HEAT_PIN
-  #elif EITHER(IS_EEF, IS_SF)                     // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN                      HBP_PIN
+  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
+    #define FAN_PIN                 MOSFET_B_PIN
+  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
+    #define FAN_PIN                 MOSFET_C_PIN
   #else
-    #define FAN_PIN                EXTRA_FET_PIN
+    #define FAN_PIN                 MOSFET_D_PIN
   #endif
 #endif
 
+#ifndef FAN1_PIN
+  #define FAN1_PIN                             7  // H4 EX1_FAN_PIN
+#endif
+
 #ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN         EX2_FAN_PIN
+  #define CONTROLLER_FAN_PIN                  12  // B6 EX2_FAN_PIN
 #endif
 
 //
@@ -268,9 +257,6 @@
 #define SDSS                                  53  // B0
 #define SD_DETECT_PIN                          9  // H6
 
-//
-// TMC 220x
-//
 #if HAS_TMC_UART
   /**
    * TMC220x stepper drivers

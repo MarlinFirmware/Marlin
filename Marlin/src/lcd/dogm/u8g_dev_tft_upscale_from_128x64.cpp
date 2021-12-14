@@ -73,12 +73,17 @@ TFT_IO tftio;
 #define HEIGHT LCD_PIXEL_HEIGHT
 #define PAGE_HEIGHT 8
 
-#include "../touch/touch_buttons.h"
-
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../tft_io/touch_calibration.h"
   #include "../marlinui.h"
 #endif
+
+#if HAS_TOUCH_BUTTONS && HAS_TOUCH_SLEEP
+  #define HAS_TOUCH_BUTTONS_SLEEP 1
+#endif
+
+#include "../touch/touch_buttons.h"
+#include "../scaled_tft.h"
 
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
@@ -320,6 +325,7 @@ static bool preinit = true;
 static uint8_t page;
 
 #if HAS_TOUCH_BUTTONS
+
   static bool redrawTouchButtons = true;
   static void drawTouchButtons(u8g_t *u8g, u8g_dev_t *dev) {
     if (!redrawTouchButtons) return;
@@ -338,7 +344,20 @@ static uint8_t page;
     setWindow(u8g, dev, BUTTONC_X_LO, BUTTON_Y_LO, BUTTONC_X_HI, BUTTON_Y_HI);
     drawImage(buttonC, u8g, dev, BUTTON_DRAW_WIDTH, BUTTON_DRAW_HEIGHT, TFT_BTOKMENU_COLOR);
   }
+
 #endif // HAS_TOUCH_BUTTONS
+
+static void u8g_upscale_clear_lcd(u8g_t *u8g, u8g_dev_t *dev, uint16_t *buffer) {
+  setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
+  #if HAS_LCD_IO
+    UNUSED(buffer);
+    tftio.WriteMultiple(TFT_MARLINBG_COLOR, (TFT_WIDTH) * (TFT_HEIGHT));
+  #else
+    memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
+    for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
+      u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
+  #endif
+}
 
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
@@ -365,34 +384,37 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       tftio.Init();
       tftio.InitTFT();
       TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
-
-      // Clear Screen
-      setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
-      #if HAS_LCD_IO
-        tftio.WriteMultiple(TFT_MARLINBG_COLOR, (TFT_WIDTH) * (TFT_HEIGHT));
-      #else
-        memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
-        for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
-          u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
-      #endif
+      u8g_upscale_clear_lcd(u8g, dev, buffer);
       return 0;
 
     case U8G_DEV_MSG_STOP: preinit = true; break;
 
-    case U8G_DEV_MSG_PAGE_FIRST:
+    case U8G_DEV_MSG_PAGE_FIRST: {
       page = 0;
+      #if HAS_TOUCH_BUTTONS_SLEEP
+        static bool sleepCleared;
+        if (touchBt.isSleeping()) {
+          if (!sleepCleared) {
+            sleepCleared = true;
+            u8g_upscale_clear_lcd(u8g, dev, buffer);
+            TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
+          }
+          break;
+        }
+        else
+          sleepCleared = false;
+      #endif
       TERN_(HAS_TOUCH_BUTTONS, drawTouchButtons(u8g, dev));
       setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
-      break;
+    } break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
+      if (TERN0(HAS_TOUCH_BUTTONS_SLEEP, touchBt.isSleeping())) break;
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;
 
       LOOP_L_N(y, PAGE_HEIGHT) {
         uint32_t k = 0;
-        #if HAS_LCD_IO
-          buffer = (y & 1) ? bufferB : bufferA;
-        #endif
+        TERN_(HAS_LCD_IO, buffer = (y & 1) ? bufferB : bufferA);
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;

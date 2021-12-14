@@ -30,6 +30,18 @@
 #endif
 
 //
+// Steppers
+// RigidBot swaps E0 / E1 plugs vs RAMPS 1.3
+//
+#define E0_STEP_PIN                           36
+#define E0_DIR_PIN                            34
+#define E0_ENABLE_PIN                         30
+
+#define E1_STEP_PIN                           26
+#define E1_DIR_PIN                            28
+#define E1_ENABLE_PIN                         24
+
+//
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
@@ -39,29 +51,11 @@
 //
 // MOSFET changes
 //
-#define RAMPS_D9_PIN                           8  // FAN (by default)
-#define RAMPS_D10_PIN                          9  // EXTRUDER 1
+#define MOSFET_A_PIN                           9  // EXTRUDER 1
+#define MOSFET_B_PIN                           8  // FAN (by default)
 #define MOSFET_D_PIN                          12  // EXTRUDER 2 or FAN
 
 #include "pins_RAMPS.h"
-
-//
-// Steppers
-//
-// RigidBot swaps E0 / E1 plugs vs RAMPS 1.3
-#undef E0_STEP_PIN
-#undef E0_DIR_PIN
-#undef E0_ENABLE_PIN
-#define E0_STEP_PIN                           36
-#define E0_DIR_PIN                            34
-#define E0_ENABLE_PIN                         30
-
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-#define E1_STEP_PIN                           26
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         24
 
 #define STEPPER_RESET_PIN                     41  // Stepper drivers have a reset on RigidBot
 

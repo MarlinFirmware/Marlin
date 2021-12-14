@@ -51,6 +51,13 @@
 // Defines
 // ------------------------
 
+//
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
+
 #ifndef STM32_FLASH_SIZE
   #if ANY(MCU_STM32F103RE, MCU_STM32F103VE, MCU_STM32F103ZE)
     #define STM32_FLASH_SIZE 512
@@ -230,8 +237,13 @@ static inline int freeMemory() {
 
 void HAL_adc_init();
 
+#ifdef ADC_RESOLUTION
+  #define HAL_ADC_RESOLUTION ADC_RESOLUTION
+#else
+  #define HAL_ADC_RESOLUTION 12
+#endif
+
 #define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
@@ -252,7 +264,10 @@ void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
 
-#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+#ifndef PWM_FREQUENCY
+  #define PWM_FREQUENCY      1000 // Default PWM Frequency
+#endif
+#define HAL_CAN_SET_PWM_FREQ      // This HAL supports PWM Frequency adjustment
 
 /**
  * set_pwm_frequency
@@ -266,5 +281,6 @@ void set_pwm_frequency(const pin_t pin, int f_desired);
  *  Set the PWM duty cycle of the provided pin to the provided value
  *  Optionally allows inverting the duty cycle [default = false]
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ *  The timer must be pre-configured with set_pwm_frequency() if the default frequency is not desired.
  */
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

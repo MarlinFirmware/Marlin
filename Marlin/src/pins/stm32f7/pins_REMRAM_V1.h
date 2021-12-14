@@ -32,7 +32,7 @@
   #define SRAM_EEPROM_EMULATION                   // Emulate the EEPROM using Backup SRAM
 #endif
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "RemRam only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -134,4 +134,4 @@
 // Timers
 //
 
-#define STEP_TIMER                             2
+#define STEP_TIMER  2
