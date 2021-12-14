@@ -679,7 +679,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
 
       const float olde = current_position.e;
       current_position.e += EXTRUDER_RUNOUT_EXTRUDE;
-      line_to_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED));
+      line_to_current_position(MMM_TO_MMS(EXTRUDER_RUNOUT_FEEDRATE));
       current_position.e = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
