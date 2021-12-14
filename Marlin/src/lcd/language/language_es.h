@@ -42,7 +42,7 @@ namespace Language_es {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD/USB insertado");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD/USB retirado");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Esperando al SD/USB");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("Fallo al iniciar SD");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Fallo al iniciar SD/USB");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura SD/USB");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
