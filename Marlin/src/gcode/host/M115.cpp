@@ -35,13 +35,22 @@
 //#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
-  static void cap_line(FSTR_P const name, bool ena=false) {
-    if (ENABLED(MINIMAL_CAP_LINES) && !ena) return;
-    SERIAL_ECHOPGM("Cap:");
-    SERIAL_ECHOF(name);
-    SERIAL_CHAR(':', '0' + ena);
-    SERIAL_EOL();
-  }
+  #if ENABLED(MINIMAL_CAP_LINES)
+    #define cap_line(S,C) if (C) _cap_line(S)
+    static void _cap_line(FSTR_P const name) {
+      SERIAL_ECHOPGM("Cap:");
+      SERIAL_ECHOF(name);
+      SERIAL_ECHOLNPGM(":1");
+    }
+  #else
+    #define cap_line(V...) _cap_line(V)
+    static void _cap_line(FSTR_P const name, bool ena=false) {
+      SERIAL_ECHOPGM("Cap:");
+      SERIAL_ECHOF(name);
+      SERIAL_CHAR(':', '0' + ena);
+      SERIAL_EOL();
+    }
+  #endif
 #endif
 
 /**
