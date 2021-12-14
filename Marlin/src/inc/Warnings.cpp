@@ -549,3 +549,7 @@
 #elif !USE_SENSORLESS && ENABLED(USES_DIAG_PINS)
   #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0)"
 #endif
+
+#if CANNOT_EMBED_CONFIGURATION
+  #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
+#endif

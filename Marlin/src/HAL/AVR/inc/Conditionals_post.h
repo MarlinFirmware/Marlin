@@ -20,6 +20,3 @@
  *
  */
 #pragma once
-
-// AVR are too limited in resources to store the configuration into the binary
-#define CONFIG_SKIP_EMBED_AND_SAVE_TO_SD 1

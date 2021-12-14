@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Create a Configuration from marlin_config.json
 #
@@ -6,10 +7,8 @@ import sys
 import shutil
 import re
 
-if '--bare-output' in sys.argv:
-	output_suffix = ''
-else:
-	output_suffix = '.gen'
+opt_output = '--opt' in sys.argv
+output_suffix = '.sh' if opt_output else '' if '--bare-output' in sys.argv else '.gen'
 
 try:
 	with open('marlin_config.json', 'r') as infile:
@@ -26,7 +25,17 @@ try:
 			outfile = open('Marlin/' + key + output_suffix, 'w')
 			for k, v in sorted(conf[key].items()):
 				# Make define line now
-				define = '#define ' + k + ' ' + v + '\n'
+				if opt_output:
+					if v != '':
+						if '"' in v:
+							v = "'%s'" % v
+						elif ' ' in v:
+							v = '"%s"' % v
+						define = 'opt_set ' + k + ' ' + v + '\n'
+					else:
+						define = 'opt_enable ' + k + '\n'
+				else:
+					define = '#define ' + k + ' ' + v + '\n'
 				outfile.write(define)
 			outfile.close()
 

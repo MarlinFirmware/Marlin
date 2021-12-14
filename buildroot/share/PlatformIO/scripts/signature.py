@@ -1,7 +1,7 @@
 #
 # signature.py
 #
-import subprocess,re,json,hashlib
+import os,subprocess,re,json,hashlib
 
 #
 # The dumbest preprocessor in the world
@@ -48,17 +48,18 @@ def compute_build_signature(env):
 	if 'BUILD_SIGNATURE' in env:
 		return
 
-	# Definition from these files will be kept
-	files_to_keep = [ 'Marlin/Configuration.h',
-					  'Marlin/Configuration_adv.h',
-	]
+	# Definitions from these files will be kept
+	files_to_keep = [ 'Marlin/Configuration.h', 'Marlin/Configuration_adv.h' ]
+
+	build_dir=os.path.join(env['PROJECT_BUILD_DIR'], env['PIOENV'])
 
 	# Check if we can skip processing
 	hashes = ''
 	for header in files_to_keep:
-		hashes = hashes + get_file_sha256sum(header)
+		hashes += get_file_sha256sum(header)[0:10]
 
-	marlin_json = 'marlin_config.json'
+	marlin_json = os.path.join(build_dir, 'marlin_config.json')
+	marlin_zip = os.path.join(build_dir, 'mc')
 
 	# Read existing config file
 	try:
@@ -66,12 +67,12 @@ def compute_build_signature(env):
 			conf = json.load(infile)
 			if conf['__INITIAL_HASH'] == hashes:
 				# Same configuration, skip recomputing the building signature
-				compress_file(marlin_json, '.pio/build/mc')
+				compress_file(marlin_json, marlin_zip)
 				return
 	except:
 		pass
 
-	# Need to parse all valid defines in the configuration files
+	# Get enabled config options based on preprocessor
 	from preprocessor import run_preprocessor
 	complete_cfg = run_preprocessor(env)
 
@@ -84,7 +85,6 @@ def compute_build_signature(env):
 		all_defines = all_defines + defines
 		# To remember from which file it cames from
 		real_defines[header.split('/')[-1]] = defines
-
 
 	r = re.compile(r"\(+(\s*-*\s*_.*)\)+")
 
@@ -109,6 +109,8 @@ def compute_build_signature(env):
 
 		defines[key] = value if len(value) else ""
 
+	if not 'CONFIGURATION_EMBEDDING' in defines:
+		return
 
 	# Second step is to filter useless macro
 	resolved_defines = {}
@@ -123,7 +125,7 @@ def compute_build_signature(env):
 		if key[-11:] == "_T_DECLARED":
 			continue
 		# Remove keys that are not in the #define list in the Configuration list
-		if not(key in all_defines) and key != "DETAILED_BUILD_VERSION" and key != "STRING_DISTRIBUTION_DATE":
+		if not (key in all_defines) and key != "DETAILED_BUILD_VERSION" and key != "STRING_DISTRIBUTION_DATE":
 			continue
 
 		# Don't be that smart guy here
@@ -156,12 +158,19 @@ def compute_build_signature(env):
 	with open(marlin_json, 'w') as outfile:
 		json.dump(data, outfile, separators=(',', ':'))
 
-	# Now compress the JSON file to as much as we can
-	compress_file(marlin_json, '.pio/build/mc')
+	# Compress the JSON file as much as we can
+	compress_file(marlin_json, marlin_zip)
 
-	# And generate a C source file for storing this array
-	with open('.pio/build/mc.cpp','wb') as result_file:
-		result_file.write(b'const unsigned char mc_zip[] PROGMEM = {')
-		for b in open('.pio/build/mc.zip', 'rb').read():
-			result_file.write(b'0x%02X,' % b)
-		result_file.write(b'};')
+	# Generate a C source file for storing this array
+	with open('Marlin/src/mczip.h','wb') as result_file:
+		result_file.write(b'#warning "Generated file \'mc.zip\' is embedded"\n')
+		result_file.write(b'const unsigned char mc_zip[] PROGMEM = {\n ')
+		count = 0
+		for b in open(os.path.join(build_dir, 'mc.zip'), 'rb').read():
+			result_file.write(b' 0x%02X,' % b)
+			count += 1
+			if (count % 16 == 0):
+			 	result_file.write(b'\n ')
+		if (count % 16):
+			result_file.write(b'\n')
+		result_file.write(b'};\n')

@@ -1594,10 +1594,12 @@
   #endif
 
   /**
-   * If you are short of Flash space, this will prevent Marlin from storing your customized
-   * settings and export them to the SD Card as mc.zip with 'M503 C'.
+   * Enable this option if you have more than ~3K of unused flash space.
+   * Marlin will embed all settings in the firmware binary as compressed data.
+   * Use 'M503 C' to write the settings out to the SD Card as 'mc.zip'.
+   * See docs/ConfigEmbedding.md for details on how to use 'mc-apply.py'.
    */
-  //#define CONFIG_SKIP_EMBED_AND_SAVE_TO_SD
+  //#define CONFIGURATION_EMBEDDING
 
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
