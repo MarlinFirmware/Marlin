@@ -2698,10 +2698,10 @@ void MarlinSettings::reset() {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       toolchange_settings.swap_length     = TOOLCHANGE_FS_LENGTH;
       toolchange_settings.extra_resume    = TOOLCHANGE_FS_EXTRA_RESUME_LENGTH;
-      toolchange_settings.retract_speed   = TOOLCHANGE_FS_RETRACT_SPEED;
-      toolchange_settings.unretract_speed = TOOLCHANGE_FS_UNRETRACT_SPEED;
+      toolchange_settings.retract_speed   = TOOLCHANGE_FS_RETRACT_FEEDRATE;
+      toolchange_settings.unretract_speed = TOOLCHANGE_FS_UNRETRACT_FEEDRATE;
       toolchange_settings.extra_prime     = TOOLCHANGE_FS_EXTRA_PRIME;
-      toolchange_settings.prime_speed     = TOOLCHANGE_FS_PRIME_SPEED;
+      toolchange_settings.prime_speed     = TOOLCHANGE_FS_PRIME_FEEDRATE;
       toolchange_settings.fan_speed       = TOOLCHANGE_FS_FAN_SPEED;
       toolchange_settings.fan_time        = TOOLCHANGE_FS_FAN_TIME;
     #endif
