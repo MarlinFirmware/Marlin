@@ -179,7 +179,7 @@ void GcodeSuite::M115() {
     cap_line(F("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
     // CONFIG_EXPORT
-    cap_line(PSTR("CONFIG_EXPORT"), ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD));
+    cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIG_EMBED_AND_SAVE_TO_SD));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

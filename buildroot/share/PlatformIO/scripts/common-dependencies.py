@@ -11,42 +11,37 @@ if pioutil.is_pio_build():
 	from platformio.package.meta import PackageSpec
 	from platformio.project.config import ProjectConfig
 
-	PIO_VERSION_MIN = (5, 0, 3)
-	try:
-		from platformio import VERSION as PIO_VERSION
-		weights = (1000, 100, 1)
-		version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
-		version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
-		if version_cur < version_min:
-			print()
-			print("**************************************************")
-			print("******      An update to PlatformIO is      ******")
-			print("******  required to build Marlin Firmware.  ******")
-			print("******                                      ******")
-			print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
-			print("******      Current Version: ", PIO_VERSION, "    ******")
-			print("******                                      ******")
-			print("******   Update PlatformIO and try again.   ******")
-			print("**************************************************")
-			print()
+	verbose = 0
+	FEATURE_CONFIG = {}
+
+	def validate_pio():
+		PIO_VERSION_MIN = (5, 0, 3)
+		try:
+			from platformio import VERSION as PIO_VERSION
+			weights = (1000, 100, 1)
+			version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
+			version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
+			if version_cur < version_min:
+				print()
+				print("**************************************************")
+				print("******      An update to PlatformIO is      ******")
+				print("******  required to build Marlin Firmware.  ******")
+				print("******                                      ******")
+				print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
+				print("******      Current Version: ", PIO_VERSION, "    ******")
+				print("******                                      ******")
+				print("******   Update PlatformIO and try again.   ******")
+				print("**************************************************")
+				print()
+				exit(1)
+		except SystemExit:
 			exit(1)
-	except SystemExit:
-		exit(1)
-	except:
-		print("Can't detect PlatformIO Version")
-
-	#print(env.Dump())
-
-	try:
-		verbose = int(env.GetProjectOption('custom_verbose'))
-	except:
-		verbose = 0
+		except:
+			print("Can't detect PlatformIO Version")
 
 	def blab(str,level=1):
 		if verbose >= level:
 			print("[deps] %s" % str)
-
-	FEATURE_CONFIG = {}
 
 	def add_to_feat_cnf(feature, flines):
 
@@ -123,7 +118,6 @@ if pioutil.is_pio_build():
 
 	# All unused libs should be ignored so that if a library
 	# exists in .pio/lib_deps it will not break compilation.
-
 	def force_ignore_unused_libs():
 		env_libs = get_all_env_libs()
 		known_libs = get_all_known_libs()
@@ -139,96 +133,13 @@ if pioutil.is_pio_build():
 			if not env.MarlinFeatureIsEnabled(feature):
 				continue
 
-		verbose = 0
-		FEATURE_CONFIG = {}
-
-		def validate_pio():
-			PIO_VERSION_MIN = (5, 0, 3)
-			try:
-				from platformio import VERSION as PIO_VERSION
-				weights = (1000, 100, 1)
-				version_min = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION_MIN)])
-				version_cur = sum([x[0] * float(re.sub(r'[^0-9]', '.', str(x[1]))) for x in zip(weights, PIO_VERSION)])
-				if version_cur < version_min:
-					print()
-					print("**************************************************")
-					print("******      An update to PlatformIO is      ******")
-					print("******  required to build Marlin Firmware.  ******")
-					print("******                                      ******")
-					print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
-					print("******      Current Version: ", PIO_VERSION, "    ******")
-					print("******                                      ******")
-					print("******   Update PlatformIO and try again.   ******")
-					print("**************************************************")
-					print()
-					exit(1)
-			except SystemExit:
-				exit(1)
-			except:
-				print("Can't detect PlatformIO Version")
-
-		def blab(str,level=1):
-			if verbose >= level:
-				print("[deps] %s" % str)
-
-		def add_to_feat_cnf(feature, flines):
-
-			try:
-				feat = FEATURE_CONFIG[feature]
-			except:
-				FEATURE_CONFIG[feature] = {}
-
-			# Get a reference to the FEATURE_CONFIG under construction
 			feat = FEATURE_CONFIG[feature]
 
-			# Split up passed lines on commas or newlines and iterate
-			# Add common options to the features config under construction
-			# For lib_deps replace a previous instance of the same library
-			atoms = re.sub(r',\\s*', '\n', flines).strip().split('\n')
-			for line in atoms:
-				parts = line.split('=')
-				name = parts.pop(0)
-				if name in ['build_flags', 'extra_scripts', 'src_filter', 'lib_ignore']:
-					feat[name] = '='.join(parts)
-					blab("[%s] %s=%s" % (feature, name, feat[name]), 3)
-				else:
-					for dep in re.split(r",\s*", line):
-						lib_name = re.sub(r'@([~^]|[<>]=?)?[\d.]+', '', dep.strip()).split('=').pop(0)
-						lib_re = re.compile('(?!^' + lib_name + '\\b)')
-						feat['lib_deps'] = list(filter(lib_re.match, feat['lib_deps'])) + [dep]
-						blab("[%s] lib_deps = %s" % (feature, dep), 3)
+			if 'lib_deps' in feat and len(feat['lib_deps']):
+				blab("========== Adding lib_deps for %s... " % feature, 2)
 
-		def load_config():
-			blab("========== Gather [features] entries...")
-			items = ProjectConfig().items('features')
-			for key in items:
-				feature = key[0].upper()
-				if not feature in FEATURE_CONFIG:
-					FEATURE_CONFIG[feature] = { 'lib_deps': [] }
-				add_to_feat_cnf(feature, key[1])
-
-			# Add options matching custom_marlin.MY_OPTION to the pile
-			blab("========== Gather custom_marlin entries...")
-			all_opts = env.GetProjectOptions()
-			for n in all_opts:
-				key = n[0]
-				mat = re.match(r'custom_marlin\.(.+)', key)
-				if mat:
-					try:
-						val = env.GetProjectOption(key)
-					except:
-						val = None
-					if val:
-						opt = mat.group(1).upper()
-						blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ))
-						add_to_feat_cnf(opt, val)
-
-		def get_all_known_libs():
-			known_libs = []
-			for feature in FEATURE_CONFIG:
-				feat = FEATURE_CONFIG[feature]
-				if not 'lib_deps' in feat:
-					continue
+				# feat to add
+				deps_to_add = {}
 				for dep in feat['lib_deps']:
 					deps_to_add[PackageSpec(dep).name] = dep
 					blab("==================== %s... " % dep, 2)
@@ -291,7 +202,6 @@ if pioutil.is_pio_build():
 		# Process defines
 		from preprocessor import run_preprocessor
 		define_list = run_preprocessor(env)
-
 		marlin_features = {}
 		for define in define_list:
 			feature = define[8:].strip().decode().split(' ')
@@ -318,6 +228,13 @@ if pioutil.is_pio_build():
 					some_on = env.MarlinFeatureIsEnabled(val)
 
 		return some_on
+
+	validate_pio()
+
+	try:
+		verbose = int(env.GetProjectOption('custom_verbose'))
+	except:
+		pass
 
 	#
 	# Add a method for other PIO scripts to query enabled features
