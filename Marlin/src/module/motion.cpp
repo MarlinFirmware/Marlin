@@ -1552,7 +1552,7 @@ void prepare_line_to_destination() {
       }
 
       const millis_t time_to_stop = static_cast<millis_t>((expected_distance / home_fr_mm_s) * 1000.0f),
-               expected_stop_time = millis() + time_to_stop + HOME_SANITY_CHECKING_STARTUP_COMPENSATION;
+               expected_stop_time = millis() + time_to_stop + SHSC_STARTUP_COMPENSATION;
     #endif
 
     #if ENABLED(SENSORLESS_HOMING)
@@ -1607,11 +1607,11 @@ void prepare_line_to_destination() {
 
       #if ENABLED(SENSORLESS_HOME_SANITY_CHECKING)
         const int32_t time_delta = static_cast<int32_t>(millis() - expected_stop_time);
-        const bool bad_home = !WITHIN(time_delta, -HOME_SANITY_CHECKING_ERROR_MARGIN, HOME_SANITY_CHECKING_ERROR_MARGIN);
+        const bool bad_home = !WITHIN(time_delta, -SHSC_ERROR_MARGIN, SHSC_ERROR_MARGIN);
         if (DEBUGGING(INFO))
-          SERIAL_ECHOLNPAIR("axis:", AS_CHAR(AXIS_CHAR(axis))," distance:",expected_distance," feedrate:",home_fr_mm_s," expected stop time:", time_to_stop, " difference from expected:", time_delta);
+          SERIAL_ECHOLNPGM("Axis:", AS_CHAR(AXIS_CHAR(axis)), " Distance:", expected_distance, " Feedrate:", home_fr_mm_s, " Expected stop time:", time_to_stop, " Difference:", time_delta);
         if (DEBUGGING(ERRORS) && bad_home)
-          SERIAL_ECHOLNPAIR("homing fault! ms difference from expected: ", time_delta, ", axis: ", AS_CHAR(AXIS_CHAR(axis)));
+          SERIAL_ECHOLNPGM("Homing fault! Time difference: ", time_delta, ", Axis: ", AS_CHAR(AXIS_CHAR(axis)));
       #endif
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
