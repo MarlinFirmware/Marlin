@@ -12,7 +12,7 @@ import os,subprocess,re,json,hashlib
 # headers.
 #
 def extract_defines(filepath):
-	f = open(filepath).read().split("\n")
+	f = open(filepath, encoding="utf8").read().split("\n")
 	a = []
 	for line in f:
 		sline = line.strip(" \t\n\r")
