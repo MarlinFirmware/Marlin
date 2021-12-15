@@ -524,6 +524,10 @@
   #endif
 #endif
 
+#if ENABLED(CHAMBER_FAN) && !defined(CHAMBER_FAN_INDEX)
+  #warning "Auto-assigned CHAMBER_FAN_INDEX to the first free FAN pin."
+#endif
+
 #if IS_LEGACY_TFT
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
@@ -544,4 +548,8 @@
   #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled."
 #elif !USE_SENSORLESS && ENABLED(USES_DIAG_PINS)
   #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0)"
+#endif
+
+#if CANNOT_EMBED_CONFIGURATION
+  #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif
