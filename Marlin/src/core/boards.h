@@ -358,6 +358,7 @@
 #define BOARD_ZONESTAR_ZM3E4          4058  // Zonestar ZM3E4 V1 (STM32F103VCT6)
 #define BOARD_ZONESTAR_ZM3E4V2        4059  // Zonestar ZM3E4 V2 (STM32F103VCT6)
 #define BOARD_ERYONE_ERY32_MINI       4060  // Eryone Ery32 mini (STM32F103VET6)
+#define BOARD_CREALITY_V423           4061  // Creality v4.2.3 (STM32F103RE)
 
 //
 // ARM Cortex-M4F
