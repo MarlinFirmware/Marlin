@@ -592,7 +592,7 @@ void _O2 Endstops::report_states() {
   TERN_(JOYSTICK_DEBUG, joystick.report());
 
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    SERIAL_ECHOLNPGM(READ(POWER_LOSS_PIN) == POWER_LOSS_STATE ? "Power State : Power Outage." : "Power State : Power OK.");
+    print_es_state(READ(POWER_LOSS_PIN) == POWER_LOSS_STATE , F(STR_POWER_LOSS));
   #endif
 
 } // Endstops::report_states
