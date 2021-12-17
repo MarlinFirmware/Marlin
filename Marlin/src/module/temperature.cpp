@@ -226,6 +226,10 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 //
 #if HAS_MAX_TC
 
+  #if ENABLED(IGNORE_THERMOCOUPLE_ERRORS)
+    #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
+  #endif
+
   #if HAS_MAXTC_SW_SPI
     // Initialize SoftSPI for non-lib Software SPI; Libraries take care of it themselves.
     template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin>
