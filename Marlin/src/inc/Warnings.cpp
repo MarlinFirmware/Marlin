@@ -54,6 +54,9 @@
 #if ANY_THERMISTOR_IS(998) || ANY_THERMISTOR_IS(999)
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
+#if HAS_MAX_TC && ENABLED(IGNORE_THERMOCOUPLE_ERRORS)
+  #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
+#endif
 
 #if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
   #warning "Your Configuration provides no method to acquire user feedback!"
