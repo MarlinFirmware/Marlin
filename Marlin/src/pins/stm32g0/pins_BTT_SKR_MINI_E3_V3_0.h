@@ -150,7 +150,7 @@
  *  (LCD_D4) PB9  | 5  6   PA10 (BTN_EN2)
  *          RESET | 7  8 | PA9  (BTN_EN1)
  * (BTN_ENC) PA15 | 9 10 | PB5  (BEEPER)
- *                 ------ 
+ *                 ------
  *                  EXP1
  */
 #define EXP1_09_PIN                         PA15
