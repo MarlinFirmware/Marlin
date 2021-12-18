@@ -34,8 +34,11 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#if ENABLED(MMU2_MENUS)
-  #include "../../../lcd/menu/menu_mmu2.h"
+#if ENABLED(HAS_PRUSA_MMU2)
+  #include "../../../feature/mmu/mmu2.h"
+  #if ENABLED(MMU2_MENUS)
+    #include "../../../lcd/menu/menu_mmu2.h"
+  #endif
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -92,10 +95,11 @@ void GcodeSuite::M600() {
     }
   #endif
 
+  const bool standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
+
   // Show initial "wait for start" message
-  #if DISABLED(MMU2_MENUS)
+  if (standardM600)
     ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
-  #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // If needed, home before parking for filament change
@@ -126,17 +130,11 @@ void GcodeSuite::M600() {
   #endif
 
   #if ENABLED(MMU2_MENUS)
-    // For MMU2 reset retract and load/unload values so they don't mess with MMU filament handling
-    constexpr float unload_length = 0.5f,
-                    slow_load_length = 0.0f,
-                    fast_load_length = 0.0f;
+    // For MMU2, when enabled, reset retract value so it doesn't mess with MMU filament handling
+    const float unload_length = standardM600 ? -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length)) : 0.5f;
   #else
     // Unload filament
     const float unload_length = -ABS(parser.axisunitsval('U', E_AXIS, fc_settings[active_extruder].unload_length));
-    // Slow load filament
-    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
-    // Fast load filament
-    const float fast_load_length = ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length));
   #endif
 
   const int beep_count = parser.intval('B', -1
@@ -146,14 +144,23 @@ void GcodeSuite::M600() {
   );
 
   if (pause_print(retract, park_point, true, unload_length DXC_PASS)) {
-    #if ENABLED(MMU2_MENUS)
-      mmu2_M600();
-      resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
-    #else
+    if (standardM600) {
       wait_for_confirmation(true, beep_count DXC_PASS);
-      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH,
-                   beep_count, (parser.seenval('R') ? parser.value_celsius() : 0) DXC_PASS);
-    #endif
+      resume_print(
+        FILAMENT_CHANGE_SLOW_LOAD_LENGTH,
+        ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length)),
+        ADVANCED_PAUSE_PURGE_LENGTH,
+        beep_count,
+        parser.celsiusval('R')
+        DXC_PASS
+      );
+    }
+    else {
+      #if ENABLED(MMU2_MENUS)
+        mmu2_M600();
+        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
+      #endif
+    }
   }
 
   #if HAS_MULTI_EXTRUDER
