@@ -56,7 +56,7 @@ namespace Language_sk {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Karta vložená");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Karta vybraná");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Čakám na kartu");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("Inicial. SD zlyhala");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Inicial. SD zlyhala");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čítania karty");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB zaria. odstrán.");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba spúšťania USB");

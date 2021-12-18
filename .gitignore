@@ -22,6 +22,9 @@
 # Generated files
 _Version.h
 bdf2u8g
+marlin_config.json
+mczip.h
+*.gen
 
 #
 # OS

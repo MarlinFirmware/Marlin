@@ -43,8 +43,8 @@ namespace Language_gl {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Cancelando...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarxeta inserida");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarxeta retirada");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Agardando ao SD/USB");
-  LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro lectura SD/USB");
+  LSTR MSG_MEDIA_WAITING                  = _UxGT("Agardando ao SD/FD");
+  LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro lectura SD/FD");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbord. Subch.");
@@ -329,7 +329,7 @@ namespace Language_gl {
   LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Erro: Índice EEPROM");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Erro: Versión EEPROM");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Config Gardada");
-  LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/USB");
+  LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/FD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reiniciar Impresora");
   LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Recargar");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Información");
@@ -397,9 +397,9 @@ namespace Language_gl {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Descargar Filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Descargar Filamento *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Descargar Todo");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar SD/USB");
-  LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar SD/USB");
-  LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar SD/USB");
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar SD/FD");
+  LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar SD/FD");
+  LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar SD/FD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda-Z fóra Cama");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Factor de Desviación");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
