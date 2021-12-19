@@ -32,6 +32,10 @@
 // Heaters
 //
 #define HEATER_BED_PIN                      PB10  // HOT BED
-#define BTN_EN1                             PA2   // Rotary Encoder
 
 #include "pins_CREALITY_V4.h"
+
+#if BTN_EN1 == PB10
+  #undef BTN_EN1
+  #define BTN_EN1                           PA2   // Rotary Encoder
+#endif
