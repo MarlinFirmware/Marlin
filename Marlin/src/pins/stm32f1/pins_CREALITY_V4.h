@@ -167,9 +167,7 @@
     #define LCD_PINS_D4                     PB13
 
     #define BTN_ENC                         PB2
-    #ifndef BTN_EN1
-      #define BTN_EN1                       PB10
-    #endif
+    #define BTN_EN1.                        PB10
     #define BTN_EN2                         PB14
 
     #ifndef HAS_PIN_27_BOARD
@@ -184,9 +182,7 @@
     #define LCD_PINS_D4                     PA5
 
     #define BTN_ENC                         PC5
-    #ifndef BTN_EN1
-      #define BTN_EN1                       PB10
-    #endif
+    #define BTN_EN1                         PB10
     #define BTN_EN2                         PA6
 
   #else
@@ -197,9 +193,7 @@
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14
-  #ifndef BTN_EN1
-    #define BTN_EN1                         PB15
-  #endif
+  #define BTN_EN1                           PB15
   #define BTN_EN2                           PB12
 
   //#define LCD_LED_PIN                     PB2
@@ -211,9 +205,7 @@
 
   // VET6 DWIN ENCODER LCD
   #define BTN_ENC                           PA6
-  #ifndef BTN_EN1
-    #define BTN_EN1                         PA7
-  #endif
+  #define BTN_EN1                           PA7
   #define BTN_EN2                           PA4
 
   #define BEEPER_PIN                        PA5
