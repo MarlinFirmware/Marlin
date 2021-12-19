@@ -338,26 +338,27 @@
 #define BOARD_CHITU3D_V6              4038  // Chitu3D TronXY X5SA V6 Board
 #define BOARD_CHITU3D_V9              4039  // Chitu3D TronXY X5SA V9 Board
 #define BOARD_CREALITY_V4             4040  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V427           4041  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_CREALITY_V4210          4042  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
-#define BOARD_CREALITY_V431           4043  // Creality v4.3.1 (STM32F103RE)
-#define BOARD_CREALITY_V431_A         4044  // Creality v4.3.1a (STM32F103RE)
-#define BOARD_CREALITY_V431_B         4045  // Creality v4.3.1b (STM32F103RE)
-#define BOARD_CREALITY_V431_C         4046  // Creality v4.3.1c (STM32F103RE)
-#define BOARD_CREALITY_V431_D         4047  // Creality v4.3.1d (STM32F103RE)
-#define BOARD_CREALITY_V452           4048  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_CREALITY_V453           4049  // Creality v4.5.3 (STM32F103RE)
-#define BOARD_CREALITY_V24S1          4050  // Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7
-#define BOARD_TRIGORILLA_PRO          4051  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4052  // FLYmaker FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4053  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4054  // STM32F103RET6 Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4055  // STM32F103ZET6 Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4056  // STM32F103VET6 controller
-#define BOARD_ZONESTAR_ZM3E2          4057  // Zonestar ZM3E2    (STM32F103RCT6)
-#define BOARD_ZONESTAR_ZM3E4          4058  // Zonestar ZM3E4 V1 (STM32F103VCT6)
-#define BOARD_ZONESTAR_ZM3E4V2        4059  // Zonestar ZM3E4 V2 (STM32F103VCT6)
-#define BOARD_ERYONE_ERY32_MINI       4060  // Eryone Ery32 mini (STM32F103VET6)
+#define BOARD_CREALITY_V423           4041  // Creality v4.2.3 (STM32F103RE)
+#define BOARD_CREALITY_V427           4042  // Creality v4.2.7 (STM32F103RE)
+#define BOARD_CREALITY_V4210          4043  // Creality v4.2.10 (STM32F103RE) as found in the CR-30
+#define BOARD_CREALITY_V431           4044  // Creality v4.3.1 (STM32F103RE)
+#define BOARD_CREALITY_V431_A         4045  // Creality v4.3.1a (STM32F103RE)
+#define BOARD_CREALITY_V431_B         4046  // Creality v4.3.1b (STM32F103RE)
+#define BOARD_CREALITY_V431_C         4047  // Creality v4.3.1c (STM32F103RE)
+#define BOARD_CREALITY_V431_D         4048  // Creality v4.3.1d (STM32F103RE)
+#define BOARD_CREALITY_V452           4049  // Creality v4.5.2 (STM32F103RE)
+#define BOARD_CREALITY_V453           4050  // Creality v4.5.3 (STM32F103RE)
+#define BOARD_CREALITY_V24S1          4051  // Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7
+#define BOARD_TRIGORILLA_PRO          4052  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4053  // FLYmaker FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4054  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4055  // STM32F103RET6 Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4056  // STM32F103ZET6 Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4057  // STM32F103VET6 controller
+#define BOARD_ZONESTAR_ZM3E2          4058  // Zonestar ZM3E2    (STM32F103RCT6)
+#define BOARD_ZONESTAR_ZM3E4          4059  // Zonestar ZM3E4 V1 (STM32F103VCT6)
+#define BOARD_ZONESTAR_ZM3E4V2        4060  // Zonestar ZM3E4 V2 (STM32F103VCT6)
+#define BOARD_ERYONE_ERY32_MINI       4061  // Eryone Ery32 mini (STM32F103VET6)
 
 //
 // ARM Cortex-M4F
