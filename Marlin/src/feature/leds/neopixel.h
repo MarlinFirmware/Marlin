@@ -74,7 +74,7 @@ private:
   #endif
 
 public:
-  static int8_t neoindex;
+  static int16_t neoindex;
 
   static void init();
   static void set_color_startup(const uint32_t c);
@@ -150,7 +150,7 @@ extern Marlin_NeoPixel neo;
     static Adafruit_NeoPixel adaneo;
 
   public:
-    static int8_t neoindex;
+    static int16_t neoindex;
 
     static void init();
     static void set_color_startup(const uint32_t c);
