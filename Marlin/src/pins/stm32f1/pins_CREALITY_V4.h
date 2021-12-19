@@ -167,7 +167,7 @@
     #define LCD_PINS_D4                     PB13
 
     #define BTN_ENC                         PB2
-    #define BTN_EN1.                        PB10
+    #define BTN_EN1                         PB10
     #define BTN_EN2                         PB14
 
     #ifndef HAS_PIN_27_BOARD
