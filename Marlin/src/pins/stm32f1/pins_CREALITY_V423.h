@@ -35,6 +35,9 @@
 
 #include "pins_CREALITY_V4.h"
 
+//
+// Encoder
+//
 #if BTN_EN1 == PB10
   #undef BTN_EN1
   #define BTN_EN1                           PA2   // Rotary Encoder
