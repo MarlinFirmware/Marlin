@@ -960,6 +960,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if HAS_STEALTHCHOP
           case 569: M569(); break;                                // M569: Enable stealthChop on an axis.
         #endif
+        case 9999: M9999(); break;                                // M9999: Set stepper driver & motor chopper times (blank_time, time_off, hysteresis_end, hysteresis_start) using axis codes X, Y, Z, E        
         #if ENABLED(MONITOR_DRIVER_STATUS)
           case 911: M911(); break;                                // M911: Report TMC2130 prewarn triggered flags
           case 912: M912(); break;                                // M912: Clear TMC2130 prewarn triggered flags

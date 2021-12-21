@@ -34,90 +34,69 @@
  * Parameters:
  *   X, Y, Z, E
  *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z, E0; 1 for X2, Y2, Z2, E1; 2 for Z3, E2; 3 for Z4, E3; 4 for E4; 5 for E5; 6 for E6; 7 for E7)
- *   B           - blank_time       [16, 24, 36, 54]
  *   O           - time-off         [ 1..15]
  *   N           - hysteresis_end   [-3..12]
  *   S           - hysteresis_start [ 1...8]
  * 
- * With no parameters report chopper times
+ * With no parameters report chopper times for all axis
  */
 
 void GcodeSuite::M9999() {
   #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
-  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(chopper_time_config)
+  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(time_off, hysteresis_end, hysteresis_start)
 
   #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
     const uint8_t index = parser.byteval('I');
   #endif
 
-  uint8_t value_blanktime;
-  uint8_t value_toff;
-  int8_t value_hend;
-  uint8_t value_hstart;
-  chopper_time_struct chopper_time_config;
-  uint8_t i;
-   
-  if (parser.seen_test('X') || parser.seen_test('Y') || parser.seen_test('Z') || parser.seen_test('E')) {
- 
-    if (parser.seen_test('X')) i=0;
-    if (parser.seen_test('Y')) i=1;
-    if (parser.seen_test('Z')) i=2;
-    if (parser.seen_test('E')) i=3;
+  uint8_t value_toff, time_off;
+  int8_t value_hend, hysteresis_end;
+  uint8_t value_hstart, hysteresis_start;
+    
+  static constexpr chopper_timing_t chopper_timing = CHOPPER_TIMING;
+  time_off = chopper_timing.toff;
+  hysteresis_end = chopper_timing.hend;
+  hysteresis_start = chopper_timing.hstrt;
 
-    if (parser.seenval('B')) {
-      value_blanktime = parser.value_byte();
-      if (value_blanktime == 16 || value_blanktime == 24 || value_blanktime == 36 || value_blanktime == 54) {
-        chopper_time_config.blank_time = value_blanktime;
-        SERIAL_ECHOPGM_P(" set blank_time      =", chopper_time_config.blank_time);
-        SERIAL_EOL();
-      }
-      else {
-        SERIAL_ECHOPGM_P(" Error: choose for B blank_time one of the following values [16, 24, 36, 54]");
-        SERIAL_EOL();
-        exit(0);
-      }
-    }
 
+  LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) {
     if (parser.seenval('O')) {
       value_toff = parser.value_byte();
       if (value_toff >= 1 && value_toff <= 15) {
-        chopper_time_config.time_off = value_toff;
-        SERIAL_ECHOPGM_P(" set time_off        =", chopper_time_config.time_off);
+        time_off = value_toff;
+        SERIAL_ECHOPGM_P(" set time_off        : ", time_off);
         SERIAL_EOL();
       }
       else {
         SERIAL_ECHOPGM_P(" Error: give O (time-off) values between [1..15]");
         SERIAL_EOL();
-        exit(0);
       }
     }
- 
+
     if (parser.seenval('N')) {
       value_hend = (int8_t)constrain(parser.value_long(), -127, 127);
 
       if (value_hend >= -3 && value_hend <= 12) {
-        chopper_time_config.hysteresis_end = value_hend;
-        SERIAL_ECHOPGM_P(" set hysteresis_end  =", chopper_time_config.hysteresis_end);
+        hysteresis_end = value_hend;
+        SERIAL_ECHOPGM_P(" set hysteresis_end  : ", hysteresis_end);
         SERIAL_EOL();
       }
       else {
         SERIAL_ECHOPGM_P(" Error: give N (hysteresis_end) values between [-1..12]");
         SERIAL_EOL();
-        exit(0);
       }
     }
 
     if (parser.seenval('S')) {
       value_hstart = parser.value_byte();
       if (value_hstart >= 1 && value_hstart <= 8) {
-        chopper_time_config.hysteresis_start = value_hstart;
-        SERIAL_ECHOPGM_P(" set hysteresis_start=", chopper_time_config.hysteresis_start);
+        hysteresis_start = value_hstart;
+        SERIAL_ECHOPGM_P(" set hysteresis_start: ", hysteresis_start);
         SERIAL_EOL();
       }
       else {
         SERIAL_ECHOPGM_P(" Error: give S (hysteresis_start) values between [1..8]");
         SERIAL_EOL();
-        exit(0);
       }
     }
 
@@ -192,6 +171,7 @@ void GcodeSuite::M9999() {
         } break;
       #endif
     }
+    //restore_stepper_drivers();
   }
   else {
     #if AXIS_IS_TMC(X)
@@ -244,4 +224,9 @@ void GcodeSuite::M9999() {
     #endif
   }
 }
+
+void CheckCopperConfig() {
+
+}
+
 #endif // HAS_TRINAMIC_CONFIG

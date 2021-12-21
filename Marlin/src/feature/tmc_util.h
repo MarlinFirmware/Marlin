@@ -37,6 +37,13 @@
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
 #define CHOPPER_09STEP_24V   { 3, -1, 5 }
 
+struct chopper_time_struct {
+    uint8_t blank_time = 24;        // [16, 24, 36, 54]
+    uint8_t time_off = 3;           // [1..15]
+    uint8_t hysteresis_start = 1;   // [1..8]
+    int8_t hysteresis_end = 12;     // [-3..12]
+};
+
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
   #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500U
 #endif
@@ -109,6 +116,18 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
       inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
+
+    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
+      //this->blank_time(blank_time);
+      this->toff(time_off);
+      this->hysteresis_end(hysteresis_end);
+      this->hysteresis_start(hysteresis_start);
+
+      //TMC::blank_time(blank_time);
+      TMC::toff(time_off);
+      TMC::hysteresis_end(hysteresis_end);
+      TMC::hysteresis_start(hysteresis_start);
+    }
 
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
@@ -301,6 +320,16 @@ template<typename TMC>
 void tmc_print_current(TMC &st) {
   st.printLabel();
   SERIAL_ECHOLNPGM(" driver current: ", st.getMilliamps());
+}
+
+template<typename TMC>
+void tmc_print_chopper_time(TMC &st) {
+  st.printLabel();
+  SERIAL_EOL();
+  SERIAL_ECHOLNPGM(" chopper blank_time      : ", st.blank_time());
+  SERIAL_ECHOLNPGM(" chopper time_off        : ", st.toff());
+  SERIAL_ECHOLNPGM(" chopper hysteresis_end  : ", st.hysteresis_end());
+  SERIAL_ECHOLNPGM(" chopper hysteresis_start: ", st.hysteresis_start());
 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
