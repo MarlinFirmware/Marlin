@@ -192,7 +192,7 @@ static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 typedef struct SettingsDataStruct {
   char      version[4];                                 // Vnn\0
   #if ENABLED(EEPROM_INIT_NOW)
-    uint32_t build_hash;
+    uint32_t build_hash;                                // Unique build hash
   #endif
   uint16_t  crc;                                        // Data Checksum
 
@@ -645,8 +645,8 @@ void MarlinSettings::postprocess() {
   const char version[4] = EEPROM_VERSION;
 
   #if ENABLED(EEPROM_INIT_NOW)
-    constexpr uint32_t strhash32(const char *s, char c='\0', uint32_t h=0) {
-      return *s ? strhash32(s + 1, *s, (((h << 1) | (h >> 31)) ^ c)) : h;
+    constexpr uint32_t strhash32(const char *s, const uint32_t h=0) {
+      return *s ? strhash32(s + 1, ((h + *s) << (*s & 3)) ^ *s) : h;
     }
     constexpr uint32_t build_hash = strhash32(__DATE__ __TIME__);
   #endif
