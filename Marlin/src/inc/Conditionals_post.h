@@ -2674,7 +2674,7 @@
   #ifdef __AVR__
     #define FAST_PWM_FAN_FREQUENCY ((F_CPU) / (2 * 255 * 1))
   #else
-    #define FAST_PWM_FAN_FREQUENCY 31400
+    #define FAST_PWM_FAN_FREQUENCY 1000U
   #endif
 #endif
 
