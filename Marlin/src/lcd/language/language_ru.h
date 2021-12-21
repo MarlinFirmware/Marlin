@@ -44,9 +44,9 @@ namespace Language_ru {
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD карта извлечена");
   LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD карту");
   #if LCD_WIDTH > 21
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Сбой инициализации SD");
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Сбой инициализации SD");
   #else
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Сбой инициализ. SD");
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Сбой инициализ. SD");
   #endif
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка считывания");
   LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");

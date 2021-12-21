@@ -1004,3 +1004,9 @@
 #if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
   #define HAS_MEATPACK 1
 #endif
+
+// AVR are (usually) too limited in resources to store the configuration into the binary
+#if !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || DISABLED(SDSUPPORT) || EITHER(SDCARD_READONLY, DISABLE_M503))
+  #undef CONFIGURATION_EMBEDDING
+  #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
+#endif

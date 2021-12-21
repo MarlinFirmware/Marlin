@@ -983,8 +983,8 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
 inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
   marlin_state = MF_KILLED;
+  thermalManager.disable_all_heaters();
   #if USE_BEEPER
-    thermalManager.disable_all_heaters();
     for (uint8_t i = 20; i--;) {
       WRITE(BEEPER_PIN, HIGH);
       delay(25);
@@ -1353,6 +1353,8 @@ void Temperature::manage_heater() {
       if (degRedundant() > TEMP_SENSOR_REDUNDANT_MAX_TC_TMAX - 1.0) max_temp_error(H_REDUNDANT);
       if (degRedundant() < TEMP_SENSOR_REDUNDANT_MAX_TC_TMIN + .01) min_temp_error(H_REDUNDANT);
     #endif
+  #else
+    #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
   #endif
 
   millis_t ms = millis();
