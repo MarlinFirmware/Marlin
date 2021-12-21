@@ -199,15 +199,24 @@ typedef struct SettingsDataStruct {
   //
   // DISTINCT_E_FACTORS
   //
-  uint8_t   esteppers;                                  // DISTINCT_AXES - LINEAR_AXES
+  uint8_t e_factors;                                    // DISTINCT_AXES - LINEAR_AXES
 
+  //
+  // Planner settings
+  //
   planner_settings_t planner_settings;
 
   xyze_float_t planner_max_jerk;                        // M205 XYZE  planner.max_jerk
   float planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
 
+  //
+  // Home Offset
+  //
   xyz_pos_t home_offset;                                // M206 XYZ / M665 TPZ
 
+  //
+  // Hotend Offset
+  //
   #if HAS_HOTEND_OFFSET
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
   #endif
@@ -680,9 +689,9 @@ void MarlinSettings::postprocess() {
 
     working_crc = 0; // clear before first "real data"
 
-    const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - LINEAR_AXES;
-    _FIELD_TEST(esteppers);
-    EEPROM_WRITE(esteppers);
+    const uint8_t e_factors = DISTINCT_AXES - (LINEAR_AXES);
+    _FIELD_TEST(e_factors);
+    EEPROM_WRITE(e_factors);
 
     //
     // Planner Motion
@@ -1542,11 +1551,11 @@ void MarlinSettings::postprocess() {
       float dummyf = 0;
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
-      _FIELD_TEST(esteppers);
+      _FIELD_TEST(e_factors);
 
-      // Number of esteppers may change
-      uint8_t esteppers;
-      EEPROM_READ_ALWAYS(esteppers);
+      // Number of e_factors may change
+      uint8_t e_factors;
+      EEPROM_READ_ALWAYS(e_factors);
 
       //
       // Planner Motion
@@ -1554,16 +1563,16 @@ void MarlinSettings::postprocess() {
       {
         // Get only the number of E stepper parameters previously stored
         // Any steppers added later are set to their defaults
-        uint32_t tmp1[LINEAR_AXES + esteppers];
-        float tmp2[LINEAR_AXES + esteppers];
-        feedRate_t tmp3[LINEAR_AXES + esteppers];
+        uint32_t tmp1[LINEAR_AXES + e_factors];
+        float tmp2[LINEAR_AXES + e_factors];
+        feedRate_t tmp3[LINEAR_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
         EEPROM_READ(planner.settings.min_segment_time_us);
         EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
         EEPROM_READ((uint8_t *)tmp3, sizeof(tmp3)); // max_feedrate_mm_s
 
         if (!validating) LOOP_DISTINCT_AXES(i) {
-          const bool in = (i < esteppers + LINEAR_AXES);
+          const bool in = (i < e_factors + LINEAR_AXES);
           planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
           planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
           planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
