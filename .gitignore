@@ -168,6 +168,3 @@ __pycache__
 
 # IOLogger logs
 *_log.csv
-
-# Build_Count
-Marlin/Build_Count.h

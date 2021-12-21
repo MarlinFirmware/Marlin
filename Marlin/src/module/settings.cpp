@@ -159,10 +159,6 @@
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
-#ifdef EEPROM_CHECK_BUILD_COUNT
-  #include "../../Build_Count.h"
-#endif
-
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -195,8 +191,8 @@ static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
  */
 typedef struct SettingsDataStruct {
   char      version[4];                                 // Vnn\0
-  #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
-    uint8_t build_count;
+  #if ENABLED(EEPROM_INIT_NOW)
+    uint32_t build_hash;
   #endif
   uint16_t  crc;                                        // Data Checksum
 
@@ -638,8 +634,12 @@ void MarlinSettings::postprocess() {
   #endif
 
   const char version[4] = EEPROM_VERSION;
-  #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
-    const uint8_t build_count = BUILD_COUNT;
+
+  #if ENABLED(EEPROM_INIT_NOW)
+    constexpr uint32_t strhash32(const char *s, char c='\0', uint32_t h=0) {
+      return *s ? strhash32(s + 1, *s, (((h << 1) | (h >> 31)) ^ c)) : h;
+    }
+    constexpr uint32_t build_hash = strhash32(__DATE__ __TIME__);
   #endif
 
   bool MarlinSettings::eeprom_error, MarlinSettings::validating;
@@ -648,7 +648,11 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
-      DEBUG_ERROR_MSG("EEPROM datasize error. Size ",size," datasize ",datasize());
+      DEBUG_ERROR_MSG("EEPROM datasize error."
+        #if ENABLED(MARLIN_DEV_MODE)
+          " (Actual:", size, " Expected:", datasize(), ")"
+        #endif
+      );
       return true;
     }
     return false;
@@ -660,9 +664,7 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::save() {
     float dummyf = 0;
     char ver[4] = "ERR";
-    #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
-      uint8_t build_count;
-    #endif
+
     if (!EEPROM_START(EEPROM_OFFSET)) return false;
 
     eeprom_error = false;
@@ -670,10 +672,11 @@ void MarlinSettings::postprocess() {
     // Write or Skip version. (Flash doesn't allow rewrite without erase.)
     TERN(FLASH_EEPROM_EMULATION, EEPROM_SKIP, EEPROM_WRITE)(ver);
 
-    #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
-      EEPROM_SKIP(build_count); // Skip the build_count slot
+    #if ENABLED(EEPROM_INIT_NOW)
+      EEPROM_SKIP(build_hash);  // Skip the hash slot
     #endif
-    EEPROM_SKIP(working_crc); // Skip the checksum slot
+
+    EEPROM_SKIP(working_crc);   // Skip the checksum slot
 
     working_crc = 0; // clear before first "real data"
 
@@ -1476,8 +1479,8 @@ void MarlinSettings::postprocess() {
       eeprom_index = EEPROM_OFFSET;
 
       EEPROM_WRITE(version);
-      #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
-        EEPROM_WRITE(BUILD_COUNT);
+      #if ENABLED(EEPROM_INIT_NOW)
+        EEPROM_WRITE(build_hash);
       #endif
       EEPROM_WRITE(final_crc);
 
@@ -1511,33 +1514,31 @@ void MarlinSettings::postprocess() {
 
     char stored_ver[4];
     EEPROM_READ_ALWAYS(stored_ver);
-    #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
-      uint8_t stored_build_count;
-      EEPROM_READ_ALWAYS(stored_build_count);
-    #endif
-
-
-    uint16_t stored_crc;
-    EEPROM_READ_ALWAYS(stored_crc);
 
     // Version has to match or defaults are used
-    if ((strncmp(version, stored_ver, 3) != 0) || TERN0(EEPROM_CHECK_BUILD_COUNT,(stored_build_count != BUILD_COUNT))) {
+    if (strncmp(version, stored_ver, 3) != 0) {
       if (stored_ver[3] != '\0') {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-
-      #if ENABLED(EEPROM_CHECK_BUILD_COUNT)
-        DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, ".",stored_build_count , " Marlin=" EEPROM_VERSION ".", BUILD_COUNT,")");
-      #else
-        DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      #endif
+      DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION, ")");
       TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
     }
     else {
+
+      // Optionally reset on the first boot after flashing
+      #if ENABLED(EEPROM_INIT_NOW)
+        uint32_t stored_hash;
+        EEPROM_READ_ALWAYS(stored_hash);
+        if (stored_hash != build_hash) { EEPROM_FINISH(); return true; }
+      #endif
+
+      uint16_t stored_crc;
+      EEPROM_READ_ALWAYS(stored_crc);
+
       float dummyf = 0;
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
@@ -2480,7 +2481,7 @@ void MarlinSettings::postprocess() {
       return success;
     }
     reset();
-    #if ENABLED(EEPROM_AUTO_INIT)
+    #if EITHER(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
       (void)save();
       SERIAL_ECHO_MSG("EEPROM Initialized");
     #endif
