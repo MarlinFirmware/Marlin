@@ -942,7 +942,7 @@
 #endif
 
 /**
- * Default Max Acceleration (change/s) change = mm/s^2
+ * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K]]], E0 [, E1[, E2...]]
@@ -955,7 +955,7 @@
 #endif
 
 /**
- * Default Acceleration (change/s) change = mm/s^2
+ * Default Acceleration (change/s) change = mm/s
  * Override with M204
  *
  *   M204 P    Acceleration
