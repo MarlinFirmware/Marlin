@@ -1,0 +1,247 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "../../../inc/MarlinConfig.h"
+
+#if HAS_TRINAMIC_CONFIG
+
+#include "../../gcode.h"
+#include "../../../feature/tmc_util.h"
+#include "../../../module/stepper/indirection.h"
+
+/**
+ * M9999: Set TMC stepper drive chopper times
+ *
+ * Parameters:
+ *   X, Y, Z, E
+ *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z, E0; 1 for X2, Y2, Z2, E1; 2 for Z3, E2; 3 for Z4, E3; 4 for E4; 5 for E5; 6 for E6; 7 for E7)
+ *   B           - blank_time       [16, 24, 36, 54]
+ *   O           - time-off         [ 1..15]
+ *   N           - hysteresis_end   [-3..12]
+ *   S           - hysteresis_start [ 1...8]
+ * 
+ * With no parameters report chopper times
+ */
+
+void GcodeSuite::M9999() {
+  #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
+  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(chopper_time_config)
+
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+    const uint8_t index = parser.byteval('I');
+  #endif
+
+  uint8_t value_blanktime;
+  uint8_t value_toff;
+  int8_t value_hend;
+  uint8_t value_hstart;
+  chopper_time_struct chopper_time_config;
+  uint8_t i;
+   
+  if (parser.seen_test('X') || parser.seen_test('Y') || parser.seen_test('Z') || parser.seen_test('E')) {
+ 
+    if (parser.seen_test('X')) i=0;
+    if (parser.seen_test('Y')) i=1;
+    if (parser.seen_test('Z')) i=2;
+    if (parser.seen_test('E')) i=3;
+
+    if (parser.seenval('B')) {
+      value_blanktime = parser.value_byte();
+      if (value_blanktime == 16 || value_blanktime == 24 || value_blanktime == 36 || value_blanktime == 54) {
+        chopper_time_config.blank_time = value_blanktime;
+        SERIAL_ECHOPGM_P(" set blank_time      =", chopper_time_config.blank_time);
+        SERIAL_EOL();
+      }
+      else {
+        SERIAL_ECHOPGM_P(" Error: choose for B blank_time one of the following values [16, 24, 36, 54]");
+        SERIAL_EOL();
+        exit(0);
+      }
+    }
+
+    if (parser.seenval('O')) {
+      value_toff = parser.value_byte();
+      if (value_toff >= 1 && value_toff <= 15) {
+        chopper_time_config.time_off = value_toff;
+        SERIAL_ECHOPGM_P(" set time_off        =", chopper_time_config.time_off);
+        SERIAL_EOL();
+      }
+      else {
+        SERIAL_ECHOPGM_P(" Error: give O (time-off) values between [1..15]");
+        SERIAL_EOL();
+        exit(0);
+      }
+    }
+ 
+    if (parser.seenval('N')) {
+      value_hend = (int8_t)constrain(parser.value_long(), -127, 127);
+
+      if (value_hend >= -3 && value_hend <= 12) {
+        chopper_time_config.hysteresis_end = value_hend;
+        SERIAL_ECHOPGM_P(" set hysteresis_end  =", chopper_time_config.hysteresis_end);
+        SERIAL_EOL();
+      }
+      else {
+        SERIAL_ECHOPGM_P(" Error: give N (hysteresis_end) values between [-1..12]");
+        SERIAL_EOL();
+        exit(0);
+      }
+    }
+
+    if (parser.seenval('S')) {
+      value_hstart = parser.value_byte();
+      if (value_hstart >= 1 && value_hstart <= 8) {
+        chopper_time_config.hysteresis_start = value_hstart;
+        SERIAL_ECHOPGM_P(" set hysteresis_start=", chopper_time_config.hysteresis_start);
+        SERIAL_EOL();
+      }
+      else {
+        SERIAL_ECHOPGM_P(" Error: give S (hysteresis_start) values between [1..8]");
+        SERIAL_EOL();
+        exit(0);
+      }
+    }
+
+    switch (i) {
+      case X_AXIS:
+        #if AXIS_IS_TMC(X)
+          if (index == 0) TMC_SET_CHOPPER_TIME(X);
+        #endif
+        #if AXIS_IS_TMC(X2)
+          if (index == 1) TMC_SET_CHOPPER_TIME(X2);
+        #endif
+        break;
+
+      #if HAS_Y_AXIS
+        case Y_AXIS:
+          #if AXIS_IS_TMC(Y)
+            if (index == 0) TMC_SET_CHOPPER_TIME(Y);
+          #endif
+          #if AXIS_IS_TMC(Y2)
+            if (index == 1) TMC_SET_CHOPPER_TIME(Y2);
+          #endif
+          break;
+      #endif
+
+      #if HAS_Z_AXIS
+        case Z_AXIS:
+          #if AXIS_IS_TMC(Z)
+            if (index == 0) TMC_SET_CHOPPER_TIME(Z);
+          #endif
+          #if AXIS_IS_TMC(Z2)
+            if (index == 1) TMC_SET_CHOPPER_TIME(Z2);
+          #endif
+          #if AXIS_IS_TMC(Z3)
+            if (index == 2) TMC_SET_CHOPPER_TIME(Z3);
+          #endif
+          #if AXIS_IS_TMC(Z4)
+            if (index == 3) TMC_SET_CHOPPER_TIME(Z4);
+          #endif
+          break;
+      #endif
+
+      #if E_STEPPERS
+        case E_AXIS: {
+          const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
+          if (target_e_stepper < 0) return;
+          switch (target_e_stepper) {
+            #if AXIS_IS_TMC(E0)
+              case 0: TMC_SET_CHOPPER_TIME(E0); break;
+            #endif
+            #if AXIS_IS_TMC(E1)
+              case 1: TMC_SET_CHOPPER_TIME(E1); break;
+            #endif
+            #if AXIS_IS_TMC(E2)
+              case 2: TMC_SET_CHOPPER_TIME(E2); break;
+            #endif
+            #if AXIS_IS_TMC(E3)
+              case 3: TMC_SET_CHOPPER_TIME(E3); break;
+            #endif
+            #if AXIS_IS_TMC(E4)
+              case 4: TMC_SET_CHOPPER_TIME(E4); break;
+            #endif
+            #if AXIS_IS_TMC(E5)
+              case 5: TMC_SET_CHOPPER_TIME(E5); break;
+            #endif
+            #if AXIS_IS_TMC(E6)
+              case 6: TMC_SET_CHOPPER_TIME(E6); break;
+            #endif
+            #if AXIS_IS_TMC(E7)
+              case 7: TMC_SET_CHOPPER_TIME(E7); break;
+            #endif
+          }
+        } break;
+      #endif
+    }
+  }
+  else {
+    #if AXIS_IS_TMC(X)
+      TMC_SAY_CHOPPER_TIME(X);
+    #endif
+    #if AXIS_IS_TMC(X2)
+      TMC_SAY_CHOPPER_TIME(X2);
+    #endif
+    #if AXIS_IS_TMC(Y)
+      TMC_SAY_CHOPPER_TIME(Y);
+    #endif
+    #if AXIS_IS_TMC(Y2)
+      TMC_SAY_CHOPPER_TIME(Y2);
+    #endif
+    #if AXIS_IS_TMC(Z)
+      TMC_SAY_CHOPPER_TIME(Z);
+    #endif
+    #if AXIS_IS_TMC(Z2)
+      TMC_SAY_CHOPPER_TIME(Z2);
+    #endif
+    #if AXIS_IS_TMC(Z3)
+      TMC_SAY_CHOPPER_TIME(Z3);
+    #endif
+    #if AXIS_IS_TMC(Z4)
+      TMC_SAY_CHOPPER_TIME(Z4);
+    #endif
+    #if AXIS_IS_TMC(E0)
+      TMC_SAY_CHOPPER_TIME(E0);
+    #endif
+    #if AXIS_IS_TMC(E1)
+      TMC_SAY_CHOPPER_TIME(E1);
+    #endif
+    #if AXIS_IS_TMC(E2)
+      TMC_SAY_CHOPPER_TIME(E2);
+    #endif
+    #if AXIS_IS_TMC(E3)
+      TMC_SAY_CHOPPER_TIME(E3);
+    #endif
+    #if AXIS_IS_TMC(E4)
+      TMC_SAY_CHOPPER_TIME(E4);
+    #endif
+    #if AXIS_IS_TMC(E5)
+      TMC_SAY_CHOPPER_TIME(E5);
+    #endif
+    #if AXIS_IS_TMC(E6)
+      TMC_SAY_CHOPPER_TIME(E6);
+    #endif
+    #if AXIS_IS_TMC(E7)
+      TMC_SAY_CHOPPER_TIME(E7);
+    #endif
+  }
+}
+#endif // HAS_TRINAMIC_CONFIG
