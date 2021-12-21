@@ -2636,10 +2636,14 @@
 #endif
 
 /**
- * FAST PWM FAN Settings
+ * FAST PWM FAN default PWM frequency
  */
-#if ENABLED(FAST_PWM_FAN) && !defined(FAST_PWM_FAN_FREQUENCY)
-  #define FAST_PWM_FAN_FREQUENCY ((F_CPU) / (2 * 255 * 1)) // Fan frequency default
+#if !defined(FAST_PWM_FAN_FREQUENCY) && ENABLED(FAST_PWM_FAN)
+  #ifdef __AVR__
+    #define FAST_PWM_FAN_FREQUENCY ((F_CPU) / (2 * 255 * 1))
+  #else
+    #define FAST_PWM_FAN_FREQUENCY 1000U
+  #endif
 #endif
 
 /**
