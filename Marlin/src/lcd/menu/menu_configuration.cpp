@@ -34,6 +34,10 @@
   #include "../../feature/runout.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../../feature/fancheck.h"
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/powerloss.h"
 #endif
@@ -535,6 +539,10 @@ void menu_configuration() {
 
   #if HAS_FILAMENT_SENSOR
     EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+  #endif
+
+  #if HAS_FANCHECK
+    EDIT_ITEM(bool, MSG_FANCHECK, &fan_check.enabled);
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
