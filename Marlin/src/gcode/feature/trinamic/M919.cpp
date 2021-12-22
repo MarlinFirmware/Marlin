@@ -42,7 +42,7 @@
  * With no parameters report chopper times for all axis
  */
 
-void GcodeSuite::M9999() {
+void GcodeSuite::M919() {
   #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
   #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(time_off, hysteresis_end, hysteresis_start)
 
