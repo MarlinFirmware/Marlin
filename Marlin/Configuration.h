@@ -2841,6 +2841,7 @@
 //#define NUM_M106_FANS 1
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
+// Please define FAST_PWM_FAN_FREQUENCY according to your hardware.
 //#define FAST_PWM_FAN
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency

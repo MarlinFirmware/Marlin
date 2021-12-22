@@ -528,6 +528,10 @@
   #warning "Auto-assigned CHAMBER_FAN_INDEX to the first free FAN pin."
 #endif
 
+#if ENABLED(AUTO_ASSIGNED_FAST_PWM_FAN_FREQUENCY)
+  #warning "Auto-assigned FAST_PWM_FAN_FREQUENCY, please specify according to your hardware."
+#endif
+
 #if IS_LEGACY_TFT
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif

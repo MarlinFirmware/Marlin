@@ -2676,6 +2676,7 @@
   #else
     #define FAST_PWM_FAN_FREQUENCY 1000U
   #endif
+  #define AUTO_ASSIGNED_FAST_PWM_FAN_FREQUENCY
 #endif
 
 /**
