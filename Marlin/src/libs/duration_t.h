@@ -154,12 +154,17 @@ struct duration_t {
    */
   uint8_t toDigital(char *buffer, bool with_days=false) const {
     uint16_t h = uint16_t(this->hour()),
-             m = uint16_t(this->minute() % 60UL);
+             m = uint16_t(this->minute() % 60UL),
+			 s = uint16_t(this->second() % 60UL);
     if (with_days) {
       uint16_t d = this->day();
       sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);
       return d >= 10 ? 9 : 8;
     }
+    else if (h < 1) {
+      sprintf_P(buffer, PSTR("%02hu:%02hu"), m, s);
+      return 5;
+	}
     else if (h < 100) {
       sprintf_P(buffer, PSTR("%02hu:%02hu"), h, m);
       return 5;
