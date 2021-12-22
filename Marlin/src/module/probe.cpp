@@ -766,7 +766,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     DEBUG_POS("", current_position);
   }
 
-  TERN_(BLTOUCH, if (bltouch.high_speed_mode && bltouch.triggered()) bltouch._reset());
+  #if ENABLED(BLTOUCH)
+    if (bltouch.high_speed_mode && bltouch.triggered())
+      bltouch._reset();
+  #endif
 
   // On delta keep Z below clip height or do_blocking_move_to will abort
   xyz_pos_t npos = { rx, ry, TERN(DELTA, _MIN(delta_clip_start_height, current_position.z), current_position.z) };
