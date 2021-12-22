@@ -1530,7 +1530,7 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION, ")");
+      DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
       TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
