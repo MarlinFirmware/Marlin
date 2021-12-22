@@ -34,6 +34,7 @@
  * Parameters:
  *   X, Y, Z, E
  *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z, E0; 1 for X2, Y2, Z2, E1; 2 for Z3, E2; 3 for Z4, E3; 4 for E4; 5 for E5; 6 for E6; 7 for E7)
+ *   T[index]    - Extruder index (Zero-based. Omit for E0 only.)
  *   O           - time-off         [ 1..15]
  *   N           - hysteresis_end   [-3..12]
  *   S           - hysteresis_start [ 1...8]
@@ -45,13 +46,14 @@ void GcodeSuite::M9999() {
   #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
   #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(time_off, hysteresis_end, hysteresis_start)
 
-  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
-    const uint8_t index = parser.byteval('I');
-  #endif
-
+  bool report = true;
   uint8_t value_toff, time_off;
   int8_t value_hend, hysteresis_end;
   uint8_t value_hstart, hysteresis_start;
+
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+    const uint8_t index = parser.byteval('I');
+  #endif
     
   static constexpr chopper_timing_t chopper_timing = CHOPPER_TIMING;
   time_off = chopper_timing.toff;
@@ -60,6 +62,8 @@ void GcodeSuite::M9999() {
 
 
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) {
+    report = false;
+
     if (parser.seenval('O')) {
       value_toff = parser.value_byte();
       if (value_toff >= 1 && value_toff <= 15) {
@@ -171,9 +175,8 @@ void GcodeSuite::M9999() {
         } break;
       #endif
     }
-    //restore_stepper_drivers();
-  }
-  else {
+    
+  if (report) {
     #if AXIS_IS_TMC(X)
       TMC_SAY_CHOPPER_TIME(X);
     #endif
@@ -224,9 +227,4 @@ void GcodeSuite::M9999() {
     #endif
   }
 }
-
-void CheckCopperConfig() {
-
-}
-
 #endif // HAS_TRINAMIC_CONFIG
