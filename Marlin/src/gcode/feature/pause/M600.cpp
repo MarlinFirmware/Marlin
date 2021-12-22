@@ -67,13 +67,13 @@
 void GcodeSuite::M600() {
 
   #if ENABLED(MIXING_EXTRUDER)
-    const int8_t target_e_stepper = get_target_e_stepper_from_command();
-    if (target_e_stepper < 0) return;
+    const int8_t eindex = get_target_e_stepper_from_command();
+    if (eindex < 0) return;
 
     const uint8_t old_mixing_tool = mixer.get_current_vtool();
     mixer.T(MIXER_DIRECT_SET_TOOL);
 
-    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(target_e_stepper) ? 1.0 : 0.0);
+    MIXER_STEPPER_LOOP(i) mixer.set_collector(i, i == uint8_t(eindex) ? 1.0 : 0.0);
     mixer.normalize();
 
     const int8_t target_extruder = active_extruder;
