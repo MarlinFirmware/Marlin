@@ -175,7 +175,7 @@ void GcodeSuite::M9999() {
         } break;
       #endif
     }
-    
+  }
   if (report) {
     #if AXIS_IS_TMC(X)
       TMC_SAY_CHOPPER_TIME(X);

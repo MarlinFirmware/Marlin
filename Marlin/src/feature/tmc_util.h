@@ -188,6 +188,15 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
+    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
+      this->toff(time_off);
+      this->hysteresis_end(hysteresis_end);
+      this->hysteresis_start(hysteresis_start);
+      TMC2208Stepper::toff(time_off);
+      TMC2208Stepper::hysteresis_end(hysteresis_end);
+      TMC2208Stepper::hysteresis_start(hysteresis_start);
+    }    
+
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
         return _tmc_thrs(this->microsteps(), this->TPWMTHRS(), planner.settings.axis_steps_per_mm[AXIS_ID]);
@@ -235,6 +244,15 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
       inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
+
+    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
+      this->toff(time_off);
+      this->hysteresis_end(hysteresis_end);
+      this->hysteresis_start(hysteresis_start);
+      TMC2209Stepper::toff(time_off);
+      TMC2209Stepper::hysteresis_end(hysteresis_end);
+      TMC2209Stepper::hysteresis_start(hysteresis_start);
+    }    
 
     #if ENABLED(HYBRID_THRESHOLD)
       uint32_t get_pwm_thrs() {
@@ -284,6 +302,15 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
       TMC2660Stepper::rms_current(mA);
     }
     inline uint16_t get_microstep_counter() { return TMC2660Stepper::mstep(); }
+
+    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
+      this->toff(time_off);
+      this->hysteresis_end(hysteresis_end);
+      this->hysteresis_start(hysteresis_start);
+      TMC2660Stepper::toff(time_off);
+      TMC2660Stepper::hysteresis_end(hysteresis_end);
+      TMC2660Stepper::hysteresis_start(hysteresis_start);
+    }
 
     #if USE_SENSORLESS
       inline int16_t homing_threshold() { return TMC2660Stepper::sgt(); }
