@@ -159,6 +159,9 @@
     #ifndef MAX31865_SENSOR_WIRES_0
       #define MAX31865_SENSOR_WIRES_0 2
     #endif
+    #ifndef MAX31865_WIRE_OHMS_0
+      #define MAX31865_WIRE_OHMS_0 0.0f
+    #endif
   #elif TEMP_SENSOR_0 == -3
     #define TEMP_SENSOR_0_IS_MAX31855 1
     #define TEMP_SENSOR_0_MAX_TC_TMIN -270
@@ -192,6 +195,9 @@
     #define TEMP_SENSOR_1_MAX_TC_TMAX 1024
     #ifndef MAX31865_SENSOR_WIRES_1
       #define MAX31865_SENSOR_WIRES_1 2
+    #endif
+    #ifndef MAX31865_WIRE_OHMS_1
+      #define MAX31865_WIRE_OHMS_1 0.0f
     #endif
   #elif TEMP_SENSOR_1 == -3
     #define TEMP_SENSOR_1_IS_MAX31855 1
@@ -548,6 +554,20 @@
   #if ENABLED(MIXING_EXTRUDER)
     #define WATCH_ALL_RUNOUT_SENSORS
   #endif
+#endif
+
+// Probe Temperature Compensation
+#if !TEMP_SENSOR_PROBE
+  #undef PTC_PROBE
+#endif
+#if !TEMP_SENSOR_BED
+  #undef PTC_BED
+#endif
+#if !HAS_EXTRUDERS
+  #undef PTC_HOTEND
+#endif
+#if ANY(PTC_PROBE, PTC_BED, PTC_HOTEND)
+  #define HAS_PTC 1
 #endif
 
 // Let SD_FINISHED_RELEASECOMMAND stand in for SD_FINISHED_STEPPERRELEASE
@@ -983,4 +1003,10 @@
 #endif
 #if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
   #define HAS_MEATPACK 1
+#endif
+
+// AVR are (usually) too limited in resources to store the configuration into the binary
+#if !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || DISABLED(SDSUPPORT) || EITHER(SDCARD_READONLY, DISABLE_M503))
+  #undef CONFIGURATION_EMBEDDING
+  #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
 #endif

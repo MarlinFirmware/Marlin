@@ -29,6 +29,13 @@
 
 #define BOARD_INFO_NAME "BTT BTT002 V1.0"
 
+//#define MK3_FAN_PINS
+
+#define USES_DIAG_PINS
+
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
@@ -40,9 +47,6 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #endif
-
-// Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Limit Switches
@@ -167,8 +171,30 @@
 //
 #define HEATER_0_PIN                        PE6   // Heater0
 #define HEATER_BED_PIN                      PE5   // Hotbed
-#define FAN_PIN                             PB8   // Fan1
-#define FAN1_PIN                            PB9   // Fan0
+
+#ifndef FAN_PIN
+  #ifdef MK3_FAN_PINS
+    #define FAN_PIN                         PB8   // Fan1
+  #else
+    #define FAN_PIN                         PB9   // Fan0
+  #endif
+#endif
+
+#ifndef FAN1_PIN
+  #ifdef MK3_FAN_PINS
+    #define FAN1_PIN                        PB9   // Fan0
+  #else
+    #define FAN1_PIN                        PB8   // Fan1
+  #endif
+#endif
+
+#ifndef E0_FAN_TACHO_PIN
+  #ifdef MK3_FAN_PINS
+    #define E0_FAN_TACHO_PIN                PE1   // Fan1
+  #else
+    #define E0_FAN_TACHO_PIN                PE0   // Fan0
+  #endif
+#endif
 
 /**
  * -----------------------------------BTT002 V1.0----------------------------------------

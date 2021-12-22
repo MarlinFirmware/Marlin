@@ -65,6 +65,10 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
+#endif
+
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
@@ -296,6 +300,8 @@ void GcodeSuite::dwell(millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
+  TERN_(HAS_FANCHECK, fan_check.check_deferred_error());
+
   KEEPALIVE_STATE(IN_HANDLER);
 
  /**
@@ -424,7 +430,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
+      #if BOTH(PTC_PROBE, PTC_BED)
         case 76: G76(); break;                                    // G76: Calibrate first layer compensation values
       #endif
 
@@ -577,6 +583,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 113: M113(); break;                                  // M113: Set Host Keepalive interval
       #endif
 
+      #if HAS_FANCHECK
+        case 123: M123(); break;                                  // M123: Report fan states or set fans auto-report interval
+      #endif
+
       #if HAS_HEATED_BED
         case 140: M140(); break;                                  // M140: Set bed temperature
         case 190: M190(); break;                                  // M190: Wait for bed temperature to reach target
@@ -585,6 +595,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if HAS_HEATED_CHAMBER
         case 141: M141(); break;                                  // M141: Set chamber temperature
         case 191: M191(); break;                                  // M191: Wait for chamber temperature to reach target
+      #endif
+
+      #if HAS_TEMP_PROBE
+        case 192: M192(); break;                                  // M192: Wait for probe temp
       #endif
 
       #if HAS_COOLER
@@ -921,8 +935,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 852: M852(); break;                                  // M852: Set Skew factors
       #endif
 
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        case 192: M192(); break;                                  // M192: Wait for probe temp
+      #if HAS_PTC
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
@@ -1039,6 +1052,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(MAX7219_GCODE)
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
+      #endif
+
+      #if ENABLED(HAS_MCP3426_ADC)
+        case 3426: M3426(); break;                                // M3426: Read MCP3426 ADC (over i2c)
       #endif
 
       default: parser.unknown_command_warning(); break;

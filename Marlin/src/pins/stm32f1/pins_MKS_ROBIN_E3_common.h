@@ -27,9 +27,10 @@
 
 #include "env_validate.h"
 
-#define BOARD_NO_NATIVE_USB
-
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
+
+#define BOARD_NO_NATIVE_USB
+#define USES_DIAG_JUMPERS
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -61,6 +62,11 @@
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB1
+#endif
+
+// LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA2
 #endif
 
 //
@@ -195,7 +201,7 @@
     #define DOGLCD_SCK               EXP2_09_PIN
     #define DOGLCD_MOSI              EXP2_05_PIN
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define DOGLCD_CS                EXP1_08_PIN
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_PINS_DC                DOGLCD_A0

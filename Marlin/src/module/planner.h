@@ -75,6 +75,10 @@
   #define IS_PAGE(B) false
 #endif
 
+#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+  #include "../feature/closedloop.h"
+#endif
+
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t _mf = MANUAL_FEEDRATE,
@@ -864,6 +868,13 @@ class Planner {
 
     // Triggered position of an axis in mm (not core-savvy)
     static float triggered_position_mm(const AxisEnum axis);
+
+    // Blocks are queued, or we're running out moves, or the closed loop controller is waiting
+    static inline bool busy() {
+      return (has_blocks_queued() || cleaning_buffer_counter
+          || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
+      );
+    }
 
     // Block until all buffered steps are executed / cleaned
     static void synchronize();

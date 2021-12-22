@@ -45,9 +45,9 @@ namespace Language_uk {
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD-картка видалена");
   LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставте SD-картку");
   #if LCD_WIDTH > 21
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Збій ініціалізації SD");
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Збій ініціалізації SD");
   #else
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Збій ініціаліз. SD");
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Збій ініціаліз. SD");
   #endif
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Помилка зчитування");
   LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск видалений");

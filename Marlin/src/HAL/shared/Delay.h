@@ -92,6 +92,12 @@ void calibrate_delay_loop();
 
   #define DELAY_CYCLES(X) do { SmartDelay<IS_CONSTEXPR(X), IS_CONSTEXPR(X) ? X : 0> _smrtdly_X(X); } while(0)
 
+  #if GCC_VERSION <= 70000
+    #define DELAY_CYCLES_VAR(X) DelayCycleFnc(X)
+  #else
+    #define DELAY_CYCLES_VAR DELAY_CYCLES
+  #endif
+
   // For delay in microseconds, no smart delay selection is required, directly call the delay function
   // Teensy compiler is too old and does not accept smart delay compile-time / run-time selection correctly
   #define DELAY_US(x) DelayCycleFnc((x) * ((F_CPU) / 1000000UL))
@@ -200,9 +206,12 @@ void calibrate_delay_loop();
 #endif
 
 #if ENABLED(DELAY_NS_ROUND_DOWN)
-  #define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)          // floor
+  #define _NS_TO_CYCLES(x) ( (x) * ((F_CPU) / 1000000UL)        / 1000UL) // floor
 #elif ENABLED(DELAY_NS_ROUND_CLOSEST)
-  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 500) / 1000UL)  // round
+  #define _NS_TO_CYCLES(x) (((x) * ((F_CPU) / 1000000UL) + 500) / 1000UL) // round
 #else
-  #define DELAY_NS(x) DELAY_CYCLES(((x) * ((F_CPU) / 1000000UL) + 999) / 1000UL)  // "ceil"
+  #define _NS_TO_CYCLES(x) (((x) * ((F_CPU) / 1000000UL) + 999) / 1000UL) // "ceil"
 #endif
+
+#define DELAY_NS(x)         DELAY_CYCLES(_NS_TO_CYCLES(x))
+#define DELAY_NS_VAR(x) DELAY_CYCLES_VAR(_NS_TO_CYCLES(x))

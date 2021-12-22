@@ -23,8 +23,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/09/08
+ * Version: 3.7.1
+ * Date: 2021/11/09
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -38,8 +38,8 @@
 //#define DEBUG_OUT 1
 #include "../../../core/debug_out.h"
 
-uint8_t MenuItemTotal = 0;
-uint8_t MenuItemCount = 0;
+int8_t MenuItemTotal = 0;
+int8_t MenuItemCount = 0;
 MenuItemClass** MenuItems = nullptr;
 MenuClass *CurrentMenu = nullptr;
 MenuClass *PreviousMenu = nullptr;
@@ -50,8 +50,8 @@ uint16_t DWINUI::textcolor = Def_Text_Color;
 uint16_t DWINUI::backcolor = Def_Background_Color;
 uint8_t  DWINUI::font = font8x16;
 
-void (*DWINUI::onCursorErase)(uint8_t line)=nullptr;
-void (*DWINUI::onCursorDraw)(uint8_t line)=nullptr;
+void (*DWINUI::onCursorErase)(const int8_t line)=nullptr;
+void (*DWINUI::onCursorDraw)(const int8_t line)=nullptr;
 void (*DWINUI::onTitleDraw)(TitleClass* title)=nullptr;
 void (*DWINUI::onMenuDraw)(MenuClass* menu)=nullptr;
 
@@ -93,7 +93,7 @@ uint8_t DWINUI::fontWidth(uint8_t cfont) {
   }
 }
 
-// Get font character heigh
+// Get font character height
 uint8_t DWINUI::fontHeight(uint8_t cfont) {
   switch (cfont) {
     case font6x12 : return 12;
@@ -110,12 +110,12 @@ uint8_t DWINUI::fontHeight(uint8_t cfont) {
   }
 }
 
-// Get screen x coodinates from text column
+// Get screen x coordinates from text column
 uint16_t DWINUI::ColToX(uint8_t col) {
   return col * fontWidth(font);
 }
 
-// Get screen y coodinates from text row
+// Get screen y coordinates from text row
 uint16_t DWINUI::RowToY(uint8_t row) {
   return row * fontHeight(font);
 }
@@ -304,14 +304,14 @@ void DWINUI::ClearMenuArea() {
 
 void DWINUI::MenuItemsClear() {
   if (MenuItems == nullptr) return;
-  for (uint8_t i = 0; i < MenuItemCount; i++) delete MenuItems[i];
+  for (int8_t i = 0; i < MenuItemCount; i++) delete MenuItems[i];
   delete[] MenuItems;
   MenuItems = nullptr;
   MenuItemCount = 0;
   MenuItemTotal = 0;
 }
 
-void DWINUI::MenuItemsPrepare(uint8_t totalitems) {
+void DWINUI::MenuItemsPrepare(int8_t totalitems) {
   MenuItemsClear();
   MenuItemTotal = totalitems;
   MenuItems = new MenuItemClass*[totalitems];
@@ -379,7 +379,7 @@ MenuClass::MenuClass() {
 void MenuClass::draw() {
   MenuTitle.draw();
   if (DWINUI::onMenuDraw != nullptr) (*DWINUI::onMenuDraw)(this);
-  for (uint8_t i = 0; i < MenuItemCount; i++)
+  for (int8_t i = 0; i < MenuItemCount; i++)
     MenuItems[i]->draw(i - topline);
   if (DWINUI::onCursorDraw != nullptr) DWINUI::onCursorDraw(line());
   DWIN_UpdateLCD();

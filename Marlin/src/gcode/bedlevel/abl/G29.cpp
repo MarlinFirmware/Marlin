@@ -36,7 +36,7 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../../../feature/probe_temp_comp.h"
   #include "../../../module/temperature.h"
 #endif
@@ -645,11 +645,9 @@ G29_TYPE GcodeSuite::G29() {
             break; // Breaks out of both loops
           }
 
-          #if ENABLED(PROBE_TEMP_COMPENSATION)
-            temp_comp.compensate_measurement(TSI_BED, thermalManager.degBed(), abl.measured_z);
-            temp_comp.compensate_measurement(TSI_PROBE, thermalManager.degProbe(), abl.measured_z);
-            TERN_(USE_TEMP_EXT_COMPENSATION, temp_comp.compensate_measurement(TSI_EXT, thermalManager.degHotend(0), abl.measured_z));
-          #endif
+          TERN_(PTC_BED,    ptc.compensate_measurement(TSI_BED,   thermalManager.degBed(),     abl.measured_z));
+          TERN_(PTC_PROBE,  ptc.compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   abl.measured_z));
+          TERN_(PTC_HOTEND, ptc.compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), abl.measured_z));
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -664,7 +662,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             const float z = abl.measured_z + abl.Z_offset;
-            z_values[abl.meshCount.x][abl.meshCount.y] = z;
+            z_values[abl.meshCount.x][abl.meshCount.y] = z PLUS_TERN0(X_AXIS_TWIST_COMPENSATION, xatc.compensation(abl.probePos));
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
           #endif
