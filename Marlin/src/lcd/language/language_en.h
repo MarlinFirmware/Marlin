@@ -491,6 +491,7 @@ namespace Language_en {
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("Stow");
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("Deploy");
   LSTR MSG_BLTOUCH_SW_MODE                = _UxGT("SW-Mode");
+  LSTR MSG_BLTOUCH_SPEED_MODE             = _UxGT("High Speed");
   LSTR MSG_BLTOUCH_5V_MODE                = _UxGT("5V-Mode");
   LSTR MSG_BLTOUCH_OD_MODE                = _UxGT("OD-Mode");
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("Mode-Store");

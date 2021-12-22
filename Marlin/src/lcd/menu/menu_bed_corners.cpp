@@ -217,13 +217,13 @@ static void _lcd_level_bed_corners_get_next_position() {
 
   bool _lcd_level_bed_corners_probe(bool verify=false) {
     if (verify) do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP); // do clearance if needed
-    TERN_(BLTOUCH_SLOW_MODE, bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
+    TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - LEVEL_CORNERS_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       sync_plan_position();
-      TERN_(BLTOUCH_SLOW_MODE, bltouch.stow()); // Stow in LOW SPEED MODE on every trigger
+      TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow()); // Stow in LOW SPEED MODE on every trigger
       // Triggered outside tolerance range?
       if (ABS(current_position.z - last_z) > LEVEL_CORNERS_PROBE_TOLERANCE) {
         last_z = current_position.z; // Above tolerance. Set a new Z for subsequent corners.
@@ -249,7 +249,7 @@ static void _lcd_level_bed_corners_get_next_position() {
       }
       idle();
     }
-    TERN_(BLTOUCH_SLOW_MODE, bltouch.stow());
+    TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow());
     ui.goto_screen(_lcd_draw_probing);
     return (probe_triggered);
   }
@@ -263,13 +263,14 @@ static void _lcd_level_bed_corners_get_next_position() {
     do {
       ui.refresh(LCDVIEW_REDRAW_NOW);
       _lcd_draw_probing();                                // update screen with # of good points
-      do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, current_position.z + LEVEL_CORNERS_Z_HOP, 7)); // clearance
+
+      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP + TERN0(BLTOUCH, bltouch.z_extra_clearance())); // clearance
 
       _lcd_level_bed_corners_get_next_position();         // Select next corner coordinates
       current_position -= probe.offset_xy;                // Account for probe offsets
       do_blocking_move_to_xy(current_position);           // Goto corner
 
-      TERN_(BLTOUCH_HS_MODE, bltouch.deploy());           // Deploy in HIGH SPEED MODE
+      TERN_(BLTOUCH, if (bltouch.high_speed_mode) bltouch.deploy()); // Deploy in HIGH SPEED MODE
       if (!_lcd_level_bed_corners_probe()) {              // Probe down to tolerance
         if (_lcd_level_bed_corners_raise()) {             // Prompt user to raise bed if needed
           #if ENABLED(LEVEL_CORNERS_VERIFY_RAISED)        // Verify
@@ -290,10 +291,12 @@ static void _lcd_level_bed_corners_get_next_position() {
 
     } while (good_points < nr_edge_points); // loop until all points within tolerance
 
-    #if ENABLED(BLTOUCH_HS_MODE)
-      // In HIGH SPEED MODE do clearance and stow at the very end
-      do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP);
-      bltouch.stow();
+    #if ENABLED(BLTOUCH)
+      if (bltouch.high_speed_mode)
+        // In HIGH SPEED MODE do clearance and stow at the very end
+        do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP);
+        bltouch.stow();
+      }
     #endif
 
     ui.goto_screen(_lcd_draw_level_prompt); // prompt for bed leveling
