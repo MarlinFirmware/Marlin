@@ -31,17 +31,23 @@
 /**
  * Laser:
  *  M3 - Laser ON/Power (Ramped power)
- *  M4 - Laser ON/Power (Continuous power)
+ *  M4 - Laser ON/Power (Ramped power)
+ *  M3I enables continuous inline power and it is processed by the planner. Move blocks are
+ *  calculated and each block power buffer value is set there. The Stepper ISR then processes the blocks inline.
+ *  Within inline mode M3 S-Values will set the power for the next moves e.g. G1 X10 Y10 powers on with the last S-Value
+ *  M3I must be already set when using planner synced M3 inline S-Values (LASER_POWER_SYNC)   
+ *  M4I sets dynamic mode which takes the currently set feedrate and calculates a laser power OCR value
+ *  M5I clears inline mode and set power to 0
+ *  M5 sets the power output to 0 but leaves inline mode on.
  *
  * Spindle:
  *  M3 - Spindle ON (Clockwise)
  *  M4 - Spindle ON (Counter-clockwise)
  *
  * Parameters:
- *  S<power> - Set power. S0 will turn the spindle/laser off, except in relative mode.
- *  O<ocr>   - Set power and OCR (oscillator count register)
+ *  S<power> - Set power. S0 will turn the spindle/laser off.
  *
- *  If no PWM pin is defined then M3/M4 just turns it on.
+ *  If no PWM pin is defined then M3/M4 just turns it on or off.
  *
  *  At least 12.8KHz (50Hz * 256) is needed for Spindle PWM.
  *  Hardware PWM is required on AVR. ISRs are too slow.
@@ -66,77 +72,74 @@
  *  PWM duty cycle goes from 0 (off) to 255 (always on).
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
-  #if EITHER(SPINDLE_LASER_USE_PWM, SPINDLE_SERVO)
-    auto get_s_power = [] {
-      if (parser.seenval('S')) {
-        const float spwr = parser.value_float();
-        #if ENABLED(SPINDLE_SERVO)
-          cutter.unitPower = spwr;
-        #else
-          cutter.unitPower = TERN(SPINDLE_LASER_USE_PWM,
-                                cutter.power_to_range(cutter_power_t(round(spwr))),
-                                spwr > 0 ? 255 : 0);
-        #endif
-      }
-      else
-        cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
-      return cutter.unitPower;
-    };
+  if (cutter.cutter_mode == CUTTER_MODE_STANDARD)
+    planner.synchronize();   // Wait for previous movement commands (G0/G1/G2/G3) to complete before changing power
+
+  #if ENABLED(LASER_FEATURE)
+    if (parser.seen('I')) {
+      cutter.cutter_mode = is_M4 ? CUTTER_MODE_DYNAMIC : CUTTER_MODE_CONTINUOUS;
+      cutter.inline_power(0);
+      cutter.set_enabled(true);
+    }
   #endif
 
-  #if ENABLED(LASER_POWER_INLINE)
-    if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
-      // Laser power in inline mode
-      cutter.inline_direction(is_M4); // Should always be unused
-      #if ENABLED(SPINDLE_LASER_USE_PWM)
-        if (parser.seen('O')) {
-          cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
-          cutter.inline_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
-        }
-        else
-          cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
+  auto get_s_power = [] {
+    if (parser.seen('S')) {
+      #if ENABLED(LASER_POWER_TRAP)
+        cutter.unitPower = parser.value_float();
       #else
-        cutter.set_inline_enabled(true);
+        cutter.unitPower = cutter.power_to_range(parser.value_float());
       #endif
-      return;
+      cutter.menuPower = cutter.unitPower;
     }
-    // Non-inline, standard case
-    cutter.inline_disable(); // Prevent future blocks re-setting the power
-  #endif
+    else if (cutter.cutter_mode == CUTTER_MODE_STANDARD) 
+      cutter.menuPower = cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
 
-  planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
-  cutter.set_reverse(is_M4);
+    // PWM not implied, power converted to OCR from unit definition and on/off if not PWM.
+    cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0);
+    return cutter.unitPower;
+  };
 
-  #if ENABLED(SPINDLE_LASER_USE_PWM)
-    if (parser.seenval('O')) {
-      cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
-      cutter.ocr_set_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
-    }
-    else
-      cutter.set_power(cutter.upower_to_ocr(get_s_power()));
-  #elif ENABLED(SPINDLE_SERVO)
-    cutter.set_power(get_s_power());
-  #else
+  if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {  // Laser power in inline mode
+    #if ENABLED(LASER_FEATURE)
+      planner.laser_inline.status.isPowered = true;                                                 // M3 or M4 is powered either way
+      get_s_power();                                                                                // Update cutter.power if seen
+      #if ENABLED(LASER_POWER_SYNC)
+        // With power sync we only set power so it does not effect queued inline power sets
+        planner.buffer_sync_block(BLOCK_FLAG_LASER_PWR);                                            // Send the flag, queueing inline power
+      #else
+        planner.synchronize();
+        cutter.inline_power(cutter.power);
+      #endif
+    #endif
+  }
+  else {
     cutter.set_enabled(true);
-  #endif
-  cutter.menuPower = cutter.unitPower;
+    get_s_power();
+    #if ENABLED(SPINDLE_SERVO)
+      cutter.apply_power(cutter.unitPower);
+    #else
+      cutter.apply_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0));
+    #endif
+    TERN_(SPINDLE_CHANGE_DIR, cutter.set_reverse(is_M4));
+  }
 }
 
 /**
  * M5 - Cutter OFF (when moves are complete)
  */
 void GcodeSuite::M5() {
-  #if ENABLED(LASER_POWER_INLINE)
-    if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
-      cutter.set_inline_enabled(false); // Laser power in inline mode
-      return;
-    }
-    // Non-inline, standard case
-    cutter.inline_disable(); // Prevent future blocks re-setting the power
-  #endif
   planner.synchronize();
-  cutter.set_enabled(false);
-  cutter.menuPower = cutter.unitPower;
+  cutter.power = 0;
+  cutter.apply_power(cutter.power);             // M5 kills power in either mode but if it's in inline it will be still be the active mode.
+  if (cutter.cutter_mode != CUTTER_MODE_STANDARD) {
+    if (parser.seen('I')) {
+      TERN_(LASER_FEATURE, cutter.inline_power(cutter.power));
+      cutter.set_enabled(false);                  // Needs to happen while we are in inline mode to clear inline power.
+      cutter.cutter_mode = CUTTER_MODE_STANDARD;  // Switch from inline to standard mode.
+    }
+  }
+  cutter.set_enabled(false);                      // Disable enable output setting
 }
 
 #endif // HAS_CUTTER

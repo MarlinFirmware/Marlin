@@ -115,6 +115,11 @@ enum BlockFlagBit : char {
   #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
     , BLOCK_BIT_SYNC_FANS
   #endif
+
+    // Sync laser power from a queued block
+  #if ENABLED(LASER_POWER_SYNC)
+    , BLOCK_BIT_LASER_PWR
+  #endif
 };
 
 enum BlockFlag : char {
@@ -128,29 +133,31 @@ enum BlockFlag : char {
   #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
     , BLOCK_FLAG_SYNC_FANS          = _BV(BLOCK_BIT_SYNC_FANS)
   #endif
+  #if ENABLED(LASER_POWER_SYNC)
+    , BLOCK_FLAG_LASER_PWR          = _BV(BLOCK_BIT_LASER_PWR)
+  #endif  
 };
 
-#define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) )
+#define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) | TERN0(LASER_POWER_SYNC, BLOCK_FLAG_LASER_PWR ))
 
-#if ENABLED(LASER_POWER_INLINE)
+#if ENABLED(LASER_FEATURE)
 
   typedef struct {
-    bool isPlanned:1;
-    bool isEnabled:1;
+    bool isEnabled:1;                                 // Set to engage the inline laser power output.
     bool dir:1;
+    bool isPowered:1;                                 // Set on any parsed G1, G2, G3, or G5 powered move, cleared on G0 and G28.
+    bool isSyncPower:1;                               // Set on a M3 sync based set laser power, used to determine active trap power 
     bool Reserved:6;
   } power_status_t;
 
   typedef struct {
-    power_status_t status;    // See planner settings for meaning
-    uint8_t power;            // Ditto; When in trapezoid mode this is nominal power
-    #if ENABLED(LASER_POWER_INLINE_TRAPEZOID)
-      uint8_t   power_entry;  // Entry power for the laser
-      #if DISABLED(LASER_POWER_INLINE_TRAPEZOID_CONT)
-        uint8_t   power_exit; // Exit power for the laser
-        uint32_t  entry_per,  // Steps per power increment (to avoid floats in stepper calcs)
-                  exit_per;   // Steps per power decrement
-      #endif
+    power_status_t status;                            // See planner settings for meaning
+    uint8_t power;                                    // Ditto; When in trapezoid mode this is nominal power
+
+    #if ENABLED(LASER_POWER_TRAP)
+      float trap_ramp_active_pwr;                     // Laser power level during active trapezoid smoothing 
+      float trap_ramp_entry_incr;                     // Acceleration per step laser power increment (trap entry)
+      float trap_ramp_exit_decr;                      // Deceleration per step laser power decrement (trap exit)
     #endif
   } block_laser_t;
 
@@ -246,7 +253,7 @@ typedef struct block_t {
     uint32_t sdpos;
   #endif
 
-  #if ENABLED(LASER_POWER_INLINE)
+  #if ENABLED(LASER_FEATURE)
     block_laser_t laser;
   #endif
 
@@ -258,7 +265,7 @@ typedef struct block_t {
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
-#if ENABLED(LASER_POWER_INLINE)
+#if ENABLED(LASER_FEATURE)
   typedef struct {
     /**
      * Laser status flags
@@ -271,7 +278,7 @@ typedef struct block_t {
      * Using OCR instead of raw power, because it avoids
      * floating point operations during the move loop.
      */
-    uint8_t power;
+    volatile uint8_t power;
   } laser_state_t;
 #endif
 
@@ -373,7 +380,7 @@ class Planner {
 
     static planner_settings_t settings;
 
-    #if ENABLED(LASER_POWER_INLINE)
+    #if ENABLED(LASER_FEATURE)
       static laser_state_t laser_inline;
     #endif
 
@@ -753,12 +760,12 @@ class Planner {
 
     /**
      * Planner::buffer_sync_block
-     * Add a block to the buffer that just updates the position or in
-     * case of LASER_SYNCHRONOUS_M106_M107 the fan pwm
+     * Add a block to the buffer that just updates the position
+     * @param sync_flag sets a condition bit to process additional items
+     * such as sync fan pwm or sync M3/M4 laser power into a queued block  
      */
-    static void buffer_sync_block(
-      TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_flag=BLOCK_FLAG_SYNC_POSITION)
-    );
+    static void buffer_sync_block();
+    static void buffer_sync_block(uint8_t sync_flag);
 
   #if IS_KINEMATIC
     private:

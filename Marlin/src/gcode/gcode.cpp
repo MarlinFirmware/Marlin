@@ -53,7 +53,7 @@ GcodeSuite gcode;
   #include "../feature/cancel_object.h"
 #endif
 
-#if ENABLED(LASER_MOVE_POWER)
+#if ENABLED(LASER_FEATURE)
   #include "../feature/spindle_laser.h"
 #endif
 
@@ -203,8 +203,11 @@ void GcodeSuite::get_destination_from_command() {
       recovery.save();
   #endif
 
-  if (parser.floatval('F') > 0)
+  if (parser.floatval('F') > 0) {
     feedrate_mm_s = parser.value_feedrate();
+    // Update the cutter feed rate for use by M4 I set inline moves.
+    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = parser.value_float()); 
+  }
 
   #if ENABLED(PRINTCOUNTER)
     if (!DEBUGGING(DRYRUN) && !skip_move)
@@ -216,15 +219,32 @@ void GcodeSuite::get_destination_from_command() {
     M165();
   #endif
 
-  #if ENABLED(LASER_MOVE_POWER)
-    // Set the laser power in the planner to configure this move
-    if (parser.seen('S')) {
-      const float spwr = parser.value_float();
-      cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.power_to_range(cutter_power_t(round(spwr))), spwr > 0 ? 255 : 0));
+  #if ENABLED(LASER_FEATURE)
+    if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
+      // Set the cutter power in the planner to configure this move
+      cutter.last_feedrate_mm_m = 0;
+      if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
+        planner.laser_inline.status.isPowered = true;
+        if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
+        if (parser.seen('S')) {
+          #if ENABLED(LASER_POWER_TRAP)
+            cutter.unitPower = parser.value_float();
+          #else
+            cutter.unitPower = cutter.power_to_range(parser.value_float());
+          #endif
+          cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0));
+          cutter.menuPower = cutter.unitPower;
+        }
+      }
+      else if (parser.codenum == 0) {
+        // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
+        if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)  planner.laser_inline.status.isPowered = false;
+        cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
+      }
+    } else {
+      if (parser.codenum == 0) cutter.apply_power(0);
     }
-    else if (ENABLED(LASER_MOVE_G0_OFF) && parser.codenum == 0) // G0
-      cutter.set_inline_enabled(false);
-  #endif
+  #endif // LASER_FEATURE
 }
 
 /**
