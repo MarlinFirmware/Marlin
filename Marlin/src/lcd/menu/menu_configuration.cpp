@@ -53,6 +53,8 @@
   #include "../../libs/buzzer.h"
 #endif
 
+#include "../../core/debug_out.h"
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -219,9 +221,9 @@ void menu_advanced_settings();
     void bltouch_report() {
       PGMSTR(mode0, "OD");
       PGMSTR(mode1, "5V");
-      SERIAL_ECHOPGM("BLTouch Mode: ");
-      SERIAL_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
-      SERIAL_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
+      DEBUG_ECHOPGM("BLTouch Mode: ");
+      DEBUG_ECHOPGM_P(bltouch.od_5v_mode ? mode1 : mode0);
+      DEBUG_ECHOLNPGM(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")");
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode: "));
       strcpy_P(&mess[15], bltouch.od_5v_mode ? mode1 : mode0);
