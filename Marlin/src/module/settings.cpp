@@ -3065,12 +3065,13 @@ void MarlinSettings::reset() {
     // Announce current units, in case inches are being displayed
     //
     CONFIG_ECHO_HEADING("Linear Units");
+    CONFIG_ECHO_START();
     #if ENABLED(INCH_MODE_SUPPORT)
-      SERIAL_ECHO_MSG("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
+      SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
-      SERIAL_ECHO_MSG("  G21 ;");
+      SERIAL_ECHOPGM("  G21 ;");
     #endif
-    gcode.say_units();
+    gcode.say_units(); // " (in/mm)"
 
     //
     // M149 Temperature units
