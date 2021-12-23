@@ -292,7 +292,7 @@ static void _lcd_level_bed_corners_get_next_position() {
     } while (good_points < nr_edge_points); // loop until all points within tolerance
 
     #if ENABLED(BLTOUCH)
-      if (bltouch.high_speed_mode)
+      if (bltouch.high_speed_mode) {
         // In HIGH SPEED MODE do clearance and stow at the very end
         do_blocking_move_to_z(current_position.z + LEVEL_CORNERS_Z_HOP);
         bltouch.stow();
