@@ -95,11 +95,6 @@
   #define FAN_MAX_PWM                        255
 #else
   #define FAST_PWM_FAN                            // STM32 Variant allow TIMER2 Hardware PWM
-  #if FAST_PWM_FAN_FREQUENCY && FAST_PWM_FAN_FREQUENCY != 31400
-    #warning "FAST_PWM_FAN_FREQUENCY of 31400 is preferred!"
-  #else
-    #define FAST_PWM_FAN_FREQUENCY         31400  // This frequency gives a good range, fan starts at 3%, half noise at 50%
-  #endif
   #define FAN_MIN_PWM                          5
   #define FAN_MAX_PWM                        255
 #endif
