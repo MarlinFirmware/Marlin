@@ -149,6 +149,7 @@ struct duration_t {
    *
    * Output examples:
    *  123456789 (strlen)
+   *  12'34
    *  99:59
    *  11d 12:33
    */
@@ -157,20 +158,20 @@ struct duration_t {
                    m = uint16_t(this->minute() % 60UL);
     if (with_days) {
       const uint16_t d = this->day();
-      sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);
+      sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);  // 1d 23:45
       return d >= 10 ? 9 : 8;
     }
     else if (!h) {
       const uint16_t s = uint16_t(this->second() % 60UL);
-      sprintf_P(buffer, PSTR("%02hu:%02hu"), m, s);
+      sprintf_P(buffer, PSTR("%02hu'%02hu"), m, s);     // 12'34
       return 5;
     }
     else if (h < 100) {
-      sprintf_P(buffer, PSTR("%02hu:%02hu"), h, m);
+      sprintf_P(buffer, PSTR("%02hu:%02hu"), h, m);     // 12:34
       return 5;
     }
     else {
-      sprintf_P(buffer, PSTR("%hu:%02hu"), h, m);
+      sprintf_P(buffer, PSTR("%hu:%02hu"), h, m);       // 123:45
       return 6;
     }
   }
