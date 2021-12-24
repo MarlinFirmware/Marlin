@@ -76,16 +76,6 @@ void GcodeSuite::M919() {
         SERIAL_ECHOLNPGM("?O out of range (1..15)");
     }
 
-    if (parser.seenval('S')) {
-      const uint8_t v = parser.value_byte();
-      if (WITHIN(v, 1, 8)) {
-        hysteresis_start = v;
-        DEBUG_ECHOLNPGM("hysteresis_start: ", v);
-      }
-      else
-        SERIAL_ECHOLNPGM("?S out of range (1..8)");
-    }
-
     if (parser.seenval('V')) {
       const int8_t v = (int8_t)constrain(parser.value_long(), -127, 127);
       if (WITHIN(v, -3, 12)) {
@@ -94,6 +84,16 @@ void GcodeSuite::M919() {
       }
       else
         SERIAL_ECHOLNPGM("?V out of range (-3..12)");
+    }
+
+    if (parser.seenval('S')) {
+      const uint8_t v = parser.value_byte();
+      if (WITHIN(v, 1, 8)) {
+        hysteresis_start = v;
+        DEBUG_ECHOLNPGM("hysteresis_start: ", v);
+      }
+      else
+        SERIAL_ECHOLNPGM("?S out of range (1..8)");
     }
 
     switch (i) {
