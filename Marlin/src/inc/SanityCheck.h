@@ -1577,6 +1577,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #endif
     #endif
 
+    #if ENABLED(BLTOUCH_HS_MODE) && BLTOUCH_HS_MODE == 0
+      #error "BLTOUCH_HS_MODE must now be defined as true or false, indicating the default state."
+    #endif
     #if BLTOUCH_DELAY < 200
       #error "BLTOUCH_DELAY less than 200 is unsafe and is not supported."
     #endif
