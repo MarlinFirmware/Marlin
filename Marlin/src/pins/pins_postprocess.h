@@ -546,12 +546,15 @@
   #undef K_MAX_PIN
 #endif
 
-// Filament Sensor first pin alias
 #if HAS_FILAMENT_SENSOR
-  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN
+  #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN  // Filament Sensor first pin alias
 #else
   #undef FIL_RUNOUT_PIN
   #undef FIL_RUNOUT1_PIN
+#endif
+
+#if NUM_RUNOUT_SENSORS < 2
+  #undef FIL_RUNOUT2_PIN
 #endif
 
 #ifndef LCD_PINS_D4
