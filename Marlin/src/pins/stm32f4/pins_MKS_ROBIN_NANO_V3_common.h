@@ -138,15 +138,19 @@
 //
 // Misc. Functions
 //
-#define MT_DET_1_PIN                      PA4   // MT_DET
-#define MT_DET_2_PIN                      PE6
-#define MT_DET_PIN_STATE                  LOW
-
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
+#if HAS_TFT_LVGL_UI
+  #define MT_DET_1_PIN                      PA4   // MT_DET
+  #define MT_DET_2_PIN                      PE6
+  #define MT_DET_PIN_STATE                  LOW
 #endif
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
+
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #ifndef FIL_RUNOUT_PIN
+    #define FIL_RUNOUT_PIN                  PA4
+  #endif
+  #if !defined(FIL_RUNOUT2_PIN) && NUM_RUNOUT_SENSORS >= 2
+    #define FIL_RUNOUT2_PIN                 PE6
+  #endif
 #endif
 
 #ifndef POWER_LOSS_PIN
