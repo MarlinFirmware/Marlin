@@ -150,7 +150,7 @@ void GcodeSuite::M919() {
           break;
       #endif
 
-      #if LINEAR_AXES >= 4
+      #if LINEAR_AXES >= 6
         case K_AXIS:
           #if AXIS_IS_TMC(K)
             TMC_SET_CHOPPER_TIME(K);
