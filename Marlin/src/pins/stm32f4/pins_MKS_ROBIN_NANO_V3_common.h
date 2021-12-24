@@ -144,13 +144,11 @@
   #define MT_DET_PIN_STATE                  LOW
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN                  PA4
-  #endif
-  #if !defined(FIL_RUNOUT2_PIN) && NUM_RUNOUT_SENSORS >= 2
-    #define FIL_RUNOUT2_PIN                 PE6
-  #endif
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PA4
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   PE6
 #endif
 
 #ifndef POWER_LOSS_PIN
