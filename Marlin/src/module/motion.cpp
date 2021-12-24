@@ -1367,7 +1367,7 @@ void prepare_line_to_destination() {
             #if AXIS_HAS_STALLGUARD(X2)
               stealth_states.x2 = tmc_enable_stallguard(stepperX2);
             #endif
-            #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
+            #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SENSORLESS
               stealth_states.y = tmc_enable_stallguard(stepperY);
             #elif CORE_IS_XZ && Z_SENSORLESS
               stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1380,7 +1380,7 @@ void prepare_line_to_destination() {
             #if AXIS_HAS_STALLGUARD(Y2)
               stealth_states.y2 = tmc_enable_stallguard(stepperY2);
             #endif
-            #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
+            #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS
               stealth_states.x = tmc_enable_stallguard(stepperX);
             #elif CORE_IS_YZ && Z_SENSORLESS
               stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1444,7 +1444,7 @@ void prepare_line_to_destination() {
             #if AXIS_HAS_STALLGUARD(X2)
               tmc_disable_stallguard(stepperX2, enable_stealth.x2);
             #endif
-            #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
+            #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SENSORLESS
               tmc_disable_stallguard(stepperY, enable_stealth.y);
             #elif CORE_IS_XZ && Z_SENSORLESS
               tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1457,7 +1457,7 @@ void prepare_line_to_destination() {
             #if AXIS_HAS_STALLGUARD(Y2)
               tmc_disable_stallguard(stepperY2, enable_stealth.y2);
             #endif
-            #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
+            #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS
               tmc_disable_stallguard(stepperX, enable_stealth.x);
             #elif CORE_IS_YZ && Z_SENSORLESS
               tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1803,8 +1803,8 @@ void prepare_line_to_destination() {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
     do_homing_move(axis, move_length, 0.0, !use_probe_bump);
 
-    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH_SLOW_MODE)
-      if (axis == Z_AXIS) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+    #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
+      if (axis == Z_AXIS && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
     #endif
 
     // If a second homing move is configured...
@@ -1837,8 +1837,9 @@ void prepare_line_to_destination() {
         }
       #endif
 
-      #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH_SLOW_MODE)
-        if (axis == Z_AXIS && bltouch.deploy()) return; // Intermediate DEPLOY (in LOW SPEED MODE)
+      #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
+        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy())
+          return; // Intermediate DEPLOY (in LOW SPEED MODE)
       #endif
 
       // Slow move towards endstop until triggered
@@ -2011,7 +2012,7 @@ void prepare_line_to_destination() {
         do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
       }
 
-    #else // CARTESIAN / CORE / MARKFORGED_XY
+    #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX
 
       set_axis_is_at_home(axis);
       sync_plan_position();
@@ -2041,7 +2042,7 @@ void prepare_line_to_destination() {
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
           if (false
-            #if EITHER(IS_CORE, MARKFORGED_XY)
+            #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
               || axis != NORMAL_AXIS
             #endif
           ) safe_delay(200);  // Short delay to allow belts to spring back

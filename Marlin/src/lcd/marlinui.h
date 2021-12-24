@@ -356,6 +356,9 @@ public:
 
   #if EITHER(HAS_DISPLAY, DWIN_CREALITY_LCD_ENHANCED)
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
   #else
     static inline void kill_screen(FSTR_P const, FSTR_P const) {}
   #endif
@@ -442,10 +445,6 @@ public:
         static void completion_feedback(const bool good=true);
       #else
         static inline void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
-      #endif
-
-      #if DISABLED(LIGHTWEIGHT_UI)
-        static void draw_status_message(const bool blink);
       #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -641,7 +640,7 @@ public:
   //
   // Special handling if a move is underway
   //
-  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
     #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else

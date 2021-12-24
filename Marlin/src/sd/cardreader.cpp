@@ -359,7 +359,7 @@ void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=fa
   //
   void CardReader::printLongPath(char * const path) {
 
-    int i, pathLen = strlen(path);
+    int i, pathLen = path ? strlen(path) : 0;
 
     // SERIAL_ECHOPGM("Full Path: "); SERIAL_ECHOLN(path);
 
@@ -457,7 +457,7 @@ void CardReader::mount() {
     cdroot();
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT) || PIN_EXISTS(SD_DETECT)
     else if (marlin_state != MF_INITIALIZING)
-      ui.set_status(GET_TEXT_F(MSG_SD_INIT_FAIL), -1);
+      ui.set_status(GET_TEXT_F(MSG_MEDIA_INIT_FAIL), -1);
   #endif
 
   ui.refresh();

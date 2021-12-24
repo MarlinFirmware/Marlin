@@ -53,7 +53,7 @@ namespace Language_pl {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Karta włożona");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Karta usunięta");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Oczekiwanie na kartę");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("Błąd inicializacji karty");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Błąd inicializacji karty");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Bład odczytu karty");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Urządzenie USB usunięte");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Błąd uruchomienia USB");

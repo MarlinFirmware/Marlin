@@ -25,6 +25,8 @@
  * NeoPixel support
  */
 
+#define MAX_NEOPIXELS 127
+
 #ifndef _NEOPIXEL_INCLUDE_
   #error "Always include 'leds.h' and not 'neopixel.h' directly."
 #endif
@@ -63,7 +65,13 @@
 #endif
 
 // ------------------------
-// Function prototypes
+// Types
+// ------------------------
+
+typedef IF<(MAX_NEOPIXELS > 127), int16_t, int8_t>::type pixel_index_t;
+
+// ------------------------
+// Classes
 // ------------------------
 
 class Marlin_NeoPixel {
@@ -74,7 +82,7 @@ private:
   #endif
 
 public:
-  static int8_t neoindex;
+  static pixel_index_t neoindex;
 
   static void init();
   static void set_color_startup(const uint32_t c);
@@ -150,7 +158,7 @@ extern Marlin_NeoPixel neo;
     static Adafruit_NeoPixel adaneo;
 
   public:
-    static int8_t neoindex;
+    static pixel_index_t neoindex;
 
     static void init();
     static void set_color_startup(const uint32_t c);
