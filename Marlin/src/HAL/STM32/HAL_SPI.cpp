@@ -104,7 +104,7 @@ static SPISettings spiConfig;
   uint8_t spiRec() {
     hal.isr_off();                                                // No interrupts during byte receive
     const uint8_t data = HAL_SPI_STM32_SpiTransfer_Mode_3(0xFF);
-    hal.isr_off();                                                // Enable interrupts
+    hal.isr_on();                                                // Enable interrupts
     return data;
   }
 
