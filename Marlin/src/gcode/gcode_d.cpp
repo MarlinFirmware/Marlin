@@ -38,7 +38,7 @@
 #include "../sd/cardreader.h"
 #include "../MarlinCore.h" // for kill
 
-extern void dump_delay_accuracy_check();
+void dump_delay_accuracy_check();
 
 /**
  * Dn: G-code for development and testing
@@ -54,7 +54,7 @@ void GcodeSuite::D(const int16_t dcode) {
       for (;;) { /* loop forever (watchdog reset) */ }
 
     case 0:
-      HAL_reboot();
+      hal.reboot();
       break;
 
     case 10:
@@ -74,7 +74,7 @@ void GcodeSuite::D(const int16_t dcode) {
         settings.reset();
         settings.save();
       #endif
-      HAL_reboot();
+      hal.reboot();
     } break;
 
     case 2: { // D2 Read / Write SRAM
@@ -189,12 +189,12 @@ void GcodeSuite::D(const int16_t dcode) {
       SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
       thermalManager.disable_all_heaters();
       delay(1000); // Allow time to print
-      DISABLE_ISRS();
+      hal.isr_off();
       // Use a low-level delay that does not rely on interrupts to function
       // Do not spin forever, to avoid thermal risks if heaters are enabled and
       // watchdog does not work.
       for (int i = 10000; i--;) DELAY_US(1000UL);
-      ENABLE_ISRS();
+      hal.isr_on();
       SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
     } break;
 

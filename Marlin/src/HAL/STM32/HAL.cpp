@@ -53,16 +53,18 @@
 // Public Variables
 // ------------------------
 
-uint16_t HAL_adc_result;
+uint16_t MarlinHAL::adc_result;
 
 // ------------------------
 // Public functions
 // ------------------------
 
-TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  extern void install_min_serial();
+#endif
 
 // HAL initialization task
-void HAL_init() {
+void MarlinHAL::init() {
   // Ensure F_CPU is a constant expression.
   // If the compiler breaks here, it means that delay code that should compute at compile time will not work.
   // So better safe than sorry here.
@@ -103,7 +105,7 @@ void HAL_init() {
 }
 
 // HAL idle task
-void HAL_idletask() {
+void MarlinHAL::idletask() {
   #if HAS_SHARED_MEDIA
     // Stm32duino currently doesn't have a "loop/idle" method
     CDC_resume_receive();
@@ -111,9 +113,9 @@ void HAL_idletask() {
   #endif
 }
 
-void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
+void MarlinHAL::reboot() { NVIC_SystemReset(); }
 
-uint8_t HAL_get_reset_source() {
+uint8_t MarlinHAL::get_reset_source() {
   return
     #ifdef RCC_FLAG_IWDGRST // Some sources may not exist...
       RESET != __HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST)  ? RST_WATCHDOG :
@@ -137,24 +139,14 @@ uint8_t HAL_get_reset_source() {
   ;
 }
 
-void HAL_reboot() { NVIC_SystemReset(); }
-
-void _delay_ms(const int delay_ms) { delay(delay_ms); }
+void MarlinHAL::clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
 
 extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
 
-// ------------------------
-// ADC
-// ------------------------
-
-// TODO: Make sure this doesn't cause any delay
-void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
-uint16_t HAL_adc_get_result() { return HAL_adc_result; }
-
 // Reset the system to initiate a firmware flash
-WEAK void flashFirmware(const int16_t) { HAL_reboot(); }
+WEAK void flashFirmware(const int16_t) { hal.reboot(); }
 
 // Maple Compatibility
 volatile uint32_t systick_uptime_millis = 0;

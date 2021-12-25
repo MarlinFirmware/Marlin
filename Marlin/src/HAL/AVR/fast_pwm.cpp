@@ -35,10 +35,9 @@ struct Timer {
 };
 
 /**
- * get_pwm_timer
- *  Get the timer information and register of the provided pin.
- *  Return a Timer struct containing this information.
- *  Used by set_pwm_frequency, set_pwm_duty
+ * Get the timer information and register for a pin.
+ * Return a Timer struct containing this information.
+ * Used by set_pwm_frequency, set_pwm_duty
  */
 Timer get_pwm_timer(const pin_t pin) {
   uint8_t q = 0;
@@ -150,7 +149,7 @@ Timer get_pwm_timer(const pin_t pin) {
   return timer;
 }
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+void MarlinHAL::set_pwm_frequency(const pin_t pin, int f_desired) {
   Timer timer = get_pwm_timer(pin);
   if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
   uint16_t size;
@@ -230,7 +229,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
 
 #endif // NEEDS_HARDWARE_PWM
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   #if NEEDS_HARDWARE_PWM
 
     // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
