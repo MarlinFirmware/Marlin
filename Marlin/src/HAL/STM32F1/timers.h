@@ -188,7 +188,7 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   }
 }
 
-#define HAL_timer_isr_epilogue(T)
+#define HAL_timer_isr_epilogue(T) NOOP
 
 // No command is available in framework to turn off ARPE bit, which is turned on by default in libmaple.
 // Needed here to reset ARPE=0 for stepper timer

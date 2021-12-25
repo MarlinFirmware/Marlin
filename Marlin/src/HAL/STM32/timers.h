@@ -116,5 +116,5 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
   }
 }
 
-#define HAL_timer_isr_prologue(T)
-#define HAL_timer_isr_epilogue(T)
+#define HAL_timer_isr_prologue(T) NOOP
+#define HAL_timer_isr_epilogue(T) NOOP

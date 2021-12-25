@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,19 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef TARGET_LPC1768
+
+/**
+ * HAL/shared/HAL.cpp
+ */
 
 #include "../../inc/MarlinConfig.h"
-#include <pwm.h>
 
-void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  if (!LPC176x::pin_is_valid(pin)) return;
-  if (LPC176x::pwm_attach_pin(pin))
-    LPC176x::pwm_write_ratio(pin, invert ? 1.0f - (float)v / v_size : (float)v / v_size);  // map 1-254 onto PWM range
-}
+MarlinHAL hal;
 
-void MarlinHAL::set_pwm_frequency(const pin_t pin, int f_desired) {
-  LPC176x::pwm_set_frequency(pin, f_desired);
-}
+#if ENABLED(SOFT_RESET_VIA_SERIAL)
 
-#endif // TARGET_LPC1768
+  // Global for use by e_parser.h
+  void HAL_reboot() { hal.reboot(); }
+
+#endif

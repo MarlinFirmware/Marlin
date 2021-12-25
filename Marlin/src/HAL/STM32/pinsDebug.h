@@ -115,13 +115,17 @@ const XrefInfo pin_xref[] PROGMEM = {
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PORT(ANUM) port_print(ANUM)
 #define DIGITAL_PIN_TO_ANALOG_PIN(ANUM) -1  // will report analog pin number in the print port routine
-#define GET_PIN_MAP_PIN_M43(Index) pin_xref[Index].Ard_num
 
 // x is a variable used to search pin_array
 #define GET_ARRAY_IS_DIGITAL(x) ((bool) pin_array[x].is_digital)
 #define GET_ARRAY_PIN(x) ((pin_t) pin_array[x].pin)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
+
+//
+// Pin Mapping for M43
+//
+#define GET_PIN_MAP_PIN_M43(Index) pin_xref[Index].Ard_num
 
 #ifndef M43_NEVER_TOUCH
   #define _M43_NEVER_TOUCH(Index) (Index >= 9 && Index <= 12) // SERIAL/USB pins: PA9(TX) PA10(RX) PA11(USB_DM) PA12(USB_DP)

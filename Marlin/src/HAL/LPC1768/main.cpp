@@ -48,7 +48,7 @@ void SysTick_Callback() { disk_timerproc(); }
 
 TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
-void HAL_init() {
+void MarlinHAL::init() {
 
   // Init LEDs
   #if PIN_EXISTS(LED)
@@ -130,7 +130,7 @@ void HAL_init() {
   const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
     delay(50);
-    HAL_idletask();
+    idletask();
     #if PIN_EXISTS(LED)
       TOGGLE(LED_PIN);     // Flash quickly during USB initialization
     #endif
@@ -142,7 +142,7 @@ void HAL_init() {
 }
 
 // HAL idle task
-void HAL_idletask() {
+void MarlinHAL::idletask() {
   #if HAS_SHARED_MEDIA
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.

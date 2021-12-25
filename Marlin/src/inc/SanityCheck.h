@@ -1070,7 +1070,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
     #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_LCD_MENU
-    #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI to be enabled."
+    #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
+  #elif ENABLED(MMU2_MENUS) && !HAS_LCD_MENU
+    #error "MMU2_MENUS requires an LCD supporting MarlinUI."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / HAS_EXTENDABLE_MMU(S).");
   #endif
@@ -3848,3 +3850,10 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #undef _TEST_PWM
 #undef _LINEAR_AXES_STR
 #undef _LOGICAL_AXES_STR
+
+// JTAG support in the HAL
+#if ENABLED(DISABLE_DEBUG) && !defined(JTAGSWD_DISABLE)
+  #error "DISABLE_DEBUG is not supported for the selected MCU/Board."
+#elif ENABLED(DISABLE_JTAG) && !defined(JTAG_DISABLE)
+  #error "DISABLE_JTAG is not supported for the selected MCU/Board."
+#endif
