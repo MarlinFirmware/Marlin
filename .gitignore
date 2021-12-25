@@ -155,6 +155,7 @@ spi_flash.bin
 CMakeLists.txt
 src/CMakeLists.txt
 CMakeListsPrivate.txt
+build/
 
 # CLion
 cmake-build-*
