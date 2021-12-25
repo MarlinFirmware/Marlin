@@ -2003,7 +2003,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   /*
-   * In the case where we are in inline modes we need retrieve laser_inline variables for processing
+   * In the case where we are in inline modes we need to retrieve laser_inline variables for processing
    * which include power and status. Dynamic mode only needs to update if the feed rate has changed 
    * since it is calculated from the current feed rate and power level. 
    */

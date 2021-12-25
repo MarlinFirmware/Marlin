@@ -327,7 +327,7 @@ public:
     // Dynamic mode rate calculation
     static inline uint8_t calc_dynamic_power() {
       if (feedrate_mm_m > 65535) return 255;         // Too fast, go always on
-      uint16_t rate = uint16_t(feedrate_mm_m);       // 32 bits from the G-code parser float input
+      uint16_t rate = uint16_t(feedrate_mm_m);       // 16 bits from the G-code parser float input
       rate >>= 8;                                    // Take the G-code input e.g. F40000 and shift off the lower bits to get an OCR value from 1-255
       return uint8_t(rate);
     }
