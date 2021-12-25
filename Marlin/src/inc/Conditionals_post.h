@@ -1891,10 +1891,10 @@
       #define X2_HAS_STEALTHCHOP 1
     #endif
     #ifndef X2_INTERPOLATE
-      #define X2_INTERPOLATE INTERPOLATE
+      #define X2_INTERPOLATE X_INTERPOLATE
     #endif
     #ifndef X2_HOLD_MULTIPLIER
-      #define X2_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define X2_HOLD_MULTIPLIER X_HOLD_MULTIPLIER
     #endif
     #ifndef X2_SLAVE_ADDRESS
       #define X2_SLAVE_ADDRESS 0
@@ -1928,10 +1928,10 @@
         #define Y2_HAS_STEALTHCHOP 1
       #endif
       #ifndef Y2_INTERPOLATE
-        #define Y2_INTERPOLATE INTERPOLATE
+        #define Y2_INTERPOLATE Y_INTERPOLATE
       #endif
       #ifndef Y2_HOLD_MULTIPLIER
-        #define Y2_HOLD_MULTIPLIER HOLD_MULTIPLIER
+        #define Y2_HOLD_MULTIPLIER Y_HOLD_MULTIPLIER
       #endif
       #ifndef Y2_SLAVE_ADDRESS
         #define Y2_SLAVE_ADDRESS 0
@@ -1966,10 +1966,10 @@
         #define Z2_HAS_STEALTHCHOP 1
       #endif
       #ifndef Z2_INTERPOLATE
-        #define Z2_INTERPOLATE INTERPOLATE
+        #define Z2_INTERPOLATE Z_INTERPOLATE
       #endif
       #ifndef Z2_HOLD_MULTIPLIER
-        #define Z2_HOLD_MULTIPLIER HOLD_MULTIPLIER
+        #define Z2_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
       #endif
       #ifndef Z2_SLAVE_ADDRESS
         #define Z2_SLAVE_ADDRESS 0
@@ -1983,10 +1983,10 @@
         #define Z3_HAS_STEALTHCHOP 1
       #endif
       #ifndef Z3_INTERPOLATE
-        #define Z3_INTERPOLATE INTERPOLATE
+        #define Z3_INTERPOLATE Z_INTERPOLATE
       #endif
       #ifndef Z3_HOLD_MULTIPLIER
-        #define Z3_HOLD_MULTIPLIER HOLD_MULTIPLIER
+        #define Z3_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
       #endif
       #ifndef Z3_SLAVE_ADDRESS
         #define Z3_SLAVE_ADDRESS 0
@@ -2000,10 +2000,10 @@
         #define Z4_HAS_STEALTHCHOP 1
       #endif
       #ifndef Z4_INTERPOLATE
-        #define Z4_INTERPOLATE INTERPOLATE
+        #define Z4_INTERPOLATE Z_INTERPOLATE
       #endif
       #ifndef Z4_HOLD_MULTIPLIER
-        #define Z4_HOLD_MULTIPLIER HOLD_MULTIPLIER
+        #define Z4_HOLD_MULTIPLIER Z_HOLD_MULTIPLIER
       #endif
       #ifndef Z4_SLAVE_ADDRESS
         #define Z4_SLAVE_ADDRESS 0
@@ -2093,10 +2093,10 @@
       #define E1_HAS_STEALTHCHOP 1
     #endif
     #ifndef E1_INTERPOLATE
-      #define E1_INTERPOLATE INTERPOLATE
+      #define E1_INTERPOLATE E0_INTERPOLATE
     #endif
     #ifndef E1_HOLD_MULTIPLIER
-      #define E1_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define E1_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
     #ifndef E1_SLAVE_ADDRESS
       #define E1_SLAVE_ADDRESS 0
@@ -2107,10 +2107,10 @@
       #define E2_HAS_STEALTHCHOP 1
     #endif
     #ifndef E2_INTERPOLATE
-      #define E2_INTERPOLATE INTERPOLATE
+      #define E2_INTERPOLATE E0_INTERPOLATE
     #endif
     #ifndef E2_HOLD_MULTIPLIER
-      #define E2_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define E2_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
     #ifndef E2_SLAVE_ADDRESS
       #define E2_SLAVE_ADDRESS 0
@@ -2121,10 +2121,10 @@
       #define E3_HAS_STEALTHCHOP 1
     #endif
     #ifndef E3_INTERPOLATE
-      #define E3_INTERPOLATE INTERPOLATE
+      #define E3_INTERPOLATE E0_INTERPOLATE
     #endif
     #ifndef E3_HOLD_MULTIPLIER
-      #define E3_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define E3_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
     #ifndef E3_SLAVE_ADDRESS
       #define E3_SLAVE_ADDRESS 0
@@ -2135,10 +2135,10 @@
       #define E4_HAS_STEALTHCHOP 1
     #endif
     #ifndef E4_INTERPOLATE
-      #define E4_INTERPOLATE INTERPOLATE
+      #define E4_INTERPOLATE E0_INTERPOLATE
     #endif
     #ifndef E4_HOLD_MULTIPLIER
-      #define E4_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define E4_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
     #ifndef E4_SLAVE_ADDRESS
       #define E4_SLAVE_ADDRESS 0
@@ -2149,10 +2149,10 @@
       #define E5_HAS_STEALTHCHOP 1
     #endif
     #ifndef E5_INTERPOLATE
-      #define E5_INTERPOLATE INTERPOLATE
+      #define E5_INTERPOLATE E0_INTERPOLATE
     #endif
     #ifndef E5_HOLD_MULTIPLIER
-      #define E5_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define E5_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
     #ifndef E5_SLAVE_ADDRESS
       #define E5_SLAVE_ADDRESS 0
@@ -2163,10 +2163,10 @@
       #define E6_HAS_STEALTHCHOP 1
     #endif
     #ifndef E6_INTERPOLATE
-      #define E6_INTERPOLATE INTERPOLATE
+      #define E6_INTERPOLATE E0_INTERPOLATE
     #endif
     #ifndef E6_HOLD_MULTIPLIER
-      #define E6_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define E6_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
     #ifndef E6_SLAVE_ADDRESS
       #define E6_SLAVE_ADDRESS 0
@@ -2177,10 +2177,10 @@
       #define E7_HAS_STEALTHCHOP 1
     #endif
     #ifndef E7_INTERPOLATE
-      #define E7_INTERPOLATE INTERPOLATE
+      #define E7_INTERPOLATE E0_INTERPOLATE
     #endif
     #ifndef E7_HOLD_MULTIPLIER
-      #define E7_HOLD_MULTIPLIER HOLD_MULTIPLIER
+      #define E7_HOLD_MULTIPLIER E0_HOLD_MULTIPLIER
     #endif
     #ifndef E7_SLAVE_ADDRESS
       #define E7_SLAVE_ADDRESS 0
