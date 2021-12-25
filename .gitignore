@@ -25,6 +25,7 @@ bdf2u8g
 marlin_config.json
 mczip.h
 *.gen
+*.sublime-workspace
 
 #
 # OS
