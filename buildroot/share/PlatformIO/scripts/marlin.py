@@ -51,7 +51,7 @@ def encrypt_mks(source, target, env, new_name):
 	# If FIRMWARE_BIN is defined by config, override all
 	import re
 	patt = re.compile("^\\s*#define\\s+FIRMWARE_BIN\\s+\"?(.+)\"?")
-	with open(join("Marlin", "Configuration.h")) as f:
+	with open(join("Marlin", "Configuration.h"), encoding="utf-8") as f:
 		for line in f:
 			m = patt.search(line)
 			if m != None:
