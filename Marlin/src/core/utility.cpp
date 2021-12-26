@@ -75,7 +75,7 @@ void safe_delay(millis_t ms) {
       TERN_(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY")
       TERN_(SOLENOID_PROBE, "SOLENOID_PROBE")
       TERN_(MAGLEV4, "MAGLEV4")
-      TERN(PROBE_SELECTED, "", "NONE")
+      IF_DISABLED(PROBE_SELECTED, "NONE")
     );
 
     #if HAS_BED_PROBE

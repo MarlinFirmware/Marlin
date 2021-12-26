@@ -1091,19 +1091,13 @@
 
 /**
  * MagLev V4 probe by MDD
- * 
- * This probe is deployed and activated by using built-in electomagnet. Once electromagnet
- * is powered on the probing needle drops. MAGLEV_TRIGGER_PIN has to be set as unused digital
- * output on mainboard. It could be servo pin or unused endstop pin. MAGLEV_TRIGGER_DELAY by
- * default is set to 15ms and should not be changed due to risk of overheating the coil.
- * Z_SAFE_HOMING is crucial for sensor to work correctly.
+ *
+ * This probe is deployed and activated by powering a built-in electromagnet.
  */
-
 //#define MAGLEV4
 #if ENABLED(MAGLEV4)
-  #define MAGLEV_TRIGGER_PIN 11
-  #define MAGLEV_TRIGGER_DELAY 15
-  #define Z_SAFE_HOMING
+  //#define MAGLEV_TRIGGER_PIN 11     // Set to the connected digital output
+  #define MAGLEV_TRIGGER_DELAY 15     // Changing this risks overheating the coil
 #endif
 
 /**
