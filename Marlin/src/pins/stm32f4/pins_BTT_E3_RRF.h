@@ -338,13 +338,6 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
-  #define SDIO_D0_PIN                       PC8
-  #define SDIO_D1_PIN                       PC9
-  #define SDIO_D2_PIN                       PC10
-  #define SDIO_D3_PIN                       PC11
-  #define SDIO_CK_PIN                       PC12
-  #define SDIO_CMD_PIN                      PD2
-
   //#define SDIO_CLOCK                  48000000
   #define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

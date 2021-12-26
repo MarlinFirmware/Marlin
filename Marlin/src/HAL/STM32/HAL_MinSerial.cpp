@@ -135,7 +135,7 @@ void install_min_serial() {
   HAL_min_serial_out = &TX;
 }
 
-#if DISABLED(DYNAMIC_VECTORTABLE) && DISABLED(STM32F0xx) // Cortex M0 can't jump to a symbol that's too far from the current function, so we work around this in exception_arm.cpp
+#if NONE(DYNAMIC_VECTORTABLE, STM32F0xx, STM32G0xx) // Cortex M0 can't jump to a symbol that's too far from the current function, so we work around this in exception_arm.cpp
 extern "C" {
   __attribute__((naked)) void JumpHandler_ASM() {
     __asm__ __volatile__ (

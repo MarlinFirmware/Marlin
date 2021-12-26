@@ -57,8 +57,8 @@ namespace Language_en {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Aborting...");
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_EN _UxGT(" Inserted");
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_EN _UxGT(" Removed");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Waiting for card");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("SD Init Fail");
+  LSTR MSG_MEDIA_WAITING                  = _UxGT("Waiting for ") MEDIA_TYPE_EN;
+  LSTR MSG_MEDIA_INIT_FAIL                = MEDIA_TYPE_EN _UxGT(" Init Fail");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" read error");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB device removed");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start failed");
@@ -491,6 +491,7 @@ namespace Language_en {
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("Stow");
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("Deploy");
   LSTR MSG_BLTOUCH_SW_MODE                = _UxGT("SW-Mode");
+  LSTR MSG_BLTOUCH_SPEED_MODE             = _UxGT("High Speed");
   LSTR MSG_BLTOUCH_5V_MODE                = _UxGT("5V-Mode");
   LSTR MSG_BLTOUCH_OD_MODE                = _UxGT("OD-Mode");
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("Mode-Store");
@@ -733,6 +734,10 @@ namespace Language_en {
   LSTR MSG_PROBE_WIZARD                   = _UxGT("Z Probe Wizard");
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Probing Z Reference");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Moving to Probing Pos");
+
+  LSTR MSG_XATC                           = _UxGT("X-Twist Wizard");
+  LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Wizard Done!");
+  LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Probe Z-Offset to ");
 
   LSTR MSG_SOUND                          = _UxGT("Sound");
 

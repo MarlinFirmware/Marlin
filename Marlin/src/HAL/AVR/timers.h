@@ -34,14 +34,14 @@ typedef uint16_t hal_timer_t;
 
 #define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
 
-#ifndef STEP_TIMER_NUM
-  #define STEP_TIMER_NUM        1
+#ifndef MF_TIMER_STEP
+  #define MF_TIMER_STEP         1
 #endif
-#ifndef PULSE_TIMER_NUM
-  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#ifndef MF_TIMER_PULSE
+  #define MF_TIMER_PULSE        MF_TIMER_STEP
 #endif
-#ifndef TEMP_TIMER_NUM
-  #define TEMP_TIMER_NUM        0
+#ifndef MF_TIMER_TEMP
+  #define MF_TIMER_TEMP         0
 #endif
 
 #define TEMP_TIMER_FREQUENCY    ((F_CPU) / 64.0 / 256.0)
@@ -64,7 +64,7 @@ typedef uint16_t hal_timer_t;
 
 FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
   switch (timer_num) {
-    case STEP_TIMER_NUM:
+    case MF_TIMER_STEP:
       // waveform generation = 0100 = CTC
       SET_WGM(1, CTC_OCRnA);
 
@@ -84,7 +84,7 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
       TCNT1 = 0;
       break;
 
-    case TEMP_TIMER_NUM:
+    case MF_TIMER_TEMP:
       // Use timer0 for temperature measurement
       // Interleave temperature interrupt with millies interrupt
       OCR0B = 128;
@@ -109,8 +109,8 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
  * (otherwise, characters will be lost due to UART overflow).
  * Then: Stepper, Endstops, Temperature, and -finally- all others.
  */
-#define HAL_timer_isr_prologue(TIMER_NUM)
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+#define HAL_timer_isr_prologue(T)
+#define HAL_timer_isr_epilogue(T)
 
 /* 18 cycles maximum latency */
 #ifndef HAL_STEP_TIMER_ISR

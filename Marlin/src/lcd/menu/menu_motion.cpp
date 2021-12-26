@@ -134,6 +134,15 @@ void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
 
 #endif // E_MANUAL
 
+#if EITHER(PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+
+  void _goto_manual_move_z(const_float_t scale) {
+    ui.manual_move.menu_scale = scale;
+    ui.goto_screen(lcd_move_z);
+  }
+
+#endif
+
 //
 // "Motion" > "Move Xmm" > "Move XYZ" submenu
 //

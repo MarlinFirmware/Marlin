@@ -121,10 +121,8 @@
   #define Z_MIN_PROBE_PIN                     49
 #endif
 
-#if HAS_FILAMENT_SENSOR
-  #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN             Y_MIN_PIN
-  #endif
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN               Y_MIN_PIN
 #endif
 
 //
