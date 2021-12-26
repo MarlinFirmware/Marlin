@@ -25,6 +25,7 @@ bdf2u8g
 marlin_config.json
 mczip.h
 *.gen
+*.sublime-workspace
 
 #
 # OS
@@ -155,6 +156,7 @@ spi_flash.bin
 CMakeLists.txt
 src/CMakeLists.txt
 CMakeListsPrivate.txt
+build/
 
 # CLion
 cmake-build-*
