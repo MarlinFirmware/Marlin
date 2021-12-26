@@ -280,7 +280,7 @@ public:
   static void adc_init();
 
   // Called by Temperature::init for each sensor at startup
-  static void adc_enable(const pin_t pin);
+  static inline void adc_enable(const pin_t pin) { pinMode(pin, INPUT_ANALOG); }
 
   // Begin ADC sampling on the given channel
   static void adc_start(const pin_t pin);
