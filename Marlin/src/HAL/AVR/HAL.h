@@ -229,12 +229,14 @@ public:
   }
 
   // Begin ADC sampling on the given channel
-  static inline void adc_start(const pin_t ch) {
+  static inline void adc_start(const uint8_t ch) {
     #ifdef MUX5
-      if (ch > 7) { ADCSRB = _BV(MUX5); return; }
+      ADCSRB = ch > 7 ? _BV(MUX5) : 0;
+    #else
+      ADCSRB = 0;
     #endif
-    ADCSRB = 0;
-    ADMUX = _BV(REFS0) | (ch & 0x07); SBI(ADCSRA, ADSC);
+    ADMUX = _BV(REFS0) | (ch & 0x07);
+    SBI(ADCSRA, ADSC);
   }
 
   // Is the ADC ready for reading?

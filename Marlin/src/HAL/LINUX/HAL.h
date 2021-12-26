@@ -140,7 +140,7 @@ public:
   static inline void adc_enable(const uint8_t) {}
 
   // Begin ADC sampling on the given channel
-  static inline void adc_start(const pin_t ch) { active_ch = ch; }
+  static inline void adc_start(const uint8_t ch) { active_ch = ch; }
 
   // Is the ADC ready for reading?
   static inline bool adc_ready() { return true; }
