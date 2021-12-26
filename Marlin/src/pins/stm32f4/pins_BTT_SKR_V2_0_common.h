@@ -365,24 +365,14 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(LCD)
-
   #define SDSS                       EXP2_07_PIN
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                 EXP2_09_PIN
   #define SD_MISO_PIN                EXP2_10_PIN
   #define SD_MOSI_PIN                EXP2_05_PIN
   #define SD_DETECT_PIN              EXP2_04_PIN
-
 #elif SD_CONNECTION_IS(ONBOARD)
-
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
-  #define SDIO_D0_PIN                       PC8
-  #define SDIO_D1_PIN                       PC9
-  #define SDIO_D2_PIN                       PC10
-  #define SDIO_D3_PIN                       PC11
-  #define SDIO_CK_PIN                       PC12
-  #define SDIO_CMD_PIN                      PD2
-
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
