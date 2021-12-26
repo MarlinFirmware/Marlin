@@ -106,7 +106,7 @@
 // Private Variables
 // ------------------------
 
-uint16_t MarlinHAL::adc_result;
+uint16_t HAL_adc_result;
 
 #if ADC_IS_REQUIRED
 
@@ -402,7 +402,7 @@ uint16_t MarlinHAL::adc_result;
 // ------------------------
 
 // HAL initialization task
-void MarlinHAL::init() {
+void HAL_init() {
   TERN_(DMA_IS_REQUIRED, dma_init());
   #if ENABLED(SDSUPPORT)
     #if SD_CONNECTION_IS(ONBOARD) && PIN_EXISTS(SD_DETECT)
@@ -412,9 +412,17 @@ void MarlinHAL::init() {
   #endif
 }
 
+// HAL idle task
+/*
+void HAL_idletask() {
+}
+*/
+
+void HAL_clear_reset_source() { }
+
 #pragma push_macro("WDT")
 #undef WDT    // Required to be able to use '.bit.WDT'. Compiler wrongly replace struct field with WDT define
-uint8_t MarlinHAL::get_reset_source() {
+uint8_t HAL_get_reset_source() {
   RSTC_RCAUSE_Type resetCause;
 
   resetCause.reg = REG_RSTC_RCAUSE;
@@ -428,7 +436,7 @@ uint8_t MarlinHAL::get_reset_source() {
 }
 #pragma pop_macro("WDT")
 
-void MarlinHAL::reboot() { NVIC_SystemReset(); }
+void HAL_reboot() { NVIC_SystemReset(); }
 
 extern "C" {
   void * _sbrk(int incr);
@@ -446,7 +454,7 @@ int freeMemory() {
 // ADC
 // ------------------------
 
-void MarlinHAL::adc_init() {
+void HAL_adc_init() {
   #if ADC_IS_REQUIRED
     memset(HAL_adc_results, 0xFF, sizeof(HAL_adc_results));                 // Fill result with invalid values
 
@@ -483,17 +491,17 @@ void MarlinHAL::adc_init() {
   #endif // ADC_IS_REQUIRED
 }
 
-void MarlinHAL::adc_start(const pin_t pin) {
+void HAL_adc_start_conversion(const uint8_t adc_pin) {
   #if ADC_IS_REQUIRED
     LOOP_L_N(pi, COUNT(adc_pins)) {
-      if (pin == adc_pins[pi]) {
-        adc_result = HAL_adc_results[pi];
+      if (adc_pin == adc_pins[pi]) {
+        HAL_adc_result = HAL_adc_results[pi];
         return;
       }
     }
   #endif
 
-  adc_result = 0xFFFF;
+  HAL_adc_result = 0xFFFF;
 }
 
 #endif // __SAMD51__

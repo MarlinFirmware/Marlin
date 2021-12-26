@@ -38,10 +38,6 @@
 
 #include "../../core/serial_hook.h"
 
-// ------------------------
-// Serial ports
-// ------------------------
-
 typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
 typedef ForwardSerial1Class< decltype(Serial1) > DefaultSerial2;
 typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
@@ -101,38 +97,60 @@ extern DefaultSerial4 MSerial3;
 #include "MarlinSerial.h"
 #include "MarlinSerialUSB.h"
 
-// ------------------------
-// Types
-// ------------------------
+// On AVR this is in math.h?
+#define square(x) ((x)*(x))
 
 typedef int8_t pin_t;
 
-// Use shared/servos.cpp
 #define SHARED_SERVOS HAS_SERVOS
-class Servo;
-typedef Servo hal_servo_t;
+#define HAL_SERVO_LIB Servo
 
 //
 // Interrupts
 //
-#define sei() noInterrupts()
-#define cli() interrupts()
+#define CRITICAL_SECTION_START()  uint32_t primask = __get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_END()    if (!primask) __enable_irq()
+#define ISRS_ENABLED() (!__get_PRIMASK())
+#define ENABLE_ISRS()  __enable_irq()
+#define DISABLE_ISRS() __disable_irq()
 
-#define CRITICAL_SECTION_START()  const bool _irqon = hal.isr_state(); hal.isr_off()
-#define CRITICAL_SECTION_END()    if (_irqon) hal.isr_on()
+void cli();                     // Disable interrupts
+void sei();                     // Enable interrupts
+
+void HAL_clear_reset_source();  // clear reset reason
+uint8_t HAL_get_reset_source(); // get reset reason
+
+void HAL_reboot();
 
 //
 // ADC
 //
-#define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
+extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
+#define HAL_ANALOG_SELECT(ch)
+
+inline void HAL_adc_init() {}//todo
+
+#define HAL_ADC_VREF         3.3
+#define HAL_ADC_RESOLUTION  10
+#define HAL_START_ADC(ch)   HAL_adc_start_conversion(ch)
+#define HAL_READ_ADC()      HAL_adc_result
+#define HAL_ADC_READY()     true
+
+void HAL_adc_start_conversion(const uint8_t ch);
+uint16_t HAL_adc_get_result();
+
 //
-// Pin Mapping for M42, M43, M226
+// PWM
+//
+inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
+
+//
+// Pin Map
 //
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
@@ -141,17 +159,26 @@ typedef Servo hal_servo_t;
 //
 // Tone
 //
+void toneInit();
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
 void noTone(const pin_t _pin);
 
-// ------------------------
-// Class Utilities
-// ------------------------
+// Enable hooks into idle and setup for HAL
+#define HAL_IDLETASK 1
+void HAL_idletask();
+void HAL_init();
+
+//
+// Utility functions
+//
+void _delay_ms(const int delay);
 
 #pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
+
+int freeMemory();
 
 #pragma GCC diagnostic pop
 
@@ -162,70 +189,3 @@ char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s
 #ifdef __cplusplus
   }
 #endif
-
-// Return free RAM between end of heap (or end bss) and whatever is current
-int freeMemory();
-
-// ------------------------
-// MarlinHAL Class
-// ------------------------
-
-class MarlinHAL {
-public:
-
-  // Earliest possible init, before setup()
-  MarlinHAL() {}
-
-  static void init();       // Called early in setup()
-  static void init_board(); // Called less early in setup()
-  static void reboot();     // Software reset
-
-  static inline bool isr_state() { return !__get_PRIMASK(); }
-  static inline void isr_on()  { __enable_irq(); }
-  static inline void isr_off() { __disable_irq(); }
-
-  static inline void delay_ms(const int ms) { delay(ms); }
-
-  // Tasks, called from idle()
-  static void idletask();
-
-  // Reset
-  static uint8_t get_reset_source();
-  static inline void clear_reset_source() {}
-
-  // Free SRAM
-  static inline int freeMemory() { return ::freeMemory(); }
-
-  //
-  // ADC Methods
-  //
-
-  static uint16_t adc_result;
-
-  // Called by Temperature::init once at startup
-  static inline void adc_init() {}
-
-  // Called by Temperature::init for each sensor at startup
-  static inline void adc_enable(const int ch) {}
-
-  // Begin ADC sampling on the given channel
-  static inline void adc_start(const uint8_t ch) { adc_result = analogRead(ch); }
-
-  // Is the ADC ready for reading?
-  static inline bool adc_ready() { return true; }
-
-  // The current value of the ADC register
-  static inline uint16_t adc_value() { return adc_result; }
-
-  /**
-   * Set the PWM duty cycle for the pin to the given value.
-   * No inverting the duty cycle in this HAL.
-   * No changing the maximum size of the provided value to enable finer PWM duty control in this HAL.
-   */
-  static inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
-    analogWrite(pin, v);
-  }
-
-};
-
-extern MarlinHAL hal;

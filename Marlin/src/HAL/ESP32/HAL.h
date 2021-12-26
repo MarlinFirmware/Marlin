@@ -49,6 +49,8 @@
 // Defines
 // ------------------------
 
+extern portMUX_TYPE spinlock;
+
 #define MYSERIAL1 flushableSerial
 
 #if EITHER(WIFISUPPORT, ESP3D_WIFISUPPORT)
@@ -63,6 +65,9 @@
 
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)
 #define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&spinlock)
+#define ISRS_ENABLED() (spinlock.owner == portMUX_FREE_VAL)
+#define ENABLE_ISRS()  if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock)
+#define DISABLE_ISRS() portENTER_CRITICAL(&spinlock)
 
 // ------------------------
 // Types
@@ -70,8 +75,14 @@
 
 typedef int16_t pin_t;
 
-class Servo;
-typedef Servo hal_servo_t;
+#define HAL_SERVO_LIB Servo
+
+// ------------------------
+// Public Variables
+// ------------------------
+
+/** result of last ADC conversion */
+extern uint16_t HAL_adc_result;
 
 // ------------------------
 // Public functions
@@ -80,17 +91,58 @@ typedef Servo hal_servo_t;
 //
 // Tone
 //
+void toneInit();
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
 void noTone(const pin_t _pin);
 
+// clear reset reason
+void HAL_clear_reset_source();
+
+// reset reason
+uint8_t HAL_get_reset_source();
+
+void HAL_reboot();
+
+void _delay_ms(int delay);
+
+#pragma GCC diagnostic push
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+int freeMemory();
+
+#pragma GCC diagnostic pop
+
 void analogWrite(pin_t pin, int value);
 
-//
-// Pin Mapping for M42, M43, M226
-//
+// ADC
+#define HAL_ANALOG_SELECT(pin)
+
+void HAL_adc_init();
+
+#define HAL_ADC_VREF         3.3
+#define HAL_ADC_RESOLUTION  10
+#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_READ_ADC()      HAL_adc_result
+#define HAL_ADC_READY()     true
+
+void HAL_adc_start_conversion(const uint8_t adc_pin);
+
+// PWM
+inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
+
+// Pin Map
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+// Enable hooks into idle and setup for HAL
+#define HAL_IDLETASK 1
+#define BOARD_INIT() HAL_init_board();
+void HAL_idletask();
+inline void HAL_init() {}
+void HAL_init_board();
 
 #if ENABLED(USE_ESP32_EXIO)
   void Write_EXIO(uint8_t IO, uint8_t v);
@@ -136,86 +188,3 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
   }
 
 }
-
-// ------------------------
-// Class Utilities
-// ------------------------
-
-#pragma GCC diagnostic push
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic ignored "-Wunused-function"
-#endif
-
-int freeMemory();
-
-#pragma GCC diagnostic pop
-
-void _delay_ms(const int ms);
-
-// ------------------------
-// MarlinHAL Class
-// ------------------------
-
-#define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
-
-class MarlinHAL {
-public:
-
-  // Earliest possible init, before setup()
-  MarlinHAL() {}
-
-  static inline void init() {}  // Called early in setup()
-  static void init_board();     // Called less early in setup()
-  static void reboot();         // Restart the firmware
-
-  static portMUX_TYPE spinlock;
-  static inline bool isr_state() { return spinlock.owner == portMUX_FREE_VAL; }
-  static inline void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
-  static inline void isr_off() { portENTER_CRITICAL(&spinlock); }
-
-  static inline void delay_ms(const int ms) { _delay_ms(ms); }
-
-  // Tasks, called from idle()
-  static void idletask();
-
-  // Reset
-  static uint8_t get_reset_source();
-  static inline void clear_reset_source() {}
-
-  // Free SRAM
-  static int freeMemory();
-
-  //
-  // ADC Methods
-  //
-
-  static uint16_t adc_result;
-
-  // Called by Temperature::init once at startup
-  static void adc_init();
-
-  // Called by Temperature::init for each sensor at startup
-  static inline void adc_enable(const pin_t pin) {}
-
-  // Begin ADC sampling on the given channel
-  static void adc_start(const pin_t pin);
-
-  // Is the ADC ready for reading?
-  static inline bool adc_ready() { return true; }
-
-  // The current value of the ADC register
-  static inline uint16_t adc_value() { return adc_result; }
-
-  /**
-   * Set the PWM duty cycle for the pin to the given value.
-   * No inverting the duty cycle in this HAL.
-   * No changing the maximum size of the provided value to enable finer PWM duty control in this HAL.
-   */
-  static inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
-    analogWrite(pin, v);
-  }
-
-};
-
-extern MarlinHAL hal;

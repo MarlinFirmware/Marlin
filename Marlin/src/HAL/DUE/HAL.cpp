@@ -34,7 +34,7 @@
 // Public Variables
 // ------------------------
 
-uint16_t MarlinHAL::adc_result;
+uint16_t HAL_adc_result;
 
 // ------------------------
 // Public functions
@@ -42,7 +42,8 @@ uint16_t MarlinHAL::adc_result;
 
 TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
-void MarlinHAL::init() {
+// HAL initialization task
+void HAL_init() {
   // Initialize the USB stack
   #if ENABLED(SDSUPPORT)
     OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
@@ -51,17 +52,21 @@ void MarlinHAL::init() {
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
-void MarlinHAL::init_board() {
-  #ifdef BOARD_INIT
-    BOARD_INIT();
-  #endif
+// HAL idle task
+void HAL_idletask() {
+  // Perform USB stack housekeeping
+  usb_task_idle();
 }
 
-void MarlinHAL::idletask() {
-  usb_task_idle();    // Perform USB stack housekeeping
-}
+// Disable interrupts
+void cli() { noInterrupts(); }
 
-uint8_t MarlinHAL::get_reset_source() {
+// Enable interrupts
+void sei() { interrupts(); }
+
+void HAL_clear_reset_source() { }
+
+uint8_t HAL_get_reset_source() {
   switch ((RSTC->RSTC_SR >> 8) & 0x07) {
     case 0: return RST_POWER_ON;
     case 1: return RST_BACKUP;
@@ -72,7 +77,12 @@ uint8_t MarlinHAL::get_reset_source() {
   }
 }
 
-void MarlinHAL::reboot() { rstc_start_software_reset(RSTC); }
+void HAL_reboot() { rstc_start_software_reset(RSTC); }
+
+void _delay_ms(const int delay_ms) {
+  // Todo: port for Due?
+  delay(delay_ms);
+}
 
 extern "C" {
   extern unsigned int _ebss; // end of bss section
@@ -82,6 +92,19 @@ extern "C" {
 int freeMemory() {
   int free_memory, heap_end = (int)_sbrk(0);
   return (int)&free_memory - (heap_end ?: (int)&_ebss);
+}
+
+// ------------------------
+// ADC
+// ------------------------
+
+void HAL_adc_start_conversion(const uint8_t ch) {
+  HAL_adc_result = analogRead(ch);
+}
+
+uint16_t HAL_adc_get_result() {
+  // nop
+  return HAL_adc_result;
 }
 
 // Forward the default serial ports

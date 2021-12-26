@@ -52,7 +52,7 @@
 // Externs
 // ------------------------
 
-portMUX_TYPE MarlinHAL::spinlock = portMUX_INITIALIZER_UNLOCKED;
+portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
 
 // ------------------------
 // Local defines
@@ -64,7 +64,7 @@ portMUX_TYPE MarlinHAL::spinlock = portMUX_INITIALIZER_UNLOCKED;
 // Public Variables
 // ------------------------
 
-uint16_t MarlinHAL::adc_result;
+uint16_t HAL_adc_result;
 
 // ------------------------
 // Private Variables
@@ -95,22 +95,20 @@ volatile int numPWMUsed = 0,
 #endif
 
 #if ENABLED(USE_ESP32_EXIO)
-
   HardwareSerial YSerial2(2);
 
   void Write_EXIO(uint8_t IO, uint8_t v) {
-    if (hal.isr_state()) {
-      hal.isr_off();
+    if (ISRS_ENABLED()) {
+      DISABLE_ISRS();
       YSerial2.write(0x80 | (((char)v) << 5) | (IO - 100));
-      hal.isr_on();
+      ENABLE_ISRS();
     }
     else
       YSerial2.write(0x80 | (((char)v) << 5) | (IO - 100));
   }
-
 #endif
 
-void MarlinHAL::init_board() {
+void HAL_init_board() {
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
@@ -156,24 +154,27 @@ void MarlinHAL::init_board() {
   #endif
 }
 
-void MarlinHAL::idletask() {
+void HAL_idletask() {
   #if BOTH(WIFISUPPORT, OTASUPPORT)
     OTA_handle();
   #endif
   TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());
 }
 
-uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
+void HAL_clear_reset_source() { }
 
-void MarlinHAL::reboot() { ESP.restart(); }
+uint8_t HAL_get_reset_source() { return rtc_get_reset_reason(1); }
+
+void HAL_reboot() { ESP.restart(); }
+
+void _delay_ms(int delay_ms) { delay(delay_ms); }
 
 // return free memory between end of heap (or end bss) and whatever is current
-int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
+int freeMemory() { return ESP.getFreeHeap(); }
 
 // ------------------------
 // ADC
 // ------------------------
-
 #define ADC1_CHANNEL(pin) ADC1_GPIO ## pin ## _CHANNEL
 
 adc1_channel_t get_channel(int pin) {
@@ -195,7 +196,7 @@ void adc1_set_attenuation(adc1_channel_t chan, adc_atten_t atten) {
   }
 }
 
-void MarlinHAL::adc_init() {
+void HAL_adc_init() {
   // Configure ADC
   adc1_config_width(ADC_WIDTH_12Bit);
 
@@ -225,11 +226,11 @@ void MarlinHAL::adc_init() {
   }
 }
 
-void MarlinHAL::adc_start(const pin_t pin) {
-  const adc1_channel_t chan = get_channel(pin);
+void HAL_adc_start_conversion(const uint8_t adc_pin) {
+  const adc1_channel_t chan = get_channel(adc_pin);
   uint32_t mv;
   esp_adc_cal_get_voltage((adc_channel_t)chan, &characteristics[attenuations[chan]], &mv);
-  adc_result = mv * 1023.0 / 3300.0;
+  HAL_adc_result = mv * 1023.0 / 3300.0;
 
   // Change the attenuation level based on the new reading
   adc_atten_t atten;

@@ -282,9 +282,9 @@ void MarlinUI::init_lcd() {
   #if PIN_EXISTS(LCD_RESET)
     // Perform a clean hardware reset with needed delays
     OUT_WRITE(LCD_RESET_PIN, LOW);
-    hal.delay_ms(5);
+    _delay_ms(5);
     WRITE(LCD_RESET_PIN, HIGH);
-    hal.delay_ms(5);
+    _delay_ms(5);
     u8g.begin();
   #endif
 

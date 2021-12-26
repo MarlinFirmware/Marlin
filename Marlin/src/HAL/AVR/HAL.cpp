@@ -36,7 +36,7 @@
 // ------------------------
 
 // Don't initialize/override variable (which would happen in .init4)
-uint8_t MarlinHAL::reset_reason __attribute__((section(".noinit")));
+uint8_t reset_reason __attribute__((section(".noinit")));
 
 // ------------------------
 // Public functions
@@ -45,22 +45,22 @@ uint8_t MarlinHAL::reset_reason __attribute__((section(".noinit")));
 __attribute__((naked))             // Don't output function pro- and epilogue
 __attribute__((used))              // Output the function, even if "not used"
 __attribute__((section(".init3"))) // Put in an early user definable section
-void save_reset_reason() {
+void HAL_save_reset_reason() {
   #if ENABLED(OPTIBOOT_RESET_REASON)
     __asm__ __volatile__(
       A("STS %0, r2")
-      : "=m"(hal.reset_reason)
+      : "=m"(reset_reason)
     );
   #else
-    hal.reset_reason = MCUSR;
+    reset_reason = MCUSR;
   #endif
 
   // Clear within 16ms since WDRF bit enables a 16ms watchdog timer -> Boot loop
-  hal.clear_reset_source();
+  MCUSR = 0;
   wdt_disable();
 }
 
-void MarlinHAL::init() {
+void HAL_init() {
   // Init Servo Pins
   #define INIT_SERVO(N) OUT_WRITE(SERVO##N##_PIN, LOW)
   #if HAS_SERVO_0
@@ -77,7 +77,7 @@ void MarlinHAL::init() {
   #endif
 }
 
-void MarlinHAL::reboot() {
+void HAL_reboot() {
   #if ENABLED(USE_WATCHDOG)
     while (1) { /* run out the watchdog */ }
   #else

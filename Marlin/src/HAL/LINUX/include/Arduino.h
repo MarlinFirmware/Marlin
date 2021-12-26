@@ -59,6 +59,7 @@ typedef uint8_t byte;
 #endif
 
 #define sq(v) ((v) * (v))
+#define square(v) sq(v)
 #define constrain(value, arg_min, arg_max) ((value) < (arg_min) ? (arg_min) :((value) > (arg_max) ? (arg_max) : (value)))
 
 //Interrupts
@@ -73,8 +74,8 @@ extern "C" {
 }
 
 // Time functions
-extern "C" void delay(const int ms);
-void _delay_ms(const int ms);
+extern "C" void delay(const int milis);
+void _delay_ms(const int delay);
 void delayMicroseconds(unsigned long);
 uint32_t millis();
 

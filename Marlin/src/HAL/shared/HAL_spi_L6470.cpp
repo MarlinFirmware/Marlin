@@ -92,9 +92,9 @@ uint8_t L64XX_Marlin::transfer_single(uint8_t data, int16_t ss_pin) {
   // First device in chain has data sent last
   extDigitalWrite(ss_pin, LOW);
 
-  hal.isr_off();  // Disable interrupts during SPI transfer (can't allow partial command to chips)
+  DISABLE_ISRS(); // Disable interrupts during SPI transfer (can't allow partial command to chips)
   const uint8_t data_out = L6470_SpiTransfer_Mode_3(data);
-  hal.isr_on();   // Enable interrupts
+  ENABLE_ISRS();  // Enable interrupts
 
   extDigitalWrite(ss_pin, HIGH);
   return data_out;
@@ -107,9 +107,9 @@ uint8_t L64XX_Marlin::transfer_chain(uint8_t data, int16_t ss_pin, uint8_t chain
   extDigitalWrite(ss_pin, LOW);
 
   for (uint8_t i = L64XX::chain[0]; !L64xxManager.spi_abort && i >= 1; i--) {   // Send data unless aborted
-    hal.isr_off();    // Disable interrupts during SPI transfer (can't allow partial command to chips)
+    DISABLE_ISRS();   // Disable interrupts during SPI transfer (can't allow partial command to chips)
     const uint8_t temp = L6470_SpiTransfer_Mode_3(uint8_t(i == chain_position ? data : dSPIN_NOP));
-    hal.isr_on();     // Enable interrupts
+    ENABLE_ISRS();    // Enable interrupts
     if (i == chain_position) data_out = temp;
   }
 
