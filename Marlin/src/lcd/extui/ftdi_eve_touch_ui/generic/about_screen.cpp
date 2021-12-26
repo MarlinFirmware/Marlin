@@ -69,8 +69,8 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #endif
 
   draw_text_box(cmd, HEADING_POS,
-    #ifdef CUSTOM_MACHINE_NAME
-      F(CUSTOM_MACHINE_NAME)
+    #ifdef MACHINE_NAME
+      F(MACHINE_NAME)
     #else
       GET_TEXT_F(MSG_ABOUT_TOUCH_PANEL_1)
     #endif
