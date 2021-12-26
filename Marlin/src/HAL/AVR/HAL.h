@@ -205,7 +205,7 @@ public:
   static inline void clear_reset_source() { MCUSR = 0; }
 
   // Free SRAM
-  static inline int freeMemory() { return freeMemory(); }
+  static inline int freeMemory() { return ::freeMemory(); }
 
   //
   // ADC Methods

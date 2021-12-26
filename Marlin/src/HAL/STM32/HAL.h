@@ -226,7 +226,7 @@ public:
   static void clear_reset_source();
 
   // Free SRAM
-  static inline int freeMemory() { return freeMemory(); }
+  static inline int freeMemory() { return ::freeMemory(); }
 
   //
   // ADC Methods
