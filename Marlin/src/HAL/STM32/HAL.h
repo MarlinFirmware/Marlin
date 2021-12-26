@@ -142,7 +142,7 @@ typedef libServo hal_servo_t;
 // ADC
 // ------------------------
 
-#define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
+#define HAL_ANALOG_SELECT(pin) hal.adc_enable(pin)
 
 #ifdef ADC_RESOLUTION
   #define HAL_ADC_RESOLUTION ADC_RESOLUTION
@@ -240,7 +240,7 @@ public:
   }
 
   // Called by Temperature::init for each sensor at startup
-  static void adc_enable(const pin_t pin);
+  static inline void adc_enable(const pin_t pin) { pinMode(pin, INPUT); }
 
   // Begin ADC sampling on the given channel
   static void adc_start(const pin_t pin) { adc_result = analogRead(pin); }
