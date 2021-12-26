@@ -131,8 +131,6 @@ typedef Servo hal_servo_t;
   #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
-#define HAL_ANALOG_SELECT(ch)
-
 //
 // Pin Mapping for M42, M43, M226
 //

@@ -117,7 +117,6 @@ extern MSerialT serial_stream_3;
 
 #define HAL_ADC_VREF           5.0
 #define HAL_ADC_RESOLUTION    10
-#define HAL_ANALOG_SELECT(ch) hal.adc_enable(ch)
 
 /* ---------------- Delay in cycles */
 

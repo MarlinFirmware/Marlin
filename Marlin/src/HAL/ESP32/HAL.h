@@ -85,9 +85,6 @@ void noTone(const pin_t _pin);
 
 void analogWrite(pin_t pin, int value);
 
-// ADC
-#define HAL_ANALOG_SELECT(pin)
-
 //
 // Pin Mapping for M42, M43, M226
 //
