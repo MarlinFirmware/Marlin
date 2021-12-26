@@ -133,8 +133,6 @@ extern DefaultSerial1 USBSerial;
 #define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
 #define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
 
-#define HAL_ANALOG_SELECT(pin) hal.adc_enable(pin)
-
 //
 // Pin Mapping for M42, M43, M226
 //

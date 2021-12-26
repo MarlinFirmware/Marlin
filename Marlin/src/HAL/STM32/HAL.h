@@ -142,8 +142,6 @@ typedef libServo hal_servo_t;
 // ADC
 // ------------------------
 
-#define HAL_ANALOG_SELECT(pin) hal.adc_enable(pin)
-
 #ifdef ADC_RESOLUTION
   #define HAL_ADC_RESOLUTION ADC_RESOLUTION
 #else

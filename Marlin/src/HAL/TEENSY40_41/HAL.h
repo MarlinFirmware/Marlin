@@ -129,8 +129,6 @@ typedef int8_t pin_t;
 #define HAL_ADC_RESOLUTION  10
 #define HAL_ADC_FILTERED      // turn off ADC oversampling
 
-#define HAL_ANALOG_SELECT(pin)
-
 //
 // Pin Mapping for M42, M43, M226
 //

@@ -106,8 +106,6 @@ typedef Servo hal_servo_t;
 // ADC
 //
 
-#define HAL_ANALOG_SELECT(pin)
-
 //#define HAL_ADC_FILTERED          // Disable Marlin's oversampling. The HAL filters ADC values.
 #define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10      // ... 12

@@ -188,8 +188,6 @@ extern uint16_t HAL_adc_result;
 // ADC
 // ------------------------
 
-#define HAL_ANALOG_SELECT(pin) hal.adc_enable(pin)
-
 #ifdef ADC_RESOLUTION
   #define HAL_ADC_RESOLUTION ADC_RESOLUTION
 #else
