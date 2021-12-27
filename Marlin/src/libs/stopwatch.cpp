@@ -28,6 +28,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if IS_DWIN_MARLINUI
+  #include "../lcd/marlinui.h"
+#endif
+
 Stopwatch::State Stopwatch::state;
 millis_t Stopwatch::accumulator;
 millis_t Stopwatch::startTimestamp;
@@ -38,6 +42,7 @@ bool Stopwatch::stop() {
 
   if (isRunning() || isPaused()) {
     TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
+    TERN_(IS_DWIN_MARLINUI, ui.did_first_redraw = false);
     state = STOPPED;
     stopTimestamp = millis();
     return true;
@@ -63,6 +68,7 @@ bool Stopwatch::start() {
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStarted());
 
   if (!isRunning()) {
+    TERN_(IS_DWIN_MARLINUI, ui.did_first_redraw = false);
     if (isPaused()) accumulator = duration();
     else reset();
 
