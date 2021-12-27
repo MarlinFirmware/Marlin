@@ -35,7 +35,7 @@
 
 static void lcd_power_loss_recovery_resume() {
   ui.return_to_status();
-  queue.inject_P(PSTR("M1000"));
+  queue.inject(F("M1000"));
 }
 
 void lcd_power_loss_recovery_cancel() {

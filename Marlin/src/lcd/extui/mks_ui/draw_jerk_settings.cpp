@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, HAS_CLASSIC_JERK)
@@ -85,7 +86,7 @@ void lv_draw_jerk_settings() {
   dtostrf(planner.max_jerk[E_AXIS], 1, 1, public_buf_l);
   lv_screen_menu_item_1_edit(scr, machine_menu.E_Jerk, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_JERK_E, 3, public_buf_l);
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_JERK_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X, PARA_UI_BACK_POS_Y, event_handler, ID_JERK_RETURN, true);
 }
 
 void lv_clear_jerk_settings() {

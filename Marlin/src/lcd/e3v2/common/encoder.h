@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,10 +22,7 @@
 #pragma once
 
 /*****************************************************************************
-  * @file     lcd/e3v2/creality/rotary_encoder.h
-  * @author   LEO / Creality3D
-  * @date     2019/07/06
-  * @version  2.0.1
+  * @file     lcd/e3v2/common/encoder.h
   * @brief    Rotary encoder functions
   ****************************************************************************/
 
@@ -46,13 +43,13 @@ typedef enum {
   ENCODER_DIFF_CW    = 1,  // clockwise rotation
   ENCODER_DIFF_CCW   = 2,  // counterclockwise rotation
   ENCODER_DIFF_ENTER = 3   // click
-} ENCODER_DiffState;
+} EncoderState;
 
 // Encoder initialization
 void Encoder_Configuration();
 
 // Analyze encoder value and return state
-ENCODER_DiffState Encoder_ReceiveAnalyze();
+EncoderState Encoder_ReceiveAnalyze();
 
 /*********************** Encoder LED ***********************/
 

@@ -51,7 +51,7 @@ extern "C" {
 #define HAL_DMA2D_MODULE_ENABLED
 #define HAL_DSI_MODULE_ENABLED
 #define HAL_ETH_MODULE_ENABLED
-#define HAL_EXTI_MODULE_ENABLED
+#define HAL_EXTI_MODULE_ENABLED   // Needed for Endstop (and other external) Interrupts
 #define HAL_FDCAN_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
 #define HAL_GPIO_MODULE_ENABLED

@@ -48,8 +48,8 @@
 // cz         Czech
 // da         Danish
 // de         German
-// el         Greek
-// el_gr      Greek (Greece)
+// el         Greek (Greece)
+// el_CY      Greek (Cyprus)
 // en         English
 // es         Spanish
 // eu         Basque-Euskera
@@ -140,6 +140,7 @@
 #define STR_RESEND                          "Resend: "
 #define STR_UNKNOWN_COMMAND                 "Unknown command: \""
 #define STR_ACTIVE_EXTRUDER                 "Active Extruder: "
+#define STR_ERR_FANSPEED                    "Fan speed E"
 
 #define STR_PROBE_OFFSET                    "Probe Offset"
 #define STR_SKEW_MIN                        "min_skew_factor: "
@@ -158,15 +159,14 @@
 #define STR_OFF                             "OFF"
 #define STR_ENDSTOP_HIT                     "TRIGGERED"
 #define STR_ENDSTOP_OPEN                    "open"
-#define STR_HOTEND_OFFSET                   "Hotend offsets:"
 #define STR_DUPLICATION_MODE                "Duplication mode: "
-#define STR_SOFT_ENDSTOPS                   "Soft endstops: "
 #define STR_SOFT_MIN                        "  Min: "
 #define STR_SOFT_MAX                        "  Max: "
 
 #define STR_SAVED_POS                       "Position saved"
 #define STR_RESTORING_POS                   "Restoring position"
 #define STR_INVALID_POS_SLOT                "Invalid slot. Total: "
+#define STR_DONE                            "Done."
 
 #define STR_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define STR_SD_INIT_FAIL                    "No SD card"
@@ -231,6 +231,9 @@
 #define STR_HEATER_BED                      "bed"
 #define STR_HEATER_CHAMBER                  "chamber"
 #define STR_COOLER                          "cooler"
+#define STR_MOTHERBOARD                     "motherboard"
+#define STR_PROBE                           "probe"
+#define STR_REDUNDANT                       "redundant "
 #define STR_LASER_TEMP                      "laser temperature"
 
 #define STR_STOPPED_HEATER                  ", system stopped! Heater_ID: "
@@ -258,6 +261,50 @@
 #define STR_PASSWORD_REMOVED                "Password removed"
 #define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
 #define STR_PASSWORD_SET                    "Password is "
+
+// Settings Report Strings
+#define STR_Z_AUTO_ALIGN                    "Z Auto-Align"
+#define STR_BACKLASH_COMPENSATION           "Backlash compensation"
+#define STR_S_SEG_PER_SEC                   "S<seg-per-sec>"
+#define STR_DELTA_SETTINGS                  "Delta (L<diagonal-rod> R<radius> H<height> S<seg-per-sec> XYZ<tower-angle-trim> ABC<rod-trim>)"
+#define STR_SCARA_SETTINGS                  "SCARA"
+#define STR_POLARGRAPH_SETTINGS             "Polargraph"
+#define STR_SCARA_P_T_Z                     "P<theta-psi-offset> T<theta-offset> Z<home-offset>"
+#define STR_ENDSTOP_ADJUSTMENT              "Endstop adjustment"
+#define STR_SKEW_FACTOR                     "Skew Factor"
+#define STR_FILAMENT_SETTINGS               "Filament settings"
+#define STR_MAX_ACCELERATION                "Max Acceleration (units/s2)"
+#define STR_MAX_FEEDRATES                   "Max feedrates (units/s)"
+#define STR_ACCELERATION_P_R_T              "Acceleration (units/s2) (P<print-accel> R<retract-accel> T<travel-accel>)"
+#define STR_TOOL_CHANGING                   "Tool-changing"
+#define STR_HOTEND_OFFSETS                  "Hotend offsets"
+#define STR_SERVO_ANGLES                    "Servo Angles"
+#define STR_HOTEND_PID                      "Hotend PID"
+#define STR_BED_PID                         "Bed PID"
+#define STR_CHAMBER_PID                     "Chamber PID"
+#define STR_STEPS_PER_UNIT                  "Steps per unit"
+#define STR_LINEAR_ADVANCE                  "Linear Advance"
+#define STR_CONTROLLER_FAN                  "Controller Fan"
+#define STR_STEPPER_MOTOR_CURRENTS          "Stepper motor currents"
+#define STR_RETRACT_S_F_Z                   "Retract (S<length> F<feedrate> Z<lift>)"
+#define STR_RECOVER_S_F                     "Recover (S<length> F<feedrate>)"
+#define STR_AUTO_RETRACT_S                  "Auto-Retract (S<enable>)"
+#define STR_FILAMENT_LOAD_UNLOAD            "Filament load/unload"
+#define STR_POWER_LOSS_RECOVERY             "Power-loss recovery"
+#define STR_FILAMENT_RUNOUT_SENSOR          "Filament runout sensor"
+#define STR_DRIVER_STEPPING_MODE            "Driver stepping mode"
+#define STR_STEPPER_DRIVER_CURRENT          "Stepper driver current"
+#define STR_HYBRID_THRESHOLD                "Hybrid Threshold"
+#define STR_STALLGUARD_THRESHOLD            "StallGuard threshold"
+#define STR_HOME_OFFSET                     "Home offset"
+#define STR_SOFT_ENDSTOPS                   "Soft endstops"
+#define STR_MATERIAL_HEATUP                 "Material heatup parameters"
+#define STR_LCD_CONTRAST                    "LCD Contrast"
+#define STR_LCD_BRIGHTNESS                  "LCD Brightness"
+#define STR_UI_LANGUAGE                     "UI Language"
+#define STR_Z_PROBE_OFFSET                  "Z-Probe Offset"
+#define STR_TEMPERATURE_UNITS               "Temperature Units"
+#define STR_USER_THERMISTORS                "User thermistors"
 
 //
 // Endstop Names used by Endstops::report_states
@@ -287,7 +334,7 @@
 
 #define STR_Z_PROBE                         "z_probe"
 #define STR_PROBE_EN                        "probe_en"
-#define STR_FILAMENT_RUNOUT_SENSOR          "filament"
+#define STR_FILAMENT                        "filament"
 
 // General axis names
 #define STR_X "X"

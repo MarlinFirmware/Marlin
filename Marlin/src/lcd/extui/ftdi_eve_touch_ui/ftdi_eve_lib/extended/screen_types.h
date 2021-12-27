@@ -237,7 +237,7 @@ class CachedScreen {
       cmd.cmd(CMD_SWAP);
       cmd.execute();
       #if ENABLED(TOUCH_UI_DEBUG)
-        SERIAL_ECHOLNPAIR("Time to draw screen (ms): ", millis() - start_time);
+        SERIAL_ECHOLNPGM("Time to draw screen (ms): ", millis() - start_time);
       #endif
     }
 };

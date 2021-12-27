@@ -48,6 +48,7 @@ void lcd_sd_updir() {
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
     defer_status_screen();
+    TERN_(HAS_TOUCH_SLEEP, ui.wakeup_screen());
   }
 
 #endif
@@ -78,7 +79,7 @@ class MenuItem_sdfile : public MenuItem_sdbase {
           strcpy(buffer + 1, longest);
           MenuItem_confirm::select_screen(
             GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
-            sdcard_start_selected_file, ui.goto_previous_screen,
+            sdcard_start_selected_file, nullptr,
             GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
           );
         });
@@ -126,7 +127,7 @@ void menu_media_filelist() {
     #endif
   }
   else if (card.isMounted())
-    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER ".."), lcd_sd_updir);
+    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {

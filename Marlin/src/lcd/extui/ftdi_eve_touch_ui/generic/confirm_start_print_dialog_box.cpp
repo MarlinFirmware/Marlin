@@ -33,7 +33,7 @@ using namespace ExtUI;
 constexpr static ConfirmStartPrintDialogBoxData &mydata = screen_data.ConfirmStartPrintDialogBox;
 
 void ConfirmStartPrintDialogBox::onRedraw(draw_mode_t) {
-  const char *filename = getLongFilename();
+  const char *filename = getFilename();
   char buffer[strlen_P(GET_TEXT(MSG_START_PRINT_CONFIRMATION)) + strlen(filename) + 1];
   sprintf_P(buffer, GET_TEXT(MSG_START_PRINT_CONFIRMATION), filename);
   drawMessage((const char *)buffer);
@@ -52,10 +52,10 @@ bool ConfirmStartPrintDialogBox::onTouchEnd(uint8_t tag) {
   }
 }
 
-const char *ConfirmStartPrintDialogBox::getFilename(bool longName) {
+const char *ConfirmStartPrintDialogBox::getFilename(bool shortName) {
   FileList files;
   files.seek(mydata.file_index, true);
-  return longName ? files.longFilename() : files.shortFilename();
+  return shortName ? files.shortFilename() : files.filename();
 }
 
 void ConfirmStartPrintDialogBox::show(uint8_t file_index) {

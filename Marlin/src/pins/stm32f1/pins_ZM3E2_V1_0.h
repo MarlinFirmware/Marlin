@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -201,9 +201,9 @@
   #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                    EXP1_06_PIN
   #define BTN_ENC                    EXP1_04_PIN
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(200)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2               200
+  #define BOARD_ST7920_DELAY_3               125
 
 #elif EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
 

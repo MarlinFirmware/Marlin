@@ -47,7 +47,7 @@ void GcodeSuite::G60() {
   SBI(saved_slots[slot >> 3], slot & 0x07);
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)
-    DEBUG_ECHOPAIR(STR_SAVED_POS " S", slot);
+    DEBUG_ECHOPGM(STR_SAVED_POS " S", slot);
     const xyze_pos_t &pos = stored_position[slot];
     DEBUG_ECHOLNPAIR_F_P(
       LIST_N(DOUBLE(LOGICAL_AXES), SP_E_STR, pos.e,

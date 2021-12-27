@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -304,10 +304,11 @@
   #define BTN_ENC                    EXP2_05_PIN  // PE15
 #endif
 
-#if HAS_MARLINUI_U8GLIB
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(200)    // Tclk_fall <200ns
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(250)    // Tdata_width >200ns
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(200)    // Tclk_rise <200ns
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               200  // Tclk_fall <200ns
+  #define BOARD_ST7920_DELAY_2               250  // Tdata_width >200ns
+  #define BOARD_ST7920_DELAY_3               200  // Tclk_rise <200ns
 #endif
 
 // Remap SERVO0 PIN for BLTouch

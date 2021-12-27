@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -71,7 +72,7 @@ void lv_draw_machine_para() {
   lv_screen_menu_item(scr, MachinePara_menu.MotorSetting, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_PARA_MOTOR, 1);
   lv_screen_menu_item(scr, MachinePara_menu.leveling, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_PARA_LEVEL, 2);
   lv_screen_menu_item(scr, MachinePara_menu.AdvanceSetting, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_PARA_ADVANCE, 3);
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_PARA_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_PARA_RETURN, true);
 }
 
 void lv_clear_machine_para() {

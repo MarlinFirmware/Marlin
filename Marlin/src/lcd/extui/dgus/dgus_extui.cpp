@@ -26,7 +26,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD
+#if HAS_DGUS_LCD_CLASSIC
 
 #include "../ui_api.h"
 #include "DGUSDisplay.h"
@@ -42,8 +42,8 @@ namespace ExtUI {
 
   void onIdle() { ScreenHandler.loop(); }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, NUL_STR, GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
+  void onPrinterKilled(FSTR_P const error, FSTR_P const) {
+    ScreenHandler.sendinfoscreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }
@@ -60,11 +60,11 @@ namespace ExtUI {
 
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      ScreenHandler.sendinfoscreen(PSTR("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
+      ScreenHandler.sendinfoscreen(F("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
       ScreenHandler.SetupConfirmAction(setUserConfirmed);
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
     }
-    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP ) {
+    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
       ScreenHandler.SetupConfirmAction(nullptr);
       ScreenHandler.PopToOldScreen();
     }
@@ -135,6 +135,9 @@ namespace ExtUI {
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
+        case PID_STARTED:
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE));
+          break;
         case PID_BAD_EXTRUDER_NUM:
           ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
           break;
@@ -147,7 +150,6 @@ namespace ExtUI {
         case PID_DONE:
           ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
           break;
-        case PID_STARTED: break;
       }
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
@@ -157,4 +159,4 @@ namespace ExtUI {
   void onSteppersEnabled()  {}
 }
 
-#endif // HAS_DGUS_LCD
+#endif // HAS_DGUS_LCD_CLASSIC

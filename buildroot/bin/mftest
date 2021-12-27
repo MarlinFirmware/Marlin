@@ -133,7 +133,7 @@ lp9|lpc9) TESTENV='LPC1769' ;;
      t36) TESTENV='teensy35' ;;
      t40) TESTENV='teensy41' ;;
      t41) TESTENV='teensy41' ;;
-[1-9][1-9]|[1-9]) TESTNUM=$TESTENV ; TESTENV=- ;;
+[1-9]|[1-9][0-9]) TESTNUM=$TESTENV ; TESTENV=- ;;
 esac
 
 if ((AUTO_BUILD)); then
@@ -155,7 +155,7 @@ if ((AUTO_BUILD)); then
   BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
   BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
   BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
-  [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
+  [[ -z $BNUM ]] && { echo "Error - Can't find BOARD_$MB in core/boards.h." ; exit 1 ; }
   ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E "#include.+//.+(env|$SYS):[^ ]+" | grep -oE "(env|$SYS):[^ ]+" | $SED -E "s/(env|$SYS)://" ) )
   [[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
   ECOUNT=${#ENVS[*]}
@@ -206,13 +206,26 @@ fi
 if [[ $TESTENV == '-' ]]; then
   IND=0
   NAMES=()
-  for FILE in $( ls -1 $TESTPATH/* )
+  MENU=()
+  BIGLEN=0
+  for FILE in $( ls -1 $TESTPATH/* | sort -f )
   do
     let IND++
     TNAME=${FILE/$TESTPATH\//}
     NAMES+=($TNAME)
-    (( IND < 10 )) && echo -n " "
-    echo " $IND) $TNAME"
+    IFS=""
+    ITEM=$( printf "%2i) %s" $IND $TNAME )
+    MENU+=($ITEM)
+    [[ ${#ITEM} -gt $BIGLEN ]] && BIGLEN=${#ITEM}
+  done
+
+  (( BIGLEN += 2 ))
+  THIRD=$(( (${#MENU[@]} + 2) / 3 ))
+  for ((i = 0; i < $THIRD; i++))
+  do
+    COL1=$i ; COL2=$(( $i + $THIRD )) ; COL3=$(( $i + 2 * $THIRD ))
+    FMT="%-${BIGLEN}s"
+    printf "${FMT}${FMT}${FMT}\n" ${MENU[$COL1]} ${MENU[$COL2]} ${MENU[$COL3]}
   done
 
   echo

@@ -33,10 +33,10 @@ extern uint16_t inbound_count;
 // For sending print completion messages
 extern bool last_printing_status;
 
-void write_to_lcd_P(PGM_P const message);
-void write_to_lcd(const char * const message);
+void write_to_lcd(FSTR_P const fmsg);
+void write_to_lcd(const char * const cmsg);
 
-void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr);
+void set_lcd_error(FSTR_P const error, FSTR_P const component=nullptr);
 
 void process_lcd_c_command(const char *command);
 void process_lcd_eb_command(const char *command);
