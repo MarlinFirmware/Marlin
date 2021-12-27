@@ -91,7 +91,9 @@
 #endif
 #define FAN1_PIN                            PD13
 
-#define FAN_SOFT_PWM
+#if DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required."
+#endif
 
 //
 // Temperature Sensors

@@ -143,8 +143,8 @@
 #ifndef FAN_PIN
   #define FAN_PIN                           PA0   // FAN
 #endif
-#if PIN_EXISTS(FAN)
-  #define FAN_SOFT_PWM
+#if PIN_EXISTS(FAN) && DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required."
 #endif
 
 //

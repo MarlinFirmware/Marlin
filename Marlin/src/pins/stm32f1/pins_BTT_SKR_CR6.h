@@ -113,7 +113,9 @@
 #define HEATER_BED_PIN                      PC9   // HOT BED
 
 #define FAN_PIN                             PC6   // FAN
-#define FAN_SOFT_PWM
+#if DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required."
+#endif
 
 #define CONTROLLER_FAN_PIN                  PC7
 

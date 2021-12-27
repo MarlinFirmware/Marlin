@@ -39,7 +39,6 @@
 #define DISABLE_JTAG
 //#define ENABLE_SPI3
 #define FLASH_EEPROM_EMULATION
-#define FAN_SOFT_PWM
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
@@ -116,6 +115,10 @@
   #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
     #define FAN_PIN                         PB5
   #endif
+#endif
+
+#if DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required."
 #endif
 
 //

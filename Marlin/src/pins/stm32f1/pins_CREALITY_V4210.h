@@ -144,7 +144,9 @@
 #define HEATER_BED_PIN                      PA1   // HOT BED
 
 #define FAN_PIN                             PA2   // FAN
-#define FAN_SOFT_PWM
+#if DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required."
+#endif
 
 //
 // SD Card

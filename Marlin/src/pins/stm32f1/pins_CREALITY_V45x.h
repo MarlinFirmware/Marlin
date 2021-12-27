@@ -97,7 +97,9 @@
 // Heaters / Fans
 //
 
-#define FAN_SOFT_PWM
+#if DISABLED(FAN_SOFT_PWM)
+  #error "FAN_SOFT_PWM is required."
+#endif
 
 //
 // SD Card
