@@ -94,10 +94,19 @@
   #define FAN_MIN_PWM                         35  // Fan will not start in 1-30 range
   #define FAN_MAX_PWM                        255
 #else
-  #define FAST_PWM_FAN                            // STM32 Variant allow TIMER2 Hardware PWM
-  #define FAST_PWM_FAN_FREQUENCY           31400  // Default 1000 is noisy, max 65K (uint16)
-  #define FAN_MIN_PWM                          5
-  #define FAN_MAX_PWM                        255
+  #if ENABLED(FAST_PWM_FAN)
+    #if FAST_PWM_FAN_FREQUENCY != 31400           // Default 1000 is noisy, max 65K (uint16)
+      #error "FAST_PWM_FAN_FREQUENCY must be set to 31400."
+    #endif
+    #if FAN_MIN_PWM != 5
+      #error "FAN_MIN_PWM must be set to 5."
+    #endif
+    #if FAN_MAX_PWM != 255
+      #error "FAN_MAX_PWM must be set to 255."
+    #endif
+  #else
+    #error "FAST_PWM_FAN required to allow TIMER2 Hardware PWM."
+  #endif
 #endif
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
