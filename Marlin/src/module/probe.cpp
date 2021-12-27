@@ -124,16 +124,13 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
 #elif ENABLED(MAGLEV4)
 
   // Write trigger pin to release the probe
-  inline void run_maglev_deploy_script() {
-    pinMode(MAGLEV_TRIGGER_PIN, OUTPUT);
+  inline void maglev_deploy() {
     WRITE(MAGLEV_TRIGGER_PIN, HIGH);
     delay(MAGLEV_TRIGGER_DELAY);
     WRITE(MAGLEV_TRIGGER_PIN, LOW);
   }
 
-  inline void run_maglev_idle_script() {
-    do_blocking_move_to_z(10);
-  }
+  inline void maglev_idle() { do_blocking_move_to_z(10); }
 
 #elif ENABLED(TOUCH_MI_PROBE)
 
@@ -327,7 +324,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #elif ENABLED(MAGLEV4)
 
-    deploy ? run_maglev_deploy_script() : run_maglev_idle_script();
+    deploy ? maglev_deploy() : maglev_idle();
 
   #elif ENABLED(Z_PROBE_SLED)
 
