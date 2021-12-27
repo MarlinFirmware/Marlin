@@ -39,7 +39,7 @@
 #define COLOR_GREY            0x7BEF  // #808080
 #define COLOR_DARKGREY        0x4208  // #404040
 #define COLOR_DARKGREY2       0x39E7  // #303030
-#define COLOR_DARK            0x0003  // #000019
+#define COLOR_DARK            0x0003  // Some dark color
 
 #define COLOR_RED             0xF800  // #FF0000
 #define COLOR_SCARLET         0xF904  // #FF2020
@@ -71,13 +71,13 @@
 #define COLOR_DARK_PURPLE     0x9930  // #992380
 
 #ifndef COLOR_BACKGROUND
-  #define COLOR_BACKGROUND    0x20AC  // #1E156E
+  #define COLOR_BACKGROUND    0x0000 //0x20AC  // orignal #1E156E
 #endif
 #ifndef COLOR_SELECTION_BG
-  #define COLOR_SELECTION_BG  0x9930  // #992380
+  #define COLOR_SELECTION_BG    0x01D2  // #992380
 #endif
 #ifndef COLOR_WEBSITE_URL
-  #define COLOR_WEBSITE_URL   0x03B7  // #0075BD
+  #define COLOR_WEBSITE_URL     0x03B7
 #endif
 
 #ifndef COLOR_INACTIVE
@@ -106,7 +106,7 @@
   #define COLOR_AXIS_HOMED        COLOR_WHITE
 #endif
 #ifndef COLOR_AXIS_NOT_HOMED
-  #define COLOR_AXIS_NOT_HOMED    COLOR_YELLOW
+  #define COLOR_AXIS_NOT_HOMED    COLOR_WHITE
 #endif
 
 #ifndef COLOR_RATE_100
@@ -151,7 +151,7 @@
 #endif
 
 #ifndef COLOR_MENU_TEXT
-  #define COLOR_MENU_TEXT         COLOR_YELLOW
+  #define COLOR_MENU_TEXT         COLOR_WHITE
 #endif
 #ifndef COLOR_MENU_VALUE
   #define COLOR_MENU_VALUE        COLOR_WHITE
