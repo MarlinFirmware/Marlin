@@ -339,14 +339,18 @@
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
-    //#define LCD_BACKLIGHT_PIN             -1
-    //#define LCD_RESET_PIN                 -1
-    #define DOGLCD_A0                       PD11
-    #define DOGLCD_CS                EXP1_04_PIN
-    //#define DOGLCD_SCK             EXP2_09_PIN
-    //#define DOGLCD_MOSI            EXP2_05_PIN
+
+    #define ENABLE_SPI1
+    #define FORCE_SOFT_SPI
+    #define DOGLCD_A0                EXP1_04_PIN
+    #define DOGLCD_CS                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP2_09_PIN
+    #define DOGLCD_MOSI              EXP2_05_PIN
+    //#define LCD_BACKLIGHT_PIN               -1
+    //#define LCD_RESET_PIN                   -1
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
+
     #define DOGLCD_CS                EXP1_08_PIN
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_PINS_DC                DOGLCD_A0
