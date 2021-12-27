@@ -64,11 +64,6 @@
   #define Z_MIN_PROBE_PIN                   PB1
 #endif
 
-// LED driving pin
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA2
-#endif
-
 //
 // Steppers
 //
@@ -243,6 +238,11 @@
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3             125
   #endif
+#endif
+
+// LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA2
 #endif
 
 //
