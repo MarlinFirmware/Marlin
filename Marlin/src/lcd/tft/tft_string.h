@@ -29,7 +29,6 @@ extern const uint8_t font10x20[];
 extern const uint8_t Helvetica12Bold[];
 
 extern const uint8_t Helvetica14[], Helvetica14_symbols[];
-extern const uint8_t MyriadPro14[], MyriadPro14_symbols[];
 extern const uint8_t Helvetica18[], Helvetica18_symbols[];
 
 #define NO_GLYPH          0xFF

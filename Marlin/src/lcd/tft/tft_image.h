@@ -41,9 +41,6 @@ extern const uint8_t fan_slow0_64x64x4[], fan_slow1_64x64x4[];
 extern const uint8_t fan_fast0_64x64x4[], fan_fast1_64x64x4[];
 extern const uint8_t sd_64x64x4[];
 extern const uint8_t home_64x64x4[];
-extern const uint8_t btn_rounded_32x26x4[];
-extern const uint8_t btn_rounded_42x34x4[];
-extern const uint8_t btn_rounded_48x39x4[];
 extern const uint8_t btn_rounded_64x52x4[];
 extern const uint8_t btn_rounded_42x39x4[];
 extern const uint8_t menu_64x64x4[];
@@ -98,9 +95,6 @@ enum MarlinImage : uint8_t {
   imgLeveling,
   imgSlider,
   imgHome,
-  imgBtn26Rounded,
-  imgBtn34Rounded,   
-
   imgBtn52Rounded,
   imgBtn39Rounded,
   imgCount,
@@ -152,9 +146,6 @@ extern const tImage Fan_Fast0_64x64x4;
 extern const tImage Fan_Fast1_64x64x4;
 extern const tImage SD_64x64x4;
 extern const tImage Home_64x64x4;
-extern const tImage BtnRounded_32x26x4;
-extern const tImage BtnRounded_42x34x4;
-extern const tImage BtnRounded_48x39x4;
 extern const tImage BtnRounded_64x52x4;
 extern const tImage BtnRounded_42x39x4;
 extern const tImage Menu_64x64x4;

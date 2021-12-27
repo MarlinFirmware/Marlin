@@ -36,8 +36,7 @@
 #define MENU_ITEM_HEIGHT      32
 #define MENU_LINE_HEIGHT      (MENU_ITEM_HEIGHT + 2)
 
-#define MENU_FONT_NAME        MyriadPro14
-#define SYMBOLS_FONT_NAME     MyriadPro14_symbols
-#define FONT_LINE_HEIGHT    24
+#define MENU_FONT_NAME        Helvetica14
+#define SYMBOLS_FONT_NAME     Helvetica14_symbols
 
 #include "ui_common.h"
