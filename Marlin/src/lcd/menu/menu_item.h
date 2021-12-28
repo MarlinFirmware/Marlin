@@ -39,14 +39,14 @@ class MenuItem_submenu : public MenuItemBase {
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
       _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
     }
-    static inline void action(PGM_P const, const screenFunc_t func) { ui.push_current_screen(); ui.goto_screen(func); }
+    static void action(PGM_P const, const screenFunc_t func) { ui.push_current_screen(); ui.goto_screen(func); }
 };
 
 // Any menu item that invokes an immediate action
 class MenuItem_button : public MenuItemBase {
   public:
     // Button-y Items are selectable lines with no other indicator
-    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
+    static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
       _draw(sel, row, pstr, '>', ' ');
     }
 };
@@ -54,8 +54,8 @@ class MenuItem_button : public MenuItemBase {
 // ACTION_ITEM(LABEL, FUNC)
 class MenuItem_function : public MenuItem_button {
   public:
-    //static inline void action(PGM_P const, const uint8_t, const menuAction_t func) { (*func)(); };
-    static inline void action(PGM_P const, const menuAction_t func) { if (func) (*func)(); };
+    //static void action(PGM_P const, const uint8_t, const menuAction_t func) { (*func)(); };
+    static void action(PGM_P const, const menuAction_t func) { if (func) (*func)(); };
 };
 
 // GCODES_ITEM(LABEL, GCODES)
@@ -65,7 +65,7 @@ class MenuItem_gcode : public MenuItem_button {
       _draw(sel, row, pstr, '>', ' ');
     }
     static void action(PGM_P const, PGM_P const pgcode) { queue.inject(FPSTR(pgcode)); }
-    static inline void action(PGM_P const pstr, const uint8_t, PGM_P const pgcode) { action(pstr, pgcode); }
+    static void action(PGM_P const pstr, const uint8_t, PGM_P const pgcode) { action(pstr, pgcode); }
 };
 
 ////////////////////////////////////////////
@@ -77,8 +77,8 @@ template<typename NAME>
 class TMenuEditItem : MenuEditItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    static inline float scale(const_float_t value)    { return NAME::scale(value);            }
-    static inline float unscale(const_float_t value)  { return NAME::unscale(value);          }
+    static float scale(const_float_t value)    { return NAME::scale(value);            }
+    static float unscale(const_float_t value)  { return NAME::unscale(value);          }
     static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
     static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
   public:
@@ -117,9 +117,9 @@ class TMenuEditItem : MenuEditItemBase {
  *
  *   struct MenuEditItemInfo_percent {
  *     typedef uint8_t type_t;
- *     static inline float scale(const_float_t value)   { return value * (100.f/255.f) +0.5f; }
- *     static inline float unscale(const_float_t value) { return value / (100.f/255.f) +0.5f; }
- *     static inline const char* strfunc(const_float_t value) { return ui8tostr4pctrj(_DOFIX(uint8_t,value)); }
+ *     static float scale(const_float_t value)   { return value * (100.f/255.f) +0.5f; }
+ *     static float unscale(const_float_t value) { return value / (100.f/255.f) +0.5f; }
+ *     static const char* strfunc(const_float_t value) { return ui8tostr4pctrj(_DOFIX(uint8_t,value)); }
  *   };
  *   typedef TMenuEditItem<MenuEditItemInfo_percent> MenuItem_percent
  */
@@ -128,9 +128,9 @@ class TMenuEditItem : MenuEditItemBase {
 #define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
-    static inline float scale(const_float_t value)   { return value * (SCALE) ETC; } \
-    static inline float unscale(const_float_t value) { return value / (SCALE) ETC; } \
-    static inline const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
+    static float scale(const_float_t value)   { return value * (SCALE) ETC; } \
+    static float unscale(const_float_t value) { return value / (SCALE) ETC; } \
+    static const char* strfunc(const_float_t value) { return STRFUNC(_DOFIX(TYPE,value)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 

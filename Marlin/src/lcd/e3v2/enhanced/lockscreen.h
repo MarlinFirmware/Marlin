@@ -39,7 +39,7 @@ public:
   static void init();
   static void onEncoder(EncoderState encoder_diffState);
   static void draw();
-  static inline bool isUnlocked() { return unlocked; }
+  static bool isUnlocked() { return unlocked; }
 };
 
 extern LockScreenClass lockScreen;
