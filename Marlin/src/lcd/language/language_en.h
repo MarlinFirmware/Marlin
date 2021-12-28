@@ -586,7 +586,7 @@ namespace Language_en {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INCORRECT PRINTER");
 
-  #if (LCD_WIDTH >= 20 || HAS_DWIN_E3V2_BASIC)
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Print Count");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completed");
