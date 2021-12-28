@@ -1703,8 +1703,8 @@ void HMI_SaveProcessID(const uint8_t id) {
 void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
-  Title.ShowCaption(F("Axis Homing"));
-  DWIN_Draw_Popup(ICON_BLTouch, F("Axis Homing"), F("Please wait until done."));
+  Title.ShowCaption(GET_TEXT_F(MSG_LEVEL_BED_HOMING));
+  DWIN_Draw_Popup(ICON_BLTouch, GET_TEXT_F(MSG_LEVEL_BED_HOMING), F("Please wait until done."));
 }
 
 void DWIN_CompletedHoming() {
@@ -1719,7 +1719,7 @@ void DWIN_CompletedHoming() {
 void DWIN_MeshLevelingStart() {
   #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
-    Title.ShowCaption(F("Bed Leveling"));
+    Title.ShowCaption(GET_TEXT_F(MSG_BED_LEVELING));
     DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), F("Please wait until done."));
   #elif ENABLED(MESH_BED_LEVELING)
     Draw_ManualMesh_Menu();
@@ -3184,7 +3184,7 @@ void Draw_Prepare_Menu() {
       ADDMENUITEM(ICON_FilMan, GET_TEXT_F(MSG_FILAMENT_MAN), onDrawSubMenu, Draw_FilamentMan_Menu);
     #endif
     ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_MOVE_AXIS), onDrawMoveSubMenu, Goto_Move_Menu);
-    ADDMENUITEM(ICON_LevBed, GET_TEXT_F(MSG_BED_LEVELING), onDrawSubMenu, Draw_LevBedCorners_Menu);
+    ADDMENUITEM(ICON_LevBed, GET_TEXT_F(MSG_BED_TRAMMING), onDrawSubMenu, Draw_LevBedCorners_Menu);
     ADDMENUITEM(ICON_CloseMotor, GET_TEXT_F(MSG_DISABLE_STEPPERS), onDrawDisableMotors, DisableMotors);
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
       ADDMENUITEM(ICON_Homing, GET_TEXT_F(MSG_HOMING), onDrawSubMenu, Draw_Homing_Menu);
