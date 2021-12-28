@@ -67,7 +67,7 @@
   #endif
 #endif
 
-#ifdef STM32F0xx
+#if defined(STM32F0xx) || defined(STM32G0xx)
   #define MCU_STEP_TIMER 16
   #define MCU_TEMP_TIMER 17
 #elif defined(STM32F1xx)
@@ -97,9 +97,15 @@
 #define STEP_TIMER_DEV _TIMER_DEV(STEP_TIMER)
 #define TEMP_TIMER_DEV _TIMER_DEV(TEMP_TIMER)
 
-// ------------------------
+// --------------------------------------------------------------------------
+// Local defines
+// --------------------------------------------------------------------------
+
+#define NUM_HARDWARE_TIMERS 2
+
+// --------------------------------------------------------------------------
 // Private Variables
-// ------------------------
+// --------------------------------------------------------------------------
 
 HardwareTimer *timer_instance[NUM_HARDWARE_TIMERS] = { nullptr };
 

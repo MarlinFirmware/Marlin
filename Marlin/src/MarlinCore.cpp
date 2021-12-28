@@ -784,7 +784,10 @@ void idle(bool no_stepper_sleep/*=false*/) {
   (void)check_tool_sensor_stats(active_extruder, true);
 
   // Handle filament runout sensors
-  TERN_(HAS_FILAMENT_SENSOR, runout.run());
+  #if HAS_FILAMENT_SENSOR
+    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()))
+      runout.run();
+  #endif
 
   // Run HAL idle tasks
   TERN_(HAL_IDLETASK, HAL_idletask());
@@ -1497,6 +1500,10 @@ void setup() {
 
   #if ENABLED(BLTOUCH)
     SETUP_RUN(bltouch.init(/*set_voltage=*/true));
+  #endif
+
+  #if ENABLED(MAGLEV4)
+    OUT_WRITE(MAGLEV_TRIGGER_PIN, LOW);
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)

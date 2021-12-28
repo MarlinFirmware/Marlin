@@ -203,7 +203,7 @@
  *   PC11 | 8  7 | PD2      PC6  | 8  7 | PA4
  *   PC10   6  5 | PC12     PC7    6  5 | PA7
  *   PD0  | 4  3 | PD1      PB10 | 4  3 | RESET
- *   GND  | 2  1 | 5V       GND  | 2  1 | 5V
+ *    GND | 2  1 | 5V        GND | 2  1 | 5V
  *         ------                 ------
  *          EXP1                   EXP2
  */

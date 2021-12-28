@@ -40,17 +40,13 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX UINT16_MAX
 
-#define NUM_HARDWARE_TIMERS 2
+// Marlin timer_instance[] content (unrelated to timer selection)
+#define MF_TIMER_STEP       0  // Timer Index for Stepper
+#define MF_TIMER_TEMP       1  // Timer Index for Temperature
+#define MF_TIMER_PULSE      MF_TIMER_STEP
 
-#ifndef MF_TIMER_STEP
-  #define MF_TIMER_STEP         0  // Timer Index for Stepper
-#endif
-#ifndef MF_TIMER_PULSE
-  #define MF_TIMER_PULSE        MF_TIMER_STEP
-#endif
-#ifndef MF_TIMER_TEMP
-  #define MF_TIMER_TEMP         1  // Timer Index for Temperature
-#endif
+#define TIMER_INDEX_(T) TIMER##T##_INDEX  // TIMER#_INDEX enums (timer_index_t) depend on TIM#_BASE defines.
+#define TIMER_INDEX(T) TIMER_INDEX_(T)    // Convert Timer ID to HardwareTimer_Handle index.
 
 #define TEMP_TIMER_FREQUENCY 1000   // Temperature::isr() is expected to be called at around 1kHz
 
@@ -120,5 +116,5 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
   }
 }
 
-#define HAL_timer_isr_prologue(TIMER_NUM)
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+#define HAL_timer_isr_prologue(T)
+#define HAL_timer_isr_epilogue(T)

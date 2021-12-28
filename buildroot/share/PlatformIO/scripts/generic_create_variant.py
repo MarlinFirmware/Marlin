@@ -30,7 +30,7 @@ if pioutil.is_pio_build():
 	else:
 		platform_name = PackageSpec(platform_packages[0]).name
 
-	if platform_name in [ "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround" ]:
+	if platform_name in [ "usb-host-msc", "usb-host-msc-cdc-msc", "usb-host-msc-cdc-msc-2", "usb-host-msc-cdc-msc-3", "tool-stm32duino", "biqu-bx-workaround", "main" ]:
 		platform_name = "framework-arduinoststm32"
 
 	FRAMEWORK_DIR = platform.get_package_dir(platform_name)
