@@ -24,7 +24,7 @@
 /**
  * Lock screen implementation for DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * version: 2.1
+ * Version: 2.1
  * Date: 2021/11/09
  */
 
