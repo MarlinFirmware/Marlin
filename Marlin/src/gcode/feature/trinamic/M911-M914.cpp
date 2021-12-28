@@ -62,6 +62,21 @@
     #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
   #endif
 
+  template<typename TMC>
+  static void tmc_report_otpw(TMC &st) {
+    st.printLabel();
+    SERIAL_ECHOPGM(" temperature prewarn triggered: ");
+    serialprint_truefalse(st.getOTPW());
+    SERIAL_EOL();
+  }
+
+  template<typename TMC>
+  static void tmc_clear_otpw(TMC &st) {
+    st.clear_otpw();
+    st.printLabel();
+    SERIAL_ECHOLNPGM(" prewarn flag cleared");
+  }
+
   /**
    * M911: Report TMC stepper driver overtemperature pre-warn flag
    *       This flag is held by the library, persisting until cleared by M912
@@ -223,11 +238,17 @@
 
 #endif // MONITOR_DRIVER_STATUS
 
-/**
- * M913: Set HYBRID_THRESHOLD speed.
- */
 #if ENABLED(HYBRID_THRESHOLD)
 
+  template<typename TMC>
+  static void tmc_print_pwmthrs(TMC &st) {
+    st.printLabel();
+    SERIAL_ECHOLNPGM(" stealthChop max speed: ", st.get_pwm_thrs());
+  }
+
+  /**
+   * M913: Set HYBRID_THRESHOLD speed.
+   */
   void GcodeSuite::M913() {
     #define TMC_SAY_PWMTHRS(A,Q) tmc_print_pwmthrs(stepper##Q)
     #define TMC_SET_PWMTHRS(A,Q) stepper##Q.set_pwm_thrs(value)
@@ -235,19 +256,21 @@
     #define TMC_SET_PWMTHRS_E(E) stepperE##E.set_pwm_thrs(value)
 
     bool report = true;
-    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4) || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
-      const uint8_t index = parser.byteval('I');
+    #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+      const int8_t index = parser.byteval('I', -1);
+    #else
+      constexpr int8_t index = -1;
     #endif
     LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(axis_codes[i])) {
       report = false;
       switch (i) {
         case X_AXIS:
-          TERN_(X_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(X,X));
-          TERN_(X2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(X,X2));
+          TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(X,X));
+          TERN_(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(X,X2));
           break;
         case Y_AXIS:
-          TERN_(Y_HAS_STEALTHCHOP,  if (index < 2) TMC_SET_PWMTHRS(Y,Y));
-          TERN_(Y2_HAS_STEALTHCHOP, if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2));
+          TERN_(Y_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Y,Y));
+          TERN_(Y2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Y,Y2));
           break;
 
         #if I_HAS_STEALTHCHOP
@@ -261,25 +284,22 @@
         #endif
 
         case Z_AXIS:
-          TERN_(Z_HAS_STEALTHCHOP, if (index < 2) TMC_SET_PWMTHRS(Z,Z));
-          TERN_(Z2_HAS_STEALTHCHOP, if (index == 0 || index == 2) TMC_SET_PWMTHRS(Z,Z2));
-          TERN_(Z3_HAS_STEALTHCHOP, if (index == 0 || index == 3) TMC_SET_PWMTHRS(Z,Z3));
-          TERN_(Z4_HAS_STEALTHCHOP, if (index == 0 || index == 4) TMC_SET_PWMTHRS(Z,Z4));
+          TERN_(Z_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Z,Z));
+          TERN_(Z2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Z,Z2));
+          TERN_(Z3_HAS_STEALTHCHOP, if (index < 0 || index == 2) TMC_SET_PWMTHRS(Z,Z3));
+          TERN_(Z4_HAS_STEALTHCHOP, if (index < 0 || index == 3) TMC_SET_PWMTHRS(Z,Z4));
           break;
         #if E_STEPPERS
           case E_AXIS: {
-            const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
-            if (target_e_stepper < 0) return;
-            switch (target_e_stepper) {
-              TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_PWMTHRS_E(0); break;)
-              TERN_(E1_HAS_STEALTHCHOP, case 1: TMC_SET_PWMTHRS_E(1); break;)
-              TERN_(E2_HAS_STEALTHCHOP, case 2: TMC_SET_PWMTHRS_E(2); break;)
-              TERN_(E3_HAS_STEALTHCHOP, case 3: TMC_SET_PWMTHRS_E(3); break;)
-              TERN_(E4_HAS_STEALTHCHOP, case 4: TMC_SET_PWMTHRS_E(4); break;)
-              TERN_(E5_HAS_STEALTHCHOP, case 5: TMC_SET_PWMTHRS_E(5); break;)
-              TERN_(E6_HAS_STEALTHCHOP, case 6: TMC_SET_PWMTHRS_E(6); break;)
-              TERN_(E7_HAS_STEALTHCHOP, case 7: TMC_SET_PWMTHRS_E(7); break;)
-            }
+            const int8_t eindex = get_target_e_stepper_from_command(-2);
+            TERN_(E0_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 0) TMC_SET_PWMTHRS_E(0));
+            TERN_(E1_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 1) TMC_SET_PWMTHRS_E(1));
+            TERN_(E2_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 2) TMC_SET_PWMTHRS_E(2));
+            TERN_(E3_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 3) TMC_SET_PWMTHRS_E(3));
+            TERN_(E4_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 4) TMC_SET_PWMTHRS_E(4));
+            TERN_(E5_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 5) TMC_SET_PWMTHRS_E(5));
+            TERN_(E6_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 6) TMC_SET_PWMTHRS_E(6));
+            TERN_(E7_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 7) TMC_SET_PWMTHRS_E(7));
           } break;
         #endif // E_STEPPERS
       }
@@ -407,11 +427,18 @@
 
 #endif // HYBRID_THRESHOLD
 
-/**
- * M914: Set StallGuard sensitivity.
- */
 #if USE_SENSORLESS
 
+  template<typename TMC>
+  static void tmc_print_sgt(TMC &st) {
+    st.printLabel();
+    SERIAL_ECHOPGM(" homing sensitivity: ");
+    SERIAL_PRINTLN(st.homing_threshold(), PrintBase::Dec);
+  }
+
+  /**
+   * M914: Set StallGuard sensitivity.
+   */
   void GcodeSuite::M914() {
 
     bool report = true;
