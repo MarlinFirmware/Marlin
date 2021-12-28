@@ -63,6 +63,6 @@ void PrintStatsClass::Draw() {
 void PrintStatsClass::Reset() {
   print_job_timer.initStats();
   HMI_AudioFeedback();
-};
+}
 
 #endif // DWIN_CREALITY_LCD_ENHANCED && PRINTCOUNTER

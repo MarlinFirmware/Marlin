@@ -324,7 +324,7 @@ void ICON_Prepare() {
 //
 void ICON_Control() {
   constexpr frame_rect_t ico = { 17, 226, 110, 100 };
-  constexpr text_info_t txt ={ 61, { 405, 447 }, 27, 15 };
+  constexpr text_info_t txt = { 61, { 405, 447 }, 27, 15 };
   ICON_Button(select_page.now == PAGE_CONTROL, ICON_Control_0, ico, txt, GET_TEXT_F(MSG_CONTROL));
 }
 
@@ -836,11 +836,10 @@ void update_variable() {
     if (_leveling_active != planner.leveling_active) {
       _leveling_active = planner.leveling_active;
       DWIN_Draw_Box(1, HMI_data.Background_Color, 186, 416, 20, 20);
-      if (_leveling_active) {
+      if (_leveling_active)
         DWINUI::Draw_Icon(ICON_SetZOffset, 186, 416);
-      } else {
+      else
         DWINUI::Draw_Icon(ICON_Zoffset, 187, 416);
-      }
     }
   #endif
 
@@ -1635,7 +1634,8 @@ void EachMomentUpdate() {
         queue.inject(F("M1000C"));
         select_page.reset();
         Goto_Main_Menu();
-      } else {
+      }
+      else {
         select_print.set(PRINT_SETUP);
         queue.inject(F("M1000"));
         sdprint = true;
@@ -1775,7 +1775,7 @@ void DWIN_PidTuning(pidresult_t result) {
 void DWIN_Print_Header(const char *text = nullptr) {
   static char headertxt[31] = "";  // Print header text
 
-  if (text != nullptr) {
+  if (text) {
     const int8_t size = _MIN((unsigned) 30, strlen_P(text));
     LOOP_L_N(i, size) headertxt[i] = text[i];
     headertxt[size] = '\0';
@@ -3037,9 +3037,12 @@ void onDrawStepsZ(MenuItemClass* menuitem, int8_t line) {
 void HMI_Menu() {
   EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (CurrentMenu != nullptr) CurrentMenu->onClick();
-  } else if (CurrentMenu != nullptr) CurrentMenu->onScroll(encoder_diffState == ENCODER_DIFF_CW);
+  if (CurrentMenu) {
+    if (encoder_diffState == ENCODER_DIFF_ENTER)
+      CurrentMenu->onClick();
+    else
+      CurrentMenu->onScroll(encoder_diffState == ENCODER_DIFF_CW);
+  }
 }
 
 // Get an integer value using the encoder without draw anything
@@ -3091,8 +3094,8 @@ void HMI_SetInt() {
   int8_t val = HMI_GetInt(HMI_value.MinValue, HMI_value.MaxValue);
   switch (val) {
     case 0: return; break;
-    case 1: if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate(); break;
-    case 2: if (HMI_value.Apply != nullptr) HMI_value.Apply(); break;
+    case 1: if (HMI_value.LiveUpdate) HMI_value.LiveUpdate(); break;
+    case 2: if (HMI_value.Apply) HMI_value.Apply(); break;
   }
 }
 
@@ -3101,8 +3104,8 @@ void HMI_SetIntNoDraw() {
   int8_t val = HMI_GetIntNoDraw(HMI_value.MinValue, HMI_value.MaxValue);
   switch (val) {
     case 0: return; break;
-    case 1: if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate(); break;
-    case 2: if (HMI_value.Apply != nullptr) HMI_value.Apply(); break;
+    case 1: if (HMI_value.LiveUpdate) HMI_value.LiveUpdate(); break;
+    case 2: if (HMI_value.Apply) HMI_value.Apply(); break;
   }
 }
 
@@ -3111,8 +3114,8 @@ void HMI_SetPInt() {
   int8_t val = HMI_GetInt(HMI_value.MinValue, HMI_value.MaxValue);
   switch (val) {
     case 0: return;
-    case 1: if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate(); break;
-    case 2: *HMI_value.P_Int = HMI_value.Value; if (HMI_value.Apply != nullptr) HMI_value.Apply(); break;
+    case 1: if (HMI_value.LiveUpdate) HMI_value.LiveUpdate(); break;
+    case 2: *HMI_value.P_Int = HMI_value.Value; if (HMI_value.Apply) HMI_value.Apply(); break;
   }
 }
 
@@ -3145,8 +3148,8 @@ void HMI_SetFloat() {
   const int8_t val = HMI_GetFloat(HMI_value.dp, HMI_value.MinValue, HMI_value.MaxValue);
   switch (val) {
     case 0: return;
-    case 1: if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate(); break;
-    case 2: if (HMI_value.Apply != nullptr) HMI_value.Apply(); break;
+    case 1: if (HMI_value.LiveUpdate) HMI_value.LiveUpdate(); break;
+    case 2: if (HMI_value.Apply) HMI_value.Apply(); break;
   }
 }
 
@@ -3155,8 +3158,8 @@ void HMI_SetPFloat() {
   const int8_t val = HMI_GetFloat(HMI_value.dp, HMI_value.MinValue, HMI_value.MaxValue);
   switch (val) {
     case 0: return;
-    case 1: if (HMI_value.LiveUpdate != nullptr) HMI_value.LiveUpdate(); break;
-    case 2: *HMI_value.P_Float = HMI_value.Value / POW(10, HMI_value.dp); if (HMI_value.Apply != nullptr) HMI_value.Apply(); break;
+    case 1: if (HMI_value.LiveUpdate) HMI_value.LiveUpdate(); break;
+    case 2: *HMI_value.P_Float = HMI_value.Value / POW(10, HMI_value.dp); if (HMI_value.Apply) HMI_value.Apply(); break;
   }
 }
 
@@ -3171,7 +3174,7 @@ void SetMenuTitle(frame_rect_t cn, const __FlashStringHelper* fstr) {
 
 void Draw_Prepare_Menu() {
   checkkey = Menu;
-  if (PrepareMenu == nullptr) PrepareMenu = new MenuClass();
+  if (!PrepareMenu) PrepareMenu = new MenuClass();
   if (CurrentMenu != PrepareMenu) {
     CurrentMenu = PrepareMenu;
     SetMenuTitle({133, 1, 28, 13}, GET_TEXT_F(MSG_PREPARE));
@@ -3218,7 +3221,7 @@ void Draw_Prepare_Menu() {
 void Draw_LevBedCorners_Menu() {
   DWINUI::ClearMenuArea();
   checkkey = Menu;
-  if (LevBedMenu == nullptr) LevBedMenu = new MenuClass();
+  if (!LevBedMenu) LevBedMenu = new MenuClass();
   if (CurrentMenu != LevBedMenu) {
     CurrentMenu = LevBedMenu;
     SetMenuTitle({0}, GET_TEXT_F(MSG_BED_TRAMMING)); // TODO: Chinese, English "Bed Tramming" JPG
@@ -3235,7 +3238,7 @@ void Draw_LevBedCorners_Menu() {
 
 void Draw_Control_Menu() {
   checkkey = Menu;
-  if (ControlMenu == nullptr) ControlMenu = new MenuClass();
+  if (!ControlMenu) ControlMenu = new MenuClass();
   if (CurrentMenu != ControlMenu) {
     CurrentMenu = ControlMenu;
     SetMenuTitle({103, 1, 28, 14}, GET_TEXT_F(MSG_CONTROL));
@@ -3257,7 +3260,7 @@ void Draw_Control_Menu() {
 
 void Draw_AdvancedSettings_Menu() {
   checkkey = Menu;
-  if (AdvancedSettings == nullptr) AdvancedSettings = new MenuClass();
+  if (!AdvancedSettings) AdvancedSettings = new MenuClass();
   if (CurrentMenu != AdvancedSettings) {
     CurrentMenu = AdvancedSettings;
     SetMenuTitle({0}, GET_TEXT_F(MSG_ADVANCED_SETTINGS)); // TODO: Chinese, English "Advanced Settings" JPG
@@ -3305,7 +3308,7 @@ void Draw_AdvancedSettings_Menu() {
 
 void Draw_Move_Menu() {
   checkkey = Menu;
-  if (MoveMenu == nullptr) MoveMenu = new MenuClass();
+  if (!MoveMenu) MoveMenu = new MenuClass();
   if (CurrentMenu != MoveMenu) {
     CurrentMenu = MoveMenu;
     SetMenuTitle({192, 1, 42, 14}, GET_TEXT_F(MSG_MOVE_AXIS));
@@ -3325,7 +3328,7 @@ void Draw_Move_Menu() {
 #if HAS_HOME_OFFSET
   void Draw_HomeOffset_Menu() {
     checkkey = Menu;
-    if (HomeOffMenu == nullptr) HomeOffMenu = new MenuClass();
+    if (!HomeOffMenu) HomeOffMenu = new MenuClass();
     if (CurrentMenu != HomeOffMenu) {
       CurrentMenu = HomeOffMenu;
       SetMenuTitle({0}, GET_TEXT_F(MSG_SET_HOME_OFFSETS)); // TODO: Chinese, English "Set Home Offsets" JPG
@@ -3342,7 +3345,7 @@ void Draw_Move_Menu() {
 #if HAS_BED_PROBE
   void Draw_ProbeSet_Menu() {
     checkkey = Menu;
-    if (ProbeSetMenu == nullptr) ProbeSetMenu = new MenuClass();
+    if (!ProbeSetMenu) ProbeSetMenu = new MenuClass();
     if (CurrentMenu != ProbeSetMenu) {
       CurrentMenu = ProbeSetMenu;
       SetMenuTitle({0}, GET_TEXT_F(MSG_ZPROBE_SETTINGS)); // TODO: Chinese, English "Probe Settings" JPG
@@ -3362,7 +3365,7 @@ void Draw_Move_Menu() {
 #if HAS_FILAMENT_SENSOR
   void Draw_FilSet_Menu() {
     checkkey = Menu;
-    if (FilSetMenu == nullptr) FilSetMenu = new MenuClass();
+    if (!FilSetMenu) FilSetMenu = new MenuClass();
     if (CurrentMenu != FilSetMenu) {
       CurrentMenu = FilSetMenu;
       CurrentMenu->MenuTitle.SetCaption(GET_TEXT_F(MSG_FILAMENT_SET));
@@ -3394,7 +3397,7 @@ void Draw_Move_Menu() {
 
 void Draw_SelectColors_Menu() {
   checkkey = Menu;
-  if (SelectColorMenu == nullptr) SelectColorMenu = new MenuClass();
+  if (!SelectColorMenu) SelectColorMenu = new MenuClass();
   if (CurrentMenu != SelectColorMenu) {
     CurrentMenu = SelectColorMenu;
     SetMenuTitle({0}, F("Select Colors")); // TODO: Chinese, English "Select Color" JPG
@@ -3425,7 +3428,7 @@ void Draw_SelectColors_Menu() {
 
 void Draw_GetColor_Menu() {
   checkkey = Menu;
-  if (GetColorMenu == nullptr) GetColorMenu = new MenuClass();
+  if (!GetColorMenu) GetColorMenu = new MenuClass();
   if (CurrentMenu != GetColorMenu) {
     CurrentMenu = GetColorMenu;
     SetMenuTitle({0}, F("Get Color")); // TODO: Chinese, English "Get Color" JPG
@@ -3442,7 +3445,7 @@ void Draw_GetColor_Menu() {
 
 void Draw_Tune_Menu() {
   checkkey = Menu;
-  if (TuneMenu == nullptr) TuneMenu = new MenuClass();
+  if (!TuneMenu) TuneMenu = new MenuClass();
   if (CurrentMenu != TuneMenu) {
     CurrentMenu = TuneMenu;
     SetMenuTitle({73, 2, 28, 12}, GET_TEXT_F(MSG_TUNE)); // TODO: Chinese, English "Tune" JPG
@@ -3481,7 +3484,7 @@ void Draw_Tune_Menu() {
 
 void Draw_Motion_Menu() {
   checkkey = Menu;
-  if (MotionMenu == nullptr) MotionMenu = new MenuClass();
+  if (!MotionMenu) MotionMenu = new MenuClass();
   if (CurrentMenu != MotionMenu) {
     CurrentMenu = MotionMenu;
     SetMenuTitle({1, 16, 28, 13}, GET_TEXT_F(MSG_MOTION)); // TODO: Chinese, English "Motion" JPG
@@ -3501,7 +3504,7 @@ void Draw_Motion_Menu() {
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void Draw_FilamentMan_Menu() {
     checkkey = Menu;
-    if (FilamentMenu == nullptr) FilamentMenu = new MenuClass();
+    if (!FilamentMenu) FilamentMenu = new MenuClass();
     if (CurrentMenu != FilamentMenu) {
       CurrentMenu = FilamentMenu;
       SetMenuTitle({0}, GET_TEXT_F(MSG_FILAMENT_MAN)); // TODO: Chinese, English "Filament Management" JPG
@@ -3521,7 +3524,7 @@ void Draw_Motion_Menu() {
 #if ENABLED(MESH_BED_LEVELING)
   void Draw_ManualMesh_Menu() {
     checkkey = Menu;
-    if (ManualMesh == nullptr) ManualMesh = new MenuClass();
+    if (!ManualMesh) ManualMesh = new MenuClass();
     if (CurrentMenu != ManualMesh) {
       CurrentMenu = ManualMesh;
       SetMenuTitle({0}, GET_TEXT_F(MSG_MANUAL_MESH)); // TODO: Chinese, English "Manual Mesh Leveling" JPG
@@ -3564,20 +3567,20 @@ void Draw_Motion_Menu() {
 
   void Draw_Preheat1_Menu() {
     HMI_value.Preheat = 0;
-    if (PreheatMenu == nullptr) PreheatMenu = new MenuClass();
+    if (!PreheatMenu) PreheatMenu = new MenuClass();
     Draw_Preheat_Menu({59, 16, 81, 14}, F(PREHEAT_1_LABEL " Preheat Settings")); // TODO: English "PLA Settings" JPG
   }
 
   void Draw_Preheat2_Menu() {
     HMI_value.Preheat = 1;
-    if (PreheatMenu == nullptr) PreheatMenu = new MenuClass();
+    if (!PreheatMenu) PreheatMenu = new MenuClass();
     Draw_Preheat_Menu({142, 16, 82, 14}, F(PREHEAT_2_LABEL " Preheat Settings"));  // TODO: English "ABS Settings" JPG
   }
 
   #ifdef PREHEAT_3_LABEL
     void Draw_Preheat3_Menu() {
       HMI_value.Preheat = 2;
-      if (PreheatMenu == nullptr) PreheatMenu = new MenuClass();
+      if (!PreheatMenu) PreheatMenu = new MenuClass();
       #define PREHEAT_3_TITLE PREHEAT_3_LABEL " Preheat Set."
       Draw_Preheat_Menu({0}, F(PREHEAT_3_TITLE));  // TODO: Chinese, English "Custom Preheat Settings" JPG
     }
@@ -3587,7 +3590,7 @@ void Draw_Motion_Menu() {
 
 void Draw_Temperature_Menu() {
   checkkey = Menu;
-  if (TemperatureMenu == nullptr) TemperatureMenu = new MenuClass();
+  if (!TemperatureMenu) TemperatureMenu = new MenuClass();
   if (CurrentMenu != TemperatureMenu) {
     CurrentMenu = TemperatureMenu;
     SetMenuTitle({236, 2, 28, 12}, GET_TEXT_F(MSG_TEMPERATURE));
@@ -3615,7 +3618,7 @@ void Draw_Temperature_Menu() {
 
 void Draw_MaxSpeed_Menu() {
   checkkey = Menu;
-  if (MaxSpeedMenu == nullptr) MaxSpeedMenu = new MenuClass();
+  if (!MaxSpeedMenu) MaxSpeedMenu = new MenuClass();
   if (CurrentMenu != MaxSpeedMenu) {
     CurrentMenu = MaxSpeedMenu;
     SetMenuTitle({1, 16, 28, 13}, GET_TEXT_F(MSG_MAXSPEED));
@@ -3633,7 +3636,7 @@ void Draw_MaxSpeed_Menu() {
 
 void Draw_MaxAccel_Menu() {
   checkkey = Menu;
-  if (MaxAccelMenu == nullptr) MaxAccelMenu = new MenuClass();
+  if (!MaxAccelMenu) MaxAccelMenu = new MenuClass();
   if (CurrentMenu != MaxAccelMenu) {
     CurrentMenu = MaxAccelMenu;
     SetMenuTitle({1, 16, 28, 13}, GET_TEXT_F(MSG_ACCELERATION));
@@ -3652,7 +3655,7 @@ void Draw_MaxAccel_Menu() {
 #if HAS_CLASSIC_JERK
   void Draw_MaxJerk_Menu() {
     checkkey = Menu;
-    if (MaxJerkMenu == nullptr) MaxJerkMenu = new MenuClass();
+    if (!MaxJerkMenu) MaxJerkMenu = new MenuClass();
     if (CurrentMenu != MaxJerkMenu) {
       CurrentMenu = MaxJerkMenu;
       SetMenuTitle({1, 16, 28, 13}, GET_TEXT_F(MSG_JERK));
@@ -3671,7 +3674,7 @@ void Draw_MaxAccel_Menu() {
 
 void Draw_Steps_Menu() {
   checkkey = Menu;
-  if (StepsMenu == nullptr) StepsMenu = new MenuClass();
+  if (!StepsMenu) StepsMenu = new MenuClass();
   if (CurrentMenu != StepsMenu) {
     CurrentMenu = StepsMenu;
     SetMenuTitle({1, 16, 28, 13}, GET_TEXT_F(MSG_STEPS_PER_MM));
@@ -3690,7 +3693,7 @@ void Draw_Steps_Menu() {
 #if HAS_HOTEND
   void Draw_HotendPID_Menu() {
     checkkey = Menu;
-    if (HotendPIDMenu == nullptr) HotendPIDMenu = new MenuClass();
+    if (!HotendPIDMenu) HotendPIDMenu = new MenuClass();
     if (CurrentMenu != HotendPIDMenu) {
       CurrentMenu = HotendPIDMenu;
       CurrentMenu->MenuTitle.SetCaption(F("Hotend PID Settings"));
@@ -3713,7 +3716,7 @@ void Draw_Steps_Menu() {
 #if HAS_HEATED_BED
   void Draw_BedPID_Menu() {
     checkkey = Menu;
-    if (BedPIDMenu == nullptr) BedPIDMenu = new MenuClass();
+    if (!BedPIDMenu) BedPIDMenu = new MenuClass();
     if (CurrentMenu != BedPIDMenu) {
       CurrentMenu = BedPIDMenu;
       CurrentMenu->MenuTitle.SetCaption(F("Bed PID Settings"));
@@ -3736,7 +3739,7 @@ void Draw_Steps_Menu() {
 #if HAS_BED_PROBE
   void Draw_ZOffsetWiz_Menu() {
     checkkey = Menu;
-    if (ZOffsetWizMenu == nullptr) ZOffsetWizMenu = new MenuClass();
+    if (!ZOffsetWizMenu) ZOffsetWizMenu = new MenuClass();
     if (CurrentMenu != ZOffsetWizMenu) {
       CurrentMenu = ZOffsetWizMenu;
       CurrentMenu->MenuTitle.SetCaption(GET_TEXT_F(MSG_PROBE_WIZARD));
@@ -3754,7 +3757,7 @@ void Draw_Steps_Menu() {
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   void Draw_Homing_Menu() {
     checkkey = Menu;
-    if (HomingMenu == nullptr) HomingMenu = new MenuClass();
+    if (!HomingMenu) HomingMenu = new MenuClass();
     if (CurrentMenu != HomingMenu) {
       CurrentMenu = HomingMenu;
       CurrentMenu->MenuTitle.SetCaption(GET_TEXT_F(MSG_HOMING));
@@ -3768,4 +3771,5 @@ void Draw_Steps_Menu() {
     CurrentMenu->draw();
   }
 #endif
+
 #endif // DWIN_CREALITY_LCD_ENHANCED
