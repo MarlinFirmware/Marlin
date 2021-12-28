@@ -139,26 +139,26 @@
 #endif
 
 /**
- *                -----                                              -----
- *            5V | 1 2 | GND                                     5V | 1 2 | GND
- *         RESET | 3 4 | PC3  (SD_DETECT)             (LCD_D7)  PB7 | 3 4 | PB6  (LCD_D6)
- * (SD_MOSI) PA7   5 6 | PC11 (BTN_EN2)               (LCD_D5) PB14   5 6 | PB13 (LCD_D4)
- *   (SD_SS) PA4 | 7 8 | PC10 (BTN_EN1)               (LCD_RS) PB12 | 7 8 | PB15 (LCD_EN)
- *  (SD_SCK) PA5 | 9 10| PA6  (SD_MISO)              (BTN_ENC) PC12 | 9 10| PC9  (BEEPER)
- *                -----                                              -----
- *                EXP2                                               EXP1
+ *                   ------                                  ------
+ * (SD_MISO)   PA6  |10  9 | PA5  (SD_SCK)    (BEEPER) PC9  |10  9 | PC12 (BTN_ENC)
+ * (BTN_EN1)   PC10 | 8  7 | PA4   (SD_SS)    (LCD_EN) PB15 | 8  7 | PB12  (LCD_RS)
+ * (BTN_EN2)   PC11   6  5 | PA7 (SD_MOSI)    (LCD_D4) PB13   6  5 | PB14  (LCD_D5)
+ * (SD_DETECT) PC3  | 4  3 | RESET            (LCD_D6) PB6  | 4  3 |  PB7  (LCD_D7)
+ *              GND | 2  1 | 5V                         GND | 2  1 |   5V
+ *                   ------                                  ------
+ *                    EXP2                                    EXP1
  */
 
 /**
-*                 -----
-*  (BEEPER) PC9  | 1 2 | PC12 (BTN_ENC)
-* (BTN_EN1) PC10 | 3 4 | PB14 (LCD_D5/MISO)
-* (BTN_EN2) PC11   5 6 | PB13 (LCD_D4/SCK)
-*  (LCD_RS) PB12 | 7 8 | PB15 (LCD_EN/MOSI)
-*            GND | 9 10| 5V
-*                 -----
-*                 EXP3
-*/
+ *                     ------
+ *                 5V |10  9 | GND
+ * (LCD_EN/MOSI) PB15 | 8  7 | PB12  (LCD_RS)
+ * (LCD_D4/SCK)  PB13   6  5 | PC11 (BTN_EN2)
+ * (LCD_D5/MISO) PB14 | 4  3 | PC10 (BTN_EN1)
+ * (BTN_ENC)     PC12 | 2  1 | PC9   (BEEPER)
+ *                     ------
+ *                      EXP3
+ */
 
 #define EXP1_03_PIN                         PB7
 #define EXP1_04_PIN                         PB6
