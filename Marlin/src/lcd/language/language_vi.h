@@ -383,7 +383,7 @@ namespace Language_vi {
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Giao Thức");                            // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Đèn Khuông");                           // Case light
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Độ Sáng");                              // Light Brightness
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Số In");                                // Print Count
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Đã hoàn thành");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tổng số thời gian in");                // Total print time

@@ -22,15 +22,16 @@
 #pragma once
 
 /**
- * DWIN Mesh Viewer
+ * DWIN Print Stats page
  * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
- * Date: 2021/11/06
+ * Version: 1.0
+ * Date: 2021/11/21
  */
 
-class MeshViewerClass {
+class PrintStatsClass {
 public:
   void Draw();
+  static void Reset();
 };
 
-extern MeshViewerClass MeshViewer;
+extern PrintStatsClass PrintStats;

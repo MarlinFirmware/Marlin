@@ -430,7 +430,7 @@ namespace Language_pl {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Jasność oświetlenia");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Niepoprawna drukarka");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Wydrukowano");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Ukończono");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Czas druku");
