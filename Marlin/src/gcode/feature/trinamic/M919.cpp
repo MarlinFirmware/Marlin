@@ -43,7 +43,7 @@ static void tmc_print_chopper_time(TMC &st) {
  * M919: Set TMC stepper drive chopper times
  *
  * Parameters:
- *   XYZUVWE...
+ *   XYZ...E     - Selected axes
  *   I[index]    - Axis sub-index (Omit for all XYZ steppers, 1 for X2, Y2, Z2; 2 for Z3; 3 for Z4)
  *   T[index]    - Extruder index (Zero-based. Omit for all extruders.)
  *   O           - time-off         [ 1..15]
