@@ -256,8 +256,10 @@
     #define TMC_SET_PWMTHRS_E(E) stepperE##E.set_pwm_thrs(value)
 
     bool report = true;
-    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4) || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
-      const uint8_t index = parser.byteval('I');
+    #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+      const int8_t index = parser.byteval('I', -1);
+    #else
+      constexpr int8_t index = -1;
     #endif
     LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(axis_codes[i])) {
       report = false;
@@ -289,18 +291,15 @@
           break;
         #if E_STEPPERS
           case E_AXIS: {
-            const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
-            if (target_e_stepper < 0) return;
-            switch (target_e_stepper) {
-              TERN_(E0_HAS_STEALTHCHOP, case 0: TMC_SET_PWMTHRS_E(0); break;)
-              TERN_(E1_HAS_STEALTHCHOP, case 1: TMC_SET_PWMTHRS_E(1); break;)
-              TERN_(E2_HAS_STEALTHCHOP, case 2: TMC_SET_PWMTHRS_E(2); break;)
-              TERN_(E3_HAS_STEALTHCHOP, case 3: TMC_SET_PWMTHRS_E(3); break;)
-              TERN_(E4_HAS_STEALTHCHOP, case 4: TMC_SET_PWMTHRS_E(4); break;)
-              TERN_(E5_HAS_STEALTHCHOP, case 5: TMC_SET_PWMTHRS_E(5); break;)
-              TERN_(E6_HAS_STEALTHCHOP, case 6: TMC_SET_PWMTHRS_E(6); break;)
-              TERN_(E7_HAS_STEALTHCHOP, case 7: TMC_SET_PWMTHRS_E(7); break;)
-            }
+            const int8_t eindex = get_target_e_stepper_from_command();
+            TERN_(E0_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 0) TMC_SET_PWMTHRS_E(0));
+            TERN_(E1_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 1) TMC_SET_PWMTHRS_E(1));
+            TERN_(E2_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 2) TMC_SET_PWMTHRS_E(2));
+            TERN_(E3_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 3) TMC_SET_PWMTHRS_E(3));
+            TERN_(E4_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 4) TMC_SET_PWMTHRS_E(4));
+            TERN_(E5_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 5) TMC_SET_PWMTHRS_E(5));
+            TERN_(E6_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 6) TMC_SET_PWMTHRS_E(6));
+            TERN_(E7_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 7) TMC_SET_PWMTHRS_E(7));
           } break;
         #endif // E_STEPPERS
       }
