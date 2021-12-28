@@ -24,6 +24,10 @@
 
 #if HAS_L64XX
 
+#if AXIS_COLLISION('I')
+  #error "M906 parameter collision with axis name."
+#endif
+
 #include "../../gcode.h"
 #include "../../../libs/L64XX/L64XX_Marlin.h"
 #include "../../../module/stepper/indirection.h"

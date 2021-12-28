@@ -24,6 +24,10 @@
 
 #if HAS_STEALTHCHOP
 
+#if AXIS_COLLISION('I')
+  #error "M569 parameter collision with axis name."
+#endif
+
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper/indirection.h"
