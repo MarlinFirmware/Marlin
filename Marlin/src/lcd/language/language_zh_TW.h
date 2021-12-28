@@ -437,7 +437,7 @@ namespace Language_zh_TW {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("燈亮度");     // "Light BRIGHTNESS"
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("打印機不正確");     // "The printer is incorrect"
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("列印計數");     // "Print Count"
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("已完成");     // "Completed"
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("總列印時間");     // "Total print time"

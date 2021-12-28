@@ -22,15 +22,16 @@
 #pragma once
 
 /**
- * DWIN Mesh Viewer
+ * DWIN End Stops diagnostic page
  * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
+ * Version: 1.0
  * Date: 2021/11/06
  */
 
-class MeshViewerClass {
+class ESDiagClass {
 public:
   void Draw();
+  void Update();
 };
 
-extern MeshViewerClass MeshViewer;
+extern ESDiagClass ESDiag;
