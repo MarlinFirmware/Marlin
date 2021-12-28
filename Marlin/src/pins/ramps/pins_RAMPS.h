@@ -461,7 +461,7 @@
  *    D17 | 8  7 | D16           D31 | 8  7 | D53
  *    D23   6  5   D25           D33   6  5   D51 (MOSI)
  *    D27 | 4  3 | D29           D49 | 4  3 | D41
- *    GND | 2  1 | 5V            GND | 2  1 | NC
+ *    GND | 2  1 | 5V            GND | 2  1 | --
  *         ------                     ------
  *          EXP1                       EXP2
  */
@@ -803,13 +803,13 @@
    * FYSETC TFT-81050 display pinout
    *
    *               Board                                     Display
-   *               -----                                     -----
-   *  (SCK)   D52 | 1 2 | D50    (MISO)                MISO | 1 2 | SCK
-   *  (SD_CS) D53 | 3 4 | D33 (BNT_EN2) (BNT_EN2) MOD_RESET | 3 4 | SD_CS
-   *  (MOSI)  D51 | 5 6   D31 (BNT_EN1) (BNT_EN1)    LCD_CS | 5 6   MOSI
-   *        RESET | 7 8 | D49  (SD_DET)              SD_DET | 7 8 | RESET
-   *           NC | 9 10| GND                           GND | 9 10| 5V
-   *               -----                                     -----
+   *               ------                                    ------
+   *          GND |10  9 | --                            5V |10  9 | GND
+   *  (SD_DET) 49 | 8  7 | RESET                      RESET | 8  7 | (SD_DET)
+   * (BTN_EN1) 31   6  5 | 51 (MOSI)                 (MOSI)   6  5 | (LCD_CS)
+   * (BTN_EN2) 33 | 4  3 | 53 (SD_CS)               (SD_CS) | 4  3 | (MOD_RESET)
+   *    (MISO) 50 | 2  1 | 52 (SCK)                   (SCK) | 2  1 | (MISO)
+   *               ------                                    ------
    *                EXP2                                      EXP1
    *
    * Needs custom cable:
