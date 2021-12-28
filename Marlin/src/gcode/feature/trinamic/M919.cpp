@@ -40,7 +40,7 @@ static void tmc_print_chopper_time(TMC &st) {
 }
 
 /**
- * M919: Set TMC stepper drive chopper times
+ * M919: Set TMC stepper driver chopper times
  *
  * Parameters:
  *   XYZ...E     - Selected axes
