@@ -1141,7 +1141,7 @@ private:
       static void M914();
       static void M914_report(const bool forReplay=true);
     #endif
-    static void M919();    
+    static void M919();
   #endif
 
   #if HAS_L64XX

@@ -41,27 +41,20 @@
  *   O           - time-off         [ 1..15]
  *   V           - hysteresis_end   [-3..12]
  *   S           - hysteresis_start [ 1...8]
- * 
+ *
  * With no parameters report chopper times for all axis
  */
 
 void GcodeSuite::M919() {
   #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
-  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(time_off, hysteresis_end, hysteresis_start)
+  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(ct.toff, ct.hend, ct.hstrt)
 
   bool report = true;
-  uint8_t time_off;
-  uint8_t hysteresis_start;
-  int8_t hysteresis_end;
+  chopper_timing_t ct = CHOPPER_TIMING;
 
   #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
     const uint8_t index = parser.byteval('I');
   #endif
-    
-  static constexpr chopper_timing_t chopper_timing = CHOPPER_TIMING;
-  time_off = chopper_timing.toff;
-  hysteresis_end = chopper_timing.hend;
-  hysteresis_start = chopper_timing.hstrt;
 
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) {
     report = false;
@@ -69,8 +62,8 @@ void GcodeSuite::M919() {
     if (parser.seenval('O')) {
       const uint8_t v = parser.value_byte();
       if (WITHIN(v, 1, 15)) {
-        time_off = v;
-        DEBUG_ECHOLNPGM("time_off: ", v);
+        ct.toff = v;
+        DEBUG_ECHOLNPGM(".toff: ", v);
       }
       else
         SERIAL_ECHOLNPGM("?O out of range (1..15)");
@@ -79,8 +72,8 @@ void GcodeSuite::M919() {
     if (parser.seenval('V')) {
       const int8_t v = (int8_t)constrain(parser.value_long(), -127, 127);
       if (WITHIN(v, -3, 12)) {
-        hysteresis_end = v;
-        DEBUG_ECHOLNPGM("hysteresis_end: ", v);
+        ct.hend = v;
+        DEBUG_ECHOLNPGM(".hend: ", v);
       }
       else
         SERIAL_ECHOLNPGM("?V out of range (-3..12)");
@@ -89,8 +82,8 @@ void GcodeSuite::M919() {
     if (parser.seenval('S')) {
       const uint8_t v = parser.value_byte();
       if (WITHIN(v, 1, 8)) {
-        hysteresis_start = v;
-        DEBUG_ECHOLNPGM("hysteresis_start: ", v);
+        ct.hstrt = v;
+        DEBUG_ECHOLNPGM(".hstrt: ", v);
       }
       else
         SERIAL_ECHOLNPGM("?S out of range (1..8)");

@@ -195,7 +195,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       TMC2208Stepper::toff(time_off);
       TMC2208Stepper::hysteresis_end(hysteresis_end);
       TMC2208Stepper::hysteresis_start(hysteresis_start);
-    }    
+    }
 
     #if ENABLED(HYBRID_THRESHOLD)
       inline uint32_t get_pwm_thrs() {
@@ -252,7 +252,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       TMC2209Stepper::toff(time_off);
       TMC2209Stepper::hysteresis_end(hysteresis_end);
       TMC2209Stepper::hysteresis_start(hysteresis_start);
-    }    
+    }
 
     #if ENABLED(HYBRID_THRESHOLD)
       inline uint32_t get_pwm_thrs() {
