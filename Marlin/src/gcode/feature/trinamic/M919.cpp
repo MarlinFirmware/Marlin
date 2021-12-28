@@ -43,11 +43,11 @@ static void tmc_print_chopper_time(TMC &st) {
  * M919: Set TMC stepper drive chopper times
  *
  * Parameters:
- *   XYZIJKE...
+ *   XYZUVWE...
  *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z, E0; 1 for X2, Y2, Z2, E1; 2 for Z3, E2; 3 for Z4, E3; 4 for E4; 5 for E5; 6 for E6; 7 for E7)
  *   T[index]    - Extruder index (Zero-based. Omit for E0 only.)
  *   O           - time-off         [ 1..15]
- *   V           - hysteresis_end   [-3..12]
+ *   P           - hysteresis_end   [-3..12]
  *   S           - hysteresis_start [ 1...8]
  *
  * With no parameters report chopper times for all axis
@@ -76,14 +76,14 @@ void GcodeSuite::M919() {
         SERIAL_ECHOLNPGM("?O out of range (1..15)");
     }
 
-    if (parser.seenval('V')) {
+    if (parser.seenval('P')) {
       const int8_t v = (int8_t)constrain(parser.value_long(), -127, 127);
       if (WITHIN(v, -3, 12)) {
         ct.hend = v;
         DEBUG_ECHOLNPGM(".hend: ", v);
       }
       else
-        SERIAL_ECHOLNPGM("?V out of range (-3..12)");
+        SERIAL_ECHOLNPGM("?P out of range (-3..12)");
     }
 
     if (parser.seenval('S')) {
