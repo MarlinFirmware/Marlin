@@ -457,11 +457,11 @@ class Stepper {
 
     // The stepper subsystem goes to sleep when it runs out of things to execute.
     // Call this to notify the subsystem that it is time to go to work.
-    static inline void wake_up() { ENABLE_STEPPER_DRIVER_INTERRUPT(); }
+    static void wake_up() { ENABLE_STEPPER_DRIVER_INTERRUPT(); }
 
-    static inline bool is_awake() { return STEPPER_ISR_ENABLED(); }
+    static bool is_awake() { return STEPPER_ISR_ENABLED(); }
 
-    static inline bool suspend() {
+    static bool suspend() {
       const bool awake = is_awake();
       if (awake) DISABLE_STEPPER_DRIVER_INTERRUPT();
       return awake;
@@ -564,7 +564,7 @@ class Stepper {
           FORCE_INLINE static void set_z4_lock(const bool state) { locked_Z4_motor = state; }
         #endif
       #endif
-      static inline void set_all_z_lock(const bool lock, const int8_t except=-1) {
+      static void set_all_z_lock(const bool lock, const int8_t except=-1) {
         set_z1_lock(lock ^ (except == 0));
         set_z2_lock(lock ^ (except == 1));
         #if NUM_Z_STEPPER_DRIVERS >= 3
@@ -586,16 +586,16 @@ class Stepper {
 
     static axis_flags_t axis_enabled;   // Axis stepper(s) ENABLED states
 
-    static inline bool axis_is_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+    static bool axis_is_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       return TEST(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
     }
-    static inline void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+    static void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
     }
-    static inline void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+    static void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
     }
-    static inline bool can_axis_disable(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
+    static bool can_axis_disable(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       return !any_enable_overlap() || !(axis_enabled.bits & enable_overlap[INDEX_OF_AXIS(axis, eindex)]);
     }
 
@@ -608,10 +608,10 @@ class Stepper {
       static void enable_e_steppers();
       static void disable_e_steppers();
     #else
-      static inline void enable_extruder() {}
-      static inline bool disable_extruder() { return true; }
-      static inline void enable_e_steppers() {}
-      static inline void disable_e_steppers() {}
+      static void enable_extruder() {}
+      static bool disable_extruder() { return true; }
+      static void enable_e_steppers() {}
+      static void disable_e_steppers() {}
     #endif
 
     #define  ENABLE_EXTRUDER(N)  enable_extruder(E_TERN_(N))
