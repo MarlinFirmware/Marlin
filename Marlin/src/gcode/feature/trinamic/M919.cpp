@@ -31,6 +31,14 @@
 #define DEBUG_OUT ENABLED(MARLIN_DEV_MODE)
 #include "../../../core/debug_out.h"
 
+template<typename TMC>
+static void tmc_print_chopper_time(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOLNPGM(" chopper .toff: ", st.toff(),
+                   " .hend: ", st.hysteresis_end(),
+                   " .hstrt: ", st.hysteresis_start());
+}
+
 /**
  * M919: Set TMC stepper drive chopper times
  *
@@ -44,7 +52,6 @@
  *
  * With no parameters report chopper times for all axis
  */
-
 void GcodeSuite::M919() {
   #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
   #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(ct)

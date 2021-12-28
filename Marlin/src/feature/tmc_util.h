@@ -327,51 +327,6 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
                             sgt_max =  63;
 };
 
-template<typename TMC>
-void tmc_print_current(TMC &st) {
-  st.printLabel();
-  SERIAL_ECHOLNPGM(" driver current: ", st.getMilliamps());
-}
-
-template<typename TMC>
-void tmc_print_chopper_time(TMC &st) {
-  st.printLabel();
-  SERIAL_ECHOLNPGM(" chopper .toff: ", st.toff(),
-                   " .hend: ", st.hysteresis_end(),
-                   " .hstrt: ", st.hysteresis_start());
-}
-
-#if ENABLED(MONITOR_DRIVER_STATUS)
-  template<typename TMC>
-  void tmc_report_otpw(TMC &st) {
-    st.printLabel();
-    SERIAL_ECHOPGM(" temperature prewarn triggered: ");
-    serialprint_truefalse(st.getOTPW());
-    SERIAL_EOL();
-  }
-  template<typename TMC>
-  void tmc_clear_otpw(TMC &st) {
-    st.clear_otpw();
-    st.printLabel();
-    SERIAL_ECHOLNPGM(" prewarn flag cleared");
-  }
-#endif
-#if ENABLED(HYBRID_THRESHOLD)
-  template<typename TMC>
-  void tmc_print_pwmthrs(TMC &st) {
-    st.printLabel();
-    SERIAL_ECHOLNPGM(" stealthChop max speed: ", st.get_pwm_thrs());
-  }
-#endif
-#if USE_SENSORLESS
-  template<typename TMC>
-  void tmc_print_sgt(TMC &st) {
-    st.printLabel();
-    SERIAL_ECHOPGM(" homing sensitivity: ");
-    SERIAL_PRINTLN(st.homing_threshold(), PrintBase::Dec);
-  }
-#endif
-
 void monitor_tmc_drivers();
 void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
 

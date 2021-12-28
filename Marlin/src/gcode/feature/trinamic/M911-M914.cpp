@@ -62,6 +62,21 @@
     #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
   #endif
 
+  template<typename TMC>
+  static void tmc_report_otpw(TMC &st) {
+    st.printLabel();
+    SERIAL_ECHOPGM(" temperature prewarn triggered: ");
+    serialprint_truefalse(st.getOTPW());
+    SERIAL_EOL();
+  }
+
+  template<typename TMC>
+  static void tmc_clear_otpw(TMC &st) {
+    st.clear_otpw();
+    st.printLabel();
+    SERIAL_ECHOLNPGM(" prewarn flag cleared");
+  }
+
   /**
    * M911: Report TMC stepper driver overtemperature pre-warn flag
    *       This flag is held by the library, persisting until cleared by M912
@@ -223,11 +238,17 @@
 
 #endif // MONITOR_DRIVER_STATUS
 
-/**
- * M913: Set HYBRID_THRESHOLD speed.
- */
 #if ENABLED(HYBRID_THRESHOLD)
 
+  template<typename TMC>
+  static void tmc_print_pwmthrs(TMC &st) {
+    st.printLabel();
+    SERIAL_ECHOLNPGM(" stealthChop max speed: ", st.get_pwm_thrs());
+  }
+
+  /**
+   * M913: Set HYBRID_THRESHOLD speed.
+   */
   void GcodeSuite::M913() {
     #define TMC_SAY_PWMTHRS(A,Q) tmc_print_pwmthrs(stepper##Q)
     #define TMC_SET_PWMTHRS(A,Q) stepper##Q.set_pwm_thrs(value)
@@ -407,11 +428,18 @@
 
 #endif // HYBRID_THRESHOLD
 
-/**
- * M914: Set StallGuard sensitivity.
- */
 #if USE_SENSORLESS
 
+  template<typename TMC>
+  static void tmc_print_sgt(TMC &st) {
+    st.printLabel();
+    SERIAL_ECHOPGM(" homing sensitivity: ");
+    SERIAL_PRINTLN(st.homing_threshold(), PrintBase::Dec);
+  }
+
+  /**
+   * M914: Set StallGuard sensitivity.
+   */
   void GcodeSuite::M914() {
 
     bool report = true;

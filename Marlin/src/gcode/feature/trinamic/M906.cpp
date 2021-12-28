@@ -28,6 +28,12 @@
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper/indirection.h"
 
+template<typename TMC>
+static void tmc_print_current(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOLNPGM(" driver current: ", st.getMilliamps());
+}
+
 /**
  * M906: Set motor current in milliamps.
  *
