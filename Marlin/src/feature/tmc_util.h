@@ -45,6 +45,12 @@ constexpr uint16_t _tmc_thrs(const uint16_t msteps, const uint32_t thrs, const u
   return 12650000UL * msteps / (256 * thrs * spmm);
 }
 
+typedef struct {
+  uint8_t toff;
+  int8_t hend;
+  uint8_t hstrt;
+} chopper_timing_t;
+
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
   protected:
@@ -110,13 +116,10 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
-    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
-      this->toff(time_off);
-      this->hysteresis_end(hysteresis_end);
-      this->hysteresis_start(hysteresis_start);
-      TMC::toff(time_off);
-      TMC::hysteresis_end(hysteresis_end);
-      TMC::hysteresis_start(hysteresis_start);
+    inline void set_chopper_times(const chopper_timing_t &ct) {
+      TMC::toff(ct.toff);
+      TMC::hysteresis_end(ct.hend);
+      TMC::hysteresis_start(ct.hstrt);
     }
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -188,13 +191,10 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
-    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
-      this->toff(time_off);
-      this->hysteresis_end(hysteresis_end);
-      this->hysteresis_start(hysteresis_start);
-      TMC2208Stepper::toff(time_off);
-      TMC2208Stepper::hysteresis_end(hysteresis_end);
-      TMC2208Stepper::hysteresis_start(hysteresis_start);
+    inline void set_chopper_times(const chopper_timing_t &ct) {
+      TMC2208Stepper::toff(ct.toff);
+      TMC2208Stepper::hysteresis_end(ct.hend);
+      TMC2208Stepper::hysteresis_start(ct.hstrt);
     }
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -245,13 +245,10 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif
 
-    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
-      this->toff(time_off);
-      this->hysteresis_end(hysteresis_end);
-      this->hysteresis_start(hysteresis_start);
-      TMC2209Stepper::toff(time_off);
-      TMC2209Stepper::hysteresis_end(hysteresis_end);
-      TMC2209Stepper::hysteresis_start(hysteresis_start);
+    inline void set_chopper_times(const chopper_timing_t &ct) {
+      TMC2209Stepper::toff(ct.toff);
+      TMC2209Stepper::hysteresis_end(ct.hend);
+      TMC2209Stepper::hysteresis_start(ct.hstrt);
     }
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -303,13 +300,10 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
     }
     inline uint16_t get_microstep_counter() { return TMC2660Stepper::mstep(); }
 
-    inline void set_chopper_times(uint8_t time_off, int8_t hysteresis_end, uint8_t hysteresis_start) {
-      this->toff(time_off);
-      this->hysteresis_end(hysteresis_end);
-      this->hysteresis_start(hysteresis_start);
-      TMC2660Stepper::toff(time_off);
-      TMC2660Stepper::hysteresis_end(hysteresis_end);
-      TMC2660Stepper::hysteresis_start(hysteresis_start);
+    inline void set_chopper_times(const chopper_timing_t &ct) {
+      TMC2660Stepper::toff(ct.toff);
+      TMC2660Stepper::hysteresis_end(ct.hend);
+      TMC2660Stepper::hysteresis_start(ct.hstrt);
     }
 
     #if USE_SENSORLESS
@@ -342,10 +336,9 @@ void tmc_print_current(TMC &st) {
 template<typename TMC>
 void tmc_print_chopper_time(TMC &st) {
   st.printLabel();
-  SERIAL_EOL();
-  SERIAL_ECHOLNPGM(" chopper time_off        : ", st.toff());
-  SERIAL_ECHOLNPGM(" chopper hysteresis_end  : ", st.hysteresis_end());
-  SERIAL_ECHOLNPGM(" chopper hysteresis_start: ", st.hysteresis_start());
+  SERIAL_ECHOLNPGM(" chopper .toff: ", st.toff(),
+                   " .hend: ", st.hysteresis_end(),
+                   " .hstrt: ", st.hysteresis_start());
 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS)

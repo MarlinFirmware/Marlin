@@ -47,7 +47,7 @@
 
 void GcodeSuite::M919() {
   #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
-  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(ct.toff, ct.hend, ct.hstrt)
+  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(ct)
 
   bool report = true;
   chopper_timing_t ct = CHOPPER_TIMING;
