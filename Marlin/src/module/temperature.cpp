@@ -196,6 +196,7 @@
 Temperature thermalManager;
 
 PGMSTR(str_t_thermal_runaway, STR_T_THERMAL_RUNAWAY);
+PGMSTR(str_t_temp_not_updating, STR_T_TEMP_NOT_UPDATING);
 PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 /**
@@ -2570,11 +2571,26 @@ void Temperature::init() {
       );
     */
 
+    #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+      if (state == TRTempNotUpdating) { // temperature invariance may continue, regardless of heater state
+        variance += ABS(current - last_temp); // no need for detection window now, a single change in variance is enough
+        last_temp = current;
+        if (!NEAR_ZERO(variance)) {
+          variance_timer = millis() + SEC_TO_MS(period_seconds);
+          variance = 0.0;
+          state = TRStable; // resume from where we detected the problem
+        }
+      }
+
+      if (state == TRTempNotUpdating) { 
+      } else
+    #endif
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
       if (heater_idle[idle_index].timed_out) {
         state = TRInactive;
         running_temp = 0;
+        TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer = 0);
       }
       else
     #endif
@@ -2583,8 +2599,11 @@ void Temperature::init() {
       if (running_temp != target) {
         running_temp = target;
         state = target > 0 ? TRFirstHeating : TRInactive;
+        TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer = 0);
       }
     }
+
+    millis_t now;
 
     switch (state) {
       // Inactive state waits for a target temperature to be set
@@ -2613,17 +2632,41 @@ void Temperature::init() {
               fan_speed_scaler[fan_index] = 0;
           }
         #endif
+        
+        now = millis();
+
+        #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+          if (PENDING(now, variance_timer)) {
+            variance += ABS(current - last_temp);
+            last_temp = current;
+          }
+          else {
+            if (NEAR_ZERO(variance) && variance_timer > 0) { // valid variance monitoring window
+              state = TRTempNotUpdating;
+              break;
+            }
+            variance_timer = now + SEC_TO_MS(period_seconds);
+            variance = 0.0;
+            last_temp = current;
+          }
+        #endif
 
         if (current >= running_temp - hysteresis_degc) {
-          timer = millis() + SEC_TO_MS(period_seconds);
+          timer = now + SEC_TO_MS(period_seconds);
           break;
         }
-        else if (PENDING(millis(), timer)) break;
+        else if (PENDING(now, timer)) break;
         state = TRRunaway;
 
       case TRRunaway:
         TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
         _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
+
+      #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+        case TRTempNotUpdating:
+          TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
+          _temp_error(heater_id, FPSTR(str_t_temp_not_updating), GET_TEXT_F(MSG_TEMP_NOT_UPDATING));
+      #endif
     }
   }
 
