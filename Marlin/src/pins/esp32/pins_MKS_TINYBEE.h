@@ -127,7 +127,7 @@
  *                ------                                 ------
  *  (BEEPER) 149 |10  9 | 13 (BTN_ENC)    (SPI MISO) 19 |10  9 | 18 (SPI SCK)
  *  (LCD_EN)  21 | 8  7 |  4 (LCD_RS)      (BTN_EN1) 14 | 8  7 |  5 (SPI CS)
- *  (LCD_D4)   0 | 6  5   16 (LCD_D5)      (BTN_EN2) 12 | 6  5   23 (SPI MOSI)
+ *  (LCD_D4)   0   6  5 | 16 (LCD_D5)      (BTN_EN2) 12   6  5 | 23 (SPI MOSI)
  *  (LCD_D6)  15 | 4  3 | 17 (LCD_D7)      (SPI_DET) 34 | 4  3 | RESET
  *           GND | 2  1 | 5V                        GND | 2  1 | 3.3V
  *                ------                                 ------

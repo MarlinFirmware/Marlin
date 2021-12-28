@@ -400,7 +400,7 @@ namespace Language_pt_br {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Intensidade Brilho");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Impressora Incorreta");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Total de Impressões");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Realizadas");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tempo de Impressão");

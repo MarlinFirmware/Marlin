@@ -156,7 +156,7 @@ namespace Language_da {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Kort Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistors");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Ant. Prints");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Færdige");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total print tid");

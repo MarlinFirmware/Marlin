@@ -491,7 +491,7 @@ namespace Language_de {
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Falscher Drucker");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Gesamte Drucke");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette Drucke");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte Druckzeit");

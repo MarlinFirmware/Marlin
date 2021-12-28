@@ -504,7 +504,7 @@ namespace Language_fr {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Luminosité");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Imprimante incorrecte");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Nbre impressions");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Terminées");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tps impr. total");
