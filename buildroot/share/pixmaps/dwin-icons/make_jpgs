@@ -1,0 +1,26 @@
+#!/bin/bash
+mkdir -p ICONS
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 hotend_off.svg            ICONS/001-ICON_hotend_off.jpg
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 hotend_on.svg             ICONS/002-ICON_hotend_on.jpg
+
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_off.svg               ICONS/003-ICON_bed_off.jpg
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_on.svg                ICONS/004-ICON_bed_on.jpg
+
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 fan.svg                   ICONS/005-ICON_fan_0.jpg
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 -distort SRT 22.5 fan.svg ICONS/006-ICON_fan_1.jpg
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 -distort SRT 45 fan.svg   ICONS/007-ICON_fan_2.jpg
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 -distort SRT 67.5 fan.svg ICONS/008-ICON_fan_3.jpg
+
+convert -size 96x96 -background "#333e44" -quality 100 -sampling-factor 4:4:4 halted.svg                ICONS/009-ICON_halted.jpg
+convert -size 96x96 -background "#333e44" -quality 100 -sampling-factor 4:4:4 question.svg              ICONS/010-ICON_question.jpg
+convert -size 96x96 -background "#333e44" -quality 100 -sampling-factor 4:4:4 alert.svg                 ICONS/011-ICON_alert.jpg
+
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 rotate_cw.svg             ICONS/012-ICON_rotate_cw.jpg
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 rotate_ccw.svg            ICONS/013-ICON_rotate_ccw.jpg
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 up_arrow.svg              ICONS/014-ICON_up_arrow.jpg
+convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 down_arrow.svg            ICONS/015-ICON_down_arrow.jpg
+
+convert -size 48x8  -background "#080808" -quality 100 -sampling-factor 4:4:4 bedline.svg               ICONS/016-ICON_bedline.jpg
+
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_off_withleveling.svg  ICONS/017-ICON_bed_off_leveling.jpg
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_on_withleveling.svg   ICONS/018-ICON_bed_on_leveling.jpg
