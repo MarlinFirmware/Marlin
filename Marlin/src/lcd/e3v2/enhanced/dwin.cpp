@@ -2403,18 +2403,16 @@ void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
 void ApplyFlow() { planner.refresh_e_factor(0); }
 void SetFlow() { SetPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, ApplyFlow); }
 
-// Leveling Bed Corners
+// Bed Tramming
 void Tram(uint8_t point) {
   char cmd[100] = "";
   #if HAS_ONESTEP_LEVELING
     static bool inLev = false;
     if (inLev) return;
     char str_1[6] = "", str_2[6] = "", str_3[6] = "";
-    #define fmt "X:%s, Y:%s, Z:%s"
     float xpos = 0, ypos = 0, zval = 0;
     float margin = PROBING_MARGIN;
   #else
-    #define fmt "M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"
     int16_t xpos = 0, ypos = 0;
     int16_t margin = 30;
   #endif
@@ -2449,7 +2447,7 @@ void Tram(uint8_t point) {
     planner.synchronize();
     inLev = true;
     zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
-    sprintf_P(cmd, PSTR(fmt),
+    sprintf_P(cmd, PSTR("X:%s, Y:%s, Z:%s"),
       dtostrf(xpos, 1, 1, str_1),
       dtostrf(ypos, 1, 1, str_2),
       dtostrf(zval, 1, 2, str_3)
@@ -2458,7 +2456,7 @@ void Tram(uint8_t point) {
     inLev = false;
   #else
     planner.synchronize();
-    sprintf_P(cmd, PSTR(fmt), xpos, ypos);
+    sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"), xpos, ypos);
     queue.inject(cmd);
   #endif
 }
