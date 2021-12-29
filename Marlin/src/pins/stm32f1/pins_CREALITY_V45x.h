@@ -97,7 +97,7 @@
 // Heaters / Fans
 //
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
