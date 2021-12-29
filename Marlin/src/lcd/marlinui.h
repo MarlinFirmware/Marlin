@@ -468,6 +468,7 @@ public:
 
     #if IS_DWIN_MARLINUI
       static bool did_first_redraw;
+      static bool old_is_printing;
     #endif
 
     #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)

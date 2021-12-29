@@ -64,6 +64,8 @@
 #define ICON_UpArrow              14
 #define ICON_DownArrow            15
 #define ICON_BedLine              16
+#define ICON_BedOffLeveling       17
+#define ICON_BedOnLeveling        18
 
 #include "../common/dwin_font.h"
 

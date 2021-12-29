@@ -244,6 +244,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   #if IS_DWIN_MARLINUI
     bool MarlinUI::did_first_redraw;
+    bool MarlinUI::old_is_printing;
   #endif
 
   // Encoder Handling
