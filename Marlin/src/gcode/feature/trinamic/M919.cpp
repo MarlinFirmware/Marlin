@@ -62,7 +62,7 @@ void GcodeSuite::M919() {
 
   bool report = true;
   chopper_timing_t ct = CHOPPER_TIMING;
-
+    
   #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
     const int8_t index = parser.byteval('I', -1);
   #else
@@ -71,6 +71,80 @@ void GcodeSuite::M919() {
 
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) {
     report = false;
+
+    switch (i) {
+      case X_AXIS:
+        #if AXIS_IS_TMC(X)
+          if (index < 0 || index == 0) ct = CHOPPER_TIMING_X;
+        #endif
+        #if AXIS_IS_TMC(X2)
+          if (index < 0 || index == 1) ct = CHOPPER_TIMING_X2;
+        #endif
+        break;
+
+      #if HAS_Y_AXIS
+        case Y_AXIS:
+          #if AXIS_IS_TMC(Y)
+            if (index < 0 || index == 0) ct = CHOPPER_TIMING_Y;
+          #endif
+          #if AXIS_IS_TMC(Y2)
+            if (index < 0 || index == 1) ct = CHOPPER_TIMING_Y2;
+          #endif
+          break;
+      #endif
+
+      #if HAS_Z_AXIS
+        case Z_AXIS:
+          #if AXIS_IS_TMC(Z)
+            if (index < 0 || index == 0) ct = CHOPPER_TIMING_Z;
+          #endif
+          #if AXIS_IS_TMC(Z2)
+            if (index < 0 || index == 1) ct = CHOPPER_TIMING_Z2;
+          #endif
+          #if AXIS_IS_TMC(Z3)
+            if (index < 0 || index == 2) ct = CHOPPER_TIMING_Z3;
+          #endif
+          #if AXIS_IS_TMC(Z4)
+            if (index < 0 || index == 3) ct = CHOPPER_TIMING_Z4;
+          #endif
+          break;
+      #endif
+
+      //Configuration_adv.h does not cover yet chopper times for I, J, K axis
+
+      #if E_STEPPERS
+        case E_AXIS: {
+          const int8_t eindex = get_target_e_stepper_from_command();
+          #if AXIS_IS_TMC(E0)
+            if (eindex < 0 || eindex == 0) ct = CHOPPER_TIMING_E;
+          #endif
+          #if AXIS_IS_TMC(E1)
+            if (eindex < 0 || eindex == 1) ct = CHOPPER_TIMING_E1;
+          #endif
+          #if AXIS_IS_TMC(E2)
+            if (eindex < 0 || eindex == 2) ct = CHOPPER_TIMING_E2;
+          #endif
+          #if AXIS_IS_TMC(E3)
+            if (eindex < 0 || eindex == 3) ct = CHOPPER_TIMING_E3;
+          #endif
+          #if AXIS_IS_TMC(E4)
+            if (eindex < 0 || eindex == 4) ct = CHOPPER_TIMING_E4;
+          #endif
+          #if AXIS_IS_TMC(E5)
+            if (eindex < 0 || eindex == 5) ct = CHOPPER_TIMING_E5;
+          #endif
+          #if AXIS_IS_TMC(E6)
+            if (eindex < 0 || eindex == 6) ct = CHOPPER_TIMING_E6;
+          #endif
+          #if AXIS_IS_TMC(E7)
+            if (eindex < 0 || eindex == 7) ct = CHOPPER_TIMING_E7;
+          #endif
+        } break;
+      #endif
+      default:
+        ct = CHOPPER_TIMING;
+    }
+
 
     if (parser.seenval('O')) {
       const uint8_t v = parser.value_byte();
