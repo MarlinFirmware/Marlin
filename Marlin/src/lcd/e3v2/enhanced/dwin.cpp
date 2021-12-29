@@ -216,7 +216,7 @@ static bool sdprint = false;
 
 // New menu system pointers
 MenuClass *PrepareMenu = nullptr;
-MenuClass *LevBedMenu = nullptr;
+MenuClass *TrammingMenu = nullptr;
 MenuClass *MoveMenu = nullptr;
 MenuClass *ControlMenu = nullptr;
 MenuClass *AdvancedSettings = nullptr;
@@ -1703,8 +1703,8 @@ void HMI_SaveProcessID(const uint8_t id) {
 void DWIN_StartHoming() {
   HMI_flag.home_flag = true;
   HMI_SaveProcessID(Homing);
-  Title.ShowCaption(F("Axis Homing"));
-  DWIN_Draw_Popup(ICON_BLTouch, F("Axis Homing"), F("Please wait until done."));
+  Title.ShowCaption(GET_TEXT_F(MSG_LEVEL_BED_HOMING));
+  DWIN_Draw_Popup(ICON_BLTouch, GET_TEXT_F(MSG_LEVEL_BED_HOMING), F("Please wait until done."));
 }
 
 void DWIN_CompletedHoming() {
@@ -1719,7 +1719,7 @@ void DWIN_CompletedHoming() {
 void DWIN_MeshLevelingStart() {
   #if HAS_ONESTEP_LEVELING
     HMI_SaveProcessID(Leveling);
-    Title.ShowCaption(F("Bed Leveling"));
+    Title.ShowCaption(GET_TEXT_F(MSG_BED_LEVELING));
     DWIN_Draw_Popup(ICON_AutoLeveling, GET_TEXT_F(MSG_BED_LEVELING), F("Please wait until done."));
   #elif ENABLED(MESH_BED_LEVELING)
     Draw_ManualMesh_Menu();
@@ -2403,18 +2403,16 @@ void SetSpeed() { SetPIntOnClick(MIN_PRINT_SPEED, MAX_PRINT_SPEED); }
 void ApplyFlow() { planner.refresh_e_factor(0); }
 void SetFlow() { SetPIntOnClick(MIN_PRINT_FLOW, MAX_PRINT_FLOW, ApplyFlow); }
 
-// Leveling Bed Corners
-void LevBed(uint8_t point) {
+// Bed Tramming
+void Tram(uint8_t point) {
   char cmd[100] = "";
   #if HAS_ONESTEP_LEVELING
     static bool inLev = false;
     if (inLev) return;
     char str_1[6] = "", str_2[6] = "", str_3[6] = "";
-    #define fmt "X:%s, Y:%s, Z:%s"
     float xpos = 0, ypos = 0, zval = 0;
     float margin = PROBING_MARGIN;
   #else
-    #define fmt "M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"
     int16_t xpos = 0, ypos = 0;
     int16_t margin = 30;
   #endif
@@ -2449,7 +2447,7 @@ void LevBed(uint8_t point) {
     planner.synchronize();
     inLev = true;
     zval = probe.probe_at_point(xpos, ypos, PROBE_PT_STOW);
-    sprintf_P(cmd, PSTR(fmt),
+    sprintf_P(cmd, PSTR("X:%s, Y:%s, Z:%s"),
       dtostrf(xpos, 1, 1, str_1),
       dtostrf(ypos, 1, 1, str_2),
       dtostrf(zval, 1, 2, str_3)
@@ -2458,16 +2456,16 @@ void LevBed(uint8_t point) {
     inLev = false;
   #else
     planner.synchronize();
-    sprintf_P(cmd, PSTR(fmt), xpos, ypos);
+    sprintf_P(cmd, PSTR("M420S0\nG28O\nG90\nG0Z5F300\nG0X%iY%iF5000\nG0Z0F300"), xpos, ypos);
     queue.inject(cmd);
   #endif
 }
 
-void LevBedFL() { LevBed(0); }
-void LevBedFR() { LevBed(1); }
-void LevBedBR() { LevBed(2); }
-void LevBedBL() { LevBed(3); }
-void LevBedC () { LevBed(4); }
+void TramFL() { Tram(0); }
+void TramFR() { Tram(1); }
+void TramBR() { Tram(2); }
+void TramBL() { Tram(3); }
+void TramC () { Tram(4); }
 
 #if ENABLED(MESH_BED_LEVELING)
 
@@ -3184,7 +3182,7 @@ void Draw_Prepare_Menu() {
       ADDMENUITEM(ICON_FilMan, GET_TEXT_F(MSG_FILAMENT_MAN), onDrawSubMenu, Draw_FilamentMan_Menu);
     #endif
     ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_MOVE_AXIS), onDrawMoveSubMenu, Goto_Move_Menu);
-    ADDMENUITEM(ICON_LevBed, GET_TEXT_F(MSG_BED_LEVELING), onDrawSubMenu, Draw_LevBedCorners_Menu);
+    ADDMENUITEM(ICON_Tram, GET_TEXT_F(MSG_BED_TRAMMING), onDrawSubMenu, Draw_Tramming_Menu);
     ADDMENUITEM(ICON_CloseMotor, GET_TEXT_F(MSG_DISABLE_STEPPERS), onDrawDisableMotors, DisableMotors);
     #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
       ADDMENUITEM(ICON_Homing, GET_TEXT_F(MSG_HOMING), onDrawSubMenu, Draw_Homing_Menu);
@@ -3218,20 +3216,20 @@ void Draw_Prepare_Menu() {
   CurrentMenu->draw();
 }
 
-void Draw_LevBedCorners_Menu() {
+void Draw_Tramming_Menu() {
   DWINUI::ClearMenuArea();
   checkkey = Menu;
-  if (!LevBedMenu) LevBedMenu = new MenuClass();
-  if (CurrentMenu != LevBedMenu) {
-    CurrentMenu = LevBedMenu;
+  if (!TrammingMenu) TrammingMenu = new MenuClass();
+  if (CurrentMenu != TrammingMenu) {
+    CurrentMenu = TrammingMenu;
     SetMenuTitle({0}, GET_TEXT_F(MSG_BED_TRAMMING)); // TODO: Chinese, English "Bed Tramming" JPG
     DWINUI::MenuItemsPrepare(6);
     ADDMENUITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Draw_Prepare_Menu);
-    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_FL), onDrawMenuItem, LevBedFL);
-    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_FR), onDrawMenuItem, LevBedFR);
-    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_BR), onDrawMenuItem, LevBedBR);
-    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_BL), onDrawMenuItem, LevBedBL);
-    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_C ), onDrawMenuItem, LevBedC );
+    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_FL), onDrawMenuItem, TramFL);
+    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_FR), onDrawMenuItem, TramFR);
+    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_BR), onDrawMenuItem, TramBR);
+    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_BL), onDrawMenuItem, TramBL);
+    ADDMENUITEM(ICON_Axis, GET_TEXT_F(MSG_LEVBED_C ), onDrawMenuItem, TramC );
   }
   CurrentMenu->draw();
 }

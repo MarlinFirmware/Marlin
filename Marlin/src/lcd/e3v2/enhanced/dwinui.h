@@ -52,7 +52,7 @@
 #define ICON_HomeX                ICON_MoveX
 #define ICON_HomeY                ICON_MoveY
 #define ICON_HomeZ                ICON_MoveZ
-#define ICON_LevBed               ICON_SetEndTemp
+#define ICON_Tram                 ICON_SetEndTemp
 #define ICON_Lock                 ICON_Cool
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
