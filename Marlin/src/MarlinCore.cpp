@@ -320,6 +320,32 @@ bool pin_is_protected(const pin_t pin) {
 
 #pragma GCC diagnostic pop
 
+millis_t power_off_timer = 0;
+
+TERN_(HAS_AUTO_FAN, bool power_off_on_cool_down = false);
+
+void setPowerOffTimer(millis_t delay_ms) { power_off_timer = millis() + delay_ms; }
+TERN_(HAS_AUTO_FAN, void setPowerOffOnCoolDown(bool value) { power_off_on_cool_down = value; })
+
+void cancelPowerOff() { 
+  power_off_timer = 0;
+  TERN_(HAS_AUTO_FAN, power_off_on_cool_down = false);
+}
+
+inline void testPowerOffTimer() {
+  
+  if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cool_down)) return;
+  
+  TERN_(HAS_AUTO_FAN, if (power_off_on_cool_down && Temperature::get_autofans_on()) return);
+  
+  if (power_off_timer > 0 && PENDING(millis(), power_off_timer)) return;
+  
+  power_off_timer = 0;
+  TERN_(HAS_AUTO_FAN, power_off_on_cool_down = false);
+
+  GcodeSuite::power_off(); 
+}
+
 /**
  * A Print Job exists when the timer is running or SD is printing
  */
@@ -1651,6 +1677,8 @@ void loop() {
     #endif
 
     queue.advance();
+
+    testPowerOffTimer(); // power off if M81 was issued and conditions met
 
     endstops.event_handler();
 

@@ -61,6 +61,10 @@ bool printJobOngoing();
 bool printingIsPaused();
 void startOrResumeJob();
 
+void setPowerOffTimer(millis_t delay_ms);
+void setPowerOffOnCoolDown(bool value);
+void cancelPowerOff();
+
 extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE

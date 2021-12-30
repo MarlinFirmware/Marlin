@@ -968,6 +968,10 @@ class Temperature {
       static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
     #endif
 
+    #if HAS_AUTO_FAN
+      static bool get_autofans_on();
+    #endif
+
   private:
 
     // Reading raw temperatures and converting to Celsius when ready
@@ -993,7 +997,10 @@ class Temperature {
       static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
-    static void update_autofans();
+    #if HAS_AUTO_FAN
+      static bool autofans_on;
+      static void update_autofans();
+    #endif
 
     #if HAS_HOTEND
       static float get_pid_output_hotend(const uint8_t e);

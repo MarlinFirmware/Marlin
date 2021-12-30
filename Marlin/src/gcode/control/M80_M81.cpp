@@ -52,6 +52,8 @@
       return;
     }
 
+    cancelPowerOff(); // cancel any pending poweroff
+
     powerManager.power_on();
 
     /**
@@ -74,6 +76,16 @@
  *      This code should ALWAYS be available for FULL SHUTDOWN!
  */
 void GcodeSuite::M81() {
+
+  uint16_t delay_s = parser.ushortval('D', 0);
+  TERN_(HAS_AUTO_FAN, bool wait_for_fans = parser.boolval('S', false));
+
+  setPowerOffTimer(SEC_TO_MS(delay_s));
+  TERN_(HAS_AUTO_FAN, setPowerOffOnCoolDown(wait_for_fans));
+}
+
+void GcodeSuite::power_off(){
+
   planner.finish_and_disable();
   thermalManager.cooldown();
 
