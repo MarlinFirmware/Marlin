@@ -3626,7 +3626,7 @@ void Draw_MaxSpeed_Menu() {
     ADDMENUITEM_P(ICON_MaxSpeedY, GET_TEXT_F(MSG_MAXSPEED_Y), onDrawMaxSpeedY, SetMaxSpeedY, &planner.settings.max_feedrate_mm_s[Y_AXIS]);
     ADDMENUITEM_P(ICON_MaxSpeedZ, GET_TEXT_F(MSG_MAXSPEED_Z), onDrawMaxSpeedZ, SetMaxSpeedZ, &planner.settings.max_feedrate_mm_s[Z_AXIS]);
     #if HAS_HOTEND
-      ADDMENUITEM_P(ICON_MaxSpeedE, GET_TEXT_F(MSG_MAXSPEED_E), onDrawMaxSpeedE, SetMaxSpeedE, &planner.settings.max_feedrate_mm_s[Z_AXIS]);
+      ADDMENUITEM_P(ICON_MaxSpeedE, GET_TEXT_F(MSG_MAXSPEED_E), onDrawMaxSpeedE, SetMaxSpeedE, &planner.settings.max_feedrate_mm_s[E_AXIS]);
     #endif
   }
   CurrentMenu->draw();
