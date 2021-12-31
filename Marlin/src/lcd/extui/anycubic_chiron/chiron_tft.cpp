@@ -366,7 +366,7 @@ int8_t ChironTFT::FindToken(char c) {
       #endif
       return pos;
     }
-  } while(++pos < command_len);
+  } while (++pos < command_len);
   #if ACDEBUG(AC_INFO)
     SERIAL_ECHOLNPGM("Not found: ", c);
   #endif

@@ -40,7 +40,7 @@ class Power {
   #if ENABLED(AUTO_POWER_CONTROL) && POWER_OFF_DELAY > 0
     static void power_off_soon();
   #else
-    static inline void power_off_soon() { power_off(); }
+    static void power_off_soon() { power_off(); }
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)

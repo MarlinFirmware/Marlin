@@ -80,7 +80,7 @@ private:
   static void tilt_mesh_based_on_3pts(const_float_t z1, const_float_t z2, const_float_t z3);
   static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
   static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
-  static inline bool smart_fill_one(const xy_uint8_t &pos, const xy_uint8_t &dir) {
+  static bool smart_fill_one(const xy_uint8_t &pos, const xy_uint8_t &dir) {
     return smart_fill_one(pos.x, pos.y, dir.x, dir.y);
   }
   static void smart_fill_mesh();
@@ -124,7 +124,7 @@ public:
     static bool lcd_map_control;
     static void steppers_were_disabled();
   #else
-    static inline void steppers_were_disabled() {}
+    static void steppers_were_disabled() {}
   #endif
 
   static volatile int16_t encoder_diff; // Volatile because buttons may change it at interrupt time
@@ -157,10 +157,10 @@ public:
     return constrain(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
-  static inline xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
+  static xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
     return { cell_index_x(x), cell_index_y(y) };
   }
-  static inline xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
+  static xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t closest_x_index(const_float_t x) {
     const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
@@ -170,7 +170,7 @@ public:
     const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * RECIPROCAL(MESH_Y_DIST);
     return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
-  static inline xy_int8_t closest_indexes(const xy_pos_t &xy) {
+  static xy_int8_t closest_indexes(const xy_pos_t &xy) {
     return { closest_x_index(xy.x), closest_y_index(xy.y) };
   }
 
@@ -203,7 +203,7 @@ public:
    * z_correction_for_x_on_horizontal_mesh_line is an optimization for
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
-  static inline float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const int x1_i, const int yi) {
+  static float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const int x1_i, const int yi) {
     if (!WITHIN(x1_i, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(yi, 0, (GRID_MAX_POINTS_Y) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
@@ -226,7 +226,7 @@ public:
   //
   // See comments above for z_correction_for_x_on_horizontal_mesh_line
   //
-  static inline float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
+  static float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
     if (!WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(y1_i, 0, (GRID_MAX_POINTS_Y) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
@@ -285,12 +285,12 @@ public:
 
     return z0;
   }
-  static inline float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
+  static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
-  static inline float mesh_index_to_xpos(const uint8_t i) {
+  static float mesh_index_to_xpos(const uint8_t i) {
     return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
   }
-  static inline float mesh_index_to_ypos(const uint8_t i) {
+  static float mesh_index_to_ypos(const uint8_t i) {
     return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
   }
 
@@ -300,7 +300,7 @@ public:
     static void line_to_destination_cartesian(const_feedRate_t scaled_fr_mm_s, const uint8_t e);
   #endif
 
-  static inline bool mesh_is_valid() {
+  static bool mesh_is_valid() {
     GRID_LOOP(x, y) if (isnan(z_values[x][y])) return false;
     return true;
   }

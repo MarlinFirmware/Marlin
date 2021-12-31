@@ -144,7 +144,7 @@
 #define HEATER_BED_PIN                      PA1   // HOT BED
 
 #define FAN_PIN                             PA2   // FAN
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
@@ -167,7 +167,7 @@
      *  PB10 | 8  7 | PE8
      *  PB14   6  5 | PB13
      *  PB12 | 4  3 | PB15
-     *  GND  | 2  1 | 5V
+     *   GND | 2  1 | 5V
      *        ------
      *         EXP1
      */
@@ -191,7 +191,7 @@
      *  PB10 | 8  7 | ?
      *  PA6    6  5 | PA5
      *  PA4  | 4  3 | PA7
-     *  GND  | 2  1 | 5V
+     *   GND | 2  1 | 5V
      *        ------
      *         EXP1
      */

@@ -280,7 +280,7 @@ namespace Language_eu {
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoloa");
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kabina Argia");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Argiaren Distira");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Inprim. Zenbaketa");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Burututa");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Inprim. denbora");

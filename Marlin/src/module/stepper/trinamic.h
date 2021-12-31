@@ -74,12 +74,6 @@
   #define TMC_CLASS_E(N) TMC_CLASS(E##N, E)
 #endif
 
-typedef struct {
-  uint8_t toff;
-  int8_t hend;
-  uint8_t hstrt;
-} chopper_timing_t;
-
 #ifndef CHOPPER_TIMING_X
   #define CHOPPER_TIMING_X CHOPPER_TIMING
 #endif
