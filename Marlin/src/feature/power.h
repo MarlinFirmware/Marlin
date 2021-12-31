@@ -37,8 +37,6 @@ class Power {
     static void power_on();
     static void power_off();
 
-    static void user_power_off();
-
     #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
       static millis_t power_off_timer;
       static void setPowerOffTimer(const millis_t delay_ms);

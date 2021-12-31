@@ -107,29 +107,6 @@ void Power::power_off() {
   psu_on = false;
 }
 
-void Power::user_power_off() {
-
-  planner.finish_and_disable();
-  thermalManager.cooldown();
-
-  print_job_timer.stop();
-
-  #if BOTH(HAS_FAN, PROBING_FANS_OFF)
-    thermalManager.fans_paused = false;
-    ZERO(thermalManager.saved_fan_speed);
-  #endif
-
-  safe_delay(1000); // Wait 1 second before switching off
-
-  #if HAS_SUICIDE
-    suicide();
-  #elif ENABLED(PSU_CONTROL)
-    power_off_soon();
-  #endif
-
-  LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
-}
-
 #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
 
   millis_t Power::power_off_timer = 0;

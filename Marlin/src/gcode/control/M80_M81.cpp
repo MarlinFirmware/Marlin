@@ -76,11 +76,31 @@
  *      This code should ALWAYS be available for FULL SHUTDOWN!
  */
 void GcodeSuite::M81() {
+  planner.finish_and_disable();
+  thermalManager.cooldown();
+
+  print_job_timer.stop();
+
+  #if BOTH(HAS_FAN, PROBING_FANS_OFF)
+    thermalManager.fans_paused = false;
+    ZERO(thermalManager.saved_fan_speed);
+  #endif
+
+  LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
+
   #if ENABLED(POWER_OFF_TIMER)
-    if (parser.seenval('D')) { setPowerOffTimer(SEC_TO_MS(parser.value_ushort())); return; }
+    if (parser.seenval('D')) { powerManager.setPowerOffTimer(SEC_TO_MS(parser.value_ushort())); return; }
   #endif
+
   #if BOTH(HAS_AUTO_FAN, POWER_OFF_WAIT_FOR_COOLDOWN)
-    if (parser.boolval('S')) { setPowerOffOnCooldown(); return; }
+    if (parser.boolval('S')) { powerManager.setPowerOffOnCooldown(); return; }
   #endif
-  powerManager.user_power_off();
+
+  safe_delay(1000); // Wait 1 second before switching off
+
+  #if HAS_SUICIDE
+    suicide();
+  #elif ENABLED(PSU_CONTROL)
+    power_off_soon();
+  #endif
 }
