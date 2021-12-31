@@ -37,14 +37,17 @@ class Power {
     static void power_on();
     static void power_off();
 
-    #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
-      static millis_t power_off_timer;
-      static void setPowerOffTimer(const millis_t delay_ms);
-      static void cancelPowerOff();
-      #if HAS_AUTO_FAN
+    #if ENABLED(POWER_OFF_TIMER) || BOTH(HAS_AUTO_FAN, POWER_OFF_WAIT_FOR_COOLDOWN)
+      #if ENABLED(POWER_OFF_TIMER)
+        static millis_t power_off_timer;
+        static void setPowerOffTimer(const millis_t delay_ms);
+      #endif
+
+      #if BOTH(HAS_AUTO_FAN, POWER_OFF_WAIT_FOR_COOLDOWN)
         static bool power_off_on_cooldown;
         static void setPowerOffOnCooldown(const bool ena);
       #endif
+      static void cancelPowerOff();
     #endif
 
     #if ENABLED(AUTO_POWER_CONTROL) && POWER_OFF_DELAY > 0

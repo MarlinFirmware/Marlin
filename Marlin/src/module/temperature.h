@@ -994,7 +994,9 @@ class Temperature {
     #endif
 
     #if HAS_AUTO_FAN
-      static bool autofans_on;
+      #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+        static bool autofans_on;
+      #endif
       static void update_autofans();
     #endif
 

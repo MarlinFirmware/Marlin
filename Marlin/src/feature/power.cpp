@@ -77,6 +77,8 @@ void Power::power_on() {
 
   if (psu_on) return;
 
+  TERN_(POWER_OFF_TIMER, cancelPowerOff());
+
   OUT_WRITE(PS_ON_PIN, PSU_ACTIVE_STATE);
   psu_on = true;
   safe_delay(PSU_POWERUP_DELAY);
@@ -107,36 +109,40 @@ void Power::power_off() {
   psu_on = false;
 }
 
-#if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+#if ENABLED(POWER_OFF_TIMER) || BOTH(HAS_AUTO_FAN, POWER_OFF_WAIT_FOR_COOLDOWN)
 
-  millis_t Power::power_off_timer = 0;
+  #if ENABLED(POWER_OFF_TIMER)
 
-  void Power::setPowerOffTimer(const millis_t delay_ms) {
-    power_off_timer = millis() + delay_ms;
-  }
+    millis_t Power::power_off_timer = 0;
 
-  void Power::cancelPowerOff() {
-    power_off_timer = 0;
-    TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
-  }
+    void Power::setPowerOffTimer(const millis_t delay_ms) {
+      power_off_timer = millis() + delay_ms;
+    }
 
-  #if HAS_AUTO_FAN
+    void Power::testPowerOffTimer() {
+      if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cooldown)) return;
+      if (TERN0(HAS_AUTO_FAN, power_off_on_cooldown && thermalManager.autofans_on)) return;
+      if (power_off_timer > 0 && PENDING(millis(), power_off_timer)) return;
+
+      power_off_timer = 0;
+      TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
+
+      user_power_off();
+    }
+
+  #endif
+
+  #if BOTH(HAS_AUTO_FAN, POWER_OFF_WAIT_FOR_COOLDOWN)
     bool Power::power_off_on_cooldown = false;
     void Power::setPowerOffOnCooldown(const bool ena) { power_off_on_cooldown = ena; }
   #endif
 
-  void Power::testPowerOffTimer() {
-    if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cooldown)) return;
-    if (TERN0(HAS_AUTO_FAN, power_off_on_cooldown && thermalManager.autofans_on)) return;
-    if (power_off_timer > 0 && PENDING(millis(), power_off_timer)) return;
-
-    power_off_timer = 0;
+  void Power::cancelPowerOff() {
+    TERN_(POWER_OFF_TIMER, power_off_timer = 0);
     TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
-
-    user_power_off();
   }
 
-#endif // POWER_OFF_WAIT_FOR_COOLDOWN
+#endif // POWER_OFF_TIMER || (HAS_AUTO_FAN && POWER_OFF_WAIT_FOR_COOLDOWN)
 
 #if ENABLED(AUTO_POWER_CONTROL)
 

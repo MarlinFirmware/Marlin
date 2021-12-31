@@ -52,7 +52,7 @@
       return;
     }
 
-    cancelPowerOff(); // cancel any pending poweroff
+    powerManager.cancelPowerOff(); // cancel any pending poweroff
 
     powerManager.power_on();
 
@@ -101,6 +101,6 @@ void GcodeSuite::M81() {
   #if HAS_SUICIDE
     suicide();
   #elif ENABLED(PSU_CONTROL)
-    power_off_soon();
+    powerManager.power_off_soon();
   #endif
 }
