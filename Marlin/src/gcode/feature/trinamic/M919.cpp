@@ -57,9 +57,6 @@ static void tmc_print_chopper_time(TMC &st) {
  * With no parameters report chopper times for all axes
  */
 void GcodeSuite::M919() {
-  #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
-  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(ct)
-
   bool err = false;
 
   int8_t toff = int8_t(parser.intval('O', -127));
@@ -100,13 +97,23 @@ void GcodeSuite::M919() {
     constexpr int8_t index = -1;
   #endif
 
-  bool report = true;
-  int8_t eindex = -1;
+  auto make_chopper_timing = [](chopper_timing_t bct, const int8_t toff, const int8_t hend, const int8_t hstrt) {
+    chopper_timing_t uct = bct;
+    if (toff  != -127) uct.toff  = toff;
+    if (hend  != -127) uct.hend  = hend;
+    if (hstrt != -127) uct.hstrt = hstrt;
+    return uct;
+  };
 
+  #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(make_chopper_timing(CHOPPER_TIMING_##Q, toff, hend, hstrt))
+
+  #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
+    #define HAS_E_CHOPPER 1
+    int8_t eindex = -1;
+  #endif
+  bool report = true;
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) {
     report = false;
-
-    chopper_timing_t ct = CHOPPER_TIMING;
 
     // Get the chopper timing for the specified axis and index
     switch (i) {
@@ -114,94 +121,6 @@ void GcodeSuite::M919() {
         SERIAL_ECHOLNPGM("?Axis ", AS_CHAR(axis_codes[i]), " has no TMC drivers.");
         break;
 
-      #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
-        case X_AXIS:
-          #if AXIS_IS_TMC(X)
-            if (index <= 0) ct = CHOPPER_TIMING_X;
-          #endif
-          #if AXIS_IS_TMC(X2)
-            if (index < 0 || index == 1) ct = CHOPPER_TIMING_X2;
-          #endif
-          break;
-      #endif
-
-      #if AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2)
-        case Y_AXIS:
-          #if AXIS_IS_TMC(Y)
-            if (index <= 0) ct = CHOPPER_TIMING_Y;
-          #endif
-          #if AXIS_IS_TMC(Y2)
-            if (index < 0 || index == 1) ct = CHOPPER_TIMING_Y2;
-          #endif
-          break;
-      #endif
-
-      #if AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
-        case Z_AXIS:
-          #if AXIS_IS_TMC(Z)
-            if (index <= 0) ct = CHOPPER_TIMING_Z;
-          #endif
-          #if AXIS_IS_TMC(Z2)
-            if (index < 0 || index == 1) ct = CHOPPER_TIMING_Z2;
-          #endif
-          #if AXIS_IS_TMC(Z3)
-            if (index < 0 || index == 2) ct = CHOPPER_TIMING_Z3;
-          #endif
-          #if AXIS_IS_TMC(Z4)
-            if (index < 0 || index == 3) ct = CHOPPER_TIMING_Z4;
-          #endif
-          break;
-      #endif
-
-      #if AXIS_IS_TMC(I)
-        case I_AXIS: if (index <= 0) ct = CHOPPER_TIMING_I; break;
-      #endif
-
-      #if AXIS_IS_TMC(J)
-        case J_AXIS: if (index <= 0) ct = CHOPPER_TIMING_J; break;
-      #endif
-
-      #if AXIS_IS_TMC(K)
-        case K_AXIS: if (index <= 0) ct = CHOPPER_TIMING_K; break;
-      #endif
-
-      #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
-        case E_AXIS: {
-          eindex = get_target_e_stepper_from_command(-2);
-          #if AXIS_IS_TMC(E0)
-            if (eindex < 0 || eindex == 0) ct = CHOPPER_TIMING_E;
-          #endif
-          #if AXIS_IS_TMC(E1)
-            if (eindex < 0 || eindex == 1) ct = CHOPPER_TIMING_E1;
-          #endif
-          #if AXIS_IS_TMC(E2)
-            if (eindex < 0 || eindex == 2) ct = CHOPPER_TIMING_E2;
-          #endif
-          #if AXIS_IS_TMC(E3)
-            if (eindex < 0 || eindex == 3) ct = CHOPPER_TIMING_E3;
-          #endif
-          #if AXIS_IS_TMC(E4)
-            if (eindex < 0 || eindex == 4) ct = CHOPPER_TIMING_E4;
-          #endif
-          #if AXIS_IS_TMC(E5)
-            if (eindex < 0 || eindex == 5) ct = CHOPPER_TIMING_E5;
-          #endif
-          #if AXIS_IS_TMC(E6)
-            if (eindex < 0 || eindex == 6) ct = CHOPPER_TIMING_E6;
-          #endif
-          #if AXIS_IS_TMC(E7)
-            if (eindex < 0 || eindex == 7) ct = CHOPPER_TIMING_E7;
-          #endif
-        } break;
-      #endif
-    }
-
-    // Apply values from parameters
-    if (toff  != -127) ct.toff  = toff;
-    if (hend  != -127) ct.hend  = hend;
-    if (hstrt != -127) ct.hstrt = hstrt;
-
-    switch (i) {
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
         case X_AXIS:
           #if AXIS_IS_TMC(X)
@@ -244,16 +163,14 @@ void GcodeSuite::M919() {
       #if AXIS_IS_TMC(I)
         case I_AXIS: TMC_SET_CHOPPER_TIME(I); break;
       #endif
-
       #if AXIS_IS_TMC(J)
         case J_AXIS: TMC_SET_CHOPPER_TIME(J); break;
       #endif
-
       #if AXIS_IS_TMC(K)
         case K_AXIS: TMC_SET_CHOPPER_TIME(K); break;
       #endif
 
-      #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
+      #if HAS_E_CHOPPER
         case E_AXIS: {
           #if AXIS_IS_TMC(E0)
             if (eindex <= 0) TMC_SET_CHOPPER_TIME(E0);
@@ -285,6 +202,7 @@ void GcodeSuite::M919() {
   }
 
   if (report) {
+    #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
     #if AXIS_IS_TMC(X)
       TMC_SAY_CHOPPER_TIME(X);
     #endif
