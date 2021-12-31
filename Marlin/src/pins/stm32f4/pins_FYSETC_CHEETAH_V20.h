@@ -38,9 +38,9 @@
   #define FLASH_EEPROM_EMULATION
   #define FLASH_EEPROM_LEVELING
 
-  #define FLASH_SECTOR          2
+  #define FLASH_SECTOR          1
   #define FLASH_UNIT_SIZE       0x4000      // 16k
-  #define FLASH_ADDRESS_START   0x8008000
+  #define FLASH_ADDRESS_START   0x8004000
 #endif
 
 //
@@ -57,7 +57,7 @@
 // Limit Switches
 //
 #define X_STOP_PIN                          PB4
-#define Y_STOP_PIN                          PB3
+#define Y_STOP_PIN                          PC8
 #define Z_STOP_PIN                          PB1
 
 //
@@ -111,9 +111,10 @@
 #define HEATER_0_PIN                        PC6
 #define HEATER_BED_PIN                      PC7
 #ifndef FAN_PIN
-  #define FAN_PIN                           PA1
+  #define FAN_PIN                           PA14
 #endif
-#define FAN1_PIN                            PC8
+#define FAN1_PIN                            PA13
+#define FAN2_PIN                            PA1
 
 //
 // Temperature Sensors
@@ -245,7 +246,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                96
   #define BOARD_ST7920_DELAY_2                48
   #define BOARD_ST7920_DELAY_3               600

@@ -193,7 +193,7 @@
 
 #endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2               250
   #define BOARD_ST7920_DELAY_3                 0

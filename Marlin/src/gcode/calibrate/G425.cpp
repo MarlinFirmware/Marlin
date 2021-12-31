@@ -709,7 +709,7 @@ inline void calibrate_all() {
 void GcodeSuite::G425() {
 
   #ifdef CALIBRATION_SCRIPT_PRE
-    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_PRE));
+    process_subcommands_now(F(CALIBRATION_SCRIPT_PRE));
   #endif
 
   if (homing_needed_error()) return;
@@ -745,7 +745,7 @@ void GcodeSuite::G425() {
   SET_SOFT_ENDSTOP_LOOSE(false);
 
   #ifdef CALIBRATION_SCRIPT_POST
-    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_POST));
+    process_subcommands_now(F(CALIBRATION_SCRIPT_POST));
   #endif
 }
 

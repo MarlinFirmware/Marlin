@@ -22,38 +22,52 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
 
 //#define DEBUG_PTC   // Print extra debug output with 'M871'
 
 #include "probe_temp_comp.h"
 #include <math.h>
 
-ProbeTempComp temp_comp;
+ProbeTempComp ptc;
 
-int16_t ProbeTempComp::z_offsets_probe[cali_info_init[TSI_PROBE].measurements],  // = {0}
-        ProbeTempComp::z_offsets_bed[cali_info_init[TSI_BED].measurements];      // = {0}
+#if ENABLED(PTC_PROBE)
+  constexpr int16_t z_offsets_probe_default[PTC_PROBE_COUNT] = PTC_PROBE_ZOFFS;
+  int16_t ProbeTempComp::z_offsets_probe[PTC_PROBE_COUNT] = PTC_PROBE_ZOFFS;
+#endif
 
-#if ENABLED(USE_TEMP_EXT_COMPENSATION)
-  int16_t ProbeTempComp::z_offsets_ext[cali_info_init[TSI_EXT].measurements];    // = {0}
+#if ENABLED(PTC_BED)
+  constexpr int16_t z_offsets_bed_default[PTC_BED_COUNT] = PTC_BED_ZOFFS;
+  int16_t ProbeTempComp::z_offsets_bed[PTC_BED_COUNT] = PTC_BED_ZOFFS;
+#endif
+
+#if ENABLED(PTC_HOTEND)
+  constexpr int16_t z_offsets_hotend_default[PTC_HOTEND_COUNT] = PTC_HOTEND_ZOFFS;
+  int16_t ProbeTempComp::z_offsets_hotend[PTC_HOTEND_COUNT] = PTC_HOTEND_ZOFFS;
 #endif
 
 int16_t *ProbeTempComp::sensor_z_offsets[TSI_COUNT] = {
-  ProbeTempComp::z_offsets_probe, ProbeTempComp::z_offsets_bed
-  OPTARG(USE_TEMP_EXT_COMPENSATION, ProbeTempComp::z_offsets_ext)
+  #if ENABLED(PTC_PROBE)
+    ProbeTempComp::z_offsets_probe,
+  #endif
+  #if ENABLED(PTC_BED)
+    ProbeTempComp::z_offsets_bed,
+  #endif
+  #if ENABLED(PTC_HOTEND)
+    ProbeTempComp::z_offsets_hotend,
+  #endif
 };
 
-const temp_calib_t ProbeTempComp::cali_info[TSI_COUNT] = {
-  cali_info_init[TSI_PROBE], cali_info_init[TSI_BED]
-  OPTARG(USE_TEMP_EXT_COMPENSATION, cali_info_init[TSI_EXT])
-};
-
-constexpr xyz_pos_t ProbeTempComp::park_point;
-constexpr xy_pos_t ProbeTempComp::measure_point;
-constexpr celsius_t ProbeTempComp::probe_calib_bed_temp;
+constexpr temp_calib_t ProbeTempComp::cali_info[TSI_COUNT];
 
 uint8_t ProbeTempComp::calib_idx; // = 0
 float ProbeTempComp::init_measurement; // = 0.0
+
+void ProbeTempComp::reset() {
+  TERN_(PTC_PROBE, LOOP_L_N(i, PTC_PROBE_COUNT) z_offsets_probe[i] = z_offsets_probe_default[i]);
+  TERN_(PTC_BED, LOOP_L_N(i, PTC_BED_COUNT) z_offsets_bed[i] = z_offsets_bed_default[i]);
+  TERN_(PTC_HOTEND, LOOP_L_N(i, PTC_HOTEND_COUNT) z_offsets_hotend[i] = z_offsets_hotend_default[i]);
+}
 
 void ProbeTempComp::clear_offsets(const TempSensorID tsi) {
   LOOP_L_N(i, cali_info[tsi].measurements)
@@ -71,11 +85,10 @@ void ProbeTempComp::print_offsets() {
   LOOP_L_N(s, TSI_COUNT) {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
-      SERIAL_ECHOPGM_P(s == TSI_BED ? PSTR("Bed") :
-        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          s == TSI_EXT ? PSTR("Extruder") :
-        #endif
-        PSTR("Probe")
+      SERIAL_ECHOF(
+        TERN_(PTC_BED, s == TSI_BED ? F("Bed") :)
+        TERN_(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :)
+        F("Probe")
       );
       SERIAL_ECHOLNPGM(
         " temp: ", temp,
@@ -100,21 +113,13 @@ void ProbeTempComp::prepare_new_calibration(const_float_t init_meas_z) {
 }
 
 void ProbeTempComp::push_back_new_measurement(const TempSensorID tsi, const_float_t meas_z) {
-  switch (tsi) {
-    case TSI_PROBE:
-    case TSI_BED:
-    //case TSI_EXT:
-      if (calib_idx >= cali_info[tsi].measurements) return;
-      sensor_z_offsets[tsi][calib_idx++] = static_cast<int16_t>(meas_z * 1000.0f - init_measurement * 1000.0f);
-    default: break;
-  }
+  if (calib_idx >= cali_info[tsi].measurements) return;
+  sensor_z_offsets[tsi][calib_idx++] = static_cast<int16_t>((meas_z - init_measurement) * 1000.0f);
 }
 
 bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
-  if (tsi != TSI_PROBE && tsi != TSI_BED) return false;
-
-  if (calib_idx < 3) {
-    SERIAL_ECHOLNPGM("!Insufficient measurements (min. 3).");
+  if (!calib_idx) {
+    SERIAL_ECHOLNPGM("!No measurements.");
     clear_offsets(tsi);
     return false;
   }
@@ -130,16 +135,15 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
     SERIAL_ECHOLNPGM("Got ", calib_idx, " measurements. ");
     if (linear_regression(tsi, k, d)) {
       SERIAL_ECHOPGM("Applying linear extrapolation");
-      calib_idx--;
       for (; calib_idx < measurements; ++calib_idx) {
-        const celsius_float_t temp = start_temp + float(calib_idx) * res_temp;
+        const celsius_float_t temp = start_temp + float(calib_idx + 1) * res_temp;
         data[calib_idx] = static_cast<int16_t>(k * temp + d);
       }
     }
     else {
       // Simply use the last measured value for higher temperatures
       SERIAL_ECHOPGM("Failed to extrapolate");
-      const int16_t last_val = data[calib_idx];
+      const int16_t last_val = data[calib_idx-1];
       for (; calib_idx < measurements; ++calib_idx)
         data[calib_idx] = last_val;
     }
@@ -157,7 +161,7 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
     // Restrict the max. offset difference between two probings
     if (calib_idx > 0 && ABS(data[calib_idx - 1] - data[calib_idx]) > 800) {
       SERIAL_ECHOLNPGM("!Invalid Z-offset between two probings detected (0-0.8).");
-      clear_offsets(TSI_PROBE);
+      clear_offsets(tsi);
       return false;
     }
   }
@@ -168,8 +172,8 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {
   const uint8_t measurements = cali_info[tsi].measurements;
   const celsius_t start_temp = cali_info[tsi].start_temp,
-                    end_temp = cali_info[tsi].end_temp,
-                    res_temp = cali_info[tsi].temp_resolution;
+                  res_temp = cali_info[tsi].temp_resolution,
+                  end_temp = start_temp + measurements * res_temp;
   const int16_t * const data = sensor_z_offsets[tsi];
 
   // Given a data index, return { celsius, zoffset } in the form { x, y }
@@ -208,9 +212,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
 }
 
 bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d) {
-  if (tsi != TSI_PROBE && tsi != TSI_BED) return false;
-
-  if (!WITHIN(calib_idx, 2, cali_info[tsi].measurements)) return false;
+  if (!WITHIN(calib_idx, 1, cali_info[tsi].measurements)) return false;
 
   const celsius_t start_temp = cali_info[tsi].start_temp,
                     res_temp = cali_info[tsi].temp_resolution;
@@ -243,4 +245,4 @@ bool ProbeTempComp::linear_regression(const TempSensorID tsi, float &k, float &d
   return true;
 }
 
-#endif // PROBE_TEMP_COMPENSATION
+#endif // HAS_PTC

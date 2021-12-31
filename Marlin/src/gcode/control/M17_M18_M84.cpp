@@ -136,7 +136,7 @@ void GcodeSuite::M17() {
     }
   }
   else {
-    LCD_MESSAGEPGM(MSG_NO_MOVE);
+    LCD_MESSAGE(MSG_NO_MOVE);
     stepper.enable_all_steppers();
   }
 }

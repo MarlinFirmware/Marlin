@@ -37,6 +37,10 @@
   #include "../libs/autoreport.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -344,6 +348,10 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
 
 #endif
 
+#if HAS_AUTO_FAN || HAS_FANCHECK
+  #define HAS_FAN_LOGIC 1
+#endif
+
 class Temperature {
 
   public:
@@ -372,7 +380,7 @@ class Temperature {
       static redundant_info_t temp_redundant;
     #endif
 
-    #if ENABLED(AUTO_POWER_E_FANS)
+    #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
       static uint8_t autofan_speed[HOTENDS];
     #endif
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)
@@ -385,6 +393,10 @@ class Temperature {
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
                      soft_pwm_count_fan[FAN_COUNT];
+    #endif
+
+    #if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
+      static uint8_t soft_pwm_controller_speed;
     #endif
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -455,6 +467,10 @@ class Temperature {
       static int16_t lpq_len;
     #endif
 
+    #if HAS_FAN_LOGIC
+      static constexpr millis_t fan_update_interval_ms = TERN(HAS_PWMFANCHECK, 5000, TERN(HAS_FANCHECK, 1000, 2500));
+    #endif
+
   private:
 
     #if ENABLED(WATCH_HOTENDS)
@@ -506,8 +522,28 @@ class Temperature {
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
-    #if HAS_AUTO_FAN
-      static millis_t next_auto_fan_check_ms;
+    #if HAS_FAN_LOGIC
+      static millis_t fan_update_ms;
+
+      static inline void manage_extruder_fans(millis_t ms) {
+        if (ELAPSED(ms, fan_update_ms)) { // only need to check fan state very infrequently
+          const millis_t next_ms = ms + fan_update_interval_ms;
+          #if HAS_PWMFANCHECK
+            #define FAN_CHECK_DURATION 100
+            if (fan_check.is_measuring()) {
+              fan_check.compute_speed(ms + FAN_CHECK_DURATION - fan_update_ms);
+              fan_update_ms = next_ms;
+            }
+            else
+              fan_update_ms = ms + FAN_CHECK_DURATION;
+            fan_check.toggle_measuring();
+          #else
+            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - fan_update_ms));
+            fan_update_ms = next_ms;
+          #endif
+          TERN_(HAS_AUTO_FAN, update_autofans()); // Needed as last when HAS_PWMFANCHECK to properly force fan speed
+        }
+      }
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
@@ -848,6 +884,14 @@ class Temperature {
      */
     static void disable_all_heaters();
 
+    /**
+     * Cooldown, as from the LCD. Disables all heaters and fans.
+     */
+    static inline void cooldown() {
+      zero_fan_speeds();
+      disable_all_heaters();
+    }
+
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
        * Methods to check if heaters are enabled, indicating an active job
@@ -949,7 +993,7 @@ class Temperature {
       static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
-    static void checkExtruderAutoFans();
+    static void update_autofans();
 
     #if HAS_HOTEND
       static float get_pid_output_hotend(const uint8_t e);
@@ -961,7 +1005,7 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
+    static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 

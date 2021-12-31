@@ -59,7 +59,7 @@ void GcodeSuite::M0_M1() {
     if (parser.string_arg)
       ui.set_status(parser.string_arg, true);
     else {
-      LCD_MESSAGEPGM(MSG_USERWAIT);
+      LCD_MESSAGE(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         ui.reset_progress_bar_timeout();
       #endif
@@ -67,9 +67,9 @@ void GcodeSuite::M0_M1() {
 
   #elif ENABLED(EXTENSIBLE_UI)
     if (parser.string_arg)
-      ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
+      ExtUI::onUserConfirmRequired(parser.string_arg); // String in an SRAM buffer
     else
-      ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
+      ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_USERWAIT));
   #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
     if (parser.string_arg)
       DWIN_Popup_Confirm(ICON_BLTouch, parser.string_arg, GET_TEXT_F(MSG_USERWAIT));
@@ -84,7 +84,7 @@ void GcodeSuite::M0_M1() {
 
   #endif
 
-  TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR));
+  TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? F("M1 Stop") : F("M0 Stop"), FPSTR(CONTINUE_STR)));
 
   TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(ms));
 

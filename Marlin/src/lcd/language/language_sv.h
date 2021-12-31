@@ -44,7 +44,7 @@ namespace Language_sv {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Media Instatt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media Borttaget");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Väntar på media");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("SD init misslyckades");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Media init misslyckades");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Media läsningsfel");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB enhet borttagen");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start misslyckad");
@@ -78,7 +78,7 @@ namespace Language_sv {
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Välj Origo");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Senaste värde ");
 
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" Stoppa");
@@ -145,9 +145,8 @@ namespace Language_sv {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Speglad Kopia");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Kontroll");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicera X-Avstånd");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2:a Munstycke X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2:a Munstycke Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2:a Munstycke Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2:a Munstycke @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Utför G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Verktyg");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Enad Bädd Nivellering (UBL)");

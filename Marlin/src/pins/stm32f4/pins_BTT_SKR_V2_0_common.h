@@ -47,11 +47,10 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 // Avoid conflict with TIMER_TONE
-#define STEP_TIMER                            10
+#define STEP_TIMER 10
 
 //
 // Servos
@@ -134,6 +133,15 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE)
+  #ifndef PROBE_ENABLE_PIN
+    #define PROBE_ENABLE_PIN          SERVO0_PIN
+  #endif
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                      PC2   // E0DET
@@ -182,16 +190,28 @@
   #define Z_CS_PIN                          PD0
 #endif
 
-#define E0_STEP_PIN                         PD15
-#define E0_DIR_PIN                          PD14
-#define E0_ENABLE_PIN                       PC7
+#ifndef E0_STEP_PIN
+  #define E0_STEP_PIN                       PD15
+#endif
+#ifndef E0_DIR_PIN
+  #define E0_DIR_PIN                        PD14
+#endif
+#ifndef E0_ENABLE_PIN
+  #define E0_ENABLE_PIN                     PC7
+#endif
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                         PC6
 #endif
 
-#define E1_STEP_PIN                         PD11
-#define E1_DIR_PIN                          PD10
-#define E1_ENABLE_PIN                       PD13
+#ifndef E1_STEP_PIN
+  #define E1_STEP_PIN                       PD11
+#endif
+#ifndef E1_DIR_PIN
+  #define E1_DIR_PIN                        PD10
+#endif
+#ifndef E1_ENABLE_PIN
+  #define E1_ENABLE_PIN                     PD13
+#endif
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                         PD12
 #endif
@@ -199,9 +219,15 @@
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                        PA1   // TB
-#define TEMP_0_PIN                          PA2   // TH0
-#define TEMP_1_PIN                          PA3   // TH1
+#ifndef TEMP_0_PIN
+  #define TEMP_0_PIN                        PA2   // TH0
+#endif
+#ifndef TEMP_1_PIN
+  #define TEMP_1_PIN                        PA3   // TH1
+#endif
+#ifndef TEMP_BED_PIN
+  #define TEMP_BED_PIN                      PA1   // TB
+#endif
 
 #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
   #if TEMP_SENSOR_PROBE
@@ -226,12 +252,22 @@
 #ifndef FAN_PIN
   #define FAN_PIN                           PB7   // Fan0
 #endif
-#ifndef FAN1_PIN
-  #define FAN1_PIN                          PB6   // Fan1
-#endif
-#ifndef FAN2_PIN
-  #define FAN2_PIN                          PB5   // Fan2
-#endif
+
+#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+  #ifndef SPINDLE_LASER_PWM_PIN
+    #define SPINDLE_LASER_PWM_PIN           PB5
+  #endif
+  #ifndef SPINDLE_LASER_ENA_PIN
+    #define SPINDLE_LASER_ENA_PIN           PB6
+  #endif
+#else
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                        PB6   // Fan1
+  #endif
+  #ifndef FAN2_PIN
+    #define FAN2_PIN                        PB5   // Fan2
+  #endif
+#endif // SPINDLE_FEATURE || LASER_FEATURE
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -267,6 +303,9 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
+  //
+  // Software serial
+  //
   #define X_SERIAL_TX_PIN                   PE0
   #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
@@ -290,18 +329,18 @@
 // SD Connection
 //
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION                  LCD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 /**
- *               -----                                             -----
- *           NC | 1 2 | GND                                    5V | 1 2 | GND
- *        RESET | 3 4 | PC4 (SD_DETECT)             (LCD_D7) PE13 | 3 4 | PE12 (LCD_D6)
- *   (MOSI) PA7 | 5 6   PB2 (BTN_EN2)               (LCD_D5) PE11 | 5 6   PE10 (LCD_D4)
- *  (SD_SS) PA4 | 7 8 | PE7 (BTN_EN1)               (LCD_RS)  PE9 | 7 8 | PB1  (LCD_EN)
- *    (SCK) PA5 | 9 10| PA6 (MISO)                 (BTN_ENC)  PB0 | 9 10| PC5  (BEEPER)
- *               -----                                             -----
- *               EXP2                                              EXP1
+ *               ------                                             ------
+ *           NC | 1  2 | GND                                    5V | 1  2 | GND
+ *        RESET | 3  4 | PC4 (SD_DETECT)             (LCD_D7) PE13 | 3  4 | PE12 (LCD_D6)
+ *   (MOSI) PA7 | 5  6   PB2 (BTN_EN2)               (LCD_D5) PE11 | 5  6   PE10 (LCD_D4)
+ *  (SD_SS) PA4 | 7  8 | PE7 (BTN_EN1)               (LCD_RS)  PE9 | 7  8 | PB1  (LCD_EN)
+ *    (SCK) PA5 | 9 10 | PA6 (MISO)                 (BTN_ENC)  PB0 | 9 10 | PC5  (BEEPER)
+ *               ------                                             ------
+ *                EXP2                                               EXP1
  */
 #define EXP1_03_PIN                         PE13
 #define EXP1_04_PIN                         PE12
@@ -325,7 +364,16 @@
 // Onboard SD card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
-#if SD_CONNECTION_IS(ONBOARD)
+#if SD_CONNECTION_IS(LCD)
+
+  #define SDSS                       EXP2_07_PIN
+  #define SD_SS_PIN                         SDSS
+  #define SD_SCK_PIN                 EXP2_09_PIN
+  #define SD_MISO_PIN                EXP2_10_PIN
+  #define SD_MOSI_PIN                EXP2_05_PIN
+  #define SD_DETECT_PIN              EXP2_04_PIN
+
+#elif SD_CONNECTION_IS(ONBOARD)
 
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
   #define SDIO_D0_PIN                       PC8
@@ -335,17 +383,8 @@
   #define SDIO_CK_PIN                       PC12
   #define SDIO_CMD_PIN                      PD2
 
-#elif SD_CONNECTION_IS(LCD)
-
-  #define SDSS                              PA4
-  #define SD_SS_PIN                         SDSS
-  #define SD_SCK_PIN                        PA5
-  #define SD_MISO_PIN                       PA6
-  #define SD_MOSI_PIN                       PA7
-  #define SD_DETECT_PIN                     PC4
-
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+  #error "No custom SD drive cable defined for this board."
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
@@ -483,7 +522,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1             120
   #endif
@@ -493,6 +532,27 @@
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3             580
   #endif
+#endif
+
+#if HAS_SPI_TFT
+  //
+  // e.g., BTT_TFT35_SPI_V1_0 (480x320, 3.5", SPI Stock Display with Rotary Encoder in BIQU B1 SE)
+  //
+  #define TFT_CS_PIN                 EXP2_07_PIN
+  #define TFT_A0_PIN                 EXP2_04_PIN
+  #define TFT_SCK_PIN                EXP2_09_PIN
+  #define TFT_MISO_PIN               EXP2_10_PIN
+  #define TFT_MOSI_PIN               EXP2_05_PIN
+
+  #define TOUCH_INT_PIN              EXP1_04_PIN
+  #define TOUCH_MISO_PIN             EXP1_05_PIN
+  #define TOUCH_MOSI_PIN             EXP1_08_PIN
+  #define TOUCH_SCK_PIN              EXP1_06_PIN
+  #define TOUCH_CS_PIN               EXP1_07_PIN
+
+  #define BTN_EN1                    EXP2_08_PIN
+  #define BTN_EN2                    EXP2_06_PIN
+  #define BTN_ENC                    EXP1_09_PIN
 #endif
 
 //

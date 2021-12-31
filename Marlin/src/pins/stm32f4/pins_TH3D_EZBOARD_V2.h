@@ -24,7 +24,7 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#define BOARD_INFO_NAME   "TH3D EZBoard Lite V2"
+#define BOARD_INFO_NAME   "TH3D EZBoard V2"
 #define BOARD_WEBSITE_URL "th3dstudio.com"
 
 //#define V3_EZABL_ON_SERVO                       // As in TH3D Firmware Config

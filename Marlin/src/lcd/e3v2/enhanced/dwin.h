@@ -24,21 +24,14 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/09/08
+ * Version: 3.7.1
+ * Date: 2021/11/09
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 #include "dwinui.h"
 #include "../common/encoder.h"
 #include "../../../libs/BL24CXX.h"
-
-#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
-  #define HAS_PREHEAT 1
-  #if PREHEAT_COUNT < 2
-    #error "Creality DWIN requires two material preheat presets."
-  #endif
-#endif
 
 #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
   #define HAS_ONESTEP_LEVELING 1
@@ -123,12 +116,14 @@ typedef struct {
   uint16_t Barfill_Color    = Def_Barfill_Color;
   uint16_t Indicator_Color  = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
-  #if HAS_HOTEND
-    int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
-    int16_t PidCycles = 10;
-  #endif
-  #ifdef PREHEAT_1_TEMP_BED
-    int16_t BedPidT = PREHEAT_1_TEMP_BED;
+  #if HAS_PREHEAT
+    #ifdef PREHEAT_1_TEMP_HOTEND
+      int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
+      int16_t PidCycles = 10;
+    #endif
+    #ifdef PREHEAT_1_TEMP_BED
+      int16_t BedPidT = PREHEAT_1_TEMP_BED;
+    #endif
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
@@ -159,6 +154,7 @@ void HMI_SDCardUpdate();
 // Other
 void Goto_PrintProcess();
 void Goto_Main_Menu();
+void Goto_InfoMenu();
 void Draw_Select_Highlight(const bool sel);
 void Draw_Status_Area(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area;
@@ -179,9 +175,7 @@ void EachMomentUpdate();
 void update_variable();
 void DWIN_HandleScreen();
 void DWIN_Update();
-void DWIN_DrawStatusLine(const uint16_t color, const uint16_t bgcolor, const char *text);
-void DWIN_StatusChanged(const char * const text);
-void DWIN_StatusChanged_P(PGM_P const text);
+void DWIN_CheckStatusMessage();
 void DWIN_StartHoming();
 void DWIN_CompletedHoming();
 #if HAS_MESH

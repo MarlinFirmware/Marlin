@@ -185,7 +185,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
         case VP_E0_PID_I: valuesend = unscalePID_i(value); break;
         case VP_E0_PID_D: valuesend = unscalePID_d(value); break;
       #endif
-      #if HOTENDS >= 2
+      #if HAS_MULTI_HOTEND
         case VP_E1_PID_P: valuesend = value; break;
         case VP_E1_PID_I: valuesend = unscalePID_i(value); break;
         case VP_E1_PID_D: valuesend = unscalePID_d(value); break;
@@ -340,7 +340,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
   void DGUSScreenHandler::SDCardError() {
     DGUSScreenHandler::SDCardRemoved();
-    sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("SD card error"), nullptr, true, true, true, true);
+    sendinfoscreen(F("NOTICE"), nullptr, F("SD card error"), nullptr, true, true, true, true);
     SetupConfirmAction(nullptr);
     GotoScreen(DGUSLCD_SCREEN_POPUP);
   }
@@ -400,7 +400,7 @@ void DGUSScreenHandler::HandleTemperatureChanged(DGUS_VP_Variable &var, void *va
         acceptedvalue = thermalManager.degTargetHotend(0);
         break;
     #endif
-    #if HOTENDS >= 2
+    #if HAS_MULTI_HOTEND
       case VP_T_E1_Set:
         NOMORE(newvalue, HEATER_1_MAXTEMP);
         thermalManager.setTargetHotend(newvalue, 1);
@@ -551,7 +551,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E0);
               break;
           #endif
-          #if HOTENDS >= 2
+          #if HAS_MULTI_HOTEND
             case VP_PID_AUTOTUNE_E1:
               sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E1);
               break;
@@ -567,7 +567,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     if (buf[0]) queue.enqueue_one_now(buf);
 
     #if ENABLED(DGUS_UI_WAITING)
-      sendinfoscreen(PSTR("PID is autotuning"), PSTR("please wait"), NUL_STR, NUL_STR, true, true, true, true);
+      sendinfoscreen(F("PID is autotuning"), F("please wait"), NUL_STR, NUL_STR, true, true, true, true);
       GotoScreen(DGUSLCD_SCREEN_WAITING);
     #endif
   }
@@ -598,7 +598,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   switch (var.VP) {
     #if HAS_HOTEND
       case VP_E0_CONTROL:
-      #if HOTENDS >= 2
+      #if HAS_MULTI_HOTEND
         case VP_E1_CONTROL:
         #if HOTENDS >= 3
           case VP_E2_CONTROL:
@@ -621,55 +621,16 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   void DGUSScreenHandler::HandlePreheat(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandlePreheat");
 
-    uint8_t e_temp = 0;
-    #if HAS_HEATED_BED
-      uint8_t bed_temp = 0;
-    #endif
     const uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
     switch (preheat_option) {
       default:
-      case 0: // Preheat PLA
-        #if defined(PREHEAT_1_TEMP_HOTEND) && defined(PREHEAT_1_TEMP_BED)
-          e_temp = PREHEAT_1_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_1_TEMP_BED);
-        #endif
-        break;
-      case 1: // Preheat ABS
-        #if defined(PREHEAT_2_TEMP_HOTEND) && defined(PREHEAT_2_TEMP_BED)
-          e_temp = PREHEAT_2_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_2_TEMP_BED);
-        #endif
-        break;
-      case 2: // Preheat PET
-        #if defined(PREHEAT_3_TEMP_HOTEND) && defined(PREHEAT_3_TEMP_BED)
-          e_temp = PREHEAT_3_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_3_TEMP_BED);
-        #endif
-        break;
-      case 3: // Preheat FLEX
-        #if defined(PREHEAT_4_TEMP_HOTEND) && defined(PREHEAT_4_TEMP_BED)
-          e_temp = PREHEAT_4_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_4_TEMP_BED);
-        #endif
-        break;
+      switch (var.VP) {
+        default: return;
+        case VP_E0_BED_PREHEAT: TERN_(HAS_HOTEND,       ui.preheat_all(0)); break;
+        case VP_E1_BED_PREHEAT: TERN_(HAS_MULTI_HOTEND, ui.preheat_all(1)); break;
+      }
       case 7: break; // Custom preheat
-      case 9: break; // Cool down
-    }
-
-    switch (var.VP) {
-      default: return;
-        #if HAS_HOTEND
-          case VP_E0_BED_PREHEAT:
-            thermalManager.setTargetHotend(e_temp, 0);
-            TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
-            break;
-        #endif
-        #if HOTENDS >= 2
-          case VP_E1_BED_PREHEAT:
-            thermalManager.setTargetHotend(e_temp, 1);
-            TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
-            break;
-        #endif
+      case 9: thermalManager.cooldown(); break; // Cool down
     }
 
     // Go to the preheat screen to show the heating progress
@@ -683,7 +644,7 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   void DGUSScreenHandler::HandlePowerLossRecovery(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t value = swap16(*(uint16_t*)val_ptr);
     if (value) {
-      queue.inject_P(PSTR("M1000"));
+      queue.inject(F("M1000"));
       dgusdisplay.WriteVariable(VP_SD_Print_Filename, filelist.filename(), 32, true);
       GotoScreen(PLR_SCREEN_RECOVER);
     }

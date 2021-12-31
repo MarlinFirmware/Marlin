@@ -68,7 +68,7 @@ namespace Language_zh_CN {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("设置原点偏移");     // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("偏移已启用");     // "Offsets applied"
   LSTR MSG_SET_ORIGIN                     = _UxGT("设置原点");     // "Set origin"
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("预热 ") PREHEAT_1_LABEL;     // "Preheat PREHEAT_2_LABEL"
     LSTR MSG_PREHEAT_1_H                  = _UxGT("预热 ") PREHEAT_1_LABEL " ~";     // "Preheat PREHEAT_2_LABEL"
     LSTR MSG_PREHEAT_1_END                = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_1 " "
@@ -119,9 +119,8 @@ namespace Language_zh_CN {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("复制");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("镜像复制");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("完全控制");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("第二喷头是X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("第二喷头是Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("第二喷头是Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("第二喷头是@");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("执行G29");     // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具");     // "UBL Tools"
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("统一热床调平(UBL)");     // "Unified Bed Leveling"
@@ -143,7 +142,7 @@ namespace Language_zh_CN {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("完成编辑网格");     // "Done Editing Mesh"
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("创设客户网格");     // "Build Custom Mesh"
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("创设网格");     // "Build Mesh"
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("创设 $ 网格");     // "Build PREHEAT_1_LABEL Mesh"
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("批准 $ 网格");     // "Validate PREHEAT_1_LABEL Mesh"
   #endif

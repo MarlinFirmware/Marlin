@@ -44,9 +44,9 @@ namespace Language_ru {
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD карта извлечена");
   LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD карту");
   #if LCD_WIDTH > 21
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Сбой инициализации SD");
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Сбой инициализации SD");
   #else
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Сбой инициализ. SD");
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Сбой инициализ. SD");
   #endif
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка считывания");
   LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");
@@ -106,7 +106,7 @@ namespace Language_ru {
   #else
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Послед. знач. ");
   #endif
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                      = _UxGT("Преднагрев ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                    = _UxGT("Нагрев ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                  = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло");
@@ -197,9 +197,8 @@ namespace Language_ru {
   LSTR MSG_IDEX_MODE_FULL_CTRL              = _UxGT("Полный контроль");
   LSTR MSG_IDEX_DUPE_GAP                    = _UxGT("Дублировать X-зазор");
 
-  LSTR MSG_HOTEND_OFFSET_X                  = _UxGT("2-е сопло X");
-  LSTR MSG_HOTEND_OFFSET_Y                  = _UxGT("2-е сопло Y");
   LSTR MSG_HOTEND_OFFSET_Z                  = _UxGT("2-е сопло Z");
+  LSTR MSG_HOTEND_OFFSET_A                  = _UxGT("2-е сопло @");
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Выполняем G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Инструменты UBL");

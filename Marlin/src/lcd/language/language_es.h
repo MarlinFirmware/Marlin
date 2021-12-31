@@ -39,11 +39,11 @@ namespace Language_es {
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_BACK                           = _UxGT("Atrás");
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Cancelando...");
-  LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD/USB insertado");
-  LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD/USB retirado");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Esperando al SD/USB");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("Fallo al iniciar SD");
-  LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura SD/USB");
+  LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD/FD insertado");
+  LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD/FD retirado");
+  LSTR MSG_MEDIA_WAITING                  = _UxGT("Esperando al SD/FD");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Fallo al iniciar SD/FD");
+  LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura SD/FD");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbordamiento de subllamada");
@@ -73,7 +73,7 @@ namespace Language_es {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ajustar desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicada");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Establecer origen");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Precal. ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
@@ -124,9 +124,8 @@ namespace Language_es {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplicar");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Copia Reflejada");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Control Total");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2ª Fusor X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2ª Fusor Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2ª Fusor Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2ª Fusor @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Hacer G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Herramientas UBL");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Nivelado UBL");
@@ -148,7 +147,7 @@ namespace Language_es {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Term. edici. Mallado");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Crear Mallado Pers.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Crear Mallado");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Crear Mallado ($)");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Valid. Mall. ($)");
   #endif
@@ -326,7 +325,7 @@ namespace Language_es {
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
   LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Err: Índice EEPROM");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versión EEPROM");
-  LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/USB");
+  LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/FD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetear Impresora");
   LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Recargar");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantalla de Inf.");
@@ -349,8 +348,8 @@ namespace Language_es {
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancelar Objeto");
   LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancelar Objeto =");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Rec. Fallo electrico");
-  LSTR MSG_MEDIA_MENU                     = _UxGT("Imprim. desde SD/USB");
-  LSTR MSG_NO_MEDIA                       = _UxGT("SD/USB no presente");
+  LSTR MSG_MEDIA_MENU                     = _UxGT("Imprim. desde SD/FD");
+  LSTR MSG_NO_MEDIA                       = _UxGT("SD/FD no presente");
   LSTR MSG_DWELL                          = _UxGT("Reposo...");
   LSTR MSG_USERWAIT                       = _UxGT("Pulsar para Reanudar");
   LSTR MSG_PRINT_PAUSED                   = _UxGT("Impresión Pausada");
@@ -382,9 +381,9 @@ namespace Language_es {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Descargar filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Descargar fil. *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Descargar todo");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar SD/USB");
-  LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar SD/USB");
-  LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar SD/USB");
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar SD/FD");
+  LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar SD/FD");
+  LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar SD/FD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fuera cama");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Factor de desviación");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

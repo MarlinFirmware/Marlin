@@ -42,7 +42,7 @@ namespace Language_de {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Medium erkannt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Medium entfernt");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Warten auf Medium");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("SD Init fehlgesch.");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Medium Init fehlgesch.");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Medium Lesefehler");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB Gerät entfernt");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB Start fehlge.");
@@ -69,7 +69,7 @@ namespace Language_de {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Setze Homeversatz");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Homeversatz aktiv");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in marlinui.cpp
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
     LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
     LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
@@ -121,9 +121,8 @@ namespace Language_de {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplizieren");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Spiegelkopie");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("vollstä. Kontrolle");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2. Düse X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2. Düse Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. Düse Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. Düse @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 ausführen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
@@ -145,7 +144,7 @@ namespace Language_de {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Bearbeitung beendet");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Eigenes Netz erst.");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Netz erstellen");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("$ Netz erstellen");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("$ Netz validieren");
   #endif

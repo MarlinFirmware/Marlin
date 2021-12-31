@@ -162,7 +162,9 @@
 #define TEMP_0_PIN                          PC0
 #define TEMP_1_PIN                          PC1
 #define TEMP_2_PIN                          PC2
-#define TEMP_BED_PIN                        PC3
+#ifndef TEMP_BED_PIN
+  #define TEMP_BED_PIN                      PC3
+#endif
 
 //
 // Heaters / Fans
@@ -180,8 +182,12 @@
   #define HEATER_BED_PIN                    PC8
 #endif
 
-#define FAN_PIN                             PB0
-#define FAN1_PIN                            PB1
+#ifndef FAN_PIN
+  #define FAN_PIN                           PB0
+#endif
+#ifndef FAN1_PIN
+  #define FAN1_PIN                          PB1
+#endif
 #define FAN2_PIN                            PB2
 
 //
@@ -314,7 +320,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                96
   #define BOARD_ST7920_DELAY_2                48
   #define BOARD_ST7920_DELAY_3               640
