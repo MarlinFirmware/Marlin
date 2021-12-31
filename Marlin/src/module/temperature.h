@@ -1009,7 +1009,7 @@ class Temperature {
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 
-    #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, HAS_THERMALLY_PROTECTED_BED, THERMAL_PROTECTION_COOLER)
+    #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_COOLER)
 
     #if HAS_THERMAL_PROTECTION
 
@@ -1021,7 +1021,7 @@ class Temperature {
           REPEAT(HOTENDS, _RUNAWAY_IND_E)
           #undef _RUNAWAY_IND_E
         #endif
-        OPTARG(HAS_THERMALLY_PROTECTED_BED, RUNAWAY_IND_BED)
+        OPTARG(THERMAL_PROTECTION_BED, RUNAWAY_IND_BED)
         OPTARG(THERMAL_PROTECTION_CHAMBER, RUNAWAY_IND_CHAMBER)
         OPTARG(THERMAL_PROTECTION_COOLER, RUNAWAY_IND_COOLER)
         , NR_HEATER_RUNAWAY
@@ -1029,9 +1029,9 @@ class Temperature {
 
       // Convert the given heater_id_t to runaway state array index
       static inline RunawayIndex runaway_index_for_id(const int8_t heater_id) {
-        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
-        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
-        TERN_(HAS_THERMALLY_PROTECTED_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
+        TERN_(THERMAL_PROTECTION_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
+        TERN_(THERMAL_PROTECTION_COOLER,  if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
+        TERN_(THERMAL_PROTECTION_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
         return (RunawayIndex)_MAX(heater_id, 0);
       }
 

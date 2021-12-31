@@ -1445,7 +1445,7 @@ void Temperature::manage_heater() {
 
       TERN_(HEATER_IDLE_HANDLER, heater_idle[IDLE_INDEX_BED].update(ms));
 
-      #if HAS_THERMALLY_PROTECTED_BED
+      #if ENABLED(THERMAL_PROTECTION_BED)
         tr_state_machine[RUNAWAY_IND_BED].run(temp_bed.celsius, temp_bed.target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
       #endif
 
