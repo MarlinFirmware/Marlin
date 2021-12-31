@@ -131,13 +131,13 @@
 #ifdef __cplusplus
 
   // C++11 solution that is standards compliant.
-  template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
+  template <class V, class N> static constexpr void NOLESS(V& v, const N n) {
     if (n > v) v = n;
   }
-  template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
+  template <class V, class N> static constexpr void NOMORE(V& v, const N n) {
     if (n < v) v = n;
   }
-  template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
+  template <class V, class N1, class N2> static constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
     if (n1 > v) v = n1;
     else if (n2 < v) v = n2;
   }
@@ -366,7 +366,7 @@
 
 #undef ABS
 #ifdef __cplusplus
-  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
+  template <class T> static constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
 #else
   #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
 #endif
@@ -409,14 +409,14 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
-      template <class L, class R> static inline constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
-      template <class L, class R> static inline constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      template <class L, class R> static constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs > rhs ? lhs : rhs;
       }
-      template<class T, class ... Ts> static inline constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
-      template<class T, class ... Ts> static inline constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
+      template<class T, class ... Ts> static constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
+      template<class T, class ... Ts> static constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
 
     }
 

@@ -35,8 +35,8 @@ public:
       static float smoothing_mm;
     #endif
 
-    static inline void set_correction(const_float_t v) { correction = _MAX(0, _MIN(1.0, v)) * all_on; }
-    static inline float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
+    static void set_correction(const_float_t v) { correction = _MAX(0, _MIN(1.0, v)) * all_on; }
+    static float get_correction() { return float(ui8_to_percent(correction)) / 100.0f; }
   #else
     static constexpr uint8_t correction = (BACKLASH_CORRECTION) * 0xFF;
     static const xyz_float_t distance_mm;
@@ -53,7 +53,7 @@ public:
       static void measure_with_probe();
   #endif
 
-  static inline float get_measurement(const AxisEnum a) {
+  static float get_measurement(const AxisEnum a) {
     UNUSED(a);
     // Return the measurement averaged over all readings
     return TERN(MEASURE_BACKLASH_WHEN_PROBING
@@ -62,12 +62,12 @@ public:
     );
   }
 
-  static inline bool has_measurement(const AxisEnum a) {
+  static bool has_measurement(const AxisEnum a) {
     UNUSED(a);
     return TERN0(MEASURE_BACKLASH_WHEN_PROBING, measured_count[a] > 0);
   }
 
-  static inline bool has_any_measurement() {
+  static bool has_any_measurement() {
     return has_measurement(X_AXIS) || has_measurement(Y_AXIS) || has_measurement(Z_AXIS);
   }
 

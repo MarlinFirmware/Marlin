@@ -824,7 +824,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "LCD_PROGRESS_BAR requires SDSUPPORT or LCD_SET_PROGRESS_MANUALLY."
   #elif NONE(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
     #error "LCD_PROGRESS_BAR only applies to HD44780 character LCD and TFTGLCD_PANEL_(SPI|I2C)."
-  #elif HAS_MARLINUI_U8GLIB
+  #elif HAS_MARLINUI_U8GLIB || IS_DWIN_MARLINUI
     #error "LCD_PROGRESS_BAR does not apply to graphical displays."
   #elif ENABLED(FILAMENT_LCD_DISPLAY)
     #error "LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both."
@@ -2008,8 +2008,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if HAS_FAN0 && CONTROLLER_FAN_PIN == FAN_PIN
-  #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
+#if HAS_FAN0
+  #if CONTROLLER_FAN_PIN == FAN_PIN
+    #error "You cannot set CONTROLLER_FAN_PIN equal to FAN_PIN."
+  #elif ENABLED(FAN_SOFT_PWM_REQUIRED) && DISABLED(FAN_SOFT_PWM)
+    #error "FAN_SOFT_PWM is required. Enable it to continue."
+  #endif
 #endif
 
 #if ENABLED(USE_CONTROLLER_FAN)
@@ -3691,7 +3695,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
   #error "COOLANT_FLOOD requires COOLANT_FLOOD_PIN to be defined."
 #endif
 
-#if NONE(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI) && ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
+#if NONE(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI, IS_DWIN_MARLINUI) && ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
   #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
 #endif
 

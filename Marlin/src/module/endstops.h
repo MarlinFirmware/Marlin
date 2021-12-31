@@ -136,7 +136,7 @@ class Endstops {
       return enabled || TERN0(HAS_BED_PROBE, z_probe_enabled);
     }
 
-    static inline bool global_enabled() { return enabled_globally; }
+    static bool global_enabled() { return enabled_globally; }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -168,7 +168,7 @@ class Endstops {
       ;
     }
 
-    static inline bool probe_switch_activated() {
+    static bool probe_switch_activated() {
       return (true
         #if ENABLED(PROBE_ACTIVATION_SWITCH)
           && READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE
