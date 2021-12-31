@@ -869,10 +869,6 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     #define CHAMBER_FAN_INDEX HOTENDS
   #endif
 
-  #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
-    bool Temperature::autofans_on = false;
-  #endif
-
   void Temperature::update_autofans() {
     #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
     static const uint8_t fanBit[] PROGMEM = {
@@ -920,8 +916,6 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       else                                                \
         WRITE(P##_AUTO_FAN_PIN, D);                       \
     }while(0)
-
-    TERN_(POWER_OFF_WAIT_FOR_COOLDOWN, autofans_on = !!fanState);
 
     uint8_t fanDone = 0;
     LOOP_L_N(f, COUNT(fanBit)) {

@@ -1652,7 +1652,7 @@ void loop() {
 
     queue.advance();
 
-    TERN_(POWER_OFF_TIMER, powerManager.testPowerOffTimer());
+    TERN_(POWER_OFF_TIMER, powerManager.checkAutoPowerOff());
 
     endstops.event_handler();
 

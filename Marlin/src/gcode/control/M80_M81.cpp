@@ -90,7 +90,7 @@ void GcodeSuite::M81() {
     if (parser.seenval('D')) { powerManager.setPowerOffTimer(SEC_TO_MS(parser.value_ushort())); return; }
   #endif
 
-  #if BOTH(HAS_AUTO_FAN, POWER_OFF_WAIT_FOR_COOLDOWN)
+  #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
     if (parser.boolval('S')) { powerManager.setPowerOffOnCooldown(); return; }
   #endif
 
