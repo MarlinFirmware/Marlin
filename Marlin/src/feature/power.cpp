@@ -110,7 +110,7 @@ void Power::power_off() {
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
   psu_on = false;
 
-  #if EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+  #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
     cancelAutoPowerOff();
   #endif
 }
