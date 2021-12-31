@@ -1652,7 +1652,9 @@ void loop() {
 
     queue.advance();
 
-    TERN_(POWER_OFF_TIMER, powerManager.checkAutoPowerOff());
+    #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+      powerManager.checkAutoPowerOff();
+    #endif
 
     endstops.event_handler();
 

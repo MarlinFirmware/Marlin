@@ -87,12 +87,15 @@ void GcodeSuite::M81() {
   LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
 
   #if ENABLED(POWER_OFF_TIMER)
-    if (parser.seenval('D')) { powerManager.setPowerOffTimer(SEC_TO_MS(parser.value_ushort())); return; }
+    bool delay_power_off = false;
+    if (parser.seenval('D')) { powerManager.setPowerOffTimer(SEC_TO_MS(parser.value_ushort())); delay_power_off = true; } // don't return immediately, need to check S1 as well
   #endif
 
   #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
     if (parser.boolval('S')) { powerManager.setPowerOffOnCooldown(); return; }
   #endif
+
+  if (TERN0(POWER_OFF_TIMER, delay_power_off)) return;
 
   safe_delay(1000); // Wait 1 second before switching off
 
