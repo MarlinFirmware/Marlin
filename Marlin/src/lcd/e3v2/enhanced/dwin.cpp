@@ -481,7 +481,7 @@ void Popup_window_PauseOrStop() {
     Draw_Select_Highlight(true);
   DWIN_UpdateLCD();
   }
-  else 
+  else
     DWIN_Popup_ConfirmCancel(ICON_BLTouch, select_print.now == PRINT_PAUSE_RESUME ? GET_TEXT_F(MSG_PAUSE_PRINT) : GET_TEXT_F(MSG_STOP_PRINT));
 }
 
@@ -2015,7 +2015,7 @@ void HMI_LockScreen() {
 #endif
 
 //=============================================================================
-// NEW MENU SUBSYSTEM 
+// NEW MENU SUBSYSTEM
 //=============================================================================
 
 // On click functions
