@@ -1652,7 +1652,7 @@ void loop() {
 
     queue.advance();
 
-    testPowerOffTimer(); // power off if M81 was issued and conditions met
+    TERN_(POWER_OFF_TIMER, powerManager.testPowerOffTimer());
 
     endstops.event_handler();
 
