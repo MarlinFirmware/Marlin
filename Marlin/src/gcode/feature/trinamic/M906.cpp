@@ -112,7 +112,7 @@ void GcodeSuite::M906() {
 
       #if E_STEPPERS
         case E_AXIS: {
-          const int8_t eindex = get_target_e_stepper_from_command();
+          const int8_t eindex = get_target_e_stepper_from_command(-2);
           #if AXIS_IS_TMC(E0)
             if (eindex < 0 || eindex == 0) TMC_SET_CURRENT(E0);
           #endif

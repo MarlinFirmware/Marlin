@@ -291,7 +291,7 @@
           break;
         #if E_STEPPERS
           case E_AXIS: {
-            const int8_t eindex = get_target_e_stepper_from_command();
+            const int8_t eindex = get_target_e_stepper_from_command(-2);
             TERN_(E0_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 0) TMC_SET_PWMTHRS_E(0));
             TERN_(E1_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 1) TMC_SET_PWMTHRS_E(1));
             TERN_(E2_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 2) TMC_SET_PWMTHRS_E(2));
