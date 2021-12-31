@@ -60,32 +60,75 @@ void GcodeSuite::M919() {
   #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
   #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(ct)
 
-  bool report = true;
-  chopper_timing_t ct = CHOPPER_TIMING;
+  bool err = false;
+
+  int8_t toff = int8_t(parser.intval('O', -127));
+  if (toff != -127) {
+    if (WITHIN(toff, 1, 15))
+      DEBUG_ECHOLNPGM(".toff: ", toff);
+    else {
+      SERIAL_ECHOLNPGM("?O out of range (1..15)");
+      err = true;
+    }
+  }
+
+  int8_t hend = int8_t(parser.intval('P', -127));
+  if (hend != -127) {
+    if (WITHIN(hend, -3, 12))
+      DEBUG_ECHOLNPGM(".hend: ", hend);
+    else {
+      SERIAL_ECHOLNPGM("?P out of range (-3..12)");
+      err = true;
+    }
+  }
+
+  int8_t hstrt = int8_t(parser.intval('S', -127));
+  if (hstrt != -127) {
+    if (WITHIN(hstrt, 1, 8))
+      DEBUG_ECHOLNPGM(".hstrt: ", hstrt);
+    else {
+      SERIAL_ECHOLNPGM("?S out of range (1..8)");
+      err = true;
+    }
+  }
+
+  if (err) return;
 
   #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
-    const int8_t index = parser.byteval('I', -1);
+    const int8_t index = parser.byteval('I');
   #else
     constexpr int8_t index = -1;
   #endif
 
+  bool report = true;
+  int8_t eindex = -1;
+
   LOOP_LOGICAL_AXES(i) if (parser.seen_test(axis_codes[i])) {
     report = false;
 
+    chopper_timing_t ct = CHOPPER_TIMING;
+
+    // Get the chopper timing for the specified axis and index
     switch (i) {
-      case X_AXIS:
-        #if AXIS_IS_TMC(X)
-          if (index < 0 || index == 0) ct = CHOPPER_TIMING_X;
-        #endif
-        #if AXIS_IS_TMC(X2)
-          if (index < 0 || index == 1) ct = CHOPPER_TIMING_X2;
-        #endif
+      default: // A specified axis isn't Trinamic
+        SERIAL_ECHOLNPGM("?Axis ", AS_CHAR(axis_codes[i]), " has no TMC drivers.");
         break;
 
-      #if HAS_Y_AXIS
+      #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
+        case X_AXIS:
+          #if AXIS_IS_TMC(X)
+            if (index <= 0) ct = CHOPPER_TIMING_X;
+          #endif
+          #if AXIS_IS_TMC(X2)
+            if (index < 0 || index == 1) ct = CHOPPER_TIMING_X2;
+          #endif
+          break;
+      #endif
+
+      #if AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2)
         case Y_AXIS:
           #if AXIS_IS_TMC(Y)
-            if (index < 0 || index == 0) ct = CHOPPER_TIMING_Y;
+            if (index <= 0) ct = CHOPPER_TIMING_Y;
           #endif
           #if AXIS_IS_TMC(Y2)
             if (index < 0 || index == 1) ct = CHOPPER_TIMING_Y2;
@@ -93,10 +136,10 @@ void GcodeSuite::M919() {
           break;
       #endif
 
-      #if HAS_Z_AXIS
+      #if AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
         case Z_AXIS:
           #if AXIS_IS_TMC(Z)
-            if (index < 0 || index == 0) ct = CHOPPER_TIMING_Z;
+            if (index <= 0) ct = CHOPPER_TIMING_Z;
           #endif
           #if AXIS_IS_TMC(Z2)
             if (index < 0 || index == 1) ct = CHOPPER_TIMING_Z2;
@@ -110,11 +153,21 @@ void GcodeSuite::M919() {
           break;
       #endif
 
-      //Configuration_adv.h does not cover yet chopper times for I, J, K axis
+      #if AXIS_IS_TMC(I)
+        case I_AXIS: if (index <= 0) ct = CHOPPER_TIMING_I; break;
+      #endif
 
-      #if E_STEPPERS
+      #if AXIS_IS_TMC(J)
+        case J_AXIS: if (index <= 0) ct = CHOPPER_TIMING_J; break;
+      #endif
+
+      #if AXIS_IS_TMC(K)
+        case K_AXIS: if (index <= 0) ct = CHOPPER_TIMING_K; break;
+      #endif
+
+      #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
         case E_AXIS: {
-          const int8_t eindex = get_target_e_stepper_from_command();
+          eindex = get_target_e_stepper_from_command(-2);
           #if AXIS_IS_TMC(E0)
             if (eindex < 0 || eindex == 0) ct = CHOPPER_TIMING_E;
           #endif
@@ -141,55 +194,29 @@ void GcodeSuite::M919() {
           #endif
         } break;
       #endif
-      default:
-        ct = CHOPPER_TIMING;
     }
 
-
-    if (parser.seenval('O')) {
-      const uint8_t v = parser.value_byte();
-      if (WITHIN(v, 1, 15)) {
-        ct.toff = v;
-        DEBUG_ECHOLNPGM(".toff: ", v);
-      }
-      else
-        SERIAL_ECHOLNPGM("?O out of range (1..15)");
-    }
-
-    if (parser.seenval('P')) {
-      const int8_t v = (int8_t)constrain(parser.value_long(), -127, 127);
-      if (WITHIN(v, -3, 12)) {
-        ct.hend = v;
-        DEBUG_ECHOLNPGM(".hend: ", v);
-      }
-      else
-        SERIAL_ECHOLNPGM("?P out of range (-3..12)");
-    }
-
-    if (parser.seenval('S')) {
-      const uint8_t v = parser.value_byte();
-      if (WITHIN(v, 1, 8)) {
-        ct.hstrt = v;
-        DEBUG_ECHOLNPGM(".hstrt: ", v);
-      }
-      else
-        SERIAL_ECHOLNPGM("?S out of range (1..8)");
-    }
+    // Apply values from parameters
+    if (toff  != -127) ct.toff  = toff;
+    if (hend  != -127) ct.hend  = hend;
+    if (hstrt != -127) ct.hstrt = hstrt;
 
     switch (i) {
-      case X_AXIS:
-        #if AXIS_IS_TMC(X)
-          if (index < 0 || index == 0) TMC_SET_CHOPPER_TIME(X);
-        #endif
-        #if AXIS_IS_TMC(X2)
-          if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(X2);
-        #endif
-        break;
+      #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
+        case X_AXIS:
+          #if AXIS_IS_TMC(X)
+            if (index <= 0) TMC_SET_CHOPPER_TIME(X);
+          #endif
+          #if AXIS_IS_TMC(X2)
+            if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(X2);
+          #endif
+          break;
+      #endif
 
-      #if HAS_Y_AXIS
+      #if AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2)
         case Y_AXIS:
           #if AXIS_IS_TMC(Y)
-            if (index < 0 || index == 0) TMC_SET_CHOPPER_TIME(Y);
+            if (index <= 0) TMC_SET_CHOPPER_TIME(Y);
           #endif
           #if AXIS_IS_TMC(Y2)
             if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Y2);
@@ -197,10 +224,10 @@ void GcodeSuite::M919() {
           break;
       #endif
 
-      #if HAS_Z_AXIS
+      #if AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
         case Z_AXIS:
           #if AXIS_IS_TMC(Z)
-            if (index < 0 || index == 0) TMC_SET_CHOPPER_TIME(Z);
+            if (index <= 0) TMC_SET_CHOPPER_TIME(Z);
           #endif
           #if AXIS_IS_TMC(Z2)
             if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Z2);
@@ -214,35 +241,22 @@ void GcodeSuite::M919() {
           break;
       #endif
 
-      #if LINEAR_AXES >= 4
-        case I_AXIS:
-          #if AXIS_IS_TMC(I)
-            TMC_SET_CHOPPER_TIME(I);
-          #endif
-          break;
+      #if AXIS_IS_TMC(I)
+        case I_AXIS: TMC_SET_CHOPPER_TIME(I); break;
       #endif
 
-      #if LINEAR_AXES >= 5
-        case J_AXIS:
-          #if AXIS_IS_TMC(J)
-            TMC_SET_CHOPPER_TIME(J);
-          #endif
-          break;
+      #if AXIS_IS_TMC(J)
+        case J_AXIS: TMC_SET_CHOPPER_TIME(J); break;
       #endif
 
-      #if LINEAR_AXES >= 6
-        case K_AXIS:
-          #if AXIS_IS_TMC(K)
-            TMC_SET_CHOPPER_TIME(K);
-          #endif
-          break;
+      #if AXIS_IS_TMC(K)
+        case K_AXIS: TMC_SET_CHOPPER_TIME(K); break;
       #endif
 
-      #if E_STEPPERS
+      #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
         case E_AXIS: {
-          const int8_t eindex = get_target_e_stepper_from_command();
           #if AXIS_IS_TMC(E0)
-            if (eindex < 0 || eindex == 0) TMC_SET_CHOPPER_TIME(E0);
+            if (eindex <= 0) TMC_SET_CHOPPER_TIME(E0);
           #endif
           #if AXIS_IS_TMC(E1)
             if (eindex < 0 || eindex == 1) TMC_SET_CHOPPER_TIME(E1);
