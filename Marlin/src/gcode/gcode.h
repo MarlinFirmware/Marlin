@@ -462,8 +462,6 @@ public:
 
   static void dwell(millis_t time);
 
-  static void power_off();
-
 private:
 
   friend class MarlinSettings;

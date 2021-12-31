@@ -27,7 +27,9 @@
 #include "../inc/MarlinConfig.h"
 
 #include "power.h"
+#include "../module/planner.h"
 #include "../module/stepper.h"
+#include "../module/temperature.h"
 #include "../MarlinCore.h"
 
 #if ENABLED(PS_OFF_SOUND)
@@ -89,7 +91,6 @@ void Power::power_on() {
 /**
  * Power off if the power is currently on.
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
- *
  */
 void Power::power_off() {
   if (!psu_on) return;
@@ -106,6 +107,59 @@ void Power::power_off() {
   psu_on = false;
 }
 
+void Power::user_power_off() {
+
+  planner.finish_and_disable();
+  thermalManager.cooldown();
+
+  print_job_timer.stop();
+
+  #if BOTH(HAS_FAN, PROBING_FANS_OFF)
+    thermalManager.fans_paused = false;
+    ZERO(thermalManager.saved_fan_speed);
+  #endif
+
+  safe_delay(1000); // Wait 1 second before switching off
+
+  #if HAS_SUICIDE
+    suicide();
+  #elif ENABLED(PSU_CONTROL)
+    power_off_soon();
+  #endif
+
+  LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
+}
+
+#if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+
+  millis_t Power::power_off_timer = 0;
+
+  void Power::setPowerOffTimer(const millis_t delay_ms) {
+    power_off_timer = millis() + delay_ms;
+  }
+
+  void Power::cancelPowerOff() {
+    power_off_timer = 0;
+    TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
+  }
+
+  #if HAS_AUTO_FAN
+    bool Power::power_off_on_cooldown = false;
+    void Power::setPowerOffOnCooldown(const bool ena) { power_off_on_cooldown = ena; }
+  #endif
+
+  void Power::testPowerOffTimer() {
+    if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cooldown)) return;
+    if (TERN0(HAS_AUTO_FAN, power_off_on_cooldown && thermalManager.get_autofans_on())) return;
+    if (power_off_timer > 0 && PENDING(millis(), power_off_timer)) return;
+
+    power_off_timer = 0;
+    TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
+
+    user_power_off();
+  }
+
+#endif // POWER_OFF_WAIT_FOR_COOLDOWN
 
 #if ENABLED(AUTO_POWER_CONTROL)
 
@@ -193,7 +247,6 @@ void Power::power_off() {
 
     /**
      * Power off with a delay. Power off is triggered by check() after the delay.
-     *
      */
     void Power::power_off_soon() {
       lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);

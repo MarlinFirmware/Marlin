@@ -37,20 +37,31 @@ class Power {
     static void power_on();
     static void power_off();
 
-  #if ENABLED(AUTO_POWER_CONTROL) && POWER_OFF_DELAY > 0
-    static void power_off_soon();
-  #else
-    static void power_off_soon() { power_off(); }
-  #endif
+    static void user_power_off();
 
-  #if ENABLED(AUTO_POWER_CONTROL)
-    static void check(const bool pause);
+    #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+      static millis_t power_off_timer;
+      static void setPowerOffTimer(const millis_t delay_ms);
+      static void cancelPowerOff();
+      #if HAS_AUTO_FAN
+        static bool power_off_on_cooldown;
+        static void setPowerOffOnCooldown(const bool ena);
+      #endif
+    #endif
 
-    private:
-      static millis_t lastPowerOn;
-      static bool is_power_needed();
+    #if ENABLED(AUTO_POWER_CONTROL) && POWER_OFF_DELAY > 0
+      static void power_off_soon();
+    #else
+      static void power_off_soon() { power_off(); }
+    #endif
 
-  #endif
+    #if ENABLED(AUTO_POWER_CONTROL)
+      static void check(const bool pause);
+
+      private:
+        static millis_t lastPowerOn;
+        static bool is_power_needed();
+    #endif
 };
 
 extern Power powerManager;

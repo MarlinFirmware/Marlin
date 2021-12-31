@@ -61,12 +61,6 @@ bool printJobOngoing();
 bool printingIsPaused();
 void startOrResumeJob();
 
-void setPowerOffTimer(const millis_t delay_ms);
-void cancelPowerOff();
-#if HAS_AUTO_FAN
-  void setPowerOffOnCooldown(const bool ena);
-#endif
-
 extern bool wait_for_heatup;
 
 #if HAS_RESUME_CONTINUE
