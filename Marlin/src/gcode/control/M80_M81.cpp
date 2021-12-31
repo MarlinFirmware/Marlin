@@ -92,7 +92,7 @@ void GcodeSuite::M81() {
   #endif
 
   #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
-    if (parser.boolval('S')) { powerManager.setPowerOffOnCooldown(); return; }
+    if (parser.boolval('S')) { powerManager.setPowerOffOnCooldown(true); return; }
   #endif
 
   if (TERN0(POWER_OFF_TIMER, delay_power_off)) return;

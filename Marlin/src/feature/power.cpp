@@ -149,7 +149,7 @@ void Power::power_off() {
 
   void Power::cancelAutoPowerOff() {
     TERN_(POWER_OFF_TIMER, power_off_time = 0);
-    TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
+    TERN_(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown = false);
   }
 
   void Power::checkAutoPowerOff() {

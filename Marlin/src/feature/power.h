@@ -36,7 +36,7 @@ class Power {
     static void init();
     static void power_on();
     static void power_off();
-
+    
     #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
       #if ENABLED(POWER_OFF_TIMER)
         static millis_t power_off_time;
@@ -62,6 +62,9 @@ class Power {
       private:
         static millis_t lastPowerOn;
         static bool is_power_needed();
+        static bool is_cooling_needed();
+    #elif ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+      private:
         static bool is_cooling_needed();
     #endif
 };
