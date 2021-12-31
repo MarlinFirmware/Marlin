@@ -322,28 +322,27 @@ bool pin_is_protected(const pin_t pin) {
 
 millis_t power_off_timer = 0;
 
-TERN_(HAS_AUTO_FAN, bool power_off_on_cool_down = false);
-
-void setPowerOffTimer(millis_t delay_ms) { power_off_timer = millis() + delay_ms; }
-TERN_(HAS_AUTO_FAN, void setPowerOffOnCoolDown(bool value) { power_off_on_cool_down = value; })
+void setPowerOffTimer(const millis_t delay_ms) { power_off_timer = millis() + delay_ms; }
 
 void cancelPowerOff() {
   power_off_timer = 0;
-  TERN_(HAS_AUTO_FAN, power_off_on_cool_down = false);
+  TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
 }
 
+#if HAS_AUTO_FAN
+  bool power_off_on_cooldown = false;
+  void setPowerOffOnCooldown(const bool ena) { power_off_on_cooldown = ena; }
+#endif
+
 inline void testPowerOffTimer() {
-
-  if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cool_down)) return;
-
-  TERN_(HAS_AUTO_FAN, if (power_off_on_cool_down && Temperature::get_autofans_on()) return);
-
+  if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cooldown)) return;
+  if (TERN0(HAS_AUTO_FAN, power_off_on_cooldown && thermalManager.get_autofans_on())) return;
   if (power_off_timer > 0 && PENDING(millis(), power_off_timer)) return;
 
   power_off_timer = 0;
-  TERN_(HAS_AUTO_FAN, power_off_on_cool_down = false);
+  TERN_(HAS_AUTO_FAN, power_off_on_cooldown = false);
 
-  GcodeSuite::power_off();
+  gcode.power_off();
 }
 
 /**

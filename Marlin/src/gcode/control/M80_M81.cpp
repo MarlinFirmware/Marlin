@@ -81,21 +81,19 @@ void GcodeSuite::M81() {
   TERN_(HAS_AUTO_FAN, bool wait_for_fans = parser.boolval('S', false));
 
   setPowerOffTimer(SEC_TO_MS(delay_s));
-  TERN_(HAS_AUTO_FAN, setPowerOffOnCoolDown(wait_for_fans));
+  TERN_(HAS_AUTO_FAN, if (wait_for_fans) setPowerOffOnCooldown());
 }
 
-void GcodeSuite::power_off(){
+void GcodeSuite::power_off() {
 
   planner.finish_and_disable();
   thermalManager.cooldown();
 
   print_job_timer.stop();
 
-  #if HAS_FAN
-    #if ENABLED(PROBING_FANS_OFF)
-      thermalManager.fans_paused = false;
-      ZERO(thermalManager.saved_fan_speed);
-    #endif
+  #if BOTH(HAS_FAN, PROBING_FANS_OFF)
+    thermalManager.fans_paused = false;
+    ZERO(thermalManager.saved_fan_speed);
   #endif
 
   safe_delay(1000); // Wait 1 second before switching off
