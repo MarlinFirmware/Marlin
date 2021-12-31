@@ -871,8 +871,6 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 
   bool Temperature::autofans_on = false;
 
-  bool Temperature::get_autofans_on() { return autofans_on; }
-
   void Temperature::update_autofans() {
     #define _EFAN(B,A) _EFANOVERLAP(A,B) ? B :
     static const uint8_t fanBit[] PROGMEM = {
@@ -921,7 +919,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
         WRITE(P##_AUTO_FAN_PIN, D);                       \
     }while(0)
 
-    autofans_on = fanState > 0;
+    autofans_on = !!fanState;
 
     uint8_t fanDone = 0;
     LOOP_L_N(f, COUNT(fanBit)) {

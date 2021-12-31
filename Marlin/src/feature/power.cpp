@@ -150,7 +150,7 @@ void Power::user_power_off() {
 
   void Power::testPowerOffTimer() {
     if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cooldown)) return;
-    if (TERN0(HAS_AUTO_FAN, power_off_on_cooldown && thermalManager.get_autofans_on())) return;
+    if (TERN0(HAS_AUTO_FAN, power_off_on_cooldown && thermalManager.autofans_on)) return;
     if (power_off_timer > 0 && PENDING(millis(), power_off_timer)) return;
 
     power_off_timer = 0;

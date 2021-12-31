@@ -968,10 +968,6 @@ class Temperature {
       static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
     #endif
 
-    #if HAS_AUTO_FAN
-      static bool get_autofans_on();
-    #endif
-
   private:
 
     // Reading raw temperatures and converting to Celsius when ready
