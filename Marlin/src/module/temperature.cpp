@@ -196,7 +196,7 @@
 Temperature thermalManager;
 
 PGMSTR(str_t_thermal_runaway, STR_T_THERMAL_RUNAWAY);
-PGMSTR(str_t_temp_not_updating, STR_T_TEMP_NOT_UPDATING);
+PGMSTR(str_t_temp_malfunction, STR_T_MALFUNCTION);
 PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 
 /**
@@ -2572,7 +2572,7 @@ void Temperature::init() {
     */
 
     #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
-      if (state == TRTempNotUpdating) { // temperature invariance may continue, regardless of heater state
+      if (state == TRMalfunction) { // temperature invariance may continue, regardless of heater state
         variance += ABS(current - last_temp); // no need for detection window now, a single change in variance is enough
         last_temp = current;
         if (!NEAR_ZERO(variance)) {
@@ -2581,29 +2581,21 @@ void Temperature::init() {
           state = TRStable; // resume from where we detected the problem
         }
       }
-
-      if (state == TRTempNotUpdating) { 
-      } else
     #endif
-    #if HEATER_IDLE_HANDLER
+
+    if (TERN1(THERMAL_PROTECTION_VARIANCE_MONITOR, state != TRMalfunction)) {
       // If the heater idle timeout expires, restart
-      if (heater_idle[idle_index].timed_out) {
+      if (TERN0(HEATER_IDLE_HANDLER, heater_idle[idle_index].timed_out)) {
         state = TRInactive;
         running_temp = 0;
         TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer = 0);
       }
-      else
-    #endif
-    {
-      // If the target temperature changes, restart
-      if (running_temp != target) {
+      else if (running_temp != target) { // If the target temperature changes, restart
         running_temp = target;
         state = target > 0 ? TRFirstHeating : TRInactive;
         TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer = 0);
       }
     }
-
-    millis_t now;
 
     switch (state) {
       // Inactive state waits for a target temperature to be set
@@ -2615,7 +2607,7 @@ void Temperature::init() {
         state = TRStable;
 
       // While the temperature is stable watch for a bad temperature
-      case TRStable:
+      case TRStable: {
 
         #if ENABLED(ADAPTIVE_FAN_SLOWING)
           if (adaptive_fan_slowing && heater_id >= 0) {
@@ -2632,8 +2624,8 @@ void Temperature::init() {
               fan_speed_scaler[fan_index] = 0;
           }
         #endif
-        
-        now = millis();
+
+        const millis_t now = millis();
 
         #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
           if (PENDING(now, variance_timer)) {
@@ -2641,8 +2633,8 @@ void Temperature::init() {
             last_temp = current;
           }
           else {
-            if (NEAR_ZERO(variance) && variance_timer > 0) { // valid variance monitoring window
-              state = TRTempNotUpdating;
+            if (NEAR_ZERO(variance) && variance_timer) { // valid variance monitoring window
+              state = TRMalfunction;
               break;
             }
             variance_timer = now + SEC_TO_MS(period_seconds);
@@ -2658,14 +2650,16 @@ void Temperature::init() {
         else if (PENDING(now, timer)) break;
         state = TRRunaway;
 
+      } // fall through
+
       case TRRunaway:
         TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
         _temp_error(heater_id, FPSTR(str_t_thermal_runaway), GET_TEXT_F(MSG_THERMAL_RUNAWAY));
 
       #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
-        case TRTempNotUpdating:
+        case TRMalfunction:
           TERN_(HAS_DWIN_E3V2_BASIC, DWIN_Popup_Temperature(0));
-          _temp_error(heater_id, FPSTR(str_t_temp_not_updating), GET_TEXT_F(MSG_TEMP_NOT_UPDATING));
+          _temp_error(heater_id, FPSTR(str_t_temp_malfunction), GET_TEXT_F(MSG_TEMP_MALFUNCTION));
       #endif
     }
   }
