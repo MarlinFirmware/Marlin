@@ -52,8 +52,6 @@
       return;
     }
 
-    powerManager.cancelPowerOff(); // cancel any pending poweroff
-
     powerManager.power_on();
 
     /**

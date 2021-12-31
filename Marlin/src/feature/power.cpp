@@ -77,7 +77,9 @@ void Power::power_on() {
 
   if (psu_on) return;
 
-  TERN_(POWER_OFF_TIMER, cancelPowerOff());
+  #if ENABLED(POWER_OFF_TIMER) || BOTH(HAS_AUTO_FAN, POWER_OFF_WAIT_FOR_COOLDOWN)
+    cancelPowerOff();
+  #endif
 
   OUT_WRITE(PS_ON_PIN, PSU_ACTIVE_STATE);
   psu_on = true;
@@ -120,7 +122,7 @@ void Power::power_off() {
     }
 
     void Power::testPowerOffTimer() {
-      if (power_off_timer == 0 && TERN1(HAS_AUTO_FAN, !power_off_on_cooldown)) return;
+      if (!power_off_timer && TERN1(HAS_AUTO_FAN, !power_off_on_cooldown)) return;
       if (TERN0(HAS_AUTO_FAN, power_off_on_cooldown && thermalManager.autofans_on)) return;
       if (power_off_timer > 0 && PENDING(millis(), power_off_timer)) return;
 
