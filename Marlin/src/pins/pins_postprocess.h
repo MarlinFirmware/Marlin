@@ -456,9 +456,13 @@
   #define TEMP_BED_PIN -1
 #endif
 
-// Use ATEMP if TEMP_SOC_PIN is not defined
-#if !defined(TEMP_SOC_PIN) && defined(ATEMP)
-  #define TEMP_SOC_PIN ATEMP
+// Get TEMP_SOC_PIN from the platform, if not defined
+#ifndef TEMP_SOC_PIN
+  #ifdef ATEMP
+    #define TEMP_SOC_PIN ATEMP
+  #elif defined(HAL_ADC_MCU_TEMP_DUMMY_PIN)
+    #define TEMP_SOC_PIN HAL_ADC_MCU_TEMP_DUMMY_PIN
+  #endif
 #endif
 
 #ifndef SD_DETECT_PIN
