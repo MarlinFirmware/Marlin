@@ -1985,7 +1985,7 @@
   // if purge/clean station is mounted to an axis, we can choose to only
   // first home that axis. (eg X) to avoid dropping dripping filiment on board. (eg when nozzel moves toward bed)
   #if EITHER(NOZZLE_CLEAN_NO_Z, NOZZLE_CLEAN_NO_Y)
-    #define NOZZLE_CLEAN_HOME_ONLY X_AXIS
+    //#define NOZZLE_CLEAN_HOME_ONLY X_AXIS
   #endif
 
   // Explicit wipe G-code script applies to a G12 with no arguments.
