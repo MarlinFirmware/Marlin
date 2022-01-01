@@ -535,6 +535,13 @@
 #define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
 
 //
+// Raspberry Pi
+//
+
+#define BOARD_RP2040                  6200 // Generic RP2040 Test board
+#define BOARD_BTT_SKR_PICO            6201 // BigTreeTech SKR Pico 1.x
+
+//
 // Custom board
 //
 
