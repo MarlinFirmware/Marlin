@@ -54,6 +54,8 @@ typedef struct LEDColor {
     OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS))
   {}
 
+  LEDColor(const LEDColor&) = default;
+
   LEDColor(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w=0) OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS))
     : r(r), g(g), b(b) OPTARG(HAS_WHITE_LED, w(w)) OPTARG(NEOPIXEL_LED, i(i)) {}
 
@@ -65,11 +67,6 @@ typedef struct LEDColor {
   LEDColor& operator=(const uint8_t (&rgbw)[4]) {
     r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
     TERN_(HAS_WHITE_LED, w = rgbw[3]);
-    return *this;
-  }
-
-  LEDColor& operator=(const LEDColor &right) {
-    if (this != &right) memcpy(this, &right, sizeof(LEDColor));
     return *this;
   }
 
