@@ -471,6 +471,16 @@
       return *str ? findStringEnd(str + 1) : str;
     }
 
+    // Check whether a string begins with the specified substring
+    constexpr bool startsWith(const char *str, const char *substr) {
+      return (*substr == 0) || ((*str != 0) && *str == *substr && startsWith(str + 1, substr + 1));
+    }
+
+    // Check whether a string contains a specified substring
+    constexpr bool contains(const char *str, const char *substr) {
+      return *str && (startsWith(str, substr) || contains(str + 1, substr));
+    }
+
     // Check whether a string contains a specific character
     constexpr bool contains(const char *str, const char ch) {
       return *str == ch ? true : (*str ? contains(str + 1, ch) : false);
