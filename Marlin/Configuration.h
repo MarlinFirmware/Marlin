@@ -1976,6 +1976,12 @@
   #define NOZZLE_CLEAN_MIN_TEMP 170
   //#define NOZZLE_CLEAN_HEATUP       // Heat up the nozzle instead of skipping wipe
 
+  // if purge/clean station is mounted to an axis, we can choose to only
+  // first home that axis. (eg X) to avoid dropping dripping filiment on board. (eg when nozzel moves toward bed)
+  #if EITHER(NOZZLE_CLEAN_NO_Z, NOZZLE_CLEAN_NO_Y)
+    #define NOZZLE_CLEAN_HOME_ONLY X_AXIS
+  #endif
+
   // Explicit wipe G-code script applies to a G12 with no arguments.
   //#define WIPE_SEQUENCE_COMMANDS "G1 X-17 Y25 Z10 F4000\nG1 Z1\nM114\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 Z15\nM400\nG0 X-10.0 Y-9.0"
 
