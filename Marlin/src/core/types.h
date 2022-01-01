@@ -126,9 +126,9 @@ typedef struct AxisFlags {
   void set(const int n, const bool onoff)  { flags.set(n, onoff); }
   void clear(const int n)                  { flags.clear(n); }
   bool test(const int n) const             { return flags.test(n); }
-        bool operator[](const int n)       { return flags[n]; }
-  const bool operator[](const int n) const { return flags[n]; }
-  const int size() const                   { return sizeof(flags); }
+  bool operator[](const int n)             { return flags[n]; }
+  bool operator[](const int n) const       { return flags[n]; }
+  int size() const                         { return sizeof(flags); }
 } axis_flags_t;
 
 //
