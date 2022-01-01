@@ -28,6 +28,8 @@
 
 #if ENABLED(SDIO_SUPPORT)
 
+#include "sdio.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -48,14 +50,6 @@
 #else
   #error "SDIO only supported with STM32F103xE, STM32F103xG, STM32F4xx, or STM32F7xx."
 #endif
-
-// Fixed
-#define SDIO_D0_PIN   PC8
-#define SDIO_D1_PIN   PC9
-#define SDIO_D2_PIN   PC10
-#define SDIO_D3_PIN   PC11
-#define SDIO_CK_PIN   PC12
-#define SDIO_CMD_PIN  PD2
 
 SD_HandleTypeDef hsd;  // create SDIO structure
 // F4 supports one DMA for RX and another for TX, but Marlin will never

@@ -486,7 +486,7 @@ namespace Language_ro {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INCORRECT PRINTER");
 
-#if LCD_WIDTH >= 20
+#if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Total Printuri");
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completat");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Timp Imprimare Total");

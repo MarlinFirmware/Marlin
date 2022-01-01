@@ -184,14 +184,14 @@
 #endif
 
 /**
- *               BTT E3 RRF
- *                 -----
- *             5V | 1 2 | GND
- *  (LCD_EN) PE11 | 3 4 | PB1  (LCD_RS)
- *  (LCD_D4) PE10 | 5 6   PB2  (BTN_EN2)
- *          RESET | 7 8 | PE7  (BTN_EN1)
- * (BTN_ENC) PE9  | 9 10| PE8  (BEEPER)
- *                 -----
+ *              BTT E3 RRF
+ *                ------
+ * (BEEPER)  PE8 |10  9 | PE9  (BTN_ENC)
+ * (BTN_EN1) PE7 | 8  7 | RESET
+ * (BTN_EN2) PB2   6  5 | PE10 (LCD_D4)
+ * (LCD_RS)  PB1 | 4  3 | PE11 (LCD_EN)
+ *           GND | 2  1 | 5V
+ *                ------
  *                 EXP1
  */
 
@@ -244,15 +244,15 @@
       /**
        * TFTGLCD_PANEL_SPI display pinout
        *
-       *               Board                                      Display
-       *               -----                                       -----
-       *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
-       * (FREE)  PE11 | 3 4 | PB1  (LCD_CS)      (PE7)     LCD_CS | 3 4 | SD_CS (PB2)
-       * (FREE)  PE10 | 5 6 | PB2  (SD_CS)                 (FREE) | 5 6 | MOSI  (SPI1-MOSI)
-       *        RESET | 7 8 | PE7  (MOD_RESET)   (PE8)     SD_DET | 7 8 | (FREE)
-       * (BEEPER) PE9 | 9 10| PE8  (SD_DET)                   GND | 9 10| 5V
-       *               -----                                       -----
-       *                EXP1                                        EXP1
+       *                  Board                       Display
+       *                  ------                       ------
+       * (SD_DET)    PE8 |10  9 | PE9 (BEEPER)     5V |10  9 | GND
+       * (MOD_RESET) PE7 | 8  7 | RESET            -- | 8  7 | (SD_DET)
+       * (SD_CS)     PB2   6  5 | PE10        (MOSI)    6  5 | --
+       * (LCD_CS)    PB1 | 4  3 | PE11        (SD_CS) | 4  3 | (LCD_CS)
+       *             GND | 2  1 | 5V          (SCK)   | 2  1 | (MISO)
+       *                  ------                       ------
+       *                   EXP1                         EXP1
        *
        * Needs custom cable:
        *
@@ -293,15 +293,15 @@
 
   /** FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                      Display
-   *               -----                                       -----
-   *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
-   * (FREE)  PE11 | 3 4 | PB1  (LCD_CS)      (PE7)  MOD_RESET | 3 4 | SD_CS (PB2)
-   * (FREE)  PE10 | 5 6 | PB2  (SD_CS)       (PB1)     LCD_CS | 5 6 | MOSI  (SPI1-MOSI)
-   *        RESET | 7 8 | PE7  (MOD_RESET)   (PE8)     SD_DET | 7 8 | RESET
-   * (BEEPER) PE9 | 9 10| PE8  (SD_DET)                   GND | 9 10| 5V
-   *               -----                                       -----
-   *                EXP1                                        EXP1
+   *                  Board                          Display
+   *                  ------                          ------
+   * (SD_DET)    PE8 |10  9 | PE9 (BEEPER)        5V |10  9 | GND
+   * (MOD_RESET) PE7 | 8  7 | RESET            RESET | 8  7 | (SD_DET)
+   * (SD_CS)     PB2   6  5 | PE10           (MOSI)  | 6  5 | (LCD_CS)
+   * (LCD_CS)    PB1 | 4  3 | PE11           (SD_CS) | 4  3 | (MOD_RESET)
+   *             GND | 2  1 | 5V             (SCK)   | 2  1 | (MISO)
+   *                  ------                          ------
+   *                   EXP1                            EXP1
    *
    * Needs custom cable:
    *
@@ -338,13 +338,6 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
-  #define SDIO_D0_PIN                       PC8
-  #define SDIO_D1_PIN                       PC9
-  #define SDIO_D2_PIN                       PC10
-  #define SDIO_D3_PIN                       PC11
-  #define SDIO_CK_PIN                       PC12
-  #define SDIO_CMD_PIN                      PD2
-
   //#define SDIO_CLOCK                  48000000
   #define SD_DETECT_PIN                     PC4
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

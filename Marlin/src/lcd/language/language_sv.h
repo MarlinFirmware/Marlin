@@ -44,7 +44,7 @@ namespace Language_sv {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Media Instatt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media Borttaget");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Väntar på media");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("SD init misslyckades");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Media init misslyckades");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Media läsningsfel");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB enhet borttagen");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start misslyckad");
@@ -523,7 +523,7 @@ namespace Language_sv {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Ljus ljusstyrka");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INKORREKT SKRIVARE");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Utskriftsantal");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Färdiga");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total Utskriftstid");

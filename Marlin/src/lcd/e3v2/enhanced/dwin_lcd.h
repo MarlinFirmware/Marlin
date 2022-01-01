@@ -24,7 +24,7 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.7.1
+ * Version: 3.8.1
  * Date: 2021/11/09
  */
 

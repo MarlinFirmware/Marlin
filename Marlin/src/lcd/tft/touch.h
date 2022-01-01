@@ -106,7 +106,7 @@ class Touch {
     static millis_t last_touch_ms, time_to_hold, repeat_delay, touch_time;
     static TouchControlType touch_control_type;
 
-    static inline bool get_point(int16_t *x, int16_t *y);
+    static bool get_point(int16_t *x, int16_t *y);
     static void touch(touch_control_t *control);
     static void hold(touch_control_t *control, millis_t delay = 0);
 
@@ -126,7 +126,7 @@ class Touch {
     static void enable() { enabled = true; }
     #if HAS_TOUCH_SLEEP
       static millis_t next_sleep_ms;
-      static inline bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
+      static bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
       static void sleepTimeout();
       static void wakeUp();
     #endif

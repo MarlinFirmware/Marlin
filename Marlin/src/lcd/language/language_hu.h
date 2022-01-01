@@ -47,7 +47,7 @@ namespace Language_hu {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tároló behelyezve");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tároló eltávolítva");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Várakozás a tárolóra");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("SD-kártya hiba");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Tároló-kártya hiba");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Tároló olvasási hiba");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB eltávolítva");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB eszköz hiba");
@@ -553,7 +553,7 @@ namespace Language_hu {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Fényerösség");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("HELYTELEN NYOMTATÓ");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Nyomtatás számláló");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Befejezett");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Összes nyomtatási idö");

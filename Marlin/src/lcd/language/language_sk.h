@@ -56,7 +56,7 @@ namespace Language_sk {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Karta vložená");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Karta vybraná");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Čakám na kartu");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("Inicial. SD zlyhala");
+  LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Inicial. SD zlyhala");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čítania karty");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB zaria. odstrán.");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba spúšťania USB");
@@ -575,7 +575,7 @@ namespace Language_sk {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Jas svetla");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Nesprávna tlačiareň");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Počet tlačí");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Dokončené");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Celkový čas");

@@ -90,14 +90,19 @@
 
 #define FAN_PIN                             PA15  // pin 77 (4cm Fan)
 #ifdef MAPLE_STM32F1
-  #define FAN_SOFT_PWM                            // Required to avoid issues with heating or STLink
-  #define FAN_MIN_PWM                         35  // Fan will not start in 1-30 range
-  #define FAN_MAX_PWM                        255
+  #define FAN_SOFT_PWM_REQUIRED
+  #if ENABLED(FAN_SOFT_PWM) && FAN_MIN_PWM < 35   // Required to avoid issues with heating or STLink
+    #error "FAN_MIN_PWM must be 35 or higher."    // Fan will not start in 1-30 range
+  #endif
+#elif ENABLED(FAST_PWM_FAN)
+  #if FAST_PWM_FAN_FREQUENCY != 31400             // Default 1000 is noisy, max 65K (uint16)
+    #error "FAST_PWM_FAN_FREQUENCY must be set to 31400."
+  #endif
+  #if FAN_MIN_PWM < 5
+    #error "FAN_MIN_PWM must be 5 or higher."
+  #endif
 #else
-  #define FAST_PWM_FAN                            // STM32 Variant allow TIMER2 Hardware PWM
-  #define FAST_PWM_FAN_FREQUENCY           31400  // This frequency allow a good range, fan starts at 3%, half noise at 50%
-  #define FAN_MIN_PWM                          5
-  #define FAN_MAX_PWM                        255
+  #error "FAST_PWM_FAN required to allow TIMER2 Hardware PWM."
 #endif
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor

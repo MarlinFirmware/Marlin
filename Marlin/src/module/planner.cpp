@@ -1309,7 +1309,7 @@ void Planner::check_axes_activity() {
   #endif
 
   #if HAS_TAIL_FAN_SPEED
-    static uint8_t tail_fan_speed[FAN_COUNT];
+    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 255);
     bool fans_need_update = false;
   #endif
 

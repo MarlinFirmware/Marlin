@@ -57,8 +57,8 @@ namespace Language_en {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Aborting...");
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_EN _UxGT(" Inserted");
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_EN _UxGT(" Removed");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Waiting for card");
-  LSTR MSG_SD_INIT_FAIL                   = _UxGT("SD Init Fail");
+  LSTR MSG_MEDIA_WAITING                  = _UxGT("Waiting for ") MEDIA_TYPE_EN;
+  LSTR MSG_MEDIA_INIT_FAIL                = MEDIA_TYPE_EN _UxGT(" Init Fail");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" read error");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB device removed");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start failed");
@@ -75,6 +75,9 @@ namespace Language_en {
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
   LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
+  LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
+  LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
   LSTR MSG_FILAMENT_SET                   = _UxGT("Filament Settings");
   LSTR MSG_FILAMENT_MAN                   = _UxGT("Filament Management");
   LSTR MSG_LEVBED_FL                      = _UxGT("Front Left");
@@ -83,6 +86,7 @@ namespace Language_en {
   LSTR MSG_LEVBED_BL                      = _UxGT("Back Left");
   LSTR MSG_LEVBED_BR                      = _UxGT("Back Right");
   LSTR MSG_MANUAL_MESH                    = _UxGT("Manual Mesh");
+  LSTR MSG_AUTO_MESH                      = _UxGT("Auto Build Mesh");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto Z-Align");
   LSTR MSG_ITERATION                      = _UxGT("G34 Iteration: %i");
   LSTR MSG_DECREASING_ACCURACY            = _UxGT("Accuracy Decreasing!");
@@ -426,6 +430,11 @@ namespace Language_en {
   LSTR MSG_BUTTON_BACK                    = _UxGT("Back");
   LSTR MSG_BUTTON_PROCEED                 = _UxGT("Proceed");
   LSTR MSG_BUTTON_SKIP                    = _UxGT("Skip");
+  LSTR MSG_BUTTON_INFO                    = _UxGT("Info");
+  LSTR MSG_BUTTON_LEVEL                   = _UxGT("Level");
+  LSTR MSG_BUTTON_PAUSE                   = _UxGT("Pause");
+  LSTR MSG_BUTTON_RESUME                  = _UxGT("Resume");
+  LSTR MSG_BUTTON_ADVANCED                = _UxGT("Advanced");
   LSTR MSG_PAUSING                        = _UxGT("Pausing...");
   LSTR MSG_PAUSE_PRINT                    = _UxGT("Pause Print");
   LSTR MSG_RESUME_PRINT                   = _UxGT("Resume Print");
@@ -491,6 +500,7 @@ namespace Language_en {
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("Stow");
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("Deploy");
   LSTR MSG_BLTOUCH_SW_MODE                = _UxGT("SW-Mode");
+  LSTR MSG_BLTOUCH_SPEED_MODE             = _UxGT("High Speed");
   LSTR MSG_BLTOUCH_5V_MODE                = _UxGT("5V-Mode");
   LSTR MSG_BLTOUCH_OD_MODE                = _UxGT("OD-Mode");
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("Mode-Store");
@@ -576,7 +586,8 @@ namespace Language_en {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INCORRECT PRINTER");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Print Count");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completed");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total Print Time");

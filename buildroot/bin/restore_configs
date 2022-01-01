@@ -2,4 +2,4 @@
 
 git checkout Marlin/Configuration*.h 2>/dev/null
 git checkout Marlin/src/pins/ramps/pins_RAMPS.h 2>/dev/null
-rm -f Marlin/_Bootscreen.h Marlin/_Statusscreen.h
+rm -f Marlin/_Bootscreen.h Marlin/_Statusscreen.h marlin_config.json .pio/build/mc.zip
