@@ -3459,8 +3459,8 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #endif
 
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
-  #if NONE(HAS_MOTOR_CURRENT_DAC, HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC, HAS_TRINAMIC_CONFIG, HAS_MOTOR_CURRENT_PWM)
-    #error "Adjustable current drivers are highly recommended to prevent damage. Comment out this line to continue anyway."
+  #if NUM_Z_STEPPER_DRIVERS < 2
+    #error "MECHANICAL_GANTRY_CALIBRATION requires NUM_Z_STEPPER_DRIVERS greater than 1."
   #elif !defined(GANTRY_CALIBRATION_CURRENT)
     #error "MECHANICAL_GANTRY_CALIBRATION Requires GANTRY_CALIBRATION_CURRENT to be set."
   #elif !defined(GANTRY_CALIBRATION_EXTRA_HEIGHT)
@@ -3471,9 +3471,10 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #error "Sorry! MECHANICAL_GANTRY_CALIBRATION cannot be used with Z_MULTI_ENDSTOPS."
   #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
     #error "Sorry! MECHANICAL_GANTRY_CALIBRATION cannot be used with Z_STEPPER_AUTO_ALIGN."
-  #endif
-  #if defined(GANTRY_CALIBRATION_SAFE_POSITION) && !defined(GANTRY_CALIBRATION_XY_PARK_FEEDRATE)
+  #elif defined(GANTRY_CALIBRATION_SAFE_POSITION) && !defined(GANTRY_CALIBRATION_XY_PARK_FEEDRATE)
     #error "GANTRY_CALIBRATION_SAFE_POSITION Requires GANTRY_CALIBRATION_XY_PARK_FEEDRATE to be set."
+  #elif NONE(HAS_MOTOR_CURRENT_DAC, HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC, HAS_TRINAMIC_CONFIG, HAS_MOTOR_CURRENT_PWM)
+    #error "Adjustable current drivers are highly recommended to prevent damage. Comment out this line to continue anyway."
   #endif
 #endif
 
