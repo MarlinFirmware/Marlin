@@ -2395,28 +2395,28 @@
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
 #define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && NONE(TEMP_SENSOR_##P##_IS_MAX_TC, TEMP_SENSOR_##P##_IS_DUMMY))
-#if HAS_ADC_TEST(0)
+#if HOTENDS > 0 && HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
-#if HAS_ADC_TEST(1)
+#if HOTENDS > 1 && HAS_ADC_TEST(1)
   #define HAS_TEMP_ADC_1 1
 #endif
-#if HAS_ADC_TEST(2)
+#if HOTENDS > 2 && HAS_ADC_TEST(2)
   #define HAS_TEMP_ADC_2 1
 #endif
-#if HAS_ADC_TEST(3)
+#if HOTENDS > 3 && HAS_ADC_TEST(3)
   #define HAS_TEMP_ADC_3 1
 #endif
-#if HAS_ADC_TEST(4)
+#if HOTENDS > 4 && HAS_ADC_TEST(4)
   #define HAS_TEMP_ADC_4 1
 #endif
-#if HAS_ADC_TEST(5)
+#if HOTENDS > 5 && HAS_ADC_TEST(5)
   #define HAS_TEMP_ADC_5 1
 #endif
-#if HAS_ADC_TEST(6)
+#if HOTENDS > 6 && HAS_ADC_TEST(6)
   #define HAS_TEMP_ADC_6 1
 #endif
-#if HAS_ADC_TEST(7)
+#if HOTENDS > 7 && HAS_ADC_TEST(7)
   #define HAS_TEMP_ADC_7 1
 #endif
 #if HAS_ADC_TEST(BED)
