@@ -202,6 +202,7 @@ namespace Language_el {
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Αποτυχία θέρμανσης");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("ΠΛΕΟΝΑΖΟΥΣΑ ΘΕΡΜΟΤΗΤΑ");
   LSTR MSG_THERMAL_RUNAWAY                = _UxGT("ΘΕΡΜΙΚΗ ΔΙΑΦΥΓΗ");
+  LSTR MSG_TEMP_MALFUNCTION               = _UxGT("ΘΕΡΜΙΚΗ ΔΥΣΛΕΙΤΟΥΡΓΙΑ");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("ΠΕΡΙΤΤΗ ΘΕΡΜΟΚΡΑΣΙΑ");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("ΑΝΕΠΑΡΚΗΣ ΘΕΡΜΟΚΡΑΣΙΑ");
   LSTR MSG_HALTED                         = _UxGT("Εκτυπωτής διεκόπη");

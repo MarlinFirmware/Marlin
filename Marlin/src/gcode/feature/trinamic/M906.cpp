@@ -63,16 +63,18 @@ void GcodeSuite::M906() {
   LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
     report = false;
     switch (i) {
-      case X_AXIS:
-        #if AXIS_IS_TMC(X)
-          if (index < 0 || index == 0) TMC_SET_CURRENT(X);
-        #endif
-        #if AXIS_IS_TMC(X2)
-          if (index < 0 || index == 1) TMC_SET_CURRENT(X2);
-        #endif
-        break;
+      #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
+        case X_AXIS:
+          #if AXIS_IS_TMC(X)
+            if (index < 0 || index == 0) TMC_SET_CURRENT(X);
+          #endif
+          #if AXIS_IS_TMC(X2)
+            if (index < 0 || index == 1) TMC_SET_CURRENT(X2);
+          #endif
+          break;
+      #endif
 
-      #if HAS_Y_AXIS
+      #if AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2)
         case Y_AXIS:
           #if AXIS_IS_TMC(Y)
             if (index < 0 || index == 0) TMC_SET_CURRENT(Y);
@@ -83,7 +85,7 @@ void GcodeSuite::M906() {
           break;
       #endif
 
-      #if HAS_Z_AXIS
+      #if AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
         case Z_AXIS:
           #if AXIS_IS_TMC(Z)
             if (index < 0 || index == 0) TMC_SET_CURRENT(Z);
@@ -110,9 +112,9 @@ void GcodeSuite::M906() {
         case K_AXIS: TMC_SET_CURRENT(K); break;
       #endif
 
-      #if E_STEPPERS
+      #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
         case E_AXIS: {
-          const int8_t eindex = get_target_e_stepper_from_command();
+          const int8_t eindex = get_target_e_stepper_from_command(-2);
           #if AXIS_IS_TMC(E0)
             if (eindex < 0 || eindex == 0) TMC_SET_CURRENT(E0);
           #endif
