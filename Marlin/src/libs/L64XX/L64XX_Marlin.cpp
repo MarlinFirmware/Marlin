@@ -497,7 +497,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       } break;
     #endif
 
-    #if LINEAR_AXES >= 4
+    #if HAS_I_AXIS
       case AXIS4_NAME: {
         position_min = I_center - displacement;
         position_max = I_center + displacement;
@@ -509,7 +509,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       } break;
     #endif
 
-    #if LINEAR_AXES >= 5
+    #if HAS_J_AXIS
       case AXIS5_NAME: {
         position_min = J_center - displacement;
         position_max = J_center + displacement;
@@ -521,7 +521,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
       } break;
     #endif
 
-    #if LINEAR_AXES >= 6
+    #if HAS_K_AXIS
       case AXIS6_NAME: {
         position_min = K_center - displacement;
         position_max = K_center + displacement;

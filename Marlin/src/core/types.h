@@ -98,10 +98,10 @@ enum AxisEnum : uint8_t {
 
   // A, B, and C are for DELTA, SCARA, etc.
   , A_AXIS = X_AXIS
-  #if LINEAR_AXES >= 2
+  #if HAS_Y_AXIS
     , B_AXIS = Y_AXIS
   #endif
-  #if LINEAR_AXES >= 3
+  #if HAS_Z_AXIS
     , C_AXIS = Z_AXIS
   #endif
 
@@ -408,13 +408,13 @@ struct XYZval {
       FI void set(const T (&arr)[DISTINCT_AXES])       { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5]); }
     #endif
   #endif
-  #if LINEAR_AXES >= 4
+  #if HAS_I_AXIS
     FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
   #endif
-  #if LINEAR_AXES >= 5
+  #if HAS_J_AXIS
     FI void set(const T px, const T py, const T pz, const T pi)             { x = px; y = py; z = pz; i = pi; }
   #endif
-  #if LINEAR_AXES >= 6
+  #if HAS_K_AXIS
     FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
   #endif
 
@@ -549,13 +549,13 @@ struct XYZEval {
     FI void set(const XYZval<T> pxyz, const T pe)  { set(pxyz); e = pe; }
     FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, u = i, v = j, w = k); }
   #endif
-  #if LINEAR_AXES >= 4
+  #if HAS_I_AXIS
     FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
   #endif
-  #if LINEAR_AXES >= 5
+  #if HAS_J_AXIS
     FI void set(const T px, const T py, const T pz, const T pi)             { x = px; y = py; z = pz; i = pi; }
   #endif
-  #if LINEAR_AXES >= 6
+  #if HAS_K_AXIS
     FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
   #endif
 

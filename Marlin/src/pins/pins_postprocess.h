@@ -477,7 +477,7 @@
   #endif
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #ifdef I_STOP_PIN
     #if I_HOME_TO_MIN
       #define I_MIN_PIN I_STOP_PIN
@@ -500,7 +500,7 @@
   #undef I_MAX_PIN
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #ifdef J_STOP_PIN
     #if J_HOME_TO_MIN
       #define J_MIN_PIN J_STOP_PIN
@@ -523,7 +523,7 @@
   #undef J_MAX_PIN
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #ifdef K_STOP_PIN
     #if K_HOME_TO_MIN
       #define K_MIN_PIN K_STOP_PIN
@@ -1027,12 +1027,12 @@
 #endif
 
 // The I axis, if any, should be the next open extruder port
-#if LINEAR_AXES >= 4 && !defined(I_DIAG_PIN) && !defined(I_STEP_PIN) && !PIN_EXISTS(I_CS_PIN)
+#if HAS_I_AXIS && !defined(I_DIAG_PIN) && !defined(I_STEP_PIN) && !PIN_EXISTS(I_CS_PIN)
   #define J_E_INDEX INCREMENT(I_E_INDEX)
 #else
   #define J_E_INDEX I_E_INDEX
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #ifndef I_STEP_PIN
     #define I_STEP_PIN   _EPIN(I_E_INDEX, STEP)
     #define I_DIR_PIN    _EPIN(I_E_INDEX, DIR)
@@ -1112,12 +1112,12 @@
 #endif
 
 // The J axis, if any, should be the next open extruder port
-#if LINEAR_AXES >= 5 && !defined(J_DIAG_PIN) && !defined(J_STEP_PIN) && !PIN_EXISTS(J_CS_PIN)
+#if HAS_J_AXIS && !defined(J_DIAG_PIN) && !defined(J_STEP_PIN) && !PIN_EXISTS(J_CS_PIN)
   #define K_E_INDEX INCREMENT(J_E_INDEX)
 #else
   #define K_E_INDEX J_E_INDEX
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #ifndef J_STEP_PIN
     #define J_STEP_PIN   _EPIN(J_E_INDEX, STEP)
     #define J_DIR_PIN    _EPIN(J_E_INDEX, DIR)
@@ -1197,7 +1197,7 @@
 #endif
 
 // The K axis, if any, should be the next open extruder port
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #ifndef K_STEP_PIN
     #define K_STEP_PIN   _EPIN(K_E_INDEX, STEP)
     #define K_DIR_PIN    _EPIN(K_E_INDEX, DIR)
