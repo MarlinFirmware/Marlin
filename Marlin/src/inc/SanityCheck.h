@@ -3581,9 +3581,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #endif
 
 #if HAS_CUTTER
-  #if HAS_EXTRUDERS
-    #error "EXTRUDERS must be 0 with SPINDLE_FEATURE / LASER_FEATURE."
-  #elif !defined(CUTTER_POWER_UNIT)
+  #ifndef CUTTER_POWER_UNIT
     #error "CUTTER_POWER_UNIT is required with a spindle or laser."
   #elif !CUTTER_UNIT_IS(PWM255) && !CUTTER_UNIT_IS(PERCENT) && !CUTTER_UNIT_IS(RPM) && !CUTTER_UNIT_IS(SERVO)
     #error "CUTTER_POWER_UNIT must be PWM255, PERCENT, RPM, or SERVO."
