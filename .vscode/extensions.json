@@ -2,6 +2,7 @@
     // See http://go.microsoft.com/fwlink/?LinkId=827846
     // for the documentation about the extensions.json format
     "recommendations": [
+<<<<<<< HEAD
         "marlinfirmware.auto-build",
         "platformio.platformio-ide"
     ],
@@ -9,3 +10,9 @@
         "ms-vscode.cpptools-extension-pack"
     ]
 }
+=======
+        "platformio.platformio-ide",
+        "marlinfirmware.auto-build"
+    ]
+}
+>>>>>>> 🔨 Add .vscode/extensions.json
