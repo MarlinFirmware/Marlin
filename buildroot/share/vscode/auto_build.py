@@ -582,16 +582,18 @@ def get_env(board_name, ver_Marlin):
         target_env = 'DUE'
   else:
     options = possible_envs
-    # Perform some substitutions for common terms, to make selection easier
-    # for i, option in enumerate(options):
-    #   if 'melzi' in option:
-    #     options[i] = 'Melzi'
-    #   if 'sanguino1284p' in option:
-    #     options[i] = 'sanguino1284p'
-    #   if 'optiboot' in option:
-    #     options[i] = options[i] + ' (Optiboot Bootloader)'
-    #   if 'optimized' in option:
-    #     options[i] = options[i] + ' (Optimized for Size)'
+    # Perform some substitutions for environment names which follow a consistent
+    # naming pattern and are very commonly used. This is fragile code, and replacements
+    # should only be made here for stable environments unlikely to change often.
+    for i, option in enumerate(options):
+      if 'melzi' in option:
+        options[i] = 'Melzi'
+      elif 'sanguino1284p' in option:
+        options[i] = 'sanguino1284p'
+      if 'optiboot' in option:
+        options[i] = options[i] + ' (Optiboot Bootloader)'
+      if 'optimized' in option:
+        options[i] = options[i] + ' (Optimized for Size)'
     get_answer(board_name, 'Which environment?', options)
     target_env = possible_envs[get_answer_val - 1]
 
