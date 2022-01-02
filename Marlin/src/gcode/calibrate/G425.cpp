@@ -73,16 +73,16 @@
 #if BOTH(CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
   #define HAS_X_CENTER 1
 #endif
-#if HAS_Y_AXIS && BOTH(CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
+#if ALL(HAS_Y_AXIS, CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
   #define HAS_Y_CENTER 1
 #endif
-#if LINEAR_AXES >= 4 && BOTH(CALIBRATION_MEASURE_IMIN, CALIBRATION_MEASURE_IMAX)
+#if ALL(HAS_I_AXIS, CALIBRATION_MEASURE_IMIN, CALIBRATION_MEASURE_IMAX)
   #define HAS_I_CENTER 1
 #endif
-#if LINEAR_AXES >= 5 && BOTH(CALIBRATION_MEASURE_JMIN, CALIBRATION_MEASURE_JMAX)
+#if ALL(HAS_J_AXIS, CALIBRATION_MEASURE_JMIN, CALIBRATION_MEASURE_JMAX)
   #define HAS_J_CENTER 1
 #endif
-#if LINEAR_AXES >= 6 && BOTH(CALIBRATION_MEASURE_KMIN, CALIBRATION_MEASURE_KMAX)
+#if ALL(HAS_K_AXIS, CALIBRATION_MEASURE_KMIN, CALIBRATION_MEASURE_KMAX)
   #define HAS_K_CENTER 1
 #endif
 
@@ -246,7 +246,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
       case RIGHT: dir = -1;
       case LEFT:  axis = X_AXIS; break;
     #endif
-    #if LINEAR_AXES >= 2 && AXIS_CAN_CALIBRATE(Y)
+    #if HAS_Y_AXIS && AXIS_CAN_CALIBRATE(Y)
       case BACK:  dir = -1;
       case FRONT: axis = Y_AXIS; break;
     #endif
@@ -258,15 +258,15 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
         return;
       }
     #endif
-    #if LINEAR_AXES >= 4 && AXIS_CAN_CALIBRATE(I)
+    #if HAS_I_AXIS && AXIS_CAN_CALIBRATE(I)
       case IMINIMUM: dir = -1;
       case IMAXIMUM: axis = I_AXIS; break;
     #endif
-    #if LINEAR_AXES >= 5 && AXIS_CAN_CALIBRATE(J)
+    #if HAS_J_AXIS && AXIS_CAN_CALIBRATE(J)
       case JMINIMUM: dir = -1;
       case JMAXIMUM: axis = J_AXIS; break;
     #endif
-    #if LINEAR_AXES >= 6 && AXIS_CAN_CALIBRATE(K)
+    #if HAS_K_AXIS && AXIS_CAN_CALIBRATE(K)
       case KMINIMUM: dir = -1;
       case KMAXIMUM: axis = K_AXIS; break;
     #endif
@@ -370,7 +370,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  Back: ", m.obj_side[BACK]);
       #endif
     #endif
-    #if LINEAR_AXES >= 4
+    #if HAS_I_AXIS
       #if ENABLED(CALIBRATION_MEASURE_IMIN)
         SERIAL_ECHOLNPGM("  " STR_I_MIN ": ", m.obj_side[IMINIMUM]);
       #endif
@@ -378,7 +378,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_I_MAX ": ", m.obj_side[IMAXIMUM]);
       #endif
     #endif
-    #if LINEAR_AXES >= 5
+    #if HAS_J_AXIS
       #if ENABLED(CALIBRATION_MEASURE_JMIN)
         SERIAL_ECHOLNPGM("  " STR_J_MIN ": ", m.obj_side[JMINIMUM]);
       #endif
@@ -386,7 +386,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_J_MAX ": ", m.obj_side[JMAXIMUM]);
       #endif
     #endif
-    #if LINEAR_AXES >= 6
+    #if HAS_K_AXIS
       #if ENABLED(CALIBRATION_MEASURE_KMIN)
         SERIAL_ECHOLNPGM("  " STR_K_MIN ": ", m.obj_side[KMINIMUM]);
       #endif
@@ -439,7 +439,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPGM("  Top: ", m.backlash[TOP]);
     #endif
-    #if LINEAR_AXES >= 4 && AXIS_CAN_CALIBRATE(I)
+    #if HAS_I_AXIS && AXIS_CAN_CALIBRATE(I)
       #if ENABLED(CALIBRATION_MEASURE_IMIN)
         SERIAL_ECHOLNPGM("  " STR_I_MIN ": ", m.backlash[IMINIMUM]);
       #endif
@@ -447,7 +447,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_I_MAX ": ", m.backlash[IMAXIMUM]);
       #endif
     #endif
-    #if LINEAR_AXES >= 5 && AXIS_CAN_CALIBRATE(J)
+    #if HAS_J_AXIS && AXIS_CAN_CALIBRATE(J)
       #if ENABLED(CALIBRATION_MEASURE_JMIN)
         SERIAL_ECHOLNPGM("  " STR_J_MIN ": ", m.backlash[JMINIMUM]);
       #endif
@@ -455,7 +455,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_J_MAX ": ", m.backlash[JMAXIMUM]);
       #endif
     #endif
-    #if LINEAR_AXES >= 6 && AXIS_CAN_CALIBRATE(K)
+    #if HAS_K_AXIS && AXIS_CAN_CALIBRATE(K)
       #if ENABLED(CALIBRATION_MEASURE_KMIN)
         SERIAL_ECHOLNPGM("  " STR_K_MIN ": ", m.backlash[KMINIMUM]);
       #endif
