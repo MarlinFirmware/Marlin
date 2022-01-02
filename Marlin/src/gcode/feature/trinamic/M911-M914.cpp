@@ -38,19 +38,19 @@
   #if M91x_USE(X) || M91x_USE(X2)
     #define M91x_SOME_X 1
   #endif
-  #if LINEAR_AXES >= 2 && (M91x_USE(Y) || M91x_USE(Y2))
+  #if HAS_Y_AXIS && (M91x_USE(Y) || M91x_USE(Y2))
     #define M91x_SOME_Y 1
   #endif
   #if HAS_Z_AXIS && (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3) || M91x_USE(Z4))
     #define M91x_SOME_Z 1
   #endif
-  #if LINEAR_AXES >= 4 && M91x_USE(I)
+  #if HAS_I_AXIS && M91x_USE(I)
     #define M91x_USE_I 1
   #endif
-  #if LINEAR_AXES >= 5 && M91x_USE(J)
+  #if HAS_J_AXIS && M91x_USE(J)
     #define M91x_USE_J 1
   #endif
-  #if LINEAR_AXES >= 6 && M91x_USE(K)
+  #if HAS_K_AXIS && M91x_USE(K)
     #define M91x_USE_K 1
   #endif
 

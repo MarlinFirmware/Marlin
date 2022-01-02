@@ -228,7 +228,7 @@
 
 #define PS_ON_PIN                          P2_12  // (12)
 
-#if !defined(TEMP_0_CS_PIN) && DISABLED(USE_ZMAX_PLUG)
+#if !defined(TEMP_0_CS_PIN) && !(HAS_Z_AXIS && Z_HOME_DIR)
   #define TEMP_0_CS_PIN                    P1_28
 #endif
 
