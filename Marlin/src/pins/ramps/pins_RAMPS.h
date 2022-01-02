@@ -225,10 +225,6 @@
   #endif
 #endif
 
-#if !PIN_EXISTS(FAN1) && EXTRUDERS && NONE(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
-  #define FAN1_PIN MOSFET_D_PIN
-#endif
-
 #ifndef FAN_PIN
   #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
     #define FAN_PIN                 MOSFET_B_PIN
