@@ -253,7 +253,7 @@
   #define FAN_PIN                           PB7   // Fan0
 #endif
 
-#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+#if HAS_CUTTER
   #ifndef SPINDLE_LASER_PWM_PIN
     #define SPINDLE_LASER_PWM_PIN           PB5
   #endif
