@@ -64,6 +64,8 @@ struct IF<true, L, R> { typedef L type; };
   #define GANG_ITEM_E(N)
 #endif
 
+#define AXIS_COLLISION(L) (AXIS4_NAME == L || AXIS5_NAME == L || AXIS6_NAME == L)
+
 //
 // Enumerated axis indices
 //

@@ -24,6 +24,10 @@
 
 #if HAS_L64XX
 
+#if AXIS_COLLISION('I')
+  #error "M906 parameter collision with axis name."
+#endif
+
 #include "../../gcode.h"
 #include "../../../libs/L64XX/L64XX_Marlin.h"
 #include "../../../module/stepper/indirection.h"
@@ -202,12 +206,11 @@ void L64XX_report_current(L64XX &motor, const L64XX_axis_t axis) {
  * On L6474 this sets the TVAL register (same address).
  *
  * I - select which driver(s) to change on multi-driver axis
- *     0 - (default) all drivers on the axis or E0
- *     1 - monitor only X, Y, Z or E1
- *     2 - monitor only X2, Y2, Z2 or E2
- *     3 - monitor only Z3 or E3
- *     4 - monitor only Z4 or E4
- *     5 - monitor only E5
+ *         (default) all drivers on the axis
+ *     0 - monitor only the first XYZ... driver
+ *     1 - monitor only X2, Y2, Z2
+ *     2 - monitor only Z3
+ *     3 - monitor only Z4
  * Xxxx, Yxxx, Zxxx, Exxx - axis to change (optional)
  *     L6474 - current in mA (4A max)
  *     All others - 0-255
@@ -227,8 +230,10 @@ void GcodeSuite::M906() {
 
   uint8_t report_current = true;
 
-  #if HAS_L64XX
-    const uint8_t index = parser.byteval('I');
+  #if AXIS_IS_L64XX(X2) || AXIS_IS_L64XX(Y2) || AXIS_IS_L64XX(Z2) || AXIS_IS_L64XX(Z3) || AXIS_IS_L64XX(Z4)
+    const int8_t index = parser.byteval('I', -1);
+  #else
+    constexpr int8_t index = -1;
   #endif
 
   LOOP_LOGICAL_AXES(i) if (uint16_t value = parser.intval(axis_codes[i])) {
@@ -243,20 +248,20 @@ void GcodeSuite::M906() {
     switch (i) {
       case X_AXIS:
         #if AXIS_IS_L64XX(X)
-          if (index == 0) L6470_SET_KVAL_HOLD(X);
+          if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(X);
         #endif
         #if AXIS_IS_L64XX(X2)
-          if (index == 1) L6470_SET_KVAL_HOLD(X2);
+          if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(X2);
         #endif
         break;
 
       #if HAS_Y_AXIS
         case Y_AXIS:
           #if AXIS_IS_L64XX(Y)
-            if (index == 0) L6470_SET_KVAL_HOLD(Y);
+            if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(Y);
           #endif
           #if AXIS_IS_L64XX(Y2)
-            if (index == 1) L6470_SET_KVAL_HOLD(Y2);
+            if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(Y2);
           #endif
           break;
       #endif
@@ -264,50 +269,47 @@ void GcodeSuite::M906() {
       #if HAS_Z_AXIS
         case Z_AXIS:
           #if AXIS_IS_L64XX(Z)
-            if (index == 0) L6470_SET_KVAL_HOLD(Z);
+            if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(Z);
           #endif
           #if AXIS_IS_L64XX(Z2)
-            if (index == 1) L6470_SET_KVAL_HOLD(Z2);
+            if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(Z2);
           #endif
           #if AXIS_IS_L64XX(Z3)
-            if (index == 2) L6470_SET_KVAL_HOLD(Z3);
+            if (index < 0 || index == 2) L6470_SET_KVAL_HOLD(Z3);
           #endif
           #if AXIS_DRIVER_TYPE_Z4(L6470)
-            if (index == 3) L6470_SET_KVAL_HOLD(Z4);
+            if (index < 0 || index == 3) L6470_SET_KVAL_HOLD(Z4);
           #endif
           break;
       #endif
 
       #if E_STEPPERS
         case E_AXIS: {
-          const int8_t target_e_stepper = get_target_e_stepper_from_command(0);
-          if (target_e_stepper < 0) return;
-          switch (target_e_stepper) {
-            #if AXIS_IS_L64XX(E0)
-              case 0: L6470_SET_KVAL_HOLD(E0); break;
-            #endif
-            #if AXIS_IS_L64XX(E1)
-              case 1: L6470_SET_KVAL_HOLD(E1); break;
-            #endif
-            #if AXIS_IS_L64XX(E2)
-              case 2: L6470_SET_KVAL_HOLD(E2); break;
-            #endif
-            #if AXIS_IS_L64XX(E3)
-              case 3: L6470_SET_KVAL_HOLD(E3); break;
-            #endif
-            #if AXIS_IS_L64XX(E4)
-              case 4: L6470_SET_KVAL_HOLD(E4); break;
-            #endif
-            #if AXIS_IS_L64XX(E5)
-              case 5: L6470_SET_KVAL_HOLD(E5); break;
-            #endif
-            #if AXIS_IS_L64XX(E6)
-              case 6: L6470_SET_KVAL_HOLD(E6); break;
-            #endif
-            #if AXIS_IS_L64XX(E7)
-              case 7: L6470_SET_KVAL_HOLD(E7); break;
-            #endif
-          }
+          const int8_t eindex = get_target_e_stepper_from_command(-2);
+          #if AXIS_IS_L64XX(E0)
+            if (eindex < 0 || eindex == 0) L6470_SET_KVAL_HOLD(E0);
+          #endif
+          #if AXIS_IS_L64XX(E1)
+            if (eindex < 0 || eindex == 1) L6470_SET_KVAL_HOLD(E1);
+          #endif
+          #if AXIS_IS_L64XX(E2)
+            if (eindex < 0 || eindex == 2) L6470_SET_KVAL_HOLD(E2);
+          #endif
+          #if AXIS_IS_L64XX(E3)
+            if (eindex < 0 || eindex == 3) L6470_SET_KVAL_HOLD(E3);
+          #endif
+          #if AXIS_IS_L64XX(E4)
+            if (eindex < 0 || eindex == 4) L6470_SET_KVAL_HOLD(E4);
+          #endif
+          #if AXIS_IS_L64XX(E5)
+            if (eindex < 0 || eindex == 5) L6470_SET_KVAL_HOLD(E5);
+          #endif
+          #if AXIS_IS_L64XX(E6)
+            if (eindex < 0 || eindex == 6) L6470_SET_KVAL_HOLD(E6);
+          #endif
+          #if AXIS_IS_L64XX(E7)
+            if (eindex < 0 || eindex == 7) L6470_SET_KVAL_HOLD(E7);
+          #endif
         } break;
       #endif
     }

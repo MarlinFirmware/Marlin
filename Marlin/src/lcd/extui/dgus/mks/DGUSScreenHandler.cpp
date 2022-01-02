@@ -93,7 +93,7 @@ void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
 
 void DGUSScreenHandler::DGUSLCD_SendBabyStepToDisplay_MKS(DGUS_VP_Variable &var) {
   float value = current_position.z;
-  DEBUG_ECHOLNPAIR_F(" >> ", value, 6);
+  DEBUG_ECHOLNPGM(" >> ", value, 6);
   value *= cpow(10, 2);
   dgusdisplay.WriteVariable(VP_SD_Print_Baby, (uint16_t)value);
 }
@@ -399,7 +399,7 @@ void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
   #if HAS_BED_PROBE
     int32_t value = swap32(*(int32_t *)val_ptr);
     float Offset = value / 100.0f;
-    DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
+    DEBUG_ECHOLNPGM("\nget int6 offset >> ", value, 6);
   #endif
 
   switch (var.VP) {
@@ -909,7 +909,7 @@ void DGUSScreenHandler::HandleChangeLevelPoint_MKS(DGUS_VP_Variable &var, void *
   DEBUG_ECHOLNPGM("HandleChangeLevelPoint_MKS");
 
   const int16_t value_raw = swap16(*(int16_t*)val_ptr);
-  DEBUG_ECHOLNPAIR_F("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
 
   *(int16_t*)var.memadr = value_raw;
 
@@ -924,7 +924,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -934,7 +934,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
     case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
   }
   ExtUI::setAxisSteps_per_mm(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -946,7 +946,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -959,7 +959,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
     #endif
   }
   ExtUI::setAxisSteps_per_mm(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -971,7 +971,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -981,7 +981,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
     default: return;
   }
   ExtUI::setAxisMaxFeedrate_mm_s(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -993,7 +993,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -1006,7 +1006,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
     case VP_E1_MAX_SPEED: extruder = ExtUI::extruder_t::E1; break;
   }
   ExtUI::setAxisMaxFeedrate_mm_s(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1018,7 +1018,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -1028,7 +1028,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
     case VP_Z_ACC_MAX_SPEED: axis = ExtUI::axis_t::Z;  break;
   }
   ExtUI::setAxisMaxAcceleration_mm_s2(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1049,9 +1049,9 @@ void DGUSScreenHandler::HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void 
       case VP_E1_ACC_MAX_SPEED: extruder = ExtUI::extruder_t::E1; settings.load(); break;
     #endif
   }
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
   ExtUI::setAxisMaxAcceleration_mm_s2(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1115,7 +1115,7 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
         #endif
     }
 
-    DEBUG_ECHOLNPAIR_F("V3:", newvalue);
+    DEBUG_ECHOLNPGM("V3:", newvalue);
     *(float *)var.memadr = newvalue;
 
     settings.save();
@@ -1175,7 +1175,7 @@ void DGUSScreenHandler::GetManualFilament(DGUS_VP_Variable &var, void *val_ptr) 
 
   float value = (float)value_len;
 
-  DEBUG_ECHOLNPAIR_F("Get Filament len value:", value);
+  DEBUG_ECHOLNPGM("Get Filament len value:", value);
   distanceFilament = value;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1186,7 +1186,7 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 
   uint16_t value_len = swap16(*(uint16_t*)val_ptr);
 
-  DEBUG_ECHOLNPAIR_F("filamentSpeed_mm_s value:", value_len);
+  DEBUG_ECHOLNPGM("filamentSpeed_mm_s value:", value_len);
 
   filamentSpeed_mm_s = value_len;
 

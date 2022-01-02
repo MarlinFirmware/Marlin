@@ -553,7 +553,7 @@ namespace Language_hu {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Fényerösség");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("HELYTELEN NYOMTATÓ");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Nyomtatás számláló");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Befejezett");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Összes nyomtatási idö");

@@ -489,7 +489,7 @@ namespace Language_zh_CN {
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("打印机不正确");     // "The printer is incorrect"
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("打印计数");     // "Print Count"
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("完成了");     // "Completed"
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("总打印时间");     // "Total print time"

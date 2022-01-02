@@ -60,7 +60,7 @@ namespace Language_cz {
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Uvolnit motory");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Nabídka ladění");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_PROGRESS_BAR_TEST            = _UxGT("Test ukaz. průběhu");
   #else
     LSTR MSG_PROGRESS_BAR_TEST            = _UxGT("Test uk. průběhu");
@@ -421,12 +421,12 @@ namespace Language_cz {
   LSTR MSG_PLEASE_RESET                   = _UxGT("Proveďte reset");
   LSTR MSG_HEATING                        = _UxGT("Zahřívání...");
   LSTR MSG_COOLING                        = _UxGT("Chlazení...");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_BED_HEATING                  = _UxGT("Zahřívání podložky");
   #else
     LSTR MSG_BED_HEATING                  = _UxGT("Zahřívání podl.");
   #endif
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_BED_COOLING                  = _UxGT("Chlazení podložky");
   #else
     LSTR MSG_BED_COOLING                  = _UxGT("Chlazení podl.");
@@ -465,7 +465,7 @@ namespace Language_cz {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Jas světla");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("NESPRÁVNÁ TISKÁRNA");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Počet tisků");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Dokončeno");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Celkový čas");
@@ -535,7 +535,7 @@ namespace Language_cz {
   LSTR MSG_CYCLE_MIX                      = _UxGT("Střídat mix");
   LSTR MSG_GRADIENT_MIX                   = _UxGT("Přechod mix");
   LSTR MSG_REVERSE_GRADIENT               = _UxGT("Opačný přechod");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_ACTIVE_VTOOL                 = _UxGT("Aktivní V-nástroj");
     LSTR MSG_START_VTOOL                  = _UxGT("Spustit V-nástroj");
     LSTR MSG_END_VTOOL                    = _UxGT("Ukončit V-nástroj");

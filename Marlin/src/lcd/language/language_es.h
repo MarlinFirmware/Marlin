@@ -463,7 +463,7 @@ namespace Language_es {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Brillo cabina");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Impresora incorrecta");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Cont. de impresión");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completadas");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tiempo total de imp.");
