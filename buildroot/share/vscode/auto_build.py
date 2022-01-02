@@ -123,7 +123,7 @@ from datetime import datetime, date, time
 #
 ##########################################################################################
 
-def get_answer(board_name, cpu_label_txt, options, default_value=1):
+def get_answer(board_name, question_txt, options, default_value=1):
 
   if python_ver == 2:
     import Tkinter as tk
@@ -162,7 +162,7 @@ def get_answer(board_name, cpu_label_txt, options, default_value=1):
   l1 = tk.Label(text=board_name, fg="light green", bg="dark green",
                 font="default 14 bold").grid(row=0, columnspan=2, sticky='EW', ipadx=2, ipady=2)
 
-  l2 = tk.Label(text=cpu_label_txt).grid(row=1, pady=4, columnspan=2, sticky='EW')
+  l2 = tk.Label(text=question_txt).grid(row=1, pady=4, columnspan=2, sticky='EW')
 
   buttons = []
 
@@ -534,11 +534,15 @@ def get_env(board_name, ver_Marlin):
   # all remaining options.
 
   # Filter selection based on CPU choice
-  CPU_questions = [(['1280', '2560'], '1280 or 2560 CPU?', 2), (['644', '1284'], '644 or 1284 CPU?', 2), (['STM32F103RC', 'STM32F103RE'], 'MCU Type?', 1)]
-  for options, question, default in CPU_questions:
-    if any(options[0] in env for env in possible_envs) and any(options[1] in env for env in possible_envs):
-      get_answer(board_name, question, [options[0], options[1]], default)
-      possible_envs = [env for env in possible_envs if options[get_answer_val - 1] in env]
+  CPU_questions = [
+    {'options':['1280',        '2560'],        'text':'1280 or 2560 CPU?', 'default':2},
+    {'options':['644',         '1284'],        'text':'644 or 1284 CPU?',  'default':2},
+    {'options':['STM32F103RC', 'STM32F103RE'], 'text':'MCU Type?',         'default':1}]
+
+  for question in CPU_questions:
+    if any(question['options'][0] in env for env in possible_envs) and any(question['options'][1] in env for env in possible_envs):
+      get_answer(board_name, question['text'], [question['options'][0], question['options'][1]], question['default'])
+      possible_envs = [env for env in possible_envs if question['options'][get_answer_val - 1] in env]
 
   # Choose which STM32 framework to use, if both are available
   if [env for env in possible_envs if '_maple' in env] and [env for env in possible_envs if '_maple' not in env]:
@@ -561,7 +565,6 @@ def get_env(board_name, ver_Marlin):
   if len(possible_envs) == 1:
     return possible_envs[0]  # only one environment so finished
 
-  # Default to first environment unless overriden by a later selection
   target_env = None
 
   # A few environments require special behavior
