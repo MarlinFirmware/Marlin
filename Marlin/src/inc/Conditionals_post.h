@@ -489,6 +489,18 @@
   #ifndef POWER_OFF_DELAY
     #define POWER_OFF_DELAY   0
   #endif
+  #ifdef POWER_OFF_WAIT_FOR_COOLDOWN // temp thresholds are mandatory; an extreme room temperature (50°C) is safe and sufficiently high
+    #ifndef AUTO_POWER_E_TEMP
+      #define AUTO_POWER_E_TEMP 50
+    #endif
+    #ifndef AUTO_POWER_CHAMBER_TEMP
+      #define AUTO_POWER_CHAMBER_TEMP 50
+    #endif
+    #ifndef AUTO_POWER_COOLER_TEMP
+      #define AUTO_POWER_COOLER_TEMP 50
+    #endif
+  #endif
+
 #endif
 
 /**
