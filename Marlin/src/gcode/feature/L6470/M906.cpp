@@ -246,16 +246,18 @@ void GcodeSuite::M906() {
     }
 
     switch (i) {
-      case X_AXIS:
-        #if AXIS_IS_L64XX(X)
-          if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(X);
-        #endif
-        #if AXIS_IS_L64XX(X2)
-          if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(X2);
-        #endif
-        break;
+      #if AXIS_IS_L64XX(X) || AXIS_IS_L64XX(X2)
+        case X_AXIS:
+          #if AXIS_IS_L64XX(X)
+            if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(X);
+          #endif
+          #if AXIS_IS_L64XX(X2)
+            if (index < 0 || index == 1) L6470_SET_KVAL_HOLD(X2);
+          #endif
+          break;
+      #endif
 
-      #if HAS_Y_AXIS
+      #if AXIS_IS_L64XX(Y) || AXIS_IS_L64XX(Y2)
         case Y_AXIS:
           #if AXIS_IS_L64XX(Y)
             if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(Y);
@@ -266,7 +268,7 @@ void GcodeSuite::M906() {
           break;
       #endif
 
-      #if HAS_Z_AXIS
+      #if AXIS_IS_L64XX(Z) || AXIS_IS_L64XX(Z2) || AXIS_IS_L64XX(Z3) || AXIS_IS_L64XX(Z4)
         case Z_AXIS:
           #if AXIS_IS_L64XX(Z)
             if (index < 0 || index == 0) L6470_SET_KVAL_HOLD(Z);
@@ -277,13 +279,13 @@ void GcodeSuite::M906() {
           #if AXIS_IS_L64XX(Z3)
             if (index < 0 || index == 2) L6470_SET_KVAL_HOLD(Z3);
           #endif
-          #if AXIS_DRIVER_TYPE_Z4(L6470)
+          #if AXIS_IS_L64XX(Z4)
             if (index < 0 || index == 3) L6470_SET_KVAL_HOLD(Z4);
           #endif
           break;
       #endif
 
-      #if E_STEPPERS
+      #if AXIS_IS_L64XX(E0) || AXIS_IS_L64XX(E1) || AXIS_IS_L64XX(E2) || AXIS_IS_L64XX(E3) || AXIS_IS_L64XX(E4) || AXIS_IS_L64XX(E5) || AXIS_IS_L64XX(E6) || AXIS_IS_L64XX(E7)
         case E_AXIS: {
           const int8_t eindex = get_target_e_stepper_from_command(-2);
           #if AXIS_IS_L64XX(E0)
