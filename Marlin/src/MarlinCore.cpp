@@ -1652,6 +1652,10 @@ void loop() {
 
     queue.advance();
 
+    #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+      powerManager.checkAutoPowerOff();
+    #endif
+
     endstops.event_handler();
 
     TERN_(HAS_TFT_LVGL_UI, printer_state_polling());

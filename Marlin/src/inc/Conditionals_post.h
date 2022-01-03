@@ -97,13 +97,13 @@
 #else
   #undef CONTROLLER_FAN_USE_Z_ONLY
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define I_MAX_LENGTH (I_MAX_POS - (I_MIN_POS))
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define J_MAX_LENGTH (J_MAX_POS - (J_MIN_POS))
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define K_MAX_LENGTH (K_MAX_POS - (K_MIN_POS))
 #endif
 
@@ -114,13 +114,13 @@
 #if HAS_Y_AXIS && !defined(Y_BED_SIZE)
   #define Y_BED_SIZE Y_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 4 && !defined(I_BED_SIZE)
+#if HAS_I_AXIS && !defined(I_BED_SIZE)
   #define I_BED_SIZE I_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 5 && !defined(J_BED_SIZE)
+#if HAS_J_AXIS && !defined(J_BED_SIZE)
   #define J_BED_SIZE J_MAX_LENGTH
 #endif
-#if LINEAR_AXES >= 6 && !defined(K_BED_SIZE)
+#if HAS_K_AXIS && !defined(K_BED_SIZE)
   #define K_BED_SIZE K_MAX_LENGTH
 #endif
 
@@ -134,13 +134,13 @@
 #if HAS_Y_AXIS
   #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define _I_HALF_IMAX ((I_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define _J_HALF_JMAX ((J_BED_SIZE) / 2)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define _K_HALF_KMAX ((K_BED_SIZE) / 2)
 #endif
 
@@ -149,13 +149,13 @@
   #define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
   #define XY_CENTER { X_CENTER, Y_CENTER }
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define I_CENTER TERN(BED_CENTER_AT_0_0, 0, _I_HALF_BED)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define J_CENTER TERN(BED_CENTER_AT_0_0, 0, _J_HALF_BED)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define K_CENTER TERN(BED_CENTER_AT_0_0, 0, _K_HALF_BED)
 #endif
 
@@ -166,15 +166,15 @@
   #define Y_MIN_BED (Y_CENTER - _Y_HALF_BED)
   #define Y_MAX_BED (Y_MIN_BED + Y_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define I_MINIM (I_CENTER - _I_HALF_BED_SIZE)
   #define I_MAXIM (I_MINIM + I_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define J_MINIM (J_CENTER - _J_HALF_BED_SIZE)
   #define J_MAXIM (J_MINIM + J_BED_SIZE)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define K_MINIM (K_CENTER - _K_HALF_BED_SIZE)
   #define K_MAXIM (K_MINIM + K_BED_SIZE)
 #endif
@@ -253,21 +253,21 @@
   #define Z_HOME_POS TERN(Z_HOME_TO_MIN, Z_MIN_POS, Z_MAX_POS)
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #ifdef MANUAL_I_HOME_POS
     #define I_HOME_POS MANUAL_I_HOME_POS
   #else
     #define I_HOME_POS TERN(I_HOME_TO_MIN, I_MIN_POS, I_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #ifdef MANUAL_J_HOME_POS
     #define J_HOME_POS MANUAL_J_HOME_POS
   #else
     #define J_HOME_POS TERN(J_HOME_TO_MIN, J_MIN_POS, J_MAX_POS)
   #endif
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #ifdef MANUAL_K_HOME_POS
     #define K_HOME_POS MANUAL_K_HOME_POS
   #else
@@ -745,7 +745,7 @@
     #define LIB_INTERNAL_MAX31865 1
   #endif
 
-#endif //HAS_MAX_TC
+#endif // HAS_MAX_TC
 
 /**
  * X_DUAL_ENDSTOPS endstop reassignment
@@ -1620,7 +1620,7 @@
   #endif
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #if PIN_EXISTS(I_ENABLE) || AXIS_IS_L64XX(I) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(I))
     #define HAS_I_ENABLE 1
   #endif
@@ -1640,7 +1640,7 @@
   #undef DISABLE_INACTIVE_I
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #if PIN_EXISTS(J_ENABLE) || AXIS_IS_L64XX(J) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(J))
     #define HAS_J_ENABLE 1
   #endif
@@ -1660,7 +1660,7 @@
   #undef DISABLE_INACTIVE_J
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #if PIN_EXISTS(K_ENABLE) || AXIS_IS_L64XX(K) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(K))
     #define HAS_K_ENABLE 1
   #endif
@@ -2395,28 +2395,28 @@
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
 #define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && NONE(TEMP_SENSOR_##P##_IS_MAX_TC, TEMP_SENSOR_##P##_IS_DUMMY))
-#if HAS_ADC_TEST(0)
+#if HOTENDS > 0 && HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
-#if HAS_ADC_TEST(1)
+#if HOTENDS > 1 && HAS_ADC_TEST(1)
   #define HAS_TEMP_ADC_1 1
 #endif
-#if HAS_ADC_TEST(2)
+#if HOTENDS > 2 && HAS_ADC_TEST(2)
   #define HAS_TEMP_ADC_2 1
 #endif
-#if HAS_ADC_TEST(3)
+#if HOTENDS > 3 && HAS_ADC_TEST(3)
   #define HAS_TEMP_ADC_3 1
 #endif
-#if HAS_ADC_TEST(4)
+#if HOTENDS > 4 && HAS_ADC_TEST(4)
   #define HAS_TEMP_ADC_4 1
 #endif
-#if HAS_ADC_TEST(5)
+#if HOTENDS > 5 && HAS_ADC_TEST(5)
   #define HAS_TEMP_ADC_5 1
 #endif
-#if HAS_ADC_TEST(6)
+#if HOTENDS > 6 && HAS_ADC_TEST(6)
   #define HAS_TEMP_ADC_6 1
 #endif
-#if HAS_ADC_TEST(7)
+#if HOTENDS > 7 && HAS_ADC_TEST(7)
   #define HAS_TEMP_ADC_7 1
 #endif
 #if HAS_ADC_TEST(BED)
@@ -2549,13 +2549,13 @@
 #endif
 
 // Thermal protection
-#if BOTH(HAS_HEATED_BED, THERMAL_PROTECTION_BED)
-  #define HAS_THERMALLY_PROTECTED_BED 1
+#if !HAS_HEATED_BED
+  #undef THERMAL_PROTECTION_BED
 #endif
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   #define WATCH_HOTENDS 1
 #endif
-#if HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0
+#if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
   #define WATCH_BED 1
 #endif
 #if BOTH(HAS_HEATED_CHAMBER, THERMAL_PROTECTION_CHAMBER) && WATCH_CHAMBER_TEMP_PERIOD > 0
@@ -2564,10 +2564,13 @@
 #if BOTH(HAS_COOLER, THERMAL_PROTECTION_COOLER) && WATCH_COOLER_TEMP_PERIOD > 0
   #define WATCH_COOLER 1
 #endif
+#if NONE(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_COOLER)
+  #undef THERMAL_PROTECTION_VARIANCE_MONITOR
+#endif
 #if  (ENABLED(THERMAL_PROTECTION_HOTENDS) || !EXTRUDERS) \
   && (ENABLED(THERMAL_PROTECTION_BED)     || !HAS_HEATED_BED) \
   && (ENABLED(THERMAL_PROTECTION_CHAMBER) || !HAS_HEATED_CHAMBER) \
-  && (ENABLED(THERMAL_PROTECTION_COOLER) || !HAS_COOLER)
+  && (ENABLED(THERMAL_PROTECTION_COOLER)  || !HAS_COOLER)
   #define THERMALLY_SAFE 1
 #endif
 

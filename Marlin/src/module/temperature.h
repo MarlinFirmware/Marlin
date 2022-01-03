@@ -993,7 +993,12 @@ class Temperature {
       static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
-    static void update_autofans();
+    #if HAS_AUTO_FAN
+      #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+        static bool autofans_on;
+      #endif
+      static void update_autofans();
+    #endif
 
     #if HAS_HOTEND
       static float get_pid_output_hotend(const uint8_t e);
@@ -1009,7 +1014,7 @@ class Temperature {
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 
-    #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, HAS_THERMALLY_PROTECTED_BED, THERMAL_PROTECTION_COOLER)
+    #define HAS_THERMAL_PROTECTION ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_COOLER)
 
     #if HAS_THERMAL_PROTECTION
 
@@ -1021,7 +1026,7 @@ class Temperature {
           REPEAT(HOTENDS, _RUNAWAY_IND_E)
           #undef _RUNAWAY_IND_E
         #endif
-        OPTARG(HAS_THERMALLY_PROTECTED_BED, RUNAWAY_IND_BED)
+        OPTARG(THERMAL_PROTECTION_BED, RUNAWAY_IND_BED)
         OPTARG(THERMAL_PROTECTION_CHAMBER, RUNAWAY_IND_CHAMBER)
         OPTARG(THERMAL_PROTECTION_COOLER, RUNAWAY_IND_COOLER)
         , NR_HEATER_RUNAWAY
@@ -1029,18 +1034,24 @@ class Temperature {
 
       // Convert the given heater_id_t to runaway state array index
       static RunawayIndex runaway_index_for_id(const int8_t heater_id) {
-        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
-        TERN_(HAS_THERMALLY_PROTECTED_CHAMBER, if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
-        TERN_(HAS_THERMALLY_PROTECTED_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
+        TERN_(THERMAL_PROTECTION_CHAMBER, if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER);
+        TERN_(THERMAL_PROTECTION_COOLER,  if (heater_id == H_COOLER)  return RUNAWAY_IND_COOLER);
+        TERN_(THERMAL_PROTECTION_BED,     if (heater_id == H_BED)     return RUNAWAY_IND_BED);
         return (RunawayIndex)_MAX(heater_id, 0);
       }
 
-      enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway };
+      enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway
+        OPTARG(THERMAL_PROTECTION_VARIANCE_MONITOR, TRMalfunction)
+      };
 
       typedef struct {
         millis_t timer = 0;
         TRState state = TRInactive;
         float running_temp;
+        #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+          millis_t variance_timer = 0;
+          celsius_float_t last_temp = 0.0, variance = 0.0;
+        #endif
         void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 

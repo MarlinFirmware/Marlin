@@ -693,6 +693,15 @@
   #define HAS_Y_AXIS 1
   #if LINEAR_AXES >= XYZ
     #define HAS_Z_AXIS 1
+    #if LINEAR_AXES >= 4
+      #define HAS_I_AXIS 1
+      #if LINEAR_AXES >= 5
+        #define HAS_J_AXIS 1
+        #if LINEAR_AXES >= 6
+          #define HAS_K_AXIS 1
+        #endif
+      #endif
+    #endif
   #endif
 #endif
 
@@ -925,6 +934,11 @@
   #define X_HOME_TO_MAX 1
 #elif X_HOME_DIR < 0
   #define X_HOME_TO_MIN 1
+#endif
+#if X2_HOME_DIR > 0
+  #define X2_HOME_TO_MAX 1
+#elif X2_HOME_DIR < 0
+  #define X2_HOME_TO_MIN 1
 #endif
 #if Y_HOME_DIR > 0
   #define Y_HOME_TO_MAX 1
@@ -1215,13 +1229,13 @@
 #if HAS_Z_AXIS && !defined(INVERT_Z_DIR)
   #define INVERT_Z_DIR false
 #endif
-#if LINEAR_AXES >= 4 && !defined(INVERT_I_DIR)
+#if HAS_I_AXIS && !defined(INVERT_I_DIR)
   #define INVERT_I_DIR false
 #endif
-#if LINEAR_AXES >= 5 && !defined(INVERT_J_DIR)
+#if HAS_J_AXIS && !defined(INVERT_J_DIR)
   #define INVERT_J_DIR false
 #endif
-#if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
+#if HAS_K_AXIS && !defined(INVERT_K_DIR)
   #define INVERT_K_DIR false
 #endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
@@ -1411,7 +1425,7 @@
   #endif
 #endif
 
-#if ANY(USE_XMIN_PLUG, USE_YMIN_PLUG, USE_ZMIN_PLUG, USE_XMAX_PLUG, USE_YMAX_PLUG, USE_ZMAX_PLUG)
+#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR)
   #define HAS_ENDSTOPS 1
   #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
 #else

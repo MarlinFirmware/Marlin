@@ -441,15 +441,9 @@ void GcodeSuite::G28() {
       }
     #endif
 
-    #if LINEAR_AXES >= 4
-      if (doI) homeaxis(I_AXIS);
-    #endif
-    #if LINEAR_AXES >= 5
-      if (doJ) homeaxis(J_AXIS);
-    #endif
-    #if LINEAR_AXES >= 6
-      if (doK) homeaxis(K_AXIS);
-    #endif
+    TERN_(HAS_I_AXIS, if (doI) homeaxis(I_AXIS));
+    TERN_(HAS_J_AXIS, if (doJ) homeaxis(J_AXIS));
+    TERN_(HAS_K_AXIS, if (doK) homeaxis(K_AXIS));
 
     sync_plan_position();
 
