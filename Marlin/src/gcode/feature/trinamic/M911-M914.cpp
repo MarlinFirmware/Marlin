@@ -38,19 +38,19 @@
   #if M91x_USE(X) || M91x_USE(X2)
     #define M91x_SOME_X 1
   #endif
-  #if LINEAR_AXES >= 2 && (M91x_USE(Y) || M91x_USE(Y2))
+  #if HAS_Y_AXIS && (M91x_USE(Y) || M91x_USE(Y2))
     #define M91x_SOME_Y 1
   #endif
   #if HAS_Z_AXIS && (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3) || M91x_USE(Z4))
     #define M91x_SOME_Z 1
   #endif
-  #if LINEAR_AXES >= 4 && M91x_USE(I)
+  #if HAS_I_AXIS && M91x_USE(I)
     #define M91x_USE_I 1
   #endif
-  #if LINEAR_AXES >= 5 && M91x_USE(J)
+  #if HAS_J_AXIS && M91x_USE(J)
     #define M91x_USE_J 1
   #endif
-  #if LINEAR_AXES >= 6 && M91x_USE(K)
+  #if HAS_K_AXIS && M91x_USE(K)
     #define M91x_USE_K 1
   #endif
 
@@ -264,14 +264,28 @@
     LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(axis_codes[i])) {
       report = false;
       switch (i) {
-        case X_AXIS:
-          TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(X,X));
-          TERN_(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(X,X2));
-          break;
-        case Y_AXIS:
-          TERN_(Y_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Y,Y));
-          TERN_(Y2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Y,Y2));
-          break;
+        #if X_HAS_STEALTHCHOP || X2_HAS_STEALTHCHOP
+          case X_AXIS:
+            TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(X,X));
+            TERN_(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(X,X2));
+            break;
+        #endif
+
+        #if Y_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP
+          case Y_AXIS:
+            TERN_(Y_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Y,Y));
+            TERN_(Y2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Y,Y2));
+            break;
+        #endif
+
+        #if Z_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP || Z3_HAS_STEALTHCHOP || Z4_HAS_STEALTHCHOP
+          case Z_AXIS:
+            TERN_(Z_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Z,Z));
+            TERN_(Z2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Z,Z2));
+            TERN_(Z3_HAS_STEALTHCHOP, if (index < 0 || index == 2) TMC_SET_PWMTHRS(Z,Z3));
+            TERN_(Z4_HAS_STEALTHCHOP, if (index < 0 || index == 3) TMC_SET_PWMTHRS(Z,Z4));
+            break;
+        #endif
 
         #if I_HAS_STEALTHCHOP
           case I_AXIS: TMC_SET_PWMTHRS(I,I); break;
@@ -283,13 +297,7 @@
           case K_AXIS: TMC_SET_PWMTHRS(K,K); break;
         #endif
 
-        case Z_AXIS:
-          TERN_(Z_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_PWMTHRS(Z,Z));
-          TERN_(Z2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_PWMTHRS(Z,Z2));
-          TERN_(Z3_HAS_STEALTHCHOP, if (index < 0 || index == 2) TMC_SET_PWMTHRS(Z,Z3));
-          TERN_(Z4_HAS_STEALTHCHOP, if (index < 0 || index == 3) TMC_SET_PWMTHRS(Z,Z4));
-          break;
-        #if E_STEPPERS
+        #if E0_HAS_STEALTHCHOP || E1_HAS_STEALTHCHOP || E2_HAS_STEALTHCHOP || E3_HAS_STEALTHCHOP || E4_HAS_STEALTHCHOP || E5_HAS_STEALTHCHOP || E6_HAS_STEALTHCHOP || E7_HAS_STEALTHCHOP
           case E_AXIS: {
             const int8_t eindex = get_target_e_stepper_from_command(-2);
             TERN_(E0_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 0) TMC_SET_PWMTHRS_E(0));

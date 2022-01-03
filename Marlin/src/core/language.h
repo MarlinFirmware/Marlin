@@ -240,6 +240,7 @@
 #define STR_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
 #define STR_T_HEATING_FAILED                "Heating failed"
 #define STR_T_THERMAL_RUNAWAY               "Thermal Runaway"
+#define STR_T_MALFUNCTION                   "Thermal Malfunction"
 #define STR_T_MAXTEMP                       "MAXTEMP triggered"
 #define STR_T_MINTEMP                       "MINTEMP triggered"
 #define STR_ERR_PROBING_FAILED              "Probing Failed"
@@ -368,7 +369,7 @@
 #define LCD_STR_E STR_E
 
 // Extra Axis and Endstop Names
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #if AXIS4_NAME == 'A'
     #define AXIS4_STR "A"
     #define STR_I_MIN "a_min"
@@ -402,7 +403,7 @@
   #define AXIS4_STR   ""
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #if AXIS5_NAME == 'A'
     #define AXIS5_STR "A"
     #define STR_J_MIN "a_min"
@@ -436,7 +437,7 @@
   #define AXIS5_STR   ""
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #if AXIS6_NAME == 'A'
     #define AXIS6_STR "A"
     #define STR_K_MIN "a_min"

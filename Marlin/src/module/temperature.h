@@ -1035,12 +1035,18 @@ class Temperature {
         return (RunawayIndex)_MAX(heater_id, 0);
       }
 
-      enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway };
+      enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway
+        OPTARG(THERMAL_PROTECTION_VARIANCE_MONITOR, TRMalfunction)
+      };
 
       typedef struct {
         millis_t timer = 0;
         TRState state = TRInactive;
         float running_temp;
+        #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+          millis_t variance_timer = 0;
+          celsius_float_t last_temp = 0.0, variance = 0.0;
+        #endif
         void run(const_celsius_float_t current, const_celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_t hysteresis_degc);
       } tr_state_machine_t;
 

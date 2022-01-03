@@ -603,7 +603,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyz_i(current_position, ri, fr_mm_s);
   }
@@ -615,7 +615,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzi_j(current_position, rj, fr_mm_s);
   }
@@ -627,7 +627,7 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
   }
 #endif
 
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s/*=0.0*/) {
     do_blocking_move_to_xyzij_k(current_position, rk, fr_mm_s);
   }
@@ -839,7 +839,7 @@ void restore_feedrate_and_scaling() {
         #endif
       }
     #endif
-    #if LINEAR_AXES >= 4
+    #if HAS_I_AXIS
       if (axis_was_homed(I_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_I)
           NOLESS(target.i, soft_endstop.min.i);
@@ -849,7 +849,7 @@ void restore_feedrate_and_scaling() {
         #endif
       }
     #endif
-    #if LINEAR_AXES >= 5
+    #if HAS_J_AXIS
       if (axis_was_homed(J_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_J)
           NOLESS(target.j, soft_endstop.min.j);
@@ -859,7 +859,7 @@ void restore_feedrate_and_scaling() {
         #endif
       }
     #endif
-    #if LINEAR_AXES >= 6
+    #if HAS_K_AXIS
       if (axis_was_homed(K_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_K)
           NOLESS(target.k, soft_endstop.min.k);
@@ -1417,13 +1417,13 @@ void prepare_line_to_destination() {
           #if HAS_Z_AXIS
             case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = true; break;
           #endif
-          #if LINEAR_AXES >= 4
+          #if HAS_I_AXIS
             case I_AXIS: if (ENABLED(I_SPI_SENSORLESS)) endstops.tmc_spi_homing.i = true; break;
           #endif
-          #if LINEAR_AXES >= 5
+          #if HAS_J_AXIS
             case J_AXIS: if (ENABLED(J_SPI_SENSORLESS)) endstops.tmc_spi_homing.j = true; break;
           #endif
-          #if LINEAR_AXES >= 6
+          #if HAS_K_AXIS
             case K_AXIS: if (ENABLED(K_SPI_SENSORLESS)) endstops.tmc_spi_homing.k = true; break;
           #endif
           default: break;
@@ -1494,13 +1494,13 @@ void prepare_line_to_destination() {
           #if HAS_Z_AXIS
             case Z_AXIS: if (ENABLED(Z_SPI_SENSORLESS)) endstops.tmc_spi_homing.z = false; break;
           #endif
-          #if LINEAR_AXES >= 4
+          #if HAS_I_AXIS
             case I_AXIS: if (ENABLED(I_SPI_SENSORLESS)) endstops.tmc_spi_homing.i = false; break;
           #endif
-          #if LINEAR_AXES >= 5
+          #if HAS_J_AXIS
             case J_AXIS: if (ENABLED(J_SPI_SENSORLESS)) endstops.tmc_spi_homing.j = false; break;
           #endif
-          #if LINEAR_AXES >= 6
+          #if HAS_K_AXIS
             case K_AXIS: if (ENABLED(K_SPI_SENSORLESS)) endstops.tmc_spi_homing.k = false; break;
           #endif
           default: break;
@@ -1821,13 +1821,13 @@ void prepare_line_to_destination() {
           case X_AXIS: es = X_ENDSTOP; break;
           case Y_AXIS: es = Y_ENDSTOP; break;
           case Z_AXIS: es = Z_ENDSTOP; break;
-          #if LINEAR_AXES >= 4
+          #if HAS_I_AXIS
             case I_AXIS: es = I_ENDSTOP; break;
           #endif
-          #if LINEAR_AXES >= 5
+          #if HAS_J_AXIS
             case J_AXIS: es = J_ENDSTOP; break;
           #endif
-          #if LINEAR_AXES >= 6
+          #if HAS_K_AXIS
             case K_AXIS: es = K_ENDSTOP; break;
           #endif
         }
