@@ -274,7 +274,7 @@
     #endif
   #elif ENABLED(LCD_FOR_MELZI)
   
-    //#error "CAUTION! LCD_FOR_MELZI requires wiring modifications. See 'pins_BTT_E3_RRF.h' for details. Comment out this line to continue."
+    #error "CAUTION! LCD_FOR_MELZI requires wiring modifications. See 'pins_BTT_E3_RRF.h' for details. Comment out this line to continue."
     
     /**
     * LCD_FOR_MELZI display pinout
