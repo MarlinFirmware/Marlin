@@ -2547,8 +2547,7 @@ void MarlinSettings::postprocess() {
   }
 
   bool MarlinSettings::load() {
-    if (validate()) {
-      const bool success = _load();
+    if (const bool success = validate()) {
       TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreRead(success));
       return success;
     }
