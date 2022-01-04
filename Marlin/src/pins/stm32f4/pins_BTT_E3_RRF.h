@@ -271,6 +271,7 @@
        */
 
       #define TFTGLCD_CS                    PE7
+
     #endif
   #elif ENABLED(LCD_FOR_MELZI)
   
@@ -317,7 +318,6 @@
     #define LCD_PINS_D4                     PE10
 
     //  LCD_FOR_MELZI default timing is too fast, this works but maybe could be reduced:
-  
     #define BOARD_ST7920_DELAY_1 200
     #define BOARD_ST7920_DELAY_2 400
     #define BOARD_ST7920_DELAY_3 1200
