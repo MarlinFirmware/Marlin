@@ -305,7 +305,7 @@
     */
 
 
-    //#define KILL_PIN                        zz //unused?
+    //#define KILL_PIN                      
     #define BEEPER_PIN                      PE8
     #define BTN_ENC                         PE9
     
