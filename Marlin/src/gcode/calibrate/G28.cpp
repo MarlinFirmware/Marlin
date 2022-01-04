@@ -328,6 +328,12 @@ void GcodeSuite::G28() {
 
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
+  #elif ENABLED(POLARGRAPH)
+
+    constexpr bool doZ = false; // for NANODLP_Z_SYNC if your DLP is on a TPARA
+
+    home_polargraph();
+    
   #elif ENABLED(AXEL_TPARA)
 
     constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
