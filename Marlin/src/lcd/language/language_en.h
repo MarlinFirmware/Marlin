@@ -448,7 +448,7 @@ namespace Language_en {
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancel Object");
   LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Object =");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Power Outage");
-  LSTR MSG_OUTAGE_RECOVERY_PROCESS        = _UxGT("Recovery from power outage");
+  LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Continue Print Job");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Print from ") MEDIA_TYPE_EN;
   LSTR MSG_NO_MEDIA                       = _UxGT("No ") MEDIA_TYPE_EN;
   LSTR MSG_DWELL                          = _UxGT("Sleep...");

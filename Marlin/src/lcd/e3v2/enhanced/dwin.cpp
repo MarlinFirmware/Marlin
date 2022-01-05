@@ -1619,7 +1619,7 @@ void EachMomentUpdate() {
 
   void Goto_PowerLossRecovery() {
     recovery.dwin_flag = false;
-    LCD_MESSAGE_F(GET_TEXT_F(MSG_OUTAGE_RECOVERY_PROCESS));
+    LCD_MESSAGE_F(GET_TEXT_F(MSG_CONTINUE_PRINT_JOB));
     HMI_flag.select_flag = false;
     Popup_PowerLossRecovery();
     last_checkkey = MainMenu;
