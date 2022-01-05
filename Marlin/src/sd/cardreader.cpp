@@ -197,7 +197,7 @@ char *createFilename(char * const buffer, const dir_t &p) {
 //
 // Return 'true' if the item is a folder or G-code file
 //
-bool CardReader::is_dir_or_gcode(const dir_t &p) {
+bool CardReader::is_dir_or_gcode_or_bin(const dir_t &p, bool onlyFirmwareFiles/*=false*/) {
   //uint8_t pn0 = p.name[0];
 
   if ( (p.attributes & DIR_ATT_HIDDEN)                  // Hidden by attribute
@@ -211,7 +211,11 @@ bool CardReader::is_dir_or_gcode(const dir_t &p) {
 
   return (
     flag.filenameIsDir                                  // All Directories are ok
-    || (p.name[8] == 'G' && p.name[9] != '~')           // Non-backup *.G* files are accepted
+    || (not onlyFirmwareFiles && p.name[8] == 'G' 
+                              && p.name[9]  != '~')  // Non-backup *.G* files are accepted
+    || (onlyFirmwareFiles && p.name[8]  == 'B' 
+                          && p.name[9]  == 'I' 
+                          && p.name[10] == 'N')      // BIN files are accepted
   );
 }
 
@@ -222,7 +226,7 @@ int CardReader::countItems(SdFile dir) {
   dir_t p;
   int c = 0;
   while (dir.readDir(&p, longFilename) > 0)
-    c += is_dir_or_gcode(p);
+    c += is_dir_or_gcode_or_bin(p);
 
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
     nrFiles = c;
@@ -237,7 +241,7 @@ int CardReader::countItems(SdFile dir) {
 void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
   dir_t p;
   for (uint8_t cnt = 0; dir.readDir(&p, longFilename) > 0;) {
-    if (is_dir_or_gcode(p)) {
+    if (is_dir_or_gcode_or_bin(p)) {
       if (cnt == index) {
         createFilename(filename, p);
         return;  // 0 based index
@@ -253,7 +257,7 @@ void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
 void CardReader::selectByName(SdFile dir, const char * const match) {
   dir_t p;
   for (uint8_t cnt = 0; dir.readDir(&p, longFilename) > 0; cnt++) {
-    if (is_dir_or_gcode(p)) {
+    if (is_dir_or_gcode_or_bin(p)) {
       createFilename(filename, p);
       if (strcasecmp(match, filename) == 0) return;
     }
@@ -272,6 +276,7 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
  */
 void CardReader::printListing(
   SdFile parent
+  , bool onlyFirmwareFiles/*=false*/
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
   , const char * const prepend/*=nullptr*/
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
@@ -304,19 +309,19 @@ void CardReader::printListing(
               pathLong[lenPrependLong - 1] = '/';
             }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, true, path, pathLong);
+            printListing(child, onlyFirmwareFiles, true, path, pathLong);
           }
           else
-            printListing(child, false, path);
+            printListing(child, onlyFirmwareFiles, false, path);
         #else
-          printListing(child, path);
+          printListing(child, onlyFirmwareFiles, path);
         #endif
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
       }
     }
-    else if (is_dir_or_gcode(p)) {
+    else if (is_dir_or_gcode_or_bin(p, onlyFirmwareFiles)) {
       if (prepend) {
         SERIAL_ECHO(prepend);
         SERIAL_CHAR('/');
@@ -345,10 +350,10 @@ void CardReader::printListing(
 //
 // List all files on the SD card
 //
-void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
+void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/) bool onlyFirmwareFiles/*=false*/) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
+    printListing(root, onlyFirmwareFiles OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
   }
 }
 
