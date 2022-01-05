@@ -295,7 +295,7 @@ void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico,
     DWIN_Frame_AreaCopy(1, txt.x, txt.y[selected], txt.x + txt.w - 1, txt.y[selected] + txt.h - 1, ico.x + (ico.w - txt.w) / 2, (ico.y + ico.h - 28) - txt.h/2);
   }
   else {
-    const uint16_t x = ico.x + (ico.w - strlen_P(caption)*DWINUI::fontWidth()) / 2,
+    const uint16_t x = ico.x + (ico.w - strlen_P(FTOP(caption)) * DWINUI::fontWidth()) / 2,
                    y = (ico.y + ico.h - 28) - DWINUI::fontHeight() / 2;
     DWINUI::Draw_String(x, y, caption);
   }
