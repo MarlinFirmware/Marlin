@@ -935,11 +935,6 @@
 #elif X_HOME_DIR < 0
   #define X_HOME_TO_MIN 1
 #endif
-#if X2_HOME_DIR > 0
-  #define X2_HOME_TO_MAX 1
-#elif X2_HOME_DIR < 0
-  #define X2_HOME_TO_MIN 1
-#endif
 #if Y_HOME_DIR > 0
   #define Y_HOME_TO_MAX 1
 #elif Y_HOME_DIR < 0
