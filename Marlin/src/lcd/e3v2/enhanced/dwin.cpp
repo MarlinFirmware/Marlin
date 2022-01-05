@@ -1970,7 +1970,7 @@ void DWIN_Redraw_screen() {
 #if HAS_MESH
   void DWIN_MeshViewer() {
     if (!leveling_is_valid())
-      DWIN_Popup_Continue(ICON_BLTouch, GET_TEXT_F(MSG_MESH_VIEWER), GET_TEXT_F(MSG_INVALID_MESH));
+      DWIN_Popup_Continue(ICON_BLTouch, GET_TEXT_F(MSG_MESH_VIEWER), GET_TEXT_F(MSG_NO_VALID_MESH));
     else {
       HMI_SaveProcessID(WaitResponse);
       MeshViewer.Draw();
