@@ -84,14 +84,19 @@ void GcodeSuite::M81() {
     ZERO(thermalManager.saved_fan_speed);
   #endif
 
+  safe_delay(1000); // Wait 1 second before switching off
+
   LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
 
   bool delayed_power_off = false;
 
   #if ENABLED(POWER_OFF_TIMER)
     if (parser.seenval('D')) {
-      delayed_power_off = true;
-      powerManager.setPowerOffTimer(SEC_TO_MS(parser.value_ushort()));
+      uint16_t delay = parser.value_ushort();
+      if (delay > 1) { // skip already observed 1s delay
+        delayed_power_off = true;
+        powerManager.setPowerOffTimer(SEC_TO_MS(delay - 1));
+      }
     }
   #endif
 
@@ -103,8 +108,6 @@ void GcodeSuite::M81() {
   #endif
 
   if (delayed_power_off) return;
-
-  safe_delay(1000); // Wait 1 second before switching off
 
   #if HAS_SUICIDE
     suicide();
