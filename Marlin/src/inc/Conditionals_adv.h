@@ -678,9 +678,10 @@
 #endif
 
 // Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM)
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM, MOTOR_CURRENT_PWM_FEATURE) 
   #define NEEDS_HARDWARE_PWM 1
 #endif
+
 
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.

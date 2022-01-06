@@ -24,7 +24,6 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "HAL.h"
 
-#if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
 static uint16_t timer_freq[5];
 
 struct Timer {
@@ -229,8 +228,6 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   else
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
 }
-
-#endif // NEEDS_HARDWARE_PWM
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   #if NEEDS_HARDWARE_PWM

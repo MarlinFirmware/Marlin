@@ -3262,10 +3262,10 @@ void Stepper::report_positions() {
       #elif HAS_MOTOR_CURRENT_PWM
 
         #define _WRITE_CURRENT_PWM(P) set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
-        #ifdef defined(__AVR__) || defined(__AVR_ATmega2560__)
+        #ifdef __SAM3X8E__
+          #define _WRITE_FREQUENCY_PWM(P) NOOP         
+        #else  
           #define _WRITE_FREQUENCY_PWM(P) set_pwm_frequency(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), MOTOR_CURRENT_PWM_FREQUENCY)
-        #else
-          #define _WRITE_FREQUENCY_PWM(P) NOOP 
         #endif  
         switch (driver) {
           case 0:

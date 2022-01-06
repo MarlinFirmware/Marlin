@@ -76,7 +76,7 @@
   #define MOTOR_CURRENT_PWM_RANGE           2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT  { 1300, 1300, 1250 }
-#define MOTOR_CURRENT_PWM_FREQUENCY        31400
+
 //
 // Temperature Sensors
 //

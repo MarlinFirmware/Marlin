@@ -318,7 +318,7 @@ class Stepper {
           #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
         #endif
         #ifndef MOTOR_CURRENT_PWM_FREQUENCY
-          #define MOTOR_CURRENT_PWM_FREQUENCY 1000
+          #define MOTOR_CURRENT_PWM_FREQUENCY 31400
         #endif
         
         #define MOTOR_CURRENT_COUNT LINEAR_AXES
