@@ -54,17 +54,17 @@ void PrintStatsClass::Draw() {
   DWINUI::Draw_Icon(ICON_Continue_E, 86, 250);
   printStatistics ps = print_job_timer.getStats();
 
-  sprintf_P(buf, PSTR("%s: %i"), GET_TEXT(MSG_INFO_PRINT_COUNT), ps.totalPrints);
+  sprintf_P(buf, PSTR(S_FMT ": %i"), GET_TEXT(MSG_INFO_PRINT_COUNT), ps.totalPrints);
   DWINUI::Draw_String(MRG, 80, buf);
-  sprintf_P(buf, PSTR("%s: %i"), GET_TEXT(MSG_INFO_COMPLETED_PRINTS), ps.finishedPrints);
+  sprintf_P(buf, PSTR(S_FMT ": %i"), GET_TEXT(MSG_INFO_COMPLETED_PRINTS), ps.finishedPrints);
   DWINUI::Draw_String(MRG, 100, buf);
   duration_t(print_job_timer.getStats().printTime).toDigital(str, true);
-  sprintf_P(buf, PSTR("%s: %s"), GET_TEXT(MSG_INFO_PRINT_TIME), str);
+  sprintf_P(buf, PSTR(S_FMT ": %s"), GET_TEXT(MSG_INFO_PRINT_TIME), str);
   DWINUI::Draw_String(MRG, 120, buf);
   duration_t(print_job_timer.getStats().longestPrint).toDigital(str, true);
-  sprintf_P(buf, PSTR("%s: %s"), GET_TEXT(MSG_INFO_PRINT_LONGEST), str);
+  sprintf_P(buf, PSTR(S_FMT ": %s"), GET_TEXT(MSG_INFO_PRINT_LONGEST), str);
   DWINUI::Draw_String(MRG, 140, buf);
-  sprintf_P(buf, PSTR("%s: %s m"), GET_TEXT(MSG_INFO_PRINT_FILAMENT), dtostrf(ps.filamentUsed / 1000, 1, 2, str));
+  sprintf_P(buf, PSTR(S_FMT ": %s m"), GET_TEXT(MSG_INFO_PRINT_FILAMENT), dtostrf(ps.filamentUsed / 1000, 1, 2, str));
   DWINUI::Draw_String(MRG, 160, buf);
 }
 
