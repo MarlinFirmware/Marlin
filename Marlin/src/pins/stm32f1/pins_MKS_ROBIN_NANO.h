@@ -44,4 +44,8 @@
 
 //#define LED_PIN                           PB2
 
+#if HAS_TFT_LVGL_UI
+  #define BOARD_INIT OUT_WRITE(PB0, LOW)
+#endif
+
 #include "pins_MKS_ROBIN_NANO_common.h"
