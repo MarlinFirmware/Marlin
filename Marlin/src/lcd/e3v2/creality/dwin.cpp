@@ -2760,7 +2760,10 @@ void HMI_Prepare() {
       #endif
 
       #if HAS_HOTEND || HAS_HEATED_BED
-        case PREPARE_CASE_COOL: thermalManager.cooldown(); break;
+        case PREPARE_CASE_COOL:
+          thermalManager.cooldown();
+          ui.reset_status();
+          break;
       #endif
 
       case PREPARE_CASE_LANG:
