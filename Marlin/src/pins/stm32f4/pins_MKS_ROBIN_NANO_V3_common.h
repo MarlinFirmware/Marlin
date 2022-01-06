@@ -316,6 +316,8 @@
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
   #endif
 
+
+
 #elif HAS_WIRED_LCD
 
   #define LCD_PINS_ENABLE            EXP1_08_PIN
@@ -366,9 +368,13 @@
 
 #endif // HAS_WIRED_LCD
 
+// If you want to use DMA+IT, please block BTN_EN1, BTN_EN2, BTN_ENC first, 
+// they are not allowed to open at the same time
+#define USE_SPI_DMA_TC 
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
   #define BEEPER_PIN                 EXP1_10_PIN
-  #define BTN_EN1                    EXP2_08_PIN
-  #define BTN_EN2                    EXP2_06_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  // #define BTN_EN1                    EXP2_08_PIN
+  // #define BTN_EN2                    EXP2_06_PIN
+  // #define BTN_ENC                    EXP1_09_PIN
 #endif

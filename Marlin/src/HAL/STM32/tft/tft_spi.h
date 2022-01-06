@@ -43,13 +43,15 @@
 class TFT_SPI {
 private:
   static SPI_HandleTypeDef SPIx;
-  static DMA_HandleTypeDef DMAtx;
+  
 
   static uint32_t ReadID(uint16_t Reg);
   static void Transmit(uint16_t Data);
   static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
-
+  static void TransmitDMA_IT(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
 public:
+  static DMA_HandleTypeDef DMAtx;
+
   static void Init();
   static uint32_t GetID();
   static bool isBusy();
@@ -63,6 +65,9 @@ public:
   static void WriteReg(uint16_t Reg) { WRITE(TFT_A0_PIN, LOW); Transmit(Reg); WRITE(TFT_A0_PIN, HIGH); }
 
   static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
+  static void WriteSequenceIT(uint16_t *Data, uint16_t Count) { TransmitDMA_IT(DMA_MINC_ENABLE, Data, Count); }
+
+  
   static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
     static uint16_t Data; Data = Color;

@@ -1360,7 +1360,12 @@ void print_time_count() {
 }
 
 void LV_TASK_HANDLER() {
-  lv_task_handler();
+
+  #if ENABLED(USE_SPI_DMA_TC)
+    if(!get_lcd_dma_lock()) lv_task_handler();
+  #else
+    lv_task_handler();
+  #endif
 
   #if BOTH(MKS_TEST, SDSUPPORT)
     if (mks_test_flag == 0x1E) mks_hardware_test();
