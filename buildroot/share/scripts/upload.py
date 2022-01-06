@@ -55,7 +55,7 @@ def Upload(source, target, env):
             clean_responses.append(clean_response)
             if Debug: print("<< " + clean_response)
         return clean_responses
-        
+
     #------------------#
     # SDCard functions #
     #------------------#
@@ -81,7 +81,7 @@ def Upload(source, target, env):
             return (False, None)
         if Debug: print('OK')
         return (True, Responses)
-        
+
     def _FilterFirmwareFiles(FirmwareList):
         Firmwares = []
         for FWFile in FirmwareList:
@@ -134,14 +134,14 @@ def Upload(source, target, env):
 
     # Check SD card status
     if not _CheckSDCard(): exit(2)
-    
+
     # Get firmware files
     (Status, FirmwareFiles) = _GetFirmwareFiles()
     if not Status: exit(3)
     if Debug:
         for FirmwareFile in FirmwareFiles:
             print("Found: " + FirmwareFile)
-        
+
     # Get all 1st level firmware files (to remove)
     OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2])   # Skip header and footers of list
     if len(OldFirmwareFiles) == 0:
@@ -155,7 +155,7 @@ def Upload(source, target, env):
     # Cleanup completed
     port.close()
     if Debug: print("Cleanup completed")
-    
+
     try:
         # Upload File
         print("Copying '" + upload_firmware_source_name + "' --> '" + upload_firmware_target_name + "'")
@@ -187,7 +187,7 @@ def Upload(source, target, env):
     finally:
         if protocol: protocol.shutdown()
         print("Firmware upload completed")
-    
+
 
 # Attach custom upload callback
 env.Replace(UPLOADCMD=Upload)

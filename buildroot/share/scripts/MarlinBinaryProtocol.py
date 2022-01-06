@@ -1,3 +1,7 @@
+#
+# MarlinBinaryProtocol.py
+# Supporting Firmware upload via USB/Serial, saving to the attached media.
+#
 import serial
 import math
 import time
@@ -11,7 +15,7 @@ try:
     heatshrink_exists = True
 except ImportError:
     heatshrink_exists = False
-    
+
 
 def millis():
     return time.perf_counter() * 1000
@@ -252,8 +256,6 @@ class Protocol(object):
         value = ((vh & 0xF) << 4) | (vl & 0xF)
         return value.to_bytes(1, byteorder='little')
 
-
-
     def connect(self):
         print("Connecting: Switching Marlin to Binary Protocol...")
         self.send_ascii("M28B1")
@@ -366,7 +368,6 @@ class FileTransferProtocol(object):
                 pass
         raise ReadTimeout()
 
-
     def write(self, data):
         self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.WRITE, data);
 
@@ -421,7 +422,6 @@ class FileTransferProtocol(object):
         print("\r{0:2.2f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors)) # no one likes transfers finishing at 99.8%
 
         self.close()
-
         print("Transfer complete")
 
 
