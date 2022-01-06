@@ -593,9 +593,6 @@ void _O2 Endstops::report_states() {
 
 } // Endstops::report_states
 
-// The following routines are called from an ISR context. It could be the temperature ISR, the
-// endstop ISR or the Stepper ISR.
-
 #if HAS_DELTA_SENSORLESS_PROBING
   #define __ENDSTOP(AXIS, ...) AXIS ##_MAX
   #define _ENDSTOP_PIN(AXIS, ...) AXIS ##_MAX_PIN
@@ -607,13 +604,18 @@ void _O2 Endstops::report_states() {
 #endif
 #define _ENDSTOP(AXIS, MINMAX) __ENDSTOP(AXIS, MINMAX)
 
-// Check endstops - Could be called from Temperature ISR!
+/**
+ * Called from interrupt context by the Endstop ISR or Stepper ISR!
+ * Read endstops to get their current states, register hits for all
+ * axes moving in the direction of their endstops, and abort moves.
+ */
 void Endstops::update() {
 
-  #if !ENDSTOP_NOISE_THRESHOLD
-    if (!abort_enabled()) return;
+  #if !ENDSTOP_NOISE_THRESHOLD      // If not debouncing...
+    if (!abort_enabled()) return;   // ...and not enabled, exit.
   #endif
 
+  // Macros to update / copy the live_state
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
   #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
@@ -1107,6 +1109,7 @@ void Endstops::update() {
 
 #if ENABLED(SPI_ENDSTOPS)
 
+  // Called from idle() to read Trinamic stall states
   bool Endstops::tmc_spi_homing_check() {
     bool hit = false;
     #if X_SPI_SENSORLESS

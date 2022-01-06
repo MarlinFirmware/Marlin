@@ -336,9 +336,8 @@ private:
   static void selectByIndex(SdFile dir, const uint8_t index);
   static void selectByName(SdFile dir, const char * const match);
   static void printListing(
-    SdFile parent
+    SdFile parent, const char * const prepend
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
-    , const char * const prepend=nullptr
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
 

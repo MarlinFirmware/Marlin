@@ -271,9 +271,8 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
  * good addition.
  */
 void CardReader::printListing(
-  SdFile parent
+  SdFile parent, const char * const prepend
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
-  , const char * const prepend/*=nullptr*/
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
   dir_t p;
@@ -283,61 +282,47 @@ void CardReader::printListing(
       size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
       // Allocate enough stack space for the full path including / separator
       char path[lenPrepend + FILENAME_LENGTH];
-      if (prepend) {
-        strcpy(path, prepend);
-        path[lenPrepend - 1] = '/';
-      }
+      if (prepend) { strcpy(path, prepend); path[lenPrepend - 1] = '/'; }
       char* dosFilename = path + lenPrepend;
       createFilename(dosFilename, p);
 
       // Get a new directory object using the full path
       // and dive recursively into it.
       SdFile child; // child.close() in destructor
-      if (child.open(&parent, dosFilename, O_READ))
+      if (child.open(&parent, dosFilename, O_READ)) {
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
           if (includeLongNames) {
             size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
             // Allocate enough stack space for the full long path including / separator
             char pathLong[lenPrependLong + strlen(longFilename) + 1];
-            if (prependLong) {
-              strcpy(pathLong, prependLong);
-              pathLong[lenPrependLong - 1] = '/';
-            }
+            if (prependLong) { strcpy(pathLong, prependLong); pathLong[lenPrependLong - 1] = '/'; }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, true, path, pathLong);
+            printListing(child, path, true, pathLong);
           }
           else
-            printListing(child, false, path);
+            printListing(child, path);
         #else
           printListing(child, path);
         #endif
+      }
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
       }
     }
     else if (is_dir_or_gcode(p)) {
-      if (prepend) {
-        SERIAL_ECHO(prepend);
-        SERIAL_CHAR('/');
-      }
+      if (prepend) { SERIAL_ECHO(prepend); SERIAL_CHAR('/'); }
       SERIAL_ECHO(createFilename(filename, p));
       SERIAL_CHAR(' ');
+      SERIAL_ECHO(p.fileSize);
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        if (!includeLongNames)
-      #endif
-          SERIAL_ECHOLN(p.fileSize);
-      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        else {
-          SERIAL_ECHO(p.fileSize);
+        if (includeLongNames) {
           SERIAL_CHAR(' ');
-          if (prependLong) {
-            SERIAL_ECHO(prependLong);
-            SERIAL_CHAR('/');
-          }
-          SERIAL_ECHOLN(longFilename[0] ? longFilename : "???");
+          if (prependLong) { SERIAL_ECHO(prependLong); SERIAL_CHAR('/'); }
+          SERIAL_ECHO(longFilename[0] ? longFilename : "???");
         }
       #endif
+      SERIAL_EOL();
     }
   }
 }
@@ -348,7 +333,7 @@ void CardReader::printListing(
 void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
+    printListing(root, nullptr OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
   }
 }
 
