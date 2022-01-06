@@ -204,7 +204,7 @@ public:
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
 
-  static void ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames=false) const bool onlyFirmwareFiles=false);
+  static void ls(const bool onlyFirmwareFiles=false OPTARG(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames=false));
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();

@@ -350,7 +350,7 @@ void CardReader::printListing(
 //
 // List all files on the SD card
 //
-void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/) bool onlyFirmwareFiles/*=false*/) {
+void CardReader::ls(bool onlyFirmwareFiles/*=false*/ OPTARG(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
   if (flag.mounted) {
     root.rewind();
     printListing(root, onlyFirmwareFiles OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
