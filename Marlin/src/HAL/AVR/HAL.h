@@ -207,6 +207,7 @@ inline void HAL_adc_init() {
 #define strtof strtod
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+#define PWM_FREQUENCY 1000     // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
 
 /**
  *  set_pwm_frequency
