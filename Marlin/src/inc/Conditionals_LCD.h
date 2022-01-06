@@ -209,7 +209,9 @@
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
-  #define PCA9632
+  #ifndef PCA9632
+    #define PCA9632
+  #endif
 
 #elif ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
 
