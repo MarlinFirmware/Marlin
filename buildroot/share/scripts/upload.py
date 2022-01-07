@@ -21,7 +21,7 @@ Import("env")
 import MarlinBinaryProtocol
 
 # Internal debug flag
-Debug = False
+Debug = True
 
 #-----------------#
 # Upload Callback #
@@ -53,8 +53,12 @@ def Upload(source, target, env):
         clean_responses = []
         responses = port.readlines()
         for Resp in responses:
-            clean_response = Resp.decode('utf8').rstrip().lstrip()
-            clean_responses.append(clean_response)
+            # Test: suppress invaid chars (coming from debug info)
+            try:
+                clean_response = Resp.decode('utf8').rstrip().lstrip()
+                clean_responses.append(clean_response)
+            except:
+                pass
             if Debug: print(f'<< {clean_response}')
         return clean_responses
 
@@ -65,7 +69,7 @@ def Upload(source, target, env):
         if Debug: print('Checking SD card...')
         _Send('M21')
         Responses = _Recv()
-        if len(Responses) < 1 or not 'SD card ok' in Responses[0]:
+        if len(Responses) < 1 or not any('SD card ok' in r for r in Responses):
             raise Exception('Error accessing SD card')
         if Debug: print('SD Card OK')
         return True
@@ -77,7 +81,7 @@ def Upload(source, target, env):
         if Debug: print('Get firmware files...')
         _Send('M20 F')
         Responses = _Recv()
-        if len(Responses) < 3 or not 'file list' in Responses[0]:
+        if len(Responses) < 3 or not any('file list' in r for r in Responses):
             raise Exception('Error getting firmware files')
         if Debug: print('OK')
         return Responses
@@ -93,7 +97,7 @@ def Upload(source, target, env):
     def _RemoveFirmwareFile(FirmwareFile):
         _Send(f'M30 /{FirmwareFile}')
         Responses = _Recv()
-        Removed = len(Responses) >= 1 and 'File deleted' in Responses[0]
+        Removed = len(Responses) >= 1 and any('File deleted' in r for r in Responses)
         if not Removed:
             raise Exception(f"Firmware file '{FirmwareFile}' not removed")
         return Removed
