@@ -3259,10 +3259,10 @@ void Stepper::report_positions() {
 
         #define _WRITE_CURRENT_PWM(P) set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         #ifdef __SAM3X8E__
-          #define _WRITE_FREQUENCY_PWM(P) NOOP         
-        #else  
+          #define _WRITE_FREQUENCY_PWM(P) NOOP
+        #else
           #define _WRITE_FREQUENCY_PWM(P) set_pwm_frequency(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), MOTOR_CURRENT_PWM_FREQUENCY)
-        #endif  
+        #endif
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
@@ -3290,11 +3290,11 @@ void Stepper::report_positions() {
               _WRITE_CURRENT_PWM(E);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-              _WRITE_FREQUENCY_PWM(E0);            
+              _WRITE_FREQUENCY_PWM(E0);
               _WRITE_CURRENT_PWM(E0);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-              _WRITE_FREQUENCY_PWM(E1);            
+              _WRITE_FREQUENCY_PWM(E1);
               _WRITE_CURRENT_PWM(E1);
             #endif
             break;

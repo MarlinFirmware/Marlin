@@ -243,7 +243,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
       // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
       if (timer_freq[timer.n] == 0) {           // If the timer is unconfigured and no freq is set then default PWM_FREQUENCY
-        set_pwm_frequency(pin, PWM_FREQUENCY); // Set the frequency and save the value to the assigned index no.
+        set_pwm_frequency(pin, PWM_FREQUENCY);  // Set the frequency and save the value to the assigned index no.
         timer_freq[timer.n] = PWM_FREQUENCY;
       }
       _SET_COMnQ(timer.TCCRnQ, timer.q TERN_(HAS_TCCR2, + (timer.q == 2)), COM_CLEAR_SET + invert); // COM20 is on bit 4 of TCCR2, so +1 for q==2
