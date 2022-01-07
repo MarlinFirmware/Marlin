@@ -22,5 +22,5 @@ convert -size 48x48 -background "#080808" -quality 100 -sampling-factor 4:4:4 do
 
 convert -size 48x8  -background "#080808" -quality 100 -sampling-factor 4:4:4 bedline.svg               ICONS/016-ICON_bedline.jpg
 
-convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_off_withleveling.svg  ICONS/017-ICON_bed_off_leveling.jpg
-convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_on_withleveling.svg   ICONS/018-ICON_bed_on_leveling.jpg
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_leveled_off.svg       ICONS/017-ICON_bed_leveled_off.jpg
+convert -size 48x36 -background "#080808" -quality 100 -sampling-factor 4:4:4 bed_leveled_on.svg        ICONS/018-ICON_bed_leveled_on.jpg
