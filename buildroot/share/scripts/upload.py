@@ -224,11 +224,11 @@ def Upload(source, target, env):
         # Upload firmware file
         if Debug: print(f"Copy '{upload_firmware_source_name}' --> '{upload_firmware_target_name}'")
         protocol = MarlinBinaryProtocol.Protocol(upload_port, upload_speed, upload_blocksize, float(upload_error_ratio), int(upload_timeout))
-        ##echologger = MarlinBinaryProtocol.EchoProtocol(protocol)
-        #protocol.connect()
-        #filetransfer = MarlinBinaryProtocol.FileTransferProtocol(protocol)
-        #filetransfer.copy(upload_firmware_source_name, upload_firmware_target_name, upload_compression, upload_test)
-        #protocol.disconnect()
+        #echologger = MarlinBinaryProtocol.EchoProtocol(protocol)
+        protocol.connect()
+        filetransfer = MarlinBinaryProtocol.FileTransferProtocol(protocol)
+        filetransfer.copy(upload_firmware_source_name, upload_firmware_target_name, upload_compression, upload_test)
+        protocol.disconnect()
 
         # Notify upload completed
         protocol.send_ascii('M117 Firmware uploaded')
@@ -240,9 +240,9 @@ def Upload(source, target, env):
         protocol.send_ascii('M21')
 
         # Trigger firmware update
-        #if upload_reset:
-        #    print('Trigger firmware update...')
-        #    protocol.send_ascii('M997', True)
+        if upload_reset:
+            print('Trigger firmware update...')
+            protocol.send_ascii('M997', True)
 
         protocol: protocol.shutdown()
         print('Firmware update completed')
