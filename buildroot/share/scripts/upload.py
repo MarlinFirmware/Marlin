@@ -36,7 +36,7 @@ def Upload(source, target, env):
         env.AutodetectUploadPort(env)
         port = env.subst('$UPLOAD_PORT')
         if not port:
-            raise exception('Error detecting the upload port.')
+            raise Exception('Error detecting the upload port.')
         if Debug: print('OK')
         return port
 
@@ -66,7 +66,7 @@ def Upload(source, target, env):
         _Send('M21')
         Responses = _Recv()
         if len(Responses) < 1 or not 'SD card ok' in Responses[0]:
-            raise exception('Error accessing SD card')
+            raise Exception('Error accessing SD card')
         if Debug: print('SD Card OK')
         return True
 
@@ -78,7 +78,7 @@ def Upload(source, target, env):
         _Send('M20 F')
         Responses = _Recv()
         if len(Responses) < 3 or not 'file list' in Responses[0]:
-            raise exception('Error getting firmware files')
+            raise Exception('Error getting firmware files')
         if Debug: print('OK')
         return Responses
         
@@ -95,7 +95,7 @@ def Upload(source, target, env):
         Responses = _Recv()
         Removed = len(Responses) >= 1 and 'File deleted' in Responses[0]
         if not Removed:
-            raise exception(f"Firmware file '{FirmwareFile}' not removed")
+            raise Exception(f"Firmware file '{FirmwareFile}' not removed")
         return Removed
 
 
@@ -133,34 +133,34 @@ def Upload(source, target, env):
         print(f' -Reset       : {upload_reset}')
         print('----------------')
 
-    # Init serial port
-    port = serial.Serial(upload_port, baudrate = upload_speed, write_timeout = 0, timeout = 0.1)
-    port.reset_input_buffer()
-
-    # Check SD card status
-    _CheckSDCard()
-    
-    # Get firmware files
-    FirmwareFiles = _GetFirmwareFiles()
-    if Debug:
-        for FirmwareFile in FirmwareFiles:
-            print(f'Found: {FirmwareFile}')
-        
-    # Get all 1st level firmware files (to remove)
-    OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2])   # Skip header and footers of list
-    if len(OldFirmwareFiles) == 0:
-        print('No old firmware files found')
-    else:
-        print(f"Remove {len(OldFirmwareFiles)} old firmware file{'s' if len(OldFirmwareFiles) != 1 else ''}:")
-        for OldFirmwareFile in OldFirmwareFiles:
-            print(f" -Removing- '{OldFirmwareFile}'...")
-            print(' OK' if _RemoveFirmwareFile(OldFirmwareFile) else ' Error!')
-
-    # Cleanup completed
-    port.close()
-    if Debug: print('Cleanup completed')
-    
     try:
+        # Init serial port
+        port = serial.Serial(upload_port, baudrate = upload_speed, write_timeout = 0, timeout = 0.1)
+        port.reset_input_buffer()
+
+        # Check SD card status
+        _CheckSDCard()
+        
+        # Get firmware files
+        FirmwareFiles = _GetFirmwareFiles()
+        if Debug:
+            for FirmwareFile in FirmwareFiles:
+                print(f'Found: {FirmwareFile}')
+            
+        # Get all 1st level firmware files (to remove)
+        OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2])   # Skip header and footers of list
+        if len(OldFirmwareFiles) == 0:
+            print('No old firmware files found')
+        else:
+            print(f"Remove {len(OldFirmwareFiles)} old firmware file{'s' if len(OldFirmwareFiles) != 1 else ''}:")
+            for OldFirmwareFile in OldFirmwareFiles:
+                print(f" -Removing- '{OldFirmwareFile}'...")
+                print(' OK' if _RemoveFirmwareFile(OldFirmwareFile) else ' Error!')
+
+        # Cleanup completed
+        port.close()
+        if Debug: print('Cleanup completed')
+    
         # Upload File
         print(f"Copying '{upload_firmware_source_name}' --> '{upload_firmware_target_name}'")
         protocol = MarlinBinaryProtocol.Protocol(upload_port, upload_speed, upload_blocksize, float(upload_error_ratio), int(upload_timeout))
@@ -188,18 +188,22 @@ def Upload(source, target, env):
     except KeyboardInterrupt:
         if filetransfer: filetransfer.abort()
         if protocol: protocol.shutdown()
-        raise        
+        raise
 
     except MarlinBinaryProtocol.FatalError:
+        if protocol: protocol.shutdown()
         print('Too many retries, Abort')
-        if protocol: protocol.shutdown()
-        raise        
+        raise
 
-    except Exception:
+    except serial.SerialException as se:
+        print(f'Serial excepion: {se}')
+        raise Exception(se)
+
+    except:
         print('Firmware not updated')
+        if filetransfer: filetransfer.abort()
         if protocol: protocol.shutdown()
-        raise        
-    
+        raise
 
 # Attach custom upload callback
 env.Replace(UPLOADCMD=Upload)
