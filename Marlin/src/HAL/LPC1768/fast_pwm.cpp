@@ -32,7 +32,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 
 #if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
 
-  void set_pwm_frequency(const pin_t pin, int f_desired) {
+  void set_pwm_frequency(const pin_t pin, const int f_desired) {
     LPC176x::pwm_set_frequency(pin, f_desired);
   }
 

@@ -24,6 +24,8 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "HAL.h"
 
+#if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
+
 //#define DEBUG_PWM_INIT
 
 #if ENABLED(DEBUG_PWM_INIT)
@@ -155,7 +157,7 @@ Timer get_pwm_timer(const pin_t pin) {
   return timer;
 }
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+void set_pwm_frequency(const pin_t pin, const int f_desired) {
   Timer timer = get_pwm_timer(pin);
   if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
 
@@ -234,6 +236,8 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   else
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
 }
+
+#endif // NEEDS_HARDWARE_PWM
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   #if NEEDS_HARDWARE_PWM
