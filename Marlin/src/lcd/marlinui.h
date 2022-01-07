@@ -496,14 +496,15 @@ public:
   #endif
 
   #if HAS_PREHEAT
-    enum PreheatMask : uint8_t { PM_HOTEND = _BV(0), PM_BED = _BV(1), PM_FAN = _BV(2), PM_CHAMBER = _BV(3) };
+    enum PreheatMask : uint8_t { PM_HOTEND = 0, PM_BED = 1, PM_FAN = 2, PM_CHAMBER = 3 }; //these values are the bit indexes used, NOT the actual values. 
+                                                                                          //Since the TEST() macro does bit-shifting on the second value, doing so here as well causes mismatches.
     static preheat_t material_preset[PREHEAT_COUNT];
     static PGM_P get_preheat_label(const uint8_t m);
     static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
-    static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, PM_FAN)); }
-    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, PM_HOTEND)); }
-    static void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
-    static void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, PM_BED)); }
+    static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, _BV(PM_FAN))); }
+    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PM_HOTEND))); }
+    static void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { TERN_(ANY(HAS_HOTEND, HAS_FAN), apply_preheat(m, _BV(PM_HOTEND) + _BV(PM_FAN), e)); } //the check inside apply_preheat will mask off non-available devices
+    static void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, _BV(PM_BED))); }
     static void preheat_all(const uint8_t m) { apply_preheat(m, 0xFF); }
   #endif
 
