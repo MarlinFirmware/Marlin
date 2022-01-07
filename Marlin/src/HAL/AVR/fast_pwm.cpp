@@ -21,15 +21,10 @@
  */
 #ifdef __AVR__
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
-//#define DEBUG_PWM_INIT
-
-#if ENABLED(DEBUG_PWM_INIT)
-  #include "../../core/serial.h"
-  static uint16_t timer_freq[5];
-#endif
+static uint16_t timer_freq[5];
 
 struct Timer {
   volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
@@ -159,7 +154,7 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
   Timer timer = get_pwm_timer(pin);
   if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
 
-  TERN_(DEBUG_PWM_INIT, timer_freq[timer.n - 1] = f_desired);
+  timer_freq[timer.n - 1] = f_desired;
 
   const uint16_t size = (timer.n == 2) ? 255 : 65535;
 
@@ -247,13 +242,11 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     else {
       Timer timer = get_pwm_timer(pin);
       if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
-      // Set compare output mode to CLEAR -> SET or SET -> CLEAR (if inverted)
-      #if ENABLED(DEBUG_PWM_INIT)
-        if (timer_freq[timer.n - 1] == 0) {       // If the timer is unconfigured and no freq is set then default PWM_FREQUENCY
-          set_pwm_frequency(pin, PWM_FREQUENCY);  // Set the frequency and save the value to the assigned index no.
-          SERIAL_ECHOLNPGM("PWM Timer ", timer.n, " Frequency Not Initialized!");
-        }
-      #endif
+
+      if (timer_freq[timer.n - 1] == 0) {       // If the timer is unconfigured and no freq is set then default PWM_FREQUENCY
+        set_pwm_frequency(pin, PWM_FREQUENCY);  // Set the frequency and save the value to the assigned index no.
+      }
+
       _SET_COMnQ(timer.TCCRnQ, timer.q TERN_(HAS_TCCR2, + (timer.q == 2)), COM_CLEAR_SET + invert); // COM20 is on bit 4 of TCCR2, so +1 for q==2
       const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
       _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
