@@ -3257,45 +3257,45 @@ void Stepper::report_positions() {
 
       #elif HAS_MOTOR_CURRENT_PWM
 
-        #define _WRITE_CURRENT_PWM(P) set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+        #define _WRITE_CURRENT_PWM_DUTY(P) set_pwm_duty(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         #ifdef __SAM3X8E__
-          #define _WRITE_FREQUENCY_PWM(P) NOOP
+          #define _RESET_CURRENT_PWM_FREQ(P) NOOP
         #else
-          #define _WRITE_FREQUENCY_PWM(P) set_pwm_frequency(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), MOTOR_CURRENT_PWM_FREQUENCY)
+          #define _RESET_CURRENT_PWM_FREQ(P) set_pwm_frequency(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), MOTOR_CURRENT_PWM_FREQUENCY)
         #endif
         switch (driver) {
           case 0:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
-              _WRITE_FREQUENCY_PWM(X);
-              _WRITE_CURRENT_PWM(X);
+              _RESET_CURRENT_PWM_FREQ(X);
+              _WRITE_CURRENT_PWM_DUTY(X);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
-              _WRITE_FREQUENCY_PWM(Y);
-              _WRITE_CURRENT_PWM(Y);
+              _RESET_CURRENT_PWM_FREQ(Y);
+              _WRITE_CURRENT_PWM_DUTY(Y);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-              _WRITE_FREQUENCY_PWM(XY);
-              _WRITE_CURRENT_PWM(XY);
+              _RESET_CURRENT_PWM_FREQ(XY);
+              _WRITE_CURRENT_PWM_DUTY(XY);
             #endif
             break;
           case 1:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-              _WRITE_FREQUENCY_PWM(Z);
-              _WRITE_CURRENT_PWM(Z);
+              _RESET_CURRENT_PWM_FREQ(Z);
+              _WRITE_CURRENT_PWM_DUTY(Z);
             #endif
             break;
           case 2:
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-              _WRITE_FREQUENCY_PWM(E);
-              _WRITE_CURRENT_PWM(E);
+              _RESET_CURRENT_PWM_FREQ(E);
+              _WRITE_CURRENT_PWM_DUTY(E);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
-              _WRITE_FREQUENCY_PWM(E0);
-              _WRITE_CURRENT_PWM(E0);
+              _RESET_CURRENT_PWM_FREQ(E0);
+              _WRITE_CURRENT_PWM_DUTY(E0);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
-              _WRITE_FREQUENCY_PWM(E1);
-              _WRITE_CURRENT_PWM(E1);
+              _RESET_CURRENT_PWM_FREQ(E1);
+              _WRITE_CURRENT_PWM_DUTY(E1);
             #endif
             break;
         }
