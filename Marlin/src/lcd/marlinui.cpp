@@ -1553,10 +1553,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
-  #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+  #if ENABLED(PSU_CONTROL)
     void MarlinUI::poweroff() {
-      queue.inject(F("M81"));
-      goto_previous_screen();
+      #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
+        queue.inject(F("M81 S"));
+      #else
+        queue.inject(F("M81"));
+      #endif
+      TERN_(HAS_LCD_MENU, return_to_status());
     }
   #endif
 
