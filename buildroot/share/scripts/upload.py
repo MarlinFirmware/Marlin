@@ -21,7 +21,7 @@ Import("env")
 import MarlinBinaryProtocol
 
 # Internal debug flag
-Debug = True
+Debug = False
 
 #-----------------#
 # Upload Callback #
