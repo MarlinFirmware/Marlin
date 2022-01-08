@@ -380,7 +380,7 @@ void menu_main() {
           GET_TEXT(MSG_SWITCH_PS_OFF), (const char *)nullptr, PSTR("?")
         );
       #else
-        GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
+        ACTION_ITEM(MSG_SWITCH_PS_OFF, ui.poweroff);
       #endif
     else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
