@@ -1754,7 +1754,7 @@ void update_variable() {
     if (_new_hotend_target)
       Draw_Stat_Int(25 + 4 * STAT_CHR_W + 6, 384, _hotendtarget);
 
-    static int16_t _flow = planner.flow_percentage[0];
+    static int16_t _flow = 0;
     if (_flow != planner.flow_percentage[0]) {
       _flow = planner.flow_percentage[0];
       Draw_Stat_Int(116 + 2 * STAT_CHR_W, 417, _flow);
@@ -1768,7 +1768,7 @@ void update_variable() {
       Draw_Stat_Int(25 + 4 * STAT_CHR_W + 6, 417, _bedtarget);
   #endif
 
-  static int16_t _feedrate = 100;
+  static int16_t _feedrate = 0;
   if (_feedrate != feedrate_percentage) {
     _feedrate = feedrate_percentage;
     Draw_Stat_Int(116 + 2 * STAT_CHR_W, 384, _feedrate);
@@ -2269,6 +2269,8 @@ void HMI_SelectFile() {
         //  thermalManager.fan_speed[i] = 255;
       #endif
 
+      _card_percent = 0;
+      _remain_time = 0;
       Goto_PrintProcess();
     }
   }
@@ -4173,10 +4175,7 @@ void EachMomentUpdate() {
   }
   #if ENABLED(POWER_LOSS_RECOVERY)
     else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // resume print before power off
-      static bool recovery_flag = false;
-
       recovery.dwin_flag = false;
-      recovery_flag = true;
 
       auto update_selection = [&](const bool sel) {
         HMI_flag.select_flag = sel;
@@ -4196,6 +4195,7 @@ void EachMomentUpdate() {
       DWIN_Draw_String(true, font8x16, Popup_Text_Color, Color_Bg_Window, npos, 252, name);
       DWIN_UpdateLCD();
 
+      bool recovery_flag = true;
       while (recovery_flag) {
         EncoderState encoder_diffState = Encoder_ReceiveAnalyze();
         if (encoder_diffState != ENCODER_DIFF_NO) {
