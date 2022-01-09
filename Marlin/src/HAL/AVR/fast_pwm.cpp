@@ -23,6 +23,11 @@
 
 #include "../../inc/MarlinConfig.h"
 
+// Add features that need hardware PWM here
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM, HAS_MOTOR_CURRENT_PWM, HAS_LCD_BRIGHTNESS)
+  #define NEEDS_HARDWARE_PWM 1
+#endif
+
 #if NEEDS_HARDWARE_PWM
 
 static uint16_t timer_freq[5];
