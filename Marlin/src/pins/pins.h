@@ -558,21 +558,21 @@
 #elif MB(CHITU3D_V9)
   #include "stm32f1/pins_CHITU3D_V9.h"          // STM32F1                                env:chitu_f103 env:chitu_f103_maple
 #elif MB(CREALITY_V4)
-  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V4210)
-  #include "stm32f1/pins_CREALITY_V4210.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V4210.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V423)
-  #include "stm32f1/pins_CREALITY_V423.h"       // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V423.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer
 #elif MB(CREALITY_V427)
-  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V431, CREALITY_V431_A, CREALITY_V431_B, CREALITY_V431_C, CREALITY_V431_D)
-  #include "stm32f1/pins_CREALITY_V431.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V431.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V452)
-  #include "stm32f1/pins_CREALITY_V452.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V452.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V453)
-  #include "stm32f1/pins_CREALITY_V453.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V453.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V24S1)
-  #include "stm32f1/pins_CREALITY_V24S1.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V24S1.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro env:trigorilla_pro_maple
 #elif MB(FLY_MINI)
