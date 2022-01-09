@@ -95,8 +95,10 @@
     #error "FAN_MIN_PWM must be 5 or higher."     // Fan will not start in 1-30 range
   #endif
 #elif ENABLED(FAST_PWM_FAN)                       // STM32 HAL required to allow TIMER2 Hardware PWM
-  #if FAST_PWM_FAN_FREQUENCY == 1000              // Default 1000 is noisy, max 65K (uint16)
-    #error "FAST_PWM_FAN_FREQUENCY must be set to 31400."
+  #if FAST_PWM_FAN_FREQUENCY <= 1000              // Default 1000 is noisy, max 65K (uint16)
+    #error "FAST_PWM_FAN_FREQUENCY must be greater than 1000."
+  #elif FAST_PWM_FAN_FREQUENCY > 65535
+    #error "FAST_PWM_FAN_FREQUENCY must be less than 65536."
   #endif
   #if FAN_MIN_PWM < 5
     #error "FAN_MIN_PWM must be 5 or higher."
