@@ -195,10 +195,14 @@ char *createFilename(char * const buffer, const dir_t &p) {
 }
 
 //
-// Return 'true' if the item is a folder or G-code file
+// Return 'true' if the item is something Marlin can read
 //
-bool CardReader::is_dir_or_gcode(const dir_t &p) {
+bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)) {
   //uint8_t pn0 = p.name[0];
+
+  #if DISABLED(CUSTOM_FIRMWARE_UPLOAD)
+    constexpr bool onlyBin = false;
+  #endif
 
   if ( (p.attributes & DIR_ATT_HIDDEN)                  // Hidden by attribute
     // When readDir() > 0 these must be false:
@@ -211,7 +215,11 @@ bool CardReader::is_dir_or_gcode(const dir_t &p) {
 
   return (
     flag.filenameIsDir                                  // All Directories are ok
-    || (p.name[8] == 'G' && p.name[9] != '~')           // Non-backup *.G* files are accepted
+    || (!onlyBin && p.name[8] == 'G'
+                 && p.name[9] != '~')                   // Non-backup *.G* files are accepted
+    || ( onlyBin && p.name[8]  == 'B'
+                 && p.name[9]  == 'I'
+                 && p.name[10] == 'N')                  // BIN files are accepted
   );
 }
 
@@ -222,7 +230,7 @@ int CardReader::countItems(SdFile dir) {
   dir_t p;
   int c = 0;
   while (dir.readDir(&p, longFilename) > 0)
-    c += is_dir_or_gcode(p);
+    c += is_visible_entity(p);
 
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
     nrFiles = c;
@@ -237,7 +245,7 @@ int CardReader::countItems(SdFile dir) {
 void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
   dir_t p;
   for (uint8_t cnt = 0; dir.readDir(&p, longFilename) > 0;) {
-    if (is_dir_or_gcode(p)) {
+    if (is_visible_entity(p)) {
       if (cnt == index) {
         createFilename(filename, p);
         return;  // 0 based index
@@ -253,7 +261,7 @@ void CardReader::selectByIndex(SdFile dir, const uint8_t index) {
 void CardReader::selectByName(SdFile dir, const char * const match) {
   dir_t p;
   for (uint8_t cnt = 0; dir.readDir(&p, longFilename) > 0; cnt++) {
-    if (is_dir_or_gcode(p)) {
+    if (is_visible_entity(p)) {
       createFilename(filename, p);
       if (strcasecmp(match, filename) == 0) return;
     }
@@ -271,9 +279,9 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
  * good addition.
  */
 void CardReader::printListing(
-  SdFile parent
+  SdFile parent, const char * const prepend
+  OPTARG(CUSTOM_FIRMWARE_UPLOAD, bool onlyBin/*=false*/)
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
-  , const char * const prepend/*=nullptr*/
   OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong/*=nullptr*/)
 ) {
   dir_t p;
@@ -283,61 +291,47 @@ void CardReader::printListing(
       size_t lenPrepend = prepend ? strlen(prepend) + 1 : 0;
       // Allocate enough stack space for the full path including / separator
       char path[lenPrepend + FILENAME_LENGTH];
-      if (prepend) {
-        strcpy(path, prepend);
-        path[lenPrepend - 1] = '/';
-      }
+      if (prepend) { strcpy(path, prepend); path[lenPrepend - 1] = '/'; }
       char* dosFilename = path + lenPrepend;
       createFilename(dosFilename, p);
 
       // Get a new directory object using the full path
       // and dive recursively into it.
       SdFile child; // child.close() in destructor
-      if (child.open(&parent, dosFilename, O_READ))
+      if (child.open(&parent, dosFilename, O_READ)) {
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
           if (includeLongNames) {
             size_t lenPrependLong = prependLong ? strlen(prependLong) + 1 : 0;
             // Allocate enough stack space for the full long path including / separator
             char pathLong[lenPrependLong + strlen(longFilename) + 1];
-            if (prependLong) {
-              strcpy(pathLong, prependLong);
-              pathLong[lenPrependLong - 1] = '/';
-            }
+            if (prependLong) { strcpy(pathLong, prependLong); pathLong[lenPrependLong - 1] = '/'; }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, true, path, pathLong);
+            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin), true, pathLong);
           }
           else
-            printListing(child, false, path);
+            printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin));
         #else
-          printListing(child, path);
+          printListing(child, path OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin));
         #endif
+      }
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
       }
     }
-    else if (is_dir_or_gcode(p)) {
-      if (prepend) {
-        SERIAL_ECHO(prepend);
-        SERIAL_CHAR('/');
-      }
+    else if (is_visible_entity(p OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin))) {
+      if (prepend) { SERIAL_ECHO(prepend); SERIAL_CHAR('/'); }
       SERIAL_ECHO(createFilename(filename, p));
       SERIAL_CHAR(' ');
+      SERIAL_ECHO(p.fileSize);
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        if (!includeLongNames)
-      #endif
-          SERIAL_ECHOLN(p.fileSize);
-      #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        else {
-          SERIAL_ECHO(p.fileSize);
+        if (includeLongNames) {
           SERIAL_CHAR(' ');
-          if (prependLong) {
-            SERIAL_ECHO(prependLong);
-            SERIAL_CHAR('/');
-          }
-          SERIAL_ECHOLN(longFilename[0] ? longFilename : "???");
+          if (prependLong) { SERIAL_ECHO(prependLong); SERIAL_CHAR('/'); }
+          SERIAL_ECHO(longFilename[0] ? longFilename : "???");
         }
       #endif
+      SERIAL_EOL();
     }
   }
 }
@@ -345,10 +339,16 @@ void CardReader::printListing(
 //
 // List all files on the SD card
 //
-void CardReader::ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames/*=false*/)) {
+void CardReader::ls(
+  TERN_(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin/*=false*/)
+  #if BOTH(CUSTOM_FIRMWARE_UPLOAD, LONG_FILENAME_HOST_SUPPORT)
+    ,
+  #endif
+  TERN_(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames/*=false*/)
+) {
   if (flag.mounted) {
     root.rewind();
-    printListing(root OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
+    printListing(root, nullptr OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin) OPTARG(LONG_FILENAME_HOST_SUPPORT, includeLongNames));
   }
 }
 
