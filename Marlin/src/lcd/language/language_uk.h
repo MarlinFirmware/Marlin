@@ -68,12 +68,10 @@ namespace Language_uk {
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню Debug");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест лінії прогр.");
   LSTR MSG_AUTO_HOME                        = _UxGT("Авто паркування");
+  LSTR MSG_AUTO_HOME_A                      = _UxGT("Паркування @");
   LSTR MSG_AUTO_HOME_X                      = _UxGT("Паркування X");
   LSTR MSG_AUTO_HOME_Y                      = _UxGT("Паркування Y");
   LSTR MSG_AUTO_HOME_Z                      = _UxGT("Паркування Z");
-  LSTR MSG_AUTO_HOME_I                      = _UxGT("Паркування ") LCD_STR_I;
-  LSTR MSG_AUTO_HOME_J                      = _UxGT("Паркування ") LCD_STR_J;
-  LSTR MSG_AUTO_HOME_K                      = _UxGT("Паркування ") LCD_STR_K;
   LSTR MSG_AUTO_Z_ALIGN                     = _UxGT("Авто Z-вирівнювання");
   LSTR MSG_ITERATION                        = _UxGT("G34 Ітерація: %i");
   LSTR MSG_DECREASING_ACCURACY              = _UxGT("Зменьшення точності!");

@@ -66,12 +66,10 @@ namespace Language_ru {
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню отладки");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест индикатора");
   LSTR MSG_AUTO_HOME                        = _UxGT("Парковка XYZ");
+  LSTR MSG_AUTO_HOME_A                      = _UxGT("Парковка @");
   LSTR MSG_AUTO_HOME_X                      = _UxGT("Парковка X");
   LSTR MSG_AUTO_HOME_Y                      = _UxGT("Парковка Y");
   LSTR MSG_AUTO_HOME_Z                      = _UxGT("Парковка Z");
-  LSTR MSG_AUTO_HOME_I                      = _UxGT("Парковка ") LCD_STR_I;
-  LSTR MSG_AUTO_HOME_J                      = _UxGT("Парковка ") LCD_STR_J;
-  LSTR MSG_AUTO_HOME_K                      = _UxGT("Парковка ") LCD_STR_K;
   LSTR MSG_AUTO_Z_ALIGN                     = _UxGT("Авто Z-выравнивание");
   LSTR MSG_ITERATION                        = _UxGT("G34 Итерация: %i");
   LSTR MSG_DECREASING_ACCURACY              = _UxGT("Уменьшение точности!");
