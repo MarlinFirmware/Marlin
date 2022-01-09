@@ -41,7 +41,7 @@
  */
 #pragma once
 
-#define DEBUG_MAX31865
+//#define DEBUG_MAX31865
 
 #include "../inc/MarlinConfig.h"
 #include "../HAL/shared/Delay.h"
@@ -149,7 +149,7 @@ private:
 
   uint16_t readRawImmediate();
 
-  uint8_t runAutoFaultDetectionCycle();
+  void runAutoFaultDetectionCycle();
 
 public:
   #if ENABLED(LARGE_PINMAP)

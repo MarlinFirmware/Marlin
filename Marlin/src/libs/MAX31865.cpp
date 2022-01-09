@@ -159,9 +159,18 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
 
   initFixedFlags(wires);
 
+  DEBUG_ECHOLNPGM("MAX31865 Regs: CFG ", readRegister8(MAX31865_CONFIG_REG), 
+    "|RTD ", readRegister16(MAX31865_RTDMSB_REG), 
+    "|HTHRS ", readRegister16(MAX31865_HFAULTMSB_REG), 
+    "|LTHRS ", readRegister16(MAX31865_LFAULTMSB_REG), 
+    "|FLT  ", readRegister8(MAX31865_FAULTSTAT_REG));
+
   // fault detection cycle seems to initialize the sensor better
-  uint8_t fault = runAutoFaultDetectionCycle(); // also initializes flags
-  DEBUG_ECHOLNPGM("MAX31865 Fault reg: ", fault);
+  runAutoFaultDetectionCycle(); // also initializes flags
+
+  if (lastFault) {
+    SERIAL_ECHOLNPGM("MAX31865 Initialized with fault ", lastFault);
+  }
 
   writeRegister16(MAX31865_HFAULTMSB_REG, 0xFFFF);
   writeRegister16(MAX31865_LFAULTMSB_REG, 0);
@@ -249,13 +258,12 @@ void MAX31865::oneShot() {
   setConfig(MAX31865_CONFIG_1SHOT | MAX31865_CONFIG_BIAS, 1);
 }
 
-uint8_t MAX31865::runAutoFaultDetectionCycle() {
+void MAX31865::runAutoFaultDetectionCycle() {
   writeRegister8(MAX31865_CONFIG_REG, (stdFlags & 0x11) | 0x84 ); // cfg reg = 100X010Xb
   DELAY_US(600);
   while ((readRegister8(MAX31865_CONFIG_REG) & 0xC) > 0) DELAY_US(100); // Fault det completes when bits 2 and 3 are zero
-  uint8_t f = readFault();
+  readFault();
   clearFault();
-  return f;
 }
 
 /**
