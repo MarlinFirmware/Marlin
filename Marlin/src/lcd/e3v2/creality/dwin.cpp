@@ -2269,6 +2269,8 @@ void HMI_SelectFile() {
         //  thermalManager.fan_speed[i] = 255;
       #endif
 
+      _card_percent = 0;
+      _remain_time = 0;
       Goto_PrintProcess();
     }
   }
