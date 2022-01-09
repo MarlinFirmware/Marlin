@@ -161,8 +161,10 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
 
   // fault detection cycle seems to initialize the sensor better
   uint8_t fault = runAutoFaultDetectionCycle(); // also initializes flags
+  DEBUG_ECHOLNPGM("MAX31865 Fault reg: ", fault);
 
-  DEBUG_ECHOLNPGM("Fault read: ", fault);
+  writeRegister16(MAX31865_HFAULTMSB_REG, 0xFFFF);
+  writeRegister16(MAX31865_LFAULTMSB_REG, 0);
 
   #if DISABLED(MAX31865_USE_AUTO_MODE) // make a proper first 1 shot read to initialize _lastRead
 
@@ -171,6 +173,10 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
     oneShot();
     DELAY_US(65000);
     uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+
+    #ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
+      rtd = fixFault(rtd);
+    #endif
 
     if (rtd & 1) {
       lastRead = 0xFFFF; // some invalid value
@@ -269,10 +275,28 @@ void MAX31865::initFixedFlags(max31865_numwires_t wires) {
     stdFlags &= ~MAX31865_CONFIG_3WIRE;
 }
 
+#ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
+  inline uint16_t MAX31865::fixFault(uint16_t rtd) {
+    if (!ignore_faults || !(rtd & 1)) 
+      return rtd;
+
+    ignore_faults --;
+    clearFault();
+    
+    DEBUG_ECHOLNPGM("MAX31865 ignoring fault ", MAX31865_IGNORE_INITIAL_FAULTY_READS - ignore_faults);
+
+    return rtd & ~1;
+  }
+#endif 
+
 inline uint16_t MAX31865::readRawImmediate() {
 
-    const uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+    uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
     DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
+
+    #ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
+      rtd = fixFault(rtd);
+    #endif
 
     if (rtd & 1) {
       lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
@@ -479,6 +503,11 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
     SPI.endTransaction();
 
   digitalWrite(cselPin, HIGH);
+}
+
+void MAX31865::writeRegister16(uint8_t addr, uint16_t data) {
+  writeRegister8(addr, data >> 8);
+  writeRegister8(addr + 1, data & 0xFF);
 }
 
 /**

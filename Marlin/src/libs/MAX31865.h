@@ -121,6 +121,11 @@ private:
     one_shot_event_t nextEvent;
   #endif
 
+  #ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
+    uint8_t ignore_faults = MAX31865_IGNORE_INITIAL_FAULTY_READS;
+    uint16_t fixFault(uint16_t rtd);
+  #endif
+
   uint8_t stdFlags = 0;
 
   void setConfig(uint8_t config, bool enable);
@@ -130,6 +135,7 @@ private:
   uint16_t readRegister16(uint8_t addr);
 
   void writeRegister8(uint8_t addr, uint8_t reg);
+  void writeRegister16(uint8_t addr, uint16_t reg);
   uint8_t spiTransfer(uint8_t addr);
 
   void softSpiBegin(const uint8_t spi_speed);
