@@ -354,7 +354,7 @@ uint16_t MAX31865::readRaw() {
 
       case SETUP_1_SHOT_MODE:
         oneShot();
-        nextEventStamp = millis() + 65; // wait at least 65msec before reading RTD register
+        nextEventStamp = millis() + TERN(MAX31865_50HZ_FILTER, 63, 52); // wait at least 52msec for 60Hz (63msec for 50Hz) before reading RTD register
         nextEvent = READ_RTD_REG;
         DEBUG_ECHOLN("MAX31865 1 shot mode enabled");
         break;
