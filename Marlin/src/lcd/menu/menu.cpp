@@ -38,13 +38,20 @@
   #include "../../module/probe.h"
 #endif
 
-#if EITHER(ENABLE_LEVELING_FADE_HEIGHT, AUTO_BED_LEVELING_UBL)
+#if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 ////////////////////////////////////////////
 ///////////// Global Variables /////////////
 ////////////////////////////////////////////
+
+#if HAS_LEVELING && ANY(LEVEL_BED_CORNERS, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+  bool leveling_was_active; // = false
+#endif
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
+  uint8_t manual_probe_index; // = 0
+#endif
 
 // Menu Navigation
 int8_t encoderTopLine, encoderLine, screen_items;
@@ -103,42 +110,28 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
-/**
- * Functions for editing single values
- *
- * The "DEFINE_MENU_EDIT_ITEM" macro generates the classes needed to edit a numerical value.
- *
- * The prerequisite is that in the header the type was already declared:
- *
- *   DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
- *
- * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into:
- *
- *   template class TMenuEditItem<MenuEditItemInfo_int3>
- *
- * You can then use one of the menu macros to present the edit interface:
- *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *
- * This expands into a more primitive menu item:
- *  _MENU_ITEM_P(int3, false, GET_TEXT(MSG_SPEED), &feedrate_percentage, 10, 999)
- *
- * ...which calls:
- *       MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
- *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
- */
+// All Edit Screens run the same way, but `draw_edit_screen` is implementation-specific
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
+  // Reset repeat_delay for Touch Buttons
   TERN_(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
+  // Constrain ui.encoderPosition to 0 ... maxEditValue (calculated in encoder steps)
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
+  // If drawing is flagged then redraw the (whole) edit screen
   if (ui.should_draw())
     draw_edit_screen(strfunc(ui.encoderPosition + minEditValue));
+  // If there was a click or "live editing" and encoder moved...
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
+    // Pass the editValue pointer to the loadfunc along with the encoder plus min
     if (editValue) loadfunc(editValue, ui.encoderPosition + minEditValue);
+    // If a callbackFunc was set, call it for click or always for "live editing"
     if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
+    // Use up the click to finish editing and go to the previous screen
     if (ui.use_click()) ui.goto_previous_screen();
   }
 }
 
+// Going to an edit screen sets up some persistent values first
 void MenuEditItemBase::goto_edit_screen(
   PGM_P const el,         // Edit label
   void * const ev,        // Edit value pointer
@@ -178,6 +171,8 @@ bool printer_busy() {
  */
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
+
+    TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
 
     TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
@@ -255,9 +250,6 @@ void MarlinUI::synchronize(PGM_P const msg/*=nullptr*/) {
  *
  *   encoderLine is the position based on the encoder
  *   encoderTopLine is the top menu line to display
- *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
- *   _menuLineNr is the menu item to draw and process
- *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
  *   screen_items is the total number of items in the menu (after one call)
  */
 void scroll_screen(const uint8_t limit, const bool is_menu) {
@@ -283,6 +275,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if HAS_BUZZER
   void MarlinUI::completion_feedback(const bool good/*=true*/) {
+    TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
     if (good) {
       BUZZ(100, 659);
       BUZZ(100, 698);
@@ -312,7 +305,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
       ui.encoderPosition = 0;
 
-      const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+      const float diff = planner.mm_per_step[Z_AXIS] * babystep_increment,
                   new_probe_offset = probe.offset.z + diff,
                   new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
                     , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
@@ -333,7 +326,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       if (do_probe) {
         MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
-        TERN_(BABYSTEP_ZPROBE_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(probe.offset.z));
+        TERN_(BABYSTEP_ZPROBE_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
@@ -353,7 +346,6 @@ void _lcd_draw_homing() {
 }
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
-  #include "../../feature/bedlevel/bedlevel.h"
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 

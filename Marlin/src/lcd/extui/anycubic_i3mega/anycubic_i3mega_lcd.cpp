@@ -27,6 +27,7 @@
 #include "../ui_api.h"
 
 #include "../../../libs/numtostr.h"
+#include "../../../module/stepper.h" // for disable_all_steppers
 #include "../../../module/motion.h"  // for quickstop_stepper, A20 read printing speed, feedrate_percentage
 #include "../../../MarlinCore.h"     // for disable_steppers
 #include "../../../inc/MarlinConfig.h"
@@ -38,8 +39,8 @@
 #define SEND(x)           send(x)
 #define SENDLINE(x)       sendLine(x)
 #if ENABLED(ANYCUBIC_LCD_DEBUG)
-  #define SENDLINE_DBG_PGM(x,y)       (sendLine_P(PSTR(x)), SERIAL_ECHOLNPGM(y))
-  #define SENDLINE_DBG_PGM_VAL(x,y,z) (sendLine_P(PSTR(x)), SERIAL_ECHOPGM(y), SERIAL_ECHOLN(z))
+  #define SENDLINE_DBG_PGM(x,y)       do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y); }while(0)
+  #define SENDLINE_DBG_PGM_VAL(x,y,z) do{ sendLine_P(PSTR(x)); SERIAL_ECHOLNPGM(y, z); }while(0)
 #else
   #define SENDLINE_DBG_PGM(x,y)       sendLine_P(PSTR(x))
   #define SENDLINE_DBG_PGM_VAL(x,y,z) sendLine_P(PSTR(x))
@@ -103,7 +104,7 @@ void AnycubicTFTClass::OnSetup() {
   SelectedFile[0] = 0;
 
   #if ENABLED(STARTUP_CHIME)
-    injectCommands_P(PSTR("M300 P250 S554\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P500 S831"));
+    injectCommands(F("M300 P250 S554\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P500 S831"));
   #endif
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
     SERIAL_ECHOLNPGM("TFT Serial Debug: Finished startup");
@@ -121,7 +122,7 @@ void AnycubicTFTClass::OnCommandScan() {
       #endif
       mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-      injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
+      injectCommands(F("M84\nM27")); // disable stepper motors and force report of SD status
       delay_ms(200);
       // tell printer to release resources of print to indicate it is done
       SENDLINE_DBG_PGM("J14", "TFT Serial Debug: SD Print Stopped... J14");
@@ -143,7 +144,7 @@ void AnycubicTFTClass::OnKillTFT() {
 
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
+    SERIAL_ECHOLNPGM("TFT Serial Debug: OnSDCardStateChange event triggered...", isInserted);
   #endif
   DoSDCardStateCheck();
 }
@@ -164,7 +165,7 @@ void AnycubicTFTClass::OnFilamentRunout() {
 
 void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
-    SERIAL_ECHOLNPAIR("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
+    SERIAL_ECHOLNPGM("TFT Serial Debug: OnUserConfirmRequired triggered... ", msg);
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -248,48 +249,48 @@ void AnycubicTFTClass::HandleSpecialMenu() {
             switch (SelectedDirectory[2]) {
               case '1': // "<01ZUp0.1>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Up 0.1");
-                injectCommands_P(PSTR("G91\nG1 Z+0.1\nG90"));
+                injectCommands(F("G91\nG1 Z+0.1\nG90"));
                 break;
 
               case '2': // "<02ZUp0.02>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Up 0.02");
-                injectCommands_P(PSTR("G91\nG1 Z+0.02\nG90"));
+                injectCommands(F("G91\nG1 Z+0.02\nG90"));
                 break;
 
               case '3': // "<03ZDn0.02>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Down 0.02");
-                injectCommands_P(PSTR("G91\nG1 Z-0.02\nG90"));
+                injectCommands(F("G91\nG1 Z-0.02\nG90"));
                 break;
 
               case '4': // "<04ZDn0.1>"
                 SERIAL_ECHOLNPGM("Special Menu: Z Down 0.1");
-                injectCommands_P(PSTR("G91\nG1 Z-0.1\nG90"));
+                injectCommands(F("G91\nG1 Z-0.1\nG90"));
                 break;
 
               case '5': // "<05PrehtBed>"
                 SERIAL_ECHOLNPGM("Special Menu: Preheat Bed");
-                injectCommands_P(PSTR("M140 S65"));
+                injectCommands(F("M140 S65"));
                 break;
 
               case '6': // "<06SMeshLvl>"
                 SERIAL_ECHOLNPGM("Special Menu: Start Mesh Leveling");
-                injectCommands_P(PSTR("G29S1"));
+                injectCommands(F("G29S1"));
                 break;
 
               case '7': // "<07MeshNPnt>"
                 SERIAL_ECHOLNPGM("Special Menu: Next Mesh Point");
-                injectCommands_P(PSTR("G29S2"));
+                injectCommands(F("G29S2"));
                 break;
 
               case '8': // "<08HtEndPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
                 // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
-                injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
+                injectCommands(F("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
                 break;
 
               case '9': // "<09HtBedPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotbed Pid");
-                injectCommands_P(PSTR("M303 E-1 S65 C6 U1"));
+                injectCommands(F("M303 E-1 S65 C6 U1"));
                 break;
 
               default:
@@ -301,12 +302,12 @@ void AnycubicTFTClass::HandleSpecialMenu() {
             switch (SelectedDirectory[2]) {
               case '0': // "<10FWDeflts>"
                 SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
-                injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
+                injectCommands(F("M502\nM300 P105 S1661\nM300 P210 S1108"));
                 break;
 
               case '1': // "<11SvEEPROM>"
                 SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
-                injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
+                injectCommands(F("M500\nM300 P105 S1108\nM300 P210 S1661"));
                 break;
 
               default:
@@ -318,38 +319,38 @@ void AnycubicTFTClass::HandleSpecialMenu() {
             switch (SelectedDirectory[2]) {
               case '1': // "<01PrehtBed>"
                 SERIAL_ECHOLNPGM("Special Menu: Preheat Bed");
-                injectCommands_P(PSTR("M140 S65"));
+                injectCommands(F("M140 S65"));
                 break;
 
               case '2': // "<02ABL>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Bed Leveling");
-                injectCommands_P(PSTR("G29N"));
+                injectCommands(F("G29N"));
                 break;
 
               case '3': // "<03HtendPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotend PID");
                 // need to dwell for half a second to give the fan a chance to start before the pid tuning starts
-                injectCommands_P(PSTR("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
+                injectCommands(F("M106 S204\nG4 P500\nM303 E0 S215 C15 U1"));
                 break;
 
               case '4': // "<04HtbedPID>"
                 SERIAL_ECHOLNPGM("Special Menu: Auto Tune Hotbed Pid");
-                injectCommands_P(PSTR("M303 E-1 S65 C6 U1"));
+                injectCommands(F("M303 E-1 S65 C6 U1"));
                 break;
 
               case '5': // "<05FWDeflts>"
                 SERIAL_ECHOLNPGM("Special Menu: Load FW Defaults");
-                injectCommands_P(PSTR("M502\nM300 P105 S1661\nM300 P210 S1108"));
+                injectCommands(F("M502\nM300 P105 S1661\nM300 P210 S1108"));
                 break;
 
               case '6': // "<06SvEEPROM>"
                 SERIAL_ECHOLNPGM("Special Menu: Save EEPROM");
-                injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
+                injectCommands(F("M500\nM300 P105 S1108\nM300 P210 S1661"));
                 break;
 
               case '7': // <07SendM108>
                 SERIAL_ECHOLNPGM("Special Menu: Send User Confirmation");
-                injectCommands_P(PSTR("M108"));
+                injectCommands(F("M108"));
                 break;
 
               default:
@@ -557,7 +558,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
           if ((a_command > 7) && (a_command != 20))   // No debugging of status polls, please!
-            SERIAL_ECHOLNPAIR("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
+            SERIAL_ECHOLNPGM("TFT Serial Command: ", TFTcmdbuffer[TFTbufindw]);
         #endif
 
         switch (a_command) {
@@ -653,7 +654,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 12: // A12 kill
-            kill(PSTR(STR_ERR_KILLED));
+            kill(F(STR_ERR_KILLED));
             break;
 
           case 13: // A13 SELECTION FILE
@@ -704,7 +705,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             }
             else if (CodeSeen('C') && !isPrinting()) {
               if (getAxisPosition_mm(Z) < 10)
-                injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
+                injectCommands(F("G1 Z10")); // RASE Z AXIS
               tempvalue = constrain(CodeValue(), 0, 275);
               setTargetTemp_celsius(tempvalue, (extruder_t)E0);
             }
@@ -738,7 +739,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
             if (!isPrinting()) {
               quickstop_stepper();
-              disable_all_steppers();
+              stepper.disable_all_steppers();
             }
 
             SENDLINE_PGM("");
@@ -755,11 +756,11 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             if (!isPrinting() && !isPrintingFromMediaPaused()) {
               if (CodeSeen('X') || CodeSeen('Y') || CodeSeen('Z')) {
                 if (CodeSeen('X'))
-                  injectCommands_P(PSTR("G28X"));
+                  injectCommands(F("G28X"));
                 if (CodeSeen('Y'))
-                  injectCommands_P(PSTR("G28Y"));
+                  injectCommands(F("G28Y"));
                 if (CodeSeen('Z'))
-                  injectCommands_P(PSTR("G28Z"));
+                  injectCommands(F("G28Z"));
               }
               else if (CodeSeen('C')) {
                 injectCommands_P(G28_STR);
@@ -830,7 +831,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 23: // A23 preheat pla
             if (!isPrinting()) {
               if (getAxisPosition_mm(Z) < 10)
-                injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
+                injectCommands(F("G1 Z10")); // RASE Z AXIS
 
               setTargetTemp_celsius(PREHEAT_1_TEMP_BED, (heater_t)BED);
               setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, (extruder_t)E0);
@@ -841,7 +842,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 24:// A24 preheat abs
             if (!isPrinting()) {
               if (getAxisPosition_mm(Z) < 10)
-                injectCommands_P(PSTR("G1 Z10")); // RASE Z AXIS
+                injectCommands(F("G1 Z10")); // RASE Z AXIS
 
               setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (heater_t)BED);
               setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (extruder_t)E0);
@@ -932,7 +933,7 @@ void AnycubicTFTClass::DoFilamentRunoutCheck() {
     if (READ(FIL_RUNOUT1_PIN)) {
       if (mediaPrintingState == AMPRINTSTATE_PRINTING || mediaPrintingState == AMPRINTSTATE_PAUSED || mediaPrintingState == AMPRINTSTATE_PAUSE_REQUESTED) {
         // play tone to indicate filament is out
-        injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
+        injectCommands(F("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
 
         // tell the user that the filament has run out and wait
         SENDLINE_DBG_PGM("J23", "TFT Serial Debug: Blocking filament prompt... J23");
@@ -968,7 +969,7 @@ void AnycubicTFTClass::PausePrint() {
       SENDLINE_DBG_PGM("J05", "TFT Serial Debug: SD print pause started... J05"); // J05 printing pause
 
       // for some reason pausing the print doesn't retract the extruder so force a manual one here
-      injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
+      injectCommands(F("G91\nG1 E-2 F1800\nG90"));
       pausePrint();
     }
   #endif
@@ -1017,7 +1018,7 @@ void AnycubicTFTClass::StopPrint() {
     SENDLINE_DBG_PGM("J16", "TFT Serial Debug: SD print stop called... J16");
 
     // for some reason stopping the print doesn't retract the extruder so force a manual one here
-    injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
+    injectCommands(F("G91\nG1 E-2 F1800\nG90"));
     stopPrint();
   #endif
 }

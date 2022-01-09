@@ -354,44 +354,44 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   inline void report_measured_faces(const measurements_t &m) {
     SERIAL_ECHOLNPGM("Sides:");
     #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
-      SERIAL_ECHOLNPAIR("  Top: ", m.obj_side[TOP]);
+      SERIAL_ECHOLNPGM("  Top: ", m.obj_side[TOP]);
     #endif
     #if ENABLED(CALIBRATION_MEASURE_LEFT)
-      SERIAL_ECHOLNPAIR("  Left: ", m.obj_side[LEFT]);
+      SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
     #endif
     #if ENABLED(CALIBRATION_MEASURE_RIGHT)
-      SERIAL_ECHOLNPAIR("  Right: ", m.obj_side[RIGHT]);
+      SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
     #endif
     #if HAS_Y_AXIS
       #if ENABLED(CALIBRATION_MEASURE_FRONT)
-        SERIAL_ECHOLNPAIR("  Front: ", m.obj_side[FRONT]);
+        SERIAL_ECHOLNPGM("  Front: ", m.obj_side[FRONT]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_BACK)
-        SERIAL_ECHOLNPAIR("  Back: ", m.obj_side[BACK]);
+        SERIAL_ECHOLNPGM("  Back: ", m.obj_side[BACK]);
       #endif
     #endif
     #if LINEAR_AXES >= 4
       #if ENABLED(CALIBRATION_MEASURE_IMIN)
-        SERIAL_ECHOLNPAIR("  " STR_I_MIN ": ", m.obj_side[IMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_I_MIN ": ", m.obj_side[IMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_IMAX)
-        SERIAL_ECHOLNPAIR("  " STR_I_MAX ": ", m.obj_side[IMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_I_MAX ": ", m.obj_side[IMAXIMUM]);
       #endif
     #endif
     #if LINEAR_AXES >= 5
       #if ENABLED(CALIBRATION_MEASURE_JMIN)
-        SERIAL_ECHOLNPAIR("  " STR_J_MIN ": ", m.obj_side[JMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_J_MIN ": ", m.obj_side[JMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_JMAX)
-        SERIAL_ECHOLNPAIR("  " STR_J_MAX ": ", m.obj_side[JMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_J_MAX ": ", m.obj_side[JMAXIMUM]);
       #endif
     #endif
     #if LINEAR_AXES >= 6
       #if ENABLED(CALIBRATION_MEASURE_KMIN)
-        SERIAL_ECHOLNPAIR("  " STR_K_MIN ": ", m.obj_side[KMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_K_MIN ": ", m.obj_side[KMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_KMAX)
-        SERIAL_ECHOLNPAIR("  " STR_K_MAX ": ", m.obj_side[KMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_K_MAX ": ", m.obj_side[KMAXIMUM]);
       #endif
     #endif
     SERIAL_EOL();
@@ -400,20 +400,20 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   inline void report_measured_center(const measurements_t &m) {
     SERIAL_ECHOLNPGM("Center:");
     #if HAS_X_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, m.obj_center.x);
+      SERIAL_ECHOLNPGM_P(SP_X_STR, m.obj_center.x);
     #endif
     #if HAS_Y_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_Y_STR, m.obj_center.y);
+      SERIAL_ECHOLNPGM_P(SP_Y_STR, m.obj_center.y);
     #endif
-    SERIAL_ECHOLNPAIR_P(SP_Z_STR, m.obj_center.z);
+    SERIAL_ECHOLNPGM_P(SP_Z_STR, m.obj_center.z);
     #if HAS_I_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_I_STR, m.obj_center.i);
+      SERIAL_ECHOLNPGM_P(SP_I_STR, m.obj_center.i);
     #endif
     #if HAS_J_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_J_STR, m.obj_center.j);
+      SERIAL_ECHOLNPGM_P(SP_J_STR, m.obj_center.j);
     #endif
     #if HAS_K_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_K_STR, m.obj_center.k);
+      SERIAL_ECHOLNPGM_P(SP_K_STR, m.obj_center.k);
     #endif
     SERIAL_EOL();
   }
@@ -422,45 +422,45 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     SERIAL_ECHOLNPGM("Backlash:");
     #if AXIS_CAN_CALIBRATE(X)
       #if ENABLED(CALIBRATION_MEASURE_LEFT)
-        SERIAL_ECHOLNPAIR("  Left: ", m.backlash[LEFT]);
+        SERIAL_ECHOLNPGM("  Left: ", m.backlash[LEFT]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_RIGHT)
-        SERIAL_ECHOLNPAIR("  Right: ", m.backlash[RIGHT]);
+        SERIAL_ECHOLNPGM("  Right: ", m.backlash[RIGHT]);
       #endif
     #endif
     #if HAS_Y_AXIS && AXIS_CAN_CALIBRATE(Y)
       #if ENABLED(CALIBRATION_MEASURE_FRONT)
-        SERIAL_ECHOLNPAIR("  Front: ", m.backlash[FRONT]);
+        SERIAL_ECHOLNPGM("  Front: ", m.backlash[FRONT]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_BACK)
-        SERIAL_ECHOLNPAIR("  Back: ", m.backlash[BACK]);
+        SERIAL_ECHOLNPGM("  Back: ", m.backlash[BACK]);
       #endif
     #endif
     #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
-      SERIAL_ECHOLNPAIR("  Top: ", m.backlash[TOP]);
+      SERIAL_ECHOLNPGM("  Top: ", m.backlash[TOP]);
     #endif
     #if LINEAR_AXES >= 4 && AXIS_CAN_CALIBRATE(I)
       #if ENABLED(CALIBRATION_MEASURE_IMIN)
-        SERIAL_ECHOLNPAIR("  " STR_I_MIN ": ", m.backlash[IMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_I_MIN ": ", m.backlash[IMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_IMAX)
-        SERIAL_ECHOLNPAIR("  " STR_I_MAX ": ", m.backlash[IMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_I_MAX ": ", m.backlash[IMAXIMUM]);
       #endif
     #endif
     #if LINEAR_AXES >= 5 && AXIS_CAN_CALIBRATE(J)
       #if ENABLED(CALIBRATION_MEASURE_JMIN)
-        SERIAL_ECHOLNPAIR("  " STR_J_MIN ": ", m.backlash[JMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_J_MIN ": ", m.backlash[JMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_JMAX)
-        SERIAL_ECHOLNPAIR("  " STR_J_MAX ": ", m.backlash[JMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_J_MAX ": ", m.backlash[JMAXIMUM]);
       #endif
     #endif
     #if LINEAR_AXES >= 6 && AXIS_CAN_CALIBRATE(K)
       #if ENABLED(CALIBRATION_MEASURE_KMIN)
-        SERIAL_ECHOLNPAIR("  " STR_K_MIN ": ", m.backlash[KMINIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_K_MIN ": ", m.backlash[KMINIMUM]);
       #endif
       #if ENABLED(CALIBRATION_MEASURE_KMAX)
-        SERIAL_ECHOLNPAIR("  " STR_K_MAX ": ", m.backlash[KMAXIMUM]);
+        SERIAL_ECHOLNPGM("  " STR_K_MAX ": ", m.backlash[KMAXIMUM]);
       #endif
     #endif
     SERIAL_EOL();
@@ -471,22 +471,22 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     SERIAL_ECHO(active_extruder);
     SERIAL_ECHOLNPGM(" Positional Error:");
     #if HAS_X_CENTER && AXIS_CAN_CALIBRATE(X)
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, m.pos_error.x);
+      SERIAL_ECHOLNPGM_P(SP_X_STR, m.pos_error.x);
     #endif
     #if HAS_Y_CENTER && AXIS_CAN_CALIBRATE(Y)
-      SERIAL_ECHOLNPAIR_P(SP_Y_STR, m.pos_error.y);
+      SERIAL_ECHOLNPGM_P(SP_Y_STR, m.pos_error.y);
     #endif
     #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
-      SERIAL_ECHOLNPAIR_P(SP_Z_STR, m.pos_error.z);
+      SERIAL_ECHOLNPGM_P(SP_Z_STR, m.pos_error.z);
     #endif
     #if HAS_I_CENTER && AXIS_CAN_CALIBRATE(I)
-      SERIAL_ECHOLNPAIR_P(SP_I_STR, m.pos_error.i);
+      SERIAL_ECHOLNPGM_P(SP_I_STR, m.pos_error.i);
     #endif
     #if HAS_J_CENTER && AXIS_CAN_CALIBRATE(J)
-      SERIAL_ECHOLNPAIR_P(SP_J_STR, m.pos_error.j);
+      SERIAL_ECHOLNPGM_P(SP_J_STR, m.pos_error.j);
     #endif
     #if HAS_K_CENTER && AXIS_CAN_CALIBRATE(K)
-      SERIAL_ECHOLNPAIR_P(SP_Z_STR, m.pos_error.z);
+      SERIAL_ECHOLNPGM_P(SP_Z_STR, m.pos_error.z);
     #endif
     SERIAL_EOL();
   }
@@ -494,10 +494,10 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   inline void report_measured_nozzle_dimensions(const measurements_t &m) {
     SERIAL_ECHOLNPGM("Nozzle Tip Outer Dimensions:");
     #if HAS_X_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_X_STR, m.nozzle_outer_dimension.x);
+      SERIAL_ECHOLNPGM_P(SP_X_STR, m.nozzle_outer_dimension.x);
     #endif
     #if HAS_Y_CENTER
-      SERIAL_ECHOLNPAIR_P(SP_Y_STR, m.nozzle_outer_dimension.y);
+      SERIAL_ECHOLNPGM_P(SP_Y_STR, m.nozzle_outer_dimension.y);
     #endif
     SERIAL_EOL();
     UNUSED(m);
@@ -509,7 +509,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     //
     inline void report_hotend_offsets() {
       LOOP_S_L_N(e, 1, HOTENDS)
-        SERIAL_ECHOLNPAIR_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
+        SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif
 
@@ -709,7 +709,7 @@ inline void calibrate_all() {
 void GcodeSuite::G425() {
 
   #ifdef CALIBRATION_SCRIPT_PRE
-    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_PRE));
+    process_subcommands_now(F(CALIBRATION_SCRIPT_PRE));
   #endif
 
   if (homing_needed_error()) return;
@@ -745,7 +745,7 @@ void GcodeSuite::G425() {
   SET_SOFT_ENDSTOP_LOOSE(false);
 
   #ifdef CALIBRATION_SCRIPT_POST
-    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_POST));
+    process_subcommands_now(F(CALIBRATION_SCRIPT_POST));
   #endif
 }
 

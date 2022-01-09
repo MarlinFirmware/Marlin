@@ -68,7 +68,7 @@ void menu_backlash();
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ stepper_dac.set_current_percents(driverPercent); })
-    LOGICAL_AXIS_CODE(EDIT_DAC_PERCENT(E), EDIT_DAC_PERCENT(X), EDIT_DAC_PERCENT(Y), EDIT_DAC_PERCENT(Z), EDIT_DAC_PERCENT(I), EDIT_DAC_PERCENT(J), EDIT_DAC_PERCENT(K));
+    LOGICAL_AXIS_CODE(EDIT_DAC_PERCENT(E), EDIT_DAC_PERCENT(A), EDIT_DAC_PERCENT(B), EDIT_DAC_PERCENT(C), EDIT_DAC_PERCENT(I), EDIT_DAC_PERCENT(J), EDIT_DAC_PERCENT(K));
     ACTION_ITEM(MSG_DAC_EEPROM_WRITE, stepper_dac.commit_eeprom);
     END_MENU();
   }
@@ -466,9 +466,11 @@ void menu_backlash();
         #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
         #elif ENABLED(LIMITED_JERK_EDITING)
-          { (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2, (DEFAULT_EJERK) * 2 }
+          { LOGICAL_AXIS_LIST((DEFAULT_EJERK) * 2,
+                              (DEFAULT_XJERK) * 2, (DEFAULT_YJERK) * 2, (DEFAULT_ZJERK) * 2,
+                              (DEFAULT_IJERK) * 2, (DEFAULT_JJERK) * 2, (DEFAULT_KJERK) * 2) }
         #else
-          { 990, 990, 990, 990 }
+          { LOGICAL_AXIS_LIST(990, 990, 990, 990, 990, 990, 990) }
         #endif
       ;
       #define EDIT_JERK(N) EDIT_ITEM_FAST(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, max_jerk_edit[_AXIS(N)])
@@ -506,6 +508,10 @@ void menu_backlash();
         SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
       #endif
 
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        SUBMENU(MSG_XATC, xatc_wizard_continue);
+      #endif
+
       END_MENU();
     }
   #endif
@@ -530,7 +536,7 @@ void menu_advanced_steps_per_mm() {
         if (e == active_extruder)
           planner.refresh_positioning();
         else
-          planner.steps_to_mm[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
+          planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
       });
   #elif E_STEPPERS
     EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
@@ -555,7 +561,7 @@ void menu_advanced_settings() {
       //
       // Set Home Offsets
       //
-      ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject_P(PSTR("M428")); ui.return_to_status(); });
+      ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
     // M203 / M205 - Feedrate items
@@ -569,9 +575,7 @@ void menu_advanced_settings() {
       SUBMENU(MSG_JERK, menu_advanced_jerk);
     #elif HAS_JUNCTION_DEVIATION
       EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
-        #if ENABLED(LIN_ADVANCE)
-          , planner.recalculate_max_e_jerk
-        #endif
+        OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
       );
     #endif
 
@@ -630,7 +634,7 @@ void menu_advanced_settings() {
                  didset = settings.set_sd_update_status(new_state);
       ui.completion_feedback(didset);
       ui.return_to_status();
-      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
+      if (new_state) LCD_MESSAGE(MSG_RESET_PRINTER); else ui.reset_status();
     });
   #endif
 

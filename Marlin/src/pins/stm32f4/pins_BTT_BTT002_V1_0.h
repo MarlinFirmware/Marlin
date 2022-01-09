@@ -23,11 +23,18 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "BIGTREE BTT002 V1.0 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "BTT BTT002 V1.0"
+
+//#define MK3_FAN_PINS
+
+#define USES_DIAG_PINS
+
+// Ignore temp readings during development.
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
@@ -40,9 +47,6 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #endif
-
-// Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Limit Switches
@@ -137,20 +141,17 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial  ##
-  //
   #define X_SERIAL_TX_PIN                   PE2
-  #define X_SERIAL_RX_PIN                   PE2
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN                   PE3
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PE4
-  #define Z_SERIAL_RX_PIN                   PE4
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD7
-  #define E0_SERIAL_RX_PIN                  PD7
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -161,6 +162,7 @@
 //
 #define TEMP_0_PIN                          PA2   // T0 <-> E0
 #define TEMP_1_PIN                          PA0   // T1 <-> E1
+#define TEMP_BOARD_PIN                      PC2   // Onboard thermistor, NTC100K
 #define TEMP_BED_PIN                        PA1   // T2 <-> Bed
 #define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
 
@@ -169,8 +171,30 @@
 //
 #define HEATER_0_PIN                        PE6   // Heater0
 #define HEATER_BED_PIN                      PE5   // Hotbed
-#define FAN_PIN                             PB8   // Fan1
-#define FAN1_PIN                            PB9   // Fan0
+
+#ifndef FAN_PIN
+  #ifdef MK3_FAN_PINS
+    #define FAN_PIN                         PB8   // Fan1
+  #else
+    #define FAN_PIN                         PB9   // Fan0
+  #endif
+#endif
+
+#ifndef FAN1_PIN
+  #ifdef MK3_FAN_PINS
+    #define FAN1_PIN                        PB9   // Fan0
+  #else
+    #define FAN1_PIN                        PB8   // Fan1
+  #endif
+#endif
+
+#ifndef E0_FAN_TACHO_PIN
+  #ifdef MK3_FAN_PINS
+    #define E0_FAN_TACHO_PIN                PE1   // Fan1
+  #else
+    #define E0_FAN_TACHO_PIN                PE0   // Fan0
+  #endif
+#endif
 
 /**
  * -----------------------------------BTT002 V1.0----------------------------------------
@@ -184,7 +208,6 @@
  *                EXP2                                            EXP1                   |
  * --------------------------------------------------------------------------------------
  */
-
 #define EXP1_03_PIN                         PE13
 #define EXP1_04_PIN                         PE12
 #define EXP1_05_PIN                         PE11
@@ -288,16 +311,10 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+  #if IS_U8GLIB_ST7920
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 
 #endif // HAS_WIRED_LCD

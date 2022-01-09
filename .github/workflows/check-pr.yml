@@ -6,7 +6,8 @@
 name: PR Bad Target
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [opened]
     branches:
     - 1.0.x
     - 1.1.x

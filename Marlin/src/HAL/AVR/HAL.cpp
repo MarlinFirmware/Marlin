@@ -35,11 +35,30 @@
 // Public Variables
 // ------------------------
 
-//uint8_t MCUSR;
+// Don't initialize/override variable (which would happen in .init4)
+uint8_t reset_reason __attribute__((section(".noinit")));
 
 // ------------------------
 // Public functions
 // ------------------------
+
+__attribute__((naked))             // Don't output function pro- and epilogue
+__attribute__((used))              // Output the function, even if "not used"
+__attribute__((section(".init3"))) // Put in an early user definable section
+void HAL_save_reset_reason() {
+  #if ENABLED(OPTIBOOT_RESET_REASON)
+    __asm__ __volatile__(
+      A("STS %0, r2")
+      : "=m"(reset_reason)
+    );
+  #else
+    reset_reason = MCUSR;
+  #endif
+
+  // Clear within 16ms since WDRF bit enables a 16ms watchdog timer -> Boot loop
+  MCUSR = 0;
+  wdt_disable();
+}
 
 void HAL_init() {
   // Init Servo Pins

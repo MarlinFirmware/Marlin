@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "MKS Robin E3P only supports one hotend / E-stepper. Comment out this line to continue."
 #elif HAS_FSMC_TFT
   #error "MKS Robin E3P doesn't support FSMC-based TFT displays."
@@ -39,7 +39,7 @@
 #define MKS_HARDWARE_TEST_ONLY_E0
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER                             5
+#define TEMP_TIMER  5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -145,10 +145,6 @@
   //#define E3_HARDWARE_SERIAL Serial1
   //#define E4_HARDWARE_SERIAL Serial1
 
-  //
-  // Software serial
-  //
-
   #define X_SERIAL_TX_PIN                   PD5
   #define X_SERIAL_RX_PIN                   PD5
 
@@ -183,19 +179,19 @@
 // Misc. Functions
 //
 #if HAS_TFT_LVGL_UI
-  #if ENABLED(PSU_CONTROL)                        // MKSPWC
-    #define SUICIDE_PIN                     PB2   // PW_OFF
-    #define SUICIDE_PIN_INVERTING          false
-    #define KILL_PIN                        PA2   // PW_DET
+  #if ENABLED(MKS_PWC)
+    #define SUICIDE_PIN                     PB2
+    #define SUICIDE_PIN_STATE               LOW
+    #define KILL_PIN                        PA2
     #define KILL_PIN_STATE                  HIGH
   #endif
 
-  #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
-  #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
+  #define MT_DET_1_PIN                      PA4
+  #define MT_DET_PIN_STATE                  LOW
 
-  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
-  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
-  #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
+  #define WIFI_IO0_PIN                      PC13
+  #define WIFI_IO1_PIN                      PC7
+  #define WIFI_RESET_PIN                    PE9
 
   #if ENABLED(MKS_TEST)
     #define MKS_TEST_POWER_LOSS_PIN         PA2   // PW_DET
@@ -318,7 +314,7 @@
       #define BEEPER_PIN                    -1
     #endif
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define DOGLCD_CS                       PD13
     #define DOGLCD_A0                       PC6
     #define LCD_PINS_DC                DOGLCD_A0
@@ -330,7 +326,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-	//#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
   #else                                           // !MKS_MINI_12864
 
@@ -346,15 +342,9 @@
 
     #endif
 
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
-    #endif
+    #define BOARD_ST7920_DELAY_1             125
+    #define BOARD_ST7920_DELAY_2             125
+    #define BOARD_ST7920_DELAY_3             125
 
   #endif // !MKS_MINI_12864
 
@@ -363,10 +353,10 @@
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
-  #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PB12
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif
 
 #ifndef BEEPER_PIN

@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,6 +41,10 @@
   #include "../tft_io/touch_calibration.h"
 #endif
 
+#if HAS_TOUCH_SLEEP
+  millis_t TouchButtons::next_sleep_ms;
+#endif
+
 #include "../buttons.h" // For EN_C bit mask
 #include "../marlinui.h" // For ui.refresh
 #include "../tft_io/tft_io.h"
@@ -50,15 +57,24 @@
 #define BUTTON_AREA_TOP BUTTON_Y_LO
 #define BUTTON_AREA_BOT BUTTON_Y_HI
 
-TouchButtons touch;
+TouchButtons touchBt;
 
-void TouchButtons::init() { touchIO.Init(); }
+void TouchButtons::init() {
+  touchIO.Init();
+  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP));
+}
 
 uint8_t TouchButtons::read_buttons() {
   #ifdef HAS_WIRED_LCD
     int16_t x, y;
 
     const bool is_touched = (TERN(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration.orientation, TOUCH_ORIENTATION) == TOUCH_PORTRAIT ? touchIO.getRawPoint(&y, &x) : touchIO.getRawPoint(&x, &y));
+    #if HAS_TOUCH_SLEEP
+      if (is_touched)
+        wakeUp();
+      else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+        sleepTimeout();
+    #endif
     if (!is_touched) return 0;
 
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -95,5 +111,28 @@ uint8_t TouchButtons::read_buttons() {
   #endif
   return 0;
 }
+
+#if HAS_TOUCH_SLEEP
+
+  void TouchButtons::sleepTimeout() {
+    #if HAS_LCD_BRIGHTNESS
+      ui.set_brightness(0);
+    #elif PIN_EXISTS(TFT_BACKLIGHT)
+      WRITE(TFT_BACKLIGHT_PIN, LOW);
+    #endif
+    next_sleep_ms = TSLP_SLEEPING;
+  }
+  void TouchButtons::wakeUp() {
+    if (isSleeping()) {
+      #if HAS_LCD_BRIGHTNESS
+        ui.set_brightness(ui.brightness);
+      #elif PIN_EXISTS(TFT_BACKLIGHT)
+        WRITE(TFT_BACKLIGHT_PIN, HIGH);
+      #endif
+    }
+    next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
+  }
+
+#endif // HAS_TOUCH_SLEEP
 
 #endif // HAS_TOUCH_BUTTONS

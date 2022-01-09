@@ -109,7 +109,7 @@ void BaseNumericAdjustmentScreen::widgets_t::_button_style(CommandProcessor &cmd
  * Speed optimization for drawing buttons. Draw all unpressed buttons in the
  * background layer and draw only the pressed button in the foreground layer.
  */
-void BaseNumericAdjustmentScreen::widgets_t::_button(CommandProcessor &cmd, uint8_t tag, int16_t x, int16_t y, int16_t w, int16_t h, progmem_str text, bool enabled, bool highlight) {
+void BaseNumericAdjustmentScreen::widgets_t::_button(CommandProcessor &cmd, uint8_t tag, int16_t x, int16_t y, int16_t w, int16_t h, FSTR_P text, bool enabled, bool highlight) {
   if (_what & BACKGROUND) enabled = true;
   if ((_what & BACKGROUND) || buttonIsPressed(tag) || highlight || !enabled) {
     _button_style(cmd, (!enabled) ? BTN_DISABLED : (highlight ? BTN_ACTION : BTN_NORMAL));
@@ -125,7 +125,7 @@ BaseNumericAdjustmentScreen::widgets_t &BaseNumericAdjustmentScreen::widgets_t::
   return *this;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::heading(progmem_str label) {
+void BaseNumericAdjustmentScreen::widgets_t::heading(FSTR_P label) {
   if (_what & BACKGROUND) {
     CommandProcessor cmd;
     _button_style(cmd, TEXT_LABEL);
@@ -176,13 +176,13 @@ void BaseNumericAdjustmentScreen::widgets_t::_draw_increment_btn(CommandProcesso
 
   switch (pos) {
     #if ENABLED(TOUCH_UI_PORTRAIT)
-      case 0: _button(cmd, tag, BTN_POS(5,_line), BTN_SIZE(2,1), progmem_str(label), true, highlight); break;
-      case 1: _button(cmd, tag, BTN_POS(7,_line), BTN_SIZE(2,1), progmem_str(label), true, highlight); break;
-      case 2: _button(cmd, tag, BTN_POS(9,_line), BTN_SIZE(2,1), progmem_str(label), true, highlight); break;
+      case 0: _button(cmd, tag, BTN_POS(5,_line), BTN_SIZE(2,1), FPSTR(label), true, highlight); break;
+      case 1: _button(cmd, tag, BTN_POS(7,_line), BTN_SIZE(2,1), FPSTR(label), true, highlight); break;
+      case 2: _button(cmd, tag, BTN_POS(9,_line), BTN_SIZE(2,1), FPSTR(label), true, highlight); break;
     #else
-      case 0: _button(cmd, tag, BTN_POS(15,2),    BTN_SIZE(4,1), progmem_str(label), true, highlight); break;
-      case 1: _button(cmd, tag, BTN_POS(15,3),    BTN_SIZE(4,1), progmem_str(label), true, highlight); break;
-      case 2: _button(cmd, tag, BTN_POS(15,4),    BTN_SIZE(4,1), progmem_str(label), true, highlight); break;
+      case 0: _button(cmd, tag, BTN_POS(15,2),    BTN_SIZE(4,1), FPSTR(label), true, highlight); break;
+      case 1: _button(cmd, tag, BTN_POS(15,3),    BTN_SIZE(4,1), FPSTR(label), true, highlight); break;
+      case 2: _button(cmd, tag, BTN_POS(15,4),    BTN_SIZE(4,1), FPSTR(label), true, highlight); break;
     #endif
   }
 }
@@ -213,7 +213,7 @@ void BaseNumericAdjustmentScreen::widgets_t::increments() {
   #endif
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::adjuster_sram_val(uint8_t tag, progmem_str label, const char *value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::adjuster_sram_val(uint8_t tag, FSTR_P label, const char *value, bool is_enabled) {
   CommandProcessor cmd;
 
   if (_what & BACKGROUND) {
@@ -239,7 +239,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster_sram_val(uint8_t tag, prog
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, progmem_str label, const char *value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, FSTR_P label, const char *value, bool is_enabled) {
   if (_what & BACKGROUND) {
     adjuster_sram_val(tag, label, nullptr);
   }
@@ -251,7 +251,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, progmem_str l
   }
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, progmem_str label, float value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, FSTR_P label, float value, bool is_enabled) {
   if (_what & BACKGROUND) {
     adjuster_sram_val(tag, label, nullptr);
   }
@@ -265,7 +265,7 @@ void BaseNumericAdjustmentScreen::widgets_t::adjuster(uint8_t tag, progmem_str l
   }
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::button(uint8_t tag, progmem_str label, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::button(uint8_t tag, FSTR_P label, bool is_enabled) {
   CommandProcessor cmd;
   cmd.font(LAYOUT_FONT);
   _button(cmd, tag, BTN_POS(5,_line), BTN_SIZE(9,1), label, is_enabled);
@@ -273,7 +273,7 @@ void BaseNumericAdjustmentScreen::widgets_t::button(uint8_t tag, progmem_str lab
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, progmem_str label, const char *value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, FSTR_P label, const char *value, bool is_enabled) {
   CommandProcessor cmd;
 
   if (_what & BACKGROUND) {
@@ -295,7 +295,7 @@ void BaseNumericAdjustmentScreen::widgets_t::text_field(uint8_t tag, progmem_str
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::two_buttons(uint8_t tag1, progmem_str label1, uint8_t tag2, progmem_str label2, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::two_buttons(uint8_t tag1, FSTR_P label1, uint8_t tag2, FSTR_P label2, bool is_enabled) {
   CommandProcessor cmd;
   cmd.font(LAYOUT_FONT);
   _button(cmd, tag1, BTN_POS(5,_line),   BTN_SIZE(4.5,1), label1, is_enabled);
@@ -304,7 +304,7 @@ void BaseNumericAdjustmentScreen::widgets_t::two_buttons(uint8_t tag1, progmem_s
   _line++;
 }
 
-void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, progmem_str label, bool value, bool is_enabled) {
+void BaseNumericAdjustmentScreen::widgets_t::toggle(uint8_t tag, FSTR_P label, bool value, bool is_enabled) {
   CommandProcessor cmd;
 
   if (_what & BACKGROUND) {

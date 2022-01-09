@@ -30,6 +30,7 @@
 #if ENABLED(DELTA)
 
   #include "../../module/delta.h"
+
   /**
    * M665: Set delta configurations
    *
@@ -45,6 +46,8 @@
    *    C = Gamma (Tower 3) diagonal rod trim
    */
   void GcodeSuite::M665() {
+    if (!parser.seen_any()) return M665_report();
+
     if (parser.seenval('H')) delta_height              = parser.value_linear_units();
     if (parser.seenval('L')) delta_diagonal_rod        = parser.value_linear_units();
     if (parser.seenval('R')) delta_radius              = parser.value_linear_units();
@@ -58,6 +61,22 @@
     recalc_delta_settings();
   }
 
+  void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    report_heading_etc(forReplay, F(STR_DELTA_SETTINGS));
+    SERIAL_ECHOLNPGM_P(
+        PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
+      , PSTR(" R"), LINEAR_UNIT(delta_radius)
+      , PSTR(" H"), LINEAR_UNIT(delta_height)
+      , PSTR(" S"), segments_per_second
+      , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
+      , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
+      , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
+      , PSTR(" A"), LINEAR_UNIT(delta_diagonal_rod_trim.a)
+      , PSTR(" B"), LINEAR_UNIT(delta_diagonal_rod_trim.b)
+      , PSTR(" C"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
+    );
+  }
+
 #elif IS_SCARA
 
   #include "../../module/scara.h"
@@ -68,6 +87,9 @@
    * Parameters:
    *
    *   S[segments-per-second] - Segments-per-second
+   *
+   * Without NO_WORKSPACE_OFFSETS:
+   *
    *   P[theta-psi-offset]    - Theta-Psi offset, added to the shoulder (A/X) angle
    *   T[theta-offset]        - Theta     offset, added to the elbow    (B/Y) angle
    *   Z[z-offset]            - Z offset, added to Z
@@ -76,6 +98,8 @@
    *   B, T, and Y are all aliases for the elbow angle
    */
   void GcodeSuite::M665() {
+    if (!parser.seen_any()) return M665_report();
+
     if (parser.seenval('S')) segments_per_second = parser.value_float();
 
     #if HAS_SCARA_OFFSET
@@ -105,6 +129,41 @@
       }
 
     #endif // HAS_SCARA_OFFSET
+  }
+
+  void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    report_heading_etc(forReplay, F(STR_SCARA_SETTINGS " (" STR_S_SEG_PER_SEC TERN_(HAS_SCARA_OFFSET, " " STR_SCARA_P_T_Z) ")"));
+    SERIAL_ECHOLNPGM_P(
+      PSTR("  M665 S"), segments_per_second
+      #if HAS_SCARA_OFFSET
+        , SP_P_STR, scara_home_offset.a
+        , SP_T_STR, scara_home_offset.b
+        , SP_Z_STR, LINEAR_UNIT(scara_home_offset.z)
+      #endif
+    );
+  }
+
+#elif ENABLED(POLARGRAPH)
+
+  #include "../../module/polargraph.h"
+
+  /**
+   * M665: Set POLARGRAPH settings
+   *
+   * Parameters:
+   *
+   *   S[segments-per-second] - Segments-per-second
+   */
+  void GcodeSuite::M665() {
+    if (parser.seenval('S'))
+      segments_per_second = parser.value_float();
+    else
+      M665_report();
+  }
+
+  void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    report_heading_etc(forReplay, F(STR_POLARGRAPH_SETTINGS " (" STR_S_SEG_PER_SEC ")"));
+    SERIAL_ECHOLNPGM("  M665 S", segments_per_second);
   }
 
 #endif

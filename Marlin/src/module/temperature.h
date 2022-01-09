@@ -37,6 +37,10 @@
   #include "../libs/autoreport.h"
 #endif
 
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -46,9 +50,13 @@
 
 // Element identifiers. Positive values are hotends. Negative values are other heaters or coolers.
 typedef enum : int8_t {
-  H_NONE = -6,
-  H_COOLER, H_PROBE, H_REDUNDANT, H_CHAMBER, H_BED,
-  H_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+  H_REDUNDANT = HID_REDUNDANT,
+  H_COOLER = HID_COOLER,
+  H_PROBE = HID_PROBE,
+  H_BOARD = HID_BOARD,
+  H_CHAMBER = HID_CHAMBER,
+  H_BED = HID_BED,
+  H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
 } heater_id_t;
 
 // PID storage
@@ -104,6 +112,9 @@ enum ADCSensorState : char {
   #endif
   #if HAS_TEMP_ADC_PROBE
     PrepareTemp_PROBE, MeasureTemp_PROBE,
+  #endif
+  #if HAS_TEMP_ADC_BOARD
+    PrepareTemp_BOARD, MeasureTemp_BOARD,
   #endif
   #if HAS_TEMP_ADC_REDUNDANT
     PrepareTemp_REDUNDANT, MeasureTemp_REDUNDANT,
@@ -192,7 +203,7 @@ typedef struct TempInfo {
   // A redundant temperature sensor
   typedef struct RedundantTempInfo : public TempInfo {
     temp_info_t* target;
-  } redundant_temp_info_t;
+  } redundant_info_t;
 #endif
 
 // A PWM heater with temperature sensor
@@ -230,6 +241,9 @@ struct PIDHeaterInfo : public HeaterInfo {
   #endif
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
+#endif
+#if HAS_TEMP_BOARD
+  typedef temp_info_t board_info_t;
 #endif
 #if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
   typedef heater_info_t cooler_info_t;
@@ -312,6 +326,9 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_COOLER_IS_CUSTOM
       CTI_COOLER,
     #endif
+    #if TEMP_SENSOR_BOARD_IS_CUSTOM
+      CTI_BOARD,
+    #endif
     #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
       CTI_REDUNDANT,
     #endif
@@ -329,6 +346,10 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
           beta, beta_recip;
   } user_thermistor_t;
 
+#endif
+
+#if HAS_AUTO_FAN || HAS_FANCHECK
+  #define HAS_FAN_LOGIC 1
 #endif
 
 class Temperature {
@@ -352,11 +373,14 @@ class Temperature {
     #if HAS_TEMP_COOLER
       static cooler_info_t temp_cooler;
     #endif
+    #if HAS_TEMP_BOARD
+      static board_info_t temp_board;
+    #endif
     #if HAS_TEMP_REDUNDANT
-      static redundant_temp_info_t temp_redundant;
+      static redundant_info_t temp_redundant;
     #endif
 
-    #if ENABLED(AUTO_POWER_E_FANS)
+    #if EITHER(AUTO_POWER_E_FANS, HAS_FANCHECK)
       static uint8_t autofan_speed[HOTENDS];
     #endif
     #if ENABLED(AUTO_POWER_CHAMBER_FAN)
@@ -369,6 +393,10 @@ class Temperature {
     #if ENABLED(FAN_SOFT_PWM)
       static uint8_t soft_pwm_amount_fan[FAN_COUNT],
                      soft_pwm_count_fan[FAN_COUNT];
+    #endif
+
+    #if BOTH(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
+      static uint8_t soft_pwm_controller_speed;
     #endif
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -439,6 +467,10 @@ class Temperature {
       static int16_t lpq_len;
     #endif
 
+    #if HAS_FAN_LOGIC
+      static constexpr millis_t fan_update_interval_ms = TERN(HAS_PWMFANCHECK, 5000, TERN(HAS_FANCHECK, 1000, 2500));
+    #endif
+
   private:
 
     #if ENABLED(WATCH_HOTENDS)
@@ -478,6 +510,10 @@ class Temperature {
       static int16_t mintemp_raw_COOLER, maxtemp_raw_COOLER;
     #endif
 
+    #if HAS_TEMP_BOARD && ENABLED(THERMAL_PROTECTION_BOARD)
+      static int16_t mintemp_raw_BOARD, maxtemp_raw_BOARD;
+    #endif
+
     #if MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED > 1
       static uint8_t consecutive_low_temperature_error[HOTENDS];
     #endif
@@ -486,8 +522,28 @@ class Temperature {
       static millis_t preheat_end_time[HOTENDS];
     #endif
 
-    #if HAS_AUTO_FAN
-      static millis_t next_auto_fan_check_ms;
+    #if HAS_FAN_LOGIC
+      static millis_t fan_update_ms;
+
+      static inline void manage_extruder_fans(millis_t ms) {
+        if (ELAPSED(ms, fan_update_ms)) { // only need to check fan state very infrequently
+          const millis_t next_ms = ms + fan_update_interval_ms;
+          #if HAS_PWMFANCHECK
+            #define FAN_CHECK_DURATION 100
+            if (fan_check.is_measuring()) {
+              fan_check.compute_speed(ms + FAN_CHECK_DURATION - fan_update_ms);
+              fan_update_ms = next_ms;
+            }
+            else
+              fan_update_ms = ms + FAN_CHECK_DURATION;
+            fan_check.toggle_measuring();
+          #else
+            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - fan_update_ms));
+            fan_update_ms = next_ms;
+          #endif
+          TERN_(HAS_AUTO_FAN, update_autofans()); // Needed as last when HAS_PWMFANCHECK to properly force fan speed
+        }
+      }
     #endif
 
     #if ENABLED(PROBING_HEATERS_OFF)
@@ -507,7 +563,7 @@ class Temperature {
 
     #if HAS_USER_THERMISTORS
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
-      static void log_user_thermistor(const uint8_t t_index, const bool eprom=false);
+      static void M305_report(const uint8_t t_index, const bool forReplay=true);
       static void reset_user_thermistors();
       static celsius_float_t user_thermistor_to_deg_c(const uint8_t t_index, const int16_t raw);
       static inline bool set_pull_up_res(int8_t t_index, float value) {
@@ -550,6 +606,9 @@ class Temperature {
     #endif
     #if HAS_TEMP_COOLER
       static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
+    #endif
+    #if HAS_TEMP_BOARD
+      static celsius_float_t analog_to_celsius_board(const int16_t raw);
     #endif
     #if HAS_TEMP_REDUNDANT
       static celsius_float_t analog_to_celsius_redundant(const int16_t raw);
@@ -787,6 +846,14 @@ class Temperature {
       #endif
     #endif
 
+    #if HAS_TEMP_BOARD
+      #if ENABLED(SHOW_TEMP_ADC_VALUES)
+        static inline int16_t rawBoardTemp()    { return temp_board.raw; }
+      #endif
+      static inline celsius_float_t degBoard()  { return temp_board.celsius; }
+      static inline celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
+    #endif
+
     #if HAS_TEMP_REDUNDANT
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         static inline int16_t rawRedundantTemp()         { return temp_redundant.raw; }
@@ -816,6 +883,14 @@ class Temperature {
      * Switch off all heaters, set all target temperatures to 0
      */
     static void disable_all_heaters();
+
+    /**
+     * Cooldown, as from the LCD. Disables all heaters and fans.
+     */
+    static inline void cooldown() {
+      zero_fan_speeds();
+      disable_all_heaters();
+    }
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
@@ -918,7 +993,7 @@ class Temperature {
       static int16_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
 
-    static void checkExtruderAutoFans();
+    static void update_autofans();
 
     #if HAS_HOTEND
       static float get_pid_output_hotend(const uint8_t e);
@@ -930,7 +1005,7 @@ class Temperature {
       static float get_pid_output_chamber();
     #endif
 
-    static void _temp_error(const heater_id_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
+    static void _temp_error(const heater_id_t e, FSTR_P const serial_msg, FSTR_P const lcd_msg);
     static void min_temp_error(const heater_id_t e);
     static void max_temp_error(const heater_id_t e);
 

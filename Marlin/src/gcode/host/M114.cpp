@@ -218,7 +218,7 @@ void GcodeSuite::M114() {
     }
     #if HAS_EXTRUDERS
       if (parser.seen_test('E')) {
-        SERIAL_ECHOLNPAIR("Count E:", stepper.position(E_AXIS));
+        SERIAL_ECHOLNPGM("Count E:", stepper.position(E_AXIS));
         return;
       }
     #endif

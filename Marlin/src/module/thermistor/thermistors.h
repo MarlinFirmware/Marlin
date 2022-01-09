@@ -42,17 +42,6 @@
 #define OV_SCALE(N) (N)
 #define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
-#define TEMP_SENSOR_IS(n,H) (n == TEMP_SENSOR_##H)
-#define ANY_THERMISTOR_IS(n) ( TEMP_SENSOR_IS(n, 0) || TEMP_SENSOR_IS(n, 1) \
-                            || TEMP_SENSOR_IS(n, 2) || TEMP_SENSOR_IS(n, 3) \
-                            || TEMP_SENSOR_IS(n, 4) || TEMP_SENSOR_IS(n, 5) \
-                            || TEMP_SENSOR_IS(n, 6) || TEMP_SENSOR_IS(n, 7) \
-                            || TEMP_SENSOR_IS(n, BED) \
-                            || TEMP_SENSOR_IS(n, CHAMBER) \
-                            || TEMP_SENSOR_IS(n, COOLER) \
-                            || TEMP_SENSOR_IS(n, PROBE) \
-                            || TEMP_SENSOR_IS(n, REDUNDANT) )
-
 typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
@@ -200,6 +189,9 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(1047) // Pt1000 with 4k7 pullup
   #include "thermistor_1047.h"
 #endif
+#if ANY_THERMISTOR_IS(2000) // "Ultimachine Rambo TDK NTCG104LH104KT1 NTC100K motherboard Thermistor" https://product.tdk.com/en/search/sensor/ntc/chip-ntc-thermistor/info?part_no=NTCG104LH104KT1
+  #include "thermistor_2000.h"
+#endif
 #if ANY_THERMISTOR_IS(998) // User-defined table 1
   #include "thermistor_998.h"
 #endif
@@ -305,6 +297,13 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
   #define TEMPTABLE_PROBE_LEN 0
 #endif
 
+#if TEMP_SENSOR_BOARD > 0
+  #define TEMPTABLE_BOARD TT_NAME(TEMP_SENSOR_BOARD)
+  #define TEMPTABLE_BOARD_LEN COUNT(TEMPTABLE_BOARD)
+#else
+  #define TEMPTABLE_BOARD_LEN 0
+#endif
+
 #if TEMP_SENSOR_REDUNDANT > 0
   #define TEMPTABLE_REDUNDANT TT_NAME(TEMP_SENSOR_REDUNDANT)
   #define TEMPTABLE_REDUNDANT_LEN COUNT(TEMPTABLE_REDUNDANT)
@@ -319,6 +318,7 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
            || 255 > TEMPTABLE_CHAMBER_LEN
            || 255 > TEMPTABLE_COOLER_LEN
            || 255 > TEMPTABLE_PROBE_LEN
+           || 255 > TEMPTABLE_BOARD_LEN
            || 255 > TEMPTABLE_REDUNDANT_LEN
   , "Temperature conversion tables over 255 entries need special consideration."
 );
@@ -511,6 +511,15 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
   #else
     #define TEMP_SENSOR_PROBE_RAW_HI_TEMP 0
     #define TEMP_SENSOR_PROBE_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
+#ifndef TEMP_SENSOR_BOARD_RAW_HI_TEMP
+  #if TT_REVRAW(BOARD)
+    #define TEMP_SENSOR_BOARD_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define TEMP_SENSOR_BOARD_RAW_LO_TEMP 0
+  #else
+    #define TEMP_SENSOR_BOARD_RAW_HI_TEMP 0
+    #define TEMP_SENSOR_BOARD_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
   #endif
 #endif
 #ifndef TEMP_SENSOR_REDUNDANT_RAW_HI_TEMP
