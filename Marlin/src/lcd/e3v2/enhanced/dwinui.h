@@ -111,8 +111,8 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
 #define MBASE(L) (MYPOS(L) + CAPOFF)
 
 // Create and add a MenuItem object to the menu array
-#define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
-#define ADDEDITITEM(V...) DWINUI::MenuItemsAdd(new MenuItemPtrClass(V))
+#define MENU_ITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
+#define EDIT_ITEM(V...) DWINUI::MenuItemsAdd(new MenuItemPtrClass(V))
 
 typedef struct { uint16_t left, top, right, bottom; } rect_t;
 typedef struct { uint16_t x, y, w, h; } frame_rect_t;
