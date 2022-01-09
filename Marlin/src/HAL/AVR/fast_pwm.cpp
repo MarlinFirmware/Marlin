@@ -24,6 +24,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #if NEEDS_HARDWARE_PWM
+
 static uint16_t timer_freq[5];
 
 struct Timer {
@@ -228,8 +229,9 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
   }
   else
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
-}   // NEEDS_HARDWARE_PWM
-#endif
+}
+
+#endif // NEEDS_HARDWARE_PWM
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   #if NEEDS_HARDWARE_PWM
@@ -244,9 +246,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
       Timer timer = get_pwm_timer(pin);
       if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
 
-      if (timer_freq[timer.n - 1] == 0) {       // If the timer is unconfigured and no freq is set then default PWM_FREQUENCY
+      if (timer_freq[timer.n - 1] == 0)         // If the timer is unconfigured and no freq is set then default PWM_FREQUENCY
         set_pwm_frequency(pin, PWM_FREQUENCY);  // Set the frequency and save the value to the assigned index no.
-      }
 
       _SET_COMnQ(timer.TCCRnQ, timer.q TERN_(HAS_TCCR2, + (timer.q == 2)), COM_CLEAR_SET + invert); // COM20 is on bit 4 of TCCR2, so +1 for q==2
       const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
