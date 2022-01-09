@@ -62,12 +62,10 @@ namespace Language_hu {
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hiba Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Haladás sáv teszt");
   LSTR MSG_AUTO_HOME                      = _UxGT("X-Y-Z auto kezdöpont");
+  LSTR MSG_AUTO_HOME_A                    = _UxGT("Kezdö @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("X kezdöpont");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Y kezdöpont");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Z kezdöpont");
-  LSTR MSG_AUTO_HOME_I                    = _UxGT("Kezdö ") LCD_STR_I;
-  LSTR MSG_AUTO_HOME_J                    = _UxGT("Kezdö ") LCD_STR_J;
-  LSTR MSG_AUTO_HOME_K                    = _UxGT("Kezdö ") LCD_STR_K;
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto Z-igazítás");
   LSTR MSG_ITERATION                      = _UxGT("G34 Ismétlés: %i");
   LSTR MSG_DECREASING_ACCURACY            = _UxGT("Pontosság csökken!");
