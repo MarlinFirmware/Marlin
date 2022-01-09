@@ -456,6 +456,7 @@ char *getDispText(int index) {
       }
       break;
     case MOVE_MOTOR_UI:       strcpy(public_buf_l, move_menu.title); break;
+    case Z_OFFSET_WIZARD_UI:  break;
     case OPERATE_UI:
       switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
         IF_DISABLED(TFT35, case OPERATE_UI: case PAUSE_UI:)
@@ -784,6 +785,7 @@ void GUI_RefreshPage() {
       break;
 
     case MOVE_MOTOR_UI: break;
+    case Z_OFFSET_WIZARD_UI: break;
 
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:
@@ -885,6 +887,7 @@ void clear_cur_ui() {
     case PRINT_FILE_UI:               lv_clear_print_file(); break;
     case PRINTING_UI:                 lv_clear_printing(); break;
     case MOVE_MOTOR_UI:               lv_clear_move_motor(); break;
+    case Z_OFFSET_WIZARD_UI:          lv_clear_z_offset_wizard(); break;
     case OPERATE_UI:                  lv_clear_operation(); break;
     case PAUSE_UI:                    break;
     case EXTRUSION_UI:                lv_clear_extrusion(); break;
@@ -993,6 +996,7 @@ void draw_return_ui() {
                                         break;
 
       case MOVE_MOTOR_UI:               lv_draw_move_motor(); break;
+      case Z_OFFSET_WIZARD_UI:          lv_draw_z_offset_wizard(); break;
       case OPERATE_UI:                  lv_draw_operation(); break;
       case PAUSE_UI:                    break;
       case EXTRUSION_UI:                lv_draw_extrusion(); break;
