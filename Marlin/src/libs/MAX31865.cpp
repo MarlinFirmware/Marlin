@@ -159,7 +159,10 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
 
   initFixedFlags(wires);
 
-  clearFault(); // also initializes flags
+  // fault detection cycle seems to initialize the sensor better
+  uint8_t fault = runAutoFaultDetectionCycle(); // also initializes flags
+
+  DEBUG_ECHOLNPGM("Fault read: ", fault);
 
   #if DISABLED(MAX31865_USE_AUTO_MODE) // make a proper first 1 shot read to initialize _lastRead
 
@@ -240,6 +243,15 @@ void MAX31865::oneShot() {
   setConfig(MAX31865_CONFIG_1SHOT | MAX31865_CONFIG_BIAS, 1);
 }
 
+uint8_t MAX31865::runAutoFaultDetectionCycle() {
+  writeRegister8(MAX31865_CONFIG_REG, (stdFlags & 0x11) | 0x84 ); // cfg reg = 100X010Xb
+  DELAY_US(600);
+  while ((readRegister8(MAX31865_CONFIG_REG) & 0xC) > 0) DELAY_US(100); // Fault det completes when bits 2 and 3 are zero
+  uint8_t f = readFault();
+  clearFault();
+  return f;
+}
+
 /**
  * Initialize standard flags with flags that will not change during operation (Hz, polling mode and no. of wires)
  *
@@ -257,15 +269,7 @@ void MAX31865::initFixedFlags(max31865_numwires_t wires) {
     stdFlags &= ~MAX31865_CONFIG_3WIRE;
 }
 
-/**
- * Read the raw 16-bit value from the RTD_REG in one shot mode. This will include
- * the fault bit, D0.
- *
- * @return The raw unsigned 16-bit register value with ERROR bit attached, NOT temperature!
- */
-uint16_t MAX31865::readRaw() {
-
-  #if ENABLED(MAX31865_USE_AUTO_MODE)
+inline uint16_t MAX31865::readRawImmediate() {
 
     const uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
     DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
@@ -288,6 +292,19 @@ uint16_t MAX31865::readRaw() {
       TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
     }
 
+    return rtd;
+}
+
+/**
+ * Read the raw 16-bit value from the RTD_REG in one shot mode. This will include
+ * the fault bit, D0.
+ *
+ * @return The raw unsigned 16-bit register value with ERROR bit attached, NOT temperature!
+ */
+uint16_t MAX31865::readRaw() {
+
+  #if ENABLED(MAX31865_USE_AUTO_MODE)
+    readRawImmediate();
   #else
 
     if (PENDING(millis(), nextEventStamp)) {
@@ -311,28 +328,8 @@ uint16_t MAX31865::readRaw() {
         break;
 
       case READ_RTD_REG: {
-        const uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
-        DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
 
-        if (rtd & 1) {
-          lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
-          lastRead |= 1;
-          clearFault(); // also clears the bias voltage flag, so no further action is required
-          DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
-        }
-        #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-          else if (ABS(lastRead - rtd) > 500 && PENDING(millis(), lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
-            lastFault = 0x01;
-            lastRead |= 1;
-            DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
-          }
-        #endif
-        else {
-          lastRead = rtd;
-          TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
-        }
-
-        if (!(rtd & 1))   // if clearFault() was not invoked, need to clear the bias voltage and 1-shot flags
+        if (!(readRawImmediate() & 1))   // if clearFault() was not invoked, need to clear the bias voltage and 1-shot flags
           resetFlags();
 
         nextEvent = SETUP_BIAS_VOLTAGE;
