@@ -265,8 +265,7 @@ void report_current_position_projected() {
     const xyz_pos_t lpos = cartes.asLogical();
 
     SERIAL_ECHOPGM_P(
-      LIST_N(DOUBLE(LOGICAL_AXES),
-        SP_E_LBL, current_position.e,
+      LIST_N(DOUBLE(LINEAR_AXES),
            X_LBL, lpos.x,
         SP_Y_LBL, lpos.y,
         SP_Z_LBL, lpos.z,
@@ -274,6 +273,9 @@ void report_current_position_projected() {
         SP_J_LBL, lpos.j,
         SP_K_LBL, lpos.k
       )
+      #if HAS_EXTRUDERS
+        , SP_E_LBL, current_position.e
+      #endif
     );
 
     stepper.report_positions();
