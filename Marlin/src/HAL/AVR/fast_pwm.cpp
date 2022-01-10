@@ -23,15 +23,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if NEEDS_HARDWARE_PWM
-static uint16_t timer_freq[5];
-
 struct Timer {
   volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
   volatile uint16_t* OCRnQ[3];  // max 3 OCR registers per timer
   volatile uint16_t* ICRn;      // max 1 ICR register per timer
   uint8_t n;                    // the timer number [0->5]
   uint8_t q;                    // the timer output [0->2] (A->C)
+  bool isPWMpin;                // True if pin is a hardware timer.
+  bool isProtected;             // True if timer is protected   
 };
 
 /**
@@ -42,48 +41,81 @@ struct Timer {
  */
 Timer get_pwm_timer(const pin_t pin) {
   uint8_t q = 0;
+
+  Timer timer = {
+    /*TCCRnQ*/  { nullptr, nullptr, nullptr },
+    /*OCRnQ*/   { nullptr, nullptr, nullptr },
+    /*ICRn*/      nullptr,
+    /*n, q*/      0, 0,
+    /*isT, isP*/  false,false 
+  };
+  
   switch (digitalPinToTimer(pin)) {
     // Protect reserved timers (TIMER0 & TIMER1)
     #ifdef TCCR0A
       #if !AVR_AT90USB1286_FAMILY
         case TIMER0A:
+          timer = {
+              /*TCCRnQ*/  { nullptr, nullptr, nullptr },
+              /*OCRnQ*/   { nullptr, nullptr, nullptr },
+              /*ICRn*/      nullptr,
+              /*n, q*/      0, 0,
+              /*isT, isP*/  true,true 
+            };
       #endif
       case TIMER0B:
+          timer = {
+          /*TCCRnQ*/  { nullptr, nullptr, nullptr },
+          /*OCRnQ*/   { nullptr, nullptr, nullptr },
+          /*ICRn*/      nullptr,
+          /*n, q*/      0, 0,
+          /*isT, isP*/  true,true 
+        };
     #endif
     #ifdef TCCR1A
       case TIMER1A: case TIMER1B:
+        timer = {
+          /*TCCRnQ*/  { nullptr, nullptr, nullptr },
+          /*OCRnQ*/   { nullptr, nullptr, nullptr },
+          /*ICRn*/      nullptr,
+          /*n, q*/      0, 0,
+          /*isT, isP*/  true,true 
+        };      
     #endif
                                         break;
     #if HAS_TCCR2 || defined(TCCR2A)
       #if HAS_TCCR2
         case TIMER2: {
-          Timer timer = {
+          timer = {
             /*TCCRnQ*/  { &TCCR2, nullptr, nullptr },
             /*OCRnQ*/   { (uint16_t*)&OCR2, nullptr, nullptr },
             /*ICRn*/      nullptr,
-            /*n, q*/      2, 0
+            /*n, q*/      2, 0,
+            /*isT, isP*/  true,false
           };
         }
       #elif defined(TCCR2A)
         #if ENABLED(USE_OCR2A_AS_TOP)
           case TIMER2A:   break; // protect TIMER2A
           case TIMER2B: {
-            Timer timer = {
+            timer = {
               /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
               /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
               /*ICRn*/      nullptr,
-              /*n, q*/      2, 1
+              /*n, q*/      2, 1,
+              /*isT, isP*/  true,false              
             };
             return timer;
           }
         #else
           case TIMER2B:   ++q;
           case TIMER2A: {
-            Timer timer = {
+            timer = {
               /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
               /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
               /*ICRn*/      nullptr,
-                            2, q
+              /*n, q*/      2, q,
+              /*isT, isP*/  true,false              
             };
             return timer;
           }
@@ -94,22 +126,24 @@ Timer get_pwm_timer(const pin_t pin) {
       case TIMER3C:   ++q;
       case TIMER3B:   ++q;
       case TIMER3A: {
-        Timer timer = {
+        timer = {
           /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C },
           /*OCRnQ*/   { &OCR3A,   &OCR3B,   &OCR3C },
           /*ICRn*/      &ICR3,
-          /*n, q*/      3, q
+          /*n, q*/      3, q,
+          /*isT, isP*/  true,false
         };
         return timer;
       }
     #elif defined(OCR3B)
       case TIMER3B:   ++q;
       case TIMER3A: {
-        Timer timer = {
+        timer = {
           /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  nullptr },
           /*OCRnQ*/   { &OCR3A,   &OCR3B,  nullptr },
           /*ICRn*/      &ICR3,
-          /*n, q*/      3, q
+          /*n, q*/      3, q,
+          /*isT, isP*/  true,false
         };
         return timer;
       }
@@ -118,11 +152,12 @@ Timer get_pwm_timer(const pin_t pin) {
       case TIMER4C:   ++q;
       case TIMER4B:   ++q;
       case TIMER4A: {
-        Timer timer = {
+        timer = {
           /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C },
           /*OCRnQ*/   { &OCR4A,   &OCR4B,   &OCR4C },
           /*ICRn*/      &ICR4,
-          /*n, q*/      4, q
+          /*n, q*/      4, q,
+          /*isT, isP*/  true,false
         };
         return timer;
       }
@@ -135,26 +170,19 @@ Timer get_pwm_timer(const pin_t pin) {
           /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C },
           /*OCRnQ*/   { &OCR5A,   &OCR5B,   &OCR5C },
           /*ICRn*/      &ICR5,
-          /*n, q*/      5, q
+          /*n, q*/      5, q,
+          /*isT, isP*/  true,false
         };
         return timer;
       }
     #endif
   }
-  Timer timer = {
-      /*TCCRnQ*/  { nullptr, nullptr, nullptr },
-      /*OCRnQ*/   { nullptr, nullptr, nullptr },
-      /*ICRn*/      nullptr,
-                    0, 0
-  };
   return timer;
 }
 
 void set_pwm_frequency(const pin_t pin, const int f_desired) {
   Timer timer = get_pwm_timer(pin);
-  if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
-
-  timer_freq[timer.n - 1] = f_desired;
+  if (timer.isProtected || !timer.isPWMpin) return; // Don't proceed if protected timer or not recognized
 
   const uint16_t size = (timer.n == 2) ? 255 : 65535;
 
@@ -228,38 +256,43 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
   }
   else
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
-}   // NEEDS_HARDWARE_PWM
-#endif
+}  
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
-  #if NEEDS_HARDWARE_PWM
-
-    // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
-    // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
-    if (v == 0)
-      digitalWrite(pin, invert);
-    else if (v == v_size)
-      digitalWrite(pin, !invert);
-    else {
-      Timer timer = get_pwm_timer(pin);
-      if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
-
-      if (timer_freq[timer.n - 1] == 0) {       // If the timer is unconfigured and no freq is set then default PWM_FREQUENCY
-        set_pwm_frequency(pin, PWM_FREQUENCY);  // Set the frequency and save the value to the assigned index no.
-      }
-
+  // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
+  // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
+  if (v == 0)
+    digitalWrite(pin, invert);
+  else if (v == v_size)
+    digitalWrite(pin, !invert);
+  else {
+    Timer timer = get_pwm_timer(pin);
+    if (timer.isProtected) return;              // Don't proceed if protected timer
+    if (timer.isPWMpin) {
       _SET_COMnQ(timer.TCCRnQ, timer.q TERN_(HAS_TCCR2, + (timer.q == 2)), COM_CLEAR_SET + invert); // COM20 is on bit 4 of TCCR2, so +1 for q==2
       const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
       _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
+    } else {
+      if (v < 128) {
+        digitalWrite(pin, LOW);
+      } else {
+        digitalWrite(pin, HIGH);
+      }
     }
+  }
+}
 
-  #else
+void init_pwm_timers() {
 
-    analogWrite(pin, v);
-    UNUSED(v_size);
-    UNUSED(invert);
-
+// Simply init timers 2 to 5 frequencies using the pin map to a default value on 1000HZ
+  #ifdef __AVR_ATmega2560__
+    uint8_t pwm_pin[] = { 10, 5, 6, 46 };
   #endif
+
+  for (uint8_t i=0; i < sizeof(pwm_pin); i++) {
+    set_pwm_frequency(pwm_pin[i], 1000);
+    SERIAL_ECHO_MSG("PWM F init",pwm_pin[i]);
+  }
 }
 
 #endif // __AVR__

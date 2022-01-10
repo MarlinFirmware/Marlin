@@ -227,3 +227,9 @@ void set_pwm_frequency(const pin_t pin, const int f_desired);
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
  */
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+/*
+ * init_pwm_timers 
+ * sets the default frequency for timers 2-5 to 1000HZ 
+ */
+void init_pwm_timers();

@@ -75,6 +75,8 @@ void HAL_init() {
   #if HAS_SERVO_3
     INIT_SERVO(3);
   #endif
+  //Init user timers to default frequency - 1000HZ
+  init_pwm_timers();
 }
 
 void HAL_reboot() {
