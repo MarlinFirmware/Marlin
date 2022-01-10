@@ -178,9 +178,9 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   #if DISABLED(MAX31865_USE_AUTO_MODE) // make a proper first 1 shot read to initialize _lastRead
 
     enableBias();
-    DELAY_US(11500);
+    DELAY_US(2000); // according to the datasheet, 10.5τ+1msec (see below)
     oneShot();
-    DELAY_US(65000);
+    DELAY_US(63000);
     uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
     #ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
@@ -347,7 +347,7 @@ uint16_t MAX31865::readRaw() {
     switch (nextEvent) {
       case SETUP_BIAS_VOLTAGE:
         enableBias();
-        nextEventStamp = millis() + 11; // wait at least 11msec before enabling 1shot
+        nextEventStamp = millis() + 2; // wait at least 10.5*τ (τ = 100nF*430Ω max for PT100 / 10nF*4.3ΚΩ for PT1000 = 43μsec) + 1msec
         nextEvent = SETUP_1_SHOT_MODE;
         DEBUG_ECHOLN("MAX31865 bias voltage enabled");
         break;
