@@ -222,11 +222,11 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
       LIMIT(res_temp_fast, 1U, size);
       LIMIT(res_temp_phase_correct, 1U, size);
       // Calculate frequencies of test prescaler and resolution values
-      const uint16_t f_temp_fast = (F_CPU) / (prescaler[i] * (1 + res_temp_fast)),
-                     f_temp_phase_correct = (F_CPU) / (2 * prescaler[i] * res_temp_phase_correct),
-                     f_diff = ABS(f - f_desired),
-                     f_fast_diff = ABS(f_temp_fast - f_desired),
-                     f_phase_diff = ABS(f_temp_phase_correct - f_desired);
+      const int32_t f_temp_fast = (F_CPU) / (prescaler[i] * (1 + res_temp_fast)),
+                    f_temp_phase_correct = (F_CPU) / (2 * prescaler[i] * res_temp_phase_correct),
+                    f_diff = ABS(f - f_desired),
+                    f_fast_diff = ABS(f_temp_fast - f_desired),
+                    f_phase_diff = ABS(f_temp_phase_correct - f_desired);
 
       // If FAST values are closest to desired f
       if (f_fast_diff < f_diff && f_fast_diff <= f_phase_diff) {
