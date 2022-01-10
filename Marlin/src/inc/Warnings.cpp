@@ -85,14 +85,20 @@
     #warning "Auto-assigned X2_DIAG_PIN to X_MIN_PIN."
   #elif X2_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned X2_DIAG_PIN to X_MAX_PIN."
+  #elif X2_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned X2_DIAG_PIN to X_STOP_PIN."
   #elif X2_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned X2_DIAG_PIN to Y_MIN_PIN."
   #elif X2_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned X2_DIAG_PIN to Y_MAX_PIN."
+  #elif X2_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned X2_DIAG_PIN to Y_STOP_PIN."
   #elif X2_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned X2_DIAG_PIN to Z_MIN_PIN."
   #elif X2_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned X2_DIAG_PIN to Z_MAX_PIN."
+  #elif X2_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned X2_DIAG_PIN to Z_STOP_PIN."
   #elif X2_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned X2_DIAG_PIN to X_DIAG_PIN."
   #elif X2_USE_ENDSTOP == _YDIAG_
@@ -137,14 +143,20 @@
     #warning "Auto-assigned Y2_DIAG_PIN to X_MIN_PIN."
   #elif Y2_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned Y2_DIAG_PIN to X_MAX_PIN."
+  #elif Y2_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned Y2_DIAG_PIN to X_STOP_PIN."
   #elif Y2_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned Y2_DIAG_PIN to Y_MIN_PIN."
   #elif Y2_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned Y2_DIAG_PIN to Y_MAX_PIN."
+  #elif Y2_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned Y2_DIAG_PIN to Y_STOP_PIN."
   #elif Y2_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned Y2_DIAG_PIN to Z_MIN_PIN."
   #elif Y2_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned Y2_DIAG_PIN to Z_MAX_PIN."
+  #elif Y2_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned Y2_DIAG_PIN to Z_STOP_PIN."
   #elif Y2_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned Y2_DIAG_PIN to X_DIAG_PIN."
   #elif Y2_USE_ENDSTOP == _YDIAG_
@@ -189,14 +201,20 @@
     #warning "Auto-assigned Z2_DIAG_PIN to X_MIN_PIN."
   #elif Z2_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned Z2_DIAG_PIN to X_MAX_PIN."
+  #elif Z2_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned Z2_DIAG_PIN to X_STOP_PIN."
   #elif Z2_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned Z2_DIAG_PIN to Y_MIN_PIN."
   #elif Z2_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned Z2_DIAG_PIN to Y_MAX_PIN."
+  #elif Z2_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned Z2_DIAG_PIN to Y_STOP_PIN."
   #elif Z2_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned Z2_DIAG_PIN to Z_MIN_PIN."
   #elif Z2_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned Z2_DIAG_PIN to Z_MAX_PIN."
+  #elif Z2_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned Z2_DIAG_PIN to Z_STOP_PIN."
   #elif Z2_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned Z2_DIAG_PIN to X_DIAG_PIN."
   #elif Z2_USE_ENDSTOP == _YDIAG_
@@ -241,14 +259,20 @@
     #warning "Auto-assigned Z3_DIAG_PIN to X_MIN_PIN."
   #elif Z3_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned Z3_DIAG_PIN to X_MAX_PIN."
+  #elif Z3_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned Z3_DIAG_PIN to X_STOP_PIN."
   #elif Z3_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned Z3_DIAG_PIN to Y_MIN_PIN."
   #elif Z3_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned Z3_DIAG_PIN to Y_MAX_PIN."
+  #elif Z3_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned Z3_DIAG_PIN to Y_STOP_PIN."
   #elif Z3_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned Z3_DIAG_PIN to Z_MIN_PIN."
   #elif Z3_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned Z3_DIAG_PIN to Z_MAX_PIN."
+  #elif Z3_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned Z3_DIAG_PIN to Z_STOP_PIN."
   #elif Z3_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned Z3_DIAG_PIN to X_DIAG_PIN."
   #elif Z3_USE_ENDSTOP == _YDIAG_
@@ -293,14 +317,20 @@
     #warning "Auto-assigned Z4_DIAG_PIN to X_MIN_PIN."
   #elif Z4_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned Z4_DIAG_PIN to X_MAX_PIN."
+  #elif Z4_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned Z4_DIAG_PIN to X_STOP_PIN."
   #elif Z4_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned Z4_DIAG_PIN to Y_MIN_PIN."
   #elif Z4_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned Z4_DIAG_PIN to Y_MAX_PIN."
+  #elif Z4_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned Z4_DIAG_PIN to Y_STOP_PIN."
   #elif Z4_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned Z4_DIAG_PIN to Z_MIN_PIN."
   #elif Z4_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned Z4_DIAG_PIN to Z_MAX_PIN."
+  #elif Z4_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned Z4_DIAG_PIN to Z_STOP_PIN."
   #elif Z4_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned Z4_DIAG_PIN to X_DIAG_PIN."
   #elif Z4_USE_ENDSTOP == _YDIAG_
@@ -345,14 +375,20 @@
     #warning "Auto-assigned I_DIAG_PIN to X_MIN_PIN."
   #elif I_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned I_DIAG_PIN to X_MAX_PIN."
+  #elif I_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned I_DIAG_PIN to X_STOP_PIN."
   #elif I_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned I_DIAG_PIN to Y_MIN_PIN."
   #elif I_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned I_DIAG_PIN to Y_MAX_PIN."
+  #elif I_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned I_DIAG_PIN to Y_STOP_PIN."
   #elif I_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned I_DIAG_PIN to Z_MIN_PIN."
   #elif I_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned I_DIAG_PIN to Z_MAX_PIN."
+  #elif I_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned I_DIAG_PIN to Z_STOP_PIN."
   #elif I_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned I_DIAG_PIN to X_DIAG_PIN."
   #elif I_USE_ENDSTOP == _YDIAG_
@@ -397,14 +433,20 @@
     #warning "Auto-assigned J_DIAG_PIN to X_MIN_PIN."
   #elif J_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned J_DIAG_PIN to X_MAX_PIN."
+  #elif J_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned J_DIAG_PIN to X_STOP_PIN."
   #elif J_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned J_DIAG_PIN to Y_MIN_PIN."
   #elif J_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned J_DIAG_PIN to Y_MAX_PIN."
+  #elif J_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned J_DIAG_PIN to Y_STOP_PIN."
   #elif J_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned J_DIAG_PIN to Z_MIN_PIN."
   #elif J_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned J_DIAG_PIN to Z_MAX_PIN."
+  #elif J_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned J_DIAG_PIN to Z_STOP_PIN."
   #elif J_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned J_DIAG_PIN to X_DIAG_PIN."
   #elif J_USE_ENDSTOP == _YDIAG_
@@ -449,14 +491,20 @@
     #warning "Auto-assigned K_DIAG_PIN to X_MIN_PIN."
   #elif K_USE_ENDSTOP == _XMAX_
     #warning "Auto-assigned K_DIAG_PIN to X_MAX_PIN."
+  #elif K_USE_ENDSTOP == _XSTOP_
+    #warning "Auto-assigned K_DIAG_PIN to X_STOP_PIN."
   #elif K_USE_ENDSTOP == _YMIN_
     #warning "Auto-assigned K_DIAG_PIN to Y_MIN_PIN."
   #elif K_USE_ENDSTOP == _YMAX_
     #warning "Auto-assigned K_DIAG_PIN to Y_MAX_PIN."
+  #elif K_USE_ENDSTOP == _YSTOP_
+    #warning "Auto-assigned K_DIAG_PIN to Y_STOP_PIN."
   #elif K_USE_ENDSTOP == _ZMIN_
     #warning "Auto-assigned K_DIAG_PIN to Z_MIN_PIN."
   #elif K_USE_ENDSTOP == _ZMAX_
     #warning "Auto-assigned K_DIAG_PIN to Z_MAX_PIN."
+  #elif K_USE_ENDSTOP == _ZSTOP_
+    #warning "Auto-assigned K_DIAG_PIN to Z_STOP_PIN."
   #elif K_USE_ENDSTOP == _XDIAG_
     #warning "Auto-assigned K_DIAG_PIN to X_DIAG_PIN."
   #elif K_USE_ENDSTOP == _YDIAG_
@@ -482,6 +530,10 @@
   #endif
 #endif
 
+#if ENABLED(CHAMBER_FAN) && !defined(CHAMBER_FAN_INDEX)
+  #warning "Auto-assigned CHAMBER_FAN_INDEX to the first free FAN pin."
+#endif
+
 #if IS_LEGACY_TFT
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
@@ -497,4 +549,17 @@
 
 #if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
   #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
+#endif
+
+//
+// Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
+//
+#if !USE_SENSORLESS && ENABLED(USES_DIAG_JUMPERS)
+  #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled."
+#elif !USE_SENSORLESS && ENABLED(USES_DIAG_PINS)
+  #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0)"
+#endif
+
+#if CANNOT_EMBED_CONFIGURATION
+  #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif

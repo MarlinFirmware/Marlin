@@ -156,14 +156,14 @@
 #define USB_CONNECT_INVERTING              false
 
 /**
- *                 -----
- *             5V | 1 2 | GND
- *  (LCD_EN) PB7  | 3 4 | PB8  (LCD_RS)
- *  (LCD_D4) PB9  | 5 6   PA10 (BTN_EN2)
- *          RESET | 7 8 | PA9  (BTN_EN1)
- * (BTN_ENC) PB6  | 9 10| PA15 (BEEPER)
- *                 -----
- *                 EXP1
+ *                 ------
+ * (BEEPER)  PA15 |10  9 | PB6 (BTN_ENC)
+ * (BTN_EN1) PA9  | 8  7 | RESET
+ * (BTN_EN2) PA10   6  5 | PB9 (LCD_D4)
+ * (LCD_RS)  PB8  | 4  3 | PB7 (LCD_EN)
+ *            GND | 2  1 | 5V
+ *                 ------
+ *                  EXP1
  */
 
 #if HAS_WIRED_LCD
@@ -195,13 +195,13 @@
   #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     /** Creality Ender-2 display pinout
-     *                   -----
-     *               5V | 1 2 | GND
-     *      (MOSI) PB7  | 3 4 | PB8  (LCD_RS)
-     *    (LCD_A0) PB9  | 5 6   PA10 (BTN_EN2)
-     *            RESET | 7 8 | PA9  (BTN_EN1)
-     *   (BTN_ENC) PB6  | 9 10| PA15 (SCK)
-     *                   -----
+     *                   ------
+     *   (SCK)     PA15 |10  9 | PB6 (BTN_ENC)
+     *   (BTN_EN1) PA9  | 8  7 | RESET
+     *   (BTN_EN2) PA10   6  5 | PB9 (LCD_A0)
+     *   (LCD_RS)  PB8  | 4  3 | PB7 (MOSI)
+     *              GND | 2  1 | 5V
+     *                   ------
      *                    EXP1
      */
 
@@ -228,15 +228,15 @@
 
   /** FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                     Display
-   *               -----                                      -----
-   *           5V | 1 2 | GND               (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
-   * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)     (PA9)  MOD_RESET | 3 4 | SD_CS (PA10)
-   * (FREE)   PB9 | 5 6   PA10 (SD_CS)      (PB8)     LCD_CS | 5 6   MOSI  (SPI1-MOSI)
-   *        RESET | 7 8 | PA9  (MOD_RESET)  (PA15)    SD_DET | 7 8 | RESET
-   * (BEEPER) PB6 | 9 10| PA15 (SD_DET)                  GND | 9 10| 5V
-   *               -----                                      -----
-   *                EXP1                                       EXP1
+   *                   Board                                   Display
+   *                   ------                                  ------
+   * (SD_DET)    PA15 |10  9 | PB6 (BEEPER)                5V |10  9 | GND
+   * (MOD_RESET) PA9  | 8  7 | RESET                  (RESET) | 8  7 | (SD_DET)
+   * (SD_CS)     PA10   6  5 | PB9                    (MOSI)    6  5 | (LCD_CS)
+   * (LCD_CS)    PB8  | 4  3 | PB7                    (SD_CS) | 4  3 | (MOD_RESET)
+   *              GND | 2  1 | 5V                     (SCK)   | 2  1 | (MISO)
+   *                   ------                                  ------
+   *                    EXP1                                    EXP1
    *
    * Needs custom cable:
    *

@@ -52,8 +52,6 @@
   // Motion > Level Bed handlers
   //
 
-  static uint8_t manual_probe_index;
-
   // LCD probed points are from defaults
   constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 

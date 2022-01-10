@@ -84,10 +84,10 @@ void menu_backlash();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_CURRENT_PWM(LABEL,I) EDIT_ITEM_P(long5, PSTR(LABEL), &stepper.motor_current_setting[I], 100, 2000, stepper.refresh_motor_power)
     #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
-      EDIT_CURRENT_PWM(STR_X STR_Y, 0);
+      EDIT_CURRENT_PWM(STR_A STR_B, 0);
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-      EDIT_CURRENT_PWM(STR_Z, 1);
+      EDIT_CURRENT_PWM(STR_C, 1);
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
       EDIT_CURRENT_PWM(STR_E, 2);
@@ -506,6 +506,10 @@ void menu_backlash();
 
       #if ENABLED(PROBE_OFFSET_WIZARD)
         SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+      #endif
+
+      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        SUBMENU(MSG_XATC, xatc_wizard_continue);
       #endif
 
       END_MENU();

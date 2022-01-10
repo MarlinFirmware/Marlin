@@ -36,7 +36,7 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../../../feature/probe_temp_comp.h"
   #include "../../../module/temperature.h"
 #endif
@@ -290,6 +290,9 @@ G29_TYPE GcodeSuite::G29() {
                     ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
         int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
 
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
         if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
           i = (rx - bilinear_start.x + 0.5 * abl.gridSpacing.x) / abl.gridSpacing.x;
@@ -297,6 +300,9 @@ G29_TYPE GcodeSuite::G29() {
           LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
           LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
         }
+
+        #pragma GCC diagnostic pop
+
         if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
           set_bed_leveling_enabled(false);
           z_values[i][j] = rz;
@@ -645,11 +651,9 @@ G29_TYPE GcodeSuite::G29() {
             break; // Breaks out of both loops
           }
 
-          #if ENABLED(PROBE_TEMP_COMPENSATION)
-            temp_comp.compensate_measurement(TSI_BED, thermalManager.degBed(), abl.measured_z);
-            temp_comp.compensate_measurement(TSI_PROBE, thermalManager.degProbe(), abl.measured_z);
-            TERN_(USE_TEMP_EXT_COMPENSATION, temp_comp.compensate_measurement(TSI_EXT, thermalManager.degHotend(0), abl.measured_z));
-          #endif
+          TERN_(PTC_BED,    ptc.compensate_measurement(TSI_BED,   thermalManager.degBed(),     abl.measured_z));
+          TERN_(PTC_PROBE,  ptc.compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   abl.measured_z));
+          TERN_(PTC_HOTEND, ptc.compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), abl.measured_z));
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -664,7 +668,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             const float z = abl.measured_z + abl.Z_offset;
-            z_values[abl.meshCount.x][abl.meshCount.y] = z;
+            z_values[abl.meshCount.x][abl.meshCount.y] = z PLUS_TERN0(X_AXIS_TWIST_COMPENSATION, xatc.compensation(abl.probePos));
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
           #endif

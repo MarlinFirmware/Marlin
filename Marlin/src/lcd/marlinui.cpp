@@ -49,6 +49,7 @@ MarlinUI ui;
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+  #include "fontutils.h"
   #include "e3v2/enhanced/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
@@ -69,7 +70,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-  #if BOTH(HAS_WIRED_LCD, STATUS_MESSAGE_SCROLLING)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
@@ -149,10 +150,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   void MarlinUI::apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e/*=active_extruder*/) {
     const preheat_t &pre = material_preset[m];
-    TERN_(HAS_HOTEND,           if (TEST(pmask, PM_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
-    TERN_(HAS_HEATED_BED,       if (TEST(pmask, PM_BED))     thermalManager.setTargetBed(pre.bed_temp));
-    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PM_CHAMBER)) thermalManager.setTargetBed(pre.chamber_temp));
-    TERN_(HAS_FAN,              if (TEST(pmask, PM_FAN))     thermalManager.set_fan_speed(0, pre.fan_speed));
+    TERN_(HAS_HOTEND,           if (TEST(pmask, PT_HOTEND))  thermalManager.setTargetHotend(pre.hotend_temp, e));
+    TERN_(HAS_HEATED_BED,       if (TEST(pmask, PT_BED))     thermalManager.setTargetBed(pre.bed_temp));
+    //TERN_(HAS_HEATED_CHAMBER, if (TEST(pmask, PT_CHAMBER)) thermalManager.setTargetBed(pre.chamber_temp));
+    TERN_(HAS_FAN,              if (TEST(pmask, PT_FAN))     thermalManager.set_fan_speed(0, pre.fan_speed));
   }
 #endif
 
@@ -770,7 +771,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       // Add a manual move to the queue?
       if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
 
-        const feedRate_t fr_mm_s = (axis <= LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+        const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
         #if IS_KINEMATIC
 
@@ -1484,11 +1485,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   void MarlinUI::finish_status(const bool persist) {
 
-    #if HAS_WIRED_LCD
+    UNUSED(persist);
 
-      #if !(BASIC_PROGRESS_BAR && (PROGRESS_MSG_EXPIRE) > 0)
-        UNUSED(persist);
-      #endif
+    #if HAS_WIRED_LCD
 
       #if BASIC_PROGRESS_BAR || BOTH(FILAMENT_LCD_DISPLAY, SDSUPPORT)
         const millis_t ms = millis();
@@ -1505,13 +1504,15 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
         next_filament_display = ms + 5000UL; // Show status message for 5s
       #endif
 
-      TERN_(STATUS_MESSAGE_SCROLLING, status_scroll_offset = 0);
-    #else // HAS_WIRED_LCD
-      UNUSED(persist);
+    #endif
+
+    #if ENABLED(STATUS_MESSAGE_SCROLLING) && EITHER(HAS_WIRED_LCD, DWIN_CREALITY_LCD_ENHANCED)
+      status_scroll_offset = 0;
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
-    TERN_(HAS_DWIN_E3V2_BASIC, DWIN_StatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD, DWIN_StatusChanged(status_message));
+    TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_CheckStatusMessage());
     TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Update_Status(status_message));
   }
 
@@ -1555,11 +1556,13 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_LCD_MENU, return_to_status());
   }
 
-  #if BOTH(PSU_CONTROL, PS_OFF_CONFIRM)
+  #if BOTH(HAS_LCD_MENU, PSU_CONTROL)
+
     void MarlinUI::poweroff() {
-      queue.inject(F("M81"));
-      goto_previous_screen();
+      queue.inject(F("M81" TERN_(POWER_OFF_WAIT_FOR_COOLDOWN, "S")));
+      return_to_status();
     }
+
   #endif
 
   void MarlinUI::flow_fault() {
@@ -1567,10 +1570,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     TERN_(HAS_BUZZER, buzz(1000, 440));
     TERN_(HAS_LCD_MENU, return_to_status());
   }
-
-  #if ANY(PARK_HEAD_ON_PAUSE, SDSUPPORT)
-    #include "../gcode/queue.h"
-  #endif
 
   void MarlinUI::pause_print() {
     #if HAS_LCD_MENU

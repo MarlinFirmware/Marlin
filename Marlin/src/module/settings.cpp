@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V85"
+#define EEPROM_VERSION "V86"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -63,6 +63,9 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #include "../feature/bedlevel/abl/x_twist.h"
+  #endif
 #endif
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
@@ -132,7 +135,7 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../feature/probe_temp_comp.h"
 #endif
 
@@ -156,6 +159,10 @@
 
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../libs/buzzer.h"
+#endif
+
+#if HAS_FANCHECK
+  #include "../feature/fancheck.h"
 #endif
 
 #if ENABLED(DGUS_LCD_UI_MKS)
@@ -195,20 +202,32 @@ static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
  */
 typedef struct SettingsDataStruct {
   char      version[4];                                 // Vnn\0
+  #if ENABLED(EEPROM_INIT_NOW)
+    uint32_t build_hash;                                // Unique build hash
+  #endif
   uint16_t  crc;                                        // Data Checksum
 
   //
   // DISTINCT_E_FACTORS
   //
-  uint8_t   esteppers;                                  // DISTINCT_AXES - LINEAR_AXES
+  uint8_t e_factors;                                    // DISTINCT_AXES - LINEAR_AXES
 
+  //
+  // Planner settings
+  //
   planner_settings_t planner_settings;
 
   xyze_float_t planner_max_jerk;                        // M205 XYZE  planner.max_jerk
   float planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
 
+  //
+  // Home Offset
+  //
   xyz_pos_t home_offset;                                // M206 XYZ / M665 TPZ
 
+  //
+  // Hotend Offset
+  //
   #if HAS_HOTEND_OFFSET
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
   #endif
@@ -250,6 +269,9 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
+    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      XATC xatc;                                        // TBD
+    #endif
   #else
     float z_values[3][3];
   #endif
@@ -268,19 +290,25 @@ typedef struct SettingsDataStruct {
   //
   // Temperature first layer compensation values
   //
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
-    int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)], // M871 P I V
-            z_offsets_bed[COUNT(temp_comp.z_offsets_bed)]      // M871 B I V
-            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
-            #endif
-            ;
+  #if HAS_PTC
+    #if ENABLED(PTC_PROBE)
+      int16_t z_offsets_probe[COUNT(ptc.z_offsets_probe)]; // M871 P I V
+    #endif
+    #if ENABLED(PTC_BED)
+      int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
+    #endif
+    #if ENABLED(PTC_HOTEND)
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
+    #endif
   #endif
 
   //
   // BLTOUCH
   //
-  bool bltouch_last_written_mode;
+  bool bltouch_od_5v_mode;
+  #ifdef BLTOUCH_HS_MODE
+    bool bltouch_high_speed_mode;                       // M401 S
+  #endif
 
   //
   // Kinematic Settings
@@ -493,6 +521,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Fan tachometer check
+  //
+  #if HAS_FANCHECK
+    bool fan_check_enabled;
+  #endif
+
+  //
   // MKS UI controller
   //
   #if ENABLED(DGUS_LCD_UI_MKS)
@@ -617,6 +652,10 @@ void MarlinSettings::postprocess() {
 #define DEBUG_OUT EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
+#if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+  #define HOST_EEPROM_CHITCHAT 1
+#endif
+
 #if ENABLED(EEPROM_SETTINGS)
 
   #define EEPROM_ASSERT(TST,ERR)  do{ if (!(TST)) { SERIAL_ERROR_MSG(ERR); eeprom_error = true; } }while(0)
@@ -633,13 +672,24 @@ void MarlinSettings::postprocess() {
 
   const char version[4] = EEPROM_VERSION;
 
+  #if ENABLED(EEPROM_INIT_NOW)
+    constexpr uint32_t strhash32(const char *s, const uint32_t h=0) {
+      return *s ? strhash32(s + 1, ((h + *s) << (*s & 3)) ^ *s) : h;
+    }
+    constexpr uint32_t build_hash = strhash32(__DATE__ __TIME__);
+  #endif
+
   bool MarlinSettings::eeprom_error, MarlinSettings::validating;
   int MarlinSettings::eeprom_index;
   uint16_t MarlinSettings::working_crc;
 
   bool MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
-      DEBUG_ERROR_MSG("EEPROM datasize error.");
+      DEBUG_ERROR_MSG("EEPROM datasize error."
+        #if ENABLED(MARLIN_DEV_MODE)
+          " (Actual:", size, " Expected:", datasize(), ")"
+        #endif
+      );
       return true;
     }
     return false;
@@ -659,13 +709,17 @@ void MarlinSettings::postprocess() {
     // Write or Skip version. (Flash doesn't allow rewrite without erase.)
     TERN(FLASH_EEPROM_EMULATION, EEPROM_SKIP, EEPROM_WRITE)(ver);
 
-    EEPROM_SKIP(working_crc); // Skip the checksum slot
+    #if ENABLED(EEPROM_INIT_NOW)
+      EEPROM_SKIP(build_hash);  // Skip the hash slot
+    #endif
+
+    EEPROM_SKIP(working_crc);   // Skip the checksum slot
 
     working_crc = 0; // clear before first "real data"
 
-    const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - LINEAR_AXES;
-    _FIELD_TEST(esteppers);
-    EEPROM_WRITE(esteppers);
+    const uint8_t e_factors = DISTINCT_AXES - (LINEAR_AXES);
+    _FIELD_TEST(e_factors);
+    EEPROM_WRITE(e_factors);
 
     //
     // Planner Motion
@@ -804,6 +858,12 @@ void MarlinSettings::postprocess() {
           sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          static_assert(
+            sizeof(xatc.z_values) == (XATC_MAX_POINTS) * sizeof(xatc.z_values[0]),
+            "Z-offset mesh is the wrong size."
+          );
+        #endif
       #else
         const xy_pos_t bilinear_start{0}, bilinear_grid_spacing{0};
       #endif
@@ -817,6 +877,9 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(z_values);              // 9-256 floats
+        #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+          EEPROM_WRITE(xatc);
+        #endif
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
@@ -848,11 +911,15 @@ void MarlinSettings::postprocess() {
     //
     // Thermal first layer compensation values
     //
-    #if ENABLED(PROBE_TEMP_COMPENSATION)
-      EEPROM_WRITE(temp_comp.z_offsets_probe);
-      EEPROM_WRITE(temp_comp.z_offsets_bed);
-      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        EEPROM_WRITE(temp_comp.z_offsets_ext);
+    #if HAS_PTC
+      #if ENABLED(PTC_PROBE)
+        EEPROM_WRITE(ptc.z_offsets_probe);
+      #endif
+      #if ENABLED(PTC_BED)
+        EEPROM_WRITE(ptc.z_offsets_bed);
+      #endif
+      #if ENABLED(PTC_HOTEND)
+        EEPROM_WRITE(ptc.z_offsets_hotend);
       #endif
     #else
       // No placeholder data for this feature
@@ -862,9 +929,15 @@ void MarlinSettings::postprocess() {
     // BLTOUCH
     //
     {
-      _FIELD_TEST(bltouch_last_written_mode);
-      const bool bltouch_last_written_mode = TERN(BLTOUCH, bltouch.last_written_mode, false);
-      EEPROM_WRITE(bltouch_last_written_mode);
+      _FIELD_TEST(bltouch_od_5v_mode);
+      const bool bltouch_od_5v_mode = TERN0(BLTOUCH, bltouch.od_5v_mode);
+      EEPROM_WRITE(bltouch_od_5v_mode);
+
+      #ifdef BLTOUCH_HS_MODE
+        _FIELD_TEST(bltouch_high_speed_mode);
+        const bool bltouch_high_speed_mode = TERN0(BLTOUCH, bltouch.high_speed_mode);
+        EEPROM_WRITE(bltouch_high_speed_mode);
+      #endif
     }
 
     //
@@ -1431,6 +1504,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Fan tachometer check
+    //
+    #if HAS_FANCHECK
+      EEPROM_WRITE(fan_check.enabled);
+    #endif
+
+    //
     // MKS UI controller
     //
     #if ENABLED(DGUS_LCD_UI_MKS)
@@ -1458,6 +1538,9 @@ void MarlinSettings::postprocess() {
       eeprom_index = EEPROM_OFFSET;
 
       EEPROM_WRITE(version);
+      #if ENABLED(EEPROM_INIT_NOW)
+        EEPROM_WRITE(build_hash);
+      #endif
       EEPROM_WRITE(final_crc);
 
       // Report storage size
@@ -1494,9 +1577,6 @@ void MarlinSettings::postprocess() {
     char stored_ver[4];
     EEPROM_READ_ALWAYS(stored_ver);
 
-    uint16_t stored_crc;
-    EEPROM_READ_ALWAYS(stored_crc);
-
     // Version has to match or defaults are used
     if (strncmp(version, stored_ver, 3) != 0) {
       if (stored_ver[3] != '\0') {
@@ -1511,14 +1591,25 @@ void MarlinSettings::postprocess() {
       eeprom_error = true;
     }
     else {
+
+      // Optionally reset on the first boot after flashing
+      #if ENABLED(EEPROM_INIT_NOW)
+        uint32_t stored_hash;
+        EEPROM_READ_ALWAYS(stored_hash);
+        if (stored_hash != build_hash) { EEPROM_FINISH(); return false; }
+      #endif
+
+      uint16_t stored_crc;
+      EEPROM_READ_ALWAYS(stored_crc);
+
       float dummyf = 0;
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
-      _FIELD_TEST(esteppers);
+      _FIELD_TEST(e_factors);
 
-      // Number of esteppers may change
-      uint8_t esteppers;
-      EEPROM_READ_ALWAYS(esteppers);
+      // Number of e_factors may change
+      uint8_t e_factors;
+      EEPROM_READ_ALWAYS(e_factors);
 
       //
       // Planner Motion
@@ -1526,16 +1617,16 @@ void MarlinSettings::postprocess() {
       {
         // Get only the number of E stepper parameters previously stored
         // Any steppers added later are set to their defaults
-        uint32_t tmp1[LINEAR_AXES + esteppers];
-        float tmp2[LINEAR_AXES + esteppers];
-        feedRate_t tmp3[LINEAR_AXES + esteppers];
+        uint32_t tmp1[LINEAR_AXES + e_factors];
+        float tmp2[LINEAR_AXES + e_factors];
+        feedRate_t tmp3[LINEAR_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
         EEPROM_READ(planner.settings.min_segment_time_us);
         EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
         EEPROM_READ((uint8_t *)tmp3, sizeof(tmp3)); // max_feedrate_mm_s
 
         if (!validating) LOOP_DISTINCT_AXES(i) {
-          const bool in = (i < esteppers + LINEAR_AXES);
+          const bool in = (i < e_factors + LINEAR_AXES);
           planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
           planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
           planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
@@ -1674,6 +1765,9 @@ void MarlinSettings::postprocess() {
             EEPROM_READ(bilinear_grid_spacing);        // 2 ints
             EEPROM_READ(bilinear_start);               // 2 ints
             EEPROM_READ(z_values);                     // 9 to 256 floats
+            #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+              EEPROM_READ(xatc);
+            #endif
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
@@ -1718,13 +1812,17 @@ void MarlinSettings::postprocess() {
       //
       // Thermal first layer compensation values
       //
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        EEPROM_READ(temp_comp.z_offsets_probe);
-        EEPROM_READ(temp_comp.z_offsets_bed);
-        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          EEPROM_READ(temp_comp.z_offsets_ext);
+      #if HAS_PTC
+        #if ENABLED(PTC_PROBE)
+          EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        temp_comp.reset_index();
+        # if ENABLED(PTC_BED)
+          EEPROM_READ(ptc.z_offsets_bed);
+        #endif
+        #if ENABLED(PTC_HOTEND)
+          EEPROM_READ(ptc.z_offsets_hotend);
+        #endif
+        ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -1733,13 +1831,23 @@ void MarlinSettings::postprocess() {
       // BLTOUCH
       //
       {
-        _FIELD_TEST(bltouch_last_written_mode);
+        _FIELD_TEST(bltouch_od_5v_mode);
         #if ENABLED(BLTOUCH)
-          const bool &bltouch_last_written_mode = bltouch.last_written_mode;
+          const bool &bltouch_od_5v_mode = bltouch.od_5v_mode;
         #else
-          bool bltouch_last_written_mode;
+          bool bltouch_od_5v_mode;
         #endif
-        EEPROM_READ(bltouch_last_written_mode);
+        EEPROM_READ(bltouch_od_5v_mode);
+
+        #ifdef BLTOUCH_HS_MODE
+          _FIELD_TEST(bltouch_high_speed_mode);
+          #if ENABLED(BLTOUCH)
+            const bool &bltouch_high_speed_mode = bltouch.high_speed_mode;
+          #else
+            bool bltouch_high_speed_mode;
+          #endif
+          EEPROM_READ(bltouch_high_speed_mode);
+        #endif
       }
 
       //
@@ -2337,6 +2445,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Fan tachometer check
+      //
+      #if HAS_FANCHECK
+        _FIELD_TEST(fan_check_enabled);
+        EEPROM_READ(fan_check.enabled);
+      #endif
+
+      //
       // MKS UI controller
       //
       #if ENABLED(DGUS_LCD_UI_MKS)
@@ -2371,18 +2487,14 @@ void MarlinSettings::postprocess() {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
         TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_CRC));
-        #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
-          hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC));
-        #endif
+        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHO(version);
         DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
-        #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
-          hostui.notify(F("Stored settings retrieved"));
-        #endif
+        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -2455,7 +2567,7 @@ void MarlinSettings::postprocess() {
       return success;
     }
     reset();
-    #if ENABLED(EEPROM_AUTO_INIT)
+    #if EITHER(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
       (void)save();
       SERIAL_ECHO_MSG("EEPROM Initialized");
     #endif
@@ -2614,13 +2726,13 @@ void MarlinSettings::reset() {
     #if HAS_Z_AXIS && !defined(DEFAULT_ZJERK)
       #define DEFAULT_ZJERK 0
     #endif
-    #if LINEAR_AXES >= 4 && !defined(DEFAULT_IJERK)
+    #if HAS_I_AXIS && !defined(DEFAULT_IJERK)
       #define DEFAULT_IJERK 0
     #endif
-    #if LINEAR_AXES >= 5 && !defined(DEFAULT_JJERK)
+    #if HAS_J_AXIS && !defined(DEFAULT_JJERK)
       #define DEFAULT_JJERK 0
     #endif
-    #if LINEAR_AXES >= 6 && !defined(DEFAULT_KJERK)
+    #if HAS_K_AXIS && !defined(DEFAULT_KJERK)
       #define DEFAULT_KJERK 0
     #endif
     planner.max_jerk.set(
@@ -2743,11 +2855,16 @@ void MarlinSettings::reset() {
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
   //
-  // BLTOUCH
+  // Probe Temperature Compensation
   //
-  //#if ENABLED(BLTOUCH)
-  //  bltouch.last_written_mode;
-  //#endif
+  TERN_(HAS_PTC, ptc.reset());
+
+  //
+  // BLTouch
+  //
+  #ifdef BLTOUCH_HS_MODE
+    bltouch.high_speed_mode = ENABLED(BLTOUCH_HS_MODE);
+  #endif
 
   //
   // Kinematic settings
@@ -3035,16 +3152,20 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Fan tachometer check
+  //
+  TERN_(HAS_FANCHECK, fan_check.enabled = true);
+
+  //
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
 
   postprocess();
 
-  DEBUG_ECHO_MSG("Hardcoded Default Settings Loaded");
-  #if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
-    hostui.notify(F("Hardcoded Default Settings Loaded"));
-  #endif
+  FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
+  TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
+  DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
@@ -3068,12 +3189,13 @@ void MarlinSettings::reset() {
     // Announce current units, in case inches are being displayed
     //
     CONFIG_ECHO_HEADING("Linear Units");
+    CONFIG_ECHO_START();
     #if ENABLED(INCH_MODE_SUPPORT)
       SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
       SERIAL_ECHOPGM("  G21 ;");
     #endif
-    gcode.say_units();
+    gcode.say_units(); // " (in/mm)"
 
     //
     // M149 Temperature units
@@ -3168,6 +3290,12 @@ void MarlinSettings::reset() {
             }
           }
         }
+
+        // TODO: Create G-code for settings
+        //#if ENABLED(X_AXIS_TWIST_COMPENSATION)
+        //  CONFIG_ECHO_START();
+        //  xatc.print_points();
+        //#endif
 
       #endif
 
