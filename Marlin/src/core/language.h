@@ -341,6 +341,9 @@
 #define STR_X "X"
 #define STR_Y "Y"
 #define STR_Z "Z"
+#define STR_I AXIS4_STR
+#define STR_J AXIS5_STR
+#define STR_K AXIS6_STR
 #define STR_E "E"
 #if IS_KINEMATIC
   #define STR_A "A"
@@ -467,10 +470,6 @@
 #else
   #define AXIS6_STR   ""
 #endif
-
-#define STR_I AXIS4_STR
-#define STR_J AXIS5_STR
-#define STR_K AXIS6_STR
 
 #if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
