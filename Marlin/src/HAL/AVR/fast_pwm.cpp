@@ -185,7 +185,7 @@ Timer get_pwm_timer(const pin_t pin) {
   return timer;
 }
 
-void set_pwm_frequency(const pin_t pin, const int f_desired) {
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   Timer timer = get_pwm_timer(pin);
   if (timer.isProtected || !timer.isPWMpin) return; // Don't proceed if protected timer or not recognized
 
@@ -197,7 +197,7 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
 
   // Calculating the prescaler and resolution to use to achieve closest frequency
   if (f_desired != 0) {
-    int f = (F_CPU) / (2 * 1024 * size) + 1; // Initialize frequency as lowest (non-zero) achievable
+    uint16_t f = (F_CPU) / (2 * 1024 * size) + 1; // Initialize frequency as lowest (non-zero) achievable
     uint16_t prescaler[] = { 0, 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024 };
 
     // loop over prescaler values
@@ -222,11 +222,11 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
       LIMIT(res_temp_fast, 1U, size);
       LIMIT(res_temp_phase_correct, 1U, size);
       // Calculate frequencies of test prescaler and resolution values
-      const int f_temp_fast = (F_CPU) / (prescaler[i] * (1 + res_temp_fast)),
-                f_temp_phase_correct = (F_CPU) / (2 * prescaler[i] * res_temp_phase_correct),
-                f_diff = ABS(f - f_desired),
-                f_fast_diff = ABS(f_temp_fast - f_desired),
-                f_phase_diff = ABS(f_temp_phase_correct - f_desired);
+      const uint16_t f_temp_fast = (F_CPU) / (prescaler[i] * (1 + res_temp_fast)),
+                     f_temp_phase_correct = (F_CPU) / (2 * prescaler[i] * res_temp_phase_correct),
+                     f_diff = ABS(f - f_desired),
+                     f_fast_diff = ABS(f_temp_fast - f_desired),
+                     f_phase_diff = ABS(f_temp_phase_correct - f_desired);
 
       // If FAST values are closest to desired f
       if (f_fast_diff < f_diff && f_fast_diff <= f_phase_diff) {
@@ -255,7 +255,7 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
   }
   else
     _SET_ICRn(timer.ICRn, res);         // Set ICRn value (TOP) = res
-}  
+}
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
