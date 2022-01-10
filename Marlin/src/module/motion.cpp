@@ -261,11 +261,12 @@ void report_current_position_projected() {
    * Output the current position (processed) to serial while moving
    */
   void report_current_position_moving() {
-
     get_cartesian_from_steppers();
     const xyz_pos_t lpos = cartes.asLogical();
+
     SERIAL_ECHOPGM_P(
-      LIST_N(DOUBLE(LINEAR_AXES),
+      LIST_N(DOUBLE(LOGICAL_AXES),
+        SP_E_LBL, current_position.e,
            X_LBL, lpos.x,
         SP_Y_LBL, lpos.y,
         SP_Z_LBL, lpos.z,
@@ -273,16 +274,10 @@ void report_current_position_projected() {
         SP_J_LBL, lpos.j,
         SP_K_LBL, lpos.k
       )
-      #if HAS_EXTRUDERS
-        , SP_E_LBL, current_position.e
-      #endif
     );
 
     stepper.report_positions();
-    #if IS_SCARA
-      scara_report_positions();
-    #endif
-
+    TERN_(IS_SCARA, scara_report_positions());
     report_current_grblstate_moving();
   }
 
