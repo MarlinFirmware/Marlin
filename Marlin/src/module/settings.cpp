@@ -2804,7 +2804,6 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
   TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_SetDataDefaults());
   TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
 
