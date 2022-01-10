@@ -1319,9 +1319,9 @@ void prepare_line_to_destination() {
           TEST(axis_bits, X_AXIS) ? "X" : "",
           TEST(axis_bits, Y_AXIS) ? "Y" : "",
           TEST(axis_bits, Z_AXIS) ? "Z" : "",
-          TEST(axis_bits, I_AXIS) ? AXIS4_STR : "",
-          TEST(axis_bits, J_AXIS) ? AXIS5_STR : "",
-          TEST(axis_bits, K_AXIS) ? AXIS6_STR : ""
+          TEST(axis_bits, I_AXIS) ? STR_I : "",
+          TEST(axis_bits, J_AXIS) ? STR_J : "",
+          TEST(axis_bits, K_AXIS) ? STR_K : ""
         )
       );
       SERIAL_ECHO_START();

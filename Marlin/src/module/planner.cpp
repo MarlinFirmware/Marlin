@@ -1867,13 +1867,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       " B:", target.b, " (", db, " steps)"
       " C:", target.c, " (", dc, " steps)"
       #if HAS_I_AXIS
-        " " AXIS4_STR ":", target.i, " (", di, " steps)"
+        " " STR_I ":", target.i, " (", di, " steps)"
       #endif
       #if HAS_J_AXIS
-        " " AXIS5_STR ":", target.j, " (", dj, " steps)"
+        " " STR_J ":", target.j, " (", dj, " steps)"
       #endif
       #if HAS_K_AXIS
-        " " AXIS6_STR ":", target.k, " (", dk, " steps)"
+        " " STR_K ":", target.k, " (", dk, " steps)"
       #endif
       #if HAS_EXTRUDERS
         " E:", target.e, " (", de, " steps)"
