@@ -289,6 +289,8 @@ void init_pwm_timers() {
       10, 5, 6, 46
     #elif defined(__AVR_ATmega1280__)
       12, 31
+    #elif defined(__AVR_ATmega644__) || defined(__AVR_ATmega1284__)
+      15, 6
     #elif defined(__AVR_AT90USB1286__) || defined(__AVR_mega64) || defined(__AVR_mega128)
       16, 24
     #endif
