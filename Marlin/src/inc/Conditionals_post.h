@@ -2860,11 +2860,6 @@
   #define HAS_MOTOR_CURRENT_PWM 1
 #endif
 
-// Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM, HAS_MOTOR_CURRENT_PWM, HAS_LCD_BRIGHTNESS)
-  #define NEEDS_HARDWARE_PWM 1
-#endif
-
 #if ANY(HAS_Z_MS_PINS, HAS_Z2_MS_PINS, HAS_Z3_MS_PINS, HAS_Z4_MS_PINS)
   #define HAS_SOME_Z_MS_PINS 1
 #endif

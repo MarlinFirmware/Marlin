@@ -23,6 +23,11 @@
 
 #include "../../inc/MarlinConfig.h"
 
+// Add features that need hardware PWM here
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM, HAS_MOTOR_CURRENT_PWM, HAS_LCD_BRIGHTNESS)
+  #define NEEDS_HARDWARE_PWM 1
+#endif
+
 struct Timer {
   volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
   volatile uint16_t* OCRnQ[3];  // max 3 OCR registers per timer
@@ -230,10 +235,7 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
         res = res_temp_fast;
         j = i;
         // Set the Wave Generation Mode to FAST PWM
-        if (timer.n == 2)
-          wgm = TERN(USE_OCR2A_AS_TOP, WGM2_FAST_PWM_OCR2A, WGM2_FAST_PWM);
-        else
-          wgm = WGM_FAST_PWM_ICRn;
+        wgm = (timer.n == 2) ? TERN(USE_OCR2A_AS_TOP, WGM2_FAST_PWM_OCR2A, WGM2_FAST_PWM) : WGM_FAST_PWM_ICRn;
       }
       // If PHASE CORRECT values are closes to desired f
       else if (f_phase_diff < f_diff) {
@@ -241,10 +243,7 @@ void set_pwm_frequency(const pin_t pin, const int f_desired) {
         res = res_temp_phase_correct;
         j = i;
         // Set the Wave Generation Mode to PWM PHASE CORRECT
-        if (timer.n == 2)
-          wgm = TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_FAST_PWM);
-        else
-          wgm = WGM_PWM_PC_ICRn;
+        wgm = (timer.n == 2) ? TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_FAST_PWM) : WGM_PWM_PC_ICRn;
       }
     }
   }
