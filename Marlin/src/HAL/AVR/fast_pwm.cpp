@@ -287,10 +287,15 @@ void init_pwm_timers() {
   #ifdef __AVR_ATmega2560__
     uint8_t pwm_pin[] = { 10, 5, 6, 46 };
   #endif
+    #ifdef __AVR_ATmega1280__
+    uint8_t pwm_pin[] = { 12, 31 };
+  #endif
+  #if defined(__AVR_AT90USB1286__) || defined(__AVR_mega64) || defined(__AVR_mega128) 
+    uint8_t pwm_pin[] = { 16, 24 };
+  #endif
 
   for (uint8_t i=0; i < sizeof(pwm_pin); i++) {
     set_pwm_frequency(pwm_pin[i], 1000);
-    SERIAL_ECHO_MSG("PWM F init",pwm_pin[i]);
   }
 }
 
