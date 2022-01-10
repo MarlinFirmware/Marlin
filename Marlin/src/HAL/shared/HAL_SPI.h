@@ -38,9 +38,9 @@
  *  1 :  4 - 5 MHz
  *  2 :  2 - 2.5 MHz
  *  3 :  1 - 1.25 MHz
- *  4 :  500 - 625 kHz
- *  5 :  250 - 312 kHz
- *  6 :  125 - 156 kHz
+ *  4 :  500 - 625 KHz
+ *  5 :  250 - 312 KHz
+ *  6 :  125 - 156 KHz
  *
  *  On AVR, actual speed is F_CPU/2^(1 + index).
  *  On other platforms, speed should be in range given above where possible.

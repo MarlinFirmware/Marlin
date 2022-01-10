@@ -2495,7 +2495,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * 2 < SQRT(block->nominal_speed_sqr) * block->e_D_ratio)
           SERIAL_ECHOLNPGM("More than 2 steps per eISR loop executed.");
         if (block->advance_speed < 200)
-          SERIAL_ECHOLNPGM("eISR running at > 10kHz.");
+          SERIAL_ECHOLNPGM("eISR running at > 10KHz.");
       #endif
     }
   #endif

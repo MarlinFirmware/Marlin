@@ -82,7 +82,7 @@ void DigipotI2C::set_current(const uint8_t channel, const float current) {
 
 void DigipotI2C::init() {
   #if MB(MKS_SBASE)
-    configure_i2c(16); // Set clock_option to 16 ensure I2C is initialized at 400kHz
+    configure_i2c(16); // Set clock_option to 16 ensure I2C is initialized at 400KHz
   #else
     Wire.begin();
   #endif
