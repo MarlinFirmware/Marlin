@@ -514,8 +514,25 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
 }
 
 void MAX31865::writeRegister16(uint8_t addr, uint16_t data) {
-  writeRegister8(addr, data >> 8);
-  writeRegister8(addr + 1, data & 0xFF);
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
+    SPI.beginTransaction(spiConfig);
+  else
+    digitalWrite(sclkPin, LOW);
+
+  digitalWrite(cselPin, LOW);
+
+  #ifdef TARGET_LPC1768
+    DELAY_CYCLES(spiSpeed);
+  #endif
+
+  spiTransfer(addr | 0x80); // make sure top bit is set
+  spiTransfer(data >> 8);
+  spiTransfer(data & 0xFF);
+
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
+    SPI.endTransaction();
+
+  digitalWrite(cselPin, HIGH);
 }
 
 /**
