@@ -118,7 +118,7 @@
  */
 
 // Waveform Generation Modes
-enum WaveGenMode : char {
+enum WaveGenMode : uint8_t {
   WGM_NORMAL,          //  0
   WGM_PWM_PC_8,        //  1
   WGM_PWM_PC_9,        //  2
@@ -138,7 +138,7 @@ enum WaveGenMode : char {
 };
 
 // Wavefore Generation Modes (Timer 2 only)
-enum WaveGenMode2 : char {
+enum WaveGenMode2 : uint8_t {
   WGM2_NORMAL,          // 0
   WGM2_PWM_PC,          // 1
   WGM2_CTC_OCR2A,       // 2
@@ -150,7 +150,7 @@ enum WaveGenMode2 : char {
 };
 
 // Compare Modes
-enum CompareMode : char {
+enum CompareMode : uint8_t {
   COM_NORMAL,          //  0
   COM_TOGGLE,          //  1  Non-PWM: OCnx ... Both PWM (WGM 9,11,14,15): OCnA only ... else NORMAL
   COM_CLEAR_SET,       //  2  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
@@ -158,7 +158,7 @@ enum CompareMode : char {
 };
 
 // Clock Sources
-enum ClockSource : char {
+enum ClockSource : uint8_t {
   CS_NONE,             //  0
   CS_PRESCALER_1,      //  1
   CS_PRESCALER_8,      //  2
@@ -170,7 +170,7 @@ enum ClockSource : char {
 };
 
 // Clock Sources (Timer 2 only)
-enum ClockSource2 : char {
+enum ClockSource2 : uint8_t {
   CS2_NONE,            //  0
   CS2_PRESCALER_1,     //  1
   CS2_PRESCALER_8,     //  2
