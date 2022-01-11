@@ -40,7 +40,7 @@
  * Timer_clock1: Prescaler   2 ->  36    MHz
  * Timer_clock2: Prescaler   8 ->   9    MHz
  * Timer_clock3: Prescaler  32 ->   2.25 MHz
- * Timer_clock4: Prescaler 128 -> 562.5  kHz
+ * Timer_clock4: Prescaler 128 -> 562.5  KHz
  */
 
 /**

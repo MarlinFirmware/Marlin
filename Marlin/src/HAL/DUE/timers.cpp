@@ -62,7 +62,7 @@ const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
   Timer_clock1: Prescaler 2 -> 42MHz
   Timer_clock2: Prescaler 8 -> 10.5MHz
   Timer_clock3: Prescaler 32 -> 2.625MHz
-  Timer_clock4: Prescaler 128 -> 656.25kHz
+  Timer_clock4: Prescaler 128 -> 656.25KHz
 */
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {

@@ -156,9 +156,9 @@ extern "C" {
 
 //! \name Master Clock Sources (MCK)
 //@{
-#define SYSCLK_SRC_SLCK_RC              0       //!< Internal 32kHz RC oscillator as master source clock
-#define SYSCLK_SRC_SLCK_XTAL            1       //!< External 32kHz crystal oscillator as master source clock
-#define SYSCLK_SRC_SLCK_BYPASS          2       //!< External 32kHz bypass oscillator as master source clock
+#define SYSCLK_SRC_SLCK_RC              0       //!< Internal 32KHz RC oscillator as master source clock
+#define SYSCLK_SRC_SLCK_XTAL            1       //!< External 32KHz crystal oscillator as master source clock
+#define SYSCLK_SRC_SLCK_BYPASS          2       //!< External 32KHz bypass oscillator as master source clock
 #define SYSCLK_SRC_MAINCK_4M_RC         3       //!< Internal 4MHz RC oscillator as master source clock
 #define SYSCLK_SRC_MAINCK_8M_RC         4       //!< Internal 8MHz RC oscillator as master source clock
 #define SYSCLK_SRC_MAINCK_12M_RC        5       //!< Internal 12MHz RC oscillator as master source clock

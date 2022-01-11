@@ -491,9 +491,9 @@
    *  1 :  4 - 5 MHz
    *  2 :  2 - 2.5 MHz
    *  3 :  1 - 1.25 MHz
-   *  4 :  500 - 625 kHz
-   *  5 :  250 - 312 kHz
-   *  6 :  125 - 156 kHz
+   *  4 :  500 - 625 KHz
+   *  5 :  250 - 312 KHz
+   *  6 :  125 - 156 KHz
    */
   void spiInit(uint8_t spiRate) {
     switch (spiRate) {

@@ -48,7 +48,7 @@
 #define TIMER_INDEX_(T) TIMER##T##_INDEX  // TIMER#_INDEX enums (timer_index_t) depend on TIM#_BASE defines.
 #define TIMER_INDEX(T) TIMER_INDEX_(T)    // Convert Timer ID to HardwareTimer_Handle index.
 
-#define TEMP_TIMER_FREQUENCY 1000   // Temperature::isr() is expected to be called at around 1kHz
+#define TEMP_TIMER_FREQUENCY 1000   // Temperature::isr() is expected to be called at around 1KHz
 
 // TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
 #define STEPPER_TIMER_RATE 2000000 // 2 Mhz
