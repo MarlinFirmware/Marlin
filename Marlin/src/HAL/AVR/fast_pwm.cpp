@@ -69,17 +69,14 @@ Timer get_pwm_timer(const pin_t pin) {
   switch (digitalPinToTimer(pin)) {
     // Protect reserved timers (TIMER0 & TIMER1)
     #ifdef TCCR0A
-      #if !AVR_AT90USB1286_FAMILY
-        case TIMER0A:
-      #endif
+      IF_DISABLED(AVR_AT90USB1286_FAMILY, case TIMER0A:)
       case TIMER0B:
-        break;
     #endif
-
     #ifdef TCCR1A
       case TIMER1A: case TIMER1B:
-        break;
     #endif
+
+    break;
 
     #if HAS_TCCR2
       case TIMER2: {
@@ -183,7 +180,7 @@ Timer get_pwm_timer(const pin_t pin) {
     { nullptr, nullptr, nullptr },
       nullptr,
       0, 0,
-      true,true
+      true, true
   };
   return timer;
 }
