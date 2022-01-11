@@ -180,7 +180,7 @@ Timer get_pwm_timer(const pin_t pin) {
     { nullptr, nullptr, nullptr },
       nullptr,
       0, 0,
-      true, true
+      false, false
   };
   return timer;
 }
