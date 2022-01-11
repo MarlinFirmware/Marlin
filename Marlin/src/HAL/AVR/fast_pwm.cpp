@@ -216,7 +216,7 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
         res = res_pc_temp;
         j = i + 1;
         // Set the Wave Generation Mode to PWM PHASE CORRECT
-        wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_FAST_PWM)) : uint8_t(WGM_PWM_PC_ICRn);
+        wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_PWM_PC)) : uint8_t(WGM_PWM_PC_ICRn);
       }
     }
   }
