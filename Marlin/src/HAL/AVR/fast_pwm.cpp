@@ -38,6 +38,24 @@ struct Timer {
   bool isProtected;             // True if timer is protected
 };
 
+// Macros for the Timer structure
+#define _SET_WGMnQ(TCCRnQ, V) do{ \
+    *(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << 0)) | (( int(V)       & 0x3) << 0); \
+    *(TCCRnQ)[1] = (*(TCCRnQ)[1] & ~(0x3 << 3)) | (((int(V) >> 2) & 0x3) << 3); \
+  }while(0)
+
+// Set TCCR CS bits
+#define _SET_CSn(TCCRnQ, V) (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0))
+
+// Set TCCR COM bits
+#define _SET_COMnQ(TCCRnQ, Q, V) (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q))))
+
+// Set OCRnQ register
+#define _SET_OCRnQ(OCRnQ, Q, V) (*(OCRnQ)[Q] = int(V) & 0xFFFF)
+
+// Set ICRn register (one per timer)
+#define _SET_ICRn(ICRn, V) (*(ICRn) = int(V) & 0xFFFF)
+
 /**
  * get_pwm_timer
  *  Get the timer information and register of the provided pin.
@@ -45,143 +63,128 @@ struct Timer {
  *  Used by set_pwm_frequency, set_pwm_duty
  */
 Timer get_pwm_timer(const pin_t pin) {
-  uint8_t q = 0;
 
-  Timer timer = {
-    /*TCCRnQ*/  { nullptr, nullptr, nullptr },
-    /*OCRnQ*/   { nullptr, nullptr, nullptr },
-    /*ICRn*/      nullptr,
-    /*n, q*/      0, 0,
-    /*isT, isP*/  false,false
-  };
+  uint8_t q = 0;
 
   switch (digitalPinToTimer(pin)) {
     // Protect reserved timers (TIMER0 & TIMER1)
     #ifdef TCCR0A
       #if !AVR_AT90USB1286_FAMILY
         case TIMER0A:
-          timer = {
-              /*TCCRnQ*/  { nullptr, nullptr, nullptr },
-              /*OCRnQ*/   { nullptr, nullptr, nullptr },
-              /*ICRn*/      nullptr,
-              /*n, q*/      0, 0,
-              /*isT, isP*/  true,true
-            };
       #endif
       case TIMER0B:
-          timer = {
-          /*TCCRnQ*/  { nullptr, nullptr, nullptr },
-          /*OCRnQ*/   { nullptr, nullptr, nullptr },
-          /*ICRn*/      nullptr,
-          /*n, q*/      0, 0,
-          /*isT, isP*/  true,true
-        };
+        break;
     #endif
+
     #ifdef TCCR1A
       case TIMER1A: case TIMER1B:
-        timer = {
-          /*TCCRnQ*/  { nullptr, nullptr, nullptr },
-          /*OCRnQ*/   { nullptr, nullptr, nullptr },
-          /*ICRn*/      nullptr,
-          /*n, q*/      0, 0,
-          /*isT, isP*/  true,true
-        };
+        break;
     #endif
-                                        break;
-    #if HAS_TCCR2 || defined(TCCR2A)
-      #if HAS_TCCR2
-        case TIMER2: {
-          timer = {
-            /*TCCRnQ*/  { &TCCR2, nullptr, nullptr },
-            /*OCRnQ*/   { (uint16_t*)&OCR2, nullptr, nullptr },
-            /*ICRn*/      nullptr,
-            /*n, q*/      2, 0,
-            /*isT, isP*/  true,false
+
+    #if HAS_TCCR2
+      case TIMER2: {
+        Timer timer = {
+          { &TCCR2, nullptr, nullptr },
+          { (uint16_t*)&OCR2, nullptr, nullptr },
+            nullptr,
+            2, 0,
+            true, false
+        };
+        return timer;
+      }
+    #elif defined(TCCR2A)
+      #if ENABLED(USE_OCR2A_AS_TOP)
+        case TIMER2A:   break; // protect TIMER2A
+        case TIMER2B: {
+          Timer timer = {
+            { &TCCR2A,  &TCCR2B,  nullptr },
+            { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
+              nullptr,
+              2, 1,
+              true, false
           };
+          return timer;
         }
-      #elif defined(TCCR2A)
-        #if ENABLED(USE_OCR2A_AS_TOP)
-          case TIMER2A:   break; // protect TIMER2A
-          case TIMER2B: {
-            timer = {
-              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
-              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
-              /*ICRn*/      nullptr,
-              /*n, q*/      2, 1,
-              /*isT, isP*/  true,false
-            };
-            return timer;
-          }
-        #else
-          case TIMER2B:   ++q;
-          case TIMER2A: {
-            timer = {
-              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
-              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
-              /*ICRn*/      nullptr,
-              /*n, q*/      2, q,
-              /*isT, isP*/  true,false
-            };
-            return timer;
-          }
-        #endif
+      #else
+        case TIMER2B: ++q;
+        case TIMER2A: {
+          Timer timer = {
+            { &TCCR2A,  &TCCR2B,  nullptr },
+            { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
+              nullptr,
+              2, q,
+              true, false
+          };
+          return timer;
+        }
       #endif
     #endif
+
     #ifdef OCR3C
-      case TIMER3C:   ++q;
-      case TIMER3B:   ++q;
+      case TIMER3C: ++q;
+      case TIMER3B: ++q;
       case TIMER3A: {
-        timer = {
-          /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C },
-          /*OCRnQ*/   { &OCR3A,   &OCR3B,   &OCR3C },
-          /*ICRn*/      &ICR3,
-          /*n, q*/      3, q,
-          /*isT, isP*/  true,false
+        Timer timer = {
+          { &TCCR3A,  &TCCR3B,  &TCCR3C },
+          { &OCR3A,   &OCR3B,   &OCR3C },
+            &ICR3,
+            3, q,
+            true, false
         };
         return timer;
       }
     #elif defined(OCR3B)
-      case TIMER3B:   ++q;
+      case TIMER3B: ++q;
       case TIMER3A: {
-        timer = {
-          /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  nullptr },
-          /*OCRnQ*/   { &OCR3A,   &OCR3B,  nullptr },
-          /*ICRn*/      &ICR3,
-          /*n, q*/      3, q,
-          /*isT, isP*/  true,false
+        Timer timer = {
+          { &TCCR3A,  &TCCR3B,  nullptr },
+          { &OCR3A,   &OCR3B,  nullptr },
+            &ICR3,
+            3, q,
+            true, false
         };
         return timer;
       }
     #endif
+
     #ifdef TCCR4A
-      case TIMER4C:   ++q;
-      case TIMER4B:   ++q;
+      case TIMER4C: ++q;
+      case TIMER4B: ++q;
       case TIMER4A: {
-        timer = {
-          /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C },
-          /*OCRnQ*/   { &OCR4A,   &OCR4B,   &OCR4C },
-          /*ICRn*/      &ICR4,
-          /*n, q*/      4, q,
-          /*isT, isP*/  true,false
+        Timer timer = {
+          { &TCCR4A,  &TCCR4B,  &TCCR4C },
+          { &OCR4A,   &OCR4B,   &OCR4C },
+            &ICR4,
+            4, q,
+            true, false
         };
         return timer;
       }
     #endif
+
     #ifdef TCCR5A
-      case TIMER5C:   ++q;
-      case TIMER5B:   ++q;
+      case TIMER5C: ++q;
+      case TIMER5B: ++q;
       case TIMER5A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C },
-          /*OCRnQ*/   { &OCR5A,   &OCR5B,   &OCR5C },
-          /*ICRn*/      &ICR5,
-          /*n, q*/      5, q,
-          /*isT, isP*/  true,false
+          { &TCCR5A,  &TCCR5B,  &TCCR5C },
+          { &OCR5A,   &OCR5B,   &OCR5C },
+            &ICR5,
+            5, q,
+            true, false
         };
         return timer;
       }
     #endif
   }
+
+  Timer timer = {
+    { nullptr, nullptr, nullptr },
+    { nullptr, nullptr, nullptr },
+      nullptr,
+      0, 0,
+      true,true
+  };
   return timer;
 }
 
@@ -198,16 +201,17 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
 
   // Calculating the prescaler and resolution to use to achieve closest frequency
   if (f_desired != 0) {
+    constexpr uint16_t prescaler[] = { 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024 };
     uint16_t f = (F_CPU) / (2 * 1024 * size) + 1; // Initialize frequency as lowest (non-zero) achievable
-    uint16_t prescaler[] = { 0, 1, 8, /*TIMER2 ONLY*/32, 64, /*TIMER2 ONLY*/128, 256, 1024 };
 
     // loop over prescaler values
-    LOOP_S_L_N(i, 1, 8) {
+    LOOP_L_N(i, 8) {
+      const uint16_t p = prescaler[i];
       uint16_t res_temp_fast, res_temp_phase_correct;
       if (is_timer2) {
         // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP
         #if ENABLED(USE_OCR2A_AS_TOP)
-          const uint16_t rtf = (F_CPU) / (prescaler[i] * f_desired);
+          const uint16_t rtf = (F_CPU) / (p * f_desired);
           res_temp_fast = rtf - 1;
           res_temp_phase_correct = rtf / 2;
         #else
@@ -216,8 +220,8 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
       }
       else {
         // Skip TIMER2 specific prescalers when not TIMER2
-        if (i == 3 || i == 5) continue;
-        const uint16_t rtf = (F_CPU) / (prescaler[i] * f_desired);
+        if (p == 32 || p == 128) continue;
+        const uint16_t rtf = (F_CPU) / (p * f_desired);
         res_temp_fast = rtf - 1;
         res_temp_phase_correct = rtf / 2;
       }
@@ -225,26 +229,24 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
       LIMIT(res_temp_fast, 1U, size);
       LIMIT(res_temp_phase_correct, 1U, size);
       // Calculate frequencies of test prescaler and resolution values
-      const int32_t f_temp_fast = (F_CPU) / (prescaler[i] * (1 + res_temp_fast)),
-                    f_temp_phase_correct = (F_CPU) / (2 * prescaler[i] * res_temp_phase_correct),
-                    f_diff = ABS(f - f_desired),
+      const int32_t f_temp_fast = (F_CPU) / (p * (1 + res_temp_fast)),
                     f_fast_diff = ABS(f_temp_fast - f_desired),
+                    f_diff = ABS(f - f_desired),
+                    f_temp_phase_correct = (F_CPU) / (2 * p * res_temp_phase_correct),
                     f_phase_diff = ABS(f_temp_phase_correct - f_desired);
 
-      // If FAST values are closest to desired f
-      if (f_fast_diff < f_diff && f_fast_diff <= f_phase_diff) {
+      if (f_fast_diff < f_diff && f_fast_diff <= f_phase_diff) {    // FAST values are closest to desired f
         // Remember this combination
         f = f_temp_fast;
         res = res_temp_fast;
-        j = i;
+        j = i + 1;
         // Set the Wave Generation Mode to FAST PWM
         wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_FAST_PWM_OCR2A, WGM2_FAST_PWM)) : uint8_t(WGM_FAST_PWM_ICRn);
       }
-      // If PHASE CORRECT values are closes to desired f
-      else if (f_phase_diff < f_diff) {
+      else if (f_phase_diff < f_diff) {                             // PHASE CORRECT values are closes to desired f
         f = f_temp_phase_correct;
         res = res_temp_phase_correct;
-        j = i;
+        j = i + 1;
         // Set the Wave Generation Mode to PWM PHASE CORRECT
         wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_FAST_PWM)) : uint8_t(WGM_PWM_PC_ICRn);
       }
@@ -271,14 +273,12 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     Timer timer = get_pwm_timer(pin);
     if (timer.isProtected) return;              // Don't proceed if protected timer
     if (timer.isPWMpin) {
-      _SET_COMnQ(timer.TCCRnQ, timer.q TERN_(HAS_TCCR2, + (timer.q == 2)), COM_CLEAR_SET + invert); // COM20 is on bit 4 of TCCR2, so +1 for q==2
+      _SET_COMnQ(timer.TCCRnQ, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
       const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
       _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
     }
-    else if (v < 128)
-      digitalWrite(pin, LOW);
     else
-      digitalWrite(pin, HIGH);
+      digitalWrite(pin, v < 128 ? LOW : HIGH);
   }
 }
 
