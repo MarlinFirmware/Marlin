@@ -217,7 +217,7 @@ inline void HAL_adc_init() {
  *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
  *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
  */
-void set_pwm_frequency(const pin_t pin, int f_desired);
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 
 /**
  * set_pwm_duty
