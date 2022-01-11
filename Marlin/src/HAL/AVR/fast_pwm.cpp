@@ -205,47 +205,46 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
     uint16_t f = (F_CPU) / (2 * 1024 * size) + 1; // Initialize frequency as lowest (non-zero) achievable
 
     // loop over prescaler values
-    LOOP_L_N(i, 8) {
+    LOOP_L_N(i, COUNT(prescaler)) {
       const uint16_t p = prescaler[i];
-      uint16_t res_temp_fast, res_temp_phase_correct;
+      uint16_t res_fast_temp, res_pc_temp;
       if (is_timer2) {
-        // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP
-        #if ENABLED(USE_OCR2A_AS_TOP)
-          const uint16_t rtf = (F_CPU) / (p * f_desired);
-          res_temp_fast = rtf - 1;
-          res_temp_phase_correct = rtf / 2;
+        #if ENABLED(USE_OCR2A_AS_TOP)                         // No resolution calculation for TIMER2 unless enabled USE_OCR2A_AS_TOP
+          const uint16_t rft = (F_CPU) / (p * f_desired);
+          res_fast_temp = rft - 1;
+          res_pc_temp = rft / 2;
         #else
-          res_temp_fast = res_temp_phase_correct = 255;
+          res_fast_temp = res_pc_temp = 255;
         #endif
       }
       else {
-        // Skip TIMER2 specific prescalers when not TIMER2
-        if (p == 32 || p == 128) continue;
-        const uint16_t rtf = (F_CPU) / (p * f_desired);
-        res_temp_fast = rtf - 1;
-        res_temp_phase_correct = rtf / 2;
+        if (p == 32 || p == 128) continue;                    // Skip TIMER2 specific prescalers when not TIMER2
+        const uint16_t rft = (F_CPU) / (p * f_desired);
+        res_fast_temp = rft - 1;
+        res_pc_temp = rft / 2;
       }
 
-      LIMIT(res_temp_fast, 1U, size);
-      LIMIT(res_temp_phase_correct, 1U, size);
-      // Calculate frequencies of test prescaler and resolution values
-      const int32_t f_temp_fast = (F_CPU) / (p * (1 + res_temp_fast)),
-                    f_fast_diff = ABS(f_temp_fast - f_desired),
-                    f_diff = ABS(f - f_desired),
-                    f_temp_phase_correct = (F_CPU) / (2 * p * res_temp_phase_correct),
-                    f_phase_diff = ABS(f_temp_phase_correct - f_desired);
+      LIMIT(res_fast_temp, 1U, size);
+      LIMIT(res_pc_temp, 1U, size);
 
-      if (f_fast_diff < f_diff && f_fast_diff <= f_phase_diff) {    // FAST values are closest to desired f
+      // Calculate frequencies of test prescaler and resolution values
+      const uint32_t f_diff = _MAX(f, f_desired) - _MIN(f, f_desired),
+                     f_fast_temp = (F_CPU) / (p * (1 + res_fast_temp)),
+                     f_fast_diff = _MAX(f_fast_temp, f_desired) - _MIN(f_fast_temp, f_desired),
+                     f_pc_temp = (F_CPU) / (2 * p * res_pc_temp),
+                     f_pc_diff = _MAX(f_pc_temp, f_desired) - _MIN(f_pc_temp, f_desired);
+
+      if (f_fast_diff < f_diff && f_fast_diff <= f_pc_diff) { // FAST values are closest to desired f
         // Remember this combination
-        f = f_temp_fast;
-        res = res_temp_fast;
+        f = f_fast_temp;
+        res = res_fast_temp;
         j = i + 1;
         // Set the Wave Generation Mode to FAST PWM
         wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_FAST_PWM_OCR2A, WGM2_FAST_PWM)) : uint8_t(WGM_FAST_PWM_ICRn);
       }
-      else if (f_phase_diff < f_diff) {                             // PHASE CORRECT values are closes to desired f
-        f = f_temp_phase_correct;
-        res = res_temp_phase_correct;
+      else if (f_pc_diff < f_diff) {                          // PHASE CORRECT values are closes to desired f
+        f = f_pc_temp;
+        res = res_pc_temp;
         j = i + 1;
         // Set the Wave Generation Mode to PWM PHASE CORRECT
         wgm = is_timer2 ? uint8_t(TERN(USE_OCR2A_AS_TOP, WGM2_PWM_PC_OCR2A, WGM2_FAST_PWM)) : uint8_t(WGM_PWM_PC_ICRn);
