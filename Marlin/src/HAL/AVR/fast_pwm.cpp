@@ -34,6 +34,24 @@ struct Timer {
   uint8_t q;                    // the timer output [0->2] (A->C)
 };
 
+// Macros for the Timer structure
+#define _SET_WGMnQ(TCCRnQ, V) do{ \
+    *(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << 0)) | (( int(V)       & 0x3) << 0); \
+    *(TCCRnQ)[1] = (*(TCCRnQ)[1] & ~(0x3 << 3)) | (((int(V) >> 2) & 0x3) << 3); \
+  }while(0)
+
+// Set TCCR CS bits
+#define _SET_CSn(TCCRnQ, V) (*(TCCRnQ)[1] = (*(TCCRnQ[1]) & ~(0x7 << 0)) | ((int(V) & 0x7) << 0))
+
+// Set TCCR COM bits
+#define _SET_COMnQ(TCCRnQ, Q, V) (*(TCCRnQ)[0] = (*(TCCRnQ)[0] & ~(0x3 << (6-2*(Q)))) | (int(V) << (6-2*(Q))))
+
+// Set OCRnQ register
+#define _SET_OCRnQ(OCRnQ, Q, V) (*(OCRnQ)[Q] = int(V) & 0xFFFF)
+
+// Set ICRn register (one per timer)
+#define _SET_ICRn(ICRn, V) (*(ICRn) = int(V) & 0xFFFF)
+
 /**
  * get_pwm_timer
  *  Get the timer information and register of the provided pin.
@@ -42,115 +60,119 @@ struct Timer {
  */
 Timer get_pwm_timer(const pin_t pin) {
   uint8_t q = 0;
+
   switch (digitalPinToTimer(pin)) {
     // Protect reserved timers (TIMER0 & TIMER1)
     #ifdef TCCR0A
-      #if !AVR_AT90USB1286_FAMILY
-        case TIMER0A:
-      #endif
+      IF_DISABLED(AVR_AT90USB1286_FAMILY, case TIMER0A:)
       case TIMER0B:
     #endif
     #ifdef TCCR1A
       case TIMER1A: case TIMER1B:
     #endif
-                                        break;
-    #if HAS_TCCR2 || defined(TCCR2A)
-      #if HAS_TCCR2
-        case TIMER2: {
+
+    break;
+
+    #if HAS_TCCR2
+      case TIMER2: {
+        Timer timer = {
+          { &TCCR2, nullptr, nullptr },
+          { (uint16_t*)&OCR2, nullptr, nullptr },
+            nullptr,
+            2, 0
+        };
+        return timer;
+      }
+    #elif defined(TCCR2A)
+      #if ENABLED(USE_OCR2A_AS_TOP)
+        case TIMER2A:   break; // protect TIMER2A
+        case TIMER2B: {
           Timer timer = {
-            /*TCCRnQ*/  { &TCCR2, nullptr, nullptr },
-            /*OCRnQ*/   { (uint16_t*)&OCR2, nullptr, nullptr },
-            /*ICRn*/      nullptr,
-            /*n, q*/      2, 0
+            { &TCCR2A,  &TCCR2B,  nullptr },
+            { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
+              nullptr,
+              2, 1
           };
+          return timer;
         }
-      #elif defined(TCCR2A)
-        #if ENABLED(USE_OCR2A_AS_TOP)
-          case TIMER2A:   break; // protect TIMER2A
-          case TIMER2B: {
-            Timer timer = {
-              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
-              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
-              /*ICRn*/      nullptr,
-              /*n, q*/      2, 1
-            };
-            return timer;
-          }
-        #else
-          case TIMER2B:   ++q;
-          case TIMER2A: {
-            Timer timer = {
-              /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr },
-              /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
-              /*ICRn*/      nullptr,
-                            2, q
-            };
-            return timer;
-          }
-        #endif
+      #else
+        case TIMER2B: ++q;
+        case TIMER2A: {
+          Timer timer = {
+            { &TCCR2A,  &TCCR2B,  nullptr },
+            { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
+              nullptr,
+              2, q
+          };
+          return timer;
+        }
       #endif
     #endif
+
     #ifdef OCR3C
-      case TIMER3C:   ++q;
-      case TIMER3B:   ++q;
+      case TIMER3C: ++q;
+      case TIMER3B: ++q;
       case TIMER3A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  &TCCR3C },
-          /*OCRnQ*/   { &OCR3A,   &OCR3B,   &OCR3C },
-          /*ICRn*/      &ICR3,
-          /*n, q*/      3, q
+          { &TCCR3A,  &TCCR3B,  &TCCR3C },
+          { &OCR3A,   &OCR3B,   &OCR3C },
+            &ICR3,
+            3, q
         };
         return timer;
       }
     #elif defined(OCR3B)
-      case TIMER3B:   ++q;
+      case TIMER3B: ++q;
       case TIMER3A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR3A,  &TCCR3B,  nullptr },
-          /*OCRnQ*/   { &OCR3A,   &OCR3B,  nullptr },
-          /*ICRn*/      &ICR3,
-          /*n, q*/      3, q
+          { &TCCR3A,  &TCCR3B,  nullptr },
+          { &OCR3A,   &OCR3B,  nullptr },
+            &ICR3,
+            3, q
         };
         return timer;
       }
     #endif
+
     #ifdef TCCR4A
-      case TIMER4C:   ++q;
-      case TIMER4B:   ++q;
+      case TIMER4C: ++q;
+      case TIMER4B: ++q;
       case TIMER4A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR4A,  &TCCR4B,  &TCCR4C },
-          /*OCRnQ*/   { &OCR4A,   &OCR4B,   &OCR4C },
-          /*ICRn*/      &ICR4,
-          /*n, q*/      4, q
+          { &TCCR4A,  &TCCR4B,  &TCCR4C },
+          { &OCR4A,   &OCR4B,   &OCR4C },
+            &ICR4,
+            4, q
         };
         return timer;
       }
     #endif
+
     #ifdef TCCR5A
-      case TIMER5C:   ++q;
-      case TIMER5B:   ++q;
+      case TIMER5C: ++q;
+      case TIMER5B: ++q;
       case TIMER5A: {
         Timer timer = {
-          /*TCCRnQ*/  { &TCCR5A,  &TCCR5B,  &TCCR5C },
-          /*OCRnQ*/   { &OCR5A,   &OCR5B,   &OCR5C },
-          /*ICRn*/      &ICR5,
-          /*n, q*/      5, q
+          { &TCCR5A,  &TCCR5B,  &TCCR5C },
+          { &OCR5A,   &OCR5B,   &OCR5C },
+            &ICR5,
+            5, q
         };
         return timer;
       }
     #endif
   }
+
   Timer timer = {
-      /*TCCRnQ*/  { nullptr, nullptr, nullptr },
-      /*OCRnQ*/   { nullptr, nullptr, nullptr },
-      /*ICRn*/      nullptr,
-                    0, 0
+    { nullptr, nullptr, nullptr },
+    { nullptr, nullptr, nullptr },
+      nullptr,
+      0, 0
   };
   return timer;
 }
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   Timer timer = get_pwm_timer(pin);
   if (timer.n == 0) return; // Don't proceed if protected timer or not recognized
   uint16_t size;
