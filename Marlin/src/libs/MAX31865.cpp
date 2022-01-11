@@ -310,7 +310,7 @@ inline uint16_t MAX31865::readRawImmediate() {
       lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
       lastRead |= 1;
       clearFault(); // also clears the bias voltage flag, so no further action is required
-      DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
+      DEBUG_ECHOLNPGM("MAX31865 read fault: ", lastFault);
     }
     #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
       else if (ABS(lastRead - rtd) > 500 && PENDING(millis(), lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
