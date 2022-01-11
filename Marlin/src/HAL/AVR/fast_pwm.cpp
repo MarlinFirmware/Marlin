@@ -23,11 +23,6 @@
 
 #include "../../inc/MarlinConfig.h"
 
-// Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM, HAS_MOTOR_CURRENT_PWM, HAS_LCD_BRIGHTNESS)
-  #define NEEDS_HARDWARE_PWM 1
-#endif
-
 struct Timer {
   volatile uint8_t* TCCRnQ[3];  // max 3 TCCR registers per timer
   volatile uint16_t* OCRnQ[3];  // max 3 OCR registers per timer
@@ -79,110 +74,87 @@ Timer get_pwm_timer(const pin_t pin) {
     break;
 
     #if HAS_TCCR2
-      case TIMER2: {
-        Timer timer = {
+      case TIMER2:
+        return Timer({
           { &TCCR2, nullptr, nullptr },
           { (uint16_t*)&OCR2, nullptr, nullptr },
             nullptr,
             2, 0,
             true, false
-        };
-        return timer;
-      }
+        });
     #elif defined(TCCR2A)
       #if ENABLED(USE_OCR2A_AS_TOP)
-        case TIMER2A:   break; // protect TIMER2A
-        case TIMER2B: {
-          Timer timer = {
+        case TIMER2A: break; // protect TIMER2A
+        case TIMER2B:
+          return Timer({
             { &TCCR2A,  &TCCR2B,  nullptr },
             { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
               nullptr,
               2, 1,
               true, false
-          };
-          return timer;
-        }
+          });
       #else
-        case TIMER2B: ++q;
-        case TIMER2A: {
-          Timer timer = {
+        case TIMER2B: ++q; case TIMER2A:
+          return Timer({
             { &TCCR2A,  &TCCR2B,  nullptr },
             { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr },
               nullptr,
               2, q,
               true, false
-          };
-          return timer;
-        }
+          });
       #endif
     #endif
 
     #ifdef OCR3C
-      case TIMER3C: ++q;
-      case TIMER3B: ++q;
-      case TIMER3A: {
-        Timer timer = {
+      case TIMER3C: ++q; case TIMER3B: ++q; case TIMER3A:
+        return Timer({
           { &TCCR3A,  &TCCR3B,  &TCCR3C },
           { &OCR3A,   &OCR3B,   &OCR3C },
             &ICR3,
             3, q,
             true, false
-        };
-        return timer;
-      }
+        });
     #elif defined(OCR3B)
-      case TIMER3B: ++q;
-      case TIMER3A: {
-        Timer timer = {
+      case TIMER3B: ++q; case TIMER3A:
+        return Timer({
           { &TCCR3A,  &TCCR3B,  nullptr },
           { &OCR3A,   &OCR3B,  nullptr },
             &ICR3,
             3, q,
             true, false
-        };
-        return timer;
-      }
+        });
     #endif
 
     #ifdef TCCR4A
-      case TIMER4C: ++q;
-      case TIMER4B: ++q;
-      case TIMER4A: {
-        Timer timer = {
+      case TIMER4C: ++q; case TIMER4B: ++q; case TIMER4A:
+        return Timer({
           { &TCCR4A,  &TCCR4B,  &TCCR4C },
           { &OCR4A,   &OCR4B,   &OCR4C },
             &ICR4,
             4, q,
             true, false
-        };
-        return timer;
-      }
+        });
     #endif
 
     #ifdef TCCR5A
-      case TIMER5C: ++q;
-      case TIMER5B: ++q;
-      case TIMER5A: {
-        Timer timer = {
+      case TIMER5C: ++q; case TIMER5B: ++q; case TIMER5A:
+        return Timer({
           { &TCCR5A,  &TCCR5B,  &TCCR5C },
           { &OCR5A,   &OCR5B,   &OCR5C },
             &ICR5,
             5, q,
             true, false
-        };
-        return timer;
-      }
+        });
     #endif
   }
 
-  Timer timer = {
+  return Timer({
     { nullptr, nullptr, nullptr },
     { nullptr, nullptr, nullptr },
       nullptr,
       0, 0,
       false, false
-  };
-  return timer;
+  });
 }
 
 void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
