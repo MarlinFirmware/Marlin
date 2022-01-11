@@ -79,7 +79,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     rtc->MODE0.INTENCLR.reg = RTC_MODE0_INTENCLR_CMP0;
 
     // RTC clock setup
-    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_XOSC32K;  // External 32.768KHz oscillator
+    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_XOSC32K;  // External 32.768kHz oscillator
 
     // Stop timer, just in case, to be able to reconfigure it
     rtc->MODE0.CTRLA.bit.ENABLE = false;
