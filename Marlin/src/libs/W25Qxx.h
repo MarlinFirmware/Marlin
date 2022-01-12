@@ -61,11 +61,11 @@ public:
   static void spi_flash_Send(uint8_t b);
   static void spi_flash_SendBlock(uint8_t token, const uint8_t *buf);
   static uint16_t W25QXX_ReadID(void);
-  static void SPI_FLASH_WriteEnable(void);
-  static void SPI_FLASH_WaitForWriteEnd(void);
+  static void SPI_FLASH_WriteEnable();
+  static void SPI_FLASH_WaitForWriteEnd();
   static void SPI_FLASH_SectorErase(uint32_t SectorAddr);
   static void SPI_FLASH_BlockErase(uint32_t BlockAddr);
-  static void SPI_FLASH_BulkErase(void);
+  static void SPI_FLASH_BulkErase();
   static void SPI_FLASH_PageWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
   static void SPI_FLASH_BufferWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
   static void SPI_FLASH_BufferRead(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);

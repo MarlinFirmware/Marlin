@@ -217,9 +217,7 @@ void report_real_position() {
   xyze_pos_t npos = LOGICAL_AXIS_ARRAY(
     planner.get_axis_position_mm(E_AXIS),
     cartes.x, cartes.y, cartes.z,
-    planner.get_axis_position_mm(I_AXIS),
-    planner.get_axis_position_mm(J_AXIS),
-    planner.get_axis_position_mm(K_AXIS)
+    cartes.i, cartes.j, cartes.k
   );
 
   TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
@@ -263,27 +261,25 @@ void report_current_position_projected() {
    * Output the current position (processed) to serial while moving
    */
   void report_current_position_moving() {
-
     get_cartesian_from_steppers();
     const xyz_pos_t lpos = cartes.asLogical();
-    SERIAL_ECHOPGM(
-      "X:", lpos.x
-      #if HAS_Y_AXIS
-        , " Y:", lpos.y
-      #endif
-      #if HAS_Z_AXIS
-        , " Z:", lpos.z
-      #endif
+
+    SERIAL_ECHOPGM_P(
+      LIST_N(DOUBLE(LINEAR_AXES),
+           X_LBL, lpos.x,
+        SP_Y_LBL, lpos.y,
+        SP_Z_LBL, lpos.z,
+        SP_I_LBL, lpos.i,
+        SP_J_LBL, lpos.j,
+        SP_K_LBL, lpos.k
+      )
       #if HAS_EXTRUDERS
-        , " E:", current_position.e
+        , SP_E_LBL, current_position.e
       #endif
     );
 
     stepper.report_positions();
-    #if IS_SCARA
-      scara_report_positions();
-    #endif
-
+    TERN_(IS_SCARA, scara_report_positions());
     report_current_grblstate_moving();
   }
 
@@ -1323,9 +1319,9 @@ void prepare_line_to_destination() {
           TEST(axis_bits, X_AXIS) ? "X" : "",
           TEST(axis_bits, Y_AXIS) ? "Y" : "",
           TEST(axis_bits, Z_AXIS) ? "Z" : "",
-          TEST(axis_bits, I_AXIS) ? AXIS4_STR : "",
-          TEST(axis_bits, J_AXIS) ? AXIS5_STR : "",
-          TEST(axis_bits, K_AXIS) ? AXIS6_STR : ""
+          TEST(axis_bits, I_AXIS) ? STR_I : "",
+          TEST(axis_bits, J_AXIS) ? STR_J : "",
+          TEST(axis_bits, K_AXIS) ? STR_K : ""
         )
       );
       SERIAL_ECHO_START();

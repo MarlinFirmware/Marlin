@@ -63,7 +63,7 @@ char AnycubicTFTClass::SelectedDirectory[30];
 char AnycubicTFTClass::SelectedFile[FILENAME_LENGTH];
 
 // Serial helpers
-static void sendNewLine(void) { LCD_SERIAL.write('\r'); LCD_SERIAL.write('\n'); }
+static void sendNewLine() { LCD_SERIAL.write('\r'); LCD_SERIAL.write('\n'); }
 static void send(const char *str) { LCD_SERIAL.print(str); }
 static void send_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++))
