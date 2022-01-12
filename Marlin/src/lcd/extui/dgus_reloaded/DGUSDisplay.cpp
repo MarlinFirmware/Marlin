@@ -318,7 +318,7 @@ void DGUSDisplay::ProcessRx() {
           gcode.reset_stepper_timeout();
 
           if (!vp.size) {
-            DEBUG_ECHOLN();
+            DEBUG_EOL();
             vp.rx_handler(vp, nullptr);
 
             rx_datagram_state = DGUS_IDLE;
@@ -330,18 +330,15 @@ void DGUSDisplay::ProcessRx() {
             memset(buffer, 0, vp.size);
 
             for (uint8_t i = 0; i < dlen; i++) {
-              if (i >= vp.size) {
-                break;
-              }
+              if (i >= vp.size) break;
 
-              if (i + 1 < dlen && tmp[i + 3] == 0xFF && tmp[i + 4] == 0xFF) {
+              if (i + 1 < dlen && tmp[i + 3] == 0xFF && tmp[i + 4] == 0xFF)
                 break;
-              }
 
               buffer[i] = tmp[i + 3];
             }
 
-            DEBUG_ECHOLN();
+            DEBUG_EOL();
             vp.rx_handler(vp, buffer);
 
             rx_datagram_state = DGUS_IDLE;
@@ -354,7 +351,7 @@ void DGUSDisplay::ProcessRx() {
             break;
           }
 
-          DEBUG_ECHOLN();
+          DEBUG_EOL();
           vp.rx_handler(vp, &tmp[3]);
 
           rx_datagram_state = DGUS_IDLE;
