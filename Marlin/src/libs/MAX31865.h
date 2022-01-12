@@ -101,7 +101,7 @@ private:
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
 
-  #ifdef TARGET_LPC1768
+  #ifdef TARGET_LPC1768a
     uint8_t spiSpeed;
   #else
     uint16_t spiDelay;
@@ -136,9 +136,11 @@ private:
 
   void writeRegister8(uint8_t addr, uint8_t reg);
   void writeRegister16(uint8_t addr, uint16_t reg);
-  uint8_t spiTransfer(uint8_t addr);
 
-  void softSpiBegin(const uint8_t spi_speed);
+  void softSpiInit();
+  void spiBeginTransaction();
+  uint8_t spiTransfer(uint8_t addr);
+  void spiEndTransaction();
 
   void initFixedFlags(max31865_numwires_t wires);
 

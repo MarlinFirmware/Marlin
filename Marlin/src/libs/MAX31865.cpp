@@ -151,7 +151,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   digitalWrite(cselPin, HIGH);
 
   if (sclkPin != TERN(LARGE_PINMAP, -1UL, 255))
-    softSpiBegin(SPI_QUARTER_SPEED); // Define pin modes for Software SPI
+    softSpiInit(); // Define pin modes for Software SPI
   else {
     DEBUG_ECHOLNPGM("Initializing MAX31865 Hardware SPI");
     SPI.begin();    // Start and configure hardware SPI
@@ -264,6 +264,22 @@ void MAX31865::runAutoFaultDetectionCycle() {
   while ((readRegister8(MAX31865_CONFIG_REG) & 0xC) > 0) DELAY_US(100); // Fault det completes when bits 2 and 3 are zero
   readFault();
   clearFault();
+}
+
+/**
+ * Set a value in the configuration register.
+ *
+ * @param config  8-bit value for the config item
+ * @param enable  whether to enable or disable the value
+ */
+void MAX31865::setConfig(uint8_t config, bool enable)
+{
+  uint8_t t = stdFlags;
+  if (enable)
+    t |= config;
+  else
+    t &= ~config;
+  writeRegister8(MAX31865_CONFIG_REG, t);
 }
 
 /**
@@ -445,16 +461,17 @@ float MAX31865::temperature(float rtd_res) {
 //
 
 /**
- * Set a value in the configuration register.
- *
- * @param config  8-bit value for the config item
- * @param enable  whether to enable or disable the value
+ * MAX31865 SPI Timing constants
+ * See MAX31865 datasheet (https://datasheets.maximintegrated.com/en/ds/MAX31865.pdf)
+ * All timings in nsec, minimum values.
  */
-void MAX31865::setConfig(uint8_t config, bool enable) {
-  uint8_t t = stdFlags;
-  if (enable) t |= config; else t &= ~config;
-  writeRegister8(MAX31865_CONFIG_REG, t);
-}
+
+#define SPI_TIMING_TCC    400    // CS to SCLK setup
+#define SPI_TIMING_TDC     35    // Data to SCLK setup
+#define SPI_TIMING_TDCH    35    // SCK to Data hold
+#define SPI_TIMING_TCL    100    // SCK half period
+#define SPI_TIMING_TCCH   100    // SCK to CS hold
+#define SPI_TIMING_TCWH   400    // CS inactive time (min)
 
 /**
  * Read a single byte from the specified register address.
@@ -480,6 +497,8 @@ uint16_t MAX31865::readRegister16(uint8_t addr) {
   return uint16_t(buffer[0]) << 8 | buffer[1];
 }
 
+
+
 /**
  * Read +n+ bytes from a specified address into +buffer+. Set D7 to 0 to specify a read.
  *
@@ -488,17 +507,10 @@ uint16_t MAX31865::readRegister16(uint8_t addr) {
  * @param n       the number of bytes to read
  */
 void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
+
   addr &= 0x7F; // make sure top bit is not set
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    SPI.beginTransaction(spiConfig);
-  else
-    digitalWrite(sclkPin, LOW);
 
-  digitalWrite(cselPin, LOW);
-
-  #ifdef TARGET_LPC1768
-    DELAY_CYCLES(spiSpeed);
-  #endif
+  spiBeginTransaction();
 
   spiTransfer(addr);
 
@@ -507,32 +519,17 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
     buffer++;
   }
 
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    SPI.endTransaction();
-
-  digitalWrite(cselPin, HIGH);
+  spiEndTransaction();
 }
 
 void MAX31865::writeRegister16(uint8_t addr, uint16_t data) {
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    SPI.beginTransaction(spiConfig);
-  else
-    digitalWrite(sclkPin, LOW);
-
-  digitalWrite(cselPin, LOW);
-
-  #ifdef TARGET_LPC1768
-    DELAY_CYCLES(spiSpeed);
-  #endif
+  spiBeginTransaction();
 
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data >> 8);
   spiTransfer(data & 0xFF);
 
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    SPI.endTransaction();
-
-  digitalWrite(cselPin, HIGH);
+  spiEndTransaction();
 }
 
 /**
@@ -542,24 +539,38 @@ void MAX31865::writeRegister16(uint8_t addr, uint16_t data) {
  * @param data  the data to write
  */
 void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
-  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
-    SPI.beginTransaction(spiConfig);
-  else
-    digitalWrite(sclkPin, LOW);
 
-  digitalWrite(cselPin, LOW);
-
-  #ifdef TARGET_LPC1768
-    DELAY_CYCLES(spiSpeed);
-  #endif
+  spiBeginTransaction();
 
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data);
 
+  spiEndTransaction();
+}
+
+void MAX31865::spiBeginTransaction() {
+
+  digitalWrite(cselPin, LOW);
+  DELAY_NS_VAR(SPI_TIMING_TCC);
+
+  if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
+    SPI.beginTransaction(spiConfig);
+  else
+    digitalWrite(sclkPin, LOW);
+}
+
+void MAX31865::spiEndTransaction() {
+  
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.endTransaction();
+  else
+    digitalWrite(sclkPin, HIGH);
+
+  DELAY_NS_VAR(SPI_TIMING_TCCH);
 
   digitalWrite(cselPin, HIGH);
+
+  DELAY_NS_VAR(SPI_TIMING_TCWH); // ensure minimum time of CS inactivity after operation
 }
 
 /**
@@ -576,38 +587,29 @@ uint8_t MAX31865::spiTransfer(uint8_t x) {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     return SPI.transfer(x);
 
-  #ifdef TARGET_LPC1768
-
-    return swSpiTransfer(x, spiSpeed, sclkPin, misoPin, mosiPin);
-
-  #else
-
-    uint8_t reply = 0;
-    for (int i = 7; i >= 0; i--) {
-      digitalWrite(sclkPin, HIGH);       DELAY_NS_VAR(spiDelay);
-      reply <<= 1;
-      digitalWrite(mosiPin, x & _BV(i)); DELAY_NS_VAR(spiDelay);
-      if (digitalRead(misoPin)) reply |= 1;
-      digitalWrite(sclkPin, LOW);        DELAY_NS_VAR(spiDelay);
-    }
-    return reply;
-
-  #endif
+  uint8_t reply = 0;
+  for (int i = 7; i >= 0; i--) {
+    digitalWrite(mosiPin, x & _BV(i));
+    DELAY_NS_VAR(SPI_TIMING_TDC);
+    digitalWrite(sclkPin, HIGH);
+    DELAY_NS_VAR(SPI_TIMING_TCL - SPI_TIMING_TDC);
+    reply <<= 1;
+    if (digitalRead(misoPin)) reply |= 1;
+    DELAY_NS_VAR(SPI_TIMING_TDC);
+    digitalWrite(sclkPin, LOW);
+    DELAY_NS_VAR(SPI_TIMING_TCL - SPI_TIMING_TDC);
+  }
+  return reply;
 }
 
-void MAX31865::softSpiBegin(const uint8_t spi_speed) {
+void MAX31865::softSpiInit() {
+
   DEBUG_ECHOLNPGM("Initializing MAX31865 Software SPI");
 
-  #ifdef TARGET_LPC1768
-    swSpiBegin(sclkPin, misoPin, mosiPin);
-    spiSpeed = swSpiInit(spi_speed, sclkPin, mosiPin);
-  #else
-    spiDelay = (100UL << spi_speed) / 3; // Calculate delay in ns. Top speed is ~10MHz, or 100ns delay between bits.
-    pinMode(sclkPin, OUTPUT);
-    digitalWrite(sclkPin, LOW);
-    pinMode(mosiPin, OUTPUT);
-    pinMode(misoPin, INPUT);
-  #endif
+  pinMode(sclkPin, OUTPUT);
+  digitalWrite(sclkPin, LOW);
+  pinMode(mosiPin, OUTPUT);
+  pinMode(misoPin, INPUT);
 }
 
 #endif // HAS_MAX31865 && !USE_ADAFRUIT_MAX31865
