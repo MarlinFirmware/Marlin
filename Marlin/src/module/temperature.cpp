@@ -3046,8 +3046,8 @@ public:
 };
 
 /**
- * Handle various ~1KHz tasks associated with temperature
- *  - Heater PWM (~1KHz with scaler)
+ * Handle various ~1kHz tasks associated with temperature
+ *  - Heater PWM (~1kHz with scaler)
  *  - LCD Button polling (~500Hz)
  *  - Start / Read one ADC sensor
  *  - Advance Babysteps
@@ -3549,7 +3549,7 @@ void Temperature::isr() {
   adc_sensor_state = next_sensor_state;
 
   //
-  // Additional ~1KHz Tasks
+  // Additional ~1kHz Tasks
   //
 
   #if ENABLED(BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)

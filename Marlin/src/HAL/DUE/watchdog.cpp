@@ -39,7 +39,7 @@ void watchdogSetup() {
     uint32_t timeout = TERN(WATCHDOG_DURATION_8S, 8000, 4000);
 
     // Calculate timeout value in WDT counter ticks: This assumes
-    // the slow clock is running at 32.768 KHz watchdog
+    // the slow clock is running at 32.768 kHz watchdog
     // frequency is therefore 32768 / 128 = 256 Hz
     timeout = (timeout << 8) / 1000;
     if (timeout == 0)

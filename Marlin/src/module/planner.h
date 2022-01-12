@@ -883,7 +883,7 @@ class Planner {
     static void finish_and_disable();
 
     // Periodic handler to manage the cleaning buffer counter
-    // Called from the Temperature ISR at ~1KHz
+    // Called from the Temperature ISR at ~1kHz
     static void isr() { if (cleaning_buffer_counter) --cleaning_buffer_counter; }
 
     /**
