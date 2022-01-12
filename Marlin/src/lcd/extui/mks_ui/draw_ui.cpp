@@ -887,7 +887,9 @@ void clear_cur_ui() {
     case PRINT_FILE_UI:               lv_clear_print_file(); break;
     case PRINTING_UI:                 lv_clear_printing(); break;
     case MOVE_MOTOR_UI:               lv_clear_move_motor(); break;
-    case Z_OFFSET_WIZARD_UI:          lv_clear_z_offset_wizard(); break;
+    #if ENABLED(PROBE_OFFSET_WIZARD)
+      case Z_OFFSET_WIZARD_UI:        lv_clear_z_offset_wizard(); break;
+    #endif
     case OPERATE_UI:                  lv_clear_operation(); break;
     case PAUSE_UI:                    break;
     case EXTRUSION_UI:                lv_clear_extrusion(); break;
@@ -996,7 +998,9 @@ void draw_return_ui() {
                                         break;
 
       case MOVE_MOTOR_UI:               lv_draw_move_motor(); break;
-      case Z_OFFSET_WIZARD_UI:          lv_draw_z_offset_wizard(); break;
+      #if ENABLED(PROBE_OFFSET_WIZARD)
+        case Z_OFFSET_WIZARD_UI:        lv_draw_z_offset_wizard(); break;
+      #endif
       case OPERATE_UI:                  lv_draw_operation(); break;
       case PAUSE_UI:                    break;
       case EXTRUSION_UI:                lv_draw_extrusion(); break;

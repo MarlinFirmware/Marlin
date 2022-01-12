@@ -14,7 +14,7 @@ Import("env")
 #    # Install heatshrink
 #    print("Installing 'heatshrink' python module...")
 #    env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
-# 
+#
 # Not tested: If it's safe to install python libraries in PIO python try:
 #    env.Execute(env.subst("$PYTHONEXE -m pip install https://github.com/p3p/pyheatshrink/releases/download/0.3.3/pyheatshrink-pip.zip"))
 
@@ -92,7 +92,7 @@ def Upload(source, target, env):
             raise Exception('Error getting firmware files')
         if Debug: print('OK')
         return Responses
-        
+
     def _FilterFirmwareFiles(FirmwareList):
         Firmwares = []
         for FWFile in FirmwareList:
@@ -185,7 +185,7 @@ def Upload(source, target, env):
             if not marlin_custom_firmware_upload:
                 raise Exception(f"CUSTOM_FIRMWARE_UPLOAD must be enabled in 'Configuration_adv.h' for '{marlin_motherboard}'")
 
-            # Generate a new 8.3 random filename 
+            # Generate a new 8.3 random filename
             # This board remember the last firmware filename and doesn't allow to flash from that filename
             upload_firmware_target_name = f"fw-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))}.BIN"
             print(f"Board {marlin_motherboard}: Overriding firmware filename to '{upload_firmware_target_name}'")
@@ -196,13 +196,13 @@ def Upload(source, target, env):
 
             # Check SD card status
             _CheckSDCard()
-            
+
             # Get firmware files
             FirmwareFiles = _GetFirmwareFiles()
             if Debug:
                 for FirmwareFile in FirmwareFiles:
                     print(f'Found: {FirmwareFile}')
-                
+
             # Get all 1st level firmware files (to remove)
             OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2])   # Skip header and footers of list
             if len(OldFirmwareFiles) == 0:
@@ -220,7 +220,7 @@ def Upload(source, target, env):
             if Debug: print('Cleanup completed')
 
         # WARNING! The serial port must be closed here because the serial transfer that follow needs it!
-    
+
         # Upload firmware file
         if Debug: print(f"Copy '{upload_firmware_source_name}' --> '{upload_firmware_target_name}'")
         protocol = MarlinBinaryProtocol.Protocol(upload_port, upload_speed, upload_blocksize, float(upload_error_ratio), int(upload_timeout))

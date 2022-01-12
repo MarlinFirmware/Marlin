@@ -60,8 +60,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         break;
       #if ENABLED(PROBE_OFFSET_WIZARD)
         case ID_Z_OFFSET_WIZARD:
-        lv_draw_z_offset_wizard();
-        break;
+          lv_draw_z_offset_wizard();
+          break;
       #endif
     #endif
   }

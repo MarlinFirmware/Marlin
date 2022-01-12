@@ -100,7 +100,7 @@ typedef struct machine_common_disp {
   const char *FilamentTemperature;
   const char *OutLength;
   const char *OutSpeed;
-  
+
   const char *LevelingZoffsetTitle;
 
   const char *LevelingParaConfTitle;
@@ -296,7 +296,7 @@ extern machine_common_def machine_menu;
 
 typedef struct common_menu_disp {
   const char *text_back;
-  const char *text_save;  
+  const char *text_save;
   const char *dialog_confirm_title;
   const char *close_machine_tips;
   const char *unbind_printer_tips;

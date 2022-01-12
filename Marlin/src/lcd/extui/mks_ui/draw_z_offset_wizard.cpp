@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if BOTH(HAS_TFT_LVGL_UI, PROBE_OFFSET_WIZARD)
 
 #include "draw_ui.h"
 #include <lv_conf.h>
@@ -34,6 +34,10 @@
 #include "../../../inc/MarlinConfig.h"
 #include "../../../module/probe.h"
 
+#if HAS_LEVELING
+  #include "../../../feature/bedlevel/bedlevel.h"
+  bool leveling_was_active;
+#endif
 
 extern lv_group_t *g;
 static lv_obj_t *scr;
@@ -44,13 +48,6 @@ static lv_task_t *updatePosTask;
 static char cur_label = 'Z';
 static float cur_pos = 0;
 static float cur_OffsetPos = 0;
-#if HAS_LEVELING
-  #include "../../../feature/bedlevel/bedlevel.h"
-#endif
-
-#if HAS_LEVELING
-  bool leveling_was_active;
-#endif
 
 // Global storage
 float z_offset_backup, calculated_z_offset, z_offset_ref;
@@ -73,9 +70,9 @@ void disp_cur_wizard_pos() {
 }
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
-char str_1[16];
+  char str_1[16];
   if (event != LV_EVENT_RELEASED) return;
-  //lv_clear_z_offset_wizard();  
+  //lv_clear_z_offset_wizard();
   if (!queue.ring_buffer.full(3)) {
     bool do_inject = true;
     float dist = uiCfg.move_dist;
@@ -86,7 +83,7 @@ char str_1[16];
     if (do_inject) {
       sprintf_P(public_buf_l, PSTR("G91\nG1 %c%s F%d\nG90"), cur_label, dtostrf(dist, 1, 3, str_1), uiCfg.moveSpeed);
       queue.inject(public_buf_l);
-//      calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
+      //calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
       disp_cur_wizard_pos();
     }
   }
@@ -95,18 +92,17 @@ char str_1[16];
     case ID_M_STEP:
       if (ABS((int)(10 * uiCfg.move_dist)) == 10)
         uiCfg.move_dist = 0.025;
+      else if (ABS((int)(1000 * uiCfg.move_dist)) == 25)
+        uiCfg.move_dist = 0.1;
       else
-        if (ABS((int)(1000 * uiCfg.move_dist)) == 25)
-          uiCfg.move_dist = 0.1;
-        else 
-          uiCfg.move_dist *= 10.0f;            
+        uiCfg.move_dist *= 10.0f;
       disp_move_wizard_dist();
       break;
     case ID_M_SAVE:
       current_position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
       probe.offset.z = calculated_z_offset;
       sync_plan_position();
-      // Raise Z as if it was homed    
+      // Raise Z as if it was homed
       do_z_clearance(
         #ifdef Z_AFTER_HOMING
           Z_AFTER_HOMING
@@ -115,7 +111,7 @@ char str_1[16];
         #else
           10
         #endif
-      );    
+      );
       watchdog_refresh();
       draw_return_ui();
       return;
@@ -146,7 +142,7 @@ char str_1[16];
 
 void refresh_wizard_pos(lv_task_t *) {
   switch (cur_label) {
-    case 'Z': 
+    case 'Z':
       cur_pos = current_position.z;
       calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
       cur_OffsetPos = calculated_z_offset;
@@ -180,7 +176,7 @@ void lv_draw_z_offset_wizard() {
   cur_OffsetPos = calculated_z_offset;
 
   scr = lv_screen_create(Z_OFFSET_WIZARD_UI, machine_menu.LevelingZoffsetTitle);
-  
+
   lv_obj_t *buttonXI = lv_big_button_create(scr, "F:/bmp_zAdd.bin", move_menu.z_add, INTERVAL_V, titleHeight, event_handler, ID_M_Z_P);
   lv_obj_clear_protect(buttonXI, LV_PROTECT_FOLLOW);
   lv_big_button_create(scr, "F:/bmp_zDec.bin", move_menu.z_dec, INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_Z_N);
@@ -245,4 +241,4 @@ void lv_clear_z_offset_wizard() {
   lv_obj_del(scr);
 }
 
-#endif // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && PROBE_OFFSET_WIZARD

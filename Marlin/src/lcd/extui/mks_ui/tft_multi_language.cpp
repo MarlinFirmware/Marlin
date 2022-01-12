@@ -577,7 +577,7 @@ void machine_setting_disp() {
     machine_menu.FilamentTemperature = FILAMENT_TEMPERATURE_EN;
     machine_menu.OutLength           = FILAMENT_OUT_LENGTH_EN;
     machine_menu.OutSpeed            = FILAMENT_OUT_SPEED_EN;
-    
+
     machine_menu.LevelingZoffsetTitle = LEVELING_ZOFFSET_TITLE_EN;
 
     machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_EN;
@@ -1349,7 +1349,7 @@ void disp_language_init() {
           case LANG_ENGLISH:
             common_menu.dialog_confirm_title  = TITLE_DIALOG_CONFIRM_EN;
             common_menu.text_back             = BACK_TEXT_EN;
-            common_menu.text_save             = SAVE_TEXT_EN;            
+            common_menu.text_save             = SAVE_TEXT_EN;
             common_menu.close_machine_tips    = DIALOG_CLOSE_MACHINE_EN;
             common_menu.unbind_printer_tips   = DIALOG_UNBIND_PRINTER_EN;
             common_menu.print_special_title   = PRINTING_OTHER_LANGUGE;
