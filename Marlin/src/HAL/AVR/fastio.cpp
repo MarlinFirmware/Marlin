@@ -257,7 +257,7 @@ uint16_t set_pwm_frequency_hz(const_float_t hz, const float dca, const float dcb
     const float pwm_top = round(count);   // Get the rounded count
 
     ICR5 = (uint16_t)pwm_top - 1;         // Subtract 1 for TOP
-    OCR5A = pwm_top * ABS(dca);          // Update and scale DCs
+    OCR5A = pwm_top * ABS(dca);           // Update and scale DCs
     OCR5B = pwm_top * ABS(dcb);
     OCR5C = pwm_top * ABS(dcc);
     _SET_COM(5, A, dca ? (dca < 0 ? COM_SET_CLEAR : COM_CLEAR_SET) : COM_NORMAL); // Set compare modes
