@@ -57,7 +57,7 @@ typedef enum : int8_t {
   H_CHAMBER = HID_CHAMBER,
   H_BED = HID_BED,
   H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7,
-  H_NONE = -6
+  H_NONE = -128
 } heater_id_t;
 
 // PID storage
