@@ -127,10 +127,6 @@ void tft_lvgl_init() {
 
   watchdog_refresh();     // LVGL init takes time
 
-  #if MB(MKS_ROBIN_NANO)
-    OUT_WRITE(PB0, LOW);  // HE1
-  #endif
-
   // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
