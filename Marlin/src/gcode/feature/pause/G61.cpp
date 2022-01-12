@@ -41,7 +41,7 @@
  *
  *   If XYZE are not given, default restore uses the smart blocking move.
  */
-void GcodeSuite::G61(void) {
+void GcodeSuite::G61() {
 
   const uint8_t slot = parser.byteval('S');
 
