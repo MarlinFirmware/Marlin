@@ -456,7 +456,10 @@ char *getDispText(int index) {
       }
       break;
     case MOVE_MOTOR_UI:       strcpy(public_buf_l, move_menu.title); break;
-    case Z_OFFSET_WIZARD_UI:  break;
+
+    #if ENABLED(PROBE_OFFSET_WIZARD)
+      case Z_OFFSET_WIZARD_UI: break;
+    #endif
     case OPERATE_UI:
       switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
         IF_DISABLED(TFT35, case OPERATE_UI: case PAUSE_UI:)
@@ -785,7 +788,10 @@ void GUI_RefreshPage() {
       break;
 
     case MOVE_MOTOR_UI: break;
-    case Z_OFFSET_WIZARD_UI: break;
+
+    #if ENABLED(PROBE_OFFSET_WIZARD)
+      case Z_OFFSET_WIZARD_UI: break;
+    #endif
 
     #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:
