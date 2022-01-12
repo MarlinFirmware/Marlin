@@ -153,24 +153,23 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   if (sclkPin != TERN(LARGE_PINMAP, -1UL, 255))
     softSpiBegin(SPI_QUARTER_SPEED); // Define pin modes for Software SPI
   else {
-    DEBUG_ECHOLNPGM("Initializing MAX31865 Hardware SPI");
+    DEBUG_ECHOLNPGM("Init MAX31865 Hardware SPI");
     SPI.begin();    // Start and configure hardware SPI
   }
 
   initFixedFlags(wires);
 
-  DEBUG_ECHOLNPGM("MAX31865 Regs: CFG ", readRegister8(MAX31865_CONFIG_REG), 
-    "|RTD ", readRegister16(MAX31865_RTDMSB_REG), 
-    "|HTHRS ", readRegister16(MAX31865_HFAULTMSB_REG), 
-    "|LTHRS ", readRegister16(MAX31865_LFAULTMSB_REG), 
+  DEBUG_ECHOLNPGM("MAX31865 Regs: CFG ", readRegister8(MAX31865_CONFIG_REG),
+    "|RTD ", readRegister16(MAX31865_RTDMSB_REG),
+    "|HTHRS ", readRegister16(MAX31865_HFAULTMSB_REG),
+    "|LTHRS ", readRegister16(MAX31865_LFAULTMSB_REG),
     "|FLT  ", readRegister8(MAX31865_FAULTSTAT_REG));
 
   // fault detection cycle seems to initialize the sensor better
   runAutoFaultDetectionCycle(); // also initializes flags
 
-  if (lastFault) {
-    SERIAL_ECHOLNPGM("MAX31865 Initialized with fault ", lastFault);
-  }
+  if (lastFault)
+    SERIAL_ECHOLNPGM("MAX31865 init fault ", lastFault);
 
   writeRegister16(MAX31865_HFAULTMSB_REG, 0xFFFF);
   writeRegister16(MAX31865_LFAULTMSB_REG, 0);
@@ -183,7 +182,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
     DELAY_US(63000);
     uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
-    #ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
+    #if MAX31865_IGNORE_INITIAL_FAULTY_READS > 0
       rtd = fixFault(rtd);
     #endif
 
@@ -275,56 +274,59 @@ void MAX31865::initFixedFlags(max31865_numwires_t wires) {
 
   // set config-defined flags (same for all sensors)
   stdFlags = TERN(MAX31865_50HZ_FILTER, MAX31865_CONFIG_FILT50HZ, MAX31865_CONFIG_FILT60HZ) |
-              TERN(MAX31865_USE_AUTO_MODE, MAX31865_CONFIG_MODEAUTO | MAX31865_CONFIG_BIAS, MAX31865_CONFIG_MODEOFF);
+             TERN(MAX31865_USE_AUTO_MODE, MAX31865_CONFIG_MODEAUTO | MAX31865_CONFIG_BIAS, MAX31865_CONFIG_MODEOFF);
 
   if (wires == MAX31865_3WIRE)
-    stdFlags |= MAX31865_CONFIG_3WIRE;
-  else  // 2 or 4 wire
-    stdFlags &= ~MAX31865_CONFIG_3WIRE;
+    stdFlags |= MAX31865_CONFIG_3WIRE;   // 3 wire
+  else
+    stdFlags &= ~MAX31865_CONFIG_3WIRE;  // 2 or 4 wire
 }
 
-#ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
+#if MAX31865_IGNORE_INITIAL_FAULTY_READS > 0
+
   inline uint16_t MAX31865::fixFault(uint16_t rtd) {
-    if (!ignore_faults || !(rtd & 1)) 
+    if (!ignore_faults || !(rtd & 1))
       return rtd;
 
-    ignore_faults --;
+    ignore_faults--;
     clearFault();
-    
-    DEBUG_ECHOLNPGM("MAX31865 ignoring fault ", MAX31865_IGNORE_INITIAL_FAULTY_READS - ignore_faults);
 
-    return rtd & ~1;
+    DEBUG_ECHOLNPGM("MAX31865 ignoring fault ", (MAX31865_IGNORE_INITIAL_FAULTY_READS) - ignore_faults);
+
+    return rtd & ~1;  // 0xFFFE
   }
-#endif 
+
+#endif
 
 inline uint16_t MAX31865::readRawImmediate() {
+  uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+  DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
 
-    uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
-    DEBUG_ECHOLNPGM("MAX31865 RTD MSB:", (rtd >> 8), " LSB:", (rtd & 0x00FF));
+  #if MAX31865_IGNORE_INITIAL_FAULTY_READS > 0
+    rtd = fixFault(rtd);
+  #endif
 
-    #ifdef MAX31865_IGNORE_INITIAL_FAULTY_READS
-      rtd = fixFault(rtd);
-    #endif
-
-    if (rtd & 1) {
-      lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
+  if (rtd & 1) {
+    lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
+    lastRead |= 1;
+    clearFault(); // also clears the bias voltage flag, so no further action is required
+    DEBUG_ECHOLNPGM("MAX31865 read fault: ", lastFault);
+  }
+  else {
+    const millis_t ms = millis();
+    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS(lastRead - rtd) > 500 && PENDING(ms, lastReadStamp + 1000))) {
+      // If 2 readings within 1s differ too much (~20°C) it's a read error.
+      lastFault = 0x01;
       lastRead |= 1;
-      clearFault(); // also clears the bias voltage flag, so no further action is required
-      DEBUG_ECHOLNPGM("MAX31865 read fault: ", lastFault);
+      DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
     }
-#if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-      else if (ABS(lastRead - rtd) > 500 && PENDING(millis(), lastReadStamp + 1000)) { // if two readings within a second differ too much (~20°C), consider it a read error.
-        lastFault = 0x01;
-        lastRead |= 1;
-        DEBUG_ECHOLNPGM("MAX31865 read error: ", rtd);
-      }
-    #endif
     else {
       lastRead = rtd;
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = ms);
     }
+  }
 
-    return rtd;
+  return rtd;
 }
 
 /**
@@ -336,10 +338,14 @@ inline uint16_t MAX31865::readRawImmediate() {
 uint16_t MAX31865::readRaw() {
 
   #if ENABLED(MAX31865_USE_AUTO_MODE)
+
     readRawImmediate();
+
   #else
 
-    if (PENDING(millis(), nextEventStamp)) {
+    const millis_t ms = millis();
+
+    if (PENDING(ms, nextEventStamp)) {
       DEBUG_ECHOLNPGM("MAX31865 waiting for event ", nextEvent);
       return lastRead;
     }
@@ -347,26 +353,26 @@ uint16_t MAX31865::readRaw() {
     switch (nextEvent) {
       case SETUP_BIAS_VOLTAGE:
         enableBias();
-        nextEventStamp = millis() + 2; // wait at least 10.5*τ (τ = 100nF*430Ω max for PT100 / 10nF*4.3ΚΩ for PT1000 = 43μsec) + 1msec
+        nextEventStamp = ms + 2; // wait at least 10.5*τ (τ = 100nF*430Ω max for PT100 / 10nF*4.3ΚΩ for PT1000 = 43μsec) + 1msec
         nextEvent = SETUP_1_SHOT_MODE;
         DEBUG_ECHOLN("MAX31865 bias voltage enabled");
         break;
 
       case SETUP_1_SHOT_MODE:
         oneShot();
-        nextEventStamp = millis() + TERN(MAX31865_50HZ_FILTER, 63, 52); // wait at least 52msec for 60Hz (63msec for 50Hz) before reading RTD register
+        nextEventStamp = ms + TERN(MAX31865_50HZ_FILTER, 63, 52); // wait at least 52msec for 60Hz (63msec for 50Hz) before reading RTD register
         nextEvent = READ_RTD_REG;
         DEBUG_ECHOLN("MAX31865 1 shot mode enabled");
         break;
 
-      case READ_RTD_REG: {
+      case READ_RTD_REG:
 
         if (!(readRawImmediate() & 1))   // if clearFault() was not invoked, need to clear the bias voltage and 1-shot flags
           resetFlags();
 
         nextEvent = SETUP_BIAS_VOLTAGE;
-        nextEventStamp = millis() + MAX31865_MIN_SAMPLING_TIME_MSEC; // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
-      } break;
+        nextEventStamp = ms + (MAX31865_MIN_SAMPLING_TIME_MSEC); // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
+        break;
     }
 
   #endif
