@@ -28,6 +28,7 @@
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+
 #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
 
 #include "dwin.h"
@@ -57,4 +58,4 @@ void DWIN_Popup_ConfirmCancel(const uint8_t icon, FSTR_P const fmsg2) {
   DWIN_UpdateLCD();
 }
 
-#endif
+#endif // DWIN_CREALITY_LCD_ENHANCED
