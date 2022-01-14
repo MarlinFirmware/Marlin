@@ -103,15 +103,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       probe.offset.z = calculated_z_offset;
       sync_plan_position();
       // Raise Z as if it was homed
-      do_z_clearance(
-        #ifdef Z_AFTER_HOMING
-          Z_AFTER_HOMING
-        #elif defined(Z_HOMING_HEIGHT)
-          Z_HOMING_HEIGHT
-        #else
-          10
-        #endif
-      );
+      do_z_clearance(Z_POST_CLEARANCE);
       watchdog_refresh();
       draw_return_ui();
       return;
@@ -123,15 +115,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
         queue.inject_P(PSTR("G28Z"));
       #else // Otherwise do a Z clearance move like after Homing
-        do_z_clearance(
-          #ifdef Z_AFTER_HOMING
-            Z_AFTER_HOMING
-          #elif defined(Z_HOMING_HEIGHT)
-            Z_HOMING_HEIGHT
-          #else
-            10
-          #endif
-        );
+        do_z_clearance(Z_POST_CLEARANCE);
       #endif
       watchdog_refresh();
       draw_return_ui();
