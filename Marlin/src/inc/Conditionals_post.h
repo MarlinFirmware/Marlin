@@ -78,13 +78,13 @@
 /**
  * Axis lengths and center
  */
-#ifndef AXIS4_NAME
+#if HAS_I_AXIS && !defined(AXIS4_NAME)
   #define AXIS4_NAME 'A'
 #endif
-#ifndef AXIS5_NAME
+#if HAS_J_AXIS && !defined(AXIS5_NAME)
   #define AXIS5_NAME 'B'
 #endif
-#ifndef AXIS6_NAME
+#if HAS_K_AXIS && !defined(AXIS6_NAME)
   #define AXIS6_NAME 'C'
 #endif
 
