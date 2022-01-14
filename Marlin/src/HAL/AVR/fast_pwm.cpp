@@ -69,7 +69,7 @@ Timer get_pwm_timer(const pin_t pin) {
     break;    // Protect reserved timers (TIMER0 & TIMER1)
 
     #ifdef TCCR0A
-      case TIMER0B:   //This is a protected timer, however we will allow duty sets on OCR0B for pin D4 output and nothing else.
+      case TIMER0B:   // Protected timer, but allow setting the duty cycle on OCR0B for pin D4 only
         return Timer({ { &TCCR0A, nullptr, nullptr }, { (uint16_t*)&OCR0B, nullptr, nullptr }, nullptr, 0, 0, true, true });
     #endif
 
@@ -77,7 +77,7 @@ Timer get_pwm_timer(const pin_t pin) {
       case TIMER2:
         return Timer({ { &TCCR2, nullptr, nullptr }, { (uint16_t*)&OCR2, nullptr, nullptr }, nullptr, 2, 0, true, false });
     #elif ENABLED(USE_OCR2A_AS_TOP)
-      case TIMER2A: break; // protect TIMER2A since its OCR is used by TIMER2B
+      case TIMER2A: break; // Protect TIMER2A since its OCR is used by TIMER2B
       case TIMER2B:
         return Timer({ { &TCCR2A, &TCCR2B, nullptr }, { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr }, nullptr, 2, 1, true, false });
     #elif defined(TCCR2A)
