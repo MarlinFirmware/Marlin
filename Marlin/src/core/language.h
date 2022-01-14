@@ -384,20 +384,14 @@
     #define STR_I_MIN "w_min"
     #define STR_I_MAX "w_max"
   #else
-    #define STR_I "A"
-    #define STR_I_MIN "a_min"
-    #define STR_I_MAX "a_max"
+    #error "AXIS4_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
   #endif
 #else
   #define STR_I   ""
 #endif
 
 #if HAS_J_AXIS
-  #if AXIS5_NAME == 'A'
-    #define STR_J "A"
-    #define STR_J_MIN "a_min"
-    #define STR_J_MAX "a_max"
-  #elif AXIS5_NAME == 'B'
+  #if AXIS5_NAME == 'B'
     #define STR_J "B"
     #define STR_J_MIN "b_min"
     #define STR_J_MAX "b_max"
@@ -418,24 +412,14 @@
     #define STR_J_MIN "w_min"
     #define STR_J_MAX "w_max"
   #else
-    #define STR_J "B"
-    #define STR_J_MIN "b_min"
-    #define STR_J_MAX "b_max"
+    #error "AXIS5_NAME can only be one of 'B', 'C', 'U', 'V', or 'W'."
   #endif
 #else
   #define STR_J   ""
 #endif
 
 #if HAS_K_AXIS
-  #if AXIS6_NAME == 'A'
-    #define STR_K "A"
-    #define STR_K_MIN "a_min"
-    #define STR_K_MAX "a_max"
-  #elif AXIS6_NAME == 'B'
-    #define STR_K "B"
-    #define STR_K_MIN "b_min"
-    #define STR_K_MAX "b_max"
-  #elif AXIS6_NAME == 'C'
+  #if AXIS6_NAME == 'C'
     #define STR_K "C"
     #define STR_K_MIN "c_min"
     #define STR_K_MAX "c_max"
@@ -452,9 +436,7 @@
     #define STR_K_MIN "w_min"
     #define STR_K_MAX "w_max"
   #else
-    #define STR_K "C"
-    #define STR_K_MIN "c_min"
-    #define STR_K_MAX "c_max"
+    #error "AXIS6_NAME can only be one of 'C', 'U', 'V', or 'W'."
   #endif
 #else
   #define STR_K   ""
