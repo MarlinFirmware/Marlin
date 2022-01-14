@@ -288,8 +288,13 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(
     "Advanced (B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
     TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
-    TERN_(HAS_CLASSIC_JERK, " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>")
-    TERN_(HAS_CLASSIC_E_JERK, " E<max_e_jerk>")
+    #if HAS_CLASSIC_JERK
+      LINEAR_AXIS_GANG(
+        " X<max_jerk>", " Y<max_jerk>", " Z<max_jerk>",
+        " " STR_I "<max_jerk>", " " STR_J "<max_jerk>", " " STR_K "<max_jerk>"
+      )
+    #endif
+    TERN_(HAS_CLASSIC_E_JERK, " E<max_jerk>")
     ")"
   ));
   SERIAL_ECHOLNPGM_P(
