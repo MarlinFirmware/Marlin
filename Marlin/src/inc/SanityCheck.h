@@ -791,6 +791,12 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "Enable only one of ENDSTOPPULLUP_Y_MAX or ENDSTOPPULLDOWN_Y_MAX."
 #elif BOTH(ENDSTOPPULLUP_ZMAX, ENDSTOPPULLDOWN_ZMAX)
   #error "Enable only one of ENDSTOPPULLUP_Z_MAX or ENDSTOPPULLDOWN_Z_MAX."
+#elif BOTH(ENDSTOPPULLUP_IMAX, ENDSTOPPULLDOWN_IMAX)
+  #error "Enable only one of ENDSTOPPULLUP_I_MAX or ENDSTOPPULLDOWN_I_MAX."
+#elif BOTH(ENDSTOPPULLUP_JMAX, ENDSTOPPULLDOWN_JMAX)
+  #error "Enable only one of ENDSTOPPULLUP_J_MAX or ENDSTOPPULLDOWN_J_MAX."
+#elif BOTH(ENDSTOPPULLUP_KMAX, ENDSTOPPULLDOWN_KMAX)
+  #error "Enable only one of ENDSTOPPULLUP_K_MAX or ENDSTOPPULLDOWN_K_MAX."
 #elif BOTH(ENDSTOPPULLUP_XMIN, ENDSTOPPULLDOWN_XMIN)
   #error "Enable only one of ENDSTOPPULLUP_X_MIN or ENDSTOPPULLDOWN_X_MIN."
 #elif BOTH(ENDSTOPPULLUP_YMIN, ENDSTOPPULLDOWN_YMIN)
@@ -1417,9 +1423,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Allow only extra axis codes that do not conflict with G-code parameter names
  */
 #if HAS_I_AXIS
-  #if AXIS4_NAME != 'A' && AXIS4_NAME != 'B' && AXIS4_NAME != 'C' && AXIS4_NAME != 'U' && AXIS4_NAME != 'V' && AXIS4_NAME != 'W'
-    #error "AXIS4_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
-  #elif !defined(I_MIN_POS) || !defined(I_MAX_POS)
+  #if !defined(I_MIN_POS) || !defined(I_MAX_POS)
     #error "I_MIN_POS and I_MAX_POS are required with LINEAR_AXES >= 4."
   #elif !defined(I_HOME_DIR)
     #error "I_HOME_DIR is required with LINEAR_AXES >= 4."
@@ -1430,8 +1434,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_J_AXIS
   #if AXIS5_NAME == AXIS4_NAME
     #error "AXIS5_NAME must be unique."
-  #elif AXIS5_NAME != 'A' && AXIS5_NAME != 'B' && AXIS5_NAME != 'C' && AXIS5_NAME != 'U' && AXIS5_NAME != 'V' && AXIS5_NAME != 'W'
-    #error "AXIS5_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
   #elif !defined(J_MIN_POS) || !defined(J_MAX_POS)
     #error "J_MIN_POS and J_MAX_POS are required with LINEAR_AXES >= 5."
   #elif !defined(J_HOME_DIR)
@@ -1443,8 +1445,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if HAS_K_AXIS
   #if AXIS6_NAME == AXIS5_NAME || AXIS6_NAME == AXIS4_NAME
     #error "AXIS6_NAME must be unique."
-  #elif AXIS6_NAME != 'A' && AXIS6_NAME != 'B' && AXIS6_NAME != 'C' && AXIS6_NAME != 'U' && AXIS6_NAME != 'V' && AXIS6_NAME != 'W'
-    #error "AXIS6_NAME can only be one of 'A', 'B', 'C', 'U', 'V', or 'W'."
   #elif !defined(K_MIN_POS) || !defined(K_MAX_POS)
     #error "K_MIN_POS and K_MAX_POS are required with LINEAR_AXES >= 6."
   #elif !defined(K_HOME_DIR)
@@ -3317,7 +3317,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * L64XX requirement
  */
 #if HAS_L64XX && HAS_I_AXIS
-  #error "L64XX requires LINEAR_AXES 3. Homing with L64XX is not yet implemented for LINEAR_AXES > 3."
+  #error "L64XX requires LINEAR_AXES <= 3. Homing with L64XX is not yet implemented for LINEAR_AXES > 3."
 #endif
 
 /**
@@ -3793,22 +3793,15 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
 #if _BAD_DRIVER(Z)
   #error "Z_DRIVER_TYPE is not recognized."
 #endif
-#if HAS_I_AXIS
-  #if _BAD_DRIVER(I)
-    #error "I_DRIVER_TYPE is not recognized."
-  #endif
+#if _BAD_DRIVER(I)
+  #error "I_DRIVER_TYPE is not recognized."
 #endif
-#if HAS_J_AXIS
-  #if _BAD_DRIVER(J)
-    #error "J_DRIVER_TYPE is not recognized."
-  #endif
+#if _BAD_DRIVER(J)
+  #error "J_DRIVER_TYPE is not recognized."
 #endif
-#if HAS_K_AXIS
-  #if _BAD_DRIVER(K)
-    #error "K_DRIVER_TYPE is not recognized."
-  #endif
+#if _BAD_DRIVER(K)
+  #error "K_DRIVER_TYPE is not recognized."
 #endif
-
 #if _BAD_DRIVER(X2)
   #error "X2_DRIVER_TYPE is not recognized."
 #endif
