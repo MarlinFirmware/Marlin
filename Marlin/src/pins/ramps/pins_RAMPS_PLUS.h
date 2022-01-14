@@ -26,7 +26,16 @@
  * The differences to the RAMPS v1.4 are:
  *  - Swap heater E0 with E1
  *  - Swap pins 8 and 10. Bed/Fan/Hotend as labeled on the board are on pins 8/9/10.
- *  - Change pins 16->42, 17->44 and 29->53 used for display.
+ *
+ * LCD adapter
+ *         ------                     ------
+ *    D37 |10  9 | D35    (MISO) D50 |10  9 | D52 (SCK)
+ *    D31 | 8  7 | D41           D29 | 8  7 | D53
+ *    D33   6  5 | D23           D25   6  5 | D51 (MOSI)
+ *    D42 | 4  3 | D44           D49 | 4  3 | D27
+ *    GND | 2  1 | 5V            GND | 2  1 | 5V
+ *         ------                     ------
+ *          EXP1                       EXP2
  *
  * Applies to the following boards:
  *
@@ -64,7 +73,26 @@
 
 #include "pins_RAMPS.h"
 
-#if IS_ULTRA_LCD && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(IS_NEWPANEL, PANEL_ONE)
+#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #undef LCD_PINS_RS
+  #define LCD_PINS_RS                         41
+  #undef LCD_PINS_ENABLE
+  #define LCD_PINS_ENABLE                     31
+  #undef LCD_PINS_D4
+  #define LCD_PINS_D4                         33
+  #undef LCD_PINS_D5
+  #define LCD_PINS_D5                         23
+  #undef LCD_PINS_D6
+  #define LCD_PINS_D6                         42
+  #undef LCD_PINS_D7
+  #define LCD_PINS_D7                         44
+  #undef BTN_EN1
+  #define BTN_EN1                             25
+  #undef BTN_EN2
+  #define BTN_EN2                             29
+  #undef KILL_PIN
+  #define KILL_PIN                            27
+#elif IS_ULTRA_LCD && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(IS_NEWPANEL, PANEL_ONE)
   #if DISABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     #undef LCD_PINS_RS
     #define LCD_PINS_RS                       42  // 3DYMY boards pin 16 -> 42
