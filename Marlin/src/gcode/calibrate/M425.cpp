@@ -55,7 +55,7 @@ void GcodeSuite::M425() {
         case Z_AXIS: return AXIS_CAN_CALIBRATE(Z),
         case I_AXIS: return AXIS_CAN_CALIBRATE(I),
         case J_AXIS: return AXIS_CAN_CALIBRATE(J),
-        case K_AXIS: return AXIS_CAN_CALIBRATE(K),
+        case K_AXIS: return AXIS_CAN_CALIBRATE(K)
       );
     }
   };
