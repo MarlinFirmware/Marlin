@@ -40,10 +40,6 @@
 #include "SdBaseFile.h"
 
 #include "../MarlinCore.h"
-
-#define DEBUG_OUT 1
-#include "../core/debug_out.h"
-
 SdBaseFile *SdBaseFile::cwd_ = 0;   // Pointer to Current Working Directory
 
 // callback function for date/time
@@ -638,18 +634,15 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
   uint8_t lfnSequenceNumber = 0;
   uint8_t lfnChecksum = 0;
   
-  //DEBUG_ECHOLNPGM("*_* SdBaseFile::open 2 - name: ", (char *)dname,", dlname: ", (char *)dlname, ", useLFN: ", useLFN, ", EntriesRequired: ", reqEntriesNum);
-
   // Rewind this dir
   vol_ = dirFile->vol_;
   dirFile->rewind();
 
   // search for file
-  //DEBUG_ECHOLNPGM("*_* This      idx: ", dirIndex_, ", Block: ", dirBlock_, ", Cluster: ", curCluster_, ", CurrPosition: ", curPosition_, ", Size: ", fileSize_);
   while (dirFile->curPosition_ < dirFile->fileSize_) {
-    // index = 0xF & (dirFile->curPosition_ >> 5);
+    // Get absolute index position
     index = dirFile->curPosition_ >> 5;
-    //DEBUG_ECHOLNPGM("*_* DirFile - idx: ", index, ", idx cache: ", index & 0xF, ", Cluster: ", dirFile->curCluster_, ", CurrPosition: ", dirFile->curPosition_, ", Size: ", dirFile->fileSize_);
+    // Get next entry
     p = dirFile->readDirCache();
     if (!p) return false;
 
@@ -658,16 +651,11 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
     if (p->name[0] == DIR_NAME_FREE || p->name[0] == DIR_NAME_DELETED) {
       // Count the contiguous available entries in which (eventually) fit the new dir entry, if it's a write operation
       if (!emptyFound) {
-        if (emptyCount == 0) {
-          //DEBUG_ECHOLNPGM("*_* Mark start empty @ idx: ", index);
-          emptyIndex = index;
-        }
+        if (emptyCount == 0) emptyIndex = index;
         // Incr empty entries counter
         emptyCount++;
-        //DEBUG_ECHOLNPGM("*_* Empty entry at idx: ", index);
         // If found the required empty entries, mark it
         if (emptyCount == reqEntriesNum) {
-          //DEBUG_ECHOLNPGM("*_* Mark Complete empty @ idx: ", index);
           dirBlock_ = dirFile->vol_->cacheBlockNumber();
           dirIndex_ = index & 0xF;
           emptyFound = true;
@@ -676,29 +664,24 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
       // Done if no entries follow
       if (p->name[0] == DIR_NAME_FREE) break;
     }
-    // Entry not empty
-    else {
+    else {  // Entry not empty
       // Reset empty counter
       if (!emptyFound) emptyCount = 0;
       // Search for SFN or LFN?
       if (!useLFN) {
-        // Check using SFN
-        // File found?
+        // Check using SFN: file found?
         if (!memcmp(dname, p->name, 11)) {
           fileFound = true;
-          //DEBUG_ECHOLNPGM("*_* SFN '", (char *) dname , "' found @ idx: ", index);
           break;
         }
       }
       else {
-        // Check using LFN
-        // LFN not found? continue search for LFN
+        // Check using LFN: LFN not found? continue search for LFN
         if (!lfnFileFound) {
           // Is this dir a LFN?
           if (isDirLFN(p)) {
             // Get VFat dir entry
             pvFat = (vfat_t *) p;
-            //DEBUG_ECHOLNPGM("*_* SdBaseFile::open 2 - Use LFN, curr lfnName: ", (char *) lfnName, ", + name1: ", (char *) pvFat->name1, ", sequenceNumber: ", pvFat->sequenceNumber, ", checksum: ", pvFat->checksum);
             // Get checksum from the last entry of the sequence
             if (pvFat->sequenceNumber & 0x40) lfnChecksum = pvFat->checksum;
             // Get LFN sequence number
@@ -709,27 +692,18 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
                 // Set chunk of LFN from VFAT entry into lfnName
                 getLFNName(pvFat, (char *)lfnName, lfnSequenceNumber);
                 // LFN found?
-                if (!strncasecmp((char *) dlname, (char *) lfnName, lfnNameLength)) {
-                  //DEBUG_ECHOLNPGM("*_* LFN '", (char *) dlname , "' found @ idx: ", index);
-                  lfnFileFound = true;
-                }
+                if (!strncasecmp((char *) dlname, (char *) lfnName, lfnNameLength)) lfnFileFound = true;
               }
             }
           }
         }
-        // Complete LFN found, check for related SFN
-        else {
+        else {    // Complete LFN found, check for related SFN
           // Check if only the SFN checksum match because the filename may be different due to different truncation methods
           if (!isDirLFN(p) && (lfnChecksum == lfn_checksum(p->name))) {
-            //DEBUG_ECHOLNPGM("*_* LFN '", (char *) dlname , "' & SFN '", (char *) p->name , "' found @ idx: ", index);
             fileFound = true;
             break;
           } 
-          else {
-            //DEBUG_ECHOLNPGM("*_* SFN not valid for the LFN found");
-            // SFN not valid for the LFN found, reset LFN FileFound
-            lfnFileFound = false;
-          }
+          else lfnFileFound = false;    // SFN not valid for the LFN found, reset LFN FileFound
         }
       }
     }
@@ -746,43 +720,31 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
     // Use bookmark index if found empty entries
     if (emptyFound) index = emptyIndex;
 
-    //DEBUG_ECHOLNPGM("*_* Empty Found:", emptyFound, ", Empty Index: ", emptyIndex, ", Empty counter: ", emptyCount, ", Curr Index: ", index);
-
     // Make room for needed entries
     while (emptyCount < reqEntriesNum)
     {
-        //DEBUG_ECHOLNPGM("*_* Make room with readDirCache");
         p = dirFile->readDirCache();
         if (!p) break;
         emptyCount++;
-        //DEBUG_ECHOLNPGM("*_* Current emptyCount: ", emptyCount);
     }
     while (emptyCount < reqEntriesNum)
     {
-        //DEBUG_ECHOLNPGM("*_* Make room with addDirCluster");
         if (dirFile->type_ == FAT_FILE_TYPE_ROOT_FIXED) return false;
         // add and zero cluster for dirFile - first cluster is in cache for write
         if (!dirFile->addDirCluster()) return false;
         emptyCount += dirFile->vol_->blocksPerCluster() * 16;
-        //DEBUG_ECHOLNPGM("*_* Current emptyCount: ", emptyCount);
     }
 
     // Move to 1st entry to write
-    if (!dirFile->seekSet(32 * index)) {
-      //DEBUG_ECHOLNPGM("*_* seekSet Failed!");
-      return false;
-    }
+    if (!dirFile->seekSet(32 * index)) return false;
 
     // Dir entries write loop: [LFN] + SFN(1)
     LOOP_L_N(dirWriteIdx, reqEntriesNum) {
       index = (dirFile->curPosition_ / 32) & 0xF;
-      //DEBUG_ECHOLNPGM("*_* readDirCache at cache index: ", index);
       p = dirFile->readDirCache();
-      //DEBUG_ECHOLNPGM("*_* ", p ? "OK" : "Failed", ", CurrCluster: ", dirFile->curCluster_, ", CurrPosition: ", dirFile->curPosition_);
       // LFN or SFN Entry?
       if (dirWriteIdx < reqEntriesNum - 1) {
         // Write LFN Entries
-        //DEBUG_ECHOLNPGM("*_* Adding LFN entry");
         pvFat = (vfat_t *) p;
         // initialize as empty file
         memset(pvFat, 0, sizeof(*pvFat));
@@ -792,12 +754,10 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
         // Set sequence number and mark as last LFN entry if it's the 1st loop
         pvFat->sequenceNumber = lfnSequenceNumber | (dirWriteIdx == 0 ? 0x40 : 0);
         // Set LFN name block
-        //DEBUG_ECHOLNPGM("setLFNName for '", (char *) dlname, "', Seq: ", lfnSequenceNumber, ", index: ", index, ", block: ", dirBlock_);
         setLFNName(pvFat, (char *) dlname, lfnSequenceNumber);
       }
       else {
         // Write SFN Entry
-        //DEBUG_ECHOLNPGM("*_* Adding SFN entry");
         // initialize as empty file
         memset(p, 0, sizeof(*p));
         memcpy(p->name, dname, 11);
@@ -820,12 +780,9 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
       // write entry to SD
       dirFile->vol_->cacheSetDirty();
       if (!dirFile->vol_->cacheFlush()) return false;
-
     }
-
   }
   // open entry in cache
-  //DEBUG_ECHOLNPGM("*_* Opening idx: ", index);
   return openCachedEntry(index, oflag);
 }
 
@@ -1016,7 +973,6 @@ bool SdBaseFile::isDirNameLFN(const char *dirname) {
   The LFN is complete ("Filename.ext")
 */
 bool SdBaseFile::parsePath(const char *path, uint8_t *name, uint8_t *lname, const char **ptrNextPath) {
-  //DEBUG_ECHOLNPGM("*_* SdBaseFile::parsePath - Path: ", path, ", Length: ", strlen(path));
   // Init randomizer for SFN generation
   randomSeed(millis());
   // Parse the LFN
@@ -1043,13 +999,11 @@ bool SdBaseFile::parsePath(const char *path, uint8_t *name, uint8_t *lname, cons
   // Terminate LFN
   lname[ilfn] = 0;
 
-  //DEBUG_ECHOLNPGM("*_* SdBaseFile::parsePath - LFN parsed path: ", (char *) lname, ", Length: ", strlen((char *)lname), ", IsLFN:", isDirNameLFN((char *)lname));
-
   // Parse/generate 8.3 SFN. Will take
   // until 8 characters for the filename part
   // until 3 characters for the extension part (if exists)
   // Add 4 more characters if name part < 3
-  // Add '~cnt' if it's a LFN
+  // Add '~cnt' characters if it's a LFN
   bool isLFN = isDirNameLFN((char *) lname);
 
   uint8_t n = isLFN ? 5 : 7,  // Max index for each component of the file: 
@@ -1097,32 +1051,9 @@ bool SdBaseFile::parsePath(const char *path, uint8_t *name, uint8_t *lname, cons
     name[iFree++] = random(1,9) + '0';
   }
 
-/*
-  const char *sfnpath = (char *) lname;
-  // uint8_t n = 7,                        // Max index until a dot is found
-  //         i = 11;
-  // while (i) name[--i] = ' ';            // Set whole FILENAME.EXT to spaces
-  while (*sfnpath && *sfnpath != '/') { // For each character, until nul or '/'
-    uint8_t c = *sfnpath++;             // Get char and advance
-    if (c == '.') {                     // For a dot...
-      if (n == 10) return false;        // Already moved the max index? fail!
-      n = 10;                           // Move the max index for full 8.3 name
-      i = 8;                            // Move up to the extension place
-    }
-    else {
-      // Fail for illegal characters
-      PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
-      if (c < 0x21 || c == 0x7F) return false;       // Check non-printable characters
-      if (i <= n)     // Check size for 8.3 format
-        name[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);  // Uppercase required for 8.3 name
-    }
-  }
-*/
   // Check if LFN is needed
   if (!isLFN) lname[0] = 0;   // Zero LFN
   *ptrNextPath = path;        // Set passed pointer to the end
-  //DEBUG_ECHOLNPGM("*_* SdBaseFile::parsePath, SFN: '", (char *) name, "', LFN: '", (char *) lname, "'");
   return name[0] != ' ';      // Return true if any name was set
 }
 
@@ -1152,7 +1083,6 @@ void SdBaseFile::getLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber
 void SdBaseFile::setLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
   uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
   uint8_t nameLength = strlen(lname);
-  //DEBUG_ECHOLNPGM("*_* SdBaseFile::setLFNName - Starting from pos=", startOffset, " (seq ", sequenceNumber,") of ", lname);
   LOOP_L_N(i, FILENAME_LENGTH) {
     uint16_t ch = 0;
     if ((startOffset + i) < nameLength)
@@ -1574,7 +1504,6 @@ dir_t* SdBaseFile::readDirCache() {
 bool SdBaseFile::remove() {
   if (ENABLED(SDCARD_READONLY)) return false;
 
-  //DEBUG_ECHOLNPGM("*_* SdBaseFile::remove - CurrPosition: ", curPosition_, ", dirIndex_: ", dirIndex_, ", dirBlock_: ", dirBlock_);
   // free any clusters - will fail if read-only or directory
   if (!truncate(0)) return false;
 
@@ -1594,31 +1523,22 @@ bool SdBaseFile::remove() {
 
   // write entry to SD
   if (!vol_->cacheFlush()) return false;
-  //DEBUG_ECHOLNPGM("*_* SdBaseFile::remove - SFN deleted @ Idx: ", dirIndex_);
 
   // Check if the entry has a LFN
-  //DEBUG_ECHOLNPGM("*_* Original  - name:", (char *) d->name, ", checksum: ", sfn_checksum, ", dirIndex_: ", dirIndex_);
   bool lastEntry = false;
   // loop back to search for any LFN entries related to this file
   LOOP_S_LE_N(sequenceNumber, 1, MAX_VFAT_ENTRIES) {
     dirIndex_ = (dirIndex_ - 1) & 0xF;
     if (dirBlock_ == 0) break;
     if (dirIndex_ == 0xF) dirBlock_--;
-    //DEBUG_ECHOLNPGM("*_* Seeking to previous entry from dirIndex_: ", dirIndex_, ", dirBlock_: ", dirBlock_);
     dir_t *dir = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
-    if (!dir) {
-      //DEBUG_ECHOLNPGM("*_* cacheDirEntry Failed");
-      return false;
-    }
+    if (!dir) return false;
 
     // check for valid LFN: not deleted, not top dirs (".", ".."), must be a LFN
     if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.' || !isDirLFN(dir)) break;
     // check coherent LFN: checksum and sequenceNumber must match
-    //DEBUG_ECHOLNPGM("*_* Found LFN- name:", (char *) dir->name, ", Index: ", dirIndex_);
     vfat_t* dirlfn = (vfat_t*) dir;
-    //DEBUG_ECHOLNPGM("*_* PRE Info - Index: ", dirIndex_, ", dirIndex_: ", dirIndex_, ", dirBlock_: ", dirBlock_,", sequenceNumber: ", dirlfn->sequenceNumber, ", checksum: ", dirlfn->checksum);
     if (dirlfn->checksum != sfn_checksum || (dirlfn->sequenceNumber & 0x1F) != sequenceNumber) break;    // orphan entry
-    //DEBUG_ECHOLNPGM("*_* DEL Info - Index: ", dirIndex_, ", dirIndex_: ", dirIndex_, ", dirBlock_: ", dirBlock_,", sequenceNumber: ", dirlfn->sequenceNumber, ", checksum: ", dirlfn->checksum);
     // is last entry of LFN ?
     lastEntry = (dirlfn->sequenceNumber & 0x40);
     // mark as deleted
@@ -1626,10 +1546,7 @@ bool SdBaseFile::remove() {
     // Flush to SD
     if (!vol_->cacheFlush()) return false;
     // exit on last entry of LFN deleted
-    if (lastEntry) {
-      //DEBUG_ECHOLNPGM("*_* SdBaseFile::remove - LFN Last entry deleted @ Idx: ", dirIndex_);
-      break;
-    }
+    if (lastEntry) break;
   }
 
   // Restore current index
