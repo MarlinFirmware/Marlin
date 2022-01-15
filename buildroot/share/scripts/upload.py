@@ -128,8 +128,8 @@ def Upload(source, target, env):
     marlin_motherboard = _GetMarlinEnv(MarlinEnv, 'MOTHERBOARD')
     marlin_board_info_name = _GetMarlinEnv(MarlinEnv, 'BOARD_INFO_NAME')
     marlin_board_custom_build_flags = _GetMarlinEnv(MarlinEnv, 'BOARD_CUSTOM_BUILD_FLAGS')
-    marlin_long_filename_host_support = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_HOST_SUPPORT')
     marlin_firmware_bin = _GetMarlinEnv(MarlinEnv, 'FIRMWARE_BIN')
+    marlin_long_filename_host_support = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_HOST_SUPPORT') is not None
     marlin_custom_firmware_upload = _GetMarlinEnv(MarlinEnv, 'CUSTOM_FIRMWARE_UPLOAD') is not None
     marlin_short_build_version = _GetMarlinEnv(MarlinEnv, 'SHORT_BUILD_VERSION')
     marlin_string_config_h_author = _GetMarlinEnv(MarlinEnv, 'STRING_CONFIG_H_AUTHOR')
@@ -154,6 +154,10 @@ def Upload(source, target, env):
     # "upload_delete_old_bins": delete all *.bin files in the root of SD Card
     upload_delete_old_bins = marlin_motherboard in ['BOARD_CREALITY_V4',   'BOARD_CREALITY_V4210', 'BOARD_CREALITY_V423', 'BOARD_CREALITY_V427',
                                                     'BOARD_CREALITY_V431', 'BOARD_CREALITY_V452',  'BOARD_CREALITY_V453', 'BOARD_CREALITY_V24S1']
+    # "upload_random_name": generate a random 8.3 firmware filename to upload
+    upload_random_filename = marlin_motherboard in ['BOARD_CREALITY_V4',   'BOARD_CREALITY_V4210', 'BOARD_CREALITY_V423', 'BOARD_CREALITY_V427',
+                                                    'BOARD_CREALITY_V431', 'BOARD_CREALITY_V452',  'BOARD_CREALITY_V453', 'BOARD_CREALITY_V24S1'] and not marlin_long_filename_host_support
+
     try:
 
         # Start upload job
@@ -163,38 +167,38 @@ def Upload(source, target, env):
         if Debug:
             print('Upload using:')
             print('---- Marlin --------------------')
-            print(f' PIOENV                 : {marlin_pioenv}')
-            print(f' SHORT_BUILD_VERSION    : {marlin_short_build_version}')
-            print(f' STRING_CONFIG_H_AUTHOR : {marlin_string_config_h_author}')
-            print(f' MOTHERBOARD            : {marlin_motherboard}')
-            print(f' BOARD_INFO_NAME        : {marlin_board_info_name}')
-            print(f' CUSTOM_BUILD_FLAGS     : {marlin_board_custom_build_flags}')
-            print(f' FIRMWARE_BIN           : {marlin_firmware_bin}')
-            print(f' CUSTOM_FIRMWARE_UPLOAD : {marlin_custom_firmware_upload}')
-            print('---- Upload parameters ---------')
-            print(f' Source      : {upload_firmware_source_name}')
-            print(f' Target      : {upload_firmware_target_name}')
-            print(f' Port        : {upload_port} @ {upload_speed} baudrate')
-            print(f' Timeout     : {upload_timeout}')
-            print(f' Block size  : {upload_blocksize}')
-            print(f' Compression : {upload_compression}')
-            print(f' Error ratio : {upload_error_ratio}')
-            print(f' Test        : {upload_test}')
-            print(f' Reset       : {upload_reset}')
-            print('--------------------------------')
+            print(f' PIOENV                     : {marlin_pioenv}')
+            print(f' SHORT_BUILD_VERSION        : {marlin_short_build_version}')
+            print(f' STRING_CONFIG_H_AUTHOR     : {marlin_string_config_h_author}')
+            print(f' MOTHERBOARD                : {marlin_motherboard}')
+            print(f' BOARD_INFO_NAME            : {marlin_board_info_name}')
+            print(f' CUSTOM_BUILD_FLAGS         : {marlin_board_custom_build_flags}')
+            print(f' FIRMWARE_BIN               : {marlin_firmware_bin}')
+            print(f' LONG_FILENAME_HOST_SUPPORT : {marlin_long_filename_host_support}')
+            print(f' CUSTOM_FIRMWARE_UPLOAD     : {marlin_custom_firmware_upload}')
+            print('---- Upload parameters ------------------------')
+            print(f' Source                     : {upload_firmware_source_name}')
+            print(f' Target                     : {upload_firmware_target_name}')
+            print(f' Port                       : {upload_port} @ {upload_speed} baudrate')
+            print(f' Timeout                    : {upload_timeout}')
+            print(f' Block size                 : {upload_blocksize}')
+            print(f' Compression                : {upload_compression}')
+            print(f' Error ratio                : {upload_error_ratio}')
+            print(f' Test                       : {upload_test}')
+            print(f' Reset                      : {upload_reset}')
+            print('-----------------------------------------------')
 
         # Custom implementations based on board parameters
+        # Generate a new 8.3 random filename
+        if upload_random_filename:
+            upload_firmware_target_name = f"fw-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))}.BIN"
+            print(f"Board {marlin_motherboard}: Overriding firmware filename to '{upload_firmware_target_name}'")
 
         # Delete all *.bin files on the root of SD Card (if flagged)
         if upload_delete_old_bins:
             # CUSTOM_FIRMWARE_UPLOAD is needed for this feature
             if not marlin_custom_firmware_upload:
                 raise Exception(f"CUSTOM_FIRMWARE_UPLOAD must be enabled in 'Configuration_adv.h' for '{marlin_motherboard}'")
-
-            # Generate a new 8.3 random filename
-            # This board remember the last firmware filename and doesn't allow to flash from that filename
-            #upload_firmware_target_name = f"fw-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))}.BIN"
-            #print(f"Board {marlin_motherboard}: Overriding firmware filename to '{upload_firmware_target_name}'")
 
             # Init serial port
             port = serial.Serial(upload_port, baudrate = upload_speed, write_timeout = 0, timeout = 0.1)
