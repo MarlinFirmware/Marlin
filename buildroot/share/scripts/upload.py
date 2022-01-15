@@ -128,6 +128,7 @@ def Upload(source, target, env):
     marlin_motherboard = _GetMarlinEnv(MarlinEnv, 'MOTHERBOARD')
     marlin_board_info_name = _GetMarlinEnv(MarlinEnv, 'BOARD_INFO_NAME')
     marlin_board_custom_build_flags = _GetMarlinEnv(MarlinEnv, 'BOARD_CUSTOM_BUILD_FLAGS')
+    marlin_long_filename_host_support = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_HOST_SUPPORT')
     marlin_firmware_bin = _GetMarlinEnv(MarlinEnv, 'FIRMWARE_BIN')
     marlin_custom_firmware_upload = _GetMarlinEnv(MarlinEnv, 'CUSTOM_FIRMWARE_UPLOAD') is not None
     marlin_short_build_version = _GetMarlinEnv(MarlinEnv, 'SHORT_BUILD_VERSION')
@@ -203,13 +204,13 @@ def Upload(source, target, env):
             _CheckSDCard()
 
             # Get firmware files
-            FirmwareFiles = _GetFirmwareFiles(marlin_custom_firmware_upload)
+            FirmwareFiles = _GetFirmwareFiles(marlin_long_filename_host_support)
             if Debug:
                 for FirmwareFile in FirmwareFiles:
                     print(f'Found: {FirmwareFile}')
 
             # Get all 1st level firmware files (to remove)
-            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2], marlin_custom_firmware_upload)   # Skip header and footers of list
+            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2], marlin_long_filename_host_support)   # Skip header and footers of list
             if len(OldFirmwareFiles) == 0:
                 print('No old firmware files to delete')
             else:
