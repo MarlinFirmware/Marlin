@@ -544,9 +544,9 @@
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
-#if !USE_SENSORLESS && ENABLED(USES_DIAG_JUMPERS)
+#if !USE_SENSORLESS && ENABLED(USES_DIAG_JUMPERS) && DISABLED(DIAG_JUMPERS_REMOVED)
   #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled."
-#elif !USE_SENSORLESS && ENABLED(USES_DIAG_PINS)
+#elif !USE_SENSORLESS && ENABLED(USES_DIAG_PINS) && DISABLED(DIAG_PINS_REMOVED)
   #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0)"
 #endif
 
