@@ -1404,7 +1404,7 @@ void Planner::check_axes_activity() {
     TERN_(HAS_HEATER_2, set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 
-  fans_need_update = false;  // Reset global for next pass
+  TERN_(HAS_TAIL_FAN_SPEED, fans_need_update = false);  // Reset global for next pass
 }
 
 #if ENABLED(AUTOTEMP)
