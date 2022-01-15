@@ -170,7 +170,28 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   writeRegister16(MAX31865_HFAULTMSB_REG, 0xFFFF);
   writeRegister16(MAX31865_LFAULTMSB_REG, 0);
 
-  #if DISABLED(MAX31865_USE_AUTO_MODE) // make a proper first 1 shot read to initialize _lastRead
+  #if ENABLED(MAX31865_USE_AUTO_MODE) // make a proper first read to initialize _lastRead
+   
+   uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
+
+    #if MAX31865_IGNORE_INITIAL_FAULTY_READS > 0
+      rtd = fixFault(rtd);
+    #endif
+
+    if (rtd & 1) {
+      lastRead = 0xFFFF; // some invalid value
+      lastFault = readRegister8(MAX31865_FAULTSTAT_REG);
+      clearFault(); // also clears the bias voltage flag, so no further action is required
+
+      DEBUG_ECHOLNPGM("MAX31865 read fault: ", rtd);
+    }
+    else {
+      DEBUG_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
+      lastRead = rtd;
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
+    }
+
+  #else
 
     enableBias();
     DELAY_US(2000); // according to the datasheet, 10.5τ+1msec (see below)
@@ -179,7 +200,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
     uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
     #if MAX31865_IGNORE_INITIAL_FAULTY_READS > 0
-      rtd = fixFault(rtd);
+        rtd = fixFault(rtd);
     #endif
 
     if (rtd & 1) {
@@ -202,16 +223,16 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
       TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
     }
 
-  #endif // !MAX31865_USE_AUTO_MODE
+  #endif // ENABLED(MAX31865_USE_AUTO_MODE)
 
   DEBUG_ECHOLNPGM(
-    TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular")
+    TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular") 
     " begin call with cselPin: ", cselPin,
     " misoPin: ", misoPin,
     " sclkPin: ", sclkPin,
     " mosiPin: ", mosiPin,
     " config: ", readRegister8(MAX31865_CONFIG_REG)
-  );
+    );
 }
 
 /**
@@ -256,7 +277,7 @@ void MAX31865::oneShot() {
 void MAX31865::runAutoFaultDetectionCycle() {
   writeRegister8(MAX31865_CONFIG_REG, (stdFlags & 0x11) | 0x84 ); // cfg reg = 100X010Xb
   DELAY_US(600);
-  while ((readRegister8(MAX31865_CONFIG_REG) & 0xC) > 0) DELAY_US(100); // Fault det completes when bits 2 and 3 are zero
+  for (int i = 0; i < 10 && (readRegister8(MAX31865_CONFIG_REG) & 0xC) > 0; i++) DELAY_US(100); // Fault det completes when bits 2 and 3 are zero (or after 10 tries)
   readFault();
   clearFault();
 }
@@ -326,7 +347,7 @@ inline uint16_t MAX31865::readRawImmediate() {
   }
   else {
     const millis_t ms = millis();
-    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS(lastRead - rtd) > 500 && PENDING(ms, lastReadStamp + 1000))) {
+    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS((int)(lastRead - rtd)) > 500 && PENDING(ms, lastReadStamp + 1000))) {
       // If 2 readings within 1s differ too much (~20°C) it's a read error.
       lastFault = 0x01;
       lastRead |= 1;
