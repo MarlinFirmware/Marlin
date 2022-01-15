@@ -84,21 +84,26 @@ def Upload(source, target, env):
     #----------------#
     # File functions #
     #----------------#
-    def _GetFirmwareFiles():
+    def _GetFirmwareFiles(UseLongFilenames):
         if Debug: print('Get firmware files...')
-        _Send('M20 F')
+        _Send(f"M20 F{'L' if UseLongFilenames else ''}")
         Responses = _Recv()
         if len(Responses) < 3 or not any('file list' in r for r in Responses):
             raise Exception('Error getting firmware files')
         if Debug: print('OK')
         return Responses
 
-    def _FilterFirmwareFiles(FirmwareList):
+    def _FilterFirmwareFiles(FirmwareList, UseLongFilenames):
         Firmwares = []
         for FWFile in FirmwareList:
-            if not '/' in FWFile and '.BIN' in FWFile:
-                idx = FWFile.index('.BIN')
-                Firmwares.append(FWFile[:idx+4])
+            # For long filenames take the 3rd column of the firmwares list
+            if UseLongFilenames:
+                Space = 0
+                Space = FWFile.find(' ')
+                if Space >= 0: Space = FWFile.find(' ', Space + 1)
+                if Space >= 0: FWFile = FWFile[Space + 1:]
+            if not '/' in FWFile and '.BIN' in FWFile.upper():
+                Firmwares.append(FWFile[:FWFile.upper().index('.BIN') + 4])
         return Firmwares
 
     def _RemoveFirmwareFile(FirmwareFile):
@@ -187,8 +192,8 @@ def Upload(source, target, env):
 
             # Generate a new 8.3 random filename
             # This board remember the last firmware filename and doesn't allow to flash from that filename
-            upload_firmware_target_name = f"fw-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))}.BIN"
-            print(f"Board {marlin_motherboard}: Overriding firmware filename to '{upload_firmware_target_name}'")
+            #upload_firmware_target_name = f"fw-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))}.BIN"
+            #print(f"Board {marlin_motherboard}: Overriding firmware filename to '{upload_firmware_target_name}'")
 
             # Init serial port
             port = serial.Serial(upload_port, baudrate = upload_speed, write_timeout = 0, timeout = 0.1)
@@ -198,13 +203,13 @@ def Upload(source, target, env):
             _CheckSDCard()
 
             # Get firmware files
-            FirmwareFiles = _GetFirmwareFiles()
+            FirmwareFiles = _GetFirmwareFiles(marlin_custom_firmware_upload)
             if Debug:
                 for FirmwareFile in FirmwareFiles:
                     print(f'Found: {FirmwareFile}')
 
             # Get all 1st level firmware files (to remove)
-            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2])   # Skip header and footers of list
+            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2], marlin_custom_firmware_upload)   # Skip header and footers of list
             if len(OldFirmwareFiles) == 0:
                 print('No old firmware files to delete')
             else:
