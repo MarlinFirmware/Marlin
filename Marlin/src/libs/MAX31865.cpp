@@ -50,10 +50,6 @@
   #define MAX31865_MIN_SAMPLING_TIME_MSEC 0
 #endif
 
-#ifdef TARGET_LPC1768
-  #include <SoftwareSPI.h>
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_MAX31865)
 #include "../core/debug_out.h"
 
@@ -462,22 +458,17 @@ float MAX31865::temperature(float rtd_res) {
   return temp;
 }
 
-//
-// private:
-//
-
 /**
  * MAX31865 SPI Timing constants
  * See MAX31865 datasheet (https://datasheets.maximintegrated.com/en/ds/MAX31865.pdf)
  * All timings in nsec, minimum values.
  */
 
-#define SPI_TIMING_TCC    400    // CS to SCLK setup
-#define SPI_TIMING_TDC     35    // Data to SCLK setup
-#define SPI_TIMING_TDCH    35    // SCK to Data hold
-#define SPI_TIMING_TCL    100    // SCK half period
-#define SPI_TIMING_TCCH   100    // SCK to CS hold
-#define SPI_TIMING_TCWH   400    // CS inactive time (min)
+#define MAX31865_SPI_TIMING_TCC    400    // CS to SCLK setup
+#define MAX31865_SPI_TIMING_TDC     35    // Data to SCLK setup
+#define MAX31865_SPI_TIMING_TCL    100    // SCK half period
+#define MAX31865_SPI_TIMING_TCCH   100    // SCK to CS hold
+#define MAX31865_SPI_TIMING_TCWH   400    // CS inactive time (min)
 
 /**
  * Read a single byte from the specified register address.
@@ -502,8 +493,6 @@ uint16_t MAX31865::readRegister16(uint8_t addr) {
   readRegisterN(addr, buffer, 2);
   return uint16_t(buffer[0]) << 8 | buffer[1];
 }
-
-
 
 /**
  * Read +n+ bytes from a specified address into +buffer+. Set D7 to 0 to specify a read.
@@ -556,13 +545,15 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
 
 void MAX31865::spiBeginTransaction() {
 
+  digitalWrite(sclkPin, LOW); // ensure CPOL0
+  DELAY_NS_VAR(MAX31865_SPI_TIMING_TCWH); // ensure minimum time of CS inactivity after previous operation
   digitalWrite(cselPin, LOW);
-  DELAY_NS_VAR(SPI_TIMING_TCC);
+  DELAY_NS_VAR(MAX31865_SPI_TIMING_TCC);
 
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.beginTransaction(spiConfig);
   else
-    digitalWrite(sclkPin, LOW);
+    digitalWrite(sclkPin, HIGH);
 }
 
 void MAX31865::spiEndTransaction() {
@@ -570,13 +561,11 @@ void MAX31865::spiEndTransaction() {
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.endTransaction();
   else
-    digitalWrite(sclkPin, HIGH);
+    digitalWrite(sclkPin, LOW);
 
-  DELAY_NS_VAR(SPI_TIMING_TCCH);
+  DELAY_NS_VAR(MAX31865_SPI_TIMING_TCCH);
 
   digitalWrite(cselPin, HIGH);
-
-  DELAY_NS_VAR(SPI_TIMING_TCWH); // ensure minimum time of CS inactivity after operation
 }
 
 /**
@@ -596,14 +585,14 @@ uint8_t MAX31865::spiTransfer(uint8_t x) {
   uint8_t reply = 0;
   for (int i = 7; i >= 0; i--) {
     digitalWrite(mosiPin, x & _BV(i));
-    DELAY_NS_VAR(SPI_TIMING_TDC);
-    digitalWrite(sclkPin, HIGH);
-    DELAY_NS_VAR(SPI_TIMING_TCL - SPI_TIMING_TDC);
+    DELAY_NS_VAR(MAX31865_SPI_TIMING_TDC);
+    digitalWrite(sclkPin, LOW);
+    DELAY_NS_VAR(MAX31865_SPI_TIMING_TCL - MAX31865_SPI_TIMING_TDC);
     reply <<= 1;
     if (digitalRead(misoPin)) reply |= 1;
-    DELAY_NS_VAR(SPI_TIMING_TDC);
-    digitalWrite(sclkPin, LOW);
-    DELAY_NS_VAR(SPI_TIMING_TCL - SPI_TIMING_TDC);
+    DELAY_NS_VAR(MAX31865_SPI_TIMING_TDC);
+    digitalWrite(sclkPin, HIGH);
+    DELAY_NS_VAR(MAX31865_SPI_TIMING_TCL - MAX31865_SPI_TIMING_TDC);
   }
   return reply;
 }
