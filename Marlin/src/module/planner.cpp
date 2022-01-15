@@ -107,6 +107,10 @@
   #include "../feature/spindle_laser.h"
 #endif
 
+#if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
+  #define HAS_TAIL_FAN_SPEED 1
+#endif
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -202,6 +206,7 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 // private:
 
 xyze_long_t Planner::position{0};
+TERN_(HAS_TAIL_FAN_SPEED, bool fans_need_update = true);   // Init fan speed on startup
 
 uint32_t Planner::acceleration_long_cutoff;
 
@@ -1244,10 +1249,6 @@ void Planner::recalculate() {
   recalculate_trapezoids();
 }
 
-#if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
-  #define HAS_TAIL_FAN_SPEED 1
-#endif
-
 /**
  * Apply fan speeds
  */
@@ -1309,8 +1310,7 @@ void Planner::check_axes_activity() {
   #endif
 
   #if HAS_TAIL_FAN_SPEED
-    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 255);
-    bool fans_need_update = false;
+    static uint8_t tail_fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)
@@ -1403,6 +1403,8 @@ void Planner::check_axes_activity() {
     TERN_(HAS_HEATER_1, set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
     TERN_(HAS_HEATER_2, set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
+
+  fans_need_update = false;  // Reset global for next pass
 }
 
 #if ENABLED(AUTOTEMP)
