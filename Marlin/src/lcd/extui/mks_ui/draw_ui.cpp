@@ -1331,7 +1331,6 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
   lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
 }
 
-
 #if ENABLED(SDSUPPORT)
 
   void sd_detection() {
@@ -1360,7 +1359,9 @@ void print_time_count() {
 }
 
 void LV_TASK_HANDLER() {
-  lv_task_handler();
+
+  if (TERN1(USE_SPI_DMA_TC, !get_lcd_dma_lock()))
+    lv_task_handler();
 
   #if BOTH(MKS_TEST, SDSUPPORT)
     if (mks_test_flag == 0x1E) mks_hardware_test();

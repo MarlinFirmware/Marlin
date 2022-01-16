@@ -366,9 +366,15 @@
 
 #endif // HAS_WIRED_LCD
 
+#if HAS_TFT_LVGL_UI
+  #define USE_SPI_DMA_TC
+#endif
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI, HAS_WIRED_LCD)
   #define BEEPER_PIN                 EXP1_10_PIN
-  #define BTN_EN1                    EXP2_08_PIN
-  #define BTN_EN2                    EXP2_06_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #if DISABLED(USE_SPI_DMA_TC)
+    #define BTN_EN1                  EXP2_08_PIN
+    #define BTN_EN2                  EXP2_06_PIN
+    #define BTN_ENC                  EXP1_09_PIN
+  #endif
 #endif
