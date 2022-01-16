@@ -107,10 +107,6 @@
   #include "../feature/spindle_laser.h"
 #endif
 
-#if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
-  #define HAS_TAIL_FAN_SPEED 1
-#endif
-
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -1308,9 +1304,10 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if HAS_TAIL_FAN_SPEED
-    static uint8_t tail_fan_speed[FAN_COUNT];
-    static bool fans_need_update = true;  // Init fan speed once on startup
+  #if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
+    #define HAS_TAIL_FAN_SPEED 1
+    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 128);
+    bool fans_need_update = false;
   #endif
 
   #if ENABLED(BARICUDA)
