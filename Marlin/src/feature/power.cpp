@@ -98,6 +98,8 @@ void Power::power_on() {
  */
 void Power::power_off() {
 
+  SERIAL_ECHOLN("Powering off...");
+
   TERN_(HAS_SUICIDE, suicide());
 
   if (!psu_on) return;
@@ -111,6 +113,7 @@ void Power::power_off() {
   #endif
 
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
+  SERIAL_ECHOLN("Power off pin triggered");
   psu_on = false;
 
   #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
@@ -133,6 +136,7 @@ void Power::power_off() {
       if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
     #endif
 
+    SERIAL_ECHOLN("Power off cooling wait complete.");
     return false;
   }
 
@@ -156,6 +160,7 @@ void Power::power_off() {
   }
 
   void Power::checkAutoPowerOff() {
+    SERIAL_ECHOLNPGM("Power off conditions: ", power_off_time, " ", power_off_on_cooldown);
     if (TERN1(POWER_OFF_TIMER, !power_off_time) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
     if (TERN0(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown && is_cooling_needed())) return;
     if (TERN0(POWER_OFF_TIMER, power_off_time && PENDING(millis(), power_off_time))) return;

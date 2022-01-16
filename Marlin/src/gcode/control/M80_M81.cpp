@@ -88,6 +88,8 @@ void GcodeSuite::M81() {
 
   LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
 
+  SERIAL_ECHOLN("M81 command issued.");
+
   bool delayed_power_off = false;
 
   #if ENABLED(POWER_OFF_TIMER)
@@ -107,9 +109,12 @@ void GcodeSuite::M81() {
     }
   #endif
 
-  if (delayed_power_off) return;
+  if (delayed_power_off) {
+    SERIAL_ECHOLN("Delaying power off...");
+    return;
+  }
 
-  #if HAS_SUICIDE
+#if HAS_SUICIDE
     suicide();
   #elif ENABLED(PSU_CONTROL)
     powerManager.power_off_soon();
