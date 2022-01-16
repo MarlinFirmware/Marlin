@@ -97,6 +97,9 @@ void Power::power_on() {
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
  */
 void Power::power_off() {
+
+  TERN_(HAS_SUICIDE, suicide());
+
   if (!psu_on) return;
 
   #ifdef PSU_POWEROFF_GCODE
