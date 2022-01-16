@@ -206,7 +206,6 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 // private:
 
 xyze_long_t Planner::position{0};
-TERN_(HAS_TAIL_FAN_SPEED, bool fans_need_update = true);   // Init fan speed on startup
 
 uint32_t Planner::acceleration_long_cutoff;
 
@@ -1311,6 +1310,7 @@ void Planner::check_axes_activity() {
 
   #if HAS_TAIL_FAN_SPEED
     static uint8_t tail_fan_speed[FAN_COUNT];
+    static bool fans_need_update = true;  // Init fan speed once on startup
   #endif
 
   #if ENABLED(BARICUDA)
@@ -1395,7 +1395,12 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) sync_fan_speeds(tail_fan_speed));
+  #if HAS_TAIL_FAN_SPEED
+    if (fans_need_update) {
+      sync_fan_speeds(tail_fan_speed);
+      fans_need_update = false;
+    }
+  #endif
 
   TERN_(AUTOTEMP, autotemp_task());
 
@@ -1403,8 +1408,6 @@ void Planner::check_axes_activity() {
     TERN_(HAS_HEATER_1, set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
     TERN_(HAS_HEATER_2, set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
-
-  TERN_(HAS_TAIL_FAN_SPEED, fans_need_update = false);  // Reset global for next pass
 }
 
 #if ENABLED(AUTOTEMP)
