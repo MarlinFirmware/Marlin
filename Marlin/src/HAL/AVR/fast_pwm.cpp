@@ -178,7 +178,7 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
-  // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
+  // Note that digitalWrite also disables PWM output for us (sets COM bit to 0)
   if (v == 0)
     digitalWrite(pin, invert);
   else if (v == v_size)
@@ -190,9 +190,9 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
         TCCR0A |= _BV(COM0B1); // Only allow a TIMER0B select and OCR0B duty update for pin D4 outputs no frequency changes are permited.
         OCR0B = v;
       }
-      else if (timer.isProtected == false) {
-        _SET_COMnQ(timer.TCCRnQ, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
+      else if (!timer.isProtected) {
         const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
+        _SET_COMnQ(timer.TCCRnQ, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
         _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
       }
     }
