@@ -1392,12 +1392,7 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  #if HAS_TAIL_FAN_SPEED
-    if (fans_need_update) {
-      sync_fan_speeds(tail_fan_speed);
-      fans_need_update = false;
-    }
-  #endif
+  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) sync_fan_speeds(tail_fan_speed));
 
   TERN_(AUTOTEMP, autotemp_task());
 
