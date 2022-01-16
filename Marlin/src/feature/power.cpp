@@ -160,7 +160,6 @@ void Power::power_off() {
   }
 
   void Power::checkAutoPowerOff() {
-    SERIAL_ECHOLNPGM("Power off conditions: ", power_off_time, " ", power_off_on_cooldown);
     if (TERN1(POWER_OFF_TIMER, !power_off_time) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
     if (TERN0(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown && is_cooling_needed())) return;
     if (TERN0(POWER_OFF_TIMER, power_off_time && PENDING(millis(), power_off_time))) return;
