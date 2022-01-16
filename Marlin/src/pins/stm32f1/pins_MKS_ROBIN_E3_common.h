@@ -145,7 +145,7 @@
  *  (LCD_EN) PA4 | 8  7 | PA5 (LCD_RS)      (BTN_EN1) PB11 | 8  7 | PA15 (SD_SS)    (BTN_EN1) PB11 | 8  7 | RESET
  *  (LCD_D4) PA6   6  5 | PA7 (LCD_D5)      (BTN_EN2)  PB0   6  5 | PB15 (SD_MOSI)  (BTN_EN2) PB0    6  5 | PA6  (LCD_D4)
  *  (LCD_D6) PC4 | 4  3 | PC5 (LCD_D7)    (SD_DETECT) PC10 | 4  3 | RESET            (LCD_RS) PA5  | 4  3 | PA4  (LCD_EN)
- *           GND | 2  1 | 5V                           GND | 2  1 | NC                        GND  | 2  1 | 5V
+ *           GND | 2  1 | 5V                           GND | 2  1 | --                         GND | 2  1 | 5V
  *                ------                                    ------                                  ------
  *                 EXP1                                      EXP2                                "Ender-3 EXP1"
  */

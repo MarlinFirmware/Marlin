@@ -51,7 +51,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   timer_set_mode(timer, channel, TIMER_PWM); // PWM Output Mode
 }
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (!PWM_PIN(pin)) return;                    // Don't proceed if no hardware timer
 
   timer_dev *timer; UNUSED(timer);

@@ -1584,7 +1584,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(EEPROM_INIT_NOW)
         uint32_t stored_hash;
         EEPROM_READ_ALWAYS(stored_hash);
-        if (stored_hash != build_hash) { EEPROM_FINISH(); return true; }
+        if (stored_hash != build_hash) { EEPROM_FINISH(); return false; }
       #endif
 
       uint16_t stored_crc;
@@ -2712,13 +2712,13 @@ void MarlinSettings::reset() {
     #if HAS_Z_AXIS && !defined(DEFAULT_ZJERK)
       #define DEFAULT_ZJERK 0
     #endif
-    #if LINEAR_AXES >= 4 && !defined(DEFAULT_IJERK)
+    #if HAS_I_AXIS && !defined(DEFAULT_IJERK)
       #define DEFAULT_IJERK 0
     #endif
-    #if LINEAR_AXES >= 5 && !defined(DEFAULT_JJERK)
+    #if HAS_J_AXIS && !defined(DEFAULT_JJERK)
       #define DEFAULT_JJERK 0
     #endif
-    #if LINEAR_AXES >= 6 && !defined(DEFAULT_KJERK)
+    #if HAS_K_AXIS && !defined(DEFAULT_KJERK)
       #define DEFAULT_KJERK 0
     #endif
     planner.max_jerk.set(

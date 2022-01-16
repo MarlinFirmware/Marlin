@@ -365,14 +365,14 @@
 #endif
 
 /**
- *               ------                                          ------
- *           NC | 1  2 | GND                                 5V | 1  2 | GND
- *        RESET | 3  4 | PB10 (SD_DETECT)         (LCD_D7)  PG5 | 3  4 | PG6  (LCD_D6)
- *  (MOSI) PB15 | 5  6 | PH10 (BTN_EN2)           (LCD_D5)  PG7 | 5  6 | PG8  (LCD_D4)
- * (SD_SS) PB12 | 7  8 | PD10 (BTN_EN1)           (LCD_RS)  PA8 | 7  8 | PC10 (LCD_EN)
- *   (SCK) PB13 | 9 10 | PB14 (MISO)             (BTN_ENC) PA15 | 9 10 | PC11 (BEEPER)
- *               ------                                          ------
- *                EXP2                                            EXP1
+ *                ------                                     ------
+ * (BEEPER) PC11 |10  9 | PA15 (BTN_ENC)        (MISO) PB14 |10  9 | PB13 (SCK)
+ * (LCD_EN) PC10 | 8  7 | PA8  (LCD_RS)      (BTN_EN1) PD10 | 8  7 | PB12 (SD_SS)
+ * (LCD_D4) PG8    6  5 | PG7  (LCD_D5)      (BTN_EN2) PH10   6  5 | PB15 (MOSI)
+ * (LCD_D6) PG6  | 4  3 | PG5  (LCD_D7)    (SD_DETECT) PB10 | 4  3 | RESET
+ *           GND | 2  1 | 5V                            GND | 2  1 | --
+ *                ------                                     ------
+ *                 EXP1                                       EXP2
  */
 #define EXP1_03_PIN                         PG5
 #define EXP1_04_PIN                         PG6

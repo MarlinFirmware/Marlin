@@ -1502,6 +1502,10 @@ void setup() {
     SETUP_RUN(bltouch.init(/*set_voltage=*/true));
   #endif
 
+  #if ENABLED(MAGLEV4)
+    OUT_WRITE(MAGLEV_TRIGGER_PIN, LOW);
+  #endif
+
   #if ENABLED(I2C_POSITION_ENCODERS)
     SETUP_RUN(I2CPEM.init());
   #endif
@@ -1647,6 +1651,10 @@ void loop() {
     #endif
 
     queue.advance();
+
+    #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
+      powerManager.checkAutoPowerOff();
+    #endif
 
     endstops.event_handler();
 

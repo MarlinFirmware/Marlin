@@ -578,6 +578,8 @@ void machine_setting_disp() {
     machine_menu.OutLength           = FILAMENT_OUT_LENGTH_EN;
     machine_menu.OutSpeed            = FILAMENT_OUT_SPEED_EN;
 
+    machine_menu.LevelingZoffsetTitle = LEVELING_ZOFFSET_TITLE_EN;
+
     machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_EN;
     machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_EN;
     machine_menu.TrammingPosConf         = TRAMMING_POS_EN;
@@ -767,11 +769,12 @@ void disp_language_init() {
   move_menu.z_add = AXIS_Z_ADD_TEXT;
   move_menu.z_dec = AXIS_Z_DEC_TEXT;
 
-  move_menu.step_001mm = TEXT_001MM;
-  move_menu.step_005mm = TEXT_005MM;
-  move_menu.step_01mm  = TEXT_01MM;
-  move_menu.step_1mm   = TEXT_1MM;
-  move_menu.step_10mm  = TEXT_10MM;
+  move_menu.step_001mm  = TEXT_001MM;
+  move_menu.step_0025mm = TEXT_0025MM;
+  move_menu.step_005mm  = TEXT_005MM;
+  move_menu.step_01mm   = TEXT_01MM;
+  move_menu.step_1mm    = TEXT_1MM;
+  move_menu.step_10mm   = TEXT_10MM;
 
   home_menu.home_x   = HOME_X_TEXT;
   home_menu.home_y   = HOME_Y_TEXT;
@@ -1346,6 +1349,7 @@ void disp_language_init() {
           case LANG_ENGLISH:
             common_menu.dialog_confirm_title  = TITLE_DIALOG_CONFIRM_EN;
             common_menu.text_back             = BACK_TEXT_EN;
+            common_menu.text_save             = SAVE_TEXT_EN;
             common_menu.close_machine_tips    = DIALOG_CLOSE_MACHINE_EN;
             common_menu.unbind_printer_tips   = DIALOG_UNBIND_PRINTER_EN;
             common_menu.print_special_title   = PRINTING_OTHER_LANGUGE;

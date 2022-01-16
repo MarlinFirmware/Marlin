@@ -47,16 +47,26 @@ enum EndstopEnum : char {
   _ES_ITEM(HAS_K_MAX, K_MAX)
 
   // Extra Endstops for XYZ
-  _ES_ITEM(HAS_X2_MIN, X2_MIN)
-  _ES_ITEM(HAS_X2_MAX, X2_MAX)
-  _ES_ITEM(HAS_Y2_MIN, Y2_MIN)
-  _ES_ITEM(HAS_Y2_MAX, Y2_MAX)
-  _ES_ITEM(HAS_Z2_MIN, Z2_MIN)
-  _ES_ITEM(HAS_Z2_MAX, Z2_MAX)
-  _ES_ITEM(HAS_Z3_MIN, Z3_MIN)
-  _ES_ITEM(HAS_Z3_MAX, Z3_MAX)
-  _ES_ITEM(HAS_Z4_MIN, Z4_MIN)
-  _ES_ITEM(HAS_Z4_MAX, Z4_MAX)
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    _ES_ITEM(HAS_X_MIN, X2_MIN)
+    _ES_ITEM(HAS_X_MAX, X2_MAX)
+  #endif
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    _ES_ITEM(HAS_Y_MIN, Y2_MIN)
+    _ES_ITEM(HAS_Y_MAX, Y2_MAX)
+  #endif
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    _ES_ITEM(HAS_Z_MIN, Z2_MIN)
+    _ES_ITEM(HAS_Z_MAX, Z2_MAX)
+    #if NUM_Z_STEPPER_DRIVERS >= 3
+      _ES_ITEM(HAS_Z_MIN, Z3_MIN)
+      _ES_ITEM(HAS_Z_MAX, Z3_MAX)
+    #endif
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      _ES_ITEM(HAS_Z_MIN, Z4_MIN)
+      _ES_ITEM(HAS_Z_MAX, Z4_MAX)
+    #endif
+  #endif
 
   // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
   #if !HAS_DELTA_SENSORLESS_PROBING
@@ -136,7 +146,7 @@ class Endstops {
       return enabled || TERN0(HAS_BED_PROBE, z_probe_enabled);
     }
 
-    static inline bool global_enabled() { return enabled_globally; }
+    static bool global_enabled() { return enabled_globally; }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -168,7 +178,7 @@ class Endstops {
       ;
     }
 
-    static inline bool probe_switch_activated() {
+    static bool probe_switch_activated() {
       return (true
         #if ENABLED(PROBE_ACTIVATION_SWITCH)
           && READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE

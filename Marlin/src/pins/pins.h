@@ -37,24 +37,28 @@
 
 #define MAX_E_STEPPERS 8
 
-#if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
-  #define FET_ORDER_EFB 1
-#elif MB(RAMPS_13_EEB, RAMPS_14_EEB, RAMPS_PLUS_EEB, RAMPS_14_RE_ARM_EEB, RAMPS_SMART_EEB, RAMPS_DUO_EEB, RAMPS4DUE_EEB)
-  #define FET_ORDER_EEB 1
-#elif MB(RAMPS_13_EFF, RAMPS_14_EFF, RAMPS_PLUS_EFF, RAMPS_14_RE_ARM_EFF, RAMPS_SMART_EFF, RAMPS_DUO_EFF, RAMPS4DUE_EFF)
-  #define FET_ORDER_EFF 1
-#elif MB(RAMPS_13_EEF, RAMPS_14_EEF, RAMPS_PLUS_EEF, RAMPS_14_RE_ARM_EEF, RAMPS_SMART_EEF, RAMPS_DUO_EEF, RAMPS4DUE_EEF)
-  #define FET_ORDER_EEF 1
-#elif MB(RAMPS_13_SF,  RAMPS_14_SF,  RAMPS_PLUS_SF,  RAMPS_14_RE_ARM_SF,  RAMPS_SMART_SF,  RAMPS_DUO_SF,  RAMPS4DUE_SF) || EITHER(SPINDLE_FEATURE, LASER_FEATURE)
-  #define FET_ORDER_SF 1
-#elif HAS_MULTI_HOTEND && TEMP_SENSOR_BED
-  #define FET_ORDER_EEB 1
-#elif HAS_MULTI_HOTEND
-  #define FET_ORDER_EEF 1
-#elif TEMP_SENSOR_BED
-  #define FET_ORDER_EFB 1
-#else
-  #define FET_ORDER_EFF 1
+#if NONE(FET_ORDER_EEF, FET_ORDER_EEB, FET_ORDER_EFF, FET_ORDER_EFB, FET_ORDER_SF)
+  #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
+    #define FET_ORDER_EFB 1
+  #elif MB(RAMPS_13_EEB, RAMPS_14_EEB, RAMPS_PLUS_EEB, RAMPS_14_RE_ARM_EEB, RAMPS_SMART_EEB, RAMPS_DUO_EEB, RAMPS4DUE_EEB)
+    #define FET_ORDER_EEB 1
+  #elif MB(RAMPS_13_EFF, RAMPS_14_EFF, RAMPS_PLUS_EFF, RAMPS_14_RE_ARM_EFF, RAMPS_SMART_EFF, RAMPS_DUO_EFF, RAMPS4DUE_EFF)
+    #define FET_ORDER_EFF 1
+  #elif MB(RAMPS_13_EEF, RAMPS_14_EEF, RAMPS_PLUS_EEF, RAMPS_14_RE_ARM_EEF, RAMPS_SMART_EEF, RAMPS_DUO_EEF, RAMPS4DUE_EEF)
+    #define FET_ORDER_EEF 1
+  #elif MB(RAMPS_13_SF,  RAMPS_14_SF,  RAMPS_PLUS_SF,  RAMPS_14_RE_ARM_SF,  RAMPS_SMART_SF,  RAMPS_DUO_SF,  RAMPS4DUE_SF)
+    #define FET_ORDER_SF 1
+  #elif HAS_MULTI_HOTEND || (HAS_EXTRUDERS && HAS_CUTTER)
+    #if TEMP_SENSOR_BED
+      #define FET_ORDER_EEB 1
+    #else
+      #define FET_ORDER_EEF 1
+    #endif
+  #elif TEMP_SENSOR_BED
+    #define FET_ORDER_EFB 1
+  #else
+    #define FET_ORDER_EFF 1
+  #endif
 #endif
 
 #if !(BOTH(IS_ULTRA_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, WYH_L12864, MINIPANEL, REPRAPWORLD_KEYPAD))
@@ -554,21 +558,21 @@
 #elif MB(CHITU3D_V9)
   #include "stm32f1/pins_CHITU3D_V9.h"          // STM32F1                                env:chitu_f103 env:chitu_f103_maple
 #elif MB(CREALITY_V4)
-  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V4210)
-  #include "stm32f1/pins_CREALITY_V4210.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V4210.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V423)
-  #include "stm32f1/pins_CREALITY_V423.h"       // STM32F1                                env:STM32F103RET6_creality
+  #include "stm32f1/pins_CREALITY_V423.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer
 #elif MB(CREALITY_V427)
-  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V431, CREALITY_V431_A, CREALITY_V431_B, CREALITY_V431_C, CREALITY_V431_D)
-  #include "stm32f1/pins_CREALITY_V431.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V431.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V452)
-  #include "stm32f1/pins_CREALITY_V452.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V452.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V453)
-  #include "stm32f1/pins_CREALITY_V453.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V453.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(CREALITY_V24S1)
-  #include "stm32f1/pins_CREALITY_V24S1.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_maple
+  #include "stm32f1/pins_CREALITY_V24S1.h"      // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_xfer env:STM32F103RET6_creality_maple
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro env:trigorilla_pro_maple
 #elif MB(FLY_MINI)

@@ -98,7 +98,7 @@ public:
 
   // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
-  static inline bool IsInitialized() {
+  static bool IsInitialized() {
     return initialized;
   }
 

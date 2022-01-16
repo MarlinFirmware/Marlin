@@ -121,7 +121,7 @@
   #define CONTROLLER_FAN_PIN            FAN2_PIN
 #endif
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Misc. Functions

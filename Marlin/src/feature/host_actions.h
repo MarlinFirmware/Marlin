@@ -97,7 +97,7 @@ class HostUI {
     static void handle_response(const uint8_t response);
 
     static void notify_P(PGM_P const message);
-    static inline void notify(FSTR_P const fmsg) { notify_P(FTOP(fmsg)); }
+    static void notify(FSTR_P const fmsg) { notify_P(FTOP(fmsg)); }
     static void notify(const char * const message);
 
     static void prompt_begin(const PromptReason reason, FSTR_P const fstr, const char extra_char='\0');
@@ -105,7 +105,7 @@ class HostUI {
     static void prompt_end();
     static void prompt_do(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
     static void prompt_do(const PromptReason reason, FSTR_P const pstr, const char extra_char, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr);
-    static inline void prompt_open(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr) {
+    static void prompt_open(const PromptReason reason, FSTR_P const pstr, FSTR_P const btn1=nullptr, FSTR_P const btn2=nullptr) {
       if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
     }
 
