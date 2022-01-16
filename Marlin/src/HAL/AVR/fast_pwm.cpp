@@ -61,7 +61,6 @@ Timer get_pwm_timer(const pin_t pin) {
   switch (digitalPinToTimer(pin)) {
     #ifdef TCCR0A
       IF_DISABLED(AVR_AT90USB1286_FAMILY, case TIMER0A:)
-      case TIMER0B:
     #endif
     #ifdef TCCR1A
       case TIMER1A: case TIMER1B:
@@ -69,11 +68,16 @@ Timer get_pwm_timer(const pin_t pin) {
 
     break;    // Protect reserved timers (TIMER0 & TIMER1)
 
+    #ifdef TCCR0A
+      case TIMER0B:   // Protected timer, but allow setting the duty cycle on OCR0B for pin D4 only
+        return Timer({ { &TCCR0A, nullptr, nullptr }, { (uint16_t*)&OCR0B, nullptr, nullptr }, nullptr, 0, 0, true, true });
+    #endif
+
     #if HAS_TCCR2
       case TIMER2:
         return Timer({ { &TCCR2, nullptr, nullptr }, { (uint16_t*)&OCR2, nullptr, nullptr }, nullptr, 2, 0, true, false });
     #elif ENABLED(USE_OCR2A_AS_TOP)
-      case TIMER2A: break; // protect TIMER2A since its OCR is used by TIMER2B
+      case TIMER2A: break; // Protect TIMER2A since its OCR is used by TIMER2B
       case TIMER2B:
         return Timer({ { &TCCR2A, &TCCR2B, nullptr }, { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr }, nullptr, 2, 1, true, false });
     #elif defined(TCCR2A)
@@ -174,18 +178,23 @@ void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
 
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   // If v is 0 or v_size (max), digitalWrite to LOW or HIGH.
-  // Note that digitalWrite also disables pwm output for us (sets COM bit to 0)
+  // Note that digitalWrite also disables PWM output for us (sets COM bit to 0)
   if (v == 0)
     digitalWrite(pin, invert);
   else if (v == v_size)
     digitalWrite(pin, !invert);
   else {
     Timer timer = get_pwm_timer(pin);
-    if (timer.isProtected) return;                            // Leave protected timer unchanged
     if (timer.isPWM) {
-      _SET_COMnQ(timer.TCCRnQ, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
-      const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
-      _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
+      if (timer.n == 0) {
+        TCCR0A |= _BV(COM0B1); // Only allow a TIMER0B select and OCR0B duty update for pin D4 outputs no frequency changes are permited.
+        OCR0B = v;
+      }
+      else if (!timer.isProtected) {
+        const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
+        _SET_COMnQ(timer.TCCRnQ, SUM_TERN(HAS_TCCR2, timer.q, timer.q == 2), COM_CLEAR_SET + invert);   // COM20 is on bit 4 of TCCR2, so +1 for q==2
+        _SET_OCRnQ(timer.OCRnQ, timer.q, uint16_t(uint32_t(v) * top / v_size)); // Scale 8/16-bit v to top value
+      }
     }
     else
       digitalWrite(pin, v < 128 ? LOW : HIGH);
