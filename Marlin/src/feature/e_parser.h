@@ -33,6 +33,8 @@
 
 // External references
 extern bool wait_for_user, wait_for_heatup;
+extern int16_t feedrate_percentage;
+
 
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
   // From motion.h, which cannot be included here
@@ -47,7 +49,7 @@ class EmergencyParser {
 
 public:
 
-  // Currently looking for: M108, M112, M410, M876 S[0-9], S000, P000, R000
+  // Currently looking for: M108, M112, M220, M410, M876 S[0-9], S000, P000, R000
   enum State : uint8_t {
     EP_RESET,
     EP_N,
@@ -55,6 +57,8 @@ public:
     EP_M1,
     EP_M10, EP_M108,
     EP_M11, EP_M112,
+    EP_M2,
+    EP_M22, EP_M220, EP_M220S, EP_M220SN, EP_M220SNN, EP_M220SNNN,
     EP_M4, EP_M41, EP_M410,
     #if ENABLED(HOST_PROMPT_SUPPORT)
       EP_M8, EP_M87, EP_M876, EP_M876S, EP_M876SN,
@@ -73,6 +77,7 @@ public:
 
   static bool killed_by_M112;
   static bool quickstop_by_M410;
+  static int16_t M220_rate;
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     static uint8_t M876_reason;
@@ -80,7 +85,7 @@ public:
 
   EmergencyParser() { enable(); }
 
-  FORCE_INLINE static void enable()  { enabled = true; }
+  FORCE_INLINE static void enable() { enabled = true; }
   FORCE_INLINE static void disable() { enabled = false; }
 
   FORCE_INLINE static void update(State &state, const uint8_t c) {
@@ -142,6 +147,7 @@ public:
         switch (c) {
           case ' ': break;
           case '1': state = EP_M1;     break;
+          case '2': state = EP_M2;     break;
           case '4': state = EP_M4;     break;
           #if ENABLED(HOST_PROMPT_SUPPORT)
             case '8': state = EP_M8;     break;
@@ -158,11 +164,19 @@ public:
         }
         break;
 
+// Feed rate
+      case EP_M2: state = (c == '2') ? EP_M22 : EP_IGNORE; break;
+      case EP_M22: state = (c == '0') ? EP_M220 : EP_IGNORE; break;
+
+        // Resume
       case EP_M10: state = (c == '8') ? EP_M108 : EP_IGNORE; break;
+        //  Estop
       case EP_M11: state = (c == '2') ? EP_M112 : EP_IGNORE; break;
-      case EP_M4:  state = (c == '1') ? EP_M41  : EP_IGNORE; break;
+        // Quickstop
+      case EP_M4:  state = (c == '1') ? EP_M41 : EP_IGNORE; break;
       case EP_M41: state = (c == '0') ? EP_M410 : EP_IGNORE; break;
 
+        // Process M876 (host response)
       #if ENABLED(HOST_PROMPT_SUPPORT)
 
         case EP_M8:  state = (c == '7') ? EP_M87  : EP_IGNORE; break;
@@ -186,7 +200,53 @@ public:
           }
           break;
 
-      #endif
+#endif //HOST_PROMPT_SUPPORT
+
+      // Process M220 (feed rate)
+        case EP_M220:
+          switch (c) {
+            case ' ': break;
+            case 'S': state = EP_M220S; break;
+            default: state = EP_IGNORE; break;
+          }
+          break;
+
+        case EP_M220S:
+          switch (c) {
+            case '0' ... '9':
+              state = EP_M220SN;
+              M220_rate = int16_t(c - '0');
+              break;
+          }
+          break;
+
+        case EP_M220SN:
+          switch (c) {
+            case '0' ... '9':
+              state = EP_M220SNN;
+              M220_rate = int16_t(c - '0');
+              break;
+          }
+          break;
+
+        case EP_M220SNN:
+          switch (c) {
+            case '0' ... '9':
+              state = EP_M220SNNN;
+              M220_rate = int16_t((M220_rate * 10) + (c - '0'));
+              break;
+          }
+          break;
+
+        case EP_M220SNNN:
+          switch (c) {
+            case '0' ... '9':
+              state = EP_M220SNNN;
+              feedrate_percentage = int16_t((M220_rate * 10) + (c - '0'));
+              break;
+          }
+          break;
+          // end process feedrate
 
       case EP_IGNORE:
         if (ISEOL(c)) state = EP_RESET;
@@ -198,6 +258,9 @@ public:
             case EP_M108: wait_for_user = wait_for_heatup = false; break;
             case EP_M112: killed_by_M112 = true; break;
             case EP_M410: quickstop_by_M410 = true; break;
+            case EP_M220SN: case EP_M220SNN: case EP_M220SNNN:
+              feedrate_percentage = M220_rate;
+              break;
             #if ENABLED(HOST_PROMPT_SUPPORT)
               case EP_M876SN: hostui.handle_response(M876_reason); break;
             #endif
