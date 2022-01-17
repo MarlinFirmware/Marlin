@@ -1445,7 +1445,7 @@ void Draw_Main_Area() {
       case PrintStatsProcess:    Draw_PrintStats(); break;
     #endif
     case PauseOrStop:            Popup_window_PauseOrStop(); break;
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
       case FilamentPurge:        Draw_Popup_FilamentPurge(); break;
     #endif
     case Locked:                 lockScreen.draw(); break;
@@ -1670,7 +1670,7 @@ void DWIN_HandleScreen() {
     case PauseOrStop:     HMI_PauseOrStop(); break;
     case Info:            HMI_Popup(); break;
     case WaitResponse:    HMI_Popup(); break;
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
       case FilamentPurge: HMI_FilamentPurge(); break;
     #endif
     case NothingToDo:     break;
@@ -2327,7 +2327,7 @@ void SetPID(celsius_t t, heater_id_t h) {
   #endif
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
   void SetFilLoad()   { SetPFloatOnClick(0, MAX_LOAD_UNLOAD, UNITFDIGITS); }
   void SetFilUnload() { SetPFloatOnClick(0, MAX_LOAD_UNLOAD, UNITFDIGITS); }
 #endif
@@ -3194,7 +3194,7 @@ void Draw_Prepare_Menu() {
     SetMenuTitle({133, 1, 28, 13}, GET_TEXT_F(MSG_PREPARE));
     DWINUI::MenuItemsPrepare(13);
     MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Goto_Main_Menu);
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
       MENU_ITEM(ICON_FilMan, GET_TEXT_F(MSG_FILAMENT_MAN), onDrawSubMenu, Draw_FilamentMan_Menu);
     #endif
     MENU_ITEM(ICON_Axis, GET_TEXT_F(MSG_MOVE_AXIS), onDrawMoveSubMenu, Goto_Move_Menu);
@@ -3397,7 +3397,7 @@ void Draw_Move_Menu() {
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         EDIT_ITEM(ICON_ExtrudeMinT, F("Extrude Min Temp."), onDrawPIntMenu, SetExtMinT, &HMI_data.ExtMinT);
       #endif
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
         EDIT_ITEM(ICON_FilLoad, GET_TEXT_F(MSG_FILAMENT_LOAD), onDrawPFloatMenu, SetFilLoad, &fc_settings[0].load_length);
         EDIT_ITEM(ICON_FilUnload, GET_TEXT_F(MSG_FILAMENT_UNLOAD), onDrawPFloatMenu, SetFilUnload, &fc_settings[0].unload_length);
       #endif
@@ -3488,7 +3488,7 @@ void Draw_Tune_Menu() {
       EDIT_ITEM(ICON_FWRecSpeed, GET_TEXT_F(MSG_SINGLENOZZLE_UNRETRACT_SPEED), onDrawPFloatMenu, SetRecoverSpeed, &fwretract.settings.retract_recover_feedrate_mm_s);
     #endif
     EDIT_ITEM(ICON_Flow, GET_TEXT_F(MSG_FLOW), onDrawPIntMenu, SetFlow, &planner.flow_percentage[0]);
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
       MENU_ITEM(ICON_FilMan, GET_TEXT_F(MSG_FILAMENTCHANGE), onDrawMenuItem, ChangeFilament);
     #endif
     MENU_ITEM(ICON_Lock, GET_TEXT_F(MSG_LOCKSCREEN), onDrawMenuItem, DWIN_LockScreen);
@@ -3518,7 +3518,7 @@ void Draw_Motion_Menu() {
   CurrentMenu->draw();
 }
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
   void Draw_FilamentMan_Menu() {
     checkkey = Menu;
     if (!FilamentMenu) FilamentMenu = new MenuClass();

@@ -134,7 +134,7 @@ void menu_backlash();
       }
     #endif
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
 
       EDIT_ITEM_FAST(float4, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);

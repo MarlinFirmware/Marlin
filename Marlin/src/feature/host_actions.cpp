@@ -150,7 +150,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
     _prompt_show(btn1, btn2);
   }
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
     void HostUI::filament_load_prompt() {
       const bool disable_to_continue = TERN0(HAS_FILAMENT_SENSOR, runout.filament_ran_out);
       prompt_do(PROMPT_FILAMENT_RUNOUT, F("Paused"), F("PurgeMore"),

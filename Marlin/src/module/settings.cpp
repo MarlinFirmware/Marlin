@@ -3121,11 +3121,11 @@ void MarlinSettings::reset() {
   //
   // Advanced Pause filament load & unload lengths
   //
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    LOOP_L_N(e, EXTRUDERS) {
-      fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
-      fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
-    }
+#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+      LOOP_L_N(e, EXTRUDERS) {
+        fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
+        fc_settings[e].load_length   = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
+      }
   #endif
 
   #if ENABLED(PASSWORD_FEATURE)
@@ -3397,10 +3397,17 @@ void MarlinSettings::reset() {
       gcode.M907_report(forReplay);
     #endif
 
-    //
-    // Advanced Pause filament load & unload lengths
-    //
-    TERN_(ADVANCED_PAUSE_FEATURE, gcode.M603_report(forReplay));
+    #if HAS_EXTRUDERS
+      //
+      // Advanced Pause filament load & unload lengths
+      //
+      TERN_(ADVANCED_PAUSE_FEATURE, gcode.M603_report(forReplay));
+
+      //
+      // Filament Runout Sensor
+      //
+      TERN_(HAS_FILAMENT_SENSOR, gcode.M412_report(forReplay));
+    #endif
 
     //
     // Tool-changing Parameters
@@ -3411,11 +3418,6 @@ void MarlinSettings::reset() {
     // Backlash Compensation
     //
     TERN_(BACKLASH_GCODE, gcode.M425_report(forReplay));
-
-    //
-    // Filament Runout Sensor
-    //
-    TERN_(HAS_FILAMENT_SENSOR, gcode.M412_report(forReplay));
 
     #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet");

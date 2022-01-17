@@ -445,7 +445,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
   #endif
 }
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
 
   void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
     #if ENABLED(TOUCH_SCREEN)

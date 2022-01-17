@@ -355,7 +355,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   u8g_uint_t row_y1, row_y2;
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       u8g_uint_t y1 = row * (MENU_FONT_HEIGHT) + 1, y2 = y1 + MENU_FONT_HEIGHT - 1;

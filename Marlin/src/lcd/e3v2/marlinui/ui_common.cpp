@@ -262,7 +262,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #include "../../menu/menu.h"
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
 

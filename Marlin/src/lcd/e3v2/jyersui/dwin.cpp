@@ -1107,7 +1107,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
         #endif
 
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
           case PREPARE_CHANGEFIL:
             if (draw) {
               Draw_Menu_Item(row, ICON_ResumeEEPROM, F("Change Filament")
@@ -2891,7 +2891,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
         #endif
 
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
           case ADVANCED_LOAD:
             if (draw) {
               Draw_Menu_Item(row, ICON_WriteEEPROM, F("Load Length"));
@@ -4554,7 +4554,7 @@ void CrealityDWINClass::Popup_Control() {
           break;
       #endif
 
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
         case ConfFilChange:
           if (selection == 0) {
             if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
@@ -4778,7 +4778,7 @@ void CrealityDWINClass::State_Update() {
   }
   if (wait_for_user && !(process == Confirm) && !print_job_timer.isPaused())
     Confirm_Handler(UserInput);
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
     if (process == Popup && popup == PurgeMore) {
       if (pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE)
         Popup_Handler(FilChange);

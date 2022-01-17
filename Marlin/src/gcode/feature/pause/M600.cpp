@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
+#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
 
 #include "../../gcode.h"
 #include "../../../feature/pause.h"

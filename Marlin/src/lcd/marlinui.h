@@ -447,7 +447,7 @@ public:
         static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
       #endif
 
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
@@ -607,7 +607,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
+  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS) && ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}

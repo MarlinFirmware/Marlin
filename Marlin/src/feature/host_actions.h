@@ -109,7 +109,7 @@ class HostUI {
       if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
     }
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
       static void filament_load_prompt();
     #endif
 

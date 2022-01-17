@@ -95,8 +95,8 @@ void wait_for_confirmation(
 
 void resume_print(
   const_float_t   slow_load_length=0,                         // (mm) Slow Load Length for finishing move
-  const_float_t   fast_load_length=0,                         // (mm) Fast Load Length for initial move
-  const_float_t   extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, // (mm) Purge length
+  const_float_t   fast_load_length = 0,                       // (mm) Fast Load Length for initial move
+  const_float_t   extrude_length = 0,                         // (mm) Purge length
   const int8_t    max_beep_count=0,                           // Beep alert for attention
   const celsius_t targetTemp=0                                // (°C) A target temperature for the hotend
   DXC_PARAMS                                                  // Dual-X-Carriage extruder index
