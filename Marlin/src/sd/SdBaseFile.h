@@ -30,8 +30,6 @@
  * This file is part of the Arduino Sd2Card Library
  */
 
-#include "../inc/MarlinConfig.h"
-
 #include "SdFatConfig.h"
 #include "SdVolume.h"
 
