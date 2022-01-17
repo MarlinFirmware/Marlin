@@ -1526,11 +1526,12 @@
   // LCD's font must contain the characters. Check your selected LCD language.
   //#define UTF_FILENAME_SUPPORT
 
-  // This allows Marlin to create/delete files with long filenames with M28, M30 and Binary Transfer Protocol
-  //#define LONG_FILENAME_WRITE_SUPPORT
-
   // This allows hosts to request long names for files and folders with M33 and M20
   //#define LONG_FILENAME_HOST_SUPPORT
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    // This allows Marlin to create/delete files with long filenames with M28, M30 and Binary Transfer Protocol
+    //#define LONG_FILENAME_WRITE_SUPPORT
+  #endif 
 
   // Enable this option to scroll long filenames in the SD card menu
   //#define SCROLL_LONG_FILENAMES
