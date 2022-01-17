@@ -64,7 +64,8 @@ If you want to edit the individual icons stored in an ICO file (or add more imag
 
 In this example we're extracting the constituent JPEG files from `9.ICO` and storing them in a folder named `icons`. As each file is extracted the script reports its index number, byte offset, size, dimensions, and filename:
 
-    $ python3 splitIco.py 9.ICO icons
+    $ cd buildroot/share/dwin
+    $ ./bin/splitIco.py 9.ICO icons-9
       Splitting 9.ICO into dir icons
       Splitting Entry Data...
       00: offset: 0x001000 len: 0x10a2 width: 130 height: 17
@@ -83,12 +84,9 @@ Once the individual JPEG files have been saved they can be edited using common g
 
 After editing images you'll create a new `9.ICO` archive with `makeIco.py` like so:
 
-    $ python3 makeIco.py icons test.ICO
-      Making .ico file 'test.ICO' from contents of 'icons'
-      Scanning icon directory icons
-      ...Scanned 91 icon files
-      Scanning done. 91 icons included.
-
-    $ ls -l *.ICO
-      -rw-r--r--  1 bpub  staff  217989 Apr 15 17:35 9.ICO
-      -rw-r--r--  1 bpub  staff  217989 Apr 15 18:15 test.ICO
+    $ cd buildroot/share/dwin
+    $ ./bin/makeIco.py icons-3 3.ICO
+      Making .ico file '3.ICO' from contents of 'icons-3'
+      Scanning icon directory icons-3
+      ...Scanned 16 icon files
+      Scanning done. 16 icons included.
