@@ -606,9 +606,6 @@
    * - Resume the current SD print job, if any
    */
   void resume_print(const_float_t slow_load_length /*=0*/, const_float_t fast_load_length /*=0*/, const_float_t purge_length /*=0*/, const int8_t max_beep_count /*=0*/, const celsius_t targetTemp /*=0*/ DXC_ARGS) {
-    #ifdef ADVANCED_PAUSE_PURGE_LENGTH
-      purge_length = ADVANCED_PAUSE_PURGE_LENGTH;
-    #endif
     DEBUG_SECTION(rp, "resume_print", true);
     DEBUG_ECHOLNPGM("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " targetTemp:", targetTemp DXC_SAY);
 
