@@ -120,123 +120,49 @@ uint16_t HAL_adc_result;
 STM32ADC adc(ADC1);
 
 const uint8_t adc_pins[] = {
-  #if HAS_TEMP_ADC_0
-    TEMP_0_PIN,
-  #endif
-  #if HAS_TEMP_ADC_PROBE
-    TEMP_PROBE_PIN,
-  #endif
-  #if HAS_HEATED_BED
-    TEMP_BED_PIN,
-  #endif
-  #if HAS_TEMP_CHAMBER
-    TEMP_CHAMBER_PIN,
-  #endif
-  #if HAS_TEMP_COOLER
-    TEMP_COOLER_PIN,
-  #endif
-  #if HAS_TEMP_ADC_1
-    TEMP_1_PIN,
-  #endif
-  #if HAS_TEMP_ADC_2
-    TEMP_2_PIN,
-  #endif
-  #if HAS_TEMP_ADC_3
-    TEMP_3_PIN,
-  #endif
-  #if HAS_TEMP_ADC_4
-    TEMP_4_PIN,
-  #endif
-  #if HAS_TEMP_ADC_5
-    TEMP_5_PIN,
-  #endif
-  #if HAS_TEMP_ADC_6
-    TEMP_6_PIN,
-  #endif
-  #if HAS_TEMP_ADC_7
-    TEMP_7_PIN,
-  #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    FILWIDTH_PIN,
-  #endif
-  #if HAS_ADC_BUTTONS
-    ADC_KEYPAD_PIN,
-  #endif
-  #if HAS_JOY_ADC_X
-    JOY_X_PIN,
-  #endif
-  #if HAS_JOY_ADC_Y
-    JOY_Y_PIN,
-  #endif
-  #if HAS_JOY_ADC_Z
-    JOY_Z_PIN,
-  #endif
-  #if ENABLED(POWER_MONITOR_CURRENT)
-    POWER_MONITOR_CURRENT_PIN,
-  #endif
-  #if ENABLED(POWER_MONITOR_VOLTAGE)
-    POWER_MONITOR_VOLTAGE_PIN,
-  #endif
+  OPTITEM(HAS_TEMP_ADC_0, TEMP_0_PIN)
+  OPTITEM(HAS_TEMP_ADC_1, TEMP_1_PIN)
+  OPTITEM(HAS_TEMP_ADC_2, TEMP_2_PIN)
+  OPTITEM(HAS_TEMP_ADC_3, TEMP_3_PIN)
+  OPTITEM(HAS_TEMP_ADC_4, TEMP_4_PIN)
+  OPTITEM(HAS_TEMP_ADC_5, TEMP_5_PIN)
+  OPTITEM(HAS_TEMP_ADC_6, TEMP_6_PIN)
+  OPTITEM(HAS_TEMP_ADC_7, TEMP_7_PIN)
+  OPTITEM(HAS_HEATED_BED, TEMP_BED_PIN)
+  OPTITEM(HAS_TEMP_CHAMBER, TEMP_CHAMBER_PIN)
+  OPTITEM(HAS_TEMP_ADC_PROBE, TEMP_PROBE_PIN)
+  OPTITEM(HAS_TEMP_COOLER, TEMP_COOLER_PIN)
+  OPTITEM(HAS_TEMP_BOARD, TEMP_BOARD_PIN)
+  OPTITEM(FILAMENT_WIDTH_SENSOR, FILWIDTH_PIN)
+  OPTITEM(HAS_ADC_BUTTONS, ADC_KEYPAD_PIN)
+  OPTITEM(HAS_JOY_ADC_X, JOY_X_PIN)
+  OPTITEM(HAS_JOY_ADC_Y, JOY_Y_PIN)
+  OPTITEM(HAS_JOY_ADC_Z, JOY_Z_PIN)
+  OPTITEM(POWER_MONITOR_CURRENT, POWER_MONITOR_CURRENT_PIN)
+  OPTITEM(POWER_MONITOR_VOLTAGE, POWER_MONITOR_VOLTAGE_PIN)
 };
 
 enum TempPinIndex : char {
-  #if HAS_TEMP_ADC_0
-    TEMP_0,
-  #endif
-  #if HAS_TEMP_ADC_PROBE
-    TEMP_PROBE,
-  #endif
-  #if HAS_HEATED_BED
-    TEMP_BED,
-  #endif
-  #if HAS_TEMP_CHAMBER
-    TEMP_CHAMBER,
-  #endif
-  #if HAS_TEMP_COOLER
-    TEMP_COOLER_PIN,
-  #endif
-  #if HAS_TEMP_ADC_1
-    TEMP_1,
-  #endif
-  #if HAS_TEMP_ADC_2
-    TEMP_2,
-  #endif
-  #if HAS_TEMP_ADC_3
-    TEMP_3,
-  #endif
-  #if HAS_TEMP_ADC_4
-    TEMP_4,
-  #endif
-  #if HAS_TEMP_ADC_5
-    TEMP_5,
-  #endif
-  #if HAS_TEMP_ADC_6
-    TEMP_6,
-  #endif
-  #if HAS_TEMP_ADC_7
-    TEMP_7,
-  #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    FILWIDTH,
-  #endif
-  #if HAS_ADC_BUTTONS
-    ADC_KEY,
-  #endif
-  #if HAS_JOY_ADC_X
-    JOY_X,
-  #endif
-  #if HAS_JOY_ADC_Y
-    JOY_Y,
-  #endif
-  #if HAS_JOY_ADC_Z
-    JOY_Z,
-  #endif
-  #if ENABLED(POWER_MONITOR_CURRENT)
-    POWERMON_CURRENT,
-  #endif
-  #if ENABLED(POWER_MONITOR_VOLTAGE)
-    POWERMON_VOLTS,
-  #endif
+  OPTITEM(HAS_TEMP_ADC_0, TEMP_0)
+  OPTITEM(HAS_TEMP_ADC_1, TEMP_1)
+  OPTITEM(HAS_TEMP_ADC_2, TEMP_2)
+  OPTITEM(HAS_TEMP_ADC_3, TEMP_3)
+  OPTITEM(HAS_TEMP_ADC_4, TEMP_4)
+  OPTITEM(HAS_TEMP_ADC_5, TEMP_5)
+  OPTITEM(HAS_TEMP_ADC_6, TEMP_6)
+  OPTITEM(HAS_TEMP_ADC_7, TEMP_7)
+  OPTITEM(HAS_HEATED_BED, TEMP_BED)
+  OPTITEM(HAS_TEMP_CHAMBER, TEMP_CHAMBER)
+  OPTITEM(HAS_TEMP_ADC_PROBE, TEMP_PROBE)
+  OPTITEM(HAS_TEMP_COOLER, TEMP_COOLER)
+  OPTITEM(HAS_TEMP_BOARD, TEMP_BOARD)
+  OPTITEM(FILAMENT_WIDTH_SENSOR, FILWIDTH)
+  OPTITEM(HAS_ADC_BUTTONS, ADC_KEY)
+  OPTITEM(HAS_JOY_ADC_X, JOY_X)
+  OPTITEM(HAS_JOY_ADC_Y, JOY_Y)
+  OPTITEM(HAS_JOY_ADC_Z, JOY_Z)
+  OPTITEM(POWER_MONITOR_CURRENT, POWERMON_CURRENT)
+  OPTITEM(POWER_MONITOR_VOLTAGE, POWERMON_VOLTS)
   ADC_PIN_COUNT
 };
 
@@ -375,67 +301,32 @@ void HAL_adc_init() {
 }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
+  #define __TCASE(N,I) case N: pin_index = I; break;
+  #define _TCASE(C,N,I) TERN_(C, __TCASE(N, I))
   //TEMP_PINS pin_index;
   TempPinIndex pin_index;
   switch (adc_pin) {
     default: return;
-    #if HAS_TEMP_ADC_0
-      case TEMP_0_PIN: pin_index = TEMP_0; break;
-    #endif
-    #if HAS_TEMP_ADC_PROBE
-      case TEMP_PROBE_PIN: pin_index = TEMP_PROBE; break;
-    #endif
-    #if HAS_HEATED_BED
-      case TEMP_BED_PIN: pin_index = TEMP_BED; break;
-    #endif
-    #if HAS_TEMP_CHAMBER
-      case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
-    #endif
-    #if HAS_TEMP_COOLER
-      case TEMP_COOLER_PIN: pin_index = TEMP_COOLER; break;
-    #endif
-    #if HAS_TEMP_ADC_1
-      case TEMP_1_PIN: pin_index = TEMP_1; break;
-    #endif
-    #if HAS_TEMP_ADC_2
-      case TEMP_2_PIN: pin_index = TEMP_2; break;
-    #endif
-    #if HAS_TEMP_ADC_3
-      case TEMP_3_PIN: pin_index = TEMP_3; break;
-    #endif
-    #if HAS_TEMP_ADC_4
-      case TEMP_4_PIN: pin_index = TEMP_4; break;
-    #endif
-    #if HAS_TEMP_ADC_5
-      case TEMP_5_PIN: pin_index = TEMP_5; break;
-    #endif
-    #if HAS_TEMP_ADC_6
-      case TEMP_6_PIN: pin_index = TEMP_6; break;
-    #endif
-    #if HAS_TEMP_ADC_7
-      case TEMP_7_PIN: pin_index = TEMP_7; break;
-    #endif
-    #if HAS_JOY_ADC_X
-      case JOY_X_PIN: pin_index = JOY_X; break;
-    #endif
-    #if HAS_JOY_ADC_Y
-      case JOY_Y_PIN: pin_index = JOY_Y; break;
-    #endif
-    #if HAS_JOY_ADC_Z
-      case JOY_Z_PIN: pin_index = JOY_Z; break;
-    #endif
-    #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      case FILWIDTH_PIN: pin_index = FILWIDTH; break;
-    #endif
-    #if HAS_ADC_BUTTONS
-      case ADC_KEYPAD_PIN: pin_index = ADC_KEY; break;
-    #endif
-    #if ENABLED(POWER_MONITOR_CURRENT)
-      case POWER_MONITOR_CURRENT_PIN: pin_index = POWERMON_CURRENT; break;
-    #endif
-    #if ENABLED(POWER_MONITOR_VOLTAGE)
-      case POWER_MONITOR_VOLTAGE_PIN: pin_index = POWERMON_VOLTS; break;
-    #endif
+    _TCASE(HAS_TEMP_ADC_0,        TEMP_0_PIN,                TEMP_0)
+    _TCASE(HAS_TEMP_ADC_1,        TEMP_1_PIN,                TEMP_1)
+    _TCASE(HAS_TEMP_ADC_2,        TEMP_2_PIN,                TEMP_2)
+    _TCASE(HAS_TEMP_ADC_3,        TEMP_3_PIN,                TEMP_3)
+    _TCASE(HAS_TEMP_ADC_4,        TEMP_4_PIN,                TEMP_4)
+    _TCASE(HAS_TEMP_ADC_5,        TEMP_5_PIN,                TEMP_5)
+    _TCASE(HAS_TEMP_ADC_6,        TEMP_6_PIN,                TEMP_6)
+    _TCASE(HAS_TEMP_ADC_7,        TEMP_7_PIN,                TEMP_7)
+    _TCASE(HAS_HEATED_BED,        TEMP_BED_PIN,              TEMP_BED)
+    _TCASE(HAS_TEMP_CHAMBER,      TEMP_CHAMBER_PIN,          TEMP_CHAMBER)
+    _TCASE(HAS_TEMP_ADC_PROBE,    TEMP_PROBE_PIN,            TEMP_PROBE)
+    _TCASE(HAS_TEMP_COOLER,       TEMP_COOLER_PIN,           TEMP_COOLER)
+    _TCASE(HAS_TEMP_BOARD,        TEMP_BOARD_PIN,            TEMP_BOARD)
+    _TCASE(HAS_JOY_ADC_X,         JOY_X_PIN,                 JOY_X)
+    _TCASE(HAS_JOY_ADC_Y,         JOY_Y_PIN,                 JOY_Y)
+    _TCASE(HAS_JOY_ADC_Z,         JOY_Z_PIN,                 JOY_Z)
+    _TCASE(FILAMENT_WIDTH_SENSOR, FILWIDTH_PIN,              FILWIDTH)
+    _TCASE(HAS_ADC_BUTTONS,       ADC_KEYPAD_PIN,            ADC_KEY)
+    _TCASE(POWER_MONITOR_CURRENT, POWER_MONITOR_CURRENT_PIN, POWERMON_CURRENT)
+    _TCASE(POWER_MONITOR_VOLTAGE, POWER_MONITOR_VOLTAGE_PIN, POWERMON_VOLTS)
   }
   HAL_adc_result = HAL_adc_results[(int)pin_index] >> (12 - HAL_ADC_RESOLUTION); // shift out unused bits
 }

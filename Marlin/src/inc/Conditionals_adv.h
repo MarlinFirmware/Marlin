@@ -118,9 +118,9 @@
 
 // Temperature sensor IDs
 #define HID_REDUNDANT -6
-#define HID_COOLER    -5
-#define HID_PROBE     -4
-#define HID_BOARD     -3
+#define HID_BOARD     -5
+#define HID_COOLER    -4
+#define HID_PROBE     -3
 #define HID_CHAMBER   -2
 #define HID_BED       -1
 #define HID_E0         0
