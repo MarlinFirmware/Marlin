@@ -1113,8 +1113,8 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
       // Check minimal length
       if (iFree < 3) {
         // Append 4 extra characters
-        name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(1,9) + 'A';
-        name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(1,9) + 'A';
+        name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(0,24) + 'A';
+        name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(0,24) + 'A';
       }
       // Append '~cnt' characters
       if (iFree > 5) iFree = 5; // Force the append in the last 3 characters of name part
