@@ -1529,7 +1529,7 @@
   // This allows Marlin to create/delete files with long filenames with M28, M30 and Binary Transfer Protocol
   //#define LONG_FILENAME_WRITE_SUPPORT
 
-  // This allows hosts to request long names for files and folders with M33
+  // This allows hosts to request long names for files and folders with M33 and M20
   //#define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
