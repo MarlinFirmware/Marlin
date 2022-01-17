@@ -54,20 +54,22 @@
 #define GET_TEMP_5_ADC()          TERN(HAS_TEMP_ADC_5,        PIN_TO_ADC(TEMP_5_PIN),       -1)
 #define GET_TEMP_6_ADC()          TERN(HAS_TEMP_ADC_6,        PIN_TO_ADC(TEMP_6_PIN),       -1)
 #define GET_TEMP_7_ADC()          TERN(HAS_TEMP_ADC_7,        PIN_TO_ADC(TEMP_7_PIN),       -1)
-#define GET_PROBE_ADC()           TERN(HAS_TEMP_PROBE,        PIN_TO_ADC(TEMP_PROBE_PIN),   -1)
 #define GET_BED_ADC()             TERN(HAS_TEMP_ADC_BED,      PIN_TO_ADC(TEMP_BED_PIN),     -1)
 #define GET_CHAMBER_ADC()         TERN(HAS_TEMP_ADC_CHAMBER,  PIN_TO_ADC(TEMP_CHAMBER_PIN), -1)
+#define GET_PROBE_ADC()           TERN(HAS_TEMP_ADC_PROBE,    PIN_TO_ADC(TEMP_PROBE_PIN),   -1)
 #define GET_COOLER_ADC()          TERN(HAS_TEMP_ADC_COOLER,   PIN_TO_ADC(TEMP_COOLER_PIN),  -1)
+#define GET_BOARD_ADC()           TERN(HAS_TEMP_ADC_BOARD,    PIN_TO_ADC(TEMP_BOARD_PIN),   -1)
 #define GET_FILAMENT_WIDTH_ADC()  TERN(FILAMENT_WIDTH_SENSOR, PIN_TO_ADC(FILWIDTH_PIN),     -1)
 #define GET_BUTTONS_ADC()         TERN(HAS_ADC_BUTTONS,       PIN_TO_ADC(ADC_KEYPAD_PIN),   -1)
 
 #define IS_ADC_REQUIRED(n) ( \
      GET_TEMP_0_ADC() == n || GET_TEMP_1_ADC() == n || GET_TEMP_2_ADC() == n || GET_TEMP_3_ADC() == n \
   || GET_TEMP_4_ADC() == n || GET_TEMP_5_ADC() == n || GET_TEMP_6_ADC() == n || GET_TEMP_7_ADC() == n \
-  || GET_PROBE_ADC() == n          \
   || GET_BED_ADC() == n            \
   || GET_CHAMBER_ADC() == n        \
+  || GET_PROBE_ADC() == n          \
   || GET_COOLER_ADC() == n         \
+  || GET_BOARD_ADC() == n          \
   || GET_FILAMENT_WIDTH_ADC() == n \
   || GET_BUTTONS_ADC() == n        \
 )
@@ -137,17 +139,20 @@ uint16_t HAL_adc_result;
     #if GET_TEMP_7_ADC() == 0
       TEMP_7_PIN,
     #endif
-    #if GET_PROBE_ADC() == 0
-      TEMP_PROBE_PIN,
-    #endif
     #if GET_BED_ADC() == 0
       TEMP_BED_PIN,
     #endif
     #if GET_CHAMBER_ADC() == 0
       TEMP_CHAMBER_PIN,
     #endif
+    #if GET_PROBE_ADC() == 0
+      TEMP_PROBE_PIN,
+    #endif
     #if GET_COOLER_ADC() == 0
       TEMP_COOLER_PIN,
+    #endif
+    #if GET_BOARD_ADC() == 0
+      TEMP_BOARD_PIN,
     #endif
     #if GET_FILAMENT_WIDTH_ADC() == 0
       FILWIDTH_PIN,
@@ -180,17 +185,20 @@ uint16_t HAL_adc_result;
     #if GET_TEMP_7_ADC() == 1
       TEMP_7_PIN,
     #endif
-    #if GET_PROBE_ADC() == 1
-      TEMP_PROBE_PIN,
-    #endif
     #if GET_BED_ADC() == 1
       TEMP_BED_PIN,
     #endif
     #if GET_CHAMBER_ADC() == 1
       TEMP_CHAMBER_PIN,
     #endif
+    #if GET_PROBE_ADC() == 1
+      TEMP_PROBE_PIN,
+    #endif
     #if GET_COOLER_ADC() == 1
       TEMP_COOLER_PIN,
+    #endif
+    #if GET_BOARD_ADC() == 1
+      TEMP_BOARD_PIN,
     #endif
     #if GET_FILAMENT_WIDTH_ADC() == 1
       FILWIDTH_PIN,
@@ -231,17 +239,20 @@ uint16_t HAL_adc_result;
       #if GET_TEMP_7_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_7_PIN) },
       #endif
-      #if GET_PROBE_ADC() == 0
-        { PIN_TO_INPUTCTRL(TEMP_PROBE_PIN) },
-      #endif
       #if GET_BED_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_BED_PIN) },
       #endif
       #if GET_CHAMBER_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_CHAMBER_PIN) },
       #endif
+      #if GET_PROBE_ADC() == 0
+        { PIN_TO_INPUTCTRL(TEMP_PROBE_PIN) },
+      #endif
       #if GET_COOLER_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_COOLER_PIN) },
+      #endif
+      #if GET_BOARD_ADC() == 0
+        { PIN_TO_INPUTCTRL(TEMP_BOARD_PIN) },
       #endif
       #if GET_FILAMENT_WIDTH_ADC() == 0
         { PIN_TO_INPUTCTRL(FILWIDTH_PIN) },
@@ -283,17 +294,20 @@ uint16_t HAL_adc_result;
       #if GET_TEMP_7_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_7_PIN) },
       #endif
-      #if GET_PROBE_ADC() == 1
-        { PIN_TO_INPUTCTRL(TEMP_PROBE_PIN) },
-      #endif
       #if GET_BED_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_BED_PIN) },
       #endif
       #if GET_CHAMBER_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_CHAMBER_PIN) },
       #endif
+      #if GET_PROBE_ADC() == 1
+        { PIN_TO_INPUTCTRL(TEMP_PROBE_PIN) },
+      #endif
       #if GET_COOLER_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_COOLER_PIN) },
+      #endif
+      #if GET_BOARD_ADC() == 1
+        { PIN_TO_INPUTCTRL(TEMP_BOARD_PIN) },
       #endif
       #if GET_FILAMENT_WIDTH_ADC() == 1
         { PIN_TO_INPUTCTRL(FILWIDTH_PIN) },
