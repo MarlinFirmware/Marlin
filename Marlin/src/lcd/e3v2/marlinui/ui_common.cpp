@@ -81,9 +81,6 @@ bool MarlinUI::detected() { return true; }
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
   DWIN_Startup();
-
-  // Load the assets JPG (currently just the status screen 'icon')
-  DWIN_JPG_CacheTo1(DWIN_MarlinUI_Assets);
 }
 
 // This LCD should clear where it will draw anew
