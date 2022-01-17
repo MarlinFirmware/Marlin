@@ -1526,6 +1526,9 @@
   // LCD's font must contain the characters. Check your selected LCD language.
   //#define UTF_FILENAME_SUPPORT
 
+  // This allows Marlin to create files with long filenames
+  //#define LONG_FILENAME_WRITE_SUPPORT
+
   // This allows hosts to request long names for files and folders with M33
   //#define LONG_FILENAME_HOST_SUPPORT
 

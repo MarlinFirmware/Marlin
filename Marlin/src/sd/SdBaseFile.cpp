@@ -441,10 +441,13 @@ bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, bool pFlag) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   uint8_t dname[11];
-  uint8_t dlname[LONG_FILENAME_LENGTH];
   SdBaseFile dir1, dir2;
   SdBaseFile *sub = &dir1;
   SdBaseFile *start = parent;
+
+  #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
+    uint8_t dlname[LONG_FILENAME_LENGTH];
+  #endif
 
   if (!parent || isOpen()) return false;
 
@@ -455,29 +458,31 @@ bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, bool pFlag) {
       parent = &dir2;
     }
   }
-  while (1) {
-    //if (!make83Name(path, dname, &path)) return false;
-    if (!parsePath(path, dname, dlname, &path)) return false;
+
+  for (;;) {
+    if (!TERN(LONG_FILENAME_WRITE_SUPPORT, parsePath(path, dname, dlname, &path), make83Name(path, dname, &path))) return false;
     while (*path == '/') path++;
     if (!*path) break;
-    if (!sub->open(parent, dname, dlname, O_READ)) {
-      if (!pFlag || !sub->mkdir(parent, dname, dlname))
+    if (!sub->open(parent, dname OPTARG(LONG_FILENAME_WRITE_SUPPORT, dlname), O_READ)) {
+      if (!pFlag || !sub->mkdir(parent, dname OPTARG(LONG_FILENAME_WRITE_SUPPORT, dlname)))
         return false;
     }
     if (parent != start) parent->close();
     parent = sub;
     sub = parent != &dir1 ? &dir1 : &dir2;
   }
-  return mkdir(parent, dname, dlname);
+  return mkdir(parent, dname OPTARG(LONG_FILENAME_WRITE_SUPPORT, dlname));
 }
 
-bool SdBaseFile::mkdir(SdBaseFile *parent, const uint8_t dname[11], const uint8_t dlname[LONG_FILENAME_LENGTH]) {
+bool SdBaseFile::mkdir(SdBaseFile *parent, const uint8_t dname[11]
+  OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
+) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   if (!parent->isDir()) return false;
 
   // create a normal file
-  if (!open(parent, dname, dlname, O_CREAT | O_EXCL | O_RDWR)) return false;
+  if (!open(parent, dname OPTARG(LONG_FILENAME_WRITE_SUPPORT, dlname), O_CREAT | O_EXCL | O_RDWR)) return false;
 
   // convert file to directory
   flags_ = O_READ;
@@ -592,9 +597,12 @@ bool SdBaseFile::open(const char *path, uint8_t oflag) {
  */
 bool SdBaseFile::open(SdBaseFile *dirFile, const char *path, uint8_t oflag) {
   uint8_t dname[11];
-  uint8_t dlname[LONG_FILENAME_LENGTH];
   SdBaseFile dir1, dir2;
   SdBaseFile *parent = dirFile, *sub = &dir1;
+
+  #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
+    uint8_t dlname[LONG_FILENAME_LENGTH];
+  #endif
 
   if (!dirFile || isOpen()) return false;
 
@@ -607,33 +615,40 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const char *path, uint8_t oflag) {
   }
 
   for (;;) {
-    if (!parsePath(path, dname, dlname, &path)) return false;
+    if (!TERN(LONG_FILENAME_WRITE_SUPPORT, parsePath(path, dname, dlname, &path), make83Name(path, dname, &path))) return false;
     while (*path == '/') path++;
     if (!*path) break;
-    if (!sub->open(parent, dname, dlname, O_READ)) return false;
+    if (TERN0(LONG_FILENAME_WRITE_SUPPORT, !sub->open(parent, dname, dlname, O_READ))) return false;
     if (parent != dirFile) parent->close();
     parent = sub;
     sub = parent != &dir1 ? &dir1 : &dir2;
   }
-  return open(parent, dname, dlname, oflag);
+  return open(parent, dname OPTARG(LONG_FILENAME_WRITE_SUPPORT, dlname), oflag);
 }
 
 // open with filename in dname and long filename in dlname
-bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_t dlname[LONG_FILENAME_LENGTH], uint8_t oflag) {
+bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11]
+    OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
+  , uint8_t oflag
+) {
   bool emptyFound = false, fileFound = false;
   uint8_t index = 0;
   dir_t *p;
-  // LFN - Long File Name support
-  bool useLFN = dlname[0] != 0, lfnFileFound = false;
-  vfat_t *pvFat;
-  uint8_t emptyCount = 0;
-  uint8_t emptyIndex = 0;
-  uint8_t reqEntriesNum = useLFN ? getLFNEntriesNum((char *) dlname) + 1 : 1;
-  uint8_t lfnNameLength = useLFN ? strlen((char *) dlname) : 0;
-  uint8_t lfnName[LONG_FILENAME_LENGTH];
-  uint8_t lfnSequenceNumber = 0;
-  uint8_t lfnChecksum = 0;
-  
+
+  #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
+    // LFN - Long File Name support
+    const bool useLFN = dlname[0] != 0;
+    bool lfnFileFound = false;
+    vfat_t *pvFat;
+    uint8_t emptyCount = 0,
+            emptyIndex = 0,
+            reqEntriesNum = useLFN ? getLFNEntriesNum((char*)dlname) + 1 : 1,
+            lfnNameLength = useLFN ? strlen((char*)dlname) : 0,
+            lfnName[LONG_FILENAME_LENGTH],
+            lfnSequenceNumber = 0,
+            lfnChecksum = 0;
+  #endif
+
   // Rewind this dir
   vol_ = dirFile->vol_;
   dirFile->rewind();
@@ -641,146 +656,203 @@ bool SdBaseFile::open(SdBaseFile *dirFile, const uint8_t dname[11], const uint8_
   // search for file
   while (dirFile->curPosition_ < dirFile->fileSize_) {
     // Get absolute index position
-    index = dirFile->curPosition_ >> 5;
-    // Get next entry
-    p = dirFile->readDirCache();
-    if (!p) return false;
+    index = (dirFile->curPosition_ >> 5) IF_DISABLED(LONG_FILENAME_WRITE_SUPPORT, & 0x0F);
 
-    // Check empty status
-    // Is entry empty?
+    // Get next entry
+    if (!(p = dirFile->readDirCache())) return false;
+
+    // Check empty status: Is entry empty?
     if (p->name[0] == DIR_NAME_FREE || p->name[0] == DIR_NAME_DELETED) {
       // Count the contiguous available entries in which (eventually) fit the new dir entry, if it's a write operation
       if (!emptyFound) {
-        if (emptyCount == 0) emptyIndex = index;
-        // Incr empty entries counter
-        emptyCount++;
-        // If found the required empty entries, mark it
-        if (emptyCount == reqEntriesNum) {
+        #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
+          if (emptyCount == 0) emptyIndex = index;
+          // Incr empty entries counter
+          // If found the required empty entries, mark it
+          if (++emptyCount == reqEntriesNum) {
+            dirBlock_ = dirFile->vol_->cacheBlockNumber();
+            dirIndex_ = index & 0xF;
+            emptyFound = true;
+          }
+        #else
           dirBlock_ = dirFile->vol_->cacheBlockNumber();
-          dirIndex_ = index & 0xF;
+          dirIndex_ = index;
           emptyFound = true;
-        }
+        #endif
       }
       // Done if no entries follow
       if (p->name[0] == DIR_NAME_FREE) break;
     }
     else {  // Entry not empty
-      // Reset empty counter
-      if (!emptyFound) emptyCount = 0;
-      // Search for SFN or LFN?
-      if (!useLFN) {
-        // Check using SFN: file found?
+      #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
+        // Reset empty counter
+        if (!emptyFound) emptyCount = 0;
+        // Search for SFN or LFN?
+        if (!useLFN) {
+          // Check using SFN: file found?
+          if (!memcmp(dname, p->name, 11)) {
+            fileFound = true;
+            break;
+          }
+        }
+        else {
+          // Check using LFN: LFN not found? continue search for LFN
+          if (!lfnFileFound) {
+            // Is this dir a LFN?
+            if (isDirLFN(p)) {
+              // Get VFat dir entry
+              pvFat = (vfat_t *) p;
+              // Get checksum from the last entry of the sequence
+              if (pvFat->sequenceNumber & 0x40) lfnChecksum = pvFat->checksum;
+              // Get LFN sequence number
+              lfnSequenceNumber = pvFat->sequenceNumber & 0x1F;
+              if WITHIN(lfnSequenceNumber, 1, reqEntriesNum) {
+                // Check checksum for all other entries with the starting checksum fetched before
+                if (lfnChecksum == pvFat->checksum) {
+                  // Set chunk of LFN from VFAT entry into lfnName
+                  getLFNName(pvFat, (char *)lfnName, lfnSequenceNumber);
+                  // LFN found?
+                  if (!strncasecmp((char*)dlname, (char*)lfnName, lfnNameLength)) lfnFileFound = true;
+                }
+              }
+            }
+          }
+          else {    // Complete LFN found, check for related SFN
+            // Check if only the SFN checksum match because the filename may be different due to different truncation methods
+            if (!isDirLFN(p) && (lfnChecksum == lfn_checksum(p->name))) {
+              fileFound = true;
+              break;
+            }
+            else lfnFileFound = false;    // SFN not valid for the LFN found, reset LFN FileFound
+          }
+        }
+      #else
+
         if (!memcmp(dname, p->name, 11)) {
           fileFound = true;
           break;
         }
-      }
-      else {
-        // Check using LFN: LFN not found? continue search for LFN
-        if (!lfnFileFound) {
-          // Is this dir a LFN?
-          if (isDirLFN(p)) {
-            // Get VFat dir entry
-            pvFat = (vfat_t *) p;
-            // Get checksum from the last entry of the sequence
-            if (pvFat->sequenceNumber & 0x40) lfnChecksum = pvFat->checksum;
-            // Get LFN sequence number
-            lfnSequenceNumber = pvFat->sequenceNumber & 0x1F;
-            if WITHIN(lfnSequenceNumber, 1, reqEntriesNum) {
-              // Check checksum for all other entries with the starting checksum fetched before
-              if (lfnChecksum == pvFat->checksum) {
-                // Set chunk of LFN from VFAT entry into lfnName
-                getLFNName(pvFat, (char *)lfnName, lfnSequenceNumber);
-                // LFN found?
-                if (!strncasecmp((char *) dlname, (char *) lfnName, lfnNameLength)) lfnFileFound = true;
-              }
-            }
-          }
-        }
-        else {    // Complete LFN found, check for related SFN
-          // Check if only the SFN checksum match because the filename may be different due to different truncation methods
-          if (!isDirLFN(p) && (lfnChecksum == lfn_checksum(p->name))) {
-            fileFound = true;
-            break;
-          } 
-          else lfnFileFound = false;    // SFN not valid for the LFN found, reset LFN FileFound
-        }
-      }
+
+      #endif // LONG_FILENAME_WRITE_SUPPORT
     }
   }
+
   if (fileFound) {
     // don't open existing file if O_EXCL
     if (oflag & O_EXCL) return false;
-    index &= 0xF;
+    TERN_(LONG_FILENAME_WRITE_SUPPORT, index &= 0xF);
   }
   else {
     // don't create unless O_CREAT and O_WRITE
     if ((oflag & (O_CREAT | O_WRITE)) != (O_CREAT | O_WRITE)) return false;
 
-    // Use bookmark index if found empty entries
-    if (emptyFound) index = emptyIndex;
+    #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
 
-    // Make room for needed entries
-    while (emptyCount < reqEntriesNum)
-    {
+      // Use bookmark index if found empty entries
+      if (emptyFound) index = emptyIndex;
+
+      // Make room for needed entries
+      while (emptyCount < reqEntriesNum) {
         p = dirFile->readDirCache();
         if (!p) break;
         emptyCount++;
-    }
-    while (emptyCount < reqEntriesNum)
-    {
+      }
+      while (emptyCount < reqEntriesNum) {
         if (dirFile->type_ == FAT_FILE_TYPE_ROOT_FIXED) return false;
         // add and zero cluster for dirFile - first cluster is in cache for write
         if (!dirFile->addDirCluster()) return false;
         emptyCount += dirFile->vol_->blocksPerCluster() * 16;
-    }
-
-    // Move to 1st entry to write
-    if (!dirFile->seekSet(32 * index)) return false;
-
-    // Dir entries write loop: [LFN] + SFN(1)
-    LOOP_L_N(dirWriteIdx, reqEntriesNum) {
-      index = (dirFile->curPosition_ / 32) & 0xF;
-      p = dirFile->readDirCache();
-      // LFN or SFN Entry?
-      if (dirWriteIdx < reqEntriesNum - 1) {
-        // Write LFN Entries
-        pvFat = (vfat_t *) p;
-        // initialize as empty file
-        memset(pvFat, 0, sizeof(*pvFat));
-        lfnSequenceNumber = (reqEntriesNum - dirWriteIdx - 1) & 0x1F;
-        pvFat->attributes = DIR_ATT_LONG_NAME;
-        pvFat->checksum = lfn_checksum(dname);
-        // Set sequence number and mark as last LFN entry if it's the 1st loop
-        pvFat->sequenceNumber = lfnSequenceNumber | (dirWriteIdx == 0 ? 0x40 : 0);
-        // Set LFN name block
-        setLFNName(pvFat, (char *) dlname, lfnSequenceNumber);
       }
-      else {
-        // Write SFN Entry
-        // initialize as empty file
-        memset(p, 0, sizeof(*p));
-        memcpy(p->name, dname, 11);
 
-        // set timestamps
-        if (dateTime_) {
-          // call user date/time function
-          dateTime_(&p->creationDate, &p->creationTime);
+      // Move to 1st entry to write
+      if (!dirFile->seekSet(32 * index)) return false;
+
+      // Dir entries write loop: [LFN] + SFN(1)
+      LOOP_L_N(dirWriteIdx, reqEntriesNum) {
+        index = (dirFile->curPosition_ / 32) & 0xF;
+        p = dirFile->readDirCache();
+        // LFN or SFN Entry?
+        if (dirWriteIdx < reqEntriesNum - 1) {
+          // Write LFN Entries
+          pvFat = (vfat_t *) p;
+          // initialize as empty file
+          memset(pvFat, 0, sizeof(*pvFat));
+          lfnSequenceNumber = (reqEntriesNum - dirWriteIdx - 1) & 0x1F;
+          pvFat->attributes = DIR_ATT_LONG_NAME;
+          pvFat->checksum = lfn_checksum(dname);
+          // Set sequence number and mark as last LFN entry if it's the 1st loop
+          pvFat->sequenceNumber = lfnSequenceNumber | (dirWriteIdx == 0 ? 0x40 : 0);
+          // Set LFN name block
+          setLFNName(pvFat, (char*)dlname, lfnSequenceNumber);
         }
         else {
-          // use default date/time
-          p->creationDate = FAT_DEFAULT_DATE;
-          p->creationTime = FAT_DEFAULT_TIME;
+          // Write SFN Entry
+          // initialize as empty file
+          memset(p, 0, sizeof(*p));
+          memcpy(p->name, dname, 11);
+
+          // set timestamps
+          if (dateTime_) {
+            // call user date/time function
+            dateTime_(&p->creationDate, &p->creationTime);
+          }
+          else {
+            // use default date/time
+            p->creationDate = FAT_DEFAULT_DATE;
+            p->creationTime = FAT_DEFAULT_TIME;
+          }
+          p->lastAccessDate = p->creationDate;
+          p->lastWriteDate = p->creationDate;
+          p->lastWriteTime = p->creationTime;
         }
-        p->lastAccessDate = p->creationDate;
-        p->lastWriteDate = p->creationDate;
-        p->lastWriteTime = p->creationTime;
+
+        // write entry to SD
+        dirFile->vol_->cacheSetDirty();
+        if (!dirFile->vol_->cacheFlush()) return false;
       }
 
+    #else // !LONG_FILENAME_WRITE_SUPPORT
+
+      if (emptyFound) {
+        index = dirIndex_;
+        p = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
+        if (!p) return false;
+      }
+      else {
+        if (dirFile->type_ == FAT_FILE_TYPE_ROOT_FIXED) return false;
+
+        // add and zero cluster for dirFile - first cluster is in cache for write
+        if (!dirFile->addDirCluster()) return false;
+
+        // use first entry in cluster
+        p = dirFile->vol_->cache()->dir;
+        index = 0;
+      }
+
+      // initialize as empty file
+      memset(p, 0, sizeof(*p));
+      memcpy(p->name, dname, 11);
+
+      // set timestamps
+      if (dateTime_) {
+        // call user date/time function
+        dateTime_(&p->creationDate, &p->creationTime);
+      }
+      else {
+        // use default date/time
+        p->creationDate = FAT_DEFAULT_DATE;
+        p->creationTime = FAT_DEFAULT_TIME;
+      }
+
+      p->lastAccessDate = p->creationDate;
+      p->lastWriteDate = p->creationDate;
+      p->lastWriteTime = p->creationTime;
+
       // write entry to SD
-      dirFile->vol_->cacheSetDirty();
       if (!dirFile->vol_->cacheFlush()) return false;
-    }
+
+    #endif // !LONG_FILENAME_WRITE_SUPPORT
+
   }
   // open entry in cache
   return openCachedEntry(index, oflag);
@@ -916,189 +988,190 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, uint8_t oflag) {
   return false;
 }
 
+#if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
 
-/**
- * Check if dir is a long file name entry (LFN)
- * 
- * \param[in] dir Parent of this directory will be opened.  Must not be root.
- * \return true if the dir is a long file name entry (LFN)
- */
-bool SdBaseFile::isDirLFN(const dir_t* dir) {
-  if (DIR_IS_LONG_NAME(dir)) {
-    vfat_t *VFAT = (vfat_t*)dir;
-    // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
-    if ((VFAT->firstClusterLow == 0) && WITHIN((VFAT->sequenceNumber & 0x1F), 1, MAX_VFAT_ENTRIES)) return true;
+  /**
+   * Check if dir is a long file name entry (LFN)
+   *
+   * \param[in] dir Parent of this directory will be opened.  Must not be root.
+   * \return true if the dir is a long file name entry (LFN)
+   */
+  bool SdBaseFile::isDirLFN(const dir_t* dir) {
+    if (DIR_IS_LONG_NAME(dir)) {
+      vfat_t *VFAT = (vfat_t*)dir;
+      // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
+      if ((VFAT->firstClusterLow == 0) && WITHIN((VFAT->sequenceNumber & 0x1F), 1, MAX_VFAT_ENTRIES)) return true;
+    }
+    return false;
   }
-  return false;
-}
 
-/**
- * Check if dirname string is a long file name (LFN)
- * 
- * \param[in] dirname The string to check
- * \return true if the dirname is a long file name (LFN)
- * \return false if the dirname is a short file name 8.3 (SFN)
- */
-bool SdBaseFile::isDirNameLFN(const char *dirname) {
-  uint8_t length = strlen(dirname);
-  uint8_t idx = length;
-  bool dotFound = false;
-  if (idx > 12) return true;            // LFN due to filename length > 12 ("filename.ext")
-  // Check dot(s) position
-  while (idx) {
-    if (dirname[--idx] == '.') {
-      if (!dotFound) {
-        // Last dot (extension) is allowed only 
-        // in position [1..8] from start or [0..3] from end for SFN else it's a LFN
-        // A filename starting with "." is a LFN                (eg. ".file" ->in SFN-> "file~1     ")
-        // A filename ending with "." is a SFN (if length <= 9) (eg. "file." ->in SFN-> "file       ")
-        if (idx > 8 || idx == 0 || (length - idx - 1) > 3) return true;   // LFN due to dot extension position
-        dotFound = true;
+  /**
+   * Check if dirname string is a long file name (LFN)
+   *
+   * \param[in] dirname The string to check
+   * \return true if the dirname is a long file name (LFN)
+   * \return false if the dirname is a short file name 8.3 (SFN)
+   */
+  bool SdBaseFile::isDirNameLFN(const char *dirname) {
+    uint8_t length = strlen(dirname);
+    uint8_t idx = length;
+    bool dotFound = false;
+    if (idx > 12) return true;            // LFN due to filename length > 12 ("filename.ext")
+    // Check dot(s) position
+    while (idx) {
+      if (dirname[--idx] == '.') {
+        if (!dotFound) {
+          // Last dot (extension) is allowed only
+          // in position [1..8] from start or [0..3] from end for SFN else it's a LFN
+          // A filename starting with "." is a LFN                (eg. ".file" ->in SFN-> "file~1     ")
+          // A filename ending with "." is a SFN (if length <= 9) (eg. "file." ->in SFN-> "file       ")
+          if (idx > 8 || idx == 0 || (length - idx - 1) > 3) return true;   // LFN due to dot extension position
+          dotFound = true;
+        }
+        else {
+          // Found another dot, is a LFN
+          return true;
+        }
       }
-      else {
-        // Found another dot, is a LFN
-        return true;
+    }
+    // If no dots found, the filename must be of max 8 characters
+    if ((!dotFound) && length > 8) return true;         // LFN due to max filename (without extension) length
+    return false;
+  }
+
+  /**
+   * Parse path and return 8.3 format and LFN filenames (if the parsed path is a LFN)
+   * The SFN is without dot ("FILENAMEEXT")
+   * The LFN is complete ("Filename.ext")
+   */
+  bool SdBaseFile::parsePath(const char *path, uint8_t *name, uint8_t *lname, const char **ptrNextPath) {
+    // Init randomizer for SFN generation
+    randomSeed(millis());
+    // Parse the LFN
+    uint8_t ilfn = 0;
+    bool lastDotFound = false;
+    const char *pLastDot = 0;
+    const char *lfnpath = path;
+    uint8_t c;
+
+    while (*lfnpath && *lfnpath != '/') {
+      if (ilfn == LONG_FILENAME_LENGTH - 1) return false;                 // Name too long
+      c = *lfnpath++;                                                     // Get char and advance
+      // Fail for illegal characters
+      PGM_P p = PSTR("|<>^+=?/[];:,*\"\\");
+      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;    // Check reserved characters
+      if (c < 0x20 || c == 0x7F) return false;                            // Check non-printable characters
+      if (c == '.' && (lfnpath - 1) > path) {                             // Skip dot '.' check in 1st position
+        // Save last dot pointer (skip if starts with '.')
+        pLastDot = lfnpath - 1;
+        lastDotFound = true;
       }
+      lname[ilfn++] = c;  // Set LFN character
+    }
+    // Terminate LFN
+    lname[ilfn] = 0;
+
+    // Parse/generate 8.3 SFN. Will take
+    // until 8 characters for the filename part
+    // until 3 characters for the extension part (if exists)
+    // Add 4 more characters if name part < 3
+    // Add '~cnt' characters if it's a LFN
+    const bool isLFN = isDirNameLFN((char*)lname);
+
+    uint8_t n = isLFN ? 5 : 7,  // Max index for each component of the file:
+                                // starting with 7 or 5 (if LFN)
+                                // switch to 10 for extension if the last dot is found
+            i = 11;
+    while (i) name[--i] = ' ';            // Set whole FILENAMEEXT to spaces
+    while (*path && *path != '/') {
+      c = *path++;                                                        // Get char and advance
+      // Skip spaces and dots (if it's not the last dot)
+      if (c == ' ') continue;
+      if (c == '.' && (!lastDotFound || (lastDotFound && path < pLastDot))) continue;
+      // Fail for illegal characters
+      PGM_P p = PSTR("|<>^+=?/[];:,*\"\\");
+      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;    // Check reserved characters
+      if (c < 0x21 || c == 0x7F) return false;                            // Check non-printable characters
+      // Is last dot?
+      if (c == '.') {
+        // Switch to extension part
+        n = 10;
+        i = 8;
+      }
+      // If in valid range add the character
+      else if (i <= n)                                          // Check size for 8.3 format
+        name[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);  // Uppercase required for 8.3 name
+    }
+    // If it's a LFN then the SFN always need:
+    // - A minimal of 3 characters (otherwise 4 chars are added)
+    // - The '~cnt' at the end
+    if (isLFN) {
+      // Get the 1st free character
+      uint8_t iFree = 0;
+      while (1) if (name[iFree++] == ' ' || iFree == 11) break;
+      iFree--;
+      // Check minimal length
+      if (iFree < 3) {
+        // Append 4 extra characters
+        name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(1,9) + 'A';
+        name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(1,9) + 'A';
+      }
+      // Append '~cnt' characters
+      if (iFree > 5) iFree = 5; // Force the append in the last 3 characters of name part
+      name[iFree++] = '~';
+      name[iFree++] = random(1,9) + '0';
+      name[iFree++] = random(1,9) + '0';
+    }
+
+    // Check if LFN is needed
+    if (!isLFN) lname[0] = 0;   // Zero LFN
+    *ptrNextPath = path;        // Set passed pointer to the end
+    return name[0] != ' ';      // Return true if any name was set
+  }
+
+  /**
+   * Get the LFN filename block from a dir. Get the block in lname at startOffset
+   */
+  void SdBaseFile::getLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
+    uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
+    LOOP_L_N(i, FILENAME_LENGTH) {
+      const uint16_t utf16_ch = (i >= 11) ? pFatDir->name3[i - 11] : (i >= 5) ? pFatDir->name2[i - 5] : pFatDir->name1[i];
+      #if ENABLED(UTF_FILENAME_SUPPORT)
+        // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
+        // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
+        uint16_t idx = (startOffset + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
+        longFilename[idx] = utf16_ch & 0xFF;
+        longFilename[idx + 1] = (utf16_ch >> 8) & 0xFF;
+      #else
+        // Replace all multibyte characters to '_'
+        lname[startOffset + i] = (utf16_ch > 0xFF) ? '_' : (utf16_ch & 0xFF);
+      #endif
     }
   }
-  // If no dots found, the filename must be of max 8 characters
-  if ((!dotFound) && length > 8) return true;         // LFN due to max filename (without extension) length
-  return false;
-}
 
-
-/* 
-  Parse path and return 8.3 format and LFN filenames (if the parsed path is a LFN)
-  The SFN is without dot ("FILENAMEEXT")
-  The LFN is complete ("Filename.ext")
-*/
-bool SdBaseFile::parsePath(const char *path, uint8_t *name, uint8_t *lname, const char **ptrNextPath) {
-  // Init randomizer for SFN generation
-  randomSeed(millis());
-  // Parse the LFN
-  uint8_t ilfn = 0;
-  bool lastDotFound = false;
-  const char *pLastDot = 0;
-  const char *lfnpath = path;
-  uint8_t c;
-
-  while (*lfnpath && *lfnpath != '/') {
-    if (ilfn == LONG_FILENAME_LENGTH - 1) return false;                 // Name too long
-    c = *lfnpath++;                                                     // Get char and advance
-    // Fail for illegal characters
-    PGM_P p = PSTR("|<>^+=?/[];:,*\"\\");
-    while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;    // Check reserved characters
-    if (c < 0x20 || c == 0x7F) return false;                            // Check non-printable characters
-    if (c == '.' && (lfnpath - 1) > path) {                             // Skip dot '.' check in 1st position
-      // Save last dot pointer (skip if starts with '.')
-      pLastDot = lfnpath - 1;
-      lastDotFound = true;
+  /**
+   * Set the LFN filename block lname to a dir. Put the block based on sequence number
+   */
+  void SdBaseFile::setLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
+    uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
+    uint8_t nameLength = strlen(lname);
+    LOOP_L_N(i, FILENAME_LENGTH) {
+      uint16_t ch = 0;
+      if ((startOffset + i) < nameLength)
+        ch = lname[startOffset + i];
+      else if ((startOffset + i) > nameLength)
+        ch = 0xFFFF;
+      // Set char
+      if (i < 5)
+        pFatDir->name1[i] = ch;
+      else if (i < 11)
+        pFatDir->name2[i - 5] = ch;
+      else
+        pFatDir->name3[i - 11] = ch;
     }
-    lname[ilfn++] = c;  // Set LFN character
-  }
-  // Terminate LFN
-  lname[ilfn] = 0;
-
-  // Parse/generate 8.3 SFN. Will take
-  // until 8 characters for the filename part
-  // until 3 characters for the extension part (if exists)
-  // Add 4 more characters if name part < 3
-  // Add '~cnt' characters if it's a LFN
-  bool isLFN = isDirNameLFN((char *) lname);
-
-  uint8_t n = isLFN ? 5 : 7,  // Max index for each component of the file: 
-                              // starting with 7 or 5 (if LFN)
-                              // switch to 10 for extension if the last dot is found
-          i = 11;
-  while (i) name[--i] = ' ';            // Set whole FILENAMEEXT to spaces
-  while (*path && *path != '/') {
-    c = *path++;                                                        // Get char and advance
-    // Skip spaces and dots (if it's not the last dot)
-    if (c == ' ') continue;
-    if (c == '.' && (!lastDotFound || (lastDotFound && path < pLastDot))) continue;
-    // Fail for illegal characters
-    PGM_P p = PSTR("|<>^+=?/[];:,*\"\\");
-    while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;    // Check reserved characters
-    if (c < 0x21 || c == 0x7F) return false;                            // Check non-printable characters
-    // Is last dot?
-    if (c == '.') {
-      // Switch to extension part
-      n = 10;
-      i = 8;
-    } 
-    // If in valid range add the character
-    else if (i <= n)                                          // Check size for 8.3 format
-      name[i++] = c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);  // Uppercase required for 8.3 name
-  }
-  // If it's a LFN then the SFN always need:
-  // - A minimal of 3 characters (otherwise 4 chars are added)
-  // - The '~cnt' at the end
-  if (isLFN) {
-    // Get the 1st free character
-    uint8_t iFree = 0;
-    while (1) if (name[iFree++] == ' ' || iFree == 11) break;
-    iFree--;
-    // Check minimal length
-    if (iFree < 3) {
-      // Append 4 extra characters
-      name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(1,9) + 'A';
-      name[iFree++] = random(0,24) + 'A'; name[iFree++] = random(1,9) + 'A';
-    }
-    // Append '~cnt' characters
-    if (iFree > 5) iFree = 5; // Force the append in the last 3 characters of name part
-    name[iFree++] = '~';
-    name[iFree++] = random(1,9) + '0';
-    name[iFree++] = random(1,9) + '0';
   }
 
-  // Check if LFN is needed
-  if (!isLFN) lname[0] = 0;   // Zero LFN
-  *ptrNextPath = path;        // Set passed pointer to the end
-  return name[0] != ' ';      // Return true if any name was set
-}
-
-/*
-  Get the LFN filename block from a dir. Get the block in lname at startOffset
-*/
-void SdBaseFile::getLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
-  uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
-  LOOP_L_N(i, FILENAME_LENGTH) {
-    const uint16_t utf16_ch = (i >= 11) ? pFatDir->name3[i - 11] : (i >= 5) ? pFatDir->name2[i - 5] : pFatDir->name1[i];
-    #if ENABLED(UTF_FILENAME_SUPPORT)
-      // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
-      // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
-      uint16_t idx = (startOffset + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
-      longFilename[idx] = utf16_ch & 0xFF;
-      longFilename[idx + 1] = (utf16_ch >> 8) & 0xFF;
-    #else
-      // Replace all multibyte characters to '_'
-      lname[startOffset + i] = (utf16_ch > 0xFF) ? '_' : (utf16_ch & 0xFF);
-    #endif
-  }
-}
-
-/*
-  Set the LFN filename block lname to a dir. Put the block based on sequence number
-*/
-void SdBaseFile::setLFNName(vfat_t *pFatDir, char *lname, uint8_t sequenceNumber) {
-  uint8_t startOffset = (sequenceNumber - 1) * FILENAME_LENGTH;
-  uint8_t nameLength = strlen(lname);
-  LOOP_L_N(i, FILENAME_LENGTH) {
-    uint16_t ch = 0;
-    if ((startOffset + i) < nameLength)
-      ch = lname[startOffset + i];
-    else if ((startOffset + i) > nameLength)
-      ch = 0xFFFF;
-    // Set char
-    if (i < 5)
-      pFatDir->name1[i] = ch;
-    else if (i < 11)
-      pFatDir->name2[i - 5] = ch;
-    else
-      pFatDir->name3[i - 11] = ch;
-  }
-}
-
+#endif // LONG_FILENAME_WRITE_SUPPORT
 
 #if 0
 /**
@@ -1388,7 +1461,6 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
         if (VFAT->firstClusterLow == 0) {
           const uint8_t seq = VFAT->sequenceNumber & 0x1F;
           if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
-            //n = (seq - 1) * (FILENAME_LENGTH);
             if (seq == 1) {
               checksum = VFAT->checksum;
               checksum_error = 0;
@@ -1396,28 +1468,33 @@ int8_t SdBaseFile::readDir(dir_t *dir, char *longFilename) {
             else if (checksum != VFAT->checksum) // orphan detected
               checksum_error = 1;
 
-            // Get chunk of LFN from VFAT entry
-            //getLFNName(VFAT, longFilename, n);
-            getLFNName(VFAT, longFilename, seq);
-            /*
-            LOOP_L_N(i, FILENAME_LENGTH) {
-              const uint16_t utf16_ch = (i >= 11) ? VFAT->name3[i - 11] : (i >= 5) ? VFAT->name2[i - 5] : VFAT->name1[i];
-              #if ENABLED(UTF_FILENAME_SUPPORT)
-                // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
-                // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
-                uint16_t idx = (n + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
-                longFilename[idx] = utf16_ch & 0xFF;
-                longFilename[idx + 1] = (utf16_ch >> 8) & 0xFF;
-              #else
-                // Replace all multibyte characters to '_'
-                longFilename[n + i] = (utf16_ch > 0xFF) ? '_' : (utf16_ch & 0xFF);
-              #endif
-            }
-            */
+            #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
+
+              getLFNName(VFAT, longFilename, seq);  // Get chunk of LFN from VFAT entry
+
+            #else // !LONG_FILENAME_WRITE_SUPPORT
+
+              n = (seq - 1) * (FILENAME_LENGTH);
+
+              LOOP_L_N(i, FILENAME_LENGTH) {
+                const uint16_t utf16_ch = (i >= 11) ? VFAT->name3[i - 11] : (i >= 5) ? VFAT->name2[i - 5] : VFAT->name1[i];
+                #if ENABLED(UTF_FILENAME_SUPPORT)
+                  // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
+                  // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
+                  uint16_t idx = (n + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
+                  longFilename[idx] = utf16_ch & 0xFF;
+                  longFilename[idx + 1] = (utf16_ch >> 8) & 0xFF;
+                #else
+                  // Replace all multibyte characters to '_'
+                  longFilename[n + i] = (utf16_ch > 0xFF) ? '_' : (utf16_ch & 0xFF);
+                #endif
+              }
+
+            #endif // !LONG_FILENAME_WRITE_SUPPORT
+
             // If this VFAT entry is the last one, add a NUL terminator at the end of the string
             if (VFAT->sequenceNumber & 0x40)
-                longFilename[seq * FILENAME_LENGTH * LONG_FILENAME_CHARSIZE] = '\0';
-                //longFilename[(n + FILENAME_LENGTH) * LONG_FILENAME_CHARSIZE] = '\0';
+              longFilename[LONG_FILENAME_CHARSIZE * TERN(LONG_FILENAME_WRITE_SUPPORT, seq * FILENAME_LENGTH, (n + FILENAME_LENGTH))] = '\0';
           }
         }
       }
@@ -1511,49 +1588,60 @@ bool SdBaseFile::remove() {
   dir_t *d = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
   if (!d) return false;
 
-  // get SFN checksum before name rewrite (needed for LFN deletion)
-  uint8_t sfn_checksum = lfn_checksum(d->name);
+  #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
+    // get SFN checksum before name rewrite (needed for LFN deletion)
+    const uint8_t sfn_checksum = lfn_checksum(d->name);
+  #endif
 
   // mark entry deleted
   d->name[0] = DIR_NAME_DELETED;
 
   // set this file closed
   type_ = FAT_FILE_TYPE_CLOSED;
-  flags_ = 0;
 
   // write entry to SD
-  if (!vol_->cacheFlush()) return false;
+  #if DISABLED(LONG_FILENAME_WRITE_SUPPORT)
 
-  // Check if the entry has a LFN
-  bool lastEntry = false;
-  // loop back to search for any LFN entries related to this file
-  LOOP_S_LE_N(sequenceNumber, 1, MAX_VFAT_ENTRIES) {
-    dirIndex_ = (dirIndex_ - 1) & 0xF;
-    if (dirBlock_ == 0) break;
-    if (dirIndex_ == 0xF) dirBlock_--;
-    dir_t *dir = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
-    if (!dir) return false;
+    return vol_->cacheFlush();
 
-    // check for valid LFN: not deleted, not top dirs (".", ".."), must be a LFN
-    if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.' || !isDirLFN(dir)) break;
-    // check coherent LFN: checksum and sequenceNumber must match
-    vfat_t* dirlfn = (vfat_t*) dir;
-    if (dirlfn->checksum != sfn_checksum || (dirlfn->sequenceNumber & 0x1F) != sequenceNumber) break;    // orphan entry
-    // is last entry of LFN ?
-    lastEntry = (dirlfn->sequenceNumber & 0x40);
-    // mark as deleted
-    dirlfn->sequenceNumber = DIR_NAME_DELETED;
-    // Flush to SD
+  #else // LONG_FILENAME_WRITE_SUPPORT
+
+    flags_ = 0;
+
     if (!vol_->cacheFlush()) return false;
-    // exit on last entry of LFN deleted
-    if (lastEntry) break;
-  }
 
-  // Restore current index
-  //if (!seekSet(32UL * dirIndex_)) return false;
-  //dirIndex_ += prevDirIndex;
+    // Check if the entry has a LFN
+    bool lastEntry = false;
+    // loop back to search for any LFN entries related to this file
+    LOOP_S_LE_N(sequenceNumber, 1, MAX_VFAT_ENTRIES) {
+      dirIndex_ = (dirIndex_ - 1) & 0xF;
+      if (dirBlock_ == 0) break;
+      if (dirIndex_ == 0xF) dirBlock_--;
+      dir_t *dir = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
+      if (!dir) return false;
 
-  return true;
+      // check for valid LFN: not deleted, not top dirs (".", ".."), must be a LFN
+      if (dir->name[0] == DIR_NAME_DELETED || dir->name[0] == '.' || !isDirLFN(dir)) break;
+      // check coherent LFN: checksum and sequenceNumber must match
+      vfat_t* dirlfn = (vfat_t*) dir;
+      if (dirlfn->checksum != sfn_checksum || (dirlfn->sequenceNumber & 0x1F) != sequenceNumber) break;    // orphan entry
+      // is last entry of LFN ?
+      lastEntry = (dirlfn->sequenceNumber & 0x40);
+      // mark as deleted
+      dirlfn->sequenceNumber = DIR_NAME_DELETED;
+      // Flush to SD
+      if (!vol_->cacheFlush()) return false;
+      // exit on last entry of LFN deleted
+      if (lastEntry) break;
+    }
+
+    // Restore current index
+    //if (!seekSet(32UL * dirIndex_)) return false;
+    //dirIndex_ += prevDirIndex;
+
+    return true;
+
+  #endif // LONG_FILENAME_WRITE_SUPPORT
 }
 
 /**
