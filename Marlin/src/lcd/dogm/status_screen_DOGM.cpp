@@ -608,8 +608,8 @@ void MarlinUI::draw_status_screen() {
     #if ANIM_BED
       #if BOTH(HAS_LEVELING, STATUS_ALT_BED_BITMAP)
         #define BED_BITMAP(S) ((S) \
-          ? (planner.leveling_active ? status_bed_on_leveling_bmp : status_bed_on_bmp) \
-          : (planner.leveling_active ? status_bed_leveling_bmp : status_bed_bmp))
+          ? (planner.leveling_active ? status_bed_leveled_on_bmp : status_bed_on_bmp) \
+          : (planner.leveling_active ? status_bed_leveled_bmp : status_bed_bmp))
       #else
         #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
       #endif
