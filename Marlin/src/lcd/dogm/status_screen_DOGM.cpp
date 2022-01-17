@@ -49,6 +49,10 @@
   #include "../../module/planner.h"
 #endif
 
+#if HAS_LEVELING
+  #include "../../module/planner.h"
+#endif
+
 #if HAS_CUTTER
   #include "../../feature/spindle_laser.h"
 #endif
@@ -602,7 +606,13 @@ void MarlinUI::draw_status_screen() {
 
   #if DO_DRAW_BED && DISABLED(STATUS_COMBINE_HEATERS)
     #if ANIM_BED
-      #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
+      #if BOTH(HAS_LEVELING, STATUS_ALT_BED_BITMAP)
+        #define BED_BITMAP(S) ((S) \
+          ? (planner.leveling_active ? status_bed_leveled_on_bmp : status_bed_on_bmp) \
+          : (planner.leveling_active ? status_bed_leveled_bmp : status_bed_bmp))
+      #else
+        #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
+      #endif
     #else
       #define BED_BITMAP(S) status_bed_bmp
     #endif
