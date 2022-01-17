@@ -1445,6 +1445,9 @@ void Draw_Main_Area() {
       case PrintStatsProcess:    Draw_PrintStats(); break;
     #endif
     case PauseOrStop:            Popup_window_PauseOrStop(); break;
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      case PwrlossRec:           Popup_PowerLossRecovery(); break;
+    #endif
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       case FilamentPurge:        Draw_Popup_FilamentPurge(); break;
     #endif
@@ -1589,7 +1592,7 @@ void EachMomentUpdate() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // resume print before power off
-      Goto_PowerLossRecovery();
+      return Goto_PowerLossRecovery();
     }
   #endif // POWER_LOSS_RECOVERY
 
@@ -1675,6 +1678,9 @@ void DWIN_HandleScreen() {
     #endif
     case NothingToDo:     break;
     case Locked:          HMI_LockScreen(); break;
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      case PwrlossRec:    HMI_PowerlossRecovery(); break;
+    #endif
     #if HAS_ESDIAG
       case ESDiagProcess: HMI_Popup(); break;
     #endif
