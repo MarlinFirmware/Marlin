@@ -265,7 +265,7 @@ void TFTGLCD::setContrast(uint16_t contrast) {
 extern volatile int8_t encoderDiff;
 
 // Read buttons and encoder states
-uint8_t MarlinUI::read_slow_buttons(void) {
+uint8_t MarlinUI::read_slow_buttons() {
   if (!PanelDetected)    return 0;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     uint8_t b = 0;

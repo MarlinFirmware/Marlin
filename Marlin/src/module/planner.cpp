@@ -1244,10 +1244,6 @@ void Planner::recalculate() {
   recalculate_trapezoids();
 }
 
-#if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
-  #define HAS_TAIL_FAN_SPEED 1
-#endif
-
 /**
  * Apply fan speeds
  */
@@ -1308,8 +1304,9 @@ void Planner::check_axes_activity() {
     xyze_bool_t axis_active = { false };
   #endif
 
-  #if HAS_TAIL_FAN_SPEED
-    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 255);
+  #if HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107)
+    #define HAS_TAIL_FAN_SPEED 1
+    static uint8_t tail_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, 128);
     bool fans_need_update = false;
   #endif
 
@@ -1867,13 +1864,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       " B:", target.b, " (", db, " steps)"
       " C:", target.c, " (", dc, " steps)"
       #if HAS_I_AXIS
-        " " AXIS4_STR ":", target.i, " (", di, " steps)"
+        " " STR_I ":", target.i, " (", di, " steps)"
       #endif
       #if HAS_J_AXIS
-        " " AXIS5_STR ":", target.j, " (", dj, " steps)"
+        " " STR_J ":", target.j, " (", dj, " steps)"
       #endif
       #if HAS_K_AXIS
-        " " AXIS6_STR ":", target.k, " (", dk, " steps)"
+        " " STR_K ":", target.k, " (", dk, " steps)"
       #endif
       #if HAS_EXTRUDERS
         " E:", target.e, " (", de, " steps)"
@@ -2041,15 +2038,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       steps_dist_mm.b      = (db + dc) * mm_per_step[B_AXIS];
       steps_dist_mm.c      = CORESIGN(db - dc) * mm_per_step[C_AXIS];
     #endif
-    #if HAS_I_AXIS
-      steps_dist_mm.i = di * mm_per_step[I_AXIS];
-    #endif
-    #if HAS_J_AXIS
-      steps_dist_mm.j = dj * mm_per_step[J_AXIS];
-    #endif
-    #if HAS_K_AXIS
-      steps_dist_mm.k = dk * mm_per_step[K_AXIS];
-    #endif
+    TERN_(HAS_I_AXIS, steps_dist_mm.i = di * mm_per_step[I_AXIS]);
+    TERN_(HAS_J_AXIS, steps_dist_mm.j = dj * mm_per_step[J_AXIS]);
+    TERN_(HAS_K_AXIS, steps_dist_mm.k = dk * mm_per_step[K_AXIS]);
   #elif ENABLED(MARKFORGED_XY)
     steps_dist_mm.a      = (da - db) * mm_per_step[A_AXIS];
     steps_dist_mm.b      = db * mm_per_step[B_AXIS];
@@ -2197,15 +2188,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     );
   #endif
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    #if HAS_I_AXIS
-      if (block->steps.i) stepper.enable_axis(I_AXIS);
-    #endif
-    #if HAS_J_AXIS
-      if (block->steps.j) stepper.enable_axis(J_AXIS);
-    #endif
-    #if HAS_K_AXIS
-      if (block->steps.k) stepper.enable_axis(K_AXIS);
-    #endif
+    TERN_(HAS_I_AXIS, if (block->steps.i) stepper.enable_axis(I_AXIS));
+    TERN_(HAS_J_AXIS, if (block->steps.j) stepper.enable_axis(J_AXIS));
+    TERN_(HAS_K_AXIS, if (block->steps.k) stepper.enable_axis(K_AXIS));
   #endif
 
   // Enable extruder(s)
@@ -2260,7 +2245,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if EITHER(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
-    // Segment time im micro seconds
+    // Segment time in microseconds
     int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
 
@@ -2419,7 +2404,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
 
     #if ENABLED(LIN_ADVANCE)
-
+      // Linear advance is currently not ready for HAS_I_AXIS
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
       /**
@@ -2939,7 +2924,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       SERIAL_ECHOPGM_P(SP_Y_LBL, abce.b);
     #endif
     SERIAL_ECHOPGM(" (", position.y, "->", target.y);
-    #if LINEAR_AXES >= ABC
+    #if HAS_Z_AXIS
       #if ENABLED(DELTA)
         SERIAL_ECHOPGM(") C:", abce.c);
       #else

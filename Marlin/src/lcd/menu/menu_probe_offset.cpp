@@ -45,15 +45,7 @@ void _goto_manual_move_z(const_float_t);
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
 inline void z_clearance_move() {
-  do_z_clearance(
-    #ifdef Z_AFTER_HOMING
-      Z_AFTER_HOMING
-    #elif defined(Z_HOMING_HEIGHT)
-      Z_HOMING_HEIGHT
-    #else
-      10
-    #endif
-  );
+  do_z_clearance(Z_POST_CLEARANCE);
 }
 
 void set_offset_and_go_back(const_float_t z) {
