@@ -24,7 +24,9 @@
  * power.cpp - power control
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
+
+#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
 
 #include "power.h"
 #include "../module/planner.h"
@@ -39,8 +41,6 @@
 #if defined(PSU_POWERUP_GCODE) || defined(PSU_POWEROFF_GCODE)
   #include "../gcode/gcode.h"
 #endif
-
-#if EITHER(PSU_CONTROL, AUTO_POWER_CONTROL)
 
 Power powerManager;
 bool Power::psu_on;
