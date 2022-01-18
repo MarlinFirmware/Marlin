@@ -423,6 +423,28 @@
 #endif
 
 //
+// AUX1 : 5V GND D2 D1
+//        5V GND A3 A4
+
+#define AUX1_05_PIN                           57  // (A3)
+#define AUX1_06_PIN                            2
+#define AUX1_07_PIN                           58  // (A4)
+#define AUX1_08_PIN                            1
+
+//
+// AUX2 : GND A9 D40 D42 A11
+//        VCC A5 A10 D44 A12
+
+#define AUX2_03_PIN                           59  // (A5)
+#define AUX2_04_PIN                           63  // (A9)
+#define AUX2_05_PIN                           64  // (A10)
+#define AUX2_06_PIN                           40
+#define AUX2_07_PIN                           44
+#define AUX2_08_PIN                           42
+#define AUX2_09_PIN                           66  // (A12)
+#define AUX2_10_PIN                           65  // (A11)
+
+//
 // AUX3 : GND D52 D50 5V
 //        NC  D53 D51 D49
 
@@ -507,12 +529,12 @@
 
   #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
-    #define LCD_PINS_RS                       40
-    #define LCD_PINS_ENABLE                   42
-    #define LCD_PINS_D4                       65
-    #define LCD_PINS_D5                       66
-    #define LCD_PINS_D6                       44
-    #define LCD_PINS_D7                       64
+    #define LCD_PINS_RS              AUX2_06_PIN
+    #define LCD_PINS_ENABLE          AUX2_08_PIN
+    #define LCD_PINS_D4              AUX2_10_PIN
+    #define LCD_PINS_D5              AUX2_09_PIN
+    #define LCD_PINS_D6              AUX2_07_PIN
+    #define LCD_PINS_D7              AUX2_05_PIN
 
   #elif ENABLED(TFTGLCD_PANEL_SPI)
 
@@ -533,12 +555,12 @@
     #elif ENABLED(ZONESTAR_LCD)
 
       #error "CAUTION! ZONESTAR_LCD on RAMPS requires wiring modifications. It plugs into AUX2 but GND and 5V need to be swapped. Comment out this line to continue."
-      #define LCD_PINS_RS                     64
-      #define LCD_PINS_ENABLE                 44
-      #define LCD_PINS_D4                     63
-      #define LCD_PINS_D5                     40
-      #define LCD_PINS_D6                     42
-      #define LCD_PINS_D7                     65
+      #define LCD_PINS_RS            AUX2_05_PIN
+      #define LCD_PINS_ENABLE        AUX2_07_PIN
+      #define LCD_PINS_D4            AUX2_04_PIN
+      #define LCD_PINS_D5            AUX2_06_PIN
+      #define LCD_PINS_D6            AUX2_08_PIN
+      #define LCD_PINS_D7            AUX2_10_PIN
 
     #else
 
@@ -570,8 +592,8 @@
       // Buttons attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK_PIN                 38
-      //#define SHIFT_LD_PIN                  42
-      //#define SHIFT_OUT_PIN                 40
+      //#define SHIFT_LD_PIN         AUX2_08_PIN
+      //#define SHIFT_OUT_PIN        AUX2_06_PIN
       //#define SHIFT_EN_PIN         EXP1_08_PIN
     #endif
 
@@ -612,10 +634,10 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-      #define BTN_EN1                         64
-      #define BTN_EN2                         59
-      #define BTN_ENC                         63
-      #define SD_DETECT_PIN                   42
+      #define BTN_EN1                AUX2_05_PIN
+      #define BTN_EN2                AUX2_03_PIN
+      #define BTN_ENC                AUX2_04_PIN
+      #define SD_DETECT_PIN          AUX2_08_PIN
 
     #elif ENABLED(LCD_I2C_PANELOLU2)
 
@@ -627,8 +649,8 @@
 
     #elif ENABLED(LCD_I2C_VIKI)
 
-      #define BTN_EN1                         40  // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
-      #define BTN_EN2                         42
+      #define BTN_EN1                AUX2_06_PIN  // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains AUX2-06 and AUX2-08.
+      #define BTN_EN2                AUX2_08_PIN
       #define BTN_ENC                         -1
 
       #define LCD_SDSS                      SDSS
@@ -636,17 +658,17 @@
 
     #elif ANY(VIKI2, miniVIKI)
 
-      #define DOGLCD_CS                       45
-      #define DOGLCD_A0                       44
+      #define DOGLCD_CS              AUX4_05_PIN
+      #define DOGLCD_A0              AUX2_07_PIN
       #define LCD_SCREEN_ROT_180
 
       #define BEEPER_PIN             EXP2_06_PIN
-      #define STAT_LED_RED_PIN                32
+      #define STAT_LED_RED_PIN       AUX4_03_PIN
       #define STAT_LED_BLUE_PIN      EXP1_09_PIN
 
       #define BTN_EN1                         22
       #define BTN_EN2                          7
-      #define BTN_ENC                         39
+      #define BTN_ENC                AUX4_08_PIN
 
       #define SD_DETECT_PIN                   -1  // Pin 49 for display SD interface, 72 for easy adapter board
       #define KILL_PIN               EXP2_08_PIN
@@ -723,19 +745,18 @@
 
     #elif ENABLED(MINIPANEL)
 
-      #define BEEPER_PIN                      42
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
+      #define BEEPER_PIN             AUX2_08_PIN
+      #define LCD_BACKLIGHT_PIN      AUX2_10_PIN
 
-      #define DOGLCD_A0                       44
-      #define DOGLCD_CS                       66
+      #define DOGLCD_A0              AUX2_07_PIN
+      #define DOGLCD_CS              AUX2_09_PIN
 
-      #define BTN_EN1                         40
-      #define BTN_EN2                         63
-      #define BTN_ENC                         59
+      #define BTN_EN1                AUX2_06_PIN
+      #define BTN_EN2                AUX2_04_PIN
+      #define BTN_ENC                AUX2_03_PIN
 
-      #define SD_DETECT_PIN          EXP2_04_PIN
-      #define KILL_PIN                        64
+      #define SD_DETECT_PIN          AUX3_07_PIN
+      #define KILL_PIN               AUX2_05_PIN
 
     #elif ENABLED(ZONESTAR_LCD)
 
@@ -764,11 +785,10 @@
 
       #define BEEPER_PIN             EXP2_06_PIN
 
-      // Buttons are directly attached to AUX-2
-      #if ENABLED(PANEL_ONE)
-        #define BTN_EN1                       59  // AUX2 PIN 3
-        #define BTN_EN2                       63  // AUX2 PIN 4
-        #define BTN_ENC              EXP2_04_PIN
+      #if ENABLED(PANEL_ONE)                       // Buttons connect directly to AUX-2
+        #define BTN_EN1              AUX2_03_PIN
+        #define BTN_EN2              AUX2_04_PIN
+        #define BTN_ENC              AUX3_07_PIN
       #else
         #define BTN_EN1              EXP1_10_PIN
         #define BTN_EN2              EXP1_09_PIN
@@ -781,17 +801,17 @@
 #endif // HAS_WIRED_LCD
 
 #if IS_RRW_KEYPAD && !HAS_ADC_BUTTONS
-  #define SHIFT_OUT_PIN                       40
-  #define SHIFT_CLK_PIN                       44
-  #define SHIFT_LD_PIN                        42
+  #define SHIFT_OUT_PIN              AUX2_06_PIN
+  #define SHIFT_CLK_PIN              AUX2_07_PIN
+  #define SHIFT_LD_PIN               AUX2_08_PIN
   #ifndef BTN_EN1
-    #define BTN_EN1                           64
+    #define BTN_EN1                  AUX2_05_PIN
   #endif
   #ifndef BTN_EN2
-    #define BTN_EN2                           59
+    #define BTN_EN2                  AUX2_03_PIN
   #endif
   #ifndef BTN_ENC
-    #define BTN_ENC                           63
+    #define BTN_ENC                  AUX2_04_PIN
   #endif
 #endif
 
