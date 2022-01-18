@@ -101,11 +101,7 @@ private:
 
   TERN(LARGE_PINMAP, uint32_t, uint8_t) sclkPin, misoPin, mosiPin, cselPin;
 
-  #ifdef TARGET_LPC1768a
-    uint8_t spiSpeed;
-  #else
-    uint16_t spiDelay;
-  #endif
+  uint16_t spiDelay;
 
   float zeroRes, refRes, wireRes;
 
