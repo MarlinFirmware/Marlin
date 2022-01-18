@@ -23,19 +23,6 @@
 
 /**
  * Arduino Mega with RAMPS v1.4Plus, also known as 3DYMY version, pin assignments
- * The differences to the RAMPS v1.4 are:
- *  - Swap heater E0 with E1
- *  - Swap pins 8 and 10. Bed/Fan/Hotend as labeled on the board are on pins 8/9/10.
- *
- * LCD adapter
- *         ------                     ------
- *    D37 |10  9 | D35    (MISO) D50 |10  9 | D52 (SCK)
- *    D31 | 8  7 | D41           D29 | 8  7 | D53
- *    D33   6  5 | D23           D25   6  5 | D51 (MOSI)
- *    D42 | 4  3 | D44           D49 | 4  3 | D27
- *    GND | 2  1 | 5V            GND | 2  1 | 5V
- *         ------                     ------
- *          EXP1                       EXP2
  *
  * Applies to the following boards:
  *
@@ -44,6 +31,11 @@
  *  RAMPS_PLUS_EFF (Extruder, Fan, Fan)
  *  RAMPS_PLUS_EEF (Extruder, Extruder, Fan)
  *  RAMPS_PLUS_SF  (Spindle, Controller Fan)
+ *
+ * Differences from RAMPS v1.4:
+ *  - Swap heater E0 with E1
+ *  - Swap pins 8 and 10. Bed/Fan/Hotend as labeled on the board are on pins 8/9/10.
+ *  - Change EXP1/2 pins
  */
 
 #include "env_validate.h"
@@ -71,7 +63,16 @@
 #define E1_ENABLE_PIN                         24
 #define E1_CS_PIN                             -1
 
-// Define EXP1 & EXP2 to match the pin-out on 3DYMY
+/**             3DYMY Expansion Headers
+ *         ------                     ------
+ *     37 |10  9 | 35      (MISO) 50 |10  9 | 52 (SCK)
+ *     31 | 8  7 | 41             29 | 8  7 | 53
+ *     33   6  5 | 23             25   6  5 | 51 (MOSI)
+ *     42 | 4  3 | 44             49 | 4  3 | 27
+ *    GND | 2  1 | 5V            GND | 2  1 | --
+ *         ------                     ------
+ *          EXP1                       EXP2
+ */
 #define EXP1_03_PIN                           44
 #define EXP1_04_PIN                           42
 #define EXP1_05_PIN                           23
