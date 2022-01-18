@@ -325,7 +325,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
     break;
 
   case 28: // Filament laod/unload
-    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+    #if ADVANCED_PAUSE_3DPRINTER
       #define SEND_PAUSE_INFO(A, B) SEND_VALasTXT(A, fc_settings[getActiveTool()].B)
     #else
       #define SEND_PAUSE_INFO(A, B) SEND_NA(A)

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+#if ADVANCED_PAUSE_3DPRINTER
 
 #include "../../gcode.h"
 #include "../../../feature/pause.h"
@@ -80,4 +80,4 @@ void GcodeSuite::M603_report(const bool forReplay/*=true*/) {
   #endif
 }
 
-#endif // ADVANCED_PAUSE_FEATURE
+#endif // ADVANCED_PAUSE_3DPRINTER

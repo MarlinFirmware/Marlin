@@ -178,7 +178,7 @@ void DWIN_LoadSettings(const char *buff);
 void DWIN_SetDataDefaults();
 void DWIN_RebootScreen();
 
-#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+#if ADVANCED_PAUSE_3DPRINTER
   void Draw_Popup_FilamentPurge();
   void DWIN_Popup_FilamentPurge();
   void HMI_FilamentPurge();
@@ -225,7 +225,7 @@ void Draw_SelectColors_Menu();
 void Draw_GetColor_Menu();
 void Draw_Tune_Menu();
 void Draw_Motion_Menu();
-#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+#if ADVANCED_PAUSE_3DPRINTER
   void Draw_FilamentMan_Menu();
 #endif
 #if ENABLED(MESH_BED_LEVELING)

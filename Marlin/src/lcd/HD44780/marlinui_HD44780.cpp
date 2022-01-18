@@ -1055,7 +1055,7 @@ void MarlinUI::draw_status_screen() {
 
   #include "../menu/menu.h"
 
-  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+  #if ADVANCED_PAUSE_3DPRINTER
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (row < LCD_HEIGHT) {
@@ -1064,7 +1064,7 @@ void MarlinUI::draw_status_screen() {
       }
     }
 
-  #endif // ADVANCED_PAUSE_FEATURE
+  #endif // ADVANCED_PAUSE_3DPRINTER
 
   // Draw a static item with no left-right margin required. Centered by default.
   void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {

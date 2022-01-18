@@ -612,7 +612,6 @@
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
-  #undef HOTEND_IDLE_TIMEOUT
   #undef DISABLE_E
 #endif
 

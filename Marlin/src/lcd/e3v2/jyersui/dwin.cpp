@@ -1107,7 +1107,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
         #endif
 
-        #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+        #if ADVANCED_PAUSE_3DPRINTER
           case PREPARE_CHANGEFIL:
             if (draw) {
               Draw_Menu_Item(row, ICON_ResumeEEPROM, F("Change Filament")
@@ -2891,7 +2891,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             break;
         #endif
 
-        #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+        #if ADVANCED_PAUSE_3DPRINTER
           case ADVANCED_LOAD:
             if (draw) {
               Draw_Menu_Item(row, ICON_WriteEEPROM, F("Load Length"));
@@ -2908,7 +2908,7 @@ void CrealityDWINClass::Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw/
             else
               Modify_Value(fc_settings[0].unload_length, 0, EXTRUDE_MAXLENGTH, 1);
             break;
-        #endif // ADVANCED_PAUSE_FEATURE
+        #endif // ADVANCED_PAUSE_3DPRINTER
 
         #if ENABLED(PREVENT_COLD_EXTRUSION)
           case ADVANCED_COLD_EXTRUDE:
@@ -4554,7 +4554,7 @@ void CrealityDWINClass::Popup_Control() {
           break;
       #endif
 
-      #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+      #if ADVANCED_PAUSE_3DPRINTER
         case ConfFilChange:
           if (selection == 0) {
             if (thermalManager.temp_hotend[0].target < thermalManager.extrude_min_temp)
@@ -4583,7 +4583,7 @@ void CrealityDWINClass::Popup_Control() {
             else Redraw_Menu(true, true, (active_menu==PreheatHotend));
           }
           break;
-      #endif // ADVANCED_PAUSE_FEATURE
+      #endif // ADVANCED_PAUSE_3DPRINTER
 
       #if HAS_MESH
         case SaveLevel:
@@ -4778,7 +4778,7 @@ void CrealityDWINClass::State_Update() {
   }
   if (wait_for_user && !(process == Confirm) && !print_job_timer.isPaused())
     Confirm_Handler(UserInput);
-  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+  #if ADVANCED_PAUSE_3DPRINTER
     if (process == Popup && popup == PurgeMore) {
       if (pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE)
         Popup_Handler(FilChange);

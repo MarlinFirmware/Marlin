@@ -355,7 +355,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   u8g_uint_t row_y1, row_y2;
 
-  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+  #if ADVANCED_PAUSE_3DPRINTER
 
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       u8g_uint_t y1 = row * (MENU_FONT_HEIGHT) + 1, y2 = y1 + MENU_FONT_HEIGHT - 1;
@@ -372,7 +372,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 
-  #endif // ADVANCED_PAUSE_FEATURE
+  #endif // ADVANCED_PAUSE_3DPRINTER
 
   // Mark a menu item and set font color if selected.
   // Return 'false' if the item is not on screen.

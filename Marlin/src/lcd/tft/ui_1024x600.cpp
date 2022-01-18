@@ -463,7 +463,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
   #endif
 }
 
-#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+#if ADVANCED_PAUSE_3DPRINTER
 
   void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
     #if ENABLED(TOUCH_SCREEN)
@@ -486,7 +486,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
   }
 
-#endif // ADVANCED_PAUSE_FEATURE
+#endif // ADVANCED_PAUSE_3DPRINTER
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #define GRID_OFFSET_X   8

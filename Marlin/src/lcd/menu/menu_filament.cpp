@@ -299,11 +299,7 @@ void lcd_pause_waiting_message()  { _lcd_pause_message(GET_TEXT(MSG_ADVANCED_PAU
 void lcd_pause_resume_message()   { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME));  }
 
 void lcd_pause_purge_message() {
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_CONT_PURGE));
-  #else
-    _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_PURGE));
-  #endif
+  _lcd_pause_message(GET_TEXT(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)));
 }
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {

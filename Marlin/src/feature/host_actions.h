@@ -109,7 +109,7 @@ class HostUI {
       if (host_prompt_reason == PROMPT_NOT_DEFINED) prompt_do(reason, pstr, btn1, btn2);
     }
 
-    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+    #if ADVANCED_PAUSE_3DPRINTER
       static void filament_load_prompt();
     #endif
 

@@ -80,7 +80,7 @@ void menu_configuration();
   void menu_mixer();
 #endif
 
-#if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+#if ADVANCED_PAUSE_3DPRINTER
   void menu_change_filament();
 #endif
 
@@ -349,7 +349,7 @@ void menu_main() {
     }
   #endif
 
-  #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+  #if ADVANCED_PAUSE_3DPRINTER
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       YESNO_ITEM(MSG_FILAMENTCHANGE,
         menu_change_filament, nullptr,

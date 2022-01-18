@@ -237,4 +237,4 @@ void GcodeSuite::M702() {
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
 }
 
-#endif // ADVANCED_PAUSE_FEATURE
+#endif // FILAMENT_LOAD_UNLOAD_GCODES

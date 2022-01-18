@@ -134,7 +134,7 @@ void menu_backlash();
       }
     #endif
 
-    #if BOTH(ADVANCED_PAUSE_FEATURE, HAS_EXTRUDERS)
+    #if ADVANCED_PAUSE_3DPRINTER
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
 
       EDIT_ITEM_FAST(float4, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
