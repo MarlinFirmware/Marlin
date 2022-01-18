@@ -84,21 +84,26 @@ def Upload(source, target, env):
     #----------------#
     # File functions #
     #----------------#
-    def _GetFirmwareFiles():
+    def _GetFirmwareFiles(UseLongFilenames):
         if Debug: print('Get firmware files...')
-        _Send('M20 F')
+        _Send(f"M20 F{'L' if UseLongFilenames else ''}")
         Responses = _Recv()
         if len(Responses) < 3 or not any('file list' in r for r in Responses):
             raise Exception('Error getting firmware files')
         if Debug: print('OK')
         return Responses
 
-    def _FilterFirmwareFiles(FirmwareList):
+    def _FilterFirmwareFiles(FirmwareList, UseLongFilenames):
         Firmwares = []
         for FWFile in FirmwareList:
-            if not '/' in FWFile and '.BIN' in FWFile:
-                idx = FWFile.index('.BIN')
-                Firmwares.append(FWFile[:idx+4])
+            # For long filenames take the 3rd column of the firmwares list
+            if UseLongFilenames:
+                Space = 0
+                Space = FWFile.find(' ')
+                if Space >= 0: Space = FWFile.find(' ', Space + 1)
+                if Space >= 0: FWFile = FWFile[Space + 1:]
+            if not '/' in FWFile and '.BIN' in FWFile.upper():
+                Firmwares.append(FWFile[:FWFile.upper().index('.BIN') + 4])
         return Firmwares
 
     def _RemoveFirmwareFile(FirmwareFile):
@@ -124,6 +129,8 @@ def Upload(source, target, env):
     marlin_board_info_name = _GetMarlinEnv(MarlinEnv, 'BOARD_INFO_NAME')
     marlin_board_custom_build_flags = _GetMarlinEnv(MarlinEnv, 'BOARD_CUSTOM_BUILD_FLAGS')
     marlin_firmware_bin = _GetMarlinEnv(MarlinEnv, 'FIRMWARE_BIN')
+    marlin_long_filename_host_support = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_HOST_SUPPORT') is not None
+    marlin_longname_write = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_WRITE_SUPPORT') is not None
     marlin_custom_firmware_upload = _GetMarlinEnv(MarlinEnv, 'CUSTOM_FIRMWARE_UPLOAD') is not None
     marlin_short_build_version = _GetMarlinEnv(MarlinEnv, 'SHORT_BUILD_VERSION')
     marlin_string_config_h_author = _GetMarlinEnv(MarlinEnv, 'STRING_CONFIG_H_AUTHOR')
@@ -148,6 +155,10 @@ def Upload(source, target, env):
     # "upload_delete_old_bins": delete all *.bin files in the root of SD Card
     upload_delete_old_bins = marlin_motherboard in ['BOARD_CREALITY_V4',   'BOARD_CREALITY_V4210', 'BOARD_CREALITY_V423', 'BOARD_CREALITY_V427',
                                                     'BOARD_CREALITY_V431', 'BOARD_CREALITY_V452',  'BOARD_CREALITY_V453', 'BOARD_CREALITY_V24S1']
+    # "upload_random_name": generate a random 8.3 firmware filename to upload
+    upload_random_filename = marlin_motherboard in ['BOARD_CREALITY_V4',   'BOARD_CREALITY_V4210', 'BOARD_CREALITY_V423', 'BOARD_CREALITY_V427',
+                                                    'BOARD_CREALITY_V431', 'BOARD_CREALITY_V452',  'BOARD_CREALITY_V453', 'BOARD_CREALITY_V24S1'] and not marlin_long_filename_host_support
+
     try:
 
         # Start upload job
@@ -156,39 +167,40 @@ def Upload(source, target, env):
         # Dump some debug info
         if Debug:
             print('Upload using:')
-            print('---- Marlin --------------------')
-            print(f' PIOENV                 : {marlin_pioenv}')
-            print(f' SHORT_BUILD_VERSION    : {marlin_short_build_version}')
-            print(f' STRING_CONFIG_H_AUTHOR : {marlin_string_config_h_author}')
-            print(f' MOTHERBOARD            : {marlin_motherboard}')
-            print(f' BOARD_INFO_NAME        : {marlin_board_info_name}')
-            print(f' CUSTOM_BUILD_FLAGS     : {marlin_board_custom_build_flags}')
-            print(f' FIRMWARE_BIN           : {marlin_firmware_bin}')
-            print(f' CUSTOM_FIRMWARE_UPLOAD : {marlin_custom_firmware_upload}')
-            print('---- Upload parameters ---------')
-            print(f' Source      : {upload_firmware_source_name}')
-            print(f' Target      : {upload_firmware_target_name}')
-            print(f' Port        : {upload_port} @ {upload_speed} baudrate')
-            print(f' Timeout     : {upload_timeout}')
-            print(f' Block size  : {upload_blocksize}')
-            print(f' Compression : {upload_compression}')
-            print(f' Error ratio : {upload_error_ratio}')
-            print(f' Test        : {upload_test}')
-            print(f' Reset       : {upload_reset}')
-            print('--------------------------------')
+            print('---- Marlin -----------------------------------')
+            print(f' PIOENV                      : {marlin_pioenv}')
+            print(f' SHORT_BUILD_VERSION         : {marlin_short_build_version}')
+            print(f' STRING_CONFIG_H_AUTHOR      : {marlin_string_config_h_author}')
+            print(f' MOTHERBOARD                 : {marlin_motherboard}')
+            print(f' BOARD_INFO_NAME             : {marlin_board_info_name}')
+            print(f' CUSTOM_BUILD_FLAGS          : {marlin_board_custom_build_flags}')
+            print(f' FIRMWARE_BIN                : {marlin_firmware_bin}')
+            print(f' LONG_FILENAME_HOST_SUPPORT  : {marlin_long_filename_host_support}')
+            print(f' LONG_FILENAME_WRITE_SUPPORT : {marlin_longname_write}')
+            print(f' CUSTOM_FIRMWARE_UPLOAD      : {marlin_custom_firmware_upload}')
+            print('---- Upload parameters ------------------------')
+            print(f' Source                      : {upload_firmware_source_name}')
+            print(f' Target                      : {upload_firmware_target_name}')
+            print(f' Port                        : {upload_port} @ {upload_speed} baudrate')
+            print(f' Timeout                     : {upload_timeout}')
+            print(f' Block size                  : {upload_blocksize}')
+            print(f' Compression                 : {upload_compression}')
+            print(f' Error ratio                 : {upload_error_ratio}')
+            print(f' Test                        : {upload_test}')
+            print(f' Reset                       : {upload_reset}')
+            print('-----------------------------------------------')
 
         # Custom implementations based on board parameters
+        # Generate a new 8.3 random filename
+        if upload_random_filename:
+            upload_firmware_target_name = f"fw-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))}.BIN"
+            print(f"Board {marlin_motherboard}: Overriding firmware filename to '{upload_firmware_target_name}'")
 
         # Delete all *.bin files on the root of SD Card (if flagged)
         if upload_delete_old_bins:
             # CUSTOM_FIRMWARE_UPLOAD is needed for this feature
             if not marlin_custom_firmware_upload:
                 raise Exception(f"CUSTOM_FIRMWARE_UPLOAD must be enabled in 'Configuration_adv.h' for '{marlin_motherboard}'")
-
-            # Generate a new 8.3 random filename
-            # This board remember the last firmware filename and doesn't allow to flash from that filename
-            upload_firmware_target_name = f"fw-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))}.BIN"
-            print(f"Board {marlin_motherboard}: Overriding firmware filename to '{upload_firmware_target_name}'")
 
             # Init serial port
             port = serial.Serial(upload_port, baudrate = upload_speed, write_timeout = 0, timeout = 0.1)
@@ -198,13 +210,13 @@ def Upload(source, target, env):
             _CheckSDCard()
 
             # Get firmware files
-            FirmwareFiles = _GetFirmwareFiles()
+            FirmwareFiles = _GetFirmwareFiles(marlin_long_filename_host_support)
             if Debug:
                 for FirmwareFile in FirmwareFiles:
                     print(f'Found: {FirmwareFile}')
 
             # Get all 1st level firmware files (to remove)
-            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2])   # Skip header and footers of list
+            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2], marlin_long_filename_host_support)   # Skip header and footers of list
             if len(OldFirmwareFiles) == 0:
                 print('No old firmware files to delete')
             else:
