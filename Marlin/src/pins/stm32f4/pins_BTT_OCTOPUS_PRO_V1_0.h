@@ -37,12 +37,8 @@
   #define TEMP_0_PIN                        PF4   // TH0
 #endif
 
-#include "pins_BTT_OCTOPUS_V1_common.h"
-
-#ifndef Z_MIN_PROBE_PIN
-  #if ENABLED(BLTOUCH)
-    #define Z_MIN_PROBE_PIN                 PB7
-  #else
-    #define Z_MIN_PROBE_PIN                 PC5   // Probe (Proximity switch) port
-  #endif
+#if !defined(Z_MIN_PROBE_PIN) && DISABLED(BLTOUCH)
+  #define Z_MIN_PROBE_PIN                   PC5   // Probe (Proximity switch) port
 #endif
+
+#include "pins_BTT_OCTOPUS_V1_common.h"
