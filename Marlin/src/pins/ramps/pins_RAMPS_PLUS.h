@@ -23,10 +23,6 @@
 
 /**
  * Arduino Mega with RAMPS v1.4Plus, also known as 3DYMY version, pin assignments
- * The differences to the RAMPS v1.4 are:
- *  - Swap heater E0 with E1
- *  - Swap pins 8 and 10. Bed/Fan/Hotend as labeled on the board are on pins 8/9/10.
- *  - Change pins 16->42, 17->44 and 29->53 used for display.
  *
  * Applies to the following boards:
  *
@@ -35,6 +31,11 @@
  *  RAMPS_PLUS_EFF (Extruder, Fan, Fan)
  *  RAMPS_PLUS_EEF (Extruder, Extruder, Fan)
  *  RAMPS_PLUS_SF  (Spindle, Controller Fan)
+ *
+ * Differences from RAMPS v1.4:
+ *  - Swap heater E0 with E1
+ *  - Swap pins 8 and 10. Bed/Fan/Hotend as labeled on the board are on pins 8/9/10.
+ *  - Change EXP1/2 pins
  */
 
 #include "env_validate.h"
@@ -62,15 +63,32 @@
 #define E1_ENABLE_PIN                         24
 #define E1_CS_PIN                             -1
 
-#include "pins_RAMPS.h"
+/**             3DYMY Expansion Headers
+ *         ------                     ------
+ *     37 |10  9 | 35      (MISO) 50 |10  9 | 52 (SCK)
+ *     31 | 8  7 | 41             29 | 8  7 | 53
+ *     33   6  5 | 23             25   6  5 | 51 (MOSI)
+ *     42 | 4  3 | 44             49 | 4  3 | 27
+ *    GND | 2  1 | 5V            GND | 2  1 | --
+ *         ------                     ------
+ *          EXP1                       EXP2
+ */
+#define EXP1_03_PIN                           44
+#define EXP1_04_PIN                           42
+#define EXP1_05_PIN                           23
+#define EXP1_06_PIN                           33
+#define EXP1_07_PIN                           41
+#define EXP1_08_PIN                           31
+#define EXP1_09_PIN                           35
+#define EXP1_10_PIN                           37
 
-#if IS_ULTRA_LCD && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(IS_NEWPANEL, PANEL_ONE)
-  #if DISABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
-    #undef LCD_PINS_RS
-    #define LCD_PINS_RS                       42  // 3DYMY boards pin 16 -> 42
-    #undef LCD_PINS_ENABLE
-    #define LCD_PINS_ENABLE                   44  // 3DYMY boards pin 17 -> 44
-  #endif
-  #undef LCD_PINS_D7
-  #define LCD_PINS_D7                         53  // 3DYMY boards pin 29 -> 53
-#endif
+#define EXP2_03_PIN                           27
+#define EXP2_04_PIN                           49
+#define EXP2_05_PIN                           51
+#define EXP2_06_PIN                           25
+#define EXP2_07_PIN                           53
+#define EXP2_08_PIN                           29
+#define EXP2_09_PIN                           52
+#define EXP2_10_PIN                           50
+
+#include "pins_RAMPS.h"
