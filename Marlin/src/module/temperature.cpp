@@ -888,16 +888,6 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     HOTEND_LOOP() {
       if (temp_hotend[e].celsius >= EXTRUDER_AUTO_FAN_TEMPERATURE) {
         SBI(fanState, pgm_read_byte(&fanBit[e]));
-        #if MOTHERBOARD == BOARD_ULTIMAIN_2
-          // For the UM2 the head fan is connected to PJ6, which does not have an Arduino PIN definition. So use direct register access.
-          // https://github.com/Ultimaker/Ultimaker2Marlin/blob/master/Marlin/temperature.cpp#L553
-          SBI(DDRJ, 6); SBI(PORTJ, 6);
-        #endif
-      }
-      else {
-        #if MOTHERBOARD == BOARD_ULTIMAIN_2
-          SBI(DDRJ, 6); CBI(PORTJ, 6);
-        #endif
       }
     }
 
@@ -2371,11 +2361,11 @@ void Temperature::init() {
   #if HAS_TEMP_ADC_CHAMBER
     HAL_ANALOG_SELECT(TEMP_CHAMBER_PIN);
   #endif
-  #if HAS_TEMP_ADC_COOLER
-    HAL_ANALOG_SELECT(TEMP_COOLER_PIN);
-  #endif
   #if HAS_TEMP_ADC_PROBE
     HAL_ANALOG_SELECT(TEMP_PROBE_PIN);
+  #endif
+  #if HAS_TEMP_ADC_COOLER
+    HAL_ANALOG_SELECT(TEMP_COOLER_PIN);
   #endif
   #if HAS_TEMP_ADC_BOARD
     HAL_ANALOG_SELECT(TEMP_BOARD_PIN);
@@ -2958,8 +2948,8 @@ void Temperature::update_raw_temperatures() {
   TERN_(HAS_TEMP_ADC_BED,     temp_bed.update());
   TERN_(HAS_TEMP_ADC_CHAMBER, temp_chamber.update());
   TERN_(HAS_TEMP_ADC_PROBE,   temp_probe.update());
-  TERN_(HAS_TEMP_ADC_BOARD,   temp_board.update());
   TERN_(HAS_TEMP_ADC_COOLER,  temp_cooler.update());
+  TERN_(HAS_TEMP_ADC_BOARD,   temp_board.update());
 
   TERN_(HAS_JOY_ADC_X, joystick.x.update());
   TERN_(HAS_JOY_ADC_Y, joystick.y.update());

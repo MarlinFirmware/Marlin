@@ -328,7 +328,7 @@ void CardReader::printListing(
         if (includeLongNames) {
           SERIAL_CHAR(' ');
           if (prependLong) { SERIAL_ECHO(prependLong); SERIAL_CHAR('/'); }
-          SERIAL_ECHO(longFilename[0] ? longFilename : "???");
+          SERIAL_ECHO(longFilename[0] ? longFilename : filename);
         }
       #endif
       SERIAL_EOL();
@@ -385,9 +385,9 @@ void CardReader::ls(
       diveDir.rewind();
       selectByName(diveDir, segment);
 
-      // Print /LongNamePart to serial output
+      // Print /LongNamePart to serial output or the short name if not available
       SERIAL_CHAR('/');
-      SERIAL_ECHO(longFilename[0] ? longFilename : "???");
+      SERIAL_ECHO(longFilename[0] ? longFilename : filename);
 
       // If the filename was printed then that's it
       if (!flag.filenameIsDir) break;
