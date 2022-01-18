@@ -254,7 +254,7 @@
 #define STR_DEBUG_ERRORS                    "ERRORS"
 #define STR_DEBUG_DRYRUN                    "DRYRUN"
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
-#define STR_DEBUG_LEVELING                  "LEVELING"
+#define STR_DEBUG_DETAIL                    "DETAIL"
 
 #define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
 #define STR_WRONG_PASSWORD                  "Incorrect Password"
