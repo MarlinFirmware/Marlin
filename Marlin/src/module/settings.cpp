@@ -3124,7 +3124,7 @@ void MarlinSettings::reset() {
   #if ADVANCED_PAUSE_3DPRINTER
     LOOP_L_N(e, EXTRUDERS) {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
-      fc_settings[e].load_length   = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
+      fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }
   #endif
 

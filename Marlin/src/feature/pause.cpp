@@ -99,7 +99,9 @@ fil_change_settings_t fc_settings[EXTRUDERS];
 
 #if HAS_BUZZER
   static void impatient_beep(const int8_t max_beep_count, const bool restart=false) {
-    if (TERN0(HAS_LCD_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
+    #if M600_PURGE_MORE_RESUMABLE && HAS_LCD_MENU
+      if (pause_mode == PAUSE_MODE_PAUSE_PRINT) return;
+    #endif
 
     static millis_t next_buzz = 0;
     static int8_t runout_beep = 0;

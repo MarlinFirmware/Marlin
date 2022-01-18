@@ -113,7 +113,7 @@ void GcodeSuite::M701() {
       FILAMENT_CHANGE_ALERT_BEEPS,
       true,                                           // show_lcd
       thermalManager.still_heating(target_extruder),  // pause_for_user
-      PAUSE_MODE_LOAD_FILAMENT                        // pause_mode
+      PAUSE_MODE_LOAD_FILAMENT                        // pause mode
       OPTARG(DUAL_X_CARRIAGE, target_extruder)        // Dual X target
     );
   #endif

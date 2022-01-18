@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_3DPRINTER)
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -44,9 +44,11 @@ static int8_t _change_filament_extruder; // = 0
 
 inline PGM_P _change_filament_command() {
   switch (_change_filament_mode) {
-    case PAUSE_MODE_LOAD_FILAMENT:    return PSTR("M701 T%d");
-    case PAUSE_MODE_UNLOAD_FILAMENT:  return _change_filament_extruder >= 0
-                                           ? PSTR("M702 T%d") : PSTR("M702 ;%d");
+    #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      case PAUSE_MODE_LOAD_FILAMENT:    return PSTR("M701 T%d");
+      case PAUSE_MODE_UNLOAD_FILAMENT:  return _change_filament_extruder >= 0
+                                               ? PSTR("M702 T%d") : PSTR("M702 ;%d");
+    #endif
     case PAUSE_MODE_CHANGE_FILAMENT:
     case PAUSE_MODE_PAUSE_PRINT:
     default: break;
@@ -338,4 +340,4 @@ void MarlinUI::pause_show_message(
     ui.return_to_status();
 }
 
-#endif // HAS_LCD_MENU && ADVANCED_PAUSE_FEATURE
+#endif // HAS_LCD_MENU && ADVANCED_PAUSE_3DPRINTER
