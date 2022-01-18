@@ -97,8 +97,7 @@ void Power::power_on() {
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
  */
 void Power::power_off() {
-
-  SERIAL_ECHOLNPGM("Powering off...");
+  SERIAL_ECHOLNPGM(STR_POWEROFF);
 
   TERN_(HAS_SUICIDE, suicide());
 
@@ -113,7 +112,6 @@ void Power::power_off() {
   #endif
 
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
-  SERIAL_ECHOLNPGM("Power off pin triggered");
   psu_on = false;
 
   #if EITHER(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
@@ -136,7 +134,6 @@ void Power::power_off() {
       if (thermalManager.degCooler() >= (AUTO_POWER_COOLER_TEMP)) return true;
     #endif
 
-    SERIAL_ECHOLNPGM("Power off cooling wait complete.");
     return false;
   }
 
