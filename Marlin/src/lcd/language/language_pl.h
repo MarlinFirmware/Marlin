@@ -274,12 +274,12 @@ namespace Language_pl {
   LSTR MSG_SELECT_E                       = _UxGT("Wybierz *");
   LSTR MSG_ACC                            = _UxGT("Przyspieszenie");
   LSTR MSG_JERK                           = _UxGT("Zryw");
-  LSTR MSG_VA_JERK                        = _UxGT("Zryw V") LCD_STR_A;
-  LSTR MSG_VB_JERK                        = _UxGT("Zryw V") LCD_STR_B;
-  LSTR MSG_VC_JERK                        = _UxGT("Zryw V") LCD_STR_C;
-  LSTR MSG_VI_JERK                        = _UxGT("Zryw V") LCD_STR_I;
-  LSTR MSG_VJ_JERK                        = _UxGT("Zryw V") LCD_STR_J;
-  LSTR MSG_VK_JERK                        = _UxGT("Zryw V") LCD_STR_K;
+  LSTR MSG_VA_JERK                        = _UxGT("Zryw V") STR_A;
+  LSTR MSG_VB_JERK                        = _UxGT("Zryw V") STR_B;
+  LSTR MSG_VC_JERK                        = _UxGT("Zryw V") STR_C;
+  LSTR MSG_VI_JERK                        = _UxGT("Zryw V") STR_I;
+  LSTR MSG_VJ_JERK                        = _UxGT("Zryw V") STR_J;
+  LSTR MSG_VK_JERK                        = _UxGT("Zryw V") STR_K;
   LSTR MSG_VE_JERK                        = _UxGT("Zryw Ve");
   LSTR MSG_VELOCITY                       = _UxGT("Prędkość (V)");
 
@@ -290,12 +290,12 @@ namespace Language_pl {
   LSTR MSG_A_TRAVEL                       = _UxGT("A-przesuń.");
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("Częstotliwość max");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("kroki/mm");
-  LSTR MSG_A_STEPS                        = LCD_STR_A _UxGT(" kroki/mm");
-  LSTR MSG_B_STEPS                        = LCD_STR_B _UxGT(" kroki/mm");
-  LSTR MSG_C_STEPS                        = LCD_STR_C _UxGT(" kroki/mm");
-  LSTR MSG_I_STEPS                        = LCD_STR_I _UxGT(" kroki/mm");
-  LSTR MSG_J_STEPS                        = LCD_STR_J _UxGT(" kroki/mm");
-  LSTR MSG_K_STEPS                        = LCD_STR_K _UxGT(" kroki/mm");
+  LSTR MSG_A_STEPS                        = STR_A _UxGT(" kroki/mm");
+  LSTR MSG_B_STEPS                        = STR_B _UxGT(" kroki/mm");
+  LSTR MSG_C_STEPS                        = STR_C _UxGT(" kroki/mm");
+  LSTR MSG_I_STEPS                        = STR_I _UxGT(" kroki/mm");
+  LSTR MSG_J_STEPS                        = STR_J _UxGT(" kroki/mm");
+  LSTR MSG_K_STEPS                        = STR_K _UxGT(" kroki/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E kroki/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* kroki/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
@@ -446,12 +446,12 @@ namespace Language_pl {
 
   LSTR MSG_INFO_PSU                       = _UxGT("Zasilacz");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Siła silnika");
-  LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_B                  = LCD_STR_B _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_C                  = LCD_STR_C _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_I                  = LCD_STR_I _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_J                  = LCD_STR_J _UxGT(" Siła %");
-  LSTR MSG_DAC_PERCENT_K                  = LCD_STR_K _UxGT(" Siła %");
+  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" Siła %");
+  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" Siła %");
+  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" Siła %");
+  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Siła %");
+  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Siła %");
+  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Siła %");
   LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Siła %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC BŁĄD POŁĄCZENIA");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("Zapisz DAC EEPROM");

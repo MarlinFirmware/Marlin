@@ -56,6 +56,8 @@ void GcodeSuite::M502() {
   /**
    * M503: print settings currently in memory
    *
+   *   S<bool> : Include / exclude header comments in the output. (Default: S1)
+   *
    * With CONFIGURATION_EMBEDDING:
    *   C<flag> : Save the full Marlin configuration to SD Card as "mc.zip"
    */

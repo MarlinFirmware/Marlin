@@ -118,9 +118,9 @@
 
 // Temperature sensor IDs
 #define HID_REDUNDANT -6
-#define HID_COOLER    -5
-#define HID_PROBE     -4
-#define HID_BOARD     -3
+#define HID_BOARD     -5
+#define HID_COOLER    -4
+#define HID_PROBE     -3
 #define HID_CHAMBER   -2
 #define HID_BED       -1
 #define HID_E0         0
@@ -675,11 +675,6 @@
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
-#endif
-
-// Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM)
-  #define NEEDS_HARDWARE_PWM 1
 #endif
 
 #if !defined(__AVR__) || !defined(USBCON)
