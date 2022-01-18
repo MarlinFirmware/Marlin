@@ -171,7 +171,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   writeRegister16(MAX31865_LFAULTMSB_REG, 0);
 
   #if ENABLED(MAX31865_USE_AUTO_MODE) // make a proper first read to initialize _lastRead
-   
+
    uint16_t rtd = readRegister16(MAX31865_RTDMSB_REG);
 
     #if MAX31865_IGNORE_INITIAL_FAULTY_READS > 0
@@ -226,7 +226,7 @@ void MAX31865::begin(max31865_numwires_t wires, float zero_res, float ref_res, f
   #endif // ENABLED(MAX31865_USE_AUTO_MODE)
 
   DEBUG_ECHOLNPGM(
-    TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular") 
+    TERN(LARGE_PINMAP, "LARGE_PINMAP", "Regular")
     " begin call with cselPin: ", cselPin,
     " misoPin: ", misoPin,
     " sclkPin: ", sclkPin,
@@ -527,7 +527,6 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
   addr &= 0x7F; // make sure top bit is not set
 
   spiBeginTransaction();
-
   spiTransfer(addr);
 
   while (n--) {
@@ -540,11 +539,9 @@ void MAX31865::readRegisterN(uint8_t addr, uint8_t buffer[], uint8_t n) {
 
 void MAX31865::writeRegister16(uint8_t addr, uint16_t data) {
   spiBeginTransaction();
-
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data >> 8);
   spiTransfer(data & 0xFF);
-
   spiEndTransaction();
 }
 
@@ -555,17 +552,13 @@ void MAX31865::writeRegister16(uint8_t addr, uint16_t data) {
  * @param data  the data to write
  */
 void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
-
   spiBeginTransaction();
-
   spiTransfer(addr | 0x80); // make sure top bit is set
   spiTransfer(data);
-
   spiEndTransaction();
 }
 
 void MAX31865::spiBeginTransaction() {
-
   digitalWrite(sclkPin, LOW); // ensure CPOL0
   DELAY_NS_VAR(MAX31865_SPI_TIMING_TCWH); // ensure minimum time of CS inactivity after previous operation
   digitalWrite(cselPin, LOW);
@@ -578,7 +571,6 @@ void MAX31865::spiBeginTransaction() {
 }
 
 void MAX31865::spiEndTransaction() {
-  
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     SPI.endTransaction();
   else
@@ -599,7 +591,6 @@ void MAX31865::spiEndTransaction() {
  * @return    the 8-bit response
  */
 uint8_t MAX31865::spiTransfer(uint8_t x) {
-
   if (sclkPin == TERN(LARGE_PINMAP, -1UL, 255))
     return SPI.transfer(x);
 
@@ -619,9 +610,7 @@ uint8_t MAX31865::spiTransfer(uint8_t x) {
 }
 
 void MAX31865::softSpiInit() {
-
   DEBUG_ECHOLNPGM("Initializing MAX31865 Software SPI");
-
   pinMode(sclkPin, OUTPUT);
   digitalWrite(sclkPin, LOW);
   pinMode(mosiPin, OUTPUT);
