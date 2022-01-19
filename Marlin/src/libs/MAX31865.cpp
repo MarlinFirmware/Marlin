@@ -300,14 +300,14 @@ uint16_t MAX31865::readRaw() {
         enableBias();
         nextEventStamp = millis() + 11; // wait at least 11msec before enabling 1shot
         nextEvent = SETUP_1_SHOT_MODE;
-        DEBUG_ECHOLN("MAX31865 bias voltage enabled");
+        DEBUG_ECHOLNPGM("MAX31865 bias voltage enabled");
         break;
 
       case SETUP_1_SHOT_MODE:
         oneShot();
         nextEventStamp = millis() + 65; // wait at least 65msec before reading RTD register
         nextEvent = READ_RTD_REG;
-        DEBUG_ECHOLN("MAX31865 1 shot mode enabled");
+        DEBUG_ECHOLNPGM("MAX31865 1 shot mode enabled");
         break;
 
       case READ_RTD_REG: {
