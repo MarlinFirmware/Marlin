@@ -24,7 +24,7 @@
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "../../inc/MarlinConfigPre.h"
-#ifdef FYSETC_MINI_12864_2_1
+#if ENABLED(FYSETC_MINI_12864_2_1)
 
 #include <U8glib-HAL.h>
 #include "Arduino.h"
