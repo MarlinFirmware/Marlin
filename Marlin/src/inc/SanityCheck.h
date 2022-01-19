@@ -601,6 +601,12 @@
   #error "PROBE_TEMP_COMPENSATION is now set using the PTC_PROBE, PTC_BED, PTC_HOTEND options."
 #elif defined(BTC_PROBE_TEMP)
   #error "BTC_PROBE_TEMP is now PTC_PROBE_TEMP."
+#elif defined(LCD_SCREEN_ROT_90)
+  #error "LCD_SCREEN_ROT_90 is now LCD_SCREEN_ROTATE with a value of 90."
+#elif defined(LCD_SCREEN_ROT_180)
+  #error "LCD_SCREEN_ROT_180 is now LCD_SCREEN_ROTATE with a value of 180."
+#elif defined(LCD_SCREEN_ROT_270)
+  #error "LCD_SCREEN_ROT_270 is now LCD_SCREEN_ROTATE with a value of 270."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)
@@ -2758,8 +2764,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "Please enable only one of TFT_INTERFACE_SPI or TFT_INTERFACE_SPI."
 #endif
 
-#if MANY(LCD_SCREEN_ROT_0, LCD_SCREEN_ROT_90, LCD_SCREEN_ROT_180, LCD_SCREEN_ROT_270)
-  #error "Please enable only one LCD_SCREEN_ROT_* option: 0, 90, 180, or 270."
+#if defined(LCD_SCREEN_ROTATE) && LCD_SCREEN_ROTATE != 0 && LCD_SCREEN_ROTATE != 90 && LCD_SCREEN_ROTATE != 180 && LCD_SCREEN_ROTATE != 270
+  #error "LCD_SCREEN_ROTATE must be 0, 90, 180, or 270."
 #endif
 
 #if MANY(TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, TFT_RES_1024x600)

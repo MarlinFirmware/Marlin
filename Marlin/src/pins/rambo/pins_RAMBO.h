@@ -214,7 +214,6 @@
 
       #define DOGLCD_A0                       70
       #define DOGLCD_CS                       71
-      #define LCD_SCREEN_ROT_180
 
       #define BTN_EN1                         85
       #define BTN_EN2                         84
@@ -224,6 +223,8 @@
 
       #define STAT_LED_RED_PIN                22
       #define STAT_LED_BLUE_PIN               32
+
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
     #else                                         // !VIKI2 && !miniVIKI
 
