@@ -107,7 +107,10 @@ void GcodeSuite::M81() {
     }
   #endif
 
-  if (delayed_power_off) return;
+  if (delayed_power_off) {
+    SERIAL_ECHOLNPGM(STR_DELAYED_POWEROFF);
+    return;
+  }
 
   #if HAS_SUICIDE
     suicide();
