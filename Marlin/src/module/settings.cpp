@@ -381,6 +381,8 @@ typedef struct SettingsDataStruct {
   // HAS_LCD_CONTRAST
   //
   uint8_t lcd_contrast;                                 // M250 C
+  bool lcd_contrast_set;                                // flag determines if ui save occured.
+
 
   //
   // HAS_LCD_BRIGHTNESS
@@ -1088,6 +1090,9 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(lcd_contrast);
       const uint8_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
       EEPROM_WRITE(lcd_contrast);
+      _FIELD_TEST(lcd_contrast_set);
+      const bool lcd_contrast_set = TERN(HAS_LCD_CONTRAST, ui.contrast_set, false);
+      EEPROM_WRITE(lcd_contrast_set);
     }
 
     //
@@ -1990,7 +1995,11 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(lcd_contrast);
         uint8_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
-        TERN_(HAS_LCD_CONTRAST, if (!validating) ui.set_contrast(lcd_contrast));
+        TERN_(HAS_LCD_CONTRAST, ui.contrast = lcd_contrast);
+        _FIELD_TEST(lcd_contrast_set);
+        bool lcd_contrast_set;
+        EEPROM_READ(lcd_contrast_set);
+        TERN_(HAS_LCD_CONTRAST, ui.contrast_set = lcd_contrast_set);
       }
 
       //

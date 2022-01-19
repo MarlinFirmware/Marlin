@@ -97,10 +97,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_LCD_CONTRAST
-  uint8_t MarlinUI::contrast; // Initialized by settings.load()
-
+  uint8_t MarlinUI::contrast;  // Initialized by settings.load()
+  bool MarlinUI::contrast_set; // Ditto
   void MarlinUI::set_contrast(const uint8_t value) {
-    contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
+    if (!contrast_set) {
+      contrast = DEFAULT_LCD_CONTRAST;
+      contrast_set = true;     // will now be sticky on NVRAM save
+    } else
+      contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
     _set_contrast();
   }
 #endif

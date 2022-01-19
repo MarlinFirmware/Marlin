@@ -427,6 +427,7 @@ public:
 
       #if HAS_LCD_CONTRAST
         static uint8_t contrast;
+        static bool contrast_set;
         static void _set_contrast(); // Implementation-specific
         static void set_contrast(const uint8_t value);
         FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }

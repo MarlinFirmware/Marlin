@@ -292,7 +292,12 @@ void MarlinUI::init_lcd() {
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
-  TERN_(HAS_LCD_CONTRAST, refresh_contrast());
+  #if HAS_LCD_CONTRAST
+    if (contrast_set == true)
+      refresh_contrast();
+    else
+      u8g.setContrast(DEFAULT_LCD_CONTRAST);
+  #endif
 
   #if LCD_SCREEN_ROTATE == 90
     u8g.setRot90();
