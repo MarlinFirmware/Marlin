@@ -409,8 +409,19 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 #if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
+
+    #if HAS_LEVELING
+      bool leveling_local = planner.leveling_active; // save leveling state
+      set_bed_leveling_enabled(false);  // turn off leveling
+    #endif
+
     current_position.e += length / planner.e_factor[active_extruder];
     line_to_current_position(fr_mm_s);
+
+    #if HAS_LEVELING
+      set_bed_leveling_enabled(leveling_local); // restore leveling
+    #endif
+
     planner.synchronize();
   }
 #endif
@@ -507,8 +518,8 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
 
     // when in the danger zone
     if (current_position.z > delta_clip_start_height) {
-      if (z > delta_clip_start_height) {                      // staying in the danger zone
-        destination.set(x, y, z);                             // move directly (uninterpolated)
+      if (z > delta_clip_start_height) {                     // staying in the danger zone
+        destination.set(x, y, z);                          // move directly (uninterpolated)
         prepare_internal_fast_move_to_destination();          // set current_position from destination
         if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         return;
@@ -518,7 +529,7 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
       if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
     }
 
-    if (z > current_position.z) {                             // raising?
+    if (z > current_position.z) {                            // raising?
       destination.z = z;
       prepare_internal_fast_move_to_destination(z_feedrate);  // set current_position from destination
       if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
@@ -528,7 +539,7 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
     prepare_internal_move_to_destination();                   // set current_position from destination
     if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
 
-    if (z < current_position.z) {                             // lowering?
+    if (z < current_position.z) {                            // lowering?
       destination.z = z;
       prepare_internal_fast_move_to_destination(z_feedrate);  // set current_position from destination
       if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
@@ -537,32 +548,39 @@ void do_blocking_move_to(LINEAR_AXIS_ARGS(const float), const_feedRate_t fr_mm_s
   #elif IS_SCARA
 
     // If Z needs to raise, do it before moving XY
-    if (destination.z < z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
+    if (destination.z < z) {
+      destination.z = z;
+      prepare_internal_fast_move_to_destination(z_feedrate);
+    }
 
-    destination.set(x, y); prepare_internal_fast_move_to_destination(xy_feedrate);
+    destination.set(x, y);
+    prepare_internal_fast_move_to_destination(xy_feedrate);
 
     // If Z needs to lower, do it after moving XY
-    if (destination.z > z) { destination.z = z; prepare_internal_fast_move_to_destination(z_feedrate); }
+    if (destination.z > z) {
+      destination.z = z;
+      prepare_internal_fast_move_to_destination(z_feedrate);
+    }
 
   #else
 
-    #if HAS_Z_AXIS  // If Z needs to raise, do it before moving XY
-      if (current_position.z < z) { current_position.z = z; line_to_current_position(z_feedrate); }
+    #if HAS_Z_AXIS
+      // If Z needs to raise, do it before moving XY
+      if (current_position.z < z) {
+        current_position.z = z;
+        line_to_current_position(z_feedrate);
+      }
     #endif
 
-    current_position.set(x, y); line_to_current_position(xy_feedrate);
+    current_position.set(x, y);
+    line_to_current_position(xy_feedrate);
 
-    #if HAS_I_AXIS
-      current_position.i = i; line_to_current_position(i_feedrate);
-    #endif
-    #if HAS_J_AXIS
-      current_position.j = j; line_to_current_position(j_feedrate);
-    #endif
-    #if HAS_K_AXIS
-      current_position.k = k; line_to_current_position(k_feedrate);
-    #endif
-    #if HAS_Z_AXIS  // If Z needs to lower, do it after moving XY...
-      if (current_position.z > z) { current_position.z = z; line_to_current_position(z_feedrate); }
+    #if HAS_Z_AXIS
+      // If Z needs to lower, do it after moving XY
+      if (current_position.z > z) {
+        current_position.z = z;
+        line_to_current_position(z_feedrate);
+      }
     #endif
 
   #endif
@@ -1404,15 +1422,6 @@ void prepare_line_to_destination() {
             #endif
             break;
         #endif
-        #if I_SENSORLESS
-          case I_AXIS: stealth_states.i = tmc_enable_stallguard(stepperI); break;
-        #endif
-        #if J_SENSORLESS
-          case J_AXIS: stealth_states.j = tmc_enable_stallguard(stepperJ); break;
-        #endif
-        #if K_SENSORLESS
-          case K_AXIS: stealth_states.k = tmc_enable_stallguard(stepperK); break;
-        #endif
       }
 
       #if ENABLED(SPI_ENDSTOPS)
@@ -1489,15 +1498,6 @@ void prepare_line_to_destination() {
               tmc_disable_stallguard(stepperY, enable_stealth.y);
             #endif
             break;
-        #endif
-        #if I_SENSORLESS
-          case I_AXIS: tmc_disable_stallguard(stepperI, enable_stealth.i); break;
-        #endif
-        #if J_SENSORLESS
-          case J_AXIS: tmc_disable_stallguard(stepperJ, enable_stealth.j); break;
-        #endif
-        #if K_SENSORLESS
-          case K_AXIS: tmc_disable_stallguard(stepperK, enable_stealth.k); break;
         #endif
       }
 
@@ -1835,12 +1835,8 @@ void prepare_line_to_destination() {
         switch (axis) {
           default:
           case X_AXIS: es = X_ENDSTOP; break;
-          #if HAS_Y_AXIS
-            case Y_AXIS: es = Y_ENDSTOP; break;
-          #endif
-          #if HAS_Z_AXIS
-            case Z_AXIS: es = Z_ENDSTOP; break;
-          #endif
+          case Y_AXIS: es = Y_ENDSTOP; break;
+          case Z_AXIS: es = Z_ENDSTOP; break;
           #if HAS_I_AXIS
             case I_AXIS: es = I_ENDSTOP; break;
           #endif
