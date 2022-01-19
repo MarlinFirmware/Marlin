@@ -1990,9 +1990,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(lcd_contrast);
         uint8_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
-        if (!validating) {
-          TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
-        }
+        TERN_(HAS_LCD_CONTRAST, if (!validating) ui.set_contrast(lcd_contrast));
       }
 
       //
