@@ -100,5 +100,5 @@ uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_pt
   return 1;
 }
 
-#endif // MKS_MINI_12864_V3
+#endif // FYSETC_MINI_12864_2_1
 #endif // ARDUINO_ARCH_ESP32
