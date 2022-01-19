@@ -2527,6 +2527,12 @@ void Temperature::init() {
 
   Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
 
+  #ifdef THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
+    #define VARIANCE_WINDOW THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
+  #else
+    #define VARIANCE_WINDOW period_seconds
+  #endif
+
   /**
    * @brief Thermal Runaway state machine for a single heater
    * @param current          current measured temperature
@@ -2566,7 +2572,7 @@ void Temperature::init() {
         variance += ABS(current - last_temp); // no need for detection window now, a single change in variance is enough
         last_temp = current;
         if (!NEAR_ZERO(variance)) {
-          variance_timer = millis() + SEC_TO_MS(period_seconds);
+          variance_timer = millis() + SEC_TO_MS(VARIANCE_WINDOW);
           variance = 0.0;
           state = TRStable; // resume from where we detected the problem
         }
@@ -2627,7 +2633,7 @@ void Temperature::init() {
               state = TRMalfunction;
               break;
             }
-            variance_timer = now + SEC_TO_MS(period_seconds);
+            variance_timer = now + SEC_TO_MS(VARIANCE_WINDOW);
             variance = 0.0;
             last_temp = current;
           }
@@ -2653,6 +2659,8 @@ void Temperature::init() {
       #endif
     }
   }
+
+  #undef VARIANCE_WINDOW
 
 #endif // HAS_THERMAL_PROTECTION
 

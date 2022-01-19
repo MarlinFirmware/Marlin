@@ -349,8 +349,36 @@
   #define WATCH_COOLER_TEMP_INCREASE            3 // Degrees Celsius
 #endif
 
+/**
+ * Thermal protection variance monitor ensures that temperature sensor polling occurs regularly.
+ * If polling stops for any reason (i.e. due to a software issue), temperature readings will remain constant,
+ * while heaters may still be powered (uncontrollably). This feature is designed to monitor temperature value
+ * changes, and not specific processes, in order to be able to detect present and future software issues.
+ *
+ * Variance monitor uses the THERMAL_PROTECTION_*_PERIOD constants (assigned to each heater monitored, see above)
+ * as a time window, within which at least one temperature change must occur, to indicate that sensor polling
+ * is working. If any monitored heater's temperature remains totally constant (not even a fractional change) during
+ * this period, a thermal malfunction error occurs and the printer is halted.
+ *
+ * Some very stable heaters (where prolonged streaks of constant temperature readings occur) might produce false positives
+ * and halt the printer. In this case, try increasing the corresponding THERMAL_PROTECTION_*_PERIOD constant modestly
+ * (keeping in mind that a fully powered uncontrolled heater might reach dangerous tempepratures within a couple of
+ * minutes), overriding THERMAL_PROTECTION_*_PERIOD values with THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
+ * (this allows prolonging the variance detection window without affecting any other thermal protection setting, but
+ * is the same setting for all heaters, and be aware that some heaters might heat much faster than others),
+ * or disabling the feature (accepting the potential risk).
+ * 
+ * In this last scenario, it is *very* important to distinguish a false positive from the actual issue, before disabling
+ * the feature: if immediately after halting and restarting the printer, the heater's temperature appears even slightly
+ * higher than the expected temperature, you may be facing a real thermal malfunction (if you're using host monitoring,
+ * e.g. OctoPrint, this will appear as a bump on the temperature graph). Please report such malfunctions in the github
+ * project (Issues), providing serial logs if possible.
+ */
 #if ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_COOLER)
-  #define THERMAL_PROTECTION_VARIANCE_MONITOR     // Detect a sensor malfunction preventing temperature updates
+  #define THERMAL_PROTECTION_VARIANCE_MONITOR                            // Detect a sensor malfunction preventing temperature updates
+  
+  // Uncomment to use this value instead of THERMAL_PROTECTION_*_PERIOD constants (one value for all heaters)
+  // #define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE    120  // Seconds 
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -4173,7 +4201,7 @@
    *   #define WIFI_PWD  "WiFi Password"
    */
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
-#endif
+ #endif
 
 /**
  * Průša Multi-Material Unit (MMU)
