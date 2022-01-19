@@ -513,10 +513,7 @@
 
 #if HAS_WIRED_LCD
 
-  // Uncomment screen orientation
-  //#define LCD_SCREEN_ROT_90
-  //#define LCD_SCREEN_ROT_180
-  //#define LCD_SCREEN_ROT_270
+  //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   //
   // LCD Display output pins
@@ -660,7 +657,7 @@
 
       #define DOGLCD_CS              AUX4_05_PIN
       #define DOGLCD_A0              AUX2_07_PIN
-      #define LCD_SCREEN_ROT_180
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
       #define BEEPER_PIN             EXP2_06_PIN
       #define STAT_LED_RED_PIN       AUX4_03_PIN

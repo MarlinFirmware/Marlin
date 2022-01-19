@@ -207,11 +207,7 @@
 
     #endif
 
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_0
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #elif ENABLED(ZONESTAR_LCD)                     // For the Tronxy Melzi boards
 
