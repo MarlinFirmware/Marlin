@@ -216,7 +216,7 @@
   #define BTN_EN1                    EXP1_08_PIN
   #define BTN_EN2                    EXP1_06_PIN
 
-#elif EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14

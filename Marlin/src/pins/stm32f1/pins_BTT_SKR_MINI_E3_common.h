@@ -136,7 +136,7 @@
   #define EXP1_3                            PB7
 #endif
 
-#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
    *        ------                ------                ------
    * (ENT) |10  9 | (BEEP)       |10  9 |              |10  9 |
