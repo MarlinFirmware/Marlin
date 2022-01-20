@@ -332,15 +332,17 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
     case PAUSE_MESSAGE_HEATING:     return lcd_pause_heating_message;
     case PAUSE_MESSAGE_OPTION:      pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
                                     return menu_pause_option;
-    case PAUSE_MESSAGE_TOOL_CHANGE: return lcd_pause_tool_change_message;
-    case PAUSE_MESSAGE_TOOL_CHANGE_0: return lcd_pause_tool_change_0_message;
-    case PAUSE_MESSAGE_TOOL_CHANGE_1: return lcd_pause_tool_change_1_message;
-    OPTCODE(HAS_TOOL_2, case PAUSE_MESSAGE_TOOL_CHANGE_2: return lcd_pause_tool_change_2_message);
-    OPTCODE(HAS_TOOL_3, case PAUSE_MESSAGE_TOOL_CHANGE_3: return lcd_pause_tool_change_3_message);
-    OPTCODE(HAS_TOOL_4, case PAUSE_MESSAGE_TOOL_CHANGE_4: return lcd_pause_tool_change_4_message);
-    OPTCODE(HAS_TOOL_5, case PAUSE_MESSAGE_TOOL_CHANGE_5: return lcd_pause_tool_change_5_message);
-    OPTCODE(HAS_TOOL_6, case PAUSE_MESSAGE_TOOL_CHANGE_6: return lcd_pause_tool_change_6_message);
-    OPTCODE(HAS_TOOL_7, case PAUSE_MESSAGE_TOOL_CHANGE_7: return lcd_pause_tool_change_7_message);
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      case PAUSE_MESSAGE_TOOL_CHANGE: return lcd_pause_tool_change_message;
+      case PAUSE_MESSAGE_TOOL_CHANGE_0: return lcd_pause_tool_change_0_message;
+      case PAUSE_MESSAGE_TOOL_CHANGE_1: return lcd_pause_tool_change_1_message;
+      OPTCODE(HAS_TOOL_2, case PAUSE_MESSAGE_TOOL_CHANGE_2: return lcd_pause_tool_change_2_message);
+      OPTCODE(HAS_TOOL_3, case PAUSE_MESSAGE_TOOL_CHANGE_3: return lcd_pause_tool_change_3_message);
+      OPTCODE(HAS_TOOL_4, case PAUSE_MESSAGE_TOOL_CHANGE_4: return lcd_pause_tool_change_4_message);
+      OPTCODE(HAS_TOOL_5, case PAUSE_MESSAGE_TOOL_CHANGE_5: return lcd_pause_tool_change_5_message);
+      OPTCODE(HAS_TOOL_6, case PAUSE_MESSAGE_TOOL_CHANGE_6: return lcd_pause_tool_change_6_message);
+      OPTCODE(HAS_TOOL_7, case PAUSE_MESSAGE_TOOL_CHANGE_7: return lcd_pause_tool_change_7_message);
+    #endif
 
     case PAUSE_MESSAGE_STATUS:
     default: break;

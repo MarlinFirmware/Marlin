@@ -175,11 +175,11 @@ void menu_advanced_settings();
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
-    LOOP_S_L_N(o, 1, NUM_TOOL_OFFSET) {
+    LOOP_S_L_N(o, 1, TERN(MANUAL_SWITCHING_TOOLHEAD, NUM_TOOL_OFFSET, 1)) {
       #if ENABLED(DUAL_X_CARRIAGE)
         EDIT_ITEM_FAST_N(float42_52, o, MSG_TOOL_N_OFFSET_X, &tool_offset[o].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
       #else
-        EDIT_ITEM_FAST_N(float42_52, MSG_TOOL_N_OFFSET_X, &tool_offset[o].x, -99.0, 99.0, _recalc_offsets);
+        EDIT_ITEM_FAST_N(float42_52, o, MSG_TOOL_N_OFFSET_X, &tool_offset[o].x, -99.0, 99.0, _recalc_offsets);
       #endif
       // TODO: MSG_TOOL_N_OFFSET_A ?
       EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &tool_offset[o].y, -99.0, 99.0, _recalc_offsets);

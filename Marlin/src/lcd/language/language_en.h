@@ -735,14 +735,16 @@ namespace Language_en {
     LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_2_LINE("Click to finish", "filament purge"));
     LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_2_LINE("Wait for print", "to resume..."));
     LSTR MSG_PAUSE_TOOL_CHANGE            = _UxGT(MSG_2_LINE("Change tool and", "click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_0          = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_0, "Click to resume..."));
-    LSTR MSG_PAUSE_TOOL_CHANGE_1          = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_1, "Click to resume..."));
-    OPTCODE(HAS_TOOL_2, LSTR MSG_PAUSE_TOOL_CHANGE_2 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_2, "Click to resume...")));
-    OPTCODE(HAS_TOOL_3, LSTR MSG_PAUSE_TOOL_CHANGE_3 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_3, "Click to resume...")));
-    OPTCODE(HAS_TOOL_4, LSTR MSG_PAUSE_TOOL_CHANGE_4 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_4, "Click to resume...")));
-    OPTCODE(HAS_TOOL_5, LSTR MSG_PAUSE_TOOL_CHANGE_5 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_5, "Click to resume...")));
-    OPTCODE(HAS_TOOL_6, LSTR MSG_PAUSE_TOOL_CHANGE_6 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_6, "Click to resume...")));
-    OPTCODE(HAS_TOOL_7, LSTR MSG_PAUSE_TOOL_CHANGE_7 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_7, "Click to resume...")));
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      LSTR MSG_PAUSE_TOOL_CHANGE_0                     = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_0, "Click to resume..."));
+      OPTCODE(HAS_TOOL_1, LSTR MSG_PAUSE_TOOL_CHANGE_1 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_1, "Click to resume...")));
+      OPTCODE(HAS_TOOL_2, LSTR MSG_PAUSE_TOOL_CHANGE_2 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_2, "Click to resume...")));
+      OPTCODE(HAS_TOOL_3, LSTR MSG_PAUSE_TOOL_CHANGE_3 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_3, "Click to resume...")));
+      OPTCODE(HAS_TOOL_4, LSTR MSG_PAUSE_TOOL_CHANGE_4 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_4, "Click to resume...")));
+      OPTCODE(HAS_TOOL_5, LSTR MSG_PAUSE_TOOL_CHANGE_5 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_5, "Click to resume...")));
+      OPTCODE(HAS_TOOL_6, LSTR MSG_PAUSE_TOOL_CHANGE_6 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_6, "Click to resume...")));
+      OPTCODE(HAS_TOOL_7, LSTR MSG_PAUSE_TOOL_CHANGE_7 = _UxGT(MSG_3_LINE("Insert Tool:", TOOL_NAME_7, "Click to resume...")));
+    #endif
   #else
     LSTR MSG_ADVANCED_PAUSE_WAITING       = _UxGT(MSG_1_LINE("Click to continue"));
     LSTR MSG_PAUSE_PRINT_PARKING          = _UxGT(MSG_1_LINE("Parking..."));
@@ -756,14 +758,16 @@ namespace Language_en {
     LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("Click to finish"));
     LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("Resuming..."));
     LSTR MSG_PAUSE_TOOL_CHANGE            = _UxGT(MSG_1_LINE("Change Tool and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_0          = _UxGT(MSG_1_LINE("Insert Tool 0 and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_1          = _UxGT(MSG_1_LINE("Insert Tool 1 and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_2          = _UxGT(MSG_1_LINE("Insert Tool 2 and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_3          = _UxGT(MSG_1_LINE("Insert Tool 3 and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_4          = _UxGT(MSG_1_LINE("Insert Tool 4 and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_5          = _UxGT(MSG_1_LINE("Insert Tool 5 and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_6          = _UxGT(MSG_1_LINE("Insert Tool 6 and Click"));
-    LSTR MSG_PAUSE_TOOL_CHANGE_7          = _UxGT(MSG_1_LINE("Insert Tool 7 and Click"));
+    #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      LSTR MSG_PAUSE_TOOL_CHANGE_0        = _UxGT(MSG_1_LINE("Insert Tool 0 and Click"));
+      LSTR MSG_PAUSE_TOOL_CHANGE_1        = _UxGT(MSG_1_LINE("Insert Tool 1 and Click"));
+      LSTR MSG_PAUSE_TOOL_CHANGE_2        = _UxGT(MSG_1_LINE("Insert Tool 2 and Click"));
+      LSTR MSG_PAUSE_TOOL_CHANGE_3        = _UxGT(MSG_1_LINE("Insert Tool 3 and Click"));
+      LSTR MSG_PAUSE_TOOL_CHANGE_4        = _UxGT(MSG_1_LINE("Insert Tool 4 and Click"));
+      LSTR MSG_PAUSE_TOOL_CHANGE_5        = _UxGT(MSG_1_LINE("Insert Tool 5 and Click"));
+      LSTR MSG_PAUSE_TOOL_CHANGE_6        = _UxGT(MSG_1_LINE("Insert Tool 6 and Click"));
+      LSTR MSG_PAUSE_TOOL_CHANGE_7        = _UxGT(MSG_1_LINE("Insert Tool 7 and Click"));
+    #endif
   #endif
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");
