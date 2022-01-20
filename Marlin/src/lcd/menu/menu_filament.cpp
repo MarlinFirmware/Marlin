@@ -301,14 +301,16 @@ void lcd_pause_load_message()          { _lcd_pause_message(GET_TEXT(MSG_FILAMEN
 void lcd_pause_waiting_message()       { _lcd_pause_message(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING));  }
 void lcd_pause_resume_message()        { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME));  }
 void lcd_pause_tool_change_message()   { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE));       }
-void lcd_pause_tool_change_0_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_0));     }
-void lcd_pause_tool_change_1_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_1));     }
-OPTCODE(HAS_TOOL_2, void lcd_pause_tool_change_2_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_2)); });
-OPTCODE(HAS_TOOL_3, void lcd_pause_tool_change_3_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_3)); });
-OPTCODE(HAS_TOOL_4, void lcd_pause_tool_change_4_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_4)); });
-OPTCODE(HAS_TOOL_5, void lcd_pause_tool_change_5_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_5)); });
-OPTCODE(HAS_TOOL_6, void lcd_pause_tool_change_6_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_6)); });
-OPTCODE(HAS_TOOL_7, void lcd_pause_tool_change_7_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_7)); });
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  void lcd_pause_tool_change_0_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_0));     }
+  void lcd_pause_tool_change_1_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_1));     }
+  OPTCODE(HAS_TOOL_2, void lcd_pause_tool_change_2_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_2)); });
+  OPTCODE(HAS_TOOL_3, void lcd_pause_tool_change_3_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_3)); });
+  OPTCODE(HAS_TOOL_4, void lcd_pause_tool_change_4_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_4)); });
+  OPTCODE(HAS_TOOL_5, void lcd_pause_tool_change_5_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_5)); });
+  OPTCODE(HAS_TOOL_6, void lcd_pause_tool_change_6_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_6)); });
+  OPTCODE(HAS_TOOL_7, void lcd_pause_tool_change_7_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_7)); });
+#endif
 
 void lcd_pause_purge_message() {
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
