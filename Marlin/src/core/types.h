@@ -26,13 +26,6 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-class __FlashStringHelper;
-typedef const __FlashStringHelper* FSTR_P;
-#ifndef FPSTR
-  #define FPSTR(S) (reinterpret_cast<FSTR_P>(S))
-#endif
-#define FTOP(S) (reinterpret_cast<const char*>(S))
-
 //
 // Conditional type assignment magic. For example...
 //
@@ -59,7 +52,7 @@ struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_ELEM(O)    LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k)
 #define LOGICAL_AXIS_DECL(T,V)  LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V)
 
-#define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR)
+#define LOGICAL_AXES_STRING LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K)
 
 #if HAS_EXTRUDERS
   #define LIST_ITEM_E(N) , N
@@ -70,6 +63,8 @@ struct IF<true, L, R> { typedef L type; };
   #define CODE_ITEM_E(N)
   #define GANG_ITEM_E(N)
 #endif
+
+#define AXIS_COLLISION(L) (AXIS4_NAME == L || AXIS5_NAME == L || AXIS6_NAME == L)
 
 //
 // Enumerated axis indices
@@ -89,7 +84,7 @@ enum AxisEnum : uint8_t {
   #undef _EN_ITEM
 
   // Core also keeps toolhead directions
-  #if EITHER(IS_CORE, MARKFORGED_XY)
+  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
     , X_HEAD, Y_HEAD, Z_HEAD
   #endif
 
@@ -103,10 +98,10 @@ enum AxisEnum : uint8_t {
 
   // A, B, and C are for DELTA, SCARA, etc.
   , A_AXIS = X_AXIS
-  #if LINEAR_AXES >= 2
+  #if HAS_Y_AXIS
     , B_AXIS = Y_AXIS
   #endif
-  #if LINEAR_AXES >= 3
+  #if HAS_Z_AXIS
     , C_AXIS = Z_AXIS
   #endif
 
@@ -413,13 +408,13 @@ struct XYZval {
       FI void set(const T (&arr)[DISTINCT_AXES])       { LINEAR_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5]); }
     #endif
   #endif
-  #if LINEAR_AXES >= 4
+  #if HAS_I_AXIS
     FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
   #endif
-  #if LINEAR_AXES >= 5
+  #if HAS_J_AXIS
     FI void set(const T px, const T py, const T pz, const T pi)             { x = px; y = py; z = pz; i = pi; }
   #endif
-  #if LINEAR_AXES >= 6
+  #if HAS_K_AXIS
     FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
   #endif
 
@@ -554,13 +549,13 @@ struct XYZEval {
     FI void set(const XYZval<T> pxyz, const T pe)  { set(pxyz); e = pe; }
     FI void set(LOGICAL_AXIS_ARGS(const T))        { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, u = i, v = j, w = k); }
   #endif
-  #if LINEAR_AXES >= 4
+  #if HAS_I_AXIS
     FI void set(const T px, const T py, const T pz)                         { x = px; y = py; z = pz; }
   #endif
-  #if LINEAR_AXES >= 5
+  #if HAS_J_AXIS
     FI void set(const T px, const T py, const T pz, const T pi)             { x = px; y = py; z = pz; i = pi; }
   #endif
-  #if LINEAR_AXES >= 6
+  #if HAS_K_AXIS
     FI void set(const T px, const T py, const T pz, const T pi, const T pj) { x = px; y = py; z = pz; i = pi; j = pj; }
   #endif
 

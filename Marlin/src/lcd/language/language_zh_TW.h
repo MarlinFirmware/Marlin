@@ -66,7 +66,7 @@ namespace Language_zh_TW {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("設置原點偏移");     // "Set home offsets"
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("偏移已啟用");     // "Offsets applied"
   LSTR MSG_SET_ORIGIN                     = _UxGT("設置原點");     // "Set origin"
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("預熱 ") PREHEAT_1_LABEL;     // "Preheat PREHEAT_1_LABEL"
     LSTR MSG_PREHEAT_1_H                  = _UxGT("預熱 ") PREHEAT_1_LABEL " ~";     // "Preheat PREHEAT_1_LABEL"
     LSTR MSG_PREHEAT_1_END                = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 噴嘴");     //MSG_PREHEAT_1 " "
@@ -116,9 +116,8 @@ namespace Language_zh_TW {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplication");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2nd Nozzle X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2nd Nozzle Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("執行G29");     // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具");     // "UBL Tools"
   LSTR MSG_UBL_LEVEL_BED                  = _UxGT("統一熱床調平(UBL)");     // "Unified Bed Leveling"
@@ -140,7 +139,7 @@ namespace Language_zh_TW {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("完成編輯網格");     // "Done Editing Mesh"
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("創設客戶網格");     // "Build Custom Mesh"
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("創設網格");     // "Build Mesh"
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("創設 $ 網格");     // "Build PREHEAT_1_LABEL Mesh"
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("批准 $ 網格");     // "Validate PREHEAT_1_LABEL Mesh"
   #endif
@@ -253,43 +252,43 @@ namespace Language_zh_TW {
   LSTR MSG_SELECT_E                       = _UxGT("選擇 *");
   LSTR MSG_ACC                            = _UxGT("加速度");     // "Accel" acceleration
   LSTR MSG_JERK                           = _UxGT("抖動速率");     // "Jerk"
-  LSTR MSG_VA_JERK                        = _UxGT("軸抖動速率") LCD_STR_A;     // "Va-jerk"
-  LSTR MSG_VB_JERK                        = _UxGT("軸抖動速率") LCD_STR_B;
-  LSTR MSG_VC_JERK                        = _UxGT("軸抖動速率") LCD_STR_C;
-  LSTR MSG_VI_JERK                        = _UxGT("軸抖動速率") LCD_STR_I;
-  LSTR MSG_VJ_JERK                        = _UxGT("軸抖動速率") LCD_STR_J;
-  LSTR MSG_VK_JERK                        = _UxGT("軸抖動速率") LCD_STR_K;
+  LSTR MSG_VA_JERK                        = _UxGT("軸抖動速率") STR_A;     // "Va-jerk"
+  LSTR MSG_VB_JERK                        = _UxGT("軸抖動速率") STR_B;
+  LSTR MSG_VC_JERK                        = _UxGT("軸抖動速率") STR_C;
+  LSTR MSG_VI_JERK                        = _UxGT("軸抖動速率") STR_I;
+  LSTR MSG_VJ_JERK                        = _UxGT("軸抖動速率") STR_J;
+  LSTR MSG_VK_JERK                        = _UxGT("軸抖動速率") STR_K;
   LSTR MSG_VE_JERK                        = _UxGT("擠出機抖動速率");
 
   LSTR MSG_VELOCITY                       = _UxGT("速度");     // "Velocity"
-  LSTR MSG_VMAX_A                         = _UxGT("最大進料速率") LCD_STR_A;     // "Vmax " max_feedrate_mm_s
-  LSTR MSG_VMAX_B                         = _UxGT("最大進料速率") LCD_STR_B;
-  LSTR MSG_VMAX_C                         = _UxGT("最大進料速率") LCD_STR_C;
-  LSTR MSG_VMAX_I                         = _UxGT("最大進料速率") LCD_STR_I;
-  LSTR MSG_VMAX_J                         = _UxGT("最大進料速率") LCD_STR_J;
-  LSTR MSG_VMAX_K                         = _UxGT("最大進料速率") LCD_STR_K;
-  LSTR MSG_VMAX_E                         = _UxGT("最大進料速率") LCD_STR_E;
+  LSTR MSG_VMAX_A                         = _UxGT("最大進料速率") STR_A;     // "Vmax " max_feedrate_mm_s
+  LSTR MSG_VMAX_B                         = _UxGT("最大進料速率") STR_B;
+  LSTR MSG_VMAX_C                         = _UxGT("最大進料速率") STR_C;
+  LSTR MSG_VMAX_I                         = _UxGT("最大進料速率") STR_I;
+  LSTR MSG_VMAX_J                         = _UxGT("最大進料速率") STR_J;
+  LSTR MSG_VMAX_K                         = _UxGT("最大進料速率") STR_K;
+  LSTR MSG_VMAX_E                         = _UxGT("最大進料速率") STR_E;
   LSTR MSG_VMAX_EN                        = _UxGT("最大進料速率 *");     // "Vmax " max_feedrate_mm_s
   LSTR MSG_VMIN                           = _UxGT("最小進料速率");     // "Vmin"  min_feedrate_mm_s
   LSTR MSG_VTRAV_MIN                      = _UxGT("最小移動速率");     // "VTrav min" min_travel_feedrate_mm_s, (target) speed of the move
   LSTR MSG_ACCELERATION                   = _UxGT("加速度");     // "Acceleration"
-  LSTR MSG_AMAX_A                         = _UxGT("最大列印加速度") LCD_STR_A;     // "Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
-  LSTR MSG_AMAX_B                         = _UxGT("最大列印加速度") LCD_STR_B;
-  LSTR MSG_AMAX_C                         = _UxGT("最大列印加速度") LCD_STR_C;
-  LSTR MSG_AMAX_I                         = _UxGT("最大列印加速度") LCD_STR_I;
-  LSTR MSG_AMAX_J                         = _UxGT("最大列印加速度") LCD_STR_J;
-  LSTR MSG_AMAX_K                         = _UxGT("最大列印加速度") LCD_STR_K;
-  LSTR MSG_AMAX_E                         = _UxGT("最大列印加速度") LCD_STR_E;
+  LSTR MSG_AMAX_A                         = _UxGT("最大列印加速度") STR_A;     // "Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
+  LSTR MSG_AMAX_B                         = _UxGT("最大列印加速度") STR_B;
+  LSTR MSG_AMAX_C                         = _UxGT("最大列印加速度") STR_C;
+  LSTR MSG_AMAX_I                         = _UxGT("最大列印加速度") STR_I;
+  LSTR MSG_AMAX_J                         = _UxGT("最大列印加速度") STR_J;
+  LSTR MSG_AMAX_K                         = _UxGT("最大列印加速度") STR_K;
+  LSTR MSG_AMAX_E                         = _UxGT("最大列印加速度") STR_E;
   LSTR MSG_AMAX_EN                        = _UxGT("最大列印加速度 *");     // "Amax " max_acceleration_mm_per_s2, acceleration in units/s^2 for print moves
   LSTR MSG_A_RETRACT                      = _UxGT("回縮加速度");     // "A-retract" retract_acceleration, E acceleration in mm/s^2 for retracts
   LSTR MSG_A_TRAVEL                       = _UxGT("非列印移動加速度");     // "A-travel" travel_acceleration, X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
   LSTR MSG_STEPS_PER_MM                   = _UxGT("軸步數/mm");     // "Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
-  LSTR MSG_A_STEPS                        = LCD_STR_A _UxGT(" 軸步數/mm");     // "Asteps/mm" axis_steps_per_mm, axis steps-per-unit G92
-  LSTR MSG_B_STEPS                        = LCD_STR_B _UxGT(" 軸步數/mm");
-  LSTR MSG_C_STEPS                        = LCD_STR_C _UxGT(" 軸步數/mm");
-  LSTR MSG_I_STEPS                        = LCD_STR_I _UxGT(" 軸步數/mm");
-  LSTR MSG_J_STEPS                        = LCD_STR_J _UxGT(" 軸步數/mm");
-  LSTR MSG_K_STEPS                        = LCD_STR_K _UxGT(" 軸步數/mm");
+  LSTR MSG_A_STEPS                        = STR_A _UxGT(" 軸步數/mm");     // "Asteps/mm" axis_steps_per_mm, axis steps-per-unit G92
+  LSTR MSG_B_STEPS                        = STR_B _UxGT(" 軸步數/mm");
+  LSTR MSG_C_STEPS                        = STR_C _UxGT(" 軸步數/mm");
+  LSTR MSG_I_STEPS                        = STR_I _UxGT(" 軸步數/mm");
+  LSTR MSG_J_STEPS                        = STR_J _UxGT(" 軸步數/mm");
+  LSTR MSG_K_STEPS                        = STR_K _UxGT(" 軸步數/mm");
   LSTR MSG_E_STEPS                        = _UxGT("擠出機步數/mm");     // "Esteps/mm"
   LSTR MSG_EN_STEPS                       = _UxGT("擠出機~步數/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("溫度");     // "Temperature"
@@ -438,7 +437,7 @@ namespace Language_zh_TW {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("燈亮度");     // "Light BRIGHTNESS"
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("打印機不正確");     // "The printer is incorrect"
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("列印計數");     // "Print Count"
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("已完成");     // "Completed"
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("總列印時間");     // "Total print time"
@@ -456,12 +455,12 @@ namespace Language_zh_TW {
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("最高溫度");     // "Max Temp"
   LSTR MSG_INFO_PSU                       = _UxGT("電源供應");     // "Power Supply"
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("驅動力度");     // "Drive Strength"
-  LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" 驅動 %");    // X Driver %
-  LSTR MSG_DAC_PERCENT_B                  = LCD_STR_B _UxGT(" 驅動 %");    // Y Driver %
-  LSTR MSG_DAC_PERCENT_C                  = LCD_STR_C _UxGT(" 驅動 %");    // Z Driver %
-  LSTR MSG_DAC_PERCENT_I                  = LCD_STR_I _UxGT(" 驅動 %");    // I Driver %
-  LSTR MSG_DAC_PERCENT_J                  = LCD_STR_J _UxGT(" 驅動 %");    // J Driver %
-  LSTR MSG_DAC_PERCENT_K                  = LCD_STR_K _UxGT(" 驅動 %");    // K Driver %
+  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" 驅動 %");    // X Driver %
+  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" 驅動 %");    // Y Driver %
+  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" 驅動 %");    // Z Driver %
+  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" 驅動 %");    // I Driver %
+  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" 驅動 %");    // J Driver %
+  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" 驅動 %");    // K Driver %
   LSTR MSG_DAC_PERCENT_E                  = _UxGT("E 驅動 %");    //E Driver %
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC連接錯誤");   // "TMC CONNECTION ERROR"
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("保存驅動設置");     // "DAC EEPROM Write"

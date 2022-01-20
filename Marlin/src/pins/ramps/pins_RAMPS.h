@@ -190,51 +190,34 @@
 #endif
 
 //
-// Augmentation for auto-assigning RAMPS plugs
-//
-#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HAS_MULTI_HOTEND
-    #if TEMP_SENSOR_BED
-      #define IS_RAMPS_EEB
-    #else
-      #define IS_RAMPS_EEF
-    #endif
-  #elif TEMP_SENSOR_BED
-    #define IS_RAMPS_EFB
-  #else
-    #define IS_RAMPS_EFF
-  #endif
-#endif
-
-//
 // Heaters / Fans
 //
+#ifndef MOSFET_A_PIN
+  #define MOSFET_A_PIN                        10
+#endif
+#ifndef MOSFET_B_PIN
+  #define MOSFET_B_PIN                         9
+#endif
+#ifndef MOSFET_C_PIN
+  #define MOSFET_C_PIN                         8
+#endif
 #ifndef MOSFET_D_PIN
   #define MOSFET_D_PIN                        -1
 #endif
-#ifndef RAMPS_D8_PIN
-  #define RAMPS_D8_PIN                         8
-#endif
-#ifndef RAMPS_D9_PIN
-  #define RAMPS_D9_PIN                         9
-#endif
-#ifndef RAMPS_D10_PIN
-  #define RAMPS_D10_PIN                       10
-#endif
 
-#define HEATER_0_PIN               RAMPS_D10_PIN
+#define HEATER_0_PIN                MOSFET_A_PIN
 
-#if ENABLED(IS_RAMPS_EFB)                         // Hotend, Fan, Bed
-  #define HEATER_BED_PIN            RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_EEF)                       // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              RAMPS_D9_PIN
-#elif ENABLED(IS_RAMPS_EEB)                       // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              RAMPS_D9_PIN
-  #define HEATER_BED_PIN            RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_EFF)                       // Hotend, Fan, Fan
-  #define FAN1_PIN                  RAMPS_D8_PIN
-#elif DISABLED(IS_RAMPS_SF)                       // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
-  #define HEATER_BED_PIN            RAMPS_D8_PIN
+#if FET_ORDER_EFB                                 // Hotend, Fan, Bed
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
+  #define HEATER_1_PIN              MOSFET_B_PIN
+#elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
+  #define HEATER_1_PIN              MOSFET_B_PIN
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EFF                               // Hotend, Fan, Fan
+  #define FAN1_PIN                  MOSFET_C_PIN
+#elif DISABLED(FET_ORDER_SF)                      // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
+  #define HEATER_BED_PIN            MOSFET_C_PIN
   #if EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
     #define HEATER_1_PIN            MOSFET_D_PIN
   #else
@@ -243,14 +226,14 @@
 #endif
 
 #ifndef FAN_PIN
-  #if EITHER(IS_RAMPS_EFB, IS_RAMPS_EFF)          // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN                 RAMPS_D9_PIN
-  #elif EITHER(IS_RAMPS_EEF, IS_RAMPS_SF)         // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN                 RAMPS_D8_PIN
-  #elif ENABLED(IS_RAMPS_EEB)                     // Hotend, Hotend, Bed
+  #if EITHER(FET_ORDER_EFB, FET_ORDER_EFF)        // Hotend, Fan, Bed or Hotend, Fan, Fan
+    #define FAN_PIN                 MOSFET_B_PIN
+  #elif EITHER(FET_ORDER_EEF, FET_ORDER_SF)       // Hotend, Hotend, Fan or Spindle, Fan
+    #define FAN_PIN                 MOSFET_C_PIN
+  #elif FET_ORDER_EEB                             // Hotend, Hotend, Bed
     #define FAN_PIN                            4  // IO pin. Buffer needed
   #else                                           // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-    #define FAN_PIN                 RAMPS_D9_PIN
+    #define FAN_PIN                 MOSFET_B_PIN
   #endif
 #endif
 
@@ -478,7 +461,7 @@
  *    D17 | 8  7 | D16           D31 | 8  7 | D53
  *    D23   6  5   D25           D33   6  5   D51 (MOSI)
  *    D27 | 4  3 | D29           D49 | 4  3 | D41
- *    GND | 2  1 | 5V            GND | 2  1 | NC
+ *    GND | 2  1 | 5V            GND | 2  1 | --
  *         ------                     ------
  *          EXP1                       EXP2
  */
@@ -820,13 +803,13 @@
    * FYSETC TFT-81050 display pinout
    *
    *               Board                                     Display
-   *               -----                                     -----
-   *  (SCK)   D52 | 1 2 | D50    (MISO)                MISO | 1 2 | SCK
-   *  (SD_CS) D53 | 3 4 | D33 (BNT_EN2) (BNT_EN2) MOD_RESET | 3 4 | SD_CS
-   *  (MOSI)  D51 | 5 6   D31 (BNT_EN1) (BNT_EN1)    LCD_CS | 5 6   MOSI
-   *        RESET | 7 8 | D49  (SD_DET)              SD_DET | 7 8 | RESET
-   *           NC | 9 10| GND                           GND | 9 10| 5V
-   *               -----                                     -----
+   *               ------                                    ------
+   *          GND |10  9 | --                            5V |10  9 | GND
+   *  (SD_DET) 49 | 8  7 | RESET                      RESET | 8  7 | (SD_DET)
+   * (BTN_EN1) 31   6  5 | 51 (MOSI)                 (MOSI)   6  5 | (LCD_CS)
+   * (BTN_EN2) 33 | 4  3 | 53 (SD_CS)               (SD_CS) | 4  3 | (MOD_RESET)
+   *    (MISO) 50 | 2  1 | 52 (SCK)                   (SCK) | 2  1 | (MISO)
+   *               ------                                    ------
    *                EXP2                                      EXP1
    *
    * Needs custom cable:

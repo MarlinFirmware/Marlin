@@ -27,7 +27,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "MKS Robin E3P only supports one hotend / E-stepper. Comment out this line to continue."
 #elif HAS_FSMC_TFT
   #error "MKS Robin E3P doesn't support FSMC-based TFT displays."
@@ -39,7 +39,7 @@
 #define MKS_HARDWARE_TEST_ONLY_E0
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER                             5
+#define TEMP_TIMER  5
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -314,7 +314,7 @@
       #define BEEPER_PIN                    -1
     #endif
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define DOGLCD_CS                       PD13
     #define DOGLCD_A0                       PC6
     #define LCD_PINS_DC                DOGLCD_A0

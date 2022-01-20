@@ -128,6 +128,11 @@ void HAL_adc_init();
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 //
+// PWM
+//
+inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
+
+//
 // Pin Map
 //
 #define GET_PIN_MAP_PIN(index) index
@@ -153,16 +158,14 @@ void HAL_idletask();
 //
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 #ifdef __cplusplus
   extern "C" {

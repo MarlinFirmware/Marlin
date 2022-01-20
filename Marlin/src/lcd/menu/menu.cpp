@@ -38,13 +38,20 @@
   #include "../../module/probe.h"
 #endif
 
-#if EITHER(ENABLE_LEVELING_FADE_HEIGHT, AUTO_BED_LEVELING_UBL)
+#if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 ////////////////////////////////////////////
 ///////////// Global Variables /////////////
 ////////////////////////////////////////////
+
+#if HAS_LEVELING && ANY(LEVEL_BED_CORNERS, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+  bool leveling_was_active; // = false
+#endif
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)
+  uint8_t manual_probe_index; // = 0
+#endif
 
 // Menu Navigation
 int8_t encoderTopLine, encoderLine, screen_items;
@@ -103,42 +110,28 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
-/**
- * Functions for editing single values
- *
- * The "DEFINE_MENU_EDIT_ITEM" macro generates the classes needed to edit a numerical value.
- *
- * The prerequisite is that in the header the type was already declared:
- *
- *   DEFINE_MENU_EDIT_ITEM_TYPE(int3, int16_t, i16tostr3rj, 1)
- *
- * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into:
- *
- *   template class TMenuEditItem<MenuEditItemInfo_int3>
- *
- * You can then use one of the menu macros to present the edit interface:
- *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *
- * This expands into a more primitive menu item:
- *  _MENU_ITEM_P(int3, false, GET_TEXT(MSG_SPEED), &feedrate_percentage, 10, 999)
- *
- * ...which calls:
- *       MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
- *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
- */
+// All Edit Screens run the same way, but `draw_edit_screen` is implementation-specific
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
+  // Reset repeat_delay for Touch Buttons
   TERN_(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
+  // Constrain ui.encoderPosition to 0 ... maxEditValue (calculated in encoder steps)
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
+  // If drawing is flagged then redraw the (whole) edit screen
   if (ui.should_draw())
     draw_edit_screen(strfunc(ui.encoderPosition + minEditValue));
+  // If there was a click or "live editing" and encoder moved...
   if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
+    // Pass the editValue pointer to the loadfunc along with the encoder plus min
     if (editValue) loadfunc(editValue, ui.encoderPosition + minEditValue);
+    // If a callbackFunc was set, call it for click or always for "live editing"
     if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
+    // Use up the click to finish editing and go to the previous screen
     if (ui.use_click()) ui.goto_previous_screen();
   }
 }
 
+// Going to an edit screen sets up some persistent values first
 void MenuEditItemBase::goto_edit_screen(
   PGM_P const el,         // Edit label
   void * const ev,        // Edit value pointer
@@ -353,7 +346,6 @@ void _lcd_draw_homing() {
 }
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
-  #include "../../feature/bedlevel/bedlevel.h"
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 

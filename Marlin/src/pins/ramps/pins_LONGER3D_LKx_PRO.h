@@ -28,17 +28,17 @@
 #define REQUIRE_MEGA2560
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Longer3D LGT KIT V1.0 board only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1
+#if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || SERIAL_PORT_3 == 1
   #warning "Serial 1 is originally reserved to DGUS LCD."
 #endif
-#if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2
+#if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || SERIAL_PORT_3 == 2 || LCD_SERIAL_PORT == 2
   #warning "Serial 2 has no connector. Hardware changes may be required to use it."
 #endif
-#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3
+#if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || SERIAL_PORT_3 == 3 || LCD_SERIAL_PORT == 3
   #define CHANGE_Y_LIMIT_PINS
   #warning "Serial 3 is originally reserved to Y limit switches. Hardware changes are required to use it."
 #endif
@@ -116,5 +116,4 @@
 //
 // Other RAMPS 1.3 pins
 //
-#define IS_RAMPS_EFB                              // Override autodetection. Bed will be undefined.
 #include "pins_RAMPS_13.h" // ... RAMPS

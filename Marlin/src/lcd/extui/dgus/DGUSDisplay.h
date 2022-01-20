@@ -95,14 +95,14 @@ public:
 
   // Checks two things: Can we confirm the presence of the display and has we initialized it.
   // (both boils down that the display answered to our chatting)
-  static inline bool isInitialized() { return Initialized; }
+  static bool isInitialized() { return Initialized; }
 
 private:
   static void WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen);
   static void WritePGM(const char str[], uint8_t len);
   static void ProcessRx();
 
-  static inline uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
+  static uint16_t swap16(const uint16_t value) { return (value & 0xFFU) << 8U | (value >> 8U); }
   static rx_datagram_state_t rx_datagram_state;
   static uint8_t rx_datagram_len;
   static bool Initialized, no_reentrance;

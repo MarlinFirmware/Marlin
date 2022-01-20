@@ -45,7 +45,7 @@ namespace Language_bg {
   LSTR MSG_AUTO_HOME                      = _UxGT("Паркиране");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Задай Начало");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Изходна точка");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Подгряване ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
@@ -99,12 +99,12 @@ namespace Language_bg {
   LSTR MSG_A_RETRACT                      = _UxGT("A-откат");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-travel");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Стъпки/mm");
-  LSTR MSG_A_STEPS                        = LCD_STR_A _UxGT(" стъпки/mm");
-  LSTR MSG_B_STEPS                        = LCD_STR_B _UxGT(" стъпки/mm");
-  LSTR MSG_C_STEPS                        = LCD_STR_C _UxGT(" стъпки/mm");
-  LSTR MSG_I_STEPS                        = LCD_STR_I _UxGT(" стъпки/mm");
-  LSTR MSG_J_STEPS                        = LCD_STR_J _UxGT(" стъпки/mm");
-  LSTR MSG_K_STEPS                        = LCD_STR_K _UxGT(" стъпки/mm");
+  LSTR MSG_A_STEPS                        = STR_A _UxGT(" стъпки/mm");
+  LSTR MSG_B_STEPS                        = STR_B _UxGT(" стъпки/mm");
+  LSTR MSG_C_STEPS                        = STR_C _UxGT(" стъпки/mm");
+  LSTR MSG_I_STEPS                        = STR_I _UxGT(" стъпки/mm");
+  LSTR MSG_J_STEPS                        = STR_J _UxGT(" стъпки/mm");
+  LSTR MSG_K_STEPS                        = STR_K _UxGT(" стъпки/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E стъпки/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* стъпки/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Температура");

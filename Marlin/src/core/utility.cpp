@@ -60,7 +60,8 @@ void safe_delay(millis_t ms) {
       TERN_(DELTA,         "Delta")
       TERN_(IS_SCARA,      "SCARA")
       TERN_(IS_CORE,       "Core")
-      TERN_(MARKFORGED_XY, "MarkForged")
+      TERN_(MARKFORGED_XY, "MarkForgedXY")
+      TERN_(MARKFORGED_YX, "MarkForgedYX")
       TERN_(IS_CARTESIAN,  "Cartesian")
     );
 
@@ -92,9 +93,9 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" (Aligned With");
 
         if (probe.offset_xy.y > 0)
-          SERIAL_ECHOPGM_P(ENABLED(IS_SCARA) ? PSTR("-Distal") : PSTR("-Back"));
+          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Distal", "-Back")));
         else if (probe.offset_xy.y < 0)
-          SERIAL_ECHOPGM_P(ENABLED(IS_SCARA) ? PSTR("-Proximal") : PSTR("-Front"));
+          SERIAL_ECHOF(F(TERN(IS_SCARA, "-Proximal", "-Front")));
         else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 
@@ -102,7 +103,7 @@ void safe_delay(millis_t ms) {
 
       #endif
 
-      SERIAL_ECHOPGM_P(probe.offset.z < 0 ? PSTR("Below") : probe.offset.z > 0 ? PSTR("Above") : PSTR("Same Z as"));
+      SERIAL_ECHOF(probe.offset.z < 0 ? F("Below") : probe.offset.z > 0 ? F("Above") : F("Same Z as"));
       SERIAL_ECHOLNPGM(" Nozzle)");
 
     #endif

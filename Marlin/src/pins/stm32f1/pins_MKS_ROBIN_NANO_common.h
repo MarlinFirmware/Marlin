@@ -32,7 +32,7 @@
 #define BOARD_NO_NATIVE_USB
 
 // Avoid conflict with TIMER_SERVO when using the STM32 HAL
-#define TEMP_TIMER                             5
+#define TEMP_TIMER  5
 
 //
 // EEPROM
@@ -98,20 +98,19 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                      PC3
 #endif
-#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
-  #ifndef FAN1_PIN
-    #define FAN1_PIN                        PB0
-  #endif
-#else
-  #ifndef HEATER_1_PIN
-    #define HEATER_1_PIN                    PB0
-  #endif
-#endif
 #ifndef FAN_PIN
   #define FAN_PIN                           PB1   // FAN
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA0
+#endif
+
+#if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                        PB0
+  #endif
+#elif !defined(HEATER_1_PIN)
+  #define HEATER_1_PIN                      PB0
 #endif
 
 //

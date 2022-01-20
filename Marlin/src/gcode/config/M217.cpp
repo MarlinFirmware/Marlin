@@ -131,15 +131,15 @@ void GcodeSuite::M217() {
 }
 
 void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, PSTR(STR_TOOL_CHANGING));
+  report_heading_etc(forReplay, F(STR_TOOL_CHANGING));
 
   SERIAL_ECHOPGM("  M217");
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     SERIAL_ECHOPGM(" S", LINEAR_UNIT(toolchange_settings.swap_length));
     SERIAL_ECHOPGM_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
-                      SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
-                      SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
+                     SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
+                     SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPGM(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
                    " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
                    " F", toolchange_settings.fan_speed,

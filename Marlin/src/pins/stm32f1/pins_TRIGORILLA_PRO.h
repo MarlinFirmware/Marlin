@@ -45,7 +45,9 @@
 //
 // EEPROM
 //
-#define FLASH_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 #if ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)

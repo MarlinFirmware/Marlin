@@ -57,8 +57,6 @@
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
-#define IS_RAMPS_EFB
-
 //
 // Servos
 //
@@ -145,57 +143,40 @@
 #endif
 
 //
-// Augmentation for auto-assigning RAMPS plugs
-//
-#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HAS_MULTI_HOTEND
-    #if TEMP_SENSOR_BED
-      #define IS_RAMPS_EEB
-    #else
-      #define IS_RAMPS_EEF
-    #endif
-  #elif TEMP_SENSOR_BED
-    #define IS_RAMPS_EFB
-  #else
-    #define IS_RAMPS_EFF
-  #endif
-#endif
-
-//
 // Heaters / Fans
 //
+#ifndef MOSFET_A_PIN
+  #define MOSFET_A_PIN                        10
+#endif
+#ifndef MOSFET_B_PIN
+  #define MOSFET_B_PIN                         9
+#endif
+#ifndef MOSFET_C_PIN
+  #define MOSFET_C_PIN                         8
+#endif
 #ifndef MOSFET_D_PIN
   #define MOSFET_D_PIN                        -1
 #endif
-#ifndef RAMPS_D8_PIN
-  #define RAMPS_D8_PIN                         8
-#endif
-#ifndef RAMPS_D9_PIN
-  #define RAMPS_D9_PIN                         9
-#endif
-#ifndef RAMPS_D10_PIN
-  #define RAMPS_D10_PIN                       10
-#endif
 
-#define HEATER_0_PIN               RAMPS_D10_PIN
+#define HEATER_0_PIN                MOSFET_A_PIN
 
-#if ENABLED(IS_RAMPS_EFB)                         // Hotend, Fan, Bed
-  #define FAN_PIN                   RAMPS_D9_PIN
-  #define HEATER_BED_PIN            RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_EEF)                       // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              RAMPS_D9_PIN
-  #define FAN_PIN                   RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_EEB)                       // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              RAMPS_D9_PIN
-  #define HEATER_BED_PIN            RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_EFF)                       // Hotend, Fan, Fan
-  #define FAN_PIN                   RAMPS_D9_PIN
-  #define FAN1_PIN                  RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_SF)                        // Spindle, Fan
-  #define FAN_PIN                   RAMPS_D8_PIN
+#if FET_ORDER_EFB                                 // Hotend, Fan, Bed
+  #define FAN_PIN                   MOSFET_B_PIN
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
+  #define HEATER_1_PIN              MOSFET_B_PIN
+  #define FAN_PIN                   MOSFET_C_PIN
+#elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
+  #define HEATER_1_PIN              MOSFET_B_PIN
+  #define HEATER_BED_PIN            MOSFET_C_PIN
+#elif FET_ORDER_EFF                               // Hotend, Fan, Fan
+  #define FAN_PIN                   MOSFET_B_PIN
+  #define FAN1_PIN                  MOSFET_C_PIN
+#elif FET_ORDER_SF                                // Spindle, Fan
+  #define FAN_PIN                   MOSFET_C_PIN
 #else                                             // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-  #define FAN_PIN                   RAMPS_D9_PIN
-  #define HEATER_BED_PIN            RAMPS_D8_PIN
+  #define FAN_PIN                   MOSFET_B_PIN
+  #define HEATER_BED_PIN            MOSFET_C_PIN
   #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
     #define FAN1_PIN                MOSFET_D_PIN
   #else
@@ -410,6 +391,7 @@
   #define BEEPER_PIN                          42
 
   #define TOUCH_CS_PIN                        33
+
   #define SD_DETECT_PIN                       41
 
   #define HAS_SPI_FLASH                        1
@@ -426,17 +408,47 @@
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          63934
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          63598
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                  -1
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -20
+  #ifndef TOUCH_SCREEN_CALIBRATION
+    #if ENABLED(TFT_RES_320x240)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        20525
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        15335
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                -1
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                 0
+      #endif
+    #elif ENABLED(TFT_RES_480x272)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        30715
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        17415
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                 0
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                -1
+      #endif
+    #elif ENABLED(TFT_RES_480x320)
+      #ifndef TOUCH_CALIBRATION_X
+        #define TOUCH_CALIBRATION_X        30595
+      #endif
+      #ifndef TOUCH_CALIBRATION_Y
+        #define TOUCH_CALIBRATION_Y        20415
+      #endif
+      #ifndef TOUCH_OFFSET_X
+        #define TOUCH_OFFSET_X                 2
+      #endif
+      #ifndef TOUCH_OFFSET_Y
+        #define TOUCH_OFFSET_Y                 1
+      #endif
+    #endif
   #endif
 
   #define BTN_BACK                            70

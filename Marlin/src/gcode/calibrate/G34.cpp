@@ -47,7 +47,7 @@ void GcodeSuite::G34() {
   TemporaryGlobalEndstopsState unlock_z(false);
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_PRE
-    gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_PRE));
+    process_subcommands_now(F(GANTRY_CALIBRATION_COMMANDS_PRE));
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sub Commands Processed");
   #endif
 
@@ -114,10 +114,6 @@ void GcodeSuite::G34() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Final Z Move");
   do_blocking_move_to_z(zgrind, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
 
-  // Back off end plate, back to normal motion range
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
-  do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
-
   #if _REDUCE_CURRENT
     // Reset current to original values
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
@@ -146,9 +142,13 @@ void GcodeSuite::G34() {
     #endif
   #endif
 
+  // Back off end plate, back to normal motion range
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
+  do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
+
   #ifdef GANTRY_CALIBRATION_COMMANDS_POST
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Running Post Commands");
-    gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_POST));
+    process_subcommands_now(F(GANTRY_CALIBRATION_COMMANDS_POST));
   #endif
 
   SET_SOFT_ENDSTOP_LOOSE(false);

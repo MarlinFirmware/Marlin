@@ -83,9 +83,7 @@
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states {
-          tmc_enable_stallguard(stepperX)
-        , tmc_enable_stallguard(stepperY)
-        , false
+          LINEAR_AXIS_LIST(tmc_enable_stallguard(stepperX), tmc_enable_stallguard(stepperY), false, false, false, false)
         , false
           #if AXIS_HAS_STALLGUARD(X2)
             || tmc_enable_stallguard(stepperX2)
@@ -156,7 +154,7 @@
       homeaxis(Z_AXIS);
     }
     else {
-      LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+      LCD_MESSAGE(MSG_ZPROBE_OUT);
       SERIAL_ECHO_MSG(STR_ZPROBE_OUT_SER);
     }
   }
@@ -269,48 +267,48 @@ void GcodeSuite::G28() {
   #endif
 
   #if HAS_HOMING_CURRENT
-    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
-      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+    auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
+      DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
       stepperX.rms_current(X_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("X"), tmc_save_current_X, X_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("X"), tmc_save_current_X, X_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(X2)
       const int16_t tmc_save_current_X2 = stepperX2.getMilliamps();
       stepperX2.rms_current(X2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("X2"), tmc_save_current_X2, X2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("X2"), tmc_save_current_X2, X2_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y)
       const int16_t tmc_save_current_Y = stepperY.getMilliamps();
       stepperY.rms_current(Y_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y"), tmc_save_current_Y, Y_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("Y"), tmc_save_current_Y, Y_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y2)
       const int16_t tmc_save_current_Y2 = stepperY2.getMilliamps();
       stepperY2.rms_current(Y2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(I)
       const int16_t tmc_save_current_I = stepperI.getMilliamps();
       stepperI.rms_current(I_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F(AXIS4_STR), tmc_save_current_I, I_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_I), tmc_save_current_I, I_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(J)
       const int16_t tmc_save_current_J = stepperJ.getMilliamps();
       stepperJ.rms_current(J_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F(AXIS5_STR), tmc_save_current_J, J_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_J), tmc_save_current_J, J_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(K)
       const int16_t tmc_save_current_K = stepperK.getMilliamps();
       stepperK.rms_current(K_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(F(AXIS6_STR), tmc_save_current_K, K_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F(STR_K), tmc_save_current_K, K_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
       const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
       stepperZ.rms_current(Z_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(F("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
     #endif
   #endif
 
@@ -443,15 +441,9 @@ void GcodeSuite::G28() {
       }
     #endif
 
-    #if LINEAR_AXES >= 4
-      if (doI) homeaxis(I_AXIS);
-    #endif
-    #if LINEAR_AXES >= 5
-      if (doJ) homeaxis(J_AXIS);
-    #endif
-    #if LINEAR_AXES >= 6
-      if (doK) homeaxis(K_AXIS);
-    #endif
+    TERN_(HAS_I_AXIS, if (doI) homeaxis(I_AXIS));
+    TERN_(HAS_J_AXIS, if (doJ) homeaxis(J_AXIS));
+    TERN_(HAS_K_AXIS, if (doK) homeaxis(K_AXIS));
 
     sync_plan_position();
 

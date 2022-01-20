@@ -89,7 +89,7 @@
    *   BLUE_LED | 8  7 |  RED_LED     ENCBTN | 8  7 | SDCS
    *       KILL   6  5 |  BEEPER               6  5 | MOSI
    *         A0 | 4  3 |  LCD_CS        SDCD | 4  3 |
-   *        GND | 2  1 | 5V              GND | 2  1 | NC
+   *        GND | 2  1 | 5V              GND | 2  1 | --
    *             ------                       ------
    *              EXP1                         EXP2
    */

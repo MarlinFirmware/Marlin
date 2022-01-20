@@ -27,9 +27,10 @@
 
 #include "env_validate.h"
 
-#define BOARD_NO_NATIVE_USB
-
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
+
+#define BOARD_NO_NATIVE_USB
+#define USES_DIAG_JUMPERS
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
@@ -54,8 +55,14 @@
 //
 #define X_STOP_PIN                          PA12
 #define Y_STOP_PIN                          PA11
-#define Z_MIN_PIN                           PC6
-#define Z_MAX_PIN                           PB1
+#define Z_STOP_PIN                          PC6
+
+//
+// Z Probe
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1
+#endif
 
 //
 // Steppers
@@ -138,7 +145,7 @@
  *  (LCD_EN) PA4 | 8  7 | PA5 (LCD_RS)      (BTN_EN1) PB11 | 8  7 | PA15 (SD_SS)    (BTN_EN1) PB11 | 8  7 | RESET
  *  (LCD_D4) PA6   6  5 | PA7 (LCD_D5)      (BTN_EN2)  PB0   6  5 | PB15 (SD_MOSI)  (BTN_EN2) PB0    6  5 | PA6  (LCD_D4)
  *  (LCD_D6) PC4 | 4  3 | PC5 (LCD_D7)    (SD_DETECT) PC10 | 4  3 | RESET            (LCD_RS) PA5  | 4  3 | PA4  (LCD_EN)
- *           GND | 2  1 | 5V                           GND | 2  1 | NC                        GND  | 2  1 | 5V
+ *           GND | 2  1 | 5V                           GND | 2  1 | --                         GND | 2  1 | 5V
  *                ------                                    ------                                  ------
  *                 EXP1                                      EXP2                                "Ender-3 EXP1"
  */
@@ -189,7 +196,7 @@
     #define DOGLCD_SCK               EXP2_09_PIN
     #define DOGLCD_MOSI              EXP2_05_PIN
 
-  #elif ENABLED(MKS_MINI_12864_V3)
+  #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define DOGLCD_CS                EXP1_08_PIN
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_PINS_DC                DOGLCD_A0
@@ -221,7 +228,7 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1             125
   #endif
@@ -231,6 +238,11 @@
   #ifndef BOARD_ST7920_DELAY_3
     #define BOARD_ST7920_DELAY_3             125
   #endif
+#endif
+
+// LED driving pin
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN                      PA2
 #endif
 
 //
