@@ -3019,7 +3019,7 @@ void MarlinSettings::reset() {
   //
   // LCD Contrast
   //
-  TERN_(HAS_LCD_CONTRAST, ui.set_contrast(DEFAULT_LCD_CONTRAST));
+  TERN_(HAS_LCD_CONTRAST, ui.set_contrast(LCD_CONTRAST_DEFAULT));
 
   //
   // LCD Brightness
