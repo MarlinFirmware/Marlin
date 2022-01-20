@@ -81,7 +81,7 @@ void IRAM_ATTR timer_isr(void *para) {
  * @param timer_num timer number to initialize
  * @param frequency frequency of the timer
  */
-void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   const tTimerConfig timer = timer_config[timer_num];
 
   timer_config_t config;

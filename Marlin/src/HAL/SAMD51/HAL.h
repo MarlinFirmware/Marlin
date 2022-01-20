@@ -89,51 +89,30 @@
 
 typedef int8_t pin_t;
 
-#define SHARED_SERVOS HAS_SERVOS
-#define HAL_SERVO_LIB Servo
+#define SHARED_SERVOS HAS_SERVOS  // Use shared/servos.cpp
+
+class Servo;
+typedef Servo hal_servo_t;
 
 //
 // Interrupts
 //
-#define CRITICAL_SECTION_START()  uint32_t primask = __get_PRIMASK(); __disable_irq()
-#define CRITICAL_SECTION_END()    if (!primask) __enable_irq()
-#define ISRS_ENABLED() (!__get_PRIMASK())
-#define ENABLE_ISRS()  __enable_irq()
-#define DISABLE_ISRS() __disable_irq()
+#define CRITICAL_SECTION_START()  const bool irqon = !__get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_END()    if (irqon) __enable_irq()
 
-#define cli() __disable_irq()       // Disable interrupts
-#define sei() __enable_irq()        // Enable interrupts
-
-void HAL_clear_reset_source();  // clear reset reason
-uint8_t HAL_get_reset_source(); // get reset reason
-
-void HAL_reboot();
+#define cli() __disable_irq() // Disable interrupts
+#define sei() __enable_irq()  // Enable interrupts
 
 //
 // ADC
 //
-extern uint16_t HAL_adc_result;     // Most recent ADC conversion
-
-#define HAL_ANALOG_SELECT(pin)
-
-void HAL_adc_init();
 
 //#define HAL_ADC_FILTERED          // Disable Marlin's oversampling. The HAL filters ADC values.
 #define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10      // ... 12
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC()      HAL_adc_result
-#define HAL_ADC_READY()     true
-
-void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 //
-// PWM
-//
-inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
-
-//
-// Pin Map
+// Pin Mapping for M42, M43, M226
 //
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
@@ -142,35 +121,93 @@ inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, 
 //
 // Tone
 //
-void toneInit();
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
 void noTone(const pin_t _pin);
 
-// Enable hooks into idle and setup for HAL
-void HAL_init();
-/*
-#define HAL_IDLETASK 1
-void HAL_idletask();
-*/
-
-//
-// Utility functions
-//
-FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
+// ------------------------
+// Class Utilities
+// ------------------------
 
 #pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-int freeMemory();
-
-#pragma GCC diagnostic pop
-
 #ifdef __cplusplus
   extern "C" {
 #endif
+
 char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s);
+
+extern "C" int freeMemory();
+
 #ifdef __cplusplus
   }
 #endif
+
+#pragma GCC diagnostic pop
+
+// ------------------------
+// MarlinHAL Class
+// ------------------------
+
+class MarlinHAL {
+public:
+
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  static void init();          // Called early in setup()
+  static void init_board() {}  // Called less early in setup()
+  static void reboot();        // Restart the firmware from 0x0
+
+  // Interrupts
+  static bool isr_state() { return !__get_PRIMASK(); }
+  static void isr_on()  { sei(); }
+  static void isr_off() { cli(); }
+
+  static void delay_ms(const int ms) { delay(ms); }
+
+  // Tasks, called from idle()
+  static void idletask() {}
+
+  // Reset
+  static uint8_t get_reset_source();
+  static void clear_reset_source() {}
+
+  // Free SRAM
+  static int freeMemory() { return ::freeMemory(); }
+
+  //
+  // ADC Methods
+  //
+
+  static uint16_t adc_result;
+
+  // Called by Temperature::init once at startup
+  static void adc_init();
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const uint8_t ch) {}
+
+  // Begin ADC sampling on the given channel
+  static void adc_start(const pin_t pin);
+
+  // Is the ADC ready for reading?
+  static bool adc_ready() { return true; }
+
+  // The current value of the ADC register
+  static uint16_t adc_value() { return adc_result; }
+
+  /**
+   * Set the PWM duty cycle for the pin to the given value.
+   * No option to invert the duty cycle [default = false]
+   * No option to change the scale of the provided value to enable finer PWM duty control [default = 255]
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
+    analogWrite(pin, v);
+  }
+
+private:
+  static void dma_init();
+};

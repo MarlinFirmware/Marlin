@@ -109,12 +109,12 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
  * (otherwise, characters will be lost due to UART overflow).
  * Then: Stepper, Endstops, Temperature, and -finally- all others.
  */
-#define HAL_timer_isr_prologue(T)
-#define HAL_timer_isr_epilogue(T)
+#define HAL_timer_isr_prologue(T) NOOP
+#define HAL_timer_isr_epilogue(T) NOOP
 
-/* 18 cycles maximum latency */
 #ifndef HAL_STEP_TIMER_ISR
 
+/* 18 cycles maximum latency */
 #define HAL_STEP_TIMER_ISR() \
 extern "C" void TIMER1_COMPA_vect() __attribute__ ((signal, naked, used, externally_visible)); \
 extern "C" void TIMER1_COMPA_vect_bottom() asm ("TIMER1_COMPA_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \

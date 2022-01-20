@@ -21,11 +21,9 @@
  */
 #ifdef __STM32F1__
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #include <pwm.h>
-#include "HAL.h"
-#include "timers.h"
 
 #define NR_TIMERS TERN(STM32_XL_DENSITY, 14, 8) // Maple timers, 14 for STM32_XL_DENSITY (F/G chips), 8 for HIGH density (C D E)
 
@@ -38,7 +36,7 @@ inline uint8_t timer_and_index_for_pin(const pin_t pin, timer_dev **timer_ptr) {
   return 0;
 }
 
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
+void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255*/, const bool invert/*=false*/) {
   const uint16_t duty = invert ? v_size - v : v;
   if (PWM_PIN(pin)) {
     timer_dev *timer; UNUSED(timer);
@@ -54,7 +52,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   }
 }
 
-void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
+void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (!PWM_PIN(pin)) return;                    // Don't proceed if no hardware timer
 
   timer_dev *timer; UNUSED(timer);

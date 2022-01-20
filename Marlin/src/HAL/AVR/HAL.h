@@ -74,9 +74,9 @@
   #define CRITICAL_SECTION_START()  unsigned char _sreg = SREG; cli()
   #define CRITICAL_SECTION_END()    SREG = _sreg
 #endif
-#define ISRS_ENABLED() TEST(SREG, SREG_I)
-#define ENABLE_ISRS()  sei()
-#define DISABLE_ISRS() cli()
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+#define PWM_FREQUENCY 1000     // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
 
 // ------------------------
 // Types
@@ -84,16 +84,15 @@
 
 typedef int8_t pin_t;
 
-#define SHARED_SERVOS HAS_SERVOS
-#define HAL_SERVO_LIB Servo
+#define SHARED_SERVOS HAS_SERVOS  // Use shared/servos.cpp
+
+class Servo;
+typedef Servo hal_servo_t;
 
 // ------------------------
-// Public Variables
-// ------------------------
-
-extern uint8_t reset_reason;
-
 // Serial ports
+// ------------------------
+
 #ifdef USBCON
   #include "../../core/serial_hook.h"
   typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
@@ -142,57 +141,15 @@ extern uint8_t reset_reason;
   #endif
 #endif
 
-// ------------------------
-// Public functions
-// ------------------------
-
-void HAL_init();
-
-//void cli();
-
-//void _delay_ms(const int delay);
-
-inline void HAL_clear_reset_source() { }
-inline uint8_t HAL_get_reset_source() { return reset_reason; }
-
-void HAL_reboot();
-
-#pragma GCC diagnostic push
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic ignored "-Wunused-function"
-#endif
-
-extern "C" int freeMemory();
-
-#pragma GCC diagnostic pop
-
+//
 // ADC
-#ifdef DIDR2
-  #define HAL_ANALOG_SELECT(ind) do{ if (ind < 8) SBI(DIDR0, ind); else SBI(DIDR2, ind & 0x07); }while(0)
-#else
-  #define HAL_ANALOG_SELECT(ind) SBI(DIDR0, ind);
-#endif
-
-inline void HAL_adc_init() {
-  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
-  DIDR0 = 0;
-  #ifdef DIDR2
-    DIDR2 = 0;
-  #endif
-}
-
-#define SET_ADMUX_ADCSRA(ch) ADMUX = _BV(REFS0) | (ch & 0x07); SBI(ADCSRA, ADSC)
-#ifdef MUX5
-  #define HAL_START_ADC(ch) if (ch > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
-#else
-  #define HAL_START_ADC(ch) ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
-#endif
-
+//
 #define HAL_ADC_VREF        5.0
 #define HAL_ADC_RESOLUTION 10
-#define HAL_READ_ADC()  ADC
-#define HAL_ADC_READY() !TEST(ADCSRA, ADSC)
 
+//
+// Pin Mapping for M42, M43, M226
+//
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
@@ -206,30 +163,109 @@ inline void HAL_adc_init() {
 // AVR compatibility
 #define strtof strtod
 
-#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
-#define PWM_FREQUENCY 1000     // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
+// ------------------------
+// Class Utilities
+// ------------------------
 
-/**
- *  set_pwm_frequency
- *  Sets the frequency of the timer corresponding to the provided pin
- *  as close as possible to the provided desired frequency. Internally
- *  calculates the required waveform generation mode, prescaler and
- *  resolution values required and sets the timer registers accordingly.
- *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
- *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
- */
-void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
+#pragma GCC diagnostic push
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
-/**
- * set_pwm_duty
- *  Set the PWM duty cycle of the provided pin to the provided value
- *  Optionally allows inverting the duty cycle [default = false]
- *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
- */
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+extern "C" int freeMemory();
 
-/*
- * init_pwm_timers
- * sets the default frequency for timers 2-5 to 1000HZ
- */
-void init_pwm_timers();
+#pragma GCC diagnostic pop
+
+// ------------------------
+// MarlinHAL Class
+// ------------------------
+
+class MarlinHAL {
+public:
+
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  static void init();          // Called early in setup()
+  static void init_board() {}  // Called less early in setup()
+  static void reboot();        // Restart the firmware from 0x0
+
+  // Interrupts
+  static bool isr_state() { return TEST(SREG, SREG_I); }
+  static void isr_on()  { sei(); }
+  static void isr_off() { cli(); }
+
+  static void delay_ms(const int ms) { _delay_ms(ms); }
+
+  // Tasks, called from idle()
+  static void idletask() {}
+
+  // Reset
+  static uint8_t reset_reason;
+  static uint8_t get_reset_source() { return reset_reason; }
+  static void clear_reset_source() { MCUSR = 0; }
+
+  // Free SRAM
+  static int freeMemory() { return ::freeMemory(); }
+
+  //
+  // ADC Methods
+  //
+
+  // Called by Temperature::init once at startup
+  static void adc_init() {
+    ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
+    DIDR0 = 0;
+    #ifdef DIDR2
+      DIDR2 = 0;
+    #endif
+  }
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const uint8_t ch) {
+    #ifdef DIDR2
+      if (ch > 7) { SBI(DIDR2, ch & 0x07); return; }
+    #endif
+    SBI(DIDR0, ch);
+  }
+
+  // Begin ADC sampling on the given channel
+  static void adc_start(const uint8_t ch) {
+    #ifdef MUX5
+      ADCSRB = ch > 7 ? _BV(MUX5) : 0;
+    #else
+      ADCSRB = 0;
+    #endif
+    ADMUX = _BV(REFS0) | (ch & 0x07);
+    SBI(ADCSRA, ADSC);
+  }
+
+  // Is the ADC ready for reading?
+  static bool adc_ready() { return !TEST(ADCSRA, ADSC); }
+
+  // The current value of the ADC register
+  static __typeof__(ADC) adc_value() { return ADC; }
+
+  /**
+   * init_pwm_timers
+   * Set the default frequency for timers 2-5 to 1000HZ
+   */
+  static void init_pwm_timers();
+
+  /**
+   * Set the PWM duty cycle for the pin to the given value.
+   * Optionally invert the duty cycle [default = false]
+   * Optionally change the scale of the provided value to enable finer PWM duty control [default = 255]
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+  /**
+   * Set the frequency of the timer for the given pin as close as
+   * possible to the provided desired frequency. Internally calculate
+   * the required waveform generation mode, prescaler, and resolution
+   * values and set timer registers accordingly.
+   * NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
+   * NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST_PWM_FAN Settings)
+   */
+  static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
+};
