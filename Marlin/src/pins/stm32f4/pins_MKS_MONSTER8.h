@@ -363,7 +363,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-    //#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #else
 

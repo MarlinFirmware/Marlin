@@ -207,7 +207,7 @@
     #define DOGLCD_SCK               EXP2_09_PIN
     #define FORCE_SOFT_SPI
     #define SOFTWARE_SPI
-    //#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
   #else
 
