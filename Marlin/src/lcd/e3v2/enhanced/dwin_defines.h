@@ -30,6 +30,9 @@
 
 #include "../../../core/types.h"
 #include "../common/dwin_color.h"
+#if ENABLED(LED_CONTROL_MENU)
+  #include "../../../feature/leds/leds.h"
+#endif
 
 #define Def_Background_Color  RGB( 1, 12,  8)
 #define Def_Cursor_color      RGB(20, 49, 31)
@@ -53,6 +56,13 @@
 #define HAS_ESDIAG 1
 #define DEFAULT_LCD_BRIGHTNESS 127
 
+#if ENABLED(LED_CONTROL_MENU)
+  #define Def_Leds_Color      LEDColorWhite()
+#endif
+#if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+  #define Def_CaseLight_Brightness 255
+#endif
+
 typedef struct {
 // Color settings
   uint16_t Background_Color = Def_Background_Color;
@@ -73,7 +83,7 @@ typedef struct {
   uint16_t Barfill_Color    = Def_Barfill_Color;
   uint16_t Indicator_Color  = Def_Indicator_Color;
   uint16_t Coordinate_Color = Def_Coordinate_Color;
-//
+// Temperatures
   #if defined(PREHEAT_1_TEMP_HOTEND) && HAS_HOTEND
     int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
   #endif
@@ -85,6 +95,14 @@ typedef struct {
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t ExtMinT = EXTRUDE_MINTEMP;
+  #endif
+// Led
+  #if BOTH(LED_CONTROL_MENU, HAS_COLOR_LEDS)
+    LEDColor Led_Color = Def_Leds_Color;
+  #endif
+// Case Light
+  #if ENABLED(CASELIGHT_USES_BRIGHTNESS)
+    uint8_t CaseLight_Brightness = Def_CaseLight_Brightness;
   #endif
 } HMI_data_t;
 
