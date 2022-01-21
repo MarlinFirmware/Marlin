@@ -981,6 +981,11 @@
   #endif
 #endif
 
+// Flags for Case Light having a brightness property
+#if ENABLED(CASE_LIGHT_ENABLE) && (NONE(CASE_LIGHT_NO_BRIGHTNESS, CASE_LIGHT_IS_COLOR_LED) || ENABLED(CASE_LIGHT_USE_NEOPIXEL))
+  #define CASELIGHT_USES_BRIGHTNESS 1
+#endif
+
 // Flag whether least_squares_fit.cpp is used
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
