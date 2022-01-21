@@ -175,6 +175,71 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #endif
 
+void MarlinUI::init() {
+
+  init_lcd();
+
+  #if HAS_DIGITAL_BUTTONS
+    #if BUTTON_EXISTS(EN1)
+      SET_INPUT_PULLUP(BTN_EN1);
+    #endif
+    #if BUTTON_EXISTS(EN2)
+      SET_INPUT_PULLUP(BTN_EN2);
+    #endif
+    #if BUTTON_EXISTS(ENC)
+      SET_INPUT_PULLUP(BTN_ENC);
+    #endif
+    #if BUTTON_EXISTS(ENC_EN)
+      SET_INPUT_PULLUP(BTN_ENC_EN);
+    #endif
+    #if BUTTON_EXISTS(BACK)
+      SET_INPUT_PULLUP(BTN_BACK);
+    #endif
+    #if BUTTON_EXISTS(UP)
+      SET_INPUT(BTN_UP);
+    #endif
+    #if BUTTON_EXISTS(DWN)
+      SET_INPUT(BTN_DWN);
+    #endif
+    #if BUTTON_EXISTS(LFT)
+      SET_INPUT(BTN_LFT);
+    #endif
+    #if BUTTON_EXISTS(RT)
+      SET_INPUT(BTN_RT);
+    #endif
+  #endif
+
+  #if HAS_SHIFT_ENCODER
+
+    #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
+
+      SET_OUTPUT(SR_DATA_PIN);
+      SET_OUTPUT(SR_CLK_PIN);
+
+    #elif PIN_EXISTS(SHIFT_CLK)
+
+      SET_OUTPUT(SHIFT_CLK_PIN);
+      OUT_WRITE(SHIFT_LD_PIN, HIGH);
+      #if PIN_EXISTS(SHIFT_EN)
+        OUT_WRITE(SHIFT_EN_PIN, LOW);
+      #endif
+      SET_INPUT_PULLUP(SHIFT_OUT_PIN);
+
+    #endif
+
+  #endif // HAS_SHIFT_ENCODER
+
+  #if BOTH(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
+    slow_buttons = 0;
+  #endif
+
+  update_buttons();
+
+  TERN_(HAS_ENCODER_ACTION, encoderDiff = 0);
+
+  reset_status(); // Set welcome message
+}
+
 #if HAS_WIRED_LCD
 
   #if HAS_MARLINUI_U8GLIB
@@ -391,69 +456,6 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     #endif // !HAS_GRAPHICAL_TFT
 
   #endif // HAS_LCD_MENU
-
-  void MarlinUI::init() {
-
-    init_lcd();
-
-    #if HAS_DIGITAL_BUTTONS
-      #if BUTTON_EXISTS(EN1)
-        SET_INPUT_PULLUP(BTN_EN1);
-      #endif
-      #if BUTTON_EXISTS(EN2)
-        SET_INPUT_PULLUP(BTN_EN2);
-      #endif
-      #if BUTTON_EXISTS(ENC)
-        SET_INPUT_PULLUP(BTN_ENC);
-      #endif
-      #if BUTTON_EXISTS(ENC_EN)
-        SET_INPUT_PULLUP(BTN_ENC_EN);
-      #endif
-      #if BUTTON_EXISTS(BACK)
-        SET_INPUT_PULLUP(BTN_BACK);
-      #endif
-      #if BUTTON_EXISTS(UP)
-        SET_INPUT(BTN_UP);
-      #endif
-      #if BUTTON_EXISTS(DWN)
-        SET_INPUT(BTN_DWN);
-      #endif
-      #if BUTTON_EXISTS(LFT)
-        SET_INPUT(BTN_LFT);
-      #endif
-      #if BUTTON_EXISTS(RT)
-        SET_INPUT(BTN_RT);
-      #endif
-    #endif
-
-    #if HAS_SHIFT_ENCODER
-
-      #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
-
-        SET_OUTPUT(SR_DATA_PIN);
-        SET_OUTPUT(SR_CLK_PIN);
-
-      #elif PIN_EXISTS(SHIFT_CLK)
-
-        SET_OUTPUT(SHIFT_CLK_PIN);
-        OUT_WRITE(SHIFT_LD_PIN, HIGH);
-        #if PIN_EXISTS(SHIFT_EN)
-          OUT_WRITE(SHIFT_EN_PIN, LOW);
-        #endif
-        SET_INPUT_PULLUP(SHIFT_OUT_PIN);
-
-      #endif
-
-    #endif // HAS_SHIFT_ENCODER
-
-    #if BOTH(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
-      slow_buttons = 0;
-    #endif
-
-    update_buttons();
-
-    TERN_(HAS_ENCODER_ACTION, encoderDiff = 0);
-  }
 
   ////////////////////////////////////////////
   ///////////// Keypad Handling //////////////

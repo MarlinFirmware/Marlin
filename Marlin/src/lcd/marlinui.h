@@ -204,6 +204,20 @@ public:
     TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
 
+  static void init();
+
+  #if HAS_DISPLAY || HAS_DWIN_E3V2
+    static void init_lcd();
+  #else
+    static void init_lcd() {}
+  #endif
+
+  #if HAS_WIRED_LCD
+    static bool detected();
+  #else
+    static bool detected() { return true; }
+  #endif
+
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
     static void set_language(const uint8_t lang);
@@ -268,14 +282,6 @@ public:
     FORCE_INLINE static void refresh() {
       TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
     }
-  #endif
-
-  #if HAS_WIRED_LCD
-    static bool detected();
-    static void init_lcd();
-  #else
-    static bool detected() { return true; }
-    static void init_lcd() {}
   #endif
 
   #if HAS_PRINT_PROGRESS
@@ -365,7 +371,6 @@ public:
 
   #if HAS_DISPLAY
 
-    static void init();
     static void update();
 
     static void abort_print();
@@ -480,7 +485,6 @@ public:
 
   #else // No LCD
 
-    static void init() {}
     static void update() {}
     static void return_to_status() {}
 

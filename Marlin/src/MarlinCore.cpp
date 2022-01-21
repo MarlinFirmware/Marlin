@@ -1294,13 +1294,7 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  #if HAS_DWIN_E3V2_BASIC
-    SETUP_RUN(DWIN_Startup());
-  #else
-    SETUP_RUN(ui.init());
-  #endif
-
-  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
+  SETUP_RUN(ui.init());
 
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -1309,10 +1303,6 @@ void setup() {
       SETUP_LOG("SAFE_POWER");
       OUT_WRITE(SAFE_POWER_PIN, HIGH);
     #endif
-  #endif
-
-  #if ENABLED(PROBE_TARE)
-    SETUP_RUN(probe.tare_init());
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
@@ -1325,6 +1315,10 @@ void setup() {
   #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
     const millis_t bootscreen_ms = millis();
+  #endif
+
+  #if ENABLED(PROBE_TARE)
+    SETUP_RUN(probe.tare_init());
   #endif
 
   #if HAS_ETHERNET
