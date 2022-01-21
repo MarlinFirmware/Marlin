@@ -21,6 +21,7 @@
  */
 #pragma once
 
+#include "../sd/cardreader.h"
 #include "../module/motion.h"
 #include "buttons.h"
 
@@ -28,10 +29,6 @@
 
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
-#endif
-
-#if ENABLED(SDSUPPORT)
-  #include "../sd/cardreader.h"
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)

@@ -43,7 +43,6 @@ MarlinUI ui;
 #if HAS_DISPLAY
   #include "../gcode/queue.h"
   #include "fontutils.h"
-  #include "../sd/cardreader.h"
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -175,6 +174,12 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #endif
 
+// Encoder Handling
+#if HAS_ENCODER_ACTION
+  uint32_t MarlinUI::encoderPosition;
+  volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
+#endif
+
 void MarlinUI::init() {
 
   init_lcd();
@@ -248,8 +253,6 @@ void MarlinUI::init() {
 
   #include "lcdprint.h"
 
-  #include "../sd/cardreader.h"
-
   #include "../module/temperature.h"
   #include "../module/planner.h"
   #include "../module/motion.h"
@@ -309,12 +312,6 @@ void MarlinUI::init() {
   #if IS_DWIN_MARLINUI
     bool MarlinUI::did_first_redraw;
     bool MarlinUI::old_is_printing;
-  #endif
-
-  // Encoder Handling
-  #if HAS_ENCODER_ACTION
-    uint32_t MarlinUI::encoderPosition;
-    volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
   #endif
 
   #if ENABLED(SDSUPPORT)
