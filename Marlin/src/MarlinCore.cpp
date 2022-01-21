@@ -1298,12 +1298,9 @@ void setup() {
     SETUP_RUN(DWIN_Startup());
   #else
     SETUP_RUN(ui.init());
-    #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
-      SETUP_RUN(ui.show_bootscreen());
-      const millis_t bootscreen_ms = millis();
-    #endif
-    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
+
+  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
 
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -1324,6 +1321,11 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+    SETUP_RUN(ui.show_bootscreen());
+    const millis_t bootscreen_ms = millis();
+  #endif
 
   #if HAS_ETHERNET
     SETUP_RUN(ethernet.init());

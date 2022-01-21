@@ -578,6 +578,9 @@ void MarlinSettings::postprocess() {
     update_software_endstops((AxisEnum)i);
   }
 
+  TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
+  TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
+
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
   TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
@@ -1989,7 +1992,7 @@ void MarlinSettings::postprocess() {
         uint8_t lcd_contrast;
         _FIELD_TEST(lcd_contrast);
         EEPROM_READ(lcd_contrast);
-        TERN_(HAS_LCD_CONTRAST, if (!validating) ui.set_contrast(lcd_contrast));
+        TERN_(HAS_LCD_CONTRAST, if (!validating) ui.contrast = lcd_contrast);
       }
 
       //
@@ -1999,7 +2002,7 @@ void MarlinSettings::postprocess() {
         uint8_t lcd_brightness;
         _FIELD_TEST(lcd_brightness);
         EEPROM_READ(lcd_brightness);
-        TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.set_brightness(lcd_brightness));
+        TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.brightness = lcd_brightness);
       }
 
       //
@@ -3019,12 +3022,12 @@ void MarlinSettings::reset() {
   //
   // LCD Contrast
   //
-  TERN_(HAS_LCD_CONTRAST, ui.set_contrast(LCD_CONTRAST_DEFAULT));
+  TERN_(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
 
   //
   // LCD Brightness
   //
-  TERN_(HAS_LCD_BRIGHTNESS, ui.set_brightness(DEFAULT_LCD_BRIGHTNESS));
+  TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = DEFAULT_LCD_BRIGHTNESS);
 
   //
   // Controller Fan
