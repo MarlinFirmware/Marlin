@@ -315,9 +315,9 @@
     #endif
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
+    #define LCD_PINS_DC                     PC6
     #define DOGLCD_CS                       PD13
-    #define DOGLCD_A0                       PC6
-    #define LCD_PINS_DC                DOGLCD_A0
+    #define DOGLCD_A0                  DOGLCD_A0
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   PE14
     #define NEOPIXEL_PIN                    PE15
