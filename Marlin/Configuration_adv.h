@@ -350,6 +350,10 @@
 #endif
 
 /**
+ * IMPORTANT NOTICE: This feature is disabled by default, since it may cause some thermally stable systems to halt.
+ * It is advisable to adequately test and enable the feature (by uncommenting #define THERMAL_PROTECTION_VARIANCE_MONITOR 
+ * below, please read the following notes for details).
+ *
  * Thermal protection variance monitor ensures that temperature sensor polling occurs regularly.
  * If polling stops for any reason (i.e. due to a software issue), temperature readings will remain constant,
  * while heaters may still be powered (uncontrollably). This feature is designed to monitor temperature value
@@ -366,8 +370,9 @@
  * minutes), overriding THERMAL_PROTECTION_*_PERIOD values with THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE
  * (this allows prolonging the variance detection window without affecting any other thermal protection setting, but
  * is the same setting for all heaters, and be aware that some heaters might heat much faster than others),
- * or disabling the feature (accepting the potential risk).
- * 
+ * or disabling the feature (accepting the potential risk; uncomment SUPPRESS_VARIANCE_MONITOR_WARNING to silence
+ * the related warning).
+ *
  * In this last scenario, it is *very* important to distinguish a false positive from the actual issue, before disabling
  * the feature: if immediately after halting and restarting the printer, the heater's temperature appears even slightly
  * higher than the expected temperature, you may be facing a real thermal malfunction (if you're using host monitoring,
@@ -375,10 +380,12 @@
  * project (Issues), providing serial logs if possible.
  */
 #if ANY(THERMAL_PROTECTION_HOTENDS, THERMAL_PROTECTION_BED, THERMAL_PROTECTION_CHAMBER, THERMAL_PROTECTION_COOLER)
-  #define THERMAL_PROTECTION_VARIANCE_MONITOR                            // Detect a sensor malfunction preventing temperature updates
-  
-  // Uncomment to use this value instead of THERMAL_PROTECTION_*_PERIOD constants (one value for all heaters)
-  // #define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE    120  // Seconds 
+// #define THERMAL_PROTECTION_VARIANCE_MONITOR                          // Detect a sensor malfunction preventing temperature updates
+
+// Uncomment to use this value instead of THERMAL_PROTECTION_*_PERIOD constants (one value for all heaters)
+// #define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD_OVERRIDE    120  // Seconds
+
+// #define SUPPRESS_VARIANCE_MONITOR_WARNING                           // Uncomment to suppress warning for disabled THERMAL_PROTECTION_VARIANCE_MONITOR
 #endif
 
 #if ENABLED(PIDTEMP)
