@@ -78,6 +78,12 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(503) // Zonestar (Z8XM2) Heated Bed thermistor
   #include "thermistor_503.h"
 #endif
+#if ANY_THERMISTOR_IS(504) // Zonestar (P802QR2 Hot End) thermistors
+  #include "thermistor_504.h"
+#endif
+#if ANY_THERMISTOR_IS(505) // Zonestar (P802QR2 Bed) thermistor
+  #include "thermistor_505.h"
+#endif
 #if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
   #include "thermistor_512.h"
 #endif
