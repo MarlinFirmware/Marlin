@@ -92,6 +92,8 @@
   #define THERMISTOR_NAME "Hisens 3950"
 #elif THERMISTOR_ID == 15
   #define THERMISTOR_NAME "100k JGAurora A5"
+#elif THERMISTOR_ID == 17
+  #define THERMISTOR_NAME "Alternative ATC Semitec 104GT-2"
 #elif THERMISTOR_ID == 18
   #define THERMISTOR_NAME "ATC Semitec 204GT-2"
 #elif THERMISTOR_ID == 20
