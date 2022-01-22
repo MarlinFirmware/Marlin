@@ -316,8 +316,6 @@ void MarlinUI::init() {
 
   #if ENABLED(SDSUPPORT)
 
-    #include "../sd/cardreader.h"
-
     #if MARLINUI_SCROLL_NAME
       uint8_t MarlinUI::filename_scroll_pos, MarlinUI::filename_scroll_max;
     #endif
