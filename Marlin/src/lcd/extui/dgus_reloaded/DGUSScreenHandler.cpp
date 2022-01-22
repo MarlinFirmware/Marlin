@@ -113,6 +113,8 @@ void DGUSScreenHandler::Loop() {
   if (!booted && ELAPSED(ms, 3000)) {
     booted = true;
 
+    dgus_display.ReadVersions();
+
     if (current_screen == DGUS_Screen::BOOT) {
       MoveToScreen(DGUS_Screen::HOME);
     }
