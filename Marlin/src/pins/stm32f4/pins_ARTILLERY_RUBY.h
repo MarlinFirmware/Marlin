@@ -157,7 +157,7 @@
       #define NEOPIXEL_PIN                  PB9
     #endif
 
-    #define DEFAULT_LCD_CONTRAST             255
+    #define LCD_CONTRAST_DEFAULT             255
   #else
     #define LCD_PINS_RS                     PC15
     #define LCD_PINS_ENABLE                 PB6

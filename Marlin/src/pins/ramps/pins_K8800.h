@@ -107,7 +107,7 @@
 
   #define LCD_CONTRAST_MIN                     0
   #define LCD_CONTRAST_MAX                   100
-  #define DEFAULT_LCD_CONTRAST                30
+  #define LCD_CONTRAST_DEFAULT                30
   //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   #if IS_NEWPANEL
