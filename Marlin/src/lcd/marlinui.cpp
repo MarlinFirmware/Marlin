@@ -710,6 +710,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
     #if HAS_ENCODER_ACTION
       if (clear_buttons) buttons = 0;
+      #if HAS_ADC_BUTTONS
+        keypad_buttons = 0;
+      #endif
       next_button_update_ms = millis() + 500;
     #else
       UNUSED(clear_buttons);
