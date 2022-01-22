@@ -299,6 +299,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Stow Probe")));
       TERN_(DWIN_CREALITY_LCD_ENHANCED, DWIN_Popup_Confirm(ICON_BLTouch, F("Stow Probe"), FPSTR(CONTINUE_STR)));
       TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+      ui.quick_feedback(true);
       ui.reset_status();
 
     } while (ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED));
