@@ -55,7 +55,7 @@ class DWIN_String {
     //static font_t *font() { return font_header; };
     //static uint16_t font_height() { return font_header->FontAscent - font_header->FontDescent; }
     //static glyph_t *glyph(uint8_t character) { return glyphs[character] ?: glyphs[0x3F]; }  /* Use '?' for unknown glyphs */
-    //static inline glyph_t *glyph(uint8_t *character) { return glyph(*character); }
+    //static glyph_t *glyph(uint8_t *character) { return glyph(*character); }
 
     static void set();
     //static void add(uint8_t character) { add_character(character); eol(); }
@@ -65,10 +65,10 @@ class DWIN_String {
     static void set(uint8_t *string)   { set(); add(string); }
     static void set(wchar_t character) { set(); add(character); }
     static void set(uint8_t *string, int8_t index, const char *itemString=nullptr) { set(); add(string, index, (uint8_t *)itemString); }
-    static inline void set(FSTR_P fstring) { set((uint8_t *)fstring); }
-    static inline void set(const char *string) { set((uint8_t *)string); }
-    static inline void set(const char *string, int8_t index, const char *itemString=nullptr) { set((uint8_t *)string, index, itemString); }
-    static inline void add(const char *string) { add((uint8_t *)string); }
+    static void set(FSTR_P fstring) { set((uint8_t *)fstring); }
+    static void set(const char *string) { set((uint8_t *)string); }
+    static void set(const char *string, int8_t index, const char *itemString=nullptr) { set((uint8_t *)string, index, itemString); }
+    static void add(const char *string) { add((uint8_t *)string); }
 
     static void trim(const uint8_t character=0x20);
     static void rtrim(const uint8_t character=0x20);
@@ -76,9 +76,9 @@ class DWIN_String {
 
     static void truncate(uint8_t maxlen) { if (len > maxlen) { len = maxlen; eol(); } }
 
-    static inline uint8_t length() { return len; }
-    static inline uint16_t width() { return span; }
-    static inline uint8_t *string() { return data; }
+    static uint8_t length() { return len; }
+    static uint16_t width() { return span; }
+    static uint8_t *string() { return data; }
     static uint16_t center(uint16_t width) { return span > width ? 0 : (width - span) / 2; }
 };
 

@@ -309,7 +309,7 @@
 //
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION                  LCD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 /**               ------                                      ------
@@ -317,7 +317,7 @@
  * (LCD_EN) PD11 | 8  7 | PD10 (LCD_RS)       (BTN_EN1) PG10 | 8  7 | PB12 (SD_SS)
  * (LCD_D4) PG2    6  5 | PG3  (LCD_D5)       (BTN_EN2) PF11   6  5 | PB15 (MOSI)
  * (LCD_D6) PG6  | 4  3 | PG7  (LCD_D7)     (SD_DETECT) PF12 | 4  3 | RESET
- *          GND  | 2  1 | 5V                            GND  | 2  1 | NC
+ *           GND | 2  1 | 5V                             GND | 2  1 | --
  *                ------                                      ------
  *                 EXP1                                        EXP2
  */
@@ -367,8 +367,8 @@
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
   /**       -----                        -----
-   *    NC | . . | GND               NC | . . | GND
-   *    NC | . . | M1EN            M2EN | . . | M3EN
+   *    -- | . . | GND               -- | . . | GND
+   *    -- | . . | M1EN            M2EN | . . | M3EN
    * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
    * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
    * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
@@ -466,13 +466,13 @@
      *
      * The WYH_L12864 connector plug:
      *
-     *                  BEFORE                      AFTER
-     *                  ______                     ______
-     *             GND | 1  2 | 5V             5V | 1  2 | GND
-     *              CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
-     *             SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
-     *             SCK | 7  8 | BTN_ENC       SCK | 7  8 | BTN_ENC
-     *            MOSI | 9 10 |              MOSI | 9 10 |
+     *                  BEFORE                     AFTER
+     *                  ------                     ------
+     *              -- |10  9 | MOSI           -- |10  9 | MOSI
+     *         BTN_ENC | 8  7 | SCK       BTN_ENC | 8  7 | SCK
+     *         BTN_EN1 | 6  5   SID       BTN_EN1 | 6  5   SID
+     *         BTN_EN2 | 4  3 | CS        BTN_EN2 | 4  3 | CS
+     *              5V | 2  1 | GND           GND | 2  1 | 5V
      *                  ------                     ------
      *                   LCD                        LCD
      */
@@ -550,12 +550,12 @@
 //
 
 /**
- *          -----
- *      TX | 1 2 | GND      Enable PG1   // Must be high for module to run
- *  Enable | 3 4 | GPIO2    Reset  PG0   // active low, probably OK to leave floating
- *   Reset | 5 6 | GPIO0    GPIO2  PF15  // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *    3.3V | 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *          -----
+ *          ------
+ *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
+ *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
+ *          ------
  *            W1
  */
 #define ESP_WIFI_MODULE_COM                    6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this

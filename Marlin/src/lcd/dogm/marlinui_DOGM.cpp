@@ -294,9 +294,13 @@ void MarlinUI::init_lcd() {
 
   TERN_(HAS_LCD_CONTRAST, refresh_contrast());
 
-  TERN_(LCD_SCREEN_ROT_90, u8g.setRot90());
-  TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
-  TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
+  #if LCD_SCREEN_ROTATE == 90
+    u8g.setRot90();
+  #elif LCD_SCREEN_ROTATE == 180
+    u8g.setRot180();
+  #elif LCD_SCREEN_ROTATE == 270
+    u8g.setRot270();
+  #endif
 
   update_language_font();
 }

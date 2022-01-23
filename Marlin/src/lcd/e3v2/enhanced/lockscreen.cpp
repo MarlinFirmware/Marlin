@@ -21,10 +21,10 @@
  */
 
 /**
- * DWIN UI Enhanced implementation
+ * Lock screen implementation for DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/09/08
+ * Version: 2.1
+ * Date: 2021/11/09
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -41,6 +41,7 @@ LockScreenClass lockScreen;
 
 uint8_t LockScreenClass::lock_pos = 0;
 bool LockScreenClass::unlocked = false;
+uint8_t LockScreenClass::rprocess = 0;
 
 void LockScreenClass::init() {
   lock_pos = 0;

@@ -240,12 +240,12 @@ namespace Language_pt_br {
   LSTR MSG_SELECT_E                       = _UxGT("Selecionar *");
   LSTR MSG_ACC                            = _UxGT("Acel.");
   LSTR MSG_JERK                           = _UxGT("Arrancada");
-  LSTR MSG_VA_JERK                        = _UxGT("arrancada V") LCD_STR_A;
-  LSTR MSG_VB_JERK                        = _UxGT("arrancada V") LCD_STR_B;
-  LSTR MSG_VC_JERK                        = _UxGT("arrancada V") LCD_STR_C;
-  LSTR MSG_VI_JERK                        = _UxGT("arrancada V") LCD_STR_I;
-  LSTR MSG_VJ_JERK                        = _UxGT("arrancada V") LCD_STR_J;
-  LSTR MSG_VK_JERK                        = _UxGT("arrancada V") LCD_STR_K;
+  LSTR MSG_VA_JERK                        = _UxGT("arrancada V") STR_A;
+  LSTR MSG_VB_JERK                        = _UxGT("arrancada V") STR_B;
+  LSTR MSG_VC_JERK                        = _UxGT("arrancada V") STR_C;
+  LSTR MSG_VI_JERK                        = _UxGT("arrancada V") STR_I;
+  LSTR MSG_VJ_JERK                        = _UxGT("arrancada V") STR_J;
+  LSTR MSG_VK_JERK                        = _UxGT("arrancada V") STR_K;
   LSTR MSG_VE_JERK                        = _UxGT("arrancada VE");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Desv. Junção");
   LSTR MSG_VELOCITY                       = _UxGT("Velocidade");
@@ -254,12 +254,12 @@ namespace Language_pt_br {
   LSTR MSG_A_RETRACT                      = _UxGT("Retrair A");
   LSTR MSG_A_TRAVEL                       = _UxGT("Movimento A");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Passo/mm");
-  LSTR MSG_A_STEPS                        = _UxGT("Passo ") LCD_STR_A _UxGT("/mm");
-  LSTR MSG_B_STEPS                        = _UxGT("Passo ") LCD_STR_B _UxGT("/mm");
-  LSTR MSG_C_STEPS                        = _UxGT("Passo ") LCD_STR_C _UxGT("/mm");
-  LSTR MSG_I_STEPS                        = _UxGT("Passo ") LCD_STR_I _UxGT("/mm");
-  LSTR MSG_J_STEPS                        = _UxGT("Passo ") LCD_STR_J _UxGT("/mm");
-  LSTR MSG_K_STEPS                        = _UxGT("Passo ") LCD_STR_K _UxGT("/mm");
+  LSTR MSG_A_STEPS                        = _UxGT("Passo ") STR_A _UxGT("/mm");
+  LSTR MSG_B_STEPS                        = _UxGT("Passo ") STR_B _UxGT("/mm");
+  LSTR MSG_C_STEPS                        = _UxGT("Passo ") STR_C _UxGT("/mm");
+  LSTR MSG_I_STEPS                        = _UxGT("Passo ") STR_I _UxGT("/mm");
+  LSTR MSG_J_STEPS                        = _UxGT("Passo ") STR_J _UxGT("/mm");
+  LSTR MSG_K_STEPS                        = _UxGT("Passo ") STR_K _UxGT("/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("*/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperatura");
@@ -400,7 +400,7 @@ namespace Language_pt_br {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Intensidade Brilho");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Impressora Incorreta");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Total de Impressões");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Realizadas");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tempo de Impressão");
