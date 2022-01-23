@@ -126,9 +126,7 @@
 #elif defined(LANGUAGE_INCLUDE)
   #error "LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE."
 #elif defined(EXTRUDER_OFFSET_X) || defined(EXTRUDER_OFFSET_Y)
-  #error "EXTRUDER_OFFSET_[XY] is deprecated. Use TOOL_OFFSET_[XY] instead."
-#elif defined(HOTEND_OFFSET_X) || defined(HOTEND_OFFSET_Y) || defined(HOTEND_OFFSET_Z)
-  #error "HOTEND_OFFSET_[XYZ] is deprecated. Use TOOL_OFFSET_[XYZ] instead."
+  #error "EXTRUDER_OFFSET_[XY] is deprecated. Use HOTEND_OFFSET_[XY] instead."
 #elif defined(PID_PARAMS_PER_EXTRUDER)
   #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
 #elif defined(EXTRUDER_WATTS) || defined(BED_WATTS)

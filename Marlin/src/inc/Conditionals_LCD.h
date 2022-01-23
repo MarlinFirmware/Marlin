@@ -756,8 +756,8 @@
 #if EITHER(SINGLENOZZLE, MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
   #undef HOTENDS
   #define HOTENDS       1
-  #undef TOOL_OFFSET_X
-  #undef TOOL_OFFSET_Y
+  #undef HOTEND_OFFSET_X
+  #undef HOTEND_OFFSET_Y
 #endif
 
 #ifndef HOTENDS
@@ -857,14 +857,14 @@
  * Tool Offsets: defaults, determine array size
  */
 #if HAS_HOTEND_OFFSET
-  #ifndef TOOL_OFFSET_X
-    #define TOOL_OFFSET_X { 0 } // X offsets for each extruder
+  #ifndef HOTEND_OFFSET_X
+    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
   #endif
-  #ifndef TOOL_OFFSET_Y
-    #define TOOL_OFFSET_Y { 0 } // Y offsets for each extruder
+  #ifndef HOTEND_OFFSET_Y
+    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
   #endif
-  #ifndef TOOL_OFFSET_Z
-    #define TOOL_OFFSET_Z { 0 } // Z offsets for each extruder
+  #ifndef HOTEND_OFFSET_Z
+    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
   #endif
 
   #ifndef NUM_TOOL_OFFSET

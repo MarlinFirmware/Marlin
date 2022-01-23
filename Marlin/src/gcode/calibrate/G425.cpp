@@ -672,7 +672,7 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 inline void calibrate_all() {
   measurements_t m;
 
-  TERN_(HAS_HOTEND_OFFSET, reset_tool_offsets());
+  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
   TEMPORARY_BACKLASH_CORRECTION(all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);

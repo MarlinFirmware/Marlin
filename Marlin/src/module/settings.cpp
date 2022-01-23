@@ -2727,7 +2727,7 @@ void MarlinSettings::reset() {
     home_offset.reset();
   #endif
 
-  TERN_(HAS_HOTEND_OFFSET, reset_tool_offsets());
+  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
   //
   // Filament Runout Sensor

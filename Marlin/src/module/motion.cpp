@@ -117,8 +117,8 @@ xyze_pos_t destination; // {0}
 // Extruder offsets
 #if HAS_HOTEND_OFFSET
   xyz_pos_t hotend_offset[NUM_TOOL_OFFSET]; // Initialized by settings.load()
-  void reset_tool_offsets() {
-    constexpr float tmp[XYZ][NUM_TOOL_OFFSET] = { TOOL_OFFSET_X, TOOL_OFFSET_Y, TOOL_OFFSET_Z };
+  void reset_hotend_offsets() {
+    constexpr float tmp[XYZ][NUM_TOOL_OFFSET] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
     static_assert(
       !tmp[X_AXIS][0] && !tmp[Y_AXIS][0] && !tmp[Z_AXIS][0],
       "Offsets for the first hotend must be 0.0."

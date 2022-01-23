@@ -711,8 +711,8 @@ class Temperature {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
 
-    #if ENABLED(SHOW_TEMP_ADC_VALUES) || ENABLED(DEBUG_TEMPERATURE)
-      static inline int16_t rawHotendTemp(const uint8_t E_NAME) {
+    #if EITHER(SHOW_TEMP_ADC_VALUES, DEBUG_TEMPERATURE)
+      static int16_t rawHotendTemp(const uint8_t E_NAME) {
         return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].raw);
       }
     #endif
