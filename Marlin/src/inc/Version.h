@@ -97,7 +97,7 @@
    * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
 #ifndef WEBSITE_URL
-  #define WEBSITE_URL "github.com/francknos/Marlin-DiscoEasy200"
+  #define WEBSITE_URL "francknos/Marlin-DiscoEasy200"
 #endif
 
 /**
