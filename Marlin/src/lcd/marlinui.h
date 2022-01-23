@@ -58,7 +58,7 @@
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-  #include "e3v2/enhanced/dwin.h"
+  #include "e3v2/proui/dwin.h"
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)

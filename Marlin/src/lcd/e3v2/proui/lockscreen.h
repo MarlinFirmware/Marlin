@@ -22,15 +22,27 @@
 #pragma once
 
 /**
- * DWIN Mesh Viewer
- * Author: Miguel A. Risco-Castillo
- * Version: 3.8.1
- * Date: 2021/11/06
+ * Lock screen implementation for DWIN UI Enhanced implementation
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 2.1
+ * Date: 2021/11/09
+ *
+ * Based on the original code provided by Creality under GPL
  */
 
-class MeshViewerClass {
+#include "../common/encoder.h"
+#include <stdint.h>
+
+class LockScreenClass {
+private:
+  static bool unlocked;
+  static uint8_t lock_pos;
 public:
-  void Draw();
+  static uint8_t rprocess;
+  static void init();
+  static void onEncoder(EncoderState encoder_diffState);
+  static void draw();
+  static bool isUnlocked() { return unlocked; }
 };
 
-extern MeshViewerClass MeshViewer;
+extern LockScreenClass lockScreen;

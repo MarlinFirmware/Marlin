@@ -23,10 +23,15 @@
 
 /**
  * DWIN general defines and data structs
- * Author: Miguel A. Risco-Castillo
- * Version: 3.9.1
+ * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Version: 3.9.2
  * Date: 2021/11/21
+ *
+ * Based on the original code provided by Creality under GPL
  */
+
+//#define NEED_HEX_PRINT 1
+//#define DEBUG_DWIN 1
 
 #include "../../../core/types.h"
 #include "../common/dwin_color.h"
@@ -53,8 +58,39 @@
 #define Def_Indicator_Color   Color_White
 #define Def_Coordinate_Color  Color_White
 
+#define X_BED_MIN 150
+#define Y_BED_MIN 150
+#define DEF_X_BED_SIZE 230
+#define DEF_Y_BED_SIZE 230
+#define DEF_X_MAX_POS 248
+#define DEF_Y_MAX_POS 231
+#define DEF_Z_MAX_POS 250
+#define DEF_FIL_RUNOUT1_STATE LOW
+#define DEF_NOZZLE_PARK_POINT {240, 220, 20}
+#define SOUND_MENU_ITEM
+#if HAS_MESH
+  #define DEF_GRID_MAX_POINTS 5
+  #define GRID_LIMIT 9
+#endif
+
+//#define HAS_GCODE_PREVIEW 1
 #define HAS_ESDIAG 1
-#define DEFAULT_LCD_BRIGHTNESS 127
+#ifndef INDIVIDUAL_AXIS_HOMING_SUBMENU
+  #define INDIVIDUAL_AXIS_HOMING_SUBMENU
+#endif
+#ifndef LCD_SET_PROGRESS_MANUALLY
+  #define LCD_SET_PROGRESS_MANUALLY
+#endif
+#ifndef STATUS_MESSAGE_SCROLLING
+  #define STATUS_MESSAGE_SCROLLING
+#endif
+#ifndef BAUD_RATE_GCODE
+  #define BAUD_RATE_GCODE
+#endif
+#ifndef HAS_LCD_BRIGHTNESS
+  #define HAS_LCD_BRIGHTNESS 1
+#endif
+#define LCD_BRIGHTNESS_DEFAULT 127
 
 #if ENABLED(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define Def_Leds_Color      LEDColorWhite()
