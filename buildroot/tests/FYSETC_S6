@@ -20,7 +20,7 @@ restore_configs
 opt_set MOTHERBOARD BOARD_FYSETC_S6_V2_0 \
         SERIAL_PORT 1
 opt_enable TOUCH_UI_FTDI_EVE LCD_FYSETC_TFT81050 S6_TFT_PINMAP
-exec_test $1 $2 "FYSETC F6 2 with LCD FYSETC TFT81050" "$3"
+exec_test $1 $2 "FYSETC S6 2 with LCD FYSETC TFT81050" "$3"
 
 # cleanup
 restore_configs
