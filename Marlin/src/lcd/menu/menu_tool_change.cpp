@@ -114,7 +114,8 @@ void menu_tool_change_unpowered() {
 
     editable.uint8 = e;
     if (printingIsActive()) {
-      CONFIRM_ITEM_P(PSTR("Change Tool?"),
+      CONFIRM_ITEM_P(
+        PSTR("Change Tool?"),
         MSG_YES, MSG_NO,
         inject_toolchange_gcode, ui.goto_previous_screen,
         PSTR("Change Tool?"), (const char *)nullptr, PSTR("?"));
@@ -141,12 +142,12 @@ void menu_tool_change() {
   BACK_ITEM(MSG_MAIN);
 
   #if HOTENDS > 0
-    if ( HOTENDS != 1 || active_extruder != (NUM_TOOLS-1))
+    if (HAS_MULTI_HOTEND || active_extruder != (STM_NUM_TOOLS - 1))
       SUBMENU(MSG_HOTEND, menu_tool_change_hotend);
   #endif
 
   #if UNPOWERED_TOOLS > 0
-    if ( UNPOWERED_TOOLS != 1 || active_extruder != (NUM_TOOLS-1))
+    if (UNPOWERED_TOOLS > 1 || active_extruder != (STM_NUM_TOOLS - 1))
       SUBMENU(MSG_TOOL_CHANGE_UNPOWERED, menu_tool_change_unpowered);
   #endif
 

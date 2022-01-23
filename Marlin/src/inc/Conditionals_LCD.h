@@ -647,28 +647,25 @@
   #endif
 
 #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  // multiple hotends and/or other tools, using the same electrical connections
-  // all hotends will use *_0_PIN for heaters/sensors.
-  #undef EXTRUDERS
+
+  // Multiple hotends and/or other tools, using the same electrical connections.
+  // All hotends will use *_0_PIN for heaters/sensors.
   #define HAS_HOTEND_OFFSET 1
   #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
-
-  // shorthand, number of tools.
-  #define NUM_TOOLS STM_NUM_TOOLS
-
+  #define NUM_TOOL_OFFSET STM_NUM_TOOLS
   #define HAS_TOOL_0
   #define HAS_TOOL_1
-  #if NUM_TOOLS > 2
+  #if STM_NUM_TOOLS > 2
     #define HAS_TOOL_2
-    #if NUM_TOOLS > 3
+    #if STM_NUM_TOOLS > 3
       #define HAS_TOOL_3
-      #if NUM_TOOLS > 4
+      #if STM_NUM_TOOLS > 4
         #define HAS_TOOL_4
-        #if NUM_TOOLS > 5
+        #if STM_NUM_TOOLS > 5
           #define HAS_TOOL_5
-          #if NUM_TOOLS > 6
+          #if STM_NUM_TOOLS > 6
             #define HAS_TOOL_6
-            #if NUM_TOOLS > 7
+            #if STM_NUM_TOOLS > 7
               #define HAS_TOOL_7
             #endif
           #endif
@@ -677,49 +674,40 @@
     #endif
   #endif
 
+  #define TOOLHEAD_LOOP() for (int8_t e = 0; e < STM_NUM_TOOLS; e++)  // Stand-in for HOTEND_LOOP()
+
   // determine the number of hotend tools (number of sensors defined)
-  #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && NUM_TOOLS > P
-  #if HOTEND_TEST(0)
-    #if HOTEND_TEST(1)
-      #define SWITCHING_TOOLHEAD_MULTI_HOTEND 1
-      #if HOTEND_TEST(2)
-        #if HOTEND_TEST(3)
-          #if HOTEND_TEST(4)
-            #if HOTEND_TEST(5)
-              #if HOTEND_TEST(6)
-                #if HOTEND_TEST(7)
-                  #define HOTENDS 8
-                #else
-                  #define HOTENDS 7
-                #endif
-              #else
-                #define HOTENDS 6
-              #endif
-            #else
-              #define HOTENDS 5
-            #endif
-          #else
-            #define HOTENDS 4
-          #endif
-        #else
-          #define HOTENDS 3
-        #endif
-      #else
-        #define HOTENDS 2
-      #endif
-    #else
-      #define HOTENDS 1
-    #endif
+  #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && STM_NUM_TOOLS > P
+  #if HOTEND_TEST(1)
+    #define SWITCHING_TOOLHEAD_MULTI_HOTEND 1
+  #endif
+  #if HOTEND_TEST(7)
+    #define HOTENDS 8
+  #elif HOTEND_TEST(6)
+    #define HOTENDS 7
+  #elif HOTEND_TEST(5)
+    #define HOTENDS 6
+  #elif HOTEND_TEST(4)
+    #define HOTENDS 5
+  #elif HOTEND_TEST(3)
+    #define HOTENDS 4
+  #elif HOTEND_TEST(2)
+    #define HOTENDS 3
+  #elif HOTEND_TEST(1)
+    #define HOTENDS 2
+  #elif HOTEND_TEST(0)
+    #define HOTENDS 1
   #else
     #define HOTENDS 0
   #endif
   #undef HOTEND_TEST
 
+  #undef EXTRUDERS
   #define EXTRUDERS  HOTENDS
   #define E_MANUAL   1
 
-  // non-hotend tools are classified as "unpowered tools"
-  #define UNPOWERED_TOOLS (NUM_TOOLS - HOTENDS)
+  // Non-hotend tools are classified as "unpowered tools"
+  #define UNPOWERED_TOOLS (STM_NUM_TOOLS - HOTENDS)
 
   #if ENABLED(STM_DIRECT_DRIVE)  // multiple extruders - plates likely direct drive, or multiple bowden tools
     #define MST_MULTI_EXTRUDER 1
@@ -842,10 +830,6 @@
 
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
-#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  // a stand-in for HOTEND_LOOP()
-  #define TOOLHEAD_LOOP() for(int8_t e = 0; e < NUM_TOOLS; e++)
-#endif
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
@@ -864,9 +848,8 @@
   #ifndef HOTEND_OFFSET_Z
     #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
   #endif
-
   #ifndef NUM_TOOL_OFFSET
-    #define NUM_TOOL_OFFSET TERN(MANUAL_SWITCHING_TOOLHEAD, NUM_TOOLS, HOTENDS)
+    #define NUM_TOOL_OFFSET HOTENDS
   #endif
 #endif
 
