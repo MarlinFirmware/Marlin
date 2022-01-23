@@ -114,10 +114,6 @@ void GcodeSuite::G34() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Final Z Move");
   do_blocking_move_to_z(zgrind, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
 
-  // Back off end plate, back to normal motion range
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
-  do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
-
   #if _REDUCE_CURRENT
     // Reset current to original values
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
@@ -145,6 +141,10 @@ void GcodeSuite::G34() {
       stepperZ4.rms_current(previous_current_arr[3]);
     #endif
   #endif
+
+  // Back off end plate, back to normal motion range
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
+  do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
 
   #ifdef GANTRY_CALIBRATION_COMMANDS_POST
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Running Post Commands");

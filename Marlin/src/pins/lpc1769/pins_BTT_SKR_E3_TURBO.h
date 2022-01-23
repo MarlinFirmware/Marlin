@@ -186,11 +186,11 @@
 
 /**
  *                  ------
- *              5V | 1  2 | GND
- *  (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)
- *  (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
- *           RESET | 7  8 | P0_19 (BTN_EN1)
- * (BTN_ENC) P0_16 | 9 10 | P2_08 (BEEPER)
+ * (BEEPER)  P2_08 |10  9 | P0_16 (BTN_ENC)
+ * (BTN_EN1) P0_19 | 8  7 | RESET
+ * (BTN_EN2) P0_20   6  5 | P0_15 (LCD_D4)
+ * (LCD_RS)  P0_17 | 4  3 | P0_18 (LCD_EN)
+ *             GND | 2  1 | 5V
  *                  ------
  *                   EXP
  */
@@ -203,17 +203,17 @@
 #define EXP1_09_PIN                        P0_16
 #define EXP1_10_PIN                        P2_08
 
-#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   #error "Ender-3 V2 display requires a custom cable with TX = P0_15, RX = P0_16. Comment out this line to continue."
 
  /**
   *          Ender 3 V2 display                       SKR E3 Turbo (EXP1)                Ender 3 V2 display --> SKR E3 Turbo
   *                ------                                     ------                                  RX  8 -->  5  P0_15
-  *            5V | 1  2 | GND                            5V | 1  2 | GND                             TX  7 -->  9  P0_16
-  *   (BTN_E1)  A | 3  4 | B   (BTN_E2)       (LCD_EN) P0_18 | 3  4 | P0_17 (LCD_RS)              BEEPER  5 --> 10  P2_08
-  *        BEEPER | 5  6   ENT (BTN_ENC)      (LCD_D4) P0_15 | 5  6   P0_20 (BTN_EN2)
-  *  (SKR_RX1) TX | 7  8 | RX  (SKR_TX1)               Reset | 7  8 | P0_19 (BTN_EN1)
-  *            NC | 9 10 | NC                (BTN_ENC) P0_16 | 9 10 | P2_08 (BEEPER)
+  *           --  |10  9 | --                (BEEPER)  P2_08 |10  9 | P0_16 (BTN_ENC)                 TX  7 -->  9  P0_16
+  * (SKR_TX1) RX  | 8  7 | TX (SKR_RX1)      (BTN_EN1) P0_19 | 8  7 | RESET                       BEEPER  5 --> 10  P2_08
+  * (BTN_ENC) ENT   6  5 | BEEPER            (BTN_EN2) P0_20   6  5 | P0_15 (LCD_D4)
+  * (BTN_E2)  B   | 4  3 | A  (BTN_E1)       (LCD_RS)  P0_17 | 4  3 | P0_18 (LCD_EN)
+  *           GND | 2  1 | 5V                            GND | 2  1 | 5V
   *                ------                                     ------
   */
 

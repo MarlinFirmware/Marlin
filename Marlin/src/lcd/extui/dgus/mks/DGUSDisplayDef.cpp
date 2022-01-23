@@ -40,7 +40,7 @@
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../../../feature/powerloss.h"
+  #include "../../../../feature/powerloss.h"
 #endif
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)

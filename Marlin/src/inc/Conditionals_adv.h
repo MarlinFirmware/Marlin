@@ -118,9 +118,9 @@
 
 // Temperature sensor IDs
 #define HID_REDUNDANT -6
-#define HID_COOLER    -5
-#define HID_PROBE     -4
-#define HID_BOARD     -3
+#define HID_BOARD     -5
+#define HID_COOLER    -4
+#define HID_PROBE     -3
 #define HID_CHAMBER   -2
 #define HID_BED       -1
 #define HID_E0         0
@@ -159,6 +159,9 @@
     #ifndef MAX31865_SENSOR_WIRES_0
       #define MAX31865_SENSOR_WIRES_0 2
     #endif
+    #ifndef MAX31865_WIRE_OHMS_0
+      #define MAX31865_WIRE_OHMS_0 0.0f
+    #endif
   #elif TEMP_SENSOR_0 == -3
     #define TEMP_SENSOR_0_IS_MAX31855 1
     #define TEMP_SENSOR_0_MAX_TC_TMIN -270
@@ -192,6 +195,9 @@
     #define TEMP_SENSOR_1_MAX_TC_TMAX 1024
     #ifndef MAX31865_SENSOR_WIRES_1
       #define MAX31865_SENSOR_WIRES_1 2
+    #endif
+    #ifndef MAX31865_WIRE_OHMS_1
+      #define MAX31865_WIRE_OHMS_1 0.0f
     #endif
   #elif TEMP_SENSOR_1 == -3
     #define TEMP_SENSOR_1_IS_MAX31855 1
@@ -671,11 +677,6 @@
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
 #endif
 
-// Add features that need hardware PWM here
-#if ANY(FAST_PWM_FAN, SPINDLE_LASER_USE_PWM)
-  #define NEEDS_HARDWARE_PWM 1
-#endif
-
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
@@ -997,4 +998,10 @@
 #endif
 #if EITHER(MEATPACK_ON_SERIAL_PORT_1, MEATPACK_ON_SERIAL_PORT_2)
   #define HAS_MEATPACK 1
+#endif
+
+// AVR are (usually) too limited in resources to store the configuration into the binary
+#if ENABLED(CONFIGURATION_EMBEDDING) && !defined(FORCE_CONFIG_EMBED) && (defined(__AVR__) || DISABLED(SDSUPPORT) || EITHER(SDCARD_READONLY, DISABLE_M503))
+  #undef CONFIGURATION_EMBEDDING
+  #define CANNOT_EMBED_CONFIGURATION defined(__AVR__)
 #endif

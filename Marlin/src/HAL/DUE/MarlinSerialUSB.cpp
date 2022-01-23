@@ -41,7 +41,7 @@ extern "C" {
   int udi_cdc_getc();
   bool udi_cdc_is_tx_ready();
   int udi_cdc_putc(int value);
-};
+}
 
 // Pending character
 static int pending_char = -1;

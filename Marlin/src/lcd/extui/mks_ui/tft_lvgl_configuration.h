@@ -27,7 +27,7 @@
  */
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+  extern "C" {
 #endif
 
 #include <lvgl.h>
@@ -63,6 +63,8 @@ lv_fs_res_t sd_seek_cb(lv_fs_drv_t * drv, void * file_p, uint32_t pos);
 lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p);
 
 void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv_color_t bk_color);
+
+bool get_lcd_dma_lock();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

@@ -28,6 +28,8 @@
 
 #if ENABLED(SDIO_SUPPORT)
 
+#include "sdio.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -49,14 +51,6 @@
   #error "SDIO only supported with STM32F103xE, STM32F103xG, STM32F4xx, or STM32F7xx."
 #endif
 
-// Fixed
-#define SDIO_D0_PIN   PC8
-#define SDIO_D1_PIN   PC9
-#define SDIO_D2_PIN   PC10
-#define SDIO_D3_PIN   PC11
-#define SDIO_CK_PIN   PC12
-#define SDIO_CMD_PIN  PD2
-
 SD_HandleTypeDef hsd;  // create SDIO structure
 // F4 supports one DMA for RX and another for TX, but Marlin will never
 // do read and write at same time, so we use the same DMA for both.
@@ -65,7 +59,7 @@ DMA_HandleTypeDef hdma_sdio;
 /*
   SDIO_INIT_CLK_DIV is 118
   SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
-  SDIO init clock frequency should not exceed 400KHz = 48MHz / (118 + 2)
+  SDIO init clock frequency should not exceed 400kHz = 48MHz / (118 + 2)
 
   Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
   Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz

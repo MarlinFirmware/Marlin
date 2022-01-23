@@ -195,7 +195,7 @@
  *  (LCD_EN) 1.18 | 8  7 | 1.19  (LCD_RS)     (BTN_EN1) 3.26 | 8  7 | 0.16 (SD_SS)
  *  (LCD_D4) 1.20   6  5 | 1.21  (LCD_D5)     (BTN_EN2) 3.25   6  5 | 0.18 (MOSI)
  *  (LCD_D6) 1.22 | 4  3 | 1.23  (LCD_D7)   (SD_DETECT) 1.31 | 4  3 | RESET
- *            GND | 2  1 | 5V                            GND | 2  1 | NC
+ *            GND | 2  1 | 5V                            GND | 2  1 | --
  *                 ------                                     ------
  *                  EXP1                                       EXP2
  */
@@ -237,11 +237,11 @@
     *
     *                  BEFORE                          AFTER
     *                  ------                          ------
-    *           GND 1 | 1  2 |  2 5V             5V 1 | 1  2 |  2 GND
-    *            CS 3 | 3  4 |  4 BTN_EN2        CS 3 | 3  4 |  4 BTN_EN2
-    *           SID 5 | 5  6    6 BTN_EN1       SID 5 | 5  6    6 BTN_EN1
-    *          open 7 | 7  8 |  8 BTN_ENC       CLK 7 | 7  8 |  8 BTN_ENC
-    *           CLK 9 | 9 10 | 10 Beeper       open 9 | 9 10 | 10 Beeper
+    *           (CLK) |10  9 | (BEEPER)      (BEEPER) |10  9 | --
+    *              -- | 8  7 | (BTN_ENC)    (BTN_ENC) | 8  7 | (CLK)
+    *           (SID)   6  5 | (BTN_EN1)    (BTN_EN1)   6  5 | (SID)
+    *            (CS) | 4  3 | (BTN_EN2)    (BTN_EN2) | 4  3 | (CS)
+    *             GND | 2  1 | 5V                 GND | 2  1 | 5V
     *                  ------                          ------
     *                   LCD                             LCD
     */
@@ -270,11 +270,11 @@
      *
      *                  BEFORE                      AFTER
      *                  ______                     ______
-     *             GND | 1  2 | 5V             5V | 1  2 | GND
-     *              CS | 3  4 | BTN_EN2        CS | 3  4 | BTN_EN2
-     *             SID | 5  6   BTN_EN1       SID | 5  6   BTN_EN1
-     *             SCK | 7  8 | BTN_ENC       SCK | 7  8 | BTN_ENC
-     *            MOSI | 9 10 |              open | 9 10 | MOSI
+     *                 |10  9 | (MOSI)     (MOSI) |10  9 | --
+     *       (BTN_ENC) | 8  7 | (SCK)   (BTN_ENC) | 8  7 | (SCK)
+     *       (BTN_EN1)   6  5 | (SID)   (BTN_EN1)   6  5 | (SID)
+     *       (BTN_EN2) | 4  3 | (CS)    (BTN_EN2) | 4  3 | (CS)
+     *              5V | 2  1 | GND           GND | 2  1 | 5V
      *                  ------                     ------
      *                   LCD                        LCD
      */
@@ -424,13 +424,13 @@
 
         /**
          * Creality Ender-2 display pinout
-         *                   -----
-         *               5V | 1 2 | GND
-         *     (MOSI) P1_23 | 3 4 | P1_22 (LCD_CS)
-         *   (LCD_A0) P1_21 | 5 6   P1_20 (BTN_EN2)
-         *    (RESET) P1_19 | 7 8 | P1_18 (BTN_EN1)
-         *  (BTN_ENC) P0_28 | 9 10| P1_30 (SCK)
-         *                   -----
+         *                   ------
+         *      (SCK) P1_30 |10  9 | P0_28 (BTN_ENC)
+         *  (BTN_EN1) P1_18 | 8  7 | P1_19 (RESET)
+         *  (BTN_EN2) P1_20   6  5 | P1_21 (LCD_A0)
+         *   (LCD_CS) P1_22 | 4  3 | P1_23 (MOSI)
+         *              GND | 2  1 | 5V
+         *                   ------
          *                    EXP1
          */
 
