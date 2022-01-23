@@ -1301,39 +1301,39 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Manual Switching Toolhead requirements
  */
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  #if TOOLS < 2
-    #error "MANUAL_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_TOOL_QTY >= 2."
-  #elif TOOLS > 8
-    #error "SWITCHING_TOOLHEAD_TOOL_QTY can not be more than 8."
+  #if NUM_TOOLS < 2
+    #error "MANUAL_SWITCHING_TOOLHEAD requires STM_NUM_TOOLS >= 2."
+  #elif NUM_TOOLS > 8
+    #error "STM_NUM_TOOLS can not be more than 8."
   #elif E_STEPPERS != 1 && E_STEPPERS != HOTENDS
     #error "MANUAL_SWITCHING_TOOLHEAD requires either matching hotend/EXTRUDER count, or just one EXTRUDER."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     #error "MANUAL_SWITCHING_TOOLHEAD requires ADVANCED_PAUSE_FEATURE."
   #endif
 
-  #if TOOLS < 8
+  #if NUM_TOOLS < 8
     #undef TOOL_NAME_7
   #endif
-  #if TOOLS < 7
+  #if NUM_TOOLS < 7
     #undef TOOL_NAME_6
   #endif
-  #if TOOLS < 6
+  #if NUM_TOOLS < 6
     #undef TOOL_NAME_5
   #endif
-  #if TOOLS < 5
+  #if NUM_TOOLS < 5
     #undef TOOL_NAME_4
   #endif
-  #if TOOLS < 4
+  #if NUM_TOOLS < 4
     #undef TOOL_NAME_3
   #endif
-  #if TOOLS < 3
+  #if NUM_TOOLS < 3
     #undef TOOL_NAME_2
   #endif
 
-  #if ENABLED(SWITCHING_TOOLHEAD_EEPROM) && DISABLED(EEPROM_SETTINGS)
-    #error "SWITCHING_TOOLHEAD_EEPROM requires EEPROM_SETTINGS."
-  #elif ENABLED(SWITCHING_TOOLHEAD_EEPROM_AUTOSAVE) && DISABLED(SWITCHING_TOOLHEAD_EEPROM)
-    #error "SWITCHING_TOOLHEAD_EEPROM_AUTOSAVE requires SWITCHING_TOOLHEAD_EEPROM."
+  #if ENABLED(STM_EEPROM_STORAGE) && DISABLED(EEPROM_SETTINGS)
+    #error "STM_EEPROM_STORAGE requires EEPROM_SETTINGS."
+  #elif ENABLED(STM_EEPROM_AUTOSAVE) && DISABLED(STM_EEPROM_STORAGE)
+    #error "STM_EEPROM_AUTOSAVE requires STM_EEPROM_STORAGE."
   #endif
 #endif
 
@@ -1341,19 +1341,19 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Servo Switching Toolhead requirements
  */
 #if ENABLED(SERVO_SWITCHING_TOOLHEAD)
-  #ifndef SWITCHING_TOOLHEAD_SERVO_NR
-    #error "SERVO_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_SERVO_NR."
+  #ifndef SST_SERVO_NR
+    #error "SERVO_SWITCHING_TOOLHEAD requires SST_SERVO_NR."
   #elif EXTRUDERS < 2
     #error "SERVO_SWITCHING_TOOLHEAD requires at least 2 EXTRUDERS."
-  #elif NUM_SERVOS < (SWITCHING_TOOLHEAD_SERVO_NR - 1)
-    #if SWITCHING_TOOLHEAD_SERVO_NR == 0
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 0 requires NUM_SERVOS >= 1."
-    #elif SWITCHING_TOOLHEAD_SERVO_NR == 1
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 1 requires NUM_SERVOS >= 2."
-    #elif SWITCHING_TOOLHEAD_SERVO_NR == 2
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 2 requires NUM_SERVOS >= 3."
-    #elif SWITCHING_TOOLHEAD_SERVO_NR == 3
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 3 requires NUM_SERVOS >= 4."
+  #elif NUM_SERVOS < (SST_SERVO_NR - 1)
+    #if SST_SERVO_NR == 0
+      #error "A SST_SERVO_NR of 0 requires NUM_SERVOS >= 1."
+    #elif SST_SERVO_NR == 1
+      #error "A SST_SERVO_NR of 1 requires NUM_SERVOS >= 2."
+    #elif SST_SERVO_NR == 2
+      #error "A SST_SERVO_NR of 2 requires NUM_SERVOS >= 3."
+    #elif SST_SERVO_NR == 3
+      #error "A SST_SERVO_NR of 3 requires NUM_SERVOS >= 4."
     #endif
   #elif !defined(TOOLCHANGE_ZRAISE)
     #error "SERVO_SWITCHING_TOOLHEAD requires TOOLCHANGE_ZRAISE."
@@ -1383,8 +1383,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
   #elif !PIN_EXISTS(SOL0)
     #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
-  #elif !defined(SWITCHING_TOOLHEAD_Z_HOP)
-    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Z_HOP."
+  #elif !defined(EST_Z_HOP)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires EST_Z_HOP."
   #endif
 #endif
 
@@ -1416,7 +1416,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SST_SERVO_NR)
   #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead, switching extruder, or POLARGRAPH is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
@@ -2417,7 +2417,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
     #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
   #endif
-  #if E_STEPPERS > 1 && ENABLED(MANUAL_SWITCHING_TOOLHEAD_SINGLE_EXTRUDER)
+  #if E_STEPPERS > 1 && ENABLED(MST_SINGLE_EXTRUDER)
     #if !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
       #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
     #endif

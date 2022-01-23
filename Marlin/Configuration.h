@@ -245,6 +245,12 @@
  * via a solenoid docking mechanism. Requires SOL1_PIN and SOL2_PIN.
  */
 //#define PARKING_EXTRUDER
+#if ENABLED(PARKING_EXTRUDER)
+  #define PARKING_EXTRUDER_SOLENOIDS_INVERT           // If enabled, the solenoid is NOT magnetized with applied voltage
+  #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW  // LOW or HIGH pin signal energizes the coil
+  #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250        // (ms) Delay for magnetic field. No delay if 0 or not defined.
+  //#define MANUAL_SOLENOID_CONTROL                   // Manual control of docking solenoids with M380 S / M381
+#endif
 
 /**
  * Two separate X-carriages with extruders that connect to a moving part
@@ -255,28 +261,16 @@
  *             https://youtu.be/Bqbcs0CU2FE
  */
 //#define MAGNETIC_PARKING_EXTRUDER
+#if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+  #define MPE_FAST_SPEED      9000  // (mm/min) Speed for travel before last distance point
+  #define MPE_SLOW_SPEED      4500  // (mm/min) Speed for last distance travel to park and couple
+  #define MPE_TRAVEL_DISTANCE   10  // (mm) Last distance point
+  #define MPE_COMPENSATION       0  // Offset Compensation -1 , 0 , 1 (multiplier) only for coupling
+#endif
 
 #if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
-
-  #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
-  #define PARKING_EXTRUDER_GRAB_DISTANCE 1            // (mm) Distance to move beyond the parking point to grab the extruder
-
-  #if ENABLED(PARKING_EXTRUDER)
-
-    #define PARKING_EXTRUDER_SOLENOIDS_INVERT           // If enabled, the solenoid is NOT magnetized with applied voltage
-    #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW  // LOW or HIGH pin signal energizes the coil
-    #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250        // (ms) Delay for magnetic field. No delay if 0 or not defined.
-    //#define MANUAL_SOLENOID_CONTROL                   // Manual control of docking solenoids with M380 S / M381
-
-  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
-
-    #define MPE_FAST_SPEED      9000      // (mm/min) Speed for travel before last distance point
-    #define MPE_SLOW_SPEED      4500      // (mm/min) Speed for last distance travel to park and couple
-    #define MPE_TRAVEL_DISTANCE   10      // (mm) Last distance point
-    #define MPE_COMPENSATION       0      // Offset Compensation -1 , 0 , 1 (multiplier) only for coupling
-
-  #endif
-
+  #define PARKING_EXTRUDER_PARKING_X { -78, 184 }   // X positions for parking the extruders
+  #define PARKING_EXTRUDER_GRAB_DISTANCE 1          // (mm) Distance to move beyond the parking point to grab the extruder
 #endif
 
 /**
@@ -295,20 +289,18 @@
  * You may also desire to enable/check the following:
  *  - HOTEND_OFFSET_[XYZ]
  *  - Tool Change settings in Configuration_adv.h
-
-*/
+ */
 //#define MANUAL_SWITCHING_TOOLHEAD
-
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   /**
    * Number of tools that are being set up. The type of tool (i.e. hotend, unpowered tool)
    * is dependent on if a TEMP_SENSOR_n is defined for each tool. Hotends must come first,
    * so start with TEMP_SENSOR_0.
    *
-   * Do not include laser/spindle in this count. Enabling SWITCHING_TOOLHEAD_LASER_SPINDLE
+   * Do not include laser/spindle in this count. Enabling STM_LASER_SPINDLE
    * will add the appropriate tool.
    */
-  #define SWITCHING_TOOLHEAD_TOOL_QTY 4
+  #define STM_NUM_TOOLS 4
 
   /**
    * Hotend extruder setup: by default, the toolchange code will assume that all hotends use
@@ -321,15 +313,15 @@
    *
    * NOTE: The MANUAL_SWITCHING_TOOLHEAD feature overrides EXTRUDERS set above.
    */
-  //#define SWITCHING_TOOLHEAD_DIRECT_DRIVE_EXTRUDERS
+  //#define STM_DIRECT_DRIVE
 
   // TODO: Extra Extruders; use these for extruder-only tools, such as cake/frosting/clay extruders.
-  #define SWITCHING_TOOLHEAD_EXTRA_EXTRUDERS 0
+  #define STM_EXTRA_EXTRUDERS 0
 
   // TODO: Enable the LASER/SPINDLE tool. Can use LASER/SPINDLE_FEATURE, or a fan-pwm based laser.
-  // This will always be the LAST tool. Can not be used with SWITCHING_TOOLHEAD_TOOL_QTY > 7
-  #if SWITCHING_TOOLHEAD_TOOL_QTY <= 7
-    //#define SWITCHING_TOOLHEAD_LASER_SPINDLE
+  // This will always be the LAST tool. Can not be used with STM_NUM_TOOLS > 7
+  #if STM_NUM_TOOLS <= 7
+    //#define STM_LASER_SPINDLE
   #endif
 
   /**
@@ -346,13 +338,13 @@
   //#define TOOL_NAME_7 "Tool 7"
 
   // TODO: Display a menu prompting you to select the inserted toolhead at boot.
-  //#define SWITCHING_TOOLHEAD_BOOT_MENU
+  //#define STM_BOOT_MENU
 
   // Keep the selected tool in EEPROM. Must be committed/saved with M500 like other settings.
-  #define SWITCHING_TOOLHEAD_EEPROM
+  #define STM_EEPROM_STORAGE
 
   // Auto-save EEPROM on toolchange. Warning: this will save ALL settings.
-  //#define SWITCHING_TOOLHEAD_EEPROM_AUTOSAVE
+  //#define STM_EEPROM_AUTOSAVE
 #endif
 
 /**
@@ -362,10 +354,9 @@
  * the E3D Tool Changer. Toolheads are locked with a servo.
  */
 //#define SERVO_SWITCHING_TOOLHEAD
-
 #if ENABLED(SERVO_SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
-  #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+  #define SST_SERVO_NR       2         // Index of the servo connector
+  #define SST_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
 #endif
 
 /**
@@ -376,14 +367,14 @@
  */
 //#define MAGNETIC_SWITCHING_TOOLHEAD
 #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
-  #define SWITCHING_TOOLHEAD_X_SECURITY   { 90, 150 } // (mm) Security distance X axis (T0,T1)
-  //#define PRIME_BEFORE_REMOVE                       // Prime the nozzle before release from the dock
-  #if ENABLED(PRIME_BEFORE_REMOVE)
-    #define SWITCHING_TOOLHEAD_PRIME_MM           20  // (mm)   Extruder prime length
-    #define SWITCHING_TOOLHEAD_RETRACT_MM         10  // (mm)   Retract after priming length
-    #define SWITCHING_TOOLHEAD_PRIME_FEEDRATE    300  // (mm/min) Extruder prime feedrate
-    #define SWITCHING_TOOLHEAD_RETRACT_FEEDRATE 2400  // (mm/min) Extruder retract feedrate
+  #define MST_Y_RELEASE      5         // (mm) Security distance Y axis
+  #define MST_X_SECURITY   { 90, 150 } // (mm) Security distance X axis (T0,T1)
+  //#define MST_PRIME_BEFORE_REMOVE                       // Prime the nozzle before release from the dock
+  #if ENABLED(MST_PRIME_BEFORE_REMOVE)
+    #define MST_PRIME_MM           20  // (mm)   Extruder prime length
+    #define MST_RETRACT_MM         10  // (mm)   Retract after priming length
+    #define MST_PRIME_FEEDRATE    300  // (mm/min) Extruder prime feedrate
+    #define MST_RETRACT_FEEDRATE 2400  // (mm/min) Extruder retract feedrate
   #endif
 #endif
 
@@ -395,9 +386,8 @@
  * Supports more than 2 Toolheads. See https://youtu.be/JolbsAKTKf4
  */
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
-
 #if ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_Z_HOP          2         // (mm) Z raise for switching
+  #define EST_Z_HOP          2         // (mm) Z raise for switching
 #endif
 
 /**

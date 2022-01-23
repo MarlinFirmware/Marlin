@@ -654,31 +654,31 @@
   #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
 
   // shorthand, number of tools.
-  #define TOOLS SWITCHING_TOOLHEAD_TOOL_QTY
+  #define NUM_TOOLS STM_NUM_TOOLS
 
   #define HAS_TOOL_0
   #define HAS_TOOL_1
-  #if TOOLS > 2
+  #if NUM_TOOLS > 2
     #define HAS_TOOL_2
-  #endif
-  #if TOOLS > 3
-    #define HAS_TOOL_3
-  #endif
-  #if TOOLS > 4
-    #define HAS_TOOL_4
-  #endif
-  #if TOOLS > 5
-    #define HAS_TOOL_5
-  #endif
-  #if TOOLS > 6
-    #define HAS_TOOL_6
-  #endif
-  #if TOOLS > 7
-    #define HAS_TOOL_7
+    #if NUM_TOOLS > 3
+      #define HAS_TOOL_3
+      #if NUM_TOOLS > 4
+        #define HAS_TOOL_4
+        #if NUM_TOOLS > 5
+          #define HAS_TOOL_5
+          #if NUM_TOOLS > 6
+            #define HAS_TOOL_6
+            #if NUM_TOOLS > 7
+              #define HAS_TOOL_7
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
   #endif
 
   // determine the number of hotend tools (number of sensors defined)
-  #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && TOOLS > P
+  #define HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && NUM_TOOLS > P
   #if HOTEND_TEST(0)
     #if HOTEND_TEST(1)
       #define SWITCHING_TOOLHEAD_MULTI_HOTEND 1
@@ -719,16 +719,14 @@
   #define E_MANUAL   1
 
   // non-hotend tools are classified as "unpowered tools"
-  #define UNPOWERED_TOOLS (TOOLS - HOTENDS)
+  #define UNPOWERED_TOOLS (NUM_TOOLS - HOTENDS)
 
-  #if DISABLED(SWITCHING_TOOLHEAD_DIRECT_DRIVE_EXTRUDERS)
-    // single extruder - plates don't have steppers on them
-    #define MANUAL_SWITCHING_TOOLHEAD_SINGLE_EXTRUDER 1
-    #define E_STEPPERS  1
-  #else
-    // multiple extruders - plates likely direct drive, or multiple bowden tools
-    #define MANUAL_SWITCHING_TOOLHEAD_MULTI_EXTRUDER 1
+  #if ENABLED(STM_DIRECT_DRIVE)  // multiple extruders - plates likely direct drive, or multiple bowden tools
+    #define MST_MULTI_EXTRUDER 1
     #define E_STEPPERS  HOTENDS
+  #else                                                   // single extruder - plates don't have steppers on them
+    #define MST_SINGLE_EXTRUDER 1
+    #define E_STEPPERS  1
   #endif
 
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)   // Toolchanger
@@ -846,7 +844,7 @@
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   // a stand-in for HOTEND_LOOP()
-  #define TOOLHEAD_LOOP() for(int8_t e = 0; e < TOOLS; e++)
+  #define TOOLHEAD_LOOP() for(int8_t e = 0; e < NUM_TOOLS; e++)
 #endif
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
@@ -868,7 +866,7 @@
   #endif
 
   #ifndef NUM_TOOL_OFFSET
-    #define NUM_TOOL_OFFSET TERN(MANUAL_SWITCHING_TOOLHEAD, TOOLS, HOTENDS)
+    #define NUM_TOOL_OFFSET TERN(MANUAL_SWITCHING_TOOLHEAD, NUM_TOOLS, HOTENDS)
   #endif
 #endif
 

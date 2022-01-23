@@ -46,9 +46,9 @@
       #undef NUM_SERVOS
       #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
     #endif
-    #if NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
+    #if NUM_SERVOS <= SST_SERVO_NR
       #undef NUM_SERVOS
-      #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
+      #define NUM_SERVOS (SST_SERVO_NR + 1)
     #endif
     #if NUM_SERVOS <= SWITCHING_NOZZLE_SERVO_NR
       #undef NUM_SERVOS

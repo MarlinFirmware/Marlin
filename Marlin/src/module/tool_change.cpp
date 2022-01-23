@@ -59,7 +59,7 @@
   #include "../lcd/marlinui.h"
 #endif
 
-#if ENABLED(SWITCHING_TOOLHEAD_EEPROM)
+#if ENABLED(STM_EEPROM_STORAGE)
   #include "settings.h"
 #endif
 
@@ -400,7 +400,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       )
     );
 
-    #if ENABLED(SWITCHING_TOOLHEAD_EEPROM_AUTOSAVE)
+    #if ENABLED(STM_EEPROM_AUTOSAVE)
       settings.save();
     #endif
   }
@@ -444,7 +444,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   }
 
   void manual_switching_toolchange_init() {
-    #if ENABLED(SWITCHING_TOOLHEAD_EEPROM)
+    #if ENABLED(STM_EEPROM_STORAGE)
       // set active_extruder on first load
       active_extruder = toolchange_settings.selected_tool;
     #endif
@@ -511,9 +511,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   #endif
 
   inline void servo_switching_toolhead_lock(const bool locked) {
-    #ifdef SWITCHING_TOOLHEAD_SERVO_ANGLES
-      const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
-      MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+    #ifdef SST_SERVO_ANGLES
+      const uint16_t swt_angles[2] = SST_SERVO_ANGLES;
+      MOVE_SERVO(SST_SERVO_NR, swt_angles[locked ? 0 : 1]);
     #elif PIN_EXISTS(SWT_SOLENOID)
       OUT_WRITE(SWT_SOLENOID_PIN, locked);
       gcode.dwell(10);
@@ -672,7 +672,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     if (no_move) return;
 
     constexpr float toolheadposx[] = SWITCHING_TOOLHEAD_X_POS,
-                    toolheadclearx[] = SWITCHING_TOOLHEAD_X_SECURITY;
+                    toolheadclearx[] = MST_X_SECURITY;
 
     const float placexpos = toolheadposx[active_extruder],
                 placexclear = toolheadclearx[active_extruder],
@@ -723,7 +723,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(2) Release and Place Toolhead");
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS + MST_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
 
@@ -748,7 +748,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab new toolhead, move to security position");
 
-    current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    current_position.y = SWITCHING_TOOLHEAD_Y_POS + MST_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
     line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
 
@@ -759,14 +759,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     _line_to_current(Y_AXIS, 0.2f);
 
-    #if ENABLED(PRIME_BEFORE_REMOVE) && (SWITCHING_TOOLHEAD_PRIME_MM || SWITCHING_TOOLHEAD_RETRACT_MM)
-      #if SWITCHING_TOOLHEAD_PRIME_MM
-        current_position.e += SWITCHING_TOOLHEAD_PRIME_MM;
-        planner.buffer_line(current_position, MMM_TO_MMS(SWITCHING_TOOLHEAD_PRIME_FEEDRATE), new_tool);
+    #if ENABLED(MST_PRIME_BEFORE_REMOVE) && (MST_PRIME_MM || MST_RETRACT_MM)
+      #if MST_PRIME_MM
+        current_position.e += MST_PRIME_MM;
+        planner.buffer_line(current_position, MMM_TO_MMS(MST_PRIME_FEEDRATE), new_tool);
       #endif
-      #if SWITCHING_TOOLHEAD_RETRACT_MM
-        current_position.e -= SWITCHING_TOOLHEAD_RETRACT_MM;
-        planner.buffer_line(current_position, MMM_TO_MMS(SWITCHING_TOOLHEAD_RETRACT_FEEDRATE), new_tool);
+      #if MST_RETRACT_MM
+        current_position.e -= MST_RETRACT_MM;
+        planner.buffer_line(current_position, MMM_TO_MMS(MST_RETRACT_FEEDRATE), new_tool);
       #endif
     #else
       planner.synchronize();
@@ -817,7 +817,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 1. Raise Z-Axis to give enough clearance
 
-    current_position.z += SWITCHING_TOOLHEAD_Z_HOP;
+    current_position.z += EST_Z_HOP;
     DEBUG_POS("(1) Raise Z-Axis ", current_position);
     fast_line_to_current(Z_AXIS);
 
@@ -1088,7 +1088,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
          return invalid_extruder_error(new_tool);
     #endif
 
-    if (new_tool >= TERN(MANUAL_SWITCHING_TOOLHEAD, SWITCHING_TOOLHEAD_TOOL_QTY, EXTRUDERS))
+    if (new_tool >= TERN(MANUAL_SWITCHING_TOOLHEAD, STM_NUM_TOOLS, EXTRUDERS))
       return invalid_extruder_error(new_tool);
 
     if (!no_move && homing_needed()) {

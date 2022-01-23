@@ -28,7 +28,7 @@
 #if HAS_MULTI_EXTRUDER
 
   typedef struct {
-    #if ENABLED(SWITCHING_TOOLHEAD_EEPROM)
+    #if ENABLED(STM_EEPROM_STORAGE)
       int8_t selected_tool = 0;
     #endif
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
