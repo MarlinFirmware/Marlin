@@ -540,17 +540,6 @@
     #endif
   #endif
 
-  // STEPPER overrides
-  #if EXTRUDERS == 1
-    #undef E1_DIR_PIN
-    #undef E1_STEP_PIN
-    #undef E1_CS_PIN
-    #undef E1_ENABLE_PIN
-    #undef E1_SERIAL_TX_PIN
-    #undef E1_SERIAL_RX_PIN
-    // TODO: all other pins
-  #endif
-
   // Default Tool Names
   #ifndef TOOL_NAME_0
     #if HOTENDS > 0
