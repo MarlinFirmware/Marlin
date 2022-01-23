@@ -115,7 +115,7 @@ xyze_pos_t destination; // {0}
 #endif
 
 // Extruder offsets
-#if HAS_TOOL_OFFSET
+#if HAS_HOTEND_OFFSET
   xyz_pos_t hotend_offset[NUM_TOOL_OFFSET]; // Initialized by settings.load()
   void reset_tool_offsets() {
     constexpr float tmp[XYZ][NUM_TOOL_OFFSET] = { TOOL_OFFSET_X, TOOL_OFFSET_Y, TOOL_OFFSET_Z };
@@ -714,7 +714,7 @@ void restore_feedrate_and_scaling() {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis
-    OPTARG(HAS_TOOL_OFFSET, const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/)
+    OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index/*=0*/, const uint8_t new_tool_index/*=0*/)
   ) {
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -760,7 +760,7 @@ void restore_feedrate_and_scaling() {
         default: break;
       }
 
-    #elif HAS_TOOL_OFFSET
+    #elif HAS_HOTEND_OFFSET
 
       // Software endstops are relative to the tool 0 workspace, so
       // the movement limits must be shifted by the tool offset to
@@ -802,7 +802,7 @@ void restore_feedrate_and_scaling() {
 
       if (TERN0(DELTA, !all_axes_homed())) return;
 
-      #if BOTH(HAS_TOOL_OFFSET, DELTA)
+      #if BOTH(HAS_HOTEND_OFFSET, DELTA)
         // The effector center position will be the target minus the hotend offset.
         const xy_pos_t offs = hotend_offset[active_extruder];
       #else

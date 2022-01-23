@@ -512,7 +512,7 @@ void menu_configuration() {
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
-    #if HAS_TOOL_OFFSET
+    #if HAS_HOTEND_OFFSET
       SUBMENU(MSG_OFFSETS_MENU, menu_tool_offsets);
     #endif
 

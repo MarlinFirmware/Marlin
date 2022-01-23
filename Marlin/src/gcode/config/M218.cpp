@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_TOOL_OFFSET
+#if HAS_HOTEND_OFFSET
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -69,4 +69,4 @@ void GcodeSuite::M218_report(const bool forReplay/*=true*/) {
   }
 }
 
-#endif // HAS_TOOL_OFFSET
+#endif // HAS_HOTEND_OFFSET

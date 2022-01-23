@@ -144,7 +144,7 @@ inline float home_bump_mm(const AxisEnum axis) {
   inline void update_workspace_offset(const AxisEnum) {}
 #endif
 
-#if HAS_TOOL_OFFSET
+#if HAS_HOTEND_OFFSET
   extern xyz_pos_t hotend_offset[NUM_TOOL_OFFSET];
   void reset_tool_offsets();
 #elif HOTENDS
@@ -207,7 +207,7 @@ inline float home_bump_mm(const AxisEnum axis) {
   extern soft_endstops_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
-    #if HAS_TOOL_OFFSET
+    #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );

@@ -126,7 +126,7 @@ void GcodeSuite::M600() {
     if (parser.seenval(AXIS6_NAME)) park_point.k = parser.linearval(AXIS6_NAME)
   );
 
-  #if HAS_TOOL_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
+  #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
     park_point += hotend_offset[active_extruder];
   #endif
 

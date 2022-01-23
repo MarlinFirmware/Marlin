@@ -145,7 +145,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
   }
 #endif
 
-#if HAS_TOOL_OFFSET
+#if HAS_HOTEND_OFFSET
 
   inline void normalize_hotend_offsets() {
     LOOP_S_L_N(e, 1, HOTENDS)
@@ -501,7 +501,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     UNUSED(m);
   }
 
-  #if HAS_TOOL_OFFSET
+  #if HAS_HOTEND_OFFSET
     //
     // This function requires normalize_hotend_offsets() to be called
     //
@@ -619,7 +619,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
   probe_sides(m, uncertainty);
 
   // Adjust the hotend offset
-  #if HAS_TOOL_OFFSET
+  #if HAS_HOTEND_OFFSET
     if (ENABLED(HAS_X_CENTER) && AXIS_CAN_CALIBRATE(X)) hotend_offset[extruder].x += m.pos_error.x;
     if (ENABLED(HAS_Y_CENTER) && AXIS_CAN_CALIBRATE(Y)) hotend_offset[extruder].y += m.pos_error.y;
                              if (AXIS_CAN_CALIBRATE(Z)) hotend_offset[extruder].z += m.pos_error.z;
@@ -653,7 +653,7 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
 
-  TERN_(HAS_TOOL_OFFSET, normalize_hotend_offsets());
+  TERN_(HAS_HOTEND_OFFSET, normalize_hotend_offsets());
 
   TERN_(HAS_MULTI_HOTEND, set_nozzle(m, 0));
 }
@@ -672,7 +672,7 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 inline void calibrate_all() {
   measurements_t m;
 
-  TERN_(HAS_TOOL_OFFSET, reset_tool_offsets());
+  TERN_(HAS_HOTEND_OFFSET, reset_tool_offsets());
 
   TEMPORARY_BACKLASH_CORRECTION(all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
@@ -731,7 +731,7 @@ void GcodeSuite::G425() {
       report_measured_backlash(m);
       report_measured_nozzle_dimensions(m);
       report_measured_positional_error(m);
-      #if HAS_TOOL_OFFSET
+      #if HAS_HOTEND_OFFSET
         normalize_hotend_offsets();
         report_hotend_offsets();
       #endif

@@ -650,7 +650,7 @@
   // multiple hotends and/or other tools, using the same electrical connections
   // all hotends will use *_0_PIN for heaters/sensors.
   #undef EXTRUDERS
-  #define HAS_TOOL_OFFSET 1
+  #define HAS_HOTEND_OFFSET 1
   #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
 
   // shorthand, number of tools.
@@ -836,7 +836,7 @@
   #endif
   #if HOTENDS > 1
     #define HAS_MULTI_HOTEND 1
-    #define HAS_TOOL_OFFSET 1
+    #define HAS_HOTEND_OFFSET 1
   #endif
 #else
   #undef PID_PARAMS_PER_HOTEND
@@ -856,7 +856,7 @@
 /**
  * Tool Offsets: defaults, determine array size
  */
-#if HAS_TOOL_OFFSET
+#if HAS_HOTEND_OFFSET
   #ifndef TOOL_OFFSET_X
     #define TOOL_OFFSET_X { 0 } // X offsets for each extruder
   #endif

@@ -766,7 +766,7 @@ namespace ExtUI {
           probe.offset.z += mm;
       #endif
 
-      #if HAS_MULTI_EXTRUDER && HAS_TOOL_OFFSET
+      #if HAS_MULTI_EXTRUDER && HAS_HOTEND_OFFSET
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are
@@ -822,7 +822,7 @@ namespace ExtUI {
     #endif
   }
 
-  #if HAS_TOOL_OFFSET
+  #if HAS_HOTEND_OFFSET
 
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return 0;
@@ -844,7 +844,7 @@ namespace ExtUI {
       HOTEND_LOOP() hotend_offset[e][axis] -= offs;
     }
 
-  #endif // HAS_TOOL_OFFSET
+  #endif // HAS_HOTEND_OFFSET
 
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t axis) { return probe.offset.pos[axis]; }
