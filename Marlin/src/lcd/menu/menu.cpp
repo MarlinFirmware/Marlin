@@ -308,7 +308,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       const float diff = planner.mm_per_step[Z_AXIS] * babystep_increment,
                   new_probe_offset = probe.offset.z + diff,
                   new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                    , do_probe ? new_probe_offset : tool_offset[active_extruder].z - diff
+                    , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
                     , new_probe_offset
                   );
       if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
@@ -318,7 +318,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
         if (do_probe)
           probe.offset.z = new_offs;
         else
-          TERN(BABYSTEP_HOTEND_Z_OFFSET, tool_offset[active_extruder].z = new_offs, NOOP);
+          TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
 
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }
@@ -330,7 +330,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(tool_offset[active_extruder].z));
+          MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_HOTEND_OFFSET_Z), ftostr54sign(hotend_offset[active_extruder].z));
         #endif
       }
     }

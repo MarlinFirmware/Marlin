@@ -46,9 +46,9 @@ void GcodeSuite::M218() {
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
 
-  if (parser.seenval('X')) tool_offset[target_extruder].x = parser.value_linear_units();
-  if (parser.seenval('Y')) tool_offset[target_extruder].y = parser.value_linear_units();
-  if (parser.seenval('Z')) tool_offset[target_extruder].z = parser.value_linear_units();
+  if (parser.seenval('X')) hotend_offset[target_extruder].x = parser.value_linear_units();
+  if (parser.seenval('Y')) hotend_offset[target_extruder].y = parser.value_linear_units();
+  if (parser.seenval('Z')) hotend_offset[target_extruder].z = parser.value_linear_units();
 
   #if ENABLED(DELTA)
     if (target_extruder == active_extruder)
@@ -62,10 +62,10 @@ void GcodeSuite::M218_report(const bool forReplay/*=true*/) {
     report_echo_start(forReplay);
     SERIAL_ECHOPGM_P(
       PSTR("  M218 T"), e,
-      SP_X_STR, LINEAR_UNIT(tool_offset[e].x),
-      SP_Y_STR, LINEAR_UNIT(tool_offset[e].y)
+      SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
+      SP_Y_STR, LINEAR_UNIT(hotend_offset[e].y)
     );
-    SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(tool_offset[e].z), 3);
+    SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(hotend_offset[e].z), 3);
   }
 }
 

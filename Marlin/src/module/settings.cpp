@@ -225,7 +225,7 @@ typedef struct SettingsDataStruct {
   // Tool Offset
   //
   #if HAS_TOOL_OFFSET
-    xyz_pos_t tool_offset[NUM_TOOL_OFFSET - 1];               // M218 XYZ
+    xyz_pos_t hotend_offset[NUM_TOOL_OFFSET - 1];               // M218 XYZ
   #endif
 
   //
@@ -760,7 +760,7 @@ void MarlinSettings::postprocess() {
       #if HAS_TOOL_OFFSET
         // Skip tool 0 which must be {0, 0, 0}
         LOOP_S_L_N(e, 1, NUM_TOOL_OFFSET)
-          EEPROM_WRITE(tool_offset[e]);
+          EEPROM_WRITE(hotend_offset[e]);
       #endif
     }
 
@@ -1664,7 +1664,7 @@ void MarlinSettings::postprocess() {
         #if HAS_TOOL_OFFSET
           // Skip hotend 0 which must be 0
           LOOP_S_L_N(e, 1, NUM_TOOL_OFFSET)
-            EEPROM_READ(tool_offset[e]);
+            EEPROM_READ(hotend_offset[e]);
         #endif
       }
 

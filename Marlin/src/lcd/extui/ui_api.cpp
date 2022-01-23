@@ -775,7 +775,7 @@ namespace ExtUI {
         if (!linked_nozzles) {
           HOTEND_LOOP()
             if (e != active_extruder)
-              tool_offset[e][axis] += mm;
+              hotend_offset[e][axis] += mm;
 
           normalizeNozzleOffset(X);
           TERN_(HAS_Y_AXIS, normalizeNozzleOffset(Y));
@@ -826,12 +826,12 @@ namespace ExtUI {
 
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return 0;
-      return tool_offset[extruder - E0][axis];
+      return hotend_offset[extruder - E0][axis];
     }
 
     void setNozzleOffset_mm(const_float_t value, const axis_t axis, const extruder_t extruder) {
       if (extruder - E0 >= HOTENDS) return;
-      tool_offset[extruder - E0][axis] = value;
+      hotend_offset[extruder - E0][axis] = value;
     }
 
     /**
@@ -840,8 +840,8 @@ namespace ExtUI {
      * user to edit the offset the first nozzle).
      */
     void normalizeNozzleOffset(const axis_t axis) {
-      const float offs = tool_offset[0][axis];
-      HOTEND_LOOP() tool_offset[e][axis] -= offs;
+      const float offs = hotend_offset[0][axis];
+      HOTEND_LOOP() hotend_offset[e][axis] -= offs;
     }
 
   #endif // HAS_TOOL_OFFSET

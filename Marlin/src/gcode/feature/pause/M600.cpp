@@ -127,7 +127,7 @@ void GcodeSuite::M600() {
   );
 
   #if HAS_TOOL_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += tool_offset[active_extruder];
+    park_point += hotend_offset[active_extruder];
   #endif
 
   #if ENABLED(MMU2_MENUS)

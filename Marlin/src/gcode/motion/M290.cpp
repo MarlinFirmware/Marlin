@@ -46,8 +46,8 @@
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        tool_offset[active_extruder].z -= offs;
-        SERIAL_ECHO_MSG(STR_PROBE_OFFSET STR_Z ": ", tool_offset[active_extruder].z);
+        hotend_offset[active_extruder].z -= offs;
+        SERIAL_ECHO_MSG(STR_PROBE_OFFSET STR_Z ": ", hotend_offset[active_extruder].z);
       #endif
     }
   }
@@ -99,13 +99,13 @@ void GcodeSuite::M290() {
       SERIAL_ECHOLNPGM_P(
         PSTR("Hotend "), active_extruder
         #if ENABLED(BABYSTEP_XY)
-          , PSTR("Offset X"), tool_offset[active_extruder].x
-          , SP_Y_STR, tool_offset[active_extruder].y
+          , PSTR("Offset X"), hotend_offset[active_extruder].x
+          , SP_Y_STR, hotend_offset[active_extruder].y
           , SP_Z_STR
         #else
           , PSTR("Offset Z")
         #endif
-        , tool_offset[active_extruder].z
+        , hotend_offset[active_extruder].z
       );
     }
     #endif

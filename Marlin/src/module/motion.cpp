@@ -116,7 +116,7 @@ xyze_pos_t destination; // {0}
 
 // Extruder offsets
 #if HAS_TOOL_OFFSET
-  xyz_pos_t tool_offset[NUM_TOOL_OFFSET]; // Initialized by settings.load()
+  xyz_pos_t hotend_offset[NUM_TOOL_OFFSET]; // Initialized by settings.load()
   void reset_tool_offsets() {
     constexpr float tmp[XYZ][NUM_TOOL_OFFSET] = { TOOL_OFFSET_X, TOOL_OFFSET_Y, TOOL_OFFSET_Z };
     static_assert(
@@ -126,10 +126,10 @@ xyze_pos_t destination; // {0}
 
     // Transpose from [XYZ][HOTENDS] to [HOTENDS][XYZ]
     TERN(MANUAL_SWITCHING_TOOLHEAD, TOOLHEAD_LOOP(), HOTEND_LOOP())
-      LOOP_ABC(a) tool_offset[e][a] = tmp[a][e];
+      LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      tool_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS);
+      hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS);
     #endif
   }
 #endif
@@ -721,8 +721,8 @@ void restore_feedrate_and_scaling() {
 
       if (axis == X_AXIS) {
 
-        // In Dual X mode tool_offset[X] is T1's home position
-        const float dual_max_x = _MAX(tool_offset[1].x, X2_MAX_POS);
+        // In Dual X mode hotend_offset[X] is T1's home position
+        const float dual_max_x = _MAX(hotend_offset[1].x, X2_MAX_POS);
 
         if (new_tool_index != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
@@ -767,12 +767,12 @@ void restore_feedrate_and_scaling() {
       // retain the same physical limit when other tools are selected.
 
       if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
-        const float offs = (axis == Z_AXIS) ? 0 : tool_offset[active_extruder][axis];
+        const float offs = (axis == Z_AXIS) ? 0 : hotend_offset[active_extruder][axis];
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
       }
       else {
-        const float diff = tool_offset[new_tool_index][axis] - tool_offset[old_tool_index][axis];
+        const float diff = hotend_offset[new_tool_index][axis] - hotend_offset[old_tool_index][axis];
         soft_endstop.min[axis] += diff;
         soft_endstop.max[axis] += diff;
       }
@@ -804,7 +804,7 @@ void restore_feedrate_and_scaling() {
 
       #if BOTH(HAS_TOOL_OFFSET, DELTA)
         // The effector center position will be the target minus the hotend offset.
-        const xy_pos_t offs = tool_offset[active_extruder];
+        const xy_pos_t offs = hotend_offset[active_extruder];
       #else
         // SCARA needs to consider the angle of the arm through the entire move, so for now use no tool offset.
         constexpr xy_pos_t offs{0};
@@ -1138,7 +1138,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
        * This allows soft recalibration of the second extruder home position
        * without firmware reflash (through the M218 command).
        */
-      return tool_offset[1].x > 0 ? tool_offset[1].x : X2_HOME_POS;
+      return hotend_offset[1].x > 0 ? hotend_offset[1].x : X2_HOME_POS;
   }
 
   void idex_set_mirrored_mode(const bool mirr) {

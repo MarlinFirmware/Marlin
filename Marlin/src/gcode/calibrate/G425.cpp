@@ -149,8 +149,8 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 
   inline void normalize_hotend_offsets() {
     LOOP_S_L_N(e, 1, HOTENDS)
-      tool_offset[e] -= tool_offset[0];
-    tool_offset[0].reset();
+      hotend_offset[e] -= hotend_offset[0];
+    hotend_offset[0].reset();
   }
 
 #endif
@@ -507,7 +507,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     //
     inline void report_hotend_offsets() {
       LOOP_S_L_N(e, 1, HOTENDS)
-        SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Offset X"), tool_offset[e].x, SP_Y_STR, tool_offset[e].y, SP_Z_STR, tool_offset[e].z);
+        SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif
 
@@ -620,9 +620,9 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
 
   // Adjust the hotend offset
   #if HAS_TOOL_OFFSET
-    if (ENABLED(HAS_X_CENTER) && AXIS_CAN_CALIBRATE(X)) tool_offset[extruder].x += m.pos_error.x;
-    if (ENABLED(HAS_Y_CENTER) && AXIS_CAN_CALIBRATE(Y)) tool_offset[extruder].y += m.pos_error.y;
-                             if (AXIS_CAN_CALIBRATE(Z)) tool_offset[extruder].z += m.pos_error.z;
+    if (ENABLED(HAS_X_CENTER) && AXIS_CAN_CALIBRATE(X)) hotend_offset[extruder].x += m.pos_error.x;
+    if (ENABLED(HAS_Y_CENTER) && AXIS_CAN_CALIBRATE(Y)) hotend_offset[extruder].y += m.pos_error.y;
+                             if (AXIS_CAN_CALIBRATE(Z)) hotend_offset[extruder].z += m.pos_error.z;
     normalize_hotend_offsets();
   #endif
 
