@@ -543,7 +543,8 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
 
       // Wait for the heaters to reach the target temperatures
-      if (TERN1(MANUAL_SWITCHING_TOOLHEAD, thermalManager.heating_enabled)) ensure_safe_temperature(false);
+      if (TERN1(MANUAL_SWITCHING_TOOLHEAD, thermalManager.heating_enabled))
+        ensure_safe_temperature(false);
 
       // Show the prompt to continue
       show_continue_prompt(is_reload, message);
@@ -564,9 +565,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     }
     idle_no_sleep();
   }
-  #if ENABLED(DUAL_X_CARRIAGE)
-    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
-  #endif
+  TERN_(DUAL_X_CARRIAGE, set_duplication_enabled(saved_ext_dup_mode, saved_ext));
 }
 
 /**
@@ -613,31 +612,26 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
 
   ui.pause_show_message(PAUSE_MESSAGE_RESUME);
 
-  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-    if (active_extruder < HOTENDS) {
-  #endif
+  if (TERN1(MANUAL_SWITCHING_TOOLHEAD, active_extruder < HOTENDS)) {
 
-  if (targetTemp > thermalManager.degTargetHotend(active_extruder))
-    thermalManager.setTargetHotend(targetTemp, active_extruder);
+    if (targetTemp > thermalManager.degTargetHotend(active_extruder))
+      thermalManager.setTargetHotend(targetTemp, active_extruder);
 
-  // Load the new filament
-  if (slow_load_length != 0 && fast_load_length != 0 && purge_length != 0)
-    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
+    // Load the new filament
+    if (slow_load_length != 0 && fast_load_length != 0 && purge_length != 0)
+      load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
 
-  if (targetTemp > 0) {
-    thermalManager.setTargetHotend(targetTemp, active_extruder);
-    thermalManager.wait_for_hotend(active_extruder, false);
+    if (targetTemp > 0) {
+      thermalManager.setTargetHotend(targetTemp, active_extruder);
+      thermalManager.wait_for_hotend(active_extruder, false);
 
-    // Check Temperature before moving hotend
-    ensure_safe_temperature(DISABLED(BELTPRINTER));
+      // Check Temperature before moving hotend
+      ensure_safe_temperature(DISABLED(BELTPRINTER));
 
-    // Retract to prevent oozing
-    unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
-  }
-
-  #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+      // Retract to prevent oozing
+      unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
     }
-  #endif
+  }
 
   #if DISABLED(MANUAL_SWITCHING_TOOLHEAD)
     if (!axes_should_home()) {
