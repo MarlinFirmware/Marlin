@@ -134,7 +134,7 @@
     #if ENABLED(HJC_LCD_SMART_CONTROLLER)
       #define LCD_BACKLIGHT_PIN                5  // LCD_Backlight
       //#ifndef LCD_CONTRAST_PIN
-      //  #define LCD_CONTRAST_PIN  5   // LCD_Contrast
+      //  #define LCD_CONTRAST_PIN             5  // LCD_Contrast
       //#endif
       #ifndef FIL_RUNOUT_PIN
         #define FIL_RUNOUT_PIN                24  // Filament runout
