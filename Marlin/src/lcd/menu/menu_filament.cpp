@@ -300,7 +300,6 @@ void lcd_pause_insert_message()        { _lcd_pause_message(GET_TEXT(MSG_FILAMEN
 void lcd_pause_load_message()          { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_LOAD));    }
 void lcd_pause_waiting_message()       { _lcd_pause_message(GET_TEXT(MSG_ADVANCED_PAUSE_WAITING));  }
 void lcd_pause_resume_message()        { _lcd_pause_message(GET_TEXT(MSG_FILAMENT_CHANGE_RESUME));  }
-void lcd_pause_tool_change_message()   { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE));       }
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   void lcd_pause_tool_change_message()   { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE));     }
   void lcd_pause_tool_change_0_message() { _lcd_pause_message(GET_TEXT(MSG_PAUSE_TOOL_CHANGE_0));   }
@@ -346,7 +345,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
     case PAUSE_MESSAGE_OPTION:      pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
                                     return menu_pause_option;
     #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-      case PAUSE_MESSAGE_TOOL_CHANGE: return lcd_pause_tool_change_message;
+      case PAUSE_MESSAGE_TOOL_CHANGE:   return lcd_pause_tool_change_message;
       case PAUSE_MESSAGE_TOOL_CHANGE_0: return lcd_pause_tool_change_0_message;
       case PAUSE_MESSAGE_TOOL_CHANGE_1: return lcd_pause_tool_change_1_message;
       OPTCODE(HAS_TOOL_2, case PAUSE_MESSAGE_TOOL_CHANGE_2: return lcd_pause_tool_change_2_message)

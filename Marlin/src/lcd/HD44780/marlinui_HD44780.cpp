@@ -865,7 +865,7 @@ void MarlinUI::draw_status_screen() {
         // If the first line has two extruder temps,
         // show more temperatures on the next line
 
-        #if DISABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND) && (HOTENDS > 2 || (HAS_MULTI_HOTEND && HAS_HEATED_BED))
+        #if DISABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND) && HAS_MULTI_HOTEND && (HOTENDS > 2 || HAS_HEATED_BED)
 
           #if HOTENDS > 2
             _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
@@ -874,7 +874,7 @@ void MarlinUI::draw_status_screen() {
 
           _draw_bed_status(blink);
 
-        #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
+        #else // SWITCHING_TOOLHEAD_MULTI_HOTEND || !HAS_MULTI_HOTEND || (HOTENDS < 3 && !HAS_HEATED_BED)
 
           #if HAS_DUAL_MIXING
 
@@ -917,7 +917,7 @@ void MarlinUI::draw_status_screen() {
 
           #endif // !HAS_DUAL_MIXING
 
-        #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
+        #endif // SWITCHING_TOOLHEAD_MULTI_HOTEND || !HAS_MULTI_HOTEND || (HOTENDS < 3 && !HAS_HEATED_BED)
 
       #endif // LCD_WIDTH >= 20
 
