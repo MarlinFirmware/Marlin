@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,7 +27,7 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "../../MarlinCore.h"
 
-#if HAS_LCD_MENU && ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+#if BOTH(HAS_LCD_MENU, MANUAL_SWITCHING_TOOLHEAD)
 
 #include "menu.h"
 #include "menu_item.h"
@@ -38,7 +38,6 @@
 /**
  * Inject a toolchange gcode (Tn) using the editable.uint8 field,
  * and then return to the status screen.
- *
  */
 inline void inject_toolchange_gcode() {
   char tgc[3] = { '\0' };
@@ -51,7 +50,6 @@ inline void inject_toolchange_gcode() {
 /**
  * Hotend Tool menu, listing all tools set up in Configuration.h
  * under SWITCHING_TOOLHEAD_HOTEND_QTY, SWITCHING_TOOLHEAD_HOTEND_NAMES.
- *
  */
 void menu_tool_change_hotend() {
   START_MENU();
@@ -63,7 +61,7 @@ void menu_tool_change_hotend() {
 
   // Display Hotend 1 .. Hotend n, or hotend names.
   LOOP_L_N(e, STM_NUM_TOOLS) {
-    if (e == HOTENDS) break;
+    if (e >= HOTENDS) break;
     if (e == active_extruder) continue;
 
     editable.uint8 = e;
@@ -72,16 +70,16 @@ void menu_tool_change_hotend() {
         MSG_YES, MSG_NO,
         inject_toolchange_gcode, ui.goto_previous_screen,
         PSTR("Change Tool?"), (const char *)nullptr, PSTR("?"));
-    } else {
-      ACTION_ITEM_P(tool_name(e), inject_toolchange_gcode);
     }
+    else
+      ACTION_ITEM_P(tool_name(e), inject_toolchange_gcode);
   }
 
   END_MENU();
 }
 
 /**
- *
+ * TODO
  */
 void menu_tool_change_laser_spindle() {
   START_MENU();
@@ -94,11 +92,9 @@ void menu_tool_change_laser_spindle() {
   END_MENU();
 }
 
-
 /**
  * Unpowered Tool menu, listing all tools set up in Configuration.h
  * under SWITCHING_TOOLHEAD_UNPOWERED_QTY, SWITCHING_TOOLHEAD_UNPOWERED_NAMES.
- *
  */
 void menu_tool_change_unpowered() {
   START_MENU();
@@ -119,19 +115,17 @@ void menu_tool_change_unpowered() {
         MSG_YES, MSG_NO,
         inject_toolchange_gcode, ui.goto_previous_screen,
         PSTR("Change Tool?"), (const char *)nullptr, PSTR("?"));
-    } else {
-      ACTION_ITEM_P(tool_name(e), inject_toolchange_gcode);
     }
+    else
+      ACTION_ITEM_P(tool_name(e), inject_toolchange_gcode);
   }
 
   END_MENU();
 }
 
-
 /**
  * Main "Tool Change" menu, with options for Hotends,
  * Laser/Spindle, and unpowered tools.
- *
  */
 void menu_tool_change() {
   START_MENU();
@@ -158,4 +152,4 @@ void menu_tool_change() {
   END_MENU();
 }
 
-#endif
+#endif // HAS_LCD_MENU && MANUAL_SWITCHING_TOOLHEAD
