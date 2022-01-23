@@ -109,46 +109,31 @@
 
   void mpe_settings_init();
 
-#endif
+#elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
-#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-  static millis_t last_tool_change = 0;
+  extern millis_t last_tool_change;
+  void stm_init();
 
-  void manual_switching_toolchange_init();
+  inline millis_t ms_since_tool_change(const millis_t ms) { return ms - last_tool_change; }
+  inline millis_t ms_since_tool_change() { return ms_since_tool_change(millis()); }
 
-  inline int32_t ms_since_tool_change(millis_t ms) {
-    return (int32_t)(ms-last_tool_change);
-  }
-
-  inline int32_t ms_since_tool_change() {
-    return ms_since_tool_change(millis());
-  }
-
-  #define _TOOL_NAME(T) GET_TEXT(MSG_TOOL_NAME_##T)
-  inline const char* tool_name(int8_t tool) {
+  inline PGM_P tool_name(const uint8_t tool) {
     switch (tool) {
-      case 0:
-        return _TOOL_NAME(0);
-        break;
-      case 1:
-        return _TOOL_NAME(1);
-        break;
-
-      OPTCODE(HAS_TOOL_2, case 2: return _TOOL_NAME(2); break);
-      OPTCODE(HAS_TOOL_3, case 3: return _TOOL_NAME(3); break);
-      OPTCODE(HAS_TOOL_4, case 4: return _TOOL_NAME(4); break);
-      OPTCODE(HAS_TOOL_5, case 5: return _TOOL_NAME(5); break);
-      OPTCODE(HAS_TOOL_6, case 6: return _TOOL_NAME(6); break);
-      OPTCODE(HAS_TOOL_7, case 7: return _TOOL_NAME(7); break);
-      default:
-        return "Tool";
+      case 0: return GET_TEXT(MSG_TOOL_NAME_0);
+      case 1: return GET_TEXT(MSG_TOOL_NAME_1);
+      OPTCODE(HAS_TOOL_2, case 2: return GET_TEXT(MSG_TOOL_NAME_2))
+      OPTCODE(HAS_TOOL_3, case 3: return GET_TEXT(MSG_TOOL_NAME_3))
+      OPTCODE(HAS_TOOL_4, case 4: return GET_TEXT(MSG_TOOL_NAME_4))
+      OPTCODE(HAS_TOOL_5, case 5: return GET_TEXT(MSG_TOOL_NAME_5))
+      OPTCODE(HAS_TOOL_6, case 6: return GET_TEXT(MSG_TOOL_NAME_6))
+      OPTCODE(HAS_TOOL_7, case 7: return GET_TEXT(MSG_TOOL_NAME_7))
+      default: return PSTR("Tool");
     }
   }
-  #undef _TOOL_NAME
 #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  void electromagnetic_toolchange_init();
+  void est_init();
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
-  void servo_toolchange_init();
+  void sst_init();
 #endif
 
 #if ENABLED(TOOL_SENSOR)

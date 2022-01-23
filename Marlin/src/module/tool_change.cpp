@@ -63,7 +63,7 @@
   #include "settings.h"
 #endif
 
-#if ANY(DUAL_X_CARRIAGE, MANUAL_SWITCHING_TOOLHEAD)
+#if EITHER(DUAL_X_CARRIAGE, MANUAL_SWITCHING_TOOLHEAD)
   #include "stepper.h"
 #endif
 
@@ -383,11 +383,15 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     do_solenoid_activation = true; // Activate solenoid for subsequent tool_change()
   }
 
-#endif // PARKING_EXTRUDER
+#elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
 
-#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  millis_t last_tool_change = 0;
 
-  inline void manual_switching_toolhead_set_new_tool(const uint8_t new_tool) {
+  void stm_init() {
+    TERN_(STM_EEPROM_STORAGE, active_extruder = toolchange_settings.selected_tool); // set active_extruder on first load
+  }
+
+  inline void stm_set_new_tool(const uint8_t new_tool) {
     thermalManager.temp_hotend[new_tool].reset();
     active_extruder = new_tool;
     toolchange_settings.selected_tool = new_tool;
@@ -405,7 +409,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     #endif
   }
 
-  PauseMessage manual_switching_toolhead_pause_message(const uint8_t new_tool) {
+  PauseMessage stm_pause_message(const uint8_t new_tool) {
     switch (new_tool) {
       case 0: return PAUSE_MESSAGE_TOOL_CHANGE_0;
       case 1: return PAUSE_MESSAGE_TOOL_CHANGE_1;
@@ -420,20 +424,21 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     return PAUSE_MESSAGE_TOOL_CHANGE;
   }
 
-  inline void manual_switching_toolhead_tool_change(const uint8_t new_tool) {
+  inline void stm_tool_change(const uint8_t new_tool) {
     DEBUG_ECHOPGM("tool change, active ", active_extruder, " new ", new_tool);
 
     disable_e_steppers();
     thermalManager.heating_enabled = false;
     thermalManager.disable_all_heaters(); // ?
 
-    PauseMessage pm = manual_switching_toolhead_pause_message(new_tool);
+    PauseMessage pm = stm_pause_message(new_tool);
     ui.pause_show_message(pm, PAUSE_MODE_TOOL_CHANGE);
     if (pause_print(0.0, current_position, true, 0)) {
       wait_for_confirmation(false, 2, pm);
-      manual_switching_toolhead_set_new_tool(new_tool);
+      stm_set_new_tool(new_tool);
       ui.set_status_P(PSTR("Tool Changed"));
-    } else {
+    }
+    else {
       // we couldn't pause..?
       SERIAL_ERROR_MSG("Tool change failed: unable to pause printer.");
       stop();
@@ -441,13 +446,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     thermalManager.heating_enabled = true;
     enable_e_steppers();
-  }
-
-  void manual_switching_toolchange_init() {
-    #if ENABLED(STM_EEPROM_STORAGE)
-      // set active_extruder on first load
-      active_extruder = toolchange_settings.selected_tool;
-    #endif
   }
 
 #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
@@ -524,7 +522,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   #include <bitset>
 
-  void servo_toolchange_init() {
+  void sst_init() {
     servo_switching_toolhead_lock(true);
 
     #if ENABLED(TOOL_SENSOR)
@@ -791,7 +789,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   inline void est_activate_solenoid()    { OUT_WRITE(SOL0_PIN, HIGH); }
   inline void est_deactivate_solenoid()  { OUT_WRITE(SOL0_PIN, LOW); }
-  void electromagnetic_toolchange_init() { est_activate_solenoid(); }
+  void est_init() { est_activate_solenoid(); }
 
   inline void em_switching_toolhead_tool_change(const uint8_t new_tool, bool no_move) {
     if (no_move) return;
@@ -1043,11 +1041,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
   DEBUG_ECHOLNPGM("tool change, new_tool: ", new_tool);
 
-  if (TERN0(MAGNETIC_SWITCHING_TOOLHEAD, new_tool == active_extruder))
-    return;
-
-  if (TERN0(MANUAL_SWITCHING_TOOLHEAD, new_tool == active_extruder))
-    return;
+  #if EITHER(MANUAL_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD)
+    if (new_tool == active_extruder) return;
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
 
@@ -1214,7 +1210,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)                          // Magnetic Parking extruder
         magnetic_parking_extruder_tool_change(new_tool);
       #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)                          // Manual Switching Toolhead
-        manual_switching_toolhead_tool_change(new_tool);
+        stm_tool_change(new_tool);
       #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)                           // Servo Switching Toolhead
         servo_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)                        // Magnetic Switching Toolhead

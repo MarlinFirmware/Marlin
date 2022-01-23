@@ -1532,11 +1532,11 @@ void setup() {
   #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
     SETUP_RUN(mpe_settings_init());
   #elif ENABLED(SERVO_SWITCHING_TOOLHEAD)
-    SETUP_RUN(servo_toolchange_init());
+    SETUP_RUN(sst_init());
   #elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
-    SETUP_RUN(manual_switching_toolchange_init());
+    SETUP_RUN(stm_init());
   #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    SETUP_RUN(electromagnetic_toolchange_init());
+    SETUP_RUN(est_init());
   #endif
 
   #if ENABLED(USE_WATCHDOG)
