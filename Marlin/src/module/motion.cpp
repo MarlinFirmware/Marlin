@@ -411,8 +411,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 
 #if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
-    // don't do a move on a non-extruder tool
-    if (active_extruder >= EXTRUDERS) return;
+    if (active_extruder >= EXTRUDERS) return; // No move on non-extruder tools
 
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];

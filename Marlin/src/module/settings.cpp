@@ -225,7 +225,7 @@ typedef struct SettingsDataStruct {
   // Tool Offset
   //
   #if HAS_HOTEND_OFFSET
-    xyz_pos_t hotend_offset[NUM_TOOL_OFFSET - 1];               // M218 XYZ
+    xyz_pos_t hotend_offset[NUM_TOOL_OFFSET - 1];       // M218 XYZ
   #endif
 
   //
