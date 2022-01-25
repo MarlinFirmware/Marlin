@@ -28,6 +28,10 @@
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
 
+#if ENABLED(USE_ESP32_TASK_WDT)
+  #include <esp_task_wdt.h>
+#endif
+
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
   #include "wifi.h"
@@ -41,7 +45,7 @@
 #endif
 
 #if ENABLED(ESP3D_WIFISUPPORT)
-  DefaultSerial MSerial(false, Serial2Socket);
+  DefaultSerial1 MSerial0(false, Serial2Socket);
 #endif
 
 // ------------------------
@@ -90,8 +94,24 @@ volatile int numPWMUsed = 0,
 
 #endif
 
-void HAL_init_board() {
+#if ENABLED(USE_ESP32_EXIO)
+  HardwareSerial YSerial2(2);
 
+  void Write_EXIO(uint8_t IO, uint8_t v) {
+    if (ISRS_ENABLED()) {
+      DISABLE_ISRS();
+      YSerial2.write(0x80 | (((char)v) << 5) | (IO - 100));
+      ENABLE_ISRS();
+    }
+    else
+      YSerial2.write(0x80 | (((char)v) << 5) | (IO - 100));
+  }
+#endif
+
+void HAL_init_board() {
+  #if ENABLED(USE_ESP32_TASK_WDT)
+    esp_task_wdt_init(10, true);
+  #endif
   #if ENABLED(ESP3D_WIFISUPPORT)
     esp3dlib.init();
   #elif ENABLED(WIFISUPPORT)
@@ -127,7 +147,11 @@ void HAL_init_board() {
   // Initialize the i2s peripheral only if the I2S stepper stream is enabled.
   // The following initialization is performed after Serial1 and Serial2 are defined as
   // their native pins might conflict with the i2s stream even when they are remapped.
-  TERN_(I2S_STEPPER_STREAM, i2s_init());
+  #if ENABLED(USE_ESP32_EXIO)
+    YSerial2.begin(460800 * 3, SERIAL_8N1, 16, 17);
+  #elif ENABLED(I2S_STEPPER_STREAM)
+    i2s_init();
+  #endif
 }
 
 void HAL_idletask() {
@@ -140,6 +164,8 @@ void HAL_idletask() {
 void HAL_clear_reset_source() { }
 
 uint8_t HAL_get_reset_source() { return rtc_get_reset_reason(1); }
+
+void HAL_reboot() { ESP.restart(); }
 
 void _delay_ms(int delay_ms) { delay(delay_ms); }
 
@@ -185,6 +211,9 @@ void HAL_adc_init() {
   TERN_(HAS_TEMP_ADC_7, adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
   TERN_(HAS_HEATED_BED, adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
   TERN_(HAS_TEMP_CHAMBER, adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_PROBE, adc1_set_attenuation(get_channel(TEMP_PROBE_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_COOLER, adc1_set_attenuation(get_channel(TEMP_COOLER_PIN), ADC_ATTEN_11db));
+  TERN_(HAS_TEMP_BOARD, adc1_set_attenuation(get_channel(TEMP_BOARD_PIN), ADC_ATTEN_11db));
   TERN_(FILAMENT_WIDTH_SENSOR, adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
@@ -249,7 +278,7 @@ void analogWrite(pin_t pin, int value) {
     idx = numPWMUsed;
     pwmPins[idx] = pin;
     // Start timer on first use
-    if (idx == 0) HAL_timer_start(PWM_TIMER_NUM, PWM_TIMER_FREQUENCY);
+    if (idx == 0) HAL_timer_start(MF_TIMER_PWM, PWM_TIMER_FREQUENCY);
 
     ++numPWMUsed;
   }
@@ -260,7 +289,7 @@ void analogWrite(pin_t pin, int value) {
 
 // Handle PWM timer interrupt
 HAL_PWM_TIMER_ISR() {
-  HAL_timer_isr_prologue(PWM_TIMER_NUM);
+  HAL_timer_isr_prologue(MF_TIMER_PWM);
 
   static uint8_t count = 0;
 
@@ -274,7 +303,7 @@ HAL_PWM_TIMER_ISR() {
   // 128 for 7 Bit resolution
   count = (count + 1) & 0x7F;
 
-  HAL_timer_isr_epilogue(PWM_TIMER_NUM);
+  HAL_timer_isr_epilogue(MF_TIMER_PWM);
 }
 
 #endif // ARDUINO_ARCH_ESP32

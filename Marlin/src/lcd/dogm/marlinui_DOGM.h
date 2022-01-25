@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 #include "HAL_LCD_class_defines.h"
 
 //#define ALTERNATIVE_LCD
@@ -43,7 +43,7 @@
     #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS
   #endif
 
-#elif ENABLED(U8GLIB_ST7920)
+#elif IS_U8GLIB_ST7920
 
   // RepRap Discount Full Graphics Smart Controller
   // and other variant LCDs using ST7920
@@ -72,7 +72,7 @@
     #define U8G_CLASS U8GLIB_DOGM128_2X                         // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_LM6059_AF)
+#elif IS_U8GLIB_LM6059_AF
 
   // Based on the Adafruit ST7565 (https://www.adafruit.com/products/250)
 
@@ -82,7 +82,7 @@
     #define U8G_CLASS U8GLIB_LM6059_2X                          // 4 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_ST7565_64128N)
+#elif IS_U8GLIB_ST7565_64128N
 
   // MaKrPanel, Mini Viki, Viki 2.0, AZSMZ 12864 ST7565 controller
 
@@ -123,9 +123,10 @@
     #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
   #endif
 
-#elif ENABLED(FYSETC_242_OLED_12864)
+#elif EITHER(FYSETC_242_OLED_12864, K3D_242_OLED_CONTROLLER)
 
-  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
+  // FYSETC OLED 2.42" 128 × 64 Full Graphics Controller
+  // or K3D OLED 2.42" 128 × 64 Full Graphics Controller
 
   #define FORCE_SOFT_SPI                                        // SW-SPI
 

@@ -11,6 +11,7 @@ if __name__ == "__main__":
                     "-fsigned-char",
                     "-fno-move-loop-invariants",
                     "-fno-strict-aliasing",
+                    "-fsingle-precision-constant",
 
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
@@ -29,25 +30,27 @@ if __name__ == "__main__":
 
 # extra script for linker options
 else:
-  from SCons.Script import DefaultEnvironment
-  env = DefaultEnvironment()
-  env.Append(
+  import pioutil
+  if pioutil.is_pio_build():
+    from SCons.Script import DefaultEnvironment
+    env = DefaultEnvironment()
+    env.Append(
       ARFLAGS=["rcs"],
 
       ASFLAGS=["-x", "assembler-with-cpp"],
 
       CXXFLAGS=[
-          "-fabi-version=0",
-          "-fno-use-cxa-atexit",
-          "-fno-threadsafe-statics"
+        "-fabi-version=0",
+        "-fno-use-cxa-atexit",
+        "-fno-threadsafe-statics"
       ],
       LINKFLAGS=[
-          "-Os",
-          "-mcpu=cortex-m3",
-          "-ffreestanding",
-          "-mthumb",
-          "--specs=nano.specs",
-          "--specs=nosys.specs",
-          "-u_printf_float",
+        "-Os",
+        "-mcpu=cortex-m3",
+        "-ffreestanding",
+        "-mthumb",
+        "--specs=nano.specs",
+        "--specs=nosys.specs",
+        "-u_printf_float",
       ],
-  )
+    )

@@ -50,8 +50,8 @@ inline void reset_bricks(const uint16_t v) {
 void reset_ball() {
   constexpr uint8_t ball_dist = 24;
   bdat.bally = BTOF(PADDLE_Y - ball_dist);
-  bdat.ballv = FTOP(1.3f);
-  bdat.ballh = -FTOP(1.25f);
+  bdat.ballv = FTOF(1.3f);
+  bdat.ballh = -FTOF(1.25f);
   uint8_t bx = bdat.paddle_x + (PADDLE_W) / 2 + ball_dist;
   if (bx >= LCD_PIXEL_WIDTH - 10) { bx -= ball_dist * 2; bdat.ballh = -bdat.ballh; }
   bdat.ballx = BTOF(bx);

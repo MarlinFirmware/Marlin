@@ -36,7 +36,6 @@
 #include "fastio.h"
 #include "watchdog.h"
 
-
 #include <stdint.h>
 #include <util/atomic.h>
 
@@ -52,8 +51,15 @@
 // Defines
 // ------------------------
 
+//
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
+
 #ifndef STM32_FLASH_SIZE
-  #if EITHER(MCU_STM32F103RE, MCU_STM32F103VE)
+  #if ANY(MCU_STM32F103RE, MCU_STM32F103VE, MCU_STM32F103ZE)
     #define STM32_FLASH_SIZE 512
   #else
     #define STM32_FLASH_SIZE 256
@@ -61,13 +67,12 @@
 #endif
 
 #ifdef SERIAL_USB
-  typedef ForwardSerial0Type< USBSerial > DefaultSerial;
-  extern DefaultSerial MSerial;
-
-  #if !HAS_SD_HOST_DRIVE
-    #define UsbSerial MSerial
-  #else
+  typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
+  #if HAS_SD_HOST_DRIVE
     #define UsbSerial MarlinCompositeSerial
+  #else
+    #define UsbSerial MSerial0
   #endif
 #endif
 
@@ -81,24 +86,33 @@
 #endif
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 UsbSerial
+  #define MYSERIAL1 UsbSerial
 #elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
-#elif NUM_UARTS == 5
-  #error "SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #else
-  #error "SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+  #define MYSERIAL1 MSERIAL(1) // dummy port
+  static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
 #endif
 
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 UsbSerial
+    #define MYSERIAL2 UsbSerial
   #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
-  #elif NUM_UARTS == 5
-    #error "SERIAL_PORT_2 must be -1 or from 1 to 5. Please update your configuration."
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be -1 or from 1 to 3. Please update your configuration."
+    #define MYSERIAL2 MSERIAL(1) // dummy port
+    static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+  #endif
+#endif
+
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 UsbSerial
+  #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #define MYSERIAL3 MSERIAL(1) // dummy port
+    static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
 #endif
 
@@ -107,10 +121,9 @@
     #define MMU2_SERIAL UsbSerial
   #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
-  #elif NUM_UARTS == 5
-    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #error "MMU2_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+    #define MMU2_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "MMU2_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
 #endif
 
@@ -119,10 +132,9 @@
     #define LCD_SERIAL UsbSerial
   #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #elif NUM_UARTS == 5
-    #error "LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+    #define LCD_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
   #if HAS_DGUS_LCD
     #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
@@ -195,7 +207,7 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 void _delay_ms(const int delay);
 
@@ -225,8 +237,13 @@ static inline int freeMemory() {
 
 void HAL_adc_init();
 
+#ifdef ADC_RESOLUTION
+  #define HAL_ADC_RESOLUTION ADC_RESOLUTION
+#else
+  #define HAL_ADC_RESOLUTION 12
+#endif
+
 #define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
@@ -247,19 +264,23 @@ void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
 
-#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+#ifndef PWM_FREQUENCY
+  #define PWM_FREQUENCY      1000 // Default PWM Frequency
+#endif
+#define HAL_CAN_SET_PWM_FREQ      // This HAL supports PWM Frequency adjustment
 
 /**
  * set_pwm_frequency
  *  Set the frequency of the timer corresponding to the provided pin
  *  All Timer PWM pins run at the same frequency
  */
-void set_pwm_frequency(const pin_t pin, int f_desired);
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 
 /**
  * set_pwm_duty
  *  Set the PWM duty cycle of the provided pin to the provided value
  *  Optionally allows inverting the duty cycle [default = false]
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ *  The timer must be pre-configured with set_pwm_frequency() if the default frequency is not desired.
  */
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

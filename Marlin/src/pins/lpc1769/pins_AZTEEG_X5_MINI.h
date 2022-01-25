@@ -24,10 +24,7 @@
 /**
  * Azteeg X5 MINI pin assignments
  */
-
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Azteeg X5 MINI"
@@ -158,8 +155,6 @@
     #endif
 
     #if ANY(VIKI2, miniVIKI)
-      //#define LCD_SCREEN_ROT_180
-
       #define BEEPER_PIN                   P1_30  // (37) may change if cable changes
       #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
       #define DOGLCD_SCK              SD_SCK_PIN
@@ -167,6 +162,8 @@
 
       #define STAT_LED_BLUE_PIN            P0_26  // (63)  may change if cable changes
       #define STAT_LED_RED_PIN             P1_21  // ( 6)  may change if cable changes
+
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
     #else
       #if IS_ULTIPANEL
         #define LCD_PINS_D5                P1_17  // (71) ENET_MDIO
@@ -183,11 +180,7 @@
     #endif
 
     #if ENABLED(MINIPANEL)
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
     #endif
 
   #endif
@@ -201,8 +194,6 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(LCD)
   #define SD_SCK_PIN                       P0_15
   #define SD_MISO_PIN                      P0_17
@@ -213,6 +204,7 @@
   #define SD_SCK_PIN                       P0_07
   #define SD_MISO_PIN                      P0_08
   #define SD_MOSI_PIN                      P0_09
+  #define ONBOARD_SD_CS_PIN                P0_06  // Chip select for "System" SD card
   #define SD_SS_PIN            ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."

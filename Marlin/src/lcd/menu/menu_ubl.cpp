@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
+#if BOTH(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu_item.h"
 #include "../../gcode/gcode.h"
@@ -37,7 +37,7 @@
 #include "../../feature/bedlevel/bedlevel.h"
 
 static int16_t ubl_storage_slot = 0,
-               custom_hotend_temp = 190,
+               custom_hotend_temp = 150,
                side_points = 3,
                ubl_fillin_amount = 5,
                ubl_height_amount = 1;
@@ -56,12 +56,24 @@ inline float rounded_mesh_value() {
   return float(rounded - (rounded % 5L)) / 1000;
 }
 
-static void _lcd_mesh_fine_tune(PGM_P const msg) {
+/**
+ * This screen displays the temporary mesh value and updates it based on encoder
+ * movement. While this screen is active ubl.fine_tune_mesh sits in a loop getting
+ * the current value via ubl_mesh_value, moves the Z axis, and updates the mesh
+ * value until the encoder button is pressed.
+ *
+ * - Update the 'mesh_edit_accumulator' from encoder rotation
+ * - Draw the mesh value (with draw_edit_screen)
+ * - Draw the graphical overlay, if enabled.
+ * - Update the 'refresh' state according to the display type
+ */
+void _lcd_mesh_fine_tune(PGM_P const msg) {
+  constexpr float mesh_edit_step = 1.0f / 200.0f;
   ui.defer_status_screen();
   if (ubl.encoder_diff) {
     mesh_edit_accumulator += TERN(IS_TFTGLCD_PANEL,
-      ubl.encoder_diff * 0.005f / ENCODER_PULSES_PER_STEP,
-      ubl.encoder_diff > 0 ? 0.005f : -0.005f
+      ubl.encoder_diff * mesh_edit_step / ENCODER_PULSES_PER_STEP,
+      ubl.encoder_diff > 0 ? mesh_edit_step : -mesh_edit_step
     );
     ubl.encoder_diff = 0;
     IF_DISABLED(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
@@ -71,35 +83,25 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
   if (ui.should_draw()) {
     const float rounded_f = rounded_mesh_value();
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(rounded_f));
-    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(rounded_f));
+    TERN_(MESH_EDIT_GFX_OVERLAY, ui.zoffset_overlay(rounded_f));
     TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }
 
 //
-// Called external to the menu system to acquire the result of an edit.
+// Init mesh editing and go to the fine tuning screen (ubl.fine_tune_mesh)
+// To capture encoder events UBL will also call ui.capture and ui.release.
 //
-float lcd_mesh_edit() { return rounded_mesh_value(); }
-
-void lcd_mesh_edit_setup(const float &initial) {
-  TERN_(HAS_GRAPHICAL_TFT, ui.clear_lcd());
+void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
+  TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
   mesh_edit_accumulator = initial;
-  ui.goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
+  goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
 }
 
-void _lcd_z_offset_edit() {
-  _lcd_mesh_fine_tune(GET_TEXT(MSG_UBL_Z_OFFSET));
-}
-
-float lcd_z_offset_edit() {
-  ui.goto_screen(_lcd_z_offset_edit);
-  return rounded_mesh_value();
-}
-
-void lcd_z_offset_edit_setup(const float &initial) {
-  mesh_edit_accumulator = initial;
-  ui.goto_screen(_lcd_z_offset_edit);
-}
+//
+// Get the mesh value within a Z adjustment loop (ubl.fine_tune_mesh)
+//
+float MarlinUI::ubl_mesh_value() { return rounded_mesh_value(); }
 
 /**
  * UBL Build Custom Mesh Command
@@ -126,7 +128,7 @@ void _lcd_ubl_custom_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_BUILD_MESH_MENU);
   #if HAS_HOTEND
-    EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT);
+    EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, EXTRUDE_MINTEMP, thermalManager.hotend_max_target(0));
   #endif
   #if HAS_HEATED_BED
     EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, BED_MAX_TARGET);
@@ -174,7 +176,7 @@ void _menu_ubl_height_adjust() {
 void _lcd_ubl_edit_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  GCODES_ITEM(MSG_UBL_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+  GCODES_ITEM(MSG_UBL_FINE_TUNE_ALL, PSTR("G29P4RT"));
   GCODES_ITEM(MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29P4T"));
   SUBMENU(MSG_UBL_MESH_HEIGHT_ADJUST, _menu_ubl_height_adjust);
   ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
@@ -190,9 +192,7 @@ void _lcd_ubl_edit_mesh() {
     char ubl_lcd_gcode[20];
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_HEATED_BED, "B%" PRIi16))
       , custom_hotend_temp
-      #if HAS_HEATED_BED
-        , custom_bed_temp
-      #endif
+      OPTARG(HAS_HEATED_BED, custom_bed_temp)
     );
     queue.inject(ubl_lcd_gcode);
   }
@@ -208,7 +208,7 @@ void _lcd_ubl_edit_mesh() {
   void _lcd_ubl_validate_mesh() {
     START_MENU();
     BACK_ITEM(MSG_UBL_TOOLS);
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       #if HAS_HEATED_BED
         #define VALIDATE_MESH_GCODE_ITEM(M) \
           GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPI" STRINGIFY(M)))
@@ -230,7 +230,7 @@ void _lcd_ubl_edit_mesh() {
           #endif
         #endif
       #endif
-    #endif // PREHEAT_COUNT
+    #endif // HAS_PREHEAT
     ACTION_ITEM(MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
     ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
     END_MENU();
@@ -324,7 +324,7 @@ void _lcd_ubl_invalidate() {
 void _lcd_ubl_build_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     #if HAS_HEATED_BED
       #define PREHEAT_BED_GCODE(M) "M190I" STRINGIFY(M) "\n"
     #else
@@ -352,7 +352,7 @@ void _lcd_ubl_build_mesh() {
         #endif
       #endif
     #endif
-  #endif // PREHEAT_COUNT
+  #endif // HAS_PREHEAT
 
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
   GCODES_ITEM(MSG_UBL_BUILD_COLD_MESH, PSTR("G29NP1"));
@@ -428,7 +428,7 @@ void ubl_map_move_to_xy() {
 
   // Use the built-in manual move handler to move to the mesh point.
   ui.manual_move.set_destination(xy);
-  ui.manual_move.soon(ALL_AXES);
+  ui.manual_move.soon(ALL_AXES_ENUM);
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
@@ -476,14 +476,14 @@ void ubl_map_screen() {
         if (position_is_reachable(xy)) break; // Found a valid point
         ui.encoderPosition += step_dir;       // Test the next point
       #endif
-    } while(ENABLED(IS_KINEMATIC));
+    } while (ENABLED(IS_KINEMATIC));
 
     // Determine number of points to edit
     #if IS_KINEMATIC
       n_edit_pts = 9; // TODO: Delta accessible edit points
     #else
-      const bool xc = WITHIN(x, 1, GRID_MAX_POINTS_X - 2),
-                 yc = WITHIN(y, 1, GRID_MAX_POINTS_Y - 2);
+      const bool xc = WITHIN(x, 1, (GRID_MAX_POINTS_X) - 2),
+                 yc = WITHIN(y, 1, (GRID_MAX_POINTS_Y) - 2);
       n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
     #endif
 
@@ -592,10 +592,55 @@ void _menu_ubl_tools() {
     GCODES_ITEM(MSG_UBL_1_BUILD_COLD_MESH, PSTR("G29NP1"));
     GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, PSTR("G29P3T0"));
     SUBMENU(MSG_UBL_3_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-    GCODES_ITEM(MSG_UBL_4_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+    GCODES_ITEM(MSG_UBL_4_FINE_TUNE_ALL, PSTR("G29P4RT"));
     SUBMENU(MSG_UBL_5_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-    GCODES_ITEM(MSG_UBL_6_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+    GCODES_ITEM(MSG_UBL_6_FINE_TUNE_ALL, PSTR("G29P4RT"));
     ACTION_ITEM(MSG_UBL_7_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
+    END_MENU();
+  }
+
+#endif
+
+#if ENABLED(UBL_MESH_WIZARD)
+
+  /**
+   * UBL Mesh Wizard - One-click mesh creation with or without a probe
+   */
+  void _lcd_ubl_mesh_wizard() {
+    char ubl_lcd_gcode[30];
+    #if HAS_HEATED_BED && HAS_HOTEND
+      sprintf_P(ubl_lcd_gcode, PSTR("M1004B%iH%iS%i"), custom_bed_temp, custom_hotend_temp, ubl_storage_slot);
+    #elif HAS_HOTEND
+      sprintf_P(ubl_lcd_gcode, PSTR("M1004H%iS%i"), custom_hotend_temp, ubl_storage_slot);
+    #else
+      sprintf_P(ubl_lcd_gcode, PSTR("M1004S%i"), ubl_storage_slot);
+    #endif
+    queue.inject(ubl_lcd_gcode);
+    ui.return_to_status();
+  }
+
+  void _menu_ubl_mesh_wizard() {
+    const int16_t total_slots = settings.calc_num_meshes();
+    START_MENU();
+    BACK_ITEM(MSG_UBL_LEVEL_BED);
+
+    #if HAS_HOTEND
+      EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, HEATER_0_MINTEMP + 20, thermalManager.hotend_max_target(0));
+    #endif
+
+    #if HAS_HEATED_BED
+      EDIT_ITEM(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP + 20, BED_MAX_TARGET);
+    #endif
+
+    EDIT_ITEM(int3, MSG_UBL_STORAGE_SLOT, &ubl_storage_slot, 0, total_slots);
+
+    ACTION_ITEM(MSG_UBL_MESH_WIZARD, _lcd_ubl_mesh_wizard);
+
+    #if ENABLED(G26_MESH_VALIDATION)
+      SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
+    #endif
+
+    ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
     END_MENU();
   }
 
@@ -621,19 +666,22 @@ void _lcd_ubl_level_bed() {
     GCODES_ITEM(MSG_UBL_DEACTIVATE_MESH, PSTR("G29D"));
   else
     GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, PSTR("G29A"));
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    editable.decimal = planner.z_fade_height;
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
+  #endif
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
+  #endif
+  #if ENABLED(UBL_MESH_WIZARD)
+    SUBMENU(MSG_UBL_MESH_WIZARD, _menu_ubl_mesh_wizard);
   #endif
   ACTION_ITEM(MSG_UBL_MESH_EDIT, _ubl_goto_map_screen);
   SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29W"));
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
-  #endif
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && AUTO_BED_LEVELING_UBL
+#endif // HAS_MARLINUI_MENU && AUTO_BED_LEVELING_UBL

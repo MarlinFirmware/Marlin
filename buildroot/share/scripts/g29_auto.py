@@ -119,7 +119,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
         # last_z = z
         last_i = i
         if 0 < end_at_line <= i or temp_line >= min_g1:
-            # print('break at line {} at heigth {}'.format(i, z))
+            # print('break at line {} at height {}'.format(i, z))
             break
 
     line_between_z = line_between_z[1:]

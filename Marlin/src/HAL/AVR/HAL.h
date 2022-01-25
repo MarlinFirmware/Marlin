@@ -39,6 +39,19 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
+//
+// Default graphical display delays
+//
+#if F_CPU >= 20000000
+  #define CPU_ST7920_DELAY_1 150
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 150
+#elif F_CPU == 16000000
+  #define CPU_ST7920_DELAY_1 125
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 188
+#endif
+
 #ifndef pgm_read_ptr
   // Compatibility for avr-libc 1.8.0-4.1 included with Ubuntu for
   // Windows Subsystem for Linux on Windows 10 as of 10/18/2019
@@ -78,43 +91,50 @@ typedef int8_t pin_t;
 // Public Variables
 // ------------------------
 
-//extern uint8_t MCUSR;
+extern uint8_t reset_reason;
 
 // Serial ports
 #ifdef USBCON
   #include "../../core/serial_hook.h"
-  typedef ForwardSerial0Type< decltype(Serial) > DefaultSerial;
-  extern DefaultSerial MSerial;
+  typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
   #ifdef BLUETOOTH
-    typedef ForwardSerial0Type< decltype(bluetoothSerial) > BTSerial;
+    typedef ForwardSerial1Class< decltype(bluetoothSerial) > BTSerial;
     extern BTSerial btSerial;
   #endif
 
-  #define MYSERIAL0 TERN(BLUETOOTH, btSerial, MSerial)
+  #define MYSERIAL1 TERN(BLUETOOTH, btSerial, MSerial0)
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)
-    #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
   #endif
-  #define MYSERIAL0 customizedSerial1
+  #define MYSERIAL1 customizedSerial1
 
   #ifdef SERIAL_PORT_2
     #if !WITHIN(SERIAL_PORT_2, -1, 3)
-      #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+      #error "SERIAL_PORT_2 must be from 0 to 3, or -1 for USB Serial."
     #endif
-    #define MYSERIAL1 customizedSerial2
+    #define MYSERIAL2 customizedSerial2
+  #endif
+
+  #ifdef SERIAL_PORT_3
+    #if !WITHIN(SERIAL_PORT_3, -1, 3)
+      #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
+    #endif
+    #define MYSERIAL3 customizedSerial3
   #endif
 #endif
 
 #ifdef MMU2_SERIAL_PORT
   #if !WITHIN(MMU2_SERIAL_PORT, -1, 3)
-    #error "MMU2_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "MMU2_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
   #endif
   #define MMU2_SERIAL mmuSerial
 #endif
 
 #ifdef LCD_SERIAL_PORT
   #if !WITHIN(LCD_SERIAL_PORT, -1, 3)
-    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
   #endif
   #define LCD_SERIAL lcdSerial
   #if HAS_DGUS_LCD
@@ -132,21 +152,19 @@ void HAL_init();
 
 //void _delay_ms(const int delay);
 
-inline void HAL_clear_reset_source() { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source() { return MCUSR; }
+inline void HAL_clear_reset_source() { }
+inline uint8_t HAL_get_reset_source() { return reset_reason; }
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 extern "C" int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 // ADC
 #ifdef DIDR2
@@ -179,7 +197,7 @@ inline void HAL_adc_init() {
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define HAL_SENSITIVE_PINS 0, 1
+#define HAL_SENSITIVE_PINS 0, 1,
 
 #ifdef __AVR_AT90USB1286__
   #define JTAG_DISABLE() do{ MCUCR = 0x80; MCUCR = 0x80; }while(0)
@@ -189,6 +207,7 @@ inline void HAL_adc_init() {
 #define strtof strtod
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+#define PWM_FREQUENCY 1000     // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
 
 /**
  *  set_pwm_frequency
@@ -199,12 +218,18 @@ inline void HAL_adc_init() {
  *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
  *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
  */
-void set_pwm_frequency(const pin_t pin, int f_desired);
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 
 /**
  * set_pwm_duty
- *  Sets the PWM duty cycle of the provided pin to the provided value
+ *  Set the PWM duty cycle of the provided pin to the provided value
  *  Optionally allows inverting the duty cycle [default = false]
  *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
  */
 void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+/*
+ * init_pwm_timers
+ * sets the default frequency for timers 2-5 to 1000HZ
+ */
+void init_pwm_timers();

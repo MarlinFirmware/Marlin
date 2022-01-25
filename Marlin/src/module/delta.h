@@ -32,7 +32,7 @@ extern float delta_height;
 extern abc_float_t delta_endstop_adj;
 extern float delta_radius,
              delta_diagonal_rod,
-             delta_segments_per_second;
+             segments_per_second;
 extern abc_float_t delta_tower_angle_trim;
 extern xy_float_t delta_tower[ABC];
 extern abc_float_t delta_diagonal_rod_2_tower;
@@ -44,19 +44,6 @@ extern abc_float_t delta_diagonal_rod_trim;
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings();
-
-/**
- * Get a safe radius for calibration
- */
-#if ENABLED(DELTA_AUTO_CALIBRATION)
-  extern float calibration_radius_factor;
-#else
-  constexpr float calibration_radius_factor = 1;
-#endif
-
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-  float delta_calibration_radius();
-#endif
 
 /**
  * Delta Inverse Kinematics
@@ -120,10 +107,10 @@ float delta_safe_distance_from_top();
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3);
+void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3);
 
-FORCE_INLINE void forward_kinematics_DELTA(const abc_float_t &point) {
-  forward_kinematics_DELTA(point.a, point.b, point.c);
+FORCE_INLINE void forward_kinematics(const abc_float_t &point) {
+  forward_kinematics(point.a, point.b, point.c);
 }
 
 void home_delta();

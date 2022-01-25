@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin (STM32F130ZET6) board pin assignments
+ * MKS Robin (STM32F103ZET6) board pin assignments
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
@@ -121,11 +121,11 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
 
 //
-// Filament runout sensor
+// Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                      PF11  // MT_DET
 
@@ -155,7 +155,7 @@
 #define WIFI_IO0_PIN                        PG1
 
 //
-// LCD screen
+// TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
   /**
@@ -170,18 +170,17 @@
    * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
-
-  #define FSMC_CS_PIN                 TFT_CS_PIN
-  #define FSMC_RS_PIN                 TFT_RS_PIN
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PG12  // NE4
+  #define FSMC_RS_PIN                       PF0   // A0
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_RESET_PIN                     PF6
-  #define TFT_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
@@ -237,7 +236,7 @@
    * This board does not have dedicated TMC UART pins. Custom wiring is needed.
    * You may uncomment one of the options below, or add it to your Configuration.h.
    *
-   * When using up to four TMC2209 drivers, hardware serial is recommented on
+   * When using up to four TMC2209 drivers, hardware serial is recommended on
    * MSerial0 or MSerial1.
    *
    * When using TMC2208 or more than four drivers, SoftwareSerial will be needed,
@@ -246,25 +245,25 @@
 
   //#define TMC_HARDWARE_SERIAL
   #if ENABLED(TMC_HARDWARE_SERIAL)
-    #define X_HARDWARE_SERIAL            MSerial0
-    #define X2_HARDWARE_SERIAL           MSerial0
-    #define Y_HARDWARE_SERIAL            MSerial0
-    #define Y2_HARDWARE_SERIAL           MSerial0
-    #define Z_HARDWARE_SERIAL            MSerial0
-    #define Z2_HARDWARE_SERIAL           MSerial0
-    #define E0_HARDWARE_SERIAL           MSerial0
-    #define E1_HARDWARE_SERIAL           MSerial0
+    #define X_HARDWARE_SERIAL  MSerial0
+    #define X2_HARDWARE_SERIAL MSerial0
+    #define Y_HARDWARE_SERIAL  MSerial0
+    #define Y2_HARDWARE_SERIAL MSerial0
+    #define Z_HARDWARE_SERIAL  MSerial0
+    #define Z2_HARDWARE_SERIAL MSerial0
+    #define E0_HARDWARE_SERIAL MSerial0
+    #define E1_HARDWARE_SERIAL MSerial0
   #endif
 
   //#define TMC_SOFTWARE_SERIAL
   #if ENABLED(TMC_SOFTWARE_SERIAL)
     #define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
-    #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
-    #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
-    #define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN -- XS1 - 5
     #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
     #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
     #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN -- XS1 - 5
     #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
     #define TMC_BAUD_RATE                  19200
   #endif
@@ -276,8 +275,8 @@
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE                0x800000  // 8MB
-  #define W25QXX_CS_PIN                     PG9
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define SPI_FLASH_CS_PIN                  PG9
+  #define SPI_FLASH_MOSI_PIN                PB15
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_SCK_PIN                 PB13
 #endif

@@ -53,6 +53,7 @@ const tImage Fan_Fast1_64x64x4      = { (void *)fan_fast1_64x64x4, 64, 64, GREYS
 const tImage SD_64x64x4             = { (void *)sd_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Home_64x64x4           = { (void *)home_64x64x4, 64, 64, GREYSCALE4 };
 const tImage BtnRounded_64x52x4     = { (void *)btn_rounded_64x52x4, 64, 52, GREYSCALE4 };
+const tImage BtnRounded_42x39x4     = { (void *)btn_rounded_42x39x4, 42, 39, GREYSCALE4 };
 const tImage Menu_64x64x4           = { (void *)menu_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Settings_64x64x4       = { (void *)settings_64x64x4, 64, 64, GREYSCALE4 };
 const tImage Confirm_64x64x4        = { (void *)confirm_64x64x4, 64, 64, GREYSCALE4 };
@@ -106,6 +107,7 @@ const tImage Images[imgCount] = {
   Slider8x16x4,
   Home_64x64x4,
   BtnRounded_64x52x4,
+  BtnRounded_42x39x4,
 };
 
 #endif // HAS_GRAPHICAL_TFT

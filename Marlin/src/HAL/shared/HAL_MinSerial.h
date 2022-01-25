@@ -42,7 +42,7 @@ struct MinSerial {
       HAL_min_serial_out(ch);
   }
   // Send String through UART
-  static void TX(const char* s) { while (*s) TX(*s++); }
+  static void TX(const char *s) { while (*s) TX(*s++); }
   // Send a digit through UART
   static void TXDigit(uint32_t d) {
     if (d < 10) TX((char)(d+'0'));

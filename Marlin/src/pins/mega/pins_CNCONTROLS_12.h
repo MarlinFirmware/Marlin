@@ -25,9 +25,8 @@
  * CartesioV12 pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "CN Controls V12"
 
@@ -148,7 +147,6 @@
 #define DOGLCD_CS                             35
 #define DOGLCD_MOSI                           48
 #define DOGLCD_SCK                            49
-#define LCD_SCREEN_ROT_180
 
 // The encoder and click button
 #define BTN_EN1                               36
@@ -165,3 +163,5 @@
 
 #define STAT_LED_BLUE_PIN                     -1
 #define STAT_LED_RED_PIN                      10  // TOOL_0_PWM_PIN
+
+#define LCD_SCREEN_ROTATE                    180  // 0, 90, 180, 270
