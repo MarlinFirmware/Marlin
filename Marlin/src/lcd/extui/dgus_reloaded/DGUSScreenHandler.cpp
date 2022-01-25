@@ -100,37 +100,37 @@ void DGUSScreenHandler::Loop() {
   if (new_screen != DGUS_Screen::BOOT) {
     const DGUS_Screen screen = new_screen;
     new_screen = DGUS_Screen::BOOT;
-
-    if (current_screen == screen) {
+    if (current_screen == screen)
       TriggerFullUpdate();
-    }
-    else {
+    else
       MoveToScreen(screen);
-    }
     return;
   }
 
   if (!booted && ELAPSED(ms, 3000)) {
     booted = true;
 
-    if (current_screen == DGUS_Screen::BOOT) {
+    dgus_display.ReadVersions();
+
+    if (current_screen == DGUS_Screen::BOOT)
       MoveToScreen(DGUS_Screen::HOME);
-    }
+
     return;
   }
 
   if (ELAPSED(ms, next_event_ms) || full_update) {
     next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
 
-    if (!SendScreenVPData(current_screen, full_update)) {
+    if (!SendScreenVPData(current_screen, full_update))
       DEBUG_ECHOLNPGM("SendScreenVPData failed");
-    }
+
     return;
   }
 
   if (current_screen == DGUS_Screen::WAIT
       && ((wait_continue && !wait_for_user)
-          || (!wait_continue && IsPrinterIdle()))) {
+          || (!wait_continue && IsPrinterIdle()))
+  ) {
     MoveToScreen(wait_return_screen, true);
     return;
   }
@@ -151,7 +151,6 @@ void DGUSScreenHandler::Loop() {
 
   if (eeprom_save > 0 && ELAPSED(ms, eeprom_save) && IsPrinterIdle()) {
     eeprom_save = 0;
-
     queue.enqueue_now_P(DGUS_CMD_EEPROM_SAVE);
     return;
   }
@@ -187,7 +186,6 @@ void DGUSScreenHandler::SettingsReset() {
 
   if (!settings_ready) {
     settings_ready = true;
-
     Ready();
   }
 
@@ -225,9 +223,8 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
 }
 
 void DGUSScreenHandler::ConfigurationStoreWritten(bool success) {
-  if (!success) {
+  if (!success)
     SetStatusMessage(F("EEPROM write failed"));
-  }
 }
 
 void DGUSScreenHandler::ConfigurationStoreRead(bool success) {
@@ -236,7 +233,6 @@ void DGUSScreenHandler::ConfigurationStoreRead(bool success) {
   }
   else if (!settings_ready) {
     settings_ready = true;
-
     Ready();
   }
 }
@@ -245,33 +241,25 @@ void DGUSScreenHandler::PlayTone(const uint16_t frequency, const uint16_t durati
   UNUSED(duration);
 
   if (frequency >= 1 && frequency <= 255) {
-    if (duration >= 1 && duration <= 255) {
+    if (duration >= 1 && duration <= 255)
       dgus_display.PlaySound((uint8_t)frequency, (uint8_t)duration);
-    }
-    else {
+    else
       dgus_display.PlaySound((uint8_t)frequency);
-    }
   }
 }
 
 void DGUSScreenHandler::MeshUpdate(const int8_t xpos, const int8_t ypos) {
   if (current_screen != DGUS_Screen::LEVELING_PROBING) {
-    if (current_screen == DGUS_Screen::LEVELING_AUTOMATIC) {
+    if (current_screen == DGUS_Screen::LEVELING_AUTOMATIC)
       TriggerFullUpdate();
-    }
-
     return;
   }
 
   uint8_t point = ypos * GRID_MAX_POINTS_X + xpos;
   probing_icons[point < 16 ? 0 : 1] |= (1U << (point % 16));
 
-  if (xpos >= GRID_MAX_POINTS_X - 1
-      && ypos >= GRID_MAX_POINTS_Y - 1
-      && !ExtUI::getMeshValid()) {
-    probing_icons[0] = 0;
-    probing_icons[1] = 0;
-  }
+  if (xpos >= GRID_MAX_POINTS_X - 1 && ypos >= GRID_MAX_POINTS_Y - 1 && !ExtUI::getMeshValid())
+    probing_icons[0] = probing_icons[1] = 0;
 
   TriggerFullUpdate();
 }
@@ -282,15 +270,12 @@ void DGUSScreenHandler::PrintTimerStarted() {
 
 void DGUSScreenHandler::PrintTimerPaused() {
   dgus_display.PlaySound(3);
-
   TriggerFullUpdate();
 }
 
 void DGUSScreenHandler::PrintTimerStopped() {
-  if (current_screen != DGUS_Screen::PRINT_STATUS
-      && current_screen != DGUS_Screen::PRINT_ADJUST) {
+  if (current_screen != DGUS_Screen::PRINT_STATUS && current_screen != DGUS_Screen::PRINT_ADJUST)
     return;
-  }
 
   dgus_display.PlaySound(3);
 
@@ -309,23 +294,19 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
 #if ENABLED(SDSUPPORT)
 
   void DGUSScreenHandler::SDCardInserted() {
-    if (current_screen == DGUS_Screen::HOME) {
+    if (current_screen == DGUS_Screen::HOME)
       TriggerScreenChange(DGUS_Screen::PRINT);
-    }
   }
 
   void DGUSScreenHandler::SDCardRemoved() {
-    if (current_screen == DGUS_Screen::PRINT) {
+    if (current_screen == DGUS_Screen::PRINT)
       TriggerScreenChange(DGUS_Screen::HOME);
-    }
   }
 
   void DGUSScreenHandler::SDCardError() {
     SetStatusMessage(GET_TEXT_F(MSG_MEDIA_READ_ERROR));
-
-    if (current_screen == DGUS_Screen::PRINT) {
+    if (current_screen == DGUS_Screen::PRINT)
       TriggerScreenChange(DGUS_Screen::HOME);
-    }
   }
 
 #endif // SDSUPPORT
