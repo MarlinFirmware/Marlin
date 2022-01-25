@@ -56,7 +56,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
   if (previousMode != TIMER_OUTPUT_COMPARE_PWM1) HT->resume();
 }
 
-void set_pwm_frequency(const pin_t pin, int f_desired) {
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (!PWM_PIN(pin)) return; // Don't proceed if no hardware timer
   const PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef * const Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance

@@ -40,7 +40,7 @@
 
 SpindleLaser cutter;
 uint8_t SpindleLaser::power = 0;                                      // Actual power output 0-255 ocr or "0 = off" > 0 = "on"
-bool  SpindleLaser::enable_state = false;                             // Virtual enable state, controls enable pin if present and or apply power if > 0 
+bool  SpindleLaser::enable_state = false;                             // Virtual enable state, controls enable pin if present and or apply power if > 0
 uint8_t SpindleLaser::last_power_applied = 0;                         // Basic power state tracking
 
 #if ENABLED(LASER_FEATURE)
@@ -60,7 +60,7 @@ cutter_power_t SpindleLaser::menuPower = 0,                           // Power v
   cutter_frequency_t SpindleLaser::frequency;                         // PWM frequency setting; range: 2K - 50K
 #endif
 #define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)  // TODO SPINDLE_LASER_PWM_INVERT is no implemented and probably should be.
-                                                                      // There is a condition that check for its definition in SanityCheck.h    
+                                                                      // There is a condition that check for its definition in SanityCheck.h
 
 /**
  * Init the cutter to a safe OFF state
@@ -78,7 +78,7 @@ void SpindleLaser::init() {
     SET_PWM(SPINDLE_LASER_PWM_PIN);
     set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
   #endif
-  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
+  #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
     TERN_(MARLIN_DEV_MODE, frequency = SPINDLE_LASER_FREQUENCY);
   #endif
@@ -88,9 +88,7 @@ void SpindleLaser::init() {
   #if ENABLED(AIR_ASSIST)
     OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
   #endif
-  #if ENABLED(I2C_AMMETER)
-    ammeter.init();                                                   // Init I2C Ammeter
-  #endif
+  TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
 }
 
 #if ENABLED(SPINDLE_LASER_USE_PWM)
@@ -101,7 +99,7 @@ void SpindleLaser::init() {
    */
   void SpindleLaser::_set_ocr(const uint8_t ocr) {
     //if (DEBUGGING(DRYRUN)) ocr = 0;
-    #if ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY
+    #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
       set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), TERN(MARLIN_DEV_MODE, frequency, SPINDLE_LASER_FREQUENCY));
     #endif
     set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
@@ -123,14 +121,14 @@ void SpindleLaser::init() {
  *
  * Apply cutter power value for PWM, Servo, and on/off pin.
  *
- * @param opwr Power value. Range 0 to MAX. 
+ * @param opwr Power value. Range 0 to MAX.
  */
 void SpindleLaser::apply_power(const uint8_t opwr) {
-  if (enabled() || opwr == 0) {                                   // 0 check allows us to disable where no ENA pin exists  
+  if (enabled() || opwr == 0) {                                   // 0 check allows us to disable where no ENA pin exists
     // Test and set the last power used to improve performance
     if (opwr == last_power_applied) return;
     last_power_applied = opwr;
-    // Handle PWM driven or just simple on/off  
+    // Handle PWM driven or just simple on/off
     #if ENABLED(SPINDLE_LASER_USE_PWM)
       if (CUTTER_UNIT_IS(RPM) && unitPower == 0) {
         ocr_off();
@@ -149,7 +147,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
       isReadyForUI = true;
     #endif
   } else {
-    // If we have an enable pin assigned set it. 
+    // If we have an enable pin assigned set it.
     #if SPINDLE_LASER_ENA_PIN
       WRITE(SPINDLE_LASER_ENA_PIN, 0 ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
     #endif

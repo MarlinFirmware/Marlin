@@ -49,7 +49,7 @@
  *
  *  If no PWM pin is defined then M3/M4 just turns it on or off.
  *
- *  At least 12.8KHz (50Hz * 256) is needed for Spindle PWM.
+ *  At least 12.8kHz (50Hz * 256) is needed for Spindle PWM.
  *  Hardware PWM is required on AVR. ISRs are too slow.
  *
  * NOTE: WGM for timers 3, 4, and 5 must be either Mode 1 or Mode 5.

@@ -253,7 +253,7 @@
   #define FAN_PIN                           PB7   // Fan0
 #endif
 
-#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+#if HAS_CUTTER
   #ifndef SPINDLE_LASER_PWM_PIN
     #define SPINDLE_LASER_PWM_PIN           PB5
   #endif
@@ -333,14 +333,14 @@
 #endif
 
 /**
- *               ------                                             ------
- *           NC | 1  2 | GND                                    5V | 1  2 | GND
- *        RESET | 3  4 | PC4 (SD_DETECT)             (LCD_D7) PE13 | 3  4 | PE12 (LCD_D6)
- *   (MOSI) PA7 | 5  6   PB2 (BTN_EN2)               (LCD_D5) PE11 | 5  6   PE10 (LCD_D4)
- *  (SD_SS) PA4 | 7  8 | PE7 (BTN_EN1)               (LCD_RS)  PE9 | 7  8 | PB1  (LCD_EN)
- *    (SCK) PA5 | 9 10 | PA6 (MISO)                 (BTN_ENC)  PB0 | 9 10 | PC5  (BEEPER)
- *               ------                                             ------
- *                EXP2                                               EXP1
+ *                ------                                   ------
+ * (BEEPER) PC5  |10  9 | PB0  (BTN_ENC)  (MISO)      PA6 |10  9 | PA5 (SCK)
+ * (LCD_EN) PB1  | 8  7 | PE9  (LCD_RS)   (BTN_EN1)   PE7 | 8  7 | PA4 (SD_SS)
+ * (LCD_D4) PE10 | 6  5   PE11 (LCD_D5)   (BTN_EN2)   PB2 | 6  5   PA7 (MOSI)
+ * (LCD_D6) PE12 | 4  3 | PE13 (LCD_D7)   (SD_DETECT) PC4 | 4  3 | RESET
+ *           GND | 2  1 | 5V                          GND | 2  1 | --
+ *                ------                                   ------
+ *                 EXP1                                     EXP2
  */
 #define EXP1_03_PIN                         PE13
 #define EXP1_04_PIN                         PE12
@@ -365,32 +365,22 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(LCD)
-
   #define SDSS                       EXP2_07_PIN
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                 EXP2_09_PIN
   #define SD_MISO_PIN                EXP2_10_PIN
   #define SD_MOSI_PIN                EXP2_05_PIN
   #define SD_DETECT_PIN              EXP2_04_PIN
-
 #elif SD_CONNECTION_IS(ONBOARD)
-
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
-  #define SDIO_D0_PIN                       PC8
-  #define SDIO_D1_PIN                       PC9
-  #define SDIO_D2_PIN                       PC10
-  #define SDIO_D3_PIN                       PC11
-  #define SDIO_CK_PIN                       PC12
-  #define SDIO_CMD_PIN                      PD2
-
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
 
 #if ENABLED(BTT_MOTOR_EXPANSION)
   /**       -----                        -----
-   *    NC | . . | GND               NC | . . | GND
-   *    NC | . . | M1EN            M2EN | . . | M3EN
+   *    -- | . . | GND               -- | . . | GND
+   *    -- | . . | M1EN            M2EN | . . | M3EN
    * M1STP | . .   M1DIR           M1RX | . .   M1DIAG
    * M2DIR | . . | M2STP           M2RX | . . | M2DIAG
    * M3DIR | . . | M3STP           M3RX | . . | M3DIAG
@@ -572,9 +562,9 @@
  *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
  *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
  * (ESP-IO0) PB10 | 12 |       | 5 | PB13 (ESP-CLK)
- * (ESP-IO4) PB11 | 13 |       | 4 | NC
- *             NC | 14 |       | 3 | 3.3V (ESP-EN)
- *  (ESP-RX)  PD8 | 15 |       | 2 | NC
+ * (ESP-IO4) PB11 | 13 |       | 4 | --
+ *             -- | 14 |       | 3 | 3.3V (ESP-EN)
+ *  (ESP-RX)  PD8 | 15 |       | 2 | --
  *  (ESP-TX)  PD9 | 16 |       | 1 | PC14 (ESP-RST)
  *                      -------
  *                       WIFI

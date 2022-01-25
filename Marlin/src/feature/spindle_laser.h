@@ -118,11 +118,12 @@ public:
   static void init();
 
   #if ENABLED(MARLIN_DEV_MODE)
-    static inline void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
+    static void refresh_frequency() { set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency); }
   #endif
 
   // Modifying this function should update everywhere
-  static inline bool enabled() { return enable_state; }
+  static bool enabled(const cutter_power_t opwr) { return opwr > 0; }
+  static bool enabled() { return enable_state; }
 
   static void apply_power(const uint8_t inpow);
 
@@ -142,10 +143,10 @@ public:
     /**
      * Update output for power->OCR translation
      */
-    static inline uint8_t upower_to_ocr(const cutter_power_t upwr) {
+    static uint8_t upower_to_ocr(const cutter_power_t upwr) {
       return uint8_t(
         #if CUTTER_UNIT_IS(PWM255)
-          upwr 
+          upwr
         #elif CUTTER_UNIT_IS(PERCENT)
           pct_to_ocr(upwr)
         #else
@@ -157,11 +158,11 @@ public:
     /**
      * Correct power to configured range
      */
-    static inline cutter_power_t power_to_range(const cutter_power_t pwr) {
+    static cutter_power_t power_to_range(const cutter_power_t pwr) {
       return power_to_range(pwr, _CUTTER_POWER(CUTTER_POWER_UNIT));
     }
 
-    static inline cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
+    static cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
       static constexpr float
         min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
         max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
@@ -194,25 +195,25 @@ public:
       return upwr;
     }
 
-  /*   
+  /*
    *  Enable Laser or Spindle output.
    *  It is important to prevent changing the power output value when the cutter is set for inline operation.
    *  Inline power is adjusted in the planner to support LASER_TRAP_POWER and CUTTER_MODE_DYNAMIC mode.
-   *   
+   *
    *  Set enabled has 4 possible control states.
-   * 
-   *  1: When in CUTTER_MODE_STANDARD the cutter power is either full on/off or ocr based and it will apply 
+   *
+   *  1: When in CUTTER_MODE_STANDARD the cutter power is either full on/off or ocr based and it will apply
    *  SPEED_POWER_STARTUP if no value is assigned.
-   *  
+   *
    *  2: If CUTTER_MODE_CONTINUOUS is true then inline and power remains where last set and we set the cutter output enable flag.
-   *  
+   *
    *  3: CUTTER_MODE_DYNAMIC is also inline based and we just set the enable output flag.
-   *  
+   *
    *  4: If CUTTER_MODE_ERROR mode is detected we need to set the output enable_state flag directly and set power to 0 for any mode.
-   *  This mode allows a global power shutdown action to occur.  
+   *  This mode allows a global power shutdown action to occur.
    */
 
-  static inline void set_enabled(const bool enable) {
+  static void set_enabled(const bool enable) {
     switch (cutter_mode) {
       case CUTTER_MODE_STANDARD:
         apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
@@ -229,7 +230,7 @@ public:
     }
     #if SPINDLE_LASER_ENA_PIN
       WRITE(SPINDLE_LASER_ENA_PIN, enable ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
-    #endif  
+    #endif
     enable_state = enable;
   }
 
@@ -244,7 +245,7 @@ public:
     static void set_reverse(const bool reverse);
     static bool is_reverse() { return READ(SPINDLE_DIR_PIN) == SPINDLE_INVERT_DIR; }
   #else
-    static inline void set_reverse(const bool) {}
+    static void set_reverse(const bool) {}
     static bool is_reverse() { return false; }
   #endif
 
@@ -252,7 +253,7 @@ public:
     static void air_evac_enable();         // Turn On Cutter Vacuum or Laser Blower motor
     static void air_evac_disable();        // Turn Off Cutter Vacuum or Laser Blower motor
     static void air_evac_toggle();         // Toggle Cutter Vacuum or Laser Blower motor
-    static inline bool air_evac_state() {  // Get current state
+    static bool air_evac_state() {  // Get current state
       return (READ(AIR_EVACUATION_PIN) == AIR_EVACUATION_ACTIVE);
     }
   #endif
@@ -261,12 +262,12 @@ public:
     static void air_assist_enable();         // Turn on air assist
     static void air_assist_disable();        // Turn off air assist
     static void air_assist_toggle();         // Toggle air assist
-    static inline bool air_assist_state() {  // Get current state
+    static bool air_assist_state() {  // Get current state
       return (READ(AIR_ASSIST_PIN) == AIR_ASSIST_ACTIVE);
     }
   #endif
 
-  #if HAS_LCD_MENU
+  #if HAS_MARLINUI_MENU
     #if ENABLED(SPINDLE_FEATURE)
       static inline void enable_with_dir(const bool reverse) {
         isReadyForUI = true;
@@ -288,7 +289,6 @@ public:
       static inline void update_from_mpower() {
         if (isReadyForUI) power = upower_to_ocr(menuPower);
         unitPower = menuPower;
-
       }
     #endif
 
@@ -301,8 +301,8 @@ public:
             power = cpwr_to_upwr(menuPower);
           else
             menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
-        power = upower_to_ocr(menuPower);
-        apply_power(power);
+          power = upower_to_ocr(menuPower);
+          apply_power(power);
         }
       }
 
@@ -311,7 +311,7 @@ public:
        * Also fires with any PWM power that was previous set
        * If not set defaults to 80% power
        */
-      static inline void test_fire_pulse() {
+      static void test_fire_pulse() {
         TERN_(USE_BEEPER, buzzer.tone(30, 3000));
         cutter_mode = CUTTER_MODE_STANDARD;// Menu needs standard mode.
         laser_menu_toggle(true);           // Laser On
@@ -320,7 +320,7 @@ public:
       }
     #endif // LASER_FEATURE
 
-  #endif // HAS_LCD_MENU
+  #endif // HAS_MARLINUI_MENU
 
   #if ENABLED(LASER_FEATURE)
 
@@ -342,7 +342,7 @@ public:
 
   #endif // LASER_FEATURE
 
-  static inline void kill() { disable(); }
+  static void kill() { disable(); }
 };
 
 extern SpindleLaser cutter;
