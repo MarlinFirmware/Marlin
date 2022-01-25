@@ -66,7 +66,7 @@ jobs:
         - mks_robin_lite_maple
         - mks_robin_pro_maple
         #- mks_robin_nano35_maple
-        #- STM32F103RET6_creality_maple
+        #- STM32F103RE_creality_maple
         - STM32F103VE_ZM3E4V2_USB_maple
 
         # STM32 (ST) Environments
@@ -75,7 +75,7 @@ jobs:
         #- STM32F103RC_btt_USB
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
-        - STM32F103RET6_creality
+        - STM32F103RE_creality
         - STM32F103VE_longer
         - STM32F407VE_black
         - STM32F401VE_STEVAL

@@ -79,9 +79,7 @@ void MarlinUI::set_font(const uint8_t font_nr) {
 bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
-void MarlinUI::init_lcd() {
-  DWIN_Startup();
-}
+void MarlinUI::init_lcd() { DWIN_Startup(); }
 
 // This LCD should clear where it will draw anew
 void MarlinUI::clear_lcd() {
