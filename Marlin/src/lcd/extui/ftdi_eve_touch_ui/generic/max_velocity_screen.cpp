@@ -42,13 +42,13 @@ void MaxVelocityScreen::onRedraw(draw_mode_t what) {
     w.color(e_axis)  .adjuster(  8, GET_TEXT_F(MSG_VMAX_E), getAxisMaxFeedrate_mm_s(E0) );
   #elif HAS_MULTI_EXTRUDER
     w.heading(GET_TEXT_F(MSG_VMAX_E));
-    w.color(e_axis)  .adjuster(  8, F(LCD_STR_E0), getAxisMaxFeedrate_mm_s(E0) );
-    w.color(e_axis)  .adjuster( 10, F(LCD_STR_E1), getAxisMaxFeedrate_mm_s(E1) );
+    w.color(e_axis)  .adjuster(  8, F(STR_E0), getAxisMaxFeedrate_mm_s(E0) );
+    w.color(e_axis)  .adjuster( 10, F(STR_E1), getAxisMaxFeedrate_mm_s(E1) );
     #if EXTRUDERS > 2
-      w.color(e_axis).adjuster( 12, F(LCD_STR_E2), getAxisMaxFeedrate_mm_s(E2) );
+      w.color(e_axis).adjuster( 12, F(STR_E2), getAxisMaxFeedrate_mm_s(E2) );
     #endif
     #if EXTRUDERS > 3
-      w.color(e_axis).adjuster( 14, F(LCD_STR_E3), getAxisMaxFeedrate_mm_s(E3) );
+      w.color(e_axis).adjuster( 14, F(STR_E3), getAxisMaxFeedrate_mm_s(E3) );
     #endif
   #endif
   w.increments();

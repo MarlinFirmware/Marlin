@@ -24,8 +24,8 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.7.1
- * Date: 2021/11/09
+ * Version: 3.9.1
+ * Date: 2021/11/21
  */
 
 #include "../../../inc/MarlinConfigPre.h"
@@ -45,7 +45,7 @@
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
-static constexpr size_t eeprom_data_size = 64;
+#include "dwin_defines.h"
 
 enum processID : uint8_t {
   // Process ID
@@ -59,11 +59,16 @@ enum processID : uint8_t {
   SelectFile,
   PrintProcess,
   PrintDone,
+  PwrlossRec,
+  Reboot,
   Info,
 
   // Popup Windows
   Homing,
   Leveling,
+  PidProcess,
+  ESDiagProcess,
+  PrintStatsProcess,
   PauseOrStop,
   FilamentPurge,
   WaitResponse,
@@ -98,39 +103,6 @@ typedef struct {
 } HMI_value_t;
 
 typedef struct {
-  uint16_t Background_Color = Def_Background_Color;
-  uint16_t Cursor_color     = Def_Cursor_color;
-  uint16_t TitleBg_color    = Def_TitleBg_color;
-  uint16_t TitleTxt_color   = Def_TitleTxt_color;
-  uint16_t Text_Color       = Def_Text_Color;
-  uint16_t Selected_Color   = Def_Selected_Color;
-  uint16_t SplitLine_Color  = Def_SplitLine_Color;
-  uint16_t Highlight_Color  = Def_Highlight_Color;
-  uint16_t StatusBg_Color   = Def_StatusBg_Color;
-  uint16_t StatusTxt_Color  = Def_StatusTxt_Color;
-  uint16_t PopupBg_color    = Def_PopupBg_color;
-  uint16_t PopupTxt_Color   = Def_PopupTxt_Color;
-  uint16_t AlertBg_Color    = Def_AlertBg_Color;
-  uint16_t AlertTxt_Color   = Def_AlertTxt_Color;
-  uint16_t PercentTxt_Color = Def_PercentTxt_Color;
-  uint16_t Barfill_Color    = Def_Barfill_Color;
-  uint16_t Indicator_Color  = Def_Indicator_Color;
-  uint16_t Coordinate_Color = Def_Coordinate_Color;
-  #if HAS_PREHEAT
-    #ifdef PREHEAT_1_TEMP_HOTEND
-      int16_t HotendPidT = PREHEAT_1_TEMP_HOTEND;
-      int16_t PidCycles = 10;
-    #endif
-    #ifdef PREHEAT_1_TEMP_BED
-      int16_t BedPidT = PREHEAT_1_TEMP_BED;
-    #endif
-  #endif
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    int16_t ExtMinT = EXTRUDE_MINTEMP;
-  #endif
-} HMI_data_t;
-
-typedef struct {
   uint8_t language;
   bool pause_flag:1;    // printing is paused
   bool pause_action:1;  // flag a pause action
@@ -138,14 +110,23 @@ typedef struct {
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
   bool heat_flag:1;     // 0: heating done  1: during heating
-  bool lock_flag:1;     // 0: lock called from AdvSet  1: lock called from Tune
 } HMI_flag_t;
 
 extern HMI_value_t HMI_value;
 extern HMI_flag_t HMI_flag;
-extern HMI_data_t HMI_data;
 extern uint8_t checkkey;
 extern millis_t dwin_heat_time;
+
+// Popups
+#if HAS_HOTEND || HAS_HEATED_BED
+  void DWIN_Popup_Temperature(const bool toohigh);
+#endif
+#if HAS_HOTEND
+  void Popup_Window_ETempTooLow();
+#endif
+#if ENABLED(POWER_LOSS_RECOVERY)
+  void Popup_PowerLossRecovery();
+#endif
 
 // SD Card
 void HMI_SDCardInit();
@@ -154,8 +135,8 @@ void HMI_SDCardUpdate();
 // Other
 void Goto_PrintProcess();
 void Goto_Main_Menu();
-void Goto_InfoMenu();
-void Draw_Select_Highlight(const bool sel);
+void Goto_Info_Menu();
+void Goto_PowerLossRecovery();
 void Draw_Status_Area(const bool with_update); // Status Area
 void Draw_Main_Area();      // Redraw main area;
 void DWIN_Redraw_screen();  // Redraw all screen elements
@@ -204,10 +185,17 @@ void DWIN_RebootScreen();
 #endif
 
 // Utility and extensions
+void DWIN_LockScreen();
+void DWIN_UnLockScreen();
 void HMI_LockScreen();
-void DWIN_LockScreen(const bool flag = true);
 #if HAS_MESH
   void DWIN_MeshViewer();
+#endif
+#if HAS_ESDIAG
+  void Draw_EndStopDiag();
+#endif
+#if ENABLED(PRINTCOUNTER)
+  void Draw_PrintStats();
 #endif
 
 // HMI user control functions
@@ -223,7 +211,7 @@ void Draw_Control_Menu();
 void Draw_AdvancedSettings_Menu();
 void Draw_Prepare_Menu();
 void Draw_Move_Menu();
-void Draw_LevBedCorners_Menu();
+void Draw_Tramming_Menu();
 #if HAS_HOME_OFFSET
   void Draw_HomeOffset_Menu();
 #endif
@@ -262,23 +250,6 @@ void Draw_Steps_Menu();
 #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
   void Draw_ZOffsetWiz_Menu();
 #endif
-
-// Popup windows
-
-void DWIN_Draw_Popup(const uint8_t icon, const char * const cmsg1, FSTR_P const fmsg2, uint8_t button=0);
-void DWIN_Draw_Popup(const uint8_t icon, FSTR_P const fmsg1=nullptr, FSTR_P const fmsg2=nullptr, uint8_t button=0);
-
-template<typename T, typename U>
-void DWIN_Popup_Confirm(const uint8_t icon, T amsg1, U amsg2) {
-  HMI_SaveProcessID(WaitResponse);
-  DWIN_Draw_Popup(icon, amsg1, amsg2, ICON_Confirm_E);  // Button Confirm
-  DWIN_UpdateLCD();
-}
-
-#if HAS_HOTEND || HAS_HEATED_BED
-  void DWIN_Popup_Temperature(const bool toohigh);
+#if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
+  void Draw_Homing_Menu();
 #endif
-#if HAS_HOTEND
-  void Popup_Window_ETempTooLow();
-#endif
-void Popup_Window_Resume();

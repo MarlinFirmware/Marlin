@@ -44,15 +44,15 @@ namespace Language_uk {
   LSTR MSG_MEDIA_INSERTED                   = _UxGT("SD-картка вставлена");
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD-картка видалена");
   LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставте SD-картку");
-  #if LCD_WIDTH > 21
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Збій ініціалізації SD");
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Збій ініціалізації SD");
   #else
-    LSTR MSG_SD_INIT_FAIL                   = _UxGT("Збій ініціаліз. SD");
+    LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Збій ініціаліз. SD");
   #endif
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Помилка зчитування");
   LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск видалений");
   LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Помилка USB диску");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переповнення виклику");
     LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Програмні кінцевики");
   #else
@@ -68,12 +68,10 @@ namespace Language_uk {
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню Debug");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест лінії прогр.");
   LSTR MSG_AUTO_HOME                        = _UxGT("Авто паркування");
+  LSTR MSG_AUTO_HOME_A                      = _UxGT("Паркування @");
   LSTR MSG_AUTO_HOME_X                      = _UxGT("Паркування X");
   LSTR MSG_AUTO_HOME_Y                      = _UxGT("Паркування Y");
   LSTR MSG_AUTO_HOME_Z                      = _UxGT("Паркування Z");
-  LSTR MSG_AUTO_HOME_I                      = _UxGT("Паркування ") LCD_STR_I;
-  LSTR MSG_AUTO_HOME_J                      = _UxGT("Паркування ") LCD_STR_J;
-  LSTR MSG_AUTO_HOME_K                      = _UxGT("Паркування ") LCD_STR_K;
   LSTR MSG_AUTO_Z_ALIGN                     = _UxGT("Авто Z-вирівнювання");
   LSTR MSG_ITERATION                        = _UxGT("G34 Ітерація: %i");
   LSTR MSG_DECREASING_ACCURACY              = _UxGT("Зменьшення точності!");
@@ -83,27 +81,27 @@ namespace Language_uk {
   LSTR MSG_LEVEL_BED_NEXT_POINT             = _UxGT("Наступна точка");
   LSTR MSG_LEVEL_BED_DONE                   = _UxGT("Завершено!");
   LSTR MSG_Z_FADE_HEIGHT                    = _UxGT("Висота спаду");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Встанов. зміщення дому");
     LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщення дому X");
     LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщення дому Y");
     LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщення дому Z");
-    LSTR MSG_HOME_OFFSET_I                  = _UxGT("Зміщення дому ") LCD_STR_I;
-    LSTR MSG_HOME_OFFSET_J                  = _UxGT("Зміщення дому ") LCD_STR_J;
-    LSTR MSG_HOME_OFFSET_K                  = _UxGT("Зміщення дому ") LCD_STR_K;
+    LSTR MSG_HOME_OFFSET_I                  = _UxGT("Зміщення дому ") STR_I;
+    LSTR MSG_HOME_OFFSET_J                  = _UxGT("Зміщення дому ") STR_J;
+    LSTR MSG_HOME_OFFSET_K                  = _UxGT("Зміщення дому ") STR_K;
   #else
     LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Встан. зміщ. дому");
     LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщ. дому X");
     LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщ. дому Y");
     LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщ. дому Z");
-    LSTR MSG_HOME_OFFSET_I                  = _UxGT("Зміщ. дому ") LCD_STR_I;
-    LSTR MSG_HOME_OFFSET_J                  = _UxGT("Зміщ. дому ") LCD_STR_J;
-    LSTR MSG_HOME_OFFSET_K                  = _UxGT("Зміщ. дому ") LCD_STR_K;
+    LSTR MSG_HOME_OFFSET_I                  = _UxGT("Зміщ. дому ") STR_I;
+    LSTR MSG_HOME_OFFSET_J                  = _UxGT("Зміщ. дому ") STR_J;
+    LSTR MSG_HOME_OFFSET_K                  = _UxGT("Зміщ. дому ") STR_K;
   #endif
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Зміщення прийняті");
   LSTR MSG_SET_ORIGIN                       = _UxGT("Встановити нуль");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Оберіть нуль");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє значення ");
   #else
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє знач. ");
@@ -131,7 +129,7 @@ namespace Language_uk {
   LSTR MSG_CUTTER_FREQUENCY                 = _UxGT("Частота");
   LSTR MSG_LASER_MENU                       = _UxGT("Керування лазером");
   LSTR MSG_SPINDLE_MENU                     = _UxGT("Керування шпінделем");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_LASER_POWER                    = _UxGT("Потужність лазера");
     LSTR MSG_SPINDLE_TOGGLE                 = _UxGT("Перемкн. шпіндель");
     LSTR MSG_SPINDLE_EVAC_TOGGLE            = _UxGT("Перемкнути вакуум");
@@ -162,7 +160,7 @@ namespace Language_uk {
   LSTR MSG_BED_LEVELING                     = _UxGT("Вирівнювання столу");
   LSTR MSG_LEVEL_BED                        = _UxGT("Вирівняти стіл");
   LSTR MSG_BED_TRAMMING                     = _UxGT("Вирівняти кути");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Вгору до спрацюв. зонду");
     LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Кути в межах. Вирів.столу");
   #else
@@ -172,7 +170,7 @@ namespace Language_uk {
   LSTR MSG_BED_TRAMMING_GOOD_POINTS         = _UxGT("Хороші точки: ");
   LSTR MSG_BED_TRAMMING_LAST_Z              = _UxGT("Остання Z: ");
   LSTR MSG_NEXT_CORNER                      = _UxGT("Наступний кут");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_MESH_EDITOR                    = _UxGT("Зміщення по Z");
   #else
     LSTR MSG_MESH_EDITOR                    = _UxGT("Зміщення Z");
@@ -205,7 +203,7 @@ namespace Language_uk {
   LSTR MSG_UBL_TOOLS                        = _UxGT("Інструменти UBL");
   LSTR MSG_UBL_LEVEL_BED                    = _UxGT("Налаштування UBL");
   LSTR MSG_LCD_TILTING_MESH                 = _UxGT("Точка нахилу");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Ручне введення сітки");
     LSTR MSG_UBL_BC_INSERT                  = _UxGT("Розмістити шайбу і вимір.");
   #else
@@ -214,7 +212,7 @@ namespace Language_uk {
   #endif
   LSTR MSG_UBL_MESH_WIZARD                  = _UxGT("Майстер сіток UBL");
   LSTR MSG_UBL_BC_INSERT2                   = _UxGT("Вимірювання");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Видалити і виміряти стіл");
   #else
     LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Видали і вимір. стіл");
@@ -226,7 +224,7 @@ namespace Language_uk {
   LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE "C";
   LSTR MSG_UBL_SET_TEMP_HOTEND              = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM           = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE "C";
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Редагувати свою сітку");
     LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Точне редагування сітки");
     LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Будувати свою сітку");
@@ -256,7 +254,7 @@ namespace Language_uk {
   LSTR MSG_UBL_CONTINUE_MESH                = _UxGT("Продовжити сітку");
   LSTR MSG_UBL_MESH_LEVELING                = _UxGT("Вирівнювання сітки");
   LSTR MSG_UBL_3POINT_MESH_LEVELING         = _UxGT("3-точкове вирівн.");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Вирівнювання растру");
   #else
     LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Вирівнюв. растру");
@@ -269,7 +267,7 @@ namespace Language_uk {
   LSTR MSG_UBL_OUTPUT_MAP_CSV               = _UxGT("Вивести в CSV");
   LSTR MSG_UBL_OUTPUT_MAP_BACKUP            = _UxGT("Зберегти зовні");
   LSTR MSG_UBL_INFO_UBL                     = _UxGT("Інформація по UBL");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Обсяг заповнюв.");
   #else
     LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Обсяг заповн.");
@@ -279,7 +277,7 @@ namespace Language_uk {
   LSTR MSG_UBL_FILLIN_MESH                  = _UxGT("Заповнити сітку");
   LSTR MSG_UBL_INVALIDATE_ALL               = _UxGT("Анулювати все");
   LSTR MSG_UBL_INVALIDATE_CLOSEST           = _UxGT("Анулювати найближчу");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Точно налаштувати все");
     LSTR MSG_UBL_FINE_TUNE_CLOSEST          = _UxGT("Точно налашт.найближчу");
   #else
@@ -308,7 +306,7 @@ namespace Language_uk {
 
   LSTR MSG_LED_CONTROL                      = _UxGT("Керування світлом");
   LSTR MSG_LEDS                             = _UxGT("Підсвітка");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_LED_PRESETS                    = _UxGT("Передустановки світла");
   #else
     LSTR MSG_LED_PRESETS                    = _UxGT("Передустан. світла");
@@ -324,7 +322,7 @@ namespace Language_uk {
   LSTR MSG_SET_LEDS_DEFAULT                 = _UxGT("За умовчанням");
   LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал =");
   LSTR MSG_LEDS2                            = _UxGT("Світло #2");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_NEO2_PRESETS                   = _UxGT("Передустановка світла #2");
   #else
     LSTR MSG_NEO2_PRESETS                   = _UxGT("Передуст. світла #2");
@@ -342,9 +340,9 @@ namespace Language_uk {
   LSTR MSG_MOVE_X                           = _UxGT("Рух по X");
   LSTR MSG_MOVE_Y                           = _UxGT("Рух по Y");
   LSTR MSG_MOVE_Z                           = _UxGT("Рух по Z");
-  LSTR MSG_MOVE_I                           = _UxGT("Рух по ") LCD_STR_I;
-  LSTR MSG_MOVE_J                           = _UxGT("Рух по ") LCD_STR_J;
-  LSTR MSG_MOVE_K                           = _UxGT("Рух по ") LCD_STR_K;
+  LSTR MSG_MOVE_I                           = _UxGT("Рух по ") STR_I;
+  LSTR MSG_MOVE_J                           = _UxGT("Рух по ") STR_J;
+  LSTR MSG_MOVE_K                           = _UxGT("Рух по ") STR_K;
   LSTR MSG_MOVE_E                           = _UxGT("Екструдер");
   LSTR MSG_MOVE_EN                          = _UxGT("Екструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло дуже холодне");
@@ -361,7 +359,7 @@ namespace Language_uk {
   LSTR MSG_NOZZLE_STANDBY                   = _UxGT("Сопло очікує");
   LSTR MSG_BED                              = _UxGT("Стіл,  ") LCD_STR_DEGREE "C";
   LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE "C";
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_COOLER                         = _UxGT("Охолодження лазеру");
     LSTR MSG_COOLER_TOGGLE                  = _UxGT("Перемк. охолодж.");
   #else
@@ -372,7 +370,7 @@ namespace Language_uk {
   LSTR MSG_LASER                            = _UxGT("Лазер");
   LSTR MSG_FAN_SPEED                        = _UxGT("Швидк. вент.");
   LSTR MSG_FAN_SPEED_N                      = _UxGT("Швидк. вент. ~");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_STORED_FAN_N                   = _UxGT("Збереж.швидк.вент. ~");
     LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Дод. швидк. вент. ~");
   #else
@@ -406,53 +404,53 @@ namespace Language_uk {
   LSTR MSG_SELECT_E                         = _UxGT("Вибрати *");
   LSTR MSG_ACC                              = _UxGT("Прискорорення");
   LSTR MSG_JERK                             = _UxGT("Ривок");
-  LSTR MSG_VA_JERK                          = _UxGT("V") LCD_STR_A _UxGT("-ривок");
-  LSTR MSG_VB_JERK                          = _UxGT("V") LCD_STR_B _UxGT("-ривок");
-  LSTR MSG_VC_JERK                          = _UxGT("V") LCD_STR_C _UxGT("-ривок");
-  LSTR MSG_VI_JERK                          = _UxGT("V") LCD_STR_I _UxGT("-ривок");
-  LSTR MSG_VJ_JERK                          = _UxGT("V") LCD_STR_J _UxGT("-ривок");
-  LSTR MSG_VK_JERK                          = _UxGT("V") LCD_STR_K _UxGT("-ривок");
+  LSTR MSG_VA_JERK                          = _UxGT("V") STR_A _UxGT("-ривок");
+  LSTR MSG_VB_JERK                          = _UxGT("V") STR_B _UxGT("-ривок");
+  LSTR MSG_VC_JERK                          = _UxGT("V") STR_C _UxGT("-ривок");
+  LSTR MSG_VI_JERK                          = _UxGT("V") STR_I _UxGT("-ривок");
+  LSTR MSG_VJ_JERK                          = _UxGT("V") STR_J _UxGT("-ривок");
+  LSTR MSG_VK_JERK                          = _UxGT("V") STR_K _UxGT("-ривок");
   LSTR MSG_VE_JERK                          = _UxGT("Ve-ривок");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Відхилення вузла");
   #else
     LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Відхил.вузла");
   #endif
   LSTR MSG_VELOCITY                         = _UxGT("Швидкість, мм/с");
-  LSTR MSG_VMAX_A                           = _UxGT("Швидк.макс ") LCD_STR_A;
-  LSTR MSG_VMAX_B                           = _UxGT("Швидк.макс ") LCD_STR_B;
-  LSTR MSG_VMAX_C                           = _UxGT("Швидк.макс ") LCD_STR_C;
-  LSTR MSG_VMAX_I                           = _UxGT("Швидк.макс ") LCD_STR_I;
-  LSTR MSG_VMAX_J                           = _UxGT("Швидк.макс ") LCD_STR_J;
-  LSTR MSG_VMAX_K                           = _UxGT("Швидк.макс ") LCD_STR_K;
-  LSTR MSG_VMAX_E                           = _UxGT("Швидк.макс ") LCD_STR_E;
+  LSTR MSG_VMAX_A                           = _UxGT("Швидк.макс ") STR_A;
+  LSTR MSG_VMAX_B                           = _UxGT("Швидк.макс ") STR_B;
+  LSTR MSG_VMAX_C                           = _UxGT("Швидк.макс ") STR_C;
+  LSTR MSG_VMAX_I                           = _UxGT("Швидк.макс ") STR_I;
+  LSTR MSG_VMAX_J                           = _UxGT("Швидк.макс ") STR_J;
+  LSTR MSG_VMAX_K                           = _UxGT("Швидк.макс ") STR_K;
+  LSTR MSG_VMAX_E                           = _UxGT("Швидк.макс ") STR_E;
   LSTR MSG_VMAX_EN                          = _UxGT("Швидк.макс *");
   LSTR MSG_VMIN                             = _UxGT("Швидк. мін");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_VTRAV_MIN                      = _UxGT("Переміщення мін");
   #else
     LSTR MSG_VTRAV_MIN                      = _UxGT("Переміщ. мін");
   #endif
   LSTR MSG_ACCELERATION                     = _UxGT("Прискорення, мм/с2");
-  LSTR MSG_AMAX_A                           = _UxGT("Приск.макс ") LCD_STR_A;
-  LSTR MSG_AMAX_B                           = _UxGT("Приск.макс ") LCD_STR_B;
-  LSTR MSG_AMAX_C                           = _UxGT("Приск.макс ") LCD_STR_C;
-  LSTR MSG_AMAX_I                           = _UxGT("Приск.макс ") LCD_STR_I;
-  LSTR MSG_AMAX_J                           = _UxGT("Приск.макс ") LCD_STR_J;
-  LSTR MSG_AMAX_K                           = _UxGT("Приск.макс ") LCD_STR_K;
-  LSTR MSG_AMAX_E                           = _UxGT("Приск.макс ") LCD_STR_E;
+  LSTR MSG_AMAX_A                           = _UxGT("Приск.макс ") STR_A;
+  LSTR MSG_AMAX_B                           = _UxGT("Приск.макс ") STR_B;
+  LSTR MSG_AMAX_C                           = _UxGT("Приск.макс ") STR_C;
+  LSTR MSG_AMAX_I                           = _UxGT("Приск.макс ") STR_I;
+  LSTR MSG_AMAX_J                           = _UxGT("Приск.макс ") STR_J;
+  LSTR MSG_AMAX_K                           = _UxGT("Приск.макс ") STR_K;
+  LSTR MSG_AMAX_E                           = _UxGT("Приск.макс ") STR_E;
   LSTR MSG_AMAX_EN                          = _UxGT("Приск.макс *");
   LSTR MSG_A_RETRACT                        = _UxGT("Приск.втягув.");
   LSTR MSG_A_TRAVEL                         = _UxGT("Приск.переміщ.");
   LSTR MSG_XY_FREQUENCY_LIMIT               = _UxGT("Частота макс.");
   LSTR MSG_XY_FREQUENCY_FEEDRATE            = _UxGT("Подача мін.");
   LSTR MSG_STEPS_PER_MM                     = _UxGT("Кроків на мм");
-  LSTR MSG_A_STEPS                          = LCD_STR_A _UxGT(" кроків/мм");
-  LSTR MSG_B_STEPS                          = LCD_STR_B _UxGT(" кроків/мм");
-  LSTR MSG_C_STEPS                          = LCD_STR_C _UxGT(" кроків/мм");
-  LSTR MSG_I_STEPS                          = LCD_STR_I _UxGT(" кроків/мм");
-  LSTR MSG_J_STEPS                          = LCD_STR_J _UxGT(" кроків/мм");
-  LSTR MSG_K_STEPS                          = LCD_STR_K _UxGT(" кроків/мм");
+  LSTR MSG_A_STEPS                          = STR_A _UxGT(" кроків/мм");
+  LSTR MSG_B_STEPS                          = STR_B _UxGT(" кроків/мм");
+  LSTR MSG_C_STEPS                          = STR_C _UxGT(" кроків/мм");
+  LSTR MSG_I_STEPS                          = STR_I _UxGT(" кроків/мм");
+  LSTR MSG_J_STEPS                          = STR_J _UxGT(" кроків/мм");
+  LSTR MSG_K_STEPS                          = STR_K _UxGT(" кроків/мм");
   LSTR MSG_E_STEPS                          = _UxGT("E кроків/мм");
   LSTR MSG_EN_STEPS                         = _UxGT("* кроків/мм");
   LSTR MSG_TEMPERATURE                      = _UxGT("Температура");
@@ -471,7 +469,7 @@ namespace Language_uk {
   LSTR MSG_STORE_EEPROM                     = _UxGT("Зберегти в EEPROM");
   LSTR MSG_LOAD_EEPROM                      = _UxGT("Зчитати з EEPROM");
   LSTR MSG_RESTORE_DEFAULTS                 = _UxGT("На базові параметри");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_INIT_EEPROM                    = _UxGT("Ініціалізація EEPROM");
   #else
     LSTR MSG_INIT_EEPROM                    = _UxGT("Ініціаліз. EEPROM");
@@ -525,7 +523,7 @@ namespace Language_uk {
   LSTR MSG_NO_MOVE                          = _UxGT("Немає руху.");
   LSTR MSG_KILLED                           = _UxGT("ПЕРЕРВАНО. ");
   LSTR MSG_STOPPED                          = _UxGT("ЗУПИНЕНО. ");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_CONTROL_RETRACT                = _UxGT("Втягування, мм");
     LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Зміна втягув.,мм");
     LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Повернення, мм");
@@ -547,7 +545,7 @@ namespace Language_uk {
   LSTR MSG_FILAMENT_PURGE_LENGTH            = _UxGT("Очистити довжину");
   LSTR MSG_TOOL_CHANGE                      = _UxGT("Зміна сопла");
   LSTR MSG_TOOL_CHANGE_ZLIFT                = _UxGT("Підняти по Z");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Початк.швидкість");
     LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Швидкість втягув.");
   #else
@@ -556,7 +554,7 @@ namespace Language_uk {
   #endif
   LSTR MSG_FILAMENT_PARK_ENABLED            = _UxGT("Паркувати голову");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED     = _UxGT("Відновити швидкість");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Оберти вентилятора");
     LSTR MSG_SINGLENOZZLE_FAN_TIME          = _UxGT("Час вентилятора");
   #else
@@ -610,9 +608,9 @@ namespace Language_uk {
   LSTR MSG_BABYSTEP_X                       = _UxGT("Мікрокрок X");
   LSTR MSG_BABYSTEP_Y                       = _UxGT("Мікрокрок Y");
   LSTR MSG_BABYSTEP_Z                       = _UxGT("Мікрокрок Z");
-  LSTR MSG_BABYSTEP_I                       = _UxGT("Мікрокрок ") LCD_STR_I;
-  LSTR MSG_BABYSTEP_J                       = _UxGT("Мікрокрок ") LCD_STR_J;
-  LSTR MSG_BABYSTEP_K                       = _UxGT("Мікрокрок ") LCD_STR_K;
+  LSTR MSG_BABYSTEP_I                       = _UxGT("Мікрокрок ") STR_I;
+  LSTR MSG_BABYSTEP_J                       = _UxGT("Мікрокрок ") STR_J;
+  LSTR MSG_BABYSTEP_K                       = _UxGT("Мікрокрок ") STR_K;
   LSTR MSG_BABYSTEP_TOTAL                   = _UxGT("Сумарно");
   LSTR MSG_ENDSTOP_ABORT                    = _UxGT("Кінцевик спрацював");
   LSTR MSG_HEATING_FAILED_LCD               = _UxGT("Збій нагріву");
@@ -621,7 +619,7 @@ namespace Language_uk {
   LSTR MSG_THERMAL_RUNAWAY_BED              = _UxGT("ВИТІК ТЕПЛА СТОЛУ");
   LSTR MSG_THERMAL_RUNAWAY_CHAMBER          = _UxGT("ВИТІК ТЕПЛА КАМЕРИ");
   LSTR MSG_THERMAL_RUNAWAY_COOLER           = _UxGT("ВИТІК ОХОЛОДЖЕННЯ");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_COOLING_FAILED                 = _UxGT("ОХОЛОДЖЕННЯ НЕ ВДАЛОСЬ");
   #else
     LSTR MSG_COOLING_FAILED                 = _UxGT("ОХОЛОДЖ. НЕ ВДАЛОСЬ");
@@ -638,7 +636,7 @@ namespace Language_uk {
   LSTR MSG_BED_HEATING                      = _UxGT("Нагрів столу...");
   LSTR MSG_PROBE_HEATING                    = _UxGT("Нагрів зонду...");
   LSTR MSG_CHAMBER_HEATING                  = _UxGT("Нагрів камери...");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_BED_COOLING                    = _UxGT("Охолодження столу...");
     LSTR MSG_PROBE_COOLING                  = _UxGT("Охолодження зонду...");
     LSTR MSG_CHAMBER_COOLING                = _UxGT("Охолодження камери...");
@@ -665,7 +663,7 @@ namespace Language_uk {
   LSTR MSG_INFO_MENU                        = _UxGT("Про принтер");
   LSTR MSG_INFO_PRINTER_MENU                = _UxGT("Дані принтера");
 
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_3POINT_LEVELING                = _UxGT("3-точкове вирівнювання");
     LSTR MSG_LINEAR_LEVELING                = _UxGT("Лінійне вирівнювання");
     LSTR MSG_BILINEAR_LEVELING              = _UxGT("Білінійне вирівнювання");
@@ -676,7 +674,7 @@ namespace Language_uk {
   #endif
   LSTR MSG_UBL_LEVELING                     = _UxGT("UBL");
   LSTR MSG_MESH_LEVELING                    = _UxGT("Вирівнювання сітки");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_MESH_DONE                      = _UxGT("Зондування сітки виконано");
   #else
     LSTR MSG_MESH_DONE                      = _UxGT("Зондування виконано");
@@ -688,7 +686,7 @@ namespace Language_uk {
   LSTR MSG_INFO_EXTRUDERS                   = _UxGT("Екструдери");
   LSTR MSG_INFO_BAUDRATE                    = _UxGT("Бод");
   LSTR MSG_INFO_PROTOCOL                    = _UxGT("Протокол");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Контроль витіку ") LCD_STR_THERMOMETER _UxGT(" Вимк");
     LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Контроль витіку ") LCD_STR_THERMOMETER _UxGT(" Увімк");
     LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Час простою хотенду");
@@ -704,7 +702,7 @@ namespace Language_uk {
 
   LSTR MSG_INFO_COMPLETED_PRINTS            = _UxGT("Завершено");
   LSTR MSG_INFO_PRINT_FILAMENT              = _UxGT("Екструдовано");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Кількість друків");
     LSTR MSG_INFO_PRINT_TIME                = _UxGT("Весь час друку");
     LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Найдовший час");
@@ -718,12 +716,12 @@ namespace Language_uk {
   LSTR MSG_INFO_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_PSU                         = _UxGT("Блок жив-ня");
   LSTR MSG_DRIVE_STRENGTH                   = _UxGT("Сила мотору");
-  LSTR MSG_DAC_PERCENT_A                    = _UxGT("Драйвер ") LCD_STR_A _UxGT(", %");
-  LSTR MSG_DAC_PERCENT_B                    = _UxGT("Драйвер ") LCD_STR_B _UxGT(", %");
-  LSTR MSG_DAC_PERCENT_C                    = _UxGT("Драйвер ") LCD_STR_C _UxGT(", %");
-  LSTR MSG_DAC_PERCENT_I                    = _UxGT("Драйвер ") LCD_STR_I _UxGT(", %");
-  LSTR MSG_DAC_PERCENT_J                    = _UxGT("Драйвер ") LCD_STR_J _UxGT(", %");
-  LSTR MSG_DAC_PERCENT_K                    = _UxGT("Драйвер ") LCD_STR_K _UxGT(", %");
+  LSTR MSG_DAC_PERCENT_A                    = _UxGT("Драйвер ") STR_A _UxGT(", %");
+  LSTR MSG_DAC_PERCENT_B                    = _UxGT("Драйвер ") STR_B _UxGT(", %");
+  LSTR MSG_DAC_PERCENT_C                    = _UxGT("Драйвер ") STR_C _UxGT(", %");
+  LSTR MSG_DAC_PERCENT_I                    = _UxGT("Драйвер ") STR_I _UxGT(", %");
+  LSTR MSG_DAC_PERCENT_J                    = _UxGT("Драйвер ") STR_J _UxGT(", %");
+  LSTR MSG_DAC_PERCENT_K                    = _UxGT("Драйвер ") STR_K _UxGT(", %");
   LSTR MSG_DAC_PERCENT_E                    = _UxGT("Драйвер E, %");
   LSTR MSG_ERROR_TMC                        = _UxGT("ЗБІЙ ЗВ'ЯЗКУ З TMC");
   LSTR MSG_DAC_EEPROM_WRITE                 = _UxGT("Запис ЦАП у EEPROM");
@@ -731,7 +729,7 @@ namespace Language_uk {
   LSTR MSG_FILAMENT_CHANGE_HEADER_PAUSE     = _UxGT("ЗУПИНКА ДРУКУ");
   LSTR MSG_FILAMENT_CHANGE_HEADER_LOAD      = _UxGT("ЗАВАНТАЖИТИ ПРУТОК");
   LSTR MSG_FILAMENT_CHANGE_HEADER_UNLOAD    = _UxGT("ВИВАНТАЖИТИ ПРУТОК");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("ПАРАМЕТРИ ПРОДОВЖЕННЯ:");
   #else
     LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("ПАРАМ.ПРОДОВЖЕННЯ:");
@@ -739,7 +737,7 @@ namespace Language_uk {
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE     = _UxGT("Видавити ще");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME    = _UxGT("Відновити друк");
   LSTR MSG_FILAMENT_CHANGE_NOZZLE           = _UxGT("  Сопло: ");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Датчик закінчення прутка");
     LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Відстань закінч.,мм");
   #else
@@ -757,7 +755,7 @@ namespace Language_uk {
   LSTR MSG_MMU2_RESUMING                    = _UxGT("MMU Продовження...");
   LSTR MSG_MMU2_LOAD_FILAMENT               = _UxGT("MMU Завантажити");
   LSTR MSG_MMU2_LOAD_ALL                    = _UxGT("MMU Завантажити все");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_MMU2_LOAD_TO_NOZZLE            = _UxGT("MMU Завантажити в сопло");
   #else
     LSTR MSG_MMU2_LOAD_TO_NOZZLE            = _UxGT("MMU Завант. в сопло");
@@ -774,7 +772,7 @@ namespace Language_uk {
   LSTR MSG_MMU2_RESETTING                   = _UxGT("MMU Перезапуск...");
   LSTR MSG_MMU2_EJECT_RECOVER               = _UxGT("Видаліть, натисніть");
 
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_MIX                            = _UxGT("Змішування");
   #else
     LSTR MSG_MIX                            = _UxGT("Змішув.");
@@ -783,7 +781,7 @@ namespace Language_uk {
   LSTR MSG_MIXER                            = _UxGT("Змішувач");
   LSTR MSG_GRADIENT                         = _UxGT("Градієнт");
   LSTR MSG_FULL_GRADIENT                    = _UxGT("Повний градієнт");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_TOGGLE_MIX                     = _UxGT("Переключити змішування");
   #else
     LSTR MSG_TOGGLE_MIX                     = _UxGT("Переключ.змішування");
@@ -792,7 +790,7 @@ namespace Language_uk {
   LSTR MSG_GRADIENT_MIX                     = _UxGT("Градієнт змішування");
   LSTR MSG_REVERSE_GRADIENT                 = _UxGT("Змінити градієнт");
 
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_ACTIVE_VTOOL                   = _UxGT("Активація В-інструменту");
     LSTR MSG_GRADIENT_ALIAS                 = _UxGT("Псевдонім В-інструменту");
     LSTR MSG_RESET_VTOOLS                   = _UxGT("Зкидання В-інструментів");
@@ -815,7 +813,7 @@ namespace Language_uk {
   LSTR MSG_MAZE                             = _UxGT("Лабіринт");
 
   LSTR MSG_BAD_PAGE                         = _UxGT("Погана сторінка");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_BAD_PAGE_SPEED                 = _UxGT("Погана швидкість стор.");
   #else
     LSTR MSG_BAD_PAGE_SPEED                 = _UxGT("Погана швидк. стор.");
@@ -888,7 +886,7 @@ namespace Language_uk {
   LSTR MSG_REHEATING                        = _UxGT("Нагрівання...");
 
   LSTR MSG_PROBE_WIZARD                     = _UxGT("Майстер Z-зонда");
-  #if LCD_WIDTH > 21
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Зондув. контрольної точки Z");
     LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Рух до точки зондування");
   #else

@@ -49,8 +49,8 @@ public:
   }
 
   static void update(const bool sflag);
-  static inline void update_brightness() { update(false); }
-  static inline void update_enabled()    { update(true);  }
+  static void update_brightness() { update(false); }
+  static void update_enabled()    { update(true);  }
 
   #if ENABLED(CASE_LIGHT_IS_COLOR_LED)
     private:

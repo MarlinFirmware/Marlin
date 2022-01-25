@@ -120,11 +120,11 @@
 /**
  *        SKR Mini E3 V1.0, V1.2                      SKR Mini E3 V2.0
  *                ------                                    ------
- *            5V | 1  2 | GND                           5V | 1  2 | GND
- *  (LCD_EN) PB7 | 3  4 | PB8  (LCD_RS)      (LCD_EN) PB15 | 3  4 | PB8  (LCD_RS)
- *  (LCD_D4) PB9 | 5  6   PA10 (BTN_EN2)     (LCD_D4) PB9  | 5  6   PA10 (BTN_EN2)
- *         RESET | 7  8 | PA9  (BTN_EN1)             RESET | 7  8 | PA9  (BTN_EN1)
- * (BTN_ENC) PB6 | 9 10 | PB5  (BEEPER)     (BTN_ENC) PA15 | 9 10 | PB5  (BEEPER)
+ * (BEEPER)  PB5  |10  9 | PB6 (BTN_ENC)    (BEEPER)  PB5  |10  9 | PA15 (BTN_ENC)
+ * (BTN_EN1) PA9  | 8  7 | RESET            (BTN_EN1) PA9  | 8  7 | RESET
+ * (BTN_EN2) PA10   6  5 | PB9  (LCD_D4)    (BTN_EN2) PA10   6  5 | PB9  (LCD_D4)
+ * (LCD_RS)  PB8  | 4  3 | PB7  (LCD_EN)    (LCD_RS)  PB8  | 4  3 | PB15 (LCD_EN)
+ *            GND | 2  1 | 5V                          GND | 2  1 | 5V
  *                ------                                    ------
  *                 EXP1                                      EXP1
  */
@@ -136,16 +136,16 @@
   #define EXP1_3                            PB7
 #endif
 
-#if EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
-   *        ------              ------              ------
-   *   VCC | 1  2 | GND    VCC | 1  2 | GND    GND |  2 1 | VCC
-   *     A | 3  4 | B        A | 3  4 | B        B |  4 3 | A
-   *       | 5  6   TX    BEEP | 5  6   ENT    ENT |  6 5 | BEEP
-   *       | 7  8 | RX      TX | 7  8 | RX      RX |  8 7 | TX
-   *  BEEP | 9 10 | ENT        | 9 10 |            | 10 9 |
-   *        ------              ------              ------
-   *         EXP1                DWIN             DWIN (plug)
+   *        ------                ------                ------
+   * (ENT) |10  9 | (BEEP)       |10  9 |              |10  9 |
+   *  (RX) | 8  7 |         (RX) | 8  7 | (TX)      RX | 8  7 | TX
+   *  (TX)   6  5 |        (ENT)   6  5 | (BEEP)   ENT | 6  5 | BEEP
+   *   (B) | 4  3 | (A)      (B) | 4  3 | (A)        B | 4  3 | A
+   *   GND | 2  1 | (VCC)    GND | 2  1 | VCC      GND | 2  1 | VCC
+   *        ------                ------                ------
+   *         EXP1                  DWIN               DWIN (plug)
    *
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
@@ -206,15 +206,15 @@
       /**
        * TFTGLCD_PANEL_SPI display pinout
        *
-       *               Board                                      Display
-       *               ------                                       ------
-       *           5V | 1  2 | GND                (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
-       * (FREE)   PB7 | 3  4 | PB8  (LCD_CS)      (PA9)     LCD_CS | 3  4 | SD_CS (PA10)
-       * (FREE)   PB9 | 5  6 | PA10 (SD_CS)                 (FREE) | 5  6 | MOSI  (SPI1-MOSI)
-       *        RESET | 7  8 | PA9  (MOD_RESET)   (PB5)     SD_DET | 7  8 | (FREE)
-       * (BEEPER) PB6 | 9 10 | PB5  (SD_DET)                   GND | 9 10 | 5V
-       *               ------                                       ------
-       *                EXP1                                         EXP1
+       *                   Board                        Display
+       *                   ------                        ------
+       * (SD_DET)    PB5  |10  9 | PB6 (BEEPER)      5V |10  9 | GND
+       * (MOD_RESET) PA9  | 8  7 | RESET             -- | 8  7 | (SD_DET)
+       * (SD_CS)     PA10   6  5 | PB9          (MOSI)  | 6  5 | --
+       * (LCD_CS)    PB8  | 4  3 | PB7          (SD_CS) | 4  3 | (LCD_CS)
+       *              GND | 2  1 | 5V           (SCK)   | 2  1 | (MISO)
+       *                   ------                        ------
+       *                    EXP1                          EXP1
        *
        * Needs custom cable:
        *
@@ -249,15 +249,15 @@
   /**
    * FYSETC TFT TFT81050 display pinout
    *
-   *               Board                                      Display
-   *               ------                                       ------
-   *           5V | 1  2 | GND                (SPI1-MISO) MISO | 1  2 | SCK   (SPI1-SCK)
-   * (FREE)   PB7 | 3  4 | PB8  (LCD_CS)      (PA9)  MOD_RESET | 3  4 | SD_CS (PA10)
-   * (FREE)   PB9 | 5  6 | PA10 (SD_CS)       (PB8)     LCD_CS | 5  6 | MOSI  (SPI1-MOSI)
-   *        RESET | 7  8 | PA9  (MOD_RESET)   (PB5)     SD_DET | 7  8 | RESET
-   * (BEEPER) PB6 | 9 10 | PB5  (SD_DET)                   GND | 9 10 | 5V
-   *               ------                                       ------
-   *                EXP1                                         EXP1
+   *                   Board                            Display
+   *                   ------                           ------
+   * (SD_DET)    PB5  |10  9 | PB6 (BEEPER)         5V |10  9 | GND
+   * (MOD_RESET) PA9  | 8  7 | RESET           (RESET) | 8  7 | (SD_DET)
+   * (SD_CS)     PA10   6  5 | PB9             (MOSI)  | 6  5 | (LCD_CS)
+   * (LCD_CS)    PB8  | 4  3 | PB7             (SD_CS) | 4  3 | (MOD_RESET)
+   *              GND | 2  1 | 5V              (SCK)   | 2  1 | (MISO)
+   *                   ------                           ------
+   *                    EXP1                             EXP1
    *
    * Needs custom cable:
    *

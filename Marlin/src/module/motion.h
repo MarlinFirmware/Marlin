@@ -180,19 +180,19 @@ inline float home_bump_mm(const AxisEnum axis) {
               TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
               break;
           #endif
-          #if LINEAR_AXES >= 4
+          #if HAS_I_AXIS
             case I_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_I, amin = min.i);
               TERN_(MIN_SOFTWARE_ENDSTOP_I, amax = max.i);
               break;
           #endif
-          #if LINEAR_AXES >= 5
+          #if HAS_J_AXIS
             case J_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_J, amin = min.j);
               TERN_(MIN_SOFTWARE_ENDSTOP_J, amax = max.j);
               break;
           #endif
-          #if LINEAR_AXES >= 6
+          #if HAS_K_AXIS
             case K_AXIS:
               TERN_(MIN_SOFTWARE_ENDSTOP_K, amin = min.k);
               TERN_(MIN_SOFTWARE_ENDSTOP_K, amax = max.k);
@@ -333,15 +333,15 @@ void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
 #if HAS_Z_AXIS
   void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s=0.0f);
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s=0.0f);
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s=0.0f);
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s=0.0f);
 #endif
@@ -476,15 +476,15 @@ void home_if_needed(const bool keeplev=false);
   #define LOGICAL_Z_POSITION(POS) NATIVE_TO_LOGICAL(POS, Z_AXIS)
   #define RAW_Z_POSITION(POS)     LOGICAL_TO_NATIVE(POS, Z_AXIS)
 #endif
-#if LINEAR_AXES >= 4
+#if HAS_I_AXIS
   #define LOGICAL_I_POSITION(POS) NATIVE_TO_LOGICAL(POS, I_AXIS)
   #define RAW_I_POSITION(POS)     LOGICAL_TO_NATIVE(POS, I_AXIS)
 #endif
-#if LINEAR_AXES >= 5
+#if HAS_J_AXIS
   #define LOGICAL_J_POSITION(POS) NATIVE_TO_LOGICAL(POS, J_AXIS)
   #define RAW_J_POSITION(POS)     LOGICAL_TO_NATIVE(POS, J_AXIS)
 #endif
-#if LINEAR_AXES >= 6
+#if HAS_K_AXIS
   #define LOGICAL_K_POSITION(POS) NATIVE_TO_LOGICAL(POS, K_AXIS)
   #define RAW_K_POSITION(POS)     LOGICAL_TO_NATIVE(POS, K_AXIS)
 #endif

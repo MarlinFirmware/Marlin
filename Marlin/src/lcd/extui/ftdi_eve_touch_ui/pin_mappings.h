@@ -123,12 +123,12 @@
    *     10         5V      5V      5V      -->  KILL [3]
    *
    * [1] This configuration allows daisy-chaining of the
-   *     display and SD/USB on EXP2, except for [2]
+   *     display and SD/FD on EXP2, except for [2]
    *
    * [2] The Ultimachine Einsy boards have a level shifter
    *     on MISO enabled by SD_CSEL chip select, hence it
    *     is not possible to run both the display and the
-   *     SD/USB on EXP2.
+   *     SD/FD on EXP2.
    *
    * [3] Archim Rambo provides 5V on this pin. On any other
    *     board, divert this wire from the ribbon cable and

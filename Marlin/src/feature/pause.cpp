@@ -97,7 +97,7 @@ fil_change_settings_t fc_settings[EXTRUDERS];
 #if HAS_BUZZER
   static void impatient_beep(const int8_t max_beep_count, const bool restart=false) {
 
-    if (TERN0(HAS_LCD_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
+    if (TERN0(HAS_MARLINUI_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
 
     static millis_t next_buzz = 0;
     static int8_t runout_beep = 0;
@@ -277,7 +277,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
-          #if EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD_ENHANCED)
+          #if EITHER(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD_ENHANCED)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
@@ -691,7 +691,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());
 
   TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
-  TERN_(HAS_LCD_MENU, ui.return_to_status());
+  TERN_(HAS_MARLINUI_MENU, ui.return_to_status());
   TERN_(DWIN_CREALITY_LCD_ENHANCED, HMI_ReturnScreen());
 }
 

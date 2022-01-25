@@ -145,7 +145,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LEVELING                 = u8"Leveling";
   PROGMEM Language_Str MSG_AXIS_LEVELING            = u8"Axis Leveling";
   PROGMEM Language_Str MSG_PROBE_BED                = u8"Probe Mesh";
-  PROGMEM Language_Str MSG_MESH_VIEW                = u8"View Mesh";
   PROGMEM Language_Str MSG_PRINT_TEST               = u8"Print Test (PLA)";
   PROGMEM Language_Str MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
 

@@ -47,7 +47,7 @@ void MAX3421e::regWr(uint8_t reg, uint8_t data) {
   spiSend(reg | 0x02);
   spiSend(data);
   ncs();
-};
+}
 
 // multiple-byte write
 // return a pointer to memory position after last written
