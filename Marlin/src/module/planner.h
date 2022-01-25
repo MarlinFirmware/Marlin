@@ -135,7 +135,7 @@ enum BlockFlag : char {
   #endif
   #if ENABLED(LASER_POWER_SYNC)
     , BLOCK_FLAG_LASER_PWR          = _BV(BLOCK_BIT_LASER_PWR)
-  #endif  
+  #endif
 };
 
 #define BLOCK_MASK_SYNC ( BLOCK_FLAG_SYNC_POSITION | TERN0(LASER_SYNCHRONOUS_M106_M107, BLOCK_FLAG_SYNC_FANS) | TERN0(LASER_POWER_SYNC, BLOCK_FLAG_LASER_PWR ))
@@ -146,7 +146,7 @@ enum BlockFlag : char {
     bool isEnabled:1;                                 // Set to engage the inline laser power output.
     bool dir:1;
     bool isPowered:1;                                 // Set on any parsed G1, G2, G3, or G5 powered move, cleared on G0 and G28.
-    bool isSyncPower:1;                               // Set on a M3 sync based set laser power, used to determine active trap power 
+    bool isSyncPower:1;                               // Set on a M3 sync based set laser power, used to determine active trap power
     bool Reserved:6;
   } power_status_t;
 
@@ -155,7 +155,7 @@ enum BlockFlag : char {
     uint8_t power;                                    // Ditto; When in trapezoid mode this is nominal power
 
     #if ENABLED(LASER_POWER_TRAP)
-      float trap_ramp_active_pwr;                     // Laser power level during active trapezoid smoothing 
+      float trap_ramp_active_pwr;                     // Laser power level during active trapezoid smoothing
       float trap_ramp_entry_incr;                     // Acceleration per step laser power increment (trap entry)
       float trap_ramp_exit_decr;                      // Deceleration per step laser power decrement (trap exit)
     #endif
@@ -762,7 +762,7 @@ class Planner {
      * Planner::buffer_sync_block
      * Add a block to the buffer that just updates the position
      * @param sync_flag sets a condition bit to process additional items
-     * such as sync fan pwm or sync M3/M4 laser power into a queued block  
+     * such as sync fan pwm or sync M3/M4 laser power into a queued block
      */
     static void buffer_sync_block();
     static void buffer_sync_block(uint8_t sync_flag);

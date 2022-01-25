@@ -154,46 +154,48 @@ public:
         #endif
       );
     }
-    #endif // SPINDLE_LASER_USE_PWM
-    /**
-     * Correct power to configured range
-     */
-    static cutter_power_t power_to_range(const cutter_power_t pwr) {
-      return power_to_range(pwr, _CUTTER_POWER(CUTTER_POWER_UNIT));
-    }
 
-    static cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
-      static constexpr float
-        min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
-        max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
-      if (pwr <= 0) return 0;
-      cutter_power_t upwr;
-      switch (pwrUnit) {
-        case _CUTTER_POWER_PWM255:
-          upwr = cutter_power_t(
-              (pwr < pct_to_ocr(min_pct)) ? pct_to_ocr(min_pct) // Use minimum if set below
-            : (pwr > pct_to_ocr(max_pct)) ? pct_to_ocr(max_pct) // Use maximum if set above
-            :  pwr
-          );
-          break;
-        case _CUTTER_POWER_PERCENT:
-          upwr = cutter_power_t(
-              (pwr < min_pct) ? min_pct                         // Use minimum if set below
-            : (pwr > max_pct) ? max_pct                         // Use maximum if set above
-            :  pwr                                              // PCT
-          );
-          break;
-        case _CUTTER_POWER_RPM:
-          upwr = cutter_power_t(
-              (pwr < SPEED_POWER_MIN) ? SPEED_POWER_MIN         // Use minimum if set below
-            : (pwr > SPEED_POWER_MAX) ? SPEED_POWER_MAX         // Use maximum if set above
-            : pwr                                               // Calculate OCR value
-          );
-          break;
-        default: break;
-      }
-      return upwr;
+  #endif // SPINDLE_LASER_USE_PWM
+
+  /**
+   * Correct power to configured range
+   */
+  static cutter_power_t power_to_range(const cutter_power_t pwr) {
+    return power_to_range(pwr, _CUTTER_POWER(CUTTER_POWER_UNIT));
+  }
+
+  static cutter_power_t power_to_range(const cutter_power_t pwr, const uint8_t pwrUnit) {
+    static constexpr float
+      min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
+      max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
+    if (pwr <= 0) return 0;
+    cutter_power_t upwr;
+    switch (pwrUnit) {
+      case _CUTTER_POWER_PWM255:
+        upwr = cutter_power_t(
+            (pwr < pct_to_ocr(min_pct)) ? pct_to_ocr(min_pct) // Use minimum if set below
+          : (pwr > pct_to_ocr(max_pct)) ? pct_to_ocr(max_pct) // Use maximum if set above
+          :  pwr
+        );
+        break;
+      case _CUTTER_POWER_PERCENT:
+        upwr = cutter_power_t(
+            (pwr < min_pct) ? min_pct                         // Use minimum if set below
+          : (pwr > max_pct) ? max_pct                         // Use maximum if set above
+          :  pwr                                              // PCT
+        );
+        break;
+      case _CUTTER_POWER_RPM:
+        upwr = cutter_power_t(
+            (pwr < SPEED_POWER_MIN) ? SPEED_POWER_MIN         // Use minimum if set below
+          : (pwr > SPEED_POWER_MAX) ? SPEED_POWER_MAX         // Use maximum if set above
+          : pwr                                               // Calculate OCR value
+        );
+        break;
+      default: break;
     }
+    return upwr;
+  }
 
   /*
    *  Enable Laser or Spindle output.

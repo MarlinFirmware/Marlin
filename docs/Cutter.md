@@ -1,12 +1,12 @@
 ### Introduction
 
-With Marlin version 2.0.9.x or higher, Laser improvements were introduced that enhance inline functionality. Previously the inline feature option was not operational without enabling and recompiling the source. Also with inline enabled the base features are not functional. With v2.0.9.x new functionality is added which allows the standard and inline modes to be G-Code selectable and also compatible with each other. Additionally an experimental dynamic mode is also available. Spindle operational features are available with defines and recompiling.           
+With Marlin version 2.0.9.x or higher, Laser improvements were introduced that enhance inline functionality. Previously the inline feature option was not operational without enabling and recompiling the source. Also with inline enabled the base features are not functional. With v2.0.9.x new functionality is added which allows the standard and inline modes to be G-Code selectable and also compatible with each other. Additionally an experimental dynamic mode is also available. Spindle operational features are available with defines and recompiling.
 
 ### Architecture
 
-Laser selectable feature capability is defined through 4 global mode flags within gcode ,laser/spindle, planner and stepper routines. The default mode maintains the standard laser function. G-Codes are received, processed and parsed to determine what mode to set through M3, M4 and M5 commands. When the inline mode parameter set is detected, laser power processing will be driven through the planner and stepper routines. Handling of the initial power values and settings are performed by G-Code parsing and the laser/spindle routines. 
+Laser selectable feature capability is defined through 4 global mode flags within gcode ,laser/spindle, planner and stepper routines. The default mode maintains the standard laser function. G-Codes are received, processed and parsed to determine what mode to set through M3, M4 and M5 commands. When the inline mode parameter set is detected, laser power processing will be driven through the planner and stepper routines. Handling of the initial power values and settings are performed by G-Code parsing and the laser/spindle routines.
 
-Inline power feeds from the block->inline_power variable into the planner's laser.power when in continuous power mode. Further power adjustment will be applied if the laser power trap feature is active otherwise laser.power is used as set in the stepper for the entire block. When laser power trap is active the power levels are step incremented during acceleration and step decremented during deceleration. 
+Inline power feeds from the block->inline_power variable into the planner's laser.power when in continuous power mode. Further power adjustment will be applied if the laser power trap feature is active otherwise laser.power is used as set in the stepper for the entire block. When laser power trap is active the power levels are step incremented during acceleration and step decremented during deceleration.
 
 Two additional power sets are fed in the planner by features laser power sync and laser fan power sync. Both of these power sets are done with planner sync block bit flags. With laser power sync, when the bit flag is matched the global block laser.power value is updated from laser/spindle standard M3 S-Value power sets. For laser fan sync, power values are updated into the planner block->fan_speed[i] variable from fan G-Code S-Value sets.
 
@@ -24,7 +24,7 @@ The following flow charts depict the flow control logic for spindle and laser op
                 │M3 S-Value│  │Dir !same ?│  │Stepper    │
                 │Spindle   │  │stop & wait│  │processes  │
              ┌──┤Clockwise ├──┤ & start   ├──┤moves      │
-    ┌─────┐  │  │          │  │spindle    │  │           │  
+    ┌─────┐  │  │          │  │spindle    │  │           │
     │GCode│  │  └──────────┘  └───────────┘  └───────────┘
     │Send ├──┤  ┌──────────┐  ┌───────────┐  ┌───────────┐
     └─────┘  │  │M4 S-Value│  │Dir !same ?│  │Stepper    │
@@ -44,11 +44,11 @@ The following flow charts depict the flow control logic for spindle and laser op
 
 #### Laser Mode Logic:
 
-                ┌──────────┐  ┌─────────────┐  ┌───────────┐ 
-                │M3,M4,M5 I│  │Set power    │  │Stepper    │ 
+                ┌──────────┐  ┌─────────────┐  ┌───────────┐
+                │M3,M4,M5 I│  │Set power    │  │Stepper    │
              ┌──┤Standard  ├──┤Immediately &├──┤processes  │
              │  │Default   │  │wait for move│  │moves      │
-             │  │          │  │completion   │  │           │             
+             │  │          │  │completion   │  │           │
              │  └──────────┘  └─────────────┘  └───────────┘
              │  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────────┐
     ┌─────┐  │  │M3 I      │  │G0,G1,G2,G4│  │Planner    │  │Planner     │  │Planner fan │  │Planner     │  │Stepper    │
@@ -92,13 +92,13 @@ Once the entry and exit power values are determined, the values are divided into
     trap step power incr_decr = ( cruize power - entry_exit ) / accel_decel_steps
 
 The trap steps are incremented or decremented during each accel or decel step until the block is complete.
-Step power is either cumulatively added or subtracted during trapeziod ramp progressions.      
+Step power is either cumulatively added or subtracted during trapeziod ramp progressions.
 
 #### Planner Code:
 
    ```
    if (block->laser.power > 0) {
-      NOLESS(block->laser.power, laser_power_floor); 
+      NOLESS(block->laser.power, laser_power_floor);
       block->laser.trap_ramp_active_pwr = (block->laser.power - laser_power_floor) * (initial_rate / float(block->nominal_rate)) + laser_power_floor;
       block->laser.trap_ramp_entry_incr = (block->laser.power - block->laser.trap_ramp_active_pwr) / accelerate_steps;
       float laser_pwr = block->laser.power * (final_rate / float(block->nominal_rate));
@@ -122,11 +122,11 @@ Step power is either cumulatively added or subtracted during trapeziod ramp prog
 
 ### Dynamic Inline Calculations
 
-Dynamic mode will calculate laser power based on the F-Value feedrate. The method uses bit shifting to set a power level from 0 to 255. It's simple and fast and we can use a scaler to shift the laser power output to center on a given power level.  
+Dynamic mode will calculate laser power based on the F-Value feedrate. The method uses bit shifting to set a power level from 0 to 255. It's simple and fast and we can use a scaler to shift the laser power output to center on a given power level.
 
 #### Spindle/Laser Code:
 
-```    
+```
     // Dynamic mode rate calculation
     static inline uint8_t calc_dynamic_power() {
       if (feedrate_mm_m > 65535) return 255;         // Too fast, go always on

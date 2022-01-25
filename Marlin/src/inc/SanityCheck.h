@@ -454,7 +454,7 @@
 #elif defined(LASER_POWER_INLINE_TRAPEZOID_PER)
   #error "LASER_POWER_INLINE_TRAPEZOID_CONT_PER  replaced with LASER_POWER_TRAP."
 #elif defined(LASER_POWER_INLINE_CONTINUOUS)
-  #error "LASER_POWER_INLINE_CONTINUOUS is not required, inline mode is enabled via GCODE M3I and disabled with M5I"    
+  #error "LASER_POWER_INLINE_CONTINUOUS is not required, inline mode is enabled via GCODE M3I and disabled with M5I"
 #elif defined(CUTTER_POWER_DISPLAY)
   #error "CUTTER_POWER_DISPLAY is now CUTTER_POWER_UNIT."
 #elif defined(CHAMBER_HEATER_PIN)
@@ -3620,7 +3620,7 @@ static_assert(_PLUS_TEST(4), "HOMING_FEEDRATE_MM_M values must be positive.");
     #if ENABLED(LASER_POWER_TRAP)
       #if DISABLED(SPINDLE_LASER_USE_PWM)
         #error "LASER_POWER_TRAP requires SPINDLE_LASER_USE_PWM to function."
-      #endif  
+      #endif
     #endif
   #else
     #if SPINDLE_LASER_POWERUP_DELAY < 1

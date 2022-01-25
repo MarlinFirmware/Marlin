@@ -1933,7 +1933,7 @@ uint32_t Stepper::block_phase_isr() {
       TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.block_completed(current_block));
       discard_current_block();
     }
-    else {     
+    else {
       // Step events not completed yet...
 
       // Are we in acceleration phase ?
@@ -1963,18 +1963,18 @@ uint32_t Stepper::block_phase_isr() {
           else if (LA_steps) nextAdvanceISR = 0;
         #endif
 
-        /* 
+        /*
          * Adjust Laser Power - Accelerating
          * isPowered - True when a move is powered.
          * isEnabled - laser power is active.
          * Laser power variables are calulated and stored in this block by the planner code.
-         * 
-         * trap_ramp_active_pwr - the active power in this block across accel or decel trap steps. 
-         * trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step. 
-         * 
+         *
+         * trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
+         * trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
+         *
          * Apply the starting active power and then increase power per step by the trap_ramp_entry_incr value if positive.
          */
-         
+
         #if ENABLED(LASER_POWER_TRAP)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
@@ -1985,7 +1985,7 @@ uint32_t Stepper::block_phase_isr() {
             }
             // Not a powered move.
             else cutter.apply_power(0);
-          }  
+          }
         #endif
       }
       // Are we in Deceleration phase ?
@@ -2035,7 +2035,7 @@ uint32_t Stepper::block_phase_isr() {
           else if (LA_steps) nextAdvanceISR = 0;
         #endif // LIN_ADVANCE
 
-        /* 
+        /*
          * Adjust Laser Power - Decelerating
          * trap_ramp_entry_decr - holds the precalculated value to decrease the current power per decel step.
          */
@@ -2049,8 +2049,8 @@ uint32_t Stepper::block_phase_isr() {
               // Not a powered move.
               else cutter.apply_power(0);
             }
-          }  
-        #endif 
+          }
+        #endif
 
       }
       else {  // Must be in cruise phase otherwise
@@ -2083,12 +2083,12 @@ uint32_t Stepper::block_phase_isr() {
                 cutter.apply_power(current_block->laser.power);
               }
             }
-            // Not a powered move. 
+            // Not a powered move.
             else cutter.apply_power(0);
           }
-        }  
+        }
       #endif
-    }    
+    }
 
     #if ENABLED(LASER_FEATURE)
       /*
@@ -2323,8 +2323,8 @@ uint32_t Stepper::block_phase_isr() {
 
       #if ENABLED(LASER_FEATURE)
         if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {           // Planner controls the laser
-          if (planner.laser_inline.status.isSyncPower) 
-            // If the previous block was a M3 sync power then skip the trap power init otherwise it will 0 the sync power. 
+          if (planner.laser_inline.status.isSyncPower)
+            // If the previous block was a M3 sync power then skip the trap power init otherwise it will 0 the sync power.
             planner.laser_inline.status.isSyncPower = false;          // Clear the flag to process subsequent trap calc's.
           else if (current_block->laser.status.isEnabled) {
             #if ENABLED(LASER_POWER_TRAP)

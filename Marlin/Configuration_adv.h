@@ -3544,12 +3544,12 @@
 
     /**
      * Enable M3 commands for laser mode inline power planner syncing.
-     * This feature enables any M3 S-value to be injected into the block buffers while in 
-     * CUTTER_MODE_CONTINUOUS. The option allows M3 laser power to be commited without waiting 
-     * for a planner syncronization    
-     */ 
+     * This feature enables any M3 S-value to be injected into the block buffers while in
+     * CUTTER_MODE_CONTINUOUS. The option allows M3 laser power to be commited without waiting
+     * for a planner syncronization
+     */
     //#define LASER_POWER_SYNC
-  
+
     /**
      * Scale the laser's power in proportion to the movement rate.
      *

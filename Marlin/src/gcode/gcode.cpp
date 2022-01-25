@@ -207,7 +207,7 @@ void GcodeSuite::get_destination_from_command() {
   if (parser.floatval('F') > 0) {
     feedrate_mm_s = parser.value_feedrate();
     // Update the cutter feed rate for use by M4 I set inline moves.
-    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = parser.value_float()); 
+    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = parser.value_float());
   }
 
   #if ENABLED(PRINTCOUNTER)

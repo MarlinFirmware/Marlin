@@ -130,11 +130,11 @@ planner_settings_t Planner::settings;           // Initialized by settings.load(
 
 /*
  * Setup inline block variables
- * Set laser_power_floor based on SPEED_POWER_MIN to pevent a zero power output state with LASER_POWER_TRAP 
+ * Set laser_power_floor based on SPEED_POWER_MIN to pevent a zero power output state with LASER_POWER_TRAP
  */
 #if ENABLED(LASER_FEATURE)
   laser_state_t Planner::laser_inline;          // Current state for blocks
-  const uint8_t laser_power_floor = cutter.pct_to_ocr(SPEED_POWER_MIN); 
+  const uint8_t laser_power_floor = cutter.pct_to_ocr(SPEED_POWER_MIN);
 #endif
 
 uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
@@ -843,26 +843,26 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
    * Laser Trapezoid Calculations
     *
    * Approximate the trapezoid with the laser, incrementing the power every `trap_ramp_entry_incr` while accelerating
-   * and decrementing it every `trap_ramp_exit_decr` while decelerating, thus ensuring power is related to feedrate. 
-   * Laser power trap will reduce the initial power at no less than the laser_power_floor value. Based on the number 
+   * and decrementing it every `trap_ramp_exit_decr` while decelerating, thus ensuring power is related to feedrate.
+   * Laser power trap will reduce the initial power at no less than the laser_power_floor value. Based on the number
    * of calculated accel/decel steps the power is distributed over the trapizoid entry and exit ramp steps.
-   * 
-   * trap_ramp_active_pwr - the active power is initially set at a reduced level factor of initial power / accel steps and 
+   *
+   * trap_ramp_active_pwr - the active power is initially set at a reduced level factor of initial power / accel steps and
    * will be additively incrememted using a trap_ramp_entry_incr value for each accel step processed later in the stepper code.
-   * The trap_ramp_exit_decr value is calculated as power / decel steps and is also adjusted to no less than the power floor.  
-   *  
-   * If the power = 0 the inline mode variables need to be set to zero to prevent any stepper processing. The method allows 
+   * The trap_ramp_exit_decr value is calculated as power / decel steps and is also adjusted to no less than the power floor.
+   *
+   * If the power = 0 the inline mode variables need to be set to zero to prevent any stepper processing. The method allows
    * for simpler non-powered moves such as G0 or G28.
-   * 
+   *
    * Laser Trap Power works for all Jerk and Curve modes however Arc based moves will have issues sinvce the segments are
-   * usually to small. 
+   * usually to small.
    */
 
 #if ENABLED(LASER_POWER_TRAP)
   if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-    if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) { 
+    if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
       if (block->laser.power > 0) {
-        NOLESS(block->laser.power, laser_power_floor); 
+        NOLESS(block->laser.power, laser_power_floor);
         block->laser.trap_ramp_active_pwr = (block->laser.power - laser_power_floor) * (initial_rate / float(block->nominal_rate)) + laser_power_floor;
         block->laser.trap_ramp_entry_incr = (block->laser.power - block->laser.trap_ramp_active_pwr) / accelerate_steps;
         float laser_pwr = block->laser.power * (final_rate / float(block->nominal_rate));
@@ -884,9 +884,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
         block->laser.trap_ramp_exit_decr = 0;
       }
 
-    }  
+    }
   }
-  #endif  
+  #endif
 }
 
 /*                            PLANNER SPEED DEFINITION
@@ -1372,7 +1372,7 @@ void Planner::check_axes_activity() {
   else {
 
     TERN_(HAS_CUTTER, if (cutter.cutter_mode == CUTTER_MODE_STANDARD) cutter.refresh());
-    
+
     #if HAS_TAIL_FAN_SPEED
       FANS_LOOP(i) {
         const uint8_t spd = thermalManager.scaledFanSpeed(i);
@@ -2001,8 +2001,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   /*
    * In the case where we are in inline modes we need to retrieve laser_inline variables for processing
-   * which include power and status. Dynamic mode only needs to update if the feed rate has changed 
-   * since it is calculated from the current feed rate and power level. 
+   * which include power and status. Dynamic mode only needs to update if the feed rate has changed
+   * since it is calculated from the current feed rate and power level.
    */
   #if ENABLED(LASER_FEATURE)
     if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
@@ -2011,7 +2011,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     } else if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC && cutter.laser_feedrate_changed()) { // Only process changes in rate
       laser_inline.power = cutter.calc_dynamic_power();
       block->laser.power = laser_inline.power;
-    } 
+    }
   #endif
 
   // Number of steps for each axis
@@ -2856,8 +2856,8 @@ void Planner::buffer_sync_block() {
 /*
  * Planner::buffer_sync_block
  * Add a block to the buffer that just updates the position
- * @param sync_flag BLOCK_FLAG_SYNC_FANS & BLOCK_FLAG_LASER_PWR 
- * Supports LASER_SYNCHRONOUS_M106_M107 and LASER_POWER_SYNC power sync block buffer queueing.   
+ * @param sync_flag BLOCK_FLAG_SYNC_FANS & BLOCK_FLAG_LASER_PWR
+ * Supports LASER_SYNCHRONOUS_M106_M107 and LASER_POWER_SYNC power sync block buffer queueing.
  */
 void Planner::buffer_sync_block(uint8_t sync_flag) {
 

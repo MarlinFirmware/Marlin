@@ -35,7 +35,7 @@
  *  M3I enables continuous inline power and it is processed by the planner. Move blocks are
  *  calculated and each block power buffer value is set there. The Stepper ISR then processes the blocks inline.
  *  Within inline mode M3 S-Values will set the power for the next moves e.g. G1 X10 Y10 powers on with the last S-Value
- *  M3I must be already set when using planner synced M3 inline S-Values (LASER_POWER_SYNC)   
+ *  M3I must be already set when using planner synced M3 inline S-Values (LASER_POWER_SYNC)
  *  M4I sets dynamic mode which takes the currently set feedrate and calculates a laser power OCR value
  *  M5I clears inline mode and set power to 0
  *  M5 sets the power output to 0 but leaves inline mode on.
@@ -92,7 +92,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
       #endif
       cutter.menuPower = cutter.unitPower;
     }
-    else if (cutter.cutter_mode == CUTTER_MODE_STANDARD) 
+    else if (cutter.cutter_mode == CUTTER_MODE_STANDARD)
       cutter.menuPower = cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
 
     // PWM not implied, power converted to OCR from unit definition and on/off if not PWM.
