@@ -284,7 +284,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // LCD_PROGRESS_BAR
 
-  #if BOTH(SDSUPPORT, HAS_LCD_MENU)
+  #if BOTH(SDSUPPORT, HAS_MARLINUI_MENU)
 
     // CHARSET_MENU
     const static PROGMEM byte refresh[8] = {
@@ -334,7 +334,7 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
       #endif
         {
           createChar_P(LCD_STR_UPLEVEL[0], uplevel);
-          #if BOTH(SDSUPPORT, HAS_LCD_MENU)
+          #if BOTH(SDSUPPORT, HAS_MARLINUI_MENU)
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
             createChar_P(LCD_STR_FOLDER[0], folder);
@@ -1051,7 +1051,7 @@ void MarlinUI::draw_status_screen() {
   draw_status_message(blink);
 }
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   #include "../menu/menu.h"
 
@@ -1584,6 +1584,6 @@ void MarlinUI::draw_status_screen() {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 #endif // HAS_MARLINUI_HD44780
