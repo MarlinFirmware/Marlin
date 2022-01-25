@@ -98,7 +98,7 @@ public:
     static uint8_t last_block_power;                      // Track power changes for dynamic power
 
     static feedRate_t feedrate_mm_m, last_feedrate_mm_m;  // (mm/min) Track feedrate changes for dynamic power
-    static inline bool laser_feedrate_changed() {
+    static bool laser_feedrate_changed() {
       if (last_feedrate_mm_m != feedrate_mm_m) { last_feedrate_mm_m = feedrate_mm_m; return true; }
       return false;
     }
@@ -236,10 +236,10 @@ public:
     enable_state = enable;
   }
 
-  static inline void disable() { isReadyForUI = false; set_enabled(false); }
+  static void disable() { isReadyForUI = false; set_enabled(false); }
 
   // Wait for spindle/laser to startup or shutdown
-  static inline void power_delay(const bool on) {
+  static void power_delay(const bool on) {
     safe_delay(on ? SPINDLE_LASER_POWERUP_DELAY : SPINDLE_LASER_POWERDOWN_DELAY);
   }
 
@@ -271,7 +271,7 @@ public:
 
   #if HAS_MARLINUI_MENU
     #if ENABLED(SPINDLE_FEATURE)
-      static inline void enable_with_dir(const bool reverse) {
+      static void enable_with_dir(const bool reverse) {
         isReadyForUI = true;
         const uint8_t ocr = TERN(SPINDLE_LASER_USE_PWM, upower_to_ocr(menuPower), 255);
         if (menuPower)
@@ -288,7 +288,7 @@ public:
     #endif // SPINDLE_FEATURE
 
     #if ENABLED(SPINDLE_LASER_USE_PWM)
-      static inline void update_from_mpower() {
+      static void update_from_mpower() {
         if (isReadyForUI) power = upower_to_ocr(menuPower);
         unitPower = menuPower;
       }
@@ -296,7 +296,7 @@ public:
 
     #if ENABLED(LASER_FEATURE)
       // Toggle the laser on/off with menuPower. Apply SPEED_POWER_STARTUP if it was 0 on entry.
-      static inline void laser_menu_toggle(const bool state) {
+      static void laser_menu_toggle(const bool state) {
         set_enabled(state);
         if (state) {
           if (menuPower)
@@ -327,7 +327,7 @@ public:
   #if ENABLED(LASER_FEATURE)
 
     // Dynamic mode rate calculation
-    static inline uint8_t calc_dynamic_power() {
+    static uint8_t calc_dynamic_power() {
       if (feedrate_mm_m > 65535) return 255;         // Too fast, go always on
       uint16_t rate = uint16_t(feedrate_mm_m);       // 16 bits from the G-code parser float input
       rate >>= 8;                                    // Take the G-code input e.g. F40000 and shift off the lower bits to get an OCR value from 1-255
@@ -335,10 +335,10 @@ public:
     }
 
     // Inline modes of all other functions; all enable planner inline power control
-    static inline void set_inline_enabled(const bool enable) { planner.laser_inline.status.isEnabled = enable;}
+    static void set_inline_enabled(const bool enable) { planner.laser_inline.status.isEnabled = enable;}
 
     // Set the power for subsequent movement blocks
-    static inline void inline_power(const cutter_power_t cpwr) {
+    static void inline_power(const cutter_power_t cpwr) {
       TERN(SPINDLE_LASER_USE_PWM, power = planner.laser_inline.power = cpwr, planner.laser_inline.power = cpwr > 0 ? 255 : 0);
     }
 
