@@ -26,7 +26,7 @@
  * M111: Set the debug level
  */
 void GcodeSuite::M111() {
-  if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
+  if (parser.seenval('S')) marlin_debug_flags = parser.value_byte();
 
   static PGMSTR(str_debug_1, STR_DEBUG_ECHO);
   static PGMSTR(str_debug_2, STR_DEBUG_INFO);
@@ -34,12 +34,12 @@ void GcodeSuite::M111() {
   static PGMSTR(str_debug_8, STR_DEBUG_DRYRUN);
   static PGMSTR(str_debug_16, STR_DEBUG_COMMUNICATION);
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    static PGMSTR(str_debug_lvl, STR_DEBUG_LEVELING);
+    static PGMSTR(str_debug_detail, STR_DEBUG_DETAIL);
   #endif
 
   static PGM_P const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16,
-    TERN_(DEBUG_LEVELING_FEATURE, str_debug_lvl)
+    TERN_(DEBUG_LEVELING_FEATURE, str_debug_detail)
   };
 
   SERIAL_ECHO_START();

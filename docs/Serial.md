@@ -62,7 +62,7 @@ The following macros are defined (in `serial.h`) to output data to the serial po
 | `SERIAL_ECHOLNPGM` | Same as `SERIAL_ECHOPGM` | Do `SERIAL_ECHOPGM`, adding a newline | `SERIAL_ECHOPGM("Alice", 56);` | `alice56` |
 | `SERIAL_ECHOPGM_P` | Like `SERIAL_ECHOPGM` but takes PGM strings | Print a series of PGM strings and values alternately | `SERIAL_ECHOPGM_P(GET_TEXT(MSG_HELLO), 123);` | `Hello123` |
 | `SERIAL_ECHOLNPGM_P` | Same as `SERIAL_ECHOPGM_P` | Do `SERIAL_ECHOPGM_P`, adding a newline | `SERIAL_ECHOLNPGM_P(PSTR("Alice"), 78);` | `alice78\n` |
-| `SERIAL_ECHOLIST` | String literal, values | Print a string literal and a list of values | `SERIAL_ECHOLIST("Key ", 1, 2, 3);` | `Key 1, 2, 3` |
+| `SERIAL_ECHOLIST` | String literal, values | Print a string literal and a list of values | `SERIAL_ECHOLIST(F("Key "), 1, 2, 3);` | `Key 1, 2, 3` |
 | `SERIAL_ECHO_START` | None | Prefix an echo line | `SERIAL_ECHO_START();` | `echo:` |
 | `SERIAL_ECHO_MSG` | Same as `SERIAL_ECHOLN_PAIR` | Print a full echo line | `SERIAL_ECHO_MSG("Count is ", count);` | `echo:Count is 3` |
 | `SERIAL_ERROR_START`| None | Prefix an error line | `SERIAL_ERROR_START();` | `Error:` |

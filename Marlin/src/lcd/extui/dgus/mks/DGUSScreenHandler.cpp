@@ -195,7 +195,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
       case 0: { // Resume
 
         auto cs = getCurrentScreen();
-        if (runout_mks.runout_status != RUNOUT_WAITTING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
+        if (runout_mks.runout_status != RUNOUT_WAITING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
           if (cs == MKSLCD_SCREEN_PRINT || cs == MKSLCD_SCREEN_PAUSE)
             GotoScreen(MKSLCD_SCREEN_PAUSE);
           return;
@@ -262,7 +262,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   void DGUSScreenHandler::SDPrintingFinished() {
     if (DGUSAutoTurnOff) {
       queue.exhaust();
-      gcode.process_subcommands_now_P(PSTR("M81"));
+      gcode.process_subcommands_now(F("M81"));
     }
     GotoScreen(MKSLCD_SCREEN_PrintDone);
   }
@@ -399,7 +399,7 @@ void DGUSScreenHandler::GetOffsetValue(DGUS_VP_Variable &var, void *val_ptr) {
   #if HAS_BED_PROBE
     int32_t value = swap32(*(int32_t *)val_ptr);
     float Offset = value / 100.0f;
-    DEBUG_ECHOLNPAIR_F("\nget int6 offset >> ", value, 6);
+    DEBUG_ECHOLNPGM("\nget int6 offset >> ", value, 6);
   #endif
 
   switch (var.VP) {
@@ -450,7 +450,7 @@ void DGUSScreenHandler::Level_Ctrl_MKS(DGUS_VP_Variable &var, void *val_ptr) {
           a_first_level = 0;
           queue.enqueue_now_P(G28_STR);
         }
-        queue.enqueue_now_P(PSTR("G29"));
+        queue.enqueue_now(F("G29"));
 
       #elif ENABLED(MESH_BED_LEVELING)
 
@@ -512,10 +512,10 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         Deci2 = offset * 100;
         Deci2 = Deci2 % 10;
         soft_endstop._enabled = false;
-        queue.enqueue_now_P(PSTR("G91"));
+        queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
-        queue.enqueue_now_P(PSTR("G90"));
+        queue.enqueue_now(F("G90"));
         //soft_endstop._enabled = true;
         break;
 
@@ -527,17 +527,17 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         Deci2 = offset * 100;
         Deci2 = Deci2 % 10;
         soft_endstop._enabled = false;
-        queue.enqueue_now_P(PSTR("G91"));
+        queue.enqueue_now(F("G91"));
         snprintf_P(cmd_buf, 30, PSTR("G1 Z-%d.%d%d"), integer, Deci, Deci2);
         queue.enqueue_one_now(cmd_buf);
-        queue.enqueue_now_P(PSTR("G90"));
+        queue.enqueue_now(F("G90"));
         break;
 
       case 2:
         if (mesh_point_count == GRID_MAX_POINTS) { // The first point
 
-          queue.enqueue_now_P(PSTR("G28"));
-          queue.enqueue_now_P(PSTR("G29S1"));
+          queue.enqueue_now(F("G28"));
+          queue.enqueue_now(F("G29S1"));
           mesh_point_count--;
 
           if (mks_language_index == MKS_English) {
@@ -550,7 +550,7 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           }
         }
         else if (mesh_point_count > 1) {                              // 倒数第二个点
-          queue.enqueue_now_P(PSTR("G29S2"));
+          queue.enqueue_now(F("G29S2"));
           mesh_point_count--;
           if (mks_language_index == MKS_English) {
             const char level_buf_en2[] = "Next Point";
@@ -562,7 +562,7 @@ void DGUSScreenHandler::MeshLevel(DGUS_VP_Variable &var, void *val_ptr) {
           }
         }
         else if (mesh_point_count == 1) {
-          queue.enqueue_now_P(PSTR("G29S2"));
+          queue.enqueue_now(F("G29S2"));
           mesh_point_count--;
           if (mks_language_index == MKS_English) {
             const char level_buf_en2[] = "Level Finsh";
@@ -620,13 +620,13 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
   };
 
   if (WITHIN(point_value, 0x0001, 0x0005))
-    queue.enqueue_now_P(PSTR("G1Z10"));
+    queue.enqueue_now(F("G1Z10"));
 
   switch (point_value) {
     case 0x0001:
       enqueue_corner_move(X_MIN_POS + ABS(mks_corner_offsets[0].x),
                           Y_MIN_POS + ABS(mks_corner_offsets[0].y), level_speed);
-      queue.enqueue_now_P(PSTR("G28Z"));
+      queue.enqueue_now(F("G28Z"));
       break;
     case 0x0002:
       enqueue_corner_move(X_MAX_POS - ABS(mks_corner_offsets[1].x),
@@ -647,8 +647,8 @@ void DGUSScreenHandler::ManualAssistLeveling(DGUS_VP_Variable &var, void *val_pt
   }
 
   if (WITHIN(point_value, 0x0002, 0x0005)) {
-    //queue.enqueue_now_P(PSTR("G28Z"));
-    queue.enqueue_now_P(PSTR("G1Z-10"));
+    //queue.enqueue_now(F("G28Z"));
+    queue.enqueue_now(F("G1Z-10"));
   }
 }
 
@@ -756,7 +756,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (manualMoveStep == 0x02) manualMoveStep =  100;
   else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
-  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.length);
+  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.ring_buffer.length);
 
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
@@ -856,7 +856,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
     if (!relative_mode) {
       //DEBUG_ECHOPGM(" G91");
-      queue.enqueue_now_P(PSTR("G91"));
+      queue.enqueue_now(F("G91"));
       //DEBUG_ECHOPGM(" ✓ ");
     }
     char buf[32]; // G1 X9999.99 F12345
@@ -878,8 +878,8 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
     //DEBUG_ECHOLNPGM(" ✓ ");
     if (!old_relative_mode) {
       //DEBUG_ECHOPGM("G90");
-      //queue.enqueue_now_P(PSTR("G90"));
-      queue.enqueue_now_P(PSTR("G90"));
+      //queue.enqueue_now(F("G90"));
+      queue.enqueue_now(F("G90"));
       //DEBUG_ECHOPGM(" ✓ ");
     }
   }
@@ -909,7 +909,7 @@ void DGUSScreenHandler::HandleChangeLevelPoint_MKS(DGUS_VP_Variable &var, void *
   DEBUG_ECHOLNPGM("HandleChangeLevelPoint_MKS");
 
   const int16_t value_raw = swap16(*(int16_t*)val_ptr);
-  DEBUG_ECHOLNPAIR_F("value_raw:", value_raw);
+  DEBUG_ECHOLNPGM("value_raw:", value_raw);
 
   *(int16_t*)var.memadr = value_raw;
 
@@ -924,7 +924,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -934,7 +934,7 @@ void DGUSScreenHandler::HandleStepPerMMChanged_MKS(DGUS_VP_Variable &var, void *
     case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
   }
   ExtUI::setAxisSteps_per_mm(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -946,7 +946,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -959,7 +959,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged_MKS(DGUS_VP_Variable &var
     #endif
   }
   ExtUI::setAxisSteps_per_mm(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisSteps_per_mm(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -971,7 +971,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -981,7 +981,7 @@ void DGUSScreenHandler::HandleMaxSpeedChange_MKS(DGUS_VP_Variable &var, void *va
     default: return;
   }
   ExtUI::setAxisMaxFeedrate_mm_s(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -993,7 +993,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::extruder_t extruder;
   switch (var.VP) {
@@ -1006,7 +1006,7 @@ void DGUSScreenHandler::HandleExtruderMaxSpeedChange_MKS(DGUS_VP_Variable &var, 
     case VP_E1_MAX_SPEED: extruder = ExtUI::extruder_t::E1; break;
   }
   ExtUI::setAxisMaxFeedrate_mm_s(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxFeedrate_mm_s(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1018,7 +1018,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
   const float value = (float)value_raw;
 
   DEBUG_ECHOLNPGM("value_raw:", value_raw);
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
 
   ExtUI::axis_t axis;
   switch (var.VP) {
@@ -1028,7 +1028,7 @@ void DGUSScreenHandler::HandleMaxAccChange_MKS(DGUS_VP_Variable &var, void *val_
     case VP_Z_ACC_MAX_SPEED: axis = ExtUI::axis_t::Z;  break;
   }
   ExtUI::setAxisMaxAcceleration_mm_s2(value, axis);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(axis));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(axis));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1049,9 +1049,9 @@ void DGUSScreenHandler::HandleExtruderAccChange_MKS(DGUS_VP_Variable &var, void 
       case VP_E1_ACC_MAX_SPEED: extruder = ExtUI::extruder_t::E1; settings.load(); break;
     #endif
   }
-  DEBUG_ECHOLNPAIR_F("value:", value);
+  DEBUG_ECHOLNPGM("value:", value);
   ExtUI::setAxisMaxAcceleration_mm_s2(value, extruder);
-  DEBUG_ECHOLNPAIR_F("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(extruder));
+  DEBUG_ECHOLNPGM("value_set:", ExtUI::getAxisMaxAcceleration_mm_s2(extruder));
   settings.save();
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
@@ -1115,7 +1115,7 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
         #endif
     }
 
-    DEBUG_ECHOLNPAIR_F("V3:", newvalue);
+    DEBUG_ECHOLNPGM("V3:", newvalue);
     *(float *)var.memadr = newvalue;
 
     settings.save();
@@ -1133,30 +1133,30 @@ void DGUSScreenHandler::HandleAccChange_MKS(DGUS_VP_Variable &var, void *val_ptr
     switch (flag) {
       case 0:
         if (step == 0.01)
-          queue.inject_P(PSTR("M290 Z-0.01"));
+          queue.inject(F("M290 Z-0.01"));
         else if (step == 0.1)
-          queue.inject_P(PSTR("M290 Z-0.1"));
+          queue.inject(F("M290 Z-0.1"));
         else if (step == 0.5)
-          queue.inject_P(PSTR("M290 Z-0.5"));
+          queue.inject(F("M290 Z-0.5"));
         else if (step == 1)
-          queue.inject_P(PSTR("M290 Z-1"));
+          queue.inject(F("M290 Z-1"));
         else
-          queue.inject_P(PSTR("M290 Z-0.01"));
+          queue.inject(F("M290 Z-0.01"));
 
         z_offset_add = z_offset_add - ZOffset_distance;
         break;
 
       case 1:
         if (step == 0.01)
-          queue.inject_P(PSTR("M290 Z0.01"));
+          queue.inject(F("M290 Z0.01"));
         else if (step == 0.1)
-          queue.inject_P(PSTR("M290 Z0.1"));
+          queue.inject(F("M290 Z0.1"));
         else if (step == 0.5)
-          queue.inject_P(PSTR("M290 Z0.5"));
+          queue.inject(F("M290 Z0.5"));
         else if (step == 1)
-          queue.inject_P(PSTR("M290 Z1"));
+          queue.inject(F("M290 Z1"));
         else
-          queue.inject_P(PSTR("M290 Z-0.01"));
+          queue.inject(F("M290 Z-0.01"));
 
         z_offset_add = z_offset_add + ZOffset_distance;
         break;
@@ -1175,7 +1175,7 @@ void DGUSScreenHandler::GetManualFilament(DGUS_VP_Variable &var, void *val_ptr) 
 
   float value = (float)value_len;
 
-  DEBUG_ECHOLNPAIR_F("Get Filament len value:", value);
+  DEBUG_ECHOLNPGM("Get Filament len value:", value);
   distanceFilament = value;
 
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
@@ -1186,7 +1186,7 @@ void DGUSScreenHandler::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *val_
 
   uint16_t value_len = swap16(*(uint16_t*)val_ptr);
 
-  DEBUG_ECHOLNPAIR_F("filamentSpeed_mm_s value:", value_len);
+  DEBUG_ECHOLNPGM("filamentSpeed_mm_s value:", value_len);
 
   filamentSpeed_mm_s = value_len;
 
@@ -1233,7 +1233,7 @@ void DGUSScreenHandler::MKS_FilamentLoadUnload(DGUS_VP_Variable &var, void *val_
   #if BOTH(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
     if (hotend_too_cold) {
       if (thermalManager.targetTooColdToExtrude(hotend_too_cold - 1)) thermalManager.setTargetHotend(thermalManager.extrude_min_temp, hotend_too_cold - 1);
-      sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please wait."), PSTR("Nozzle heating!"), true, true, true, true);
+      sendinfoscreen(F("NOTICE"), nullptr, F("Please wait."), F("Nozzle heating!"), true, true, true, true);
       SetupConfirmAction(nullptr);
       GotoScreen(DGUSLCD_SCREEN_POPUP);
     }
@@ -1459,7 +1459,7 @@ void DGUSScreenHandler::LanguagePInit() {
   }
 }
 
-void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
+void DGUSScreenHandler::DGUS_ExtrudeLoadInit() {
   ex_filament.ex_length           = distanceFilament;
   ex_filament.ex_load_unload_flag = 0;
   ex_filament.ex_need_time        = filamentSpeed_mm_s;
@@ -1469,7 +1469,7 @@ void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
   ex_filament.ex_tick_start       = 0;
 }
 
-void DGUSScreenHandler::DGUS_RunoutInit(void) {
+void DGUSScreenHandler::DGUS_RunoutInit() {
   #if PIN_EXISTS(MT_DET_1)
     SET_INPUT_PULLUP(MT_DET_1_PIN);
   #endif
@@ -1479,17 +1479,17 @@ void DGUSScreenHandler::DGUS_RunoutInit(void) {
   runout_mks.runout_status = UNRUNOUT_STATUS;
 }
 
-void DGUSScreenHandler::DGUS_Runout_Idle(void) {
+void DGUSScreenHandler::DGUS_Runout_Idle() {
   #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
     // scanf runout pin
     switch (runout_mks.runout_status) {
 
       case RUNOUT_STATUS:
         runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
-        queue.inject_P(PSTR("M25"));
+        queue.inject(F("M25"));
         GotoScreen(MKSLCD_SCREEN_PAUSE);
 
-        sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("Please change filament!"), nullptr, true, true, true, true);
+        sendinfoscreen(F("NOTICE"), nullptr, F("Please change filament!"), nullptr, true, true, true, true);
         //SetupConfirmAction(nullptr);
         GotoScreen(DGUSLCD_SCREEN_POPUP);
         break;
@@ -1501,10 +1501,10 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
 
       case RUNOUT_BEGIN_STATUS:
         if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
-          runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
+          runout_mks.runout_status = RUNOUT_WAITING_STATUS;
         break;
 
-      case RUNOUT_WAITTING_STATUS:
+      case RUNOUT_WAITING_STATUS:
         if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;

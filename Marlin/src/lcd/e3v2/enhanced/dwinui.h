@@ -24,11 +24,10 @@
 /**
  * DWIN UI Enhanced implementation
  * Author: Miguel A. Risco-Castillo
- * Version: 3.6.3
- * Date: 2021/09/08
+ * Version: 3.9.1
+ * Date: 2021/11/21
  */
 
-#include "../../../core/types.h"
 #include "dwin_lcd.h"
 #include "../common/dwin_set.h"
 #include "../common/dwin_font.h"
@@ -39,22 +38,37 @@
 #define ICON_Cancel               ICON_StockConfiguration
 #define ICON_CustomPreheat        ICON_SetEndTemp
 #define ICON_Error                ICON_TempTooHigh
+#define ICON_ESDiag               ICON_Info
 #define ICON_ExtrudeMinT          ICON_HotendTemp
 #define ICON_FilLoad              ICON_WriteEEPROM
 #define ICON_FilMan               ICON_ResumeEEPROM
 #define ICON_FilSet               ICON_ResumeEEPROM
 #define ICON_FilUnload            ICON_ReadEEPROM
 #define ICON_Flow                 ICON_StepE
-#define ICON_LevBed               ICON_SetEndTemp
+#define ICON_FWRetLength          ICON_StepE
+#define ICON_FWRetSpeed           ICON_Setspeed
+#define ICON_FWRetZRaise          ICON_MoveZ
+#define ICON_FWRecSpeed           ICON_Setspeed
+#define ICON_HomeX                ICON_MoveX
+#define ICON_HomeY                ICON_MoveY
+#define ICON_HomeZ                ICON_MoveZ
+#define ICON_HSMode               ICON_StockConfiguration
+#define ICON_Tram                 ICON_SetEndTemp
 #define ICON_Lock                 ICON_Cool
 #define ICON_ManualMesh           ICON_HotendTemp
 #define ICON_MeshNext             ICON_Axis
 #define ICON_MeshSave             ICON_WriteEEPROM
+#define ICON_MeshViewer           ICON_HotendTemp
 #define ICON_MoveZ0               ICON_HotendTemp
 #define ICON_Park                 ICON_Motion
+#define ICON_PIDbed               ICON_SetBedTemp
 #define ICON_PIDcycles            ICON_ResumeEEPROM
 #define ICON_PIDValue             ICON_Contact
+#define ICON_PrintStats           ICON_PrintTime
+#define ICON_PrintStatsReset      ICON_RemainTime
+#define ICON_ProbeDeploy          ICON_SetEndTemp
 #define ICON_ProbeSet             ICON_SetEndTemp
+#define ICON_ProbeStow            ICON_SetEndTemp
 #define ICON_ProbeTest            ICON_SetEndTemp
 #define ICON_Pwrlossr             ICON_Motion
 #define ICON_Reboot               ICON_ResumeEEPROM
@@ -63,25 +77,11 @@
 #define ICON_SetCustomPreheat     ICON_SetEndTemp
 #define ICON_Sound                ICON_Cool
 
-// Default UI Colors
-#define Def_Background_Color  Color_Bg_Black
-#define Def_Cursor_color      Rectangle_Color
-#define Def_TitleBg_color     Color_Bg_Blue
-#define Def_TitleTxt_color    Color_White
-#define Def_Text_Color        Color_White
-#define Def_Selected_Color    Select_Color
-#define Def_SplitLine_Color   Line_Color
-#define Def_Highlight_Color   Color_White
-#define Def_StatusBg_Color    RGB(0,20,20)
-#define Def_StatusTxt_Color   Color_Yellow
-#define Def_PopupBg_color     Color_Bg_Window
-#define Def_PopupTxt_Color    Popup_Text_Color
-#define Def_AlertBg_Color     Color_Bg_Red
-#define Def_AlertTxt_Color    Color_Yellow
-#define Def_PercentTxt_Color  Percent_Color
-#define Def_Barfill_Color     BarFill_Color
-#define Def_Indicator_Color   Color_White
-#define Def_Coordinate_Color   Color_White
+// Extended and default UI Colors
+#define Color_Black           0
+#define Color_Green           RGB(0,63,0)
+#define Color_Aqua            RGB(0,63,31)
+#define Color_Blue            RGB(0,0,31)
 
 // UI element defines and constants
 #define DWIN_FONT_MENU font8x16
@@ -111,8 +111,8 @@ constexpr uint16_t TITLE_HEIGHT = 30,                          // Title bar heig
 #define MBASE(L) (MYPOS(L) + CAPOFF)
 
 // Create and add a MenuItem object to the menu array
-#define ADDMENUITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
-#define ADDMENUITEM_P(V...) DWINUI::MenuItemsAdd(new MenuItemPtrClass(V))
+#define MENU_ITEM(V...) DWINUI::MenuItemsAdd(new MenuItemClass(V))
+#define EDIT_ITEM(V...) DWINUI::MenuItemsAdd(new MenuItemPtrClass(V))
 
 typedef struct { uint16_t left, top, right, bottom; } rect_t;
 typedef struct { uint16_t x, y, w, h; } frame_rect_t;
@@ -124,9 +124,9 @@ public:
   rect_t frame = {0};
   void draw();
   void SetCaption(const char * const title);
-  inline void SetCaption(const __FlashStringHelper * title) { SetCaption((char *)title); }
+  inline void SetCaption(FSTR_P title) { SetCaption((char *)title); }
   void ShowCaption(const char * const title);
-  inline void ShowCaption(const __FlashStringHelper * title) { ShowCaption((char *)title); }
+  inline void ShowCaption(FSTR_P title) { ShowCaption((char *)title); }
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   void SetFrame(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
   void FrameCopy(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
@@ -137,7 +137,7 @@ extern TitleClass Title;
 class MenuItemClass {
 protected:
 public:
-  uint8_t pos = 0;
+  int8_t pos = 0;
   uint8_t icon = 0;
   char caption[32] = "";
   uint8_t frameid = 0;
@@ -146,7 +146,7 @@ public:
   void (*onClick)() = nullptr;
   MenuItemClass() {};
   MenuItemClass(uint8_t cicon, const char * const text=nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
-  MenuItemClass(uint8_t cicon, const __FlashStringHelper * text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) : MenuItemClass(cicon, (char*)text, ondraw, onclick){}
+  MenuItemClass(uint8_t cicon, FSTR_P text = nullptr, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr) : MenuItemClass(cicon, FTOP(text), ondraw, onclick){}
   MenuItemClass(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, void (*ondraw)(MenuItemClass* menuitem, int8_t line)=nullptr, void (*onclick)()=nullptr);
   void SetFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   virtual ~MenuItemClass(){};
@@ -158,7 +158,7 @@ public:
   void *value = nullptr;
   using MenuItemClass::MenuItemClass;
   MenuItemPtrClass(uint8_t cicon, const char * const text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val);
-  MenuItemPtrClass(uint8_t cicon, const __FlashStringHelper * text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) : MenuItemPtrClass(cicon, (char*)text, ondraw, onclick, val){}
+  MenuItemPtrClass(uint8_t cicon, FSTR_P text, void (*ondraw)(MenuItemClass* menuitem, int8_t line), void (*onclick)(), void* val) : MenuItemPtrClass(cicon, FTOP(text), ondraw, onclick, val){}
 };
 
 class MenuClass {
@@ -184,8 +184,8 @@ namespace DWINUI {
   extern uint16_t backcolor;
   extern uint8_t  font;
 
-  extern void (*onCursorErase)(uint8_t line);
-  extern void (*onCursorDraw)(uint8_t line);
+  extern void (*onCursorErase)(const int8_t line);
+  extern void (*onCursorDraw)(const int8_t line);
   extern void (*onTitleDraw)(TitleClass* title);
   extern void (*onMenuDraw)(MenuClass* menu);
 
@@ -197,14 +197,16 @@ namespace DWINUI {
 
   // Get font character width
   uint8_t fontWidth(uint8_t cfont);
+  inline uint8_t fontWidth() { return fontWidth(font); };
 
-  // Get font character heigh
+  // Get font character height
   uint8_t fontHeight(uint8_t cfont);
+  inline uint8_t fontHeight() { return fontHeight(font); };
 
-  // Get screen x coodinates from text column
+  // Get screen x coordinates from text column
   uint16_t ColToX(uint8_t col);
 
-  // Get screen y coodinates from text row
+  // Get screen y coordinates from text row
   uint16_t RowToY(uint8_t row);
 
   // Set text/number color
@@ -341,6 +343,12 @@ namespace DWINUI {
   //  rlimit: For draw less chars than string length use rlimit
   void Draw_String(const char * const string, uint16_t rlimit = 0xFFFF);
   void Draw_String(uint16_t color, const char * const string, uint16_t rlimit = 0xFFFF);
+  inline void Draw_String(FSTR_P  string, uint16_t rlimit = 0xFFFF) {
+    Draw_String(FTOP(string), rlimit);
+  }
+  inline void Draw_String(uint16_t color, FSTR_P string, uint16_t rlimit = 0xFFFF) {
+    Draw_String(color, FTOP(string), rlimit);
+  }
 
   // Draw a string
   //  size: Font size
@@ -351,26 +359,26 @@ namespace DWINUI {
   inline void Draw_String(uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(false, font, textcolor, backcolor, x, y, string);
   }
-  inline void Draw_String(uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, (char *)title);
+  inline void Draw_String(uint16_t x, uint16_t y, FSTR_P title) {
+    DWIN_Draw_String(false, font, textcolor, backcolor, x, y, FTOP(title));
   }
   inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(false, font, color, backcolor, x, y, string);
   }
-  inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(false, font, color, backcolor, x, y, (char *)title);
+  inline void Draw_String(uint16_t color, uint16_t x, uint16_t y, FSTR_P title) {
+    DWIN_Draw_String(false, font, color, backcolor, x, y, title);
   }
   inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(true, font, color, bgcolor, x, y, string);
   }
-  inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(true, font, color, bgcolor, x, y, (char *)title);
+  inline void Draw_String(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
+    DWIN_Draw_String(true, font, color, bgcolor, x, y, title);
   }
   inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
     DWIN_Draw_String(true, size, color, bgcolor, x, y, string);
   }
-  inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const __FlashStringHelper *title) {
-    DWIN_Draw_String(true, size, color, bgcolor, x, y, (char *)title);
+  inline void Draw_String(uint8_t size, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P title) {
+    DWIN_Draw_String(true, size, color, bgcolor, x, y, title);
   }
 
   // Draw a centered string using DWIN_WIDTH
@@ -381,8 +389,8 @@ namespace DWINUI {
   //  y: Upper coordinate of the string
   //  *string: The string
   void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const char * const string);
-  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(bShow, size, color, bColor, y, (char *)title);
+  inline void Draw_CenteredString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P string) {
+    Draw_CenteredString(bShow, size, color, bColor, y, FTOP(string));
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t bcolor, uint16_t y, const char * const string) {
     Draw_CenteredString(true, font, color, bcolor, y, string);
@@ -390,20 +398,28 @@ namespace DWINUI {
   inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, const char * const string) {
     Draw_CenteredString(false, size, color, backcolor, y, string);
   }
-  inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(false, size, color, backcolor, y, (char *)title);
+  inline void Draw_CenteredString(uint8_t size, uint16_t color, uint16_t y, FSTR_P title) {
+    Draw_CenteredString(false, size, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t color, uint16_t y, const char * const string) {
     Draw_CenteredString(false, font, color, backcolor, y, string);
   }
-  inline void Draw_CenteredString(uint16_t color, uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(false, font, color, backcolor, y, (char *)title);
+  inline void Draw_CenteredString(uint16_t color, uint16_t y, FSTR_P title) {
+    Draw_CenteredString(false, font, color, backcolor, y, title);
   }
   inline void Draw_CenteredString(uint16_t y, const char * const string) {
     Draw_CenteredString(false, font, textcolor, backcolor, y, string);
   }
-  inline void Draw_CenteredString(uint16_t y, const __FlashStringHelper *title) {
-    Draw_CenteredString(false, font, textcolor, backcolor, y, (char *)title);
+  inline void Draw_CenteredString(uint16_t y, FSTR_P title) {
+    Draw_CenteredString(false, font, textcolor, backcolor, y, title);
+  }
+
+  // Draw a box
+  //  mode: 0=frame, 1=fill, 2=XOR fill
+  //  color: Rectangle color
+  //  frame: Box coordinates and size
+  inline void Draw_Box(uint8_t mode, uint16_t color, frame_rect_t frame) {
+    DWIN_Draw_Box(mode, color, frame.x, frame.y, frame.w, frame.h);
   }
 
   // Draw a circle
@@ -476,7 +492,7 @@ namespace DWINUI {
   void MenuItemsClear();
 
   // Prepare MenuItems array
-  void MenuItemsPrepare(uint8_t totalitems);
+  void MenuItemsPrepare(int8_t totalitems);
 
   // Add elements to the MenuItems array
   MenuItemClass* MenuItemsAdd(MenuItemClass* menuitem);

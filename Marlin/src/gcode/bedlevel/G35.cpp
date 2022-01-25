@@ -33,6 +33,10 @@
   #include "../../module/tool_change.h"
 #endif
 
+#if ENABLED(BLTOUCH)
+  #include "../../feature/bltouch.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -92,7 +96,7 @@ void GcodeSuite::G35() {
   TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
-  if (!all_axes_trusted()) process_subcommands_now_P(PSTR("G28Z"));
+  if (!all_axes_trusted()) process_subcommands_now(F("G28Z"));
 
   bool err_break = false;
 
@@ -102,7 +106,7 @@ void GcodeSuite::G35() {
     // In BLTOUCH HS mode, the probe travels in a deployed state.
     // Users of G35 might have a badly misaligned bed, so raise Z by the
     // length of the deployed pin (BLTOUCH stroke < 7mm)
-    do_blocking_move_to_z(SUM_TERN(BLTOUCH_HS_MODE, Z_CLEARANCE_BETWEEN_PROBES, 7));
+    do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES + TERN0(BLTOUCH, bltouch.z_extra_clearance()));
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
@@ -116,7 +120,7 @@ void GcodeSuite::G35() {
 
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM("Probing point ", i + 1, " (");
-      DEBUG_ECHOPGM_P((char *)pgm_read_ptr(&tramming_point_name[i]));
+      DEBUG_ECHOF(FPSTR(pgm_read_ptr(&tramming_point_name[i])));
       DEBUG_CHAR(')');
       DEBUG_ECHOLNPGM_P(SP_X_STR, tramming_points[i].x, SP_Y_STR, tramming_points[i].y, SP_Z_STR, z_probed_height);
     }

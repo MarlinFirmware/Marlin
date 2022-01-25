@@ -60,7 +60,7 @@ namespace Language_cz {
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Uvolnit motory");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Nabídka ladění");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_PROGRESS_BAR_TEST            = _UxGT("Test ukaz. průběhu");
   #else
     LSTR MSG_PROGRESS_BAR_TEST            = _UxGT("Test uk. průběhu");
@@ -78,7 +78,7 @@ namespace Language_cz {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Nastavit ofsety");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastaveny");
   LSTR MSG_SET_ORIGIN                     = _UxGT("Nastavit počátek");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_PREHEAT_1                    = _UxGT("Zahřát ") PREHEAT_1_LABEL;
     LSTR MSG_PREHEAT_1_H                  = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
     LSTR MSG_PREHEAT_1_END                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
@@ -129,9 +129,8 @@ namespace Language_cz {
   LSTR MSG_IDEX_MODE_DUPLICATE            = _UxGT("Duplikace");
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Zrcadlení");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");
-  LSTR MSG_HOTEND_OFFSET_X                = _UxGT("2. tryska X");
-  LSTR MSG_HOTEND_OFFSET_Y                = _UxGT("2. tryska Y");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
+  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");
@@ -154,7 +153,7 @@ namespace Language_cz {
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Konec úprav sítě");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH          = _UxGT("Vlastní síť");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Vytvořit síť");
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("Síť bodů $");
     LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("Kontrola sítě $");
   #endif
@@ -268,43 +267,43 @@ namespace Language_cz {
   LSTR MSG_SELECT_E                       = _UxGT("Vybrat *");
   LSTR MSG_ACC                            = _UxGT("Zrychl");
   LSTR MSG_JERK                           = _UxGT("Jerk");
-  LSTR MSG_VA_JERK                        = _UxGT("Max ") LCD_STR_A _UxGT(" Jerk");
-  LSTR MSG_VB_JERK                        = _UxGT("Max ") LCD_STR_B _UxGT(" Jerk");
-  LSTR MSG_VC_JERK                        = _UxGT("Max ") LCD_STR_C _UxGT(" Jerk");
-  LSTR MSG_VI_JERK                        = _UxGT("Max ") LCD_STR_I _UxGT(" Jerk");
-  LSTR MSG_VJ_JERK                        = _UxGT("Max ") LCD_STR_J _UxGT(" Jerk");
-  LSTR MSG_VK_JERK                        = _UxGT("Max ") LCD_STR_K _UxGT(" Jerk");
+  LSTR MSG_VA_JERK                        = _UxGT("Max ") STR_A _UxGT(" Jerk");
+  LSTR MSG_VB_JERK                        = _UxGT("Max ") STR_B _UxGT(" Jerk");
+  LSTR MSG_VC_JERK                        = _UxGT("Max ") STR_C _UxGT(" Jerk");
+  LSTR MSG_VI_JERK                        = _UxGT("Max ") STR_I _UxGT(" Jerk");
+  LSTR MSG_VJ_JERK                        = _UxGT("Max ") STR_J _UxGT(" Jerk");
+  LSTR MSG_VK_JERK                        = _UxGT("Max ") STR_K _UxGT(" Jerk");
   LSTR MSG_VE_JERK                        = _UxGT("Max E Jerk");
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Odchylka spoje");
   LSTR MSG_VELOCITY                       = _UxGT("Rychlost");
-  LSTR MSG_VMAX_A                         = _UxGT("Max ") LCD_STR_A _UxGT(" Rychlost");
-  LSTR MSG_VMAX_B                         = _UxGT("Max ") LCD_STR_B _UxGT(" Rychlost");
-  LSTR MSG_VMAX_C                         = _UxGT("Max ") LCD_STR_C _UxGT(" Rychlost");
-  LSTR MSG_VMAX_I                         = _UxGT("Max ") LCD_STR_I _UxGT(" Rychlost");
-  LSTR MSG_VMAX_J                         = _UxGT("Max ") LCD_STR_J _UxGT(" Rychlost");
-  LSTR MSG_VMAX_K                         = _UxGT("Max ") LCD_STR_K _UxGT(" Rychlost");
-  LSTR MSG_VMAX_E                         = _UxGT("Max ") LCD_STR_E _UxGT(" Rychlost");
+  LSTR MSG_VMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Rychlost");
+  LSTR MSG_VMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Rychlost");
+  LSTR MSG_VMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Rychlost");
+  LSTR MSG_VMAX_I                         = _UxGT("Max ") STR_I _UxGT(" Rychlost");
+  LSTR MSG_VMAX_J                         = _UxGT("Max ") STR_J _UxGT(" Rychlost");
+  LSTR MSG_VMAX_K                         = _UxGT("Max ") STR_K _UxGT(" Rychlost");
+  LSTR MSG_VMAX_E                         = _UxGT("Max ") STR_E _UxGT(" Rychlost");
   LSTR MSG_VMAX_EN                        = _UxGT("Max * Rychlost");
   LSTR MSG_VMIN                           = _UxGT("Vmin");
   LSTR MSG_VTRAV_MIN                      = _UxGT("VTrav Min");
   LSTR MSG_ACCELERATION                   = _UxGT("Akcelerace");
-  LSTR MSG_AMAX_A                         = _UxGT("Max ") LCD_STR_A _UxGT(" Akcel");
-  LSTR MSG_AMAX_B                         = _UxGT("Max ") LCD_STR_B _UxGT(" Akcel");
-  LSTR MSG_AMAX_C                         = _UxGT("Max ") LCD_STR_C _UxGT(" Akcel");
-  LSTR MSG_AMAX_I                         = _UxGT("Max ") LCD_STR_I _UxGT(" Akcel");
-  LSTR MSG_AMAX_J                         = _UxGT("Max ") LCD_STR_J _UxGT(" Akcel");
-  LSTR MSG_AMAX_K                         = _UxGT("Max ") LCD_STR_K _UxGT(" Akcel");
-  LSTR MSG_AMAX_E                         = _UxGT("Max ") LCD_STR_E _UxGT(" Akcel");
+  LSTR MSG_AMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Akcel");
+  LSTR MSG_AMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Akcel");
+  LSTR MSG_AMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Akcel");
+  LSTR MSG_AMAX_I                         = _UxGT("Max ") STR_I _UxGT(" Akcel");
+  LSTR MSG_AMAX_J                         = _UxGT("Max ") STR_J _UxGT(" Akcel");
+  LSTR MSG_AMAX_K                         = _UxGT("Max ") STR_K _UxGT(" Akcel");
+  LSTR MSG_AMAX_E                         = _UxGT("Max ") STR_E _UxGT(" Akcel");
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Akcel");
   LSTR MSG_A_RETRACT                      = _UxGT("A-retrakt");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-přejezd");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Kroků/mm");
-  LSTR MSG_A_STEPS                        = LCD_STR_A _UxGT(" kroků/mm");
-  LSTR MSG_B_STEPS                        = LCD_STR_B _UxGT(" kroků/mm");
-  LSTR MSG_C_STEPS                        = LCD_STR_C _UxGT(" kroků/mm");
-  LSTR MSG_I_STEPS                        = LCD_STR_I _UxGT(" kroků/mm");
-  LSTR MSG_J_STEPS                        = LCD_STR_J _UxGT(" kroků/mm");
-  LSTR MSG_K_STEPS                        = LCD_STR_K _UxGT(" kroků/mm");
+  LSTR MSG_A_STEPS                        = STR_A _UxGT(" kroků/mm");
+  LSTR MSG_B_STEPS                        = STR_B _UxGT(" kroků/mm");
+  LSTR MSG_C_STEPS                        = STR_C _UxGT(" kroků/mm");
+  LSTR MSG_I_STEPS                        = STR_I _UxGT(" kroků/mm");
+  LSTR MSG_J_STEPS                        = STR_J _UxGT(" kroků/mm");
+  LSTR MSG_K_STEPS                        = STR_K _UxGT(" kroků/mm");
   LSTR MSG_E_STEPS                        = _UxGT("E kroků/mm");
   LSTR MSG_EN_STEPS                       = _UxGT("* kroků/mm");
   LSTR MSG_TEMPERATURE                    = _UxGT("Teplota");
@@ -422,12 +421,12 @@ namespace Language_cz {
   LSTR MSG_PLEASE_RESET                   = _UxGT("Proveďte reset");
   LSTR MSG_HEATING                        = _UxGT("Zahřívání...");
   LSTR MSG_COOLING                        = _UxGT("Chlazení...");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_BED_HEATING                  = _UxGT("Zahřívání podložky");
   #else
     LSTR MSG_BED_HEATING                  = _UxGT("Zahřívání podl.");
   #endif
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_BED_COOLING                  = _UxGT("Chlazení podložky");
   #else
     LSTR MSG_BED_COOLING                  = _UxGT("Chlazení podl.");
@@ -466,7 +465,7 @@ namespace Language_cz {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Jas světla");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("NESPRÁVNÁ TISKÁRNA");
 
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Počet tisků");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Dokončeno");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Celkový čas");
@@ -484,12 +483,12 @@ namespace Language_cz {
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Teplota max");
   LSTR MSG_INFO_PSU                       = _UxGT("Nap. zdroj");
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Buzení motorů");
-  LSTR MSG_DAC_PERCENT_A                  = LCD_STR_A _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_B                  = LCD_STR_B _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_C                  = LCD_STR_C _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_I                  = LCD_STR_I _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_J                  = LCD_STR_J _UxGT(" Motor %");
-  LSTR MSG_DAC_PERCENT_K                  = LCD_STR_K _UxGT(" Motor %");
+  LSTR MSG_DAC_PERCENT_A                  = STR_A _UxGT(" Motor %");
+  LSTR MSG_DAC_PERCENT_B                  = STR_B _UxGT(" Motor %");
+  LSTR MSG_DAC_PERCENT_C                  = STR_C _UxGT(" Motor %");
+  LSTR MSG_DAC_PERCENT_I                  = STR_I _UxGT(" Motor %");
+  LSTR MSG_DAC_PERCENT_J                  = STR_J _UxGT(" Motor %");
+  LSTR MSG_DAC_PERCENT_K                  = STR_K _UxGT(" Motor %");
   LSTR MSG_DAC_PERCENT_E                  = _UxGT("E Motor %");
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("DAC uložit EEPROM");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC CHYBA SPOJENÍ");
@@ -536,7 +535,7 @@ namespace Language_cz {
   LSTR MSG_CYCLE_MIX                      = _UxGT("Střídat mix");
   LSTR MSG_GRADIENT_MIX                   = _UxGT("Přechod mix");
   LSTR MSG_REVERSE_GRADIENT               = _UxGT("Opačný přechod");
-  #if LCD_WIDTH >= 20
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_ACTIVE_VTOOL                 = _UxGT("Aktivní V-nástroj");
     LSTR MSG_START_VTOOL                  = _UxGT("Spustit V-nástroj");
     LSTR MSG_END_VTOOL                    = _UxGT("Ukončit V-nástroj");

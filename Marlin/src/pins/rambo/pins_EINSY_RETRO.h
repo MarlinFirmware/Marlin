@@ -55,7 +55,6 @@
 
   #define X_MIN_PIN                           12  // X-
   #define Y_MIN_PIN                           11  // Y-
-  #define Z_MIN_PIN                           10  // Z-
   #define X_MAX_PIN                           81  // X+
   #define Y_MAX_PIN                           57  // Y+
 
@@ -78,15 +77,16 @@
   #endif
 
   #if ENABLED(BLTOUCH)
-    #define Z_MIN_PIN                         11  // Y-MIN
-    #define SERVO0_PIN                        10  // Z-MIN
-  #else
-    #define Z_MIN_PIN                         10
+    #define Z_MIN_PIN                         11  // Y-
+    #define SERVO0_PIN                        10  // Z-
   #endif
 
 #endif
 
 #define Z_MAX_PIN                              7
+#ifndef Z_MIN_PIN                              7
+  #define Z_MIN_PIN                           10  // Z-
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -201,7 +201,7 @@
 #endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL || TOUCH_UI_FTDI_EVE
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
+#if IS_U8GLIB_ST7920
   #define BOARD_ST7920_DELAY_1                 0
   #define BOARD_ST7920_DELAY_2               250
   #define BOARD_ST7920_DELAY_3                 0

@@ -79,16 +79,14 @@ extern MSerialT usb_serial;
 inline void HAL_init() {}
 
 // Utility functions
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 // ADC
 #define HAL_ADC_VREF           5.0
@@ -102,6 +100,9 @@ void HAL_adc_init();
 void HAL_adc_enable_channel(const uint8_t ch);
 void HAL_adc_start_conversion(const uint8_t ch);
 uint16_t HAL_adc_get_result();
+
+// PWM
+inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
 
 // Reset source
 inline void HAL_clear_reset_source(void) {}

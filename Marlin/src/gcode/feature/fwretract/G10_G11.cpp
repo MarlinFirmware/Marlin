@@ -32,7 +32,7 @@
  * G10 - Retract filament according to settings of M207
  *       TODO: Handle 'G10 P' for tool settings and 'G10 L' for workspace settings
  */
-void GcodeSuite::G10() { fwretract.retract(true OPTARG(HAS_MULTI_EXTRUDER, parser.boolval('S'))); }
+void GcodeSuite::G10() { fwretract.retract(true E_OPTARG(parser.boolval('S'))); }
 
 /**
  * G11 - Recover filament according to settings of M208

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if HAS_MARLINUI_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
 
 #include "menu_item.h"
 #include "../../module/delta.h"
@@ -58,14 +58,14 @@ void _man_probe_pt(const xy_pos_t &xy) {
     #include "../../MarlinCore.h" // for wait_for_user_response()
   #endif
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    #include "../../feature/host_actions.h" // for host_prompt_do
+    #include "../../feature/host_actions.h" // for hostui.prompt_do
   #endif
 
   float lcd_probe_pt(const xy_pos_t &xy) {
     _man_probe_pt(xy);
     ui.defer_status_screen();
-    TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Delta Calibration in progress"), CONTINUE_STR));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Delta Calibration in progress")));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("Delta Calibration in progress"), FPSTR(CONTINUE_STR)));
+    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("Delta Calibration in progress")));
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
     ui.goto_previous_screen_no_defer();
     return current_position.z;
@@ -151,4 +151,4 @@ void menu_delta_calibrate() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && (DELTA_CALIBRATION_MENU || DELTA_AUTO_CALIBRATION)
+#endif // HAS_MARLINUI_MENU && (DELTA_CALIBRATION_MENU || DELTA_AUTO_CALIBRATION)

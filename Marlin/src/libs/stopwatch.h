@@ -21,13 +21,10 @@
  */
 #pragma once
 
+#include "../inc/MarlinConfig.h"
+
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
-
-#include "../core/macros.h" // for FORCE_INLINE
-
-#include <stdint.h>
-typedef uint32_t millis_t;
 
 /**
  * @brief Stopwatch class
@@ -56,7 +53,7 @@ class Stopwatch {
      * @return true on success
      */
     static bool stop();
-    static inline bool abort() { return stop(); } // Alias by default
+    static bool abort() { return stop(); } // Alias by default
 
     /**
      * @brief Pause the stopwatch
@@ -113,11 +110,11 @@ class Stopwatch {
        * @brief Print a debug message
        * @details Print a simple debug message "Stopwatch::function"
        */
-      static void debug(const char func[]);
+      static void debug(FSTR_P const);
 
     #else
 
-      static inline void debug(const char[]) {}
+      static void debug(FSTR_P const) {}
 
     #endif
 };

@@ -26,7 +26,9 @@
  */
 
 #define BOARD_INFO_NAME "BTT SKR V1.3"
-#define LPC1768_IS_SKRV1_3 1
+
+#define LPC1768_IS_SKRV1_3
+#define USES_DIAG_JUMPERS
 
 //
 // Trinamic Stallguard pins
@@ -193,7 +195,7 @@
  *  (LCD_EN) 1.18 | 8  7 | 1.19  (LCD_RS)     (BTN_EN1) 3.26 | 8  7 | 0.16 (SD_SS)
  *  (LCD_D4) 1.20   6  5 | 1.21  (LCD_D5)     (BTN_EN2) 3.25   6  5 | 0.18 (MOSI)
  *  (LCD_D6) 1.22 | 4  3 | 1.23  (LCD_D7)   (SD_DETECT) 1.31 | 4  3 | RESET
- *            GND | 2  1 | 5V                            GND | 2  1 | NC
+ *            GND | 2  1 | 5V                            GND | 2  1 | --
  *                 ------                                     ------
  *                  EXP1                                       EXP2
  */
@@ -220,12 +222,13 @@
     #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
+
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
 
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
-    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because this pin is open drain.)
+    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because it is open drain.)
     * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
     *
     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
@@ -234,11 +237,11 @@
     *
     *                  BEFORE                          AFTER
     *                  ------                          ------
-    *           GND 1 | 1  2 |  2 5V             5V 1 | 1  2 |  2 GND
-    *            CS 3 | 3  4 |  4 BTN_EN2        CS 3 | 3  4 |  4 BTN_EN2
-    *           SID 5 | 5  6    6 BTN_EN1       SID 5 | 5  6    6 BTN_EN1
-    *          open 7 | 7  8 |  8 BTN_ENC       CLK 7 | 7  8 |  8 BTN_ENC
-    *           CLK 9 | 9 10 | 10 Beeper       open 9 | 9 10 | 10 Beeper
+    *           (CLK) |10  9 | (BEEPER)      (BEEPER) |10  9 | --
+    *              -- | 8  7 | (BTN_ENC)    (BTN_ENC) | 8  7 | (CLK)
+    *           (SID)   6  5 | (BTN_EN1)    (BTN_EN1)   6  5 | (SID)
+    *            (CS) | 4  3 | (BTN_EN2)    (BTN_EN2) | 4  3 | (CS)
+    *             GND | 2  1 | 5V                 GND | 2  1 | 5V
     *                  ------                          ------
     *                   LCD                             LCD
     */
@@ -251,6 +254,38 @@
 
     #define LCD_PINS_ENABLE          EXP1_05_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
+
+  #elif ENABLED(WYH_L12864)
+
+    #error "CAUTION! WYH_L12864 requires wiring modifications. Comment out this line to continue."
+
+    /**
+     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+     * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+     * 3. Swap the LCD's MOSI (Pin9) and empty (Pin10) wires because Pin9 is open drain.
+     *
+     * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+     *
+     * The WYH_L12864 connector plug:
+     *
+     *                  BEFORE                      AFTER
+     *                  ______                     ______
+     *                 |10  9 | (MOSI)     (MOSI) |10  9 | --
+     *       (BTN_ENC) | 8  7 | (SCK)   (BTN_ENC) | 8  7 | (SCK)
+     *       (BTN_EN1)   6  5 | (SID)   (BTN_EN1)   6  5 | (SID)
+     *       (BTN_EN2) | 4  3 | (CS)    (BTN_EN2) | 4  3 | (CS)
+     *              5V | 2  1 | GND           GND | 2  1 | 5V
+     *                  ------                     ------
+     *                   LCD                        LCD
+     */
+    #define BTN_EN1                  EXP1_06_PIN
+    #define BTN_EN2                  EXP1_04_PIN
+    #define BTN_ENC                  EXP1_08_PIN
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                EXP1_05_PIN
+    #define DOGLCD_SCK               EXP1_07_PIN
+    #define DOGLCD_MOSI              EXP1_10_PIN
+    #define LCD_BACKLIGHT_PIN            -1
 
   #elif ENABLED(CR10_STOCKDISPLAY)
 
@@ -389,13 +424,13 @@
 
         /**
          * Creality Ender-2 display pinout
-         *                   -----
-         *               5V | 1 2 | GND
-         *     (MOSI) P1_23 | 3 4 | P1_22 (LCD_CS)
-         *   (LCD_A0) P1_21 | 5 6   P1_20 (BTN_EN2)
-         *    (RESET) P1_19 | 7 8 | P1_18 (BTN_EN1)
-         *  (BTN_ENC) P0_28 | 9 10| P1_30 (SCK)
-         *                   -----
+         *                   ------
+         *      (SCK) P1_30 |10  9 | P0_28 (BTN_ENC)
+         *  (BTN_EN1) P1_18 | 8  7 | P1_19 (RESET)
+         *  (BTN_EN2) P1_20   6  5 | P1_21 (LCD_A0)
+         *   (LCD_CS) P1_22 | 4  3 | P1_23 (MOSI)
+         *              GND | 2  1 | 5V
+         *                   ------
          *                    EXP1
          */
 
