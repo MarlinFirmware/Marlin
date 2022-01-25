@@ -63,7 +63,7 @@
       OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
     #endif
 
-    TERN_(HAS_LCD_MENU, ui.reset_status());
+    TERN_(HAS_MARLINUI_MENU, ui.reset_status());
   }
 
 #endif // PSU_CONTROL
