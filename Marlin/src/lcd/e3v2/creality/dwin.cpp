@@ -2969,7 +2969,7 @@ void HMI_Control() {
   void HMI_Leveling() {
     Popup_Window_Leveling();
     DWIN_UpdateLCD();
-    queue.inject(F("G28O\nG29"));
+    queue.inject(F("G28O\nG29\nM500"));
   }
 #endif
 
