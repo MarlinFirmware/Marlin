@@ -35,7 +35,7 @@
 #endif
 
 Marlin_NeoPixel neo;
-int8_t Marlin_NeoPixel::neoindex;
+pixel_index_t Marlin_NeoPixel::neoindex;
 
 Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
 #if CONJOINED_NEOPIXEL
@@ -116,7 +116,7 @@ void Marlin_NeoPixel::init() {
 
   Marlin_NeoPixel2 neo2;
 
-  int8_t Marlin_NeoPixel2::neoindex;
+  pixel_index_t Marlin_NeoPixel2::neoindex;
   Adafruit_NeoPixel Marlin_NeoPixel2::adaneo(NEOPIXEL2_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE);
 
   void Marlin_NeoPixel2::set_color(const uint32_t color) {

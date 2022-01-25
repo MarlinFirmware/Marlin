@@ -33,32 +33,38 @@
 
 #define _AXIS(A) (A##_AXIS)
 
-#define _XMIN_   100
-#define _YMIN_   200
-#define _ZMIN_   300
-#define _IMIN_   500
-#define _JMIN_   600
-#define _KMIN_   700
-#define _XMAX_   101
-#define _YMAX_   201
-#define _ZMAX_   301
-#define _IMAX_   501
-#define _JMAX_   601
-#define _KMAX_   701
-#define _XDIAG_  102
-#define _YDIAG_  202
-#define _ZDIAG_  302
-#define _IDIAG_  502
-#define _JDIAG_  602
-#define _KDIAG_  702
-#define _E0DIAG_ 400
-#define _E1DIAG_ 401
-#define _E2DIAG_ 402
-#define _E3DIAG_ 403
-#define _E4DIAG_ 404
-#define _E5DIAG_ 405
-#define _E6DIAG_ 406
-#define _E7DIAG_ 407
+#define _XSTOP_  0x01
+#define _YSTOP_  0x02
+#define _ZSTOP_  0x03
+#define _ISTOP_  0x04
+#define _JSTOP_  0x05
+#define _KSTOP_  0x06
+#define _XMIN_   0x11
+#define _YMIN_   0x12
+#define _ZMIN_   0x13
+#define _IMIN_   0x14
+#define _JMIN_   0x15
+#define _KMIN_   0x16
+#define _XMAX_   0x21
+#define _YMAX_   0x22
+#define _ZMAX_   0x23
+#define _IMAX_   0x24
+#define _JMAX_   0x25
+#define _KMAX_   0x26
+#define _XDIAG_  0x31
+#define _YDIAG_  0x32
+#define _ZDIAG_  0x33
+#define _IDIAG_  0x34
+#define _JDIAG_  0x35
+#define _KDIAG_  0x36
+#define _E0DIAG_ 0xE0
+#define _E1DIAG_ 0xE1
+#define _E2DIAG_ 0xE2
+#define _E3DIAG_ 0xE3
+#define _E4DIAG_ 0xE4
+#define _E5DIAG_ 0xE5
+#define _E6DIAG_ 0xE6
+#define _E7DIAG_ 0xE7
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
@@ -125,13 +131,13 @@
 #ifdef __cplusplus
 
   // C++11 solution that is standards compliant.
-  template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
+  template <class V, class N> static constexpr void NOLESS(V& v, const N n) {
     if (n > v) v = n;
   }
-  template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
+  template <class V, class N> static constexpr void NOMORE(V& v, const N n) {
     if (n < v) v = n;
   }
-  template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
+  template <class V, class N1, class N2> static constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
     if (n1 > v) v = n1;
     else if (n2 < v) v = n2;
   }
@@ -160,7 +166,7 @@
 
 #endif
 
-// Macros to chain up to 14 conditions
+// Macros to chain up to 40 conditions
 #define _DO_1(W,C,A)       (_##W##_1(A))
 #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
 #define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
@@ -176,6 +182,31 @@
 #define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
 #define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
 #define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
+#define _DO_16(W,C,A,V...) (_##W##_1(A) C _DO_15(W,C,V))
+#define _DO_17(W,C,A,V...) (_##W##_1(A) C _DO_16(W,C,V))
+#define _DO_18(W,C,A,V...) (_##W##_1(A) C _DO_17(W,C,V))
+#define _DO_19(W,C,A,V...) (_##W##_1(A) C _DO_18(W,C,V))
+#define _DO_20(W,C,A,V...) (_##W##_1(A) C _DO_19(W,C,V))
+#define _DO_21(W,C,A,V...) (_##W##_1(A) C _DO_20(W,C,V))
+#define _DO_22(W,C,A,V...) (_##W##_1(A) C _DO_21(W,C,V))
+#define _DO_23(W,C,A,V...) (_##W##_1(A) C _DO_22(W,C,V))
+#define _DO_24(W,C,A,V...) (_##W##_1(A) C _DO_23(W,C,V))
+#define _DO_25(W,C,A,V...) (_##W##_1(A) C _DO_24(W,C,V))
+#define _DO_26(W,C,A,V...) (_##W##_1(A) C _DO_25(W,C,V))
+#define _DO_27(W,C,A,V...) (_##W##_1(A) C _DO_26(W,C,V))
+#define _DO_28(W,C,A,V...) (_##W##_1(A) C _DO_27(W,C,V))
+#define _DO_29(W,C,A,V...) (_##W##_1(A) C _DO_28(W,C,V))
+#define _DO_30(W,C,A,V...) (_##W##_1(A) C _DO_29(W,C,V))
+#define _DO_31(W,C,A,V...) (_##W##_1(A) C _DO_30(W,C,V))
+#define _DO_32(W,C,A,V...) (_##W##_1(A) C _DO_31(W,C,V))
+#define _DO_33(W,C,A,V...) (_##W##_1(A) C _DO_32(W,C,V))
+#define _DO_34(W,C,A,V...) (_##W##_1(A) C _DO_33(W,C,V))
+#define _DO_35(W,C,A,V...) (_##W##_1(A) C _DO_34(W,C,V))
+#define _DO_36(W,C,A,V...) (_##W##_1(A) C _DO_35(W,C,V))
+#define _DO_37(W,C,A,V...) (_##W##_1(A) C _DO_36(W,C,V))
+#define _DO_38(W,C,A,V...) (_##W##_1(A) C _DO_37(W,C,V))
+#define _DO_39(W,C,A,V...) (_##W##_1(A) C _DO_38(W,C,V))
+#define _DO_40(W,C,A,V...) (_##W##_1(A) C _DO_39(W,C,V))
 #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
@@ -204,6 +235,8 @@
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
+#define _OPTITEM(A...)      A,
+#define OPTITEM(O,A...)     TERN_(O,DEFER4(_OPTITEM)(A))
 #define _OPTARG(A...)       , A
 #define OPTARG(O,A...)      TERN_(O,DEFER4(_OPTARG)(A))
 #define _OPTCODE(A)         A;
@@ -251,6 +284,13 @@
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
+#define CODE_16( A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O; P
+#define CODE_15( A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N; O
+#define CODE_14( A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A; B; C; D; E; F; G; H; I; J; K; L; M; N
+#define CODE_13( A,B,C,D,E,F,G,H,I,J,K,L,M,...) A; B; C; D; E; F; G; H; I; J; K; L; M
+#define CODE_12( A,B,C,D,E,F,G,H,I,J,K,L,...) A; B; C; D; E; F; G; H; I; J; K; L
+#define CODE_11( A,B,C,D,E,F,G,H,I,J,K,...) A; B; C; D; E; F; G; H; I; J; K
+#define CODE_10( A,B,C,D,E,F,G,H,I,J,...) A; B; C; D; E; F; G; H; I; J
 #define CODE_9( A,B,C,D,E,F,G,H,I,...) A; B; C; D; E; F; G; H; I
 #define CODE_8( A,B,C,D,E,F,G,H,...) A; B; C; D; E; F; G; H
 #define CODE_7( A,B,C,D,E,F,G,...) A; B; C; D; E; F; G
@@ -260,6 +300,7 @@
 #define CODE_3( A,B,C,...) A; B; C
 #define CODE_2( A,B,...) A; B
 #define CODE_1( A,...) A
+#define CODE_0(...)
 #define _CODE_N(N,V...) CODE_##N(V)
 #define CODE_N(N,V...) _CODE_N(N,V)
 
@@ -279,11 +320,16 @@
 #define GANG_3( A,B,C,...) A B C
 #define GANG_2( A,B,...) A B
 #define GANG_1( A,...) A
+#define GANG_0(...)
 #define _GANG_N(N,V...) GANG_##N(V)
 #define GANG_N(N,V...) _GANG_N(N,V)
 #define GANG_N_1(N,K) _GANG_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 
 // Macros for initializing arrays
+#define LIST_20(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T
+#define LIST_19(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S
+#define LIST_18(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R
+#define LIST_17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q
 #define LIST_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
 #define LIST_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O
 #define LIST_14(A,B,C,D,E,F,G,H,I,J,K,L,M,N,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N
@@ -322,7 +368,7 @@
 
 #undef ABS
 #ifdef __cplusplus
-  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
+  template <class T> static constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
 #else
   #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
 #endif
@@ -365,14 +411,14 @@
     extern "C++" {
 
       // C++11 solution that is standards compliant. Return type is deduced automatically
-      template <class L, class R> static inline constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      template <class L, class R> static constexpr auto _MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs < rhs ? lhs : rhs;
       }
-      template <class L, class R> static inline constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      template <class L, class R> static constexpr auto _MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
         return lhs > rhs ? lhs : rhs;
       }
-      template<class T, class ... Ts> static inline constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
-      template<class T, class ... Ts> static inline constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
+      template<class T, class ... Ts> static constexpr const T _MIN(T V, Ts... Vs) { return _MIN(V, _MIN(Vs...)); }
+      template<class T, class ... Ts> static constexpr const T _MAX(T V, Ts... Vs) { return _MAX(V, _MAX(Vs...)); }
 
     }
 
@@ -399,7 +445,7 @@
     template <typename T, typename ... Args> struct first_type_of { typedef T type; };
     template <typename T> struct first_type_of<T> { typedef T type; };
   }
-  // C++11 solution using SFINAE to detect the existance of a member in a class at compile time.
+  // C++11 solution using SFINAE to detect the existence of a member in a class at compile time.
   // It creates a HasMember<Type> structure containing 'value' set to true if the member exists
   #define HAS_MEMBER_IMPL(Member) \
     namespace Private { \
@@ -500,6 +546,11 @@
 #define INC_13 14
 #define INC_14 15
 #define INC_15 16
+#define INC_16 17
+#define INC_17 18
+#define INC_18 19
+#define INC_19 20
+#define INC_20 21
 #define INCREMENT_(n) INC_##n
 #define INCREMENT(n) INCREMENT_(n)
 

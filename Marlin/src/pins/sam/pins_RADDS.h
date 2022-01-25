@@ -286,7 +286,7 @@
   #endif // SPARK_FULL_GRAPHICS
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+    #define BTN_ENC_EN                        47  // Detect the presence of the encoder
   #endif
 
 #endif // HAS_WIRED_LCD

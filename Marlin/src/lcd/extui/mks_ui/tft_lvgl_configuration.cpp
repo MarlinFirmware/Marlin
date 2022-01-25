@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -126,13 +127,30 @@ void tft_lvgl_init() {
 
   watchdog_refresh();     // LVGL init takes time
 
-  #if MB(MKS_ROBIN_NANO)
-    OUT_WRITE(PB0, LOW);  // HE1
-  #endif
-
   // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
+
+  watchdog_refresh();     // LVGL init takes time
+
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    uint16_t usb_flash_loop = 1000;
+    #if ENABLED(MULTI_VOLUME) && !HAS_SD_HOST_DRIVE
+      SET_INPUT_PULLUP(SD_DETECT_PIN);
+      if (READ(SD_DETECT_PIN) == LOW) card.changeMedia(&card.media_driver_sdcard);
+      else card.changeMedia(&card.media_driver_usbFlash);
+    #endif
+    do {
+      card.media_driver_usbFlash.idle();
+      watchdog_refresh();
+      delay(2);
+    } while (!card.media_driver_usbFlash.isInserted() && usb_flash_loop--);
+    card.mount();
+  #elif HAS_LOGO_IN_FLASH
+    delay(1000);
+    watchdog_refresh();
+    delay(1000);
+  #endif
 
   watchdog_refresh();     // LVGL init takes time
 
@@ -192,9 +210,7 @@ void tft_lvgl_init() {
 
   systick_attach_callback(SysTick_Callback);
 
-  #if HAS_SPI_FLASH_FONT
-    init_gb2312_font();
-  #endif
+  TERN_(HAS_SPI_FLASH_FONT, init_gb2312_font());
 
   tft_style_init();
   filament_pin_setup();
@@ -236,19 +252,43 @@ void tft_lvgl_init() {
   #endif
 }
 
+static lv_disp_drv_t* disp_drv_p;
+
+#if ENABLED(USE_SPI_DMA_TC)
+  bool lcd_dma_trans_lock = false;
+#endif
+
+void dmc_tc_handler(struct __DMA_HandleTypeDef * hdma) {
+  #if ENABLED(USE_SPI_DMA_TC)
+    lv_disp_flush_ready(disp_drv_p);
+    lcd_dma_trans_lock = false;
+    TFT_SPI::Abort();
+  #endif
+}
+
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
   uint16_t width = area->x2 - area->x1 + 1,
           height = area->y2 - area->y1 + 1;
 
+  TERN_(USE_SPI_DMA_TC, disp_drv_p = disp);
+
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
 
-  for (uint16_t i = 0; i < height; i++)
-    SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
-
-  lv_disp_flush_ready(disp); // Indicate you are ready with the flushing
+  #if ENABLED(USE_SPI_DMA_TC)
+    lcd_dma_trans_lock = true;
+    SPI_TFT.tftio.WriteSequenceIT((uint16_t*)color_p, width * height);
+    TFT_SPI::DMAtx.XferCpltCallback = dmc_tc_handler;
+  #else
+    SPI_TFT.tftio.WriteSequence((uint16_t*)color_p, width * height);
+    lv_disp_flush_ready(disp_drv_p); // Indicate you are ready with the flushing
+  #endif
 
   W25QXX.init(SPI_QUARTER_SPEED);
 }
+
+#if ENABLED(USE_SPI_DMA_TC)
+  bool get_lcd_dma_lock() { return lcd_dma_trans_lock; }
+#endif
 
 void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv_color_t bk_color) {
   uint16_t width, height;
@@ -266,9 +306,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 }
 
 static bool get_point(int16_t *x, int16_t *y) {
-  bool is_touched = touch.getRawPoint(x, y);
-
-  if (!is_touched) return false;
+  if (!touch.getRawPoint(x, y)) return false;
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     const calibrationState state = touch_calibration.get_calibration_state();
@@ -288,34 +326,26 @@ static bool get_point(int16_t *x, int16_t *y) {
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   static int16_t last_x = 0, last_y = 0;
-  static uint8_t last_touch_state = LV_INDEV_STATE_REL;
-  static int32_t touch_time1 = 0;
-  uint32_t tmpTime, diffTime = 0;
-
-  tmpTime = millis();
-  diffTime = getTickDiff(tmpTime, touch_time1);
-  if (diffTime > 20) {
-    if (get_point(&last_x, &last_y)) {
-
-      if (last_touch_state == LV_INDEV_STATE_PR) return false;
-      data->state = LV_INDEV_STATE_PR;
-
-      // Set the coordinates (if released use the last-pressed coordinates)
+  if (get_point(&last_x, &last_y)) {
+    #if TFT_ROTATION == TFT_ROTATE_180
+      data->point.x = TFT_WIDTH - last_x;
+      data->point.y = TFT_HEIGHT - last_y;
+    #else
       data->point.x = last_x;
       data->point.y = last_y;
-
-      last_x = last_y = 0;
-      last_touch_state = LV_INDEV_STATE_PR;
-    }
-    else {
-      if (last_touch_state == LV_INDEV_STATE_PR)
-        data->state = LV_INDEV_STATE_REL;
-      last_touch_state = LV_INDEV_STATE_REL;
-    }
-
-    touch_time1 = tmpTime;
+    #endif
+    data->state = LV_INDEV_STATE_PR;
   }
-
+  else {
+    #if TFT_ROTATION == TFT_ROTATE_180
+      data->point.x = TFT_WIDTH - last_x;
+      data->point.y = TFT_HEIGHT - last_y;
+    #else
+      data->point.x = last_x;
+      data->point.y = last_y;
+    #endif
+    data->state = LV_INDEV_STATE_REL;
+  }
   return false; // Return `false` since no data is buffering or left to read
 }
 
@@ -334,7 +364,7 @@ bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
 
 extern uint8_t currentFlashPage;
 
-//spi_flash
+// spi_flash
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
@@ -383,7 +413,7 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
   return LV_FS_RES_OK;
 }
 
-//sd
+// sd
 char *cur_namefff;
 uint32_t sd_read_base_addr = 0, sd_read_addr_offset = 0, small_image_size = 409;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
@@ -398,7 +428,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   // find small image size
   card.read(public_buf, 512);
   public_buf[511] = '\0';
-  char* eol = strpbrk((const char*)public_buf, "\n\r");
+  const char* eol = strpbrk((const char*)public_buf, "\n\r");
   small_image_size = (uintptr_t)eol - (uintptr_t)((uint32_t *)(&public_buf[0])) + 1;
   return LV_FS_RES_OK;
 }
@@ -529,5 +559,11 @@ void lv_encoder_pin_init() {
   }
 
 #endif // HAS_ENCODER_ACTION
+
+#if __PLAT_NATIVE_SIM__
+  #include <lv_misc/lv_log.h>
+  typedef void (*lv_log_print_g_cb_t)(lv_log_level_t level, const char *, uint32_t, const char *);
+  extern "C" void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb) {}
+#endif
 
 #endif // HAS_TFT_LVGL_UI

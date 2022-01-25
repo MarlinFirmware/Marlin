@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -89,8 +90,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       lv_draw_change_speed();
       break;
     case ID_O_RETURN:
-      clear_cur_ui();
-      draw_return_ui();
+      goto_previous_ui();
       break;
     case ID_O_POWER_OFF:
       if (gCfgItems.finish_power_off) {
