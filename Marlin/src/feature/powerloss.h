@@ -42,6 +42,10 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#ifndef POWER_LOSS_ZRAISE
+  #define POWER_LOSS_ZRAISE 2
+#endif
+
 //#define DEBUG_POWER_LOSS_RECOVERY
 //#define SAVE_EACH_CMD_MODE
 //#define SAVE_INFO_INTERVAL_MS 0
@@ -52,6 +56,7 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+
   float zraise;
 
   // Repeat information
@@ -59,32 +64,31 @@ typedef struct {
     Repeat stored_repeat;
   #endif
 
-  #if ENABLED(HAS_HOME_OFFSET)
+  #if HAS_HOME_OFFSET
     xyz_pos_t home_offset;
   #endif
-  #if ENABLED(HAS_POSITION_SHIFT)
+  #if HAS_POSITION_SHIFT
     xyz_pos_t position_shift;
   #endif
-  #if ENABLED(HAS_MULTI_EXTRUDER)
+  #if HAS_MULTI_EXTRUDER
     uint8_t active_extruder;
   #endif
 
   #if DISABLED(NO_VOLUMETRICS)
-    bool volumetric_enabled;
     float filament_size[EXTRUDERS];
   #endif
 
-  #if ENABLED(HAS_HOTEND)
+  #if HAS_HOTEND
     celsius_t target_temperature[HOTENDS];
   #endif
-  #if ENABLED(HAS_HEATED_BED)
+  #if HAS_HEATED_BED
     celsius_t target_temperature_bed;
   #endif
-  #if ENABLED(HAS_FAN)
+  #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
   #endif
 
-  #if ENABLED(HAS_LEVELING)
+  #if HAS_LEVELING
     float fade;
   #endif
 
@@ -113,10 +117,14 @@ typedef struct {
 
   // Misc. Marlin flags
   struct {
+    bool raised:1;                // Raised before saved
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
-    #if ENABLED(HAS_LEVELING)
-      bool leveling:1;
+    #if HAS_LEVELING
+      bool leveling:1;            // M420 S
+    #endif
+    #if DISABLED(NO_VOLUMETRICS)
+      bool volumetric_enabled:1;  // M200 S D
     #endif
   } flag;
 
@@ -137,14 +145,14 @@ class PrintJobRecovery {
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
 
-    #if ENABLED(DWIN_CREALITY_LCD)
+    #if HAS_DWIN_E3V2_BASIC
       static bool dwin_flag;
     #endif
 
     static void init();
     static void prepare();
 
-    static inline void setup() {
+    static void setup() {
       #if PIN_EXISTS(POWER_LOSS)
         #if ENABLED(POWER_LOSS_PULLUP)
           SET_INPUT_PULLUP(POWER_LOSS_PIN);
@@ -157,49 +165,55 @@ class PrintJobRecovery {
     }
 
     // Track each command's file offsets
-    static inline uint32_t command_sdpos() { return sdpos[queue_index_r]; }
-    static inline void commit_sdpos(const uint8_t index_w) { sdpos[index_w] = cmd_sdpos; }
+    static uint32_t command_sdpos() { return sdpos[queue_index_r]; }
+    static void commit_sdpos(const uint8_t index_w) { sdpos[index_w] = cmd_sdpos; }
 
     static bool enabled;
     static void enable(const bool onoff);
     static void changed();
 
-    static inline bool exists() { return card.jobRecoverFileExists(); }
-    static inline void open(const bool read) { card.openJobRecoveryFile(read); }
-    static inline void close() { file.close(); }
+    static bool exists() { return card.jobRecoverFileExists(); }
+    static void open(const bool read) { card.openJobRecoveryFile(read); }
+    static void close() { file.close(); }
 
     static void check();
     static void resume();
     static void purge();
 
-    static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
+    static void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
-    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0);
+    static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
 
     #if PIN_EXISTS(POWER_LOSS)
-      static inline void outage() {
-        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE)
-          _outage();
+      static void outage() {
+        static constexpr uint8_t OUTAGE_THRESHOLD = 3;
+        static uint8_t outage_counter = 0;
+        if (enabled && READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) {
+          outage_counter++;
+          if (outage_counter >= OUTAGE_THRESHOLD) _outage();
+        }
+        else
+          outage_counter = 0;
       }
     #endif
 
     // The referenced file exists
-    static inline bool interrupted_file_exists() { return card.fileExists(info.sd_filename); }
+    static bool interrupted_file_exists() { return card.fileExists(info.sd_filename); }
 
-    static inline bool valid() { return info.valid() && interrupted_file_exists(); }
+    static bool valid() { return info.valid() && interrupted_file_exists(); }
 
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      static void debug(PGM_P const prefix);
+      static void debug(FSTR_P const prefix);
     #else
-      static inline void debug(PGM_P const) {}
+      static void debug(FSTR_P const) {}
     #endif
 
   private:
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      static void retract_and_lift(const float &zraise);
+      static void retract_and_lift(const_float_t zraise);
     #endif
 
     #if PIN_EXISTS(POWER_LOSS)

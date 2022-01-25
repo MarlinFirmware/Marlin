@@ -27,7 +27,7 @@
   #include "leds/leds.h" // for LEDColor
 #endif
 
-#if DISABLED(CASE_LIGHT_NO_BRIGHTNESS) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+#if NONE(CASE_LIGHT_NO_BRIGHTNESS, CASE_LIGHT_IS_COLOR_LED) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
   #define CASELIGHT_USES_BRIGHTNESS 1
 #endif
 
@@ -49,8 +49,8 @@ public:
   }
 
   static void update(const bool sflag);
-  static inline void update_brightness() { update(false); }
-  static inline void update_enabled()    { update(true);  }
+  static void update_brightness() { update(false); }
+  static void update_enabled()    { update(true);  }
 
   #if ENABLED(CASE_LIGHT_IS_COLOR_LED)
     private:

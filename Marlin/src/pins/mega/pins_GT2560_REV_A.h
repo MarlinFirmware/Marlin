@@ -47,10 +47,11 @@
 #if ENABLED(BLTOUCH)
   #if MB(GT2560_REV_A_PLUS)
     #define SERVO0_PIN                        11
+    #define Z_MAX_PIN                         32
   #else
     #define SERVO0_PIN                        32
+    #define Z_MAX_PIN                         -1
   #endif
-  #define Z_MAX_PIN                           -1
 #else
   #define Z_MAX_PIN                           32
 #endif
@@ -126,7 +127,7 @@
 
       #define LCD_RESET_PIN                   16
 
-      #define DEFAULT_LCD_CONTRAST           220
+      #define LCD_CONTRAST_DEFAULT           220
 
       #define LCD_BACKLIGHT_PIN               -1
     #else

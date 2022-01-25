@@ -65,12 +65,12 @@ inline void toggle_pins() {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!VALID_PIN(pin)) continue;
     if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
-      report_pin_state_extended(pin, ignore_protection, true, PSTR("Untouched "));
+      report_pin_state_extended(pin, ignore_protection, true, F("Untouched "));
       SERIAL_EOL();
     }
     else {
       watchdog_refresh();
-      report_pin_state_extended(pin, ignore_protection, true, PSTR("Pulsing   "));
+      report_pin_state_extended(pin, ignore_protection, true, F("Pulsing   "));
       #ifdef __STM32F1__
         const auto prior_mode = _GET_MODE(i);
       #else
@@ -112,7 +112,7 @@ inline void toggle_pins() {
     }
     SERIAL_EOL();
   }
-  SERIAL_ECHOLNPGM("Done.");
+  SERIAL_ECHOLNPGM(STR_DONE);
 
 } // toggle_pins
 
@@ -130,7 +130,7 @@ inline void servo_probe_test() {
 
     const uint8_t probe_index = parser.byteval('P', Z_PROBE_SERVO_NR);
 
-    SERIAL_ECHOLNPAIR("Servo probe test\n"
+    SERIAL_ECHOLNPGM("Servo probe test\n"
                       ". using index:  ", probe_index,
                       ", deploy angle: ", servo_angles[probe_index][0],
                       ", stow angle:   ", servo_angles[probe_index][1]
@@ -143,7 +143,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PIN
       constexpr bool probe_inverting = Z_MIN_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PIN: ", PROBE_TEST_PIN);
+      SERIAL_ECHOLNPGM(". Probe Z_MIN_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(". Z_MIN_ENDSTOP_INVERTING: ");
 
     #else
@@ -151,7 +151,7 @@ inline void servo_probe_test() {
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
       constexpr bool probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
 
-      SERIAL_ECHOLNPAIR(". Probe Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
+      SERIAL_ECHOLNPGM(". Probe Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
       SERIAL_ECHOPGM(   ". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
 
     #endif
@@ -211,11 +211,11 @@ inline void servo_probe_test() {
       if (deploy_state != stow_state) {
         SERIAL_ECHOLNPGM("= Mechanical Switch detected");
         if (deploy_state) {
-          SERIAL_ECHOLNPAIR("  DEPLOYED state: HIGH (logic 1)",
+          SERIAL_ECHOLNPGM("  DEPLOYED state: HIGH (logic 1)",
                             "  STOWED (triggered) state: LOW (logic 0)");
         }
         else {
-          SERIAL_ECHOLNPAIR("  DEPLOYED state: LOW (logic 0)",
+          SERIAL_ECHOLNPGM("  DEPLOYED state: LOW (logic 0)",
                             "  STOWED (triggered) state: HIGH (logic 1)");
         }
         #if ENABLED(BLTOUCH)
@@ -244,7 +244,7 @@ inline void servo_probe_test() {
         if (probe_counter == 15)
           SERIAL_ECHOLNPGM(": 30ms or more");
         else
-          SERIAL_ECHOLNPAIR(" (+/- 4ms): ", probe_counter * 2);
+          SERIAL_ECHOLNPGM(" (+/- 4ms): ", probe_counter * 2);
 
         if (probe_counter >= 4) {
           if (probe_counter == 15) {
@@ -288,8 +288,8 @@ inline void servo_probe_test() {
  *                  S<pin>  - Start Pin number.   If not given, will default to 0
  *                  L<pin>  - End Pin number.   If not given, will default to last pin defined for this board
  *                  I<bool> - Flag to ignore Marlin's pin protection.   Use with caution!!!!
- *                  R       - Repeat pulses on each pin this number of times before continueing to next pin
- *                  W       - Wait time (in miliseconds) between pulses.  If not given will default to 500
+ *                  R       - Repeat pulses on each pin this number of times before continuing to next pin
+ *                  W       - Wait time (in milliseconds) between pulses.  If not given will default to 500
  *
  *  M43 S       - Servo probe test
  *                  P<index> - Probe index (optional - defaults to 0
@@ -303,7 +303,7 @@ void GcodeSuite::M43() {
   if (parser.seen('E')) {
     endstops.monitor_flag = parser.value_bool();
     SERIAL_ECHOPGM("endstop monitor ");
-    SERIAL_ECHOPGM_P(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
+    SERIAL_ECHOF(endstops.monitor_flag ? F("en") : F("dis"));
     SERIAL_ECHOLNPGM("abled");
     return;
   }
@@ -344,8 +344,8 @@ void GcodeSuite::M43() {
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR));
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called")));
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, F("M43 Wait Called"), FPSTR(CONTINUE_STR)));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(F("M43 Wait Called")));
     #endif
 
     for (;;) {

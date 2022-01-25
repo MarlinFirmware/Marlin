@@ -34,7 +34,9 @@
 #include "../../inc/MarlinConfig.h"
 
 void spiBegin() {
-  OUT_WRITE(SD_SS_PIN, HIGH);
+  #if PIN_EXISTS(SD_SS)
+    OUT_WRITE(SD_SS_PIN, HIGH);
+  #endif
   SET_OUTPUT(SD_SCK_PIN);
   SET_INPUT(SD_MISO_PIN);
   SET_OUTPUT(SD_MOSI_PIN);
@@ -74,7 +76,8 @@ void spiBegin() {
       #elif defined(PRR0)
         PRR0
       #endif
-        , PRSPI);
+      , PRSPI
+    );
 
     SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
     SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
@@ -88,7 +91,7 @@ void spiBegin() {
   }
 
   /** SPI read data  */
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     if (nbyte-- == 0) return;
     SPDR = 0xFF;
     for (uint16_t i = 0; i < nbyte; i++) {
@@ -107,7 +110,7 @@ void spiBegin() {
   }
 
   /** SPI send block  */
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     SPDR = token;
     for (uint16_t i = 0; i < 512; i += 2) {
       while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
@@ -215,7 +218,7 @@ void spiBegin() {
   }
 
   // Soft SPI read data
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+  void spiRead(uint8_t *buf, uint16_t nbyte) {
     for (uint16_t i = 0; i < nbyte; i++)
       buf[i] = spiRec();
   }
@@ -242,7 +245,7 @@ void spiBegin() {
   }
 
   // Soft SPI send block
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
+  void spiSendBlock(uint8_t token, const uint8_t *buf) {
     spiSend(token);
     for (uint16_t i = 0; i < 512; i++)
       spiSend(buf[i]);

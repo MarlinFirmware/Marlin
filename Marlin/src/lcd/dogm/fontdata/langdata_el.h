@@ -3,7 +3,9 @@
  * Contents will be REPLACED by future processing!
  * Use genallfont.sh to generate font data for updated languages.
  */
-#include <U8glib.h>
+#pragma once
+
+#include "langdata.h"
 
 const u8g_fntpgm_uint8_t fontpage_7_136_136[33] U8G_FONT_SECTION("fontpage_7_136_136") = {
   0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0x88,0x88,0x00,0x0A,0x00,0x00,
@@ -75,16 +77,15 @@ const u8g_fntpgm_uint8_t fontpage_64_166_166[24] U8G_FONT_SECTION("fontpage_64_1
   0x00,0x0C,0x0F,0x00,0xFE,0x00,0x00,0x00,0x00,0x00,0xA6,0xA6,0x00,0x01,0x00,0x00,
   0x00,0x05,0x01,0x01,0x06,0x00,0x00,0xA8};
 
-#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
-static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136), // 'Έ' -- 'Έ'
-    FONTDATA_ITEM(7, 145, 157, fontpage_7_145_157), // 'Α' -- 'Ν'
-    FONTDATA_ITEM(7, 159, 161, fontpage_7_159_161), // 'Ο' -- 'Ρ'
-    FONTDATA_ITEM(7, 163, 167, fontpage_7_163_167), // 'Σ' -- 'Χ'
-    FONTDATA_ITEM(7, 172, 175, fontpage_7_172_175), // 'ά' -- 'ί'
-    FONTDATA_ITEM(7, 177, 181, fontpage_7_177_181), // 'α' -- 'ε'
-    FONTDATA_ITEM(7, 183, 199, fontpage_7_183_199), // 'η' -- 'χ'
-    FONTDATA_ITEM(7, 201, 201, fontpage_7_201_201), // 'ω' -- 'ω'
-    FONTDATA_ITEM(7, 204, 206, fontpage_7_204_206), // 'ό' -- 'ώ'
-    FONTDATA_ITEM(64, 166, 166, fontpage_64_166_166), // '…' -- '…'
+static const uxg_fontinfo_t g_fontinfo_el[] PROGMEM = {
+  FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136), // 'Έ' -- 'Έ'
+  FONTDATA_ITEM(7, 145, 157, fontpage_7_145_157), // 'Α' -- 'Ν'
+  FONTDATA_ITEM(7, 159, 161, fontpage_7_159_161), // 'Ο' -- 'Ρ'
+  FONTDATA_ITEM(7, 163, 167, fontpage_7_163_167), // 'Σ' -- 'Χ'
+  FONTDATA_ITEM(7, 172, 175, fontpage_7_172_175), // 'ά' -- 'ί'
+  FONTDATA_ITEM(7, 177, 181, fontpage_7_177_181), // 'α' -- 'ε'
+  FONTDATA_ITEM(7, 183, 199, fontpage_7_183_199), // 'η' -- 'χ'
+  FONTDATA_ITEM(7, 201, 201, fontpage_7_201_201), // 'ω' -- 'ω'
+  FONTDATA_ITEM(7, 204, 206, fontpage_7_204_206), // 'ό' -- 'ώ'
+  FONTDATA_ITEM(64, 166, 166, fontpage_64_166_166), // '…' -- '…'
 };

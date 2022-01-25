@@ -41,7 +41,7 @@
   #define START_FLASH_ADDR  0x00000000
   #define END_FLASH_ADDR    0x00080000
 
-#elif defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx)
+#elif defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx) || defined(STM32G0xx)
 
   // For STM32F103ZET6/STM32F103VET6/STM32F0xx
   //  SRAM  (0x20000000 - 0x20010000) (64kb)

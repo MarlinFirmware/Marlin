@@ -43,9 +43,10 @@ public:
 
   static void init();
   static void reset();
+  static bool enabled() { return _enabled; }
   static void mmu_loop();
   static void tool_change(const uint8_t index);
-  static void tool_change(const char* special);
+  static void tool_change(const char *special);
   static uint8_t get_current_tool();
   static void set_filament_type(const uint8_t index, const uint8_t type);
 
@@ -56,10 +57,10 @@ public:
   static bool eject_filament(const uint8_t index, const bool recover);
 
 private:
-  static bool rx_str_P(const char* str);
-  static void tx_str_P(const char* str);
-  static void tx_printf_P(const char* format, const int argument);
-  static void tx_printf_P(const char* format, const int argument1, const int argument2);
+  static bool rx_str(FSTR_P fstr);
+  static void tx_str(FSTR_P fstr);
+  static void tx_printf(FSTR_P ffmt, const int argument);
+  static void tx_printf(FSTR_P ffmt, const int argument1, const int argument2);
   static void clear_rx_buffer();
 
   static bool rx_ok();
@@ -88,7 +89,7 @@ private:
     static void mmu_continue_loading();
   #endif
 
-  static bool enabled, ready, mmu_print_saved;
+  static bool _enabled, ready, mmu_print_saved;
 
   static uint8_t cmd, cmd_arg, last_cmd, extruder;
   static int8_t state;
@@ -98,7 +99,7 @@ private:
   static millis_t prev_request, prev_P0_request;
   static char rx_buffer[MMU_RX_SIZE], tx_buffer[MMU_TX_SIZE];
 
-  static inline void set_runout_valid(const bool valid) {
+  static void set_runout_valid(const bool valid) {
     finda_runout_valid = valid;
     #if HAS_FILAMENT_SENSOR
       if (valid) runout.reset();

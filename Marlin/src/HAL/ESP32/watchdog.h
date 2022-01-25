@@ -25,7 +25,7 @@
   extern "C" {
 #endif
 
-    esp_err_t esp_task_wdt_reset();
+  esp_err_t esp_task_wdt_reset();
 
 #ifdef __cplusplus
   }

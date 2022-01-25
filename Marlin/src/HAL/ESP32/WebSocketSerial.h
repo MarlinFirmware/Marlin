@@ -54,7 +54,7 @@ public:
   ring_buffer_pos_t read(uint8_t *buffer);
   void flush();
   ring_buffer_pos_t write(const uint8_t c);
-  ring_buffer_pos_t write(const uint8_t* buffer, ring_buffer_pos_t size);
+  ring_buffer_pos_t write(const uint8_t *buffer, ring_buffer_pos_t size);
 };
 
 class WebSocketSerial: public Stream {
@@ -70,7 +70,7 @@ public:
   int read();
   void flush();
   size_t write(const uint8_t c);
-  size_t write(const uint8_t* buffer, size_t size);
+  size_t write(const uint8_t *buffer, size_t size);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE uint32_t dropped() { return 0; }
@@ -81,5 +81,5 @@ public:
   #endif
 };
 
-typedef Serial1Class<WebSocketSerial> MSerialT;
-extern MSerialT webSocketSerial;
+typedef Serial1Class<WebSocketSerial> MSerialWebSocketT;
+extern MSerialWebSocketT webSocketSerial;

@@ -26,6 +26,7 @@
 #define PRINT_PORT(p) do{ SERIAL_ECHOPGM("  Port: "); sprintf_P(buffer, PSTR("%c%02ld"), 'A' + g_APinDescription[p].ulPort, g_APinDescription[p].ulPin); SERIAL_ECHO(buffer); }while (0)
 #define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
 #define GET_ARRAY_PIN(p) pin_array[p].pin
 #define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
 #define VALID_PIN(pin) (pin >= 0 && pin < (int8_t)NUMBER_PINS_TOTAL)
@@ -47,7 +48,7 @@ bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
 void pwm_details(int32_t pin) {
   if (pwm_status(pin)) {
     //uint32_t chan = g_APinDescription[pin].ulPWMChannel TODO when fast pwm is operative;
-    //SERIAL_ECHOPAIR("PWM = ", duty);
+    //SERIAL_ECHOPGM("PWM = ", duty);
   }
 }
 

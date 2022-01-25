@@ -43,8 +43,6 @@
   extern DefaultSerial4 MSerial3;
   extern DefaultSerial5 MSerial4;
 
-  // MYSERIAL1 required before MarlinSerial includes!
-
   #define __MSERIAL(X) MSerial##X
   #define _MSERIAL(X) __MSERIAL(X)
   #define MSERIAL(X) _MSERIAL(INCREMENT(X))
@@ -54,7 +52,7 @@
   #elif WITHIN(SERIAL_PORT, 0, 3)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT)
   #else
-    #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
 
   #ifdef SERIAL_PORT_2
@@ -63,7 +61,7 @@
     #elif WITHIN(SERIAL_PORT_2, 0, 3)
       #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
     #else
-      #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
+      #error "SERIAL_PORT_2 must be from 0 to 3. You can also use -1 if the board supports Native USB."
     #endif
   #endif
 
@@ -73,7 +71,7 @@
     #elif WITHIN(MMU2_SERIAL_PORT, 0, 3)
       #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
     #else
-      #error "MMU2_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+      #error "MMU2_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
     #endif
   #endif
 
@@ -83,7 +81,7 @@
     #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
       #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
     #else
-      #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+      #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
     #endif
   #endif
 
@@ -109,7 +107,7 @@ typedef int8_t pin_t;
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
 
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+void HAL_reboot();
 
 //
 // ADC
@@ -128,6 +126,11 @@ void HAL_adc_init();
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
+
+//
+// PWM
+//
+inline void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) { analogWrite(pin, v); }
 
 //
 // Pin Map
@@ -155,16 +158,14 @@ void HAL_idletask();
 //
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 #ifdef __cplusplus
   extern "C" {

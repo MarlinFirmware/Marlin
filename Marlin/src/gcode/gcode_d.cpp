@@ -19,169 +19,240 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(MARLIN_DEV_MODE)
 
-  #include "gcode.h"
-  #include "../module/settings.h"
-  #include "../module/temperature.h"
-  #include "../libs/hex_print.h"
-  #include "../HAL/shared/eeprom_if.h"
-  #include "../HAL/shared/Delay.h"
+#include "gcode.h"
 
-  extern void dump_delay_accuracy_check();
+#if ENABLED(BUFFER_MONITORING)
+  #include "queue.h"
+#endif
 
-  /**
-   * Dn: G-code for development and testing
-   *
-   * See https://reprap.org/wiki/G-code#D:_Debug_codes
-   *
-   * Put whatever else you need here to test ongoing development.
-   */
-  void GcodeSuite::D(const int16_t dcode) {
-    switch (dcode) {
+#include "../module/settings.h"
+#include "../module/temperature.h"
+#include "../libs/hex_print.h"
+#include "../HAL/shared/eeprom_if.h"
+#include "../HAL/shared/Delay.h"
+#include "../sd/cardreader.h"
+#include "../MarlinCore.h" // for kill
 
-      case -1:
-        for (;;); // forever
+extern void dump_delay_accuracy_check();
 
-      case 0:
-        HAL_reboot();
-        break;
+/**
+ * Dn: G-code for development and testing
+ *
+ * See https://reprap.org/wiki/G-code#D:_Debug_codes
+ *
+ * Put whatever else you need here to test ongoing development.
+ */
+void GcodeSuite::D(const int16_t dcode) {
+  switch (dcode) {
 
-      case 1: {
-        // Zero or pattern-fill the EEPROM data
-        #if ENABLED(EEPROM_SETTINGS)
-          persistentStore.access_start();
-          size_t total = persistentStore.capacity();
-          int pos = 0;
-          const uint8_t value = 0x0;
-          while (total--) persistentStore.write_data(pos, &value, 1);
-          persistentStore.access_finish();
-        #else
-          settings.reset();
-          settings.save();
-        #endif
-        HAL_reboot();
-      } break;
+    case -1:
+      for (;;) { /* loop forever (watchdog reset) */ }
 
-      case 2: { // D2 Read / Write SRAM
-        #define SRAM_SIZE 8192
-        uint8_t *pointer = parser.hex_adr_val('A');
-        uint16_t len = parser.ushortval('C', 1);
-        uintptr_t addr = (uintptr_t)pointer;
-        NOMORE(addr, size_t(SRAM_SIZE - 1));
-        NOMORE(len, SRAM_SIZE - addr);
-        if (parser.seenval('X')) {
-          // Write the hex bytes after the X
-          uint16_t val = parser.hex_val('X');
-          while (len--) {
-            *pointer = val;
-            pointer++;
-          }
-        }
-        else {
-          while (len--) print_hex_byte(*(pointer++));
-          SERIAL_EOL();
-        }
-      } break;
+    case 0:
+      HAL_reboot();
+      break;
 
+    case 10:
+      kill(F("D10"), F("KILL TEST"), parser.seen_test('P'));
+      break;
+
+    case 1: {
+      // Zero or pattern-fill the EEPROM data
       #if ENABLED(EEPROM_SETTINGS)
-        case 3: { // D3 Read / Write EEPROM
-          uint8_t *pointer = parser.hex_adr_val('A');
-          uint16_t len = parser.ushortval('C', 1);
-          uintptr_t addr = (uintptr_t)pointer;
-          NOMORE(addr, size_t(persistentStore.capacity() - 1));
-          NOMORE(len, persistentStore.capacity() - addr);
-          if (parser.seenval('X')) {
-            uint16_t val = parser.hex_val('X');
-            #if ENABLED(EEPROM_SETTINGS)
-              persistentStore.access_start();
-              while (len--) {
-                int pos = 0;
-                persistentStore.write_data(pos, (uint8_t *)&val, sizeof(val));
-              }
-              SERIAL_EOL();
-              persistentStore.access_finish();
-            #else
-              SERIAL_ECHOLNPGM("NO EEPROM");
-            #endif
-          }
-          else {
-            // Read bytes from EEPROM
-            #if ENABLED(EEPROM_SETTINGS)
-              persistentStore.access_start();
-              int pos = 0;
-              uint8_t val;
-              while (len--) if (!persistentStore.read_data(pos, &val, 1)) print_hex_byte(val);
-              SERIAL_EOL();
-              persistentStore.access_finish();
-            #else
-              SERIAL_ECHOLNPGM("NO EEPROM");
-              len = 0;
-            #endif
-            SERIAL_EOL();
-          }
-        } break;
+        persistentStore.access_start();
+        size_t total = persistentStore.capacity();
+        int pos = 0;
+        const uint8_t value = 0x0;
+        while (total--) persistentStore.write_data(pos, &value, 1);
+        persistentStore.access_finish();
+      #else
+        settings.reset();
+        settings.save();
       #endif
+      HAL_reboot();
+    } break;
 
-      case 4: { // D4 Read / Write PIN
-        // const uint8_t pin = parser.byteval('P');
-        // const bool is_out = parser.boolval('F'),
-        //            val = parser.byteval('V', LOW);
-        if (parser.seenval('X')) {
-          // TODO: Write the hex bytes after the X
-          //while (len--) {
-          //}
+    case 2: { // D2 Read / Write SRAM
+      #define SRAM_SIZE 8192
+      uint8_t *pointer = parser.hex_adr_val('A');
+      uint16_t len = parser.ushortval('C', 1);
+      uintptr_t addr = (uintptr_t)pointer;
+      NOMORE(addr, size_t(SRAM_SIZE - 1));
+      NOMORE(len, SRAM_SIZE - addr);
+      if (parser.seenval('X')) {
+        // Write the hex bytes after the X
+        uint16_t val = parser.hex_val('X');
+        while (len--) {
+          *pointer = val;
+          pointer++;
         }
-        else {
-          // while (len--) {
-            // TODO: Read bytes from EEPROM
-            // print_hex_byte(eeprom_read_byte(*(adr++));
-          // }
-          SERIAL_EOL();
-        }
-      } break;
+      }
+      else {
+        while (len--) print_hex_byte(*(pointer++));
+        SERIAL_EOL();
+      }
+    } break;
 
-      case 5: { // D5 Read / Write onboard Flash
-        #define FLASH_SIZE 1024
+    #if ENABLED(EEPROM_SETTINGS)
+      case 3: { // D3 Read / Write EEPROM
         uint8_t *pointer = parser.hex_adr_val('A');
         uint16_t len = parser.ushortval('C', 1);
         uintptr_t addr = (uintptr_t)pointer;
-        NOMORE(addr, size_t(FLASH_SIZE - 1));
-        NOMORE(len, FLASH_SIZE - addr);
+        NOMORE(addr, size_t(persistentStore.capacity() - 1));
+        NOMORE(len, persistentStore.capacity() - addr);
         if (parser.seenval('X')) {
-          // TODO: Write the hex bytes after the X
-          //while (len--) {}
+          uint16_t val = parser.hex_val('X');
+          #if ENABLED(EEPROM_SETTINGS)
+            persistentStore.access_start();
+            while (len--) {
+              int pos = 0;
+              persistentStore.write_data(pos, (uint8_t *)&val, sizeof(val));
+            }
+            SERIAL_EOL();
+            persistentStore.access_finish();
+          #else
+            SERIAL_ECHOLNPGM("NO EEPROM");
+          #endif
         }
         else {
-          // while (len--) {
-            // TODO: Read bytes from EEPROM
-            // print_hex_byte(eeprom_read_byte(adr++));
-          // }
+          // Read bytes from EEPROM
+          #if ENABLED(EEPROM_SETTINGS)
+            persistentStore.access_start();
+            int pos = 0;
+            uint8_t val;
+            while (len--) if (!persistentStore.read_data(pos, &val, 1)) print_hex_byte(val);
+            SERIAL_EOL();
+            persistentStore.access_finish();
+          #else
+            SERIAL_ECHOLNPGM("NO EEPROM");
+            len = 0;
+          #endif
           SERIAL_EOL();
         }
       } break;
+    #endif
 
-      case 6: // D6 Check delay loop accuracy
-        dump_delay_accuracy_check();
-        break;
+    case 4: { // D4 Read / Write PIN
+      //const bool is_out = parser.boolval('F');
+      //const uint8_t pin = parser.byteval('P'),
+      //              val = parser.byteval('V', LOW);
+      if (parser.seenval('X')) {
+        // TODO: Write the hex bytes after the X
+        //while (len--) {
+        //}
+      }
+      else {
+        //while (len--) {
+        //// TODO: Read bytes from EEPROM
+        //  print_hex_byte(eeprom_read_byte(adr++));
+        //}
+        SERIAL_EOL();
+      }
+    } break;
 
-      case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
-        SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");
-        SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
-        thermalManager.disable_all_heaters();
-        delay(1000); // Allow time to print
-        DISABLE_ISRS();
-        // Use a low-level delay that does not rely on interrupts to function
-        // Do not spin forever, to avoid thermal risks if heaters are enabled and
-        // watchdog does not work.
-        for (int i = 10000; i--;) DELAY_US(1000UL);
-        ENABLE_ISRS();
-        SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
+    case 5: { // D5 Read / Write onboard Flash
+      #define FLASH_SIZE 1024
+      uint8_t *pointer = parser.hex_adr_val('A');
+      uint16_t len = parser.ushortval('C', 1);
+      uintptr_t addr = (uintptr_t)pointer;
+      NOMORE(addr, size_t(FLASH_SIZE - 1));
+      NOMORE(len, FLASH_SIZE - addr);
+      if (parser.seenval('X')) {
+        // TODO: Write the hex bytes after the X
+        //while (len--) {}
+      }
+      else {
+        //while (len--) {
+        //// TODO: Read bytes from EEPROM
+        //  print_hex_byte(eeprom_read_byte(adr++));
+        //}
+        SERIAL_EOL();
+      }
+    } break;
+
+    case 6: // D6 Check delay loop accuracy
+      dump_delay_accuracy_check();
+      break;
+
+    case 7: // D7 dump the current serial port type (hence configuration)
+      SERIAL_ECHOLNPGM("Current serial configuration RX_BS:", RX_BUFFER_SIZE, ", TX_BS:", TX_BUFFER_SIZE);
+      SERIAL_ECHOLN(gtn(&SERIAL_IMPL));
+      break;
+
+    case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
+      SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");
+      SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
+      thermalManager.disable_all_heaters();
+      delay(1000); // Allow time to print
+      DISABLE_ISRS();
+      // Use a low-level delay that does not rely on interrupts to function
+      // Do not spin forever, to avoid thermal risks if heaters are enabled and
+      // watchdog does not work.
+      for (int i = 10000; i--;) DELAY_US(1000UL);
+      ENABLE_ISRS();
+      SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
+    } break;
+
+    #if ENABLED(SDSUPPORT)
+
+      case 101: { // D101 Test SD Write
+        card.openFileWrite("test.gco");
+        if (!card.isFileOpen()) {
+          SERIAL_ECHOLNPGM("Failed to open test.gco to write.");
+          return;
+        }
+        __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
+
+        uint16_t c;
+        for (c = 0; c < COUNT(buf); c++)
+          buf[c] = 'A' + (c % ('Z' - 'A'));
+
+        c = 1024 * 4;
+        while (c--) {
+          TERN_(USE_WATCHDOG, watchdog_refresh());
+          card.write(buf, COUNT(buf));
+        }
+        SERIAL_ECHOLNPGM(" done");
+        card.closefile();
       } break;
 
-      #if ENABLED(POSTMORTEM_DEBUGGING)
+      case 102: { // D102 Test SD Read
+        char testfile[] = "test.gco";
+        card.openFileRead(testfile);
+        if (!card.isFileOpen()) {
+          SERIAL_ECHOLNPGM("Failed to open test.gco to read.");
+          return;
+        }
+        __attribute__((aligned(sizeof(size_t)))) uint8_t buf[512];
+        uint16_t c = 1024 * 4;
+        while (c--) {
+          TERN_(USE_WATCHDOG, watchdog_refresh());
+          card.read(buf, COUNT(buf));
+          bool error = false;
+          for (uint16_t i = 0; i < COUNT(buf); i++) {
+            if (buf[i] != ('A' + (i % ('Z' - 'A')))) {
+              error = true;
+              break;
+            }
+          }
+          if (error) {
+            SERIAL_ECHOLNPGM(" Read error!");
+            break;
+          }
+        }
+        SERIAL_ECHOLNPGM(" done");
+        card.closefile();
+      } break;
+
+    #endif // SDSUPPORT
+
+    #if ENABLED(POSTMORTEM_DEBUGGING)
+
       case 451: { // Trigger all kind of faults to test exception catcher
         SERIAL_ECHOLNPGM("Disabling heaters");
         thermalManager.disable_all_heaters();
@@ -197,8 +268,35 @@
         }
         break;
       }
-      #endif
-    }
-  }
 
-#endif
+    #endif
+
+    #if ENABLED(BUFFER_MONITORING)
+
+      /**
+       * D576: Return buffer stats or set the auto-report interval.
+       * Usage: D576 [S<seconds>]
+       *
+       * With no parameters emits the following output:
+       * "D576 P<nn> B<nn> PU<nn> PD<nn> BU<nn> BD<nn>"
+       * Where:
+       *   P : Planner buffers free
+       *   B : Command buffers free
+       *   PU: Planner buffer underruns (since the last report)
+       *   PD: Longest duration (ms) the planner buffer was empty (since the last report)
+       *   BU: Command buffer underruns (since the last report)
+       *   BD: Longest duration (ms) command buffer was empty (since the last report)
+       */
+      case 576: {
+        if (parser.seenval('S'))
+          queue.set_auto_report_interval((uint8_t)parser.value_byte());
+        else
+          queue.report_buffer_statistics();
+        break;
+      }
+
+    #endif // BUFFER_MONITORING
+  }
+}
+
+#endif // MARLIN_DEV_MODE
