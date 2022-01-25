@@ -61,7 +61,7 @@ _Min_Stack_Size = 0x400;; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x800C000, LENGTH = 256K
+FLASH (rx)      : ORIGIN = 0x8008000, LENGTH = 256K - 32K
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 64K
 }
 
@@ -150,7 +150,7 @@ SECTIONS
   . = ALIGN(4);
   .bss :
   {
-    /* This is used by the startup in order to initialize the .bss secion */
+    /* This is used by the startup in order to initialize the .bss section */
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;
     *(.bss)

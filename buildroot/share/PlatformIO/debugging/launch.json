@@ -1,0 +1,48 @@
+/**
+ * Remote debugging on STM32 using the "Cortex Debug" extension.
+ *
+ * Copy one or more of the configurations items below into .vscode/launch.json
+ * to add those debug options to the PlatformIO IDE "Run & Debug" panel.
+ *
+ * Examples for BigTreeTech SKR 2 (USB) and Native Simulator. Modify for your own build.
+ *
+ * NOTE: The PlatformIO extension will remove items when regenerating launch.json.
+ */
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32 (launch)",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "cwd": "${workspaceRoot}",
+            "showDevDebugOutput": false,
+            "configFiles": [ "interface/stlink.cfg", "target/stm32f4x.cfg" ],
+            "device": "STM32F407",
+            "executable": ".pio/build/BIGTREE_SKR_2_USB_debug/firmware.elf",
+        },
+        {
+            "name": "Debug STM32 (attach)",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "cwd": "${workspaceRoot}",
+            "showDevDebugOutput": false,
+            "configFiles": [ "interface/stlink.cfg", "target/stm32f4x.cfg" ],
+            "device": "STM32F407",
+            "executable": ".pio/build/BIGTREE_SKR_2_USB_debug/firmware.elf",
+        },
+        {
+            "name": "Debug Sim",
+            "request": "launch",
+            "type": "cppdbg",
+            "cwd": "${workspaceRoot}",
+            //"program": ".pio/build/simulator_linux_debug/MarlinSimulator",
+            //"program": ".pio/build/simulator_windows/MarlinSimulator",
+            "program": ".pio/build/simulator_macos_debug/MarlinSimulator",
+            "miDebuggerPath": "/opt/local/bin/ggdb",
+            "MIMode": "gdb"
+        }
+    ]
+}

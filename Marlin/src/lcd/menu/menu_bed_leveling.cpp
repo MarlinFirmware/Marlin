@@ -52,8 +52,6 @@
   // Motion > Level Bed handlers
   //
 
-  static uint8_t manual_probe_index;
-
   // LCD probed points are from defaults
   constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
@@ -103,9 +101,9 @@
         ui.wait_for_move = true;
         ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
-          queue.inject_P(PSTR("G29S2"));
+          queue.inject(F("G29S2"));
         #elif ENABLED(PROBE_MANUALLY)
-          queue.inject_P(PSTR("G29V1"));
+          queue.inject(F("G29V1"));
         #endif
       }
       else
@@ -155,9 +153,9 @@
     // G29 Records Z, moves, and signals when it pauses
     ui.wait_for_move = true;
     #if ENABLED(MESH_BED_LEVELING)
-      queue.inject_P(manual_probe_index ? PSTR("G29S2") : PSTR("G29S1"));
+      queue.inject(manual_probe_index ? F("G29S2") : F("G29S1"));
     #elif ENABLED(PROBE_MANUALLY)
-      queue.inject_P(PSTR("G29V1"));
+      queue.inject(F("G29V1"));
     #endif
   }
 
@@ -278,7 +276,12 @@ void menu_bed_leveling() {
   // Mesh Bed Leveling Z-Offset
   //
   #if ENABLED(MESH_BED_LEVELING)
-    EDIT_ITEM(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+    #if WITHIN(Z_PROBE_OFFSET_RANGE_MIN, -9, 9)
+      #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
+    #else
+      #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
+    #endif
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_BED_Z, &mbl.z_offset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -288,7 +291,7 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)
-    SUBMENU(MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

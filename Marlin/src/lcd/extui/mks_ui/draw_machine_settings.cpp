@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -40,36 +41,28 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  clear_cur_ui();
   switch (obj->mks_obj_id) {
-    case ID_MACHINE_RETURN:
-      lv_clear_machine_settings();
-      draw_return_ui();
-      break;
-    case ID_MACHINE_ACCELERATION:
-      lv_clear_machine_settings();
-      lv_draw_acceleration_settings();
-      break;
-    case ID_MACHINE_FEEDRATE:
-      lv_clear_machine_settings();
-      lv_draw_max_feedrate_settings();
-      break;
+    case ID_MACHINE_RETURN:       draw_return_ui(); break;
+    case ID_MACHINE_ACCELERATION: lv_draw_acceleration_settings(); break;
+    case ID_MACHINE_FEEDRATE:     lv_draw_max_feedrate_settings(); break;
     #if HAS_CLASSIC_JERK
-      case ID_MACHINE_JERK:
-        lv_clear_machine_settings();
-        lv_draw_jerk_settings();
-        break;
+      case ID_MACHINE_JERK:       lv_draw_jerk_settings(); break;
     #endif
   }
 }
 
 void lv_draw_machine_settings() {
   scr = lv_screen_create(MACHINE_SETTINGS_UI, machine_menu.MachineConfigTitle);
-  lv_screen_menu_item(scr, machine_menu.AccelerationConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MACHINE_ACCELERATION, 0);
-  lv_screen_menu_item(scr, machine_menu.MaxFeedRateConf, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_MACHINE_FEEDRATE, 1);
+  lv_coord_t y = PARA_UI_POS_Y;
+  lv_screen_menu_item(scr, machine_menu.AccelerationConf, PARA_UI_POS_X, y, event_handler, ID_MACHINE_ACCELERATION, 0);
+  y += PARA_UI_POS_Y;
+  lv_screen_menu_item(scr, machine_menu.MaxFeedRateConf, PARA_UI_POS_X, y, event_handler, ID_MACHINE_FEEDRATE, 1);
   #if HAS_CLASSIC_JERK
-    lv_screen_menu_item(scr, machine_menu.JerkConf, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_MACHINE_JERK, 2);
+    y += PARA_UI_POS_Y;
+    lv_screen_menu_item(scr, machine_menu.JerkConf, PARA_UI_POS_X, y, event_handler, ID_MACHINE_JERK, 2);
   #endif
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_MACHINE_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_MACHINE_RETURN, true);
 }
 
 void lv_clear_machine_settings() {

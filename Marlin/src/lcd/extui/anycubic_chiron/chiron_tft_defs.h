@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * lcd/extui/anycubic_chiron/chiron_defs.h
@@ -28,7 +29,6 @@
  *  (not affiliated with Anycubic, Ltd.)
  */
 
-#pragma once
 #include "../../../inc/MarlinConfigPre.h"
 //#define ACDEBUGLEVEL 4
 
@@ -57,46 +57,46 @@
 #define AC_LOWEST_MESHPOINT_VAL         -10  // The lowest value you can set for a single mesh point offset
 
  // TFT panel commands
-#define  AC_msg_sd_card_inserted       PSTR("J00")
-#define  AC_msg_sd_card_removed        PSTR("J01")
-#define  AC_msg_no_sd_card             PSTR("J02")
-#define  AC_msg_usb_connected          PSTR("J03")
-#define  AC_msg_print_from_sd_card     PSTR("J04")
-#define  AC_msg_pause                  PSTR("J05")
-#define  AC_msg_nozzle_heating         PSTR("J06")
-#define  AC_msg_nozzle_heating_done    PSTR("J07")
-#define  AC_msg_bed_heating            PSTR("J08")
-#define  AC_msg_bed_heating_done       PSTR("J09")
-#define  AC_msg_nozzle_temp_abnormal   PSTR("J10")
-#define  AC_msg_kill_lcd               PSTR("J11")
-#define  AC_msg_ready                  PSTR("J12")
-#define  AC_msg_low_nozzle_temp        PSTR("J13")
-#define  AC_msg_print_complete         PSTR("J14")
-#define  AC_msg_filament_out_alert     PSTR("J15")
-#define  AC_msg_stop                   PSTR("J16")
-#define  AC_msg_main_board_has_reset   PSTR("J17")
-#define  AC_msg_paused                 PSTR("J18")
-#define  AC_msg_j19_unknown            PSTR("J19")
-#define  AC_msg_sd_file_open_success   PSTR("J20")
-#define  AC_msg_sd_file_open_failed    PSTR("J21")
-#define  AC_msg_level_monitor_finished PSTR("J22")
-#define  AC_msg_filament_out_block     PSTR("J23")
-#define  AC_msg_probing_not_allowed    PSTR("J24")
-#define  AC_msg_probing_complete       PSTR("J25")
-#define  AC_msg_start_probing          PSTR("J26")
-#define  AC_msg_version                PSTR("J27")
-#define  AC_msg_mesh_changes_abandoned PSTR("Mesh changes abandoned, previous mesh restored.")
-#define  AC_msg_mesh_changes_saved     PSTR("Mesh changes saved.")
-#define  AC_msg_old_panel_detected     PSTR("Standard TFT panel detected!")
-#define  AC_msg_new_panel_detected     PSTR("New TFT panel detected!")
-#define  AC_msg_powerloss_recovery     PSTR("Resuming from power outage! select the same SD file then press resume")
+#define AC_msg_sd_card_inserted        F("J00")
+#define AC_msg_sd_card_removed         F("J01")
+#define AC_msg_no_sd_card              F("J02")
+#define AC_msg_usb_connected           F("J03")
+#define AC_msg_print_from_sd_card      F("J04")
+#define AC_msg_pause                   F("J05")
+#define AC_msg_nozzle_heating          F("J06")
+#define AC_msg_nozzle_heating_done     F("J07")
+#define AC_msg_bed_heating             F("J08")
+#define AC_msg_bed_heating_done        F("J09")
+#define AC_msg_nozzle_temp_abnormal    F("J10")
+#define AC_msg_kill_lcd                F("J11")
+#define AC_msg_ready                   F("J12")
+#define AC_msg_low_nozzle_temp         F("J13")
+#define AC_msg_print_complete          F("J14")
+#define AC_msg_filament_out_alert      F("J15")
+#define AC_msg_stop                    F("J16")
+#define AC_msg_main_board_has_reset    F("J17")
+#define AC_msg_paused                  F("J18")
+#define AC_msg_j19_unknown             F("J19")
+#define AC_msg_sd_file_open_success    F("J20")
+#define AC_msg_sd_file_open_failed     F("J21")
+#define AC_msg_level_monitor_finished  F("J22")
+#define AC_msg_filament_out_block      F("J23")
+#define AC_msg_probing_not_allowed     F("J24")
+#define AC_msg_probing_complete        F("J25")
+#define AC_msg_start_probing           F("J26")
+#define AC_msg_version                 F("J27")
+#define AC_msg_mesh_changes_abandoned  F("Mesh changes abandoned, previous mesh restored.")
+#define AC_msg_mesh_changes_saved      F("Mesh changes saved.")
+#define AC_msg_old_panel_detected      F("Standard TFT panel detected!")
+#define AC_msg_new_panel_detected      F("New TFT panel detected!")
+#define AC_msg_powerloss_recovery      F("Resuming from power outage! select the same SD file then press resume")
 // Error messages must not contain spaces
-#define  AC_msg_error_bed_temp         PSTR("Abnormal_bed_temp")
-#define  AC_msg_error_hotend_temp      PSTR("Abnormal_hotend_temp")
-#define  AC_msg_error_sd_card          PSTR("SD_card_error")
-#define  AC_msg_filament_out           PSTR("Filament_runout")
-#define  AC_msg_power_loss             PSTR("Power_failure")
-#define  AC_msg_eeprom_version         PSTR("EEPROM_ver_wrong")
+#define AC_msg_error_bed_temp          F("Abnormal_bed_temp")
+#define AC_msg_error_hotend_temp       F("Abnormal_hotend_temp")
+#define AC_msg_error_sd_card           F("SD_card_error")
+#define AC_msg_filament_out            F("Filament_runout")
+#define AC_msg_power_loss              F("Power_failure")
+#define AC_msg_eeprom_version          F("EEPROM_ver_wrong")
 
 #define MARLIN_msg_start_probing       PSTR("Probing Point 1/25")
 #define MARLIN_msg_probing_failed      PSTR("Probing Failed")
@@ -113,16 +113,16 @@
 #define MARLIN_msg_filament_purging    PSTR("Filament Purging...")
 #define MARLIN_msg_special_pause       PSTR("PB")
 
-#define AC_cmnd_auto_unload_filament   PSTR("M701")                    // Use Marlin unload routine
-#define AC_cmnd_auto_load_filament     PSTR("M702 M0 PB")              // Use Marlin load routing then pause for user to clean nozzle
+#define AC_cmnd_auto_unload_filament   F("M701")                    // Use Marlin unload routine
+#define AC_cmnd_auto_load_filament     F("M702 M0 PB")              // Use Marlin load routing then pause for user to clean nozzle
 
-#define AC_cmnd_manual_load_filament   PSTR("M83\nG1 E50 F700\nM82")   // replace the manual panel commands with something a little faster
-#define AC_cmnd_manual_unload_filament PSTR("M83\nG1 E-50 F1200\nM82")
-#define AC_cmnd_enable_leveling        PSTR("M420SV")
-#define AC_cmnd_power_loss_recovery    PSTR("G28XYR5\nG28Z")           // Lift, home X and Y then home Z when in 'safe' position
+#define AC_cmnd_manual_load_filament   F("M83\nG1 E50 F700\nM82")   // replace the manual panel commands with something a little faster
+#define AC_cmnd_manual_unload_filament F("M83\nG1 E-50 F1200\nM82")
+#define AC_cmnd_enable_leveling        F("M420SV")
+#define AC_cmnd_power_loss_recovery    F("G28XYR5\nG28Z")           // Lift, home X and Y then home Z when in 'safe' position
 
-#define AC_Test_for_OldPanel           PSTR("SIZE")                    // An old panel will respond with 'SXY 480 320' a new panel wont respond.
-#define AC_Test_for_NewPanel           PSTR("J200")                    // A new panel will respond with '[0]=0   [1]=0' to '[19]=0   '  an old panel wont respond
+#define AC_Test_for_OldPanel           F("SIZE")                    // An old panel will respond with 'SXY 480 320' a new panel wont respond.
+#define AC_Test_for_NewPanel           F("J200")                    // A new panel will respond with '[0]=0   [1]=0' to '[19]=0   '  an old panel wont respond
 
 namespace Anycubic {
   enum heater_state_t : uint8_t {

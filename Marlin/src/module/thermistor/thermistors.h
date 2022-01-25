@@ -42,18 +42,6 @@
 #define OV_SCALE(N) (N)
 #define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
-#define TEMP_SENSOR_IS(n,H) (n == TEMP_SENSOR_##H)
-#define ANY_THERMISTOR_IS(n) ( TEMP_SENSOR_IS(n, 0) || TEMP_SENSOR_IS(n, 1) \
-                            || TEMP_SENSOR_IS(n, 2) || TEMP_SENSOR_IS(n, 3) \
-                            || TEMP_SENSOR_IS(n, 4) || TEMP_SENSOR_IS(n, 5) \
-                            || TEMP_SENSOR_IS(n, 6) || TEMP_SENSOR_IS(n, 7) \
-                            || TEMP_SENSOR_IS(n, BED) \
-                            || TEMP_SENSOR_IS(n, CHAMBER) \
-                            || TEMP_SENSOR_IS(n, COOLER) \
-                            || TEMP_SENSOR_IS(n, PROBE) \
-                            || TEMP_SENSOR_IS(n, BOARD) \
-                            || TEMP_SENSOR_IS(n, REDUNDANT) )
-
 typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
@@ -295,18 +283,18 @@ typedef struct { int16_t value; celsius_t celsius; } temp_entry_t;
   #define TEMPTABLE_CHAMBER_LEN 0
 #endif
 
-#if TEMP_SENSOR_COOLER > 0
-  #define TEMPTABLE_COOLER TT_NAME(TEMP_SENSOR_COOLER)
-  #define TEMPTABLE_COOLER_LEN COUNT(TEMPTABLE_COOLER)
-#else
-  #define TEMPTABLE_COOLER_LEN 0
-#endif
-
 #if TEMP_SENSOR_PROBE > 0
   #define TEMPTABLE_PROBE TT_NAME(TEMP_SENSOR_PROBE)
   #define TEMPTABLE_PROBE_LEN COUNT(TEMPTABLE_PROBE)
 #else
   #define TEMPTABLE_PROBE_LEN 0
+#endif
+
+#if TEMP_SENSOR_COOLER > 0
+  #define TEMPTABLE_COOLER TT_NAME(TEMP_SENSOR_COOLER)
+  #define TEMPTABLE_COOLER_LEN COUNT(TEMPTABLE_COOLER)
+#else
+  #define TEMPTABLE_COOLER_LEN 0
 #endif
 
 #if TEMP_SENSOR_BOARD > 0
@@ -328,8 +316,8 @@ static_assert(255 > TEMPTABLE_0_LEN || 255 > TEMPTABLE_1_LEN || 255 > TEMPTABLE_
            || 255 > TEMPTABLE_4_LEN || 255 > TEMPTABLE_5_LEN || 255 > TEMPTABLE_6_LEN || 255 > TEMPTABLE_7_LEN
            || 255 > TEMPTABLE_BED_LEN
            || 255 > TEMPTABLE_CHAMBER_LEN
-           || 255 > TEMPTABLE_COOLER_LEN
            || 255 > TEMPTABLE_PROBE_LEN
+           || 255 > TEMPTABLE_COOLER_LEN
            || 255 > TEMPTABLE_BOARD_LEN
            || 255 > TEMPTABLE_REDUNDANT_LEN
   , "Temperature conversion tables over 255 entries need special consideration."

@@ -69,7 +69,9 @@ enum EndstopEnum : char {
   #endif
 
   // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
-  _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(HAS_CUSTOM_PROBE_PIN, = Z_MIN))
+  #if !HAS_DELTA_SENSORLESS_PROBING
+    _ES_ITEM(HAS_BED_PROBE, Z_MIN_PROBE IF_DISABLED(USES_Z_MIN_PROBE_PIN, = Z_MIN))
+  #endif
 
   // The total number of states
   NUM_ENDSTOP_STATES
@@ -83,6 +85,15 @@ enum EndstopEnum : char {
   #endif
   #if HAS_Z_MIN || HAS_Z_MAX || HOMING_Z_WITH_PROBE
     , Z_ENDSTOP = TERN(Z_HOME_TO_MAX, Z_MAX, TERN(HOMING_Z_WITH_PROBE, Z_MIN_PROBE, Z_MIN))
+  #endif
+  #if HAS_I_MIN || HAS_I_MAX
+    , I_ENDSTOP = TERN(I_HOME_TO_MAX, I_MAX, I_MIN)
+  #endif
+  #if HAS_J_MIN || HAS_J_MAX
+    , J_ENDSTOP = TERN(J_HOME_TO_MAX, J_MAX, J_MIN)
+  #endif
+  #if HAS_K_MIN || HAS_K_MAX
+    , K_ENDSTOP = TERN(K_HOME_TO_MAX, K_MAX, K_MIN)
   #endif
 };
 
@@ -135,7 +146,7 @@ class Endstops {
       return enabled || TERN0(HAS_BED_PROBE, z_probe_enabled);
     }
 
-    static inline bool global_enabled() { return enabled_globally; }
+    static bool global_enabled() { return enabled_globally; }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -167,7 +178,7 @@ class Endstops {
       ;
     }
 
-    static inline bool probe_switch_activated() {
+    static bool probe_switch_activated() {
       return (true
         #if ENABLED(PROBE_ACTIVATION_SWITCH)
           && READ(PROBE_ACTIVATION_SWITCH_PIN) == PROBE_ACTIVATION_SWITCH_STATE

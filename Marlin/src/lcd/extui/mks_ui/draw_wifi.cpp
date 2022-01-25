@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -70,7 +71,7 @@ void lv_draw_wifi() {
   if (gCfgItems.wifi_mode_sel == STA_MODEL) {
 
     if (gCfgItems.cloud_enable)
-      buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BTN_X_PIXEL+INTERVAL_V*2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_CLOUD);
+      buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_CLOUD);
 
     buttonReconnect = lv_imgbtn_create(scr, "F:/bmp_wifi.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RECONNECT);
 

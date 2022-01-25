@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, BACKLASH_GCODE)
+#if BOTH(HAS_MARLINUI_MENU, BACKLASH_GCODE)
 
 #include "menu_item.h"
 
@@ -38,7 +38,7 @@ void menu_backlash() {
 
   EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
 
-  #if DISABLED(CORE_BACKLASH) || ENABLED(MARKFORGED_XY)
+  #if DISABLED(CORE_BACKLASH) || EITHER(MARKFORGED_XY, MARKFORGED_YX)
     #define _CAN_CALI AXIS_CAN_CALIBRATE
   #else
     #define _CAN_CALI(A) true
@@ -51,13 +51,13 @@ void menu_backlash() {
   #if HAS_Z_AXIS && _CAN_CALI(C)
     EDIT_BACKLASH_DISTANCE(C);
   #endif
-  #if LINEAR_AXES >= 4 && _CAN_CALI(I)
+  #if HAS_I_AXIS && _CAN_CALI(I)
     EDIT_BACKLASH_DISTANCE(I);
   #endif
-  #if LINEAR_AXES >= 5 && _CAN_CALI(J)
+  #if HAS_J_AXIS && _CAN_CALI(J)
     EDIT_BACKLASH_DISTANCE(J);
   #endif
-  #if LINEAR_AXES >= 6 && _CAN_CALI(K)
+  #if HAS_K_AXIS && _CAN_CALI(K)
     EDIT_BACKLASH_DISTANCE(K);
   #endif
 
@@ -68,4 +68,4 @@ void menu_backlash() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && BACKLASH_GCODE
+#endif // HAS_MARLINUI_MENU && BACKLASH_GCODE
