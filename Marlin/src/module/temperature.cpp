@@ -2132,7 +2132,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     #endif
 
     LOOP_L_N(e, COUNT(temp_dir)) {
-      if (TERN0(SWITCHING_TOOLHEAD_MULTI_HOTEND, active_extruder != e)) continue; // Only act on the active tool in manual switching mode
+      if (TERN0(STM_HAS_MULTI_HOTEND, active_extruder != e)) continue; // Only act on the active tool in manual switching mode
       const int8_t tdir = temp_dir[e];
       if (tdir) {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp
@@ -3118,7 +3118,7 @@ void Temperature::isr() {
 
   #define WRITE_FAN(n, v) WRITE(FAN##n##_PIN, (v) ^ FAN_INVERTING)
 
-  #if ENABLED(SWITCHING_TOOLHEAD_MULTI_HOTEND)
+  #if ENABLED(STM_HAS_MULTI_HOTEND)
     #define NUM_PWM_E 1
   #else
     #define NUM_PWM_E HOTENDS

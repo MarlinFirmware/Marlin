@@ -2223,7 +2223,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
 #endif
 
-#if HAS_MULTI_HOTEND || SWITCHING_TOOLHEAD_MULTI_HOTEND
+#if HAS_MULTI_HOTEND || STM_HAS_MULTI_HOTEND
   #if TEMP_SENSOR_1_IS_MAX_TC && !PIN_EXISTS(TEMP_1_CS)
     #error "TEMP_SENSOR_1 MAX thermocouple requires TEMP_1_CS_PIN."
   #elif TEMP_SENSOR_1 == 0
@@ -2417,41 +2417,43 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
     #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
   #endif
-  #if E_STEPPERS > 1 && ENABLED(MST_SINGLE_EXTRUDER)
-    #if !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
-      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
-    #endif
-    #if E_STEPPERS > 2
-      #if !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
-        #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
+  #if DISABLED(STM_HAS_MULTI_EXTRUDER)
+    #if E_STEPPERS > 1
+      #if !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
+        #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
       #endif
-      #if E_STEPPERS > 3
-        #if !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
-          #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
+      #if E_STEPPERS > 2
+        #if !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
+          #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
         #endif
-        #if E_STEPPERS > 4
-          #if !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
-            #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+        #if E_STEPPERS > 3
+          #if !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
+            #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
           #endif
-          #if E_STEPPERS > 5
-            #if !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
-              #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
+          #if E_STEPPERS > 4
+            #if !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
+              #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
             #endif
-            #if E_STEPPERS > 6
-              #if !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
-                #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
+            #if E_STEPPERS > 5
+              #if !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
+                #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
               #endif
-              #if E_STEPPERS > 7
-                #if !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
-                  #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
+              #if E_STEPPERS > 6
+                #if !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
+                  #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
                 #endif
-              #endif // E_STEPPERS > 7
-            #endif // E_STEPPERS > 6
-          #endif // E_STEPPERS > 5
-        #endif // E_STEPPERS > 4
-      #endif // E_STEPPERS > 3
-    #endif // E_STEPPERS > 2
-  #endif // E_STEPPERS > 1
+                #if E_STEPPERS > 7
+                  #if !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
+                    #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
+                  #endif
+                #endif // E_STEPPERS > 7
+              #endif // E_STEPPERS > 6
+            #endif // E_STEPPERS > 5
+          #endif // E_STEPPERS > 4
+        #endif // E_STEPPERS > 3
+      #endif // E_STEPPERS > 2
+    #endif // E_STEPPERS > 1
+  #endif // STM_HAS_MULTI_EXTRUDER
 #endif // E_STEPPERS
 
 /**
