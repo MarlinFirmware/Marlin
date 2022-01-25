@@ -47,7 +47,7 @@ void GcodeSuite::M413() {
     if (parser.seen("RL")) recovery.load();
     if (parser.seen_test('W')) recovery.save(true);
     if (parser.seen_test('P')) recovery.purge();
-    if (parser.seen_test('D')) recovery.debug(PSTR("M413"));
+    if (parser.seen_test('D')) recovery.debug(F("M413"));
     if (parser.seen_test('O')) recovery._outage(true);
     if (parser.seen_test('C')) recovery.check();
     if (parser.seen_test('E')) SERIAL_ECHOF(recovery.exists() ? F("PLR Exists\n") : F("No PLR\n"));
