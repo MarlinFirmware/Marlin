@@ -1663,7 +1663,7 @@ void Temperature::manage_heater() {
     cooler.flowmeter_task(ms);
     #if ENABLED(FLOWMETER_SAFETY)
       if (cooler.check_flow_too_low()) {
-        if (cutter.enabled()) TERN_(HAS_DISPLAY, ui.flow_fault());
+        TERN_(HAS_DISPLAY, if (cutter.enabled()) ui.flow_fault());
         cutter.disable();
         cutter.cutter_mode = CUTTER_MODE_ERROR;   // Immediately kill stepper inline power output
       }
