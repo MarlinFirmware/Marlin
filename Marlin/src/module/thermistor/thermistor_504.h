@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,6 +20,7 @@
  *
  */
 #pragma once
+
 // QWG 104F B3950 thermistor
 constexpr temp_entry_t temptable_504[] PROGMEM = {
   { OV(  15), 330 },
@@ -36,11 +37,11 @@ constexpr temp_entry_t temptable_504[] PROGMEM = {
   { OV(  35), 255 },
   { OV(  38), 250 },
   { OV(  41), 245 },
-  { OV(  44), 240 },  
+  { OV(  44), 240 },
   { OV(  48), 235 },
-  { OV(  52), 230 },  
+  { OV(  52), 230 },
   { OV(  56), 225 },
-  { OV(  61), 220 },  
+  { OV(  61), 220 },
   { OV(  66), 215 },
   { OV(  78), 210 },
   { OV(  92), 205 },

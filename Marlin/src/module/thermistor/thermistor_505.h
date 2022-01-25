@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,6 +20,7 @@
  *
  */
 #pragma once
+
 // ZONESTAR hotbed QWG-104F-3950 thermistor
 constexpr temp_entry_t temptable_505[] PROGMEM = {
   { OV(   1), 938 },

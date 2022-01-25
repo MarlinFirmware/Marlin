@@ -704,8 +704,8 @@ void MarlinUI::init() {
     TERN_(HAS_LCD_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
-      if (clear_buttons) buttons = 0;
-      TERN_(HAS_ADC_BUTTONS, keypad_buttons = 0);
+      if (clear_buttons)
+        TERN_(HAS_ADC_BUTTONS, keypad_buttons =) buttons = 0;
       next_button_update_ms = millis() + 500;
     #else
       UNUSED(clear_buttons);
