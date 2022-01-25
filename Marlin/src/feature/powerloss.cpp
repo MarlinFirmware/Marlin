@@ -40,7 +40,7 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if HAS_DWIN_E3V2_BASIC
   bool PrintJobRecovery::dwin_flag; // = false
 #endif
 
@@ -109,7 +109,7 @@ void PrintJobRecovery::check() {
   if (card.isMounted()) {
     load();
     if (!valid()) return cancel();
-    queue.inject_P(PSTR("M1000S"));
+    queue.inject(F("M1000S"));
   }
 }
 
@@ -130,7 +130,7 @@ void PrintJobRecovery::load() {
     (void)file.read(&info, sizeof(info));
     close();
   }
-  debug(PSTR("Load"));
+  debug(F("Load"));
 }
 
 /**
@@ -186,7 +186,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
-    TERN_(HAS_MULTI_EXTRUDER, info.active_extruder = active_extruder);
+    E_TERN_(info.active_extruder = active_extruder);
 
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;
@@ -244,7 +244,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
         #if POWER_LOSS_RETRACT_LEN
           // Retract filament now
-          gcode.process_subcommands_now_P(PSTR("G1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
+          gcode.process_subcommands_now(F("G1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
         #endif
 
         #if POWER_LOSS_ZRAISE
@@ -301,7 +301,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       retract_and_lift(zraise);
     #endif
 
-    kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
+    kill(GET_TEXT_F(MSG_OUTAGE_RECOVERY));
   }
 
 #endif
@@ -311,7 +311,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
  */
 void PrintJobRecovery::write() {
 
-  debug(PSTR("Write"));
+  debug(F("Write"));
 
   open(false);
   file.seekSet(0);
@@ -337,7 +337,7 @@ void PrintJobRecovery::resume() {
 
   #if HAS_LEVELING
     // Make sure leveling is off before any G92 and G28
-    gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
+    gcode.process_subcommands_now(F("M420 S0 Z0"));
   #endif
 
   #if HAS_HEATED_BED
@@ -373,7 +373,7 @@ void PrintJobRecovery::resume() {
   // establish the current position as best we can.
   //
 
-  gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
+  gcode.process_subcommands_now(F("G92.9E0")); // Reset E to 0
 
   #if Z_HOME_TO_MAX
 
@@ -386,7 +386,7 @@ void PrintJobRecovery::resume() {
           ), dtostrf(z_now, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
 
-  #else
+  #elif DISABLED(BELTPRINTER)
 
     #if ENABLED(POWER_LOSS_RECOVER_ZHOME) && defined(POWER_LOSS_ZHOME_POS)
       #define HOMING_Z_DOWN 1
@@ -410,7 +410,7 @@ void PrintJobRecovery::resume() {
     }
 
     // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
-    gcode.process_subcommands_now_P(PSTR("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
+    gcode.process_subcommands_now(F("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
 
   #endif
 
@@ -513,7 +513,7 @@ void PrintJobRecovery::resume() {
 
   // Un-retract if there was a retract at outage
   #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
-    gcode.process_subcommands_now_P(PSTR("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
+    gcode.process_subcommands_now(F("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
   #endif
 
   // Additional purge on resume if configured
@@ -523,7 +523,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
-    gcode.process_subcommands_now_P(PSTR("G12"));
+    gcode.process_subcommands_now(F("G12"));
   #endif
 
   // Move back over to the saved XY
@@ -575,9 +575,9 @@ void PrintJobRecovery::resume() {
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
-  void PrintJobRecovery::debug(PGM_P const prefix) {
-    DEBUG_ECHOPGM_P(prefix);
-    DEBUG_ECHOLNPAIR(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
+  void PrintJobRecovery::debug(FSTR_P const prefix) {
+    DEBUG_ECHOF(prefix);
+    DEBUG_ECHOLNPGM(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         DEBUG_ECHOPGM("current_position: ");
@@ -587,14 +587,14 @@ void PrintJobRecovery::resume() {
         }
         DEBUG_EOL();
 
-        DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
+        DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
 
-        DEBUG_ECHOLNPAIR("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
+        DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 
         #if ENABLED(GCODE_REPEAT_MARKERS)
-          DEBUG_ECHOLNPAIR("repeat index: ", info.stored_repeat.index);
+          DEBUG_ECHOLNPGM("repeat index: ", info.stored_repeat.index);
           LOOP_L_N(i, info.stored_repeat.index)
-            DEBUG_ECHOLNPAIR("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
+            DEBUG_ECHOLNPGM("..... sdpos: ", info.stored_repeat.marker.sdpos, " count: ", info.stored_repeat.marker.counter);
         #endif
 
         #if HAS_HOME_OFFSET
@@ -616,12 +616,12 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_MULTI_EXTRUDER
-          DEBUG_ECHOLNPAIR("active_extruder: ", info.active_extruder);
+          DEBUG_ECHOLNPGM("active_extruder: ", info.active_extruder);
         #endif
 
         #if DISABLED(NO_VOLUMETRICS)
           DEBUG_ECHOPGM("filament_size:");
-          LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPAIR(" ", info.filament_size[i]);
+          LOOP_L_N(i, EXTRUDERS) DEBUG_ECHOLNPGM(" ", info.filament_size[i]);
           DEBUG_EOL();
         #endif
 
@@ -635,7 +635,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_HEATED_BED
-          DEBUG_ECHOLNPAIR("target_temperature_bed: ", info.target_temperature_bed);
+          DEBUG_ECHOLNPGM("target_temperature_bed: ", info.target_temperature_bed);
         #endif
 
         #if HAS_FAN
@@ -648,7 +648,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          DEBUG_ECHOLNPAIR("leveling: ", info.flag.leveling ? "ON" : "OFF", "  fade: ", info.fade);
+          DEBUG_ECHOLNPGM("leveling: ", info.flag.leveling ? "ON" : "OFF", "  fade: ", info.fade);
         #endif
 
         #if ENABLED(FWRETRACT)
@@ -658,17 +658,17 @@ void PrintJobRecovery::resume() {
             if (e < EXTRUDERS - 1) DEBUG_CHAR(',');
           }
           DEBUG_EOL();
-          DEBUG_ECHOLNPAIR("retract_hop: ", info.retract_hop);
+          DEBUG_ECHOLNPGM("retract_hop: ", info.retract_hop);
         #endif
 
         // Mixing extruder and gradient
         #if BOTH(MIXING_EXTRUDER, GRADIENT_MIX)
-          DEBUG_ECHOLNPAIR("gradient: ", info.gradient.enabled ? "ON" : "OFF");
+          DEBUG_ECHOLNPGM("gradient: ", info.gradient.enabled ? "ON" : "OFF");
         #endif
 
-        DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
-        DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
-        DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
+        DEBUG_ECHOLNPGM("sd_filename: ", info.sd_filename);
+        DEBUG_ECHOLNPGM("sdpos: ", info.sdpos);
+        DEBUG_ECHOLNPGM("print_job_elapsed: ", info.print_job_elapsed);
 
         DEBUG_ECHOPGM("axis_relative:");
         if (TEST(info.axis_relative, REL_X)) DEBUG_ECHOPGM(" REL_X");
@@ -679,9 +679,9 @@ void PrintJobRecovery::resume() {
         if (TEST(info.axis_relative, E_MODE_REL)) DEBUG_ECHOPGM(" E_MODE_REL");
         DEBUG_EOL();
 
-        DEBUG_ECHOLNPAIR("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
-        DEBUG_ECHOLNPAIR("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
-        DEBUG_ECHOLNPAIR("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
+        DEBUG_ECHOLNPGM("flag.dryrun: ", AS_DIGIT(info.flag.dryrun));
+        DEBUG_ECHOLNPGM("flag.allow_cold_extrusion: ", AS_DIGIT(info.flag.allow_cold_extrusion));
+        DEBUG_ECHOLNPGM("flag.volumetric_enabled: ", AS_DIGIT(info.flag.volumetric_enabled));
       }
       else
         DEBUG_ECHOLNPGM("INVALID DATA");

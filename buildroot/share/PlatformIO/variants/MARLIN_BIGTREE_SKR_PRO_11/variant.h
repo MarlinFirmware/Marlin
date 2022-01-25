@@ -254,7 +254,7 @@ extern "C" {
 #endif
 
 // Timer Definitions
-//Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
+// Do not use timer used by PWM pins when possible. See PinMap_PWM in PeripheralPins.c
 #define TIMER_TONE              TIM2
 #define TIMER_SERVO             TIM5 // Only 1 Servo PIN on SKR-PRO, so use the same timer as defined in PeripheralPins
 #define TIMER_SERIAL            TIM7
@@ -280,7 +280,7 @@ extern "C" {
 #define PIN_SERIAL_TX           PA9
 
 // Optional PIN_SERIALn_RX and PIN_SERIALn_TX where 'n' is the U(S)ART number
-// Used when user instanciate a hardware Serial using its peripheral name.
+// Used when user instantiate a hardware Serial using its peripheral name.
 // Example: HardwareSerial mySerial(USART3);
 // will use PIN_SERIAL3_RX and PIN_SERIAL3_TX if defined.
 #define PIN_SERIAL1_RX          PA10

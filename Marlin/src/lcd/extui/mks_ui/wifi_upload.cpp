@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
@@ -35,12 +36,11 @@
 #define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
-extern SZ_USART_FIFO  WifiRxFifo;
+extern SZ_USART_FIFO WifiRxFifo;
 
 extern int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
 extern int writeUsartFifo(SZ_USART_FIFO * fifo, int8_t * buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);
-extern int usartFifoAvailable(SZ_USART_FIFO *fifo);
 void wifi_delay(int n);
 
 #define ARRAY_SIZE(a) sizeof(a) / sizeof((a)[0])
@@ -280,7 +280,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
     switch (state) {
       case begin: // expecting frame start
         c = uploadPort_read();
-        if (c == (uint8_t)0xC0) break;
+        if (c != (uint8_t)0xC0) break;
         state = header;
         needBytes = 2;
         break;
@@ -301,7 +301,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
           return stat;
         }
         else if (state == header) {
-          //store the header byte
+          // store the header byte
           hdr[hdrIdx++] = c;
           if (hdrIdx >= headerLength) {
             // get the body length, prepare a buffer for it
@@ -423,7 +423,7 @@ EspUploadResult doCommand(uint8_t op, const uint8_t *data, size_t dataLen, uint3
 EspUploadResult Sync(uint16_t timeout) {
   uint8_t buf[36];
   EspUploadResult stat;
-  int i ;
+  int i;
 
   // compose the data for the sync attempt
   memset(buf, 0x55, sizeof(buf));
@@ -449,8 +449,8 @@ EspUploadResult Sync(uint16_t timeout) {
       if (rc != success || bodyLen != 2) break;
     }
   }
-  //DEBUG
-  //else debug//printf("stat=%d\n", (int)stat);
+  // DEBUG
+  //else printf("stat=%d\n", (int)stat);
   return stat;
 }
 
@@ -644,10 +644,7 @@ static const uint32_t FirmwareAddress = 0x00000000, WebFilesAddress = 0x00100000
 
 void ResetWiFiForUpload(int begin_or_end) {
   //#if 0
-  uint32_t start, now;
-
-  start = getWifiTick();
-  now = start;
+  uint32_t start = getWifiTick();
 
   if (begin_or_end == 0) {
     SET_OUTPUT(WIFI_IO0_PIN);
@@ -657,7 +654,7 @@ void ResetWiFiForUpload(int begin_or_end) {
     SET_INPUT_PULLUP(WIFI_IO0_PIN);
 
   WIFI_RESET();
-  while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
+  while (getWifiTickDiff(start, getWifiTick()) < 500) { /* nada */ }
   WIFI_SET();
   //#endif
 }

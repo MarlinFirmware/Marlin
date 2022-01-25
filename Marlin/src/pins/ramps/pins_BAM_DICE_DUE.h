@@ -38,12 +38,10 @@
 #define SPINDLE_DIR_PIN                       67
 #define SPINDLE_LASER_PWM_PIN                 44  // Hardware PWM
 
-#include "pins_RAMPS.h"
-
 //
 // Temperature Sensors
 //
-#undef TEMP_0_PIN
-#undef TEMP_1_PIN
 #define TEMP_0_PIN                             9  // Analog Input
 #define TEMP_1_PIN                            11  // Analog Input
+
+#include "pins_RAMPS.h"

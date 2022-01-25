@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,13 +31,10 @@
 #define BOARD_INFO_NAME      "Lerdge S"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define STEP_TIMER                             4
-#define TEMP_TIMER                             2
+#define STEP_TIMER  4
+#define TEMP_TIMER  2
 
-//#define I2C_EEPROM
-
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 
 //
 // Servos
@@ -104,16 +104,16 @@
 // MAX6675 Cold-Junction-Compensated K-Thermocouple to Digital Converter (0°C to +1024°C)
 // https://datasheets.maximintegrated.com/en/ds/MAX6675.pdf
 
-#define MAX6675_SCK_PIN                     PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
-#define MAX6675_DO_PIN                      PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
-#define MAX6675_SS_PIN                      PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+#define TEMP_0_CS_PIN                       PC4   // max6675 datasheet: /CS pin, found with multimeter, not tested and likely wrong
+#define TEMP_0_SCK_PIN                      PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
+#define TEMP_0_MISO_PIN                     PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
 
 // Expansion board with second max6675
 // Warning: Some boards leave the slot unpopulated.
 
-//#define MAX6675_SCK2_PIN                  PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
-//#define MAX6675_DO2_PIN                   PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
-//#define MAX6675_SS2_PIN                   PF1   // max6675 datasheet: /CS pin, found with multimeter, not tested
+//#define TEMP_1_CS_PIN                     PF1   // max6675 datasheet: /CS pin, found with multimeter, not tested
+//#define TEMP_1_SCK_PIN                    PB3   // max6675 datasheet: SCK pin, found with multimeter, not tested
+//#define TEMP_1_MISO_PIN                   PB4   // max6675 datasheet: SO pin, found with multimeter, not tested
 
 //
 // Heaters / Fans
@@ -150,7 +150,6 @@
 //
 // Misc. Functions
 //
-#define SDSS                                PC11  // SD is working using SDIO, not sure if this definition is needed?
 #define LED_PIN                             PC6   // Mainboard soldered green LED
 #define PS_ON_PIN                           PB2   // Board has a power module connector
 #define KILL_PIN                            -1    // There is no reset button on the LCD
@@ -161,53 +160,71 @@
 //
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4800000
-
-#define SD_SCK_PIN                          PC12
-#define SD_MISO_PIN                         PC8
-#define SD_MOSI_PIN                         PD2
-#define SD_SS_PIN                           PC11
-
 #define SD_DETECT_PIN                       PG15
+#if DISABLED(SDIO_SUPPORT)
+  #define SOFTWARE_SPI
+  #define SD_SCK_PIN                        PC12
+  #define SD_MISO_PIN                       PC8
+  #define SD_MOSI_PIN                       PD2
+  #define SD_SS_PIN                         PC11
+  #define SDSS                              PC11
+#endif
 
 //
 // Persistent Storage
 // If no option is selected below the SD Card will be used
-// (this section modelled after pins_LONGER3D_LK.h)
-// Warning: Not tested yet! Pins traced with multimeter, mistakes are possible
-//#define SPI_EEPROM
+// Prefer the I2C option (F-RAM) to store Marlin settings, SPI option is not working yet
 
-#if ENABLED(SPI_EEPROM)
-  // Lerdge has an SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
+//#define SPI_EEPROM
+//#define I2C_EEPROM
+
+#if ENABLED(SPI_EEPROM)                           // SPI EEPROM Winbond W25Q128 (128Mbits) https://www.pjrc.com/teensy/W25Q128FV.pdf
   #define SPI_CHAN_EEPROM1                     1
-  #define SPI_EEPROM1_CS                    PB12  // datasheet: /CS pin, found with multimeter, not tested
-  #define EEPROM_SCK                        PB13  // datasheet: CLK pin, found with multimeter, not tested
-  #define EEPROM_MISO                       PB14  // datasheet: DO pin, found with multimeter, not tested
-  #define EEPROM_MOSI                       PB15  // datasheet: DI pin, found with multimeter, not tested
+  #define SPI_EEPROM1_CS_PIN                PB12  // datasheet: /CS pin, found with multimeter, not tested
+  #define EEPROM_SCK_PIN                    PB13  // datasheet: CLK pin, found with multimeter, not tested
+  #define EEPROM_MISO_PIN                   PB14  // datasheet: DO pin, found with multimeter, not tested
+  #define EEPROM_MOSI_PIN                   PB15  // datasheet: DI pin, found with multimeter, not tested
   #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
+#elif ENABLED(I2C_EEPROM)                         // FM24CL64BG (CYP1813) 64Kbit F-RAM
+  #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
+  #define I2C_SDA_PIN                       PG13
+  #define I2C_SCL_PIN                       PG14  // To be confirmed on the Lerdge S, but probably same as the K
+  #define MARLIN_EEPROM_SIZE             0x10000
 #else
   #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
 #endif
 
 //
-// LCD / Controller
+// TFT with FSMC interface
 //
+#if HAS_FSMC_TFT
+  #ifndef TFT_DRIVER
+    #define TFT_DRIVER                    ST7796
+  #endif
+  #define ST7796S_INVERTED
 
-// The LCD is initialized in FSMC mode
-#define BEEPER_PIN                          PD13
+  #define TFT_RESET_PIN                     PD6
+  #define TFT_BACKLIGHT_PIN                 PD3
 
-#define BTN_EN1                             PC14
-#define BTN_EN2                             PC15
-#define BTN_ENC                             PC13
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
 
-#define TFT_RESET_PIN                       PD6
-#define TFT_BACKLIGHT_PIN                   PD3
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
-#define TFT_CS_PIN                          PD7   // TFT works
-#define TFT_RS_PIN                          PD11  // TFT works
+  #define TOUCH_CS_PIN                      PB6
+  #define TOUCH_SCK_PIN                     PB3
+  #define TOUCH_MOSI_PIN                    PB5
+  #define TOUCH_MISO_PIN                    PB4
+#endif
 
-// There is touch, but calibration is off
-#define TOUCH_CS_PIN                        PB6
-#define TOUCH_SCK_PIN                       PB3
-#define TOUCH_MOSI_PIN                      PB5
-#define TOUCH_MISO_PIN                      PB4
+#if IS_NEWPANEL
+  #define BEEPER_PIN                        PD13
+  #define BTN_EN1                           PC15
+  #define BTN_EN2                           PC14
+  #define BTN_ENC                           PC13
+  #ifndef ENCODER_STEPS_PER_MENU_ITEM
+    #define ENCODER_STEPS_PER_MENU_ITEM 2
+  #endif
+#endif

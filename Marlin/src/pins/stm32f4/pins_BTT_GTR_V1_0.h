@@ -23,22 +23,21 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 8 || E_STEPPERS > 8
-  #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
-#elif HOTENDS > MAX_E_STEPPERS || E_STEPPERS > MAX_E_STEPPERS
+#if E_STEPPERS > MAX_E_STEPPERS
   #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
+#elif HOTENDS > 8 || E_STEPPERS > 8
+  #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
 
+#define USES_DIAG_JUMPERS
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+#define M5_EXTENDER                               // The M5 extender is attached
+
 // Onboard I2C EEPROM
 #define I2C_EEPROM
 #define MARLIN_EEPROM_SIZE                0x2000  // 8KB (24C64 ... 64Kb = 8KB)
-
-// USB Flash Drive support
-#define HAS_OTG_USB_HOST_SUPPORT
-
-#define M5_EXTENDER                               // The M5 extender is attached
 
 //
 // Servos
@@ -239,42 +238,39 @@
   //#define E6_HARDWARE_SERIAL Serial1  // M5 MOTOR 4
   //#define E7_HARDWARE_SERIAL Serial1  // M5 MOTOR 5
 
-  //
-  // Software serial
-  //
   #define X_SERIAL_TX_PIN                   PC14
-  #define X_SERIAL_RX_PIN                   PC14
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PE1
-  #define Y_SERIAL_RX_PIN                   PE1
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PB5
-  #define Z_SERIAL_RX_PIN                   PB5
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PG10
-  #define E0_SERIAL_RX_PIN                  PG10
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PD4
-  #define E1_SERIAL_RX_PIN                  PD4
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   #define E2_SERIAL_TX_PIN                  PC12
-  #define E2_SERIAL_RX_PIN                  PC12
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   #if ENABLED(M5_EXTENDER)
     #define E3_SERIAL_TX_PIN                PG4
-    #define E3_SERIAL_RX_PIN                PG4
+    #define E3_SERIAL_RX_PIN    E3_SERIAL_TX_PIN
 
     #define E4_SERIAL_TX_PIN                PE15
-    #define E4_SERIAL_RX_PIN                PE15
+    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
 
     #define E5_SERIAL_TX_PIN                PE7
-    #define E5_SERIAL_RX_PIN                PE7
+    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
 
     #define E6_SERIAL_TX_PIN                PF15
-    #define E6_SERIAL_RX_PIN                PF15
+    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
 
     #define E7_SERIAL_TX_PIN                PH14
-    #define E7_SERIAL_RX_PIN                PH14
+    #define E7_SERIAL_RX_PIN    E7_SERIAL_TX_PIN
   #endif
 
   // Reduce baud rate to improve software serial reliability
@@ -298,19 +294,19 @@
 
 #define TEMP_BED_PIN                        PC0   // T0 <-> Bed
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 // Uses a separate SPI bus
-// If you have a two-way thermocouple, you can customize two THERMO_CSx_PIN pins (x:1~2)
+// If you have a two-way thermocouple, you can customize two TEMP_x_CS_PIN pins (x:0~1)
 
-#define THERMO_SCK_PIN                      PI1   // SCK
-#define THERMO_DO_PIN                       PI2   // MISO
-#define THERMO_CS1_PIN                      PH9   // GTR K-TEMP
-#define THERMO_CS2_PIN                      PH2   // M5 K-TEMP
+#define TEMP_0_CS_PIN                       PH9   // GTR K-TEMP
+#define TEMP_0_SCK_PIN                      PI1   // SCK
+#define TEMP_0_MISO_PIN                     PI2   // MISO
+//#define TEMP_0_MOSI_PIN                   ...   // For MAX31865
 
-#define MAX6675_SS_PIN            THERMO_CS1_PIN
-#define MAX6675_SS2_PIN           THERMO_CS2_PIN
-#define MAX6675_SCK_PIN           THERMO_SCK_PIN
-#define MAX6675_DO_PIN             THERMO_DO_PIN
+#define TEMP_1_CS_PIN                       PH2   // M5 K-TEMP
+#define TEMP_1_SCK_PIN           TEMP_0_SCK_PIN
+#define TEMP_1_MISO_PIN         TEMP_0_MISO_PIN
+//#define TEMP_1_MOSI_PIN       TEMP_0_MOSI_PIN
 
 //
 // Heaters / Fans
@@ -357,8 +353,6 @@
 
 #elif SD_CONNECTION_IS(ONBOARD)
 
-  // Instruct the STM32 HAL to override the default SPI pins from the variant.h file
-  #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
   #define SD_SS_PIN                         SDSS
   #define SD_SCK_PIN                        PA5
@@ -371,14 +365,14 @@
 #endif
 
 /**
- *               ------                                          ------
- *           NC | 1  2 | GND                                 5V | 1  2 | GND
- *        RESET | 3  4 | PB10 (SD_DETECT)         (LCD_D7)  PG5 | 3  4 | PG6  (LCD_D6)
- *  (MOSI) PB15 | 5  6 | PH10 (BTN_EN2)           (LCD_D5)  PG7 | 5  6 | PG8  (LCD_D4)
- * (SD_SS) PB12 | 7  8 | PD10 (BTN_EN1)           (LCD_RS)  PA8 | 7  8 | PC10 (LCD_EN)
- *   (SCK) PB13 | 9 10 | PB14 (MISO)             (BTN_ENC) PA15 | 9 10 | PC11 (BEEPER)
- *               ------                                          ------
- *                EXP2                                            EXP1
+ *                ------                                     ------
+ * (BEEPER) PC11 |10  9 | PA15 (BTN_ENC)        (MISO) PB14 |10  9 | PB13 (SCK)
+ * (LCD_EN) PC10 | 8  7 | PA8  (LCD_RS)      (BTN_EN1) PD10 | 8  7 | PB12 (SD_SS)
+ * (LCD_D4) PG8    6  5 | PG7  (LCD_D5)      (BTN_EN2) PH10   6  5 | PB15 (MOSI)
+ * (LCD_D6) PG6  | 4  3 | PG5  (LCD_D7)    (SD_DETECT) PB10 | 4  3 | RESET
+ *           GND | 2  1 | 5V                            GND | 2  1 | --
+ *                ------                                     ------
+ *                 EXP1                                       EXP2
  */
 #define EXP1_03_PIN                         PG5
 #define EXP1_04_PIN                         PG6
@@ -413,6 +407,7 @@
   #define TOUCH_MOSI_PIN             EXP1_08_PIN
   #define TOUCH_SCK_PIN              EXP1_06_PIN
   #define TOUCH_CS_PIN               EXP1_07_PIN
+  #define BTN_ENC                    EXP1_09_PIN
   #define BTN_EN1                    EXP2_08_PIN
   #define BTN_EN2                    EXP2_06_PIN
 
@@ -428,11 +423,6 @@
 
     #define LCD_PINS_ENABLE          EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
-
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
 
   #elif ENABLED(MKS_MINI_12864)
     #define DOGLCD_A0                EXP1_04_PIN
@@ -492,16 +482,10 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_MARLINUI_U8GLIB
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
+  #if IS_U8GLIB_ST7920
+    #define BOARD_ST7920_DELAY_1             125
+    #define BOARD_ST7920_DELAY_2              90
+    #define BOARD_ST7920_DELAY_3             600
   #endif
 
 #endif // HAS_WIRED_LCD

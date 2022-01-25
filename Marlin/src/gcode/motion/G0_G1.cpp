@@ -52,7 +52,10 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         LINEAR_AXIS_GANG(
             (parser.seen_test('X') ? _BV(X_AXIS) : 0),
           | (parser.seen_test('Y') ? _BV(Y_AXIS) : 0),
-          | (parser.seen_test('Z') ? _BV(Z_AXIS) : 0))
+          | (parser.seen_test('Z') ? _BV(Z_AXIS) : 0),
+          | (parser.seen_test(AXIS4_NAME) ? _BV(I_AXIS) : 0),
+          | (parser.seen_test(AXIS5_NAME) ? _BV(J_AXIS) : 0),
+          | (parser.seen_test(AXIS6_NAME) ? _BV(K_AXIS) : 0))
       )
     #endif
   ) {
@@ -68,7 +71,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       #endif
     #endif
 
-    get_destination_from_command();                 // Get X Y Z E F (and set cutter power)
+    get_destination_from_command();                 // Get X Y [Z[I[J[K]]]] [E] F (and set cutter power)
 
     #ifdef G0_FEEDRATE
       if (fast_move) {
@@ -85,7 +88,9 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
 
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
-        if (fwretract.autoretract_enabled && parser.seen_test('E') && !parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z"))) {
+        if (fwretract.autoretract_enabled && parser.seen_test('E')
+          && !parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K))
+        ) {
           const float echange = destination.e - current_position.e;
           // Is this a retract or recover move?
           if (WITHIN(ABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {

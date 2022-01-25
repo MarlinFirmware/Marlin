@@ -182,15 +182,9 @@
   #define BTN_ENC                           PB12
 #endif
 
-//
-// ST7920 Delays
-//
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1      DELAY_NS(96)
-#endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2      DELAY_NS(48)
-#endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(715)
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                96
+  #define BOARD_ST7920_DELAY_2                48
+  #define BOARD_ST7920_DELAY_3               715
 #endif

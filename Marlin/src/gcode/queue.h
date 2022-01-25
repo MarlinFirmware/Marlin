@@ -59,7 +59,7 @@ public:
   struct CommandLine {
     char buffer[MAX_CMD_SIZE];      //!< The command buffer
     bool skip_ok;                   //!< Skip sending ok when command is processed?
-    #if ENABLED(HAS_MULTI_SERIAL)
+    #if HAS_MULTI_SERIAL
       serial_index_t port;          //!< Serial port the command was received on
     #endif
   };
@@ -126,31 +126,39 @@ public:
    * Don't inject comments or use leading spaces!
    * Aborts the current PROGMEM queue so only use for one or two commands.
    */
-  static inline void inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
+  static void inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
+  static void inject(FSTR_P const fgcode) { inject_P(FTOP(fgcode)); }
 
   /**
    * Enqueue command(s) to run from SRAM. Drained by process_injected_command().
    * Aborts the current SRAM queue so only use for one or two commands.
    */
-  static inline void inject(char * const gcode) {
+  static void inject(const char * const gcode) {
     strncpy(injected_commands, gcode, sizeof(injected_commands) - 1);
   }
 
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  static void enqueue_one_now(const char *cmd);
+  static void enqueue_one_now(const char * const cmd);
 
   /**
    * Attempt to enqueue a single G-code command
    * and return 'true' if successful.
    */
-  static bool enqueue_one_P(PGM_P const pgcode);
+  static bool enqueue_one(FSTR_P const fgcode);
+
+  /**
+   * Enqueue with Serial Echo
+   * Return true on success
+   */
+  static bool enqueue_one(const char *cmd);
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued
    */
-  static void enqueue_now_P(PGM_P const cmd);
+  static void enqueue_now_P(PGM_P const pcmd);
+  static void enqueue_now(FSTR_P const fcmd) { enqueue_now_P(FTOP(fcmd)); }
 
   /**
    * Check whether there are any commands yet to be executed
@@ -184,7 +192,7 @@ public:
    *   P<int>  Planner space remaining
    *   B<int>  Block queue space remaining
    */
-  static inline void ok_to_send() { ring_buffer.ok_to_send(); }
+  static void ok_to_send() { ring_buffer.ok_to_send(); }
 
   /**
    * Clear the serial line and request a resend of
@@ -195,7 +203,47 @@ public:
   /**
    * (Re)Set the current line number for the last received command
    */
-  static inline void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
+  static void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
+
+  #if ENABLED(BUFFER_MONITORING)
+
+    private:
+
+    /**
+     * Track buffer underruns
+     */
+    static uint32_t command_buffer_underruns, planner_buffer_underruns;
+    static bool command_buffer_empty, planner_buffer_empty;
+    static millis_t max_command_buffer_empty_duration, max_planner_buffer_empty_duration,
+                    command_buffer_empty_at, planner_buffer_empty_at;
+
+    /**
+     * Report buffer statistics to the host to be able to detect buffer underruns
+     *
+     * Returns "D576 " followed by:
+     *  P<uint>   Planner space remaining
+     *  B<uint>   Command buffer space remaining
+     *  PU<uint>  Number of planner buffer underruns since last report
+     *  PD<uint>  Max time in ms the planner buffer was empty since last report
+     *  BU<uint>  Number of command buffer underruns since last report
+     *  BD<uint>  Max time in ms the command buffer was empty since last report
+     */
+    static void report_buffer_statistics();
+
+    static uint8_t auto_buffer_report_interval;
+    static millis_t next_buffer_report_ms;
+
+    public:
+
+    static void auto_report_buffer_statistics();
+
+    static void set_auto_report_interval(uint8_t v) {
+      NOMORE(v, 60);
+      auto_buffer_report_interval = v;
+      next_buffer_report_ms = millis() + 1000UL * v;
+    }
+
+  #endif // BUFFER_MONITORING
 
 private:
 
@@ -211,13 +259,7 @@ private:
   // Process the next "immediate" command (SRAM)
   static bool process_injected_command();
 
-  /**
-   * Enqueue with Serial Echo
-   * Return true on success
-   */
-  static bool enqueue_one(const char *cmd);
-
-  static void gcode_line_error(PGM_P const err, const serial_index_t serial_ind);
+  static void gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind);
 
   friend class GcodeSuite;
 };

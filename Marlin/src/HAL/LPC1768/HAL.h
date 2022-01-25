@@ -50,15 +50,9 @@ extern "C" volatile uint32_t _millis;
 //
 // Default graphical display delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_NS(600)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_NS(750)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_NS(750)
-#endif
+#define CPU_ST7920_DELAY_1 600
+#define CPU_ST7920_DELAY_2 750
+#define CPU_ST7920_DELAY_3 750
 
 typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
 extern DefaultSerial1 USBSerial;
@@ -113,7 +107,7 @@ extern DefaultSerial1 USBSerial;
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() MSerial0.available()
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
 
@@ -129,16 +123,14 @@ extern DefaultSerial1 USBSerial;
 //
 // Utility functions
 //
+#pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
-  #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 int freeMemory();
 
-#if GCC_VERSION <= 50000
-  #pragma GCC diagnostic pop
-#endif
+#pragma GCC diagnostic pop
 
 //
 // ADC API
@@ -162,17 +154,17 @@ int freeMemory();
 
 using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 extern uint32_t HAL_adc_reading;
-[[gnu::always_inline]] inline void HAL_start_adc(const pin_t pin) {
+[[gnu::always_inline]] inline void HAL_adc_start_conversion(const pin_t pin) {
   HAL_adc_reading = FilteredADC::read(pin) >> (16 - HAL_ADC_RESOLUTION); // returns 16bit value, reduce to required bits
 }
-[[gnu::always_inline]] inline uint16_t HAL_read_adc() {
+[[gnu::always_inline]] inline uint16_t HAL_adc_get_result() {
   return HAL_adc_reading;
 }
 
 #define HAL_adc_init()
 #define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
-#define HAL_START_ADC(pin)     HAL_start_adc(pin)
-#define HAL_READ_ADC()         HAL_read_adc()
+#define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
+#define HAL_READ_ADC()         HAL_adc_get_result()
 #define HAL_ADC_READY()        (true)
 
 // Test whether the pin is valid
@@ -198,7 +190,7 @@ constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // P0.6 thru P0.9 are for the onboard SD card
-#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09,
 
 #define HAL_IDLETASK 1
 void HAL_idletask();
@@ -214,7 +206,7 @@ void flashFirmware(const int16_t);
  *  All Hardware PWM pins run at the same frequency and all
  *  Software PWM pins run at the same frequency
  */
-void set_pwm_frequency(const pin_t pin, int f_desired);
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 
 /**
  * set_pwm_duty

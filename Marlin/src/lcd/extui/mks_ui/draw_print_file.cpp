@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -360,7 +361,7 @@ void disp_gcode_icon(uint8_t file_num) {
 uint32_t lv_open_gcode_file(char *path) {
   #if ENABLED(SDSUPPORT)
     uint32_t *ps4;
-    uint32_t pre_sread_cnt = UINT32_MAX;
+    uintptr_t pre_sread_cnt = UINTPTR_MAX;
     char *cur_name;
 
     cur_name = strrchr(path, '/');
@@ -370,7 +371,7 @@ uint32_t lv_open_gcode_file(char *path) {
     ps4 = (uint32_t *)strstr((char *)public_buf, ";simage:");
     // Ignore the beginning message of gcode file
     if (ps4) {
-      pre_sread_cnt = (uint32_t)ps4 - (uint32_t)((uint32_t *)(&public_buf[0]));
+      pre_sread_cnt = (uintptr_t)ps4 - (uintptr_t)((uint32_t *)(&public_buf[0]));
       card.setIndex(pre_sread_cnt);
     }
     return pre_sread_cnt;

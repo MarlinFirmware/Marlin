@@ -19,12 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_MARLINUI_U8GLIB
 
 #include "HAL_LCD_com_defines.h"
-#include <U8glib.h>
+#include <U8glib-HAL.h>
 
 #define WIDTH 128
 #define HEIGHT 64

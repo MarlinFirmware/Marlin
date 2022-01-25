@@ -23,12 +23,15 @@
 
 #define SKR_MINI_E3_V2
 
-#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4
+#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
 
 // Onboard I2C EEPROM
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
+  #define SOFT_I2C_EEPROM
   #define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+  #define I2C_SDA_PIN                      PB7
+  #define I2C_SCL_PIN                      PB6
   #undef NO_EEPROM_SELECTED
 #endif
 

@@ -54,11 +54,28 @@ void GcodeSuite::M412() {
   else {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Filament runout ");
-    serialprintln_onoff(runout.enabled);
+    serialprint_onoff(runout.enabled);
     #if HAS_FILAMENT_RUNOUT_DISTANCE
-      SERIAL_ECHOLNPAIR("Filament runout distance (mm): ", runout.runout_distance());
+      SERIAL_ECHOPGM(" ; Distance ", runout.runout_distance(), "mm");
     #endif
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      SERIAL_ECHOPGM(" ; Host handling ");
+      serialprint_onoff(runout.host_handling);
+    #endif
+    SERIAL_EOL();
   }
+}
+
+void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, F(STR_FILAMENT_RUNOUT_SENSOR));
+  SERIAL_ECHOPGM(
+    "  M412 S", runout.enabled
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
+      , " D", LINEAR_UNIT(runout.runout_distance())
+    #endif
+    , " ; Sensor "
+  );
+  serialprintln_onoff(runout.enabled);
 }
 
 #endif // HAS_FILAMENT_SENSOR
