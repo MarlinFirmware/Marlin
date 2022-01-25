@@ -143,9 +143,7 @@
 #ifndef FAN_PIN
   #define FAN_PIN                           PA0   // FAN
 #endif
-#if PIN_EXISTS(FAN)
-  #define FAN_SOFT_PWM
-#endif
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
@@ -189,7 +187,7 @@
     #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
   #endif
 
-#elif EITHER(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14

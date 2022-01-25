@@ -31,8 +31,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 is simply identical to FYSETC_MINI_12864_2_1
-#if ENABLED(MKS_MINI_12864_V3)
+// MKS_MINI_12864_V3 and BTT_MINI_12864_V1 are identical to FYSETC_MINI_12864_2_1
+#if EITHER(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
   #define FYSETC_MINI_12864_2_1
 #endif
 
@@ -207,8 +207,11 @@
   #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
-  #define ENCODER_PULSES_PER_STEP 2
-  #define ENCODER_STEPS_PER_MENU_ITEM 2
+  #define ENCODER_PULSES_PER_STEP 4
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+  #ifndef PCA9632
+    #define PCA9632
+  #endif
 
 #elif ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
 
@@ -234,7 +237,7 @@
   #define LCD_HEIGHT                  10    // Character lines
   #define LCD_CONTRAST_MIN            127
   #define LCD_CONTRAST_MAX            255
-  #define DEFAULT_LCD_CONTRAST        250
+  #define LCD_CONTRAST_DEFAULT        250
   #define CONVERT_TO_EXT_ASCII        // Use extended 128-255 symbols from ASCII table.
                                       // At this time present conversion only for cyrillic - bg, ru and uk languages.
                                       // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
@@ -506,7 +509,7 @@
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   #define SERIAL_CATCHALL 0
   #ifndef LCD_SERIAL_PORT
-    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_E3_TURBO)
+    #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_E3_TURBO)
       #define LCD_SERIAL_PORT 1
     #else
       #define LCD_SERIAL_PORT 3 // Creality 4.x board
@@ -539,7 +542,11 @@
 #endif
 
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
-  #define HAS_LCD_MENU 1
+  #define HAS_MARLINUI_MENU 1
+#endif
+
+#if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, HAS_DWIN_E3V2)
+  #define HAS_MANUAL_MOVE_MENU 1
 #endif
 
 #if ANY(HAS_MARLINUI_U8GLIB, EXTENSIBLE_UI, HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL, IS_DWIN_MARLINUI, DWIN_CREALITY_LCD_JYERSUI)
@@ -693,6 +700,15 @@
   #define HAS_Y_AXIS 1
   #if LINEAR_AXES >= XYZ
     #define HAS_Z_AXIS 1
+    #if LINEAR_AXES >= 4
+      #define HAS_I_AXIS 1
+      #if LINEAR_AXES >= 5
+        #define HAS_J_AXIS 1
+        #if LINEAR_AXES >= 6
+          #define HAS_K_AXIS 1
+        #endif
+      #endif
+    #endif
   #endif
 #endif
 
@@ -822,7 +838,7 @@
 /**
  * Set a flag for any type of bed probe, including the paper-test
  */
-#if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE)
+#if ANY(HAS_Z_SERVO_PROBE, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, SOLENOID_PROBE, SENSORLESS_PROBING, RACK_AND_PINION_PROBE, MAGLEV4)
   #define HAS_BED_PROBE 1
 #endif
 
@@ -1079,7 +1095,7 @@
     #define CORE_AXIS_2 C_AXIS
   #endif
   #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
-#elif ENABLED(MARKFORGED_XY)
+#elif EITHER(MARKFORGED_XY, MARKFORGED_YX)
   // Markforged kinematics
   #define CORE_AXIS_1 A_AXIS
   #define CORE_AXIS_2 B_AXIS
@@ -1215,13 +1231,13 @@
 #if HAS_Z_AXIS && !defined(INVERT_Z_DIR)
   #define INVERT_Z_DIR false
 #endif
-#if LINEAR_AXES >= 4 && !defined(INVERT_I_DIR)
+#if HAS_I_AXIS && !defined(INVERT_I_DIR)
   #define INVERT_I_DIR false
 #endif
-#if LINEAR_AXES >= 5 && !defined(INVERT_J_DIR)
+#if HAS_J_AXIS && !defined(INVERT_J_DIR)
   #define INVERT_J_DIR false
 #endif
-#if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
+#if HAS_K_AXIS && !defined(INVERT_K_DIR)
   #define INVERT_K_DIR false
 #endif
 #if HAS_EXTRUDERS && !defined(INVERT_E_DIR)
@@ -1411,7 +1427,7 @@
   #endif
 #endif
 
-#if ANY(USE_XMIN_PLUG, USE_YMIN_PLUG, USE_ZMIN_PLUG, USE_XMAX_PLUG, USE_YMAX_PLUG, USE_ZMAX_PLUG)
+#if X_HOME_DIR || (HAS_Y_AXIS && Y_HOME_DIR) || (HAS_Z_AXIS && Z_HOME_DIR) || (HAS_I_AXIS && I_HOME_DIR) || (HAS_J_AXIS && J_HOME_DIR) || (HAS_K_AXIS && K_HOME_DIR)
   #define HAS_ENDSTOPS 1
   #define COORDINATE_OKAY(N,L,H) WITHIN(N,L,H)
 #else
