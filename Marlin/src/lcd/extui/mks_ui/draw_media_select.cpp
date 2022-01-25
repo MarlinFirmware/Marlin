@@ -39,7 +39,7 @@ enum {
 };
 
 #if ENABLED(MKS_TEST)
-  extern uint8_t curent_disp_ui;
+  extern uint8_t current_disp_ui;
 #endif
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
@@ -49,7 +49,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_T_USB_DISK: card.changeMedia(&card.media_driver_usbFlash); break;
     case ID_T_SD_DISK:  card.changeMedia(&card.media_driver_sdcard); break;
     case ID_T_RETURN:
-      TERN_(MKS_TEST, curent_disp_ui = 1);
+      TERN_(MKS_TEST, current_disp_ui = 1);
       lv_draw_ready_print();
       return;
   }

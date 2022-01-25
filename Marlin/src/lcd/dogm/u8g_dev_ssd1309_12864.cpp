@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_MARLINUI_U8GLIB

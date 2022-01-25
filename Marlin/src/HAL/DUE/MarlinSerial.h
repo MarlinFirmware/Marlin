@@ -118,7 +118,7 @@ public:
   static size_t write(const uint8_t c);
   static void flushTX();
 
-  static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
+  static bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
   FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
   FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }

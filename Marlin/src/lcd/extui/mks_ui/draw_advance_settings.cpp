@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -56,9 +57,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     #if ENABLED(MKS_WIFI_MODULE)
       case ID_WIFI_PARA:
-      lv_clear_advance_settings();
-      lv_draw_wifi_settings();
-      break;
+        lv_clear_advance_settings();
+        lv_draw_wifi_settings();
+        break;
     #endif
     #if HAS_ROTARY_ENCODER
       case ID_ENCODER_SETTINGS:
@@ -83,7 +84,7 @@ void lv_draw_advance_settings() {
     index++;
   #endif
 
-  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_ADVANCE_RETURN, true);
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_ADVANCE_RETURN, true);
 }
 
 void lv_clear_advance_settings() {
