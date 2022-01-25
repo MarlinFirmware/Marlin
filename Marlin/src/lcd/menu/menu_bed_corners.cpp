@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, LEVEL_BED_CORNERS)
+#if BOTH(HAS_MARLINUI_MENU, LEVEL_BED_CORNERS)
 
 #include "menu_item.h"
 #include "../../module/motion.h"
@@ -362,4 +362,4 @@ void _lcd_level_bed_corners() {
   ui.goto_screen(_lcd_level_bed_corners_homing);
 }
 
-#endif // HAS_LCD_MENU && LEVEL_BED_CORNERS
+#endif // HAS_MARLINUI_MENU && LEVEL_BED_CORNERS

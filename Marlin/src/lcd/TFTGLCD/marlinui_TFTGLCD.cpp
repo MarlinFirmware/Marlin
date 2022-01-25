@@ -922,7 +922,7 @@ void MarlinUI::draw_status_screen() {
   lcd.print_screen();
 }
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   #include "../menu/menu.h"
 
@@ -1084,6 +1084,6 @@ void MarlinUI::draw_status_screen() {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 #endif // IS_TFTGLCD_PANEL

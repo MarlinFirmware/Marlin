@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, ASSISTED_TRAMMING_WIZARD)
+#if BOTH(HAS_MARLINUI_MENU, ASSISTED_TRAMMING_WIZARD)
 
 #include "menu_item.h"
 
@@ -109,4 +109,4 @@ void goto_tramming_wizard() {
   });
 }
 
-#endif // HAS_LCD_MENU && ASSISTED_TRAMMING_WIZARD
+#endif // HAS_MARLINUI_MENU && ASSISTED_TRAMMING_WIZARD
