@@ -293,36 +293,32 @@
 //#define MANUAL_SWITCHING_TOOLHEAD
 #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
   /**
-   * Number of tools that are being set up. The type of tool (i.e. hotend, unpowered tool)
-   * is dependent on if a TEMP_SENSOR_n is defined for each tool. Hotends must come first,
+   * Number of tools that are being set up. The type of tool (e.g., hotend, unpowered tool)
+   * depends on a TEMP_SENSOR_n being defined for each tool. Hotends must come first,
    * so start with TEMP_SENSOR_0.
    *
-   * Do not include laser/spindle in this count. Enabling STM_LASER_SPINDLE
-   * will add the appropriate tool.
+   * Don't include a laser/spindle in this total; enable STM_CUTTER to put the cutter last.
    */
   #define STM_NUM_TOOLS 4
 
   /**
-   * Hotend extruder setup: by default, the toolchange code will assume that all hotends use
-   * a single shared stepper/extruder, i.e. in a remote bowden setup. If all of your hotends
-   * have their own direct drive stepper/extruder on the tool plate, enable this.
-   *
-   * Once enabled, consider enabling:
-   *  - DISTINCT_E_FACTORS and the related settings
+   * Hotend / Extruder Setup
+   * By default the toolchange code assumes all hotends share a single extruder (e.g., in a Bowden setup).
+   * Enable this option if all hotends have their own direct drive extruders.
+   * If this is used, also consider enabling:
+   *  - DISTINCT_E_FACTORS and related settings
    *  - PID_PARAMS_PER_HOTEND
-   *
-   * NOTE: The MANUAL_SWITCHING_TOOLHEAD feature overrides EXTRUDERS set above.
    */
   //#define STM_DIRECT_DRIVE
 
   // TODO: Extra Extruders; use these for extruder-only tools, such as cake/frosting/clay extruders.
   #define STM_EXTRA_EXTRUDERS 0
 
-  // TODO: Enable the LASER/SPINDLE tool. Can use LASER/SPINDLE_FEATURE, or a fan-pwm based laser.
-  // This will always be the LAST tool. Can not be used with STM_NUM_TOOLS > 7
-  #if STM_NUM_TOOLS <= 7
-    //#define STM_LASER_SPINDLE
-  #endif
+  /**
+   * TODO: Enable the LASER/SPINDLE tool. Can use LASER/SPINDLE_FEATURE or a fan-PWM based laser.
+   * Always the last tool. Cannot be used if STM_NUM_TOOLS > 7.
+   */
+  //#define STM_CUTTER
 
   /**
    * Define the names of Hotends/Unpowered tools. Optional.

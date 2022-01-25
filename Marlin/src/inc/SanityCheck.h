@@ -1090,18 +1090,22 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
+#if HAS_EXTENDABLE_MMU
+  #define MAX_EXTRUDERS 15
+#else
+  #define MAX_EXTRUDERS  8
+#endif
+
+#if ENABLED(STM_CUTTER)
+  static_assert(STM_NUM_TOOLS < MAX_EXTRUDERS, "STM_CUTTER requires STM_NUM_TOOLS < " STRINGIFY(MAX_EXTRUDERS) ".");
+#endif
+
 /**
  * Options only for EXTRUDERS > 1
  */
 #if HAS_MULTI_EXTRUDER
 
-  #if HAS_EXTENDABLE_MMU
-    #define MAX_EXTRUDERS 15
-  #else
-    #define MAX_EXTRUDERS  8
-  #endif
   static_assert(EXTRUDERS <= MAX_EXTRUDERS, "Marlin supports a maximum of " STRINGIFY(MAX_EXTRUDERS) " EXTRUDERS.");
-  #undef MAX_EXTRUDERS
 
   #if ENABLED(HEATERS_PARALLEL)
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
@@ -1142,6 +1146,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
 
 #endif
+
+#undef MAX_EXTRUDERS
 
 /**
  * A Dual Nozzle carriage with switching servo
