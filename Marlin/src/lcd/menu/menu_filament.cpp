@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
+#if BOTH(HAS_MARLINUI_MENU, ADVANCED_PAUSE_FEATURE)
 
 #include "menu_item.h"
 #include "../../module/temperature.h"
@@ -67,7 +67,7 @@ static void _change_filament_with_preset() {
 }
 
 static void _change_filament_with_custom() {
-  _change_filament_with_temp(thermalManager.temp_hotend[MenuItemBase::itemIndex].target);
+  _change_filament_with_temp(thermalManager.degTargetHotend(MenuItemBase::itemIndex));
 }
 
 //
@@ -90,12 +90,12 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     LOOP_L_N(m, PREHEAT_COUNT)
       ACTION_ITEM_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
   #endif
   EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
-    EXTRUDE_MINTEMP, thermalManager.heater_maxtemp[extruder] - HOTEND_OVERSHOOT,
+    EXTRUDE_MINTEMP, thermalManager.hotend_max_target(extruder),
     _change_filament_with_custom
   );
   END_MENU();
@@ -106,10 +106,11 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
  * "Change Filament" submenu
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-
   bool printingIsPaused();
+#endif
 
-  void menu_change_filament() {
+void menu_change_filament() {
+  #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     // Say "filament change" when no print is active
     editable.int8 = printingIsPaused() ? PAUSE_MODE_PAUSE_PRINT : PAUSE_MODE_CHANGE_FILAMENT;
 
@@ -204,8 +205,16 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
     #endif
 
     END_MENU();
-  }
-#endif
+
+  #else
+
+    if (thermalManager.targetHotEnoughToExtrude(active_extruder))
+      queue.inject(F("M600B0"));
+    else
+      ui.goto_screen([]{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
+
+  #endif
+}
 
 static uint8_t hotend_status_extruder = 0;
 
@@ -333,4 +342,4 @@ void MarlinUI::pause_show_message(
     ui.return_to_status();
 }
 
-#endif // HAS_LCD_MENU && ADVANCED_PAUSE_FEATURE
+#endif // HAS_MARLINUI_MENU && ADVANCED_PAUSE_FEATURE

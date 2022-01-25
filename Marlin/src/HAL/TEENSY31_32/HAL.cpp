@@ -31,7 +31,13 @@
 
 #include <Wire.h>
 
-DefaultSerial MSerial(false);
+#define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
+#define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
+#if WITHIN(SERIAL_PORT, 0, 3)
+  IMPLEMENT_SERIAL(SERIAL_PORT);
+#else
+  #error "SERIAL_PORT must be from 0 to 3."
+#endif
 USBSerialType USBSerial(false, SerialUSB);
 
 uint16_t HAL_adc_result;
@@ -71,6 +77,8 @@ uint8_t HAL_get_reset_source() {
   }
   return 0;
 }
+
+void HAL_reboot() { _reboot_Teensyduino_(); }
 
 extern "C" {
   extern char __bss_end;

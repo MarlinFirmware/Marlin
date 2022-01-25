@@ -22,15 +22,15 @@
 #pragma once
 
 /**
- * ANYCUBIC Trigorilla Pro (STM32F130ZET6) board pin assignments.
+ * ANYCUBIC Trigorilla Pro (STM32F103ZET6) board pin assignments.
  * It is the same used by the Tronxy X5SA thanks to ftoz1 for sharing it
  * https://github.com/MarlinFirmware/Marlin/issues/14655
  * https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
+#include "env_validate.h"
+
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "Trigorilla Pro supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
@@ -40,10 +40,14 @@
 
 #define DISABLE_JTAG
 
+//#define SWAPPED_Z_PLUGS
+
 //
 // EEPROM
 //
-#define FLASH_EEPROM_EMULATION
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 #if ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
   #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
@@ -58,8 +62,20 @@
 //
 #define X_STOP_PIN                          PG10
 #define Y_STOP_PIN                          PA12
-#define Z_MAX_PIN                           PA14
-#define Z_MIN_PIN                           PA13
+#ifndef Z_MIN_PIN
+  #ifdef SWAPPED_Z_PLUGS
+    #define Z_MIN_PIN                       PA14
+  #else
+    #define Z_MIN_PIN                       PA13
+  #endif
+#endif
+#ifndef Z_MAX_PIN
+  #ifdef SWAPPED_Z_PLUGS
+    #define Z_MAX_PIN                       PA13
+  #else
+    #define Z_MAX_PIN                       PA14
+  #endif
+#endif
 
 //
 // Steppers
@@ -112,22 +128,29 @@
 //#define POWER_LOSS_PIN                    PG2   // PG4 PW_DET
 #define FIL_RUNOUT_PIN                      PA15  // MT_DET
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers
- * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
- * ILI9488 is not supported.
- * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
+//
+// TFT with FSMC interface
+//
 #if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported.
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
+   *
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
+   */
   #define TFT_RESET_PIN                     PF11
   #define TFT_BACKLIGHT_PIN                 PD13
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
+
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
@@ -181,3 +204,5 @@
   #define SDSS                              PD2
   #define SD_DETECT_PIN                     -1
 #endif
+
+#undef SWAPPED_Z_PLUGS

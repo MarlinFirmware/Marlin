@@ -26,9 +26,13 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+#if HAS_MARLINUI_MENU && EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
 
 #include "menu_item.h"
+
+#if ENABLED(PSU_CONTROL)
+  #include "../../feature/power.h"
+#endif
 
 #if ENABLED(LED_CONTROL_MENU)
   #include "../../feature/leds/leds.h"
@@ -84,18 +88,20 @@
     EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
-    #if EITHER(RGBW_LED, NEOPIXEL_LED)
+    #if HAS_WHITE_LED
       EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
-      #if ENABLED(NEOPIXEL_LED)
-        EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
-      #endif
+    #endif
+    #if ENABLED(NEOPIXEL_LED)
+      EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
     #endif
     #if ENABLED(NEOPIXEL2_SEPARATE)
       STATIC_ITEM_N(MSG_LED_CHANNEL_N, 2, SS_DEFAULT|SS_INVERT);
       EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds2.color.r, 0, 255, leds2.update, true);
       EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds2.color.g, 0, 255, leds2.update, true);
       EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds2.color.b, 0, 255, leds2.update, true);
-      EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
+      #if HAS_WHITE_LED2
+        EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
+      #endif
       EDIT_ITEM(uint8, MSG_NEO2_BRIGHTNESS, &leds2.color.i, 0, 255, leds2.update, true);
     #endif
     END_MENU();
@@ -105,12 +111,14 @@
 #if ENABLED(CASE_LIGHT_MENU)
   #include "../../feature/caselight.h"
 
+  #define CASELIGHT_TOGGLE_ITEM() EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&caselight.on, caselight.update_enabled)
+
   #if CASELIGHT_USES_BRIGHTNESS
     void menu_case_light() {
       START_MENU();
       BACK_ITEM(MSG_CONFIGURATION);
       EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &caselight.brightness, 0, 255, caselight.update_brightness, true);
-      EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&caselight.on, caselight.update_enabled);
+      CASELIGHT_TOGGLE_ITEM();
       END_MENU();
     }
   #endif
@@ -121,12 +129,7 @@ void menu_led() {
   BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(LED_CONTROL_MENU)
-    #if ENABLED(PSU_CONTROL)
-      extern bool powersupply_on;
-    #else
-      constexpr bool powersupply_on = true;
-    #endif
-    if (powersupply_on) {
+    if (TERN1(PSU_CONTROL, powerManager.psu_on)) {
       editable.state = leds.lights_on;
       EDIT_ITEM(bool, MSG_LEDS, &editable.state, leds.toggle);
     }
@@ -155,14 +158,15 @@ void menu_led() {
   // Set Case light on/off/brightness
   //
   #if ENABLED(CASE_LIGHT_MENU)
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      if (TERN1(CASE_LIGHT_USE_NEOPIXEL, PWM_PIN(CASE_LIGHT_PIN)))
+    #if CASELIGHT_USES_BRIGHTNESS
+      if (caselight.has_brightness())
         SUBMENU(MSG_CASE_LIGHT, menu_case_light);
       else
     #endif
-        EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&caselight.on, caselight.update_enabled);
+        CASELIGHT_TOGGLE_ITEM();
   #endif
+
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && LED_CONTROL_MENU
+#endif // HAS_MARLINUI_MENU && LED_CONTROL_MENU

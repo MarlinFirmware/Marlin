@@ -41,18 +41,22 @@
  * Rambo pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME "Rambo"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Rambo"
+#endif
 
 //
 // Servos
 //
-#define SERVO0_PIN                            22  // Motor header MX1
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                          22  // Motor header MX1
+#endif
 #define SERVO1_PIN                            23  // Motor header MX2
-#define SERVO2_PIN                            24  // Motor header MX3
+#ifndef SERVO2_PIN
+  #define SERVO2_PIN                          24  // Motor header MX3
+#endif
 #define SERVO3_PIN                             5  // PWM header pin 5
 
 //
@@ -62,7 +66,9 @@
 #define X_MAX_PIN                             24
 #define Y_MIN_PIN                             11
 #define Y_MAX_PIN                             23
-#define Z_MIN_PIN                             10
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                           10
+#endif
 #define Z_MAX_PIN                             30
 
 //
@@ -135,8 +141,12 @@
 #ifndef FAN_PIN
   #define FAN_PIN                              8
 #endif
-#define FAN1_PIN                               6
-#define FAN2_PIN                               2
+#ifndef FAN1_PIN
+  #define FAN1_PIN                             6
+#endif
+#ifndef FAN2_PIN
+  #define FAN2_PIN                             2
+#endif
 
 //
 // Misc. Functions
@@ -161,10 +171,10 @@
 #define SPINDLE_DIR_PIN                       32
 
 //
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 //
-#ifndef MAX6675_SS_PIN
-  #define MAX6675_SS_PIN                      32  // SPINDLE_DIR_PIN / STAT_LED_BLUE_PIN
+#ifndef TEMP_0_CS_PIN
+  #define TEMP_0_CS_PIN                       32  // SPINDLE_DIR_PIN / STAT_LED_BLUE_PIN
 #endif
 
 //
@@ -204,7 +214,6 @@
 
       #define DOGLCD_A0                       70
       #define DOGLCD_CS                       71
-      #define LCD_SCREEN_ROT_180
 
       #define BTN_EN1                         85
       #define BTN_EN2                         84
@@ -215,13 +224,19 @@
       #define STAT_LED_RED_PIN                22
       #define STAT_LED_BLUE_PIN               32
 
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
+
     #else                                         // !VIKI2 && !miniVIKI
 
       #define BEEPER_PIN                      79  // AUX-4
 
       // AUX-2
-      #define BTN_EN1                         76
-      #define BTN_EN2                         77
+      #ifndef BTN_EN1
+        #define BTN_EN1                       76
+      #endif
+      #ifndef BTN_EN2
+        #define BTN_EN2                       77
+      #endif
       #define BTN_ENC                         78
 
       #define SD_DETECT_PIN                   81
@@ -254,3 +269,10 @@
   #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                 0
+  #define BOARD_ST7920_DELAY_2                 0
+  #define BOARD_ST7920_DELAY_3                 0
+#endif

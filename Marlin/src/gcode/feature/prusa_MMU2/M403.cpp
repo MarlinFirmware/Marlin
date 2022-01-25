@@ -40,7 +40,7 @@ void GcodeSuite::M403() {
   int8_t index = parser.intval('E', -1),
          type = parser.intval('F', -1);
 
-  if (WITHIN(index, 0, 4) && WITHIN(type, 0, 2))
+  if (WITHIN(index, 0, EXTRUDERS - 1) && WITHIN(type, 0, 2))
     mmu2.set_filament_type(index, type);
   else
     SERIAL_ECHO_MSG("M403 - bad arguments.");

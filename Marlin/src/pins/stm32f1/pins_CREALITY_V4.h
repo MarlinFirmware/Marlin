@@ -19,14 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Creality 4.2.x (STM32F103RET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -58,10 +59,12 @@
 //
 // Servos
 //
-#ifndef HAS_PIN_27_BOARD
-  #define SERVO0_PIN                        PB0   // BLTouch OUT
-#else
-  #define SERVO0_PIN                        PC6
+#ifndef SERVO0_PIN
+  #ifndef HAS_PIN_27_BOARD
+    #define SERVO0_PIN                      PB0   // BLTouch OUT
+  #else
+    #define SERVO0_PIN                      PC6
+  #endif
 #endif
 
 //
@@ -71,7 +74,9 @@
 #define Y_STOP_PIN                          PA6
 #define Z_STOP_PIN                          PA7
 
-#define Z_MIN_PROBE_PIN                     PB1   // BLTouch IN
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1   // BLTouch IN
+#endif
 
 //
 // Filament Runout Sensor
@@ -83,37 +88,37 @@
 //
 // Steppers
 //
-#define X_ENABLE_PIN                        PC3
 #ifndef X_STEP_PIN
   #define X_STEP_PIN                        PC2
 #endif
 #ifndef X_DIR_PIN
   #define X_DIR_PIN                         PB9
 #endif
+#define X_ENABLE_PIN                        PC3   // Shared
 
-#define Y_ENABLE_PIN                        PC3
 #ifndef Y_STEP_PIN
   #define Y_STEP_PIN                        PB8
 #endif
 #ifndef Y_DIR_PIN
   #define Y_DIR_PIN                         PB7
 #endif
+#define Y_ENABLE_PIN                X_ENABLE_PIN
 
-#define Z_ENABLE_PIN                        PC3
 #ifndef Z_STEP_PIN
   #define Z_STEP_PIN                        PB6
 #endif
 #ifndef Z_DIR_PIN
   #define Z_DIR_PIN                         PB5
 #endif
+#define Z_ENABLE_PIN                X_ENABLE_PIN
 
-#define E0_ENABLE_PIN                       PC3
 #ifndef E0_STEP_PIN
   #define E0_STEP_PIN                       PB4
 #endif
 #ifndef E0_DIR_PIN
   #define E0_DIR_PIN                        PB3
 #endif
+#define E0_ENABLE_PIN               X_ENABLE_PIN
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -129,15 +134,16 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA1   // HEATER1
-#define HEATER_BED_PIN                      PA2   // HOT BED
-
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                      PA1   // HEATER1
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                    PA2   // HOT BED
+#endif
 #ifndef FAN_PIN
   #define FAN_PIN                           PA0   // FAN
 #endif
-#if PIN_EXISTS(FAN)
-  #define FAN_SOFT_PWM
-#endif
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
@@ -149,37 +155,39 @@
 #define SDIO_SUPPORT
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
-#if ENABLED(CR10_STOCKDISPLAY) && NONE(RET6_12864_LCD, VET6_12864_LCD)
-  #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
-#endif
+#if ENABLED(CR10_STOCKDISPLAY)
 
-#if ENABLED(RET6_12864_LCD)
+  #if ENABLED(RET6_12864_LCD)
 
-  // RET6 12864 LCD
-  #define LCD_PINS_RS                       PB12
-  #define LCD_PINS_ENABLE                   PB15
-  #define LCD_PINS_D4                       PB13
+    // RET6 12864 LCD
+    #define LCD_PINS_RS                     PB12
+    #define LCD_PINS_ENABLE                 PB15
+    #define LCD_PINS_D4                     PB13
 
-  #define BTN_ENC                           PB2
-  #define BTN_EN1                           PB10
-  #define BTN_EN2                           PB14
+    #define BTN_ENC                         PB2
+    #define BTN_EN1                         PB10
+    #define BTN_EN2                         PB14
 
-  #ifndef HAS_PIN_27_BOARD
-    #define BEEPER_PIN                      PC6
+    #ifndef HAS_PIN_27_BOARD
+      #define BEEPER_PIN                    PC6
+    #endif
+
+  #elif ENABLED(VET6_12864_LCD)
+
+    // VET6 12864 LCD
+    #define LCD_PINS_RS                     PA4
+    #define LCD_PINS_ENABLE                 PA7
+    #define LCD_PINS_D4                     PA5
+
+    #define BTN_ENC                         PC5
+    #define BTN_EN1                         PB10
+    #define BTN_EN2                         PA6
+
+  #else
+    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
   #endif
 
-#elif ENABLED(VET6_12864_LCD)
-
-  // VET6 12864 LCD
-  #define LCD_PINS_RS                       PA4
-  #define LCD_PINS_ENABLE                   PA7
-  #define LCD_PINS_D4                       PA5
-
-  #define BTN_ENC                           PC5
-  #define BTN_EN1                           PB10
-  #define BTN_EN2                           PA6
-
-#elif ENABLED(DWIN_CREALITY_LCD)
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 
   // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14
@@ -189,7 +197,6 @@
   //#define LCD_LED_PIN                     PB2
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                      PB13
-    #undef SPEAKER
   #endif
 
 #elif ENABLED(DWIN_VET6_CREALITY_LCD)

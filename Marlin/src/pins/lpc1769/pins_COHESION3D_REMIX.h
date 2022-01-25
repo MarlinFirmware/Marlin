@@ -25,9 +25,7 @@
  * Cohesion3D ReMix pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1769)
-  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Cohesion3D ReMix"
 
@@ -231,8 +229,6 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define ONBOARD_SD_CS_PIN                  P0_06  // Chip select for "System" SD card
-
 #if SD_CONNECTION_IS(LCD) || SD_CONNECTION_IS(ONBOARD)
   #define SD_SCK_PIN                       P0_07  // (52)  system defined J3-9 & AUX-3
   #define SD_MISO_PIN                      P0_08  // (50)  system defined J3-10 & AUX-3
@@ -241,6 +237,7 @@
     #define SD_SS_PIN                      P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS) - CS used by Marlin
   #else
     #undef SD_DETECT_PIN
+    #define ONBOARD_SD_CS_PIN              P0_06  // Chip select for "System" SD card
     #define SD_SS_PIN          ONBOARD_SD_CS_PIN
   #endif
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

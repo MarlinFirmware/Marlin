@@ -21,9 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 /**
  * 2017 Victor Perez Marlin for stm32f1 test
@@ -41,45 +39,30 @@
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
+// Limit Switches
+//
+#define X_STOP_PIN                          PG10
+#define Y_STOP_PIN                          PA12
+#define Z_STOP_PIN                          PA14
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PE5
 #define X_DIR_PIN                           PE6
 #define X_ENABLE_PIN                        PC13
-#define X_MIN_PIN                           PG10
-#define X_MAX_PIN                           -1
 
 #define Y_STEP_PIN                          PE2
 #define Y_DIR_PIN                           PE3
 #define Y_ENABLE_PIN                        PE4
-#define Y_MIN_PIN                           PA12
-#define Y_MAX_PIN
 
 #define Z_STEP_PIN                          PB9
 #define Z_DIR_PIN                           PE0
 #define Z_ENABLE_PIN                        PE1
-#define Z_MIN_PIN                           PA14
-#define Z_MAX_PIN                           -1
-
-#define Y2_STEP_PIN                         -1
-#define Y2_DIR_PIN                          -1
-#define Y2_ENABLE_PIN                       -1
-
-#define Z2_STEP_PIN                         -1
-#define Z2_DIR_PIN                          -1
-#define Z2_ENABLE_PIN                       -1
 
 #define E0_STEP_PIN                         PB4
 #define E0_DIR_PIN                          PB5
 #define E0_ENABLE_PIN                       PB8
-
-#define E1_STEP_PIN                         -1
-#define E1_DIR_PIN                          -1
-#define E1_ENABLE_PIN                       -1
-
-#define E2_STEP_PIN                         -1
-#define E2_DIR_PIN                          -1
-#define E2_ENABLE_PIN                       -1
 
 //
 // Misc. Functions
@@ -98,26 +81,19 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PD12  // HOT-END
-#define HEATER_1_PIN                        -1
-#define HEATER_2_PIN                        -1
-
 #define HEATER_BED_PIN                      PG11  // HOT-BED
-#define HEATER_BED2_PIN                     -1    // BED2
-#define HEATER_BED3_PIN                     -1    // BED3
 
 #ifndef FAN_PIN
   #define FAN_PIN                           PG14  // MAIN BOARD FAN
 #endif
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Temperature Sensors
 //
-#define TEMP_BED_PIN                        PA0   // Analog Input
 #define TEMP_0_PIN                          PA1   // Analog Input
-#define TEMP_1_PIN                          -1    // Analog Input
-#define TEMP_2_PIN                          -1    // Analog Input
+#define TEMP_BED_PIN                        PA0   // Analog Input
 
 //
 // LCD Pins
@@ -202,7 +178,6 @@
       // Pins for DOGM SPI LCD Support
       #define DOGLCD_A0                     PC12  // 44
       #define DOGLCD_CS                     PC13  // 45
-      #define LCD_SCREEN_ROT_180
 
       #define BTN_EN1                       PB6   // 22
       #define BTN_EN2                       PA7   //  7
@@ -215,6 +190,8 @@
 
       #define STAT_LED_RED_PIN              PC0   // 32
       #define STAT_LED_BLUE_PIN             PC3   // 35
+
+      #define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1                       PC3   // 35
@@ -238,17 +215,15 @@
       #define SDSS                          PD5   // 53
 
       #define KILL_PIN                      PE0   // 64
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
+
       // The encoder and click button
       #define BTN_EN1                       PC8   // 40
       #define BTN_EN2                       PD15  // 63
       #define BTN_ENC                       PD11  // 59
       // not connected to a pin
       #define SD_DETECT_PIN                 PD1   // 49
+
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #else
 
