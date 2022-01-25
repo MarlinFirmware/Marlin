@@ -273,7 +273,7 @@ public:
   static void DGUSLCD_SendFloatAsIntValueToDisplay(DGUS_VP_Variable &var) {
     if (var.memadr) {
       float f = *(float *)var.memadr;
-      DEBUG_ECHOLNPGM(" >> ", f, 6);
+      DEBUG_ECHOLNPAIR_F(" >> ", f, 6);
       f *= cpow(10, decimals);
       dgusdisplay.WriteVariable(var.VP, (int16_t)f);
     }
