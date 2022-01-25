@@ -1379,6 +1379,10 @@
 
   // Show the E position (filament used) during printing
   //#define LCD_SHOW_E_TOTAL
+
+  // Add LED Control to the LCD menu
+  //#define LED_CONTROL_MENU
+
 #endif
 
 // LCD Print Progress options
