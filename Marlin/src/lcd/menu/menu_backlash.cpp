@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, BACKLASH_GCODE)
+#if BOTH(HAS_MARLINUI_MENU, BACKLASH_GCODE)
 
 #include "menu_item.h"
 
@@ -68,4 +68,4 @@ void menu_backlash() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && BACKLASH_GCODE
+#endif // HAS_MARLINUI_MENU && BACKLASH_GCODE

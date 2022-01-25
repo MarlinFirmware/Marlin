@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, CANCEL_OBJECTS)
+#if BOTH(HAS_MARLINUI_MENU, CANCEL_OBJECTS)
 
 #include "menu_item.h"
 #include "menu_addon.h"
@@ -71,4 +71,4 @@ void menu_cancelobject() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && CANCEL_OBJECTS
+#endif // HAS_MARLINUI_MENU && CANCEL_OBJECTS

@@ -353,7 +353,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
   #include "../menu/menu.h"
 
@@ -744,6 +744,6 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
 
 #endif // HAS_MARLINUI_U8GLIB

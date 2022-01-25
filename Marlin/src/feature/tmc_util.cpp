@@ -40,7 +40,7 @@
   #endif
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   #include "../module/stepper.h"
 #endif
 
