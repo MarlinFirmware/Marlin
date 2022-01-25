@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #include "menu_item.h"
 #include "../../module/motion.h"
@@ -65,23 +65,23 @@
       babystep.add_steps(axis, steps);
     }
     if (ui.should_draw()) {
-      const float spm = planner.steps_to_mm[axis];
-      MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystep.accum));
+      const float mps = planner.mm_per_step[axis];
+      MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(mps * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
         const bool in_view = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
         if (in_view) {
           TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU));
           #if ENABLED(TFT_COLOR_UI)
             lcd_moveto(4, 3);
-            lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
+            lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
             lcd_put_wchar(':');
             lcd_moveto(10, 3);
           #else
             lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
-            lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
+            lcd_put_u8str(GET_TEXT_F(MSG_BABYSTEP_TOTAL));
             lcd_put_wchar(':');
           #endif
-          lcd_put_u8str(BABYSTEP_TO_STR(spm * babystep.axis_total[BS_TOTAL_IND(axis)]));
+          lcd_put_u8str(BABYSTEP_TO_STR(mps * babystep.axis_total[BS_TOTAL_IND(axis)]));
         }
       #endif
     }
@@ -195,7 +195,7 @@ void menu_tune() {
   //
   // Flow:
   //
-  #if EXTRUDERS
+  #if HAS_EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
     // Flow En:
     #if HAS_MULTI_EXTRUDER
@@ -236,4 +236,4 @@ void menu_tune() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU

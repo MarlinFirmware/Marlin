@@ -38,6 +38,13 @@
 #include <stdint.h>
 
 //
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
+
+//
 // Serial Ports
 //
 #ifdef USBCON
@@ -123,7 +130,11 @@
 // Types
 // ------------------------
 
-typedef int16_t pin_t;
+#ifdef STM32G0B1xx
+  typedef int32_t pin_t;
+#else
+  typedef int16_t pin_t;
+#endif
 
 #define HAL_SERVO_LIB libServo
 #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
@@ -176,8 +187,13 @@ static inline int freeMemory() {
 
 #define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
+#ifdef ADC_RESOLUTION
+  #define HAL_ADC_RESOLUTION ADC_RESOLUTION
+#else
+  #define HAL_ADC_RESOLUTION 12
+#endif
+
 #define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  ADC_RESOLUTION // 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
@@ -195,6 +211,7 @@ uint16_t HAL_adc_get_result();
 #ifdef STM32F1xx
   #define JTAG_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_JTAGDISABLE)
   #define JTAGSWD_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_DISABLE)
+  #define JTAGSWD_RESET() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_RESET); // Reset: FULL SWD+JTAG
 #endif
 
 #define PLATFORM_M997_SUPPORT
@@ -214,7 +231,7 @@ extern volatile uint32_t systick_uptime_millis;
  *  Set the frequency of the timer corresponding to the provided pin
  *  All Timer PWM pins run at the same frequency
  */
-void set_pwm_frequency(const pin_t pin, int f_desired);
+void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 
 /**
  * set_pwm_duty

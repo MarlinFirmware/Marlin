@@ -47,9 +47,10 @@
 #endif
 
 #if ENABLED(LED_COLOR_PRESETS)
-  const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
-    LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE,
-    LED_USER_PRESET_WHITE, LED_USER_PRESET_BRIGHTNESS
+  const LEDColor LEDLights::defaultLEDColor = LEDColor(
+    LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE
+    OPTARG(HAS_WHITE_LED, LED_USER_PRESET_WHITE)
+    OPTARG(NEOPIXEL_LED, LED_USER_PRESET_BRIGHTNESS)
   );
 #endif
 
@@ -75,36 +76,35 @@ void LEDLights::setup() {
 }
 
 void LEDLights::set_color(const LEDColor &incol
-  #if ENABLED(NEOPIXEL_LED)
-    , bool isSequence/*=false*/
-  #endif
+  OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence/*=false*/)
 ) {
 
   #if ENABLED(NEOPIXEL_LED)
 
     const uint32_t neocolor = LEDColorWhite() == incol
                             ? neo.Color(NEO_WHITE)
-                            : neo.Color(incol.r, incol.g, incol.b, incol.w);
-    static uint16_t nextLed = 0;
+                            : neo.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED, incol.w));
 
-    #ifdef NEOPIXEL_BKGD_LED_INDEX
-      if (NEOPIXEL_BKGD_LED_INDEX == nextLed) {
-        neo.set_color_background();
-        if (++nextLed >= neo.pixels()) {
-          nextLed = 0;
-          return;
+    #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+      static uint16_t nextLed = 0;
+      #ifdef NEOPIXEL_BKGD_INDEX_FIRST
+        while (WITHIN(nextLed, NEOPIXEL_BKGD_INDEX_FIRST, NEOPIXEL_BKGD_INDEX_LAST)) {
+          neo.reset_background_color();
+          if (++nextLed >= neo.pixels()) { nextLed = 0; return; }
         }
-      }
+      #endif
     #endif
 
     neo.set_brightness(incol.i);
 
-    if (isSequence) {
-      neo.set_pixel_color(nextLed, neocolor);
-      neo.show();
-      if (++nextLed >= neo.pixels()) nextLed = 0;
-      return;
-    }
+    #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+      if (isSequence) {
+        neo.set_pixel_color(nextLed, neocolor);
+        neo.show();
+        if (++nextLed >= neo.pixels()) nextLed = 0;
+        return;
+      }
+    #endif
 
     neo.set_color(neocolor);
 
@@ -121,11 +121,11 @@ void LEDLights::set_color(const LEDColor &incol
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
-    #define _UPDATE_RGBW(C,c) do {                \
-      if (PWM_PIN(RGB_LED_##C##_PIN))             \
-        analogWrite(pin_t(RGB_LED_##C##_PIN), c); \
-      else                                        \
-        WRITE(RGB_LED_##C##_PIN, c ? HIGH : LOW); \
+    #define _UPDATE_RGBW(C,c) do {                 \
+      if (PWM_PIN(RGB_LED_##C##_PIN))              \
+        set_pwm_duty(pin_t(RGB_LED_##C##_PIN), c); \
+      else                                         \
+        WRITE(RGB_LED_##C##_PIN, c ? HIGH : LOW);  \
     }while(0)
     #define UPDATE_RGBW(C,c) _UPDATE_RGBW(C, TERN1(CASE_LIGHT_USE_RGB_LED, caselight.on) ? incol.c : 0)
     UPDATE_RGBW(R,r); UPDATE_RGBW(G,g); UPDATE_RGBW(B,b);
@@ -169,9 +169,10 @@ void LEDLights::set_color(const LEDColor &incol
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
   #if ENABLED(NEO2_COLOR_PRESETS)
-    const LEDColor LEDLights2::defaultLEDColor = MakeLEDColor(
-      NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE,
-      NEO2_USER_PRESET_WHITE, NEO2_USER_PRESET_BRIGHTNESS
+    const LEDColor LEDLights2::defaultLEDColor = LEDColor(
+      NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE
+      OPTARG(HAS_WHITE_LED2, NEO2_USER_PRESET_WHITE)
+      OPTARG(NEOPIXEL_LED, NEO2_USER_PRESET_BRIGHTNESS)
     );
   #endif
 
@@ -190,7 +191,7 @@ void LEDLights::set_color(const LEDColor &incol
   void LEDLights2::set_color(const LEDColor &incol) {
     const uint32_t neocolor = LEDColorWhite() == incol
                             ? neo2.Color(NEO2_WHITE)
-                            : neo2.Color(incol.r, incol.g, incol.b, incol.w);
+                            : neo2.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED2, incol.w));
     neo2.set_brightness(incol.i);
     neo2.set_color(neocolor);
 

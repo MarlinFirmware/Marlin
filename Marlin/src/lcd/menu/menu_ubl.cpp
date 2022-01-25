@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
+#if BOTH(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu_item.h"
 #include "../../gcode/gcode.h"
@@ -83,7 +83,7 @@ void _lcd_mesh_fine_tune(PGM_P const msg) {
   if (ui.should_draw()) {
     const float rounded_f = rounded_mesh_value();
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(rounded_f));
-    TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(rounded_f));
+    TERN_(MESH_EDIT_GFX_OVERLAY, ui.zoffset_overlay(rounded_f));
     TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }
@@ -176,7 +176,7 @@ void _menu_ubl_height_adjust() {
 void _lcd_ubl_edit_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  GCODES_ITEM(MSG_UBL_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+  GCODES_ITEM(MSG_UBL_FINE_TUNE_ALL, PSTR("G29P4RT"));
   GCODES_ITEM(MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29P4T"));
   SUBMENU(MSG_UBL_MESH_HEIGHT_ADJUST, _menu_ubl_height_adjust);
   ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
@@ -192,9 +192,7 @@ void _lcd_ubl_edit_mesh() {
     char ubl_lcd_gcode[20];
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_HEATED_BED, "B%" PRIi16))
       , custom_hotend_temp
-      #if HAS_HEATED_BED
-        , custom_bed_temp
-      #endif
+      OPTARG(HAS_HEATED_BED, custom_bed_temp)
     );
     queue.inject(ubl_lcd_gcode);
   }
@@ -210,7 +208,7 @@ void _lcd_ubl_edit_mesh() {
   void _lcd_ubl_validate_mesh() {
     START_MENU();
     BACK_ITEM(MSG_UBL_TOOLS);
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       #if HAS_HEATED_BED
         #define VALIDATE_MESH_GCODE_ITEM(M) \
           GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26CPI" STRINGIFY(M)))
@@ -232,7 +230,7 @@ void _lcd_ubl_edit_mesh() {
           #endif
         #endif
       #endif
-    #endif // PREHEAT_COUNT
+    #endif // HAS_PREHEAT
     ACTION_ITEM(MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
     ACTION_ITEM(MSG_INFO_SCREEN, ui.return_to_status);
     END_MENU();
@@ -326,7 +324,7 @@ void _lcd_ubl_invalidate() {
 void _lcd_ubl_build_mesh() {
   START_MENU();
   BACK_ITEM(MSG_UBL_TOOLS);
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     #if HAS_HEATED_BED
       #define PREHEAT_BED_GCODE(M) "M190I" STRINGIFY(M) "\n"
     #else
@@ -354,7 +352,7 @@ void _lcd_ubl_build_mesh() {
         #endif
       #endif
     #endif
-  #endif // PREHEAT_COUNT
+  #endif // HAS_PREHEAT
 
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
   GCODES_ITEM(MSG_UBL_BUILD_COLD_MESH, PSTR("G29NP1"));
@@ -430,7 +428,7 @@ void ubl_map_move_to_xy() {
 
   // Use the built-in manual move handler to move to the mesh point.
   ui.manual_move.set_destination(xy);
-  ui.manual_move.soon(ALL_AXES);
+  ui.manual_move.soon(ALL_AXES_ENUM);
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
@@ -594,9 +592,9 @@ void _menu_ubl_tools() {
     GCODES_ITEM(MSG_UBL_1_BUILD_COLD_MESH, PSTR("G29NP1"));
     GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, PSTR("G29P3T0"));
     SUBMENU(MSG_UBL_3_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-    GCODES_ITEM(MSG_UBL_4_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+    GCODES_ITEM(MSG_UBL_4_FINE_TUNE_ALL, PSTR("G29P4RT"));
     SUBMENU(MSG_UBL_5_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-    GCODES_ITEM(MSG_UBL_6_FINE_TUNE_ALL, PSTR("G29P4R999T"));
+    GCODES_ITEM(MSG_UBL_6_FINE_TUNE_ALL, PSTR("G29P4RT"));
     ACTION_ITEM(MSG_UBL_7_SAVE_MESH, _lcd_ubl_save_mesh_cmd);
     END_MENU();
   }
@@ -668,6 +666,10 @@ void _lcd_ubl_level_bed() {
     GCODES_ITEM(MSG_UBL_DEACTIVATE_MESH, PSTR("G29D"));
   else
     GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, PSTR("G29A"));
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    editable.decimal = planner.z_fade_height;
+    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
+  #endif
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   #endif
@@ -679,11 +681,7 @@ void _lcd_ubl_level_bed() {
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);
   GCODES_ITEM(MSG_UBL_INFO_UBL, PSTR("G29W"));
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    editable.decimal = planner.z_fade_height;
-    EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
-  #endif
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && AUTO_BED_LEVELING_UBL
+#endif // HAS_MARLINUI_MENU && AUTO_BED_LEVELING_UBL

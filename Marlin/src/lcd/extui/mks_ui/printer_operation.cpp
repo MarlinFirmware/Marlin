@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -52,9 +53,9 @@ void printer_state_polling() {
         uiCfg.waitEndMoves = 0;
         planner.synchronize();
 
-        gcode.process_subcommands_now_P(PSTR("M25"));
+        gcode.process_subcommands_now(F("M25"));
 
-        //save the positon
+        // save the position
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
         uiCfg.current_z_position_bak = current_position.z;
@@ -92,7 +93,7 @@ void printer_state_polling() {
         sprintf_P(public_buf_m, PSTR("G1 Z%s"), dtostrf(uiCfg.current_z_position_bak, 1, 1, str_1));
         gcode.process_subcommands_now(public_buf_m);
       }
-      gcode.process_subcommands_now_P(M24_STR);
+      gcode.process_subcommands_now(FPSTR(M24_STR));
       uiCfg.print_state = WORKING;
       start_print_time();
 
@@ -158,19 +159,12 @@ void filament_pin_setup() {
 }
 
 void filament_check() {
-  const int FIL_DELAY = 20;
+  #if ANY_PIN(MT_DET_1, MT_DET_2, MT_DET_3)
+    const int FIL_DELAY = 20;
+  #endif
   #if PIN_EXISTS(MT_DET_1)
     static int fil_det_count_1 = 0;
-    if (!READ(MT_DET_1_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (READ(MT_DET_1_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (fil_det_count_1 > 0)
-      fil_det_count_1--;
-
-    if (!READ(MT_DET_1_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_1++;
-    else if (READ(MT_DET_1_PIN) && MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
       fil_det_count_1++;
     else if (fil_det_count_1 > 0)
       fil_det_count_1--;
@@ -178,16 +172,7 @@ void filament_check() {
 
   #if PIN_EXISTS(MT_DET_2)
     static int fil_det_count_2 = 0;
-    if (!READ(MT_DET_2_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (READ(MT_DET_2_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (fil_det_count_2 > 0)
-      fil_det_count_2--;
-
-    if (!READ(MT_DET_2_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_2++;
-    else if (READ(MT_DET_2_PIN) && MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_2_PIN) == MT_DET_PIN_STATE)
       fil_det_count_2++;
     else if (fil_det_count_2 > 0)
       fil_det_count_2--;
@@ -195,16 +180,7 @@ void filament_check() {
 
   #if PIN_EXISTS(MT_DET_3)
     static int fil_det_count_3 = 0;
-    if (!READ(MT_DET_3_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (READ(MT_DET_3_PIN) && MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (fil_det_count_3 > 0)
-      fil_det_count_3--;
-
-    if (!READ(MT_DET_3_PIN) && !MT_DET_PIN_INVERTING)
-      fil_det_count_3++;
-    else if (READ(MT_DET_3_PIN) && MT_DET_PIN_INVERTING)
+    if (READ(MT_DET_3_PIN) == MT_DET_PIN_STATE)
       fil_det_count_3++;
     else if (fil_det_count_3 > 0)
       fil_det_count_3--;

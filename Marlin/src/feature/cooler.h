@@ -78,10 +78,8 @@ public:
 
     // Get the total flow (in liters per minute) since the last reading
     static void calc_flowrate() {
-      //flowmeter_interrupt_disable();
-      //  const uint16_t pulses = flowpulses;
-      //flowmeter_interrupt_enable();
-      flowrate = flowpulses * 60.0f * (1000.0f / (FLOWMETER_INTERVAL)) * (1000.0f / (FLOWMETER_PPL));
+      // flowrate = (litres) * (seconds) = litres per minute
+      flowrate = (flowpulses / (float)FLOWMETER_PPL) * ((1000.0f / (float)FLOWMETER_INTERVAL) * 60.0f);
       flowpulses = 0;
     }
 
@@ -96,12 +94,12 @@ public:
     }
 
     #if ENABLED(FLOWMETER_SAFETY)
-      static bool fault;                // Flag that the cooler is in a fault state
-      static bool flowsafety_enabled;   // Flag to disable the cutter if flow rate is too low
+      static bool flowfault;                // Flag that the cooler is in a fault state
+      static bool flowsafety_enabled;       // Flag to disable the cutter if flow rate is too low
       static void flowsafety_toggle()   { flowsafety_enabled = !flowsafety_enabled; }
       static bool check_flow_too_low() {
         const bool too_low = flowsafety_enabled && flowrate < (FLOWMETER_MIN_LITERS_PER_MINUTE);
-        if (too_low) fault = true;
+        flowfault =  too_low;
         return too_low;
       }
     #endif

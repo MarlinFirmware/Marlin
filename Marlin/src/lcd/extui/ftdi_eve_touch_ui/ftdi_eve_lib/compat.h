@@ -40,13 +40,13 @@
     template<typename port_t,uint8_t bits>
     struct port_pin {
       typedef port_t port;
-      static inline void set_high()         {port::port() = (port::port() |   bits);}
-      static inline void set_low()          {port::port() = (port::port() & (~bits));}
-      static inline void set_input()        {port::ddr()  = (port::ddr()  & (~bits));}
-      static inline void set_input_pullup() {set_input(); set_high();}
-      static inline void set_output()       {port::ddr()  = (port::ddr()  |   bits);}
-      static inline uint8_t read()          {return port::pin() & bits;}
-      static inline void write(bool v)      {if (v) set_high(); else set_low();}
+      static void set_high()         {port::port() = (port::port() |   bits);}
+      static void set_low()          {port::port() = (port::port() & (~bits));}
+      static void set_input()        {port::ddr()  = (port::ddr()  & (~bits));}
+      static void set_input_pullup() {set_input(); set_high();}
+      static void set_output()       {port::ddr()  = (port::ddr()  |   bits);}
+      static uint8_t read()          {return port::pin() & bits;}
+      static void write(bool v)      {if (v) set_high(); else set_low();}
     };
 
     #define MAKE_AVR_PORT_PINS(ID) \
@@ -109,13 +109,13 @@
     template<uint8_t p>
     struct arduino_digital_pin {
       static constexpr uint8_t pin = p;
-      static inline void set_high()          {digitalWrite(p, HIGH);}
-      static inline void set_low()           {digitalWrite(p, LOW);}
-      static inline void set_input()         {pinMode(p, INPUT);}
-      static inline void set_input_pullup()  {pinMode(p, INPUT_PULLUP);}
-      static inline void set_output()        {pinMode(p, OUTPUT);}
-      static inline uint8_t read()           {return digitalRead(p);}
-      static inline void write(bool v)       {digitalWrite(p, v ? HIGH : LOW);}
+      static void set_high()          {digitalWrite(p, HIGH);}
+      static void set_low()           {digitalWrite(p, LOW);}
+      static void set_input()         {pinMode(p, INPUT);}
+      static void set_input_pullup()  {pinMode(p, INPUT_PULLUP);}
+      static void set_output()        {pinMode(p, OUTPUT);}
+      static uint8_t read()           {return digitalRead(p);}
+      static void write(bool v)       {digitalWrite(p, v ? HIGH : LOW);}
     };
 
     #define MAKE_ARDUINO_PINS(ID) typedef arduino_digital_pin<ID> ARDUINO_DIGITAL_##ID;
@@ -195,12 +195,32 @@
   #define pgm_read_ptr_far pgm_read_ptr
   #endif
 
+  // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
+  #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+  #define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
+  // SERIAL_ECHOPGM / SERIAL_ECHOPGM_P is used to output a key value pair. The key must be a string and the value can be anything
+  // Print up to 12 pairs of values. Odd elements auto-wrapped in PSTR().
+  #define __SEP_N(N,V...)   _SEP_##N(V)
+  #define _SEP_N(N,V...)    __SEP_N(N,V)
+  #define _SEP_1(PRE)       SERIAL_ECHOPGM(PRE)
+  #define _SEP_2(PRE,V)     do{ Serial.print(F(PRE)); Serial.print(V); }while(0)
+  #define _SEP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
+  #define _SEP_4(a,b,V...)  do{ _SEP_2(a,b); _SEP_2(V); }while(0)
+
+  // Print up to 1 pairs of values followed by newline
+  #define __SELP_N(N,V...)            _SELP_##N(V)
+  #define _SELP_N(N,V...)             __SELP_N(N,V)
+  #define _SELP_1(PRE)                SERIAL_ECHOLNPGM(PRE)
+  #define _SELP_2(PRE,V)              do{ Serial.print(F(PRE)); Serial.println(V); }while(0)
+  #define _SELP_3(a,b,c)              do{ _SEP_2(a,b); SERIAL_ECHOLNPGM(c); }while(0)
+  #define _SELP_4(a,b,V...)           do{ _SEP_2(a,b); _SELP_2(V); }while(0)
   #define SERIAL_ECHO_START()
   #define SERIAL_ECHOLNPGM(str)       Serial.println(F(str))
   #define SERIAL_ECHOPGM(str)         Serial.print(F(str))
-  #define SERIAL_ECHO_MSG(str)        Serial.println(str)
-  #define SERIAL_ECHOLNPAIR(str, val) do{ Serial.print(F(str)); Serial.println(val); }while(0)
-  #define SERIAL_ECHOPAIR(str, val)   do{ Serial.print(F(str)); Serial.print(val); }while(0)
+  #define SERIAL_ECHO_MSG(V...)       SERIAL_ECHOLNPGM(V)
+  #define SERIAL_ECHOLNPGM(V...)     _SELP_N(NUM_ARGS(V),V)
+  #define SERIAL_ECHOPGM(str, val)   do{ Serial.print(F(str)); Serial.print(val); }while(0)
 
   #define safe_delay delay
 
@@ -235,6 +255,34 @@
   #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
   #define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
   #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
+  #define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
+  #define _DO_14(W,C,A,V...) (_##W##_1(A) C _DO_13(W,C,V))
+  #define _DO_15(W,C,A,V...) (_##W##_1(A) C _DO_14(W,C,V))
+  #define _DO_16(W,C,A,V...) (_##W##_1(A) C _DO_15(W,C,V))
+  #define _DO_17(W,C,A,V...) (_##W##_1(A) C _DO_16(W,C,V))
+  #define _DO_18(W,C,A,V...) (_##W##_1(A) C _DO_17(W,C,V))
+  #define _DO_19(W,C,A,V...) (_##W##_1(A) C _DO_18(W,C,V))
+  #define _DO_20(W,C,A,V...) (_##W##_1(A) C _DO_19(W,C,V))
+  #define _DO_21(W,C,A,V...) (_##W##_1(A) C _DO_20(W,C,V))
+  #define _DO_22(W,C,A,V...) (_##W##_1(A) C _DO_21(W,C,V))
+  #define _DO_23(W,C,A,V...) (_##W##_1(A) C _DO_22(W,C,V))
+  #define _DO_24(W,C,A,V...) (_##W##_1(A) C _DO_23(W,C,V))
+  #define _DO_25(W,C,A,V...) (_##W##_1(A) C _DO_24(W,C,V))
+  #define _DO_26(W,C,A,V...) (_##W##_1(A) C _DO_25(W,C,V))
+  #define _DO_27(W,C,A,V...) (_##W##_1(A) C _DO_26(W,C,V))
+  #define _DO_28(W,C,A,V...) (_##W##_1(A) C _DO_27(W,C,V))
+  #define _DO_29(W,C,A,V...) (_##W##_1(A) C _DO_28(W,C,V))
+  #define _DO_30(W,C,A,V...) (_##W##_1(A) C _DO_29(W,C,V))
+  #define _DO_31(W,C,A,V...) (_##W##_1(A) C _DO_30(W,C,V))
+  #define _DO_32(W,C,A,V...) (_##W##_1(A) C _DO_31(W,C,V))
+  #define _DO_33(W,C,A,V...) (_##W##_1(A) C _DO_32(W,C,V))
+  #define _DO_34(W,C,A,V...) (_##W##_1(A) C _DO_33(W,C,V))
+  #define _DO_35(W,C,A,V...) (_##W##_1(A) C _DO_34(W,C,V))
+  #define _DO_36(W,C,A,V...) (_##W##_1(A) C _DO_35(W,C,V))
+  #define _DO_37(W,C,A,V...) (_##W##_1(A) C _DO_36(W,C,V))
+  #define _DO_38(W,C,A,V...) (_##W##_1(A) C _DO_37(W,C,V))
+  #define _DO_39(W,C,A,V...) (_##W##_1(A) C _DO_38(W,C,V))
+  #define _DO_40(W,C,A,V...) (_##W##_1(A) C _DO_39(W,C,V))
   #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
   #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
   #define DO(W,C,V...)       _DO_N(W,C,NUM_ARGS(V),V)
@@ -268,7 +316,7 @@
 
   // Remove compiler warning on an unused variable
   #ifndef UNUSED
-    #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+    #ifdef HAL_STM32
       #define UNUSED(X) (void)X
     #else
       #define UNUSED(x) ((void)(x))
@@ -276,3 +324,7 @@
   #endif
 
 #endif // !__MARLIN_FIRMWARE__
+
+#ifndef SD_SPI_SPEED
+  #define SD_SPI_SPEED SPI_FULL_SPEED
+#endif

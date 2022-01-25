@@ -37,7 +37,7 @@ public:
   inline constexpr bool enabled(const SerialMask PortMask) const    { return mask & PortMask.mask; }
   inline constexpr SerialMask combine(const SerialMask other) const { return SerialMask(mask | other.mask); }
   inline constexpr SerialMask operator<< (const int offset) const   { return SerialMask(mask << offset); }
-  static inline SerialMask from(const serial_index_t index) {
+  static SerialMask from(const serial_index_t index) {
     if (index.valid()) return SerialMask(_BV(index.index));
     return SerialMask(0); // A invalid index mean no output
   }
@@ -109,7 +109,7 @@ struct ConditionalSerial : public SerialBase< ConditionalSerial<SerialT> > {
   ConditionalSerial(bool & conditionVariable, SerialT & out, const bool e) : BaseClassT(e), condition(conditionVariable), out(out) {}
 };
 
-// A simple foward class that taking a reference to an existing serial instance (likely created in their respective framework)
+// A simple forward class that taking a reference to an existing serial instance (likely created in their respective framework)
 template <class SerialT>
 struct ForwardSerial : public SerialBase< ForwardSerial<SerialT> > {
   typedef SerialBase< ForwardSerial<SerialT> > BaseClassT;

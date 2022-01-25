@@ -106,14 +106,14 @@ struct duration_t {
     return this->value;
   }
 
+  #pragma GCC diagnostic push
   #if GCC_VERSION <= 50000
-    #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wformat-overflow"
   #endif
 
   /**
    * @brief Formats the duration as a string
-   * @details String will be formated using a "full" representation of duration
+   * @details String will be formatted using a "full" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 22 bytes
    *               (21 for the string, 1 more for the terminating nul)
@@ -127,11 +127,11 @@ struct duration_t {
    *  59s
    */
   char* toString(char * const buffer) const {
-    int y = this->year(),
-        d = this->day() % 365,
-        h = this->hour() % 24,
-        m = this->minute() % 60,
-        s = this->second() % 60;
+    const uint16_t y = this->year(),
+                   d = this->day() % 365,
+                   h = this->hour() % 24,
+                   m = this->minute() % 60,
+                   s = this->second() % 60;
 
          if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
     else if (d) sprintf_P(buffer, PSTR("%id %ih %im %is"), d, h, m, s);
@@ -143,34 +143,38 @@ struct duration_t {
 
   /**
    * @brief Formats the duration as a string
-   * @details String will be formated using a "digital" representation of duration
+   * @details String will be formatted using a "digital" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 10 bytes
    *
    * Output examples:
    *  123456789 (strlen)
+   *  12'34
    *  99:59
    *  11d 12:33
    */
   uint8_t toDigital(char *buffer, bool with_days=false) const {
-    uint16_t h = uint16_t(this->hour()),
-             m = uint16_t(this->minute() % 60UL);
+    const uint16_t h = uint16_t(this->hour()),
+                   m = uint16_t(this->minute() % 60UL);
     if (with_days) {
-      uint16_t d = this->day();
-      sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);
+      const uint16_t d = this->day();
+      sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);  // 1d 23:45
       return d >= 10 ? 9 : 8;
     }
+    else if (!h) {
+      const uint16_t s = uint16_t(this->second() % 60UL);
+      sprintf_P(buffer, PSTR("%02hu'%02hu"), m, s);     // 12'34
+      return 5;
+    }
     else if (h < 100) {
-      sprintf_P(buffer, PSTR("%02hu:%02hu"), h, m);
+      sprintf_P(buffer, PSTR("%02hu:%02hu"), h, m);     // 12:34
       return 5;
     }
     else {
-      sprintf_P(buffer, PSTR("%hu:%02hu"), h, m);
+      sprintf_P(buffer, PSTR("%hu:%02hu"), h, m);       // 123:45
       return 6;
     }
   }
 
-  #if GCC_VERSION <= 50000
-    #pragma GCC diagnostic pop
-  #endif
+  #pragma GCC diagnostic pop
 };

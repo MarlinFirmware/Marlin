@@ -68,13 +68,13 @@ Joystick joystick;
   void Joystick::report() {
     SERIAL_ECHOPGM("Joystick");
     #if HAS_JOY_ADC_X
-      SERIAL_ECHOPAIR_P(SP_X_STR, JOY_X(x.raw));
+      SERIAL_ECHOPGM_P(SP_X_STR, JOY_X(x.raw));
     #endif
     #if HAS_JOY_ADC_Y
-      SERIAL_ECHOPAIR_P(SP_Y_STR, JOY_Y(y.raw));
+      SERIAL_ECHOPGM_P(SP_Y_STR, JOY_Y(y.raw));
     #endif
     #if HAS_JOY_ADC_Z
-      SERIAL_ECHOPAIR_P(SP_Z_STR, JOY_Z(z.raw));
+      SERIAL_ECHOPGM_P(SP_Z_STR, JOY_Z(z.raw));
     #endif
     #if HAS_JOY_ADC_EN
       SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
@@ -163,7 +163,7 @@ Joystick joystick;
     // norm_jog values of [-1 .. 1] maps linearly to [-feedrate .. feedrate]
     xyz_float_t move_dist{0};
     float hypot2 = 0;
-    LOOP_XYZ(i) if (norm_jog[i]) {
+    LOOP_LINEAR_AXES(i) if (norm_jog[i]) {
       move_dist[i] = seg_time * norm_jog[i] * TERN(EXTENSIBLE_UI, manual_feedrate_mm_s, planner.settings.max_feedrate_mm_s)[i];
       hypot2 += sq(move_dist[i]);
     }

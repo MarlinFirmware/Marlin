@@ -179,7 +179,7 @@ void PrintCounter::saveStats() {
   inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
     SERIAL_ECHOPGM(STR_STATS);
     SERIAL_ECHOPGM_P(msg);
-    SERIAL_ECHOLNPAIR(" in ", duration_t(when).toString(buffer));
+    SERIAL_ECHOLNPGM(" in ", duration_t(when).toString(buffer));
   }
 #endif
 
@@ -187,7 +187,7 @@ void PrintCounter::showStats() {
   char buffer[22];
 
   SERIAL_ECHOPGM(STR_STATS);
-  SERIAL_ECHOLNPAIR(
+  SERIAL_ECHOLNPGM(
     "Prints: ", data.totalPrints,
     ", Finished: ", data.finishedPrints,
     ", Failed: ", data.totalPrints - data.finishedPrints
@@ -197,21 +197,21 @@ void PrintCounter::showStats() {
   SERIAL_ECHOPGM(STR_STATS);
   duration_t elapsed = data.printTime;
   elapsed.toString(buffer);
-  SERIAL_ECHOPAIR("Total time: ", buffer);
+  SERIAL_ECHOPGM("Total time: ", buffer);
   #if ENABLED(DEBUG_PRINTCOUNTER)
-    SERIAL_ECHOPAIR(" (", data.printTime);
+    SERIAL_ECHOPGM(" (", data.printTime);
     SERIAL_CHAR(')');
   #endif
 
   elapsed = data.longestPrint;
   elapsed.toString(buffer);
-  SERIAL_ECHOPAIR(", Longest job: ", buffer);
+  SERIAL_ECHOPGM(", Longest job: ", buffer);
   #if ENABLED(DEBUG_PRINTCOUNTER)
-    SERIAL_ECHOPAIR(" (", data.longestPrint);
+    SERIAL_ECHOPGM(" (", data.longestPrint);
     SERIAL_CHAR(')');
   #endif
 
-  SERIAL_ECHOPAIR("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
+  SERIAL_ECHOPGM("\n" STR_STATS "Filament used: ", data.filamentUsed / 1000);
   SERIAL_CHAR('m');
   SERIAL_EOL();
 

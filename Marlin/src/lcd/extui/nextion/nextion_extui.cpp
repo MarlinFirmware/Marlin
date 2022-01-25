@@ -26,18 +26,18 @@
  * Nextion TFT support for Marlin
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(NEXTION_TFT)
 
-#include "ui_api.h"
-#include "lib/nextion/nextion_tft.h"
+#include "../ui_api.h"
+#include "nextion_tft.h"
 
 namespace ExtUI {
 
   void onStartup()                                   { nextion.Startup();  }
   void onIdle()                                      { nextion.IdleLoop(); }
-  void onPrinterKilled(PGM_P const error, PGM_P const component) { nextion.PrinterKilled(error,component); }
+  void onPrinterKilled(FSTR_P const error, FSTR_P const component) { nextion.PrinterKilled(error, component); }
   void onMediaInserted() {}
   void onMediaError()    {}
   void onMediaRemoved()  {}

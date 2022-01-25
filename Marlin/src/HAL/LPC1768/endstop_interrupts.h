@@ -122,4 +122,37 @@ void setup_endstop_interrupts() {
     #endif
     _ATTACH(Z_MIN_PROBE_PIN);
   #endif
+  #if HAS_I_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(I_MAX_PIN)
+      #error "I_MAX_PIN is not INTERRUPT-capable."
+    #endif
+    _ATTACH(I_MAX_PIN);
+  #elif HAS_I_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(I_MIN_PIN)
+      #error "I_MIN_PIN is not INTERRUPT-capable."
+    #endif
+    _ATTACH(I_MIN_PIN);
+  #endif
+  #if HAS_J_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(J_MAX_PIN)
+      #error "J_MAX_PIN is not INTERRUPT-capable."
+    #endif
+    _ATTACH(J_MAX_PIN);
+  #elif HAS_J_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(J_MIN_PIN)
+      #error "J_MIN_PIN is not INTERRUPT-capable."
+    #endif
+    _ATTACH(J_MIN_PIN);
+  #endif
+  #if HAS_K_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(K_MAX_PIN)
+      #error "K_MAX_PIN is not INTERRUPT-capable."
+    #endif
+    _ATTACH(K_MAX_PIN);
+  #elif HAS_K_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(K_MIN_PIN)
+      #error "K_MIN_PIN is not INTERRUPT-capable."
+    #endif
+    _ATTACH(K_MIN_PIN);
+  #endif
 }

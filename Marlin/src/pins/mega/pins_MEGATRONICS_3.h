@@ -67,9 +67,19 @@
 #define X_DIR_PIN                             57
 #define X_ENABLE_PIN                          59
 
-#define Y_STEP_PIN                             5
-#define Y_DIR_PIN                             17
-#define Y_ENABLE_PIN                           4
+#if ENABLED(REPRAPWORLD_KEYPAD) && EXTRUDERS <= 2
+  #define Y_ENABLE_PIN                        23
+  #define Y_STEP_PIN                          22
+  #define Y_DIR_PIN                           60
+#else
+  #define Y_STEP_PIN                           5
+  #define Y_DIR_PIN                           17
+  #define Y_ENABLE_PIN                         4
+
+  #define E2_STEP_PIN                         22
+  #define E2_DIR_PIN                          60
+  #define E2_ENABLE_PIN                       23
+#endif
 
 #define Z_STEP_PIN                            16
 #define Z_DIR_PIN                             11
@@ -82,10 +92,6 @@
 #define E1_STEP_PIN                           25
 #define E1_DIR_PIN                            24
 #define E1_ENABLE_PIN                         26
-
-#define E2_STEP_PIN                           22
-#define E2_DIR_PIN                            60
-#define E2_ENABLE_PIN                         23
 
 //
 // Temperature Sensors
@@ -181,15 +187,6 @@
 #elif EXTRUDERS <= 2
   // Hijack the last extruder so that we can get the PWM signal off the Y breakout
   // Move Y to the E2 plug. This makes dual Y steppers harder
-  #undef Y_ENABLE_PIN                             //  4
-  #undef Y_STEP_PIN                               //  5
-  #undef Y_DIR_PIN                                // 17
-  #undef E2_ENABLE_PIN                            // 23
-  #undef E2_STEP_PIN                              // 22
-  #undef E2_DIR_PIN                               // 60
-  #define Y_ENABLE_PIN                        23
-  #define Y_STEP_PIN                          22
-  #define Y_DIR_PIN                           60
   #define SPINDLE_LASER_PWM_PIN                4  // Hardware PWM
   #define SPINDLE_LASER_ENA_PIN               17  // Pullup!
   #define SPINDLE_DIR_PIN                      5
