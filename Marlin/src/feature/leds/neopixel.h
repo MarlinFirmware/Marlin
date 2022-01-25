@@ -66,7 +66,7 @@
 // Types
 // ------------------------
 
-typedef IF<(ENABLED(NEOPIXEL_LED) && (NEOPIXEL_PIXELS > 127)), int16_t, int8_t>::type pixel_index_t;
+typedef IF<(TERN0(NEOPIXEL_LED, NEOPIXEL_PIXELS > 127)), int16_t, int8_t>::type pixel_index_t;
 
 // ------------------------
 // Classes

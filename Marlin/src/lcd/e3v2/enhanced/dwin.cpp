@@ -3596,10 +3596,8 @@ void Draw_Tune_Menu() {
     MENU_ITEM(ICON_Back, GET_TEXT_F(MSG_BUTTON_BACK), onDrawBack, Goto_PrintProcess);
     #if ENABLED(CASE_LIGHT_MENU)
       MENU_ITEM(ICON_CaseLight, GET_TEXT_F(MSG_CASE_LIGHT), onDrawCaseLight, SetCaseLight);
-    #else
-      #if ENABLED(LED_CONTROL_MENU) && DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-        MENU_ITEM(ICON_LedControl, GET_TEXT_F(MSG_LEDS), onDrawLedStatus, SetLedStatus);
-      #endif
+    #elif ENABLED(LED_CONTROL_MENU) && DISABLED(CASE_LIGHT_USE_NEOPIXEL)
+      MENU_ITEM(ICON_LedControl, GET_TEXT_F(MSG_LEDS), onDrawLedStatus, SetLedStatus);
     #endif    
     EDIT_ITEM(ICON_Speed, GET_TEXT_F(MSG_SPEED), onDrawSpeedItem, SetSpeed, &feedrate_percentage);
     #if HAS_HOTEND

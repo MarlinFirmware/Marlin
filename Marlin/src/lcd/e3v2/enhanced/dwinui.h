@@ -79,7 +79,6 @@
 #define ICON_CaseLight            ICON_Motion
 #define ICON_LedControl           ICON_Motion
 
-
 // Extended and default UI Colors
 #define Color_Black           0
 #define Color_Green           RGB(0,63,0)
