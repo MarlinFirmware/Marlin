@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+#if HAS_MARLINUI_MENU && EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
 
 #include "menu_item.h"
 
@@ -169,4 +169,4 @@ void menu_led() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && LED_CONTROL_MENU
+#endif // HAS_MARLINUI_MENU && LED_CONTROL_MENU

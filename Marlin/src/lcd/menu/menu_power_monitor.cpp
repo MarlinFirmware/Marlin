@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && HAS_POWER_MONITOR
+#if HAS_MARLINUI_MENU && HAS_POWER_MONITOR
 
 #include "menu_item.h"
 #include "../../feature/power_monitor.h"
@@ -59,4 +59,4 @@ void menu_power_monitor() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && HAS_POWER_MONITOR
+#endif // HAS_MARLINUI_MENU && HAS_POWER_MONITOR

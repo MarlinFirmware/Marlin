@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
 
 #include "menu.h"
 #include "../../module/planner.h"
@@ -220,7 +220,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     screen_changed = true;
     TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
 
-    TERN_(HAS_LCD_MENU, encoder_direction_normal());
+    TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
 
     set_selection(false);
   }
@@ -378,4 +378,4 @@ void MenuItem_confirm::select_screen(
   }
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_MARLINUI_MENU
