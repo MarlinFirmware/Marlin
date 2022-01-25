@@ -28,12 +28,34 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#define MSG_CUTTER(M) _MSG_CUTTER(M)
+
+#ifndef SPEED_POWER_INTERCEPT
+  #define SPEED_POWER_INTERCEPT 0
+#endif
 #if ENABLED(SPINDLE_FEATURE)
   #define _MSG_CUTTER(M) MSG_SPINDLE_##M
+  #ifndef SPEED_POWER_MIN
+    #define SPEED_POWER_MIN      5000
+  #endif
+  #ifndef SPEED_POWER_MAX
+    #define SPEED_POWER_MAX     30000
+  #endif
+  #ifndef SPEED_POWER_STARTUP
+    #define SPEED_POWER_STARTUP 25000
+  #endif
 #else
   #define _MSG_CUTTER(M) MSG_LASER_##M
+  #ifndef SPEED_POWER_MIN
+    #define SPEED_POWER_MIN         0
+  #endif
+  #ifndef SPEED_POWER_MAX
+    #define SPEED_POWER_MAX       255
+  #endif
+  #ifndef SPEED_POWER_STARTUP
+    #define SPEED_POWER_STARTUP   255
+  #endif
 #endif
-#define MSG_CUTTER(M) _MSG_CUTTER(M)
 
 typedef IF<(SPEED_POWER_MAX > 255), uint16_t, uint8_t>::type cutter_cpower_t;
 
@@ -50,6 +72,11 @@ typedef IF<(SPEED_POWER_MAX > 255), uint16_t, uint8_t>::type cutter_cpower_t;
     #define CUTTER_MENU_POWER_TYPE uint8
     #define cutter_power2str       ui8tostr3rj
   #endif
+#endif
+
+#if ENABLED(LASER_FEATURE)
+  typedef uint16_t cutter_test_pulse_t;
+  #define CUTTER_MENU_PULSE_TYPE uint16_3
 #endif
 
 #if ENABLED(MARLIN_DEV_MODE)

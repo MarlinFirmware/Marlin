@@ -33,46 +33,6 @@
 
 #include "../../MarlinCore.h" // for SP_X_STR, etc.
 
-extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
-
-void M217_report(const bool eeprom=false) {
-
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
-    SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
-    SERIAL_ECHOPAIR_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
-                      SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
-                      SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
-    SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
-                    " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
-                    " F", toolchange_settings.fan_speed,
-                    " G", toolchange_settings.fan_time);
-
-    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPAIR(" A", int(migration.automode));
-      SERIAL_ECHOPAIR(" L", LINEAR_UNIT(migration.last));
-    #endif
-
-    #if ENABLED(TOOLCHANGE_PARK)
-      SERIAL_ECHOPAIR(" W", LINEAR_UNIT(toolchange_settings.enable_park));
-      SERIAL_ECHOPAIR_P(SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x));
-      SERIAL_ECHOPAIR_P(SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y));
-    #endif
-
-    #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
-      SERIAL_ECHOPAIR(" V", LINEAR_UNIT(enable_first_prime));
-    #endif
-
-  #else
-
-    UNUSED(eeprom);
-
-  #endif
-
-  SERIAL_ECHOPAIR_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
-  SERIAL_EOL();
-}
-
 /**
  * M217 - Set SINGLENOZZLE toolchange parameters
  *
@@ -90,6 +50,9 @@ void M217_report(const bool eeprom=false) {
  *  W[linear]   0/1 Enable park & Z Raise
  *  X[linear]   Park X (Requires TOOLCHANGE_PARK)
  *  Y[linear]   Park Y (Requires TOOLCHANGE_PARK)
+ *  I[linear]   Park I (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 4)
+ *  J[linear]   Park J (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 5)
+ *  K[linear]   Park K (Requires TOOLCHANGE_PARK and LINEAR_AXES >= 6)
  *  Z[linear]   Z Raise
  *  F[linear]   Fan Speed 0-255
  *  G[linear/s] Fan time
@@ -128,10 +91,23 @@ void GcodeSuite::M217() {
   #if ENABLED(TOOLCHANGE_PARK)
     if (parser.seenval('W')) { toolchange_settings.enable_park = parser.value_linear_units(); }
     if (parser.seenval('X')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.x = constrain(v, X_MIN_POS, X_MAX_POS); }
-    if (parser.seenval('Y')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.y = constrain(v, Y_MIN_POS, Y_MAX_POS); }
+    #if HAS_Y_AXIS
+      if (parser.seenval('Y')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.y = constrain(v, Y_MIN_POS, Y_MAX_POS); }
+    #endif
+    #if HAS_I_AXIS
+      if (parser.seenval('I')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.i = constrain(v, I_MIN_POS, I_MAX_POS); }
+    #endif
+    #if HAS_J_AXIS
+      if (parser.seenval('J')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.j = constrain(v, J_MIN_POS, J_MAX_POS); }
+    #endif
+    #if HAS_K_AXIS
+      if (parser.seenval('K')) { const int16_t v = parser.value_linear_units(); toolchange_settings.change_point.k = constrain(v, K_MIN_POS, K_MAX_POS); }
+    #endif
   #endif
 
-  if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
+  #if HAS_Z_AXIS
+    if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
+  #endif
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     migration.target = 0;       // 0 = disabled
@@ -168,6 +144,56 @@ void GcodeSuite::M217() {
   #endif
 
   M217_report();
+}
+
+void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
+  report_heading_etc(forReplay, F(STR_TOOL_CHANGING));
+
+  SERIAL_ECHOPGM("  M217");
+
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    SERIAL_ECHOPGM(" S", LINEAR_UNIT(toolchange_settings.swap_length));
+    SERIAL_ECHOPGM_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
+                     SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
+                     SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
+    SERIAL_ECHOPGM(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
+                   " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
+                   " F", toolchange_settings.fan_speed,
+                   " G", toolchange_settings.fan_time);
+
+    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+      SERIAL_ECHOPGM(" A", migration.automode);
+      SERIAL_ECHOPGM(" L", LINEAR_UNIT(migration.last));
+    #endif
+
+    #if ENABLED(TOOLCHANGE_PARK)
+    {
+      SERIAL_ECHOPGM(" W", LINEAR_UNIT(toolchange_settings.enable_park));
+      SERIAL_ECHOPGM_P(
+            SP_X_STR, LINEAR_UNIT(toolchange_settings.change_point.x)
+        #if HAS_Y_AXIS
+          , SP_Y_STR, LINEAR_UNIT(toolchange_settings.change_point.y)
+        #endif
+        #if HAS_I_AXIS
+          , SP_I_STR, LINEAR_UNIT(toolchange_settings.change_point.i)
+        #endif
+        #if HAS_J_AXIS
+          , SP_J_STR, LINEAR_UNIT(toolchange_settings.change_point.j)
+        #endif
+        #if HAS_K_AXIS
+          , SP_K_STR, LINEAR_UNIT(toolchange_settings.change_point.k)
+        #endif
+      );
+    }
+    #endif
+
+    #if ENABLED(TOOLCHANGE_FS_PRIME_FIRST_USED)
+      SERIAL_ECHOPGM(" V", LINEAR_UNIT(enable_first_prime));
+    #endif
+
+  #endif
+
+  SERIAL_ECHOLNPGM_P(SP_Z_STR, LINEAR_UNIT(toolchange_settings.z_raise));
 }
 
 #endif // HAS_MULTI_EXTRUDER

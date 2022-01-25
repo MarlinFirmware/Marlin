@@ -19,14 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * CNControls V15 for HMS434 with DUE pin assignments
  */
 
-#if NOT_TARGET(__SAM3X8E__)
-  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "CN Controls V15D"
 
@@ -117,9 +116,9 @@
 //
 // SD card
 //
-#define SCK_PIN                               76
-#define MISO_PIN                              74
-#define MOSI_PIN                              75
+#define SD_SCK_PIN                            76
+#define SD_MISO_PIN                           74
+#define SD_MOSI_PIN                           75
 #define SDSS                                  53
 #define SD_DETECT_PIN                         40
 

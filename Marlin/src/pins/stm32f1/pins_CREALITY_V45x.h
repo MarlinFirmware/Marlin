@@ -19,14 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Creality v4.5.2 and v4.5.3 (STM32F103RET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define DEFAULT_MACHINE_NAME "Creality3D"
 
@@ -65,7 +64,9 @@
 //
 // Probe
 //
-#define PROBE_TARE_PIN                      PA5
+#ifndef PROBE_TARE_PIN
+  #define PROBE_TARE_PIN                    PA5
+#endif
 
 //
 // Steppers
@@ -96,7 +97,7 @@
 // Heaters / Fans
 //
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card

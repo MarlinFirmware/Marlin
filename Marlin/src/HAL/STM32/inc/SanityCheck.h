@@ -24,7 +24,7 @@
 /**
  * Test STM32-specific configuration values for errors at compile-time.
  */
-//#if ENABLED(SPINDLE_LASER_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
+//#if ENABLED(SPINDLE_LASER_USE_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
 //  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 //#endif
 
@@ -47,11 +47,11 @@
 #endif
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
+  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on STM32."
 #elif ENABLED(SERIAL_STATS_DROPPED_RX)
-  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
+  #error "SERIAL_STATS_DROPPED_RX is not supported on STM32."
 #endif
 
-#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI) && NOT_TARGET(STM32F4xx, STM32F1xx)
-  #error "TFT_COLOR_UI, TFT_LVGL_UI and TFT_CLASSIC_UI are currently only supported on STM32F4 and STM32F1 hardware."
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI) && NOT_TARGET(STM32H7xx, STM32F4xx, STM32F1xx)
+  #error "TFT_COLOR_UI, TFT_LVGL_UI and TFT_CLASSIC_UI are currently only supported on STM32H7, STM32F4 and STM32F1 hardware."
 #endif

@@ -32,19 +32,7 @@
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
-
-#include "../../module/motion.h"
 #include "../../lcd/marlinui.h"
-
-#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-  #include "../../module/printcounter.h"
-#endif
-
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../../feature/leds/leds.h"
-#endif
-
-#include "../../MarlinCore.h" // for wait_for_heatup, idle, startOrResumeJob
 
 /**
  * M141: Set chamber temperature
@@ -81,7 +69,7 @@ void GcodeSuite::M191() {
 
   const bool is_heating = thermalManager.isHeatingChamber();
   if (is_heating || !no_wait_for_cooling) {
-    ui.set_status_P(is_heating ? GET_TEXT(MSG_CHAMBER_HEATING) : GET_TEXT(MSG_CHAMBER_COOLING));
+    ui.set_status(is_heating ? GET_TEXT_F(MSG_CHAMBER_HEATING) : GET_TEXT_F(MSG_CHAMBER_COOLING));
     thermalManager.wait_for_chamber(false);
   }
 }

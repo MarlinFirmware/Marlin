@@ -42,7 +42,7 @@ void GcodeSuite::M430() {
     #if ENABLED(POWER_MONITOR_CURRENT)
       if (parser.seen('I')) { power_monitor.set_current_display(parser.value_bool()); do_report = false; }
     #endif
-    #if HAS_POWER_MONITOR_VREF
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
       if (parser.seen('V')) { power_monitor.set_voltage_display(parser.value_bool()); do_report = false; }
     #endif
     #if HAS_POWER_MONITOR_WATTS
@@ -50,14 +50,12 @@ void GcodeSuite::M430() {
     #endif
   #endif
   if (do_report) {
-    SERIAL_ECHOLNPAIR(
+    SERIAL_ECHOLNPGM(
       #if ENABLED(POWER_MONITOR_CURRENT)
         "Current: ", power_monitor.getAmps(), "A"
-        #if HAS_POWER_MONITOR_VREF
-          "  "
-        #endif
+        TERN_(POWER_MONITOR_VOLTAGE, "  ")
       #endif
-      #if HAS_POWER_MONITOR_VREF
+      #if ENABLED(POWER_MONITOR_VOLTAGE)
         "Voltage: ", power_monitor.getVolts(), "V"
       #endif
       #if HAS_POWER_MONITOR_WATTS

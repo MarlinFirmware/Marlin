@@ -28,9 +28,9 @@
 #undef DISABLED       // Redefined by ESP32
 #undef M_PI           // Redefined by all
 #undef _BV            // Redefined by some
-#undef sq             // Redefined by teensy3/wiring.h
 #undef SBI            // Redefined by arduino/const_functions.h
 #undef CBI            // Redefined by arduino/const_functions.h
+#undef sq             // Redefined by teensy3/wiring.h
 #undef UNUSED         // Redefined by stm32f4xx_hal_def.h
 
 #include <Arduino.h>  // NOTE: If included earlier then this line is a NOOP
@@ -39,18 +39,16 @@
 #define DISABLED(V...) DO(DIS,&&,V)
 
 #undef _BV
-#define _BV(b) (1UL << (b))
+#define _BV(b) (1 << (b))
+#ifndef SBI
+  #define SBI(A,B) (A |= _BV(B))
+#endif
+#ifndef CBI
+  #define CBI(A,B) (A &= ~_BV(B))
+#endif
 
 #undef sq
 #define sq(x) ((x)*(x))
-
-#ifndef SBI
-  #define SBI(A,B) (A |= (1 << (B)))
-#endif
-
-#ifndef CBI
-  #define CBI(A,B) (A &= ~(1 << (B)))
-#endif
 
 #ifndef __AVR__
   #ifndef strchr_P // Some platforms define a macro (DUE, teensy35)
@@ -83,3 +81,16 @@
 #ifndef UNUSED
   #define UNUSED(x) ((void)(x))
 #endif
+
+#ifndef FORCE_INLINE
+  #define FORCE_INLINE __attribute__((always_inline)) inline
+#endif
+
+#include "progmem.h"
+
+class __FlashStringHelper;
+typedef const __FlashStringHelper* FSTR_P;
+#ifndef FPSTR
+  #define FPSTR(S) (reinterpret_cast<FSTR_P>(S))
+#endif
+#define FTOP(S) (reinterpret_cast<const char*>(S))

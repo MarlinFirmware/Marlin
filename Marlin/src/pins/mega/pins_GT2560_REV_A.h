@@ -27,9 +27,8 @@
  * Richard Smith <galorin@gmail.com>
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "GT2560 Rev.A"
@@ -48,10 +47,11 @@
 #if ENABLED(BLTOUCH)
   #if MB(GT2560_REV_A_PLUS)
     #define SERVO0_PIN                        11
+    #define Z_MAX_PIN                         32
   #else
     #define SERVO0_PIN                        32
+    #define Z_MAX_PIN                         -1
   #endif
-  #define Z_MAX_PIN                           -1
 #else
   #define Z_MAX_PIN                           32
 #endif
@@ -127,7 +127,7 @@
 
       #define LCD_RESET_PIN                   16
 
-      #define DEFAULT_LCD_CONTRAST           220
+      #define LCD_CONTRAST_DEFAULT           220
 
       #define LCD_BACKLIGHT_PIN               -1
     #else
@@ -146,10 +146,10 @@
 
   #else                                           // !IS_NEWPANEL
 
-    #define SHIFT_CLK                         38
-    #define SHIFT_LD                          42
-    #define SHIFT_OUT                         40
-    #define SHIFT_EN                          17
+    #define SHIFT_CLK_PIN                     38
+    #define SHIFT_LD_PIN                      42
+    #define SHIFT_OUT_PIN                     40
+    #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                    5

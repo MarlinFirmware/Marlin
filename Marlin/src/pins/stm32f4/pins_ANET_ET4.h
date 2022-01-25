@@ -16,15 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Anet ET4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
@@ -134,14 +133,18 @@
 //
 // LCD / Controller
 //
-#define TFT_RESET_PIN                       PE6
-#define TFT_CS_PIN                          PD7
-#define TFT_RS_PIN                          PD13
-#define TFT_INTERFACE_FSMC_8BIT
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #define TFT_RESET_PIN                     PE6
+  #define TFT_CS_PIN                        PD7
+  #define TFT_RS_PIN                        PD13
 
-#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
-#define FSMC_CS_PIN                   TFT_CS_PIN
-#define FSMC_RS_PIN                   TFT_RS_PIN
+  #if HAS_FSMC_TFT
+    #define LCD_USE_DMA_FSMC                      // Use DMA transfers to send data to the TFT
+    #define FSMC_CS_PIN               TFT_CS_PIN
+    #define FSMC_RS_PIN               TFT_RS_PIN
+    #define TFT_INTERFACE_FSMC_8BIT
+  #endif
+#endif
 
 //
 // Touch Screen
@@ -200,19 +203,12 @@
 
 #if ENABLED(SDSUPPORT)
 
-  #define SDIO_D0_PIN                       PC8
-  #define SDIO_D1_PIN                       PC9
-  #define SDIO_D2_PIN                       PC10
-  #define SDIO_D3_PIN                       PC11
-  #define SDIO_CK_PIN                       PC12
-  #define SDIO_CMD_PIN                      PD2
-
   #if DISABLED(SDIO_SUPPORT)
     #define SOFTWARE_SPI
-    #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SDSS                            PC11
+    #define SD_SCK_PIN                      PC12
+    #define SD_MISO_PIN                     PC8
+    #define SD_MOSI_PIN                     PD2
   #endif
 
   #ifndef SD_DETECT_PIN

@@ -66,7 +66,7 @@
  * For example Serial3.
  */
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define USB_HOST_SERIAL MYSERIAL0
+  #define USB_HOST_SERIAL MYSERIAL1
 #endif
 
 #ifndef USB_HOST_SERIAL

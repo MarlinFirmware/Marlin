@@ -5,9 +5,7 @@
 # Create a new branch from the default target with the given name
 #
 
-usage() {
-  echo "usage: `basename $0` [1|2|3] [name]" 1>&2
-}
+usage() { echo "usage: `basename $0` [1|2] [name]" 1>&2 ; }
 
 [[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { usage; exit 1; }
 
@@ -19,12 +17,12 @@ BRANCH=pr_for_$TARG-$(date +"%G-%m-%d_%H.%M.%S")
 # BRANCH can be given as the last argument
 case "$#" in
   1 ) case "$1" in
-        1|2|3) ;;
+        1|2) ;;
         *) BRANCH=$1 ;;
       esac
       ;;
   2 ) case "$1" in
-        1|2|3) BRANCH=$2 ;;
+        1|2) BRANCH=$2 ;;
         *) usage ; exit 1 ;;
       esac
       ;;

@@ -34,9 +34,9 @@
 #define USB_STARTUP_DELAY 0
 
 // uncomment to get 'printf' console debugging. NOT FOR UNO!
-//#define HOST_DEBUG(...)     {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
-//#define BS_HOST_DEBUG(...)  {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
-//#define MAX_HOST_DEBUG(...) {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPAIR("UHS:",s);}
+//#define HOST_DEBUG(...)     {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
+//#define BS_HOST_DEBUG(...)  {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
+//#define MAX_HOST_DEBUG(...) {char s[255]; sprintf(s,__VA_ARGS__); SERIAL_ECHOLNPGM("UHS:",s);}
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
 
@@ -50,11 +50,11 @@
 
 #if ENABLED(USE_UHS3_USB)
   #define NO_AUTO_SPEED
-  #define UHS_MAX3421E_SPD 8000000 >> SPI_SPEED
+  #define UHS_MAX3421E_SPD 8000000 >> SD_SPI_SPEED
   #define UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE 1
   #define UHS_HOST_MAX_INTERFACE_DRIVERS 2
   #define MASS_MAX_SUPPORTED_LUN 1
-  #define USB_HOST_SERIAL MYSERIAL0
+  #define USB_HOST_SERIAL MYSERIAL1
 
   // Workaround for certain issues with UHS3
   #define SKIP_PAGE3F // Required for IOGEAR media adapter
@@ -121,12 +121,12 @@ static enum {
   uint32_t lun0_capacity;
 #endif
 
-bool Sd2Card::usbStartup() {
+bool DiskIODriver_USBFlash::usbStartup() {
   if (state <= DO_STARTUP) {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
       SERIAL_ECHOLNPGM(" failed.");
-      LCD_MESSAGEPGM(MSG_MEDIA_USB_FAILED);
+      LCD_MESSAGE(MSG_MEDIA_USB_FAILED);
       return false;
     }
 
@@ -147,7 +147,7 @@ bool Sd2Card::usbStartup() {
 // the USB library to monitor for such events. This function also takes care
 // of initializing the USB library for the first time.
 
-void Sd2Card::idle() {
+void DiskIODriver_USBFlash::idle() {
   usb.Task();
 
   const uint8_t task_state = usb.getUsbTaskState();
@@ -170,7 +170,7 @@ void Sd2Card::idle() {
           UHS_USB_DEBUG(CONFIGURING_DONE);
           UHS_USB_DEBUG(RUNNING);
           default:
-            SERIAL_ECHOLNPAIR("UHS_USB_HOST_STATE: ", task_state);
+            SERIAL_ECHOLNPGM("UHS_USB_HOST_STATE: ", task_state);
             break;
         }
       }
@@ -221,7 +221,7 @@ void Sd2Card::idle() {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("Waiting for media");
           #endif
-          LCD_MESSAGEPGM(MSG_MEDIA_WAITING);
+          LCD_MESSAGE(MSG_MEDIA_WAITING);
           GOTO_STATE_AFTER_DELAY(state, 2000);
         }
         break;
@@ -236,7 +236,7 @@ void Sd2Card::idle() {
         SERIAL_ECHOLNPGM("USB device removed");
       #endif
       if (state != MEDIA_READY)
-        LCD_MESSAGEPGM(MSG_MEDIA_USB_REMOVED);
+        LCD_MESSAGE(MSG_MEDIA_USB_REMOVED);
       GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
@@ -245,12 +245,12 @@ void Sd2Card::idle() {
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("Media removed");
       #endif
-      LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
+      LCD_MESSAGE(MSG_MEDIA_REMOVED);
       GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
     }
 
     else if (task_state == UHS_STATE(ERROR)) {
-      LCD_MESSAGEPGM(MSG_MEDIA_READ_ERROR);
+      LCD_MESSAGE(MSG_MEDIA_READ_ERROR);
       GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
     }
   }
@@ -258,35 +258,35 @@ void Sd2Card::idle() {
 
 // Marlin calls this function to check whether an USB drive is inserted.
 // This is equivalent to polling the SD_DETECT when using SD cards.
-bool Sd2Card::isInserted() {
+bool DiskIODriver_USBFlash::isInserted() {
   return state == MEDIA_READY;
 }
 
-bool Sd2Card::isReady() {
-  return state > DO_STARTUP;
+bool DiskIODriver_USBFlash::isReady() {
+  return state > DO_STARTUP && usb.getUsbTaskState() == UHS_STATE(RUNNING);
 }
 
 // Marlin calls this to initialize an SD card once it is inserted.
-bool Sd2Card::init(const uint8_t, const pin_t) {
+bool DiskIODriver_USBFlash::init(const uint8_t, const pin_t) {
   if (!isInserted()) return false;
 
   #if USB_DEBUG >= 1
   const uint32_t sectorSize = bulk.GetSectorSize(0);
   if (sectorSize != 512) {
-    SERIAL_ECHOLNPAIR("Expecting sector size of 512. Got: ", sectorSize);
+    SERIAL_ECHOLNPGM("Expecting sector size of 512. Got: ", sectorSize);
     return false;
   }
   #endif
 
   #if USB_DEBUG >= 3
     lun0_capacity = bulk.GetCapacity(0);
-    SERIAL_ECHOLNPAIR("LUN Capacity (in blocks): ", lun0_capacity);
+    SERIAL_ECHOLNPGM("LUN Capacity (in blocks): ", lun0_capacity);
   #endif
   return true;
 }
 
 // Returns the capacity of the card in blocks.
-uint32_t Sd2Card::cardSize() {
+uint32_t DiskIODriver_USBFlash::cardSize() {
   if (!isInserted()) return false;
   #if USB_DEBUG < 3
     const uint32_t
@@ -295,29 +295,29 @@ uint32_t Sd2Card::cardSize() {
   return lun0_capacity;
 }
 
-bool Sd2Card::readBlock(uint32_t block, uint8_t* dst) {
+bool DiskIODriver_USBFlash::readBlock(uint32_t block, uint8_t *dst) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
-      SERIAL_ECHOLNPAIR("Attempt to read past end of LUN: ", block);
+      SERIAL_ECHOLNPGM("Attempt to read past end of LUN: ", block);
       return false;
     }
     #if USB_DEBUG >= 4
-      SERIAL_ECHOLNPAIR("Read block ", block);
+      SERIAL_ECHOLNPGM("Read block ", block);
     #endif
   #endif
   return bulk.Read(0, block, 512, 1, dst) == 0;
 }
 
-bool Sd2Card::writeBlock(uint32_t block, const uint8_t* src) {
+bool DiskIODriver_USBFlash::writeBlock(uint32_t block, const uint8_t *src) {
   if (!isInserted()) return false;
   #if USB_DEBUG >= 3
     if (block >= lun0_capacity) {
-      SERIAL_ECHOLNPAIR("Attempt to write past end of LUN: ", block);
+      SERIAL_ECHOLNPGM("Attempt to write past end of LUN: ", block);
       return false;
     }
     #if USB_DEBUG >= 4
-      SERIAL_ECHOLNPAIR("Write block ", block);
+      SERIAL_ECHOLNPGM("Write block ", block);
     #endif
   #endif
   return bulk.Write(0, block, 512, 1, src) == 0;
