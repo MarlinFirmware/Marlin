@@ -437,8 +437,8 @@ void MarlinUI::draw_status_message(const bool blink) {
     dwin_font.solid = false;
     dwin_font.fg = Color_White;
     ui.draw_select_screen_prompt(pref, string, suff);
-    draw_boxed_string(false, no, !yesno);
-    draw_boxed_string(true, yes,  yesno);
+    if (no)  draw_boxed_string(false, no, !yesno);
+    if (yes) draw_boxed_string(true, yes,  yesno);
   }
 
   #if ENABLED(SDSUPPORT)
