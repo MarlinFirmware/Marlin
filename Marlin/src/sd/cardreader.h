@@ -204,7 +204,13 @@ public:
     FORCE_INLINE static void getfilename_sorted(const uint16_t nr) { selectFileByIndex(nr); }
   #endif
 
-  static void ls(TERN_(LONG_FILENAME_HOST_SUPPORT, bool includeLongNames=false));
+  static void ls(
+    TERN_(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false)
+    #if BOTH(CUSTOM_FIRMWARE_UPLOAD, LONG_FILENAME_HOST_SUPPORT)
+      ,
+    #endif
+    TERN_(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
+  );
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -331,14 +337,14 @@ private:
   //
   // Directory items
   //
-  static bool is_dir_or_gcode(const dir_t &p);
+  static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false));
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
   static void selectByName(SdFile dir, const char * const match);
   static void printListing(
-    SdFile parent
+    SdFile parent, const char * const prepend
+    OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false)
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const bool includeLongNames=false)
-    , const char * const prepend=nullptr
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
 

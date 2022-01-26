@@ -546,6 +546,7 @@
   #undef K_MAX_PIN
 #endif
 
+// Filament Sensor first pin alias
 #if HAS_FILAMENT_SENSOR
   #define FIL_RUNOUT1_PIN FIL_RUNOUT_PIN  // Filament Sensor first pin alias
 #else
@@ -598,12 +599,13 @@
   #define X2_E_INDEX E_STEPPERS
 #endif
 
-// The X2 axis, if any, should be the next open extruder port
 #if HAS_X2_STEPPER && !defined(X2_DIAG_PIN) && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS_PIN)
   #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
 #else
   #define Y2_E_INDEX X2_E_INDEX
 #endif
+
+// The X2 axis, if any, should be the next open extruder port
 #if HAS_X2_STEPPER
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
@@ -686,12 +688,13 @@
   #define X2_MS3_PIN -1
 #endif
 
-// The Y2 axis, if any, should be the next open extruder port
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && !defined(Y2_DIAG_PIN) && !defined(Y2_STEP_PIN) && !PIN_EXISTS(Y2_CS_PIN)
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
   #define Z2_E_INDEX Y2_E_INDEX
 #endif
+
+// The Y2 axis, if any, should be the next open extruder port
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   #ifndef Y2_STEP_PIN
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
@@ -771,12 +774,13 @@
   #define Y2_MS3_PIN -1
 #endif
 
-// The Z2 axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPER_DRIVERS >= 2 && !defined(Z2_DIAG_PIN) && !defined(Z2_STEP_PIN) && !PIN_EXISTS(Z2_CS_PIN)
   #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
 #else
   #define Z3_E_INDEX Z2_E_INDEX
 #endif
+
+// The Z2 axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPER_DRIVERS >= 2
   #ifndef Z2_STEP_PIN
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
@@ -856,12 +860,13 @@
   #define Z2_MS3_PIN -1
 #endif
 
-// The Z3 axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPER_DRIVERS >= 3 && !defined(Z3_DIAG_PIN) && !defined(Z3_STEP_PIN) && !PIN_EXISTS(Z3_CS_PIN)
   #define Z4_E_INDEX INCREMENT(Z3_E_INDEX)
 #else
   #define Z4_E_INDEX Z3_E_INDEX
 #endif
+
+// The Z3 axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPER_DRIVERS >= 3
   #ifndef Z3_STEP_PIN
     #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
@@ -941,12 +946,13 @@
   #define Z3_MS3_PIN -1
 #endif
 
-// The Z4 axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPER_DRIVERS >= 4 && !defined(Z4_DIAG_PIN) && !defined(Z4_STEP_PIN) && !PIN_EXISTS(Z4_CS_PIN)
   #define I_E_INDEX INCREMENT(Z4_E_INDEX)
 #else
   #define I_E_INDEX Z4_E_INDEX
 #endif
+
+// The Z4 axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPER_DRIVERS >= 4
   #ifndef Z4_STEP_PIN
     #define Z4_STEP_PIN   _EPIN(Z4_E_INDEX, STEP)
@@ -1026,12 +1032,13 @@
   #define Z4_MS3_PIN -1
 #endif
 
-// The I axis, if any, should be the next open extruder port
 #if HAS_I_AXIS && !defined(I_DIAG_PIN) && !defined(I_STEP_PIN) && !PIN_EXISTS(I_CS_PIN)
   #define J_E_INDEX INCREMENT(I_E_INDEX)
 #else
   #define J_E_INDEX I_E_INDEX
 #endif
+
+// The I axis, if any, should be the next open extruder port
 #if HAS_I_AXIS
   #ifndef I_STEP_PIN
     #define I_STEP_PIN   _EPIN(I_E_INDEX, STEP)
@@ -1111,12 +1118,13 @@
   #define I_MS3_PIN -1
 #endif
 
-// The J axis, if any, should be the next open extruder port
 #if HAS_J_AXIS && !defined(J_DIAG_PIN) && !defined(J_STEP_PIN) && !PIN_EXISTS(J_CS_PIN)
   #define K_E_INDEX INCREMENT(J_E_INDEX)
 #else
   #define K_E_INDEX J_E_INDEX
 #endif
+
+// The J axis, if any, should be the next open extruder port
 #if HAS_J_AXIS
   #ifndef J_STEP_PIN
     #define J_STEP_PIN   _EPIN(J_E_INDEX, STEP)

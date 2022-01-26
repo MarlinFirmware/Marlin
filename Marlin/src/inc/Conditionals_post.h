@@ -78,13 +78,13 @@
 /**
  * Axis lengths and center
  */
-#ifndef AXIS4_NAME
+#if HAS_I_AXIS && !defined(AXIS4_NAME)
   #define AXIS4_NAME 'A'
 #endif
-#ifndef AXIS5_NAME
+#if HAS_J_AXIS && !defined(AXIS5_NAME)
   #define AXIS5_NAME 'B'
 #endif
-#ifndef AXIS6_NAME
+#if HAS_K_AXIS && !defined(AXIS6_NAME)
   #define AXIS6_NAME 'C'
 #endif
 
@@ -376,8 +376,8 @@
 #elif EITHER(MKS_MINI_12864_V3, BTT_MINI_12864_V1)
   #define _LCD_CONTRAST_MIN  255
   #define _LCD_CONTRAST_INIT 255
-  #define _LCD_CONTRAST_MAX  255
 #elif ENABLED(FYSETC_MINI_12864)
+  #define _LCD_CONTRAST_MIN  180
   #define _LCD_CONTRAST_INIT 220
 #elif ENABLED(ULTI_CONTROLLER)
   #define _LCD_CONTRAST_INIT 127
@@ -389,18 +389,12 @@
 #elif ENABLED(ZONESTAR_12864OLED)
   #define _LCD_CONTRAST_MIN   64
   #define _LCD_CONTRAST_INIT 128
-  #define _LCD_CONTRAST_MAX  255
 #elif IS_TFTGLCD_PANEL
-  #define _LCD_CONTRAST_MIN    0
   #define _LCD_CONTRAST_INIT 250
-  #define _LCD_CONTRAST_MAX  255
 #endif
 
 #ifdef _LCD_CONTRAST_INIT
   #define HAS_LCD_CONTRAST 1
-#endif
-
-#if HAS_LCD_CONTRAST
   #ifndef LCD_CONTRAST_MIN
     #ifdef _LCD_CONTRAST_MIN
       #define LCD_CONTRAST_MIN _LCD_CONTRAST_MIN
@@ -420,8 +414,8 @@
       #define LCD_CONTRAST_MAX 63   // ST7567 6-bits contrast
     #endif
   #endif
-  #ifndef DEFAULT_LCD_CONTRAST
-    #define DEFAULT_LCD_CONTRAST LCD_CONTRAST_INIT
+  #ifndef LCD_CONTRAST_DEFAULT
+    #define LCD_CONTRAST_DEFAULT LCD_CONTRAST_INIT
   #endif
 #endif
 
@@ -443,7 +437,7 @@
 
   // Set SD_DETECT_STATE based on hardware if not overridden
   #if PIN_EXISTS(SD_DETECT) && !defined(SD_DETECT_STATE)
-    #if BOTH(HAS_LCD_MENU, ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
+    #if BOTH(HAS_MARLINUI_MENU, ELB_FULL_GRAPHIC_CONTROLLER) && (SD_CONNECTION_IS(LCD) || !defined(SDCARD_CONNECTION))
       #define SD_DETECT_STATE HIGH
     #else
       #define SD_DETECT_STATE LOW
@@ -507,7 +501,13 @@
     #ifndef TEMP_SENSOR_REDUNDANT_MAX_DIFF
       #define TEMP_SENSOR_REDUNDANT_MAX_DIFF 10
     #endif
-    #if REDUNDANT_TEMP_MATCH(SOURCE, COOLER)
+    #if REDUNDANT_TEMP_MATCH(SOURCE, BOARD)
+      #if !PIN_EXISTS(TEMP_BOARD)
+        #error "TEMP_SENSOR_REDUNDANT_SOURCE set to BOARD requires TEMP_BOARD_PIN."
+      #else
+        #define TEMP_REDUNDANT_PIN TEMP_BOARD_PIN
+      #endif
+    #elif REDUNDANT_TEMP_MATCH(SOURCE, COOLER)
       #if !PIN_EXISTS(TEMP_COOLER)
         #error "TEMP_SENSOR_REDUNDANT_SOURCE set to COOLER requires TEMP_COOLER_PIN."
       #else
@@ -2214,6 +2214,7 @@
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
 #define ANY_SERIAL_IS(N) (  CONF_SERIAL_IS(N) \
                          || TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
+                         || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
                          || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
                          || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
 
@@ -2445,11 +2446,11 @@
 #if HAS_TEMP(BED)
   #define HAS_TEMP_BED 1
 #endif
-#if HAS_TEMP(PROBE)
-  #define HAS_TEMP_PROBE 1
-#endif
 #if HAS_TEMP(CHAMBER)
   #define HAS_TEMP_CHAMBER 1
+#endif
+#if HAS_TEMP(PROBE)
+  #define HAS_TEMP_PROBE 1
 #endif
 #if HAS_TEMP(COOLER)
   #define HAS_TEMP_COOLER 1
@@ -3051,7 +3052,7 @@
   #define HAS_TEMPERATURE 1
 #endif
 
-#if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, HAS_DWIN_E3V2)
+#if HAS_TEMPERATURE && EITHER(HAS_MARLINUI_MENU, HAS_DWIN_E3V2)
   #ifdef PREHEAT_6_LABEL
     #define PREHEAT_COUNT 6
   #elif defined(PREHEAT_5_LABEL)
@@ -3176,7 +3177,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_LCD_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_ENHANCED, DWIN_CREALITY_LCD_JYERSUI) || BOTH(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
@@ -3406,7 +3407,7 @@
   #endif
 #endif
 
-#if HAS_LCD_MENU
+#if HAS_MARLINUI_MENU
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS
     #define LCD_TIMEOUT_TO_STATUS 15000

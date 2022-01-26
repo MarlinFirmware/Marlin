@@ -93,7 +93,7 @@ void DGUSScreenHandler::DGUSLCD_SendFanToDisplay(DGUS_VP_Variable &var) {
 
 void DGUSScreenHandler::DGUSLCD_SendBabyStepToDisplay_MKS(DGUS_VP_Variable &var) {
   float value = current_position.z;
-  DEBUG_ECHOLNPGM(" >> ", value, 6);
+  DEBUG_ECHOLNPAIR_F(" >> ", value, 6);
   value *= cpow(10, 2);
   dgusdisplay.WriteVariable(VP_SD_Print_Baby, (uint16_t)value);
 }
@@ -195,7 +195,7 @@ void DGUSScreenHandler::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
       case 0: { // Resume
 
         auto cs = getCurrentScreen();
-        if (runout_mks.runout_status != RUNOUT_WAITTING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
+        if (runout_mks.runout_status != RUNOUT_WAITING_STATUS && runout_mks.runout_status != UNRUNOUT_STATUS) {
           if (cs == MKSLCD_SCREEN_PRINT || cs == MKSLCD_SCREEN_PAUSE)
             GotoScreen(MKSLCD_SCREEN_PAUSE);
           return;
@@ -756,7 +756,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   else if (manualMoveStep == 0x02) manualMoveStep =  100;
   else if (manualMoveStep == 0x03) manualMoveStep = 1000;
 
-  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.length);
+  DEBUG_ECHOLNPGM("QUEUE LEN:", queue.ring_buffer.length);
 
   if (!print_job_timer.isPaused() && !queue.ring_buffer.empty())
     return;
@@ -1459,7 +1459,7 @@ void DGUSScreenHandler::LanguagePInit() {
   }
 }
 
-void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
+void DGUSScreenHandler::DGUS_ExtrudeLoadInit() {
   ex_filament.ex_length           = distanceFilament;
   ex_filament.ex_load_unload_flag = 0;
   ex_filament.ex_need_time        = filamentSpeed_mm_s;
@@ -1469,7 +1469,7 @@ void DGUSScreenHandler::DGUS_ExtrudeLoadInit(void) {
   ex_filament.ex_tick_start       = 0;
 }
 
-void DGUSScreenHandler::DGUS_RunoutInit(void) {
+void DGUSScreenHandler::DGUS_RunoutInit() {
   #if PIN_EXISTS(MT_DET_1)
     SET_INPUT_PULLUP(MT_DET_1_PIN);
   #endif
@@ -1479,7 +1479,7 @@ void DGUSScreenHandler::DGUS_RunoutInit(void) {
   runout_mks.runout_status = UNRUNOUT_STATUS;
 }
 
-void DGUSScreenHandler::DGUS_Runout_Idle(void) {
+void DGUSScreenHandler::DGUS_Runout_Idle() {
   #if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
     // scanf runout pin
     switch (runout_mks.runout_status) {
@@ -1501,10 +1501,10 @@ void DGUSScreenHandler::DGUS_Runout_Idle(void) {
 
       case RUNOUT_BEGIN_STATUS:
         if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
-          runout_mks.runout_status = RUNOUT_WAITTING_STATUS;
+          runout_mks.runout_status = RUNOUT_WAITING_STATUS;
         break;
 
-      case RUNOUT_WAITTING_STATUS:
+      case RUNOUT_WAITING_STATUS:
         if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;

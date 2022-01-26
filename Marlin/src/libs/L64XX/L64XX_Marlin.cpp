@@ -39,7 +39,7 @@ L64XX_Marlin L64xxManager;
 
 static const char LINEAR_AXIS_LIST(
                    str_X[] PROGMEM = "X ",          str_Y[] PROGMEM = "Y ",          str_Z[] PROGMEM = "Z ",
-                   str_I[] PROGMEM = AXIS4_STR " ", str_J[] PROGMEM = AXIS5_STR " ", str_K[] PROGMEM = AXIS6_STR " "
+                   str_I[] PROGMEM = STR_I " ", str_J[] PROGMEM = STR_J " ", str_K[] PROGMEM = STR_K " "
                  ),
                  str_X2[] PROGMEM = "X2", str_Y2[] PROGMEM = "Y2",
                  str_Z2[] PROGMEM = "Z2", str_Z3[] PROGMEM = "Z3", str_Z4[] PROGMEM = "Z4",

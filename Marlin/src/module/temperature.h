@@ -56,7 +56,8 @@ typedef enum : int8_t {
   H_BOARD = HID_BOARD,
   H_CHAMBER = HID_CHAMBER,
   H_BED = HID_BED,
-  H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7
+  H_E0 = HID_E0, H_E1, H_E2, H_E3, H_E4, H_E5, H_E6, H_E7,
+  H_NONE = -128
 } heater_id_t;
 
 // PID storage
@@ -185,7 +186,7 @@ enum ADCSensorState : char {
   #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
 
-#if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+#if ENABLED(G26_MESH_VALIDATION) && EITHER(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
   #define G26_CLICK_CAN_CANCEL 1
 #endif
 
@@ -230,9 +231,6 @@ struct PIDHeaterInfo : public HeaterInfo {
     typedef heater_info_t bed_info_t;
   #endif
 #endif
-#if HAS_TEMP_PROBE
-  typedef temp_info_t probe_info_t;
-#endif
 #if HAS_HEATED_CHAMBER
   #if ENABLED(PIDTEMPCHAMBER)
     typedef struct PIDHeaterInfo<PID_t> chamber_info_t;
@@ -242,11 +240,14 @@ struct PIDHeaterInfo : public HeaterInfo {
 #elif HAS_TEMP_CHAMBER
   typedef temp_info_t chamber_info_t;
 #endif
-#if HAS_TEMP_BOARD
-  typedef temp_info_t board_info_t;
+#if HAS_TEMP_PROBE
+  typedef temp_info_t probe_info_t;
 #endif
 #if EITHER(HAS_COOLER, HAS_TEMP_COOLER)
   typedef heater_info_t cooler_info_t;
+#endif
+#if HAS_TEMP_BOARD
+  typedef temp_info_t board_info_t;
 #endif
 
 // Heater watch handling
@@ -317,11 +318,11 @@ typedef struct { int16_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_ra
     #if TEMP_SENSOR_BED_IS_CUSTOM
       CTI_BED,
     #endif
-    #if TEMP_SENSOR_PROBE_IS_CUSTOM
-      CTI_PROBE,
-    #endif
     #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
       CTI_CHAMBER,
+    #endif
+    #if TEMP_SENSOR_PROBE_IS_CUSTOM
+      CTI_PROBE,
     #endif
     #if TEMP_SENSOR_COOLER_IS_CUSTOM
       CTI_COOLER,
@@ -598,11 +599,11 @@ class Temperature {
     #if HAS_HEATED_BED
       static celsius_float_t analog_to_celsius_bed(const int16_t raw);
     #endif
-    #if HAS_TEMP_PROBE
-      static celsius_float_t analog_to_celsius_probe(const int16_t raw);
-    #endif
     #if HAS_TEMP_CHAMBER
       static celsius_float_t analog_to_celsius_chamber(const int16_t raw);
+    #endif
+    #if HAS_TEMP_PROBE
+      static celsius_float_t analog_to_celsius_probe(const int16_t raw);
     #endif
     #if HAS_TEMP_COOLER
       static celsius_float_t analog_to_celsius_cooler(const int16_t raw);
@@ -964,7 +965,7 @@ class Temperature {
       static void set_heating_message(const uint8_t) {}
     #endif
 
-    #if HAS_LCD_MENU && HAS_TEMPERATURE
+    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE
       static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
     #endif
 
