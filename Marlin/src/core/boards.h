@@ -349,16 +349,17 @@
 #define BOARD_CREALITY_V452           4049  // Creality v4.5.2 (STM32F103RE)
 #define BOARD_CREALITY_V453           4050  // Creality v4.5.3 (STM32F103RE)
 #define BOARD_CREALITY_V24S1          4051  // Creality v2.4.S1 (STM32F103RE) v101 as found in the Ender 7
-#define BOARD_TRIGORILLA_PRO          4052  // Trigorilla Pro (STM32F103ZE)
-#define BOARD_FLY_MINI                4053  // FLYmaker FLY MINI (STM32F103RC)
-#define BOARD_FLSUN_HISPEED           4054  // FLSUN HiSpeedV1 (STM32F103VE)
-#define BOARD_BEAST                   4055  // STM32F103RE Libmaple-based controller
-#define BOARD_MINGDA_MPX_ARM_MINI     4056  // STM32F103ZE Mingda MD-16
-#define BOARD_GTM32_PRO_VD            4057  // STM32F103VE controller
-#define BOARD_ZONESTAR_ZM3E2          4058  // Zonestar ZM3E2    (STM32F103RC)
-#define BOARD_ZONESTAR_ZM3E4          4059  // Zonestar ZM3E4 V1 (STM32F103VC)
-#define BOARD_ZONESTAR_ZM3E4V2        4060  // Zonestar ZM3E4 V2 (STM32F103VC)
-#define BOARD_ERYONE_ERY32_MINI       4061  // Eryone Ery32 mini (STM32F103VE)
+#define BOARD_CREALITY_V24S1_301      4052  // Creality v2.4.S1_301 (STM32F103RCT) as found in the Ender 3 S1
+#define BOARD_TRIGORILLA_PRO          4053  // Trigorilla Pro (STM32F103ZE)
+#define BOARD_FLY_MINI                4054  // FLYmaker FLY MINI (STM32F103RC)
+#define BOARD_FLSUN_HISPEED           4055  // FLSUN HiSpeedV1 (STM32F103VE)
+#define BOARD_BEAST                   4056  // STM32F103RE Libmaple-based controller
+#define BOARD_MINGDA_MPX_ARM_MINI     4057  // STM32F103ZE Mingda MD-16
+#define BOARD_GTM32_PRO_VD            4058  // STM32F103VE controller
+#define BOARD_ZONESTAR_ZM3E2          4059  // Zonestar ZM3E2    (STM32F103RC)
+#define BOARD_ZONESTAR_ZM3E4          4060  // Zonestar ZM3E4 V1 (STM32F103VC)
+#define BOARD_ZONESTAR_ZM3E4V2        4061  // Zonestar ZM3E4 V2 (STM32F103VC)
+#define BOARD_ERYONE_ERY32_MINI       4062  // Eryone Ery32 mini (STM32F103VE)
 
 //
 // ARM Cortex-M4F
