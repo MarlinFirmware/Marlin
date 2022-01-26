@@ -3028,7 +3028,7 @@ void MarlinSettings::reset() {
   //
   // LCD Brightness
   //
-  TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = DEFAULT_LCD_BRIGHTNESS);
+  TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
 
   //
   // Controller Fan

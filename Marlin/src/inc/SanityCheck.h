@@ -607,6 +607,8 @@
   #error "LCD_SCREEN_ROT_180 is now LCD_SCREEN_ROTATE with a value of 180."
 #elif defined(LCD_SCREEN_ROT_270)
   #error "LCD_SCREEN_ROT_270 is now LCD_SCREEN_ROTATE with a value of 270."
+#elif defined(DEFAULT_LCD_BRIGHTNESS)
+  #error "DEFAULT_LCD_BRIGHTNESS is now LCD_BRIGHTNESS_DEFAULT."
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && DISABLED(TEMP_SENSOR_BOARD)

@@ -104,7 +104,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_LCD_BRIGHTNESS
-  uint8_t MarlinUI::brightness = DEFAULT_LCD_BRIGHTNESS;
+  uint8_t MarlinUI::brightness = LCD_BRIGHTNESS_DEFAULT;
   bool MarlinUI::backlight = true;
 
   void MarlinUI::set_brightness(const uint8_t value) {
