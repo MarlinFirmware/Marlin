@@ -164,7 +164,7 @@ namespace Language_ru {
     LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Углы в норме. Вырав.стола");
   #else
     LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Вверх до сраб. зонда");
-    LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Углы в норме. Вырав");
+    LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Углы в норме. Вырав.");
   #endif
   LSTR MSG_BED_TRAMMING_GOOD_POINTS         = _UxGT("Хорошие точки: ");
   LSTR MSG_BED_TRAMMING_LAST_Z              = _UxGT("Последняя Z: ");

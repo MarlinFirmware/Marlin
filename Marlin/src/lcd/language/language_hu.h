@@ -131,7 +131,7 @@ namespace Language_hu {
   LSTR MSG_LEVEL_BED                      = _UxGT("Ágy szintezése");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Sarok szint");
   LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Ágy emelése a szonda váltásig");
-  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Minden sarok tolerancián belül. Szint jó");
+  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Minden sarok tolerancián belül. Szint jó.");
   LSTR MSG_BED_TRAMMING_GOOD_POINTS       = _UxGT("Jó pontok: ");
   LSTR MSG_BED_TRAMMING_LAST_Z            = _UxGT("Utolsó Z: ");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Következö sarok");

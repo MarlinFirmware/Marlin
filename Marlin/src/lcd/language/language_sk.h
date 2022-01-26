@@ -150,7 +150,7 @@ namespace Language_sk {
   LSTR MSG_LEVEL_BED                      = _UxGT("Vyrovnať podložku");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Vyrovnať rohy");
   LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Zdvyhnite podl., kým sa nezopne sonda");
-  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Rohy sú vrámci odchyl. Vyrovnajte podl");
+  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Rohy sú vrámci odchyl. Vyrovnajte podl.");
   LSTR MSG_BED_TRAMMING_GOOD_POINTS       = _UxGT("Dobré body: ");
   LSTR MSG_BED_TRAMMING_LAST_Z            = _UxGT("Posl. Z: ");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Ďalší roh");

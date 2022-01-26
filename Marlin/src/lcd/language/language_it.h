@@ -137,7 +137,7 @@ namespace Language_it {
   LSTR MSG_LEVEL_BED                      = _UxGT("Livella piano");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Tramming piano");
   LSTR MSG_BED_TRAMMING_RAISE             = _UxGT("Regola la vite finché la sonda non rileva il piano.");
-  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato");
+  LSTR MSG_BED_TRAMMING_IN_RANGE          = _UxGT("Tolleranza raggiunta su tutti gli angoli. Piano livellato!");
   LSTR MSG_BED_TRAMMING_GOOD_POINTS       = _UxGT("Punti buoni: ");
   LSTR MSG_BED_TRAMMING_LAST_Z            = _UxGT("Ultimo Z: ");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Prossimo punto");
