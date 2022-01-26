@@ -25,7 +25,16 @@
 #define Language_English    1
 #define Language_Chinese    2
 
-#define ICON                7 // Icon set file 7.ICO
+//#define USE_STOCK_DWIN_SET  // Use the Creality stock DWIN_SET instead of Marlin's unified DWIN_SET by The-EG & thinkyhead
+#ifdef USE_STOCK_DWIN_SET
+  #define ICON 9 // 9.ICO
+#else
+  #define ICON 7 // 7.ICO
+#endif
+
+#ifndef CORP_WEBSITE
+  #define CORP_WEBSITE WEBSITE_URL
+#endif
 
 #define ICON_LOGO                0
 #define ICON_Print_0             1

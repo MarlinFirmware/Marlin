@@ -494,6 +494,9 @@
   #endif
   #define HAS_LCD_BRIGHTNESS 1
   #define LCD_BRIGHTNESS_MAX 250
+  #if ENABLED(DWIN_CREALITY_LCD_ENHANCED)
+    #define LCD_BRIGHTNESS_DEFAULT 127
+  #endif
 #endif
 
 #if IS_ULTRA_LCD

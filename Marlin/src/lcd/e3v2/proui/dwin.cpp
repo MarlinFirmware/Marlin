@@ -119,10 +119,6 @@
 
 #include "lockscreen.h"
 
-#ifndef CORP_WEBSITE
-  #define CORP_WEBSITE WEBSITE_URL
-#endif
-
 #define PAUSE_HEAT
 
 #define MENU_CHAR_LIMIT  24
@@ -330,7 +326,7 @@ void ICON_Button(const bool selected, const int iconid, const frame_rect_t &ico,
 //
 void ICON_Print() {
   constexpr frame_rect_t ico = { 17, 110, 110, 100 };
-  constexpr text_info_t txt = { 1, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 1, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_PRINT, ICON_Print_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PRINT));
 }
 
@@ -339,7 +335,7 @@ void ICON_Print() {
 //
 void ICON_Prepare() {
   constexpr frame_rect_t ico = { 145, 110, 110, 100 };
-  constexpr text_info_t txt = { 31, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 31, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_PREPARE, ICON_Prepare_0, ico, txt, GET_TEXT_F(MSG_PREPARE));
 }
 
@@ -348,7 +344,7 @@ void ICON_Prepare() {
 //
 void ICON_Control() {
   constexpr frame_rect_t ico = { 17, 226, 110, 100 };
-  constexpr text_info_t txt = { 61, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 61, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_CONTROL, ICON_Control_0, ico, txt, GET_TEXT_F(MSG_CONTROL));
 }
 
@@ -357,7 +353,7 @@ void ICON_Control() {
 //
 void ICON_StartInfo() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
-  constexpr text_info_t txt = { 91, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 91, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_INFO_LEV_ADV, ICON_Info_0, ico, txt, GET_TEXT_F(MSG_BUTTON_INFO));
 }
 
@@ -366,7 +362,7 @@ void ICON_StartInfo() {
 //
 void ICON_Leveling() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
-  constexpr text_info_t txt = { 211, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 211, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_INFO_LEV_ADV, ICON_Leveling_0, ico, txt, GET_TEXT_F(MSG_BUTTON_LEVEL));
 }
 
@@ -375,7 +371,7 @@ void ICON_Leveling() {
 //
 void ICON_AdvSettings() {
   constexpr frame_rect_t ico = { 145, 226, 110, 100 };
-  constexpr text_info_t txt = { 91, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 91, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_page.now == PAGE_INFO_LEV_ADV, ICON_Info_0, ico, txt, GET_TEXT_F(MSG_BUTTON_ADVANCED));
 }
 
@@ -384,7 +380,7 @@ void ICON_AdvSettings() {
 //
 void ICON_Tune() {
   constexpr frame_rect_t ico = { 8, 232, 80, 100 };
-  constexpr text_info_t txt = { 121, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 121, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_print.now == PRINT_SETUP, ICON_Setup_0, ico, txt, GET_TEXT_F(MSG_TUNE));
 }
 
@@ -393,7 +389,7 @@ void ICON_Tune() {
 //
 void ICON_Pause() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
-  constexpr text_info_t txt = { 181, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 181, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Pause_0, ico, txt, GET_TEXT_F(MSG_BUTTON_PAUSE));
 }
 
@@ -402,7 +398,7 @@ void ICON_Pause() {
 //
 void ICON_Resume() {
   constexpr frame_rect_t ico = { 96, 232, 80, 100 };
-  constexpr text_info_t txt = { 1, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 15 };
+  constexpr text_info_t txt = { 1, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 15 };
   ICON_Button(select_print.now == PRINT_PAUSE_RESUME, ICON_Continue_0, ico, txt, GET_TEXT_F(MSG_BUTTON_RESUME));
 }
 
@@ -411,7 +407,7 @@ void ICON_Resume() {
 //
 void ICON_Stop() {
   constexpr frame_rect_t ico = { 184, 232, 80, 100 };
-  constexpr text_info_t txt = { 151, { 405, TERN(USE_UNIFIED_DWIN_SET, 447, 446) }, 27, 12 };
+  constexpr text_info_t txt = { 151, { 405, TERN(USE_STOCK_DWIN_SET, 446, 447) }, 27, 12 };
   ICON_Button(select_print.now == PRINT_STOP, ICON_Stop_0, ico, txt, GET_TEXT_F(MSG_BUTTON_STOP));
 }
 
@@ -1138,7 +1134,7 @@ void Draw_Info_Menu() {
     DWINUI::Draw_CenteredString(102, F("Size"));
     DWINUI::Draw_CenteredString(175, F("Firmware version"));
     DWINUI::Draw_CenteredString(248, F("Build Datetime"));
-    DWINUI::Draw_CenteredString(268, F(STRING_DISTRIBUTION_DATE " " STRING_DISTRIBUTION_TIME));
+    DWINUI::Draw_CenteredString(268, F(STRING_DISTRIBUTION_DATE));
   }
   DWINUI::Draw_CenteredString(122, F(MACHINE_SIZE));
   DWINUI::Draw_CenteredString(195, F(SHORT_BUILD_VERSION));
@@ -1501,8 +1497,6 @@ void HMI_Popup() {
 
 void HMI_Init() {
   HMI_SDCardInit();
-  DWINUI::Draw_Box(1, Color_Black, { 5, 220, DWIN_WIDTH - 5, DWINUI::fontHeight() });
-  DWINUI::Draw_CenteredString(Color_White, 220, F("Professional Firmware "));
   for (uint16_t t = 0; t <= 100; t += 2) {
     DWINUI::Draw_Icon(ICON_Bar, 15, 260);
     DWIN_Draw_Rectangle(1, HMI_data.Background_Color, 15 + t * 242 / 100, 260, 257, 280);
