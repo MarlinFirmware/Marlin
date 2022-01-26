@@ -2337,12 +2337,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #define NEO_RGB 123
     #define FAUX_RGB 1
   #endif
-  #if NEOPIXEL_TYPE != NEO_RGB
+  #if defined(NEOPIXEL_TYPE) && NEOPIXEL_TYPE != NEO_RGB
     #error "Your FYSETC Mini Panel requires NEOPIXEL_TYPE to be NEO_RGB."
-  #elif NEOPIXEL_PIXELS < 3
+  #elif defined(NEOPIXEL_PIXELS) && NEOPIXEL_PIXELS < 3
     #error "Your FYSETC Mini Panel requires NEOPIXEL_PIXELS >= 3."
-  #elif !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
-    #error "Your FYSETC Mini Panel requires NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
   #endif
   #if FAUX_RGB
     #undef NEO_RGB
@@ -2905,15 +2903,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif ENABLED(MALYAN_LCD)
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
   #endif
-#endif
-
-/**
- * FYSETC Mini 12864 RGB backlighting required
- */
-#if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
-  #error "RGB_LED is required for FYSETC_MINI_12864 1.2 and 2.0."
-#elif EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
-  #error "LED_USER_PRESET_STARTUP is required for FYSETC_MINI_12864 2.x displays."
 #endif
 
 /**
