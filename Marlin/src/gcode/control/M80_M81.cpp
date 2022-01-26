@@ -63,7 +63,7 @@
       OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
     #endif
 
-    TERN_(HAS_LCD_MENU, ui.reset_status());
+    TERN_(HAS_MARLINUI_MENU, ui.reset_status());
   }
 
 #endif // PSU_CONTROL
@@ -107,7 +107,10 @@ void GcodeSuite::M81() {
     }
   #endif
 
-  if (delayed_power_off) return;
+  if (delayed_power_off) {
+    SERIAL_ECHOLNPGM(STR_DELAYED_POWEROFF);
+    return;
+  }
 
   #if HAS_SUICIDE
     suicide();

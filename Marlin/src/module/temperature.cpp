@@ -3786,7 +3786,7 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
-            TERN_(HAS_LCD_MENU, ui.quick_feedback());
+            TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
           }
         #endif
 
@@ -3920,7 +3920,7 @@ void Temperature::isr() {
         #if G26_CLICK_CAN_CANCEL
           if (click_to_cancel && ui.use_click()) {
             wait_for_heatup = false;
-            TERN_(HAS_LCD_MENU, ui.quick_feedback());
+            TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());
           }
         #endif
 

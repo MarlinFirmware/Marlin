@@ -105,6 +105,7 @@
 
 #define STR_ENQUEUEING                      "enqueueing \""
 #define STR_POWERUP                         "PowerUp"
+#define STR_POWEROFF                        "PowerOff"
 #define STR_EXTERNAL_RESET                  " External Reset"
 #define STR_BROWNOUT_RESET                  " Brown out Reset"
 #define STR_WATCHDOG_RESET                  " Watchdog Reset"
@@ -254,7 +255,7 @@
 #define STR_DEBUG_ERRORS                    "ERRORS"
 #define STR_DEBUG_DRYRUN                    "DRYRUN"
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
-#define STR_DEBUG_LEVELING                  "LEVELING"
+#define STR_DEBUG_DETAIL                    "DETAIL"
 
 #define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
 #define STR_WRONG_PASSWORD                  "Incorrect Password"
@@ -306,6 +307,7 @@
 #define STR_Z_PROBE_OFFSET                  "Z-Probe Offset"
 #define STR_TEMPERATURE_UNITS               "Temperature Units"
 #define STR_USER_THERMISTORS                "User thermistors"
+#define STR_DELAYED_POWEROFF                "Delayed poweroff"
 
 //
 // Endstop Names used by Endstops::report_states
