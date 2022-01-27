@@ -2351,16 +2351,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * LED Backlight Timeout
+ * LED Control Menu requirements
  */
-#if ENABLED(PSU_CONTROL) && ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
-  #ifndef LED_BACKLIGHT_TIMEOUT
-    #error "Your FYSETC Mini Panel requires LED_BACKLIGHT_TIMEOUT (suggested: 10000) with PSU_CONTROL."
-  #endif
-#elif defined(LED_BACKLIGHT_TIMEOUT)
-  #error "LED_BACKLIGHT_TIMEOUT requires a FYSETC Mini Panel and a PSU_CONTROL Power Switch."
-#endif
-
 #if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
   #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9533, PCA9632, or NEOPIXEL_LED."
 #endif
