@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU && HAS_CUTTER
+#if HAS_MARLINUI_MENU && HAS_CUTTER
 
   #include "menu_item.h"
 
@@ -81,4 +81,4 @@
     END_MENU();
   }
 
-#endif // HAS_LCD_MENU && HAS_CUTTER
+#endif // HAS_MARLINUI_MENU && HAS_CUTTER
