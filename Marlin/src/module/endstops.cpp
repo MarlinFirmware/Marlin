@@ -347,6 +347,10 @@ void Endstops::init() {
 
   TERN_(ENDSTOP_INTERRUPTS_FEATURE, setup_endstop_interrupts());
 
+  #if !HAS_SOFTWARE_ENDSTOPS && HAS_BED_PROBE && ENABLED(DELTA)
+    delta_clip_start_height = delta_height - probe.offset.z - delta_safe_distance_from_top();  // replicate update_software_endstops() setting
+  #endif
+
   // Enable endstops
   enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));
 
