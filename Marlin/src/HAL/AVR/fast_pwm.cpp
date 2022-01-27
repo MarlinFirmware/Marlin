@@ -187,8 +187,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     const Timer timer = get_pwm_timer(pin);
     if (timer.isPWM) {
       if (timer.n == 0) {
-        TCCR0A |= _BV(COM0B1); // Only allow a TIMER0B select and OCR0B duty update for pin D4 outputs no frequency changes are permited.
-        OCR0B = v;
+        _SET_COMnQ(timer, timer.q, COM_CLEAR_SET);  // Only allow a TIMER0B select...
+        _SET_OCRnQ(timer, timer.q, v);              // ...and OCR0B duty update. For output pin D4 no frequency changes are permitted.
       }
       else if (!timer.isProtected) {
         const uint16_t top = timer.n == 2 ? TERN(USE_OCR2A_AS_TOP, *timer.OCRnQ[0], 255) : *timer.ICRn;
