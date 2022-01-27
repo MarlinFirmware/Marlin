@@ -409,17 +409,8 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 #if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
     TERN_(HAS_FILAMENT_SENSOR, runout.reset());
-
-    #if HAS_LEVELING
-      const bool leveling_was_active = planner.leveling_active;
-      set_bed_leveling_enabled(false);
-    #endif
-
     current_position.e += length / planner.e_factor[active_extruder];
     line_to_current_position(fr_mm_s);
-
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
-
     planner.synchronize();
   }
 #endif
