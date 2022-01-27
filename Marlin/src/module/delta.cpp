@@ -58,7 +58,7 @@ float delta_radius,
 abc_float_t delta_tower_angle_trim;
 xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
-#if !ENABLED(DELTA_FULL_XY_HEIGHT_OFFSET)
+#ifndef DELTA_FULL_XY_HEIGHT_OFFSET
   #define DELTA_FULL_XY_HEIGHT_OFFSET 20;
 #endif
 float delta_clip_start_height = Z_MAX_POS - DELTA_FULL_XY_HEIGHT_OFFSET;  //G33 height is sometimes a little too high
